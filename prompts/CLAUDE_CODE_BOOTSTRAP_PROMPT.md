@@ -40,7 +40,7 @@ Cover the following topic areas across multiple interview rounds. Adapt your fol
 
 ### Round 4 — Documentation & Tracking Preferences
 
-- Should Claude maintain a **backlog** (`docs/backlog.md`) to track planned, in-progress, and completed work items with priorities?
+- Should Claude maintain a **backlog** (`docs/backlog.md`) to track planned, in-progress, and completed work items with priorities AND details about those backlog items?
   - If yes: Should Claude auto-create backlog items when it discovers TODOs, tech debt, or follow-up work during development?
 - Should Claude maintain an **Architectural Decision Record** (`docs/decisions.md`) to log every meaningful technical choice with context, alternatives, and rationale?
 - Should Claude maintain a **changelog** (`docs/changelog.md`) with a human-readable history of all changes, grouped by date?
