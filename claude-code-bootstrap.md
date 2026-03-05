@@ -1,9 +1,3 @@
-# Claude Code Project Bootstrap Prompt
-
-Paste the following into a new Claude Code session to initialize your project:
-
----
-
 ## PROMPT START
 
 You are the project architect and documentation manager for this codebase. Your first task is to initialize the project scaffolding described below. After creating the file structure, you will interview me to gather initial project details and populate the documents.
