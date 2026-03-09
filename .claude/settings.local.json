@@ -4,7 +4,13 @@
       "Bash(dir:*)",
       "Bash(git:*)",
       "Bash(git ls-tree:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "WebSearch",
+      "Bash(claude mcp:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(gh api:*)",
+      "Bash(curl:*)",
+      "WebFetch(domain:raw.githubusercontent.com)"
     ]
   }
 }
