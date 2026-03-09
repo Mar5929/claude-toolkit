@@ -1,0 +1,39 @@
+{
+  "enabledPlugins": {
+    "playwright@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true,
+    "context7@claude-plugins-official": true,
+    "claude-code-setup@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true,
+    "document-skills@anthropic-agent-skills": true
+  },
+  "extraKnownMarketplaces": {
+    "anthropic-agent-skills": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/skills"
+      }
+    }
+  },
+  "permissions": {
+    "allow": [
+      "Bash(*)",
+      "Edit",
+      "Write",
+      "Read",
+      "Glob",
+      "Grep",
+      "Agent",
+      "Skill",
+      "NotebookEdit",
+      "WebFetch",
+      "WebSearch",
+      "TodoWrite",
+      "mcp__*"
+    ]
+  },
+  "autoUpdatesChannel": "latest",
+  "model": "opus"
+}
