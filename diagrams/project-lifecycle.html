@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Lifecycle — Claude Toolkit</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    .lc-edge {
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .lc-edge-back {
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 10 6;
+      animation: pulse-flow .8s linear infinite;
+    }
+  </style>
+</head>
+<body>
+  <div class="controls">
+    <button id="btn-reset">Reset Zoom</button>
+  </div>
+
+  <div class="title-bar">
+    <h1>New Project Lifecycle</h1>
+    <div class="subtitle">From User Request to Deployment — Tools at Each Stage</div>
+  </div>
+
+  <a class="back-link" href="index.html">&larr; All Diagrams</a>
+
+  <svg class="diagram" id="svg"></svg>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="shared.js"></script>
+  <script src="data/lifecycle-data.js"></script>
+  <script>
+  (() => {
+    const { phases, nodes, edges, toolMap } = LifecycleData;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    const svg = d3.select('#svg');
+    const g = svg.append('g');
+
+    const zoom = Shared.setupZoom(svg, g);
+    svg.call(zoom.transform, d3.zoomIdentity.translate(80, height / 2 - 60).scale(0.72));
+    document.getElementById('btn-reset').onclick = () => {
+      svg.transition().duration(500).call(zoom.transform, d3.zoomIdentity.translate(80, height / 2 - 60).scale(0.72));
+    };
+
+    const tooltip = Shared.createTooltip();
+    const sidebar = Shared.createSidebar();
+
+    // ── Layout constants ──
+    const stepW = 160;
+    const stepH = 60;
+    const gapX = 200;
+    const laneH = 140;
+    const laneGap = 10;
+    const startX = 140;
+    const startY = 80;
+
+    // ── Phase → Y mapping ──
+    const phaseY = {};
+    phases.forEach((p, i) => {
+      phaseY[p.id] = startY + i * (laneH + laneGap);
+    });
+
+    // Assign positions
+    const xSlots = {};
+    let xIdx = 0;
+    nodes.forEach(n => {
+      if (!(n.x in xSlots)) { xSlots[n.x] = xIdx++; }
+      n.px = startX + xSlots[n.x] * gapX;
+      n.py = phaseY[n.phase] + laneH / 2;
+    });
+
+    const totalW = xIdx * gapX + 200;
+
+    // ── Swim Lanes ──
+    const laneX = startX - stepW / 2 - 20;
+    phases.forEach((p, i) => {
+      const y = phaseY[p.id];
+      g.append('rect')
+        .attr('class', 'swim-lane')
+        .attr('x', laneX)
+        .attr('y', y)
+        .attr('width', totalW - laneX + startX)
+        .attr('height', laneH)
+        .attr('fill', d3.color(p.color).copy({opacity: 0.04}));
+
+      g.append('text')
+        .attr('class', 'phase-label')
+        .attr('x', laneX + 10)
+        .attr('y', y + 20)
+        .attr('fill', p.color)
+        .text(p.label);
+    });
+
+    // ── Arrow markers (defined before edges) ──
+    const defs = svg.append('defs');
+    defs.append('marker')
+      .attr('id', 'arrow')
+      .attr('viewBox', '0 0 10 10')
+      .attr('refX', 9).attr('refY', 5)
+      .attr('markerWidth', 10).attr('markerHeight', 10)
+      .attr('orient', 'auto')
+      .append('path')
+      .attr('d', 'M0,1 L8,5 L0,9 Z')
+      .attr('fill', '#7DD3FC');
+
+    defs.append('marker')
+      .attr('id', 'arrow-back')
+      .attr('viewBox', '0 0 10 10')
+      .attr('refX', 9).attr('refY', 5)
+      .attr('markerWidth', 10).attr('markerHeight', 10)
+      .attr('orient', 'auto')
+      .append('path')
+      .attr('d', 'M0,1 L8,5 L0,9 Z')
+      .attr('fill', '#FACC15');
+
+    // ── Edges ──
+    const nodeMap = {};
+    nodes.forEach(n => { nodeMap[n.id] = n; });
+
+    const edgeG = g.append('g');
+    edges.forEach(e => {
+      const s = nodeMap[e.source];
+      const t = nodeMap[e.target];
+      if (!s || !t) return;
+
+      const isBack = t.px < s.px;
+      const path = edgeG.append('path')
+        .attr('class', isBack ? 'lc-edge-back' : 'lc-edge')
+        .attr('stroke', isBack ? '#FACC15' : '#7DD3FC')
+        .attr('stroke-width', isBack ? 3.5 : 3)
+        .attr('opacity', isBack ? 1 : 0.9)
+        .attr('marker-end', isBack ? 'url(#arrow-back)' : 'url(#arrow)');
+
+      if (isBack) {
+        const midY = Math.max(s.py, t.py) + 60;
+        path.attr('d', `M${s.px},${s.py + stepH/2} C${s.px},${midY} ${t.px},${midY} ${t.px},${t.py + stepH/2}`);
+      } else if (s.phase !== t.phase) {
+        path.attr('d', `M${s.px + stepW/2},${s.py + stepH/4} L${t.px - stepW/2},${t.py - stepH/4}`);
+      } else {
+        path.attr('d', `M${s.px + stepW/2},${s.py} L${t.px - stepW/2},${t.py}`);
+      }
+
+      // Edge label
+      if (e.label) {
+        const mx = (s.px + t.px) / 2;
+        const my = isBack ? Math.max(s.py, t.py) + 60 : (s.py + t.py) / 2;
+        edgeG.append('text')
+          .attr('x', mx).attr('y', my - 8)
+          .attr('text-anchor', 'middle')
+          .attr('font-size', 11)
+          .attr('font-weight', 600)
+          .attr('font-family', 'var(--font-mono)')
+          .attr('fill', '#E2E8F0')
+          .text(e.label);
+      }
+    });
+
+    // ── Nodes ──
+    const nodeG = g.selectAll('.lc-node')
+      .data(nodes)
+      .join('g')
+      .attr('class', 'lc-node')
+      .attr('transform', d => `translate(${d.px - stepW/2},${d.py - stepH/2})`)
+      .attr('cursor', 'pointer');
+
+    nodeG.each(function(d) {
+      const el = d3.select(this);
+      if (d.shape === 'diamond') {
+        el.append('rect')
+          .attr('x', stepW/2 - 30).attr('y', stepH/2 - 30)
+          .attr('width', 60).attr('height', 60)
+          .attr('transform', `rotate(45, ${stepW/2}, ${stepH/2})`)
+          .attr('fill', Shared.color(d.category))
+          .attr('rx', 4)
+          .attr('opacity', 0.9);
+      } else {
+        el.append('rect')
+          .attr('width', stepW).attr('height', stepH)
+          .attr('rx', 8)
+          .attr('fill', Shared.color(d.category))
+          .attr('opacity', 0.85);
+      }
+      el.append('text')
+        .attr('x', stepW / 2).attr('y', stepH / 2)
+        .attr('text-anchor', 'middle')
+        .attr('dominant-baseline', 'central')
+        .attr('fill', '#fff')
+        .attr('font-size', d.shape === 'diamond' ? 10 : 12)
+        .attr('font-weight', 500)
+        .text(d.name);
+    });
+
+    // Interactivity
+    nodeG
+      .on('mouseover', (e, d) => {
+        const desc = d.description + (toolMap[d.id] ? '\n\nTools: ' + toolMap[d.id].join(', ') : '');
+        tooltip.show({ ...d, description: desc }, e);
+      })
+      .on('mousemove', (e, d) => {
+        const desc = d.description + (toolMap[d.id] ? '\n\nTools: ' + toolMap[d.id].join(', ') : '');
+        tooltip.show({ ...d, description: desc }, e);
+      })
+      .on('mouseout', () => tooltip.hide())
+      .on('click', (e, d) => {
+        const tools = toolMap[d.id] || [];
+        sidebar.show(
+          { ...d, description: d.description + (tools.length ? '\n\nActive tools:\n' + tools.map(t => '• ' + t).join('\n') : '') },
+          edges.map(e => ({ source: e.source, target: e.target })),
+          nodes
+        );
+      });
+
+    // ── Legend ──
+    Shared.createLegend([
+      { key: 'process', label: 'Process Step' },
+      { key: 'decision', label: 'Decision Point' },
+    ]);
+  })();
+  </script>
+</body>
+</html>

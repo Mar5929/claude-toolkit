@@ -1,113 +1,234 @@
 # Claude Toolkit
 
-A collection of prompts, templates, and skills for working with Claude Code and Claude AI agents. Designed to bootstrap new projects with structured documentation, enforce best-practice workflows, and extend Claude's capabilities with specialized skills.
+Portable Claude Code setup — clone this repo on any machine, run `install.sh`, and your `~/.claude/` environment is fully configured.
+
+This repo is the **single source of truth** for global Claude Code configuration: settings, skills, agents, commands, templates, and composio integrations.
 
 ---
 
-## What's Inside
+## Quick Start
+
+```bash
+git clone https://github.com/your-username/claude-toolkit.git
+cd claude-toolkit
+bash install.sh
+```
+
+The install script will:
+1. Back up any existing `~/.claude/` config files
+2. Copy `config/` contents to `~/.claude/`
+3. Print reminders for plugins and MCP servers to configure
+
+---
+
+## Directory Structure
 
 ```
 claude-toolkit/
-├── prompts/                          # Reusable prompts for Claude Code
-│   └── CLAUDE_CODE_BOOTSTRAP_PROMPT.md   # Project onboarding interview + scaffolding generator
+├── install.sh                     # Setup script — copies config/ to ~/.claude/
+├── README.md
+├── .gitignore
+├── claude-code-migration-guide.pdf
 │
-├── templates/                        # Document templates for project documentation
-│   ├── BACKLOG.md                    # Phase-based work item tracking
-│   ├── CHANGELOG.md                  # Keep a Changelog format
-│   ├── CLAUDE.md                     # Claude Code persistent memory (13-section structure)
-│   ├── CODE_ATLAS.md                 # Codebase reference for AI context
-│   ├── DATA_MODEL.md                 # Database schema with DDL, ERD, conventions
-│   ├── DECISIONS.md                  # Architecture Decision Records (ADRs)
-│   ├── GETTING_STARTED.md            # AI agent bootstrap prompt
-│   ├── MIGRATION_REFERENCE.md        # Old-to-new system mapping (Rosetta Stone)
-│   ├── README.md                     # Standard project README template
-│   ├── REQUIREMENTS.md               # Business requirements with acceptance criteria
-│   └── TECHNICAL_SPEC.md             # 10-section technical specification
+├── config/                        # Maps 1:1 to ~/.claude/
+│   ├── CLAUDE.md                  # Global instructions for all projects
+│   ├── settings.json              # Plugins, permissions, model preference
+│   ├── settings.local.json        # Local shell permissions (Windows-specific)
+│   ├── templates/                 # Screenshot workflow files
+│   │   ├── screenshot.mjs
+│   │   └── SCREENSHOT_WORKFLOW.md
+│   ├── skills/                    # Globally-installed skills
+│   │   ├── drawio/                # Draw.io diagram generation
+│   │   └── project-init/          # Project scaffolding interview + docs
+│   ├── commands/
+│   │   └── drawio.md              # Draw.io diagram generation command
+│   ├── agents/
+│   │   ├── powerpoint-generator.md  # PPTX creation agent
+│   │   └── prompt-engineer.md       # Prompt design/critique agent
+│   ├── agent-memory/              # Persistent agent memory directories
+│   │   ├── powerpoint-generator/
+│   │   └── prompt-engineer/
+│   └── composio/                  # Composio integration scripts
+│       ├── authorize.py           # OAuth toolkit authorization
+│       └── composio_agent.py      # Reusable agent runner
 │
-└── skills/                           # Claude Code skills
-    ├── docx/                         # Word document manipulation
-    ├── mcp-builder/                  # MCP server development
-    ├── skill-creator/                # Skill authoring & evaluation
-    ├── webapp-testing/               # Playwright web app testing
-    └── xlsx/                         # Excel spreadsheet manipulation
+├── templates/                     # Project document templates (copy into projects)
+│   ├── BACKLOG.md
+│   ├── CHANGELOG.md
+│   ├── CLAUDE.md
+│   ├── CODE_ATLAS.md
+│   ├── DATA_MODEL.md
+│   ├── DECISIONS.md
+│   ├── GETTING_STARTED.md
+│   ├── MIGRATION_REFERENCE.md
+│   ├── README.md
+│   ├── REQUIREMENTS.md
+│   └── TECHNICAL_SPEC.md
+│
+└── diagrams/                      # Interactive D3.js diagrams (open in browser)
+    ├── index.html
+    ├── system-architecture.html
+    ├── project-lifecycle.html
+    ├── dev-loop.html
+    ├── shared.css
+    ├── shared.js
+    └── data/
 ```
 
 ---
 
-## Prompts
+## Global Config (`config/`)
 
-### `CLAUDE_CODE_BOOTSTRAP_PROMPT.md`
+Everything in `config/` maps directly to `~/.claude/`. The install script copies these files into place.
 
-A comprehensive onboarding prompt you paste into a new Claude Code project. It conducts a structured interview (6 rounds covering project identity, phase, git workflow, documentation preferences, testing, and conventions), then generates a tailored documentation scaffolding based on your answers.
+### `CLAUDE.md` — Global Instructions
 
-**What it produces:**
-- `CLAUDE.md` — 13-section persistent memory file (golden rules, update protocol, coding standards, clarification protocol, etc.)
-- Up to 10 living documents under `docs/` — backlog, requirements, technical spec, data model, decisions, changelog, code atlas, migration reference, README, and getting-started prompt
-- Workflow rules for document maintenance, version control, testing, discovery, and migration
+Applied to every Claude Code session. Contains:
+- Document generation cleanup rules
+- Screenshot workflow for UI projects
+- UI framework preferences (Tailwind CSS, Playwright)
+- Iterative screenshot verification loop
 
-**Usage:** Copy the contents of `prompts/CLAUDE_CODE_BOOTSTRAP_PROMPT.md` and paste it as your first message in a new Claude Code session.
+### `settings.json` — Plugins & Permissions
+
+Configures enabled plugins, permission allowlists, auto-update channel, and default model (`opus`).
+
+### `settings.local.json` — Local Shell Permissions
+
+Windows-specific shell permissions (`cmd.exe`, `powershell.exe`, `gh`, `python`). **Mac/Linux users** should update these for their shell environment.
+
+### `skills/` — Global Skills
+
+| Skill | Description |
+|-------|-------------|
+| `drawio/` | Generate draw.io diagrams as `.drawio` files with optional PNG/SVG/PDF export |
+| `project-init/` | Structured project initialization interview that scaffolds documentation (CLAUDE.md, requirements, technical spec, backlog, etc.) |
+| `ui-ux-pro-max/` | UI/UX design intelligence — 67 styles, 161 color palettes, 57 font pairings, landing page patterns, and accessibility guidelines (Python search engine via `uipro-cli`) |
+
+### `commands/` — Slash Commands
+
+| Command | Description |
+|---------|-------------|
+| `drawio.md` | Generate draw.io diagrams as `.drawio` files with optional PNG/SVG/PDF export |
+
+### `agents/` — Custom Agents
+
+| Agent | Description |
+|-------|-------------|
+| `powerpoint-generator.md` | Creates professional PPTX presentations using python-pptx with design system, color palettes, and layout templates |
+| `prompt-engineer.md` | Designs, critiques, refactors, and stress-tests LLM prompts across Claude, GPT, Gemini, and open-source models |
+
+### `composio/` — Composio Integration
+
+Scripts for authorizing and running Composio toolkits (Gmail, Slack, GitHub, etc.) with the Claude Agent SDK. API keys are read from environment variables (`COMPOSIO_API_KEY`, `COMPOSIO_USER_ID`).
 
 ---
 
-## Templates
+## Project Templates
 
-Ready-to-use Markdown document templates. These define the exact structure and granularity that the bootstrap prompt generates. Use them directly if you prefer to set up documentation manually, or as a reference for the format the bootstrap prompt will produce.
+Copy these into a new project's `docs/` directory for structured documentation.
 
 | Template | Purpose |
-|---|---|
-| `CLAUDE.md` | Claude's persistent memory — project overview, golden rules, update protocol, coding standards, commands, session checklist, git protocol, clarification protocol |
-| `BACKLOG.md` | Phase-organized work items with priority, status, requirement links, and detailed descriptions |
-| `CHANGELOG.md` | [Keep a Changelog](https://keepachangelog.com/) format with Added/Changed/Fixed/Removed/Deprecated/Security categories |
-| `CODE_ATLAS.md` | Persistent codebase reference — architecture, services, routes, components, patterns, cross-cutting concerns |
-| `DATA_MODEL.md` | Database schema — table inventory, SQL DDL, relationships, Mermaid ERD, naming conventions |
-| `DECISIONS.md` | Architecture Decision Records with options (pros/cons), consequences, and cross-references |
-| `GETTING_STARTED.md` | Bootstrap prompt telling Claude which files to read and which backlog item to start with |
-| `MIGRATION_REFERENCE.md` | Module, component, data model, API, and pattern mapping between old and new systems |
-| `README.md` | Standard project README with directory tree, quick start, architecture overview, and docs index |
-| `REQUIREMENTS.md` | Functional requirements (`REQ-001`) with acceptance criteria, NFRs (`NFR-001`), and glossary |
-| `TECHNICAL_SPEC.md` | 10-section spec: architecture, tech stack, API design, service layer, components, security, deployment |
+|----------|---------|
+| `BACKLOG.md` | Phase-organized work items with priority, status, and requirement links |
+| `CHANGELOG.md` | Keep a Changelog format (Added/Changed/Fixed/Removed/Deprecated/Security) |
+| `CLAUDE.md` | Claude Code persistent memory — 13-section project context file |
+| `CODE_ATLAS.md` | Codebase reference — architecture, services, routes, patterns |
+| `DATA_MODEL.md` | Database schema with DDL, ERD, and naming conventions |
+| `DECISIONS.md` | Architecture Decision Records with options, trade-offs, and consequences |
+| `GETTING_STARTED.md` | AI agent bootstrap prompt — which files to read first |
+| `MIGRATION_REFERENCE.md` | Old-to-new system mapping (modules, APIs, data models, patterns) |
+| `README.md` | Standard project README with directory tree and quick start |
+| `REQUIREMENTS.md` | Functional requirements with acceptance criteria and NFRs |
+| `TECHNICAL_SPEC.md` | 10-section technical specification |
 
 ---
 
-## Skills
+## Plugins
 
-### `docx/` — Word Document Manipulation
+Enabled in `config/settings.json`:
 
-Create, edit, and analyze `.docx` files. Handles reading, creation (via docx-js), editing (unpack → edit XML → repack), conversion, validation against OOXML XSD schemas, tracked changes, and comments. Includes a full suite of Python scripts and ECMA/ISO/Microsoft XSD schemas for document validation.
-
-### `xlsx/` — Excel Spreadsheet Manipulation
-
-Create, edit, and analyze `.xlsx`/`.xlsm`/`.csv`/`.tsv` files. Covers pandas for data analysis, openpyxl for formulas and formatting, financial model standards (color coding, number formats), and mandatory formula recalculation via LibreOffice.
-
-### `mcp-builder/` — MCP Server Development
-
-A four-phase workflow for building high-quality MCP (Model Context Protocol) servers: research/planning, implementation, review/testing, and evaluation creation. Includes reference guides for Python (FastMCP) and Node.js (TypeScript) implementations, best practices, and an evaluation harness.
-
-### `skill-creator/` — Skill Authoring & Evaluation
-
-Full lifecycle toolkit for creating, evaluating, and improving Claude skills. Covers intent capture, interview-based skill design, SKILL.md authoring, test case creation, eval running (with/without skill + baseline comparisons), and description optimization. Includes blind comparator, grader, and analyzer agents.
-
-### `webapp-testing/` — Playwright Web App Testing
-
-Test local web applications with Playwright. Provides a decision tree for static vs. dynamic apps, a `with_server.py` helper for server lifecycle management, and example scripts for console logging, element discovery, and static HTML automation.
+| Plugin | Source | Description |
+|--------|--------|-------------|
+| `playwright` | claude-plugins-official | Browser automation and testing |
+| `code-review` | claude-plugins-official | Pull request code review |
+| `superpowers` | claude-plugins-official | Enhanced workflow skills (brainstorming, TDD, debugging, planning) |
+| `frontend-design` | claude-plugins-official | Production-grade frontend interface design |
+| `context7` | claude-plugins-official | Up-to-date library documentation lookup |
+| `claude-code-setup` | claude-plugins-official | Codebase automation recommendations |
+| `skill-creator` | claude-plugins-official | Skill authoring and evaluation |
+| `document-skills` | anthropics/skills | Document generation (DOCX, XLSX, PPTX, PDF), web artifacts, canvas design, and more |
 
 ---
 
-## Getting Started
+## MCP Servers
 
-1. **Clone the repo:**
-   ```bash
-   git clone https://github.com/your-username/claude-toolkit.git
-   ```
+Configure these in your Claude Code MCP settings for full functionality:
 
-2. **Bootstrap a new project:** Copy the contents of `prompts/CLAUDE_CODE_BOOTSTRAP_PROMPT.md` and paste it as your first message in a new Claude Code session. Answer the interview questions, and Claude will generate your project's documentation scaffolding.
+| Server | Purpose | Setup |
+|--------|---------|-------|
+| **Obsidian** | Read/write notes in Obsidian vaults | [obsidian-mcp](https://github.com/smithery-ai/mcp-obsidian) |
+| **Draw.io** | Create diagrams programmatically | [drawio-mcp](https://github.com/yctimlin/mcp-drawio) |
+| **Gmail** | Read, search, draft emails | Via Composio (`python config/composio/authorize.py gmail`) |
+| **Google Calendar** | List, create, update calendar events | Via Composio (`python config/composio/authorize.py google-calendar`) |
+| **Linear** | Issue tracking integration | Via Composio or [linear-mcp](https://github.com/jerhadf/linear-mcp-server) |
+| **Notion** | Read/write Notion pages and databases | Via Composio or [notion-mcp](https://github.com/modelcontextprotocol/servers/tree/main/src/notion) |
+| **Playwright** | Browser automation for testing | Bundled with playwright plugin |
+| **Context7** | Library documentation lookup | Bundled with context7 plugin |
 
-3. **Use templates directly:** Copy any template from `templates/` into your project's `docs/` directory and fill in the placeholders.
+---
 
-4. **Install skills:** Copy any skill directory from `skills/` into your Claude Code project's skills location.
+## Updating the Repo
+
+When you modify files in `~/.claude/` directly (e.g., editing CLAUDE.md, adding a new skill), sync changes back:
+
+```bash
+# From the claude-toolkit directory:
+
+# Copy modified global config back
+cp ~/.claude/CLAUDE.md config/CLAUDE.md
+cp ~/.claude/settings.json config/settings.json
+
+# Copy a new or modified skill
+cp -r ~/.claude/skills/my-new-skill config/skills/my-new-skill
+
+# Commit and push
+git add -A
+git commit -m "sync: update config from ~/.claude"
+git push
+```
+
+---
+
+## Interactive Diagrams
+
+Open any HTML file directly in your browser (no server needed):
+
+```
+diagrams/
+├── index.html                    # Landing page with links to all diagrams
+├── system-architecture.html      # Hub-and-spoke: Claude Code → all tools & services
+├── project-lifecycle.html        # Flowchart: user request → deploy (with swim lanes)
+├── dev-loop.html                 # Circular: the iterative dev cycle with screenshot sub-loop
+├── shared.css                    # Design system
+├── shared.js                     # Shared D3.js utilities
+└── data/                         # Node/edge data (edit these when tools change)
+    ├── architecture-data.js
+    ├── lifecycle-data.js
+    └── devloop-data.js
+```
+
+Features: zoom/pan, hover tooltips, click-to-highlight connections, detail sidebar, category filters, animated edges, and search.
+
+---
+
+## Notes
+
+- **Hardcoded paths**: The global `CLAUDE.md` references `C:/Users/michael.rihm/.claude/templates/...`. Update these paths if your username differs.
+- **Windows-specific permissions**: `settings.local.json` contains `cmd.exe` and `powershell.exe` permissions. Mac/Linux users should replace these with their shell equivalents.
 
 ---
 
 ## License
 
-Skills under `skills/docx/` and `skills/xlsx/` are covered by the Anthropic proprietary license included in their respective `LICENSE.txt` files. All other content in this repository is unlicensed — see individual directories for details.
+All content in this repository is unlicensed.

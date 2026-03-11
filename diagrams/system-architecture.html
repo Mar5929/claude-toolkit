@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Architecture — Claude Toolkit</title>
+  <link rel="stylesheet" href="shared.css">
+</head>
+<body>
+  <div class="controls">
+    <button id="btn-reset">Reset Zoom</button>
+    <input type="text" id="search" placeholder="Search nodes...">
+  </div>
+
+  <div class="title-bar">
+    <h1>System Architecture</h1>
+    <div class="subtitle">Claude Code Hub &amp; Spoke — All Tools, Services &amp; Integrations</div>
+  </div>
+
+  <a class="back-link" href="index.html">&larr; All Diagrams</a>
+
+  <div class="filter-bar" id="filter-bar"></div>
+
+  <svg class="diagram" id="svg"></svg>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="shared.js"></script>
+  <script src="data/architecture-data.js"></script>
+  <script>
+  (() => {
+    const { nodes, edges, categories } = ArchitectureData;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    const svg = d3.select('#svg');
+    const g = svg.append('g');
+
+    // ── Zoom ──
+    const zoom = Shared.setupZoom(svg, g);
+    svg.call(zoom.transform, d3.zoomIdentity.translate(width / 2, height / 2).scale(0.85));
+
+    document.getElementById('btn-reset').onclick = () => Shared.resetZoom(svg, zoom, width, height);
+
+    // ── Tooltip & Sidebar ──
+    const tooltip = Shared.createTooltip();
+    const sidebar = Shared.createSidebar();
+
+    // ── Hulls ──
+    const hulls = Shared.drawHulls(g, nodes, categories);
+
+    // ── Edges ──
+    const edgeEls = Shared.drawEdges(g, edges);
+
+    // ── Radial positioning ──
+    const catOrder = categories.map(c => c.key).filter(k => k !== 'hub');
+    const catAngle = {};
+    catOrder.forEach((k, i) => { catAngle[k] = (i / catOrder.length) * 2 * Math.PI - Math.PI / 2; });
+
+    const radiusMap = {
+      'mcp': 220, 'plugin': 220,
+      'global-skill': 320, 'project-skill': 320,
+      'agent': 320, 'command': 320,
+      'template': 430, 'external': 430,
+    };
+
+    // ── Force Simulation ──
+    const simulation = d3.forceSimulation(nodes)
+      .force('link', d3.forceLink(edges).id(d => d.id).distance(d => {
+        const src = typeof d.source === 'object' ? d.source : nodes.find(n => n.id === d.source);
+        return src && src.category === 'hub' ? 180 : 80;
+      }).strength(0.3))
+      .force('charge', d3.forceManyBody().strength(-120))
+      .force('radial', d3.forceRadial(d => {
+        if (d.category === 'hub') return 0;
+        return radiusMap[d.category] || 300;
+      }, 0, 0).strength(d => d.category === 'hub' ? 1 : 0.6))
+      .force('x', d3.forceX(d => {
+        if (d.category === 'hub') return 0;
+        const a = catAngle[d.category] || 0;
+        return Math.cos(a) * (radiusMap[d.category] || 300) * 0.5;
+      }).strength(0.15))
+      .force('y', d3.forceY(d => {
+        if (d.category === 'hub') return 0;
+        const a = catAngle[d.category] || 0;
+        return Math.sin(a) * (radiusMap[d.category] || 300) * 0.5;
+      }).strength(0.15))
+      .force('collision', d3.forceCollide(d => d.category === 'hub' ? 40 : 24));
+
+    // Fix hub at center
+    const hub = nodes.find(n => n.category === 'hub');
+    if (hub) { hub.fx = 0; hub.fy = 0; }
+
+    // ── Nodes ──
+    const nodeEls = Shared.drawNodes(g, nodes, {
+      radius: d => d.category === 'hub' ? 30 : 14
+    });
+
+    // Drag
+    nodeEls.call(d3.drag()
+      .on('start', (e, d) => { if (!e.active) simulation.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; })
+      .on('drag', (e, d) => { d.fx = e.x; d.fy = e.y; })
+      .on('end', (e, d) => { if (!e.active) simulation.alphaTarget(0); if (d.category !== 'hub') { d.fx = null; d.fy = null; } })
+    );
+
+    // Interactivity
+    nodeEls
+      .on('mouseover', (e, d) => tooltip.show(d, e))
+      .on('mousemove', (e, d) => tooltip.show(d, e))
+      .on('mouseout', () => tooltip.hide())
+      .on('click', (e, d) => {
+        sidebar.show(d, edges, nodes);
+        Shared.highlightConnections(d.id, nodeEls, edgeEls, edges);
+      });
+
+    svg.on('click', (e) => {
+      if (e.target === svg.node()) {
+        sidebar.close();
+        Shared.clearHighlight(nodeEls, edgeEls);
+      }
+    });
+
+    // ── Tick ──
+    simulation.on('tick', () => {
+      edgeEls
+        .attr('x1', d => d.source.x).attr('y1', d => d.source.y)
+        .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
+      nodeEls.attr('transform', d => `translate(${d.x},${d.y})`);
+      hulls.update();
+    });
+
+    // ── Legend ──
+    const activeFilters = new Set(categories.map(c => c.key));
+    Shared.createLegend(categories, (key, item) => {
+      if (activeFilters.has(key)) { activeFilters.delete(key); item.classList.add('dimmed'); }
+      else { activeFilters.add(key); item.classList.remove('dimmed'); }
+      nodeEls.style('display', d => activeFilters.has(d.category) ? null : 'none');
+      edgeEls.style('display', d => {
+        const s = typeof d.source === 'object' ? d.source : nodes.find(n => n.id === d.source);
+        const t = typeof d.target === 'object' ? d.target : nodes.find(n => n.id === d.target);
+        return (activeFilters.has(s.category) && activeFilters.has(t.category)) ? null : 'none';
+      });
+    });
+
+    // ── Filter Buttons ──
+    const filterBar = document.getElementById('filter-bar');
+    categories.forEach(cat => {
+      const btn = document.createElement('button');
+      btn.className = 'filter-btn active';
+      btn.style.background = Shared.color(cat.key);
+      btn.textContent = cat.label;
+      btn.onclick = () => {
+        // Solo toggle — show only this category + hub
+        const onlyThis = activeFilters.size === 2 && activeFilters.has(cat.key) && activeFilters.has('hub');
+        if (onlyThis) {
+          categories.forEach(c => activeFilters.add(c.key));
+        } else {
+          activeFilters.clear();
+          activeFilters.add('hub');
+          activeFilters.add(cat.key);
+        }
+        // Update display
+        nodeEls.style('display', d => activeFilters.has(d.category) ? null : 'none');
+        edgeEls.style('display', d => {
+          const s = typeof d.source === 'object' ? d.source : nodes.find(n => n.id === d.source);
+          const t = typeof d.target === 'object' ? d.target : nodes.find(n => n.id === d.target);
+          return (activeFilters.has(s.category) && activeFilters.has(t.category)) ? null : 'none';
+        });
+        filterBar.querySelectorAll('.filter-btn').forEach(b => {
+          b.classList.toggle('dimmed', !activeFilters.has(
+            categories.find(c => c.label === b.textContent)?.key
+          ));
+        });
+        document.querySelectorAll('.legend-item').forEach(li => {
+          li.classList.toggle('dimmed', !activeFilters.has(li.dataset.category));
+        });
+      };
+      filterBar.appendChild(btn);
+    });
+
+    // ── Search ──
+    Shared.setupSearch(document.getElementById('search'), nodes, (matches) => {
+      if (!matches) {
+        Shared.clearHighlight(nodeEls, edgeEls);
+        return;
+      }
+      const ids = new Set(matches.map(m => m.id));
+      nodeEls.style('opacity', d => ids.has(d.id) ? 1 : 0.1);
+      edgeEls.style('opacity', 0.05);
+    });
+  })();
+  </script>
+</body>
+</html>

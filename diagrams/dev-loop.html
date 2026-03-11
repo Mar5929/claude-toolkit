@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dev Loop — Claude Toolkit</title>
+  <link rel="stylesheet" href="shared.css">
+</head>
+<body>
+  <div class="controls">
+    <button id="btn-reset">Reset Zoom</button>
+    <button id="btn-toggle">Show Details</button>
+  </div>
+
+  <div class="title-bar">
+    <h1>AI-Assisted Dev Loop</h1>
+    <div class="subtitle">The Iterative Cycle — Task to PR with Screenshot Sub-Loop</div>
+  </div>
+
+  <a class="back-link" href="index.html">&larr; All Diagrams</a>
+
+  <svg class="diagram" id="svg"></svg>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="shared.js"></script>
+  <script src="data/devloop-data.js"></script>
+  <script>
+  (() => {
+    const { steps, edges, toolMap } = DevLoopData;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const cx = 0, cy = 0;
+    const outerR = Math.min(width, height) * 0.32;
+    const innerR = outerR * 0.5;
+
+    const svg = d3.select('#svg');
+    const g = svg.append('g');
+
+    const zoom = Shared.setupZoom(svg, g);
+    svg.call(zoom.transform, d3.zoomIdentity.translate(width / 2, height / 2).scale(0.9));
+    document.getElementById('btn-reset').onclick = () => {
+      svg.transition().duration(500).call(zoom.transform, d3.zoomIdentity.translate(width / 2, height / 2).scale(0.9));
+    };
+
+    const tooltip = Shared.createTooltip();
+    const sidebar = Shared.createSidebar();
+
+    // Arrow marker
+    svg.append('defs').append('marker')
+      .attr('id', 'arrow')
+      .attr('viewBox', '0 0 10 10')
+      .attr('refX', 10).attr('refY', 5)
+      .attr('markerWidth', 7).attr('markerHeight', 7)
+      .attr('orient', 'auto')
+      .append('path')
+      .attr('d', 'M0,0 L10,5 L0,10 Z')
+      .attr('fill', '#94A3B8');
+
+    // Arrow marker for sub-loop
+    svg.select('defs').append('marker')
+      .attr('id', 'arrow-sub')
+      .attr('viewBox', '0 0 10 10')
+      .attr('refX', 10).attr('refY', 5)
+      .attr('markerWidth', 7).attr('markerHeight', 7)
+      .attr('orient', 'auto')
+      .append('path')
+      .attr('d', 'M0,0 L10,5 L0,10 Z')
+      .attr('fill', '#EAB308');
+
+    // ── Position steps on outer ring ──
+    const n = steps.length;
+    steps.forEach((s, i) => {
+      const angle = (i / n) * 2 * Math.PI - Math.PI / 2;
+      s.angle = angle;
+      s.x = cx + outerR * Math.cos(angle);
+      s.y = cy + outerR * Math.sin(angle);
+    });
+
+    const stepMap = {};
+    steps.forEach(s => { stepMap[s.id] = s; });
+
+    // ── Outer ring arc ──
+    g.append('circle')
+      .attr('cx', cx).attr('cy', cy).attr('r', outerR)
+      .attr('fill', 'none')
+      .attr('stroke', '#1E293B')
+      .attr('stroke-width', 40)
+      .attr('opacity', 0.5);
+
+    // ── Sub-loop ring ──
+    g.append('circle')
+      .attr('cx', cx).attr('cy', cy).attr('r', innerR)
+      .attr('fill', 'none')
+      .attr('stroke', '#EAB308')
+      .attr('stroke-width', 2)
+      .attr('stroke-dasharray', '6 4')
+      .attr('opacity', 0.5);
+
+    g.append('text')
+      .attr('x', cx).attr('y', cy - innerR + 20)
+      .attr('text-anchor', 'middle')
+      .attr('font-size', 11)
+      .attr('font-family', 'var(--font-mono)')
+      .attr('fill', '#CA8A04')
+      .attr('opacity', 0.6)
+      .text('Screenshot Sub-Loop');
+
+    // ── Edges (arcs between steps) ──
+    const edgeG = g.append('g');
+    edges.forEach(e => {
+      const s = stepMap[e.source];
+      const t = stepMap[e.target];
+      if (!s || !t) return;
+
+      const isSubLoop = (s.subloop && t.subloop) || (e.source === 'iterate' && e.target === 'screenshot');
+      const isBackToStart = e.source === 'pr' && e.target === 'task';
+
+      let path;
+      if (isSubLoop) {
+        // Inner arc through center area
+        const smx = cx + innerR * 0.6 * Math.cos((s.angle + t.angle) / 2);
+        const smy = cy + innerR * 0.6 * Math.sin((s.angle + t.angle) / 2);
+        path = edgeG.append('path')
+          .attr('d', `M${s.x},${s.y} Q${smx},${smy} ${t.x},${t.y}`)
+          .attr('class', 'edge edge-animated')
+          .attr('stroke', '#EAB308')
+          .attr('stroke-width', 2.5)
+          .attr('opacity', 0.85)
+          .attr('marker-end', 'url(#arrow-sub)');
+      } else if (isBackToStart) {
+        // Full loop back — go through center
+        path = edgeG.append('path')
+          .attr('d', `M${s.x},${s.y} Q${cx},${cy} ${t.x},${t.y}`)
+          .attr('class', 'edge edge-animated')
+          .attr('stroke', '#A78BFA')
+          .attr('stroke-width', 2.5)
+          .attr('opacity', 0.8)
+          .attr('stroke-dasharray', '8 4')
+          .attr('marker-end', 'url(#arrow)');
+      } else {
+        // Straight line between adjacent steps
+        path = edgeG.append('line')
+          .attr('x1', s.x).attr('y1', s.y)
+          .attr('x2', t.x).attr('y2', t.y)
+          .attr('class', 'edge edge-animated')
+          .attr('stroke', d3.color(Shared.color(t.category)).brighter(0.3))
+          .attr('stroke-width', 2.5)
+          .attr('opacity', 0.75)
+          .attr('marker-end', 'url(#arrow)');
+      }
+
+      // Edge label
+      if (e.label) {
+        const mx = (s.x + t.x) / 2;
+        const my = (s.y + t.y) / 2;
+        edgeG.append('text')
+          .attr('x', mx).attr('y', my - 10)
+          .attr('text-anchor', 'middle')
+          .attr('font-size', 9)
+          .attr('font-family', 'var(--font-mono)')
+          .attr('fill', '#CBD5E1')
+          .text(e.label);
+      }
+    });
+
+    // ── Step Nodes ──
+    const nodeR = 26;
+    const nodeG = g.selectAll('.dl-node')
+      .data(steps)
+      .join('g')
+      .attr('class', 'dl-node')
+      .attr('transform', d => `translate(${d.x},${d.y})`)
+      .attr('cursor', 'pointer');
+
+    nodeG.append('circle')
+      .attr('r', nodeR)
+      .attr('fill', d => Shared.color(d.category))
+      .attr('stroke', d => d.subloop ? '#CA8A04' : d3.color(Shared.color(d.category)).brighter(0.5))
+      .attr('stroke-width', d => d.subloop ? 2.5 : 1.5);
+
+    // Step number
+    nodeG.append('text')
+      .attr('text-anchor', 'middle')
+      .attr('dominant-baseline', 'central')
+      .attr('fill', '#fff')
+      .attr('font-size', 13)
+      .attr('font-weight', 700)
+      .text(d => d.order + 1);
+
+    // Label outside
+    nodeG.append('text')
+      .attr('class', 'node-label')
+      .attr('y', nodeR + 16)
+      .attr('font-size', 11)
+      .text(d => d.name);
+
+    // ── Detail mode: tool labels ──
+    let detailMode = false;
+    const toolLabels = nodeG.append('text')
+      .attr('class', 'node-label node-label-mono')
+      .attr('y', nodeR + 30)
+      .attr('font-size', 9)
+      .attr('fill', '#64748B')
+      .attr('opacity', 0)
+      .text(d => {
+        const tools = toolMap[d.id];
+        return tools ? tools.slice(0, 2).join(', ') : '';
+      });
+
+    document.getElementById('btn-toggle').onclick = function() {
+      detailMode = !detailMode;
+      this.textContent = detailMode ? 'Hide Details' : 'Show Details';
+      toolLabels.transition().duration(300).attr('opacity', detailMode ? 1 : 0);
+    };
+
+    // Interactivity
+    nodeG
+      .on('mouseover', (e, d) => {
+        const tools = toolMap[d.id] || [];
+        tooltip.show({ ...d, description: d.description + (tools.length ? '\n\nTools: ' + tools.join(', ') : '') }, e);
+      })
+      .on('mousemove', (e, d) => {
+        const tools = toolMap[d.id] || [];
+        tooltip.show({ ...d, description: d.description + (tools.length ? '\n\nTools: ' + tools.join(', ') : '') }, e);
+      })
+      .on('mouseout', () => tooltip.hide())
+      .on('click', (e, d) => {
+        const tools = toolMap[d.id] || [];
+        sidebar.show(
+          { ...d, description: d.description + (tools.length ? '\n\nActive tools:\n' + tools.map(t => '• ' + t).join('\n') : '') },
+          edges.map(e => ({ source: e.source, target: e.target })),
+          steps
+        );
+      });
+
+    svg.on('click', (e) => {
+      if (e.target === svg.node()) sidebar.close();
+    });
+
+    // ── Center label ──
+    g.append('text')
+      .attr('x', cx).attr('y', cy + 4)
+      .attr('text-anchor', 'middle')
+      .attr('font-size', 14)
+      .attr('font-weight', 600)
+      .attr('fill', '#64748B')
+      .text('Dev Cycle');
+
+    // ── Legend ──
+    Shared.createLegend([
+      { key: 'process', label: 'Process Step' },
+      { key: 'decision', label: 'Decision Point' },
+    ]);
+  })();
+  </script>
+</body>
+</html>

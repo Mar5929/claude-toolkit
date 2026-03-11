@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Layers — Claude Toolkit</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    body { overflow: hidden; }
+
+    .layer-band {
+      rx: 12;
+      ry: 12;
+      cursor: default;
+    }
+
+    .layer-label {
+      font-family: var(--font-ui);
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      fill: rgba(255,255,255,.55);
+      pointer-events: none;
+    }
+
+    .chip {
+      cursor: pointer;
+      transition: opacity .15s;
+    }
+
+    .chip rect {
+      rx: 8;
+      ry: 8;
+    }
+
+    .chip text {
+      font-family: var(--font-ui);
+      font-size: 11px;
+      fill: #fff;
+      text-anchor: middle;
+      dominant-baseline: central;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .hub-glow {
+      filter: drop-shadow(0 0 18px rgba(124, 58, 237, .5));
+    }
+
+    .cross-edge {
+      stroke: #64748B;
+      stroke-width: 1.8;
+      fill: none;
+      opacity: .45;
+      pointer-events: none;
+    }
+
+    .cross-edge.highlighted {
+      opacity: .9;
+      stroke-width: 3;
+    }
+  </style>
+</head>
+<body>
+  <div class="controls">
+    <button id="btn-reset">Reset Zoom</button>
+    <input type="text" id="search" placeholder="Search nodes...">
+  </div>
+
+  <div class="title-bar">
+    <h1>System Layers</h1>
+    <div class="subtitle">Layered Architecture — External Services &rarr; Claude Code Hub &rarr; Skills &amp; Templates</div>
+  </div>
+
+  <a class="back-link" href="index.html">&larr; All Diagrams</a>
+
+  <svg class="diagram" id="svg"></svg>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="shared.js"></script>
+  <script src="data/architecture-data.js"></script>
+  <script>
+  (() => {
+    const { nodes, edges, categories } = ArchitectureData;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    // ── Layer definitions ──
+    const layerDefs = [
+      { layer: 0, label: 'External Services' },
+      { layer: 1, label: 'MCP Servers' },
+      { layer: 2, label: 'Claude Code (Hub)' },
+      { layer: 3, label: 'Plugins' },
+      { layer: 4, label: 'Skills & Agents' },
+      { layer: 5, label: 'Templates' },
+    ];
+
+    // Build category→layer lookup
+    const catToLayer = {};
+    categories.forEach(c => { catToLayer[c.key] = c.layer; });
+
+    // Group nodes by layer
+    const layerNodes = {};
+    layerDefs.forEach(l => { layerNodes[l.layer] = []; });
+    nodes.forEach(n => {
+      const layer = catToLayer[n.category];
+      if (layer !== undefined && layerNodes[layer]) {
+        layerNodes[layer].push(n);
+      }
+    });
+
+    // ── Layout constants ──
+    const bandHeight = 80;
+    const bandGap = 16;
+    const chipW = 120;
+    const chipH = 32;
+    const chipGap = 12;
+    const hubBandHeight = 100;
+    const padding = 60;
+
+    // Total diagram height
+    const totalH = layerDefs.length * bandHeight + (layerDefs.length - 1) * bandGap;
+    // Max nodes in any layer → determines width
+    const maxNodes = Math.max(...layerDefs.map(l => layerNodes[l.layer].length));
+    const totalW = Math.max(maxNodes * (chipW + chipGap) + padding * 2, 1200);
+
+    // ── SVG ──
+    const svg = d3.select('#svg');
+    const g = svg.append('g');
+
+    const zoom = Shared.setupZoom(svg, g);
+    // Center the diagram
+    const scaleX = width / (totalW + 100);
+    const scaleY = height / (totalH + 200);
+    const initScale = Math.min(scaleX, scaleY, 1) * 0.9;
+    const offsetX = (width - totalW * initScale) / 2;
+    const offsetY = (height - totalH * initScale) / 2;
+    svg.call(zoom.transform, d3.zoomIdentity.translate(offsetX, offsetY).scale(initScale));
+
+    document.getElementById('btn-reset').onclick = () => {
+      svg.transition().duration(500)
+        .call(zoom.transform, d3.zoomIdentity.translate(offsetX, offsetY).scale(initScale));
+    };
+
+    // ── Tooltip & Sidebar ──
+    const tooltip = Shared.createTooltip();
+    const sidebar = Shared.createSidebar();
+
+    // ── Render layers: bands first, then edges, then chips ──
+    const nodePos = {};
+    const bandsG = g.append('g').attr('class', 'bands-layer');
+    const edgeG = g.append('g').attr('class', 'edges-layer');
+    const chipsG = g.append('g').attr('class', 'chips-layer');
+
+    // Pass 1: draw bands and compute node positions
+    layerDefs.forEach((ldef, li) => {
+      const y = li * (bandHeight + bandGap);
+      const bh = ldef.layer === 2 ? hubBandHeight : bandHeight;
+      const layerN = layerNodes[ldef.layer];
+      const totalChipW = layerN.length * chipW + (layerN.length - 1) * chipGap;
+      const startX = (totalW - totalChipW) / 2;
+
+      // Band color
+      const bandColor = ldef.layer === 2
+        ? Shared.color('hub')
+        : Shared.color(categories.find(c => c.layer === ldef.layer)?.key || 'hub');
+
+      const bandG = bandsG.append('g');
+
+      bandG.append('rect')
+        .attr('class', 'layer-band')
+        .attr('x', 0)
+        .attr('y', y)
+        .attr('width', totalW)
+        .attr('height', bh)
+        .attr('fill', bandColor)
+        .attr('fill-opacity', ldef.layer === 2 ? 0.2 : 0.08)
+        .attr('stroke', bandColor)
+        .attr('stroke-opacity', ldef.layer === 2 ? 0.6 : 0.25)
+        .attr('stroke-width', ldef.layer === 2 ? 2 : 1);
+
+      if (ldef.layer === 2) bandG.classed('hub-glow', true);
+
+      // Layer label — horizontal, inside band top-left
+      bandG.append('text')
+        .attr('class', 'layer-label')
+        .attr('x', 16)
+        .attr('y', y + 16)
+        .attr('text-anchor', 'start')
+        .attr('dominant-baseline', 'hanging')
+        .text(ldef.label);
+
+      // Compute chip positions
+      layerN.forEach((node, ni) => {
+        const cx = startX + ni * (chipW + chipGap) + chipW / 2;
+        const cy = y + bh / 2 + 6;
+        nodePos[node.id] = { x: cx, y: cy };
+      });
+    });
+
+    // Pass 2: draw edges (on top of bands, behind chips)
+    const crossEdges = edges.filter(e => {
+      const sLayer = catToLayer[nodes.find(n => n.id === e.source)?.category];
+      const tLayer = catToLayer[nodes.find(n => n.id === e.target)?.category];
+      return sLayer !== undefined && tLayer !== undefined && sLayer !== tLayer;
+    });
+
+    const edgeEls = edgeG.selectAll('.cross-edge')
+      .data(crossEdges)
+      .join('path')
+      .attr('class', 'cross-edge')
+      .attr('d', e => {
+        const s = nodePos[e.source];
+        const t = nodePos[e.target];
+        if (!s || !t) return '';
+        const midY = (s.y + t.y) / 2;
+        return `M${s.x},${s.y} C${s.x},${midY} ${t.x},${midY} ${t.x},${t.y}`;
+      });
+
+    // Pass 3: draw chips (on top of everything)
+    layerDefs.forEach((ldef, li) => {
+      const layerN = layerNodes[ldef.layer];
+
+      layerN.forEach((node) => {
+        const pos = nodePos[node.id];
+        const nodeColor = Shared.color(node.category);
+
+        const chipG = chipsG.append('g')
+          .attr('class', 'chip')
+          .datum(node)
+          .attr('transform', `translate(${pos.x}, ${pos.y})`);
+
+        chipG.append('rect')
+          .attr('x', -chipW / 2)
+          .attr('y', -chipH / 2)
+          .attr('width', chipW)
+          .attr('height', chipH)
+          .attr('fill', nodeColor)
+          .attr('fill-opacity', node.category === 'hub' ? 0.9 : 0.7)
+          .attr('stroke', d3.color(nodeColor).brighter(0.5))
+          .attr('stroke-width', node.category === 'hub' ? 2 : 1);
+
+        let displayName = node.name || node.id;
+        if (displayName.length > 16) displayName = displayName.slice(0, 14) + '...';
+
+        chipG.append('text')
+          .text(displayName);
+      });
+    });
+
+    // ── Interactivity ──
+    const chipEls = g.selectAll('.chip');
+
+    chipEls
+      .on('mouseover', (e, d) => tooltip.show(d, e))
+      .on('mousemove', (e, d) => tooltip.show(d, e))
+      .on('mouseout', () => tooltip.hide())
+      .on('click', (e, d) => {
+        e.stopPropagation();
+        sidebar.show(d, edges, nodes);
+
+        // Highlight connected edges
+        const connIds = new Set([d.id]);
+        edges.forEach(edge => {
+          if (edge.source === d.id) connIds.add(edge.target);
+          if (edge.target === d.id) connIds.add(edge.source);
+        });
+
+        chipEls.style('opacity', n => connIds.has(n.id) ? 1 : 0.15);
+        edgeEls
+          .style('opacity', edge => (edge.source === d.id || edge.target === d.id) ? 0.85 : 0.05)
+          .classed('highlighted', edge => edge.source === d.id || edge.target === d.id);
+      });
+
+    svg.on('click', (e) => {
+      if (e.target === svg.node()) {
+        sidebar.close();
+        chipEls.style('opacity', 1);
+        edgeEls.style('opacity', 0.45).classed('highlighted', false);
+      }
+    });
+
+    // ── Legend ──
+    Shared.createLegend(categories);
+
+    // ── Search ──
+    Shared.setupSearch(document.getElementById('search'), nodes, (matches) => {
+      if (!matches) {
+        chipEls.style('opacity', 1);
+        edgeEls.style('opacity', 0.45).classed('highlighted', false);
+        return;
+      }
+      const ids = new Set(matches.map(m => m.id));
+      chipEls.style('opacity', d => ids.has(d.id) ? 1 : 0.1);
+      edgeEls.style('opacity', 0.05).classed('highlighted', false);
+    });
+  })();
+  </script>
+</body>
+</html>
