@@ -127,6 +127,18 @@
     const nodeMap = {};
     nodes.forEach(n => { nodeMap[n.id] = n; });
 
+    // Diamond-aware anchor points
+    const dTip = 30 * Math.SQRT2; // ~42.4px from center to diamond tip
+    function getAnchor(node, side) {
+      const isDiamond = node.shape === 'diamond';
+      switch (side) {
+        case 'right':  return { x: node.px + (isDiamond ? dTip : stepW / 2), y: node.py };
+        case 'left':   return { x: node.px - (isDiamond ? dTip : stepW / 2), y: node.py };
+        case 'top':    return { x: node.px, y: node.py - (isDiamond ? dTip : stepH / 2) };
+        case 'bottom': return { x: node.px, y: node.py + (isDiamond ? dTip : stepH / 2) };
+      }
+    }
+
     const edgeG = g.append('g');
     edges.forEach(e => {
       const s = nodeMap[e.source];
@@ -134,6 +146,9 @@
       if (!s || !t) return;
 
       const isBack = t.px < s.px;
+      const isCrossPhase = !isBack && s.phase !== t.phase;
+      const r = 12; // corner radius for orthogonal bends
+
       const path = edgeG.append('path')
         .attr('class', isBack ? 'lc-edge-back' : 'lc-edge')
         .attr('stroke', isBack ? '#FACC15' : '#7DD3FC')
@@ -141,21 +156,45 @@
         .attr('opacity', isBack ? 1 : 0.9)
         .attr('marker-end', isBack ? 'url(#arrow-back)' : 'url(#arrow)');
 
+      let labelX, labelY;
+
       if (isBack) {
-        const midY = Math.max(s.py, t.py) + 60;
-        path.attr('d', `M${s.px},${s.py + stepH/2} C${s.px},${midY} ${t.px},${midY} ${t.px},${t.py + stepH/2}`);
-      } else if (s.phase !== t.phase) {
-        path.attr('d', `M${s.px + stepW/2},${s.py + stepH/4} L${t.px - stepW/2},${t.py - stepH/4}`);
+        // Backward loop: cubic bezier arc sweeping below the swim lane
+        const src = getAnchor(s, 'bottom');
+        const tgt = getAnchor(t, 'bottom');
+        const arcY = phaseY[s.phase] + laneH + 45;
+        path.attr('d', `M${src.x},${src.y} C${src.x},${arcY} ${tgt.x},${arcY} ${tgt.x},${tgt.y}`);
+        labelX = (src.x + tgt.x) / 2;
+        labelY = arcY + 16;
+      } else if (isCrossPhase) {
+        // Cross-phase: orthogonal stepped path with rounded corners
+        const src = getAnchor(s, 'bottom');
+        const tgt = getAnchor(t, 'top');
+        const midY = (phaseY[s.phase] + laneH + phaseY[t.phase]) / 2;
+
+        path.attr('d', [
+          `M${src.x},${src.y}`,
+          `L${src.x},${midY - r}`,
+          `Q${src.x},${midY} ${src.x + r},${midY}`,
+          `L${tgt.x - r},${midY}`,
+          `Q${tgt.x},${midY} ${tgt.x},${midY + r}`,
+          `L${tgt.x},${tgt.y}`
+        ].join(' '));
+        labelX = (src.x + tgt.x) / 2;
+        labelY = midY - 8;
       } else {
-        path.attr('d', `M${s.px + stepW/2},${s.py} L${t.px - stepW/2},${t.py}`);
+        // Same-phase forward: horizontal line
+        const src = getAnchor(s, 'right');
+        const tgt = getAnchor(t, 'left');
+        path.attr('d', `M${src.x},${src.y} L${tgt.x},${tgt.y}`);
+        labelX = (src.x + tgt.x) / 2;
+        labelY = (src.y + tgt.y) / 2 - 10;
       }
 
       // Edge label
       if (e.label) {
-        const mx = (s.px + t.px) / 2;
-        const my = isBack ? Math.max(s.py, t.py) + 60 : (s.py + t.py) / 2;
         edgeG.append('text')
-          .attr('x', mx).attr('y', my - 8)
+          .attr('x', labelX).attr('y', labelY)
           .attr('text-anchor', 'middle')
           .attr('font-size', 11)
           .attr('font-weight', 600)

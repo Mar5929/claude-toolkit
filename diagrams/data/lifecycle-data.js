@@ -73,7 +73,7 @@ const LifecycleData = (() => {
   // Tools active at each step
   const toolMap = {
     'brainstorm':       ['Superpowers: Brainstorming'],
-    'project-init':     ['Project Init Skill', 'Salesforce reference docs'],
+    'project-init':     ['Project Init Skill'],
     'install-toolkit':  ['install.sh', 'claude-toolkit repo'],
     'gen-docs':         ['11 doc templates', 'Project Init Skill'],
     'setup-screenshot': ['screenshot.mjs', 'SCREENSHOT_WORKFLOW.md'],

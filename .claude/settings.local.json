@@ -15,7 +15,18 @@
       "mcp__plugin_playwright_playwright__browser_console_messages",
       "mcp__plugin_playwright_playwright__browser_take_screenshot",
       "mcp__plugin_playwright_playwright__browser_click",
-      "mcp__plugin_playwright_playwright__browser_snapshot"
+      "mcp__plugin_playwright_playwright__browser_snapshot",
+      "mcp__claude_ai_Linear__list_projects",
+      "mcp__claude_ai_Linear__list_teams",
+      "mcp__claude_ai_Linear__save_issue",
+      "mcp__plugin_playwright_playwright__browser_evaluate",
+      "mcp__plugin_playwright_playwright__browser_resize",
+      "mcp__claude_ai_Linear__get_user",
+      "mcp__claude_ai_Linear__list_issue_labels",
+      "mcp__claude_ai_Linear__create_issue_label",
+      "mcp__claude_ai_Linear__save_milestone",
+      "mcp__claude_ai_Linear__list_issues",
+      "mcp__claude_ai_Linear__save_project"
     ]
   }
 }

@@ -60,6 +60,7 @@ CONFIG_FILES=(
 # Skill directories that will be overwritten
 SKILL_DIRS=(
   "skills/project-init"
+  "skills/sf-project-init"
   "skills/drawio"
   "skills/ui-ux-pro-max"
 )
@@ -71,6 +72,12 @@ done
 for d in "${SKILL_DIRS[@]}"; do
   backup_if_exists "$d"
 done
+# Back up existing rule files
+if [ -d "$CONFIG_DIR/rules" ]; then
+  for rule in "$CONFIG_DIR/rules"/*.md; do
+    [ -f "$rule" ] && backup_if_exists "rules/$(basename "$rule")"
+  done
+fi
 
 if [ "$BACKED_UP" = true ]; then
   echo "Backed up existing files to: $BACKUP_DIR"
@@ -88,6 +95,7 @@ mkdir -p "$TARGET_DIR/agents"
 mkdir -p "$TARGET_DIR/agent-memory/powerpoint-generator"
 mkdir -p "$TARGET_DIR/agent-memory/prompt-engineer"
 mkdir -p "$TARGET_DIR/composio"
+mkdir -p "$TARGET_DIR/rules"
 
 # Copy config files
 echo "Copying configuration files..."
@@ -115,6 +123,19 @@ for d in "${SKILL_DIRS[@]}"; do
     echo "  WARNING: Source not found: $d/"
   fi
 done
+
+# Copy rule files (dynamic discovery)
+echo "Copying rules..."
+if [ -d "$CONFIG_DIR/rules" ]; then
+  for rule in "$CONFIG_DIR/rules"/*.md; do
+    if [ -f "$rule" ]; then
+      cp "$rule" "$TARGET_DIR/rules/"
+      echo "  Copied: rules/$(basename "$rule")"
+    fi
+  done
+else
+  echo "  No rules directory found in config."
+fi
 
 echo ""
 echo "=== Installation Complete ==="
