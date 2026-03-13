@@ -14,15 +14,18 @@ This file defines the structure for every document the sf-project-init skill can
 6. [DECISIONS.md](#decisionsmd)
 7. [CHANGELOG.md](#changelogmd)
 8. [CODE_ATLAS.md](#code_atlasmd)
-9. [README.md](#readmemd)
-10. [GETTING_STARTED.md](#getting_startedmd)
-11. [Client Deliverable Templates](#client-deliverable-templates)
+9. [COMPONENT_REGISTRY.md](#component_registrymd)
+10. [README.md](#readmemd)
+11. [GETTING_STARTED.md](#getting_startedmd)
+12. [Wiki Templates](#wiki-templates)
+13. [Design Standards Template](#design-standards-template)
+14. [Client Deliverable Templates](#client-deliverable-templates)
 
 ---
 
 ## CLAUDE.md Structure
 
-Generate with the **13-section structure** below, tailored for the Salesforce engagement based on interview answers. Use HTML comment placeholders (`<!-- -->`) for values not yet known.
+Generate with the **14-section structure** below, tailored for the Salesforce engagement based on interview answers. Use HTML comment placeholders (`<!-- -->`) for values not yet known.
 
 ### Section 1 — Project Overview
 - Client Name, Project Name, One-line description
@@ -31,9 +34,13 @@ Generate with the **13-section structure** below, tailored for the Salesforce en
 - Org type and environment path (Scratch → Dev → QA → UAT → Prod)
 - Team size and roles (lead architect, developers, admins, consultants)
 - Engagement timeline
+- Linear Project ID: `{project-id}` (from Phase 4 auto-creation)
+- Linear Project Name: `{Client Name} - {Project Name}`
+- Scratch Org Alias: `{scratch-org-alias}` (from interview Round 2)
+- QA Org Alias: `{qa-org-alias}` (from interview Round 2)
 
 ### Section 2 — Golden Rules
-The 13 Golden Rules (confirmed or modified during interview):
+The 16 Golden Rules (confirmed or modified during interview):
 1. Bulkification — all Apex handles collections
 2. No SOQL/DML in loops
 3. Trigger handler pattern — one trigger per object, delegates to handler
@@ -49,6 +56,10 @@ The 13 Golden Rules (confirmed or modified during interview):
 13. Naming conventions — follow `references/naming-conventions.md`
 
 Plus any engagement-specific rules from the interview.
+
+14. **Living Document Sync** — All living documents (REQUIREMENTS, BACKLOG, TECHNICAL_SPEC, wiki pages, COMPONENT_REGISTRY) must be kept in sync. Update all affected docs when modifying code. Never leave a document stale.
+15. **Component Registry Updates (Non-Negotiable)** — Every component create/modify/delete must update `docs/COMPONENT_REGISTRY.md` immediately.
+16. **UI Testing with Playwright** — Before starting UI work (LWC, FlexCard, Experience Cloud page), ask user: "This involves UI work. Should I use the Playwright screenshot loop?" If yes, follow build → screenshot → review → iterate loop.
 
 ### Section 3 — Workspace Structure
 ASCII directory tree showing the full SFDX project layout:
@@ -76,6 +87,13 @@ Event-to-action table (only include rows for enabled documents):
 | Requirement changed | Update `REQUIREMENTS.md`, mark old as superseded |
 | Feature completed | Mark `[DONE]` in `REQUIREMENTS.md` → Update `BACKLOG.md` |
 | Code added/modified | Update `CODE_ATLAS.md` |
+| Wiki application area affected | Update relevant `wiki/applications/{app}/` pages |
+| UI component development starts | Ask user about Playwright screenshot loop |
+| Component created/modified/deleted | Update `docs/COMPONENT_REGISTRY.md` (NON-NEGOTIABLE) |
+| Design standard established/changed | Update `wiki/ways-of-working/design-standards.md` |
+| Work item started | Set Linear issue to "In Progress", update `BACKLOG.md` status |
+| Work item completed | Set Linear issue to "Done", mark `[DONE]` in `BACKLOG.md` |
+| Work item blocked | Set Linear issue to "Blocked", mark `BLOCKED` in `BACKLOG.md` with reason |
 
 ### Section 5 — Coding Standards
 
@@ -150,11 +168,19 @@ sf project deploy quick -i <jobId>    # Quick deploy after validation
 ```
 
 ### Section 8 — Session Startup Checklist
-1. Read `CLAUDE.md` (this file)
+
+**Do these steps automatically at the start of every session:**
+
+1. Read `CLAUDE.md` (this file) — Sections 1, 2, 5, and 9 at minimum
 2. Read `docs/CODE_ATLAS.md` — Apex classes, triggers, LWC, flows
-3. Read `docs/BACKLOG.md` — open work items
+3. Read `docs/BACKLOG.md` — open work items and sprint structure
 4. Skim `docs/REQUIREMENTS.md` if working on a feature
-5. Ask: "What would you like to work on today? Here are the open backlog items: ..."
+5. **Pull Linear tickets** — Use Linear MCP to find the project (ID in Section 1), then list all open (non-completed) issues grouped by milestone. Cross-reference with BACKLOG.md for BL-IDs.
+6. **Identify current sprint** — Determine which phase/sprint has incomplete items. Present:
+   - Current sprint or phase name
+   - All open work items for that sprint (BL-ID, Linear issue title, priority, status)
+   - Which items are ready to build (prerequisites met, requirements documented)
+7. Ask: "Which item would you like to start with, or should I work through [current sprint] in order?"
 
 ### Section 9 — Git Commit Protocol
 - Format: `feat(BL-XXX): Short summary`
@@ -189,6 +215,26 @@ Empty at project start. Populated during development.
 | Context7 MCP | Live Apex, LWC, SFDX CLI documentation |
 | `references/naming-conventions.md` | Firm naming standard |
 | architect.salesforce.com | Official Well-Architected patterns |
+
+### Section 14 — Work Item Execution Loop
+
+**When the user selects a work item (or says "go in order"), follow this loop for each item:**
+
+1. **Update Linear** — Set the issue status to "In Progress"
+2. **Branch** — `git checkout -b feature/BL-XXX-short-description develop`
+3. **Pre-implementation check** — For complex features, invoke the sf-architect-solutioning skill. For simple items (fields, config, minor changes), proceed directly.
+4. **TDD** — Write the test class first with expected behaviors and assertions, then implement until all tests pass. Test-first is the default; skip only for pure metadata/declarative work (fields, page layouts, flows).
+5. **Test** — `sf apex run test --target-org {scratch-org-alias} --result-format human --code-coverage`
+6. **Validate** — `sf project deploy validate --target-org {qa-org-alias} --test-level RunLocalTests`
+7. **Update docs** — Per Section 4: COMPONENT_REGISTRY, CODE_ATLAS, CHANGELOG, DATA_MODEL (if objects touched), and any affected wiki pages
+8. **Commit** — `feat(BL-XXX): Short summary` per Section 9. Include doc updates in the same commit.
+9. **Update Linear** — Set the issue status to "Done"
+10. **Next item** — Present the next sprint item and begin again from step 1. Continue until the user says stop or the sprint backlog is complete.
+
+**Notes:**
+- If a test fails at step 5, fix the implementation and re-run — do not skip or reduce coverage.
+- If validation fails at step 6, diagnose the issue, fix it, and re-validate.
+- If a work item is blocked (missing requirements, dependency on another item), mark it `BLOCKED` in both BACKLOG.md and Linear, skip it, and move to the next item.
 
 ---
 
@@ -290,6 +336,405 @@ Empty at project start. Populated during development.
 6. **Flows** — `Flow | Type (Screen/Auto/Scheduled) | Object | Purpose`
 7. **Key Patterns** — Trigger handler, service layer, selector pattern, etc.
 8. **Cross-Cutting** — Error handling, logging, test data factory
+
+---
+
+## COMPONENT_REGISTRY.md
+
+**Purpose:** Comprehensive metadata inventory of every component in the Salesforce org. NON-OPTIONAL living document — generated during scaffolding and updated with every component change.
+
+**Distinction from CODE_ATLAS.md:** CODE_ATLAS is a code navigation guide (patterns, architecture, key methods). COMPONENT_REGISTRY is a metadata inventory (every field, rule, permission set, layout). Different audiences, different purposes.
+
+**Structure:**
+
+### Summary Table
+| Category | Count | Last Updated |
+|---|---|---|
+| Custom Objects | 0 | [Date] |
+| Custom Fields | 0 | [Date] |
+| Apex Classes | 0 | [Date] |
+| Apex Triggers | 0 | [Date] |
+| Flows | 0 | [Date] |
+| LWC | 0 | [Date] |
+| Permission Sets | 0 | [Date] |
+| Validation Rules | 0 | [Date] |
+| Page Layouts | 0 | [Date] |
+| Custom Metadata Types | 0 | [Date] |
+| Platform Events | 0 | [Date] |
+| Named Credentials | 0 | [Date] |
+
+### Category Sections
+
+**Custom Objects:**
+| API Name | Label | Description | Related Objects | Status |
+|---|---|---|---|---|
+
+**Custom Fields:**
+| Object | Field API Name | Label | Type | Required | Description |
+|---|---|---|---|---|---|
+
+**Apex Classes:**
+| Class Name | Type | Purpose | Test Class | Coverage |
+|---|---|---|---|---|
+*Type values: Service, Utility, Test, Handler, Selector, Domain, Controller, Batch, Schedulable, Invocable*
+
+**Apex Triggers:**
+| Object | Trigger Name | Handler Class | Events | Description |
+|---|---|---|---|---|
+
+**Flows:**
+| Flow Name | Type | Object | Purpose | Status |
+|---|---|---|---|---|
+*Type values: Record-Triggered, Screen, Scheduled, Autolaunched, Platform Event-Triggered*
+
+**LWC:**
+| Component | Purpose | Data Source | Exposed To |
+|---|---|---|---|
+*Exposed To values: Lightning Record Page, App Page, Home Page, Experience Cloud, Flow Screen*
+
+**Permission Sets:**
+| API Name | Label | Description | Assigned To |
+|---|---|---|---|
+
+**Validation Rules:**
+| Object | Rule Name | Description | Active |
+|---|---|---|---|
+
+**Page Layouts:**
+| Object | Layout Name | Profile/Assignment | Description |
+|---|---|---|---|
+
+**Custom Metadata Types:**
+| API Name | Purpose | Records |
+|---|---|---|
+
+**Platform Events:**
+| API Name | Purpose | Publishers | Subscribers |
+|---|---|---|---|
+
+**Named Credentials:**
+| Name | Endpoint | Auth Type | Used By |
+|---|---|---|---|
+
+---
+
+## Wiki Templates
+
+Templates for the project wiki structure generated during scaffolding.
+
+### wiki/organization-overview.md
+
+```markdown
+# Organization Overview
+
+## Client
+- **Client Name:** [Client Name]
+- **Industry:** [Industry]
+- **Salesforce Edition:** [Enterprise / Unlimited / etc.]
+- **User Count:** [Approximate number of Salesforce users]
+
+## Engagement
+- **Project Name:** [Project Name]
+- **Entry Point:** [Greenfield / Build / Managed Services / Rescue]
+- **Timeline:** [Start Date] — [End Date]
+- **Team:** [Team members and roles]
+
+## Org Landscape
+- **Production Org:** [Org ID or alias]
+- **Sandbox Strategy:** [Environment promotion path]
+- **Key Integrations:** [External systems connected to Salesforce]
+
+## Business Context
+[Brief description of the client's business, their Salesforce goals, and the engagement's purpose.]
+```
+
+### wiki/ways-of-working/deployment-cicd.md
+
+```markdown
+# Deployment & CI/CD
+
+## Branching Strategy
+[GitFlow / GitHub Flow / Trunk-based — as selected during interview]
+
+## Environment Promotion Path
+[e.g., Scratch Org → Dev Sandbox → QA Sandbox → UAT Sandbox → Production]
+
+## GitHub Actions Workflows
+| Workflow | Trigger | Target |
+|---|---|---|
+| sf-validate.yml | PR to develop/main | Validation org |
+| sf-deploy.yml | Merge to develop | Sandbox |
+| sf-deploy.yml | Merge to main | Production |
+
+## Deployment Checklist
+- [ ] All tests passing (85%+ coverage)
+- [ ] PR reviewed and approved
+- [ ] BACKLOG.md and CHANGELOG.md updated
+- [ ] Component registry current
+- [ ] No hardcoded IDs or credentials
+```
+
+### wiki/ways-of-working/sandbox-strategy.md
+
+```markdown
+# Sandbox Strategy
+
+## Environments
+| Environment | Type | Purpose | Refresh Cadence |
+|---|---|---|---|
+| [Name] | [Developer / Developer Pro / Partial / Full] | [Purpose] | [Weekly / Sprint / Monthly] |
+
+## Source of Truth
+[Scratch orgs (source-driven) / Sandboxes (org-driven)]
+
+## Data Seeding
+[Approach for populating sandboxes with test data]
+
+## Access
+[Who has access to which environments]
+```
+
+### wiki/ways-of-working/team-makeup.md
+
+```markdown
+# Team Makeup
+
+## Team Members
+| Name | Role | Salesforce Expertise | GitHub Username |
+|---|---|---|---|
+| [Name] | [Lead Architect / Developer / Admin / Consultant] | [Certifications, specialties] | [GitHub handle] |
+
+## Responsibilities
+[RACI or simple responsibility matrix for key activities]
+
+## Communication
+[Preferred communication channels, meeting cadence, escalation path]
+```
+
+### wiki/ways-of-working/recurring-meetings.md
+
+```markdown
+# Recurring Meetings
+
+| Meeting | Cadence | Attendees | Purpose |
+|---|---|---|---|
+| Daily Standup | Daily | Dev team | Progress, blockers |
+| Sprint Planning | Bi-weekly | Full team | Plan next sprint |
+| Sprint Review | Bi-weekly | Team + stakeholders | Demo completed work |
+| Sprint Retro | Bi-weekly | Dev team | Process improvement |
+| [Client-specific] | [Cadence] | [Attendees] | [Purpose] |
+```
+
+### wiki/ways-of-working/roadmap-timelines.md
+
+```markdown
+# Roadmap & Timelines
+
+## Project Timeline
+| Phase | Start | End | Status |
+|---|---|---|---|
+| [Phase name] | [Date] | [Date] | [Not Started / In Progress / Done] |
+
+## Key Milestones
+| Milestone | Target Date | Dependencies |
+|---|---|---|
+| [Milestone name] | [Date] | [What must be done first] |
+
+## Risks to Timeline
+| Risk | Likelihood | Impact | Mitigation |
+|---|---|---|---|
+| [Risk description] | [Low/Med/High] | [Low/Med/High] | [Mitigation approach] |
+```
+
+### wiki/applications/README.md
+
+```markdown
+# Applications
+
+This directory contains documentation for each application area / Salesforce product in the engagement. Each subdirectory follows a standard structure:
+
+```
+{product-name}/
+├── overview.md          # What this application area covers
+├── technical-specs.md   # Technical design and architecture
+├── requirements.md      # Business and functional requirements
+└── process-flows.md     # Business process documentation
+```
+
+## How to Add a New Application Area
+
+1. Create a new directory: `wiki/applications/{product-name}/`
+2. Copy the template files from any existing application area
+3. Update the content for the new product/area
+4. Update this README with the new area
+```
+
+### wiki/applications/{product-name}/overview.md
+
+```markdown
+# [Product Name] Overview
+
+## Purpose
+[What business capabilities this application area provides]
+
+## Key Objects
+| Object | Purpose |
+|---|---|
+| [Object API Name] | [What it's used for] |
+
+## Key Users
+| User Group | How They Use It |
+|---|---|
+| [e.g., Sales Reps] | [e.g., Manage leads and opportunities] |
+
+## Integrations
+[External systems this area connects to, if any]
+
+## Current State
+[For existing implementations: what's deployed today. For greenfield: N/A]
+```
+
+### wiki/applications/{product-name}/technical-specs.md
+
+```markdown
+# [Product Name] — Technical Specifications
+
+## Architecture
+[How this application area is built — objects, automation, UI components, integrations]
+
+## Components
+[List of key components — reference COMPONENT_REGISTRY.md for full details]
+
+## Data Flow
+[How data moves through this area — triggers, flows, integrations]
+
+## Security
+[Permission sets, sharing rules, field-level security specific to this area]
+
+## Automation
+| Name | Type | Trigger | Purpose |
+|---|---|---|---|
+| [Name] | [Flow / Trigger / Scheduled] | [What triggers it] | [What it does] |
+```
+
+### wiki/applications/{product-name}/requirements.md
+
+```markdown
+# [Product Name] — Requirements
+
+## Functional Requirements
+| ID | Requirement | Priority | Status |
+|---|---|---|---|
+| REQ-XXX | [Description] | [P0/P1/P2] | [Draft/Approved/Done] |
+
+## Acceptance Criteria
+### REQ-XXX: [Title]
+- [ ] [Criterion 1]
+- [ ] [Criterion 2]
+
+## Non-Functional Requirements
+| ID | Requirement | Priority |
+|---|---|---|
+| NFR-XXX | [Description] | [P0/P1/P2] |
+```
+
+### wiki/applications/{product-name}/process-flows.md
+
+```markdown
+# [Product Name] — Process Flows
+
+## [Process Name]
+
+**Trigger:** [What initiates this process]
+**Actors:** [Who is involved]
+
+### Steps
+1. [Step 1]
+2. [Step 2]
+3. [Step 3]
+
+### Business Rules
+- [Rule 1]
+- [Rule 2]
+
+### Exception Handling
+- [What happens when X goes wrong]
+```
+
+---
+
+## Design Standards Template
+
+Template for `wiki/ways-of-working/design-standards.md`, generated during scaffolding.
+
+### Structure (Two-Layer)
+
+**Layer 1 — Framework Defaults** (always included):
+
+```markdown
+# Design Standards
+
+## Framework Defaults
+
+These standards apply to all Salesforce engagements unless overridden by client-specific standards below.
+
+### The 16 Golden Rules
+1. Bulkification — all Apex handles collections
+2. No SOQL/DML in loops
+3. Trigger handler pattern — one trigger per object, delegates to handler
+4. Governor limit awareness — check Limits class, design for 200-record batches
+5. CRUD/FLS enforcement — WITH SECURITY_ENFORCED or stripInaccessible()
+6. With/without sharing — default with sharing, document every without sharing
+7. Test coverage 85%+ — test bulk operations, assert outcomes
+8. Metadata-first — prefer declarative over code
+9. SLDS compliance — all LWC use Lightning Design System
+10. Data classification — mark custom fields with sensitivity level
+11. Ask before modifying object model
+12. CPU time budget — monitor, use Queueable/Batch for heavy processing
+13. Naming conventions — follow firm standard
+14. Living document sync — update all affected docs when modifying code
+15. Component registry updates (non-negotiable) — every component change updates the registry
+16. UI testing with Playwright — use screenshot loop for UI work when applicable
+
+### Well-Architected Patterns
+- **Trusted:** Security, performance, reliability
+- **Easy:** User experience, admin experience, developer experience
+- **Adaptable:** Scalable, flexible, maintainable
+
+### Naming Conventions
+[Reference to project's naming-conventions.md standard]
+
+### Code Patterns
+- Trigger Handler Dispatch for all triggers
+- Service Layer for business logic
+- Selector Pattern for SOQL queries
+- Domain Layer for object-specific validation
+- LWC Composition for component architecture
+- Flow-vs-Code decision tree for automation choices
+```
+
+**Layer 2 — Client-Specific Standards** (populated during interview Round 8):
+
+```markdown
+## Client-Specific Standards
+
+> These standards are specific to [Client Name] and override framework defaults where they conflict.
+
+### Coding Standards
+[Client-specific coding guidelines, if any]
+
+### UI Standards
+[Client-specific UI requirements — branding, accessibility level, supported browsers]
+
+### Architectural Constraints
+[Client-imposed constraints — no custom Apex in production, specific integration middleware, etc.]
+
+### Documentation Standards
+[Client-specific documentation requirements — format, naming, approval process]
+
+### Review & Approval
+[Client-specific review processes — CAB, code review requirements, deployment windows]
+```
 
 ---
 

@@ -168,6 +168,10 @@ After approval, generate the project scaffolding. Read `references/document-temp
 
 Generate with the **13-section structure** described in `references/document-templates.md` (Section: "CLAUDE.md Structure"). Tailor every section based on interview answers. Use HTML comment placeholders (`<!-- -->`) for values not yet known.
 
+### Always Created: `archive/`
+
+Create an empty `archive/` directory at the project root. This is used to store archived project artifacts (superseded docs, old versions, deprecated code, etc.). Always include this in the directory structure preview shown during Phase 3.
+
 ### Conditionally Created: `docs/` files
 
 Only create files the user opted into. Each file follows the template structure in `references/document-templates.md`.

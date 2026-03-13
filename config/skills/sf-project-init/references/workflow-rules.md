@@ -37,7 +37,7 @@ Apply when the engagement starts with Discovery / Greenfield entry point.
 3. **Bulkify everything** — all Apex must handle `List<SObject>`, never single records.
 4. **No SOQL/DML in loops** — collect queries and DML operations outside loop bodies.
 5. **CRUD/FLS enforcement** — use `WITH SECURITY_ENFORCED` in SOQL or `Security.stripInaccessible()`.
-6. **Test coverage 85%+** — test bulk operations (200+ records), assert specific outcomes, use test data factories.
+6. **Test-Driven Development (TDD)** — write the test class first with expected behaviors and assertions, then implement until tests pass. Test coverage 85%+, test bulk operations (200+ records), assert specific outcomes, use test data factories. Skip TDD only for pure declarative/metadata work (fields, page layouts, picklists, flows).
 7. **Governor limit awareness** — check `Limits.getQueries()`, `Limits.getDMLStatements()`, `Limits.getCpuTime()` in complex operations.
 8. **Metadata-first** — prefer Flows, validation rules, and formula fields over Apex when possible.
 
@@ -82,6 +82,16 @@ Apply when the engagement starts with Discovery / Greenfield entry point.
 2. **Document immediately** — update `docs/DATA_MODEL.md` in the same response.
 3. **Data classification** — mark field sensitivity level (Public, Internal, Confidential, Restricted).
 4. **Naming conventions** — follow `references/naming-conventions.md`.
+
+---
+
+## Linear Status Sync Rules
+
+1. **Start of work.** When beginning a work item, set the Linear issue status to "In Progress" using `save_issue`.
+2. **Completion.** When a work item is finished (tests pass, docs updated, committed), set the Linear issue status to "Done".
+3. **Blocked items.** If a work item is blocked, set Linear status to "Blocked" or add a blocking comment. Also mark `BLOCKED` in `BACKLOG.md`.
+4. **Bidirectional sync.** BACKLOG.md and Linear must stay in sync. When updating status in one, update the other.
+5. **Session startup.** At the start of every session, pull current Linear issue statuses and reconcile with BACKLOG.md (see CLAUDE.md Section 8).
 
 ---
 
@@ -140,3 +150,50 @@ Apply when the engagement entry point is Rescue / Takeover.
 4. **Document current state** — create architecture diagrams showing "as-is" before any changes.
 5. **Track remediation** — use the backlog to track all remediation items with clear priority.
 6. **Don't break what works** — be conservative with changes to functioning features.
+
+---
+
+## Wiki Maintenance Rules
+
+Apply when the project wiki (`wiki/`) is enabled.
+
+1. **Event-driven updates.** Update wiki pages when the corresponding area changes — don't wait for a dedicated "documentation sprint."
+2. **Application area ownership.** Each `wiki/applications/{app}/` directory covers one product or functional area. When modifying components in that area, update the relevant wiki pages (overview, technical-specs, requirements, process-flows).
+3. **Automatic updates from architect skill.** When the sf-architect-solutioning skill designs a solution that affects an application area, it automatically updates the relevant wiki pages. No user prompt needed.
+4. **Organization overview currency.** Keep `wiki/organization-overview.md` current when team composition, timelines, or org landscape changes.
+5. **Ways of working updates.** Update `wiki/ways-of-working/` pages when processes change (deployment strategy, meeting cadence, team structure, design standards).
+6. **New application areas.** When a new product area is added to the engagement, create a new `wiki/applications/{product-name}/` directory following the template in `wiki/applications/README.md`.
+
+---
+
+## Component Registry Rules
+
+Apply to every engagement (NON-OPTIONAL).
+
+1. **Mandatory updates.** Every component create, modify, or delete **must** update `docs/COMPONENT_REGISTRY.md`. This is non-negotiable — no exceptions, no deferral.
+2. **All categories tracked.** The registry covers: Custom Objects, Custom Fields, Apex Classes, Apex Triggers, Flows, LWC, Permission Sets, Validation Rules, Page Layouts, Custom Metadata Types, Platform Events, Named Credentials.
+3. **Summary table currency.** Update the summary table (category counts and last-updated dates) whenever entries in a category change.
+4. **Cross-references.** Link registry entries to BL-XXX (backlog items) and REQ-XXX (requirements) where applicable.
+5. **Status tracking.** Use status values: Active, Draft, Deprecated, Removed. When removing a component, mark it as `REMOVED` with the date rather than deleting the row.
+6. **Type classification.** Apex classes must be classified by type (Service, Utility, Test, Handler, Selector, Domain, Controller, Batch, Schedulable, Invocable). Flows must be classified (Record-Triggered, Screen, Scheduled, Autolaunched, Platform Event-Triggered).
+
+---
+
+## Design Standards Rules
+
+1. **Check before implementing.** Before implementing any feature, check `wiki/ways-of-working/design-standards.md` for applicable standards.
+2. **Two-layer precedence.** Client-specific standards (Layer 2) override framework defaults (Layer 1) when they conflict. Framework defaults apply when the client has no specific standard.
+3. **Update when standards change.** When a new design standard is established or an existing one changes, update `wiki/ways-of-working/design-standards.md` immediately.
+4. **Golden Rules compliance.** All 16 Golden Rules (including Rules 14-16) are enforced unless explicitly overridden by client standards.
+
+---
+
+## Global Project Constraints
+
+These constraints apply to every engagement, regardless of entry point or configuration.
+
+1. **Living Document Sync (Rule 14).** All living documents must be kept in sync. When modifying code, update all affected documents (REQUIREMENTS, BACKLOG, TECHNICAL_SPEC, wiki pages, COMPONENT_REGISTRY, CODE_ATLAS, DATA_MODEL). Never leave a document stale.
+2. **Component Registry (Rule 15).** Every component create/modify/delete must update `docs/COMPONENT_REGISTRY.md` immediately. This is non-negotiable.
+3. **UI Testing (Rule 16).** Before starting UI work (LWC, FlexCard, Experience Cloud page), ask the user: "This involves UI work. Should I use the Playwright screenshot loop?" If yes, follow the build → screenshot → review → iterate loop.
+4. **Pre-implementation documentation.** Before writing code for a new feature, ensure the BRD/requirements, technical spec, and data model are documented. Use the sf-architect-solutioning skill's pre-implementation gate.
+5. **Architecture-first.** Complex features must go through the sf-architect-solutioning skill before implementation. Simple bug fixes and minor enhancements can proceed directly with document updates.

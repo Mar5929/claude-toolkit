@@ -61,7 +61,9 @@ CONFIG_FILES=(
 SKILL_DIRS=(
   "skills/project-init"
   "skills/sf-project-init"
+  "skills/sf-architect-solutioning"
   "skills/drawio"
+  "skills/html-diagrams"
   "skills/ui-ux-pro-max"
 )
 

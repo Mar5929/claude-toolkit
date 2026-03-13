@@ -36,6 +36,8 @@ const ArchitectureData = (() => {
     { id: 'skill-project-init', name: 'Project Init', category: 'global-skill', description: 'Initializes new projects with structured interview, repo scaffolding, config files, and boilerplate docs.' },
     { id: 'skill-excalidraw', name: 'Excalidraw Skill', category: 'global-skill', description: 'Architecture diagrams, sequence diagrams, data flow via Excalidraw MCP.' },
     { id: 'skill-frontend', name: 'Frontend Design Skill', category: 'global-skill', description: 'Generating polished frontend UI with 21st.dev components and UI/UX Pro Max.' },
+    { id: 'skill-html-diagrams', name: 'HTML Diagrams', category: 'global-skill', description: 'Interactive D3.js diagrams with dark-theme design system — force graphs, swimlane flowcharts, circular rings.' },
+    { id: 'skill-sf-architect', name: 'SF Architect Solutioning', category: 'global-skill', description: 'Salesforce solution architecture — solution plans, architectural patterns, integration strategies.' },
 
     // ── Project Skills ──
     { id: 'pskill-docx', name: 'docx/', category: 'project-skill', description: 'Create, edit, validate .docx files — OOXML schemas, tracked changes, comments.' },
@@ -103,6 +105,8 @@ const ArchitectureData = (() => {
     { source: 'claude-code', target: 'skill-project-init' },
     { source: 'claude-code', target: 'skill-excalidraw' },
     { source: 'claude-code', target: 'skill-frontend' },
+    { source: 'claude-code', target: 'skill-html-diagrams' },
+    { source: 'claude-code', target: 'skill-sf-architect' },
 
     // Hub → Project Skills
     { source: 'claude-code', target: 'pskill-docx' },

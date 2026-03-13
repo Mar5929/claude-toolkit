@@ -218,6 +218,16 @@
 - **Location:** `~/.claude/skills/drawio/`
 - **Status:** Deployed and active
 
+#### HTML Diagrams Skill
+- **Use case:** Create interactive HTML diagrams using D3.js with a dark-theme design system — force-directed graphs, swimlane flowcharts, and circular ring diagrams as self-contained HTML files
+- **Location:** `~/.claude/skills/html-diagrams/`
+- **Status:** Deployed and active
+
+#### SF Architect Solutioning Skill
+- **Use case:** Salesforce solution architecture — generates solution plans with architectural patterns, integration strategies, and solutioning checklists for SF consulting engagements
+- **Location:** `sf-consulting-framework/skills/sf-architect-solutioning/`
+- **Status:** Deployed and active
+
 #### Frontend Design Skill
 - **Use case:** Generating polished frontend UI directly from Claude
 - **Notes:** Used in conjunction with 21st.dev components and UI/UX Pro Max library

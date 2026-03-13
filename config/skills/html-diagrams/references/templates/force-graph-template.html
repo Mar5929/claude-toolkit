@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DIAGRAM_TITLE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0F172A; --bg-card: #1E293B; --bg-hover: #334155;
+      --border: #334155; --text: #F1F5F9; --text-dim: #94A3B8; --text-muted: #64748B;
+      --accent: #7C3AED;
+      --font-ui: 'Inter', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; font-family: var(--font-ui); background: var(--bg); color: var(--text); overflow: hidden; }
+    svg.diagram { width: 100%; height: 100%; display: block; }
+
+    .controls { position: fixed; top: 16px; left: 16px; display: flex; gap: 8px; z-index: 100; }
+    .controls button, .controls input { font-family: var(--font-ui); font-size: 13px; padding: 6px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-card); color: var(--text); cursor: pointer; transition: background .15s; }
+    .controls button:hover { background: var(--bg-hover); }
+    .controls input[type="text"] { width: 180px; cursor: text; }
+    .controls input::placeholder { color: var(--text-muted); }
+
+    .title-bar { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); text-align: center; z-index: 90; pointer-events: none; }
+    .title-bar h1 { font-size: 18px; font-weight: 700; letter-spacing: -0.02em; }
+    .title-bar .subtitle { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+
+    .tooltip { position: fixed; padding: 10px 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; font-size: 13px; line-height: 1.5; max-width: 300px; pointer-events: none; opacity: 0; transition: opacity .15s; z-index: 200; box-shadow: 0 8px 24px rgba(0,0,0,.4); }
+    .tooltip.visible { opacity: 1; }
+    .tooltip .tt-name { font-weight: 600; margin-bottom: 4px; }
+    .tooltip .tt-category { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); margin-bottom: 4px; }
+    .tooltip .tt-desc { color: var(--text-dim); font-size: 12px; }
+
+    .sidebar { position: fixed; top: 0; right: -380px; width: 380px; height: 100%; background: var(--bg-card); border-left: 1px solid var(--border); padding: 24px; overflow-y: auto; z-index: 150; transition: right .25s ease; }
+    .sidebar.open { right: 0; }
+    .sidebar-close { position: absolute; top: 12px; right: 12px; background: none; border: none; color: var(--text-dim); font-size: 20px; cursor: pointer; }
+    .sidebar-close:hover { color: var(--text); }
+    .sidebar h2 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+    .sidebar .sb-category { font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); margin-bottom: 12px; }
+    .sidebar .sb-desc { font-size: 14px; color: var(--text-dim); line-height: 1.6; margin-bottom: 16px; }
+    .sidebar h3 { font-size: 13px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; }
+    .sidebar .sb-connections { list-style: none; }
+    .sidebar .sb-connections li { font-size: 13px; padding: 4px 0; color: var(--text); border-bottom: 1px solid var(--border); }
+
+    .legend { position: fixed; bottom: 16px; left: 16px; display: flex; flex-wrap: wrap; gap: 12px; z-index: 100; background: rgba(15,23,42,.85); backdrop-filter: blur(8px); padding: 10px 16px; border-radius: 8px; border: 1px solid var(--border); }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-dim); cursor: pointer; transition: opacity .15s; }
+    .legend-item.dimmed { opacity: .3; }
+    .legend-swatch { width: 12px; height: 12px; border-radius: 3px; }
+
+    .filter-bar { position: fixed; top: 56px; left: 16px; display: flex; flex-wrap: wrap; gap: 6px; z-index: 100; }
+    .filter-btn { font-family: var(--font-ui); font-size: 11px; padding: 4px 10px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-dim); cursor: pointer; transition: all .15s; }
+    .filter-btn.active { color: #fff; border-color: transparent; }
+    .filter-btn.dimmed { opacity: .35; }
+
+    .node-label { font-family: var(--font-ui); font-size: 12px; fill: var(--text); text-anchor: middle; pointer-events: none; user-select: none; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
+    .edge { stroke: #94A3B8; stroke-width: 1.5; fill: none; opacity: .7; }
+    .edge.highlighted { opacity: 1; stroke-width: 2; filter: drop-shadow(0 0 3px rgba(148,163,184,0.4)); }
+  </style>
+</head>
+<body>
+  <div class="controls">
+    <button id="btn-reset">Reset Zoom</button>
+    <input type="text" id="search" placeholder="Search nodes...">
+  </div>
+
+  <div class="title-bar">
+    <h1>DIAGRAM_TITLE</h1>
+    <div class="subtitle">DIAGRAM_SUBTITLE</div>
+  </div>
+
+  <div class="filter-bar" id="filter-bar"></div>
+  <svg class="diagram" id="svg" shape-rendering="geometricPrecision" text-rendering="optimizeLegibility"></svg>
+
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script>
+  (() => {
+    // ============================================================
+    //  DATA SECTION — Replace with your actual data
+    // ============================================================
+    const categories = [
+      { key: 'core',     label: 'Core System',   color: '#7C3AED' },
+      { key: 'service',  label: 'Service',        color: '#0D9488' },
+      { key: 'database', label: 'Database',       color: '#2563EB' },
+      { key: 'external', label: 'External',       color: '#475569' },
+    ];
+
+    const nodes = [
+      { id: 'hub',      name: 'API Gateway',    category: 'core',     description: 'Central API gateway' },
+      { id: 'auth',     name: 'Auth Service',   category: 'service',  description: 'Authentication and authorization' },
+      { id: 'users',    name: 'User Service',   category: 'service',  description: 'User management' },
+      { id: 'orders',   name: 'Order Service',  category: 'service',  description: 'Order processing' },
+      { id: 'db',       name: 'PostgreSQL',     category: 'database', description: 'Primary database' },
+    ];
+
+    const edges = [
+      { source: 'hub',  target: 'auth' },
+      { source: 'hub',  target: 'users' },
+      { source: 'hub',  target: 'orders' },
+      { source: 'users', target: 'db' },
+      { source: 'orders', target: 'db' },
+      { source: 'auth', target: 'db' },
+    ];
+    // ============================================================
+    //  END DATA SECTION
+    // ============================================================
+
+    const colorMap = {};
+    categories.forEach(c => { colorMap[c.key] = c.color; });
+    function color(cat) { return colorMap[cat] || '#64748B'; }
+
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const svg = d3.select('#svg');
+    const g = svg.append('g');
+
+    // Zoom
+    const zoom = d3.zoom().scaleExtent([0.2, 4]).on('zoom', (e) => g.attr('transform', e.transform));
+    svg.call(zoom);
+    svg.call(zoom.transform, d3.zoomIdentity.translate(width / 2, height / 2).scale(0.85));
+    document.getElementById('btn-reset').onclick = () => {
+      svg.transition().duration(500).call(zoom.transform, d3.zoomIdentity.translate(width / 2, height / 2).scale(0.9));
+    };
+
+    // Tooltip
+    function createTooltip() {
+      const el = document.createElement('div');
+      el.className = 'tooltip';
+      el.innerHTML = '<div class="tt-name"></div><div class="tt-category"></div><div class="tt-desc"></div>';
+      document.body.appendChild(el);
+      return {
+        show(d, event) {
+          el.querySelector('.tt-name').textContent = d.name || d.id;
+          el.querySelector('.tt-category').textContent = d.category || '';
+          el.querySelector('.tt-desc').textContent = d.description || '';
+          el.classList.add('visible');
+          const pad = 12;
+          let x = event.clientX + pad, y = event.clientY + pad;
+          if (x + 310 > window.innerWidth) x = event.clientX - 310;
+          if (y + el.offsetHeight > window.innerHeight) y = event.clientY - el.offsetHeight - pad;
+          el.style.left = x + 'px'; el.style.top = y + 'px';
+        },
+        hide() { el.classList.remove('visible'); }
+      };
+    }
+
+    // Sidebar
+    function createSidebar() {
+      const el = document.createElement('div');
+      el.className = 'sidebar';
+      el.innerHTML = '<button class="sidebar-close">&times;</button><h2 class="sb-name"></h2><div class="sb-category"></div><div class="sb-desc"></div><h3>Connections</h3><ul class="sb-connections"></ul>';
+      document.body.appendChild(el);
+      el.querySelector('.sidebar-close').onclick = () => el.classList.remove('open');
+      return {
+        show(d) {
+          el.querySelector('.sb-name').textContent = d.name || d.id;
+          el.querySelector('.sb-category').textContent = d.category || '';
+          el.querySelector('.sb-desc').textContent = d.description || '';
+          const connIds = new Set();
+          edges.forEach(e => {
+            const src = typeof e.source === 'object' ? e.source.id : e.source;
+            const tgt = typeof e.target === 'object' ? e.target.id : e.target;
+            if (src === d.id) connIds.add(tgt);
+            if (tgt === d.id) connIds.add(src);
+          });
+          const ul = el.querySelector('.sb-connections');
+          ul.innerHTML = '';
+          connIds.forEach(id => {
+            const n = nodes.find(n => n.id === id);
+            const li = document.createElement('li');
+            li.textContent = n ? (n.name || n.id) : id;
+            ul.appendChild(li);
+          });
+          el.classList.add('open');
+        },
+        close() { el.classList.remove('open'); }
+      };
+    }
+
+    const tooltip = createTooltip();
+    const sidebar = createSidebar();
+
+    // Hulls
+    const hullG = g.append('g');
+    function updateHulls() {
+      const groups = {};
+      nodes.forEach(n => {
+        if (n.category === categories[0].key) return;
+        if (!groups[n.category]) groups[n.category] = [];
+        groups[n.category].push([n.x, n.y]);
+      });
+      const hulls = Object.entries(groups)
+        .filter(([, pts]) => pts.length >= 3)
+        .map(([cat, pts]) => {
+          const padded = [];
+          pts.forEach(p => { padded.push([p[0]-30,p[1]-30],[p[0]+30,p[1]+30],[p[0]-30,p[1]+30],[p[0]+30,p[1]-30]); });
+          return { category: cat, hull: d3.polygonHull(padded) };
+        }).filter(h => h.hull);
+      hullG.selectAll('.hull').data(hulls, d => d.category).join('path')
+        .attr('class', 'hull')
+        .attr('d', d => 'M' + d.hull.join('L') + 'Z')
+        .attr('fill', d => color(d.category)).attr('fill-opacity', 0.06)
+        .attr('stroke', d => color(d.category)).attr('stroke-opacity', 0.15).attr('stroke-width', 1);
+    }
+
+    // Arrow markers — supports filled, open, hollow arrowhead types
+    const defs = svg.append('defs');
+    function getArrowId(clr, arrowhead) {
+      const type = arrowhead || 'filled';
+      if (type === 'none') return null;
+      const id = 'arrow-' + type + '-' + clr.replace('#', '');
+      if (!defs.select('#' + id).node()) {
+        const marker = defs.append('marker').attr('id', id).attr('viewBox', '0 0 10 10')
+          .attr('refX', 10).attr('refY', 5).attr('markerWidth', 6).attr('markerHeight', 6).attr('orient', 'auto');
+        if (type === 'open') {
+          marker.append('path').attr('d', 'M0,0 L10,5 L0,10').attr('fill', 'none').attr('stroke', clr).attr('stroke-width', 1.5);
+        } else if (type === 'hollow') {
+          marker.append('path').attr('d', 'M0,0 L10,5 L0,10 Z').attr('fill', '#0F172A').attr('stroke', clr).attr('stroke-width', 1.5);
+        } else {
+          marker.append('path').attr('d', 'M0,0 L10,5 L0,10 Z').attr('fill', clr);
+        }
+      }
+      return 'url(#' + id + ')';
+    }
+
+    // Edge style helper
+    function applyEdgeStyle(edgeEl, e) {
+      if (e.style === 'dashed') {
+        edgeEl.attr('stroke-dasharray', '8 4');
+      } else if (e.style === 'dotted') {
+        edgeEl.attr('stroke-dasharray', '2 4');
+      }
+      if (e.weight === 'bold') {
+        edgeEl.attr('stroke-width', 3).style('filter', 'drop-shadow(0 0 6px ' + (edgeEl.attr('stroke') || '#94A3B8') + ')');
+      } else if (e.weight === 'thin') {
+        edgeEl.attr('stroke-width', 1);
+      }
+    }
+
+    // Edges
+    const edgeEls = g.selectAll('.edge').data(edges).join('line').attr('class', 'edge');
+    edgeEls.each(function(e) {
+      const el = d3.select(this);
+      const arrowMarker = getArrowId('#94A3B8', e.arrowhead);
+      if (arrowMarker) el.attr('marker-end', arrowMarker);
+      applyEdgeStyle(el, e);
+    });
+
+    // Radial positioning
+    const hubKey = categories[0].key;
+    const catOrder = categories.map(c => c.key).filter(k => k !== hubKey);
+    const catAngle = {};
+    catOrder.forEach((k, i) => { catAngle[k] = (i / catOrder.length) * 2 * Math.PI - Math.PI / 2; });
+
+    // Force simulation
+    const simulation = d3.forceSimulation(nodes)
+      .force('link', d3.forceLink(edges).id(d => d.id).distance(d => {
+        const src = typeof d.source === 'object' ? d.source : nodes.find(n => n.id === d.source);
+        return src && src.category === hubKey ? 180 : 80;
+      }).strength(0.3))
+      .force('charge', d3.forceManyBody().strength(-120))
+      .force('radial', d3.forceRadial(d => d.category === hubKey ? 0 : 220, 0, 0).strength(d => d.category === hubKey ? 1 : 0.6))
+      .force('x', d3.forceX(d => {
+        if (d.category === hubKey) return 0;
+        const a = catAngle[d.category] || 0;
+        return Math.cos(a) * 110;
+      }).strength(0.15))
+      .force('y', d3.forceY(d => {
+        if (d.category === hubKey) return 0;
+        const a = catAngle[d.category] || 0;
+        return Math.sin(a) * 110;
+      }).strength(0.15))
+      .force('collision', d3.forceCollide(d => d.category === hubKey ? 40 : 24));
+
+    // Fix hub
+    const hub = nodes.find(n => n.category === hubKey);
+    if (hub) { hub.fx = 0; hub.fy = 0; }
+
+    // Nodes
+    const nodeEls = g.selectAll('.node').data(nodes, d => d.id).join('g').attr('class', 'node').attr('cursor', 'pointer');
+    nodeEls.append('circle')
+      .attr('r', d => d.category === hubKey ? 30 : 14)
+      .attr('fill', d => color(d.category))
+      .attr('stroke', d => d3.color(color(d.category)).brighter(0.6))
+      .attr('stroke-width', d => d.category === hubKey ? 3 : 1.5);
+    nodeEls.append('text').attr('class', 'node-label')
+      .attr('dy', d => (d.category === hubKey ? 30 : 14) + 16)
+      .attr('font-size', 12)
+      .text(d => d.name || d.id);
+
+    // Drag
+    nodeEls.call(d3.drag()
+      .on('start', (e, d) => { if (!e.active) simulation.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; })
+      .on('drag', (e, d) => { d.fx = e.x; d.fy = e.y; })
+      .on('end', (e, d) => { if (!e.active) simulation.alphaTarget(0); if (d.category !== hubKey) { d.fx = null; d.fy = null; } })
+    );
+
+    // Interactivity
+    nodeEls
+      .on('mouseover', (e, d) => tooltip.show(d, e))
+      .on('mousemove', (e, d) => tooltip.show(d, e))
+      .on('mouseout', () => tooltip.hide())
+      .on('click', (e, d) => {
+        sidebar.show(d);
+        const connIds = new Set([d.id]);
+        edges.forEach(edge => {
+          const src = typeof edge.source === 'object' ? edge.source.id : edge.source;
+          const tgt = typeof edge.target === 'object' ? edge.target.id : edge.target;
+          if (src === d.id) connIds.add(tgt);
+          if (tgt === d.id) connIds.add(src);
+        });
+        nodeEls.style('opacity', n => connIds.has(n.id) ? 1 : 0.12);
+        edgeEls.style('opacity', edge => {
+          const src = typeof edge.source === 'object' ? edge.source.id : edge.source;
+          const tgt = typeof edge.target === 'object' ? edge.target.id : edge.target;
+          return (src === d.id || tgt === d.id) ? 1.0 : 0.08;
+        });
+      });
+
+    svg.on('click', (e) => {
+      if (e.target === svg.node()) {
+        sidebar.close();
+        nodeEls.style('opacity', 1);
+        edgeEls.style('opacity', 0.7).classed('highlighted', false);
+      }
+    });
+
+    // Tick
+    simulation.on('tick', () => {
+      edgeEls.attr('x1', d => d.source.x).attr('y1', d => d.source.y)
+        .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
+      nodeEls.attr('transform', d => `translate(${d.x},${d.y})`);
+      updateHulls();
+    });
+
+    // Legend
+    const activeFilters = new Set(categories.map(c => c.key));
+    const legendEl = document.createElement('div');
+    legendEl.className = 'legend';
+    categories.forEach(cat => {
+      const item = document.createElement('div');
+      item.className = 'legend-item';
+      item.dataset.category = cat.key;
+      item.innerHTML = `<span class="legend-swatch" style="background:${color(cat.key)}"></span>${cat.label}`;
+      item.onclick = () => {
+        if (activeFilters.has(cat.key)) { activeFilters.delete(cat.key); item.classList.add('dimmed'); }
+        else { activeFilters.add(cat.key); item.classList.remove('dimmed'); }
+        nodeEls.style('display', d => activeFilters.has(d.category) ? null : 'none');
+        edgeEls.style('display', d => {
+          const s = typeof d.source === 'object' ? d.source : nodes.find(n => n.id === d.source);
+          const t = typeof d.target === 'object' ? d.target : nodes.find(n => n.id === d.target);
+          return (activeFilters.has(s.category) && activeFilters.has(t.category)) ? null : 'none';
+        });
+      };
+      legendEl.appendChild(item);
+    });
+    document.body.appendChild(legendEl);
+
+    // Filter buttons
+    const filterBar = document.getElementById('filter-bar');
+    categories.forEach(cat => {
+      const btn = document.createElement('button');
+      btn.className = 'filter-btn active';
+      btn.style.background = color(cat.key);
+      btn.textContent = cat.label;
+      btn.onclick = () => {
+        const onlyThis = activeFilters.size === 2 && activeFilters.has(cat.key) && activeFilters.has(hubKey);
+        if (onlyThis) { categories.forEach(c => activeFilters.add(c.key)); }
+        else { activeFilters.clear(); activeFilters.add(hubKey); activeFilters.add(cat.key); }
+        nodeEls.style('display', d => activeFilters.has(d.category) ? null : 'none');
+        edgeEls.style('display', d => {
+          const s = typeof d.source === 'object' ? d.source : nodes.find(n => n.id === d.source);
+          const t = typeof d.target === 'object' ? d.target : nodes.find(n => n.id === d.target);
+          return (activeFilters.has(s.category) && activeFilters.has(t.category)) ? null : 'none';
+        });
+        filterBar.querySelectorAll('.filter-btn').forEach(b => {
+          b.classList.toggle('dimmed', !activeFilters.has(categories.find(c => c.label === b.textContent)?.key));
+        });
+        document.querySelectorAll('.legend-item').forEach(li => {
+          li.classList.toggle('dimmed', !activeFilters.has(li.dataset.category));
+        });
+      };
+      filterBar.appendChild(btn);
+    });
+
+    // Search
+    const searchInput = document.getElementById('search');
+    searchInput.addEventListener('input', () => {
+      const q = searchInput.value.toLowerCase().trim();
+      if (!q) { nodeEls.style('opacity', 1); edgeEls.style('opacity', 0.7); return; }
+      const ids = new Set(nodes.filter(n => (n.name||n.id).toLowerCase().includes(q) || (n.category||'').toLowerCase().includes(q)).map(m => m.id));
+      nodeEls.style('opacity', d => ids.has(d.id) ? 1 : 0.1);
+      edgeEls.style('opacity', 0.05);
+    });
+  })();
+  </script>
+</body>
+</html>

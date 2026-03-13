@@ -139,7 +139,10 @@ Read `references/document-templates.md` for template structures.
 - Should Claude **auto-create a Linear project** for this engagement? (Recommend yes)
   - If yes: confirm the team (default: Rihm), milestone structure based on entry point
 - Which **living documents** should Claude maintain?
-  - Recommend defaults: BACKLOG.md, REQUIREMENTS.md, TECHNICAL_SPEC.md, DECISIONS.md, CHANGELOG.md, DATA_MODEL.md, CODE_ATLAS.md
+  - Recommend defaults: BACKLOG.md, REQUIREMENTS.md, TECHNICAL_SPEC.md, DECISIONS.md, CHANGELOG.md, DATA_MODEL.md, CODE_ATLAS.md, **COMPONENT_REGISTRY.md** (NON-OPTIONAL — always included)
+- **Component Registry** — `docs/COMPONENT_REGISTRY.md` is always generated. Explain: "This is a comprehensive inventory of every component in your org — objects, fields, classes, triggers, flows, LWC, permission sets, and more. It's updated automatically whenever components are created, modified, or deleted. This is non-optional."
+- **Daily Linear Sync** (opt-in) — Would you like a daily GitHub Actions workflow that syncs your Linear project state to BACKLOG.md? This keeps the backlog file current with Linear as the source of truth.
+  - If yes: will generate `.github/workflows/linear-sync.yml` and `scripts/linear-sync.js`. Requires `LINEAR_API_KEY`, `LINEAR_TEAM_ID`, and `LINEAR_PROJECT_ID` as GitHub Secrets.
 
 ### Round 6 — Dev Standards & CI/CD
 
@@ -152,13 +155,15 @@ Read `references/document-templates.md` for template structures.
   - `hotfix/*` — emergency fixes from main
   - `release/*` — release candidates, deploys to UAT
   - Present alternatives: GitHub Flow (simpler), Trunk-based (for small teams)
+- **GitHub repository** — Should Claude create the GitHub repository after scaffolding?
+  - If yes: GitHub account or org name? Public or private? Repository name (default: kebab-case of project name, e.g., `acme-corp-service-cloud`)
 - **GitHub Actions CI/CD** — recommend enabling with these templates:
   - `sf-validate.yml` — validate PR against target org (runs on PR to develop/main)
   - `sf-deploy.yml` — deploy to target org (runs on merge to develop/main)
   - Read `references/cicd-templates.md` for the YAML templates
 - **Code review policy** — require PR review before merge? Minimum reviewers?
 - **Test coverage target** — Salesforce requires 75%, recommend **85%+**
-- **Apex code standards** — accept the 13 Golden Rules as defaults? (see below)
+- **Apex code standards** — accept the 16 Golden Rules as defaults? (see below)
 
 ### Round 7 — Security & Compliance
 
@@ -178,11 +183,14 @@ Read `references/naming-conventions.md` for the default naming standard.
   - Present the default standard and let the user confirm or modify
 - **Communication style** — how should Claude communicate? (Brief and action-oriented recommended)
 - **MCP server confirmations** — should Claude ask before using MCP tools? (Recommend: ask for destructive actions only)
+- **Client design standards** — Does the client have specific design standards beyond Salesforce best practices? (Coding guidelines, UI standards, architectural constraints, documentation formats, approval processes)
+  - If yes: capture these for `wiki/ways-of-working/design-standards.md` Layer 2 (client-specific)
+  - If no: framework defaults (16 Golden Rules + Well-Architected patterns) will apply
 - Any **additional golden rules** or invariants specific to this engagement?
 
 ---
 
-## The 13 Golden Rules
+## The 16 Golden Rules
 
 These are included in every generated CLAUDE.md. Present them during Round 6 for confirmation:
 
@@ -199,6 +207,9 @@ These are included in every generated CLAUDE.md. Present them during Round 6 for
 11. **Ask before modifying object model** — Never create/modify objects, fields, or relationships without user confirmation
 12. **CPU time budget** — Monitor in complex operations, use Queueable/Batch for heavy processing
 13. **Naming conventions** — Follow firm standard from `references/naming-conventions.md`
+14. **Living Document Sync** — All living documents (REQUIREMENTS, BACKLOG, TECHNICAL_SPEC, wiki pages, COMPONENT_REGISTRY) must be kept in sync. Update all affected docs when modifying code. Never leave a document stale.
+15. **Component Registry Updates (Non-Negotiable)** — Every component create/modify/delete must update `docs/COMPONENT_REGISTRY.md` immediately.
+16. **UI Testing with Playwright** — Before starting UI work (LWC, FlexCard, Experience Cloud page), ask user: "This involves UI work. Should I use the Playwright screenshot loop?" If yes, follow build → screenshot → review → iterate loop.
 
 ---
 
@@ -225,9 +236,18 @@ Present the full file list organized by category:
 
 **Living Documentation (`docs/`):**
 - List only the documents the user opted into from Round 5
+- Always include `COMPONENT_REGISTRY.md` (NON-OPTIONAL)
+
+**Project Wiki (`wiki/`):**
+- `organization-overview.md`
+- `ways-of-working/` — design-standards.md, deployment-cicd.md, sandbox-strategy.md, team-makeup.md, recurring-meetings.md, roadmap-timelines.md
+- `applications/` — one subdirectory per selected product from Round 3
 
 **Client Deliverables (`deliverables/`):**
 - List only the deliverables the user opted into from Round 5
+
+**Archive (`archive/`):**
+- Empty directory created at scaffolding — used to store archived project artifacts
 
 **SFDX Source (`force-app/main/default/`):**
 - `classes/` — Apex classes
@@ -257,7 +277,8 @@ Present the full file list organized by category:
 - Optional: `tsmztech/mcp-server-salesforce` (deeper SOQL/CRUD access)
 
 ### 5. Enabled Workflows Checklist
-Present a checkbox list of all enabled workflows.
+Present a checkbox list of all enabled workflows, including:
+- `- [ ] GitHub repository: [public/private] at [org/repo-name]` (if opted in)
 
 **Wait for user approval before creating anything.**
 
@@ -276,7 +297,7 @@ After approval, generate the project. Read reference files for templates:
 Generate with the **13-section structure** from `references/document-templates.md`, tailored for Salesforce:
 
 **Section 1 — Project Overview:** Client name, project name, entry point, products in scope, team, org type
-**Section 2 — Golden Rules:** The 13 Golden Rules (confirmed or modified in Round 6), plus any engagement-specific rules
+**Section 2 — Golden Rules:** The 16 Golden Rules (confirmed or modified in Rounds 6/8), plus any engagement-specific rules. Rules 14-16: Living Document Sync, Component Registry Updates (Non-Negotiable), UI Testing with Playwright
 **Section 3 — Workspace Structure:** SFDX directory tree with `force-app/`, `docs/`, `deliverables/`, `scripts/`, `.github/`
 **Section 4 — Living Documents Update Protocol:** Event-to-action table for enabled documents
 **Section 5 — Coding Standards:** Salesforce-specific: Apex (bulkification, trigger handlers, SOQL best practices), LWC (wire vs imperative, SLDS, accessibility), Flows (naming, documentation)
@@ -359,7 +380,25 @@ project-root/
 │   ├── DECISIONS.md
 │   ├── CHANGELOG.md
 │   ├── DATA_MODEL.md
-│   └── CODE_ATLAS.md
+│   ├── CODE_ATLAS.md
+│   └── COMPONENT_REGISTRY.md          # NON-OPTIONAL — comprehensive component inventory
+│
+├── wiki/                              # Project wiki
+│   ├── organization-overview.md
+│   ├── ways-of-working/
+│   │   ├── design-standards.md        # Framework defaults + client-specific standards
+│   │   ├── deployment-cicd.md
+│   │   ├── sandbox-strategy.md
+│   │   ├── team-makeup.md
+│   │   ├── recurring-meetings.md
+│   │   └── roadmap-timelines.md
+│   └── applications/
+│       ├── README.md                  # How to add new app areas
+│       └── {product-name}/            # One per selected cloud/app from Round 3
+│           ├── overview.md
+│           ├── technical-specs.md
+│           ├── requirements.md
+│           └── process-flows.md
 │
 ├── deliverables/                      # Client-facing documents
 │   ├── brd/
@@ -389,18 +428,111 @@ project-root/
 ├── config/
 │   └── project-scratch-def.json
 │
+├── archive/                            # Archived project artifacts
+│
 ├── scripts/
-│   └── deploy/
+│   ├── deploy/
+│   └── linear-sync.js                 # If Linear sync opted in
 │
 └── .github/
     └── workflows/
         ├── sf-validate.yml
-        └── sf-deploy.yml
+        ├── sf-deploy.yml
+        └── linear-sync.yml            # If Linear sync opted in
 ```
+
+### Wiki Generation
+
+Populate the `wiki/` directory based on interview answers:
+
+1. **organization-overview.md** — Fill with client name, org type, team, timeline from Rounds 1-2
+2. **ways-of-working/** — Populate from Rounds 6-8:
+   - `design-standards.md` — Layer 1 (framework defaults: 16 Golden Rules + Well-Architected) always included. Layer 2 (client-specific) populated from Round 8 answers
+   - `deployment-cicd.md` — From Round 6 branching strategy and CI/CD selections
+   - `sandbox-strategy.md` — From Round 2 environment path
+   - `team-makeup.md` — From Round 1 team information
+   - `recurring-meetings.md` — Template with common defaults
+   - `roadmap-timelines.md` — From Round 4 timeline and milestones
+3. **applications/** — Create one subdirectory per product selected in Round 3:
+   - Convert product names to kebab-case directory names (e.g., `sales-cloud/`, `service-cloud/`, `experience-cloud/`, `data-cloud/`, `revenue-cloud/`, `industries-omni/`, `custom-crm/`)
+   - Each gets: `overview.md`, `technical-specs.md`, `requirements.md`, `process-flows.md`
+   - Populate overview.md with product-specific context from the interview
+
+### Component Registry Generation
+
+Generate `docs/COMPONENT_REGISTRY.md` with:
+- Summary table with all categories at count 0
+- All category section headers with empty tables
+- This is **NON-OPTIONAL** — always generated regardless of user selections
+
+### Linear Sync Generation
+
+If the user opted in to daily Linear sync in Round 5:
+- Generate `.github/workflows/linear-sync.yml` from `references/cicd-templates.md`
+- Generate `scripts/linear-sync.js` from `references/cicd-templates.md`
+- Add setup instructions to README.md (secrets required: LINEAR_API_KEY, LINEAR_TEAM_ID, LINEAR_PROJECT_ID)
+
+---
+
+## Phase 3.5: GitHub Repository Setup
+
+After all files are generated, if the user opted in to GitHub repo creation during Round 6, execute the following:
+
+### Step 1 — Initialize git and create initial commit
+
+```bash
+git init
+git checkout -b develop        # GitFlow: develop is default working branch
+git add .
+git commit -m "chore: initial project scaffolding — [Client] [Project]"
+```
+
+### Step 2 — Create GitHub remote repository
+
+Use `gh repo create` to create the remote:
+
+```bash
+# Public repo (if selected)
+gh repo create [repo-name] --public --source . --remote origin --push
+
+# Private repo (if selected)
+gh repo create [org/repo-name] --private --source . --remote origin --push
+```
+
+If the user specified a GitHub org, prefix with `org/repo-name`. If personal, use `repo-name` alone.
+
+### Step 3 — Set up main branch
+
+```bash
+git checkout -b main
+git push origin main
+git checkout develop             # Return to develop as default
+```
+
+### Step 4 — Configure branch protection (optional, recommended)
+
+Remind the user to set branch protection rules in GitHub Settings → Branches after the repo is created:
+
+- `develop` branch: require PR review (1 reviewer), require status checks (sf-validate workflow)
+- `main` branch: require PR review (2 reviewers), require status checks, restrict pushers to release managers
+
+> **Note:** Branch protection can be configured via `gh api` if the user wants it automated. Ask if they'd like that.
+
+### Step 5 — Present git summary
+
+After setup, show:
+- Remote URL
+- Default branch (`develop`)
+- Branches created (`main`, `develop`)
+- Next step: clone on second consultant machine or set up DevHub authentication
 
 ---
 
 ## Phase 4: Linear Auto-Creation
+
+**Auto-execute all steps in this phase immediately after Phase 3/3.5 without prompting the user.**
+The Linear project structure is created automatically as part of scaffolding. No approval step needed —
+the structure was already confirmed in the Phase 2 summary.
 
 After file generation, use the Linear MCP to create the engagement tracking structure.
 
@@ -409,13 +541,32 @@ Use `save_project` to create a project under team Rihm (`dfe15bc4-6dd0-4bde-8609
 - Name: `[Client Name] - [Project Name]`
 - Description: Generated from interview answers
 
-### Create Milestones
-Use `save_milestone` to create milestones based on entry point:
+**Important:** After creating the project, capture the returned project ID and update CLAUDE.md Section 1 with:
+- `Linear Project ID: {returned-id}`
+- `Linear Project Name: [Client Name] - [Project Name]`
 
-**Greenfield:** Discovery → Design → Build → Test → Deploy → Go-Live → Hypercare
+This enables automatic Linear ticket pulls during session startup (Section 8).
+
+### Create Milestones
+Use `save_milestone` to create milestones based on entry point. Set target dates using the timeline captured in Round 4 (calculate from the project start date):
+
+**Greenfield:**
+- Discovery — end of Week 2
+- Design — end of Week 2
+- Build — end of Week 8 (covers 3 sprints)
+- Test — end of Week 10
+- Deploy — end of Week 12
+- Go-Live — end of Week 12
+- Hypercare — 2 weeks post go-live
+
 **Build Phase:** Design → Build → Test → Deploy → Go-Live → Hypercare
+(Set dates based on sprint cadence captured in Round 4)
+
 **Managed Services:** Assessment → Stabilize → Ongoing Support
+(Set dates based on SLA terms and timeline from Round 4)
+
 **Rescue:** Assessment → Remediation → Stabilize → Build → Test → Deploy
+(Set urgency-adjusted dates from Round 4 urgency level)
 
 ### Create Initial Issues
 Use `save_issue` to create issues derived from interview answers:
@@ -424,8 +575,8 @@ Use `save_issue` to create issues derived from interview answers:
 - Link to milestones
 - Use labels from `list_issue_labels`
 
-### Create Cycles
-Use 2-week sprint cycles aligned to the engagement timeline.
+### Sprint Cycles
+Sprint cycles are managed directly in Linear UI. Milestones above serve as the primary structural grouping for tracking engagement progress.
 
 ---
 
