@@ -5,8 +5,8 @@
     "email": "michael@rihm.com"
   },
   "metadata": {
-    "description": "Personal, portable toolkit of reusable Claude systems — skills, hooks, and templates shared across every project and device.",
-    "version": "0.1.0"
+    "description": "Personal, portable toolkit of reusable Claude systems: skills, rules, hooks, and templates shared across every project and device.",
+    "version": "0.2.0"
   },
   "plugins": [
     {

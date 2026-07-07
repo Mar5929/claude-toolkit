@@ -122,10 +122,11 @@ reads first.
   `references/claude-md-boilerplate.md` — the rules the user wants in _every_
   project (e.g. keeping CLAUDE.md itself updated when a session surfaces something
   worth recording). Let the user accept, edit, or drop each.
-- **The multi-agent protocol (boilerplate rule 8) defaults ON:** the owner runs
-  several Claude Code sessions per repo in parallel, so every new project's
-  CLAUDE.md gets the "work in your own worktree, assume you're not alone, land
-  by PR" protocol unless the owner explicitly opts this project out.
+- **Boilerplate rules 8 and 9 default ON:** the multi-agent protocol (own
+  worktree per session, assume parallel agents, land by PR) and the language
+  rules (no em dashes, no section signs, no AI filler, plain language for a
+  mildly technical reader). Every new project gets both unless the owner
+  explicitly opts that project out.
 - Reflect what the earlier gates set up (memory system, knowledge layer, hooks) in
   the relevant CLAUDE.md sections so future sessions know they exist.
 

@@ -1,49 +1,73 @@
 # claude-toolkit
 
-**A personal, portable toolkit of reusable Claude systems — skills, hooks, and
-templates — that follow me across every project and every device.**
-
-This repository is my single source of truth for the repeatable pieces I want in
-_every_ project I start: a consistent project-initialization flow, a scalable
-memory architecture, a knowledge layer, guard hooks, and CLAUDE.md boilerplate.
-Instead of copy-pasting these between projects (and letting the copies drift), I
-maintain them **once, here**, and distribute them to each surface.
+**My personal, portable toolkit of reusable Claude Code systems: skills, rules,
+hooks, and templates that follow me to every project and every device.**
 
 ---
 
-## Why this repo exists
+## The goal
 
-I kept re-solving the same "set up a new project well" problem by hand, and my
-best patterns (memory architecture, knowledge layer, standard CLAUDE.md rules)
-lived scattered inside individual project repos where they slowly went stale.
-This repo fixes that:
+Every project teaches me something: a rule I wish every agent followed, a hook
+that would have caught a mistake, a setup pattern that worked well, sometimes a
+whole system worth reusing. Those lessons used to live scattered inside
+individual project repos, where they drifted and went stale.
 
-- **One canonical copy.** Each reusable system lives here and only here.
+This repo is where they accumulate instead. The loop:
+
+1. **Learn.** While working in any project, I find something worth keeping.
+2. **Store.** I open a Claude session in this repo and say some version of
+   "I want every new project to also do X." The agent figures out where X
+   belongs in the toolkit and folds it in (`CLAUDE.md` tells agents exactly how).
+3. **Reuse.** When I spin up a new project, the `project-init` skill walks me
+   through setup and brings everything in this toolkit with it.
+
+Each new project starts with everything the previous ones taught me, so my
+projects get better and better.
+
+Why one canonical copy matters:
+
 - **Cross-project.** Any new repo gets the same battle-tested setup flow.
 - **Cross-device.** Works from my MacBook, my Windows laptop, and (via publish)
   the Claude desktop and web apps.
-- **No drift.** When I improve a system while using it inside some project, I port
-  the change _back here_ and re-publish — the template and every consumer stay in
-  sync.
+- **No drift.** When I improve a system while using it inside some project, I
+  port the change back here and re-publish. The template and every consumer
+  stay in sync.
 
 ---
 
-## How it's distributed (single source → every surface)
+## How it grows
+
+When I tell a session here to "remember" or "add" something, it doesn't just get
+written down somewhere. It gets fitted into the system:
+
+| What I bring | Where it lands |
+|---|---|
+| A rule every project should follow (behavior, writing style, workflow) | A numbered rule in `claude-md-boilerplate.md`, injected into each new project's CLAUDE.md |
+| A setup step for new projects | A gate (or part of one) in the `project-init` skill |
+| A guard hook or automation | The shared hooks library (on the roadmap; recorded there until it exists) |
+| A whole reusable system | Its own plugin/skill that `project-init` offers |
+
+`CLAUDE.md` in this repo gives agents the full instructions for handling these
+requests.
+
+---
+
+## How it's distributed (single source, every surface)
 
 This repo is structured as a **Claude Code plugin marketplace**. One repo can hold
 many plugins; each plugin bundles skills (and later hooks/commands/agents).
 
 | Surface | How it consumes this repo | How it updates |
 |---|---|---|
-| **Claude Code** (Mac + Windows, every project) | `/plugin marketplace add mar5929/claude-toolkit` once per machine, then `/plugin install project-init` | `/plugin marketplace update` (git-pulls) |
+| **Claude Code** (Mac + Windows, every project) | `/plugin marketplace add Mar5929/claude-toolkit` once per machine, then `/plugin install project-init` | `/plugin marketplace update` (git-pulls) |
 | **Claude Code**, no-plugin fallback | clone this repo, symlink `plugins/*/skills/*` into `~/.claude/skills/` | `git pull` |
-| **Claude desktop / web** (claude.ai) | upload the skill folder as a Capability/Skill | no git auto-sync — **publish-on-change** from here |
+| **Claude desktop / web** (claude.ai) | upload the skill folder as a Capability/Skill | no git auto-sync; **publish-on-change** from here |
 
-The plugin route is the primary one: it's a single install per machine, updates
-with one command, and will also carry hooks/commands as this repo grows. The web
+The plugin route is the primary one: a single install per machine, updates with
+one command, and it will also carry hooks/commands as this repo grows. The web
 and desktop apps don't auto-pull from git today, so I treat them as **publish
-targets** — this repo stays the source of truth and I export to them when a system
-changes.
+targets**: this repo stays the source of truth and I export to them when a
+system changes.
 
 ---
 
@@ -52,6 +76,7 @@ changes.
 ```
 claude-toolkit/
   README.md                       ← you are here
+  CLAUDE.md                       ← instructions for agents working in this repo
   .claude-plugin/
     marketplace.json              ← lists the plugins in this repo
   plugins/
@@ -63,61 +88,75 @@ claude-toolkit/
           references/
             setup-flow.md         ← the ordered gate-by-gate checklist
             claude-md-boilerplate.md  ← standard CLAUDE.md rules I always want
+  docs/
+    architecture.html             ← visual map of how the pieces fit
 ```
 
-Each **concern is its own skill** so it can evolve and be reused independently —
-`project-init` orchestrates the setup and _references_ the other systems rather
-than hard-coding them, so the memory architecture can change without touching the
-init flow.
+Each **concern is its own skill** so it can evolve and be reused independently.
+`project-init` orchestrates the setup and references the other systems rather
+than hard-coding them, so (for example) the memory architecture can change
+without touching the init flow.
 
 ---
 
 ## What's here now
 
-- **`project-init`** — a skill that walks me through setting up a new project in a
-  fixed, skippable order: scaffolding & folder structure → hooks → memory system →
-  knowledge layer → CLAUDE.md. It asks before acting, recommends per-stack layouts,
-  and injects my standard CLAUDE.md rules.
+- **`project-init`**: a skill that walks me through setting up a new project in
+  a fixed, skippable order: scaffolding & folder structure, hooks, memory
+  system, knowledge layer, CLAUDE.md. It asks before acting, recommends
+  per-stack layouts, and injects my standard CLAUDE.md rules, including two
+  that every project gets by default:
+  - the **multi-agent protocol**: every session works in its own git worktree,
+    assumes other agents are working in parallel, and lands work by PR
+  - my **language rules**: no em dashes, no section signs, no AI filler
+    language, plain explanations for a mildly technical reader
 
 ---
 
 ## Planned additions (roadmap)
 
-These are the reusable systems I want to fold in here over time. Ordered roughly by
-priority; each becomes its own skill/plugin so `project-init` can pull it in.
+These are the reusable systems I want to fold in here over time. Ordered roughly
+by priority; each becomes its own skill/plugin so `project-init` can pull it in.
 
-- [ ] **`memory-architecture` skill** — my scalable long-term memory system (the
+- [ ] **`memory-architecture` skill**: my scalable long-term memory system (the
   single-owner Markdown knowledge-graph pattern: `memories/` with `index.json`,
   typed edges, a curator agent, drift detection). Port from the Anchor project
   once its remaining bugs are ironed out. This is the highest-value repeatable
   system and the main reason this repo exists.
-- [ ] **`knowledge-layer` skill** — the knowledge/`covers:`-style layer that pins
-  durable knowledge nodes to source files and flags staleness.
-- [ ] **Shared hooks library** — reusable guard hooks I can drop into any project,
-  e.g. **block deployments to a protected environment**, secret-scanning
+- [ ] **`knowledge-layer` skill**: the layer that pins durable knowledge nodes
+  to source files and flags them stale when the source drifts.
+- [ ] **Shared hooks library**: reusable guard hooks I can drop into any
+  project, e.g. blocking deployments to a protected environment, secret-scanning
   pre-commit guards, and a SessionStart orientation hook.
-- [ ] **CLAUDE.md boilerplate library** — a growing set of standard rules I want in
-  every project (e.g. _"if we identify CLAUDE.md-worthy updates during a session,
-  update CLAUDE.md before the task ends"_), composable per project.
-- [ ] **Publish tooling** — a small script/checklist to export skills to the Claude
-  desktop and web apps so those surfaces stay in sync with this repo.
-- [ ] **"Port-back" convention** — a documented flow (and a reminder baked into each
-  skill) for when I improve a system inside a project: open a PR back to this repo
-  so the canonical template is updated and re-published everywhere.
+- [ ] **CLAUDE.md boilerplate library**: promote the boilerplate reference into
+  a standalone, versioned library that projects reuse verbatim instead of
+  retyping.
+- [ ] **Publish tooling**: a small script/checklist to export skills to the
+  Claude desktop and web apps so those surfaces stay in sync with this repo.
+- [ ] **"Port-back" convention**: a documented flow (and a reminder baked into
+  each skill) for when I improve a system inside a project: open a PR back to
+  this repo so the canonical template is updated and re-published everywhere.
 
-> **Design principle for everything added here:** modular and opt-in. No project is
-> forced to take a system it doesn't want; `project-init` offers each one and skips
-> what I decline.
+> **Design principle for everything added here:** modular and opt-in. No project
+> is forced to take a system it doesn't want; `project-init` offers each one and
+> skips what I decline.
 
 ---
 
 ## Using it
 
-Once installed as a plugin, start a new project and run the skill:
+Install once per machine:
+
+```
+/plugin marketplace add Mar5929/claude-toolkit
+/plugin install project-init
+```
+
+Then, in a fresh project:
 
 ```
 /project-init
 ```
 
-It will walk you through the setup gates one at a time. Every gate is optional —
-skip the ones a given project doesn't need.
+It walks through the setup gates one at a time. Every gate is optional; skip the
+ones a given project doesn't need.
