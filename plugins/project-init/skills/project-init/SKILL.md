@@ -6,29 +6,32 @@ description: >-
   layer, and CLAUDE.md. Use when the user is starting a new repo/project and
   wants help setting up the foundational scaffolding, or says things like
   "initialize this project", "set up the scaffolding", "/project-init", or "help
-  me get this new repo going". This skill ORCHESTRATES setup — it asks the user
+  me get this new repo going". This skill ORCHESTRATES setup: it asks the user
   how they want each piece, recommends options for their stack, and only acts
   after they confirm. Every gate is optional and skippable.
 ---
 
-# project-init — new-project setup, one gate at a time
+# project-init: new-project setup, one gate at a time
 
 Your job is to **collaborate with the user to lay a project's foundations**, not
-to impose a template. Walk them through the gates below **in order**. Each gate is
-**optional and skippable** — always ask before doing, recommend for their stack,
-and move on when they say skip.
+to impose a template. Walk them through the gates below **in order**. Each gate
+is **optional and skippable**: always ask before doing, recommend for their
+stack, and move on when they say skip.
+
+(For a project that already exists and needs to catch up with the toolkit, use
+the sibling `project-sync` skill instead.)
 
 ## How to run this skill
 
 1. **Orient first.** Look at what already exists in the working directory (files,
    language, framework, whether it's an empty repo or has code). A greenfield repo
-   and a half-built one need different setups. Never assume — read before you
+   and a half-built one need different setups. Never assume; read before you
    recommend.
 2. **Announce the plan.** Tell the user you'll go gate-by-gate and that each is
    optional. Offer to jump straight to any gate they care about.
-3. **Work one gate at a time.** For each: briefly explain what it's for →
-   recommend a default for _their_ stack → ask how they want it (or to skip) →
-   act only after they confirm → summarize what you did before moving on.
+3. **Work one gate at a time.** For each: briefly explain what it's for,
+   recommend a default for _their_ stack, ask how they want it (or to skip),
+   act only after they confirm, and summarize what you did before moving on.
 4. **Track progress** so the user always knows where they are (e.g. a short
    checklist you update as gates complete).
 5. **Close out** with the wrap-up in the last section.
@@ -40,35 +43,35 @@ form. Keep each gate tight.
 
 ## The gates (in order)
 
-### Gate 1 — Scaffolding & folder structure
+### Gate 1: Scaffolding & folder structure
 
 **Purpose:** a sensible directory layout and starter files for the project's stack.
 
-- Identify the stack (ask if unclear — language, framework, app vs. library vs.
+- Identify the stack (ask if unclear: language, framework, app vs. library vs.
   service, monorepo or single package).
 - **Recommend** a conventional layout for that stack, and explain the _why_ in a
-  sentence or two — don't just emit a tree. Offer 1–2 variants if there's a real
+  sentence or two; don't just emit a tree. Offer 1-2 variants if there's a real
   choice (e.g. `src/`-layout vs. flat).
 - Cover, as relevant: source dirs, tests, config, `.gitignore`, a starter README,
   license, editor/formatter config, CI stub.
 - Create only what the user approves. Prefer conventional tooling for the stack;
   don't invent structure.
 
-> This gate is intentionally per-project — the value is your tailored
+> This gate is intentionally per-project: the value is your tailored
 > recommendation, not a frozen template.
 
-### Gate 2 — Hooks (guards & automation)
+### Gate 2: Hooks (guards & automation)
 
 **Purpose:** wire up Claude Code hooks that enforce guardrails or automate chores.
 
 Ask what the project needs protecting from or automated. Common ones:
 
-- **Environment / deployment guards** — block or require confirmation before
+- **Environment / deployment guards**: block or require confirmation before
   commands that deploy to a protected environment (e.g. prod), push to a protected
   branch, or run destructive operations.
-- **Secret-leak guards** — pre-commit / pre-tool checks that stop secrets or
+- **Secret-leak guards**: pre-commit / pre-tool checks that stop secrets or
   ignored files from being committed.
-- **SessionStart orientation** — print project state and hard rules at the top of
+- **SessionStart orientation**: print project state and hard rules at the top of
   each session.
 - **Format/lint on save or pre-commit.**
 
@@ -78,15 +81,15 @@ config (and any script), and tell the user how to verify it fires.
 > A reusable library of these guard hooks is planned for `claude-toolkit`. Until
 > it lands, author the hook for this project directly.
 
-### Gate 3 — Memory system
+### Gate 3: Memory system
 
 **Purpose:** durable, cross-session long-term memory so context survives between
 sessions.
 
-- Ask whether this project wants the memory system. Many small projects don't need
-  it — say so; it's opt-in.
+- Ask whether this project wants the memory system. Many small projects don't
+  need it; say so. It's opt-in.
 - If yes: set up the scalable memory architecture (the single-owner Markdown
-  knowledge-graph pattern — a `memories/` store with an index, typed links, and a
+  knowledge-graph pattern: a `memories/` store with an index, typed links, and a
   curator that owns all writes).
 - Explain the ground rules you're establishing (e.g. only the curator writes to
   the memory store; a session-start hook injects curated context).
@@ -97,7 +100,7 @@ sessions.
 > current best version of the pattern and note that it should be reconciled with
 > the toolkit template later.
 
-### Gate 4 — Knowledge layer
+### Gate 4: Knowledge layer
 
 **Purpose:** durable knowledge nodes pinned to the source they describe, with
 staleness detection when that source drifts.
@@ -110,16 +113,16 @@ staleness detection when that source drifts.
 > Also on the roadmap as a standalone `knowledge-layer` skill. Set it up from the
 > current best version for now; reconcile with the toolkit later.
 
-### Gate 5 — CLAUDE.md
+### Gate 5: CLAUDE.md
 
 **Purpose:** the project's orientation + rules file that every future session
 reads first.
 
-- Build it _with_ the user — walk through the sections rather than generating a
-  wall of text: what the project is, the codemap, hard rules, how to work here,
-  and the wrap-up ritual.
+- Build it _with_ the user, walking through the sections rather than generating
+  a wall of text: what the project is, the codemap, hard rules, how to work
+  here, and the wrap-up ritual.
 - **Always offer the standard boilerplate rules** from
-  `references/claude-md-boilerplate.md` — the rules the user wants in _every_
+  `references/claude-md-boilerplate.md`: the rules the user wants in _every_
   project (e.g. keeping CLAUDE.md itself updated when a session surfaces something
   worth recording). Let the user accept, edit, or drop each.
 - **Boilerplate rules 8 and 9 default ON:** the multi-agent protocol (own
@@ -134,10 +137,10 @@ reads first.
 
 ## References
 
-- `references/setup-flow.md` — the gate-by-gate checklist to track progress
+- `references/setup-flow.md`: the gate-by-gate checklist to track progress
   against during the run.
-- `references/claude-md-boilerplate.md` — the standard CLAUDE.md rules to offer in
-  Gate 5.
+- `references/claude-md-boilerplate.md`: the standard CLAUDE.md rules to offer
+  in Gate 5.
 
 Read a reference when you reach the gate that needs it; you don't need to load
 everything up front.
@@ -148,7 +151,7 @@ everything up front.
 
 1. **Summarize** what was set up and what was skipped, so the user has a clear
    record.
-2. **Note follow-ups** — anything a skipped gate leaves open, or systems set up
+2. **Note follow-ups**: anything a skipped gate leaves open, or systems set up
    from an interim pattern that should later reconcile with the `claude-toolkit`
    canonical version.
 3. **Port-back reminder:** if during this setup you improved one of the reusable
