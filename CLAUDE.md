@@ -44,5 +44,6 @@ still contain em dashes; clean them up in any file you're already editing.
 
 Mike usually runs several Claude Code sessions at once. Work in your own git
 worktree on your own branch, never edit the shared primary checkout, and land
-changes on `main` by pull request. Mike merges. (This is the same protocol that
-boilerplate rule 8 installs into new projects.)
+changes on `main` by pull request. After opening the PR, ask Mike whether to
+merge and clean up; merge only when he approves. (This is the same protocol
+that boilerplate rule 8 installs into new projects.)

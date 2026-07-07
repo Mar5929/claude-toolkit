@@ -78,9 +78,10 @@ CLAUDE.md gets this protocol so each session assumes it is **not alone**:
 >   sessions. Reading files there is fine, and so is `git fetch`/`git pull`
 >   while it sits on the default branch. The primary checkout stays on the
 >   default branch, clean, always.
-> - Land finished work on the default branch **via pull request**. The owner
->   merges unless he explicitly says otherwise. After the merge, remove your
->   worktree and delete the branch.
+> - Land finished work on the default branch **via pull request**. After
+>   opening the PR, ask the owner whether to merge and clean up; merge only
+>   with his approval (or a standing instruction to merge). After the merge,
+>   remove your worktree and delete the branch.
 > - If the primary checkout is dirty or on an unexpected branch, do **not**
 >   "fix" it; another session may be mid-task. Tell the owner instead.
 > - Keep shared status/handoff docs' edits small and additive so parallel PRs
