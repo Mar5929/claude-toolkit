@@ -6,13 +6,13 @@
   },
   "metadata": {
     "description": "Personal, portable toolkit of reusable Claude systems: skills, rules, hooks, and templates shared across every project and device.",
-    "version": "0.2.0"
+    "version": "0.3.0"
   },
   "plugins": [
     {
       "name": "project-init",
       "source": "./plugins/project-init",
-      "description": "Walks you through initializing a new project: scaffolding, hooks, memory system, knowledge layer, and CLAUDE.md — one skippable gate at a time."
+      "description": "Two skills: project-init walks you through setting up a new project (scaffolding, hooks, memory system, knowledge layer, CLAUDE.md) one skippable gate at a time; project-sync audits an existing project against the toolkit and closes the gaps you approve."
     }
   ]
 }

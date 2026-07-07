@@ -19,7 +19,9 @@ This repo is where they accumulate instead. The loop:
    "I want every new project to also do X." The agent figures out where X
    belongs in the toolkit and folds it in (`CLAUDE.md` tells agents exactly how).
 3. **Reuse.** When I spin up a new project, the `project-init` skill walks me
-   through setup and brings everything in this toolkit with it.
+   through setup and brings everything in this toolkit with it. For projects
+   that already exist, the `project-sync` skill audits them against the
+   toolkit and catches them up.
 
 Each new project starts with everything the previous ones taught me, so my
 projects get better and better.
@@ -88,6 +90,8 @@ claude-toolkit/
           references/
             setup-flow.md         ← the ordered gate-by-gate checklist
             claude-md-boilerplate.md  ← standard CLAUDE.md rules I always want
+        project-sync/
+          SKILL.md                ← audit an existing project against the toolkit
   docs/
     architecture.html             ← visual map of how the pieces fit
 ```
@@ -110,6 +114,13 @@ without touching the init flow.
     assumes other agents are working in parallel, and lands work by PR
   - my **language rules**: no em dashes, no section signs, no AI filler
     language, plain explanations for a mildly technical reader
+- **`project-sync`**: the same idea for projects that already exist. Point any
+  repo at the toolkit and say "make sure everything from the toolkit is set up
+  here." It inventories what the toolkit currently ships (so new systems are
+  picked up automatically as the toolkit grows), cross-references the project,
+  reports the gaps in one table, closes the ones I approve, and records the
+  toolkit version it synced against so future runs don't re-nag about a
+  deliberate "no".
 
 ---
 
@@ -160,3 +171,12 @@ Then, in a fresh project:
 
 It walks through the setup gates one at a time. Every gate is optional; skip the
 ones a given project doesn't need.
+
+For a project that already exists:
+
+```
+/project-sync
+```
+
+It checks the project against everything in the toolkit, shows what's missing,
+and sets up what I approve.
