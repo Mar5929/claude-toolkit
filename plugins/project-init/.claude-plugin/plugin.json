@@ -1,0 +1,9 @@
+{
+  "name": "project-init",
+  "description": "Walks you through initializing a new project in a fixed, skippable order: scaffolding & folder structure, hooks, memory system, knowledge layer, and CLAUDE.md. Asks before acting; recommends per-stack layouts; injects standard CLAUDE.md rules.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Mike Rihm",
+    "email": "michael@rihm.com"
+  }
+}

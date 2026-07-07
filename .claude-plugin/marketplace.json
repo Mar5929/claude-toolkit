@@ -1,0 +1,18 @@
+{
+  "name": "claude-toolkit",
+  "owner": {
+    "name": "Mike Rihm",
+    "email": "michael@rihm.com"
+  },
+  "metadata": {
+    "description": "Personal, portable toolkit of reusable Claude systems — skills, hooks, and templates shared across every project and device.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "project-init",
+      "source": "./plugins/project-init",
+      "description": "Walks you through initializing a new project: scaffolding, hooks, memory system, knowledge layer, and CLAUDE.md — one skippable gate at a time."
+    }
+  ]
+}

@@ -1,0 +1,369 @@
+<title>claude-toolkit — architecture</title>
+<style>
+  :root {
+    --bg: #EAEEF3;
+    --panel: #FFFFFF;
+    --panel-2: #F2F5F9;
+    --ink: #1A2430;
+    --ink-soft: #56636F;
+    --line: #D3DBE4;
+    --copper: #B0561F;
+    --copper-soft: #F1DDCF;
+    --teal: #1C7368;
+    --teal-soft: #D7ECE8;
+    --slate: #45566A;
+    --shadow: 0 1px 2px rgba(20,30,45,.06), 0 8px 24px rgba(20,30,45,.06);
+    --radius: 14px;
+    --maxw: 1000px;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0F161E;
+      --panel: #1A232D;
+      --panel-2: #202B37;
+      --ink: #E7ECF2;
+      --ink-soft: #9AA7B4;
+      --line: #2B3743;
+      --copper: #E28B55;
+      --copper-soft: #38241611;
+      --teal: #57B8AD;
+      --teal-soft: #12302C;
+      --slate: #90A2B5;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #EAEEF3; --panel: #FFFFFF; --panel-2: #F2F5F9; --ink: #1A2430;
+    --ink-soft: #56636F; --line: #D3DBE4; --copper: #B0561F; --copper-soft: #F1DDCF;
+    --teal: #1C7368; --teal-soft: #D7ECE8; --slate: #45566A;
+    --shadow: 0 1px 2px rgba(20,30,45,.06), 0 8px 24px rgba(20,30,45,.06);
+  }
+  :root[data-theme="dark"] {
+    --bg: #0F161E; --panel: #1A232D; --panel-2: #202B37; --ink: #E7ECF2;
+    --ink-soft: #9AA7B4; --line: #2B3743; --copper: #E28B55; --copper-soft: #382416;
+    --teal: #57B8AD; --teal-soft: #12302C; --slate: #90A2B5;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: var(--sans); line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    padding: clamp(20px, 4vw, 56px) 20px 72px;
+  }
+  .wrap { max-width: var(--maxw); margin: 0 auto; }
+
+  .eyebrow {
+    font-family: var(--mono); font-size: .72rem; letter-spacing: .18em;
+    text-transform: uppercase; color: var(--ink-soft); margin: 0 0 14px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .eyebrow::before {
+    content: ""; width: 26px; height: 1px; background: var(--copper);
+    display: inline-block;
+  }
+  h1 {
+    font-size: clamp(1.8rem, 4.2vw, 2.75rem); line-height: 1.08;
+    letter-spacing: -.02em; margin: 0 0 16px; text-wrap: balance; font-weight: 700;
+  }
+  h1 .c { color: var(--copper); }
+  h1 .t { color: var(--teal); }
+  .lede {
+    font-size: 1.06rem; color: var(--ink-soft); max-width: 60ch; margin: 0 0 8px;
+  }
+
+  .band { margin-top: 30px; }
+  .band-head {
+    display: flex; align-items: baseline; gap: 12px; margin: 0 0 14px;
+    flex-wrap: wrap;
+  }
+  .band-num {
+    font-family: var(--mono); font-size: .8rem; color: var(--copper);
+    font-weight: 600; letter-spacing: .04em;
+  }
+  h2 { font-size: 1.12rem; margin: 0; letter-spacing: -.01em; font-weight: 650; }
+  .band-sub { font-size: .92rem; color: var(--ink-soft); margin: 0; }
+
+  .card {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: clamp(16px, 2.4vw, 24px);
+  }
+
+  /* repo tree */
+  .repo-grid { display: grid; grid-template-columns: minmax(0,1.05fr) minmax(0,1fr); gap: 0; }
+  @media (max-width: 720px){ .repo-grid { grid-template-columns: 1fr; } }
+  .tree {
+    font-family: var(--mono); font-size: .82rem; line-height: 1.9;
+    padding: 4px 6px; overflow-x: auto;
+  }
+  .tree .row { white-space: pre; display: block; border-left: 2px solid transparent; padding-left: 10px; margin-left: -12px; }
+  .tree .row.orch { border-left-color: var(--copper); background: var(--copper-soft); border-radius: 4px; }
+  .tree .row.reuse { border-left-color: var(--teal); }
+  .tree .dim { color: var(--ink-soft); }
+  .tree .orch b { color: var(--copper); font-weight: 700; }
+  .tree .reuse b { color: var(--teal); font-weight: 700; }
+  .tree .soon { color: var(--ink-soft); font-style: italic; }
+
+  .legend {
+    border-left: 1px solid var(--line); padding-left: clamp(16px,2vw,24px);
+    display: flex; flex-direction: column; gap: 16px; justify-content: center;
+  }
+  @media (max-width: 720px){ .legend { border-left: none; border-top: 1px solid var(--line); padding-left: 0; padding-top: 20px; margin-top: 20px; } }
+  .leg-item { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start; }
+  .swatch {
+    width: 14px; height: 14px; border-radius: 4px; margin-top: 4px; flex: none;
+  }
+  .swatch.orch { background: var(--copper); }
+  .swatch.reuse { background: var(--teal); }
+  .swatch.plain { background: var(--slate); }
+  .leg-item h3 { margin: 0 0 2px; font-size: .95rem; }
+  .leg-item h3 code { font-family: var(--mono); font-size: .84em; }
+  .leg-item p { margin: 0; font-size: .88rem; color: var(--ink-soft); }
+
+  /* connectors */
+  .connector {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    padding: 16px 0 6px; color: var(--ink-soft);
+  }
+  .connector .arw { font-size: 1.1rem; color: var(--copper); line-height: 1; }
+  .connector .lbl {
+    font-family: var(--mono); font-size: .74rem; letter-spacing: .04em;
+    color: var(--ink-soft); text-align: center; max-width: 46ch;
+  }
+
+  /* device row */
+  .devices { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  @media (max-width: 640px){ .devices { grid-template-columns: 1fr; } }
+  .device {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+    padding: 16px; box-shadow: var(--shadow);
+  }
+  .device .k { font-family: var(--mono); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--slate); margin: 0 0 6px; }
+  .device .v { font-weight: 600; font-size: .98rem; margin: 0 0 4px; }
+  .device .d { font-size: .84rem; color: var(--ink-soft); margin: 0; }
+  .device code { font-family: var(--mono); font-size: .8em; background: var(--panel-2); padding: 1px 5px; border-radius: 4px; }
+
+  /* run flow */
+  .run { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 760px){ .run { grid-template-columns: 1fr; } }
+  .orchestrator .title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .pill {
+    font-family: var(--mono); font-size: .74rem; padding: 3px 9px; border-radius: 999px;
+    font-weight: 600; letter-spacing: .02em;
+  }
+  .pill.orch { background: var(--copper-soft); color: var(--copper); border: 1px solid var(--copper); }
+  .pill.reuse { background: var(--teal-soft); color: var(--teal); border: 1px solid var(--teal); }
+  .gates { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .gate {
+    display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center;
+    font-size: .9rem; padding: 9px 12px; background: var(--panel-2);
+    border: 1px solid var(--line); border-radius: 9px;
+  }
+  .gate .n { font-family: var(--mono); font-size: .74rem; color: var(--ink-soft); }
+  .gate .tag { font-family: var(--mono); font-size: .68rem; letter-spacing: .04em; color: var(--ink-soft); }
+  .gate.linked { border-color: var(--teal); box-shadow: inset 0 0 0 1px var(--teal-soft); }
+  .gate.linked .tag { color: var(--teal); }
+
+  .pullbox {
+    background: var(--panel-2); border: 1px dashed var(--teal); border-radius: 12px;
+    padding: 16px; height: 100%; display: flex; flex-direction: column; gap: 12px;
+  }
+  .pullbox h4 { margin: 0; font-size: .95rem; }
+  .pullbox .step { display: grid; grid-template-columns: auto 1fr; gap: 10px; font-size: .87rem; color: var(--ink-soft); }
+  .pullbox .step .b { font-family: var(--mono); color: var(--teal); font-weight: 700; }
+  .pullbox code { font-family: var(--mono); font-size: .82em; color: var(--ink); }
+
+  /* loop */
+  .loop { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; align-items: stretch; }
+  @media (max-width: 760px){ .loop { grid-template-columns: 1fr 1fr; gap: 12px 0; } }
+  .loop-step { padding: 14px 14px; position: relative; }
+  .loop-step:not(:last-child)::after {
+    content: "→"; position: absolute; right: -7px; top: 50%; transform: translateY(-50%);
+    color: var(--copper); font-size: 1rem;
+  }
+  @media (max-width: 760px){ .loop-step:nth-child(2)::after { content: ""; } }
+  .loop-step .n { font-family: var(--mono); font-size: .72rem; color: var(--copper); font-weight: 600; }
+  .loop-step .h { font-weight: 600; font-size: .92rem; margin: 3px 0 3px; }
+  .loop-step .p { font-size: .82rem; color: var(--ink-soft); margin: 0; }
+  .loop-step code { font-family: var(--mono); font-size: .8em; }
+
+  /* model check */
+  .modelcheck {
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--line); border-left: 3px solid var(--copper);
+    border-radius: var(--radius); padding: clamp(18px,2.4vw,26px); box-shadow: var(--shadow);
+  }
+  .modelcheck h2 { margin: 0 0 12px; }
+  .modelcheck p { margin: 0 0 10px; font-size: .95rem; }
+  .modelcheck .quote { font-style: italic; color: var(--ink-soft); border-left: 2px solid var(--line); padding-left: 12px; }
+  .modelcheck strong.y { color: var(--teal); }
+  .modelcheck strong.r { color: var(--copper); }
+  .modelcheck code { font-family: var(--mono); font-size: .84em; background: var(--panel-2); padding: 1px 5px; border-radius: 4px; }
+
+  .footnote { margin-top: 34px; font-size: .82rem; color: var(--ink-soft); font-family: var(--mono); text-align: center; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .band, .modelcheck { animation: rise .5s ease both; }
+    .band:nth-child(2){ animation-delay: .04s; }
+    @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  }
+</style>
+
+<div class="wrap">
+  <p class="eyebrow">claude-toolkit · system map</p>
+  <h1>One repo. One <span class="c">init skill</span>. Many reusable <span class="t">prompts</span>.</h1>
+  <p class="lede">Your instinct was right. Here's the shape — and the one refinement that keeps each reusable system able to evolve on its own.</p>
+
+  <!-- BAND 1 -->
+  <section class="band">
+    <div class="band-head">
+      <span class="band-num">01</span>
+      <h2>The repo is the single source of truth</h2>
+    </div>
+    <p class="band-sub" style="margin-bottom:14px;">Everything reusable lives here once. <span style="color:var(--copper);font-weight:600;">Copper</span> = the orchestrator. <span style="color:var(--teal);font-weight:600;">Teal</span> = self-contained reusable prompts it points to.</p>
+    <div class="card repo-grid">
+      <div class="tree" aria-label="repository file tree">
+<span class="row"><span class="dim">claude-toolkit/</span></span>
+<span class="row"><span class="dim">├─ README.md</span>            <span class="dim">← purpose + roadmap</span></span>
+<span class="row"><span class="dim">├─ .claude-plugin/</span></span>
+<span class="row"><span class="dim">│   └─ marketplace.json</span>  <span class="dim">← makes it installable</span></span>
+<span class="row"><span class="dim">└─ plugins/</span></span>
+<span class="row orch">    └─ <b>project-init/</b>      ← orchestrator</span>
+<span class="row"><span class="dim">        └─ skills/</span></span>
+<span class="row orch">           └─ <b>project-init</b>   the conductor</span>
+<span class="row reuse">           └─ <b>memory-architecture</b>  <span class="soon">(next)</span></span>
+<span class="row reuse">           └─ <b>knowledge-layer</b>      <span class="soon">(next)</span></span>
+<span class="row reuse">           └─ <b>hooks/</b> guard prompts  <span class="soon">(next)</span></span>
+<span class="row reuse">           └─ <b>claude-md-boilerplate</b> <span class="soon">(next)</span></span>
+      </div>
+      <div class="legend">
+        <div class="leg-item">
+          <span class="swatch orch"></span>
+          <div>
+            <h3><code>project-init</code> — the orchestrator</h3>
+            <p>A thin "conductor" skill. Its whole job: walk you through setup, gate by gate, and <em>point to</em> the reusable prompts when you want one. It holds almost no content itself.</p>
+          </div>
+        </div>
+        <div class="leg-item">
+          <span class="swatch reuse"></span>
+          <div>
+            <h3>Reusable prompts — each its own skill</h3>
+            <p>Memory architecture, knowledge layer, hook guards, CLAUDE.md rules. Each is a standalone instruction set (a <code>SKILL.md</code> = a structured prompt + templates) that can be improved on its own.</p>
+          </div>
+        </div>
+        <div class="leg-item">
+          <span class="swatch plain"></span>
+          <div>
+            <h3>Why split them?</h3>
+            <p>So you can refine the memory system without touching the init flow — and reuse it standalone. That's the modularity you asked for.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="connector">
+    <span class="arw">↓</span>
+    <span class="lbl">install once per machine — <code>/plugin marketplace add mar5929/claude-toolkit</code></span>
+  </div>
+
+  <!-- BAND 2 -->
+  <section class="band">
+    <div class="band-head">
+      <span class="band-num">02</span>
+      <h2>It rides onto every device</h2>
+      <p class="band-sub">One source, three delivery paths.</p>
+    </div>
+    <div class="devices">
+      <div class="device">
+        <p class="k">Mac + Windows</p>
+        <p class="v">Claude Code plugin</p>
+        <p class="d">Add the marketplace once; <code>/plugin marketplace update</code> git-pulls new versions.</p>
+      </div>
+      <div class="device">
+        <p class="k">Any machine</p>
+        <p class="v">Symlink fallback</p>
+        <p class="d">Clone + symlink skills into <code>~/.claude/skills/</code>; <code>git pull</code> to update.</p>
+      </div>
+      <div class="device">
+        <p class="k">Desktop + Web</p>
+        <p class="v">Publish target</p>
+        <p class="d">No git auto-sync — upload the skill folder. The repo stays the source; you export on change.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="connector">
+    <span class="arw">↓</span>
+    <span class="lbl">you start a new project and run <code>/project-init</code></span>
+  </div>
+
+  <!-- BAND 3 -->
+  <section class="band">
+    <div class="band-head">
+      <span class="band-num">03</span>
+      <h2>In a new project: the init skill pulls the prompt you want</h2>
+    </div>
+    <div class="run">
+      <div class="card orchestrator">
+        <div class="title-row">
+          <span class="pill orch">/project-init</span>
+          <span style="font-size:.86rem;color:var(--ink-soft);">walks you through, gate by gate</span>
+        </div>
+        <ul class="gates">
+          <li class="gate"><span class="n">1</span><span>Scaffolding &amp; folder structure</span><span class="tag">per-project</span></li>
+          <li class="gate"><span class="n">2</span><span>Hooks / guards</span><span class="tag">per-project</span></li>
+          <li class="gate linked"><span class="n">3</span><span>Memory system</span><span class="tag">pulls prompt →</span></li>
+          <li class="gate linked"><span class="n">4</span><span>Knowledge layer</span><span class="tag">pulls prompt →</span></li>
+          <li class="gate"><span class="n">5</span><span>CLAUDE.md</span><span class="tag">+ boilerplate</span></li>
+        </ul>
+      </div>
+      <div class="pullbox">
+        <span class="pill reuse" style="align-self:flex-start;">memory-architecture</span>
+        <h4>"Set up memory in this project"</h4>
+        <div class="step"><span class="b">1</span><span>Init reads the <code>memory-architecture</code> prompt from the toolkit.</span></div>
+        <div class="step"><span class="b">2</span><span>Applies it <em>into this project</em> — builds <code>memories/</code>, the index, the curator.</span></div>
+        <div class="step"><span class="b">3</span><span>Same prompt, every project → identical, proven setup each time.</span></div>
+        <p style="margin:0;font-size:.82rem;color:var(--ink-soft);border-top:1px solid var(--line);padding-top:10px;">Exactly your model: the reusable system is a stored prompt; init points at it and runs it here.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="connector">
+    <span class="arw">↺</span>
+    <span class="lbl">improve a system while using it? send the change home so nothing drifts</span>
+  </div>
+
+  <!-- BAND 4 -->
+  <section class="band">
+    <div class="band-head">
+      <span class="band-num">04</span>
+      <h2>The port-back loop keeps the template canonical</h2>
+      <p class="band-sub">This solves your "the copy drifts from the original" worry.</p>
+    </div>
+    <div class="card">
+      <div class="loop">
+        <div class="loop-step"><span class="n">A</span><p class="h">Use it in a project</p><p class="p">You improve the memory architecture mid-work.</p></div>
+        <div class="loop-step"><span class="n">B</span><p class="h">PR back to toolkit</p><p class="p">Port that diff to <code>claude-toolkit</code>, the one source.</p></div>
+        <div class="loop-step"><span class="n">C</span><p class="h">Re-publish</p><p class="p"><code>marketplace update</code> fans it to every machine.</p></div>
+        <div class="loop-step"><span class="n">D</span><p class="h">Every future project</p><p class="p">Now inherits the better version automatically.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MODEL CHECK -->
+  <section class="band">
+    <div class="modelcheck">
+      <h2>Your mental model — confirmed, with one refinement</h2>
+      <p class="quote">"Is it gonna be like a repo, then an initialization skill, then pointing to prompts? … the memory architecture is basically just gonna take that prompt from the toolkit repo and say, use this prompt to create this."</p>
+      <p><strong class="y">Yes — that's exactly it.</strong> Repo → init skill → reusable prompts it points at. When you ask to set up memory, init pulls that stored prompt and runs it in the new project.</p>
+      <p><strong class="r">The one refinement:</strong> make each reusable prompt its <em>own</em> skill rather than a loose file buried inside <code>project-init</code>. Same behavior you pictured — but now the memory architecture can be versioned, fixed, and reused entirely on its own, and <code>project-init</code> stays a thin conductor that just knows how to call it.</p>
+    </div>
+  </section>
+
+  <p class="footnote">claude-toolkit · v0.1 — project-init shipped · memory-architecture &amp; knowledge-layer next</p>
+</div>

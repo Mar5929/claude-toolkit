@@ -1,0 +1,15 @@
+# OS cruft
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor droppings
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+
+# Claude Code local state (never commit session-local files)
+.claude/settings.local.json
+.claude/worktrees/
