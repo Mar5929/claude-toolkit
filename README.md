@@ -90,6 +90,7 @@ claude-toolkit/
           references/
             setup-flow.md         ← the ordered gate-by-gate checklist
             claude-md-boilerplate.md  ← standard CLAUDE.md rules I always want
+            mcp-best-practices.md ← per-server MCP tool rules (conditional)
         project-sync/
           SKILL.md                ← audit an existing project against the toolkit
     sf-architect-solutioning/     ← plugin: Salesforce solution architect
@@ -119,12 +120,17 @@ without touching the init flow.
 - **`project-init`**: a skill that walks me through setting up a new project in
   a fixed, skippable order: scaffolding & folder structure, hooks, memory
   system, knowledge layer, CLAUDE.md. It asks before acting, recommends
-  per-stack layouts, and injects my standard CLAUDE.md rules, including two
-  that every project gets by default:
+  per-stack layouts, and injects my standard CLAUDE.md rules, including the ones
+  every project gets by default:
   - the **multi-agent protocol**: every session works in its own git worktree,
     assumes other agents are working in parallel, and lands work by PR
   - my **language rules**: no em dashes, no section signs, no AI filler
     language, plain explanations for a mildly technical reader
+  - my **response and working-style rules**: lead with the answer, ask only in
+    the question box, solve the real goal and push back on bad ideas, define
+    terms, ask before assuming, and offer a context handoff in a loaded session
+  - plus **conditional MCP tool rules** (Context7, Gmail, Google Calendar,
+    Linear, Notion, Playwright) folded in only for the servers a project uses
 - **`project-sync`**: the same idea for projects that already exist. Point any
   repo at the toolkit and say "make sure everything from the toolkit is set up
   here." It inventories what the toolkit currently ships (so new systems are

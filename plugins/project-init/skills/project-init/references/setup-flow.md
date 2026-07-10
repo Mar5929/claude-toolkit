@@ -45,9 +45,14 @@ so they always know where they are.
 - Build section by section _with_ the user: what it is, codemap, hard rules, how
   to work here, wrap-up ritual.
 - Offer every standard boilerplate rule from `claude-md-boilerplate.md`.
-- Rules 8 (multi-agent protocol: own worktree, assume parallel sessions, land
-  by PR) and 9 (language rules: no em dashes, no section signs, no AI filler,
-  plain language) default ON; only drop if the owner opts this project out.
+- Rules 8-15 default ON: multi-agent protocol (own worktree, assume parallel
+  sessions, land by PR), language rules (no em dashes, no section signs, no AI
+  filler, plain language), and response/working-style rules (lead with the
+  answer; answer last, ask only in the question box; solve the real goal and push
+  back; define terms; ask before assuming; offer a handoff in a loaded session).
+  Only drop if the owner opts this project out.
+- MCP tool rules from `mcp-best-practices.md` are conditional: fold in a server's
+  section only if the project uses that MCP server.
 - Reflect the memory/knowledge/hooks gates in the relevant sections.
 
 **Wrap-up**

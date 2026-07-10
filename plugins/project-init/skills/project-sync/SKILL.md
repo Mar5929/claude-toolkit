@@ -35,6 +35,9 @@ automatically as it grows.
 - Enumerate, at minimum:
   - every standard CLAUDE.md boilerplate rule, noting which are default ON
     and which are conditional
+  - the per-server MCP tool rules in `claude-md-boilerplate.md`'s "MCP tool
+    rules" section and `references/mcp-best-practices.md`; these are conditional,
+    so only audit the servers this project actually connects
   - each system from the setup gates: hooks, memory system, knowledge layer
   - anything newer listed in the toolkit README under "What's here now"
   - skip roadmap items; they aren't built yet and can't be audited

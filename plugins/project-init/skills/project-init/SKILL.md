@@ -125,11 +125,17 @@ reads first.
   `references/claude-md-boilerplate.md`: the rules the user wants in _every_
   project (e.g. keeping CLAUDE.md itself updated when a session surfaces something
   worth recording). Let the user accept, edit, or drop each.
-- **Boilerplate rules 8 and 9 default ON:** the multi-agent protocol (own
-  worktree per session, assume parallel agents, land by PR) and the language
-  rules (no em dashes, no section signs, no AI filler, plain language for a
-  mildly technical reader). Every new project gets both unless the owner
-  explicitly opts that project out.
+- **Boilerplate rules 8-15 default ON:** the multi-agent protocol (own worktree
+  per session, assume parallel agents, land by PR), the language rules (no em
+  dashes, no section signs, no AI filler, plain language for a mildly technical
+  reader), and the response/working-style rules (lead with the answer, answer
+  last and ask only in the question box, solve the real goal and push back,
+  define terms, ask before assuming, offer a handoff in a loaded session). Every
+  new project gets these unless the owner explicitly opts that project out.
+- **MCP tool rules are conditional.** If the project connects an MCP server
+  covered in `references/mcp-best-practices.md` (Context7, Gmail, Google
+  Calendar, Linear, Notion, Playwright), fold in that server's section. Skip the
+  ones the project doesn't use.
 - Reflect what the earlier gates set up (memory system, knowledge layer, hooks) in
   the relevant CLAUDE.md sections so future sessions know they exist.
 
@@ -141,6 +147,8 @@ reads first.
   against during the run.
 - `references/claude-md-boilerplate.md`: the standard CLAUDE.md rules to offer
   in Gate 5.
+- `references/mcp-best-practices.md`: per-server MCP tool rules to offer in Gate
+  5, but only for the MCP servers the project actually uses.
 
 Read a reference when you reach the gate that needs it; you don't need to load
 everything up front.
