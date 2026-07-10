@@ -1,0 +1,9 @@
+{
+  "name": "sf-architect-solutioning",
+  "description": "Salesforce solution architect skill. Takes a requirement, pushes back on vagueness, verifies platform facts against official Salesforce docs (live fetch, never memory), designs declarative-first to Well-Architected standards, and produces an approved solution plan before any build. Project-agnostic: discovers each project's requirement/decision locations from its own CLAUDE.md and rules.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Mike Rihm",
+    "email": "michael@rihm.com"
+  }
+}

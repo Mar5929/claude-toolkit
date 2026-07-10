@@ -92,6 +92,17 @@ claude-toolkit/
             claude-md-boilerplate.md  ← standard CLAUDE.md rules I always want
         project-sync/
           SKILL.md                ← audit an existing project against the toolkit
+    sf-architect-solutioning/     ← plugin: Salesforce solution architect
+      .claude-plugin/plugin.json
+      skills/
+        sf-architect-solutioning/
+          SKILL.md                ← the 5-phase solutioning protocol
+          references/
+            doc-sources.md        ← official Salesforce doc map + fetch recipes
+            solution-plan-template.md
+            solutioning-checklist.md
+            architectural-patterns.md, naming-conventions.md,
+            salesforce-well-architected.md, metadata/*.md  ← evergreen references
   docs/
     architecture.html             ← visual map of how the pieces fit
 ```
@@ -121,6 +132,15 @@ without touching the init flow.
   reports the gaps in one table, closes the ones I approve, and records the
   toolkit version it synced against so future runs don't re-nag about a
   deliberate "no".
+- **`sf-architect-solutioning`**: a Salesforce solution architect skill. Feed it
+  a requirement and it runs a 5-phase protocol: push back and clarify, discover
+  the current project's requirement/decision locations from its own CLAUDE.md,
+  verify every platform claim against official Salesforce docs (live fetch with
+  a curated source map, never memory), design declarative-first to
+  Well-Architected standards, and present a solution plan with trade-offs for
+  approval before anything gets built. Project-agnostic by design: it never
+  assumes a folder structure or ticketing system. Domain-specific, so install
+  it only on Salesforce projects.
 
 ---
 
@@ -161,6 +181,12 @@ Install once per machine:
 ```
 /plugin marketplace add Mar5929/claude-toolkit
 /plugin install project-init
+```
+
+On Salesforce projects, also:
+
+```
+/plugin install sf-architect-solutioning
 ```
 
 Then, in a fresh project:
