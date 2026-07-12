@@ -58,6 +58,9 @@ offline, and a public app repo that must never leak the store.
 
 ## 2. System at a glance
 
+A rendered visual of this pipeline sits next to this file:
+`architecture-diagram.png` (editable source: `architecture-diagram.excalidraw`).
+
 ```
                         +------------------------------------+
                         |  <owner>/<app>-brain   (PRIVATE)   |  canonical store
