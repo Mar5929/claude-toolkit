@@ -113,7 +113,11 @@ the covering node is STALE. Read-only.
 
 **C) COVERAGE** ("what's undocumented?"): compare the app's subsystem folders
 against existing `know-*` nodes; report gaps ranked by how much intent a fresh
-agent would have to guess. Write nodes only if asked.
+agent would have to guess. Write nodes only if asked. On a brand-new store
+this mode is the entry point for the first population: report first, then,
+once the owner picks priorities, DOCUMENT them in batches of 5 to 10
+subsystems per pass (publishing after each batch, since a human asked)
+rather than sweeping the whole app in one run.
 
 ## Git / sync
 

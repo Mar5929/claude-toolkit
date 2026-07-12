@@ -79,3 +79,23 @@ to `brain/`; sessions never hand-edit it; where the canonical store lives; how
 to ask for recall ("delegate to the brain-curator"). Tell the user the first
 digest will be thin until a few curated batches have run, and show them the
 health footer they should expect at session start.
+
+## Step 5: Offer the first knowledge population
+
+The knowledge layer starts empty, and the background pipeline only documents
+code that changes AFTER install, so an existing codebase stays undocumented
+until someone seeds it. Offer to run the first population now (skip this step
+if the user disabled the knowledge layer):
+
+1. Delegate a COVERAGE pass to the knowledge-curator: a read-only report of
+   undocumented subsystems, ranked by how much intent a fresh agent would
+   have to guess. Show the user the ranked list and let them pick priorities
+   before anything is written or spent.
+2. DOCUMENT the chosen subsystems in batches of 5 to 10 per pass, publishing
+   after each batch (a human asked, so the curator may run `brain-flush.sh`).
+   Have the user review the first batch's quality before running more.
+
+Never sweep the whole app in one giant pass: it is hard to quality-check, and
+one bad run wastes the entire spend. The same delegation pattern seeds the
+memory side on day one (brain-curator REMEMBER mode: the owner profile,
+working agreements, and any standing decisions worth recording).

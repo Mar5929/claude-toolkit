@@ -1,7 +1,7 @@
 {
   "name": "second-brain",
   "description": "Portable second-brain memory and knowledge architecture: a gitignored brain/ knowledge graph curated by leader-elected background agents, synced additively to a dedicated private repo, with digest injection at session start, per-prompt recall, a drift-pinned knowledge layer, and a self-verifying test harness. The skill installs the complete system from bundled reference implementations with no design guesswork.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com"
