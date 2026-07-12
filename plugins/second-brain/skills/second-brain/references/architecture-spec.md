@@ -199,7 +199,9 @@ but code moves and prose silently goes stale. The layer makes staleness
   function (Purpose / Why built this way / How it works in brief / Constraints
   honored / Open questions), and a `know-codemap` node is the inventory: one
   row per subsystem, its node, and a one-line purpose. A subsystem with no
-  node is a reportable coverage gap.
+  node is a reportable coverage gap. On a fresh install every subsystem is a
+  gap: seed the layer with the first-population procedure (section 10, step
+  10) instead of waiting for code churn to document the app piecemeal.
 - **`covers:` blocks (opt-in, knowledge nodes only).** A node that explains
   specific source files pins each one to the git **blob SHA** it was last
   reconciled against (`git hash-object <file>` at curation time).
@@ -479,6 +481,16 @@ supersede, don't delete; digest stays tight; stable ids; honesty
 9. Run the live acceptance tests (section 12) and record the ground rules in
    the project's `CLAUDE.md` (only the curators write to `brain/`; sessions
    must not hand-edit it; where the canonical store lives).
+10. **(Recommended) Run the first knowledge population** (skip when
+    `BRAIN_KNOWLEDGE=0`). The background pipeline documents only code that
+    changes after install, so seed the layer deliberately: delegate a
+    read-only COVERAGE pass to the knowledge-curator, let the owner rank the
+    gaps, then DOCUMENT them in batches of 5 to 10 subsystems per pass,
+    publishing after each batch and reviewing the first batch's quality
+    before running more. Avoid one-pass whole-app sweeps: they are hard to
+    review, and one bad run wastes the entire spend. The same pattern seeds
+    the memory side (brain-curator REMEMBER: owner profile, working
+    agreements, standing decisions).
 
 ## 11. Operations & troubleshooting
 
