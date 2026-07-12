@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Personal, portable toolkit of reusable Claude systems: skills, rules, hooks, and templates shared across every project and device.",
-    "version": "0.5.0"
+    "version": "0.6.0"
   },
   "plugins": [
     {
@@ -18,6 +18,11 @@
       "name": "sf-architect-solutioning",
       "source": "./plugins/sf-architect-solutioning",
       "description": "Salesforce solution architect skill: pushes back on vague requirements, verifies platform facts against official Salesforce docs (live fetch, never memory), designs declarative-first to Well-Architected standards, and produces an approved solution plan before any build."
+    },
+    {
+      "name": "second-brain",
+      "source": "./plugins/second-brain",
+      "description": "Portable second-brain memory and knowledge architecture: a gitignored brain/ knowledge graph curated by leader-elected background agents, synced additively to a dedicated private repo, with digest injection, per-prompt recall, a drift-pinned knowledge layer, and a self-verifying harness. One skill installs the whole system from bundled reference implementations."
     }
   ]
 }

@@ -148,6 +148,16 @@ without touching the init flow.
   assumes a folder structure or ticketing system. Domain-specific, so install
   it only on Salesforce projects.
 
+- **`second-brain`**: the portable memory and knowledge architecture. A single
+  skill installs durable cross-session memory in any project: a gitignored
+  `brain/` knowledge graph (one fact per Markdown node, typed links, a JSON
+  index), background curator agents that capture what each work session
+  learned, sync to a dedicated private repo that the app repo never sees, a
+  digest injected at every session start, and a knowledge layer that pins
+  explanations to the exact code they describe and flags them when the code
+  drifts. Bundles the full spec, working hook scripts, agent definitions, and
+  a test harness, so installation is placeholder-filling, not design work.
+
 ---
 
 ## Planned additions (roadmap)
@@ -155,13 +165,12 @@ without touching the init flow.
 These are the reusable systems I want to fold in here over time. Ordered roughly
 by priority; each becomes its own skill/plugin so `project-init` can pull it in.
 
-- [ ] **`memory-architecture` skill**: my scalable long-term memory system (the
-  single-owner Markdown knowledge-graph pattern: `memories/` with `index.json`,
-  typed edges, a curator agent, drift detection). Port from the Anchor project
-  once its remaining bugs are ironed out. This is the highest-value repeatable
-  system and the main reason this repo exists.
-- [ ] **`knowledge-layer` skill**: the layer that pins durable knowledge nodes
-  to source files and flags them stale when the source drifts.
+- [x] **`second-brain` plugin** (shipped; formerly the `memory-architecture` and
+  `knowledge-layer` roadmap items): the scalable long-term memory system, ported
+  from the origin project after its v2 hardening. One skill installs the whole
+  thing: the knowledge-graph store, leader-elected background curators, the
+  private-repo sync with publish guards, the drift-pinned knowledge layer, and
+  a self-verifying test harness.
 - [ ] **Shared hooks library**: reusable guard hooks I can drop into any
   project, e.g. blocking deployments to a protected environment, secret-scanning
   pre-commit guards, and a SessionStart orientation hook.

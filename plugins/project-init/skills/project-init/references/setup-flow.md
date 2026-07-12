@@ -34,12 +34,14 @@ so they always know where they are.
 
 **Gate 3: Memory system**
 - Does this project want durable long-term memory? (opt-in)
-- If yes: set up the single-owner Markdown knowledge-graph pattern; state the
-  ground rules (curator owns writes; session-start injects curated context).
+- If yes: install the toolkit's `second-brain` plugin and run its skill (full
+  spec, hooks, curator agents, harness); state the ground rules (curators own
+  writes; session-start injects curated context).
 
 **Gate 4: Knowledge layer**
 - Does this project want the knowledge layer? (opt-in)
-- If yes: set up knowledge nodes that pin covered source + a drift check.
+- If yes: it ships inside the `second-brain` plugin (knowledge-curator agent,
+  covers: pins, drift check); enable it there rather than hand-building.
 
 **Gate 5: CLAUDE.md**
 - Build section by section _with_ the user: what it is, codemap, hard rules, how
