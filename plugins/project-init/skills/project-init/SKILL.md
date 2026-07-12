@@ -94,11 +94,11 @@ sessions.
 - Explain the ground rules you're establishing (e.g. only the curator writes to
   the memory store; a session-start hook injects curated context).
 
-> **Not yet packaged as a standalone skill.** The reusable `memory-architecture`
-> skill is on the `claude-toolkit` roadmap and will be ported once its remaining
-> bugs are ironed out. Until then, if this project needs memory, set it up from the
-> current best version of the pattern and note that it should be reconciled with
-> the toolkit template later.
+> **Packaged as the `second-brain` plugin in this toolkit.** If this project
+> wants memory, install that plugin and run its `second-brain` skill: it carries
+> the full spec, the hook scripts, the curator agents, and a test harness, and
+> it also covers the knowledge layer (Gate 4). Do not hand-build the pattern
+> from scratch here.
 
 ### Gate 4: Knowledge layer
 
@@ -110,8 +110,9 @@ staleness detection when that source drifts.
 - If yes: establish the convention for knowledge nodes and how they pin the files
   they "cover," plus the drift check that flags a node when its source changes.
 
-> Also on the roadmap as a standalone `knowledge-layer` skill. Set it up from the
-> current best version for now; reconcile with the toolkit later.
+> **Included in the `second-brain` plugin** (the knowledge-curator agent,
+> `covers:` pins, and the drift checker install with it; `BRAIN_KNOWLEDGE=0`
+> turns just this layer off). Install that plugin rather than hand-building it.
 
 ### Gate 5: CLAUDE.md
 
