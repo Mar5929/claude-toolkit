@@ -26,6 +26,8 @@ so they always know where they are.
 - Recommend a conventional layout for the stack; explain the why briefly.
 - Confirm before creating dirs/files. Cover: source, tests, config, `.gitignore`,
   README, license, editor/formatter, CI stub.
+- Salesforce / SFDX: offer the standard scaffold in
+  `salesforce-project-scaffold.md` (SFDX source plus an `engagement/` tree).
 
 **Gate 2: Hooks**
 - What needs guarding or automating? (deploy/env guard, secret guard,

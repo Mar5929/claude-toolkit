@@ -60,6 +60,12 @@ form. Keep each gate tight.
 > This gate is intentionally per-project: the value is your tailored
 > recommendation, not a frozen template.
 
+**Salesforce / SFDX projects** have a standard scaffold worth reusing: see
+`references/salesforce-project-scaffold.md`. Offer it whenever the stack is
+Salesforce (org build, org merge, or managed service). It stays optional and is
+still confirmed folder-by-folder with the owner; it is a starting point, not a
+forced template.
+
 ### Gate 2: Hooks (guards & automation)
 
 **Purpose:** wire up Claude Code hooks that enforce guardrails or automate chores.
@@ -146,6 +152,9 @@ reads first.
 
 - `references/setup-flow.md`: the gate-by-gate checklist to track progress
   against during the run.
+- `references/salesforce-project-scaffold.md`: the standard Gate 1 layout for a
+  Salesforce / SFDX project (SFDX source plus an `engagement/` tree). Read it in
+  Gate 1 when the stack is Salesforce.
 - `references/claude-md-boilerplate.md`: the standard CLAUDE.md rules to offer
   in Gate 5.
 - `references/mcp-best-practices.md`: per-server MCP tool rules to offer in Gate
