@@ -99,6 +99,10 @@ sessions.
   curator that owns all writes).
 - Explain the ground rules you're establishing (e.g. only the curator writes to
   the memory store; a session-start hook injects curated context).
+- Once memory is live, offer to run the `grill-me` skill: it interviews the owner
+  about the project and checkpoints every answer to a file, capturing a project
+  overview while the curator records durable facts. Save it where the project
+  keeps docs (Salesforce scaffold: `engagement/project-overview/`).
 
 > **Packaged as the `second-brain` plugin in this toolkit.** If this project
 > wants memory, install that plugin and run its `second-brain` skill: it carries

@@ -23,6 +23,7 @@ before creating anything.
 │   ├── apex/                      # anonymous Apex scratch files
 │   └── soql/                      # SOQL scratch queries
 ├── engagement/                    # all non-code work
+│   ├── project-overview/          # project brief + grill-me interview output
 │   ├── archive/                   # retired or superseded material
 │   ├── communications/            # emails, Slack, client/team messages
 │   ├── deliverables/              # finished artifacts handed to the client
@@ -53,6 +54,7 @@ repo next to the metadata they describe.
 
 | Folder | Holds |
 |---|---|
+| `project-overview/` | Project brief (what, why, scope) and the grill-me interview output |
 | `archive/` | Retired or superseded material kept for history |
 | `communications/` | Emails, Slack threads, client or team messages |
 | `deliverables/` | Finished artifacts handed to the client |
@@ -63,6 +65,11 @@ repo next to the metadata they describe.
 | `work-items/` | One folder per ticket (named by ticket key), holding local context an agent may need for that ticket |
 | `data/` | Object and field mapping, transformation rules, load files |
 | `data/backups/` | Point-in-time data exports from the org(s) |
+
+`project-overview/` is where the `grill-me` skill saves its output. Once the
+memory system is installed (Gate 3), run `grill-me` to interview the owner about
+the project; it checkpoints answers here while the memory curator records durable
+facts.
 
 **`.claude/`**: project-scoped Claude Code setup. Scaffold it empty at Gate 1
 with `rules/`, `hooks/`, `agents/`, and `settings.json`. Later gates fill it:

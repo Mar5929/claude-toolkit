@@ -39,6 +39,9 @@ so they always know where they are.
 - If yes: install the toolkit's `second-brain` plugin and run its skill (full
   spec, hooks, curator agents, harness); state the ground rules (curators own
   writes; session-start injects curated context).
+- Once memory is live, offer the `grill-me` skill to interview the owner and
+  capture a project overview (Salesforce scaffold: save to
+  `engagement/project-overview/`).
 
 **Gate 4: Knowledge layer**
 - Does this project want the knowledge layer? (opt-in)
