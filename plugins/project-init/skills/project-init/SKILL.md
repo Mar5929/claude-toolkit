@@ -60,6 +60,12 @@ form. Keep each gate tight.
 > This gate is intentionally per-project: the value is your tailored
 > recommendation, not a frozen template.
 
+**Salesforce / SFDX projects** have a standard scaffold worth reusing: see
+`references/salesforce-project-scaffold.md`. Offer it whenever the stack is
+Salesforce (org build, org merge, or managed service). It stays optional and is
+still confirmed folder-by-folder with the owner; it is a starting point, not a
+forced template.
+
 ### Gate 2: Hooks (guards & automation)
 
 **Purpose:** wire up Claude Code hooks that enforce guardrails or automate chores.
@@ -93,6 +99,10 @@ sessions.
   curator that owns all writes).
 - Explain the ground rules you're establishing (e.g. only the curator writes to
   the memory store; a session-start hook injects curated context).
+- Once memory is live, offer to run the `grill-me` skill: it interviews the owner
+  about the project and checkpoints every answer to a file, capturing a project
+  overview while the curator records durable facts. Save it where the project
+  keeps docs (Salesforce scaffold: `engagement/project-overview/`).
 
 > **Packaged as the `second-brain` plugin in this toolkit.** If this project
 > wants memory, install that plugin and run its `second-brain` skill: it carries
@@ -146,6 +156,9 @@ reads first.
 
 - `references/setup-flow.md`: the gate-by-gate checklist to track progress
   against during the run.
+- `references/salesforce-project-scaffold.md`: the standard Gate 1 layout for a
+  Salesforce / SFDX project (SFDX source plus an `engagement/` tree). Read it in
+  Gate 1 when the stack is Salesforce.
 - `references/claude-md-boilerplate.md`: the standard CLAUDE.md rules to offer
   in Gate 5.
 - `references/mcp-best-practices.md`: per-server MCP tool rules to offer in Gate
