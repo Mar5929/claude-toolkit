@@ -33,6 +33,9 @@ so they always know where they are.
 - What needs guarding or automating? (deploy/env guard, secret guard,
   session-start orientation, format/lint)
 - Confirm exact trigger + action per hook; tell the user how to verify it fires.
+- Salesforce / SFDX: offer the ready-made production-org guard in
+  `salesforce-prod-guard-hook.md` (confirms before deploys or destructive ops
+  hit a production org; auto-detects production; tuned by a JSON policy file).
 
 **Gate 3: Memory system**
 - Does this project want durable long-term memory? (opt-in)

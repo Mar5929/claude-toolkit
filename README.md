@@ -173,7 +173,10 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
   a self-verifying test harness.
 - [ ] **Shared hooks library**: reusable guard hooks I can drop into any
   project, e.g. blocking deployments to a protected environment, secret-scanning
-  pre-commit guards, and a SessionStart orientation hook.
+  pre-commit guards, and a SessionStart orientation hook. First one shipped: the
+  Salesforce production-org guard installs from `project-init` Gate 2
+  (`references/salesforce-prod-guard-hook.md`); the standalone library is still
+  planned.
 - [ ] **CLAUDE.md boilerplate library**: promote the boilerplate reference into
   a standalone, versioned library that projects reuse verbatim instead of
   retyping.
