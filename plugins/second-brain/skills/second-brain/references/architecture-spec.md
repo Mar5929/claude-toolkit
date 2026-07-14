@@ -581,6 +581,29 @@ up to 6 parallel Claude Code sessions) went through these, in order:
    executed the primary's older hook versions. Fix: `HOOK_DIR` is always
    computed absolute (`cd ... && pwd`), with a dedicated harness regression
    test.
+6. **The Windows worktree blackout (2026-07-14).** On Git-for-Windows,
+   `git rev-parse --git-common-dir` returns a **drive-letter** path
+   (`C:/repo/.git`). Every path resolution tested absoluteness with a POSIX-only
+   `case $p in /*)`, so a drive-letter path was misread as RELATIVE, mangled into
+   `<worktree>/C:/repo/.git`, failed its `cd`, and took the fallback branch. The
+   fallback made a linked worktree resolve as **its own primary checkout**. The
+   curator then ran against the worktree's `brain/`, which holds only the
+   gitignored README signpost, so the publish guard correctly saw a gutted store
+   and skipped, every time: memory silently never persisted from any worktree
+   session on Windows, with a green-looking pipeline. Fixes: a shared
+   `brain_is_abs` accepting POSIX *and* drive-letter paths, used by all three
+   resolution sites, plus a harness assertion that a worktree resolves the
+   PRIMARY and not itself. Related Windows fixes in the same pass: JSON validity
+   is checked by feeding the file on **stdin** (native `jq`/`python3` cannot open
+   an msys `/c/...` path, so passing a path made a good `index.json` look torn and
+   silently skipped every publish), and `grep -c` no longer gets a `|| echo '?'`
+   fallback (it prints `0` *and* exits 1 on no match, so an empty store rendered
+   its digest as `0\n?` nodes).
+
+**Portability rule of thumb:** shell builtins and msys tools accept `/c/...`
+paths; native binaries (`git` output, `jq`, `python3`, `node`) speak
+drive-letter paths and cannot open msys ones. Never hand a path across that
+boundary when stdin will do, and never test absoluteness with `/*` alone.
 
 If you change the pipeline, keep the harness green and add a regression test
 for whatever you learned. That is how this spec stayed trustworthy.

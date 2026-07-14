@@ -14,7 +14,14 @@ set -u
 
 HOOKS_SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SANDBOX="$(mktemp -d "${TMPDIR:-/tmp}/mem-harness.XXXXXX")" || exit 1
-trap 'rm -rf "$SANDBOX"' EXIT
+# BRAIN_HARNESS_KEEP=1 preserves the sandbox (logs, journal, run ledger, the two
+# bare origins) so a failing assertion can actually be diagnosed instead of
+# guessed at. Default stays "clean up".
+if [ -n "${BRAIN_HARNESS_KEEP:-}" ]; then
+  echo "sandbox kept at: $SANDBOX"
+else
+  trap 'rm -rf "$SANDBOX"' EXIT
+fi
 
 PASS=0; FAIL=0
 ok()   { PASS=$((PASS + 1)); printf 'ok   %s\n' "$1"; }
@@ -22,6 +29,15 @@ fail() { FAIL=$((FAIL + 1)); printf 'FAIL %s\n' "$1"; }
 assert() {  # $1 = description; $2... = command
   local desc="$1"; shift
   if "$@" >/dev/null 2>&1; then ok "$desc"; else fail "$desc"; fi
+}
+# Validate JSON by feeding the file on STDIN, never as a path argument: jq and
+# python3 are native binaries and cannot open an msys "/c/..." POSIX path on
+# Git-for-Windows, which failed this check against a perfectly valid file.
+json_ok() {  # $1 = file
+  if   command -v jq      >/dev/null 2>&1; then jq -e . >/dev/null 2>&1 <"$1"
+  elif command -v python3 >/dev/null 2>&1; then python3 -c 'import json,sys; json.load(sys.stdin)' <"$1" >/dev/null 2>&1
+  elif command -v python  >/dev/null 2>&1; then python  -c 'import json,sys; json.load(sys.stdin)' <"$1" >/dev/null 2>&1
+  else return 0; fi
 }
 
 # --- Sandbox layout -----------------------------------------------------------
@@ -33,8 +49,14 @@ APP="$SANDBOX/app"                     # the primary checkout
 STUB_LOG="$SANDBOX/stub.log"           # one line per stub-claude invocation
 STUB_MODE="$SANDBOX/stub.mode"         # ok | fail | hang | flush
 
-git init -q --bare "$APP_ORIGIN"
-git init -q --bare "$BRAIN_ORIGIN"
+# -b main is REQUIRED: without it these bare repos inherit the machine's
+# init.defaultBranch, still 'master' on many installs. Their HEAD then points at
+# a branch that never gets created, so `git clone` checks out nothing ("remote
+# HEAD refers to nonexistent ref") and a later `push origin main` dies with
+# "src refspec main does not match any". The sync itself is unaffected (it forces
+# 'main' via checkout --orphan); only the harness's own scaffolding broke.
+git init -q --bare -b main "$APP_ORIGIN"
+git init -q --bare -b main "$BRAIN_ORIGIN"
 
 git init -q "$APP" -b main
 git -C "$APP" config user.name t; git -C "$APP" config user.email t@t
@@ -65,6 +87,15 @@ esac
 STUB
 chmod +x "$BIN/claude"
 export PATH="$BIN:$PATH"
+
+# A PATH with the basics but deliberately NO `claude`, for the degradation test.
+# Hardcoding "/usr/bin:/bin" also hides GIT on Git-for-Windows (git lives in
+# /mingw64/bin, not /usr/bin), so capture could not read the repo and journalled
+# nothing, making a working system look broken. Keep git's real dir: neither the
+# stub nor a real `claude` install lives there, so the test still proves the
+# no-CLI path.
+GIT_BIN_DIR="$(dirname "$(command -v git)")"
+NOCLAUDE_PATH="/usr/bin:/bin:$GIT_BIN_DIR"
 
 # --- Common env: v2 config, sandboxed, fast ------------------------------------
 # BRAIN_BRANCH is FORCED EMPTY: the invoking shell may carry a value
@@ -99,7 +130,7 @@ touch_app() { date +%s%N >>"$APP/src/App.swift"; }
 echo "== 1. degradation: no claude CLI -> journal-only, no election =="
 rm -f "$STUB_LOG"
 touch_app
-( cd "$APP" && stop_input | env PATH="/usr/bin:/bin" \
+( cd "$APP" && stop_input | env PATH="$NOCLAUDE_PATH" \
     CLAUDE_PROJECT_DIR="$APP" BRAIN_REMOTE="$BRAIN_ORIGIN" BRAIN_BRANCH= \
     BRAIN_CURATOR_INTERVAL=0 bash .claude/hooks/brain-capture.sh )
 assert "journal captured the turn"        test -s "$GD/journal.jsonl"
@@ -115,6 +146,16 @@ wait
 assert "runner finished"                     wait_runner
 assert "exactly ONE curator was elected"     test "$(grep -c invoked "$STUB_LOG")" = 1
 assert "memory remote got the store"         test -n "$(brain_tip main)"
+# Drain whatever landed AFTER the winner snapshotted its batch. The lock winner
+# snapshots the journal at election time, so with N concurrent captures the
+# siblings that are still appending legitimately fall outside that first batch.
+# On fast native fork they all land first and the cursor happens to reach the
+# journal end; on slower fork emulation (msys/Git-for-Windows) they do not, and
+# the old strict equality flagged a correct cursor as a failure. One more SERIAL
+# election drains the remainder deterministically on every platform.
+rm -f "$GD/last-run"
+( stop_input | run_env bash .claude/hooks/brain-capture.sh )
+wait_runner
 assert "cursor advanced to the journal end"  test "$(cat "$GD/journal.cursor")" = "$(wc -l <"$GD/journal.jsonl" | tr -d ' ')"
 assert "run ledger recorded rc 0"            grep -q '"rc":0' "$GD/runs.jsonl"
 
@@ -152,7 +193,11 @@ t0="$(date +%s)"
 wait_runner
 t1="$(date +%s)"
 assert "run was killed (rc 124/137 in ledger)"  grep -qE '"rc":(124|137)' "$GD/runs.jsonl"
-assert "killed within budget+killafter+slack"   test $((t1 - t0)) -le 25
+# Budget 8s + killafter 2s = 10s in theory. The bound only has to prove the run is
+# BOUNDED (an unkilled hang stub runs forever and wait_runner gives up at 60s), so
+# leave real headroom: fork emulation on Git-for-Windows plus the 1s polling
+# granularity pushed this past a 25s bound intermittently, failing a working kill.
+assert "killed within budget+killafter+slack"   test $((t1 - t0)) -le 45
 assert "cursor held on timeout"                 test "$(cat "$GD/journal.cursor")" = "$cur_before"
 
 echo "== 6. watchdog fallback (no timeout binary) escalates TERM -> KILL =="
@@ -247,7 +292,7 @@ echo "== 13. settings.json: valid JSON, no branch override, 1200s budget =="
 # harness straight from the toolkit's references copy).
 SET="$HOOKS_SRC/../settings.json"
 if [ -f "$SET" ]; then
-  assert "settings.json is valid JSON"     python3 -c "import json;json.load(open('$SET'))"
+  assert "settings.json is valid JSON"     json_ok "$SET"
   assert "no BRAIN_BRANCH in settings"     bash -c "! grep -q BRAIN_BRANCH '$SET'"
   assert "curator budget is 1200"          grep -q '"BRAIN_CURATOR_TIMEOUT": "1200"' "$SET"
 else
@@ -273,6 +318,17 @@ date +%s%N >>"$SANDBOX/wt/src/app.txt"
     BRAIN_TIMEOUT_KILLAFTER=2 \
     bash .claude/hooks/brain-capture.sh )
 wait_runner
+# Pinpoint assertion for the resolution step itself, so a regression here reads as
+# "the worktree thinks it is the primary" instead of the vaguer "nothing published".
+# Git-for-Windows returns "C:/repo/.git" from --git-common-dir; a POSIX-only "/*"
+# absolute test misread that as relative and fell back to the worktree itself.
+# Compare by IDENTITY (-ef: same device + inode), never by string. brain_primary_dir
+# emits a NATIVE path ("C:/...AppData/Local/Temp/x/app") while the harness's own
+# paths are msys ("/tmp/x/app"), and Git Bash ALIASES /tmp onto the Windows temp
+# dir. The same directory therefore has two spellings that `cd && pwd` does not
+# reconcile, so a string compare fails on a system that is working correctly.
+prim_raw="$(CLAUDE_PROJECT_DIR="$SANDBOX/wt" bash -c 'cd "$0"; source .claude/hooks/brain-lib.sh; brain_primary_dir' "$SANDBOX/wt")"
+assert "worktree resolves the PRIMARY checkout, not itself" test "$prim_raw" -ef "$APP"
 assert "primary's (older) flush was NEVER executed"  test ! -e "$SANDBOX/V1-FLUSH-RAN"
 assert "worktree-elected run still published"        test "$(brain_tip main)" != "$tip_before"
 

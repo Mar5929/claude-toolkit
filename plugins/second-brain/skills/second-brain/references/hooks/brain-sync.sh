@@ -41,13 +41,20 @@ if [ ! -f "$BRAIN_DIR/index.json" ] || [ ! -f "$BRAIN_DIR/BRAIN.md" ]; then
 fi
 # index.json must be parseable, never publish a torn/truncated index (e.g. from a
 # curator killed mid-write) as the canonical baseline every future refresh builds on.
-if command -v jq >/dev/null 2>&1; then
-  jq -e . "$BRAIN_DIR/index.json" >/dev/null 2>&1 \
-    || { brain_log "sync: index.json is not valid JSON, skipping to avoid publishing a torn store"; exit 0; }
-elif command -v python3 >/dev/null 2>&1; then
-  python3 -c 'import json,sys; json.load(open(sys.argv[1]))' "$BRAIN_DIR/index.json" >/dev/null 2>&1 \
-    || { brain_log "sync: index.json is not valid JSON, skipping to avoid publishing a torn store"; exit 0; }
-fi
+#
+# Feed the file on STDIN, never as a PATH argument: jq and python3 are NATIVE
+# binaries, and on Git-for-Windows they cannot open an msys "/c/..." POSIX path.
+# Handing them the path made a perfectly good index.json look torn, which
+# silently skipped EVERY publish (a fail-closed guard turning into a permanent
+# outage). The shell does the redirection, so the path resolves on every platform.
+brain_json_valid() {  # $1 = file
+  if   command -v jq      >/dev/null 2>&1; then jq -e . >/dev/null 2>&1 <"$1"
+  elif command -v python3 >/dev/null 2>&1; then python3 -c 'import json,sys; json.load(sys.stdin)' <"$1" >/dev/null 2>&1
+  elif command -v python  >/dev/null 2>&1; then python  -c 'import json,sys; json.load(sys.stdin)' <"$1" >/dev/null 2>&1
+  else return 0; fi   # no validator on this box: don't block the publish
+}
+brain_json_valid "$BRAIN_DIR/index.json" \
+  || { brain_log "sync: index.json is not valid JSON, skipping to avoid publishing a torn store"; exit 0; }
 
 B="$(brain_target_branch)"
 

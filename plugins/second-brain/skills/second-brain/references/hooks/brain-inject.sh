@@ -24,7 +24,12 @@ cat "$BRAIN_DIR/BRAIN.md"
 if [ -f "$BRAIN_DIR/index.json" ]; then
   echo
   echo "------------------------------------------------------------------"
-  n="$(grep -c '"id":' "$BRAIN_DIR/index.json" 2>/dev/null || echo '?')"
+  # grep -c PRINTS the count (0) and EXITS 1 when nothing matches, so a bare
+  # `|| echo '?'` appends a SECOND line and an empty store renders as
+  # "Memory graph: 0\n? nodes". Normalize junk to 0 instead (same shape as
+  # brain-capture.sh's PEND_CHANGED guard). Hits every fresh install.
+  n="$(grep -c '"id":' "$BRAIN_DIR/index.json" 2>/dev/null)"
+  case "$n" in ''|*[!0-9]*) n=0 ;; esac
   echo " Memory graph: ${n} nodes in brain/index.json (typed links between them)."
   echo " To recall more: read a node by its path, or ask the brain-curator"
   echo " (Task tool, subagent_type: brain-curator) e.g. \"what do we know about X?\"."

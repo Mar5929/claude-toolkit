@@ -166,13 +166,37 @@ brain_run_with_timeout() {  # $1 = seconds; rest = command. rc, or 124 if killed
   return "$rc"
 }
 
+# --- Absolute-path test (POSIX *and* Windows drive-letter) --------------------
+# Git-for-Windows returns drive-letter paths from rev-parse ("C:/repo/.git"), which
+# a bare `case $p in /*)` test misreads as RELATIVE. Every git-path resolution must
+# accept BOTH forms, or it silently builds a bogus path like
+# "<worktree>/C:/repo/.git", fails the cd, and takes the fallback branch.
+# That is exactly what made a linked worktree resolve as its OWN primary checkout:
+# the curator then ran against the worktree's brain/, which holds only the
+# gitignored README signpost, so every publish was skipped as a "gutted store" and
+# memory silently never persisted from any worktree session on Windows.
+brain_is_abs() {
+  case "${1:-}" in
+    /*|[A-Za-z]:/*|[A-Za-z]:\\*) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
 # --- Primary checkout (always exists; ephemeral worktrees may not) -------------
 brain_primary_dir() {
   local cdir
   cdir="$(git -C "$BRAIN_PROJECT_DIR" rev-parse --git-common-dir 2>/dev/null)"
   [ -n "$cdir" ] || { printf '%s' "$BRAIN_PROJECT_DIR"; return 0; }
-  case "$cdir" in /*) : ;; *) cdir="$BRAIN_PROJECT_DIR/$cdir" ;; esac
-  ( cd "$(dirname "$cdir")" 2>/dev/null && pwd ) || printf '%s' "$BRAIN_PROJECT_DIR"
+  brain_is_abs "$cdir" || cdir="$BRAIN_PROJECT_DIR/$cdir"
+  # Emit a NATIVE path on Windows (`pwd -W` -> "C:/repo"), never the msys form
+  # ("/c/repo"). This value is exported as CLAUDE_PROJECT_DIR for the spawned
+  # curator, and native binaries cannot open an msys path: node's
+  # existsSync("/c/...") is literally false, so the curator's own hooks (e.g. a
+  # settings.json entry running `node "$CLAUDE_PROJECT_DIR/.claude/hooks/x.js"`)
+  # would break. `pwd -W` is an msys extension: it fails on Linux/macOS, where
+  # plain `pwd` is already correct, so the fallback keeps those unchanged.
+  ( cd "$(dirname "$cdir")" 2>/dev/null && { pwd -W 2>/dev/null || pwd; } ) \
+    || printf '%s' "$BRAIN_PROJECT_DIR"
 }
 
 # --- Commit identity + signing -----------------------------------------------
@@ -313,7 +337,7 @@ brain_repair() {
   git -C "$P" rev-parse --git-dir >/dev/null 2>&1 || return 0
 
   gd="$(git -C "$P" rev-parse --git-dir 2>/dev/null)"
-  case "$gd" in /*) : ;; *) gd="$P/$gd" ;; esac
+  brain_is_abs "$gd" || gd="$P/$gd"
   if [ -e "$gd/index.lock" ]; then brain_log "repair: index.lock present, skipping"; return 0; fi
 
   # 1) Clear lingering --skip-worktree bits on any tracked brain/ path.
@@ -324,7 +348,7 @@ brain_repair() {
 
   # 2) Drop the '/brain/' line from the SHARED info/exclude.
   cdir="$(git -C "$P" rev-parse --git-common-dir 2>/dev/null)"
-  case "$cdir" in /*) : ;; *) cdir="$P/$cdir" ;; esac
+  brain_is_abs "$cdir" || cdir="$P/$cdir"
   ex="$cdir/info/exclude"
   if [ -f "$ex" ] && grep -qxF '/brain/' "$ex" 2>/dev/null; then
     # grep -v exits 1 when it selects ZERO lines (i.e. the file was ONLY the
