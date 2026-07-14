@@ -1,0 +1,15 @@
+{
+  "_comment": "Salesforce production-org guard policy. Read by .claude/hooks/guard-protected-orgs.js on every deploy/destructive SF CLI command. Policy set in project-init Gate 2: confirm before any deploy or destructive op against a production org.",
+  "action": "ask",
+  "unknownOrgAction": "ask",
+  "confirmOrgDeleteAlways": true,
+  "alwaysProtect": [],
+  "neverProtect": [],
+  "_fields": {
+    "action": "'ask' = pop a confirmation you must approve. 'deny' = hard-block (edit config to run).",
+    "unknownOrgAction": "What to do when the target org can't be classified (not authenticated yet, sf CLI unavailable). 'ask' = confirm (safe default). 'allow' = let it through.",
+    "confirmOrgDeleteAlways": "true = any 'org delete' asks even for scratch/sandbox, since it's irreversible. Set false to only guard production.",
+    "alwaysProtect": "Org aliases or usernames to always confirm, even if auto-detected as sandbox/scratch. Example: [\"target-build\"].",
+    "neverProtect": "Org aliases or usernames to never confirm (escape hatch for a known throwaway scratch org). Wins over every other rule."
+  }
+}

@@ -84,8 +84,15 @@ Ask what the project needs protecting from or automated. Common ones:
 For each requested hook: confirm the exact trigger and action, write the hook
 config (and any script), and tell the user how to verify it fires.
 
-> A reusable library of these guard hooks is planned for `claude-toolkit`. Until
-> it lands, author the hook for this project directly.
+**Salesforce / SFDX projects**: offer the ready-made production-org guard in
+`references/salesforce-prod-guard-hook.md`. It confirms before any deploy or
+destructive `sf`/`sfdx` command hits a production org, auto-detects which orgs
+are production, and is tuned by a plain JSON policy file. Copy and configure, no
+code to write. Still optional and confirmed with the owner.
+
+> A broader library of reusable guard hooks (secret-scan, session-start
+> orientation) is still planned for `claude-toolkit`. Until it lands, author any
+> other hook for the project directly.
 
 ### Gate 3: Memory system
 
@@ -159,6 +166,9 @@ reads first.
 - `references/salesforce-project-scaffold.md`: the standard Gate 1 layout for a
   Salesforce / SFDX project (SFDX source plus an `engagement/` tree). Read it in
   Gate 1 when the stack is Salesforce.
+- `references/salesforce-prod-guard-hook.md`: a ready-to-install Gate 2 guard
+  that confirms before Salesforce CLI deploys or destructive ops hit a
+  production org. Read it in Gate 2 when the stack is Salesforce.
 - `references/claude-md-boilerplate.md`: the standard CLAUDE.md rules to offer
   in Gate 5.
 - `references/mcp-best-practices.md`: per-server MCP tool rules to offer in Gate
