@@ -1,0 +1,34 @@
+# Salesforce project rules library
+
+Reusable `.claude/rules/` files for Salesforce / SFDX projects. During
+`project-init`, when the owner says the project is Salesforce, offer to copy
+these into the new project's `.claude/rules/` (Gate 1, right after the
+`.claude/rules/` folder is scaffolded). Each is optional; confirm the set with
+the owner before copying, same as every other gate.
+
+These are Salesforce-specific and opt-in, so they live here rather than in the
+`claude-md-boilerplate.md` rules (which go into every project's CLAUDE.md). A
+project's CLAUDE.md should point at its `.claude/rules/` folder so these files
+are read each session.
+
+## Rules in this library
+
+| File | What it does |
+|---|---|
+| `salesforce-safety-guardrails.md` | Read-only against the orgs; never deploy to production; sandbox deploys need an explicit OK; permission sets go by change set, not the CLI. The core deploy-safety policy. |
+| `salesforce-change-clarify.md` | Always confirm before object-model, security/permission, integration, or data-source-priority changes, or anything that contradicts the project's requirements. |
+| `deploy-hitchhiker-check.md` | Before any deploy, catch components or un-deployed edits that would ride along into the target org before their feature is ready. Ends with read-only verification against the org, never a flag based on a stale tracker. |
+| `component-tracker.md` | Keep a one-row-per-component CSV inventory of what this project authored and where it is deployed, kept in sync with the cutover manifest. Optional: assumes a deployment-records CSV. |
+| `deployment-runbook.md` | Track the operational steps a deploy cannot perform (permission-set assignments, data re-stamps, scheduled jobs, post-deploy checks). Tool-agnostic. Optional. |
+
+The first three are the recommended default set for a Salesforce project. The
+last two (`component-tracker.md`, `deployment-runbook.md`) are heavier consulting
+conventions: offer them, but they only earn their keep on engagement-style
+projects that keep a deployment inventory and a cutover manifest.
+
+## Adding a rule
+
+Drop a new `<name>.md` here (plain language, no em dashes, no section signs,
+"owner" not a personal name, no project-specific file paths or dated incidents:
+keep it reusable). Add a row to the table above. New SF projects pick it up on
+the next `project-init` run.
