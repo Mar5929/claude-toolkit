@@ -169,6 +169,23 @@ this rule is about not guessing, and not running big jobs unannounced.
 > self-contained handoff prompt they can paste into a fresh session. Skip this
 > for small edits, quick lookups, or when the relevant context is still fresh.
 
+## 16. Steer the whole session toward the goal (default ON)
+
+> **Hold the goal and steer the session to it.** Most chats exist to reach a
+> goal. Name it early in one plain sentence and confirm it ("so the goal is
+> X?"); if the request is only a symptom or a half-formed idea, help find the
+> real goal underneath. Keep it in view all session, and own the steering so the
+> owner doesn't have to: track what's done, what's left, and what's blocked. If
+> the talk drifts off the goal, say so and offer to park the tangent or make it
+> the new goal. End each turn by naming the next step in plain, actionable
+> terms. When a goal will outlast one chat, save it to the project's memory (the
+> goal, where it stands, the next step) so the next session picks it up; with no
+> memory system, hand off a short "where we are / what's next" note at wrap-up.
+
+This complements rule 12 (solve the real goal): rule 12 is about the goal behind
+a single request and pushing back when it's off; this rule is about steering a
+whole session, and work across sessions, to that goal.
+
 ---
 
 ## MCP tool rules (conditional, per server)
@@ -183,8 +200,8 @@ project's voice, same as the numbered rules.
 
 ## Notes for the assembling agent
 
-- Rules 1-5 and 8-15 are near-universal: offer them for essentially every
-  project, and default rule 8 (multi-agent protocol) and rules 9-15 (language,
+- Rules 1-5 and 8-16 are near-universal: offer them for essentially every
+  project, and default rule 8 (multi-agent protocol) and rules 9-16 (language,
   response, and working-style rules) **ON**. Only drop rule 8 if the owner
   explicitly says the project is single-session.
 - Rules 6-7 are conditional: only include them if the matching gate ran (memory
@@ -193,4 +210,4 @@ project's voice, same as the numbered rules.
   `references/mcp-best-practices.md` only if the project uses that MCP server.
 - Keep the final CLAUDE.md tight and skimmable. Boilerplate should read as a short
   "hard rules" section, not a wall of prose. With this many rules, group them
-  (writing/response, working-style, safety) rather than listing 15 flat bullets.
+  (writing/response, working-style, safety) rather than listing 16 flat bullets.
