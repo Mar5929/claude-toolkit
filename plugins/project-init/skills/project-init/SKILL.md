@@ -101,21 +101,24 @@ sessions.
 
 - Ask whether this project wants the memory system. Many small projects don't
   need it; say so. It's opt-in.
-- If yes: set up the scalable memory architecture (the single-owner Markdown
-  knowledge-graph pattern: a `memories/` store with an index, typed links, and a
-  curator that owns all writes).
-- Explain the ground rules you're establishing (e.g. only the curator writes to
-  the memory store; a session-start hook injects curated context).
+- If yes: install the `second-brain` plugin and run its `second-brain` skill. It
+  sets up the remote MCP memory server (a shared Cloudflare Worker plus a
+  per-project Neon database, reachable from both the terminal and cloud sessions)
+  and asks a short project-type question to pick the right profile. Do not
+  hand-build a memory store.
+- Explain the ground rules you're establishing (only the two curator agents write
+  to the store; a Stop hook captures each turn; the curated digest is injected
+  each session).
 - Once memory is live, offer to run the `grill-me` skill: it interviews the owner
   about the project and checkpoints every answer to a file, capturing a project
   overview while the curator records durable facts. Save it where the project
   keeps docs (Salesforce scaffold: `engagement/project-overview/`).
 
-> **Packaged as the `second-brain` plugin in this toolkit.** If this project
-> wants memory, install that plugin and run its `second-brain` skill: it carries
-> the full spec, the hook scripts, the curator agents, and a test harness, and
-> it also covers the knowledge layer (Gate 4). Do not hand-build the pattern
-> from scratch here.
+> **Packaged as the `second-brain` plugin in this toolkit.** Its `second-brain`
+> skill carries the deployable MCP server, the two curator agents, the four
+> project profiles, the capture hook, the wiring templates, and a test harness,
+> and it also covers the knowledge layer (Gate 4). Follow that skill's steps; do
+> not hand-build a memory store here.
 
 ### Gate 4: Knowledge layer
 
@@ -127,9 +130,10 @@ staleness detection when that source drifts.
 - If yes: establish the convention for knowledge nodes and how they pin the files
   they "cover," plus the drift check that flags a node when its source changes.
 
-> **Included in the `second-brain` plugin** (the knowledge-curator agent,
-> `covers:` pins, and the drift checker install with it; `BRAIN_KNOWLEDGE=0`
-> turns just this layer off). Install that plugin rather than hand-building it.
+> **Included in the `second-brain` plugin** (the knowledge-curator agent and its
+> `covers:` SHA drift-pins install with it). The profile picked in Gate 3 sets
+> which drift model applies; skip installing the knowledge-curator to leave this
+> layer off. Install via that skill rather than hand-building it.
 
 ### Gate 5: CLAUDE.md
 

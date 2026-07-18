@@ -148,15 +148,18 @@ without touching the init flow.
   assumes a folder structure or ticketing system. Domain-specific, so install
   it only on Salesforce projects.
 
-- **`second-brain`**: the portable memory and knowledge architecture. A single
-  skill installs durable cross-session memory in any project: a gitignored
-  `brain/` knowledge graph (one fact per Markdown node, typed links, a JSON
-  index), background curator agents that capture what each work session
-  learned, sync to a dedicated private repo that the app repo never sees, a
-  digest injected at every session start, and a knowledge layer that pins
-  explanations to the exact code they describe and flags them when the code
-  drifts. Bundles the full spec, working hook scripts, agent definitions, and
-  a test harness, so installation is placeholder-filling, not design work.
+- **`second-brain`**: the portable memory and knowledge architecture (MCP). A
+  single skill installs durable cross-session memory in any project: one shared
+  Cloudflare Worker MCP server backed by a per-project Neon Postgres/pgvector
+  database and GitHub OAuth, a typed-node knowledge graph curated by two
+  background agents, hybrid keyword+vector recall, a digest injected each
+  session, and a knowledge layer that pins explanations to the exact code they
+  describe (a `covers:` SHA) and flags them when the code drifts. Reachable from
+  BOTH the terminal CLI and cloud/web Claude sessions. A short project-type
+  question picks the profile (Salesforce org, app, other code, docs-only). Bundles
+  the deployable server, both curators, the four profiles, the capture hook, the
+  wiring templates, and a test harness, so installation is placeholder-filling,
+  not design work.
 
 ---
 
@@ -166,11 +169,13 @@ These are the reusable systems I want to fold in here over time. Ordered roughly
 by priority; each becomes its own skill/plugin so `project-init` can pull it in.
 
 - [x] **`second-brain` plugin** (shipped; formerly the `memory-architecture` and
-  `knowledge-layer` roadmap items): the scalable long-term memory system, ported
-  from the origin project after its v2 hardening. One skill installs the whole
-  thing: the knowledge-graph store, leader-elected background curators, the
-  private-repo sync with publish guards, the drift-pinned knowledge layer, and
-  a self-verifying test harness.
+  `knowledge-layer` roadmap items): the scalable long-term memory system,
+  re-architected onto a remote MCP server (shared Cloudflare Worker + a
+  per-project Neon Postgres/pgvector database + GitHub OAuth) so it works from
+  both the terminal and cloud sessions. One skill installs it per project: the
+  typed-node knowledge graph, the two curator agents, four project profiles,
+  per-turn capture, the drift-pinned knowledge layer, and a self-verifying
+  database harness.
 - [ ] **Shared hooks library**: reusable guard hooks I can drop into any
   project, e.g. blocking deployments to a protected environment, secret-scanning
   pre-commit guards, and a SessionStart orientation hook. First one shipped: the

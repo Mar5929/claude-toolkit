@@ -54,10 +54,17 @@ secrets rule even if the prose differs. Typical checks:
   boilerplate rule?
 - **Hooks**: are guard and orientation hooks configured (the project's
   `.claude/` settings and hook scripts)?
-- **Memory system**: is there a memory store with an index and a single-owner
-  (curator) convention?
-- **Knowledge layer**: are there knowledge nodes pinned to the sources they
-  cover?
+- **Memory system** (the `second-brain` MCP architecture): is there a committed
+  `.mcp.json` with a `second-brain` server pointing at `<origin>/mcp/<id>`; does
+  `.claude/settings.json` carry `BRAIN_BACKEND=mcp`, `BRAIN_PROJECT`, and the
+  `Stop` hook running `brain-mcp-capture.mjs`; is the `brain-curator` agent
+  installed with its `## Project profile` filled in (no `<...>` placeholders left);
+  and is the project registered on the server (its own database + a grant)? A
+  local `brain/` or `memories/` directory with bash hooks is the OLD, retired
+  design: flag it to migrate to the MCP skill.
+- **Knowledge layer**: is the `knowledge-curator` agent installed (with its
+  profile filled), and are there `know-*` nodes with `covers:` SHA pins on the
+  sources they explain?
 - **Previous sync record**: read it if present (step 5 format) so deliberate
   opt-outs are respected.
 
@@ -82,9 +89,9 @@ should look in THIS project, confirm, act, summarize. Ground rules:
 - Never weaken something the project already does better than the toolkit
   version. If the project's variant is an improvement, leave it and flag it
   for port-back instead (see wrap-up).
-- For systems with a framework outlined in the toolkit (for example the memory
-  architecture, once it lands as a skill), follow that framework's own setup
-  instructions rather than improvising.
+- For systems with their own installer skill in the toolkit (for example the
+  `second-brain` memory architecture), follow that skill's own setup instructions
+  (its `setup-recipe.md`) rather than improvising.
 
 ## Step 5: record the sync
 

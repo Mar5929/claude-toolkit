@@ -1,0 +1,36 @@
+// Cloudflare Worker config for the second-brain memory MCP server.
+// ONE server serves every project; each project is isolated by its project id
+// and its own Neon database. You deploy this Worker ONCE (first-time infra
+// setup); new projects never redeploy it, they just register a new database.
+//
+// The two placeholder values below are set ONCE when you first stand up the
+// shared Worker. See references/first-time-infra.md for how to get each one.
+// They are NOT secrets (a GitHub client id and a KV namespace id are public).
+// Real secrets are set with `wrangler secret put <NAME>` and never committed:
+//   DATABASE_URL_<PROJECT>  one per project: that project's Neon connection
+//                           string (e.g. DATABASE_URL_DRAGONFLY, DATABASE_URL_ANCHOR)
+//   GITHUB_CLIENT_SECRET    the GitHub OAuth app client secret
+{
+  "name": "second-brain",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-07-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "kv_namespaces": [
+    {
+      // Create once with: wrangler kv namespace create OAUTH_KV
+      // then paste the printed id here.
+      "binding": "OAUTH_KV",
+      "id": "<OAUTH_KV_NAMESPACE_ID>"
+    }
+  ],
+  "vars": {
+    // From your GitHub OAuth app (Settings > Developer settings > OAuth Apps).
+    // The client id is not a secret; the client secret is (set it as a secret).
+    "GITHUB_CLIENT_ID": "<GITHUB_OAUTH_CLIENT_ID>"
+  },
+  // Workers AI: embeddings for hybrid recall (model @cf/baai/bge-m3, 1024-dim).
+  // No secret/key required; billed to this Cloudflare account.
+  "ai": {
+    "binding": "AI"
+  }
+}
