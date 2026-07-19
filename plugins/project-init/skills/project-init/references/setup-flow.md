@@ -26,8 +26,13 @@ so they always know where they are.
 - Recommend a conventional layout for the stack; explain the why briefly.
 - Confirm before creating dirs/files. Cover: source, tests, config, `.gitignore`,
   README, license, editor/formatter, CI stub.
+- Every stack: offer the work-items structure in `work-items-structure.md`
+  (stage folders `01-backlog/`..`04-archived/`, a `BACKLOG.md` index, one
+  folder per work item with `SPEC.md` + `STATUS.md`). Pairs with boilerplate
+  rule 18 in Gate 5.
 - Salesforce / SFDX: offer the standard scaffold in
-  `salesforce-project-scaffold.md` (SFDX source plus an `engagement/` tree).
+  `salesforce-project-scaffold.md` (SFDX source plus an `engagement/` tree;
+  its `engagement/work-items/` uses the same work-items structure).
 - Salesforce / SFDX: after `.claude/rules/` is scaffolded, offer the reusable
   Salesforce rules from `salesforce-rules/` (see its `README.md`); copy the ones
   the owner wants into the project's `.claude/rules/`.
