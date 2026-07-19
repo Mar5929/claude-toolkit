@@ -243,6 +243,21 @@ every session can read. Requirements stay loose on purpose: rigid acceptance
 checkboxes go stale when the work shifts, and a later agent then builds to the
 wrong target. Piloted on DragonFly (WI-004).
 
+## 19. Show phase progress (default ON)
+
+> **When work splits into phases, show where you are at every transition.**
+> Whenever you break a task into phases (a plan, a multi-step build, a
+> migration, a gated setup), print a simple one-line text progress bar each
+> time you move into a new phase, and again when the last phase finishes,
+> saying which phase of how many and what it is. For example:
+> `[###---] Phase 3 of 6: data migration`. Keep the phase count stable once
+> announced; if the plan changes and the count moves, say so before showing
+> the next bar.
+
+Why: a long multi-phase run otherwise reads as a wall of output with no sense
+of position. The bar gives the owner a glanceable "where are we, how much is
+left" without having to ask.
+
 ---
 
 ## MCP tool rules (conditional, per server)
@@ -257,8 +272,8 @@ project's voice, same as the numbered rules.
 
 ## Notes for the assembling agent
 
-- Rules 1-5 and 8-18 are near-universal: offer them for essentially every
-  project, and default rule 8 (multi-agent protocol) and rules 9-18 (language,
+- Rules 1-5 and 8-19 are near-universal: offer them for essentially every
+  project, and default rule 8 (multi-agent protocol) and rules 9-19 (language,
   response, and working-style rules) **ON**. Only drop rule 8 if the owner
   explicitly says the project is single-session.
 - Rules 6-7 are conditional: only include them if the matching gate ran (memory
@@ -267,4 +282,4 @@ project's voice, same as the numbered rules.
   `references/mcp-best-practices.md` only if the project uses that MCP server.
 - Keep the final CLAUDE.md tight and skimmable. Boilerplate should read as a short
   "hard rules" section, not a wall of prose. With this many rules, group them
-  (writing/response, working-style, safety) rather than listing 18 flat bullets.
+  (writing/response, working-style, safety) rather than listing 19 flat bullets.
