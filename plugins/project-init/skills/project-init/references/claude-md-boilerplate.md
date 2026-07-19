@@ -84,12 +84,26 @@ CLAUDE.md gets this protocol so each session assumes it is **not alone**:
 >   opening the PR, ask the owner whether to merge and clean up; merge only
 >   with his approval (or a standing instruction to merge). After the merge,
 >   remove your worktree and delete the branch.
+> - **When the owner approves a merge**, check that it cannot collide with
+>   uncommitted work in the primary checkout before running it: compare
+>   `git status` there against the files the merge changes
+>   (`git diff --name-only <default-branch>...<branch>`). If any file appears
+>   in both lists, stop, name exactly those files, and let the owner decide
+>   (commit, stash, or skip). Git would refuse a clobbering merge anyway; the
+>   point is to flag the collision first, not surprise the owner with a git
+>   error.
 > - If the primary checkout is dirty or on an unexpected branch, do **not**
 >   "fix" it; another session may be mid-task. Tell the owner instead.
 > - Keep shared status/handoff docs' edits small and additive so parallel PRs
 >   merge cleanly.
 > - If sessions share a device/simulator/server for testing, don't fight over
 >   it; spin up your own instance.
+
+A project may relax parts of this when the owner says so (for example,
+allowing small config edits directly in the primary checkout, or a local
+`git merge` the owner explicitly asks for instead of a PR). Put the relaxed
+variant in that project's own `.claude/rules/` file; the merge-only-on-approval
+and merge-safety-check bullets stay in every variant.
 
 Also wire this into **Gate 2 (session-start hook)** when the project takes one:
 the orientation hook should remind each new session to enter its own worktree
