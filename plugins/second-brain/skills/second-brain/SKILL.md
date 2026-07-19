@@ -59,6 +59,15 @@ It creates the database, registers it with the Worker, wires `.mcp.json` + the
 connector + the grant + the local token + the capture hook + settings, and
 installs the two curators with the profile filled in.
 
+## Step 2b: Structural layer (Salesforce projects, or on request)
+
+For a Salesforce project (the profile that names it), or whenever the owner
+wants mechanical impact analysis, follow `references/structural-layer.md`: copy
+`references/structural-layer/` into the project as `tools/kb/`, gitignore the
+build artifacts, ask the owner the storage question (`GRAPH_BACKEND`, recommend
+local), and paste the structural-layer section into the project's
+knowledge-curator. It has its own verify step (test suite `OK` + a build).
+
 ## Step 3: Verify (do not skip; do not claim success without this)
 
 Per the recipe's verify step: the database harness must end `FAIL: 0` against a
@@ -82,9 +91,11 @@ recalled in a second local session AND in a cloud session.
 - The **Stop hook** captures each turn cheaply to a journal; curators later drain
   it into clean, linked, deduped nodes. Capture is best-effort and safe even with
   no token (a teammate checkout or a cloud session).
-- **What it does NOT do:** structural impact analysis ("change this field, what
-  breaks three hops out?"). For that, keep a compiled dependency graph alongside
-  it (toolkit backlog A1). Do not promise impact analysis this layer cannot do.
+- **Impact analysis lives in the structural layer, not here.** The memory layer
+  alone cannot answer "change this field, what breaks three hops out?" — the
+  bundled compiled dependency graph (Step 2b, `references/structural-layer.md`)
+  answers that mechanically. If the structural layer is not installed, do not
+  promise impact analysis.
 
 ## Reference map
 
@@ -95,6 +106,9 @@ recalled in a second local session AND in a cloud session.
 - `references/agents/*.md` - the two curator agent templates.
 - `references/hooks/brain-mcp-capture.mjs` - the Stop-hook capture.
 - `references/templates/{settings.json, mcp.json}` - the wiring templates.
+- `references/structural-layer.md` - installing the compiled dependency graph.
+- `references/structural-layer/` - the graph tool itself (parser, impact query,
+  connection diff, self-check, storage selector, tests; see its README.md).
 - `references/server/` - the deployable Worker: `src/`, `schema.sql`, `seed.sql`,
   `upgrade-00*.sql`, `harness/`, `scripts/mint-token.mjs`, plus `PATTERNS.md` and
   `IMPLEMENTATION.md` (the deep build record).
