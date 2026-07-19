@@ -36,6 +36,10 @@ so they always know where they are.
 - Salesforce / SFDX: after `.claude/rules/` is scaffolded, offer the reusable
   Salesforce rules from `salesforce-rules/` (see its `README.md`); copy the ones
   the owner wants into the project's `.claude/rules/`.
+- Salesforce / SFDX: if the owner wants profiles or permission sets tracked in
+  git, follow `salesforce-permissions-retrieval.md` (build the full component
+  list, retrieve to a side folder, verify before committing) and copy the
+  `permissions-source-control.md` rule from `salesforce-rules/`.
 
 **Gate 2: Hooks**
 - What needs guarding or automating? (deploy/env guard, secret guard,

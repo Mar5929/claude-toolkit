@@ -199,6 +199,11 @@ reads first.
 - `references/salesforce-rules/`: a growing library of reusable `.claude/rules/`
   files for Salesforce projects (with its own `README.md` index). Offer these in
   Gate 1 after `.claude/rules/` is scaffolded, when the stack is Salesforce.
+- `references/salesforce-permissions-retrieval.md`: the end-to-end process for
+  pulling COMPLETE profiles and permission sets into source control (full
+  component list, side-folder retrieve, verification spot checks, trap list).
+  Read it when a Salesforce project wants its permissions picture in git; pairs
+  with the `permissions-source-control.md` rule in `salesforce-rules/`.
 - `references/claude-md-boilerplate.md`: the standard CLAUDE.md rules to offer
   in Gate 5.
 - `references/mcp-best-practices.md`: per-server MCP tool rules to offer in Gate
