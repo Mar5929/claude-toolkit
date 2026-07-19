@@ -44,10 +44,21 @@ resolves each project's database from a secret named `DATABASE_URL_<PROJECT_ID>`
 (GitHub), the `grants` table decides per-project role (`read|write|admin`).
 
 **Phase status (WI-002):** Phase 1 (read everywhere) DONE + deployed. Phase 2
-(write + local capture through MCP) = this record. Phase 3 = server-side
-auto-curation (a Workers cron draining `journal`; needs a server model key —
-deliberately NOT added yet). Phase 4 already merged into 2/3 numbering. Phase 5 =
-port to `claude-toolkit`.
+(write + local capture through MCP) = this record. Server-side auto-curation
+INCLUDED: this bundled server ships `src/curate.ts`, a Workers cron
+(`triggers.crons` in `wrangler.jsonc`, every 4 hours) that per
+`DATABASE_URL_<PROJECT>` reads undrained `journal` rows, asks a model (default
+`claude-haiku-4-5`, override `CURATOR_MODEL`) for a structured curation plan
+(Anthropic structured outputs; the plan's type enum EXCLUDES `knowledge`, so
+the auto-curator cannot write know-* nodes — that layer stays with the
+in-session knowledge-curator), applies it through the normal `db.ts` write
+path (`upsertNode` as login `auto-curator`, optional `putDigest`), then drains
+the exact seqs read. Any failure drains nothing (entries retry next cron).
+DORMANT until you set the `ANTHROPIC_API_KEY` secret from the Cloudflare
+dashboard; `AUTO_CURATE=0` is the kill switch. Harness:
+`harness/curate-harness.ts` (mocked model, real db path). This addition is
+what makes cloud sessions curate memory automatically without an in-session
+curator dispatch. Port to `claude-toolkit` = this bundled copy.
 
 ---
 

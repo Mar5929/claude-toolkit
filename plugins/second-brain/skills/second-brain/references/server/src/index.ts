@@ -1,5 +1,6 @@
 import { OAuthProvider } from "@cloudflare/workers-oauth-provider";
 import { createMcpHandler } from "agents/mcp";
+import { runScheduledCuration } from "./curate";
 import { db, getGrant } from "./db";
 import { GitHubHandler } from "./github-handler";
 import { buildMemoryServer } from "./mcp";
@@ -38,7 +39,7 @@ const apiHandler = {
   },
 };
 
-export default new OAuthProvider({
+const oauthProvider = new OAuthProvider({
   apiRoute: "/mcp/",
   apiHandler,
   defaultHandler: GitHubHandler,
@@ -46,3 +47,14 @@ export default new OAuthProvider({
   tokenEndpoint: "/token",
   clientRegistrationEndpoint: "/register",
 });
+
+// HTTP traffic goes through the OAuth provider unchanged; the scheduled
+// handler is the WI-002 Phase 4 auto-curation cron (a no-op until the
+// ANTHROPIC_API_KEY secret exists).
+export default {
+  fetch: (request: Request, env: Env, ctx: ExecutionContext) =>
+    oauthProvider.fetch(request, env, ctx),
+  scheduled: (_controller: ScheduledController, env: Env, ctx: ExecutionContext) => {
+    ctx.waitUntil(runScheduledCuration(env));
+  },
+};
