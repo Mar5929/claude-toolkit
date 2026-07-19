@@ -49,3 +49,6 @@ section, replacing the `<...>` placeholders. `<APP_NAME>` is the real app name.
 - Universal exclusions still apply: never store secrets, signing keys, API tokens,
   or real end-user data.
 - This profile turns the knowledge layer ON.
+- Onboarding onto an app that already has code? Run the one-time knowledge
+  backfill and install the freshness hook: `references/kb-backfill.md`
+  (SKILL.md Step 2c).

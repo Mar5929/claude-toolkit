@@ -75,6 +75,11 @@ parsers can join later.
    silent when nothing changed, never builds a graph that does not exist yet,
    never blocks the session, and `GRAPH_FRESHNESS=0` disables it.
 
+   This hook is the Salesforce producer of the drift file. Non-Salesforce
+   projects get the generic producer instead
+   (`kb-backfill/kb_freshness_hook.py`, see `kb-backfill.md` Step 3). A
+   project installs exactly one of the two, never both.
+
 6. **Optional overlays.** The `yamls` and `kb-index` scopes need curated
    inputs (`engagement/knowledge-base/` files) most new projects will not have
    yet; skip them until the project curates those. The `yamls` scope needs
@@ -84,18 +89,21 @@ parsers can join later.
 ## One-time backfill (existing codebases)
 
 A project that installs the knowledge layer with lots of code already written
-starts with an EMPTY `know-*` layer. Backfill it once, using the graph as the
-map, right after install:
+starts with an EMPTY `know-*` layer. Backfill it once, right after install.
+The full batched procedure lives in `kb-backfill.md` (it is the same for
+every project type); on a Salesforce project the two inputs it needs come
+from the graph:
 
-1. Build the graph, then run `python3 tools/kb/query_graph.py --map`: the
-   subsystem worklist (objects, flows, Apex classes ranked by connectedness).
-2. Dispatch the knowledge-curator in DOCUMENT mode over that worklist in
-   batches of 5-10 subsystems, busiest first — never the whole codebase in
-   one pass. For each subsystem, feed it the subsystem's graph connections
-   (`query_graph.py "<component>"`) as the factual skeleton; the curator adds
-   the why and pins `covers:` SHAs.
-3. Goal: rough, real coverage plus a `know-codemap` row per subsystem, not
-   polish. The freshness hook keeps it honest from then on.
+1. **The map:** build the graph, then `python3 tools/kb/query_graph.py --map`
+   prints the subsystem worklist (objects, flows, Apex classes ranked by
+   connectedness).
+2. **The factual skeleton per subsystem:** its graph connections,
+   `python3 tools/kb/query_graph.py "<component>"`.
+
+Then follow `kb-backfill.md` Step 2: COVERAGE report first, DOCUMENT in
+batches of 5-10 subsystems, busiest first, one `know-*` node plus a
+`know-codemap` row per subsystem. Rough, real coverage, not polish; the
+freshness hook keeps it honest from then on.
 
 ## Rule to write in step 5c
 
