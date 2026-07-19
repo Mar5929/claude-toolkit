@@ -1,0 +1,22 @@
+{
+  "_comment": "SECOND-BRAIN memory wiring. MERGE these keys into the project's committed .claude/settings.json, then delete this _comment key. Do NOT clobber existing env or hooks entries; add to them (a project may already have a PreToolUse guard hook, etc.). Replace <BRAIN_MCP_ORIGIN> with the shared server origin (for Mike's live server: https://second-brain.rihm.workers.dev) and <PROJECT_ID> with this project's id. The BRAIN_MCP_TOKEN secret does NOT belong here; it goes in the gitignored .claude/settings.local.json (see the setup recipe, 'mint local token' step).",
+  "env": {
+    "BRAIN_BACKEND": "mcp",
+    "BRAIN_MCP_ORIGIN": "<BRAIN_MCP_ORIGIN>",
+    "BRAIN_PROJECT": "<PROJECT_ID>",
+    "BRAIN_CAPTURE": "1"
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/brain-mcp-capture.mjs\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -15,7 +15,9 @@ voice: these are the intent, not fixed prose.
 > **Keep this file current.** If, during a session, we identify something that
 > future sessions would need to know (a new convention, a corrected assumption, a
 > decision, a gotcha, a changed workflow), update CLAUDE.md to capture it **before
-> the task ends**. Don't let hard-won context evaporate when the session closes. If
+> the task ends**. In particular, whenever you add or change a path, a project
+> instruction, or an agent/session workflow, check whether CLAUDE.md needs updating
+> to match. Don't let hard-won context evaporate when the session closes. If
 > unsure whether something belongs here, ask; a slightly-too-full CLAUDE.md beats a
 > stale one.
 
@@ -169,6 +171,40 @@ this rule is about not guessing, and not running big jobs unannounced.
 > self-contained handoff prompt they can paste into a fresh session. Skip this
 > for small edits, quick lookups, or when the relevant context is still fresh.
 
+## 16. Steer the whole session toward the goal (default ON)
+
+> **Hold the goal and steer the session to it.** Most chats exist to reach a
+> goal. Name it early in one plain sentence and confirm it ("so the goal is
+> X?"); if the request is only a symptom or a half-formed idea, help find the
+> real goal underneath. Keep it in view all session, and own the steering so the
+> owner doesn't have to: track what's done, what's left, and what's blocked. If
+> the talk drifts off the goal, say so and offer to park the tangent or make it
+> the new goal. End each turn by naming the next step in plain, actionable
+> terms. When a goal will outlast one chat, save it to the project's memory (the
+> goal, where it stands, the next step) so the next session picks it up; with no
+> memory system, hand off a short "where we are / what's next" note at wrap-up.
+
+This complements rule 12 (solve the real goal): rule 12 is about the goal behind
+a single request and pushing back when it's off; this rule is about steering a
+whole session, and work across sessions, to that goal.
+
+## 17. Do the technical work yourself; recommend, don't offload (default ON)
+
+> **Handle the technical steps yourself.** When a task involves git, merges,
+> branch cleanup, config, running commands, deploys, or moving files, just do
+> them; don't hand the owner a command to run or a chore to finish unless it is
+> genuinely only-they (a login, a payment, a click in an outside service you
+> can't reach). When a step really is theirs, make it copy-paste simple: the
+> exact thing to click or paste, and what they should see if it worked. And
+> don't put a raw technical choice in front of them: decide what you can, and
+> when a choice is truly theirs (cost, risk, direction, preference) give one
+> clear recommendation and the main reason in plain words, then let them confirm.
+
+This extends rule 9 (calibrate to the owner) from "how you write" to "who does
+the work": prefer doing the technical part over instructing, and surface only
+real decisions. If a project sets its owner as fully non-technical, this rule
+matters even more.
+
 ---
 
 ## MCP tool rules (conditional, per server)
@@ -183,8 +219,8 @@ project's voice, same as the numbered rules.
 
 ## Notes for the assembling agent
 
-- Rules 1-5 and 8-15 are near-universal: offer them for essentially every
-  project, and default rule 8 (multi-agent protocol) and rules 9-15 (language,
+- Rules 1-5 and 8-17 are near-universal: offer them for essentially every
+  project, and default rule 8 (multi-agent protocol) and rules 9-17 (language,
   response, and working-style rules) **ON**. Only drop rule 8 if the owner
   explicitly says the project is single-session.
 - Rules 6-7 are conditional: only include them if the matching gate ran (memory
@@ -193,4 +229,4 @@ project's voice, same as the numbered rules.
   `references/mcp-best-practices.md` only if the project uses that MCP server.
 - Keep the final CLAUDE.md tight and skimmable. Boilerplate should read as a short
   "hard rules" section, not a wall of prose. With this many rules, group them
-  (writing/response, working-style, safety) rather than listing 15 flat bullets.
+  (writing/response, working-style, safety) rather than listing 17 flat bullets.

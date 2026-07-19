@@ -42,9 +42,10 @@ so they always know where they are.
 
 **Gate 3: Memory system**
 - Does this project want durable long-term memory? (opt-in)
-- If yes: install the toolkit's `second-brain` plugin and run its skill (full
-  spec, hooks, curator agents, harness); state the ground rules (curators own
-  writes; session-start injects curated context).
+- If yes: install the toolkit's `second-brain` plugin and run its skill; it sets
+  up the remote MCP memory server and asks a project-type question to pick a
+  profile. Ground rules: the two curators own all writes; a Stop hook captures
+  each turn; the curated digest is injected each session.
 - Once memory is live, offer the `grill-me` skill to interview the owner and
   capture a project overview (Salesforce scaffold: save to
   `engagement/project-overview/`).
@@ -52,7 +53,8 @@ so they always know where they are.
 **Gate 4: Knowledge layer**
 - Does this project want the knowledge layer? (opt-in)
 - If yes: it ships inside the `second-brain` plugin (knowledge-curator agent,
-  covers: pins, drift check); enable it there rather than hand-building.
+  covers: SHA drift-pins); the Gate 3 profile sets the drift model. Skip the
+  knowledge-curator to leave this layer off.
 
 **Gate 5: CLAUDE.md**
 - Build section by section _with_ the user: what it is, codemap, hard rules, how

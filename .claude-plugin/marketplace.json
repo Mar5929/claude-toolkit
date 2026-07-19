@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Personal, portable toolkit of reusable Claude systems: skills, rules, hooks, and templates shared across every project and device.",
-    "version": "0.6.4"
+    "version": "0.7.4"
   },
   "plugins": [
     {
@@ -22,7 +22,7 @@
     {
       "name": "second-brain",
       "source": "./plugins/second-brain",
-      "description": "Portable second-brain memory and knowledge architecture: a gitignored brain/ knowledge graph curated by leader-elected background agents, synced additively to a dedicated private repo, with digest injection, per-prompt recall, a drift-pinned knowledge layer, and a self-verifying harness. One skill installs the whole system from bundled reference implementations."
+      "description": "Portable second-brain memory and knowledge architecture (MCP): a shared Cloudflare Worker MCP server backed by a per-project Neon Postgres/pgvector database and GitHub OAuth, holding a typed-node knowledge graph curated by two background agents, with hybrid keyword+vector recall, a session digest, drift-pinned knowledge nodes, per-turn capture, and a self-verifying harness. Reachable from the terminal and cloud sessions. One skill installs it per project from bundled reference implementations; a project-type question picks the profile."
     }
   ]
 }

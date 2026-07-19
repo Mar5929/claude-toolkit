@@ -2,100 +2,99 @@
 name: second-brain
 description: >-
   Install the portable second-brain memory and knowledge architecture in the
-  current project: a gitignored brain/ knowledge graph curated by background
-  agents, synced to a dedicated private repo, with digest injection, per-prompt
-  recall, drift-pinned knowledge nodes, and a self-verifying test harness. Use
-  when the user wants durable cross-session memory for a project, or says
-  things like "set up the memory architecture", "implement the second brain",
-  "add long-term memory to this project", "install the memory system from my
-  toolkit", or "/second-brain". This skill INSTALLS a fully specified system
-  from bundled reference implementations; there is no design work to do, only
-  placeholders to fill and acceptance tests to pass.
+  current project: a remote MCP memory server (one shared Cloudflare Worker + a
+  per-project Neon Postgres/pgvector database + GitHub OAuth) holding a typed-node
+  knowledge graph curated by two background agents, with hybrid keyword+vector
+  recall, a digest injected each session, drift-pinned knowledge nodes, per-turn
+  capture, and a self-verifying database harness. Reachable from BOTH the terminal
+  CLI and cloud/web Claude sessions. Use when the user wants durable cross-session
+  memory for a project, or says "set up the memory architecture", "implement the
+  second brain", "add long-term memory to this project", "install the memory
+  system from my toolkit", or "/second-brain". This skill INSTALLS a fully
+  specified system from bundled reference implementations; a short project-type
+  question picks the profile, and there is no design work to do.
 ---
 
-# second-brain: install durable cross-session memory
+# second-brain: install durable cross-session memory (MCP architecture)
 
-You are installing a **fully specified, battle-tested system**, not designing
-one. The complete technical specification is
-`references/architecture-spec.md`; read it end-to-end before touching the host
-project. The bundled `references/hooks/`, `references/agents/`, and
-`references/templates/` are working implementations that passed a 30+
-assertion harness. Copy them and fill placeholders. Do not re-derive, rewrite,
-or "improve" them during installation; if you find a real defect, fix it, keep
-the harness green, and tell the user to port the fix back to the toolkit.
+You are installing a fully specified, proven system, not designing one. Read
+`references/architecture-spec.md` end to end first: it explains what the system is
+and what should happen at runtime. Then follow the steps below. The bundled
+`references/` holds working implementations (the deployable server, the two
+curators, the capture hook, the templates, the four profiles) that passed a 30+
+assertion harness. Copy them and fill placeholders; do not redesign them. If you
+find a real defect, fix it, keep the harness green, and tell the user to port the
+fix back to the toolkit.
 
-## Step 1: Orient and interview
+## What gets installed
 
-Read the spec, look at the host project (git repo? origin URL? public or
-private? does a memory system already exist?), then collect the placeholders:
+- **Once, ever:** a shared Cloudflare Worker MCP server + a GitHub OAuth app +
+  Workers AI embeddings. For Mike this already exists at
+  `https://second-brain.rihm.workers.dev`.
+- **Per project:** a Neon database, a committed `.mcp.json`, a cloud connector, an
+  access grant, a capture hook + settings, and the two curator agents carrying
+  this project's profile.
 
-1. `<APP_NAME>`: the project/product name.
-2. `<BRAIN_REMOTE_URL>`: the dedicated **private** brain repo. Default
-   suggestion: `<owner>/<app>-brain` on the same git host. Offer to create it
-   (`gh repo create <owner>/<app>-brain --private`). If the user refuses a
-   second repo, fall back to the legacy orphan-branch mode (spec section 5),
-   and warn plainly if the app repo is public: the store would be public too.
-3. `<PROJECT_EXCLUSIONS>`: what must never be stored (beyond secrets/PII).
-   Ask; every domain has something.
-4. `<MODEL>`: curator model, default `sonnet`.
-5. `<CODE_PATH_REGEX>`: which paths count as app code (drives the
-   knowledge-curator's phase 2), for example `src/|lib/|Tests/`. Also ask
-   whether they want the knowledge layer at all (`BRAIN_KNOWLEDGE=0` disables
-   phase 2; everything else still works).
+## Step 0: Orient, then choose the path and the profile
 
-If the project already has ANY memory system (a `memories/` or `brain/` dir, a
-memory hook, a curator agent), stop and reconcile with the user before
-installing a second one.
+1. Look at the host project. Is it a git repo? Does it ALREADY have a memory
+   system (a `brain/` or `memories/` dir, a curator agent, or a `.mcp.json` with a
+   `second-brain` server)? If one already exists, STOP and reconcile with the user
+   before installing a second.
+2. **Does the shared Worker exist yet?** For Mike: yes. If not, do
+   `references/first-time-infra.md` ONCE, first.
+3. **Ask the project type. This picks the profile:** Salesforce org, app (iOS or
+   web), other code, or docs-only. Map the answer to `references/profiles/<type>.md`.
+   Confirm the project id (`<ID>`, lowercase, hyphens allowed) with the user.
 
-## Step 2: Install (spec section 10 has the exact order)
+## Step 1: First-time infrastructure (skip if the shared Worker exists)
 
-1. Create/confirm the brain repo.
-2. Add the `/brain/*` gitignore (with the `!/brain/README.md` whitelist) to
-   the app repo.
-3. Scaffold `brain/` (empty digest, empty index, template, signpost README,
-   node folders).
-4. Copy `references/hooks/*.sh` to `.claude/hooks/`, `chmod +x`. Keep the
-   `brain-*` file names.
-5. Copy `references/agents/*.md` to `.claude/agents/`, filling `<APP_NAME>`
-   and `<PROJECT_EXCLUSIONS>`.
-6. MERGE `references/templates/settings-hooks.json` into
-   `.claude/settings.json` (drop its `_comment` key; never clobber existing
-   env or hooks entries; never add a `BRAIN_BRANCH` key, the spec explains
-   why).
-7. Seed: `bash .claude/hooks/brain-sync.sh --force`, then verify the remote
-   branch exists.
+Follow `references/first-time-infra.md`. One time, ever. It produces the
+`BRAIN_MCP_ORIGIN` that every project uses.
+
+## Step 2: Per-project onboarding
+
+Follow `references/setup-recipe.md` end to end with the chosen `<ID>` and profile.
+It creates the database, registers it with the Worker, wires `.mcp.json` + the
+connector + the grant + the local token + the capture hook + settings, and
+installs the two curators with the profile filled in.
 
 ## Step 3: Verify (do not skip; do not claim success without this)
 
-1. `bash .claude/hooks/brain-harness-test.sh` must end `FAIL: 0`.
-2. Run the live acceptance checks from spec section 12.
-3. Confirm `git status` in the app repo shows nothing under `brain/` while the
-   store is populated.
+Per the recipe's verify step: the database harness must end `FAIL: 0` against a
+scratch database, and a read/write smoke test must show a fact written locally
+recalled in a second local session AND in a cloud session.
 
-## Step 4: Document
+## Step 4: Document and populate
 
-Record the ground rules in the project's `CLAUDE.md`: only the curators write
-to `brain/`; sessions never hand-edit it; where the canonical store lives; how
-to ask for recall ("delegate to the brain-curator"). Tell the user the first
-digest will be thin until a few curated batches have run, and show them the
-health footer they should expect at session start.
+- Write the ground rules into the project's `CLAUDE.md` (recipe Step 9).
+- Offer the first population (recipe Step 10): brain-curator REMEMBER for the owner
+  profile and standing decisions; knowledge-curator COVERAGE then DOCUMENT in
+  batches, if the knowledge layer is on. Never sweep a whole codebase in one pass.
 
-## Step 5: Offer the first knowledge population
+## How the installed system runs (tell the user)
 
-The knowledge layer starts empty, and the background pipeline only documents
-code that changes AFTER install, so an existing codebase stays undocumented
-until someone seeds it. Offer to run the first population now (skip this step
-if the user disabled the knowledge layer):
+- The **digest** (curated, injected via `get_digest`) is what a new session reads
+  first.
+- To remember or recall, the main agent delegates to the **brain-curator**; to
+  explain or document why code exists, it delegates to the **knowledge-curator**.
+  They never run at the same time.
+- The **Stop hook** captures each turn cheaply to a journal; curators later drain
+  it into clean, linked, deduped nodes. Capture is best-effort and safe even with
+  no token (a teammate checkout or a cloud session).
+- **What it does NOT do:** structural impact analysis ("change this field, what
+  breaks three hops out?"). For that, keep a compiled dependency graph alongside
+  it (toolkit backlog A1). Do not promise impact analysis this layer cannot do.
 
-1. Delegate a COVERAGE pass to the knowledge-curator: a read-only report of
-   undocumented subsystems, ranked by how much intent a fresh agent would
-   have to guess. Show the user the ranked list and let them pick priorities
-   before anything is written or spent.
-2. DOCUMENT the chosen subsystems in batches of 5 to 10 per pass, publishing
-   after each batch (a human asked, so the curator may run `brain-flush.sh`).
-   Have the user review the first batch's quality before running more.
+## Reference map
 
-Never sweep the whole app in one giant pass: it is hard to quality-check, and
-one bad run wastes the entire spend. The same delegation pattern seeds the
-memory side on day one (brain-curator REMEMBER mode: the owner profile,
-working agreements, and any standing decisions worth recording).
+- `references/architecture-spec.md` - what it is, why, and the runtime process flow.
+- `references/first-time-infra.md` - the one-time shared-server setup.
+- `references/setup-recipe.md` - the exact per-project steps with expected output.
+- `references/profiles/*.md` - the four project profiles (fill the curators).
+- `references/agents/*.md` - the two curator agent templates.
+- `references/hooks/brain-mcp-capture.mjs` - the Stop-hook capture.
+- `references/templates/{settings.json, mcp.json}` - the wiring templates.
+- `references/server/` - the deployable Worker: `src/`, `schema.sql`, `seed.sql`,
+  `upgrade-00*.sql`, `harness/`, `scripts/mint-token.mjs`, plus `PATTERNS.md` and
+  `IMPLEMENTATION.md` (the deep build record).
