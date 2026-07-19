@@ -291,6 +291,81 @@ def render_groups(conn: sqlite3.Connection, fragment: str) -> str:
     return "\n".join(out)
 
 
+def render_map(conn: sqlite3.Connection) -> str:
+    """Subsystem worklist for the knowledge-layer backfill (WI-003 Phase 8).
+
+    Lists what exists and how connected it is, so a curator can seed know-*
+    coverage for the busiest subsystems first.
+    """
+    out: list = []
+    w = out.append
+    w("# Subsystem map (from the compiled graph)")
+    w("")
+
+    objects = conn.execute(
+        """
+        SELECT o.name AS name,
+          (SELECT COUNT(*) FROM components f
+            WHERE f.type = 'Field' AND f.parent_id = o.id) AS fields,
+          (SELECT COUNT(*) FROM relationships r
+            WHERE r.kind = 'TRIGGERS_ON' AND r.dst_id = o.id) AS triggered_by,
+          (SELECT COUNT(*) FROM relationships r
+            WHERE r.kind = 'READS' AND r.dst_id = o.id) AS read_by
+        FROM components o WHERE o.type = 'Object'
+        ORDER BY fields DESC, o.name
+        """
+    ).fetchall()
+    w(f"## Objects ({len(objects)})")
+    w("")
+    w("| object | fields | flows/triggers on it | read by |")
+    w("| --- | --- | --- | --- |")
+    for r in objects:
+        w(f"| `{r['name']}` | {r['fields']} | {r['triggered_by']} | {r['read_by']} |")
+    w("")
+
+    flows = conn.execute(
+        """
+        SELECT c.name AS name,
+          COALESCE((SELECT GROUP_CONCAT(REPLACE(r.dst_id, 'Object:', ''), ', ')
+            FROM relationships r
+            WHERE r.src_id = c.id AND r.kind = 'TRIGGERS_ON'), '') AS objects,
+          (SELECT COUNT(*) FROM relationships r
+            WHERE r.src_id = c.id AND r.kind = 'WRITES') AS writes,
+          (SELECT COUNT(*) FROM relationships r
+            WHERE r.src_id = c.id AND r.kind = 'READS') AS reads
+        FROM components c WHERE c.type = 'Flow'
+        ORDER BY writes + reads DESC, c.name
+        """
+    ).fetchall()
+    w(f"## Flows ({len(flows)}) — busiest first")
+    w("")
+    w("| flow | triggers on | writes | reads |")
+    w("| --- | --- | --- | --- |")
+    for r in flows:
+        w(f"| `{r['name']}` | {r['objects']} | {r['writes']} | {r['reads']} |")
+    w("")
+
+    apex = conn.execute(
+        """
+        SELECT c.name AS name,
+          (SELECT COUNT(*) FROM relationships r
+            WHERE r.src_id = c.id) AS outgoing,
+          (SELECT COUNT(*) FROM relationships r
+            WHERE r.dst_id = c.id AND r.kind IN ('INVOKES','SCHEDULES')) AS invoked_by
+        FROM components c WHERE c.type = 'ApexClass'
+        ORDER BY outgoing + invoked_by DESC, c.name
+        """
+    ).fetchall()
+    w(f"## Apex classes ({len(apex)}) — busiest first")
+    w("")
+    w("| class | outgoing connections | invoked/scheduled by |")
+    w("| --- | --- | --- |")
+    for r in apex:
+        w(f"| `{r['name']}` | {r['outgoing']} | {r['invoked_by']} |")
+    w("")
+    return "\n".join(out)
+
+
 def main() -> int:
     p = argparse.ArgumentParser(description="Impact queries over the dependency graph.")
     p.add_argument("component", nargs="?",
@@ -304,10 +379,15 @@ def main() -> int:
                    help="fuzzy field/group name: list matching curated field "
                         "groups with member roles + notes (near-duplicate "
                         "clusters)")
+    p.add_argument("--map", action="store_true",
+                   help="print the subsystem worklist (objects, flows, apex "
+                        "ranked by connectedness) for the knowledge-layer "
+                        "backfill")
     args = p.parse_args()
 
-    if bool(args.component) == bool(args.group):
-        p.error("give exactly one of: <component>, or --group <fuzzy-name>")
+    chosen = [bool(args.component), bool(args.group), args.map]
+    if sum(chosen) != 1:
+        p.error("give exactly one of: <component>, --group <fuzzy-name>, or --map")
 
     # Windows consoles default to cp1252; never let a stray glyph crash output.
     try:
@@ -316,8 +396,8 @@ def main() -> int:
         pass
 
     conn = connect(Path(args.db))
-    if args.group:
-        report = render_groups(conn, args.group)
+    if args.group or args.map:
+        report = render_map(conn) if args.map else render_groups(conn, args.group)
         conn.close()
         print(report)
         if args.report:

@@ -79,6 +79,21 @@ because every build stamps a wall-clock time into the `build_runs` audit
 table; any determinism check must compare the sorted content dump and exclude
 `build_runs`.
 
+## Ongoing freshness and the one-time backfill
+
+- **Freshness (automatic):** `graph_freshness_hook.py` runs as a Claude Code
+  Stop hook. When `force-app/` files change it rebuilds the graph and, if any
+  connections changed, writes `tools/kb/_drift_pending.md` naming them; the
+  project rule says to dispatch the knowledge-curator on that file, then
+  delete it. First run just records a fingerprint stamp; unchanged turns are
+  silent; `GRAPH_FRESHNESS=0` disables it. It never builds a graph that does
+  not already exist.
+- **Backfill (one-time):** onboarding the knowledge layer onto a project that
+  already has lots of code starts from `query_graph.py --map`: the subsystem
+  worklist (objects, flows, Apex ranked by connectedness). Seed `know-*`
+  coverage for the busiest subsystems first, in batches, using each
+  subsystem's graph connections as the factual skeleton.
+
 ## Known limits (state these; do not oversell)
 
 - The parser extracts flow and workflow writers only, NOT Apex or integration
@@ -106,6 +121,7 @@ table; any determinism check must compare the sorted content dump and exclude
 | `parse_kb_indexes.py` | The kb-index provider's markdown reader. |
 | `load_yaml.py` | The yamls-scope overlay loader (PyYAML). |
 | `graph_backend.py` | `GRAPH_BACKEND` selector + the documented cloud contract. |
+| `graph_freshness_hook.py` | Stop hook: rebuild on force-app change, surface drift. |
 | `test_catalog.py` | The unit-test suite. |
 
 ## Provenance

@@ -47,11 +47,86 @@ parsers can join later.
    `.claude/agents/knowledge-curator.md`, as its own H2 section right before
    `## Your invariants`.
 
-5. **Optional overlays.** The `yamls` and `kb-index` scopes need curated
+5. **Install ongoing freshness (default, not opt-in).** This keeps both the
+   graph and the `know-*` layer current as code changes, with no manual step:
+
+   a. Merge this entry into the project's `.claude/settings.json`
+      `hooks.Stop` hooks array (next to the brain-mcp-capture hook):
+
+      ```json
+      {
+        "type": "command",
+        "command": "python3 \"${CLAUDE_PROJECT_DIR}/tools/kb/graph_freshness_hook.py\"",
+        "timeout": 60
+      }
+      ```
+
+   b. Add the freshness artifacts to `.gitignore`:
+
+      ```
+      tools/kb/_freshness_stamp.json
+      tools/kb/_drift_pending.md
+      ```
+
+   c. Write the rule below to `.claude/rules/structural-layer-freshness.md`.
+
+   The hook fingerprints `force-app/`, and on change rebuilds the graph and
+   writes `tools/kb/_drift_pending.md` naming the changed connections. It is
+   silent when nothing changed, never builds a graph that does not exist yet,
+   never blocks the session, and `GRAPH_FRESHNESS=0` disables it.
+
+6. **Optional overlays.** The `yamls` and `kb-index` scopes need curated
    inputs (`engagement/knowledge-base/` files) most new projects will not have
    yet; skip them until the project curates those. The `yamls` scope needs
    `pip install -r tools/kb/requirements.txt` (PyYAML); the core build is
    stdlib-only.
+
+## One-time backfill (existing codebases)
+
+A project that installs the knowledge layer with lots of code already written
+starts with an EMPTY `know-*` layer. Backfill it once, using the graph as the
+map, right after install:
+
+1. Build the graph, then run `python3 tools/kb/query_graph.py --map`: the
+   subsystem worklist (objects, flows, Apex classes ranked by connectedness).
+2. Dispatch the knowledge-curator in DOCUMENT mode over that worklist in
+   batches of 5-10 subsystems, busiest first — never the whole codebase in
+   one pass. For each subsystem, feed it the subsystem's graph connections
+   (`query_graph.py "<component>"`) as the factual skeleton; the curator adds
+   the why and pins `covers:` SHAs.
+3. Goal: rough, real coverage plus a `know-codemap` row per subsystem, not
+   polish. The freshness hook keeps it honest from then on.
+
+## Rule to write in step 5c
+
+```markdown
+# Keep the Structural Layer and Knowledge Layer Fresh
+
+The compiled dependency graph (`tools/kb/`) and the second-brain `know-*`
+notes must not silently rot as code changes. A Stop hook
+(`tools/kb/graph_freshness_hook.py`, wired in `.claude/settings.json`) does
+the mechanical half: when a `force-app/` file changes, it rebuilds the graph
+and, if any connections changed, writes `tools/kb/_drift_pending.md` naming
+exactly which ones.
+
+## Rules
+
+1. **When `tools/kb/_drift_pending.md` exists, process it.** Dispatch the
+   knowledge-curator with that file's contents so it reconciles the `know-*`
+   nodes covering the changed files (re-read the file, fix the node's why,
+   re-anchor the `covers:` SHA). Delete `_drift_pending.md` after it has been
+   processed. Do not let it sit across sessions.
+2. **After a meaningful `force-app/` change, update the covering `know-*`
+   node** in the same session, per the knowledge-curator's DOCUMENT mode.
+3. **Answer impact questions from the graph, not memory.** The hook keeps
+   `tools/kb/_graph.sqlite` current; `query_graph.py` is the source of truth
+   for "what writes/reads/breaks".
+4. **Never commit graph artifacts.** `_graph.sqlite`, `_graph_prev.sqlite`,
+   `_freshness_stamp.json`, and `_drift_pending.md` are gitignored build
+   artifacts; a rebuild recreates them.
+5. **Kill switch.** Set `GRAPH_FRESHNESS=0` to disable the hook (for example
+   during bulk metadata imports); re-enable it after.
+```
 
 ## Verify (do not skip)
 
