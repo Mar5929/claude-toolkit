@@ -32,5 +32,11 @@
   // No secret/key required; billed to this Cloudflare account.
   "ai": {
     "binding": "AI"
+  },
+  // WI-002 Phase 4: auto-curation cron (drains each project's capture journal
+  // through a model into memory nodes). Runs every 4 hours; a silent no-op
+  // until the ANTHROPIC_API_KEY secret is set from the dashboard.
+  "triggers": {
+    "crons": ["23 */4 * * *"]
   }
 }

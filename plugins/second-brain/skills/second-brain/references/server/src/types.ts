@@ -6,6 +6,13 @@ export interface Env {
   // node/query embeddings via @cf/baai/bge-m3 (1024-dim). No API key needed:
   // it runs on the same Cloudflare account, so cloud sessions can embed too.
   AI: Ai;
+  // WI-002 Phase 4 auto-curation. ANTHROPIC_API_KEY is a secret set from the
+  // Cloudflare dashboard (never via chat-run wrangler); until it exists the
+  // cron is a silent no-op. CURATOR_MODEL overrides the default
+  // claude-haiku-4-5; AUTO_CURATE="0" is the kill switch.
+  ANTHROPIC_API_KEY?: string;
+  CURATOR_MODEL?: string;
+  AUTO_CURATE?: string;
   // One Neon database per project. Each connection string is its own secret,
   // named DATABASE_URL_<project id, uppercased, '-' replaced by '_'>.
   // Example: project 'dragonfly' reads DATABASE_URL_DRAGONFLY.
