@@ -42,3 +42,6 @@ section, replacing the `<...>` placeholders. `<APP_NAME>` is the real project na
 - `CODE_PATH_REGEX` = the source roots (ask the owner; e.g. `src/|lib/`).
 - Universal exclusions still apply: never store secrets, tokens, or credentials.
 - This profile turns the knowledge layer ON.
+- Onboarding onto a repo that already has code? Run the one-time knowledge
+  backfill and install the freshness hook: `references/kb-backfill.md`
+  (SKILL.md Step 2c).

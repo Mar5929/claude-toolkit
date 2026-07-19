@@ -68,6 +68,23 @@ build artifacts, ask the owner the storage question (`GRAPH_BACKEND`, recommend
 local), and paste the structural-layer section into the project's
 knowledge-curator. It has its own verify step (test suite `OK` + a build).
 
+## Step 2c: Existing codebase? Backfill the knowledge layer (any project type)
+
+If the project already has meaningful code, the `know-*` layer must not start
+empty. Follow `references/kb-backfill.md`:
+
+- Produce the subsystem map: on Salesforce, the compiled graph's
+  `query_graph.py --map` (Step 2b); everywhere else, the bundled
+  `references/kb-backfill/subsystem_map.py` (deterministic, offline, works
+  for web, iOS, and generic repos).
+- Seed `know-*` nodes with the knowledge-curator in batches of 5-10
+  subsystems, busiest first (COVERAGE report first; never the whole codebase
+  in one pass).
+- Install the ongoing-freshness Stop hook and rule so later code changes
+  surface drift to the knowledge-curator by default. Salesforce projects
+  that completed Step 2b already have their freshness hook; a project
+  installs exactly one, never both.
+
 ## Step 3: Verify (do not skip; do not claim success without this)
 
 Per the recipe's verify step: the database harness must end `FAIL: 0` against a
@@ -80,6 +97,8 @@ recalled in a second local session AND in a cloud session.
 - Offer the first population (recipe Step 10): brain-curator REMEMBER for the owner
   profile and standing decisions; knowledge-curator COVERAGE then DOCUMENT in
   batches, if the knowledge layer is on. Never sweep a whole codebase in one pass.
+  On an existing codebase, the knowledge side IS the Step 2c backfill: drive it
+  from the subsystem map per `references/kb-backfill.md`.
 
 ## How the installed system runs (tell the user)
 
@@ -109,6 +128,10 @@ recalled in a second local session AND in a cloud session.
 - `references/structural-layer.md` - installing the compiled dependency graph.
 - `references/structural-layer/` - the graph tool itself (parser, impact query,
   connection diff, self-check, storage selector, tests; see its README.md).
+- `references/kb-backfill.md` - one-time knowledge backfill + ongoing freshness
+  for existing codebases, any project type.
+- `references/kb-backfill/` - the subsystem-map script and the generic
+  freshness Stop hook.
 - `references/server/` - the deployable Worker: `src/`, `schema.sql`, `seed.sql`,
   `upgrade-00*.sql`, `harness/`, `scripts/mint-token.mjs`, plus `PATTERNS.md` and
   `IMPLEMENTATION.md` (the deep build record).
