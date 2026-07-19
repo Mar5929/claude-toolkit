@@ -205,6 +205,27 @@ the work": prefer doing the technical part over instructing, and surface only
 real decisions. If a project sets its owner as fully non-technical, this rule
 matters even more.
 
+## 18. Every work item gets its own folder (default ON)
+
+> **One folder per work item, and that folder is the durable memory.** Each
+> work item (a ticket, a feature, a setup task) gets its own folder in the
+> repo, named with a numbered prefix for creation order (`WI-001-<slug>/`).
+> Inside: `SPEC.md` (the goal in plain words, requirements kept deliberately
+> loose, decisions) and `STATUS.md` (the living handoff: where we are, what has
+> been done, the exact next step, with dated entries). Picking an item up?
+> Read its folder first, before chat history or memory. Working on it? Update
+> the folder as part of the work, in the same session, and end every working
+> session with a current next step in `STATUS.md`. If the project sorts
+> work-item folders into stage folders (backlog / in progress / completed /
+> archived), move the folder when its status changes and update references to
+> the old path.
+
+Why: sessions end, context windows fill mid-task, and work moves between
+agents and machines; a folder of plain files next to the code is the one thing
+every session can read. Requirements stay loose on purpose: rigid acceptance
+checkboxes go stale when the work shifts, and a later agent then builds to the
+wrong target. Piloted on DragonFly (WI-004).
+
 ---
 
 ## MCP tool rules (conditional, per server)
@@ -219,8 +240,8 @@ project's voice, same as the numbered rules.
 
 ## Notes for the assembling agent
 
-- Rules 1-5 and 8-17 are near-universal: offer them for essentially every
-  project, and default rule 8 (multi-agent protocol) and rules 9-17 (language,
+- Rules 1-5 and 8-18 are near-universal: offer them for essentially every
+  project, and default rule 8 (multi-agent protocol) and rules 9-18 (language,
   response, and working-style rules) **ON**. Only drop rule 8 if the owner
   explicitly says the project is single-session.
 - Rules 6-7 are conditional: only include them if the matching gate ran (memory
@@ -229,4 +250,4 @@ project's voice, same as the numbered rules.
   `references/mcp-best-practices.md` only if the project uses that MCP server.
 - Keep the final CLAUDE.md tight and skimmable. Boilerplate should read as a short
   "hard rules" section, not a wall of prose. With this many rules, group them
-  (writing/response, working-style, safety) rather than listing 17 flat bullets.
+  (writing/response, working-style, safety) rather than listing 18 flat bullets.
