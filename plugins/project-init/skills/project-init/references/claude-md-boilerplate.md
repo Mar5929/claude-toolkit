@@ -229,9 +229,12 @@ matters even more.
 > been done, the exact next step, with dated entries). Picking an item up?
 > Read its folder first, before chat history or memory. Working on it? Update
 > the folder as part of the work, in the same session, and end every working
-> session with a current next step in `STATUS.md`. If the project sorts
-> work-item folders into stage folders (backlog / in progress / completed /
-> archived), move the folder when its status changes and update references to
+> session with a current next step in `STATUS.md`. Finished it? ALWAYS close
+> it out in the same session: record the completion in `STATUS.md` (date and
+> where it landed), mark its backlog-index entry done, and move its folder to
+> the completed stage. Work-item folders live in stage folders (backlog / in
+> progress / completed / archived; Gate 1's work-items structure scaffolds
+> them): move the folder whenever its status changes and update references to
 > the old path.
 
 Why: sessions end, context windows fill mid-task, and work moves between
