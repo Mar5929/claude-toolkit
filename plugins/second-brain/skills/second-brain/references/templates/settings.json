@@ -4,7 +4,8 @@
     "BRAIN_BACKEND": "mcp",
     "BRAIN_MCP_ORIGIN": "<BRAIN_MCP_ORIGIN>",
     "BRAIN_PROJECT": "<PROJECT_ID>",
-    "BRAIN_CAPTURE": "1"
+    "BRAIN_CAPTURE": "1",
+    "GRAPH_BACKEND": "<local|cloud|hybrid — only if the structural layer is installed; the owner's storage answer, usually local>"
   },
   "hooks": {
     "Stop": [

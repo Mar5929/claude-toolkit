@@ -43,8 +43,9 @@ name (e.g. `DragonFly`).
   entry per subsystem.
 - **Structural graph companion:** yes. For an org merge, field-level impact
   analysis ("rename this field, what breaks three hops out?") is the daily job.
-  Keep a compiled metadata dependency graph alongside this layer (see toolkit
-  backlog A1). This layer records why; the graph answers what-connects-to-what.
+  Install the bundled compiled dependency graph (skill Step 2b,
+  `references/structural-layer.md`). This layer records why; the graph answers
+  what-connects-to-what.
 
 ## Setup notes
 
