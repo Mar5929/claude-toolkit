@@ -165,13 +165,15 @@ reads first.
   `references/claude-md-boilerplate.md`: the rules the user wants in _every_
   project (e.g. keeping CLAUDE.md itself updated when a session surfaces something
   worth recording). Let the user accept, edit, or drop each.
-- **Boilerplate rules 8-15 default ON:** the multi-agent protocol (own worktree
+- **Boilerplate rules 8-19 default ON:** the multi-agent protocol (own worktree
   per session, assume parallel agents, land by PR), the language rules (no em
   dashes, no section signs, no AI filler, plain language for a mildly technical
   reader), and the response/working-style rules (lead with the answer, answer
   last and ask only in the question box, solve the real goal and push back,
-  define terms, ask before assuming, offer a handoff in a loaded session). Every
-  new project gets these unless the owner explicitly opts that project out.
+  define terms, ask before assuming, offer a handoff in a loaded session, steer
+  the session to the goal, do the technical work yourself, one folder per work
+  item, show phase progress). Every new project gets these unless the owner
+  explicitly opts that project out.
 - **MCP tool rules are conditional.** If the project connects an MCP server
   covered in `references/mcp-best-practices.md` (Context7, Gmail, Google
   Calendar, Linear, Notion, Playwright), fold in that server's section. Skip the
@@ -197,6 +199,11 @@ reads first.
 - `references/salesforce-rules/`: a growing library of reusable `.claude/rules/`
   files for Salesforce projects (with its own `README.md` index). Offer these in
   Gate 1 after `.claude/rules/` is scaffolded, when the stack is Salesforce.
+- `references/salesforce-permissions-retrieval.md`: the end-to-end process for
+  pulling COMPLETE profiles and permission sets into source control (full
+  component list, side-folder retrieve, verification spot checks, trap list).
+  Read it when a Salesforce project wants its permissions picture in git; pairs
+  with the `permissions-source-control.md` rule in `salesforce-rules/`.
 - `references/claude-md-boilerplate.md`: the standard CLAUDE.md rules to offer
   in Gate 5.
 - `references/mcp-best-practices.md`: per-server MCP tool rules to offer in Gate
