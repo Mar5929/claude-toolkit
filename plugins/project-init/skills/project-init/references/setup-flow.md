@@ -28,6 +28,9 @@ so they always know where they are.
   README, license, editor/formatter, CI stub.
 - Salesforce / SFDX: offer the standard scaffold in
   `salesforce-project-scaffold.md` (SFDX source plus an `engagement/` tree).
+- Salesforce / SFDX: after `.claude/rules/` is scaffolded, offer the reusable
+  Salesforce rules from `salesforce-rules/` (see its `README.md`); copy the ones
+  the owner wants into the project's `.claude/rules/`.
 
 **Gate 2: Hooks**
 - What needs guarding or automating? (deploy/env guard, secret guard,

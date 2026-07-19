@@ -66,6 +66,14 @@ Salesforce (org build, org merge, or managed service). It stays optional and is
 still confirmed folder-by-folder with the owner; it is a starting point, not a
 forced template.
 
+**Salesforce project rules library.** When the stack is Salesforce, after the
+`.claude/rules/` folder is scaffolded, offer to copy in the reusable Salesforce
+rules from `references/salesforce-rules/` (each is a standalone `.claude/rules/`
+file, e.g. the deploy hitch-hiker check). See that folder's `README.md` for the
+current list. They are opt-in and confirmed with the owner; skip the ones a
+given project does not want. Make sure the project's CLAUDE.md points at
+`.claude/rules/` (Gate 5) so these files are read each session.
+
 ### Gate 2: Hooks (guards & automation)
 
 **Purpose:** wire up Claude Code hooks that enforce guardrails or automate chores.
@@ -173,6 +181,9 @@ reads first.
 - `references/salesforce-prod-guard-hook.md`: a ready-to-install Gate 2 guard
   that confirms before Salesforce CLI deploys or destructive ops hit a
   production org. Read it in Gate 2 when the stack is Salesforce.
+- `references/salesforce-rules/`: a growing library of reusable `.claude/rules/`
+  files for Salesforce projects (with its own `README.md` index). Offer these in
+  Gate 1 after `.claude/rules/` is scaffolded, when the stack is Salesforce.
 - `references/claude-md-boilerplate.md`: the standard CLAUDE.md rules to offer
   in Gate 5.
 - `references/mcp-best-practices.md`: per-server MCP tool rules to offer in Gate
