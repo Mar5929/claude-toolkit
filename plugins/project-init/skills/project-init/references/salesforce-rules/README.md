@@ -7,9 +7,9 @@ these into the new project's `.claude/rules/` (Gate 1, right after the
 the owner before copying, same as every other gate.
 
 These are Salesforce-specific and opt-in, so they live here rather than in the
-`claude-md-boilerplate.md` rules (which go into every project's CLAUDE.md). A
-project's CLAUDE.md should point at its `.claude/rules/` folder so these files
-are read each session.
+`general-rules/` library (which every project gets). Both libraries are copied
+as files into the project's `.claude/rules/` folder, and the project's CLAUDE.md
+points at that folder so these files are read each session.
 
 ## Rules in this library
 
