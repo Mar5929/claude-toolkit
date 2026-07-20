@@ -1,8 +1,9 @@
 # Work-items structure (Gate 1)
 
 The standard tracking tree for a project's work items, for ANY stack. It pairs
-with boilerplate rule 18 (every work item gets its own folder): rule 18 is the
-behavior, this is the folder structure Gate 1 scaffolds for it. Offer it to
+with the `work-item-folders.md` rule (every work item gets its own folder): that
+rule is the behavior, this is the folder structure Gate 1 scaffolds for it. Offer
+it to
 every project; confirm before creating. Piloted on DragonFly (WI-004/WI-005).
 
 ## Where it goes
@@ -71,6 +72,6 @@ folder is the durable memory that lets a fresh agent pick the item up cold; the
 index keeps the one place to scan. The behavioral rules (read the folder
 first, keep it current, end every session with a next step, and ALWAYS close
 out a finished item in the same session: record completion in `STATUS.md`,
-mark the index entry done, move the folder to `03-completed/`) are boilerplate
-rule 18 in `claude-md-boilerplate.md`; make sure Gate 5 includes it when this
-structure is scaffolded.
+mark the index entry done, move the folder to `03-completed/`) are the
+`work-item-folders.md` rule in `general-rules/`; make sure Gate 5 copies it into
+`.claude/rules/` when this structure is scaffolded.

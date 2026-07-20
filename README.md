@@ -44,7 +44,7 @@ written down somewhere. It gets fitted into the system:
 
 | What I bring | Where it lands |
 |---|---|
-| A rule every project should follow (behavior, writing style, workflow) | A numbered rule in `claude-md-boilerplate.md`, injected into each new project's CLAUDE.md |
+| A rule every project should follow (behavior, writing style, workflow) | Its own file in the `general-rules/` library, copied into each new project's `.claude/rules/` |
 | A setup step for new projects | A gate (or part of one) in the `project-init` skill |
 | A guard hook or automation | The shared hooks library (on the roadmap; recorded there until it exists) |
 | A whole reusable system | Its own plugin/skill that `project-init` offers |
@@ -89,7 +89,9 @@ claude-toolkit/
           SKILL.md                ← the orchestration skill
           references/
             setup-flow.md         ← the ordered gate-by-gate checklist
-            claude-md-boilerplate.md  ← standard CLAUDE.md rules I always want
+            thin-claudemd.md      ← how Gate 5 writes a thin CLAUDE.md
+            general-rules/        ← the standard .claude/rules files (+ README index)
+            salesforce-rules/     ← reusable .claude/rules files for SF projects
             mcp-best-practices.md ← per-server MCP tool rules (conditional)
         project-sync/
           SKILL.md                ← audit an existing project against the toolkit
@@ -182,9 +184,9 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
   Salesforce production-org guard installs from `project-init` Gate 2
   (`references/salesforce-prod-guard-hook.md`); the standalone library is still
   planned.
-- [ ] **CLAUDE.md boilerplate library**: promote the boilerplate reference into
-  a standalone, versioned library that projects reuse verbatim instead of
-  retyping.
+- [x] **General rules library**: the standard rules are now individual files in
+  `project-init`'s `general-rules/` library (with a `README.md` index), copied
+  into each project's `.claude/rules/` verbatim instead of retyped into CLAUDE.md.
 - [ ] **Publish tooling**: a small script/checklist to export skills to the
   Claude desktop and web apps so those surfaces stay in sync with this repo.
 - [ ] **"Port-back" convention**: a documented flow (and a reminder baked into

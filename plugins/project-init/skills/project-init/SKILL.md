@@ -64,9 +64,10 @@ form. Keep each gate tight.
 tree in `references/work-items-structure.md`: stage folders (`01-backlog/`
 holding a `BACKLOG.md` index, `02-in-progress/`, `03-completed/`,
 `04-archived/`) with one folder per work item holding `SPEC.md` + `STATUS.md`.
-Salesforce projects place it at `engagement/work-items/`. It pairs with
-boilerplate rule 18 (Gate 5): read the item's folder first, keep it current as
-part of the work, and always close out a finished item in the same session
+Salesforce projects place it at `engagement/work-items/`. It pairs with the
+`work-item-folders.md` rule (Gate 5): read the item's folder first, keep it
+current as part of the work, and always close out a finished item in the same
+session
 (update its `STATUS.md`, mark the index entry done, move the folder to the
 completed stage).
 
@@ -153,33 +154,46 @@ staleness detection when that source drifts.
 > which drift model applies; skip installing the knowledge-curator to leave this
 > layer off. Install via that skill rather than hand-building it.
 
-### Gate 5: CLAUDE.md
+### Gate 5: CLAUDE.md and the rules folder
 
-**Purpose:** the project's orientation + rules file that every future session
-reads first.
+**Purpose:** the project's orientation file that every future session reads
+first, plus the `.claude/rules/` folder that holds the behavioral rules.
 
-- Build it _with_ the user, walking through the sections rather than generating
-  a wall of text: what the project is, the codemap, hard rules, how to work
-  here, and the wrap-up ritual.
-- **Always offer the standard boilerplate rules** from
-  `references/claude-md-boilerplate.md`: the rules the user wants in _every_
-  project (e.g. keeping CLAUDE.md itself updated when a session surfaces something
-  worth recording). Let the user accept, edit, or drop each.
-- **Boilerplate rules 8-19 default ON:** the multi-agent protocol (own worktree
-  per session, assume parallel agents, land by PR), the language rules (no em
-  dashes, no section signs, no AI filler, plain language for a mildly technical
-  reader), and the response/working-style rules (lead with the answer, answer
-  last and ask only in the question box, solve the real goal and push back,
-  define terms, ask before assuming, offer a handoff in a loaded session, steer
-  the session to the goal, do the technical work yourself, one folder per work
-  item, show phase progress). Every new project gets these unless the owner
-  explicitly opts that project out.
+The behavioral rules do NOT go inside CLAUDE.md. They are individual files in the
+project's `.claude/rules/` folder, copied from the toolkit's rules libraries.
+CLAUDE.md stays thin and points at that folder. Read `references/thin-claudemd.md`
+for the exact structure, and `references/general-rules/README.md` for the rule
+list.
+
+- **Copy the general rules** the owner wants from `references/general-rules/`
+  into the project's `.claude/rules/`. Every default-ON file goes in unless the
+  owner drops it; walk the list and let them accept, edit, or skip each. Adapt
+  wording to the project's voice if they want; each file is the intent, not
+  fixed prose. Add the two conditional files (`memory-system-ground-rules.md`,
+  `knowledge-layer-ground-rules.md`) only if Gate 3 or Gate 4 ran.
+- **Default-ON rules** cover the multi-agent worktree protocol (own worktree per
+  session, assume parallel agents, land by PR), the language rules (no em dashes,
+  no section signs, no AI filler, plain language), and the working-style rules
+  (lead with the answer; answer last and ask only in the question box; solve the
+  real goal and push back; define terms; ask before assuming; offer a handoff in
+  a loaded session; steer the session to the goal; do the technical work
+  yourself; one folder per work item; show phase progress; treat the owner as
+  non-technical). Every new project gets these unless the owner explicitly opts
+  that project out.
+- **Salesforce projects:** the `salesforce-rules/` files the owner chose in Gate
+  1 also live in `.claude/rules/`; make sure they are there.
 - **MCP tool rules are conditional.** If the project connects an MCP server
   covered in `references/mcp-best-practices.md` (Context7, Gmail, Google
-  Calendar, Linear, Notion, Playwright), fold in that server's section. Skip the
-  ones the project doesn't use.
-- Reflect what the earlier gates set up (memory system, knowledge layer, hooks) in
-  the relevant CLAUDE.md sections so future sessions know they exist.
+  Calendar, Linear, Notion, Playwright), fold in that server's section (as a
+  short CLAUDE.md section or its own `.claude/rules/` file). Skip the servers the
+  project doesn't use.
+- **Write the thin CLAUDE.md** _with_ the user, walking the sections rather than
+  generating a wall of text: what the project is, the codemap and structural
+  pointers, a `Read .claude/rules` line, and which gates ran. Reflect what the
+  earlier gates set up (memory system, knowledge layer, hooks) so future sessions
+  know they exist. Keep the behavioral rules out of it.
+- **Add a `.claude/rules/README.md`** that indexes what each copied rule file
+  does, so the folder is self-describing.
 
 ---
 
@@ -204,8 +218,11 @@ reads first.
   component list, side-folder retrieve, verification spot checks, trap list).
   Read it when a Salesforce project wants its permissions picture in git; pairs
   with the `permissions-source-control.md` rule in `salesforce-rules/`.
-- `references/claude-md-boilerplate.md`: the standard CLAUDE.md rules to offer
-  in Gate 5.
+- `references/general-rules/`: the standard `.claude/rules/` files (with its own
+  `README.md` index) to copy into every project in Gate 5. Most are default ON;
+  two are conditional (memory, knowledge).
+- `references/thin-claudemd.md`: how Gate 5 writes a thin CLAUDE.md that points
+  at `.claude/rules/` instead of holding the rules inline.
 - `references/mcp-best-practices.md`: per-server MCP tool rules to offer in Gate
   5, but only for the MCP servers the project actually uses.
 
@@ -222,7 +239,8 @@ everything up front.
    from an interim pattern that should later reconcile with the `claude-toolkit`
    canonical version.
 3. **Port-back reminder:** if during this setup you improved one of the reusable
-   systems (memory architecture, knowledge layer, a guard hook, or a CLAUDE.md
-   boilerplate rule), remind the user to port that improvement **back to the
+   systems (memory architecture, knowledge layer, a guard hook, or a general
+   project rule in `references/general-rules/`), remind the user to port that
+   improvement **back to the
    `claude-toolkit` repo** so the canonical template stays current and every other
    project picks it up. Offer to draft that change.
