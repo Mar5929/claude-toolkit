@@ -1,24 +1,105 @@
 ## Component Tracker
 
-`engagement/deployment/component-tracker.csv` is a plain inventory of every
-Salesforce component this project authored. It holds **one row per component**,
-with a Yes/No flag per org showing where that component is deployed.
+`engagement/deployment/component-tracker.csv` is the one master inventory of
+every Salesforce component this project authored. It holds **one row per
+component**, with a Yes/No flag per org showing where that component is deployed.
+There is exactly **one master tracker for the whole project**, no matter how many
+work items or deploys; do not split it per work item.
 
 Add a row the moment you author the metadata under `force-app/`. Update the org
 flags when a deploy lands. (If the project does not use the `engagement/` layout,
-keep the CSV wherever it stores deployment records; the rules below still apply.)
+keep the tracker and the folders below wherever it stores deployment records; the
+rules still apply.)
 
-### Keep the deployment manifest in sync (all agents)
+### The deployment folder
 
-If the project keeps a full-cutover manifest (for example `manifest/package.xml`)
-that names every component for the production cutover, **update it in the SAME
-change you update this tracker** whenever you author, modify, rename, or delete a
-deployable component under `force-app/`. Add the new member under the correct
-`<types>` block (or remove it for a destructive change) and refresh any member
-counts. A component that is in the tracker but missing from the manifest is
-silently dropped from the cutover. Items the manifest excludes by design
-(permission sets, profiles, matching/duplicate rules, compact-layout
-assignments, which move by change set) stay out; do not add those.
+Everything about deploying lives under one deployment folder,
+`engagement/deployment/`:
+
+```
+engagement/deployment/
+  component-tracker.csv        the master tracker (this file), whole project
+  _master/
+      package.xml              the master manifest: mirrors the tracker
+      manual-steps.md          pre/post manual steps for the full cutover
+  <work-item-id>/              one folder per work item that ships metadata
+      package.xml              that item's new and changed components
+      destructiveChanges.xml   only if the item removes components
+      manual-steps.md          only if the item has manual steps
+```
+
+- The master tracker sits at the deployment-folder root; it indexes everything
+  below it.
+- `_master/` holds the full-cutover manifest (the package that can rebuild the
+  whole org from source) and its manual-steps sheet.
+- Each work-item folder is named for its work item, using the same id as under
+  `engagement/work-items/` (for example `WI-12-account-merge`), so a manifest
+  maps clearly to the work it deploys. These folders are flat under
+  `engagement/deployment/`; the work-item folder already tracks status.
+
+A **manifest** (`package.xml`) is the file that names which components a
+Salesforce CLI deploy includes.
+
+### Master tracker and master manifest stay in sync
+
+The master manifest at `_master/package.xml` mirrors the master tracker: every
+CLI-deployable tracker row is a member of the master manifest, and every
+master-manifest member has a tracker row. **Keep both current in the SAME
+change.** Whenever you author, modify, rename, or delete a deployable component
+under `force-app/`, update the tracker row AND the master manifest member
+together: add the new member under the correct `<types>` block (or remove it for
+a destructive change) and refresh any member counts in the header. A component in
+the tracker but missing from the master manifest is silently dropped from the
+full-org cutover. This applies to every agent and every session, not just the
+main one.
+
+### Types that cannot go in the manifest yet
+
+Some component types cannot be safely deployed by a CLI manifest today; they move
+by change set or by hand: permission sets, profiles, duplicate rules, matching
+rules, and compact-layout assignments. (A CLI permission-set round-trip is lossy:
+it drops field-security and other grants, per `salesforce-safety-guardrails.md`
+and `permissions-source-control.md`.) For these:
+
+- Still add a tracker row; the tracker is the full inventory.
+- Keep them OUT of the master manifest.
+- Capture their deploy as a step in the relevant `manual-steps.md` (which change
+  set to build, which assignment to make, in what order).
+
+Note the exclusions in the master manifest's header comment so a reader knows
+they are left out on purpose. Making these types accurately source-controlled is
+an open project work item; until it lands, the manual-steps sheet is their record.
+
+### Per-work-item manifests
+
+Each work item that ships metadata gets its own folder under the deployment
+folder with its own manifest:
+
+- `package.xml` names only that work item's new and changed components. It is a
+  subset of the master manifest, so its members also appear there. Prefer
+  deploying this narrow set over the master manifest, unless the goal really is a
+  full cutover.
+- `destructiveChanges.xml` names components the work item removes. Removals go
+  here, never in a `package.xml` (a `package.xml` only adds and changes). The
+  master manifest stays add-only and never names a removed component, so it can
+  always rebuild the org from source. When a destructive deploy lands in every
+  org, drop the component's tracker row too (see below).
+- `manual-steps.md` holds the pre- and post-deploy steps this item needs, if any.
+
+### Manual deployment steps sheet
+
+Each manifest folder carries a `manual-steps.md` when its deploy needs steps the
+deploy itself cannot perform. It separates:
+
+- **Pre-deploy** steps: what must be true or done before the deploy (a change set
+  built and validated, a custom setting present, a baseline snapshot taken).
+- **Post-deploy** steps: what to do after (assign a permission set, run a
+  backfill, schedule a job, verify field-level security).
+
+Each step says what to do, how to run it (paste-ready commands, SOQL, or exact UI
+clicks), and how to check it worked. This is the deployment runbook for that one
+manifest; follow the step shape in `deployment-runbook.md` (title, phase, order,
+owner, status, body). A folder whose deploy needs no manual steps needs no sheet.
 
 ### Schema
 
@@ -30,7 +111,7 @@ Columns, in a fixed order:
 | Object/Parent | Parent object for fields, layouts, record types, quick actions, validation rules. Blank for objectless types (Flow, ApexClass, LWC, PermissionSet, CustomApplication, CustomTab). |
 | API Name | Full API name including any suffix. |
 | Label | User-facing label as shown in Setup, or the bundle masterLabel for LWC/Aura. |
-| Work Item | One link to the primary task in the project's task tracker; fall back to a local work-item folder path if there is no task. |
+| Work Item | One link to the primary task in the project's task tracker; fall back to the work-item folder path if there is no task. |
 | Change Type | `New`, `Modified`, or `Destructive`. See below. |
 | Sandbox | `Yes` if deployed in the working sandbox, else `No`. Rename or add columns to match the project's org set (for example one column per sandbox). |
 | Production | `Yes` if deployed in production, else `No`. |
@@ -59,10 +140,10 @@ this project made to it.
 
 Update the tracker in the **same response** in which any of these happen:
 
-1. You author, modify, or rename metadata under `force-app/`: add the row (if none) with the correct flags and Change Type, or update the existing row. A change to an existing component edits its one row; it never creates a second.
+1. You author, modify, or rename metadata under `force-app/`: add the row (if none) with the correct flags and Change Type, or update the existing row. A change to an existing component edits its one row; it never creates a second. In the same change, update the master manifest and the relevant work-item manifest.
 2. The owner reports a successful deploy: flip the named org's flag to `Yes` for every component in that deploy.
-3. You stage a component for destructive deletion: set Change Type to `Destructive` and leave the flags showing where it is still present.
-4. The owner reports a successful destructive deploy: set the affected org's flag to `No`; if retired everywhere and removed from `force-app/`, delete the row.
+3. You stage a component for destructive deletion: set Change Type to `Destructive`, add it to the work item's `destructiveChanges.xml`, and leave the flags showing where it is still present.
+4. The owner reports a successful destructive deploy: set the affected org's flag to `No`; if retired everywhere and removed from `force-app/`, delete the row and its master-manifest member.
 
 Permission set rows follow the change-set rule in `salesforce-safety-guardrails.md`;
 that governs how the flag flips, not the tracker schema.
@@ -99,3 +180,10 @@ The tracker covers only components this project created or modified.
 - Managed-package metadata this project did not author.
 - Local-only artifacts (markdown docs, scripts, work-item folders, manifests).
 - Dated deploy history: the flags show current state; dates live in the work log or task tracker.
+
+### Related rules (if the project has them)
+
+- `deployment-runbook.md`: the step shape the `manual-steps.md` sheets follow.
+- `deploy-hitchhiker-check.md`: before any deploy, catch components or edits that would ride along; it reads this tracker as a hint and verifies against the org.
+- `salesforce-safety-guardrails.md`: why permission sets and profiles move by change set, not the CLI; the owner runs all production deploys.
+- `permissions-source-control.md`: keeping tracked profiles and permission sets complete in git.
