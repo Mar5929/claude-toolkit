@@ -72,3 +72,23 @@ NOT confirm that Claude Code actually ingests the injected context in a live
 session; verify that once by eyeballing a real session (the digest should appear
 as a system-reminder at the top, and recall should surface relevant nodes on a
 memory-touching prompt).
+
+## Troubleshooting: the hooks do nothing
+
+If capture never writes and injection never appears, the cause is almost always a
+missing or invalid token on THIS machine. This is the #1 trap: `settings.local.json`
+is gitignored, so a clone or a second machine has no token and every local hook
+silently no-ops while the setup still looks complete. Check it:
+
+```
+curl -s -o /dev/null -w '%{http_code}\n' \
+  -H "Authorization: Bearer $BRAIN_MCP_TOKEN" \
+  "$BRAIN_MCP_ORIGIN/fast/$BRAIN_PROJECT/digest"
+```
+
+- `200` — the token works (a non-empty digest also confirms the project has one).
+- `401` — token missing, unregistered, or revoked: mint one for this machine
+  (setup recipe Step 6).
+- `403` — the token's GitHub login has no grant on this project (setup recipe
+  Step 5).
+- `404` — wrong `BRAIN_PROJECT` or `BRAIN_MCP_ORIGIN`.
