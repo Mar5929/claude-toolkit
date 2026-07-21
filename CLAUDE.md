@@ -33,6 +33,33 @@ write X down somewhere. Fit it into the system:
 6. **Keep `main` installable.** `claude plugin validate .` must pass; `main` is
    what every machine installs from.
 
+## The other direction: pull a merged change onto your machines and into projects
+
+Folding a change into `main` (above) is only half the trip. A change starts
+helping other projects only once each machine pulls it and each project adopts
+it. Pushing to GitHub updates nothing on its own. After a PR merges to `main`:
+
+1. **Refresh the plugin on each machine.** The installed copy at
+   `~/.claude/plugins/marketplaces/claude-toolkit` is a git clone that does not
+   auto-update. Inside a Claude Code session run
+   `/plugin marketplace update claude-toolkit`; from a terminal run
+   `claude plugin marketplace update claude-toolkit`. That git-pulls the copy
+   and refreshes the plugin cache. Restart the session to be sure it picks up
+   the new content.
+2. **Roll the change into each existing project.** Refreshing the plugin does
+   NOT touch a project that is already set up: its rules were copied into
+   `.claude/rules/` when the project was initialized, so a new rule or system
+   does not appear there on its own. In each project that should get the change,
+   run the `project-sync` skill (`/project-sync`, or just "sync this project
+   with the toolkit"). It audits the project against the refreshed toolkit and
+   adds what is missing, with your approval. project-sync refreshes the plugin
+   first as its own Step 1, so running it inside a project also covers step 1
+   for that machine.
+
+In one line: push to GitHub, then on every machine `/plugin marketplace update`,
+then in every project `/project-sync`. Nothing propagates across machines by
+itself; each machine and each project pulls the change in.
+
 ## Writing rules (they apply here too)
 
 The `writing-and-language.md` rule governs this repo's own files and how you talk

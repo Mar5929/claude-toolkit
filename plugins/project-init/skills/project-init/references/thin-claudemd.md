@@ -33,7 +33,9 @@ session, because a line in CLAUDE.md tells the session to read `.claude/rules/`.
   that are not behavioral rules, for example:
   - the backlog / work-items structure and where the index lives
   - the deployment layout (Salesforce projects)
-  - the toolkit port-back convention (if the project uses the toolkit)
+  - the toolkit port-back convention (if the project uses the toolkit), and how
+    to pull toolkit updates into this project: update the plugin
+    (`/plugin marketplace update claude-toolkit`), then run `/project-sync`
   - which gates ran (memory system, knowledge layer, hooks) so future sessions
     know they exist and where.
 - **MCP tool rules**: only for the MCP servers the project actually uses, folded

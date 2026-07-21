@@ -23,6 +23,17 @@ Run the steps in order. Never change anything before step 4.
 
 ## Step 1: inventory the toolkit
 
+**First, refresh the installed toolkit so this audit sees the latest.** This
+skill reads the toolkit from the installed plugin copy (option 1 below), and
+that copy does NOT update itself when the repo changes on GitHub. A merged
+change sits on GitHub until each machine pulls it. So before inventorying,
+update the local copy: inside a Claude Code session run
+`/plugin marketplace update claude-toolkit`, or from a terminal run
+`claude plugin marketplace update claude-toolkit`. Skip this only when you are
+reading from a freshly-pulled local clone (option 2). A stale plugin copy
+produces a stale audit, so the project silently misses the newest rules and
+systems, which is the exact failure this step guards against.
+
 Build the list of things the toolkit currently provides. Do not hard-code
 today's list; read the toolkit itself so new systems are picked up
 automatically as it grows.
