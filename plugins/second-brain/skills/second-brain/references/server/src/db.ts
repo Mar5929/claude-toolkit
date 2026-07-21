@@ -395,6 +395,33 @@ export async function recallNodes(
   return out;
 }
 
+// --- Pointer-first recall formatting (shared by the MCP recall tool and the
+// /fast recall path) ----------------------------------------------------------
+
+// Hard ceiling on what one recall returns, across matches + neighbors, so a
+// broad query can't dump the whole store. Truncation appends a pointer note.
+export const RECALL_MAX_CHARS = 16000;
+
+export function capRecall(text: string): string {
+  if (text.length <= RECALL_MAX_CHARS) return text;
+  return (
+    text.slice(0, RECALL_MAX_CHARS) +
+    `\n\n<!-- recall output truncated at ${RECALL_MAX_CHARS} chars; narrow the query, lower limit, or get_node specific ids -->`
+  );
+}
+
+// A short, frontmatter-stripped preview of a node body for the pointer view:
+// whitespace-collapsed, up to ~maxChars, ellipsis if truncated, never the
+// frontmatter block. The full body is one get_node away.
+export function bodySnippet(markdown: string, maxChars = 240): string {
+  let body = markdown ?? "";
+  const fm = body.match(/^---\n[\s\S]*?\n---\n?/);
+  if (fm) body = body.slice(fm[0].length);
+  body = body.replace(/\s+/g, " ").trim();
+  if (body.length <= maxChars) return body;
+  return body.slice(0, maxChars).replace(/\s+\S*$/, "").trimEnd() + "…";
+}
+
 // Prioritized 1-hop neighbors of the primary matches: bring "the constraint it
 // depends on and the note that replaced it" (PATTERNS server-behavior #4).
 // Ranked by rel so the replacement/constraint survives the cap.
