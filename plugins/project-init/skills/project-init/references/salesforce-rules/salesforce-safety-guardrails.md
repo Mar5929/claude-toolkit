@@ -64,6 +64,14 @@ The hook applies to subagents too, so spawning an agent does not get around it.
 > than that hook does today: until the guard is extended to match, treat the
 > "what you may never do" list as a hard rule you follow, not something the hook
 > catches for you.
+>
+> Never let a project's own rules claim MORE enforcement than the installed hook
+> actually provides. If a project cites a specific guard hook (or a filename such
+> as `sf_guard.py`) as enforcing this policy, verify that hook exists and does
+> what is claimed, including whether it BLOCKS or only ASKS on production. A rule
+> that promises a hard block the hook does not deliver is worse than none: it
+> breeds false confidence, and an agent may skip its own caution believing a net
+> exists. Describe the real hook's actual behavior, not an aspiration.
 
 ### Deploys must name the sandbox
 
