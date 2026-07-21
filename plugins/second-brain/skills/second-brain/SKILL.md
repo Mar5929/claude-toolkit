@@ -111,8 +111,13 @@ recalled in a second local session AND in a cloud session.
 
 ## How the installed system runs (tell the user)
 
-- The **digest** (curated, injected via `get_digest`) is what a new session reads
-  first.
+- The **digest** (curated, < ~250 lines) is what a new session reads first. A
+  `SessionStart` hook auto-injects it at session start; the agent can also call
+  `get_digest` directly.
+- A `UserPromptSubmit` hook auto-recalls memory for each prompt (keyword-only,
+  best-effort) and injects the top matches before the agent answers; the agent
+  can also call `recall` for a deeper semantic search. Both injection hooks no-op
+  without a token and honor `BRAIN_INJECT` (recall also honors `BRAIN_RECALL`).
 - To remember or recall, the main agent delegates to the **brain-curator**; to
   explain or document why code exists, it delegates to the **knowledge-curator**.
   They never run at the same time.
@@ -132,7 +137,9 @@ recalled in a second local session AND in a cloud session.
 - `references/setup-recipe.md` - the exact per-project steps with expected output.
 - `references/profiles/*.md` - the four project profiles (fill the curators).
 - `references/agents/*.md` - the two curator agent templates.
-- `references/hooks/brain-mcp-capture.mjs` - the Stop-hook capture.
+- `references/hooks/` - the three hooks: `brain-mcp-capture.mjs` (Stop capture),
+  `brain-mcp-session-digest.mjs` (SessionStart digest injection), and
+  `brain-mcp-recall.mjs` (UserPromptSubmit recall injection); see its README.
 - `references/templates/{settings.json, mcp.json}` - the wiring templates.
 - `references/structural-layer.md` - installing the compiled dependency graph
   (Salesforce).

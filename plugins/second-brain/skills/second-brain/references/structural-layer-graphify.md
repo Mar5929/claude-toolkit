@@ -73,18 +73,27 @@ graphify explain "BlockStore"        # plain-language summary of a node and its 
 ## Keep it fresh
 
 Graphify has its own freshness path, the analog of the Salesforce structural
-layer's `graph_freshness_hook.py`. Rebuild during a session, or install git hooks
-that rebuild on commit:
+layer's `graph_freshness_hook.py`. **When you install graphify for a project,
+install its auto-update git hooks as part of setup** so the graph rebuilds itself
+on every commit and checkout and never silently goes stale:
+
+```
+graphify hook install   # post-commit / post-checkout auto-rebuild — install this at setup
+```
+
+Day to day you then rarely touch it. To rebuild by hand or watch live:
 
 ```
 graphify update .       # re-extract changed code and update the graph (no LLM)
 graphify watch .        # rebuild on file changes while working
-graphify hook install   # post-commit / post-checkout rebuild
 ```
 
-A project installs one freshness mechanism, not several. If graphify's git hooks
-are on, do not also install the bundled structural-layer freshness hook (that one
-is Salesforce-only anyway).
+A project installs ONE freshness mechanism, not several. On a non-Salesforce
+project graphify's git hooks ARE that mechanism, so do not also install the
+bundled structural-layer freshness hook (it is Salesforce-only anyway). If a
+project cannot use git hooks (repo policy, or no git), skip `graphify hook
+install` and instead run `graphify update .` at the start of an impact query so
+the graph is current before you rely on it.
 
 ## Wire the knowledge-curator (if the knowledge layer is on)
 
