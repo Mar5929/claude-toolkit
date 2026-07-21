@@ -59,14 +59,23 @@ It creates the database, registers it with the Worker, wires `.mcp.json` + the
 connector + the grant + the local token + the capture hook + settings, and
 installs the two curators with the profile filled in.
 
-## Step 2b: Structural layer (Salesforce projects, or on request)
+## Step 2b: Structural layer (impact analysis, on request)
 
-For a Salesforce project (the profile that names it), or whenever the owner
-wants mechanical impact analysis, follow `references/structural-layer.md`: copy
-`references/structural-layer/` into the project as `tools/kb/`, gitignore the
-build artifacts, ask the owner the storage question (`GRAPH_BACKEND`, recommend
-local), and paste the structural-layer section into the project's
-knowledge-curator. It has its own verify step (test suite `OK` + a build).
+The structural layer is the mechanical "what connects to what" companion to the
+prose knowledge layer: it answers "if I change this, what breaks N steps out?"
+Install it whenever the owner wants that, and pick the tool by project type.
+
+- **Salesforce:** follow `references/structural-layer.md`, the bundled compiled
+  `force-app/` graph. Copy `references/structural-layer/` into the project as
+  `tools/kb/`, gitignore the build artifacts, ask the owner the storage question
+  (`GRAPH_BACKEND`, recommend local), and paste the structural-layer section into
+  the knowledge-curator. It has its own verify step (test suite `OK` + a build).
+- **Every other project type (Swift/iOS, web, backend, generic):** follow
+  `references/structural-layer-graphify.md`. Graphify parses the code locally with
+  tree-sitter (no API key, nothing leaves the machine) and answers the same impact
+  questions. It is optional the same way, so add it only when "what calls this?"
+  is a real, recurring question; small codebases are fine on the compiler + tests
+  + `covers:` pins.
 
 ## Step 2c: Existing codebase? Backfill the knowledge layer (any project type)
 
@@ -111,7 +120,7 @@ recalled in a second local session AND in a cloud session.
   it into clean, linked, deduped nodes. Capture is best-effort and safe even with
   no token (a teammate checkout or a cloud session).
 - **Impact analysis lives in the structural layer, not here.** The memory layer
-  alone cannot answer "change this field, what breaks three hops out?" — the
+  alone cannot answer "change this field, what breaks three hops out?"; the
   bundled compiled dependency graph (Step 2b, `references/structural-layer.md`)
   answers that mechanically. If the structural layer is not installed, do not
   promise impact analysis.
@@ -125,7 +134,10 @@ recalled in a second local session AND in a cloud session.
 - `references/agents/*.md` - the two curator agent templates.
 - `references/hooks/brain-mcp-capture.mjs` - the Stop-hook capture.
 - `references/templates/{settings.json, mcp.json}` - the wiring templates.
-- `references/structural-layer.md` - installing the compiled dependency graph.
+- `references/structural-layer.md` - installing the compiled dependency graph
+  (Salesforce).
+- `references/structural-layer-graphify.md` - the non-Salesforce structural layer:
+  install and use graphify (a local tree-sitter code graph; Swift, web, generic).
 - `references/structural-layer/` - the graph tool itself (parser, impact query,
   connection diff, self-check, storage selector, tests; see its README.md).
 - `references/kb-backfill.md` - one-time knowledge backfill + ongoing freshness
