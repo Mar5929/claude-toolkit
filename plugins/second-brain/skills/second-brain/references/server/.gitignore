@@ -2,3 +2,10 @@ node_modules/
 .wrangler/
 .dev.vars
 worker-configuration.d.ts
+
+# Local deploy config: a copy of wrangler.jsonc with the real (non-secret)
+# per-account values filled in (KV namespace id, GitHub OAuth client id). Kept
+# out of git so those infra ids never land in the public toolkit repo; the
+# committed wrangler.jsonc stays a clean placeholder template. Deploy with
+# `npx wrangler deploy -c wrangler.local.jsonc`.
+wrangler.local.jsonc
