@@ -163,6 +163,16 @@ without touching the init flow.
   wiring templates, and a test harness, so installation is placeholder-filling,
   not design work.
 
+- **`git-workflows`**: two parallel-session-safe git sync skills for keeping a
+  local checkout in step with its remote when other agent sessions may share the
+  repo. `pull-latest` brings the checkout up to date without rewriting or
+  discarding anything (fetch, fast-forward, or a merge pull; never rebase, reset,
+  or push, and it stops rather than touch a dirty tree or another session's
+  in-flight commits). `reset-to-remote` is the destructive counterpart: it
+  hard-resets the repo to exactly mirror the remote, the safe alternative to
+  deleting and re-cloning, gated behind a preflight check and an explicit
+  confirmation. Install on any project; not stack-specific.
+
 ---
 
 ## Planned additions (roadmap)
@@ -212,6 +222,12 @@ On Salesforce projects, also:
 
 ```
 /plugin install sf-architect-solutioning
+```
+
+For safe git sync skills (`pull-latest`, `reset-to-remote`) on any project:
+
+```
+/plugin install git-workflows
 ```
 
 Then, in a fresh project:
