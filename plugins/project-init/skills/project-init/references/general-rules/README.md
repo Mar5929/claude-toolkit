@@ -26,6 +26,7 @@ structure Gate 5 writes.
 | `lead-with-the-answer.md` | Put the answer or action first. Cut preamble and closing summaries; keep needed detail. |
 | `answer-last-question-box.md` | Plain chat text never asks a question; real decisions go through the blocking question box. Run tools first, then one reply. |
 | `solve-the-goal-push-back.md` | Work the real goal, not just the words. Push back on risky or misaimed requests with a better path; then do it the owner's way. |
+| `recommend-the-best-solution.md` | Once the problem is clear, propose the well-architected, best-practice solution, not a band-aid. Recommend it and name the quick-patch tradeoff; once the owner decides, do it their way. |
 | `define-your-terms.md` | Name the exact thing and define it on first use. No invented shorthand; no bare "option B" / "risk 1". |
 | `ask-before-assuming.md` | When unsure, ask one specific question first. State the rough scope and get a go-ahead before big read/write jobs. |
 | `offer-context-handoff.md` | When context is heavy and the next step is reasoning-heavy, offer a self-contained handoff prompt for a fresh session. |
