@@ -130,6 +130,15 @@ a stale unverified fact behaves worse than one that loads nothing.
     session: high-signal, well under ~250 lines. Open questions/blockers with
     owners get their own section; pinned baselines (as pointers) always included;
     push detail down into nodes and keep only the headline + id up top.
+13. **Give a big, many-node topic a HUB node.** When a subject fans out across
+    many nodes (e.g. a clinical boundary spread over ~10 decisions/sessions), a
+    single "what do we know about X" recall returns a wide, expensive pile. Add
+    one short **overview/hub node** (`type: knowledge` for code, else a summary
+    node) that states the topic in a few lines and LINKS (`part-of` /
+    `relates-to`) to the detail nodes — so one recall resolves the headline with
+    pointers to the deep dives. `recall` is pointer-first by default (snippets +
+    neighbor references; `get_node`/`detail='full'` for bodies), so a good hub
+    node is the cheapest way to answer a broad question well.
 
 ## The exclusion list (what is NOT a memory)
 

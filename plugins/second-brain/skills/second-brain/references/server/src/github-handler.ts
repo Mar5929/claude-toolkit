@@ -1,4 +1,4 @@
-import { appendJournal, db, getDigest, getGrant, loginForToken, recallNodes } from "./db";
+import { appendJournal, bodySnippet, capRecall, db, getDigest, getGrant, loginForToken, recallNodes } from "./db";
 import type { AuthRequest, Env } from "./types";
 
 // Default (non-MCP) handler. Serves:
@@ -119,8 +119,13 @@ async function fastPath(request: Request, env: Env, url: URL): Promise<Response>
     const n = Math.floor(Number(url.searchParams.get("limit")));
     const limit = Number.isFinite(n) && n >= 1 ? Math.min(n, 25) : 5;
     const nodes = await recallNodes(sql, projectId, query, limit);  // keyword-only fast path
-    const text = nodes.map((n) => `<node id="${n.id}" path="${n.path}" status="${n.status}">\n${n.markdown}\n</node>`).join("\n\n");
-    return new Response(text, { headers: { "content-type": "text/markdown" } });
+    // Pointer-first: id + title + status + a short snippet, never full bodies.
+    // This feeds the per-prompt injection hook, so it must stay cheap.
+    const esc = (s: string) => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+    const text = nodes
+      .map((n) => `<match id="${n.id}" title="${esc(n.title)}" status="${n.status}">\n${bodySnippet(n.markdown)}\n</match>`)
+      .join("\n");
+    return new Response(capRecall(text), { headers: { "content-type": "text/markdown" } });
   }
 
   // action === "journal": append a raw turn record. Write-gated + hardened:
