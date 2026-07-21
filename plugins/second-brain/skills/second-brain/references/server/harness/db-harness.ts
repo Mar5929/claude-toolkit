@@ -148,6 +148,7 @@ async function main() {
   await upsertNode(sql, P, "tester", { id: "new", path: "n/new.md", type: "decision", title: "Pricing rounding decision v2", markdown: file("new", "Pricing rounding decision v2", "new pricing rounding rule"), edges: [{ to: "retired-superseded", rel: "supersedes" }] }, vec(60));
   const neigh = await neighborsOf(sql, P, ["new"], 8);
   ok(neigh.some((n) => n.id === "retired-superseded" && n.via === "supersedes"), "neighborsOf returns the superseded node via the supersedes edge");
+  ok(neigh.length > 0 && neigh.every((n) => !("markdown" in n)), "neighbors are references (id/title/via/status), carry NO markdown body");
 
   // T7: journal read/drain by explicit seqs
   const s1 = await appendJournal(sql, P, { note: "turn one" }, "local");
