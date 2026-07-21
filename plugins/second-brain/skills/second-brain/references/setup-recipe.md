@@ -90,10 +90,18 @@ Step 1 already granted the owner `admin`. For anyone else:
 **Success looks like:** each person who should have access has a row. No row means
 that person gets HTTP 403. Deleting a row revokes access on the next request.
 
-## Step 6: Mint the local capture token
+## Step 6: Mint the local hook token (per machine)
 
-The Stop hook posts turn records with a bearer token. This token is a secret and
+All three local hooks (the Stop capture and the SessionStart / UserPromptSubmit
+injection hooks) reach the server with a bearer token. This token is a secret and
 lives only in the project's gitignored `.claude/settings.local.json`.
+
+**It is per machine, and it does not travel.** Because `settings.local.json` is
+gitignored, a fresh clone or a second machine has NO token, and there every local
+hook SILENTLY no-ops (capture writes nothing; injection injects nothing) while the
+setup still looks "done". Mint a token on each machine that runs this project, and
+prove it works in Step 8. (Cloud sessions use the OAuth connector instead, so they
+are unaffected by a missing local token.)
 
 - From the `server/` directory:
   ```
@@ -103,9 +111,10 @@ lives only in the project's gitignored `.claude/settings.local.json`.
   and prints an SQL insert (the token's hash). Run that SQL in the Neon editor so
   the server recognizes the token.
 
-**Success looks like:** `.claude/settings.local.json` has a `BRAIN_MCP_TOKEN`, and
-the hash row is in the database. Confirm `.claude/settings.local.json` is
-gitignored (add `/.claude/settings.local.json` to `.gitignore` if not).
+**Success looks like:** `.claude/settings.local.json` (on THIS machine) has a
+`BRAIN_MCP_TOKEN`, and the hash row is in the database. Confirm
+`.claude/settings.local.json` is gitignored (add `/.claude/settings.local.json`
+to `.gitignore` if not). Step 8 proves the token actually authenticates.
 
 ## Step 7: Install the hooks, settings, and the two curators
 
@@ -143,9 +152,23 @@ the SessionStart, UserPromptSubmit, and Stop hooks; both curators exist with NO
    the project, dispatch the brain-curator to REMEMBER a small test fact, then in
    a fresh session dispatch RECALL and confirm it comes back. Then confirm a cloud
    session (via the Step 4 connector) sees the same fact.
+3. **Local token actually authenticates (the silent-no-op trap).** With no valid
+   `BRAIN_MCP_TOKEN` every local hook no-ops silently, so a broken or missing
+   token looks like a working-but-quiet setup. Prove the token authenticates:
+   with the project's env loaded,
+   ```
+   curl -s -o /dev/null -w '%{http_code}\n' \
+     -H "Authorization: Bearer $BRAIN_MCP_TOKEN" \
+     "$BRAIN_MCP_ORIGIN/fast/$BRAIN_PROJECT/digest"
+   ```
+   must print `200` (a `401` means the token is missing, unregistered, or
+   revoked — re-check Step 6; a `403` means its GitHub login has no grant — Step
+   5). Then run the session-digest hook once and confirm it emits
+   `hookSpecificOutput` JSON, not nothing.
 
-**Success looks like:** harness `FAIL: 0`, and the test fact written locally is
-recalled in a second local session AND in a cloud session.
+**Success looks like:** harness `FAIL: 0`; the test fact written locally is
+recalled in a second local session AND in a cloud session; and the token check
+returns `200` with the digest hook emitting injection JSON.
 
 ## Step 9: Document it in the project's CLAUDE.md
 
@@ -155,6 +178,13 @@ Record the ground rules so every future session knows:
   `<origin>/mcp/<ID>`.
 - How to ask for memory: "delegate to the brain-curator" (recall/remember) and
   "delegate to the knowledge-curator" (why-does-this-code-exist).
+- Durable facts belong in the brain, not a machine-local file store. Save any
+  decision, goal, constraint, or correction that should outlive the session via
+  the brain-curator (or, from a background job where the curator subagent cannot
+  reach the MCP, append to the brain journal from the main session and let a
+  later curator pass promote it). Claude Code's local `~/.claude/.../memory` file
+  store does not travel to clones, other machines, or cloud sessions, so a durable
+  project fact must never live only there.
 - Capture is on (the Stop hook). The digest auto-injects at session start and
   per-prompt keyword recall auto-injects before each answer (the SessionStart +
   UserPromptSubmit hooks); the agent can also call `get_digest` / `recall`
