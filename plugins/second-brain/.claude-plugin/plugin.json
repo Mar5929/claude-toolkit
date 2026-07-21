@@ -1,7 +1,7 @@
 {
   "name": "second-brain",
   "description": "Portable second-brain memory and knowledge architecture (MCP): one shared Cloudflare Worker MCP server backed by a per-project Neon Postgres/pgvector database and GitHub OAuth, holding a typed-node knowledge graph curated by two background agents, with hybrid keyword+vector recall, an auto-injected session digest and per-prompt recall injection, drift-pinned knowledge nodes, per-turn capture, an optional server-side auto-curation cron (drains the capture journal into memory nodes on a schedule so cloud sessions curate without a manual dispatch), and a self-verifying database harness. Reachable from both the terminal CLI and cloud Claude sessions. Bundles a structural layer for mechanical impact analysis: a compiled Salesforce metadata dependency graph for Salesforce projects (parser-vs-human self-check, connection-diff drift signal, per-project local/cloud storage choice), and graphify (a local tree-sitter code graph covering Swift, web, and generic repos) for every other project type. Includes a one-time knowledge-base backfill plus ongoing-freshness hooks for onboarding onto codebases that already have code (Salesforce via the graph; web, iOS, and generic repos via a deterministic subsystem map). One skill installs it per project from bundled reference implementations; a project-type question picks the profile.",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com"

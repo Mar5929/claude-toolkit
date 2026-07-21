@@ -398,7 +398,15 @@ export async function recallNodes(
 // Prioritized 1-hop neighbors of the primary matches: bring "the constraint it
 // depends on and the note that replaced it" (PATTERNS server-behavior #4).
 // Ranked by rel so the replacement/constraint survives the cap.
-export interface Neighbor extends NodeRow { via: string; }
+// A neighbor is a REFERENCE, not a body: id + title + the relationship + status
+// is all "what's linked, is it still valid" needs; the full text is one get_node
+// away. Deliberately excludes `markdown` — returning full neighbor bodies used to
+// dominate recall's token cost, and it matches the digest's "headlines up top,
+// detail in the nodes" rule.
+export interface Neighbor {
+  id: string; path: string; type: string; title: string;
+  status: string; updated_at: string; via: string;
+}
 export async function neighborsOf(
   sql: Sql, projectId: string, ids: string[], cap: number,
 ): Promise<Neighbor[]> {
@@ -407,9 +415,9 @@ export async function neighborsOf(
   // priority and cap — so the replacement/constraint survives the cap, not
   // whichever neighbor sorts first by id.
   return await sql`
-    select id, path, type, title, status, markdown, updated_at, via
+    select id, path, type, title, status, updated_at, via
     from (
-      select distinct on (n.id) n.id, n.path, n.type, n.title, n.status, n.markdown, n.updated_at,
+      select distinct on (n.id) n.id, n.path, n.type, n.title, n.status, n.updated_at,
              e.rel as via,
              case e.rel
                when 'supersedes' then 1 when 'superseded-by' then 1

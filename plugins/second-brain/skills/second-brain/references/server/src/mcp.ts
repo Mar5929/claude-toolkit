@@ -53,15 +53,17 @@ export function buildMemoryServer(
     "recall",
     {
       description:
-        "Search this project's memory by meaning + keyword (decisions, knowledge, rules, questions, blockers, glossary). Returns best-matching node markdown plus their linked neighbors (the constraint a decision depends on, the note that replaced it). Superseded/cleared nodes are demoted; check each node's status.",
+        "Search this project's memory by meaning + keyword (decisions, knowledge, rules, questions, blockers, glossary). Returns the best-matching nodes IN FULL, then a compact one-line REFERENCE map of their linked neighbors (id, title, relationship, status) — the constraint a decision depends on, the note that replaced it. The neighbor lines are a map, NOT their contents: call get_node(id) to read any linked note in full. Superseded/cleared nodes are demoted; check each node's status.",
       inputSchema: {
         query: z.string().min(1).describe("Query, e.g. 'devops center version decision'"),
-        limit: z.number().int().min(1).max(25).optional().describe("Max primary nodes (default 5)"),
+        limit: z.number().int().min(1).max(25).optional().describe("Max primary nodes returned in full (default 3)"),
       },
     },
     async ({ query, limit }) => {
+      const attr = (s: string) =>
+        String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
       const qvec = await embedText(env, query);
-      const nodes = await recallNodes(sql, projectId, query, limit ?? 5, qvec);
+      const nodes = await recallNodes(sql, projectId, query, limit ?? 3, qvec);
       if (nodes.length === 0) {
         return { content: [{ type: "text", text: `No memory nodes match '${query}'.` }] };
       }
@@ -69,10 +71,14 @@ export function buildMemoryServer(
       const primary = nodes
         .map((n) => `<node id="${n.id}" path="${n.path}" status="${n.status}">\n${n.markdown}\n</node>`)
         .join("\n\n");
+      // Neighbors are REFERENCES, not bodies: one line each (id + title + how it
+      // links + status). Their full text is one get_node away. Returning full
+      // neighbor bodies used to dominate recall's token cost; a reference answers
+      // "what's linked, is it still valid" completely.
       const context = neighbors.length === 0 ? "" :
-        "\n\n<!-- linked context (neighbors of the matches) -->\n" + neighbors
-          .map((n) => `<neighbor id="${n.id}" via="${n.via}" status="${n.status}">\n${n.markdown}\n</neighbor>`)
-          .join("\n\n");
+        "\n\n<!-- linked notes (references only; call get_node(id) for the full text of any) -->\n" + neighbors
+          .map((n) => `<neighbor id="${attr(n.id)}" title="${attr(n.title)}" via="${attr(n.via)}" status="${attr(n.status)}"/>`)
+          .join("\n");
       return { content: [{ type: "text", text: primary + context }] };
     },
   );
