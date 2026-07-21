@@ -73,10 +73,12 @@ neighbors, so one hit pulls in its context.
   session start
       |
       v
-  digest is available via get_digest  (curated, < ~250 lines; the "what you need to know")
+  SessionStart hook auto-injects the digest  (curated, < ~250 lines; the "what
+  you need to know"); the agent can also call get_digest directly
       |
       v
-  work happens; main agent calls recall(...) when it needs prior context
+  each prompt: UserPromptSubmit hook auto-injects keyword recall for that prompt;
+  the main agent also calls recall(...) for a deeper semantic search when needed
       |
       v
   REMEMBER points: main agent dispatches the brain-curator to upsert nodes

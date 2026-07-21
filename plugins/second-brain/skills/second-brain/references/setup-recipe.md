@@ -107,11 +107,15 @@ lives only in the project's gitignored `.claude/settings.local.json`.
 the hash row is in the database. Confirm `.claude/settings.local.json` is
 gitignored (add `/.claude/settings.local.json` to `.gitignore` if not).
 
-## Step 7: Install the hook, settings, and the two curators
+## Step 7: Install the hooks, settings, and the two curators
 
-1. Copy `hooks/brain-mcp-capture.mjs` to the project's `.claude/hooks/`.
+1. Copy all three hooks from `hooks/` to the project's `.claude/hooks/`:
+   `brain-mcp-capture.mjs` (Stop capture), `brain-mcp-session-digest.mjs`
+   (SessionStart digest injection), and `brain-mcp-recall.mjs` (UserPromptSubmit
+   recall injection).
 2. Merge `templates/settings.json` into the project's committed
-   `.claude/settings.json`: the `env` block and the `Stop` hook. Fill
+   `.claude/settings.json`: the `env` block and the `SessionStart`,
+   `UserPromptSubmit`, and `Stop` hooks. Fill
    `<BRAIN_MCP_ORIGIN>` and `<PROJECT_ID>`; drop the `_comment` key. Do NOT
    clobber existing `env` or `hooks` entries (a project may already have a guard
    hook); add to them.
@@ -122,8 +126,9 @@ gitignored (add `/.claude/settings.local.json` to `.gitignore` if not).
    `profiles/<type>.md`, and set `<APP_NAME>` to the real project name.
 
 **Success looks like:** `.claude/settings.json` has `BRAIN_BACKEND=mcp`,
-`BRAIN_MCP_ORIGIN`, `BRAIN_PROJECT=<ID>`, `BRAIN_CAPTURE=1`, and the Stop hook;
-both curators exist with NO `<...>` placeholders left in their Project profile.
+`BRAIN_MCP_ORIGIN`, `BRAIN_PROJECT=<ID>`, `BRAIN_CAPTURE=1`, `BRAIN_INJECT=1`, and
+the SessionStart, UserPromptSubmit, and Stop hooks; both curators exist with NO
+`<...>` placeholders left in their Project profile.
 
 ## Step 8: Verify (do not skip; do not claim success without this)
 
@@ -150,7 +155,11 @@ Record the ground rules so every future session knows:
   `<origin>/mcp/<ID>`.
 - How to ask for memory: "delegate to the brain-curator" (recall/remember) and
   "delegate to the knowledge-curator" (why-does-this-code-exist).
-- Capture is on (the Stop hook); the digest is injected via `get_digest`.
+- Capture is on (the Stop hook). The digest auto-injects at session start and
+  per-prompt keyword recall auto-injects before each answer (the SessionStart +
+  UserPromptSubmit hooks); the agent can also call `get_digest` / `recall`
+  directly. `BRAIN_INJECT=0` disables both injection hooks; `BRAIN_RECALL=0`
+  disables just per-prompt recall.
 - The first digest is thin until a few curated batches have run.
 
 ## Step 10: Offer the first population
@@ -174,7 +183,7 @@ The store starts empty. Offer to seed it:
 [ ] 4. cloud/web connector added and authorized
 [ ] 5. grants row per person
 [ ] 6. local BRAIN_MCP_TOKEN minted; hash row inserted; settings.local gitignored
-[ ] 7. capture hook + settings merged; both curators installed with the profile filled
+[ ] 7. all three hooks (capture + session-digest + recall) + settings merged; both curators installed with the profile filled
 [ ] 8. db harness FAIL: 0; read/write smoke test passes local + cloud
 [ ] 9. CLAUDE.md ground rules written
 [ ] 10. first memory/knowledge population offered
