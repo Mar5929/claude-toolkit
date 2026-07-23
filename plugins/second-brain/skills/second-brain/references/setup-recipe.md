@@ -192,13 +192,15 @@ the digest could have told it. Step 8.4 has the exact check.
 
 ## Step 7: Install the hooks, settings, and the two curators
 
-1. Copy all three hooks from `hooks/` to the project's `.claude/hooks/`:
+1. Copy all four hooks from `hooks/` to the project's `.claude/hooks/`:
    `brain-mcp-capture.mjs` (Stop capture), `brain-mcp-session-digest.mjs`
-   (SessionStart digest injection), and `brain-mcp-recall.mjs` (UserPromptSubmit
-   recall injection).
+   (SessionStart digest injection), `brain-mcp-recall.mjs` (UserPromptSubmit
+   recall injection), and `knowledge-curator-nudge.mjs` (PostToolUse: after a
+   push or PR-create, remind the session to run the knowledge-curator; local,
+   no server call, no token).
 2. Merge `templates/settings.json` into the project's committed
    `.claude/settings.json`: the `env` block and the `SessionStart`,
-   `UserPromptSubmit`, and `Stop` hooks. Fill
+   `UserPromptSubmit`, `Stop`, and `PostToolUse` hooks. Fill
    `<BRAIN_MCP_ORIGIN>` and `<PROJECT_ID>`; drop the `_comment` key. Do NOT
    clobber existing `env` or `hooks` entries (a project may already have a guard
    hook); add to them.
@@ -309,7 +311,7 @@ The store starts empty. Offer to seed it:
 [ ] 5. grants row per person
 [ ] 6. local BRAIN_MCP_TOKEN minted; hash row inserted; settings.local gitignored
 [ ] 6b. EACH Claude Code cloud environment has BRAIN_MCP_TOKEN set AND the Worker host on its allowed-domains list
-[ ] 7. all three hooks (capture + session-digest + recall) + settings merged; both curators installed with the profile filled
+[ ] 7. all four hooks (capture + session-digest + recall + knowledge-curator-nudge) + settings merged; both curators installed with the profile filled
 [ ] 8. db harness FAIL: 0; digest read AND journal write both 200; smoke test passes local + cloud
 [ ] 9. CLAUDE.md ground rules written
 [ ] 10. first memory/knowledge population offered
