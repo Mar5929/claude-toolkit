@@ -6,9 +6,14 @@
   },
   "metadata": {
     "description": "Personal, portable toolkit of reusable Claude systems: skills, rules, hooks, and templates shared across every project and device.",
-    "version": "0.13.4"
+    "version": "0.14.0"
   },
   "plugins": [
+    {
+      "name": "delivery-workflow",
+      "source": "./plugins/delivery-workflow",
+      "description": "One skill, ship-a-change: the end-to-end workflow for delivering a non-trivial code change well (orient and recall, isolate in a worktree, pin the load-bearing invariant, build to the house standard, verify honestly on the real platform, reconcile with parallel sessions, wrap up with docs/memory/ticket/PR). Self-improving: it reads a Lessons ledger at the start of each run and adds one curated lesson at the end, so the workflow gets better every time."
+    },
     {
       "name": "project-init",
       "source": "./plugins/project-init",

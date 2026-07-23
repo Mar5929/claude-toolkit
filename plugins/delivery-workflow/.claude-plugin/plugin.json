@@ -1,0 +1,9 @@
+{
+  "name": "delivery-workflow",
+  "description": "A single skill, ship-a-change, that carries the end-to-end workflow for delivering a non-trivial code change well: orient and recall before touching a subsystem, isolate in a worktree, pin the load-bearing invariant before designing, build to the house standard, verify honestly on the real platform, reconcile with parallel sessions before finishing, and wrap up (docs, memory, ticket, PR). It is self-improving: it reads a Lessons ledger at the start of each run and adds one curated lesson at the end, so the workflow gets better every time it is used. Assumes other agent sessions may share the repo and that the owner merges.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Mike Rihm",
+    "email": "michael@rihm.com"
+  }
+}

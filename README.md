@@ -119,6 +119,19 @@ without touching the init flow.
 
 ## What's here now
 
+- **`delivery-workflow`**: one skill, `ship-a-change`, that carries the
+  end-to-end workflow for delivering a non-trivial code change well, so a strong
+  session's habits are the default instead of something I have to remember to
+  ask for: orient and recall before touching a subsystem, isolate in my own
+  worktree, pin the one load-bearing invariant before designing, build to the
+  house standard, verify honestly on the real platform, reconcile with parallel
+  sessions before finishing, and wrap up completely (status docs, memory routing,
+  work ticket, PR, owner merges). Its point of difference is that it learns: it
+  keeps a **Lessons ledger** it reads at the start of every run and adds one
+  curated lesson to at the end (bounded and pruned, so it stays high-signal), so
+  the same mistake is made once, not repeatedly. Self-contained, no per-project
+  memory required. Install on any project.
+
 - **`project-init`**: a skill that walks me through setting up a new project in
   a fixed, skippable order: scaffolding & folder structure, hooks, memory
   system, knowledge layer, CLAUDE.md. It asks before acting, recommends
