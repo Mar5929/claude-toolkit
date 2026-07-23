@@ -1,9 +1,17 @@
 # Second-brain hooks
 
 Three deterministic, best-effort hooks connect a project to the memory server
-over the bearer fast path (`/fast/<project>/...`). None uses a model. All are
-safe in a teammate checkout or a cloud session: with no `BRAIN_MCP_TOKEN` they
-silently no-op.
+over the bearer fast path (`/fast/<project>/...`). None uses a model. With no
+`BRAIN_MCP_TOKEN` they silently no-op, which keeps them safe in a teammate
+checkout.
+
+**That silence is also the system's main failure mode.** A surface with no token
+behaves identically to one that is working quietly, so an unwired surface is
+invisible until someone checks. Claude Code **cloud** sessions (claude.ai/code
+and the Claude iPhone and Mac apps' Code tabs) clone the repo and run these same
+hooks with no `settings.local.json`, so they need the token supplied as an
+environment variable in the cloud environment, plus the Worker's host on that
+environment's allowed-domains list. Setup recipe Step 6b.
 
 | Hook file | Event | Direction | What it does |
 | --- | --- | --- | --- |
@@ -76,9 +84,16 @@ memory-touching prompt).
 ## Troubleshooting: the hooks do nothing
 
 If capture never writes and injection never appears, the cause is almost always a
-missing or invalid token on THIS machine. This is the #1 trap: `settings.local.json`
+missing or invalid token on THIS surface. This is the #1 trap: `settings.local.json`
 is gitignored, so a clone or a second machine has no token and every local hook
-silently no-ops while the setup still looks complete. Check it:
+silently no-ops while the setup still looks complete.
+
+In a Claude Code **cloud** session there are two possible causes, so check both:
+the `BRAIN_MCP_TOKEN` environment variable is missing from the environment, or
+the environment's network allowlist blocks the Worker's host (cloud environments
+default to a Trusted allowlist that excludes a private `workers.dev` host, and
+the request is blocked at the proxy before the token is ever evaluated). Setup
+recipe Step 6b covers both. Check it:
 
 ```
 curl -s -o /dev/null -w '%{http_code}\n' \

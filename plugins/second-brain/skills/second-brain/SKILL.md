@@ -34,6 +34,10 @@ fix back to the toolkit.
 - **Per project:** a Neon database, a committed `.mcp.json`, a cloud connector, an
   access grant, a capture hook + settings, and the two curator agents carrying
   this project's profile.
+- **Per surface:** a bearer token. Each machine gets one in the gitignored
+  `.claude/settings.local.json`; each Claude Code cloud environment gets one as
+  an environment variable plus the Worker's host on its allowed-domains list
+  (setup recipe Step 6b). Skip this and that surface records nothing, silently.
 
 ## Step 0: Orient, then choose the path and the profile
 
@@ -123,7 +127,9 @@ recalled in a second local session AND in a cloud session.
   They never run at the same time.
 - The **Stop hook** captures each turn cheaply to a journal; curators later drain
   it into clean, linked, deduped nodes. Capture is best-effort and safe even with
-  no token (a teammate checkout or a cloud session).
+  no token (a teammate checkout), but "safe" means silent, not working: a surface
+  without a token captures NOTHING while looking normal. Wire every surface
+  (Step 6 for machines, Step 6b for cloud environments) and verify per Step 8.
 - **Impact analysis lives in the structural layer, not here.** The memory layer
   alone cannot answer "change this field, what breaks three hops out?"; the
   bundled compiled dependency graph (Step 2b, `references/structural-layer.md`)
