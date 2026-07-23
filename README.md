@@ -44,7 +44,7 @@ written down somewhere. It gets fitted into the system:
 
 | What I bring | Where it lands |
 |---|---|
-| A rule every project should follow (behavior, writing style, workflow) | A numbered rule in `claude-md-boilerplate.md`, injected into each new project's CLAUDE.md |
+| A rule every project should follow (behavior, writing style, workflow) | Its own file in the `general-rules/` library, copied into each new project's `.claude/rules/` |
 | A setup step for new projects | A gate (or part of one) in the `project-init` skill |
 | A guard hook or automation | The shared hooks library (on the roadmap; recorded there until it exists) |
 | A whole reusable system | Its own plugin/skill that `project-init` offers |
@@ -89,7 +89,9 @@ claude-toolkit/
           SKILL.md                ← the orchestration skill
           references/
             setup-flow.md         ← the ordered gate-by-gate checklist
-            claude-md-boilerplate.md  ← standard CLAUDE.md rules I always want
+            thin-claudemd.md      ← how Gate 5 writes a thin CLAUDE.md
+            general-rules/        ← the standard .claude/rules files (+ README index)
+            salesforce-rules/     ← reusable .claude/rules files for SF projects
             mcp-best-practices.md ← per-server MCP tool rules (conditional)
         project-sync/
           SKILL.md                ← audit an existing project against the toolkit
@@ -159,7 +161,22 @@ without touching the init flow.
   question picks the profile (Salesforce org, app, other code, docs-only). Bundles
   the deployable server, both curators, the four profiles, the capture hook, the
   wiring templates, and a test harness, so installation is placeholder-filling,
-  not design work.
+  not design work. A second skill in this plugin, `remember`, is the wrap-up
+  command: run it (or say "remember this") at the end of a work item and it
+  dispatches the curators to save what the work taught into that project's second
+  brain. It covers **both** curators on purpose, so the knowledge-curator (the
+  why-behind-the-code layer, which nothing automatic triggers and which otherwise
+  quietly never runs) actually gets fed.
+
+- **`git-workflows`**: two parallel-session-safe git sync skills for keeping a
+  local checkout in step with its remote when other agent sessions may share the
+  repo. `pull-latest` brings the checkout up to date without rewriting or
+  discarding anything (fetch, fast-forward, or a merge pull; never rebase, reset,
+  or push, and it stops rather than touch a dirty tree or another session's
+  in-flight commits). `reset-to-remote` is the destructive counterpart: it
+  hard-resets the repo to exactly mirror the remote, the safe alternative to
+  deleting and re-cloning, gated behind a preflight check and an explicit
+  confirmation. Install on any project; not stack-specific.
 
 ---
 
@@ -182,9 +199,9 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
   Salesforce production-org guard installs from `project-init` Gate 2
   (`references/salesforce-prod-guard-hook.md`); the standalone library is still
   planned.
-- [ ] **CLAUDE.md boilerplate library**: promote the boilerplate reference into
-  a standalone, versioned library that projects reuse verbatim instead of
-  retyping.
+- [x] **General rules library**: the standard rules are now individual files in
+  `project-init`'s `general-rules/` library (with a `README.md` index), copied
+  into each project's `.claude/rules/` verbatim instead of retyped into CLAUDE.md.
 - [ ] **Publish tooling**: a small script/checklist to export skills to the
   Claude desktop and web apps so those surfaces stay in sync with this repo.
 - [ ] **"Port-back" convention**: a documented flow (and a reminder baked into
@@ -210,6 +227,12 @@ On Salesforce projects, also:
 
 ```
 /plugin install sf-architect-solutioning
+```
+
+For safe git sync skills (`pull-latest`, `reset-to-remote`) on any project:
+
+```
+/plugin install git-workflows
 ```
 
 Then, in a fresh project:

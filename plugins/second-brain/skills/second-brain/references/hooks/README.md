@@ -1,0 +1,112 @@
+# Second-brain hooks
+
+Four deterministic, best-effort hooks. Three connect a project to the memory
+server over the bearer fast path (`/fast/<project>/...`); with no
+`BRAIN_MCP_TOKEN` they silently no-op, which keeps them safe in a teammate
+checkout. The fourth (`knowledge-curator-nudge.mjs`) is different in kind: it
+makes no network call and needs no token, it just reminds the session to run the
+knowledge-curator at a push or PR. None uses a model.
+
+**That silence is also the system's main failure mode.** A surface with no token
+behaves identically to one that is working quietly, so an unwired surface is
+invisible until someone checks. Claude Code **cloud** sessions (claude.ai/code
+and the Claude iPhone and Mac apps' Code tabs) clone the repo and run these same
+hooks with no `settings.local.json`, so they need the token supplied as an
+environment variable in the cloud environment, plus the Worker's host on that
+environment's allowed-domains list. Setup recipe Step 6b.
+
+| Hook file | Event | Direction | What it does |
+| --- | --- | --- | --- |
+| `brain-mcp-capture.mjs` | `Stop` | write | Drops one redacted turn record into the journal (`POST /fast/<p>/journal`). Curators later drain it into nodes. |
+| `brain-mcp-session-digest.mjs` | `SessionStart` | read + inject | Fetches the curated digest (`GET /fast/<p>/digest`) and injects it as session context, so a session starts grounded in memory. |
+| `brain-mcp-recall.mjs` | `UserPromptSubmit` | read + inject | Keyword-recalls the memory for the submitted prompt (`GET /fast/<p>/recall?q=...`) and injects the top matches before the agent answers. |
+| `knowledge-curator-nudge.mjs` | `PostToolUse` (Bash) | local inject | After a `git push` or `gh pr create`, injects a reminder to dispatch the knowledge-curator for any code-why that changed. No server call, no token. Gated on the knowledge-curator agent existing; `BRAIN_KC_NUDGE=0` disables it. Exists because the knowledge layer, unlike memory, has no automatic trigger of its own. |
+
+The two injection hooks are the automatic half of "the right context at the
+right time": the digest lands once per session; recall lands per prompt. The
+agent's own `get_digest` / `recall` MCP calls still work and still matter (the
+fast-path recall is keyword-only; the MCP `recall` adds vector search for hard
+queries).
+
+## Configuration (env vars)
+
+Set in the project's `.claude/settings.json` `env` block, except the token which
+is a secret and lives only in the gitignored `.claude/settings.local.json`:
+
+| Var | Where | Meaning |
+| --- | --- | --- |
+| `BRAIN_BACKEND` | settings.json | Must be `mcp` for any hook to act. |
+| `BRAIN_MCP_ORIGIN` | settings.json | Server origin, e.g. `https://second-brain.rihm.workers.dev`. |
+| `BRAIN_PROJECT` | settings.json | This project's id. |
+| `BRAIN_MCP_TOKEN` | settings.local.json | Bearer token (secret; never committed). |
+| `BRAIN_CAPTURE` | settings.json | Default on. `0` disables the Stop capture. |
+| `BRAIN_INJECT` | settings.json | Default on. `0` disables BOTH injection hooks. |
+| `BRAIN_RECALL` | (optional) | Default on. `0` disables per-prompt recall only, keeping session-start digest injection. |
+
+## Safety rules baked into the hooks
+
+- **Every hook always exits 0.** For `UserPromptSubmit`, a non-zero exit ERASES
+  the user's prompt (exit 2 blocks it). `brain-mcp-recall.mjs` therefore wraps
+  everything in try/catch and ends every path at `done()` (exit 0): a brain
+  problem must never cost the user their prompt.
+- **Best-effort.** A missing token, an offline server, a timeout, or an empty
+  result injects nothing and the turn proceeds normally.
+- **Bounded latency.** The recall hook (per turn) uses a 2500ms fetch timeout,
+  tighter than capture's 4000ms, and skips trivial prompts (under 15 chars or a
+  bare affirmation like "yes"/"do it") so most turns pay no round-trip.
+- **Injected text is labeled reference, not instructions**, so retrieved memory
+  is never read as commands.
+- **Light redaction** of emails / org ids / URLs on the outbound recall query,
+  mirroring the capture hook, so they do not land in server request logs.
+
+## Smoke test (verifies the script's fetch + output contract)
+
+With the project's `BRAIN_*` env vars exported (including a real
+`BRAIN_MCP_TOKEN`), from the project root:
+
+```
+# Session digest hook: expect JSON with hookSpecificOutput.additionalContext
+echo '{"hook_event_name":"SessionStart","source":"startup"}' \
+  | node .claude/hooks/brain-mcp-session-digest.mjs
+
+# Recall hook: expect JSON with the recalled nodes, or empty if no keyword hit
+echo '{"hook_event_name":"UserPromptSubmit","prompt":"what did we decide about pricing rounding"}' \
+  | node .claude/hooks/brain-mcp-recall.mjs
+
+# No token -> both must print nothing and exit 0 (safe in a teammate checkout)
+env -u BRAIN_MCP_TOKEN node .claude/hooks/brain-mcp-recall.mjs <<< '{"prompt":"anything at all here"}'; echo "exit=$?"
+```
+
+This confirms the scripts hit the right endpoint with the bearer, emit
+well-formed `hookSpecificOutput` JSON, and no-op safely without a token. It does
+NOT confirm that Claude Code actually ingests the injected context in a live
+session; verify that once by eyeballing a real session (the digest should appear
+as a system-reminder at the top, and recall should surface relevant nodes on a
+memory-touching prompt).
+
+## Troubleshooting: the hooks do nothing
+
+If capture never writes and injection never appears, the cause is almost always a
+missing or invalid token on THIS surface. This is the #1 trap: `settings.local.json`
+is gitignored, so a clone or a second machine has no token and every local hook
+silently no-ops while the setup still looks complete.
+
+In a Claude Code **cloud** session there are two possible causes, so check both:
+the `BRAIN_MCP_TOKEN` environment variable is missing from the environment, or
+the environment's network allowlist blocks the Worker's host (cloud environments
+default to a Trusted allowlist that excludes a private `workers.dev` host, and
+the request is blocked at the proxy before the token is ever evaluated). Setup
+recipe Step 6b covers both. Check it:
+
+```
+curl -s -o /dev/null -w '%{http_code}\n' \
+  -H "Authorization: Bearer $BRAIN_MCP_TOKEN" \
+  "$BRAIN_MCP_ORIGIN/fast/$BRAIN_PROJECT/digest"
+```
+
+- `200` — the token works (a non-empty digest also confirms the project has one).
+- `401` — token missing, unregistered, or revoked: mint one for this machine
+  (setup recipe Step 6).
+- `403` — the token's GitHub login has no grant on this project (setup recipe
+  Step 5).
+- `404` — wrong `BRAIN_PROJECT` or `BRAIN_MCP_ORIGIN`.

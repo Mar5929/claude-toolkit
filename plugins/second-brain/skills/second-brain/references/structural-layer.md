@@ -13,6 +13,12 @@ time the owner asks for impact analysis. The parser is Salesforce-specific
 today; the schema and contract (`models.py`) are language-agnostic, so other
 parsers can join later.
 
+**Non-Salesforce project?** This bundled tool cannot analyze it (the parser
+reads `force-app/` metadata only). Use **graphify** instead, the local
+tree-sitter code graph that covers Swift, web, and generic repos and answers the
+same impact questions; see `structural-layer-graphify.md`. The rest of this file
+is the Salesforce path.
+
 ## Install steps
 
 1. **Copy the tool.** Copy every file in `references/structural-layer/` into
@@ -30,7 +36,7 @@ parsers can join later.
 
 3. **Ask the owner the storage question** (plain words, one question):
    "Where should the dependency graph live? **local** (recommended): a small
-   database file on this machine, rebuilt from the code on demand — free,
+   database file on this machine, rebuilt from the code on demand: free,
    works offline, cannot go stale. **cloud**: also publish it to the project's
    second-brain database so cloud sessions can query it. **hybrid**: both."
    Record the answer in the project's `.claude/settings.json` `env` block as
@@ -38,7 +44,7 @@ parsers can join later.
    `BRAIN_BACKEND`.
 
    If the owner picks cloud or hybrid: the local build still works today, but
-   the publish step is a documented interface, not yet implemented — see the
+   the publish step is a documented interface, not yet implemented; see the
    contract in `tools/kb/graph_backend.py` and implement it as part of the
    install (Neon tables + the two MCP query tools it specifies). The first
    project to choose cloud builds it; port it back to this plugin afterwards.
@@ -144,7 +150,7 @@ exactly which ones.
    `force-app/` is still empty, a 0-component build is the expected result,
    not a failure.
 3. If the project has metadata: pick one field and run
-   `python3 tools/kb/query_graph.py "Field:<Object>.<Field>"` — it must return
+   `python3 tools/kb/query_graph.py "Field:<Object>.<Field>"`; it must return
    the writers / direct connections / impact radius sections.
 
 ## Hard rule to carry into the project

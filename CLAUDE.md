@@ -15,7 +15,7 @@ write X down somewhere. Fit it into the system:
 
    | X is... | It goes... |
    |---|---|
-   | A rule for how agents behave, write, or work in every project | A new numbered rule in `plugins/project-init/skills/project-init/references/claude-md-boilerplate.md`; also update that file's "Notes for the assembling agent" |
+   | A rule for how agents behave, write, or work in every project | A new file in `plugins/project-init/skills/project-init/references/general-rules/`; also add a row to that folder's `README.md` index (default ON or conditional) |
    | A setup step for new projects | Into the right gate in `plugins/project-init/skills/project-init/SKILL.md` and `references/setup-flow.md` (or propose a new gate) |
    | A guard hook or automation | The shared hooks library. Until that library exists, record it in the README roadmap with enough detail to build it later |
    | A whole reusable system | A new plugin under `plugins/`, registered in `.claude-plugin/marketplace.json`, offered by `project-init` |
@@ -26,19 +26,47 @@ write X down somewhere. Fit it into the system:
    reference it. Update every doc that mentions it (SKILL.md, setup-flow.md,
    README).
 4. **Opt-in by default.** Nothing is forced on a project unless Mike says every
-   project should get it; then mark it default ON (like boilerplate rules 1-5,
-   8, and 9).
+   project should get it; then mark it default ON in the `general-rules/README.md`
+   index (like most rules there), not conditional.
 5. **Bump versions.** A content change to a plugin bumps its `plugin.json`
    version and `metadata.version` in `marketplace.json`.
 6. **Keep `main` installable.** `claude plugin validate .` must pass; `main` is
    what every machine installs from.
 
+## The other direction: pull a merged change onto your machines and into projects
+
+Folding a change into `main` (above) is only half the trip. A change starts
+helping other projects only once each machine pulls it and each project adopts
+it. Pushing to GitHub updates nothing on its own. After a PR merges to `main`:
+
+1. **Refresh the plugin on each machine.** The installed copy at
+   `~/.claude/plugins/marketplaces/claude-toolkit` is a git clone that does not
+   auto-update. Inside a Claude Code session run
+   `/plugin marketplace update claude-toolkit`; from a terminal run
+   `claude plugin marketplace update claude-toolkit`. That git-pulls the copy
+   and refreshes the plugin cache. Restart the session to be sure it picks up
+   the new content.
+2. **Roll the change into each existing project.** Refreshing the plugin does
+   NOT touch a project that is already set up: its rules were copied into
+   `.claude/rules/` when the project was initialized, so a new rule or system
+   does not appear there on its own. In each project that should get the change,
+   run the `project-sync` skill (`/project-sync`, or just "sync this project
+   with the toolkit"). It audits the project against the refreshed toolkit and
+   adds what is missing, with your approval. project-sync refreshes the plugin
+   first as its own Step 1, so running it inside a project also covers step 1
+   for that machine.
+
+In one line: push to GitHub, then on every machine `/plugin marketplace update`,
+then in every project `/project-sync`. Nothing propagates across machines by
+itself; each machine and each project pulls the change in.
+
 ## Writing rules (they apply here too)
 
-Boilerplate rule 9 governs this repo's own files and how you talk to Mike: no em
-dashes, no section signs (write "section 7"), no AI filler language, and plain
-explanations (he is a little technical, not deeply technical). Older files may
-still contain em dashes; clean them up in any file you're already editing.
+The `writing-and-language.md` rule governs this repo's own files and how you talk
+to Mike: no em dashes, no section signs (write "section 7"), no AI filler
+language, and plain explanations (he is a little technical, not deeply
+technical). Older files may still contain em dashes; clean them up in any file
+you're already editing.
 
 ## Parallel sessions
 
@@ -46,4 +74,4 @@ Mike usually runs several Claude Code sessions at once. Work in your own git
 worktree on your own branch, never edit the shared primary checkout, and land
 changes on `main` by pull request. After opening the PR, ask Mike whether to
 merge and clean up; merge only when he approves. (This is the same protocol
-that boilerplate rule 8 installs into new projects.)
+that the `worktree-isolation.md` general rule installs into new projects.)

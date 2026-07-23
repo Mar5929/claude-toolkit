@@ -37,10 +37,11 @@ section, replacing the `<...>` placeholders. `<APP_NAME>` is the real app name.
   with a first-class `## Gotcha (do not reintroduce)` (for example "never score a
   SetLog by raw `log.sets`; a timed hold's work is `workUnits`"), and a
   `know-codemap` entry per subsystem.
-- **Structural graph companion:** optional. Most apps rely on the compiler + tests
-  plus file-SHA `covers:` pins for impact detection. Add a compiled dependency
-  graph only if the codebase is large enough that "what calls this?" is a real
-  daily question.
+- **Structural graph companion:** optional, and for an app it is graphify (a local
+  tree-sitter code graph; see `references/structural-layer-graphify.md`), not the
+  Salesforce `force-app/` tool. Most apps rely on the compiler + tests plus
+  file-SHA `covers:` pins for impact detection; add graphify only when "what calls
+  this?" is a real, recurring question.
 
 ## Setup notes
 

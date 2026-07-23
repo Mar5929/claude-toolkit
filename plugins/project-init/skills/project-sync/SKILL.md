@@ -6,8 +6,9 @@ description: >-
   like "make sure all the tools, rules, and systems from my toolkit are set up
   in this project", "sync this project with claude-toolkit", "audit this
   project against the toolkit", or "/project-sync". This skill inventories
-  everything the toolkit currently ships (CLAUDE.md boilerplate rules, hooks,
-  memory system, knowledge layer, and any newer systems), cross-references the
+  everything the toolkit currently ships (the general and Salesforce rules
+  libraries, hooks, memory system, knowledge layer, and any newer systems),
+  cross-references the
   current project, reports the gaps, and closes each gap only with the user's
   approval.
 ---
@@ -22,22 +23,34 @@ Run the steps in order. Never change anything before step 4.
 
 ## Step 1: inventory the toolkit
 
+**First, refresh the installed toolkit so this audit sees the latest.** This
+skill reads the toolkit from the installed plugin copy (option 1 below), and
+that copy does NOT update itself when the repo changes on GitHub. A merged
+change sits on GitHub until each machine pulls it. So before inventorying,
+update the local copy: inside a Claude Code session run
+`/plugin marketplace update claude-toolkit`, or from a terminal run
+`claude plugin marketplace update claude-toolkit`. Skip this only when you are
+reading from a freshly-pulled local clone (option 2). A stale plugin copy
+produces a stale audit, so the project silently misses the newest rules and
+systems, which is the exact failure this step guards against.
+
 Build the list of things the toolkit currently provides. Do not hard-code
 today's list; read the toolkit itself so new systems are picked up
 automatically as it grows.
 
 - Locate the toolkit files, in order of preference:
   1. They ship with this plugin. From this skill's directory, the sibling
-     skill's `../project-init/references/` holds `claude-md-boilerplate.md`
-     and `setup-flow.md`, and the plugin root holds `.claude-plugin/plugin.json`.
+     skill's `../project-init/references/` holds `general-rules/` (with its
+     `README.md` index), `salesforce-rules/`, `thin-claudemd.md`, and
+     `setup-flow.md`, and the plugin root holds `.claude-plugin/plugin.json`.
   2. A local clone of the toolkit repo, if the user has one.
   3. Fetch the repo (`Mar5929/claude-toolkit`), or ask the user where it lives.
 - Enumerate, at minimum:
-  - every standard CLAUDE.md boilerplate rule, noting which are default ON
-    and which are conditional
-  - the per-server MCP tool rules in `claude-md-boilerplate.md`'s "MCP tool
-    rules" section and `references/mcp-best-practices.md`; these are conditional,
-    so only audit the servers this project actually connects
+  - every rule file in `general-rules/`, noting from its `README.md` which are
+    default ON and which are conditional; Salesforce projects also get the
+    `salesforce-rules/` files
+  - the per-server MCP tool rules in `references/mcp-best-practices.md`; these
+    are conditional, so only audit the servers this project actually connects
   - each system from the setup gates: hooks, memory system, knowledge layer
   - anything newer listed in the toolkit README under "What's here now"
   - skip roadmap items; they aren't built yet and can't be audited
@@ -50,8 +63,10 @@ For each inventory item, look for evidence in the project. Judge by intent, not
 exact wording: a CLAUDE.md that says "never commit secrets" satisfies the
 secrets rule even if the prose differs. Typical checks:
 
-- **CLAUDE.md**: does it exist, and does it carry the intent of each default-ON
-  boilerplate rule?
+- **CLAUDE.md and `.claude/rules/`**: does CLAUDE.md exist and point at
+  `.claude/rules/`, and does that folder carry each default-ON general rule (a
+  file, or the rule's intent folded into CLAUDE.md)? Judge by intent, not exact
+  wording or file name.
 - **Hooks**: are guard and orientation hooks configured (the project's
   `.claude/` settings and hook scripts)?
 - **Memory system** (the `second-brain` MCP architecture): is there a committed

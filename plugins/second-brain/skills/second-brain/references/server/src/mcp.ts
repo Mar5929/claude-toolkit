@@ -2,8 +2,8 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { embedText } from "./embed";
 import {
-  appendJournal, drainJournal, exportNodes, getDigest, getNode, listNodes,
-  neighborsOf, putDigest, readJournal, recallNodes, upsertNode,
+  appendJournal, bodySnippet, capRecall, drainJournal, exportNodes, getDigest,
+  getNode, listNodes, neighborsOf, putDigest, readJournal, recallNodes, upsertNode,
   type Role, type Sql,
 } from "./db";
 import type { Env } from "./types";
@@ -53,27 +53,43 @@ export function buildMemoryServer(
     "recall",
     {
       description:
-        "Search this project's memory by meaning + keyword (decisions, knowledge, rules, questions, blockers, glossary). Returns best-matching node markdown plus their linked neighbors (the constraint a decision depends on, the note that replaced it). Superseded/cleared nodes are demoted; check each node's status.",
+        "Search this project's memory by meaning + keyword (decisions, knowledge, rules, questions, blockers, glossary). Default (detail='index') returns POINTERS: each match as id + title + status + a short snippet, then a one-line reference map of linked neighbors — cheap to scan. Call get_node(id) to read any match or neighbor in full, or pass detail='full' to inline the matched nodes' complete bodies (heavier; use when you know you need them, e.g. dedup/curation). Superseded/cleared nodes are demoted; check each node's status.",
       inputSchema: {
         query: z.string().min(1).describe("Query, e.g. 'devops center version decision'"),
-        limit: z.number().int().min(1).max(25).optional().describe("Max primary nodes (default 5)"),
+        limit: z.number().int().min(1).max(25).optional().describe("Max primary matches (default 5)"),
+        detail: z.enum(["index", "full"]).optional().describe("index (default): pointers + snippets, cheap; full: complete match bodies inline"),
       },
     },
-    async ({ query, limit }) => {
+    async ({ query, limit, detail }) => {
+      const attr = (s: string) =>
+        String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+      const mode = detail ?? "index";
       const qvec = await embedText(env, query);
       const nodes = await recallNodes(sql, projectId, query, limit ?? 5, qvec);
       if (nodes.length === 0) {
         return { content: [{ type: "text", text: `No memory nodes match '${query}'.` }] };
       }
       const neighbors = await neighborsOf(sql, projectId, nodes.map((n) => n.id), 8);
-      const primary = nodes
-        .map((n) => `<node id="${n.id}" path="${n.path}" status="${n.status}">\n${n.markdown}\n</node>`)
-        .join("\n\n");
+      // Default 'index': pointers (id + title + status + snippet), so scanning
+      // matches is cheap and the caller get_node's only the few that matter.
+      // 'full' inlines complete bodies for when the caller needs them.
+      const primary = mode === "full"
+        ? nodes
+            .map((n) => `<node id="${n.id}" path="${n.path}" status="${n.status}">\n${n.markdown}\n</node>`)
+            .join("\n\n")
+        : nodes
+            .map((n) => `<match id="${attr(n.id)}" title="${attr(n.title)}" status="${n.status}">\n${bodySnippet(n.markdown)}\n</match>`)
+            .join("\n");
+      // Neighbors are always REFERENCES, not bodies: one line each (id + title +
+      // how it links + status). Their full text is one get_node away.
       const context = neighbors.length === 0 ? "" :
-        "\n\n<!-- linked context (neighbors of the matches) -->\n" + neighbors
-          .map((n) => `<neighbor id="${n.id}" via="${n.via}" status="${n.status}">\n${n.markdown}\n</neighbor>`)
-          .join("\n\n");
-      return { content: [{ type: "text", text: primary + context }] };
+        "\n\n<!-- linked notes (references only; call get_node(id) for the full text of any) -->\n" + neighbors
+          .map((n) => `<neighbor id="${attr(n.id)}" title="${attr(n.title)}" via="${attr(n.via)}" status="${attr(n.status)}"/>`)
+          .join("\n");
+      const hint = mode === "index"
+        ? "\n\n<!-- pointer view: call get_node(id) for a full node, or recall(detail='full') to inline match bodies -->"
+        : "";
+      return { content: [{ type: "text", text: capRecall(primary + context + hint) }] };
     },
   );
 

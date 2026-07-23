@@ -7,9 +7,9 @@ these into the new project's `.claude/rules/` (Gate 1, right after the
 the owner before copying, same as every other gate.
 
 These are Salesforce-specific and opt-in, so they live here rather than in the
-`claude-md-boilerplate.md` rules (which go into every project's CLAUDE.md). A
-project's CLAUDE.md should point at its `.claude/rules/` folder so these files
-are read each session.
+`general-rules/` library (which every project gets). Both libraries are copied
+as files into the project's `.claude/rules/` folder, and the project's CLAUDE.md
+points at that folder so these files are read each session.
 
 ## Rules in this library
 
@@ -18,7 +18,7 @@ are read each session.
 | `salesforce-safety-guardrails.md` | Read-only against the orgs; never deploy to production; sandbox deploys need an explicit OK; permission sets go by change set, not the CLI. The core deploy-safety policy. |
 | `salesforce-change-clarify.md` | Always confirm before object-model, security/permission, integration, or data-source-priority changes, or anything that contradicts the project's requirements. |
 | `deploy-hitchhiker-check.md` | Before any deploy, catch components or un-deployed edits that would ride along into the target org before their feature is ready. Ends with read-only verification against the org, never a flag based on a stale tracker. |
-| `component-tracker.md` | Keep a one-row-per-component CSV inventory of what this project authored and where it is deployed, kept in sync with the cutover manifest. Optional: assumes a deployment-records CSV. |
+| `component-tracker.md` | Keep one master one-row-per-component CSV inventory of what this project authored and where it is deployed, and a matching master manifest, both under one `engagement/deployment/` folder with a per-work-item manifest folder each. Kept in sync in the same change. Optional: assumes a deployment folder. |
 | `deployment-runbook.md` | Track the operational steps a deploy cannot perform (permission-set assignments, data re-stamps, scheduled jobs, post-deploy checks). Tool-agnostic. Optional. |
 | `permissions-source-control.md` | Profiles and permission sets tracked in git must be complete: a naive retrieve returns silently partial files, so refresh them only through the full retrieval process (runbook: `../salesforce-permissions-retrieval.md`), verify before committing, and never CLI-deploy from them. |
 | `production-data.md` | One home for every production data artifact: backups (saved before a live data change) and data-load files each live in their own dated subfolder under `engagement/data/`, with a required README and gitignored data files so record IDs / PII never commit. |

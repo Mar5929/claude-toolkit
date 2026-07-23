@@ -69,11 +69,24 @@ A cloud or web Claude session cannot run interactive OAuth from inside a session
 so it needs an account-level connector (the committed `.mcp.json` only covers the
 terminal CLI).
 
-- In claude.ai: Settings > Connectors > add a custom connector.
-- Name it for the project; URL = the same `<origin>/mcp/<ID>`.
+- In claude.ai: **Customize > Connectors**, click **+**, choose **Add custom
+  connector**.
+- Name it for the project; URL = the same `<origin>/mcp/<ID>`. Click **Add**,
+  then **Connect** and authorize with GitHub.
 
 **Success looks like:** the connector appears and, after you authorize it once
 with GitHub, a cloud session can call the `second-brain` tools for this project.
+
+This connector covers the **MCP tools**. It does NOT switch on automatic capture
+or digest injection in Claude Code cloud sessions: those run the hooks, which
+need Step 6b. Do both.
+
+**Never** add `"headers": {"Authorization": "Bearer ${BRAIN_MCP_TOKEN}"}` to
+`.mcp.json` to try to skip this step. `/mcp/<ID>` is OAuth-only by design (the
+bearer tokens work on `/fast/<ID>/...` only), and Claude Code reports a server as
+**failed** when a configured `Authorization` header is rejected instead of
+falling back to OAuth. Adding the header breaks the working terminal connection
+and fixes nothing.
 
 ## Step 5: Grant access
 
@@ -90,10 +103,25 @@ Step 1 already granted the owner `admin`. For anyone else:
 **Success looks like:** each person who should have access has a row. No row means
 that person gets HTTP 403. Deleting a row revokes access on the next request.
 
-## Step 6: Mint the local capture token
+## Step 6: Mint the local hook token (per machine)
 
-The Stop hook posts turn records with a bearer token. This token is a secret and
+All three local hooks (the Stop capture and the SessionStart / UserPromptSubmit
+injection hooks) reach the server with a bearer token. This token is a secret and
 lives only in the project's gitignored `.claude/settings.local.json`.
+
+**It is per surface, and it does not travel.** Because `settings.local.json` is
+gitignored, a fresh clone or a second machine has NO token, and there every local
+hook SILENTLY no-ops (capture writes nothing; injection injects nothing) while the
+setup still looks "done". Mint a token on each machine that runs this project, and
+prove it works in Step 8.
+
+**This includes Claude Code cloud sessions** (claude.ai/code and the Claude
+iPhone and Mac apps' Code tabs). They clone the repo, so they run these same
+committed hooks, and they have no `settings.local.json`. The Step 4 connector
+does NOT cover them: it provides MCP tools, not the hooks' token. Without
+Step 6b below, a cloud session records nothing at all while looking completely
+normal. This is the single easiest way to end up with a memory system that
+appears installed and is quietly dead on three of four surfaces.
 
 - From the `server/` directory:
   ```
@@ -103,15 +131,76 @@ lives only in the project's gitignored `.claude/settings.local.json`.
   and prints an SQL insert (the token's hash). Run that SQL in the Neon editor so
   the server recognizes the token.
 
-**Success looks like:** `.claude/settings.local.json` has a `BRAIN_MCP_TOKEN`, and
-the hash row is in the database. Confirm `.claude/settings.local.json` is
-gitignored (add `/.claude/settings.local.json` to `.gitignore` if not).
+**Success looks like:** `.claude/settings.local.json` (on THIS machine) has a
+`BRAIN_MCP_TOKEN`, and the hash row is in the database. Confirm
+`.claude/settings.local.json` is gitignored (add `/.claude/settings.local.json`
+to `.gitignore` if not). Step 8 proves the token actually authenticates.
 
-## Step 7: Install the hook, settings, and the two curators
+## Step 6b: Wire the Claude Code CLOUD environments (per environment)
 
-1. Copy `hooks/brain-mcp-capture.mjs` to the project's `.claude/hooks/`.
+claude.ai/code, the Claude iPhone app's Code tab, and the Claude Mac app's Code
+tab are not three separate things: they all run the same Anthropic-managed
+**cloud environments**. Configure an environment once and all three pick it up.
+Two settings are needed, and **both are required** (the token alone silently
+fails, because the network layer blocks the request before the token is ever
+checked).
+
+1. **Mint a SEPARATE token for the cloud**, labelled e.g.
+   `claude-cloud-environments`, and register its hash exactly as in Step 6. Do
+   not reuse a machine's token: separate tokens can be revoked independently, and
+   the cloud copy is stored in plain text (see the warning below). Note that
+   `scripts/mint-token.mjs` writes into `.claude/settings.local.json`, which
+   would clobber that machine's token, so for the cloud token generate it
+   separately and keep the raw value out of the repo.
+2. **In the environment settings** at claude.ai/code: select the current
+   environment name (the cloud icon) to open the selector, then hover your
+   project's environment and click its settings icon (or **Add environment**).
+   Name the environment after the project, one environment per project, so each
+   project's token stays scoped to its own sessions.
+   - **Environment variables** (`.env` format, one `KEY=value` per line, **no
+     quotes**, since quotes are stored as part of the value):
+     ```
+     BRAIN_MCP_TOKEN=<the cloud token>
+     ```
+   - **Network access**: set to **Custom**, then in **Allowed domains** add the
+     Worker's host on its own line:
+     ```
+     <your worker host, e.g. second-brain.rihm.workers.dev>
+     ```
+     Keep **Also include default list of common package managers** CHECKED, or
+     you will cut off npm, PyPI, and GitHub, which breaks plugin installs and
+     setup scripts.
+
+**Why the allowed-domains step is mandatory:** cloud environments default to
+**Trusted** network access, an allowlist of package registries, code hosts, and
+cloud SDKs. A private `workers.dev` host is not on it, so the hooks' requests are
+blocked at the proxy no matter how valid the token is. (**Full** access also
+works and is one click simpler, but it allows every domain.)
+
+**No setup script is needed.** The hooks import only Node built-ins and use the
+built-in `fetch`; Node is pre-installed in cloud environments and there is
+nothing to `npm install`.
+
+**Warning:** cloud environments have no dedicated secrets store. Environment
+variables are stored in the environment config in plain text, visible to anyone
+who can edit that environment (on Team/Enterprise, a shared environment reaches
+every member). Weigh that before putting a token there, and prefer a separate,
+revocable one.
+
+**Success looks like:** a cloud session on the repo answers a question that only
+the digest could have told it. Step 8.4 has the exact check.
+
+## Step 7: Install the hooks, settings, and the two curators
+
+1. Copy all four hooks from `hooks/` to the project's `.claude/hooks/`:
+   `brain-mcp-capture.mjs` (Stop capture), `brain-mcp-session-digest.mjs`
+   (SessionStart digest injection), `brain-mcp-recall.mjs` (UserPromptSubmit
+   recall injection), and `knowledge-curator-nudge.mjs` (PostToolUse: after a
+   push or PR-create, remind the session to run the knowledge-curator; local,
+   no server call, no token).
 2. Merge `templates/settings.json` into the project's committed
-   `.claude/settings.json`: the `env` block and the `Stop` hook. Fill
+   `.claude/settings.json`: the `env` block and the `SessionStart`,
+   `UserPromptSubmit`, `Stop`, and `PostToolUse` hooks. Fill
    `<BRAIN_MCP_ORIGIN>` and `<PROJECT_ID>`; drop the `_comment` key. Do NOT
    clobber existing `env` or `hooks` entries (a project may already have a guard
    hook); add to them.
@@ -122,8 +211,9 @@ gitignored (add `/.claude/settings.local.json` to `.gitignore` if not).
    `profiles/<type>.md`, and set `<APP_NAME>` to the real project name.
 
 **Success looks like:** `.claude/settings.json` has `BRAIN_BACKEND=mcp`,
-`BRAIN_MCP_ORIGIN`, `BRAIN_PROJECT=<ID>`, `BRAIN_CAPTURE=1`, and the Stop hook;
-both curators exist with NO `<...>` placeholders left in their Project profile.
+`BRAIN_MCP_ORIGIN`, `BRAIN_PROJECT=<ID>`, `BRAIN_CAPTURE=1`, `BRAIN_INJECT=1`, and
+the SessionStart, UserPromptSubmit, and Stop hooks; both curators exist with NO
+`<...>` placeholders left in their Project profile.
 
 ## Step 8: Verify (do not skip; do not claim success without this)
 
@@ -138,9 +228,44 @@ both curators exist with NO `<...>` placeholders left in their Project profile.
    the project, dispatch the brain-curator to REMEMBER a small test fact, then in
    a fresh session dispatch RECALL and confirm it comes back. Then confirm a cloud
    session (via the Step 4 connector) sees the same fact.
+3. **Local token actually authenticates (the silent-no-op trap).** With no valid
+   `BRAIN_MCP_TOKEN` every local hook no-ops silently, so a broken or missing
+   token looks like a working-but-quiet setup. Prove the token authenticates:
+   with the project's env loaded,
+   ```
+   curl -s -o /dev/null -w '%{http_code}\n' \
+     -H "Authorization: Bearer $BRAIN_MCP_TOKEN" \
+     "$BRAIN_MCP_ORIGIN/fast/$BRAIN_PROJECT/digest"
+   ```
+   must print `200` (a `401` means the token is missing, unregistered, or
+   revoked — re-check Step 6; a `403` means its GitHub login has no grant — Step
+   5). Then run the session-digest hook once and confirm it emits
+   `hookSpecificOutput` JSON, not nothing.
 
-**Success looks like:** harness `FAIL: 0`, and the test fact written locally is
-recalled in a second local session AND in a cloud session.
+   Test the WRITE path too, not just the read. Capture is a `POST` to
+   `/fast/<project>/journal` and needs the `write` role, so a read-only token
+   passes the digest check above and still records nothing:
+   ```
+   curl -s -o /dev/null -w '%{http_code}\n' -X POST \
+     -H "Authorization: Bearer $BRAIN_MCP_TOKEN" \
+     -H "Content-Type: application/json" \
+     -d '{"source":"local","note":"setup verification"}' \
+     "$BRAIN_MCP_ORIGIN/fast/$BRAIN_PROJECT/journal"
+   ```
+   must also print `200` (a `403` here means the token's grant is read-only).
+4. **Cloud sessions actually capture (Step 6b).** Do this per environment; it is
+   the check that catches the silent-no-op trap on the surfaces you can't see.
+   Start a session at claude.ai/code on the repo and ask it something only the
+   digest knows (for example, a decision id and why it exists). A correct answer
+   proves the SessionStart hook reached the server. A blank look means the token
+   or the allowed-domains entry is wrong. To confirm the write path from inside
+   the sandbox, have that session run the `POST` command above and report the
+   status code.
+
+**Success looks like:** harness `FAIL: 0`; the test fact written locally is
+recalled in a second local session AND in a cloud session; the token check
+returns `200` for BOTH the digest read and the journal write, with the digest
+hook emitting injection JSON; and a cloud session answers from the digest.
 
 ## Step 9: Document it in the project's CLAUDE.md
 
@@ -150,7 +275,18 @@ Record the ground rules so every future session knows:
   `<origin>/mcp/<ID>`.
 - How to ask for memory: "delegate to the brain-curator" (recall/remember) and
   "delegate to the knowledge-curator" (why-does-this-code-exist).
-- Capture is on (the Stop hook); the digest is injected via `get_digest`.
+- Durable facts belong in the brain, not a machine-local file store. Save any
+  decision, goal, constraint, or correction that should outlive the session via
+  the brain-curator (or, from a background job where the curator subagent cannot
+  reach the MCP, append to the brain journal from the main session and let a
+  later curator pass promote it). Claude Code's local `~/.claude/.../memory` file
+  store does not travel to clones, other machines, or cloud sessions, so a durable
+  project fact must never live only there.
+- Capture is on (the Stop hook). The digest auto-injects at session start and
+  per-prompt keyword recall auto-injects before each answer (the SessionStart +
+  UserPromptSubmit hooks); the agent can also call `get_digest` / `recall`
+  directly. `BRAIN_INJECT=0` disables both injection hooks; `BRAIN_RECALL=0`
+  disables just per-prompt recall.
 - The first digest is thin until a few curated batches have run.
 
 ## Step 10: Offer the first population
@@ -171,11 +307,12 @@ The store starts empty. Offer to seed it:
 [ ] 1. Neon DB created; schema + upgrades + per-project seed run
 [ ] 2. DATABASE_URL_<ID> secret set on the Worker
 [ ] 3. .mcp.json committed at project root
-[ ] 4. cloud/web connector added and authorized
+[ ] 4. cloud/web connector added and authorized (tools; NOT a substitute for 6b)
 [ ] 5. grants row per person
 [ ] 6. local BRAIN_MCP_TOKEN minted; hash row inserted; settings.local gitignored
-[ ] 7. capture hook + settings merged; both curators installed with the profile filled
-[ ] 8. db harness FAIL: 0; read/write smoke test passes local + cloud
+[ ] 6b. EACH Claude Code cloud environment has BRAIN_MCP_TOKEN set AND the Worker host on its allowed-domains list
+[ ] 7. all four hooks (capture + session-digest + recall + knowledge-curator-nudge) + settings merged; both curators installed with the profile filled
+[ ] 8. db harness FAIL: 0; digest read AND journal write both 200; smoke test passes local + cloud
 [ ] 9. CLAUDE.md ground rules written
 [ ] 10. first memory/knowledge population offered
 ```

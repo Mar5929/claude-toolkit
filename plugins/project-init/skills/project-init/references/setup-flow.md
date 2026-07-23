@@ -10,7 +10,7 @@ so they always know where they are.
 [ ] Gate 2 - Hooks (guards & automation)
 [ ] Gate 3 - Memory system            (opt-in)
 [ ] Gate 4 - Knowledge layer          (opt-in)
-[ ] Gate 5 - CLAUDE.md                (+ standard boilerplate rules)
+[ ] Gate 5 - CLAUDE.md + .claude/rules (copy general rules; write thin CLAUDE.md)
 [ ] Wrap-up - summarize, note follow-ups, port-back reminder
 ```
 
@@ -28,8 +28,8 @@ so they always know where they are.
   README, license, editor/formatter, CI stub.
 - Every stack: offer the work-items structure in `work-items-structure.md`
   (stage folders `01-backlog/`..`04-archived/`, a `BACKLOG.md` index, one
-  folder per work item with `SPEC.md` + `STATUS.md`). Pairs with boilerplate
-  rule 18 in Gate 5.
+  folder per work item with `SPEC.md` + `STATUS.md`). Pairs with the
+  `work-item-folders.md` rule copied in Gate 5.
 - Salesforce / SFDX: offer the standard scaffold in
   `salesforce-project-scaffold.md` (SFDX source plus an `engagement/` tree;
   its `engagement/work-items/` uses the same work-items structure).
@@ -65,20 +65,27 @@ so they always know where they are.
   covers: SHA drift-pins); the Gate 3 profile sets the drift model. Skip the
   knowledge-curator to leave this layer off.
 
-**Gate 5: CLAUDE.md**
-- Build section by section _with_ the user: what it is, codemap, hard rules, how
-  to work here, wrap-up ritual.
-- Offer every standard boilerplate rule from `claude-md-boilerplate.md`.
-- Rules 8-19 default ON: multi-agent protocol (own worktree, assume parallel
-  sessions, land by PR), language rules (no em dashes, no section signs, no AI
-  filler, plain language), and response/working-style rules (lead with the
-  answer; answer last, ask only in the question box; solve the real goal and push
-  back; define terms; ask before assuming; offer a handoff in a loaded session;
-  steer the session to the goal; do the technical work yourself; one folder per
-  work item; show phase progress). Only drop if the owner opts this project out.
+**Gate 5: CLAUDE.md and the rules folder**
+- Behavioral rules go into the project's `.claude/rules/` as individual files,
+  not into CLAUDE.md. See `thin-claudemd.md` and `general-rules/README.md`.
+- Copy the general rules from `general-rules/` into `.claude/rules/`: every
+  default-ON file unless the owner drops it, plus the two conditional files
+  (memory, knowledge) only if Gate 3 or Gate 4 ran. Walk the list; let the owner
+  accept, edit, or skip each.
+- Default-ON rules: multi-agent worktree protocol, language rules (no em dashes,
+  no section signs, no AI filler, plain language), and working-style rules (lead
+  with the answer; answer last, ask only in the question box; solve the real goal
+  and push back; define terms; ask before assuming; offer a handoff in a loaded
+  session; steer the session to the goal; do the technical work yourself; one
+  folder per work item; show phase progress; treat the owner as non-technical).
+  Only drop if the owner opts this project out.
+- Salesforce projects: make sure the `salesforce-rules/` files chosen in Gate 1
+  are in `.claude/rules/` too.
 - MCP tool rules from `mcp-best-practices.md` are conditional: fold in a server's
   section only if the project uses that MCP server.
-- Reflect the memory/knowledge/hooks gates in the relevant sections.
+- Write a thin CLAUDE.md _with_ the user: what it is, codemap and structural
+  pointers, a `Read .claude/rules` line, which gates ran. Add a
+  `.claude/rules/README.md` index. Reflect the memory/knowledge/hooks gates.
 
 **Wrap-up**
 - Summarize done vs. skipped.

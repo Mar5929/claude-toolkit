@@ -12,7 +12,7 @@
 
 import { neon } from "@neondatabase/serverless";
 import {
-  appendJournal, drainJournal, exportNodes, getDigest, getGrant, getNode,
+  appendJournal, bodySnippet, drainJournal, exportNodes, getDigest, getGrant, getNode,
   listNodes, neighborsOf, putDigest, readJournal, recallNodes, upsertNode,
   type Sql,
 } from "../src/db";
@@ -148,6 +148,15 @@ async function main() {
   await upsertNode(sql, P, "tester", { id: "new", path: "n/new.md", type: "decision", title: "Pricing rounding decision v2", markdown: file("new", "Pricing rounding decision v2", "new pricing rounding rule"), edges: [{ to: "retired-superseded", rel: "supersedes" }] }, vec(60));
   const neigh = await neighborsOf(sql, P, ["new"], 8);
   ok(neigh.some((n) => n.id === "retired-superseded" && n.via === "supersedes"), "neighborsOf returns the superseded node via the supersedes edge");
+  ok(neigh.length > 0 && neigh.every((n) => !("markdown" in n)), "neighbors are references (id/title/via/status), carry NO markdown body");
+
+  // T6b: bodySnippet (pointer-first primary formatting) strips frontmatter + caps length
+  const longMd = file("snip", "Snippet title", "The body starts here. " + "padding words ".repeat(60));
+  const snip = bodySnippet(longMd, 100);
+  ok(!snip.includes("---") && !snip.includes("id:") && !snip.includes("Snippet title"), "bodySnippet strips the frontmatter block");
+  ok(snip.startsWith("The body starts here."), "bodySnippet returns the body text");
+  ok(snip.length <= 101 && snip.endsWith("…"), "bodySnippet caps length and marks truncation");
+  ok(bodySnippet(file("s2", "T", "short body"), 100) === "short body", "bodySnippet returns a short body whole (no ellipsis)");
 
   // T7: journal read/drain by explicit seqs
   const s1 = await appendJournal(sql, P, { note: "turn one" }, "local");
