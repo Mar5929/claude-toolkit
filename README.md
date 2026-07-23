@@ -161,7 +161,12 @@ without touching the init flow.
   question picks the profile (Salesforce org, app, other code, docs-only). Bundles
   the deployable server, both curators, the four profiles, the capture hook, the
   wiring templates, and a test harness, so installation is placeholder-filling,
-  not design work.
+  not design work. A second skill in this plugin, `remember`, is the wrap-up
+  command: run it (or say "remember this") at the end of a work item and it
+  dispatches the curators to save what the work taught into that project's second
+  brain. It covers **both** curators on purpose, so the knowledge-curator (the
+  why-behind-the-code layer, which nothing automatic triggers and which otherwise
+  quietly never runs) actually gets fed.
 
 - **`git-workflows`**: two parallel-session-safe git sync skills for keeping a
   local checkout in step with its remote when other agent sessions may share the
