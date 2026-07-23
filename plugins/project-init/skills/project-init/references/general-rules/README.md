@@ -40,7 +40,7 @@ structure Gate 5 writes.
 
 | File | Include when |
 |---|---|
-| `memory-system-ground-rules.md` | The project set up the long-term memory system (Gate 3). All writes go through the curator; the digest is injected each session. |
+| `memory-system-ground-rules.md` | The project set up the long-term memory system (Gate 3). All writes go through the curator; the digest is injected each session. Also: `recall` a named subsystem BEFORE diagnosing or changing it, and dispatch the curator ONCE at wrap-up with the facts pre-extracted. |
 | `knowledge-layer-ground-rules.md` | The project set up the knowledge layer (Gate 4). Nodes pin the files they cover and are flagged stale on drift. |
 
 MCP tool rules (Context7, Gmail, Google Calendar, Linear, Notion, Playwright)
