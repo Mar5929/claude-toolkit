@@ -1,9 +1,11 @@
 # Second-brain hooks
 
-Three deterministic, best-effort hooks connect a project to the memory server
-over the bearer fast path (`/fast/<project>/...`). None uses a model. With no
+Four deterministic, best-effort hooks. Three connect a project to the memory
+server over the bearer fast path (`/fast/<project>/...`); with no
 `BRAIN_MCP_TOKEN` they silently no-op, which keeps them safe in a teammate
-checkout.
+checkout. The fourth (`knowledge-curator-nudge.mjs`) is different in kind: it
+makes no network call and needs no token, it just reminds the session to run the
+knowledge-curator at a push or PR. None uses a model.
 
 **That silence is also the system's main failure mode.** A surface with no token
 behaves identically to one that is working quietly, so an unwired surface is
@@ -18,6 +20,7 @@ environment's allowed-domains list. Setup recipe Step 6b.
 | `brain-mcp-capture.mjs` | `Stop` | write | Drops one redacted turn record into the journal (`POST /fast/<p>/journal`). Curators later drain it into nodes. |
 | `brain-mcp-session-digest.mjs` | `SessionStart` | read + inject | Fetches the curated digest (`GET /fast/<p>/digest`) and injects it as session context, so a session starts grounded in memory. |
 | `brain-mcp-recall.mjs` | `UserPromptSubmit` | read + inject | Keyword-recalls the memory for the submitted prompt (`GET /fast/<p>/recall?q=...`) and injects the top matches before the agent answers. |
+| `knowledge-curator-nudge.mjs` | `PostToolUse` (Bash) | local inject | After a `git push` or `gh pr create`, injects a reminder to dispatch the knowledge-curator for any code-why that changed. No server call, no token. Gated on the knowledge-curator agent existing; `BRAIN_KC_NUDGE=0` disables it. Exists because the knowledge layer, unlike memory, has no automatic trigger of its own. |
 
 The two injection hooks are the automatic half of "the right context at the
 right time": the digest lands once per session; recall lands per prompt. The
