@@ -1,11 +1,12 @@
 {
-  "_comment": "SECOND-BRAIN memory wiring. MERGE these keys into the project's committed .claude/settings.json, then delete this _comment key. Do NOT clobber existing env or hooks entries; add to them (a project may already have a PreToolUse guard hook, etc.). Replace <BRAIN_MCP_ORIGIN> with the shared server origin (for Mike's live server: https://second-brain.rihm.workers.dev) and <PROJECT_ID> with this project's id. The BRAIN_MCP_TOKEN secret does NOT belong here; it goes in the gitignored .claude/settings.local.json (see the setup recipe, 'mint local token' step). This wires four hooks: SessionStart (inject the digest), UserPromptSubmit (inject per-prompt recall), Stop (capture the turn), and PostToolUse (remind the session to run the knowledge-curator after a push or PR-create; local, no server call, no token). BRAIN_INJECT=0 turns off both injection hooks; BRAIN_RECALL=0 (optional, add it yourself) turns off just per-prompt recall; BRAIN_KC_NUDGE=0 turns off the knowledge-curator push/PR reminder.",
+  "_comment": "SECOND-BRAIN memory wiring. MERGE these keys into the project's committed .claude/settings.json, then delete this _comment key. Do NOT clobber existing env or hooks entries; add to them (a project may already have a PreToolUse guard hook, etc.). Replace <BRAIN_MCP_ORIGIN> with the shared server origin (for Mike's live server: https://second-brain.rihm.workers.dev) and <PROJECT_ID> with this project's id. The BRAIN_MCP_TOKEN secret does NOT belong here; it goes in the gitignored .claude/settings.local.json (see the setup recipe, 'mint local token' step). This wires five hooks: SessionStart (inject the digest), UserPromptSubmit (inject per-prompt recall), Stop (TWO hooks: capture the turn, then kb_freshness_hook.py flags the knowledge layer stale when watched source changes), and PostToolUse (remind the session to run the knowledge-curator after a push or PR-create; local, no server call, no token). Set KB_SOURCE_PATHS to the curator profile's Source code path(s) (comma-separated) so the freshness hook watches them; it no-ops until KB_SOURCE_PATHS is set, and KB_FRESHNESS=0 disables it. Salesforce/structural-layer projects use graph_freshness_hook.py INSTEAD of kb_freshness_hook.py in the Stop array — swap that command and never wire both (see kb-backfill.md). BRAIN_INJECT=0 turns off both injection hooks; BRAIN_RECALL=0 (optional, add it yourself) turns off just per-prompt recall; BRAIN_KC_NUDGE=0 turns off the knowledge-curator push/PR reminder.",
   "env": {
     "BRAIN_BACKEND": "mcp",
     "BRAIN_MCP_ORIGIN": "<BRAIN_MCP_ORIGIN>",
     "BRAIN_PROJECT": "<PROJECT_ID>",
     "BRAIN_CAPTURE": "1",
     "BRAIN_INJECT": "1",
+    "KB_SOURCE_PATHS": "<comma-separated source paths to watch for knowledge-layer drift, from the curator profile's Source code path(s), e.g. src,worker or Anchor; empty disables the freshness hook>",
     "GRAPH_BACKEND": "<local|cloud|hybrid — only if the structural layer is installed; the owner's storage answer, usually local>"
   },
   "hooks": {
@@ -38,6 +39,11 @@
             "type": "command",
             "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/brain-mcp-capture.mjs\"",
             "timeout": 15
+          },
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/kb_freshness_hook.py\"",
+            "timeout": 30
           }
         ]
       }

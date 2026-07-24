@@ -99,6 +99,13 @@ skeleton fed to the curator.
 
 ## Step 3: Install ongoing freshness (default, not opt-in)
 
+The generic freshness hook, its `KB_SOURCE_PATHS`, and the knowledge-freshness
+rule are now wired by DEFAULT during install (setup recipe Step 7). The steps
+below are the reference for that wiring AND the retrofit path for a project set
+up before it shipped: such a project has only the push/PR nudge and its
+knowledge layer silently rots, so retrofit it here. A fresh install only needs
+to confirm `KB_SOURCE_PATHS` names real source paths.
+
 - **Salesforce with the structural layer:** already done; the layer's
   install step 5 wired `tools/kb/graph_freshness_hook.py`, which rebuilds
   the graph on change and names the changed connections in

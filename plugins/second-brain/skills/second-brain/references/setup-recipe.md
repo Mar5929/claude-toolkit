@@ -192,27 +192,41 @@ the digest could have told it. Step 8.4 has the exact check.
 
 ## Step 7: Install the hooks, settings, and the two curators
 
-1. Copy all four hooks from `hooks/` to the project's `.claude/hooks/`:
+1. Copy the hooks from `hooks/` to the project's `.claude/hooks/`:
    `brain-mcp-capture.mjs` (Stop capture), `brain-mcp-session-digest.mjs`
    (SessionStart digest injection), `brain-mcp-recall.mjs` (UserPromptSubmit
-   recall injection), and `knowledge-curator-nudge.mjs` (PostToolUse: after a
+   recall injection), `knowledge-curator-nudge.mjs` (PostToolUse: after a
    push or PR-create, remind the session to run the knowledge-curator; local,
-   no server call, no token).
+   no server call, no token), and `kb-backfill/kb_freshness_hook.py` (Stop:
+   flags the knowledge layer stale the moment watched source files change).
+   Salesforce projects that install the structural layer use its
+   `graph_freshness_hook.py` INSTEAD of `kb_freshness_hook.py`; never wire
+   both (see `kb-backfill.md`).
 2. Merge `templates/settings.json` into the project's committed
    `.claude/settings.json`: the `env` block and the `SessionStart`,
    `UserPromptSubmit`, `Stop`, and `PostToolUse` hooks. Fill
-   `<BRAIN_MCP_ORIGIN>` and `<PROJECT_ID>`; drop the `_comment` key. Do NOT
-   clobber existing `env` or `hooks` entries (a project may already have a guard
-   hook); add to them.
-3. Copy `agents/brain-curator.md` and `agents/knowledge-curator.md` to the
+   `<BRAIN_MCP_ORIGIN>` and `<PROJECT_ID>`, and set `KB_SOURCE_PATHS` to the
+   profile's Source code path(s) (comma-separated) so the freshness hook has
+   paths to watch; drop the `_comment` key. Do NOT clobber existing `env` or
+   `hooks` entries (a project may already have a guard hook); add to them. The
+   `Stop` hook now runs two commands: capture, then freshness.
+3. **Wire the knowledge-freshness rule.** Write the rule from `kb-backfill.md`
+   ("Rule to write in step 3d") to `.claude/rules/knowledge-freshness.md`, and
+   add the freshness artifacts to `.gitignore`:
+   `.claude/hooks/_kb_freshness_stamp.json` and
+   `.claude/hooks/_drift_pending.md`. This is what turns a drift flag into a
+   curator reconcile: without the rule the hook flags drift that nothing acts on.
+4. Copy `agents/brain-curator.md` and `agents/knowledge-curator.md` to the
    project's `.claude/agents/`.
-4. **Fill the profile.** In EACH copied curator, replace the `## Project profile`
+5. **Fill the profile.** In EACH copied curator, replace the `## Project profile`
    section's `<...>` placeholders using the two paste-blocks in your chosen
    `profiles/<type>.md`, and set `<APP_NAME>` to the real project name.
 
 **Success looks like:** `.claude/settings.json` has `BRAIN_BACKEND=mcp`,
-`BRAIN_MCP_ORIGIN`, `BRAIN_PROJECT=<ID>`, `BRAIN_CAPTURE=1`, `BRAIN_INJECT=1`, and
-the SessionStart, UserPromptSubmit, and Stop hooks; both curators exist with NO
+`BRAIN_MCP_ORIGIN`, `BRAIN_PROJECT=<ID>`, `BRAIN_CAPTURE=1`, `BRAIN_INJECT=1`,
+`KB_SOURCE_PATHS` set to real source paths, and the SessionStart,
+UserPromptSubmit, and Stop hooks (Stop running BOTH capture and freshness);
+`.claude/rules/knowledge-freshness.md` exists; both curators exist with NO
 `<...>` placeholders left in their Project profile.
 
 ## Step 8: Verify (do not skip; do not claim success without this)
