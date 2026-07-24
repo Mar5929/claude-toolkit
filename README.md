@@ -77,106 +77,66 @@ system changes.
 
 ```
 claude-toolkit/
-  README.md                       ← you are here
+  README.md                       ← you are here: purpose and how it grows
   CLAUDE.md                       ← instructions for agents working in this repo
   .claude-plugin/
     marketplace.json              ← lists the plugins in this repo
   plugins/
-    project-init/                 ← plugin: the new-project setup flow
+    project-init/                 ← plugin: set up a new project, or sync an existing one
+      README.md                   ← what this plugin is
       .claude-plugin/plugin.json
       skills/
-        project-init/
-          SKILL.md                ← the orchestration skill
-          references/
-            setup-flow.md         ← the ordered gate-by-gate checklist
-            thin-claudemd.md      ← how Gate 5 writes a thin CLAUDE.md
-            general-rules/        ← the standard .claude/rules files (+ README index)
-            salesforce-rules/     ← reusable .claude/rules files for SF projects
-            mcp-best-practices.md ← per-server MCP tool rules (conditional)
-        project-sync/
-          SKILL.md                ← audit an existing project against the toolkit
+        project-init/             ← SKILL.md + references/ (setup-flow, thin-claudemd,
+                                     general-rules/, salesforce-rules/, mcp-best-practices)
+        project-sync/             ← SKILL.md
+    second-brain/                 ← plugin: durable memory, knowledge, and structural layers
+      README.md
+      .claude-plugin/plugin.json
+      skills/
+        second-brain/             ← SKILL.md + references/ (architecture-spec, setup-recipe,
+                                     profiles/, agents/, hooks/, server/, structural layers)
+        remember/                 ← SKILL.md
     sf-architect-solutioning/     ← plugin: Salesforce solution architect
+      README.md
       .claude-plugin/plugin.json
       skills/
-        sf-architect-solutioning/
-          SKILL.md                ← the 5-phase solutioning protocol
-          references/
-            doc-sources.md        ← official Salesforce doc map + fetch recipes
-            solution-plan-template.md
-            solutioning-checklist.md
-            architectural-patterns.md, naming-conventions.md,
-            salesforce-well-architected.md, metadata/*.md  ← evergreen references
+        sf-architect-solutioning/ ← SKILL.md + references/ (doc-sources, metadata/*,
+                                     patterns, naming, well-architected, templates)
+    git-workflows/                ← plugin: parallel-session-safe git sync
+      README.md
+      .claude-plugin/plugin.json
+      skills/
+        pull-latest/              ← SKILL.md
+        reset-to-remote/          ← SKILL.md
   docs/
+    toolkit-map.md                ← the catalog: every item and how they relate
     architecture.html             ← visual map of how the pieces fit
 ```
 
-Each **concern is its own skill** so it can evolve and be reused independently.
-`project-init` orchestrates the setup and references the other systems rather
-than hard-coding them, so (for example) the memory architecture can change
-without touching the init flow.
+Each **concern is its own plugin/skill** so it can evolve and be reused
+independently. `project-init` orchestrates the setup and references the other
+systems rather than hard-coding them, so (for example) the memory architecture
+can change without touching the init flow.
+
+For a one-page index of every plugin and skill, and an honest read on how they
+relate (including what looks redundant but is not), see
+[`docs/toolkit-map.md`](docs/toolkit-map.md). Each plugin also has its own
+`README.md`.
 
 ---
 
 ## What's here now
 
-- **`project-init`**: a skill that walks me through setting up a new project in
-  a fixed, skippable order: scaffolding & folder structure, hooks, memory
-  system, knowledge layer, CLAUDE.md. It asks before acting, recommends
-  per-stack layouts, and injects my standard CLAUDE.md rules, including the ones
-  every project gets by default:
-  - the **multi-agent protocol**: every session works in its own git worktree,
-    assumes other agents are working in parallel, and lands work by PR
-  - my **language rules**: no em dashes, no section signs, no AI filler
-    language, plain explanations for a mildly technical reader
-  - my **response and working-style rules**: lead with the answer, ask only in
-    the question box, solve the real goal and push back on bad ideas, define
-    terms, ask before assuming, and offer a context handoff in a loaded session
-  - plus **conditional MCP tool rules** (Context7, Gmail, Google Calendar,
-    Linear, Notion, Playwright) folded in only for the servers a project uses
-- **`project-sync`**: the same idea for projects that already exist. Point any
-  repo at the toolkit and say "make sure everything from the toolkit is set up
-  here." It inventories what the toolkit currently ships (so new systems are
-  picked up automatically as the toolkit grows), cross-references the project,
-  reports the gaps in one table, closes the ones I approve, and records the
-  toolkit version it synced against so future runs don't re-nag about a
-  deliberate "no".
-- **`sf-architect-solutioning`**: a Salesforce solution architect skill. Feed it
-  a requirement and it runs a 5-phase protocol: push back and clarify, discover
-  the current project's requirement/decision locations from its own CLAUDE.md,
-  verify every platform claim against official Salesforce docs (live fetch with
-  a curated source map, never memory), design declarative-first to
-  Well-Architected standards, and present a solution plan with trade-offs for
-  approval before anything gets built. Project-agnostic by design: it never
-  assumes a folder structure or ticketing system. Domain-specific, so install
-  it only on Salesforce projects.
+Four plugins. Each has its own `README.md` with the detail;
+[`docs/toolkit-map.md`](docs/toolkit-map.md) indexes everything in one place and
+explains how the pieces relate.
 
-- **`second-brain`**: the portable memory and knowledge architecture (MCP). A
-  single skill installs durable cross-session memory in any project: one shared
-  Cloudflare Worker MCP server backed by a per-project Neon Postgres/pgvector
-  database and GitHub OAuth, a typed-node knowledge graph curated by two
-  background agents, hybrid keyword+vector recall, a digest injected each
-  session, and a knowledge layer that pins explanations to the exact code they
-  describe (a `covers:` SHA) and flags them when the code drifts. Reachable from
-  BOTH the terminal CLI and cloud/web Claude sessions. A short project-type
-  question picks the profile (Salesforce org, app, other code, docs-only). Bundles
-  the deployable server, both curators, the four profiles, the capture hook, the
-  wiring templates, and a test harness, so installation is placeholder-filling,
-  not design work. A second skill in this plugin, `remember`, is the wrap-up
-  command: run it (or say "remember this") at the end of a work item and it
-  dispatches the curators to save what the work taught into that project's second
-  brain. It covers **both** curators on purpose, so the knowledge-curator (the
-  why-behind-the-code layer, which nothing automatic triggers and which otherwise
-  quietly never runs) actually gets fed.
-
-- **`git-workflows`**: two parallel-session-safe git sync skills for keeping a
-  local checkout in step with its remote when other agent sessions may share the
-  repo. `pull-latest` brings the checkout up to date without rewriting or
-  discarding anything (fetch, fast-forward, or a merge pull; never rebase, reset,
-  or push, and it stops rather than touch a dirty tree or another session's
-  in-flight commits). `reset-to-remote` is the destructive counterpart: it
-  hard-resets the repo to exactly mirror the remote, the safe alternative to
-  deleting and re-cloning, gated behind a preflight check and an explicit
-  confirmation. Install on any project; not stack-specific.
+| Plugin | What it does |
+|---|---|
+| **[project-init](plugins/project-init/README.md)** | Sets up a project. `project-init` walks a new project through skippable gates (scaffolding, hooks, memory system, knowledge layer, CLAUDE.md); `project-sync` audits an existing project against the toolkit and closes the gaps I approve. |
+| **[second-brain](plugins/second-brain/README.md)** | Durable cross-session memory and knowledge for a project (MCP): a curated typed-node knowledge graph with hybrid recall and a session digest, a knowledge layer whose notes are pinned to file SHAs and flagged when the code drifts, and a structural layer for mechanical impact analysis. The `remember` skill saves a finished work item into it. |
+| **[sf-architect-solutioning](plugins/sf-architect-solutioning/README.md)** | A Salesforce solution architect: pushes back on vague requirements, verifies platform facts against official docs by live fetch, designs declarative-first to Well-Architected standards, and presents a solution plan for approval before any build. Salesforce projects only. |
+| **[git-workflows](plugins/git-workflows/README.md)** | Two parallel-session-safe git sync skills: `pull-latest` gets current without rewriting or discarding history, `reset-to-remote` hard-resets to mirror the remote behind a confirmation. |
 
 ---
 

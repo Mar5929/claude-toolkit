@@ -18,13 +18,18 @@ write X down somewhere. Fit it into the system:
    | A rule for how agents behave, write, or work in every project | A new file in `plugins/project-init/skills/project-init/references/general-rules/`; also add a row to that folder's `README.md` index (default ON or conditional) |
    | A setup step for new projects | Into the right gate in `plugins/project-init/skills/project-init/SKILL.md` and `references/setup-flow.md` (or propose a new gate) |
    | A guard hook or automation | The shared hooks library. Until that library exists, record it in the README roadmap with enough detail to build it later |
-   | A whole reusable system | A new plugin under `plugins/`, registered in `.claude-plugin/marketplace.json`, offered by `project-init` |
+   | A whole reusable system | A new plugin under `plugins/`, each with its own `README.md`, registered in `.claude-plugin/marketplace.json`, offered by `project-init`, and listed in `docs/toolkit-map.md` |
 
 2. **Clean up the language, keep the intent.** Mike describes things loosely;
    tighten the wording. If placement or intent is ambiguous, ask before writing.
 3. **One canonical home.** Each item lives in exactly one place; other files
    reference it. Update every doc that mentions it (SKILL.md, setup-flow.md,
-   README).
+   README). Every plugin has a `README.md` (its canonical description), and
+   `docs/toolkit-map.md` is the cross-cutting catalog plus the honest read on how
+   the pieces relate (what looks redundant but is not). When you add, rename, or
+   remove a plugin or skill, update that plugin's `README.md`, the map, and the
+   top `README.md` in the same change, so a future session can still answer "what
+   is each thing, and is anything redundant?" from the repo itself.
 4. **Opt-in by default.** Nothing is forced on a project unless Mike says every
    project should get it; then mark it default ON in the `general-rules/README.md`
    index (like most rules there), not conditional.

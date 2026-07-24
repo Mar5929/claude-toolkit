@@ -1,4 +1,4 @@
-<title>claude-toolkit — architecture</title>
+<title>claude-toolkit architecture</title>
 <style>
   :root {
     --bg: #EAEEF3;
@@ -216,7 +216,7 @@
 <div class="wrap">
   <p class="eyebrow">claude-toolkit · system map</p>
   <h1>One repo. One <span class="c">init skill</span>. Many reusable <span class="t">prompts</span>.</h1>
-  <p class="lede">Your instinct was right. Here's the shape — and the one refinement that keeps each reusable system able to evolve on its own.</p>
+  <p class="lede">Your instinct was right. Here's the shape, and the one refinement that keeps each reusable system able to evolve on its own.</p>
 
   <!-- BAND 1 -->
   <section class="band">
@@ -232,26 +232,23 @@
 <span class="row"><span class="dim">├─ .claude-plugin/</span></span>
 <span class="row"><span class="dim">│   └─ marketplace.json</span>  <span class="dim">← makes it installable</span></span>
 <span class="row"><span class="dim">└─ plugins/</span></span>
-<span class="row orch">    └─ <b>project-init/</b>      ← orchestrator</span>
-<span class="row"><span class="dim">        └─ skills/</span></span>
-<span class="row orch">           └─ <b>project-init</b>   the conductor</span>
-<span class="row reuse">           └─ <b>memory-architecture</b>  <span class="soon">(next)</span></span>
-<span class="row reuse">           └─ <b>knowledge-layer</b>      <span class="soon">(next)</span></span>
-<span class="row reuse">           └─ <b>hooks/</b> guard prompts  <span class="soon">(next)</span></span>
-<span class="row reuse">           └─ <b>general-rules/</b> the standard .claude/rules files</span>
+<span class="row orch">    └─ <b>project-init/</b>      ← orchestrator (project-init + project-sync)</span>
+<span class="row reuse">    └─ <b>second-brain/</b>      memory + knowledge + structural layers</span>
+<span class="row reuse">    └─ <b>sf-architect-solutioning/</b>  Salesforce solution architect</span>
+<span class="row reuse">    └─ <b>git-workflows/</b>     parallel-session-safe git sync</span>
       </div>
       <div class="legend">
         <div class="leg-item">
           <span class="swatch orch"></span>
           <div>
-            <h3><code>project-init</code> — the orchestrator</h3>
+            <h3><code>project-init</code>, the orchestrator</h3>
             <p>A thin "conductor" skill. Its whole job: walk you through setup, gate by gate, and <em>point to</em> the reusable prompts when you want one. It holds almost no content itself.</p>
           </div>
         </div>
         <div class="leg-item">
           <span class="swatch reuse"></span>
           <div>
-            <h3>Reusable prompts — each its own skill</h3>
+            <h3>Reusable prompts, each its own skill</h3>
             <p>Memory architecture, knowledge layer, hook guards, CLAUDE.md rules. Each is a standalone instruction set (a <code>SKILL.md</code> = a structured prompt + templates) that can be improved on its own.</p>
           </div>
         </div>
@@ -259,7 +256,7 @@
           <span class="swatch plain"></span>
           <div>
             <h3>Why split them?</h3>
-            <p>So you can refine the memory system without touching the init flow — and reuse it standalone. That's the modularity you asked for.</p>
+            <p>So you can refine the memory system without touching the init flow, and reuse it standalone. That's the modularity you asked for.</p>
           </div>
         </div>
       </div>
@@ -268,7 +265,7 @@
 
   <div class="connector">
     <span class="arw">↓</span>
-    <span class="lbl">install once per machine — <code>/plugin marketplace add mar5929/claude-toolkit</code></span>
+    <span class="lbl">install once per machine: <code>/plugin marketplace add mar5929/claude-toolkit</code></span>
   </div>
 
   <!-- BAND 2 -->
@@ -292,7 +289,7 @@
       <div class="device">
         <p class="k">Desktop + Web</p>
         <p class="v">Publish target</p>
-        <p class="d">No git auto-sync — upload the skill folder. The repo stays the source; you export on change.</p>
+        <p class="d">No git auto-sync; upload the skill folder. The repo stays the source; you export on change.</p>
       </div>
     </div>
   </section>
@@ -323,11 +320,11 @@
         </ul>
       </div>
       <div class="pullbox">
-        <span class="pill reuse" style="align-self:flex-start;">memory-architecture</span>
+        <span class="pill reuse" style="align-self:flex-start;">second-brain</span>
         <h4>"Set up memory in this project"</h4>
-        <div class="step"><span class="b">1</span><span>Init reads the <code>memory-architecture</code> prompt from the toolkit.</span></div>
-        <div class="step"><span class="b">2</span><span>Applies it <em>into this project</em> — builds <code>memories/</code>, the index, the curator.</span></div>
-        <div class="step"><span class="b">3</span><span>Same prompt, every project → identical, proven setup each time.</span></div>
+        <div class="step"><span class="b">1</span><span>Init offers the <code>second-brain</code> skill from the toolkit.</span></div>
+        <div class="step"><span class="b">2</span><span>Installs it <em>into this project</em>: the MCP wiring, the two curators, and the session digest.</span></div>
+        <div class="step"><span class="b">3</span><span>Same skill, every project, so the setup is identical and proven each time.</span></div>
         <p style="margin:0;font-size:.82rem;color:var(--ink-soft);border-top:1px solid var(--line);padding-top:10px;">Exactly your model: the reusable system is a stored prompt; init points at it and runs it here.</p>
       </div>
     </div>
@@ -358,12 +355,12 @@
   <!-- MODEL CHECK -->
   <section class="band">
     <div class="modelcheck">
-      <h2>Your mental model — confirmed, with one refinement</h2>
+      <h2>Your mental model, confirmed, with one refinement</h2>
       <p class="quote">"Is it gonna be like a repo, then an initialization skill, then pointing to prompts? … the memory architecture is basically just gonna take that prompt from the toolkit repo and say, use this prompt to create this."</p>
-      <p><strong class="y">Yes — that's exactly it.</strong> Repo → init skill → reusable prompts it points at. When you ask to set up memory, init pulls that stored prompt and runs it in the new project.</p>
-      <p><strong class="r">The one refinement:</strong> make each reusable prompt its <em>own</em> skill rather than a loose file buried inside <code>project-init</code>. Same behavior you pictured — but now the memory architecture can be versioned, fixed, and reused entirely on its own, and <code>project-init</code> stays a thin conductor that just knows how to call it.</p>
+      <p><strong class="y">Yes, that's exactly it.</strong> Repo → init skill → reusable prompts it points at. When you ask to set up memory, init pulls that stored prompt and runs it in the new project.</p>
+      <p><strong class="r">The one refinement:</strong> make each reusable prompt its <em>own</em> skill rather than a loose file buried inside <code>project-init</code>. Same behavior you pictured, but now the memory architecture can be versioned, fixed, and reused entirely on its own, and <code>project-init</code> stays a thin conductor that just knows how to call it.</p>
     </div>
   </section>
 
-  <p class="footnote">claude-toolkit · v0.1 — project-init shipped · memory-architecture &amp; knowledge-layer next</p>
+  <p class="footnote">claude-toolkit · four plugins: project-init, second-brain, sf-architect-solutioning, git-workflows</p>
 </div>
