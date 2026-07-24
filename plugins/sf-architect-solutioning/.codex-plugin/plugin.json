@@ -1,0 +1,36 @@
+{
+  "name": "sf-architect-solutioning",
+  "version": "1.0.1",
+  "description": "Salesforce solution architect workflow: clarify requirements, verify platform facts, design declarative-first, and produce a solution plan before build.",
+  "author": {
+    "name": "Mike Rihm",
+    "email": "michael@rihm.com",
+    "url": "https://github.com/Mar5929"
+  },
+  "homepage": "https://github.com/Mar5929/claude-toolkit",
+  "repository": "https://github.com/Mar5929/claude-toolkit",
+  "keywords": [
+    "toolkit",
+    "workflow",
+    "skills"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Sf Architect Solutioning",
+    "shortDescription": "Salesforce architecture and solution planning.",
+    "longDescription": "Salesforce solution architect workflow from Mike Rihm's toolkit. It pushes back on vague requirements, verifies platform facts, designs declarative-first against Well-Architected guidance, and prepares an approved solution plan before implementation.",
+    "developerName": "Mike Rihm",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Research"
+    ],
+    "websiteURL": "https://github.com/Mar5929/claude-toolkit",
+    "defaultPrompt": [
+      "Create a Salesforce solution plan",
+      "Review this Salesforce design",
+      "Clarify this Salesforce requirement"
+    ],
+    "brandColor": "#2563EB"
+  }
+}

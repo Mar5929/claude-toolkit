@@ -56,12 +56,14 @@ requests.
 
 ## How it's distributed (single source, every surface)
 
-This repo is structured as a **Claude Code plugin marketplace**. One repo can hold
-many plugins; each plugin bundles skills (and later hooks/commands/agents).
+This repo is structured as a **Claude Code plugin marketplace** and a **Codex
+plugin marketplace**. One repo can hold many plugins; each plugin bundles skills
+(and later hooks/commands/agents where the host supports them).
 
 | Surface | How it consumes this repo | How it updates |
 |---|---|---|
 | **Claude Code** (Mac + Windows, every project) | `/plugin marketplace add Mar5929/claude-toolkit` once per machine, then `/plugin install project-init` | `/plugin marketplace update` (git-pulls) |
+| **Codex CLI / ChatGPT desktop Codex** | `codex plugin marketplace add /path/to/claude-toolkit`, then `codex plugin add <plugin>@claude-toolkit` | `codex plugin marketplace upgrade claude-toolkit`, then reinstall changed plugins |
 | **Claude Code**, no-plugin fallback | clone this repo, symlink `plugins/*/skills/*` into `~/.claude/skills/` | `git pull` |
 | **Claude desktop / web** (claude.ai) | upload the skill folder as a Capability/Skill | no git auto-sync; **publish-on-change** from here |
 
@@ -81,10 +83,13 @@ claude-toolkit/
   CLAUDE.md                       ← instructions for agents working in this repo
   .claude-plugin/
     marketplace.json              ← lists the plugins in this repo
+  .agents/plugins/
+    marketplace.json              ← Codex marketplace pointing at the same plugins
   plugins/
     project-init/                 ← plugin: set up a new project, or sync an existing one
       README.md                   ← what this plugin is
       .claude-plugin/plugin.json
+      .codex-plugin/plugin.json
       skills/
         project-init/             ← SKILL.md + references/ (setup-flow, thin-claudemd,
                                      general-rules/, salesforce-rules/, mcp-best-practices)
@@ -92,6 +97,7 @@ claude-toolkit/
     second-brain/                 ← plugin: durable memory, knowledge, and structural layers
       README.md
       .claude-plugin/plugin.json
+      .codex-plugin/plugin.json
       skills/
         second-brain/             ← SKILL.md + references/ (architecture-spec, setup-recipe,
                                      profiles/, agents/, hooks/, server/, structural layers)
@@ -99,12 +105,14 @@ claude-toolkit/
     sf-architect-solutioning/     ← plugin: Salesforce solution architect
       README.md
       .claude-plugin/plugin.json
+      .codex-plugin/plugin.json
       skills/
         sf-architect-solutioning/ ← SKILL.md + references/ (doc-sources, metadata/*,
                                      patterns, naming, well-architected, templates)
     git-workflows/                ← plugin: parallel-session-safe git sync
       README.md
       .claude-plugin/plugin.json
+      .codex-plugin/plugin.json
       skills/
         pull-latest/              ← SKILL.md
         reset-to-remote/          ← SKILL.md
