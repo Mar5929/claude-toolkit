@@ -1,0 +1,36 @@
+{
+  "name": "git-workflows",
+  "version": "0.1.1",
+  "description": "Parallel-session-safe git sync skills: pull-latest updates without rewriting history, and reset-to-remote mirrors a remote only with explicit confirmation.",
+  "author": {
+    "name": "Mike Rihm",
+    "email": "michael@rihm.com",
+    "url": "https://github.com/Mar5929"
+  },
+  "homepage": "https://github.com/Mar5929/claude-toolkit",
+  "repository": "https://github.com/Mar5929/claude-toolkit",
+  "keywords": [
+    "toolkit",
+    "workflow",
+    "skills"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Git Workflows",
+    "shortDescription": "Safe git sync workflows for agent sessions.",
+    "longDescription": "Parallel-session-safe git workflow skills from Mike Rihm's toolkit. Includes pull-latest for safe updating and reset-to-remote for explicit remote mirroring when a checkout should be reset.",
+    "developerName": "Mike Rihm",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Write",
+      "Repository"
+    ],
+    "websiteURL": "https://github.com/Mar5929/claude-toolkit",
+    "defaultPrompt": [
+      "Run pull-latest",
+      "Safely sync this repo",
+      "Reset this checkout to remote"
+    ],
+    "brandColor": "#2563EB"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "name": "second-brain",
+  "version": "0.10.1",
+  "description": "Portable second-brain memory and knowledge architecture for projects, including MCP setup instructions, curator agents, recall/capture hooks, knowledge freshness, and graphify guidance.",
+  "author": {
+    "name": "Mike Rihm",
+    "email": "michael@rihm.com",
+    "url": "https://github.com/Mar5929"
+  },
+  "homepage": "https://github.com/Mar5929/claude-toolkit",
+  "repository": "https://github.com/Mar5929/claude-toolkit",
+  "keywords": [
+    "toolkit",
+    "workflow",
+    "skills"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Second Brain",
+    "shortDescription": "Install durable project memory and knowledge.",
+    "longDescription": "Portable project memory and knowledge architecture from Mike Rihm's toolkit. Its skills guide installation of the second-brain MCP system, curator agents, session digest, prompt recall, capture hooks, knowledge freshness, and structural graph layer.",
+    "developerName": "Mike Rihm",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Repository"
+    ],
+    "websiteURL": "https://github.com/Mar5929/claude-toolkit",
+    "defaultPrompt": [
+      "Install second-brain here",
+      "Remember this work item",
+      "Set up project memory"
+    ],
+    "brandColor": "#2563EB"
+  }
+}

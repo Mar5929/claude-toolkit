@@ -1,0 +1,56 @@
+{
+  "name": "claude-toolkit",
+  "interface": {
+    "displayName": "Claude Toolkit"
+  },
+  "plugins": [
+    {
+      "name": "project-init",
+      "source": {
+        "source": "local",
+        "path": "./plugins/project-init"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "second-brain",
+      "source": {
+        "source": "local",
+        "path": "./plugins/second-brain"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "sf-architect-solutioning",
+      "source": {
+        "source": "local",
+        "path": "./plugins/sf-architect-solutioning"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "git-workflows",
+      "source": {
+        "source": "local",
+        "path": "./plugins/git-workflows"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}
