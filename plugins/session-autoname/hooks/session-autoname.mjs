@@ -252,6 +252,13 @@ function askForName(context, jobDir) {
     context,
   ].join('\n');
 
+  // Run the child somewhere neutral so it cannot pick up a project's CLAUDE.md
+  // or .mcp.json. The job's own scratch dir is ideal but is not guaranteed to
+  // exist, and a missing cwd makes the spawn throw, which would look exactly
+  // like a model failure. Fall back to the system temp dir.
+  const scratch = join(jobDir, 'tmp');
+  const workDir = existsSync(scratch) ? scratch : tmpdir();
+
   try {
     const out = execFileSync(
       'claude',
@@ -259,7 +266,7 @@ function askForName(context, jobDir) {
       {
         encoding: 'utf8',
         timeout: 60_000,
-        cwd: join(jobDir, 'tmp'),
+        cwd: workDir,
         env: { ...process.env, CLAUDE_AUTONAME: '0' },
         stdio: ['ignore', 'pipe', 'ignore'],
       },
