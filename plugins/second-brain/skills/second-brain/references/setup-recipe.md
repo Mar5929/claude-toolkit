@@ -74,7 +74,7 @@ terminal CLI).
 - Name it for the project; URL = the same `<origin>/mcp/<ID>`. Click **Add**,
   then **Connect** and authorize with GitHub.
 
-**Write the connector's name down. Step 7 needs it.** The connector name becomes
+**Write the connector's name down. Step 7 needs it twice.** The connector name becomes
 part of the MCP tool names in every cloud session (`Anchor Brain` gives
 `mcp__Anchor_Brain__upsert_node`, spaces and hyphens turned into underscores),
 while the terminal reaches the same server as `mcp__second-brain__...` via
@@ -83,6 +83,13 @@ only the terminal shape has NO brain tools in a cloud session: it cannot write,
 cannot read, and cannot tell you why. Both curators therefore carry both name
 shapes, and the connector-named half is filled in at Step 7. Details:
 `curator-write-path.md`.
+
+The same name goes in `.claude/settings.json` as `BRAIN_CONNECTOR`, because
+connectors are attached per Claude ACCOUNT rather than per repo: every project's
+brain is visible in every session, named after its own project, with nothing
+marking the foreign ones. Declaring this project's connector is what lets the
+scope guard deny a call to another project's store instead of only asking about
+it. Details: `brain-scope.md`.
 
 **Success looks like:** the connector appears and, after you authorize it once
 with GitHub, a cloud session can call the `second-brain` tools for this project,
@@ -212,7 +219,9 @@ the digest could have told it. Step 8.4 has the exact check.
    already done; local, no server call, no token, and a silent no-op when the
    project has no such tree), `brain-outbox-status.mjs` (SessionStart: lists
    curated notes still sitting unsaved in `.claude/memory-outbox/`; local, no
-   server call, no token, silent when there are none), `brain-mcp-recall.mjs` (UserPromptSubmit
+   server call, no token, silent when there are none), `brain-scope-guard.mjs`
+   (PreToolUse on `mcp__.*`: denies a brain call aimed at ANOTHER project's
+   store; local, no server call, no token, fails open), `brain-mcp-recall.mjs` (UserPromptSubmit
    recall injection), `knowledge-curator-nudge.mjs` (PostToolUse: after a
    push or PR-create, remind the session to run the knowledge-curator; local,
    no server call, no token), and `kb-backfill/kb_freshness_hook.py` (Stop:
@@ -222,8 +231,10 @@ the digest could have told it. Step 8.4 has the exact check.
    both (see `kb-backfill.md`).
 2. Merge `templates/settings.json` into the project's committed
    `.claude/settings.json`: the `env` block and the `SessionStart`,
-   `UserPromptSubmit`, `Stop`, `SessionEnd`, and `PostToolUse` hooks. Fill
-   `<BRAIN_MCP_ORIGIN>` and `<PROJECT_ID>`, and set `KB_SOURCE_PATHS` to the
+   `UserPromptSubmit`, `Stop`, `SessionEnd`, `PreToolUse`, and `PostToolUse`
+   hooks. Fill `<BRAIN_MCP_ORIGIN>`, `<PROJECT_ID>`, and `BRAIN_CONNECTOR`
+   (the Step 4 connector name, written the way it appears in claude.ai; the
+   guard normalizes punctuation), and set `KB_SOURCE_PATHS` to the
    profile's Source code path(s) (comma-separated) so the freshness hook has
    paths to watch; drop the `_comment` key. Do NOT clobber existing `env` or
    `hooks` entries (a project may already have a guard hook); add to them. The
@@ -253,7 +264,7 @@ the digest could have told it. Step 8.4 has the exact check.
    add a negation (`!.claude/memory-outbox/`).
 
 **Success looks like:** `.claude/settings.json` has `BRAIN_BACKEND=mcp`,
-`BRAIN_MCP_ORIGIN`, `BRAIN_PROJECT=<ID>`, `BRAIN_CAPTURE=1`, `BRAIN_INJECT=1`,
+`BRAIN_MCP_ORIGIN`, `BRAIN_PROJECT=<ID>`, `BRAIN_CONNECTOR`, `BRAIN_CAPTURE=1`, `BRAIN_INJECT=1`,
 `KB_SOURCE_PATHS` set to real source paths, and the SessionStart,
 UserPromptSubmit, and Stop hooks (Stop running BOTH capture and freshness);
 `.claude/rules/knowledge-freshness.md` exists; both curators exist with NO
@@ -326,7 +337,18 @@ UserPromptSubmit, and Stop hooks (Stop running BOTH capture and freshness);
    brain tools it has before doing anything. It must name `upsert_node`. "Read,
    Grep, Glob only" means the connector name in its `tools:` line is wrong or
    missing.
-7. **A background job leaves a trace.** The journal is the fallback everything
+7. **The scope guard blocks another project's brain.** Connectors are attached
+   per account, so a session can silently answer from a different project's
+   memory, which is worse than answering from none. With the project's env
+   loaded:
+   ```
+   echo '{"tool_name":"mcp__some-other-brain__recall"}' \
+     | node .claude/hooks/brain-scope-guard.mjs
+   ```
+   must print a `permissionDecision` of `deny` (an `ask` means `BRAIN_CONNECTOR`
+   is unset). The same command with this project's own connector name, and with
+   an unrelated tool like `mcp__Linear__list_issues`, must print NOTHING.
+8. **A background job leaves a trace.** The journal is the fallback everything
    leans on, and it is the least-observed path: hooks no-op silently without a
    token, so a background job that captured nothing looks exactly like one that
    worked. Trigger a background or scheduled run against the repo, then confirm
@@ -339,7 +361,9 @@ recalled in a second local session AND in a cloud session; the token check
 returns `200` for BOTH the digest read and the journal write and `400` for the
 empty node write, with the digest hook emitting injection JSON; a cloud session
 answers from the digest; a cloud-dispatched curator names `upsert_node` among its
-tools; and a background run's turns show up in the journal.
+tools; the scope guard denies another project's brain and stays silent on this
+project's own and on unrelated tools; and a background run's turns show up in the
+journal.
 
 ## Step 9: Document it in the project's CLAUDE.md
 
@@ -354,6 +378,14 @@ Record the ground rules so every future session knows:
   the brain-curator. Claude Code's local `~/.claude/.../memory` file store does
   not travel to clones, other machines, or cloud sessions, so a durable project
   fact must never live only there.
+- **Only ever touch THIS project's brain.** Connectors are attached per Claude
+  account, not per repo, so every project's brain is visible in every session and
+  a background job may hold only a foreign one. This project's brain is the
+  `second-brain` server from `.mcp.json` and the connector in `BRAIN_CONNECTOR`,
+  those two only. When neither is reachable, use the bearer fast path (scoped by
+  project id and token) or say the store is unavailable. Never substitute another
+  project's memory: a detailed recall about the wrong codebase reads as correct
+  and nothing in the answer catches it.
 - **A finished note is never dropped.** The MCP connection can drop mid-session
   and a background job may never have one, in which case the curator hands its
   completed nodes back instead of storing them. Check the write path before
@@ -388,12 +420,12 @@ The store starts empty. Offer to seed it:
 [ ] 1. Neon DB created; schema + upgrades + per-project seed run
 [ ] 2. DATABASE_URL_<ID> secret set on the Worker
 [ ] 3. .mcp.json committed at project root
-[ ] 4. cloud/web connector added and authorized (tools; NOT a substitute for 6b); its exact name recorded for Step 7
+[ ] 4. cloud/web connector added and authorized (tools; NOT a substitute for 6b); its exact name recorded for Step 7 (curator tools: lines AND BRAIN_CONNECTOR)
 [ ] 5. grants row per person
 [ ] 6. local BRAIN_MCP_TOKEN minted; hash row inserted; settings.local gitignored
 [ ] 6b. EACH Claude Code cloud environment has BRAIN_MCP_TOKEN set AND the Worker host on its allowed-domains list
-[ ] 7. all hooks (capture + session-digest + recall + work-items + outbox-status + knowledge-curator-nudge + freshness) + settings merged; both curators installed with the profile AND <BRAIN_CONNECTOR> filled; .claude/memory-outbox/ not gitignored
-[ ] 8. db harness FAIL: 0; digest read AND journal write 200, empty node write 400; smoke test passes local + cloud; a cloud-dispatched curator names upsert_node; a background run lands in the journal
+[ ] 7. all hooks (capture + session-digest + recall + work-items + outbox-status + scope-guard + knowledge-curator-nudge + freshness) + settings merged with BRAIN_CONNECTOR set; both curators installed with the profile AND <BRAIN_CONNECTOR> filled; .claude/memory-outbox/ not gitignored
+[ ] 8. db harness FAIL: 0; digest read AND journal write 200, empty node write 400; smoke test passes local + cloud; a cloud-dispatched curator names upsert_node; the scope guard denies a foreign brain; a background run lands in the journal
 [ ] 9. CLAUDE.md ground rules written
 [ ] 10. first memory/knowledge population offered
 ```

@@ -1,7 +1,7 @@
 {
   "name": "project-init",
   "description": "New-project setup and toolkit sync. project-init walks you through initializing a new project in a fixed, skippable order: scaffolding & folder structure, hooks, memory system, knowledge layer, and CLAUDE.md. project-sync audits an existing project against the toolkit, reports the gaps, and sets up what's missing with your approval.",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com"

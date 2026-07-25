@@ -1,14 +1,19 @@
 # Second-brain hooks
 
-Seven deterministic, best-effort hooks. Four connect a project to the memory
+Eight deterministic, best-effort hooks. Four connect a project to the memory
 server over the bearer fast path (`/fast/<project>/...`); with no
 `BRAIN_MCP_TOKEN` they silently no-op, which keeps them safe in a teammate
-checkout. Three are different in kind, making no network call and needing no
+checkout. Four are different in kind, making no network call and needing no
 token: `work-items-status.mjs` reads the work-items tree straight off disk,
-`brain-outbox-status.mjs` reports curated notes that are still unsaved, and
+`brain-outbox-status.mjs` reports curated notes that are still unsaved,
+`brain-scope-guard.mjs` stops a call to another project's brain, and
 `knowledge-curator-nudge.mjs` reminds the session to run the knowledge-curator
 at a push or PR. None uses a model itself, though
 `brain-mcp-session-curate.mjs` asks the server to run one.
+
+Seven of the eight only ever ADD context or record it. `brain-scope-guard.mjs`
+is the only one that can stop a tool call, and it is the only `PreToolUse` hook
+here.
 
 **That silence is also the system's main failure mode.** A surface with no token
 behaves identically to one that is working quietly, so an unwired surface is
@@ -26,6 +31,7 @@ environment's allowed-domains list. Setup recipe Step 6b.
 | `brain-mcp-recall.mjs` | `UserPromptSubmit` | read + inject | Keyword-recalls the memory for the submitted prompt (`GET /fast/<p>/recall?q=...`) and injects the top matches before the agent answers. |
 | `work-items-status.mjs` | `SessionStart` | local inject | Reads the project's `work-items/` tree and injects what is wanted, what is in progress (with each item's next step from `STATUS.md`), and what is already done. No server call, no token, no model. No-ops silently when the project has no work-items tree. `WORK_ITEMS_INJECT=0` disables it; `WORK_ITEMS_ROOT` overrides the location. |
 | `brain-outbox-status.mjs` | `SessionStart` | local inject | Lists curated notes waiting in `.claude/memory-outbox/`: nodes a curator finished on a surface that could not reach the store, where the file is the only copy. No server call, no token, so it reports honestly exactly where the server is unreachable. Silent when the folder is absent or empty; `BRAIN_OUTBOX_NOTICE=0` disables it. See `../curator-write-path.md`. |
+| `brain-scope-guard.mjs` | `PreToolUse` (`mcp__.*`) | local guard | Denies a brain tool call aimed at ANOTHER project's store. Memory connectors are attached per Claude ACCOUNT, not per repo, so every project's brain is visible in every session with nothing marking the foreign ones. Allows `second-brain` (this repo's `.mcp.json`) and the connector in `BRAIN_CONNECTOR`; asks instead of denying when `BRAIN_CONNECTOR` is unset, since it then cannot prove the server is foreign. Fails OPEN on any error. `BRAIN_SCOPE_GUARD=0` disables it. |
 | `knowledge-curator-nudge.mjs` | `PostToolUse` (Bash) | local inject | After a `git push` or `gh pr create`, injects a reminder to dispatch the knowledge-curator for any code-why that changed. No server call, no token. Gated on the knowledge-curator agent existing; `BRAIN_KC_NUDGE=0` disables it. Exists because the knowledge layer, unlike memory, has no automatic trigger of its own. |
 
 The two injection hooks are the automatic half of "the right context at the
@@ -51,6 +57,8 @@ is a secret and lives only in the gitignored `.claude/settings.local.json`:
 | `BRAIN_RECALL` | (optional) | Default on. `0` disables per-prompt recall only, keeping session-start digest injection. |
 | `WORK_ITEMS_INJECT` | settings.json | Default on. `0` disables the work-items injection. |
 | `BRAIN_OUTBOX_NOTICE` | settings.json | Default on. `0` disables the pending-notes notice. |
+| `BRAIN_CONNECTOR` | settings.json | This project's claude.ai connector name (e.g. `Anchor Brain`). Lets the scope guard tell this project's brain from another's, and fills the curators' `tools:` lines. |
+| `BRAIN_SCOPE_GUARD` | settings.json | Default on. `0` disables the wrong-project brain guard. |
 | `WORK_ITEMS_ROOT` | (optional) | Repo-relative path to the work-items tree. Defaults to `work-items/`, then `engagement/work-items/`. |
 
 ## Where work-item status comes from
@@ -156,6 +164,31 @@ curl -s -o /dev/null -w '%{http_code}\n' \
 - `403`: the token's GitHub login has no grant on this project (setup recipe
   Step 5).
 - `404`: wrong `BRAIN_PROJECT` or `BRAIN_MCP_ORIGIN`.
+
+## Troubleshooting: the session answered from the wrong project's memory
+
+Symptom: a session in project A cites decisions that belong to project B, or
+says a recall "hit the wrong project's brain". Cause: connectors are attached to
+the Claude ACCOUNT, so B's brain is visible in A's session, and in a background
+job A's own connector may not be attached at all. Nothing in the tool list marks
+which brain belongs to this repo.
+
+`brain-scope-guard.mjs` is the fix, and it needs `BRAIN_CONNECTOR` set to deny
+rather than merely ask. Check the guard's own decisions:
+
+```
+echo '{"tool_name":"mcp__some-other-brain__recall"}' \
+  | BRAIN_PROJECT=$BRAIN_PROJECT BRAIN_CONNECTOR="$BRAIN_CONNECTOR" \
+    node .claude/hooks/brain-scope-guard.mjs
+```
+
+Expect `permissionDecision: "deny"`. The same command with this project's own
+server name must print NOTHING (a silent allow), and so must an unrelated tool
+like `mcp__Linear__list_issues`.
+
+Note what the guard does NOT do: it cannot attach this project's connector. When
+the right brain is genuinely absent, the correct outcome is the bearer fast path
+or an honest "the store is unavailable", never another project's memory.
 
 ## Troubleshooting: a curator finished a note and could not save it
 
