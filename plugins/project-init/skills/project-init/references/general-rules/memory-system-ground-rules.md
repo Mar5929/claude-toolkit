@@ -48,6 +48,33 @@ When it does earn it:
 Skip the dispatch entirely for pure question-and-answer turns, mechanical edits,
 or an investigation that concluded nothing. Session-end curation covers those.
 
+## Only ever touch THIS project's brain
+
+Memory connectors are attached to the Claude account, not to a repo, so every
+project's brain is visible in every session, named after its own project and
+with nothing marking it foreign. A background job can hold only some OTHER
+project's connector and none of this one's.
+
+Reading the wrong project's memory is worse than reading none. An empty recall
+is obviously empty; a detailed recall about a different codebase reads as
+correct and there is nothing in the answer to catch it. A write is worse again:
+it puts this project's decisions into someone else's history.
+
+This project's brain is the `second-brain` server from the committed `.mcp.json`
+and the connector named in `BRAIN_CONNECTOR`. Those two only. A `PreToolUse`
+guard blocks the rest, but the rule holds whether or not the guard is wired.
+
+When this project's brain is not reachable in a session, there are exactly two
+right moves: use the bearer fast path (`$BRAIN_MCP_ORIGIN/fast/$BRAIN_PROJECT/...`,
+which is scoped by project id and token, which is why digest injection keeps
+working when the MCP tools do not), or say the store is unavailable. Never
+substitute another project's memory, and never quietly widen the question to
+whatever brain is attached.
+
+If the injected digest looks right but a recall comes back about another
+codebase, that is exactly this: the digest is fetched over the scoped fast path
+and cannot be wrong.
+
 ## A finished note is never dropped
 
 The curator can lose its write path partway through a session. The MCP connection

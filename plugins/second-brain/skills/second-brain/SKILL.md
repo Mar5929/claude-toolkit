@@ -104,8 +104,9 @@ Per the recipe's verify step: the database harness must end `FAIL: 0` against a
 scratch database, and a read/write smoke test must show a fact written locally
 recalled in a second local session AND in a cloud session. Also prove the paths
 that fail silently: a curator dispatched from a CLOUD session must name
-`upsert_node` among its tools, and `POST /fast/<id>/node` must answer (`400` on
-an empty body) so a headless surface can save a finished note at all.
+`upsert_node` among its tools, `POST /fast/<id>/node` must answer (`400` on
+an empty body) so a headless surface can save a finished note at all, and the
+scope guard must deny a call to another project's brain.
 
 ## Step 4: Document and populate
 
@@ -133,6 +134,14 @@ an empty body) so a headless surface can save a finished note at all.
   no token (a teammate checkout), but "safe" means silent, not working: a surface
   without a token captures NOTHING while looking normal. Wire every surface
   (Step 6 for machines, Step 6b for cloud environments) and verify per Step 8.
+- **Only this project's brain is in scope.** Memory connectors attach to the
+  Claude account rather than the repo, so every project's brain is visible in
+  every session and a background job may hold only a foreign one. A `PreToolUse`
+  guard denies brain calls to anything but this project's `second-brain` server
+  and its `BRAIN_CONNECTOR`, because a detailed recall about the wrong codebase
+  reads as correct. When neither is reachable the answer is the bearer fast path
+  or an honest "unavailable", never another project's memory. See
+  `references/brain-scope.md`.
 - **A finished note is never dropped.** A curator can lose its write path
   mid-pass (the MCP connection drops, or a background job never had one). It then
   hands the completed nodes back, and the session stores them by the next route
@@ -157,7 +166,9 @@ an empty body) so a headless surface can save a finished note at all.
   store, why a curator can end up with no brain tools, and the fallback ladder
   (bearer node write, journal, committed outbox) that keeps a finished note from
   being lost.
-- `references/hooks/` - seven hooks: `brain-mcp-capture.mjs` (Stop capture),
+- `references/brain-scope.md` - which brain belongs to this project, why another
+  project's is visible in every session, and the guard that stops a call to it.
+- `references/hooks/` - eight hooks: `brain-mcp-capture.mjs` (Stop capture),
   `brain-mcp-session-curate.mjs` (SessionEnd: tells the server the conversation
   is over so it curates that session as one finished arc; this is the default
   curation trigger), `brain-mcp-session-digest.mjs` (SessionStart digest
@@ -165,6 +176,8 @@ an empty body) so a headless surface can save a finished note at all.
   and injects what is wanted, in progress, and already done; local, no server
   call, no token), `brain-outbox-status.mjs` (SessionStart: lists curated notes
   still unsaved in `.claude/memory-outbox/`; local, no server call, no token),
+  `brain-scope-guard.mjs` (PreToolUse: denies a brain call aimed at another
+  project's store; local, no server call, no token, fails open),
   `brain-mcp-recall.mjs` (UserPromptSubmit recall injection),
   and `knowledge-curator-nudge.mjs` (PostToolUse: after a push or PR-create,
   remind the session to run the knowledge-curator; local, no server call, no

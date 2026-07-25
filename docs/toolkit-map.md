@@ -39,7 +39,8 @@ These are not duplicated here. Go to the index that owns them:
   `plugins/project-init/skills/project-init/references/mcp-best-practices.md`.
 - **second-brain internals**: `architecture-spec.md`, `setup-recipe.md`,
   `curator-write-path.md` (how a curated note reaches the store, and the fallback
-  ladder when it cannot), and the `profiles/`, `agents/`, `hooks/`, and `server/`
+  ladder when it cannot), `brain-scope.md` (which brain is this project's, and
+  what stops a session reading another project's), and the `profiles/`, `agents/`, `hooks/`, and `server/`
   folders (each with its own README) under
   `plugins/second-brain/skills/second-brain/references/`.
 - **sf-architect references**: the `metadata/*` guides and templates under
@@ -66,6 +67,15 @@ The genuine watch-items are called out at the end.
   one arc, and a server cron sweeps sessions that died before ending. Curation is
   always session-scoped, never time-sliced, because a conversation read
   mid-flight turns ideas the owner floated into decisions they never made.
+- **Two different "the brain is not there" failures.** They sound alike and need
+  opposite fixes. `curator-write-path.md` covers the RIGHT brain being
+  unreachable: the session should fall back down the ladder and never drop the
+  note. `brain-scope.md` covers a WRONG brain being reachable: connectors attach
+  per Claude account rather than per repo, so another project's memory is visible
+  in every session, and the session should refuse it rather than answer from it.
+  One says "keep going by another route", the other says "stop". They meet at a
+  single rule: when this project's store is out of reach, use the bearer fast
+  path or say so, never widen the question to whatever brain is attached.
 - **The outbox versus the capture journal.** Both hold things not yet in the
   graph, at opposite ends of the pipeline. The journal is raw per-turn events,
   written automatically by the Stop hook, which a curator later reads and turns

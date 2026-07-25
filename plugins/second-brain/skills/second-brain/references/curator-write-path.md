@@ -59,7 +59,8 @@ tools: Read, Grep, Glob,
 Connectors, with spaces and hyphens turned into underscores, which is how the
 tool name is built. A connector shown as `Anchor Brain` gives
 `mcp__Anchor_Brain__upsert_node`. Record the name during setup Step 4; it cannot
-be derived from the repo. Listing tools that do not exist on a surface is
+be derived from the repo. It is the same name the scope guard uses to tell this
+project's brain from another project's, which `brain-scope.md` covers. Listing tools that do not exist on a surface is
 harmless (the allowlist just matches nothing); listing too few is what silently
 kills a surface.
 
@@ -181,6 +182,17 @@ pending files and injects a short notice, so the next session that can write see
 them without anyone remembering to look. `/remember` flushes as its first step:
 hand each pending file to the curator named in its header (`know-*` nodes to the
 knowledge-curator, everything else to the brain-curator), then delete what landed.
+
+## Not the same problem: reaching the WRONG brain
+
+This document is about the right brain being unreachable. The neighbouring
+failure is a foreign brain being reachable: connectors attach per Claude
+account, so another project's brain is visible in every session, and a
+background job may hold only that one. Answering from it is worse than answering
+from nothing, because a full recall about the wrong codebase reads as correct.
+`brain-scope.md` and the `brain-scope-guard.mjs` hook cover it. The two meet at
+one rule: when this project's store is out of reach, use the fast path or say so.
+Never widen the question to whatever brain happens to be attached.
 
 ## Silence is the enemy
 

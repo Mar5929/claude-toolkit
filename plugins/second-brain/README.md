@@ -62,6 +62,19 @@ Memory holds a `work-item` node per item: the want, a pointer to the folder, and
 typed edges to the decisions made while doing it. The curator is forbidden from
 storing a stage. The hook is local and works in projects with no second brain.
 
+**Only this project's brain is in scope.** Memory connectors are attached to the
+Claude account, not to a repo, so every project's brain is visible in every
+session, named after its own project, with nothing marking the foreign ones. A
+background job can hold only some other project's connector and none of this
+one's, which is how an iOS project ended up answering from a Salesforce
+project's memory. Reading the wrong store is worse than reading none: an empty
+recall is obviously empty, while a detailed recall about the wrong codebase
+reads as correct. A `PreToolUse` guard allows this project's `second-brain`
+server and its declared connector and denies the rest, and when neither is
+reachable the answer is the bearer fast path (scoped by project id and token) or
+an honest "unavailable". Read
+`skills/second-brain/references/brain-scope.md`.
+
 **A finished note is never dropped.** A curator can lose its write path partway
 through: the MCP connection drops mid-session, or a background job never had one.
 It then finishes the pass and hands the completed nodes back instead of storing
