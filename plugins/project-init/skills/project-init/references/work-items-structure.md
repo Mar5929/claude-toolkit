@@ -64,6 +64,21 @@ Status key: `[ ]` open, `[~]` in progress, `[x]` done, `[-]` decided against.
 (none yet)
 ```
 
+## How this pairs with the second brain
+
+If the project also installs `second-brain`, the two split cleanly and are not
+redundant:
+
+- **The tree owns status.** `work-items-status.mjs` (a SessionStart hook) reads
+  these stage folders and injects what is wanted, what is in progress with each
+  item's next step, and what is already done. Status is read, never asserted, so
+  it cannot go stale or be misremembered.
+- **Memory owns the links.** A `work-item` node holds the want, a `folder:`
+  pointer into this tree, and typed edges to the decisions and knowledge nodes
+  produced while working the item, so "what did we decide while doing this?"
+  resolves in one recall. The curator is forbidden from storing a stage
+  (brain-curator invariant 13).
+
 ## Why this shape
 
 Sessions end and context windows fill mid-task; work moves between agents and

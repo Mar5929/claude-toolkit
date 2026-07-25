@@ -166,7 +166,7 @@ export function buildMemoryServer(
       inputSchema: {
         id: z.string().min(1).describe("Stable id, e.g. 'dec-0008-slug' (never reused/renamed)"),
         path: z.string().min(1).describe("File path inside brain/, e.g. 'decisions/dec-0008-slug.md'"),
-        type: z.enum(["decision", "knowledge", "preference", "rule", "session", "entity", "question", "blocker"]),
+        type: z.enum(["decision", "knowledge", "preference", "rule", "session", "entity", "question", "blocker", "work-item"]),
         title: z.string().min(1),
         status: z.string().optional().describe("active (default) | proposed | superseded | deprecated | answered | resolved | cleared"),
         markdown: z.string().min(1).describe("FULL node file text: frontmatter + body"),

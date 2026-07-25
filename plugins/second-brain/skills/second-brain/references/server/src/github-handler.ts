@@ -1,3 +1,4 @@
+import { autoCurateDisabledReason, curateSession } from "./curate";
 import { appendJournal, bodySnippet, capRecall, db, getDigest, getGrant, loginForToken, recallNodes } from "./db";
 import type { AuthRequest, Env } from "./types";
 
@@ -6,12 +7,12 @@ import type { AuthRequest, Env } from "./types";
 //   /callback   - GitHub redirects back here; we finish the OAuth grant
 //   /fast/...   - bearer-token fast path for local hooks (no browser)
 export const GitHubHandler = {
-  async fetch(request: Request, env: Env, _ctx: ExecutionContext): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
 
     if (url.pathname === "/authorize") return authorize(request, env);
     if (url.pathname === "/callback") return callback(request, env);
-    if (url.pathname.startsWith("/fast/")) return fastPath(request, env, url);
+    if (url.pathname.startsWith("/fast/")) return fastPath(request, env, url, ctx);
     if (url.pathname === "/") {
       return new Response("second-brain MCP server. Connect via /mcp/<project-id>.", {
         headers: { "content-type": "text/plain" },
@@ -90,10 +91,11 @@ async function callback(request: Request, env: Env): Promise<Response> {
 //   GET  /fast/<project>/digest
 //   GET  /fast/<project>/recall?q=<query>&limit=<n>   (keyword-only; snappy)
 //   POST /fast/<project>/journal   (JSON turn entry; write role required)
+//   POST /fast/<project>/curate    (curate one finished session; write role required)
 const MAX_JOURNAL_BODY = 64 * 1024;
 
-async function fastPath(request: Request, env: Env, url: URL): Promise<Response> {
-  const match = url.pathname.match(/^\/fast\/([a-z0-9-]+)\/(digest|recall|journal)$/);
+async function fastPath(request: Request, env: Env, url: URL, ctx: ExecutionContext): Promise<Response> {
+  const match = url.pathname.match(/^\/fast\/([a-z0-9-]+)\/(digest|recall|journal|curate)$/);
   if (!match) return new Response("Not found", { status: 404 });
   const [, projectId, action] = match;
 
@@ -126,6 +128,41 @@ async function fastPath(request: Request, env: Env, url: URL): Promise<Response>
       .map((n) => `<match id="${n.id}" title="${esc(n.title)}" status="${n.status}">\n${bodySnippet(n.markdown)}\n</match>`)
       .join("\n");
     return new Response(capRecall(text), { headers: { "content-type": "text/markdown" } });
+  }
+
+  // action === "curate": the SessionEnd hook telling us a chat session is over,
+  // so curate exactly that session's undrained entries. Returns 202 immediately
+  // and does the model call in waitUntil: the caller is a hook on a session that
+  // is already closing, and it must never wait on us.
+  if (action === "curate") {
+    if (request.method !== "POST") return new Response("Use POST", { status: 405 });
+    if (role !== "write" && role !== "admin") {
+      return new Response("Forbidden: curation requires write access", { status: 403 });
+    }
+    let session = "";
+    try {
+      const parsed = JSON.parse((await request.text()).slice(0, 4096)) as unknown;
+      if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
+        const s = (parsed as { session?: unknown }).session;
+        if (typeof s === "string") session = s.slice(0, 200);
+      }
+    } catch {
+      return new Response("Invalid JSON", { status: 400 });
+    }
+    const off = autoCurateDisabledReason(env);
+    if (off) return new Response(`skipped: ${off}`, { status: 200 });
+    ctx.waitUntil((async () => {
+      try {
+        const r = await curateSession(env, sql, projectId, session);
+        console.log(`[auto-curate] session-end ${projectId} session=${session || "(none)"}: ` +
+          `read=${r.read} drained=${r.drained} nodes=[${r.nodes_written.join(", ")}] ` +
+          `digest=${r.digest_updated}` +
+          (r.skipped ? ` skipped=${r.skipped}` : "") + (r.error ? ` ERROR=${r.error}` : ""));
+      } catch (e) {
+        console.log(`[auto-curate] session-end ${projectId}: FAILED ${(e as Error).message}`);
+      }
+    })());
+    return new Response("accepted", { status: 202 });
   }
 
   // action === "journal": append a raw turn record. Write-gated + hardened:

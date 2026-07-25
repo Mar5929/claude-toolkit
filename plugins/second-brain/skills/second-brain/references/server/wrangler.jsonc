@@ -33,9 +33,14 @@
   "ai": {
     "binding": "AI"
   },
-  // WI-002 Phase 4: auto-curation cron (drains each project's capture journal
-  // through a model into memory nodes). Runs every 4 hours; a silent no-op
-  // until the ANTHROPIC_API_KEY secret is set from the dashboard.
+  // WI-002 Phase 4: auto-curation BACKSTOP. The default curation trigger is the
+  // SessionEnd hook (POST /fast/<project>/curate), which curates a conversation
+  // as one finished arc. This cron only sweeps sessions whose journal has sat
+  // untouched past BACKSTOP_IDLE_HOURS (default 24), i.e. sessions that died
+  // without SessionEnd firing. It runs every 4 hours so a dead session is picked
+  // up reasonably soon after the cutoff, and it normally finds nothing and costs
+  // one query per project. A silent no-op until the ANTHROPIC_API_KEY secret is
+  // set from the dashboard.
   "triggers": {
     "crons": ["23 */4 * * *"]
   }
