@@ -45,20 +45,36 @@ resolves each project's database from a secret named `DATABASE_URL_<PROJECT_ID>`
 
 **Phase status (WI-002):** Phase 1 (read everywhere) DONE + deployed. Phase 2
 (write + local capture through MCP) = this record. Server-side auto-curation
-INCLUDED: this bundled server ships `src/curate.ts`, a Workers cron
-(`triggers.crons` in `wrangler.jsonc`, every 4 hours) that per
-`DATABASE_URL_<PROJECT>` reads undrained `journal` rows, asks a model (default
-`claude-haiku-4-5`, override `CURATOR_MODEL`) for a structured curation plan
-(Anthropic structured outputs; the plan's type enum EXCLUDES `knowledge`, so
-the auto-curator cannot write know-* nodes — that layer stays with the
-in-session knowledge-curator), applies it through the normal `db.ts` write
-path (`upsertNode` as login `auto-curator`, optional `putDigest`), then drains
-the exact seqs read. Any failure drains nothing (entries retry next cron).
-DORMANT until you set the `ANTHROPIC_API_KEY` secret from the Cloudflare
-dashboard; `AUTO_CURATE=0` is the kill switch. Harness:
-`harness/curate-harness.ts` (mocked model, real db path). This addition is
-what makes cloud sessions curate memory automatically without an in-session
-curator dispatch. Port to `claude-toolkit` = this bundled copy.
+INCLUDED: this bundled server ships `src/curate.ts`, which reads undrained
+`journal` rows, asks a model (default `claude-haiku-4-5`, override
+`CURATOR_MODEL`) for a structured curation plan (Anthropic structured outputs;
+the plan's type enum EXCLUDES `knowledge`, so the auto-curator cannot write
+know-* nodes — that layer stays with the in-session knowledge-curator), applies
+it through the normal `db.ts` write path (`upsertNode` as login `auto-curator`,
+optional `putDigest`), then drains the exact seqs read. Any failure drains
+nothing (entries retry). DORMANT until you set the `ANTHROPIC_API_KEY` secret
+from the Cloudflare dashboard; `AUTO_CURATE=0` is the kill switch. Harness:
+`harness/curate-harness.ts` (mocked model, real db path). This is what makes
+cloud sessions curate memory without an in-session curator dispatch. Port to
+`claude-toolkit` = this bundled copy.
+
+**Curation is session-scoped, with three triggers.** A conversation only reads
+correctly once it is over: a pass that wakes mid-session sees the owner thinking
+out loud and can write a floated idea down as a settled decision. So curation
+takes one chat session at a time (`curateSession`, entries filtered by the
+`session` id the capture hook stamps), and the model is told to record where the
+session LANDED, not what it passed through.
+
+| Trigger | When | Quality |
+|---|---|---|
+| `/remember` | Owner asks, in session | Best: the owner is present |
+| SessionEnd hook | Session ends; POSTs `/fast/<project>/curate` with its session id, answered 202 + `waitUntil` so it never delays the exit | Default path |
+| Cron backstop | Every 4 hours, sweeps only sessions idle past `BACKSTOP_IDLE_HOURS` (default 24), max 3 per project per tick | Catches sessions that died without SessionEnd |
+
+The idle cutoff is load-bearing: without it the backstop would curate the first
+half of a session that is merely still open, which is the problem session
+scoping exists to solve. Entries captured with no session id bucket under `""`
+and are only ever swept by the backstop.
 
 ---
 

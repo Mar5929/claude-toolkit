@@ -193,7 +193,9 @@ the digest could have told it. Step 8.4 has the exact check.
 ## Step 7: Install the hooks, settings, and the two curators
 
 1. Copy the hooks from `hooks/` to the project's `.claude/hooks/`:
-   `brain-mcp-capture.mjs` (Stop capture), `brain-mcp-session-digest.mjs`
+   `brain-mcp-capture.mjs` (Stop capture), `brain-mcp-session-curate.mjs`
+   (SessionEnd: tells the server this conversation is over so it curates the
+   session as one finished arc), `brain-mcp-session-digest.mjs`
    (SessionStart digest injection), `brain-mcp-recall.mjs` (UserPromptSubmit
    recall injection), `knowledge-curator-nudge.mjs` (PostToolUse: after a
    push or PR-create, remind the session to run the knowledge-curator; local,
@@ -204,7 +206,7 @@ the digest could have told it. Step 8.4 has the exact check.
    both (see `kb-backfill.md`).
 2. Merge `templates/settings.json` into the project's committed
    `.claude/settings.json`: the `env` block and the `SessionStart`,
-   `UserPromptSubmit`, `Stop`, and `PostToolUse` hooks. Fill
+   `UserPromptSubmit`, `Stop`, `SessionEnd`, and `PostToolUse` hooks. Fill
    `<BRAIN_MCP_ORIGIN>` and `<PROJECT_ID>`, and set `KB_SOURCE_PATHS` to the
    profile's Source code path(s) (comma-separated) so the freshness hook has
    paths to watch; drop the `_comment` key. Do NOT clobber existing `env` or

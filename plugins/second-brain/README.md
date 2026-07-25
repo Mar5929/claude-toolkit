@@ -54,6 +54,14 @@ each turn to a journal that curators later drain into clean, linked, deduped
 nodes. Read `skills/second-brain/references/architecture-spec.md` for the full
 design and process flow.
 
+**Capture is per turn; curation is per session.** A conversation only reads
+correctly once it is over, so the model step that turns journal entries into
+nodes takes one finished session at a time and records where it landed rather
+than what it passed through. A `SessionEnd` hook is the default trigger,
+`/remember` is the deliberate one, and the server's cron is only a backstop for
+sessions that died without ending cleanly. See
+`skills/second-brain/references/hooks/README.md`.
+
 ## How it relates to the rest of the toolkit
 
 - `project-init` offers this plugin at its memory and knowledge gates and copies

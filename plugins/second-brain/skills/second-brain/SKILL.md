@@ -143,9 +143,11 @@ recalled in a second local session AND in a cloud session.
 - `references/setup-recipe.md` - the exact per-project steps with expected output.
 - `references/profiles/*.md` - the four project profiles (fill the curators).
 - `references/agents/*.md` - the two curator agent templates.
-- `references/hooks/` - four hooks: `brain-mcp-capture.mjs` (Stop capture),
-  `brain-mcp-session-digest.mjs` (SessionStart digest injection),
-  `brain-mcp-recall.mjs` (UserPromptSubmit recall injection), and
+- `references/hooks/` - five hooks: `brain-mcp-capture.mjs` (Stop capture),
+  `brain-mcp-session-curate.mjs` (SessionEnd: tells the server the conversation
+  is over so it curates that session as one finished arc; this is the default
+  curation trigger), `brain-mcp-session-digest.mjs` (SessionStart digest
+  injection), `brain-mcp-recall.mjs` (UserPromptSubmit recall injection), and
   `knowledge-curator-nudge.mjs` (PostToolUse: after a push or PR-create, remind
   the session to run the knowledge-curator; local, no server call, no token);
   see its README.

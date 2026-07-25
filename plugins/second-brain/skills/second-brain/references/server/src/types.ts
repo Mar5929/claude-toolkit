@@ -7,12 +7,15 @@ export interface Env {
   // it runs on the same Cloudflare account, so cloud sessions can embed too.
   AI: Ai;
   // WI-002 Phase 4 auto-curation. ANTHROPIC_API_KEY is a secret set from the
-  // Cloudflare dashboard (never via chat-run wrangler); until it exists the
-  // cron is a silent no-op. CURATOR_MODEL overrides the default
-  // claude-haiku-4-5; AUTO_CURATE="0" is the kill switch.
+  // Cloudflare dashboard (never via chat-run wrangler); until it exists both
+  // curation triggers are a silent no-op. CURATOR_MODEL overrides the default
+  // claude-haiku-4-5; AUTO_CURATE="0" is the kill switch for both.
+  // BACKSTOP_IDLE_HOURS (default 24) is how long a session's journal must sit
+  // untouched before the cron treats that session as abandoned and sweeps it.
   ANTHROPIC_API_KEY?: string;
   CURATOR_MODEL?: string;
   AUTO_CURATE?: string;
+  BACKSTOP_IDLE_HOURS?: string;
   // One Neon database per project. Each connection string is its own secret,
   // named DATABASE_URL_<project id, uppercased, '-' replaced by '_'>.
   // Example: project 'dragonfly' reads DATABASE_URL_DRAGONFLY.

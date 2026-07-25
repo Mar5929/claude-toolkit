@@ -1,11 +1,12 @@
 # Second-brain hooks
 
-Four deterministic, best-effort hooks. Three connect a project to the memory
+Five deterministic, best-effort hooks. Four connect a project to the memory
 server over the bearer fast path (`/fast/<project>/...`); with no
 `BRAIN_MCP_TOKEN` they silently no-op, which keeps them safe in a teammate
-checkout. The fourth (`knowledge-curator-nudge.mjs`) is different in kind: it
+checkout. The fifth (`knowledge-curator-nudge.mjs`) is different in kind: it
 makes no network call and needs no token, it just reminds the session to run the
-knowledge-curator at a push or PR. None uses a model.
+knowledge-curator at a push or PR. None uses a model itself, though
+`brain-mcp-session-curate.mjs` asks the server to run one.
 
 **That silence is also the system's main failure mode.** A surface with no token
 behaves identically to one that is working quietly, so an unwired surface is
@@ -18,6 +19,7 @@ environment's allowed-domains list. Setup recipe Step 6b.
 | Hook file | Event | Direction | What it does |
 | --- | --- | --- | --- |
 | `brain-mcp-capture.mjs` | `Stop` | write | Drops one redacted turn record into the journal (`POST /fast/<p>/journal`). Curators later drain it into nodes. |
+| `brain-mcp-session-curate.mjs` | `SessionEnd` | write | Tells the server this conversation is over (`POST /fast/<p>/curate` with the session id) so it curates that session as one finished arc. Fire-and-forget: the server answers 202 and does the model call in the background, so the session never waits. No-ops on `reason: resume` (backgrounding is not ending) and when there is no session id. `BRAIN_CURATE_ON_END=0` disables it. |
 | `brain-mcp-session-digest.mjs` | `SessionStart` | read + inject | Fetches the curated digest (`GET /fast/<p>/digest`) and injects it as session context, so a session starts grounded in memory. |
 | `brain-mcp-recall.mjs` | `UserPromptSubmit` | read + inject | Keyword-recalls the memory for the submitted prompt (`GET /fast/<p>/recall?q=...`) and injects the top matches before the agent answers. |
 | `knowledge-curator-nudge.mjs` | `PostToolUse` (Bash) | local inject | After a `git push` or `gh pr create`, injects a reminder to dispatch the knowledge-curator for any code-why that changed. No server call, no token. Gated on the knowledge-curator agent existing; `BRAIN_KC_NUDGE=0` disables it. Exists because the knowledge layer, unlike memory, has no automatic trigger of its own. |
@@ -40,8 +42,29 @@ is a secret and lives only in the gitignored `.claude/settings.local.json`:
 | `BRAIN_PROJECT` | settings.json | This project's id. |
 | `BRAIN_MCP_TOKEN` | settings.local.json | Bearer token (secret; never committed). |
 | `BRAIN_CAPTURE` | settings.json | Default on. `0` disables the Stop capture. |
+| `BRAIN_CURATE_ON_END` | settings.json | Default on. `0` disables session-end curation, leaving only `/remember` and the server's idle backstop. |
 | `BRAIN_INJECT` | settings.json | Default on. `0` disables BOTH injection hooks. |
 | `BRAIN_RECALL` | (optional) | Default on. `0` disables per-prompt recall only, keeping session-start digest injection. |
+
+## When curation actually happens
+
+Capture and curation are separate. Capture is per turn, deterministic, and
+cannot assert anything wrong. Curation is the model step that turns journal
+entries into nodes, and it is **session-scoped**, because a conversation only
+reads correctly once it is over: a pass that wakes up mid-session sees the owner
+thinking out loud and can write a floated idea down as a settled decision.
+
+Three triggers, in descending order of quality:
+
+1. **`/remember`** — an in-session curator dispatch. The owner is present.
+2. **Session end** — `brain-mcp-session-curate.mjs`, the default path.
+3. **The server cron** — a backstop only. It sweeps sessions whose journal has
+   sat untouched past `BACKSTOP_IDLE_HOURS` (default 24), meaning SessionEnd
+   never fired for them (crash, killed terminal, reclaimed container).
+
+A session left open for days therefore contributes nothing to memory until it
+ends. That is deliberate. `/remember` is the escape hatch when something needs
+saving right now.
 
 ## Safety rules baked into the hooks
 

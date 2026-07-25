@@ -245,6 +245,52 @@ export async function readJournal(sql: Sql, projectId: string, limit: number): P
   ` as JournalRow[];
 }
 
+// Undrained entries for ONE chat session, oldest first. Session-scoped curation
+// is the default trigger: a conversation only reads correctly once it is over,
+// so the curator sees a whole arc (including the part where the owner changed
+// their mind) instead of an arbitrary time slice of it. Entries captured without
+// a session id bucket under '' and are only ever swept by the idle backstop.
+export async function readJournalForSession(
+  sql: Sql,
+  projectId: string,
+  session: string,
+  limit: number,
+): Promise<JournalRow[]> {
+  return await sql`
+    select seq, entry, created_at from journal
+    where project_id = ${projectId} and drained_at is null
+      and coalesce(entry->>'session', '') = ${session}
+    order by seq asc
+    limit ${limit}
+  ` as JournalRow[];
+}
+
+export interface IdleSession { session: string; entries: number; newest: string; }
+
+// Sessions whose newest undrained entry is older than `idleHours`: the ones
+// that never ended cleanly (crash, killed terminal, reclaimed container), so
+// the SessionEnd hook never fired for them. This is the cron's whole job now.
+// The idle cutoff is what keeps the backstop from curating the middle of a
+// session that is simply still open.
+export async function listIdleSessions(
+  sql: Sql,
+  projectId: string,
+  idleHours: number,
+  limit: number,
+): Promise<IdleSession[]> {
+  return await sql`
+    select coalesce(entry->>'session', '') as session,
+           count(*)::int as entries,
+           max(created_at) as newest
+    from journal
+    where project_id = ${projectId} and drained_at is null
+    group by 1
+    having max(created_at) < now() - make_interval(hours => ${idleHours})
+    order by max(created_at) asc
+    limit ${limit}
+  ` as IdleSession[];
+}
+
 // Drain the EXACT seqs the curator read (not a seq <= range): an entry that
 // commits after the read snapshot must not be marked drained-unread.
 export async function drainJournal(sql: Sql, projectId: string, seqs: number[]): Promise<number> {

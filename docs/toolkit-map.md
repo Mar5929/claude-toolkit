@@ -59,7 +59,11 @@ The genuine watch-items are called out at the end.
   knowledge layer carries the human "why". See the plugin README for the split.
 - **second-brain versus remember.** second-brain installs the system; remember
   feeds it at wrap-up. Capture is automatic, remember is the deliberate step that
-  turns a session's conclusions into curated memory.
+  turns a session's conclusions into curated memory. The two automatic triggers
+  sit either side of it: a `SessionEnd` hook curates a finished conversation as
+  one arc, and a server cron sweeps sessions that died before ending. Curation is
+  always session-scoped, never time-sliced, because a conversation read
+  mid-flight turns ideas the owner floated into decisions they never made.
 - **git-workflows versus the worktree-isolation rule.** The rule states the
   behavior ("assume other sessions share the repo"); the two skills are the safe
   git commands that carry it out. Different layers, not duplicates.

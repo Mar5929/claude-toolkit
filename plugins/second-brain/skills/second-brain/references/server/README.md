@@ -104,6 +104,8 @@ must be run once per project database.
   the `edges` table enables graph expansion (return a match plus its linked
   neighbors) once imports populate it.
 - Phase 2 adds `upsert_node` / `append_journal` tools; Phase 3 adds the
-  server-side curation worker (a Workers cron trigger draining `journal`).
+  server-side curation worker. Curation is session-scoped: the SessionEnd hook
+  POSTs `/fast/<project>/curate` when a conversation ends, and the Workers cron
+  is only a backstop for sessions that died without it (see IMPLEMENTATION.md).
 - Never store secrets, credentials, or customer/tenant record data in memory.
   Client names are OK. Same exclusion rules as the curators.
