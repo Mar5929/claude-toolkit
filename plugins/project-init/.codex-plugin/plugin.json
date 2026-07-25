@@ -1,6 +1,6 @@
 {
   "name": "project-init",
-  "version": "0.6.18",
+  "version": "0.6.19",
   "description": "New-project setup and toolkit sync: project-init initializes a repo gate by gate, and project-sync audits an existing repo against the toolkit.",
   "author": {
     "name": "Mike Rihm",

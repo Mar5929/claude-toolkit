@@ -30,7 +30,12 @@ session, because a line in CLAUDE.md tells the session to read `.claude/rules/`.
 - **`Read .claude/rules`**, a single line telling every session to read the
   rules folder first. This is what keeps the behavioral rules in force.
 - **Codemap / structural pointers**: the project's own layout and conventions
-  that are not behavioral rules, for example:
+  that are not behavioral rules. Keep the codemap to **one line per folder or
+  module**, naming what lives there, plus an inline invariant only where a
+  session that does not know it will break something. Dated history ("changed X
+  on this date, decision #17") never goes here; git and the design doc carry it.
+  A codemap that drifts into a changelog is how a thin CLAUDE.md becomes a
+  scrolled-past one. Examples of what belongs:
   - the backlog / work-items structure and where the index lives
   - the deployment layout (Salesforce projects)
   - the toolkit port-back convention (if the project uses the toolkit), and how

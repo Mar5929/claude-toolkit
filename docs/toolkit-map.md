@@ -76,13 +76,18 @@ The genuine watch-items are called out at the end.
   git commands that carry it out. Different layers, not duplicates.
 - **The session-continuity rule cluster.** Several general rules touch "do not
   lose context across sessions", which can read as overlap: `keep-claudemd-current`
-  (write durable facts into CLAUDE.md), `wrap-up-ritual` (update the status or
+  (write durable facts into CLAUDE.md, and route everything that is not a rule
+  out of it so the file stays readable), `wrap-up-ritual` (update the status or
   handoff doc and commit), `offer-context-handoff` (hand a fresh session a
   self-contained prompt), `work-item-folders` (a SPEC and STATUS per work item),
   `steer-to-the-goal` (save a goal that outlasts one chat), and the conditional
   `memory-system-ground-rules` (route durable memory through the curator). Each
   targets a distinct moment (mid-work, wrap-up, session handoff, per-task,
   per-goal, long-term memory), so they compose rather than repeat.
+  `keep-claudemd-current` names the status doc, the design doc, and long-term
+  memory as destinations for detail that does not belong in CLAUDE.md, but it
+  does not own any of them; the rules above do. Naming where something goes is
+  what keeps CLAUDE.md from absorbing all three.
 - **The response-style rule cluster.** `lead-with-the-answer` and
   `close-with-the-ask` are intentionally paired (the second builds on the first:
   answer first, end with the next action); `answer-last-question-box`,
