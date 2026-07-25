@@ -14,6 +14,7 @@ depth lives in each plugin's own `README.md` and reference indexes.
 | [second-brain](../plugins/second-brain/README.md) | Durable cross-session memory, knowledge, and structural layers (MCP) | `second-brain`, `remember` | `/second-brain` (usually via project-init) |
 | [sf-architect-solutioning](../plugins/sf-architect-solutioning/README.md) | Salesforce solution architect: approved solution plan before any build | `sf-architect-solutioning` | `/plugin install sf-architect-solutioning` |
 | [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git sync | `pull-latest`, `reset-to-remote` | `/plugin install git-workflows` |
+| [session-autoname](../plugins/session-autoname/README.md) | Background agent sessions stay named after their overarching project | `session-autoname` | `/plugin install session-autoname` |
 
 ## Skills at a glance
 
@@ -26,6 +27,7 @@ depth lives in each plugin's own `README.md` and reference indexes.
 | sf-architect-solutioning | sf-architect-solutioning | 5-phase Salesforce solutioning to an approved plan | `/sf-architect-solutioning` |
 | pull-latest | git-workflows | Get current with the remote without rewriting or discarding | `/pull-latest` |
 | reset-to-remote | git-workflows | Hard-reset a repo to mirror the remote, safely gated | `/reset-to-remote` |
+| session-autoname | session-autoname | Install the per-machine hook that re-names a background session each turn | `/session-autoname` |
 
 ## Rules and references (canonical indexes)
 
@@ -94,6 +96,14 @@ The genuine watch-items are called out at the end.
 - **git-workflows versus the worktree-isolation rule.** The rule states the
   behavior ("assume other sessions share the repo"); the two skills are the safe
   git commands that carry it out. Different layers, not duplicates.
+- **session-autoname is deliberately NOT offered by project-init.** Every other
+  plugin here installs into a project. This one installs into a machine: it
+  writes `~/.claude/hooks/` and `~/.claude/settings.json` once, and from then on
+  it applies to background sessions in every project. Putting it behind a
+  per-project gate would ask the same question repeatedly and re-do a setup that
+  is already done. Install it once per machine with `/plugin install
+  session-autoname` then `/session-autoname`. If a future plugin is also
+  machine-level, this is the precedent to follow.
 - **The session-continuity rule cluster.** Several general rules touch "do not
   lose context across sessions", which can read as overlap: `keep-claudemd-current`
   (write durable facts into CLAUDE.md, and route everything that is not a rule

@@ -116,6 +116,14 @@ claude-toolkit/
       skills/
         pull-latest/              ← SKILL.md
         reset-to-remote/          ← SKILL.md
+    session-autoname/             ← plugin: background sessions name themselves
+      README.md
+      .claude-plugin/plugin.json
+      .codex-plugin/plugin.json
+      hooks/
+        session-autoname.mjs      ← the Stop hook, installed to ~/.claude/hooks/
+      skills/
+        session-autoname/         ← SKILL.md (one-time per-machine install)
   docs/
     toolkit-map.md                ← the catalog: every item and how they relate
     architecture.html             ← visual map of how the pieces fit
@@ -145,6 +153,7 @@ explains how the pieces relate.
 | **[second-brain](plugins/second-brain/README.md)** | Durable cross-session memory and knowledge for a project (MCP): a curated typed-node knowledge graph with hybrid recall and a session digest, a knowledge layer whose notes are pinned to file SHAs and flagged when the code drifts, and a structural layer for mechanical impact analysis. The `remember` skill saves a finished work item into it. |
 | **[sf-architect-solutioning](plugins/sf-architect-solutioning/README.md)** | A Salesforce solution architect: pushes back on vague requirements, verifies platform facts against official docs by live fetch, designs declarative-first to Well-Architected standards, and presents a solution plan for approval before any build. Salesforce projects only. |
 | **[git-workflows](plugins/git-workflows/README.md)** | Two parallel-session-safe git sync skills: `pull-latest` gets current without rewriting or discarding history, `reset-to-remote` hard-resets to mirror the remote behind a confirmation. |
+| **[session-autoname](plugins/session-autoname/README.md)** | Keeps a background agent session named after the overarching project it is working on, never the step it is on. A Stop hook re-checks the label each turn from a cheap Haiku call and holds it steady until the project itself changes, so a long session stops lying in the job list without the name churning. One-time per-machine install, not per project. |
 
 ---
 
@@ -201,6 +210,14 @@ For safe git sync skills (`pull-latest`, `reset-to-remote`) on any project:
 
 ```
 /plugin install git-workflows
+```
+
+To have background agent sessions keep their own names current (a one-time setup
+per machine, not per project):
+
+```
+/plugin install session-autoname
+/session-autoname
 ```
 
 Then, in a fresh project:
