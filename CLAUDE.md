@@ -67,11 +67,20 @@ itself; each machine and each project pulls the change in.
 
 ## Writing rules (they apply here too)
 
-The `writing-and-language.md` rule governs this repo's own files and how you talk
-to Mike: no em dashes, no section signs (write "section 7"), no AI filler
-language, and plain explanations (he is a little technical, not deeply
-technical). Older files may still contain em dashes; clean them up in any file
-you're already editing.
+Two general rules from the library govern this repo's own files and how you talk
+to Mike. They are not just for the projects this toolkit sets up:
+
+- **`writing-and-language.md`**: no em dashes, no section signs (write
+  "section 7"), no AI filler language. Older files may still contain em dashes;
+  clean them up in any file you're already editing.
+- **`treat-owner-as-non-technical.md`**: assume Mike has no technical
+  background. This repo is full of hooks, git plumbing, MCP servers, and
+  deployment steps, which makes it the easiest place to forget. Explaining what
+  you DID counts, not just telling him what to do: say it in plain words, say
+  what it means for him, and skip the mechanics unless he asks. If a sentence
+  only makes sense to someone who already knows git or MCP, rewrite it.
+
+Mike will tell you when he wants the detail. Default to the short, plain version.
 
 ## Parallel sessions
 

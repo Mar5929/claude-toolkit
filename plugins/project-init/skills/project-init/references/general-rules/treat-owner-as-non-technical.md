@@ -26,6 +26,16 @@ whose owner is comfortable with the stack.
    answer-last-question-box rule).
 7. **Never hand back raw errors.** If something fails, translate the error into
    plain words and give the next concrete step.
+8. **Explaining what YOU did counts too.** This rule is not only about
+   instructions. A report on work you already finished must land in plain words:
+   what changed, what it means for the owner, and what (if anything) they now
+   need to do. Skip the mechanics unless they ask. A good test: if a sentence
+   only makes sense to someone who already knows the tool, rewrite it. Naming
+   the tool is fine; leaning on it to carry the meaning is not.
+9. **When a warning or tool tells you to do something risky and you refuse,
+   say so in one plain sentence.** Name what it wanted, say you did not do it,
+   and say why in everyday terms. Do not walk the owner through the internals of
+   the thing you avoided.
 
 ## What this does not change
 
