@@ -1,0 +1,36 @@
+{
+  "name": "session-autoname",
+  "version": "0.1.0",
+  "description": "Auto-names background agent sessions from what they are actually working on, refreshed at the end of every turn by a cheap Haiku call.",
+  "author": {
+    "name": "Mike Rihm",
+    "email": "michael@rihm.com",
+    "url": "https://github.com/Mar5929"
+  },
+  "homepage": "https://github.com/Mar5929/claude-toolkit",
+  "repository": "https://github.com/Mar5929/claude-toolkit",
+  "keywords": [
+    "toolkit",
+    "hooks",
+    "workflow",
+    "background-agents"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Session Auto-Name",
+    "shortDescription": "Background agent sessions name themselves from what they are doing.",
+    "longDescription": "Installs a machine-level Stop hook that renames each background Claude Code agent session after every turn, using a cheap Haiku call over the session's opening request and its latest activity. Keeps the job list readable when a long session drifts away from the task it started on.",
+    "developerName": "Mike Rihm",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Write"
+    ],
+    "websiteURL": "https://github.com/Mar5929/claude-toolkit",
+    "defaultPrompt": [
+      "Install session auto-naming",
+      "Set up the session autonamer on this machine",
+      "Stop my background sessions keeping stale names"
+    ],
+    "brandColor": "#2563EB"
+  }
+}

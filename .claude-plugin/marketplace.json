@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Personal, portable toolkit of reusable Claude systems: skills, rules, hooks, and templates shared across every project and device.",
-    "version": "0.21.0"
+    "version": "0.20.0"
   },
   "plugins": [
     {
@@ -28,6 +28,11 @@
       "name": "git-workflows",
       "source": "./plugins/git-workflows",
       "description": "Two parallel-session-safe git sync skills. pull-latest brings a checkout up to date with its remote without rewriting or discarding history (fetch, fast-forward, or merge pull; never rebase, reset, or push). reset-to-remote hard-resets a repo to exactly mirror its remote, the safe alternative to deleting and re-cloning. Both assume other agent sessions may share the repo and stop rather than clobber in-flight work."
+    },
+    {
+      "name": "session-autoname",
+      "source": "./plugins/session-autoname",
+      "description": "Keeps a background Claude Code agent session's name matching what it is actually doing. A Stop hook runs at the end of every turn, asks Haiku for a short label from the session's opening request plus its most recent activity, and writes it into the background job's state file, so the job list stays accurate as a long session drifts off the task it started on. Background sessions only, never blocks a turn, and fails silently if Claude Code's internal state format changes."
     }
   ]
 }

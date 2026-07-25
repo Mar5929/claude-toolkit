@@ -1,0 +1,9 @@
+{
+  "name": "session-autoname",
+  "description": "Keeps a background Claude Code agent session's name matching what it is actually doing. A Stop hook runs at the end of every turn, asks Haiku for a short label based on the session's opening request and its most recent activity, and writes that into the background job's state file so the job list stays accurate as a session drifts off its original topic. Only touches background sessions, never blocks a turn, and fails silently if Claude Code's internal state format ever changes.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Mike Rihm",
+    "email": "michael@rihm.com"
+  }
+}
