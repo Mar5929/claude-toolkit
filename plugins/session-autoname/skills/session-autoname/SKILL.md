@@ -10,10 +10,25 @@ description: Install (or remove, or repair) the machine-level hook that keeps ba
 A long agent session drifts. It starts as "refactor the calendar view" and ends
 as "coordinate three unrelated tickets", but the name in the job list still says
 the first thing. This installs a hook that fixes that continuously: at the end of
-every turn it asks Haiku for a short label based on the session's opening request
-plus its most recent activity, and writes that into the session's name.
+every turn it asks Haiku for a short label and writes it into the session's name.
 
-Three facts a session installing this needs to hold onto:
+**The name is the overarching PROJECT, never the current step.** That is the
+load-bearing behavior, and two things in the hook enforce it. Do not undo either
+one without understanding what it costs:
+
+- **The namer never sees the assistant's own output, only the owner's requests.**
+  An earlier version fed in the last assistant reply, and the names tracked it
+  turn by turn ("... verify", "... #156"). The assistant narrates the current
+  step, so naming from it guarantees step-level names. The evidence it does see
+  is the owner's opening request at length plus every later request clipped
+  short, because the arc of what was asked for is what identifies the project,
+  while the full text of the newest ask is what drags the name down to a step.
+- **The current name is fed back in with an instruction to return it unchanged**
+  unless the project has genuinely changed. Without this the model rewords a
+  perfectly good name every turn, and a name that churns is worse in a list than
+  a name that is slightly stale.
+
+Three more facts a session installing this needs to hold onto:
 
 1. **It only affects background agent sessions.** A background session has a
    state file at `~/.claude/jobs/<job-id>/state.json` holding its display name.

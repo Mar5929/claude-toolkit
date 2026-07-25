@@ -14,7 +14,7 @@ depth lives in each plugin's own `README.md` and reference indexes.
 | [second-brain](../plugins/second-brain/README.md) | Durable cross-session memory, knowledge, and structural layers (MCP) | `second-brain`, `remember` | `/second-brain` (usually via project-init) |
 | [sf-architect-solutioning](../plugins/sf-architect-solutioning/README.md) | Salesforce solution architect: approved solution plan before any build | `sf-architect-solutioning` | `/plugin install sf-architect-solutioning` |
 | [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git sync | `pull-latest`, `reset-to-remote` | `/plugin install git-workflows` |
-| [session-autoname](../plugins/session-autoname/README.md) | Background agent sessions keep their own names current | `session-autoname` | `/plugin install session-autoname` |
+| [session-autoname](../plugins/session-autoname/README.md) | Background agent sessions stay named after their overarching project | `session-autoname` | `/plugin install session-autoname` |
 
 ## Skills at a glance
 

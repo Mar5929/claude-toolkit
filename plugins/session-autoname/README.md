@@ -1,13 +1,31 @@
 # session-autoname plugin
 
-Keeps a background Claude Code agent session's name matching what it is actually
-doing, instead of what it was called when it started.
+Keeps a background Claude Code agent session named after the project it is
+working on, instead of whatever it was called when it started.
 
 A long session drifts. It opens as "refactor the calendar view" and ends up
 coordinating three unrelated tickets, but the job list still shows the first
-thing. This plugin installs a machine-level hook that re-names the session at the
-end of every turn, using a cheap Haiku call over the session's opening request
-and its most recent activity.
+thing. This plugin installs a machine-level hook that re-checks the name at the
+end of every turn with a cheap Haiku call.
+
+## It names the project, not the step
+
+This is the design decision that makes it useful rather than annoying. A session
+works through dozens of steps toward one goal. The steps change constantly; the
+goal rarely does. So the name is always the **overarching project**:
+
+| Not this (a step) | This (the project) |
+|---|---|
+| Verify test output for PR #156 | Anchor cleanup batch (#147, #80, #148) |
+| Resolve a merge conflict | Anchor Program/Calendar refactor (#130) |
+| Fix the flaky banner assertion | Stripe billing migration |
+
+Two things enforce it. The namer is shown the arc of everything **you** asked
+for across the session, with your opening request weighted heaviest, and it is
+never shown the assistant's own replies, since those narrate the current step
+and naming from them guarantees step-level names. And it is shown the current
+name each turn with instructions to return it **unchanged** unless the project
+itself has changed, so the name stops churning once it is right.
 
 ## Install
 

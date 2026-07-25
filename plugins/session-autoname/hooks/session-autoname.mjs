@@ -164,7 +164,7 @@ function runWorker(handoffPath) {
     const context = readTranscript(transcriptPath, state);
     if (!context) return release();
 
-    const name = askForName(context, jobDir);
+    const name = askForName(context, jobDir, state.name || '');
     if (!name) return release();
     if (name === state.name) { log(jobDir, `unchanged: ${name}`); return release(); }
 
@@ -182,16 +182,27 @@ function readState(statePath) {
 }
 
 /**
- * Pull the session's opening request plus its most recent activity out of the
- * transcript. Both halves matter: the opening says what it was for, the recent
- * activity says what it became, and the whole point of this hook is that those
- * two drift apart.
+ * Build the picture the namer reasons over: what the OWNER has asked for across
+ * the whole session, not what the session happens to be doing this minute.
+ *
+ * The bias here is deliberate and is the whole point of the hook. The name is
+ * supposed to be the overarching project, so the evidence has to be the arc of
+ * the owner's requests, not the latest step. Concretely:
+ *
+ * - The opening request gets the most room. That is nearly always where the
+ *   real project is stated.
+ * - Every later request is included, but each is clipped hard. Seeing that
+ *   fifteen asks all circle one project is what identifies the project; the
+ *   full text of the fifteenth is what would drag the name down to a step.
+ * - The assistant's own output is EXCLUDED entirely. An earlier version fed in
+ *   the last reply and the names tracked it turn by turn ("... verify",
+ *   "... #156"), which is exactly the failure this shape avoids: the assistant
+ *   narrates the current step, so naming from it guarantees step-level names.
  */
 function readTranscript(transcriptPath, state) {
   const opening = (state.intent || state.detail || '').trim();
 
   let userMessages = [];
-  let lastAssistant = '';
   if (transcriptPath && existsSync(transcriptPath)) {
     try {
       const lines = readFileSync(transcriptPath, 'utf8').split('\n');
@@ -200,29 +211,30 @@ function readTranscript(transcriptPath, state) {
         let record;
         try { record = JSON.parse(line); } catch { continue; }
         if (record.isSidechain || record.isMeta) continue;      // subagent + injected context
-        const message = record.message;
-        if (!message) continue;
-
-        if (record.type === 'user' && typeof message.content === 'string') {
-          const text = message.content.trim();
-          // Slash-command scaffolding and hook output are not the owner talking.
-          if (text && !text.startsWith('<') && !text.startsWith('Caveat:')) userMessages.push(text);
-        } else if (record.type === 'assistant' && Array.isArray(message.content)) {
-          const text = message.content.filter(b => b && b.type === 'text').map(b => b.text).join(' ').trim();
-          if (text) lastAssistant = text;
-        }
+        if (record.type !== 'user') continue;
+        const content = record.message && record.message.content;
+        if (typeof content !== 'string') continue;
+        const text = content.trim();
+        // Slash-command scaffolding, hook output, and tool-result echoes are
+        // not the owner talking, and they are the noisiest thing in here.
+        if (!text || text.startsWith('<') || text.startsWith('Caveat:')) continue;
+        userMessages.push(text);
       }
     } catch { /* fall back to state.intent alone */ }
   }
 
   const first = userMessages[0] || opening;
-  const recent = userMessages.slice(-3).join('\n---\n');
-  if (!first && !recent && !lastAssistant) return null;
+  if (!first && userMessages.length === 0) return null;
+
+  const later = userMessages.slice(1).map((m, i) => `${i + 2}. ${clip(m, 220)}`);
+  // Keep the tail bounded without letting the newest asks crowd out the arc.
+  const laterShown = later.length > 25 ? [...later.slice(0, 5), '...', ...later.slice(-19)] : later;
 
   return [
-    `OPENING REQUEST:\n${clip(first, 1200)}`,
-    recent ? `MOST RECENT REQUESTS:\n${clip(recent, 1500)}` : '',
-    lastAssistant ? `WHAT THE SESSION LAST REPORTED:\n${clip(lastAssistant, 1200)}` : '',
+    `HOW THE SESSION OPENED (this is usually the project):\n${clip(first, 2000)}`,
+    laterShown.length
+      ? `EVERY LATER REQUEST FROM THE OWNER, ABBREVIATED (the arc, not the detail):\n${laterShown.join('\n')}`
+      : '',
   ].filter(Boolean).join('\n\n');
 }
 
@@ -231,23 +243,48 @@ function clip(text, max) {
   return s.length > max ? s.slice(0, max) + ' ...' : s;
 }
 
-function askForName(context, jobDir) {
+function askForName(context, jobDir, currentName) {
   const prompt = [
-    'Name this coding session for a job list, so its owner can tell at a glance what it is working on.',
+    'Name this working session after the SINGLE LARGEST, OVERARCHING PROJECT it is working toward,',
+    'so its owner can tell at a glance what the session is for.',
     '',
-    'Rules:',
+    'The name must sit at the level of the whole project, NOT the current step. A session works',
+    'through many steps toward one goal; the steps change constantly and the goal rarely does.',
+    'Name the goal.',
+    '',
+    'Too granular, never do this:',
+    '  Verify test output for PR #156        (a step)',
+    '  Resolve a merge conflict              (a step)',
+    '  Fix the flaky banner assertion        (one task inside the project)',
+    '  Reading CalendarView.swift            (an action)',
+    '',
+    'Right level:',
+    '  Anchor cleanup batch (#147, #80, #148)',
+    '  Anchor Program/Calendar refactor (#130)',
+    '  Stripe billing migration',
+    '  Rewrite auth for SSO',
+    '',
+    'If the session is working several separate items under one umbrella, name the umbrella and',
+    'list the items. If there is genuinely only one item, name that item at project level.',
+    '',
+    'STABILITY MATTERS MORE THAN FRESHNESS. The owner reads this name in a list; a name that',
+    'rewords itself every few minutes is worse than useless. So:',
+    currentName
+      ? `- The session is currently named: ${currentName}`
+      : '- The session has no name yet.',
+    currentName
+      ? '- If that name still describes the overarching project, output it back EXACTLY character for'
+        + ' character, unchanged. Do not rephrase it, reorder it, or "improve" it. Only output something'
+        + ' different if the overarching project has genuinely CHANGED, not merely progressed.'
+      : '- Pick a name that will still be right many turns from now.',
+    '',
+    'Format rules:',
     '- Output ONLY the name. No surrounding quotes, no trailing period, no explanation, no preamble.',
     `- Between 3 and 8 words, at most ${MAX_NAME_CHARS} characters.`,
-    '- Describe what the session is working on NOW, not what it started as. Sessions drift.',
-    '- Prefer concrete specifics: the app or repo name, ticket numbers, the subsystem touched.',
+    '- Include the app or repo name when there is one.',
     '- Write it as a label, not a sentence. No em dashes.',
-    '- Use ordinary punctuation where it makes the label easier to read: commas between',
-    '  items, parentheses for a list, and a # in front of every ticket or issue number.',
-    '',
-    'Good examples of the shape and punctuation wanted:',
-    '  Anchor cleanup batch (#147, #80, #148)',
-    '  Stripe webhook retries, idempotency fix',
-    '  Rewrite auth middleware for SSO',
+    '- Use ordinary punctuation where it aids readability: commas between items, parentheses for a',
+    '  list, and a # in front of every ticket or issue number.',
     '',
     context,
   ].join('\n');
