@@ -36,7 +36,7 @@ structure Gate 5 writes.
 | `do-the-technical-work.md` | Do the git/config/deploy/file work yourself. Only hand the owner steps that are genuinely only-they, and make those copy-paste simple. Recommend, do not dump raw choices. |
 | `work-item-folders.md` | One folder per work item (`SPEC.md` + `STATUS.md`) as the durable memory. Read it first, keep it current, close it out in the same session. |
 | `show-phase-progress.md` | When work splits into phases, print a one-line progress bar at every transition and when the last phase finishes. |
-| `treat-owner-as-non-technical.md` | Assume no technical background: numbered steps, exact commands, say what success looks like, never hand back raw errors. Turn off only for a technical owner. |
+| `treat-owner-as-non-technical.md` | Assume no technical background: numbered steps, exact commands, say what success looks like, never hand back raw errors. Also covers REPORTING: explain what you did in plain words, not just what to do. Turn off only for a technical owner. |
 
 ## Conditional: copy only if the matching gate ran
 
