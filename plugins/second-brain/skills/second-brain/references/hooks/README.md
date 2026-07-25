@@ -1,10 +1,11 @@
 # Second-brain hooks
 
-Six deterministic, best-effort hooks. Four connect a project to the memory
+Seven deterministic, best-effort hooks. Four connect a project to the memory
 server over the bearer fast path (`/fast/<project>/...`); with no
 `BRAIN_MCP_TOKEN` they silently no-op, which keeps them safe in a teammate
-checkout. Two are different in kind, making no network call and needing no
-token: `work-items-status.mjs` reads the work-items tree straight off disk, and
+checkout. Three are different in kind, making no network call and needing no
+token: `work-items-status.mjs` reads the work-items tree straight off disk,
+`brain-outbox-status.mjs` reports curated notes that are still unsaved, and
 `knowledge-curator-nudge.mjs` reminds the session to run the knowledge-curator
 at a push or PR. None uses a model itself, though
 `brain-mcp-session-curate.mjs` asks the server to run one.
@@ -24,6 +25,7 @@ environment's allowed-domains list. Setup recipe Step 6b.
 | `brain-mcp-session-digest.mjs` | `SessionStart` | read + inject | Fetches the curated digest (`GET /fast/<p>/digest`) and injects it as session context, so a session starts grounded in memory. |
 | `brain-mcp-recall.mjs` | `UserPromptSubmit` | read + inject | Keyword-recalls the memory for the submitted prompt (`GET /fast/<p>/recall?q=...`) and injects the top matches before the agent answers. |
 | `work-items-status.mjs` | `SessionStart` | local inject | Reads the project's `work-items/` tree and injects what is wanted, what is in progress (with each item's next step from `STATUS.md`), and what is already done. No server call, no token, no model. No-ops silently when the project has no work-items tree. `WORK_ITEMS_INJECT=0` disables it; `WORK_ITEMS_ROOT` overrides the location. |
+| `brain-outbox-status.mjs` | `SessionStart` | local inject | Lists curated notes waiting in `.claude/memory-outbox/`: nodes a curator finished on a surface that could not reach the store, where the file is the only copy. No server call, no token, so it reports honestly exactly where the server is unreachable. Silent when the folder is absent or empty; `BRAIN_OUTBOX_NOTICE=0` disables it. See `../curator-write-path.md`. |
 | `knowledge-curator-nudge.mjs` | `PostToolUse` (Bash) | local inject | After a `git push` or `gh pr create`, injects a reminder to dispatch the knowledge-curator for any code-why that changed. No server call, no token. Gated on the knowledge-curator agent existing; `BRAIN_KC_NUDGE=0` disables it. Exists because the knowledge layer, unlike memory, has no automatic trigger of its own. |
 
 The two injection hooks are the automatic half of "the right context at the
@@ -48,6 +50,7 @@ is a secret and lives only in the gitignored `.claude/settings.local.json`:
 | `BRAIN_INJECT` | settings.json | Default on. `0` disables BOTH injection hooks. |
 | `BRAIN_RECALL` | (optional) | Default on. `0` disables per-prompt recall only, keeping session-start digest injection. |
 | `WORK_ITEMS_INJECT` | settings.json | Default on. `0` disables the work-items injection. |
+| `BRAIN_OUTBOX_NOTICE` | settings.json | Default on. `0` disables the pending-notes notice. |
 | `WORK_ITEMS_ROOT` | (optional) | Repo-relative path to the work-items tree. Defaults to `work-items/`, then `engagement/work-items/`. |
 
 ## Where work-item status comes from
@@ -76,9 +79,9 @@ thinking out loud and can write a floated idea down as a settled decision.
 
 Three triggers, in descending order of quality:
 
-1. **`/remember`** — an in-session curator dispatch. The owner is present.
-2. **Session end** — `brain-mcp-session-curate.mjs`, the default path.
-3. **The server cron** — a backstop only. It sweeps sessions whose journal has
+1. **`/remember`**: an in-session curator dispatch. The owner is present.
+2. **Session end**: `brain-mcp-session-curate.mjs`, the default path.
+3. **The server cron**: a backstop only. It sweeps sessions whose journal has
    sat untouched past `BACKSTOP_IDLE_HOURS` (default 24), meaning SessionEnd
    never fired for them (crash, killed terminal, reclaimed container).
 
@@ -147,9 +150,31 @@ curl -s -o /dev/null -w '%{http_code}\n' \
   "$BRAIN_MCP_ORIGIN/fast/$BRAIN_PROJECT/digest"
 ```
 
-- `200` — the token works (a non-empty digest also confirms the project has one).
-- `401` — token missing, unregistered, or revoked: mint one for this machine
+- `200`: the token works (a non-empty digest also confirms the project has one).
+- `401`: token missing, unregistered, or revoked: mint one for this machine
   (setup recipe Step 6).
-- `403` — the token's GitHub login has no grant on this project (setup recipe
+- `403`: the token's GitHub login has no grant on this project (setup recipe
   Step 5).
-- `404` — wrong `BRAIN_PROJECT` or `BRAIN_MCP_ORIGIN`.
+- `404`: wrong `BRAIN_PROJECT` or `BRAIN_MCP_ORIGIN`.
+
+## Troubleshooting: a curator finished a note and could not save it
+
+Different problem, different fix. The hooks above are the read and capture paths;
+a curator writes NODES, and that path can be missing while every hook is healthy.
+The MCP connection can drop mid-session, and a background job may never have had
+one. `../curator-write-path.md` is the full picture: what the curator does with
+the finished note, the fallback ladder, and the outbox that catches it.
+
+The one check worth knowing here is whether this project's Worker has the bearer
+node-write endpoint, which is what lets a headless surface store a node at all:
+
+```
+curl -s -o /dev/null -w '%{http_code}\n' -X POST \
+  -H "Authorization: Bearer $BRAIN_MCP_TOKEN" \
+  -H "Content-Type: application/json" -d '{}' \
+  "$BRAIN_MCP_ORIGIN/fast/$BRAIN_PROJECT/node"
+```
+
+`400` (missing required fields) is the healthy answer: the route exists and
+rejected an empty node. `404` means the Worker predates the endpoint and needs a
+redeploy. `403` means the token's grant is read-only.

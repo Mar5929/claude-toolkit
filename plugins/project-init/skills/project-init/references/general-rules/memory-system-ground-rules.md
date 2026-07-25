@@ -48,6 +48,37 @@ When it does earn it:
 Skip the dispatch entirely for pure question-and-answer turns, mechanical edits,
 or an investigation that concluded nothing. Session-end curation covers those.
 
+## A finished note is never dropped
+
+The curator can lose its write path partway through a session. The MCP connection
+drops and does not reconnect, or a background job never had one. When that
+happens the curator still does the whole pass and hands back complete, ready-to-
+file nodes, and the default outcome is that they evaporate. That is the most
+expensive failure in this system: the thinking was done and thrown away.
+
+So, at wrap-up:
+
+- **Check the write path before dispatching.** One cheap `recall` or `get_digest`
+  from the session confirms the store still answers. Tell the curator in the
+  dispatch which route it has. A curator sent into a dead connection burns a full
+  pass and returns text.
+- **Catch the handback.** If the curator reports it could not store its nodes,
+  work down the ladder until one takes: `POST /fast/<project>/node` with
+  `BRAIN_MCP_TOKEN` (a real node write, no sign-in needed), else the same token
+  against `POST /fast/<project>/journal` as a `kind: "curated-node"` entry for a
+  later pass to promote, else park the node file verbatim in
+  `.claude/memory-outbox/` and commit it. That folder is committed on purpose:
+  it is how a note written where the store is unreachable travels to a session
+  that can save it.
+- **Flush the outbox first.** Files there are unsaved notes from an earlier
+  session. Hand each to the curator named in its header, and delete each only
+  once its node is stored. A SessionStart hook lists them, so they should never
+  be a surprise.
+- **Never report memory as saved when it is not.** Say which route the note took:
+  stored, queued, or waiting in the outbox. Every quiet failure in this system
+  looks exactly like success, so the only defence is saying plainly which one
+  happened.
+
 ## Give a many-node topic a hub
 
 When a subject fans out across many nodes, a broad "what do we know about X"

@@ -1,6 +1,6 @@
 {
   "name": "second-brain",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "description": "Portable second-brain memory and knowledge architecture for projects, including MCP setup instructions, curator agents, recall/capture hooks, knowledge freshness, and graphify guidance.",
   "author": {
     "name": "Mike Rihm",

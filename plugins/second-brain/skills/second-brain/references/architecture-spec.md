@@ -108,8 +108,19 @@ safe and free even in a teammate checkout or a cloud session with no token.
   code exists, pinned to files via `covers:` SHAs. Modes: DOCUMENT (after code
   changed), EXPLAIN, COVERAGE. Never writes the digest or non-knowledge nodes.
 
-They never run at the same time. Each carries a `## Project profile` section, the
-only project-specific part, filled at setup from the chosen profile.
+They never run at the same time. Each carries a `## Project profile` section and
+the connector-named half of its `tools:` line, the only project-specific parts,
+filled at setup from the chosen profile.
+
+**A curator can lose its write path, and must not lose the note with it.** The
+MCP connection can drop mid-session, and a background job or cron fire may never
+have had one, so a curator can finish a full pass with nowhere to put the result.
+Two things keep that from costing the work: `POST /fast/<id>/node` persists a
+node with the bearer token and no OAuth, and `.claude/memory-outbox/` holds
+anything that still cannot be sent, committed so it travels to a session that
+can. `curator-write-path.md` is the canonical description of the routes, the
+fallback ladder, and the reporting rule that keeps a silent failure from reading
+as success.
 
 ## What the second-brain does NOT do
 

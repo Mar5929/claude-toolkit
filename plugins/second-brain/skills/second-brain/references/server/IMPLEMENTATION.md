@@ -18,7 +18,7 @@ phase status).
 One Cloudflare Worker fronts long-term memory over **MCP + GitHub OAuth**,
 backed by **Neon Postgres + pgvector**. It is the only transport reachable AND
 securely authenticated from every Claude Code session type (local, cloud/
-sandboxed, CI) — a second git repo fails cloud-reach (403), and raw stores fail
+sandboxed, CI): a second git repo fails cloud-reach (403), and raw stores fail
 the cloud-secret test. Markdown-native and portable: nodes store the full node
 file text, and `export` reproduces the markdown for a git backup.
 
@@ -29,7 +29,8 @@ Any Claude Code session (local | cloud | CI)
   second-brain Worker  ── read:  get_digest, recall, get_node, list_nodes, export
         │              ── write: upsert_node, put_digest, append_journal,
         │                         drain_journal, read_journal   (role write/admin)
-        │              ── /fast/<project>/{digest,recall,journal}  (bearer, local hooks)
+        │              ── /fast/<project>/{digest,recall,journal,curate,node}  (bearer:
+        │                         local hooks, plus the headless node write)
         │              ── embeddings: Workers AI @cf/baai/bge-m3 (1024-dim)
         ▼
   Neon Postgres + pgvector   ── ONE database PER project
@@ -49,7 +50,7 @@ INCLUDED: this bundled server ships `src/curate.ts`, which reads undrained
 `journal` rows, asks a model (default `claude-haiku-4-5`, override
 `CURATOR_MODEL`) for a structured curation plan (Anthropic structured outputs;
 the plan's type enum EXCLUDES `knowledge`, so the auto-curator cannot write
-know-* nodes — that layer stays with the in-session knowledge-curator), applies
+know-* nodes, since that layer stays with the in-session knowledge-curator), applies
 it through the normal `db.ts` write path (`upsertNode` as login `auto-curator`,
 optional `putDigest`), then drains the exact seqs read. Any failure drains
 nothing (entries retry). DORMANT until you set the `ANTHROPIC_API_KEY` secret
@@ -84,7 +85,7 @@ and are only ever swept by the backstop.
 |---|---|
 | `memory-mcp/wrangler.jsonc` | Worker config: name, KV (OAuth), GitHub client id var, `ai` binding. |
 | `memory-mcp/src/index.ts` | OAuthProvider + MCP route `/mcp/<project>`; checks grant, builds the per-request server with `(env, sql, projectId, login, role)`. |
-| `memory-mcp/src/github-handler.ts` | OAuth `/authorize` + `/callback`; bearer `/fast/<project>/{digest,recall,journal}`. Journal is write-gated + hardened. |
+| `memory-mcp/src/github-handler.ts` | OAuth `/authorize` + `/callback`; bearer `/fast/<project>/{digest,recall,journal,curate,node}`. Journal, curate, and node are write-gated + hardened; `node` is the headless path that keeps a finished curated node from being lost. |
 | `memory-mcp/src/mcp.ts` | Registers all MCP tools; role-gates writes; recall computes the query embedding + neighbor expansion. |
 | `memory-mcp/src/db.ts` | All SQL: atomic `upsertNode`, transitive review cascade, hybrid RRF `recallNodes`, `neighborsOf`, journal/digest/read helpers, grants, tokens. |
 | `memory-mcp/src/embed.ts` | Workers AI bge-m3 embedding (`embedText`) + pgvector literal (`toVector`). |
@@ -103,7 +104,7 @@ and are only ever swept by the backstop.
 The git-backed prototype (11 bash hooks + git curators) lives in
 `.claude/worktrees/gate3-secondbrain/` and is the `BRAIN_BACKEND=git` rollback.
 It is gitignored (never on main). Do NOT wire the MCP git-export backup into
-`<main>/brain/` — that would un-isolate the git rollback path.
+`<main>/brain/`, which would un-isolate the git rollback path.
 
 ---
 
@@ -113,7 +114,7 @@ It is gitignored (never on main). Do NOT wire the MCP git-export backup into
 `nodes(project_id,id,path,type,title,status,markdown,frontmatter jsonb,
 embedding vector(1024),search tsvector,recall_count,last_recalled_at,pinned,
 review_after,created_at,updated_at)`; `edges(project_id,from_id,rel,to_id)`;
-`node_versions` (no FK — survives deletion); `digests`; `journal(seq,project_id,
+`node_versions` (no FK, so it survives deletion); `digests`; `journal(seq,project_id,
 entry jsonb,drained_at,created_at)`; `grants`; `tokens` (sha-256 hash only).
 `nodes.type` is unconstrained text, so the node types `rule|question|blocker`
 added in PATTERNS need no DDL.
@@ -128,12 +129,28 @@ frontmatter?,pinned?,review_after?,edges?})`, `put_digest({markdown})`,
 
 Bearer fast path (local hooks): `GET /fast/<p>/digest`,
 `GET /fast/<p>/recall?q=&limit=` (keyword-only, snappy), `POST /fast/<p>/journal`
-(write-gated, ≤64KB, `application/json`, object body → `{ok:true}`).
+(write-gated, ≤64KB, `application/json`, object body → `{ok:true}`),
+`POST /fast/<p>/curate` (write-gated, 202 + `waitUntil`), `POST /fast/<p>/node`
+(write-gated, ≤256KB, same fields as `upsert_node` → `{ok:true, ...UpsertResult}`).
 
-### 3.3 Embeddings (Workers AI bge-m3) — verified contract
+`POST /fast/<p>/node` is the headless write path, and it is load-bearing:
+`/mcp/<p>` is OAuth-only, so a background job, a cron fire, or a session whose
+MCP connection dropped had no way to persist a finished node and lost it. It
+calls the same `upsertNode` + `embedText` as the MCP tool, so history snapshots,
+edge validation, and the review cascade all apply. Differences from the tool: no
+zod layer in front, so the handler validates the shape itself (required fields,
+known node type, `markdown` starting with `---`) and returns `400` rather than
+writing a half-formed node; a thrown missing-critical-edge error returns `422`
+with nothing written, so the caller keeps its copy and retries after creating the
+referenced node; and `review_after` defaults to +7 days, because a node written
+without reading the graph first may duplicate one that exists, and the next
+curator pass should reconcile it. Callers and fallback order:
+`../curator-write-path.md`.
+
+### 3.3 Embeddings (Workers AI bge-m3): verified contract
 `wrangler.jsonc`: `"ai": { "binding": "AI" }`; `Env.AI: Ai` (type generated by
 `wrangler types`, surfaced via `@cloudflare/workers-types`). Call
-`env.AI.run("@cf/baai/bge-m3", { text })` — input key `text`, accepts a single
+`env.AI.run("@cf/baai/bge-m3", { text })`: input key `text`, accepts a single
 string; response `{ shape:number[], data:number[][] }`, vector at `data[0]`,
 **1024-dim** (assert at runtime; Cloudflare's model page doesn't print it).
 `run()` THROWS on error/over-long input (truncate_inputs defaults false), so
@@ -141,9 +158,9 @@ string; response `{ shape:number[], data:number[][] }`, vector at `data[0]`,
 failure → recall/writes degrade to keyword-only instead of erroring. No API key:
 Workers AI bills to the same account, so cloud sessions embed too. bge-m3 is
 multi-function; ONLY the `{ text }` path returns `data` (the `{query,contexts}`
-rerank path returns `{response}`) — do not reuse the access path.
+rerank path returns `{response}`), so do not reuse the access path.
 
-### 3.4 Vector binding (pgvector via neon http) — verified contract
+### 3.4 Vector binding (pgvector via neon http): verified contract
 Bind the vector as a STRING `[a,b,c]` (`toVector`) and cast `${vec}::vector(1024)`
 (a raw JS array serializes as `{..}` which pgvector rejects). Cosine similarity =
 `1 - (embedding <=> $q::vector)`; an `hnsw (embedding vector_cosine_ops)` index
@@ -162,10 +179,10 @@ overwrites it; first insert → `prev` empty → no version row. `versioned` is
 decided by a pre-transaction existence check (deterministic; avoids relying on
 RETURNING referencing a CTE). Edge endpoints are pre-checked in JS: a **critical
 rel** (`corrects|supersedes|derived-from|premise-of|depends-on`) to a missing
-node is a HARD error (never silently dropped — that would break reversible
+node is a HARD error (never silently dropped, which would break reversible
 history + skip the cascade); a **soft rel** to a missing node is skipped +
 reported. The correction/supersede cascade is a **recursive CTE** (plain `UNION`
-on node id dedups and terminates on cyclic graphs — no depth counter to defeat)
+on node id dedups and terminates on cyclic graphs, with no depth counter to defeat)
 that flags `review_after=now()` on the transitive closure of dependents:
 `derived-from`/`depends-on` (dependent = `from_id`) and `premise-of`
 (dependent = `to_id`) of each `to_id` of a just-written `corrects`/`supersedes`
@@ -181,7 +198,7 @@ outage doesn't drop the node from semantic recall.
 `recallNodes` fuses three ranked candidate sets by **reciprocal rank fusion**
 (`weight/(60+rank)`, scale-free): an exact `id/title ILIKE` branch (weight 2,
 deterministic for ids/code tokens/control totals), full-text (`ts_rank`), and
-vector (`<=>` cosine distance, top-`pool` nearest, NO hard similarity floor —
+vector (`<=>` cosine distance, top-`pool` nearest, NO hard similarity floor,
 real bge-m3 distances for related text are mid-range, e.g. a genuine match
 measured 0.576, so a floor silently drops true hits; RRF + the final `limit`
 rank precision instead). **Retired statuses**
@@ -199,7 +216,7 @@ keyword-only (no AI latency); the MCP `recall` tool does the hybrid + embedding
 ## 4. Local capture + in-session curation (BRAIN_BACKEND=mcp)
 
 **Capture (deterministic, no model).** The `Stop` hook
-`.claude/hooks/brain-mcp-capture.mjs` (Node, not bash — avoids jq-absence,
+`.claude/hooks/brain-mcp-capture.mjs` (Node, not bash, which avoids jq-absence,
 JSON-quoting, `set -u`, curl-timeout hazards on Windows) reads the Stop JSON on
 stdin, gathers git metadata, **redacts** emails / SF org ids (`00D…`) /
 `*.salesforce.com` URLs / username-bearing paths, and POSTs one journal entry to
@@ -224,7 +241,7 @@ curation (no manual dispatch) is deferred to Phase 3 (server-side worker); Phase
 ## 5. Design-review lessons (non-obvious correctness the port must keep)
 
 A 5-agent adversarial review (2026-07-17) confirmed the core mechanics and
-caught these — encode them in the toolkit port:
+caught these; encode them in the toolkit port:
 - Hybrid recall must use RRF + an exact-match branch + status-awareness; a raw
   score blend buries exact/id hits and can serve a superseded node as primary.
 - `upsert_node` must be one transaction; best-effort edges silently drop the
@@ -243,16 +260,16 @@ caught these — encode them in the toolkit port:
 
 A second adversarial pass on the actual code (2026-07-17) added:
 - `upsert_node` must PRESERVE omitted metadata on update and coalesce a null
-  embedding to the prior vector — a full-replace wipes tags, un-pins nodes, and
+  embedding to the prior vector: a full-replace wipes tags, un-pins nodes, and
   (worst) clears the `review_after` the cascade just set.
 - Include every closed status in the recall-exclusion set (esp. `answered`, or
   answered questions keep surfacing as live).
 - The recursive cascade must dedup on node id (plain `UNION`), not on
-  `(id, depth)` — a depth column makes `UNION` non-terminating on cycles.
+  `(id, depth)`: a depth column makes `UNION` non-terminating on cycles.
 - The journal endpoint size cap must check `Content-Length` first and measure
   bytes (not UTF-16 units) after buffering.
 - The Node capture hook must keep git-porcelain paths repo-relative (they are
-  already relative — don't basename-collapse), handle rename (`old -> new`) and
+  already relative, so don't basename-collapse), handle rename (`old -> new`) and
   quoted entries, and keep the git+fetch worst case under the Stop-hook timeout.
 
 ---

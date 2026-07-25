@@ -1,5 +1,6 @@
 import { autoCurateDisabledReason, curateSession } from "./curate";
-import { appendJournal, bodySnippet, capRecall, db, getDigest, getGrant, loginForToken, recallNodes } from "./db";
+import { appendJournal, bodySnippet, capRecall, db, getDigest, getGrant, loginForToken, recallNodes, upsertNode } from "./db";
+import { embedText } from "./embed";
 import type { AuthRequest, Env } from "./types";
 
 // Default (non-MCP) handler. Serves:
@@ -92,10 +93,25 @@ async function callback(request: Request, env: Env): Promise<Response> {
 //   GET  /fast/<project>/recall?q=<query>&limit=<n>   (keyword-only; snappy)
 //   POST /fast/<project>/journal   (JSON turn entry; write role required)
 //   POST /fast/<project>/curate    (curate one finished session; write role required)
+//   POST /fast/<project>/node      (upsert ONE node; write role required)
+//
+// `node` exists because `/mcp/<id>` is OAuth-only, so a headless surface (a
+// background job, a cron fire, a cloud session whose MCP connection dropped) has
+// no way to persist a finished curated note. Without it the curator does the
+// whole job and the note is thrown away. See references/curator-write-path.md.
 const MAX_JOURNAL_BODY = 64 * 1024;
+const MAX_NODE_BODY = 256 * 1024;
+const NODE_TYPES = new Set([
+  "decision", "knowledge", "preference", "rule", "session", "entity", "question", "blocker", "work-item",
+]);
+// A node arriving here was written by a curator that could not read the graph
+// first, so it may duplicate or contradict what is already stored. Default it
+// due for review a week out; the next curator pass reconciles it. A caller that
+// DID dedupe can pass its own review_after (or "" to clear).
+const FALLBACK_REVIEW_DAYS = 7;
 
 async function fastPath(request: Request, env: Env, url: URL, ctx: ExecutionContext): Promise<Response> {
-  const match = url.pathname.match(/^\/fast\/([a-z0-9-]+)\/(digest|recall|journal|curate)$/);
+  const match = url.pathname.match(/^\/fast\/([a-z0-9-]+)\/(digest|recall|journal|curate|node)$/);
   if (!match) return new Response("Not found", { status: 404 });
   const [, projectId, action] = match;
 
@@ -163,6 +179,89 @@ async function fastPath(request: Request, env: Env, url: URL, ctx: ExecutionCont
       }
     })());
     return new Response("accepted", { status: 202 });
+  }
+
+  // action === "node": persist ONE finished node without OAuth. Same write path
+  // as the MCP `upsert_node` tool (history snapshot, edge validation, review
+  // cascade all included), reached with a bearer token so a headless surface can
+  // land a curated note instead of losing it.
+  if (action === "node") {
+    if (request.method !== "POST") return new Response("Use POST", { status: 405 });
+    if (role !== "write" && role !== "admin") {
+      return new Response("Forbidden: node upsert requires write access", { status: 403 });
+    }
+    const ct = request.headers.get("content-type") ?? "";
+    if (!ct.includes("application/json")) return new Response("Expected application/json", { status: 415 });
+    const declared = Number(request.headers.get("content-length") ?? "");
+    if (Number.isFinite(declared) && declared > MAX_NODE_BODY) return new Response("Body too large", { status: 413 });
+    let raw_body: string;
+    try {
+      raw_body = await request.text();
+    } catch {
+      return new Response("Could not read body", { status: 400 });
+    }
+    if (new TextEncoder().encode(raw_body).length > MAX_NODE_BODY) return new Response("Body too large", { status: 413 });
+    let input: Record<string, unknown>;
+    try {
+      const parsed = JSON.parse(raw_body) as unknown;
+      if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+        return new Response("Body must be a JSON object", { status: 400 });
+      }
+      input = parsed as Record<string, unknown>;
+    } catch {
+      return new Response("Invalid JSON", { status: 400 });
+    }
+
+    // Validate the same shape the MCP tool's zod schema enforces. This path has
+    // no schema layer in front of it, so a malformed node must be rejected here
+    // rather than written half-formed.
+    const str = (k: string) => (typeof input[k] === "string" ? (input[k] as string).trim() : "");
+    const id = str("id"), path = str("path"), type = str("type"), title = str("title");
+    const markdown = typeof input.markdown === "string" ? input.markdown : "";
+    const missing = ["id", "path", "type", "title", "markdown"].filter((k) => !(k === "markdown" ? markdown : str(k)));
+    if (missing.length) return new Response(`Missing required field(s): ${missing.join(", ")}`, { status: 400 });
+    if (!NODE_TYPES.has(type)) {
+      return new Response(`Unknown node type '${type}' (expected one of: ${[...NODE_TYPES].join(", ")})`, { status: 400 });
+    }
+    if (!markdown.startsWith("---")) {
+      return new Response("markdown must be the FULL node file, starting with a --- frontmatter block", { status: 400 });
+    }
+    let edges: { to: string; rel: string }[] | undefined;
+    if (input.edges !== undefined) {
+      if (!Array.isArray(input.edges)) return new Response("edges must be an array", { status: 400 });
+      edges = [];
+      for (const e of input.edges) {
+        const to = typeof (e as { to?: unknown })?.to === "string" ? (e as { to: string }).to.trim() : "";
+        const rel = typeof (e as { rel?: unknown })?.rel === "string" ? (e as { rel: string }).rel.trim() : "";
+        if (!to || !rel) return new Response("each edge needs a non-empty 'to' and 'rel'", { status: 400 });
+        edges.push({ to, rel });
+      }
+    }
+    const review_after = typeof input.review_after === "string"
+      ? input.review_after
+      : new Date(Date.now() + FALLBACK_REVIEW_DAYS * 86400_000).toISOString();
+
+    try {
+      const vec = await embedText(env, `${title}\n\n${markdown}`);
+      const result = await upsertNode(sql, projectId, login, {
+        id, path, type, title, markdown, review_after, edges,
+        status: typeof input.status === "string" ? input.status : undefined,
+        frontmatter: typeof input.frontmatter === "object" && input.frontmatter !== null && !Array.isArray(input.frontmatter)
+          ? (input.frontmatter as Record<string, unknown>)
+          : undefined,
+        pinned: typeof input.pinned === "boolean" ? input.pinned : undefined,
+      }, vec);
+      return new Response(JSON.stringify({ ok: true, ...result }), {
+        headers: { "content-type": "application/json" },
+      });
+    } catch (e) {
+      // A missing critical edge endpoint throws here (upsertNode never silently
+      // drops a corrects/supersedes edge). 422 so the caller keeps its copy and
+      // retries with the referenced node created first.
+      return new Response(JSON.stringify({ ok: false, error: (e as Error).message }), {
+        status: 422, headers: { "content-type": "application/json" },
+      });
+    }
   }
 
   // action === "journal": append a raw turn record. Write-gated + hardened:
