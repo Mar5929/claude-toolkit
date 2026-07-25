@@ -37,9 +37,11 @@ These are not duplicated here. Go to the index that owns them:
 - **Salesforce rules**: [salesforce-rules/README.md](../plugins/project-init/skills/project-init/references/salesforce-rules/README.md).
 - **MCP tool rules** (per-server, conditional):
   `plugins/project-init/skills/project-init/references/mcp-best-practices.md`.
-- **second-brain internals**: `architecture-spec.md`, `setup-recipe.md`, the
-  `profiles/`, `agents/`, `hooks/`, and `server/` folders (each with its own
-  README) under `plugins/second-brain/skills/second-brain/references/`.
+- **second-brain internals**: `architecture-spec.md`, `setup-recipe.md`,
+  `curator-write-path.md` (how a curated note reaches the store, and the fallback
+  ladder when it cannot), and the `profiles/`, `agents/`, `hooks/`, and `server/`
+  folders (each with its own README) under
+  `plugins/second-brain/skills/second-brain/references/`.
 - **sf-architect references**: the `metadata/*` guides and templates under
   `plugins/sf-architect-solutioning/skills/sf-architect-solutioning/references/`.
 
@@ -64,6 +66,14 @@ The genuine watch-items are called out at the end.
   one arc, and a server cron sweeps sessions that died before ending. Curation is
   always session-scoped, never time-sliced, because a conversation read
   mid-flight turns ideas the owner floated into decisions they never made.
+- **The outbox versus the capture journal.** Both hold things not yet in the
+  graph, at opposite ends of the pipeline. The journal is raw per-turn events,
+  written automatically by the Stop hook, which a curator later reads and turns
+  into nodes. `.claude/memory-outbox/` holds the opposite: nodes a curator has
+  already finished, parked because the store was unreachable at that moment.
+  Journal entries are input to curation; outbox files are its output waiting on
+  delivery, which is why they are committed and why a leftover file always means
+  unfinished work.
 - **The work-items tree versus work-item memory nodes.** Not two trackers. The
   tree (scaffolded by project-init Gate 1) owns STATUS: an item's stage is which
   stage folder it sits in, and second-brain's `work-items-status.mjs` hook reads

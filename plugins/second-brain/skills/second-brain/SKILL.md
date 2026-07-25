@@ -102,7 +102,10 @@ empty. Follow `references/kb-backfill.md`:
 
 Per the recipe's verify step: the database harness must end `FAIL: 0` against a
 scratch database, and a read/write smoke test must show a fact written locally
-recalled in a second local session AND in a cloud session.
+recalled in a second local session AND in a cloud session. Also prove the paths
+that fail silently: a curator dispatched from a CLOUD session must name
+`upsert_node` among its tools, and `POST /fast/<id>/node` must answer (`400` on
+an empty body) so a headless surface can save a finished note at all.
 
 ## Step 4: Document and populate
 
@@ -130,6 +133,13 @@ recalled in a second local session AND in a cloud session.
   no token (a teammate checkout), but "safe" means silent, not working: a surface
   without a token captures NOTHING while looking normal. Wire every surface
   (Step 6 for machines, Step 6b for cloud environments) and verify per Step 8.
+- **A finished note is never dropped.** A curator can lose its write path
+  mid-pass (the MCP connection drops, or a background job never had one). It then
+  hands the completed nodes back, and the session stores them by the next route
+  down: `POST /fast/<id>/node` with the bearer token, then the journal, then
+  `.claude/memory-outbox/`, which is committed so the note travels to a session
+  that can save it. A SessionStart hook lists anything waiting and `/remember`
+  flushes it first. See `references/curator-write-path.md`.
 - **Impact analysis lives in the structural layer, not here.** The memory layer
   alone cannot answer "change this field, what breaks three hops out?"; the
   bundled compiled dependency graph (Step 2b, `references/structural-layer.md`)
@@ -143,13 +153,19 @@ recalled in a second local session AND in a cloud session.
 - `references/setup-recipe.md` - the exact per-project steps with expected output.
 - `references/profiles/*.md` - the four project profiles (fill the curators).
 - `references/agents/*.md` - the two curator agent templates.
-- `references/hooks/` - six hooks: `brain-mcp-capture.mjs` (Stop capture),
+- `references/curator-write-path.md` - how a curated note actually reaches the
+  store, why a curator can end up with no brain tools, and the fallback ladder
+  (bearer node write, journal, committed outbox) that keeps a finished note from
+  being lost.
+- `references/hooks/` - seven hooks: `brain-mcp-capture.mjs` (Stop capture),
   `brain-mcp-session-curate.mjs` (SessionEnd: tells the server the conversation
   is over so it curates that session as one finished arc; this is the default
   curation trigger), `brain-mcp-session-digest.mjs` (SessionStart digest
   injection), `work-items-status.mjs` (SessionStart: reads the work-items tree
   and injects what is wanted, in progress, and already done; local, no server
-  call, no token), `brain-mcp-recall.mjs` (UserPromptSubmit recall injection),
+  call, no token), `brain-outbox-status.mjs` (SessionStart: lists curated notes
+  still unsaved in `.claude/memory-outbox/`; local, no server call, no token),
+  `brain-mcp-recall.mjs` (UserPromptSubmit recall injection),
   and `knowledge-curator-nudge.mjs` (PostToolUse: after a push or PR-create,
   remind the session to run the knowledge-curator; local, no server call, no
   token); see its README.

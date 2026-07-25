@@ -62,6 +62,17 @@ Memory holds a `work-item` node per item: the want, a pointer to the folder, and
 typed edges to the decisions made while doing it. The curator is forbidden from
 storing a stage. The hook is local and works in projects with no second brain.
 
+**A finished note is never dropped.** A curator can lose its write path partway
+through: the MCP connection drops mid-session, or a background job never had one.
+It then finishes the pass and hands the completed nodes back instead of storing
+them, and the default outcome is that the work evaporates. Three things prevent
+that. `POST /fast/<id>/node` persists a node with the bearer token and no OAuth,
+so a headless surface can save one at all. `.claude/memory-outbox/` catches
+anything that still cannot be sent, committed on purpose so the note travels to a
+session that can store it. And a `SessionStart` hook lists what is waiting, since
+every quiet failure here otherwise looks exactly like success. Read
+`skills/second-brain/references/curator-write-path.md`.
+
 **Capture is per turn; curation is per session.** A conversation only reads
 correctly once it is over, so the model step that turns journal entries into
 nodes takes one finished session at a time and records where it landed rather

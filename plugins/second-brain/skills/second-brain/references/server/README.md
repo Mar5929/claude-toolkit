@@ -16,7 +16,17 @@ every Claude Code session type: local, cloud, CI.
 | `GET /fast/<project-id>/digest` | Bearer token | Local hook fast path: digest at session start, no browser. |
 | `GET /fast/<project-id>/recall?q=...` | Bearer token | Local hook fast path: keyword recall per prompt. |
 | `POST /fast/<project-id>/journal` | Bearer token (write role) | Local Stop hook: append a redacted turn record to the capture journal. |
+| `POST /fast/<project-id>/curate` | Bearer token (write role) | SessionEnd hook: curate one finished session; answers 202 and runs the model call in `waitUntil`. |
+| `POST /fast/<project-id>/node` | Bearer token (write role) | Persist ONE finished node without OAuth. Same write path as `upsert_node`. |
 | `/authorize`, `/callback`, `/token`, `/register` | n/a | OAuth plumbing (workers-oauth-provider + GitHub). |
+
+`/fast/<id>/node` exists because `/mcp/<id>` is OAuth-only, so a headless surface
+(background job, cron fire, or a session whose MCP connection dropped) otherwise
+has no way to store a finished curated note and simply loses it. Body: the same
+fields as `upsert_node`, with `markdown` as the FULL node file. It defaults
+`review_after` to seven days out, since a node written without reading the graph
+first may duplicate something, and the next curator pass reconciles it. See
+`../curator-write-path.md`.
 
 **Phase 2 (writable + local capture) is implemented; see `IMPLEMENTATION.md` for
 the full record and the new-project setup recipe.** Writes populate embeddings

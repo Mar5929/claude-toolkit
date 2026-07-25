@@ -78,6 +78,16 @@ secrets rule even if the prose differs. Typical checks:
   and is the project registered on the server (its own database + a grant)? A
   local `brain/` or `memories/` directory with bash hooks is the OLD, retired
   design: flag it to migrate to the MCP skill.
+- **The memory write path survives a headless session** (the newest and most
+  invisible gap). Three checks, because each fails silently on its own: do BOTH
+  curators' `tools:` lines carry the cloud connector's tool names as well as
+  `mcp__second-brain__*` (a curator with only the terminal names has no tools at
+  all in a cloud session); is `brain-outbox-status.mjs` wired at `SessionStart`
+  with `.claude/memory-outbox/` left un-gitignored; and does
+  `POST /fast/<id>/node` answer on this project's Worker (a `400` on an empty
+  body, not a `404`)? Without these a curator can finish a full pass in a
+  background job and the notes are simply lost. See the second-brain skill's
+  `references/curator-write-path.md`.
 - **Knowledge layer**: is the `knowledge-curator` agent installed (with its
   profile filled), and are there `know-*` nodes with `covers:` SHA pins on the
   sources they explain?
