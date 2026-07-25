@@ -26,8 +26,8 @@ nobody asked."
 ## Dispatch the curator once, at wrap-up
 
 Capture is already automatic: the per-turn journal records the session whatever
-you do, and curation drains it on a schedule. A manual curator dispatch has to
-earn its cost on top of that.
+you do, and the journal is curated when the session ends. A manual curator
+dispatch has to earn its cost on top of that.
 
 It earns it when the session's durable fact is a **conclusion** rather than an
 event: a decision and its why, a root cause that contradicts the obvious
@@ -46,7 +46,7 @@ When it does earn it:
 - **Say what not to store.**
 
 Skip the dispatch entirely for pure question-and-answer turns, mechanical edits,
-or an investigation that concluded nothing. Scheduled curation covers those.
+or an investigation that concluded nothing. Session-end curation covers those.
 
 ## Give a many-node topic a hub
 
