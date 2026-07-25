@@ -196,7 +196,10 @@ the digest could have told it. Step 8.4 has the exact check.
    `brain-mcp-capture.mjs` (Stop capture), `brain-mcp-session-curate.mjs`
    (SessionEnd: tells the server this conversation is over so it curates the
    session as one finished arc), `brain-mcp-session-digest.mjs`
-   (SessionStart digest injection), `brain-mcp-recall.mjs` (UserPromptSubmit
+   (SessionStart digest injection), `work-items-status.mjs` (SessionStart:
+   reads the work-items tree and injects what is wanted, in progress, and
+   already done; local, no server call, no token, and a silent no-op when the
+   project has no such tree), `brain-mcp-recall.mjs` (UserPromptSubmit
    recall injection), `knowledge-curator-nudge.mjs` (PostToolUse: after a
    push or PR-create, remind the session to run the knowledge-curator; local,
    no server call, no token), and `kb-backfill/kb_freshness_hook.py` (Stop:

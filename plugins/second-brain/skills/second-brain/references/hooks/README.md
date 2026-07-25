@@ -1,11 +1,12 @@
 # Second-brain hooks
 
-Five deterministic, best-effort hooks. Four connect a project to the memory
+Six deterministic, best-effort hooks. Four connect a project to the memory
 server over the bearer fast path (`/fast/<project>/...`); with no
 `BRAIN_MCP_TOKEN` they silently no-op, which keeps them safe in a teammate
-checkout. The fifth (`knowledge-curator-nudge.mjs`) is different in kind: it
-makes no network call and needs no token, it just reminds the session to run the
-knowledge-curator at a push or PR. None uses a model itself, though
+checkout. Two are different in kind, making no network call and needing no
+token: `work-items-status.mjs` reads the work-items tree straight off disk, and
+`knowledge-curator-nudge.mjs` reminds the session to run the knowledge-curator
+at a push or PR. None uses a model itself, though
 `brain-mcp-session-curate.mjs` asks the server to run one.
 
 **That silence is also the system's main failure mode.** A surface with no token
@@ -22,6 +23,7 @@ environment's allowed-domains list. Setup recipe Step 6b.
 | `brain-mcp-session-curate.mjs` | `SessionEnd` | write | Tells the server this conversation is over (`POST /fast/<p>/curate` with the session id) so it curates that session as one finished arc. Fire-and-forget: the server answers 202 and does the model call in the background, so the session never waits. No-ops on `reason: resume` (backgrounding is not ending) and when there is no session id. `BRAIN_CURATE_ON_END=0` disables it. |
 | `brain-mcp-session-digest.mjs` | `SessionStart` | read + inject | Fetches the curated digest (`GET /fast/<p>/digest`) and injects it as session context, so a session starts grounded in memory. |
 | `brain-mcp-recall.mjs` | `UserPromptSubmit` | read + inject | Keyword-recalls the memory for the submitted prompt (`GET /fast/<p>/recall?q=...`) and injects the top matches before the agent answers. |
+| `work-items-status.mjs` | `SessionStart` | local inject | Reads the project's `work-items/` tree and injects what is wanted, what is in progress (with each item's next step from `STATUS.md`), and what is already done. No server call, no token, no model. No-ops silently when the project has no work-items tree. `WORK_ITEMS_INJECT=0` disables it; `WORK_ITEMS_ROOT` overrides the location. |
 | `knowledge-curator-nudge.mjs` | `PostToolUse` (Bash) | local inject | After a `git push` or `gh pr create`, injects a reminder to dispatch the knowledge-curator for any code-why that changed. No server call, no token. Gated on the knowledge-curator agent existing; `BRAIN_KC_NUDGE=0` disables it. Exists because the knowledge layer, unlike memory, has no automatic trigger of its own. |
 
 The two injection hooks are the automatic half of "the right context at the
@@ -45,6 +47,24 @@ is a secret and lives only in the gitignored `.claude/settings.local.json`:
 | `BRAIN_CURATE_ON_END` | settings.json | Default on. `0` disables session-end curation, leaving only `/remember` and the server's idle backstop. |
 | `BRAIN_INJECT` | settings.json | Default on. `0` disables BOTH injection hooks. |
 | `BRAIN_RECALL` | (optional) | Default on. `0` disables per-prompt recall only, keeping session-start digest injection. |
+| `WORK_ITEMS_INJECT` | settings.json | Default on. `0` disables the work-items injection. |
+| `WORK_ITEMS_ROOT` | (optional) | Repo-relative path to the work-items tree. Defaults to `work-items/`, then `engagement/work-items/`. |
+
+## Where work-item status comes from
+
+A work item's stage is **which folder it sits in** (`01-backlog`,
+`02-in-progress`, `03-completed`, `04-archived`), and `work-items-status.mjs`
+reads that from the tree at every session start. Nothing asserts it and nothing
+stores it, so "is that done already?" cannot go stale or be misremembered.
+
+Memory's job is the other half: the `work-item` node holds the want, a `folder:`
+pointer, and the typed links to the decisions and knowledge nodes about that
+item, so one recall answers "what did we decide while doing this?". The curator
+is explicitly forbidden from putting a stage in a node (brain-curator invariant
+13), because a copied stage contradicts the tree the moment a folder moves.
+
+The two halves answer different questions. The tree says where things stand; the
+graph says what they connect to.
 
 ## When curation actually happens
 

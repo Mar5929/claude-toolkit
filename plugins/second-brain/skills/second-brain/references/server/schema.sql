@@ -37,7 +37,7 @@ create table if not exists nodes (
   project_id   text not null references projects(id),
   id           text not null,            -- stable node id, e.g. 'dec-0001-slug'
   path         text not null,            -- file path inside brain/, e.g. 'decisions/dec-0001-slug.md'
-  type         text not null,            -- decision | knowledge | preference | session | entity
+  type         text not null,            -- decision | knowledge | preference | rule | session | entity | question | blocker | work-item
   title        text not null,
   status       text not null default 'active',
   markdown     text not null,

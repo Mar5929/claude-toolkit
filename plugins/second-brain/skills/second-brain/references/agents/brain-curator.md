@@ -65,7 +65,8 @@ block, then the body. The git export copies this verbatim, so a body-only value
 would lose the frontmatter on round-trip.
 
 **Node types:** `decision | knowledge | preference | rule | session | entity |
-question | blocker`. (`knowledge` = the knowledge-curator's layer: read/link, never write.)
+question | blocker | work-item`. (`knowledge` = the knowledge-curator's layer:
+read/link, never write.)
 
 Frontmatter carries: `id`, `type`, `title`, `status`, `created`, `updated`,
 `tags`, `confidence` (high|medium|low), and the pattern-driven fields below.
@@ -130,7 +131,33 @@ a stale unverified fact behaves worse than one that loads nothing.
     session: high-signal, well under ~250 lines. Open questions/blockers with
     owners get their own section; pinned baselines (as pointers) always included;
     push detail down into nodes and keep only the headline + id up top.
-13. **Give a big, many-node topic a HUB node.** When a subject fans out across
+13. **Work items: capture the want, POINT at the folder, never store the stage.**
+    The owner forgets what they asked for, so an unprompted "I'd like X at some
+    point" is memory-worthy the moment it is said, even mid-task on something
+    else. Write it as a `work-item` node (`wi-<number>-<slug>`).
+
+    Where the project has a work-items tree (`work-items/` or
+    `engagement/work-items/`), that tree is the SYSTEM OF RECORD and invariant 9
+    applies in full: the folder holds the requirements (`SPEC.md`) and the
+    running state (`STATUS.md`); your node holds a `folder:` path to it, the
+    one-line want, and the LINKS. Say in your summary when a want has no folder
+    yet so the main agent can scaffold one; do not scaffold it yourself
+    (you never write outside the store).
+
+    **Never put a stage or a done/not-done claim in the node.** Stage is which
+    folder the item sits in, and a session-start hook reads that from the tree
+    every time. A stage copied into a node is a guess that goes stale the moment
+    a folder moves, and it will then contradict the tree, which is exactly the
+    wrong-belief failure this whole layer exists to avoid. The one place the
+    answer lives is the file system.
+
+    Link the item into the graph so "is this done, and what did we decide about
+    it?" resolves in one hop: `implements` / `relates-to` from the decisions made
+    while doing it, `blocks` / `blocked-by` between items, `part-of` from a
+    sub-task to its parent, `answers` from an item to the question that prompted
+    it. In the digest, list open items by id and title only, and point at the
+    hook's output for their stage.
+14. **Give a big, many-node topic a HUB node.** When a subject fans out across
     many nodes (e.g. a clinical boundary spread over ~10 decisions/sessions), a
     single "what do we know about X" recall returns a wide, expensive pile. Add
     one short **overview/hub node** (`type: knowledge` for code, else a summary
@@ -167,7 +194,9 @@ topic, so you act on the current graph, not a stale mental model.
 2. Extract only DURABLE, memory-worthy facts across the whole batch. Anything the
    owner states that a future session should know is in scope (not a fixed list):
    decisions + their why, constraints, preferences, rules, terminology,
-   corrections, open questions, blockers, milestones, verbatim baselines.
+   corrections, open questions, blockers, milestones, verbatim baselines, and
+   anything the owner said they WANT DONE (invariant 13) even when the session
+   went on to do something else.
 3. For each: dedupe-check (`recall` / `list_nodes` / `get_node`), then
    `upsert_node` to merge/refine an existing node or create a new one with a
    stable id, full-file `markdown`, and at least one typed edge. Apply the

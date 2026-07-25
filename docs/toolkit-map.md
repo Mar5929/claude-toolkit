@@ -64,6 +64,13 @@ The genuine watch-items are called out at the end.
   one arc, and a server cron sweeps sessions that died before ending. Curation is
   always session-scoped, never time-sliced, because a conversation read
   mid-flight turns ideas the owner floated into decisions they never made.
+- **The work-items tree versus work-item memory nodes.** Not two trackers. The
+  tree (scaffolded by project-init Gate 1) owns STATUS: an item's stage is which
+  stage folder it sits in, and second-brain's `work-items-status.mjs` hook reads
+  that at session start, so "is this done already?" is answered by the file
+  system and cannot be misremembered. Memory owns the LINKS: a `work-item` node
+  carries the want, a pointer to the folder, and edges to the decisions and
+  knowledge nodes produced while working it. The curator may never store a stage.
 - **git-workflows versus the worktree-isolation rule.** The rule states the
   behavior ("assume other sessions share the repo"); the two skills are the safe
   git commands that carry it out. Different layers, not duplicates.
