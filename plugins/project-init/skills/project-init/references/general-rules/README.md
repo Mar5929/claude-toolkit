@@ -16,7 +16,7 @@ structure Gate 5 writes.
 
 | File | What it does |
 |---|---|
-| `keep-claudemd-current.md` | Update CLAUDE.md before a session ends whenever it surfaces a new path, convention, decision, or workflow. A slightly-too-full CLAUDE.md beats a stale one. |
+| `keep-claudemd-current.md` | Update CLAUDE.md before a session ends whenever it surfaces a new path, convention, decision, or workflow. A slightly-too-full CLAUDE.md beats a stale one. Two-sided: also prune while you are in there, route detail to the design/status/memory layer, and keep the codemap one line per folder instead of a changelog. |
 | `wrap-up-ritual.md` | At the end of a chunk of work: update the status/handoff doc, write decisions back, commit and push. Leave a clean handoff. |
 | `stay-in-scope.md` | Do not expand beyond what was asked without checking first. Recommend, do not silently gold-plate. |
 | `secrets-never-committed.md` | API keys and credentials live outside the repo. Never commit them; respect `.gitignore`; raise it if a secret would have to be committed. |
