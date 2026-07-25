@@ -92,7 +92,12 @@ The genuine watch-items are called out at the end.
   `close-with-the-ask` are intentionally paired (the second builds on the first:
   answer first, end with the next action); `answer-last-question-box`,
   `define-your-terms`, and `steer-to-the-goal` each add a distinct constraint.
-  Mild overlap by design, not accidental duplication.
+  Mild overlap by design, not accidental duplication. `quiet-while-working`
+  sits one level up from all of them: they govern how you write a single reply,
+  it governs how many replies you write at all (at most one short line per
+  chunk while working, the whole explanation saved for one final reply). The
+  one deliberate exception is `show-phase-progress`, whose one-line bar is
+  exactly the mid-work budget `quiet-while-working` allows.
 - **sf-architect-solutioning versus the Salesforce rules and structural layer.**
   sf-architect decides what to build; the `salesforce-rules` install standing
   safety and workflow rules; the second-brain Salesforce structural layer answers

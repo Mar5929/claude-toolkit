@@ -25,6 +25,7 @@ structure Gate 5 writes.
 | `writing-and-language.md` | Plain language everywhere: no em dashes, no section signs, no AI filler, calibrated to the owner. |
 | `lead-with-the-answer.md` | Put the answer or action first. Cut preamble and closing summaries; keep needed detail. |
 | `close-with-the-ask.md` | Spend no more words than the point needs, and put the owner's next action at the very end (or say plainly when nothing is needed). Builds on lead-with-the-answer and steer-to-the-goal. |
+| `quiet-while-working.md` | Be quiet while working: at most one short line per chunk, silence when nothing changed, and the whole explanation saved for one final reply written as if the owner read nothing before it. Governs how many replies you write; `lead-with-the-answer` governs each one. |
 | `answer-last-question-box.md` | Plain chat text never asks a question; real decisions go through the blocking question box. Run tools first, then one reply. |
 | `solve-the-goal-push-back.md` | Work the real goal, not just the words. Push back on risky or misaimed requests with a better path; then do it the owner's way. |
 | `recommend-the-best-solution.md` | Once the problem is clear, propose the well-architected, best-practice solution, not a band-aid. Recommend it and name the quick-patch tradeoff; once the owner decides, do it their way. |
