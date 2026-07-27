@@ -12,7 +12,7 @@
     {
       "name": "project-init",
       "source": "./plugins/project-init",
-      "description": "Two skills: project-init walks through new-project setup while second-brain gates are deferred; project-sync audits an existing project and may deactivate or remove approved local v1 integration without contacting cloud resources."
+      "description": "Two skills: project-init walks through new-project setup, including optional standalone toolkit skills, while second-brain gates are deferred; project-sync audits an existing project and may deactivate or remove approved local v1 integration without contacting cloud resources."
     },
     {
       "name": "sf-architect-solutioning",
@@ -33,6 +33,11 @@
       "name": "session-autoname",
       "source": "./plugins/session-autoname",
       "description": "Keeps a background Claude Code agent session named after the single overarching PROJECT it is working toward, not the step it happens to be on. A Stop hook runs at the end of every turn and asks Haiku for a short project-level label, judged from the arc of the owner's own requests (never the assistant's replies, which narrate the current step) and anchored by feeding the current name back in so it is returned unchanged unless the project genuinely changed. Keeps the job list accurate as a long session drifts off the task it started on, without the name churning every few minutes. Background sessions only, never blocks a turn, and fails silently if Claude Code's internal state format changes."
+    },
+    {
+      "name": "grill-me",
+      "source": "./plugins/grill-me",
+      "description": "Relentless discovery interview skill that asks one question at a time, recommends a likely answer, and checkpoints every response to a durable brainstorm file before continuing."
     }
   ]
 }

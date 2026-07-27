@@ -20,6 +20,7 @@ toolkit reaches a project.
   3. Memory system (temporarily deferred)
   4. Knowledge layer (temporarily deferred)
   5. CLAUDE.md and `.claude/rules/`
+  6. Optional standalone toolkit skills, beginning with `grill-me`
   It asks before acting, recommends a per-stack layout, and copies in the
   standard rule files. It does not hold the memory or knowledge systems itself;
   it points at their plugins so each can evolve on its own.
@@ -51,6 +52,8 @@ Bundled under `skills/project-init/references/`:
 - project-init is the **entry point that installs the other plugins' systems**.
   Gates 3 and 4 are recorded as deferred because v1 is retired and v2 is not
   shipped.
+- Gate 6 offers the standalone `grill-me` interview workflow without copying it
+  into the project. The plugin remains its canonical home.
 - project-sync identifies existing local v1 integrations. With owner approval
   it may deactivate them or remove specifically approved local files. It never
   contacts the Worker or Neon, reads legacy memory, imports v1 into v2, or

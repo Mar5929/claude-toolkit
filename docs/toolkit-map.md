@@ -15,6 +15,7 @@ depth lives in each plugin's own `README.md` and reference indexes.
 | [sf-architect-solutioning](../plugins/sf-architect-solutioning/README.md) | Salesforce solution architect: approved solution plan before any build | `sf-architect-solutioning` | `/plugin install sf-architect-solutioning` |
 | [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git sync | `pull-latest`, `reset-to-remote` | `/plugin install git-workflows` |
 | [session-autoname](../plugins/session-autoname/README.md) | Background agent sessions stay named after their overarching project | `session-autoname` | `/plugin install session-autoname` |
+| [grill-me](../plugins/grill-me/README.md) | Persistent discovery interviews that checkpoint every answer | `grill-me` | `/plugin install grill-me` |
 
 ## Skills at a glance
 
@@ -28,6 +29,7 @@ depth lives in each plugin's own `README.md` and reference indexes.
 | pull-latest | git-workflows | Get current with the remote without rewriting or discarding | `/pull-latest` |
 | reset-to-remote | git-workflows | Hard-reset a repo to mirror the remote, safely gated | `/reset-to-remote` |
 | session-autoname | session-autoname | Install the per-machine hook that re-names a background session each turn | `/session-autoname` |
+| grill-me | grill-me | Stress-test an idea one question at a time and preserve every answer | `/grill-me`, "grill me" |
 
 ## Rules and references (canonical indexes)
 
@@ -92,6 +94,11 @@ The genuine watch-items are called out at the end.
 - **git-workflows versus the worktree-isolation rule.** The rule states the
   behavior ("assume other sessions share the repo"); the two skills are the safe
   git commands that carry it out. Different layers, not duplicates.
+- **grill-me versus work-item and memory files.** `grill-me` owns raw discovery
+  notes under `brainstorms/`. A work item's `SPEC.md` and `STATUS.md` own the
+  approved design and current execution state, while second-brain concerns
+  cross-session memory. The brainstorm may inform those artifacts but does not
+  replace them.
 - **session-autoname is deliberately NOT offered by project-init.** Every other
   plugin here installs into a project. This one installs into a machine: it
   writes `~/.claude/hooks/` and `~/.claude/settings.json` once, and from then on

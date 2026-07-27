@@ -1,0 +1,38 @@
+{
+  "name": "grill-me",
+  "version": "0.1.0",
+  "description": "Stress-test a plan, design, or idea through a persistent one-question-at-a-time interview that checkpoints every answer to Markdown.",
+  "author": {
+    "name": "Mike Rihm",
+    "email": "michael@rihm.com",
+    "url": "https://github.com/Mar5929"
+  },
+  "homepage": "https://github.com/Mar5929/claude-toolkit",
+  "repository": "https://github.com/Mar5929/claude-toolkit",
+  "keywords": [
+    "toolkit",
+    "brainstorming",
+    "discovery",
+    "skills"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Grill Me",
+    "shortDescription": "Persistent interviews that stress-test your ideas.",
+    "longDescription": "Relentlessly interviews you about a plan, design, or topic, asking one question at a time and checkpointing every answer to a durable Markdown file before continuing.",
+    "developerName": "Mike Rihm",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write",
+      "Repository"
+    ],
+    "websiteURL": "https://github.com/Mar5929/claude-toolkit",
+    "defaultPrompt": [
+      "Grill me on this plan",
+      "Stress-test this design",
+      "Extract this idea into durable notes"
+    ],
+    "brandColor": "#B45309"
+  }
+}

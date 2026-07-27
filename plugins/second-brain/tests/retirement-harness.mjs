@@ -38,6 +38,12 @@ const unit00 =
   "docs/second-brain-v2/units/00-current-system-retirement.md";
 const serverRoot =
   "plugins/second-brain/skills/second-brain/references/server";
+const brainCurator =
+  "plugins/second-brain/skills/second-brain/references/agents/brain-curator.md";
+const knowledgeCurator =
+  "plugins/second-brain/skills/second-brain/references/agents/knowledge-curator.md";
+const outboxHook =
+  "plugins/second-brain/skills/second-brain/references/hooks/brain-outbox-status.mjs";
 
 includes(secondBrainSkill, "v1 is retired", "second-brain reports v1 retired");
 includes(secondBrainSkill, "not shipped", "second-brain reports v2 not shipped");
@@ -53,6 +59,13 @@ includes(projectSyncSkill, "Deactivate:", "project-sync offers deactivation");
 includes(projectSyncSkill, "Remove local integration", "project-sync offers local removal");
 excludes(projectSyncSkill, "HTTP 423", "project-sync does not probe live containment");
 excludes(projectSyncSkill, "migration evidence", "project-sync has no v1 migration path");
+
+includes(brainCurator, "Retired v1 reference", "old brain curator is marked retired");
+includes(knowledgeCurator, "Retired v1 reference", "old knowledge curator is marked retired");
+excludes(brainCurator, "migration evidence", "old brain curator is not migration input");
+excludes(knowledgeCurator, "migration evidence", "old knowledge curator is not migration input");
+includes(outboxHook, "not current truth", "old outbox notice rejects legacy truth");
+excludes(outboxHook, "v2 migration", "old outbox notice has no migration path");
 
 includes(v2Index, "V2 starts fresh from authoritative Git content", "v2 starts from Git");
 includes(v2Index, "not shipped", "v2 remains unshipped");

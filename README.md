@@ -123,6 +123,12 @@ claude-toolkit/
         session-autoname.mjs      ← the Stop hook, installed to ~/.claude/hooks/
       skills/
         session-autoname/         ← SKILL.md (one-time per-machine install)
+    grill-me/                     ← plugin: persistent discovery interviews
+      README.md
+      .claude-plugin/plugin.json
+      .codex-plugin/plugin.json
+      skills/
+        grill-me/                 ← SKILL.md + Codex UI metadata
   docs/
     toolkit-map.md                ← the catalog: every item and how they relate
     architecture.html             ← visual map of how the pieces fit
@@ -142,7 +148,7 @@ relate (including what looks redundant but is not), see
 
 ## What's here now
 
-Four plugins. Each has its own `README.md` with the detail;
+Six plugins. Each has its own `README.md` with the detail;
 [`docs/toolkit-map.md`](docs/toolkit-map.md) indexes everything in one place and
 explains how the pieces relate.
 
@@ -153,6 +159,7 @@ explains how the pieces relate.
 | **[sf-architect-solutioning](plugins/sf-architect-solutioning/README.md)** | A Salesforce solution architect: pushes back on vague requirements, verifies platform facts against official docs by live fetch, designs declarative-first to Well-Architected standards, and presents a solution plan for approval before any build. Salesforce projects only. |
 | **[git-workflows](plugins/git-workflows/README.md)** | Two parallel-session-safe git sync skills: `pull-latest` gets current without rewriting or discarding history, `reset-to-remote` hard-resets to mirror the remote behind a confirmation. |
 | **[session-autoname](plugins/session-autoname/README.md)** | Keeps a background agent session named after the overarching project it is working on, never the step it is on. A Stop hook re-checks the label each turn from a cheap Haiku call and holds it steady until the project itself changes, so a long session stops lying in the job list without the name churning. One-time per-machine install, not per project. |
+| **[grill-me](plugins/grill-me/README.md)** | Stress-tests a plan, design, or topic through a one-question-at-a-time interview and checkpoints every answer to a durable Markdown file before continuing. |
 
 ---
 
@@ -221,6 +228,13 @@ For safe git sync skills (`pull-latest`, `reset-to-remote`) on any project:
 
 ```
 /plugin install git-workflows
+```
+
+For a persistent brainstorm or discovery interview:
+
+```
+/plugin install grill-me
+/grill-me
 ```
 
 To have background agent sessions keep their own names current (a one-time setup

@@ -82,10 +82,9 @@ const context = [
   ``,
   ...lines.join("\n").split("\n"),
   ``,
-  `Second-brain v1 is currently read-only. Preserve these files as migration`,
-  `evidence. Do not run /remember, send them to a curator, or delete them.`,
-  `A later v2 migration review will classify each proposal before anything`,
-  `becomes current project memory.`,
+  `Second-brain v1 is retired. These legacy files are not current truth.`,
+  `Do not run /remember, send them to a curator, or import them into v2.`,
+  `Local review or deletion requires separate owner approval.`,
 ].join("\n");
 
 process.stdout.write(JSON.stringify({

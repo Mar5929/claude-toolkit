@@ -7,10 +7,9 @@ description: >-
   in this project", "sync this project with claude-toolkit", "audit this
   project against the toolkit", or "/project-sync". This skill inventories
   everything the toolkit currently ships (the general and Salesforce rules
-  libraries, hooks, second-brain v1 retirement, and any newer systems),
-  cross-references the
-  current project, reports the gaps, and closes each gap only with the user's
-  approval.
+  libraries, hooks, second-brain v1 retirement, standalone skills such as
+  grill-me, and any newer systems), cross-references the current project,
+  reports the gaps, and closes each gap only with the user's approval.
 ---
 
 # project-sync: bring an existing project up to the toolkit
@@ -52,6 +51,7 @@ automatically as it grows.
   - the per-server MCP tool rules in `references/mcp-best-practices.md`; these
     are conditional, so only audit the servers this project actually connects
   - each system from the setup gates: hooks, memory system, knowledge layer
+  - each standalone skill offered by the setup flow, including `grill-me`
   - anything newer listed in the toolkit README under "What's here now"
   - skip roadmap items; they aren't built yet and can't be audited. The Unit 00
     v1 retirement behavior is the exception: existing v1 integration must be
@@ -94,6 +94,10 @@ secrets rule even if the prose differs. Typical checks:
 - **Knowledge layer:** existing v1 curator files, `know-*` nodes, SHA pins, and
   drift reports are retired. Do not refresh, reconcile, import, or use them as
   current truth.
+- **Standalone toolkit skills:** check the previous sync record and the
+  available host plugins. For `grill-me`, classify whether it is available to
+  invoke, previously declined, or not applicable. Do not look for a copied
+  `SKILL.md` inside the project because the canonical skill stays in its plugin.
 - **Previous sync record**: read it if present (step 5 format) so deliberate
   opt-outs are respected.
 
