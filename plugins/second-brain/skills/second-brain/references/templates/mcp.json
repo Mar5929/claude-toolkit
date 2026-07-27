@@ -1,9 +1,0 @@
-{
-  "_comment": "Commit this as .mcp.json at the PROJECT ROOT. It points the terminal Claude Code CLI at this project's second-brain endpoint. Delete this _comment key. Replace <BRAIN_MCP_ORIGIN> (for Mike's live server: https://second-brain.rihm.workers.dev) and <PROJECT_ID>. Cloud/web Claude sessions do NOT use this file; they need an account-level custom connector pointing at the same URL (see the setup recipe, 'cloud connector' step).",
-  "mcpServers": {
-    "second-brain": {
-      "type": "http",
-      "url": "<BRAIN_MCP_ORIGIN>/mcp/<PROJECT_ID>"
-    }
-  }
-}

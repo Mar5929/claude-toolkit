@@ -8,7 +8,7 @@ so they always know where they are.
 [ ] Gate 0 - Orient: read the working dir; identify stack & project state
 [ ] Gate 1 - Scaffolding & folder structure
 [ ] Gate 2 - Hooks (guards & automation)
-[ ] Gate 3 - Memory system            (deferred: v1 contained, v2 not shipped)
+[ ] Gate 3 - Memory system            (deferred: v1 retired, v2 not shipped)
 [ ] Gate 4 - Knowledge layer          (deferred with Gate 3)
 [ ] Gate 5 - CLAUDE.md + .claude/rules (copy general rules; write thin CLAUDE.md)
 [ ] Gate 6 - Optional toolkit skills  (offer grill-me)
@@ -51,7 +51,7 @@ so they always know where they are.
   hit a production org; auto-detects production; tuned by a JSON policy file).
 
 **Gate 3: Memory system**
-- Mark deferred. V1 is frozen legacy infrastructure and v2 is not shipped.
+- Mark deferred. V1 is retired and v2 is not shipped.
 - Do not install a database, MCP connector, curators, capture, or recall.
 
 **Gate 4: Knowledge layer**
@@ -65,7 +65,7 @@ so they always know where they are.
 - Copy the general rules from `general-rules/` into `.claude/rules/`: every
   default-ON file unless the owner drops it, plus the two conditional files
   (memory, knowledge) only if a production-ready memory or knowledge gate ran.
-  During containment, neither conditional rule is added. Walk the list; let the
+  While v2 is not shipped, neither conditional rule is added. Walk the list; let the
   owner accept, edit, or skip each.
 - Default-ON rules: multi-agent worktree protocol, language rules (no em dashes,
   no section signs, no AI filler, plain language), and working-style rules (lead

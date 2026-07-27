@@ -42,8 +42,8 @@ structure Gate 5 writes.
 
 | File | Include when |
 |---|---|
-| `memory-system-ground-rules.md` | Existing v1 projects only during Unit 00. Keeps v1 read-only, disables automatic writers, labels reads legacy/advisory, preserves all migration evidence, and keeps requirement changes aligned across specs, code, and tests. Do not add to a new project. |
-| `knowledge-layer-ground-rules.md` | Existing v1 knowledge layers only during Unit 00. Preserves `know-*` nodes, pins, drift reports, and outbox files as legacy evidence without refreshing or promoting them. Do not add to a new project. |
+| `memory-system-ground-rules.md` | Recognition text for an existing retired v1 project. Directs project-sync to deactivate or remove local integration without touching cloud resources. Do not add to a new project. |
+| `knowledge-layer-ground-rules.md` | Recognition text for an existing retired v1 knowledge layer. Forbids refresh or import into v2. Do not add to a new project. |
 
 MCP tool rules (Context7, Gmail, Google Calendar, Linear, Notion, Playwright)
 are conditional too, and live in `../mcp-best-practices.md`: fold in a server's

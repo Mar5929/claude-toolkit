@@ -2,10 +2,10 @@
 
 Status: proposed architecture, not shipped.
 
-This folder is the implementation specification for reworking the toolkit's
-current memory and knowledge system. It is deliberately separate from
-`plugins/second-brain/`, which continues to describe the system that is live
-today. Nothing in this folder should be read as a claim that v2 is installed.
+This folder is the implementation specification for replacing the retired v1
+memory and knowledge system. It is deliberately separate from
+`plugins/second-brain/`, which currently provides only retirement controls.
+Nothing in this folder should be read as a claim that v2 is installed.
 
 ## Why the rework exists
 
@@ -45,14 +45,18 @@ The [high-level technical architecture](TECHNICAL-ARCHITECTURE.md) supersedes
 the earlier remote-ledger direction. The detailed units now break that
 architecture into implementable work.
 
+V2 starts fresh from authoritative Git content. Legacy v1 Neon memories are not
+an input, evidence source, or migration source for v2. The live Worker and Neon
+resources remain untouched until the owner separately approves their deletion.
+
 ## Documents
 
 - [Technical architecture](TECHNICAL-ARCHITECTURE.md): the target system,
   boundaries, data model, APIs, trust model, runtime flows, budgets, and major
   decisions.
 - [ADR-001: Git-native specifications and typed project memory](decisions/ADR-001-git-native-typed-memory.md)
-- [Unit 00: contain the current system](units/00-current-system-containment.md)
-  (implemented in toolkit source; live operation pending separate approval)
+- [Unit 00: retire the current system](units/00-current-system-retirement.md)
+  (retirement implemented in toolkit behavior; no live operation authorized)
 - [Unit 01: project identity, configuration, and health](units/01-store-identity-and-health.md)
 - [Unit 02: Git schemas, provenance, and change receipts](units/02-schema-provenance-write-receipts.md)
 - [Unit 03: proactive knowledge review and apply](units/03-bounded-curation.md)
@@ -60,18 +64,18 @@ architecture into implementable work.
 - [Unit 05: routing, retrieval, and optional index](units/05-digest-retrieval.md)
 - [Unit 06: repository knowledge layer](units/06-repo-knowledge-layer.md)
 - [Unit 07: backup, retention, and restore](units/07-backup-retention-restore.md)
-- [Unit 08: migration, rollout, and rollback](units/08-migration-rollout.md)
+- [Unit 08: fresh-start rollout and rollback](units/08-fresh-start-rollout.md)
 - [Unit 09: verification and cost gates](units/09-verification-cost-gates.md)
 
 ## Implementation order
 
-1. Contain unsafe v1 behavior.
+1. Retire v1 and remove its active toolkit paths.
 2. Install the project layout, configuration, and validators.
 3. Implement record schemas and lifecycle validation.
 4. Implement proactive review and owner-controlled apply.
 5. Implement deterministic routing and retrieval.
 6. Add optional disposable indexing only after the core works without it.
-7. Add migration, restore, and full verification gates.
+7. Add fresh-start rollout, restore, and full verification gates.
 
 ## Non-goals
 
@@ -97,6 +101,10 @@ Mike has approved these high-level decisions:
    scheduled AI curation.
 7. The default system requires no database or embedding model. Any index is a
    disposable local artifact rebuilt from Git.
+8. V1 is retired. No v1 deployment, export, or memory import will occur.
+9. V2 starts only from authoritative content already committed to Git.
+10. Existing Worker and Neon resources remain untouched until separately
+    approved for deletion.
 
 The exact configuration schema, requirement-file granularity, optional index
 thresholds, and traceability strictness remain implementation decisions.

@@ -1,5 +1,8 @@
 # Which brain is this project's, and why another one is visible
 
+> **Archived v1 reference.** V1 is retired. Do not connect to any project brain
+> or use its content. This file records the scoping failure that v2 must avoid.
+
 This is the canonical description of **memory scoping**: how a session tells its
 own project's second brain from some other project's, and what stops it reading
 or writing the wrong one. `curator-write-path.md` covers the other half, what

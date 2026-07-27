@@ -19,7 +19,7 @@ quality, simplicity, and cost.
    search, optional semantic search, and honest abstention.
 5. Failure tests for missing files, malformed config, stale indexes, unavailable
    external authorities, partial file edits, and validation failure.
-6. Migration and fresh-clone restore tests.
+6. Fresh-start adoption and fresh-clone restore tests.
 7. Scope-isolation tests for project profiles that separate clients or data
    domains.
 
@@ -35,6 +35,7 @@ quality, simplicity, and cost.
 - Stale knowledge has the strongest semantic similarity.
 - The optional index is missing, stale, corrupted, and then rebuilt.
 - A fresh clone has no database or embedding model.
+- A fresh-start adoption does not read or import any v1 source.
 - A substantial task produces no worthwhile proposal.
 - `yes go`, selection, editing, and skipping each apply the exact intended set.
 - A rejected proposal leaves no Git artifact.
@@ -83,7 +84,7 @@ Each implementation pull request attaches:
 - example configuration or record changes;
 - failure-injection results;
 - measured token, tool-call, latency, and optional disk totals;
-- migration and rollback notes when applicable; and
+- fresh-start rollout and rollback notes when applicable; and
 - the requirement identifiers it satisfies.
 
 `Codex plugin validate .` must remain green for every toolkit change. A pilot

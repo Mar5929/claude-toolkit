@@ -1,12 +1,12 @@
 # second-brain architecture and process flow
 
-> **Legacy reference only.** This document describes v1. Unit 00 contains v1
-> read-only and forbids new installations. V2 is specified under
+> **Archived v1 reference only.** V1 is retired. Do not install, connect, read,
+> export, or migrate it. V2 is specified under
 > `docs/second-brain-v2/` but is not shipped. Use the plugin `SKILL.md` for the
 > current behavior.
 
-What the system is, why it is built this way, and what happens at runtime. Read
-this once before installing so you understand what you are wiring up. The deep
+This records what the system was, why it was built this way, and what happened
+at runtime. The deep
 build record (schema internals, MCP tool contracts, design-review lessons) lives
 in `server/IMPLEMENTATION.md`; this file is the overview.
 

@@ -1021,28 +1021,26 @@ Maintenance does not:
 - resolve contradictions without owner-visible evidence; or
 - inject a full maintenance backlog into feature work.
 
-## 19. Migration direction
+## 19. Fresh-start direction
 
-Existing second-brain v1 databases and project memory folders are migration
-evidence, not automatic truth.
+Second-brain v1 is retired and is not a source for v2. Existing v1 databases,
+exports, project memory caches, curator output, and outbox files are not
+classified or imported.
 
-For each project:
+For each project that adopts v2:
 
-1. inventory existing memory, knowledge documents, rules, and external systems;
-2. classify each item by its intended canonical knowledge class;
-3. identify duplicates and conflicts;
-4. propose active requirements and decisions for owner review;
-5. import approved behavior into `specs/` and other approved durable knowledge
-   into the appropriate typed folder under `memory/`;
-6. retain unresolved or historical material as proposed or archived evidence;
-7. disable automatic curator writes;
-8. remove stale automatic imports;
-9. build the small `specs/` and `memory/` routers and current-state briefing;
-   and
-10. optionally generate a disposable local index.
+1. start from the current Git repository;
+2. identify authoritative requirements and operational documentation already
+   committed to Git;
+3. install the v2 project layout only after its implementation units pass;
+4. build `specs/` and `memory/` from reviewed Git content and new owner-approved
+   work;
+5. build the small routers and current-state briefing; and
+6. optionally generate a disposable local index.
 
-A bulk migration must not mark old memories active merely because they existed
-in v1.
+The live v1 Worker and Neon resources remain untouched until the owner
+separately approves deletion. Their continued existence does not make their
+content valid input to v2.
 
 ## 20. Simulator requirements
 

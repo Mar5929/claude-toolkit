@@ -121,8 +121,8 @@ sessions.
 
 - Mark this gate **deferred by the toolkit**. Do not offer or install the old
   Neon/MCP v1 system.
-- Explain that v1 is being frozen as legacy evidence and v2 is specified but
-  not shipped. There is no safe new-project installer yet.
+- Explain that v1 is retired and v2 is specified but not shipped. There is no
+  second-brain installer yet.
 - Continue to Gate 4 without creating a database, connector, curator agents, or
   automatic capture and recall hooks.
 

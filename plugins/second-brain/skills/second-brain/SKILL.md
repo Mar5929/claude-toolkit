@@ -1,31 +1,28 @@
 ---
 name: second-brain
 description: >-
-  Handle second-brain setup requests during the Unit 00 containment period.
-  The old Neon/MCP v1 system is frozen and must not be installed into a new
-  project. Git-native v2 is specified but not shipped. For an existing v1
-  project, report its legacy status and offer only the documented, reversible
-  containment settings. Do not delete, migrate, deploy, snapshot, or export
-  live data without the owner's separate approval.
+  Handle second-brain requests while v1 is retired and Git-native v2 is
+  specified but not shipped. Never install, deploy, read, export, or migrate
+  v1. For an existing project, identify local v1 integration files and offer a
+  separately approved deactivation or local removal. Do not contact Worker or
+  Neon resources.
 ---
 
-# Second-brain during Unit 00 containment
+# Second-brain after v1 retirement
 
 There is currently no production-ready second-brain installation path:
 
-- v1 is the legacy Neon/MCP system. It is being frozen read-only.
+- v1 is retired.
 - v2 is a technical specification under `docs/second-brain-v2/`, not shipped
   functionality.
 
-Do not install v1 into another project, and do not claim that v2 can be
-installed or migrated to yet.
+Do not install or revive v1. Do not claim v2 can be installed yet.
 
 ## New project
 
-Say that second-brain setup is temporarily unavailable while v2 is being
-implemented. Continue the rest of project setup without Gates 3 and 4. Do not
-create a database, register a Worker secret, add an MCP connector, copy curator
-agents, or install automatic capture and recall hooks.
+Record memory and knowledge setup as deferred. Continue the rest of project
+setup without creating a database, MCP connector, curator agent, capture hook,
+recall hook, `specs/`, or `memory/` imitation.
 
 ## Existing project without v1
 
@@ -33,70 +30,45 @@ Record second-brain as deferred. Do not add v1 components.
 
 ## Existing project with v1
 
-Treat every v1 read as `legacy/advisory`, never as current truth. Offer the
-following reversible settings, one project at a time and only with the owner's
-approval:
+Treat the integration as retired. Do not call its reads or writes, and do not
+use its content as current truth or as input to v2.
 
-```json
-{
-  "BRAIN_V1_WRITE_MODE": "read-only",
-  "BRAIN_CAPTURE": "0",
-  "BRAIN_CURATE_ON_END": "0",
-  "BRAIN_RECALL": "0",
-  "BRAIN_KC_NUDGE": "0"
-}
-```
+Offer two local-only choices, one at a time and only with owner approval:
 
-Keep `BRAIN_INJECT=1` only if the owner wants the legacy digest available with
-its warning. Do not remove `.mcp.json`, tokens, hooks, agents, outbox files,
-ignored local caches, or any database content. Do not run `/remember`.
+1. **Deactivate, recommended first.** Disable automatic v1 hooks and remove the
+   project's v1 MCP connection from committed Claude and Codex configuration.
+   Preserve the old scripts and agents temporarily so the change is easy to
+   review and reverse.
+2. **Remove local integration files.** After showing the exact paths, remove
+   committed v1 hooks, curator agents, MCP configuration, v1 rules, and empty
+   outbox scaffolding that the owner approves. Do not open ignored local secret
+   files. Do not delete an outbox or cache that contains user material without
+   separate explicit approval.
 
-The server-side controls are separate:
+Account-level connectors, local tokens, the Worker, Neon databases, and cloud
+infrastructure are outside this skill. Report them as separate follow-up work.
+Do not access or change them.
 
-```text
-BRAIN_V1_WRITE_MODE=read-only
-AUTO_CURATE=0
-```
+## `/remember`
 
-Changing project settings does not change the deployed Worker. Changing the
-toolkit source does not deploy it. Follow
-`references/v1-freeze-and-export.md` only after the owner separately approves
-the live containment and backup operation.
+`/remember` remains unavailable until the Git-native v2 review and apply
+workflow ships. Do not dispatch a curator, write a journal, flush an outbox, or
+create an ad hoc replacement.
 
-## Read-only behavior
+## Retirement boundary
 
-Deliberate `get_digest`, `recall`, `get_node`, `list_nodes`, `read_journal`, and
-`export` reads may remain available. Their output must say
-`legacy/advisory`. Useful claims must be verified against the Git repository
-before use.
-
-Every blocked write must return:
-
-```json
-{
-  "outcome": "skipped",
-  "reason": "v1_read_only",
-  "next_action": "retain the proposal locally or use the v2 migration path"
-}
-```
-
-## What not to do
-
-- Do not delete or drain legacy data.
-- Do not promote legacy content into `specs/` or `memory/`.
-- Do not deploy the Worker from this skill.
-- Do not take a snapshot or logical export without separate approval.
-- Do not improvise a partial v2 installer.
-- Do not migrate a pilot project until the Git-native core and migration tools
-  exist and pass their release gates.
+- No v1 deployment will occur.
+- No v1 memory will be exported or imported into v2.
+- V2 starts from authoritative Git content.
+- Worker and Neon resources remain untouched until separately approved for
+  deletion.
+- V2 is not shipped and Unit 01 has not begun.
 
 ## Reference map
 
-- `references/v1-freeze-and-export.md`: operator procedure for a later,
-  separately approved live freeze and backup.
-- `references/server/`: contained v1 Worker source and verification harness.
-- `references/templates/settings.json`: containment settings for an existing
-  v1 project, not a new-project installer.
-- `docs/second-brain-v2/`: proposed v2 architecture and implementation units.
-- Other files under `references/`: retained v1 implementation evidence. They
-  are not current installation instructions during containment.
+- `docs/second-brain-v2/`: proposed Git-native architecture and implementation
+  units.
+- `references/server/`: archived v1 implementation evidence. It is not a
+  deployment source and has no default deploy path.
+- Other files under `references/`: historical v1 design evidence. They are not
+  installation, export, or migration instructions.

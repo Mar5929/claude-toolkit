@@ -27,7 +27,7 @@ Before adding, ask where the thing actually lives:
 - **What changed and when** belongs in git history, not in prose. A requirement
   change belongs in the applicable specification, code, and tests together.
   Other durable conclusions use the project's current Git-native memory system
-  when one is actually shipped. Never write them into contained v1.
+  when one is actually shipped. Never write them into retired v1.
 
 Then keep the shape:
 

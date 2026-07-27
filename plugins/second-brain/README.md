@@ -1,126 +1,80 @@
 # second-brain plugin
 
-The toolkit's project memory system. It is currently in a controlled transition:
+The toolkit's project memory system is between generations:
 
-- **V1 is legacy and contained.** It uses a shared Cloudflare Worker, one Neon
-  Postgres/pgvector database per project, GitHub OAuth, typed graph nodes,
-  curator agents, automatic capture, and hybrid recall. It must not be installed
-  into another project. The contained Worker source fails closed in read-only
-  mode and labels reads `legacy/advisory`.
+- **V1 is retired.** The old shared Cloudflare Worker and per-project Neon
+  databases are not approved sources of truth. They will not be deployed,
+  frozen, exported, backed up for migration, or imported into v2.
 - **V2 is specified but not shipped.** Its Git-native architecture is under
   [`docs/second-brain-v2/`](../../docs/second-brain-v2/README.md). There is no v2
-  installer or project migration path yet.
+  installer yet.
 
-The legacy source and documentation remain in this plugin as implementation and
-migration evidence. Their presence does not make v1 production-ready or v2
-available.
+Existing Worker and Neon resources remain untouched until the owner separately
+approves deletion.
 
 ## Skills
 
-- **second-brain** (`/second-brain`): during containment, refuses new v1
-  installations. For an existing v1 project, it can explain and offer the
-  reversible project settings that stop automatic capture, recall, and curator
-  triggers without deleting anything.
-- **remember** (`/remember`): temporarily returns the structured
-  `v1_read_only` result. It does not dispatch curators, write the journal, or
-  flush outbox files.
+- **second-brain** (`/second-brain`): refuses v1 installation, reports that v2
+  is not shipped, and can identify local v1 integration files in an existing
+  project. With approval it may deactivate or remove local integration only.
+- **remember** (`/remember`): returns `v1_retired` and writes nothing until the
+  Git-native v2 review and apply workflow ships.
 
-## Unit 00 containment
+## New projects
 
-The Worker uses `BRAIN_V1_WRITE_MODE`. Missing, empty, and unknown values fail
-closed as `read-only`. Only the explicit value `write` restores server writes.
+`project-init` defers memory and knowledge Gates 3 and 4. It never installs v1
+and never creates a partial imitation of v2.
 
-Blocked MCP writes:
+## Existing projects
 
-- `upsert_node`
-- `put_digest`
-- `append_journal`
-- `drain_journal`
+`project-sync` detects committed v1 MCP entries, settings, hooks, wrappers,
+agents, rules, and scaffolding. It offers:
 
-Blocked bearer routes:
+1. reversible local deactivation, recommended first; or
+2. removal of explicitly approved local integration files.
 
-- `POST /fast/<project>/node`
-- `POST /fast/<project>/journal`
-- `POST /fast/<project>/curate`
+Neither choice contacts the Worker or Neon, reads legacy memory, imports content
+into v2, deletes local secrets, or deletes cloud infrastructure. Account-level
+connectors, local token cleanup, and cloud deletion are separate work.
 
-They return:
+## Archived v1 implementation
 
-```json
-{
-  "outcome": "skipped",
-  "reason": "v1_read_only",
-  "next_action": "retain the proposal locally or use the v2 migration path"
-}
-```
+The old source remains under `skills/second-brain/references/` only as historical
+implementation evidence. It is not an installation, deployment, export, or
+migration path.
 
-Bearer writes use HTTP 423. MCP writes return the same JSON as an error.
-Scheduled curation and direct session curation make zero model calls. Deliberate
-recall remains readable but does not update recall counters while contained.
+The archived Worker under `references/server/` has no default
+`wrangler.jsonc`, no package deploy script, and an archive notice. Keeping the
+code makes the decisions and failure history inspectable without shipping a
+normal deployment path.
 
-Existing projects should set:
+## V2 starting point
 
-```json
-{
-  "BRAIN_V1_WRITE_MODE": "read-only",
-  "BRAIN_CAPTURE": "0",
-  "BRAIN_CURATE_ON_END": "0",
-  "BRAIN_RECALL": "0",
-  "BRAIN_KC_NUDGE": "0"
-}
-```
+V2 starts from authoritative Git content:
 
-The live Worker separately needs `BRAIN_V1_WRITE_MODE=read-only` and
-`AUTO_CURATE=0`. Source changes in this repository do not deploy that Worker.
+- current requirements already committed to the project;
+- current operational and design documentation already committed to the
+  project; and
+- new owner-approved knowledge created through the v2 workflow after it ships.
 
-## Preserved reads and exports
-
-Scoped `get_digest`, deliberate `recall`, `get_node`, `list_nodes`,
-`read_journal`, and `export` reads remain available. Every read is labeled
-`legacy/advisory`, meaning it is evidence to verify against Git, not current
-truth.
-
-The freeze export includes project identity, current nodes, edges, revision
-history, digest metadata, and every journal row without draining anything.
-Database-native snapshots and `pg_dump` are still required for full recovery.
-
-The separately approved live procedure is documented in
-[`v1-freeze-and-export.md`](skills/second-brain/references/v1-freeze-and-export.md).
-It explicitly preserves databases, journal state, local caches, hooks, agents,
-tokens, and outbox files.
-
-## What remains from v1
-
-The references under `skills/second-brain/references/` document the legacy:
-
-- deployable Worker and database schema;
-- profile-specific curator templates;
-- capture, recall, digest, scope, outbox, and work-item hooks;
-- Neon/MCP setup recipe;
-- drift-pinned knowledge layer;
-- optional Salesforce and graphify structural indexes.
-
-These files are retained for auditing and migration. The `second-brain` skill
-is the current control point and says not to install them.
-
-## Relationship to project-init
-
-`project-init` now marks memory and knowledge Gates 3 and 4 as deferred during
-containment. `project-sync` must not install v1 or claim v2 is available. It may
-identify an existing v1 installation and, with approval, apply only the
-reversible containment settings.
+Legacy Neon memory, journals, curator output, caches, and outboxes are not v2
+inputs.
 
 ## Verification
 
-From `skills/second-brain/references/server/`:
+Run:
 
 ```sh
+node plugins/second-brain/tests/retirement-harness.mjs
+```
+
+The archived server's historical no-database checks remain available:
+
+```sh
+cd plugins/second-brain/skills/second-brain/references/server
 npm ci
 npm run check
 ```
-
-`npm run check` runs TypeScript validation and the no-database containment
-harness. The existing database and curation harnesses remain available for a
-separately configured scratch Neon database.
 
 ## Maintaining this plugin
 

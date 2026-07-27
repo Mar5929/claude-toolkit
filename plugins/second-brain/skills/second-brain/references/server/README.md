@@ -1,129 +1,27 @@
-# second-brain: remote MCP server for cross-project memory
+# Archived second-brain v1 Worker
 
-> **V1 containment source.** This Worker is legacy and must not be used for a
-> new installation. It now fails closed as read-only unless an operator
-> explicitly sets `BRAIN_V1_WRITE_MODE=write`. Source changes here do not deploy
-> the live Worker. See `../v1-freeze-and-export.md`.
+This directory is historical implementation evidence for the retired v1
+Cloudflare Worker and Neon memory service.
 
-Phase 1 of WI-002 (see `work-items/WI-002-memory-knowledge-rearchitecture.md`).
-One Cloudflare Worker that fronts long-term memory over MCP with GitHub
-sign-in. Each Claude project gets its OWN Neon Postgres database (owner
-decision, 2026-07-15: easier to separate and archive per project); the Worker
-finds a project's database through a per-project secret named
-`DATABASE_URL_<PROJECT_ID>` (uppercased, `-` becomes `_`). Reachable from
-every Claude Code session type: local, cloud, CI.
+Do not deploy, synchronize, register, seed, restore, export, or connect it to a
+project. V2 does not import its data.
 
-## What it serves
+The source remains because it records the behavior and failures that informed
+the Git-native v2 architecture. Accidental deployment is blocked in two ways:
 
-| Surface | Auth | Purpose |
-|---|---|---|
-| `POST /mcp/<project-id>` | OAuth (GitHub) | MCP endpoint. Reads are labeled `legacy/advisory`. Memory writes return the structured `v1_read_only` error during containment. |
-| `GET /fast/<project-id>/digest` | Bearer token | Local hook fast path: digest at session start, no browser. |
-| `GET /fast/<project-id>/recall?q=...` | Bearer token | Local hook fast path: keyword recall per prompt. |
-| `POST /fast/<project-id>/journal` | Bearer token (write role) | Local Stop hook: append a redacted turn record to the capture journal. |
-| `POST /fast/<project-id>/curate` | Bearer token (write role) | SessionEnd hook: curate one finished session; answers 202 and runs the model call in `waitUntil`. |
-| `POST /fast/<project-id>/node` | Bearer token (write role) | Persist ONE finished node without OAuth. Same write path as `upsert_node`. |
-| `/authorize`, `/callback`, `/token`, `/register` | n/a | OAuth plumbing (workers-oauth-provider + GitHub). |
+- the default `wrangler.jsonc` filename is absent; and
+- `package.json` has no development, type-generation, or deployment script.
 
-`/fast/<id>/node` exists because `/mcp/<id>` is OAuth-only, so a headless surface
-(background job, cron fire, or a session whose MCP connection dropped) otherwise
-has no way to store a finished curated note and simply loses it. Body: the same
-fields as `upsert_node`, with `markdown` as the FULL node file. It defaults
-`review_after` to seven days out, since a node written without reading the graph
-first may duplicate something, and the next curator pass reconciles it. See
-`../curator-write-path.md`.
+`wrangler.v1-archived.jsonc` is retained only to show the historical binding
+shape. Existing live Worker and Neon resources remain untouched until the owner
+separately approves deletion.
 
-**Phase 2 (writable + local capture) is implemented; see `IMPLEMENTATION.md` for
-the full record and the new-project setup recipe.** Writes populate embeddings
-(Workers AI `@cf/baai/bge-m3`, 1024-dim) and recall is hybrid (full-text +
-pgvector), status-aware, with linked-neighbor expansion.
+Historical no-database checks may still be run locally:
 
-Access model: sign-in only proves who you are (GitHub login). Every request is
-then checked against the `grants` table for that project id. No grant row = 403.
-Revoke = delete the row; it takes effect on the next request.
+```sh
+npm ci
+npm run check
+```
 
-## One-time setup
-
-1. **Neon database (one per project)**
-   - Create a Neon project for THIS project (free tier is fine), copy the
-     connection string.
-   - Run `schema.sql`, then the project's seed (for DragonFly: `seed.sql`,
-     which creates project `dragonfly` and grants `Mar5929` admin) in the
-     Neon SQL editor.
-
-2. **GitHub OAuth app** (github.com > Settings > Developer settings > OAuth Apps > New)
-   - Homepage URL: `https://second-brain.<your-subdomain>.workers.dev`
-   - Authorization callback URL: `https://second-brain.<your-subdomain>.workers.dev/callback`
-   - Copy the Client ID into `wrangler.jsonc` (`GITHUB_CLIENT_ID`).
-   - Generate a client secret; set it in step 4.
-
-3. **KV namespace** (stores OAuth grants/tokens for workers-oauth-provider)
-   ```sh
-   npx wrangler kv namespace create OAUTH_KV
-   ```
-   Put the returned id into `wrangler.jsonc`.
-
-4. **Secrets**
-   ```sh
-   npx wrangler secret put DATABASE_URL_DRAGONFLY
-   npx wrangler secret put GITHUB_CLIENT_SECRET
-   ```
-
-5. **Deploy**
-   ```sh
-   npm install
-   npx wrangler deploy
-   ```
-   Note the deployed URL and put it into the repo-root `.mcp.json`
-   (replace `REPLACE-SUBDOMAIN`).
-
-6. **Local fast-path token** (optional but recommended)
-   ```sh
-   node scripts/mint-token.mjs Mar5929 mike-laptop
-   ```
-   Run the printed SQL in Neon; store the raw token in
-   `.claude/settings.local.json` (never committed) as `BRAIN_MCP_TOKEN`.
-
-## Verify (Phase 1 acceptance)
-
-- `claude mcp list` in the DragonFly repo shows `second-brain`; first use
-  opens the GitHub sign-in.
-- `get_digest` returns the seeded digest; `recall` returns nodes once imported.
-- A GitHub account with no grant row gets a 403 from `/mcp/dragonfly` (auth test).
-- Delete a grant row, confirm access drops on the next request (revoke test).
-- `curl -H "Authorization: Bearer $BRAIN_MCP_TOKEN" .../fast/dragonfly/digest`
-  returns the digest (fast-path test).
-- The same `.mcp.json` works from a cloud Claude Code session on this repo
-  (the case that fails today with the git store).
-
-## Historical v1 onboarding record
-
-Do not follow these steps during containment. They remain here only to explain
-how existing project databases were registered.
-
-1. Create a new Neon project for it; run `schema.sql` plus a seed (copy
-   `seed.sql`, change the project id/name/grants).
-2. Store its connection string as a new secret:
-   `npx wrangler secret put DATABASE_URL_<PROJECT_ID>` (uppercase, `-` -> `_`).
-3. Commit a `.mcp.json` in that repo pointing at `/mcp/<project-id>`.
-No new Worker, KV namespace, or GitHub OAuth app is needed. Schema upgrades
-must be run once per project database.
-
-## Design notes
-
-- `nodes.markdown` stores the full node file text (frontmatter + body). The Unit
-  00 freeze `export` now also includes edges, revision history, digest metadata,
-  and every journal row. A Neon snapshot and `pg_dump` remain the recovery
-  backups.
-- `recall` is Postgres full-text search with an ILIKE fallback, a small boost
-  for pinned nodes, and usage tracking (recall_count / last_recalled_at). The
-  `embedding vector(1024)` column is in place; semantic search plugs into
-  `recallNodes` in Phase 2 when writes (upsert_node) start populating it, and
-  the `edges` table enables graph expansion (return a match plus its linked
-  neighbors) once imports populate it.
-- Phase 2 adds `upsert_node` / `append_journal` tools; Phase 3 adds the
-  server-side curation worker. Curation is session-scoped: the SessionEnd hook
-  POSTs `/fast/<project>/curate` when a conversation ends, and the Workers cron
-  is only a backstop for sessions that died without it (see IMPLEMENTATION.md).
-- Never store secrets, credentials, or customer/tenant record data in memory.
-  Client names are OK. Same exclusion rules as the curators.
+The database and curation harnesses require a scratch Neon database and are not
+part of normal retirement validation.
