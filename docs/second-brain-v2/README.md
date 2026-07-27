@@ -41,6 +41,11 @@ deliberate retrieval under hard context budgets. No database is required.
 Optional SQLite search and dependency graphs are disposable artifacts rebuilt
 from Git, never independent sources of truth.
 
+The separate `work-tracker` plugin owns backlog, task status, blockers,
+work-item relationships, branch and pull-request evidence, and current
+handoffs. V2 may link durable knowledge to work-item IDs, but it does not copy
+or manage task status. A connected GitHub Project is a work-tracker mirror.
+
 The [high-level technical architecture](TECHNICAL-ARCHITECTURE.md) supersedes
 the earlier remote-ledger direction. The detailed units now break that
 architecture into implementable work.

@@ -1,7 +1,7 @@
 {
   "name": "project-init",
-  "description": "New-project setup and toolkit sync. project-init walks through scaffolding, hooks, deferred second-brain gates, CLAUDE.md, and optional standalone skills such as grill-me. project-sync may deactivate or remove approved local v1 integration without contacting cloud resources.",
-  "version": "0.7.7",
+  "description": "New-project setup and toolkit sync. project-init offers the Git-native work-tracker, walks through scaffolding, hooks, deferred second-brain gates, CLAUDE.md, and optional standalone skills. project-sync safely adopts existing work-item folders and may retire approved local v1 integration.",
+  "version": "0.8.0",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com"

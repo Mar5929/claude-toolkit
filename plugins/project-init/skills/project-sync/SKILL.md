@@ -7,8 +7,9 @@ description: >-
   in this project", "sync this project with claude-toolkit", "audit this
   project against the toolkit", or "/project-sync". This skill inventories
   everything the toolkit currently ships (the general and Salesforce rules
-  libraries, hooks, second-brain v1 retirement, standalone skills such as
-  grill-me, and any newer systems), cross-references the current project,
+  libraries, hooks, the Git-native work-tracker, second-brain v1 retirement,
+  standalone skills such as grill-me, and any newer systems), cross-references
+  the current project,
   reports the gaps, and closes each gap only with the user's approval.
 ---
 
@@ -51,6 +52,8 @@ automatically as it grows.
   - the per-server MCP tool rules in `references/mcp-best-practices.md`; these
     are conditional, so only audit the servers this project actually connects
   - each system from the setup gates: hooks, memory system, knowledge layer
+  - the `work-tracker` plugin and any existing `work-items/` or
+    `engagement/work-items/` tree
   - each standalone skill offered by the setup flow, including `grill-me`
   - anything newer listed in the toolkit README under "What's here now"
   - skip roadmap items; they aren't built yet and can't be audited. The Unit 00
@@ -98,6 +101,16 @@ secrets rule even if the prose differs. Typical checks:
   available host plugins. For `grill-me`, classify whether it is available to
   invoke, previously declined, or not applicable. Do not look for a copied
   `SKILL.md` inside the project because the canonical skill stays in its plugin.
+- **Work tracker:** detect `work-items/` and `engagement/work-items/`. If
+  `.work-tracker.json` and per-item `ITEM.json` records exist, run the tracker
+  validator and classify the system as present or partial from its output. If
+  only the older stage folders, `BACKLOG.md`, `SPEC.md`, and `STATUS.md` exist,
+  classify them as safely adoptable, not as a competing tracker. If neither
+  exists, classify work-tracker as missing or previously declined.
+- **GitHub Project option:** inspect only the checked-in tracker configuration.
+  Report whether GitHub mirroring is configured. Do not create, link, or modify
+  a Project during the audit. Offer it separately in step 4 because it changes
+  external issues, labels, fields, and Project items.
 - **Previous sync record**: read it if present (step 5 format) so deliberate
   opt-outs are respected.
 
@@ -170,6 +183,14 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   Neither option contacts the Worker or Neon, reads legacy memory, imports
   anything into v2, or deletes cloud infrastructure. Account-level connectors,
   local token cleanup, and cloud deletion are separate owner-approved work.
+- For an approved work-tracker gap, install the plugin and run `work init` at
+  the detected canonical path. This may add metadata and generated views, but
+  it must not overwrite existing `SPEC.md`, `STATUS.md`, or notes. Show any
+  adopted records that still need owner review.
+- Treat GitHub Projects as a second approval. Local tracker installation does
+  not imply permission to create issues or a Project. If approved, use
+  `work github connect` and report the exact repository and Project before
+  synchronizing tickets.
 
 ## Step 5: record the sync
 

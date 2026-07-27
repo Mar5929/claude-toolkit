@@ -34,7 +34,7 @@ structure Gate 5 writes.
 | `offer-context-handoff.md` | When context is heavy and the next step is reasoning-heavy, offer a self-contained handoff prompt for a fresh session. |
 | `steer-to-the-goal.md` | Name the goal early, hold it all session, own the steering, and end every turn with the next step. Save the goal to memory when it outlasts one chat. |
 | `do-the-technical-work.md` | Do the git/config/deploy/file work yourself. Only hand the owner steps that are genuinely only-they, and make those copy-paste simple. Recommend, do not dump raw choices. |
-| `work-item-folders.md` | One folder per work item (`SPEC.md` + `STATUS.md`) as the durable memory. Read it first, keep it current, close it out in the same session. |
+| `work-item-folders.md` | Use the Git-native work-tracker as the task authority: one folder per item, exact handoffs, typed relationships, Git landing proof, generated views, and safe adoption of older manual folders. |
 | `show-phase-progress.md` | When work splits into phases, print a one-line progress bar at every transition and when the last phase finishes. |
 | `treat-owner-as-non-technical.md` | Assume no technical background: numbered steps, exact commands, say what success looks like, never hand back raw errors. Also covers REPORTING: explain what you did in plain words, not just what to do. Turn off only for a technical owner. |
 

@@ -1,91 +1,100 @@
-# Work-items structure (Gate 1)
+# Work tracking in Gate 1
 
-The standard tracking tree for a project's work items, for ANY stack. It pairs
-with the `work-item-folders.md` rule (every work item gets its own folder): that
-rule is the behavior, this is the folder structure Gate 1 scaffolds for it. Offer
-it to
-every project; confirm before creating. Piloted on DragonFly (WI-004/WI-005).
+Offer the `work-tracker` plugin to every project. It is the executable version
+of the toolkit's established work-item folder convention, not a second
+tracking system.
 
 ## Where it goes
 
-- Most projects: `work-items/` at the repo root.
-- Salesforce projects using the engagement scaffold: `engagement/work-items/`
-  (see `salesforce-project-scaffold.md`).
+- Most projects: `work-items/`.
+- Salesforce engagement projects: `engagement/work-items/`.
 
-## Tree
+## Offer two independent choices
 
-```
+1. **Local Git tracker:** recommended. Requires only Node.js and Git.
+2. **GitHub Project mirror:** optional. Requires an existing `gh` login with
+   the `project` scope and explicit approval for external changes.
+
+Installing the local tracker does not authorize GitHub writes.
+
+## Initialize
+
+After the owner approves:
+
+1. install the `work-tracker` plugin from this marketplace;
+2. invoke its `work` skill;
+3. run `work init` at the chosen path;
+4. run `work validate`; and
+5. show any adopted items whose inferred metadata needs review.
+
+Do not manually create a parallel index or alternative status file.
+
+## Canonical layout
+
+```text
 work-items/
-├── README.md               # explains this layout (adapt the template below)
+├── .work-tracker.json
+├── README.md
+├── DASHBOARD.md                  # generated and rebuildable
 ├── 01-backlog/
-│   └── BACKLOG.md          # the running index of ALL work items, every stage
+│   ├── BACKLOG.md                # generated and rebuildable
+│   └── WI-014-example/
+│       ├── ITEM.json             # structured canonical record
+│       ├── SPEC.md               # user-authored specification
+│       ├── STATUS.md             # readable current handoff
+│       └── HISTORY.ndjson        # complete dated event history
 ├── 02-in-progress/
 ├── 03-completed/
 └── 04-archived/
 ```
 
-- The four stage folders are a pipeline; a work item is one folder that moves
-  between stages (`git mv`) as its status changes. After a move, search the
-  repo for the old path and update references (BACKLOG entries especially).
-- `01-backlog/BACKLOG.md` is the single running index: any session may append;
-  nothing gets dropped; each entry is a short pointer to the item's folder,
-  where the detail lives. Status key: `[ ]` open, `[~]` in progress, `[x]`
-  done, `[-]` decided against.
-- Git does not track empty folders: give each empty stage folder a `.gitkeep`.
+The structured status in `ITEM.json` is authoritative:
 
-## Inside a work-item folder
+| Status | Stage folder |
+|---|---|
+| Backlog, Ready | `01-backlog/` |
+| In Progress, In Review | `02-in-progress/` |
+| Done | `03-completed/` |
+| Cancelled | `04-archived/` |
 
-One folder per work item. Name it `WI-<number>-<slug>/` (the number gives
-creation order); ticket-driven projects can use the ticket key instead
-(`PROJ-123-<slug>/`). It holds:
+A Done item may later be archived without losing its verified Done status.
 
-- `SPEC.md` - the goal in plain words, requirements kept deliberately loose,
-  and decisions. Update it in the same session when the work changes direction.
-- `STATUS.md` - the living handoff: where we are, what has been done, the
-  exact next step, with dated entries (absolute dates). Read this FIRST when
-  picking an item up.
-- Any scratch notes, copied ticket text, or file links the item needs.
+## Existing manual folders
 
-## BACKLOG.md starter template
+The earlier toolkit convention used the same four stage folders with
+`SPEC.md`, `STATUS.md`, and a hand-edited `BACKLOG.md`. `work init` adopts that
+tree safely:
 
-```markdown
-# Backlog: running index of work items
+- it never overwrites tickets or notes;
+- it creates missing structured records beside existing files;
+- it infers only the ID, title, and coarse status that the folder proves;
+- it marks inferred metadata for owner review; and
+- it replaces the hand-edited index only with a generated, rebuildable view.
 
-The single place work items are tracked. Any session may append; nothing gets
-dropped. Each entry points at the item's folder (SPEC.md + STATUS.md hold the
-detail).
+If duplicate IDs or ambiguous paths exist, initialization stops and reports
+them. Do not guess which item wins.
 
-Status key: `[ ]` open, `[~]` in progress, `[x]` done, `[-]` decided against.
+## Optional GitHub Project
 
----
+With separate owner approval, `work github connect` can create or link a
+Project for the repository. It uses:
 
-## Items
+- statuses: Backlog, Ready, In Progress, In Review, Done, Cancelled; and
+- labels: bug, enhancement, task.
 
-(none yet)
-```
+Git remains authoritative. The adapter creates or updates repository issues and
+Project items from local records. It reports GitHub drift instead of silently
+importing external edits.
 
-## How this will pair with second-brain v2
+## How this pairs with second-brain v2
 
-Do not install second-brain v1; it is retired. When the Git-native
-v2 system ships, the two systems split cleanly and are not redundant:
+The systems have separate authority:
 
-- **The tree owns status.** `work-items-status.mjs` (a SessionStart hook) reads
-  these stage folders and injects what is wanted, what is in progress with each
-  item's next step, and what is already done. Status is read, never asserted, so
-  it cannot go stale or be misremembered.
-- **Memory will own the links.** A work-item memory record holds the want, a `folder:`
-  pointer into this tree, and typed edges to the decisions and knowledge nodes
-  produced while working the item, so "what did we decide while doing this?"
-  resolves in one retrieval. Memory must never store a copied stage.
+- work-tracker owns task status, blockers, branch and pull-request evidence,
+  relationships between work items, and the current handoff;
+- second-brain v2 may link decisions, requirements, and durable knowledge to a
+  work-item ID; and
+- second-brain must never copy or overrule task status.
 
-## Why this shape
-
-Sessions end and context windows fill mid-task; work moves between agents and
-machines. The stage folders make status visible in the file tree; the per-item
-folder is the durable memory that lets a fresh agent pick the item up cold; the
-index keeps the one place to scan. The behavioral rules (read the folder
-first, keep it current, end every session with a next step, and ALWAYS close
-out a finished item in the same session: record completion in `STATUS.md`,
-mark the index entry done, move the folder to `03-completed/`) are the
-`work-item-folders.md` rule in `general-rules/`; make sure Gate 5 copies it into
-`.claude/rules/` when this structure is scaffolded.
+Generated dashboards, future search indexes, and GitHub mirrors are derived
+views. Deleting them cannot remove the authoritative local records.

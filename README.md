@@ -129,6 +129,12 @@ claude-toolkit/
       .codex-plugin/plugin.json
       skills/
         grill-me/                 ← SKILL.md + Codex UI metadata
+    work-tracker/                 ← plugin: Git-native work status and handoffs
+      README.md
+      .claude-plugin/plugin.json
+      .codex-plugin/plugin.json
+      skills/
+        work/                     ← SKILL.md + dependency-free Node core
   docs/
     toolkit-map.md                ← the catalog: every item and how they relate
     architecture.html             ← visual map of how the pieces fit
@@ -148,18 +154,19 @@ relate (including what looks redundant but is not), see
 
 ## What's here now
 
-Six plugins. Each has its own `README.md` with the detail;
+Seven plugins. Each has its own `README.md` with the detail;
 [`docs/toolkit-map.md`](docs/toolkit-map.md) indexes everything in one place and
 explains how the pieces relate.
 
 | Plugin | What it does |
 |---|---|
-| **[project-init](plugins/project-init/README.md)** | Sets up a project. `project-init` defers second-brain memory and knowledge while v2 is unshipped. `project-sync` detects retired v1 integrations and may deactivate or remove approved local wiring without touching cloud resources. |
+| **[project-init](plugins/project-init/README.md)** | Sets up or syncs a project, offers work-tracker with safe adoption of older folders, and defers second-brain while v2 is unshipped. It can retire approved local v1 wiring without touching cloud resources. |
 | **[second-brain](plugins/second-brain/README.md)** | V1 is retired and will not be deployed, exported, or migrated. V2 starts fresh from authoritative Git content but is not shipped. `/remember` remains unavailable. |
 | **[sf-architect-solutioning](plugins/sf-architect-solutioning/README.md)** | A Salesforce solution architect: pushes back on vague requirements, verifies platform facts against official docs by live fetch, designs declarative-first to Well-Architected standards, and presents a solution plan for approval before any build. Salesforce projects only. |
 | **[git-workflows](plugins/git-workflows/README.md)** | Two parallel-session-safe git sync skills: `pull-latest` gets current without rewriting or discarding history, `reset-to-remote` hard-resets to mirror the remote behind a confirmation. |
 | **[session-autoname](plugins/session-autoname/README.md)** | Keeps a background agent session named after the overarching project it is working on, never the step it is on. A Stop hook re-checks the label each turn from a cheap Haiku call and holds it steady until the project itself changes, so a long session stops lying in the job list without the name churning. One-time per-machine install, not per project. |
 | **[grill-me](plugins/grill-me/README.md)** | Stress-tests a plan, design, or topic through a one-question-at-a-time interview and checkpoints every answer to a durable Markdown file before continuing. |
+| **[work-tracker](plugins/work-tracker/README.md)** | Gives Claude and Codex one Git-authoritative backlog with exact handoffs, blockers, typed relationships, deterministic next-item selection, Git landing proof, generated dashboards, and optional GitHub Issues and Projects synchronization. |
 
 ---
 
@@ -188,6 +195,11 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
   historical inspection with its default deployment path disabled. Existing
   Worker and Neon resources stay untouched until separately approved for
   deletion. V2 starts from authoritative Git content.
+- [x] **`work-tracker` plugin**: a dependency-free Git-native tracker shared
+  by Claude and Codex. It owns backlog, active status, blockers, relationships,
+  handoffs, and verified landing evidence. Its optional GitHub adapter creates
+  or links a Project with the six standard statuses and repository issues
+  labeled bug, enhancement, or task.
 - [ ] **Shared hooks library**: reusable guard hooks I can drop into any
   project, e.g. blocking deployments to a protected environment, secret-scanning
   pre-commit guards, and a SessionStart orientation hook. First one shipped: the
@@ -235,6 +247,13 @@ For a persistent brainstorm or discovery interview:
 ```
 /plugin install grill-me
 /grill-me
+```
+
+For Git-native work tracking, optionally mirrored to GitHub Projects:
+
+```text
+/plugin install work-tracker
+/work
 ```
 
 To have background agent sessions keep their own names current (a one-time setup

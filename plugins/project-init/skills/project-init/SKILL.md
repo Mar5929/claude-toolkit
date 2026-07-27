@@ -3,7 +3,8 @@ name: project-init
 description: >-
   Walk the user through initializing a NEW project, one gate at a time:
   scaffolding & folder structure, guard hooks, deferred second-brain memory and
-  knowledge gates, CLAUDE.md, and optional standalone toolkit skills. Use when
+  knowledge gates, CLAUDE.md, the Git-native work-tracker, and optional
+  standalone toolkit skills. Use when
   the user is starting a new repo/project and wants help setting up the
   foundational scaffolding, or says things like "initialize this project", "set
   up the scaffolding", "/project-init", or "help me get this new repo going".
@@ -61,16 +62,19 @@ form. Keep each gate tight.
 > This gate is intentionally per-project: the value is your tailored
 > recommendation, not a frozen template.
 
-**Work-items structure (every stack).** Offer the standard work-item tracking
-tree in `references/work-items-structure.md`: stage folders (`01-backlog/`
-holding a `BACKLOG.md` index, `02-in-progress/`, `03-completed/`,
-`04-archived/`) with one folder per work item holding `SPEC.md` + `STATUS.md`.
-Salesforce projects place it at `engagement/work-items/`. It pairs with the
-`work-item-folders.md` rule (Gate 5): read the item's folder first, keep it
-current as part of the work, and always close out a finished item in the same
-session
-(update its `STATUS.md`, mark the index entry done, move the folder to the
-completed stage).
+**Work tracking (every stack).** Offer the `work-tracker` plugin described in
+`references/work-items-structure.md`. It extends the established four-stage
+tree with structured records, six workflow statuses, deterministic next-item
+selection, Git landing proof, validation, and generated dashboards. Most
+projects place it at `work-items/`; Salesforce projects place it at
+`engagement/work-items/`.
+
+Keep this opt-in. If approved, install `work-tracker` from this marketplace and
+run its `init` command. `init` preserves and safely adopts an existing manual
+tree. Do not hand-create a competing tracker. Separately ask whether the owner
+wants local Git tracking only or also wants to create or link a GitHub Project.
+The GitHub option must not run without explicit approval because it creates or
+changes external issues, labels, fields, and Project items.
 
 **Salesforce / SFDX projects** have a standard scaffold worth reusing: see
 `references/salesforce-project-scaffold.md`. Offer it whenever the stack is
@@ -197,9 +201,9 @@ in their own plugins.
 
 - `references/setup-flow.md`: the gate-by-gate checklist to track progress
   against during the run.
-- `references/work-items-structure.md`: the standard work-items tracking tree
-  (stage folders + `BACKLOG.md` index + `SPEC.md`/`STATUS.md` per item) to
-  offer in Gate 1 for every stack.
+- `references/work-items-structure.md`: how Gate 1 offers and initializes the
+  `work-tracker` plugin, including safe adoption of the older manual tree and
+  the optional GitHub Project mirror.
 - `references/salesforce-project-scaffold.md`: the standard Gate 1 layout for a
   Salesforce / SFDX project (SFDX source plus an `engagement/` tree). Read it in
   Gate 1 when the stack is Salesforce.

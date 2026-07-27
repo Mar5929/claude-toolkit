@@ -16,6 +16,7 @@ depth lives in each plugin's own `README.md` and reference indexes.
 | [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git sync | `pull-latest`, `reset-to-remote` | `/plugin install git-workflows` |
 | [session-autoname](../plugins/session-autoname/README.md) | Background agent sessions stay named after their overarching project | `session-autoname` | `/plugin install session-autoname` |
 | [grill-me](../plugins/grill-me/README.md) | Persistent discovery interviews that checkpoint every answer | `grill-me` | `/plugin install grill-me` |
+| [work-tracker](../plugins/work-tracker/README.md) | Git-authoritative backlog, handoffs, relationships, landing proof, and optional GitHub Projects | `work` | `/plugin install work-tracker` |
 
 ## Skills at a glance
 
@@ -30,6 +31,7 @@ depth lives in each plugin's own `README.md` and reference indexes.
 | reset-to-remote | git-workflows | Hard-reset a repo to mirror the remote, safely gated | `/reset-to-remote` |
 | session-autoname | session-autoname | Install the per-machine hook that re-names a background session each turn | `/session-autoname` |
 | grill-me | grill-me | Stress-test an idea one question at a time and preserve every answer | `/grill-me`, "grill me" |
+| work | work-tracker | Manage local work items and their optional GitHub Issues and Project mirror | `/work`, "add this to the backlog", "what should I work on next?" |
 
 ## Rules and references (canonical indexes)
 
@@ -84,21 +86,29 @@ The genuine watch-items are called out at the end.
   opposite ends of the old pipeline. Neither is imported into v2. Local removal
   must show the exact paths and separately confirm deletion of any non-empty
   user material.
-- **The work-items tree versus legacy work-item memory nodes.** Not two trackers. The
-  tree (scaffolded by project-init Gate 1) owns STATUS: an item's stage is which
-  stage folder it sits in, and second-brain's `work-items-status.mjs` hook reads
-  that at session start, so "is this done already?" is answered by the file
-  system and cannot be misremembered. V1 memory historically owned links
-  through `work-item` nodes. Those nodes are retired and must not be refreshed
-  or imported.
+- **work-tracker versus the older work-items tree.** Not two trackers.
+  work-tracker is the executable extension of the same four-stage convention.
+  It adopts existing `SPEC.md`, `STATUS.md`, and notes in place, adds
+  `ITEM.json` and deterministic commands, and rebuilds the old hand-edited
+  index as a generated view. The six structured statuses distinguish Backlog
+  from Ready and In Progress from In Review without creating another folder
+  hierarchy.
+- **work-tracker versus second-brain v2.** work-tracker owns task status,
+  blockers, work-item relationships, branch and pull-request evidence, and the
+  current handoff. V2 may point decisions, requirements, and durable knowledge
+  at a work-item ID, but it does not copy or overrule status.
+- **work-tracker versus GitHub Projects.** Git files are authoritative by
+  default. The optional adapter creates or updates repository issues and a
+  Project as a collaboration mirror. Generated dashboards, GitHub issue bodies,
+  and Project fields can all be reconciled from the local records.
 - **git-workflows versus the worktree-isolation rule.** The rule states the
   behavior ("assume other sessions share the repo"); the two skills are the safe
   git commands that carry it out. Different layers, not duplicates.
 - **grill-me versus work-item and memory files.** `grill-me` owns raw discovery
   notes under `brainstorms/`. A work item's `SPEC.md` and `STATUS.md` own the
-  approved design and current execution state, while second-brain concerns
-  cross-session memory. The brainstorm may inform those artifacts but does not
-  replace them.
+  approved design and readable handoff, while `ITEM.json` owns structured task
+  state and second-brain concerns durable project knowledge. The brainstorm may
+  inform those artifacts but does not replace them.
 - **session-autoname is deliberately NOT offered by project-init.** Every other
   plugin here installs into a project. This one installs into a machine: it
   writes `~/.claude/hooks/` and `~/.claude/settings.json` once, and from then on
@@ -112,7 +122,8 @@ The genuine watch-items are called out at the end.
   (write durable facts into CLAUDE.md, and route everything that is not a rule
   out of it so the file stays readable), `wrap-up-ritual` (update the status or
   handoff doc and commit), `offer-context-handoff` (hand a fresh session a
-  self-contained prompt), `work-item-folders` (a SPEC and STATUS per work item),
+  self-contained prompt), `work-item-folders` (use work-tracker and keep one
+  canonical folder per item),
   `steer-to-the-goal` (save a goal that outlasts one chat), and the conditional
   `memory-system-ground-rules` (route durable memory through the curator). Each
   targets a distinct moment (mid-work, wrap-up, session handoff, per-task,

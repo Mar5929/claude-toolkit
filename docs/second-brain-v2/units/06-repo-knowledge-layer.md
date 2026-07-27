@@ -59,6 +59,10 @@ Implementation-knowledge documents are created only for load-bearing
 invariants, non-obvious rationale, recurring failures, or facts that cannot be
 learned cheaply from code and tests.
 
+Task status, blockers, work-item relationships, and current handoffs remain in
+the separate `work-tracker` plugin. Knowledge records may point to a stable
+work-item ID but must not copy its status.
+
 ## Drift detection
 
 A deterministic command maps changed source paths to related specifications

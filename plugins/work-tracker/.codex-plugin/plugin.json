@@ -1,0 +1,39 @@
+{
+  "name": "work-tracker",
+  "version": "1.0.0",
+  "description": "Git-native work tracking for Claude and Codex with deterministic status, relationships, Git landing verification, and optional GitHub Projects synchronization.",
+  "author": {
+    "name": "Mike Rihm",
+    "email": "michael@rihm.com",
+    "url": "https://github.com/Mar5929"
+  },
+  "homepage": "https://github.com/Mar5929/claude-toolkit",
+  "repository": "https://github.com/Mar5929/claude-toolkit",
+  "keywords": [
+    "toolkit",
+    "work-tracker",
+    "github-projects",
+    "skills"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Work Tracker",
+    "shortDescription": "Track work in Git and optional GitHub Projects.",
+    "longDescription": "A shared Claude and Codex work tracker with deterministic commands, cold-session handoffs, dependency validation, Git landing proof, generated dashboards, and optional GitHub Issues and Projects synchronization.",
+    "developerName": "Mike Rihm",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write",
+      "Repository",
+      "GitHub"
+    ],
+    "websiteURL": "https://github.com/Mar5929/claude-toolkit",
+    "defaultPrompt": [
+      "What should I work on next?",
+      "Add this to the backlog",
+      "Reconcile the tracker with Git"
+    ],
+    "brandColor": "#2563EB"
+  }
+}
