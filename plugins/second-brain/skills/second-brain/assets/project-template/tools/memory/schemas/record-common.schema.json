@@ -26,7 +26,7 @@
     "subsystems": { "$ref": "#/$defs/strings" }
   },
   "$defs": {
-    "strings": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
-    "ids": { "type": "array", "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+$" }, "uniqueItems": true }
+    "strings": { "type": "array", "maxItems": 100, "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+    "ids": { "type": "array", "maxItems": 100, "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+$" }, "uniqueItems": true }
   }
 }

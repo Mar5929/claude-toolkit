@@ -9,6 +9,15 @@
         "record_type": { "const": "context" },
         "lifecycle": { "enum": ["proposed", "active", "superseded", "retired"] }
       }
+    },
+    {
+      "if": { "properties": { "lifecycle": { "const": "active" } }, "required": ["lifecycle"] },
+      "then": {
+        "properties": {
+          "freshness": { "const": "current" },
+          "verification": { "enum": ["verified", "owner_reviewed", "repository_evidence", "not_applicable"] }
+        }
+      }
     }
   ]
 }

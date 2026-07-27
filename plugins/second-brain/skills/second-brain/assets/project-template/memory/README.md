@@ -12,3 +12,6 @@ behavior.
 
 Task status and temporary investigation notes do not belong here. Git files are
 canonical. `memory/.cache/` contains only disposable generated artifacts.
+
+Secret-pattern checks are limited guardrails, not complete detection. A passing
+scan never makes this folder an approved place for credentials or tokens.

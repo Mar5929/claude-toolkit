@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdtemp, mkdir, readFile, rm, writeFile, cp } from "node:fs/promises";
+import { access, lstat, mkdtemp, mkdir, readFile, readdir, rm, symlink, writeFile, cp } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -14,6 +14,7 @@ import {
   validateProject,
   validationReport,
 } from "../../skills/second-brain/assets/project-template/tools/memory/lib/core.mjs";
+import { parseFrontmatter, parseStrictYaml } from "../../skills/second-brain/assets/project-template/tools/memory/lib/yaml.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const PLUGIN = resolve(HERE, "../..");
@@ -180,6 +181,72 @@ function component(result, name) {
   return result.components.find((item) => item.name === name);
 }
 
+function approvedTransaction(baseline, writes, evidence = ["owner approval"]) {
+  return {
+    schema_version: 1,
+    project_id: baseline.project_id,
+    repository_id: baseline.repository_id,
+    baseline,
+    evidence,
+    writes,
+  };
+}
+
+function jsonSchemaValid(schema, value, documents, documentRoot = schema) {
+  if (schema.$ref) {
+    if (schema.$ref.startsWith("#/")) {
+      const target = schema.$ref.slice(2).split("/").reduce((current, key) => current[key], documentRoot);
+      return jsonSchemaValid(target, value, documents, documentRoot);
+    }
+    const external = documents.get(schema.$ref);
+    return Boolean(external) && jsonSchemaValid(external, value, documents, external);
+  }
+  if (schema.allOf && !schema.allOf.every((item) => jsonSchemaValid(item, value, documents, documentRoot))) return false;
+  if (schema.if && jsonSchemaValid(schema.if, value, documents, documentRoot) && !jsonSchemaValid(schema.then, value, documents, documentRoot)) return false;
+  if (Object.hasOwn(schema, "const") && value !== schema.const) return false;
+  if (schema.enum && !schema.enum.some((item) => Object.is(item, value))) return false;
+  const types = Array.isArray(schema.type) ? schema.type : schema.type ? [schema.type] : [];
+  if (types.length) {
+    const matches = types.some((type) => (
+      (type === "object" && value !== null && typeof value === "object" && !Array.isArray(value)) ||
+      (type === "array" && Array.isArray(value)) ||
+      (type === "string" && typeof value === "string") ||
+      (type === "integer" && Number.isSafeInteger(value)) ||
+      (type === "boolean" && typeof value === "boolean") ||
+      (type === "null" && value === null)
+    ));
+    if (!matches) return false;
+  }
+  if (typeof value === "string") {
+    if (schema.minLength && value.length < schema.minLength) return false;
+    if (schema.pattern && !new RegExp(schema.pattern).test(value)) return false;
+    if (schema.format === "uuid" && !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(value)) return false;
+    if (schema.format === "date-time" && Number.isNaN(Date.parse(value))) return false;
+  }
+  if (typeof value === "number") {
+    if (schema.minimum !== undefined && value < schema.minimum) return false;
+    if (schema.maximum !== undefined && value > schema.maximum) return false;
+  }
+  if (Array.isArray(value)) {
+    if (schema.minItems !== undefined && value.length < schema.minItems) return false;
+    if (schema.maxItems !== undefined && value.length > schema.maxItems) return false;
+    if (schema.uniqueItems && new Set(value.map((item) => JSON.stringify(item))).size !== value.length) return false;
+    if (schema.items && !value.every((item) => jsonSchemaValid(schema.items, item, documents, documentRoot))) return false;
+    if (schema.contains && !value.some((item) => jsonSchemaValid(schema.contains, item, documents, documentRoot))) return false;
+  }
+  if (value !== null && typeof value === "object" && !Array.isArray(value)) {
+    if (schema.required && !schema.required.every((key) => Object.hasOwn(value, key))) return false;
+    if (schema.additionalProperties === false) {
+      const allowed = new Set(Object.keys(schema.properties || {}));
+      if (Object.keys(value).some((key) => !allowed.has(key))) return false;
+    }
+    for (const [key, childSchema] of Object.entries(schema.properties || {})) {
+      if (Object.hasOwn(value, key) && !jsonSchemaValid(childSchema, value[key], documents, documentRoot)) return false;
+    }
+  }
+  return true;
+}
+
 test("fresh project and fresh clone validate without a service or database", async () => {
   await withRepository(async (root, parent) => {
     const first = await validateProject(root);
@@ -241,13 +308,15 @@ test("copied memory cannot override destination repository identity", async () =
   }
 });
 
-test("deleting the disabled cache loses no truth", async () => {
+test("deleting the required cache control fails tracked template health without losing records", async () => {
   await withRepository(async (root) => {
     await rm(join(root, "memory/.cache"), { recursive: true, force: true });
     const validation = await validateProject(root);
-    assert.equal(validation.usable, true);
+    assert.equal(validation.usable, false);
+    assert.equal(component(validation, "routers_and_folders").status, "failed");
     assert.equal(component(validation, "optional_index").status, "not_enabled");
     assert.equal(component(validation, "optional_index").action, "none");
+    assert.equal(validation.records.length, 1);
   });
 });
 
@@ -321,17 +390,24 @@ test("health reports every component independently with a supported next action"
   });
 });
 
-test("enabled index with no cache reports stale and a rebuild action without hiding core health", async () => {
+test("enabled index and a fabricated receipt always report stale until Unit 05", async () => {
   await withRepository(async (root) => {
     const configPath = join(root, "memory/config.yaml");
     const config = (await readFile(configPath, "utf8")).replace("enabled: false", "enabled: true");
     await writeFile(configPath, config);
-    await rm(join(root, "memory/.cache"), { recursive: true, force: true });
+    await writeFile(join(root, "memory/.cache/health.json"), JSON.stringify({
+      schema_version: 1,
+      source_commit: git(root, "rev-parse", "HEAD"),
+      source_hashes: [],
+      modes: ["exact"],
+    }));
     const validation = await validateProject(root);
     assert.equal(validation.usable, true);
     assert.equal(validation.stale, true);
     assert.equal(component(validation, "optional_index").status, "stale");
-    assert.match(component(validation, "optional_index").action, /rebuild/);
+    assert.match(component(validation, "optional_index").detail, /not available until Unit 05/);
+    const search = await searchProject(root, "Current project briefing");
+    assert.equal(search.index_state, "stale");
 
     const cli = run(process.execPath, [join(root, "tools/memory/validate.mjs"), "--root", root, "--json"]);
     assert.equal(cli.status, 2);
@@ -353,7 +429,8 @@ test("configuration rejects malformed YAML, duplicate keys, and unknown keys", a
       await writeFile(path, `${await readFile(path, "utf8")}schema_version: 1\n`);
       const validation = await validateProject(root);
       assert.equal(validation.usable, false);
-      assert.match(component(validation, "project_identity").detail, /duplicate key/);
+      assert.match(component(validation, "configuration_schema").detail, /duplicate key/);
+      assert.match(component(validation, "project_identity").detail, /comparison .* blocked/);
     });
   });
   await context.test("unknown key", async () => {
@@ -679,6 +756,7 @@ test("candidate validation makes a failed multi-file write atomic", async () => 
     const transaction = {
       schema_version: 1,
       project_id: "test-project",
+      repository_id: baseline.repository_id,
       baseline,
       evidence: ["owner approved atomic fixture"],
       writes: [
@@ -708,6 +786,7 @@ test("baseline conflicts stop approved writes before any file changes", async ()
     const transaction = {
       schema_version: 1,
       project_id: "test-project",
+      repository_id: baseline.repository_id,
       baseline,
       evidence: ["owner approval"],
       writes: [
@@ -732,6 +811,7 @@ test("receipt exactly matches explicit in-scope changes in a dirty tree", async 
     const transaction = {
       schema_version: 1,
       project_id: "test-project",
+      repository_id: baseline.repository_id,
       baseline,
       evidence: ["owner-approved behavior", "repository test evidence"],
       writes: [
@@ -775,6 +855,7 @@ test("receipt distinguishes corrected, superseded, and created records with befo
     const receipt = await applyTransaction(root, {
       schema_version: 1,
       project_id: "test-project",
+      repository_id: baseline.repository_id,
       baseline,
       evidence: ["owner-approved correction and reversal"],
       writes: [
@@ -827,6 +908,7 @@ test("write CLI returns structured JSON and rejects empty or out-of-scope writes
       await writeFile(transactionPath, JSON.stringify({
         schema_version: 1,
         project_id: "test-project",
+        repository_id: baseline.repository_id,
         baseline,
         evidence: ["owner approval"],
         writes: [{ path, content: record("domain", { id: "DOM-WRITE" }) }],
@@ -843,10 +925,12 @@ test("write CLI returns structured JSON and rejects empty or out-of-scope writes
   });
   await context.test("empty write", async () => {
     await withRepository(async (root) => {
+      const baseline = await captureBaseline(root, ["memory/knowledge/KNW-NOOP.md"]);
       const transaction = {
         schema_version: 1,
         project_id: "test-project",
-        baseline: await captureBaseline(root, ["memory/knowledge/KNW-NOOP.md"]),
+        repository_id: baseline.repository_id,
+        baseline,
         evidence: [],
         writes: [],
       };
@@ -856,10 +940,12 @@ test("write CLI returns structured JSON and rejects empty or out-of-scope writes
   });
   await context.test("out-of-scope write", async () => {
     await withRepository(async (root) => {
+      const baseline = await captureBaseline(root, ["package.json"]);
       const transaction = {
         schema_version: 1,
         project_id: "test-project",
-        baseline: await captureBaseline(root, ["package.json"]),
+        repository_id: baseline.repository_id,
+        baseline,
         evidence: ["owner approval"],
         writes: [{ path: "package.json", content: "{}\n" }],
       };
@@ -902,6 +988,52 @@ test("all distributed JSON schemas parse and cover every record type and write c
   }
 });
 
+test("JSON schema contracts accept valid fixtures and reject invalid fixtures", async () => {
+  await withRepository(async (root) => {
+    const schemaRoot = join(root, "tools/memory/schemas");
+    const names = [
+      "config", "context", "decision", "domain", "knowledge", "operation", "project-identity",
+      "record-common", "reference", "requirement", "transaction", "write-baseline", "write-receipt",
+    ];
+    const documents = new Map();
+    for (const name of names) {
+      documents.set(`${name}.schema.json`, JSON.parse(await readFile(join(schemaRoot, `${name}.schema.json`), "utf8")));
+    }
+
+    const marker = JSON.parse(await readFile(join(root, ".second-brain-project.json"), "utf8"));
+    const config = parseStrictYaml(await readFile(join(root, "memory/config.yaml"), "utf8"));
+    assert.equal(jsonSchemaValid(documents.get("project-identity.schema.json"), marker, documents), true);
+    assert.equal(jsonSchemaValid(documents.get("project-identity.schema.json"), { ...marker, repository_id: "not-a-uuid" }, documents), false);
+    assert.equal(jsonSchemaValid(documents.get("config.schema.json"), config, documents), true);
+    assert.equal(jsonSchemaValid(documents.get("config.schema.json"), { ...config, unknown: true }, documents), false);
+    const { repository_id: omittedRepositoryId, ...missingRepositoryConfig } = config;
+    assert.ok(omittedRepositoryId);
+    assert.equal(jsonSchemaValid(documents.get("config.schema.json"), missingRepositoryConfig, documents), false);
+
+    for (const type of Object.keys(TYPE_PATHS)) {
+      const metadata = parseFrontmatter(record(type), type).metadata;
+      const schema = documents.get(`${type}.schema.json`);
+      assert.equal(jsonSchemaValid(schema, metadata, documents), true, `${type} valid fixture failed`);
+      assert.equal(jsonSchemaValid(schema, { ...metadata, lifecycle: "unknown" }, documents), false, `${type} invalid lifecycle passed`);
+      if (TYPE_LIFECYCLES[type] === "active" || TYPE_LIFECYCLES[type] === "accepted") {
+        assert.equal(jsonSchemaValid(schema, { ...metadata, freshness: "stale" }, documents), false, `${type} stale current fixture passed`);
+      }
+    }
+
+    const path = "memory/knowledge/KNW-SCHEMA.md";
+    const baseline = await captureBaseline(root, [path]);
+    const transaction = approvedTransaction(baseline, [
+      { path, change_kind: "created", content: record("knowledge", { id: "KNW-SCHEMA" }) },
+    ]);
+    assert.equal(jsonSchemaValid(documents.get("write-baseline.schema.json"), baseline, documents), true);
+    assert.equal(jsonSchemaValid(documents.get("transaction.schema.json"), transaction, documents), true);
+    assert.equal(jsonSchemaValid(documents.get("transaction.schema.json"), { ...transaction, repository_id: "wrong" }, documents), false);
+    const receipt = await applyTransaction(root, transaction);
+    assert.equal(jsonSchemaValid(documents.get("write-receipt.schema.json"), receipt, documents), true);
+    assert.equal(jsonSchemaValid(documents.get("write-receipt.schema.json"), { ...receipt, extra: true }, documents), false);
+  });
+});
+
 test("foundation core has no network, database, v1, or content-execution dependency", async () => {
   const files = [
     join(TEMPLATE, "tools/memory/lib/core.mjs"),
@@ -915,7 +1047,7 @@ test("foundation core has no network, database, v1, or content-execution depende
   const combined = (await Promise.all(files.map((path) => readFile(path, "utf8")))).join("\n");
   assert.doesNotMatch(combined, /node:(?:http|https|net|tls|dgram)/);
   assert.doesNotMatch(combined, /\bfetch\s*\(/);
-  assert.doesNotMatch(combined, /\b(?:sqlite|postgres|neon|cloudflare|worker|embedding)\b/i);
+  assert.doesNotMatch(combined, /from\s+["'](?:pg|postgres|sqlite|better-sqlite3|@neondatabase|wrangler)/i);
   assert.doesNotMatch(combined, /\b(?:eval|Function)\s*\(/);
   assert.doesNotMatch(combined, /shell:\s*true/);
 });
@@ -950,8 +1082,502 @@ test("hashes and baseline path ordering are deterministic", async () => {
     const baseline = await captureBaseline(root, [
       "memory/knowledge/Z.md",
       "memory/knowledge/A.md",
-      "memory/knowledge/Z.md",
     ]);
     assert.deepEqual(Object.keys(baseline.paths), ["memory/knowledge/A.md", "memory/knowledge/Z.md"]);
+    await assert.rejects(
+      captureBaseline(root, ["memory/knowledge/Z.md", "memory/knowledge/z.md"]),
+      /path collision/,
+    );
+  });
+});
+
+test("repository UUID distinguishes independent repositories with the same project ID", async () => {
+  const first = await createRepository("shared-project", "first");
+  const second = await createRepository("shared-project", "second");
+  try {
+    const firstMarker = JSON.parse(await readFile(join(first.root, ".second-brain-project.json"), "utf8"));
+    const secondMarker = JSON.parse(await readFile(join(second.root, ".second-brain-project.json"), "utf8"));
+    assert.equal(firstMarker.project_id, secondMarker.project_id);
+    assert.notEqual(firstMarker.repository_id, secondMarker.repository_id);
+    assert.match(firstMarker.repository_id, /^[0-9a-f-]{36}$/);
+
+    const path = "memory/knowledge/KNW-REPO.md";
+    const baseline = await captureBaseline(first.root, [path]);
+    const transaction = approvedTransaction(baseline, [
+      { path, content: record("knowledge", { id: "KNW-REPO" }) },
+    ]);
+    transaction.repository_id = secondMarker.repository_id;
+    await assert.rejects(applyTransaction(first.root, transaction), /repository_id does not match/);
+    await assert.rejects(readFile(join(first.root, path)), /ENOENT/);
+  } finally {
+    await rm(first.parent, { recursive: true, force: true });
+    await rm(second.parent, { recursive: true, force: true });
+  }
+});
+
+test("repository UUID cannot be rotated by editing marker and config together", async () => {
+  await withRepository(async (root) => {
+    const replacement = "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee";
+    const markerPath = join(root, ".second-brain-project.json");
+    const configPath = join(root, "memory/config.yaml");
+    const marker = JSON.parse(await readFile(markerPath, "utf8"));
+    marker.repository_id = replacement;
+    await writeFile(markerPath, `${JSON.stringify(marker, null, 2)}\n`);
+    await writeFile(
+      configPath,
+      (await readFile(configPath, "utf8")).replace(/repository_id: "[^"]+"/, `repository_id: "${replacement}"`),
+    );
+    const validation = await validateProject(root);
+    assert.equal(validation.usable, false);
+    assert.match(component(validation, "project_identity").detail, /repository_id is immutable/);
+  });
+});
+
+test("baseline HEAD must equal destination HEAD even when scoped files are unchanged", async () => {
+  await withRepository(async (root) => {
+    const path = "memory/knowledge/KNW-HEAD.md";
+    const baseline = await captureBaseline(root, [path]);
+    await writeFile(join(root, "unrelated.txt"), "new commit\n");
+    git(root, "add", "unrelated.txt");
+    git(root, "commit", "-qm", "advance head");
+    await assert.rejects(
+      applyTransaction(root, approvedTransaction(baseline, [
+        { path, content: record("knowledge", { id: "KNW-HEAD" }) },
+      ])),
+      /baseline HEAD does not match/,
+    );
+    await assert.rejects(readFile(join(root, path)), /ENOENT/);
+  });
+});
+
+test("noncanonical path aliases and case-fold collisions are rejected", async () => {
+  await withRepository(async (root) => {
+    for (const badPath of [
+      "memory//knowledge/A.md",
+      "memory/./knowledge/A.md",
+      "memory\\knowledge\\A.md",
+      "memory/knowledge/e\u0301.md",
+    ]) {
+      await assert.rejects(captureBaseline(root, [badPath]), /noncanonical|POSIX|NFC/);
+    }
+    await assert.rejects(
+      captureBaseline(root, ["memory/knowledge/Case.md", "memory/knowledge/case.md"]),
+      /path collision/,
+    );
+    const baseline = await captureBaseline(root, [
+      "memory/knowledge/Case.md",
+      "memory/knowledge/Other.md",
+    ]);
+    const transaction = approvedTransaction(baseline, [
+      { path: "memory/knowledge/Case.md", content: record("knowledge", { id: "KNW-CASE" }) },
+      { path: "memory/knowledge/case.md", content: record("knowledge", { id: "KNW-CASE-LOWER" }) },
+    ]);
+    await assert.rejects(applyTransaction(root, transaction), /path collision/);
+  });
+});
+
+test("symlink targets and ancestors fail before read or write escape", async () => {
+  await withRepository(async (root, parent) => {
+    const outside = join(parent, "outside");
+    await mkdir(outside);
+    await writeFile(join(outside, "outside.md"), record("knowledge", { id: "KNW-OUTSIDE" }));
+    await symlink(join(outside, "outside.md"), join(root, "memory/knowledge/escape.md"));
+    const validation = await validateProject(root);
+    assert.equal(validation.usable, false);
+    assert.match(component(validation, "records_and_links").detail, /symbolic links/);
+    await assert.rejects(searchProject(root, "outside"), /validation failed/);
+    await rm(join(root, "memory/knowledge/escape.md"));
+
+    const writePath = "memory/knowledge/link/KNW-WRITE.md";
+    const baseline = await captureBaseline(root, [writePath]);
+    await symlink(outside, join(root, "memory/knowledge/link"));
+    await assert.rejects(
+      applyTransaction(root, approvedTransaction(baseline, [
+        { path: writePath, content: record("knowledge", { id: "KNW-WRITE" }) },
+      ])),
+      /symbolic links|invalid project/,
+    );
+    await assert.rejects(readFile(join(outside, "KNW-WRITE.md")), /ENOENT/);
+  });
+});
+
+test("fresh clone includes and tracks the complete deterministic template", async () => {
+  await withRepository(async (root, parent) => {
+    const clone = join(parent, "tracked clone");
+    assert.equal(run("git", ["clone", "-q", root, clone]).status, 0);
+    const expected = [
+      ".gitignore",
+      ".second-brain-project.json",
+      "AGENTS.md",
+      "CLAUDE.md",
+      "PROJECT.md",
+      "specs/README.md",
+      "memory/README.md",
+      "memory/config.yaml",
+      "memory/context/current.md",
+      "memory/.cache/.gitignore",
+      ...["decisions", "knowledge", "references", "domain", "operations"].map((folder) => `memory/${folder}/.gitkeep`),
+      ...["validate.mjs", "search.mjs", "baseline.mjs", "write.mjs"].map((name) => `tools/memory/${name}`),
+      ...["core.mjs", "schemas.mjs", "yaml.mjs"].map((name) => `tools/memory/lib/${name}`),
+      ...[
+        "config", "context", "decision", "domain", "knowledge", "operation", "project-identity",
+        "record-common", "reference", "requirement", "transaction", "write-baseline", "write-receipt",
+      ].map((name) => `tools/memory/schemas/${name}.schema.json`),
+    ];
+    const tracked = new Set(git(clone, "ls-files").split("\n"));
+    for (const path of expected) {
+      await access(join(clone, path));
+      assert.equal(tracked.has(path), true, `${path} is not tracked`);
+    }
+    const validation = await validateProject(clone);
+    assert.equal(validation.usable, true, validation.errors.join("\n"));
+  });
+});
+
+test("deleting a required tool, schema, router, or empty-folder control fails health", async (context) => {
+  for (const path of [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "PROJECT.md",
+    "tools/memory/validate.mjs",
+    "tools/memory/lib/core.mjs",
+    "tools/memory/schemas/requirement.schema.json",
+    "memory/knowledge/.gitkeep",
+    "memory/.cache/.gitignore",
+  ]) {
+    await context.test(path, async () => {
+      await withRepository(async (root) => {
+        await rm(join(root, path));
+        const validation = await validateProject(root);
+        assert.equal(validation.usable, false);
+        assert.match(component(validation, "routers_and_folders").detail, /missing|ENOENT/);
+      });
+    });
+  }
+});
+
+test("Claude and Codex adapters route to the same canonical PROJECT paths", async () => {
+  await withRepository(async (root) => {
+    const agents = await readFile(join(root, "AGENTS.md"), "utf8");
+    const claude = await readFile(join(root, "CLAUDE.md"), "utf8");
+    assert.match(agents, /Read `PROJECT\.md` as the canonical project router/);
+    assert.match(claude, /Read `PROJECT\.md` as the canonical project router/);
+    assert.equal(agents.replace("Codex", "PLATFORM"), claude.replace("Claude", "PLATFORM"));
+  });
+});
+
+test("current authority requires current freshness, trusted verification, and non-inference provenance", async (context) => {
+  const cases = [
+    ["stale freshness", { freshness: "stale" }, /require freshness current/],
+    ["unverified freshness", { freshness: "unverified" }, /require freshness current/],
+    ["unverified verification", { verification: "unverified" }, /cannot use unverified verification/],
+    ["stale verification", { verification: "stale" }, /cannot use stale verification/],
+    ["weak requirement verification", { verification: "not_applicable" }, /require trusted verification/],
+    ["agent guess", { provenance: "agent guess from conversation" }, /cannot be current authority/],
+    ["model inference", { provenance: "model inference" }, /cannot be current authority/],
+  ];
+  for (const [name, overrides, expected] of cases) {
+    await context.test(name, async () => {
+      await withRepository(async (root) => {
+        await put(root, TYPE_PATHS.requirement, record("requirement", overrides));
+        const validation = await validateProject(root);
+        assert.equal(validation.usable, false);
+        assert.match(component(validation, "records_and_links").detail, expected);
+      });
+    });
+  }
+});
+
+test("source paths must exist as local regular non-symlink files, including transaction overlays", async (context) => {
+  await context.test("missing source", async () => {
+    await withRepository(async (root) => {
+      await put(root, TYPE_PATHS.knowledge, record("knowledge", { source_paths: ["missing.txt"] }));
+      const validation = await validateProject(root);
+      assert.equal(validation.usable, false);
+      assert.match(component(validation, "records_and_links").detail, /source path missing\.txt/);
+    });
+  });
+  await context.test("directory source", async () => {
+    await withRepository(async (root) => {
+      await put(root, TYPE_PATHS.knowledge, record("knowledge", { source_paths: ["specs"] }));
+      const validation = await validateProject(root);
+      assert.equal(validation.usable, false);
+      assert.match(component(validation, "records_and_links").detail, /regular non-symlink file/);
+    });
+  });
+  await context.test("overlay source", async () => {
+    await withRepository(async (root) => {
+      const knowledgePath = "memory/knowledge/KNW-OVERLAY.md";
+      const referencePath = "memory/references/REF-OVERLAY.md";
+      const baseline = await captureBaseline(root, [knowledgePath, referencePath]);
+      const receipt = await applyTransaction(root, approvedTransaction(baseline, [
+        {
+          path: knowledgePath,
+          content: record("knowledge", { id: "KNW-OVERLAY", source_paths: [referencePath] }),
+        },
+        {
+          path: referencePath,
+          content: record("reference", { id: "REF-OVERLAY", source_paths: ["PROJECT.md"] }),
+        },
+      ]));
+      assert.deepEqual(receipt.changed_paths, [knowledgePath, referencePath]);
+    });
+  });
+});
+
+test("timestamps reject impossible UTC calendar values", async () => {
+  await withRepository(async (root) => {
+    await put(root, TYPE_PATHS.knowledge, record("knowledge", {
+      created: "2026-02-30T12:00:00Z",
+      updated: "2026-02-30T12:00:00Z",
+    }));
+    const validation = await validateProject(root);
+    assert.equal(validation.usable, false);
+    assert.match(component(validation, "records_and_links").detail, /ISO 8601 UTC timestamps/);
+  });
+});
+
+test("superseded records require exactly one current successor and rejected-only is invalid", async (context) => {
+  await context.test("rejected-only successor", async () => {
+    await withRepository(async (root) => {
+      await put(root, "specs/product/old.md", record("requirement", {
+        id: "REQ-OLD",
+        lifecycle: "superseded",
+        successors: ["REQ-REJECTED"],
+      }));
+      await put(root, "specs/product/rejected.md", record("requirement", {
+        id: "REQ-REJECTED",
+        lifecycle: "rejected",
+        freshness: "stale",
+        verification: "stale",
+        predecessors: ["REQ-OLD"],
+      }));
+      const validation = await validateProject(root);
+      assert.equal(validation.usable, false);
+      assert.match(component(validation, "records_and_links").detail, /exactly one current successor/);
+    });
+  });
+  await context.test("approved retirement uses retired", async () => {
+    await withRepository(async (root) => {
+      await put(root, TYPE_PATHS.knowledge, record("knowledge", {
+        lifecycle: "retired",
+        freshness: "stale",
+        verification: "stale",
+      }));
+      assert.equal((await validateProject(root)).usable, true);
+    });
+  });
+});
+
+test("inline YAML objects are rejected before duplicate JSON keys can hide", async () => {
+  await withRepository(async (root) => {
+    const path = join(root, "memory/config.yaml");
+    await writeFile(path, `${await readFile(path, "utf8")}extra: {"key":1,"key":2}\n`);
+    const validation = await validateProject(root);
+    assert.equal(validation.usable, false);
+    assert.match(component(validation, "configuration_schema").detail, /inline object syntax is not supported/);
+  });
+});
+
+test("malformed marker and config still return the complete component inventory", async (context) => {
+  for (const [name, path, content] of [
+    ["marker", ".second-brain-project.json", "{broken"],
+    ["config", "memory/config.yaml", "schema_version: [\n"],
+  ]) {
+    await context.test(name, async () => {
+      await withRepository(async (root) => {
+        await writeFile(join(root, path), content);
+        const validation = await validateProject(root);
+        assert.deepEqual(
+          validation.components.map((item) => item.name),
+          ["git", "project_identity", "configuration_schema", "routers_and_folders", "records_and_links", "context_budgets", "secret_scan", "optional_index", "external_authorities"],
+        );
+        assert.equal(validation.usable, false);
+        assert.ok(validation.components.every((item) => item.action));
+      });
+    });
+  }
+});
+
+test("expanded secret guards catch modern tokens, assignments, database URLs, and private key values", async (context) => {
+  const values = [
+    ["fine-grained GitHub PAT", ["github_pat_", "11AA22BB33CC44DD55EE66FF77"].join(""), /github_fine_grained_token/],
+    ["OpenAI style key", ["sk-proj-", "AA11BB22CC33DD44EE55FF66"].join(""), /provider_secret_key/],
+    ["Stripe style key", ["sk_live_", "AA11BB22CC33DD44EE55"].join(""), /provider_secret_key/],
+    ["generic secret", ["secret", "AA11BB22CC33DD44EE55"].join("="), /assigned_secret/],
+    ["generic token", ["token", "AA11BB22CC33DD44EE55"].join(":"), /assigned_secret/],
+    ["access token", ["access_token", "AA11BB22CC33DD44EE55"].join("="), /assigned_secret/],
+    ["database URL", ["postgresql://user:", "password@example.invalid/db"].join(""), /credentialed_database_url/],
+    ["private key assignment", ["private_key", "AA11BB22CC33DD44EE55"].join("="), /private_key_assignment/],
+  ];
+  for (const [name, value, expected] of values) {
+    await context.test(name, async () => {
+      await withRepository(async (root) => {
+        await put(root, TYPE_PATHS.knowledge, record("knowledge", {}, `${bodyFor("knowledge")}\n${value}\n`));
+        const validation = await validateProject(root);
+        assert.equal(validation.usable, false);
+        assert.match(component(validation, "secret_scan").detail, expected);
+      });
+    });
+  }
+  await withRepository(async (root) => {
+    assert.match(await readFile(join(root, "PROJECT.md"), "utf8"), /limited guardrails, not complete detection/);
+    assert.match(await readFile(join(root, "memory/README.md"), "utf8"), /limited guardrails, not complete detection/);
+  });
+});
+
+test("materializer preflights collisions and never overwrites existing adapters", async () => {
+  const parent = await mkdtemp(join(tmpdir(), "materializer-collision-"));
+  try {
+    const root = join(parent, "existing");
+    await mkdir(root);
+    await writeFile(join(root, "AGENTS.md"), "existing adapter\n");
+    const before = await readdir(root);
+    await assert.rejects(
+      materializeTemplate(TEMPLATE, root, "collision-project"),
+      /materialization collision at AGENTS\.md/,
+    );
+    assert.deepEqual(await readdir(root), before);
+    assert.equal(await readFile(join(root, "AGENTS.md"), "utf8"), "existing adapter\n");
+    await assert.rejects(readFile(join(root, "PROJECT.md")), /ENOENT/);
+  } finally {
+    await rm(parent, { recursive: true, force: true });
+  }
+});
+
+test("materializer removes every artifact after an injected partial apply failure", async () => {
+  const parent = await mkdtemp(join(tmpdir(), "materializer-rollback-"));
+  try {
+    const root = join(parent, "existing");
+    await mkdir(root);
+    await writeFile(join(root, "preexisting.txt"), "preserve\n");
+    const before = await readdir(root);
+    await assert.rejects(
+      materializeTemplate(TEMPLATE, root, "rollback-project", null, { failAfterCreateCount: 3 }),
+      /without changing preexisting files/,
+    );
+    assert.deepEqual(await readdir(root), before);
+    assert.equal(await readFile(join(root, "preexisting.txt"), "utf8"), "preserve\n");
+  } finally {
+    await rm(parent, { recursive: true, force: true });
+  }
+});
+
+test("materializer embeds one explicit or generated repository UUID consistently", async () => {
+  const parent = await mkdtemp(join(tmpdir(), "materializer-identity-"));
+  try {
+    const explicit = "11111111-2222-4333-8444-555555555555";
+    const explicitRoot = join(parent, "explicit");
+    const explicitResult = await materializeTemplate(TEMPLATE, explicitRoot, "identity-project", explicit);
+    assert.equal(explicitResult.repository_id, explicit);
+    assert.equal(JSON.parse(await readFile(join(explicitRoot, ".second-brain-project.json"), "utf8")).repository_id, explicit);
+    assert.match(await readFile(join(explicitRoot, "memory/config.yaml"), "utf8"), new RegExp(explicit));
+
+    const generatedRoot = join(parent, "generated");
+    const generated = await materializeTemplate(TEMPLATE, generatedRoot, "identity-project");
+    assert.match(generated.repository_id, /^[0-9a-f-]{36}$/);
+    assert.equal(JSON.parse(await readFile(join(generatedRoot, ".second-brain-project.json"), "utf8")).repository_id, generated.repository_id);
+    assert.match(await readFile(join(generatedRoot, "memory/config.yaml"), "utf8"), new RegExp(generated.repository_id));
+  } finally {
+    await rm(parent, { recursive: true, force: true });
+  }
+});
+
+test("unexpected post-write validation failure restores the complete baseline", async () => {
+  await withRepository(async (root) => {
+    const existingPath = "memory/knowledge/KNW-ROLLBACK.md";
+    const createdPath = "specs/new-area/REQ-ROLLBACK.md";
+    await put(root, existingPath, record("knowledge", { id: "KNW-ROLLBACK", title: "Before" }));
+    const beforeContent = await readFile(join(root, existingPath), "utf8");
+    const baseline = await captureBaseline(root, [existingPath, createdPath]);
+    await assert.rejects(
+      applyTransaction(
+        root,
+        approvedTransaction(baseline, [
+          {
+            path: existingPath,
+            content: record("knowledge", { id: "KNW-ROLLBACK", title: "After", updated: "2026-07-27T13:00:00Z" }),
+          },
+          {
+            path: createdPath,
+            content: record("requirement", { id: "REQ-ROLLBACK" }),
+          },
+        ]),
+        { injectPostWriteFailure: true },
+      ),
+      /rolled back: injected post-write validation failure/,
+    );
+    assert.equal(await readFile(join(root, existingPath), "utf8"), beforeContent);
+    await assert.rejects(readFile(join(root, createdPath)), /ENOENT/);
+    await assert.rejects(lstat(join(root, "specs/new-area")), /ENOENT/);
+    assert.equal((await validateProject(root)).usable, true);
+  });
+});
+
+test("configured file, record, diagnostic, query, and complete response bounds are enforced", async (context) => {
+  await context.test("file bytes", async () => {
+    await withRepository(async (root) => {
+      const configPath = join(root, "memory/config.yaml");
+      await writeFile(configPath, (await readFile(configPath, "utf8")).replace("file_max_bytes: 65536", "file_max_bytes: 1024"));
+      await put(root, TYPE_PATHS.knowledge, record("knowledge", {}, `${bodyFor("knowledge")}\n${"x".repeat(2000)}\n`));
+      const validation = await validateProject(root);
+      assert.equal(validation.usable, false);
+      assert.match(component(validation, "records_and_links").detail, /file exceeds configured maximum 1024 bytes/);
+    });
+  });
+  await context.test("record count", async () => {
+    await withRepository(async (root) => {
+      const configPath = join(root, "memory/config.yaml");
+      await writeFile(configPath, (await readFile(configPath, "utf8")).replace("record_max_count: 1000", "record_max_count: 1"));
+      await put(root, TYPE_PATHS.knowledge, record("knowledge"));
+      const validation = await validateProject(root);
+      assert.equal(validation.usable, false);
+      assert.match(component(validation, "records_and_links").detail, /record count 2 exceeds configured maximum 1/);
+    });
+  });
+  await context.test("diagnostics", async () => {
+    await withRepository(async (root) => {
+      const configPath = join(root, "memory/config.yaml");
+      const config = (await readFile(configPath, "utf8"))
+        .replace("diagnostic_max_count: 100", "diagnostic_max_count: 2")
+        .replace("diagnostic_max_bytes: 512", "diagnostic_max_bytes: 128");
+      await writeFile(configPath, config);
+      for (let index = 0; index < 5; index += 1) {
+        await put(root, `memory/knowledge/bad-${index}.md`, "# malformed\n");
+      }
+      const validation = await validateProject(root);
+      assert.ok(validation.errors.length <= 2);
+      assert.ok(validation.diagnostic_count > validation.errors.length);
+      assert.ok(validation.diagnostics_truncated > 0);
+      assert.ok(validation.components.every((item) => Buffer.byteLength(item.detail) <= 128));
+    });
+  });
+  await context.test("query bytes", async () => {
+    await withRepository(async (root) => {
+      const configPath = join(root, "memory/config.yaml");
+      await writeFile(configPath, (await readFile(configPath, "utf8")).replace("query_max_bytes: 1024", "query_max_bytes: 5"));
+      await assert.rejects(searchProject(root, "123456"), /query exceeds configured maximum 5 bytes/);
+    });
+  });
+  await context.test("complete search response", async () => {
+    await withRepository(async (root) => {
+      const configPath = join(root, "memory/config.yaml");
+      await writeFile(
+        configPath,
+        (await readFile(configPath, "utf8")).replace("search_response_max_bytes: 16384", "search_response_max_bytes: 1024"),
+      );
+      for (let index = 1; index <= 5; index += 1) {
+        await put(root, `memory/knowledge/KNW-BOUND-${index}.md`, record("knowledge", {
+          id: `KNW-BOUND-${index}`,
+          title: `Bounded pointer ${index} ${"title".repeat(10)}`,
+        }, bodyFor("knowledge", "bounded")));
+      }
+      const result = await searchProject(root, "bounded");
+      assert.ok(Buffer.byteLength(JSON.stringify(result)) <= 1024);
+      assert.equal(result.matched_count, 5);
+      assert.ok(result.truncated_count > 0);
+      assert.equal(result.truncated_count, result.matched_count - result.result_count);
+      assert.equal(result.response_bytes, Buffer.byteLength(JSON.stringify(result)));
+    });
   });
 });

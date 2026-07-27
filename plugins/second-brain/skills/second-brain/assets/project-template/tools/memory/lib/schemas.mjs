@@ -88,6 +88,7 @@ export const ALLOWED_RECORD_FIELDS = Object.freeze([
 export const CONFIG_KEYS = Object.freeze([
   "schema_version",
   "project_id",
+  "repository_id",
   "profile",
   "modules",
   "canonical_paths",
@@ -128,6 +129,12 @@ export const BUDGET_KEYS = Object.freeze([
   "current_max_bytes",
   "current_max_nonempty_lines",
   "search_max_results",
+  "file_max_bytes",
+  "record_max_count",
+  "diagnostic_max_count",
+  "diagnostic_max_bytes",
+  "query_max_bytes",
+  "search_response_max_bytes",
 ]);
 
 export const INDEX_KEYS = Object.freeze(["enabled", "schema_version", "modes"]);

@@ -12,7 +12,10 @@ function parseScalar(text, line) {
   if (value === "false") return false;
   if (value === "null") return null;
   if (/^-?(0|[1-9]\d*)$/.test(value)) return Number(value);
-  if (value.startsWith("[") || value.startsWith("{") || value.startsWith('"')) {
+  if (value.startsWith("{")) {
+    throw new YamlError("inline object syntax is not supported", line);
+  }
+  if (value.startsWith("[") || value.startsWith('"')) {
     try {
       return JSON.parse(value);
     } catch {

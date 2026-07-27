@@ -9,6 +9,15 @@
         "record_type": { "const": "requirement" },
         "lifecycle": { "enum": ["proposed", "active", "superseded", "deprecated", "rejected", "retired"] }
       }
+    },
+    {
+      "if": { "properties": { "lifecycle": { "const": "active" } }, "required": ["lifecycle"] },
+      "then": {
+        "properties": {
+          "freshness": { "const": "current" },
+          "verification": { "enum": ["owner_reviewed", "repository_evidence", "verified"] }
+        }
+      }
     }
   ]
 }

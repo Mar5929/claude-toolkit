@@ -4,10 +4,11 @@
   "title": "Deterministic knowledge write receipt",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "project_id", "baseline_head", "in_scope_paths", "changed_paths", "changes", "evidence", "validation", "index_state", "commit"],
+  "required": ["schema_version", "project_id", "repository_id", "baseline_head", "in_scope_paths", "changed_paths", "changes", "evidence", "validation", "index_state", "commit"],
   "properties": {
     "schema_version": { "const": 1 },
     "project_id": { "type": "string" },
+    "repository_id": { "type": "string", "format": "uuid" },
     "baseline_head": { "type": "string" },
     "in_scope_paths": { "type": "array", "items": { "type": "string" } },
     "changed_paths": { "type": "array", "items": { "type": "string" } },

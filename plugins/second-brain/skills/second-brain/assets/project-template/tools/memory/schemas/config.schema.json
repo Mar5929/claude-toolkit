@@ -7,6 +7,7 @@
   "required": [
     "schema_version",
     "project_id",
+    "repository_id",
     "profile",
     "modules",
     "canonical_paths",
@@ -18,6 +19,7 @@
   "properties": {
     "schema_version": { "const": 1 },
     "project_id": { "type": "string", "pattern": "^[a-z0-9](?:[a-z0-9-]{1,62}[a-z0-9])?$" },
+    "repository_id": { "type": "string", "format": "uuid" },
     "profile": { "enum": ["core", "software", "client", "data", "regulated", "platform"] },
     "modules": { "type": "array", "contains": { "const": "core" }, "items": { "type": "string" }, "uniqueItems": true },
     "canonical_paths": {
@@ -55,14 +57,20 @@
     "budgets": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["project_router_max_bytes", "startup_max_bytes", "task_retrieval_max_bytes", "current_max_bytes", "current_max_nonempty_lines", "search_max_results"],
+      "required": ["project_router_max_bytes", "startup_max_bytes", "task_retrieval_max_bytes", "current_max_bytes", "current_max_nonempty_lines", "search_max_results", "file_max_bytes", "record_max_count", "diagnostic_max_count", "diagnostic_max_bytes", "query_max_bytes", "search_response_max_bytes"],
       "properties": {
         "project_router_max_bytes": { "type": "integer", "minimum": 1 },
         "startup_max_bytes": { "type": "integer", "minimum": 1 },
         "task_retrieval_max_bytes": { "type": "integer", "minimum": 1 },
         "current_max_bytes": { "type": "integer", "minimum": 1, "maximum": 3072 },
         "current_max_nonempty_lines": { "type": "integer", "minimum": 1, "maximum": 40 },
-        "search_max_results": { "type": "integer", "minimum": 1, "maximum": 5 }
+        "search_max_results": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "file_max_bytes": { "type": "integer", "minimum": 1024, "maximum": 1048576 },
+        "record_max_count": { "type": "integer", "minimum": 1, "maximum": 10000 },
+        "diagnostic_max_count": { "type": "integer", "minimum": 1, "maximum": 1000 },
+        "diagnostic_max_bytes": { "type": "integer", "minimum": 128, "maximum": 4096 },
+        "query_max_bytes": { "type": "integer", "minimum": 1, "maximum": 8192 },
+        "search_response_max_bytes": { "type": "integer", "minimum": 512, "maximum": 1048576 }
       }
     },
     "index": {
@@ -72,7 +80,7 @@
       "properties": {
         "enabled": { "type": "boolean" },
         "schema_version": { "const": 1 },
-        "modes": { "type": "array", "items": { "const": "exact" }, "uniqueItems": true }
+        "modes": { "type": "array", "minItems": 1, "items": { "const": "exact" }, "uniqueItems": true }
       }
     },
     "external_authorities": { "type": "array", "items": { "type": "string", "minLength": 1 }, "uniqueItems": true }

@@ -4,10 +4,11 @@
   "title": "Approved knowledge write transaction",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "project_id", "baseline", "evidence", "writes"],
+  "required": ["schema_version", "project_id", "repository_id", "baseline", "evidence", "writes"],
   "properties": {
     "schema_version": { "const": 1 },
     "project_id": { "type": "string" },
+    "repository_id": { "type": "string", "format": "uuid" },
     "baseline": { "$ref": "write-baseline.schema.json" },
     "evidence": { "type": "array", "items": { "type": "string", "minLength": 1 } },
     "writes": {

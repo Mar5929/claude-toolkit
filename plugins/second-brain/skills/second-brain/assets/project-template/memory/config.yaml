@@ -1,5 +1,6 @@
 schema_version: 1
 project_id: "__PROJECT_ID__"
+repository_id: "__REPOSITORY_ID__"
 profile: "core"
 modules: ["core"]
 canonical_paths:
@@ -29,6 +30,12 @@ budgets:
   current_max_bytes: 3072
   current_max_nonempty_lines: 40
   search_max_results: 5
+  file_max_bytes: 65536
+  record_max_count: 1000
+  diagnostic_max_count: 100
+  diagnostic_max_bytes: 512
+  query_max_bytes: 1024
+  search_response_max_bytes: 16384
 index:
   enabled: false
   schema_version: 1
