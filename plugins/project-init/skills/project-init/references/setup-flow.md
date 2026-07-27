@@ -28,9 +28,9 @@ so they always know where they are.
 - Confirm before creating dirs/files. Cover: source, tests, config, `.gitignore`,
   README, license, editor/formatter, CI stub.
 - Every stack: offer the work-items structure in `work-items-structure.md`
-  (stage folders `01-backlog/`..`04-archived/`, a `BACKLOG.md` index, one
-  folder per work item with `SPEC.md` + `STATUS.md`). Pairs with the
-  `work-item-folders.md` rule copied in Gate 5.
+  (stage folders `01-backlog/`..`04-archived/`, one folder per work item with
+  `SPEC.md` + `STATUS.md`, and no index file: the folder is the status). Pairs
+  with the `work-item-folders.md` rule copied in Gate 5.
 - Salesforce / SFDX: offer the standard scaffold in
   `salesforce-project-scaffold.md` (SFDX source plus an `engagement/` tree;
   its `engagement/work-items/` uses the same work-items structure).

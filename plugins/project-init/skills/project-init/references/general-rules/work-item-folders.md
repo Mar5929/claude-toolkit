@@ -11,8 +11,8 @@ next step, with dated entries).
 - Working on it? Update the folder as part of the work, in the same session, and
   end every working session with a current next step in `STATUS.md`.
 - Finished it? ALWAYS close it out in the same session: record the completion in
-  `STATUS.md` (date and where it landed), mark its backlog-index entry done, and
-  move its folder to the completed stage.
+  `STATUS.md` (date and where it landed) and move its folder to the completed
+  stage. Moving the folder IS marking it done; there is no index to update.
 
 Work-item folders live in stage folders (backlog / in progress / completed /
 archived; Gate 1's work-items structure scaffolds them): move the folder
@@ -20,7 +20,10 @@ whenever its status changes and update references to the old path.
 
 **The folder is the status.** An item's stage is which stage folder it sits in,
 full stop. Never record a stage anywhere else and then rely on the copy: not in
-CLAUDE.md, not in a summary, not in long-term memory. Projects with the memory
+CLAUDE.md, not in a summary, not in long-term memory, and not in a `BACKLOG.md`
+or `INDEX.md` beside the stage folders. Two records of one fact means every
+folder move needs a matching hand edit, and the edit is what gets skipped, so
+the copy quietly reports work as open long after it finished. Projects with the memory
 system get a session-start hook that reads the tree and tells you what is
 wanted, in progress, and done, so when your recollection and the tree disagree,
 the tree is right. Memory stores the pointer and the links, never the stage.

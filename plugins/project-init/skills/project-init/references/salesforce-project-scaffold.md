@@ -32,7 +32,7 @@ before creating anything.
 │   ├── meeting-notes/             # one file per call or working session
 │   ├── references/                # source specs, org exports, third-party docs
 │   ├── work-items/                # ticket work items (see work-items-structure.md)
-│   │   ├── 01-backlog/            #   holds BACKLOG.md, the running index
+│   │   ├── 01-backlog/            #   the stage folder IS the status; no index file
 │   │   ├── 02-in-progress/
 │   │   ├── 03-completed/
 │   │   └── 04-archived/
@@ -66,7 +66,7 @@ repo next to the metadata they describe.
 | `knowledge-base/` | Durable reference knowledge about the org(s) |
 | `meeting-notes/` | One file per call or working session |
 | `references/` | Source specs, org exports, third-party docs (read-only inputs) |
-| `work-items/` | Ticket work items in stage folders (`01-backlog/` holds the `BACKLOG.md` index); one folder per ticket (named by ticket key) with `SPEC.md` + `STATUS.md`. Layout: `work-items-structure.md` |
+| `work-items/` | Ticket work items in stage folders; the folder a ticket sits in is its status, so there is no index file. One folder per ticket (named by ticket key) with `SPEC.md` + `STATUS.md`. Layout: `work-items-structure.md` |
 | `data/` | Object and field mapping, transformation rules, load files |
 | `data/backups/` | Point-in-time data exports from the org(s) |
 

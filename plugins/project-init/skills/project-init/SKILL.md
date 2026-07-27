@@ -62,9 +62,10 @@ form. Keep each gate tight.
 > recommendation, not a frozen template.
 
 **Work-items structure (every stack).** Offer the standard work-item tracking
-tree in `references/work-items-structure.md`: stage folders (`01-backlog/`
-holding a `BACKLOG.md` index, `02-in-progress/`, `03-completed/`,
-`04-archived/`) with one folder per work item holding `SPEC.md` + `STATUS.md`.
+tree in `references/work-items-structure.md`: stage folders (`01-backlog/`,
+`02-in-progress/`, `03-completed/`, `04-archived/`) with one folder per work
+item holding `SPEC.md` + `STATUS.md`. Scaffold NO index file: the stage folder
+an item sits in is its status, and a second copy goes stale on the first move.
 Salesforce projects place it at `engagement/work-items/`. It pairs with the
 `work-item-folders.md` rule (Gate 5): read the item's folder first, keep it
 current as part of the work, and always close out a finished item in the same
@@ -198,8 +199,8 @@ in their own plugins.
 - `references/setup-flow.md`: the gate-by-gate checklist to track progress
   against during the run.
 - `references/work-items-structure.md`: the standard work-items tracking tree
-  (stage folders + `BACKLOG.md` index + `SPEC.md`/`STATUS.md` per item) to
-  offer in Gate 1 for every stack.
+  (stage folders + `SPEC.md`/`STATUS.md` per item, no index file) to offer in
+  Gate 1 for every stack.
 - `references/salesforce-project-scaffold.md`: the standard Gate 1 layout for a
   Salesforce / SFDX project (SFDX source plus an `engagement/` tree). Read it in
   Gate 1 when the stack is Salesforce.

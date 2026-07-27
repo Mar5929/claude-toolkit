@@ -94,6 +94,16 @@ secrets rule even if the prose differs. Typical checks:
 - **Knowledge layer:** existing v1 curator files, `know-*` nodes, SHA pins, and
   drift reports are retired. Do not refresh, reconcile, import, or use them as
   current truth.
+- **Work-items tree:** if the project tracks work items, does it use the stage
+  folders (`01-backlog/`..`04-archived/`) with one folder per item? Then check
+  for a **duplicated status**: any committed file beside those folders that
+  lists work items with a status each (typically `BACKLOG.md` or `INDEX.md`).
+  That is drift, not a feature. The stage folder is the status, so a second copy
+  needs a hand edit on every `git mv` and reports finished work as open the
+  first time someone forgets. Classify it **partial** and offer to fold the
+  entries into folders and drop the index. A free-text list of un-started ideas
+  is fine to keep only if it carries no statuses. See
+  `../project-init/references/work-items-structure.md`.
 - **Standalone toolkit skills:** check the previous sync record and the
   available host plugins. For `grill-me`, classify whether it is available to
   invoke, previously declined, or not applicable. Do not look for a copied
