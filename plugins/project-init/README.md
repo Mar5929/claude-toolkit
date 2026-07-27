@@ -49,11 +49,12 @@ Bundled under `skills/project-init/references/`:
 ## How it relates to the rest of the toolkit
 
 - project-init is the **entry point that installs the other plugins' systems**.
-  During second-brain Unit 00 containment, Gates 3 and 4 are recorded as
-  deferred because v1 must not be installed and v2 is not shipped.
-- project-sync identifies existing v1 projects as legacy evidence. With owner
-  approval it may add only reversible containment settings. It never deletes
-  or migrates v1 data.
+  Gates 3 and 4 are recorded as deferred because v1 is retired and v2 is not
+  shipped.
+- project-sync identifies existing local v1 integrations. With owner approval
+  it may deactivate them or remove specifically approved local files. It never
+  contacts the Worker or Neon, reads legacy memory, imports v1 into v2, or
+  deletes cloud infrastructure.
 - **project-init versus project-sync is not redundancy.** They share the same
   inventory of toolkit systems but enter from opposite ends: project-init lays
   foundations in an empty project, project-sync audits and back-fills a project

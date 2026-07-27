@@ -66,7 +66,7 @@ Status key: `[ ]` open, `[~]` in progress, `[x]` done, `[-]` decided against.
 
 ## How this will pair with second-brain v2
 
-Do not install second-brain v1 during Unit 00 containment. When the Git-native
+Do not install second-brain v1; it is retired. When the Git-native
 v2 system ships, the two systems split cleanly and are not redundant:
 
 - **The tree owns status.** `work-items-status.mjs` (a SessionStart hook) reads

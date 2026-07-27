@@ -1,9 +1,8 @@
 # Second-brain hooks
 
-> **Unit 00 containment:** automatic v1 capture, per-prompt recall,
-> session-end curation, and curator reminders must be off. The bundled writer
-> hooks fail closed unless `BRAIN_V1_WRITE_MODE=write`. Preserve installed hook
-> files as migration evidence; do not copy them into a new project.
+> **Archived v1 reference:** v1 is retired. Do not copy, run, refresh, or import
+> these hooks. Existing projects should use `project-sync` to deactivate or
+> remove local v1 integration with approval.
 
 Eight deterministic, best-effort hooks. Four connect a project to the memory
 server over the bearer fast path (`/fast/<project>/...`); with no

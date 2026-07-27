@@ -6,13 +6,13 @@
   },
   "metadata": {
     "description": "Personal, portable toolkit of reusable Claude systems: skills, rules, hooks, and templates shared across every project and device.",
-    "version": "0.23.2"
+    "version": "0.24.0"
   },
   "plugins": [
     {
       "name": "project-init",
       "source": "./plugins/project-init",
-      "description": "Two skills: project-init walks through new-project setup while second-brain gates are deferred; project-sync audits an existing project and may apply reversible v1 containment settings with approval without installing v1 or migrating data."
+      "description": "Two skills: project-init walks through new-project setup while second-brain gates are deferred; project-sync audits an existing project and may deactivate or remove approved local v1 integration without contacting cloud resources."
     },
     {
       "name": "sf-architect-solutioning",
@@ -22,7 +22,7 @@
     {
       "name": "second-brain",
       "source": "./plugins/second-brain",
-      "description": "Second-brain transition controls. Legacy Neon/MCP v1 is contained read-only without deleting data: new installs and /remember writes are disabled, automatic writers fail closed, reads are labeled legacy/advisory, and freeze export support is included. Git-native v2 is specified but not shipped."
+      "description": "Second-brain retirement controls. Neon/MCP v1 is retired and will not be deployed, exported, or migrated. Existing local integrations may be deactivated or removed with approval. Git-native v2 starts from authoritative Git content but is not shipped."
     },
     {
       "name": "git-workflows",

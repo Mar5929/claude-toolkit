@@ -1,8 +1,8 @@
-# second-brain: implementation record + new-project setup recipe
+# second-brain: archived v1 implementation record
 
-> **Historical v1 build record.** The current source is contained read-only.
-> Do not follow this file as a new installation guide. The current operator
-> procedure is `../v1-freeze-and-export.md`.
+> **Historical v1 build record.** V1 is retired. Do not use this file to
+> install, deploy, export, migrate, or revive it. V2 starts from authoritative
+> Git content and does not import v1 memory.
 
 **Purpose.** DragonFly is the PILOT for the second-brain memory + knowledge
 architecture (WI-002). This file is the durable, checked-in record of exactly

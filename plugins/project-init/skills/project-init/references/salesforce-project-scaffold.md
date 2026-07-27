@@ -71,12 +71,12 @@ repo next to the metadata they describe.
 | `data/backups/` | Point-in-time data exports from the org(s) |
 
 `project-overview/` is where the `grill-me` skill saves its output. It may be
-used independently of second-brain. During Unit 00, do not send its answers to
-the contained v1 memory system.
+used independently of second-brain. Do not send its answers to the retired v1
+memory system.
 
 **`.claude/`**: project-scoped Claude Code setup. Scaffold it empty at Gate 1
 with `rules/`, `hooks/`, `agents/`, and `settings.json`. Gate 2 adds approved
-guards. Gates 3 and 4 are deferred during Unit 00 and do not add v1 memory or
+guards. Gates 3 and 4 are deferred until v2 ships and do not add v1 memory or
 knowledge hooks and agents.
 
 ## Config defaults

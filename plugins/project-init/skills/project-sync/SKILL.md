@@ -7,7 +7,7 @@ description: >-
   in this project", "sync this project with claude-toolkit", "audit this
   project against the toolkit", or "/project-sync". This skill inventories
   everything the toolkit currently ships (the general and Salesforce rules
-  libraries, hooks, second-brain v1 containment, and any newer systems),
+  libraries, hooks, second-brain v1 retirement, and any newer systems),
   cross-references the
   current project, reports the gaps, and closes each gap only with the user's
   approval.
@@ -54,8 +54,8 @@ automatically as it grows.
   - each system from the setup gates: hooks, memory system, knowledge layer
   - anything newer listed in the toolkit README under "What's here now"
   - skip roadmap items; they aren't built yet and can't be audited. The Unit 00
-    v1 containment controls are the exception: they are shipped safety work and
-    must be audited even though v2 itself is still a roadmap item
+    v1 retirement behavior is the exception: existing v1 integration must be
+    reported even though v2 itself is still a roadmap item
 - Note the toolkit version (from `plugin.json` or `marketplace.json`) for the
   sync record in step 5.
 
@@ -72,36 +72,34 @@ secrets rule even if the prose differs. Typical checks:
 - **CLAUDE.md health** (presence is not enough, see below).
 - **Hooks**: are guard and orientation hooks configured (the project's
   `.claude/` settings and hook scripts)?
-- **Second-brain status:** v1 is the Neon/MCP architecture and is legacy. V2 is
+- **Second-brain status:** v1 is the retired Neon/MCP architecture. V2 is
   specified but not shipped. If the project has no v1, mark memory and
   knowledge **deferred** and do not offer installation. If it has v1, identify
-  its `.mcp.json`, settings, hooks, curator agents, outbox, and any local
-  `brain/` or `memories/` cache as migration evidence. Do not delete or migrate
-  any of it.
-- **V1 containment:** for an existing v1 project, check the committed settings
-  for `BRAIN_V1_WRITE_MODE=read-only`, `BRAIN_CAPTURE=0`,
-  `BRAIN_CURATE_ON_END=0`, `BRAIN_RECALL=0`, and `BRAIN_KC_NUDGE=0`. Report
-  missing values as a reversible containment gap. Do not read
-  `.claude/settings.local.json` or expose tokens.
-- **The memory is scoped to THIS project.** Connectors are attached per Claude
-  account, not per repo, so another project's brain is visible in every session
-  and a background job can hold only that one; a session then answers from the
-  wrong codebase's memory, in detail, with nothing in the answer to catch it. Is
-  `BRAIN_CONNECTOR` set in `.claude/settings.json` to this project's connector
-  name, and is `brain-scope-guard.mjs` wired as a `PreToolUse` hook on `mcp__.*`?
-  Without the var the guard can only ask, not deny.
-- **The v1 server is contained:** do not send a real write. If the owner
-  separately approves a harmless route check, `POST /fast/<id>/node` with no
-  credentials must return HTTP 423 and the exact `v1_read_only` body before any
-  database access. Reads should say `legacy/advisory`. A live deployment check
-  is not part of an ordinary project sync unless the owner approves it.
-- **Knowledge layer:** existing v1 curator files and `know-*` nodes are evidence,
-  not a system to refresh. Preserve them and disable curator reminders.
+  only the local integration surface: `.mcp.json`, `.claude/settings.json`,
+  `.codex/config.toml`, hook registrations and wrappers, curator agents, v1
+  rules, outbox scaffolding, and any local `brain/` or `memories/` path. Do not
+  call the Worker, read Neon, open local token files, or inspect legacy memory
+  content.
+- **V1 activity:** report whether automatic digest, recall, capture,
+  session-end curation, curator reminders, or MCP connections are still wired
+  for Claude or Codex. A flag in `.claude/settings.json` is not enough when a
+  Codex wrapper supplies its own environment, so trace each committed hook
+  entry to the command it runs.
+- **Retirement choices:** recommend reversible local deactivation first:
+  disable every automatic v1 hook and remove the v1 MCP connection from
+  committed Claude and Codex configuration. Also offer removal of specifically
+  listed committed v1 files after separate approval. Never bundle deletion of a
+  non-empty outbox, cache, ignored file, token, connector, database, or cloud
+  resource into ordinary project sync.
+- **Knowledge layer:** existing v1 curator files, `know-*` nodes, SHA pins, and
+  drift reports are retired. Do not refresh, reconcile, import, or use them as
+  current truth.
 - **Previous sync record**: read it if present (step 5 format) so deliberate
   opt-outs are respected.
 
-Classify every item: **present**, **partial**, **missing**, **declined** (the
-owner previously opted out), or **not applicable** (say why).
+Classify every item: **present**, **partial**, **missing**, **retired** (a v1
+integration that should be deactivated or removed), **declined** (the owner
+previously opted out), or **not applicable** (say why).
 
 ### CLAUDE.md health
 
@@ -143,7 +141,8 @@ on any trim you propose:
 
 Show one table: item, status, and what specifically is missing or drifted. Make
 no changes in this step. Let the user pick what to fix, and recommend an order
-(default-ON rules first, then systems).
+(retired v1 deactivation first when present, then default-ON rules, then other
+systems).
 
 ## Step 4: close the approved gaps, one at a time
 
@@ -158,9 +157,15 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   version. If the project's variant is an improvement, leave it and flag it
   for port-back instead (see wrap-up).
 - Do not install second-brain v1 or claim v2 is available. For an existing v1
-  project, the only change this sync may offer is the committed containment
-  settings listed in step 2. Apply them only after approval and leave every
-  legacy file and remote resource intact.
+  project, offer the following only after reporting the exact local scope:
+  1. **Deactivate:** remove v1 MCP entries and automatic hook registrations
+     from committed Claude and Codex configuration. Preserve old scripts and
+     agents temporarily.
+  2. **Remove local integration:** delete only the committed v1 files and
+     settings the owner explicitly approves.
+  Neither option contacts the Worker or Neon, reads legacy memory, imports
+  anything into v2, or deletes cloud infrastructure. Account-level connectors,
+  local token cleanup, and cloud deletion are separate owner-approved work.
 
 ## Step 5: record the sync
 
@@ -176,7 +181,8 @@ location: a "Toolkit sync" section at the bottom of the project's CLAUDE.md
 ## Wrap-up
 
 1. **Summarize**: fixed, already present, declined, deferred.
-2. **Note follow-ups** for anything deferred.
+2. **Note follow-ups** for anything deferred, including separate connector,
+   token, or cloud cleanup for a retired v1 integration.
 3. **Port-back reminder**: if the project had a better version of a toolkit
    item, or this sync surfaced an improvement, offer to draft a PR back to the
    `claude-toolkit` repo so every other project benefits.

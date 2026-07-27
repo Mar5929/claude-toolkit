@@ -1,3 +1,5 @@
+// ARCHIVED V1 CONFIG SHAPE. Do not deploy. The default wrangler.jsonc filename
+// is intentionally absent because second-brain v1 is retired.
 // Cloudflare Worker config for the second-brain memory MCP server.
 // ONE server serves every project; each project is isolated by its project id
 // and its own Neon database. You deploy this Worker ONCE (first-time infra

@@ -1,5 +1,5 @@
 {
-  "_comment": "SECOND-BRAIN V1 CONTAINMENT ONLY. Do not use this template to install v1 into a new project. For a project that already runs v1, merge the containment env keys without clobbering existing settings. Keep the digest available as legacy/advisory evidence, but stop automatic capture, recall, session-end curation, and curator reminders. BRAIN_MCP_TOKEN remains secret in the gitignored .claude/settings.local.json. Do not delete hooks, agents, outbox files, or legacy data.",
+  "_comment": "ARCHIVED V1 TEMPLATE. Do not copy or merge it. Use project-sync to deactivate or remove an existing local v1 integration with owner approval.",
   "env": {
     "BRAIN_BACKEND": "mcp",
     "BRAIN_MCP_ORIGIN": "<BRAIN_MCP_ORIGIN>",

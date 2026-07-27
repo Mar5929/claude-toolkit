@@ -1,7 +1,7 @@
 {
   "name": "second-brain",
-  "version": "0.14.1",
-  "description": "Contains legacy second-brain v1 read-only while the Git-native v2 system is being implemented. New v1 installs and legacy writes are disabled.",
+  "version": "0.15.0",
+  "description": "Retires second-brain v1 while the Git-native v2 system is being implemented. V1 is not installed, deployed, exported, or migrated.",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com",
@@ -17,8 +17,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Second Brain",
-    "shortDescription": "Contain legacy v1 while v2 is built.",
-    "longDescription": "Preserves and contains the legacy Neon/MCP second-brain v1 system without deleting data. New v1 installations and remember writes are disabled; v2 remains specified but not shipped.",
+    "shortDescription": "Retire v1 while v2 is built.",
+    "longDescription": "Retires the legacy Neon/MCP second-brain v1 system. Local v1 integrations may be deactivated or removed with approval; v2 starts from Git but remains specified and not shipped.",
     "developerName": "Mike Rihm",
     "category": "Productivity",
     "capabilities": [
@@ -28,8 +28,8 @@
     "websiteURL": "https://github.com/Mar5929/claude-toolkit",
     "defaultPrompt": [
       "Check this project's second-brain status",
-      "Contain this existing v1 setup",
-      "Explain the v2 migration status"
+      "Deactivate this retired v1 setup",
+      "Explain the v2 fresh-start status"
     ],
     "brandColor": "#2563EB"
   }

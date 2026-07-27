@@ -1,7 +1,7 @@
 {
   "name": "project-init",
-  "version": "0.7.5",
-  "description": "New-project setup and toolkit sync. Second-brain gates are deferred during v1 containment; existing v1 projects may receive reversible containment settings.",
+  "version": "0.7.6",
+  "description": "New-project setup and toolkit sync. Second-brain gates are deferred until v2 ships; existing local v1 integration may be deactivated or removed with approval.",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com",
@@ -18,7 +18,7 @@
   "interface": {
     "displayName": "Project Init",
     "shortDescription": "Initialize or sync a project with Mike's toolkit.",
-    "longDescription": "Project setup and sync workflows from Mike Rihm's portable toolkit. Includes guided new-project setup and existing-project audits. During second-brain containment it defers new memory installs and preserves existing v1 data.",
+    "longDescription": "Project setup and sync workflows from Mike Rihm's portable toolkit. Includes guided new-project setup and existing-project audits. It defers second-brain until v2 ships and can retire local v1 integration without touching cloud resources.",
     "developerName": "Mike Rihm",
     "category": "Productivity",
     "capabilities": [

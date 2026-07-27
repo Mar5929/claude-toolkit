@@ -11,7 +11,7 @@ depth lives in each plugin's own `README.md` and reference indexes.
 | Plugin | Purpose | Skills | Install |
 |---|---|---|---|
 | [project-init](../plugins/project-init/README.md) | Put the toolkit's rules and systems into a project, new or existing | `project-init`, `project-sync` | `/plugin install project-init` |
-| [second-brain](../plugins/second-brain/README.md) | Contain and preserve legacy v1 while Git-native v2 is built | `second-brain`, `remember` | No new installation during containment |
+| [second-brain](../plugins/second-brain/README.md) | Retire v1 while Git-native v2 is built | `second-brain`, `remember` | No installation until v2 ships |
 | [sf-architect-solutioning](../plugins/sf-architect-solutioning/README.md) | Salesforce solution architect: approved solution plan before any build | `sf-architect-solutioning` | `/plugin install sf-architect-solutioning` |
 | [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git sync | `pull-latest`, `reset-to-remote` | `/plugin install git-workflows` |
 | [session-autoname](../plugins/session-autoname/README.md) | Background agent sessions stay named after their overarching project | `session-autoname` | `/plugin install session-autoname` |
@@ -22,8 +22,8 @@ depth lives in each plugin's own `README.md` and reference indexes.
 |---|---|---|---|
 | project-init | project-init | Walk a NEW project through setup gates, one skippable step at a time | `/project-init` |
 | project-sync | project-init | Audit an EXISTING project against the toolkit and close approved gaps | `/project-sync` |
-| second-brain | second-brain | Refuse new v1 installs; offer reversible containment for an existing v1 project | `/second-brain` |
-| remember | second-brain | Return `v1_read_only` without dispatching curators or writing legacy data | `/remember`, "remember this" |
+| second-brain | second-brain | Refuse v1 installs; offer local deactivation or removal for an existing v1 project | `/second-brain` |
+| remember | second-brain | Return `v1_retired` without dispatching curators or writing data | `/remember`, "remember this" |
 | sf-architect-solutioning | sf-architect-solutioning | 5-phase Salesforce solutioning to an approved plan | `/sf-architect-solutioning` |
 | pull-latest | git-workflows | Get current with the remote without rewriting or discarding | `/pull-latest` |
 | reset-to-remote | git-workflows | Hard-reset a repo to mirror the remote, safely gated | `/reset-to-remote` |
@@ -45,15 +45,13 @@ These are not duplicated here. Go to the index that owns them:
   what stops a session reading another project's), and the `profiles/`, `agents/`, `hooks/`, and `server/`
   folders (each with its own README) under
   `plugins/second-brain/skills/second-brain/references/`.
-  They are retained legacy evidence, not current installation instructions.
-  `v1-freeze-and-export.md` is the separately approved live containment and
-  backup runbook.
+  They are archived historical evidence, not installation, deployment, export,
+  or migration instructions. The old Worker has no default deploy path.
 - **Proposed second-brain v2 rework**: [docs/second-brain-v2/README.md](second-brain-v2/README.md)
   indexes the not-yet-shipped Git-native technical architecture and its working
   implementation units. The architecture and units reflect the Git-first,
   typed-memory, proactive-review direction. The plugin README is the canonical
-  current status. The v1 freeze-and-export runbook distinguishes implemented
-  toolkit source from separately approved live deployment and project changes.
+  current status. V2 starts from authoritative Git content and is not shipped.
 - **sf-architect references**: the `metadata/*` guides and templates under
   `plugins/sf-architect-solutioning/skills/sf-architect-solutioning/references/`.
 
@@ -71,27 +69,26 @@ The genuine watch-items are called out at the end.
   mechanically by graphify or the Salesforce metadata graph) sound alike but do
   not overlap. Only the structural layer does impact analysis; only the
   knowledge layer carries the human "why". See the plugin README for the split.
-- **second-brain versus remember.** During containment, neither writes.
-  `second-brain` identifies or contains an existing v1 installation, while
-  `remember` returns the structured read-only result. Their old writer behavior
-  remains documented only as legacy implementation evidence.
+- **second-brain versus remember.** Neither writes. `second-brain` identifies a
+  retired local v1 integration and offers deactivation or removal, while
+  `remember` returns the structured retired result. Their old writer behavior
+  remains documented only as archived implementation evidence.
 - **Two historical v1 "the brain is not there" failures.**
   `curator-write-path.md` records how v1 handled the right store being
   unreachable, while `brain-scope.md` records how it blocked the wrong store.
-  During containment, neither condition authorizes a write fallback. Preserve
-  proposed notes locally and do not use another project's store.
-- **The outbox versus the capture journal.** Both are legacy migration
-  evidence, at opposite ends of the old pipeline. The journal holds raw turn
-  events; `.claude/memory-outbox/` holds finished proposals that could not be
-  stored. During containment, do not drain the journal, flush the outbox, or
-  delete either.
+  Retirement authorizes no read or write fallback. Do not use another project's
+  store.
+- **The outbox versus the capture journal.** Both are retired v1 mechanisms at
+  opposite ends of the old pipeline. Neither is imported into v2. Local removal
+  must show the exact paths and separately confirm deletion of any non-empty
+  user material.
 - **The work-items tree versus legacy work-item memory nodes.** Not two trackers. The
   tree (scaffolded by project-init Gate 1) owns STATUS: an item's stage is which
   stage folder it sits in, and second-brain's `work-items-status.mjs` hook reads
   that at session start, so "is this done already?" is answered by the file
   system and cannot be misremembered. V1 memory historically owned links
-  through `work-item` nodes. Those nodes are now legacy evidence and must not be
-  refreshed during containment.
+  through `work-item` nodes. Those nodes are retired and must not be refreshed
+  or imported.
 - **git-workflows versus the worktree-isolation rule.** The rule states the
   behavior ("assume other sessions share the repo"); the two skills are the safe
   git commands that carry it out. Different layers, not duplicates.
@@ -138,7 +135,7 @@ The genuine watch-items are called out at the end.
 - **second-brain v1's heavy infrastructure.** The legacy system used a Worker,
   a per-project database, embeddings, and two curators. Its complexity
   contributed to the correctness and curator-cost failures that led to
-  containment. Do not install it in a new project. The proposed
+  retirement. Do not install it in a new project. The proposed
   [second-brain v2 rework](second-brain-v2/README.md) responds to measured
   correctness and curator-cost failures by keeping requirements under `specs/`,
   organizing other memory under typed `memory/` folders, making Git the
@@ -148,7 +145,7 @@ The genuine watch-items are called out at the end.
 - **Overlap with Claude Code's native memory.** Claude Code now ships an
   auto-memory feature that captures cross-session notes on its own (machine-local).
   It overlapped part of the legacy v1 capture system. Existing v1 projects
-  should not run either automatic capture path during containment. The v2
+  should deactivate the old automatic capture paths. The v2
   design treats Git as authoritative and does not require transcript capture.
 
 ## For an agent asked "what is X?"

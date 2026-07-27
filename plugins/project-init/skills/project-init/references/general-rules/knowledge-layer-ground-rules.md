@@ -1,13 +1,11 @@
-# Knowledge Layer Ground Rules
+# Retired V1 Knowledge Rule
 
-Include this rule only in a project that already has the v1 knowledge layer. Do
-not add it to a new project during Unit 00 containment.
+Do not add this rule to a new project. It exists only so `project-sync` can
+recognize and remove or replace an older v1 rule.
 
-Existing `know-*` nodes, SHA pins, drift reports, curator files, and outbox files
-are legacy migration evidence. Do not refresh, reconcile, promote, or delete
-them. Do not dispatch the knowledge-curator or use a v1 write fallback.
+The v1 knowledge layer is retired. Do not refresh, reconcile, read, or import
+`know-*` nodes, SHA pins, drift reports, curator output, or outbox content as
+v2 knowledge.
 
-Useful legacy explanations must be verified against current code and
-specifications before use. A verified explanation may later be proposed through
-the Git-native v2 review flow, but it does not become current truth
-automatically.
+Current explanations must come from authoritative Git content and current code.
+V2 is not shipped, so do not create an ad hoc replacement.

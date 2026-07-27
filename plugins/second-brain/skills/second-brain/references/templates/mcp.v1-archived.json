@@ -1,0 +1,9 @@
+{
+  "_comment": "ARCHIVED V1 TEMPLATE. Do not copy or connect it. V1 is retired and v2 does not use this endpoint.",
+  "mcpServers": {
+    "second-brain": {
+      "type": "http",
+      "url": "<BRAIN_MCP_ORIGIN>/mcp/<PROJECT_ID>"
+    }
+  }
+}
