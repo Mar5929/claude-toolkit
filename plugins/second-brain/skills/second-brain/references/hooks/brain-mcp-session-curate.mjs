@@ -17,6 +17,7 @@
 //
 // Silent no-op (exit 0, no output) unless ALL hold:
 //   - BRAIN_BACKEND=mcp
+//   - BRAIN_V1_WRITE_MODE=write (Unit 00 containment defaults to read-only)
 //   - BRAIN_CURATE_ON_END truthy (default on)
 //   - BRAIN_MCP_TOKEN + BRAIN_MCP_ORIGIN + BRAIN_PROJECT all present
 //   - not inside a curator's own run (BRAIN_CURATOR_ACTIVE unset)
@@ -32,6 +33,7 @@ const truthy = (v) => v === "1" || v === "true" || v === "yes" || v === "on";
 
 if (env.BRAIN_CURATOR_ACTIVE) done();                 // recursion guard
 if ((env.BRAIN_BACKEND || "") !== "mcp") done();
+if ((env.BRAIN_V1_WRITE_MODE || "read-only") !== "write") done();
 if (!truthy(env.BRAIN_CURATE_ON_END ?? "1")) done();
 const token = env.BRAIN_MCP_TOKEN || "";
 const origin = (env.BRAIN_MCP_ORIGIN || "").replace(/\/+$/, "");

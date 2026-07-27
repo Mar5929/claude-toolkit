@@ -1,5 +1,10 @@
 # second-brain: remote MCP server for cross-project memory
 
+> **V1 containment source.** This Worker is legacy and must not be used for a
+> new installation. It now fails closed as read-only unless an operator
+> explicitly sets `BRAIN_V1_WRITE_MODE=write`. Source changes here do not deploy
+> the live Worker. See `../v1-freeze-and-export.md`.
+
 Phase 1 of WI-002 (see `work-items/WI-002-memory-knowledge-rearchitecture.md`).
 One Cloudflare Worker that fronts long-term memory over MCP with GitHub
 sign-in. Each Claude project gets its OWN Neon Postgres database (owner
@@ -12,7 +17,7 @@ every Claude Code session type: local, cloud, CI.
 
 | Surface | Auth | Purpose |
 |---|---|---|
-| `POST /mcp/<project-id>` | OAuth (GitHub) | MCP endpoint. Reads: `get_digest`, `recall`, `get_node`, `list_nodes`, `export`. Writes (role write/admin): `upsert_node`, `put_digest`, `append_journal`, `read_journal`, `drain_journal`. |
+| `POST /mcp/<project-id>` | OAuth (GitHub) | MCP endpoint. Reads are labeled `legacy/advisory`. Memory writes return the structured `v1_read_only` error during containment. |
 | `GET /fast/<project-id>/digest` | Bearer token | Local hook fast path: digest at session start, no browser. |
 | `GET /fast/<project-id>/recall?q=...` | Bearer token | Local hook fast path: keyword recall per prompt. |
 | `POST /fast/<project-id>/journal` | Bearer token (write role) | Local Stop hook: append a redacted turn record to the capture journal. |
@@ -91,7 +96,10 @@ Revoke = delete the row; it takes effect on the next request.
 - The same `.mcp.json` works from a cloud Claude Code session on this repo
   (the case that fails today with the git store).
 
-## Adding another project later
+## Historical v1 onboarding record
+
+Do not follow these steps during containment. They remain here only to explain
+how existing project databases were registered.
 
 1. Create a new Neon project for it; run `schema.sql` plus a seed (copy
    `seed.sql`, change the project id/name/grants).
@@ -103,10 +111,10 @@ must be run once per project database.
 
 ## Design notes
 
-- `nodes.markdown` stores the full node file text (frontmatter + body), so
-  `export` reproduces the exact markdown files for the git backup. The git
-  store (`DragonFly-brain`) stays as backup/rollback until the MCP path is
-  proven; `BRAIN_BACKEND=git|mcp` selects the backend in the hooks.
+- `nodes.markdown` stores the full node file text (frontmatter + body). The Unit
+  00 freeze `export` now also includes edges, revision history, digest metadata,
+  and every journal row. A Neon snapshot and `pg_dump` remain the recovery
+  backups.
 - `recall` is Postgres full-text search with an ILIKE fallback, a small boost
   for pinned nodes, and usage tracking (recall_count / last_recalled_at). The
   `embedding vector(1024)` column is in place; semantic search plugs into

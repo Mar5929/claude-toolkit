@@ -1,4 +1,9 @@
 import { autoCurateDisabledReason, curateSession } from "./curate";
+import {
+  blockedWriteHttpResponse,
+  legacyAdvisoryText,
+  v1WritesAreReadOnly,
+} from "./containment";
 import { appendJournal, bodySnippet, capRecall, db, getDigest, getGrant, loginForToken, recallNodes, upsertNode } from "./db";
 import { embedText } from "./embed";
 import type { AuthRequest, Env } from "./types";
@@ -15,9 +20,12 @@ export const GitHubHandler = {
     if (url.pathname === "/callback") return callback(request, env);
     if (url.pathname.startsWith("/fast/")) return fastPath(request, env, url, ctx);
     if (url.pathname === "/") {
-      return new Response("second-brain MCP server. Connect via /mcp/<project-id>.", {
-        headers: { "content-type": "text/plain" },
-      });
+      return new Response(
+        "second-brain v1 legacy/advisory server. Writes are contained read-only.",
+        {
+          headers: { "content-type": "text/plain" },
+        },
+      );
     }
     return new Response("Not found", { status: 404 });
   },
@@ -91,9 +99,9 @@ async function callback(request: Request, env: Env): Promise<Response> {
 // digest injects and the turn journals without a browser sign-in.
 //   GET  /fast/<project>/digest
 //   GET  /fast/<project>/recall?q=<query>&limit=<n>   (keyword-only; snappy)
-//   POST /fast/<project>/journal   (JSON turn entry; write role required)
-//   POST /fast/<project>/curate    (curate one finished session; write role required)
-//   POST /fast/<project>/node      (upsert ONE node; write role required)
+//   POST /fast/<project>/journal   (blocked during Unit 00 containment)
+//   POST /fast/<project>/curate    (blocked during Unit 00 containment)
+//   POST /fast/<project>/node      (blocked during Unit 00 containment)
 //
 // `node` exists because `/mcp/<id>` is OAuth-only, so a headless surface (a
 // background job, a cron fire, a cloud session whose MCP connection dropped) has
@@ -115,6 +123,16 @@ async function fastPath(request: Request, env: Env, url: URL, ctx: ExecutionCont
   if (!match) return new Response("Not found", { status: 404 });
   const [, projectId, action] = match;
 
+  // Fail closed before authentication or body parsing. These route names are
+  // write-only, and Unit 00 requires one unambiguous response from every write
+  // surface while v1 is contained. No database or model call can occur first.
+  if (
+    (action === "journal" || action === "curate" || action === "node") &&
+    v1WritesAreReadOnly(env)
+  ) {
+    return blockedWriteHttpResponse();
+  }
+
   const auth = request.headers.get("authorization") ?? "";
   const raw = auth.startsWith("Bearer ") ? auth.slice(7) : null;
   if (!raw) return new Response("Missing bearer token", { status: 401 });
@@ -128,7 +146,9 @@ async function fastPath(request: Request, env: Env, url: URL, ctx: ExecutionCont
 
   if (action === "digest") {
     const digest = await getDigest(sql, projectId);
-    return new Response(digest ?? "", { headers: { "content-type": "text/markdown" } });
+    return new Response(legacyAdvisoryText(digest ?? ""), {
+      headers: { "content-type": "text/markdown" },
+    });
   }
 
   if (action === "recall") {
@@ -136,14 +156,18 @@ async function fastPath(request: Request, env: Env, url: URL, ctx: ExecutionCont
     if (!query) return new Response("Missing q parameter", { status: 400 });
     const n = Math.floor(Number(url.searchParams.get("limit")));
     const limit = Number.isFinite(n) && n >= 1 ? Math.min(n, 25) : 5;
-    const nodes = await recallNodes(sql, projectId, query, limit);  // keyword-only fast path
+    const nodes = await recallNodes(
+      sql, projectId, query, limit, null, !v1WritesAreReadOnly(env),
+    );  // keyword-only fast path
     // Pointer-first: id + title + status + a short snippet, never full bodies.
     // This feeds the per-prompt injection hook, so it must stay cheap.
     const esc = (s: string) => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
     const text = nodes
       .map((n) => `<match id="${n.id}" title="${esc(n.title)}" status="${n.status}">\n${bodySnippet(n.markdown)}\n</match>`)
       .join("\n");
-    return new Response(capRecall(text), { headers: { "content-type": "text/markdown" } });
+    return new Response(legacyAdvisoryText(capRecall(text)), {
+      headers: { "content-type": "text/markdown" },
+    });
   }
 
   // action === "curate": the SessionEnd hook telling us a chat session is over,
@@ -166,16 +190,37 @@ async function fastPath(request: Request, env: Env, url: URL, ctx: ExecutionCont
       return new Response("Invalid JSON", { status: 400 });
     }
     const off = autoCurateDisabledReason(env);
-    if (off) return new Response(`skipped: ${off}`, { status: 200 });
+    if (off) {
+      return Response.json({
+        outcome: "skipped",
+        reason: "auto_curate_disabled",
+        detail: off,
+        next_action: "leave curation disabled or restore it through a separate reviewed change",
+      }, {
+        status: 409,
+        headers: { "cache-control": "no-store" },
+      });
+    }
     ctx.waitUntil((async () => {
       try {
         const r = await curateSession(env, sql, projectId, session);
-        console.log(`[auto-curate] session-end ${projectId} session=${session || "(none)"}: ` +
-          `read=${r.read} drained=${r.drained} nodes=[${r.nodes_written.join(", ")}] ` +
-          `digest=${r.digest_updated}` +
-          (r.skipped ? ` skipped=${r.skipped}` : "") + (r.error ? ` ERROR=${r.error}` : ""));
+        console.log(JSON.stringify({
+          event: "auto_curate_session_end_result",
+          project: projectId,
+          session,
+          read: r.read,
+          drained: r.drained,
+          nodes_written: r.nodes_written,
+          digest_updated: r.digest_updated,
+          skipped: r.skipped,
+          error: r.error,
+        }));
       } catch (e) {
-        console.log(`[auto-curate] session-end ${projectId}: FAILED ${(e as Error).message}`);
+        console.error(JSON.stringify({
+          event: "auto_curate_session_end_failed",
+          project: projectId,
+          error: (e as Error).message,
+        }));
       }
     })());
     return new Response("accepted", { status: 202 });

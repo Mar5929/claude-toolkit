@@ -82,10 +82,10 @@ const context = [
   ``,
   ...lines.join("\n").split("\n"),
   ``,
-  `To clear them: run /remember (it flushes the outbox as its first step), or`,
-  `hand each file to the curator named in its header (know-* nodes to the`,
-  `knowledge-curator, everything else to the brain-curator) and delete each file`,
-  `only once its node is stored. A leftover file always means unfinished work.`,
+  `Second-brain v1 is currently read-only. Preserve these files as migration`,
+  `evidence. Do not run /remember, send them to a curator, or delete them.`,
+  `A later v2 migration review will classify each proposal before anything`,
+  `becomes current project memory.`,
 ].join("\n");
 
 process.stdout.write(JSON.stringify({

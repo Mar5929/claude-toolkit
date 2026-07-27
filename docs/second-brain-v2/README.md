@@ -52,6 +52,7 @@ architecture into implementable work.
   decisions.
 - [ADR-001: Git-native specifications and typed project memory](decisions/ADR-001-git-native-typed-memory.md)
 - [Unit 00: contain the current system](units/00-current-system-containment.md)
+  (implemented in toolkit source; live operation pending separate approval)
 - [Unit 01: project identity, configuration, and health](units/01-store-identity-and-health.md)
 - [Unit 02: Git schemas, provenance, and change receipts](units/02-schema-provenance-write-receipts.md)
 - [Unit 03: proactive knowledge review and apply](units/03-bounded-curation.md)

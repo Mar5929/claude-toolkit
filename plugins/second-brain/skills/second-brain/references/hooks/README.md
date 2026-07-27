@@ -1,5 +1,10 @@
 # Second-brain hooks
 
+> **Unit 00 containment:** automatic v1 capture, per-prompt recall,
+> session-end curation, and curator reminders must be off. The bundled writer
+> hooks fail closed unless `BRAIN_V1_WRITE_MODE=write`. Preserve installed hook
+> files as migration evidence; do not copy them into a new project.
+
 Eight deterministic, best-effort hooks. Four connect a project to the memory
 server over the bearer fast path (`/fast/<project>/...`); with no
 `BRAIN_MCP_TOKEN` they silently no-op, which keeps them safe in a teammate
@@ -47,6 +52,7 @@ is a secret and lives only in the gitignored `.claude/settings.local.json`:
 
 | Var | Where | Meaning |
 | --- | --- | --- |
+| `BRAIN_V1_WRITE_MODE` | settings.json | Defaults to `read-only`. Only explicit `write` permits the legacy automatic hooks to act. Existing v1 projects must set `read-only`. |
 | `BRAIN_BACKEND` | settings.json | Must be `mcp` for any hook to act. |
 | `BRAIN_MCP_ORIGIN` | settings.json | Server origin, e.g. `https://second-brain.rihm.workers.dev`. |
 | `BRAIN_PROJECT` | settings.json | This project's id. |
@@ -85,7 +91,7 @@ entries into nodes, and it is **session-scoped**, because a conversation only
 reads correctly once it is over: a pass that wakes up mid-session sees the owner
 thinking out loud and can write a floated idea down as a settled decision.
 
-Three triggers, in descending order of quality:
+Historically, v1 used three triggers. They are disabled during containment:
 
 1. **`/remember`**: an in-session curator dispatch. The owner is present.
 2. **Session end**: `brain-mcp-session-curate.mjs`, the default path.

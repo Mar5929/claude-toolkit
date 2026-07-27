@@ -1,5 +1,9 @@
 # Knowledge-base backfill and ongoing freshness (existing codebases, any project type)
 
+> **Do not run this v1 backfill.** Unit 00 preserves existing `know-*` nodes and
+> drift evidence without refreshing them. V2 backfill and classification tooling
+> has not shipped.
+
 On a brand-new project the `know-*` knowledge layer starts empty and that is
 fine: it fills in as work happens. On a project that ALREADY has code, the
 code's "why" is undocumented history, and without a backfill the brain knows

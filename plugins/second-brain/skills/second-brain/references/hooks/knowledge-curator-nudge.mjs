@@ -16,6 +16,7 @@
 // Non-blocking and best-effort. It only ever ADDS a system reminder; it never
 // blocks the push and never fails the tool. It stays a SILENT no-op (exit 0, no
 // output) unless ALL hold:
+//   - BRAIN_V1_WRITE_MODE=write (contained v1 must not dispatch a writer)
 //   - BRAIN_KC_NUDGE truthy (default on); set BRAIN_KC_NUDGE=0 to turn it off
 //   - not inside a curator's own run (BRAIN_CURATOR_ACTIVE unset)
 //   - the tool was Bash and the command is a `git push` or `gh pr create`
@@ -32,6 +33,7 @@ const done = () => process.exit(0);
 const truthy = (v) => v === "1" || v === "true" || v === "yes" || v === "on";
 
 try {
+  if ((env.BRAIN_V1_WRITE_MODE || "read-only") !== "write") done();
   if (!truthy(env.BRAIN_KC_NUDGE ?? "1")) done();
   if (env.BRAIN_CURATOR_ACTIVE) done();                 // don't nudge inside a curator run
 

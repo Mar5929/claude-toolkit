@@ -42,8 +42,8 @@ structure Gate 5 writes.
 
 | File | Include when |
 |---|---|
-| `memory-system-ground-rules.md` | The project set up the long-term memory system (Gate 3). All writes go through the curator; the digest is injected each session. Also: `recall` a named subsystem BEFORE diagnosing or changing it, dispatch the curator ONCE at wrap-up with the facts pre-extracted, never touch ANOTHER project's brain (connectors attach per account, so a foreign store is visible in every session), and never drop a finished note when the store is unreachable (check the write path first, catch the handback, flush the outbox). |
-| `knowledge-layer-ground-rules.md` | The project set up the knowledge layer (Gate 4). Nodes pin the files they cover and are flagged stale on drift. |
+| `memory-system-ground-rules.md` | Existing v1 projects only during Unit 00. Keeps v1 read-only, disables automatic writers, labels reads legacy/advisory, preserves all migration evidence, and keeps requirement changes aligned across specs, code, and tests. Do not add to a new project. |
+| `knowledge-layer-ground-rules.md` | Existing v1 knowledge layers only during Unit 00. Preserves `know-*` nodes, pins, drift reports, and outbox files as legacy evidence without refreshing or promoting them. Do not add to a new project. |
 
 MCP tool rules (Context7, Gmail, Google Calendar, Linear, Notion, Playwright)
 are conditional too, and live in `../mcp-best-practices.md`: fold in a server's

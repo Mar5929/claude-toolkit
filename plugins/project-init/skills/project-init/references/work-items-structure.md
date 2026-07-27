@@ -39,9 +39,9 @@ One folder per work item. Name it `WI-<number>-<slug>/` (the number gives
 creation order); ticket-driven projects can use the ticket key instead
 (`PROJ-123-<slug>/`). It holds:
 
-- `SPEC.md` — the goal in plain words, requirements kept deliberately loose,
+- `SPEC.md` - the goal in plain words, requirements kept deliberately loose,
   and decisions. Update it in the same session when the work changes direction.
-- `STATUS.md` — the living handoff: where we are, what has been done, the
+- `STATUS.md` - the living handoff: where we are, what has been done, the
   exact next step, with dated entries (absolute dates). Read this FIRST when
   picking an item up.
 - Any scratch notes, copied ticket text, or file links the item needs.
@@ -64,20 +64,19 @@ Status key: `[ ]` open, `[~]` in progress, `[x]` done, `[-]` decided against.
 (none yet)
 ```
 
-## How this pairs with the second brain
+## How this will pair with second-brain v2
 
-If the project also installs `second-brain`, the two split cleanly and are not
-redundant:
+Do not install second-brain v1 during Unit 00 containment. When the Git-native
+v2 system ships, the two systems split cleanly and are not redundant:
 
 - **The tree owns status.** `work-items-status.mjs` (a SessionStart hook) reads
   these stage folders and injects what is wanted, what is in progress with each
   item's next step, and what is already done. Status is read, never asserted, so
   it cannot go stale or be misremembered.
-- **Memory owns the links.** A `work-item` node holds the want, a `folder:`
+- **Memory will own the links.** A work-item memory record holds the want, a `folder:`
   pointer into this tree, and typed edges to the decisions and knowledge nodes
   produced while working the item, so "what did we decide while doing this?"
-  resolves in one recall. The curator is forbidden from storing a stage
-  (brain-curator invariant 13).
+  resolves in one retrieval. Memory must never store a copied stage.
 
 ## Why this shape
 

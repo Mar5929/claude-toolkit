@@ -1,5 +1,10 @@
 # Per-project setup recipe
 
+> **Do not run this installer.** It is retained as v1 migration evidence. Unit
+> 00 forbids new v1 installations, and v2 does not have an installer yet. For an
+> existing v1 project, use the containment settings in the plugin `SKILL.md`
+> without deleting or migrating anything.
+
 Stand up the second-brain for one project. Follow these steps in order. Each step
 says what to do, the exact command or text, and what success looks like. This is
 the path a new project takes; the shared Worker already exists (if it does not,

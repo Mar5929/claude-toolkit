@@ -6,13 +6,13 @@
   },
   "metadata": {
     "description": "Personal, portable toolkit of reusable Claude systems: skills, rules, hooks, and templates shared across every project and device.",
-    "version": "0.23.1"
+    "version": "0.23.2"
   },
   "plugins": [
     {
       "name": "project-init",
       "source": "./plugins/project-init",
-      "description": "Two skills: project-init walks you through setting up a new project (scaffolding, hooks, memory system, knowledge layer, CLAUDE.md) one skippable gate at a time; project-sync audits an existing project against the toolkit and closes the gaps you approve."
+      "description": "Two skills: project-init walks through new-project setup while second-brain gates are deferred; project-sync audits an existing project and may apply reversible v1 containment settings with approval without installing v1 or migrating data."
     },
     {
       "name": "sf-architect-solutioning",
@@ -22,7 +22,7 @@
     {
       "name": "second-brain",
       "source": "./plugins/second-brain",
-      "description": "Portable second-brain memory and knowledge architecture (MCP): a shared Cloudflare Worker MCP server backed by a per-project Neon Postgres/pgvector database and GitHub OAuth, holding a typed-node knowledge graph curated by two background agents, with hybrid keyword+vector recall, an auto-injected session digest and per-prompt recall injection, drift-pinned knowledge nodes, work-item tracking that reads status from the project's work-items folder tree rather than storing it (so 'is this done already?' cannot go stale) while memory holds the want and the links, per-turn capture, optional server-side auto-curation scoped to a finished chat session (a SessionEnd hook curates the conversation as one arc so cloud sessions curate automatically, with a cron backstop for sessions that die before ending), and a self-verifying harness. Reachable from the terminal and cloud sessions. Bundles a structural layer for mechanical impact analysis: a compiled Salesforce metadata dependency graph for Salesforce projects, and graphify (a local tree-sitter code graph covering Swift, web, and generic repos) for every other project type. Includes a one-time knowledge-base backfill plus ongoing-freshness hooks for onboarding onto existing codebases (any project type). An install skill sets it up per project from bundled reference implementations (a project-type question picks the profile); a second skill, remember, is a wrap-up command that dispatches the curators, both of them, so the often-forgotten knowledge-curator actually runs, to save a finished work item into the project's second brain."
+      "description": "Second-brain transition controls. Legacy Neon/MCP v1 is contained read-only without deleting data: new installs and /remember writes are disabled, automatic writers fail closed, reads are labeled legacy/advisory, and freeze export support is included. Git-native v2 is specified but not shipped."
     },
     {
       "name": "git-workflows",

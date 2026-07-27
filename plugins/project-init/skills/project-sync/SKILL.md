@@ -7,7 +7,7 @@ description: >-
   in this project", "sync this project with claude-toolkit", "audit this
   project against the toolkit", or "/project-sync". This skill inventories
   everything the toolkit currently ships (the general and Salesforce rules
-  libraries, hooks, memory system, knowledge layer, and any newer systems),
+  libraries, hooks, second-brain v1 containment, and any newer systems),
   cross-references the
   current project, reports the gaps, and closes each gap only with the user's
   approval.
@@ -53,7 +53,9 @@ automatically as it grows.
     are conditional, so only audit the servers this project actually connects
   - each system from the setup gates: hooks, memory system, knowledge layer
   - anything newer listed in the toolkit README under "What's here now"
-  - skip roadmap items; they aren't built yet and can't be audited
+  - skip roadmap items; they aren't built yet and can't be audited. The Unit 00
+    v1 containment controls are the exception: they are shipped safety work and
+    must be audited even though v2 itself is still a roadmap item
 - Note the toolkit version (from `plugin.json` or `marketplace.json`) for the
   sync record in step 5.
 
@@ -70,14 +72,17 @@ secrets rule even if the prose differs. Typical checks:
 - **CLAUDE.md health** (presence is not enough, see below).
 - **Hooks**: are guard and orientation hooks configured (the project's
   `.claude/` settings and hook scripts)?
-- **Memory system** (the `second-brain` MCP architecture): is there a committed
-  `.mcp.json` with a `second-brain` server pointing at `<origin>/mcp/<id>`; does
-  `.claude/settings.json` carry `BRAIN_BACKEND=mcp`, `BRAIN_PROJECT`, and the
-  `Stop` hook running `brain-mcp-capture.mjs`; is the `brain-curator` agent
-  installed with its `## Project profile` filled in (no `<...>` placeholders left);
-  and is the project registered on the server (its own database + a grant)? A
-  local `brain/` or `memories/` directory with bash hooks is the OLD, retired
-  design: flag it to migrate to the MCP skill.
+- **Second-brain status:** v1 is the Neon/MCP architecture and is legacy. V2 is
+  specified but not shipped. If the project has no v1, mark memory and
+  knowledge **deferred** and do not offer installation. If it has v1, identify
+  its `.mcp.json`, settings, hooks, curator agents, outbox, and any local
+  `brain/` or `memories/` cache as migration evidence. Do not delete or migrate
+  any of it.
+- **V1 containment:** for an existing v1 project, check the committed settings
+  for `BRAIN_V1_WRITE_MODE=read-only`, `BRAIN_CAPTURE=0`,
+  `BRAIN_CURATE_ON_END=0`, `BRAIN_RECALL=0`, and `BRAIN_KC_NUDGE=0`. Report
+  missing values as a reversible containment gap. Do not read
+  `.claude/settings.local.json` or expose tokens.
 - **The memory is scoped to THIS project.** Connectors are attached per Claude
   account, not per repo, so another project's brain is visible in every session
   and a background job can hold only that one; a session then answers from the
@@ -85,19 +90,13 @@ secrets rule even if the prose differs. Typical checks:
   `BRAIN_CONNECTOR` set in `.claude/settings.json` to this project's connector
   name, and is `brain-scope-guard.mjs` wired as a `PreToolUse` hook on `mcp__.*`?
   Without the var the guard can only ask, not deny.
-- **The memory write path survives a headless session** (the newest and most
-  invisible gap). Three checks, because each fails silently on its own: do BOTH
-  curators' `tools:` lines carry the cloud connector's tool names as well as
-  `mcp__second-brain__*` (a curator with only the terminal names has no tools at
-  all in a cloud session); is `brain-outbox-status.mjs` wired at `SessionStart`
-  with `.claude/memory-outbox/` left un-gitignored; and does
-  `POST /fast/<id>/node` answer on this project's Worker (a `400` on an empty
-  body, not a `404`)? Without these a curator can finish a full pass in a
-  background job and the notes are simply lost. See the second-brain skill's
-  `references/curator-write-path.md`.
-- **Knowledge layer**: is the `knowledge-curator` agent installed (with its
-  profile filled), and are there `know-*` nodes with `covers:` SHA pins on the
-  sources they explain?
+- **The v1 server is contained:** do not send a real write. If the owner
+  separately approves a harmless route check, `POST /fast/<id>/node` with no
+  credentials must return HTTP 423 and the exact `v1_read_only` body before any
+  database access. Reads should say `legacy/advisory`. A live deployment check
+  is not part of an ordinary project sync unless the owner approves it.
+- **Knowledge layer:** existing v1 curator files and `know-*` nodes are evidence,
+  not a system to refresh. Preserve them and disable curator reminders.
 - **Previous sync record**: read it if present (step 5 format) so deliberate
   opt-outs are respected.
 
@@ -158,9 +157,10 @@ should look in THIS project, confirm, act, summarize. Ground rules:
 - Never weaken something the project already does better than the toolkit
   version. If the project's variant is an improvement, leave it and flag it
   for port-back instead (see wrap-up).
-- For systems with their own installer skill in the toolkit (for example the
-  `second-brain` memory architecture), follow that skill's own setup instructions
-  (its `setup-recipe.md`) rather than improvising.
+- Do not install second-brain v1 or claim v2 is available. For an existing v1
+  project, the only change this sync may offer is the committed containment
+  settings listed in step 2. Apply them only after approval and leave every
+  legacy file and remote resource intact.
 
 ## Step 5: record the sync
 

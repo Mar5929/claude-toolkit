@@ -70,16 +70,14 @@ repo next to the metadata they describe.
 | `data/` | Object and field mapping, transformation rules, load files |
 | `data/backups/` | Point-in-time data exports from the org(s) |
 
-`project-overview/` is where the `grill-me` skill saves its output. Once the
-memory system is installed (Gate 3), run `grill-me` to interview the owner about
-the project; it checkpoints answers here while the memory curator records durable
-facts.
+`project-overview/` is where the `grill-me` skill saves its output. It may be
+used independently of second-brain. During Unit 00, do not send its answers to
+the contained v1 memory system.
 
 **`.claude/`**: project-scoped Claude Code setup. Scaffold it empty at Gate 1
-with `rules/`, `hooks/`, `agents/`, and `settings.json`. Later gates fill it:
-Gate 2 adds hooks (production-restriction guards, memory and knowledge hooks),
-Gates 3 and 4 add the memory and knowledge curator agents from the `second-brain`
-plugin.
+with `rules/`, `hooks/`, `agents/`, and `settings.json`. Gate 2 adds approved
+guards. Gates 3 and 4 are deferred during Unit 00 and do not add v1 memory or
+knowledge hooks and agents.
 
 ## Config defaults
 

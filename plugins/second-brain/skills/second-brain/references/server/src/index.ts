@@ -48,9 +48,9 @@ const oauthProvider = new OAuthProvider({
   clientRegistrationEndpoint: "/register",
 });
 
-// HTTP traffic goes through the OAuth provider unchanged; the scheduled
-// handler is the WI-002 Phase 4 auto-curation cron (a no-op until the
-// ANTHROPIC_API_KEY secret exists).
+// HTTP traffic goes through the OAuth provider unchanged. The scheduled
+// handler remains wired for rollback, but Unit 00 read-only containment makes
+// it a zero-model no-op unless an operator explicitly restores write mode.
 export default {
   fetch: (request: Request, env: Env, ctx: ExecutionContext) =>
     oauthProvider.fetch(request, env, ctx),

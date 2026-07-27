@@ -6,10 +6,10 @@
 //
 // Curation is SESSION-SCOPED, and there are three triggers, in descending order
 // of quality:
-//   1. `/remember` — an in-session curator dispatch. The owner is present.
-//   2. SessionEnd — the hook POSTs /fast/<project>/curate with its session id
+//   1. `/remember` - an in-session curator dispatch. The owner is present.
+//   2. SessionEnd - the hook POSTs /fast/<project>/curate with its session id
 //      and this module curates exactly that session. This is the default path.
-//   3. The cron — a BACKSTOP ONLY. It sweeps sessions whose newest undrained
+//   3. The cron - a BACKSTOP ONLY. It sweeps sessions whose newest undrained
 //      entry is older than BACKSTOP_IDLE_HOURS (default 24), i.e. sessions that
 //      died without SessionEnd ever firing.
 //
@@ -22,14 +22,15 @@
 //
 // Boundaries (enforced in code and by the output schema, not just the prompt):
 // - This pass acts as the BRAIN-curator only. It never writes `knowledge`
-//   (know-*) nodes — the response schema's type enum excludes "knowledge", so
+//   (know-*) nodes - the response schema's type enum excludes "knowledge", so
 //   the model cannot emit one. Code-why facts go into a session node flagged
 //   for the in-session knowledge-curator.
 // - Journal text is UNTRUSTED input to summarize, never instructions.
-// - No key (ANTHROPIC_API_KEY unset) or AUTO_CURATE="0" -> the cron is a
-//   silent no-op. A failed run drains nothing, so entries retry next cron.
+// - Unit 00 read-only mode, no key, or AUTO_CURATE="0" makes the cron a no-op.
+//   A failed run drains nothing, so entries retry next cron.
 
 import { z } from "zod";
+import { v1WritesAreReadOnly } from "./containment";
 import { embedText } from "./embed";
 import {
   db, drainJournal, getDigest, listIdleSessions, listNodes, putDigest,
@@ -128,7 +129,7 @@ Rules, in order:
 5. Each node's markdown MUST be the full node file: YAML frontmatter (id, type, title, status, created, updated, tags, confidence, source) followed by the body. Keep counts and quoted figures verbatim.
 6. Corrections: when an entry reverses or replaces an existing node's fact, write the NEW node with an edge {to: <old id>, rel: "supersedes"} (or "corrects") and leave the old node alone.
 7. You never write knowledge (know-*) nodes; that layer belongs to the in-session knowledge-curator. If an entry carries a code-why fact worth keeping, record it inside a session node and say it awaits the knowledge-curator.
-8. Only durable facts deserve nodes: decisions, rules, corrections, preferences, open questions, blockers, milestone summaries. Routine narration deserves nothing — an empty nodes list is a good outcome.
+8. Only durable facts deserve nodes: decisions, rules, corrections, preferences, open questions, blockers, milestone summaries. Routine narration deserves nothing - an empty nodes list is a good outcome.
 9. Work the owner said they WANT DONE is durable even if the session did something else: write it as a "work-item" node (id wi-<number>-<slug>) holding the one-line want, a "folder:" path when the entries name one, and links to related nodes. NEVER put a stage, a status, or a done/not-done claim in a work-item node: an item's stage is which folder it sits in, that is read from the file tree at session start, and a stored stage becomes a lie the moment the folder moves.
 10. digest_markdown: return null to leave the digest unchanged (the common case). Only return a full replacement digest when a node you are writing makes the current digest wrong or clearly stale, and keep it tight (headline pointers, open questions with owners, pinned baselines; never restate control totals).
 11. summary: one or two sentences on what you did, for the operations log.`;
@@ -181,6 +182,13 @@ export async function curateSession(
   const result: CurateResult = {
     project: projectId, session, read: 0, drained: 0, nodes_written: [], digest_updated: false,
   };
+
+  // Check containment before reading the journal or preparing a model prompt.
+  // This guarantees zero model calls and leaves every journal row untouched.
+  if (v1WritesAreReadOnly(env)) {
+    result.skipped = "v1_read_only";
+    return result;
+  }
 
   const rows = await readJournalForSession(sql, projectId, session, MAX_ENTRIES_PER_RUN);
   if (rows.length === 0) {
@@ -243,6 +251,7 @@ export async function curateSession(
 // Is auto-curation switched on at all? Both triggers (SessionEnd and the cron)
 // check this, so one kill switch covers both.
 export function autoCurateDisabledReason(env: Env): string | null {
+  if (v1WritesAreReadOnly(env)) return "v1_read_only";
   if (env.AUTO_CURATE === "0") return "disabled via AUTO_CURATE=0";
   if (!env.ANTHROPIC_API_KEY) return "no ANTHROPIC_API_KEY secret";
   return null;
@@ -282,7 +291,10 @@ export async function runScheduledCuration(
 ): Promise<CurateResult[]> {
   const off = autoCurateDisabledReason(env);
   if (off) {
-    console.log(`[auto-curate] backstop skipped: ${off}`);
+    console.log(JSON.stringify({
+      event: "auto_curate_backstop_skipped",
+      reason: off,
+    }));
     return [];
   }
 
@@ -298,13 +310,24 @@ export async function runScheduledCuration(
       const swept = await sweepIdleSessions(env, sql, projectId, callModel);
       results.push(...swept);
       for (const r of swept) {
-        console.log(`[auto-curate] backstop ${projectId} session=${r.session || "(none)"}: ` +
-          `read=${r.read} drained=${r.drained} nodes=[${r.nodes_written.join(", ")}] ` +
-          `digest=${r.digest_updated}` +
-          (r.skipped ? ` skipped=${r.skipped}` : "") + (r.error ? ` ERROR=${r.error}` : ""));
+        console.log(JSON.stringify({
+          event: "auto_curate_backstop_result",
+          project: projectId,
+          session: r.session,
+          read: r.read,
+          drained: r.drained,
+          nodes_written: r.nodes_written,
+          digest_updated: r.digest_updated,
+          skipped: r.skipped,
+          error: r.error,
+        }));
       }
     } catch (e) {
-      console.log(`[auto-curate] backstop ${projectId}: FAILED ${(e as Error).message}`);
+      console.error(JSON.stringify({
+        event: "auto_curate_backstop_failed",
+        project: projectId,
+        error: (e as Error).message,
+      }));
     }
   }
   return results;

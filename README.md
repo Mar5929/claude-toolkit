@@ -94,7 +94,7 @@ claude-toolkit/
         project-init/             ← SKILL.md + references/ (setup-flow, thin-claudemd,
                                      general-rules/, salesforce-rules/, mcp-best-practices)
         project-sync/             ← SKILL.md
-    second-brain/                 ← plugin: durable memory, knowledge, and structural layers
+    second-brain/                 ← plugin: contained v1 evidence; v2 not shipped
       README.md
       .claude-plugin/plugin.json
       .codex-plugin/plugin.json
@@ -149,8 +149,8 @@ explains how the pieces relate.
 
 | Plugin | What it does |
 |---|---|
-| **[project-init](plugins/project-init/README.md)** | Sets up a project. `project-init` walks a new project through skippable gates (scaffolding, hooks, memory system, knowledge layer, CLAUDE.md); `project-sync` audits an existing project against the toolkit and closes the gaps I approve. |
-| **[second-brain](plugins/second-brain/README.md)** | Durable cross-session memory and knowledge for a project (MCP): a curated typed-node knowledge graph with hybrid recall and a session digest, a knowledge layer whose notes are pinned to file SHAs and flagged when the code drifts, and a structural layer for mechanical impact analysis. The `remember` skill saves a finished work item into it. |
+| **[project-init](plugins/project-init/README.md)** | Sets up a project. `project-init` walks a new project through skippable gates; second-brain memory and knowledge are temporarily deferred. `project-sync` audits an existing project and may contain, but not migrate, an existing v1 installation. |
+| **[second-brain](plugins/second-brain/README.md)** | V1 is the legacy Neon/MCP system and is being frozen read-only without deleting data. V2 is specified under `docs/second-brain-v2/` but is not shipped. New v1 installs and `/remember` writes are disabled during containment. |
 | **[sf-architect-solutioning](plugins/sf-architect-solutioning/README.md)** | A Salesforce solution architect: pushes back on vague requirements, verifies platform facts against official docs by live fetch, designs declarative-first to Well-Architected standards, and presents a solution plan for approval before any build. Salesforce projects only. |
 | **[git-workflows](plugins/git-workflows/README.md)** | Two parallel-session-safe git sync skills: `pull-latest` gets current without rewriting or discarding history, `reset-to-remote` hard-resets to mirror the remote behind a confirmation. |
 | **[session-autoname](plugins/session-autoname/README.md)** | Keeps a background agent session named after the overarching project it is working on, never the step it is on. A Stop hook re-checks the label each turn from a cheap Haiku call and holds it steady until the project itself changes, so a long session stops lying in the job list without the name churning. One-time per-machine install, not per project. |
@@ -162,7 +162,9 @@ explains how the pieces relate.
 These are the reusable systems I want to fold in here over time. Ordered roughly
 by priority; each becomes its own skill/plugin so `project-init` can pull it in.
 
-- [ ] **Second-brain v2 rework**: replace remote authoritative memory and
+- [ ] **Second-brain v2 rework**: Unit 00 source containment is implemented,
+  but it is not deployed and no live project has been migrated. The remaining
+  work will replace remote authoritative memory and
   open-ended curator subagents with a Git-native project knowledge system.
   Authoritative behavior stays under `specs/`; decisions, context,
   implementation knowledge, references, domain knowledge, and operations live
@@ -174,14 +176,13 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
   proposed architecture is indexed in
   [`docs/second-brain-v2/`](docs/second-brain-v2/README.md). This is a design,
   not the currently shipped plugin.
-- [x] **`second-brain` plugin** (shipped; formerly the `memory-architecture` and
-  `knowledge-layer` roadmap items): the scalable long-term memory system,
-  re-architected onto a remote MCP server (shared Cloudflare Worker + a
-  per-project Neon Postgres/pgvector database + GitHub OAuth) so it works from
-  both the terminal and cloud sessions. One skill installs it per project: the
-  typed-node knowledge graph, the two curator agents, four project profiles,
-  per-turn capture, the drift-pinned knowledge layer, and a self-verifying
-  database harness.
+- [x] **`second-brain` v1 plugin** (shipped legacy implementation, now
+  contained): the remote MCP system remains in the repository as audit and
+  migration evidence. Its Unit 00 controls fail closed as read-only, label
+  reads `legacy/advisory`, disable automatic curator triggers, and preserve a
+  complete freeze export. It must not be installed into another project. The
+  source change alone does not deploy the shared Worker or contain an existing
+  project.
 - [ ] **Shared hooks library**: reusable guard hooks I can drop into any
   project, e.g. blocking deployments to a protected environment, secret-scanning
   pre-commit guards, and a SessionStart orientation hook. First one shipped: the

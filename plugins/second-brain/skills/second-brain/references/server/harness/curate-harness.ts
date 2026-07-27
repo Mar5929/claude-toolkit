@@ -22,11 +22,12 @@ const sql = neon(url) as Sql;
 const P = "harness-curate";
 
 // No Workers AI binding outside a Worker: embedText degrades to null vectors,
-// which upsertNode accepts (keyword-only recall). No API key needed — the
+// which upsertNode accepts (keyword-only recall). No API key needed - the
 // model is injected per test.
 const env = {
   DATABASE_URL_HARNESS_CURATE: url,
   ANTHROPIC_API_KEY: "harness-key-never-used",
+  BRAIN_V1_WRITE_MODE: "write",
 } as unknown as Env;
 
 let passed = 0;
