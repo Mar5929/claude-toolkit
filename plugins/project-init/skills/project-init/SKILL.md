@@ -2,8 +2,8 @@
 name: project-init
 description: >-
   Walk the user through initializing a NEW project, one gate at a time:
-  scaffolding & folder structure, guard hooks, the memory system, the knowledge
-  layer, and CLAUDE.md. Use when the user is starting a new repo/project and
+  scaffolding & folder structure, guard hooks, deferred second-brain memory and
+  knowledge gates, and CLAUDE.md. Use when the user is starting a new repo/project and
   wants help setting up the foundational scaffolding, or says things like
   "initialize this project", "set up the scaffolding", "/project-init", or "help
   me get this new repo going". This skill ORCHESTRATES setup: it asks the user
@@ -118,41 +118,23 @@ code to write. Still optional and confirmed with the owner.
 **Purpose:** durable, cross-session long-term memory so context survives between
 sessions.
 
-- Ask whether this project wants the memory system. Many small projects don't
-  need it; say so. It's opt-in.
-- If yes: install the `second-brain` plugin and run its `second-brain` skill. It
-  sets up the remote MCP memory server (a shared Cloudflare Worker plus a
-  per-project Neon database, reachable from both the terminal and cloud sessions)
-  and asks a short project-type question to pick the right profile. Do not
-  hand-build a memory store.
-- Explain the ground rules you're establishing (only the two curator agents write
-  to the store; a Stop hook captures each turn; the curated digest is injected
-  each session).
-- Once memory is live, offer to run the `grill-me` skill: it interviews the owner
-  about the project and checkpoints every answer to a file, capturing a project
-  overview while the curator records durable facts. Save it where the project
-  keeps docs (Salesforce scaffold: `engagement/project-overview/`).
-
-> **Packaged as the `second-brain` plugin in this toolkit.** Its `second-brain`
-> skill carries the deployable MCP server, the two curator agents, the four
-> project profiles, the capture hook, the wiring templates, and a test harness,
-> and it also covers the knowledge layer (Gate 4). Follow that skill's steps; do
-> not hand-build a memory store here.
+- Mark this gate **deferred by the toolkit**. Do not offer or install the old
+  Neon/MCP v1 system.
+- Explain that v1 is being frozen as legacy evidence and v2 is specified but
+  not shipped. There is no safe new-project installer yet.
+- Continue to Gate 4 without creating a database, connector, curator agents, or
+  automatic capture and recall hooks.
 
 ### Gate 4: Knowledge layer
 
 **Purpose:** durable knowledge nodes pinned to the source they describe, with
 staleness detection when that source drifts.
 
-- Ask whether the project wants the knowledge layer (pairs naturally with the
-  memory system, but is separately opt-in).
-- If yes: establish the convention for knowledge nodes and how they pin the files
-  they "cover," plus the drift check that flags a node when its source changes.
-
-> **Included in the `second-brain` plugin** (the knowledge-curator agent and its
-> `covers:` SHA drift-pins install with it). The profile picked in Gate 3 sets
-> which drift model applies; skip installing the knowledge-curator to leave this
-> layer off. Install via that skill rather than hand-building it.
+- Mark this gate **deferred by the toolkit** with Gate 3. Do not install the v1
+  knowledge-curator, drift hooks, or a partial imitation of v2.
+- The optional structural graph is separate from project memory. It may still
+  be considered later when the project independently needs mechanical impact
+  analysis, but it is not a substitute for this gate.
 
 ### Gate 5: CLAUDE.md and the rules folder
 
@@ -190,8 +172,8 @@ list.
 - **Write the thin CLAUDE.md** _with_ the user, walking the sections rather than
   generating a wall of text: what the project is, the codemap and structural
   pointers, a `Read .claude/rules` line, and which gates ran. Reflect what the
-  earlier gates set up (memory system, knowledge layer, hooks) so future sessions
-  know they exist. Keep the behavioral rules out of it.
+  earlier gates set up. Record memory and knowledge as deferred, not installed.
+  Keep the behavioral rules out of it.
 - **Add a `.claude/rules/README.md`** that indexes what each copied rule file
   does, so the folder is self-describing.
 

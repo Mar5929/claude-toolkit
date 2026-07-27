@@ -1,5 +1,10 @@
 # First-time infrastructure setup (run ONCE, ever)
 
+> **Do not create or deploy this infrastructure.** This is a retained v1
+> reference. Unit 00 allows only a separately approved synchronization and
+> containment deployment of the already existing Worker. Follow
+> `v1-freeze-and-export.md`.
+
 This stands up the ONE shared Worker that serves every project. You do this a
 single time per person/account. After it exists, every new project skips this
 file entirely and uses the per-project recipe (`setup-recipe.md`).
@@ -40,7 +45,7 @@ file entirely and uses the per-project recipe (`setup-recipe.md`).
    ```
    You fill its two placeholder values in the next steps. It is gitignored, so
    your real (non-secret) KV id and GitHub client id never get committed to the
-   (public) toolkit repo — the committed `wrangler.jsonc` stays a clean template.
+   (public) toolkit repo - the committed `wrangler.jsonc` stays a clean template.
    **Every deploy below uses `-c wrangler.local.jsonc`.**
 
 2. **Create the KV namespace.**
@@ -80,7 +85,7 @@ file entirely and uses the per-project recipe (`setup-recipe.md`).
    `https://second-brain.<your-subdomain>.workers.dev`. Workers AI (the `ai`
    binding) needs no key; it is billed to your Cloudflare account. (Deploying the
    committed `wrangler.jsonc` by mistake fails with `KV namespace
-   '<OAUTH_KV_NAMESPACE_ID>' is not valid` — that just means you deployed the
+   '<OAUTH_KV_NAMESPACE_ID>' is not valid` - that just means you deployed the
    placeholder template instead of `-c wrangler.local.jsonc`.)
 
 6. **Record your origin.** That deployed URL is your `BRAIN_MCP_ORIGIN`. Every
@@ -97,7 +102,7 @@ file entirely and uses the per-project recipe (`setup-recipe.md`).
 
 The Worker is deployed ONCE at setup, but you redeploy it whenever the shared
 server code changes (e.g. a recall or curation improvement lands in the toolkit).
-This is the ONLY time an existing install redeploys — new *projects* never do.
+This is the ONLY time an existing install redeploys - new *projects* never do.
 
 ```
 cd <your server folder>                    # references/server (or your working copy)
@@ -108,10 +113,10 @@ npx wrangler deploy -c wrangler.local.jsonc
 
 Notes:
 - Use `-c wrangler.local.jsonc` (your filled-in config), NOT the committed
-  placeholder template — same reason as the first deploy.
+  placeholder template - same reason as the first deploy.
 - **Secrets** (`DATABASE_URL_*`, `GITHUB_CLIENT_SECRET`, `ANTHROPIC_API_KEY`) live
   on the Worker and are preserved across deploys; a deploy never touches them.
-- **One deploy updates every project at once** — there is a single shared Worker.
+- **One deploy updates every project at once** - there is a single shared Worker.
 - **A gotcha when you verify:** an ALREADY-OPEN MCP session (e.g. the Claude
   session you deployed from) keeps talking to its pre-deploy Worker instance, so
   it can still show the OLD behavior. A FRESH session, a cloud session, and the

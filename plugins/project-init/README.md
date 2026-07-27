@@ -17,8 +17,8 @@ toolkit reaches a project.
   skippable gate at a time, in a fixed order:
   1. Scaffolding and folder structure
   2. Hooks and guards
-  3. Memory system (offers the `second-brain` plugin)
-  4. Knowledge layer (offers the `second-brain` plugin)
+  3. Memory system (temporarily deferred)
+  4. Knowledge layer (temporarily deferred)
   5. CLAUDE.md and `.claude/rules/`
   It asks before acting, recommends a per-stack layout, and copies in the
   standard rule files. It does not hold the memory or knowledge systems itself;
@@ -49,10 +49,11 @@ Bundled under `skills/project-init/references/`:
 ## How it relates to the rest of the toolkit
 
 - project-init is the **entry point that installs the other plugins' systems**.
-  Gates 3 and 4 offer `second-brain`; the CLAUDE.md gate copies the general
-  rules, some of which pair with other plugins (for example
-  `memory-system-ground-rules.md` goes in only if the `second-brain` memory gate
-  ran).
+  During second-brain Unit 00 containment, Gates 3 and 4 are recorded as
+  deferred because v1 must not be installed and v2 is not shipped.
+- project-sync identifies existing v1 projects as legacy evidence. With owner
+  approval it may add only reversible containment settings. It never deletes
+  or migrates v1 data.
 - **project-init versus project-sync is not redundancy.** They share the same
   inventory of toolkit systems but enter from opposite ends: project-init lays
   foundations in an empty project, project-sync audits and back-fills a project

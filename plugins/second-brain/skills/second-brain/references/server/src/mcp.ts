@@ -1,21 +1,25 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
+import {
+  blockedWriteMcpResult,
+  legacyAdvisoryText,
+  LEGACY_ADVISORY_WARNING,
+  v1WritesAreReadOnly,
+} from "./containment";
 import { embedText } from "./embed";
 import {
-  appendJournal, bodySnippet, capRecall, drainJournal, exportNodes, getDigest,
-  getNode, listNodes, neighborsOf, putDigest, readJournal, recallNodes, upsertNode,
-  type Role, type Sql,
+  appendJournal, bodySnippet, capRecall, drainJournal, exportLegacyState,
+  getDigest, getNode, listNodes, neighborsOf, putDigest, readJournal,
+  recallNodes, upsertNode, type Role, type Sql,
 } from "./db";
 import type { Env } from "./types";
 
-const INSTRUCTIONS = `This server holds the project's long-term memory (the "second brain").
+const INSTRUCTIONS = `This server exposes frozen second-brain v1 data as legacy/advisory evidence.
 At the start of a session, call get_digest to load the curated memory digest.
 When the current task touches past decisions, constraints, terminology, or
 system knowledge, call recall with a short keyword query before answering.
-Writes (upsert_node, append_journal, put_digest, drain_journal) are for the
-memory curator agents; each node's markdown must be the full node file
-(frontmatter + body). Never store secrets, credentials, or org access details
-(org URLs, usernames, org IDs). Client names and Salesforce org data are allowed.`;
+Verify useful claims against the Git repository before relying on them. V1
+writes are contained while the Git-native v2 system is being implemented.`;
 
 const isWrite = (role: Role) => role === "write" || role === "admin";
 const forbidden = (what: string) => ({
@@ -30,9 +34,10 @@ export function buildMemoryServer(
   env: Env, sql: Sql, projectId: string, login: string, role: Role,
 ): McpServer {
   const server = new McpServer(
-    { name: "second-brain", version: "0.2.0" },
+    { name: "second-brain", version: "0.3.0" },
     { instructions: INSTRUCTIONS },
   );
+  const writeBlocked = () => v1WritesAreReadOnly(env);
 
   // --- Reads ----------------------------------------------------------------
 
@@ -45,7 +50,12 @@ export function buildMemoryServer(
     },
     async () => {
       const digest = await getDigest(sql, projectId);
-      return { content: [{ type: "text", text: digest ?? `No digest exists yet for project '${projectId}'.` }] };
+      return {
+        content: [{
+          type: "text",
+          text: legacyAdvisoryText(digest ?? `No digest exists yet for project '${projectId}'.`),
+        }],
+      };
     },
   );
 
@@ -53,7 +63,7 @@ export function buildMemoryServer(
     "recall",
     {
       description:
-        "Search this project's memory by meaning + keyword (decisions, knowledge, rules, questions, blockers, glossary). Default (detail='index') returns POINTERS: each match as id + title + status + a short snippet, then a one-line reference map of linked neighbors — cheap to scan. Call get_node(id) to read any match or neighbor in full, or pass detail='full' to inline the matched nodes' complete bodies (heavier; use when you know you need them, e.g. dedup/curation). Superseded/cleared nodes are demoted; check each node's status.",
+        "Search this project's memory by meaning + keyword (decisions, knowledge, rules, questions, blockers, glossary). Default (detail='index') returns POINTERS: each match as id + title + status + a short snippet, then a one-line reference map of linked neighbors - cheap to scan. Call get_node(id) to read any match or neighbor in full, or pass detail='full' to inline the matched nodes' complete bodies (heavier; use when you know you need them, e.g. dedup/curation). Superseded/cleared nodes are demoted; check each node's status.",
       inputSchema: {
         query: z.string().min(1).describe("Query, e.g. 'devops center version decision'"),
         limit: z.number().int().min(1).max(25).optional().describe("Max primary matches (default 5)"),
@@ -65,9 +75,16 @@ export function buildMemoryServer(
         String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
       const mode = detail ?? "index";
       const qvec = await embedText(env, query);
-      const nodes = await recallNodes(sql, projectId, query, limit ?? 5, qvec);
+      const nodes = await recallNodes(
+        sql, projectId, query, limit ?? 5, qvec, !writeBlocked(),
+      );
       if (nodes.length === 0) {
-        return { content: [{ type: "text", text: `No memory nodes match '${query}'.` }] };
+        return {
+          content: [{
+            type: "text",
+            text: legacyAdvisoryText(`No memory nodes match '${query}'.`),
+          }],
+        };
       }
       const neighbors = await neighborsOf(sql, projectId, nodes.map((n) => n.id), 8);
       // Default 'index': pointers (id + title + status + snippet), so scanning
@@ -89,7 +106,12 @@ export function buildMemoryServer(
       const hint = mode === "index"
         ? "\n\n<!-- pointer view: call get_node(id) for a full node, or recall(detail='full') to inline match bodies -->"
         : "";
-      return { content: [{ type: "text", text: capRecall(primary + context + hint) }] };
+      return {
+        content: [{
+          type: "text",
+          text: legacyAdvisoryText(capRecall(primary + context + hint)),
+        }],
+      };
     },
   );
 
@@ -102,7 +124,12 @@ export function buildMemoryServer(
     },
     async ({ id }) => {
       const node = await getNode(sql, projectId, id);
-      return { content: [{ type: "text", text: node ? JSON.stringify(node, null, 2) : `No node '${id}'.` }] };
+      return {
+        content: [{
+          type: "text",
+          text: legacyAdvisoryText(node ? JSON.stringify(node, null, 2) : `No node '${id}'.`),
+        }],
+      };
     },
   );
 
@@ -121,7 +148,12 @@ export function buildMemoryServer(
     },
     async (f) => {
       const rows = await listNodes(sql, projectId, f);
-      return { content: [{ type: "text", text: JSON.stringify(rows, null, 2) }] };
+      return {
+        content: [{
+          type: "text",
+          text: legacyAdvisoryText(JSON.stringify(rows, null, 2)),
+        }],
+      };
     },
   );
 
@@ -129,14 +161,33 @@ export function buildMemoryServer(
     "export",
     {
       description:
-        "Export every current node plus the digest as markdown files (path + content), for git backup. Current-state only: revision history (node_versions) is not included.",
+        "Export frozen v1 evidence for human review: current nodes, edges, revision history, digest, and all journal rows. This does not drain or change anything. The database-native snapshot and pg_dump remain the complete recovery backup.",
       inputSchema: {},
     },
     async () => {
-      const [nodes, digest] = await Promise.all([exportNodes(sql, projectId), getDigest(sql, projectId)]);
-      const files = nodes.map((n) => ({ path: n.path, markdown: n.markdown }));
-      if (digest !== null) files.push({ path: "BRAIN.md", markdown: digest });
-      return { content: [{ type: "text", text: JSON.stringify({ project: projectId, exported_by: login, files }, null, 2) }] };
+      const state = await exportLegacyState(sql, projectId);
+      return {
+        content: [{
+          type: "text",
+          text: JSON.stringify({
+            format: "second-brain-v1-freeze-export",
+            format_version: 1,
+            classification: "legacy/advisory",
+            warning: LEGACY_ADVISORY_WARNING,
+            project_id: projectId,
+            exported_by: login,
+            exported_at: new Date().toISOString(),
+            counts: {
+              nodes: state.nodes.length,
+              edges: state.edges.length,
+              node_versions: state.node_versions.length,
+              journal: state.journal.length,
+              undrained_journal: state.journal.filter((row) => row.drained_at === null).length,
+            },
+            state,
+          }, null, 2),
+        }],
+      };
     },
   );
 
@@ -152,7 +203,12 @@ export function buildMemoryServer(
     async ({ limit }) => {
       if (!isWrite(role)) return forbidden("read_journal");
       const rows = await readJournal(sql, projectId, limit ?? 50);
-      return { content: [{ type: "text", text: JSON.stringify(rows, null, 2) }] };
+      return {
+        content: [{
+          type: "text",
+          text: legacyAdvisoryText(JSON.stringify(rows, null, 2)),
+        }],
+      };
     },
   );
 
@@ -177,6 +233,7 @@ export function buildMemoryServer(
       },
     },
     async (input) => {
+      if (writeBlocked()) return blockedWriteMcpResult();
       if (!isWrite(role)) return forbidden("upsert_node");
       try {
         const vec = await embedText(env, `${input.title}\n\n${input.markdown}`);
@@ -196,6 +253,7 @@ export function buildMemoryServer(
       inputSchema: { markdown: z.string().min(1) },
     },
     async ({ markdown }) => {
+      if (writeBlocked()) return blockedWriteMcpResult();
       if (!isWrite(role)) return forbidden("put_digest");
       await putDigest(sql, projectId, markdown);
       return { content: [{ type: "text", text: `Digest updated (${markdown.length} chars).` }] };
@@ -210,6 +268,7 @@ export function buildMemoryServer(
       inputSchema: { entry: z.record(z.string(), z.any()) },
     },
     async ({ entry }) => {
+      if (writeBlocked()) return blockedWriteMcpResult();
       if (!isWrite(role)) return forbidden("append_journal");
       const seq = await appendJournal(sql, projectId, entry, "cloud");
       return { content: [{ type: "text", text: JSON.stringify({ ok: true, seq }) }] };
@@ -224,6 +283,7 @@ export function buildMemoryServer(
       inputSchema: { seqs: z.array(z.number().int()).min(1) },
     },
     async ({ seqs }) => {
+      if (writeBlocked()) return blockedWriteMcpResult();
       if (!isWrite(role)) return forbidden("drain_journal");
       const drained = await drainJournal(sql, projectId, seqs);
       return { content: [{ type: "text", text: JSON.stringify({ drained }) }] };

@@ -1,5 +1,9 @@
 # second-brain: implementation record + new-project setup recipe
 
+> **Historical v1 build record.** The current source is contained read-only.
+> Do not follow this file as a new installation guide. The current operator
+> procedure is `../v1-freeze-and-export.md`.
+
 **Purpose.** DragonFly is the PILOT for the second-brain memory + knowledge
 architecture (WI-002). This file is the durable, checked-in record of exactly
 what was built and how to stand it up, so the proven design can be folded into
@@ -20,7 +24,8 @@ backed by **Neon Postgres + pgvector**. It is the only transport reachable AND
 securely authenticated from every Claude Code session type (local, cloud/
 sandboxed, CI): a second git repo fails cloud-reach (403), and raw stores fail
 the cloud-secret test. Markdown-native and portable: nodes store the full node
-file text, and `export` reproduces the markdown for a git backup.
+file text. The Unit 00 freeze export includes nodes, edges, revision history,
+digest metadata, and journal rows for human review.
 
 ```
 Any Claude Code session (local | cloud | CI)
@@ -44,7 +49,7 @@ resolves each project's database from a secret named `DATABASE_URL_<PROJECT_ID>`
 (uppercased, `-`→`_`). Access is private by default: sign-in proves identity
 (GitHub), the `grants` table decides per-project role (`read|write|admin`).
 
-**Phase status (WI-002):** Phase 1 (read everywhere) DONE + deployed. Phase 2
+**Historical phase status (WI-002):** Phase 1 (read everywhere) DONE + deployed. Phase 2
 (write + local capture through MCP) = this record. Server-side auto-curation
 INCLUDED: this bundled server ships `src/curate.ts`, which reads undrained
 `journal` rows, asks a model (default `claude-haiku-4-5`, override
@@ -54,7 +59,8 @@ know-* nodes, since that layer stays with the in-session knowledge-curator), app
 it through the normal `db.ts` write path (`upsertNode` as login `auto-curator`,
 optional `putDigest`), then drains the exact seqs read. Any failure drains
 nothing (entries retry). DORMANT until you set the `ANTHROPIC_API_KEY` secret
-from the Cloudflare dashboard; `AUTO_CURATE=0` is the kill switch. Harness:
+from the Cloudflare dashboard; `AUTO_CURATE=0` is the kill switch. Unit 00 now
+also fails closed on `BRAIN_V1_WRITE_MODE` and keeps `AUTO_CURATE=0`. Harness:
 `harness/curate-harness.ts` (mocked model, real db path). This is what makes
 cloud sessions curate memory without an in-session curator dispatch. Port to
 `claude-toolkit` = this bundled copy.
@@ -255,8 +261,9 @@ caught these; encode them in the toolkit port:
   (journal rows sit in the cloud DB at rest).
 - Journal entries need a canonical shape + `source: local|cloud` discriminator so
   the curator drain step doesn't branch on drift.
-- git `export` is current-state only; revision history lives solely in Postgres
-  (state that plainly, or add node_versions to export later).
+- The old git `export` was current-state only. Unit 00 adds edges,
+  `node_versions`, digest metadata, and every journal row to the human-review
+  export; full recovery still uses the database snapshot and logical dump.
 
 A second adversarial pass on the actual code (2026-07-17) added:
 - `upsert_node` must PRESERVE omitted metadata on update and coalesce a null

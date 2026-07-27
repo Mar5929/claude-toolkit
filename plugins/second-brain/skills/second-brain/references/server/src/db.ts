@@ -47,6 +47,55 @@ export interface UpsertResult {
   flagged_for_review: string[];   // targets whose dependents were flagged
 }
 
+export interface LegacyExport {
+  project: {
+    id: string;
+    name: string;
+    created_at: string;
+  } | null;
+  nodes: Array<{
+    id: string;
+    path: string;
+    type: string;
+    title: string;
+    status: string;
+    markdown: string;
+    frontmatter: unknown;
+    created_at: string;
+    updated_at: string;
+    recall_count: number;
+    last_recalled_at: string | null;
+    pinned: boolean;
+    review_after: string | null;
+  }>;
+  edges: Array<{
+    from_id: string;
+    rel: string;
+    to_id: string;
+    created_at: string;
+  }>;
+  node_versions: Array<{
+    seq: number;
+    id: string;
+    title: string;
+    status: string;
+    markdown: string;
+    frontmatter: unknown;
+    replaced_at: string;
+    replaced_by: string | null;
+  }>;
+  digest: {
+    markdown: string;
+    updated_at: string;
+  } | null;
+  journal: Array<{
+    seq: number;
+    entry: unknown;
+    drained_at: string | null;
+    created_at: string;
+  }>;
+}
+
 // One database per project: resolve the project's own connection-string secret.
 // Returns null when no database is registered for the project.
 export function db(env: Env, projectId: string): Sql | null {
@@ -102,7 +151,7 @@ export async function upsertNode(
 
   // Fetch existing rows for this node + the edge endpoints in one query. We use
   // this to (a) decide insert-vs-update deterministically, (b) validate edge
-  // endpoints exist, and (c) PRESERVE metadata fields the caller omitted — this
+  // endpoints exist, and (c) PRESERVE metadata fields the caller omitted - this
   // is an LLM-driven tool, so an omitted `frontmatter`/`status`/`pinned`/
   // `review_after` must not wipe stored state (esp. a review_after the cascade
   // just set). Omitted -> keep existing; present -> overwrite; review_after=""
@@ -373,6 +422,7 @@ export async function recallNodes(
   query: string,
   limit: number,
   qvec?: number[] | null,
+  trackUsage = true,
 ): Promise<NodeRow[]> {
   const like = `%${query}%`;
   const pool = 30;
@@ -400,7 +450,7 @@ export async function recallNodes(
   ` as (Cand & { pinned: boolean })[];
 
   // Vector (semantic) candidates: the top-`pool` nearest by cosine distance.
-  // NO hard similarity floor — real bge-m3 distances for related text sit in a
+  // NO hard similarity floor - real bge-m3 distances for related text sit in a
   // compressed mid-range (a genuine match measured 0.576 cosine distance), so a
   // floor silently drops true hits. RRF + the final `limit` rank precision;
   // off-topic queries just return the nearest few, which the caller can judge.
@@ -437,7 +487,9 @@ export async function recallNodes(
     const r = row.get(id)!;
     return { id: r.id, path: r.path, type: r.type, title: r.title, status: r.status, markdown: r.markdown, updated_at: r.updated_at };
   });
-  if (out.length > 0) await bumpRecallStats(sql, projectId, out.map((n) => n.id));
+  if (trackUsage && out.length > 0) {
+    await bumpRecallStats(sql, projectId, out.map((n) => n.id));
+  }
   return out;
 }
 
@@ -473,7 +525,7 @@ export function bodySnippet(markdown: string, maxChars = 240): string {
 // Ranked by rel so the replacement/constraint survives the cap.
 // A neighbor is a REFERENCE, not a body: id + title + the relationship + status
 // is all "what's linked, is it still valid" needs; the full text is one get_node
-// away. Deliberately excludes `markdown` — returning full neighbor bodies used to
+// away. Deliberately excludes `markdown` - returning full neighbor bodies used to
 // dominate recall's token cost, and it matches the digest's "headlines up top,
 // detail in the nodes" rule.
 export interface Neighbor {
@@ -485,7 +537,7 @@ export async function neighborsOf(
 ): Promise<Neighbor[]> {
   if (ids.length === 0) return [];
   // Dedupe to one row per neighbor (its highest-priority rel), THEN rank by
-  // priority and cap — so the replacement/constraint survives the cap, not
+  // priority and cap - so the replacement/constraint survives the cap, not
   // whichever neighbor sorts first by id.
   return await sql`
     select id, path, type, title, status, updated_at, via
@@ -532,6 +584,61 @@ export async function exportNodes(sql: Sql, projectId: string): Promise<NodeRow[
     where project_id = ${projectId}
     order by path
   ` as NodeRow[];
+}
+
+// Complete human-review export for the v1 freeze. Unlike exportNodes, this
+// includes the graph, revision history, digest metadata, and every journal row
+// without draining anything. It intentionally excludes grants and token hashes:
+// they are access-control material, not project memory.
+export async function exportLegacyState(sql: Sql, projectId: string): Promise<LegacyExport> {
+  const [projects, nodes, edges, versions, digests, journal] = await Promise.all([
+    sql`
+      select id, name, created_at
+      from projects
+      where id = ${projectId}
+    `,
+    sql`
+      select id, path, type, title, status, markdown, frontmatter,
+             created_at, updated_at, recall_count, last_recalled_at, pinned,
+             review_after
+      from nodes
+      where project_id = ${projectId}
+      order by path, id
+    `,
+    sql`
+      select from_id, rel, to_id, created_at
+      from edges
+      where project_id = ${projectId}
+      order by from_id, rel, to_id
+    `,
+    sql`
+      select seq, id, title, status, markdown, frontmatter, replaced_at,
+             replaced_by
+      from node_versions
+      where project_id = ${projectId}
+      order by seq
+    `,
+    sql`
+      select markdown, updated_at
+      from digests
+      where project_id = ${projectId}
+    `,
+    sql`
+      select seq, entry, drained_at, created_at
+      from journal
+      where project_id = ${projectId}
+      order by seq
+    `,
+  ]);
+
+  return {
+    project: (projects as NonNullable<LegacyExport["project"]>[])[0] ?? null,
+    nodes: nodes as LegacyExport["nodes"],
+    edges: edges as LegacyExport["edges"],
+    node_versions: versions as LegacyExport["node_versions"],
+    digest: (digests as NonNullable<LegacyExport["digest"]>[])[0] ?? null,
+    journal: journal as LegacyExport["journal"],
+  };
 }
 
 // Bearer fast path: look up a raw token by its SHA-256 hash. Returns the

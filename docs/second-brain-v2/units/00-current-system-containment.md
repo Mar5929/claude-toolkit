@@ -1,6 +1,7 @@
 # Unit 00: contain the current system
 
-Status: proposed. Dependencies: none.
+Status: implemented in toolkit source; live Worker deployment, per-project
+settings, snapshots, and exports require separate approval. Dependencies: none.
 
 ## Outcome
 
@@ -43,6 +44,18 @@ It must not return HTTP 200 with ambiguous prose such as `skipped:`.
 - Scheduled curation performs zero model calls.
 - Project-init and project-sync do not offer v1 as production-ready.
 - Snapshot identifiers and export hashes are recorded.
+
+## Implementation boundary
+
+The contained Worker source and no-database harness live under
+`plugins/second-brain/skills/second-brain/references/server/`. The project
+containment behavior lives in the `second-brain`, `remember`, `project-init`,
+and `project-sync` skills. The separately approved live procedure is
+`plugins/second-brain/skills/second-brain/references/v1-freeze-and-export.md`.
+
+Source implementation does not deploy the Worker, change an existing project,
+take a Neon snapshot, or read a live database. Until those approved operator
+steps are complete, the live acceptance items remain pending.
 
 ## Rollback
 

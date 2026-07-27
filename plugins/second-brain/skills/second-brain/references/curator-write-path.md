@@ -1,5 +1,9 @@
 # The curator write path, and what to do when it is unreachable
 
+> **Historical v1 reference.** Do not use any write or fallback route during
+> Unit 00 containment. Preserve existing outbox files and proposed notes as
+> migration evidence. `/remember` and all v1 writers are disabled.
+
 This is the canonical description of **how a curated note actually reaches the
 store, and what must happen when it cannot**. The curators, the `remember` skill,
 the setup recipe, the hooks README, and the `memory-system-ground-rules` project

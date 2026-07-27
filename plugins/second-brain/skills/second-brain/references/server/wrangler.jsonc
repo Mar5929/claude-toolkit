@@ -26,7 +26,13 @@
   "vars": {
     // From your GitHub OAuth app (Settings > Developer settings > OAuth Apps).
     // The client id is not a secret; the client secret is (set it as a secret).
-    "GITHUB_CLIENT_ID": "<GITHUB_OAUTH_CLIENT_ID>"
+    "GITHUB_CLIENT_ID": "<GITHUB_OAUTH_CLIENT_ID>",
+    // Unit 00 containment. Missing/unknown values also fail closed, but keep
+    // this explicit in every deployment. "write" is an operator-only rollback.
+    "BRAIN_V1_WRITE_MODE": "read-only",
+    // Independent defense against model calls. Restoring write mode does not
+    // automatically restore scheduled or session-end curation.
+    "AUTO_CURATE": "0"
   },
   // Workers AI: embeddings for hybrid recall (model @cf/baai/bge-m3, 1024-dim).
   // No secret/key required; billed to this Cloudflare account.

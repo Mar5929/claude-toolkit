@@ -1,7 +1,13 @@
 # Knowledge Layer Ground Rules
 
-Include this rule only if the project set up the knowledge layer.
+Include this rule only in a project that already has the v1 knowledge layer. Do
+not add it to a new project during Unit 00 containment.
 
-Knowledge nodes pin their sources. A node declares the files it covers; when
-those files drift, the node is flagged stale. Keep nodes reconciled with the
-code they describe.
+Existing `know-*` nodes, SHA pins, drift reports, curator files, and outbox files
+are legacy migration evidence. Do not refresh, reconcile, promote, or delete
+them. Do not dispatch the knowledge-curator or use a v1 write fallback.
+
+Useful legacy explanations must be verified against current code and
+specifications before use. A verified explanation may later be proposed through
+the Git-native v2 review flow, but it does not become current truth
+automatically.

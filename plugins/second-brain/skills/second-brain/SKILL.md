@@ -1,198 +1,102 @@
 ---
 name: second-brain
 description: >-
-  Install the portable second-brain memory and knowledge architecture in the
-  current project: a remote MCP memory server (one shared Cloudflare Worker + a
-  per-project Neon Postgres/pgvector database + GitHub OAuth) holding a typed-node
-  knowledge graph curated by two background agents, with hybrid keyword+vector
-  recall, a digest injected each session, drift-pinned knowledge nodes, per-turn
-  capture, and a self-verifying database harness. Reachable from BOTH the terminal
-  CLI and cloud/web Claude sessions. Use when the user wants durable cross-session
-  memory for a project, or says "set up the memory architecture", "implement the
-  second brain", "add long-term memory to this project", "install the memory
-  system from my toolkit", or "/second-brain". This skill INSTALLS a fully
-  specified system from bundled reference implementations; a short project-type
-  question picks the profile, and there is no design work to do.
+  Handle second-brain setup requests during the Unit 00 containment period.
+  The old Neon/MCP v1 system is frozen and must not be installed into a new
+  project. Git-native v2 is specified but not shipped. For an existing v1
+  project, report its legacy status and offer only the documented, reversible
+  containment settings. Do not delete, migrate, deploy, snapshot, or export
+  live data without the owner's separate approval.
 ---
 
-# second-brain: install durable cross-session memory (MCP architecture)
+# Second-brain during Unit 00 containment
 
-You are installing a fully specified, proven system, not designing one. Read
-`references/architecture-spec.md` end to end first: it explains what the system is
-and what should happen at runtime. Then follow the steps below. The bundled
-`references/` holds working implementations (the deployable server, the two
-curators, the capture hook, the templates, the four profiles) that passed a 30+
-assertion harness. Copy them and fill placeholders; do not redesign them. If you
-find a real defect, fix it, keep the harness green, and tell the user to port the
-fix back to the toolkit.
+There is currently no production-ready second-brain installation path:
 
-## What gets installed
+- v1 is the legacy Neon/MCP system. It is being frozen read-only.
+- v2 is a technical specification under `docs/second-brain-v2/`, not shipped
+  functionality.
 
-- **Once, ever:** a shared Cloudflare Worker MCP server + a GitHub OAuth app +
-  Workers AI embeddings. For Mike this already exists at
-  `https://second-brain.rihm.workers.dev`.
-- **Per project:** a Neon database, a committed `.mcp.json`, a cloud connector, an
-  access grant, a capture hook + settings, and the two curator agents carrying
-  this project's profile.
-- **Per surface:** a bearer token. Each machine gets one in the gitignored
-  `.claude/settings.local.json`; each Claude Code cloud environment gets one as
-  an environment variable plus the Worker's host on its allowed-domains list
-  (setup recipe Step 6b). Skip this and that surface records nothing, silently.
+Do not install v1 into another project, and do not claim that v2 can be
+installed or migrated to yet.
 
-## Step 0: Orient, then choose the path and the profile
+## New project
 
-1. Look at the host project. Is it a git repo? Does it ALREADY have a memory
-   system (a `brain/` or `memories/` dir, a curator agent, or a `.mcp.json` with a
-   `second-brain` server)? If one already exists, STOP and reconcile with the user
-   before installing a second.
-2. **Does the shared Worker exist yet?** For Mike: yes. If not, do
-   `references/first-time-infra.md` ONCE, first.
-3. **Ask the project type. This picks the profile:** Salesforce org, app (iOS or
-   web), other code, or docs-only. Map the answer to `references/profiles/<type>.md`.
-   Confirm the project id (`<ID>`, lowercase, hyphens allowed) with the user.
+Say that second-brain setup is temporarily unavailable while v2 is being
+implemented. Continue the rest of project setup without Gates 3 and 4. Do not
+create a database, register a Worker secret, add an MCP connector, copy curator
+agents, or install automatic capture and recall hooks.
 
-## Step 1: First-time infrastructure (skip if the shared Worker exists)
+## Existing project without v1
 
-Follow `references/first-time-infra.md`. One time, ever. It produces the
-`BRAIN_MCP_ORIGIN` that every project uses.
+Record second-brain as deferred. Do not add v1 components.
 
-## Step 2: Per-project onboarding
+## Existing project with v1
 
-Follow `references/setup-recipe.md` end to end with the chosen `<ID>` and profile.
-It creates the database, registers it with the Worker, wires `.mcp.json` + the
-connector + the grant + the local token + the capture hook + settings, and
-installs the two curators with the profile filled in.
+Treat every v1 read as `legacy/advisory`, never as current truth. Offer the
+following reversible settings, one project at a time and only with the owner's
+approval:
 
-## Step 2b: Structural layer (impact analysis, on request)
+```json
+{
+  "BRAIN_V1_WRITE_MODE": "read-only",
+  "BRAIN_CAPTURE": "0",
+  "BRAIN_CURATE_ON_END": "0",
+  "BRAIN_RECALL": "0",
+  "BRAIN_KC_NUDGE": "0"
+}
+```
 
-The structural layer is the mechanical "what connects to what" companion to the
-prose knowledge layer: it answers "if I change this, what breaks N steps out?"
-Install it whenever the owner wants that, and pick the tool by project type.
+Keep `BRAIN_INJECT=1` only if the owner wants the legacy digest available with
+its warning. Do not remove `.mcp.json`, tokens, hooks, agents, outbox files,
+ignored local caches, or any database content. Do not run `/remember`.
 
-- **Salesforce:** follow `references/structural-layer.md`, the bundled compiled
-  `force-app/` graph. Copy `references/structural-layer/` into the project as
-  `tools/kb/`, gitignore the build artifacts, ask the owner the storage question
-  (`GRAPH_BACKEND`, recommend local), and paste the structural-layer section into
-  the knowledge-curator. It has its own verify step (test suite `OK` + a build).
-- **Every other project type (Swift/iOS, web, backend, generic):** follow
-  `references/structural-layer-graphify.md`. Graphify parses the code locally with
-  tree-sitter (no API key, nothing leaves the machine) and answers the same impact
-  questions. It is optional the same way, so add it only when "what calls this?"
-  is a real, recurring question; small codebases are fine on the compiler + tests
-  + `covers:` pins.
+The server-side controls are separate:
 
-## Step 2c: Existing codebase? Backfill the knowledge layer (any project type)
+```text
+BRAIN_V1_WRITE_MODE=read-only
+AUTO_CURATE=0
+```
 
-If the project already has meaningful code, the `know-*` layer must not start
-empty. Follow `references/kb-backfill.md`:
+Changing project settings does not change the deployed Worker. Changing the
+toolkit source does not deploy it. Follow
+`references/v1-freeze-and-export.md` only after the owner separately approves
+the live containment and backup operation.
 
-- Produce the subsystem map: on Salesforce, the compiled graph's
-  `query_graph.py --map` (Step 2b); everywhere else, the bundled
-  `references/kb-backfill/subsystem_map.py` (deterministic, offline, works
-  for web, iOS, and generic repos).
-- Seed `know-*` nodes with the knowledge-curator in batches of 5-10
-  subsystems, busiest first (COVERAGE report first; never the whole codebase
-  in one pass).
-- Install the ongoing-freshness Stop hook and rule so later code changes
-  surface drift to the knowledge-curator by default. Salesforce projects
-  that completed Step 2b already have their freshness hook; a project
-  installs exactly one, never both.
+## Read-only behavior
 
-## Step 3: Verify (do not skip; do not claim success without this)
+Deliberate `get_digest`, `recall`, `get_node`, `list_nodes`, `read_journal`, and
+`export` reads may remain available. Their output must say
+`legacy/advisory`. Useful claims must be verified against the Git repository
+before use.
 
-Per the recipe's verify step: the database harness must end `FAIL: 0` against a
-scratch database, and a read/write smoke test must show a fact written locally
-recalled in a second local session AND in a cloud session. Also prove the paths
-that fail silently: a curator dispatched from a CLOUD session must name
-`upsert_node` among its tools, `POST /fast/<id>/node` must answer (`400` on
-an empty body) so a headless surface can save a finished note at all, and the
-scope guard must deny a call to another project's brain.
+Every blocked write must return:
 
-## Step 4: Document and populate
+```json
+{
+  "outcome": "skipped",
+  "reason": "v1_read_only",
+  "next_action": "retain the proposal locally or use the v2 migration path"
+}
+```
 
-- Write the ground rules into the project's `CLAUDE.md` (recipe Step 9).
-- Offer the first population (recipe Step 10): brain-curator REMEMBER for the owner
-  profile and standing decisions; knowledge-curator COVERAGE then DOCUMENT in
-  batches, if the knowledge layer is on. Never sweep a whole codebase in one pass.
-  On an existing codebase, the knowledge side IS the Step 2c backfill: drive it
-  from the subsystem map per `references/kb-backfill.md`.
+## What not to do
 
-## How the installed system runs (tell the user)
-
-- The **digest** (curated, < ~250 lines) is what a new session reads first. A
-  `SessionStart` hook auto-injects it at session start; the agent can also call
-  `get_digest` directly.
-- A `UserPromptSubmit` hook auto-recalls memory for each prompt (keyword-only,
-  best-effort) and injects the top matches before the agent answers; the agent
-  can also call `recall` for a deeper semantic search. Both injection hooks no-op
-  without a token and honor `BRAIN_INJECT` (recall also honors `BRAIN_RECALL`).
-- To remember or recall, the main agent delegates to the **brain-curator**; to
-  explain or document why code exists, it delegates to the **knowledge-curator**.
-  They never run at the same time.
-- The **Stop hook** captures each turn cheaply to a journal; curators later drain
-  it into clean, linked, deduped nodes. Capture is best-effort and safe even with
-  no token (a teammate checkout), but "safe" means silent, not working: a surface
-  without a token captures NOTHING while looking normal. Wire every surface
-  (Step 6 for machines, Step 6b for cloud environments) and verify per Step 8.
-- **Only this project's brain is in scope.** Memory connectors attach to the
-  Claude account rather than the repo, so every project's brain is visible in
-  every session and a background job may hold only a foreign one. A `PreToolUse`
-  guard denies brain calls to anything but this project's `second-brain` server
-  and its `BRAIN_CONNECTOR`, because a detailed recall about the wrong codebase
-  reads as correct. When neither is reachable the answer is the bearer fast path
-  or an honest "unavailable", never another project's memory. See
-  `references/brain-scope.md`.
-- **A finished note is never dropped.** A curator can lose its write path
-  mid-pass (the MCP connection drops, or a background job never had one). It then
-  hands the completed nodes back, and the session stores them by the next route
-  down: `POST /fast/<id>/node` with the bearer token, then the journal, then
-  `.claude/memory-outbox/`, which is committed so the note travels to a session
-  that can save it. A SessionStart hook lists anything waiting and `/remember`
-  flushes it first. See `references/curator-write-path.md`.
-- **Impact analysis lives in the structural layer, not here.** The memory layer
-  alone cannot answer "change this field, what breaks three hops out?"; the
-  bundled compiled dependency graph (Step 2b, `references/structural-layer.md`)
-  answers that mechanically. If the structural layer is not installed, do not
-  promise impact analysis.
+- Do not delete or drain legacy data.
+- Do not promote legacy content into `specs/` or `memory/`.
+- Do not deploy the Worker from this skill.
+- Do not take a snapshot or logical export without separate approval.
+- Do not improvise a partial v2 installer.
+- Do not migrate a pilot project until the Git-native core and migration tools
+  exist and pass their release gates.
 
 ## Reference map
 
-- `references/architecture-spec.md` - what it is, why, and the runtime process flow.
-- `references/first-time-infra.md` - the one-time shared-server setup.
-- `references/setup-recipe.md` - the exact per-project steps with expected output.
-- `references/profiles/*.md` - the four project profiles (fill the curators).
-- `references/agents/*.md` - the two curator agent templates.
-- `references/curator-write-path.md` - how a curated note actually reaches the
-  store, why a curator can end up with no brain tools, and the fallback ladder
-  (bearer node write, journal, committed outbox) that keeps a finished note from
-  being lost.
-- `references/brain-scope.md` - which brain belongs to this project, why another
-  project's is visible in every session, and the guard that stops a call to it.
-- `references/hooks/` - eight hooks: `brain-mcp-capture.mjs` (Stop capture),
-  `brain-mcp-session-curate.mjs` (SessionEnd: tells the server the conversation
-  is over so it curates that session as one finished arc; this is the default
-  curation trigger), `brain-mcp-session-digest.mjs` (SessionStart digest
-  injection), `work-items-status.mjs` (SessionStart: reads the work-items tree
-  and injects what is wanted, in progress, and already done; local, no server
-  call, no token), `brain-outbox-status.mjs` (SessionStart: lists curated notes
-  still unsaved in `.claude/memory-outbox/`; local, no server call, no token),
-  `brain-scope-guard.mjs` (PreToolUse: denies a brain call aimed at another
-  project's store; local, no server call, no token, fails open),
-  `brain-mcp-recall.mjs` (UserPromptSubmit recall injection),
-  and `knowledge-curator-nudge.mjs` (PostToolUse: after a push or PR-create,
-  remind the session to run the knowledge-curator; local, no server call, no
-  token); see its README.
-- `references/templates/{settings.json, mcp.json}` - the wiring templates.
-- `references/structural-layer.md` - installing the compiled dependency graph
-  (Salesforce).
-- `references/structural-layer-graphify.md` - the non-Salesforce structural layer:
-  install and use graphify (a local tree-sitter code graph; Swift, web, generic).
-- `references/structural-layer/` - the graph tool itself (parser, impact query,
-  connection diff, self-check, storage selector, tests; see its README.md).
-- `references/kb-backfill.md` - one-time knowledge backfill + ongoing freshness
-  for existing codebases, any project type.
-- `references/kb-backfill/` - the subsystem-map script and the generic
-  freshness Stop hook.
-- `references/server/` - the deployable Worker: `src/`, `schema.sql`, `seed.sql`,
-  `upgrade-00*.sql`, `harness/`, `scripts/mint-token.mjs`, plus `PATTERNS.md` and
-  `IMPLEMENTATION.md` (the deep build record).
+- `references/v1-freeze-and-export.md`: operator procedure for a later,
+  separately approved live freeze and backup.
+- `references/server/`: contained v1 Worker source and verification harness.
+- `references/templates/settings.json`: containment settings for an existing
+  v1 project, not a new-project installer.
+- `docs/second-brain-v2/`: proposed v2 architecture and implementation units.
+- Other files under `references/`: retained v1 implementation evidence. They
+  are not current installation instructions during containment.

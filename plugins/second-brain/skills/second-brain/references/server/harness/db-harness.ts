@@ -12,8 +12,9 @@
 
 import { neon } from "@neondatabase/serverless";
 import {
-  appendJournal, bodySnippet, drainJournal, exportNodes, getDigest, getGrant, getNode,
-  listNodes, neighborsOf, putDigest, readJournal, recallNodes, upsertNode,
+  appendJournal, bodySnippet, drainJournal, exportLegacyState, exportNodes,
+  getDigest, getGrant, getNode, listNodes, neighborsOf, putDigest, readJournal,
+  recallNodes, upsertNode,
   type Sql,
 } from "../src/db";
 
@@ -113,7 +114,7 @@ async function main() {
   ok((await reviewAfter("x")) !== null, "cascade flags a premise-of dependent");
   ok((await reviewAfter("src")) === null, "cascade does NOT self-flag the corrected node");
 
-  // T4: edge FK behavior — soft rel to missing = skipped+reported; critical = throws
+  // T4: edge FK behavior - soft rel to missing = skipped+reported; critical = throws
   const soft = await upsertNode(sql, P, "tester", { id: "soft", path: "k/soft.md", type: "knowledge", title: "Soft", markdown: file("soft", "Soft", "b"), edges: [{ to: "ghost", rel: "relates-to" }] }, vec(20));
   ok(soft.edges_skipped.length === 1 && soft.edges_written === 0, "soft edge to a missing node is skipped + reported");
   let threw = false;
@@ -123,13 +124,13 @@ async function main() {
   ok(threw, "critical edge (supersedes) to a missing node is a HARD error");
   ok((await getNode(sql, P, "crit")) === null, "the hard-error upsert wrote nothing (atomic)");
 
-  // T5: hybrid recall — keyword hit, semantic hit, and retired-status exclusion
+  // T5: hybrid recall - keyword hit, semantic hit, and retired-status exclusion
   await upsertNode(sql, P, "tester", { id: "kw", path: "n/kw.md", type: "knowledge", title: "Pricing engine rounding", markdown: file("kw", "Pricing engine rounding", "the pricing engine rounds half-up") }, vec(30));
   const byKeyword = await recallNodes(sql, P, "pricing rounding", 5, null);
   ok(byKeyword.some((n) => n.id === "kw"), "keyword recall finds the node");
   const bySemantic = await recallNodes(sql, P, "totally unrelated words", 5, vec(30));
   ok(bySemantic.some((n) => n.id === "kw"), "semantic recall finds the node by vector even with no keyword overlap");
-  // A mid-distance match (cosine distance 0.5) must still surface — real bge-m3
+  // A mid-distance match (cosine distance 0.5) must still surface - real bge-m3
   // matches sit in this range, so an over-strict floor would drop them.
   const byMid = await recallNodes(sql, P, "totally unrelated words", 5, mixVec(30, 31, 0.5));
   ok(byMid.some((n) => n.id === "kw"), "a mid-distance (~0.5) semantic match is still returned (no over-strict floor)");
@@ -170,6 +171,14 @@ async function main() {
   const files = await exportNodes(sql, P);
   const kwFile = files.find((f) => f.id === "kw");
   ok(!!kwFile && kwFile.markdown === file("kw", "Pricing engine rounding", "the pricing engine rounds half-up"), "export reproduces the full node markdown verbatim");
+  const frozen = await exportLegacyState(sql, P);
+  ok(frozen.project?.id === P, "freeze export includes project identity");
+  ok(frozen.nodes.some((n) => n.id === "kw"), "freeze export includes current nodes");
+  ok(frozen.edges.some((e) => e.from_id === "new" && e.rel === "supersedes"), "freeze export includes edges");
+  ok(frozen.node_versions.some((v) => v.id === "dec-1"), "freeze export includes revision history");
+  ok(frozen.digest?.markdown === "# harness digest", "freeze export includes digest metadata");
+  ok(frozen.journal.length === 2, "freeze export includes drained and undrained journal rows");
+  ok(frozen.journal.some((j) => j.drained_at === null), "freeze export does not drain pending journal rows");
 
   // T9: list_nodes filter + auth
   const decisions = await listNodes(sql, P, { type: "decision" });

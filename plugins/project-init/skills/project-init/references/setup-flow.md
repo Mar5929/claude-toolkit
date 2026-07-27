@@ -8,8 +8,8 @@ so they always know where they are.
 [ ] Gate 0 - Orient: read the working dir; identify stack & project state
 [ ] Gate 1 - Scaffolding & folder structure
 [ ] Gate 2 - Hooks (guards & automation)
-[ ] Gate 3 - Memory system            (opt-in)
-[ ] Gate 4 - Knowledge layer          (opt-in)
+[ ] Gate 3 - Memory system            (deferred: v1 contained, v2 not shipped)
+[ ] Gate 4 - Knowledge layer          (deferred with Gate 3)
 [ ] Gate 5 - CLAUDE.md + .claude/rules (copy general rules; write thin CLAUDE.md)
 [ ] Wrap-up - summarize, note follow-ups, port-back reminder
 ```
@@ -50,28 +50,22 @@ so they always know where they are.
   hit a production org; auto-detects production; tuned by a JSON policy file).
 
 **Gate 3: Memory system**
-- Does this project want durable long-term memory? (opt-in)
-- If yes: install the toolkit's `second-brain` plugin and run its skill; it sets
-  up the remote MCP memory server and asks a project-type question to pick a
-  profile. Ground rules: the two curators own all writes; a Stop hook captures
-  each turn; the curated digest is injected each session.
-- Once memory is live, offer the `grill-me` skill to interview the owner and
-  capture a project overview (Salesforce scaffold: save to
-  `engagement/project-overview/`).
+- Mark deferred. V1 is frozen legacy infrastructure and v2 is not shipped.
+- Do not install a database, MCP connector, curators, capture, or recall.
 
 **Gate 4: Knowledge layer**
-- Does this project want the knowledge layer? (opt-in)
-- If yes: it ships inside the `second-brain` plugin (knowledge-curator agent,
-  covers: SHA drift-pins); the Gate 3 profile sets the drift model. Skip the
-  knowledge-curator to leave this layer off.
+- Mark deferred with Gate 3.
+- Do not install the v1 knowledge-curator or drift hooks and do not improvise a
+  partial v2 store.
 
 **Gate 5: CLAUDE.md and the rules folder**
 - Behavioral rules go into the project's `.claude/rules/` as individual files,
   not into CLAUDE.md. See `thin-claudemd.md` and `general-rules/README.md`.
 - Copy the general rules from `general-rules/` into `.claude/rules/`: every
   default-ON file unless the owner drops it, plus the two conditional files
-  (memory, knowledge) only if Gate 3 or Gate 4 ran. Walk the list; let the owner
-  accept, edit, or skip each.
+  (memory, knowledge) only if a production-ready memory or knowledge gate ran.
+  During containment, neither conditional rule is added. Walk the list; let the
+  owner accept, edit, or skip each.
 - Default-ON rules: multi-agent worktree protocol, language rules (no em dashes,
   no section signs, no AI filler, plain language), and working-style rules (lead
   with the answer; answer last, ask only in the question box; solve the real goal

@@ -16,6 +16,9 @@ export interface Env {
   CURATOR_MODEL?: string;
   AUTO_CURATE?: string;
   BACKSTOP_IDLE_HOURS?: string;
+  // Unit 00 containment. V1 fails closed: only the explicit value "write"
+  // permits writes. The production containment value is "read-only".
+  BRAIN_V1_WRITE_MODE?: string;
   // One Neon database per project. Each connection string is its own secret,
   // named DATABASE_URL_<project id, uppercased, '-' replaced by '_'>.
   // Example: project 'dragonfly' reads DATABASE_URL_DRAGONFLY.

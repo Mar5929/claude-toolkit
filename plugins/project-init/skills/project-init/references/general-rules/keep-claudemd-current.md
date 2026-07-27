@@ -24,8 +24,10 @@ Before adding, ask where the thing actually lives:
   decision doc, with at most a one-line pointer here.
 - **What is happening right now** (current phase, next action, open TODOs)
   belongs in the live status doc, never here.
-- **What changed and when** belongs in git history, not in prose. If the project
-  has a long-term memory system, a durable conclusion goes there.
+- **What changed and when** belongs in git history, not in prose. A requirement
+  change belongs in the applicable specification, code, and tests together.
+  Other durable conclusions use the project's current Git-native memory system
+  when one is actually shipped. Never write them into contained v1.
 
 Then keep the shape:
 

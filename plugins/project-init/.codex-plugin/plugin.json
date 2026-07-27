@@ -1,7 +1,7 @@
 {
   "name": "project-init",
-  "version": "0.7.4",
-  "description": "New-project setup and toolkit sync: project-init initializes a repo gate by gate, and project-sync audits an existing repo against the toolkit.",
+  "version": "0.7.5",
+  "description": "New-project setup and toolkit sync. Second-brain gates are deferred during v1 containment; existing v1 projects may receive reversible containment settings.",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com",
@@ -18,7 +18,7 @@
   "interface": {
     "displayName": "Project Init",
     "shortDescription": "Initialize or sync a project with Mike's toolkit.",
-    "longDescription": "Project setup and sync workflows from Mike Rihm's portable toolkit. Includes project-init for guided new-project setup and project-sync for auditing existing projects against the toolkit rules, hooks, memory, knowledge, and orientation conventions.",
+    "longDescription": "Project setup and sync workflows from Mike Rihm's portable toolkit. Includes guided new-project setup and existing-project audits. During second-brain containment it defers new memory installs and preserves existing v1 data.",
     "developerName": "Mike Rihm",
     "category": "Productivity",
     "capabilities": [
