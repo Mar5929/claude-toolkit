@@ -81,7 +81,8 @@ Examples:
 - architecture choices live in the decision register;
 - current implemented behavior lives in code, configuration, and tests;
 - project workflow rules live in checked-in agent guidance;
-- task status lives in the declared task-status system;
+- task status, blockers, work-item relationships, and current handoffs live in
+  the `work-tracker` plugin's Git records;
 - domain terminology lives in the glossary;
 - deployment state lives in the declared deployment record; and
 - temporary investigation state lives in the active work item.
@@ -702,15 +703,20 @@ can remain authoritative for classes they are better suited to own.
 
 Examples:
 
-- ClickUp or GitHub Issues can own task status and assignment.
+- `work-tracker` owns task status by default. Its optional GitHub Issues and
+  Projects adapter is a derived collaboration mirror, not a second authority.
+- A future project may explicitly declare ClickUp, Jira, or another external
+  tracker authoritative, but that requires a project-level exception and an
+  adapter designed for that direction.
 - A production platform can own current deployed runtime state.
 - A client-controlled document system can own a signed approval.
 
 The project config must declare the exception and store a stable pointer in
 Git. Full bodies should not be mirrored into multiple systems.
 
-Detailed product behavior remains in Git by default, even when implementation
-tasks live in ClickUp or GitHub. If a project must keep requirements externally,
+Detailed product behavior remains in Git by default. Work-item IDs may be
+linked from requirements, decisions, and knowledge, but second-brain never
+copies or changes their status. If a project must keep requirements externally,
 that is an explicit project-level exception. The Git repository then stores the
 authority declaration and stable pointers, not a competing requirements copy.
 

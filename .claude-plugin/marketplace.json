@@ -6,13 +6,13 @@
   },
   "metadata": {
     "description": "Personal, portable toolkit of reusable Claude systems: skills, rules, hooks, and templates shared across every project and device.",
-    "version": "0.24.0"
+    "version": "0.25.0"
   },
   "plugins": [
     {
       "name": "project-init",
       "source": "./plugins/project-init",
-      "description": "Two skills: project-init walks through new-project setup, including optional standalone toolkit skills, while second-brain gates are deferred; project-sync audits an existing project and may deactivate or remove approved local v1 integration without contacting cloud resources."
+      "description": "Two skills: project-init offers the Git-native work-tracker and walks through new-project setup; project-sync audits existing projects, safely adopts manual work-item folders, and may retire approved local v1 integration."
     },
     {
       "name": "sf-architect-solutioning",
@@ -38,6 +38,11 @@
       "name": "grill-me",
       "source": "./plugins/grill-me",
       "description": "Relentless discovery interview skill that asks one question at a time, recommends a likely answer, and checkpoints every response to a durable brainstorm file before continuing."
+    },
+    {
+      "name": "work-tracker",
+      "source": "./plugins/work-tracker",
+      "description": "Git-native work tracking shared by Claude and Codex, with deterministic status, handoffs, relationships, Git landing verification, generated dashboards, and optional GitHub Issues and Projects synchronization."
     }
   ]
 }

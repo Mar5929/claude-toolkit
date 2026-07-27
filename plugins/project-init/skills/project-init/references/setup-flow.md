@@ -6,7 +6,7 @@ so they always know where they are.
 
 ```
 [ ] Gate 0 - Orient: read the working dir; identify stack & project state
-[ ] Gate 1 - Scaffolding & folder structure
+[ ] Gate 1 - Scaffolding, folder structure, and optional work-tracker
 [ ] Gate 2 - Hooks (guards & automation)
 [ ] Gate 3 - Memory system            (deferred: v1 retired, v2 not shipped)
 [ ] Gate 4 - Knowledge layer          (deferred with Gate 3)
@@ -28,9 +28,13 @@ so they always know where they are.
 - Confirm before creating dirs/files. Cover: source, tests, config, `.gitignore`,
   README, license, editor/formatter, CI stub.
 - Every stack: offer the work-items structure in `work-items-structure.md`
-  (stage folders `01-backlog/`..`04-archived/`, a `BACKLOG.md` index, one
-  folder per work item with `SPEC.md` + `STATUS.md`). Pairs with the
-  `work-item-folders.md` rule copied in Gate 5.
+  through the `work-tracker` plugin. If approved, install it and run `init`.
+  It preserves the stage folders `01-backlog/` through `04-archived/`, adds
+  structured records and validation, and safely adopts existing folders. Pairs
+  with the `work-item-folders.md` rule copied in Gate 5.
+- Ask separately whether the owner wants local Git tracking only or an optional
+  GitHub Project mirror. Creating or changing GitHub issues, labels, fields, or
+  Project items requires explicit approval.
 - Salesforce / SFDX: offer the standard scaffold in
   `salesforce-project-scaffold.md` (SFDX source plus an `engagement/` tree;
   its `engagement/work-items/` uses the same work-items structure).
