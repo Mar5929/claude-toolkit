@@ -45,6 +45,12 @@ These are not duplicated here. Go to the index that owns them:
   what stops a session reading another project's), and the `profiles/`, `agents/`, `hooks/`, and `server/`
   folders (each with its own README) under
   `plugins/second-brain/skills/second-brain/references/`.
+- **Proposed second-brain v2 rework**: [docs/second-brain-v2/README.md](second-brain-v2/README.md)
+  indexes the not-yet-shipped Git-native technical architecture and its working
+  implementation units. The architecture and units reflect the Git-first,
+  typed-memory, proactive-review direction. The plugin README and references
+  above remain the canonical description of what is live until migration is
+  complete.
 - **sf-architect references**: the `metadata/*` guides and templates under
   `plugins/sf-architect-solutioning/skills/sf-architect-solutioning/references/`.
 
@@ -139,8 +145,13 @@ The genuine watch-items are called out at the end.
 - **second-brain's heavy infrastructure on small or solo projects.** The full
   system (a Worker, a per-project database, embeddings, two curators) is worth it
   when a project needs shared, cross-machine, cross-cloud curated memory. For a
-  small or single-machine project it may be more than the job needs; a lighter
-  files-in-git tier is a reasonable future option.
+  small or single-machine project it may be more than the job needs. The proposed
+  [second-brain v2 rework](second-brain-v2/README.md) responds to measured
+  correctness and curator-cost failures by keeping requirements under `specs/`,
+  organizing other memory under typed `memory/` folders, making Git the
+  authority, proactively proposing end-of-task updates, removing curator agents
+  from normal wrap-up, and reserving databases for optional rebuildable search
+  or structural indexes.
 - **Overlap with Claude Code's native memory.** Claude Code now ships an
   auto-memory feature that captures cross-session notes on its own (machine-local).
   It overlaps part of what second-brain does. second-brain still adds shared,
