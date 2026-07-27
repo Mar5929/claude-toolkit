@@ -162,6 +162,18 @@ explains how the pieces relate.
 These are the reusable systems I want to fold in here over time. Ordered roughly
 by priority; each becomes its own skill/plugin so `project-init` can pull it in.
 
+- [ ] **Second-brain v2 rework**: replace remote authoritative memory and
+  open-ended curator subagents with a Git-native project knowledge system.
+  Authoritative behavior stays under `specs/`; decisions, context,
+  implementation knowledge, references, domain knowledge, and operations live
+  in typed folders under `memory/`. Agents automatically review worthwhile
+  knowledge updates at the end of substantial work. The owner can say `yes go`,
+  select or edit proposals, or skip them, while `/remember` remains optional.
+  The default needs no database or embedding model. Any later database is a
+  disposable index rebuilt from Git, never a second source of truth. The
+  proposed architecture is indexed in
+  [`docs/second-brain-v2/`](docs/second-brain-v2/README.md). This is a design,
+  not the currently shipped plugin.
 - [x] **`second-brain` plugin** (shipped; formerly the `memory-architecture` and
   `knowledge-layer` roadmap items): the scalable long-term memory system,
   re-architected onto a remote MCP server (shared Cloudflare Worker + a
