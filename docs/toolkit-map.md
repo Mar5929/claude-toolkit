@@ -13,7 +13,7 @@ depth lives in each plugin's own `README.md` and reference indexes.
 | [project-init](../plugins/project-init/README.md) | Put the toolkit's rules and systems into a project, new or existing | `project-init`, `project-sync` | `/plugin install project-init` |
 | [second-brain](../plugins/second-brain/README.md) | Retire v1 while Git-native v2 is built | `second-brain`, `remember` | No installation until v2 ships |
 | [sf-architect-solutioning](../plugins/sf-architect-solutioning/README.md) | Salesforce solution architect: approved solution plan before any build | `sf-architect-solutioning` | `/plugin install sf-architect-solutioning` |
-| [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git sync | `pull-latest`, `reset-to-remote` | `/plugin install git-workflows` |
+| [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git lifecycle workflows | `pull-latest`, `reset-to-remote`, `merge-and-clean-up` | `/plugin install git-workflows` |
 | [session-autoname](../plugins/session-autoname/README.md) | Background agent sessions stay named after their overarching project | `session-autoname` | `/plugin install session-autoname` |
 | [grill-me](../plugins/grill-me/README.md) | Persistent discovery interviews that checkpoint every answer | `grill-me` | `/plugin install grill-me` |
 | [work-tracker](../plugins/work-tracker/README.md) | Git-authoritative backlog, handoffs, relationships, landing proof, and optional GitHub Projects | `work` | `/plugin install work-tracker` |
@@ -29,6 +29,7 @@ depth lives in each plugin's own `README.md` and reference indexes.
 | sf-architect-solutioning | sf-architect-solutioning | 5-phase Salesforce solutioning to an approved plan | `/sf-architect-solutioning` |
 | pull-latest | git-workflows | Get current with the remote without rewriting or discarding | `/pull-latest` |
 | reset-to-remote | git-workflows | Hard-reset a repo to mirror the remote, safely gated | `/reset-to-remote` |
+| merge-and-clean-up | git-workflows | Merge one approved PR and remove only its completed branch and worktree | `/merge-and-clean-up`, "merge and clean up" |
 | session-autoname | session-autoname | Install the per-machine hook that re-names a background session each turn | `/session-autoname` |
 | grill-me | grill-me | Stress-test an idea one question at a time and preserve every answer | `/grill-me`, "grill me" |
 | work | work-tracker | Manage local work items and their optional GitHub Issues and Project mirror | `/work`, "add this to the backlog", "what should I work on next?" |
@@ -102,8 +103,8 @@ The genuine watch-items are called out at the end.
   Project as a collaboration mirror. Generated dashboards, GitHub issue bodies,
   and Project fields can all be reconciled from the local records.
 - **git-workflows versus the worktree-isolation rule.** The rule states the
-  behavior ("assume other sessions share the repo"); the two skills are the safe
-  git commands that carry it out. Different layers, not duplicates.
+  behavior ("assume other sessions share the repo"); the three skills are the
+  safe git commands that carry it out. Different layers, not duplicates.
 - **grill-me versus work-item and memory files.** `grill-me` owns raw discovery
   notes under `brainstorms/`. A work item's `SPEC.md` and `STATUS.md` own the
   approved design and readable handoff, while `ITEM.json` owns structured task
