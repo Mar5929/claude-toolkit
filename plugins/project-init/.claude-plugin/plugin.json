@@ -1,7 +1,7 @@
 {
   "name": "project-init",
-  "description": "New-project setup and toolkit sync. project-init walks through scaffolding, hooks, deferred second-brain gates, and CLAUDE.md. project-sync audits an existing project and may apply reversible v1 containment settings with approval, but never installs v1 or claims v2 is shipped.",
-  "version": "0.7.5",
+  "description": "New-project setup and toolkit sync. project-init walks through scaffolding, hooks, deferred second-brain gates, CLAUDE.md, and optional standalone skills such as grill-me. project-sync audits an existing project and may apply reversible v1 containment settings with approval, but never installs v1 or claims v2 is shipped.",
+  "version": "0.7.6",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com"

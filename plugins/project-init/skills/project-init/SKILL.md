@@ -3,12 +3,13 @@ name: project-init
 description: >-
   Walk the user through initializing a NEW project, one gate at a time:
   scaffolding & folder structure, guard hooks, deferred second-brain memory and
-  knowledge gates, and CLAUDE.md. Use when the user is starting a new repo/project and
-  wants help setting up the foundational scaffolding, or says things like
-  "initialize this project", "set up the scaffolding", "/project-init", or "help
-  me get this new repo going". This skill ORCHESTRATES setup: it asks the user
-  how they want each piece, recommends options for their stack, and only acts
-  after they confirm. Every gate is optional and skippable.
+  knowledge gates, CLAUDE.md, and optional standalone toolkit skills. Use when
+  the user is starting a new repo/project and wants help setting up the
+  foundational scaffolding, or says things like "initialize this project", "set
+  up the scaffolding", "/project-init", or "help me get this new repo going".
+  This skill ORCHESTRATES setup: it asks the user how they want each piece,
+  recommends options for their stack, and only acts after they confirm. Every
+  gate is optional and skippable.
 ---
 
 # project-init: new-project setup, one gate at a time
@@ -176,6 +177,19 @@ list.
   Keep the behavioral rules out of it.
 - **Add a `.claude/rules/README.md`** that indexes what each copied rule file
   does, so the folder is self-describing.
+
+### Gate 6: Optional standalone toolkit skills
+
+**Purpose:** offer reusable workflows that are useful in this project but live
+in their own plugins.
+
+- Offer `grill-me` when the owner wants a durable brainstorm or discovery
+  workflow. Explain that it asks one question at a time and writes every answer
+  to `brainstorms/{date}-{topic}.md` before continuing.
+- Keep it opt-in. If approved, install the `grill-me` plugin from this
+  marketplace. Do not copy its `SKILL.md` into the project.
+- Record whether the owner installed, skipped, or deferred it so a later
+  `project-sync` respects that choice.
 
 ---
 

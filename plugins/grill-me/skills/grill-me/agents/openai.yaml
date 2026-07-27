@@ -1,0 +1,4 @@
+interface:
+  display_name: "Grill Me"
+  short_description: "Stress-test ideas through persistent interviews"
+  default_prompt: "Use $grill-me to stress-test my plan and capture every answer."

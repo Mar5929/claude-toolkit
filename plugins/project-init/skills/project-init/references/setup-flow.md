@@ -11,6 +11,7 @@ so they always know where they are.
 [ ] Gate 3 - Memory system            (deferred: v1 contained, v2 not shipped)
 [ ] Gate 4 - Knowledge layer          (deferred with Gate 3)
 [ ] Gate 5 - CLAUDE.md + .claude/rules (copy general rules; write thin CLAUDE.md)
+[ ] Gate 6 - Optional toolkit skills  (offer grill-me)
 [ ] Wrap-up - summarize, note follow-ups, port-back reminder
 ```
 
@@ -80,6 +81,13 @@ so they always know where they are.
 - Write a thin CLAUDE.md _with_ the user: what it is, codemap and structural
   pointers, a `Read .claude/rules` line, which gates ran. Add a
   `.claude/rules/README.md` index. Reflect the memory/knowledge/hooks gates.
+
+**Gate 6: Optional standalone toolkit skills**
+- Offer `grill-me` for durable brainstorming and discovery interviews.
+- If approved, install its plugin from the toolkit marketplace. Do not copy its
+  skill instructions into the project.
+- Record installed, skipped, or deferred so `project-sync` does not repeat a
+  considered "no".
 
 **Wrap-up**
 - Summarize done vs. skipped.
