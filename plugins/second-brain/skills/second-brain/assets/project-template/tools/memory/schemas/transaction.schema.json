@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:second-brain-v2:transaction:1",
+  "title": "Approved knowledge write transaction",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "project_id", "baseline", "evidence", "writes"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "project_id": { "type": "string" },
+    "baseline": { "$ref": "write-baseline.schema.json" },
+    "evidence": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "writes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "content"],
+        "properties": {
+          "path": { "type": "string", "minLength": 1 },
+          "content": { "type": "string" },
+          "change_kind": { "enum": ["created", "updated", "corrected", "superseded"] }
+        }
+      }
+    }
+  }
+}

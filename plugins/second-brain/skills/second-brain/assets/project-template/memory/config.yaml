@@ -1,0 +1,36 @@
+schema_version: 1
+project_id: "__PROJECT_ID__"
+profile: "core"
+modules: ["core"]
+canonical_paths:
+  project_router: "PROJECT.md"
+  specifications: "specs"
+  memory: "memory"
+  current_context: "memory/context/current.md"
+  decisions: "memory/decisions"
+  knowledge: "memory/knowledge"
+  references: "memory/references"
+  domain: "memory/domain"
+  operations: "memory/operations"
+  task_tracker: ".work"
+authorities:
+  desired_behavior: "specifications"
+  architecture_decisions: "decisions"
+  implemented_behavior: "repository"
+  terminology: "domain"
+  source_authority: "domain"
+  task_status: "work_tracker"
+  deployed_state: "operations"
+  agent_rules: "project_router"
+budgets:
+  project_router_max_bytes: 4096
+  startup_max_bytes: 6144
+  task_retrieval_max_bytes: 16384
+  current_max_bytes: 3072
+  current_max_nonempty_lines: 40
+  search_max_results: 5
+index:
+  enabled: false
+  schema_version: 1
+  modes: ["exact"]
+external_authorities: []
