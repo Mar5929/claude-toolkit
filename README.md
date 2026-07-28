@@ -115,6 +115,7 @@ claude-toolkit/
       skills/
         pull-latest/              ← SKILL.md
         reset-to-remote/          ← SKILL.md
+        merge-and-clean-up/       ← SKILL.md + Codex UI metadata
     session-autoname/             ← plugin: background sessions name themselves
       README.md
       .claude-plugin/plugin.json
@@ -163,7 +164,7 @@ explains how the pieces relate.
 | **[project-init](plugins/project-init/README.md)** | Sets up or syncs a project, offers work-tracker with safe adoption of older folders, and defers second-brain while v2 is unshipped. It can retire approved local v1 wiring without touching cloud resources. |
 | **[second-brain](plugins/second-brain/README.md)** | V1 is retired and will not be deployed, exported, or migrated. V2 starts fresh from authoritative Git content but is not shipped. `/remember` remains unavailable. |
 | **[sf-architect-solutioning](plugins/sf-architect-solutioning/README.md)** | A Salesforce solution architect: pushes back on vague requirements, verifies platform facts against official docs by live fetch, designs declarative-first to Well-Architected standards, and presents a solution plan for approval before any build. Salesforce projects only. |
-| **[git-workflows](plugins/git-workflows/README.md)** | Two parallel-session-safe git sync skills: `pull-latest` gets current without rewriting or discarding history, `reset-to-remote` hard-resets to mirror the remote behind a confirmation. |
+| **[git-workflows](plugins/git-workflows/README.md)** | Three parallel-session-safe git lifecycle skills: `pull-latest` gets current without rewriting history, `reset-to-remote` mirrors the remote behind confirmation, and `merge-and-clean-up` lands an approved PR before removing only its completed workspace. |
 | **[session-autoname](plugins/session-autoname/README.md)** | Keeps a background agent session named after the overarching project it is working on, never the step it is on. A Stop hook re-checks the label each turn from a cheap Haiku call and holds it steady until the project itself changes, so a long session stops lying in the job list without the name churning. One-time per-machine install, not per project. |
 | **[grill-me](plugins/grill-me/README.md)** | Stress-tests a plan, design, or topic through a one-question-at-a-time interview and checkpoints every answer to a durable Markdown file before continuing. |
 | **[work-tracker](plugins/work-tracker/README.md)** | Gives Claude and Codex one Git-authoritative backlog with exact handoffs, blockers, typed relationships, deterministic next-item selection, Git landing proof, generated dashboards, and optional GitHub Issues and Projects synchronization. |
@@ -236,7 +237,8 @@ On Salesforce projects, also:
 /plugin install sf-architect-solutioning
 ```
 
-For safe git sync skills (`pull-latest`, `reset-to-remote`) on any project:
+For safe git lifecycle skills (`pull-latest`, `reset-to-remote`,
+`merge-and-clean-up`) on any project:
 
 ```
 /plugin install git-workflows

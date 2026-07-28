@@ -1,0 +1,4 @@
+interface:
+  display_name: "Merge and Clean Up"
+  short_description: "Merge a PR and safely remove its workspace"
+  default_prompt: "Use $merge-and-clean-up to merge the current pull request and remove only its completed branch and worktree."

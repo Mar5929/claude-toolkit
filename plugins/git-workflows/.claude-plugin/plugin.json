@@ -1,7 +1,7 @@
 {
   "name": "git-workflows",
-  "description": "Parallel-session-safe git sync skills. pull-latest brings a checkout up to date with its remote without rewriting or discarding history (fetch, fast-forward, or a merge pull; never rebase, reset, or push). reset-to-remote hard-resets a repo to exactly mirror its remote, the safe alternative to deleting and re-cloning. Both assume other agent sessions may share the repo, so they look before they act and stop rather than clobber another session's work.",
-  "version": "0.1.1",
+  "description": "Parallel-session-safe git lifecycle skills. pull-latest updates without rewriting history, reset-to-remote mirrors a remote behind explicit confirmation, and merge-and-clean-up lands an approved pull request before safely removing only its branch and worktree.",
+  "version": "0.2.0",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com"

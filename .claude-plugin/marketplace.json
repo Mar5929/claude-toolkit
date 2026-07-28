@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Personal, portable toolkit of reusable Claude systems: skills, rules, hooks, and templates shared across every project and device.",
-    "version": "0.25.0"
+    "version": "0.26.0"
   },
   "plugins": [
     {
@@ -27,7 +27,7 @@
     {
       "name": "git-workflows",
       "source": "./plugins/git-workflows",
-      "description": "Two parallel-session-safe git sync skills. pull-latest brings a checkout up to date with its remote without rewriting or discarding history (fetch, fast-forward, or merge pull; never rebase, reset, or push). reset-to-remote hard-resets a repo to exactly mirror its remote, the safe alternative to deleting and re-cloning. Both assume other agent sessions may share the repo and stop rather than clobber in-flight work."
+      "description": "Three parallel-session-safe git lifecycle skills. pull-latest updates without rewriting history, reset-to-remote mirrors a remote behind explicit confirmation, and merge-and-clean-up lands an approved pull request before safely removing only its branch and worktree."
     },
     {
       "name": "session-autoname",
