@@ -72,9 +72,13 @@ excludes(knowledgeCurator, "migration evidence", "old knowledge curator is not m
 includes(outboxHook, "not current truth", "old outbox notice rejects legacy truth");
 excludes(outboxHook, "v2 migration", "old outbox notice has no migration path");
 
-includes(v3Index, "draft technical specification", "v3 remains unshipped");
-includes(v3Index, "There is no fixed number of proposals", "v3 has no proposal cap");
-includes(v3Index, "no hooks", "v3 requires no memory hooks");
+includes(v3Index, "draft technical design", "v3 remains unshipped");
+includes(v3Index, "a fixed proposal limit", "v3 has no proposal cap");
+includes(
+  v3Index,
+  "scripts or hooks for capture",
+  "v3 requires no memory hooks",
+);
 includes(
   v3Specification,
   "AI judgment remains primary",
@@ -82,8 +86,19 @@ includes(
 );
 includes(
   v3Specification,
-  "Post-activity proposals are not written without owner approval",
+  "writes only content already authorized",
   "v3 preserves the owner approval boundary",
+);
+includes(v3Specification, "memory/planning/", "v3 includes durable planning");
+includes(
+  v3Specification,
+  "dedicated memory agent",
+  "v3 delegates approved writes to a memory agent",
+);
+includes(
+  v3Specification,
+  "unfinished task is handed to another session",
+  "v3 does not review unfinished handoffs",
 );
 includes(v2Index, "superseded historical proposal", "v2 is clearly superseded");
 includes(v2Index, "Do not implement these requirements", "v2 cannot be mistaken for v3");

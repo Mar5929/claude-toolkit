@@ -178,18 +178,20 @@ These are the reusable systems I want to fold in here over time. Ordered roughly
 by priority; each becomes its own skill/plugin so `project-init` can pull it in.
 
 - [ ] **Second-brain v3**: a shared Markdown memory and knowledge system for
-  Claude and Codex. Product and system behavior is organized by area under
-  `specs/`. Context, decisions, knowledge, references, domain material, and
-  operations are organized by type and project-specific area under `memory/`.
-  Root `CLAUDE.md` and `AGENTS.md` files give every session the compact folder
-  map and route both agents to one canonical detailed rule. Documents use
-  ordinary Markdown backlinks. At natural completion points, the main agent
-  reports what it already incorporated and proposes every additional durable
-  update it recommends. The owner approves, selects, edits, combines, defers,
-  or skips proposals in normal language. There is no fixed proposal limit.
-  The system requires no database, MCP server, scripts, hooks, embeddings,
-  transcript capture, curator agents, or scheduled jobs. The current draft is
-  indexed in
+  Claude and Codex. Raw discovery uses a flat, dated `brainstorms/` collection.
+  Current product and system behavior is organized into capability folders
+  under `specs/`. Context, planning, decisions, knowledge, references, domain
+  material, and operations are organized by type and project-specific area
+  under `memory/`. Root `CLAUDE.md` and `AGENTS.md` files give every session
+  the compact folder map and route both agents to one canonical detailed rule.
+  Documents use ordinary Markdown backlinks. At approved completion points,
+  the main agent proposes every additional durable update it recommends. The
+  owner approves, selects, edits, combines, defers, or skips proposals in
+  normal language. An on-demand memory librarian writes only the approved
+  changes in the task's worktree and pull request. There is no fixed proposal
+  limit. The system requires no database, MCP server, runtime scripts, memory
+  hooks, embeddings, transcript capture, background curation, or scheduled
+  jobs. The current draft is indexed in
   [`docs/second-brain-v3/`](docs/second-brain-v3/README.md). It is a
   specification, not shipped functionality. The old v2 proposal is
   superseded.

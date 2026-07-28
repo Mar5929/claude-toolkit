@@ -1,7 +1,7 @@
 {
   "name": "second-brain",
   "description": "Second-brain retirement controls while the Markdown-only v3 specification is reviewed. V3 is not shipped, and the previous v2 proposal is superseded.",
-  "version": "0.15.1",
+  "version": "0.15.2",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com"

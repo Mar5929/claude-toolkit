@@ -55,8 +55,11 @@ These are not duplicated here. Go to the index that owns them:
 - **Draft second-brain v3**:
   [docs/second-brain-v3/README.md](second-brain-v3/README.md) indexes the
   current Markdown-only technical specification, schemas, and toolkit
-  integration design. The plugin README is the canonical shipping status. V3
-  is not shipped.
+  integration design. It separates flat dated brainstorms, area-based
+  capability specifications, seven typed memory homes, and work-tracker
+  authority. The main agent proposes updates and an on-demand memory librarian
+  writes approved changes in the task worktree. The plugin README is the
+  canonical shipping status. V3 is not shipped.
 - **Superseded second-brain v2 proposal**:
   [docs/second-brain-v2/README.md](second-brain-v2/README.md) is retained as
   historical design material. Its numbered units and requirements are not
@@ -110,10 +113,13 @@ The genuine watch-items are called out at the end.
   behavior ("assume other sessions share the repo"); the three skills are the
   safe git commands that carry it out. Different layers, not duplicates.
 - **grill-me versus work-item and memory files.** `grill-me` owns raw discovery
-  notes under `brainstorms/`. A work item's `SPEC.md` and `STATUS.md` own the
-  approved design and readable handoff, while `ITEM.json` owns structured task
-  state and second-brain concerns durable project knowledge. The brainstorm may
-  inform those artifacts but does not replace them.
+  notes in a flat, dated `brainstorms/` collection. Each brainstorm links to
+  every resulting specification without being copied into system-area folders.
+  A work item's `SPEC.md` and `STATUS.md` own that ticket's approved scope and
+  readable handoff, while `ITEM.json` owns structured task state. Top-level
+  `specs/` owns durable current behavior and second-brain owns durable project
+  knowledge. The brainstorm may inform those artifacts but does not replace
+  them.
 - **session-autoname is deliberately NOT offered by project-init.** Every other
   plugin here installs into a project. This one installs into a machine: it
   writes `~/.claude/hooks/` and `~/.claude/settings.json` once, and from then on
