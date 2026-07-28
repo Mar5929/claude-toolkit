@@ -1,6 +1,7 @@
 # Unit 01: project identity, configuration, and health
 
-Status: proposed. Depends on Unit 00.
+Status: implemented and independently reviewed in source. Not installed or
+shipped. Depends on Unit 00.
 
 ## Outcome
 

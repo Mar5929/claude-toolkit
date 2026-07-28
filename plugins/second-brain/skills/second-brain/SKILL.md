@@ -2,10 +2,10 @@
 name: second-brain
 description: >-
   Handle second-brain requests while v1 is retired and Git-native v2 is
-  specified but not shipped. Never install, deploy, read, export, or migrate
-  v1. For an existing project, identify local v1 integration files and offer a
-  separately approved deactivation or local removal. Do not contact Worker or
-  Neon resources.
+  being implemented but is not installable and not shipped. Never install,
+  deploy, read, export, or migrate v1. For an existing project, identify local v1
+  integration files and offer a separately approved deactivation or local
+  removal. Do not contact Worker or Neon resources.
 ---
 
 # Second-brain after v1 retirement
@@ -13,8 +13,8 @@ description: >-
 There is currently no production-ready second-brain installation path:
 
 - v1 is retired.
-- v2 is a technical specification under `docs/second-brain-v2/`, not shipped
-  functionality.
+- v2 Units 01 and 02 exist as internal source and tests, but the complete
+  workflow, installer, verification gates, and pilot are unfinished.
 
 Do not install or revive v1. Do not claim v2 can be installed yet.
 
@@ -62,12 +62,13 @@ create an ad hoc replacement.
 - V2 starts from authoritative Git content.
 - Worker and Neon resources remain untouched until separately approved for
   deletion.
-- V2 is not shipped and Unit 01 has not begun.
+- V2 is not installable and not shipped. Units 01 and 02 are implemented in
+  source only.
 
 ## Reference map
 
-- `docs/second-brain-v2/`: proposed Git-native architecture and implementation
-  units.
+- `docs/second-brain-v2/`: Git-native architecture, implementation status, and
+  remaining units.
 - `references/server/`: archived v1 implementation evidence. It is not a
   deployment source and has no default deploy path.
 - Other files under `references/`: historical v1 design evidence. They are not
