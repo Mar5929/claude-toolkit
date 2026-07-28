@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:second-brain-v2:record-common:1",
+  "title": "Second-brain v2 structured record frontmatter",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "record_type", "title", "lifecycle", "freshness", "created", "updated", "provenance", "source_paths", "predecessors", "successors", "related", "verification"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+$" },
+    "record_type": { "enum": ["requirement", "decision", "context", "knowledge", "reference", "domain", "operation"] },
+    "title": { "type": "string", "minLength": 1 },
+    "lifecycle": { "type": "string" },
+    "freshness": { "enum": ["current", "stale", "unverified"] },
+    "created": { "type": "string", "format": "date-time" },
+    "updated": { "type": "string", "format": "date-time" },
+    "provenance": { "type": "string", "minLength": 1 },
+    "source_paths": { "$ref": "#/$defs/strings" },
+    "predecessors": { "$ref": "#/$defs/ids" },
+    "successors": { "$ref": "#/$defs/ids" },
+    "related": { "$ref": "#/$defs/ids" },
+    "verification": { "enum": ["verified", "owner_reviewed", "repository_evidence", "unverified", "not_applicable", "stale"] },
+    "work_items": { "$ref": "#/$defs/strings" },
+    "external_pointers": { "$ref": "#/$defs/strings" },
+    "source_commit": { "type": "string", "pattern": "^[0-9a-f]{40,64}$" },
+    "source_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "subsystems": { "$ref": "#/$defs/strings" }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "verification": { "const": "repository_evidence" } },
+        "required": ["verification"]
+      },
+      "then": {
+        "properties": {
+          "source_paths": {
+            "type": "array",
+            "minItems": 1,
+            "contains": {
+              "type": "string",
+              "pattern": "^(?!(?:specs|memory)(?:/|$)|(?:PROJECT|AGENTS|CLAUDE)\\.md$).+"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "strings": { "type": "array", "maxItems": 100, "items": { "type": "string", "minLength": 1 }, "uniqueItems": true },
+    "ids": { "type": "array", "maxItems": 100, "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+$" }, "uniqueItems": true }
+  }
+}

@@ -1,6 +1,7 @@
 # Unit 02: Git schemas, provenance, and change receipts
 
-Status: proposed. Depends on Unit 01.
+Status: implemented and independently reviewed in source. Not installed or
+shipped. Depends on Unit 01.
 
 ## Outcome
 

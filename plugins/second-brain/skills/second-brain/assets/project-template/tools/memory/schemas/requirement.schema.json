@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:second-brain-v2:requirement:1",
+  "title": "Requirement frontmatter",
+  "allOf": [
+    { "$ref": "record-common.schema.json" },
+    {
+      "properties": {
+        "record_type": { "const": "requirement" },
+        "lifecycle": { "enum": ["proposed", "active", "superseded", "deprecated", "rejected", "retired"] }
+      }
+    },
+    {
+      "if": { "properties": { "lifecycle": { "const": "active" } }, "required": ["lifecycle"] },
+      "then": {
+        "properties": {
+          "freshness": { "const": "current" },
+          "verification": { "enum": ["owner_reviewed", "repository_evidence"] }
+        }
+      }
+    }
+  ]
+}

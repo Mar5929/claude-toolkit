@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:second-brain-v2:write-baseline:1",
+  "title": "Explicit write-scope baseline",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "project_id", "repository_id", "head", "paths"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "project_id": { "type": "string" },
+    "repository_id": { "type": "string", "format": "uuid" },
+    "head": { "type": "string", "pattern": "^[0-9a-f]{40,64}$" },
+    "paths": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["exists", "sha256", "bytes"],
+        "properties": {
+          "exists": { "type": "boolean" },
+          "sha256": { "type": ["string", "null"], "pattern": "^[0-9a-f]{64}$" },
+          "bytes": { "type": "integer", "minimum": 0 }
+        }
+      }
+    }
+  }
+}

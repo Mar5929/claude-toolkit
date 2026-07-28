@@ -1,11 +1,13 @@
 # Second-brain v2 technical specification
 
-Status: proposed architecture, not shipped.
+Status: implementation in progress, not installable and not shipped. Units 01
+and 02 are implemented and reviewed in source.
 
-This folder is the implementation specification for replacing the retired v1
-memory and knowledge system. It is deliberately separate from
-`plugins/second-brain/`, which currently provides only retirement controls.
-Nothing in this folder should be read as a claim that v2 is installed.
+This folder is the implementation specification and readiness index for
+replacing the retired v1 memory and knowledge system. The active plugin skills
+still provide retirement controls. The internal project template and
+deterministic core for Units 01 and 02 are present in plugin source, but no
+supported project installation path exists yet.
 
 ## Why the rework exists
 
@@ -63,7 +65,9 @@ resources remain untouched until the owner separately approves their deletion.
 - [Unit 00: retire the current system](units/00-current-system-retirement.md)
   (retirement implemented in toolkit behavior; no live operation authorized)
 - [Unit 01: project identity, configuration, and health](units/01-store-identity-and-health.md)
+  (implemented and reviewed in source)
 - [Unit 02: Git schemas, provenance, and change receipts](units/02-schema-provenance-write-receipts.md)
+  (implemented and reviewed in source)
 - [Unit 03: proactive knowledge review and apply](units/03-bounded-curation.md)
 - [Unit 04: lifecycle, supersession, and Git concurrency](units/04-supersession-edge-concurrency.md)
 - [Unit 05: routing, retrieval, and optional index](units/05-digest-retrieval.md)
@@ -111,5 +115,7 @@ Mike has approved these high-level decisions:
 10. Existing Worker and Neon resources remain untouched until separately
     approved for deletion.
 
-The exact configuration schema, requirement-file granularity, optional index
-thresholds, and traceability strictness remain implementation decisions.
+Units 01 and 02 resolve the configuration schema, one-file-per-record
+granularity, and owner-maintained bounded current briefing. Optional index
+thresholds and profile-specific traceability strictness remain implementation
+decisions.
