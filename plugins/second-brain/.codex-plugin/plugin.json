@@ -1,7 +1,7 @@
 {
   "name": "second-brain",
-  "version": "0.16.0",
-  "description": "Retires second-brain v1 and carries the internal, tested source foundation for Git-native v2 Units 01 and 02. V2 is not installable or shipped.",
+  "version": "0.15.0",
+  "description": "Retires second-brain v1 while the Git-native v2 system is being implemented. V1 is not installed, deployed, exported, or migrated.",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com",
@@ -18,7 +18,7 @@
   "interface": {
     "displayName": "Second Brain",
     "shortDescription": "Retire v1 while v2 is built.",
-    "longDescription": "Retires the legacy Neon/MCP second-brain v1 system. Units 01 and 02 provide an internal tested Git-native foundation, but v2 has no supported installer and is not shipped.",
+    "longDescription": "Retires the legacy Neon/MCP second-brain v1 system. Local v1 integrations may be deactivated or removed with approval; v2 starts from Git but remains specified and not shipped.",
     "developerName": "Mike Rihm",
     "category": "Productivity",
     "capabilities": [

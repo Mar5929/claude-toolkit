@@ -5,12 +5,9 @@ The toolkit's project memory system is between generations:
 - **V1 is retired.** The old shared Cloudflare Worker and per-project Neon
   databases are not approved sources of truth. They will not be deployed,
   frozen, exported, backed up for migration, or imported into v2.
-- **V2 implementation is in progress and is not shipped.** Units 01 and 02 now
-  provide the reviewed source foundation for project identity, health, typed
-  records, validation, bounded search, atomic writes, and exact change
-  receipts. The remaining units, supported installer, and Anchor pilot are not
-  complete. The architecture and readiness index live under
-  [`docs/second-brain-v2/`](../../docs/second-brain-v2/README.md).
+- **V2 is specified but not shipped.** Its Git-native architecture is under
+  [`docs/second-brain-v2/`](../../docs/second-brain-v2/README.md). There is no v2
+  installer yet.
 
 Existing Worker and Neon resources remain untouched until the owner separately
 approves deletion.
@@ -26,8 +23,7 @@ approves deletion.
 ## New projects
 
 `project-init` defers memory and knowledge Gates 3 and 4. It never installs v1
-and does not install the internal v2 foundation template. The source template
-is test material until the later workflow, rollout, and release gates pass.
+and never creates a partial imitation of v2.
 
 ## Existing projects
 
@@ -64,27 +60,11 @@ V2 starts from authoritative Git content:
 Legacy Neon memory, journals, curator output, caches, and outboxes are not v2
 inputs.
 
-## V2 source implementation status
-
-Units 01 and 02 are implemented under
-`skills/second-brain/assets/project-template/` and
-`skills/second-brain/scripts/foundation/`. They provide one dependency-free
-Node.js core used by the project validation, search, baseline, and write
-commands. The template binds a stable project name to an immutable repository
-identifier, requires its canonical files to be tracked, rejects path and
-symlink escapes, validates every typed record, and keeps optional indexes
-disabled or visibly stale until Unit 05.
-
-This source is not an installation path. The active `second-brain` and
-`remember` skills retain retirement behavior until Units 03 through 09, the
-fresh-start rollout, and the approved Anchor pilot pass.
-
 ## Verification
 
 Run:
 
 ```sh
-node --test plugins/second-brain/tests/foundation/foundation.test.mjs
 node plugins/second-brain/tests/retirement-harness.mjs
 ```
 

@@ -11,7 +11,7 @@ depth lives in each plugin's own `README.md` and reference indexes.
 | Plugin | Purpose | Skills | Install |
 |---|---|---|---|
 | [project-init](../plugins/project-init/README.md) | Put the toolkit's rules and systems into a project, new or existing | `project-init`, `project-sync` | `/plugin install project-init` |
-| [second-brain](../plugins/second-brain/README.md) | Retire v1 while the tested v2 source foundation grows into a complete product | `second-brain`, `remember` | No installation until v2 ships |
+| [second-brain](../plugins/second-brain/README.md) | Retire v1 while Git-native v2 is built | `second-brain`, `remember` | No installation until v2 ships |
 | [sf-architect-solutioning](../plugins/sf-architect-solutioning/README.md) | Salesforce solution architect: approved solution plan before any build | `sf-architect-solutioning` | `/plugin install sf-architect-solutioning` |
 | [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git lifecycle workflows | `pull-latest`, `reset-to-remote`, `merge-and-clean-up` | `/plugin install git-workflows` |
 | [session-autoname](../plugins/session-autoname/README.md) | Background agent sessions stay named after their overarching project | `session-autoname` | `/plugin install session-autoname` |
@@ -52,11 +52,11 @@ These are not duplicated here. Go to the index that owns them:
   `plugins/second-brain/skills/second-brain/references/`.
   They are archived historical evidence, not installation, deployment, export,
   or migration instructions. The old Worker has no default deploy path.
-- **Second-brain v2 implementation**: [docs/second-brain-v2/README.md](second-brain-v2/README.md)
-  indexes the not-yet-shipped Git-native architecture and implementation
-  units. Units 01 and 02 provide the reviewed source foundation; later workflow,
-  retrieval, restore, rollout, and pilot gates remain. The plugin README is the
-  canonical current status.
+- **Proposed second-brain v2 rework**: [docs/second-brain-v2/README.md](second-brain-v2/README.md)
+  indexes the not-yet-shipped Git-native technical architecture and its working
+  implementation units. The architecture and units reflect the Git-first,
+  typed-memory, proactive-review direction. The plugin README is the canonical
+  current status. V2 starts from authoritative Git content and is not shipped.
 - **sf-architect references**: the `metadata/*` guides and templates under
   `plugins/sf-architect-solutioning/skills/sf-architect-solutioning/references/`.
 

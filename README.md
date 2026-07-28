@@ -94,7 +94,7 @@ claude-toolkit/
         project-init/             ← SKILL.md + references/ (setup-flow, thin-claudemd,
                                      general-rules/, salesforce-rules/, mcp-best-practices)
         project-sync/             ← SKILL.md
-    second-brain/                 ← plugin: v1 retirement; v2 foundation in source only
+    second-brain/                 ← plugin: v1 retirement controls; v2 not shipped
       README.md
       .claude-plugin/plugin.json
       .codex-plugin/plugin.json
@@ -162,7 +162,7 @@ explains how the pieces relate.
 | Plugin | What it does |
 |---|---|
 | **[project-init](plugins/project-init/README.md)** | Sets up or syncs a project, offers work-tracker with safe adoption of older folders, and defers second-brain while v2 is unshipped. It can retire approved local v1 wiring without touching cloud resources. |
-| **[second-brain](plugins/second-brain/README.md)** | V1 is retired. V2 Units 01 and 02 now provide the reviewed Git-native source foundation, but there is no supported installer and v2 is not shipped. `/remember` remains unavailable. |
+| **[second-brain](plugins/second-brain/README.md)** | V1 is retired and will not be deployed, exported, or migrated. V2 starts fresh from authoritative Git content but is not shipped. `/remember` remains unavailable. |
 | **[sf-architect-solutioning](plugins/sf-architect-solutioning/README.md)** | A Salesforce solution architect: pushes back on vague requirements, verifies platform facts against official docs by live fetch, designs declarative-first to Well-Architected standards, and presents a solution plan for approval before any build. Salesforce projects only. |
 | **[git-workflows](plugins/git-workflows/README.md)** | Three parallel-session-safe git lifecycle skills: `pull-latest` gets current without rewriting history, `reset-to-remote` mirrors the remote behind confirmation, and `merge-and-clean-up` lands an approved PR before removing only its completed workspace. |
 | **[session-autoname](plugins/session-autoname/README.md)** | Keeps a background agent session named after the overarching project it is working on, never the step it is on. A Stop hook re-checks the label each turn from a cheap Haiku call and holds it steady until the project itself changes, so a long session stops lying in the job list without the name churning. One-time per-machine install, not per project. |
@@ -178,10 +178,7 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
 
 - [ ] **Second-brain v2 rework**: Unit 00 retires v1. The source-only controls
   from PR #65 remain archived and will not be deployed, and legacy memory will
-  not be imported. Units 01 and 02 now implement the dependency-free project
-  template, repository identity, health, typed schemas, validation, bounded
-  search, atomic writes, and exact receipts in source. The remaining work will
-  replace
+  not be imported. The remaining work will replace
   remote authoritative memory and
   open-ended curator subagents with a Git-native project knowledge system.
   Authoritative behavior stays under `specs/`; decisions, context,
@@ -191,9 +188,9 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
   select or edit proposals, or skip them, while `/remember` remains optional.
   The default needs no database or embedding model. Any later database is a
   disposable index rebuilt from Git, never a second source of truth. The
-  architecture and implementation status are indexed in
-  [`docs/second-brain-v2/`](docs/second-brain-v2/README.md). The source
-  foundation is not a supported installer or shipped plugin.
+  proposed architecture is indexed in
+  [`docs/second-brain-v2/`](docs/second-brain-v2/README.md). This is a design,
+  not the currently shipped plugin.
 - [x] **`second-brain` v1 retirement controls**: v1 must not be installed,
   deployed, exported, or migrated. The archived implementation remains for
   historical inspection with its default deployment path disabled. Existing
