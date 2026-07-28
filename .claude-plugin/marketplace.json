@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Personal, portable toolkit of reusable Claude systems: skills, rules, hooks, and templates shared across every project and device.",
-    "version": "0.26.0"
+    "version": "0.26.1"
   },
   "plugins": [
     {
@@ -22,7 +22,7 @@
     {
       "name": "second-brain",
       "source": "./plugins/second-brain",
-      "description": "Second-brain retirement controls. Neon/MCP v1 is retired and will not be deployed, exported, or migrated. Existing local integrations may be deactivated or removed with approval. Git-native v2 starts from authoritative Git content but is not shipped."
+      "description": "Second-brain retirement controls while the Markdown-only v3 specification is reviewed. V3 is not shipped, and the previous v2 proposal is superseded."
     },
     {
       "name": "git-workflows",

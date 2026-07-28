@@ -1,5 +1,8 @@
 # Unit 00: retire the current system
 
+> Historical only. V3 has no numbered implementation units and does not inherit
+> this unit. Read [`docs/second-brain-v3/`](../../second-brain-v3/README.md).
+
 Status: implemented in toolkit behavior. No live Worker or Neon operation is
 authorized. Dependencies: none.
 

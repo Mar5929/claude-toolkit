@@ -1,7 +1,7 @@
 {
   "name": "second-brain",
-  "description": "Second-brain retirement controls. Neon/MCP v1 is retired and will not be deployed, exported, or migrated. Existing local integrations may be deactivated or removed with approval. Git-native v2 starts from authoritative Git content but is not shipped.",
-  "version": "0.15.0",
+  "description": "Second-brain retirement controls while the Markdown-only v3 specification is reviewed. V3 is not shipped, and the previous v2 proposal is superseded.",
+  "version": "0.15.1",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com"

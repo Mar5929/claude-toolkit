@@ -1,6 +1,12 @@
 # Second-brain v2 technical specification
 
-Status: proposed architecture, not shipped.
+Status: superseded historical proposal. Do not implement these requirements.
+
+The owner replaced this proposal with the fresh
+[second-brain v3 specification](../second-brain-v3/README.md). V3 inherits
+nothing from this folder unless the v3 specification states it directly. The
+remaining files are retained temporarily so the abandoned design is visible
+during review, not because it is approved work.
 
 This folder is the implementation specification for replacing the retired v1
 memory and knowledge system. It is deliberately separate from

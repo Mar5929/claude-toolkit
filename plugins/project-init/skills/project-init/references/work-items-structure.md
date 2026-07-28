@@ -86,13 +86,13 @@ Git remains authoritative. The adapter creates or updates repository issues and
 Project items from local records. It reports GitHub drift instead of silently
 importing external edits.
 
-## How this pairs with second-brain v2
+## How this pairs with second-brain v3
 
 The systems have separate authority:
 
 - work-tracker owns task status, blockers, branch and pull-request evidence,
   relationships between work items, and the current handoff;
-- second-brain v2 may link decisions, requirements, and durable knowledge to a
+- second-brain v3 may link decisions, requirements, and durable knowledge to a
   work-item ID; and
 - second-brain must never copy or overrule task status.
 

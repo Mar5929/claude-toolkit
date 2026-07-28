@@ -43,7 +43,7 @@ structure Gate 5 writes.
 | File | Include when |
 |---|---|
 | `memory-system-ground-rules.md` | Recognition text for an existing retired v1 project. Directs project-sync to deactivate or remove local integration without touching cloud resources. Do not add to a new project. |
-| `knowledge-layer-ground-rules.md` | Recognition text for an existing retired v1 knowledge layer. Forbids refresh or import into v2. Do not add to a new project. |
+| `knowledge-layer-ground-rules.md` | Recognition text for an existing retired v1 knowledge layer. Forbids refresh or import into v3. Do not add to a new project. |
 
 MCP tool rules (Context7, Gmail, Google Calendar, Linear, Notion, Playwright)
 are conditional too, and live in `../mcp-best-practices.md`: fold in a server's

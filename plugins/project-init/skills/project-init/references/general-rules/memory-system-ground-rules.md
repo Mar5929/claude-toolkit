@@ -10,8 +10,8 @@ truth.
 Use `project-sync` to report the exact local integration surface. With owner
 approval, deactivate its MCP connections and automatic hooks first, then
 optionally remove specifically approved committed files. Do not open token
-files, contact the Worker or Neon, import v1 content into v2, or delete cloud
+files, contact the Worker or Neon, import v1 content into v3, or delete cloud
 resources.
 
-V2 is not shipped. Until it is, use the project's existing authoritative Git
+V3 is not shipped. Until it is, use the project's existing authoritative Git
 documents and normal handoff process.

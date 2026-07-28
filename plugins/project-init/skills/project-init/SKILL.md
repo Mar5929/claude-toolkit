@@ -2,7 +2,7 @@
 name: project-init
 description: >-
   Walk the user through initializing a NEW project, one gate at a time:
-  scaffolding & folder structure, guard hooks, deferred second-brain memory and
+  scaffolding & folder structure, guard hooks, deferred second-brain v3 and
   knowledge gates, CLAUDE.md, the Git-native work-tracker, and optional
   standalone toolkit skills. Use when
   the user is starting a new repo/project and wants help setting up the
@@ -125,21 +125,19 @@ sessions.
 
 - Mark this gate **deferred by the toolkit**. Do not offer or install the old
   Neon/MCP v1 system.
-- Explain that v1 is retired and v2 is specified but not shipped. There is no
-  second-brain installer yet.
+- Explain that v3 is specified but not shipped. The earlier v2 proposal is
+  superseded. There is no second-brain installer yet.
 - Continue to Gate 4 without creating a database, connector, curator agents, or
   automatic capture and recall hooks.
 
 ### Gate 4: Knowledge layer
 
-**Purpose:** durable knowledge nodes pinned to the source they describe, with
-staleness detection when that source drifts.
+**Purpose:** durable, reusable project understanding organized in human-readable
+Git documents and connected to the specifications and context it affects.
 
-- Mark this gate **deferred by the toolkit** with Gate 3. Do not install the v1
-  knowledge-curator, drift hooks, or a partial imitation of v2.
-- The optional structural graph is separate from project memory. It may still
-  be considered later when the project independently needs mechanical impact
-  analysis, but it is not a substitute for this gate.
+- Mark this gate **deferred by the toolkit** with Gate 3. Do not install an old
+  curator or drift hook, and do not create a partial imitation of v3.
+- V3 does not require a structural graph or automated freshness system.
 
 ### Gate 5: CLAUDE.md and the rules folder
 
@@ -178,6 +176,8 @@ list.
   generating a wall of text: what the project is, the codemap and structural
   pointers, a `Read .claude/rules` line, and which gates ran. Reflect what the
   earlier gates set up. Record memory and knowledge as deferred, not installed.
+  The future v3 design will also route Codex through `AGENTS.md`, but do not
+  improvise that installation before v3 ships.
   Keep the behavioral rules out of it.
 - **Add a `.claude/rules/README.md`** that indexes what each copied rule file
   does, so the folder is self-describing.

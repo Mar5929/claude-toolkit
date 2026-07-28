@@ -33,9 +33,10 @@ const projectInitSkill =
   "plugins/project-init/skills/project-init/SKILL.md";
 const projectSyncSkill =
   "plugins/project-init/skills/project-sync/SKILL.md";
+const v3Index = "docs/second-brain-v3/README.md";
+const v3Specification =
+  "docs/second-brain-v3/TECHNICAL-SPECIFICATION.md";
 const v2Index = "docs/second-brain-v2/README.md";
-const unit00 =
-  "docs/second-brain-v2/units/00-current-system-retirement.md";
 const serverRoot =
   "plugins/second-brain/skills/second-brain/references/server";
 const brainCurator =
@@ -46,7 +47,7 @@ const outboxHook =
   "plugins/second-brain/skills/second-brain/references/hooks/brain-outbox-status.mjs";
 
 includes(secondBrainSkill, "v1 is retired", "second-brain reports v1 retired");
-includes(secondBrainSkill, "not shipped", "second-brain reports v2 not shipped");
+includes(secondBrainSkill, "not shipped", "second-brain reports v3 not shipped");
 includes(secondBrainSkill, "Deactivate, recommended first", "second-brain offers deactivation");
 includes(secondBrainSkill, "Remove local integration files", "second-brain offers local removal");
 excludes(secondBrainSkill, "v1-freeze-and-export", "second-brain has no freeze runbook path");
@@ -54,7 +55,11 @@ excludes(secondBrainSkill, "v1-freeze-and-export", "second-brain has no freeze r
 includes(rememberSkill, '"reason": "v1_retired"', "/remember returns v1_retired");
 excludes(rememberSkill, "v1_read_only", "/remember no longer uses containment result");
 
-includes(projectInitSkill, "v1 is retired", "project-init never offers v1");
+includes(
+  projectInitSkill,
+  "Do not offer or install the old",
+  "project-init never offers v1",
+);
 includes(projectSyncSkill, "Deactivate:", "project-sync offers deactivation");
 includes(projectSyncSkill, "Remove local integration", "project-sync offers local removal");
 excludes(projectSyncSkill, "HTTP 423", "project-sync does not probe live containment");
@@ -67,14 +72,21 @@ excludes(knowledgeCurator, "migration evidence", "old knowledge curator is not m
 includes(outboxHook, "not current truth", "old outbox notice rejects legacy truth");
 excludes(outboxHook, "v2 migration", "old outbox notice has no migration path");
 
-includes(v2Index, "V2 starts fresh from authoritative Git content", "v2 starts from Git");
-includes(v2Index, "not shipped", "v2 remains unshipped");
-includes(v2Index, "08-fresh-start-rollout.md", "v2 index uses fresh-start rollout");
-excludes(v2Index, "08-migration-rollout.md", "v2 index has no migration unit");
-
-includes(unit00, "V1 will not be deployed", "Unit 00 forbids v1 deployment");
-includes(unit00, "will not be imported", "Unit 00 forbids legacy memory import");
-includes(unit00, "remain untouched", "Unit 00 leaves cloud resources untouched");
+includes(v3Index, "draft technical specification", "v3 remains unshipped");
+includes(v3Index, "There is no fixed number of proposals", "v3 has no proposal cap");
+includes(v3Index, "no hooks", "v3 requires no memory hooks");
+includes(
+  v3Specification,
+  "AI judgment remains primary",
+  "v3 leaves semantic judgment to the agent",
+);
+includes(
+  v3Specification,
+  "Post-activity proposals are not written without owner approval",
+  "v3 preserves the owner approval boundary",
+);
+includes(v2Index, "superseded historical proposal", "v2 is clearly superseded");
+includes(v2Index, "Do not implement these requirements", "v2 cannot be mistaken for v3");
 
 ok(
   !existsSync(resolve(root,

@@ -1,5 +1,8 @@
 # Unit 03: proactive knowledge review and apply
 
+> Historical only. V3 has no numbered implementation units and does not inherit
+> this unit. Read [`docs/second-brain-v3/`](../../second-brain-v3/README.md).
+
 Status: proposed. Depends on Unit 02.
 
 ## Outcome
