@@ -8,9 +8,9 @@ so they always know where they are.
 [ ] Gate 0 - Orient: read the working dir; identify stack & project state
 [ ] Gate 1 - Scaffolding, folder structure, and optional work-tracker
 [ ] Gate 2 - Hooks (guards & automation)
-[ ] Gate 3 - Memory system            (deferred: v3 specified, not shipped)
-[ ] Gate 4 - Knowledge layer          (deferred with Gate 3)
-[ ] Gate 5 - CLAUDE.md + .claude/rules (copy general rules; write thin CLAUDE.md)
+[ ] Gate 3 - Second-brain v3          (complete Markdown memory system)
+[ ] Gate 4 - Knowledge layer          (included with Gate 3, or skipped with it)
+[ ] Gate 5 - Root instructions + rules (thin CLAUDE.md and AGENTS.md)
 [ ] Gate 6 - Optional toolkit skills  (offer grill-me)
 [ ] Wrap-up - summarize, note follow-ups, port-back reminder
 ```
@@ -55,22 +55,32 @@ so they always know where they are.
   hit a production org; auto-detects production; tuned by a JSON policy file).
 
 **Gate 3: Memory system**
-- Mark deferred. V3 is specified but not shipped; v2 is superseded.
-- Do not install a database, MCP connector, curators, capture, or recall.
+- Offer `second-brain` as one coherent opt-in system.
+- Explain brainstorm, specification, typed-memory, raw-artifact, work-tracker,
+  and Git authority.
+- Recommend real project system areas and show the complete core tree plus root
+  instruction edits.
+- If approved, install the second-brain plugin and follow its canonical
+  greenfield setup workflow.
+- Offer an initial owner-approved memory pass after setup.
+- Do not install a database, memory MCP server, embeddings, scripts, hooks,
+  transcript capture, or background curation.
 
 **Gate 4: Knowledge layer**
-- Mark deferred with Gate 3.
-- Do not install the v1 knowledge-curator or drift hooks and do not improvise a
-  partial v3 store.
+- Mark included with v3 when Gate 3 ran, or skipped with Gate 3.
+- Do not create a second knowledge store or install retired v1 curators and
+  drift hooks.
+- Treat Graphify as an optional analysis aid, not required memory
+  infrastructure or automatic truth.
 
 **Gate 5: CLAUDE.md and the rules folder**
 - Behavioral rules go into the project's `.claude/rules/` as individual files,
   not into CLAUDE.md. See `thin-claudemd.md` and `general-rules/README.md`.
 - Copy the general rules from `general-rules/` into `.claude/rules/`: every
-  default-ON file unless the owner drops it, plus the two conditional files
-  (memory, knowledge) only if a production-ready memory or knowledge gate ran.
-  While v3 is not shipped, neither conditional rule is added. Walk the list; let the
-  owner accept, edit, or skip each.
+  default-ON file unless the owner drops it. Never copy retired v1 recognition
+  files into a new project. When v3 ran, keep its canonical
+  `second-brain.md` rule and index it once. Walk the list; let the owner accept,
+  edit, or skip each.
 - Default-ON rules: multi-agent worktree protocol, language rules (no em dashes,
   no section signs, no AI filler, plain language), and working-style rules (lead
   with the answer; answer last, ask only in the question box; solve the real goal
@@ -84,12 +94,15 @@ so they always know where they are.
   section only if the project uses that MCP server.
 - Write a thin CLAUDE.md _with_ the user: what it is, codemap and structural
   pointers, a `Read .claude/rules` line, which gates ran. Add a
-  `.claude/rules/README.md` index. Reflect the memory/knowledge/hooks gates.
+  `.claude/rules/README.md` index. When v3 ran, preserve the same compact memory
+  route in CLAUDE.md and AGENTS.md and point both at the canonical rule.
 
 **Gate 6: Optional standalone toolkit skills**
 - Offer `grill-me` for durable brainstorming and discovery interviews.
 - If approved, install its plugin from the toolkit marketplace. Do not copy its
   skill instructions into the project.
+- With v3 installed, it uses the flat brainstorm index and proposes approved
+  specification or memory outcomes at interview completion.
 - Record installed, skipped, or deferred so `project-sync` does not repeat a
   considered "no".
 

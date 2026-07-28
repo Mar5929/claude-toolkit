@@ -1,7 +1,7 @@
 {
   "name": "project-init",
-  "version": "0.8.1",
-  "description": "New-project setup and toolkit sync, including the Git-native work-tracker and optional standalone skills. Safely adopts existing work-item folders and defers second-brain until v3 ships.",
+  "version": "0.9.0",
+  "description": "New-project setup and toolkit sync with the Git-native work-tracker, complete second-brain v3 adoption, shared Claude and Codex routing, and optional toolkit systems.",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com",
@@ -18,7 +18,7 @@
   "interface": {
     "displayName": "Project Init",
     "shortDescription": "Initialize or sync a project with Mike's toolkit.",
-    "longDescription": "Project setup and sync workflows from Mike Rihm's portable toolkit. Includes guided new-project setup, safe work-tracker installation and adoption, existing-project audits, and optional standalone skills. It defers second-brain until v3 ships and can retire local v1 integration without touching cloud resources.",
+    "longDescription": "Project setup and sync workflows from Mike Rihm's portable toolkit. Includes guided new-project setup, safe work-tracker installation and adoption, complete second-brain v3 setup for Claude and Codex, existing-project audits, and optional standalone skills.",
     "developerName": "Mike Rihm",
     "category": "Productivity",
     "capabilities": [

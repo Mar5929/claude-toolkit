@@ -1,76 +1,159 @@
 ---
 name: second-brain
 description: >-
-  Handle second-brain requests while v1 is retired and Markdown-only v3 is
-  specified but not shipped. Never install, deploy, read, export, or migrate
-  v1. For an existing project, identify local v1 integration files and offer a
-  separately approved deactivation or local removal. Do not contact Worker or
-  Neon resources.
+  Set up, adopt, explain, review, or maintain the shipped Git-native
+  second-brain v3 system for Claude and Codex. Use for project memory,
+  knowledge, specifications, durable-update reviews, v3 installation, and
+  brownfield adoption. V3 uses Markdown and Git only. Never import retired v1
+  content or add a database, memory MCP server, hooks, scripts, embeddings,
+  transcript capture, or background curation.
 ---
 
-# Second-brain after v1 retirement
+# Second-brain v3
 
-There is currently no production-ready second-brain installation path:
+Second-brain v3 is the toolkit's production-ready project memory and knowledge
+system. It uses human-readable Markdown committed to the adopting project's Git
+repository.
 
-- v1 is retired.
-- v3 is a draft technical specification under `docs/second-brain-v3/`, not shipped
-  functionality.
-- the previous v2 specification is superseded and is not a v3 requirements
-  source.
+The complete core contains:
 
-Do not install or revive v1. Do not claim v3 can be installed yet.
+- one shared rule at `.claude/rules/second-brain.md`;
+- one on-demand role at `.claude/agents/memory-librarian.md`;
+- equivalent compact routes in `CLAUDE.md` and `AGENTS.md`;
+- flat indexed discovery under `brainstorms/`;
+- capability specifications under `specs/`; and
+- typed memory for context, planning, decisions, knowledge, references, domain,
+  and operations.
 
-## New project
+V3 has no database, memory MCP server, embeddings, runtime scripts, memory
+hooks, transcript capture, or background curator.
 
-Record memory and knowledge setup as deferred. Continue the rest of project
-setup without creating a database, MCP connector, curator agent, capture hook,
-recall hook, `specs/`, or `memory/` imitation.
+## Canonical sources
 
-## Existing project without v1
+Read these completely before performing the matching work:
 
-Record second-brain as deferred. Do not add v1 components.
+- `references/second-brain-rule.md`: canonical installed behavior and schema.
+- `references/folder-layout.md`: complete core and project-area structure.
+- `references/markdown-schemas.md`: copy-ready document shapes.
+- `references/orientation-snippet.md`: shared root-file route.
+- `references/adoption-guide.md`: greenfield and brownfield workflows.
+- `../../agents/memory-librarian.md`: reusable specialist role.
+- `references/templates/`: copy-ready root indexes.
 
-## Existing project with v1
+Resolve paths from this installed skill or the local toolkit checkout. Do not
+recreate the canonical files from memory.
 
-Treat the integration as retired. Do not call its reads or writes, and do not
-use its content as current truth or as input to v3.
+## Determine the request
 
-Offer two local-only choices, one at a time and only with owner approval:
+Use the appropriate path:
 
-1. **Deactivate, recommended first.** Disable automatic v1 hooks and remove the
-   project's v1 MCP connection from committed Claude and Codex configuration.
-   Preserve the old scripts and agents temporarily so the change is easy to
-   review and reverse.
-2. **Remove local integration files.** After showing the exact paths, remove
-   committed v1 hooks, curator agents, MCP configuration, v1 rules, and empty
-   outbox scaffolding that the owner approves. Do not open ignored local secret
-   files. Do not delete an outbox or cache that contains user material without
-   separate explicit approval.
+1. **Explain or locate.** Describe the authority map or help the agent find
+   current project truth.
+2. **Greenfield setup.** Install the complete core after showing the exact tree
+   and receiving approval.
+3. **Brownfield adoption.** Perform a read-only audit first, show exact proposed
+   treatments, and change only what the owner approves.
+4. **Durable-update review.** At an approved completion point, propose useful
+   updates and invoke the memory librarian after approval.
+5. **Maintenance.** Repair indexes, links, conflicts, or structure within the
+   owner-approved boundary.
 
-Account-level connectors, local tokens, the Worker, Neon databases, and cloud
-infrastructure are outside this skill. Report them as separate follow-up work.
-Do not access or change them.
+Use `project-init` as the normal orchestrator for a new project and
+`project-sync` for an existing project. A direct `/second-brain` request may
+perform the same scoped setup or adoption workflow.
 
-## `/remember`
+## Setup boundary
 
-`/remember` remains unavailable until the Markdown v3 review and approval
-workflow ships. Do not dispatch a curator, write a journal, flush an outbox, or
-create an ad hoc replacement.
+Before writing:
 
-## Retirement boundary
+1. Confirm the repository, current worktree, and branch.
+2. Determine whether the project is greenfield or brownfield.
+3. Read `references/adoption-guide.md`.
+4. Show the complete core, known project-specific system areas, and root-file
+   edits.
+5. Ask the owner to approve, edit, or skip v3 as one coherent system.
 
-- No v1 deployment will occur.
-- No v1 memory will be exported or imported into v3.
-- Worker and Neon resources remain untouched until separately approved for
-  deletion.
-- V3 is not shipped. Its technical specification is under owner review.
+Do not offer a partial installation that omits the rule, role, root routes,
+indexes, or one of the seven typed memory homes.
 
-## Reference map
+After approval:
 
-- `docs/second-brain-v3/`: current draft Markdown architecture.
-- `docs/second-brain-v2/`: superseded historical proposal. Do not implement it
-  as v3.
-- `references/server/`: archived v1 implementation evidence. It is not a
-  deployment source and has no default deploy path.
-- Other files under `references/`: historical v1 design evidence. They are not
-  installation, export, or migration instructions.
+1. copy the canonical rule and role;
+2. copy every root index template;
+3. merge the orientation snippet into both root instruction files without
+   replacing existing content;
+4. add only the approved real system-area indexes;
+5. review the diff for duplicate or conflicting authority; and
+6. offer the initial memory pass and `grill-me`.
+
+Setup scaffolding is an ordinary approved project change. Initial project
+context, planning, specifications, and memory use the memory librarian.
+
+## Brownfield adoption
+
+Read and follow the complete audit in `references/adoption-guide.md`.
+
+Make no project changes during the audit. Preserve good existing document
+homes. For every source recommend one of:
+
+- keep and link;
+- move with approval;
+- consolidate with approval; or
+- leave unresolved.
+
+Distinguish observed behavior, inference, owner-confirmed intent, and unknowns
+when confusing them could mislead future work.
+
+Never mass-move, duplicate, delete, or declare existing documents current to
+make the repository resemble a template.
+
+## Main-agent completion review
+
+Read `.claude/rules/second-brain.md` and conduct its durable-update review only:
+
+- at substantial task completion before the pull request is opened or merged;
+- at the end of a brainstorm or requirements interview; or
+- at the end of a milestone or project phase.
+
+An unfinished-session handoff, ordinary response, commit, or timer does not
+trigger the review.
+
+Propose every useful durable update. There is no fixed limit. The owner may
+approve, select, edit, combine, defer, or skip proposals in normal language.
+
+## Invoke the memory librarian
+
+After approval:
+
+1. provide the approved content and boundaries;
+2. provide the current worktree and branch;
+3. provide relevant task, code, test, and discussion context;
+4. identify known canonical documents, brainstorms, and relationships;
+5. identify any separately approved risky structural work; and
+6. state what the librarian must not infer.
+
+For Claude, invoke the installed `memory-librarian` project agent. For Codex,
+delegate to a subagent and instruct it to read
+`.claude/agents/memory-librarian.md` and
+`.claude/rules/second-brain.md` completely before writing.
+
+If the host cannot invoke a dedicated agent, report the approved update as
+pending. Do not silently replace the librarian with an unreviewed ad hoc write.
+
+The main agent must inspect the actual diff after the librarian finishes.
+
+## Retired v1 boundary
+
+V1 Worker, Neon, MCP, curator, hook, outbox, cache, and knowledge content is not
+a v3 migration source or current truth.
+
+Do not contact cloud resources, open secret files, read legacy memory, or
+import it. Existing local v1 wiring does not block v3 setup. During a
+brownfield audit, list that committed wiring separately and offer locally
+approved deactivation or removal without making it part of v3 memory.
+
+## Git boundary
+
+All writes stay in the requesting session's worktree. Second-brain does not
+commit, push, open or merge pull requests, deploy, or clean up worktrees.
+Existing Git workflow rules own those actions.

@@ -1,4 +1,4 @@
-# Retired V1 Knowledge Rule
+# Retired v1 knowledge recognition
 
 Do not add this rule to a new project. It exists only so `project-sync` can
 recognize and remove or replace an older v1 rule.
@@ -8,4 +8,5 @@ The v1 knowledge layer is retired. Do not refresh, reconcile, read, or import
 v3 knowledge.
 
 Current explanations must come from authoritative Git content and current code.
-V3 is not shipped, so do not create an ad hoc replacement.
+Second-brain v3 is the current toolkit system, but no v1 content becomes v3
+truth automatically. This retired rule is not installed in new projects.

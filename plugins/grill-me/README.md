@@ -40,6 +40,11 @@ plan or specification elsewhere in the project.
   `SPEC.md`, `STATUS.md`, or a polished design document.
 - It does not depend on second-brain. The Markdown capture remains usable even
   when memory tooling is unavailable.
+- When second-brain v3 is installed, `grill-me` adds the dated capture to the
+  flat brainstorm index. At interview completion it proposes resulting
+  specifications and other durable updates, then uses the memory librarian
+  after owner approval. Raw discovery remains non-authoritative and links both
+  ways to every resulting specification.
 
 ## Maintaining this plugin
 

@@ -1,7 +1,7 @@
 {
   "name": "project-init",
-  "description": "New-project setup and toolkit sync. project-init offers the Git-native work-tracker, walks through scaffolding, hooks, deferred second-brain gates, CLAUDE.md, and optional standalone skills. project-sync safely adopts existing work-item folders and may retire approved local v1 integration.",
-  "version": "0.8.1",
+  "description": "New-project setup and toolkit sync with the Git-native work-tracker, complete second-brain v3 adoption, shared Claude and Codex routing, and optional toolkit systems.",
+  "version": "0.9.0",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com"

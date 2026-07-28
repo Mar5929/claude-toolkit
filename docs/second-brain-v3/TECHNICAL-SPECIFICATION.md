@@ -1,10 +1,10 @@
 # Second-brain v3 technical specification
 
-Status: draft for owner review and continued `grill-me` refinement.
+Status: current specification for second-brain plugin v1.0.0.
 
-This document defines proposed v3 behavior. It does not claim v3 is shipped and
-does not authorize installation in a project, migration of an existing project,
-or deployment.
+This document defines shipped v3 behavior. Installing the plugin does not
+change a project automatically. Each greenfield setup, brownfield adoption, and
+risky structural change remains owner-approved.
 
 ## 1. Purpose
 
@@ -860,7 +860,7 @@ For a new project, `project-init`:
    system areas;
 6. installs the shared rule and memory-agent role;
 7. adds compact routes to `CLAUDE.md` and `AGENTS.md`;
-8. connects the work-tracker without duplicating its state; and
+8. connects the work-tracker without duplicating its state;
 9. offers an initial memory pass; and
 10. offers `grill-me` for structured discovery.
 

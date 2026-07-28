@@ -58,26 +58,32 @@ repo next to the metadata they describe.
 
 | Folder | Holds |
 |---|---|
-| `project-overview/` | Project brief (what, why, scope) and the grill-me interview output |
+| `project-overview/` | Raw engagement brief or client-provided framing when the project needs that artifact home. With v3, curated durable project context belongs under `memory/context/project-wide/` |
 | `archive/` | Retired or superseded material kept for history |
 | `communications/` | Emails, Slack threads, client or team messages |
 | `deliverables/` | Finished artifacts handed to the client |
-| `deployment/` | Cutover plans, deploy runbooks, release notes |
-| `knowledge-base/` | Durable reference knowledge about the org(s) |
+| `deployment/` | Cutover plans, release evidence, and release notes. With v3, reusable operating procedures belong under `memory/operations/` |
+| `knowledge-base/` | Legacy standalone knowledge home only when v3 is declined. Do not create it alongside v3's typed memory |
 | `meeting-notes/` | One file per call or working session |
 | `references/` | Source specs, org exports, third-party docs (read-only inputs) |
 | `work-items/` | Ticket work items in stage folders (`01-backlog/` holds the `BACKLOG.md` index); one folder per ticket (named by ticket key) with `SPEC.md` + `STATUS.md`. Layout: `work-items-structure.md` |
 | `data/` | Object and field mapping, transformation rules, load files |
 | `data/backups/` | Point-in-time data exports from the org(s) |
 
-`project-overview/` is where the `grill-me` skill saves its output. It may be
-used independently of second-brain. Do not send its answers to the retired v1
-memory system.
+`grill-me` saves discovery in the root flat `brainstorms/` collection. It does
+not save interviews under `project-overview/` or copy them into a system area.
+With v3 installed, the brainstorm links to every resulting specification.
+
+When v3 is selected, omit the legacy `knowledge-base/` folder from new
+scaffolding. Use `memory/knowledge/`, `memory/references/`, and `memory/domain/`
+for curated agent memory. Keep raw meeting notes, communications, deliverables,
+deployment evidence, and client sources in the engagement folders above.
 
 **`.claude/`**: project-scoped Claude Code setup. Scaffold it empty at Gate 1
 with `rules/`, `hooks/`, `agents/`, and `settings.json`. Gate 2 adds approved
-guards. Gates 3 and 4 are deferred until v3 ships and do not add v1 memory or
-knowledge hooks and agents.
+guards. Gate 3 adds the v3 canonical rule and on-demand memory librarian when
+the owner selects second-brain. Gate 4 records the knowledge layer as included
+with v3. Neither gate adds memory hooks or retired v1 agents.
 
 ## Config defaults
 

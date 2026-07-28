@@ -27,7 +27,10 @@ continuing.
    overwriting it. Use a short, filesystem-safe topic slug.
 4. Add the title, date, one-line session goal, an empty running summary, an
    empty Q&A log, and an empty open-flags section.
-5. Tell the user where the notes are being saved in one line, then ask Q1.
+5. If `.claude/rules/second-brain.md` exists, read it and add the new brainstorm
+   to `brainstorms/README.md` with a one-sentence description. Keep the
+   brainstorm flat even when it may affect several system areas.
+6. Tell the user where the notes are being saved in one line, then ask Q1.
 
 Use this structure:
 
@@ -94,9 +97,25 @@ being preserved.
 1. Read the entire capture file.
 2. Reconcile contradictions, gaps, stale flags, and superseded decisions.
 3. Save the final running summary and open-flags list.
-4. Give the user a short recap of what was captured, what remains flagged, and
+4. When second-brain v3 is installed, conduct its end-of-interview durable
+   review:
+   - identify approved behavior that belongs in one or more capability
+     specifications;
+   - identify other durable context, planning, decisions, knowledge,
+     references, domain material, or operations worth preserving;
+   - report every useful proposal in plain language with no fixed limit; and
+   - after owner approval, invoke the memory librarian in this session's
+     worktree.
+5. When the approved update creates or amends a specification, ensure the
+   memory librarian links the specification to this brainstorm and this
+   brainstorm to every resulting specification.
+6. Give the user a short recap of what was captured, what remains flagged, and
    the recommended next step.
 
 Keep the raw capture in `brainstorms/`. A polished plan, map, or specification
 may later be created in the project's normal documentation location, but it
 does not replace or move the raw interview notes.
+
+Second-brain integration is conditional. Without an installed v3 rule, preserve
+the standalone brainstorm behavior and do not create a partial `specs/` or
+`memory/` system.

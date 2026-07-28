@@ -2,9 +2,9 @@
 name: project-init
 description: >-
   Walk the user through initializing a NEW project, one gate at a time:
-  scaffolding & folder structure, guard hooks, deferred second-brain v3 and
-  knowledge gates, CLAUDE.md, the Git-native work-tracker, and optional
-  standalone toolkit skills. Use when
+  scaffolding & folder structure, guard hooks, the complete second-brain v3
+  memory and knowledge system, CLAUDE.md and AGENTS.md, the Git-native
+  work-tracker, and optional standalone toolkit skills. Use when
   the user is starting a new repo/project and wants help setting up the
   foundational scaffolding, or says things like "initialize this project", "set
   up the scaffolding", "/project-init", or "help me get this new repo going".
@@ -120,24 +120,50 @@ code to write. Still optional and confirmed with the owner.
 
 ### Gate 3: Memory system
 
-**Purpose:** durable, cross-session long-term memory so context survives between
-sessions.
+**Purpose:** install the complete Git-native second-brain v3 system so Claude
+and Codex share approved specifications and durable project knowledge.
 
-- Mark this gate **deferred by the toolkit**. Do not offer or install the old
-  Neon/MCP v1 system.
-- Explain that v3 is specified but not shipped. The earlier v2 proposal is
-  superseded. There is no second-brain installer yet.
-- Continue to Gate 4 without creating a database, connector, curator agents, or
-  automatic capture and recall hooks.
+- Offer the `second-brain` plugin as one coherent, opt-in system.
+- Explain the authority split in plain language:
+  - `brainstorms/` contains non-authoritative discovery;
+  - `specs/` contains current approved behavior;
+  - typed `memory/` contains context, planning, decisions, knowledge,
+    references, domain material, and operations;
+  - raw project artifacts remain in their ordinary scaffold;
+  - work-tracker owns live work state; and
+  - Git owns exact history.
+- Recommend initial system areas based on the project explanation and stack.
+- Show the complete core tree, only the real project-specific areas, and the
+  proposed `CLAUDE.md` and `AGENTS.md` routes.
+- If approved, install `second-brain` from this marketplace and follow its
+  greenfield setup workflow. Use its canonical rule, memory-librarian role,
+  orientation snippet, and index templates. Do not retype or maintain copies in
+  `project-init`.
+- Treat the rule, role, root routes, root indexes, and all seven typed memory
+  homes as one adoption unit. Do not offer a broken partial variant.
+- Offer the initial memory pass after installation. The main agent proposes
+  useful initial context, planning, and already-approved specifications; the
+  dedicated memory librarian writes only what the owner approves.
+- Never add a database, memory MCP server, embeddings, runtime scripts, memory
+  hooks, transcript capture, or background curator.
+- Never read or import retired v1 Worker, Neon, curator, outbox, or cache
+  content.
 
 ### Gate 4: Knowledge layer
 
 **Purpose:** durable, reusable project understanding organized in human-readable
 Git documents and connected to the specifications and context it affects.
 
-- Mark this gate **deferred by the toolkit** with Gate 3. Do not install an old
-  curator or drift hook, and do not create a partial imitation of v3.
-- V3 does not require a structural graph or automated freshness system.
+- Do not offer a second or competing knowledge system. When Gate 3 was
+  approved, v3's `memory/knowledge/`, `memory/references/`, and
+  `memory/domain/` already provide the knowledge layer.
+- Mark this gate **included with second-brain v3** when Gate 3 ran, or
+  **skipped with Gate 3** when the owner declined v3.
+- Explain that Graphify or another repository mapper is a separately optional
+  analysis aid for brownfield work, not required memory infrastructure and not
+  automatically authoritative.
+- Do not install the retired v1 knowledge curator, drift hooks, SHA pins, or a
+  database-like graph.
 
 ### Gate 5: CLAUDE.md and the rules folder
 
@@ -154,8 +180,9 @@ list.
   into the project's `.claude/rules/`. Every default-ON file goes in unless the
   owner drops it; walk the list and let them accept, edit, or skip each. Adapt
   wording to the project's voice if they want; each file is the intent, not
-  fixed prose. Add the two conditional files (`memory-system-ground-rules.md`,
-  `knowledge-layer-ground-rules.md`) only if Gate 3 or Gate 4 ran.
+  fixed prose. The second-brain rule is installed by Gate 3 from the
+  second-brain plugin and is indexed once. Retired v1 recognition files are
+  never copied into a new project.
 - **Default-ON rules** cover the multi-agent worktree protocol (own worktree per
   session, assume parallel agents, land by PR), the language rules (no em dashes,
   no section signs, no AI filler, plain language), and the working-style rules
@@ -175,10 +202,10 @@ list.
 - **Write the thin CLAUDE.md** _with_ the user, walking the sections rather than
   generating a wall of text: what the project is, the codemap and structural
   pointers, a `Read .claude/rules` line, and which gates ran. Reflect what the
-  earlier gates set up. Record memory and knowledge as deferred, not installed.
-  The future v3 design will also route Codex through `AGENTS.md`, but do not
-  improvise that installation before v3 ships.
-  Keep the behavioral rules out of it.
+  earlier gates set up. When v3 was installed, preserve its compact project
+  memory route and add the equivalent route to `AGENTS.md`. Both route to
+  `.claude/rules/second-brain.md`; neither copies the complete schema.
+  Keep other behavioral rules out of the root files.
 - **Add a `.claude/rules/README.md`** that indexes what each copied rule file
   does, so the folder is self-describing.
 
@@ -192,6 +219,9 @@ in their own plugins.
   to `brainstorms/{date}-{topic}.md` before continuing.
 - Keep it opt-in. If approved, install the `grill-me` plugin from this
   marketplace. Do not copy its `SKILL.md` into the project.
+- When v3 is installed, explain that `grill-me` also updates the flat brainstorm
+  index and ends by proposing any resulting specification or durable-memory
+  updates. It does not make raw discovery authoritative.
 - Record whether the owner installed, skipped, or deferred it so a later
   `project-sync` respects that choice.
 
@@ -219,8 +249,9 @@ in their own plugins.
   Read it when a Salesforce project wants its permissions picture in git; pairs
   with the `permissions-source-control.md` rule in `salesforce-rules/`.
 - `references/general-rules/`: the standard `.claude/rules/` files (with its own
-  `README.md` index) to copy into every project in Gate 5. Most are default ON;
-  two are conditional (memory, knowledge).
+  `README.md` index) to copy into every project in Gate 5. Active rules are
+  default ON unless the owner opts out. The two v1 recognition files are never
+  copied into a new project.
 - `references/thin-claudemd.md`: how Gate 5 writes a thin CLAUDE.md that points
   at `.claude/rules/` instead of holding the rules inline.
 - `references/mcp-best-practices.md`: per-server MCP tool rules to offer in Gate
