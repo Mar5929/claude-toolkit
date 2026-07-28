@@ -1,8 +1,8 @@
 # Knowledge-base backfill and ongoing freshness (existing codebases, any project type)
 
 > **Archived v1 reference.** Do not run this backfill or read old `know-*`
-> content as current truth. V2 starts from authoritative Git content and its
-> tooling has not shipped.
+> content as current truth. V3 starts from authoritative Git content and does
+> not use this backfill, drift hook, or curator.
 
 On a brand-new project the `know-*` knowledge layer starts empty and that is
 fine: it fills in as work happens. On a project that ALREADY has code, the

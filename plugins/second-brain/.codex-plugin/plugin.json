@@ -1,7 +1,7 @@
 {
   "name": "second-brain",
-  "version": "0.15.2",
-  "description": "Retires second-brain v1 while the Markdown-only v3 specification is reviewed. V3 is not shipped, and v2 is superseded.",
+  "version": "1.0.0",
+  "description": "Git-native Markdown memory and knowledge for Claude and Codex, with shared schemas, owner-approved updates, and an on-demand memory librarian.",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com",
@@ -17,19 +17,20 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Second Brain",
-    "shortDescription": "Hold v1 retirement while v3 is reviewed.",
-    "longDescription": "Retires the legacy Neon/MCP second-brain v1 system while the Markdown-only v3 specification is reviewed. Local v1 integrations may be deactivated or removed with approval. V3 is not shipped, and the old v2 proposal is superseded.",
+    "shortDescription": "Shared Markdown memory for Claude and Codex.",
+    "longDescription": "Installs the complete second-brain v3 project memory system: shared Claude and Codex routing, capability specifications, typed durable memory, owner-approved updates, and an on-demand memory librarian. Markdown and Git remain authoritative, with no database, hooks, scripts, embeddings, or background curation.",
     "developerName": "Mike Rihm",
     "category": "Productivity",
     "capabilities": [
       "Interactive",
+      "Write",
       "Repository"
     ],
     "websiteURL": "https://github.com/Mar5929/claude-toolkit",
     "defaultPrompt": [
-      "Check this project's second-brain status",
-      "Deactivate this retired v1 setup",
-      "Explain the v3 specification status"
+      "Set up second-brain v3 in this project",
+      "Audit this existing project for v3 adoption",
+      "Review this completed work for durable updates"
     ],
     "brandColor": "#2563EB"
   }

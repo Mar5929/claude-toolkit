@@ -1,7 +1,7 @@
 # Second-brain v3
 
-Status: draft technical design for owner review. Nothing in this folder is
-installed or shipped yet.
+Status: current shipped design for second-brain plugin v1.0.0. Adoption in each
+project remains opt-in and owner-approved.
 
 Second-brain v3 is a shared project memory and knowledge system for Claude and
 Codex. Its contents are ordinary Markdown files committed to the same Git
@@ -255,6 +255,17 @@ are the primary navigation system.
   rollout.
 - [Discovery record](../../brainstorms/2026-07-28-second-brain-v3-project-memory.md):
   raw owner interview and repository evidence that informed this design.
+
+## Shipped source
+
+- [Canonical project rule](../../plugins/second-brain/skills/second-brain/references/second-brain-rule.md):
+  the complete rule copied into an adopting project.
+- [Memory librarian](../../plugins/second-brain/agents/memory-librarian.md):
+  the on-demand writer role used by Claude and Codex.
+- [Adoption guide](../../plugins/second-brain/skills/second-brain/references/adoption-guide.md):
+  greenfield setup and brownfield read-only adoption.
+- [Copy-ready schemas](../../plugins/second-brain/skills/second-brain/references/markdown-schemas.md):
+  starting shapes for indexes, specifications, brainstorms, and typed memory.
 
 ## Explicitly not part of v3
 

@@ -1,6 +1,6 @@
 # Second-brain v3 Markdown schemas
 
-Status: draft for owner review and continued `grill-me` refinement.
+Status: current schemas for second-brain plugin v1.0.0.
 
 These are human-readable document shapes, not machine-enforced record schemas.
 Agents adapt headings when clearer language helps the project. They preserve

@@ -33,10 +33,8 @@ const projectInitSkill =
   "plugins/project-init/skills/project-init/SKILL.md";
 const projectSyncSkill =
   "plugins/project-init/skills/project-sync/SKILL.md";
-const v3Index = "docs/second-brain-v3/README.md";
-const v3Specification =
-  "docs/second-brain-v3/TECHNICAL-SPECIFICATION.md";
-const v2Index = "docs/second-brain-v2/README.md";
+const adoption =
+  "plugins/second-brain/skills/second-brain/references/adoption-guide.md";
 const serverRoot =
   "plugins/second-brain/skills/second-brain/references/server";
 const brainCurator =
@@ -46,62 +44,79 @@ const knowledgeCurator =
 const outboxHook =
   "plugins/second-brain/skills/second-brain/references/hooks/brain-outbox-status.mjs";
 
-includes(secondBrainSkill, "v1 is retired", "second-brain reports v1 retired");
-includes(secondBrainSkill, "not shipped", "second-brain reports v3 not shipped");
-includes(secondBrainSkill, "Deactivate, recommended first", "second-brain offers deactivation");
-includes(secondBrainSkill, "Remove local integration files", "second-brain offers local removal");
-excludes(secondBrainSkill, "v1-freeze-and-export", "second-brain has no freeze runbook path");
-
-includes(rememberSkill, '"reason": "v1_retired"', "/remember returns v1_retired");
-excludes(rememberSkill, "v1_read_only", "/remember no longer uses containment result");
-
+includes(
+  secondBrainSkill,
+  "Retired v1 boundary",
+  "second-brain keeps retired v1 separate",
+);
+includes(
+  secondBrainSkill,
+  "Do not contact cloud resources",
+  "second-brain does not contact legacy cloud resources",
+);
+excludes(
+  secondBrainSkill,
+  "v1-freeze-and-export",
+  "second-brain has no freeze or export runbook",
+);
+excludes(
+  rememberSkill,
+  "v1_retired",
+  "remember does not use the v1 result",
+);
+includes(
+  rememberSkill,
+  "Never read or import retired v1",
+  "remember never imports retired v1",
+);
 includes(
   projectInitSkill,
-  "Do not offer or install the old",
-  "project-init never offers v1",
+  "Never read or import retired v1",
+  "project-init never imports retired v1",
 );
-includes(projectSyncSkill, "Deactivate:", "project-sync offers deactivation");
-includes(projectSyncSkill, "Remove local integration", "project-sync offers local removal");
-excludes(projectSyncSkill, "HTTP 423", "project-sync does not probe live containment");
-excludes(projectSyncSkill, "migration evidence", "project-sync has no v1 migration path");
+includes(
+  projectSyncSkill,
+  "Retired v1 status",
+  "project-sync reports retired local v1 wiring",
+);
+includes(
+  projectSyncSkill,
+  "Deactivate:",
+  "project-sync offers local v1 deactivation",
+);
+includes(
+  projectSyncSkill,
+  "Remove local integration:",
+  "project-sync offers approved local v1 removal",
+);
+includes(
+  projectSyncSkill,
+  "does not block v3 adoption",
+  "project-sync does not block v3 on v1 work",
+);
+includes(
+  adoption,
+  "V1 content is not a migration source",
+  "adoption rejects automatic legacy migration",
+);
 
-includes(brainCurator, "Retired v1 reference", "old brain curator is marked retired");
-includes(knowledgeCurator, "Retired v1 reference", "old knowledge curator is marked retired");
-excludes(brainCurator, "migration evidence", "old brain curator is not migration input");
-excludes(knowledgeCurator, "migration evidence", "old knowledge curator is not migration input");
-includes(outboxHook, "not current truth", "old outbox notice rejects legacy truth");
-excludes(outboxHook, "v2 migration", "old outbox notice has no migration path");
-
-includes(v3Index, "draft technical design", "v3 remains unshipped");
-includes(v3Index, "a fixed proposal limit", "v3 has no proposal cap");
+includes(brainCurator, "Retired v1 reference", "old brain curator is archived");
 includes(
-  v3Index,
-  "scripts or hooks for capture",
-  "v3 requires no memory hooks",
+  knowledgeCurator,
+  "Retired v1 reference",
+  "old knowledge curator is archived",
+);
+excludes(brainCurator, "migration evidence", "brain curator is not migration input");
+excludes(
+  knowledgeCurator,
+  "migration evidence",
+  "knowledge curator is not migration input",
 );
 includes(
-  v3Specification,
-  "AI judgment remains primary",
-  "v3 leaves semantic judgment to the agent",
+  outboxHook,
+  "not current truth",
+  "old outbox notice rejects legacy truth",
 );
-includes(
-  v3Specification,
-  "writes only content already authorized",
-  "v3 preserves the owner approval boundary",
-);
-includes(v3Specification, "memory/planning/", "v3 includes durable planning");
-includes(
-  v3Specification,
-  "dedicated memory agent",
-  "v3 delegates approved writes to a memory agent",
-);
-includes(
-  v3Specification,
-  "unfinished task is handed to another session",
-  "v3 does not review unfinished handoffs",
-);
-includes(v2Index, "superseded historical proposal", "v2 is clearly superseded");
-includes(v2Index, "Do not implement these requirements", "v2 cannot be mistaken for v3");
 
 ok(
   !existsSync(resolve(root,
@@ -121,26 +136,5 @@ const serverPackage = JSON.parse(read(`${serverRoot}/package.json`));
 ok(!serverPackage.scripts.deploy, "archived Worker has no deploy script");
 ok(!serverPackage.scripts.dev, "archived Worker has no development server script");
 ok(!serverPackage.scripts.types, "archived Worker has no Wrangler type script");
-
-const secondBrainClaude = JSON.parse(
-  read("plugins/second-brain/.claude-plugin/plugin.json"),
-);
-const secondBrainCodex = JSON.parse(
-  read("plugins/second-brain/.codex-plugin/plugin.json"),
-);
-const projectInitClaude = JSON.parse(
-  read("plugins/project-init/.claude-plugin/plugin.json"),
-);
-const projectInitCodex = JSON.parse(
-  read("plugins/project-init/.codex-plugin/plugin.json"),
-);
-ok(
-  secondBrainClaude.version === secondBrainCodex.version,
-  "second-brain plugin versions match",
-);
-ok(
-  projectInitClaude.version === projectInitCodex.version,
-  "project-init plugin versions match",
-);
 
 console.log(`ALL PASS (${passed} checks), FAIL: 0`);

@@ -1,10 +1,10 @@
 # Second-brain v3 toolkit integration
 
-Status: draft for owner review and continued `grill-me` refinement.
+Status: current toolkit integration for second-brain plugin v1.0.0.
 
-This document defines how the approved v3 design should fit the reusable
-toolkit. It is not an installer and does not authorize changes to a client
-project.
+This document defines how the approved v3 design fits the reusable toolkit.
+The plugin ships the system, while each client-project adoption remains a
+separately approved setup or sync action.
 
 The toolkit is the reusable plugin marketplace. The owner selectively adopts
 its tools and systems in each greenfield or brownfield project, and AI agents
@@ -30,7 +30,7 @@ It does not own:
 - work-item status or backlog management;
 - Git commit, pull-request, merge, or cleanup workflows;
 - Graphify or another structural-analysis system;
-- cloud infrastructure; or
+- cloud infrastructure;
 - platform-specific background automation;
 - project-specific or client-specific memory; or
 - a shared cross-project memory store.
@@ -51,7 +51,7 @@ It:
 6. installs the memory-librarian role;
 7. adds compact routes to both `CLAUDE.md` and `AGENTS.md`;
 8. reconciles existing continuity rules;
-9. connects v3 to the configured work tracker; and
+9. connects v3 to the configured work tracker;
 10. offers an initial project-memory pass; and
 11. offers `grill-me` for project discovery.
 
@@ -212,6 +212,18 @@ plugins/second-brain/
         markdown-schemas.md
         orientation-snippet.md
         adoption-guide.md
+        templates/
+          brainstorms/README.md
+          specs/README.md
+          memory/
+            README.md
+            context/README.md
+            planning/README.md
+            decisions/README.md
+            knowledge/README.md
+            references/README.md
+            domain/README.md
+            operations/README.md
     remember/
       SKILL.md
 ```
@@ -463,9 +475,10 @@ The pilot sequence is:
 Anchor's current Git documents are the starting evidence. No legacy external
 memory is automatically treated as current truth.
 
-## 10. Full implementation sequence
+## 10. Implementation and rollout sequence
 
-The safe sequence for the complete v3 system is:
+The complete toolkit implementation covers steps 1 through 9. Project rollout
+begins at step 10 and remains separately approved:
 
 1. Refine and approve the v3 technical specification.
 2. Implement the shared rule, memory-agent role, templates, and v3 skills in

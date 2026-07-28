@@ -94,13 +94,15 @@ claude-toolkit/
         project-init/             ← SKILL.md + references/ (setup-flow, thin-claudemd,
                                      general-rules/, salesforce-rules/, mcp-best-practices)
         project-sync/             ← SKILL.md
-    second-brain/                 ← plugin: v1 retirement controls; v3 draft not shipped
+    second-brain/                 ← plugin: Git-native v3 memory for Claude and Codex
       README.md
       .claude-plugin/plugin.json
       .codex-plugin/plugin.json
+      agents/
+        memory-librarian.md        ← on-demand writer role shared by both agents
       skills/
-        second-brain/             ← SKILL.md + archived v1 references; v3 spec lives in docs/
-        remember/                 ← SKILL.md
+        second-brain/             ← SKILL.md + canonical v3 rule, schemas, templates
+        remember/                 ← direct owner-approved capture workflow
     sf-architect-solutioning/     ← plugin: Salesforce solution architect
       README.md
       .claude-plugin/plugin.json
@@ -139,7 +141,7 @@ claude-toolkit/
   docs/
     toolkit-map.md                ← the catalog: every item and how they relate
     architecture.html             ← visual map of how the pieces fit
-    second-brain-v3/              ← current draft memory and knowledge specification
+    second-brain-v3/              ← current shipped memory and knowledge specification
 ```
 
 Each **concern is its own plugin/skill** so it can evolve and be reused
@@ -162,8 +164,8 @@ explains how the pieces relate.
 
 | Plugin | What it does |
 |---|---|
-| **[project-init](plugins/project-init/README.md)** | Sets up or syncs a project, offers work-tracker with safe adoption of older folders, and defers second-brain while v3 is under review. It can retire approved local v1 wiring without touching cloud resources. |
-| **[second-brain](plugins/second-brain/README.md)** | V3 is a draft Markdown-only memory and knowledge system for Claude and Codex. It is not shipped. The previous v2 proposal is superseded, and the current plugin still prevents v1 installation. |
+| **[project-init](plugins/project-init/README.md)** | Sets up or syncs a project, offers work-tracker with safe adoption of older folders, and installs the complete second-brain v3 system when selected. Existing-project sync begins with a read-only audit. |
+| **[second-brain](plugins/second-brain/README.md)** | Production-ready Git-native Markdown memory and knowledge for Claude and Codex, with one shared rule, typed schemas, owner-approved updates, and an on-demand memory librarian. |
 | **[sf-architect-solutioning](plugins/sf-architect-solutioning/README.md)** | A Salesforce solution architect: pushes back on vague requirements, verifies platform facts against official docs by live fetch, designs declarative-first to Well-Architected standards, and presents a solution plan for approval before any build. Salesforce projects only. |
 | **[git-workflows](plugins/git-workflows/README.md)** | Three parallel-session-safe git lifecycle skills: `pull-latest` gets current without rewriting history, `reset-to-remote` mirrors the remote behind confirmation, and `merge-and-clean-up` lands an approved PR before removing only its completed workspace. |
 | **[session-autoname](plugins/session-autoname/README.md)** | Keeps a background agent session named after the overarching project it is working on, never the step it is on. A Stop hook re-checks the label each turn from a cheap Haiku call and holds it steady until the project itself changes, so a long session stops lying in the job list without the name churning. One-time per-machine install, not per project. |
@@ -177,7 +179,7 @@ explains how the pieces relate.
 These are the reusable systems I want to fold in here over time. Ordered roughly
 by priority; each becomes its own skill/plugin so `project-init` can pull it in.
 
-- [ ] **Second-brain v3**: a shared Markdown memory and knowledge system for
+- [x] **Second-brain v3**: a shared Markdown memory and knowledge system for
   Claude and Codex. Raw discovery uses a flat, dated `brainstorms/` collection.
   Current product and system behavior is organized into capability folders
   under `specs/`. Context, planning, decisions, knowledge, references, domain
@@ -191,10 +193,10 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
   changes in the task's worktree and pull request. There is no fixed proposal
   limit. The system requires no database, MCP server, runtime scripts, memory
   hooks, embeddings, transcript capture, background curation, or scheduled
-  jobs. The current draft is indexed in
-  [`docs/second-brain-v3/`](docs/second-brain-v3/README.md). It is a
-  specification, not shipped functionality. The old v2 proposal is
-  superseded.
+  jobs. The current shipped specification is indexed in
+  [`docs/second-brain-v3/`](docs/second-brain-v3/README.md), and the plugin
+  ships the rule, memory-librarian role, templates, setup, sync, and remember
+  workflows. The old v2 proposal is superseded.
 - [x] **`second-brain` v1 retirement controls**: v1 must not be installed,
   deployed, exported, or migrated. The archived implementation remains for
   historical inspection with its default deployment path disabled. Existing
@@ -261,6 +263,16 @@ For Git-native work tracking, optionally mirrored to GitHub Projects:
 /plugin install work-tracker
 /work
 ```
+
+For Git-native project memory shared by Claude and Codex:
+
+```text
+/plugin install second-brain
+/second-brain
+```
+
+New projects can also select it during `/project-init`; existing projects adopt
+it through the read-only `/project-sync` audit.
 
 To have background agent sessions keep their own names current (a one-time setup
 per machine, not per project):

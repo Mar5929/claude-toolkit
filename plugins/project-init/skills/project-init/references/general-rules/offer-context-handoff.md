@@ -6,3 +6,7 @@ read, an earlier compaction) and you are about to execute a plan or start a
 complex, multi-step task, tell the owner plainly and offer to write a
 self-contained handoff prompt they can paste into a fresh session. Skip this for
 small edits, quick lookups, or when the relevant context is still fresh.
+
+An unfinished handoff is temporary work state. Update the work tracker or
+handoff document as applicable. Do not trigger a second-brain durable-update
+review merely because the session is handing off unfinished work.

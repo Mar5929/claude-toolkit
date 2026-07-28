@@ -17,7 +17,7 @@ structure Gate 5 writes.
 | File | What it does |
 |---|---|
 | `keep-claudemd-current.md` | Update CLAUDE.md before a session ends whenever it surfaces a new path, convention, decision, or workflow. A slightly-too-full CLAUDE.md beats a stale one. Two-sided: also prune while you are in there, route detail to the design/status/memory layer, and keep the codemap one line per folder instead of a changelog. |
-| `wrap-up-ritual.md` | At the end of a chunk of work: update the status/handoff doc, write decisions back, commit and push. Leave a clean handoff. |
+| `wrap-up-ritual.md` | At approved completion points, align specifications, code, and tests, propose durable memory updates, update the work-tracker handoff when relevant, and use the project's Git workflow. Unfinished handoffs do not trigger a memory review. |
 | `stay-in-scope.md` | Do not expand beyond what was asked without checking first. Recommend, do not silently gold-plate. |
 | `secrets-never-committed.md` | API keys and credentials live outside the repo. Never commit them; respect `.gitignore`; raise it if a secret would have to be committed. |
 | `honest-verification.md` | Do not claim more than you verified. If it was not run or tested, say so and leave the steps. Report failures with output. |
@@ -32,18 +32,25 @@ structure Gate 5 writes.
 | `define-your-terms.md` | Name the exact thing and define it on first use. No invented shorthand; no bare "option B" / "risk 1". |
 | `ask-before-assuming.md` | When unsure, ask one specific question first. State the rough scope and get a go-ahead before big read/write jobs. |
 | `offer-context-handoff.md` | When context is heavy and the next step is reasoning-heavy, offer a self-contained handoff prompt for a fresh session. |
-| `steer-to-the-goal.md` | Name the goal early, hold it all session, own the steering, and end every turn with the next step. Save the goal to memory when it outlasts one chat. |
+| `steer-to-the-goal.md` | Name the goal early, hold it all session, own the steering, and end every turn with the next step. Durable direction goes to v3 planning when installed; live next actions remain in work-tracker. |
 | `do-the-technical-work.md` | Do the git/config/deploy/file work yourself. Only hand the owner steps that are genuinely only-they, and make those copy-paste simple. Recommend, do not dump raw choices. |
 | `work-item-folders.md` | Use the Git-native work-tracker as the task authority: one folder per item, exact handoffs, typed relationships, Git landing proof, generated views, and safe adoption of older manual folders. |
 | `show-phase-progress.md` | When work splits into phases, print a one-line progress bar at every transition and when the last phase finishes. |
 | `treat-owner-as-non-technical.md` | Assume no technical background: numbered steps, exact commands, say what success looks like, never hand back raw errors. Also covers REPORTING: explain what you did in plain words, not just what to do. Turn off only for a technical owner. |
 
-## Conditional: copy only if the matching gate ran
+## Retired v1 recognition only
 
-| File | Include when |
+These files are not installed into new projects and are not v3 operating rules.
+`project-sync` recognizes them in older projects so it can report local v1
+wiring without treating its content as current truth.
+
+| File | Purpose |
 |---|---|
-| `memory-system-ground-rules.md` | Recognition text for an existing retired v1 project. Directs project-sync to deactivate or remove local integration without touching cloud resources. Do not add to a new project. |
-| `knowledge-layer-ground-rules.md` | Recognition text for an existing retired v1 knowledge layer. Forbids refresh or import into v3. Do not add to a new project. |
+| `memory-system-ground-rules.md` | Recognizes an older v1 memory rule and points to separately approved local deactivation or removal. |
+| `knowledge-layer-ground-rules.md` | Recognizes an older v1 knowledge rule and forbids importing it as v3 truth. |
+
+The canonical v3 rule comes from the `second-brain` plugin and installs as
+`.claude/rules/second-brain.md`. Do not duplicate it in this library.
 
 MCP tool rules (Context7, Gmail, Google Calendar, Linear, Notion, Playwright)
 are conditional too, and live in `../mcp-best-practices.md`: fold in a server's

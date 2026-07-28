@@ -18,9 +18,9 @@ toolkit reaches a project.
   1. Scaffolding and folder structure, including the optional Git-native
      work-tracker and safe adoption of the existing four-stage convention
   2. Hooks and guards
-  3. Memory system (temporarily deferred)
-  4. Knowledge layer (temporarily deferred)
-  5. CLAUDE.md and `.claude/rules/`
+  3. Complete second-brain v3 memory system
+  4. Knowledge layer included with second-brain v3
+  5. CLAUDE.md, AGENTS.md, and `.claude/rules/`
   6. Optional standalone toolkit skills, beginning with `grill-me`
   It asks before acting, recommends a per-stack layout, and copies in the
   standard rule files. It does not hold the memory or knowledge systems itself;
@@ -53,18 +53,19 @@ Bundled under `skills/project-init/references/`:
 ## How it relates to the rest of the toolkit
 
 - project-init is the **entry point that installs the other plugins' systems**.
-  Gates 3 and 4 are recorded as deferred because v3 is specified but not
-  shipped. The earlier v2 proposal is superseded.
+  Gate 3 offers the complete `second-brain` v3 system. Gate 4 records its
+  knowledge layer as included rather than creating a competing store.
 - Gate 6 offers the standalone `grill-me` interview workflow without copying it
   into the project. The plugin remains its canonical home.
 - Gate 1 offers `work-tracker` as the one canonical task-status system. It can
   stay entirely local or, with separate approval, create or link a GitHub
   Project. Existing manual work-item folders are adopted without overwriting
   their specifications, handoffs, or notes.
-- project-sync identifies existing local v1 integrations. With owner approval
-  it may deactivate them or remove specifically approved local files. It never
-  contacts the Worker or Neon, reads legacy memory, imports v1 into v3, or
-  deletes cloud infrastructure.
+- project-sync performs a read-only v3 adoption audit before changing an
+  existing project. Separately, it identifies existing local v1 integrations.
+  With owner approval it may deactivate them or remove specifically approved
+  local files. It never contacts the Worker or Neon, reads legacy memory,
+  imports v1 into v3, or deletes cloud infrastructure.
 - **project-init versus project-sync is not redundancy.** They share the same
   inventory of toolkit systems but enter from opposite ends: project-init lays
   foundations in an empty project, project-sync audits and back-fills a project

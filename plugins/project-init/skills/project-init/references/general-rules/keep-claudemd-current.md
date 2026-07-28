@@ -23,11 +23,12 @@ Before adding, ask where the thing actually lives:
 - **Why a decision was made, and what was traded off**, belongs in the design or
   decision doc, with at most a one-line pointer here.
 - **What is happening right now** (current phase, next action, open TODOs)
-  belongs in the live status doc, never here.
+  belongs in the work tracker or live status doc, never here.
 - **What changed and when** belongs in git history, not in prose. A requirement
   change belongs in the applicable specification, code, and tests together.
-  Other durable conclusions use the project's current Git-native memory system
-  when one is actually shipped. Never write them into retired v1.
+  Other durable conclusions use second-brain v3 when it is installed. The main
+  agent proposes them at the approved completion points and the memory
+  librarian writes approved updates. Never write them into retired v1.
 
 Then keep the shape:
 
@@ -45,3 +46,7 @@ Then keep the shape:
 
 If a trim would renumber sections that other files cross-reference, say so and
 let the owner decide before renumbering.
+
+When second-brain v3 is installed, preserve the compact project-memory route in
+both CLAUDE.md and AGENTS.md. Do not copy the complete schema into either root
+file or let the two route to different authority maps.

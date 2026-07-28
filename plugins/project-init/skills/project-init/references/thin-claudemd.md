@@ -1,4 +1,4 @@
-# Writing a thin CLAUDE.md (Gate 5)
+# Writing thin root instructions (Gate 5)
 
 The behavioral rules do not go inside CLAUDE.md. They live as individual files in
 the project's `.claude/rules/` folder, copied there from the toolkit's rules
@@ -12,16 +12,20 @@ session, because a line in CLAUDE.md tells the session to read `.claude/rules/`.
 ## What Gate 5 does
 
 1. **Copy the selected rule files** into the project's `.claude/rules/`:
-   - From `general-rules/`: every default-ON file, unless the owner drops it,
-     plus the two conditional files (`memory-system-ground-rules.md`,
-     `knowledge-layer-ground-rules.md`) only if Gate 3 or Gate 4 ran. See
-     `general-rules/README.md` for the list and which are default ON.
+   - From `general-rules/`: every default-ON file, unless the owner drops it.
+     See `general-rules/README.md` for the current list.
+   - From `second-brain`: keep `.claude/rules/second-brain.md` when Gate 3 ran.
+     This rule comes from the second-brain plugin and is not duplicated in the
+     general-rules library.
    - From `salesforce-rules/` (Salesforce projects only): the set the owner
      chose in Gate 1, if not already copied there.
    - Adapt wording to the project's voice if the owner wants; the file is the
      intent, not fixed prose.
 2. **Write a thin CLAUDE.md** with only the sections below.
-3. **Add or confirm a `.claude/rules/README.md`** so the folder has an index of
+3. **Write or update AGENTS.md** with equivalent structural routing for Codex.
+   When v3 is installed, both root files use the same compact memory map from
+   the second-brain plugin and point to the same canonical rule.
+4. **Add or confirm a `.claude/rules/README.md`** so the folder has an index of
    what each file does (copy the library READMEs' shape).
 
 ## What a thin CLAUDE.md contains
@@ -41,9 +45,8 @@ session, because a line in CLAUDE.md tells the session to read `.claude/rules/`.
   - the toolkit port-back convention (if the project uses the toolkit), and how
     to pull toolkit updates into this project: update the plugin
     (`/plugin marketplace update claude-toolkit`), then run `/project-sync`
-  - which gates ran, plus memory and knowledge gates recorded as deferred, so
-    future sessions do not mistake the v3 specification for an installed
-    system or treat the superseded v2 proposal as current.
+  - which gates ran; when second-brain v3 ran, include its compact route to the
+    canonical rule, and when it was declined say only that it was not adopted
 - **MCP tool rules**: only for the MCP servers the project actually uses, folded
   in from `mcp-best-practices.md` (or copied as their own `.claude/rules/`
   files if the project prefers one file per rule everywhere).
@@ -51,6 +54,10 @@ session, because a line in CLAUDE.md tells the session to read `.claude/rules/`.
 Everything else, the writing style, the response style, the working-style rules,
 the multi-agent worktree protocol, is a file in `.claude/rules/`, not prose in
 CLAUDE.md.
+
+AGENTS.md follows the same boundary. It may contain Codex-specific repository
+instructions, but its project-memory map must agree with CLAUDE.md and route to
+the same `.claude/rules/second-brain.md`.
 
 ## Why file-per-rule instead of one big CLAUDE.md
 

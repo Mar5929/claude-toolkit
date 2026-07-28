@@ -7,9 +7,9 @@ description: >-
   in this project", "sync this project with claude-toolkit", "audit this
   project against the toolkit", or "/project-sync". This skill inventories
   everything the toolkit currently ships (the general and Salesforce rules
-  libraries, hooks, the Git-native work-tracker, second-brain v1 retirement,
-  standalone skills such as grill-me, and any newer systems), cross-references
-  the current project,
+  libraries, hooks, the Git-native work-tracker, the complete second-brain v3
+  system, retired v1 local-wiring recognition, standalone skills such as
+  grill-me, and any newer systems), cross-references the current project,
   reports the gaps, and closes each gap only with the user's approval.
 ---
 
@@ -45,6 +45,11 @@ automatically as it grows.
      `setup-flow.md`, and the plugin root holds `.claude-plugin/plugin.json`.
   2. A local clone of the toolkit repo, if the user has one.
   3. Fetch the repo (`Mar5929/claude-toolkit`), or ask the user where it lives.
+- For a separately packaged system such as `second-brain`, locate its installed
+  plugin or the sibling source in the local toolkit clone. During the read-only
+  audit, the marketplace manifest is enough to report availability. Install
+  the system plugin only after the owner approves adoption, then use its
+  canonical sources instead of maintaining copies in `project-init`.
 - Enumerate, at minimum:
   - every rule file in `general-rules/`, noting from its `README.md` which are
     default ON and which are conditional; Salesforce projects also get the
@@ -56,9 +61,9 @@ automatically as it grows.
     `engagement/work-items/` tree
   - each standalone skill offered by the setup flow, including `grill-me`
   - anything newer listed in the toolkit README under "What's here now"
-  - skip roadmap items; they aren't built yet and can't be audited. The Unit 00
-    v1 retirement behavior is the exception: existing v1 integration must be
-    reported even though v3 itself is still a roadmap item
+  - skip roadmap items; they are not built and cannot be audited. Second-brain
+    v3 is shipped and must be inventoried from its plugin. Existing retired v1
+    integration remains a separate local finding
 - Note the toolkit version (from `plugin.json` or `marketplace.json`) for the
   sync record in step 5.
 
@@ -75,15 +80,31 @@ secrets rule even if the prose differs. Typical checks:
 - **CLAUDE.md health** (presence is not enough, see below).
 - **Hooks**: are guard and orientation hooks configured (the project's
   `.claude/` settings and hook scripts)?
-- **Second-brain status:** v1 is the retired Neon/MCP architecture. V3 is
-  specified but not shipped, and v2 is superseded. If the project has no v1,
-  mark memory and
-  knowledge **deferred** and do not offer installation. If it has v1, identify
-  only the local integration surface: `.mcp.json`, `.claude/settings.json`,
-  `.codex/config.toml`, hook registrations and wrappers, curator agents, v1
-  rules, outbox scaffolding, and any local `brain/` or `memories/` path. Do not
-  call the Worker, read Neon, open local token files, or inspect legacy memory
-  content.
+- **Second-brain v3 status:** v3 is the current Markdown and Git system. Audit
+  it as one coherent installation:
+  - `.claude/rules/second-brain.md`;
+  - `.claude/agents/memory-librarian.md`;
+  - equivalent compact routes in `CLAUDE.md` and `AGENTS.md`;
+  - `brainstorms/README.md`;
+  - `specs/README.md`;
+  - `memory/README.md`; and
+  - root indexes for context, planning, decisions, knowledge, references,
+    domain, and operations.
+  Classify v3 as present only when the complete core exists. A few similar
+  folders without the shared rule and role are existing project documentation,
+  not an installed v3 system.
+- **V3 document map:** inventory existing specifications, brainstorms, ADRs,
+  architecture and system maps, roadmaps, project overviews, runbooks,
+  glossaries, references, and raw artifact folders. Report likely canonical
+  homes, duplicates, contradictions, missing indexes, broken routes, and live
+  work state copied into durable documents. Distinguish observed facts,
+  inference, owner-confirmed intent, and unknowns when the difference matters.
+- **Retired v1 status:** v1 is the old Neon/MCP architecture and is not a v3
+  migration source. Identify only its local integration surface:
+  `.mcp.json`, `.claude/settings.json`, `.codex/config.toml`, hook
+  registrations and wrappers, curator agents, v1 rules, outbox scaffolding,
+  and any local `brain/` or `memories/` path. Do not call the Worker, read Neon,
+  open token files, or inspect legacy memory content.
 - **V1 activity:** report whether automatic digest, recall, capture,
   session-end curation, curator reminders, or MCP connections are still wired
   for Claude or Codex. A flag in `.claude/settings.json` is not enough when a
@@ -95,9 +116,10 @@ secrets rule even if the prose differs. Typical checks:
   listed committed v1 files after separate approval. Never bundle deletion of a
   non-empty outbox, cache, ignored file, token, connector, database, or cloud
   resource into ordinary project sync.
-- **Knowledge layer:** existing v1 curator files, `know-*` nodes, SHA pins, and
-  drift reports are retired. Do not refresh, reconcile, import, or use them as
-  current truth.
+- **Knowledge layer:** v3's typed memory is the knowledge layer. Do not create a
+  second store. Existing v1 curator files, `know-*` nodes, SHA pins, and drift
+  reports remain retired and are never refreshed, reconciled, imported, or
+  used as current truth.
 - **Standalone toolkit skills:** check the previous sync record and the
   available host plugins. For `grill-me`, classify whether it is available to
   invoke, previously declined, or not applicable. Do not look for a copied
@@ -135,11 +157,15 @@ presence. Read the file and report:
   is said twice.
 - **A codemap that became a changelog.** Codemap entries should be one line per
   folder or module plus any load-bearing invariant. Flag entries carrying dated
-  history ("2026-07-17 changed X, decision #17"); that history belongs in git
-  and the design doc.
+  history ("2026-07-17 changed X, decision #17"); that history belongs in Git
+  and the applicable specification or durable memory.
 - **Live state that belongs in the status doc.** Current phase, next action, and
-  open TODOs drift the moment they are written here. Flag them for the status
-  doc.
+  open TODOs drift the moment they are written here. Flag them for work-tracker
+  or the live status doc.
+- **V3 route parity.** When second-brain is installed, confirm CLAUDE.md and
+  AGENTS.md contain equivalent compact memory maps and both route to
+  `.claude/rules/second-brain.md`. Flag copied full schemas, conflicting
+  authority, or a route present in only one root file.
 - **Stale content.** Anything the code, paths, or decisions have since
   contradicted.
 
@@ -159,8 +185,8 @@ on any trim you propose:
 
 Show one table: item, status, and what specifically is missing or drifted. Make
 no changes in this step. Let the user pick what to fix, and recommend an order
-(retired v1 deactivation first when present, then default-ON rules, then other
-systems).
+(complete v3 adoption, retired v1 local wiring as a separate choice, default-ON
+rules, then other systems). Existing v1 wiring does not block v3 adoption.
 
 ## Step 4: close the approved gaps, one at a time
 
@@ -174,16 +200,31 @@ should look in THIS project, confirm, act, summarize. Ground rules:
 - Never weaken something the project already does better than the toolkit
   version. If the project's variant is an improvement, leave it and flag it
   for port-back instead (see wrap-up).
-- Do not install second-brain v1 or claim v3 is available. For an existing v1
-  project, offer the following only after reporting the exact local scope:
+- For an approved v3 gap, install the `second-brain` plugin and follow its
+  brownfield adoption guide:
+  1. keep the audit read-only until the owner approves exact treatments;
+  2. show the complete core plus real project-specific system areas;
+  3. use the plugin's canonical rule, role, orientation snippet, and index
+     templates rather than retyping them;
+  4. preserve good existing homes;
+  5. treat each existing source as keep and link, move with approval,
+     consolidate with approval, or leave unresolved; and
+  6. offer an initial memory pass and `grill-me` after adoption.
+  Do not mass-move, duplicate, delete, or declare current truth to make an
+  existing project resemble a template. Risky or large structural work must be
+  separately visible and approved.
+- Do not install second-brain v1 or import its content. For an existing v1
+  project, offer the following separately after reporting the exact local
+  scope:
   1. **Deactivate:** remove v1 MCP entries and automatic hook registrations
      from committed Claude and Codex configuration. Preserve old scripts and
      agents temporarily.
   2. **Remove local integration:** delete only the committed v1 files and
      settings the owner explicitly approves.
   Neither option contacts the Worker or Neon, reads legacy memory, imports
-  anything into v3, or deletes cloud infrastructure. Account-level connectors,
-  local token cleanup, and cloud deletion are separate owner-approved work.
+  anything into v3, or deletes cloud infrastructure. Installing v3 does not
+  imply either v1 choice. Account-level connectors, local token cleanup, and
+  cloud deletion are separate owner-approved work.
 - For an approved work-tracker gap, install the plugin and run `work init` at
   the detected canonical path. This may add metadata and generated views, but
   it must not overwrite existing `SPEC.md`, `STATUS.md`, or notes. Show any
@@ -196,8 +237,9 @@ should look in THIS project, confirm, act, summarize. Ground rules:
 ## Step 5: record the sync
 
 Write a short sync record so future runs know where things stand. Default
-location: a "Toolkit sync" section at the bottom of the project's CLAUDE.md
-(or `.claude/toolkit-sync.md` if the user prefers). Record:
+location: `.claude/toolkit-sync.md`, with at most a one-line structural pointer
+from CLAUDE.md or AGENTS.md when useful. Do not turn either root file into a
+sync changelog. Record:
 
 - the toolkit version synced against, and the date
 - items set up or already present

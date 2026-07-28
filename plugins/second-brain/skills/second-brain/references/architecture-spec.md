@@ -1,9 +1,8 @@
 # second-brain architecture and process flow
 
 > **Archived v1 reference only.** V1 is retired. Do not install, connect, read,
-> export, or migrate it. V2 is specified under
-> `docs/second-brain-v2/` but is not shipped. Use the plugin `SKILL.md` for the
-> current behavior.
+> export, or migrate it. V2 is superseded. V3 is the shipped Markdown and Git
+> system. Use the plugin `SKILL.md` for current behavior.
 
 This records what the system was, why it was built this way, and what happened
 at runtime. The deep

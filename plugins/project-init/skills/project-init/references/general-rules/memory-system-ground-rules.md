@@ -1,4 +1,4 @@
-# Retired V1 Memory Rule
+# Retired v1 memory recognition
 
 Do not add this rule to a new project. It exists only so `project-sync` can
 recognize and remove or replace an older v1 rule.
@@ -13,5 +13,6 @@ optionally remove specifically approved committed files. Do not open token
 files, contact the Worker or Neon, import v1 content into v3, or delete cloud
 resources.
 
-V3 is not shipped. Until it is, use the project's existing authoritative Git
-documents and normal handoff process.
+Second-brain v3 is the current toolkit system. This retired rule is not part of
+v3 and must not be copied into a new project. If v3 is adopted here, use its
+canonical `.claude/rules/second-brain.md` and do not import v1 content.

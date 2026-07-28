@@ -11,7 +11,7 @@ depth lives in each plugin's own `README.md` and reference indexes.
 | Plugin | Purpose | Skills | Install |
 |---|---|---|---|
 | [project-init](../plugins/project-init/README.md) | Put the toolkit's rules and systems into a project, new or existing | `project-init`, `project-sync` | `/plugin install project-init` |
-| [second-brain](../plugins/second-brain/README.md) | Hold the current retirement boundary while Markdown-only v3 is specified | `second-brain`, `remember` | No v3 installation yet |
+| [second-brain](../plugins/second-brain/README.md) | Git-native Markdown specifications and durable memory shared by Claude and Codex | `second-brain`, `remember` | `/plugin install second-brain` |
 | [sf-architect-solutioning](../plugins/sf-architect-solutioning/README.md) | Salesforce solution architect: approved solution plan before any build | `sf-architect-solutioning` | `/plugin install sf-architect-solutioning` |
 | [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git lifecycle workflows | `pull-latest`, `reset-to-remote`, `merge-and-clean-up` | `/plugin install git-workflows` |
 | [session-autoname](../plugins/session-autoname/README.md) | Background agent sessions stay named after their overarching project | `session-autoname` | `/plugin install session-autoname` |
@@ -24,8 +24,8 @@ depth lives in each plugin's own `README.md` and reference indexes.
 |---|---|---|---|
 | project-init | project-init | Walk a NEW project through setup gates, one skippable step at a time | `/project-init` |
 | project-sync | project-init | Audit an EXISTING project against the toolkit and close approved gaps | `/project-sync` |
-| second-brain | second-brain | Refuse v1 installs; offer local deactivation or removal for an existing v1 project | `/second-brain` |
-| remember | second-brain | Return `v1_retired` without dispatching curators or writing data | `/remember`, "remember this" |
+| second-brain | second-brain | Explain, install, audit, adopt, review, and maintain the complete v3 system | `/second-brain` |
+| remember | second-brain | Save clear owner-approved information through the on-demand memory librarian | `/remember`, "remember this" |
 | sf-architect-solutioning | sf-architect-solutioning | 5-phase Salesforce solutioning to an approved plan | `/sf-architect-solutioning` |
 | pull-latest | git-workflows | Get current with the remote without rewriting or discarding | `/pull-latest` |
 | reset-to-remote | git-workflows | Hard-reset a repo to mirror the remote, safely gated | `/reset-to-remote` |
@@ -40,11 +40,18 @@ These are not duplicated here. Go to the index that owns them:
 
 - **General rules** (the standard `.claude/rules` files copied into every
   project): [general-rules/README.md](../plugins/project-init/skills/project-init/references/general-rules/README.md).
-  Marks each rule default ON or conditional.
+  Marks active rules default ON and identifies retired v1 recognition files
+  that are never installed in new projects.
 - **Salesforce rules**: [salesforce-rules/README.md](../plugins/project-init/skills/project-init/references/salesforce-rules/README.md).
 - **MCP tool rules** (per-server, conditional):
   `plugins/project-init/skills/project-init/references/mcp-best-practices.md`.
-- **second-brain v1 internals**: `architecture-spec.md`, `setup-recipe.md`,
+- **second-brain v3 runtime sources**:
+  `second-brain-rule.md`, `folder-layout.md`, `markdown-schemas.md`,
+  `orientation-snippet.md`, `adoption-guide.md`, and `templates/` under
+  `plugins/second-brain/skills/second-brain/references/`, plus the
+  `memory-librarian.md` role under `plugins/second-brain/agents/`.
+- **Archived second-brain v1 internals**: `architecture-spec.md`,
+  `setup-recipe.md`,
   `curator-write-path.md` (how a curated note reaches the store, and the fallback
   ladder when it cannot), `brain-scope.md` (which brain is this project's, and
   what stops a session reading another project's), and the `profiles/`, `agents/`, `hooks/`, and `server/`
@@ -52,14 +59,14 @@ These are not duplicated here. Go to the index that owns them:
   `plugins/second-brain/skills/second-brain/references/`.
   They are archived historical evidence, not installation, deployment, export,
   or migration instructions. The old Worker has no default deploy path.
-- **Draft second-brain v3**:
+- **Shipped second-brain v3**:
   [docs/second-brain-v3/README.md](second-brain-v3/README.md) indexes the
-  current Markdown-only technical specification, schemas, and toolkit
+  current Markdown-only specification, schemas, and toolkit
   integration design. It separates flat dated brainstorms, area-based
   capability specifications, seven typed memory homes, and work-tracker
   authority. The main agent proposes updates and an on-demand memory librarian
-  writes approved changes in the task worktree. The plugin README is the
-  canonical shipping status. V3 is not shipped.
+  writes approved changes in the task worktree. The plugin ships the canonical
+  rule, role, templates, setup, sync, and remember workflows.
 - **Superseded second-brain v2 proposal**:
   [docs/second-brain-v2/README.md](second-brain-v2/README.md) is retained as
   historical design material. Its numbered units and requirements are not
@@ -75,16 +82,17 @@ The genuine watch-items are called out at the end.
 - **project-init versus project-sync.** Same inventory of toolkit systems,
   opposite entry points: init lays foundations in an empty project, sync audits
   and back-fills a project that already exists. Keep both.
-- **second-brain v1's three layers.** The legacy memory graph ("what did we decide and
+- **Archived second-brain v1's three layers.** The legacy memory graph ("what did we decide and
   why"), the knowledge layer ("why does this code exist", prose pinned to file
   SHAs), and the structural layer ("if I change this, what breaks", built
   mechanically by graphify or the Salesforce metadata graph) sound alike but do
   not overlap. Only the structural layer does impact analysis; only the
   knowledge layer carries the human "why". See the plugin README for the split.
-- **second-brain versus remember.** Neither writes. `second-brain` identifies a
-  retired local v1 integration and offers deactivation or removal, while
-  `remember` returns the structured retired result. Their old writer behavior
-  remains documented only as archived implementation evidence.
+- **second-brain versus remember.** `second-brain` owns complete setup,
+  brownfield adoption, explanation, completion review, and maintenance.
+  `remember` is the focused entry point when the owner already knows what
+  should be saved. Both use the same canonical rule and on-demand memory
+  librarian, so there is no quick-write store or competing schema.
 - **Two historical v1 "the brain is not there" failures.**
   `curator-write-path.md` records how v1 handled the right store being
   unreachable, while `brain-scope.md` records how it blocked the wrong store.
@@ -136,9 +144,9 @@ The genuine watch-items are called out at the end.
   self-contained prompt), `work-item-folders` (use work-tracker and keep one
   canonical folder per item),
   `steer-to-the-goal` (preserve a goal that outlasts one chat), and the
-  conditional `memory-system-ground-rules` (recognize and avoid a retired local
-  v1 integration). Each targets a distinct moment, so they compose rather than
-  repeat. When v3 ships, its shared rule will own the end-of-activity durable
+  retired `memory-system-ground-rules` recognition file (identify and avoid an
+  older local v1 integration). Each targets a distinct moment, so they compose
+  rather than repeat. V3's shared rule owns the approved-completion durable
   knowledge review.
   `keep-claudemd-current` names the status doc, the design doc, and long-term
   memory as destinations for detail that does not belong in CLAUDE.md, but it
@@ -154,24 +162,26 @@ The genuine watch-items are called out at the end.
   chunk while working, the whole explanation saved for one final reply). The
   one deliberate exception is `show-phase-progress`, whose one-line bar is
   exactly the mid-work budget `quiet-while-working` allows.
-- **sf-architect-solutioning versus the Salesforce rules and structural layer.**
+- **sf-architect-solutioning versus the Salesforce rules and structural
+  analysis.**
   sf-architect decides what to build; the `salesforce-rules` install standing
-  safety and workflow rules; the second-brain Salesforce structural layer answers
-  impact questions about existing metadata. Three different jobs on the same
-  stack.
+  safety and workflow rules; an optional Graphify or Salesforce metadata map
+  answers impact questions about existing metadata. V3 may link to that
+  evidence but does not require or own the analysis tool. Three different jobs
+  on the same stack.
 
 ### Genuine watch-items (revisit these)
 
 - **second-brain v1's heavy infrastructure.** The legacy system used a Worker,
   a per-project database, embeddings, and two curators. Its complexity
   contributed to the correctness and curator-cost failures that led to
-  retirement. Do not install it in a new project. The draft
-  [second-brain v3](second-brain-v3/README.md) is a fresh Markdown-only design
+  retirement. Do not install it in a new project. The shipped
+  [second-brain v3](second-brain-v3/README.md) is a fresh Markdown-only system
   and does not use that infrastructure.
 - **Overlap with Claude Code's native memory.** Claude Code now ships an
   auto-memory feature that captures cross-session notes on its own (machine-local).
   It overlapped part of the legacy v1 capture system. Existing v1 projects
-  should deactivate the old automatic capture paths. The v3 design uses
+  should deactivate the old automatic capture paths. V3 uses
   project Markdown and does not require transcript capture.
 
 ## For an agent asked "what is X?"

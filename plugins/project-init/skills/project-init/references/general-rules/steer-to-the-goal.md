@@ -14,3 +14,10 @@ hand off a short "where we are / what's next" note at wrap-up.
 This rule is about steering a whole session, and work across sessions, to the
 goal; the solve-the-goal-push-back rule is about the goal behind a single
 request and pushing back when it is off.
+
+When second-brain v3 is installed, separate durable direction from live work
+state. Vision, goals, roadmap, milestones, durable risks, and assumptions
+belong in `memory/planning/` through the approved memory-librarian workflow.
+Current ticket status, blockers, exact next action, and handoff remain in the
+work tracker. Link between them when useful without copying live status into
+planning.

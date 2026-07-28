@@ -233,9 +233,12 @@
 <span class="row"><span class="dim">│   └─ marketplace.json</span>  <span class="dim">← makes it installable</span></span>
 <span class="row"><span class="dim">└─ plugins/</span></span>
 <span class="row orch">    └─ <b>project-init/</b>      ← orchestrator (project-init + project-sync)</span>
-<span class="row reuse">    └─ <b>second-brain/</b>      memory + knowledge + structural layers</span>
+<span class="row reuse">    └─ <b>second-brain/</b>      Git-native Markdown memory + knowledge</span>
 <span class="row reuse">    └─ <b>sf-architect-solutioning/</b>  Salesforce solution architect</span>
 <span class="row reuse">    └─ <b>git-workflows/</b>     parallel-session-safe git sync</span>
+<span class="row reuse">    └─ <b>session-autoname/</b>   background session naming</span>
+<span class="row reuse">    └─ <b>grill-me/</b>          durable discovery interviews</span>
+<span class="row reuse">    └─ <b>work-tracker/</b>      Git-native tickets + handoffs</span>
       </div>
       <div class="legend">
         <div class="leg-item">
@@ -315,16 +318,16 @@
           <li class="gate"><span class="n">1</span><span>Scaffolding &amp; folder structure</span><span class="tag">per-project</span></li>
           <li class="gate"><span class="n">2</span><span>Hooks / guards</span><span class="tag">per-project</span></li>
           <li class="gate linked"><span class="n">3</span><span>Memory system</span><span class="tag">pulls prompt →</span></li>
-          <li class="gate linked"><span class="n">4</span><span>Knowledge layer</span><span class="tag">pulls prompt →</span></li>
-          <li class="gate"><span class="n">5</span><span>CLAUDE.md</span><span class="tag">+ .claude/rules</span></li>
+          <li class="gate linked"><span class="n">4</span><span>Knowledge layer</span><span class="tag">included with v3</span></li>
+          <li class="gate"><span class="n">5</span><span>Root instructions</span><span class="tag">CLAUDE.md + AGENTS.md</span></li>
         </ul>
       </div>
       <div class="pullbox">
         <span class="pill reuse" style="align-self:flex-start;">second-brain</span>
         <h4>"Set up memory in this project"</h4>
         <div class="step"><span class="b">1</span><span>Init offers the <code>second-brain</code> skill from the toolkit.</span></div>
-        <div class="step"><span class="b">2</span><span>Installs it <em>into this project</em>: the MCP wiring, the two curators, and the session digest.</span></div>
-        <div class="step"><span class="b">3</span><span>Same skill, every project, so the setup is identical and proven each time.</span></div>
+        <div class="step"><span class="b">2</span><span>Installs one shared rule, the on-demand memory librarian, typed Markdown indexes, and matching Claude and Codex routes.</span></div>
+        <div class="step"><span class="b">3</span><span>Git stores and reviews the project memory. No database, hooks, scripts, transcript capture, or background curator.</span></div>
         <p style="margin:0;font-size:.82rem;color:var(--ink-soft);border-top:1px solid var(--line);padding-top:10px;">Exactly your model: the reusable system is a stored prompt; init points at it and runs it here.</p>
       </div>
     </div>
@@ -362,5 +365,5 @@
     </div>
   </section>
 
-  <p class="footnote">claude-toolkit · four plugins: project-init, second-brain, sf-architect-solutioning, git-workflows</p>
+  <p class="footnote">claude-toolkit · seven plugins: project-init, second-brain, sf-architect-solutioning, git-workflows, session-autoname, grill-me, work-tracker</p>
 </div>
