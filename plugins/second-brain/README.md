@@ -56,17 +56,22 @@ normal deployment path.
 
 V3 is designed as a human-readable Git and Markdown system:
 
-- product and system behavior is organized by area under `specs/`;
-- context, decisions, knowledge, references, domain material, and operations
-  are organized by type and area under `memory/`;
+- raw interviews and exploration use a flat, dated `brainstorms/` collection;
+- current product and system behavior is organized into capability folders
+  under `specs/`;
+- context, planning, decisions, knowledge, references, domain material, and
+  operations are organized by type and area under `memory/`;
 - related documents use ordinary Markdown backlinks;
 - `CLAUDE.md` and `AGENTS.md` route both agents to one shared detailed rule;
-- the main agent proposes useful updates at natural completion points; and
-- the owner approves, edits, selects, or skips proposals in normal language.
+- the main agent proposes useful updates at approved completion points;
+- the owner approves, edits, selects, or skips proposals in normal language;
+  and
+- an on-demand memory librarian writes the approved updates in the task's
+  worktree and pull request.
 
 V3 does not require a database, memory MCP server, scripts, hooks, embeddings,
-transcript capture, curator agents, scheduled curation, or a fixed proposal
-limit.
+transcript capture, background curation, scheduled curation, or a fixed
+proposal limit.
 
 ## Verification
 

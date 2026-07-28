@@ -1,132 +1,208 @@
 # Second-brain v3 toolkit integration
 
-Status: draft for owner review. This describes the intended toolkit changes. It
-is not an installer and does not authorize a project migration.
+Status: draft for owner review and continued `grill-me` refinement.
 
-## 1. Boundary between toolkit components
+This document defines how the approved v3 design should fit the reusable
+toolkit. It is not an installer and does not authorize changes to a client
+project.
 
-### second-brain plugin
+The toolkit is the reusable plugin marketplace. The owner selectively adopts
+its tools and systems in each greenfield or brownfield project, and AI agents
+install only the approved selections through `project-init` or `project-sync`.
+The toolkit supplies rules, roles, skills, and templates. Each adopting
+repository owns the specifications and memory created there.
+
+## 1. Component boundaries
+
+### 1.1 Second-brain plugin
 
 The `second-brain` plugin owns:
 
 - the canonical reusable `.claude/rules/second-brain.md` source;
-- the folder and file templates;
-- the `second-brain` skill for setup, explanation, review, and maintenance; and
+- the reusable memory-librarian role instructions;
+- root, area, brainstorm, specification, and memory templates;
+- the `second-brain` skill for explanation, setup, review, and maintenance; and
 - the optional `/remember` entry point.
 
-It does not own project initialization as a whole, work-item tracking, Git
-commits, pull-request workflows, or cloud infrastructure.
+It does not own:
 
-### project-init plugin
+- all project initialization;
+- work-item status or backlog management;
+- Git commit, pull-request, merge, or cleanup workflows;
+- Graphify or another structural-analysis system;
+- cloud infrastructure; or
+- platform-specific background automation;
+- project-specific or client-specific memory; or
+- a shared cross-project memory store.
 
-`project-init` offers v3 as an opt-in project setup gate. If approved, it:
+### 1.2 Project-init plugin
 
-1. asks what system areas the project currently needs;
-2. shows the exact folders and root files it will add or edit;
-3. creates only the approved root indexes and current area folders;
-4. copies the canonical shared rule into `.claude/rules/second-brain.md`;
-5. adds the compact orientation section to both `CLAUDE.md` and `AGENTS.md`;
-6. creates or adapts human-readable indexes; and
-7. records that v3 is installed.
+`project-init` orchestrates v3 installation for a new project after the owner
+opts in. It obtains the source rule, role, and templates from `second-brain`
+rather than maintaining another copy.
 
-It does not generate empty area trees, install hooks or scripts, create a
-database, or enable a background process.
+It:
 
-### project-sync skill
+1. understands the project purpose and stack;
+2. recommends initial system areas;
+3. shows the exact tree and root-file edits;
+4. creates only approved roots, indexes, and current areas;
+5. copies the canonical shared rule;
+6. installs the memory-librarian role;
+7. adds compact routes to both `CLAUDE.md` and `AGENTS.md`;
+8. reconciles existing continuity rules;
+9. connects v3 to the configured work tracker; and
+10. offers an initial project-memory pass; and
+11. offers `grill-me` for project discovery.
 
-`project-sync` audits an existing project for:
+It does not create a database, hooks, capture scripts, an autonomous curator,
+empty area trees, or a competing archive for raw project artifacts.
 
-- the v3 shared rule;
-- equivalent v3 sections in `CLAUDE.md` and `AGENTS.md`;
-- `specs/README.md` and `memory/README.md`;
-- the six memory type indexes;
-- sensible area organization;
-- broken or obviously missing index links;
-- whether task status is duplicated outside work-tracker; and
-- existing project documents that should be linked or reorganized.
+### 1.3 Project-sync skill
 
-It reports findings before changing anything.
+`project-sync` adopts v3 in an existing project through a read-only audit first.
 
-Project-sync never mass-moves existing specifications or documentation on its
-own. It proposes a project-specific organization and exact moves for owner
-approval. Existing content is preserved unless the owner approves a merge,
-rewrite, or deletion.
+It inventories:
 
-### work-tracker plugin
+- existing specifications, ADRs, architecture docs, runbooks, glossaries,
+  references, project overviews, roadmaps, and knowledge stores;
+- current `CLAUDE.md`, `AGENTS.md`, and `.claude/rules/`;
+- current work-tracker authority;
+- existing brainstorms and discovery notes;
+- existing indexes, links, likely duplicates, and contradictions; and
+- optional structural or repository-analysis material.
 
-Work-tracker continues to own tasks. V3 may link to a work item because it
-records the work that produced a decision or learning. It does not:
+It also reports durable documents that lack a clear title, one-sentence
+summary, type-appropriate structure, descriptive index entry, or contextual
+relationship language. These are review findings, not machine validation
+failures.
 
-- mirror ticket status;
-- choose the next ticket;
-- manage blockers;
-- prove Git landing; or
-- replace `SPEC.md` or `STATUS.md` inside a work-item folder.
+It presents a proposed area map and exact changes before writing.
 
-Work-item `SPEC.md` defines that ticket's approved scope. `specs/` defines
-durable product and system behavior beyond one ticket. When a ticket changes
-durable behavior, its implementation updates the applicable `specs/` document.
+It never mass-moves or duplicates existing documents merely to satisfy a
+template. It keeps and links good existing homes, proposes approved moves when
+they improve ownership, consolidates only with approval, and leaves uncertain
+material unresolved.
 
-## 2. Existing rule reconciliation
+Meeting notes, transcripts, communications, deliverables, and other raw project
+artifacts remain in the project's ordinary scaffolding. V3 may link to them but
+does not copy them into memory.
 
-V3 must be married to the toolkit's current rule library, not layered on top as
-contradictory instructions.
+As its final adoption step, `project-sync` offers an initial memory pass based
+on the read-only audit. It keeps observations, inferences, owner-confirmed
+intent, and unknowns distinguishable, then proposes useful starting documents
+and interviews rather than silently declaring the audit authoritative.
 
-When v3 is implemented:
+### 1.4 Grill-me plugin
 
-- `keep-claudemd-current.md` keeps `CLAUDE.md` accurate and thin, but routes
-  durable detail to `specs/` or `memory/`. It does not turn `CLAUDE.md` into the
-  memory store.
-- `wrap-up-ritual.md` invokes the v3 review and respects approval before writing
-  additional durable proposals. Specification changes already authorized by
-  the task remain part of that task.
-- `steer-to-the-goal.md` routes current goals, next steps, and handoffs to
-  work-tracker or the project's handoff document. It proposes memory only when
-  the underlying context is durable beyond the ticket.
-- `work-item-folders.md` continues to route all ticket state to work-tracker.
-- the two retired v1 recognition rules are not installed as v3 rules. The new
-  shared `second-brain.md` rule replaces their memory and knowledge routing
-  role for projects that opt into v3.
+`grill-me` owns the durable discovery interview behavior:
 
-Project-init and project-sync must update these selected rules as one coherent
-installation. An agent must not receive one rule that says to write memory
-automatically and another that says to seek approval.
+- ask one question at a time;
+- recommend an answer;
+- checkpoint every response before the next question; and
+- preserve the raw interview.
 
-## 3. Installed rule routing
+When a project uses v3, `grill-me` stores its capture at
+`brainstorms/<date>-<topic>.md` and adds it to the root brainstorm index.
+
+At the end of the interview, the main agent proposes any resulting
+specification or memory updates. The raw brainstorm remains separate.
+
+This matches the current grill-me default. V3 adds index and backlink behavior
+without requiring grill-me to classify discovery into a system area.
+
+### 1.5 Work-tracker plugin
+
+Work-tracker owns:
+
+- backlog;
+- current work status;
+- blockers;
+- ticket relationships and dependencies;
+- current handoff;
+- branches and pull requests; and
+- proof that completed work reached the main branch.
+
+V3 documents may link to work items. V3 planning may explain how work items
+serve a milestone. Neither duplicates live ticket state.
+
+Work-item `SPEC.md` owns the approved scope of one ticket. A capability under
+top-level `specs/` owns durable product or system behavior beyond that ticket.
+When a ticket changes durable behavior, both can link to the same task while
+retaining their separate authority.
+
+### 1.6 Git workflow plugins and rules
+
+Existing worktree and pull-request workflows own:
+
+- creating an isolated branch and worktree;
+- updating from remote;
+- committing and pushing;
+- opening, reviewing, and merging a pull request; and
+- cleaning up a completed worktree.
+
+V3 requires the memory agent to stay in the requesting session's worktree, but
+it does not reimplement Git commands.
+
+## 2. Installed project architecture
 
 ```mermaid
-flowchart LR
+flowchart TD
     A[Claude session] --> C[CLAUDE.md]
     B[Codex session] --> D[AGENTS.md]
     C --> E[.claude/rules/second-brain.md]
     D --> E
-    E --> F[specs/README.md]
-    E --> G[memory/README.md]
-    F --> H[Relevant area]
-    G --> H
+    E --> F[brainstorms/README.md]
+    E --> G[specs/README.md]
+    E --> H[memory/README.md]
+    E --> I[work-tracker index]
+    J[Approved durable proposal] --> K[Memory librarian role]
+    K --> E
+    K --> F
+    K --> G
+    K --> H
+    K --> L[Same task worktree]
 ```
 
-### Why the full schema is not copied into both root files
+### 2.1 Why the full schema is not copied into root files
 
-Every session needs an immediate map, so the compact folder dictionary appears
-in both root files. The complete templates and lifecycle instructions do not.
+Every session needs a visible map. It does not need the complete schema copied
+three times.
 
-Keeping the complete schema in three places would make drift likely:
+The root files contain short, equivalent routing sections. The shared rule
+contains detailed behavior. Folder indexes contain the project's actual
+content map.
 
-1. Claude's copy could change;
-2. Codex's copy could change differently; and
-3. the toolkit rule could become a third version.
+For every document type, relationship, index, supporting file, and optional
+metadata element, the shared rule explains its purpose, when to use it, when
+not to use it, whether it is mandatory or optional, its authority boundary, and
+good versus unnecessary examples.
 
-The canonical rule plus two compact routes preserves visibility and one
-detailed source of truth.
+This keeps `CLAUDE.md` and `AGENTS.md` useful while preventing schema drift.
 
-## 4. Plugin source layout
+### 2.2 Why the memory agent has a project role file
 
-The intended toolkit implementation is:
+The reusable role file gives Claude and Codex one shared description of:
+
+- its authority;
+- approved input;
+- placement process;
+- backlink and index responsibilities;
+- worktree boundary;
+- prohibited actions; and
+- report format.
+
+Claude may invoke it as a project agent. Codex may spawn a delegated agent
+instructed to read the same role. The role is consistent even though the two
+host products expose delegation differently.
+
+## 3. Intended plugin source layout
 
 ```text
 plugins/second-brain/
   README.md
+  agents/
+    memory-librarian.md
   skills/
     second-brain/
       SKILL.md
@@ -134,112 +210,310 @@ plugins/second-brain/
         second-brain-rule.md
         folder-layout.md
         markdown-schemas.md
+        orientation-snippet.md
+        adoption-guide.md
     remember/
       SKILL.md
 ```
 
-The reusable rule source is copied into a project as:
+If host plugin packaging requires agent files under another supported location,
+the implementation may adapt the package layout while retaining one canonical
+role source.
+
+The installed project receives:
 
 ```text
 .claude/rules/second-brain.md
+.claude/agents/memory-librarian.md
+brainstorms/README.md
+specs/README.md
+memory/README.md
+memory/context/README.md
+memory/planning/README.md
+memory/decisions/README.md
+memory/knowledge/README.md
+memory/references/README.md
+memory/domain/README.md
+memory/operations/README.md
 ```
 
-The templates remain plugin references used by the skills. They are not copied
-into every project as unused template files.
+Area folders and documents are created only when needed. Template source files
+remain in the plugin and are not copied into projects as unused examples.
 
-## 5. New-project setup conversation
+This preserves the complete memory schema. "Only when needed" applies to
+project-specific system areas such as `authentication/`, `billing/`, or
+`territory-management/`. It does not make the shared rule, memory-librarian
+role, root indexes, or typed memory homes optional within an adopted
+second-brain installation.
 
-The v3 gate should remain short and understandable:
+## 4. Reconciliation with current project-init rules
 
-1. Explain that v3 keeps project knowledge in organized Markdown and Git.
-2. Recommend the initial system areas after inspecting the project.
-3. Show the proposed folder tree.
-4. Ask the owner to approve, edit, or skip it.
-5. Create the approved structure.
-6. Explain where behavior, decisions, knowledge, and tasks now belong.
+V3 must replace conflicting continuity instructions rather than layering more
+rules on top.
 
-The gate does not ask the owner to choose databases, embeddings, automation,
-schemas, or agent infrastructure because none is part of v3.
+When v3 ships:
+
+- `keep-claudemd-current.md` keeps `CLAUDE.md` accurate and thin. Durable
+  details route to `specs/`, `brainstorms/`, or `memory/`.
+- `wrap-up-ritual.md` uses the approved v3 completion triggers. It does not
+  require a memory review for unfinished handoffs.
+- `offer-context-handoff.md` continues to support temporary session transfer
+  without treating every handoff as durable memory.
+- `steer-to-the-goal.md` routes live goals and next actions to work-tracker.
+  Durable vision, roadmap, milestones, and strategic risks route to
+  `memory/planning/`.
+- `work-item-folders.md` retains task-state authority.
+- retired v1 recognition rules are not installed as v3 operating rules.
+- `.claude/rules/README.md` indexes `second-brain.md` once, rather than
+  duplicating its schema.
+
+The implementation must inspect and update every conflicting rule in the same
+plugin change so agents do not receive contradictory instructions.
+
+## 5. New-project setup
+
+The v3 setup conversation stays short:
+
+1. Explain that v3 keeps approved behavior, discovery, and durable project
+   knowledge in organized Markdown and Git.
+2. Explain that work-tracker continues to own tickets.
+3. Recommend initial system areas based on the project explanation and stack.
+4. Show the exact proposed folder tree and root-file changes.
+5. Ask the owner to approve, edit, or skip.
+6. Install the approved structure, shared rule, memory-agent role, and routes.
+7. Offer to conduct initial project discovery using `grill-me`.
+8. Propose initial context and planning documents after discovery.
+
+Project-init does not require formal project ceremonies. A project may begin
+with a plain-language explanation. Stack-specific artifact folders remain part
+of Gate 1 scaffolding rather than second-brain.
 
 ## 6. Existing-project adoption
 
-An existing project may already have:
+### 6.1 Read-only audit
 
-- a flat `specs/` folder;
-- design or architecture folders;
-- ADRs;
-- runbooks;
-- project notes;
-- a work-tracker;
-- a large `CLAUDE.md`; or
-- no `AGENTS.md`.
+Before changing anything, project-sync reports:
 
-Project-sync first maps each existing home to the proposed v3 type and area. It
-then recommends one of three treatments per source:
+- proposed system areas;
+- existing documents mapped to v3 homes;
+- documents already in good canonical homes;
+- likely overlaps or conflicts;
+- broken or stale routing references;
+- live ticket state copied into documentation;
+- missing Claude or Codex routes; and
+- exact files it recommends creating, moving, editing, or leaving alone.
 
-1. **Keep and link.** The existing location is already a good canonical home.
-2. **Move with approval.** The material fits v3 better and all references can
-   be updated safely.
-3. **Consolidate with approval.** Several overlapping documents should become
-   one current document, with important history retained in Git or a clearly
-   superseded record.
+### 6.2 Treatment choices
 
-Adoption must not create a second copy of every existing document just to fit a
-template.
+For each source, recommend:
 
-## 7. First pilot
+1. **Keep and link**
+2. **Move with approval**
+3. **Consolidate with approval**
+4. **Leave unresolved**
 
-After the specification and plugin implementation are separately approved,
-Anchor should be the first pilot because it is a real project with existing
-specifications, work tracking, Claude instructions, Codex instructions, and
-historical memory-system context.
+Deletion is never implied by adoption. Existing history remains in Git.
 
-The pilot is a project-sync exercise, not an automatic migration:
+### 6.3 Brownfield system mapping
 
-1. refresh the merged toolkit;
-2. run a read-only v3 audit in Anchor;
-3. show the proposed area map and exact file changes;
-4. obtain separate owner approval;
-5. install the rule and root routes;
-6. organize only the approved current Git documents;
-7. use v3 during real Anchor work;
-8. collect confusing placement or retrieval cases; and
-9. improve the toolkit specification before broader rollout.
+A separately approved mapping exercise may inspect code, tests, metadata,
+repository history, existing documentation, or Graphify output.
 
-The pilot starts from Anchor's current authoritative Git documents.
+The result can inform:
 
-## 8. Implementation sequence
+- `memory/context/` for project and environment constraints;
+- `memory/knowledge/` for reusable technical understanding;
+- `memory/domain/` for business vocabulary;
+- `memory/planning/` for modernization direction;
+- `specs/` for verified current behavior; and
+- `brainstorms/` for unknowns requiring interviews.
 
-The smallest coherent sequence for the full v3 system is:
+Repository analysis cannot establish owner intent by itself. Agents keep
+observations, inferences, and confirmed requirements distinguishable in normal
+language.
 
-1. Approve this v3 product and technical specification.
-2. Replace the plugin's retired placeholder behavior with the shared rule,
-   templates, and agent-guided setup/review skills.
-3. Update project-init and project-sync to install and audit both Claude and
-   Codex routes.
-4. Test the same scenarios manually with cold Claude and Codex sessions in a
-   temporary repository.
-5. Merge and refresh the toolkit.
-6. Run a read-only Anchor pilot audit.
-7. Ask before changing Anchor.
-8. Refine v3 from the pilot, then offer it to other projects.
+## 7. Main-agent and memory-agent integration
 
-This is the full v3 architecture. The sequence controls rollout risk; it does
-not reduce the product to a smaller substitute.
+### 7.1 Proposal handoff
 
-## 9. Verification without runtime automation
+The main agent gives the memory agent a bounded task containing:
 
-V3 does not need memory scripts or hooks. The implementation can still be
-verified by:
+```text
+Approved content:
+Why it is durable:
+Known canonical documents:
+Known brainstorms and relationships:
+Relevant work item:
+Current worktree:
+Do not infer:
+```
 
-- plugin manifest validation;
-- inspecting the generated project tree;
-- checking Markdown links;
-- starting a cold Claude session and a cold Codex session against the same
-  fixture;
-- asking each agent to find the same behavior and its related decision;
-- completing a sample task and confirming both agents propose useful updates;
-- approving selected updates in normal language; and
-- confirming neither agent writes skipped proposals.
+This is an agent-to-agent communication guide, not a rigid machine payload.
 
-No memory-specific runtime script or hook is installed in a project.
+### 7.2 Memory-agent result
+
+The memory agent returns:
+
+```text
+Changed:
+- file and concise reason
+
+Placement:
+- why the canonical home was chosen
+
+Relationships:
+- indexes and backlinks added or updated
+
+Unresolved:
+- ambiguity or conflict returned to the main agent
+```
+
+The main agent reviews the actual diff. It does not accept a report in place of
+inspection.
+
+### 7.3 Explicit `remember`
+
+`/remember` and phrases such as "remember this" use the same memory-agent path.
+
+If the owner clearly instructs the system to save specific content, that is
+approval to write it. The main agent still supplies context and the memory
+agent determines the canonical home and performs routine index and link
+maintenance without a second filing approval. If the requested meaning is
+unclear, ask one focused question or propose the specific durable takeaway
+first. The request does not authorize a risky or large structural change unless
+that change is also made visible and approved.
+
+There is no separate quick-write store.
+
+## 8. Verification approach
+
+V3 installs no runtime scripts or hooks, but the toolkit implementation still
+needs proportionate tests.
+
+### 8.1 Package and fixture checks
+
+- Validate Claude and Codex plugin manifests.
+- Initialize a temporary greenfield fixture.
+- Confirm only approved roots and areas are created.
+- Confirm both root orientation files route to the same rule.
+- Confirm the memory-agent role is installed.
+- Confirm all root and type indexes link correctly.
+- Confirm each durable fixture document has a title, one-sentence summary,
+  type-appropriate content, and a descriptive index entry.
+- Confirm important links state their direction and meaning in natural
+  language.
+- Confirm no hook, database, MCP, embedding, or transcript component appears.
+
+### 8.2 Cold-agent scenarios
+
+Run the same fixture with a cold Claude session and cold Codex session:
+
+1. Ask each to locate a capability's current behavior.
+2. Ask each to find its relevant brainstorm and decision.
+3. Ask each where roadmap status and ticket status belong.
+4. Complete a sample requirement change.
+5. Confirm the main agent proposes durable updates at the approved point.
+6. Approve selected updates in natural language.
+7. Confirm the memory agent writes only the approved content.
+8. Confirm code, tests, specifications, and memory stay in one worktree.
+9. Confirm skipped proposals are not written.
+
+### 8.3 Brownfield fixture
+
+Create an existing-project fixture with:
+
+- a flat specification folder;
+- an ADR folder;
+- a roadmap;
+- a glossary;
+- a runbook;
+- an oversized `CLAUDE.md`;
+- work-tracker status copied into a current-focus file; and
+- stale links.
+
+Project-sync must report a read-only map before changes and must not mass-move,
+delete, or duplicate content.
+
+### 8.4 Parallel-session scenario
+
+Use two worktrees that update related or overlapping documents. Confirm each
+memory agent stays in its own worktree and Git exposes overlapping edits for
+normal reconciliation.
+
+Tests may inspect generated files and links in the toolkit repository. They do
+not become runtime enforcement installed in client projects.
+
+## 9. First pilot
+
+After the specification and implementation are separately approved, Anchor
+should be the first real pilot.
+
+The pilot sequence is:
+
+1. merge and refresh the implemented toolkit;
+2. run a read-only v3 project-sync audit in Anchor;
+3. show the proposed area map and exact changes;
+4. obtain separate approval before changing Anchor;
+5. install the rule, role, root routes, and approved folder indexes;
+6. organize only approved current Git documents;
+7. use v3 during real feature work;
+8. record confusing retrieval, placement, proposal, or conflict cases; and
+9. refine the toolkit before broader rollout.
+
+Anchor's current Git documents are the starting evidence. No legacy external
+memory is automatically treated as current truth.
+
+## 10. Full implementation sequence
+
+The safe sequence for the complete v3 system is:
+
+1. Refine and approve the v3 technical specification.
+2. Implement the shared rule, memory-agent role, templates, and v3 skills in
+   `second-brain`.
+3. Reconcile the general project rules that overlap completion and continuity.
+4. Update `grill-me` for v3 area-aware capture while preserving its standalone
+   behavior.
+5. Update `project-init` to offer and install the complete v3 system.
+6. Update `project-sync` to audit and adopt v3 safely.
+7. Add greenfield, brownfield, cold-agent, and parallel-worktree verification.
+8. Update all plugin READMEs, the toolkit map, marketplace descriptions, and
+   versions.
+9. Open a pull request and obtain merge approval.
+10. Refresh the toolkit on the pilot machine.
+11. Run the read-only Anchor audit.
+12. Ask separately before changing Anchor.
+13. Pilot during real work, refine, and then roll out to other projects.
+
+This sequence delivers the full architecture. It separates toolkit
+implementation from changes to a client project.
+
+## 11. Explicit implementation exclusions
+
+Do not add:
+
+- a database or cloud service;
+- a memory MCP server;
+- embeddings or semantic retrieval;
+- capture, recall, review, or placement hooks;
+- a natural-language approval parser;
+- a schema validation engine installed in client projects;
+- transcript capture;
+- an autonomous or scheduled curator;
+- a fixed proposal count;
+- automatic Git operations; or
+- automatic project migration.
+
+## Brainstorms that informed this integration
+
+- [Second-brain v3 project memory discovery](../../brainstorms/2026-07-28-second-brain-v3-project-memory.md)
+  - Defines the shared rule, dedicated memory agent, worktree and pull-request
+    boundaries, greenfield and brownfield usage, and review timing.
+
+## Related
+
+- [Second-brain v3 overview](README.md)
+  - Gives the complete system map in plain language.
+- [Technical specification](TECHNICAL-SPECIFICATION.md)
+  - Defines normative v3 behavior.
+- [Markdown schemas](MARKDOWN-SCHEMAS.md)
+  - Defines the project documents installed and maintained by the toolkit.

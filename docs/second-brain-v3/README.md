@@ -1,52 +1,48 @@
 # Second-brain v3
 
-Status: draft technical specification for owner review. Nothing in this folder
-is installed or shipped yet.
+Status: draft technical design for owner review. Nothing in this folder is
+installed or shipped yet.
 
-V3 is a shared Markdown memory and knowledge system for Claude and Codex. It is
-not a database, a background service, or an automated transcript collector. It
-is a project structure plus standing agent instructions:
+Second-brain v3 is a shared project memory and knowledge system for Claude and
+Codex. Its contents are ordinary Markdown files committed to the same Git
+repository as the project.
 
-1. Read the relevant project specifications and durable knowledge before work.
-2. Complete the requested work.
-3. Notice what future sessions should know.
-4. Show the owner any additional specification or memory updates worth making.
-5. Write only the updates the owner approves.
+The system is intentionally simple:
 
-The previous v2 specification is not a requirements source for v3. V3 starts
-from the owner-approved direction documented here.
+1. Root instructions tell Claude and Codex where project truth lives.
+2. Agents read only the material relevant to the work.
+3. The main agent performs the requested work and notices durable information.
+4. At defined completion points, the main agent proposes useful updates.
+5. The owner approves, changes, or skips those proposals in normal language.
+6. A dedicated memory agent organizes and writes the approved Markdown updates.
+7. The updates travel through the same worktree and pull request as the task.
+
+V3 is not a database, knowledge graph, transcript collector, background
+service, or deterministic rules engine. AI judgment decides what is relevant
+and how the approved information fits the schema.
 
 ## The system in one picture
 
 ```mermaid
 flowchart TD
     A[CLAUDE.md or AGENTS.md] --> B[Shared second-brain rule]
-    B --> C[Relevant area indexes]
-    C --> D[Specifications]
-    C --> E[Context]
-    C --> F[Decisions]
-    C --> G[Knowledge]
-    C --> H[References]
-    C --> I[Domain]
-    C --> J[Operations]
-    D <--> F
-    D <--> G
-    E <--> F
-    G <--> H
-    I <--> D
-    J <--> D
-    K[Task work] --> L[End-of-activity review]
-    L --> M[Proposed updates]
-    M --> N{Owner response}
-    N -->|approve or edit| O[Update Markdown]
-    N -->|skip| P[Write nothing]
-    O --> Q[Git history]
+    B --> C[Root indexes and relevant system areas]
+    C --> D[Current specifications]
+    C --> E[Durable memory and knowledge]
+    C --> F[Discovery brainstorms]
+    G[Main agent completes meaningful work] --> H[Main agent proposes durable updates]
+    H --> I{Owner response}
+    I -->|approve or edit| J[Dedicated memory agent]
+    I -->|skip| K[Write nothing]
+    J --> L[Update canonical Markdown, indexes, and backlinks]
+    L --> M[Main agent reviews the diff]
+    M --> N[Task pull request]
+    N --> O[Git history on merge]
 ```
 
 ## Project layout
 
-The folders are organized first by information type and then by the areas that
-make sense for that project. A project creates only the area folders it needs.
+Projects create only the system-area folders and documents they need.
 
 ```text
 project/
@@ -55,142 +51,225 @@ project/
   .claude/
     rules/
       second-brain.md
+    agents/
+      memory-librarian.md
+  brainstorms/
+    README.md
+    <date>-<topic>.md
   specs/
     README.md
     <system-area>/
       README.md
-      <capability>.md
+      <capability>/
+        README.md
+        <optional-supporting-document>.md
   memory/
     README.md
     context/
       README.md
       <system-area>/
-        README.md
-        <topic>.md
+    planning/
+      README.md
+      <system-area>/
     decisions/
       README.md
       <system-area>/
-        README.md
-        <decision>.md
     knowledge/
       README.md
       <system-area>/
-        README.md
-        <topic>.md
     references/
       README.md
       <system-area>/
-        README.md
-        <source>.md
     domain/
       README.md
       <system-area>/
-        README.md
-        <concept>.md
     operations/
       README.md
       <system-area>/
-        README.md
-        <procedure>.md
 ```
 
-`<system-area>` is chosen from the project itself, such as `authentication`,
-`billing`, `reporting`, `salesforce`, or `mobile-app`. It is not a universal
-list imposed by the toolkit.
+`<system-area>` comes from the project, such as `authentication`, `billing`,
+`reporting`, `salesforce`, `mobile-app`, or `project-wide`. V3 does not impose a
+universal list.
 
 ## What each home owns
 
-| Home | What belongs there |
-|---|---|
-| `specs/` | What the product or system must do |
-| `memory/context/` | Durable project circumstances, constraints, and current conditions needed to understand the work |
-| `memory/decisions/` | Decisions, reasons, alternatives, and consequences |
-| `memory/knowledge/` | Non-obvious technical or project knowledge future work should reuse |
-| `memory/references/` | Useful external or internal sources and why they matter |
-| `memory/domain/` | Business language, concepts, rules, and examples |
-| `memory/operations/` | How to operate, release, recover, or support the system |
-| Work tracker | Backlog, ticket status, blockers, dependencies, handoffs, and proof that work reached the main branch |
+| Home | What belongs there | Authority |
+|---|---|---|
+| `specs/` | Current approved product and system behavior | Authoritative for what the system should do |
+| `brainstorms/` | Raw discovery, interviews, options, and unresolved exploration | Non-authoritative input to later decisions and specifications |
+| `memory/context/` | Durable circumstances, constraints, stakeholders, and project background | Current project context |
+| `memory/planning/` | Vision, goals, roadmap, milestones, timeline, strategic dependencies, durable risks, and assumptions | Current high-level direction, not ticket status |
+| `memory/decisions/` | Important choices, reasons, alternatives, and consequences | Current rationale unless marked superseded |
+| `memory/knowledge/` | Reusable technical and project understanding | Current durable understanding |
+| `memory/references/` | Sources and why they matter | Supporting material, not automatic truth |
+| `memory/domain/` | Business language, concepts, actors, policies, and examples | Current domain meaning |
+| `memory/operations/` | How to operate, release, recover, support, and verify the system | Current operating guidance |
+| Project artifact folders | Raw meeting notes, transcripts, communications, deliverables, research, and source exports | Canonical raw evidence |
+| Work tracker | Backlog, ticket status, blockers, ticket relationships, handoffs, branches, pull requests, and landing proof | Authoritative for work state |
+| Git | Exact document history, branches, review, and recovery | Authoritative history |
 
-V3 does not copy work-tracker status into memory. Memory files may link to a
-work item when it provides useful history or context.
+One piece of truth has one canonical home. Other documents link to it instead
+of copying it.
+
+## How discovery becomes approved behavior
+
+Brainstorms stay in one flat folder because discovery often crosses system
+areas or begins before the correct area is known. Specifications use stable
+system-area folders because they describe approved current behavior.
+
+```mermaid
+flowchart LR
+    A[Interview or exploration] --> B[brainstorms/date-topic.md]
+    B --> C{Owner approves behavior}
+    C -->|yes| D[specs/system-area/capability/README.md]
+    C -->|not yet| B
+    D --> E[Implementation and tests]
+    B <--> D
+```
+
+Every specification links to all applicable brainstorms that informed it.
+Each brainstorm links back to every resulting specification. One brainstorm
+may inform several specifications, and one specification may use several
+brainstorms.
+
+`brainstorms/README.md` indexes the dated files and their resulting
+specifications. A brainstorm is stored once, never copied into every area it
+touches.
+
+Raw brainstorming never becomes current behavior merely because an agent wrote
+it down.
+
+## How specifications evolve
+
+Each capability has its own folder. Its `README.md` is the one required,
+canonical specification. Supporting documents such as `user-flows.md`,
+`data-model.md`, `interfaces.md`, or `migration.md` are created only when they
+make a substantial specification easier to understand.
+
+The canonical specification describes current approved behavior. Git preserves
+its exact previous versions. An important historical choice receives a linked
+decision record when its rationale will help future work. Routine changes do
+not require duplicate archived specifications or a changelog.
+
+If old behavior is still deployed, supported, or relevant for compatibility,
+the current specification describes that continuing boundary.
 
 ## Where the agent instructions live
 
-The full operating instructions and detailed Markdown schemas have one
-canonical home: `.claude/rules/second-brain.md`.
+The detailed schema and operating instructions have one canonical project home:
 
-Both `CLAUDE.md` and `AGENTS.md` contain the same short v3 orientation:
-
-- read `.claude/rules/second-brain.md`;
-- show the folder map above in compact form;
-- identify `specs/` as product and system behavior;
-- identify the six `memory/` types; and
-- explain that the work tracker, not memory, owns ticket status.
-
-This gives every Claude and Codex session an immediate map without maintaining
-two full copies of the rules. Codex reaches the shared rule through
-`AGENTS.md`; Claude reaches it through `CLAUDE.md` and the existing
-`.claude/rules/` convention.
-
-## How documents connect
-
-Every durable document has a `Related` section containing ordinary relative
-Markdown links. A relationship that matters in both directions is written in
-both documents. For example:
-
-```markdown
-## Related
-
-- [Password reset specification](../../../specs/authentication/password-reset.md)
-  - Defines the behavior this decision supports.
-- [Email delivery knowledge](../../knowledge/authentication/email-delivery.md)
-  - Explains an implementation constraint.
+```text
+.claude/rules/second-brain.md
 ```
 
-Area `README.md` files index the documents in that area. An agent begins with
-the relevant index, follows the links it needs, and searches the repository
-when the task crosses areas. There is no generated graph or required index.
+Both `CLAUDE.md` and `AGENTS.md` contain a short folder map and tell their agent
+to read that shared rule. This gives both platforms immediate orientation
+without maintaining three copies of the complete instructions.
 
-## When updates are considered
+The dedicated memory agent reads the same shared rule and the relevant project
+indexes. Its reusable role instructions live at
+`.claude/agents/memory-librarian.md`. The path is shared project content even
+when Codex invokes the role through its own delegation mechanism.
 
-The main agent performs a short knowledge review:
+## When the main agent proposes updates
 
-- after completing a task;
-- when the owner indicates that a chat or work session is ending;
-- at a handoff or wrap-up;
-- at the end of a milestone or project phase;
-- when a project ends; and
-- when the owner says `/remember`, "remember this", or similar words.
+The main agent conducts a short durable-knowledge review only:
 
-Because v3 has no hooks, it cannot react after a chat window is closed without
-a final agent turn. The review happens at the natural close of work in the
-conversation.
+- when a substantial task request is complete, before its pull request is
+  opened or merged;
+- at the end of a brainstorming or requirements interview; and
+- at the end of a milestone or project phase.
 
-The agent reports what the task already updated, then proposes every additional
-durable update it genuinely recommends. There is no fixed number of proposals.
-The owner may approve all, approve selected items, edit any item in normal
-language, or skip. The agent does not write unapproved post-activity proposals.
+An unfinished-session handoff does not trigger this review. Neither does every
+chat message, commit, or routine response.
+
+The main agent proposes every useful update it recommends. There is no fixed
+number. The owner may approve all, approve selected items, change wording or
+destinations, defer an item, or skip everything.
+
+The memory agent writes only the approved content and the index or backlink
+changes necessary to keep that content navigable.
+
+## Parallel sessions and Git
+
+Every active chat session works in its own worktree and branch. Its memory agent
+writes only inside that same worktree.
+
+Task-related code, tests, specifications, and approved memory updates normally
+use one pull request. A brainstorming-only session or standalone memory cleanup
+may use a documentation-only pull request.
+
+The memory agent never writes directly to `main`, another session's worktree,
+or a shared external store. If parallel branches edit the same canonical
+document, Git exposes the conflict for deliberate reconciliation.
+
+## Greenfield and brownfield projects
+
+For a greenfield project, v3 starts with the project explanation, high-level
+planning, system-area discovery, and approved specifications.
+
+For a brownfield project, v3 begins with a read-only map of the existing
+repository and documentation. Graphify or another analysis tool may help
+produce that map, but its output is evidence rather than current truth.
+Interviews backfill intent, business context, history, and constraints that
+cannot be safely inferred from code.
+
+Existing documents are kept and linked, moved with approval, or consolidated
+with approval. Adoption does not duplicate every document into a template or
+turn unverified inference into authoritative memory.
+
+Raw meeting notes, transcripts, communications, deliverables, and other project
+artifacts stay in their ordinary project scaffolding. V3 links to useful
+evidence and preserves approved durable outcomes rather than copying the raw
+record into agent memory.
+
+## Optional document aids
+
+Every durable specification or memory document has a descriptive title,
+one-sentence summary, type-specific content, contextual relationships when
+useful, and a one-sentence entry in the nearest index.
+
+`Status`, validity guidance, `Tags`, `Sources`, and `Aliases` are optional
+everywhere. An agent uses them only when they make a document easier to find,
+understand, verify, or keep current. Templates do not require them or include
+empty placeholders.
+
+A time-sensitive document may use an owner-approved `Review after: <date>` or
+`Review when: <event>`. Reaching the date or event tells an agent to verify the
+information before relying on it. It does not automatically expire or rewrite
+the document.
+
+Normal Markdown links, descriptive titles, system-area indexes, and backlinks
+are the primary navigation system.
 
 ## Specification set
 
 - [Technical specification](TECHNICAL-SPECIFICATION.md): authority, reading,
-  writing, linking, review, correction, and acceptance behavior.
-- [Markdown schemas](MARKDOWN-SCHEMAS.md): the human-readable structure of each
-  document type.
-- [Toolkit integration](TOOLKIT-INTEGRATION.md): how the plugin,
-  `project-init`, `project-sync`, `CLAUDE.md`, and `AGENTS.md` fit together.
+  proposing, approval, memory-agent writing, concurrency, correction, and
+  acceptance behavior.
+- [Markdown schemas](MARKDOWN-SCHEMAS.md): human-readable shapes for
+  brainstorms, specification folders, planning, and all other memory types.
+- [Toolkit integration](TOOLKIT-INTEGRATION.md): plugin boundaries,
+  `project-init`, `project-sync`, work-tracker, grill-me, Claude, Codex, and
+  rollout.
+- [Discovery record](../../brainstorms/2026-07-28-second-brain-v3-project-memory.md):
+  raw owner interview and repository evidence that informed this design.
 
 ## Explicitly not part of v3
 
 - database, Worker, or hosted memory service;
-- MCP memory connector;
+- memory MCP connector;
 - embeddings or semantic search;
-- runtime scripts for memory behavior;
-- Claude or Codex hooks for capture, recall, or review;
+- scripts or hooks for capture, recall, review, or placement;
 - transcript or per-message capture;
-- background curator agents;
-- scheduled maintenance or AI curation;
-- a natural-language command parser;
-- a fixed limit on proposed updates;
-- automatic commits, pushes, or deployments; or
-- a second ticket or backlog system.
+- background, scheduled, or autonomous curation;
+- a deterministic natural-language approval parser;
+- machine-enforced document schemas;
+- mandatory tags, sources, aliases, or YAML frontmatter;
+- a fixed proposal limit;
+- automatic commits, pushes, merges, or deployments; or
+- a second ticket, backlog, or handoff system.
+
+The dedicated memory agent is invoked for an approved update. It is not a
+background curator and does not act independently.

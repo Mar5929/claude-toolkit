@@ -1,6 +1,6 @@
 {
   "name": "second-brain",
-  "version": "0.15.1",
+  "version": "0.15.2",
   "description": "Retires second-brain v1 while the Markdown-only v3 specification is reviewed. V3 is not shipped, and v2 is superseded.",
   "author": {
     "name": "Mike Rihm",
