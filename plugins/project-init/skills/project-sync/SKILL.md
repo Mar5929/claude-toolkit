@@ -58,7 +58,7 @@ automatically as it grows.
   - anything newer listed in the toolkit README under "What's here now"
   - skip roadmap items; they aren't built yet and can't be audited. The Unit 00
     v1 retirement behavior is the exception: existing v1 integration must be
-    reported even though v2 itself is still a roadmap item
+    reported even though v3 itself is still a roadmap item
 - Note the toolkit version (from `plugin.json` or `marketplace.json`) for the
   sync record in step 5.
 
@@ -75,8 +75,9 @@ secrets rule even if the prose differs. Typical checks:
 - **CLAUDE.md health** (presence is not enough, see below).
 - **Hooks**: are guard and orientation hooks configured (the project's
   `.claude/` settings and hook scripts)?
-- **Second-brain status:** v1 is the retired Neon/MCP architecture. V2 is
-  specified but not shipped. If the project has no v1, mark memory and
+- **Second-brain status:** v1 is the retired Neon/MCP architecture. V3 is
+  specified but not shipped, and v2 is superseded. If the project has no v1,
+  mark memory and
   knowledge **deferred** and do not offer installation. If it has v1, identify
   only the local integration surface: `.mcp.json`, `.claude/settings.json`,
   `.codex/config.toml`, hook registrations and wrappers, curator agents, v1
@@ -173,7 +174,7 @@ should look in THIS project, confirm, act, summarize. Ground rules:
 - Never weaken something the project already does better than the toolkit
   version. If the project's variant is an improvement, leave it and flag it
   for port-back instead (see wrap-up).
-- Do not install second-brain v1 or claim v2 is available. For an existing v1
+- Do not install second-brain v1 or claim v3 is available. For an existing v1
   project, offer the following only after reporting the exact local scope:
   1. **Deactivate:** remove v1 MCP entries and automatic hook registrations
      from committed Claude and Codex configuration. Preserve old scripts and
@@ -181,7 +182,7 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   2. **Remove local integration:** delete only the committed v1 files and
      settings the owner explicitly approves.
   Neither option contacts the Worker or Neon, reads legacy memory, imports
-  anything into v2, or deletes cloud infrastructure. Account-level connectors,
+  anything into v3, or deletes cloud infrastructure. Account-level connectors,
   local token cleanup, and cloud deletion are separate owner-approved work.
 - For an approved work-tracker gap, install the plugin and run `work init` at
   the detected canonical path. This may add metadata and generated views, but

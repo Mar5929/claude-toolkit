@@ -76,7 +76,7 @@ memory system.
 
 **`.claude/`**: project-scoped Claude Code setup. Scaffold it empty at Gate 1
 with `rules/`, `hooks/`, `agents/`, and `settings.json`. Gate 2 adds approved
-guards. Gates 3 and 4 are deferred until v2 ships and do not add v1 memory or
+guards. Gates 3 and 4 are deferred until v3 ships and do not add v1 memory or
 knowledge hooks and agents.
 
 ## Config defaults

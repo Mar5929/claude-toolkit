@@ -41,9 +41,9 @@ session, because a line in CLAUDE.md tells the session to read `.claude/rules/`.
   - the toolkit port-back convention (if the project uses the toolkit), and how
     to pull toolkit updates into this project: update the plugin
     (`/plugin marketplace update claude-toolkit`), then run `/project-sync`
-  - which gates ran, plus memory and knowledge gates recorded as deferred during
-    Unit 00, so future sessions do not mistake v2 specifications for an
-    installed system.
+  - which gates ran, plus memory and knowledge gates recorded as deferred, so
+    future sessions do not mistake the v3 specification for an installed
+    system or treat the superseded v2 proposal as current.
 - **MCP tool rules**: only for the MCP servers the project actually uses, folded
   in from `mcp-best-practices.md` (or copied as their own `.claude/rules/`
   files if the project prefers one file per rule everywhere).

@@ -1,5 +1,8 @@
 # Unit 09: verification and cost gates
 
+> Historical only. V3 has no numbered implementation units and does not inherit
+> this unit. Read [`docs/second-brain-v3/`](../../second-brain-v3/README.md).
+
 Status: proposed. Applies to every unit.
 
 ## Outcome

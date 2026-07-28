@@ -94,12 +94,12 @@ claude-toolkit/
         project-init/             ← SKILL.md + references/ (setup-flow, thin-claudemd,
                                      general-rules/, salesforce-rules/, mcp-best-practices)
         project-sync/             ← SKILL.md
-    second-brain/                 ← plugin: v1 retirement controls; v2 not shipped
+    second-brain/                 ← plugin: v1 retirement controls; v3 draft not shipped
       README.md
       .claude-plugin/plugin.json
       .codex-plugin/plugin.json
       skills/
-        second-brain/             ← SKILL.md + archived v1 references; v2 spec lives in docs/
+        second-brain/             ← SKILL.md + archived v1 references; v3 spec lives in docs/
         remember/                 ← SKILL.md
     sf-architect-solutioning/     ← plugin: Salesforce solution architect
       README.md
@@ -139,6 +139,7 @@ claude-toolkit/
   docs/
     toolkit-map.md                ← the catalog: every item and how they relate
     architecture.html             ← visual map of how the pieces fit
+    second-brain-v3/              ← current draft memory and knowledge specification
 ```
 
 Each **concern is its own plugin/skill** so it can evolve and be reused
@@ -161,8 +162,8 @@ explains how the pieces relate.
 
 | Plugin | What it does |
 |---|---|
-| **[project-init](plugins/project-init/README.md)** | Sets up or syncs a project, offers work-tracker with safe adoption of older folders, and defers second-brain while v2 is unshipped. It can retire approved local v1 wiring without touching cloud resources. |
-| **[second-brain](plugins/second-brain/README.md)** | V1 is retired and will not be deployed, exported, or migrated. V2 starts fresh from authoritative Git content but is not shipped. `/remember` remains unavailable. |
+| **[project-init](plugins/project-init/README.md)** | Sets up or syncs a project, offers work-tracker with safe adoption of older folders, and defers second-brain while v3 is under review. It can retire approved local v1 wiring without touching cloud resources. |
+| **[second-brain](plugins/second-brain/README.md)** | V3 is a draft Markdown-only memory and knowledge system for Claude and Codex. It is not shipped. The previous v2 proposal is superseded, and the current plugin still prevents v1 installation. |
 | **[sf-architect-solutioning](plugins/sf-architect-solutioning/README.md)** | A Salesforce solution architect: pushes back on vague requirements, verifies platform facts against official docs by live fetch, designs declarative-first to Well-Architected standards, and presents a solution plan for approval before any build. Salesforce projects only. |
 | **[git-workflows](plugins/git-workflows/README.md)** | Three parallel-session-safe git lifecycle skills: `pull-latest` gets current without rewriting history, `reset-to-remote` mirrors the remote behind confirmation, and `merge-and-clean-up` lands an approved PR before removing only its completed workspace. |
 | **[session-autoname](plugins/session-autoname/README.md)** | Keeps a background agent session named after the overarching project it is working on, never the step it is on. A Stop hook re-checks the label each turn from a cheap Haiku call and holds it steady until the project itself changes, so a long session stops lying in the job list without the name churning. One-time per-machine install, not per project. |
@@ -176,26 +177,27 @@ explains how the pieces relate.
 These are the reusable systems I want to fold in here over time. Ordered roughly
 by priority; each becomes its own skill/plugin so `project-init` can pull it in.
 
-- [ ] **Second-brain v2 rework**: Unit 00 retires v1. The source-only controls
-  from PR #65 remain archived and will not be deployed, and legacy memory will
-  not be imported. The remaining work will replace
-  remote authoritative memory and
-  open-ended curator subagents with a Git-native project knowledge system.
-  Authoritative behavior stays under `specs/`; decisions, context,
-  implementation knowledge, references, domain knowledge, and operations live
-  in typed folders under `memory/`. Agents automatically review worthwhile
-  knowledge updates at the end of substantial work. The owner can say `yes go`,
-  select or edit proposals, or skip them, while `/remember` remains optional.
-  The default needs no database or embedding model. Any later database is a
-  disposable index rebuilt from Git, never a second source of truth. The
-  proposed architecture is indexed in
-  [`docs/second-brain-v2/`](docs/second-brain-v2/README.md). This is a design,
-  not the currently shipped plugin.
+- [ ] **Second-brain v3**: a shared Markdown memory and knowledge system for
+  Claude and Codex. Product and system behavior is organized by area under
+  `specs/`. Context, decisions, knowledge, references, domain material, and
+  operations are organized by type and project-specific area under `memory/`.
+  Root `CLAUDE.md` and `AGENTS.md` files give every session the compact folder
+  map and route both agents to one canonical detailed rule. Documents use
+  ordinary Markdown backlinks. At natural completion points, the main agent
+  reports what it already incorporated and proposes every additional durable
+  update it recommends. The owner approves, selects, edits, combines, defers,
+  or skips proposals in normal language. There is no fixed proposal limit.
+  The system requires no database, MCP server, scripts, hooks, embeddings,
+  transcript capture, curator agents, or scheduled jobs. The current draft is
+  indexed in
+  [`docs/second-brain-v3/`](docs/second-brain-v3/README.md). It is a
+  specification, not shipped functionality. The old v2 proposal is
+  superseded.
 - [x] **`second-brain` v1 retirement controls**: v1 must not be installed,
   deployed, exported, or migrated. The archived implementation remains for
   historical inspection with its default deployment path disabled. Existing
   Worker and Neon resources stay untouched until separately approved for
-  deletion. V2 starts from authoritative Git content.
+  deletion.
 - [x] **`work-tracker` plugin**: a dependency-free Git-native tracker shared
   by Claude and Codex. It owns backlog, active status, blockers, relationships,
   handoffs, and verified landing evidence. Its optional GitHub adapter creates

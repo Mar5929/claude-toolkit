@@ -1,5 +1,9 @@
 # Second-brain v2 technical architecture
 
+> Historical only. This architecture is superseded by
+> [`docs/second-brain-v3/`](../second-brain-v3/README.md). Do not implement it or
+> treat its requirements as part of v3.
+
 Status: proposed and still being refined through architecture reviews.
 
 This document is the high-level source of truth for the proposed second-brain

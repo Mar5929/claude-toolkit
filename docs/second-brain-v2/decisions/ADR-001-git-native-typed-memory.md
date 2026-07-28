@@ -1,5 +1,9 @@
 # ADR-001: Git-native specifications and typed project memory
 
+> Historical only. This v2 decision is not a v3 requirement. Read
+> [`docs/second-brain-v3/`](../../second-brain-v3/README.md) for the current
+> draft.
+
 Status: accepted for the v2 technical specification.
 
 ## Context

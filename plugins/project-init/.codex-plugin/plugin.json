@@ -1,7 +1,7 @@
 {
   "name": "project-init",
-  "version": "0.8.0",
-  "description": "New-project setup and toolkit sync, including the Git-native work-tracker and optional standalone skills. Safely adopts existing work-item folders and defers second-brain until v2 ships.",
+  "version": "0.8.1",
+  "description": "New-project setup and toolkit sync, including the Git-native work-tracker and optional standalone skills. Safely adopts existing work-item folders and defers second-brain until v3 ships.",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com",
@@ -18,7 +18,7 @@
   "interface": {
     "displayName": "Project Init",
     "shortDescription": "Initialize or sync a project with Mike's toolkit.",
-    "longDescription": "Project setup and sync workflows from Mike Rihm's portable toolkit. Includes guided new-project setup, safe work-tracker installation and adoption, existing-project audits, and optional standalone skills. It defers second-brain until v2 ships and can retire local v1 integration without touching cloud resources.",
+    "longDescription": "Project setup and sync workflows from Mike Rihm's portable toolkit. Includes guided new-project setup, safe work-tracker installation and adoption, existing-project audits, and optional standalone skills. It defers second-brain until v3 ships and can retire local v1 integration without touching cloud resources.",
     "developerName": "Mike Rihm",
     "category": "Productivity",
     "capabilities": [

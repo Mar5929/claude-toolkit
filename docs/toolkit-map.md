@@ -11,7 +11,7 @@ depth lives in each plugin's own `README.md` and reference indexes.
 | Plugin | Purpose | Skills | Install |
 |---|---|---|---|
 | [project-init](../plugins/project-init/README.md) | Put the toolkit's rules and systems into a project, new or existing | `project-init`, `project-sync` | `/plugin install project-init` |
-| [second-brain](../plugins/second-brain/README.md) | Retire v1 while Git-native v2 is built | `second-brain`, `remember` | No installation until v2 ships |
+| [second-brain](../plugins/second-brain/README.md) | Hold the current retirement boundary while Markdown-only v3 is specified | `second-brain`, `remember` | No v3 installation yet |
 | [sf-architect-solutioning](../plugins/sf-architect-solutioning/README.md) | Salesforce solution architect: approved solution plan before any build | `sf-architect-solutioning` | `/plugin install sf-architect-solutioning` |
 | [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git lifecycle workflows | `pull-latest`, `reset-to-remote`, `merge-and-clean-up` | `/plugin install git-workflows` |
 | [session-autoname](../plugins/session-autoname/README.md) | Background agent sessions stay named after their overarching project | `session-autoname` | `/plugin install session-autoname` |
@@ -52,11 +52,15 @@ These are not duplicated here. Go to the index that owns them:
   `plugins/second-brain/skills/second-brain/references/`.
   They are archived historical evidence, not installation, deployment, export,
   or migration instructions. The old Worker has no default deploy path.
-- **Proposed second-brain v2 rework**: [docs/second-brain-v2/README.md](second-brain-v2/README.md)
-  indexes the not-yet-shipped Git-native technical architecture and its working
-  implementation units. The architecture and units reflect the Git-first,
-  typed-memory, proactive-review direction. The plugin README is the canonical
-  current status. V2 starts from authoritative Git content and is not shipped.
+- **Draft second-brain v3**:
+  [docs/second-brain-v3/README.md](second-brain-v3/README.md) indexes the
+  current Markdown-only technical specification, schemas, and toolkit
+  integration design. The plugin README is the canonical shipping status. V3
+  is not shipped.
+- **Superseded second-brain v2 proposal**:
+  [docs/second-brain-v2/README.md](second-brain-v2/README.md) is retained as
+  historical design material. Its numbered units and requirements are not
+  inherited by v3.
 - **sf-architect references**: the `metadata/*` guides and templates under
   `plugins/sf-architect-solutioning/skills/sf-architect-solutioning/references/`.
 
@@ -84,7 +88,7 @@ The genuine watch-items are called out at the end.
   Retirement authorizes no read or write fallback. Do not use another project's
   store.
 - **The outbox versus the capture journal.** Both are retired v1 mechanisms at
-  opposite ends of the old pipeline. Neither is imported into v2. Local removal
+  opposite ends of the old pipeline. Neither is imported into v3. Local removal
   must show the exact paths and separately confirm deletion of any non-empty
   user material.
 - **work-tracker versus the older work-items tree.** Not two trackers.
@@ -94,10 +98,10 @@ The genuine watch-items are called out at the end.
   index as a generated view. The six structured statuses distinguish Backlog
   from Ready and In Progress from In Review without creating another folder
   hierarchy.
-- **work-tracker versus second-brain v2.** work-tracker owns task status,
+- **work-tracker versus second-brain v3.** work-tracker owns task status,
   blockers, work-item relationships, branch and pull-request evidence, and the
-  current handoff. V2 may point decisions, requirements, and durable knowledge
-  at a work-item ID, but it does not copy or overrule status.
+  current handoff. V3 may link specifications and durable memory to a work-item
+  folder, but it does not copy or overrule task status.
 - **work-tracker versus GitHub Projects.** Git files are authoritative by
   default. The optional adapter creates or updates repository issues and a
   Project as a collaboration mirror. Generated dashboards, GitHub issue bodies,
@@ -125,10 +129,11 @@ The genuine watch-items are called out at the end.
   handoff doc and commit), `offer-context-handoff` (hand a fresh session a
   self-contained prompt), `work-item-folders` (use work-tracker and keep one
   canonical folder per item),
-  `steer-to-the-goal` (save a goal that outlasts one chat), and the conditional
-  `memory-system-ground-rules` (route durable memory through the curator). Each
-  targets a distinct moment (mid-work, wrap-up, session handoff, per-task,
-  per-goal, long-term memory), so they compose rather than repeat.
+  `steer-to-the-goal` (preserve a goal that outlasts one chat), and the
+  conditional `memory-system-ground-rules` (recognize and avoid a retired local
+  v1 integration). Each targets a distinct moment, so they compose rather than
+  repeat. When v3 ships, its shared rule will own the end-of-activity durable
+  knowledge review.
   `keep-claudemd-current` names the status doc, the design doc, and long-term
   memory as destinations for detail that does not belong in CLAUDE.md, but it
   does not own any of them; the rules above do. Naming where something goes is
@@ -154,18 +159,14 @@ The genuine watch-items are called out at the end.
 - **second-brain v1's heavy infrastructure.** The legacy system used a Worker,
   a per-project database, embeddings, and two curators. Its complexity
   contributed to the correctness and curator-cost failures that led to
-  retirement. Do not install it in a new project. The proposed
-  [second-brain v2 rework](second-brain-v2/README.md) responds to measured
-  correctness and curator-cost failures by keeping requirements under `specs/`,
-  organizing other memory under typed `memory/` folders, making Git the
-  authority, proactively proposing end-of-task updates, removing curator agents
-  from normal wrap-up, and reserving databases for optional rebuildable search
-  or structural indexes.
+  retirement. Do not install it in a new project. The draft
+  [second-brain v3](second-brain-v3/README.md) is a fresh Markdown-only design
+  and does not use that infrastructure.
 - **Overlap with Claude Code's native memory.** Claude Code now ships an
   auto-memory feature that captures cross-session notes on its own (machine-local).
   It overlapped part of the legacy v1 capture system. Existing v1 projects
-  should deactivate the old automatic capture paths. The v2
-  design treats Git as authoritative and does not require transcript capture.
+  should deactivate the old automatic capture paths. The v3 design uses
+  project Markdown and does not require transcript capture.
 
 ## For an agent asked "what is X?"
 

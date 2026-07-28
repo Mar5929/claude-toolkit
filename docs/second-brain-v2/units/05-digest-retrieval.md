@@ -1,5 +1,8 @@
 # Unit 05: routing, retrieval, and optional index
 
+> Historical only. V3 has no numbered implementation units and does not inherit
+> this unit. Read [`docs/second-brain-v3/`](../../second-brain-v3/README.md).
+
 Status: proposed. Depends on Units 01 through 04.
 
 ## Outcome

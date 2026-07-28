@@ -1,7 +1,7 @@
 {
   "name": "second-brain",
-  "version": "0.15.0",
-  "description": "Retires second-brain v1 while the Git-native v2 system is being implemented. V1 is not installed, deployed, exported, or migrated.",
+  "version": "0.15.1",
+  "description": "Retires second-brain v1 while the Markdown-only v3 specification is reviewed. V3 is not shipped, and v2 is superseded.",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com",
@@ -17,8 +17,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Second Brain",
-    "shortDescription": "Retire v1 while v2 is built.",
-    "longDescription": "Retires the legacy Neon/MCP second-brain v1 system. Local v1 integrations may be deactivated or removed with approval; v2 starts from Git but remains specified and not shipped.",
+    "shortDescription": "Hold v1 retirement while v3 is reviewed.",
+    "longDescription": "Retires the legacy Neon/MCP second-brain v1 system while the Markdown-only v3 specification is reviewed. Local v1 integrations may be deactivated or removed with approval. V3 is not shipped, and the old v2 proposal is superseded.",
     "developerName": "Mike Rihm",
     "category": "Productivity",
     "capabilities": [
@@ -29,7 +29,7 @@
     "defaultPrompt": [
       "Check this project's second-brain status",
       "Deactivate this retired v1 setup",
-      "Explain the v2 fresh-start status"
+      "Explain the v3 specification status"
     ],
     "brandColor": "#2563EB"
   }

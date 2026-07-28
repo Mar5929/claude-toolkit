@@ -1,29 +1,33 @@
 # second-brain plugin
 
-The toolkit's project memory system is between generations:
+The toolkit's next project memory and knowledge system is being designed as
+v3:
 
-- **V1 is retired.** The old shared Cloudflare Worker and per-project Neon
-  databases are not approved sources of truth. They will not be deployed,
-  frozen, exported, backed up for migration, or imported into v2.
-- **V2 is specified but not shipped.** Its Git-native architecture is under
-  [`docs/second-brain-v2/`](../../docs/second-brain-v2/README.md). There is no v2
-  installer yet.
+- **V3 has a draft specification but is not shipped.** Its Markdown-only
+  architecture is under
+  [`docs/second-brain-v3/`](../../docs/second-brain-v3/README.md). There is no
+  v3 installer yet.
+- **The previous v2 specification is superseded.** It is retained temporarily
+  as historical design material and is not a v3 requirements source.
+- **V1 remains retired.** The current plugin behavior still prevents an old
+  Cloudflare Worker and Neon integration from being installed or used while
+  v3 is under review.
 
 Existing Worker and Neon resources remain untouched until the owner separately
 approves deletion.
 
 ## Skills
 
-- **second-brain** (`/second-brain`): refuses v1 installation, reports that v2
+- **second-brain** (`/second-brain`): refuses v1 installation, reports that v3
   is not shipped, and can identify local v1 integration files in an existing
   project. With approval it may deactivate or remove local integration only.
 - **remember** (`/remember`): returns `v1_retired` and writes nothing until the
-  Git-native v2 review and apply workflow ships.
+  Markdown v3 review and approval workflow ships.
 
 ## New projects
 
 `project-init` defers memory and knowledge Gates 3 and 4. It never installs v1
-and never creates a partial imitation of v2.
+and never creates a partial imitation of v3.
 
 ## Existing projects
 
@@ -34,7 +38,7 @@ agents, rules, and scaffolding. It offers:
 2. removal of explicitly approved local integration files.
 
 Neither choice contacts the Worker or Neon, reads legacy memory, imports content
-into v2, deletes local secrets, or deletes cloud infrastructure. Account-level
+into v3, deletes local secrets, or deletes cloud infrastructure. Account-level
 connectors, local token cleanup, and cloud deletion are separate work.
 
 ## Archived v1 implementation
@@ -48,17 +52,21 @@ The archived Worker under `references/server/` has no default
 code makes the decisions and failure history inspectable without shipping a
 normal deployment path.
 
-## V2 starting point
+## V3 design direction
 
-V2 starts from authoritative Git content:
+V3 is designed as a human-readable Git and Markdown system:
 
-- current requirements already committed to the project;
-- current operational and design documentation already committed to the
-  project; and
-- new owner-approved knowledge created through the v2 workflow after it ships.
+- product and system behavior is organized by area under `specs/`;
+- context, decisions, knowledge, references, domain material, and operations
+  are organized by type and area under `memory/`;
+- related documents use ordinary Markdown backlinks;
+- `CLAUDE.md` and `AGENTS.md` route both agents to one shared detailed rule;
+- the main agent proposes useful updates at natural completion points; and
+- the owner approves, edits, selects, or skips proposals in normal language.
 
-Legacy Neon memory, journals, curator output, caches, and outboxes are not v2
-inputs.
+V3 does not require a database, memory MCP server, scripts, hooks, embeddings,
+transcript capture, curator agents, scheduled curation, or a fixed proposal
+limit.
 
 ## Verification
 
@@ -80,5 +88,5 @@ npm run check
 
 A content change bumps both plugin manifests and the marketplace metadata
 version. Keep this README, the root README, `docs/toolkit-map.md`,
-`project-init`, and `project-sync` aligned so none of them mistakes v2
-specifications for shipped functionality.
+`project-init`, and `project-sync` aligned so none of them mistakes the v3
+specification for shipped functionality or treats v2 as current.

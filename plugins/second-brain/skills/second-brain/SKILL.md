@@ -1,7 +1,7 @@
 ---
 name: second-brain
 description: >-
-  Handle second-brain requests while v1 is retired and Git-native v2 is
+  Handle second-brain requests while v1 is retired and Markdown-only v3 is
   specified but not shipped. Never install, deploy, read, export, or migrate
   v1. For an existing project, identify local v1 integration files and offer a
   separately approved deactivation or local removal. Do not contact Worker or
@@ -13,10 +13,12 @@ description: >-
 There is currently no production-ready second-brain installation path:
 
 - v1 is retired.
-- v2 is a technical specification under `docs/second-brain-v2/`, not shipped
+- v3 is a draft technical specification under `docs/second-brain-v3/`, not shipped
   functionality.
+- the previous v2 specification is superseded and is not a v3 requirements
+  source.
 
-Do not install or revive v1. Do not claim v2 can be installed yet.
+Do not install or revive v1. Do not claim v3 can be installed yet.
 
 ## New project
 
@@ -31,7 +33,7 @@ Record second-brain as deferred. Do not add v1 components.
 ## Existing project with v1
 
 Treat the integration as retired. Do not call its reads or writes, and do not
-use its content as current truth or as input to v2.
+use its content as current truth or as input to v3.
 
 Offer two local-only choices, one at a time and only with owner approval:
 
@@ -51,23 +53,23 @@ Do not access or change them.
 
 ## `/remember`
 
-`/remember` remains unavailable until the Git-native v2 review and apply
+`/remember` remains unavailable until the Markdown v3 review and approval
 workflow ships. Do not dispatch a curator, write a journal, flush an outbox, or
 create an ad hoc replacement.
 
 ## Retirement boundary
 
 - No v1 deployment will occur.
-- No v1 memory will be exported or imported into v2.
-- V2 starts from authoritative Git content.
+- No v1 memory will be exported or imported into v3.
 - Worker and Neon resources remain untouched until separately approved for
   deletion.
-- V2 is not shipped and Unit 01 has not begun.
+- V3 is not shipped. Its technical specification is under owner review.
 
 ## Reference map
 
-- `docs/second-brain-v2/`: proposed Git-native architecture and implementation
-  units.
+- `docs/second-brain-v3/`: current draft Markdown architecture.
+- `docs/second-brain-v2/`: superseded historical proposal. Do not implement it
+  as v3.
 - `references/server/`: archived v1 implementation evidence. It is not a
   deployment source and has no default deploy path.
 - Other files under `references/`: historical v1 design evidence. They are not
