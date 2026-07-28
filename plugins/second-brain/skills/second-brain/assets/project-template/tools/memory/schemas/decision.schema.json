@@ -15,7 +15,7 @@
       "then": {
         "properties": {
           "freshness": { "const": "current" },
-          "verification": { "enum": ["owner_reviewed", "repository_evidence", "verified"] }
+          "verification": { "enum": ["owner_reviewed", "repository_evidence"] }
         }
       }
     }

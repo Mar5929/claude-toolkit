@@ -20,6 +20,9 @@ const MARKER = ".second-brain-project.json";
 const CONFIG = "memory/config.yaml";
 const TYPED_FOLDERS = ["context", "decisions", "knowledge", "references", "domain", "operations"];
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+const WINDOWS_RESERVED_BASENAME = /^(?:CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$/i;
+const ROOT_CACHE_IGNORE_RULES = ["memory/.cache/*", "!memory/.cache/.gitignore"];
+const NESTED_CACHE_IGNORE_RULES = ["*", "!.gitignore"];
 const REQUIRED_TRACKED_FILES = [
   ".gitignore",
   MARKER,
@@ -87,7 +90,6 @@ export function normalizeRelativePath(input) {
   if (
     typeof input !== "string" ||
     input === "" ||
-    input.includes("\0") ||
     isAbsolute(input) ||
     /^[A-Za-z]:/.test(input)
   ) {
@@ -95,11 +97,23 @@ export function normalizeRelativePath(input) {
   }
   if (input.includes("\\")) throw new Error(`path must use POSIX separators: ${input}`);
   if (input.normalize("NFC") !== input) throw new Error(`path must use NFC Unicode normalization: ${input}`);
+  if (/[\p{Cc}]/u.test(input)) throw new Error(`path contains a control character: ${input}`);
   const segments = input.split("/");
   if (segments.some((segment) => segment === "" || segment === ".")) {
     throw new Error(`path contains a noncanonical dot or repeated-separator alias: ${input}`);
   }
   if (segments.some((segment) => segment === "..")) throw new Error(`path escapes the repository: ${input}`);
+  for (const segment of segments) {
+    if (/[<>:"|?*]/.test(segment)) {
+      throw new Error(`path segment contains a Windows-forbidden character: ${segment}`);
+    }
+    if (/[. ]$/.test(segment)) {
+      throw new Error(`path segment has a Windows-incompatible trailing dot or space: ${segment}`);
+    }
+    if (WINDOWS_RESERVED_BASENAME.test(segment.split(".")[0])) {
+      throw new Error(`path segment uses a reserved Windows device basename: ${segment}`);
+    }
+  }
   return segments.join("/");
 }
 
@@ -408,6 +422,21 @@ function isStringArray(value) {
   return Array.isArray(value) && value.length <= 100 && value.every((item) => typeof item === "string" && item !== "");
 }
 
+function isIndependentRepositoryEvidencePath(path) {
+  try {
+    const normalized = normalizeRelativePath(path);
+    return (
+      !["PROJECT.md", "AGENTS.md", "CLAUDE.md"].includes(normalized) &&
+      normalized !== "specs" &&
+      !normalized.startsWith("specs/") &&
+      normalized !== "memory" &&
+      !normalized.startsWith("memory/")
+    );
+  } catch {
+    return false;
+  }
+}
+
 function validateRecordMetadata(metadata, path, expectedType) {
   const errors = [];
   for (const key of REQUIRED_RECORD_FIELDS) {
@@ -463,9 +492,15 @@ function validateRecordMetadata(metadata, path, expectedType) {
   if (
     isCurrent &&
     ["requirement", "decision"].includes(metadata.record_type) &&
-    !["owner_reviewed", "repository_evidence", "verified"].includes(metadata.verification)
+    !["owner_reviewed", "repository_evidence"].includes(metadata.verification)
   ) {
-    errors.push(`${path}: active requirements and accepted decisions require trusted verification`);
+    errors.push(`${path}: active requirements and accepted decisions allow only owner_reviewed or repository_evidence verification`);
+  }
+  if (
+    metadata.verification === "repository_evidence" &&
+    !(metadata.source_paths || []).some(isIndependentRepositoryEvidencePath)
+  ) {
+    errors.push(`${path}: repository_evidence requires an existing regular non-symlink source outside specs/, memory/, PROJECT.md, AGENTS.md, and CLAUDE.md`);
   }
   if (
     isCurrent &&
@@ -476,7 +511,8 @@ function validateRecordMetadata(metadata, path, expectedType) {
   }
   for (const sourcePath of metadata.source_paths || []) {
     try {
-      normalizeRelativePath(sourcePath);
+      const normalizedSource = normalizeRelativePath(sourcePath);
+      if (normalizedSource === path) errors.push(`${path}: source_paths cannot reference the record itself`);
     } catch (error) {
       errors.push(`${path}: source_paths entry ${sourcePath}: ${error.message}`);
     }
@@ -508,6 +544,7 @@ function currentLifecycle(record) {
 function validateRelations(records) {
   const errors = [];
   const byId = new Map(records.map((record) => [record.metadata.id, record]));
+  const byPath = new Map(records.map((record) => [record.path, record]));
   for (const record of records) {
     const metadata = record.metadata;
     for (const id of (metadata.predecessors || []).slice(0, 100)) {
@@ -553,6 +590,24 @@ function validateRelations(records) {
     visited.add(id);
   };
   for (const id of byId.keys()) visit(id, []);
+
+  const evidenceVisiting = new Set();
+  const evidenceVisited = new Set();
+  const visitEvidence = (path, trail) => {
+    if (evidenceVisiting.has(path)) {
+      errors.push(`evidence cycle detected: ${[...trail, path].join(" -> ")}`);
+      return;
+    }
+    if (evidenceVisited.has(path)) return;
+    evidenceVisiting.add(path);
+    const record = byPath.get(path);
+    for (const sourcePath of (record?.metadata.source_paths || []).slice(0, 100)) {
+      if (sourcePath !== path && byPath.has(sourcePath)) visitEvidence(sourcePath, [...trail, path]);
+    }
+    evidenceVisiting.delete(path);
+    evidenceVisited.add(path);
+  };
+  for (const path of byPath.keys()) visitEvidence(path, []);
 
   for (const record of records) {
     const activeSuccessors = (record.metadata.successors || []).slice(0, 100)
@@ -796,6 +851,28 @@ export async function validateProject(root, options = {}) {
       if (!trackedFiles.has(path)) {
         structureErrors.push(`${path} must be Git-tracked`);
       }
+    }
+    try {
+      const rootIgnore = (await readOverlayOrFile(root, ".gitignore", overlay)).replace(/\r\n/g, "\n").split("\n");
+      const nestedIgnore = (await readOverlayOrFile(root, "memory/.cache/.gitignore", overlay)).replace(/\r\n/g, "\n").split("\n");
+      for (const rule of ROOT_CACHE_IGNORE_RULES) {
+        if (!rootIgnore.includes(rule)) structureErrors.push(`.gitignore must contain required cache rule ${rule}`);
+      }
+      for (const rule of NESTED_CACHE_IGNORE_RULES) {
+        if (!nestedIgnore.includes(rule)) structureErrors.push(`memory/.cache/.gitignore must contain required cache rule ${rule}`);
+      }
+      const cacheProbe = git(root, ["check-ignore", "-q", "--no-index", "--", "memory/.cache/.foundation-ignore-probe"]);
+      if (cacheProbe.status !== 0) {
+        structureErrors.push("Git ignore rules must ignore representative memory/.cache artifacts");
+      }
+      const controlProbe = git(root, ["check-ignore", "-q", "--no-index", "--", "memory/.cache/.gitignore"]);
+      if (controlProbe.status === 0) {
+        structureErrors.push("Git ignore rules must not ignore memory/.cache/.gitignore");
+      } else if (controlProbe.status !== 1) {
+        structureErrors.push(`cannot verify cache control ignore behavior: ${controlProbe.stderr.trim() || `git exited ${controlProbe.status}`}`);
+      }
+    } catch (error) {
+      structureErrors.push(`cannot validate cache ignore contract: ${error.message}`);
     }
   }
   if (structureErrors.length) {

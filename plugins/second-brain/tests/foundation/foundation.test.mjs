@@ -320,6 +320,31 @@ test("deleting the required cache control fails tracked template health without 
   });
 });
 
+test("cache ignore controls must contain required rules and enforce Git ignore behavior", async (context) => {
+  await context.test("valid controls ignore artifacts but retain the nested control", async () => {
+    await withRepository(async (root) => {
+      const artifact = run("git", ["-C", root, "check-ignore", "-q", "--no-index", "--", "memory/.cache/health.json"]);
+      const control = run("git", ["-C", root, "check-ignore", "-q", "--no-index", "--", "memory/.cache/.gitignore"]);
+      assert.equal(artifact.status, 0);
+      assert.equal(control.status, 1);
+      assert.equal((await validateProject(root)).usable, true);
+    });
+  });
+  for (const [name, path, expected] of [
+    ["root rules", ".gitignore", /\.gitignore must contain required cache rule/],
+    ["nested rules", "memory/.cache/.gitignore", /memory\/\.cache\/\.gitignore must contain required cache rule/],
+  ]) {
+    await context.test(name, async () => {
+      await withRepository(async (root) => {
+        await writeFile(join(root, path), "# cache ignore rules removed\n");
+        const validation = await validateProject(root);
+        assert.equal(validation.usable, false);
+        assert.match(component(validation, "routers_and_folders").detail, expected);
+      });
+    });
+  }
+});
+
 test("every supported record type validates with provenance and separate freshness", async () => {
   await withRepository(async (root) => {
     for (const type of Object.keys(TYPE_PATHS)) {
@@ -1018,6 +1043,23 @@ test("JSON schema contracts accept valid fixtures and reject invalid fixtures", 
       if (TYPE_LIFECYCLES[type] === "active" || TYPE_LIFECYCLES[type] === "accepted") {
         assert.equal(jsonSchemaValid(schema, { ...metadata, freshness: "stale" }, documents), false, `${type} stale current fixture passed`);
       }
+      if (type === "requirement" || type === "decision") {
+        assert.equal(jsonSchemaValid(schema, { ...metadata, verification: "verified" }, documents), false, `${type} generic verified authority passed`);
+        assert.equal(
+          jsonSchemaValid(schema, { ...metadata, verification: "repository_evidence" }, documents),
+          false,
+          `${type} internal repository evidence passed`,
+        );
+        assert.equal(
+          jsonSchemaValid(schema, {
+            ...metadata,
+            verification: "repository_evidence",
+            source_paths: ["src/authority.js"],
+          }, documents),
+          true,
+          `${type} independent repository evidence failed`,
+        );
+      }
     }
 
     const path = "memory/knowledge/KNW-SCHEMA.md";
@@ -1176,6 +1218,39 @@ test("noncanonical path aliases and case-fold collisions are rejected", async ()
   });
 });
 
+test("repository paths reject Windows-incompatible names on every host OS", async () => {
+  await withRepository(async (root) => {
+    await assert.rejects(
+      captureBaseline(root, ["memory/knowledge/control\u0001name.md"]),
+      /control character/,
+    );
+    for (const character of '<>:"|?*') {
+      await assert.rejects(
+        captureBaseline(root, [`memory/knowledge/bad${character}name.md`]),
+        /Windows-forbidden character/,
+      );
+    }
+    for (const path of [
+      "memory/knowledge/trailing.",
+      "memory/knowledge/trailing ",
+    ]) {
+      await assert.rejects(captureBaseline(root, [path]), /trailing dot or space/);
+    }
+    const reserved = [
+      "CON", "PRN", "AUX", "NUL",
+      ...Array.from({ length: 9 }, (_, index) => `COM${index + 1}`),
+      ...Array.from({ length: 9 }, (_, index) => `LPT${index + 1}`),
+      "con.txt",
+    ];
+    for (const basename of reserved) {
+      await assert.rejects(
+        captureBaseline(root, [`memory/knowledge/${basename}`]),
+        /reserved Windows device basename/,
+      );
+    }
+  });
+});
+
 test("symlink targets and ancestors fail before read or write escape", async () => {
   await withRepository(async (root, parent) => {
     const outside = join(parent, "outside");
@@ -1272,7 +1347,7 @@ test("current authority requires current freshness, trusted verification, and no
     ["unverified freshness", { freshness: "unverified" }, /require freshness current/],
     ["unverified verification", { verification: "unverified" }, /cannot use unverified verification/],
     ["stale verification", { verification: "stale" }, /cannot use stale verification/],
-    ["weak requirement verification", { verification: "not_applicable" }, /require trusted verification/],
+    ["weak requirement verification", { verification: "not_applicable" }, /allow only owner_reviewed or repository_evidence/],
     ["agent guess", { provenance: "agent guess from conversation" }, /cannot be current authority/],
     ["model inference", { provenance: "model inference" }, /cannot be current authority/],
   ];
@@ -1283,6 +1358,47 @@ test("current authority requires current freshness, trusted verification, and no
         const validation = await validateProject(root);
         assert.equal(validation.usable, false);
         assert.match(component(validation, "records_and_links").detail, expected);
+      });
+    });
+  }
+});
+
+test("active requirements and accepted decisions accept only reviewed or independent repository evidence", async (context) => {
+  for (const type of ["requirement", "decision"]) {
+    await context.test(`${type} rejects generic verified authority`, async () => {
+      await withRepository(async (root) => {
+        await put(root, TYPE_PATHS[type], record(type, { verification: "verified" }));
+        const validation = await validateProject(root);
+        assert.equal(validation.usable, false);
+        assert.match(
+          component(validation, "records_and_links").detail,
+          /allow only owner_reviewed or repository_evidence/,
+        );
+      });
+    });
+    await context.test(`${type} rejects internal memory as repository evidence`, async () => {
+      await withRepository(async (root) => {
+        await put(root, TYPE_PATHS[type], record(type, {
+          verification: "repository_evidence",
+          source_paths: ["PROJECT.md"],
+        }));
+        const validation = await validateProject(root);
+        assert.equal(validation.usable, false);
+        assert.match(
+          component(validation, "records_and_links").detail,
+          /repository_evidence requires an existing regular non-symlink source outside/,
+        );
+      });
+    });
+    await context.test(`${type} accepts independent repository evidence`, async () => {
+      await withRepository(async (root) => {
+        await put(root, "src/authority.js", "export const authority = true;\n");
+        await put(root, TYPE_PATHS[type], record(type, {
+          verification: "repository_evidence",
+          source_paths: ["src/authority.js"],
+        }));
+        const validation = await validateProject(root);
+        assert.equal(validation.usable, true, validation.errors.join("\n"));
       });
     });
   }
@@ -1321,6 +1437,36 @@ test("source paths must exist as local regular non-symlink files, including tran
         },
       ]));
       assert.deepEqual(receipt.changed_paths, [knowledgePath, referencePath]);
+    });
+  });
+});
+
+test("source evidence rejects exact self-reference and record dependency cycles", async (context) => {
+  await context.test("exact self evidence", async () => {
+    await withRepository(async (root) => {
+      await put(root, TYPE_PATHS.knowledge, record("knowledge", {
+        source_paths: [TYPE_PATHS.knowledge],
+      }));
+      const validation = await validateProject(root);
+      assert.equal(validation.usable, false);
+      assert.match(component(validation, "records_and_links").detail, /source_paths cannot reference the record itself/);
+    });
+  });
+  await context.test("evidence cycle", async () => {
+    await withRepository(async (root) => {
+      const first = "memory/knowledge/KNW-EVIDENCE-A.md";
+      const second = "memory/knowledge/KNW-EVIDENCE-B.md";
+      await put(root, first, record("knowledge", {
+        id: "KNW-EVIDENCE-A",
+        source_paths: [second],
+      }));
+      await put(root, second, record("knowledge", {
+        id: "KNW-EVIDENCE-B",
+        source_paths: [first],
+      }));
+      const validation = await validateProject(root);
+      assert.equal(validation.usable, false);
+      assert.match(component(validation, "records_and_links").detail, /evidence cycle detected/);
     });
   });
 });
