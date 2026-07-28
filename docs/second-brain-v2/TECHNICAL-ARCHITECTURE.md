@@ -1,7 +1,6 @@
 # Second-brain v2 technical architecture
 
-Status: approved architecture under implementation. Units 01 and 02 are
-implemented and independently reviewed in source. V2 is not shipped.
+Status: proposed and still being refined through architecture reviews.
 
 This document is the high-level source of truth for the proposed second-brain
 v2 design. Detailed implementation units must follow this architecture, but
@@ -1107,23 +1106,18 @@ The architecture is ready for implementation only when:
 19. A product, client engagement, data project, and small repository can each
     install only the modules they need.
 
-## 22. Implementation decisions
+## 22. Decisions still open
 
-Units 01 and 02 resolve these implementation choices:
+The following remain open for implementation design:
 
-1. Project configuration uses a strict, dependency-free YAML subset with
-   closed keys and JSON-style arrays.
-2. Structured requirements and memory use one Markdown file per record with
-   strict frontmatter.
-3. Current state is an owner-maintained, validated pointer briefing under hard
-   byte and line budgets.
-
-The following remain open for later units:
-
-1. Which optional index adapter is built first and what measured threshold
-   justifies enabling it.
-2. How strict specification-to-test traceability should be for each project
-   profile.
+1. The exact YAML schema for project configuration.
+2. Whether requirement files use Markdown sections, one file per requirement,
+   or a hybrid based on project scale.
+3. Which optional index adapters are built first and what measured threshold
+   justifies enabling them.
+4. How strict specification-to-test traceability should be for small projects.
+5. Whether current state is entirely generated or may contain a small
+   owner-maintained section.
 
 The folder layout, Git authority, proactive review, and natural-language
 approval interaction are resolved architecture decisions.
