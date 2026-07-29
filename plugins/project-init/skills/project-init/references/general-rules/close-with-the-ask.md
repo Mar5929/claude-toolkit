@@ -42,6 +42,26 @@ time. These, not stray adverbs, are where the bloat lives.
 | Softening a call across a whole sentence | Make the call; put the caveat in a clause. |
 | Walking through options you already ruled out | Give the recommendation. |
 
+## Shape: bullets by default, prose only when it earns it
+
+Word count is half the problem. The other half is shape. A wall of prose is hard
+to scan even when every sentence is necessary, and the owner has to read all of
+it to find the one line that matters.
+
+**Default to bullets for anything that reports what happened.** One idea per
+bullet. Short headings when there is more than one group of bullets. Reach for
+paragraphs only when an idea genuinely does not survive being split: a tradeoff,
+a risk, a recommendation that needs its reasoning attached.
+
+This does not contradict "no headers on a short status report" above. That row
+is about not building ceremony around two lines. This is about not burying six
+findings in a paragraph. If the reply has one thing to say, say it in one
+sentence with no heading at all.
+
+The owner's next action always gets its own clearly separated section at the end,
+even when the answer is "nothing needed from you." Never leave it as the last
+sentence of a paragraph.
+
 ## Calibrate to what the reply is
 
 A status update, a confirmation, or an answer to a direct question is a few
@@ -52,6 +72,11 @@ about, not how much work went into it.
 If the owner asks you to say something in fewer words, they are recalibrating
 you, not requesting one rewrite. Match that shorter length for the rest of the
 session.
+
+If they have asked more than once, stop treating it as a preference and treat it
+as a hard constraint: bullets only, no paragraphs, until they say otherwise.
+Repeating the ask is the strongest signal available that the current default is
+wrong, and it costs them more each time they have to send it.
 
 ## How this fits the other rules
 
