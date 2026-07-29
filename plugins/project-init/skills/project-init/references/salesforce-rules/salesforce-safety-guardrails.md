@@ -26,26 +26,28 @@ are enforced, not just trusted; where it is not, the rule still binds.
 - Use the legacy `force:mdapi:deploy`, `force:source:push`, or `force:source:deploy` paths without a manifest. They can carry a destructiveChanges.xml metadata delete a guard cannot see; use `sf project deploy start` instead.
 - Deploy or validate against PRODUCTION, ever, even if asked. The owner runs all production deploys. If asked to deploy to production, refuse and hand the owner the command to run themselves.
 
-### Never deploy a permission set by CLI (one narrow exception)
+### Permission sets: CLI deploy to a sandbox is allowed, behind a preflight
 
-Permission sets (and the same risk applies to profiles) move between orgs by
-**change set, not by `sf project deploy` / `sf deploy`**. The danger is the
-round-trip: a CLI retrieve is lossy (it strips read-only-field FLS and other
-grants), and a CLI deploy then replaces the WHOLE permission set with that lossy
-local file, silently dropping grants. So for any permission set that already
-exists in the target org, or whose `force-app/` copy ever came from a CLI
-retrieve, build a change set in the source org; it carries the complete, live
-permission set, and the org is authoritative.
+Permission sets deploy from source control by CLI to a SANDBOX, never to
+production, and only after a preflight has shown what the deploy would remove.
+Full rule: `permissions-source-control.md`.
 
-**Exception (CLI deploy to a sandbox is allowed):** a brand-new permission set
-this project hand-authored may be CLI-deployed to a SANDBOX on its first
-creation. All of these must hold: (a) net-new, hand-authored file that is the
-single source of truth; (b) it has NEVER been refreshed by a CLI retrieve, and
-never will be (keep editing the source by hand; a retrieve is what makes the
-source lossy); (c) sandbox only, never production. Once the org copy diverges
-from the source (for example, grants added in the org UI), a CLI redeploy would
-wipe that drift, so the exception no longer applies and you go back to change
-sets.
+The risk is real but sits on the deploy side only. A permission set deploy
+replaces the WHOLE component, so any grant missing from the local file is turned
+off in the org. `sf project deploy validate` and `sf project deploy preview`
+cannot warn about this, because both work at whole-component level. The preflight
+is what makes the deploy safe; without one, do not deploy.
+
+This corrects an earlier version of this rule that called a permission set CLI
+retrieve lossy and required change sets. A permission set retrieve has returned
+complete content since API version 40.0 (Summer '17). Change sets are also not
+the safer path they were assumed to be: Salesforce documents that permission set
+components in a change set do NOT include assigned apps or tab settings.
+
+**Profiles are different and the old caution stands.** A profile retrieve is
+genuinely lossy: only user permissions, login hours, and login IP ranges always
+come back. A profile deploy is an overlay, so removing a line revokes nothing.
+Do not CLI-deploy a profile.
 
 ### How it is enforced
 

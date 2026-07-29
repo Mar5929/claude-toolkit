@@ -41,10 +41,14 @@ so they always know where they are.
 - Salesforce / SFDX: after `.claude/rules/` is scaffolded, offer the reusable
   Salesforce rules from `salesforce-rules/` (see its `README.md`); copy the ones
   the owner wants into the project's `.claude/rules/`.
-- Salesforce / SFDX: if the owner wants profiles or permission sets tracked in
-  git, follow `salesforce-permissions-retrieval.md` (build the full component
-  list, retrieve to a side folder, verify before committing) and copy the
-  `permissions-source-control.md` rule from `salesforce-rules/`.
+- Salesforce / SFDX: if the owner wants permission sets tracked in git, copy the
+  `permissions-source-control.md` rule from `salesforce-rules/` AND copy
+  `tools/permsets.py` into the project at `tools/permissions/permsets.py`. The
+  rule is useless without the tool: the tool is what verifies a file against the
+  org and blocks a deploy that would delete grants. Then follow
+  `salesforce-permissions-retrieval.md` to prove the retrieve is complete on this
+  org once. Profiles are excluded by default; that reference explains why and what
+  to do if the owner wants them anyway.
 
 **Gate 2: Hooks**
 - What needs guarding or automating? (deploy/env guard, secret guard,
