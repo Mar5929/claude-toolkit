@@ -44,7 +44,8 @@ Bundled under `skills/project-init/references/`:
 - `thin-claudemd.md`: how Gate 5 writes a short CLAUDE.md that points at
   `.claude/rules/` instead of holding the rules inline.
 - `general-rules/` (with its own `README.md` index): the standard `.claude/rules`
-  files copied into every project, marked default ON or conditional.
+  files copied into every project, marked default ON or conditional. Retired v1
+  examples are not part of this active library.
 - `salesforce-rules/` (with its own `README.md`): the same idea for Salesforce
   projects.
 - `salesforce-dependency-graph.md` plus `tools/kb/`: a self-contained tool that
@@ -72,7 +73,8 @@ Bundled under `skills/project-init/references/`:
   existing project. Separately, it identifies existing local v1 integrations.
   With owner approval it may deactivate them or remove specifically approved
   local files. It never contacts the Worker or Neon, reads legacy memory,
-  imports v1 into v3, or deletes cloud infrastructure.
+  imports v1 into v3, or deletes cloud infrastructure. It detects committed v1
+  patterns directly and does not need archived v1 rule files in the plugin.
 - **project-init versus project-sync is not redundancy.** They share the same
   inventory of toolkit systems but enter from opposite ends: project-init lays
   foundations in an empty project, project-sync audits and back-fills a project

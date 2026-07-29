@@ -207,8 +207,8 @@ list.
   owner drops it; walk the list and let them accept, edit, or skip each. Adapt
   wording to the project's voice if they want; each file is the intent, not
   fixed prose. The second-brain rule is installed by Gate 3 from the
-  second-brain plugin and is indexed once. Retired v1 recognition files are
-  never copied into a new project.
+  second-brain plugin and is indexed once. No retired v1 files remain in the
+  active rule library.
 - **Default-ON rules** cover the multi-agent worktree protocol (own worktree per
   session, assume parallel agents, land by PR), the language rules (no em dashes,
   no section signs, no AI filler, plain language), and the working-style rules
@@ -298,8 +298,8 @@ in their own plugins.
   wants impact analysis on code the bundled Salesforce parser cannot read.
 - `references/general-rules/`: the standard `.claude/rules/` files (with its own
   `README.md` index) to copy into every project in Gate 5. Active rules are
-  default ON unless the owner opts out. The two v1 recognition files are never
-  copied into a new project.
+  default ON unless the owner opts out. Retired v1 examples are not part of
+  this library.
 - `references/thin-claudemd.md`: how Gate 5 writes a thin CLAUDE.md that points
   at `.claude/rules/` instead of holding the rules inline.
 - `references/mcp-best-practices.md`: per-server MCP tool rules to offer in Gate

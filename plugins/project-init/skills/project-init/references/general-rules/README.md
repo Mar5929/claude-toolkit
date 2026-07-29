@@ -40,19 +40,14 @@ structure Gate 5 writes.
 | `show-phase-progress.md` | When work splits into phases, print a one-line progress bar at every transition and when the last phase finishes. |
 | `treat-owner-as-non-technical.md` | Assume no technical background: numbered steps, exact commands, say what success looks like, never hand back raw errors. Also covers REPORTING: explain what you did in plain words, not just what to do. Turn off only for a technical owner. |
 
-## Retired v1 recognition only
-
-These files are not installed into new projects and are not v3 operating rules.
-`project-sync` recognizes them in older projects so it can report local v1
-wiring without treating its content as current truth.
-
-| File | Purpose |
-|---|---|
-| `memory-system-ground-rules.md` | Recognizes an older v1 memory rule and points to separately approved local deactivation or removal. |
-| `knowledge-layer-ground-rules.md` | Recognizes an older v1 knowledge rule and forbids importing it as v3 truth. |
+## Second-brain rules
 
 The canonical v3 rule comes from the `second-brain` plugin and installs as
 `.claude/rules/second-brain.md`. Do not duplicate it in this library.
+
+Retired v1 recognition examples no longer live in this active rule library.
+`project-sync` identifies legacy local wiring directly, without installing or
+reading a v1 rule.
 
 MCP tool rules (Context7, Gmail, Google Calendar, Linear, Notion, Playwright)
 are conditional too, and live in `../mcp-best-practices.md`: fold in a server's
