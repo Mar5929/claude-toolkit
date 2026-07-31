@@ -46,7 +46,7 @@ written down somewhere. It gets fitted into the system:
 |---|---|
 | A rule every project should follow (behavior, writing style, workflow) | Its own file in the `general-rules/` library, copied into each new project's `.claude/rules/` |
 | A setup step for new projects | A gate (or part of one) in the `project-init` skill |
-| A guard hook or automation | The shared hooks library (on the roadmap; recorded there until it exists) |
+| A guard hook or automation | The [`hooks-library`](plugins/hooks-library/README.md) plugin, if the rule is checkable with no interpretation; otherwise it stays a rule |
 | A whole reusable system | Its own plugin/skill that `project-init` offers |
 
 `CLAUDE.md` in this repo gives agents the full instructions for handling these
@@ -213,12 +213,14 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
   handoffs, and verified landing evidence. Its optional GitHub adapter creates
   or links a Project with the six standard statuses and repository issues
   labeled bug, enhancement, or task.
-- [ ] **Shared hooks library**: reusable guard hooks I can drop into any
-  project, e.g. blocking deployments to a protected environment, secret-scanning
-  pre-commit guards, and a SessionStart orientation hook. First one shipped: the
-  Salesforce production-org guard installs from `project-init` Gate 2
-  (`references/salesforce-prod-guard-hook.md`); the standalone library is still
-  planned.
+- [x] **Shared hooks library**: now the `hooks-library` plugin. Ships
+  `writing-guard`, a Stop hook that catches em dashes, section signs, and filler
+  openers in the finished reply and sends it back to be rewritten. Built after
+  measuring real transcripts found those rules broken in a quarter to over half
+  of all messages despite being stated in several places. Still to come:
+  secret-scanning and a SessionStart orientation hook. The Salesforce
+  production-org and permission set guards continue to install from
+  `project-init` Gate 2.
 - [x] **General rules library**: the standard rules are now individual files in
   `project-init`'s `general-rules/` library (with a `README.md` index), copied
   into each project's `.claude/rules/` verbatim instead of retyped into CLAUDE.md.

@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Personal, portable toolkit of reusable Claude systems: skills, rules, hooks, and templates shared across every project and device.",
-    "version": "0.42.0"
+    "version": "0.43.0"
   },
   "plugins": [
     {
@@ -28,6 +28,11 @@
       "name": "git-workflows",
       "source": "./plugins/git-workflows",
       "description": "Three parallel-session-safe git lifecycle skills. pull-latest updates without rewriting history, reset-to-remote mirrors a remote behind explicit confirmation, and merge-and-clean-up lands an approved pull request before safely removing only its branch and worktree."
+    },
+    {
+      "name": "hooks-library",
+      "source": "./plugins/hooks-library",
+      "description": "Guard hooks that enforce the checkable toolkit rules mechanically instead of restating them. writing-guard is a Stop hook that catches em dashes, section signs, and filler openers in the final reply and sends it back to be rewritten before the owner sees it."
     },
     {
       "name": "session-autoname",
