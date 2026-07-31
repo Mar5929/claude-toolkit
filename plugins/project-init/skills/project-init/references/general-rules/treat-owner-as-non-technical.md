@@ -23,7 +23,7 @@ whose owner is comfortable with the stack.
    "this is so that..." clause. No long background sections.
 6. **Check in at checkpoints.** For long setups, pause after a natural group of
    steps and confirm the result before continuing (use the question box, per the
-   answer-last-question-box rule).
+   how-to-reply rule).
 7. **Never hand back raw errors.** If something fails, translate the error into
    plain words and give the next concrete step.
 8. **Explaining what YOU did counts too.** This rule is not only about
@@ -43,7 +43,7 @@ whose owner is comfortable with the stack.
 - Exact names (API names, field names, file paths) stay exact, per the
   define-your-terms rule.
 - Keep responses short where no instructions are needed, per the
-  lead-with-the-answer rule.
+  how-to-reply rule.
 
 This rule pairs with do-the-technical-work: prefer doing the technical part
 yourself, and when a step really is the owner's, lay it out this way.
