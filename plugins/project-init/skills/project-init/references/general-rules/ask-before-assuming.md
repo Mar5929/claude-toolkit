@@ -6,5 +6,6 @@ question costs to ask. And before an operation that reads or produces a large
 amount (many files, a broad search, a long document, a wide refactor), state the
 rough scope and get a go-ahead.
 
-This complements the stay-in-scope rule: that one is about not gold-plating;
-this rule is about not guessing, and not running big jobs unannounced.
+This complements the recommend-the-best-solution rule: that one is about not
+gold-plating; this rule is about not guessing, and not running big jobs
+unannounced.

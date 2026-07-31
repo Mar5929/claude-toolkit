@@ -60,10 +60,14 @@ automatically as it grows.
   - the per-server MCP tool rules in `references/mcp-best-practices.md`; these
     are conditional, so only audit the servers this project actually connects
   - each system from the setup gates: hooks, memory system, knowledge layer
-  - the multi-part Salesforce kits, which are a tool plus a rule plus a hook
-    rather than a single file: the permission set kit
-    (`salesforce-permissions-retrieval.md`) and the dependency graph
-    (`salesforce-dependency-graph.md`, whose tool is `references/tools/kb/`)
+  - the multi-part kits, which are a tool plus a rule plus a hook rather than a
+    single file, so a partial install looks like a pass unless you check each
+    part: the Salesforce permission set kit
+    (`salesforce-permissions-retrieval.md`), the Salesforce dependency graph
+    (`salesforce-dependency-graph.md`, whose tool is `references/tools/kb/`),
+    and, for every other stack, the graphify code graph
+    (`graphify-dependency-graph.md`, whose rule is
+    `general-rules/dependency-graph.md`)
   - the `work-tracker` plugin and any existing `work-items/` or
     `engagement/work-items/` tree
   - each standalone skill offered by the setup flow, including `grill-me`
@@ -100,6 +104,25 @@ secrets rule even if the prose differs. Typical checks:
   toolkit's) is present-but-behind, not missing: report the differences and
   offer to bring it in line. Never run a Salesforce CLI command during this
   check; the tool reads local files only.
+- **Graphify code graph** (non-Salesforce projects): is the `graphify` command
+  available, is `graphify-out/` gitignored, is
+  `.claude/rules/dependency-graph.md` present, and are the auto-rebuild git
+  hooks installed in THIS clone? Check the last one by looking for graphify's
+  `post-commit` and `post-checkout` hooks in the repository's hidden git hooks
+  folder, or wherever `core.hooksPath` points. Classify **partial** when the
+  tool is present but the rule or the hooks are not, and say which. Two findings
+  are worth calling out because nothing else makes them visible:
+  - **Hooks missing in this clone.** Git hooks are never committed, so a clone
+    made after setup has none, and its graph stops updating while still
+    answering questions confidently. The fix is `graphify hook install`, run
+    once, here.
+  - **A hand-written rule.** A `.claude/rules/dependency-graph.md` that does not
+    match the library file is behind: report the differences and offer the
+    current version, same as any other drifted rule.
+
+  A project that deliberately rebuilds by hand with `graphify update .` instead
+  of using hooks is not missing anything. Record that choice so a later sync
+  does not re-raise it.
 - **Second-brain v3 status:** v3 is the current Markdown and Git system. Audit
   it as one coherent installation:
   - `.claude/rules/second-brain.md`;
@@ -337,6 +360,12 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   done. If the project already has its own copy of the tool, show the
   differences and let the owner choose which side wins rather than overwriting
   edits they made.
+- For an approved graphify gap, install the whole kit from
+  `../project-init/references/graphify-dependency-graph.md`: the tool, the
+  gitignore entry, `general-rules/dependency-graph.md` into `.claude/rules/`,
+  and the auto-rebuild hooks. Never install the rule alone, and never install
+  it on a Salesforce project, which uses the bundled metadata graph and its own
+  rule of the same name instead.
 - For an approved work-tracker gap, install the plugin and run `work init` at
   the detected canonical path. This may add metadata and generated views, but
   it must not overwrite existing `SPEC.md`, `STATUS.md`, or notes. Show any

@@ -52,7 +52,11 @@ These are not duplicated here. Go to the index that owns them:
   graph and answers "if I change this field, what breaks N steps out?" It reads
   local files only and never contacts an org. The non-Salesforce equivalent,
   built on the open-source graphify tool, is
-  [graphify-dependency-graph.md](../plugins/project-init/skills/project-init/references/graphify-dependency-graph.md).
+  [graphify-dependency-graph.md](../plugins/project-init/skills/project-init/references/graphify-dependency-graph.md),
+  whose rule is `general-rules/dependency-graph.md`. Both graphs ship as kits:
+  a tool, a rule, and an automatic rebuild. A project has one graph, so it gets
+  one of the two rules, never both, and either lands in the project as
+  `.claude/rules/dependency-graph.md`.
 - **Salesforce permission set kit**: the tool is
   `plugins/project-init/skills/project-init/references/tools/permsets.py`; the
   runbook is `salesforce-permissions-retrieval.md`, the evidence behind it is
@@ -114,6 +118,15 @@ The genuine watch-items are called out at the end.
   outlived v1: it is now the dependency graph shipped by `project-init` (see the
   reference index above), because it never depended on any v1 infrastructure. It
   was only ever bundled inside the second-brain plugin folder.
+- **The two dependency graphs are alternatives, not a pair.** The bundled
+  Salesforce tool parses `force-app/` metadata; graphify parses source with
+  tree-sitter. Same job, different readers, and no project needs both. They also
+  keep themselves fresh differently, which is the part that trips people: the
+  Salesforce one uses a Stop hook committed in the project's settings, so it
+  travels with a clone; graphify uses git hooks, which are never committed, so
+  each fresh clone has to install them once. Their shared rule name
+  (`dependency-graph.md`, one per library) is deliberate: whichever graph a
+  project has, a session reads one rule with that name.
 - **The dependency graph versus written knowledge.** The graph answers what
   connects to what, mechanically, rebuilt from the code every time, so it cannot
   be wrong about structure and cannot record intent. Written knowledge (v3's
@@ -145,9 +158,13 @@ The genuine watch-items are called out at the end.
   default. The optional adapter creates or updates repository issues and a
   Project as a collaboration mirror. Generated dashboards, GitHub issue bodies,
   and Project fields can all be reconciled from the local records.
-- **git-workflows versus the worktree-isolation rule.** The rule states the
+- **git-workflows versus the parallel-agent-sessions rule.** The rule states the
   behavior ("assume other sessions share the repo"); the three skills are the
-  safe git commands that carry it out. Different layers, not duplicates.
+  safe git commands that carry it out. Different layers, not duplicates. That
+  rule absorbed the separate `worktree-isolation` rule, which had described the
+  same situation from the other side: the two were 156 lines that each opened by
+  explaining they were not the other, and both stated "one session, one worktree,
+  one branch" and "do not fix a dirty tree, tell the owner".
 - **grill-me versus work-item and memory files.** `grill-me` owns raw discovery
   notes in a flat, dated `brainstorms/` collection. Each brainstorm links to
   every resulting specification without being copied into system-area folders.
@@ -187,16 +204,19 @@ The genuine watch-items are called out at the end.
   memory as destinations for detail that does not belong in CLAUDE.md, but it
   does not own any of them; the rules above do. Naming where something goes is
   what keeps CLAUDE.md from absorbing all three.
-- **The response-style rule cluster.** `lead-with-the-answer` and
-  `close-with-the-ask` are intentionally paired (the second builds on the first:
-  answer first, end with the next action); `answer-last-question-box`,
-  `define-your-terms`, and `steer-to-the-goal` each add a distinct constraint.
-  Mild overlap by design, not accidental duplication. `quiet-while-working`
-  sits one level up from all of them: they govern how you write a single reply,
-  it governs how many replies you write at all (at most one short line per
-  chunk while working, the whole explanation saved for one final reply). The
-  one deliberate exception is `show-phase-progress`, whose one-line bar is
-  exactly the mid-work budget `quiet-while-working` allows.
+- **Reply shape lives in one rule, and used to live in four.** `how-to-reply`
+  owns the whole thing: how many replies you write, what goes in each, and where
+  the owner's next action lands. It replaced `lead-with-the-answer`,
+  `close-with-the-ask`, `quiet-while-working`, and `answer-last-question-box`,
+  which were 162 lines across four files describing one behavior. That split was
+  documented here as "mild overlap by design". Measuring real sessions showed
+  otherwise: staying quiet while working and closing with the next step were the
+  two most-broken rules in the library, at 56 to 60 percent of turns, and two of
+  the four files stated "do not narrate between tool calls" independently. Four
+  files an agent has to hold at once to shape one reply is a cost, not a design.
+  `show-phase-progress` remains the one deliberate exception, and its one-line
+  bar is exactly the mid-work budget `how-to-reply` allows. `define-your-terms`
+  and `steer-to-the-goal` still add their own distinct constraints on top.
 - **sf-architect-solutioning versus the Salesforce rules versus the dependency
   graph.**
   sf-architect decides what to build; the `salesforce-rules` install standing

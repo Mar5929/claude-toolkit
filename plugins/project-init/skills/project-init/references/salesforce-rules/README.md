@@ -40,8 +40,13 @@ install all four parts or it is advice with no enforcement: the rule,
 whenever the project will load or change production data via Data Loader / Bulk
 API and wants one auditable home for its backups and load files.
 
-`dependency-graph.md` is the second rule in this library that is **not a
-standalone rule**. When accepted, install the whole kit or it is advice with no
+`dependency-graph.md` has a twin in the general rules library with the same
+name, for non-Salesforce stacks, built on the graphify tool. A project has one
+graph, so it gets one of the two rules, never both, and either one lands in the
+project as `.claude/rules/dependency-graph.md`. Use this one whenever the stack
+is Salesforce.
+
+It is also the second rule in this library that is **not a standalone rule**. When accepted, install the whole kit or it is advice with no
 enforcement: the rule, the `../tools/kb/` folder copied to the project's
 `tools/kb/`, the gitignore entries, and the freshness Stop hook in Gate 2. The
 install steps are in `../salesforce-dependency-graph.md`. Offer it on any

@@ -112,6 +112,15 @@ so they always know where they are.
   infrastructure or automatic truth. Salesforce projects use
   `salesforce-dependency-graph.md` (offered in Gate 1); every other stack uses
   `graphify-dependency-graph.md`. A project installs at most one.
+- Non-Salesforce: offer the graphify kit here if the owner wants impact
+  analysis. Four parts, installed together:
+  1. The `graphify` command.
+  2. `graphify-out/` in `.gitignore`.
+  3. `general-rules/dependency-graph.md` to `.claude/rules/` (Gate 5).
+  4. `graphify hook install` for the auto-rebuild git hooks.
+
+  Say the hook caveat out loud: git hooks are never committed, so each fresh
+  clone needs that command run once or its graph silently stops updating.
 
 **Gate 5: CLAUDE.md and the rules folder**
 - Behavioral rules go into the project's `.claude/rules/` as individual files,
@@ -130,6 +139,10 @@ so they always know where they are.
   Only drop if the owner opts this project out.
 - Salesforce projects: make sure the `salesforce-rules/` files chosen in Gate 1
   are in `.claude/rules/` too.
+- Conditional general rules go in only when the project has the thing they
+  govern: today that is `dependency-graph.md`, when the graphify graph was
+  accepted in Gate 4. Salesforce projects get the `salesforce-rules/` file of
+  that name instead. Never both.
 - MCP tool rules from `mcp-best-practices.md` are conditional: fold in a server's
   section only if the project uses that MCP server.
 - Write a thin CLAUDE.md _with_ the user: what it is, codemap and structural

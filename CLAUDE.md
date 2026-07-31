@@ -90,4 +90,4 @@ Mike usually runs several Claude Code sessions at once. Work in your own git
 worktree on your own branch, never edit the shared primary checkout, and land
 changes on `main` by pull request. After opening the PR, ask Mike whether to
 merge and clean up; merge only when he approves. (This is the same protocol
-that the `worktree-isolation.md` general rule installs into new projects.)
+that the `parallel-agent-sessions.md` general rule installs into new projects.)
