@@ -56,10 +56,13 @@ main one.
 ### Types that cannot go in the manifest yet
 
 Some component types cannot be safely deployed by a CLI manifest today; they move
-by change set or by hand: permission sets, profiles, duplicate rules, matching
-rules, and compact-layout assignments. (A CLI permission-set round-trip is lossy:
-it drops field-security and other grants, per `salesforce-safety-guardrails.md`
-and `permissions-source-control.md`.) For these:
+by change set or by hand: profiles, duplicate rules, matching rules, and
+compact-layout assignments. Permission sets are NOT on this list: they deploy
+from source by CLI to a sandbox behind the preflight in
+`permissions-source-control.md`, so they get a normal tracker row AND a normal
+manifest member. An earlier version of this section listed them as un-deployable
+on the belief that a CLI retrieve was lossy; that was true before API version
+40.0 and is not true now. For the types that remain:
 
 - Still add a tracker row; the tracker is the full inventory.
 - Keep them OUT of the master manifest.
@@ -145,7 +148,7 @@ Update the tracker in the **same response** in which any of these happen:
 3. You stage a component for destructive deletion: set Change Type to `Destructive`, add it to the work item's `destructiveChanges.xml`, and leave the flags showing where it is still present.
 4. The owner reports a successful destructive deploy: set the affected org's flag to `No`; if retired everywhere and removed from `force-app/`, delete the row and its master-manifest member.
 
-Permission set rows follow the change-set rule in `salesforce-safety-guardrails.md`;
+Permission set rows follow `permissions-source-control.md`, which governs how their deploys happen and therefore when the flag flips;
 that governs how the flag flips, not the tracker schema.
 
 ### One row per component
@@ -185,5 +188,6 @@ The tracker covers only components this project created or modified.
 
 - `deployment-runbook.md`: the step shape the `manual-steps.md` sheets follow.
 - `deploy-hitchhiker-check.md`: before any deploy, catch components or edits that would ride along; it reads this tracker as a hint and verifies against the org.
-- `salesforce-safety-guardrails.md`: why permission sets and profiles move by change set, not the CLI; the owner runs all production deploys.
+- `salesforce-safety-guardrails.md`: what any agent may do against an org; the owner runs all production deploys.
+- `permissions-source-control.md`: how permission sets are retrieved, verified, and deployed; why profiles are excluded.
 - `permissions-source-control.md`: keeping tracked profiles and permission sets complete in git.
