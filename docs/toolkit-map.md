@@ -142,12 +142,18 @@ The genuine watch-items are called out at the end.
   out of it so the file stays readable), `wrap-up-ritual` (update the status or
   handoff doc and commit), `offer-context-handoff` (hand a fresh session a
   self-contained prompt), `work-item-folders` (use work-tracker and keep one
-  canonical folder per item),
+  canonical folder per item), `capture-the-thinking` (write the goal, why,
+  requirements, edge cases, scenarios, and decisions into their canonical home
+  as they surface, mid-task, so nothing important lives only in a conversation),
   `steer-to-the-goal` (preserve a goal that outlasts one chat), and the
   retired `memory-system-ground-rules` recognition file (identify and avoid an
   older local v1 integration). Each targets a distinct moment, so they compose
   rather than repeat. V3's shared rule owns the approved-completion durable
-  knowledge review.
+  knowledge review. `capture-the-thinking` is the standing obligation the others
+  assume: `work-item-folders` owns the containers and their fields, the v3
+  second-brain rule owns the durable homes and who may write them,
+  `wrap-up-ritual` owns the review at the end, and `capture-the-thinking` owns
+  the during, which is the moment all three otherwise leave uncovered.
   `keep-claudemd-current` names the status doc, the design doc, and long-term
   memory as destinations for detail that does not belong in CLAUDE.md, but it
   does not own any of them; the rules above do. Naming where something goes is
