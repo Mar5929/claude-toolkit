@@ -1,225 +1,224 @@
-# Retrieving complete profiles and permission sets into source control
+# Permission sets and profiles in source control
 
-The end-to-end process for pulling COMPLETE profile and permission set files
-out of a Salesforce org and into git. Follow it whenever a project wants its
-permissions picture in source control, and re-run it for every refresh. It
-pairs with the `salesforce-rules/permissions-source-control.md` rule, which is
-the always-on policy version of this runbook; this file is the how.
+The end-to-end process for keeping Salesforce permissions in git without silently
+destroying grants. It pairs with the `salesforce-rules/permissions-source-control.md`
+rule, which is the always-on policy version; this file is the how.
 
-Every command here is read-only against the org: list metadata, retrieve,
-convert. Nothing in this process deploys or changes anything.
+Corrected July 2026. An earlier version of this runbook applied one process to
+both permission sets and profiles, on the belief that a permission set CLI
+retrieve was lossy. It has not been since API version 40.0. Permission sets and
+profiles now get different treatment here, because they behave in opposite ways.
 
-## The problem this solves
+Every command below is read-only against the org except the final deploy step,
+which is sandbox-only and gated.
 
-Salesforce builds a retrieved profile's content from the OTHER components
-named in the same retrieve request. Retrieve a profile by itself and you get a
-nearly empty file: user permissions, login hours, and login IP ranges come
-back (they always do), but object permissions, field-level security, layout
-assignments, record type visibilities, Apex class access, Visualforce page
-access, tab settings, and app visibilities are included only for components
-that were also in the request.
+## The two types behave in opposite ways
 
-So a naive `sf project retrieve start -m "Profile:Admin"` produces a file that
-looks plausible but is silently missing almost everything. In git that file is
-worse than nothing: diffs show grants "removed" that were never retrieved, and
-an agent reading it concludes access does not exist when it does.
-
-Permission sets had the same behavior through API version 39.0. From API 40.0
-on, a retrieved permission set includes all of its content regardless of what
-else is in the request. This process retrieves them together with the full
-component list anyway, so completeness never depends on remembering a version
-cutoff.
-
-## What this process is for (and not for)
-
-- **For:** a truthful, complete, diffable record of the org's permissions in
-  git. Onboarding, impact analysis, change review, "who can see this field".
-- **Not for:** deploying profiles or permission sets back to an org by CLI.
-  A CLI deploy replaces the whole permission set or profile with the local
-  file, and the org-side copy drifts (admins grant things in the UI). The
-  change-set policy in `salesforce-rules/salesforce-safety-guardrails.md`
-  still applies in full. Treat these files as documentation of the org, where
-  the org is authoritative.
-
-## Step 1: build the full component list
-
-The retrieve manifest must name every component whose permissions you want
-reflected. These are the types that unlock each section of a profile or
-permission set:
-
-| Manifest type | Unlocks (profile) | Unlocks (permission set) |
+| | Permission set | Profile |
 |---|---|---|
-| `CustomObject` (objects bring their fields and record types along) | objectPermissions, fieldPermissions, recordTypeVisibilities | objectPermissions, fieldPermissions, recordTypeVisibilities |
-| `ApexClass` | classAccesses | classAccesses |
-| `ApexPage` | pageAccesses | pageAccesses |
-| `Layout` | layoutAssignments | (not in permission sets) |
-| `CustomTab` | tabVisibilities | tabSettings |
-| `CustomApplication` | applicationVisibilities | applicationVisibilities |
-| `CustomPermission` | customPermissions | customPermissions |
-| `ExternalDataSource` | externalDataSourceAccesses | externalDataSourceAccesses |
-| `Flow` | flowAccesses (where exposed) | flowAccesses |
+| Retrieve alone | **Complete** since API 40.0 | **Lossy.** Only user permissions, login hours, and login IP ranges always come back |
+| Deploy | **Replaces** the whole component; anything omitted is turned off | **Overlays.** Omitting a grant leaves the target's value alone |
+| Can a diff show a revocation? | Yes, because deploy replaces | **No.** Deleting a line revokes nothing |
+| Recommended | Track in git, deploy from git, behind a preflight | Exclude by default |
 
-Plus the targets themselves: `Profile`, `PermissionSet`, and (if the org uses
-them) `PermissionSetGroup`.
+Sources, both at API version 67.0 (Summer '26):
 
-**Recommended way to build the list:** generate a full-org manifest, then trim
-it to these types. This one command asks the org for the explicit member list
-of every type, which sidesteps every wildcard trap at once:
+- PermissionSet: "In API version 40.0 and later, when you retrieve permission set
+  metadata, all content exposed in Metadata API for the permission sets is
+  included." And: "In API Version 40.0 and later, if a permission isn't specified
+  for a deployment, it's disabled."
+  <https://developer.salesforce.com/docs/atlas.en-us.api_meta.meta/api_meta/meta_permissionset.htm>
+- Profile: "the returned .profile files only include security settings for the
+  other metadata types referenced in the retrieve request (except for user
+  permissions, IP address ranges, and login hours, which are always retrieved)."
+  And: "if you disable permissions for a profile, the newly disabled permission
+  information isn't exported."
+  <https://developer.salesforce.com/docs/atlas.en-us.api_meta.meta/api_meta/meta_profile.htm>
+- Change sets and the replace behavior:
+  <https://help.salesforce.com/s/articleView?id=platform.changesets_perm_sets_profiles.htm>
 
-```
-sf project generate manifest --from-org <alias> --name permissions-retrieval --output-dir manifest
-```
+## Install the kit
 
-Then edit `manifest/permissions-retrieval.xml`: delete every `<types>` block
-except the ones in the table above plus `Profile`, `PermissionSet`, and
-`PermissionSetGroup`. Keep the members exactly as generated; they are explicit
-names, which is what makes this path safe.
+Four parts. Installing the rule without the rest leaves a project defenceless,
+because the failure this guards against is invisible to Salesforce's own checks.
 
-**Fallback way (older CLI, or you want tighter control):** start from the
-template in the next section and fill the member lists with read-only
-list-metadata calls, one per type:
+| Part | From | To |
+|---|---|---|
+| The rule | `salesforce-rules/permissions-source-control.md` | `.claude/rules/` |
+| The tool | `tools/permsets.py` | `tools/permissions/permsets.py` |
+| The runbook | `templates/permissions-runbook.md` | the project's operations folder; fill in its placeholders |
+| The deploy guard | `hooks/guard-permission-set-deploy.js` | `.claude/hooks/`, registered per `salesforce-permset-guard-hook.md` |
 
-```
-sf org list metadata -m CustomObject -o <alias> --json
-sf org list metadata -m Profile -o <alias> --json
-```
+Also add `.claude/.permset-preflight/` to `.gitignore`; the tool writes preflight
+receipts there for the hook to read, and they are local proof, never shared.
 
-Collect the `fullName` values. `sf org list metadata -m CustomObject` returns
-BOTH standard and custom objects, which is exactly what you need (see trap 1).
+The tool is standard library Python 3.10 or later with no dependencies. It reads
+`packageDirectories` from `sfdx-project.json`, so it needs no per-project editing.
 
-## Step 2: the manifest template (fallback path)
+The evidence behind everything in this runbook is
+`salesforce-permissions-research.md`: the live test, the element reference, the
+tracked bugs, the tooling landscape, and the full source list.
 
-Save as `manifest/permissions-retrieval.xml`. The wildcard lines are fine for
-unmanaged local metadata; the two commented blocks are the ones that MUST be
-explicit lists.
+Five subcommands, all read-only against the org. It never deploys:
 
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<Package xmlns="http://soap.sforce.com/2006/04/metadata">
-    <types><members>*</members><name>ApexClass</name></types>
-    <types><members>*</members><name>ApexPage</name></types>
-    <types><members>*</members><name>CustomApplication</name></types>
-    <types><members>*</members><name>CustomPermission</name></types>
-    <types><members>*</members><name>CustomTab</name></types>
-    <types><members>*</members><name>ExternalDataSource</name></types>
-    <types><members>*</members><name>Flow</name></types>
-    <types><members>*</members><name>Layout</name></types>
-    <types>
-        <!-- Paste EVERY object from `sf org list metadata -m CustomObject`,
-             one <members> line each. The * wildcard returns custom objects
-             only; standard objects (Account, Contact, ...) MUST be named or
-             their permissions silently vanish from every profile. -->
-        <members>Account</members>
-        <members>Contact</members>
-        <name>CustomObject</name>
-    </types>
-    <types>
-        <!-- Paste profile API names from `sf org list metadata -m Profile`.
-             The * wildcard returns custom profiles only; standard profiles
-             must be named, and API names differ from UI labels (the System
-             Administrator profile is `Admin`). -->
-        <members>Admin</members>
-        <name>Profile</name>
-    </types>
-    <types><members>*</members><name>PermissionSet</name></types>
-    <types><members>*</members><name>PermissionSetGroup</name></types>
-    <!-- Match the project's sourceApiVersion and keep it pinned so diffs
-         between refreshes stay comparable. Must be 40.0 or later. -->
-    <version>64.0</version>
-</Package>
-```
+| Command | What it does |
+|---|---|
+| `fetch <Name...> --org <alias>` | Retrieve standalone, verify against the org, lint, sort, place in the default package directory. Refuses to place a file that fails any check. |
+| `verify <file> --org <alias>` | Compare grant counts and enabled system permissions against the org. Non-zero exit on mismatch. |
+| `check <file...>` | Lint for hand-editing mistakes. No org needed. |
+| `tidy <file...>` | Canonical sort for readable diffs. `--strip-empty` also drops grant-nothing field blocks. No org needed. |
+| `preflight <file> --org <alias>` | List every grant a deploy would remove or weaken, then exit non-zero to block. `--accept-removals` proceeds. |
 
-## Step 3: retrieve to a side folder, never into force-app
+## Prove the retrieve is complete on this org, once
 
-Retrieving this manifest straight into the project would overwrite the local
-source of every named component (every class, layout, and object file) with
-the org's version, clobbering in-progress work. Retrieve to a side folder in
-metadata format instead, then convert:
+Do not take the documentation on faith. Pick a permission set with plenty of
+field permissions, fetch it, and let `verify` compare it against the org's own
+records:
 
 ```
-sf project retrieve start -x manifest/permissions-retrieval.xml -o <alias> --target-metadata-dir tmp-perm-retrieve --unzip
-sf project convert mdapi -r <the folder under tmp-perm-retrieve that contains package.xml> -d tmp-perm-src
+python tools/permissions/permsets.py fetch <PermissionSetApiName> --org <sandbox-alias>
 ```
 
-(The `--unzip` flag leaves an `unpackaged` folder tree inside the target dir;
-point `convert mdapi -r` at the level that holds `package.xml`.)
-
-Then copy only the permission files into the project, and delete the temp
-folders:
+`verify` runs inside `fetch`, and compares:
 
 ```
-cp tmp-perm-src/main/default/profiles/*.profile-meta.xml        force-app/main/default/profiles/
-cp tmp-perm-src/main/default/permissionsets/*.permissionset-meta.xml  force-app/main/default/permissionsets/
-cp tmp-perm-src/main/default/permissionsetgroups/*  force-app/main/default/permissionsetgroups/   (if any)
-rm -rf tmp-perm-retrieve tmp-perm-src
+SELECT COUNT(Id) FROM FieldPermissions  WHERE Parent.Name = '<Name>'
+SELECT COUNT(Id) FROM ObjectPermissions WHERE Parent.Name = '<Name>'
+SELECT SetupEntityType, COUNT(Id) FROM SetupEntityAccess WHERE Parent.Name = '<Name>' GROUP BY SetupEntityType
 ```
 
-Add the temp folder names to `.gitignore` if the project re-runs this often.
+Matching counts mean the standalone retrieve is complete on this org and this
+Salesforce release. Also confirm by eye that the file contains grants on a
+STANDARD object (Account, Contact, Case). Standard objects are what a manifest
+wildcard silently skips, so their presence in a no-manifest retrieve is the
+strongest single signal. Re-run after a major Salesforce release.
 
-## Step 4: verify completeness (do this every refresh)
+## Procedure: permission sets
 
-1. **Size sanity.** A complete profile from a real org is typically thousands
-   of lines; a naive retrieve is usually under a hundred. Run `wc -l` on each
-   profile file and investigate anything suspiciously small before committing.
-2. **Section sanity.** A complete profile should contain `<objectPermissions>`,
-   `<fieldPermissions>`, `<layoutAssignments>`, `<classAccesses>`, and
-   `<tabVisibilities>` blocks. `grep -c "<fieldPermissions>"` on a major
-   profile should return hundreds or more, not single digits.
-3. **Known-grant spot check.** Pick two or three grants you know exist from
-   the org's UI and grep for them in the retrieved file. Always include one
-   on a STANDARD object (for example a custom field on Contact that a profile
-   can edit): `grep -A2 "Contact.Some_Field__c" <profile file>` should show
-   the expected `<editable>` / `<readable>` values. A standard-object grant is
-   exactly the one a bad manifest misses.
-4. **Standard-object presence.** If no standard object appears anywhere in a
-   profile's objectPermissions or fieldPermissions, the standard objects were
-   missing from the manifest. Fix the member list and re-run; do not commit.
+1. **Fetch.** `permsets.py fetch <Name> --org <sandbox>`. Commit the fetch on its
+   own, separate from any edit, so the next diff shows only the intended change.
+2. **Re-add known retrieve blind spots** by hand. See the table below.
+3. **Edit**, then `permsets.py check` and `permsets.py tidy`.
+4. **Preflight before deploying.** `permsets.py preflight <file> --org <sandbox>`.
+   It retrieves the target org's current copy, compares grant by grant, and blocks
+   when anything would be lost.
+5. **Deploy the narrowest set**, sandbox only, with the owner's go-ahead:
+   `sf project deploy start -d <path to the one file> -o <sandbox>`.
+6. **Check every permission set group** the permission set belongs to. A group not
+   in `Updated` status serves the last successfully calculated version, so a
+   successful deploy can leave the new grants inactive. Recalculate from the
+   group's page in Setup.
 
-If any check fails, the retrieve was incomplete. Never commit a file that
-failed verification: a partial file in git is actively misleading.
+## Procedure: profiles, only if a project opts in
 
-## The trap list
+Profiles are excluded by default. When a project decides it wants them anyway,
+they enter git as a labelled read-only record and never as a deploy source.
 
-1. **The `CustomObject` wildcard skips standard objects.** `*` returns custom
-   objects only; Account, Contact, and every other standard object must be
-   named explicitly. Symptom: profiles with no standard-object permissions at
-   all. This is the most common way this process silently fails.
-2. **The `Profile` wildcard skips standard profiles, and API names differ
-   from labels.** `*` returns custom profiles only; standard profiles must be
-   named, using the API name from list metadata (`Admin`, not "System
-   Administrator").
-3. **Wildcards skip managed-package components.** `*` does not include
-   components from managed packages, so profile grants on managed objects,
-   classes, and tabs drop out. The generate-manifest-from-org path avoids
-   this because it emits explicit member names; on the template path, paste
-   explicit lists for any type where managed grants matter.
-4. **Retrieving the manifest into `force-app` overwrites local source.**
-   Always use `--target-metadata-dir` (or a throwaway SFDX project). Step 3
-   exists because of this trap.
-5. **A partial profile looks plausible.** User permissions, login hours, and
-   IP ranges come back even in a naive retrieve, so the file has content.
-   "The file is not empty" is never proof of completeness; only step 4 is.
-6. **A stale component list rots the picture.** New fields, objects, and
-   classes added after the manifest was built are absent from the next
-   refresh, so their permissions silently vanish. Regenerate the member lists
-   (step 1) as part of every refresh, not just the first run.
-7. **Retrieve size limits on big orgs.** A single retrieve caps out (10,000
-   files, roughly 39 MB zipped); a full component list on a large org can
-   exceed it. If it does, keep the FULL component list in every request and
-   split the `Profile` / `PermissionSet` members across several retrieves
-   instead. Never split the component types across retrieves: a profile
-   retrieved without the full component list comes back partial again.
-8. **The API version floor.** The manifest version must be 40.0 or later for
-   permission sets to retrieve completely. Pin it to the project's
-   `sourceApiVersion` and keep it pinned so refresh diffs stay comparable.
+1. **Generate the component list from the org, every time.** A hand-trimmed list
+   rots, and a stale list makes new fields and objects vanish from the next
+   retrieve, which reads as mass revocation.
+   ```
+   sf project generate manifest --from-org <alias> --name permissions-retrieval --output-dir manifest
+   ```
+   Keep the types permissions can point at: `CustomObject`, `ApexClass`,
+   `ApexPage`, `Layout`, `CustomTab`, `CustomApplication`, `CustomPermission`,
+   `ExternalDataSource`, `Flow`, `RecordType`, plus `Profile` itself. Name standard
+   objects explicitly; the `*` wildcard on `CustomObject` does not match them.
+   Name standard profiles by API name (`Admin`, not "System Administrator").
+2. **Retrieve to a side folder, never into a package directory.** Retrieving this
+   manifest into the project overwrites local source for every component it names.
+   ```
+   sf project retrieve start -x manifest/permissions-retrieval.xml -o <alias> --target-metadata-dir tmp-perms --unzip
+   sf project convert mdapi --root-dir tmp-perms/unpackaged -d tmp-perms-source
+   ```
+3. **Copy only `profiles/`** into the package directory, then delete the temp
+   folders.
+4. **Verify before committing.** A complete profile for a real org runs to
+   thousands of lines and contains `objectPermissions`, `fieldPermissions`, and
+   `layoutAssignments`, including at least one grant on a standard object. A file
+   that fails that check is a lossy retrieve, not a change. Do not commit it.
+5. **Never CLI-deploy it.** Mark the folder or the file header as a record.
 
-## Refresh cadence and ownership
+Note: those profile verification checks are profile-shaped. Do not apply them to
+permission sets. A permission set legitimately has no `layoutAssignments` and can
+be short; use `permsets.py verify` for those instead.
 
-- Re-run the whole process (steps 1 to 4, including regenerating member
-  lists) whenever the project needs the permissions picture current: before
-  a permissions-related change, after an admin makes grants in the org UI,
-  or on whatever cadence the project sets.
-- Commit refreshes as their own commit ("refresh profiles and permission sets
-  from <org>, <date>") so permission drift is readable in history.
-- The org stays authoritative. If a file in git disagrees with the org, the
-  answer is a fresh retrieve, not an edit to the file.
+## Known retrieve blind spots
+
+Permissions an org can hold that a retrieve will not return, so a replace-deploy
+destroys them. Re-add each by hand after every fetch, and add to this list
+whenever another is found.
+
+| Permission | Status |
+|---|---|
+| `ManagePackageLicenses` ("Manage Package Licenses") | Salesforce CLI issue 2578, open since 2023-11-23. Salesforce confirmed the omission is in the Metadata API, not the CLI. Deploys correctly once added by hand. <https://github.com/forcedotcom/cli/issues/2578> |
+
+The list is also encoded in the tool as `RETRIEVE_BLIND_SPOTS`; keep the two in
+step.
+
+## Trap list
+
+Ordered by how likely each is to destroy grants without telling you.
+
+| Trap | Why it bites | Guard |
+|---|---|---|
+| Omitted equals disabled on a permission set deploy | Deploy replaces the whole component | `preflight`, always |
+| `deploy validate` and `deploy preview` cannot see it | Both work at whole-component level; a file missing hundreds of grants passes both | Never rely on them for this; use `preflight` |
+| A permission the retrieve never returns | See blind spots above | Hand-maintained list, re-added after every fetch |
+| The `CustomObject` wildcard skips standard objects | Only affects profiles now, but it is the classic cause of a plausible-looking empty file | Name standard objects explicitly; generate the manifest from the org |
+| API version skew between retrieve and deploy | A file retrieved under one version's rules and deployed under another's can lose sections | Pin `sourceApiVersion`, match it everywhere, re-fetch on a bump |
+| Unstable XML element order between retrieves | Diff noise trains reviewers to skip permission diffs, and a text merge across a reordered file can drop blocks | `tidy` on every commit |
+| `viewAllFields` on an object suppresses its field list | An empty field list looks lossy and is not; removing View All Fields later takes away every field at once | `check` warns; rebuild per-field grants from the org first |
+| Permission set group left `Outdated` or `Failed` | A successful deploy leaves new grants inactive, silently | Check group status after every deploy |
+| `editable` true on a formula, roll-up, or autonumber field | Rejected, and a Salesforce known issue reports it silently no-oping instead, which then produces a phantom diff on every future fetch | `check` catches it from the field definition |
+| `editable` true with `readable` false | Hard deploy failure | `check` |
+| Activity vs Task and Event naming | CLI issue 2583 reported field access toggling across repeated identical deploys, closed with no published root cause | `check` treats `Activity.` as an error; manage that family in Setup |
+| Same-element blocks split apart in the file | Hard deploy failure | `check`, and `tidy` fixes it |
+| Required-field security | Cannot be retrieved or deployed at all, API 30.0 and later | Expect the absence; never add them |
+| Permission sets grant but never deny | `readable` false looks like a revocation and does nothing | Use a muting permission set in a group |
+| Managed-package components need namespaced names | Wildcards do not reach into packages, so their grants drop out of a profile retrieve | Name them explicitly in the profile manifest |
+| Hand-resolved merge conflict in a large permission XML | Blocks disappear or interleave into valid-but-wrong XML | Take one side whole, re-apply the other as a fresh edit |
+
+## What "complete" cannot mean
+
+A permission set file lists what is granted; it is not a grid of every possible
+permission with true or false beside it. Three limits are structural:
+
+1. **Off is absent, not false.** System permissions, custom permissions, and field
+   permissions are written out only when granted. A diff shows a whole block
+   appearing or disappearing, not a value flipping.
+2. **Required-field security never appears.**
+3. **Some access only exists on a profile:** page layout assignment, login hours,
+   login IP ranges, data category visibility.
+
+Say this out loud to an owner who asks for "every possible permission in one
+file", before they build expectations on it.
+
+## What was considered and rejected
+
+**Decomposing a permission set into per-object files.** Salesforce offers
+`decomposePermissionSetBeta` and `decomposePermissionSetBeta2` via
+`sf project convert source-behavior`. Rejected as a default: about two years in
+beta with no GA date, a reported bug producing invalid XML in the custom
+permissions file, effectively one-way with no undo, and it replaces one
+reviewable file with a folder of a dozen. Canonical sorting solves the readable
+diff problem it was meant to solve. Reconsider if it reaches GA, or on a large
+team where merge conflicts on one file become the dominant pain.
+
+There is no profile decomposition, and the Salesforce CLI team declined to build
+profile completion into the CLI (discussion 1785, January 2023), citing the
+platform's direction toward permission sets.
+
+**Change sets as the safe transport.** Not safer. Salesforce documents that
+permission set components in a change set do NOT include assigned apps or tab
+settings, and change sets cannot come from git, so the diff stops being the audit
+trail. They remain the right answer for profiles.
+
+## Salesforce's direction
+
+Salesforce cancelled the retirement of permissions on profiles on 2026-06-06
+(Help article 003834041), citing customer feedback and remaining feature gaps.
+There is no forced migration off profiles. Salesforce still recommends a
+permission-set-led model and names permission sets and permission set groups as
+where its investment goes. Ignore any blog post still presenting the Spring '26
+removal as a live deadline.
