@@ -22,6 +22,7 @@ points at that folder so these files are read each session.
 | `deployment-runbook.md` | Track the operational steps a deploy cannot perform (permission-set assignments, data re-stamps, scheduled jobs, post-deploy checks). Tool-agnostic. Optional. |
 | `permissions-source-control.md` | Permission sets are tracked in git and deployed from it, behind a mandatory preflight that lists what a deploy would remove. A permission set retrieve is complete on its own (API 40.0 and later); the danger is the deploy, which replaces the whole component, and which no Salesforce CLI command warns about. Ships with `../tools/permsets.py`. Profiles are excluded by default: lossy retrieve, overlay deploy, so their diff cannot show a revocation. Runbook: `../salesforce-permissions-retrieval.md`. |
 | `production-data.md` | One home for every production data artifact: backups (saved before a live data change) and data-load files each live in their own dated subfolder under `engagement/data/`, with a required README and gitignored data files so record IDs / PII never commit. |
+| `data-change-handoff.md` | No agent ever writes data to production; sandbox writes need the owner's yes in that same chat; reads are approved by default. Owns what the agent hands over instead: a ready-to-load CSV, a backup file, numbered load steps, what success looks like, and how to undo it. |
 
 The first three are the recommended default set for a Salesforce project. The
 next two (`component-tracker.md`, `deployment-runbook.md`) are heavier consulting
@@ -37,6 +38,14 @@ install all four parts or it is advice with no enforcement: the rule,
 `../salesforce-permissions-research.md`. Offer `production-data.md`
 whenever the project will load or change production data via Data Loader / Bulk
 API and wants one auditable home for its backups and load files.
+
+`data-change-handoff.md` and `production-data.md` are the pair for projects that
+change production data: the first says the owner runs the change and what the
+agent must hand them, the second says where the resulting files live. Offer
+`data-change-handoff.md` to any Salesforce project whose data an agent could
+otherwise be asked to change, which is nearly all of them. It does not repeat
+`salesforce-safety-guardrails.md`; that file owns which commands are allowed, and
+this one owns what happens instead of the forbidden write.
 
 ## Adding a rule
 

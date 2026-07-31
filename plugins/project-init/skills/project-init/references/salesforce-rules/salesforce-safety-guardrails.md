@@ -19,7 +19,7 @@ are enforced, not just trusted; where it is not, the rule still binds.
 
 ### What you may never do
 
-- Create, update, delete, import, or upsert data: any `sf data create / update / delete / import / upsert` (record, bulk, or tree). Data changes are the owner's to run.
+- Create, update, delete, import, or upsert data: any `sf data create / update / delete / import / upsert` (record, bulk, or tree). Data changes are the owner's to run. Refusing is only half of it: `data-change-handoff.md` owns what you hand over instead, which is a ready-to-load file plus the steps, never a description of the work.
 - Run anonymous Apex: `sf apex run`, `sfdx force:apex:execute`. It can change data and is off-limits. (Apex tests are fine.)
 - Delete metadata from an org: `sf project delete source`, `force:source:delete`.
 - Delete an org or sandbox.
@@ -99,3 +99,4 @@ to weaken it.
 
 - The production-org guard hook (Gate 2), which enforces the production part of this policy.
 - `deploy-hitchhiker-check.md` (before any deploy, catch components or edits that would ride along into the target org).
+- `data-change-handoff.md` (what the agent produces instead of a forbidden data write: the file, the steps, and the undo).
