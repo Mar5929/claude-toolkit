@@ -54,7 +54,9 @@ Bundled under `skills/project-init/references/`:
   memory. Offered in Gate 1, kept current by a Gate 2 hook. It reads local files
   only and never contacts an org.
 - `graphify-dependency-graph.md`: the same job for every non-Salesforce stack,
-  using the open-source graphify tool.
+  using the open-source graphify tool. Offered in Gate 4, and it ships as a kit
+  too: the tool, the gitignore entry, the `general-rules/dependency-graph.md`
+  rule, and graphify's own auto-rebuild git hooks.
 - `mcp-best-practices.md`: per-server MCP tool rules, folded in only for the
   servers a project actually uses.
 
