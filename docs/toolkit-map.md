@@ -200,16 +200,19 @@ The genuine watch-items are called out at the end.
   memory as destinations for detail that does not belong in CLAUDE.md, but it
   does not own any of them; the rules above do. Naming where something goes is
   what keeps CLAUDE.md from absorbing all three.
-- **The response-style rule cluster.** `lead-with-the-answer` and
-  `close-with-the-ask` are intentionally paired (the second builds on the first:
-  answer first, end with the next action); `answer-last-question-box`,
-  `define-your-terms`, and `steer-to-the-goal` each add a distinct constraint.
-  Mild overlap by design, not accidental duplication. `quiet-while-working`
-  sits one level up from all of them: they govern how you write a single reply,
-  it governs how many replies you write at all (at most one short line per
-  chunk while working, the whole explanation saved for one final reply). The
-  one deliberate exception is `show-phase-progress`, whose one-line bar is
-  exactly the mid-work budget `quiet-while-working` allows.
+- **Reply shape lives in one rule, and used to live in four.** `how-to-reply`
+  owns the whole thing: how many replies you write, what goes in each, and where
+  the owner's next action lands. It replaced `lead-with-the-answer`,
+  `close-with-the-ask`, `quiet-while-working`, and `answer-last-question-box`,
+  which were 162 lines across four files describing one behavior. That split was
+  documented here as "mild overlap by design". Measuring real sessions showed
+  otherwise: staying quiet while working and closing with the next step were the
+  two most-broken rules in the library, at 56 to 60 percent of turns, and two of
+  the four files stated "do not narrate between tool calls" independently. Four
+  files an agent has to hold at once to shape one reply is a cost, not a design.
+  `show-phase-progress` remains the one deliberate exception, and its one-line
+  bar is exactly the mid-work budget `how-to-reply` allows. `define-your-terms`
+  and `steer-to-the-goal` still add their own distinct constraints on top.
 - **sf-architect-solutioning versus the Salesforce rules versus the dependency
   graph.**
   sf-architect decides what to build; the `salesforce-rules` install standing

@@ -5,6 +5,8 @@ every project: rules, the new-project setup flow, and (over time) hooks, the
 memory architecture, and other systems. It's packaged as a Claude Code plugin
 marketplace. `README.md` has the full picture; read it first.
 
+The three 'toolkit-enabled' projects so far are Anchor, Dragonfly, and Diligence Ready
+
 ## Your main job here: fold new lessons into the toolkit
 
 Most sessions in this repo start with Mike saying some version of "I want every
@@ -14,7 +16,7 @@ write X down somewhere. Fit it into the system:
 1. **Classify it, then place it.**
 
    | X is... | It goes... |
-   |---|---|
+   | --- | --- |
    | A rule for how agents behave, write, or work in every project | A new file in `plugins/project-init/skills/project-init/references/general-rules/`; also add a row to that folder's `README.md` index (default ON or conditional) |
    | A setup step for new projects | Into the right gate in `plugins/project-init/skills/project-init/SKILL.md` and `references/setup-flow.md` (or propose a new gate) |
    | A guard hook or automation | The shared hooks library. Until that library exists, record it in the README roadmap with enough detail to build it later |
