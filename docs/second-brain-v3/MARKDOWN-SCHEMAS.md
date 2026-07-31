@@ -451,6 +451,7 @@ Path: `memory/knowledge/<system-area>/<topic>.md`
 Explains the non-obvious delivery behavior future test work must account for.
 
 Status: Current
+Basis: Observed in force-app/main/default/classes/EmailDelivery.cls
 
 ## What we know
 
@@ -459,11 +460,6 @@ The reusable, non-obvious understanding.
 ## Why it matters
 
 The failure, wasted work, or design mistake this knowledge prevents.
-
-## Basis
-
-Evidence, observation, source, or owner confirmation when it helps a future
-reader understand the conclusion.
 
 ## How to apply it
 
@@ -477,7 +473,10 @@ Where future work should use this knowledge and any important limits.
   - This delivery behavior affects the reset flow.
 ```
 
-`Basis` may be omitted when it adds no value. Do not manufacture a source field.
+The `Basis:` line is mandatory on every knowledge document. Allowed values are
+`Observed`, `Owner-confirmed <YYYY-MM-DD>`, `Source`, and
+`Inferred, unconfirmed`, each optionally followed by the exact file, person, or
+source. Do not manufacture a stronger basis than the document actually has.
 
 ## 10. Reference schema
 
@@ -529,6 +528,7 @@ Path: `memory/domain/<system-area>/<concept>.md`
 Defines the project's meaning and business rules for the account-owner concept.
 
 Status: Current
+Basis: Owner-confirmed 2026-07-31
 Aliases: Primary account contact
 
 ## Meaning
@@ -552,6 +552,10 @@ The project's definition of this term or concept.
 - **Used by:** [Account access specification](../../../specs/authentication/account-access/README.md)
   - Uses this actor in required behavior.
 ```
+
+The `Basis:` line is mandatory on every domain document, using the same values
+as the knowledge schema. A term an agent guessed at from field or object names
+is `Inferred, unconfirmed` until a person confirms it.
 
 Aliases are optional and especially useful for client language, acronyms, and
 multiple names for the same concept.

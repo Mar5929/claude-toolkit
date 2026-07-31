@@ -106,6 +106,12 @@ direction; the tracker owns execution.
 No YAML frontmatter. No empty placeholder fields. `Status: Superseded` plus a
 link to the replacement is required whenever a replaced document is kept.
 
+Documents in `memory/knowledge/` and `memory/domain/` add one mandatory line
+under the summary saying where the content came from: `Basis: Observed`,
+`Basis: Owner-confirmed <YYYY-MM-DD>`, `Basis: Source`, or
+`Basis: Inferred, unconfirmed`. Trust a document only as far as its basis
+allows, and never quietly upgrade an inference to a confirmed fact.
+
 ### How to read
 
 Start at the relevant root `README.md`, then the area index, then the specific

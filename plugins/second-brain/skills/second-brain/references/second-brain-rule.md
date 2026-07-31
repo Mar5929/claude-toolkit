@@ -159,6 +159,9 @@ or a machine schema.
 `Status`, `Review after`, `Review when`, `Tags`, `Sources`, and `Aliases` are
 optional. Do not add empty placeholders.
 
+`Basis` is mandatory on every `memory/knowledge/` and `memory/domain/` document
+and optional elsewhere. See `Evidence and certainty`.
+
 `Status: Superseded` is mandatory when a replaced document is retained. A
 review signal requires owner approval and a real explainable validity horizon.
 Reaching its date or event means verify before relying, not automatic
@@ -416,6 +419,11 @@ Optional.
 Knowledge explains what is understood and how to apply it. It does not
 authorize product behavior.
 
+### Required basis line
+
+Every knowledge document carries a `Basis:` line directly under its
+one-sentence summary. `Evidence and certainty` lists the allowed values.
+
 ### Good
 
 Test-environment email delivery differs from production.
@@ -476,6 +484,11 @@ Optional.
 
 Domain defines business meaning. Specifications define system behavior using
 that meaning.
+
+### Required basis line
+
+Every domain document carries a `Basis:` line directly under its one-sentence
+summary. `Evidence and certainty` lists the allowed values.
 
 ### Good
 
@@ -598,22 +611,49 @@ The basis is already obvious and does not affect reliance.
 
 ### Requirement
 
-Contextual. Required when confusing the categories could mislead future work.
-No metadata label is required on every paragraph.
+Contextual in prose. Required whenever confusing the categories could mislead
+future work. No metadata label is required on every paragraph.
+
+Mandatory in one place: every knowledge and domain document carries a `Basis:`
+line directly under its one-sentence summary. Those two types hold conclusions
+rather than approved behavior, so a later reader cannot tell where the content
+came from unless the document says so.
+
+### Allowed basis values
+
+- `Basis: Observed` when it was seen directly in the repository, configuration,
+  or running system.
+- `Basis: Owner-confirmed <YYYY-MM-DD>` when the owner or a named stakeholder
+  stated it on that date.
+- `Basis: Source` when an external, vendor, or regulatory document supports it.
+  Link the source or its reference document.
+- `Basis: Inferred, unconfirmed` when an agent concluded it and nobody has
+  checked it yet.
+
+Add a short clause after the value when the exact file, person, or source helps:
+`Basis: Observed in force-app/main/default/classes/InvoiceRetry.cls`.
+
+An unconfirmed document is still worth keeping. Promote it by editing the line
+once someone checks the inference, and record what confirmed it in the same
+edit.
 
 ### Authority
 
 Repository evidence can establish observed behavior but not owner intent. An
-inference remains an inference until supported or confirmed.
+inference remains an inference until supported or confirmed. A basis value never
+raises a document above its type: an owner-confirmed knowledge document still
+does not authorize product behavior.
 
 ### Good
 
-`Observed in the current code: invoice retries are manual. The owner confirmed
-that this behavior remains supported.`
+`Basis: Owner-confirmed 2026-07-31` above a paragraph reading `Observed in the
+current code: invoice retries are manual. The owner confirmed that this behavior
+remains supported.`
 
 ### Avoid
 
-Writing `Manual invoice retries are required` based only on legacy code.
+Writing `Manual invoice retries are required` based only on legacy code, or
+stamping `Basis: Owner-confirmed` on a conclusion the owner never saw.
 
 ## Relationships
 
