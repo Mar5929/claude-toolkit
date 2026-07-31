@@ -84,7 +84,8 @@ secrets rule even if the prose differs. Typical checks:
   it as one coherent installation:
   - `.claude/rules/second-brain.md`;
   - `.claude/agents/memory-librarian.md`;
-  - equivalent compact routes in `CLAUDE.md` and `AGENTS.md`;
+  - the full memory section, identical and first, in `CLAUDE.md` and
+    `AGENTS.md`;
   - `brainstorms/README.md`;
   - `specs/README.md`;
   - `memory/README.md`; and
@@ -162,10 +163,16 @@ presence. Read the file and report:
 - **Live state that belongs in the status doc.** Current phase, next action, and
   open TODOs drift the moment they are written here. Flag them for work-tracker
   or the live status doc.
-- **V3 route parity.** When second-brain is installed, confirm CLAUDE.md and
-  AGENTS.md contain equivalent compact memory maps and both route to
-  `.claude/rules/second-brain.md`. Flag copied full schemas, conflicting
-  authority, or a route present in only one root file.
+- **V3 memory section parity.** When second-brain is installed, confirm both
+  `CLAUDE.md` and `AGENTS.md` carry the full memory section from the plugin's
+  `references/orientation-snippet.md`, identical in both, positioned first
+  (after the title and the rules line, before the codemap), and pointing at
+  `.claude/rules/second-brain.md` as canonical. This section is the one
+  sanctioned duplication, so do not flag it as bloat and never propose trimming
+  it. Do flag: a shortened or paraphrased copy, the two files disagreeing, the
+  section buried below other sections, it being present in only one root file,
+  or it having drifted from the canonical rule's authority map, homes, or
+  document contract.
 - **Stale content.** Anything the code, paths, or decisions have since
   contradicted.
 

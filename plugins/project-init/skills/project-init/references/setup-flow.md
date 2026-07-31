@@ -94,8 +94,19 @@ so they always know where they are.
   section only if the project uses that MCP server.
 - Write a thin CLAUDE.md _with_ the user: what it is, codemap and structural
   pointers, a `Read .claude/rules` line, which gates ran. Add a
-  `.claude/rules/README.md` index. When v3 ran, preserve the same compact memory
-  route in CLAUDE.md and AGENTS.md and point both at the canonical rule.
+  `.claude/rules/README.md` index.
+- When v3 ran, the memory schema is the one exception to thin. Copy the full
+  section from the second-brain plugin's `references/orientation-snippet.md`
+  **verbatim** into BOTH CLAUDE.md and AGENTS.md, at the **top** of each file,
+  right after the title and the `Read .claude/rules` line and before the
+  codemap. It carries the authority map plus the use-when and do-not-use-when
+  for every home, because routing has to happen before an agent writes and a
+  rule it has not opened cannot route. Never shorten it, never let the two files
+  differ, and point both at the same canonical rule. See `thin-claudemd.md`.
+- Give AGENTS.md the same content list as CLAUDE.md, not a stub: title, the
+  rules line, the identical memory section in the same position, the same
+  structural pointers (or a pointer to them), plus any Codex-specific
+  instructions. See "What AGENTS.md contains" in `thin-claudemd.md`.
 
 **Gate 6: Optional standalone toolkit skills**
 - Offer `grill-me` for durable brainstorming and discovery interviews.
