@@ -81,7 +81,10 @@ The genuine watch-items are called out at the end.
 
 - **project-init versus project-sync.** Same inventory of toolkit systems,
   opposite entry points: init lays foundations in an empty project, sync audits
-  and back-fills a project that already exists. Keep both.
+  and back-fills a project that already exists. Keep both. Sync also carries the
+  drift check, which is the only thing that ever delivers an amendment to a rule
+  a project already has; without it, editing an existing rule in the toolkit
+  changes nothing anywhere else.
 - **Archived second-brain v1's three layers.** The legacy memory graph ("what did we decide and
   why"), the knowledge layer ("why does this code exist", prose pinned to file
   SHAs), and the structural layer ("if I change this, what breaks", built

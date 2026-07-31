@@ -10,7 +10,8 @@ description: >-
   libraries, hooks, the Git-native work-tracker, the complete second-brain v3
   system, retired v1 local-wiring recognition, standalone skills such as
   grill-me, and any newer systems), cross-references the current project,
-  reports the gaps, and closes each gap only with the user's approval.
+  reports the gaps, including rules the project has but that are behind the
+  toolkit's current version, and closes each gap only with the user's approval.
 ---
 
 # project-sync: bring an existing project up to the toolkit
@@ -52,7 +53,9 @@ automatically as it grows.
   canonical sources instead of maintaining copies in `project-init`.
 - Enumerate, at minimum:
   - every rule file in `general-rules/`, noting from its `README.md` which are
-    default ON and which are conditional; Salesforce projects also get the
+    default ON and which are conditional, and what each rule currently says, so
+    step 2 can tell a project copy that is merely worded differently from one
+    that is genuinely behind; Salesforce projects also get the
     `salesforce-rules/` files
   - the per-server MCP tool rules in `references/mcp-best-practices.md`; these
     are conditional, so only audit the servers this project actually connects
@@ -138,9 +141,41 @@ secrets rule even if the prose differs. Typical checks:
 - **Previous sync record**: read it if present (step 5 format) so deliberate
   opt-outs are respected.
 
-Classify every item: **present**, **partial**, **missing**, **retired** (a v1
-integration that should be deactivated or removed), **declined** (the owner
+Classify every item: **present**, **outdated** (present, but behind the
+toolkit's current version, see below), **partial**, **missing**, **retired** (a
+v1 integration that should be deactivated or removed), **declined** (the owner
 previously opted out), or **not applicable** (say why).
+
+### Rule drift
+
+A rule the project already has can still be out of date. The toolkit's rules get
+amended, and an amendment reaches a project only when something goes looking for
+it. Checking that a rule is present will never find one, so a project can pass
+every check above and still be running a rule as it was written six months ago.
+
+For each rule the project carries, read the toolkit's current version alongside
+the project's copy and ask what the toolkit version says that the project's copy
+does not cover. Compare the points made, not the words used. Projects are told
+in step 4 to fold rules into their own voice, so different wording is expected
+and is not drift.
+
+Three outcomes:
+
+- **The same points in different words.** Not drift. Leave it and say nothing.
+- **The toolkit makes a point the project's copy does not.** This is drift.
+  Report the specific missing point in plain language, not a text diff, and
+  classify the item **outdated**.
+- **The project makes a point the toolkit's version does not.** The project is
+  ahead. Never overwrite it. Flag it for port-back in the wrap-up.
+
+The previous sync record names the toolkit version last synced against. When
+that is behind the current toolkit version, rules are the first place to look.
+When there is no sync record, check them all.
+
+The same drift question applies to any toolkit text a project copies, not only
+`.claude/rules/`. The v3 memory section in `CLAUDE.md` and `AGENTS.md` is
+already covered below; treat it as the worked example of this check rather than
+a separate rule.
 
 ### CLAUDE.md health
 
@@ -192,8 +227,9 @@ on any trim you propose:
 
 Show one table: item, status, and what specifically is missing or drifted. Make
 no changes in this step. Let the user pick what to fix, and recommend an order
-(complete v3 adoption, retired v1 local wiring as a separate choice, default-ON
-rules, then other systems). Existing v1 wiring does not block v3 adoption.
+(complete v3 adoption, retired v1 local wiring as a separate choice, missing
+default-ON rules, outdated rules, then other systems). Existing v1 wiring does
+not block v3 adoption.
 
 ## Step 4: close the approved gaps, one at a time
 
@@ -207,6 +243,10 @@ should look in THIS project, confirm, act, summarize. Ground rules:
 - Never weaken something the project already does better than the toolkit
   version. If the project's variant is an improvement, leave it and flag it
   for port-back instead (see wrap-up).
+- For an approved **outdated** rule, add only the missing points, written in the
+  project's existing voice. Never replace the file wholesale with the toolkit's
+  text: that throws away every local adaptation the project made on purpose, and
+  those adaptations are the reason the wording differs in the first place.
 - For an approved v3 gap, install the `second-brain` plugin and follow its
   brownfield adoption guide:
   1. keep the audit read-only until the owner approves exact treatments;
@@ -248,8 +288,11 @@ location: `.claude/toolkit-sync.md`, with at most a one-line structural pointer
 from CLAUDE.md or AGENTS.md when useful. Do not turn either root file into a
 sync changelog. Record:
 
-- the toolkit version synced against, and the date
+- the toolkit version synced against, and the date. The next run reads this to
+  decide whether the project's rules may have fallen behind, so record it even
+  when nothing changed
 - items set up or already present
+- items brought up to date, naming what was added to each
 - items the owner deliberately declined, so future syncs never re-nag about a
   considered "no"
 
