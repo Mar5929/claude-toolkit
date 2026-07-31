@@ -40,8 +40,8 @@ These are not duplicated here. Go to the index that owns them:
 
 - **General rules** (the standard `.claude/rules` files copied into every
   project): [general-rules/README.md](../plugins/project-init/skills/project-init/references/general-rules/README.md).
-  Marks active rules default ON and identifies retired v1 recognition files
-  that are never installed in new projects.
+  Marks active rules default ON or conditional. Retired v1 examples are not
+  part of this installable library.
 - **Salesforce rules**: [salesforce-rules/README.md](../plugins/project-init/skills/project-init/references/salesforce-rules/README.md).
 - **Salesforce dependency graph**: the tool and its own `README.md` live at
   `plugins/project-init/skills/project-init/references/tools/kb/`; the install
@@ -66,18 +66,20 @@ These are not duplicated here. Go to the index that owns them:
   `orientation-snippet.md`, `adoption-guide.md`, and `templates/` under
   `plugins/second-brain/skills/second-brain/references/`, plus the
   `memory-librarian.md` role under `plugins/second-brain/agents/`.
-- **Archived second-brain v1 internals**: `architecture-spec.md`,
-  `setup-recipe.md`, `first-time-infra.md`,
-  `curator-write-path.md` (how a curated note reaches the store, and the fallback
-  ladder when it cannot), `brain-scope.md` (which brain is this project's, and
-  what stops a session reading another project's), `kb-backfill.md` with its
-  `kb-backfill/` scripts (the retired one-time write-up procedure and its
-  generic freshness hook, superseded for Salesforce by the dependency graph and
-  for every other stack by graphify's own git hooks), and the `profiles/`,
-  `agents/`, `hooks/`, and `server/` folders (each with its own README) under
-  `plugins/second-brain/skills/second-brain/references/`.
-  They are archived historical evidence, not installation, deployment, export,
-  or migration instructions. The old Worker has no default deploy path.
+- **Archived second-brain v1**:
+  [archive/second-brain-v1/README.md](../archive/second-brain-v1/README.md)
+  indexes the retired Worker, Neon, MCP, curator, hook, and knowledge-backfill
+  source, including `architecture-spec.md`, `setup-recipe.md`,
+  `first-time-infra.md`, `curator-write-path.md` (how a curated note reached the
+  store, and the fallback ladder when it could not), `brain-scope.md` (which
+  brain was this project's, and what stopped a session reading another
+  project's), and `kb-backfill.md` with its `kb-backfill/` scripts (the retired
+  one-time write-up procedure and its generic freshness hook, superseded for
+  Salesforce by the dependency graph and for every other stack by graphify's own
+  git hooks). It lives outside active plugin paths and is historical evidence,
+  not installation, deployment, export, or migration guidance. The old Worker
+  has no default deploy path. The dependency graph is NOT archived: it outlived
+  v1 and ships from `project-init` (see below).
 - **Shipped second-brain v3**:
   [docs/second-brain-v3/README.md](second-brain-v3/README.md) indexes the
   current Markdown-only specification, schemas, and toolkit
@@ -119,20 +121,15 @@ The genuine watch-items are called out at the end.
   which is what the freshness hook and its drift file exist to catch. Neither
   replaces the other, and a project can install the graph without installing
   second-brain at all.
+- **Archived second-brain v1 versus v3.** The repository archive preserves the
+  old implementation for historical inspection. The installable second-brain
+  plugin contains only v3. Project-sync may recognize old local wiring, but it
+  does not use the archive as a migration source.
 - **second-brain versus remember.** `second-brain` owns complete setup,
   brownfield adoption, explanation, completion review, and maintenance.
   `remember` is the focused entry point when the owner already knows what
   should be saved. Both use the same canonical rule and on-demand memory
   librarian, so there is no quick-write store or competing schema.
-- **Two historical v1 "the brain is not there" failures.**
-  `curator-write-path.md` records how v1 handled the right store being
-  unreachable, while `brain-scope.md` records how it blocked the wrong store.
-  Retirement authorizes no read or write fallback. Do not use another project's
-  store.
-- **The outbox versus the capture journal.** Both are retired v1 mechanisms at
-  opposite ends of the old pipeline. Neither is imported into v3. Local removal
-  must show the exact paths and separately confirm deletion of any non-empty
-  user material.
 - **work-tracker versus the older work-items tree.** Not two trackers.
   work-tracker is the executable extension of the same four-stage convention.
   It adopts existing `SPEC.md`, `STATUS.md`, and notes in place, adds
@@ -177,10 +174,9 @@ The genuine watch-items are called out at the end.
   requirements, edge cases, scenarios, and decisions into their canonical home
   as they surface, mid-task, so nothing important lives only in a conversation,
   plus the durable facts that arrive outside any task and so belong to no
-  completion review),
-  `steer-to-the-goal` (preserve a goal that outlasts one chat), and the
-  retired `memory-system-ground-rules` recognition file (identify and avoid an
-  older local v1 integration). Each targets a distinct moment, so they compose
+  completion review), and
+  `steer-to-the-goal` (preserve a goal that outlasts one chat). Each targets a
+  distinct moment, so they compose
   rather than repeat. V3's shared rule owns the approved-completion durable
   knowledge review. `capture-the-thinking` is the standing obligation the others
   assume: `work-item-folders` owns the containers and their fields, the v3
@@ -213,7 +209,9 @@ The genuine watch-items are called out at the end.
 - **second-brain v1's heavy infrastructure.** The legacy system used a Worker,
   a per-project database, embeddings, and two curators. Its complexity
   contributed to the correctness and curator-cost failures that led to
-  retirement. Do not install it in a new project. The shipped
+  retirement. Its source is consolidated in the
+  [v1 archive](../archive/second-brain-v1/README.md) outside active plugins. Do
+  not install it in a new project. The shipped
   [second-brain v3](second-brain-v3/README.md) is a fresh Markdown-only system
   and does not use that infrastructure.
 - **Overlap with Claude Code's native memory.** Claude Code now ships an

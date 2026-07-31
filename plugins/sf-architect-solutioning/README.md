@@ -38,8 +38,9 @@ Salesforce pieces in the other plugins:
 
 - `project-init`'s `salesforce-rules/` library installs the standing safety and
   workflow rules for a Salesforce project.
-- `second-brain`'s Salesforce structural layer answers mechanical impact
-  questions about existing metadata.
+- Graphify or another separately selected repository mapper can answer
+  mechanical impact questions about existing metadata. It is an analysis aid,
+  not part of second-brain v3.
 - This plugin decides what to build in the first place, then hands off to those.
 
 ## Maintaining this plugin

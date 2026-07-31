@@ -145,6 +145,8 @@ claude-toolkit/
     second-brain-v3/              ← current shipped memory and knowledge specification
   tests/
     orphan-check.mjs              ← fails if the toolkit ships a file nothing points at
+  archive/
+    second-brain-v1/              ← retired implementation, outside installable plugins
 ```
 
 Each **concern is its own plugin/skill** so it can evolve and be reused
@@ -200,11 +202,12 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
   [`docs/second-brain-v3/`](docs/second-brain-v3/README.md), and the plugin
   ships the rule, memory-librarian role, templates, setup, sync, and remember
   workflows. The old v2 proposal is superseded.
-- [x] **`second-brain` v1 retirement controls**: v1 must not be installed,
-  deployed, exported, or migrated. The archived implementation remains for
-  historical inspection with its default deployment path disabled. Existing
-  Worker and Neon resources stay untouched until separately approved for
-  deletion.
+- [x] **`second-brain` v1 archive**: the retired Worker, Neon, MCP, curator,
+  hook, knowledge-backfill, and structural-layer source has been removed from
+  active plugin paths and consolidated under
+  [`archive/second-brain-v1/`](archive/second-brain-v1/README.md). It is
+  historical evidence only. Existing Worker, Neon, and legacy project data
+  remain untouched.
 - [x] **`work-tracker` plugin**: a dependency-free Git-native tracker shared
   by Claude and Codex. It owns backlog, active status, blockers, relationships,
   handoffs, and verified landing evidence. Its optional GitHub adapter creates

@@ -111,7 +111,7 @@ and unknowns whenever confusing them could mislead future work.
 - mandatory YAML, tags, sources, aliases, or fixed proposal counts; or
 - automatic Git, pull-request, merge, or deployment actions.
 
-## Retired v1
+## Archived v1
 
 The previous Worker, Neon, MCP, curator, hook, outbox, and cache system remains
 retired. Its content is not a v3 migration source or current truth.
@@ -120,13 +120,15 @@ One thing that lived in this plugin was never part of v1 and is not retired: the
 Salesforce dependency graph. It only ever read local metadata files, so it
 survived v1's retirement and now ships with `project-init`, at
 `plugins/project-init/skills/project-init/references/salesforce-dependency-graph.md`.
-It is not part of second-brain and never depended on it.
+It is not part of second-brain and never depended on it. It is not in the
+archive.
 
-Archived v1 source under `skills/second-brain/references/server/`,
-`references/hooks/`, and the legacy agent and design files remains historical
-engineering evidence with no normal deployment path. Brownfield adoption may
-report committed local v1 wiring and separately offer local deactivation or
-approved removal. It never contacts cloud resources or reads legacy memory.
+All other v1 source has been removed from the installable plugin and
+consolidated in
+[`archive/second-brain-v1/`](../../archive/second-brain-v1/README.md) for
+historical inspection. Brownfield adoption may report committed local v1 wiring
+and separately offer local deactivation or approved removal. It never contacts
+cloud resources or reads legacy memory.
 
 ## Verification
 

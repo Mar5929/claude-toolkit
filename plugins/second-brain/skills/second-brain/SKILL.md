@@ -142,7 +142,7 @@ pending. Do not silently replace the librarian with an unreviewed ad hoc write.
 
 The main agent must inspect the actual diff after the librarian finishes.
 
-## Retired v1 boundary
+## Archived v1 boundary
 
 V1 Worker, Neon, MCP, curator, hook, outbox, cache, and knowledge content is not
 a v3 migration source or current truth.
@@ -151,6 +151,9 @@ Do not contact cloud resources, open secret files, read legacy memory, or
 import it. Existing local v1 wiring does not block v3 setup. During a
 brownfield audit, list that committed wiring separately and offer locally
 approved deactivation or removal without making it part of v3 memory.
+
+The installable plugin contains no v1 implementation. Historical source exists
+only in the toolkit repository archive and is not setup or migration guidance.
 
 ## Git boundary
 
