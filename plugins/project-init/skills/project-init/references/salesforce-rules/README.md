@@ -28,8 +28,13 @@ next two (`component-tracker.md`, `deployment-runbook.md`) are heavier consultin
 conventions: offer them, but they only earn their keep on engagement-style
 projects that keep a deployment inventory and a cutover manifest. Offer
 `permissions-source-control.md` whenever the project tracks (or wants to start
-tracking) permission sets in git, and copy `../tools/permsets.py` into the
-project at `tools/permissions/permsets.py` when it is accepted. Offer `production-data.md`
+tracking) permission sets in git. **It is not a standalone rule.** When accepted,
+install all four parts or it is advice with no enforcement: the rule,
+`../tools/permsets.py` to `tools/permissions/permsets.py`,
+`../templates/permissions-runbook.md` as the project runbook, and
+`../hooks/guard-permission-set-deploy.js` in Gate 2. The install table is in
+`../salesforce-permissions-retrieval.md`; the evidence is in
+`../salesforce-permissions-research.md`. Offer `production-data.md`
 whenever the project will load or change production data via Data Loader / Bulk
 API and wants one auditable home for its backups and load files.
 

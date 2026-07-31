@@ -41,14 +41,24 @@ so they always know where they are.
 - Salesforce / SFDX: after `.claude/rules/` is scaffolded, offer the reusable
   Salesforce rules from `salesforce-rules/` (see its `README.md`); copy the ones
   the owner wants into the project's `.claude/rules/`.
-- Salesforce / SFDX: if the owner wants permission sets tracked in git, copy the
-  `permissions-source-control.md` rule from `salesforce-rules/` AND copy
-  `tools/permsets.py` into the project at `tools/permissions/permsets.py`. The
-  rule is useless without the tool: the tool is what verifies a file against the
-  org and blocks a deploy that would delete grants. Then follow
-  `salesforce-permissions-retrieval.md` to prove the retrieve is complete on this
-  org once. Profiles are excluded by default; that reference explains why and what
-  to do if the owner wants them anyway.
+- Salesforce / SFDX: if the owner wants permission sets tracked in git, install
+  the whole permission set kit. It has four parts and the rule is useless without
+  the rest, because the danger it guards against is invisible to Salesforce's own
+  checks:
+  1. `salesforce-rules/permissions-source-control.md` to `.claude/rules/`.
+  2. `tools/permsets.py` to `tools/permissions/permsets.py`, plus a short
+     `tools/permissions/README.md` pointing at the runbook. This is what verifies
+     a file against the org and reports what a deploy would delete.
+  3. `templates/permissions-runbook.md` as the project's own operating runbook
+     (`memory/operations/salesforce-permissions/README.md` under the second-brain
+     layout, otherwise `docs/`). Fill in its placeholders.
+  4. The deploy guard hook, in Gate 2 below.
+
+  Then follow `salesforce-permissions-retrieval.md` to prove on this org, once,
+  that a standalone retrieve is complete, and record the result in the runbook.
+  `salesforce-permissions-research.md` holds the evidence and sources behind all
+  of it; point the owner there rather than re-researching. Profiles are excluded
+  by default; the runbook explains why and what to do if the owner wants them.
 
 **Gate 2: Hooks**
 - What needs guarding or automating? (deploy/env guard, secret guard,
@@ -57,6 +67,13 @@ so they always know where they are.
 - Salesforce / SFDX: offer the ready-made production-org guard in
   `salesforce-prod-guard-hook.md` (confirms before deploys or destructive ops
   hit a production org; auto-detects production; tuned by a JSON policy file).
+- Salesforce / SFDX: whenever the permission set rule was accepted in Gate 1,
+  also install the permission set deploy guard in
+  `salesforce-permset-guard-hook.md`. It blocks any deploy shipping a permission
+  set that has not been preflighted, which is the one step whose omission
+  silently and irreversibly deletes grants. Both guards sit in the same
+  `Bash|PowerShell` PreToolUse matcher. It depends on `permsets.py` being
+  installed; without it every permission set deploy is blocked forever.
 
 **Gate 3: Memory system**
 - Offer `second-brain` as one coherent opt-in system.

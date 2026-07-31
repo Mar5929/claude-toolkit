@@ -97,6 +97,13 @@ One permission set per feature or persona, composed with permission set groups,
 beats a few large ones. It shrinks the blast radius of a bad deploy, cuts merge
 conflicts in large XML files, and matches Salesforce's own current guidance.
 
+## Enforcement
+
+Rule 3 is backed by a hook. `.claude/hooks/guard-permission-set-deploy.js` blocks
+any deploy shipping a permission set that has no fresh clean preflight receipt.
+Do not edit or disable it to get past a block; read what the preflight says would
+be removed, and accept the losses on purpose if they are intended.
+
 ## Related rules
 
 - `salesforce-safety-guardrails.md`: what any agent may do against an org,
@@ -105,3 +112,7 @@ conflicts in large XML files, and matches Salesforce's own current guidance.
   tracker row updated in the same change.
 - `deploy-hitchhiker-check.md`: catch components that would ride along into the
   target org on any deploy.
+
+The evidence behind every claim here, with sources and dates, is the toolkit
+reference `salesforce-permissions-research.md`. Read that before re-litigating
+any of this.

@@ -114,6 +114,13 @@ destructive `sf`/`sfdx` command hits a production org, auto-detects which orgs
 are production, and is tuned by a plain JSON policy file. Copy and configure, no
 code to write. Still optional and confirmed with the owner.
 
+Whenever the permission set rule was accepted in Gate 1, also install the
+permission set deploy guard in `references/salesforce-permset-guard-hook.md`. It
+blocks any deploy shipping a permission set that has not been preflighted. That
+is the one step whose omission silently and irreversibly deletes grants, and
+Salesforce's own `deploy validate` and `deploy preview` cannot detect it. Both
+guards live in the same `Bash|PowerShell` PreToolUse matcher.
+
 > A broader library of reusable guard hooks (secret-scan, session-start
 > orientation) is still planned for `claude-toolkit`. Until it lands, author any
 > other hook for the project directly.
@@ -244,10 +251,22 @@ in their own plugins.
   files for Salesforce projects (with its own `README.md` index). Offer these in
   Gate 1 after `.claude/rules/` is scaffolded, when the stack is Salesforce.
 - `references/salesforce-permissions-retrieval.md`: the end-to-end process for
-  pulling COMPLETE profiles and permission sets into source control (full
-  component list, side-folder retrieve, verification spot checks, trap list).
-  Read it when a Salesforce project wants its permissions picture in git; pairs
-  with the `permissions-source-control.md` rule in `salesforce-rules/`.
+  keeping permission sets in source control safely, and what to do about profiles
+  (excluded by default). Covers the four-part install, the one-time proof that a
+  retrieve is complete on this org, the trap list, and the known retrieve blind
+  spots. Read it when a Salesforce project wants its permissions picture in git.
+- `references/salesforce-permissions-research.md`: the evidence behind that
+  runbook. The live verification result, the permission set element reference,
+  the tracked Salesforce CLI bugs, the tooling landscape, options considered and
+  rejected, and the full source list with dates. Read it before re-researching
+  any permission set question or re-litigating the process.
+- `references/salesforce-permset-guard-hook.md`: the Gate 2 hook that blocks an
+  unpreflighted permission set deploy.
+- `references/tools/permsets.py`: the tool the permission set rule depends on
+  (fetch, verify, check, tidy, preflight). Copy to `tools/permissions/` in the
+  project. The rule without the tool is advice with no enforcement.
+- `references/templates/permissions-runbook.md`: the project-side runbook to copy
+  and fill in when permission sets are tracked.
 - `references/general-rules/`: the standard `.claude/rules/` files (with its own
   `README.md` index) to copy into every project in Gate 5. Active rules are
   default ON unless the owner opts out. The two v1 recognition files are never

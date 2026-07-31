@@ -29,6 +29,7 @@ import subprocess
 import sys
 import tempfile
 import xml.etree.ElementTree as ET
+from datetime import datetime, timezone
 from pathlib import Path
 
 NS = "http://soap.sforce.com/2006/04/metadata"
@@ -579,6 +580,36 @@ def cmd_fetch(args) -> int:
     return exit_code
 
 
+def write_receipt(name: str, org: str, clean: bool, accepted: int = 0) -> None:
+    """Record that a preflight ran, so the deploy guard hook can see it.
+
+    The hook at .claude/hooks/guard-permission-set-deploy.js blocks a deploy
+    whose permission set has no fresh clean receipt. Writing this is what lets a
+    checked deploy through. A stale receipt does not count: the org drifts, so a
+    preflight from hours ago proves nothing about now.
+    """
+    receipt_dir = REPO_ROOT / ".claude" / ".permset-preflight"
+    try:
+        receipt_dir.mkdir(parents=True, exist_ok=True)
+        (receipt_dir / f"{name}.json").write_text(
+            json.dumps(
+                {
+                    "permissionSet": name,
+                    "org": org,
+                    "checkedAt": datetime.now(timezone.utc).isoformat(),
+                    "clean": clean,
+                    "acceptedLosses": accepted,
+                },
+                indent=2,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+    except OSError as exc:
+        # Never fail a read-only check because a receipt could not be written.
+        print(f"  note: could not write the preflight receipt ({exc}).")
+
+
 def cmd_preflight(args) -> int:
     path = Path(args.file)
     name = args.name or path.name.split(".")[0]
@@ -626,13 +657,16 @@ def cmd_preflight(args) -> int:
             print(f"    ~ {element}: {key}  turns off {', '.join(lost)}")
 
     if not removed and not weakened:
+        write_receipt(name, args.org, clean=True)
         print("\n  Nothing would be lost. Safe to deploy.\n")
         return 0
 
     if args.accept_removals:
+        write_receipt(name, args.org, clean=True, accepted=len(removed) + len(weakened))
         print("\n  Removals accepted on the command line. Proceed.\n")
         return 0
 
+    write_receipt(name, args.org, clean=False)
     print(
         "\n  BLOCKED. Nothing has been deployed. If every loss above is intended, "
         "re-run with --accept-removals. If not, fix the file first.\n"

@@ -37,13 +37,27 @@ Sources, both at API version 67.0 (Summer '26):
 - Change sets and the replace behavior:
   <https://help.salesforce.com/s/articleView?id=platform.changesets_perm_sets_profiles.htm>
 
-## Install the tool
+## Install the kit
 
-Copy `tools/permsets.py` from this reference folder into the project at
-`tools/permissions/permsets.py`, and add a short `tools/permissions/README.md`
-pointing at the project's own runbook. Standard library Python 3.10 or later, no
-dependencies. It reads `packageDirectories` from `sfdx-project.json`, so it needs
-no per-project editing.
+Four parts. Installing the rule without the rest leaves a project defenceless,
+because the failure this guards against is invisible to Salesforce's own checks.
+
+| Part | From | To |
+|---|---|---|
+| The rule | `salesforce-rules/permissions-source-control.md` | `.claude/rules/` |
+| The tool | `tools/permsets.py` | `tools/permissions/permsets.py` |
+| The runbook | `templates/permissions-runbook.md` | the project's operations folder; fill in its placeholders |
+| The deploy guard | `hooks/guard-permission-set-deploy.js` | `.claude/hooks/`, registered per `salesforce-permset-guard-hook.md` |
+
+Also add `.claude/.permset-preflight/` to `.gitignore`; the tool writes preflight
+receipts there for the hook to read, and they are local proof, never shared.
+
+The tool is standard library Python 3.10 or later with no dependencies. It reads
+`packageDirectories` from `sfdx-project.json`, so it needs no per-project editing.
+
+The evidence behind everything in this runbook is
+`salesforce-permissions-research.md`: the live test, the element reference, the
+tracked bugs, the tooling landscape, and the full source list.
 
 Five subcommands, all read-only against the org. It never deploys:
 
