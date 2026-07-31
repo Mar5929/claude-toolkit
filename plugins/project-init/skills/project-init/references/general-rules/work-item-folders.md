@@ -43,6 +43,6 @@ conversation is lost.
 
 When second-brain v3 is installed, link a work item to the specification,
 planning document, decision, or memory that gives it durable context when that
-relationship helps. Do not copy current item status, blockers, or handoff into
-those documents. A work item's `SPEC.md` owns that ticket's approved scope;
-top-level `specs/` owns durable product and system behavior beyond the ticket.
+relationship helps, and never copy current item status, blockers, or handoff
+into those documents. `capture-the-thinking.md` carries the table of what
+belongs where.
