@@ -15,8 +15,3 @@ that catches this is a phrase: if you find yourself typing "you'll need to..."
 about a technical task, stop and ask whether you could just do it. Usually you
 can. That sentence is the most common way this rule gets broken, because it
 reads as helpful while handing back the work.
-
-This extends the writing-and-language rule from "how you write" to "who does the
-work": prefer doing the technical part over instructing, and surface only real
-decisions. If a project sets its owner as fully non-technical (see the
-treat-owner-as-non-technical rule), this matters even more.

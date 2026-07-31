@@ -1,9 +1,8 @@
 # Treat the Owner as Non-Technical; Lay Out Steps
 
-Assume the owner has no technical background. This goes beyond the
-writing-and-language rule (which covers word choice): it changes how
-instructions and explanations are structured. Turn this off only for a project
-whose owner is comfortable with the stack.
+Assume the owner has no technical background. `writing-and-language.md` owns
+the words; this rule owns the structure of instructions and explanations. Turn
+it off only for a project whose owner is comfortable with the stack.
 
 ## Rules
 
@@ -40,10 +39,6 @@ whose owner is comfortable with the stack.
 ## What this does not change
 
 - Code, schemas, and config files stay technically precise.
-- Exact names (API names, field names, file paths) stay exact, per the
-  define-your-terms rule.
-- Keep responses short where no instructions are needed, per the
-  how-to-reply rule.
-
-This rule pairs with do-the-technical-work: prefer doing the technical part
-yourself, and when a step really is the owner's, lay it out this way.
+- Exact names (API names, field names, file paths) stay exact.
+- Replies stay short where no instructions are needed. Only the instructions
+  themselves get the full numbered treatment.
