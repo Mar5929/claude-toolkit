@@ -30,7 +30,7 @@ another session's in-flight work. Install on any project; not stack-specific.
 
 ## How it relates to the rest of the toolkit
 
-- These skills operationalize the stance in the `worktree-isolation.md` general
+- These skills operationalize the stance in the `parallel-agent-sessions.md` general
   rule ("assume other Claude sessions share the repo") at the level of concrete
   git commands. The rule is the behavior; these are the safe commands. Not
   redundant with each other: pull-latest gets current, reset-to-remote
