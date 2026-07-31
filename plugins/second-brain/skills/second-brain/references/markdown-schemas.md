@@ -233,6 +233,8 @@ Path: `memory/<type>/<system-area>/README.md`
 
 <One sentence explaining the reusable understanding.>
 
+Basis: <Observed | Owner-confirmed YYYY-MM-DD | Source | Inferred, unconfirmed>
+
 ## What we know
 
 <The non-obvious understanding.>
@@ -241,16 +243,13 @@ Path: `memory/<type>/<system-area>/README.md`
 
 <The mistake or wasted work it prevents.>
 
-## Basis
-
-<Evidence, observation, source, or owner confirmation when useful.>
-
 ## How to apply it
 
 <Where future work should use it and its limits.>
 ```
 
-Remove `Basis` when it adds no value.
+The `Basis:` line is mandatory. See `Evidence and certainty` in
+`second-brain-rule.md` for what each value means and when to change it.
 
 ## Reference
 
@@ -283,6 +282,8 @@ Remove `Basis` when it adds no value.
 
 <One sentence defining the project-specific meaning.>
 
+Basis: <Observed | Owner-confirmed YYYY-MM-DD | Source | Inferred, unconfirmed>
+
 ## Meaning
 
 <Definition.>
@@ -299,6 +300,9 @@ Remove `Basis` when it adds no value.
 
 - <Easy-to-misunderstand case.>
 ```
+
+The `Basis:` line is mandatory. A business term an agent guessed at from field
+names is `Inferred, unconfirmed` until a person says otherwise.
 
 ## Operations
 

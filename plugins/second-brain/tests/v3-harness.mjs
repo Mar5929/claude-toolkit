@@ -387,6 +387,22 @@ ok(
 );
 includes(schemas, "Capability specification", "schemas include specifications");
 includes(schemas, "Planning", "schemas include planning");
+includes(
+  schemas,
+  "The `Basis:` line is mandatory",
+  "schemas require the basis line",
+);
+includes(rule, "Allowed basis values", "rule defines the allowed basis values");
+includes(
+  rule,
+  "Inferred, unconfirmed",
+  "rule names the unconfirmed-inference basis",
+);
+includes(
+  role,
+  "Basis:",
+  "memory librarian must write the basis line",
+);
 includes(orientation, "Project memory and knowledge", "orientation is present");
 
 console.log(`ALL PASS (${passed} checks), FAIL: 0`);

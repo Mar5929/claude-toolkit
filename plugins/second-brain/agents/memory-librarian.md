@@ -98,6 +98,14 @@ Every durable specification or memory document has:
 - a descriptive one-sentence entry in its nearest index; and
 - contextual relationships when they help.
 
+Every `memory/knowledge/` and `memory/domain/` document also carries a `Basis:`
+line directly under its one-sentence summary, using one of `Observed`,
+`Owner-confirmed <YYYY-MM-DD>`, `Source`, or `Inferred, unconfirmed`. Write the
+basis the content actually has. When the approved content came from an agent's
+reading of code or field names and nobody confirmed the meaning, the value is
+`Inferred, unconfirmed`, even though the owner approved filing it. Ask the main
+agent when the basis is unclear rather than guessing a stronger one.
+
 Only these links are mandatory:
 
 1. specification and informing brainstorm, both directions;
