@@ -47,6 +47,13 @@ Bundled under `skills/project-init/references/`:
   files copied into every project, marked default ON or conditional.
 - `salesforce-rules/` (with its own `README.md`): the same idea for Salesforce
   projects.
+- `salesforce-dependency-graph.md` plus `tools/kb/`: a self-contained tool that
+  compiles a Salesforce project's own metadata into a local graph, so "if I
+  change this field, what breaks?" is answered from the metadata instead of from
+  memory. Offered in Gate 1, kept current by a Gate 2 hook. It reads local files
+  only and never contacts an org.
+- `graphify-dependency-graph.md`: the same job for every non-Salesforce stack,
+  using the open-source graphify tool.
 - `mcp-best-practices.md`: per-server MCP tool rules, folded in only for the
   servers a project actually uses.
 

@@ -2,16 +2,15 @@
 
 The parser (parse_force_app.py) walks raw XML and emits relationships with
 source paths under force-app/. Human claims come from a pluggable provider
-(human_claims.py): davis-style curated markdown ('kb-index:...' sources) or a
-second-brain know-* export ('know:...' sources). This module compares the two
-sets for the WRITES and READS kinds and surfaces disagreements + dangling
-edges.
+(human_claims.py): curated markdown indexes ('kb-index:...' sources) or an
+export of the project's own knowledge notes ('know:...' sources). This module
+compares the two sets for the WRITES and READS kinds and surfaces
+disagreements plus dangling edges.
 
 Each disagreement entry names all three things the report needs: the
-connection, the parser's claim, and the human's claim (WI-003 Phase 3
-acceptance).
+connection, the parser's claim, and the human's claim.
 
-The result is a plain dict; this module never prints — the orchestrator decides
+The result is a plain dict; this module never prints; the orchestrator decides
 how to render the report.
 """
 

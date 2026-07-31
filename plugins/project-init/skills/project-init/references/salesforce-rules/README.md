@@ -23,6 +23,7 @@ points at that folder so these files are read each session.
 | `permissions-source-control.md` | Permission sets are tracked in git and deployed from it, behind a mandatory preflight that lists what a deploy would remove. A permission set retrieve is complete on its own (API 40.0 and later); the danger is the deploy, which replaces the whole component, and which no Salesforce CLI command warns about. Ships with `../tools/permsets.py`. Profiles are excluded by default: lossy retrieve, overlay deploy, so their diff cannot show a revocation. Runbook: `../salesforce-permissions-retrieval.md`. |
 | `production-data.md` | One home for every production data artifact: backups (saved before a live data change) and data-load files each live in their own dated subfolder under `engagement/data/`, with a required README and gitignored data files so record IDs / PII never commit. |
 | `data-change-handoff.md` | No agent ever writes data to production; sandbox writes need the owner's yes in that same chat; reads are approved by default. Owns what the agent hands over instead: a ready-to-load CSV, a backup file, numbered load steps, what success looks like, and how to undo it. |
+| `dependency-graph.md` | Answer "what writes this field" and "what breaks if I change it" from the project's compiled dependency graph, not from memory, and keep that graph fresh. Names the graph's blind spot (no Apex or integration writers), what to do when the drift file appears, and that the tool never contacts an org. Ships with `../tools/kb/`. Guide: `../salesforce-dependency-graph.md`. |
 
 The first three are the recommended default set for a Salesforce project. The
 next two (`component-tracker.md`, `deployment-runbook.md`) are heavier consulting
@@ -38,6 +39,14 @@ install all four parts or it is advice with no enforcement: the rule,
 `../salesforce-permissions-research.md`. Offer `production-data.md`
 whenever the project will load or change production data via Data Loader / Bulk
 API and wants one auditable home for its backups and load files.
+
+`dependency-graph.md` is the second rule in this library that is **not a
+standalone rule**. When accepted, install the whole kit or it is advice with no
+enforcement: the rule, the `../tools/kb/` folder copied to the project's
+`tools/kb/`, the gitignore entries, and the freshness Stop hook in Gate 2. The
+install steps are in `../salesforce-dependency-graph.md`. Offer it on any
+Salesforce project, and press the case on an org merge or a large org, where
+field-level impact analysis is a daily question.
 
 `data-change-handoff.md` and `production-data.md` are the pair for projects that
 change production data: the first says the owner runs the change and what the

@@ -1,16 +1,17 @@
-"""graph_freshness_hook.py — keep the graph fresh without a manual step.
+"""graph_freshness_hook.py: keep the graph fresh without a manual step.
 
 Installed as a Claude Code Stop hook (runs at the end of each turn). It makes
 "a force-app file changed" turn into "these specific connections changed"
-automatically (WI-003 Phase 8, folding in the Phase 4 drift mechanism):
+automatically:
 
 1. Fingerprint every file under force-app/ (path, mtime, size). If nothing
-   changed since the last stamp, exit silently — the common case, fast.
+   changed since the last stamp, exit silently: the common case, fast.
 2. If files changed and a graph exists: snapshot it, rebuild the force-app
    scope, and diff old vs new scoped to the changed files.
 3. If connections changed, write tools/kb/_drift_pending.md naming them. The
-   project rule tells agents: when that file exists, dispatch the
-   knowledge-curator to reconcile the covering know-* nodes, then delete it.
+   project rule tells agents: when that file exists, review the project's
+   knowledge notes about the changed metadata, update whatever the change
+   contradicts, then delete the file.
 
 Behavior notes:
 - If tools/kb/_graph.sqlite does not exist yet, the hook only maintains the
@@ -101,7 +102,7 @@ def main() -> int:
         with contextlib.redirect_stdout(io.StringIO()):
             build_run("force-app", DB, FORCE_APP, REPO_ROOT)
     except SystemExit:
-        pass  # a cloud-backend stop must not block the session
+        pass  # a failed build must never block the session
     save_stamp()
 
     from diff_graph import diff_graphs, render_text, _has_differences
@@ -115,8 +116,9 @@ def main() -> int:
     DRIFT.write_text(
         render_text(diff)
         + "\n---\n"
-        + "Drift pending: dispatch the knowledge-curator to reconcile the "
-        + "know-* nodes covering these files, then delete this file.\n",
+        + "Drift pending: review the project's knowledge notes about the "
+        + "metadata above, update whatever these changes contradict, then "
+        + "delete this file.\n",
         encoding="utf-8",
     )
     n = (len(diff["edges_added"]) + len(diff["edges_removed"])

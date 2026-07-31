@@ -393,12 +393,14 @@ class MetadataCatalogTests(unittest.TestCase):
         saved = os.environ.pop("GRAPH_BACKEND", None)
         try:
             self.assertEqual("local", resolve_backend())
-            os.environ["GRAPH_BACKEND"] = "hybrid"
-            self.assertEqual("hybrid", resolve_backend())
+            os.environ["GRAPH_BACKEND"] = "local"
+            self.assertEqual("local", resolve_backend())
             # CLI flag wins over the env var.
-            self.assertEqual("cloud", resolve_backend("cloud"))
-            with self.assertRaises(SystemExit):
-                resolve_backend("neon")
+            self.assertEqual("local", resolve_backend("local"))
+            # The retired cloud modes are errors now, not silent fallbacks.
+            for retired in ("cloud", "hybrid", "neon"):
+                with self.assertRaises(SystemExit):
+                    resolve_backend(retired)
         finally:
             if saved is None:
                 os.environ.pop("GRAPH_BACKEND", None)
@@ -408,10 +410,8 @@ class MetadataCatalogTests(unittest.TestCase):
         # local is a no-op: the SQLite build is the store.
         pub = publish("ignored.sqlite", "local")
         self.assertFalse(pub["published"])
-        # cloud/hybrid stop with a pointer to the documented interface.
-        with self.assertRaises(SystemExit) as ctx:
+        with self.assertRaises(SystemExit):
             publish("ignored.sqlite", "cloud")
-        self.assertIn("not built yet", str(ctx.exception))
 
     def test_field_group_fuzzy_lookup_returns_cluster_with_roles(self) -> None:
         conn = sqlite3.connect(":memory:")

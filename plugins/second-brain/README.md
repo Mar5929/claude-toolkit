@@ -116,6 +116,12 @@ and unknowns whenever confusing them could mislead future work.
 The previous Worker, Neon, MCP, curator, hook, outbox, and cache system remains
 retired. Its content is not a v3 migration source or current truth.
 
+One thing that lived in this plugin was never part of v1 and is not retired: the
+Salesforce dependency graph. It only ever read local metadata files, so it
+survived v1's retirement and now ships with `project-init`, at
+`plugins/project-init/skills/project-init/references/salesforce-dependency-graph.md`.
+It is not part of second-brain and never depended on it.
+
 Archived v1 source under `skills/second-brain/references/server/`,
 `references/hooks/`, and the legacy agent and design files remains historical
 engineering evidence with no normal deployment path. Brownfield adoption may

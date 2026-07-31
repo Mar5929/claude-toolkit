@@ -59,6 +59,19 @@ so they always know where they are.
   `salesforce-permissions-research.md` holds the evidence and sources behind all
   of it; point the owner there rather than re-researching. Profiles are excluded
   by default; the runbook explains why and what to do if the owner wants them.
+- Salesforce / SFDX: offer the dependency graph in
+  `salesforce-dependency-graph.md`, and recommend it on an org merge or any org
+  where "if I change this field, what breaks?" comes up often. It is one kit,
+  same as the permission sets one:
+  1. The whole `tools/kb/` folder from this skill's references into the
+     project's `tools/kb/`. The orchestrator imports every file in it, so do
+     not drop any.
+  2. The gitignore entries for the graph and freshness artifacts.
+  3. `salesforce-rules/dependency-graph.md` to `.claude/rules/`.
+  4. The freshness Stop hook, in Gate 2 below.
+
+  It reads only local `force-app/` files and never contacts an org. Verify with
+  `test_catalog.py`, one build, and one field query before calling it done.
 
 **Gate 2: Hooks**
 - What needs guarding or automating? (deploy/env guard, secret guard,
@@ -74,6 +87,10 @@ so they always know where they are.
   silently and irreversibly deletes grants. Both guards sit in the same
   `Bash|PowerShell` PreToolUse matcher. It depends on `permsets.py` being
   installed; without it every permission set deploy is blocked forever.
+- Salesforce / SFDX: whenever the dependency graph was accepted in Gate 1, wire
+  its freshness Stop hook (step 4 of `salesforce-dependency-graph.md`). It sits
+  in `hooks.Stop`, not with the two PreToolUse guards, and it lives inside
+  `tools/kb/` because it imports the rest of the tool.
 
 **Gate 3: Memory system**
 - Offer `second-brain` as one coherent opt-in system.
@@ -91,8 +108,10 @@ so they always know where they are.
 - Mark included with v3 when Gate 3 ran, or skipped with Gate 3.
 - Do not create a second knowledge store or install retired v1 curators and
   drift hooks.
-- Treat Graphify as an optional analysis aid, not required memory
-  infrastructure or automatic truth.
+- Treat a dependency graph as an optional analysis aid, not required memory
+  infrastructure or automatic truth. Salesforce projects use
+  `salesforce-dependency-graph.md` (offered in Gate 1); every other stack uses
+  `graphify-dependency-graph.md`. A project installs at most one.
 
 **Gate 5: CLAUDE.md and the rules folder**
 - Behavioral rules go into the project's `.claude/rules/` as individual files,

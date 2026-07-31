@@ -43,6 +43,22 @@ These are not duplicated here. Go to the index that owns them:
   Marks active rules default ON and identifies retired v1 recognition files
   that are never installed in new projects.
 - **Salesforce rules**: [salesforce-rules/README.md](../plugins/project-init/skills/project-init/references/salesforce-rules/README.md).
+- **Salesforce dependency graph**: the tool and its own `README.md` live at
+  `plugins/project-init/skills/project-init/references/tools/kb/`; the install
+  and use guide is
+  [salesforce-dependency-graph.md](../plugins/project-init/skills/project-init/references/salesforce-dependency-graph.md),
+  and the standing rule it installs is `salesforce-rules/dependency-graph.md`.
+  It compiles a Salesforce project's own `force-app/` metadata into a local
+  graph and answers "if I change this field, what breaks N steps out?" It reads
+  local files only and never contacts an org. The non-Salesforce equivalent,
+  built on the open-source graphify tool, is
+  [graphify-dependency-graph.md](../plugins/project-init/skills/project-init/references/graphify-dependency-graph.md).
+- **Salesforce permission set kit**: the tool is
+  `plugins/project-init/skills/project-init/references/tools/permsets.py`; the
+  runbook is `salesforce-permissions-retrieval.md`, the evidence behind it is
+  `salesforce-permissions-research.md`, the rule is
+  `salesforce-rules/permissions-source-control.md`, and the deploy guard is
+  `salesforce-permset-guard-hook.md`.
 - **MCP tool rules** (per-server, conditional):
   `plugins/project-init/skills/project-init/references/mcp-best-practices.md`.
 - **second-brain v3 runtime sources**:
@@ -51,11 +67,14 @@ These are not duplicated here. Go to the index that owns them:
   `plugins/second-brain/skills/second-brain/references/`, plus the
   `memory-librarian.md` role under `plugins/second-brain/agents/`.
 - **Archived second-brain v1 internals**: `architecture-spec.md`,
-  `setup-recipe.md`,
+  `setup-recipe.md`, `first-time-infra.md`,
   `curator-write-path.md` (how a curated note reaches the store, and the fallback
   ladder when it cannot), `brain-scope.md` (which brain is this project's, and
-  what stops a session reading another project's), and the `profiles/`, `agents/`, `hooks/`, and `server/`
-  folders (each with its own README) under
+  what stops a session reading another project's), `kb-backfill.md` with its
+  `kb-backfill/` scripts (the retired one-time write-up procedure and its
+  generic freshness hook, superseded for Salesforce by the dependency graph and
+  for every other stack by graphify's own git hooks), and the `profiles/`,
+  `agents/`, `hooks/`, and `server/` folders (each with its own README) under
   `plugins/second-brain/skills/second-brain/references/`.
   They are archived historical evidence, not installation, deployment, export,
   or migration instructions. The old Worker has no default deploy path.
@@ -87,10 +106,19 @@ The genuine watch-items are called out at the end.
   changes nothing anywhere else.
 - **Archived second-brain v1's three layers.** The legacy memory graph ("what did we decide and
   why"), the knowledge layer ("why does this code exist", prose pinned to file
-  SHAs), and the structural layer ("if I change this, what breaks", built
-  mechanically by graphify or the Salesforce metadata graph) sound alike but do
-  not overlap. Only the structural layer does impact analysis; only the
-  knowledge layer carries the human "why". See the plugin README for the split.
+  SHAs), and what v1 called the structural layer ("if I change this, what
+  breaks", built mechanically) sound alike but do not overlap. Only the third
+  does impact analysis; only the second carries the human "why". The third one
+  outlived v1: it is now the dependency graph shipped by `project-init` (see the
+  reference index above), because it never depended on any v1 infrastructure. It
+  was only ever bundled inside the second-brain plugin folder.
+- **The dependency graph versus written knowledge.** The graph answers what
+  connects to what, mechanically, rebuilt from the code every time, so it cannot
+  be wrong about structure and cannot record intent. Written knowledge (v3's
+  `memory/knowledge/`) answers why, and can be wrong the moment code changes,
+  which is what the freshness hook and its drift file exist to catch. Neither
+  replaces the other, and a project can install the graph without installing
+  second-brain at all.
 - **second-brain versus remember.** `second-brain` owns complete setup,
   brownfield adoption, explanation, completion review, and maintenance.
   `remember` is the focused entry point when the owner already knows what
@@ -173,13 +201,12 @@ The genuine watch-items are called out at the end.
   chunk while working, the whole explanation saved for one final reply). The
   one deliberate exception is `show-phase-progress`, whose one-line bar is
   exactly the mid-work budget `quiet-while-working` allows.
-- **sf-architect-solutioning versus the Salesforce rules and structural
-  analysis.**
+- **sf-architect-solutioning versus the Salesforce rules versus the dependency
+  graph.**
   sf-architect decides what to build; the `salesforce-rules` install standing
-  safety and workflow rules; an optional Graphify or Salesforce metadata map
-  answers impact questions about existing metadata. V3 may link to that
-  evidence but does not require or own the analysis tool. Three different jobs
-  on the same stack.
+  safety and workflow rules; the dependency graph answers impact questions
+  about the metadata that already exists. V3 may link to that evidence but does
+  not require or own the analysis tool. Three different jobs on the same stack.
 
 ### Genuine watch-items (revisit these)
 
@@ -211,3 +238,9 @@ This file is an index, so it drifts if a plugin or skill is added, removed, or
 renamed and the map is not updated. When you change a plugin, update its
 `README.md` and this map in the same change. `CLAUDE.md` records this as a
 standing rule for the repo.
+
+`tests/orphan-check.mjs` enforces the part of that rule a person forgets: every
+file the toolkit ships has to be reachable from at least one skill, plugin
+README, reference index, or this map. It exists because a July 2026 cleanup
+deleted the last pointer to the Salesforce dependency graph and nothing noticed
+for weeks. Run it with `node tests/orphan-check.mjs`.

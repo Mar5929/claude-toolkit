@@ -90,6 +90,15 @@ current list. They are opt-in and confirmed with the owner; skip the ones a
 given project does not want. Make sure the project's CLAUDE.md points at
 `.claude/rules/` (Gate 5) so these files are read each session.
 
+**Salesforce dependency graph.** Offer the kit in
+`references/salesforce-dependency-graph.md` whenever the stack is Salesforce,
+and recommend it on an org merge or any org large enough that "if I change this
+field, what breaks?" is a recurring question. Like the permission set kit it is
+one unit, not a loose rule: the tool in `references/tools/kb/` copied to the
+project's `tools/kb/`, the gitignore entries, the
+`salesforce-rules/dependency-graph.md` rule, and the freshness hook in Gate 2.
+The tool reads only local `force-app/` files and never contacts an org.
+
 ### Gate 2: Hooks (guards & automation)
 
 **Purpose:** wire up Claude Code hooks that enforce guardrails or automate chores.
@@ -120,6 +129,13 @@ blocks any deploy shipping a permission set that has not been preflighted. That
 is the one step whose omission silently and irreversibly deletes grants, and
 Salesforce's own `deploy validate` and `deploy preview` cannot detect it. Both
 guards live in the same `Bash|PowerShell` PreToolUse matcher.
+
+Whenever the dependency graph was accepted in Gate 1, also wire its freshness
+Stop hook (step 4 of `references/salesforce-dependency-graph.md`). Without it
+the graph is a snapshot that quietly ages; with it, a metadata change rebuilds
+the graph and names the connections that moved. Unlike the two guards above it
+is a Stop hook and it lives inside `tools/kb/`, because it imports the rest of
+the tool.
 
 > A broader library of reusable guard hooks (secret-scan, session-start
 > orientation) is still planned for `claude-toolkit`. Until it lands, author any
@@ -166,9 +182,12 @@ Git documents and connected to the specifications and context it affects.
   `memory/domain/` already provide the knowledge layer.
 - Mark this gate **included with second-brain v3** when Gate 3 ran, or
   **skipped with Gate 3** when the owner declined v3.
-- Explain that Graphify or another repository mapper is a separately optional
-  analysis aid for brownfield work, not required memory infrastructure and not
-  automatically authoritative.
+- Explain that a dependency graph is a separately optional analysis aid for
+  brownfield work, not required memory infrastructure and not automatically
+  authoritative. It answers what connects to what; only a person records why.
+  There are two, by stack: `references/salesforce-dependency-graph.md` for
+  Salesforce (offered in Gate 1) and `references/graphify-dependency-graph.md`
+  for every other kind of code. A project installs at most one.
 - Do not install the retired v1 knowledge curator, drift hooks, SHA pins, or a
   database-like graph.
 
@@ -267,6 +286,16 @@ in their own plugins.
   project. The rule without the tool is advice with no enforcement.
 - `references/templates/permissions-runbook.md`: the project-side runbook to copy
   and fill in when permission sets are tracked.
+- `references/salesforce-dependency-graph.md`: how Gate 1 installs the Salesforce
+  dependency graph kit (tool, gitignore entries, rule, and the Gate 2 freshness
+  hook), how to verify it, and how to use it to write up an org that already has
+  a lot of metadata. Read it in Gate 1 when the stack is Salesforce.
+- `references/tools/kb/`: the dependency graph tool itself, with its own
+  `README.md` covering scopes, determinism, and known limits. Copy the whole
+  folder to `tools/kb/` in the project; the orchestrator imports every file.
+- `references/graphify-dependency-graph.md`: the same job for every non-Salesforce
+  stack, using the open-source graphify tool. Read it in Gate 4 when the owner
+  wants impact analysis on code the bundled Salesforce parser cannot read.
 - `references/general-rules/`: the standard `.claude/rules/` files (with its own
   `README.md` index) to copy into every project in Gate 5. Active rules are
   default ON unless the owner opts out. The two v1 recognition files are never

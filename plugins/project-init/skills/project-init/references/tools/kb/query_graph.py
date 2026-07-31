@@ -1,4 +1,4 @@
-"""query_graph.py — impact queries over the compiled dependency graph.
+"""query_graph.py: impact queries over the compiled dependency graph.
 
 Reads a graph built by build_graph.py (never builds or writes it) and answers
 the two daily org-merge questions for one component:
@@ -19,7 +19,7 @@ matches more than one component the tool lists the candidates and stops.
 --group answers the near-duplicate-fields question (WI-003 Phase 6 / backlog
 A4): given a fuzzy name ("CRD", "mailing address", a field name), it returns
 every curated field group whose id, object, description, or member fields
-match, with each member's role and notes — the distinguishers a merge needs
+match, with each member's role and notes, the distinguishers a merge needs
 when several lookalike fields exist. Groups come from the curated
 _field_groups.yaml overlay (built with --scope yamls).
 
@@ -292,10 +292,10 @@ def render_groups(conn: sqlite3.Connection, fragment: str) -> str:
 
 
 def render_map(conn: sqlite3.Connection) -> str:
-    """Subsystem worklist for the knowledge-layer backfill (WI-003 Phase 8).
+    """Subsystem worklist for writing up an existing codebase.
 
-    Lists what exists and how connected it is, so a curator can seed know-*
-    coverage for the busiest subsystems first.
+    Lists what exists and how connected it is, so the busiest subsystems get
+    written up first.
     """
     out: list = []
     w = out.append
@@ -337,7 +337,7 @@ def render_map(conn: sqlite3.Connection) -> str:
         ORDER BY writes + reads DESC, c.name
         """
     ).fetchall()
-    w(f"## Flows ({len(flows)}) — busiest first")
+    w(f"## Flows ({len(flows)}), busiest first")
     w("")
     w("| flow | triggers on | writes | reads |")
     w("| --- | --- | --- | --- |")
@@ -356,7 +356,7 @@ def render_map(conn: sqlite3.Connection) -> str:
         ORDER BY outgoing + invoked_by DESC, c.name
         """
     ).fetchall()
-    w(f"## Apex classes ({len(apex)}) — busiest first")
+    w(f"## Apex classes ({len(apex)}), busiest first")
     w("")
     w("| class | outgoing connections | invoked/scheduled by |")
     w("| --- | --- | --- |")

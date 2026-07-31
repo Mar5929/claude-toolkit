@@ -1,11 +1,10 @@
-"""diff_graph.py — compare two builds of the dependency graph.
+"""diff_graph.py: compare two builds of the dependency graph.
 
 Turns "a file changed" into "these specific connections changed": build the
 graph before and after a change (or keep the previous gitignored db as the
 "old" side and rebuild fresh for the "new" side), then diff. This is the
-drift-signal mechanism the second-brain knowledge layer uses when a know-*
-node's covered file changes (WI-003 Phase 4); Phase 8 wires it into
-installed-by-default hooks.
+drift signal: when a file a knowledge note describes changes, this says what
+changed structurally. graph_freshness_hook.py runs it automatically.
 
 Usage:
     python3 tools/kb/diff_graph.py --old old.sqlite --new new.sqlite
@@ -18,7 +17,8 @@ Usage:
 Filters (repeatable, combined as a union):
     --file       substring match against components.file_path in either build;
                  scopes the diff to components in those files. This is the
-                 covered-file drift path: pass the know-* node's covers: paths.
+                 covered-file drift path: pass the paths a knowledge note
+                 says it covers.
     --component  exact component id.
 With no filter the whole graph is diffed.
 

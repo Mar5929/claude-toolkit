@@ -1,4 +1,4 @@
-"""build_graph.py — orchestrate the metadata catalog ETL.
+"""build_graph.py: orchestrate the metadata catalog ETL.
 
 Usage:
     python3 tools/kb/build_graph.py                  # full rebuild
@@ -74,8 +74,8 @@ def clear_for_scope(conn: sqlite3.Connection, scope: str) -> None:
         # Leave Term/Process synthetic components alone
         cur.execute("DELETE FROM components WHERE source = 'force-app'")
     elif scope == "kb-index":
-        # Human-claim edges from either provider (kb-index markdown or a
-        # know-* export) live in this scope.
+        # Human-claim edges from either provider (curated markdown indexes or
+        # an export of the project's knowledge notes) live in this scope.
         cur.execute("DELETE FROM relationships WHERE source LIKE 'kb-index:%'")
         cur.execute("DELETE FROM relationships WHERE source LIKE 'know:%'")
     elif scope == "yamls":
@@ -230,7 +230,7 @@ def print_summary(conn: sqlite3.Connection, scope: str, build_summary: dict) -> 
 
     print()
     print("=" * 72)
-    print(f"  Metadata dependency graph — build summary  (scope={scope})")
+    print(f"  Metadata dependency graph build summary  (scope={scope})")
     print("=" * 72)
 
     print("\nComponents by type:")
@@ -396,11 +396,11 @@ def run(
     fc_count = classify_fields(conn)
     summary["notes"].append(f"classified {fc_count} fields")
 
-    # self_check compares parser edges against a "human claim" edge set that only
-    # exists when the KB-index has been parsed. In Phase 1 (DragonFly has no KB
-    # index yet, and a force-app-only build loads no kb-index edges) it would just
-    # flag every parser edge as "parser_only" noise. Guard it so it runs only when
-    # kb-index data is present; Phase 3 repoints its human side to the know-* layer.
+    # self_check compares parser edges against a "human claim" edge set that
+    # only exists once curated claims have been parsed. On a project with no
+    # curated claims, a force-app-only build loads none, and the check would
+    # flag every parser edge as "parser_only" noise. Guard it so it runs only
+    # when curated-claim data is present.
     if scope in ("all", "kb-index"):
         print(f"[self_check] cross-validating parser vs human claims")
         sc = run_self_check(conn)
@@ -417,9 +417,7 @@ def run(
     print_summary(conn, scope, summary)
     conn.close()
 
-    # Post-build storage step. Local is a no-op (the SQLite file IS the
-    # store); cloud/hybrid stop with a pointer to the documented interface
-    # until a project actually adopts them (WI-003 build-scope call).
+    # Post-build storage step. Local is a no-op: the SQLite file IS the store.
     pub = publish(str(db_path), resolved_backend)
     print(f"[graph_backend] {pub['backend']}: {pub['note']}")
     return 0
@@ -448,7 +446,7 @@ def main() -> int:
         help=(
             "Where the kb-index scope gets its human-claim edges: 'kb-index' "
             "(curated markdown under <kb-root>/engagement/knowledge-base/) or "
-            "'know-export' (a JSON export of second-brain know-* claims)."
+            "'know-export' (a JSON export of the project's knowledge notes)."
         ),
     )
     p.add_argument(
@@ -462,7 +460,7 @@ def main() -> int:
     p.add_argument(
         "--know-export",
         default=None,
-        help="Path to the know-* claims JSON (required with "
+        help="Path to the knowledge-claims JSON (required with "
              "--human-source know-export).",
     )
     p.add_argument(
@@ -478,11 +476,9 @@ def main() -> int:
         choices=BACKENDS,
         default=None,
         help=(
-            "Storage backend for this build (default: GRAPH_BACKEND env var, "
-            "then 'local'). local = the gitignored SQLite file is the store; "
-            "cloud/hybrid = also publish to the second-brain Neon database "
-            "(interface documented in graph_backend.py; implemented on first "
-            "adoption)."
+            "Where this build is stored (default: GRAPH_BACKEND env var, then "
+            "'local'). 'local' is the only supported value: the gitignored "
+            "SQLite file this build writes is the store."
         ),
     )
     args = p.parse_args()

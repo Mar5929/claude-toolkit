@@ -10,7 +10,7 @@ import {
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join, relative, resolve } from "node:path";
+import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -288,7 +288,10 @@ try {
 
   const orientationText = readAbsolute(resolve(references,
     "orientation-snippet.md"));
-  const snippetMatch = orientationText.match(/```markdown\n([\s\S]*?)\n```/);
+  // Tolerate Windows line endings: a checkout with core.autocrlf on has \r\n.
+  const snippetMatch = orientationText.match(
+    /```markdown\r?\n([\s\S]*?)\r?\n```/,
+  );
   ok(Boolean(snippetMatch), "orientation source contains copy-ready Markdown");
   writeFileSync(resolve(fixture, "CLAUDE.md"), snippetMatch[1]);
   writeFileSync(resolve(fixture, "AGENTS.md"), snippetMatch[1]);
@@ -377,7 +380,9 @@ ok(
 );
 
 ok(
-  relative(root, references).startsWith("plugins/second-brain/"),
+  // Windows returns backslashes from relative(); compare in one shape.
+  relative(root, references).split(sep).join("/")
+    .startsWith("plugins/second-brain/"),
   "canonical references stay inside the second-brain plugin",
 );
 includes(schemas, "Capability specification", "schemas include specifications");

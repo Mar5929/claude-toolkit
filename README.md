@@ -92,7 +92,8 @@ claude-toolkit/
       .codex-plugin/plugin.json
       skills/
         project-init/             ← SKILL.md + references/ (setup-flow, thin-claudemd,
-                                     general-rules/, salesforce-rules/, mcp-best-practices)
+                                     general-rules/, salesforce-rules/, mcp-best-practices,
+                                     tools/ with the permission set and dependency graph tools)
         project-sync/             ← SKILL.md
     second-brain/                 ← plugin: Git-native v3 memory for Claude and Codex
       README.md
@@ -142,6 +143,8 @@ claude-toolkit/
     toolkit-map.md                ← the catalog: every item and how they relate
     architecture.html             ← visual map of how the pieces fit
     second-brain-v3/              ← current shipped memory and knowledge specification
+  tests/
+    orphan-check.mjs              ← fails if the toolkit ships a file nothing points at
 ```
 
 Each **concern is its own plugin/skill** so it can evolve and be reused
@@ -164,7 +167,7 @@ explains how the pieces relate.
 
 | Plugin | What it does |
 |---|---|
-| **[project-init](plugins/project-init/README.md)** | Sets up or syncs a project, offers work-tracker with safe adoption of older folders, and installs the complete second-brain v3 system when selected. Existing-project sync begins with a read-only audit. |
+| **[project-init](plugins/project-init/README.md)** | Sets up or syncs a project, offers work-tracker with safe adoption of older folders, and installs the complete second-brain v3 system when selected. For Salesforce projects it also ships two self-contained tools: the permission set kit, and a dependency graph that answers "if I change this field, what breaks?" from the project's own metadata. Existing-project sync begins with a read-only audit. |
 | **[second-brain](plugins/second-brain/README.md)** | Production-ready Git-native Markdown memory and knowledge for Claude and Codex, with one shared rule, typed schemas, owner-approved updates, and an on-demand memory librarian. |
 | **[sf-architect-solutioning](plugins/sf-architect-solutioning/README.md)** | A Salesforce solution architect: pushes back on vague requirements, verifies platform facts against official docs by live fetch, designs declarative-first to Well-Architected standards, and presents a solution plan for approval before any build. Salesforce projects only. |
 | **[git-workflows](plugins/git-workflows/README.md)** | Three parallel-session-safe git lifecycle skills: `pull-latest` gets current without rewriting history, `reset-to-remote` mirrors the remote behind confirmation, and `merge-and-clean-up` lands an approved PR before removing only its completed workspace. |

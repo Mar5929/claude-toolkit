@@ -34,8 +34,9 @@ section, replacing the `<...>` placeholders. `<APP_NAME>` is the real project na
   with a first-class `## Gotcha (do not reintroduce)`, and a `know-codemap` entry
   per subsystem.
 - **Structural graph companion:** optional, and here it is graphify (a local
-  tree-sitter code graph; see `references/structural-layer-graphify.md`), not the
-  Salesforce `force-app/` tool. Add it when the codebase is large and cross-module
+  tree-sitter code graph, now documented by `project-init` at
+  `plugins/project-init/skills/project-init/references/graphify-dependency-graph.md`),
+  not the Salesforce `force-app/` tool. Add it when the codebase is large and cross-module
   impact ("what calls this?") is a frequent question; otherwise the compiler +
   tests + `covers:` pins suffice.
 
