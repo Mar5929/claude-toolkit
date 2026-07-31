@@ -9,6 +9,11 @@ Keeping CLAUDE.md thin is the point: a session reads it first, so it should
 orient fast, not scroll through nineteen rules. The rules are still read every
 session, because a line in CLAUDE.md tells the session to read `.claude/rules/`.
 
+**Thin has exactly one exception: the second-brain v3 memory schema.** When Gate
+3 ran, the routing schema goes into both root files in full and goes in first.
+See "The memory section is the exception" below. Everything else on this page
+still applies.
+
 ## What Gate 5 does
 
 1. **Copy the selected rule files** into the project's `.claude/rules/`:
@@ -22,17 +27,23 @@ session, because a line in CLAUDE.md tells the session to read `.claude/rules/`.
    - Adapt wording to the project's voice if the owner wants; the file is the
      intent, not fixed prose.
 2. **Write a thin CLAUDE.md** with only the sections below.
-3. **Write or update AGENTS.md** with equivalent structural routing for Codex.
-   When v3 is installed, both root files use the same compact memory map from
-   the second-brain plugin and point to the same canonical rule.
+3. **Write or update AGENTS.md** with the same content list (see "What AGENTS.md
+   contains"). When v3 is installed, both root files carry the identical memory
+   section from the second-brain plugin, in the same position, pointing at the
+   same canonical rule.
 4. **Add or confirm a `.claude/rules/README.md`** so the folder has an index of
    what each file does (copy the library READMEs' shape).
 
 ## What a thin CLAUDE.md contains
 
+In this order:
+
 - **Title and one-line description** of what the project is.
 - **`Read .claude/rules`**, a single line telling every session to read the
   rules folder first. This is what keeps the behavioral rules in force.
+- **The project memory and knowledge section**, when Gate 3 ran. It comes before
+  the codemap and everything else. Copy it verbatim from the second-brain
+  plugin's `references/orientation-snippet.md`; do not retype or summarize it.
 - **Codemap / structural pointers**: the project's own layout and conventions
   that are not behavioral rules. Keep the codemap to **one line per folder or
   module**, naming what lives there, plus an inline invariant only where a
@@ -45,8 +56,11 @@ session, because a line in CLAUDE.md tells the session to read `.claude/rules/`.
   - the toolkit port-back convention (if the project uses the toolkit), and how
     to pull toolkit updates into this project: update the plugin
     (`/plugin marketplace update claude-toolkit`), then run `/project-sync`
-  - which gates ran; when second-brain v3 ran, include its compact route to the
-    canonical rule, and when it was declined say only that it was not adopted
+  - which gates ran; when second-brain v3 was declined, say only that it was not
+    adopted (when it ran, the memory section above already covers it)
+  - where raw artifacts live (meeting notes, communications, deliverables,
+    client exports) when the project has such folders, so an agent can tell them
+    apart from curated memory at a glance
 - **MCP tool rules**: only for the MCP servers the project actually uses, folded
   in from `mcp-best-practices.md` (or copied as their own `.claude/rules/`
   files if the project prefers one file per rule everywhere).
@@ -55,9 +69,44 @@ Everything else, the writing style, the response style, the working-style rules,
 the multi-agent worktree protocol, is a file in `.claude/rules/`, not prose in
 CLAUDE.md.
 
-AGENTS.md follows the same boundary. It may contain Codex-specific repository
-instructions, but its project-memory map must agree with CLAUDE.md and route to
-the same `.claude/rules/second-brain.md`.
+## The memory section is the exception
+
+Every other rule is said once, in `.claude/rules/`, and CLAUDE.md only points at
+the folder. The v3 memory schema breaks that on purpose, and the reason is
+narrow: routing has to happen **before** an agent writes, and a rule an agent has
+not opened yet cannot route anything. A one-line label like
+"`memory/decisions/`: important choices and rationale" names a folder without
+telling anyone when to use it, so facts land in the wrong home or in none.
+
+So the root files carry the full routing schema: the authority map, and per home
+the purpose, the use-when, and the do-not-use-when. The canonical rule keeps
+everything else (worked examples, optional document aids, evidence and
+certainty, relationships, supersession, the Git and privacy boundaries, failure
+behavior) and stays authoritative if the two ever disagree.
+
+**The cost is real and must be paid.** The schema now exists in three files. Any
+change to the canonical rule's authority map, homes, or document contract has to
+update both root files in the same change. The `keep-claudemd-current.md` rule
+states this too. Do not extend this exception to any other rule.
+
+## What AGENTS.md contains
+
+Codex reads `AGENTS.md` the way Claude reads `CLAUDE.md`, so it needs the same
+authority, not a stub:
+
+- Title and the same one-line project description.
+- The same `Read .claude/rules` line.
+- The **identical** memory section, in the same first position, byte-for-byte
+  from the orientation snippet. Never a shortened variant.
+- The same structural pointers, or a pointer to the CLAUDE.md section holding
+  them, so the two do not drift.
+- Codex-specific repository instructions, if any, which is the only content that
+  legitimately differs between the two files.
+
+Where the hosts genuinely differ, say so inline rather than forking the section.
+The known case: Claude invokes the installed `memory-librarian` agent, while
+Codex delegates to a subagent told to read `.claude/agents/memory-librarian.md`
+and `.claude/rules/second-brain.md` in full first.
 
 ## Why file-per-rule instead of one big CLAUDE.md
 
@@ -67,3 +116,7 @@ the same `.claude/rules/second-brain.md`.
   verbatim, instead of being retyped into each CLAUDE.md.
 - It matches how `salesforce-rules/` already works, so the two libraries behave
   the same way.
+
+The memory schema is the one deliberate exception, for the reason given above.
+Weigh any future request to duplicate a rule into the root files against that
+bar: routing that must happen before the agent opens anything.

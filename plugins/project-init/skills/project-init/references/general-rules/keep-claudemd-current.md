@@ -39,7 +39,8 @@ Then keep the shape:
   collapse it, and let git and the design doc carry the history.
 - **Say each rule once.** If a rule is already a file in `.claude/rules/`, do not
   restate it here; the line pointing at that folder is what keeps it in force.
-  Duplication is worse than absence, because the two copies drift.
+  Duplication is worse than absence, because the two copies drift. The one
+  deliberate exception is the second-brain v3 memory schema, covered below.
 - **Prune while you are in there.** When you edit a section, delete what is now
   wrong, superseded, or said twice. Removing a stale line is part of keeping the
   file current, not a separate cleanup task.
@@ -47,6 +48,19 @@ Then keep the shape:
 If a trim would renumber sections that other files cross-reference, say so and
 let the owner decide before renumbering.
 
-When second-brain v3 is installed, preserve the compact project-memory route in
-both CLAUDE.md and AGENTS.md. Do not copy the complete schema into either root
-file or let the two route to different authority maps.
+## The memory section: keep all three copies in step
+
+When second-brain v3 is installed, the memory routing schema lives in three
+places on purpose: the canonical rule `.claude/rules/second-brain.md`, and the
+same section at the top of both CLAUDE.md and AGENTS.md. Routing has to happen
+before an agent writes anything, and a rule it has not opened cannot route.
+
+That exception comes with an obligation. Whenever the canonical rule's authority
+map, its list of homes, or its document contract changes, update the section in
+both root files in the same change. The canonical rule wins if they disagree.
+Never let the two root files carry different authority maps, and never shorten
+one of them into a summary; copy the section from the second-brain plugin's
+`references/orientation-snippet.md` verbatim.
+
+When trimming CLAUDE.md, this section is not a candidate. It stays first and
+stays whole.
