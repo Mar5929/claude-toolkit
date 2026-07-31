@@ -14,6 +14,7 @@ depth lives in each plugin's own `README.md` and reference indexes.
 | [second-brain](../plugins/second-brain/README.md) | Git-native Markdown specifications and durable memory shared by Claude and Codex | `second-brain`, `remember` | `/plugin install second-brain` |
 | [sf-architect-solutioning](../plugins/sf-architect-solutioning/README.md) | Salesforce solution architect: approved solution plan before any build | `sf-architect-solutioning` | `/plugin install sf-architect-solutioning` |
 | [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git lifecycle workflows | `pull-latest`, `reset-to-remote`, `merge-and-clean-up` | `/plugin install git-workflows` |
+| [hooks-library](../plugins/hooks-library/README.md) | Guard hooks that enforce the checkable rules mechanically instead of restating them | `hooks-library` | `/plugin install hooks-library` |
 | [session-autoname](../plugins/session-autoname/README.md) | Background agent sessions stay named after their overarching project | `session-autoname` | `/plugin install session-autoname` |
 | [grill-me](../plugins/grill-me/README.md) | Persistent discovery interviews that checkpoint every answer | `grill-me` | `/plugin install grill-me` |
 | [work-tracker](../plugins/work-tracker/README.md) | Git-authoritative backlog, handoffs, relationships, landing proof, and optional GitHub Projects | `work` | `/plugin install work-tracker` |
@@ -158,6 +159,17 @@ The genuine watch-items are called out at the end.
   default. The optional adapter creates or updates repository issues and a
   Project as a collaboration mirror. Generated dashboards, GitHub issue bodies,
   and Project fields can all be reconciled from the local records.
+- **hooks-library versus the rules it enforces.** The rule is still canonical
+  and still says what good writing is; the hook only catches the cases a machine
+  can catch with no interpretation. They are not duplicates, and the hook is not
+  a licence to delete the rule: it fires on the finished reply, so it cannot
+  shape a commit message, a document, or a code comment, which the rule still
+  governs. The split that decides whether something belongs in the hook is
+  once-per-decision versus once-per-message. "Never commit a secret" fires at
+  one point and holds on instruction alone. "No em dashes" fires on every
+  sentence, thousands of tokens after the rule was last read, and measurement
+  put it at one per 1.8 messages in the worst project. That second kind needs a
+  check.
 - **git-workflows versus the parallel-agent-sessions rule.** The rule states the
   behavior ("assume other sessions share the repo"); the three skills are the
   safe git commands that carry it out. Different layers, not duplicates. That

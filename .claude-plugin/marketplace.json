@@ -30,6 +30,11 @@
       "description": "Three parallel-session-safe git lifecycle skills. pull-latest updates without rewriting history, reset-to-remote mirrors a remote behind explicit confirmation, and merge-and-clean-up lands an approved pull request before safely removing only its branch and worktree."
     },
     {
+      "name": "hooks-library",
+      "source": "./plugins/hooks-library",
+      "description": "Guard hooks that enforce the checkable toolkit rules mechanically instead of restating them. writing-guard is a Stop hook that catches em dashes, section signs, and filler openers in the final reply and sends it back to be rewritten before the owner sees it."
+    },
+    {
       "name": "session-autoname",
       "source": "./plugins/session-autoname",
       "description": "Keeps a background Claude Code agent session named after the single overarching PROJECT it is working toward, not the step it happens to be on. A Stop hook runs at the end of every turn and asks Haiku for a short project-level label, judged from the arc of the owner's own requests (never the assistant's replies, which narrate the current step) and anchored by feeding the current name back in so it is returned unchanged unless the project genuinely changed. Keeps the job list accurate as a long session drifts off the task it started on, without the name churning every few minutes. Background sessions only, never blocks a turn, and fails silently if Claude Code's internal state format changes."

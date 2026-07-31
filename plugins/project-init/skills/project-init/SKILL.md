@@ -137,9 +137,18 @@ the graph and names the connections that moved. Unlike the two guards above it
 is a Stop hook and it lives inside `tools/kb/`, because it imports the rest of
 the tool.
 
-> A broader library of reusable guard hooks (secret-scan, session-start
-> orientation) is still planned for `claude-toolkit`. Until it lands, author any
-> other hook for the project directly.
+**Every project**: offer the writing guard from the `hooks-library` plugin
+(`/hooks-library`). It is a Stop hook that checks the finished reply for em
+dashes, section signs, and filler openers, and sends it back to be rewritten
+before the owner sees it. Offer it because measurement showed those rules are
+stated clearly in several places and broken in a quarter to over half of all
+messages anyway; a rule applied once per message needs a check, not a reminder.
+Say the cost too: when it fires the turn takes slightly longer, because the
+reply is written twice.
+
+> Other reusable guards (secret-scan, session-start orientation) are still
+> planned for the `hooks-library` plugin. Until they land, author any other hook
+> for the project directly.
 
 ### Gate 3: Memory system
 

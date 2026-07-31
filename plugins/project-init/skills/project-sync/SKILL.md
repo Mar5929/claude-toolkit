@@ -70,6 +70,11 @@ automatically as it grows.
     `general-rules/dependency-graph.md`)
   - the `work-tracker` plugin and any existing `work-items/` or
     `engagement/work-items/` tree
+  - the `hooks-library` plugin and its `writing-guard` Stop hook: check
+    `.claude/settings.json` for a registered entry and `.claude/hooks/` for the
+    copied script. A rule file the agent breaks on every message is not really
+    installed, so treat an uninstalled guard as a gap worth reporting rather
+    than a nicety
   - each standalone skill offered by the setup flow, including `grill-me`
   - anything newer listed in the toolkit README under "What's here now"
   - skip roadmap items; they are not built and cannot be audited. Second-brain
