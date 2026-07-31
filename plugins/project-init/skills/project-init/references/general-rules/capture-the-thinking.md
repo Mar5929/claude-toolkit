@@ -25,6 +25,32 @@ Keep it front of mind. It is not a wrap-up step.
 - **The constraints.** Anything that limits the solution: a deadline, a system
   boundary, a rule the owner set, an assumption being made.
 
+## Facts that arrive outside the work
+
+Not everything durable comes from the task in front of you. Some of it just
+arrives while you are doing something else, and because it belongs to no ticket,
+no completion review will ever ask about it. These are the facts most often
+lost.
+
+Notice when one of these goes by:
+
+- **A person or role changed.** Someone joined, changed role, or left, and
+  future sessions need to know who to ask about what.
+- **A tool, vendor, or system was swapped**, or an integration was added or
+  dropped.
+- **A standing preference.** An "always" or "never" that outlives this task.
+- **A correction.** The owner says "actually..." about something already
+  written down, or contradicts a document still marked current.
+- **Business language.** The project's own meaning for a term, or how the
+  owner's words map to what the system calls the same thing.
+- **A new canonical source.** A document or system becomes the place a class of
+  information now lives.
+
+These are durable memory, so the same permission applies: the owner approves and
+the memory librarian writes. Do not record them silently, and do not hold them
+for a completion review that has no task to complete. Raise them at the next
+natural pause in the conversation.
+
 ## Where it goes
 
 One truth, one canonical home. Do not copy the same content into two places,
@@ -40,6 +66,9 @@ and do not invent a new location when an existing one fits.
 | Direction, goals, roadmap, durable risks and assumptions | `memory/planning/` |
 | Durable circumstances and constraints | `memory/context/` |
 | Reusable non-obvious understanding | `memory/knowledge/` |
+| A business term's project-specific meaning | `memory/domain/` |
+| Why a source matters and what it supports | `memory/references/` |
+| How the system is operated, released, or recovered | `memory/operations/` |
 
 When the project has no work tracker item for what is being worked on, create
 one before building. When the second-brain memory areas are not installed, the
