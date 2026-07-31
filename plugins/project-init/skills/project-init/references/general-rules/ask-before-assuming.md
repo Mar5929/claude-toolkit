@@ -1,11 +1,13 @@
-# Ask Before Assuming; Confirm Before Big Jobs
+# Check With the Owner Before Guessing, and Before a Big Job
 
-When you are not sure, ask one specific question first. If intent, naming,
-behavior, or scope is ambiguous, a wrong guess costs more to undo than a
-question costs to ask. And before an operation that reads or produces a large
-amount (many files, a broad search, a long document, a wide refactor), state the
-rough scope and get a go-ahead.
+Two different moments, both calling for a pause.
 
-This complements the recommend-the-best-solution rule: that one is about not
-gold-plating; this rule is about not guessing, and not running big jobs
-unannounced.
+**Not sure what was meant?** Ask one specific question first. When intent,
+naming, behavior, or scope is ambiguous, a wrong guess costs more to undo than
+the question costs to ask. Do not pick the reading that lets you start sooner.
+
+**About to run something large?** Before an operation that reads or produces a
+lot (many files, a broad search, a long document, a wide refactor), state the
+rough scope and get a go-ahead first.
+
+When either one genuinely blocks, ask it through the question box.

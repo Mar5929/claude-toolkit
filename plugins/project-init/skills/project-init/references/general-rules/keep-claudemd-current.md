@@ -20,15 +20,14 @@ else to where it belongs.
 Before adding, ask where the thing actually lives:
 
 - **A rule the session must follow** belongs in CLAUDE.md or `.claude/rules/`.
-- **Why a decision was made, and what was traded off**, belongs in the design or
-  decision doc, with at most a one-line pointer here.
-- **What is happening right now** (current phase, next action, open TODOs)
-  belongs in the work tracker or live status doc, never here.
-- **What changed and when** belongs in git history, not in prose. A requirement
-  change belongs in the applicable specification, code, and tests together.
-  Other durable conclusions use second-brain v3 when it is installed. The main
-  agent proposes them at the approved completion points and the memory
-  librarian writes approved updates. Never write them into retired v1.
+  That is the only category this file owns.
+- **Everything else routes out.** `capture-the-thinking.md` holds the one table
+  saying where each kind of content goes; follow it rather than a second list
+  kept here. CLAUDE.md may carry a one-line pointer to a home, never a summary
+  of it.
+- **What is happening right now** (current phase, next action, open TODOs) does
+  not belong here even as a pointer. It is stale the moment it is written.
+- **What changed and when** belongs in git history, not in prose.
 
 Then keep the shape:
 
@@ -38,15 +37,43 @@ Then keep the shape:
   grown into a dated changelog is the single most common way this file bloats:
   collapse it, and let git and the design doc carry the history.
 - **Say each rule once.** If a rule is already a file in `.claude/rules/`, do not
-  restate it here; the line pointing at that folder is what keeps it in force.
-  Duplication is worse than absence, because the two copies drift. The one
-  deliberate exception is the second-brain v3 memory schema, covered below.
+  restate it in CLAUDE.md. Claude Code loads every `.md` file in that folder
+  automatically at session start, so the rule is already in force and a second
+  copy only drifts. Two deliberate exceptions: the second-brain v3 memory
+  schema, covered below, and AGENTS.md, covered next.
 - **Prune while you are in there.** When you edit a section, delete what is now
   wrong, superseded, or said twice. Removing a stale line is part of keeping the
   file current, not a separate cleanup task.
 
 If a trim would renumber sections that other files cross-reference, say so and
 let the owner decide before renumbering.
+
+## AGENTS.md is not a copy of CLAUDE.md, on purpose
+
+The two root files serve two programs that load rules differently. They are
+allowed to differ and must not be flattened back into copies of each other.
+
+- **Claude Code loads every `.md` file in `.claude/rules/` automatically** at
+  session start, with no import needed. So CLAUDE.md can point at a rule instead
+  of repeating it, and repeating one there is the duplication this rule bans.
+- **Codex loads AGENTS.md and nothing else.** Not `CLAUDE.md`, not
+  `.claude/rules/`, and `@` file references are ordinary text to it. So AGENTS.md
+  has to write out, in full, every rule that causes real damage when broken.
+  That restatement is not bloat; it is the only copy a Codex session ever sees.
+
+Two hard constraints on AGENTS.md:
+
+- **Codex caps it at 32 KB** and silently drops whatever is past that. Keep the
+  file under about 24 KB and check with `wc -c AGENTS.md` (or
+  `(Get-Item AGENTS.md).Length`) after editing.
+- **Never add an import expecting it to load something.** Neither program
+  expands a wildcard such as `@.claude/rules/**`. Claude Code resolves the text
+  after `@` as a literal path and drops it with no warning when the file does
+  not exist, so the line looks like it works and does nothing. Codex has no
+  import syntax at all.
+
+When a rule in AGENTS.md's always-in-force set changes, update its rule file and
+that section together, in the same change.
 
 ## The memory section: keep all three copies in step
 
@@ -61,6 +88,14 @@ both root files in the same change. The canonical rule wins if they disagree.
 Never let the two root files carry different authority maps, and never shorten
 one of them into a summary; copy the section from the second-brain plugin's
 `references/orientation-snippet.md` verbatim.
+
+One sentence inside the section is allowed to differ, and only this one. Under
+"How to write", CLAUDE.md tells the session to invoke the memory librarian at
+`.claude/agents/memory-librarian.md`, which is a Claude Code agent file. Codex
+cannot invoke it, so AGENTS.md instead tells the session to delegate to a
+subagent and have that subagent read both that file and
+`.claude/rules/second-brain.md` in full before writing. Same obligation, two
+programs. Do not "fix" either one to match the other.
 
 When trimming CLAUDE.md, this section is not a candidate. It stays first and
 stays whole.

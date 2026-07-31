@@ -11,8 +11,7 @@ commit messages, README text.
 - **Calibrate to the owner.** Explain in plain language, define jargon the first
   time it appears, and do not assume expert knowledge of any stack. Do not
   oversimplify either; include the steps an expert would consider too obvious to
-  mention. If a project sets its owner as non-technical, follow the
-  treat-owner-as-non-technical rule on top of this one.
+  mention.
 
 These rules apply to the project's own files too; clean up violations in any
 file you are already editing.
