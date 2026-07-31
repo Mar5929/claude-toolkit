@@ -121,10 +121,11 @@ A typo fix, a one-line config change, a quick lookup, or a question with a
 one-word answer needs no written record. The test is whether the work has
 requirements worth stating. If it does, they are worth writing down.
 
-## How this differs from the neighbouring rules
+## This rule owns the during
 
-The work-tracker rule describes the folders and their fields. The memory rule
-describes the homes for durable truth and who may write them. The wrap-up rule
-describes the review at the end. This rule is the standing obligation those
-three assume: capture the thinking as it happens, in the right place, so
-nothing important ever lives only in a conversation.
+`work-item-folders.md` owns the containers, the project's memory rule owns who
+may write durable truth, and `wrap-up-ritual.md` owns the review at the end.
+This rule owns the moment those three leave uncovered: capture the thinking as
+it happens, so nothing important ever lives only in a conversation. The table
+above is the one place that says where each kind of content goes; other rules
+point at it rather than keeping their own copy.

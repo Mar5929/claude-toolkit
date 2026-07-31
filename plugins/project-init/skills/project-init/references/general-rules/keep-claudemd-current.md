@@ -20,15 +20,14 @@ else to where it belongs.
 Before adding, ask where the thing actually lives:
 
 - **A rule the session must follow** belongs in CLAUDE.md or `.claude/rules/`.
-- **Why a decision was made, and what was traded off**, belongs in the design or
-  decision doc, with at most a one-line pointer here.
-- **What is happening right now** (current phase, next action, open TODOs)
-  belongs in the work tracker or live status doc, never here.
-- **What changed and when** belongs in git history, not in prose. A requirement
-  change belongs in the applicable specification, code, and tests together.
-  Other durable conclusions use second-brain v3 when it is installed. The main
-  agent proposes them at the approved completion points and the memory
-  librarian writes approved updates. Never write them into retired v1.
+  That is the only category this file owns.
+- **Everything else routes out.** `capture-the-thinking.md` holds the one table
+  saying where each kind of content goes; follow it rather than a second list
+  kept here. CLAUDE.md may carry a one-line pointer to a home, never a summary
+  of it.
+- **What is happening right now** (current phase, next action, open TODOs) does
+  not belong here even as a pointer. It is stale the moment it is written.
+- **What changed and when** belongs in git history, not in prose.
 
 Then keep the shape:
 
