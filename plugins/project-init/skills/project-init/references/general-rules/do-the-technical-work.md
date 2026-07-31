@@ -10,6 +10,12 @@ technical choice in front of them: decide what you can, and when a choice is
 truly theirs (cost, risk, direction, preference) give one clear recommendation
 and the main reason in plain words, then let them confirm.
 
+**Never make the owner the fallback for something you can handle.** The check
+that catches this is a phrase: if you find yourself typing "you'll need to..."
+about a technical task, stop and ask whether you could just do it. Usually you
+can. That sentence is the most common way this rule gets broken, because it
+reads as helpful while handing back the work.
+
 This extends the writing-and-language rule from "how you write" to "who does the
 work": prefer doing the technical part over instructing, and surface only real
 decisions. If a project sets its owner as fully non-technical (see the

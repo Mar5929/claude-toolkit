@@ -89,6 +89,8 @@ secrets rule even if the prose differs. Typical checks:
   file, or the rule's intent folded into CLAUDE.md)? Judge by intent, not exact
   wording or file name.
 - **CLAUDE.md health** (presence is not enough, see below).
+- **Can a Codex session actually reach the rules?** (see below). A project can
+  hold every rule and still deliver almost none of them to Codex.
 - **Hooks**: are guard and orientation hooks configured (the project's
   `.claude/` settings and hook scripts)?
 - **Salesforce dependency graph** (Salesforce projects only): does `tools/kb/`
@@ -214,6 +216,47 @@ The same drift question applies to any toolkit text a project copies, not only
 `.claude/rules/`. The v3 memory section in `CLAUDE.md` and `AGENTS.md` is
 already covered below; treat it as the worked example of this check rather than
 a separate rule.
+
+### Codex reachability: can AGENTS.md deliver the rules?
+
+Every check above asks whether a rule EXISTS. None asks whether the agent
+actually receives it. Those are different questions, and they have different
+answers for the two programs.
+
+- **Claude Code loads `.claude/rules/` automatically.** Every `.md` file there
+  without `paths:` frontmatter is in context at session start. No import needed,
+  and CLAUDE.md does not have to mention the folder for it to work.
+- **Codex loads `AGENTS.md` and nothing else.** Not `CLAUDE.md`, not
+  `.claude/rules/`, and it has no `@` import syntax, so any `@` line in
+  AGENTS.md is plain text the model may or may not act on. Codex caps the file
+  at 32 KB and drops the rest silently.
+
+So a project can pass every rule check while a Codex session runs on whatever
+fraction of the rules happens to be inline in AGENTS.md. Report:
+
+- **The delivery gap.** How many lines are in `.claude/rules/`, and how many
+  reach Codex? Say it as a number, because the ratio is usually startling.
+- **Which safety-critical rules are missing from AGENTS.md entirely.** For each
+  rule whose breach causes real damage (production writes, deploys, destructive
+  commands, secrets, anything a guard hook exists for), check whether AGENTS.md
+  states it inline. A pointer to a rule file is not delivery.
+- **Whether a guard hook covers the gap.** Claude Code `PreToolUse` hooks do not
+  fire for Codex, and `~/.codex/config.toml` usually registers none. A rule
+  Codex cannot see, backed by a hook that never runs for Codex, is unenforced in
+  both directions at once. Flag that combination explicitly; it is the worst
+  state a project can be in and it is invisible to every other check.
+- **Dead imports.** Grep both root files for `@` lines. Report any that resolve
+  to nothing, especially wildcards such as `@.claude/rules/**`, which look
+  load-bearing and expand to nothing in either program.
+- **AGENTS.md size** against the 32 KB cap, so nothing is being truncated.
+
+The fix, when the owner approves it, is not to shrink CLAUDE.md into AGENTS.md
+or the reverse. It is to write the damaging rules out in full in AGENTS.md, add
+a table saying which rule file to open before which kind of work, and record in
+`keep-claudemd-current.md` that the two root files diverge on purpose so the next
+session does not helpfully "fix" them back into copies.
+
+Skip this check only when the owner confirms Codex never runs in the project.
 
 ### CLAUDE.md health
 
