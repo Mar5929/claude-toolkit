@@ -144,7 +144,9 @@ The genuine watch-items are called out at the end.
   self-contained prompt), `work-item-folders` (use work-tracker and keep one
   canonical folder per item), `capture-the-thinking` (write the goal, why,
   requirements, edge cases, scenarios, and decisions into their canonical home
-  as they surface, mid-task, so nothing important lives only in a conversation),
+  as they surface, mid-task, so nothing important lives only in a conversation,
+  plus the durable facts that arrive outside any task and so belong to no
+  completion review),
   `steer-to-the-goal` (preserve a goal that outlasts one chat), and the
   retired `memory-system-ground-rules` recognition file (identify and avoid an
   older local v1 integration). Each targets a distinct moment, so they compose
