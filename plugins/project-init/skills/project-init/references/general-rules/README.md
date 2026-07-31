@@ -37,6 +37,16 @@ structure Gate 5 writes.
 | `show-phase-progress.md` | When work splits into phases, print a one-line progress bar at every transition and when the last phase finishes. |
 | `treat-owner-as-non-technical.md` | Assume no technical background: numbered steps, exact commands, say what success looks like, never hand back raw errors. Also covers REPORTING: explain what you did in plain words, not just what to do. Turn off only for a technical owner. |
 
+## Conditional: copy only when the project has the thing the rule governs
+
+| File | Copy it when | What it does |
+|---|---|---|
+| `dependency-graph.md` | the project installed the graphify code graph (see `../graphify-dependency-graph.md`) | Answer "what calls this?" and "what breaks if I change it?" from the graph, citing file and line, instead of from a text search or memory. Owns the freshness duty too: keep the automatic rebuild hooks installed, once per clone, because git hooks are never committed and a fresh clone silently has none. Also covers keeping the build offline, never committing it, and naming the graph's blind spot (runtime dispatch and configuration wiring) before saying "nothing uses this". |
+
+A Salesforce project gets `../salesforce-rules/dependency-graph.md` instead: the
+same job for the bundled metadata graph. The two are alternatives, never both,
+and either one lands in the project as `.claude/rules/dependency-graph.md`.
+
 ## Second-brain rules
 
 The canonical v3 rule comes from the `second-brain` plugin and installs as
@@ -56,3 +66,8 @@ Drop a new `<name>.md` here (plain language, no em dashes, no section signs,
 "owner" not a personal name, no project-specific file paths or dated incidents:
 keep it reusable). Add a row to the right table above (default ON or
 conditional). New projects pick it up on the next `project-init` run.
+
+A rule that only makes sense alongside a tool is conditional, and it never ships
+alone: name the tool it depends on in its row, and make sure `project-init` and
+`project-sync` install the two together. A rule whose tool is missing is advice
+nobody can follow; a tool whose rule is missing gets ignored by every session.

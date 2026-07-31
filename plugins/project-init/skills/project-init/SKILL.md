@@ -188,6 +188,14 @@ Git documents and connected to the specifications and context it affects.
   There are two, by stack: `references/salesforce-dependency-graph.md` for
   Salesforce (offered in Gate 1) and `references/graphify-dependency-graph.md`
   for every other kind of code. A project installs at most one.
+- **On a non-Salesforce project, offer the graphify kit here** when the owner
+  wants mechanical impact analysis. It has four parts and they ship together:
+  the tool, the `graphify-out/` gitignore entry,
+  `general-rules/dependency-graph.md` copied to `.claude/rules/` (Gate 5), and
+  the auto-rebuild git hooks. The rule is what makes a session use the graph
+  instead of searching text; the hooks are what stop it going stale. Tell the
+  owner the one thing the hooks cannot do: they are not committed, so every
+  fresh clone needs `graphify hook install` run once.
 - Do not install the retired v1 knowledge curator, drift hooks, SHA pins, or a
   database-like graph.
 
@@ -220,6 +228,11 @@ list.
   that project out.
 - **Salesforce projects:** the `salesforce-rules/` files the owner chose in Gate
   1 also live in `.claude/rules/`; make sure they are there.
+- **Conditional general rules** only go in when the project has the thing they
+  govern. `general-rules/README.md` marks them. Today that is
+  `dependency-graph.md`, which goes in when the graphify code graph was accepted
+  in Gate 4. A Salesforce project gets the `salesforce-rules/` file of the same
+  name instead; never both.
 - **MCP tool rules are conditional.** If the project connects an MCP server
   covered in `references/mcp-best-practices.md` (Context7, Gmail, Google
   Calendar, Linear, Notion, Playwright), fold in that server's section (as a

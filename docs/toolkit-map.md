@@ -52,7 +52,11 @@ These are not duplicated here. Go to the index that owns them:
   graph and answers "if I change this field, what breaks N steps out?" It reads
   local files only and never contacts an org. The non-Salesforce equivalent,
   built on the open-source graphify tool, is
-  [graphify-dependency-graph.md](../plugins/project-init/skills/project-init/references/graphify-dependency-graph.md).
+  [graphify-dependency-graph.md](../plugins/project-init/skills/project-init/references/graphify-dependency-graph.md),
+  whose rule is `general-rules/dependency-graph.md`. Both graphs ship as kits:
+  a tool, a rule, and an automatic rebuild. A project has one graph, so it gets
+  one of the two rules, never both, and either lands in the project as
+  `.claude/rules/dependency-graph.md`.
 - **Salesforce permission set kit**: the tool is
   `plugins/project-init/skills/project-init/references/tools/permsets.py`; the
   runbook is `salesforce-permissions-retrieval.md`, the evidence behind it is
@@ -114,6 +118,15 @@ The genuine watch-items are called out at the end.
   outlived v1: it is now the dependency graph shipped by `project-init` (see the
   reference index above), because it never depended on any v1 infrastructure. It
   was only ever bundled inside the second-brain plugin folder.
+- **The two dependency graphs are alternatives, not a pair.** The bundled
+  Salesforce tool parses `force-app/` metadata; graphify parses source with
+  tree-sitter. Same job, different readers, and no project needs both. They also
+  keep themselves fresh differently, which is the part that trips people: the
+  Salesforce one uses a Stop hook committed in the project's settings, so it
+  travels with a clone; graphify uses git hooks, which are never committed, so
+  each fresh clone has to install them once. Their shared rule name
+  (`dependency-graph.md`, one per library) is deliberate: whichever graph a
+  project has, a session reads one rule with that name.
 - **The dependency graph versus written knowledge.** The graph answers what
   connects to what, mechanically, rebuilt from the code every time, so it cannot
   be wrong about structure and cannot record intent. Written knowledge (v3's

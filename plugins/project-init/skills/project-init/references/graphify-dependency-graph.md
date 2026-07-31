@@ -9,10 +9,10 @@ parses source locally with tree-sitter (40+ languages including Swift) and
 builds a queryable graph. The project's written notes record WHY; this records
 WHAT connects to WHAT.
 
-Offer it whenever the owner of a non-Salesforce project wants mechanical impact
-analysis, the same trigger as the Salesforce graph. It is optional the same way:
-a small codebase is well served by the compiler and its tests, so add graphify
-when "what calls this?" is a real, recurring question.
+Offer it in Gate 4 whenever the owner of a non-Salesforce project wants
+mechanical impact analysis, the same trigger as the Salesforce graph. It is
+optional the same way: a small codebase is well served by the compiler and its
+tests, so add graphify when "what calls this?" is a real, recurring question.
 
 ## What it is
 
@@ -25,21 +25,39 @@ when "what calls this?" is a real, recurring question.
 - Produces `graphify-out/graph.json` (queryable), `graph.html` (interactive
   map), and `GRAPH_REPORT.md`.
 
-## Install
+## Install the kit (four parts)
 
-Prerequisite: Python 3.10+ and `uv` (or `pipx` or `pip`).
+Like the Salesforce kit, this is one unit. The tool without the rule gets
+ignored by every session, and the tool without the hooks quietly goes stale.
+Install all four or none.
 
-```
-uv tool install graphifyy      # PyPI package is graphifyy (two y's); installs the `graphify` command
-```
+1. **The tool.** Prerequisite: Python 3.10+ and `uv` (or `pipx` or `pip`).
 
-Optional, register it as a Claude Code skill so `/graphify` works in-session:
+   ```
+   uv tool install graphifyy      # PyPI package is graphifyy (two y's); installs the `graphify` command
+   ```
 
-```
-graphify install --platform claude   # copy the skill into Claude Code's config dir
-# or, to add a graphify section plus a PreToolUse nudge to the project's CLAUDE.md:
-graphify claude install
-```
+   Optional, register it as a Claude Code skill so `/graphify` works in-session:
+
+   ```
+   graphify install --platform claude   # copy the skill into Claude Code's config dir
+   # or, to add a graphify section plus a PreToolUse nudge to the project's CLAUDE.md:
+   graphify claude install
+   ```
+
+   That skill is per machine, not per project. It makes the command easy to
+   reach; it does not tell a session to prefer the graph over a text search.
+   Part 3 is what does that.
+
+2. **The gitignore entry.** `graphify-out/` is a build artifact, never a commit.
+
+3. **The rule.** Copy `general-rules/dependency-graph.md` into the project's
+   `.claude/rules/`. It is the standing instruction to answer impact questions
+   from the graph, keep the build current, and keep it offline. Without it the
+   tool sits there and sessions keep grepping.
+
+4. **The automatic rebuild** (see "Keep it fresh" below), so nobody has to
+   remember to rebuild.
 
 ## Build the graph (local, no API key)
 
@@ -94,23 +112,26 @@ project graphify's git hooks ARE that mechanism, so do not also install the
 bundled Salesforce freshness hook (it is Salesforce-only anyway). If a project
 cannot use git hooks (repo policy, or no git), skip `graphify hook install` and
 instead run `graphify update .` at the start of an impact query so the graph is
-current before you rely on it.
+current before you rely on it. Record which of the two this project uses.
 
-## The standing rule to carry into the project
+**The gap to tell the owner about.** Git hooks live in the repository's hidden
+git folder, which is never committed. So installing them once does NOT cover
+everyone: a fresh clone on another machine, or a teammate's checkout, has no
+hooks and its graph will silently stop updating while still answering questions.
+Whoever clones runs `graphify hook install` once. Linked worktrees of an
+existing clone share its hooks and need nothing. The rule in step 3 of the
+install carries this into the project so a later session does not have to
+rediscover it.
 
-Add this to the project's `.claude/rules/` so sessions actually use the graph.
-It is the non-Salesforce twin of `salesforce-rules/dependency-graph.md`:
+## The standing rule
 
-```markdown
-# Answer Impact Questions From the Graphify Graph
-
-Answer "what calls X" and "what breaks if I change it" from
-`graphify affected "X"` and `graphify query "..."`, citing the file and line the
-graph reports, not from memory or a search. Rebuild first (`graphify update .`)
-if code changed since the last build. Known limit: fully dynamic dispatch and
-runtime wiring are not always captured, so check the project's written notes
-before saying "nothing uses this".
-```
+`general-rules/dependency-graph.md` is the rule this tool ships with, copied
+into the project's `.claude/rules/` as install step 3. It is the non-Salesforce
+twin of `salesforce-rules/dependency-graph.md`; a project has one graph, so it
+gets one of the two rules, never both, and either lands under the same file
+name. Do not paste a hand-written variant into the project: edit the library
+file and copy it, so every project stays in step with the toolkit and
+`project-sync` can tell when one has fallen behind.
 
 ## Known limits
 
