@@ -3,6 +3,15 @@
 > **Archived v1 reference.** Do not run this backfill or read old `know-*`
 > content as current truth. V3 starts from authoritative Git content and does
 > not use this backfill, drift hook, or curator.
+>
+> The Salesforce half of this procedure is not retired: it moved to
+> `project-init` as
+> `plugins/project-init/skills/project-init/references/salesforce-dependency-graph.md`,
+> which is the live version. References below to `structural-layer.md` mean that
+> file. The generic half, `kb-backfill/subsystem_map.py` and
+> `kb-backfill/kb_freshness_hook.py`, stayed here: for non-Salesforce projects
+> graphify does both jobs and installs its own git hooks, so a project would
+> otherwise end up with two freshness mechanisms.
 
 On a brand-new project the `know-*` knowledge layer starts empty and that is
 fine: it fills in as work happens. On a project that ALREADY has code, the

@@ -60,6 +60,10 @@ automatically as it grows.
   - the per-server MCP tool rules in `references/mcp-best-practices.md`; these
     are conditional, so only audit the servers this project actually connects
   - each system from the setup gates: hooks, memory system, knowledge layer
+  - the multi-part Salesforce kits, which are a tool plus a rule plus a hook
+    rather than a single file: the permission set kit
+    (`salesforce-permissions-retrieval.md`) and the dependency graph
+    (`salesforce-dependency-graph.md`, whose tool is `references/tools/kb/`)
   - the `work-tracker` plugin and any existing `work-items/` or
     `engagement/work-items/` tree
   - each standalone skill offered by the setup flow, including `grill-me`
@@ -83,6 +87,17 @@ secrets rule even if the prose differs. Typical checks:
 - **CLAUDE.md health** (presence is not enough, see below).
 - **Hooks**: are guard and orientation hooks configured (the project's
   `.claude/` settings and hook scripts)?
+- **Salesforce dependency graph** (Salesforce projects only): does `tools/kb/`
+  exist with every file the toolkit ships, is
+  `.claude/rules/dependency-graph.md` present, are the graph and freshness
+  artifacts gitignored, and is the freshness Stop hook wired in
+  `.claude/settings.json`? Classify it **partial** when the tool is there but
+  the rule or the hook is not, because that is the state where the graph
+  quietly ages and nobody is told to use it. A project that has the older
+  wording (a `structural-layer` rule, or a `tools/kb/` copy predating the
+  toolkit's) is present-but-behind, not missing: report the differences and
+  offer to bring it in line. Never run a Salesforce CLI command during this
+  check; the tool reads local files only.
 - **Second-brain v3 status:** v3 is the current Markdown and Git system. Audit
   it as one coherent installation:
   - `.claude/rules/second-brain.md`;
@@ -228,8 +243,8 @@ on any trim you propose:
 Show one table: item, status, and what specifically is missing or drifted. Make
 no changes in this step. Let the user pick what to fix, and recommend an order
 (complete v3 adoption, retired v1 local wiring as a separate choice, missing
-default-ON rules, outdated rules, then other systems). Existing v1 wiring does
-not block v3 adoption.
+default-ON rules, outdated rules, then other systems).
+Existing v1 wiring does not block v3 adoption.
 
 ## Step 4: close the approved gaps, one at a time
 
@@ -272,6 +287,13 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   anything into v3, or deletes cloud infrastructure. Installing v3 does not
   imply either v1 choice. Account-level connectors, local token cleanup, and
   cloud deletion are separate owner-approved work.
+- For an approved Salesforce dependency graph gap, install the whole kit from
+  `../project-init/references/salesforce-dependency-graph.md`: the `tools/kb/`
+  folder, the gitignore entries, the rule, and the freshness Stop hook. Never
+  install the rule alone. Run the verify steps in that file before calling it
+  done. If the project already has its own copy of the tool, show the
+  differences and let the owner choose which side wins rather than overwriting
+  edits they made.
 - For an approved work-tracker gap, install the plugin and run `work init` at
   the detected canonical path. This may add metadata and generated views, but
   it must not overwrite existing `SPEC.md`, `STATUS.md`, or notes. Show any

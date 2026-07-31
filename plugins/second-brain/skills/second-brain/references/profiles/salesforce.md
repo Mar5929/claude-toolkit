@@ -43,9 +43,10 @@ name (e.g. `DragonFly`).
   entry per subsystem.
 - **Structural graph companion:** yes. For an org merge, field-level impact
   analysis ("rename this field, what breaks three hops out?") is the daily job.
-  Install the bundled compiled dependency graph (skill Step 2b,
-  `references/structural-layer.md`). This layer records why; the graph answers
-  what-connects-to-what.
+  The dependency graph is not part of second-brain and never was; it now ships
+  with `project-init`
+  (`plugins/project-init/skills/project-init/references/salesforce-dependency-graph.md`).
+  This layer records why; the graph answers what-connects-to-what.
 
 ## Setup notes
 

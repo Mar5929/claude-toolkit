@@ -24,12 +24,19 @@ skill.
 ## What it installs
 
 - **work**: agent instructions used by both Claude and Codex.
-- **`work.mjs`**: one dependency-free Node.js implementation for every command.
+- **`work.mjs`**: one dependency-free Node.js implementation for every command,
+  built on three modules in `scripts/lib/`: `tracker.mjs` (reads and writes the
+  work-item records), `github.mjs` (the optional issues and Project mirror), and
+  `common.mjs` (shared file, Git, and formatting helpers).
 - **Validation and reconciliation**: deterministic checks suitable for CI.
 - **Optional GitHub adapter**: creates or links a GitHub Project and mirrors
   local work into repository issues.
 
 No database, model, cloud service, or external tracker is required for the core.
+
+Its reference documents are `references/command-reference.md` (every command and
+flag), `references/record-format.md` (the exact shape of `ITEM.json` and the
+other per-item files), and `references/github-projects.md` (the mirror).
 
 ## Where tickets live
 
@@ -134,8 +141,8 @@ node plugins/work-tracker/skills/work/scripts/work.mjs validate --cwd PROJECT
 claude plugin validate .
 ```
 
-The test suite uses temporary Git repositories and a fake GitHub CLI. It never
-changes a live Project or issue. The toolkit's bundled Codex plugin validator
+The test suite uses temporary Git repositories and a fake GitHub CLI
+(`tests/fixtures/mock-gh.mjs`). It never changes a live Project or issue. The toolkit's bundled Codex plugin validator
 also checks the Codex manifest during release validation.
 
 ## Maintaining this plugin

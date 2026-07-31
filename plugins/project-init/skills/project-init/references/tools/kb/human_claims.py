@@ -1,4 +1,4 @@
-"""Load "human claim" edges — the hand-written side of the self-check.
+"""Load "human claim" edges: the hand-written side of the self-check.
 
 The graph has two kinds of truth about a connection:
 
@@ -12,11 +12,11 @@ pluggable loader for the human side. Providers:
 
 - "kb-index": davis-style curated markdown KB (field-writers.md, schedule.md)
   read by parse_kb_indexes.py from a repo root. Edge source: 'kb-index:...'.
-- "know-export": a JSON file exported from the second-brain knowledge layer
-  (know-* nodes). The graph never calls the second-brain service — that would
-  break the offline/deterministic guarantee — so the knowledge layer exports
-  its structured claims to a local file and this provider reads that file.
-  Edge source: 'know:<node-id>'.
+- "know-export": a JSON file of curated claims exported from the project's own
+  knowledge notes. The graph never calls a service of any kind, because that
+  would break the offline and deterministic guarantee, so the knowledge side
+  exports its structured claims to a local file and this provider reads that
+  file. Edge source: 'know:<node-id>'.
 
 know-export JSON format (documented here, versioned by the top-level key):
 

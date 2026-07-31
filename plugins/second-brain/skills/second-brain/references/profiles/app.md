@@ -38,8 +38,9 @@ section, replacing the `<...>` placeholders. `<APP_NAME>` is the real app name.
   SetLog by raw `log.sets`; a timed hold's work is `workUnits`"), and a
   `know-codemap` entry per subsystem.
 - **Structural graph companion:** optional, and for an app it is graphify (a local
-  tree-sitter code graph; see `references/structural-layer-graphify.md`), not the
-  Salesforce `force-app/` tool. Most apps rely on the compiler + tests plus
+  tree-sitter code graph, now documented by `project-init` at
+  `plugins/project-init/skills/project-init/references/graphify-dependency-graph.md`),
+  not the Salesforce `force-app/` tool. Most apps rely on the compiler + tests plus
   file-SHA `covers:` pins for impact detection; add graphify only when "what calls
   this?" is a real, recurring question.
 
