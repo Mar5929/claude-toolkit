@@ -145,9 +145,13 @@ The genuine watch-items are called out at the end.
   default. The optional adapter creates or updates repository issues and a
   Project as a collaboration mirror. Generated dashboards, GitHub issue bodies,
   and Project fields can all be reconciled from the local records.
-- **git-workflows versus the worktree-isolation rule.** The rule states the
+- **git-workflows versus the parallel-agent-sessions rule.** The rule states the
   behavior ("assume other sessions share the repo"); the three skills are the
-  safe git commands that carry it out. Different layers, not duplicates.
+  safe git commands that carry it out. Different layers, not duplicates. That
+  rule absorbed the separate `worktree-isolation` rule, which had described the
+  same situation from the other side: the two were 156 lines that each opened by
+  explaining they were not the other, and both stated "one session, one worktree,
+  one branch" and "do not fix a dirty tree, tell the owner".
 - **grill-me versus work-item and memory files.** `grill-me` owns raw discovery
   notes in a flat, dated `brainstorms/` collection. Each brainstorm links to
   every resulting specification without being copied into system-area folders.
