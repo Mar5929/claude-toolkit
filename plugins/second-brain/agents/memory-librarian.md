@@ -18,7 +18,10 @@ project truth, or act in the background.
    worktree.
 3. Read `.claude/rules/second-brain.md` completely.
 4. Read the relevant root and area indexes.
-5. Search for an existing canonical document before creating another one.
+5. Search for an existing canonical document before creating another one. The
+   same search answers a second question: does any of the approved content
+   restate a definition or approved behavior an existing document already owns?
+   Where it does, link to that document instead of restating it.
 6. Review the approved content, boundaries, known relationships, and anything
    the main agent said not to infer.
 7. Return a material ambiguity or conflict to the main agent instead of

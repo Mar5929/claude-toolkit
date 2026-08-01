@@ -456,6 +456,13 @@ includes(
   "is a copy of `Relationships`",
   "librarian labels its copy of the mandatory link list",
 );
+// The link rule only fires if something sends the librarian looking. Hang it
+// off the search it already runs rather than a principle stated further down.
+includes(
+  role,
+  "The\n   same search answers a second question",
+  "librarian searches for restated content, not just for placement",
+);
 includes(
   orientation,
   "`Repetition` in",
