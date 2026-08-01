@@ -110,6 +110,8 @@ After setup or adoption, confirm:
 - work-tracker still owns live work state;
 - raw project artifacts remain in their canonical homes;
 - no v1 content was imported;
-- no database, MCP memory server, hook, runtime script, embedding, transcript
-  capture, or background curator was installed; and
+- no database, MCP memory server, embedding, transcript capture, or background
+  curator was installed;
+- no hook that writes memory was installed, noting that a `hooks-library` hook
+  which enforces a rule or starts a review is not a finding; and
 - all writes occurred in the requesting session's worktree.

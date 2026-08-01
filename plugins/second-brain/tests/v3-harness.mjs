@@ -322,11 +322,15 @@ try {
       && !existsSync(resolve(fixture, "memory/knowledge/billing")),
     "greenfield core creates no hypothetical system areas",
   );
+  // The memory core ships no hooks of its own. This is not a claim that the
+  // project has no hooks: hooks-library installs into the same .claude/hooks,
+  // and a hook that enforces a rule or starts a review is not a v3 violation.
+  // What v3 still forbids is a hook that writes memory.
   ok(
     !existsSync(resolve(fixture, ".claude/hooks"))
       && !existsSync(resolve(fixture, "scripts"))
       && !existsSync(resolve(fixture, ".mcp.json")),
-    "greenfield core installs no hooks, runtime scripts, or memory MCP",
+    "greenfield memory core installs no hooks, runtime scripts, or memory MCP",
   );
 
   const memoryIndex = readAbsolute(resolve(fixture, "memory/README.md"));
@@ -496,5 +500,32 @@ for (const doc of [
 ]) {
   excludes(doc, "plugin v1.", `${doc} carries no stale plugin version`);
 }
+
+// V3 originally banned hooks outright, which conflated "nothing writes memory
+// automatically" (still true, and why v1 was retired) with "no automation may
+// enforce a rule" (over-reach). The approval promise is what must survive.
+includes(
+  rule,
+  "Nothing reaches memory automatically",
+  "rule keeps the approval promise",
+);
+includes(
+  rule,
+  "A hook never decides what is true",
+  "rule bounds what a hook may do",
+);
+excludes(rule, "a hook or timer fires", "rule no longer excludes hook triggers");
+excludes(rule, "capture hook", "rule drops the blanket hook ban");
+excludes(orientation, "capture hook", "root orientation drops the hook ban");
+includes(
+  orientation,
+  "Nothing is remembered automatically",
+  "root orientation keeps the approval promise",
+);
+includes(
+  adoption,
+  "no hook that writes memory was installed",
+  "adoption audits hooks by what they write",
+);
 
 console.log(`ALL PASS (${passed} checks), FAIL: 0`);

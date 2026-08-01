@@ -169,7 +169,19 @@ The genuine watch-items are called out at the end.
   one point and holds on instruction alone. "No em dashes" fires on every
   sentence, thousands of tokens after the rule was last read, and measurement
   put it at one per 1.8 messages in the worst project. That second kind needs a
-  check.
+  check. That once-per-decision test decides whether a rule needs a *check*
+  hook. It does not decide whether a hook is allowed at all: a hook may also
+  trigger a process agents forget or orient a session at its start, and neither
+  of those checks anything. The three jobs and their separate bars are in
+  [`hooks-library`](../plugins/hooks-library/README.md).
+- **hooks-library versus second-brain v3.** V3 was originally written as a
+  system with no hooks anywhere, which conflated two different promises.
+  Nothing may write memory automatically, and that still holds; v1 was retired
+  for breaking it. But enforcing a rule is not writing memory. A hook that makes
+  an agent read the memory rule, or that starts the durable review at a
+  completion point, serves the approval promise rather than breaking it. The
+  memory core still ships no hooks of its own, so anything hook-shaped comes
+  from `hooks-library` and passes through Gate 2.
 - **git-workflows versus the parallel-agent-sessions rule.** The rule states the
   behavior ("assume other sessions share the repo"); the three skills are the
   safe git commands that carry it out. Different layers, not duplicates. That

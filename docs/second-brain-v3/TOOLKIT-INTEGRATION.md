@@ -55,8 +55,10 @@ It:
 10. offers an initial project-memory pass; and
 11. offers `grill-me` for project discovery.
 
-It does not create a database, hooks, capture scripts, an autonomous curator,
-empty area trees, or a competing archive for raw project artifacts.
+It does not create a database, capture scripts, an autonomous curator, empty
+area trees, or a competing archive for raw project artifacts. It installs no
+memory hooks. Guard and orientation hooks are Gate 2 and come from the
+`hooks-library` plugin.
 
 ### 1.3 Project-sync skill
 
@@ -401,8 +403,8 @@ There is no separate quick-write store.
 
 ## 8. Verification approach
 
-V3 installs no runtime scripts or hooks, but the toolkit implementation still
-needs proportionate tests.
+The memory core installs no runtime scripts or hooks of its own, but the toolkit
+implementation still needs proportionate tests.
 
 ### 8.1 Package and fixture checks
 
@@ -416,7 +418,9 @@ needs proportionate tests.
   type-appropriate content, and a descriptive index entry.
 - Confirm important links state their direction and meaning in natural
   language.
-- Confirm no hook, database, MCP, embedding, or transcript component appears.
+- Confirm no database, MCP, embedding, or transcript component appears, and no
+  hook that writes memory. A `hooks-library` hook that enforces a rule or starts
+  a review is not a finding.
 
 ### 8.2 Cold-agent scenarios
 
@@ -509,7 +513,7 @@ Do not add:
 - a database or cloud service;
 - a memory MCP server;
 - embeddings or semantic retrieval;
-- capture, recall, review, or placement hooks;
+- a hook that captures, recalls, places, or writes memory;
 - a natural-language approval parser;
 - a schema validation engine installed in client projects;
 - transcript capture;
@@ -517,6 +521,10 @@ Do not add:
 - a fixed proposal count;
 - automatic Git operations; or
 - automatic project migration.
+
+A hook that enforces a rule or starts the durable review belongs in the
+`hooks-library` plugin, not here. The memory core stays hook-free; what it
+forbids anywhere is a hook that writes.
 
 ## Brainstorms that informed this integration
 

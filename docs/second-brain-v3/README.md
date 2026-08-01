@@ -274,7 +274,7 @@ are the primary navigation system.
 - database, Worker, or hosted memory service;
 - memory MCP connector;
 - embeddings or semantic search;
-- scripts or hooks for capture, recall, review, or placement;
+- hooks or scripts that capture, recall, place, or write memory;
 - transcript or per-message capture;
 - background, scheduled, or autonomous curation;
 - a deterministic natural-language approval parser;
@@ -283,6 +283,10 @@ are the primary navigation system.
 - a fixed proposal limit;
 - automatic commits, pushes, merges, or deployments; or
 - a second ticket, backlog, or handoff system.
+
+A hook that enforces a rule or starts the durable review at a completion point
+is not excluded. It writes nothing and approves nothing, so the approval
+boundary above is unchanged.
 
 The dedicated memory agent is invoked for an approved update. It is not a
 background curator and does not act independently.

@@ -5,8 +5,9 @@ description: >-
   second-brain v3 system for Claude and Codex. Use for project memory,
   knowledge, specifications, durable-update reviews, v3 installation, and
   brownfield adoption. V3 uses Markdown and Git only. Never import retired v1
-  content or add a database, memory MCP server, hooks, scripts, embeddings,
-  transcript capture, or background curation.
+  content or add a database, memory MCP server, embeddings, transcript capture,
+  or background curation. A hook may enforce a rule or start a review, never
+  write memory.
 ---
 
 # Second-brain v3
@@ -25,8 +26,10 @@ The complete core contains:
 - typed memory for context, planning, decisions, knowledge, references, domain,
   and operations.
 
-V3 has no database, memory MCP server, embeddings, runtime scripts, memory
-hooks, transcript capture, or background curator.
+V3 has no database, memory MCP server, embeddings, transcript capture, or
+background curator. The memory core installs no hooks of its own. A hook from
+the `hooks-library` plugin may enforce a rule or start a review, and never
+writes memory.
 
 ## Canonical sources
 
@@ -115,8 +118,8 @@ Read `.claude/rules/second-brain.md` and conduct its durable-update review only:
 - at the end of a brainstorm or requirements interview; or
 - at the end of a milestone or project phase.
 
-An unfinished-session handoff, ordinary response, commit, or timer does not
-trigger the review.
+An unfinished-session handoff, ordinary response, or commit does not trigger the
+review. A hook may start it at one of the completion points above.
 
 Propose every useful durable update. There is no fixed limit. The owner may
 approve, select, edit, combine, defer, or skip proposals in normal language.

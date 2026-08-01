@@ -5,7 +5,8 @@ description: >-
   Recognize requests such as "remember this", "save that", "capture what we
   did", or "/remember". Use the on-demand memory librarian to place and write
   the content in Markdown and Git. Never write retired v1, create a quick-write
-  store, or add hooks, scripts, databases, embeddings, or transcript capture.
+  store, or add databases, embeddings, or transcript capture. A hook never
+  writes memory.
 ---
 
 # Remember with second-brain v3
