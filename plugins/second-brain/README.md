@@ -137,12 +137,17 @@ Run:
 ```text
 node plugins/second-brain/tests/v3-harness.mjs
 node plugins/second-brain/tests/retirement-harness.mjs
+node tests/link-check.mjs
 claude plugin validate .
 ```
 
 The v3 harness assembles a temporary greenfield project, verifies the complete
 core and Claude/Codex route parity, checks brownfield guidance, and removes the
 fixture. It does not change a real project.
+
+`link-check.mjs` belongs in this list because this plugin is the one that tells
+writers to link to a canonical home instead of copying it. That instruction is
+only safe while the links resolve.
 
 ## Canonical design
 

@@ -18,7 +18,10 @@ project truth, or act in the background.
    worktree.
 3. Read `.claude/rules/second-brain.md` completely.
 4. Read the relevant root and area indexes.
-5. Search for an existing canonical document before creating another one.
+5. Search for an existing canonical document before creating another one. The
+   same search answers a second question: does any of the approved content
+   restate a definition or approved behavior an existing document already owns?
+   Where it does, link to that document instead of restating it.
 6. Review the approved content, boundaries, known relationships, and anything
    the main agent said not to infer.
 7. Return a material ambiguity or conflict to the main agent instead of
@@ -106,15 +109,26 @@ reading of code or field names and nobody confirmed the meaning, the value is
 `Inferred, unconfirmed`, even though the owner approved filing it. Ask the main
 agent when the basis is unclear rather than guessing a stronger one.
 
+The next list is a copy of `Relationships` in `.claude/rules/second-brain.md`,
+kept in step with it so you can act before opening another file. The rule wins
+if they disagree.
+
 Only these links are mandatory:
 
 1. specification and informing brainstorm, both directions;
 2. superseded document and replacement, both directions;
 3. canonical capability `README.md` and each supporting specification file,
-   both directions; and
-4. nearest index to every durable document it owns, one direction.
+   both directions;
+4. nearest index to every durable document it owns, one direction; and
+5. the canonical home of any definition or approved behavior the document would
+   otherwise restate, one direction.
 
 Do not add other backlinks merely to make the corpus look complete.
+
+Within the approved content, do not write a second copy of something another
+document owns. Link to the owner instead. When an existing document already
+holds such a copy, report it to the main agent rather than deleting it, because
+removing durable information needs a visible approved proposal.
 
 ## Report to the main agent
 

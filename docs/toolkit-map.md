@@ -274,3 +274,10 @@ file the toolkit ships has to be reachable from at least one skill, plugin
 README, reference index, or this map. It exists because a July 2026 cleanup
 deleted the last pointer to the Salesforce dependency graph and nothing noticed
 for weeks. Run it with `node tests/orphan-check.mjs`.
+
+`tests/link-check.mjs` guards the other direction. The memory rule tells writers
+to link to one canonical home instead of copying it, so every copy that rule
+removes becomes a link, and a link that points at a deleted file still looks
+like a home while leading nowhere. It checks every relative Markdown link in the
+repository and skips the examples inside code blocks. Run it with
+`node tests/link-check.mjs`.

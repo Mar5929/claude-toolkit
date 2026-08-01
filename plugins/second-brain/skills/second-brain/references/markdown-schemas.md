@@ -145,6 +145,12 @@ Path: `memory/<type>/<system-area>/README.md`
 - <Only useful neighboring indexes>
 ```
 
+Every memory template below ends with an optional `## Related` section. Remove
+it when no relationship exists. `Relationships` in `second-brain-rule.md` says
+which links are mandatory and gives example labels that are examples, not a
+fixed vocabulary. `Repetition` in the same file says what to do when the content
+already has a home elsewhere.
+
 ## Context
 
 ```markdown
@@ -163,6 +169,11 @@ Path: `memory/<type>/<system-area>/README.md`
 ## Boundaries
 
 <Where it applies and does not apply.>
+
+## Related
+
+- **<Relationship>:** [<Document>](<relative-path>)
+  - <Why it matters here.>
 ```
 
 ## Planning
@@ -196,6 +207,11 @@ Path: `memory/<type>/<system-area>/README.md`
 
 - **Delivered through:** [<Work item>](<relative-path>)
   - Current status remains in the work tracker.
+
+## Related
+
+- **<Relationship>:** [<Document>](<relative-path>)
+  - <Why it matters here.>
 ```
 
 ## Decision
@@ -224,6 +240,11 @@ Path: `memory/<type>/<system-area>/README.md`
 ## Consequences
 
 - <What this enables, constrains, or requires.>
+
+## Related
+
+- **<Relationship>:** [<Document>](<relative-path>)
+  - <Why it matters here.>
 ```
 
 ## Knowledge
@@ -246,6 +267,11 @@ Basis: <Observed | Owner-confirmed YYYY-MM-DD | Source | Inferred, unconfirmed>
 ## How to apply it
 
 <Where future work should use it and its limits.>
+
+## Related
+
+- **<Relationship>:** [<Document>](<relative-path>)
+  - <Why it matters here.>
 ```
 
 The `Basis:` line is mandatory. See `Evidence and certainty` in
@@ -273,6 +299,11 @@ The `Basis:` line is mandatory. See `Evidence and certainty` in
 ## Limits
 
 <What it does not prove or what may change.>
+
+## Related
+
+- **<Relationship>:** [<Document>](<relative-path>)
+  - <Why it matters here.>
 ```
 
 ## Domain
@@ -299,6 +330,11 @@ Basis: <Observed | Owner-confirmed YYYY-MM-DD | Source | Inferred, unconfirmed>
 ## Edge cases
 
 - <Easy-to-misunderstand case.>
+
+## Related
+
+- **<Relationship>:** [<Document>](<relative-path>)
+  - <Why it matters here.>
 ```
 
 The `Basis:` line is mandatory. A business term an agent guessed at from field
@@ -326,6 +362,11 @@ names is `Inferred, unconfirmed` until a person says otherwise.
 ## Recovery
 
 - <How to stop, reverse, or recover.>
+
+## Related
+
+- **<Relationship>:** [<Document>](<relative-path>)
+  - <Why it matters here.>
 ```
 
 Operations may explain where a secret is obtained and how it is used. They
