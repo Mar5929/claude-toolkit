@@ -45,6 +45,7 @@ written down somewhere. It gets fitted into the system:
 | What I bring | Where it lands |
 |---|---|
 | A rule every project should follow (behavior, writing style, workflow) | Its own file in the `general-rules/` library, copied into each new project's `.claude/rules/` |
+| A change to the voice Claude answers in, every turn | The `output-styles/` library, copied into each project's `.claude/output-styles/` and switched on in its settings. Use this only for something already written as a rule: a style is the short operative form, delivered where the session gets reminded of it each turn |
 | A setup step for new projects | A gate (or part of one) in the `project-init` skill |
 | A guard hook or automation | The [`hooks-library`](plugins/hooks-library/README.md) plugin. A hook does one of three jobs: check an output against a rule a machine can test with no interpretation, trigger a process at a moment agents forget, or orient a session at its start. If it needs none of those, it stays a rule |
 | A whole reusable system | Its own plugin/skill that `project-init` offers |
@@ -92,8 +93,9 @@ claude-toolkit/
       .codex-plugin/plugin.json
       skills/
         project-init/             ← SKILL.md + references/ (setup-flow, thin-claudemd,
-                                     general-rules/, salesforce-rules/, mcp-best-practices,
-                                     tools/ with the permission set and dependency graph tools)
+                                     general-rules/, output-styles/, salesforce-rules/,
+                                     mcp-best-practices, tools/ with the permission set
+                                     and dependency graph tools)
         project-sync/             ← SKILL.md
     second-brain/                 ← plugin: Git-native v3 memory for Claude and Codex
       README.md
@@ -215,16 +217,28 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
   or links a Project with the six standard statuses and repository issues
   labeled bug, enhancement, or task.
 - [x] **Shared hooks library**: now the `hooks-library` plugin. Ships
-  `writing-guard`, a Stop hook that catches em dashes, section signs, and filler
-  openers in the finished reply and sends it back to be rewritten. Built after
-  measuring real transcripts found those rules broken in a quarter to over half
-  of all messages despite being stated in several places. Still to come:
+  `style-reminder`, a hook that puts the project's output style back in front of
+  Claude every time I send a message, so the writing instructions are never
+  stale hours into a session. It replaced `writing-guard`, a Stop hook that read
+  the finished reply and blocked em dashes, section signs, and filler openers,
+  which retired alongside the voice rules it enforced. Still to come:
   secret-scanning and a SessionStart orientation hook. The Salesforce
   production-org and permission set guards continue to install from
   `project-init` Gate 2.
 - [x] **General rules library**: the standard rules are now individual files in
   `project-init`'s `general-rules/` library (with a `README.md` index), copied
   into each project's `.claude/rules/` verbatim instead of retyped into CLAUDE.md.
+- [x] **Output styles library**: `project-init`'s `output-styles/` library (with
+  a `README.md` index), copied into each project's `.claude/output-styles/` and
+  switched on in its settings. `plain-language.md` is default ON, and it is now
+  the only home for how Claude talks to me: written for a non-technical reader,
+  jargon defined, no em dashes, no section signs, no filler, replies built from
+  lists, quiet between tool calls, and my actions at the end. The three voice rules it
+  replaced (`writing-and-language`, `how-to-reply`,
+  `treat-owner-as-non-technical`) were deleted, and the `writing-guard` hook
+  went with them. `general-rules/` now covers how Claude *works*, not how it
+  *talks*. The accepted cost: helper agents never see an output style, so they
+  no longer inherit the voice guidance, and nothing checks a finished reply.
 - [ ] **Publish tooling**: a small script/checklist to export skills to the
   Claude desktop and web apps so those surfaces stay in sync with this repo.
 - [ ] **"Port-back" convention**: a documented flow (and a reminder baked into

@@ -42,8 +42,9 @@ automatically as it grows.
 - Locate the toolkit files, in order of preference:
   1. They ship with this plugin. From this skill's directory, the sibling
      skill's `../project-init/references/` holds `general-rules/` (with its
-     `README.md` index), `salesforce-rules/`, `thin-claudemd.md`, and
-     `setup-flow.md`, and the plugin root holds `.claude-plugin/plugin.json`.
+     `README.md` index), `output-styles/` (with its own `README.md` index),
+     `salesforce-rules/`, `thin-claudemd.md`, and `setup-flow.md`, and the
+     plugin root holds `.claude-plugin/plugin.json`.
   2. A local clone of the toolkit repo, if the user has one.
   3. Fetch the repo (`Mar5929/claude-toolkit`), or ask the user where it lives.
 - For a separately packaged system such as `second-brain`, locate its installed
@@ -57,6 +58,9 @@ automatically as it grows.
     step 2 can tell a project copy that is merely worded differently from one
     that is genuinely behind; Salesforce projects also get the
     `salesforce-rules/` files
+  - every file in `output-styles/`, noting from its `README.md` which are
+    default ON. These are not rule files and a project that carries every rule
+    can still have no style installed, so check them separately
   - the per-server MCP tool rules in `references/mcp-best-practices.md`; these
     are conditional, so only audit the servers this project actually connects
   - each system from the setup gates: hooks, memory system, knowledge layer
@@ -70,11 +74,15 @@ automatically as it grows.
     `general-rules/dependency-graph.md`)
   - the `work-tracker` plugin and any existing `work-items/` or
     `engagement/work-items/` tree
-  - the `hooks-library` plugin and its `writing-guard` Stop hook: check
-    `.claude/settings.json` for a registered entry and `.claude/hooks/` for the
-    copied script. A rule file the agent breaks on every message is not really
-    installed, so treat an uninstalled guard as a gap worth reporting rather
-    than a nicety
+  - the `hooks-library` plugin and its `style-reminder` UserPromptSubmit hook:
+    check `.claude/settings.json` for a registered entry and `.claude/hooks/`
+    for the copied script. It pairs with the output style and does nothing
+    without one, so audit the two together and never report the hook as
+    installed when no style is selected
+  - a project still carrying the retired voice rules (`writing-and-language.md`,
+    `how-to-reply.md`, `treat-owner-as-non-technical.md`) or the retired
+    `writing-guard` Stop hook. Those were removed from the toolkit in favor of
+    the output style. Report them, but see step 4 before touching either
   - each standalone skill offered by the setup flow, including `grill-me`
   - anything newer listed in the toolkit README under "What's here now"
   - skip roadmap items; they are not built and cannot be audited. Second-brain
@@ -93,6 +101,12 @@ secrets rule even if the prose differs. Typical checks:
   `.claude/rules/`, and does that folder carry each default-ON general rule (a
   file, or the rule's intent folded into CLAUDE.md)? Judge by intent, not exact
   wording or file name.
+- **Output style**: does `.claude/output-styles/` hold each default-ON file, and
+  does a settings file actually select one (`outputStyle` in
+  `.claude/settings.json` or `.claude/settings.local.json`)? Both halves matter.
+  A copied style file that nothing selects is inert, and a selected style whose
+  file is missing silently falls back to the default. Judge the file by intent,
+  not exact wording, the same as a rule.
 - **CLAUDE.md health** (presence is not enough, see below).
 - **Can a Codex session actually reach the rules?** (see below). A project can
   hold every rule and still deliver almost none of them to Codex.
@@ -333,6 +347,27 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   project's existing voice. Never replace the file wholesale with the toolkit's
   text: that throws away every local adaptation the project made on purpose, and
   those adaptations are the reason the wording differs in the first place.
+- For an approved output style gap, do all three parts: copy the file from
+  `../project-init/references/output-styles/` into `.claude/output-styles/`, set
+  `outputStyle` in the committed `.claude/settings.json`, and install the
+  `style-reminder` hook via `/hooks-library`. The first two alone leave the
+  style delivered once at session start; the hook alone does nothing at all. If
+  the owner already selected a different style, show them the clash and let them
+  choose rather than overwriting it. Say plainly that the new voice starts on
+  their next session, so they do not think it failed.
+- **For the retired voice rules and the retired `writing-guard`, propose the
+  swap, never a bare deletion.** A project on the old setup has working
+  guidance; removing it before the style is in leaves the project with neither.
+  Install and verify the style plus its hook first, then offer to delete
+  `.claude/rules/writing-and-language.md`, `how-to-reply.md`, and
+  `treat-owner-as-non-technical.md`, the `Stop` hook entry naming
+  `writing-guard.mjs`, `.claude/hooks/writing-guard.mjs`, and
+  `.claude/writing-guard.json`. Say the two costs out loud so the owner is
+  choosing with them in view: helper agents will no longer inherit the voice
+  guidance, and nothing will check a finished reply for em dashes any more. An
+  owner who wants to keep the guard keeps it; it still works, and the toolkit no
+  longer shipping a thing is not a reason to strip it from a project that
+  relies on it.
 - For an approved v3 gap, install the `second-brain` plugin and follow its
   brownfield adoption guide:
   1. keep the audit read-only until the owner approves exact treatments;

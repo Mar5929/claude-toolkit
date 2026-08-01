@@ -43,6 +43,10 @@ These are not duplicated here. Go to the index that owns them:
   project): [general-rules/README.md](../plugins/project-init/skills/project-init/references/general-rules/README.md).
   Marks active rules default ON or conditional. Retired v1 examples are not
   part of this installable library.
+- **Output styles** (the `.claude/output-styles` files that set the voice Claude
+  answers in): [output-styles/README.md](../plugins/project-init/skills/project-init/references/output-styles/README.md).
+  Marks each style default ON or optional. `plain-language.md` is the only one
+  today, and it is default ON.
 - **Salesforce rules**: [salesforce-rules/README.md](../plugins/project-init/skills/project-init/references/salesforce-rules/README.md).
 - **Salesforce dependency graph**: the tool and its own `README.md` live at
   `plugins/project-init/skills/project-init/references/tools/kb/`; the install
@@ -228,19 +232,24 @@ The genuine watch-items are called out at the end.
   memory as destinations for detail that does not belong in CLAUDE.md, but it
   does not own any of them; the rules above do. Naming where something goes is
   what keeps CLAUDE.md from absorbing all three.
-- **Reply shape lives in one rule, and used to live in four.** `how-to-reply`
-  owns the whole thing: how many replies you write, what goes in each, and where
-  the owner's next action lands. It replaced `lead-with-the-answer`,
-  `close-with-the-ask`, `quiet-while-working`, and `answer-last-question-box`,
-  which were 162 lines across four files describing one behavior. That split was
-  documented here as "mild overlap by design". Measuring real sessions showed
-  otherwise: staying quiet while working and closing with the next step were the
-  two most-broken rules in the library, at 56 to 60 percent of turns, and two of
-  the four files stated "do not narrate between tool calls" independently. Four
-  files an agent has to hold at once to shape one reply is a cost, not a design.
+- **Voice is not a rule any more.** How Claude writes and replies was four
+  rule files, then three, and is now none. It lives in the `plain-language`
+  output style, reinforced every turn by the `style-reminder` hook. The path
+  there was one long consolidation: `lead-with-the-answer`,
+  `close-with-the-ask`, `quiet-while-working`, and `answer-last-question-box`
+  merged into `how-to-reply`; then `how-to-reply`, `writing-and-language`, and
+  `treat-owner-as-non-technical` were retired in favor of the style. The reason
+  is delivery, not content. A rule file is read once at session start, and
+  measuring real sessions showed the voice rules were the most-broken in the
+  library: em dashes once per 1.8 messages, staying quiet and closing with the
+  next step broken in 56 to 60 percent of turns. An output style is delivered in
+  the system prompt and re-stated on every message by the hook.
   `show-phase-progress` remains the one deliberate exception, and its one-line
-  bar is exactly the mid-work budget `how-to-reply` allows. `define-your-terms`
-  and `steer-to-the-goal` still add their own distinct constraints on top.
+  bar is exactly the mid-work budget the style allows. `define-your-terms` and
+  `steer-to-the-goal` still add their own distinct constraints on top.
+  **The known cost:** an output style never reaches a subagent, so helper agents
+  no longer inherit the voice guidance, and nothing checks a finished reply now
+  that `writing-guard` is gone. Both were accepted deliberately.
 - **sf-architect-solutioning versus the Salesforce rules versus the dependency
   graph.**
   sf-architect decides what to build; the `salesforce-rules` install standing

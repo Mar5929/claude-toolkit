@@ -137,12 +137,13 @@ the graph and names the connections that moved. Unlike the two guards above it
 is a Stop hook and it lives inside `tools/kb/`, because it imports the rest of
 the tool.
 
-**Every project**: offer the writing guard from the `hooks-library` plugin
-(`/hooks-library`). It is a Stop hook that checks the finished reply for em
-dashes, section signs, and filler openers, and sends it back to be rewritten
-before the owner sees it. Offer it because measurement showed those rules are
-stated clearly in several places and broken in a quarter to over half of all
-messages anyway; a rule applied once per message needs a check, not a reminder.
+**Every project**: offer the style reminder from the `hooks-library` plugin
+(`/hooks-library`). Every time the owner sends a message, it puts the project's
+output style back in front of the session. Offer it because measurement showed
+voice rules are stated clearly in several places and broken in a quarter to over
+half of all messages anyway: a rule applied once per message does not survive one
+delivery at session start. It only works next to an installed output style, so it
+pairs with Gate 5; if the owner skips the style, skip this too.
 Say the cost too: when it fires the turn takes slightly longer, because the
 reply is written twice.
 
@@ -259,6 +260,18 @@ list.
   Keep other behavioral rules out of the root files.
 - **Add a `.claude/rules/README.md`** that indexes what each copied rule file
   does, so the folder is self-describing.
+- **Install the plain-language output style** (default ON). Copy
+  `references/output-styles/plain-language.md` to the project's
+  `.claude/output-styles/`, and set `"outputStyle": "plain-language"` in the
+  project's committed `.claude/settings.json`. This is the project's only home
+  for how Claude talks: written for a non-technical reader, jargon defined, no
+  em dashes, no section signs, no filler, replies built from lists, quiet
+  between tool calls, and the owner's actions at the end. There are no voice rules in `.claude/rules/`
+  any more; do not write one. Pair it with the `style-reminder` hook from Gate
+  2, which re-states the style on every message so it does not go stale in a
+  long session. See `references/output-styles/README.md`. Tell the owner it
+  takes effect on their next session, not the current one, and that a subagent
+  never sees an output style.
 
 ### Gate 6: Optional standalone toolkit skills
 
@@ -325,6 +338,10 @@ in their own plugins.
   `README.md` index) to copy into every project in Gate 5. Active rules are
   default ON unless the owner opts out. Retired v1 examples are not part of
   this library.
+- `references/output-styles/`: the `.claude/output-styles/` files (with its own
+  `README.md` index) that set the voice Claude answers in, installed in Gate 5.
+  `plain-language.md` is default ON. Read the index for why an output style sits
+  alongside the voice rules rather than replacing them.
 - `references/thin-claudemd.md`: how Gate 5 writes a thin CLAUDE.md that points
   at `.claude/rules/` instead of holding the rules inline.
 - `references/mcp-best-practices.md`: per-server MCP tool rules to offer in Gate

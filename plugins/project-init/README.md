@@ -48,6 +48,12 @@ Bundled under `skills/project-init/references/`:
   examples are not part of this active library.
 - `salesforce-rules/` (with its own `README.md`): the same idea for Salesforce
   projects.
+- `output-styles/` (with its own `README.md` index): the `.claude/output-styles`
+  files that set the voice Claude answers in, installed in Gate 5.
+  `plain-language.md` is default ON. A style is delivered through the system
+  prompt and re-stated to the session each turn, which is what a voice rule needs
+  and a rule file cannot do; it sits alongside the voice rules rather than
+  replacing them, because a subagent never sees a style.
 - `salesforce-dependency-graph.md` plus `tools/kb/`: a self-contained tool that
   compiles a Salesforce project's own metadata into a local graph, so "if I
   change this field, what breaks?" is answered from the metadata instead of from

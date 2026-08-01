@@ -7,7 +7,8 @@
   that gets skipped. Build a hook in `hooks-library` that fires once a PR has
   been opened and starts the memory proposal pass, so the review happens on its
   own. Decide where it hooks in (Stop, or off the PR-creation tool call), and
-  keep the same fail-open and loop-cap safety the writing-guard already has.
+  keep the same fail-open safety the hooks-library hooks already have, plus a
+  loop cap if it can force another turn.
 
 - [ ] **Hook: make sessions read and follow the project rules at start.**
   A SessionStart hook that loads the project's `.claude/rules/` and the toolkit

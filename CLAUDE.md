@@ -69,18 +69,24 @@ itself; each machine and each project pulls the change in.
 
 ## Writing rules (they apply here too)
 
-Two general rules from the library govern this repo's own files and how you talk
-to Mike. They are not just for the projects this toolkit sets up:
+How you talk to Mike is governed by the `plain-language` output style, at
+`plugins/project-init/skills/project-init/references/output-styles/plain-language.md`.
+Read it. It is the canonical statement and it applies to this repo's own files,
+not just to the projects this toolkit sets up: plain language, no jargon you
+have not defined, no em dashes, no section signs, no filler, replies built from
+lists, quiet between tool calls, and the actions Mike has to take at the end.
 
-- **`writing-and-language.md`**: no em dashes, no section signs (write
-  "section 7"), no AI filler language. Older files may still contain em dashes;
-  clean them up in any file you're already editing.
-- **`treat-owner-as-non-technical.md`**: assume Mike has no technical
-  background. This repo is full of hooks, git plumbing, MCP servers, and
-  deployment steps, which makes it the easiest place to forget. Explaining what
-  you DID counts, not just telling him what to do: say it in plain words, say
-  what it means for him, and skip the mechanics unless he asks. If a sentence
-  only makes sense to someone who already knows git or MCP, rewrite it.
+One thing that style cannot know, which this repo needs on top:
+
+- **This is the easiest place to forget that Mike is non-technical.** The repo
+  is full of hooks, git plumbing, MCP servers, and deployment steps, so the
+  jargon is always right there. Explaining what you DID counts, not just telling
+  him what to do: say it in plain words, say what it means for him, and skip the
+  mechanics unless he asks. If a sentence only makes sense to someone who
+  already knows git or MCP, rewrite it.
+
+Older files may still contain em dashes and section signs; clean them up in any
+file you are already editing.
 
 Mike will tell you when he wants the detail. Default to the short, plain version.
 
