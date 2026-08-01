@@ -45,6 +45,7 @@ written down somewhere. It gets fitted into the system:
 | What I bring | Where it lands |
 |---|---|
 | A rule every project should follow (behavior, writing style, workflow) | Its own file in the `general-rules/` library, copied into each new project's `.claude/rules/` |
+| A change to the voice Claude answers in, every turn | The `output-styles/` library, copied into each project's `.claude/output-styles/` and switched on in its settings. Use this only for something already written as a rule: a style is the short operative form, delivered where the session gets reminded of it each turn |
 | A setup step for new projects | A gate (or part of one) in the `project-init` skill |
 | A guard hook or automation | The [`hooks-library`](plugins/hooks-library/README.md) plugin. A hook does one of three jobs: check an output against a rule a machine can test with no interpretation, trigger a process at a moment agents forget, or orient a session at its start. If it needs none of those, it stays a rule |
 | A whole reusable system | Its own plugin/skill that `project-init` offers |
@@ -92,8 +93,9 @@ claude-toolkit/
       .codex-plugin/plugin.json
       skills/
         project-init/             ← SKILL.md + references/ (setup-flow, thin-claudemd,
-                                     general-rules/, salesforce-rules/, mcp-best-practices,
-                                     tools/ with the permission set and dependency graph tools)
+                                     general-rules/, output-styles/, salesforce-rules/,
+                                     mcp-best-practices, tools/ with the permission set
+                                     and dependency graph tools)
         project-sync/             ← SKILL.md
     second-brain/                 ← plugin: Git-native v3 memory for Claude and Codex
       README.md
@@ -225,6 +227,13 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
 - [x] **General rules library**: the standard rules are now individual files in
   `project-init`'s `general-rules/` library (with a `README.md` index), copied
   into each project's `.claude/rules/` verbatim instead of retyped into CLAUDE.md.
+- [x] **Output styles library**: `project-init`'s `output-styles/` library (with
+  a `README.md` index), copied into each project's `.claude/output-styles/` and
+  switched on in its settings. `plain-language.md` is default ON: it carries the
+  three voice rules in the system prompt, where the session is reminded of them
+  every turn instead of once at the start. It is the third level of the same
+  answer as the writing guard, aimed at the drift a text check cannot see. The
+  rule files stay, because an output style never reaches a subagent.
 - [ ] **Publish tooling**: a small script/checklist to export skills to the
   Claude desktop and web apps so those surfaces stay in sync with this repo.
 - [ ] **"Port-back" convention**: a documented flow (and a reminder baked into

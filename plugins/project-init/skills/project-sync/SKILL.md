@@ -42,8 +42,9 @@ automatically as it grows.
 - Locate the toolkit files, in order of preference:
   1. They ship with this plugin. From this skill's directory, the sibling
      skill's `../project-init/references/` holds `general-rules/` (with its
-     `README.md` index), `salesforce-rules/`, `thin-claudemd.md`, and
-     `setup-flow.md`, and the plugin root holds `.claude-plugin/plugin.json`.
+     `README.md` index), `output-styles/` (with its own `README.md` index),
+     `salesforce-rules/`, `thin-claudemd.md`, and `setup-flow.md`, and the
+     plugin root holds `.claude-plugin/plugin.json`.
   2. A local clone of the toolkit repo, if the user has one.
   3. Fetch the repo (`Mar5929/claude-toolkit`), or ask the user where it lives.
 - For a separately packaged system such as `second-brain`, locate its installed
@@ -57,6 +58,9 @@ automatically as it grows.
     step 2 can tell a project copy that is merely worded differently from one
     that is genuinely behind; Salesforce projects also get the
     `salesforce-rules/` files
+  - every file in `output-styles/`, noting from its `README.md` which are
+    default ON. These are not rule files and a project that carries every rule
+    can still have no style installed, so check them separately
   - the per-server MCP tool rules in `references/mcp-best-practices.md`; these
     are conditional, so only audit the servers this project actually connects
   - each system from the setup gates: hooks, memory system, knowledge layer
@@ -93,6 +97,12 @@ secrets rule even if the prose differs. Typical checks:
   `.claude/rules/`, and does that folder carry each default-ON general rule (a
   file, or the rule's intent folded into CLAUDE.md)? Judge by intent, not exact
   wording or file name.
+- **Output style**: does `.claude/output-styles/` hold each default-ON file, and
+  does a settings file actually select one (`outputStyle` in
+  `.claude/settings.json` or `.claude/settings.local.json`)? Both halves matter.
+  A copied style file that nothing selects is inert, and a selected style whose
+  file is missing silently falls back to the default. Judge the file by intent,
+  not exact wording, the same as a rule.
 - **CLAUDE.md health** (presence is not enough, see below).
 - **Can a Codex session actually reach the rules?** (see below). A project can
   hold every rule and still deliver almost none of them to Codex.
@@ -333,6 +343,12 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   project's existing voice. Never replace the file wholesale with the toolkit's
   text: that throws away every local adaptation the project made on purpose, and
   those adaptations are the reason the wording differs in the first place.
+- For an approved output style gap, do both halves: copy the file from
+  `../project-init/references/output-styles/` into `.claude/output-styles/` and
+  set `outputStyle` in the committed `.claude/settings.json`. Either half alone
+  does nothing. If the owner already selected a different style, show them the
+  clash and let them choose rather than overwriting it. Say plainly that the new
+  voice starts on their next session, so they do not think it failed.
 - For an approved v3 gap, install the `second-brain` plugin and follow its
   brownfield adoption guide:
   1. keep the audit read-only until the owner approves exact treatments;

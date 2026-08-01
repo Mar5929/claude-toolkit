@@ -34,6 +34,14 @@ structure Gate 5 writes.
 | `show-phase-progress.md` | When work splits into phases, print a one-line progress bar at every transition and when the last phase finishes. |
 | `treat-owner-as-non-technical.md` | Assume no technical background: numbered steps, exact commands, say what success looks like, never hand back raw errors. Also covers REPORTING: explain what you did in plain words, not just what to do. Turn off only for a technical owner. |
 
+The three voice rules (`writing-and-language.md`, `how-to-reply.md`,
+`treat-owner-as-non-technical.md`) also ship in short operative form as the
+`plain-language` output style, in `../output-styles/`. That is not a duplicate
+and neither side is optional. These files are the canonical wording and are the
+only version a subagent ever sees; the style puts the same intent in the system
+prompt, where the session is reminded of it every turn rather than once at the
+start. Change a voice rule here and check whether the style needs the same edit.
+
 ## Conditional: copy only when the project has the thing the rule governs
 
 | File | Copy it when | What it does |

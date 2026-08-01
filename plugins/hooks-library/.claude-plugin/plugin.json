@@ -1,7 +1,7 @@
 {
   "name": "hooks-library",
   "description": "Shared guard hooks that enforce toolkit rules mechanically instead of asking an agent to remember them. Ships writing-guard, a Stop hook that checks the assistant's final reply for em dashes, section signs, and filler openers, and sends it back to be rewritten before the owner sees it. Built after measuring real transcripts showed those rules are stated clearly in several places and broken in a quarter to over half of all messages anyway.",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com"

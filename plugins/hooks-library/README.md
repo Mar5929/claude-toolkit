@@ -26,6 +26,14 @@ point and holds. "No em dashes" fires on every sentence you write, thousands of
 tokens after you last read it, while you are busy with something else. That
 second kind needs a check, not a reminder.
 
+The toolkit's other answer to the same measurement is the `plain-language`
+output style (`project-init`'s `output-styles/` library), which puts the voice
+rules in the system prompt where the session is reminded of them each turn. The
+two do different halves of the job and neither replaces the other: a style
+reduces how often the miss happens, and this guard catches the ones that still
+get through. A style is also the only option for the misses no text check can
+score, such as a reply being twice as long as it needed to be.
+
 ## What ships today
 
 ### writing-guard

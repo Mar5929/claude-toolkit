@@ -259,6 +259,15 @@ list.
   Keep other behavioral rules out of the root files.
 - **Add a `.claude/rules/README.md`** that indexes what each copied rule file
   does, so the folder is self-describing.
+- **Install the plain-language output style** (default ON). Copy
+  `references/output-styles/plain-language.md` to the project's
+  `.claude/output-styles/`, and set `"outputStyle": "plain-language"` in the
+  project's committed `.claude/settings.json`. It is the short, operative form
+  of the three voice rules, delivered through the system prompt where the
+  session gets reminded of it every turn rather than once at the start. It does
+  not replace those rule files: an output style never reaches a subagent, so the
+  rules stay. See `references/output-styles/README.md`. Tell the owner it takes
+  effect on their next session, not the current one.
 
 ### Gate 6: Optional standalone toolkit skills
 
@@ -325,6 +334,10 @@ in their own plugins.
   `README.md` index) to copy into every project in Gate 5. Active rules are
   default ON unless the owner opts out. Retired v1 examples are not part of
   this library.
+- `references/output-styles/`: the `.claude/output-styles/` files (with its own
+  `README.md` index) that set the voice Claude answers in, installed in Gate 5.
+  `plain-language.md` is default ON. Read the index for why an output style sits
+  alongside the voice rules rather than replacing them.
 - `references/thin-claudemd.md`: how Gate 5 writes a thin CLAUDE.md that points
   at `.claude/rules/` instead of holding the rules inline.
 - `references/mcp-best-practices.md`: per-server MCP tool rules to offer in Gate

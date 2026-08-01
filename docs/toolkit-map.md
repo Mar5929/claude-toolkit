@@ -43,6 +43,10 @@ These are not duplicated here. Go to the index that owns them:
   project): [general-rules/README.md](../plugins/project-init/skills/project-init/references/general-rules/README.md).
   Marks active rules default ON or conditional. Retired v1 examples are not
   part of this installable library.
+- **Output styles** (the `.claude/output-styles` files that set the voice Claude
+  answers in): [output-styles/README.md](../plugins/project-init/skills/project-init/references/output-styles/README.md).
+  Marks each style default ON or optional. `plain-language.md` is the only one
+  today, and it is default ON.
 - **Salesforce rules**: [salesforce-rules/README.md](../plugins/project-init/skills/project-init/references/salesforce-rules/README.md).
 - **Salesforce dependency graph**: the tool and its own `README.md` live at
   `plugins/project-init/skills/project-init/references/tools/kb/`; the install

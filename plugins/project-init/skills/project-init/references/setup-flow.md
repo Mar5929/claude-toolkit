@@ -148,6 +148,13 @@ so they always know where they are.
 - Write a thin CLAUDE.md _with_ the user: what it is, codemap and structural
   pointers, a `Read .claude/rules` line, which gates ran. Add a
   `.claude/rules/README.md` index.
+- Install the plain-language output style (default ON): copy
+  `output-styles/plain-language.md` to `.claude/output-styles/` and set
+  `"outputStyle": "plain-language"` in the committed `.claude/settings.json`.
+  It carries the three voice rules in the system prompt, where the session is
+  reminded each turn instead of once at the start. It does not replace them; a
+  subagent never sees an output style. Say that it starts on the owner's next
+  session. See `output-styles/README.md`.
 - When v3 ran, the memory schema is the one exception to thin. Copy the full
   section from the second-brain plugin's `references/orientation-snippet.md`
   **verbatim** into BOTH CLAUDE.md and AGENTS.md, at the **top** of each file,
