@@ -655,6 +655,52 @@ remains supported.`
 Writing `Manual invoice retries are required` based only on legacy code, or
 stamping `Basis: Owner-confirmed` on a conclusion the owner never saw.
 
+## Repetition
+
+### Purpose
+
+Separate the repetition that keeps the system navigable from the repetition
+that creates a second version to drift.
+
+### Use when
+
+You are about to write something another document already owns.
+
+### Do not use when
+
+The content has no home yet. Then this document is the home.
+
+### Requirement
+
+Three kinds of repetition, three different answers:
+
+1. **A second copy of the content.** Not allowed. Write the pointer instead of
+   the copy. `Relationships` item 5 makes that link mandatory.
+2. **A deliberate copy an agent must have before it can open anything.** The
+   routing schema in `CLAUDE.md` and `AGENTS.md` is the example. Allowed only
+   for that reason, only where the system requires it, and only when the copy
+   says it is a copy, names its canonical home, is updated in the same change,
+   and loses to that home on disagreement.
+3. **A one-sentence description of where content lives.** Required. That is
+   what an index entry and a link's reason line are, and it is not a copy.
+
+Finding an existing duplicate is not authority to delete it. Report it and
+propose the repair, because removing durable information is a visible change.
+
+### Authority
+
+The canonical home stays canonical. A pointer, a labeled copy, or a
+one-sentence description never becomes a second authority.
+
+### Good
+
+`The reset window is set by the reset-token lifetime decision.`
+
+### Avoid
+
+Restating the window and its rationale in a knowledge document, so a later
+change to the decision leaves two answers and no way to tell which is current.
+
 ## Relationships
 
 ### Purpose
@@ -679,10 +725,13 @@ Optional. Only these links are mandatory:
 1. a specification and every brainstorm that informed it, both directions;
 2. a superseded document and its replacement, both directions;
 3. a canonical capability `README.md` and each supporting specification file,
-   both directions; and
-4. the nearest index to every durable document it owns, one direction.
+   both directions;
+4. the nearest index to every durable document it owns, one direction; and
+5. the canonical home of any definition or approved behavior this document
+   would otherwise restate, one direction. See `Repetition`.
 
-No empty `Related` section is required.
+No empty `Related` section is required. Item 5 exists because the alternative
+is a second copy that drifts, not because the corpus should look connected.
 
 ### Authority
 
@@ -695,6 +744,11 @@ matters.
 - **Governed by:** [Ownership decision](../../../memory/decisions/assignment/ownership.md)
   - Explains why reassignment preserves the original owner.
 ```
+
+Labels are plain description, not a fixed vocabulary. `Governed by`, `Grounded
+in`, `Constrains`, `Supports`, `Affects`, `Used by`, `Informed by`, `Delivered
+through`, `Supersedes`, and `Superseded by` are labels that have proved useful.
+Write a clearer one when one exists.
 
 ### Avoid
 

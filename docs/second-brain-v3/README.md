@@ -1,6 +1,6 @@
 # Second-brain v3
 
-Status: current shipped design for second-brain plugin v1.0.0. Adoption in each
+Status: current shipped design for the second-brain plugin. Adoption in each
 project remains opt-in and owner-approved.
 
 Second-brain v3 is a shared project memory and knowledge system for Claude and
@@ -163,9 +163,11 @@ The detailed schema and operating instructions have one canonical project home:
 .claude/rules/second-brain.md
 ```
 
-Both `CLAUDE.md` and `AGENTS.md` contain a short folder map and tell their agent
-to read that shared rule. This gives both platforms immediate orientation
-without maintaining three copies of the complete instructions.
+Both `CLAUDE.md` and `AGENTS.md` carry the routing schema in full and tell their
+agent to read that shared rule for everything else. Routing has to work before
+an agent opens another file, and Codex reads only `AGENTS.md`, so that one part
+is copied on purpose. Both root sections change in the same commit as the rule,
+and the rule wins if they ever disagree.
 
 The dedicated memory agent reads the same shared rule and the relevant project
 indexes. Its reusable role instructions live at

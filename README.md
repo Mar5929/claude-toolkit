@@ -145,6 +145,7 @@ claude-toolkit/
     second-brain-v3/              ← current shipped memory and knowledge specification
   tests/
     orphan-check.mjs              ← fails if the toolkit ships a file nothing points at
+    link-check.mjs                ← fails if a Markdown link points at a file that is gone
   archive/
     second-brain-v1/              ← retired implementation, outside installable plugins
 ```

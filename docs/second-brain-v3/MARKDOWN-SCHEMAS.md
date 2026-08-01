@@ -1,6 +1,6 @@
 # Second-brain v3 Markdown schemas
 
-Status: current schemas for second-brain plugin v1.0.0.
+Status: current schemas for the second-brain plugin.
 
 These are human-readable document shapes, not machine-enforced record schemas.
 Agents adapt headings when clearer language helps the project. They preserve
@@ -135,9 +135,9 @@ This area owns sign-in, account access, and recovery behavior.
 
 ## Capabilities
 
-| Capability | What it defines | Status |
-|---|---|---|
-| [Password reset](password-reset/README.md) | Reset request and completion behavior | Current |
+| Capability | What it defines |
+|---|---|
+| [Password reset](password-reset/README.md) | Reset request and completion behavior |
 
 ## Related area indexes
 
@@ -902,7 +902,8 @@ Only instructions explicitly labeled mandatory are mandatory.
 - **Do not use when:** The documents merely share a folder or topic, the link
   adds no useful context, or it exists only to make the graph look complete.
 - **Requirement:** Optional except for the narrow structural cases explicitly
-  declared mandatory in the technical specification.
+  declared mandatory in the technical specification, and for the canonical home
+  of anything this document would otherwise restate.
 - **Authority:** A link does not copy or transfer authority. Its prose explains
   how the destination matters.
 - **Good:** `**Governed by:** [Ownership decision](...)`, followed by the
@@ -914,10 +915,14 @@ The complete mandatory link set is:
 1. specification and informing brainstorm, both directions;
 2. superseded document and replacement, both directions;
 3. canonical specification `README.md` and each supporting specification file,
-   both directions; and
-4. nearest index to every durable document it owns, one direction only.
+   both directions;
+4. nearest index to every durable document it owns, one direction only; and
+5. the canonical home of any definition or approved behavior this document would
+   otherwise restate, one direction only.
 
-No other `Related` section, link, or backlink is mandatory.
+No other `Related` section, link, or backlink is mandatory. Item 5 exists
+because the alternative is a second copy that drifts, not because the corpus
+should look connected.
 
 If adding a backlink requires editing another document, the memory librarian
 may perform that routine link maintenance within the approved content update.

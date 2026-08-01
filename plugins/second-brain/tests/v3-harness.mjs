@@ -21,7 +21,8 @@ const templates = resolve(references, "templates");
 let passed = 0;
 
 function read(path) {
-  return readFileSync(resolve(root, path), "utf8");
+  // Tolerate Windows line endings: a checkout with core.autocrlf on has \r\n.
+  return readFileSync(resolve(root, path), "utf8").replace(/\r\n/g, "\n");
 }
 
 function readAbsolute(path) {
@@ -404,5 +405,89 @@ includes(
   "memory librarian must write the basis line",
 );
 includes(orientation, "Project memory and knowledge", "orientation is present");
+
+// A memory document that has nowhere to put a link restates what it should
+// have pointed at. Each memory template must end with a Related slot.
+const relatedSlots = [
+  ["<Where it applies and does not apply.>", "context"],
+  ["  - Current status remains in the work tracker.", "planning"],
+  ["- <What this enables, constrains, or requires.>", "decision"],
+  ["<Where future work should use it and its limits.>", "knowledge"],
+  ["<What it does not prove or what may change.>", "reference"],
+  ["- <Easy-to-misunderstand case.>", "domain"],
+  ["- <How to stop, reverse, or recover.>", "operations"],
+];
+
+for (const [lastLine, type] of relatedSlots) {
+  includes(
+    schemas,
+    `${lastLine}\n\n## Related`,
+    `${type} template ends with a Related slot`,
+  );
+}
+
+includes(
+  schemas,
+  "not a\nfixed vocabulary",
+  "schemas keep relationship labels open",
+);
+includes(
+  rule,
+  "## Repetition",
+  "rule owns one home for what to do about repetition",
+);
+includes(
+  rule,
+  "would otherwise restate",
+  "rule makes the anti-duplication link mandatory",
+);
+includes(
+  rule,
+  "Labels are plain description, not a fixed vocabulary",
+  "rule lists example labels without minting a vocabulary",
+);
+includes(
+  role,
+  "otherwise restate, one direction",
+  "librarian carries the fifth mandatory link",
+);
+includes(
+  role,
+  "is a copy of `Relationships`",
+  "librarian labels its copy of the mandatory link list",
+);
+includes(
+  orientation,
+  "`Repetition` in",
+  "root orientation points at the repetition rule",
+);
+
+// The design docs once said the routing schema is never copied into the root
+// files, while the shipped system copies it on purpose. Two documents that
+// disagree are the exact failure the repetition rule exists to prevent.
+const designDocs = [
+  ["docs/second-brain-v3/README.md", "without maintaining three copies"],
+  [
+    "docs/second-brain-v3/TECHNICAL-SPECIFICATION.md",
+    "complete schema is not copied",
+  ],
+  [
+    "docs/second-brain-v3/TOOLKIT-INTEGRATION.md",
+    "full schema is not copied into root files",
+  ],
+];
+
+for (const [doc, contradiction] of designDocs) {
+  excludes(doc, contradiction, `${doc} matches the shipped root-file copy`);
+}
+
+for (const doc of [
+  "docs/second-brain-v3/README.md",
+  "docs/second-brain-v3/TECHNICAL-SPECIFICATION.md",
+  "docs/second-brain-v3/TOOLKIT-INTEGRATION.md",
+  "docs/second-brain-v3/MARKDOWN-SCHEMAS.md",
+]) {
+  excludes(doc, "plugin v1.", `${doc} carries no stale plugin version`);
+}
 
 console.log(`ALL PASS (${passed} checks), FAIL: 0`);

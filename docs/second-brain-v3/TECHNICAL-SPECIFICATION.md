@@ -1,6 +1,6 @@
 # Second-brain v3 technical specification
 
-Status: current specification for second-brain plugin v1.0.0.
+Status: current specification for the second-brain plugin.
 
 This document defines shipped v3 behavior. Installing the plugin does not
 change a project automatically. Each greenfield setup, brownfield adoption, and
@@ -402,17 +402,21 @@ shared and not Claude-specific.
 
 ### 6.2 Root orientation
 
-`CLAUDE.md` and `AGENTS.md` each contain a short, equivalent section that:
+`CLAUDE.md` and `AGENTS.md` each contain the same section that:
 
 1. tells the agent to read `.claude/rules/second-brain.md`;
-2. identifies `brainstorms/`, `specs/`, and all seven memory types;
+2. carries the authority map and, for every home, when to use it and when not
+   to;
 3. points to their root indexes;
 4. identifies work-tracker as the owner of live task state; and
 5. reminds the agent that approved durable updates use the memory agent.
 
-The complete schema is not copied into both root files. If a root summary and
-the canonical rule disagree, the agent reports the inconsistency rather than
-silently choosing one.
+The routing schema is copied into both root files on purpose, and nothing else
+is. An agent has to route correctly before it opens another file, and Codex
+reads only `AGENTS.md`. Any change to the authority map, the homes, or the
+document contract updates both root files in the same change. If a root section
+and the canonical rule disagree, the rule wins and the agent reports the
+inconsistency rather than silently choosing one.
 
 ### 6.3 Memory-agent role
 
@@ -767,6 +771,9 @@ Only these links are mandatory:
    specification file, and each supporting file links back to the canonical
    `README.md`.
 4. The nearest index links one-way to every durable document it owns.
+5. A document links one-way to the canonical home of any definition or approved
+   behavior it would otherwise restate. The link is owed precisely because the
+   copy was not written.
 
 All other relationships are optional. If a reciprocal link requires editing
 another file, the memory librarian may include that routine link maintenance

@@ -106,15 +106,26 @@ reading of code or field names and nobody confirmed the meaning, the value is
 `Inferred, unconfirmed`, even though the owner approved filing it. Ask the main
 agent when the basis is unclear rather than guessing a stronger one.
 
+The next list is a copy of `Relationships` in `.claude/rules/second-brain.md`,
+kept in step with it so you can act before opening another file. The rule wins
+if they disagree.
+
 Only these links are mandatory:
 
 1. specification and informing brainstorm, both directions;
 2. superseded document and replacement, both directions;
 3. canonical capability `README.md` and each supporting specification file,
-   both directions; and
-4. nearest index to every durable document it owns, one direction.
+   both directions;
+4. nearest index to every durable document it owns, one direction; and
+5. the canonical home of any definition or approved behavior the document would
+   otherwise restate, one direction.
 
 Do not add other backlinks merely to make the corpus look complete.
+
+Within the approved content, do not write a second copy of something another
+document owns. Link to the owner instead. When an existing document already
+holds such a copy, report it to the main agent rather than deleting it, because
+removing durable information needs a visible approved proposal.
 
 ## Report to the main agent
 

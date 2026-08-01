@@ -64,7 +64,9 @@ down here, it is not remembered.
 | What is active, next, blocked, assigned, or landed? | The work tracker |
 | What did an earlier version say? | Git history |
 
-Link to the one home. Never copy a second version that can drift.
+Link to the one home. Never copy a second version that can drift. When you are
+about to write something another document already owns, `Repetition` in
+`.claude/rules/second-brain.md` says what to do instead.
 
 ### When to use each home, and when not to
 

@@ -1,6 +1,6 @@
 # Second-brain v3 toolkit integration
 
-Status: current toolkit integration for second-brain plugin v1.0.0.
+Status: current toolkit integration for the second-brain plugin.
 
 This document defines how the approved v3 design fits the reusable toolkit.
 The plugin ships the system, while each client-project adoption remains a
@@ -164,21 +164,23 @@ flowchart TD
     K --> L[Same task worktree]
 ```
 
-### 2.1 Why the full schema is not copied into root files
+### 2.1 What the root files carry and what the shared rule carries
 
-Every session needs a visible map. It does not need the complete schema copied
-three times.
+Every session has to route correctly before it opens anything, and Codex reads
+only `AGENTS.md`. So the routing schema is copied into both root files in full:
+the authority map, and for every home its purpose, when to use it, and when not
+to.
 
-The root files contain short, equivalent routing sections. The shared rule
-contains detailed behavior. Folder indexes contain the project's actual
-content map.
+The shared rule carries everything else. For every document type, relationship,
+index, supporting file, and optional metadata element, it explains the purpose,
+when to use it, when not to use it, whether it is mandatory or optional, its
+authority boundary, and good versus unnecessary examples. Folder indexes carry
+the project's actual content map.
 
-For every document type, relationship, index, supporting file, and optional
-metadata element, the shared rule explains its purpose, when to use it, when
-not to use it, whether it is mandatory or optional, its authority boundary, and
-good versus unnecessary examples.
-
-This keeps `CLAUDE.md` and `AGENTS.md` useful while preventing schema drift.
+The copy is a real maintenance cost, accepted on purpose so the routing is never
+one file-open away. Any change to the authority map, the homes, or the document
+contract updates both root files in the same change, and the rule wins if they
+disagree.
 
 ### 2.2 Why the memory agent has a project role file
 
