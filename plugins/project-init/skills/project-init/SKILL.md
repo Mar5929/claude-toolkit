@@ -262,12 +262,13 @@ list.
 - **Install the plain-language output style** (default ON). Copy
   `references/output-styles/plain-language.md` to the project's
   `.claude/output-styles/`, and set `"outputStyle": "plain-language"` in the
-  project's committed `.claude/settings.json`. It is the short, operative form
-  of the three voice rules, delivered through the system prompt where the
-  session gets reminded of it every turn rather than once at the start. It does
-  not replace those rule files: an output style never reaches a subagent, so the
-  rules stay. See `references/output-styles/README.md`. Tell the owner it takes
-  effect on their next session, not the current one.
+  project's committed `.claude/settings.json`. It sets the overall voice from
+  the system prompt, where the session is reminded of it every turn rather than
+  once at the start: written for a non-technical reader, jargon defined,
+  scannable, ending with the owner's actions. It is deliberately general and
+  does not replace the rule files, which stay canonical and are the only version
+  a subagent ever sees. See `references/output-styles/README.md`. Tell the owner
+  it takes effect on their next session, not the current one.
 
 ### Gate 6: Optional standalone toolkit skills
 

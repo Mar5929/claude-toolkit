@@ -229,11 +229,13 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
   into each project's `.claude/rules/` verbatim instead of retyped into CLAUDE.md.
 - [x] **Output styles library**: `project-init`'s `output-styles/` library (with
   a `README.md` index), copied into each project's `.claude/output-styles/` and
-  switched on in its settings. `plain-language.md` is default ON: it carries the
-  three voice rules in the system prompt, where the session is reminded of them
-  every turn instead of once at the start. It is the third level of the same
-  answer as the writing guard, aimed at the drift a text check cannot see. The
-  rule files stay, because an output style never reaches a subagent.
+  switched on in its settings. `plain-language.md` is default ON. It sets the
+  overall voice from the system prompt, where the session is reminded of it every
+  turn instead of once at the start: written for a non-technical reader, jargon
+  defined, scannable, and ending with what I have to do. It stays deliberately
+  general. Specific rules stay in `general-rules/`, where they are canonical, and
+  the checkable ones stay in the writing guard, which enforces them. The rule
+  files stay regardless, because an output style never reaches a subagent.
 - [ ] **Publish tooling**: a small script/checklist to export skills to the
   Claude desktop and web apps so those surfaces stay in sync with this repo.
 - [ ] **"Port-back" convention**: a documented flow (and a reminder baked into

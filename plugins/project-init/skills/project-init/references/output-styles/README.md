@@ -34,16 +34,18 @@ subagent loses the guidance.
 
 | File | What it does |
 |---|---|
-| `plain-language.md` | Lead with the answer, cut what the owner would not act on, never cut a fact, no filler, assume no technical background, and put their next action last. The short operative form of `general-rules/writing-and-language.md`, `how-to-reply.md`, and `treat-owner-as-non-technical.md`. Sets `keep-coding-instructions: true`, so normal coding behavior is untouched. |
+| `plain-language.md` | Four general directives: the owner is not technical, no undefined jargon, plain and simple language, visually clear replies built from lists, and the owner's actions at the end. Sets `keep-coding-instructions: true`, so normal coding behavior is untouched. |
 
-**Two things that file does on purpose.** It stays short, because every line in
-it is a line that can fall out of step with the rule it came from, and it names
-the rules as canonical in its last paragraph, so a session that spots a conflict
-resolves it the right way. It also states outright that explaining clearly
-outranks being brief. A style is re-stated to the session every turn while the
-rules are read once, so "be brief" would otherwise get the louder voice and
-crowd out the non-technical owner's explanation. That would trade a real problem
-for a worse one.
+**Why that file is short and general.** It carries directives, not a rule list.
+Every specific rule copied into a style is a line that can fall out of step with
+the rule it came from, and the specific ones are already covered better
+elsewhere: `general-rules/` holds the complete wording, and the `writing-guard`
+hook mechanically catches the literal misses (em dashes, section signs, filler
+openers). A style earns its place by setting the overall voice, so it should say
+the few things that shape every reply and stop.
+
+It also names the rules as canonical in its last line, so a session that spots a
+conflict resolves it the right way.
 
 ## Default ON
 
