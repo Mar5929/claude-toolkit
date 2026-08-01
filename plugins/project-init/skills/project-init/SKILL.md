@@ -146,9 +146,10 @@ messages anyway; a rule applied once per message needs a check, not a reminder.
 Say the cost too: when it fires the turn takes slightly longer, because the
 reply is written twice.
 
-> Other reusable guards (secret-scan, session-start orientation) are still
-> planned for the `hooks-library` plugin. Until they land, author any other hook
-> for the project directly.
+> Other reusable hooks (secret-scan, session-start orientation, and starting the
+> durable-memory review once a pull request opens) are still planned for the
+> `hooks-library` plugin. Until they land, author any other hook for the project
+> directly. A hook may enforce a rule or start a review; no hook writes memory.
 
 ### Gate 3: Memory system
 
@@ -176,8 +177,10 @@ and Codex share approved specifications and durable project knowledge.
 - Offer the initial memory pass after installation. The main agent proposes
   useful initial context, planning, and already-approved specifications; the
   dedicated memory librarian writes only what the owner approves.
-- Never add a database, memory MCP server, embeddings, runtime scripts, memory
-  hooks, transcript capture, or background curator.
+- Never add a database, memory MCP server, embeddings, transcript capture, or
+  background curator. The memory core installs no hooks of its own; a hook that
+  enforces a rule or starts a review comes from Gate 2 and the `hooks-library`
+  plugin. No hook writes memory.
 - Never read or import retired v1 Worker, Neon, curator, outbox, or cache
   content.
 

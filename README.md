@@ -46,7 +46,7 @@ written down somewhere. It gets fitted into the system:
 |---|---|
 | A rule every project should follow (behavior, writing style, workflow) | Its own file in the `general-rules/` library, copied into each new project's `.claude/rules/` |
 | A setup step for new projects | A gate (or part of one) in the `project-init` skill |
-| A guard hook or automation | The [`hooks-library`](plugins/hooks-library/README.md) plugin, if the rule is checkable with no interpretation; otherwise it stays a rule |
+| A guard hook or automation | The [`hooks-library`](plugins/hooks-library/README.md) plugin. A hook does one of three jobs: check an output against a rule a machine can test with no interpretation, trigger a process at a moment agents forget, or orient a session at its start. If it needs none of those, it stays a rule |
 | A whole reusable system | Its own plugin/skill that `project-init` offers |
 
 `CLAUDE.md` in this repo gives agents the full instructions for handling these
@@ -197,9 +197,9 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
   owner approves, selects, edits, combines, defers, or skips proposals in
   normal language. An on-demand memory librarian writes only the approved
   changes in the task's worktree and pull request. There is no fixed proposal
-  limit. The system requires no database, MCP server, runtime scripts, memory
-  hooks, embeddings, transcript capture, background curation, or scheduled
-  jobs. The current shipped specification is indexed in
+  limit. The system requires no database, MCP server, embeddings, transcript
+  capture, background curation, or scheduled jobs, and no hook ever writes
+  memory. The current shipped specification is indexed in
   [`docs/second-brain-v3/`](docs/second-brain-v3/README.md), and the plugin
   ships the rule, memory-librarian role, templates, setup, sync, and remember
   workflows. The old v2 proposal is superseded.

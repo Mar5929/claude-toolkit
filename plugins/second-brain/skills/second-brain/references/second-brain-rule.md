@@ -5,7 +5,12 @@ the main agent, and the memory librarian all use it.
 
 The committed Markdown files and Git history are the system. There is no
 separate memory database, MCP memory server, embedding index, transcript store,
-capture hook, review hook, or background curator.
+or background curator.
+
+Nothing reaches memory automatically. Every durable write is approved by the
+owner and performed by the memory librarian. A hook may enforce a rule or start
+a review at the right moment. A hook never decides what is true, writes a
+document, or approves its own proposal.
 
 ## Authority map
 
@@ -78,9 +83,12 @@ Review for durable updates only:
 Do not require a review merely because:
 
 - unfinished work is handed to another session;
-- a response or commit ends;
-- a trivial action finishes; or
-- a hook or timer fires.
+- a response or commit ends; or
+- a trivial action finishes.
+
+A hook may start the review at one of the completion points above. That is the
+hook doing the remembering, not a new trigger: the review it starts is the same
+review, and the owner still approves every proposal it produces.
 
 Ask:
 

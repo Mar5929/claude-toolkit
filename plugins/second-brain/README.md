@@ -104,12 +104,17 @@ and unknowns whenever confusing them could mislead future work.
 - database, Worker, or hosted memory service;
 - memory MCP server;
 - embeddings or semantic search;
-- runtime scripts or hooks for capture, recall, review, or placement;
+- hooks or scripts that capture, recall, place, or write memory;
 - transcript or per-message capture;
 - background, scheduled, or autonomous curation;
 - deterministic classification or approval parsing;
 - mandatory YAML, tags, sources, aliases, or fixed proposal counts; or
 - automatic Git, pull-request, merge, or deployment actions.
+
+A hook from the `hooks-library` plugin may enforce a rule or start the durable
+review at a completion point. That is the hook doing the remembering an agent
+skips. The owner still approves every proposal, and the memory librarian still
+does every write.
 
 ## Archived v1
 

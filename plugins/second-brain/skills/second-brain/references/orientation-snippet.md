@@ -43,9 +43,10 @@ before any structural change to these folders, and whenever the routing below
 does not clearly settle where something goes.
 
 The committed Markdown files and Git history **are** the system. There is no
-memory database, memory server, embedding index, transcript store, capture hook,
-or background curator. Nothing is remembered automatically. If it is not written
-down here, it is not remembered.
+memory database, memory server, embedding index, transcript store, or background
+curator. Nothing is remembered automatically. If it is not written down here, it
+is not remembered. A hook may remind you of a rule or start a review, and never
+writes memory itself.
 
 ### Authority map: one truth, one home
 

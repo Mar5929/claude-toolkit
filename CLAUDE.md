@@ -19,7 +19,7 @@ write X down somewhere. Fit it into the system:
    | --- | --- |
    | A rule for how agents behave, write, or work in every project | A new file in `plugins/project-init/skills/project-init/references/general-rules/`; also add a row to that folder's `README.md` index (default ON or conditional) |
    | A setup step for new projects | Into the right gate in `plugins/project-init/skills/project-init/SKILL.md` and `references/setup-flow.md` (or propose a new gate) |
-   | A guard hook or automation | The shared hooks library. Until that library exists, record it in the README roadmap with enough detail to build it later |
+   | A guard hook or automation | The `hooks-library` plugin. A hook checks an output, triggers a process agents forget to run, or orients a session at its start; if it needs none of those, it stays a rule |
    | A whole reusable system | A new plugin under `plugins/`, each with its own `README.md`, registered in `.claude-plugin/marketplace.json`, offered by `project-init`, and listed in `docs/toolkit-map.md` |
 
 2. **Clean up the language, keep the intent.** Mike describes things loosely;

@@ -515,9 +515,12 @@ The review does not run merely because:
 
 - an unfinished task is handed to another session;
 - a chat response ends;
-- a commit is created;
-- a trivial action completes; or
-- a hook or timer fires.
+- a commit is created; or
+- a trivial action completes.
+
+A hook may start the review at one of the completion points in section 8.2. It
+changes when the review is remembered, not when it is due, and the owner still
+approves every proposal it produces.
 
 ### 8.4 Review questions
 
@@ -757,7 +760,7 @@ the signal directly. The memory agent does not add arbitrary review cadences.
 After the date passes or the event occurs, an agent verifies the information
 before relying on it when the current task depends on it. The signal does not
 automatically make the document false, expired, or superseded. It schedules no
-hook, background agent, or automated write.
+background agent or automated write.
 
 ### 10.5 Mandatory structural links
 
@@ -987,8 +990,8 @@ V3 is ready to ship only when:
     concurrency service.
 22. Current specifications show current behavior, Git retains exact history,
     and decision records preserve only important rationale.
-23. The core requires no database, memory MCP server, capture or review hooks,
-    scripts, embeddings, transcript capture, or scheduled curation.
+23. The core requires no database, memory MCP server, embeddings, transcript
+    capture, or scheduled curation, and installs no hooks of its own.
 24. Installation and sync explain exact proposed changes before acting.
 
 ## 18. Explicit exclusions
@@ -997,7 +1000,7 @@ V3 does not include:
 
 - a database, Worker, hosted memory service, or memory MCP server;
 - embeddings, semantic retrieval, or a generated knowledge graph;
-- runtime scripts or hooks for capture, recall, review, or placement;
+- hooks or scripts that capture, recall, place, or write memory;
 - transcript collection or per-message memory;
 - a background or autonomous curator;
 - deterministic classification or natural-language parsing;
@@ -1005,6 +1008,11 @@ V3 does not include:
 - a fixed proposal count;
 - automatic Git or deployment actions; or
 - a replacement for work-tracker.
+
+A hook that enforces a rule or starts the durable review at a completion point
+is not excluded. It writes no memory and approves nothing, so every approval
+boundary in this specification holds unchanged. Such hooks ship from the
+`hooks-library` plugin, not from the memory core.
 
 Graphify or another repository-analysis tool may assist a separately approved
 brownfield mapping exercise. It is not required by v3 and its output is not

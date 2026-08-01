@@ -98,9 +98,28 @@ the owner a wasted turn every time it fires. Two real false positives were
 caught this way during development, where "great" matched the start of "Greatly
 improved throughput" and "perfect" matched "Perfectly reasonable".
 
+## What a hook is for
+
+Three jobs, and the admission bar is different for each.
+
+| Job | What it does | Bar |
+|---|---|---|
+| **Check** | Tests a finished output against a rule. `writing-guard`. | The rule must be checkable with no interpretation. If the check has to guess at intent it does not go here, because a wrong block costs the owner a turn. |
+| **Trigger** | Fires a process at a moment agents forget, such as starting the durable-memory review once a pull request opens. | The firing must need no judgement. What happens next is an agent's job and may need plenty. |
+| **Orient** | Puts the installed rules in front of a session at its start. | The rules must already exist and be canonical. The hook shows them; it does not restate or reinterpret them. |
+
+The original bar, "checkable with no interpretation," is the **check** bar only.
+Applying it to the other two would rule out every hook that fires a process,
+since firing is not a judgement about content at all.
+
+What no hook here may do: decide what is true, write durable memory, or approve
+its own proposal. A trigger hook starts the review that produces proposals; the
+owner still answers them and the memory librarian still does the writing. That
+boundary is what lets second-brain use hooks without reopening the failure that
+retired v1, where hooks wrote memory on their own.
+
 ## Adding a hook here
 
-A hook belongs in this library when the rule it enforces is checkable with no
-interpretation, and when getting it wrong is cheap to recover from. If a check
-needs to guess at intent, it does not go here; it stays a rule and an agent
-applies judgement to it.
+Name the job it does from the table above and meet that job's bar. Getting it
+wrong must be cheap to recover from. If it fits none of the three, it stays a
+rule and an agent applies judgement to it.
