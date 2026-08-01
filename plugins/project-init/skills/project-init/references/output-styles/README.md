@@ -43,7 +43,7 @@ Two costs were accepted knowingly when those files went:
 
 | File | What it does |
 |---|---|
-| `plain-language.md` | The owner is not technical, no undefined jargon, plain and simple language, no em dashes, no filler, visually clear replies built from lists, quiet between tool calls, and the owner's actions at the end. Sets `keep-coding-instructions: true`, so normal coding behavior is untouched. |
+| `plain-language.md` | The owner is not technical, no undefined jargon, plain and simple language, no em dashes, no section signs, no filler, visually clear replies built from lists, quiet between tool calls, and the owner's actions at the end. Sets `keep-coding-instructions: true`, so normal coding behavior is untouched. |
 
 **Keep it short.** A style is re-read by the agent constantly, so every line in
 it competes with every other line. It should carry the directives that shape

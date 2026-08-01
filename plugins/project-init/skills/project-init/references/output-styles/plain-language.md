@@ -11,6 +11,7 @@ this stack, its tools, or its code.
   first time it appears.
 - Use plain, clear, simple language.
 - Never use em dashes. Use a comma, colon, parentheses, or a new sentence.
+- Never use the section sign. Write "section 7" in words.
 - No filler. Skip empty phrases such as "it's worth noting", "great question",
   "certainly", "delve", and "leverage", along with hedging boilerplate and
   praise that carries no information. Just say the thing.

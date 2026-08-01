@@ -265,8 +265,8 @@ list.
   `.claude/output-styles/`, and set `"outputStyle": "plain-language"` in the
   project's committed `.claude/settings.json`. This is the project's only home
   for how Claude talks: written for a non-technical reader, jargon defined, no
-  em dashes, no filler, replies built from lists, quiet between tool calls, and
-  the owner's actions at the end. There are no voice rules in `.claude/rules/`
+  em dashes, no section signs, no filler, replies built from lists, quiet
+  between tool calls, and the owner's actions at the end. There are no voice rules in `.claude/rules/`
   any more; do not write one. Pair it with the `style-reminder` hook from Gate
   2, which re-states the style on every message so it does not go stale in a
   long session. See `references/output-styles/README.md`. Tell the owner it

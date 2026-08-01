@@ -232,8 +232,8 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
   a `README.md` index), copied into each project's `.claude/output-styles/` and
   switched on in its settings. `plain-language.md` is default ON, and it is now
   the only home for how Claude talks to me: written for a non-technical reader,
-  jargon defined, no em dashes, no filler, replies built from lists, quiet
-  between tool calls, and my actions at the end. The three voice rules it
+  jargon defined, no em dashes, no section signs, no filler, replies built from
+  lists, quiet between tool calls, and my actions at the end. The three voice rules it
   replaced (`writing-and-language`, `how-to-reply`,
   `treat-owner-as-non-technical`) were deleted, and the `writing-guard` hook
   went with them. `general-rules/` now covers how Claude *works*, not how it
