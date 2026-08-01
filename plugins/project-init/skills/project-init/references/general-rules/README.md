@@ -22,8 +22,6 @@ structure Gate 5 writes.
 | `secrets-never-committed.md` | API keys and credentials live outside the repo. Never commit them; respect `.gitignore`; raise it if a secret would have to be committed. |
 | `honest-verification.md` | Do not claim more than you verified. If it was not run or tested, say so and leave the steps. Report failures with output. |
 | `parallel-agent-sessions.md` | Sharing a repo with other live sessions, in one rule: where you work and how you behave. Look before you edit (`git worktree list`, `git status`, `git log`); work in your own worktree on your own branch and never in the shared primary checkout; never `git add -A`; shared index files are append-only; claim a sequential identifier by pushing it first, because parallel agents WILL collide on numbers; never touch another session's branch or commit its uncommitted work; land by PR, merge only on owner approval and only after a collision check. Written after one session caused a work-item number collision, had its staged files swept into another session's commit twice, and reordered a shared backlog. Absorbed the separate `worktree-isolation` rule. |
-| `writing-and-language.md` | Plain language everywhere: no em dashes, no section signs, no AI filler, calibrated to the owner. |
-| `how-to-reply.md` | The whole shape of a reply, in one rule. Stay quiet while working (one short line per real state change, silence otherwise); put the entire explanation in one reply at the end, written as though the owner read nothing before it; lead with the answer and cut preamble and closing summaries; spend only the words the point needs, but never cut a fact; bullets by default for reporting; never ask a question in prose, because plain chat text does not block, so real decisions go through the blocking question box; and put the owner's next action last, or say "nothing needed from you". A repeated ask for fewer words is a hard constraint, not a preference. Replaces the four separate rules that used to split this (`lead-with-the-answer`, `close-with-the-ask`, `quiet-while-working`, `answer-last-question-box`). |
 | `recommend-the-best-solution.md` | Build it well, and never quietly build more than was asked. Propose the well-architected, best-practice solution rather than a band-aid, and name the quick-patch tradeoff so the owner can choose. Do not expand beyond the request without checking first. The two halves meet in one move: recommending the bigger thing is right, building it unasked is gold-plating. Once the owner decides, do it their way. Absorbed the separate `stay-in-scope` rule. |
 | `define-your-terms.md` | Name the exact thing and define it on first use. No invented shorthand; no bare "option B" / "risk 1". |
 | `ask-before-assuming.md` | Two pauses, both before acting: when intent, naming, behavior, or scope is ambiguous, ask one specific question rather than picking the reading that lets you start sooner; and before an operation that reads or produces a lot, state the rough scope and get a go-ahead. |
@@ -32,16 +30,22 @@ structure Gate 5 writes.
 | `do-the-technical-work.md` | Do the git/config/deploy/file work yourself. Only hand the owner steps that are genuinely only-they, and make those copy-paste simple. Recommend, do not dump raw choices. |
 | `work-item-folders.md` | Use the Git-native work-tracker as the task authority: one folder per item, exact handoffs, typed relationships, Git landing proof, generated views, and safe adoption of older manual folders. |
 | `show-phase-progress.md` | When work splits into phases, print a one-line progress bar at every transition and when the last phase finishes. |
-| `treat-owner-as-non-technical.md` | Assume no technical background: numbered steps, exact commands, say what success looks like, never hand back raw errors. Also covers REPORTING: explain what you did in plain words, not just what to do. Turn off only for a technical owner. |
 
-The `plain-language` output style in `../output-styles/` sets the overall voice
-from the system prompt, where a session is reminded of it every turn rather than
-once at the start. It is not a copy of the voice rules here
-(`writing-and-language.md`, `how-to-reply.md`,
-`treat-owner-as-non-technical.md`), and it must not become one. It carries four
-general directives; every specific rule stays in this folder, which is canonical
-and is the only version a subagent ever sees. Keep new specifics out of the
-style, so editing a rule here does not silently leave a stale copy there.
+## Voice is not a rule any more
+
+How Claude writes and replies used to live here in three files:
+`writing-and-language.md`, `how-to-reply.md`, and
+`treat-owner-as-non-technical.md`. They were removed. That job now belongs to
+the `plain-language` output style in `../output-styles/`, which is delivered
+through the system prompt and re-stated every turn by the `style-reminder` hook,
+instead of being read once as a rule file.
+
+Do not add a voice rule to this folder. If Claude should say something
+differently, the change goes in the output style. This folder is for how Claude
+*works*, not how it *talks*.
+
+One consequence to know: an output style never reaches a subagent, so a helper
+agent no longer inherits the voice guidance. That was accepted deliberately.
 
 ## Conditional: copy only when the project has the thing the rule governs
 

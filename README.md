@@ -217,10 +217,11 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
   or links a Project with the six standard statuses and repository issues
   labeled bug, enhancement, or task.
 - [x] **Shared hooks library**: now the `hooks-library` plugin. Ships
-  `writing-guard`, a Stop hook that catches em dashes, section signs, and filler
-  openers in the finished reply and sends it back to be rewritten. Built after
-  measuring real transcripts found those rules broken in a quarter to over half
-  of all messages despite being stated in several places. Still to come:
+  `style-reminder`, a hook that puts the project's output style back in front of
+  Claude every time I send a message, so the writing instructions are never
+  stale hours into a session. It replaced `writing-guard`, a Stop hook that read
+  the finished reply and blocked em dashes, section signs, and filler openers,
+  which retired alongside the voice rules it enforced. Still to come:
   secret-scanning and a SessionStart orientation hook. The Salesforce
   production-org and permission set guards continue to install from
   `project-init` Gate 2.
@@ -229,13 +230,15 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
   into each project's `.claude/rules/` verbatim instead of retyped into CLAUDE.md.
 - [x] **Output styles library**: `project-init`'s `output-styles/` library (with
   a `README.md` index), copied into each project's `.claude/output-styles/` and
-  switched on in its settings. `plain-language.md` is default ON. It sets the
-  overall voice from the system prompt, where the session is reminded of it every
-  turn instead of once at the start: written for a non-technical reader, jargon
-  defined, scannable, and ending with what I have to do. It stays deliberately
-  general. Specific rules stay in `general-rules/`, where they are canonical, and
-  the checkable ones stay in the writing guard, which enforces them. The rule
-  files stay regardless, because an output style never reaches a subagent.
+  switched on in its settings. `plain-language.md` is default ON, and it is now
+  the only home for how Claude talks to me: written for a non-technical reader,
+  jargon defined, no em dashes, no filler, replies built from lists, quiet
+  between tool calls, and my actions at the end. The three voice rules it
+  replaced (`writing-and-language`, `how-to-reply`,
+  `treat-owner-as-non-technical`) were deleted, and the `writing-guard` hook
+  went with them. `general-rules/` now covers how Claude *works*, not how it
+  *talks*. The accepted cost: helper agents never see an output style, so they
+  no longer inherit the voice guidance, and nothing checks a finished reply.
 - [ ] **Publish tooling**: a small script/checklist to export skills to the
   Claude desktop and web apps so those surfaces stay in sync with this repo.
 - [ ] **"Port-back" convention**: a documented flow (and a reminder baked into

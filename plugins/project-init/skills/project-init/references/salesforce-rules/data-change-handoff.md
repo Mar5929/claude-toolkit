@@ -43,8 +43,8 @@ run without going back and forth:
 5. **What to do if it goes wrong.** The exact steps to load the backup file back.
 
 Write these steps in plain words, with the real file path and the real values.
-"Map the fields appropriately" is not a step. If the project treats its owner as
-non-technical, the treat-owner-as-non-technical rule applies here in full.
+"Map the fields appropriately" is not a step. Assume the owner has no technical
+background, per the project's `plain-language` output style.
 
 ## Where the files go
 

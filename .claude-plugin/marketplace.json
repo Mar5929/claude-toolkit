@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Personal, portable toolkit of reusable Claude systems: skills, rules, hooks, and templates shared across every project and device.",
-    "version": "0.46.0"
+    "version": "0.47.0"
   },
   "plugins": [
     {
@@ -32,7 +32,7 @@
     {
       "name": "hooks-library",
       "source": "./plugins/hooks-library",
-      "description": "Guard hooks that enforce the checkable toolkit rules mechanically instead of restating them. writing-guard is a Stop hook that catches em dashes, section signs, and filler openers in the final reply and sends it back to be rewritten before the owner sees it."
+      "description": "Hooks that make a rule land mechanically instead of restating it. style-reminder is a UserPromptSubmit hook that re-states the project's active output style every time the owner sends a message, so the voice instructions never go stale hours into a session."
     },
     {
       "name": "session-autoname",
