@@ -20,5 +20,7 @@ answers all of the following, in plain words:
 - **Edge cases.** The odd or unhappy situations this has to handle, and exactly
   what should happen in each one. Name the behavior, do not just name the case.
 
+You cannot start developing a ticket until the ticket has completed a "grill-me" session where the user and the AI agent (claude or codex) fully align on all the specifications listed above. During the grill-me session all the specs will be defined and written to the github ticket. When the grill-me session starts you must ensure the work item status is "Refining". When the grill-me session is completed, the "grill-me-completed" label will be applied and the work item status will be set to "Ready".
+
 Keep the ticket current while the work moves, and close it when the work lands,
 saying what actually shipped and anything that was left out.
