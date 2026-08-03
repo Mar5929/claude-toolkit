@@ -7,12 +7,12 @@ marketplace. `README.md` has the full picture; read it first.
 
 The three 'toolkit-enabled' projects so far are Anchor, Dragonfly, and Diligence Ready
 
-## Log every piece of work on the GitHub board
+## Work Item Tracking
 
-**Work tracking.** Work items for this repo live on the `Claude-Toolkit-Project`
-board on GitHub, which is connected to this repository. Every piece of work is
-logged there as an issue before it is built, and nothing is built until a
-refinement session has filled in the six-part spec.
+Work for this repo is tracked on the `Claude-Toolkit-Project` board on GitHub,
+which is connected to this repository. Every piece of work is logged there as an
+issue before it is built, and nothing is built until a refinement session has
+filled in the six-part spec.
 
 Those rules are stated once, in
 `plugins/project-init/skills/project-init/references/general-rules/spec-before-you-build.md`.
@@ -27,6 +27,9 @@ What is specific to this repo, on top of that rule:
   the issue to `Ready`. Work may start then, and not before.
 - The spec is written into the GitHub issue body, since the board holds the work
   and this repo has no `work-items/` folder.
+- The `grill-me` skill is one way to run the refinement session, and using it is
+  optional. What the rule requires is the session and the agreed spec, whether
+  that comes from the skill or from a plain conversation.
 
 ## Your main job here: fold new lessons into the toolkit
 
