@@ -13,6 +13,12 @@
  *   - action: ask  (confirm; nothing is hard-blocked)
  *   - watch:  deploys + destructive commands
  *
+ * Set action to "deny" for a project whose written rule says an agent may never
+ * deploy to production. The block message changes with the setting: on "deny" it
+ * says BLOCKED and tells the agent not to rewrite the command, because a hard
+ * block that ends with "confirm before running" reads as a prompt and invites a
+ * retry.
+ *
  * Contract (verified against https://code.claude.com/docs/en/hooks.md):
  *   stdin  = JSON { tool_name, tool_input: { command }, ... }
  *   stdout = JSON { hookSpecificOutput: { hookEventName, permissionDecision,
@@ -220,6 +226,13 @@ function main() {
   try {
     const cfg = loadConfig();
     const decision = cfg.action === 'deny' ? 'deny' : 'ask';
+    // The closing sentence has to match the decision. A "deny" that ends with
+    // "Confirm before running" reads as a prompt the agent can click through,
+    // so it invites a retry against the org the hook just refused.
+    const tail =
+      decision === 'deny'
+        ? 'BLOCKED. Ask the owner to run it, and do not rewrite the command to get around this.'
+        : 'Confirm before running.';
     const never = (cfg.neverProtect || []).map((s) => String(s).toLowerCase());
     const always = (cfg.alwaysProtect || []).map((s) => String(s).toLowerCase());
 
@@ -242,10 +255,9 @@ function main() {
       if (!allNeverProtected) {
         return emit(
           decision,
-          `Guarded: '${verb.kind}' org-delete is irreversible. ` +
-            `Confirm before running${
-              targets.length ? ` (target: ${targets.join(', ')})` : ''
-            }.`
+          `Guarded: '${verb.kind}' org-delete is irreversible${
+            targets.length ? ` (target: ${targets.join(', ')})` : ''
+          }. ${tail}`
         );
       }
     }
@@ -254,8 +266,8 @@ function main() {
     if (targets.length === 0) {
       return emit(
         cfg.unknownOrgAction === 'allow' ? 'allow' : decision,
-        `Guarded: '${verb.kind}' command with no resolvable target org. ` +
-          `Confirm this is not a production org.`
+        `Guarded: '${verb.kind}' command with no resolvable target org, ` +
+          `so it cannot be proved non-production. ${tail}`
       );
     }
 
@@ -286,7 +298,7 @@ function main() {
     return emit(
       decision,
       `Guarded '${verb.kind}' command${usedDefault ? ' (default org)' : ''}: ` +
-        `${reasons.join('; ')}. Confirm before running.`
+        `${reasons.join('; ')}. ${tail}`
     );
   } catch (err) {
     // Heavy-path failure on a known guarded verb -> fail safe: ask.
