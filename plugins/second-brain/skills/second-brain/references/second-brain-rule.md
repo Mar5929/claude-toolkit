@@ -7,10 +7,12 @@ The committed Markdown files and Git history are the system. There is no
 separate memory database, MCP memory server, embedding index, transcript store,
 or background curator.
 
-Nothing reaches memory automatically. Every durable write is approved by the
-owner and performed by the memory librarian. A hook may enforce a rule or start
-a review at the right moment. A hook never decides what is true, writes a
-document, or approves its own proposal.
+Nothing reaches curated memory automatically. Every specification or memory
+write is approved by the owner and performed by the memory librarian. The one
+raw-capture exception is an owner-invoked `grill-me` interview, which checkpoints
+the non-authoritative brainstorm and its index as the interview runs. A hook may
+enforce a rule or start a review at the right moment. A hook never decides what
+is true, writes a document, or approves its own proposal.
 
 ## Authority map
 
@@ -55,7 +57,8 @@ work item, changed files, indexes, and specifications guide relevance.
 
 ## Write authority
 
-The main agent may request a memory-librarian update when:
+The main agent must invoke the memory librarian after any of these supplies
+clear authority to write:
 
 - the owner approved a durable-update proposal;
 - the owner clearly requested a specification or memory change;
@@ -67,9 +70,9 @@ A clear remember request approves the identified content. It does not require a
 second filing approval. If the content or intended meaning is unclear, ask one
 focused question or propose the specific durable takeaway.
 
-The main agent does not silently write unapproved conclusions. The memory
-librarian performs the approved Markdown update and routine organization. The
-main agent reviews the resulting diff and remains responsible for the task.
+The main agent does not silently write specifications or memory itself. The
+memory librarian performs the approved Markdown update and routine organization.
+The main agent reviews the resulting diff and remains responsible for the task.
 
 ## Completion review
 
@@ -78,13 +81,20 @@ Review for durable updates only:
 - when a substantial task request is complete, before its pull request is
   opened or merged;
 - at the end of a brainstorming or requirements interview; and
-- at the end of a milestone or project phase.
+- at the end of a milestone or project phase; or
+- at another natural stopping point after meaningful work, when the owner ends
+  or pauses the task and the work produced a settled durable result.
 
 Do not require a review merely because:
 
 - unfinished work is handed to another session;
 - a response or commit ends; or
 - a trivial action finishes.
+
+One review may satisfy several completion points. Do not repeat an unchanged
+review merely because the chat, commit, and pull-request steps happen close
+together. Review again only when later work produces or changes a durable
+conclusion.
 
 A hook may start the review at one of the completion points above. That is the
 hook doing the remembering, not a new trigger: the review it starts is the same
@@ -121,6 +131,10 @@ There is no proposal count limit and no required approval phrase. The owner may
 approve all, approve selected items, edit, combine, defer, or skip them in
 normal language.
 
+A deferred proposal is not an approved write and does not create a second-brain
+queue. Leave the durable documents unchanged. If the owner wants the possible
+update tracked for later, use the project's normal work tracker.
+
 ## Structural-change boundary
 
 After content approval, the memory librarian handles routine placement in an
@@ -139,6 +153,10 @@ The main agent must visibly propose a structural change when it could:
 
 Use judgment. There is no hard-coded file-count threshold. When uncertain,
 show the change to the owner.
+
+Deletion, movement, splitting, merging, and supersession are maintenance tools,
+not forbidden operations. The librarian may perform them after the exact
+meaning-changing or destructive work is visible and owner-approved.
 
 ## Requirement changes
 
@@ -185,7 +203,8 @@ it does not own, which documents are current, and what each document covers.
 ### Use when
 
 Every root, specification area, memory type, and populated memory area uses a
-`README.md` index.
+`README.md` index. A memory area becomes populated when it owns its first durable
+document, so create that area's index in the same change as the first document.
 
 ### Do not use when
 
@@ -740,6 +759,9 @@ Optional. Only these links are mandatory:
 
 No empty `Related` section is required. Item 5 exists because the alternative
 is a second copy that drifts, not because the corpus should look connected.
+Every mandatory link uses descriptive link text or nearby prose that says why
+the destination matters. This does not require a fixed label or two-line link
+format.
 
 ### Authority
 
@@ -777,9 +799,28 @@ important:
 1. mark it `Status: Superseded`;
 2. add a prominent link to its replacement;
 3. link the replacement back; and
-4. remove it from current index listings or label it clearly.
+4. keep it in its nearest index under a clearly labeled superseded section.
 
 Do not leave contradictory documents marked current.
+
+## Pre-merge parallel-memory review
+
+Before a pull request containing specification or memory changes merges, first
+bring its branch current through the project's existing Git workflow. The main
+agent then invokes the memory librarian for a read-only comparison of the
+changed durable documents and indexes against the latest project state.
+
+The librarian uses judgment to look for truths that parallel branches placed in
+different canonical files and for conflicting current guidance that Git could
+merge without a text conflict. A clean Git merge is not proof that the memory is
+semantically consistent.
+
+If the review finds a duplicate or conflict, report both paths and the specific
+truth that overlaps or disagrees. Do not discard either branch's information.
+Any deletion, consolidation, move, split, or supersession needed to repair it
+uses the normal visible structural-change approval. If nothing is found, report
+that plainly. This review does not fetch, merge, commit, push, or open pull
+requests; the Git workflow owns those actions.
 
 ## Worktree and Git boundary
 
@@ -821,7 +862,12 @@ truth. Do not read, import, or use it as a migration source.
 - If a link target is missing, include repair in the approved change or report
   it.
 - If a proposal is not approved, leave canonical documents unchanged.
+- If a proposal is deferred, leave canonical documents unchanged and create no
+  second-brain queue.
 - If nothing durable should be added, say so.
-- If the memory librarian cannot be invoked, report the approved update as
-  pending instead of pretending it was written.
+- If an approved update cannot be completed, do not replace the librarian with
+  an ad hoc main-agent write. Retry or report the failure, keep the task
+  unfinished, and do not merge as though the update succeeded unless the owner
+  explicitly waives it. This does not prevent the pull request from opening
+  under the project's normal workflow.
 - If the worktree is unclear, stop before writing.

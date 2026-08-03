@@ -12,7 +12,8 @@ The system is intentionally simple:
 1. Root instructions tell Claude and Codex where project truth lives.
 2. Agents read only the material relevant to the work.
 3. The main agent performs the requested work and notices durable information.
-4. At defined completion points, the main agent proposes useful updates.
+4. At defined completion points and natural stopping points after meaningful
+   work, the main agent proposes useful updates.
 5. The owner approves, changes, or skips those proposals in normal language.
 6. A dedicated memory agent organizes and writes the approved Markdown updates.
 7. The updates travel through the same worktree and pull request as the task.
@@ -180,18 +181,25 @@ The main agent conducts a short durable-knowledge review only:
 
 - when a substantial task request is complete, before its pull request is
   opened or merged;
-- at the end of a brainstorming or requirements interview; and
-- at the end of a milestone or project phase.
+- at the end of a brainstorming or requirements interview;
+- at the end of a milestone or project phase; or
+- at another natural stopping point after meaningful work, when the owner ends
+  or pauses the task and a settled durable result exists.
 
 An unfinished-session handoff does not trigger this review. Neither does every
 chat message, commit, or routine response.
+One review may satisfy several nearby stopping points unless later work changes
+the durable result.
 
 The main agent proposes every useful update it recommends. There is no fixed
 number. The owner may approve all, approve selected items, change wording or
 destinations, defer an item, or skip everything.
+A deferred item changes no durable document and creates no second-brain queue.
 
-The memory agent writes only the approved content and the index or backlink
-changes necessary to keep that content navigable.
+The main agent must invoke the memory agent for approved content. The memory
+agent writes only that content and the index or backlink changes necessary to
+keep it navigable. If the approved write fails, the task remains unfinished and
+does not merge as though it succeeded unless the owner explicitly waives it.
 
 ## Parallel sessions and Git
 
@@ -203,8 +211,15 @@ use one pull request. A brainstorming-only session or standalone memory cleanup
 may use a documentation-only pull request.
 
 The memory agent never writes directly to `main`, another session's worktree,
-or a shared external store. If parallel branches edit the same canonical
-document, Git exposes the conflict for deliberate reconciliation.
+or a shared external store. Git exposes text conflicts when parallel branches
+edit the same lines, but it cannot detect the same truth filed in two paths or
+two different files that disagree.
+
+Before a pull request containing specification or memory changes merges, its
+branch is brought current through the existing Git workflow. The main agent then
+invokes the librarian for a read-only comparison against the latest relevant
+documents and indexes. It reports semantic duplicates or conflicting current
+truth. Any destructive or meaning-changing repair remains owner-approved.
 
 ## Greenfield and brownfield projects
 
@@ -228,9 +243,10 @@ record into agent memory.
 
 ## Optional document aids
 
-Every durable specification or memory document has a descriptive title,
-one-sentence summary, type-specific content, contextual relationships when
-useful, and a one-sentence entry in the nearest index.
+Every durable specification or memory document has a descriptive title, a
+one-sentence summary immediately after the title, type-specific content,
+contextual relationships when useful, and a one-sentence entry in the nearest
+index.
 
 `Status`, validity guidance, `Tags`, `Sources`, and `Aliases` are optional
 everywhere. An agent uses them only when they make a document easier to find,

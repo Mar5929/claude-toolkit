@@ -140,16 +140,26 @@ Path: `memory/<type>/<system-area>/README.md`
 |---|---|
 | [<Document>](<document>.md) | <One-sentence description> |
 
+## Superseded documents
+
+| Document | Replacement |
+|---|---|
+| [<Superseded document>](<document>.md) | [<Current replacement>](<replacement>.md) |
+
 ## Related area indexes
 
 - <Only useful neighboring indexes>
 ```
 
+Remove `Superseded documents` when the area has none. A retained superseded
+document stays here instead of disappearing from its nearest index.
+
 Every memory template below ends with an optional `## Related` section. Remove
 it when no relationship exists. `Relationships` in `second-brain-rule.md` says
 which links are mandatory and gives example labels that are examples, not a
-fixed vocabulary. `Repetition` in the same file says what to do when the content
-already has a home elsewhere.
+fixed vocabulary. Every mandatory link uses descriptive text or nearby prose to
+say why its destination matters. `Repetition` in the same file says what to do
+when the content already has a home elsewhere.
 
 ## Context
 

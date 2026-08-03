@@ -46,7 +46,9 @@ The committed Markdown files and Git history **are** the system. There is no
 memory database, memory server, embedding index, transcript store, or background
 curator. Nothing is remembered automatically. If it is not written down here, it
 is not remembered. A hook may remind you of a rule or start a review, and never
-writes memory itself.
+writes memory itself. The one raw-capture exception is an owner-invoked
+`grill-me` interview, which checkpoints only its non-authoritative brainstorm
+and index. Specifications and curated memory still use the memory librarian.
 
 ### Authority map: one truth, one home
 
@@ -106,6 +108,9 @@ direction; the tracker owns execution.
 5. links to related documents where they genuinely help; and
 6. a one-sentence entry in the nearest `README.md` index.
 
+Every populated `memory/<type>/<system-area>/` folder has its own `README.md`.
+Create it with the area's first durable document.
+
 No YAML frontmatter. No empty placeholder fields. `Status: Superseded` plus a
 link to the replacement is required whenever a replaced document is kept.
 
@@ -123,20 +128,36 @@ every session. Report conflicting current truth instead of silently picking one.
 
 ### How to write
 
-Never write durable memory unprompted. Write when the owner approved a proposal,
-asked for a change, approved behavior a specification must now reflect, or said
-"remember this" or similar. Then invoke the memory librarian
+Never write durable memory unprompted. When the owner approved a proposal, asked
+for a change, approved behavior a specification must now reflect, or said
+"remember this" or similar, the main agent must invoke the memory librarian
 (`.claude/agents/memory-librarian.md`) in this session's worktree and review the
 diff it produces.
 
 Propose durable updates at approved completion points only: a substantial task
-finished, a brainstorm or requirements interview ended, or a milestone reached.
-Not on every response, commit, or handoff.
+finished, a brainstorm or requirements interview ended, a milestone reached, or
+another natural stopping point follows meaningful work with a settled durable
+result. Not on every response, commit, trivial action, or unfinished handoff.
+One review can satisfy several nearby stopping points unless later work changes
+the durable result.
+
+A deferred proposal changes no durable document and creates no memory queue. If
+an approved write fails, retry or report it and keep the task unfinished. The
+pull request may open, but it does not merge as though the write succeeded unless
+the owner explicitly waives it.
+
+Before a pull request containing specification or memory changes merges, bring
+its branch current through the project's Git workflow. Then invoke the librarian
+for a read-only comparison with the latest relevant memory and indexes. It uses
+judgment to find duplicate canonical homes or conflicting current truth that
+parallel work could merge without a text conflict. Any destructive or
+meaning-changing repair still requires visible owner approval.
 
 Stop and show the owner before any structural change: removing durable
-information, changing what is authoritative, moving or merging documents,
-reorganizing, superseding current guidance, or adding a new top-level area or
-type.
+information, changing what is authoritative, moving, splitting, or merging
+documents, reorganizing, superseding current guidance, or adding a new top-level
+area or type. These operations are allowed after approval so memory can be
+maintained instead of only accumulating.
 ```
 
 ## Other root instruction files

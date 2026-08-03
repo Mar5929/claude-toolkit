@@ -196,14 +196,18 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
   material, and operations are organized by type and project-specific area
   under `memory/`. Root `CLAUDE.md` and `AGENTS.md` files give every session
   the compact folder map and route both agents to one canonical detailed rule.
-  Documents use ordinary Markdown backlinks. At approved completion points,
-  the main agent proposes every additional durable update it recommends. The
-  owner approves, selects, edits, combines, defers, or skips proposals in
-  normal language. An on-demand memory librarian writes only the approved
-  changes in the task's worktree and pull request. There is no fixed proposal
-  limit. The system requires no database, MCP server, embeddings, transcript
-  capture, background curation, or scheduled jobs, and no hook ever writes
-  memory. The current shipped specification is indexed in
+  Documents use ordinary Markdown backlinks. At approved completion points and
+  natural stopping points after meaningful work, the main agent proposes every
+  additional durable update it recommends. The owner approves, selects, edits,
+  combines, defers, or skips proposals in normal language. The main agent must
+  invoke the on-demand memory librarian, which writes only the approved changes
+  in the task's worktree and pull request. Before merge, it checks changed
+  memory against the latest project state for parallel duplicate homes or
+  conflicts Git cannot see. Owner-approved cleanup may delete or reorganize
+  memory, so the system does not only accumulate files. There is no fixed
+  proposal limit. The system requires no database, MCP server, embeddings,
+  transcript capture, background curation, or scheduled jobs, and no hook ever
+  writes memory. The current shipped specification is indexed in
   [`docs/second-brain-v3/`](docs/second-brain-v3/README.md), and the plugin
   ships the rule, memory-librarian role, templates, setup, sync, and remember
   workflows. The old v2 proposal is superseded.

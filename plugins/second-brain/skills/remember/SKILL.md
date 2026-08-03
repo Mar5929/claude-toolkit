@@ -87,8 +87,6 @@ thing is not licence to record everything discussed.
      `.claude/agents/memory-librarian.md` and the canonical rule first.
    Give the librarian the approved content, the destinations you showed the
    owner, the canonical documents to link to, and anything it must not infer.
-   In a repository with parallel sessions, tell it which shared index files are
-   append-only.
 5. Inspect the resulting diff.
 6. Report what changed, where it was placed, why, and any unresolved issue. If
    the librarian filed something somewhere other than the destination you showed
@@ -100,8 +98,11 @@ authority, canonical homes, broad reorganization, splitting, merging, or
 supersession, or a new top-level system area requires a separate visible
 proposal and owner approval.
 
-If the host cannot invoke the dedicated librarian, report the approved update
-as pending instead of silently writing it another way.
+If the host cannot invoke the dedicated librarian or the librarian cannot
+finish, do not silently write the update another way. Retry or report the
+failure and keep the task unfinished. The pull request may open under the
+project's Git workflow, but it does not merge as though the approved update
+succeeded unless the owner explicitly waives it.
 
 ## Boundaries
 

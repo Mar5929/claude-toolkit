@@ -27,24 +27,31 @@ project/
     context/
       README.md
       <system-area>/
+        README.md
     planning/
       README.md
       <system-area>/
+        README.md
     decisions/
       README.md
       <system-area>/
+        README.md
     knowledge/
       README.md
       <system-area>/
+        README.md
     references/
       README.md
       <system-area>/
+        README.md
     domain/
       README.md
       <system-area>/
+        README.md
     operations/
       README.md
       <system-area>/
+        README.md
 ```
 
 Examples of system areas are `authentication`, `billing`, `mobile-app`,
@@ -71,6 +78,9 @@ root routes, or one of the seven typed memory homes.
 Do not invent empty `billing/`, `shipping/`, `payroll/`, or other system-area
 trees merely because they are common elsewhere. Create the areas the current
 project actually has. Add another area later when real work establishes it.
+Create that area's `README.md` in the same change as its first durable document.
+An empty hypothetical area and a populated area without an index are both
+invalid shapes.
 
 Raw meetings, transcripts, communications, deliverables, and source exports
 remain in the project's ordinary artifact scaffolding. V3 links to them when

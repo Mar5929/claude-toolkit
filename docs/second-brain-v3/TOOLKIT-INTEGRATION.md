@@ -46,7 +46,8 @@ It:
 1. understands the project purpose and stack;
 2. recommends initial system areas;
 3. shows the exact tree and root-file edits;
-4. creates only approved roots, indexes, and current areas;
+4. creates only approved roots and real specification areas, adding each memory
+   area index with the first durable document it owns;
 5. copies the canonical shared rule;
 6. installs the memory-librarian role;
 7. adds compact routes to both `CLAUDE.md` and `AGENTS.md`;
@@ -106,6 +107,8 @@ and interviews rather than silently declaring the audit authoritative.
 
 When a project uses v3, `grill-me` stores its capture at
 `brainstorms/<date>-<topic>.md` and adds it to the root brainstorm index.
+That owner-invoked raw checkpoint is the narrow exception to the librarian write
+boundary. Specifications and curated memory still use the librarian.
 
 At the end of the interview, the main agent proposes any resulting
 specification or memory updates. The raw brainstorm remains separate.
@@ -145,6 +148,12 @@ Existing worktree and pull-request workflows own:
 
 V3 requires the memory agent to stay in the requesting session's worktree, but
 it does not reimplement Git commands.
+
+Before a pull request containing specification or memory changes merges, the Git
+workflow first brings its branch current. The main agent then invokes the
+librarian for a read-only semantic comparison with the latest project memory and
+indexes. Git still owns file integration; the librarian catches duplicate homes
+and conflicting current truth in different files that Git cannot identify.
 
 ## 2. Installed project architecture
 
@@ -271,8 +280,10 @@ When v3 ships:
 
 - `keep-claudemd-current.md` keeps `CLAUDE.md` accurate and thin. Durable
   details route to `specs/`, `brainstorms/`, or `memory/`.
-- `wrap-up-ritual.md` uses the approved v3 completion triggers. It does not
-  require a memory review for unfinished handoffs.
+- `wrap-up-ritual.md` uses the approved v3 completion triggers and natural
+  stopping point after meaningful work. It does not require a memory review for
+  ordinary responses, trivial actions, or unfinished handoffs with no settled
+  durable result.
 - `offer-context-handoff.md` continues to support temporary session transfer
   without treating every handoff as durable memory.
 - `steer-to-the-goal.md` routes live goals and next actions to work-tracker.
@@ -387,6 +398,12 @@ Unresolved:
 The main agent reviews the actual diff. It does not accept a report in place of
 inspection.
 
+Invoking the librarian is mandatory after approval. If it cannot finish, the
+main agent retries or reports the failure and keeps the task unfinished. The
+pull request may open, but it does not merge as though the write succeeded
+unless the owner explicitly waives it. Deferred proposals create no separate
+memory queue.
+
 ### 7.3 Explicit `remember`
 
 `/remember` and phrases such as "remember this" use the same memory-agent path.
@@ -410,7 +427,8 @@ implementation still needs proportionate tests.
 
 - Validate Claude and Codex plugin manifests.
 - Initialize a temporary greenfield fixture.
-- Confirm only approved roots and areas are created.
+- Confirm only approved roots and real areas are created, and every populated
+  memory area has an index.
 - Confirm both root orientation files route to the same rule.
 - Confirm the memory-agent role is installed.
 - Confirm all root and type indexes link correctly.
@@ -430,7 +448,9 @@ Run the same fixture with a cold Claude session and cold Codex session:
 2. Ask each to find its relevant brainstorm and decision.
 3. Ask each where roadmap status and ticket status belong.
 4. Complete a sample requirement change.
-5. Confirm the main agent proposes durable updates at the approved point.
+5. Confirm the main agent proposes durable updates at the approved point or a
+   natural stopping point after meaningful work, without repeating the review
+   after ordinary replies.
 6. Approve selected updates in natural language.
 7. Confirm the memory agent writes only the approved content.
 8. Confirm code, tests, specifications, and memory stay in one worktree.
@@ -455,8 +475,9 @@ delete, or duplicate content.
 ### 8.4 Parallel-session scenario
 
 Use two worktrees that update related or overlapping documents. Confirm each
-memory agent stays in its own worktree and Git exposes overlapping edits for
-normal reconciliation.
+memory agent stays in its own worktree, Git exposes overlapping text edits, and
+the pre-merge librarian review reports semantic duplicates or conflicting
+current truth placed in different files.
 
 Tests may inspect generated files and links in the toolkit repository. They do
 not become runtime enforcement installed in client projects.

@@ -92,9 +92,13 @@ These are not duplicated here. Go to the index that owns them:
   current Markdown-only specification, schemas, and toolkit
   integration design. It separates flat dated brainstorms, area-based
   capability specifications, seven typed memory homes, and work-tracker
-  authority. The main agent proposes updates and an on-demand memory librarian
-  writes approved changes in the task worktree. The plugin ships the canonical
-  rule, role, templates, setup, sync, and remember workflows.
+  authority. At completion points and natural stopping points after meaningful
+  work, the main agent proposes updates and must invoke the on-demand memory
+  librarian for approved changes. The librarian writes in the task worktree,
+  may perform visibly approved cleanup, and checks changed memory against the
+  latest project state before merge for parallel semantic duplicates or
+  conflicts. The plugin ships the canonical rule, role, templates, setup, sync,
+  and remember workflows.
 - **Superseded second-brain v2 proposal**:
   [docs/second-brain-v2/README.md](second-brain-v2/README.md) is retained as
   historical design material. Its numbered units and requirements are not

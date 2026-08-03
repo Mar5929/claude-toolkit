@@ -1,7 +1,7 @@
 {
   "name": "second-brain",
-  "version": "1.8.0",
-  "description": "Git-native Markdown memory and knowledge for Claude and Codex, with shared schemas, owner-approved updates, and an on-demand memory librarian.",
+  "version": "1.9.0",
+  "description": "Git-native Markdown memory and knowledge for Claude and Codex, with natural stopping-point reviews, owner-approved librarian maintenance, and a pre-merge parallel-memory check.",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com",
@@ -18,7 +18,7 @@
   "interface": {
     "displayName": "Second Brain",
     "shortDescription": "Shared Markdown memory for Claude and Codex.",
-    "longDescription": "Installs the complete second-brain v3 project memory system: shared Claude and Codex routing, capability specifications, typed durable memory, owner-approved updates, and an on-demand memory librarian. Markdown and Git remain authoritative, with no database, embeddings, or background curation, and no hook that writes memory.",
+    "longDescription": "Installs the complete second-brain v3 project memory system: shared Claude and Codex routing, capability specifications, typed durable memory, natural stopping-point reviews, owner-approved librarian maintenance, and a pre-merge semantic check for parallel memory changes. Markdown and Git remain authoritative, with no database, embeddings, or background curation, and no hook that writes memory.",
     "developerName": "Mike Rihm",
     "category": "Productivity",
     "capabilities": [
