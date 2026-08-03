@@ -46,9 +46,10 @@ together until they agree on all of them, one question at a time. The agent asks
 recommends an answer, and writes down what the owner decides. It ends when every
 part is answered and nothing contradicts anything else.
 
-The `grill-me` skill runs this kind of interview and is worth using when it is
-installed, but the session is the requirement and the skill is only one way to
-hold it.
+The session is what this rule requires. No particular tool is. If the project has
+a skill installed for running a discovery interview one question at a time, use
+it; if not, hold the session in conversation and write the answers down as they
+are agreed.
 
 Mark the ticket so anyone can see the session happened. Which mark depends on the
 tracker: a status, a label, or a line in the spec. The project's root

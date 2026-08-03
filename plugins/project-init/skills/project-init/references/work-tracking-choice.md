@@ -43,7 +43,7 @@ creates the tracker as well as writing the rules. Walk the steps in "Setting up 
 GitHub Projects board" below.
 
 The refinement session is marked with the `Refining` status and the
-`grill-me-completed` label.
+`refined` label.
 
 ### 2 and 3. Linear, Jira, or another external tracker
 
@@ -110,8 +110,9 @@ does not check out.
    are not interchangeable with them: that plugin uses six, spelled
    `In Progress` and `In Review`, and has no `Refining`. A board set up by hand
    here must never also be connected with `work github connect`.
-8. **Add the `grill-me-completed` label** to the repository, described as the
-   mark that a refinement session finished and the spec is written.
+8. **Add the `refined` label** to the repository, described as the mark that a
+   refinement session finished and the six-part spec is written. Name the label
+   for what it means, never after whichever skill happened to run the session.
 9. **Report what you made**, including the board's link.
 
 ### When the board already exists but is incomplete
@@ -126,8 +127,7 @@ when its name differs from the list above. Their board, their names.
 - `Refining`: a refinement session is under way. Move the ticket here when the
   session starts.
 - `Ready`: the six-part spec is written and agreed. Move it here when the session
-  ends, and add the `grill-me-completed` label. Work may start now, and not
-  before.
+  ends, and add the `refined` label. Work may start now, and not before.
 - `In progress`: being built.
 - `In review`: built, waiting on review or a merge.
 - `Done`: landed.
@@ -142,7 +142,7 @@ marked. One or two lines, no more. For example:
 
 > **Work tracking.** Work items live on the `<board name>` GitHub Projects board
 > connected to this repository. A ticket moves to `Refining` when its refinement
-> session starts, and to `Ready` with the `grill-me-completed` label when the
+> session starts, and to `Ready` with the `refined` label when the
 > six-part spec is agreed. See `.claude/rules/spec-before-you-build.md`.
 
 The rules themselves stay in `.claude/rules/spec-before-you-build.md`. The

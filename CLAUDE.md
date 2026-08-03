@@ -23,8 +23,8 @@ change, change them there.
 What is specific to this repo, on top of that rule:
 
 - Move the issue to `Refining` when the refinement session starts.
-- When the session ends and the spec is agreed, add the `grill-me-completed`
-  label and move the issue to `Ready`. Work may start then, and not before.
+- When the session ends and the spec is agreed, add the `refined` label and move
+  the issue to `Ready`. Work may start then, and not before.
 - The spec is written into the GitHub issue body, since the board holds the work
   and this repo has no `work-items/` folder.
 
