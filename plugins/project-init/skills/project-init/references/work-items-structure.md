@@ -1,21 +1,36 @@
-# Work tracking in Gate 1
+# Tracking work as files in this repository (Gate 1)
 
-Offer the `work-tracker` plugin to every project. It is the executable version
-of the toolkit's established work-item folder convention, not a second
-tracking system.
+Read this only after the owner has answered the Gate 1 question in
+`work-tracking-choice.md` with "files in this repository". That file owns the
+question and the other four answers; this one covers what to do for this answer.
+
+The `work-tracker` plugin is the executable version of the toolkit's established
+work-item folder convention, not a second tracking system.
 
 ## Where it goes
 
 - Most projects: `work-items/`.
 - Salesforce engagement projects: `engagement/work-items/`.
 
-## Offer two independent choices
+## The optional GitHub Project mirror
 
-1. **Local Git tracker:** recommended. Requires only Node.js and Git.
-2. **GitHub Project mirror:** optional. Requires an existing `gh` login with
-   the `project` scope and explicit approval for external changes.
+The plugin needs only Node.js and Git. A GitHub Project mirroring these files is
+a separate, optional choice on top, requiring an existing `gh` login with the
+`project` scope and explicit approval for external changes. Installing the local
+tracker does not authorize GitHub writes.
 
-Installing the local tracker does not authorize GitHub writes.
+That mirror is not the same thing as a GitHub Projects board holding the work
+itself, which is a different answer to the Gate 1 question and is set up by hand
+per `work-tracking-choice.md`. The mirror is created by the plugin's own
+`work github connect` command and uses the plugin's six statuses. Never mix the
+two setups on one board.
+
+## The refinement gate
+
+An item stays in `Backlog` until its `SPEC.md` answers the six parts named in the
+`spec-before-you-build.md` rule, then moves to `Ready`. Do not run `work start`
+on an item that is not `Ready`. Say which of the six parts are missing and offer
+to run the refinement session instead.
 
 ## Initialize
 

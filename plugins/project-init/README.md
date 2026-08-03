@@ -15,8 +15,9 @@ toolkit reaches a project.
 
 - **project-init** (`/project-init`): walks a NEW project through setup one
   skippable gate at a time, in a fixed order:
-  1. Scaffolding and folder structure, including the optional Git-native
-     work-tracker and safe adoption of the existing four-stage convention
+  1. Scaffolding and folder structure, plus a question of its own about where
+     work items are tracked (a GitHub Projects board, Linear, Jira, files in
+     this repository, or nothing yet)
   2. Hooks and guards
   3. Complete second-brain v3 memory system
   4. Knowledge layer included with second-brain v3
@@ -39,8 +40,14 @@ toolkit reaches a project.
 Bundled under `skills/project-init/references/`:
 
 - `setup-flow.md`: the ordered, gate-by-gate checklist project-init follows.
-- `work-items-structure.md`: how Gate 1 offers the work-tracker, adopts existing
-  folders safely, and separately offers an optional GitHub Project mirror.
+- `work-tracking-choice.md`: the Gate 1 question about where work items are
+  tracked, what each of the five answers does, and the step-by-step setup for a
+  GitHub Projects board. The board is the only answer the toolkit sets up; it
+  creates and changes nothing inside Linear, Jira, or any other external
+  tracker.
+- `work-items-structure.md`: what Gate 1 does for the "files in this repository"
+  answer. Installs the work-tracker, adopts existing folders safely, and
+  separately offers an optional GitHub Project mirror of those files.
 - `thin-claudemd.md`: how Gate 5 writes a short CLAUDE.md that points at
   `.claude/rules/` instead of holding the rules inline.
 - `general-rules/` (with its own `README.md` index): the standard `.claude/rules`
@@ -73,10 +80,20 @@ Bundled under `skills/project-init/references/`:
   knowledge layer as included rather than creating a competing store.
 - Gate 6 offers the standalone `grill-me` interview workflow without copying it
   into the project. The plugin remains its canonical home.
-- Gate 1 offers `work-tracker` as the one canonical task-status system. It can
-  stay entirely local or, with separate approval, create or link a GitHub
-  Project. Existing manual work-item folders are adopted without overwriting
-  their specifications, handoffs, or notes.
+- Gate 1 asks where work items are tracked, and the two guarantees that follow
+  are the same whichever answer it gets: log the work in that tracker before
+  building it, and refine the six-part spec before building it. Those live once
+  in `general-rules/spec-before-you-build.md`, copied into `.claude/rules/` in
+  Gate 5, with a one-line pointer in `CLAUDE.md` and `AGENTS.md` naming the
+  tracker.
+- For the "files in this repository" answer, Gate 1 offers `work-tracker` as the
+  one canonical task-status system. It can stay entirely local or, with separate
+  approval, create or link a GitHub Project mirroring those files. Existing
+  manual work-item folders are adopted without overwriting their specifications,
+  handoffs, or notes.
+- For the GitHub Projects board answer, Gate 1 sets up the board by hand from
+  `work-tracking-choice.md` and no work-tracker code is involved. That board
+  holds the work; the mirror above only reflects files that hold it.
 - project-sync performs a read-only v3 adoption audit before changing an
   existing project. Separately, it identifies existing local v1 integrations.
   With owner approval it may deactivate them or remove specifically approved
