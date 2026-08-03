@@ -4,6 +4,9 @@ Three git lifecycle skills that are safe to run when other agent sessions may
 share the same repo. They look before they act and stop rather than clobber
 another session's in-flight work. Install on any project; not stack-specific.
 
+**Setup: install and go.** Install once per machine. It needs a git repository,
+but nothing has to be set up inside it.
+
 ## Install
 
 ```

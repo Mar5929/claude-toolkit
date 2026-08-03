@@ -8,16 +8,22 @@ depth lives in each plugin's own `README.md` and reference indexes.
 
 ## Plugins at a glance
 
-| Plugin | Purpose | Skills | Install |
-|---|---|---|---|
-| [project-init](../plugins/project-init/README.md) | Put the toolkit's rules and systems into a project, new or existing | `project-init`, `project-sync` | `/plugin install project-init` |
-| [second-brain](../plugins/second-brain/README.md) | Git-native Markdown specifications and durable memory shared by Claude and Codex | `second-brain`, `remember` | `/plugin install second-brain` |
-| [sf-architect-solutioning](../plugins/sf-architect-solutioning/README.md) | Salesforce solution architect: approved solution plan before any build | `sf-architect-solutioning` | `/plugin install sf-architect-solutioning` |
-| [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git lifecycle workflows | `pull-latest`, `reset-to-remote`, `merge-and-clean-up` | `/plugin install git-workflows` |
-| [hooks-library](../plugins/hooks-library/README.md) | Hooks that make a rule land mechanically instead of restating it: `style-reminder` re-states the output style every message, `writing-guard` checks the finished reply | `hooks-library` | `/plugin install hooks-library` |
-| [grill-me](../plugins/grill-me/README.md) | Persistent discovery interviews that checkpoint every answer | `grill-me` | `/plugin install grill-me` |
-| [work-tracker](../plugins/work-tracker/README.md) | Git-authoritative backlog, handoffs, relationships, landing proof, and optional GitHub Projects | `work` | `/plugin install work-tracker` |
-| [session-summary](../plugins/session-summary/README.md) | Recap one session as a bullet per request, each with an honest status | `session-summary` | `/plugin install session-summary` |
+Installing is always per machine. Every plugin lands in `~/.claude/` and is then
+available in every project on that machine. The `Setup` column says whether it
+also needs something inside a project folder: **Install and go** needs nothing,
+**Sets up a project** writes files into the repository and is opted into per
+project, and **Wires into settings** installs a hook by editing a settings file.
+
+| Plugin | Purpose | Skills | Install | Setup |
+|---|---|---|---|---|
+| [project-init](../plugins/project-init/README.md) | Put the toolkit's rules and systems into a project, new or existing | `project-init`, `project-sync` | `/plugin install project-init` | Sets up a project |
+| [second-brain](../plugins/second-brain/README.md) | Git-native Markdown specifications and durable memory shared by Claude and Codex | `second-brain`, `remember` | `/plugin install second-brain` | Sets up a project |
+| [sf-architect-solutioning](../plugins/sf-architect-solutioning/README.md) | Salesforce solution architect: approved solution plan before any build | `sf-architect-solutioning` | `/plugin install sf-architect-solutioning` | Install and go |
+| [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git lifecycle workflows | `pull-latest`, `reset-to-remote`, `merge-and-clean-up` | `/plugin install git-workflows` | Install and go |
+| [hooks-library](../plugins/hooks-library/README.md) | Hooks that make a rule land mechanically instead of restating it: `style-reminder` re-states the output style every message, `writing-guard` checks the finished reply | `hooks-library` | `/plugin install hooks-library` | Wires into settings |
+| [grill-me](../plugins/grill-me/README.md) | Persistent discovery interviews that checkpoint every answer | `grill-me` | `/plugin install grill-me` | Install and go |
+| [work-tracker](../plugins/work-tracker/README.md) | Git-authoritative backlog, handoffs, relationships, landing proof, and optional GitHub Projects | `work` | `/plugin install work-tracker` | Sets up a project |
+| [session-summary](../plugins/session-summary/README.md) | Recap one session as a bullet per request, each with an honest status | `session-summary` | `/plugin install session-summary` | Install and go |
 
 ## Skills at a glance
 

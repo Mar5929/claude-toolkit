@@ -2,6 +2,9 @@
 
 Recaps a session as one bullet per request you made, each with an honest status.
 
+**Setup: install and go.** Install once per machine. It reads the conversation
+and writes nothing, so there is nothing to set up in a project.
+
 ## What it does
 
 Ask for a summary and you get a list, not a story:

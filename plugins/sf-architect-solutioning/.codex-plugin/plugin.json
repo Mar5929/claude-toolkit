@@ -1,6 +1,6 @@
 {
   "name": "sf-architect-solutioning",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Salesforce solution architect workflow: clarify requirements, verify platform facts, design declarative-first, and produce a solution plan before build.",
   "author": {
     "name": "Mike Rihm",

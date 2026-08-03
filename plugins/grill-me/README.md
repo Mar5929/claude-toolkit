@@ -4,6 +4,9 @@ An interview skill for turning an incomplete plan, design, or idea into durable
 discovery notes. It asks one question at a time, recommends a likely answer, and
 checkpoints every response to a Markdown file before continuing.
 
+**Setup: install and go.** Install once per machine. It writes brainstorm files
+as it works, but nothing has to exist in the project first.
+
 ## Install
 
 ```text

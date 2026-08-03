@@ -5,6 +5,9 @@ project, either a brand-new one or one that already exists. This is the plugin
 you install first on every machine, because it is how everything else in the
 toolkit reaches a project.
 
+**Setup: sets up a project.** Install once per machine. Running it is what puts
+files into a project, so every project it touches opts in deliberately.
+
 ## Install
 
 ```

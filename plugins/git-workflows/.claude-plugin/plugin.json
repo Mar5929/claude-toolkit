@@ -1,7 +1,7 @@
 {
   "name": "git-workflows",
   "description": "Parallel-session-safe git lifecycle skills. pull-latest updates without rewriting history, reset-to-remote mirrors a remote behind explicit confirmation, and merge-and-clean-up lands an approved pull request before safely removing only its branch and worktree.",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com"

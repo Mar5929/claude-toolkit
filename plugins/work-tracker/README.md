@@ -5,6 +5,9 @@ every session one reliable answer to what exists, what is active or blocked,
 what comes next, where the work lives, and whether a claimed completion is
 actually in the default branch.
 
+**Setup: sets up a project.** Install once per machine, then each project opts
+in and gets its own work-item folders and generated views.
+
 ## Install
 
 ```text
