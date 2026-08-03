@@ -15,7 +15,6 @@ depth lives in each plugin's own `README.md` and reference indexes.
 | [sf-architect-solutioning](../plugins/sf-architect-solutioning/README.md) | Salesforce solution architect: approved solution plan before any build | `sf-architect-solutioning` | `/plugin install sf-architect-solutioning` |
 | [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git lifecycle workflows | `pull-latest`, `reset-to-remote`, `merge-and-clean-up` | `/plugin install git-workflows` |
 | [hooks-library](../plugins/hooks-library/README.md) | Hooks that make a rule land mechanically instead of restating it: `style-reminder` re-states the output style every message, `writing-guard` checks the finished reply | `hooks-library` | `/plugin install hooks-library` |
-| [session-autoname](../plugins/session-autoname/README.md) | Background agent sessions stay named after their overarching project | `session-autoname` | `/plugin install session-autoname` |
 | [grill-me](../plugins/grill-me/README.md) | Persistent discovery interviews that checkpoint every answer | `grill-me` | `/plugin install grill-me` |
 | [work-tracker](../plugins/work-tracker/README.md) | Git-authoritative backlog, handoffs, relationships, landing proof, and optional GitHub Projects | `work` | `/plugin install work-tracker` |
 
@@ -31,7 +30,6 @@ depth lives in each plugin's own `README.md` and reference indexes.
 | pull-latest | git-workflows | Get current with the remote without rewriting or discarding | `/pull-latest` |
 | reset-to-remote | git-workflows | Hard-reset a repo to mirror the remote, safely gated | `/reset-to-remote` |
 | merge-and-clean-up | git-workflows | Merge one approved PR and remove only its completed branch and worktree | `/merge-and-clean-up`, "merge and clean up" |
-| session-autoname | session-autoname | Install the per-machine hook that re-names a background session each turn | `/session-autoname` |
 | grill-me | grill-me | Stress-test an idea one question at a time and preserve every answer | `/grill-me`, "grill me" |
 | work | work-tracker | Manage local work items and their optional GitHub Issues and Project mirror | `/work`, "add this to the backlog", "what should I work on next?" |
 
@@ -159,10 +157,22 @@ The genuine watch-items are called out at the end.
   blockers, work-item relationships, branch and pull-request evidence, and the
   current handoff. V3 may link specifications and durable memory to a work-item
   folder, but it does not copy or overrule task status.
-- **work-tracker versus GitHub Projects.** Git files are authoritative by
-  default. The optional adapter creates or updates repository issues and a
-  Project as a collaboration mirror. Generated dashboards, GitHub issue bodies,
-  and Project fields can all be reconciled from the local records.
+- **work-tracker versus GitHub Projects.** Two different things share the word
+  "Project". work-tracker's optional adapter creates or updates repository issues
+  and a Project as a **mirror** of local files that stay authoritative, using its
+  own six statuses, and everything can be reconciled from the local records.
+  Separately, a project may answer the Gate 1 tracking question with a GitHub
+  Projects board that **holds** the work, with no work-items folder at all. That
+  one is set up by hand from `project-init`'s `work-tracking-choice.md`, uses
+  seven statuses including `Refining`, and involves no work-tracker code. Never
+  point both setups at one board.
+- **spec-before-you-build versus work-item-folders.** Not two rules about
+  tickets. `spec-before-you-build` is tracker-neutral and states the two things
+  that hold anywhere: log the work before building it, and refine the six-part
+  spec before building it. `work-item-folders` adds only what is specific to
+  tracking work as files in the repository, and is meaningless in a project that
+  chose a GitHub board, Linear, or Jira. The six parts are stated once, in
+  `spec-before-you-build`.
 - **hooks-library versus the output style it enforces.** The style is canonical
   and says what good writing is; `writing-guard` only catches the two characters
   a machine can catch with no interpretation. They are not duplicates, and the
@@ -170,7 +180,8 @@ The genuine watch-items are called out at the end.
   main conversation, so it cannot shape a commit message, a document, or
   anything a helper agent writes. Those are covered by the
   `follow-the-output-style` rule and, for an agent that writes durable files, by
-  the writing rules inside its own definition. The split that decides whether something belongs in the hook is
+  the writing rules inside its own definition. The split that decides whether
+  something belongs in the hook is
   once-per-decision versus once-per-message. "Never commit a secret" fires at
   one point and holds on instruction alone. "No em dashes" fires on every
   sentence, thousands of tokens after the rule was last read, and measurement
@@ -203,14 +214,6 @@ The genuine watch-items are called out at the end.
   `specs/` owns durable current behavior and second-brain owns durable project
   knowledge. The brainstorm may inform those artifacts but does not replace
   them.
-- **session-autoname is deliberately NOT offered by project-init.** Every other
-  plugin here installs into a project. This one installs into a machine: it
-  writes `~/.claude/hooks/` and `~/.claude/settings.json` once, and from then on
-  it applies to background sessions in every project. Putting it behind a
-  per-project gate would ask the same question repeatedly and re-do a setup that
-  is already done. Install it once per machine with `/plugin install
-  session-autoname` then `/session-autoname`. If a future plugin is also
-  machine-level, this is the precedent to follow.
 - **The session-continuity rule cluster.** Several general rules touch "do not
   lose context across sessions", which can read as overlap: `keep-claudemd-current`
   (write durable facts into CLAUDE.md, and route everything that is not a rule

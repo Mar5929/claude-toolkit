@@ -9,28 +9,24 @@ The three 'toolkit-enabled' projects so far are Anchor, Dragonfly, and Diligence
 
 ## Log every piece of work on the GitHub board
 
-All work for this repo is tracked on the `claude-toolkit-project` board on
-GitHub, which is connected to this repository. Log the work item there as a
-GitHub issue before you start building it. If the work is already underway and
-no ticket exists, stop and write the ticket first.
+**Work tracking.** Work items for this repo live on the `Claude-Toolkit-Project`
+board on GitHub, which is connected to this repository. Every piece of work is
+logged there as an issue before it is built, and nothing is built until a
+refinement session has filled in the six-part spec.
 
-Every ticket carries a written spec. A title alone is not a ticket. The spec
-answers all of the following, in plain words:
+Those rules are stated once, in
+`plugins/project-init/skills/project-init/references/general-rules/spec-before-you-build.md`.
+Read it. It is the canonical statement and it governs this repo as well as every
+project the toolkit sets up. Do not restate the six parts here; if they need to
+change, change them there.
 
-- **The requirements.** What has to be true for this to count as finished.
-- **The goal.** What this work is meant to achieve.
-- **The reason.** Why we are doing it, and what problem or gap it closes. If it
-  came out of something that went wrong, say what went wrong.
-- **What the person using it experiences.** What they notice, before and after.
-- **How it behaves from the outside.** The end-user's view of how it works, step
-  by step. What they do, what happens back. Not the internals.
-- **Edge cases.** The odd or unhappy situations this has to handle, and exactly
-  what should happen in each one. Name the behavior, do not just name the case.
+What is specific to this repo, on top of that rule:
 
-You cannot start developing a ticket until the ticket has completed a "grill-me" session where the user and the AI agent (claude or codex) fully align on all the specifications listed above. During the grill-me session all the specs will be defined and written to the github ticket. When the grill-me session starts you must ensure the work item status is "Refining". When the grill-me session is completed, the "grill-me-completed" label will be applied and the work item status will be set to "Ready".
-
-Keep the ticket current while the work moves, and close it when the work lands,
-saying what actually shipped and anything that was left out.
+- Move the issue to `Refining` when the refinement session starts.
+- When the session ends and the spec is agreed, add the `refined` label and move
+  the issue to `Ready`. Work may start then, and not before.
+- The spec is written into the GitHub issue body, since the board holds the work
+  and this repo has no `work-items/` folder.
 
 ## Your main job here: fold new lessons into the toolkit
 
