@@ -212,13 +212,10 @@ claude-toolkit does not migrate to git-authoritative tracking.
   The GitHub Projects board is the only answer where the toolkit also builds
   the tracker for you. Everywhere else it only writes the rules.
 
-- Flags: One collision left, recorded on the ticket rather than decided here.
-  The owner approved "the two guarantees are identical no matter what you
-  pick," which includes the files-in-this-repo answer. But the shipped rule
-  `general-rules/work-item-folders.md` tells agents the opposite for that case:
-  keep `SPEC.md` requirements loose, "not frozen acceptance checkboxes,"
-  because rigid criteria go stale and a later agent builds carefully to the
-  wrong target. Both cannot govern the files answer. -> owner, before building
+- Flags: One collision, resolved in Q7 below. The owner approved "the two
+  guarantees are identical no matter what you pick," which includes the
+  files-in-this-repo answer, while the shipped rule
+  `general-rules/work-item-folders.md` told agents the opposite for that case.
 
 ## Session close
 
@@ -236,11 +233,31 @@ Reconciled. Superseded answers, kept for history:
   a GitHub board with no work-items folder becomes a supported answer, which is
   new work inside `work-tracker` (Q3).
 
+### Q7: The six-part spec versus keeping requirements loose
+
+- Asked: Does the six-part spec apply to work items stored as files in the repo,
+  or only to trackers outside it?
+- Captured: **It applies to files in the repo as well.** Verbatim: "The six-part
+  spec should apply to files in the repo as well."
+
+  Consequence: `general-rules/work-item-folders.md` loses its instruction to
+  keep `SPEC.md` requirements loose, "not frozen acceptance checkboxes." The six
+  parts become the shape of each work item's `SPEC.md`.
+
+  The reason behind the loose instruction (rigid criteria go stale, and a later
+  agent then builds carefully to the wrong target) is answered by that same
+  rule's other instruction, which stays: when the direction changes, update the
+  spec in the same session rather than leaving the old target standing.
+  Requirements that are kept current do not go stale.
+
+  Added to the ticket as requirements 6, 7, and 8: the six parts apply to every
+  answer; `work-item-folders.md` is edited to stop saying the opposite; and
+  `work start` on an item whose `SPEC.md` is still empty or partial stops and
+  says which parts are missing.
+- Flags: None. This was the last open decision.
+
 ## Open flags (pending input)
 
-- The six-part spec versus `work-item-folders.md`'s "keep requirements loose"
-  for the files-in-this-repo answer. Must be settled before building.
-  -> owner
 - A GitHub board used on its own, with no work-items folder, is not something
   `work-tracker` supports today. Its GitHub adapter syncs outward from local
   files that it treats as the truth. The size of that change is still unmeasured
