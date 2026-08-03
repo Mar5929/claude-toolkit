@@ -6,8 +6,7 @@ description: >-
   follow the output style", "remind Claude how to write", "stop Claude using em
   dashes", "set up the hooks", "add the hooks library", "turn off the style
   reminder", or "/hooks-library". These hooks re-deliver or check rules that an
-  agent otherwise has to remember on every message. Do NOT use for machine-level
-  hooks such as session auto-naming, which the session-autoname skill owns.
+  agent otherwise has to remember on every message.
 ---
 
 # hooks-library: make the rule land, instead of restating it
