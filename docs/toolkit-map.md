@@ -17,6 +17,7 @@ depth lives in each plugin's own `README.md` and reference indexes.
 | [hooks-library](../plugins/hooks-library/README.md) | Hooks that make a rule land mechanically instead of restating it: `style-reminder` re-states the output style every message, `writing-guard` checks the finished reply | `hooks-library` | `/plugin install hooks-library` |
 | [grill-me](../plugins/grill-me/README.md) | Persistent discovery interviews that checkpoint every answer | `grill-me` | `/plugin install grill-me` |
 | [work-tracker](../plugins/work-tracker/README.md) | Git-authoritative backlog, handoffs, relationships, landing proof, and optional GitHub Projects | `work` | `/plugin install work-tracker` |
+| [session-summary](../plugins/session-summary/README.md) | Recap one session as a bullet per request, each with an honest status | `session-summary` | `/plugin install session-summary` |
 
 ## Skills at a glance
 
@@ -32,6 +33,7 @@ depth lives in each plugin's own `README.md` and reference indexes.
 | merge-and-clean-up | git-workflows | Merge one approved PR and remove only its completed branch and worktree | `/merge-and-clean-up`, "merge and clean up" |
 | grill-me | grill-me | Stress-test an idea one question at a time and preserve every answer | `/grill-me`, "grill me" |
 | work | work-tracker | Manage local work items and their optional GitHub Issues and Project mirror | `/work`, "add this to the backlog", "what should I work on next?" |
+| session-summary | session-summary | List every request the owner made in a session, in their words, each with a status | `/session-summary`, "summarize this session", "what did I ask for?" |
 
 ## Rules and references (canonical indexes)
 
@@ -218,6 +220,14 @@ The genuine watch-items are called out at the end.
   `specs/` owns durable current behavior and second-brain owns durable project
   knowledge. The brainstorm may inform those artifacts but does not replace
   them.
+- **session-summary versus work-tracker and the wrap-up ritual.** All three
+  answer some version of "where do things stand", but for different scopes and
+  audiences. `session-summary` is a read-only view of one conversation, written
+  around the owner's own requests, and it writes nothing. `work-tracker` owns
+  durable ticket state that outlives the chat, so a request worth keeping goes
+  there rather than into a summary. The `wrap-up-ritual` rule is the moment that
+  says to update those durable records at the end of substantial work. The
+  summary is what the owner reads; the tracker is what the next session reads.
 - **The session-continuity rule cluster.** Several general rules touch "do not
   lose context across sessions", which can read as overlap: `keep-claudemd-current`
   (write durable facts into CLAUDE.md, and route everything that is not a rule

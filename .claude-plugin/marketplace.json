@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Personal, portable toolkit of reusable Claude systems: skills, rules, hooks, and templates shared across every project and device.",
-    "version": "0.50.0"
+    "version": "0.51.0"
   },
   "plugins": [
     {
@@ -43,6 +43,11 @@
       "name": "work-tracker",
       "source": "./plugins/work-tracker",
       "description": "Git-native work tracking shared by Claude and Codex, with deterministic status, handoffs, relationships, Git landing verification, generated dashboards, and optional GitHub Issues and Projects synchronization."
+    },
+    {
+      "name": "session-summary",
+      "source": "./plugins/session-summary",
+      "description": "Recaps a session as one bullet per request the owner made, in the owner's own words and in the order asked, each carrying an honest status: done, done unverified, partly done, blocked, waiting on you, not started, dropped, or answered."
     }
   ]
 }

@@ -1,0 +1,9 @@
+{
+  "name": "session-summary",
+  "description": "Recaps a chat session as a bullet list of every request the owner made and where each one stands, in the owner's own words, with an honest status.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Mike Rihm",
+    "email": "michael@rihm.com"
+  }
+}

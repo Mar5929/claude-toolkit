@@ -143,6 +143,12 @@ claude-toolkit/
       .codex-plugin/plugin.json
       skills/
         work/                     ← SKILL.md + dependency-free Node core
+    session-summary/              ← plugin: what you asked for, and where it stands
+      README.md
+      .claude-plugin/plugin.json
+      .codex-plugin/plugin.json
+      skills/
+        session-summary/          ← SKILL.md + Codex UI metadata
   docs/
     toolkit-map.md                ← the catalog: every item and how they relate
     architecture.html             ← visual map of how the pieces fit
@@ -168,7 +174,7 @@ relate (including what looks redundant but is not), see
 
 ## What's here now
 
-Seven plugins. Each has its own `README.md` with the detail;
+Eight plugins. Each has its own `README.md` with the detail;
 [`docs/toolkit-map.md`](docs/toolkit-map.md) indexes everything in one place and
 explains how the pieces relate.
 
@@ -181,6 +187,7 @@ explains how the pieces relate.
 | **[hooks-library](plugins/hooks-library/README.md)** | Hooks that make a rule land mechanically instead of restating it: `style-reminder` puts the project's active output style back in front of Claude on every message, and `writing-guard` reads the finished reply and blocks an em dash or a section sign before it is sent. |
 | **[grill-me](plugins/grill-me/README.md)** | Stress-tests a plan, design, or topic through a one-question-at-a-time interview and checkpoints every answer to a durable Markdown file before continuing. |
 | **[work-tracker](plugins/work-tracker/README.md)** | Gives Claude and Codex one Git-authoritative backlog with exact handoffs, blockers, typed relationships, deterministic next-item selection, Git landing proof, generated dashboards, and optional GitHub Issues and Projects synchronization. |
+| **[session-summary](plugins/session-summary/README.md)** | Recaps a session as one bullet per request you made, in your own words and in the order you asked, each carrying an honest status. Answers "what did I ask for, and where does it stand?" without a narrative of the assistant's own work. |
 
 ---
 
@@ -297,6 +304,13 @@ For Git-native work tracking, optionally mirrored to GitHub Projects:
 ```text
 /plugin install work-tracker
 /work
+```
+
+For a recap of what you asked for in a session and where each request stands:
+
+```text
+/plugin install session-summary
+/session-summary
 ```
 
 For Git-native project memory shared by Claude and Codex:
