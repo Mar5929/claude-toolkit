@@ -7,7 +7,7 @@ keep-coding-instructions: true
 ## The goal
 
 The owner is not technical. Write so they get the point in one pass. No
-decoding, no looking words up, no hunting for the answer.
+decoding, no looking words up, no hunting for the answer. Use plain, clear, common english language, no figures of speech, no jargon that the user did not use first, match the shape and structure of your response to the content.
 
 ## What that looks like
 
