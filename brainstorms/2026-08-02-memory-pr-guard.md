@@ -328,6 +328,12 @@ works, end to end")
 - **Issue #112 created**: one line per item instead of the fixed four-field
   report block in `second-brain-rule.md`.
 - **Issue #113 created**: drop the word "durable" from the toolkit.
+- **Issue #115 created**, raised by Mike after the interview when he was told
+  the timing sentence lives in seven files: stop describing the memory system in
+  six places, make one file own each fact. Measured for that ticket: 24 phrases
+  of six or more words appear in two or more of those six documents, and three
+  of them describe the whole system end to end (827, 1043, and 292 lines), all
+  labelled current shipped design.
 - #112 and #113 sit in **Backlog**. Neither may be built until it has had its
   own grill-me session, per the rule Mike added today.
 
