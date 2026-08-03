@@ -5,7 +5,7 @@ provided every file is proven complete before it is trusted and every deploy is
 preflighted. Profiles cannot give the same guarantee and are excluded by default.
 
 The full runbook, including the exact commands, is the toolkit reference
-`salesforce-permissions-retrieval.md`. The tool that enforces every gate below is
+`../../guides/salesforce-permissions-retrieval.md`. The tool that enforces every gate below is
 `tools/permissions/permsets.py`, copied into the project by `project-init`.
 
 ## The asymmetry that drives every rule here
@@ -114,5 +114,5 @@ be removed, and accept the losses on purpose if they are intended.
   target org on any deploy.
 
 The evidence behind every claim here, with sources and dates, is the toolkit
-reference `salesforce-permissions-research.md`. Read that before re-litigating
+reference `../../guides/salesforce-permissions-research.md`. Read that before re-litigating
 any of this.

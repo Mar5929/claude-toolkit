@@ -28,7 +28,7 @@ So voice is delivered at three levels, and they are complements:
 **This is now the only home for voice.** The four rules that used to hold it,
 `writing-and-language.md`, `how-to-reply.md`, `treat-owner-as-non-technical.md`,
 and `define-your-terms.md`, were all deleted. Do not put a voice rule back in
-`general-rules/`. That folder is for how Claude *works*; this one is for how it
+`../rules/general/`. That folder is for how Claude *works*; this one is for how it
 *talks*.
 
 Two costs were accepted when those files went. One has since been paid, the
@@ -44,7 +44,7 @@ other is now handled a different way:
 - **A helper agent never sees a style.** Still true, and unfixable at this
   level: an output style is delivered in the main conversation's system prompt
   only. It is handled in two places instead. The `follow-the-output-style.md`
-  rule in `general-rules/` tells a helper agent to go read the style file before
+  rule in `../rules/general/` tells a helper agent to go read the style file before
   writing a commit message, pull request text, or a document. An agent that
   writes durable files carries the rules in its own definition; see the "How to
   write" section in `second-brain/agents/memory-librarian.md`.
@@ -71,7 +71,7 @@ decision made in #102, not a limit imposed by anything. Nothing breaks at 51;
 the hook's own guard is a 4,000 character ceiling, which is far higher. The
 number exists so the next person to add a line has to take one out. Detailed
 procedure (how to write a numbered instruction list, when to use the question
-box) belongs in a rule in `general-rules/`, which is about working rather than
+box) belongs in a rule in `../rules/general/`, which is about working rather than
 talking.
 
 ## Default ON
@@ -136,4 +136,4 @@ Keep it to directives. A style is the canonical home for voice, so there is no
 longer a rule file behind it to hold the reasoning, which makes it tempting to
 grow the file into one. Resist that. Write the operative instruction, not the
 argument for it. Anything that needs a page of reasoning is procedure, and
-procedure belongs in `general-rules/`.
+procedure belongs in `../rules/general/`.

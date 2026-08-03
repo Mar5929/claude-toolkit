@@ -1,7 +1,7 @@
 {
   "name": "hooks-library",
   "description": "Hooks that make a rule land mechanically instead of asking an agent to remember it. Ships style-reminder, a UserPromptSubmit hook that reads the project's active output style and puts it back in front of the agent every time the owner sends a message, so voice instructions delivered once at session start never go stale. Built after measuring real transcripts showed those rules are stated clearly in several places and broken in a quarter to over half of all messages anyway.",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com"

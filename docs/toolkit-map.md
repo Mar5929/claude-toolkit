@@ -41,41 +41,76 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | work | work-tracker | Manage local work items and their optional GitHub Issues and Project mirror | `/work`, "add this to the backlog", "what should I work on next?" |
 | session-summary | session-summary | List every request the owner made in a session, in their words, each with a status | `/session-summary`, "summarize this session", "what did I ask for?" |
 
+## The library: what lands in a project
+
+Rules, output styles, tools, templates, and the guides that install them all sit
+together in one folder, `plugins/project-init/library/`:
+
+| Folder | Holds |
+|---|---|
+| `library/rules/general/` | the standard `.claude/rules/` files every project gets |
+| `library/rules/salesforce/` | the extra `.claude/rules/` files a Salesforce project gets |
+| `library/output-styles/` | the `.claude/output-styles/` files that set the voice |
+| `library/tools/` | `permsets.py` and the `kb/` dependency graph tool |
+| `library/templates/` | copy-and-fill starting points |
+| `library/guides/` | how-to documents for installing the kits above |
+
+None of it belongs to `project-init`. `project-sync` reads the same folder, and
+so can anything else added later. It sits inside the `project-init` plugin for
+one reason: a plugin ships only the files inside its own folder, so a `library/`
+at the repository root would vanish the moment the plugin is installed. That was
+tested before the move.
+
+`plugins/project-init/skills/project-init/references/` is a different pile and
+holds only five files: the gate-by-gate script `project-init` reads to run
+itself (`setup-flow.md`, `work-tracking-choice.md`, `work-items-structure.md`,
+`thin-claudemd.md`, `salesforce-project-scaffold.md`). Nothing there is copied
+into a project.
+
+Every hook in the toolkit lives in
+[`hooks-library`](../plugins/hooks-library/README.md), including the two
+Salesforce guards and their install guides.
+
 ## Rules and references (canonical indexes)
 
 These are not duplicated here. Go to the index that owns them:
 
 - **General rules** (the standard `.claude/rules` files copied into every
-  project): [general-rules/README.md](../plugins/project-init/skills/project-init/references/general-rules/README.md).
+  project): [general-rules/README.md](../plugins/project-init/library/rules/general/README.md).
   Marks active rules default ON or conditional. Retired v1 examples are not
   part of this installable library.
 - **Output styles** (the `.claude/output-styles` files that set the voice Claude
-  answers in): [output-styles/README.md](../plugins/project-init/skills/project-init/references/output-styles/README.md).
+  answers in): [output-styles/README.md](../plugins/project-init/library/output-styles/README.md).
   Marks each style default ON or optional. `plain-language.md` is the only one
   today, and it is default ON.
-- **Salesforce rules**: [salesforce-rules/README.md](../plugins/project-init/skills/project-init/references/salesforce-rules/README.md).
+- **Salesforce rules**: [salesforce-rules/README.md](../plugins/project-init/library/rules/salesforce/README.md).
 - **Salesforce dependency graph**: the tool and its own `README.md` live at
-  `plugins/project-init/skills/project-init/references/tools/kb/`; the install
+  `plugins/project-init/library/tools/kb/`; the install
   and use guide is
-  [salesforce-dependency-graph.md](../plugins/project-init/skills/project-init/references/salesforce-dependency-graph.md),
-  and the standing rule it installs is `salesforce-rules/dependency-graph.md`.
+  [salesforce-dependency-graph.md](../plugins/project-init/library/guides/salesforce-dependency-graph.md),
+  and the standing rule it installs is `rules/salesforce/dependency-graph.md`.
   It compiles a Salesforce project's own `force-app/` metadata into a local
   graph and answers "if I change this field, what breaks N steps out?" It reads
   local files only and never contacts an org. The non-Salesforce equivalent,
   built on the open-source graphify tool, is
-  [graphify-dependency-graph.md](../plugins/project-init/skills/project-init/references/graphify-dependency-graph.md),
-  whose rule is `general-rules/dependency-graph.md`. Both graphs ship as kits:
+  [graphify-dependency-graph.md](../plugins/project-init/library/guides/graphify-dependency-graph.md),
+  whose rule is `rules/general/dependency-graph.md`. Both graphs ship as kits:
   a tool, a rule, and an automatic rebuild. A project has one graph, so it gets
   one of the two rules, never both, and either lands in the project as
   `.claude/rules/dependency-graph.md`.
 - **Salesforce permission set kit**: the tool is
-  `plugins/project-init/skills/project-init/references/tools/permsets.py`; the
-  runbook is `salesforce-permissions-retrieval.md`, the evidence behind it is
-  `salesforce-permissions-research.md`, the rule is
-  `salesforce-rules/permissions-source-control.md`, and the deploy guard is
-  `salesforce-permset-guard-hook.md`.
+  `plugins/project-init/library/tools/permsets.py`; the runbook is
+  `library/guides/salesforce-permissions-retrieval.md`, the evidence behind it
+  is `library/guides/salesforce-permissions-research.md`, the project-side
+  runbook to fill in is `library/templates/permissions-runbook.md`, the rule is
+  `library/rules/salesforce/permissions-source-control.md`, and the deploy guard
+  is `hooks-library`'s `salesforce-permset-guard-hook.md` with its
+  `hooks/guard-permission-set-deploy.js`.
+- **Salesforce production-org guard**: `hooks-library`'s
+  `salesforce-prod-guard-hook.md`, with `hooks/guard-protected-orgs.js` and its
+  policy file `templates/protected-orgs.json`.
 - **MCP tool rules** (per-server, conditional):
-  `plugins/project-init/skills/project-init/references/mcp-best-practices.md`.
+  `plugins/project-init/library/guides/mcp-best-practices.md`.
 - **second-brain v3 runtime sources**:
   `second-brain-rule.md`, `folder-layout.md`, `markdown-schemas.md`,
   `orientation-snippet.md`, `adoption-guide.md`, and `templates/` under
@@ -312,7 +347,7 @@ Answer from the canonical home, not from memory:
 
 1. A plugin or skill: read that plugin's `README.md` (linked above), then the
    `SKILL.md` if you need the exact steps.
-2. A rule: read `general-rules/README.md` (or `salesforce-rules/README.md`) and
+2. A rule: read `library/rules/general/README.md` (or `library/rules/salesforce/README.md`) and
    then the rule file.
 3. "Is anything redundant?": read the relationships section above.
 

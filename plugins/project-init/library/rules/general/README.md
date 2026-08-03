@@ -4,12 +4,12 @@ Reusable `.claude/rules/` files that the owner wants in every project,
 regardless of stack. During `project-init` Gate 5 (CLAUDE.md), copy the selected
 files into the new project's `.claude/rules/` folder, and write a thin CLAUDE.md
 that points at that folder. Each rule is a standalone file, same model as the
-`salesforce-rules/` library.
+`../salesforce/` library.
 
 Keep the behavioral rules in these files, not inside CLAUDE.md. CLAUDE.md should
 stay short: what the project is, its structural pointers (backlog, work-items,
 deployment, toolkit port-back), which gates ran, and a line telling every
-session to read `.claude/rules/`. See `../thin-claudemd.md` for the CLAUDE.md
+session to read `.claude/rules/`. See `thin-claudemd.md` in the `project-init` skill for the CLAUDE.md
 structure Gate 5 writes.
 
 ## Default ON: copy into every project unless the owner opts out
@@ -38,7 +38,7 @@ How Claude writes and replies used to live here in four files:
 `writing-and-language.md`, `how-to-reply.md`,
 `treat-owner-as-non-technical.md`, and `define-your-terms.md`. All four were
 removed. That job now belongs to the `plain-language` output style in
-`../output-styles/`, which is delivered through the system prompt, re-stated
+`../../output-styles/`, which is delivered through the system prompt, re-stated
 every turn by the `style-reminder` hook, and checked on the finished reply by
 the `writing-guard` hook, instead of being read once as a rule file.
 
@@ -57,9 +57,9 @@ would drift from the first.
 
 | File | Copy it when | What it does |
 |---|---|---|
-| `dependency-graph.md` | the project installed the graphify code graph (see `../graphify-dependency-graph.md`) | Answer "what calls this?" and "what breaks if I change it?" from the graph, citing file and line, instead of from a text search or memory. Owns the freshness duty too: keep the automatic rebuild hooks installed, once per clone, because git hooks are never committed and a fresh clone silently has none. Also covers keeping the build offline, never committing it, and naming the graph's blind spot (runtime dispatch and configuration wiring) before saying "nothing uses this". |
+| `dependency-graph.md` | the project installed the graphify code graph (see `../../guides/graphify-dependency-graph.md`) | Answer "what calls this?" and "what breaks if I change it?" from the graph, citing file and line, instead of from a text search or memory. Owns the freshness duty too: keep the automatic rebuild hooks installed, once per clone, because git hooks are never committed and a fresh clone silently has none. Also covers keeping the build offline, never committing it, and naming the graph's blind spot (runtime dispatch and configuration wiring) before saying "nothing uses this". |
 
-A Salesforce project gets `../salesforce-rules/dependency-graph.md` instead: the
+A Salesforce project gets `../salesforce/dependency-graph.md` instead: the
 same job for the bundled metadata graph. The two are alternatives, never both,
 and either one lands in the project as `.claude/rules/dependency-graph.md`.
 
@@ -73,7 +73,7 @@ Retired v1 recognition examples no longer live in this active rule library.
 reading a v1 rule.
 
 MCP tool rules (Context7, Gmail, Google Calendar, Linear, Notion, Playwright)
-are conditional too, and live in `../mcp-best-practices.md`: fold in a server's
+are conditional too, and live in `../../guides/mcp-best-practices.md`: fold in a server's
 section only if the project uses that server.
 
 ## Adding a rule

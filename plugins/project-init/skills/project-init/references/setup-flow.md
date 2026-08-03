@@ -49,35 +49,34 @@ so they always know where they are.
   `salesforce-project-scaffold.md` (SFDX source plus an `engagement/` tree;
   its `engagement/work-items/` uses the same work-items structure).
 - Salesforce / SFDX: after `.claude/rules/` is scaffolded, offer the reusable
-  Salesforce rules from `salesforce-rules/` (see its `README.md`); copy the ones
+  Salesforce rules from `library/rules/salesforce/` (see its `README.md`); copy the ones
   the owner wants into the project's `.claude/rules/`.
 - Salesforce / SFDX: if the owner wants permission sets tracked in git, install
   the whole permission set kit. It has four parts and the rule is useless without
   the rest, because the danger it guards against is invisible to Salesforce's own
   checks:
-  1. `salesforce-rules/permissions-source-control.md` to `.claude/rules/`.
-  2. `tools/permsets.py` to `tools/permissions/permsets.py`, plus a short
+  1. `library/rules/salesforce/permissions-source-control.md` to `.claude/rules/`.
+  2. `library/tools/permsets.py` to `tools/permissions/permsets.py`, plus a short
      `tools/permissions/README.md` pointing at the runbook. This is what verifies
      a file against the org and reports what a deploy would delete.
-  3. `templates/permissions-runbook.md` as the project's own operating runbook
+  3. `library/templates/permissions-runbook.md` as the project's own operating runbook
      (`memory/operations/salesforce-permissions/README.md` under the second-brain
      layout, otherwise `docs/`). Fill in its placeholders.
   4. The deploy guard hook, in Gate 2 below.
 
-  Then follow `salesforce-permissions-retrieval.md` to prove on this org, once,
+  Then follow `library/guides/salesforce-permissions-retrieval.md` to prove on this org, once,
   that a standalone retrieve is complete, and record the result in the runbook.
-  `salesforce-permissions-research.md` holds the evidence and sources behind all
+  `library/guides/salesforce-permissions-research.md` holds the evidence and sources behind all
   of it; point the owner there rather than re-researching. Profiles are excluded
   by default; the runbook explains why and what to do if the owner wants them.
 - Salesforce / SFDX: offer the dependency graph in
-  `salesforce-dependency-graph.md`, and recommend it on an org merge or any org
+  `library/guides/salesforce-dependency-graph.md`, and recommend it on an org merge or any org
   where "if I change this field, what breaks?" comes up often. It is one kit,
   same as the permission sets one:
-  1. The whole `tools/kb/` folder from this skill's references into the
-     project's `tools/kb/`. The orchestrator imports every file in it, so do
-     not drop any.
+  1. The whole `library/tools/kb/` folder into the project's `tools/kb/`. The
+     orchestrator imports every file in it, so do not drop any.
   2. The gitignore entries for the graph and freshness artifacts.
-  3. `salesforce-rules/dependency-graph.md` to `.claude/rules/`.
+  3. `library/rules/salesforce/dependency-graph.md` to `.claude/rules/`.
   4. The freshness Stop hook, in Gate 2 below.
 
   It reads only local `force-app/` files and never contacts an org. Verify with
@@ -93,18 +92,22 @@ so they always know where they are.
   `writing-guard` reads the finished reply and blocks on an em dash or a section
   sign, so a slip is caught rather than shipped. Both pair with Gate 5; skip them
   if the owner skips the style.
-- Salesforce / SFDX: offer the ready-made production-org guard in
-  `salesforce-prod-guard-hook.md` (confirms before deploys or destructive ops
-  hit a production org; auto-detects production; tuned by a JSON policy file).
-- Salesforce / SFDX: whenever the permission set rule was accepted in Gate 1,
-  also install the permission set deploy guard in
-  `salesforce-permset-guard-hook.md`. It blocks any deploy shipping a permission
-  set that has not been preflighted, which is the one step whose omission
-  silently and irreversibly deletes grants. Both guards sit in the same
-  `Bash|PowerShell` PreToolUse matcher. It depends on `permsets.py` being
-  installed; without it every permission set deploy is blocked forever.
+- Salesforce / SFDX: both Salesforce guards ship from `hooks-library` alongside
+  every other hook. Install that plugin (`/plugin install hooks-library`) and
+  follow its two guides. It is needed only while setting them up: the install
+  copies the hook files into the project, so afterwards the project runs them
+  on its own.
+  - `salesforce-prod-guard-hook.md`: confirms before deploys or destructive ops
+    hit a production org; auto-detects production; tuned by a JSON policy file.
+  - `salesforce-permset-guard-hook.md`: whenever the permission set rule was
+    accepted in Gate 1, also install this. It blocks any deploy shipping a
+    permission set that has not been preflighted, which is the one step whose
+    omission silently and irreversibly deletes grants. It depends on
+    `permsets.py` being installed; without it every permission set deploy is
+    blocked forever.
+  - Both guards sit in the same `Bash|PowerShell` PreToolUse matcher.
 - Salesforce / SFDX: whenever the dependency graph was accepted in Gate 1, wire
-  its freshness Stop hook (step 4 of `salesforce-dependency-graph.md`). It sits
+  its freshness Stop hook (step 4 of `library/guides/salesforce-dependency-graph.md`). It sits
   in `hooks.Stop`, not with the two PreToolUse guards, and it lives inside
   `tools/kb/` because it imports the rest of the tool.
 
@@ -126,13 +129,13 @@ so they always know where they are.
   drift hooks.
 - Treat a dependency graph as an optional analysis aid, not required memory
   infrastructure or automatic truth. Salesforce projects use
-  `salesforce-dependency-graph.md` (offered in Gate 1); every other stack uses
-  `graphify-dependency-graph.md`. A project installs at most one.
+  `library/guides/salesforce-dependency-graph.md` (offered in Gate 1); every other stack uses
+  `library/guides/graphify-dependency-graph.md`. A project installs at most one.
 - Non-Salesforce: offer the graphify kit here if the owner wants impact
   analysis. Four parts, installed together:
   1. The `graphify` command.
   2. `graphify-out/` in `.gitignore`.
-  3. `general-rules/dependency-graph.md` to `.claude/rules/` (Gate 5).
+  3. `library/rules/general/dependency-graph.md` to `.claude/rules/` (Gate 5).
   4. `graphify hook install` for the auto-rebuild git hooks.
 
   Say the hook caveat out loud: git hooks are never committed, so each fresh
@@ -140,8 +143,8 @@ so they always know where they are.
 
 **Gate 5: CLAUDE.md and the rules folder**
 - Behavioral rules go into the project's `.claude/rules/` as individual files,
-  not into CLAUDE.md. See `thin-claudemd.md` and `general-rules/README.md`.
-- Copy the general rules from `general-rules/` into `.claude/rules/`: every
+  not into CLAUDE.md. See `thin-claudemd.md` and `library/rules/general/README.md`.
+- Copy the general rules from `library/rules/general/` into `.claude/rules/`: every
   default-ON file unless the owner drops it. Never copy retired v1 recognition
   files into a new project. When v3 ran, keep its canonical
   `second-brain.md` rule and index it once. Walk the list; let the owner accept,
@@ -153,19 +156,19 @@ so they always know where they are.
   session; steer the session to the goal; do the technical work yourself; one
   folder per work item; show phase progress; treat the owner as non-technical).
   Only drop if the owner opts this project out.
-- Salesforce projects: make sure the `salesforce-rules/` files chosen in Gate 1
+- Salesforce projects: make sure the `library/rules/salesforce/` files chosen in Gate 1
   are in `.claude/rules/` too.
 - Conditional general rules go in only when the project has the thing they
   govern: today that is `dependency-graph.md`, when the graphify graph was
-  accepted in Gate 4. Salesforce projects get the `salesforce-rules/` file of
+  accepted in Gate 4. Salesforce projects get the `library/rules/salesforce/` file of
   that name instead. Never both.
-- MCP tool rules from `mcp-best-practices.md` are conditional: fold in a server's
+- MCP tool rules from `library/guides/mcp-best-practices.md` are conditional: fold in a server's
   section only if the project uses that MCP server.
 - Write a thin CLAUDE.md _with_ the user: what it is, codemap and structural
   pointers, a `Read .claude/rules` line, which gates ran. Add a
   `.claude/rules/README.md` index.
 - Install the plain-language output style (default ON): copy
-  `output-styles/plain-language.md` to `.claude/output-styles/` and set
+  `library/output-styles/plain-language.md` to `.claude/output-styles/` and set
   `"outputStyle": "plain-language"` in the committed `.claude/settings.json`.
   This is the only home for how Claude talks; there are no voice rules in
   `.claude/rules/` any more. Pair it with both Gate 2 hooks: `style-reminder`
@@ -174,7 +177,7 @@ so they always know where they are.
   this voice in every project. Say that it starts on the owner's next session,
   and that a helper agent never sees an output style, which is what
   `follow-the-output-style.md` in the rules folder is for. See
-  `output-styles/README.md`.
+  `library/output-styles/README.md`.
 - When v3 ran, the memory schema is the one exception to thin. Copy the full
   section from the second-brain plugin's `references/orientation-snippet.md`
   **verbatim** into BOTH CLAUDE.md and AGENTS.md, at the **top** of each file,

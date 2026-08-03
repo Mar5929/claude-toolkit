@@ -105,14 +105,41 @@ session.
 It fails open. Any unexpected error exits 0. A broken guard must never wedge a
 session.
 
+### The two Salesforce guards
+
+Both are `PreToolUse` hooks on the `Bash|PowerShell` matcher, written in Node so
+they behave the same under Git Bash and PowerShell. They are Salesforce-only, so
+`project-init` Gate 2 offers them only when the stack is Salesforce.
+
+| File | Guide | What it does |
+|---|---|---|
+| `hooks/guard-protected-orgs.js` | `salesforce-prod-guard-hook.md` | Confirms before any Salesforce CLI deploy or destructive command hits a production org. Works out which orgs are production from the local org store, with no network call. Tuned by `templates/protected-orgs.json`, copied to the project's `.claude/`. |
+| `hooks/guard-permission-set-deploy.js` | `salesforce-permset-guard-hook.md` | Blocks a deploy shipping a permission set that has not been preflighted in the last 30 minutes. That omission silently and irreversibly deletes grants, and Salesforce's own `deploy validate` and `deploy preview` cannot detect it. |
+
+**Installing them copies them into the project, so the project does not need this
+plugin afterwards.** Each guide ends with the hook file in the project's
+`.claude/hooks/` and an entry in the project's `.claude/settings.json`. Install
+this plugin to get the guides and the files; after that the project runs the
+hooks on its own, and a clone of it needs nothing from here.
+
+The permission set guard depends on `permsets.py`, which is not in this plugin.
+It ships in the `project-init` library at `library/tools/permsets.py`, and Gate 1
+copies it to `tools/permissions/permsets.py`. Without it the guard blocks every
+permission set deploy forever.
+
 ## Install
 
-Use the `hooks-library` skill (`/hooks-library`), which wires the hook into the
+Use the `hooks-library` skill (`/hooks-library`), which wires a hook into the
 project's `.claude/settings.json` and verifies it runs. `project-init` and
-`project-sync` both offer it.
+`project-sync` both offer them.
 
-The hook is only useful next to an installed output style, so install the two
-together. `project-init` Gate 5 installs the style; this hook makes it repeat.
+`style-reminder` and `writing-guard` are only useful next to an installed output
+style, so install those together. `project-init` Gate 5 installs the style;
+`style-reminder` makes it repeat.
+
+The two Salesforce guards install from their own guides in this folder,
+`salesforce-prod-guard-hook.md` and `salesforce-permset-guard-hook.md`, which
+`project-init` Gate 2 follows step by step.
 
 ## Configure
 

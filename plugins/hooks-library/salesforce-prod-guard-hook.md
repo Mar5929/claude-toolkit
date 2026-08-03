@@ -28,10 +28,10 @@ confirmation when that org is production.
 
 ## Files (both ship ready to copy)
 
-- `references/hooks/guard-protected-orgs.js`: the hook. Written in Node so it
+- `hooks/guard-protected-orgs.js`: the hook. Written in Node so it
   runs the same under Git Bash and PowerShell. Copy to the project's
   `.claude/hooks/`.
-- `references/templates/protected-orgs.json`: the policy. Copy to the project's
+- `templates/protected-orgs.json`: the policy. Copy to the project's
   `.claude/` (one level above `hooks/`). The hook reads it by relative path, so
   keep that layout.
 

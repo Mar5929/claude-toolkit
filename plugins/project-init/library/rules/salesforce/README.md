@@ -7,7 +7,7 @@ these into the new project's `.claude/rules/` (Gate 1, right after the
 the owner before copying, same as every other gate.
 
 These are Salesforce-specific and opt-in, so they live here rather than in the
-`general-rules/` library (which every project gets). Both libraries are copied
+`../general/` library (which every project gets). Both libraries are copied
 as files into the project's `.claude/rules/` folder, and the project's CLAUDE.md
 points at that folder so these files are read each session.
 
@@ -20,10 +20,10 @@ points at that folder so these files are read each session.
 | `deploy-hitchhiker-check.md` | Before any deploy, catch components or un-deployed edits that would ride along into the target org before their feature is ready. Ends with read-only verification against the org, never a flag based on a stale tracker. |
 | `component-tracker.md` | Keep one master one-row-per-component CSV inventory of what this project authored and where it is deployed, and a matching master manifest, both under one `engagement/deployment/` folder with a per-work-item manifest folder each. Kept in sync in the same change. Optional: assumes a deployment folder. |
 | `deployment-runbook.md` | Track the operational steps a deploy cannot perform (permission-set assignments, data re-stamps, scheduled jobs, post-deploy checks). Tool-agnostic. Optional. |
-| `permissions-source-control.md` | Permission sets are tracked in git and deployed from it, behind a mandatory preflight that lists what a deploy would remove. A permission set retrieve is complete on its own (API 40.0 and later); the danger is the deploy, which replaces the whole component, and which no Salesforce CLI command warns about. Ships with `../tools/permsets.py`. Profiles are excluded by default: lossy retrieve, overlay deploy, so their diff cannot show a revocation. Runbook: `../salesforce-permissions-retrieval.md`. |
+| `permissions-source-control.md` | Permission sets are tracked in git and deployed from it, behind a mandatory preflight that lists what a deploy would remove. A permission set retrieve is complete on its own (API 40.0 and later); the danger is the deploy, which replaces the whole component, and which no Salesforce CLI command warns about. Ships with `../../tools/permsets.py`. Profiles are excluded by default: lossy retrieve, overlay deploy, so their diff cannot show a revocation. Runbook: `../../guides/salesforce-permissions-retrieval.md`. |
 | `production-data.md` | One home for every production data artifact: backups (saved before a live data change) and data-load files each live in their own dated subfolder under `engagement/data/`, with a required README and gitignored data files so record IDs / PII never commit. |
 | `data-change-handoff.md` | No agent ever writes data to production; sandbox writes need the owner's yes in that same chat; reads are approved by default. Owns what the agent hands over instead: a ready-to-load CSV, a backup file, numbered load steps, what success looks like, and how to undo it. |
-| `dependency-graph.md` | Answer "what writes this field" and "what breaks if I change it" from the project's compiled dependency graph, not from memory, and keep that graph fresh. Names the graph's blind spot (no Apex or integration writers), what to do when the drift file appears, and that the tool never contacts an org. Ships with `../tools/kb/`. Guide: `../salesforce-dependency-graph.md`. |
+| `dependency-graph.md` | Answer "what writes this field" and "what breaks if I change it" from the project's compiled dependency graph, not from memory, and keep that graph fresh. Names the graph's blind spot (no Apex or integration writers), what to do when the drift file appears, and that the tool never contacts an org. Ships with `../../tools/kb/`. Guide: `../../guides/salesforce-dependency-graph.md`. |
 
 The first three are the recommended default set for a Salesforce project. The
 next two (`component-tracker.md`, `deployment-runbook.md`) are heavier consulting
@@ -32,11 +32,11 @@ projects that keep a deployment inventory and a cutover manifest. Offer
 `permissions-source-control.md` whenever the project tracks (or wants to start
 tracking) permission sets in git. **It is not a standalone rule.** When accepted,
 install all four parts or it is advice with no enforcement: the rule,
-`../tools/permsets.py` to `tools/permissions/permsets.py`,
-`../templates/permissions-runbook.md` as the project runbook, and
-`../hooks/guard-permission-set-deploy.js` in Gate 2. The install table is in
-`../salesforce-permissions-retrieval.md`; the evidence is in
-`../salesforce-permissions-research.md`. Offer `production-data.md`
+`../../tools/permsets.py` to `tools/permissions/permsets.py`,
+`../../templates/permissions-runbook.md` as the project runbook, and
+`guard-permission-set-deploy.js` from the `hooks-library` plugin in Gate 2. The install table is in
+`../../guides/salesforce-permissions-retrieval.md`; the evidence is in
+`../../guides/salesforce-permissions-research.md`. Offer `production-data.md`
 whenever the project will load or change production data via Data Loader / Bulk
 API and wants one auditable home for its backups and load files.
 
@@ -47,9 +47,9 @@ project as `.claude/rules/dependency-graph.md`. Use this one whenever the stack
 is Salesforce.
 
 It is also the second rule in this library that is **not a standalone rule**. When accepted, install the whole kit or it is advice with no
-enforcement: the rule, the `../tools/kb/` folder copied to the project's
+enforcement: the rule, the `../../tools/kb/` folder copied to the project's
 `tools/kb/`, the gitignore entries, and the freshness Stop hook in Gate 2. The
-install steps are in `../salesforce-dependency-graph.md`. Offer it on any
+install steps are in `../../guides/salesforce-dependency-graph.md`. Offer it on any
 Salesforce project, and press the case on an org merge or a large org, where
 field-level impact analysis is a daily question.
 

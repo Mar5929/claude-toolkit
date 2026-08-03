@@ -15,7 +15,7 @@ issue before it is built, and nothing is built until a refinement session has
 filled in the six-part spec.
 
 Those rules are stated once, in
-`plugins/project-init/skills/project-init/references/general-rules/spec-before-you-build.md`.
+`plugins/project-init/library/rules/general/spec-before-you-build.md`.
 Read it. It is the canonical statement and it governs this repo as well as every
 project the toolkit sets up. Do not restate the six parts here; if they need to
 change, change them there.
@@ -41,7 +41,7 @@ write X down somewhere. Fit it into the system:
 
    | X is... | It goes... |
    | --- | --- |
-   | A rule for how agents behave, write, or work in every project | A new file in `plugins/project-init/skills/project-init/references/general-rules/`; also add a row to that folder's `README.md` index (default ON or conditional) |
+   | A rule for how agents behave, write, or work in every project | A new file in `plugins/project-init/library/rules/general/`; also add a row to that folder's `README.md` index (default ON or conditional) |
    | A setup step for new projects | Into the right gate in `plugins/project-init/skills/project-init/SKILL.md` and `references/setup-flow.md` (or propose a new gate) |
    | A guard hook or automation | The `hooks-library` plugin. A hook checks an output, triggers a process agents forget to run, or orients a session at its start; if it needs none of those, it stays a rule |
    | A whole reusable system | A new plugin under `plugins/`, each with its own `README.md`, registered in `.claude-plugin/marketplace.json`, offered by `project-init`, and listed in `docs/toolkit-map.md` |
@@ -57,7 +57,7 @@ write X down somewhere. Fit it into the system:
    top `README.md` in the same change, so a future session can still answer "what
    is each thing, and is anything redundant?" from the repo itself.
 4. **Opt-in by default.** Nothing is forced on a project unless Mike says every
-   project should get it; then mark it default ON in the `general-rules/README.md`
+   project should get it; then mark it default ON in the `library/rules/general/README.md`
    index (like most rules there), not conditional.
 5. **Bump versions.** A content change to a plugin bumps its `plugin.json`
    version and `metadata.version` in `marketplace.json`.
@@ -94,7 +94,7 @@ itself; each machine and each project pulls the change in.
 ## Writing rules (they apply here too)
 
 How you talk to Mike is governed by the `plain-language` output style, at
-`plugins/project-init/skills/project-init/references/output-styles/plain-language.md`.
+`plugins/project-init/library/output-styles/plain-language.md`.
 Read it. It is the canonical statement and it applies to this repo's own files,
 not just to the projects this toolkit sets up: real names only and never one you
 invented, no figures of speech, common words, the answer first, a shape that

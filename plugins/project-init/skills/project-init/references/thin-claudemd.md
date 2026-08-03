@@ -2,7 +2,7 @@
 
 The behavioral rules do not go inside CLAUDE.md. They live as individual files in
 the project's `.claude/rules/` folder, copied there from the toolkit's rules
-libraries (`general-rules/` for every stack, `salesforce-rules/` for Salesforce
+libraries (`library/rules/general/` for every stack, `library/rules/salesforce/` for Salesforce
 projects). CLAUDE.md stays short and points at that folder.
 
 Keeping CLAUDE.md thin is the point: a session reads it first, so it should
@@ -17,12 +17,12 @@ still applies.
 ## What Gate 5 does
 
 1. **Copy the selected rule files** into the project's `.claude/rules/`:
-   - From `general-rules/`: every default-ON file, unless the owner drops it.
-     See `general-rules/README.md` for the current list.
+   - From `library/rules/general/`: every default-ON file, unless the owner drops it.
+     See `library/rules/general/README.md` for the current list.
    - From `second-brain`: keep `.claude/rules/second-brain.md` when Gate 3 ran.
      This rule comes from the second-brain plugin and is not duplicated in the
      general-rules library.
-   - From `salesforce-rules/` (Salesforce projects only): the set the owner
+   - From `library/rules/salesforce/` (Salesforce projects only): the set the owner
      chose in Gate 1, if not already copied there.
    - Adapt wording to the project's voice if the owner wants; the file is the
      intent, not fixed prose.
@@ -62,7 +62,7 @@ In this order:
     client exports) when the project has such folders, so an agent can tell them
     apart from curated memory at a glance
 - **MCP tool rules**: only for the MCP servers the project actually uses, folded
-  in from `mcp-best-practices.md` (or copied as their own `.claude/rules/`
+  in from `library/guides/mcp-best-practices.md` (or copied as their own `.claude/rules/`
   files if the project prefers one file per rule everywhere).
 
 Everything else, the writing style, the response style, the working-style rules,
@@ -114,7 +114,7 @@ and `.claude/rules/second-brain.md` in full first.
 - Each rule is individually skippable at setup and individually editable later.
 - A rule ported back to the toolkit lands as one file that projects copy
   verbatim, instead of being retyped into each CLAUDE.md.
-- It matches how `salesforce-rules/` already works, so the two libraries behave
+- It matches how `library/rules/salesforce/` already works, so the two libraries behave
   the same way.
 
 The memory schema is the one deliberate exception, for the reason given above.

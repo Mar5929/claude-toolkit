@@ -14,7 +14,7 @@ never calls any service (no network, no auth, no `sf` commands; org-independent
 by design).
 
 Install and use are documented in the toolkit at
-`plugins/project-init/skills/project-init/references/salesforce-dependency-graph.md`.
+`plugins/project-init/library/guides/salesforce-dependency-graph.md`.
 
 ## Quickstart
 

@@ -31,7 +31,7 @@ question exists:
 - every piece of work is logged in that tracker before it is built; and
 - nothing is built until a refinement session has filled in the six-part spec.
 
-Those two live in the `general-rules/spec-before-you-build.md` rule, which is
+Those two live in the `library/rules/general/spec-before-you-build.md` rule, which is
 their one canonical home. Gate 5 copies it into `.claude/rules/`. Do not restate
 its contents anywhere else. What changes per answer is only which tracker gets
 named and how the refinement session is marked.

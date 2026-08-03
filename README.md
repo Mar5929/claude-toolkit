@@ -44,8 +44,8 @@ written down somewhere. It gets fitted into the system:
 
 | What I bring | Where it lands |
 |---|---|
-| A rule every project should follow (behavior, writing style, workflow) | Its own file in the `general-rules/` library, copied into each new project's `.claude/rules/` |
-| A change to the voice Claude answers in, every turn | The `output-styles/` library, copied into each project's `.claude/output-styles/` and switched on in its settings. Use this only for something already written as a rule: a style is the short operative form, delivered where the session gets reminded of it each turn |
+| A rule every project should follow (behavior, writing style, workflow) | Its own file in `library/rules/general/`, copied into each new project's `.claude/rules/` |
+| A change to the voice Claude answers in, every turn | `library/output-styles/`, copied into each project's `.claude/output-styles/` and switched on in its settings. Use this only for something already written as a rule: a style is the short operative form, delivered where the session gets reminded of it each turn |
 | A setup step for new projects | A gate (or part of one) in the `project-init` skill |
 | A guard hook or automation | The [`hooks-library`](plugins/hooks-library/README.md) plugin. A hook does one of three jobs: check an output against a rule a machine can test with no interpretation, trigger a process at a moment agents forget, or orient a session at its start. If it needs none of those, it stays a rule |
 | A whole reusable system | Its own plugin/skill that `project-init` offers |
@@ -91,12 +91,19 @@ claude-toolkit/
       README.md                   ← what this plugin is
       .claude-plugin/plugin.json
       .codex-plugin/plugin.json
+      library/                    ← everything that gets COPIED INTO a project.
+        rules/general/               the standard .claude/rules files (17)
+        rules/salesforce/            the extra Salesforce rules (10)
+        output-styles/               plain-language.md, the voice Claude answers in
+        tools/                       permsets.py and the kb/ dependency graph tool
+        templates/                   copy-and-fill starting points
+        guides/                      how-to docs for installing the kits above
       skills/
-        project-init/             ← SKILL.md + references/ (setup-flow, thin-claudemd,
-                                     general-rules/, output-styles/, salesforce-rules/,
-                                     mcp-best-practices, tools/ with the permission set
-                                     and dependency graph tools)
-        project-sync/             ← SKILL.md
+        project-init/             ← SKILL.md + references/: the gate script only
+                                     (setup-flow, work-tracking-choice,
+                                     work-items-structure, thin-claudemd,
+                                     salesforce-project-scaffold)
+        project-sync/             ← SKILL.md (reads the same library/)
     second-brain/                 ← plugin: Git-native v3 memory for Claude and Codex
       README.md
       .claude-plugin/plugin.json
@@ -128,6 +135,11 @@ claude-toolkit/
       hooks/
         style-reminder.mjs        ← re-states the output style every message
         writing-guard.mjs         ← checks the finished reply before it is sent
+        guard-protected-orgs.js   ← confirms before a deploy hits a production org
+        guard-permission-set-deploy.js ← blocks an unpreflighted permset deploy
+      templates/protected-orgs.json  ← the production guard's policy file
+      salesforce-prod-guard-hook.md      ← install guide for the production guard
+      salesforce-permset-guard-hook.md   ← install guide for the permset guard
       tests/                      ← one harness per hook
       skills/
         hooks-library/            ← SKILL.md (install, verify, remove)
@@ -247,14 +259,17 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
   section sign, so a slip is caught rather than shipped. The guard was deleted in
   #101 and brought back by #102, narrowed to those two characters; everything
   needing judgement stays with the style, because a wrong block costs me a turn.
-  Still to come: secret-scanning and a SessionStart orientation hook. The
-  Salesforce production-org and permission set guards continue to install from
-  `project-init` Gate 2.
+  It also holds the two Salesforce guards, the production-org guard and the
+  permission set deploy guard, moved here by #126 so every hook in the toolkit
+  sits in one place. `project-init` Gate 2 still offers them; it now installs
+  this plugin and follows its two guides. Still to come: secret-scanning, a
+  SessionStart orientation hook, and the memory pull-request hook (#104).
 - [x] **General rules library**: the standard rules are now individual files in
-  `project-init`'s `general-rules/` library (with a `README.md` index), copied
+  `project-init`'s `library/rules/general/` folder (with a `README.md` index),
+  copied
   into each project's `.claude/rules/` verbatim instead of retyped into CLAUDE.md.
-- [x] **Output styles library**: `project-init`'s `output-styles/` library (with
-  a `README.md` index), copied into each project's `.claude/output-styles/` and
+- [x] **Output styles library**: `project-init`'s `library/output-styles/` folder
+  (with a `README.md` index), copied into each project's `.claude/output-styles/` and
   switched on in its settings, or into `~/.claude/output-styles/` to cover every
   project on the machine at once. `plain-language.md` is default ON, and it is
   the only home for how Claude talks to me. Rewritten by #102 as a goal, then
@@ -264,7 +279,7 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
   signs, quiet between tool calls, and my actions at the end. The four voice
   rules it replaced (`writing-and-language`, `how-to-reply`,
   `treat-owner-as-non-technical`, `define-your-terms`) were all deleted.
-  `general-rules/` now covers how Claude *works*, not how it *talks*. The one
+  `library/rules/general/` now covers how Claude *works*, not how it *talks*. The one
   cost that stands: a helper agent never sees an output style. Two things cover
   it instead. The `follow-the-output-style` rule sends a helper agent to read the
   style file before it writes a commit message, pull request text, or a document,

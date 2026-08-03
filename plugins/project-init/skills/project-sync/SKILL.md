@@ -40,11 +40,12 @@ today's list; read the toolkit itself so new systems are picked up
 automatically as it grows.
 
 - Locate the toolkit files, in order of preference:
-  1. They ship with this plugin. From this skill's directory, the sibling
-     skill's `../project-init/references/` holds `general-rules/` (with its
-     `README.md` index), `output-styles/` (with its own `README.md` index),
-     `salesforce-rules/`, `thin-claudemd.md`, and `setup-flow.md`, and the
-     plugin root holds `.claude-plugin/plugin.json`.
+  1. They ship with this plugin. From this skill's directory, `../../library/`
+     holds `rules/general/` (with its `README.md` index), `rules/salesforce/`
+     (with its own index), `output-styles/` (with its own index), `tools/`,
+     `templates/`, and `guides/`. The sibling skill's
+     `../project-init/references/` holds `thin-claudemd.md` and `setup-flow.md`,
+     and the plugin root holds `.claude-plugin/plugin.json`.
   2. A local clone of the toolkit repo, if the user has one.
   3. Fetch the repo (`Mar5929/claude-toolkit`), or ask the user where it lives.
 - For a separately packaged system such as `second-brain`, locate its installed
@@ -53,25 +54,25 @@ automatically as it grows.
   the system plugin only after the owner approves adoption, then use its
   canonical sources instead of maintaining copies in `project-init`.
 - Enumerate, at minimum:
-  - every rule file in `general-rules/`, noting from its `README.md` which are
-    default ON and which are conditional, and what each rule currently says, so
-    step 2 can tell a project copy that is merely worded differently from one
-    that is genuinely behind; Salesforce projects also get the
-    `salesforce-rules/` files
-  - every file in `output-styles/`, noting from its `README.md` which are
+  - every rule file in `library/rules/general/`, noting from its `README.md`
+    which are default ON and which are conditional, and what each rule currently
+    says, so step 2 can tell a project copy that is merely worded differently
+    from one that is genuinely behind; Salesforce projects also get the
+    `library/rules/salesforce/` files
+  - every file in `library/output-styles/`, noting from its `README.md` which are
     default ON. These are not rule files and a project that carries every rule
     can still have no style installed, so check them separately
-  - the per-server MCP tool rules in `references/mcp-best-practices.md`; these
-    are conditional, so only audit the servers this project actually connects
+  - the per-server MCP tool rules in `../../library/guides/mcp-best-practices.md`;
+    these are conditional, so only audit the servers this project connects
   - each system from the setup gates: hooks, memory system, knowledge layer
   - the multi-part kits, which are a tool plus a rule plus a hook rather than a
     single file, so a partial install looks like a pass unless you check each
     part: the Salesforce permission set kit
     (`salesforce-permissions-retrieval.md`), the Salesforce dependency graph
-    (`salesforce-dependency-graph.md`, whose tool is `references/tools/kb/`),
+    (`salesforce-dependency-graph.md`, whose tool is `../../library/tools/kb/`),
     and, for every other stack, the graphify code graph
     (`graphify-dependency-graph.md`, whose rule is
-    `general-rules/dependency-graph.md`)
+    `library/rules/general/dependency-graph.md`)
   - the `work-tracker` plugin and any existing `work-items/` or
     `engagement/work-items/` tree
   - the `hooks-library` plugin and both its hooks: `style-reminder`
@@ -377,7 +378,7 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   text: that throws away every local adaptation the project made on purpose, and
   those adaptations are the reason the wording differs in the first place.
 - For an approved output style gap, do all four parts: copy the file from
-  `../project-init/references/output-styles/` into `.claude/output-styles/`, set
+  `../../library/output-styles/` into `.claude/output-styles/`, set
   `outputStyle` in the committed `.claude/settings.json`, and install both
   `style-reminder` and `writing-guard` via `/hooks-library`. The style alone is
   delivered once at session start and then goes stale; either hook alone does
@@ -426,22 +427,22 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   imply either v1 choice. Account-level connectors, local token cleanup, and
   cloud deletion are separate owner-approved work.
 - For an approved Salesforce dependency graph gap, install the whole kit from
-  `../project-init/references/salesforce-dependency-graph.md`: the `tools/kb/`
+  `../../library/guides/salesforce-dependency-graph.md`: the `tools/kb/`
   folder, the gitignore entries, the rule, and the freshness Stop hook. Never
   install the rule alone. Run the verify steps in that file before calling it
   done. If the project already has its own copy of the tool, show the
   differences and let the owner choose which side wins rather than overwriting
   edits they made.
 - For an approved graphify gap, install the whole kit from
-  `../project-init/references/graphify-dependency-graph.md`: the tool, the
-  gitignore entry, `general-rules/dependency-graph.md` into `.claude/rules/`,
+  `../../library/guides/graphify-dependency-graph.md`: the tool, the
+  gitignore entry, `library/rules/general/dependency-graph.md` into `.claude/rules/`,
   and the auto-rebuild hooks. Never install the rule alone, and never install
   it on a Salesforce project, which uses the bundled metadata graph and its own
   rule of the same name instead.
 - When the project was never asked where work items are tracked, ask the Gate 1
   question from `../project-init/references/work-tracking-choice.md` and follow
   that file for whichever answer comes back. Copy
-  `general-rules/spec-before-you-build.md` into `.claude/rules/` and add the
+  `library/rules/general/spec-before-you-build.md` into `.claude/rules/` and add the
   one-line pointer to `CLAUDE.md` and `AGENTS.md`, unless the answer is
   "somewhere else, or nothing yet", in which case record the decline instead.
 - When the owner names a different tracker than the one already recorded, rewrite

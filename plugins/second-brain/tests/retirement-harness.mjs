@@ -145,9 +145,9 @@ for (const path of [
 // metadata files, so it never depended on v1 infrastructure, and it now ships
 // from project-init. Archiving it would undo that restore.
 for (const path of [
-  "plugins/project-init/skills/project-init/references/tools/kb/build_graph.py",
-  "plugins/project-init/skills/project-init/references/tools/kb/query_graph.py",
-  "plugins/project-init/skills/project-init/references/tools/kb/README.md",
+  "plugins/project-init/library/tools/kb/build_graph.py",
+  "plugins/project-init/library/tools/kb/query_graph.py",
+  "plugins/project-init/library/tools/kb/README.md",
 ]) {
   ok(existsSync(resolve(root, path)), `dependency graph stays shipped: ${path}`);
 }

@@ -1,6 +1,6 @@
 # Installing the Salesforce dependency graph
 
-`references/tools/kb/` holds a proven, self-contained Python tool that compiles
+`../tools/kb/` holds a proven, self-contained Python tool that compiles
 a Salesforce project's `force-app/` metadata into a gitignored SQLite graph of
 components and connections. It answers the question a large org asks every day:
 "if I rename or delete this field, what breaks, N steps out?" The project's
@@ -24,7 +24,7 @@ Salesforce path.
 The rule without the tool is advice with no enforcement, and the tool without
 the hook goes stale. Install all four or none.
 
-1. **The tool.** Copy every file in `references/tools/kb/` into the project at
+1. **The tool.** Copy every file in `../tools/kb/` into the project at
    `tools/kb/`. Do not drop files: the orchestrator imports all of them at
    startup. Copy its `README.md` too; it is the tool's own documentation.
 
@@ -40,7 +40,7 @@ the hook goes stale. Install all four or none.
    *.pyc
    ```
 
-3. **The rule.** Copy `salesforce-rules/dependency-graph.md` into the project's
+3. **The rule.** Copy `../rules/salesforce/dependency-graph.md` into the project's
    `.claude/rules/`. It is what makes future sessions answer impact questions
    from the graph instead of from memory, deal with the drift file, and never
    point the tool at an org.
