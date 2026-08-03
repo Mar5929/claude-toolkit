@@ -264,14 +264,23 @@ list.
   `references/output-styles/plain-language.md` to the project's
   `.claude/output-styles/`, and set `"outputStyle": "plain-language"` in the
   project's committed `.claude/settings.json`. This is the project's only home
-  for how Claude talks: written for a non-technical reader, jargon defined, no
-  em dashes, no section signs, no filler, replies built from lists, quiet
-  between tool calls, and the owner's actions at the end. There are no voice rules in `.claude/rules/`
-  any more; do not write one. Pair it with the `style-reminder` hook from Gate
-  2, which re-states the style on every message so it does not go stale in a
-  long session. See `references/output-styles/README.md`. Tell the owner it
-  takes effect on their next session, not the current one, and that a subagent
-  never sees an output style.
+  for how Claude talks: written for a non-technical reader, real names only and
+  never one Claude invented, no figures of speech, common words, the answer
+  first, a shape that matches the content, every fact kept, no filler, no em
+  dashes, no section signs, quiet between tool calls, and the owner's actions at
+  the end. There are no voice rules in `.claude/rules/` any more; do not write
+  one. Pair it with both Gate 2 hooks: `style-reminder` re-states the style on
+  every message so it does not go stale in a long session, and `writing-guard`
+  checks the finished reply for an em dash or a section sign. See
+  `references/output-styles/README.md`. Tell the owner it takes effect on their
+  next session, not the current one, and that a helper agent never sees an
+  output style, which is why `follow-the-output-style.md` is in the rules folder.
+- **Offer the machine-wide install too**, if the owner wants this voice
+  everywhere and not just here. Copy the same file to
+  `~/.claude/output-styles/plain-language.md` and set `"outputStyle"` in
+  `~/.claude/settings.json`. Then every project gets it, including ones that were
+  never set up with this toolkit. The project copy still wins where it exists,
+  and it is the one that travels to other machines, so doing both is normal.
 
 ### Gate 6: Optional standalone toolkit skills
 

@@ -45,7 +45,7 @@
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { tmpdir } from 'node:os';
+import { tmpdir, homedir } from 'node:os';
 
 const DEFAULT_STYLE = 'plain-language';
 const EVERY_N_DEFAULT = 1;
@@ -94,11 +94,23 @@ function loadConfig(projectDir) {
   };
 }
 
-/** Exported for tests. Settings precedence: local overrides committed. */
-export function resolveStyleName(projectDir, configStyle) {
+/**
+ * Exported for tests. Settings precedence, nearest first: the project's local
+ * settings, the project's committed settings, then the machine's own settings.
+ *
+ * The machine level is last and matters for a project that never installed a
+ * style of its own. The owner can set the style once in ~/.claude/settings.json
+ * and have it hold everywhere, which is how #102 rolls it out.
+ */
+export function resolveStyleName(projectDir, configStyle, home = homedir()) {
   if (configStyle) return configStyle;
-  for (const file of ['settings.local.json', 'settings.json']) {
-    const parsed = readJson(join(projectDir, '.claude', file));
+  const candidates = [
+    join(projectDir, '.claude', 'settings.local.json'),
+    join(projectDir, '.claude', 'settings.json'),
+    join(home, '.claude', 'settings.json'),
+  ];
+  for (const path of candidates) {
+    const parsed = readJson(path);
     if (parsed && typeof parsed.outputStyle === 'string' && parsed.outputStyle) {
       return parsed.outputStyle;
     }
@@ -126,17 +138,32 @@ export function buildReminder(body, styleName) {
   ].join('\n');
 }
 
-function styleBody(projectDir, styleName, maxChars) {
-  const path = join(projectDir, '.claude', 'output-styles', `${styleName}.md`);
-  if (!existsSync(path)) return '';
-  let raw;
-  try {
-    raw = readFileSync(path, 'utf8');
-  } catch {
-    return '';
+/**
+ * Exported for tests. The project's own copy wins; the machine-wide copy at
+ * ~/.claude/output-styles/ is the fallback, so a project that never installed a
+ * style still gets the owner's.
+ *
+ * Finding nothing in either place is the correct outcome for a built-in style
+ * (Explanatory, Learning, Proactive, Default), which has no file anywhere. The
+ * hook then stays silent instead of re-stating a style the owner left.
+ */
+export function styleBody(projectDir, styleName, maxChars, home = homedir()) {
+  const paths = [
+    join(projectDir, '.claude', 'output-styles', `${styleName}.md`),
+    join(home, '.claude', 'output-styles', `${styleName}.md`),
+  ];
+  for (const path of paths) {
+    if (!existsSync(path)) continue;
+    let raw;
+    try {
+      raw = readFileSync(path, 'utf8');
+    } catch {
+      continue;
+    }
+    if (raw.length > maxChars) return '';
+    return stripFrontmatter(raw);
   }
-  if (raw.length > maxChars) return '';
-  return stripFrontmatter(raw);
+  return '';
 }
 
 function counterFile(sessionId) {
