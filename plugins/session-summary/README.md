@@ -1,6 +1,7 @@
 # session-summary
 
-Recaps a session as one bullet per request you made, each with an honest status.
+Recaps a session as a short numbered list, one line per main request you made,
+each with an honest status.
 
 **Setup: install and go.** Install once per machine. It reads the conversation
 and writes nothing, so there is nothing to set up in a project.
@@ -10,15 +11,29 @@ and writes nothing, so there is nothing to set up in a project.
 Ask for a summary and you get a list, not a story:
 
 ```
-- Fix the login timeout on staging. Status: Done. Session cookie lifetime
-  corrected in auth/session.ts, deployed to staging.
-- Add a retry to the payment webhook. Status: Partly done. Retry is in; the
-  dead-letter queue for repeated failures is still open.
-- Turn on alerting for failed payments. Status: Waiting on you. Needs someone
-  with the PagerDuty admin login to add the service.
+1. Fix the login timeout on staging. Status: Done. Session cookie lifetime
+   corrected in auth/session.ts, deployed to staging.
+2. Add a retry to the payment webhook. Status: Partly done. Retry is in; the
+   dead-letter queue for repeated failures is still open.
+3. Turn on alerting for failed payments. Status: Waiting on you. Needs someone
+   with the PagerDuty admin login to add the service.
 ```
 
 No title, no opening line, no closing line. The list is the whole reply.
+Numbered so you can say "tell me more about number 2".
+
+## One line per ask, not per step
+
+A long session usually holds one to three real requests. Everything else is the
+work those requests caused, and it does not earn its own line. Choosing from
+options, approving a proposal, answering a question, and confirming work in
+flight are all decisions inside a request, not new requests. Neither are the
+parts of one job: a request that took six pieces of work is still one line.
+
+The test the skill applies is whether something would have come up at all if the
+earlier request had not been made. If not, it belongs to that request. Without
+this, one afternoon's work reads like a week of separate asks and the thing you
+actually wanted to see is buried.
 
 ## Why it exists
 
