@@ -62,7 +62,8 @@ Within the approved content change:
 
 - choose the best existing typed folder and project-defined system area;
 - create or amend the smallest complete specification or memory document;
-- update the nearest indexes;
+- create a system-area `README.md` index with the first durable document placed
+  in that area, and update the nearest indexes;
 - maintain the mandatory structural links;
 - add other contextual links only when they materially improve understanding
   or navigation;
@@ -73,6 +74,10 @@ Within the approved content change:
 
 Routine filing, index maintenance, and mandatory links do not require a second
 owner decision after the durable content is approved.
+
+Deletion, movement, splitting, merging, and supersession are valid memory
+maintenance operations when the main agent confirms that the exact structural
+change was visible and owner-approved.
 
 ## What requires a visible approved proposal
 
@@ -125,7 +130,7 @@ the main agent.
 Every durable specification or memory document has:
 
 - a descriptive title;
-- a one-sentence summary near the start;
+- a one-sentence summary immediately after the title;
 - type-appropriate content;
 - a descriptive one-sentence entry in its nearest index; and
 - contextual relationships when they help.
@@ -152,12 +157,43 @@ Only these links are mandatory:
 5. the canonical home of any definition or approved behavior the document would
    otherwise restate, one direction.
 
+Every mandatory link uses descriptive link text or nearby prose that explains
+why its destination matters. This does not require fixed labels or a fixed
+two-line format.
+
 Do not add other backlinks merely to make the corpus look complete.
 
 Within the approved content, do not write a second copy of something another
 document owns. Link to the owner instead. When an existing document already
 holds such a copy, report it to the main agent rather than deleting it, because
 removing durable information needs a visible approved proposal.
+
+When retaining a superseded document, keep it linked from its nearest index in a
+clearly labeled superseded section. Do not make it undiscoverable merely because
+it is no longer current.
+
+## Pre-merge parallel-memory review
+
+The main agent may assign a read-only review before a pull request containing
+specification or memory changes merges. It must first confirm that the branch is
+current through the project's existing Git workflow. Do not fetch or merge on
+the main agent's behalf.
+
+For this review:
+
+1. identify the specification, memory, and index changes in the pull request;
+2. read the latest relevant indexes and canonical documents now present in the
+   current branch;
+3. search for the same durable truth filed under a different path by parallel
+   work, even when Git reports no text conflict;
+4. look for two current documents that now disagree about the same truth; and
+5. report either `Clear` or each concrete overlap or conflict with both paths.
+
+Use AI judgment over the Markdown. Do not use a fixed classifier or require
+identical wording. Do not edit either version during the review unless the main
+agent also provides an owner-approved repair. A repair that deletes, moves,
+merges, splits, or supersedes durable content follows the visible structural
+change boundary above.
 
 ## Report to the main agent
 

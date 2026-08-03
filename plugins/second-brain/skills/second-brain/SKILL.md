@@ -58,7 +58,9 @@ Use the appropriate path:
    treatments, and change only what the owner approves.
 4. **Durable-update review.** At an approved completion point, propose useful
    updates and invoke the memory librarian after approval.
-5. **Maintenance.** Repair indexes, links, conflicts, or structure within the
+5. **Pre-merge review.** When a pull request contains durable-document changes,
+   have the librarian compare them with the latest project memory before merge.
+6. **Maintenance.** Repair indexes, links, conflicts, or structure within the
    owner-approved boundary.
 
 Use `project-init` as the normal orchestrator for a new project and
@@ -85,7 +87,8 @@ After approval:
 2. copy every root index template;
 3. merge the orientation snippet into both root instruction files without
    replacing existing content;
-4. add only the approved real system-area indexes;
+4. add only approved real specification areas, and create each memory-area index
+   with the first durable document that area owns;
 5. review the diff for duplicate or conflicting authority; and
 6. offer the initial memory pass and `grill-me`.
 
@@ -116,17 +119,24 @@ Read `.claude/rules/second-brain.md` and conduct its durable-update review only:
 
 - at substantial task completion before the pull request is opened or merged;
 - at the end of a brainstorm or requirements interview; or
-- at the end of a milestone or project phase.
+- at the end of a milestone or project phase; or
+- at another natural stopping point after meaningful work, when the owner ends
+  or pauses the task and a settled durable result exists.
 
 An unfinished-session handoff, ordinary response, or commit does not trigger the
 review. A hook may start it at one of the completion points above.
 
+One review may satisfy several nearby completion points. Do not repeat it unless
+later work adds or changes a durable conclusion.
+
 Propose every useful durable update. There is no fixed limit. The owner may
 approve, select, edit, combine, defer, or skip proposals in normal language.
+A deferred proposal changes no durable document and creates no second-brain
+queue. Use the normal work tracker only when the owner wants follow-up tracked.
 
 ## Invoke the memory librarian
 
-After approval:
+After approval, invoking the dedicated librarian is mandatory:
 
 1. provide the approved content and boundaries;
 2. provide the current worktree and branch;
@@ -140,10 +150,28 @@ delegate to a subagent and instruct it to read
 `.claude/agents/memory-librarian.md` and
 `.claude/rules/second-brain.md` completely before writing.
 
-If the host cannot invoke a dedicated agent, report the approved update as
-pending. Do not silently replace the librarian with an unreviewed ad hoc write.
+If the host cannot invoke a dedicated agent or the librarian cannot finish, do
+not silently replace it with an ad hoc main-agent write. Retry or report the
+failure and keep the task unfinished. The pull request may open under the
+project's Git workflow, but it does not merge as though the approved write
+succeeded unless the owner explicitly waives that update.
 
 The main agent must inspect the actual diff after the librarian finishes.
+
+## Review parallel memory before merge
+
+When a pull request contains specification or memory changes, first bring the
+branch current through the project's Git workflow. Then invoke the memory
+librarian in read-only review mode. Give it the pull-request changes and ask it
+to compare them with the latest relevant documents and indexes for:
+
+- the same durable truth placed in two different canonical files; and
+- conflicting current guidance that Git merged without a text conflict.
+
+The librarian reports `Clear` or names both paths and the concrete overlap or
+conflict. It does not discard another branch's information. Any repair that
+deletes, consolidates, moves, splits, or supersedes content requires the normal
+visible owner approval before the librarian writes it.
 
 ## Archived v1 boundary
 

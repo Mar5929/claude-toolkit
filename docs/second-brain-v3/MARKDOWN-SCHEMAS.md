@@ -180,11 +180,20 @@ Path: `memory/<type>/<system-area>/README.md`
 |---|---|
 | [Reset-token lifetime](reset-token-lifetime.md) | Why reset links use a fixed expiration period |
 
+## Superseded documents
+
+| Document | Replacement |
+|---|---|
+| [Legacy reset-token policy](legacy-reset-token-policy.md) | [Reset-token lifetime](reset-token-lifetime.md) |
+
 ## Related area indexes
 
 - [Authentication specifications](../../../specs/authentication/README.md)
 - [Authentication knowledge](../../knowledge/authentication/README.md)
 ```
+
+Remove `Superseded documents` when the area has none. A retained superseded
+document stays in this section instead of disappearing from its nearest index.
 
 ## 4. Brainstorm schema
 

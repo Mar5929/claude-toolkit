@@ -82,7 +82,7 @@ V3 therefore uses:
 
 - descriptive folders and file names;
 - normal Markdown;
-- a one-sentence summary near the start of each durable document;
+- a one-sentence summary immediately after the title of each durable document;
 - short plain-language metadata when useful;
 - ordinary relative links; and
 - `README.md` indexes at navigation boundaries.
@@ -105,8 +105,9 @@ semantic classifications or parse a closed list of approval phrases.
 
 ### 3.5 Recommendations are proactive and persistence is controlled
 
-The main agent recommends useful durable updates at approved completion points.
-The owner may accept, edit, select, defer, or reject them in normal language.
+The main agent recommends useful durable updates at approved completion points
+and natural stopping points after meaningful work. The owner may accept, edit,
+select, defer, or reject them in normal language.
 
 The memory agent writes only content already authorized by the owner's task or
 subsequent approval.
@@ -131,7 +132,7 @@ Every durable specification and memory document follows a shared lightweight
 contract:
 
 1. a descriptive title;
-2. a one-sentence summary near the start;
+2. a one-sentence summary immediately after the title;
 3. an information type communicated by its canonical folder path;
 4. structured content appropriate to that information type;
 5. contextual relationships when useful; and
@@ -503,13 +504,18 @@ The main agent reviews for durable updates:
 
 - when a substantial task request is complete, before its pull request is
   opened or merged;
-- at the end of a brainstorming or requirements interview; and
-- at the end of a milestone or project phase.
+- at the end of a brainstorming or requirements interview;
+- at the end of a milestone or project phase; or
+- at another natural stopping point after meaningful work, when the owner ends
+  or pauses the task and a settled durable result exists.
 
 If a task is ready before a pull request is opened, review then. If the pull
 request already exists or material conclusions changed during review, conduct
 the review before merge. V3 does not require two reviews for every pull
 request.
+
+One review may satisfy several nearby completion points. Review again only when
+later work produces or changes a durable conclusion.
 
 The review does not run merely because:
 
@@ -518,7 +524,7 @@ The review does not run merely because:
 - a commit is created; or
 - a trivial action completes.
 
-A hook may start the review at one of the completion points in section 8.2. It
+A hook may start the review at one of the completion points in section 8.3. It
 changes when the review is remembered, not when it is due, and the owner still
 approves every proposal it produces.
 
@@ -589,13 +595,17 @@ The AI interprets the response. If the intended write is clear, it proceeds. If
 a genuine ambiguity would materially change the result, the main agent asks one
 focused question.
 
+A deferred proposal changes no durable document and creates no second-brain
+queue. The normal work tracker may hold a follow-up only when the owner wants it
+tracked.
+
 There is no natural-language command parser or required approval phrase.
 
 ## 9. Memory-agent contract
 
 ### 9.1 Invocation
 
-The main agent invokes the memory agent after:
+The main agent must invoke the memory agent after:
 
 - the owner explicitly approves a proposed durable update;
 - the owner explicitly requests a specification or memory edit whose meaning is
@@ -621,7 +631,8 @@ The memory agent:
 3. searches for existing canonical documents before creating new ones;
 4. selects the most appropriate approved home;
 5. writes the smallest complete change;
-6. updates the nearest indexes;
+6. creates a memory-area index with the area's first durable document and
+   updates the nearest indexes;
 7. adds useful incoming and outgoing backlinks with natural-language
    relationship direction and context;
 8. connects specifications to all known applicable brainstorms and adds the
@@ -660,6 +671,12 @@ top-level memory or specification area.
 If placement or approved meaning is materially ambiguous, it returns the issue
 to the main agent. The main agent resolves it with the owner when needed.
 
+If the memory agent cannot be invoked or cannot finish an approved update, the
+main agent does not write it ad hoc. It retries or reports the failure and keeps
+the task unfinished. The pull request may open through the normal Git workflow,
+but it does not merge as though the update succeeded unless the owner explicitly
+waives it.
+
 ### 9.4 Main-agent review
 
 The main agent reviews the memory agent's diff against:
@@ -688,6 +705,9 @@ Indexes are curated navigation, not generated databases or exhaustive copies
 of document content. The nearest index must contain a one-sentence entry for
 every durable document it owns. The document does not need to link back to the
 index.
+
+Every populated `memory/<type>/<system-area>/` folder has its own `README.md`.
+Create it in the same change as the area's first durable document.
 
 ### 10.2 Related links
 
@@ -778,6 +798,9 @@ Only these links are mandatory:
    behavior it would otherwise restate. The link is owed precisely because the
    copy was not written.
 
+Every mandatory link uses descriptive link text or nearby prose that explains
+why its destination matters. No fixed label or two-line format is required.
+
 All other relationships are optional. If a reciprocal link requires editing
 another file, the memory librarian may include that routine link maintenance
 within the approved content update. If the relationship would change meaning
@@ -815,7 +838,7 @@ important to understand:
 1. mark it `Status: Superseded`;
 2. add a prominent link to its replacement;
 3. link the replacement back to the superseded document; and
-4. remove it from current index listings or label it clearly.
+4. keep it in its nearest index under a clearly labeled superseded section.
 
 Do not leave contradictory documents marked current.
 
@@ -851,6 +874,19 @@ overlap. The later integration must reconcile both changes against current
 truth and must not discard one branch merely to make the conflict disappear.
 
 No separate concurrency engine, lock service, or memory database is required.
+
+### 12.4 Semantic review before merge
+
+Before a pull request containing specification or memory changes merges, the
+main agent first brings the branch current through the existing Git workflow.
+It then invokes the memory agent for a read-only comparison of those changes
+against the latest relevant documents and indexes.
+
+The memory agent uses judgment to find the same durable truth filed under two
+different paths and conflicting current guidance that Git merged without a text
+conflict. It reports both paths and the concrete overlap or disagreement. It
+does not discard either branch's information. Any deletion, consolidation,
+move, split, or supersession needed for repair remains visibly owner-approved.
 
 ## 13. Greenfield setup
 
@@ -966,28 +1002,32 @@ V3 is ready to ship only when:
    link to their resulting specifications.
 9. Context, planning, decisions, knowledge, references, domain material, and
    operations have readable, flexible schemas.
-10. Every durable document has a title, one-sentence summary, type-specific
-    content, contextual links when useful, and a descriptive index entry.
+10. Every durable document has a title, one-sentence summary immediately after
+    it, type-specific content, contextual links when useful, and a descriptive
+    index entry. Every populated memory area has its own index.
 11. Status, validity, tags, sources, and aliases remain optional. A review
     signal requires owner approval and never expires a document automatically.
 12. Mandatory links are limited to brainstorm/specification,
-    superseded/replacement, canonical/supporting-specification, and
-    index-to-owned-document relationships. Other links and `Related` sections
-    remain optional.
+    superseded/replacement, canonical/supporting-specification,
+    index-to-owned-document, and a pointer to canonical content that would
+    otherwise be copied. Other links and `Related` sections remain optional.
 13. Work-tracker remains authoritative for live work state.
 14. Planning can link to work items without mirroring their status.
 15. Authorized requirement changes align specification, code, and tests in the
     same task and normally the same pull request.
-16. Completion reviews occur only at the approved trigger points.
+16. Completion reviews occur at the approved triggers and natural stopping
+    points after meaningful work, not after every response or trivial action.
 17. The main agent can recommend any useful number of updates in plain
     language.
 18. The owner can approve, select, edit, combine, defer, or skip proposals in
     normal language.
-19. The memory agent writes only approved content in the requesting session's
-    worktree and updates necessary indexes and backlinks.
+19. The main agent invokes the memory agent for approved content. It writes only
+    that content in the requesting session's worktree and updates necessary
+    indexes and backlinks. A failed approved write keeps the task unfinished
+    unless the owner waives it.
 20. The main agent reviews the memory-agent diff before task completion.
-21. Parallel edits are reconciled through Git rather than an external
-    concurrency service.
+21. Parallel edits use Git for file integration and a pre-merge librarian review
+    for semantic duplicates or conflicts that Git cannot detect.
 22. Current specifications show current behavior, Git retains exact history,
     and decision records preserve only important rationale.
 23. The core requires no database, memory MCP server, embeddings, transcript

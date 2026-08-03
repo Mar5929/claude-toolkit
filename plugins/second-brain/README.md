@@ -70,15 +70,33 @@ The main agent notices useful durable information and proposes it at approved
 completion points:
 
 - substantial task completion before a pull request is opened or merged;
-- the end of a brainstorm or requirements interview; and
-- the end of a milestone or project phase.
+- the end of a brainstorm or requirements interview;
+- the end of a milestone or project phase; or
+- another natural stopping point after meaningful work with a settled durable
+  result.
+
+Ordinary replies, trivial actions, and unfinished handoffs do not cause repeated
+reviews. One review may satisfy several nearby stopping points.
 
 There is no proposal count limit. The owner approves, selects, edits, combines,
 defers, or skips proposals in normal language.
 
-The on-demand memory librarian writes approved Markdown in the same task
-worktree. It handles routine placement, indexes, and required structural links.
-Risky or large structural changes remain visible for separate approval.
+After approval, the main agent must invoke the on-demand memory librarian. It
+writes approved Markdown in the same task worktree and handles routine
+placement, indexes, and required structural links. It may delete, move, merge,
+split, or supersede content when the exact structural change was visibly
+owner-approved. Memory is maintained, not merely accumulated.
+
+If an approved write fails, the task remains unfinished and the pull request
+does not merge as though it succeeded unless the owner explicitly waives it. A
+deferred proposal changes no durable document and creates no memory queue.
+
+Before a pull request containing specification or memory changes merges, the
+branch is brought current through the existing Git workflow. The main agent then
+invokes the librarian for a read-only comparison with the latest memory and
+indexes. It reports duplicate canonical homes or conflicting current truth that
+parallel branches placed in different files, where Git cannot detect a text
+conflict.
 
 A clear `remember this` request directly approves saving the identified
 content. An ambiguous request receives one focused question or a proposed
@@ -114,7 +132,9 @@ and unknowns whenever confusing them could mislead future work.
 A hook from the `hooks-library` plugin may enforce a rule or start the durable
 review at a completion point. That is the hook doing the remembering an agent
 skips. The owner still approves every proposal, and the memory librarian still
-does every write.
+does every specification and curated-memory write. An owner-invoked `grill-me`
+session writes only its raw, non-authoritative brainstorm checkpoints and index
+entry.
 
 ## Archived v1
 

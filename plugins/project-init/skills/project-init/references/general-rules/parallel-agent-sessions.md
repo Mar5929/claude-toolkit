@@ -59,15 +59,21 @@ Name the paths you are staging. Then read `git diff --cached --name-status`
 before committing and confirm every file listed is one you wrote this session.
 If a file you did not write appears, unstage it.
 
-## 4. Shared index files are append-only
+## 4. Keep shared-file edits narrow
 
 Some files every session edits: backlog and dashboard views, the `README.md`
 indexes under `memory/`, `CLAUDE.md`, and `AGENTS.md`.
 
-In a shared file, append your entry at the end of its list, and never reorder,
-renumber, or rewrite entries you did not add. Reordering turns a clean append
-into a conflict, and it rewrites another session's words under your commit. If a
-tool generates the file, do not hand-edit it at all.
+For an ordinary addition, append the new entry without reordering or rewriting
+unrelated entries. Reordering turns a clean addition into a conflict and rewrites
+another session's words under your commit. If a tool generates the file, do not
+hand-edit it at all.
+
+Shared does not mean immutable. When an owner-approved change moves, replaces,
+supersedes, merges, or deletes durable material, the memory librarian may update
+the corresponding index entries. Keep that edit limited to the approved
+material and preserve unrelated entries. Before merge, follow the project's
+memory rule for its latest-state duplicate and conflict review.
 
 Keep edits to shared status and handoff documents small and additive so parallel
 pull requests merge cleanly.

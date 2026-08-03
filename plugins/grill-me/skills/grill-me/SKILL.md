@@ -18,6 +18,11 @@ question, so a context reset or interrupted session can resume from the file.
 If the session resumes after an interruption, read the capture file before
 continuing.
 
+This owner-invoked raw checkpoint is the narrow second-brain exception to the
+memory-librarian write boundary. `grill-me` may write only its non-authoritative
+brainstorm capture and index entry. Approved specifications and curated memory
+still go through the memory librarian.
+
 ## Set up before asking the first question
 
 1. Create `brainstorms/` in the current project if it does not exist.

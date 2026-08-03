@@ -46,6 +46,11 @@ plan or specification elsewhere in the project.
   after owner approval. Raw discovery remains non-authoritative and links both
   ways to every resulting specification.
 
+The owner-invoked raw brainstorm and its index entry are the narrow exception to
+second-brain's librarian-only write boundary. `grill-me` writes those checkpoints
+so an interrupted interview loses nothing. It never writes curated memory or an
+approved specification itself.
+
 ## Maintaining this plugin
 
 A content change here bumps `version` in both plugin manifests and

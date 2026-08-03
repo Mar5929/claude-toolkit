@@ -60,6 +60,10 @@ const orientation =
 const projectInit = "plugins/project-init/skills/project-init/SKILL.md";
 const projectSync = "plugins/project-init/skills/project-sync/SKILL.md";
 const grillMe = "plugins/grill-me/skills/grill-me/SKILL.md";
+const wrapUp =
+  "plugins/project-init/skills/project-init/references/general-rules/wrap-up-ritual.md";
+const parallelSessions =
+  "plugins/project-init/skills/project-init/references/general-rules/parallel-agent-sessions.md";
 
 includes(
   secondBrainSkill,
@@ -86,6 +90,21 @@ includes(
   "unfinished-session handoff",
   "second-brain does not review unfinished handoffs",
 );
+includes(
+  secondBrainSkill,
+  "natural stopping point after meaningful work",
+  "second-brain reviews meaningful natural stopping points",
+);
+includes(
+  secondBrainSkill,
+  "Review parallel memory before merge",
+  "second-brain reviews parallel semantic conflicts before merge",
+);
+includes(
+  secondBrainSkill,
+  "keep the task unfinished",
+  "second-brain does not lose failed approved writes",
+);
 excludes(
   secondBrainSkill,
   "v3 is not shipped",
@@ -106,6 +125,16 @@ includes(
   rememberSkill,
   "Do not use a parser",
   "remember uses AI judgment instead of a parser",
+);
+excludes(
+  rememberSkill,
+  "append-only",
+  "remember does not make shared memory indexes immutable",
+);
+includes(
+  rememberSkill,
+  "keep the task unfinished",
+  "remember does not lose a failed approved write",
 );
 excludes(
   rememberSkill,
@@ -140,6 +169,31 @@ includes(
   rule,
   "unfinished work is handed",
   "rule excludes unfinished handoffs",
+);
+includes(
+  rule,
+  "natural stopping point after meaningful work",
+  "rule includes the natural stopping point",
+);
+includes(
+  rule,
+  "One review may satisfy several completion points",
+  "rule prevents repeated unchanged reviews",
+);
+includes(
+  rule,
+  "does not create a second-brain\nqueue",
+  "rule creates no hidden queue for deferred proposals",
+);
+includes(
+  rule,
+  "Pre-merge parallel-memory review",
+  "rule checks parallel semantic conflicts before merge",
+);
+includes(
+  rule,
+  "keep the task\n  unfinished",
+  "rule keeps failed approved updates unfinished",
 );
 includes(
   rule,
@@ -178,6 +232,21 @@ includes(
 includes(role, "Do not add other backlinks", "role avoids backlink noise");
 includes(role, "Never do these", "role declares prohibited actions");
 includes(role, "main agent must inspect", "role requires main-agent review");
+includes(
+  role,
+  "summary immediately after the title",
+  "librarian uses the shared summary position",
+);
+includes(
+  role,
+  "Pre-merge parallel-memory review",
+  "librarian can perform the read-only parallel review",
+);
+includes(
+  role,
+  "valid memory\nmaintenance operations",
+  "librarian may perform approved cleanup",
+);
 
 includes(
   adoption,
@@ -217,6 +286,11 @@ includes(
   layout,
   "Do not invent empty",
   "layout avoids hypothetical system areas",
+);
+includes(
+  layout,
+  "populated area without an index",
+  "layout requires indexes for populated memory areas",
 );
 
 includes(
@@ -258,6 +332,31 @@ includes(
   grillMe,
   "end-of-interview durable",
   "grill-me proposes durable outcomes at completion",
+);
+includes(
+  grillMe,
+  "narrow second-brain exception",
+  "grill-me limits its direct writes to raw checkpoints",
+);
+includes(
+  wrapUp,
+  "natural\nstopping point after meaningful work",
+  "wrap-up uses the natural stopping point",
+);
+includes(
+  wrapUp,
+  "read-only parallel duplicate and conflict review",
+  "wrap-up invokes the parallel-memory review before merge",
+);
+includes(
+  parallelSessions,
+  "Shared does not mean immutable",
+  "parallel-session safety still permits approved memory maintenance",
+);
+excludes(
+  parallelSessions,
+  "Shared index files are append-only",
+  "parallel-session rule no longer freezes memory indexes",
 );
 
 const requiredTemplates = [
@@ -436,6 +535,11 @@ includes(
   "schemas keep relationship labels open",
 );
 includes(
+  schemas,
+  "## Superseded documents",
+  "schemas keep retained superseded documents indexed",
+);
+includes(
   rule,
   "## Repetition",
   "rule owns one home for what to do about repetition",
@@ -501,17 +605,28 @@ for (const doc of [
   excludes(doc, "plugin v1.", `${doc} carries no stale plugin version`);
 }
 
+excludes(
+  "docs/second-brain-v3/TECHNICAL-SPECIFICATION.md",
+  "one-sentence summary near the start",
+  "technical specification uses the runtime summary position",
+);
+excludes(
+  "docs/second-brain-v3/TECHNICAL-SPECIFICATION.md",
+  "remove it from current index listings or label it clearly",
+  "technical specification keeps superseded documents discoverable",
+);
+
 // V3 originally banned hooks outright, which conflated "nothing writes memory
 // automatically" (still true, and why v1 was retired) with "no automation may
 // enforce a rule" (over-reach). The approval promise is what must survive.
 includes(
   rule,
-  "Nothing reaches memory automatically",
+  "Nothing reaches curated memory automatically",
   "rule keeps the approval promise",
 );
 includes(
   rule,
-  "A hook never decides what is true",
+  "A hook never decides",
   "rule bounds what a hook may do",
 );
 excludes(rule, "a hook or timer fires", "rule no longer excludes hook triggers");

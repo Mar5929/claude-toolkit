@@ -29,7 +29,8 @@ memory.
 6. After approval, copy the canonical rule, role, and root index templates.
 7. Merge the compact orientation into both root instruction files without
    replacing their existing content.
-8. Add only approved system-area indexes.
+8. Add only approved real specification areas. Create a memory-area index only
+   with the first durable document that area owns, never as empty scaffolding.
 9. Review the resulting diff and confirm no duplicate authority was created.
 10. Offer an initial memory pass and `grill-me`.
 
@@ -104,7 +105,8 @@ After setup or adoption, confirm:
 - both root files route to the same canonical rule;
 - the memory-librarian role is present;
 - every core index exists;
-- known system areas are indexed without hypothetical empty areas;
+- known specification areas and every populated memory area are indexed without
+  hypothetical empty memory areas;
 - existing project documents were preserved unless their treatment was
   approved;
 - work-tracker still owns live work state;
