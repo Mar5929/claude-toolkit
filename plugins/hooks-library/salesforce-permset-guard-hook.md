@@ -53,11 +53,12 @@ Receipts are local proof that a check ran. Add `.claude/.permset-preflight/` to
 
 ## Files
 
-- `references/hooks/guard-permission-set-deploy.js`: the hook. Node, so it runs
+- `hooks/guard-permission-set-deploy.js`: the hook. Node, so it runs
   the same under Git Bash and PowerShell. Copy to `.claude/hooks/`.
-- `references/tools/permsets.py`: writes the receipts. Copy to
-  `tools/permissions/permsets.py`. **The hook is useless without it**, and would
-  block every permission set deploy forever.
+- `permsets.py`: writes the receipts. It is not in this plugin. It ships in the
+  `project-init` library at `library/tools/permsets.py`, and Gate 1 copies it to
+  `tools/permissions/permsets.py` in the project. **The hook is useless without
+  it**, and would block every permission set deploy forever.
 
 ## Install (Gate 2)
 
@@ -129,6 +130,11 @@ phrase. Do not disable the hook to get past it.
 
 - `salesforce-prod-guard-hook.md`: the production-org guard, which this sits
   beside in the same matcher.
-- `salesforce-rules/permissions-source-control.md`: the rule this enforces.
-- `salesforce-permissions-retrieval.md`: the process runbook.
-- `salesforce-permissions-research.md`: why the deploy is the dangerous half.
+
+These three ship in the `project-init` library, not here:
+
+- `library/rules/salesforce/permissions-source-control.md`: the rule this
+  enforces.
+- `library/guides/salesforce-permissions-retrieval.md`: the process runbook.
+- `library/guides/salesforce-permissions-research.md`: why the deploy is the
+  dangerous half.

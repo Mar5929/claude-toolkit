@@ -51,7 +51,7 @@ Install all four or none.
 
 2. **The gitignore entry.** `graphify-out/` is a build artifact, never a commit.
 
-3. **The rule.** Copy `general-rules/dependency-graph.md` into the project's
+3. **The rule.** Copy `../rules/general/dependency-graph.md` into the project's
    `.claude/rules/`. It is the standing instruction to answer impact questions
    from the graph, keep the build current, and keep it offline. Without it the
    tool sits there and sessions keep grepping.
@@ -125,9 +125,9 @@ rediscover it.
 
 ## The standing rule
 
-`general-rules/dependency-graph.md` is the rule this tool ships with, copied
+`../rules/general/dependency-graph.md` is the rule this tool ships with, copied
 into the project's `.claude/rules/` as install step 3. It is the non-Salesforce
-twin of `salesforce-rules/dependency-graph.md`; a project has one graph, so it
+twin of `../rules/salesforce/dependency-graph.md`; a project has one graph, so it
 gets one of the two rules, never both, and either lands under the same file
 name. Do not paste a hand-written variant into the project: edit the library
 file and copy it, so every project stays in step with the toolkit and

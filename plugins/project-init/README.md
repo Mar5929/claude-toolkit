@@ -40,7 +40,53 @@ files into a project, so every project it touches opts in deliberately.
 
 ## Key references
 
-Bundled under `skills/project-init/references/`:
+This plugin holds two separate piles, and the difference matters.
+
+### The library: what lands in a project
+
+`library/` holds everything the toolkit copies into a project. `project-sync`
+reads the same folder, so none of it is project-init's property; it lives here
+because a plugin ships only the files inside its own folder, so a `library/` at
+the repository root would disappear the moment the plugin is installed.
+
+- `library/rules/general/` (with its own `README.md` index): the standard
+  `.claude/rules` files copied into every project, marked default ON or
+  conditional. Retired v1 examples are not part of this active library.
+- `library/rules/salesforce/` (with its own `README.md`): the same idea for
+  Salesforce projects.
+- `library/output-styles/` (with its own `README.md` index): the
+  `.claude/output-styles` files that set the voice Claude answers in, installed
+  in Gate 5. `plain-language.md` is default ON. A style is delivered through the
+  system prompt and re-stated to the session each turn, which is what a voice
+  rule needs and a rule file cannot do; it sits alongside the voice rules rather
+  than replacing them, because a subagent never sees a style.
+- `library/tools/permsets.py`: the permission set tool the
+  `permissions-source-control.md` rule depends on. Copied to
+  `tools/permissions/` in the project.
+- `library/tools/kb/`: the Salesforce dependency graph tool, with its own
+  `README.md`. Copied whole to `tools/kb/` in the project.
+- `library/templates/permissions-runbook.md`: the project-side runbook to copy
+  and fill in when permission sets are tracked.
+- `library/guides/salesforce-dependency-graph.md`: how to install and use the
+  `kb/` tool, which compiles a Salesforce project's own metadata into a local
+  graph, so "if I change this field, what breaks?" is answered from the metadata
+  instead of from memory. Offered in Gate 1, kept current by a Gate 2 hook. It
+  reads local files only and never contacts an org.
+- `library/guides/graphify-dependency-graph.md`: the same job for every
+  non-Salesforce stack, using the open-source graphify tool. Offered in Gate 4,
+  and it ships as a kit too: the tool, the gitignore entry, the
+  `library/rules/general/dependency-graph.md` rule, and graphify's own
+  auto-rebuild git hooks.
+- `library/guides/salesforce-permissions-retrieval.md` and
+  `library/guides/salesforce-permissions-research.md`: the permission set
+  runbook and the evidence behind it.
+- `library/guides/mcp-best-practices.md`: per-server MCP tool rules, folded in
+  only for the servers a project actually uses.
+
+### The gate script: how this skill runs itself
+
+`skills/project-init/references/` holds five files, and none is copied into a
+project:
 
 - `setup-flow.md`: the ordered, gate-by-gate checklist project-init follows.
 - `work-tracking-choice.md`: the Gate 1 question about where work items are
@@ -53,28 +99,17 @@ Bundled under `skills/project-init/references/`:
   separately offers an optional GitHub Project mirror of those files.
 - `thin-claudemd.md`: how Gate 5 writes a short CLAUDE.md that points at
   `.claude/rules/` instead of holding the rules inline.
-- `general-rules/` (with its own `README.md` index): the standard `.claude/rules`
-  files copied into every project, marked default ON or conditional. Retired v1
-  examples are not part of this active library.
-- `salesforce-rules/` (with its own `README.md`): the same idea for Salesforce
-  projects.
-- `output-styles/` (with its own `README.md` index): the `.claude/output-styles`
-  files that set the voice Claude answers in, installed in Gate 5.
-  `plain-language.md` is default ON. A style is delivered through the system
-  prompt and re-stated to the session each turn, which is what a voice rule needs
-  and a rule file cannot do; it sits alongside the voice rules rather than
-  replacing them, because a subagent never sees a style.
-- `salesforce-dependency-graph.md` plus `tools/kb/`: a self-contained tool that
-  compiles a Salesforce project's own metadata into a local graph, so "if I
-  change this field, what breaks?" is answered from the metadata instead of from
-  memory. Offered in Gate 1, kept current by a Gate 2 hook. It reads local files
-  only and never contacts an org.
-- `graphify-dependency-graph.md`: the same job for every non-Salesforce stack,
-  using the open-source graphify tool. Offered in Gate 4, and it ships as a kit
-  too: the tool, the gitignore entry, the `general-rules/dependency-graph.md`
-  rule, and graphify's own auto-rebuild git hooks.
-- `mcp-best-practices.md`: per-server MCP tool rules, folded in only for the
-  servers a project actually uses.
+- `salesforce-project-scaffold.md`: the standard Gate 1 folder layout for a
+  Salesforce / SFDX project.
+
+### Not here: every hook
+
+The two Salesforce guards Gate 2 offers, the production-org guard and the
+permission set deploy guard, ship from the
+[`hooks-library`](../hooks-library/README.md) plugin with every other hook in
+the toolkit. Gate 2 installs that plugin and follows its two guides, which copy
+the hook files into the project; after that the project runs them without the
+plugin.
 
 ## How it relates to the rest of the toolkit
 
@@ -86,7 +121,8 @@ Bundled under `skills/project-init/references/`:
 - Gate 1 asks where work items are tracked, and the two guarantees that follow
   are the same whichever answer it gets: log the work in that tracker before
   building it, and refine the six-part spec before building it. Those live once
-  in `general-rules/spec-before-you-build.md`, copied into `.claude/rules/` in
+  in `library/rules/general/spec-before-you-build.md`, copied into
+  `.claude/rules/` in
   Gate 5, with a one-line pointer in `CLAUDE.md` and `AGENTS.md` naming the
   tracker.
 - For the "files in this repository" answer, Gate 1 offers `work-tracker` as the

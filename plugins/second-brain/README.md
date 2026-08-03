@@ -147,7 +147,7 @@ retired. Its content is not a v3 migration source or current truth.
 One thing that lived in this plugin was never part of v1 and is not retired: the
 Salesforce dependency graph. It only ever read local metadata files, so it
 survived v1's retirement and now ships with `project-init`, at
-`plugins/project-init/skills/project-init/references/salesforce-dependency-graph.md`.
+`plugins/project-init/library/guides/salesforce-dependency-graph.md`.
 It is not part of second-brain and never depended on it. It is not in the
 archive.
 

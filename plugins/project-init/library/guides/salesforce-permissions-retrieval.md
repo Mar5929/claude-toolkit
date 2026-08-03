@@ -1,7 +1,7 @@
 # Permission sets and profiles in source control
 
 The end-to-end process for keeping Salesforce permissions in git without silently
-destroying grants. It pairs with the `salesforce-rules/permissions-source-control.md`
+destroying grants. It pairs with the `../rules/salesforce/permissions-source-control.md`
 rule, which is the always-on policy version; this file is the how.
 
 Corrected July 2026. An earlier version of this runbook applied one process to
@@ -44,10 +44,10 @@ because the failure this guards against is invisible to Salesforce's own checks.
 
 | Part | From | To |
 |---|---|---|
-| The rule | `salesforce-rules/permissions-source-control.md` | `.claude/rules/` |
-| The tool | `tools/permsets.py` | `tools/permissions/permsets.py` |
-| The runbook | `templates/permissions-runbook.md` | the project's operations folder; fill in its placeholders |
-| The deploy guard | `hooks/guard-permission-set-deploy.js` | `.claude/hooks/`, registered per `salesforce-permset-guard-hook.md` |
+| The rule | `../rules/salesforce/permissions-source-control.md` | `.claude/rules/` |
+| The tool | `../tools/permsets.py` | `tools/permissions/permsets.py` |
+| The runbook | `../templates/permissions-runbook.md` | the project's operations folder; fill in its placeholders |
+| The deploy guard | `guard-permission-set-deploy.js`, from the `hooks-library` plugin | `.claude/hooks/`, registered per that plugin's `salesforce-permset-guard-hook.md` |
 
 Also add `.claude/.permset-preflight/` to `.gitignore`; the tool writes preflight
 receipts there for the hook to read, and they are local proof, never shared.

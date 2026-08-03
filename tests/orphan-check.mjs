@@ -17,8 +17,9 @@
  *   plugins/<plugin>/README.md
  *   plugins/<plugin>/skills/<skill>/SKILL.md
  *   any references/setup-flow.md
- *   any README.md that indexes a folder (general-rules/, salesforce-rules/,
- *   tools/kb/, hooks/, docs/second-brain-v3/, and so on)
+ *   any README.md that indexes a folder (library/rules/general/,
+ *   library/rules/salesforce/, library/tools/kb/, hooks/,
+ *   docs/second-brain-v3/, and so on)
  *
  * Being named by an ordinary document is deliberately NOT enough. In July the
  * orphaned guide was still mentioned by two other files, but both were archived
@@ -98,11 +99,20 @@ function tails(path) {
 
 /**
  * Folders whose direct children may be referred to by bare name, because that
- * is how the toolkit's own indexes talk about them ("the `general-rules/`
- * library", "the `hooks/` folder"). Anywhere deeper, a bare folder name like
- * `src/` or `lib/` is too generic to prove anything, so it does not count.
+ * is how the toolkit's own indexes talk about them ("the `tools/` folder", "the
+ * `hooks/` folder"). Anywhere deeper, a bare folder name like `src/` or `lib/`
+ * is too generic to prove anything, so it does not count.
+ *
+ * `library` joined this list in #126, when the rules, styles, tools, templates,
+ * and guides moved out of `references/` into `plugins/project-init/library/`.
  */
-const NAMEABLE_PARENTS = new Set(["references", "plugins", "docs", ""]);
+const NAMEABLE_PARENTS = new Set([
+  "references",
+  "library",
+  "plugins",
+  "docs",
+  "",
+]);
 
 /**
  * The strings that count as naming this file. A bare "README.md" names nothing,

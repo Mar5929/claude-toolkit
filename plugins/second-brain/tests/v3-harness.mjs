@@ -61,9 +61,9 @@ const projectInit = "plugins/project-init/skills/project-init/SKILL.md";
 const projectSync = "plugins/project-init/skills/project-sync/SKILL.md";
 const grillMe = "plugins/grill-me/skills/grill-me/SKILL.md";
 const wrapUp =
-  "plugins/project-init/skills/project-init/references/general-rules/wrap-up-ritual.md";
+  "plugins/project-init/library/rules/general/wrap-up-ritual.md";
 const parallelSessions =
-  "plugins/project-init/skills/project-init/references/general-rules/parallel-agent-sessions.md";
+  "plugins/project-init/library/rules/general/parallel-agent-sessions.md";
 
 includes(
   secondBrainSkill,

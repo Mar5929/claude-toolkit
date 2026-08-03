@@ -39,7 +39,7 @@ flows, validation rules, permission sets, and so on), `architectural-patterns.md
 This is design-time solutioning. It complements, and does not overlap with, the
 Salesforce pieces in the other plugins:
 
-- `project-init`'s `salesforce-rules/` library installs the standing safety and
+- `project-init`'s `library/rules/salesforce/` folder installs the standing safety and
   workflow rules for a Salesforce project.
 - Graphify or another separately selected repository mapper can answer
   mechanical impact questions about existing metadata. It is an analysis aid,

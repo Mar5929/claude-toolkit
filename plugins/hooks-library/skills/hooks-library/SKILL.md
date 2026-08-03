@@ -14,12 +14,23 @@ description: >-
 This skill wires the toolkit's hooks into one project. Read `../../README.md`
 first for what each hook does and why it exists.
 
-Two hooks ship, and they go together. `style-reminder` re-states the project's
-output style on every message, so the voice instruction never goes stale.
-`writing-guard` reads the finished reply and blocks on an em dash or a section
-sign, so a slip is caught rather than shipped. Steps 1 to 5 below install
+Four hooks ship, in two pairs.
+
+**Every project.** `style-reminder` re-states the project's output style on every
+message, so the voice instruction never goes stale. `writing-guard` reads the
+finished reply and blocks on an em dash or a section sign, so a slip is caught
+rather than shipped. These two go together. Steps 1 to 5 below install
 `style-reminder`. The section after them installs `writing-guard`. Offer both
 unless the owner asks for one.
+
+**Salesforce projects only.** `guard-protected-orgs.js` confirms before a deploy
+or destructive command hits a production org. `guard-permission-set-deploy.js`
+blocks a deploy shipping a permission set that has not been preflighted. Each has
+its own step-by-step guide in this plugin's folder,
+`salesforce-prod-guard-hook.md` and `salesforce-permset-guard-hook.md`. Follow
+the guide rather than the steps below; both guards register under `PreToolUse`
+with the same `Bash|PowerShell` matcher, not under `UserPromptSubmit` or `Stop`.
+`project-init` Gate 2 is where they usually come up.
 
 Everything here is opt-in and reversible. Never install a hook the owner has not
 approved, and never edit `settings.json` without showing what will change.
@@ -35,8 +46,8 @@ approved, and never edit `settings.json` without showing what will change.
   `.claude/settings.local.json`. This is the important one: the hook re-states
   the active style, so with no style installed it does nothing at all. If the
   style is missing, install it first (`project-init` Gate 5, or the
-  `output-styles/` library in the `project-init` plugin) and say so rather than
-  registering a hook that will sit silent.
+  `library/output-styles/` folder in the `project-init` plugin) and say so
+  rather than registering a hook that will sit silent.
 - Is `node` available? The hook needs it. `node --version`.
 
 Report what you found before changing anything.
@@ -184,6 +195,11 @@ For `style-reminder`:
 
 For `writing-guard`, the same three steps against the `Stop` array,
 `writing-guard.mjs`, and `.claude/writing-guard.json`.
+
+For either Salesforce guard, delete its entry from the `PreToolUse` array whose
+matcher is `Bash|PowerShell`, leaving the other guard's entry alone, then delete
+the script from `.claude/hooks/`. Removing `guard-protected-orgs.js` also makes
+`.claude/protected-orgs.json` dead; delete it too.
 
 Removing either hook does not remove the output style. The style keeps working
 from the system prompt; it is just delivered once again instead of every turn,

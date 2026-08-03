@@ -72,7 +72,7 @@ Read it before asking.
 Whatever the owner names, two things then hold in that project: every piece of
 work is logged in that tracker before it is built, and nothing is built until a
 refinement session has filled in the six-part spec. Those live in the
-`general-rules/spec-before-you-build.md` rule, copied in Gate 5. Gate 5 also adds
+`library/rules/general/spec-before-you-build.md` rule, copied in Gate 5. Gate 5 also adds
 a one-line structural pointer to `CLAUDE.md` and `AGENTS.md` naming the tracker.
 
 A GitHub Projects board is the only answer where the toolkit creates the tracker
@@ -98,19 +98,19 @@ forced template.
 
 **Salesforce project rules library.** When the stack is Salesforce, after the
 `.claude/rules/` folder is scaffolded, offer to copy in the reusable Salesforce
-rules from `references/salesforce-rules/` (each is a standalone `.claude/rules/`
+rules from `../../library/rules/salesforce/` (each is a standalone `.claude/rules/`
 file, e.g. the deploy hitch-hiker check). See that folder's `README.md` for the
 current list. They are opt-in and confirmed with the owner; skip the ones a
 given project does not want. Make sure the project's CLAUDE.md points at
 `.claude/rules/` (Gate 5) so these files are read each session.
 
 **Salesforce dependency graph.** Offer the kit in
-`references/salesforce-dependency-graph.md` whenever the stack is Salesforce,
+`../../library/guides/salesforce-dependency-graph.md` whenever the stack is Salesforce,
 and recommend it on an org merge or any org large enough that "if I change this
 field, what breaks?" is a recurring question. Like the permission set kit it is
-one unit, not a loose rule: the tool in `references/tools/kb/` copied to the
+one unit, not a loose rule: the tool in `../../library/tools/kb/` copied to the
 project's `tools/kb/`, the gitignore entries, the
-`salesforce-rules/dependency-graph.md` rule, and the freshness hook in Gate 2.
+`library/rules/salesforce/dependency-graph.md` rule, and the freshness hook in Gate 2.
 The tool reads only local `force-app/` files and never contacts an org.
 
 ### Gate 2: Hooks (guards & automation)
@@ -131,21 +131,28 @@ Ask what the project needs protecting from or automated. Common ones:
 For each requested hook: confirm the exact trigger and action, write the hook
 config (and any script), and tell the user how to verify it fires.
 
-**Salesforce / SFDX projects**: offer the ready-made production-org guard in
-`references/salesforce-prod-guard-hook.md`. It confirms before any deploy or
-destructive `sf`/`sfdx` command hits a production org, auto-detects which orgs
-are production, and is tuned by a plain JSON policy file. Copy and configure, no
-code to write. Still optional and confirmed with the owner.
+**Salesforce / SFDX projects**: offer the ready-made production-org guard. It
+confirms before any deploy or destructive `sf`/`sfdx` command hits a production
+org, auto-detects which orgs are production, and is tuned by a plain JSON policy
+file. Copy and configure, no code to write. Still optional and confirmed with
+the owner.
 
-Whenever the permission set rule was accepted in Gate 1, also install the
-permission set deploy guard in `references/salesforce-permset-guard-hook.md`. It
-blocks any deploy shipping a permission set that has not been preflighted. That
-is the one step whose omission silently and irreversibly deletes grants, and
-Salesforce's own `deploy validate` and `deploy preview` cannot detect it. Both
-guards live in the same `Bash|PowerShell` PreToolUse matcher.
+Whenever the permission set rule was accepted in Gate 1, also offer the
+permission set deploy guard. It blocks any deploy shipping a permission set that
+has not been preflighted. That is the one step whose omission silently and
+irreversibly deletes grants, and Salesforce's own `deploy validate` and `deploy
+preview` cannot detect it. Both guards live in the same `Bash|PowerShell`
+PreToolUse matcher.
+
+Both guards ship from the `hooks-library` plugin, which holds every hook in the
+toolkit. Install it from this marketplace (`/plugin install hooks-library`), then
+follow its `salesforce-prod-guard-hook.md` and `salesforce-permset-guard-hook.md`
+step by step. Do not retype or maintain copies here. Tell the owner the plugin is
+only needed while setting the guards up: the install copies the hook files into
+the project, so afterwards the project runs them on its own.
 
 Whenever the dependency graph was accepted in Gate 1, also wire its freshness
-Stop hook (step 4 of `references/salesforce-dependency-graph.md`). Without it
+Stop hook (step 4 of `../../library/guides/salesforce-dependency-graph.md`). Without it
 the graph is a snapshot that quietly ages; with it, a metadata change rebuilds
 the graph and names the connections that moved. Unlike the two guards above it
 is a Stop hook and it lives inside `tools/kb/`, because it imports the rest of
@@ -212,13 +219,13 @@ Git documents and connected to the specifications and context it affects.
 - Explain that a dependency graph is a separately optional analysis aid for
   brownfield work, not required memory infrastructure and not automatically
   authoritative. It answers what connects to what; only a person records why.
-  There are two, by stack: `references/salesforce-dependency-graph.md` for
-  Salesforce (offered in Gate 1) and `references/graphify-dependency-graph.md`
+  There are two, by stack: `../../library/guides/salesforce-dependency-graph.md` for
+  Salesforce (offered in Gate 1) and `../../library/guides/graphify-dependency-graph.md`
   for every other kind of code. A project installs at most one.
 - **On a non-Salesforce project, offer the graphify kit here** when the owner
   wants mechanical impact analysis. It has four parts and they ship together:
   the tool, the `graphify-out/` gitignore entry,
-  `general-rules/dependency-graph.md` copied to `.claude/rules/` (Gate 5), and
+  `library/rules/general/dependency-graph.md` copied to `.claude/rules/` (Gate 5), and
   the auto-rebuild git hooks. The rule is what makes a session use the graph
   instead of searching text; the hooks are what stop it going stale. Tell the
   owner the one thing the hooks cannot do: they are not committed, so every
@@ -234,10 +241,10 @@ first, plus the `.claude/rules/` folder that holds the behavioral rules.
 The behavioral rules do NOT go inside CLAUDE.md. They are individual files in the
 project's `.claude/rules/` folder, copied from the toolkit's rules libraries.
 CLAUDE.md stays thin and points at that folder. Read `references/thin-claudemd.md`
-for the exact structure, and `references/general-rules/README.md` for the rule
+for the exact structure, and `../../library/rules/general/README.md` for the rule
 list.
 
-- **Copy the general rules** the owner wants from `references/general-rules/`
+- **Copy the general rules** the owner wants from `../../library/rules/general/`
   into the project's `.claude/rules/`. Every default-ON file goes in unless the
   owner drops it; walk the list and let them accept, edit, or skip each. Adapt
   wording to the project's voice if they want; each file is the intent, not
@@ -253,15 +260,15 @@ list.
   yourself; one folder per work item; show phase progress; treat the owner as
   non-technical). Every new project gets these unless the owner explicitly opts
   that project out.
-- **Salesforce projects:** the `salesforce-rules/` files the owner chose in Gate
+- **Salesforce projects:** the `library/rules/salesforce/` files the owner chose in Gate
   1 also live in `.claude/rules/`; make sure they are there.
 - **Conditional general rules** only go in when the project has the thing they
-  govern. `general-rules/README.md` marks them. Today that is
+  govern. `library/rules/general/README.md` marks them. Today that is
   `dependency-graph.md`, which goes in when the graphify code graph was accepted
-  in Gate 4. A Salesforce project gets the `salesforce-rules/` file of the same
+  in Gate 4. A Salesforce project gets the `library/rules/salesforce/` file of the same
   name instead; never both.
 - **MCP tool rules are conditional.** If the project connects an MCP server
-  covered in `references/mcp-best-practices.md` (Context7, Gmail, Google
+  covered in `../../library/guides/mcp-best-practices.md` (Context7, Gmail, Google
   Calendar, Linear, Notion, Playwright), fold in that server's section (as a
   short CLAUDE.md section or its own `.claude/rules/` file). Skip the servers the
   project doesn't use.
@@ -284,7 +291,7 @@ list.
 - **Add a `.claude/rules/README.md`** that indexes what each copied rule file
   does, so the folder is self-describing.
 - **Install the plain-language output style** (default ON). Copy
-  `references/output-styles/plain-language.md` to the project's
+  `../../library/output-styles/plain-language.md` to the project's
   `.claude/output-styles/`, and set `"outputStyle": "plain-language"` in the
   project's committed `.claude/settings.json`. This is the project's only home
   for how Claude talks: written for a non-technical reader, real names only and
@@ -295,7 +302,7 @@ list.
   one. Pair it with both Gate 2 hooks: `style-reminder` re-states the style on
   every message so it does not go stale in a long session, and `writing-guard`
   checks the finished reply for an em dash or a section sign. See
-  `references/output-styles/README.md`. Tell the owner it takes effect on their
+  `../../library/output-styles/README.md`. Tell the owner it takes effect on their
   next session, not the current one, and that a helper agent never sees an
   output style, which is why `follow-the-output-style.md` is in the rules folder.
 - **Offer the machine-wide install too**, if the owner wants this voice
@@ -330,6 +337,13 @@ in their own plugins.
 
 ## References
 
+Two piles, and the difference matters. `references/` is this skill's own script:
+how to run a gate. `../../library/` is what lands in the project: rules, styles,
+tools, templates, and the guides that install them. `project-sync` reads the same
+library.
+
+### This skill's own script: `references/`
+
 - `references/setup-flow.md`: the gate-by-gate checklist to track progress
   against during the run.
 - `references/work-tracking-choice.md`: the Gate 1 question about where work
@@ -342,51 +356,58 @@ in their own plugins.
 - `references/salesforce-project-scaffold.md`: the standard Gate 1 layout for a
   Salesforce / SFDX project (SFDX source plus an `engagement/` tree). Read it in
   Gate 1 when the stack is Salesforce.
-- `references/salesforce-prod-guard-hook.md`: a ready-to-install Gate 2 guard
-  that confirms before Salesforce CLI deploys or destructive ops hit a
-  production org. Read it in Gate 2 when the stack is Salesforce.
-- `references/salesforce-rules/`: a growing library of reusable `.claude/rules/`
-  files for Salesforce projects (with its own `README.md` index). Offer these in
-  Gate 1 after `.claude/rules/` is scaffolded, when the stack is Salesforce.
-- `references/salesforce-permissions-retrieval.md`: the end-to-end process for
-  keeping permission sets in source control safely, and what to do about profiles
-  (excluded by default). Covers the four-part install, the one-time proof that a
-  retrieve is complete on this org, the trap list, and the known retrieve blind
-  spots. Read it when a Salesforce project wants its permissions picture in git.
-- `references/salesforce-permissions-research.md`: the evidence behind that
-  runbook. The live verification result, the permission set element reference,
-  the tracked Salesforce CLI bugs, the tooling landscape, options considered and
-  rejected, and the full source list with dates. Read it before re-researching
-  any permission set question or re-litigating the process.
-- `references/salesforce-permset-guard-hook.md`: the Gate 2 hook that blocks an
-  unpreflighted permission set deploy.
-- `references/tools/permsets.py`: the tool the permission set rule depends on
-  (fetch, verify, check, tidy, preflight). Copy to `tools/permissions/` in the
-  project. The rule without the tool is advice with no enforcement.
-- `references/templates/permissions-runbook.md`: the project-side runbook to copy
-  and fill in when permission sets are tracked.
-- `references/salesforce-dependency-graph.md`: how Gate 1 installs the Salesforce
-  dependency graph kit (tool, gitignore entries, rule, and the Gate 2 freshness
-  hook), how to verify it, and how to use it to write up an org that already has
-  a lot of metadata. Read it in Gate 1 when the stack is Salesforce.
-- `references/tools/kb/`: the dependency graph tool itself, with its own
-  `README.md` covering scopes, determinism, and known limits. Copy the whole
-  folder to `tools/kb/` in the project; the orchestrator imports every file.
-- `references/graphify-dependency-graph.md`: the same job for every non-Salesforce
-  stack, using the open-source graphify tool. Read it in Gate 4 when the owner
-  wants impact analysis on code the bundled Salesforce parser cannot read.
-- `references/general-rules/`: the standard `.claude/rules/` files (with its own
-  `README.md` index) to copy into every project in Gate 5. Active rules are
-  default ON unless the owner opts out. Retired v1 examples are not part of
-  this library.
-- `references/output-styles/`: the `.claude/output-styles/` files (with its own
-  `README.md` index) that set the voice Claude answers in, installed in Gate 5.
-  `plain-language.md` is default ON. Read the index for why an output style sits
-  alongside the voice rules rather than replacing them.
 - `references/thin-claudemd.md`: how Gate 5 writes a thin CLAUDE.md that points
   at `.claude/rules/` instead of holding the rules inline.
-- `references/mcp-best-practices.md`: per-server MCP tool rules to offer in Gate
-  5, but only for the MCP servers the project actually uses.
+
+### What lands in the project: `../../library/`
+
+- `../../library/rules/general/`: the standard `.claude/rules/` files (with its
+  own `README.md` index) to copy into every project in Gate 5. Active rules are
+  default ON unless the owner opts out. Retired v1 examples are not part of this
+  library.
+- `../../library/rules/salesforce/`: a growing set of reusable `.claude/rules/`
+  files for Salesforce projects (with its own `README.md` index). Offer these in
+  Gate 1 after `.claude/rules/` is scaffolded, when the stack is Salesforce.
+- `../../library/output-styles/`: the `.claude/output-styles/` files (with its
+  own `README.md` index) that set the voice Claude answers in, installed in
+  Gate 5. `plain-language.md` is default ON. Read the index for why an output
+  style sits alongside the voice rules rather than replacing them.
+- `../../library/tools/permsets.py`: the tool the permission set rule depends on
+  (fetch, verify, check, tidy, preflight). Copy to `tools/permissions/` in the
+  project. The rule without the tool is advice with no enforcement.
+- `../../library/tools/kb/`: the dependency graph tool itself, with its own
+  `README.md` covering scopes, determinism, and known limits. Copy the whole
+  folder to `tools/kb/` in the project; the orchestrator imports every file.
+- `../../library/templates/permissions-runbook.md`: the project-side runbook to
+  copy and fill in when permission sets are tracked.
+- `../../library/guides/salesforce-permissions-retrieval.md`: the end-to-end
+  process for keeping permission sets in source control safely, and what to do
+  about profiles (excluded by default). Covers the four-part install, the
+  one-time proof that a retrieve is complete on this org, the trap list, and the
+  known retrieve blind spots. Read it when a Salesforce project wants its
+  permissions picture in git.
+- `../../library/guides/salesforce-permissions-research.md`: the evidence behind
+  that runbook. The live verification result, the permission set element
+  reference, the tracked Salesforce CLI bugs, the tooling landscape, options
+  considered and rejected, and the full source list with dates. Read it before
+  re-researching any permission set question or re-litigating the process.
+- `../../library/guides/salesforce-dependency-graph.md`: how Gate 1 installs the
+  Salesforce dependency graph kit (tool, gitignore entries, rule, and the Gate 2
+  freshness hook), how to verify it, and how to use it to write up an org that
+  already has a lot of metadata. Read it in Gate 1 when the stack is Salesforce.
+- `../../library/guides/graphify-dependency-graph.md`: the same job for every
+  non-Salesforce stack, using the open-source graphify tool. Read it in Gate 4
+  when the owner wants impact analysis on code the bundled Salesforce parser
+  cannot read.
+- `../../library/guides/mcp-best-practices.md`: per-server MCP tool rules to
+  offer in Gate 5, but only for the MCP servers the project actually uses.
+
+### Not here: every hook
+
+Both Salesforce guards live in the `hooks-library` plugin with every other hook
+in the toolkit: the production-org guard (`salesforce-prod-guard-hook.md`) and
+the permission set deploy guard (`salesforce-permset-guard-hook.md`). Gate 2
+installs that plugin and follows those two guides.
 
 Read a reference when you reach the gate that needs it; you don't need to load
 everything up front.
@@ -402,7 +423,7 @@ everything up front.
    canonical version.
 3. **Port-back reminder:** if during this setup you improved one of the reusable
    systems (memory architecture, knowledge layer, a guard hook, or a general
-   project rule in `references/general-rules/`), remind the user to port that
+   project rule in `../../library/rules/general/`), remind the user to port that
    improvement **back to the
    `claude-toolkit` repo** so the canonical template stays current and every other
    project picks it up. Offer to draft that change.
