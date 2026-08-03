@@ -23,7 +23,7 @@ structure Gate 5 writes.
 | `honest-verification.md` | Do not claim more than you verified. If it was not run or tested, say so and leave the steps. Report failures with output. |
 | `parallel-agent-sessions.md` | Sharing a repo with other live sessions, in one rule: where you work and how you behave. Look before you edit (`git worktree list`, `git status`, `git log`); work in your own worktree on your own branch and never in the shared primary checkout; never `git add -A`; shared index files are append-only; claim a sequential identifier by pushing it first, because parallel agents WILL collide on numbers; never touch another session's branch or commit its uncommitted work; land by PR, merge only on owner approval and only after a collision check. Written after one session caused a work-item number collision, had its staged files swept into another session's commit twice, and reordered a shared backlog. Absorbed the separate `worktree-isolation` rule. |
 | `recommend-the-best-solution.md` | Build it well, and never quietly build more than was asked. Propose the well-architected, best-practice solution rather than a band-aid, and name the quick-patch tradeoff so the owner can choose. Do not expand beyond the request without checking first. The two halves meet in one move: recommending the bigger thing is right, building it unasked is gold-plating. Once the owner decides, do it their way. Absorbed the separate `stay-in-scope` rule. |
-| `define-your-terms.md` | Name the exact thing and define it on first use. No invented shorthand; no bare "option B" / "risk 1". |
+| `follow-the-output-style.md` | Anything a helper agent writes that the owner reads (commit message, pull request text, a document in the repo) follows the project's active output style. A pointer to the style file, never a second copy of the rules. Exists because an output style reaches the main conversation only. |
 | `ask-before-assuming.md` | Two pauses, both before acting: when intent, naming, behavior, or scope is ambiguous, ask one specific question rather than picking the reading that lets you start sooner; and before an operation that reads or produces a lot, state the rough scope and get a go-ahead. |
 | `offer-context-handoff.md` | When context is heavy and the next step is reasoning-heavy, offer a self-contained handoff prompt for a fresh session. |
 | `steer-to-the-goal.md` | Find the real goal behind the request (people describe fixes, not problems), name it early, hold it all session, own the steering, and end every turn with the next step. Push back directly when a request is risky, over-built, or aimed at the wrong target, then do it the owner's way once they have decided. Durable direction goes to v3 planning when installed; live next actions remain in work-tracker. Absorbed the separate `solve-the-goal-push-back` rule. |
@@ -33,19 +33,24 @@ structure Gate 5 writes.
 
 ## Voice is not a rule any more
 
-How Claude writes and replies used to live here in three files:
-`writing-and-language.md`, `how-to-reply.md`, and
-`treat-owner-as-non-technical.md`. They were removed. That job now belongs to
-the `plain-language` output style in `../output-styles/`, which is delivered
-through the system prompt and re-stated every turn by the `style-reminder` hook,
-instead of being read once as a rule file.
+How Claude writes and replies used to live here in four files:
+`writing-and-language.md`, `how-to-reply.md`,
+`treat-owner-as-non-technical.md`, and `define-your-terms.md`. All four were
+removed. That job now belongs to the `plain-language` output style in
+`../output-styles/`, which is delivered through the system prompt, re-stated
+every turn by the `style-reminder` hook, and checked on the finished reply by
+the `writing-guard` hook, instead of being read once as a rule file.
 
 Do not add a voice rule to this folder. If Claude should say something
 differently, the change goes in the output style. This folder is for how Claude
 *works*, not how it *talks*.
 
-One consequence to know: an output style never reaches a subagent, so a helper
-agent no longer inherits the voice guidance. That was accepted deliberately.
+The one thing that does live here is `follow-the-output-style.md`, and it is a
+sign, not a rule about writing. An output style reaches the main conversation
+only, so a helper agent writing a commit message or a document never sees it.
+That rule tells the helper agent where the style file is and to go read it. It
+deliberately does not repeat a single writing instruction, because a second copy
+would drift from the first.
 
 ## Conditional: copy only when the project has the thing the rule governs
 

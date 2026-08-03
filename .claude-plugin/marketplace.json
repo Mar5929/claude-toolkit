@@ -32,7 +32,7 @@
     {
       "name": "hooks-library",
       "source": "./plugins/hooks-library",
-      "description": "Hooks that make a rule land mechanically instead of restating it. style-reminder is a UserPromptSubmit hook that re-states the project's active output style every time the owner sends a message, so the voice instructions never go stale hours into a session."
+      "description": "Hooks that make a rule land mechanically instead of restating it. style-reminder re-states the project's active output style every time the owner sends a message, so the voice instructions never go stale hours into a session. writing-guard reads the finished reply and blocks on an em dash or a section sign, so a slip is caught rather than shipped."
     },
     {
       "name": "session-autoname",
