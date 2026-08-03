@@ -1,9 +1,0 @@
-{
-  "name": "session-autoname",
-  "description": "Keeps a background Claude Code agent session named after the single overarching PROJECT it is working toward, not the step it happens to be on. A Stop hook runs at the end of every turn and asks Haiku for a short project-level label, judged from the arc of the owner's own requests (never the assistant's replies, which narrate the current step) and anchored by feeding the current name back in so it is returned unchanged unless the project genuinely changed. Keeps the job list accurate as a long session drifts off the task it started on, without the name churning every few minutes. Background sessions only, never blocks a turn, and fails silently if Claude Code's internal state format changes.",
-  "version": "0.1.0",
-  "author": {
-    "name": "Mike Rihm",
-    "email": "michael@rihm.com"
-  }
-}
