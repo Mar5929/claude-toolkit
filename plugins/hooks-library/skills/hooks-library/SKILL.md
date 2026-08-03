@@ -2,18 +2,25 @@
 name: hooks-library
 description: >-
   Install, remove, or check the toolkit's hooks in a project. Use when the user
-  says "install the style reminder", "make Claude follow the output style",
-  "remind Claude how to write", "set up the hooks", "add the hooks library",
-  "turn off the style reminder", or "/hooks-library". These hooks re-deliver or
-  check rules that an agent otherwise has to remember on every message. Do NOT
-  use for machine-level hooks such as session auto-naming, which the
-  session-autoname skill owns.
+  says "install the style reminder", "install the writing guard", "make Claude
+  follow the output style", "remind Claude how to write", "stop Claude using em
+  dashes", "set up the hooks", "add the hooks library", "turn off the style
+  reminder", or "/hooks-library". These hooks re-deliver or check rules that an
+  agent otherwise has to remember on every message. Do NOT use for machine-level
+  hooks such as session auto-naming, which the session-autoname skill owns.
 ---
 
 # hooks-library: make the rule land, instead of restating it
 
 This skill wires the toolkit's hooks into one project. Read `../../README.md`
 first for what each hook does and why it exists.
+
+Two hooks ship, and they go together. `style-reminder` re-states the project's
+output style on every message, so the voice instruction never goes stale.
+`writing-guard` reads the finished reply and blocks on an em dash or a section
+sign, so a slip is caught rather than shipped. Steps 1 to 5 below install
+`style-reminder`. The section after them installs `writing-guard`. Offer both
+unless the owner asks for one.
 
 Everything here is opt-in and reversible. Never install a hook the owner has not
 approved, and never edit `settings.json` without showing what will change.
@@ -108,7 +115,67 @@ node plugins/hooks-library/tests/style-reminder-harness.mjs
 
 Tell the owner it takes effect in the next session, not this one.
 
+## The second hook: writing-guard
+
+Same shape, four differences worth saying out loud before you install it.
+
+**Explain it honestly.** This one can block. Say so:
+
+> The style tells Claude not to use em dashes or section signs. This reads the
+> finished reply before you see it, and if one slipped through it hands the
+> reply back to be rewritten. You never see the bad version. It checks those two
+> characters and nothing else, because everything else needs judgement and a
+> wrong block would cost you a turn.
+
+**Copy it.** `hooks/writing-guard.mjs` into the project's `.claude/hooks/`.
+Copy, do not symlink, and do not point at a path inside the installed plugin.
+
+**Register it under `Stop`, not `UserPromptSubmit`**, merging into whatever is
+already there:
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/writing-guard.mjs\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+**Prove it works**, in both directions. A guard that never fires and a guard that
+always fires look the same from the outside until you test them:
+
+```
+printf '%s' '{"type":"assistant","message":{"content":[{"type":"text","text":"It works — mostly."}]}}' > /tmp/wg-dirty.jsonl
+echo "{\"transcript_path\":\"/tmp/wg-dirty.jsonl\",\"session_id\":\"install-check-dirty\"}" | node .claude/hooks/writing-guard.mjs; echo "exit $?"
+
+printf '%s' '{"type":"assistant","message":{"content":[{"type":"text","text":"It works. Nothing needed from you."}]}}' > /tmp/wg-clean.jsonl
+echo "{\"transcript_path\":\"/tmp/wg-clean.jsonl\",\"session_id\":\"install-check-clean\"}" | node .claude/hooks/writing-guard.mjs; echo "exit $?"
+```
+
+The first must exit 2 and name the em dash. The second must exit 0 and print
+nothing. Use a different `session_id` each time you re-run these, because the
+hook refuses to block twice on identical text and a repeated id makes a working
+guard look broken.
+
+Then the plugin's harness, if the toolkit clone is available:
+
+```
+node plugins/hooks-library/tests/writing-guard-harness.mjs
+```
+
 ## Removing it
+
+For `style-reminder`:
 
 1. Delete the `UserPromptSubmit` entry whose command names `style-reminder.mjs`
    from `.claude/settings.json`, leaving every other hook entry exactly as it
@@ -116,15 +183,26 @@ Tell the owner it takes effect in the next session, not this one.
 2. Delete `.claude/hooks/style-reminder.mjs`.
 3. Delete `.claude/style-reminder.json` if it exists.
 
-Removing the hook does not remove the output style. The style keeps working from
-the system prompt; it is just delivered once again instead of every turn.
+For `writing-guard`, the same three steps against the `Stop` array,
+`writing-guard.mjs`, and `.claude/writing-guard.json`.
+
+Removing either hook does not remove the output style. The style keeps working
+from the system prompt; it is just delivered once again instead of every turn,
+and nothing checks the finished reply.
 
 ## If the owner says it is noisy or costly
 
-That is real information, so do not talk them out of it. Reach for the throttle
-before the uninstall: set `everyNPrompts` to 3 or 5 in
-`.claude/style-reminder.json`, which keeps the reinforcement while cutting most
-of the per-message cost.
+That is real information, so do not talk them out of it.
+
+For `style-reminder`, reach for the throttle before the uninstall: set
+`everyNPrompts` to 3 or 5 in `.claude/style-reminder.json`, which keeps the
+reinforcement while cutting most of the per-message cost.
+
+For `writing-guard`, find out which check is firing before removing anything. If
+it is `filler-opener`, turn that one off; it is off by default, so someone
+switched it on. If the em dash check is genuinely blocking good replies, that is
+worth investigating rather than disabling, because it tests for one character.
 
 If the complaint is that the style itself is wrong, the fix is in the style
-file, not here. This hook only repeats what is already written.
+file, not here. Neither hook decides anything; one repeats what is written and
+the other checks two characters.

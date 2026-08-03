@@ -17,7 +17,7 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname } from 'node:path';
 
-import { resolveStyleName, stripFrontmatter, buildReminder } from '../hooks/style-reminder.mjs';
+import { resolveStyleName, stripFrontmatter, buildReminder, styleBody } from '../hooks/style-reminder.mjs';
 
 const HOOK = join(dirname(fileURLToPath(import.meta.url)), '..', 'hooks', 'style-reminder.mjs');
 
@@ -43,12 +43,30 @@ function writeJson(dir, file, value) {
   writeFileSync(join(dir, '.claude', file), JSON.stringify(value));
 }
 
+/**
+ * A home directory with nothing in it. Every end-to-end run points HOME here
+ * unless a test says otherwise, so the results do not depend on whether the
+ * machine running the tests happens to have a style installed. Since #102 the
+ * hook falls back to ~/.claude, and without this the "stays silent" tests would
+ * pass or fail based on the developer's own setup.
+ */
+const EMPTY_HOME = mkdtempSync(join(tmpdir(), 'style-reminder-home-'));
+
 /** Run the hook as Claude Code would: JSON on stdin, read stdout. */
-function run(dir, payload = {}) {
+function run(dir, payload = {}, home = EMPTY_HOME) {
   return execFileSync('node', [HOOK], {
     input: JSON.stringify({ cwd: dir, session_id: 'test-session', ...payload }),
     encoding: 'utf8',
+    env: { ...process.env, HOME: home },
   });
+}
+
+/** A scratch directory shaped like a home folder, with a style already in it. */
+function scratchHome(styleName, text) {
+  const dir = mkdtempSync(join(tmpdir(), 'style-reminder-home-'));
+  mkdirSync(join(dir, '.claude', 'output-styles'), { recursive: true });
+  writeFileSync(join(dir, '.claude', 'output-styles', `${styleName}.md`), text);
+  return dir;
 }
 
 const STYLE = `---
@@ -134,10 +152,44 @@ check('buildReminder carries the body', buildReminder('BODY-TEXT', 'x').includes
   rmSync(dir, { recursive: true, force: true });
 }
 
+// ------------------------------------- the machine-wide copy is the fallback
+{
+  const dir = scratch();
+  const home = scratchHome('plain-language', STYLE);
+  writeFileSync(join(home, '.claude', 'settings.json'), JSON.stringify({ outputStyle: 'plain-language' }));
+  check('resolveStyleName reads the machine settings last', resolveStyleName(dir, '', home) === 'plain-language');
+  check('styleBody falls back to the home copy', styleBody(dir, 'plain-language', 4000, home).includes('not technical'));
+  check('fires from the home copy with nothing in the project', run(dir, {}, home).includes('Never use em dashes'));
+  rmSync(dir, { recursive: true, force: true });
+  rmSync(home, { recursive: true, force: true });
+}
+
+{
+  const dir = scratch();
+  const home = scratchHome('plain-language', '---\nname: plain-language\n---\n\nhome copy body');
+  writeStyle(dir, 'plain-language', STYLE);
+  check('the project copy beats the home copy', run(dir, {}, home).includes('Never use em dashes'));
+  check('the project copy really is the one used', !run(dir, {}, home).includes('home copy body'));
+  rmSync(dir, { recursive: true, force: true });
+  rmSync(home, { recursive: true, force: true });
+}
+
+{
+  const dir = scratch();
+  const home = scratchHome('plain-language', STYLE);
+  writeJson(dir, 'settings.json', { outputStyle: 'Explanatory' });
+  check(
+    'a built-in style in the project still silences the home copy',
+    run(dir, {}, home).trim() === '',
+  );
+  rmSync(dir, { recursive: true, force: true });
+  rmSync(home, { recursive: true, force: true });
+}
+
 // ------------------------------------------------------- it stays silent
 {
   const dir = scratch();
-  check('silent when no style file exists', run(dir).trim() === '');
+  check('silent when no style file exists in the project or the home folder', run(dir).trim() === '');
   rmSync(dir, { recursive: true, force: true });
 }
 
