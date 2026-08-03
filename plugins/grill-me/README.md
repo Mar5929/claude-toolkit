@@ -38,6 +38,13 @@ plan or specification elsewhere in the project.
   workflow. They do not copy its instructions into a project.
 - `grill-me` captures raw discovery. It does not replace a work item's
   `SPEC.md`, `STATUS.md`, or a polished design document.
+- The `spec-before-you-build.md` rule requires a refinement session before any
+  work is built, and `grill-me` is a good way to hold one. That rule names no
+  skill on purpose, so that removing this plugin never leaves it stale: what it
+  requires is the session, and the six-part spec ending up in the ticket itself,
+  whether that is a `SPEC.md` or an external tracker's ticket body. The dated
+  capture under `brainstorms/` stays what it always was, the raw record of how
+  the answers were reached, and is not the spec.
 - It does not depend on second-brain. The Markdown capture remains usable even
   when memory tooling is unavailable.
 - When second-brain v3 is installed, `grill-me` adds the dated capture to the

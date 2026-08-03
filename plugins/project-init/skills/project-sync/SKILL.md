@@ -110,6 +110,14 @@ secrets rule even if the prose differs. Typical checks:
   `.claude/rules/`, and does that folder carry each default-ON general rule (a
   file, or the rule's intent folded into CLAUDE.md)? Judge by intent, not exact
   wording or file name.
+
+  One exception to the "copy every default-ON rule" pass:
+  `spec-before-you-build.md` reads the tracker's name out of the project's root
+  instructions and tells an agent to stop and ask when none is there. Never copy
+  it on its own. It ships only together with a settled answer to the tracking
+  question and the pointer that answer produces, both covered below. A project
+  that gets the rule with no pointer stalls the next time an agent goes to log
+  work.
 - **Output style**: does `.claude/output-styles/` hold each default-ON file, and
   does a settings file actually select one (`outputStyle` in
   `.claude/settings.json` or `.claude/settings.local.json`)? Both halves matter.
@@ -196,6 +204,18 @@ secrets rule even if the prose differs. Typical checks:
   available host plugins. For `grill-me`, classify whether it is available to
   invoke, previously declined, or not applicable. Do not look for a copied
   `SKILL.md` inside the project because the canonical skill stays in its plugin.
+- **Where work items are tracked:** read the root instructions for a structural
+  pointer naming a tracker, and for a recorded decline. Classify as one of:
+  answered and set up, answered and declined, or never asked. A project that has
+  a `work-items/` tree but no pointer counts as never asked. Never-asked is a gap
+  to offer in step 4; a recorded decline is respected and not raised again.
+- **The `spec-before-you-build.md` rule:** classify as present, missing, or
+  previously declined in `.claude/rules/`. When a tracker is named but the rule
+  is missing, that is a gap: the project has somewhere to log work and no
+  instruction to log it there. When the project's root instructions or its own
+  rules already say something about ticket quality, show the difference against
+  the toolkit's current wording and let the owner keep theirs, take the
+  toolkit's, or merge the two. Never overwrite without asking.
 - **Work tracker:** detect `work-items/` and `engagement/work-items/`. If
   `.work-tracker.json` and per-item `ITEM.json` records exist, run the tracker
   validator and classify the system as present or partial from its output. If
@@ -418,6 +438,15 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   and the auto-rebuild hooks. Never install the rule alone, and never install
   it on a Salesforce project, which uses the bundled metadata graph and its own
   rule of the same name instead.
+- When the project was never asked where work items are tracked, ask the Gate 1
+  question from `../project-init/references/work-tracking-choice.md` and follow
+  that file for whichever answer comes back. Copy
+  `general-rules/spec-before-you-build.md` into `.claude/rules/` and add the
+  one-line pointer to `CLAUDE.md` and `AGENTS.md`, unless the answer is
+  "somewhere else, or nothing yet", in which case record the decline instead.
+- When the owner names a different tracker than the one already recorded, rewrite
+  the pointer and the rule. Never delete tickets, issues, or boards from the
+  tracker they are leaving; moving existing work across is theirs to do by hand.
 - For an approved work-tracker gap, install the plugin and run `work init` at
   the detected canonical path. This may add metadata and generated views, but
   it must not overwrite existing `SPEC.md`, `STATUS.md`, or notes. Show any
