@@ -87,11 +87,12 @@ so they always know where they are.
 - What needs guarding or automating? (deploy/env guard, secret guard,
   session-start orientation, format/lint)
 - Confirm exact trigger + action per hook; tell the user how to verify it fires.
-- Every project: offer the `style-reminder` hook from `hooks-library`
-  (`/hooks-library`). It re-states the project's output style every time the
-  owner sends a message, so the voice instructions do not go stale in a long
-  session. It only works next to an installed style, so it pairs with Gate 5;
-  skip it if the owner skips the style.
+- Every project: offer both hooks from `hooks-library` (`/hooks-library`).
+  `style-reminder` re-states the project's output style every time the owner
+  sends a message, so the voice instructions do not go stale in a long session.
+  `writing-guard` reads the finished reply and blocks on an em dash or a section
+  sign, so a slip is caught rather than shipped. Both pair with Gate 5; skip them
+  if the owner skips the style.
 - Salesforce / SFDX: offer the ready-made production-org guard in
   `salesforce-prod-guard-hook.md` (confirms before deploys or destructive ops
   hit a production org; auto-detects production; tuned by a JSON policy file).
@@ -167,9 +168,12 @@ so they always know where they are.
   `output-styles/plain-language.md` to `.claude/output-styles/` and set
   `"outputStyle": "plain-language"` in the committed `.claude/settings.json`.
   This is the only home for how Claude talks; there are no voice rules in
-  `.claude/rules/` any more. Pair it with the Gate 2 `style-reminder` hook,
-  which re-states it on every message. Say that it starts on the owner's next
-  session, and that a subagent never sees an output style. See
+  `.claude/rules/` any more. Pair it with both Gate 2 hooks: `style-reminder`
+  re-states it on every message, `writing-guard` checks the finished reply. Offer
+  the machine-wide copy at `~/.claude/output-styles/` as well if the owner wants
+  this voice in every project. Say that it starts on the owner's next session,
+  and that a helper agent never sees an output style, which is what
+  `follow-the-output-style.md` in the rules folder is for. See
   `output-styles/README.md`.
 - When v3 ran, the memory schema is the one exception to thin. Copy the full
   section from the second-brain plugin's `references/orientation-snippet.md`

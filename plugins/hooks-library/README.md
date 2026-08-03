@@ -66,6 +66,42 @@ It also costs a small amount on every message, which is the price of the repeat.
 It fails open and quiet. Any unexpected error exits 0 with nothing written. A
 broken reminder must never block the owner's message.
 
+Since #102 it also falls back to the machine-wide style. It looks for the style
+file in the project first and then in `~/.claude/output-styles/`, and it resolves
+the style name from the project's local settings, the project's committed
+settings, then `~/.claude/settings.json`. A project that installs its own style
+still wins. This is what makes a machine-level install work in a repo that was
+never set up with this toolkit.
+
+### writing-guard
+
+A `Stop` hook. It reads the finished reply and blocks on an em dash or a section
+sign, handing the agent the violation so it rewrites before the owner sees
+anything.
+
+**Only the two hard bans fire.** Not word choice, not invented labels, not
+figures of speech, not answer-first, not list versus sentences. Those are
+judgement calls and they stay with the output style, because a wrong block costs
+the owner a turn. A script checks what a script can see.
+
+A third check, `filler-opener`, is implemented and **off by default**. It catches
+a reply that starts with "Sure", "Let me", "Great question". It proxies for "lead
+with the answer", which #102 put on the not-checked list, so it stays off unless
+a project turns it on.
+
+**Quoting.** An em dash inside a fenced code block or a backtick span is ignored,
+because the agent is quoting a file rather than writing. Prose that quotes a file
+with no code markers cannot be told apart from the agent's own words and is not
+exempt. That limit was known before the build, not discovered after.
+
+**Loop safety, three layers**, because a hook that can force another turn must
+never force them forever: it honors `stop_hook_active`; it never blocks twice on
+identical text, since the agent evidently cannot fix it; and it caps blocks per
+session.
+
+It fails open. Any unexpected error exits 0. A broken guard must never wedge a
+session.
+
 ## Install
 
 Use the `hooks-library` skill (`/hooks-library`), which wires the hook into the
@@ -76,6 +112,8 @@ The hook is only useful next to an installed output style, so install the two
 together. `project-init` Gate 5 installs the style; this hook makes it repeat.
 
 ## Configure
+
+### style-reminder
 
 Optional, at `.claude/style-reminder.json` in the project root:
 
@@ -92,29 +130,44 @@ Omit the file to get the resolved style, a reminder on every message, and a
 message instead, which cuts the per-message cost if the reminder is doing more
 work than it needs to.
 
+### writing-guard
+
+Optional, at `.claude/writing-guard.json` in the project root:
+
+```json
+{
+  "checks": { "em-dash": true, "section-sign": true, "filler-opener": false },
+  "maxBlocks": 3
+}
+```
+
+Omit the file to get the two hard bans on, `filler-opener` off, and at most three
+blocks per session.
+
 ## Test
 
 ```
 node plugins/hooks-library/tests/style-reminder-harness.mjs
+node plugins/hooks-library/tests/writing-guard-harness.mjs
 ```
 
-32 checks. Roughly a third of them assert the hook stays **silent** when it
-should, and that weighting is deliberate. A reminder hook fails in two
-directions and only one is visible: injecting the wrong text is obvious, while
-staying silent when it should have fired looks exactly like everything working.
+38 checks and 55 checks. In both harnesses, roughly half the checks assert the
+hook does **nothing**, and that weighting is deliberate. Both hooks fail in two
+directions and only one is visible. Injecting the wrong text or blocking a good
+reply is obvious; staying silent when it should have fired looks exactly like
+everything working.
 
-## What was here before
+## What was here before, and came back
 
-`writing-guard`, a `Stop` hook that read the finished reply and blocked on em
-dashes, section signs, and filler openers, was removed along with the three
-voice rules it enforced. Voice now lives in one place, the output style, and is
-reinforced by repetition rather than by blocking a finished reply.
+`writing-guard` was removed in #101 along with the voice rules it enforced, on
+the theory that the style plus the reminder would be enough. The removal came
+with a stated condition: if em dashes climbed back toward the rate in the table
+at the top of this file, bring the check back rather than write the rule down in
+a fourth place.
 
-That trade is worth stating plainly, because the table at the top of this file
-is the evidence against it: a reminder lowers the odds of a miss, a check caught
-them. Nothing now catches an em dash that slips through. If the rate climbs back
-toward what that table shows, the answer is to bring a check back, not to write
-the rule down in a fourth place.
+#102 brought it back, narrower than before. It used to check three things and
+cite three rule files that no longer exist. It now checks two, and both are
+characters, with no interpretation anywhere in it.
 
 ## What a hook is for
 

@@ -93,11 +93,12 @@ itself; each machine and each project pulls the change in.
 How you talk to Mike is governed by the `plain-language` output style, at
 `plugins/project-init/skills/project-init/references/output-styles/plain-language.md`.
 Read it. It is the canonical statement and it applies to this repo's own files,
-not just to the projects this toolkit sets up: plain language, no jargon you
-have not defined, no em dashes, no section signs, no filler, replies built from
-lists, quiet between tool calls, and the actions Mike has to take at the end.
+not just to the projects this toolkit sets up: real names only and never one you
+invented, no figures of speech, common words, the answer first, a shape that
+matches the content, every fact kept, no filler, no em dashes, no section signs,
+quiet between tool calls, and the actions Mike has to take at the end.
 
-One thing that style cannot know, which this repo needs on top:
+Two things that style cannot know, which this repo needs on top:
 
 - **This is the easiest place to forget that Mike is non-technical.** The repo
   is full of hooks, git plumbing, MCP servers, and deployment steps, so the
@@ -105,6 +106,13 @@ One thing that style cannot know, which this repo needs on top:
   him what to do: say it in plain words, say what it means for him, and skip the
   mechanics unless he asks. If a sentence only makes sense to someone who
   already knows git or MCP, rewrite it.
+- **Every agent this toolkit ships carries the same writing rules as the output
+  style.** An output style is delivered in the main conversation's system prompt
+  and never reaches a helper agent, so an agent definition under `plugins/*/agents/`
+  has to carry the rules in its own text. `memory-librarian.md` has a "How to
+  write" section for exactly this reason: it writes memory documents that future
+  sessions read back, so a decoded-once word would spread instead of being
+  forgotten. When you add an agent here, give it that section too.
 
 Older files may still contain em dashes and section signs; clean them up in any
 file you are already editing.

@@ -121,14 +121,16 @@ claude-toolkit/
         pull-latest/              ← SKILL.md
         reset-to-remote/          ← SKILL.md
         merge-and-clean-up/       ← SKILL.md + Codex UI metadata
-    session-autoname/             ← plugin: background sessions name themselves
+    hooks-library/                ← plugin: hooks that check or re-deliver a rule
       README.md
       .claude-plugin/plugin.json
       .codex-plugin/plugin.json
       hooks/
-        session-autoname.mjs      ← the Stop hook, installed to ~/.claude/hooks/
+        style-reminder.mjs        ← re-states the output style every message
+        writing-guard.mjs         ← checks the finished reply before it is sent
+      tests/                      ← one harness per hook
       skills/
-        session-autoname/         ← SKILL.md (one-time per-machine install)
+        hooks-library/            ← SKILL.md (install, verify, remove)
     grill-me/                     ← plugin: persistent discovery interviews
       README.md
       .claude-plugin/plugin.json
@@ -176,7 +178,7 @@ explains how the pieces relate.
 | **[second-brain](plugins/second-brain/README.md)** | Production-ready Git-native Markdown memory and knowledge for Claude and Codex, with one shared rule, typed schemas, owner-approved updates, and an on-demand memory librarian. |
 | **[sf-architect-solutioning](plugins/sf-architect-solutioning/README.md)** | A Salesforce solution architect: pushes back on vague requirements, verifies platform facts against official docs by live fetch, designs declarative-first to Well-Architected standards, and presents a solution plan for approval before any build. Salesforce projects only. |
 | **[git-workflows](plugins/git-workflows/README.md)** | Three parallel-session-safe git lifecycle skills: `pull-latest` gets current without rewriting history, `reset-to-remote` mirrors the remote behind confirmation, and `merge-and-clean-up` lands an approved PR before removing only its completed workspace. |
-| **[session-autoname](plugins/session-autoname/README.md)** | Keeps a background agent session named after the overarching project it is working on, never the step it is on. A Stop hook re-checks the label each turn from a cheap Haiku call and holds it steady until the project itself changes, so a long session stops lying in the job list without the name churning. One-time per-machine install, not per project. |
+| **[hooks-library](plugins/hooks-library/README.md)** | Hooks that make a rule land mechanically instead of restating it: `style-reminder` puts the project's active output style back in front of Claude on every message, and `writing-guard` reads the finished reply and blocks an em dash or a section sign before it is sent. |
 | **[grill-me](plugins/grill-me/README.md)** | Stress-tests a plan, design, or topic through a one-question-at-a-time interview and checkpoints every answer to a durable Markdown file before continuing. |
 | **[work-tracker](plugins/work-tracker/README.md)** | Gives Claude and Codex one Git-authoritative backlog with exact handoffs, blockers, typed relationships, deterministic next-item selection, Git landing proof, generated dashboards, and optional GitHub Issues and Projects synchronization. |
 
@@ -216,29 +218,35 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
   handoffs, and verified landing evidence. Its optional GitHub adapter creates
   or links a Project with the six standard statuses and repository issues
   labeled bug, enhancement, or task.
-- [x] **Shared hooks library**: now the `hooks-library` plugin. Ships
-  `style-reminder`, a hook that puts the project's output style back in front of
-  Claude every time I send a message, so the writing instructions are never
-  stale hours into a session. It replaced `writing-guard`, a Stop hook that read
-  the finished reply and blocked em dashes, section signs, and filler openers,
-  which retired alongside the voice rules it enforced. Still to come:
-  secret-scanning and a SessionStart orientation hook. The Salesforce
-  production-org and permission set guards continue to install from
+- [x] **Shared hooks library**: now the `hooks-library` plugin. Ships two hooks.
+  `style-reminder` puts the project's output style back in front of Claude every
+  time I send a message, so the writing instructions are never stale hours into a
+  session. `writing-guard` reads the finished reply and blocks on an em dash or a
+  section sign, so a slip is caught rather than shipped. The guard was deleted in
+  #101 and brought back by #102, narrowed to those two characters; everything
+  needing judgement stays with the style, because a wrong block costs me a turn.
+  Still to come: secret-scanning and a SessionStart orientation hook. The
+  Salesforce production-org and permission set guards continue to install from
   `project-init` Gate 2.
 - [x] **General rules library**: the standard rules are now individual files in
   `project-init`'s `general-rules/` library (with a `README.md` index), copied
   into each project's `.claude/rules/` verbatim instead of retyped into CLAUDE.md.
 - [x] **Output styles library**: `project-init`'s `output-styles/` library (with
   a `README.md` index), copied into each project's `.claude/output-styles/` and
-  switched on in its settings. `plain-language.md` is default ON, and it is now
-  the only home for how Claude talks to me: written for a non-technical reader,
-  jargon defined, no em dashes, no section signs, no filler, replies built from
-  lists, quiet between tool calls, and my actions at the end. The three voice rules it
-  replaced (`writing-and-language`, `how-to-reply`,
-  `treat-owner-as-non-technical`) were deleted, and the `writing-guard` hook
-  went with them. `general-rules/` now covers how Claude *works*, not how it
-  *talks*. The accepted cost: helper agents never see an output style, so they
-  no longer inherit the voice guidance, and nothing checks a finished reply.
+  switched on in its settings, or into `~/.claude/output-styles/` to cover every
+  project on the machine at once. `plain-language.md` is default ON, and it is
+  the only home for how Claude talks to me. Rewritten by #102 as a goal, then
+  real before-and-after examples, then the rules: real names only and never one
+  Claude invented, no figures of speech, common words, the answer first, a shape
+  that matches the content, every fact kept, no filler, no em dashes, no section
+  signs, quiet between tool calls, and my actions at the end. The four voice
+  rules it replaced (`writing-and-language`, `how-to-reply`,
+  `treat-owner-as-non-technical`, `define-your-terms`) were all deleted.
+  `general-rules/` now covers how Claude *works*, not how it *talks*. The one
+  cost that stands: a helper agent never sees an output style. Two things cover
+  it instead. The `follow-the-output-style` rule sends a helper agent to read the
+  style file before it writes a commit message, pull request text, or a document,
+  and an agent that writes durable files carries the rules in its own definition.
 - [ ] **Publish tooling**: a small script/checklist to export skills to the
   Claude desktop and web apps so those surfaces stay in sync with this repo.
 - [ ] **"Port-back" convention**: a documented flow (and a reminder baked into
@@ -296,14 +304,6 @@ For Git-native project memory shared by Claude and Codex:
 
 New projects can also select it during `/project-init`; existing projects adopt
 it through the read-only `/project-sync` audit.
-
-To have background agent sessions keep their own names current (a one-time setup
-per machine, not per project):
-
-```
-/plugin install session-autoname
-/session-autoname
-```
 
 Then, in a fresh project:
 

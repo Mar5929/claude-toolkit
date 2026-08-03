@@ -1,6 +1,6 @@
 {
   "name": "second-brain",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "Git-native Markdown memory and knowledge for Claude and Codex, with shared schemas, owner-approved updates, and an on-demand memory librarian.",
   "author": {
     "name": "Mike Rihm",
