@@ -62,19 +62,33 @@ form. Keep each gate tight.
 > This gate is intentionally per-project: the value is your tailored
 > recommendation, not a frozen template.
 
-**Work tracking (every stack).** Offer the `work-tracker` plugin described in
-`references/work-items-structure.md`. It extends the established four-stage
-tree with structured records, six workflow statuses, deterministic next-item
-selection, Git landing proof, validation, and generated dashboards. Most
-projects place it at `work-items/`; Salesforce projects place it at
-`engagement/work-items/`.
+**Work tracking (every stack).** Ask, as its own question and not folded into the
+folder-layout question: "Where do you track work items for this project?" Offer a
+GitHub Projects board, Linear, Jira, files in this repository, or somewhere else
+/ nothing yet. `references/work-tracking-choice.md` carries the exact wording,
+what each answer does, and the step-by-step setup for a GitHub Projects board.
+Read it before asking.
 
-Keep this opt-in. If approved, install `work-tracker` from this marketplace and
-run its `init` command. `init` preserves and safely adopts an existing manual
-tree. Do not hand-create a competing tracker. Separately ask whether the owner
-wants local Git tracking only or also wants to create or link a GitHub Project.
-The GitHub option must not run without explicit approval because it creates or
-changes external issues, labels, fields, and Project items.
+Whatever the owner names, two things then hold in that project: every piece of
+work is logged in that tracker before it is built, and nothing is built until a
+refinement session has filled in the six-part spec. Those live in the
+`general-rules/spec-before-you-build.md` rule, copied in Gate 5. Gate 5 also adds
+a one-line structural pointer to `CLAUDE.md` and `AGENTS.md` naming the tracker.
+
+A GitHub Projects board is the only answer where the toolkit creates the tracker
+as well as writing the rules, and it creates nothing without explicit approval:
+no board, no statuses, no labels, no issues. The toolkit creates and changes
+nothing inside Linear, Jira, or any other external tracker.
+
+For "files in this repository", install `work-tracker` from this marketplace and
+run its `init` command, as described in `references/work-items-structure.md`.
+`init` preserves and safely adopts an existing manual tree. Most projects place
+it at `work-items/`; Salesforce projects place it at `engagement/work-items/`.
+Do not hand-create a competing tracker.
+
+If the owner answers "somewhere else, or nothing yet", write nothing about
+tracking, and record that they were asked and declined so `project-sync` does not
+raise it every run.
 
 **Salesforce / SFDX projects** have a standard scaffold worth reusing: see
 `references/salesforce-project-scaffold.md`. Offer it whenever the stack is
@@ -295,9 +309,13 @@ in their own plugins.
 
 - `references/setup-flow.md`: the gate-by-gate checklist to track progress
   against during the run.
-- `references/work-items-structure.md`: how Gate 1 offers and initializes the
-  `work-tracker` plugin, including safe adoption of the older manual tree and
-  the optional GitHub Project mirror.
+- `references/work-tracking-choice.md`: the Gate 1 question about where work
+  items are tracked, what each of the five answers does, and the step-by-step
+  setup for a GitHub Projects board. Read it in Gate 1, before asking.
+- `references/work-items-structure.md`: how Gate 1 initializes the `work-tracker`
+  plugin when the owner chose to track work as files in this repository,
+  including safe adoption of the older manual tree and the optional GitHub
+  Project mirror of those files.
 - `references/salesforce-project-scaffold.md`: the standard Gate 1 layout for a
   Salesforce / SFDX project (SFDX source plus an `engagement/` tree). Read it in
   Gate 1 when the stack is Salesforce.

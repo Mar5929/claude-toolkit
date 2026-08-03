@@ -1,5 +1,9 @@
 # Track Every Work Item in Its Own Folder
 
+This rule is for projects that chose to track work as files in the repository.
+`spec-before-you-build.md` is the tracker-neutral rule that applies whatever the
+project uses; this one adds what is specific to the `work-tracker` plugin.
+
 Capture every ticket, feature, setup task, or deferred want in the project's
 declared work tracker. When the `work-tracker` plugin is installed, use its
 commands instead of manually moving folders or editing structured fields.
@@ -18,11 +22,18 @@ Each item has one folder with:
 - `STATUS.md`: the readable current handoff and recent dated history; and
 - `HISTORY.ndjson`: the full event history.
 
-**Keep `SPEC.md` requirements loose on purpose.** A living goal plus a
-current-state note, not frozen acceptance checkboxes. Rigid criteria go stale
-the moment the work shifts, and a later agent then builds carefully to the wrong
-target. When the direction changes, update the specification in that same
-session rather than leaving the old target standing.
+**`SPEC.md` answers the six parts** set out in `spec-before-you-build.md`: the
+requirements, the goal, the reason, what the person using it experiences, how it
+behaves from the outside, and edge cases. That rule is the canonical statement
+and applies here exactly as it applies to a ticket in an external tracker.
+
+**When the direction changes, update `SPEC.md` in that same session** rather than
+leaving the old target standing. This is what keeps a written requirement from
+going stale and a later agent from building carefully to the wrong target.
+
+An item stays in `Backlog` until its `SPEC.md` answers all six parts, then moves
+to `Ready`. Do not run `work start` on an item that is not `Ready`. Say which of
+the six parts are missing and offer to run the refinement session instead.
 
 **Date every `STATUS.md` entry absolutely**, never "yesterday" or "last week". A
 handoff is read weeks later by someone who has no idea when it was written.
@@ -30,7 +41,8 @@ handoff is read weeks later by someone who has no idea when it was written.
 - Picking an item up? Run `work status`, then read its folder first: `STATUS.md`,
   then `SPEC.md`, before touching anything. Do not work from chat history or a
   memory of an earlier session.
-- Starting it? Run `work start` so the branch and exact next step are recorded.
+- Starting it? Only if it is `Ready`. Then run `work start` so the branch and
+  exact next step are recorded.
 - Working on it? Use `work update` in the same session whenever the next step,
   blockers, or direction changes.
 - Relating tickets? Use `work link`; do not hand-edit only one side.

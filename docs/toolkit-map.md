@@ -159,10 +159,22 @@ The genuine watch-items are called out at the end.
   blockers, work-item relationships, branch and pull-request evidence, and the
   current handoff. V3 may link specifications and durable memory to a work-item
   folder, but it does not copy or overrule task status.
-- **work-tracker versus GitHub Projects.** Git files are authoritative by
-  default. The optional adapter creates or updates repository issues and a
-  Project as a collaboration mirror. Generated dashboards, GitHub issue bodies,
-  and Project fields can all be reconciled from the local records.
+- **work-tracker versus GitHub Projects.** Two different things share the word
+  "Project". work-tracker's optional adapter creates or updates repository issues
+  and a Project as a **mirror** of local files that stay authoritative, using its
+  own six statuses, and everything can be reconciled from the local records.
+  Separately, a project may answer the Gate 1 tracking question with a GitHub
+  Projects board that **holds** the work, with no work-items folder at all. That
+  one is set up by hand from `project-init`'s `work-tracking-choice.md`, uses
+  seven statuses including `Refining`, and involves no work-tracker code. Never
+  point both setups at one board.
+- **spec-before-you-build versus work-item-folders.** Not two rules about
+  tickets. `spec-before-you-build` is tracker-neutral and states the two things
+  that hold anywhere: log the work before building it, and refine the six-part
+  spec before building it. `work-item-folders` adds only what is specific to
+  tracking work as files in the repository, and is meaningless in a project that
+  chose a GitHub board, Linear, or Jira. The six parts are stated once, in
+  `spec-before-you-build`.
 - **hooks-library versus the rules it enforces.** The rule is still canonical
   and still says what good writing is; the hook only catches the cases a machine
   can catch with no interpretation. They are not duplicates, and the hook is not
