@@ -328,12 +328,34 @@ works, end to end")
 - **Issue #112 created**: one line per item instead of the fixed four-field
   report block in `second-brain-rule.md`.
 - **Issue #113 created**: drop the word "durable" from the toolkit.
-- **Issue #115 created**, raised by Mike after the interview when he was told
-  the timing sentence lives in seven files: stop describing the memory system in
-  six places, make one file own each fact. Measured for that ticket: 24 phrases
-  of six or more words appear in two or more of those six documents, and three
-  of them describe the whole system end to end (827, 1043, and 292 lines), all
-  labelled current shipped design.
+- **Issue #115 created and then closed the same day.** It was filed after Mike
+  reacted to the timing sentence living in seven files, and it was wrong. It
+  counted `docs/second-brain-v3/` as duplicated copies. That folder is the
+  written specification for the plugin, and a specification stating behavior is
+  correct. Mike said so plainly: "the docs folder is just like specifications
+  for toolkit."
+  - Re-measured with the specification excluded: between the two installed
+    rules (`wrap-up-ritual.md`, `second-brain-rule.md`) and the two plugin
+    descriptions (`plugins/second-brain/README.md`, the memory skill's
+    `SKILL.md`) there are **zero** repeated phrases of six or more words. The 24
+    quoted in #115 were almost entirely the specification matching the rule it
+    specifies.
+  - What is actually wrong is small: the timing rule is paraphrased three
+    slightly different ways, in `second-brain-rule.md`, the plugin `README.md`,
+    and `SKILL.md`. Paraphrases drift more easily than copies. That fix is now
+    folded into requirement 12 of ticket 104, which already opens all of those
+    files. The two plugin description files point at the rule instead of
+    paraphrasing it.
+  - **Owner instruction, 2026-08-03: write no new code for this.** Nothing is
+    built to compare the specification against the rules. The existing check in
+    `plugins/second-brain/tests/v3-harness.mjs` only gets the words it looks for
+    updated.
+  - Lesson for the agent, recorded because it happened twice in this session:
+    Mike said "clean this up" and a ticket was filed within minutes without
+    testing whether the problem described was real. His `ask-before-assuming`
+    and `recommend-the-best-solution` rules both required checking first. The
+    measurement that disproved the ticket took one command and could have been
+    run before writing it.
 - #112 and #113 sit in **Backlog**. Neither may be built until it has had its
   own grill-me session, per the rule Mike added today.
 
