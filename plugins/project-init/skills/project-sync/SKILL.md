@@ -101,6 +101,14 @@ secrets rule even if the prose differs. Typical checks:
   `.claude/rules/`, and does that folder carry each default-ON general rule (a
   file, or the rule's intent folded into CLAUDE.md)? Judge by intent, not exact
   wording or file name.
+
+  One exception to the "copy every default-ON rule" pass:
+  `spec-before-you-build.md` reads the tracker's name out of the project's root
+  instructions and tells an agent to stop and ask when none is there. Never copy
+  it on its own. It ships only together with a settled answer to the tracking
+  question and the pointer that answer produces, both covered below. A project
+  that gets the rule with no pointer stalls the next time an agent goes to log
+  work.
 - **Output style**: does `.claude/output-styles/` hold each default-ON file, and
   does a settings file actually select one (`outputStyle` in
   `.claude/settings.json` or `.claude/settings.local.json`)? Both halves matter.

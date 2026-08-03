@@ -105,7 +105,11 @@ does not check out.
    GitHub before that yes: no board, no statuses, no labels, no issues.
 6. **Create the board and link it to the repository.**
 7. **Set the statuses** to: `Backlog`, `Refining`, `Ready`, `In progress`,
-   `In review`, `Done`, `Cancelled`.
+   `In review`, `Done`, `Cancelled`. Type them exactly as written, lower-case
+   second words included. These are not the `work-tracker` plugin's statuses and
+   are not interchangeable with them: that plugin uses six, spelled
+   `In Progress` and `In Review`, and has no `Refining`. A board set up by hand
+   here must never also be connected with `work github connect`.
 8. **Add the `grill-me-completed` label** to the repository, described as the
    mark that a refinement session finished and the spec is written.
 9. **Report what you made**, including the board's link.

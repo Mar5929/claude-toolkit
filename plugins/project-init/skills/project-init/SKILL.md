@@ -265,9 +265,18 @@ list.
   Calendar, Linear, Notion, Playwright), fold in that server's section (as a
   short CLAUDE.md section or its own `.claude/rules/` file). Skip the servers the
   project doesn't use.
+- **`spec-before-you-build.md` never ships alone.** It reads the tracker's name
+  out of the root instructions and tells an agent to stop and ask when none is
+  there. Copy it only when Gate 1's tracking question was answered with a real
+  tracker, and write the pointer named below in the same pass. When the answer
+  was "somewhere else, or nothing yet", skip the rule too and record the
+  decline.
 - **Write the thin CLAUDE.md** _with_ the user, walking the sections rather than
   generating a wall of text: what the project is, the codemap and structural
-  pointers, a `Read .claude/rules` line, and which gates ran. Reflect what the
+  pointers, a `Read .claude/rules` line, and which gates ran. Among the
+  structural pointers, include the one-line work-tracking pointer from
+  `references/work-tracking-choice.md`, naming the tracker Gate 1 settled on and
+  how a refined ticket is marked. Add the identical line to `AGENTS.md`. Reflect what the
   earlier gates set up. When v3 was installed, preserve its compact project
   memory route and add the equivalent route to `AGENTS.md`. Both route to
   `.claude/rules/second-brain.md`; neither copies the complete schema.
