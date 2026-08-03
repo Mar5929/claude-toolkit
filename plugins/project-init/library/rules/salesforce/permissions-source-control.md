@@ -102,7 +102,17 @@ conflicts in large XML files, and matches Salesforce's own current guidance.
 Rule 3 is backed by a hook. `.claude/hooks/guard-permission-set-deploy.js` blocks
 any deploy shipping a permission set that has no fresh clean preflight receipt.
 Do not edit or disable it to get past a block; read what the preflight says would
-be removed, and accept the losses on purpose if they are intended.
+be removed, and accept the losses on purpose if they are intended by re-running
+the preflight with `--accept-removals`, which records that decision.
+
+**A receipt goes stale after 30 minutes**, because the org drifts. A preflight
+run before a long review does not cover the deploy that follows it. Re-run the
+preflight rather than treating an old clean result as still true.
+
+**Known false positive.** The hook reads the whole command string, so it also
+fires when a deploy command appears as quoted TEXT inside a different command,
+for example inside a commit message. Put the text in a file and pass it by path
+instead of writing it inline.
 
 ## Related rules
 
