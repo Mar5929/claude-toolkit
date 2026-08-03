@@ -1,4 +1,7 @@
-# memory-pr-guard (ticket 104): Brainstorm / Discovery Notes
+# The memory PR hook (ticket 104): Brainstorm / Discovery Notes
+
+Named `memory-pr-guard` when this session started. Mike renamed it to the memory
+PR hook partway through, in Q13.
 
 Date: 2026-08-02
 Goal: Stress-test ticket 104 (a hook that holds `gh pr create` until the
@@ -278,6 +281,15 @@ works, end to end")
     that same pull request before it is merged". **This makes
     `wrap-up-ritual.md` a required file change in ticket 104**, which the
     original ticket did not list.
+  - Checked after the interview: that timing sentence appears in **seven**
+    places, not one (`wrap-up-ritual.md`, `second-brain-rule.md`, second-brain's
+    `SKILL.md` and `README.md`, `docs/second-brain-v3/README.md`,
+    `docs/second-brain-v3/TECHNICAL-SPECIFICATION.md`, and an assertion in
+    `plugins/second-brain/tests/v3-harness.mjs` that checks for the exact old
+    wording). All seven are now listed in ticket 104's requirement 12. Leaving
+    any of them behind would ship two installed rules that contradict each
+    other, which `CLAUDE.md`'s one-canonical-home rule forbids. This also
+    restores the `second-brain` version bump that the Q1 split had removed.
 - Flags: None
 
 ### Q13: the word "durable", and what this thing is called
