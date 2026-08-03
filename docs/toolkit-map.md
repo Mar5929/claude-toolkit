@@ -23,7 +23,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | [hooks-library](../plugins/hooks-library/README.md) | Hooks that make a rule land mechanically instead of restating it: `style-reminder` re-states the output style every message, `writing-guard` checks the finished reply | `hooks-library` | `/plugin install hooks-library` | Wires into settings |
 | [grill-me](../plugins/grill-me/README.md) | Persistent discovery interviews that checkpoint every answer | `grill-me` | `/plugin install grill-me` | Install and go |
 | [work-tracker](../plugins/work-tracker/README.md) | Git-authoritative backlog, handoffs, relationships, landing proof, and optional GitHub Projects | `work` | `/plugin install work-tracker` | Sets up a project |
-| [session-summary](../plugins/session-summary/README.md) | Recap one session as a bullet per request, each with an honest status | `session-summary` | `/plugin install session-summary` | Install and go |
+| [session-summary](../plugins/session-summary/README.md) | Recap one session as a numbered line per main request, each with an honest status | `session-summary` | `/plugin install session-summary` | Install and go |
 
 ## Skills at a glance
 

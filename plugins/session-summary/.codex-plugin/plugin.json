@@ -1,7 +1,7 @@
 {
   "name": "session-summary",
-  "version": "0.1.0",
-  "description": "Recap a session as one bullet per request the owner made, each with an honest status.",
+  "version": "0.2.0",
+  "description": "Recap a session as a numbered line per main request the owner made, each with an honest status.",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com",
@@ -20,7 +20,7 @@
   "interface": {
     "displayName": "Session Summary",
     "shortDescription": "What you asked for, and where each one stands.",
-    "longDescription": "Reads the session's own requests and returns one bullet per request, written the way you asked for it, each carrying an honest status: done, partly done, blocked, waiting on you, dropped, or answered.",
+    "longDescription": "Reads the session's own requests and returns a short numbered list, one line per main request, written the way you asked for it, each carrying an honest status: done, partly done, blocked, waiting on you, dropped, or answered.",
     "developerName": "Mike Rihm",
     "category": "Productivity",
     "capabilities": [

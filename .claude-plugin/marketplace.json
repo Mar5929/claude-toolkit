@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Personal, portable toolkit of reusable Claude systems: skills, rules, hooks, and templates shared across every project and device.",
-    "version": "0.52.0"
+    "version": "0.53.0"
   },
   "plugins": [
     {
@@ -47,7 +47,7 @@
     {
       "name": "session-summary",
       "source": "./plugins/session-summary",
-      "description": "Recaps a session as one bullet per request the owner made, in the owner's own words and in the order asked, each carrying an honest status: done, done unverified, partly done, blocked, waiting on you, not started, dropped, or answered."
+      "description": "Recaps a session as a short numbered list, one line per main request the owner made, in the owner's own words and in the order asked, each carrying an honest status: done, done unverified, partly done, blocked, waiting on you, not started, dropped, or answered."
     }
   ]
 }
