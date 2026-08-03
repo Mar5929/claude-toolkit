@@ -14,7 +14,7 @@ depth lives in each plugin's own `README.md` and reference indexes.
 | [second-brain](../plugins/second-brain/README.md) | Git-native Markdown specifications and durable memory shared by Claude and Codex | `second-brain`, `remember` | `/plugin install second-brain` |
 | [sf-architect-solutioning](../plugins/sf-architect-solutioning/README.md) | Salesforce solution architect: approved solution plan before any build | `sf-architect-solutioning` | `/plugin install sf-architect-solutioning` |
 | [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git lifecycle workflows | `pull-latest`, `reset-to-remote`, `merge-and-clean-up` | `/plugin install git-workflows` |
-| [hooks-library](../plugins/hooks-library/README.md) | Guard hooks that enforce the checkable rules mechanically instead of restating them | `hooks-library` | `/plugin install hooks-library` |
+| [hooks-library](../plugins/hooks-library/README.md) | Hooks that make a rule land mechanically instead of restating it: `style-reminder` re-states the output style every message, `writing-guard` checks the finished reply | `hooks-library` | `/plugin install hooks-library` |
 | [session-autoname](../plugins/session-autoname/README.md) | Background agent sessions stay named after their overarching project | `session-autoname` | `/plugin install session-autoname` |
 | [grill-me](../plugins/grill-me/README.md) | Persistent discovery interviews that checkpoint every answer | `grill-me` | `/plugin install grill-me` |
 | [work-tracker](../plugins/work-tracker/README.md) | Git-authoritative backlog, handoffs, relationships, landing proof, and optional GitHub Projects | `work` | `/plugin install work-tracker` |
@@ -163,12 +163,14 @@ The genuine watch-items are called out at the end.
   default. The optional adapter creates or updates repository issues and a
   Project as a collaboration mirror. Generated dashboards, GitHub issue bodies,
   and Project fields can all be reconciled from the local records.
-- **hooks-library versus the rules it enforces.** The rule is still canonical
-  and still says what good writing is; the hook only catches the cases a machine
-  can catch with no interpretation. They are not duplicates, and the hook is not
-  a licence to delete the rule: it fires on the finished reply, so it cannot
-  shape a commit message, a document, or a code comment, which the rule still
-  governs. The split that decides whether something belongs in the hook is
+- **hooks-library versus the output style it enforces.** The style is canonical
+  and says what good writing is; `writing-guard` only catches the two characters
+  a machine can catch with no interpretation. They are not duplicates, and the
+  hook is not a licence to thin the style: it fires on the finished reply in the
+  main conversation, so it cannot shape a commit message, a document, or
+  anything a helper agent writes. Those are covered by the
+  `follow-the-output-style` rule and, for an agent that writes durable files, by
+  the writing rules inside its own definition. The split that decides whether something belongs in the hook is
   once-per-decision versus once-per-message. "Never commit a secret" fires at
   one point and holds on instruction alone. "No em dashes" fires on every
   sentence, thousands of tokens after the rule was last read, and measurement
@@ -245,11 +247,19 @@ The genuine watch-items are called out at the end.
   next step broken in 56 to 60 percent of turns. An output style is delivered in
   the system prompt and re-stated on every message by the hook.
   `show-phase-progress` remains the one deliberate exception, and its one-line
-  bar is exactly the mid-work budget the style allows. `define-your-terms` and
-  `steer-to-the-goal` still add their own distinct constraints on top.
-  **The known cost:** an output style never reaches a subagent, so helper agents
-  no longer inherit the voice guidance, and nothing checks a finished reply now
-  that `writing-guard` is gone. Both were accepted deliberately.
+  bar is exactly the mid-work budget the style allows. `steer-to-the-goal` still
+  adds its own distinct constraint on top. `define-your-terms` was the fourth
+  rule to go, folded into the style by #102.
+  **The two known costs, and what became of them.** Nothing checked a finished
+  reply once `writing-guard` was deleted, which was accepted on a stated
+  condition: bring the check back if em dashes returned. #102 restored it,
+  narrowed to the em dash and the section sign, with every judgement call left
+  to the style. The other cost stands: an output style never reaches a helper
+  agent. It is now handled twice over rather than fixed, since it cannot be
+  fixed at this level. `follow-the-output-style` tells a helper agent to read
+  the style file before writing anything the owner will read, and an agent that
+  writes durable files carries the rules in its own definition, which is what
+  the "How to write" section in `memory-librarian.md` is.
 - **sf-architect-solutioning versus the Salesforce rules versus the dependency
   graph.**
   sf-architect decides what to build; the `salesforce-rules` install standing

@@ -216,29 +216,35 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
   handoffs, and verified landing evidence. Its optional GitHub adapter creates
   or links a Project with the six standard statuses and repository issues
   labeled bug, enhancement, or task.
-- [x] **Shared hooks library**: now the `hooks-library` plugin. Ships
-  `style-reminder`, a hook that puts the project's output style back in front of
-  Claude every time I send a message, so the writing instructions are never
-  stale hours into a session. It replaced `writing-guard`, a Stop hook that read
-  the finished reply and blocked em dashes, section signs, and filler openers,
-  which retired alongside the voice rules it enforced. Still to come:
-  secret-scanning and a SessionStart orientation hook. The Salesforce
-  production-org and permission set guards continue to install from
+- [x] **Shared hooks library**: now the `hooks-library` plugin. Ships two hooks.
+  `style-reminder` puts the project's output style back in front of Claude every
+  time I send a message, so the writing instructions are never stale hours into a
+  session. `writing-guard` reads the finished reply and blocks on an em dash or a
+  section sign, so a slip is caught rather than shipped. The guard was deleted in
+  #101 and brought back by #102, narrowed to those two characters; everything
+  needing judgement stays with the style, because a wrong block costs me a turn.
+  Still to come: secret-scanning and a SessionStart orientation hook. The
+  Salesforce production-org and permission set guards continue to install from
   `project-init` Gate 2.
 - [x] **General rules library**: the standard rules are now individual files in
   `project-init`'s `general-rules/` library (with a `README.md` index), copied
   into each project's `.claude/rules/` verbatim instead of retyped into CLAUDE.md.
 - [x] **Output styles library**: `project-init`'s `output-styles/` library (with
   a `README.md` index), copied into each project's `.claude/output-styles/` and
-  switched on in its settings. `plain-language.md` is default ON, and it is now
-  the only home for how Claude talks to me: written for a non-technical reader,
-  jargon defined, no em dashes, no section signs, no filler, replies built from
-  lists, quiet between tool calls, and my actions at the end. The three voice rules it
-  replaced (`writing-and-language`, `how-to-reply`,
-  `treat-owner-as-non-technical`) were deleted, and the `writing-guard` hook
-  went with them. `general-rules/` now covers how Claude *works*, not how it
-  *talks*. The accepted cost: helper agents never see an output style, so they
-  no longer inherit the voice guidance, and nothing checks a finished reply.
+  switched on in its settings, or into `~/.claude/output-styles/` to cover every
+  project on the machine at once. `plain-language.md` is default ON, and it is
+  the only home for how Claude talks to me. Rewritten by #102 as a goal, then
+  real before-and-after examples, then the rules: real names only and never one
+  Claude invented, no figures of speech, common words, the answer first, a shape
+  that matches the content, every fact kept, no filler, no em dashes, no section
+  signs, quiet between tool calls, and my actions at the end. The four voice
+  rules it replaced (`writing-and-language`, `how-to-reply`,
+  `treat-owner-as-non-technical`, `define-your-terms`) were all deleted.
+  `general-rules/` now covers how Claude *works*, not how it *talks*. The one
+  cost that stands: a helper agent never sees an output style. Two things cover
+  it instead. The `follow-the-output-style` rule sends a helper agent to read the
+  style file before it writes a commit message, pull request text, or a document,
+  and an agent that writes durable files carries the rules in its own definition.
 - [ ] **Publish tooling**: a small script/checklist to export skills to the
   Claude desktop and web apps so those surfaces stay in sync with this repo.
 - [ ] **"Port-back" convention**: a documented flow (and a reminder baked into
