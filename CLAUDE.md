@@ -7,9 +7,9 @@ marketplace. `README.md` has the full picture; read it first.
 
 The three 'toolkit-enabled' projects so far are Anchor, Dragonfly, and Diligence Ready
 
-## Log every piece of work on the GitHub board
+## Work Item Tracking
 
-All work for this repo is tracked on the `claude-toolkit-project` board on
+Work for this repo is tracked on the `claude-toolkit-project` board on
 GitHub, which is connected to this repository. Log the work item there as a
 GitHub issue before you start building it. If the work is already underway and
 no ticket exists, stop and write the ticket first.
@@ -27,7 +27,7 @@ answers all of the following, in plain words:
 - **Edge cases.** The odd or unhappy situations this has to handle, and exactly
   what should happen in each one. Name the behavior, do not just name the case.
 
-You cannot start developing a ticket until the ticket has completed a "grill-me" session where the user and the AI agent (claude or codex) fully align on all the specifications listed above. During the grill-me session all the specs will be defined and written to the github ticket. When the grill-me session starts you must ensure the work item status is "Refining". When the grill-me session is completed, the "grill-me-completed" label will be applied and the work item status will be set to "Ready".
+You cannot start developing a ticket until the ticket has completed a requirements and spec refinement session. There is a skill called "grill-me" that could be leveraged optionally. The user and the AI agent (claude or codex) should fully align on all the specifications listed above. During the refinement session all the specs will be defined and written to the github ticket. When the session starts you must ensure the work item status is "Refining". When the session is completed, the "refined" label will be applied and the work item status will be set to "Ready".
 
 Keep the ticket current while the work moves, and close it when the work lands,
 saying what actually shipped and anything that was left out.
