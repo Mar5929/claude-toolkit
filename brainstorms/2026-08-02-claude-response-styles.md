@@ -59,6 +59,14 @@ during the interview.
 
 Plus the two hard bans that a script can see: **no em dashes, no section signs.**
 
+**Plain does not mean vague.** All five rules take words away, so the thing they
+can break is the facts. Simplify the wording, never the content. Keep every
+specific: the numbers, the file names, what actually happened. This comes
+straight from the ticket's own line, "plain wording should carry more real
+information, not less." The question that tried to pin it down (Q9) was asked
+badly and Mike stopped it, so it is recorded here as his stated intent, not as a
+decision he made in this session.
+
 **The shape of the style file:** goal, then a worked example, then the hard
 rules as a short checklist.
 
@@ -354,6 +362,12 @@ Still open, all for the build session rather than blocking it:
 - **Shape of the check hook.** Whether it revives the deleted `writing-guard` or
   is written fresh, and whether it blocks the reply or only warns. -> the build
   session.
+- **The check hook's quoting exception may not be buildable as written.** The
+  spec says the check ignores an em dash inside quoted text or a code block. A
+  hook reading a finished reply can do that for fenced code blocks. Telling an
+  inline quote of a file apart from Claude's own words is much harder. If it
+  turns out impossible, narrow the exception to fenced blocks only and say so.
+  -> the build session.
 - **Two edits cannot ship in the pull request.** `~/.claude/rules/` and
   `~/.claude/settings.json` are not in any git repository, so deliverables 2 and
   the cleanup have to be made directly on the Mac. -> the build session, with
@@ -369,10 +383,6 @@ Still open, all for the build session rather than blocking it:
 - **Widening the helper-agent rule to every document in the repo.** Offered in
   Q8, not chosen, because it would put voice rules back into `general-rules/`
   against the output-styles README's argument.
-- **A separate rule protecting information density** ("plain words, full
-  facts"). The question was asked in Q9 and Mike stopped it as
-  over-complication. The ticket's own line still stands as intent: plain wording
-  should carry more real information, not less. It is not a written rule.
 - **A check on the judgment calls** (invented names, buried answers) using a
   model to read finished replies. Offered in Q7, not chosen, on the grounds that
   a script should check what a script can see and the style should carry the
@@ -383,3 +393,16 @@ Still open, all for the build session rather than blocking it:
 The two failures in Q9 are the most useful thing in this file. They are real,
 unprompted, and Mike reacted to both in the moment. Use them as the worked
 example in the style file rather than inventing one.
+
+## Note for the next grill-me session
+
+Two questions in this session were rejected before Mike answered them, and both
+failed the same way: the question bundled a finding with an ask, so it was not
+clear whether he was being told something or asked something. He said so
+directly: "Are you asking me if 102 closes the gap, or are you saying should it
+close the gap?" Separate the two. State the finding, stop, then ask the plain
+question on its own.
+
+The other complaint was volume. Ten questions was too many for a problem he
+described as simple. Ask fewer, and make each one a decision that actually
+changes what gets built.
