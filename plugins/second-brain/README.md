@@ -7,6 +7,9 @@ Second-brain v3 stores current specifications, discovery, and durable project
 knowledge as ordinary Markdown in the adopting repository. Git provides
 history, review, conflict detection, and recovery.
 
+**Setup: sets up a project.** Install once per machine, then each project opts
+in and gets its own `specs/`, `brainstorms/`, and `memory/` folders.
+
 ## Install
 
 ```text

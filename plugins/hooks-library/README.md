@@ -3,6 +3,9 @@
 Hooks that make a rule land mechanically, instead of writing the rule down again
 and hoping.
 
+**Setup: wires into settings.** Install once per machine, then switch each hook
+on by adding it to a settings file, either the machine's or one project's.
+
 ## Why this exists
 
 Rules that must be applied to every single message do not survive a long working

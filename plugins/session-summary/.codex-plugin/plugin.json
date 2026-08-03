@@ -1,0 +1,37 @@
+{
+  "name": "session-summary",
+  "version": "0.1.0",
+  "description": "Recap a session as one bullet per request the owner made, each with an honest status.",
+  "author": {
+    "name": "Mike Rihm",
+    "email": "michael@rihm.com",
+    "url": "https://github.com/Mar5929"
+  },
+  "homepage": "https://github.com/Mar5929/claude-toolkit",
+  "repository": "https://github.com/Mar5929/claude-toolkit",
+  "keywords": [
+    "toolkit",
+    "summary",
+    "status",
+    "handoff",
+    "skills"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Session Summary",
+    "shortDescription": "What you asked for, and where each one stands.",
+    "longDescription": "Reads the session's own requests and returns one bullet per request, written the way you asked for it, each carrying an honest status: done, partly done, blocked, waiting on you, dropped, or answered.",
+    "developerName": "Mike Rihm",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive"
+    ],
+    "websiteURL": "https://github.com/Mar5929/claude-toolkit",
+    "defaultPrompt": [
+      "Summarize this session",
+      "What did I ask for, and where does it stand?",
+      "Recap this chat before I close it"
+    ],
+    "brandColor": "#0F766E"
+  }
+}

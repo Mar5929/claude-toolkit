@@ -1,6 +1,6 @@
 {
   "name": "second-brain",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "description": "Git-native Markdown memory and knowledge for Claude and Codex, with natural stopping-point reviews, owner-approved librarian maintenance, and a pre-merge parallel-memory check.",
   "author": {
     "name": "Mike Rihm",

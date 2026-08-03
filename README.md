@@ -143,6 +143,12 @@ claude-toolkit/
       .codex-plugin/plugin.json
       skills/
         work/                     ← SKILL.md + dependency-free Node core
+    session-summary/              ← plugin: what you asked for, and where it stands
+      README.md
+      .claude-plugin/plugin.json
+      .codex-plugin/plugin.json
+      skills/
+        session-summary/          ← SKILL.md + Codex UI metadata
   docs/
     toolkit-map.md                ← the catalog: every item and how they relate
     architecture.html             ← visual map of how the pieces fit
@@ -168,19 +174,31 @@ relate (including what looks redundant but is not), see
 
 ## What's here now
 
-Seven plugins. Each has its own `README.md` with the detail;
+Eight plugins. Each has its own `README.md` with the detail;
 [`docs/toolkit-map.md`](docs/toolkit-map.md) indexes everything in one place and
 explains how the pieces relate.
 
-| Plugin | What it does |
+**Installing is always per machine, never per project.** Every plugin here
+installs into `~/.claude/` and is then available in every project on that
+machine. What actually differs between them is whether a plugin needs anything
+inside a project folder before it is useful, which is what the last column says:
+
+| Label | Means |
 |---|---|
-| **[project-init](plugins/project-init/README.md)** | Sets up or syncs a project. Asks where work items are tracked (a GitHub Projects board, Linear, Jira, files in the repository, or nothing), sets up the board itself for the GitHub answer, and carries the same ticket rules into the project whichever answer it gets. Offers work-tracker with safe adoption of older folders, and installs the complete second-brain v3 system when selected. For Salesforce projects it also ships two self-contained tools: the permission set kit, and a dependency graph that answers "if I change this field, what breaks?" from the project's own metadata. Existing-project sync begins with a read-only audit. |
-| **[second-brain](plugins/second-brain/README.md)** | Production-ready Git-native Markdown memory and knowledge for Claude and Codex, with one shared rule, typed schemas, owner-approved updates, and an on-demand memory librarian. |
-| **[sf-architect-solutioning](plugins/sf-architect-solutioning/README.md)** | A Salesforce solution architect: pushes back on vague requirements, verifies platform facts against official docs by live fetch, designs declarative-first to Well-Architected standards, and presents a solution plan for approval before any build. Salesforce projects only. |
-| **[git-workflows](plugins/git-workflows/README.md)** | Three parallel-session-safe git lifecycle skills: `pull-latest` gets current without rewriting history, `reset-to-remote` mirrors the remote behind confirmation, and `merge-and-clean-up` lands an approved PR before removing only its completed workspace. |
-| **[hooks-library](plugins/hooks-library/README.md)** | Hooks that make a rule land mechanically instead of restating it: `style-reminder` puts the project's active output style back in front of Claude on every message, and `writing-guard` reads the finished reply and blocks an em dash or a section sign before it is sent. |
-| **[grill-me](plugins/grill-me/README.md)** | Stress-tests a plan, design, or topic through a one-question-at-a-time interview and checkpoints every answer to a durable Markdown file before continuing. |
-| **[work-tracker](plugins/work-tracker/README.md)** | Gives Claude and Codex one Git-authoritative backlog with exact handoffs, blockers, typed relationships, deterministic next-item selection, Git landing proof, generated dashboards, and optional GitHub Issues and Projects synchronization. |
+| Install and go | Nothing to set up. Install once on a machine and use it anywhere |
+| Sets up a project | Puts files in the repository. Each project opts in, usually through `project-init` or `project-sync` |
+| Wires into settings | Installs a hook by editing a settings file, on the machine or in the project |
+
+| Plugin | What it does | Setup |
+|---|---|---|
+| **[project-init](plugins/project-init/README.md)** | Sets up or syncs a project. Asks where work items are tracked (a GitHub Projects board, Linear, Jira, files in the repository, or nothing), sets up the board itself for the GitHub answer, and carries the same ticket rules into the project whichever answer it gets. Offers work-tracker with safe adoption of older folders, and installs the complete second-brain v3 system when selected. For Salesforce projects it also ships two self-contained tools: the permission set kit, and a dependency graph that answers "if I change this field, what breaks?" from the project's own metadata. Existing-project sync begins with a read-only audit. | Sets up a project |
+| **[second-brain](plugins/second-brain/README.md)** | Production-ready Git-native Markdown memory and knowledge for Claude and Codex, with one shared rule, typed schemas, owner-approved updates, and an on-demand memory librarian. | Sets up a project |
+| **[sf-architect-solutioning](plugins/sf-architect-solutioning/README.md)** | A Salesforce solution architect: pushes back on vague requirements, verifies platform facts against official docs by live fetch, designs declarative-first to Well-Architected standards, and presents a solution plan for approval before any build. Salesforce projects only. | Install and go |
+| **[git-workflows](plugins/git-workflows/README.md)** | Three parallel-session-safe git lifecycle skills: `pull-latest` gets current without rewriting history, `reset-to-remote` mirrors the remote behind confirmation, and `merge-and-clean-up` lands an approved PR before removing only its completed workspace. | Install and go |
+| **[hooks-library](plugins/hooks-library/README.md)** | Hooks that make a rule land mechanically instead of restating it: `style-reminder` puts the project's active output style back in front of Claude on every message, and `writing-guard` reads the finished reply and blocks an em dash or a section sign before it is sent. | Wires into settings |
+| **[grill-me](plugins/grill-me/README.md)** | Stress-tests a plan, design, or topic through a one-question-at-a-time interview and checkpoints every answer to a durable Markdown file before continuing. | Install and go |
+| **[work-tracker](plugins/work-tracker/README.md)** | Gives Claude and Codex one Git-authoritative backlog with exact handoffs, blockers, typed relationships, deterministic next-item selection, Git landing proof, generated dashboards, and optional GitHub Issues and Projects synchronization. | Sets up a project |
+| **[session-summary](plugins/session-summary/README.md)** | Recaps a session as one bullet per request you made, in your own words and in the order you asked, each carrying an honest status. Answers "what did I ask for, and where does it stand?" without a narrative of the assistant's own work. | Install and go |
 
 ---
 
@@ -297,6 +315,13 @@ For Git-native work tracking, optionally mirrored to GitHub Projects:
 ```text
 /plugin install work-tracker
 /work
+```
+
+For a recap of what you asked for in a session and where each request stands:
+
+```text
+/plugin install session-summary
+/session-summary
 ```
 
 For Git-native project memory shared by Claude and Codex:

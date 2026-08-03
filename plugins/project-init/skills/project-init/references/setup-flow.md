@@ -11,7 +11,7 @@ so they always know where they are.
 [ ] Gate 3 - Second-brain v3          (complete Markdown memory system)
 [ ] Gate 4 - Knowledge layer          (included with Gate 3, or skipped with it)
 [ ] Gate 5 - Root instructions + rules (thin CLAUDE.md and AGENTS.md)
-[ ] Gate 6 - Optional toolkit skills  (offer grill-me)
+[ ] Gate 6 - Optional toolkit skills  (offer grill-me, session-summary)
 [ ] Wrap-up - summarize, note follow-ups, port-back reminder
 ```
 
@@ -194,6 +194,8 @@ so they always know where they are.
   skill instructions into the project.
 - With v3 installed, it uses the flat brainstorm index and proposes approved
   specification or memory outcomes at interview completion.
+- Offer `session-summary` for long sessions and handoffs: it returns one bullet
+  per request the owner made, each with a status, and writes nothing.
 - Record installed, skipped, or deferred so `project-sync` does not repeat a
   considered "no".
 

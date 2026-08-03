@@ -4,6 +4,9 @@ A Salesforce solution architect. Feed it a requirement and it produces an
 approved, well-architected solution plan before anything gets built. It is
 domain-specific, so install it only on Salesforce projects.
 
+**Setup: install and go.** Install once per machine. Nothing to set up inside a
+project.
+
 ## Install
 
 ```

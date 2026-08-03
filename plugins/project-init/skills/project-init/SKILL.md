@@ -318,7 +318,12 @@ in their own plugins.
 - When v3 is installed, explain that `grill-me` also updates the flat brainstorm
   index and ends by proposing any resulting specification or durable-memory
   updates. It does not make raw discovery authoritative.
-- Record whether the owner installed, skipped, or deferred it so a later
+- Offer `session-summary` when the owner works in long sessions or hands work
+  between sessions. Explain that asking for a recap returns one bullet per
+  request they made, in their own words, each with a status such as done, partly
+  done, blocked, or waiting on you. It reads the conversation and writes
+  nothing, so it does not compete with the work tracker.
+- Record whether the owner installed, skipped, or deferred each one so a later
   `project-sync` respects that choice.
 
 ---

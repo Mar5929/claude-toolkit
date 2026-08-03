@@ -201,8 +201,8 @@ secrets rule even if the prose differs. Typical checks:
   reports remain retired and are never refreshed, reconciled, imported, or
   used as current truth.
 - **Standalone toolkit skills:** check the previous sync record and the
-  available host plugins. For `grill-me`, classify whether it is available to
-  invoke, previously declined, or not applicable. Do not look for a copied
+  available host plugins. For `grill-me` and `session-summary`, classify each as
+  available to invoke, previously declined, or not applicable. Do not look for a copied
   `SKILL.md` inside the project because the canonical skill stays in its plugin.
 - **Where work items are tracked:** read the root instructions for a structural
   pointer naming a tracker, and for a recorded decline. Classify as one of:
