@@ -66,7 +66,10 @@ something an agent actually wrote and the owner actually objected to.
 
 **Keep it short.** A style is re-read by the agent constantly, so every line in
 it competes with every other line, and the `style-reminder` hook re-sends the
-whole file on every message. Roughly 45 lines is the working ceiling. Detailed
+whole file on every message. **50 lines is the working ceiling**, and that is a
+decision made in #102, not a limit imposed by anything. Nothing breaks at 51;
+the hook's own guard is a 4,000 character ceiling, which is far higher. The
+number exists so the next person to add a line has to take one out. Detailed
 procedure (how to write a numbered instruction list, when to use the question
 box) belongs in a rule in `general-rules/`, which is about working rather than
 talking.
