@@ -42,21 +42,24 @@ recorded as corrections rather than as questions.
 
 ### Corrections found in the repo (not asked, just fixed)
 
-1. **`writing-guard` no longer exists.** It shipped in PR #96 and was retired in
-   PR #101 along with the three voice rules it enforced. The hook that ships
-   today is `style-reminder`, a `UserPromptSubmit` reminder (not a blocking
-   check), with a 32-check harness. Everything in ticket 104 that leans on
-   `writing-guard` needs rewording:
-   - "shipped next to `writing-guard`" -> shipped next to `style-reminder`
-   - "mirroring `.claude/writing-guard.json`" -> mirroring
-     `.claude/style-reminder.json`
-   - Done-when item "`writing-guard-harness.mjs` still passes" -> that file does
-     not exist; the file to keep passing is
-     `plugins/hooks-library/tests/style-reminder-harness.mjs`
-   - "that weighting caught two real false positives during `writing-guard`
-     development" -> provenance not verifiable from the repo today; the
-     surviving harness with the deliberate one-third-negative weighting is
-     `style-reminder`'s.
+1. ~~**`writing-guard` no longer exists.**~~ **WRONG, and reversed on
+   2026-08-03.** This claim was made from a copy of the repository that
+   predated pull request #111, and it caused a live hook to be declared dead in
+   ticket 104.
+   - The real history: `writing-guard` shipped in #96, was retired in #101 with
+     the voice rules it enforced, and was **brought back in #111** as part of
+     ticket #102, narrowed to the only two things a script can check with no
+     interpretation, an em dash and a section sign. It has a 55-check test at
+     `plugins/hooks-library/tests/writing-guard-harness.mjs`.
+   - So the original ticket 104 was right on all three counts that were
+     "corrected": the hook ships next to `writing-guard`, its settings file
+     mirrors `.claude/writing-guard.json`, and `writing-guard-harness.mjs` is a
+     real test that must keep passing. Ticket 104 has been fixed back.
+   - How it happened: this worktree was branched from `main` before #111 and
+     #117 landed, and `origin/main` was never re-checked before making claims
+     about what the repository contains. Second time in this session that a
+     confident claim was made without re-reading the source. **Fetch before
+     asserting what is in the repo.**
 2. **State keying precedent already exists.** `style-reminder.mjs` keys its
    per-session throttle on `payload.session_id` and stores counters under
    `tmpdir()/claude-style-reminder/<sessionId>`. `memory-pr-guard` should match
@@ -93,9 +96,11 @@ agent takes the technical calls and records them here.
    little more code and a few more tests. The ticket's "must NOT hold" row for
    heredocs is reworded to "a `gh pr create` written *inside* a pasted block is
    ignored; one written outside it is still held."
-2. **Sibling hook and config shape.** `writing-guard` is retired; mirror
-   `style-reminder` instead, including per-session state keyed on
-   `payload.session_id` under `tmpdir()`.
+2. **Sibling hook and config shape.** Corrected 2026-08-03: mirror
+   `.claude/writing-guard.json`, which is the closest existing example because
+   `writing-guard` also blocks and also counts how many times it has done so.
+   Keep per-session state keyed on `payload.session_id` under `tmpdir()`, which
+   both existing hooks do.
 
 ## Q&A log
 
