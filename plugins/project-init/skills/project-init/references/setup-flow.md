@@ -6,7 +6,7 @@ so they always know where they are.
 
 ```
 [ ] Gate 0 - Orient: read the working dir; identify stack & project state
-[ ] Gate 1 - Scaffolding, folder structure, and optional work-tracker
+[ ] Gate 1 - Scaffolding, folder structure, and where work items are tracked
 [ ] Gate 2 - Hooks (guards & automation)
 [ ] Gate 3 - Second-brain v3          (complete Markdown memory system)
 [ ] Gate 4 - Knowledge layer          (included with Gate 3, or skipped with it)
@@ -27,14 +27,24 @@ so they always know where they are.
 - Recommend a conventional layout for the stack; explain the why briefly.
 - Confirm before creating dirs/files. Cover: source, tests, config, `.gitignore`,
   README, license, editor/formatter, CI stub.
-- Every stack: offer the work-items structure in `work-items-structure.md`
-  through the `work-tracker` plugin. If approved, install it and run `init`.
-  It preserves the stage folders `01-backlog/` through `04-archived/`, adds
-  structured records and validation, and safely adopts existing folders. Pairs
-  with the `work-item-folders.md` rule copied in Gate 5.
-- Ask separately whether the owner wants local Git tracking only or an optional
-  GitHub Project mirror. Creating or changing GitHub issues, labels, fields, or
-  Project items requires explicit approval.
+- Every stack, as its own question: "Where do you track work items for this
+  project?" Offer a GitHub Projects board, Linear, Jira, files in this
+  repository, or somewhere else / nothing yet. `work-tracking-choice.md` has the
+  wording, what each answer does, and the GitHub board setup steps. Read it
+  first.
+- For answers other than "somewhere else, or nothing yet", Gate 5 copies the
+  `spec-before-you-build.md` rule and adds a one-line pointer to `CLAUDE.md` and
+  `AGENTS.md` naming the tracker.
+- A GitHub Projects board is the only answer the toolkit sets up. It creates
+  nothing without explicit approval: no board, no statuses, no labels, no
+  issues. It creates and changes nothing inside Linear, Jira, or any other
+  external tracker.
+- For "files in this repository": install the `work-tracker` plugin and run
+  `init`, per `work-items-structure.md`. It preserves the stage folders
+  `01-backlog/` through `04-archived/`, adds structured records and validation,
+  and safely adopts existing folders. Pairs with the `work-item-folders.md` rule
+  copied in Gate 5. The optional GitHub Project mirror of those files is the
+  plugin's own command and needs explicit approval too.
 - Salesforce / SFDX: offer the standard scaffold in
   `salesforce-project-scaffold.md` (SFDX source plus an `engagement/` tree;
   its `engagement/work-items/` uses the same work-items structure).
