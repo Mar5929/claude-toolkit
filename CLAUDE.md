@@ -1,54 +1,196 @@
 # CLAUDE.md: working in claude-toolkit
 
-This repo is Mike's single source of truth for the reusable pieces he wants in
-every project: rules, the new-project setup flow, and (over time) hooks, the
-memory architecture, and other systems. It's packaged as a Claude Code plugin
-marketplace. `README.md` has the full picture; read it first.
+Mike's single source of truth for the reusable pieces he wants in every project,
+packaged as a Claude Code plugin marketplace. `README.md` has the full picture.
 
-The three 'toolkit-enabled' projects so far are Anchor, Dragonfly, and Diligence Ready
+<!-- shared-with-agents-md:start -->
 
-## Work Item Tracking
+Read `.claude/rules` first. Every file in that folder is a rule for how you work
+here, and they are in force for the whole session.
 
-Work for this repo is tracked on the `Claude-Toolkit-Project` board on GitHub,
-which is connected to this repository. Every piece of work is logged there as an
-issue before it is built, and nothing is built until a refinement session has
-filled in the six-part spec.
+## Project memory and knowledge: read this before you write anything
 
-Those rules are stated once, in
-`plugins/project-init/library/rules/general/spec-before-you-build.md`.
-Read it. It is the canonical statement and it governs this repo as well as every
-project the toolkit sets up. Do not restate the six parts here; if they need to
-change, change them there.
+`.claude/rules/second-brain.md` is the canonical rule and wins over this summary
+if they ever disagree. Read it before work that changes approved behavior,
+before any structural change to these folders, and whenever the routing below
+does not clearly settle where something goes.
 
-What is specific to this repo, on top of that rule:
+The committed Markdown files and Git history **are** the system. There is no
+memory database, memory server, embedding index, transcript store, or background
+curator. Nothing is remembered automatically. If it is not written down here, it
+is not remembered. A hook may remind you of a rule or start a review, and never
+writes memory itself. The one raw-capture exception is an owner-invoked
+`grill-me` interview, which checkpoints only its non-authoritative brainstorm
+and index. Specifications and curated memory still use the memory librarian.
 
-- Move the issue to `Refining` when the refinement session starts.
-- When the session ends and the spec is agreed, add the `refined` label and move
-  the issue to `Ready`. Work may start then, and not before.
-- The spec is written into the GitHub issue body, since the board holds the work
-  and this repo has no `work-items/` folder.
-- **The issue body holds the functional requirements and nothing else.** That is
-  the goal, why it matters, what has to be true for it to count as finished, the
-  use cases and scenarios, and what the person using it should experience. What
-  and why, never how. Keep out the file paths, the current version numbers, the
-  "replace the example under this heading", and the step-by-step build plan.
-  Those are implementation. They are read once, and they are wrong as soon as a
-  file moves or a version bumps.
+### Authority map: one truth, one home
+
+| Question | Canonical home |
+|---|---|
+| What should the product or system do? | `specs/` |
+| What ideas, options, and open questions were explored? | `brainstorms/` |
+| What durable circumstance affects the work? | `memory/context/` |
+| What is the high-level direction and sequence? | `memory/planning/` |
+| What important choice was made, and why? | `memory/decisions/` |
+| What reusable understanding should future work know? | `memory/knowledge/` |
+| Which source matters, and what does it support? | `memory/references/` |
+| What does this business term or rule mean? | `memory/domain/` |
+| How is the system operated, released, or recovered? | `memory/operations/` |
+| Where is a raw meeting, transcript, message, deliverable, or export? | The project's ordinary artifact folders |
+| What is active, next, blocked, assigned, or landed? | The work tracker |
+| What did an earlier version say? | Git history |
+
+Link to the one home. Never copy a second version that can drift. When you are
+about to write something another document already owns, `Repetition` in
+`.claude/rules/second-brain.md` says what to do instead.
+
+### When to use each home, and when not to
+
+| Home | Use when | Do NOT use when |
+|---|---|---|
+| `brainstorms/` | Requirements or design are still being discovered, or the owner runs `grill-me`. One flat dated collection. | The behavior is already approved (that is `specs/`), or it is a raw meeting record with another home. |
+| `specs/` | A capability, boundary, observable behavior, constraint, or acceptance expectation is **approved**. One `README.md` per capability under `specs/<area>/<capability>/`. | Capturing exploration, implementation trivia, ticket status, or a source. |
+| `memory/context/` | A durable circumstance, stakeholder, constraint, or boundary affects several tasks or explains why work must be read a certain way. | It is a current task, next action, blocker, or temporary handoff. |
+| `memory/planning/` | Direction or sequence matters beyond one ticket: vision, goals, roadmap, milestones, durable risks, assumptions. | Recording ticket status, assignments, or an operational blocker. |
+| `memory/decisions/` | Knowing why a non-obvious choice was made will prevent confusion, reversal, or a repeated debate. | The choice is routine, temporary, obvious from the spec, or useful inside one ticket only. |
+| `memory/knowledge/` | The understanding prevents a likely mistake, explains a failure mode, or helps several future tasks. | It is obvious from nearby code, temporary debug output, or belongs in a spec or decision. |
+| `memory/references/` | A source is external or needs durable project-specific context explaining what it supports. | A raw artifact already has a clear home and can simply be linked. |
+| `memory/domain/` | People use a term or business rule an agent could misread. | Defining product behavior or technical implementation. |
+| `memory/operations/` | A repeatable procedure plus its verification or recovery will help future work. | Tracking a deployment ticket, storing a secret, or defining required behavior. |
+
+### Raw artifacts stay where they are
+
+The project's existing artifact folders keep owning raw material: meeting notes,
+transcripts, communications, deliverables, client exports, and source documents.
+Memory links to them and explains why they matter. It never holds a second copy.
+Where an existing folder overlaps a memory type, the memory type owns the
+curated version and the artifact folder owns the raw file.
+
+### The work tracker owns live state
+
+Ticket status, blockers, assignments, handoffs, branches, pull requests, and
+landing proof belong to the work tracker, never to memory. Planning owns
+direction; the tracker owns execution.
+
+### Every durable document has
+
+1. a descriptive title;
+2. a one-sentence summary directly under it;
+3. a type given by its folder path;
+4. content shaped for that type;
+5. links to related documents where they genuinely help; and
+6. a one-sentence entry in the nearest `README.md` index.
+
+Every populated `memory/<type>/<system-area>/` folder has its own `README.md`.
+Create it with the area's first durable document.
+
+No YAML frontmatter. No empty placeholder fields. `Status: Superseded` plus a
+link to the replacement is required whenever a replaced document is kept.
+
+Documents in `memory/knowledge/` and `memory/domain/` add one mandatory line
+under the summary saying where the content came from: `Basis: Observed`,
+`Basis: Owner-confirmed <YYYY-MM-DD>`, `Basis: Source`, or
+`Basis: Inferred, unconfirmed`. Trust a document only as far as its basis
+allows, and never quietly upgrade an inference to a confirmed fact.
+
+### How to read
+
+Start at the relevant root `README.md`, then the area index, then the specific
+document. Follow only the links this task needs. Do not load every memory file
+every session. Report conflicting current truth instead of silently picking one.
+
+### How to write
+
+Never write durable memory unprompted. When the owner approved a proposal, asked
+for a change, approved behavior a specification must now reflect, or said
+"remember this" or similar, the main agent must invoke the memory librarian
+(`.claude/agents/memory-librarian.md`) in this session's worktree and review the
+diff it produces.
+
+Propose durable updates at approved completion points only: a substantial task
+finished, a brainstorm or requirements interview ended, a milestone reached, a
+session handing off or about to have its context cleared, or another natural
+stopping point follows meaningful work with a settled durable result. Not on
+every response, commit, or trivial action.
+One review can satisfy several nearby stopping points unless later work changes
+the durable result.
+
+A deferred proposal changes no durable document and creates no memory queue. If
+an approved write fails, retry or report it and keep the task unfinished. The
+pull request may open, but it does not merge as though the write succeeded unless
+the owner explicitly waives it.
+
+Before a pull request containing specification or memory changes merges, bring
+its branch current through the project's Git workflow. Then invoke the librarian
+for a read-only comparison with the latest relevant memory and indexes. It uses
+judgment to find duplicate canonical homes or conflicting current truth that
+parallel work could merge without a text conflict. Any destructive or
+meaning-changing repair still requires visible owner approval.
+
+Stop and show the owner before any structural change: removing durable
+information, changing what is authoritative, moving, splitting, or merging
+documents, reorganizing, superseding current guidance, or adding a new top-level
+area or type. These operations are allowed after approval so memory can be
+maintained instead of only accumulating.
+
+## Codemap
+
+| Path | What lives there |
+|---|---|
+| `plugins/` | The nine plugins this repo ships. Each has its own `README.md`, which is that plugin's canonical description. |
+| `plugins/project-init/library/` | The reusable material other projects receive: `rules/general/`, `rules/salesforce/`, `output-styles/`, `tools/`, `templates/`, `guides/`. Each has a `README.md` index. |
+| `.claude-plugin/marketplace.json` | Registers every plugin for Claude Code. `.agents/plugins/marketplace.json` does the same for Codex. |
+| `docs/toolkit-map.md` | The cross-cutting catalog: what each piece is, and the honest read on what looks redundant but is not. |
+| `tests/` | Node checks, run by hand. `link-check.mjs` (a link pointing at a file that is not there), `orphan-check.mjs` (a shipped file no index points at), `installed-copy-check.mjs` (a file this repo ships and the copy it runs have drifted apart). |
+| `archive/` | Retired material kept for history. Never a source of current truth. |
+| `.claude/` | What this repo runs on itself: the rule copies, the memory librarian, the output style, the three hooks, and the setup record in `toolkit-sync.md`. |
+
+This repo runs the toolkit on itself. `.claude/rules/`, `.claude/hooks/`,
+`.claude/output-styles/`, `.claude/agents/`, `brainstorms/`, `specs/`, and
+`memory/` are the same setup every other toolkit project gets, installed here so
+a change is felt where it is written instead of three weeks later in another
+project. That means most files under `.claude/` are copies of files this repo
+also ships. `tests/installed-copy-check.mjs` fails when a shipped file and its
+copy stop matching, so nobody has to remember to change both.
+
+## Where work is tracked
+
+The `Claude-Toolkit-Project` board on GitHub, which is connected to this
+repository. `.claude/rules/spec-before-you-build.md` says what has to be true of
+every ticket before work starts. What is specific to this board:
+
+- Move the issue to `Refining` when the refinement session starts. When the
+  session ends and the spec is agreed, add the `refined` label and move it to
+  `Ready`. Work may start then, and not before.
+- **The issue body holds the functional requirements and nothing else.** The
+  goal, why it matters, what has to be true for it to count as finished, the use
+  cases and scenarios, and what the person using it should experience. What and
+  why, never how. Keep out file paths, version numbers, and the step-by-step
+  build plan: they are read once and are wrong as soon as a file moves.
 - **Everything else goes in the issue comments.** Progress, decisions made while
-  building, blockers, and pointers to files by relative path, such as
-  `plugins/session-summary/skills/session-summary/SKILL.md`. Comments are dated
+  building, blockers, and pointers to files by relative path. Comments are dated
   and in order, so they carry the story of the work without letting it rot the
-  requirements. This is the same split the `work-tracker` plugin makes between
-  `SPEC.md` and `STATUS.md`. On this board, the body is the `SPEC.md` and the
-  comments are the `STATUS.md`.
-- Keeping both current is already required by `spec-before-you-build.md`, which
-  says a written requirement that goes stale is what makes an agent build
-  carefully to the wrong target. When direction changes, edit the body in that
-  same session rather than leaving the old target standing, and put the reason
-  for the change in a comment.
-- The `grill-me` skill is one way to run the refinement session, and using it is
-  optional. What the rule requires is the session and the agreed spec, whether
-  that comes from the skill or from a plain conversation.
+  requirements. This is the same split `work-tracker` makes between `SPEC.md`
+  and `STATUS.md`: here the body is the `SPEC.md` and the comments are the
+  `STATUS.md`.
+- When direction changes, edit the body in that same session rather than leaving
+  the old target standing, and put the reason in a comment.
+- The `grill-me` skill is one way to run the refinement session. What the rule
+  requires is the session and the agreed spec, whether that comes from the skill
+  or from a plain conversation.
+
+## Parallel sessions in this repo
+
+`.claude/rules/parallel-agent-sessions.md` is the rule. Two things are specific
+to this repo:
+
+- Worktrees are siblings of the primary checkout, named
+  `claude-toolkit-<issue number>`, on a branch named `issue-<number>-<slug>`.
+- Memory and specification writes land in the worktree and reach `main` when the
+  pull request merges, so two sessions saving at once both touch the same index
+  files. Git can merge that with no reported conflict and still leave the memory
+  wrong. The pre-merge review in `.claude/rules/second-brain.md` is what catches
+  it, and it has to actually run here.
 
 ## Your main job here: fold new lessons into the toolkit
 
@@ -78,10 +220,21 @@ write X down somewhere. Fit it into the system:
 4. **Opt-in by default.** Nothing is forced on a project unless Mike says every
    project should get it; then mark it default ON in the `library/rules/general/README.md`
    index (like most rules there), not conditional.
-5. **Bump versions.** A content change to a plugin bumps its `plugin.json`
+5. **Give every agent you add the writing rules in its own text.** An output
+   style is delivered in the main conversation's system prompt and never reaches
+   a helper agent, so an agent definition under `plugins/*/agents/` has to carry
+   those rules itself. `memory-librarian.md` has a "How to write" section for
+   exactly this reason: it writes memory documents that future sessions read
+   back, so a word that has to be decoded once would spread instead of being
+   forgotten.
+6. **Bump versions.** A content change to a plugin bumps its `plugin.json`
    version and `metadata.version` in `marketplace.json`.
-6. **Keep `main` installable.** `claude plugin validate .` must pass; `main` is
-   what every machine installs from.
+7. **Keep `main` installable.** `claude plugin validate .` must pass; `main` is
+   what every machine installs from. Run `node tests/link-check.mjs`,
+   `node tests/orphan-check.mjs`, and `node tests/installed-copy-check.mjs` too.
+
+Older files may still contain em dashes and section signs; clean them up in any
+file you are already editing.
 
 ## The other direction: pull a merged change onto your machines and into projects
 
@@ -110,41 +263,12 @@ In one line: push to GitHub, then on every machine `/plugin marketplace update`,
 then in every project `/project-sync`. Nothing propagates across machines by
 itself; each machine and each project pulls the change in.
 
-## Writing rules (they apply here too)
+This repo is one of those projects now. It runs the toolkit on itself, so a
+merged change reaches it the same way: refresh the plugin, then sync.
 
-How you talk to Mike is governed by the `plain-language` output style, at
-`plugins/project-init/library/output-styles/plain-language.md`.
-Read it. It is the canonical statement and it applies to this repo's own files,
-not just to the projects this toolkit sets up: real names only and never one you
-invented, no figures of speech, common words, the answer first, a shape that
-matches the content, every fact kept, no filler, no em dashes, no section signs,
-quiet between tool calls, and the actions Mike has to take at the end.
+<!-- shared-with-agents-md:end -->
 
-Two things that style cannot know, which this repo needs on top:
-
-- **This is the easiest place to forget that Mike is non-technical.** The repo
-  is full of hooks, git plumbing, MCP servers, and deployment steps, so the
-  jargon is always right there. Explaining what you DID counts, not just telling
-  him what to do: say it in plain words, say what it means for him, and skip the
-  mechanics unless he asks. If a sentence only makes sense to someone who
-  already knows git or MCP, rewrite it.
-- **Every agent this toolkit ships carries the same writing rules as the output
-  style.** An output style is delivered in the main conversation's system prompt
-  and never reaches a helper agent, so an agent definition under `plugins/*/agents/`
-  has to carry the rules in its own text. `memory-librarian.md` has a "How to
-  write" section for exactly this reason: it writes memory documents that future
-  sessions read back, so a decoded-once word would spread instead of being
-  forgotten. When you add an agent here, give it that section too.
-
-Older files may still contain em dashes and section signs; clean them up in any
-file you are already editing.
-
-Mike will tell you when he wants the detail. Default to the short, plain version.
-
-## Parallel sessions
-
-Mike usually runs several Claude Code sessions at once. Work in your own git
-worktree on your own branch, never edit the shared primary checkout, and land
-changes on `main` by pull request. After opening the PR, ask Mike whether to
-merge and clean up; merge only when he approves. (This is the same protocol
-that the `parallel-agent-sessions.md` general rule installs into new projects.)
+Everything between those two markers is in `AGENTS.md` word for word, because
+Codex reads that file and never reads this one. `tests/installed-copy-check.mjs`
+fails when the two stop matching. Edit either file and copy the block across in
+the same change.

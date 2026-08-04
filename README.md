@@ -174,8 +174,18 @@ claude-toolkit/
   tests/
     orphan-check.mjs              ← fails if the toolkit ships a file nothing points at
     link-check.mjs                ← fails if a Markdown link points at a file that is gone
+    installed-copy-check.mjs      ← fails if a shipped file and the copy this repo runs differ
   archive/
     second-brain-v1/              ← retired implementation, outside installable plugins
+  .claude/                        ← this repo running the toolkit on itself
+    rules/                        ← copies of the rules it ships, plus their index
+    hooks/                        ← the three general hooks, switched on here too
+    output-styles/                ← plain-language.md, selected in settings.json
+    agents/memory-librarian.md    ← the memory writer this repo uses
+    toolkit-sync.md               ← what was set up, skipped, or declined, and why
+  brainstorms/                    ← this repo's own discovery notes, indexed
+  specs/                          ← approved behavior, filled as work happens
+  memory/                         ← this repo's own typed memory
 ```
 
 Each **concern is its own plugin/skill** so it can evolve and be reused
