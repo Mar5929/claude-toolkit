@@ -188,8 +188,13 @@ The main agent conducts a short durable-knowledge review only:
 - at another natural stopping point after meaningful work, when the owner ends
   or pauses the task and a settled durable result exists.
 
-An unfinished-session handoff does not trigger this review. Neither does every
-chat message, commit, or routine response.
+A session handing off to a fresh one, or about to have its context cleared, does
+trigger this review. That moment has the most at stake, because the context is
+about to be destroyed and nothing can catch a clear after it happens. Save what
+the owner approves and carry everything else inside the handoff prompt.
+
+An ordinary chat message, a commit, or a trivial action does not trigger it.
+Live status, blockers, and next actions are not memory.
 One review may satisfy several nearby stopping points unless later work changes
 the durable result.
 

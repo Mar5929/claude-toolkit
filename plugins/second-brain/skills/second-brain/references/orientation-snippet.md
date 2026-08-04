@@ -135,9 +135,10 @@ for a change, approved behavior a specification must now reflect, or said
 diff it produces.
 
 Propose durable updates at approved completion points only: a substantial task
-finished, a brainstorm or requirements interview ended, a milestone reached, or
-another natural stopping point follows meaningful work with a settled durable
-result. Not on every response, commit, trivial action, or unfinished handoff.
+finished, a brainstorm or requirements interview ended, a milestone reached, a
+session handing off or about to have its context cleared, or another natural
+stopping point follows meaningful work with a settled durable result. Not on
+every response, commit, or trivial action.
 One review can satisfy several nearby stopping points unless later work changes
 the durable result.
 

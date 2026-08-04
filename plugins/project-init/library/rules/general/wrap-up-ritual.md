@@ -40,14 +40,20 @@ on the GitHub website, or by any other tool, never reaches it. This rule is the
 backup for those, and it applies whether or not a hook fires.
 
 Run the same memory check at the end of a brainstorm or requirements interview,
-at the end of a milestone or project phase, and at another natural
+at the end of a milestone or project phase, when a session hands off to a fresh
+one or its context is about to be cleared, and at another natural
 stopping point after meaningful work when the owner ends or pauses the task and
 a settled result exists.
+
+The handoff is the one where the most is at stake, because the context is about
+to be destroyed and nothing can catch a clear after the fact. Save what the
+owner approves, and carry everything else inside the handoff prompt so the next
+session still has it. See `offer-context-handoff.md`.
 
 One review may satisfy several nearby stopping points. Do not repeat it unless
 later work adds or changes a conclusion worth saving. A deferred proposal
 changes no document and creates no memory queue.
 
-Do not trigger the memory check merely because unfinished work is handed to
-another session, a response ends, a commit is created, or a trivial action
-finishes. Temporary next actions and handoffs remain in work-tracker.
+Do not trigger the memory check merely because a response ends, a commit is
+created, or a trivial action finishes. Live status, blockers, and next actions
+stay in work-tracker and in the handoff prompt; they are not memory.
