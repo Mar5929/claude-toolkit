@@ -1,7 +1,7 @@
 {
   "name": "session-summary",
-  "version": "0.2.0",
-  "description": "Recap a session as a numbered line per main request the owner made, each with an honest status.",
+  "version": "0.3.0",
+  "description": "Recap a session as a table row per main request the owner made, each with an honest status, then a block naming whatever still needs them.",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com",
@@ -19,8 +19,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Session Summary",
-    "shortDescription": "What you asked for, and where each one stands.",
-    "longDescription": "Reads the session's own requests and returns a short numbered list, one line per main request, written the way you asked for it, each carrying an honest status: done, partly done, blocked, waiting on you, dropped, or answered.",
+    "shortDescription": "What you asked for, where each one stands, and what still needs you.",
+    "longDescription": "Reads the session's own requests and returns a table, one row per main request, written the way you asked for it, each carrying an honest status: done, partly done, blocked, waiting on you, dropped, or answered. Below the table, a block names whatever still needs your input or action.",
     "developerName": "Mike Rihm",
     "category": "Productivity",
     "capabilities": [

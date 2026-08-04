@@ -197,8 +197,9 @@ so they always know where they are.
   skill instructions into the project.
 - With v3 installed, it uses the flat brainstorm index and proposes approved
   specification or memory outcomes at interview completion.
-- Offer `session-summary` for long sessions and handoffs: it returns one bullet
-  per request the owner made, each with a status, and writes nothing.
+- Offer `session-summary` for long sessions and handoffs: it returns a table with
+  one row per request the owner made, each with a status, then a block for
+  whatever still needs them, and writes nothing.
 - Record installed, skipped, or deferred so `project-sync` does not repeat a
   considered "no".
 
