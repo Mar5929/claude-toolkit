@@ -19,7 +19,7 @@ matching.
 | `second-brain.md` | The canonical memory and knowledge rule: the authority map, what each home owns, who may write, when to propose, and the pre-merge review. The routing summary in `CLAUDE.md` and `AGENTS.md` loses to this file. |
 | `capture-the-thinking.md` | Never leave the thinking only in chat. The goal, the requirements, the edge cases, the decisions, and the open questions get written into their canonical home while the work happens. |
 | `keep-claudemd-current.md` | Update `CLAUDE.md` before a session ends whenever it surfaces a new path, convention, decision, or workflow. Prune while you are in there. |
-| `wrap-up-ritual.md` | At completion points, align specifications, code, and tests, propose memory updates as a table the owner approves, and require the librarian for approved writes. The `memory-pr-hook` hook points at this file. |
+| `wrap-up-ritual.md` | At completion points, align specifications, code, and tests, draft the real words for anything worth saving, have `memory-verifier` check them, and show the owner the actual text before writing it. The `memory-pr-hook` hook points at this file. |
 | `secrets-never-committed.md` | Keys and credentials live outside the repo. |
 | `honest-verification.md` | Do not claim more than you verified. Report failures with their output. |
 | `parallel-agent-sessions.md` | Sharing a repo with other live sessions: look before you edit, work in your own worktree and branch, never `git add -A`, land by pull request. |
