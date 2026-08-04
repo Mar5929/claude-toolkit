@@ -1,7 +1,7 @@
 {
   "name": "hooks-library",
   "description": "Hooks that make a rule land mechanically instead of asking an agent to remember it. Ships style-reminder, a UserPromptSubmit hook that puts the project's active output style back in front of the agent on every message; writing-guard, a Stop hook that hands back a reply containing an em dash or a section sign; and memory-pr-hook, a PreToolUse hook that holds the command opening a pull request, once per branch per session, so the memory check happens at the moment it applies. Built after measuring real transcripts showed these rules are stated clearly in several places and broken most of the time anyway.",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com"

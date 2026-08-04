@@ -33,7 +33,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | project-init | project-init | Walk a NEW project through setup gates, one skippable step at a time | `/project-init` |
 | project-sync | project-init | Audit an EXISTING project against the toolkit and close approved gaps | `/project-sync` |
 | second-brain | second-brain | Explain, install, audit, adopt, review, and maintain the complete v3 system | `/second-brain` |
-| remember | second-brain | Save clear owner-approved information through the on-demand memory librarian | `/remember`, "remember this" |
+| remember | second-brain | Save clear owner-approved information through the on-demand memory librarian, routing what the system should do to `specs/` and everything else to memory | `/remember`, "remember this" |
 | sf-architect-solutioning | sf-architect-solutioning | 5-phase Salesforce solutioning to an approved plan | `/sf-architect-solutioning` |
 | pull-latest | git-workflows | Get current with the remote without rewriting or discarding | `/pull-latest` |
 | reset-to-remote | git-workflows | Hard-reset a repo to mirror the remote, safely gated | `/reset-to-remote` |

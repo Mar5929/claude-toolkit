@@ -4,8 +4,9 @@
  * a pull request, once per branch per session, so the agent raises the memory
  * check at the moment it applies.
  *
- * Why this exists. `wrap-up-ritual.md` already says to check what is worth
- * saving to memory when a piece of work finishes. Counted from real
+ * Why this exists. `wrap-up-ritual.md` already says to check, when a piece of
+ * work finishes, that a change to what the system should do reached its
+ * specification, and what else is worth saving to memory. Counted from real
  * transcripts, it is mostly ignored: 3.4% of turns in DragonFly, 0.5% in
  * davis-advisors-sfdc, 19% in claude-toolkit with the memory agent never
  * actually invoked. The problem is delivery, not wording. A rule is read once
@@ -15,14 +16,20 @@
  *
  * What it knows. Four facts, and nothing else:
  *   1. a pull request is about to be opened;
- *   2. this project checks what to save to memory first;
+ *   2. this project first checks that a change to what the system should do
+ *      reached its specification, and what else is worth saving to memory;
  *   3. the rule is in `wrap-up-ritual.md`;
  *   4. what was found goes in the pull request description.
  *
+ * "Specification" and "memory" are the two kinds of thing the check covers, and
+ * naming them is what stops an agent reading this and thinking about memory
+ * only. They are not destinations. The line below still holds.
+ *
  * What it must never know, and this is the test for whether it is built
  * correctly rather than a preference:
- *   - memory types or destinations. Those belong to each project's own rules,
- *     and a project with no memory system at all must still work.
+ *   - memory types or destinations, and any folder name. Those belong to each
+ *     project's own rules, and a project with no memory system at all must
+ *     still work.
  *   - whether any system is installed. It must not look and must not assume.
  *   - any list of words or patterns that decides what is worth saving. That
  *     judgment is the agent's. The davis-advisors-sfdc project's memory hook
@@ -214,14 +221,16 @@ function writeState(path, state) {
 /** Exported for the test harness. The whole of what the hook says. */
 export function buildMessage() {
   return [
-    'Held once. This project checks what is worth saving to memory when a pull request is opened.',
+    'Held once. This project checks two things when a pull request is opened: that any',
+    'change to what the system should do is written into its specification, and what else',
+    'is worth saving to memory.',
     '',
     `The check itself is in ${RULE}. Follow it, then run this command again.`,
     '',
-    `- Nothing worth saving? Say so in one line and re-run this command.`,
-    `- Something worth saving? Re-run this command anyway. The pull request opens now,`,
-    `  with the code in it. Say what you want to save in its description, show the owner`,
-    `  the same list in chat, and write to memory only after the owner approves it.`,
+    `- Nothing to write and nothing worth saving? Say so in one line and re-run this command.`,
+    `- Something to write or save? Re-run this command anyway. The pull request opens now,`,
+    `  with the code in it. Say what you found in its description, show the owner`,
+    `  the same list in chat, and write only after the owner approves it.`,
     '',
     'Either way, the pull request description must say what the check found.',
     '',

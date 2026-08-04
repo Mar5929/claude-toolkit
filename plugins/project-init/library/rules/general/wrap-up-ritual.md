@@ -29,10 +29,12 @@ opened:
    for the memory rule's read-only parallel duplicate and conflict review.
 8. Follow the project's Git workflow for commit, push, pull request, and merge.
 
-Every pull request description says what the check found: either what is being
-saved to memory, or that nothing was worth saving. A pull request missing that
-line is visibly skipped, and the owner sees it at the moment they are already
-reading, right before merging.
+Every pull request description says what the check found, covering both halves
+of it: what the specification needed, what is being saved to memory, or that
+neither applied. A pull request that corrected a specification and saved nothing
+to memory says exactly that, and it has passed the check. A pull request missing
+the line altogether is visibly skipped, and the owner sees it at the moment they
+are already reading, right before merging.
 
 A hook may hold the command that opens a pull request so this rule is raised at
 that moment. It only sees commands typed in the terminal. A pull request opened

@@ -117,9 +117,11 @@ ok(opensPullRequest('gh pr create --title "gh pr list"'), 'a quoted option value
 const message = buildMessage();
 ok(message.includes('wrap-up-ritual.md'), 'message names the rule file');
 ok(message.includes('memory'), 'message says what the check is about');
+ok(message.includes('specification'), 'message says the check covers the specification too');
 ok(message.includes('description'), 'message says what goes in the pull request description');
 ok(message.includes('helper agent'), 'message tells a helper agent to report back');
 ok(!/memory\/(decisions|knowledge|context|planning)/.test(message), 'message names no memory destination');
+ok(!/\bspecs\//.test(message), 'message names no specification folder either');
 ok(!/second-brain/i.test(message), 'message does not assume any system is installed');
 
 // --- end to end through the real hook -------------------------------------

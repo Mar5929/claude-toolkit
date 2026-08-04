@@ -23,8 +23,10 @@ project, use `project-sync` so adoption begins with a read-only audit.
 
 - **second-brain** (`/second-brain`): explains, installs, audits, adopts,
   reviews, and maintains the complete v3 system.
-- **remember** (`/remember`): sends a clear owner-approved memory request to
-  the on-demand memory librarian for placement and writing.
+- **remember** (`/remember`): sends a clear owner-approved request to the
+  on-demand memory librarian for placement and writing. It routes first: a
+  statement about what the system should do goes to `specs/`, everything else
+  to the typed memory folders.
 
 ## What v3 installs
 
