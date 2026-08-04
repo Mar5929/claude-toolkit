@@ -264,12 +264,12 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
   Owner-approved cleanup may delete or reorganize memory, so the system does not
   only accumulate files. There is no fixed proposal limit. The system requires
   no database, MCP server, embeddings, transcript capture, background curation,
-  or scheduled jobs, and no hook ever writes memory. The current shipped
-  specification is indexed in
-  [`docs/second-brain-v3/`](docs/second-brain-v3/README.md), and the plugin
+  or scheduled jobs, and no hook ever writes memory. The
+  [plugin README](plugins/second-brain/README.md) describes it, and the plugin
   ships the rule, its routing reference, the memory-verifier role, the two
-  scripts, templates, setup, sync, and remember workflows. The old v2 proposal
-  is superseded.
+  scripts, templates, setup, sync, and remember workflows. Those files are the
+  design: the separate design document set was deleted, because a second
+  description of the same system is a second thing to keep in step.
 - [x] **`second-brain` v1 archive**: the retired Worker, Neon, MCP, curator,
   hook, knowledge-backfill, and structural-layer source has been removed from
   active plugin paths and consolidated under

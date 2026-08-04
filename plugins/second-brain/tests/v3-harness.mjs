@@ -665,44 +665,12 @@ includes(
   "root orientation points at the repetition rule",
 );
 
-// The design docs once said the routing schema is never copied into the root
-// files, while the shipped system copies it on purpose. Two documents that
-// disagree are the exact failure the repetition rule exists to prevent.
-const designDocs = [
-  ["docs/second-brain-v3/README.md", "without maintaining three copies"],
-  [
-    "docs/second-brain-v3/TECHNICAL-SPECIFICATION.md",
-    "complete schema is not copied",
-  ],
-  [
-    "docs/second-brain-v3/TOOLKIT-INTEGRATION.md",
-    "full schema is not copied into root files",
-  ],
-];
-
-for (const [doc, contradiction] of designDocs) {
-  excludes(doc, contradiction, `${doc} matches the shipped root-file copy`);
-}
-
-for (const doc of [
-  "docs/second-brain-v3/README.md",
-  "docs/second-brain-v3/TECHNICAL-SPECIFICATION.md",
-  "docs/second-brain-v3/TOOLKIT-INTEGRATION.md",
-  "docs/second-brain-v3/MARKDOWN-SCHEMAS.md",
-]) {
-  excludes(doc, "plugin v1.", `${doc} carries no stale plugin version`);
-}
-
-excludes(
-  "docs/second-brain-v3/TECHNICAL-SPECIFICATION.md",
-  "one-sentence summary near the start",
-  "technical specification uses the runtime summary position",
-);
-excludes(
-  "docs/second-brain-v3/TECHNICAL-SPECIFICATION.md",
-  "remove it from current index listings or label it clearly",
-  "technical specification keeps superseded documents discoverable",
-);
+// Nine checks used to live here, reading the four design documents under
+// docs/second-brain-v3/. They existed to catch those documents drifting away
+// from the shipped rule, the snippet, and the root files. Issue #144 deleted
+// the design documents, so there is no second description left to drift: the
+// shipped rule, its reference, the agent file, and the two scripts are the
+// only description of the system now, and the checks above already cover them.
 
 // V3 originally banned hooks outright, which conflated "nothing writes memory
 // automatically" (still true, and why v1 was retired) with "no automation may

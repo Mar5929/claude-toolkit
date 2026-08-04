@@ -198,10 +198,15 @@ only safe while the links resolve.
 
 ## Canonical design
 
-The shipped behavior is specified under
-[`docs/second-brain-v3/`](../../docs/second-brain-v3/README.md). The old v2
-proposal remains superseded historical material and is not a v3 requirements
-source.
+This README, the shipped rule at
+[`skills/second-brain/references/second-brain-rule.md`](skills/second-brain/references/second-brain-rule.md),
+its longer companion
+[`second-brain-reference.md`](skills/second-brain/references/second-brain-reference.md),
+the agent at [`agents/memory-verifier.md`](agents/memory-verifier.md), and the
+two scripts under [`tools/`](tools/) are the design. There is no separate design
+document set. Issue #144 deleted the one that existed, because a second
+description of the same system is a second thing to keep in step, and it had
+already drifted.
 
 ## Maintaining this plugin
 

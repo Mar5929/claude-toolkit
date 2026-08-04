@@ -134,11 +134,14 @@ These are not duplicated here. Go to the index that owns them:
   not installation, deployment, export, or migration guidance. The old Worker
   has no default deploy path. The dependency graph is NOT archived: it outlived
   v1 and ships from `project-init` (see below).
-- **Shipped second-brain v3**:
-  [docs/second-brain-v3/README.md](second-brain-v3/README.md) indexes the
-  current Markdown-only specification, schemas, and toolkit
-  integration design. It separates flat dated brainstorms, area-based
-  capability specifications, seven typed memory homes, and work-tracker
+- **Shipped second-brain v3**: the
+  [plugin README](../plugins/second-brain/README.md) describes it, and the
+  shipped rule, its routing reference, the agent file, and the two scripts under
+  `plugins/second-brain/` are the only description of it. There is no separate
+  design document set: issue #144 deleted it, because a second description of
+  the same system is a second thing to keep in step. V3 separates flat dated
+  brainstorms, area-based capability specifications, seven typed memory homes,
+  and work-tracker
   authority. At completion points and natural stopping points after meaningful
   work, the main agent drafts the exact words with a source on every claim, has
   the read-only `memory-verifier` check them before the owner sees anything,
@@ -148,10 +151,9 @@ These are not duplicated here. Go to the index that owns them:
   catch parallel semantic duplicates or conflicts. The plugin ships the
   canonical rule, its routing reference, the role, the two scripts, templates,
   setup, sync, and remember workflows.
-- **Superseded second-brain v2 proposal**:
-  [docs/second-brain-v2/README.md](second-brain-v2/README.md) is retained as
-  historical design material. Its numbered units and requirements are not
-  inherited by v3.
+- **Superseded second-brain v2 proposal**: deleted by issue #144, along with the
+  v3 design documents. It was a proposal that was never built, and its numbered
+  units and requirements were never inherited by v3. Git history has it.
 - **sf-architect references**: the `metadata/*` guides and templates under
   `plugins/sf-architect-solutioning/skills/sf-architect-solutioning/references/`.
 
@@ -376,8 +378,8 @@ The genuine watch-items are called out at the end.
   retirement. Its source is consolidated in the
   [v1 archive](../archive/second-brain-v1/README.md) outside active plugins. Do
   not install it in a new project. The shipped
-  [second-brain v3](second-brain-v3/README.md) is a fresh Markdown-only system
-  and does not use that infrastructure.
+  [second-brain v3](../plugins/second-brain/README.md) is a fresh Markdown-only
+  system and does not use that infrastructure.
 - **Overlap with Claude Code's native memory.** Claude Code now ships an
   auto-memory feature that captures cross-session notes on its own (machine-local).
   It overlapped part of the legacy v1 capture system. Existing v1 projects
