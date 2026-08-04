@@ -23,7 +23,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | [hooks-library](../plugins/hooks-library/README.md) | Hooks that make a rule land mechanically instead of restating it: `style-reminder` re-states the output style every message, `writing-guard` checks the finished reply | `hooks-library` | `/plugin install hooks-library` | Wires into settings |
 | [grill-me](../plugins/grill-me/README.md) | Persistent discovery interviews that checkpoint every answer | `grill-me` | `/plugin install grill-me` | Install and go |
 | [work-tracker](../plugins/work-tracker/README.md) | Git-authoritative backlog, handoffs, relationships, landing proof, and optional GitHub Projects | `work` | `/plugin install work-tracker` | Sets up a project |
-| [session-summary](../plugins/session-summary/README.md) | Recap one session as a numbered line per main request, each with an honest status | `session-summary` | `/plugin install session-summary` | Install and go |
+| [session-summary](../plugins/session-summary/README.md) | Recap one session as a table row per main request, each with an honest status, plus a block for whatever still needs the owner | `session-summary` | `/plugin install session-summary` | Install and go |
 
 ## Skills at a glance
 
@@ -39,7 +39,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | merge-and-clean-up | git-workflows | Merge one approved PR and remove only its completed branch and worktree | `/merge-and-clean-up`, "merge and clean up" |
 | grill-me | grill-me | Stress-test an idea one question at a time and preserve every answer | `/grill-me`, "grill me" |
 | work | work-tracker | Manage local work items and their optional GitHub Issues and Project mirror | `/work`, "add this to the backlog", "what should I work on next?" |
-| session-summary | session-summary | List every request the owner made in a session, in their words, each with a status | `/session-summary`, "summarize this session", "what did I ask for?" |
+| session-summary | session-summary | Table every request the owner made in a session, in their words, each with a status, then say what still needs them | `/session-summary`, "summarize this session", "what did I ask for?" |
 
 ## The library: what lands in a project
 
@@ -264,7 +264,8 @@ The genuine watch-items are called out at the end.
 - **session-summary versus work-tracker and the wrap-up ritual.** All three
   answer some version of "where do things stand", but for different scopes and
   audiences. `session-summary` is a read-only view of one conversation, written
-  around the owner's own requests, and it writes nothing. `work-tracker` owns
+  around the owner's own requests as a table, ending in whatever still needs
+  them, and it writes nothing. `work-tracker` owns
   durable ticket state that outlives the chat, so a request worth keeping goes
   there rather than into a summary. The `wrap-up-ritual` rule is the moment that
   says to update those durable records at the end of substantial work. The
