@@ -13,10 +13,15 @@ The system is intentionally simple:
 2. Agents read only the material relevant to the work.
 3. The main agent performs the requested work and notices durable information.
 4. At defined completion points and natural stopping points after meaningful
-   work, the main agent proposes useful updates.
-5. The owner approves, changes, or skips those proposals in normal language.
-6. A dedicated memory agent organizes and writes the approved Markdown updates.
-7. The updates travel through the same worktree and pull request as the task.
+   work, the main agent drafts the exact words it proposes to save, with a
+   source on every claim.
+5. A read-only agent, `memory-verifier`, checks that draft before the owner sees
+   it, and flags every claim it cannot confirm.
+6. The owner sees the real words, already checked, and approves, cuts, or edits
+   them in normal language.
+7. The main agent saves them. Two scripts then rebuild the indexes and check the
+   shape of each document.
+8. The updates travel through the same worktree and pull request as the task.
 
 V3 is not a database, knowledge graph, transcript collector, background
 service, or deterministic rules engine. AI judgment decides what is relevant
@@ -31,14 +36,16 @@ flowchart TD
     C --> D[Current specifications]
     C --> E[Durable memory and knowledge]
     C --> F[Discovery brainstorms]
-    G[Main agent completes meaningful work] --> H[Main agent proposes durable updates]
-    H --> I{Owner response}
-    I -->|approve or edit| J[Dedicated memory agent]
-    I -->|skip| K[Write nothing]
-    J --> L[Update canonical Markdown, indexes, and backlinks]
-    L --> M[Main agent reviews the diff]
-    M --> N[Task pull request]
-    N --> O[Git history on merge]
+    G[Main agent completes meaningful work] --> H[Main agent drafts the real words, a source on every claim]
+    H --> I[memory-verifier checks the draft, read-only]
+    I --> J[Main agent fixes what came back wrong, marks what is unchecked]
+    J --> K{Owner response}
+    K -->|approve or edit| L[Main agent writes the canonical Markdown]
+    K -->|skip| M[Write nothing]
+    L --> N[memory-index-build.mjs, then memory-shape-check.mjs]
+    N --> O[Task pull request]
+    O --> P[memory-verifier duplicate and conflict review]
+    P --> Q[Git history on merge]
 ```
 
 ## Project layout
@@ -52,8 +59,13 @@ project/
   .claude/
     rules/
       second-brain.md
+    references/
+      second-brain-reference.md
     agents/
-      memory-librarian.md
+      memory-verifier.md
+    tools/
+      memory-index-build.mjs
+      memory-shape-check.mjs
   brainstorms/
     README.md
     <date>-<topic>.md
@@ -158,11 +170,18 @@ the current specification describes that continuing boundary.
 
 ## Where the agent instructions live
 
-The detailed schema and operating instructions have one canonical project home:
+The operating instructions are split in two, because most of a save needs only
+the first part:
 
 ```text
-.claude/rules/second-brain.md
+.claude/rules/second-brain.md            always loaded: how a save works
+.claude/references/second-brain-reference.md   opened when routing is unclear
 ```
+
+The rule says how a save works, who does which part, and where things go. The
+reference says what each home is for in detail, plus the rules on evidence,
+repetition, links, and superseding. An agent opens the reference when it
+genuinely cannot tell where something goes, not on every save.
 
 Both `CLAUDE.md` and `AGENTS.md` carry the routing schema in full and tell their
 agent to read that shared rule for everything else. Routing has to work before
@@ -170,9 +189,9 @@ an agent opens another file, and Codex reads only `AGENTS.md`, so that one part
 is copied on purpose. Both root sections change in the same commit as the rule,
 and the rule wins if they ever disagree.
 
-The dedicated memory agent reads the same shared rule and the relevant project
+The memory verifier reads the same shared rule and the relevant project
 indexes. Its reusable role instructions live at
-`.claude/agents/memory-librarian.md`. The path is shared project content even
+`.claude/agents/memory-verifier.md`. The path is shared project content even
 when Codex invokes the role through its own delegation mechanism.
 
 ## When the main agent proposes updates
@@ -200,33 +219,45 @@ the durable result.
 
 The main agent proposes every useful update it recommends. There is no fixed
 number. The owner may approve all, approve selected items, change wording or
-destinations, defer an item, or skip everything.
+destinations, defer an item, or skip everything. An edit the owner makes is
+taken exactly as written and needs no further checking, because the owner is the
+source.
 A deferred item changes no durable document and creates no second-brain queue.
 
-The main agent must invoke the memory agent for approved content. The memory
-agent writes only that content and the index or backlink changes necessary to
-keep it navigable. If the approved write fails, the task remains unfinished and
-does not merge as though it succeeded unless the owner explicitly waives it.
+What the owner sees is the real text, already checked by `memory-verifier`, with
+the destination path for each piece and anything unchecked visibly marked. Not a
+table describing what would be written. The main agent writes the approved words
+itself, then runs the index builder and the shape check. A failed shape check
+means the save is not finished, and the owner is told in plain words what is
+missing. If the approved write cannot be completed, the task remains unfinished
+and does not merge as though it succeeded unless the owner explicitly waives it.
 
 ## Parallel sessions and Git
 
-Every active chat session works in its own worktree and branch. Its memory agent
-writes only inside that same worktree.
+Every active chat session works in its own worktree and branch, and every write
+lands there.
 
 Task-related code, tests, specifications, and approved memory updates normally
 use one pull request. A brainstorming-only session or standalone memory cleanup
 may use a documentation-only pull request.
 
-The memory agent never writes directly to `main`, another session's worktree,
-or a shared external store. Git exposes text conflicts when parallel branches
-edit the same lines, but it cannot detect the same truth filed in two paths or
-two different files that disagree.
+No session writes directly to `main`, another session's worktree, or a shared
+external store. Git exposes text conflicts when parallel branches edit the same
+lines, but it cannot detect the same truth filed in two paths or two different
+files that disagree.
 
 Before a pull request containing specification or memory changes merges, its
 branch is brought current through the existing Git workflow. The main agent then
-invokes the librarian for a read-only comparison against the latest relevant
+invokes `memory-verifier` for a read-only comparison against the latest relevant
 documents and indexes. It reports semantic duplicates or conflicting current
-truth. Any destructive or meaning-changing repair remains owner-approved.
+truth, sized to the change: a new durable document gets the full read, an
+amendment gets that document and what it links to, a generated index line gets a
+quick look. Any destructive or meaning-changing repair remains owner-approved.
+
+Nothing that writes a file runs in the background. Every agent that produces a
+report is run in the foreground, so its report reaches the session that called
+it without that session having to ask, and no write can still be part-way
+through when the work is committed.
 
 ## Greenfield and brownfield projects
 
@@ -253,7 +284,16 @@ record into agent memory.
 Every durable specification or memory document has a descriptive title, a
 one-sentence summary immediately after the title, type-specific content,
 contextual relationships when useful, and a one-sentence entry in the nearest
-index.
+index. Every document under `memory/` also carries a `Basis:` line directly
+under that summary, saying where its content came from. Specifications carry no
+`Basis:` line, because a specification is approved behavior by definition.
+
+`node .claude/tools/memory-shape-check.mjs` enforces the title, the summary, the
+`Basis:` line, and the index entry, and runs in about a second.
+`node .claude/tools/memory-index-build.mjs` rebuilds each index's list of
+documents from the documents themselves, so the list cannot fall out of step
+with the folder. It touches only the `- [Title](path): summary` bullets, and
+leaves the hand-written prose around them alone.
 
 `Status`, validity guidance, `Tags`, `Sources`, and `Aliases` are optional
 everywhere. An agent uses them only when they make a document easier to find,
@@ -271,7 +311,7 @@ are the primary navigation system.
 ## Specification set
 
 - [Technical specification](TECHNICAL-SPECIFICATION.md): authority, reading,
-  proposing, approval, memory-agent writing, concurrency, correction, and
+  drafting, checking, approval, writing, concurrency, correction, and
   acceptance behavior.
 - [Markdown schemas](MARKDOWN-SCHEMAS.md): human-readable shapes for
   brainstorms, specification folders, planning, and all other memory types.
@@ -284,24 +324,30 @@ are the primary navigation system.
 ## Shipped source
 
 - [Canonical project rule](../../plugins/second-brain/skills/second-brain/references/second-brain-rule.md):
-  the complete rule copied into an adopting project.
-- [Memory librarian](../../plugins/second-brain/agents/memory-librarian.md):
-  the on-demand writer role used by Claude and Codex.
+  the always-loaded procedure copied into an adopting project.
+- [Routing reference](../../plugins/second-brain/skills/second-brain/references/second-brain-reference.md):
+  the longer companion, opened only when routing is genuinely unclear.
+- [Memory verifier](../../plugins/second-brain/agents/memory-verifier.md):
+  the read-only checking role used by Claude and Codex.
 - [Adoption guide](../../plugins/second-brain/skills/second-brain/references/adoption-guide.md):
   greenfield setup and brownfield read-only adoption.
 - [Copy-ready schemas](../../plugins/second-brain/skills/second-brain/references/markdown-schemas.md):
   starting shapes for indexes, specifications, brainstorms, and typed memory.
+- [Index builder](../../plugins/second-brain/tools/memory-index-build.mjs) and
+  [shape check](../../plugins/second-brain/tools/memory-shape-check.mjs): the two
+  scripts installed to `.claude/tools/`.
 
 ## Explicitly not part of v3
 
 - database, Worker, or hosted memory service;
 - memory MCP connector;
 - embeddings or semantic search;
-- hooks or scripts that capture, recall, place, or write memory;
+- hooks or scripts that decide what is true, capture, recall, or choose the home
+  for a piece of memory;
 - transcript or per-message capture;
 - background, scheduled, or autonomous curation;
 - a deterministic natural-language approval parser;
-- machine-enforced document schemas;
+- a machine schema over what a document says;
 - mandatory tags, sources, aliases, or YAML frontmatter;
 - a fixed proposal limit;
 - automatic commits, pushes, merges, or deployments; or
@@ -311,5 +357,12 @@ A hook that enforces a rule or starts the durable review at a completion point
 is not excluded. It writes nothing and approves nothing, so the approval
 boundary above is unchanged.
 
-The dedicated memory agent is invoked for an approved update. It is not a
-background curator and does not act independently.
+The two scripts in `.claude/tools/` are not excluded either. Neither decides
+what a document says. `memory-shape-check.mjs` reads and reports, changing
+nothing. `memory-index-build.mjs` writes only the list of bullets inside an
+index, and every bullet is copied from a document that already exists. Both are
+run by hand, by the main agent, at a point in the save.
+
+`memory-verifier` is invoked in the foreground for a drafted change and again
+before a merge. It reads only, never writes, is not a background curator, and
+does not act independently.

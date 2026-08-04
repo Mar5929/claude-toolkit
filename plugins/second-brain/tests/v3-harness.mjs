@@ -423,7 +423,7 @@ includes(
 );
 includes(
   grillMe,
-  "narrow second-brain exception",
+  "write only its non-authoritative",
   "grill-me limits its direct writes to raw checkpoints",
 );
 // Searched without the line break it used to carry. Where the sentence wraps is

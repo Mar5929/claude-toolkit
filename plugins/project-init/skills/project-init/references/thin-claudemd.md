@@ -104,8 +104,8 @@ authority, not a stub:
   legitimately differs between the two files.
 
 Where the hosts genuinely differ, say so inline rather than forking the section.
-The known case: Claude invokes the installed `memory-librarian` agent, while
-Codex delegates to a subagent told to read `.claude/agents/memory-librarian.md`
+The known case: Claude invokes the installed `memory-verifier` agent, while
+Codex delegates to a subagent told to read `.claude/agents/memory-verifier.md`
 and `.claude/rules/second-brain.md` in full first.
 
 ## Why file-per-rule instead of one big CLAUDE.md

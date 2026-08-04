@@ -18,8 +18,11 @@ repository owns the specifications and memory created there.
 
 The `second-brain` plugin owns:
 
-- the canonical reusable `.claude/rules/second-brain.md` source;
-- the reusable memory-librarian role instructions;
+- the canonical reusable `.claude/rules/second-brain.md` source, and its longer
+  companion `.claude/references/second-brain-reference.md`;
+- the reusable memory-verifier role instructions;
+- the two scripts installed to `.claude/tools/`, `memory-index-build.mjs` and
+  `memory-shape-check.mjs`;
 - root, area, brainstorm, specification, and memory templates;
 - the `second-brain` skill for explanation, setup, review, and maintenance; and
 - the optional `/remember` entry point.
@@ -48,8 +51,8 @@ It:
 3. shows the exact tree and root-file edits;
 4. creates only approved roots and real specification areas, adding each memory
    area index with the first durable document it owns;
-5. copies the canonical shared rule;
-6. installs the memory-librarian role;
+5. copies the canonical shared rule and its routing reference;
+6. installs the memory-verifier role and both scripts in `.claude/tools/`;
 7. adds compact routes to both `CLAUDE.md` and `AGENTS.md`;
 8. reconciles existing continuity rules;
 9. connects v3 to the configured work tracker;
@@ -107,8 +110,10 @@ and interviews rather than silently declaring the audit authoritative.
 
 When a project uses v3, `grill-me` stores its capture at
 `brainstorms/<date>-<topic>.md` and adds it to the root brainstorm index.
-That owner-invoked raw checkpoint is the narrow exception to the librarian write
-boundary. Specifications and curated memory still use the librarian.
+That owner-invoked raw checkpoint is the one place anything reaches a file
+without the owner approving the exact words first. It is a brainstorm, which is
+never authoritative. Specifications and curated memory still go through the
+draft, check, approve, save flow.
 
 At the end of the interview, the main agent proposes any resulting
 specification or memory updates. The raw brainstorm remains separate.
@@ -146,14 +151,15 @@ Existing worktree and pull-request workflows own:
 - opening, reviewing, and merging a pull request; and
 - cleaning up a completed worktree.
 
-V3 requires the memory agent to stay in the requesting session's worktree, but
-it does not reimplement Git commands.
+V3 requires every write to stay in the requesting session's worktree, but it
+does not reimplement Git commands.
 
 Before a pull request containing specification or memory changes merges, the Git
-workflow first brings its branch current. The main agent then invokes the
-librarian for a read-only semantic comparison with the latest project memory and
-indexes. Git still owns file integration; the librarian catches duplicate homes
-and conflicting current truth in different files that Git cannot identify.
+workflow first brings its branch current. The main agent then invokes
+`memory-verifier` for a read-only comparison with the latest project memory and
+indexes, sized to how big the change is. Git still owns file integration;
+`memory-verifier` catches duplicate homes and conflicting current truth in
+different files that Git cannot identify.
 
 ## 2. Installed project architecture
 
@@ -167,12 +173,14 @@ flowchart TD
     E --> G[specs/README.md]
     E --> H[memory/README.md]
     E --> I[work-tracker index]
-    J[Approved durable proposal] --> K[Memory librarian role]
-    K --> E
-    K --> F
-    K --> G
-    K --> H
-    K --> L[Same task worktree]
+    E --> R[.claude/references/second-brain-reference.md, when routing is unclear]
+    J[Drafted change, a source on every claim] --> K[memory-verifier role, read-only]
+    K --> M[Owner approves the real words]
+    M --> N[Main agent writes, in the same task worktree]
+    N --> F
+    N --> G
+    N --> H
+    N --> O[.claude/tools/memory-index-build.mjs and memory-shape-check.mjs]
 ```
 
 ### 2.1 What the root files carry and what the shared rule carries
@@ -182,28 +190,30 @@ only `AGENTS.md`. So the routing schema is copied into both root files in full:
 the authority map, and for every home its purpose, when to use it, and when not
 to.
 
-The shared rule carries everything else. For every document type, relationship,
-index, supporting file, and optional metadata element, it explains the purpose,
-when to use it, when not to use it, whether it is mandatory or optional, its
-authority boundary, and good versus unnecessary examples. Folder indexes carry
-the project's actual content map.
+The shared rule carries how a save works, who does which part, and where things
+go. Its longer companion, `.claude/references/second-brain-reference.md`, carries
+the detail: for every document type, relationship, index, supporting file, and
+optional metadata element, it explains the purpose, when to use it, when not to
+use it, whether it is mandatory or optional, its authority boundary, and good
+versus unnecessary examples. An agent opens the reference when routing is
+genuinely unclear, not on every save. Folder indexes carry the project's actual
+content map.
 
 The copy is a real maintenance cost, accepted on purpose so the routing is never
 one file-open away. Any change to the authority map, the homes, or the document
 contract updates both root files in the same change, and the rule wins if they
 disagree.
 
-### 2.2 Why the memory agent has a project role file
+### 2.2 Why the memory verifier has a project role file
 
 The reusable role file gives Claude and Codex one shared description of:
 
-- its authority;
-- approved input;
-- placement process;
-- backlink and index responsibilities;
-- worktree boundary;
-- prohibited actions; and
-- report format.
+- what it may read and what it may never do;
+- the three source kinds and the different check each one gets;
+- what it must not raise;
+- the two jobs, checking a draft and the pre-merge review;
+- how the review is sized to the change; and
+- the report shape for each job.
 
 Claude may invoke it as a project agent. Codex may spawn a delegated agent
 instructed to read the same role. The role is consistent even though the two
@@ -215,12 +225,16 @@ host products expose delegation differently.
 plugins/second-brain/
   README.md
   agents/
-    memory-librarian.md
+    memory-verifier.md
+  tools/
+    memory-index-build.mjs
+    memory-shape-check.mjs
   skills/
     second-brain/
       SKILL.md
       references/
         second-brain-rule.md
+        second-brain-reference.md
         folder-layout.md
         markdown-schemas.md
         orientation-snippet.md
@@ -249,7 +263,10 @@ The installed project receives:
 
 ```text
 .claude/rules/second-brain.md
-.claude/agents/memory-librarian.md
+.claude/references/second-brain-reference.md
+.claude/agents/memory-verifier.md
+.claude/tools/memory-index-build.mjs
+.claude/tools/memory-shape-check.mjs
 brainstorms/README.md
 specs/README.md
 memory/README.md
@@ -267,9 +284,9 @@ remain in the plugin and are not copied into projects as unused examples.
 
 This preserves the complete memory schema. "Only when needed" applies to
 project-specific system areas such as `authentication/`, `billing/`, or
-`territory-management/`. It does not make the shared rule, memory-librarian
-role, root indexes, or typed memory homes optional within an adopted
-second-brain installation.
+`territory-management/`. It does not make the shared rule, its routing
+reference, the memory-verifier role, the two scripts, root indexes, or typed
+memory homes optional within an adopted second-brain installation.
 
 ## 4. Reconciliation with current project-init rules
 
@@ -311,7 +328,8 @@ The v3 setup conversation stays short:
 3. Recommend initial system areas based on the project explanation and stack.
 4. Show the exact proposed folder tree and root-file changes.
 5. Ask the owner to approve, edit, or skip.
-6. Install the approved structure, shared rule, memory-agent role, and routes.
+6. Install the approved structure, shared rule, routing reference,
+   memory-verifier role, both scripts, and routes.
 7. Offer to conduct initial project discovery using `grill-me`.
 8. Propose initial context and planning documents after discovery.
 
@@ -363,62 +381,57 @@ Repository analysis cannot establish owner intent by itself. Agents keep
 observations, inferences, and confirmed requirements distinguishable in normal
 language.
 
-## 7. Main-agent and memory-agent integration
+## 7. Main-agent and memory-verifier integration
 
-### 7.1 Proposal handoff
+### 7.1 Draft handoff
 
-The main agent gives the memory agent a bounded task containing:
+The main agent drafts the real words itself, then gives `memory-verifier` a
+bounded task containing:
 
 ```text
-Approved content:
-Why it is durable:
-Known canonical documents:
-Known brainstorms and relationships:
-Relevant work item:
+The exact drafted text, in numbered pieces:
+The destination path for each piece:
+Where each claim came from (in a file, the owner said it, or worked out):
+The owner's actual words, where a claim cites them:
+Which lines the owner wrote themselves:
 Current worktree:
-Do not infer:
 ```
 
 This is an agent-to-agent communication guide, not a rigid machine payload.
 
-### 7.2 Memory-agent result
+### 7.2 Memory-verifier result
 
-The memory agent returns:
+`memory-verifier` returns a verdict per claim, plus what it noticed:
 
 ```text
-Changed:
-- file and concise reason
-
-Placement:
-- why the canonical home was chosen
-
-Relationships:
-- indexes and backlinks added or updated
-
-Unresolved:
-- ambiguity or conflict returned to the main agent
+Draft check
+- per claim: Confirmed with path and line, Wrong with what the file says, or
+  Unchecked when nothing can confirm it
+- Already has a home: paths owning a fact the draft repeats
+- Routing: anything belonging in specs/ rather than memory/, or in both
+- Shape faults: missing summary, missing Basis line, broken link
 ```
 
-The main agent reviews the actual diff. It does not accept a report in place of
-inspection.
+It runs in the foreground, so the report reaches the session that called it
+without that session having to ask. It writes nothing.
 
-Invoking the librarian is mandatory after approval. If it cannot finish, the
-main agent retries or reports the failure and keeps the task unfinished. The
-pull request may open, but it does not merge as though the write succeeded
-unless the owner explicitly waives it. Deferred proposals create no separate
-memory queue.
+Running it before the owner sees the draft is mandatory. The owner is never
+asked to approve a claim nobody checked. If it cannot finish, the main agent
+retries or reports the failure and keeps the task unfinished. The pull request
+may open, but it does not merge as though the save succeeded unless the owner
+explicitly waives it. Deferred proposals create no separate memory queue.
 
 ### 7.3 Explicit `remember`
 
-`/remember` and phrases such as "remember this" use the same memory-agent path.
+`/remember` and phrases such as "remember this" use the same path: draft, check,
+show the owner, save.
 
 If the owner clearly instructs the system to save specific content, that is
-approval to write it. The main agent still supplies context and the memory
-agent determines the canonical home and performs routine index and link
-maintenance without a second filing approval. If the requested meaning is
-unclear, ask one focused question or propose the specific durable takeaway
-first. The request does not authorize a risky or large structural change unless
-that change is also made visible and approved.
+approval for the content. The main agent still drafts the exact words, has them
+checked, and chooses the canonical home without a second filing approval. If the
+requested meaning is unclear, ask one focused question or propose the specific
+durable takeaway first. The request does not authorize a risky or large
+structural change unless that change is also made visible and approved.
 
 There is no separate quick-write store.
 
@@ -434,15 +447,18 @@ implementation still needs proportionate tests.
 - Confirm only approved roots and real areas are created, and every populated
   memory area has an index.
 - Confirm both root orientation files route to the same rule.
-- Confirm the memory-agent role is installed.
+- Confirm the memory-verifier role and both scripts in `.claude/tools/` are
+  installed, and that `node .claude/tools/memory-shape-check.mjs` passes.
 - Confirm all root and type indexes link correctly.
 - Confirm each durable fixture document has a title, one-sentence summary,
-  type-appropriate content, and a descriptive index entry.
+  `Basis:` line under `memory/`, type-appropriate content, and a descriptive
+  index entry.
 - Confirm important links state their direction and meaning in natural
   language.
 - Confirm no database, MCP, embedding, or transcript component appears, and no
   hook that writes memory. A `hooks-library` hook that enforces a rule or starts
-  a review is not a finding.
+  a review is not a finding, and neither is a script that checks a document's
+  shape or rebuilds an index list from documents that already exist.
 
 ### 8.2 Cold-agent scenarios
 
@@ -452,13 +468,17 @@ Run the same fixture with a cold Claude session and cold Codex session:
 2. Ask each to find its relevant brainstorm and decision.
 3. Ask each where roadmap status and ticket status belong.
 4. Complete a sample requirement change.
-5. Confirm the main agent proposes durable updates at the approved point or a
+5. Confirm the main agent drafts the real words at the approved point or a
    natural stopping point after meaningful work, without repeating the review
    after ordinary replies.
-6. Approve selected updates in natural language.
-7. Confirm the memory agent writes only the approved content.
-8. Confirm code, tests, specifications, and memory stay in one worktree.
-9. Confirm skipped proposals are not written.
+6. Confirm `memory-verifier` ran before the owner saw the draft, and that
+   anything it could not confirm reaches the owner marked as unchecked.
+7. Approve selected updates in natural language, and edit one of them.
+8. Confirm the main agent writes only the approved content, and writes the
+   edited line exactly as the owner wrote it.
+9. Confirm the index builder and the shape check both ran and passed.
+10. Confirm code, tests, specifications, and memory stay in one worktree.
+11. Confirm skipped proposals are not written.
 
 ### 8.3 Brownfield fixture
 
@@ -479,9 +499,9 @@ delete, or duplicate content.
 ### 8.4 Parallel-session scenario
 
 Use two worktrees that update related or overlapping documents. Confirm each
-memory agent stays in its own worktree, Git exposes overlapping text edits, and
-the pre-merge librarian review reports semantic duplicates or conflicting
-current truth placed in different files.
+session's writes stay in its own worktree, Git exposes overlapping text edits,
+and the pre-merge `memory-verifier` review reports semantic duplicates or
+conflicting current truth placed in different files.
 
 Tests may inspect generated files and links in the toolkit repository. They do
 not become runtime enforcement installed in client projects.
@@ -512,8 +532,8 @@ The complete toolkit implementation covers steps 1 through 9. Project rollout
 begins at step 10 and remains separately approved:
 
 1. Refine and approve the v3 technical specification.
-2. Implement the shared rule, memory-agent role, templates, and v3 skills in
-   `second-brain`.
+2. Implement the shared rule, its routing reference, the memory-verifier role,
+   the two scripts, templates, and v3 skills in `second-brain`.
 3. Reconcile the general project rules that overlap completion and continuity.
 4. Update `grill-me` for v3 area-aware capture while preserving its standalone
    behavior.
@@ -540,7 +560,7 @@ Do not add:
 - embeddings or semantic retrieval;
 - a hook that captures, recalls, places, or writes memory;
 - a natural-language approval parser;
-- a schema validation engine installed in client projects;
+- an engine that judges what a document says;
 - transcript capture;
 - an autonomous or scheduled curator;
 - a fixed proposal count;
@@ -551,11 +571,17 @@ A hook that enforces a rule or starts the durable review belongs in the
 `hooks-library` plugin, not here. The memory core stays hook-free; what it
 forbids anywhere is a hook that writes.
 
+`memory-shape-check.mjs` is installed in client projects and is not the excluded
+engine. It reads and reports, changing nothing, and it looks only at a
+document's shape: a title, a one-sentence summary, a `Basis:` line under
+`memory/`, and an entry in the nearest index. It never judges what a document
+says.
+
 ## Brainstorms that informed this integration
 
 - [Second-brain v3 project memory discovery](../../brainstorms/2026-07-28-second-brain-v3-project-memory.md)
-  - Defines the shared rule, dedicated memory agent, worktree and pull-request
-    boundaries, greenfield and brownfield usage, and review timing.
+  - Defines the shared rule, the dedicated memory role, worktree and
+    pull-request boundaries, greenfield and brownfield usage, and review timing.
 
 ## Related
 

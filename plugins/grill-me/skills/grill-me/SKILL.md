@@ -18,10 +18,11 @@ question, so a context reset or interrupted session can resume from the file.
 If the session resumes after an interruption, read the capture file before
 continuing.
 
-This owner-invoked raw checkpoint is the narrow second-brain exception to the
-memory-librarian write boundary. `grill-me` may write only its non-authoritative
-brainstorm capture and index entry. Approved specifications and curated memory
-still go through the memory librarian.
+This owner-invoked raw checkpoint is the one place second-brain lets anything
+reach a file without the owner approving the exact words first. `grill-me` may
+write only its non-authoritative brainstorm capture and index entry. Approved
+specifications and curated memory still go through the full flow: draft the real
+words, have `memory-verifier` check them, show the owner, then save.
 
 ## Set up before asking the first question
 
@@ -108,12 +109,15 @@ being preserved.
      specifications;
    - identify other durable context, planning, decisions, knowledge,
      references, domain material, or operations worth preserving;
-   - report every useful proposal in plain language with no fixed limit; and
-   - after owner approval, invoke the memory librarian in this session's
-     worktree.
-5. When the approved update creates or amends a specification, ensure the
-   memory librarian links the specification to this brainstorm and this
-   brainstorm to every resulting specification.
+   - draft the real words for each one, with a source on every claim, and no
+     fixed limit on how many;
+   - invoke `memory-verifier` in the foreground to check them before the owner
+     sees anything; and
+   - show the owner the checked text, and save what they approve in this
+     session's worktree.
+5. When the approved update creates or amends a specification, link the
+   specification to this brainstorm and this brainstorm to every resulting
+   specification.
 6. Give the user a short recap of what was captured, what remains flagged, and
    the recommended next step.
 

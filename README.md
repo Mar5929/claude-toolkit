@@ -109,9 +109,13 @@ claude-toolkit/
       .claude-plugin/plugin.json
       .codex-plugin/plugin.json
       agents/
-        memory-librarian.md        ← on-demand writer role shared by both agents
+        memory-verifier.md         ← read-only checking role shared by both agents
+      tools/
+        memory-index-build.mjs     ← rebuilds each index list from the documents
+        memory-shape-check.mjs     ← title, summary, Basis line, index entry
       skills/
-        second-brain/             ← SKILL.md + canonical v3 rule, schemas, templates
+        second-brain/             ← SKILL.md + canonical v3 rule, reference, schemas,
+                                     templates
         remember/                 ← direct owner-approved capture workflow
     sf-architect-solutioning/     ← plugin: Salesforce solution architect
       README.md
@@ -181,7 +185,10 @@ claude-toolkit/
     rules/                        ← copies of the rules it ships, plus their index
     hooks/                        ← the three general hooks, switched on here too
     output-styles/                ← plain-language.md, selected in settings.json
-    agents/memory-librarian.md    ← the memory writer this repo uses
+    agents/memory-verifier.md     ← the read-only checker this repo uses
+    references/                   ← second-brain-reference.md, opened when routing
+                                     is unclear
+    tools/                        ← memory-index-build.mjs, memory-shape-check.mjs
     toolkit-sync.md               ← what was set up, skipped, or declined, and why
   brainstorms/                    ← this repo's own discovery notes, indexed
   specs/                          ← approved behavior, filled as work happens
@@ -220,7 +227,7 @@ inside a project folder before it is useful, which is what the last column says:
 | Plugin | What it does | Setup |
 |---|---|---|
 | **[project-init](plugins/project-init/README.md)** | Sets up or syncs a project. Asks where work items are tracked (a GitHub Projects board, Linear, Jira, files in the repository, or nothing), sets up the board itself for the GitHub answer, and carries the same ticket rules into the project whichever answer it gets. Offers work-tracker with safe adoption of older folders, and installs the complete second-brain v3 system when selected. For Salesforce projects it also ships two self-contained tools: the permission set kit, and a dependency graph that answers "if I change this field, what breaks?" from the project's own metadata. Existing-project sync begins with a read-only audit. | Sets up a project |
-| **[second-brain](plugins/second-brain/README.md)** | Production-ready Git-native Markdown memory and knowledge for Claude and Codex, with one shared rule, typed schemas, owner-approved updates, and an on-demand memory librarian. | Sets up a project |
+| **[second-brain](plugins/second-brain/README.md)** | Production-ready Git-native Markdown memory and knowledge for Claude and Codex, with one shared rule, typed schemas, owner-approved updates, and a read-only memory verifier that checks every claim before the owner sees it. | Sets up a project |
 | **[sf-architect-solutioning](plugins/sf-architect-solutioning/README.md)** | A Salesforce solution architect: pushes back on vague requirements, verifies platform facts against official docs by live fetch, designs declarative-first to Well-Architected standards, and presents a solution plan for approval before any build. Salesforce projects only. | Install and go |
 | **[git-workflows](plugins/git-workflows/README.md)** | Three parallel-session-safe git lifecycle skills: `pull-latest` gets current without rewriting history, `reset-to-remote` mirrors the remote behind confirmation, and `merge-and-clean-up` lands an approved PR before removing only its completed workspace. | Install and go |
 | **[hooks-library](plugins/hooks-library/README.md)** | Hooks that make a rule land mechanically instead of restating it: `style-reminder` puts the project's active output style back in front of Claude on every message, and `writing-guard` reads the finished reply and blocks an em dash or a section sign before it is sent. | Wires into settings |
@@ -244,20 +251,25 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
   under `memory/`. Root `CLAUDE.md` and `AGENTS.md` files give every session
   the compact folder map and route both agents to one canonical detailed rule.
   Documents use ordinary Markdown backlinks. At approved completion points and
-  natural stopping points after meaningful work, the main agent proposes every
-  additional durable update it recommends. The owner approves, selects, edits,
-  combines, defers, or skips proposals in normal language. The main agent must
-  invoke the on-demand memory librarian, which writes only the approved changes
-  in the task's worktree and pull request. Before merge, it checks changed
-  memory against the latest project state for parallel duplicate homes or
-  conflicts Git cannot see. Owner-approved cleanup may delete or reorganize
-  memory, so the system does not only accumulate files. There is no fixed
-  proposal limit. The system requires no database, MCP server, embeddings,
-  transcript capture, background curation, or scheduled jobs, and no hook ever
-  writes memory. The current shipped specification is indexed in
+  natural stopping points after meaningful work, the main agent drafts the exact
+  words it proposes to save, with a source on every claim. The read-only
+  `memory-verifier` checks that draft before the owner sees anything, and flags
+  every claim it cannot confirm. The owner then reads the real text, not a table
+  describing it, and approves, selects, edits, combines, defers, or skips in
+  normal language. An edit is written exactly as the owner wrote it. The main
+  agent saves the approved words in the task's worktree and pull request, then
+  runs two scripts that rebuild each index list from the documents and check
+  each document's shape. Before merge, `memory-verifier` runs again, sized to
+  the change, to catch parallel duplicate homes or conflicts Git cannot see.
+  Owner-approved cleanup may delete or reorganize memory, so the system does not
+  only accumulate files. There is no fixed proposal limit. The system requires
+  no database, MCP server, embeddings, transcript capture, background curation,
+  or scheduled jobs, and no hook ever writes memory. The current shipped
+  specification is indexed in
   [`docs/second-brain-v3/`](docs/second-brain-v3/README.md), and the plugin
-  ships the rule, memory-librarian role, templates, setup, sync, and remember
-  workflows. The old v2 proposal is superseded.
+  ships the rule, its routing reference, the memory-verifier role, the two
+  scripts, templates, setup, sync, and remember workflows. The old v2 proposal
+  is superseded.
 - [x] **`second-brain` v1 archive**: the retired Worker, Neon, MCP, curator,
   hook, knowledge-backfill, and structural-layer source has been removed from
   active plugin paths and consolidated under

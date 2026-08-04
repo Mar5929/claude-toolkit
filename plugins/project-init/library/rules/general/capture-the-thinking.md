@@ -46,10 +46,10 @@ Notice when one of these goes by:
 - **A new canonical source.** A document or system becomes the place a class of
   information now lives.
 
-These are durable memory, so the same permission applies: the owner approves and
-the memory librarian writes. Do not record them silently, and do not hold them
-for a completion review that has no task to complete. Raise them at the next
-natural pause in the conversation.
+These are durable memory, so the same permission applies: the owner reads the
+real words and approves them first. Do not record them silently, and do not hold
+them for a completion review that has no task to complete. Raise them at the
+next natural pause in the conversation.
 
 ## Where it goes
 
@@ -74,9 +74,9 @@ When the project has no work tracker item for what is being worked on, create
 one before building. When the second-brain memory areas are not installed, the
 work item's `SPEC.md` carries all of it.
 
-Durable memory and specification writes follow the project's memory rule: the
-owner approves, and the memory librarian writes. Writing a work item's `SPEC.md`
-and `STATUS.md` needs no such approval; that is ordinary work.
+Durable memory and specification writes follow the project's memory rule: draft
+the real words, have them checked, show the owner, then save. Writing a work
+item's `SPEC.md` and `STATUS.md` needs no such approval; that is ordinary work.
 
 ## When to write it
 

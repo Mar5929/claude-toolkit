@@ -13,6 +13,12 @@ the document's authority, purpose, relationships, and canonical home.
 - Use the title a person would search for.
 - Put a one-sentence summary immediately after the title of every durable
   specification and memory document.
+- Put a `Basis:` line directly under that summary on every document under
+  `memory/`, in all seven folders. It says where the content came from:
+  `Basis: Observed`, `Basis: Owner-confirmed <YYYY-MM-DD>`, `Basis: Source`, or
+  `Basis: Inferred, unconfirmed`. Specifications carry none, because a
+  specification is approved behavior by definition. An index carries none,
+  because it is navigation.
 - Keep one current home for each truth.
 - Use `Status: Current`, `Status: Draft`, or `Status: Superseded` only when the
   lifecycle distinction matters.
@@ -26,7 +32,8 @@ the document's authority, purpose, relationships, and canonical home.
 
 `Status` is optional except when retained superseded material must be marked.
 Validity guidance, `Tags`, `Sources`, and `Aliases` are always optional. Do not
-include empty placeholders for them.
+include empty placeholders for them. `Basis:` is not optional under `memory/`,
+and `node .claude/tools/memory-shape-check.mjs` fails when it is missing.
 
 Optional plain-text metadata may look like:
 
@@ -46,11 +53,17 @@ Review when: The project upgrades to Salesforce API version 68.
 ```
 
 The main agent may propose a date or event only with an explainable reason, and
-the owner approves it before the memory librarian writes it. Reaching the date
-or event means verify before relying, not automatic expiration or
-supersession.
+the owner approves it before it is written. Reaching the date or event means
+verify before relying, not automatic expiration or supersession.
 
 ## 2. Root indexes
+
+In every index below, the prose is written by hand and the list of documents is
+not. `node .claude/tools/memory-index-build.mjs` rebuilds the bullets under
+`## Areas`, `## Types`, `## Capabilities`, `## Documents`, and
+`## Superseded documents` from the documents themselves, taking each entry's
+title and summary from the document it points at. Write the prose; leave the
+bullets to the builder.
 
 ### 2.1 Brainstorm index
 
@@ -62,15 +75,14 @@ Path: `brainstorms/README.md`
 This folder contains interviews, exploration, candidate requirements, and
 unresolved questions. It is not authoritative product behavior.
 
-## Brainstorms
-
-| Document | What it explored | Resulting specifications |
-|---|---|---|
-| [Password recovery](2026-07-28-password-recovery.md) | Recovery paths and security constraints | Password reset and mobile recovery |
-
 Approved behavior belongs in `specs/`. Each brainstorm links to any resulting
 specifications. Brainstorms remain flat because discovery may span several
 areas or begin before the eventual area is known.
+
+## Documents
+
+- [Password recovery](2026-07-28-password-recovery.md): explored recovery paths
+  and the security constraints on each one.
 ```
 
 ### 2.2 Specification index
@@ -82,18 +94,17 @@ Path: `specs/README.md`
 
 This folder defines current approved product and system behavior.
 
-## Areas
-
-| Area | What it covers |
-|---|---|
-| [Authentication](authentication/README.md) | Sign-in, account access, and recovery |
-
 ## How to use these specifications
 
 - Read the relevant current specification before changing behavior.
 - Keep approved behavior, implementation, and tests aligned.
 - Follow links to discovery, decisions, knowledge, domain material, planning,
   and operations when they matter.
+
+## Areas
+
+- [Authentication](authentication/README.md): sign-in, account access, and
+  recovery.
 ```
 
 ### 2.3 Memory index
@@ -106,20 +117,24 @@ Path: `memory/README.md`
 This folder contains durable project information that is not authoritative
 product behavior.
 
-## Types
-
-| Type | What belongs there |
-|---|---|
-| [Context](context/README.md) | Durable circumstances, constraints, stakeholders, and current conditions |
-| [Planning](planning/README.md) | Vision, goals, roadmap, milestones, timeline, strategic dependencies, risks, and assumptions |
-| [Decisions](decisions/README.md) | Important choices and their rationale |
-| [Knowledge](knowledge/README.md) | Reusable non-obvious understanding |
-| [References](references/README.md) | Sources and why they matter |
-| [Domain](domain/README.md) | Business concepts, language, actors, and rules |
-| [Operations](operations/README.md) | Operating, release, recovery, support, and verification guidance |
+Every document here carries a `Basis:` line under its one-sentence summary,
+saying where its content came from.
 
 Work-tracker owns backlog, ticket status, blockers, handoffs, branches, pull
 requests, and landing proof.
+
+## Types
+
+- [Context](context/README.md): durable circumstances, constraints,
+  stakeholders, and current conditions.
+- [Planning](planning/README.md): vision, goals, roadmap, milestones, timeline,
+  strategic dependencies, risks, and assumptions.
+- [Decisions](decisions/README.md): important choices and their rationale.
+- [Knowledge](knowledge/README.md): reusable non-obvious understanding.
+- [References](references/README.md): sources and why they matter.
+- [Domain](domain/README.md): business concepts, language, actors, and rules.
+- [Operations](operations/README.md): operating, release, recovery, support, and
+  verification guidance.
 ```
 
 ## 3. Specification and memory indexes
@@ -135,9 +150,8 @@ This area owns sign-in, account access, and recovery behavior.
 
 ## Capabilities
 
-| Capability | What it defines |
-|---|---|
-| [Password reset](password-reset/README.md) | Reset request and completion behavior |
+- [Password reset](password-reset/README.md): reset request and completion
+  behavior.
 
 ## Related area indexes
 
@@ -161,10 +175,9 @@ This folder does not own temporary task choices or ticket status.
 
 ## Areas
 
-| Area | What it covers |
-|---|---|
-| [Project-wide](project-wide/README.md) | Decisions affecting the whole project |
-| [Authentication](authentication/README.md) | Decisions governing account access |
+- [Project-wide](project-wide/README.md): decisions affecting the whole project.
+- [Authentication](authentication/README.md): decisions governing account
+  access.
 ```
 
 ### 3.3 Memory area
@@ -174,26 +187,27 @@ Path: `memory/<type>/<system-area>/README.md`
 ```markdown
 # Authentication decisions
 
-## Current documents
-
-| Document | Summary |
-|---|---|
-| [Reset-token lifetime](reset-token-lifetime.md) | Why reset links use a fixed expiration period |
-
-## Superseded documents
-
-| Document | Replacement |
-|---|---|
-| [Legacy reset-token policy](legacy-reset-token-policy.md) | [Reset-token lifetime](reset-token-lifetime.md) |
+Choices that govern sign-in, account access, and recovery.
 
 ## Related area indexes
 
 - [Authentication specifications](../../../specs/authentication/README.md)
 - [Authentication knowledge](../../knowledge/authentication/README.md)
+
+## Documents
+
+- [Reset-token lifetime](reset-token-lifetime.md): why reset links use a fixed
+  expiration period.
+
+## Superseded documents
+
+- [Legacy reset-token policy](legacy-reset-token-policy.md): replaced by
+  [Reset-token lifetime](reset-token-lifetime.md).
 ```
 
-Remove `Superseded documents` when the area has none. A retained superseded
-document stays in this section instead of disappearing from its nearest index.
+`Superseded documents` appears only when the area has one. A retained superseded
+document stays in that section instead of disappearing from its nearest index.
+The builder puts a document there when it carries `Status: Superseded`.
 
 ## 4. Brainstorm schema
 
@@ -338,6 +352,8 @@ Path: `memory/context/<system-area>/<topic>.md`
 
 Explains the identity-provider condition that constrains authentication work.
 
+Basis: Owner-confirmed 2026-07-31
+
 Status: Current
 
 ## Context
@@ -371,6 +387,8 @@ Project-wide plans normally use
 # Product roadmap
 
 Summarizes the project direction, milestones, dependencies, risks, and assumptions.
+
+Basis: Owner-confirmed 2026-07-31
 
 Status: Current
 
@@ -418,6 +436,8 @@ Path: `memory/decisions/<system-area>/<decision>.md`
 # Reset-token lifetime
 
 Explains the approved expiration choice and why it governs password recovery.
+
+Basis: Owner-confirmed 2026-07-31
 
 Status: Current
 
@@ -482,10 +502,11 @@ Where future work should use this knowledge and any important limits.
   - This delivery behavior affects the reset flow.
 ```
 
-The `Basis:` line is mandatory on every knowledge document. Allowed values are
-`Observed`, `Owner-confirmed <YYYY-MM-DD>`, `Source`, and
-`Inferred, unconfirmed`, each optionally followed by the exact file, person, or
-source. Do not manufacture a stronger basis than the document actually has.
+The `Basis:` line is mandatory on every document under `memory/`, in all seven
+folders, not only knowledge and domain. Allowed values are `Observed`,
+`Owner-confirmed <YYYY-MM-DD>`, `Source`, and `Inferred, unconfirmed`, each
+optionally followed by the exact file, person, or source. Do not manufacture a
+stronger basis than the document actually has.
 
 ## 10. Reference schema
 
@@ -495,6 +516,8 @@ Path: `memory/references/<system-area>/<source>.md`
 # Email provider documentation
 
 Identifies the provider source and the project questions it helps answer.
+
+Basis: Source
 
 ## Source
 
@@ -562,9 +585,9 @@ The project's definition of this term or concept.
   - Uses this actor in required behavior.
 ```
 
-The `Basis:` line is mandatory on every domain document, using the same values
-as the knowledge schema. A term an agent guessed at from field or object names
-is `Inferred, unconfirmed` until a person confirms it.
+The `Basis:` line uses the same values everywhere under `memory/`. A term an
+agent guessed at from field or object names is `Inferred, unconfirmed` until a
+person confirms it.
 
 Aliases are optional and especially useful for client language, acronyms, and
 multiple names for the same concept.
@@ -577,6 +600,8 @@ Path: `memory/operations/<system-area>/<procedure>.md`
 # Rotate the email provider credential
 
 Explains how to rotate the credential safely and verify or recover the operation.
+
+Basis: Observed
 
 Status: Current
 
@@ -618,7 +643,9 @@ Both `CLAUDE.md` and `AGENTS.md` use a short version of this section:
 ## Project memory and knowledge
 
 Read `.claude/rules/second-brain.md` before work that changes product behavior
-or depends on project history.
+or depends on project history. Open
+`.claude/references/second-brain-reference.md` only when routing is genuinely
+unclear.
 
 - `brainstorms/`: non-authoritative discovery and interviews.
 - `specs/`: current approved product and system behavior.
@@ -634,17 +661,19 @@ Start with each root `README.md`, then follow the relevant area indexes and
 backlinks. Work-tracker owns current ticket status, blockers, relationships,
 handoffs, branches, pull requests, and landing proof.
 
-At approved completion points, propose durable updates to the owner. After
-approval, invoke the memory librarian in this session's worktree.
+At approved completion points, draft the real words with a source on every
+claim, invoke `memory-verifier` to check them, show the owner what it checked,
+and write the approved ones in this session's worktree.
 ```
 
 The detailed shared rule remains canonical.
 
 ## 14. Agent decision guidance
 
-The installed `.claude/rules/second-brain.md` turns these schemas into judgment
-guidance. The memory librarian reads the applicable cards before creating or
-reorganizing a document.
+The installed `.claude/rules/second-brain.md` and its companion
+`.claude/references/second-brain-reference.md` turn these schemas into judgment
+guidance. An agent reads the applicable cards before creating or reorganizing a
+document.
 
 Only instructions explicitly labeled mandatory are mandatory.
 
@@ -656,7 +685,8 @@ Only instructions explicitly labeled mandatory are mandatory.
 - **Do not use when:** Do not add a separate summary that merely repeats the
   title with no additional meaning.
 - **Requirement:** Mandatory for durable specifications and memory. A raw
-  brainstorm instead uses its title, goal, and running summary.
+  brainstorm instead uses its title, goal, and running summary. Every document
+  under `memory/` adds a `Basis:` line directly under the summary.
 - **Authority:** The summary previews the document. It does not replace the
   type-specific body.
 - **Good:** `Explains why account and opportunity reassignment follow different
@@ -670,7 +700,10 @@ Only instructions explicitly labeled mandatory are mandatory.
 - **Use when:** Every durable document listed by its nearest `README.md`.
 - **Do not use when:** Do not copy the full document, live ticket state, or
   change history into the index.
-- **Requirement:** Mandatory for durable specifications and memory.
+- **Requirement:** Mandatory for durable specifications and memory. It is not
+  hand-written: `node .claude/tools/memory-index-build.mjs` copies the entry
+  from the document's own title and one-sentence summary, so writing a good
+  summary is what produces a good index entry.
 - **Authority:** The document remains canonical. The index is navigation.
 - **Good:** `Why reset links expire after a fixed period.`
 - **Avoid:** `Reset-token-lifetime.md`.
@@ -893,10 +926,14 @@ Only instructions explicitly labeled mandatory are mandatory.
   migration, risk assessment, or future implementation.
 - **Do not use when:** The basis is already obvious and the distinction would
   not affect how anyone relies on the information.
-- **Requirement:** Contextual. Required when confusing the categories could
-  mislead future work. It does not require metadata on every paragraph.
+- **Requirement:** Contextual in prose, and required when confusing the
+  categories could mislead future work. It does not require metadata on every
+  paragraph. Mandatory in one place: a `Basis:` line on every document under
+  `memory/`, in all seven folders.
 - **Authority:** Repository evidence can establish observed behavior but not
   owner intent. An inference remains an inference until supported or confirmed.
+  A claim an agent worked out reaches the owner marked as unchecked, never in
+  the same confident voice as a checked fact.
 - **Good:** `Observed in the current code: invoice retries are manual. Mike
   confirmed that this behavior remains supported.`
 - **Avoid:** Writing `Manual invoice retries are required` when the agent only
@@ -933,9 +970,9 @@ No other `Related` section, link, or backlink is mandatory. Item 5 exists
 because the alternative is a second copy that drifts, not because the corpus
 should look connected.
 
-If adding a backlink requires editing another document, the memory librarian
-may perform that routine link maintenance within the approved content update.
-The owner does not need to manage those filing details. A backlink or related
+If adding a backlink requires editing another document, that routine link
+maintenance is part of the approved content update. The owner does not need to
+manage those filing details. A backlink or related
 edit must be separately visible in the proposal when it changes meaning or
 authority, supersedes information, or forms part of a risky or large
 reorganization.

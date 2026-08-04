@@ -304,9 +304,9 @@ since firing is not a judgement about content at all.
 
 What no hook here may do: decide what is true, write durable memory, or approve
 its own proposal. A trigger hook starts the review that produces proposals; the
-owner still answers them and the memory librarian still does the writing. That
-boundary is what lets second-brain use hooks without reopening the failure that
-retired v1, where hooks wrote memory on their own.
+draft is still checked, the owner still answers it, and only then is it written.
+That boundary is what lets second-brain use hooks without reopening the failure
+that retired v1, where hooks wrote memory on their own.
 
 ## Adding a hook here
 
