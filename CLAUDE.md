@@ -11,9 +11,10 @@ here, and they are in force for the whole session.
 ## Project memory and knowledge: read this before you write anything
 
 `.claude/rules/second-brain.md` is the canonical rule and wins over this summary
-if they ever disagree. Read it before work that changes approved behavior,
-before any structural change to these folders, and whenever the routing below
-does not clearly settle where something goes.
+if they ever disagree. Read it before work that changes approved behavior, and
+before any structural change to these folders. When the routing below does not
+settle where something goes, open
+`.claude/references/second-brain-reference.md`.
 
 The committed Markdown files and Git history **are** the system. There is no
 memory database, memory server, embedding index, transcript store, or background
@@ -21,7 +22,7 @@ curator. Nothing is remembered automatically. If it is not written down here, it
 is not remembered. A hook may remind you of a rule or start a review, and never
 writes memory itself. The one raw-capture exception is an owner-invoked
 `grill-me` interview, which checkpoints only its non-authoritative brainstorm
-and index. Specifications and curated memory still use the memory librarian.
+and index.
 
 ### Authority map: one truth, one home
 
@@ -42,7 +43,13 @@ and index. Specifications and curated memory still use the memory librarian.
 
 Link to the one home. Never copy a second version that can drift. When you are
 about to write something another document already owns, `Repetition` in
-`.claude/rules/second-brain.md` says what to do instead.
+`.claude/references/second-brain-reference.md` says what to do instead.
+
+**`specs/` against `memory/` is the split most often guessed wrong.** Approved
+behavior, meaning what the system has to do, goes to `specs/`. Things worth
+knowing, meaning what would otherwise have to be worked out again, go to
+`memory/`. When something is both, it produces two documents and the owner sees
+both. Never pick one and drop the other half.
 
 ### When to use each home, and when not to
 
@@ -76,65 +83,91 @@ direction; the tracker owns execution.
 
 1. a descriptive title;
 2. a one-sentence summary directly under it;
-3. a type given by its folder path;
-4. content shaped for that type;
-5. links to related documents where they genuinely help; and
-6. a one-sentence entry in the nearest `README.md` index.
+3. a `Basis:` line under that summary, for everything under `memory/`;
+4. a type given by its folder path, and content shaped for that type;
+5. an entry in the nearest `README.md` index; and
+6. links to related documents where they genuinely help.
 
 Every populated `memory/<type>/<system-area>/` folder has its own `README.md`.
-Create it with the area's first durable document.
+Create it with the area's first durable document. The list of documents inside
+an index is built from the documents by the index builder, not typed by hand.
 
 No YAML frontmatter. No empty placeholder fields. `Status: Superseded` plus a
 link to the replacement is required whenever a replaced document is kept.
 
-Documents in `memory/knowledge/` and `memory/domain/` add one mandatory line
-under the summary saying where the content came from: `Basis: Observed`,
+The `Basis:` line says where the content came from: `Basis: Observed`,
 `Basis: Owner-confirmed <YYYY-MM-DD>`, `Basis: Source`, or
 `Basis: Inferred, unconfirmed`. Trust a document only as far as its basis
 allows, and never quietly upgrade an inference to a confirmed fact.
+Specifications carry no `Basis:` line, because the owner approved them.
 
 ### How to read
 
 Start at the relevant root `README.md`, then the area index, then the specific
-document. Follow only the links this task needs. Do not load every memory file
-every session. Report conflicting current truth instead of silently picking one.
+document. Follow only the links this task needs. Before changing behavior in an
+area, find and read that area's specification first. Do not load every memory
+file every session. Report conflicting current truth instead of silently picking
+one.
 
 ### How to write
 
+Never write durable memory unprompted. Authority to write comes from the owner:
+they approved the drafted words, asked for the change, approved behavior a
+specification must now reflect, or said "remember this" or similar.
+
+A save runs in this order:
+
+1. The main agent drafts the exact words and the destination path for each
+   piece. Every claim carries where it came from, and it is one of three kinds:
+   it is in a file, the owner said it, or the agent worked it out. Before
+   proposing a fact, search for a document that already owns it and link to that
+   instead of repeating it.
 <!-- host-specific:start -->
-Never write durable memory unprompted. When the owner approved a proposal, asked
-for a change, approved behavior a specification must now reflect, or said
-"remember this" or similar, the main agent must invoke the memory librarian
-(`.claude/agents/memory-librarian.md`) in this session's worktree and review the
-diff it produces.
+2. Invoke `memory-verifier` (`.claude/agents/memory-verifier.md`) in the
+   foreground and wait for its report. It reads only and never writes. It opens
+   the file behind each in-a-file claim, compares each owner claim against the
+   owner's actual words, and flags anything the agent worked out, because that
+   cannot be confirmed.
 <!-- host-specific:end -->
+3. Fix what came back wrong, and mark anything unconfirmed so the owner can see
+   it is unchecked.
+4. Show the owner the real words, not a table describing them. They approve,
+   cut, or edit. An edit is written exactly as the owner wrote it and needs no
+   further checking.
+5. Save them, rebuild the indexes, and run the shape check. A failed shape check
+   means the save is not finished: say what is missing in plain words and fix
+   it.
+
+Nothing that writes a file runs in the background, and any agent producing a
+report is run in the foreground so its report comes back without being asked
+for.
 
 Propose durable updates at approved completion points only: a substantial task
 finished, a brainstorm or requirements interview ended, a milestone reached, a
 session handing off or about to have its context cleared, or another natural
-stopping point follows meaningful work with a settled durable result. Not on
-every response, commit, or trivial action.
-One review can satisfy several nearby stopping points unless later work changes
-the durable result.
+stopping point after meaningful work with a settled durable result. Not on every
+response, commit, or trivial action. One review can satisfy several nearby
+stopping points unless later work changes the durable result.
 
 A deferred proposal changes no durable document and creates no memory queue. If
 an approved write fails, retry or report it and keep the task unfinished. The
-pull request may open, but it does not merge as though the write succeeded unless
-the owner explicitly waives it.
+pull request may open, but it does not merge as though the write succeeded
+unless the owner explicitly waives it.
 
 Before a pull request containing specification or memory changes merges, bring
-its branch current through the project's Git workflow. Then invoke the librarian
-for a read-only comparison with the latest relevant memory and indexes. It uses
-judgment to find duplicate canonical homes or conflicting current truth that
-parallel work could merge without a text conflict. Any destructive or
-meaning-changing repair still requires visible owner approval.
+its branch current through the project's Git workflow. Then run the memory
+verifier again for a read-only comparison with the latest relevant memory and
+indexes. It uses judgment to find duplicate canonical homes or conflicting
+current truth that parallel work could merge without a text conflict, and it is
+sized to the change: a new document gets the full read, one generated index line
+gets a quick look. Any destructive or meaning-changing repair still requires
+visible owner approval, and the main agent makes it.
 
 Stop and show the owner before any structural change: removing durable
 information, changing what is authoritative, moving, splitting, or merging
 documents, reorganizing, superseding current guidance, or adding a new top-level
 area or type. These operations are allowed after approval so memory can be
 maintained instead of only accumulating.
-
 ## Codemap
 
 | Path | What lives there |
@@ -145,7 +178,7 @@ maintained instead of only accumulating.
 | `docs/toolkit-map.md` | The cross-cutting catalog: what each piece is, and the honest read on what looks redundant but is not. |
 | `tests/` | Node checks, run by hand. `link-check.mjs` (a link pointing at a file that is not there), `orphan-check.mjs` (a shipped file no index points at), `installed-copy-check.mjs` (a file this repo ships and the copy it runs have drifted apart). |
 | `archive/` | Retired material kept for history. Never a source of current truth. |
-| `.claude/` | What this repo runs on itself: the rule copies, the memory librarian, the output style, the three hooks, and the setup record in `toolkit-sync.md`. |
+| `.claude/` | What this repo runs on itself: the rule copies, the memory verifier, the output style, the three hooks, and the setup record in `toolkit-sync.md`. |
 
 This repo runs the toolkit on itself. `.claude/rules/`, `.claude/hooks/`,
 `.claude/output-styles/`, `.claude/agents/`, `brainstorms/`, `specs/`, and
@@ -225,10 +258,9 @@ write X down somewhere. Fit it into the system:
 5. **Give every agent you add the writing rules in its own text.** An output
    style is delivered in the main conversation's system prompt and never reaches
    a helper agent, so an agent definition under `plugins/*/agents/` has to carry
-   those rules itself. `memory-librarian.md` has a "How to write" section for
-   exactly this reason: it writes memory documents that future sessions read
-   back, so a word that has to be decoded once would spread instead of being
-   forgotten.
+   those rules itself. `memory-verifier.md` has a "How to write" section for
+   exactly this reason: its findings are read back to Mike, so a word he has to
+   decode once would spread instead of being forgotten.
 6. **Bump versions.** A content change to a plugin bumps its `plugin.json`
    version and `metadata.version` in `marketplace.json`.
 7. **Keep `main` installable.** `claude plugin validate .` must pass; `main` is
@@ -272,7 +304,7 @@ merged change reaches it the same way: refresh the plugin, then sync.
 
 Everything between those two markers is in `AGENTS.md` word for word, because
 Codex reads that file and never reads this one. The one exception is the passage
-between the `host-specific` markers: Claude invokes the memory librarian
+between the `host-specific` markers: Claude invokes the memory verifier
 directly, Codex cannot, so that passage says the same thing two ways.
 `.claude/rules/keep-claudemd-current.md` allows exactly that one difference and
 no other. `tests/installed-copy-check.mjs` checks all of it. Edit either file and

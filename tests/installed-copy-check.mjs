@@ -30,7 +30,7 @@
  *    second, and the toolkit requires the memory routing to be the same in both.
  *
  *    One passage is allowed to differ, and only one. `keep-claudemd-current.md`
- *    says so: Claude invokes the memory librarian agent directly, Codex cannot,
+ *    says so: Claude invokes the memory verifier agent directly, Codex cannot,
  *    so each root file states that obligation in the way its program can act on.
  *    That passage sits between `host-specific` markers in both files. Everything
  *    outside those markers has to match, each file must carry exactly one such
@@ -80,6 +80,10 @@ function shippedOriginalFor(path) {
   if (match) return `plugins/project-init/library/output-styles/${match[1]}`;
   match = path.match(/^\.claude\/hooks\/(.+)$/);
   if (match) return `plugins/hooks-library/hooks/${match[1]}`;
+  match = path.match(/^\.claude\/references\/(.+\.md)$/);
+  if (match) return `${SECOND_BRAIN}/${match[1]}`;
+  match = path.match(/^\.claude\/tools\/(.+)$/);
+  if (match) return `plugins/second-brain/tools/${match[1]}`;
   return undefined;
 }
 
@@ -191,12 +195,12 @@ if (claudeBlock === null || agentsBlock === null) {
           + " shared block, and must have\n    exactly one."
           + " keep-claudemd-current.md allows Claude and Codex to word one\n"
           + "    passage differently, the one about invoking the memory"
-          + " librarian, and\n    allows no other difference.",
+          + " verifier, and\n    allows no other difference.",
       );
     } else if (passages[0].trim() === "") {
       failures.push(
         `  ${path}\n    has an empty host-specific passage. It has to say what`
-          + " this program does\n    about invoking the memory librarian, not"
+          + " this program does\n    about invoking the memory verifier, not"
           + " leave a hole.",
       );
     }

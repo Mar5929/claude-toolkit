@@ -17,7 +17,7 @@ three weeks later in another project.
 | 0. Orient | Done. Existing repository, not a new one, so this ran as a sync rather than an init. Node and Markdown, no application stack. |
 | 1. Scaffolding and work tracking | Already answered. Work is tracked on the `Claude-Toolkit-Project` board on GitHub. `CLAUDE.md` names it, and `spec-before-you-build.md` is installed alongside that pointer. No scaffolding was added: the folder layout already existed. |
 | 2. Hooks | Done, all three. `style-reminder`, `writing-guard`, and `memory-pr-hook`, copied into `.claude/hooks/` and registered in the committed `.claude/settings.json`. Each was run by hand in both directions before being called installed. |
-| 3. Second-brain v3 | Done, complete core. The canonical rule, the memory librarian, the memory routing in both root files, and every root index. |
+| 3. Second-brain v3 | Done, complete core. The canonical rule, the memory verifier, the memory routing in both root files, and every root index. |
 | 4. Knowledge layer | Included with Gate 3. The graphify code graph was offered and declined, see below. |
 | 5. Root instructions, rules, output style | Done. `CLAUDE.md` and `AGENTS.md` rewritten thin, `.claude/rules/` created with fourteen general rules plus the memory rule, and the plain-language output style installed and selected. |
 | 6. Optional toolkit skills | Done. `grill-me` was already on. `handoff` and `session-summary` were switched on in the machine settings at `~/.claude/settings.json`. |
