@@ -346,6 +346,18 @@ in their own plugins.
   partly done, blocked, or waiting on you, and then a block naming whatever still
   needs them. It reads the conversation and writes nothing, so it does not
   compete with the work tracker.
+- Offer `handoff` in every project, and recommend it. Explain what it does in
+  the owner's terms: when a session gets long and they want to start fresh,
+  typing `/handoff` first shows them a table of what is worth saving from that
+  session, they approve or cut rows, and then they get a prompt to paste into
+  the new chat with everything else carried inside it. Say why it matters: the
+  longest sessions produce the most understanding and lose the most, and nothing
+  can catch `/clear` after the fact. It needs no output style, no memory system,
+  and no hooks. In a project without the memory system it skips the saving step
+  and puts everything in the prompt. It pairs with the
+  `offer-context-handoff.md` rule from Gate 5, which is what makes the same
+  thing happen when the owner asks in their own words instead of typing the
+  command.
 - Record whether the owner installed, skipped, or deferred each one so a later
   `project-sync` respects that choice.
 

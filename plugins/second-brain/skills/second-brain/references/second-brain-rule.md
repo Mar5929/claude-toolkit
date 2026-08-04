@@ -88,16 +88,26 @@ Review for durable updates only:
   opened. The pull request does not wait for the owner's answer: it opens with
   the code in it, its description says what the review found, and the approved
   memory is committed to the same branch before it is merged;
-- at the end of a brainstorming or requirements interview; and
-- at the end of a milestone or project phase; or
+- at the end of a brainstorming or requirements interview;
+- at the end of a milestone or project phase;
+- when a session hands off to a fresh one or its context is about to be cleared.
+  This is the one with the most at stake, because the context is about to be
+  destroyed and nothing can catch a clear after it happens. Save what the owner
+  approves and carry everything else inside the handoff prompt, so the next
+  session still has it. See `offer-context-handoff.md`; and
 - at another natural stopping point after meaningful work, when the owner ends
   or pauses the task and the work produced a settled durable result.
 
 Do not require a review merely because:
 
-- unfinished work is handed to another session;
 - a response or commit ends; or
 - a trivial action finishes.
+
+Unfinished work state is not memory. Live status, blockers, and next actions
+belong in the work tracker and in the handoff prompt. What a handoff review
+saves is what would otherwise have to be worked out again from scratch:
+decisions and their reasons, understanding that took effort to reach, and
+constraints that were discovered.
 
 One review may satisfy several completion points. Do not repeat an unchanged
 review merely because the chat, commit, and pull-request steps happen close

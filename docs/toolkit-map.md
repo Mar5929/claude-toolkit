@@ -24,6 +24,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | [grill-me](../plugins/grill-me/README.md) | Persistent discovery interviews that checkpoint every answer | `grill-me` | `/plugin install grill-me` | Install and go |
 | [work-tracker](../plugins/work-tracker/README.md) | Git-authoritative backlog, handoffs, relationships, landing proof, and optional GitHub Projects | `work` | `/plugin install work-tracker` | Sets up a project |
 | [session-summary](../plugins/session-summary/README.md) | Recap one session as a table row per main request, each with an honest status, plus a block for whatever still needs the owner | `session-summary` | `/plugin install session-summary` | Install and go |
+| [handoff](../plugins/handoff/README.md) | End a long session without losing what it learned: memory check first, then a prompt a fresh session can start from, carrying anything not saved | `handoff` | `/plugin install handoff` | Install and go |
 
 ## Skills at a glance
 
@@ -40,6 +41,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | grill-me | grill-me | Stress-test an idea one question at a time and preserve every answer | `/grill-me`, "grill me" |
 | work | work-tracker | Manage local work items and their optional GitHub Issues and Project mirror | `/work`, "add this to the backlog", "what should I work on next?" |
 | session-summary | session-summary | Table every request the owner made in a session, in their words, each with a status, then say what still needs them | `/session-summary`, "summarize this session", "what did I ask for?" |
+| handoff | handoff | Run the memory check, save what the owner approves, then write a self-contained prompt for a fresh session carrying whatever was not saved | `/handoff`, "write a handoff", "I'm going to clear context" |
 
 ## The library: what lands in a project
 
@@ -274,6 +276,28 @@ The genuine watch-items are called out at the end.
   `specs/` owns durable current behavior and second-brain owns durable project
   knowledge. The brainstorm may inform those artifacts but does not replace
   them.
+- **handoff versus session-summary.** Both run at the end of a session and they
+  answer different questions. `session-summary` answers "which of my requests
+  are where, and what still needs me", is read-only, and writes nothing.
+  `handoff` answers "how does somebody else pick this up": it runs the memory
+  check first, saves what the owner approves, and then writes a prompt for a
+  fresh session carrying everything that was not saved. Run both if you want
+  both; neither covers the other.
+- **handoff versus memory-pr-hook.** Same job at two different moments, solved
+  two different ways, and the difference is not a preference. `gh pr create` is
+  a bare terminal command carrying no instructions, so it needs a hook to
+  interrupt it. `/handoff` is a slash command, and a slash command loads its own
+  instructions the moment it is typed, so the memory check is already in front
+  of the agent. Adding a hook there would guard a failure that cannot happen.
+  Nothing at all can catch `/clear`: the session-end event fires but cannot stop
+  the clear or speak to the agent, which is why the trigger has to be something
+  the owner does on purpose beforehand.
+- **handoff versus second-brain.** `handoff` is its own plugin rather than part
+  of the memory system, because writing a handoff prompt is useful in every
+  project, including one that never installs memory. In that project the memory
+  step is skipped and everything worth keeping goes into the prompt. It contains
+  no memory types, no destinations, and no rule about what is worth keeping;
+  those stay with the project's own rules. Same boundary `memory-pr-hook` keeps.
 - **session-summary versus work-tracker and the wrap-up ritual.** All three
   answer some version of "where do things stand", but for different scopes and
   audiences. `session-summary` is a read-only view of one conversation, written

@@ -517,12 +517,20 @@ V3 does not require two reviews for every pull request.
 One review may satisfy several nearby completion points. Review again only when
 later work produces or changes a durable conclusion.
 
+A session handing off to a fresh one, or about to have its context cleared, does
+run the review. That moment carries the most risk, because the context is about
+to be destroyed and no event can catch a clear after it happens. Approved items
+are saved; everything else is carried inside the handoff prompt so the next
+session still holds it.
+
 The review does not run merely because:
 
-- an unfinished task is handed to another session;
 - a chat response ends;
 - a commit is created; or
 - a trivial action completes.
+
+Unfinished work state is not memory. Live status, blockers, and next actions
+belong to the work tracker and the handoff prompt.
 
 A hook may start the review at one of the completion points in section 8.3. It
 changes when the review is remembered, not when it is due, and the owner still

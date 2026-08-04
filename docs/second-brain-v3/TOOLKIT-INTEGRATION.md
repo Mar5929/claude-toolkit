@@ -282,10 +282,14 @@ When v3 ships:
   details route to `specs/`, `brainstorms/`, or `memory/`.
 - `wrap-up-ritual.md` uses the approved v3 completion triggers and natural
   stopping point after meaningful work. It does not require a memory review for
-  ordinary responses, trivial actions, or unfinished handoffs with no settled
-  durable result.
-- `offer-context-handoff.md` continues to support temporary session transfer
-  without treating every handoff as durable memory.
+  ordinary responses, trivial actions, or commits.
+- `offer-context-handoff.md` runs the memory check before the handoff prompt is
+  written, because that moment destroys the most context and nothing can catch a
+  clear after it happens. Approved items are saved; everything else is carried
+  inside the prompt. Live status and next actions are still not memory.
+- The `handoff` plugin's `/handoff` command performs those steps in order where
+  it is installed. The rule is the backup when the owner asks in their own words
+  instead.
 - `steer-to-the-goal.md` routes live goals and next actions to work-tracker.
   Durable vision, roadmap, milestones, and strategic risks route to
   `memory/planning/`.

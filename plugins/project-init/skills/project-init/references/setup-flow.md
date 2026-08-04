@@ -11,7 +11,7 @@ so they always know where they are.
 [ ] Gate 3 - Second-brain v3          (complete Markdown memory system)
 [ ] Gate 4 - Knowledge layer          (included with Gate 3, or skipped with it)
 [ ] Gate 5 - Root instructions + rules (thin CLAUDE.md and AGENTS.md)
-[ ] Gate 6 - Optional toolkit skills  (offer grill-me, session-summary)
+[ ] Gate 6 - Optional toolkit skills  (offer grill-me, session-summary, handoff)
 [ ] Wrap-up - summarize, note follow-ups, port-back reminder
 ```
 
@@ -208,6 +208,13 @@ so they always know where they are.
 - Offer `session-summary` for long sessions and handoffs: it returns a table with
   one row per request the owner made, each with a status, then a block for
   whatever still needs them, and writes nothing.
+- Offer `handoff` in every project, and recommend it. `/handoff` runs the memory
+  check first, shows a table of what is worth saving, waits for the owner to
+  approve or cut rows, and only then writes a prompt for a fresh session with
+  everything not saved carried inside it. Needs no style, no memory system, and
+  no hooks; in a project without memory it skips the saving step. It pairs with
+  the `offer-context-handoff.md` rule from Gate 5, which covers the owner asking
+  in their own words.
 - Record installed, skipped, or deferred so `project-sync` does not repeat a
   considered "no".
 

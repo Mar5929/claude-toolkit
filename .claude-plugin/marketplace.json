@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Personal, portable toolkit of reusable Claude systems: skills, rules, hooks, and templates shared across every project and device.",
-    "version": "0.56.0"
+    "version": "0.57.0"
   },
   "plugins": [
     {
@@ -43,6 +43,11 @@
       "name": "work-tracker",
       "source": "./plugins/work-tracker",
       "description": "Git-native work tracking shared by Claude and Codex, with deterministic status, handoffs, relationships, Git landing verification, generated dashboards, and optional GitHub Issues and Projects synchronization."
+    },
+    {
+      "name": "handoff",
+      "source": "./plugins/handoff",
+      "description": "Ends a long session without losing what it learned. Runs the project's memory check first, shows what it proposes to save as a table the owner approves, cuts, or edits, and only then writes a self-contained prompt for a fresh session. Anything not saved to memory is carried inside that prompt instead of being dropped."
     },
     {
       "name": "session-summary",

@@ -169,10 +169,13 @@ includes(
   "at the moment its pull request is",
   "rule reviews at task completion",
 );
+// Was "unfinished work is handed", asserting handoffs were excluded. #130
+// reversed that: a handoff is now the review moment with the most at stake,
+// because a clear cannot be caught after it happens. Same check, opposite truth.
 includes(
   rule,
-  "unfinished work is handed",
-  "rule excludes unfinished handoffs",
+  "when a session hands off to a fresh one",
+  "rule reviews at a handoff",
 );
 includes(
   rule,
