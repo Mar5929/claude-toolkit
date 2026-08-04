@@ -14,6 +14,10 @@ curator. Nothing reaches memory automatically. The one raw-capture exception is
 an owner-invoked `grill-me` interview, which checkpoints its own brainstorm file
 as it runs.
 
+A hook may enforce a rule or start a review at the right moment.
+A hook never decides what is true, writes a document, or approves its own
+proposal.
+
 ## Authority map
 
 | Question | Canonical home |
@@ -83,7 +87,8 @@ It never appears in the same confident voice as a checked fact. It is not
 quietly dropped either: the owner decides what happens to it.
 
 Every document under `memory/` carries a `Basis:` line directly under its
-one-sentence summary, with one of these values:
+one-sentence summary, with one of these values. A `README.md` index carries
+none, because it is navigation rather than a document.
 
 - `Basis: Observed` when it was seen directly in the repository, configuration,
   or running system.
@@ -206,13 +211,22 @@ Do not load every memory file in every session.
 No YAML frontmatter. No empty placeholder fields. `Status: Superseded` plus a
 link to the replacement is required whenever a replaced document is kept.
 
-The shape check enforces items 1, 2, 3, and 5, and it runs in about a second. It
-is the enforcement, not an agent reading this file. When it fails, the save is
-not finished.
+Two commands do the mechanical part, in this order:
 
-Index files list their documents from the documents themselves, built by the
-index builder rather than typed by hand. The prose around that list, saying what
-the folder owns and what it does not, is written by hand and left alone.
+```
+node .claude/tools/memory-index-build.mjs
+node .claude/tools/memory-shape-check.mjs
+```
+
+The index builder rebuilds each index's list of documents from the documents
+themselves, so the list cannot fall out of step with the folder. It touches only
+the `- [Title](path): summary` bullets. The prose around them, saying what the
+folder owns and what it does not, is written by hand and left alone.
+
+The shape check enforces items 1, 2, 3, and 5 and runs in about a second. It is
+the enforcement, not an agent reading this file. When it fails, the save is not
+finished. `memory-index-build.mjs --check` writes nothing and fails when an
+index is out of date, which is what a continuous check runs.
 
 ## Structural changes need a visible proposal
 

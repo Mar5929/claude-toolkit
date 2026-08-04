@@ -10,5 +10,6 @@ owns those steps and the checks that prove a hook works.
 ## Documents
 
 - [Checking a hook by hand on Windows](checking-a-hook-by-hand-on-windows.md):
-  a Git Bash style path makes a working hook look broken, because the hook reads
-  nothing and exits quietly, so pass Windows paths instead.
+  When you run one of this repository's hooks yourself to see whether it works,
+  the form of the path you hand it decides the result, and a path the hook
+  cannot read makes a working hook look broken.

@@ -77,9 +77,9 @@ large in its own row, in words, so it cannot be approved by accident.
 **Then stop and wait.** Asking a yes-or-no question is not approval: the owner
 cannot approve words they have not read. Nothing is written before they answer.
 
-When they answer, invoke the memory librarian for the approved rows only, and
-write them as the owner edited them rather than as you proposed them. The main
-agent never writes memory itself.
+When they answer, save the approved rows only, and write them as the owner
+edited them rather than as you proposed them. An edit is written exactly as the
+owner wrote it. Then rebuild the indexes and run the shape check.
 
 Whatever the owner cuts, edits away, or defers goes into step 3 instead. Nothing
 is queued anywhere, and nothing is dropped.
@@ -126,7 +126,7 @@ project's memory rule. This command is the convenient path, not the only one.
 | The owner approves some rows and cuts others | Save the approved rows. Carry the cut ones into the prompt |
 | The owner edits a row | Write the edited words, not the proposal |
 | The project has no memory system | Skip steps 1 and 2, say so in one line, put everything worth keeping in the prompt |
-| The memory librarian cannot finish an approved write | Report the failure plainly and carry that item into the prompt as well, so it survives either way. Do not pretend it was saved |
+| The save cannot be finished, or the shape check fails | Report the failure plainly and carry that item into the prompt as well, so it survives either way. Do not pretend it was saved |
 | `/handoff` is run twice in a row | Do not re-propose what was already saved. Propose only what changed since the first run, and write the prompt again from the current state |
 | The session is short and produced nothing | Say so. Write a short prompt if the owner still wants one. Do not pad it |
 | The work is unfinished | Normal. That is what a handoff is for. Unfinished state goes in the prompt and the work tracker, never in memory |

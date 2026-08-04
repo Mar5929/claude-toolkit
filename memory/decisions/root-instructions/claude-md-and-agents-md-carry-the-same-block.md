@@ -5,6 +5,8 @@
 to word for itself, and a pair of markers plus an automatic check keeps the two
 copies in step.
 
+Basis: Owner-confirmed 2026-08-04.
+
 Decided on 2026-08-04, while setting this repository up with its own toolkit for
 GitHub issue #138.
 

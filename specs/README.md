@@ -4,8 +4,9 @@ This folder defines current approved product and system behavior.
 
 ## Areas
 
-No specification areas have been created yet. Add each real project area here
-with a one-sentence description.
+The list below is built by `node .claude/tools/memory-index-build.mjs` from the
+documents in this folder, so it cannot fall out of step with them. Do not
+hand-edit it. The prose around it is written by hand and is left alone.
 
 This repository fills specifications as work happens rather than up front. A
 capability gets its specification the first time an issue changes what that

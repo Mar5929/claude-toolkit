@@ -12,5 +12,6 @@ source, or inferred and unconfirmed.
 
 ## Areas
 
-- [Hooks](hooks/README.md): what is understood about the hooks this repository
-  runs from `.claude/hooks/`, including how a hand check can mislead you.
+- [Knowledge: hooks](hooks/README.md): What is understood about the hooks this
+  repository runs from `.claude/hooks/`, including how to check one and how it
+  can mislead you.

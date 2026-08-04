@@ -284,7 +284,8 @@ Basis: <Observed | Owner-confirmed YYYY-MM-DD | Source | Inferred, unconfirmed>
   - <Why it matters here.>
 ```
 
-The `Basis:` line is mandatory. See `Evidence and certainty` in
+The `Basis:` line is mandatory on every document under `memory/`, not only this
+one. A `README.md` index carries none. See `Evidence and certainty` in
 `second-brain-rule.md` for what each value means and when to change it.
 
 ## Reference

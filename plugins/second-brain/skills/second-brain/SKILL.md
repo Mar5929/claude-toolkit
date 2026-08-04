@@ -18,8 +18,12 @@ repository.
 
 The complete core contains:
 
-- one shared rule at `.claude/rules/second-brain.md`;
-- one on-demand role at `.claude/agents/memory-librarian.md`;
+- one always-loaded procedure at `.claude/rules/second-brain.md`;
+- the longer routing detail at `.claude/references/second-brain-reference.md`,
+  opened only when the routing is unclear;
+- one read-only checking role at `.claude/agents/memory-verifier.md`;
+- two scripts in `.claude/tools/`, `memory-index-build.mjs` and
+  `memory-shape-check.mjs`, which do the mechanical part in about a second;
 - equivalent compact routes in `CLAUDE.md` and `AGENTS.md`;
 - flat indexed discovery under `brainstorms/`;
 - capability specifications under `specs/`; and
@@ -35,12 +39,19 @@ writes memory.
 
 Read these completely before performing the matching work:
 
-- `references/second-brain-rule.md`: canonical installed behavior and schema.
+- `references/second-brain-rule.md`: the always-loaded procedure. How a save
+  works, who writes, when to run the review, and the boundaries.
+- `references/second-brain-reference.md`: what each home is for, the optional
+  document aids, evidence, repetition, links, and superseding.
 - `references/folder-layout.md`: complete core and project-area structure.
 - `references/markdown-schemas.md`: copy-ready document shapes.
 - `references/orientation-snippet.md`: shared root-file route.
 - `references/adoption-guide.md`: greenfield and brownfield workflows.
-- `../../agents/memory-librarian.md`: reusable specialist role.
+- `../../agents/memory-verifier.md`: the read-only checking role.
+- `../../tools/memory-index-build.mjs`: builds each index's list of documents
+  from the documents themselves.
+- `../../tools/memory-shape-check.mjs`: confirms title, summary, source line,
+  allowed folder, and index entry, in about a second.
 - `references/templates/`: copy-ready root indexes.
 
 Resolve paths from this installed skill or the local toolkit checkout. Do not
@@ -56,10 +67,11 @@ Use the appropriate path:
    and receiving approval.
 3. **Brownfield adoption.** Perform a read-only audit first, show exact proposed
    treatments, and change only what the owner approves.
-4. **Durable-update review.** At an approved completion point, propose useful
-   updates and invoke the memory librarian after approval.
+4. **Durable-update review.** At an approved completion point, draft the real
+   words, have the memory verifier check them, then show the owner and save what
+   they approve.
 5. **Pre-merge review.** When a pull request contains durable-document changes,
-   have the librarian compare them with the latest project memory before merge.
+   have the verifier compare them with the latest project memory before merge.
 6. **Maintenance.** Repair indexes, links, conflicts, or structure within the
    owner-approved boundary.
 
@@ -83,7 +95,7 @@ indexes, or one of the seven typed memory homes.
 
 After approval:
 
-1. copy the canonical rule and role;
+1. copy the canonical rule, the reference, the verifier role, and both scripts;
 2. copy every root index template;
 3. merge the orientation snippet into both root instruction files without
    replacing existing content;
@@ -93,7 +105,8 @@ After approval:
 6. offer the initial memory pass and `grill-me`.
 
 Setup scaffolding is an ordinary approved project change. Initial project
-context, planning, specifications, and memory use the memory librarian.
+context, planning, specifications, and memory go through the save flow in the
+rule: draft, check, show, save.
 
 ## Brownfield adoption
 
@@ -125,47 +138,59 @@ as a second copy:
 
 - The check runs at the moment a pull request is opened, and the pull request
   does not wait for the owner's answer.
-- Asking the owner a yes-or-no question is not approval. Show the proposal
-  first, then invoke the librarian.
+- Asking the owner a yes-or-no question is not approval. Show them the actual
+  words, already checked, and save what they approve.
 
-## Invoke the memory librarian
+## Draft, check, then save
 
-After approval, invoking the dedicated librarian is mandatory:
+The main agent owns whether what gets written is true. It drafts the exact
+words, it saves them, and it never hands correctness to somebody else.
 
-1. provide the approved content and boundaries;
-2. provide the current worktree and branch;
-3. provide relevant task, code, test, and discussion context;
-4. identify known canonical documents, brainstorms, and relationships;
-5. identify any separately approved risky structural work; and
-6. state what the librarian must not infer.
+Before the owner sees anything, invoke the memory verifier and wait for its
+report. Give it:
 
-For Claude, invoke the installed `memory-librarian` project agent. For Codex,
-delegate to a subagent and instruct it to read
-`.claude/agents/memory-librarian.md` and
-`.claude/rules/second-brain.md` completely before writing.
+1. the exact drafted text and the destination path for each piece;
+2. a source for every claim, and which of the three kinds it is (it is in a
+   file, the owner said it, or the agent worked it out);
+3. the owner's actual words for anything of the second kind;
+4. the current worktree and branch; and
+5. which lines the owner wrote themselves, which are not to be checked.
 
-If the host cannot invoke a dedicated agent or the librarian cannot finish, do
-not silently replace it with an ad hoc main-agent write. Retry or report the
-failure and keep the task unfinished. The pull request may open under the
-project's Git workflow, but it does not merge as though the approved write
-succeeded unless the owner explicitly waives that update.
+For Claude, invoke the installed `memory-verifier` project agent in the
+foreground. For Codex, delegate to a subagent and instruct it to read
+`.claude/agents/memory-verifier.md` and `.claude/rules/second-brain.md`
+completely first. Either way, wait for the report. Nothing runs in the
+background, because a report that never arrives is the same as no check.
 
-The main agent must inspect the actual diff after the librarian finishes.
+Then fix what came back wrong, mark what could not be confirmed, show the owner
+the real words, and save what they approve. Run
+`node .claude/tools/memory-index-build.mjs` and then
+`node .claude/tools/memory-shape-check.mjs`. A failed shape check means the save
+is not finished.
+
+If the verifier cannot be invoked or cannot finish, say so. Do not save
+unchecked words as though they had been checked. Retry or report the failure,
+and keep the task unfinished. The pull request may open under the project's Git
+workflow, but it does not merge as though the check happened unless the owner
+explicitly waives it.
 
 ## Review parallel memory before merge
 
 When a pull request contains specification or memory changes, first bring the
 branch current through the project's Git workflow. Then invoke the memory
-librarian in read-only review mode. Give it the pull-request changes and ask it
+verifier again, in the foreground. Give it the pull-request changes and ask it
 to compare them with the latest relevant documents and indexes for:
 
 - the same durable truth placed in two different canonical files; and
 - conflicting current guidance that Git merged without a text conflict.
 
-The librarian reports `Clear` or names both paths and the concrete overlap or
-conflict. It does not discard another branch's information. Any repair that
-deletes, consolidates, moves, splits, or supersedes content requires the normal
-visible owner approval before the librarian writes it.
+The verifier sizes the read to the change: a new durable document gets the full
+read, an amendment gets that document and what it links to, a generated index
+line gets a quick look. It reports `Clear` or names both paths and the concrete
+overlap or conflict. It does not discard another branch's information, and it
+performs no repair. Any repair that deletes, consolidates, moves, splits, or
+supersedes content requires the normal visible owner approval, and the main
+agent makes it.
 
 ## Archived v1 boundary
 

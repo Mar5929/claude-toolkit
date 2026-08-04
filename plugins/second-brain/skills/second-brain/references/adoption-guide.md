@@ -10,7 +10,10 @@ Copy from this plugin:
 | Project destination | Plugin source |
 |---|---|
 | `.claude/rules/second-brain.md` | `references/second-brain-rule.md` |
-| `.claude/agents/memory-librarian.md` | `../../../agents/memory-librarian.md` from the plugin root |
+| `.claude/references/second-brain-reference.md` | `references/second-brain-reference.md` |
+| `.claude/agents/memory-verifier.md` | `../../../agents/memory-verifier.md` from the plugin root |
+| `.claude/tools/memory-index-build.mjs` | `../../../tools/memory-index-build.mjs` from the plugin root |
+| `.claude/tools/memory-shape-check.mjs` | `../../../tools/memory-shape-check.mjs` from the plugin root |
 | Root indexes | `references/templates/` |
 | Root orientation in `CLAUDE.md` and `AGENTS.md` | `references/orientation-snippet.md` |
 
@@ -103,7 +106,8 @@ Neither choice is implied by installing v3.
 After setup or adoption, confirm:
 
 - both root files route to the same canonical rule;
-- the memory-librarian role is present;
+- the memory-verifier role and both scripts in `.claude/tools/` are present,
+  and `node .claude/tools/memory-shape-check.mjs` passes;
 - every core index exists;
 - known specification areas and every populated memory area are indexed without
   hypothetical empty memory areas;
