@@ -204,14 +204,15 @@ inside the hook.
 
 **Explain it honestly.** Say what the owner will and will not see:
 
-> The rule says to check what is worth saving to memory when a piece of work
-> finishes. It gets skipped almost every time, because it is read once at the
-> start of a session and the moment it applies comes hours later. This holds the
-> command that opens a pull request, once per branch per session, and hands
-> Claude the rule at that moment. You never see a popup. Most of the time Claude
-> says "Nothing worth saving to memory here." and carries straight on. When
-> there is something, the pull request still opens right away and Claude shows
-> you a table of what it wants to save.
+> The rule says to check two things when a piece of work finishes: that a change
+> to what the system should do reached its specification, and what else is worth
+> saving to memory. It gets skipped almost every time, because it is read once
+> at the start of a session and the moment it applies comes hours later. This
+> holds the command that opens a pull request, once per branch per session, and
+> hands Claude the rule at that moment. You never see a popup. Most of the time
+> Claude says "Nothing to write and nothing worth saving here." and carries
+> straight on. When there is something, the pull request still opens right away
+> and Claude shows you a table of what it wants to write.
 
 Say the limits too, because both are real:
 
