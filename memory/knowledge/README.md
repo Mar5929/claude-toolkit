@@ -12,5 +12,5 @@ source, or inferred and unconfirmed.
 
 ## Areas
 
-No knowledge areas have been created yet. Add each real project area here with
-a one-sentence description.
+- [Hooks](hooks/README.md): what is understood about the hooks this repository
+  runs from `.claude/hooks/`, including how a hand check can mislead you.

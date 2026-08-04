@@ -8,5 +8,5 @@ decisions, or required behavior already clear in a specification.
 
 ## Areas
 
-No decision areas have been created yet. Add each real project area here with a
-one-sentence description.
+- [Root instructions](root-instructions/README.md): choices about `CLAUDE.md`
+  and `AGENTS.md`, the two files an agent reads first here.
