@@ -1,6 +1,6 @@
 {
   "name": "session-summary",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Recap a session as a table row per main request the owner made, each with an honest status, then a block naming whatever still needs them.",
   "author": {
     "name": "Mike Rihm",

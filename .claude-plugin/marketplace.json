@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Personal, portable toolkit of reusable Claude systems: skills, rules, hooks, and templates shared across every project and device.",
-    "version": "0.58.0"
+    "version": "0.59.0"
   },
   "plugins": [
     {
@@ -22,7 +22,7 @@
     {
       "name": "second-brain",
       "source": "./plugins/second-brain",
-      "description": "Git-native Markdown memory and knowledge for Claude and Codex, with natural stopping-point reviews, owner-approved librarian maintenance, and a pre-merge parallel-memory check."
+      "description": "Git-native Markdown memory and knowledge for Claude and Codex, with natural stopping-point reviews, a read-only verifier that checks every claim before the owner sees it, and a pre-merge parallel-memory check."
     },
     {
       "name": "git-workflows",
