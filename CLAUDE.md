@@ -27,6 +27,25 @@ What is specific to this repo, on top of that rule:
   the issue to `Ready`. Work may start then, and not before.
 - The spec is written into the GitHub issue body, since the board holds the work
   and this repo has no `work-items/` folder.
+- **The issue body holds the functional requirements and nothing else.** That is
+  the goal, why it matters, what has to be true for it to count as finished, the
+  use cases and scenarios, and what the person using it should experience. What
+  and why, never how. Keep out the file paths, the current version numbers, the
+  "replace the example under this heading", and the step-by-step build plan.
+  Those are implementation. They are read once, and they are wrong as soon as a
+  file moves or a version bumps.
+- **Everything else goes in the issue comments.** Progress, decisions made while
+  building, blockers, and pointers to files by relative path, such as
+  `plugins/session-summary/skills/session-summary/SKILL.md`. Comments are dated
+  and in order, so they carry the story of the work without letting it rot the
+  requirements. This is the same split the `work-tracker` plugin makes between
+  `SPEC.md` and `STATUS.md`. On this board, the body is the `SPEC.md` and the
+  comments are the `STATUS.md`.
+- Keeping both current is already required by `spec-before-you-build.md`, which
+  says a written requirement that goes stale is what makes an agent build
+  carefully to the wrong target. When direction changes, edit the body in that
+  same session rather than leaving the old target standing, and put the reason
+  for the change in a comment.
 - The `grill-me` skill is one way to run the refinement session, and using it is
   optional. What the rule requires is the session and the agreed spec, whether
   that comes from the skill or from a plain conversation.
