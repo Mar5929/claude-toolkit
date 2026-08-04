@@ -87,8 +87,10 @@ It never appears in the same confident voice as a checked fact. It is not
 quietly dropped either: the owner decides what happens to it.
 
 Every document under `memory/` carries a `Basis:` line directly under its
-one-sentence summary, with one of these values. A `README.md` index carries
-none, because it is navigation rather than a document.
+one-sentence summary, with one of these values. Every folder, not only knowledge
+and domain, because the shape check can only confirm a source line when every
+document has one. A `README.md` index carries none, because it is navigation
+rather than a document.
 
 - `Basis: Observed` when it was seen directly in the repository, configuration,
   or running system.
