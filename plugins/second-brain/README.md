@@ -69,20 +69,20 @@ in the project's ordinary artifact scaffolding.
 
 ## Main agent and memory librarian
 
-The main agent notices useful durable information and proposes it at approved
-completion points:
+The main agent notices information worth keeping and proposes it to the owner.
+When the check runs, what the proposal looks like, and what counts as approval
+are all written in one place: `skills/second-brain/references/second-brain-rule.md`,
+under `Write authority` and `Completion review`. This README does not restate
+them, because three slightly different wordings of the same rule is how they
+drifted apart before.
 
-- substantial task completion before a pull request is opened or merged;
-- the end of a brainstorm or requirements interview;
-- the end of a milestone or project phase; or
-- another natural stopping point after meaningful work with a settled durable
-  result.
+Two things worth knowing without opening that file:
 
-Ordinary replies, trivial actions, and unfinished handoffs do not cause repeated
-reviews. One review may satisfy several nearby stopping points.
-
-There is no proposal count limit. The owner approves, selects, edits, combines,
-defers, or skips proposals in normal language.
+- The check runs at the moment a pull request is opened. The pull request does
+  not wait for the owner's answer; it opens with the code in it and the approved
+  memory is added to the same branch before it is merged.
+- Asking the owner a yes-or-no question is not approval. The proposal is shown
+  as a table they can scan, and the librarian is invoked only after they answer.
 
 After approval, the main agent must invoke the on-demand memory librarian. It
 writes approved Markdown in the same task worktree and handles routine

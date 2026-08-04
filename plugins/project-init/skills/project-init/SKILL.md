@@ -158,20 +158,34 @@ the graph and names the connections that moved. Unlike the two guards above it
 is a Stop hook and it lives inside `tools/kb/`, because it imports the rest of
 the tool.
 
-**Every project**: offer the style reminder from the `hooks-library` plugin
-(`/hooks-library`). Every time the owner sends a message, it puts the project's
-output style back in front of the session. Offer it because measurement showed
-voice rules are stated clearly in several places and broken in a quarter to over
-half of all messages anyway: a rule applied once per message does not survive one
-delivery at session start. It only works next to an installed output style, so it
-pairs with Gate 5; if the owner skips the style, skip this too.
-Say the cost too: when it fires the turn takes slightly longer, because the
-reply is written twice.
+**Every project**: offer all three of the general hooks from the `hooks-library`
+plugin (`/hooks-library`). All three are default ON.
 
-> Other reusable hooks (secret-scan, session-start orientation, and starting the
-> durable-memory review once a pull request opens) are still planned for the
-> `hooks-library` plugin. Until they land, author any other hook for the project
-> directly. A hook may enforce a rule or start a review; no hook writes memory.
+- `style-reminder` puts the project's output style back in front of the session
+  every time the owner sends a message. Offer it because measurement showed
+  voice rules are stated clearly in several places and broken in a quarter to
+  over half of all messages anyway: a rule applied once per message does not
+  survive one delivery at session start.
+- `writing-guard` reads the finished reply and hands it back if an em dash or a
+  section sign slipped through, so the owner never sees the bad version. Say the
+  cost: when it fires the turn takes slightly longer, because the reply is
+  written twice.
+- `memory-pr-hook` holds the command that opens a pull request, once per branch
+  per session, so the memory check happens at the moment it applies rather than
+  being remembered from session start. Offer it because the same measurement
+  found the check is raised in 3.4% of turns at best and 0.5% at worst. It
+  points at `wrap-up-ritual.md`, so install that rule alongside it; a hook
+  pointing at a missing file is a dead end.
+
+`style-reminder` and `writing-guard` only work next to an installed output
+style, so they pair with Gate 5; if the owner skips the style, skip those two.
+`memory-pr-hook` does not depend on the style or on any memory system, and goes
+in either way.
+
+> Other reusable hooks (secret-scan and session-start orientation) are still
+> planned for the `hooks-library` plugin. Until they land, author any other hook
+> for the project directly. A hook may enforce a rule or start a review; no hook
+> writes memory.
 
 ### Gate 3: Memory system
 
@@ -299,9 +313,10 @@ list.
   first, a shape that matches the content, every fact kept, no filler, no em
   dashes, no section signs, quiet between tool calls, and the owner's actions at
   the end. There are no voice rules in `.claude/rules/` any more; do not write
-  one. Pair it with both Gate 2 hooks: `style-reminder` re-states the style on
-  every message so it does not go stale in a long session, and `writing-guard`
-  checks the finished reply for an em dash or a section sign. See
+  one. Pair it with the two Gate 2 style hooks: `style-reminder` re-states the
+  style on every message so it does not go stale in a long session, and
+  `writing-guard` checks the finished reply for an em dash or a section sign.
+  See
   `../../library/output-styles/README.md`. Tell the owner it takes effect on their
   next session, not the current one, and that a helper agent never sees an
   output style, which is why `follow-the-output-style.md` is in the rules folder.

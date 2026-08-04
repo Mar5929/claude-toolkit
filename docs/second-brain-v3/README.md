@@ -179,8 +179,10 @@ when Codex invokes the role through its own delegation mechanism.
 
 The main agent conducts a short durable-knowledge review only:
 
-- when a substantial task request is complete, before its pull request is
-  opened or merged;
+- when a substantial task request is complete, at the moment its pull request is
+  opened. The pull request does not wait for the owner's answer: it opens with
+  the code in it, and the approved memory is committed to the same branch before
+  it is merged;
 - at the end of a brainstorming or requirements interview;
 - at the end of a milestone or project phase; or
 - at another natural stopping point after meaningful work, when the owner ends

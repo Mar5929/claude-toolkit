@@ -86,12 +86,19 @@ so they always know where they are.
 - What needs guarding or automating? (deploy/env guard, secret guard,
   session-start orientation, format/lint)
 - Confirm exact trigger + action per hook; tell the user how to verify it fires.
-- Every project: offer both hooks from `hooks-library` (`/hooks-library`).
+- Every project: offer all three general hooks from `hooks-library`
+  (`/hooks-library`). All three are default ON.
   `style-reminder` re-states the project's output style every time the owner
   sends a message, so the voice instructions do not go stale in a long session.
   `writing-guard` reads the finished reply and blocks on an em dash or a section
-  sign, so a slip is caught rather than shipped. Both pair with Gate 5; skip them
-  if the owner skips the style.
+  sign, so a slip is caught rather than shipped. Those two pair with Gate 5;
+  skip them if the owner skips the style.
+  `memory-pr-hook` holds the command that opens a pull request, once per branch
+  per session, so the memory check happens at the moment it applies instead of
+  being remembered from session start. It needs neither the style nor a memory
+  system, so it goes in either way, but it does point at `wrap-up-ritual.md`:
+  install that rule alongside it, because a hook naming a missing file is a dead
+  end.
 - Salesforce / SFDX: both Salesforce guards ship from `hooks-library` alongside
   every other hook. Install that plugin (`/plugin install hooks-library`) and
   follow its two guides. It is needed only while setting them up: the install
@@ -171,8 +178,9 @@ so they always know where they are.
   `library/output-styles/plain-language.md` to `.claude/output-styles/` and set
   `"outputStyle": "plain-language"` in the committed `.claude/settings.json`.
   This is the only home for how Claude talks; there are no voice rules in
-  `.claude/rules/` any more. Pair it with both Gate 2 hooks: `style-reminder`
-  re-states it on every message, `writing-guard` checks the finished reply. Offer
+  `.claude/rules/` any more. Pair it with the two Gate 2 style hooks:
+  `style-reminder` re-states it on every message, `writing-guard` checks the
+  finished reply. Offer
   the machine-wide copy at `~/.claude/output-styles/` as well if the owner wants
   this voice in every project. Say that it starts on the owner's next session,
   and that a helper agent never sees an output style, which is what

@@ -70,6 +70,12 @@ A clear remember request approves the identified content. It does not require a
 second filing approval. If the content or intended meaning is unclear, ask one
 focused question or propose the specific durable takeaway.
 
+**Asking the owner a yes-or-no question is not approval.** They approve the
+proposal they were shown, not a promise to write something later. If the words
+that would be written are not in front of them, there is nothing to approve yet.
+Show the proposal first, in the shape below, and invoke the librarian only after
+they answer it.
+
 The main agent does not silently write specifications or memory itself. The
 memory librarian performs the approved Markdown update and routine organization.
 The main agent reviews the resulting diff and remains responsible for the task.
@@ -78,8 +84,10 @@ The main agent reviews the resulting diff and remains responsible for the task.
 
 Review for durable updates only:
 
-- when a substantial task request is complete, before its pull request is
-  opened or merged;
+- when a substantial task request is complete, at the moment its pull request is
+  opened. The pull request does not wait for the owner's answer: it opens with
+  the code in it, its description says what the review found, and the approved
+  memory is committed to the same branch before it is merged;
 - at the end of a brainstorming or requirements interview; and
 - at the end of a milestone or project phase; or
 - at another natural stopping point after meaningful work, when the owner ends
@@ -96,9 +104,12 @@ review merely because the chat, commit, and pull-request steps happen close
 together. Review again only when later work produces or changes a durable
 conclusion.
 
-A hook may start the review at one of the completion points above. That is the
+A hook may start the review at one of the completion points above, by holding
+the command that opens a pull request until the review is raised. That is the
 hook doing the remembering, not a new trigger: the review it starts is the same
-review, and the owner still approves every proposal it produces.
+review, and the owner still approves every proposal it produces. The hook only
+sees commands typed in the terminal, so this rule and `wrap-up-ritual.md` are
+the backup for every pull request it cannot see.
 
 Ask:
 
@@ -111,25 +122,35 @@ Ask:
 4. Which new or amended documents would help future work?
 5. Which indexes or relationships need routine maintenance?
 
-Report in plain language:
+Report in plain language, as a table the owner can scan in one pass. Number the
+rows so they can answer with a number:
 
-```text
-Already incorporated
-- Approved specification or memory changes already made during this task.
+```markdown
+Already incorporated: <approved specification or memory changes already made
+during this task, or "nothing">
 
-Proposed durable updates
-- Proposed destination
-- Concise content
-- Why it helps future work
-- Any risky or large structural change
+What to save to memory (3 items)
 
-No update recommended
-- State this plainly when nothing durable should be added.
+| # | What it says | Where it goes | Why it helps |
+|---|---|---|---|
+| 1 | A pull request never waits on the memory question. It opens, and the owner's answer is added to it before merge. | memory/decisions/ | Stops future sessions parking finished work overnight |
+| 2 | SessionEnd cannot stop a /clear or speak to the agent. | memory/knowledge/ | Saves rediscovering why the clear moment needs a rule, not a hook |
+| 3 | RISKY: replaces the current handoff rule | memory/decisions/ | Two installed rules say the opposite today |
+
+Approve all, tell me which to cut, or edit any row.
 ```
 
+The four things the owner needs are all there, as columns rather than bullets:
+where it goes, what it says, why it helps future work, and a flag on anything
+risky or large. A risky or large structural change is marked in its own row, in
+words, so it cannot be approved by accident.
+
+When nothing should be added, say so plainly in one line and show no table.
+
 There is no proposal count limit and no required approval phrase. The owner may
-approve all, approve selected items, edit, combine, defer, or skip them in
-normal language.
+approve all, approve selected rows, edit a row, combine, defer, or skip them in
+normal language. An edited row is written as the owner edited it, not as it was
+proposed.
 
 A deferred proposal is not an approved write and does not create a second-brain
 queue. Leave the durable documents unchanged. If the owner wants the possible

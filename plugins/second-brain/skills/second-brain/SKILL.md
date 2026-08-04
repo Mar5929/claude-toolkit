@@ -115,24 +115,18 @@ make the repository resemble a template.
 
 ## Main-agent completion review
 
-Read `.claude/rules/second-brain.md` and conduct its durable-update review only:
+Read `.claude/rules/second-brain.md` and conduct the memory check it describes.
+That rule owns when the check runs, what the proposal looks like, and what
+counts as approval. Do not paraphrase it here or anywhere else: three slightly
+different wordings of the same rule is how they drifted apart before.
 
-- at substantial task completion before the pull request is opened or merged;
-- at the end of a brainstorm or requirements interview; or
-- at the end of a milestone or project phase; or
-- at another natural stopping point after meaningful work, when the owner ends
-  or pauses the task and a settled durable result exists.
+Two things from it that are easy to get wrong, restated as pointers rather than
+as a second copy:
 
-An unfinished-session handoff, ordinary response, or commit does not trigger the
-review. A hook may start it at one of the completion points above.
-
-One review may satisfy several nearby completion points. Do not repeat it unless
-later work adds or changes a durable conclusion.
-
-Propose every useful durable update. There is no fixed limit. The owner may
-approve, select, edit, combine, defer, or skip proposals in normal language.
-A deferred proposal changes no durable document and creates no second-brain
-queue. Use the normal work tracker only when the owner wants follow-up tracked.
+- The check runs at the moment a pull request is opened, and the pull request
+  does not wait for the owner's answer.
+- Asking the owner a yes-or-no question is not approval. Show the proposal
+  first, then invoke the librarian.
 
 ## Invoke the memory librarian
 

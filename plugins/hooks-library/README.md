@@ -105,6 +105,68 @@ session.
 It fails open. Any unexpected error exits 0. A broken guard must never wedge a
 session.
 
+### memory-pr-hook
+
+A `PreToolUse` hook on the `Bash` matcher. It holds the command that opens a
+pull request, once per branch per session, so the agent runs the memory check at
+the moment it applies instead of forgetting it.
+
+**Why.** `wrap-up-ritual.md` already says to check what is worth saving when a
+piece of work finishes, and every toolkit project carries the rule. Counted from
+real transcripts, looking only at what the agent itself wrote:
+
+| Project | Check mentioned | Memory agent actually used |
+|---|---|---|
+| DragonFly | 3.4% of turns | 3.4% |
+| davis-advisors-sfdc | 0.5% | 12% |
+| claude-toolkit | 19% | 0% |
+
+The DragonFly agent described the failure itself, after opening five pull
+requests in a day and running the check on none of them: "The review is a step
+that exists only in a file I read at the start of the session, hundreds of tool
+calls earlier. By the time I reached the moment it applies, it was not in front
+of me."
+
+**What it knows, and it is all it knows.** A pull request is about to be opened,
+this project checks what to save to memory first, the rule is in
+`wrap-up-ritual.md`, and what was found goes in the pull request description.
+
+**What it must never contain.** No memory types or destinations, no check for
+whether any system is installed, no list of words that decides what is worth
+saving, and none of the wording of the check itself. Those all live in the
+rules. This is the test for whether it is built correctly, not a preference: the
+davis-advisors-sfdc project's memory hook went the other way with 46 text
+patterns, and its own log shows it firing on helper agent output and on messages
+from other sessions instead of on the owner's words.
+
+**It denies, it never asks.** An `ask` decision would put a permission popup in
+front of the owner on every pull request and let one click skip the check. The
+hold is handed to the agent, so the owner never sees it.
+
+**Held once per branch per session**, so the agent's own retry a moment later
+goes straight through. Every pull request in a session still gets held once.
+There is no cap, because the hold no longer blocks the owner.
+
+**It costs nothing on ordinary commands.** A command with no `gh` in it exits
+after one substring check, with no file read and no subprocess.
+
+It fails open. Any unexpected error exits 0 and the command runs.
+
+**Two limits, stated plainly rather than implied away:**
+
+1. **It cannot tell whether the check actually happened.** It only guarantees
+   the check is raised at the right moment. Every way of verifying it breaks the
+   rule above about what it must not contain: a marker written by the memory
+   agent would require knowing that system exists, and would hold forever in a
+   project without it; a marker written by the agent can be written without
+   doing the check; reading the transcript needs a list of words to look for,
+   which is the davis-advisors-sfdc mistake exactly. What closes most of the gap
+   is not the hook: every pull request description says what the check found, so
+   a skip is visible to the owner at merge time.
+2. **It only sees commands typed in the terminal.** A pull request opened on the
+   GitHub website, or by any other tool, is never seen. `wrap-up-ritual.md` is
+   the backup for those.
+
 ### The two Salesforce guards
 
 Both are `PreToolUse` hooks on the `Bash|PowerShell` matcher, written in Node so
@@ -136,6 +198,11 @@ project's `.claude/settings.json` and verifies it runs. `project-init` and
 `style-reminder` and `writing-guard` are only useful next to an installed output
 style, so install those together. `project-init` Gate 5 installs the style;
 `style-reminder` makes it repeat.
+
+`memory-pr-hook` goes into every project by default. It points at
+`wrap-up-ritual.md`, so the install checks that rule is present and offers it if
+it is not: a hook pointing at a missing file is a dead end. That check belongs in
+the skill, never in the hook.
 
 The two Salesforce guards install from their own guides in this folder,
 `salesforce-prod-guard-hook.md` and `salesforce-permset-guard-hook.md`, which
@@ -174,18 +241,40 @@ Optional, at `.claude/writing-guard.json` in the project root:
 Omit the file to get the two hard bans on, `filler-opener` off, and at most three
 blocks per session.
 
+### memory-pr-hook
+
+Optional, at `.claude/memory-pr-hook.json` in the project root:
+
+```json
+{
+  "enabled": true,
+  "maxHolds": 0
+}
+```
+
+Omit the file to get it on with no limit. `maxHolds` of 0 means no limit; it
+exists only as a safety valve against a runaway loop, not as a cap on how many
+pull requests get checked.
+
 ## Test
 
 ```
 node plugins/hooks-library/tests/style-reminder-harness.mjs
 node plugins/hooks-library/tests/writing-guard-harness.mjs
+node plugins/hooks-library/tests/memory-pr-hook-harness.mjs
 ```
 
-38 checks and 55 checks. In both harnesses, roughly half the checks assert the
-hook does **nothing**, and that weighting is deliberate. Both hooks fail in two
-directions and only one is visible. Injecting the wrong text or blocking a good
-reply is obvious; staying silent when it should have fired looks exactly like
+38 checks, 55 checks, and 52 checks. In all three harnesses, a large share of
+the checks assert the hook does **nothing**, and that weighting is deliberate.
+Each hook fails in two directions and only one is visible. Injecting the wrong
+text, blocking a good reply, or holding a command that was never opening a pull
+request is obvious; staying silent when it should have fired looks exactly like
 everything working.
+
+For `memory-pr-hook` the false-positive risk is real rather than theoretical:
+this repository writes about `gh pr create` in rules, tickets, commit messages,
+and prose, so a hook that matched the words anywhere in a line would fire
+constantly on text that is not a command.
 
 ## What was here before, and came back
 
@@ -206,7 +295,7 @@ Three jobs, and the admission bar is different for each.
 | Job | What it does | Bar |
 |---|---|---|
 | **Check** | Tests a finished output against a rule. | The rule must be checkable with no interpretation. If the check has to guess at intent it does not go here, because a wrong block costs the owner a turn. |
-| **Trigger** | Fires a process at a moment agents forget, such as starting the durable-memory review once a pull request opens. | The firing must need no judgement. What happens next is an agent's job and may need plenty. |
+| **Trigger** | Fires a process at a moment agents forget. `memory-pr-hook`, which starts the memory check when a pull request opens. | The firing must need no judgement. What happens next is an agent's job and may need plenty. |
 | **Orient** | Puts the installed rules or style in front of a session, at its start or on every turn. `style-reminder`. | The content must already exist and be canonical. The hook shows it; it does not restate or reinterpret it. |
 
 The original bar, "checkable with no interpretation," is the **check** bar only.
