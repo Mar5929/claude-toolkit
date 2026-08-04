@@ -81,9 +81,10 @@ deployment evidence, and client sources in the engagement folders above.
 
 **`.claude/`**: project-scoped Claude Code setup. Scaffold it empty at Gate 1
 with `rules/`, `hooks/`, `agents/`, and `settings.json`. Gate 2 adds approved
-guards. Gate 3 adds the v3 canonical rule and on-demand memory librarian when
-the owner selects second-brain. Gate 4 records the knowledge layer as included
-with v3. Neither gate adds memory hooks or retired v1 agents.
+guards. Gate 3 adds the v3 canonical rule, its routing reference in
+`references/`, the read-only memory verifier, and the two scripts in `tools/`,
+when the owner selects second-brain. Gate 4 records the knowledge layer as
+included with v3. Neither gate adds memory hooks or retired v1 agents.
 
 ## Config defaults
 

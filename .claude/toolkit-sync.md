@@ -17,7 +17,7 @@ three weeks later in another project.
 | 0. Orient | Done. Existing repository, not a new one, so this ran as a sync rather than an init. Node and Markdown, no application stack. |
 | 1. Scaffolding and work tracking | Already answered. Work is tracked on the `Claude-Toolkit-Project` board on GitHub. `CLAUDE.md` names it, and `spec-before-you-build.md` is installed alongside that pointer. No scaffolding was added: the folder layout already existed. |
 | 2. Hooks | Done, all three. `style-reminder`, `writing-guard`, and `memory-pr-hook`, copied into `.claude/hooks/` and registered in the committed `.claude/settings.json`. Each was run by hand in both directions before being called installed. |
-| 3. Second-brain v3 | Done, complete core. The canonical rule, the memory librarian, the memory routing in both root files, and every root index. |
+| 3. Second-brain v3 | Done, complete core. The canonical rule, the memory verifier, the memory routing in both root files, and every root index. |
 | 4. Knowledge layer | Included with Gate 3. The graphify code graph was offered and declined, see below. |
 | 5. Root instructions, rules, output style | Done. `CLAUDE.md` and `AGENTS.md` rewritten thin, `.claude/rules/` created with fourteen general rules plus the memory rule, and the plain-language output style installed and selected. |
 | 6. Optional toolkit skills | Done. `grill-me` was already on. `handoff` and `session-summary` were switched on in the machine settings at `~/.claude/settings.json`. |
@@ -63,7 +63,7 @@ contradict each other.
 
 Nothing about that is specific to this repository, and it is already answered by
 the pre-merge review in `.claude/rules/second-brain.md`: bring the branch
-current, then have the librarian compare the changed documents and indexes
+current, then have `memory-verifier` compare the changed documents and indexes
 against the latest project state before the pull request merges. What is
 specific here is that the review has to actually run, because this is the
 repository where several sessions at once is the normal way of working rather
@@ -84,8 +84,8 @@ plugin's `orientation-snippet.md`. Run it with the other two checks before
 opening a pull request.
 
 One passage in that shared block is allowed to differ, and only one:
-`.claude/rules/keep-claudemd-current.md` says Claude invokes the memory
-librarian agent directly and Codex cannot, so each root file states that
+`.claude/rules/keep-claudemd-current.md` says Claude invokes the
+`memory-verifier` agent directly and Codex cannot, so each root file states that
 obligation in the way its own program can act on. It sits between
 `<!-- host-specific:start -->` and `<!-- host-specific:end -->` in both files.
 The check requires exactly one such passage in each, refuses an empty one, and

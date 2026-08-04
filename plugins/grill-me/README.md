@@ -51,15 +51,16 @@ plan or specification elsewhere in the project.
 - It does not depend on second-brain. The Markdown capture remains usable even
   when memory tooling is unavailable.
 - When second-brain v3 is installed, `grill-me` adds the dated capture to the
-  flat brainstorm index. At interview completion it proposes resulting
-  specifications and other durable updates, then uses the memory librarian
-  after owner approval. Raw discovery remains non-authoritative and links both
-  ways to every resulting specification.
+  flat brainstorm index. At interview completion it drafts the resulting
+  specifications and other durable updates, has `memory-verifier` check them,
+  and saves what the owner approves. Raw discovery remains non-authoritative and
+  links both ways to every resulting specification.
 
-The owner-invoked raw brainstorm and its index entry are the narrow exception to
-second-brain's librarian-only write boundary. `grill-me` writes those checkpoints
-so an interrupted interview loses nothing. It never writes curated memory or an
-approved specification itself.
+The owner-invoked raw brainstorm and its index entry are the one place anything
+reaches a file without the owner approving the exact words first. `grill-me`
+writes those checkpoints so an interrupted interview loses nothing, and a
+brainstorm is never authoritative. It never writes curated memory or an approved
+specification itself.
 
 ## Maintaining this plugin
 

@@ -16,17 +16,21 @@ opened:
    code in it, say in its description what the check found, and show the owner
    the same list in chat. Their answer is added to the same pull request
    whenever it comes, ten seconds later or the next morning.
-5. **Write nothing to memory until the owner approves it.** Asking the owner a
-   yes-or-no question is not approval, because they cannot approve words they
-   have not read. After approval, invoke the memory librarian in this task's
-   worktree, commit the result to the same branch so it lands in the same pull
-   request, and review its diff. If the librarian cannot finish an approved
-   update, retry or report the failure and keep the task unfinished. Do not
-   merge as though it succeeded unless the owner explicitly waives it.
+5. **Check it before the owner sees it, and write nothing until they approve.**
+   Draft the real words, then have the memory verifier confirm every claim
+   against its source. Asking the owner a yes-or-no question is not approval,
+   because they cannot approve words they have not read, and they are the one
+   person who cannot tell whether a date or a count is wrong. After approval,
+   write the words in this task's worktree exactly as the owner saw or edited
+   them, rebuild the indexes, run the shape check, and commit to the same branch
+   so it lands in the same pull request. If the check cannot be run or the save
+   cannot finish, retry or report the failure and keep the task unfinished. Do
+   not merge as though it succeeded unless the owner explicitly waives it.
 6. Update the work-tracker status or handoff when the project uses one.
 7. Before merging a pull request containing specification or memory changes,
-   bring the branch current through the Git workflow and invoke the librarian
-   for the memory rule's read-only parallel duplicate and conflict review.
+   bring the branch current through the Git workflow and invoke the memory
+   verifier for the memory rule's read-only parallel duplicate and conflict
+   review, sized to how big the change is.
 8. Follow the project's Git workflow for commit, push, pull request, and merge.
 
 Every pull request description says what the check found, covering both halves

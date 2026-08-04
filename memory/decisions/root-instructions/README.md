@@ -9,6 +9,7 @@ canonical for what they say.
 ## Documents
 
 - [CLAUDE.md and AGENTS.md carry the same block, not a pointer](claude-md-and-agents-md-carry-the-same-block.md):
-  why the shared instructions are copied word for word into both files instead
-  of `AGENTS.md` pointing at `CLAUDE.md`, and what keeps the two copies
-  identical.
+  `AGENTS.md` holds a word for word copy of the shared instruction block in
+  `CLAUDE.md` rather than pointing at it, apart from one passage each program
+  has to word for itself, and a pair of markers plus an automatic check keeps
+  the two copies in step.

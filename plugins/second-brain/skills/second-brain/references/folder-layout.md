@@ -10,8 +10,13 @@ project/
   .claude/
     rules/
       second-brain.md
+    references/
+      second-brain-reference.md
     agents/
-      memory-librarian.md
+      memory-verifier.md
+    tools/
+      memory-index-build.mjs
+      memory-shape-check.mjs
   brainstorms/
     README.md
     <date>-<topic>.md
@@ -63,15 +68,19 @@ are not a universal list.
 An adopted installation always includes:
 
 - `.claude/rules/second-brain.md`;
-- `.claude/agents/memory-librarian.md`;
+- `.claude/references/second-brain-reference.md`;
+- `.claude/agents/memory-verifier.md`;
+- `.claude/tools/memory-index-build.mjs` and
+  `.claude/tools/memory-shape-check.mjs`;
 - the same compact route in `CLAUDE.md` and `AGENTS.md`;
 - `brainstorms/README.md`;
 - `specs/README.md`;
 - `memory/README.md`; and
 - all seven typed memory root folders and indexes.
 
-Do not offer partial variants that omit the canonical rule, memory librarian,
-root routes, or one of the seven typed memory homes.
+Do not offer partial variants that omit the canonical rule, the reference, the
+memory verifier, either script, the root routes, or one of the seven typed
+memory homes.
 
 ## Proportionate growth
 

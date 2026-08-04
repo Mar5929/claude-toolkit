@@ -146,7 +146,7 @@ these two parts, in this order.
 | 2 | Consolidate DragonFly and my personal rules folder | ✅ **Done** | DragonFly: 34 rule files down to 27, merged into main. Personal folder: 16 down to 13. One rule was nearly lost in the deletion and had to be put back in its own file. |
 | 3 | Port `small-deployable-changes.md` to the toolkit | ⛔ **Dropped** | You said no. |
 | 4 | Fix the broken link in the decision document | ✅ **Done** | Fixed twice. The first fix pointed at the wrong file and the review caught it. |
-| 5 | Why call the memory librarian before proposing? | 💬 **Answered** | You were right about the process. There is no memory hook here, so proposing is my job. |
+| 5 | Why run the memory verifier before proposing? | 💬 **Answered** | So you never get asked to approve a claim nobody checked. |
 | 6 | Merge it | ✅ **Done** | Pull request 29 is in main. Two other pull requests landed mid-session, so the branch had to be brought current first. |
 
 ---

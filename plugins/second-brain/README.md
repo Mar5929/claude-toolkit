@@ -23,16 +23,19 @@ project, use `project-sync` so adoption begins with a read-only audit.
 
 - **second-brain** (`/second-brain`): explains, installs, audits, adopts,
   reviews, and maintains the complete v3 system.
-- **remember** (`/remember`): sends a clear owner-approved request to the
-  on-demand memory librarian for placement and writing. It routes first: a
-  statement about what the system should do goes to `specs/`, everything else
-  to the typed memory folders.
+- **remember** (`/remember`): drafts the real words for a clear owner-approved
+  request, has the memory verifier check every claim, shows the owner what will
+  be written, and saves it. It routes first: a statement about what the system
+  should do goes to `specs/`, everything else to the typed memory folders.
 
 ## What v3 installs
 
 ```text
 .claude/rules/second-brain.md
-.claude/agents/memory-librarian.md
+.claude/references/second-brain-reference.md
+.claude/agents/memory-verifier.md
+.claude/tools/memory-index-build.mjs
+.claude/tools/memory-shape-check.mjs
 brainstorms/README.md
 specs/README.md
 memory/README.md
@@ -69,28 +72,42 @@ relationships, handoffs, branches, pull requests, and landing proof. Raw
 meetings, transcripts, communications, deliverables, and source exports remain
 in the project's ordinary artifact scaffolding.
 
-## Main agent and memory librarian
+## Who does what
 
-The main agent notices information worth keeping and proposes it to the owner.
+**The main agent writes, and owns whether it is true.** It drafts the exact
+words, it saves them after the owner approves, and it never hands correctness to
+somebody else. That one sentence is the division of labour, written down here
+because it was never settled before and both sides assumed the other was
+checking.
+
+**The memory verifier checks, and never writes.** It has no Write or Edit tool.
+It confirms each claim against its stated source, flags anything nobody can
+confirm, and reports facts that already have a home. Then it stops.
+
 When the check runs, what the proposal looks like, and what counts as approval
-are all written in one place: `skills/second-brain/references/second-brain-rule.md`,
-under `Write authority` and `Completion review`. This README does not restate
-them, because three slightly different wordings of the same rule is how they
-drifted apart before.
+are all written in one place:
+`skills/second-brain/references/second-brain-rule.md`, under `Who may write, and
+who may not` and `When to run this`. This README does not restate them, because
+three slightly different wordings of the same rule is how they drifted apart
+before.
 
-Two things worth knowing without opening that file:
+Three things worth knowing without opening that file:
 
 - The check runs at the moment a pull request is opened. The pull request does
   not wait for the owner's answer; it opens with the code in it and the approved
   memory is added to the same branch before it is merged.
-- Asking the owner a yes-or-no question is not approval. The proposal is shown
-  as a table they can scan, and the librarian is invoked only after they answer.
+- **Checking happens before the owner sees anything.** The owner is the one
+  person who cannot tell whether "nine months" should say "four days", so
+  nothing unchecked reaches them.
+- Asking the owner a yes-or-no question is not approval. They are shown the real
+  words that would be saved, already checked, not a table describing them.
 
-After approval, the main agent must invoke the on-demand memory librarian. It
-writes approved Markdown in the same task worktree and handles routine
-placement, indexes, and required structural links. It may delete, move, merge,
-split, or supersede content when the exact structural change was visibly
-owner-approved. Memory is maintained, not merely accumulated.
+Two scripts do the mechanical part in about a second.
+`memory-index-build.mjs` builds each index's list of documents from the
+documents themselves, so a list cannot fall out of step with its folder.
+`memory-shape-check.mjs` confirms every document has a title, a one-sentence
+summary, a source line, an allowed folder, and an index entry. A failed shape
+check means the save is not finished.
 
 If an approved write fails, the task remains unfinished and the pull request
 does not merge as though it succeeded unless the owner explicitly waives it. A
@@ -98,14 +115,14 @@ deferred proposal changes no durable document and creates no memory queue.
 
 Before a pull request containing specification or memory changes merges, the
 branch is brought current through the existing Git workflow. The main agent then
-invokes the librarian for a read-only comparison with the latest memory and
-indexes. It reports duplicate canonical homes or conflicting current truth that
-parallel branches placed in different files, where Git cannot detect a text
-conflict.
+invokes the verifier for a read-only comparison with the latest memory and
+indexes, sized to how big the change is. It reports duplicate canonical homes or
+conflicting current truth that parallel branches placed in different files,
+where Git cannot detect a text conflict. It performs no repair.
 
-A clear `remember this` request directly approves saving the identified
-content. An ambiguous request receives one focused question or a proposed
-durable takeaway.
+A clear `remember this` request directly approves saving the identified content.
+An ambiguous request receives one focused question or a proposed durable
+takeaway.
 
 ## Greenfield and brownfield use
 
@@ -136,8 +153,8 @@ and unknowns whenever confusing them could mislead future work.
 
 A hook from the `hooks-library` plugin may enforce a rule or start the durable
 review at a completion point. That is the hook doing the remembering an agent
-skips. The owner still approves every proposal, and the memory librarian still
-does every specification and curated-memory write. An owner-invoked `grill-me`
+skips. The owner still approves every proposal, and every proposal is still
+checked by the memory verifier before they see it. An owner-invoked `grill-me`
 session writes only its raw, non-authoritative brainstorm checkpoints and index
 entry.
 
@@ -181,10 +198,15 @@ only safe while the links resolve.
 
 ## Canonical design
 
-The shipped behavior is specified under
-[`docs/second-brain-v3/`](../../docs/second-brain-v3/README.md). The old v2
-proposal remains superseded historical material and is not a v3 requirements
-source.
+This README, the shipped rule at
+[`skills/second-brain/references/second-brain-rule.md`](skills/second-brain/references/second-brain-rule.md),
+its longer companion
+[`second-brain-reference.md`](skills/second-brain/references/second-brain-reference.md),
+the agent at [`agents/memory-verifier.md`](agents/memory-verifier.md), and the
+two scripts under [`tools/`](tools/) are the design. There is no separate design
+document set. Issue #144 deleted the one that existed, because a second
+description of the same system is a second thing to keep in step, and it had
+already drifted.
 
 ## Maintaining this plugin
 

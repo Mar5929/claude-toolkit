@@ -169,7 +169,10 @@ secrets rule even if the prose differs. Typical checks:
 - **Second-brain v3 status:** v3 is the current Markdown and Git system. Audit
   it as one coherent installation:
   - `.claude/rules/second-brain.md`;
-  - `.claude/agents/memory-librarian.md`;
+  - `.claude/references/second-brain-reference.md`;
+  - `.claude/agents/memory-verifier.md`;
+  - `.claude/tools/memory-index-build.mjs` and
+    `.claude/tools/memory-shape-check.mjs`;
   - the full memory section, identical and first, in `CLAUDE.md` and
     `AGENTS.md`;
   - `brainstorms/README.md`;
@@ -180,6 +183,17 @@ secrets rule even if the prose differs. Typical checks:
   Classify v3 as present only when the complete core exists. A few similar
   folders without the shared rule and role are existing project documentation,
   not an installed v3 system.
+- **The old `memory-librarian` name:** a project set up before the rename has
+  `.claude/agents/memory-librarian.md` and a rule that names it. That project
+  still works, so this is a gap to close, not a break to report as urgent.
+  Detect it by the presence of `memory-librarian.md`, or by any text in
+  `.claude/`, `CLAUDE.md`, or `AGENTS.md` naming `memory-librarian` or "memory
+  librarian". Report it as one gap covering four things: the agent file, the
+  rule and its new companion reference, the two scripts, and every mention of
+  the old name in the project's own rules and root files. Files under the
+  project's `brainstorms/` or `archive/` folders keep the old name, because they
+  are dated records of past sessions. Say that in the report so the owner is not
+  surprised that some matches are being left alone.
 - **V3 document map:** inventory existing specifications, brainstorms, ADRs,
   architecture and system maps, roadmaps, project overviews, runbooks,
   glossaries, references, and raw artifact folders. Report likely canonical
@@ -411,7 +425,8 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   it from `../../library/rules/general/` if it is not. Say plainly what changes
   for the owner: nothing on most work, because the agent answers "Nothing worth
   saving to memory here." and carries on. When there is something, the pull
-  request still opens right away and they get a table to approve, cut, or edit.
+  request still opens right away and they get the real words, already checked,
+  to approve, cut, or edit.
 - **An older `writing-guard` in a project is an upgrade, not a removal.** #101
   retired the hook and #102 brought it back narrower, so a project that kept its
   old copy was right to. Offer to replace the script with the current one and
@@ -423,8 +438,8 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   brownfield adoption guide:
   1. keep the audit read-only until the owner approves exact treatments;
   2. show the complete core plus real project-specific system areas;
-  3. use the plugin's canonical rule, role, orientation snippet, and index
-     templates rather than retyping them;
+  3. use the plugin's canonical rule, routing reference, role, two scripts,
+     orientation snippet, and index templates rather than retyping them;
   4. preserve good existing homes;
   5. treat each existing source as keep and link, move with approval,
      consolidate with approval, or leave unresolved; and
@@ -432,6 +447,30 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   Do not mass-move, duplicate, delete, or declare current truth to make an
   existing project resemble a template. Risky or large structural work must be
   separately visible and approved.
+- **For an approved `memory-librarian` rename gap, move the project across in
+  this order**, so it is never left half-way:
+  1. Copy `.claude/references/second-brain-reference.md` and both scripts into
+     `.claude/tools/` from the plugin. Nothing points at them yet, so this is
+     safe on its own.
+  2. Copy `memory-verifier.md` into `.claude/agents/`. Both agent files now
+     exist. The old one is still what the rule names, so the project keeps
+     working.
+  3. Replace `.claude/rules/second-brain.md` with the current version, and
+     update the memory section in `CLAUDE.md` and `AGENTS.md` from the plugin's
+     `references/orientation-snippet.md`. From here the project uses the
+     verifier.
+  4. Update every other mention of the old name in the project's own rules and
+     root files, in the project's existing voice. Leave `brainstorms/` and
+     `archive/` alone.
+  5. Delete `.claude/agents/memory-librarian.md` last, once nothing names it.
+     Confirm that with a search before deleting.
+  Then run `node .claude/tools/memory-shape-check.mjs` and
+  `node .claude/tools/memory-index-build.mjs --check` and report what they say.
+  A project whose existing memory documents were written before the `Basis:`
+  line was required will fail the shape check. That is expected, not a broken
+  install: report each document that needs a `Basis:` line and offer to add
+  them, remembering that only the owner can say whether a given document is
+  `Observed`, `Owner-confirmed`, `Source`, or `Inferred, unconfirmed`.
 - Do not install second-brain v1 or import its content. For an existing v1
   project, offer the following separately after reporting the exact local
   scope:

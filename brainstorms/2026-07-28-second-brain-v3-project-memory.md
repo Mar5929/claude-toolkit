@@ -601,16 +601,22 @@ four approved structural cases.
 
 ## Resulting specifications
 
-- [Second-brain v3 overview](../docs/second-brain-v3/README.md)
-  - Presents the approved design in plain language and diagrams.
-- [Technical specification](../docs/second-brain-v3/TECHNICAL-SPECIFICATION.md)
-  - Defines authority, agent roles, workflows, concurrency, adoption, and
-    acceptance behavior.
-- [Markdown schemas](../docs/second-brain-v3/MARKDOWN-SCHEMAS.md)
-  - Defines the flexible folder and document shapes produced by the design.
-- [Toolkit integration](../docs/second-brain-v3/TOOLKIT-INTEGRATION.md)
-  - Defines how the second-brain, project-init, project-sync, grill-me,
-    work-tracker, Claude, and Codex components fit together.
+This brainstorm produced four design documents under `docs/second-brain-v3/`:
+an overview, a technical specification, a set of Markdown schemas, and a
+toolkit integration document. Issue #144 deleted all four, because a second
+description of the system is a second thing to keep in step, and it had already
+drifted from the shipped files.
+
+What the design turned into now lives in the second-brain plugin itself:
+
+- [The plugin README](../plugins/second-brain/README.md)
+  - What the system is and what it ships.
+- [The shipped rule](../plugins/second-brain/skills/second-brain/references/second-brain-rule.md)
+  - How a save works, who does which part, and where things go.
+- [The routing reference](../plugins/second-brain/skills/second-brain/references/second-brain-reference.md)
+  - What each home is for, opened when routing is unclear.
+- [The memory verifier](../plugins/second-brain/agents/memory-verifier.md)
+  - The read-only role that checks a draft before the owner sees it.
 
 ## Open flags (pending input)
 

@@ -5,6 +5,8 @@
 to word for itself, and a pair of markers plus an automatic check keeps the two
 copies in step.
 
+Basis: Owner-confirmed 2026-08-04.
+
 Decided on 2026-08-04, while setting this repository up with its own toolkit for
 GitHub issue #138.
 
@@ -51,7 +53,7 @@ not happened.
 The copy is word for word apart from a single passage. The rule that grants that
 exception and owns its wording is
 [`keep-claudemd-current.md`](../../../.claude/rules/keep-claudemd-current.md):
-under "How to write", Claude invokes the memory librarian agent directly and
+in the steps for a save, Claude invokes the `memory-verifier` agent directly and
 Codex cannot, so each root file states the same obligation in the way its own
 program can act on it. The rule says not to "fix" either file to match the other.
 

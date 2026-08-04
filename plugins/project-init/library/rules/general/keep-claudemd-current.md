@@ -89,13 +89,13 @@ Never let the two root files carry different authority maps, and never shorten
 one of them into a summary; copy the section from the second-brain plugin's
 `references/orientation-snippet.md` verbatim.
 
-One sentence inside the section is allowed to differ, and only this one. Under
-"How to write", CLAUDE.md tells the session to invoke the memory librarian at
-`.claude/agents/memory-librarian.md`, which is a Claude Code agent file. Codex
+One passage inside the section is allowed to differ, and only this one. In the
+steps for a save, CLAUDE.md tells the session to invoke `memory-verifier` at
+`.claude/agents/memory-verifier.md`, which is a Claude Code agent file. Codex
 cannot invoke it, so AGENTS.md instead tells the session to delegate to a
 subagent and have that subagent read both that file and
-`.claude/rules/second-brain.md` in full before writing. Same obligation, two
-programs. Do not "fix" either one to match the other.
+`.claude/rules/second-brain.md` in full first. Same obligation, two programs.
+Do not "fix" either one to match the other.
 
 When trimming CLAUDE.md, this section is not a candidate. It stays first and
 stays whole.

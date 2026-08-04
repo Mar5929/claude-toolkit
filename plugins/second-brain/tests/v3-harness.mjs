@@ -9,6 +9,7 @@ import {
   rmSync,
   writeFileSync,
 } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -48,7 +49,11 @@ const secondBrainSkill =
 const rememberSkill = "plugins/second-brain/skills/remember/SKILL.md";
 const rule =
   "plugins/second-brain/skills/second-brain/references/second-brain-rule.md";
-const role = "plugins/second-brain/agents/memory-librarian.md";
+const role = "plugins/second-brain/agents/memory-verifier.md";
+const reference =
+  "plugins/second-brain/skills/second-brain/references/second-brain-reference.md";
+const indexBuilder = "plugins/second-brain/tools/memory-index-build.mjs";
+const shapeCheck = "plugins/second-brain/tools/memory-shape-check.mjs";
 const adoption =
   "plugins/second-brain/skills/second-brain/references/adoption-guide.md";
 const layout =
@@ -77,8 +82,13 @@ includes(
 );
 includes(
   secondBrainSkill,
-  "Invoke the memory librarian",
-  "second-brain delegates approved writes",
+  "The main agent owns whether what gets written is true",
+  "second-brain puts correctness on the main agent",
+);
+includes(
+  secondBrainSkill,
+  "invoke the memory verifier and wait",
+  "second-brain checks the draft before the owner sees it",
 );
 // These three used to assert the skill restated the rule's completion review.
 // It now points at the rule instead, because three slightly different wordings
@@ -122,8 +132,18 @@ includes(
 );
 includes(
   rememberSkill,
-  "Invoke the dedicated memory librarian",
-  "remember uses the dedicated librarian",
+  "Check it before the owner sees it",
+  "remember checks before the owner sees anything",
+);
+includes(
+  rememberSkill,
+  "Show the real words",
+  "remember shows the words that will be written, not a summary",
+);
+includes(
+  rememberSkill,
+  "take the smallest path",
+  "remember has a smallest path for a one-line save",
 );
 includes(
   rememberSkill,
@@ -162,8 +182,8 @@ for (const type of [
   );
 }
 
-includes(rule, "AI judgment", "rule preserves AI judgment");
-includes(rule, "There is no proposal count limit", "rule has no proposal cap");
+includes(reference, "use judgment over these", "reference preserves AI judgment");
+includes(rule, "no proposal limit", "rule has no proposal cap");
 includes(
   rule,
   "at the moment its pull request is",
@@ -184,18 +204,23 @@ includes(
 );
 includes(
   rule,
-  "One review may satisfy several completion points",
+  "One review may satisfy several nearby stopping points",
   "rule prevents repeated unchanged reviews",
 );
 includes(
   rule,
-  "does not create a second-brain\nqueue",
+  "creates no queue",
   "rule creates no hidden queue for deferred proposals",
 );
 includes(
   rule,
-  "Pre-merge parallel-memory review",
+  "## Before a merge",
   "rule checks parallel semantic conflicts before merge",
+);
+includes(
+  rule,
+  "sized to the change",
+  "rule scales the pre-merge review to the size of the change",
 );
 includes(
   rule,
@@ -204,13 +229,13 @@ includes(
 );
 includes(
   rule,
-  "specification, code, and tests together",
+  "the tests together",
   "rule aligns requirements with implementation",
 );
 includes(
-  rule,
+  reference,
   "Only these links are mandatory",
-  "rule limits mandatory relationships",
+  "reference limits mandatory relationships",
 );
 includes(
   rule,
@@ -218,9 +243,9 @@ includes(
   "rule defines supersession",
 );
 includes(
-  rule,
-  "observed behavior",
-  "rule distinguishes observation from inference",
+  reference,
+  "Observed behavior, an agent",
+  "reference distinguishes observation from inference",
 );
 includes(
   rule,
@@ -229,30 +254,86 @@ includes(
 );
 excludes(rule, "YAML frontmatter is required", "rule has no required YAML");
 
-includes(role, "requesting task worktree", "role stays in task worktree");
-includes(role, "Routine filing", "role owns routine filing");
+includes(role, "You check. You never write.", "verifier never writes");
 includes(
   role,
-  "risky or large structural change",
-  "role protects risky structural changes",
-);
-includes(role, "Do not add other backlinks", "role avoids backlink noise");
-includes(role, "Never do these", "role declares prohibited actions");
-includes(role, "main agent must inspect", "role requires main-agent review");
-includes(
-  role,
-  "summary immediately after the title",
-  "librarian uses the shared summary position",
+  "Never use Write or Edit. You do not have them.",
+  "verifier has no writing tools",
 );
 includes(
   role,
-  "Pre-merge parallel-memory review",
-  "librarian can perform the read-only parallel review",
+  "Bash is for reading only",
+  "verifier's shell access is read-only",
+);
+excludes(
+  role,
+  "tools: Read, Write",
+  "verifier is not granted Write in its frontmatter",
+);
+includes(role, "### It is in a file", "verifier checks the in-a-file source");
+includes(role, "### The owner said it", "verifier checks what the owner said");
+includes(
+  role,
+  "### The agent worked it out",
+  "verifier separates what nobody can confirm",
 );
 includes(
   role,
-  "valid memory\nmaintenance operations",
-  "librarian may perform approved cleanup",
+  "Verdict `Unchecked`",
+  "verifier marks an unconfirmable claim rather than dropping it",
+);
+includes(
+  role,
+  "Your report goes back to whoever called you",
+  "verifier hands its report back without being asked",
+);
+includes(
+  role,
+  "Arithmetic and dates",
+  "verifier rechecks the arithmetic that produced the nine-months error",
+);
+includes(
+  role,
+  "Does this already have a home?",
+  "verifier looks for an existing home before a fact is proposed",
+);
+includes(role, "Never do these", "verifier declares prohibited actions");
+includes(
+  role,
+  "duplicate and conflict review before a merge",
+  "verifier can perform the read-only parallel review",
+);
+includes(
+  role,
+  "Size the review to the change",
+  "verifier scales the pre-merge review",
+);
+includes(
+  role,
+  "Report the finding. Never perform the repair.",
+  "verifier reports repairs instead of making them",
+);
+
+// The two scripts do the mechanical part, which is what stops an agent being
+// asked to enforce a schema by reading a long rule.
+includes(shapeCheck, "Basis:", "shape check enforces the source line");
+includes(shapeCheck, "does not link to it", "shape check enforces the index entry");
+includes(
+  indexBuilder,
+  "build the list of documents in every index from the",
+  "index builder says its output comes from the documents",
+);
+includes(
+  indexBuilder,
+  "is left exactly as it is",
+  "index builder leaves hand-written prose alone",
+);
+includes(rule, "memory-index-build.mjs", "rule names the index builder");
+includes(rule, "memory-shape-check.mjs", "rule names the shape check");
+includes(rule, "second-brain-reference.md", "rule points at the longer reference");
+ok(
+  read(rule).split("\n").length < 400,
+  "the always-loaded rule stays short enough to load every session",
 );
 
 includes(
@@ -342,7 +423,7 @@ includes(
 );
 includes(
   grillMe,
-  "narrow second-brain exception",
+  "write only its non-authoritative",
   "grill-me limits its direct writes to raw checkpoints",
 );
 // Searched without the line break it used to carry. Where the sentence wraps is
@@ -355,7 +436,7 @@ includes(
 );
 includes(
   wrapUp,
-  "read-only parallel duplicate and conflict review",
+  "parallel duplicate and conflict",
   "wrap-up invokes the parallel-memory review before merge",
 );
 includes(
@@ -391,10 +472,17 @@ try {
   cpSync(templates, fixture, { recursive: true });
   mkdirSync(resolve(fixture, ".claude/rules"), { recursive: true });
   mkdirSync(resolve(fixture, ".claude/agents"), { recursive: true });
+  mkdirSync(resolve(fixture, ".claude/references"), { recursive: true });
+  mkdirSync(resolve(fixture, ".claude/tools"), { recursive: true });
   cpSync(resolve(references, "second-brain-rule.md"),
     resolve(fixture, ".claude/rules/second-brain.md"));
-  cpSync(resolve(plugin, "agents/memory-librarian.md"),
-    resolve(fixture, ".claude/agents/memory-librarian.md"));
+  cpSync(resolve(references, "second-brain-reference.md"),
+    resolve(fixture, ".claude/references/second-brain-reference.md"));
+  cpSync(resolve(plugin, "agents/memory-verifier.md"),
+    resolve(fixture, ".claude/agents/memory-verifier.md"));
+  for (const tool of ["memory-index-build.mjs", "memory-shape-check.mjs"]) {
+    cpSync(resolve(plugin, "tools", tool), resolve(fixture, ".claude/tools", tool));
+  }
 
   const orientationText = readAbsolute(resolve(references,
     "orientation-snippet.md"));
@@ -409,7 +497,10 @@ try {
   for (const path of [
     ...requiredTemplates,
     ".claude/rules/second-brain.md",
-    ".claude/agents/memory-librarian.md",
+    ".claude/references/second-brain-reference.md",
+    ".claude/agents/memory-verifier.md",
+    ".claude/tools/memory-index-build.mjs",
+    ".claude/tools/memory-shape-check.mjs",
     "CLAUDE.md",
     "AGENTS.md",
   ]) {
@@ -442,6 +533,14 @@ try {
     "greenfield memory core installs no hooks, runtime scripts, or memory MCP",
   );
 
+  // The index list is generated, not typed. Build it in the fixture the way a
+  // real save does, then confirm every typed home turns up in it. Asserting
+  // against a hand-typed list would test the very thing this replaced.
+  execFileSync(
+    process.execPath,
+    [resolve(fixture, ".claude/tools/memory-index-build.mjs")],
+    { cwd: fixture, encoding: "utf8" },
+  );
   const memoryIndex = readAbsolute(resolve(fixture, "memory/README.md"));
   for (const type of [
     "context",
@@ -506,17 +605,13 @@ includes(
   "The `Basis:` line is mandatory",
   "schemas require the basis line",
 );
-includes(rule, "Allowed basis values", "rule defines the allowed basis values");
+includes(rule, "`Basis: Observed`", "rule defines the allowed basis values");
 includes(
   rule,
   "Inferred, unconfirmed",
   "rule names the unconfirmed-inference basis",
 );
-includes(
-  role,
-  "Basis:",
-  "memory librarian must write the basis line",
-);
+includes(role, "Basis:", "verifier checks for the basis line");
 includes(orientation, "Project memory and knowledge", "orientation is present");
 
 // A memory document that has nowhere to put a link restates what it should
@@ -550,36 +645,19 @@ includes(
   "schemas keep retained superseded documents indexed",
 );
 includes(
-  rule,
+  reference,
   "## Repetition",
-  "rule owns one home for what to do about repetition",
+  "reference owns one home for what to do about repetition",
 );
 includes(
-  rule,
-  "would otherwise restate",
-  "rule makes the anti-duplication link mandatory",
-);
-includes(
-  rule,
-  "Labels are plain description, not a fixed vocabulary",
-  "rule lists example labels without minting a vocabulary",
-);
-includes(
-  role,
+  reference,
   "otherwise restate, one direction",
-  "librarian carries the fifth mandatory link",
+  "reference makes the anti-duplication link mandatory",
 );
 includes(
-  role,
-  "is a copy of `Relationships`",
-  "librarian labels its copy of the mandatory link list",
-);
-// The link rule only fires if something sends the librarian looking. Hang it
-// off the search it already runs rather than a principle stated further down.
-includes(
-  role,
-  "The\n   same search answers a second question",
-  "librarian searches for restated content, not just for placement",
+  reference,
+  "Labels are plain description, not a fixed vocabulary",
+  "reference lists example labels without minting a vocabulary",
 );
 includes(
   orientation,
@@ -587,51 +665,19 @@ includes(
   "root orientation points at the repetition rule",
 );
 
-// The design docs once said the routing schema is never copied into the root
-// files, while the shipped system copies it on purpose. Two documents that
-// disagree are the exact failure the repetition rule exists to prevent.
-const designDocs = [
-  ["docs/second-brain-v3/README.md", "without maintaining three copies"],
-  [
-    "docs/second-brain-v3/TECHNICAL-SPECIFICATION.md",
-    "complete schema is not copied",
-  ],
-  [
-    "docs/second-brain-v3/TOOLKIT-INTEGRATION.md",
-    "full schema is not copied into root files",
-  ],
-];
-
-for (const [doc, contradiction] of designDocs) {
-  excludes(doc, contradiction, `${doc} matches the shipped root-file copy`);
-}
-
-for (const doc of [
-  "docs/second-brain-v3/README.md",
-  "docs/second-brain-v3/TECHNICAL-SPECIFICATION.md",
-  "docs/second-brain-v3/TOOLKIT-INTEGRATION.md",
-  "docs/second-brain-v3/MARKDOWN-SCHEMAS.md",
-]) {
-  excludes(doc, "plugin v1.", `${doc} carries no stale plugin version`);
-}
-
-excludes(
-  "docs/second-brain-v3/TECHNICAL-SPECIFICATION.md",
-  "one-sentence summary near the start",
-  "technical specification uses the runtime summary position",
-);
-excludes(
-  "docs/second-brain-v3/TECHNICAL-SPECIFICATION.md",
-  "remove it from current index listings or label it clearly",
-  "technical specification keeps superseded documents discoverable",
-);
+// Nine checks used to live here, reading the four design documents under
+// docs/second-brain-v3/. They existed to catch those documents drifting away
+// from the shipped rule, the snippet, and the root files. Issue #144 deleted
+// the design documents, so there is no second description left to drift: the
+// shipped rule, its reference, the agent file, and the two scripts are the
+// only description of the system now, and the checks above already cover them.
 
 // V3 originally banned hooks outright, which conflated "nothing writes memory
 // automatically" (still true, and why v1 was retired) with "no automation may
 // enforce a rule" (over-reach). The approval promise is what must survive.
 includes(
   rule,
-  "Nothing reaches curated memory automatically",
+  "Nothing reaches memory automatically",
   "rule keeps the approval promise",
 );
 includes(

@@ -54,9 +54,10 @@ terminal command carrying no instructions, so it needs a hook to interrupt it.
   rule about what is worth keeping. All of that belongs to the project's own
   rules, which is why it works unchanged in a project that has no memory system:
   the memory step is skipped and everything worth keeping goes into the prompt.
-- **Not a writer of memory.** It proposes; the owner approves; the memory
-  librarian writes. Asking a yes-or-no question is not approval, because the
-  owner cannot approve words they have not read.
+- **Not a writer of memory.** It drafts the real words, `memory-verifier` checks
+  them, the owner approves, and then they are written. Asking a yes-or-no
+  question is not approval, because the owner cannot approve words they have not
+  read.
 
 ## Its known limit
 

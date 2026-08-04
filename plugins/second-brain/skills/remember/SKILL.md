@@ -4,10 +4,11 @@ description: >-
   Save clear owner-approved project information through second-brain v3, into
   the specification when it states what the system should do and into memory
   otherwise. Recognize requests such as "remember this", "save that", "capture
-  what we did", "remember that <feature> should <behavior>", or "/remember". Use
-  the on-demand memory librarian to place and write the content in Markdown and
-  Git. Never write retired v1, create a quick-write store, or add databases,
-  embeddings, or transcript capture. A hook never writes memory.
+  what we did", "remember that <feature> should <behavior>", or "/remember".
+  Draft the real words, have the read-only memory verifier check every claim,
+  show the owner what will be written, then save it in Markdown and Git. Never
+  write retired v1, create a quick-write store, or add databases, embeddings, or
+  transcript capture. A hook never writes memory.
 ---
 
 # Remember with second-brain v3
@@ -20,7 +21,10 @@ content. The owner does not need to approve a second filing proposal.
 The project must contain:
 
 - `.claude/rules/second-brain.md`;
-- `.claude/agents/memory-librarian.md`;
+- `.claude/references/second-brain-reference.md`;
+- `.claude/agents/memory-verifier.md`;
+- `.claude/tools/memory-index-build.mjs` and
+  `.claude/tools/memory-shape-check.mjs`;
 - `brainstorms/README.md`;
 - `specs/README.md`; and
 - `memory/README.md` with all seven typed memory indexes.
@@ -50,8 +54,9 @@ The word "remember" makes memory the obvious destination and it is often the
 wrong one. Ask this before anything else: **is the owner telling you what the
 system should do?** If they are, it belongs in `specs/`, and filing it in a
 memory folder hides approved behavior where the next session will not look for
-it. `.claude/rules/second-brain.md` has the full routing table; this is the one
-split that gets missed.
+it. `.claude/rules/second-brain.md` has the full routing table, and
+`.claude/references/second-brain-reference.md` has the detail behind it. This is
+the one split that gets missed.
 
 | The owner said | Where it goes |
 |---|---|
@@ -70,62 +75,81 @@ change and needs the owner's visible approval first.
 
 One request can be both. Split it, and say in the list which part went where.
 
-## Show what you will save, and where, before writing
+## Check it before the owner sees it
 
-Always tell the owner what you are about to record and where it will land. What
-you write stays, and they cannot see the placement decision you are making.
+The owner cannot tell whether a date, a count, or a gap is right. So nothing
+unchecked reaches them.
 
-Present a short list, one line per document:
+Draft the exact words first. Then invoke the memory verifier in the foreground
+and wait for its report. Give it the drafted text, the destination path for each
+piece, and a source for every claim, saying which of the three kinds it is:
+
+- **it is in a file**, and the verifier opens that file;
+- **the owner said it**, and the verifier compares the draft against the owner's
+  actual words, which you supply; or
+- **the agent worked it out**, which nothing can confirm, so the verifier flags
+  it as unchecked.
+
+Claude invokes the installed `memory-verifier` agent. Codex delegates to a
+subagent told to read `.claude/agents/memory-verifier.md` and
+`.claude/rules/second-brain.md` first. Either way, wait for the report. Nothing
+runs in the background.
+
+Fix what came back wrong. Mark anything the verifier could not confirm so the
+owner can see it is unchecked. Never quietly drop it and never quietly write it
+as though it were solid.
+
+## Show the real words, then save them
+
+Show the actual text that will be written, with its destination path. Not a
+summary of it, and not a table describing it.
 
 ```
-- <one-line summary of the content>  ->  <destination path>
-  Why there: <one clause>
+specs/export/record-export/README.md
+  ## Required behavior
+  Archived records are excluded from every export.
+
+memory/domain/export-terms.md
+  "Archived" means closed more than 90 days ago, not deleted.
+  Basis: Owner-confirmed 2026-08-04.
+  UNCHECKED: the 90 day figure. The owner said "about three months".
 ```
 
 Then act on the clarity of the request:
 
 - **The request named the content** (`remember that production releases require
-  owner approval`). Show the list and proceed in the same turn. A clear request
-  already approved the content, so do not ask for a second approval. The list is
-  there for transparency, and so the owner can correct a placement they disagree
-  with after the fact. **A specification is written the same way.** The owner
-  just stated the behavior, so that is the approval. Do not add a stop the
-  memory path does not have.
+  owner approval`). Show the words and save them in the same turn. A clear
+  request already approved the content, so do not ask for a second approval. The
+  words are shown so the owner can correct anything before it settles.
 - **The request was vague** (`remember this`, `/remember` with no argument).
-  Recommend the specific durable takeaways you would save and where each would
-  go, then **stop and wait**. Do not guess at the content. Ask through whatever
-  blocking question mechanism the host provides rather than in ordinary prose.
+  Draft the specific durable takeaways you would save, have them checked, show
+  them, then **stop and wait**. Do not guess at the content. Ask through
+  whatever blocking question mechanism the host provides, not in ordinary prose.
+
+An edit the owner makes is written exactly as they wrote it. It needs no further
+checking, because they are the source. If you think the edit is wrong, say so
+and talk about it. Do not quietly change the words back.
 
 Say plainly when something the owner might expect to be saved is already
 recorded, and name the document that holds it, rather than filing a duplicate.
 
-Never expand the list beyond what the owner approved. A request to remember one
-thing is not licence to record everything discussed.
+Never expand beyond what the owner approved. A request to remember one thing is
+not licence to record everything discussed.
 
-## Delegate the write
+## Save it
 
 1. Read `.claude/rules/second-brain.md`.
 2. Confirm the current repository, worktree, and branch.
-3. Identify the approved content, relevant context, known canonical documents,
-   relationships, and anything the librarian must not infer.
-4. **Invoke the dedicated memory librarian. This is mandatory, not a
-   preference.** The main agent does not write specification or memory documents
-   itself, even when the change looks like a one-line edit it could make faster.
-   The librarian owns both homes; routing something to `specs/` is not a reason
-   to write it yourself.
-   - Claude: use the installed `memory-librarian` project agent.
-   - Codex: delegate to a subagent and require it to read
-     `.claude/agents/memory-librarian.md` and the canonical rule first.
-   Give the librarian the approved content, the destinations you showed the
-   owner, the canonical documents to link to, and anything it must not infer.
-5. Inspect the resulting diff.
-6. Report what changed, where it was placed, why, and any unresolved issue. If
-   the librarian filed something somewhere other than the destination you showed
-   the owner, say so and explain the difference.
-7. **When the write reversed something a specification already said, show the
-   old wording and the new wording.** Nothing stopped to ask first, so this
-   report is the only place the owner sees that approved behavior changed rather
-   than grew. Put the two lines next to each other and name the document:
+3. Write the approved words, exactly as the owner saw or edited them.
+4. Run `node .claude/tools/memory-index-build.mjs`, then
+   `node .claude/tools/memory-shape-check.mjs`. A failed shape check means the
+   save is not finished: say what is missing in plain words and fix it.
+5. Report what changed and where. If anything landed somewhere other than the
+   destination you showed the owner, say so and explain why.
+6. **When the save reversed something a specification already said, show the old
+   wording and the new wording.** Nothing stopped to ask first, so this report is
+   the only place the owner sees that approved behavior changed rather than grew.
+   Put the two lines next to each other and name the document:
 
    ```
    specs/export/record-export/README.md
@@ -136,17 +160,22 @@ thing is not licence to record everything discussed.
    Adding a behavior no specification covered yet is not a reversal and needs no
    before-and-after block.
 
-The librarian handles routine placement, nearest-index maintenance, and
-mandatory structural links. A risky or large change involving deletion,
-authority, canonical homes, broad reorganization, splitting, merging, or
-supersession, or a new top-level system area requires a separate visible
-proposal and owner approval.
+Routine placement, index maintenance, and mandatory links need no second
+decision after the content is approved. A risky or large change involving
+deletion, authority, canonical homes, broad reorganization, splitting, merging,
+supersession, or a new top-level system area needs a separate visible proposal
+and the owner's approval first.
 
-If the host cannot invoke the dedicated librarian or the librarian cannot
-finish, do not silently write the update another way. Retry or report the
-failure and keep the task unfinished. The pull request may open under the
-project's Git workflow, but it does not merge as though the approved update
-succeeded unless the owner explicitly waives it.
+**When the save is only one added line to a list**, take the smallest path. The
+index builder produces that line from the document itself, so there is no new
+claim to check and nothing to approve. Run the builder and the shape check, and
+say what changed.
+
+If the verifier cannot be invoked or cannot finish, say so. Do not save
+unchecked words as though they had been checked. Retry or report the failure,
+and keep the task unfinished. The pull request may open under the project's Git
+workflow, but it does not merge as though the check happened unless the owner
+explicitly waives it.
 
 ## Boundaries
 

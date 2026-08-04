@@ -24,7 +24,7 @@ system, hand off a short "where we are, what is next" note at wrap-up.
 
 When second-brain v3 is installed, separate durable direction from live work
 state. Vision, goals, roadmap, milestones, durable risks, and assumptions belong
-in `memory/planning/` through the approved memory-librarian workflow. Current
+in `memory/planning/`, saved through the approved memory workflow. Current
 ticket status, blockers, exact next action, and handoff stay in the work
 tracker. Link between them when useful without copying live status into
 planning.

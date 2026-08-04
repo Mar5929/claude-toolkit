@@ -205,14 +205,16 @@ and Codex share approved specifications and durable project knowledge.
 - Show the complete core tree, only the real project-specific areas, and the
   proposed `CLAUDE.md` and `AGENTS.md` routes.
 - If approved, install `second-brain` from this marketplace and follow its
-  greenfield setup workflow. Use its canonical rule, memory-librarian role,
-  orientation snippet, and index templates. Do not retype or maintain copies in
-  `project-init`.
-- Treat the rule, role, root routes, root indexes, and all seven typed memory
-  homes as one adoption unit. Do not offer a broken partial variant.
-- Offer the initial memory pass after installation. The main agent proposes
-  useful initial context, planning, and already-approved specifications; the
-  dedicated memory librarian writes only what the owner approves.
+  greenfield setup workflow. Use its canonical rule, routing reference,
+  memory-verifier role, two scripts, orientation snippet, and index templates.
+  Do not retype or maintain copies in `project-init`.
+- Treat the rule, its reference, the role, the two scripts, root routes, root
+  indexes, and all seven typed memory homes as one adoption unit. Do not offer a
+  broken partial variant.
+- Offer the initial memory pass after installation. The main agent drafts the
+  real words for useful initial context, planning, and already-approved
+  specifications, `memory-verifier` checks them, and only what the owner
+  approves is written.
 - Never add a database, memory MCP server, embeddings, transcript capture, or
   background curator. The memory core installs no hooks of its own; a hook that
   enforces a rule or starts a review comes from Gate 2 and the `hooks-library`

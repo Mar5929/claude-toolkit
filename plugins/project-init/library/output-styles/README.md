@@ -46,8 +46,9 @@ other is now handled a different way:
   only. It is handled in two places instead. The `follow-the-output-style.md`
   rule in `../rules/general/` tells a helper agent to go read the style file before
   writing a commit message, pull request text, or a document. An agent that
-  writes durable files carries the rules in its own definition; see the "How to
-  write" section in `second-brain/agents/memory-librarian.md`.
+  writes something the owner reads carries the rules in its own definition; see
+  the "How to write your report" section in
+  `second-brain/agents/memory-verifier.md`.
 
 ## What ships today
 

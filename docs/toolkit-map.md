@@ -33,7 +33,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | project-init | project-init | Walk a NEW project through setup gates, one skippable step at a time | `/project-init` |
 | project-sync | project-init | Audit an EXISTING project against the toolkit and close approved gaps | `/project-sync` |
 | second-brain | second-brain | Explain, install, audit, adopt, review, and maintain the complete v3 system | `/second-brain` |
-| remember | second-brain | Save clear owner-approved information through the on-demand memory librarian, routing what the system should do to `specs/` and everything else to memory | `/remember`, "remember this" |
+| remember | second-brain | Draft the real words, have `memory-verifier` check them, show the owner, then save, routing what the system should do to `specs/` and everything else to memory | `/remember`, "remember this" |
 | sf-architect-solutioning | sf-architect-solutioning | 5-phase Salesforce solutioning to an approved plan | `/sf-architect-solutioning` |
 | pull-latest | git-workflows | Get current with the remote without rewriting or discarding | `/pull-latest` |
 | reset-to-remote | git-workflows | Hard-reset a repo to mirror the remote, safely gated | `/reset-to-remote` |
@@ -114,10 +114,12 @@ These are not duplicated here. Go to the index that owns them:
 - **MCP tool rules** (per-server, conditional):
   `plugins/project-init/library/guides/mcp-best-practices.md`.
 - **second-brain v3 runtime sources**:
-  `second-brain-rule.md`, `folder-layout.md`, `markdown-schemas.md`,
-  `orientation-snippet.md`, `adoption-guide.md`, and `templates/` under
-  `plugins/second-brain/skills/second-brain/references/`, plus the
-  `memory-librarian.md` role under `plugins/second-brain/agents/`.
+  `second-brain-rule.md`, `second-brain-reference.md`, `folder-layout.md`,
+  `markdown-schemas.md`, `orientation-snippet.md`, `adoption-guide.md`, and
+  `templates/` under `plugins/second-brain/skills/second-brain/references/`,
+  plus the `memory-verifier.md` role under `plugins/second-brain/agents/` and
+  `memory-index-build.mjs` and `memory-shape-check.mjs` under
+  `plugins/second-brain/tools/`.
 - **Archived second-brain v1**:
   [archive/second-brain-v1/README.md](../archive/second-brain-v1/README.md)
   indexes the retired Worker, Neon, MCP, curator, hook, and knowledge-backfill
@@ -132,22 +134,26 @@ These are not duplicated here. Go to the index that owns them:
   not installation, deployment, export, or migration guidance. The old Worker
   has no default deploy path. The dependency graph is NOT archived: it outlived
   v1 and ships from `project-init` (see below).
-- **Shipped second-brain v3**:
-  [docs/second-brain-v3/README.md](second-brain-v3/README.md) indexes the
-  current Markdown-only specification, schemas, and toolkit
-  integration design. It separates flat dated brainstorms, area-based
-  capability specifications, seven typed memory homes, and work-tracker
+- **Shipped second-brain v3**: the
+  [plugin README](../plugins/second-brain/README.md) describes it, and the
+  shipped rule, its routing reference, the agent file, and the two scripts under
+  `plugins/second-brain/` are the only description of it. There is no separate
+  design document set: issue #144 deleted it, because a second description of
+  the same system is a second thing to keep in step. V3 separates flat dated
+  brainstorms, area-based capability specifications, seven typed memory homes,
+  and work-tracker
   authority. At completion points and natural stopping points after meaningful
-  work, the main agent proposes updates and must invoke the on-demand memory
-  librarian for approved changes. The librarian writes in the task worktree,
-  may perform visibly approved cleanup, and checks changed memory against the
-  latest project state before merge for parallel semantic duplicates or
-  conflicts. The plugin ships the canonical rule, role, templates, setup, sync,
-  and remember workflows.
-- **Superseded second-brain v2 proposal**:
-  [docs/second-brain-v2/README.md](second-brain-v2/README.md) is retained as
-  historical design material. Its numbered units and requirements are not
-  inherited by v3.
+  work, the main agent drafts the exact words with a source on every claim, has
+  the read-only `memory-verifier` check them before the owner sees anything,
+  shows the owner the real text, and writes the approved ones itself in the task
+  worktree. Two scripts then rebuild the indexes and check each document's
+  shape. `memory-verifier` runs again before a merge, sized to the change, to
+  catch parallel semantic duplicates or conflicts. The plugin ships the
+  canonical rule, its routing reference, the role, the two scripts, templates,
+  setup, sync, and remember workflows.
+- **Superseded second-brain v2 proposal**: deleted by issue #144, along with the
+  v3 design documents. It was a proposal that was never built, and its numbered
+  units and requirements were never inherited by v3. Git history has it.
 - **sf-architect references**: the `metadata/*` guides and templates under
   `plugins/sf-architect-solutioning/skills/sf-architect-solutioning/references/`.
 
@@ -193,8 +199,8 @@ The genuine watch-items are called out at the end.
 - **second-brain versus remember.** `second-brain` owns complete setup,
   brownfield adoption, explanation, completion review, and maintenance.
   `remember` is the focused entry point when the owner already knows what
-  should be saved. Both use the same canonical rule and on-demand memory
-  librarian, so there is no quick-write store or competing schema.
+  should be saved. Both use the same canonical rule and the same draft, check,
+  approve, save flow, so there is no quick-write store or competing schema.
 - **work-tracker versus the older work-items tree.** Not two trackers.
   work-tracker is the executable extension of the same four-stage convention.
   It adopts existing `SPEC.md`, `STATUS.md`, and notes in place, adds
@@ -354,8 +360,9 @@ The genuine watch-items are called out at the end.
   agent. It is now handled twice over rather than fixed, since it cannot be
   fixed at this level. `follow-the-output-style` tells a helper agent to read
   the style file before writing anything the owner will read, and an agent that
-  writes durable files carries the rules in its own definition, which is what
-  the "How to write" section in `memory-librarian.md` is.
+  writes something the owner reads carries the rules in its own definition,
+  which is what the "How to write your report" section in `memory-verifier.md`
+  is.
 - **sf-architect-solutioning versus the Salesforce rules versus the dependency
   graph.**
   sf-architect decides what to build; the `salesforce-rules` install standing
@@ -371,8 +378,8 @@ The genuine watch-items are called out at the end.
   retirement. Its source is consolidated in the
   [v1 archive](../archive/second-brain-v1/README.md) outside active plugins. Do
   not install it in a new project. The shipped
-  [second-brain v3](second-brain-v3/README.md) is a fresh Markdown-only system
-  and does not use that infrastructure.
+  [second-brain v3](../plugins/second-brain/README.md) is a fresh Markdown-only
+  system and does not use that infrastructure.
 - **Overlap with Claude Code's native memory.** Claude Code now ships an
   auto-memory feature that captures cross-session notes on its own (machine-local).
   It overlapped part of the legacy v1 capture system. Existing v1 projects

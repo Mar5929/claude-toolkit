@@ -12,5 +12,6 @@ source, or inferred and unconfirmed.
 
 ## Areas
 
-No knowledge areas have been created yet. Add each real project area here with
-a one-sentence description.
+The list below is built by `node .claude/tools/memory-index-build.mjs` from the
+documents in this folder, so it cannot fall out of step with them. Do not
+hand-edit it. The prose around it is written by hand and is left alone.

@@ -8,5 +8,6 @@ decisions, or required behavior already clear in a specification.
 
 ## Areas
 
-- [Root instructions](root-instructions/README.md): choices about `CLAUDE.md`
-  and `AGENTS.md`, the two files an agent reads first here.
+- [Decisions: root instruction files](root-instructions/README.md): Choices
+  about `CLAUDE.md` and `AGENTS.md`, the two files an agent reads first in this
+  repository, and how they stay in step with each other.
