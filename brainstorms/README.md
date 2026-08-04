@@ -25,6 +25,15 @@ behavior.
 - [2026-08-03 work-item tracking choice](2026-08-03-work-item-tracking-choice.md)
   - Asking a new project where it tracks work items, letting it name any
     tracker, and carrying the ticket-spec discipline into whatever it named.
+- [2026-08-04 memory librarian field report from DragonFly](2026-08-04-memory-librarian-field-report-dragonfly.md)
+  - An unedited account of four memory librarian calls in one DragonFly session:
+    what worked, and seven things that went wrong, including a wrong date
+    committed to memory and a file committed while the librarian was still
+    editing it. Written by that session, saved here as evidence for issue #144.
+- [2026-08-04 memory system cost and correctness](2026-08-04-memory-system-cost-and-correctness.md)
+  - The refinement session for issue #144: why saving to memory ends in
+    correcting things, two diagnoses that turned out to be wrong, and how the
+    memory librarian came to be replaced by a read-only agent that checks.
 
 Approved behavior belongs in `specs/`. A brainstorm is stored once in this flat
 folder even when it informs several system areas.
