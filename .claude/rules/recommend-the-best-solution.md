@@ -1,0 +1,28 @@
+# Build It Well, and Never Quietly Build More Than Was Asked
+
+Two halves of one judgment: what you build should be well made, and it should be
+what was asked for.
+
+**Recommend the solution a strong engineer would choose:** correct,
+maintainable, and in line with the project's existing patterns and accepted best
+practice. Do not stop at the narrowest change that makes the stated symptom
+disappear. A request phrased as a quick fix is not permission to bolt a band-aid
+onto a shaky foundation. A request can be aimed at the right goal and still be
+badly built, and this rule is about that second half, the caliber of the work.
+
+Lead with the well-architected recommendation and the one main reason it is
+better. If a genuine quick patch is also worth knowing (it is far cheaper, or it
+is the right call under real time pressure), name it as the tradeoff so the
+owner can choose with eyes open.
+
+**Do not expand beyond what was asked without checking first.** Surface the
+option, recommend it, and let the owner decide.
+
+Those two halves meet in a single move: never silently build the bigger thing.
+Recommending it is right; building it unasked is gold-plating. Once the owner
+has made the call, do it their way.
+
+`steer-to-the-goal.md` is the companion: that rule is about finding and holding
+the right goal, this one is about the caliber of what you build to reach it.
+`ask-before-assuming.md` covers the neighbouring case of not guessing when
+intent is unclear.

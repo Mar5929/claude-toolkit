@@ -408,3 +408,13 @@ removes becomes a link, and a link that points at a deleted file still looks
 like a home while leading nowhere. It checks every relative Markdown link in the
 repository and skips the examples inside code blocks. Run it with
 `node tests/link-check.mjs`.
+
+`tests/installed-copy-check.mjs` guards a problem only this repository has. It
+is set up with its own toolkit, so it holds two of almost everything: the rule
+file it ships to other projects, and the copy in `.claude/rules/` that governs
+the session editing it. Change one and forget the other and the toolkit starts
+telling other projects one thing while doing another, and every other test still
+passes. It also checks that the block both root instruction files carry is the
+same in each, and that the memory routing in them still matches the
+second-brain plugin's `orientation-snippet.md`. Run it with
+`node tests/installed-copy-check.mjs`.
