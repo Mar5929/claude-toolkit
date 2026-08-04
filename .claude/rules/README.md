@@ -20,7 +20,6 @@ matching.
 | `capture-the-thinking.md` | Never leave the thinking only in chat. The goal, the requirements, the edge cases, the decisions, and the open questions get written into their canonical home while the work happens. |
 | `keep-claudemd-current.md` | Update `CLAUDE.md` before a session ends whenever it surfaces a new path, convention, decision, or workflow. Prune while you are in there. |
 | `wrap-up-ritual.md` | At completion points, align specifications, code, and tests, draft the real words for anything worth saving, have `memory-verifier` check them, and show the owner the actual text before writing it. The `memory-pr-hook` hook points at this file. |
-| `secrets-never-committed.md` | Keys and credentials live outside the repo. |
 | `honest-verification.md` | Do not claim more than you verified. Report failures with their output. |
 | `parallel-agent-sessions.md` | Sharing a repo with other live sessions: look before you edit, work in your own worktree and branch, never `git add -A`, land by pull request. |
 | `recommend-the-best-solution.md` | Propose the well-built solution and name the quick-patch tradeoff, and do not build more than was asked. |

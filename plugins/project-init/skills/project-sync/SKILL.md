@@ -110,8 +110,9 @@ automatically as it grows.
 ## Step 2: audit the current project
 
 For each inventory item, look for evidence in the project. Judge by intent, not
-exact wording: a CLAUDE.md that says "never commit secrets" satisfies the
-secrets rule even if the prose differs. Typical checks:
+exact wording: a CLAUDE.md that says "say what you actually ran and what it
+printed" satisfies `honest-verification.md` even if the prose differs. Typical
+checks:
 
 - **CLAUDE.md and `.claude/rules/`**: does CLAUDE.md exist and point at
   `.claude/rules/`, and does that folder carry each default-ON general rule (a
