@@ -502,17 +502,17 @@ formal Jira ceremonies.
 
 The main agent reviews for durable updates:
 
-- when a substantial task request is complete, before its pull request is
-  opened or merged;
+- when a substantial task request is complete, at the moment its pull request is
+  opened;
 - at the end of a brainstorming or requirements interview;
 - at the end of a milestone or project phase; or
 - at another natural stopping point after meaningful work, when the owner ends
   or pauses the task and a settled durable result exists.
 
-If a task is ready before a pull request is opened, review then. If the pull
-request already exists or material conclusions changed during review, conduct
-the review before merge. V3 does not require two reviews for every pull
-request.
+The pull request does not wait for the owner's answer. It opens with the code in
+it, its description states what the review found, and the approved memory is
+committed to the same branch so it lands in the same pull request before merge.
+V3 does not require two reviews for every pull request.
 
 One review may satisfy several nearby completion points. Review again only when
 later work produces or changes a durable conclusion.

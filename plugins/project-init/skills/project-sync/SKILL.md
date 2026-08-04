@@ -75,11 +75,17 @@ automatically as it grows.
     `library/rules/general/dependency-graph.md`)
   - the `work-tracker` plugin and any existing `work-items/` or
     `engagement/work-items/` tree
-  - the `hooks-library` plugin and both its hooks: `style-reminder`
-    (UserPromptSubmit) and `writing-guard` (Stop). Check `.claude/settings.json`
-    for a registered entry and `.claude/hooks/` for each copied script. Both pair
-    with the output style and do nothing useful without one, so audit them
-    together and never report a hook as installed when no style is selected
+  - the `hooks-library` plugin and each of its three general hooks, checked
+    separately rather than as one item: `style-reminder` (UserPromptSubmit),
+    `writing-guard` (Stop), and `memory-pr-hook` (PreToolUse, `Bash` matcher).
+    For each one, check `.claude/settings.json` for a registered entry and
+    `.claude/hooks/` for the copied script. The first two pair with the output
+    style and do nothing useful without one, so audit those together and never
+    report either as installed when no style is selected. `memory-pr-hook` is
+    independent of the style and of any memory system, so a missing one is a gap
+    on its own. It points at `wrap-up-ritual.md`, so report a project that has
+    the hook without that rule: the hook still fires but names a file that is
+    not there
   - a project still carrying the retired voice rules (`writing-and-language.md`,
     `how-to-reply.md`, `treat-owner-as-non-technical.md`,
     `define-your-terms.md`). All four were removed from the toolkit in favor of
@@ -394,6 +400,12 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   choosing with it in view: a helper agent still never sees an output style,
   which is why `follow-the-output-style.md` goes into the rules folder in the
   same pass.
+- For an approved `memory-pr-hook` gap, install it via `/hooks-library` and
+  check `.claude/rules/wrap-up-ritual.md` is present in the same pass, copying
+  it from `../../library/rules/general/` if it is not. Say plainly what changes
+  for the owner: nothing on most work, because the agent answers "Nothing worth
+  saving to memory here." and carries on. When there is something, the pull
+  request still opens right away and they get a table to approve, cut, or edit.
 - **An older `writing-guard` in a project is an upgrade, not a removal.** #101
   retired the hook and #102 brought it back narrower, so a project that kept its
   old copy was right to. Offer to replace the script with the current one and

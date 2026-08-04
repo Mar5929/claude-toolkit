@@ -80,20 +80,24 @@ includes(
   "Invoke the memory librarian",
   "second-brain delegates approved writes",
 );
+// These three used to assert the skill restated the rule's completion review.
+// It now points at the rule instead, because three slightly different wordings
+// of one rule is how they drifted apart. Same number of checks, aimed at where
+// each truth actually lives.
 includes(
-  secondBrainSkill,
-  "There is no fixed limit",
-  "second-brain has no proposal cap",
+  rule,
+  "yes-or-no question is not approval",
+  "rule states that a yes-or-no question is not approval",
 );
 includes(
   secondBrainSkill,
-  "unfinished-session handoff",
-  "second-brain does not review unfinished handoffs",
+  "That rule owns when the check runs",
+  "second-brain skill defers to the rule instead of restating it",
 );
-includes(
+excludes(
   secondBrainSkill,
-  "natural stopping point after meaningful work",
-  "second-brain reviews meaningful natural stopping points",
+  "opened or merged",
+  "second-brain skill carries no stale pull request timing",
 );
 includes(
   secondBrainSkill,
@@ -162,7 +166,7 @@ includes(rule, "AI judgment", "rule preserves AI judgment");
 includes(rule, "There is no proposal count limit", "rule has no proposal cap");
 includes(
   rule,
-  "before its pull request is",
+  "at the moment its pull request is",
   "rule reviews at task completion",
 );
 includes(
@@ -338,9 +342,12 @@ includes(
   "narrow second-brain exception",
   "grill-me limits its direct writes to raw checkpoints",
 );
+// Searched without the line break it used to carry. Where the sentence wraps is
+// not the behavior being tested, and a rewrite of the surrounding paragraph
+// moved the break.
 includes(
   wrapUp,
-  "natural\nstopping point after meaningful work",
+  "stopping point after meaningful work",
   "wrap-up uses the natural stopping point",
 );
 includes(

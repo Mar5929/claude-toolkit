@@ -2,11 +2,12 @@
 name: hooks-library
 description: >-
   Install, remove, or check the toolkit's hooks in a project. Use when the user
-  says "install the style reminder", "install the writing guard", "make Claude
-  follow the output style", "remind Claude how to write", "stop Claude using em
-  dashes", "set up the hooks", "add the hooks library", "turn off the style
-  reminder", or "/hooks-library". These hooks re-deliver or check rules that an
-  agent otherwise has to remember on every message.
+  says "install the style reminder", "install the writing guard", "install the
+  memory PR hook", "make Claude follow the output style", "remind Claude how to
+  write", "stop Claude using em dashes", "make Claude check what to save to
+  memory", "set up the hooks", "add the hooks library", "turn off the style
+  reminder", or "/hooks-library". These hooks re-deliver, check, or start a rule
+  that an agent otherwise has to remember on its own.
 ---
 
 # hooks-library: make the rule land, instead of restating it
@@ -14,14 +15,23 @@ description: >-
 This skill wires the toolkit's hooks into one project. Read `../../README.md`
 first for what each hook does and why it exists.
 
-Four hooks ship, in two pairs.
+Five hooks ship, in two groups.
 
 **Every project.** `style-reminder` re-states the project's output style on every
 message, so the voice instruction never goes stale. `writing-guard` reads the
 finished reply and blocks on an em dash or a section sign, so a slip is caught
-rather than shipped. These two go together. Steps 1 to 5 below install
-`style-reminder`. The section after them installs `writing-guard`. Offer both
-unless the owner asks for one.
+rather than shipped. `memory-pr-hook` holds the command that opens a pull
+request, once per branch per session, so the memory check happens at the moment
+it applies. All three are default ON. Steps 1 to 5 below install
+`style-reminder`; the two sections after them install `writing-guard` and
+`memory-pr-hook`. Offer all three unless the owner asks for fewer.
+
+Each hook registers under a different event, so installing one never disturbs
+another: `style-reminder` under `UserPromptSubmit`, `writing-guard` under
+`Stop`, `memory-pr-hook` under `PreToolUse` with a `Bash` matcher, and the two
+Salesforce guards under `PreToolUse` with a `Bash|PowerShell` matcher. Whichever
+you install, merge into the existing arrays and preserve every entry already
+there.
 
 **Salesforce projects only.** `guard-protected-orgs.js` confirms before a deploy
 or destructive command hits a production org. `guard-permission-set-deploy.js`
@@ -183,6 +193,91 @@ Then the plugin's harness, if the toolkit clone is available:
 node plugins/hooks-library/tests/writing-guard-harness.mjs
 ```
 
+## The third hook: memory-pr-hook
+
+**Check the rule is there first.** This hook points the agent at
+`wrap-up-ritual.md`. If the project has no `.claude/rules/wrap-up-ritual.md`,
+offer to install it from the `project-init` plugin's
+`library/rules/general/` folder before registering the hook. A hook pointing at
+a missing file is a dead end. This check belongs here, in the skill, and never
+inside the hook.
+
+**Explain it honestly.** Say what the owner will and will not see:
+
+> The rule says to check what is worth saving to memory when a piece of work
+> finishes. It gets skipped almost every time, because it is read once at the
+> start of a session and the moment it applies comes hours later. This holds the
+> command that opens a pull request, once per branch per session, and hands
+> Claude the rule at that moment. You never see a popup. Most of the time Claude
+> says "Nothing worth saving to memory here." and carries straight on. When
+> there is something, the pull request still opens right away and Claude shows
+> you a table of what it wants to save.
+
+Say the limits too, because both are real:
+
+- It cannot tell whether the check actually happened, only that it was raised.
+  What catches a skip is the pull request description, which has to say what the
+  check found.
+- It only sees commands typed in the terminal. A pull request opened on the
+  GitHub website is never seen, and the written rule is the backup for those.
+
+**Copy it.** `hooks/memory-pr-hook.mjs` into the project's `.claude/hooks/`.
+Copy, do not symlink, and do not point at a path inside the installed plugin.
+
+**Register it under `PreToolUse` with a `Bash` matcher**, merging into whatever
+is already there. A `PreToolUse` array may already hold the Salesforce guards
+under a `Bash|PowerShell` matcher; leave those entries exactly as they are and
+add a new one.
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/memory-pr-hook.mjs\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+**Prove it works**, in both directions:
+
+```
+echo '{"tool_name":"Bash","tool_input":{"command":"gh pr create --fill"},"session_id":"install-check-hold","cwd":"'"$PWD"'"}' | node .claude/hooks/memory-pr-hook.mjs
+
+echo '{"tool_name":"Bash","tool_input":{"command":"gh pr list"},"session_id":"install-check-read","cwd":"'"$PWD"'"}' | node .claude/hooks/memory-pr-hook.mjs
+```
+
+The first must print JSON containing `"permissionDecision":"deny"` and name
+`wrap-up-ritual.md`. The second must print nothing at all. Both exit 0; this
+hook refuses through its output, not through its exit code. Use a different
+`session_id` each time you re-run these, because the hook refuses to hold the
+same branch twice in one session and a repeated id makes a working hook look
+broken.
+
+**On Windows, run these in Git Bash, not PowerShell.** Piping a string to a
+program in PowerShell sends it as UTF-16, the hook cannot read that as JSON, and
+it does what it does with any unreadable input: nothing, and exits 0. So a
+working hook prints nothing and looks broken. Claude Code itself always hands
+the hook plain UTF-8, so this affects only a hand-typed check. To check from
+PowerShell, write the JSON to a file with
+`[System.IO.File]::WriteAllText($path, $json, (New-Object System.Text.UTF8Encoding($false)))`
+and run `cmd /c "node .claude\hooks\memory-pr-hook.mjs < payload.json"`.
+
+Then the plugin's harness, if the toolkit clone is available:
+
+```
+node plugins/hooks-library/tests/memory-pr-hook-harness.mjs
+```
+
 ## Removing it
 
 For `style-reminder`:
@@ -195,6 +290,13 @@ For `style-reminder`:
 
 For `writing-guard`, the same three steps against the `Stop` array,
 `writing-guard.mjs`, and `.claude/writing-guard.json`.
+
+For `memory-pr-hook`, the same three steps against the `PreToolUse` array,
+`memory-pr-hook.mjs`, and `.claude/memory-pr-hook.json`. Delete only the entry
+whose command names `memory-pr-hook.mjs`, leaving any Salesforce guard entry in
+the same array alone. If the owner wants it off for a while rather than gone,
+write `{ "enabled": false }` to `.claude/memory-pr-hook.json` instead, which
+leaves the wiring in place.
 
 For either Salesforce guard, delete its entry from the `PreToolUse` array whose
 matcher is `Bash|PowerShell`, leaving the other guard's entry alone, then delete
@@ -217,6 +319,13 @@ For `writing-guard`, find out which check is firing before removing anything. If
 it is `filler-opener`, turn that one off; it is off by default, so someone
 switched it on. If the em dash check is genuinely blocking good replies, that is
 worth investigating rather than disabling, because it tests for one character.
+
+For `memory-pr-hook`, find out what it held. It should hold each branch once per
+session and nothing else. If it is holding a command that was not opening a pull
+request, that is a real defect: get the exact command and add it to the harness
+before changing anything. If the complaint is that the memory check itself takes
+too long or asks for too much, the fix is in `wrap-up-ritual.md`, not here. The
+hook holds a command and names a file; it decides nothing.
 
 If the complaint is that the style itself is wrong, the fix is in the style
 file, not here. Neither hook decides anything; one repeats what is written and

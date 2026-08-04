@@ -20,7 +20,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | [second-brain](../plugins/second-brain/README.md) | Git-native Markdown specifications and durable memory shared by Claude and Codex | `second-brain`, `remember` | `/plugin install second-brain` | Sets up a project |
 | [sf-architect-solutioning](../plugins/sf-architect-solutioning/README.md) | Salesforce solution architect: approved solution plan before any build | `sf-architect-solutioning` | `/plugin install sf-architect-solutioning` | Install and go |
 | [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git lifecycle workflows | `pull-latest`, `reset-to-remote`, `merge-and-clean-up` | `/plugin install git-workflows` | Install and go |
-| [hooks-library](../plugins/hooks-library/README.md) | Hooks that make a rule land mechanically instead of restating it: `style-reminder` re-states the output style every message, `writing-guard` checks the finished reply | `hooks-library` | `/plugin install hooks-library` | Wires into settings |
+| [hooks-library](../plugins/hooks-library/README.md) | Hooks that make a rule land mechanically instead of restating it: `style-reminder` re-states the output style every message, `writing-guard` checks the finished reply, `memory-pr-hook` starts the memory check when a pull request opens | `hooks-library` | `/plugin install hooks-library` | Wires into settings |
 | [grill-me](../plugins/grill-me/README.md) | Persistent discovery interviews that checkpoint every answer | `grill-me` | `/plugin install grill-me` | Install and go |
 | [work-tracker](../plugins/work-tracker/README.md) | Git-authoritative backlog, handoffs, relationships, landing proof, and optional GitHub Projects | `work` | `/plugin install work-tracker` | Sets up a project |
 | [session-summary](../plugins/session-summary/README.md) | Recap one session as a numbered line per main request, each with an honest status | `session-summary` | `/plugin install session-summary` | Install and go |
@@ -242,10 +242,23 @@ The genuine watch-items are called out at the end.
   system with no hooks anywhere, which conflated two different promises.
   Nothing may write memory automatically, and that still holds; v1 was retired
   for breaking it. But enforcing a rule is not writing memory. A hook that makes
-  an agent read the memory rule, or that starts the durable review at a
-  completion point, serves the approval promise rather than breaking it. The
-  memory core still ships no hooks of its own, so anything hook-shaped comes
-  from `hooks-library` and passes through Gate 2.
+  an agent read the memory rule, or that starts the memory check at a completion
+  point, serves the approval promise rather than breaking it. The memory core
+  still ships no hooks of its own, so anything hook-shaped comes from
+  `hooks-library` and passes through Gate 2.
+- **memory-pr-hook versus the memory rule it fires.** `memory-pr-hook` looks
+  like it belongs to second-brain and does not. It knows four things: a pull
+  request is about to open, this project checks what to save to memory first,
+  the rule is `wrap-up-ritual.md`, and what was found goes in the pull request
+  description. It holds no memory types, no destinations, no list of words that
+  decides what is worth saving, and no check for whether any memory system is
+  installed, which is why it works unchanged in a project that has none. All the
+  judgement stays with the agent and all the wording stays in the rules, so it
+  still passes the library's own admission test: the firing needs no judgement,
+  and what happens next needs plenty. The counter-example is in the ticket that
+  produced it: davis-advisors-sfdc built a memory hook with 46 text patterns
+  deciding what mattered, and its own log shows it firing on helper agent output
+  instead of on the owner's words.
 - **git-workflows versus the parallel-agent-sessions rule.** The rule states the
   behavior ("assume other sessions share the repo"); the three skills are the
   safe git commands that carry it out. Different layers, not duplicates. That
