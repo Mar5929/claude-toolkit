@@ -101,11 +101,13 @@ every session. Report conflicting current truth instead of silently picking one.
 
 ### How to write
 
+<!-- host-specific:start -->
 Never write durable memory unprompted. When the owner approved a proposal, asked
 for a change, approved behavior a specification must now reflect, or said
 "remember this" or similar, the main agent must invoke the memory librarian
 (`.claude/agents/memory-librarian.md`) in this session's worktree and review the
 diff it produces.
+<!-- host-specific:end -->
 
 Propose durable updates at approved completion points only: a substantial task
 finished, a brainstorm or requirements interview ended, a milestone reached, a
@@ -269,6 +271,9 @@ merged change reaches it the same way: refresh the plugin, then sync.
 <!-- shared-with-agents-md:end -->
 
 Everything between those two markers is in `AGENTS.md` word for word, because
-Codex reads that file and never reads this one. `tests/installed-copy-check.mjs`
-fails when the two stop matching. Edit either file and copy the block across in
-the same change.
+Codex reads that file and never reads this one. The one exception is the passage
+between the `host-specific` markers: Claude invokes the memory librarian
+directly, Codex cannot, so that passage says the same thing two ways.
+`.claude/rules/keep-claudemd-current.md` allows exactly that one difference and
+no other. `tests/installed-copy-check.mjs` checks all of it. Edit either file and
+copy the block across in the same change.

@@ -101,11 +101,15 @@ every session. Report conflicting current truth instead of silently picking one.
 
 ### How to write
 
+<!-- host-specific:start -->
 Never write durable memory unprompted. When the owner approved a proposal, asked
 for a change, approved behavior a specification must now reflect, or said
-"remember this" or similar, the main agent must invoke the memory librarian
-(`.claude/agents/memory-librarian.md`) in this session's worktree and review the
-diff it produces.
+"remember this" or similar, the main agent must delegate to a subagent, tell it
+to read `.claude/agents/memory-librarian.md` and `.claude/rules/second-brain.md`
+in full before it writes anything, have it work in this session's worktree, and
+then review the diff it produces. Codex cannot invoke the librarian agent
+directly, which is why this passage differs from the one in `CLAUDE.md`.
+<!-- host-specific:end -->
 
 Propose durable updates at approved completion points only: a substantial task
 finished, a brainstorm or requirements interview ended, a milestone reached, a
@@ -268,9 +272,11 @@ merged change reaches it the same way: refresh the plugin, then sync.
 
 <!-- shared-with-agents-md:end -->
 
-Everything between those two markers is in `CLAUDE.md` word for word.
-`tests/installed-copy-check.mjs` fails when the two stop matching. Edit either
-file and copy the block across in the same change.
+Everything between those two markers is in `CLAUDE.md` word for word, apart from
+the passage between the `host-specific` markers, which says the same thing in the
+way each program can act on. `.claude/rules/keep-claudemd-current.md` allows that
+one difference and no other, and `tests/installed-copy-check.mjs` checks it. Edit
+either file and copy the block across in the same change.
 
 ## Codex-specific instructions
 
@@ -278,11 +284,6 @@ Codex reads this file and nothing else. It does not load `.claude/rules/`
 automatically the way Claude Code does, and it has no `@` import, so the line
 above pointing at that folder is an instruction, not a load. Open
 `.claude/rules/` and read every `.md` file in it before starting work here.
-
-Where the memory section says to invoke the memory librarian: Claude invokes the
-installed `memory-librarian` agent. Codex has no installed agent, so delegate to
-a subagent and instruct it to read `.claude/agents/memory-librarian.md` and
-`.claude/rules/second-brain.md` completely before it writes anything.
 
 The hooks in `.claude/settings.json` are Claude Code hooks. They do not fire for
 Codex, so the rules they back are unenforced in a Codex session and have to be

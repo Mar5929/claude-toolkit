@@ -83,6 +83,23 @@ them, or when the memory routing in the root files drifts from the second-brain
 plugin's `orientation-snippet.md`. Run it with the other two checks before
 opening a pull request.
 
+One passage in that shared block is allowed to differ, and only one:
+`.claude/rules/keep-claudemd-current.md` says Claude invokes the memory
+librarian agent directly and Codex cannot, so each root file states that
+obligation in the way its own program can act on. It sits between
+`<!-- host-specific:start -->` and `<!-- host-specific:end -->` in both files.
+The check requires exactly one such passage in each, refuses an empty one, and
+compares everything outside them word for word.
+
+What is not covered, so nobody assumes it is: nothing compares the shipped
+memory rule at
+`plugins/second-brain/skills/second-brain/references/second-brain-rule.md`
+against the shipped summary next to it in `orientation-snippet.md`. Their
+authority maps already word six of twelve rows differently. Every destination
+matches, so no routing is wrong, and the rule is the canonical one by design, so
+the summary being worded differently is allowed rather than broken. It is
+recorded here because the difference is easy to mistake for drift.
+
 ## Specifications
 
 `specs/` exists with its index and fills as work happens. A capability gets its

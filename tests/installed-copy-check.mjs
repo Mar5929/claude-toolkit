@@ -29,9 +29,17 @@
  *    `CLAUDE.md` and `AGENTS.md`. Claude reads the first file, Codex reads the
  *    second, and the toolkit requires the memory routing to be the same in both.
  *
+ *    One passage is allowed to differ, and only one. `keep-claudemd-current.md`
+ *    says so: Claude invokes the memory librarian agent directly, Codex cannot,
+ *    so each root file states that obligation in the way its program can act on.
+ *    That passage sits between `host-specific` markers in both files. Everything
+ *    outside those markers has to match, each file must carry exactly one such
+ *    passage, and neither may be empty.
+ *
  * 3. The memory section inside that block matches the second-brain plugin's
  *    `references/orientation-snippet.md`, which is the canonical wording every
- *    project copies.
+ *    project copies. The `host-specific` marker lines are ignored for that
+ *    comparison, because the snippet does not carry them.
  *
  * Run: node tests/installed-copy-check.mjs
  */
@@ -129,24 +137,77 @@ function sharedBlock(path) {
   return text.slice(start, end);
 }
 
+const HOST_START = "<!-- host-specific:start -->";
+const HOST_END = "<!-- host-specific:end -->";
+const HOST_PASSAGE = new RegExp(
+  `${HOST_START}\\n([\\s\\S]*?)\\n${HOST_END}`,
+  "g",
+);
+
+/** Every passage a root file is allowed to word differently for its program. */
+function hostSpecificPassages(block) {
+  return [...block.matchAll(HOST_PASSAGE)].map((match) => match[1]);
+}
+
+/** The block with those passages taken out, which is what must match. */
+function withoutHostSpecific(block) {
+  return block.replace(HOST_PASSAGE, `${HOST_START}\n${HOST_END}`);
+}
+
+/** The marker lines themselves, which the plugin's snippet does not carry. */
+function withoutMarkerLines(text) {
+  return text
+    .split("\n")
+    .filter((line) => line.trim() !== HOST_START && line.trim() !== HOST_END)
+    .join("\n");
+}
+
 const claudeBlock = sharedBlock("CLAUDE.md");
 const agentsBlock = sharedBlock("AGENTS.md");
 
 if (claudeBlock === null || agentsBlock === null) {
+  const missing = [
+    claudeBlock === null ? "CLAUDE.md" : null,
+    agentsBlock === null ? "AGENTS.md" : null,
+  ]
+    .filter(Boolean)
+    .join(" and ");
   failures.push(
-    "  CLAUDE.md / AGENTS.md\n    one of them is missing a"
-      + " shared-with-agents-md marker, so the two\n    cannot be compared."
-      + " Claude reads CLAUDE.md and Codex reads AGENTS.md;\n    the block"
-      + " between the markers has to be in both.",
+    `  ${missing}\n    is missing a shared-with-agents-md marker, so the two`
+      + " root files cannot be\n    compared. Claude reads CLAUDE.md and Codex"
+      + " reads AGENTS.md; the block\n    between the markers has to be in"
+      + " both.",
   );
 } else {
   checked++;
-  if (claudeBlock !== agentsBlock) {
+  for (const [path, block] of [
+    ["CLAUDE.md", claudeBlock],
+    ["AGENTS.md", agentsBlock],
+  ]) {
+    const passages = hostSpecificPassages(block);
+    if (passages.length !== 1) {
+      failures.push(
+        `  ${path}\n    has ${passages.length} host-specific passage(s) in its`
+          + " shared block, and must have\n    exactly one."
+          + " keep-claudemd-current.md allows Claude and Codex to word one\n"
+          + "    passage differently, the one about invoking the memory"
+          + " librarian, and\n    allows no other difference.",
+      );
+    } else if (passages[0].trim() === "") {
+      failures.push(
+        `  ${path}\n    has an empty host-specific passage. It has to say what`
+          + " this program does\n    about invoking the memory librarian, not"
+          + " leave a hole.",
+      );
+    }
+  }
+  if (withoutHostSpecific(claudeBlock) !== withoutHostSpecific(agentsBlock)) {
     failures.push(
-      "  CLAUDE.md / AGENTS.md\n    the shared block differs between them."
-        + " Claude reads one file and Codex\n    reads the other, so a session"
-        + " gets different instructions depending on\n    which program it is."
-        + " Copy the block across.",
+      "  CLAUDE.md / AGENTS.md\n    the shared block differs between them"
+        + " outside the host-specific passage.\n    Claude reads one file and"
+        + " Codex reads the other, so a session gets\n    different"
+        + " instructions depending on which program it is. Copy the block\n"
+        + "    across.",
     );
   }
 }
@@ -184,12 +245,13 @@ if (canonicalMemorySection === null) {
     );
   } else {
     checked++;
-    if (rootMemorySection.trim() !== canonicalMemorySection.trim()) {
+    const compared = withoutMarkerLines(rootMemorySection);
+    if (compared.trim() !== canonicalMemorySection.trim()) {
       failures.push(
-        `  CLAUDE.md and AGENTS.md\n    the memory section no longer matches`
-          + ` ${ORIENTATION}.\n    That snippet is what every project copies,`
-          + " so a change to one has to be a\n    change to both, in the same"
-          + " commit.",
+        `  CLAUDE.md\n    its memory section no longer matches ${ORIENTATION}.`
+          + "\n    That snippet is what every project copies, so a change to"
+          + " one has to be a\n    change to both, in the same commit."
+          + " AGENTS.md is covered by the shared\n    block check above.",
       );
     }
   }
@@ -204,5 +266,6 @@ if (failures.length > 0) {
 }
 
 console.log(
-  `ALL PASS (${checked} installed copies match what this repo ships), FAIL: 0`,
+  `ALL PASS (${checked} checks: installed copies match what this repo ships, `
+    + "and the two root instruction files agree), FAIL: 0",
 );
