@@ -8,6 +8,44 @@ packaged as a Claude Code plugin marketplace. `README.md` has the full picture.
 Read `.claude/rules` first. Every file in that folder is a rule for how you work
 here, and they are in force for the whole session.
 
+Communication
+
+I have ADHD. Talk to me like I am smart but not technical. Sixth-grade reading level. Short sentences. Plain words.
+
+#### Structure every reply this way
+
+1. The answer. One or two lines. What happened, or what I asked for. Nothing else first.
+2. The details. Bullet points only. One idea per bullet. One line per bullet.
+3. What I need to do. Only if I actually need to do something. Say it as a direct instruction: "Click X" or "Tell me if you want Y."
+4. Also found (optional). If you learned other things while working, list them here as bullets at the very bottom. One line each. Then stop. Do not explain them. Let me ask if I want more.
+
+#### Communication Rules
+
+- Never start with a preamble. No "Great question," no "I've gone ahead and," no restating what I asked.
+- Never narrate your process. I don't need to know which files you opened or what you tried first.
+- No em dashes. Ever.
+- One topic per reply. If you have to cover a second topic, put it under "Also found" and keep it to one line.
+- No jargon. If a technical word is unavoidable, add a four-word plain-English tag after it.
+- Skip the closing offer of more help unless there is a real decision only I can make.
+- Do not pad. If the answer is one sentence, send one sentence.
+
+#### When you have a question for me
+
+- Ask one question at a time.
+- Give me the options as bullets.
+- Tell me which one you recommend and why, in one line.
+
+#### When something goes wrong
+
+- Say what broke in one line.
+- Say what it means for me in one line.
+- Say what you want to do next in one line.
+- Do not paste error logs unless I ask.
+
+#### When I ask for real writing
+
+Long is fine for drafts, scripts, posts, and documents. This whole style guide is about how you talk to me in chat, not about the work itself.
+
 ## Project memory and knowledge: read this before you write anything
 
 `.claude/rules/second-brain.md` is the canonical rule and wins over this summary
@@ -27,7 +65,7 @@ and index.
 ### Authority map: one truth, one home
 
 | Question | Canonical home |
-|---|---|
+| --- | --- |
 | What should the product or system do? | `specs/` |
 | What ideas, options, and open questions were explored? | `brainstorms/` |
 | What durable circumstance affects the work? | `memory/context/` |
@@ -54,7 +92,7 @@ both. Never pick one and drop the other half.
 ### When to use each home, and when not to
 
 | Home | Use when | Do NOT use when |
-|---|---|---|
+| --- | --- | --- |
 | `brainstorms/` | Requirements or design are still being discovered, or the owner runs `grill-me`. One flat dated collection. | The behavior is already approved (that is `specs/`), or it is a raw meeting record with another home. |
 | `specs/` | A capability, boundary, observable behavior, constraint, or acceptance expectation is **approved**. One `README.md` per capability under `specs/<area>/<capability>/`. | Capturing exploration, implementation trivia, ticket status, or a source. |
 | `memory/context/` | A durable circumstance, stakeholder, constraint, or boundary affects several tasks or explains why work must be read a certain way. | It is a current task, next action, blocker, or temporary handoff. |
@@ -123,18 +161,18 @@ A save runs in this order:
    proposing a fact, search for a document that already owns it and link to that
    instead of repeating it.
 <!-- host-specific:start -->
-2. Invoke `memory-verifier` (`.claude/agents/memory-verifier.md`) in the
+1. Invoke `memory-verifier` (`.claude/agents/memory-verifier.md`) in the
    foreground and wait for its report. It reads only and never writes. It opens
    the file behind each in-a-file claim, compares each owner claim against the
    owner's actual words, and flags anything the agent worked out, because that
    cannot be confirmed.
 <!-- host-specific:end -->
-3. Fix what came back wrong, and mark anything unconfirmed so the owner can see
+1. Fix what came back wrong, and mark anything unconfirmed so the owner can see
    it is unchecked.
-4. Show the owner the real words, not a table describing them. They approve,
+2. Show the owner the real words, not a table describing them. They approve,
    cut, or edit. An edit is written exactly as the owner wrote it and needs no
    further checking.
-5. Save them, rebuild the indexes, and run the shape check. A failed shape check
+3. Save them, rebuild the indexes, and run the shape check. A failed shape check
    means the save is not finished: say what is missing in plain words and fix
    it.
 
@@ -168,10 +206,11 @@ information, changing what is authoritative, moving, splitting, or merging
 documents, reorganizing, superseding current guidance, or adding a new top-level
 area or type. These operations are allowed after approval so memory can be
 maintained instead of only accumulating.
+
 ## Codemap
 
 | Path | What lives there |
-|---|---|
+| --- | --- |
 | `plugins/` | The nine plugins this repo ships. Each has its own `README.md`, which is that plugin's canonical description. |
 | `plugins/project-init/library/` | The reusable material other projects receive: `rules/general/`, `rules/salesforce/`, `output-styles/`, `tools/`, `templates/`, `guides/`. Each has a `README.md` index. |
 | `.claude-plugin/marketplace.json` | Registers every plugin for Claude Code. `.agents/plugins/marketplace.json` does the same for Codex. |
