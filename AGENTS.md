@@ -220,8 +220,12 @@ one line per folder there and sends the detail to a `CLAUDE.md` inside that
 folder, which Claude Code loads only when it reads a file there. Codex has no
 such mechanism and never reads any `CLAUDE.md`, root or nested, so this file
 writes the same detail out in full. That is deliberate. Do not shorten it to
-match `CLAUDE.md`, and do not create nested `AGENTS.md` files. When you change
-anything below this line, change the matching passage in `CLAUDE.md` too.
+match `CLAUDE.md`, and do not create nested `AGENTS.md` files.
+`tests/installed-copy-check.mjs` compares only the text between the markers, so
+below them nothing checks anything: when you change a passage here, change the
+matching passage in `CLAUDE.md` in the same edit, by hand.
+`memory/decisions/root-instructions/claude-md-and-agents-md-carry-the-same-block.md`
+says why the markers sit where they do.
 
 ## Codemap
 

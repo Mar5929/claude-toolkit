@@ -213,9 +213,11 @@ Everything above that marker is in `AGENTS.md` word for word, apart from the
 `host-specific` passage. Everything below it may differ, and does: this file
 keeps one line per folder and sends the detail to that folder's own `CLAUDE.md`,
 while `AGENTS.md` writes the same detail out in full because Codex never reads
-any `CLAUDE.md`. Change anything below this line and change the matching passage
-in `AGENTS.md` too. `.claude/rules/keep-claudemd-current.md` owns the rule and
-`tests/installed-copy-check.mjs` checks it.
+any `CLAUDE.md`. `tests/installed-copy-check.mjs` compares only the text between
+the markers, so below them nothing checks anything: change a passage here and
+change the matching passage in `AGENTS.md` in the same edit, by hand.
+`memory/decisions/root-instructions/claude-md-and-agents-md-carry-the-same-block.md`
+says why the markers sit where they do.
 
 ## Codemap
 

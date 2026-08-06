@@ -460,10 +460,11 @@ should look in THIS project, confirm, act, summarize. Ground rules:
      offer to move them into the folder file, leaving one line in the codemap
      pointing at it.
   3. Never move a behavior rule out of the root file or out of
-     `.claude/rules/`. Never move how to talk to the owner, the pointers to the
-     most dangerous rules, or the memory routing section. Those four are named
-     in `../project-init/references/thin-claudemd.md` under "What must stay in
-     the root file".
+     `.claude/rules/`. Four other things never move either: how to talk to the
+     owner, the pointers to the most dangerous rules, the memory routing
+     section, and the codemap lines themselves. They are named in
+     `../project-init/references/thin-claudemd.md` under "What must stay in the
+     root file".
   4. When the project has an `AGENTS.md`, it keeps that detail in full. Codex
      never reads a folder file, so moving the text out of `AGENTS.md` would
      leave a Codex session without it. If the project pins the two root files to
