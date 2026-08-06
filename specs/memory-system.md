@@ -12,7 +12,8 @@ Defined here so no agent has to guess.
   Mike. Never another agent, and never a helper agent an agent started.
 - **The agent**: any AI assistant working in this repository. Claude Code,
   Codex, or a helper agent one of them started.
-- **A save**: creating a file in `specs/` or `memory/`, or editing one.
+- **A save**: creating a file in `specs/` or `memory/`, editing one, or
+  deleting one.
 - **A specification**: a file in `specs/`. It says what a thing must do.
 - **A memory**: a file in `memory/`. It says something worth knowing.
 - **A persona**: a kind of person who uses the thing being specified, described
@@ -89,7 +90,7 @@ else.
 
 | Folder | Put a file here when | Do not put it here when | For example |
 | --- | --- | --- | --- |
-| `memory/context/` | Something about the situation shapes several pieces of work: who is involved, what the project is up against, a limit that comes from outside. | It is what someone is working on right now, or what is blocked. That belongs in the work tracker. | The client ran on an Access database until 2021, and the old record IDs still live in a legacy field. |
+| `memory/context/` | Something about the situation shapes several pieces of work: who is involved, what the project is up against, a limit that comes from outside. | It is what someone is working on right now, or what is blocked. That belongs in the work tracker. Or it is how the user likes to work on every project. That belongs in the user's toolkit, not in one project's memory. | The client ran on an Access database until 2021, and the old record IDs still live in a legacy field. |
 | `memory/decisions/` | A choice was made that is not obvious, and knowing why will stop someone reversing it or arguing it again. | The choice was routine, or it is already written in a specification. | Why intake was built with flows instead of custom code. |
 | `memory/knowledge/` | Something was worked out that would take real effort to work out again, or that stops a mistake somebody is likely to make. | It is obvious from reading the nearby code, or it is really a decision or a specification. | The old record IDs are not unique, so never match on them alone. |
 | `memory/domain/` | A word or a business rule in this project means something specific that an agent could get wrong. | It describes how the software behaves. That is a specification. | To this client, a household means every account that shares one advisor. |
@@ -110,6 +111,10 @@ agent says so and asks rather than guessing.
 One event can produce two files. When a big choice changes the direction, the
 choice and its reason go in `memory/decisions/`, the roadmap in
 `memory/planning/` is updated to match, and the two files link to each other.
+
+No file in `specs/` or `memory/` ever holds a password, a key, or private
+personal information that does not belong in a repository. These folders get
+pushed to GitHub and copied to other machines.
 
 ### Things that may stop being true
 
@@ -144,6 +149,13 @@ Three moments:
 
 Not at the end of a message, not on a commit, and not after a small fix. Saving
 at those moments is what fills the folders with things nobody needs.
+
+### Cleaning up
+
+The user may ask at any time for a review of what is saved. The agent then
+proposes edits, merges, and deletions for anything stale, repeated, or no
+longer worth keeping. The normal save rules apply: the user sees the exact
+words and says yes before anything changes.
 
 ### The shape of a memory file
 
@@ -315,6 +327,10 @@ What the user's reply means:
 - **Edit:** write the user's words exactly as typed, with no checking and no
   argument, because the user is the source.
 
+A save can also propose deleting a file that is wrong or no longer worth
+keeping. The draft names the file and says why. Git keeps every old version,
+so a deleted file can always be brought back.
+
 ## Edge cases
 
 - **Nothing is worth saving.** Say so in one line and show nothing else.
@@ -329,6 +345,8 @@ What the user's reply means:
   cut it on sight.
 - **Two saved files disagree with each other.** Show the user both files and the
   exact sentences that disagree. Do not pick one, and do not edit either.
+- **A saved file disagrees with what the agent sees in the code or the running
+  system.** Say so and show both. Do not silently trust either one.
 - **A related file does not exist yet.** Leave the link out.
 - **The save is part of a pull request and the user has not replied yet.** The
   pull request opens with the code in it. The saved files are added to the same
