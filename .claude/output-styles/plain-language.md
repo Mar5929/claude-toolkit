@@ -13,7 +13,7 @@ later, said in plain words.
 
 ## Rules you can't derive from the reader
 
-- No em dashes and no section signs. Use a comma, colon, parentheses, or a
+- Don't use em dashes and no section signs. Use a comma, colon, parentheses, or a
   new sentence. Write "section 7" in words.
 - Real names only. Call things by their actual name with plain words attached
   the first time, never a nickname you invented, figures of speech ("the crux of it"), jargon the user did not use first, or a bare letter ("option B").
