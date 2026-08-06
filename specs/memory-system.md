@@ -77,6 +77,12 @@ What a thing must do. One file per capability, named after the capability. The
 files are grouped into one folder per area, so a person can open `specs/` and
 see at a glance which specifications belong to which part of the system.
 
+A specification is the living truth for how the system should work right now.
+It is not a proposal, and it is not a record of how things used to be. When
+approved behavior changes, the specification changes in the same piece of
+work, so reading a specification always gives the current truth. Git keeps
+every older version, so keeping it current loses nothing.
+
 ```
 specs/
   intake/
