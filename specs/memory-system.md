@@ -77,6 +77,12 @@ What a thing must do. One file per capability, named after the capability. The
 files are grouped into one folder per area, so a person can open `specs/` and
 see at a glance which specifications belong to which part of the system.
 
+A specification is the living truth for how the system should work right now.
+It is not a proposal, and it is not a record of how things used to be. When
+approved behavior changes, the specification changes in the same piece of
+work, so reading a specification always gives the current truth. Git keeps
+every older version, so keeping it current loses nothing.
+
 ```
 specs/
   intake/
@@ -386,7 +392,10 @@ A save runs in six steps:
 3. **Draft the real words.** Write out what would actually be saved, not a
    description of it. Number each piece and give its file path.
 4. **Label where every fact came from**, using the fixed `source:` values.
-5. **Show the user, then stop.** The user replies with numbers: keep, cut, or
+5. **Show the user, then stop.** Each piece leads with one line the user can
+   take in at a glance: its number, its destination, its one-sentence summary,
+   and its source value. The full words sit directly under it. The user
+   replies with numbers: keep, cut, or
    edit.
 6. **Write only what the user kept**, run the index script, then state exactly
    which files were written and what was cut.
