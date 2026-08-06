@@ -74,12 +74,14 @@ What a thing must do. One file per capability, named after the capability. The
 files are grouped into one folder per area, so a person can open `specs/` and
 see at a glance which specifications belong to which part of the system.
 
-    specs/
-      intake/
-        lead-routing.md
-        web-to-lead-form.md
-      billing/
-        invoice-generation.md
+```
+specs/
+  intake/
+    lead-routing.md
+    web-to-lead-form.md
+  billing/
+    invoice-generation.md
+```
 
 The agent never invents a new area folder on its own. The first time a
 specification needs an area that does not exist yet, the agent proposes the
@@ -161,20 +163,22 @@ words and says yes before anything changes.
 
 Every file in `memory/` looks like this.
 
-    # Title saying what this is
+```
+# Title saying what this is
 
-    One sentence saying what this file covers.
+One sentence saying what this file covers.
 
-    Source: the user said this in this session
-    Date: 2026-08-05
-    Stops being true if: the /remember skill is rewritten
+Source: the user said this in this session
+Date: 2026-08-05
+Stops being true if: the /remember skill is rewritten
 
-    The body, written in whatever shape fits the content.
+The body, written in whatever shape fits the content.
 
-    ## Related
+## Related
 
-    - [title of the other file](../knowledge/other-file-name.md): a few words on
-      how it connects.
+- [title of the other file](../knowledge/other-file-name.md): a few words on
+  how it connects.
+```
 
 The `Source:` line is exactly one of these three, copied word for word:
 
@@ -195,41 +199,43 @@ the file wrong. Most files will not have it.
 
 Every file in `specs/` looks like this.
 
-    # Title saying what this is
+```
+# Title saying what this is
 
-    One sentence saying what this file covers.
+One sentence saying what this file covers.
 
-    ## What it is for
+## What it is for
 
-    Why this exists and what problem it solves.
+Why this exists and what problem it solves.
 
-    ## Who uses it
+## Who uses it
 
-    One entry per persona, saying what that person is trying to get done.
+One entry per persona, saying what that person is trying to get done.
 
-    ## What it must do
+## What it must do
 
-    Everything that has to be true for this to count as working.
+Everything that has to be true for this to count as working.
 
-    ## How it behaves from the outside
+## How it behaves from the outside
 
-    Step by step: what the person does, and what happens back. Not the
-    internals.
+Step by step: what the person does, and what happens back. Not the
+internals.
 
-    ## Edge cases
+## Edge cases
 
-    The odd and unhappy situations, each one with exactly what should happen.
-    Name the behavior, not just the situation.
+The odd and unhappy situations, each one with exactly what should happen.
+Name the behavior, not just the situation.
 
-    ## What it deliberately does not do
+## What it deliberately does not do
 
-    What was left out on purpose, and why. This stops a future agent adding it
-    back.
+What was left out on purpose, and why. This stops a future agent adding it
+back.
 
-    ## Related
+## Related
 
-    - [title of the other file](../memory/decisions/other-file-name.md): a few
-      words on how it connects.
+- [title of the other file](../memory/decisions/other-file-name.md): a few
+  words on how it connects.
+```
 
 Rules for those sections:
 
@@ -249,8 +255,10 @@ Rules for those sections:
 A link is a plain Markdown link pointing at the other file from where this one
 sits.
 
-    [why we dropped the memory verifier](../decisions/why-we-dropped-the-memory-verifier.md)
-    [how the memory system works](../../specs/memory-system.md)
+```
+[why we dropped the memory verifier](../decisions/why-we-dropped-the-memory-verifier.md)
+[how the memory system works](../../specs/memory-system.md)
+```
 
 A link can sit in two places:
 
