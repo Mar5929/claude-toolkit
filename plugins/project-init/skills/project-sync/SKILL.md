@@ -99,6 +99,10 @@ automatically as it grows.
     old copy is a flat bullet list, says "prefer lists and bullet points", and
     has no goal, no examples, and nothing about invented names or figures of
     speech. Offer the rewrite
+  - the short `CLAUDE.md` the toolkit now writes inside each major folder, per
+    `../project-init/references/folder-claudemd.md`. Read that file so step 2
+    can tell a missing one from a folder the toolkit deliberately skips (any
+    folder with a `README.md` index, and everything under `.claude/`)
   - each standalone skill offered by the setup flow, including `grill-me`
   - anything newer listed in the toolkit README under "What's here now"
   - skip roadmap items; they are not built and cannot be audited. Second-brain
@@ -380,6 +384,31 @@ on any trim you propose:
   files point at, say exactly which, and let the owner choose between
   renumbering with the fixes and keeping the numbering stable.
 
+### Folder CLAUDE.md files
+
+The toolkit now writes a short `CLAUDE.md` inside each major folder. Claude Code
+loads it only when an agent reads a file in that folder, which is what lets the
+root file stay short without losing the detail. Read
+`../project-init/references/folder-claudemd.md` first, then walk the project's
+folders and report each one as:
+
+- **Present.** The folder already has its own `CLAUDE.md`. Leave it alone. Do
+  not rewrite it into the toolkit's wording; the project wrote it on purpose.
+- **Missing.** A major folder the toolkit recognizes, with no `CLAUDE.md` and no
+  `README.md` index. This is a gap.
+- **Skipped by design.** A folder with a `README.md` index, or anything under
+  `.claude/`, or a folder another plugin creates and indexes. Not a gap. Say so
+  rather than leaving it off the list, so it does not get raised again next run.
+- **Not recognized.** A folder the toolkit did not create and whose purpose you
+  cannot tell from the repository. Do not propose a file for it and do not guess
+  what it is for. List it and ask the owner in step 4.
+
+Two things this check never does. It never reports a nested `AGENTS.md` as
+missing, because there is no such thing: Codex reads the root `AGENTS.md` and
+nothing else. And it never proposes moving a behavior rule out of
+`.claude/rules/` into a folder file, because a file that loads only sometimes
+cannot carry a rule that applies always.
+
 ## Step 3: report before touching anything
 
 Show one table: item, status, and what specifically is missing or drifted. Make
@@ -421,6 +450,31 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   choosing with it in view: a helper agent still never sees an output style,
   which is why `follow-the-output-style.md` goes into the rules folder in the
   same pass.
+- **For an approved folder `CLAUDE.md` gap, do one folder at a time, and offer
+  the move with it.** Adding the folder file alone leaves the root `CLAUDE.md`
+  exactly as long as it was, which is the whole thing this is meant to fix. So
+  for each folder the owner approves:
+  1. Show the draft folder file: what the folder holds, how to work in it, and
+     where the detail lives.
+  2. Show the lines in the root `CLAUDE.md` that are about that folder, and
+     offer to move them into the folder file, leaving one line in the codemap
+     pointing at it.
+  3. Never move a behavior rule out of the root file or out of
+     `.claude/rules/`. Four other things never move either: how to talk to the
+     owner, the pointers to the most dangerous rules, the memory routing
+     section, and the codemap lines themselves. They are named in
+     `../project-init/references/thin-claudemd.md` under "What must stay in the
+     root file".
+  4. When the project has an `AGENTS.md`, it keeps that detail in full. Codex
+     never reads a folder file, so moving the text out of `AGENTS.md` would
+     leave a Codex session without it. If the project pins the two root files to
+     each other with a shared block and a check, the block has to shrink to the
+     part that genuinely must match before anything below it can differ. Say
+     that out loud before touching either file.
+  5. Never create a nested `AGENTS.md`.
+- For a folder listed as **not recognized** in step 2, ask the owner what it is
+  for in plain words, then either write the file from their answer or record the
+  skip. Do not infer a purpose from the folder name.
 - For an approved `memory-pr-hook` gap, install it via `/hooks-library` and
   check `.claude/rules/wrap-up-ritual.md` is present in the same pass, copying
   it from `../../library/rules/general/` if it is not. Say plainly what changes

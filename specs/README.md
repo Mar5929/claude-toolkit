@@ -4,6 +4,9 @@ This folder defines current approved product and system behavior.
 
 ## Areas
 
+- [Project setup specifications](project-setup/README.md): What the toolkit
+  does when it sets up a new project or brings an existing one up to date.
+
 The list below is built by `node .claude/tools/memory-index-build.mjs` from the
 documents in this folder, so it cannot fall out of step with them. Do not
 hand-edit it. The prose around it is written by hand and is left alone.
