@@ -195,16 +195,16 @@ claude-toolkit/
     second-brain-v1/              ← retired implementation, outside installable plugins
   .claude/                        ← this repo running the toolkit on itself
     rules/                        ← copies of the rules it ships, plus their index
-    hooks/                        ← the three general hooks, switched on here too
+    hooks/                        ← style-reminder, writing-guard, save-reminder
     output-styles/                ← plain-language.md, selected in settings.json
-    agents/memory-verifier.md     ← the read-only checker this repo uses
-    references/                   ← second-brain-reference.md, opened when routing
-                                     is unclear
-    tools/                        ← memory-index-build.mjs, memory-shape-check.mjs
+    skills/                       ← remember, recall, cleanup: this repo's own
+                                     memory system, which no plugin ships yet
+    tools/                        ← build-memory-index.mjs, which writes
+                                     memory/index.md
     toolkit-sync.md               ← what was set up, skipped, or declined, and why
-  brainstorms/                    ← this repo's own discovery notes, indexed
+  brainstorms/                    ← this repo's own discovery notes
   specs/                          ← approved behavior, filled as work happens
-  memory/                         ← this repo's own typed memory
+  memory/                         ← this repo's own memory, listed in index.md
 ```
 
 Each **concern is its own plugin/skill** so it can evolve and be reused
@@ -281,7 +281,13 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
   ships the rule, its routing reference, the memory-verifier role, the two
   scripts, templates, setup, sync, and remember workflows. Those files are the
   design: the separate design document set was deleted, because a second
-  description of the same system is a second thing to keep in step.
+  description of the same system is a second thing to keep in step. **This
+  repository stopped running it on 2026-08-06** and now runs the smaller system
+  in [`specs/memory-system.md`](specs/memory-system.md): four always-loaded
+  lines, three skills under `.claude/skills/`, one index, one hook, no checking
+  agent and no shape script. Every other project still runs second-brain v3, and
+  the plugin still ships it. Packaging the smaller system for other projects is
+  a separate ticket.
 - [x] **`second-brain` v1 archive**: the retired Worker, Neon, MCP, curator,
   hook, knowledge-backfill, and structural-layer source has been removed from
   active plugin paths and consolidated under

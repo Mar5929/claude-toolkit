@@ -46,174 +46,22 @@ I have ADHD. Talk to me like I am smart but not technical. Sixth-grade reading l
 
 Long is fine for drafts, scripts, posts, and documents. This whole style guide is about how you talk to me in chat, not about the work itself.
 
-## Project memory and knowledge: read this before you write anything
+## Project memory and specifications
 
-`.claude/rules/second-brain.md` is the canonical rule and wins over this summary
-if they ever disagree. Read it before work that changes approved behavior, and
-before any structural change to these folders. When the routing below does not
-settle where something goes, open
-`.claude/references/second-brain-reference.md`.
-
-The committed Markdown files and Git history **are** the system. There is no
-memory database, memory server, embedding index, transcript store, or background
-curator. Nothing is remembered automatically. If it is not written down here, it
-is not remembered. A hook may remind you of a rule or start a review, and never
-writes memory itself. The one raw-capture exception is an owner-invoked
-`grill-me` interview, which checkpoints only its non-authoritative brainstorm
-and index.
-
-### Authority map: one truth, one home
-
-| Question | Canonical home |
-|---|---|
-| What should the product or system do? | `specs/` |
-| What ideas, options, and open questions were explored? | `brainstorms/` |
-| What durable circumstance affects the work? | `memory/context/` |
-| What is the high-level direction and sequence? | `memory/planning/` |
-| What important choice was made, and why? | `memory/decisions/` |
-| What reusable understanding should future work know? | `memory/knowledge/` |
-| Which source matters, and what does it support? | `memory/references/` |
-| What does this business term or rule mean? | `memory/domain/` |
-| How is the system operated, released, or recovered? | `memory/operations/` |
-| Where is a raw meeting, transcript, message, deliverable, or export? | The project's ordinary artifact folders |
-| What is active, next, blocked, assigned, or landed? | The work tracker |
-| What did an earlier version say? | Git history |
-
-Link to the one home. Never copy a second version that can drift. When you are
-about to write something another document already owns, `Repetition` in
-`.claude/references/second-brain-reference.md` says what to do instead.
-
-**`specs/` against `memory/` is the split most often guessed wrong.** Approved
-behavior, meaning what the system has to do, goes to `specs/`. Things worth
-knowing, meaning what would otherwise have to be worked out again, go to
-`memory/`. When something is both, it produces two documents and the owner sees
-both. Never pick one and drop the other half.
-
-### When to use each home, and when not to
-
-| Home | Use when | Do NOT use when |
-|---|---|---|
-| `brainstorms/` | Requirements or design are still being discovered, or the owner runs `grill-me`. One flat dated collection. | The behavior is already approved (that is `specs/`), or it is a raw meeting record with another home. |
-| `specs/` | A capability, boundary, observable behavior, constraint, or acceptance expectation is **approved**. One `README.md` per capability under `specs/<area>/<capability>/`. | Capturing exploration, implementation trivia, ticket status, or a source. |
-| `memory/context/` | A durable circumstance, stakeholder, constraint, or boundary affects several tasks or explains why work must be read a certain way. | It is a current task, next action, blocker, or temporary handoff. |
-| `memory/planning/` | Direction or sequence matters beyond one ticket: vision, goals, roadmap, milestones, durable risks, assumptions. | Recording ticket status, assignments, or an operational blocker. |
-| `memory/decisions/` | Knowing why a non-obvious choice was made will prevent confusion, reversal, or a repeated debate. | The choice is routine, temporary, obvious from the spec, or useful inside one ticket only. |
-| `memory/knowledge/` | The understanding prevents a likely mistake, explains a failure mode, or helps several future tasks. | It is obvious from nearby code, temporary debug output, or belongs in a spec or decision. |
-| `memory/references/` | A source is external or needs durable project-specific context explaining what it supports. | A raw artifact already has a clear home and can simply be linked. |
-| `memory/domain/` | People use a term or business rule an agent could misread. | Defining product behavior or technical implementation. |
-| `memory/operations/` | A repeatable procedure plus its verification or recovery will help future work. | Tracking a deployment ticket, storing a secret, or defining required behavior. |
-
-### Raw artifacts stay where they are
-
-The project's existing artifact folders keep owning raw material: meeting notes,
-transcripts, communications, deliverables, client exports, and source documents.
-Memory links to them and explains why they matter. It never holds a second copy.
-Where an existing folder overlaps a memory type, the memory type owns the
-curated version and the artifact folder owns the raw file.
-
-### The work tracker owns live state
-
-Ticket status, blockers, assignments, handoffs, branches, pull requests, and
-landing proof belong to the work tracker, never to memory. Planning owns
-direction; the tracker owns execution.
-
-### Every durable document has
-
-1. a descriptive title;
-2. a one-sentence summary directly under it;
-3. a `Basis:` line under that summary, for everything under `memory/`;
-4. a type given by its folder path, and content shaped for that type;
-5. an entry in the nearest `README.md` index; and
-6. links to related documents where they genuinely help.
-
-Every populated `memory/<type>/<system-area>/` folder has its own `README.md`.
-Create it with the area's first durable document. The list of documents inside
-an index is built from the documents by the index builder, not typed by hand.
-
-No YAML frontmatter. No empty placeholder fields. `Status: Superseded` plus a
-link to the replacement is required whenever a replaced document is kept.
-
-The `Basis:` line says where the content came from: `Basis: Observed`,
-`Basis: Owner-confirmed <YYYY-MM-DD>`, `Basis: Source`, or
-`Basis: Inferred, unconfirmed`. Trust a document only as far as its basis
-allows, and never quietly upgrade an inference to a confirmed fact.
-Specifications carry no `Basis:` line, because the owner approved them.
-
-### How to read
-
-Start at the relevant root `README.md`, then the area index, then the specific
-document. Follow only the links this task needs. Before changing behavior in an
-area, find and read that area's specification first. Do not load every memory
-file every session. Report conflicting current truth instead of silently picking
-one.
-
-### How to write
-
-Never write durable memory unprompted. Authority to write comes from the owner:
-they approved the drafted words, asked for the change, approved behavior a
-specification must now reflect, or said "remember this" or similar.
-
-A save runs in this order:
-
-1. The main agent drafts the exact words and the destination path for each
-   piece. Every claim carries where it came from, and it is one of three kinds:
-   it is in a file, the owner said it, or the agent worked it out. Before
-   proposing a fact, search for a document that already owns it and link to that
-   instead of repeating it.
-<!-- host-specific:start -->
-2. Invoke `memory-verifier` (`.claude/agents/memory-verifier.md`) in the
-   foreground and wait for its report. It reads only and never writes. It opens
-   the file behind each in-a-file claim, compares each owner claim against the
-   owner's actual words, and flags anything the agent worked out, because that
-   cannot be confirmed.
-<!-- host-specific:end -->
-3. Fix what came back wrong, and mark anything unconfirmed so the owner can see
-   it is unchecked.
-4. Show the owner the real words, not a table describing them. They approve,
-   cut, or edit. An edit is written exactly as the owner wrote it and needs no
-   further checking.
-5. Save them, rebuild the indexes, and run the shape check. A failed shape check
-   means the save is not finished: say what is missing in plain words and fix
-   it.
-
-Nothing that writes a file runs in the background, and any agent producing a
-report is run in the foreground so its report comes back without being asked
-for.
-
-Propose durable updates at approved completion points only: a substantial task
-finished, a brainstorm or requirements interview ended, a milestone reached, a
-session handing off or about to have its context cleared, or another natural
-stopping point after meaningful work with a settled durable result. Not on every
-response, commit, or trivial action. One review can satisfy several nearby
-stopping points unless later work changes the durable result.
-
-A deferred proposal changes no durable document and creates no memory queue. If
-an approved write fails, retry or report it and keep the task unfinished. The
-pull request may open, but it does not merge as though the write succeeded
-unless the owner explicitly waives it.
-
-Before a pull request containing specification or memory changes merges, bring
-its branch current through the project's Git workflow. Then run the memory
-verifier again for a read-only comparison with the latest relevant memory and
-indexes. It uses judgment to find duplicate canonical homes or conflicting
-current truth that parallel work could merge without a text conflict, and it is
-sized to the change: a new document gets the full read, one generated index line
-gets a quick look. Any destructive or meaning-changing repair still requires
-visible owner approval, and the main agent makes it.
-
-Stop and show the owner before any structural change: removing durable
-information, changing what is authoritative, moving, splitting, or merging
-documents, reorganizing, superseding current guidance, or adding a new top-level
-area or type. These operations are allowed after approval so memory can be
-maintained instead of only accumulating.
+1. `specs/` says what things must do. `memory/` says what is worth knowing.
+   Look there before searching the code, and before asking the user something
+   the project already wrote down.
+2. At the start of a session, read the index at `memory/index.md` to see what
+   is already written down.
+3. `brainstorms/` holds raw transcripts. Nothing in them is approved truth.
+4. Never write into `specs/` or `memory/` without first showing the user the
+   exact words and getting a yes from the user.
 
 <!-- shared-with-agents-md:end -->
 
-Everything above the end marker is in `CLAUDE.md` word for word, apart from the
-passage between the `host-specific` markers, which says the same thing in the way
-each program can act on. `.claude/rules/keep-claudemd-current.md` allows that one
-difference and no other, and `tests/installed-copy-check.mjs` checks it. Edit
-either file above the marker and copy the block across in the same change.
+Everything above the end marker is in `CLAUDE.md` word for word, with no
+exceptions, and `tests/installed-copy-check.mjs` checks it. Edit either file
+above the marker and copy the block across in the same change.
 
 Everything **below** the marker is allowed to differ, and does. `CLAUDE.md` keeps
 one line per folder there and sends the detail to a `CLAUDE.md` inside that
@@ -224,8 +72,8 @@ match `CLAUDE.md`, and do not create nested `AGENTS.md` files.
 `tests/installed-copy-check.mjs` compares only the text between the markers, so
 below them nothing checks anything: when you change a passage here, change the
 matching passage in `CLAUDE.md` in the same edit, by hand.
-`memory/decisions/root-instructions/claude-md-and-agents-md-carry-the-same-block.md`
-says why the markers sit where they do.
+`memory/decisions/claude-md-and-agents-md-carry-the-same-block.md` says why the
+markers sit where they do.
 
 ## Codemap
 
@@ -238,15 +86,22 @@ says why the markers sit where they do.
 | `docs/toolkit-map.md` | The cross-cutting catalog: what each piece is, and the honest read on what looks redundant but is not. |
 | `tests/` | Node checks, run by hand. `link-check.mjs` (a link pointing at a file that is not there), `orphan-check.mjs` (a shipped file no index points at), `installed-copy-check.mjs` (a file this repo ships and the copy it runs have drifted apart). |
 | `archive/` | Retired material kept for history. Never a source of current truth. |
-| `.claude/` | What this repo runs on itself: the rule copies, the memory verifier, the output style, the three hooks, and the setup record in `toolkit-sync.md`. |
+| `.claude/` | What this repo runs on itself: the rule copies, the output style, the hooks, the three memory skills, the index script, and the setup record in `toolkit-sync.md`. |
 
 This repo runs the toolkit on itself. `.claude/rules/`, `.claude/hooks/`,
-`.claude/output-styles/`, `.claude/agents/`, `brainstorms/`, `specs/`, and
+`.claude/output-styles/`, `brainstorms/`, `specs/`, and
 `memory/` are the same setup every other toolkit project gets, installed here so
 a change is felt where it is written instead of three weeks later in another
 project. That means most files under `.claude/` are copies of files this repo
 also ships. `tests/installed-copy-check.mjs` fails when a shipped file and its
 copy stop matching, so nobody has to remember to change both.
+
+`.claude/skills/` and `.claude/tools/build-memory-index.mjs` are this repo's own,
+not copies. They are the memory system in `specs/memory-system.md`, which no
+plugin ships yet. Codex never sees a skill, so read
+`.claude/skills/remember/SKILL.md` yourself before writing anything into
+`specs/` or `memory/`, and `.claude/skills/recall/SKILL.md` before looking for
+what this project already knows.
 
 ## Where work is tracked
 
@@ -282,10 +137,11 @@ to this repo:
 - Worktrees are siblings of the primary checkout, named
   `claude-toolkit-<issue number>`, on a branch named `issue-<number>-<slug>`.
 - Memory and specification writes land in the worktree and reach `main` when the
-  pull request merges, so two sessions saving at once both touch the same index
-  files. Git can merge that with no reported conflict and still leave the memory
-  wrong. The pre-merge review in `.claude/rules/second-brain.md` is what catches
-  it, and it has to actually run here.
+  pull request merges, so two sessions saving at once both touch
+  `memory/index.md`. Git can merge that with no reported conflict and still leave
+  the index wrong. After bringing your branch current, run
+  `node .claude/tools/build-memory-index.mjs` again: it rebuilds the index from
+  the files, which are what win.
 
 ## Your main job here: fold new lessons into the toolkit
 

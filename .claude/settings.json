@@ -1,5 +1,11 @@
 {
   "outputStyle": "plain-language",
+  "env": {
+    "CLAUDE_CODE_DISABLE_AUTO_MEMORY": "1"
+  },
+  "enabledPlugins": {
+    "second-brain@claude-toolkit": false
+  },
   "hooks": {
     "UserPromptSubmit": [
       {
@@ -29,7 +35,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/memory-pr-hook.mjs\"",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/save-reminder.mjs\"",
             "timeout": 10
           }
         ]

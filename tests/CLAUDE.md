@@ -26,18 +26,16 @@ Each asks a different question, and each exists because something real broke.
   mentioned in an ordinary document is deliberately not enough: the July 2026
   failure it was written for had two such mentions and the tool still went
   missing for weeks.
-- **`installed-copy-check.mjs` covers three pairs.** Every tracked file under
-  `.claude/` against its shipped original; the block between the
+- **`installed-copy-check.mjs` covers two pairs.** Every tracked file under
+  `.claude/` against its shipped original, and the block between the
   `shared-with-agents-md` markers in `CLAUDE.md` against the same block in
-  `AGENTS.md`; and the memory section inside that block against
-  `plugins/second-brain/skills/second-brain/references/orientation-snippet.md`.
-  A new file under `.claude/` needs either a known original in
-  `shippedOriginalFor()` or an entry in `OWN_FILES`, or the check fails on
-  purpose.
-- **The block between the markers must carry exactly one `host-specific`
-  passage**, and it may not be empty. That is the single difference Claude and
-  Codex are allowed: Claude invokes the memory verifier agent directly and Codex
-  cannot.
+  `AGENTS.md`. A new file under `.claude/` needs either a known original in
+  `shippedOriginalFor()`, an entry in `OWN_FILES`, or a folder in `OWN_FOLDERS`,
+  or the check fails on purpose.
+- **The block between the markers must match word for word**, with no
+  exceptions. The one difference the two files used to be allowed, the
+  `host-specific` passage saying how each program invoked the memory verifier,
+  went with second-brain v3 in August 2026.
 - Each script explains its own reason for existing in a comment at the top. Read
   that before changing what it checks.
 
