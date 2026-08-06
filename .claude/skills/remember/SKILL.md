@@ -84,14 +84,28 @@ a deleted file can always be brought back.
 
 This applies to memory only, never to a specification.
 
-A memory holds only the detail a future agent needs to act correctly, and
-nothing more. How much that is depends on the fact: a safety boundary may need a
-page, a preference may need two lines.
+Write the shortest version that still prevents the mistake. Not "as short as
+possible", which cuts things that matter. The shortest one that still does the
+job. Two questions, in this order:
 
-The test, applied sentence by sentence: **if this sentence were deleted, would a
-future agent make a mistake, or have to work something out again?** If not, the
-sentence goes. Detail earns its place by preventing a wrong action, never by
-just being true.
+1. **The whole file.** If a future agent read only this, would it act correctly?
+   Once that is true, stop. Everything past that point is not helping it, it is
+   only true.
+2. **Each sentence.** If this sentence were deleted, would that agent make a
+   mistake, or have to work something out again? If not, the sentence goes.
+
+Detail earns its place by preventing a wrong action, never by being true,
+interesting, or complete. You are not writing a record of what happened. You are
+writing the note that stops the next agent getting it wrong, and that agent is
+busy and reading in a hurry.
+
+The usual ways a memory gets fat: repeating what a linked file already says,
+writing out the wrong way as well as the right way, and explaining how the
+finding was reached instead of what to do about it.
+
+Length follows the fact, not a rule. A safety boundary may need a page, and most
+memories are a title, a summary, and a few lines. If a draft runs long, say in
+one line why it has to. If you cannot say why, it is too long.
 
 ## Which folder it goes in
 
