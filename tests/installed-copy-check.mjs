@@ -17,7 +17,7 @@
  * orphan-check.mjs asks whether a file can still be FOUND.
  * This one asks whether two files that must say the same thing still do.
  *
- * Three things are checked.
+ * Two things are checked.
  *
  * 1. Every tracked file under `.claude/` that has a shipped original matches it
  *    byte for byte, ignoring line endings. This repo runs the shipped rules
@@ -26,20 +26,18 @@
  *    cannot be added without being checked.
  *
  * 2. The block between the `shared-with-agents-md` markers is identical in
- *    `CLAUDE.md` and `AGENTS.md`. Claude reads the first file, Codex reads the
- *    second, and the toolkit requires the memory routing to be the same in both.
+ *    `CLAUDE.md` and `AGENTS.md`, with no exceptions. Claude reads the first
+ *    file and Codex reads the second, so a difference there means a session gets
+ *    different instructions depending on which program it is.
  *
- *    One passage is allowed to differ, and only one. `keep-claudemd-current.md`
- *    says so: Claude invokes the memory verifier agent directly, Codex cannot,
- *    so each root file states that obligation in the way its program can act on.
- *    That passage sits between `host-specific` markers in both files. Everything
- *    outside those markers has to match, each file must carry exactly one such
- *    passage, and neither may be empty.
- *
- * 3. The memory section inside that block matches the second-brain plugin's
- *    `references/orientation-snippet.md`, which is the canonical wording every
- *    project copies. The `host-specific` marker lines are ignored for that
- *    comparison, because the snippet does not carry them.
+ * Two checks were removed in August 2026, when this repo replaced second-brain
+ * v3 with the memory system in `specs/memory-system.md` (GitHub issue #149).
+ * Both existed only to serve the old system: the `host-specific` passage the two
+ * root files were allowed to word differently, which said how each program
+ * invoked the memory verifier, and the comparison of the root memory section
+ * against the second-brain plugin's `references/orientation-snippet.md`. This
+ * repo no longer carries either. The four always-loaded lines that replaced them
+ * are short enough to compare word for word like everything else in the block.
  *
  * Run: node tests/installed-copy-check.mjs
  */
@@ -54,24 +52,31 @@ const root = resolve(here, "..");
 
 const GENERAL_RULES = "plugins/project-init/library/rules/general";
 const SECOND_BRAIN = "plugins/second-brain/skills/second-brain/references";
-const ORIENTATION = `${SECOND_BRAIN}/orientation-snippet.md`;
 
 /**
  * Where a file under `.claude/` came from. `null` means the file is this
  * repo's own and has no shipped original, which is allowed only for the files
- * listed here by name.
+ * listed here by name and the folders listed just below.
  */
 const OWN_FILES = new Set([
   ".claude/rules/README.md",
   ".claude/settings.json",
   ".claude/toolkit-sync.md",
+  ".claude/hooks/save-reminder.mjs",
+  ".claude/tools/build-memory-index.mjs",
 ]);
+
+/**
+ * Folders this repo wrote itself. `.claude/skills/` holds the memory system
+ * described in `specs/memory-system.md`, which no plugin ships yet: packaging it
+ * for other projects is a separate ticket. Until then there is nothing to
+ * compare it against.
+ */
+const OWN_FOLDERS = [".claude/skills/"];
 
 function shippedOriginalFor(path) {
   if (OWN_FILES.has(path)) return null;
-  if (path === ".claude/rules/second-brain.md") {
-    return `${SECOND_BRAIN}/second-brain-rule.md`;
-  }
+  if (OWN_FOLDERS.some((folder) => path.startsWith(folder))) return null;
   let match = path.match(/^\.claude\/rules\/(.+\.md)$/);
   if (match) return `${GENERAL_RULES}/${match[1]}`;
   match = path.match(/^\.claude\/agents\/(.+\.md)$/);
@@ -141,31 +146,6 @@ function sharedBlock(path) {
   return text.slice(start, end);
 }
 
-const HOST_START = "<!-- host-specific:start -->";
-const HOST_END = "<!-- host-specific:end -->";
-const HOST_PASSAGE = new RegExp(
-  `${HOST_START}\\n([\\s\\S]*?)\\n${HOST_END}`,
-  "g",
-);
-
-/** Every passage a root file is allowed to word differently for its program. */
-function hostSpecificPassages(block) {
-  return [...block.matchAll(HOST_PASSAGE)].map((match) => match[1]);
-}
-
-/** The block with those passages taken out, which is what must match. */
-function withoutHostSpecific(block) {
-  return block.replace(HOST_PASSAGE, `${HOST_START}\n${HOST_END}`);
-}
-
-/** The marker lines themselves, which the plugin's snippet does not carry. */
-function withoutMarkerLines(text) {
-  return text
-    .split("\n")
-    .filter((line) => line.trim() !== HOST_START && line.trim() !== HOST_END)
-    .join("\n");
-}
-
 const claudeBlock = sharedBlock("CLAUDE.md");
 const agentsBlock = sharedBlock("AGENTS.md");
 
@@ -184,80 +164,13 @@ if (claudeBlock === null || agentsBlock === null) {
   );
 } else {
   checked++;
-  for (const [path, block] of [
-    ["CLAUDE.md", claudeBlock],
-    ["AGENTS.md", agentsBlock],
-  ]) {
-    const passages = hostSpecificPassages(block);
-    if (passages.length !== 1) {
-      failures.push(
-        `  ${path}\n    has ${passages.length} host-specific passage(s) in its`
-          + " shared block, and must have\n    exactly one."
-          + " keep-claudemd-current.md allows Claude and Codex to word one\n"
-          + "    passage differently, the one about invoking the memory"
-          + " verifier, and\n    allows no other difference.",
-      );
-    } else if (passages[0].trim() === "") {
-      failures.push(
-        `  ${path}\n    has an empty host-specific passage. It has to say what`
-          + " this program does\n    about invoking the memory verifier, not"
-          + " leave a hole.",
-      );
-    }
-  }
-  if (withoutHostSpecific(claudeBlock) !== withoutHostSpecific(agentsBlock)) {
+  if (claudeBlock !== agentsBlock) {
     failures.push(
-      "  CLAUDE.md / AGENTS.md\n    the shared block differs between them"
-        + " outside the host-specific passage.\n    Claude reads one file and"
-        + " Codex reads the other, so a session gets\n    different"
-        + " instructions depending on which program it is. Copy the block\n"
-        + "    across.",
+      "  CLAUDE.md / AGENTS.md\n    the block between the markers differs"
+        + " between them. Claude reads one file\n    and Codex reads the other,"
+        + " so a session gets different instructions\n    depending on which"
+        + " program it is. Copy the block across.",
     );
-  }
-}
-
-/** The canonical memory routing, from the plugin every project copies it from. */
-const snippet = read(ORIENTATION);
-const fenceStart = snippet.indexOf("```markdown\n");
-const fenceEnd = snippet.indexOf("\n```", fenceStart + 1);
-const canonicalMemorySection =
-  fenceStart === -1 || fenceEnd === -1
-    ? null
-    : snippet.slice(fenceStart + "```markdown\n".length, fenceEnd + 1);
-
-function memorySection(block) {
-  if (block === null) return null;
-  const start = block.indexOf("## Project memory and knowledge");
-  if (start === -1) return null;
-  const rest = block.slice(start);
-  const next = rest.search(/\n## (?!#)/);
-  return next === -1 ? rest : rest.slice(0, next + 1);
-}
-
-if (canonicalMemorySection === null) {
-  failures.push(
-    `  ${ORIENTATION}\n    has no \`\`\`markdown block, so there is nothing to`
-      + " compare the root files\n    against.",
-  );
-} else {
-  const rootMemorySection = memorySection(claudeBlock);
-  if (rootMemorySection === null) {
-    failures.push(
-      "  CLAUDE.md\n    has no \"## Project memory and knowledge\" section"
-        + " inside its shared block.\n    Every project carries it, and it goes"
-        + " first, because routing has to\n    happen before an agent writes.",
-    );
-  } else {
-    checked++;
-    const compared = withoutMarkerLines(rootMemorySection);
-    if (compared.trim() !== canonicalMemorySection.trim()) {
-      failures.push(
-        `  CLAUDE.md\n    its memory section no longer matches ${ORIENTATION}.`
-          + "\n    That snippet is what every project copies, so a change to"
-          + " one has to be a\n    change to both, in the same commit."
-          + " AGENTS.md is covered by the shared\n    block check above.",
-      );
-    }
   }
 }
 

@@ -1,52 +1,41 @@
 #!/usr/bin/env node
 /**
- * memory-pr-hook: a PreToolUse hook on Bash that holds the command which opens
- * a pull request, once per branch per session, so the agent raises the memory
- * check at the moment it applies.
+ * save-reminder: a PreToolUse hook on Bash that holds the command which opens a
+ * pull request, once per branch per session, so the agent runs the save at the
+ * moment it applies.
  *
- * Why this exists. `wrap-up-ritual.md` already says to check, when a piece of
- * work finishes, that a change to what the system should do reached its
- * specification, and what else is worth saving to memory. Counted from real
- * transcripts, it is mostly ignored: 3.4% of turns in DragonFly, 0.5% in
- * davis-advisors-sfdc, 19% in claude-toolkit with the memory agent never
- * actually invoked. The problem is delivery, not wording. A rule is read once
- * at the start of a session and forgotten thousands of words later, at the
- * exact moment it applies. Opening a pull request is a single moment a small
- * program can see.
+ * Why this exists. `specs/memory-system.md` names three moments when a save
+ * runs, and one of them is a pull request opening. A rule is read once at the
+ * start of a session and forgotten thousands of words later, at the exact moment
+ * it applies. Opening a pull request is a single moment a small program can see.
+ * Counted from real transcripts before this hook existed, the equivalent rule
+ * was mostly ignored: 3.4% of turns in DragonFly, 0.5% in davis-advisors-sfdc,
+ * 19% in claude-toolkit with the check never actually run.
  *
- * What it knows. Four facts, and nothing else:
+ * This is the only hook the memory system has, and the specification allows only
+ * one. It reminds. It never writes a file and never approves anything.
+ *
+ * What it knows. Three facts, and nothing else:
  *   1. a pull request is about to be opened;
- *   2. this project first checks that a change to what the system should do
- *      reached its specification, and what else is worth saving to memory;
- *   3. the rule is in `wrap-up-ritual.md`;
- *   4. what was found goes in the pull request description.
- *
- * "Specification" and "memory" are the two kinds of thing the check covers, and
- * naming them is what stops an agent reading this and thinking about memory
- * only. They are not destinations. The line below still holds.
+ *   2. this project saves at that moment, through `.claude/skills/remember/`;
+ *   3. the pull request opens either way, with the code in it.
  *
  * What it must never know, and this is the test for whether it is built
  * correctly rather than a preference:
- *   - memory types or destinations, and any folder name. Those belong to each
- *     project's own rules, and a project with no memory system at all must
- *     still work.
- *   - whether any system is installed. It must not look and must not assume.
+ *   - which folder anything goes in, or what a saved file looks like. That is
+ *     the skill's job, and it loads only when a save actually runs.
  *   - any list of words or patterns that decides what is worth saving. That
  *     judgment is the agent's. The davis-advisors-sfdc project's memory hook
  *     went the other way with 46 text patterns, and its own log shows it firing
  *     on helper agent output and on messages from other sessions instead of on
  *     the owner's words.
- *   - the wording of the check or the shape of the list it produces. Those live
- *     in `wrap-up-ritual.md` so they can be changed in one place.
  *
  * How it holds. Emits a PreToolUse `deny` decision with a short reason written
- * for the agent, which is exactly how `guard-protected-orgs.js` refuses a
- * command. It must never emit `ask`: that would put a popup in front of the
- * owner on every pull request and let one click skip the check.
+ * for the agent. It must never emit `ask`: that would put a popup in front of
+ * the user on every pull request and let one click skip the save.
  *
- * Held once per branch per session, so the agent's own retry a moment later
- * goes straight through. Every pull request in a session still gets held once.
- * There is no cap, because the hold no longer blocks the owner.
+ * Held once per branch per session, so the agent's own retry a moment later goes
+ * straight through. Every pull request in a session still gets held once.
  *
  * Fails open. Any unexpected error exits 0 and the command runs. A broken hook
  * must never wedge a session.
@@ -54,10 +43,10 @@
  * Costs nothing on ordinary commands. A command with no `gh` in it exits after
  * one substring check, with no file read and no subprocess.
  *
- * Config, all optional, from .claude/memory-pr-hook.json in the project root:
+ * Config, all optional, from `.claude/save-reminder.json` in the project root:
  *   { "enabled": true, "maxHolds": 0 }
  * `maxHolds` of 0 means no limit. It exists only as a safety valve against a
- * runaway loop, not as a cap on how many pull requests get checked.
+ * runaway loop, not as a cap on how many pull requests get saved against.
  */
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
@@ -65,7 +54,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { execFileSync } from 'node:child_process';
 
-const RULE = 'wrap-up-ritual.md';
+const SKILL = '.claude/skills/remember/SKILL.md';
 
 function bail() {
   process.exit(0);
@@ -83,19 +72,15 @@ function readStdin() {
  * Exported for tests. Removes the body of every pasted-in text block (a
  * heredoc), from its start marker to the line that closes it.
  *
- * The original ticket said to ignore everything after the first `<<`, so that
- * documentation mentioning the pull request command would not trip the hook.
- * That contradicts holding `git push ... && gh pr create`, because the common
- * real shape is:
+ * Only the block itself is removed, and what is left is still scanned, because
+ * the common real shape puts the pasted block first:
  *
  *   git commit -m "$(cat <<EOF
  *   ... message ...
  *   EOF
  *   )" && gh pr create --fill
  *
- * where the pasted block comes first and would swallow the real command. So
- * only the block itself is removed, and what is left is still scanned. An
- * unterminated block is dropped to the end, because there is no command after
+ * An unterminated block is dropped to the end, because there is no command after
  * it to find.
  */
 export function stripHeredocs(command) {
@@ -106,13 +91,10 @@ export function stripHeredocs(command) {
 }
 
 /**
- * Exported for tests. Removes quoted text, so the command name written inside
- * a message or an echo is not read as a command.
- *
- * This repository writes about the pull request command in ordinary prose, so
- * `git commit -m "document gh pr create"` is a real case and not a
- * hypothetical one. Quoted text is stripped before the line is split into
- * separate commands, so a separator inside a quoted string cannot split it.
+ * Exported for tests. Removes quoted text, so the command name written inside a
+ * message or an echo is not read as a command. This repository writes about the
+ * pull request command in ordinary prose, so `git commit -m "document gh pr
+ * create"` is a real case and not a hypothetical one.
  */
 export function stripQuoted(command) {
   return command.replace(/"(?:\\.|[^"\\])*"/g, ' ').replace(/'[^']*'/g, ' ');
@@ -152,7 +134,7 @@ export function opensPullRequest(command) {
 function loadConfig(projectDir) {
   const defaults = { enabled: true, maxHolds: 0 };
   if (!projectDir) return defaults;
-  const path = join(projectDir, '.claude', 'memory-pr-hook.json');
+  const path = join(projectDir, '.claude', 'save-reminder.json');
   if (!existsSync(path)) return defaults;
   try {
     const parsed = JSON.parse(readFileSync(path, 'utf8'));
@@ -166,9 +148,9 @@ function loadConfig(projectDir) {
 }
 
 /**
- * What tells one piece of work from another. The branch when git can answer,
- * the working folder when it cannot, so a project that is not a git repository
- * still gets held once rather than every time or never.
+ * What tells one piece of work from another. The branch when git can answer, the
+ * working folder when it cannot, so a project that is not a git repository still
+ * gets held once rather than every time or never.
  */
 function branchKey(projectDir) {
   try {
@@ -186,7 +168,7 @@ function branchKey(projectDir) {
 }
 
 function stateFile(sessionId) {
-  const dir = join(tmpdir(), 'claude-memory-pr-hook');
+  const dir = join(tmpdir(), 'claude-save-reminder');
   try {
     mkdirSync(dir, { recursive: true });
   } catch {
@@ -221,21 +203,19 @@ function writeState(path, state) {
 /** Exported for the test harness. The whole of what the hook says. */
 export function buildMessage() {
   return [
-    'Held once. This project checks two things when a pull request is opened: that any',
-    'change to what the system should do is written into its specification, and what else',
-    'is worth saving to memory.',
+    'Held once. A pull request opening is one of the three moments this project saves at.',
     '',
-    `The check itself is in ${RULE}. Follow it, then run this command again.`,
+    `Read ${SKILL} and follow it, then run this command again.`,
     '',
-    `- Nothing to write and nothing worth saving? Say so in one line and re-run this command.`,
-    `- Something to write or save? Re-run this command anyway. The pull request opens now,`,
-    `  with the code in it. Say what you found in its description, show the owner`,
-    `  the same list in chat, and write only after the owner approves it.`,
+    '- Nothing worth saving? Say so in one line and re-run this command.',
+    '- Something worth saving? Re-run this command anyway. The pull request opens now,',
+    '  with the code in it. Draft the real words, show the user the numbered list, and',
+    '  write only what the user keeps, into this same branch.',
     '',
-    'Either way, the pull request description must say what the check found.',
+    'Either way, say in the pull request description what the save found.',
     '',
     'If you are a helper agent, stop here and report this back to the main agent.',
-    'The main agent is the one that has to run the check.',
+    'The main agent is the one that has to run the save.',
     '',
     'This branch will not be held again in this session.',
   ].join('\n');
@@ -286,7 +266,7 @@ function main() {
 
 if (
   import.meta.url === `file://${process.argv[1]}` ||
-  process.argv[1]?.endsWith('memory-pr-hook.mjs')
+  process.argv[1]?.endsWith('save-reminder.mjs')
 ) {
   try {
     main();
