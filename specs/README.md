@@ -20,3 +20,10 @@ reads, and it links to the capability specification once one exists.
 - Keep approved behavior, implementation, and tests aligned.
 - Follow links to discovery, decisions, knowledge, domain material, planning,
   and operations when they matter.
+
+## Documents
+
+- [How the memory system works](memory-system.md): The design for saving and
+  reading persistent information in a project: the folders, what goes in each,
+  who may write to them, what every file looks like, how files link to each
+  other, and what every session knows at startup.
