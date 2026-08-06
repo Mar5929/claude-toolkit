@@ -54,16 +54,20 @@ other is now handled a different way:
 
 | File | What it does |
 |---|---|
-| `plain-language.md` | The owner is not technical. Real names only and never one Claude invented, no figures of speech, common words, the answer first, a shape that matches the content, every fact kept, no filler, no em dashes, no section signs, quiet between tool calls, and the owner's actions at the end. Sets `keep-coding-instructions: true`, so normal coding behavior is untouched. |
+| `plain-language.md` | The owner is not technical, reads the answer once, and wants the point in one pass with no clutter. Every fact kept while the wording is simplified. Real names only and never one Claude invented, no figures of speech, no jargon the owner did not use first, no em dashes, no section signs, quiet between tool calls, and the owner's actions at the end. Sets `keep-coding-instructions: true`, so normal coding behavior is untouched. |
 
-**Written as goal, example, rules, in that order.** The goal says what a reply
-is for. The example shows four real misses next to their fixes. The rules are
-the checklist underneath. That order came out of the #102 interview: the owner
-asked for "a goal the model works toward, not a pile of hard-coded rules", and
-what #101 shipped was ten bullets with no goal and no example. An example the
-model can copy carries the rules that resist being stated, and "no invented
-names" is the clearest case. Keep the examples real. Every pair in the file is
-something an agent actually wrote and the owner actually objected to.
+**Written as goal then rules.** The goal says who the reply is for and what they
+need out of it. The rules underneath are the ones that do not follow from
+knowing the reader.
+
+It carried a middle section of worked examples until 09f28ab, four real misses
+next to their fixes. That section came out of the #102 interview, where the
+owner asked for "a goal the model works toward, not a pile of hard-coded rules",
+and it was there because an example the model can copy carries the rules that
+resist being stated, "no invented names" being the clearest case. The owner
+removed it when he shortened the file. If examples ever go back, keep them real:
+every pair has to be something an agent actually wrote and the owner actually
+objected to.
 
 **Keep it short.** A style is re-read by the agent constantly, so every line in
 it competes with every other line, and the `style-reminder` hook re-sends the
