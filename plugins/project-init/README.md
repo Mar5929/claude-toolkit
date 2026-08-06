@@ -85,7 +85,7 @@ the repository root would disappear the moment the plugin is installed.
 
 ### The gate script: how this skill runs itself
 
-`skills/project-init/references/` holds five files, and none is copied into a
+`skills/project-init/references/` holds six files, and none is copied into a
 project:
 
 - `setup-flow.md`: the ordered, gate-by-gate checklist project-init follows.
@@ -98,7 +98,12 @@ project:
   answer. Installs the work-tracker, adopts existing folders safely, and
   separately offers an optional GitHub Project mirror of those files.
 - `thin-claudemd.md`: how Gate 5 writes a short CLAUDE.md that points at
-  `.claude/rules/` instead of holding the rules inline.
+  `.claude/rules/` instead of holding the rules inline, and the four things that
+  must stay in the root file whatever else moves out.
+- `folder-claudemd.md`: the short CLAUDE.md Gate 1 writes inside each major
+  folder, which Claude Code loads only when an agent reads a file in that
+  folder. What goes in one, what never does, which folders get one, and which
+  are skipped.
 - `salesforce-project-scaffold.md`: the standard Gate 1 folder layout for a
   Salesforce / SFDX project.
 

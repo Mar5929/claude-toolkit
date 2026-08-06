@@ -75,6 +75,31 @@ Two hard constraints on AGENTS.md:
 When a rule in AGENTS.md's always-in-force set changes, update its rule file and
 that section together, in the same change.
 
+## This rule covers the folder CLAUDE.md files too
+
+A project's major folders each carry their own short `CLAUDE.md`, which Claude
+Code loads only when an agent reads a file in that folder. Everything above
+applies to those files as well: keep them current, keep them thin, and prune
+while you are in there.
+
+- **When work changes what a folder is for, update that folder's `CLAUDE.md` in
+  the same session**, the same way the root file is updated today. A folder file
+  nobody maintains is worse than none, because a session trusts it.
+- **When a folder is created, write its `CLAUDE.md` with it**, even when the
+  folder starts empty.
+- **Never move a rule into one.** Rules live in `.claude/rules/`, which loads at
+  the start of every session. A folder file loads only when an agent reads a
+  file in that folder, and never when an agent only runs a command against it. A
+  folder file may point at a rule; it may never hold the only copy of one.
+- **Never let anything Codex needs live only in one.** Codex reads AGENTS.md and
+  nothing else, and never reads any `CLAUDE.md`, root or nested. Detail that
+  leaves the root `CLAUDE.md` for a folder file stays in AGENTS.md in full. That
+  is why the two root files may differ in length below the shared memory
+  section.
+- **Never add a nested `AGENTS.md`.** Codex would not read it.
+- **Never repeat a `README.md` index.** Where a folder has one, the README stays
+  the one index and the folder file points at it, or the folder is skipped.
+
 ## The memory section: keep all three copies in step
 
 When second-brain v3 is installed, the memory routing schema lives in three

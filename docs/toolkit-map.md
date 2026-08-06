@@ -64,10 +64,16 @@ at the repository root would vanish the moment the plugin is installed. That was
 tested before the move.
 
 `plugins/project-init/skills/project-init/references/` is a different pile and
-holds only five files: the gate-by-gate script `project-init` reads to run
+holds only six files: the gate-by-gate script `project-init` reads to run
 itself (`setup-flow.md`, `work-tracking-choice.md`, `work-items-structure.md`,
-`thin-claudemd.md`, `salesforce-project-scaffold.md`). Nothing there is copied
-into a project.
+`thin-claudemd.md`, `folder-claudemd.md`, `salesforce-project-scaffold.md`).
+Nothing there is copied into a project.
+
+`thin-claudemd.md` and `folder-claudemd.md` are a pair. The first says what the
+root `CLAUDE.md` holds and what must never leave it. The second says what goes
+in the short `CLAUDE.md` inside each major folder, which Claude Code loads only
+when an agent reads a file in that folder. `project-sync` audits the folder
+files against the second one.
 
 Every hook in the toolkit lives in
 [`hooks-library`](../plugins/hooks-library/README.md), including the two

@@ -58,6 +58,16 @@ form. Keep each gate tight.
   license, editor/formatter config, CI stub.
 - Create only what the user approves. Prefer conventional tooling for the stack;
   don't invent structure.
+- **Write each major folder's own `CLAUDE.md` at the same time as the folder**,
+  even when the folder starts empty. It is a short file saying what the folder
+  holds, how to work in it, and where the detail lives, and Claude Code loads it
+  only when an agent reads a file in that folder. That is what lets the root
+  `CLAUDE.md` stay short without losing the detail. Read
+  `references/folder-claudemd.md` first: it says what goes in one, what never
+  does, which folders get one, and which are skipped (any folder with a
+  `README.md` index, and everything under `.claude/`). Record every skip so the
+  wrap-up summary and a later `project-sync` can tell a considered skip from an
+  oversight. Never create a nested `AGENTS.md`.
 
 > This gate is intentionally per-project: the value is your tailored
 > recommendation, not a frozen template.
@@ -221,6 +231,10 @@ and Codex share approved specifications and durable project knowledge.
   plugin. No hook writes memory.
 - Never read or import retired v1 Worker, Neon, curator, outbox, or cache
   content.
+- The folders this gate creates all ship a `README.md` index: `specs/`,
+  `brainstorms/`, and every `memory/` type folder. So none of them gets its own
+  `CLAUDE.md` by default. Record the skips in the wrap-up summary. See
+  `references/folder-claudemd.md`.
 
 ### Gate 4: Knowledge layer
 
@@ -304,6 +318,17 @@ list.
   memory route and add the equivalent route to `AGENTS.md`. Both route to
   `.claude/rules/second-brain.md`; neither copies the complete schema.
   Keep other behavioral rules out of the root files.
+- **Keep the codemap to one line per folder**, and let that line point at the
+  folder's own `CLAUDE.md` for the detail. Four things never leave the root
+  file, because an agent needs them before it opens any folder: how to talk to
+  the owner, the pointers to the most dangerous rules, the memory routing
+  section, and the codemap lines themselves. `references/thin-claudemd.md` has
+  the list under "What must stay in the root file".
+- **`AGENTS.md` keeps the folder detail in full.** Codex reads it and never
+  reads any `CLAUDE.md`, root or nested, so anything the root `CLAUDE.md` handed
+  off to a folder file stays written out in `AGENTS.md`. Below the shared memory
+  section the two root files are meant to differ in length. Never write a nested
+  `AGENTS.md` to close that gap.
 - **Add a `.claude/rules/README.md`** that indexes what each copied rule file
   does, so the folder is self-describing.
 - **Install the plain-language output style** (default ON). Copy
@@ -387,7 +412,11 @@ library.
   Salesforce / SFDX project (SFDX source plus an `engagement/` tree). Read it in
   Gate 1 when the stack is Salesforce.
 - `references/thin-claudemd.md`: how Gate 5 writes a thin CLAUDE.md that points
-  at `.claude/rules/` instead of holding the rules inline.
+  at `.claude/rules/` instead of holding the rules inline, and what must stay in
+  the root file.
+- `references/folder-claudemd.md`: the short `CLAUDE.md` Gate 1 writes inside
+  each major folder. What goes in one, what never does, which folders get one,
+  and which are skipped. Read it in Gate 1, before creating folders.
 
 ### What lands in the project: `../../library/`
 
@@ -447,7 +476,8 @@ everything up front.
 ## Wrap-up (always do this at the end)
 
 1. **Summarize** what was set up and what was skipped, so the user has a clear
-   record.
+   record. Include the folder `CLAUDE.md` files: which folders got one, and
+   which were skipped and why.
 2. **Note follow-ups**: anything a skipped gate leaves open, or systems set up
    from an interim pattern that should later reconcile with the `claude-toolkit`
    canonical version.

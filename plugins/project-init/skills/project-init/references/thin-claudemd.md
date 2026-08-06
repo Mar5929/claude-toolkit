@@ -69,6 +69,36 @@ Everything else, the writing style, the response style, the working-style rules,
 the multi-agent worktree protocol, is a file in `.claude/rules/`, not prose in
 CLAUDE.md.
 
+## What must stay in the root file
+
+Folder detail moves out to a folder `CLAUDE.md` (see `folder-claudemd.md`). Four
+things never do, because an agent needs them before it opens any folder:
+
+- **How to talk to the owner.** The line selecting the project's output style,
+  and any project-specific note about how the owner wants to be addressed.
+- **The pointers to the most dangerous rules.** The `Read .claude/rules` line,
+  and a named pointer to any rule whose breach causes real damage, so a session
+  meets it before it acts rather than after.
+- **The memory routing section**, when Gate 3 ran, whole and first. See below.
+- **The codemap**, one line per folder or module. The line stays at the root and
+  names what lives there; the detail behind it is what moves into that folder's
+  own file.
+
+A folder file loads only when an agent reads a file in that folder. Anything an
+agent needs before that moment cannot live in one.
+
+## Folder detail belongs in a folder CLAUDE.md
+
+Detail about how to work inside one folder goes into a `CLAUDE.md` in that
+folder, which loads only when an agent reads a file there. `folder-claudemd.md`
+is the canonical guidance: what goes in one, what never does, which folders get
+one, and which are skipped. Gate 1 writes them alongside the folders.
+
+`AGENTS.md` is the exception to the move. Codex reads it and never reads any
+`CLAUDE.md`, root or nested, so detail that leaves the root `CLAUDE.md` for a
+folder file stays in `AGENTS.md` in full. Below the shared memory section, the
+two root files are allowed to differ for exactly this reason.
+
 ## The memory section is the exception
 
 Every other rule is said once, in `.claude/rules/`, and CLAUDE.md only points at
@@ -100,6 +130,10 @@ authority, not a stub:
   from the orientation snippet. Never a shortened variant.
 - The same structural pointers, or a pointer to the CLAUDE.md section holding
   them, so the two do not drift.
+- **Every piece of folder detail, in full**, including anything the root
+  CLAUDE.md handed off to a folder `CLAUDE.md`. Codex never reads a folder file,
+  so AGENTS.md is its only copy. This is the one place the two root files are
+  meant to differ in length.
 - Codex-specific repository instructions, if any, which is the only content that
   legitimately differs between the two files.
 

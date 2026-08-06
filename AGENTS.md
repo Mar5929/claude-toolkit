@@ -8,6 +8,44 @@ packaged as a Claude Code plugin marketplace. `README.md` has the full picture.
 Read `.claude/rules` first. Every file in that folder is a rule for how you work
 here, and they are in force for the whole session.
 
+Communication
+
+I have ADHD. Talk to me like I am smart but not technical. Sixth-grade reading level. Short sentences. Plain words.
+
+#### Structure every reply this way
+
+1. The answer. One or two lines. What happened, or what I asked for. Nothing else first.
+2. The details. Bullet points only. One idea per bullet. One line per bullet.
+3. What I need to do. Only if I actually need to do something. Say it as a direct instruction: "Click X" or "Tell me if you want Y."
+4. Also found (optional). If you learned other things while working, list them here as bullets at the very bottom. One line each. Then stop. Do not explain them. Let me ask if I want more.
+
+#### Communication Rules
+
+- Never start with a preamble. No "Great question," no "I've gone ahead and," no restating what I asked.
+- Never narrate your process. I don't need to know which files you opened or what you tried first.
+- No em dashes. Ever.
+- One topic per reply. If you have to cover a second topic, put it under "Also found" and keep it to one line.
+- No jargon. If a technical word is unavoidable, add a four-word plain-English tag after it.
+- Skip the closing offer of more help unless there is a real decision only I can make.
+- Do not pad. If the answer is one sentence, send one sentence.
+
+#### When you have a question for me
+
+- Ask one question at a time.
+- Give me the options as bullets.
+- Tell me which one you recommend and why, in one line.
+
+#### When something goes wrong
+
+- Say what broke in one line.
+- Say what it means for me in one line.
+- Say what you want to do next in one line.
+- Do not paste error logs unless I ask.
+
+#### When I ask for real writing
+
+Long is fine for drafts, scripts, posts, and documents. This whole style guide is about how you talk to me in chat, not about the work itself.
+
 ## Project memory and knowledge: read this before you write anything
 
 `.claude/rules/second-brain.md` is the canonical rule and wins over this summary
@@ -123,13 +161,11 @@ A save runs in this order:
    proposing a fact, search for a document that already owns it and link to that
    instead of repeating it.
 <!-- host-specific:start -->
-2. Delegate to a subagent, tell it to read
-   `.claude/agents/memory-verifier.md` and `.claude/rules/second-brain.md` in
-   full first, and wait for its report. It reads only and never writes. It opens
+2. Invoke `memory-verifier` (`.claude/agents/memory-verifier.md`) in the
+   foreground and wait for its report. It reads only and never writes. It opens
    the file behind each in-a-file claim, compares each owner claim against the
    owner's actual words, and flags anything the agent worked out, because that
-   cannot be confirmed. Codex cannot invoke the verifier agent directly, which
-   is why this passage differs from the one in `CLAUDE.md`.
+   cannot be confirmed.
 <!-- host-specific:end -->
 3. Fix what came back wrong, and mark anything unconfirmed so the owner can see
    it is unchecked.
@@ -170,6 +206,23 @@ information, changing what is authoritative, moving, splitting, or merging
 documents, reorganizing, superseding current guidance, or adding a new top-level
 area or type. These operations are allowed after approval so memory can be
 maintained instead of only accumulating.
+
+<!-- shared-with-agents-md:end -->
+
+Everything above the end marker is in `CLAUDE.md` word for word, apart from the
+passage between the `host-specific` markers, which says the same thing in the way
+each program can act on. `.claude/rules/keep-claudemd-current.md` allows that one
+difference and no other, and `tests/installed-copy-check.mjs` checks it. Edit
+either file above the marker and copy the block across in the same change.
+
+Everything **below** the marker is allowed to differ, and does. `CLAUDE.md` keeps
+one line per folder there and sends the detail to a `CLAUDE.md` inside that
+folder, which Claude Code loads only when it reads a file there. Codex has no
+such mechanism and never reads any `CLAUDE.md`, root or nested, so this file
+writes the same detail out in full. That is deliberate. Do not shorten it to
+match `CLAUDE.md`, and do not create nested `AGENTS.md` files. When you change
+anything below this line, change the matching passage in `CLAUDE.md` too.
+
 ## Codemap
 
 | Path | What lives there |
@@ -301,15 +354,6 @@ itself; each machine and each project pulls the change in.
 
 This repo is one of those projects now. It runs the toolkit on itself, so a
 merged change reaches it the same way: refresh the plugin, then sync.
-
-<!-- shared-with-agents-md:end -->
-
-Everything between those two markers is in `CLAUDE.md` word for word, apart from
-the passage between the `host-specific` markers, which says the same thing in the
-way each program can act on. `.claude/rules/keep-claudemd-current.md` allows that
-one difference and no other, and `tests/installed-copy-check.mjs` checks it. Edit
-either file and copy the block across in the same change.
-
 ## Codex-specific instructions
 
 Codex reads this file and nothing else. It does not load `.claude/rules/`

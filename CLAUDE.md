@@ -65,7 +65,7 @@ and index.
 ### Authority map: one truth, one home
 
 | Question | Canonical home |
-| --- | --- |
+|---|---|
 | What should the product or system do? | `specs/` |
 | What ideas, options, and open questions were explored? | `brainstorms/` |
 | What durable circumstance affects the work? | `memory/context/` |
@@ -92,7 +92,7 @@ both. Never pick one and drop the other half.
 ### When to use each home, and when not to
 
 | Home | Use when | Do NOT use when |
-| --- | --- | --- |
+|---|---|---|
 | `brainstorms/` | Requirements or design are still being discovered, or the owner runs `grill-me`. One flat dated collection. | The behavior is already approved (that is `specs/`), or it is a raw meeting record with another home. |
 | `specs/` | A capability, boundary, observable behavior, constraint, or acceptance expectation is **approved**. One `README.md` per capability under `specs/<area>/<capability>/`. | Capturing exploration, implementation trivia, ticket status, or a source. |
 | `memory/context/` | A durable circumstance, stakeholder, constraint, or boundary affects several tasks or explains why work must be read a certain way. | It is a current task, next action, blocker, or temporary handoff. |
@@ -161,18 +161,18 @@ A save runs in this order:
    proposing a fact, search for a document that already owns it and link to that
    instead of repeating it.
 <!-- host-specific:start -->
-1. Invoke `memory-verifier` (`.claude/agents/memory-verifier.md`) in the
+2. Invoke `memory-verifier` (`.claude/agents/memory-verifier.md`) in the
    foreground and wait for its report. It reads only and never writes. It opens
    the file behind each in-a-file claim, compares each owner claim against the
    owner's actual words, and flags anything the agent worked out, because that
    cannot be confirmed.
 <!-- host-specific:end -->
-1. Fix what came back wrong, and mark anything unconfirmed so the owner can see
+3. Fix what came back wrong, and mark anything unconfirmed so the owner can see
    it is unchecked.
-2. Show the owner the real words, not a table describing them. They approve,
+4. Show the owner the real words, not a table describing them. They approve,
    cut, or edit. An edit is written exactly as the owner wrote it and needs no
    further checking.
-3. Save them, rebuild the indexes, and run the shape check. A failed shape check
+5. Save them, rebuild the indexes, and run the shape check. A failed shape check
    means the save is not finished: say what is missing in plain words and fix
    it.
 
@@ -207,15 +207,24 @@ documents, reorganizing, superseding current guidance, or adding a new top-level
 area or type. These operations are allowed after approval so memory can be
 maintained instead of only accumulating.
 
+<!-- shared-with-agents-md:end -->
+
+Everything above that marker is in `AGENTS.md` word for word, apart from the
+`host-specific` passage. Everything below it may differ, and does: this file
+keeps one line per folder and sends the detail to that folder's own `CLAUDE.md`,
+while `AGENTS.md` writes the same detail out in full because Codex never reads
+any `CLAUDE.md`. Change anything below this line and change the matching passage
+in `AGENTS.md` too. `.claude/rules/keep-claudemd-current.md` owns the rule and
+`tests/installed-copy-check.mjs` checks it.
+
 ## Codemap
 
 | Path | What lives there |
 | --- | --- |
-| `plugins/` | The nine plugins this repo ships. Each has its own `README.md`, which is that plugin's canonical description. |
-| `plugins/project-init/library/` | The reusable material other projects receive: `rules/general/`, `rules/salesforce/`, `output-styles/`, `tools/`, `templates/`, `guides/`. Each has a `README.md` index. |
+| `plugins/` | The nine plugins this repo ships, and the `project-init/library/` material other projects receive. Detail: `plugins/CLAUDE.md`. |
 | `.claude-plugin/marketplace.json` | Registers every plugin for Claude Code. `.agents/plugins/marketplace.json` does the same for Codex. |
-| `docs/toolkit-map.md` | The cross-cutting catalog: what each piece is, and the honest read on what looks redundant but is not. |
-| `tests/` | Node checks, run by hand. `link-check.mjs` (a link pointing at a file that is not there), `orphan-check.mjs` (a shipped file no index points at), `installed-copy-check.mjs` (a file this repo ships and the copy it runs have drifted apart). |
+| `docs/` | `toolkit-map.md`, the cross-cutting catalog. Detail: `docs/CLAUDE.md`. |
+| `tests/` | Three Node checks, run by hand before every pull request. Detail: `tests/CLAUDE.md`. |
 | `archive/` | Retired material kept for history. Never a source of current truth. |
 | `.claude/` | What this repo runs on itself: the rule copies, the memory verifier, the output style, the three hooks, and the setup record in `toolkit-sync.md`. |
 
@@ -283,28 +292,11 @@ write X down somewhere. Fit it into the system:
 
 2. **Clean up the language, keep the intent.** Mike describes things loosely;
    tighten the wording. If placement or intent is ambiguous, ask before writing.
-3. **One canonical home.** Each item lives in exactly one place; other files
-   reference it. Update every doc that mentions it (SKILL.md, setup-flow.md,
-   README). Every plugin has a `README.md` (its canonical description), and
-   `docs/toolkit-map.md` is the cross-cutting catalog plus the honest read on how
-   the pieces relate (what looks redundant but is not). When you add, rename, or
-   remove a plugin or skill, update that plugin's `README.md`, the map, and the
-   top `README.md` in the same change, so a future session can still answer "what
-   is each thing, and is anything redundant?" from the repo itself.
-4. **Opt-in by default.** Nothing is forced on a project unless Mike says every
-   project should get it; then mark it default ON in the `library/rules/general/README.md`
-   index (like most rules there), not conditional.
-5. **Give every agent you add the writing rules in its own text.** An output
-   style is delivered in the main conversation's system prompt and never reaches
-   a helper agent, so an agent definition under `plugins/*/agents/` has to carry
-   those rules itself. `memory-verifier.md` has a "How to write" section for
-   exactly this reason: its findings are read back to Mike, so a word he has to
-   decode once would spread instead of being forgotten.
-6. **Bump versions.** A content change to a plugin bumps its `plugin.json`
-   version and `metadata.version` in `marketplace.json`.
-7. **Keep `main` installable.** `claude plugin validate .` must pass; `main` is
-   what every machine installs from. Run `node tests/link-check.mjs`,
-   `node tests/orphan-check.mjs`, and `node tests/installed-copy-check.mjs` too.
+3. **Then follow `plugins/CLAUDE.md`** for the rest: one canonical home and
+   every document that has to be updated with it, opt-in by default, giving a
+   new agent the writing rules in its own text, the three version numbers to
+   bump, and keeping `main` installable. It loads as soon as you open a file
+   under `plugins/`, which is where all of that work happens.
 
 Older files may still contain em dashes and section signs; clean them up in any
 file you are already editing.
@@ -338,13 +330,3 @@ itself; each machine and each project pulls the change in.
 
 This repo is one of those projects now. It runs the toolkit on itself, so a
 merged change reaches it the same way: refresh the plugin, then sync.
-
-<!-- shared-with-agents-md:end -->
-
-Everything between those two markers is in `AGENTS.md` word for word, because
-Codex reads that file and never reads this one. The one exception is the passage
-between the `host-specific` markers: Claude invokes the memory verifier
-directly, Codex cannot, so that passage says the same thing two ways.
-`.claude/rules/keep-claudemd-current.md` allows exactly that one difference and
-no other. `tests/installed-copy-check.mjs` checks all of it. Edit either file and
-copy the block across in the same change.

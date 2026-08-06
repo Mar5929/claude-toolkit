@@ -27,6 +27,11 @@ so they always know where they are.
 - Recommend a conventional layout for the stack; explain the why briefly.
 - Confirm before creating dirs/files. Cover: source, tests, config, `.gitignore`,
   README, license, editor/formatter, CI stub.
+- Write each major folder's own short `CLAUDE.md` at the same time as the
+  folder, even when it starts empty. `folder-claudemd.md` says what goes in one,
+  which folders get one, and which are skipped (any folder with a `README.md`
+  index, and everything under `.claude/`). Record every skip. Never a nested
+  `AGENTS.md`.
 - Every stack, as its own question: "Where do you track work items for this
   project?" Offer a GitHub Projects board, Linear, Jira, files in this
   repository, or somewhere else / nothing yet. `work-tracking-choice.md` has the
@@ -129,6 +134,8 @@ so they always know where they are.
 - Offer an initial owner-approved memory pass after setup.
 - Do not install a database, memory MCP server, embeddings, scripts, hooks,
   transcript capture, or background curation.
+- `specs/`, `brainstorms/`, and every `memory/` type folder ship a `README.md`
+  index, so none of them gets its own `CLAUDE.md`. Record the skips.
 
 **Gate 4: Knowledge layer**
 - Mark included with v3 when Gate 3 ran, or skipped with Gate 3.
@@ -174,6 +181,14 @@ so they always know where they are.
 - Write a thin CLAUDE.md _with_ the user: what it is, codemap and structural
   pointers, a `Read .claude/rules` line, which gates ran. Add a
   `.claude/rules/README.md` index.
+- Keep the codemap to one line per folder, pointing at that folder's own
+  `CLAUDE.md` for the detail. Four things stay in the root file whatever else
+  moves: how to talk to the owner, the pointers to the most dangerous rules, the
+  memory routing section, and the codemap lines. See "What must stay in the root
+  file" in `thin-claudemd.md`.
+- `AGENTS.md` keeps the folder detail in full. Codex never reads a folder
+  `CLAUDE.md`, so below the shared memory section the two root files are meant
+  to differ in length.
 - Install the plain-language output style (default ON): copy
   `library/output-styles/plain-language.md` to `.claude/output-styles/` and set
   `"outputStyle": "plain-language"` in the committed `.claude/settings.json`.
@@ -219,7 +234,8 @@ so they always know where they are.
   considered "no".
 
 **Wrap-up**
-- Summarize done vs. skipped.
+- Summarize done vs. skipped, including which folders got their own `CLAUDE.md`
+  and which were skipped and why.
 - List follow-ups from skipped/deferred gates.
 - Port-back reminder: improvements to reusable systems get PR'd back to
   `claude-toolkit`.
