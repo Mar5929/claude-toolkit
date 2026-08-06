@@ -167,6 +167,56 @@ It fails open. Any unexpected error exits 0 and the command runs.
    GitHub website, or by any other tool, is never seen. `wrap-up-ritual.md` is
    the backup for those.
 
+### no-ai-attribution-guard
+
+A `PreToolUse` hook on the `Bash` matcher. It refuses any command that would put
+AI credit on the owner's work: a `git commit`, `git tag`, `git merge`,
+`git notes`, `gh pr create`, `gh pr edit`, `gh release create`, or
+`gh issue create` whose text carries a `Co-Authored-By` trailer naming an AI, a
+"Generated with Claude Code" line, Claude's no-reply email address, or the
+Claude Code link that ships in the default credit line.
+
+**This is the only machine-wide hook in the toolkit.** Every other hook here is
+registered in a project's `.claude/settings.json`. This one is registered in the
+owner's own `~/.claude/settings.json` and installed by the `machine-sync` skill
+in the [`project-init`](../project-init/README.md) plugin, so it covers every
+repository on the machine, including ones that were never set up with the
+toolkit. Its script still lives here, because splitting hooks across two plugins
+by scope would mean checking two folders to answer "what hooks does the toolkit
+ship?".
+
+**Why a hook and not just the setting.** The `attribution` setting, with
+`commit` and `pr` set to an empty string, already removes the lines Claude Code
+adds by itself, and it is the main defense. It has two holes: a project's
+settings file beats the machine-wide one, and it does nothing about text an
+agent types into a message by hand. The Claude Code documentation names the
+answer: "To block an action regardless of what Claude decides, use a PreToolUse
+hook instead."
+
+**It is tuned the opposite way to the other hooks here.** For `writing-guard`
+and `memory-pr-hook`, a wrong block costs the owner a turn, so both lean toward
+letting things through. Here a wrong pass puts an AI's name on client work and
+cannot be taken back once it is pushed, so this one leans toward blocking.
+
+**What stops it firing on ordinary commits.** This repository writes about the
+`Co-Authored-By: Claude` trailer in its own rules, tickets, and commit messages.
+Two things keep that working: every trailer pattern is anchored to the start of
+a line, because a real trailer sits on its own line and prose about it does not;
+and only publishing commands are scanned, so writing the same words into a file,
+searching for them, or reading them is untouched. A `Co-Authored-By:` trailer
+naming a real person stays allowed, which the tests check directly.
+
+**It costs nothing on ordinary commands.** A command with none of the marker
+words exits after a handful of substring checks, with no file read and no
+subprocess.
+
+It fails open. Any unexpected error exits 0 and the command runs.
+
+**Its one limit, stated plainly.** It only sees commands run in the terminal. A
+commit made any other way is never seen, and the `no-ai-attribution.md` rule in
+the machine-wide set is the backup for those. The rule, the setting, and this
+hook each cover a hole the other two leave.
+
 ### The two Salesforce guards
 
 Both are `PreToolUse` hooks on the `Bash|PowerShell` matcher, written in Node so
@@ -207,6 +257,12 @@ the skill, never in the hook.
 The two Salesforce guards install from their own guides in this folder,
 `salesforce-prod-guard-hook.md` and `salesforce-permset-guard-hook.md`, which
 `project-init` Gate 2 follows step by step.
+
+`no-ai-attribution-guard` does not install through the `hooks-library` skill,
+because it is not a project hook. The `machine-sync` skill (`/machine-sync`) in
+the `project-init` plugin installs it into `~/.claude/`, alongside the rule and
+the settings values it works with. Installing it per project would leave every
+repository nobody set up uncovered, which is the gap it exists to close.
 
 ## Configure
 
@@ -256,25 +312,42 @@ Omit the file to get it on with no limit. `maxHolds` of 0 means no limit; it
 exists only as a safety valve against a runaway loop, not as a cap on how many
 pull requests get checked.
 
+### no-ai-attribution-guard
+
+Optional, at `no-ai-attribution-guard.json` next to the installed script in
+`~/.claude/hooks/`:
+
+```json
+{
+  "enabled": true
+}
+```
+
+Omit the file to get it on. Setting `enabled` to false switches the guard off,
+and it is an escape hatch for a wrong block that cannot be reworded, not a
+normal setting. The written rule still applies when the guard is off.
+
 ## Test
 
 ```
 node plugins/hooks-library/tests/style-reminder-harness.mjs
 node plugins/hooks-library/tests/writing-guard-harness.mjs
 node plugins/hooks-library/tests/memory-pr-hook-harness.mjs
+node plugins/hooks-library/tests/no-ai-attribution-guard-harness.mjs
 ```
 
-38 checks, 55 checks, and 52 checks. In all three harnesses, a large share of
-the checks assert the hook does **nothing**, and that weighting is deliberate.
-Each hook fails in two directions and only one is visible. Injecting the wrong
-text, blocking a good reply, or holding a command that was never opening a pull
-request is obvious; staying silent when it should have fired looks exactly like
-everything working.
+38 checks, 55 checks, 52 checks, and 43 checks. In all four harnesses, a large
+share of the checks assert the hook does **nothing**, and that weighting is
+deliberate. Each hook fails in two directions and only one is visible. Injecting
+the wrong text, blocking a good reply, or holding a command that was never
+opening a pull request is obvious; staying silent when it should have fired
+looks exactly like everything working.
 
-For `memory-pr-hook` the false-positive risk is real rather than theoretical:
-this repository writes about `gh pr create` in rules, tickets, commit messages,
-and prose, so a hook that matched the words anywhere in a line would fire
-constantly on text that is not a command.
+For `memory-pr-hook` and `no-ai-attribution-guard` the false-positive risk is
+real rather than theoretical: this repository writes about `gh pr create` and
+about the `Co-Authored-By: Claude` trailer in rules, tickets, commit messages,
+and prose, so a hook matching those words anywhere in a line would fire
+constantly on text that is not the thing it guards against.
 
 ## What was here before, and came back
 
@@ -294,7 +367,7 @@ Three jobs, and the admission bar is different for each.
 
 | Job | What it does | Bar |
 |---|---|---|
-| **Check** | Tests a finished output against a rule. | The rule must be checkable with no interpretation. If the check has to guess at intent it does not go here, because a wrong block costs the owner a turn. |
+| **Check** | Tests a finished output against a rule. `writing-guard`, and `no-ai-attribution-guard`. | The rule must be checkable with no interpretation. If the check has to guess at intent it does not go here, because a wrong block costs the owner a turn. The exception is a rule where a wrong pass costs more than a wrong block, which `no-ai-attribution-guard` is: an AI's name on client work cannot be taken back once it is pushed. Say so out loud when claiming it. |
 | **Trigger** | Fires a process at a moment agents forget. `memory-pr-hook`, which starts the memory check when a pull request opens. | The firing must need no judgement. What happens next is an agent's job and may need plenty. |
 | **Orient** | Puts the installed rules or style in front of a session, at its start or on every turn. `style-reminder`. | The content must already exist and be canonical. The hook shows it; it does not restate or reinterpret it. |
 
@@ -313,3 +386,10 @@ that retired v1, where hooks wrote memory on their own.
 Name the job it does from the table above and meet that job's bar. Getting it
 wrong must be cheap to recover from. If it fits none of the three, it stays a
 rule and an agent applies judgement to it.
+
+Say which scope it is for, because that decides who installs it. A project hook
+goes into a project's `.claude/settings.json` through the `hooks-library` skill.
+A machine-wide hook goes into `~/.claude/settings.json` through `machine-sync`,
+and it also needs a row in `plugins/project-init/machine/README.md`. Pick
+machine-wide only when the rule has to hold in a repository nobody set up with
+the toolkit; everything else is a project hook.

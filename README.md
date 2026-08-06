@@ -45,6 +45,7 @@ written down somewhere. It gets fitted into the system:
 | What I bring | Where it lands |
 |---|---|
 | A rule every project should follow (behavior, writing style, workflow) | Its own file in `library/rules/general/`, copied into each new project's `.claude/rules/` |
+| A rule that must hold in every repository on the machine, even ones I never set up | Its own file in `machine/rules/`, copied into `~/.claude/rules/` by the `machine-sync` skill. Only when a project rule genuinely cannot cover it, because that folder stays small |
 | A change to the voice Claude answers in, every turn | `library/output-styles/`, copied into each project's `.claude/output-styles/` and switched on in its settings. Use this only for something already written as a rule: a style is the short operative form, delivered where the session gets reminded of it each turn |
 | A setup step for new projects | A gate (or part of one) in the `project-init` skill |
 | A guard hook or automation | The [`hooks-library`](plugins/hooks-library/README.md) plugin. A hook does one of three jobs: check an output against a rule a machine can test with no interpretation, trigger a process at a moment agents forget, or orient a session at its start. If it needs none of those, it stays a rule |
@@ -87,7 +88,8 @@ claude-toolkit/
   .agents/plugins/
     marketplace.json              ← Codex marketplace pointing at the same plugins
   plugins/
-    project-init/                 ← plugin: set up a new project, or sync an existing one
+    project-init/                 ← plugin: set up a new project, sync an existing
+                                     one, or set up a whole computer
       README.md                   ← what this plugin is
       .claude-plugin/plugin.json
       .codex-plugin/plugin.json
@@ -98,12 +100,18 @@ claude-toolkit/
         tools/                       permsets.py and the kb/ dependency graph tool
         templates/                   copy-and-fill starting points
         guides/                      how-to docs for installing the kits above
+      machine/                    ← everything that gets COPIED INTO ~/.claude,
+                                     so it holds in EVERY repo on the machine
+        README.md                    the test for what belongs here, not in library/
+        rules/                       no-ai-attribution.md
+        settings/required.json       the attribution values that kill the AI credit lines
       skills/
         project-init/             ← SKILL.md + references/: the gate script only
                                      (setup-flow, work-tracking-choice,
                                      work-items-structure, thin-claudemd,
                                      salesforce-project-scaffold)
         project-sync/             ← SKILL.md (reads the same library/)
+        machine-sync/             ← SKILL.md (reads machine/, writes ~/.claude/)
     second-brain/                 ← plugin: Git-native v3 memory for Claude and Codex
       README.md
       .claude-plugin/plugin.json
@@ -139,6 +147,9 @@ claude-toolkit/
       hooks/
         style-reminder.mjs        ← re-states the output style every message
         writing-guard.mjs         ← checks the finished reply before it is sent
+        memory-pr-hook.mjs        ← holds the pull request command for the memory check
+        no-ai-attribution-guard.mjs ← refuses a commit or PR that credits an AI
+                                     (machine-wide; installed by machine-sync)
         guard-protected-orgs.js   ← confirms before a deploy hits a production org
         guard-permission-set-deploy.js ← blocks an unpreflighted permset deploy
       templates/protected-orgs.json  ← the production guard's policy file
@@ -226,11 +237,11 @@ inside a project folder before it is useful, which is what the last column says:
 
 | Plugin | What it does | Setup |
 |---|---|---|
-| **[project-init](plugins/project-init/README.md)** | Sets up or syncs a project. Asks where work items are tracked (a GitHub Projects board, Linear, Jira, files in the repository, or nothing), sets up the board itself for the GitHub answer, and carries the same ticket rules into the project whichever answer it gets. Offers work-tracker with safe adoption of older folders, and installs the complete second-brain v3 system when selected. For Salesforce projects it also ships two self-contained tools: the permission set kit, and a dependency graph that answers "if I change this field, what breaks?" from the project's own metadata. Existing-project sync begins with a read-only audit. | Sets up a project |
+| **[project-init](plugins/project-init/README.md)** | Sets up or syncs a project. Asks where work items are tracked (a GitHub Projects board, Linear, Jira, files in the repository, or nothing), sets up the board itself for the GitHub answer, and carries the same ticket rules into the project whichever answer it gets. Offers work-tracker with safe adoption of older folders, and installs the complete second-brain v3 system when selected. For Salesforce projects it also ships two self-contained tools: the permission set kit, and a dependency graph that answers "if I change this field, what breaks?" from the project's own metadata. Existing-project sync begins with a read-only audit. Its third skill, `machine-sync`, sets up the computer instead of a project: it installs the rules, settings, and hooks that have to hold in every repository, starting with never putting AI credit on anything committed or pushed. | Sets up a project, and sets up a machine |
 | **[second-brain](plugins/second-brain/README.md)** | Production-ready Git-native Markdown memory and knowledge for Claude and Codex, with one shared rule, typed schemas, owner-approved updates, and a read-only memory verifier that checks every claim before the owner sees it. | Sets up a project |
 | **[sf-architect-solutioning](plugins/sf-architect-solutioning/README.md)** | A Salesforce solution architect: pushes back on vague requirements, verifies platform facts against official docs by live fetch, designs declarative-first to Well-Architected standards, and presents a solution plan for approval before any build. Salesforce projects only. | Install and go |
 | **[git-workflows](plugins/git-workflows/README.md)** | Three parallel-session-safe git lifecycle skills: `pull-latest` gets current without rewriting history, `reset-to-remote` mirrors the remote behind confirmation, and `merge-and-clean-up` lands an approved PR before removing only its completed workspace. | Install and go |
-| **[hooks-library](plugins/hooks-library/README.md)** | Hooks that make a rule land mechanically instead of restating it: `style-reminder` puts the project's active output style back in front of Claude on every message, and `writing-guard` reads the finished reply and blocks an em dash or a section sign before it is sent. | Wires into settings |
+| **[hooks-library](plugins/hooks-library/README.md)** | Hooks that make a rule land mechanically instead of restating it: `style-reminder` puts the project's active output style back in front of Claude on every message, `writing-guard` reads the finished reply and blocks an em dash or a section sign before it is sent, `memory-pr-hook` holds the command that opens a pull request so the memory check happens, and `no-ai-attribution-guard` refuses any commit, tag, pull request, or release whose text credits an AI. | Wires into settings |
 | **[grill-me](plugins/grill-me/README.md)** | Stress-tests a plan, design, or topic through a one-question-at-a-time interview and checkpoints every answer to a durable Markdown file before continuing. | Install and go |
 | **[work-tracker](plugins/work-tracker/README.md)** | Gives Claude and Codex one Git-authoritative backlog with exact handoffs, blockers, typed relationships, deterministic next-item selection, Git landing proof, generated dashboards, and optional GitHub Issues and Projects synchronization. | Sets up a project |
 | **[session-summary](plugins/session-summary/README.md)** | Recaps a session as a table, one row per main request you made, in your own words and in the order you asked, each carrying an honest status, then pulls whatever still needs you into its own block below. Answers "what did I ask for, and where does it stand?" and "what still needs me?" without a narrative of the assistant's own work. | Install and go |
@@ -333,6 +344,17 @@ Install once per machine:
 /plugin marketplace add Mar5929/claude-toolkit
 /plugin install project-init
 ```
+
+**On a new computer, run this next, before anything else:**
+
+```
+/machine-sync
+```
+
+It compares that machine's `~/.claude/` against the toolkit's machine-wide set
+and installs what you approve, so the rules that have to hold in every
+repository are in place before you clone one. Run it again after any toolkit
+update that touched `plugins/project-init/machine/`.
 
 On Salesforce projects, also:
 
