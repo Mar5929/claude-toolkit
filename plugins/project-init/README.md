@@ -61,9 +61,11 @@ hooks, whose scripts live with every other hook in the
 It is deliberately small. Its `README.md` carries a two-question test for what
 belongs there: the thing has to hold in a repository nobody set up with the
 toolkit, and it must not already be in `library/` or the output styles. Anything
-failing either question is a project rule and goes in `library/` instead. The
-first thing it carries is `no-ai-attribution.md`, which keeps credit to Claude
-or any other AI agent off everything the owner commits or pushes.
+failing either question is a project rule and goes in `library/` instead. It
+carries two rules today: `no-ai-attribution.md`, which keeps credit to Claude or
+any other AI agent off everything the owner commits or pushes, and
+`propose-the-best-solution.md`, which says the best answer always gets said out
+loud, whatever it would cost in time, effort, or resources.
 
 ### The library: what lands in a project
 

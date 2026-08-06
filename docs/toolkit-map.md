@@ -100,8 +100,10 @@ It is deliberately small, and its own `README.md` carries the test that keeps it
 that way: a thing belongs there only if it must hold in a repository nobody set
 up, and only if it is not already in `library/` or the output styles. Shipping
 the same guidance in both piles would mean two copies that drift apart. Today it
-holds one rule, `no-ai-attribution.md`, with a settings value and a hook that
-each close a hole the other two leave.
+holds two rules. `no-ai-attribution.md` comes with a settings value and a hook
+that each close a hole the other two leave. `propose-the-best-solution.md`
+stands alone and says the best answer always gets said out loud, whatever it
+would cost in time, effort, or resources.
 
 ## Rules and references (canonical indexes)
 

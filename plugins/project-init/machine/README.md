@@ -31,11 +31,20 @@ stays small on purpose.
 | `rules/no-ai-attribution.md` | `~/.claude/rules/no-ai-attribution.md` | Nothing the owner commits or pushes carries a line saying an AI helped write it. Covers commit trailers, pull request text, code comments, file headers, and documents. |
 | `settings/required.json` | merged into `~/.claude/settings.json` | Sets `attribution.commit` and `attribution.pr` to an empty string, which is what removes the `Co-Authored-By: Claude` trailer and the "Generated with Claude Code" line Claude Code adds by itself. |
 | `no-ai-attribution-guard` hook | `~/.claude/hooks/` plus an entry in `~/.claude/settings.json` | Refuses a `git commit`, `git tag`, `gh pr create`, or `gh release create` whose text carries AI credit. Its script lives with every other hook in the toolkit, in `../../hooks-library/hooks/`, not here. |
+| `rules/propose-the-best-solution.md` | `~/.claude/rules/propose-the-best-solution.md` | The best answer always gets said out loud. Time, effort, cost, and resources never decide whether it is mentioned, only what the owner picks after seeing it. |
 
-The three cover one rule between them, and each has a hole the other two fill.
-The rule file explains which hole belongs to which. Installing one without the
-others leaves a real gap, so `machine-sync` treats them as one item and reports
-a partial install as incomplete.
+The first three rows cover one rule between them, and each has a hole the other
+two fill. That rule file explains which hole belongs to which. Installing one
+without the others leaves a real gap, so `machine-sync` treats them as one item
+and reports a partial install as incomplete.
+
+`propose-the-best-solution.md` stands on its own, with no settings value or hook
+behind it. It shares a border with the project rule "Build It Well, and Never
+Quietly Build More Than Was Asked" in `../library/rules/general/`, and the two
+files each say where that border is. Keep them in step: the project rule owns
+the caliber of what gets built in a project, and this one owns the instruction
+that cost is never a reason to keep the best answer quiet, anywhere on the
+computer.
 
 ## Why the hook script is not in this folder
 
