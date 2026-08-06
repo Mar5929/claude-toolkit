@@ -12,7 +12,7 @@
     {
       "name": "project-init",
       "source": "./plugins/project-init",
-      "description": "Two skills: project-init offers the Git-native work-tracker and complete second-brain v3 during new-project setup; project-sync audits existing projects and safely adopts approved toolkit systems."
+      "description": "Three skills: project-init offers the Git-native work-tracker and complete second-brain v3 during new-project setup; project-sync audits existing projects and safely adopts approved toolkit systems; machine-sync sets up a whole computer, installing the machine-wide rules, settings, and hooks that have to hold in every repository."
     },
     {
       "name": "sf-architect-solutioning",
@@ -32,7 +32,7 @@
     {
       "name": "hooks-library",
       "source": "./plugins/hooks-library",
-      "description": "Hooks that make a rule land mechanically instead of restating it. style-reminder re-states the project's active output style every time the owner sends a message, so the voice instructions never go stale hours into a session. writing-guard reads the finished reply and blocks on an em dash or a section sign, so a slip is caught rather than shipped."
+      "description": "Hooks that make a rule land mechanically instead of restating it. style-reminder re-states the project's active output style every time the owner sends a message, so the voice instructions never go stale hours into a session. writing-guard reads the finished reply and blocks on an em dash or a section sign, so a slip is caught rather than shipped. no-ai-attribution-guard refuses any commit or pull request whose text credits an AI, on every repository on the machine."
     },
     {
       "name": "grill-me",

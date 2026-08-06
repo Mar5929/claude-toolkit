@@ -223,7 +223,7 @@ says why the markers sit where they do.
 
 | Path | What lives there |
 | --- | --- |
-| `plugins/` | The nine plugins this repo ships, and the `project-init/library/` material other projects receive. Detail: `plugins/CLAUDE.md`. |
+| `plugins/` | The nine plugins this repo ships, the `project-init/library/` material other projects receive, and the `project-init/machine/` material every computer receives. Detail: `plugins/CLAUDE.md`. |
 | `.claude-plugin/marketplace.json` | Registers every plugin for Claude Code. `.agents/plugins/marketplace.json` does the same for Codex. |
 | `docs/` | `toolkit-map.md`, the cross-cutting catalog. Detail: `docs/CLAUDE.md`. |
 | `tests/` | Three Node checks, run by hand before every pull request. Detail: `tests/CLAUDE.md`. |
@@ -288,6 +288,7 @@ write X down somewhere. Fit it into the system:
    | X is... | It goes... |
    | --- | --- |
    | A rule for how agents behave, write, or work in every project | A new file in `plugins/project-init/library/rules/general/`; also add a row to that folder's `README.md` index (default ON or conditional) |
+   | A rule that must hold in every repository on the machine, including ones nobody set up with the toolkit | A new file in `plugins/project-init/machine/rules/`, plus a row in that folder's `README.md` and an entry in the `machine-sync` skill. Only when a project rule genuinely cannot cover it |
    | A setup step for new projects | Into the right gate in `plugins/project-init/skills/project-init/SKILL.md` and `references/setup-flow.md` (or propose a new gate) |
    | A guard hook or automation | The `hooks-library` plugin. A hook checks an output, triggers a process agents forget to run, or orients a session at its start; if it needs none of those, it stays a rule |
    | A whole reusable system | A new plugin under `plugins/`, each with its own `README.md`, registered in `.claude-plugin/marketplace.json`, offered by `project-init`, and listed in `docs/toolkit-map.md` |
@@ -316,7 +317,13 @@ it. Pushing to GitHub updates nothing on its own. After a PR merges to `main`:
    `claude plugin marketplace update claude-toolkit`. That git-pulls the copy
    and refreshes the plugin cache. Restart the session to be sure it picks up
    the new content.
-2. **Roll the change into each existing project.** Refreshing the plugin does
+2. **Roll the machine-wide part into each machine.** When the change touched
+   `plugins/project-init/machine/`, refreshing the plugin does NOT put it in
+   `~/.claude/`. Run the `machine-sync` skill (`/machine-sync`) on each machine.
+   It compares that machine's own `~/.claude/` against the machine-wide set and
+   installs what you approve. This is also the whole setup for a brand-new
+   computer: add the marketplace, install `project-init`, run `/machine-sync`.
+3. **Roll the change into each existing project.** Refreshing the plugin does
    NOT touch a project that is already set up: its rules were copied into
    `.claude/rules/` when the project was initialized, so a new rule or system
    does not appear there on its own. In each project that should get the change,
@@ -326,9 +333,9 @@ it. Pushing to GitHub updates nothing on its own. After a PR merges to `main`:
    first as its own Step 1, so running it inside a project also covers step 1
    for that machine.
 
-In one line: push to GitHub, then on every machine `/plugin marketplace update`,
-then in every project `/project-sync`. Nothing propagates across machines by
-itself; each machine and each project pulls the change in.
+In one line: push to GitHub, then on every machine `/plugin marketplace update`
+and `/machine-sync`, then in every project `/project-sync`. Nothing propagates
+across machines by itself; each machine and each project pulls the change in.
 
 This repo is one of those projects now. It runs the toolkit on itself, so a
 merged change reaches it the same way: refresh the plugin, then sync.

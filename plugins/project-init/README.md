@@ -38,9 +38,32 @@ files into a project, so every project it touches opts in deliberately.
   does not re-nag about a deliberate "no". Its Step 1 refreshes the installed
   plugin first, so running it also pulls the latest toolkit onto that machine.
 
+- **machine-sync** (`/machine-sync`): the third sibling, working one level up. It
+  sets up the COMPUTER rather than a project, comparing `~/.claude/` against the
+  toolkit's machine-wide set and installing what you approve. Same shape as
+  project-sync: read the toolkit, audit, report every gap in one table, change
+  nothing until you answer. It exists because the other two only reach inside a
+  repository someone ran them on, and some rules have to hold in a repository
+  cloned five minutes ago. It is also the whole setup for a new computer.
+
 ## Key references
 
-This plugin holds two separate piles, and the difference matters.
+This plugin holds three separate piles, and the difference matters.
+
+### The machine-wide set: what lands on a computer
+
+`machine/` holds what `machine-sync` installs into `~/.claude/`, with its own
+`README.md` index: `rules/` for the rule files, `settings/required.json` for the
+settings values every machine must carry, and a pointer to the machine-wide
+hooks, whose scripts live with every other hook in the
+[`hooks-library`](../hooks-library/README.md) plugin.
+
+It is deliberately small. Its `README.md` carries a two-question test for what
+belongs there: the thing has to hold in a repository nobody set up with the
+toolkit, and it must not already be in `library/` or the output styles. Anything
+failing either question is a project rule and goes in `library/` instead. The
+first thing it carries is `no-ai-attribution.md`, which keeps credit to Claude
+or any other AI agent off everything the owner commits or pushes.
 
 ### The library: what lands in a project
 
@@ -148,6 +171,12 @@ plugin.
   inventory of toolkit systems but enter from opposite ends: project-init lays
   foundations in an empty project, project-sync audits and back-fills a project
   that already exists.
+- **machine-sync is not a third copy of either.** The other two write into a
+  project folder and share `library/`. This one writes into the owner's home
+  folder and reads `machine/`, which holds different material for a different
+  reason. Running project-sync on every repository would still miss a repository
+  nobody ran it on, and that gap is the whole reason machine-sync exists. The
+  two scopes never install the same file.
 
 ## Maintaining this plugin
 

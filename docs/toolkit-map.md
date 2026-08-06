@@ -16,11 +16,11 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 
 | Plugin | Purpose | Skills | Install | Setup |
 |---|---|---|---|---|
-| [project-init](../plugins/project-init/README.md) | Put the toolkit's rules and systems into a project, new or existing | `project-init`, `project-sync` | `/plugin install project-init` | Sets up a project |
+| [project-init](../plugins/project-init/README.md) | Put the toolkit's rules and systems into a project, new or existing, and the machine-wide ones onto the computer itself | `project-init`, `project-sync`, `machine-sync` | `/plugin install project-init` | Sets up a project, and sets up a machine |
 | [second-brain](../plugins/second-brain/README.md) | Git-native Markdown specifications and durable memory shared by Claude and Codex | `second-brain`, `remember` | `/plugin install second-brain` | Sets up a project |
 | [sf-architect-solutioning](../plugins/sf-architect-solutioning/README.md) | Salesforce solution architect: approved solution plan before any build | `sf-architect-solutioning` | `/plugin install sf-architect-solutioning` | Install and go |
 | [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git lifecycle workflows | `pull-latest`, `reset-to-remote`, `merge-and-clean-up` | `/plugin install git-workflows` | Install and go |
-| [hooks-library](../plugins/hooks-library/README.md) | Hooks that make a rule land mechanically instead of restating it: `style-reminder` re-states the output style every message, `writing-guard` checks the finished reply, `memory-pr-hook` starts the memory check when a pull request opens | `hooks-library` | `/plugin install hooks-library` | Wires into settings |
+| [hooks-library](../plugins/hooks-library/README.md) | Hooks that make a rule land mechanically instead of restating it: `style-reminder` re-states the output style every message, `writing-guard` checks the finished reply, `memory-pr-hook` starts the memory check when a pull request opens, `no-ai-attribution-guard` refuses a commit or pull request that credits an AI | `hooks-library` | `/plugin install hooks-library` | Wires into settings |
 | [grill-me](../plugins/grill-me/README.md) | Persistent discovery interviews that checkpoint every answer | `grill-me` | `/plugin install grill-me` | Install and go |
 | [work-tracker](../plugins/work-tracker/README.md) | Git-authoritative backlog, handoffs, relationships, landing proof, and optional GitHub Projects | `work` | `/plugin install work-tracker` | Sets up a project |
 | [session-summary](../plugins/session-summary/README.md) | Recap one session as a table row per main request, each with an honest status, plus a block for whatever still needs the owner | `session-summary` | `/plugin install session-summary` | Install and go |
@@ -32,6 +32,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 |---|---|---|---|
 | project-init | project-init | Walk a NEW project through setup gates, one skippable step at a time | `/project-init` |
 | project-sync | project-init | Audit an EXISTING project against the toolkit and close approved gaps | `/project-sync` |
+| machine-sync | project-init | Audit THIS COMPUTER's `~/.claude/` against the toolkit's machine-wide set and close approved gaps. Also the whole setup for a new computer | `/machine-sync`, "set up this machine from my toolkit" |
 | second-brain | second-brain | Explain, install, audit, adopt, review, and maintain the complete v3 system | `/second-brain` |
 | remember | second-brain | Draft the real words, have `memory-verifier` check them, show the owner, then save, routing what the system should do to `specs/` and everything else to memory | `/remember`, "remember this" |
 | sf-architect-solutioning | sf-architect-solutioning | 5-phase Salesforce solutioning to an approved plan | `/sf-architect-solutioning` |
@@ -77,7 +78,30 @@ files against the second one.
 
 Every hook in the toolkit lives in
 [`hooks-library`](../plugins/hooks-library/README.md), including the two
-Salesforce guards and their install guides.
+Salesforce guards and their install guides, and the one machine-wide hook.
+
+## The machine-wide set: what lands on a computer
+
+`plugins/project-init/machine/` is the third pile in that plugin and the one
+most easily confused with `library/`. The difference is where it lands:
+`library/` goes into a project folder when someone runs a setup skill on it,
+this goes into the owner's own `~/.claude/` and applies to every repository on
+the machine, including ones nobody ever set up.
+
+| Folder | Holds |
+|---|---|
+| `machine/rules/` | rule files that install to `~/.claude/rules/`, loaded in every project on the machine |
+| `machine/settings/required.json` | the settings values `~/.claude/settings.json` must carry, merged in key by key and never written over the file |
+
+It also names the machine-wide hooks, whose scripts stay in `hooks-library` with
+every other hook. `machine-sync` installs all three kinds.
+
+It is deliberately small, and its own `README.md` carries the test that keeps it
+that way: a thing belongs there only if it must hold in a repository nobody set
+up, and only if it is not already in `library/` or the output styles. Shipping
+the same guidance in both piles would mean two copies that drift apart. Today it
+holds one rule, `no-ai-attribution.md`, with a settings value and a hook that
+each close a hole the other two leave.
 
 ## Rules and references (canonical indexes)
 

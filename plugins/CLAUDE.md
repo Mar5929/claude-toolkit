@@ -11,6 +11,12 @@ reusable files other projects receive (`rules/general/`, `rules/salesforce/`,
 folder, so a `library/` at the repository root would vanish on install.
 `project-sync` reads the same folder.
 
+`project-init/machine/` is the same idea for a whole computer: the
+machine-wide rules and the settings values every machine must carry, installed
+into `~/.claude/` by the `machine-sync` skill. Its `README.md` holds the
+two-question test for what belongs there instead of in `library/`, and the
+folder stays small on purpose.
+
 ## Working in here
 
 - **One canonical home.** Each item lives in exactly one place; other files
