@@ -246,6 +246,10 @@ same fixed vocabulary: `(source: agent-guess-unchecked)`.
 A file marked `agent-guess-unchecked` is never treated as truth by a later
 agent. It is a lead to check, not a fact to repeat.
 
+A memory holds only the detail a future agent needs to act correctly, and
+nothing more. How much that is depends on the fact: a safety boundary may need
+a page, a preference may need two lines.
+
 `Related` is included only when there is at least one related file.
 
 ### The shape of a specification file
