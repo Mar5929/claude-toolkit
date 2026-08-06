@@ -26,3 +26,11 @@ has made the call, do it their way.
 the right goal, this one is about the caliber of what you build to reach it.
 `ask-before-assuming.md` covers the neighbouring case of not guessing when
 intent is unclear.
+
+The toolkit also ships a machine-wide rule,
+`propose-the-best-solution.md`, which lands in the owner's own `~/.claude/rules/`
+folder rather than in a project. It owns one instruction this file does not:
+time, effort, cost, and resources never decide whether the best answer gets said
+out loud. It covers any proposal at all, not only code, and it holds in
+repositories nobody set up with the toolkit. The two agree. This file is the
+fuller version for code; that one is the floor underneath it.

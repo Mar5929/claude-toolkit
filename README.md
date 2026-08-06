@@ -103,7 +103,8 @@ claude-toolkit/
       machine/                    ← everything that gets COPIED INTO ~/.claude,
                                      so it holds in EVERY repo on the machine
         README.md                    the test for what belongs here, not in library/
-        rules/                       no-ai-attribution.md
+        rules/                       no-ai-attribution.md,
+                                     propose-the-best-solution.md
         settings/required.json       the attribution values that kill the AI credit lines
       skills/
         project-init/             ← SKILL.md + references/: the gate script only
