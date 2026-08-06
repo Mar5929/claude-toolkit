@@ -25,6 +25,9 @@ Defined here so no agent has to guess.
 - **The index**: the one file listing every specification and memory file with
   its one-sentence summary. A script rebuilds it after every save. Nobody edits
   it by hand.
+- **The YAML block**: the fields between two `---` lines at the top of a memory
+  file. Its field names and allowed values are fixed by this specification.
+  Agents never add fields or invent values.
 
 ## What it is for
 
@@ -74,6 +77,12 @@ What a thing must do. One file per capability, named after the capability. The
 files are grouped into one folder per area, so a person can open `specs/` and
 see at a glance which specifications belong to which part of the system.
 
+A specification is the living truth for how the system should work right now.
+It is not a proposal, and it is not a record of how things used to be. When
+approved behavior changes, the specification changes in the same piece of
+work, so reading a specification always gives the current truth. Git keeps
+every older version, so keeping it current loses nothing.
+
 ```
 specs/
   intake/
@@ -121,9 +130,9 @@ pushed to GitHub and copied to other machines.
 ### Things that may stop being true
 
 Some of what gets saved will not be true forever. That is fine, and it is not a
-reason to leave it out. When a file says something that a specific future change
-would make wrong, the file says so on its own `Stops being true if:` line, so a
-later reader knows to check it rather than trust it.
+reason to leave it out. When the agent can see what future change would make a
+file wrong, it says so in the body in plain words, so a later reader knows to
+check rather than trust.
 
 ### The small part that is always loaded
 
@@ -141,6 +150,11 @@ Every session carries these four lines to the top of the ai agent's mind, and no
 Those four lines are the only part of this document loaded into every session.
 Everything else here loads only when a save actually runs.
 
+A fact an agent must never miss, like a safety boundary, also gets one line in
+the project's root instruction file, pointing at the memory file that owns the
+full story. The memory file stays the one home; the line is a signpost, not a
+copy.
+
 ### When a save runs
 
 Three moments:
@@ -152,6 +166,17 @@ Three moments:
 Not at the end of a message, not on a commit, and not after a small fix. Saving
 at those moments is what fills the folders with things nobody needs.
 
+One small hook exists, and only one: a script that fires when a pull request
+is about to open and reminds the agent to run the save. A hook only reminds.
+It never writes a file and never approves anything.
+
+The repeatable processes reach the agent as skills, packaged instructions the
+agent invokes when the moment comes: `remember` for saving, `recall` for
+finding and reading what is saved, and `cleanup` for the review pass. Reading
+the index at startup is not a skill, because the four always-loaded lines
+already order it, and startup must never depend on anyone remembering to
+invoke something.
+
 ### Cleaning up
 
 The user may ask at any time for a review of what is saved. The agent then
@@ -159,39 +184,77 @@ proposes edits, merges, and deletions for anything stale, repeated, or no
 longer worth keeping. The normal save rules apply: the user sees the exact
 words and says yes before anything changes.
 
+### One memory per project
+
+The project has one memory. An agent never keeps its own private notes about
+the project anywhere else, including the assistant's built-in personal memory
+folder. A note only one agent can read is a note the project does not have.
+When this system is installed in a project, the built-in memory is turned off
+for it.
+
+### Facts that belong somewhere else
+
+Some facts do not belong to this project's memory. A standing preference about
+how the user works on every project belongs in the user's toolkit. A value a
+tool enforces belongs in that tool's settings file, and memory may record that
+it is set and where. When a fact belongs outside this project, the agent says
+so and proposes the right home instead of saving a local copy.
+
+A rule the agent must follow in every session is not a memory. It lives with
+the project's always-loaded instructions. When the rule has a story worth
+keeping, why it exists, what happened, what was rejected, a memory file holds
+the story and the rule links to it.
+
 ### The shape of a memory file
 
-Every file in `memory/` looks like this.
+Every file in `memory/` starts with a YAML block: fields between two `---`
+lines. Very basic on purpose, with fixed allowed values where meaning matters.
 
 ```
-# Title saying what this is
+---
+source: user-said-it
+date: 2026-08-06
+tags: [intake, client-team]
+---
 
-One sentence saying what this file covers.
+# Why intake was built with flows instead of custom code
 
-Source: the user said this in this session
-Date: 2026-08-05
-Stops being true if: the /remember skill is rewritten
+The client's admin team maintains intake, so we chose flows they can
+edit over code they cannot.
 
 The body, written in whatever shape fits the content.
 
 ## Related
 
-- [title of the other file](../knowledge/other-file-name.md): a few words on
-  how it connects.
+- [title of the other file](../planning/other-file-name.md): a few
+  words on how it connects.
 ```
 
-The `Source:` line is exactly one of these three, copied word for word:
+The fields and their rules:
 
-- `Source: the user said this in this session`
-- `Source: read from <exact file path>`
-- `Source: the agent worked this out. Nobody has checked it.`
+- `source:` exactly one of `user-said-it`, `read-from-file`, or
+  `agent-guess-unchecked`. No other value exists, and an agent never invents
+  one.
+- `source-file:` the exact file path. Included exactly when `source:` is
+  `read-from-file`, never otherwise.
+- `date:` the day the file was saved or last changed, written `YYYY-MM-DD`.
+- `tags:` a short list of topic words, each taken from the project's tag list
+  in `memory/tags.md`. A new tag is proposed as part of the save and approved
+  by the user, like a new area folder. Tags cut across folders: they let the
+  recall skill pull every file about one topic, whatever kind of file it is.
+- `superseded-by:` the path of the file that replaced this one. A file
+  carrying it is history, never current truth.
 
-The `Source:` line at the top covers the whole file. If one fact inside the body
-came from somewhere else, put its own `Source:` label on that line where it
-sits.
+The `source:` value covers the whole file. If one fact inside the body came
+from somewhere else, mark that line where it sits, in plain text, with the
+same fixed vocabulary: `(source: agent-guess-unchecked)`.
 
-`Stops being true if:` is included only when a specific future change would make
-the file wrong. Most files will not have it.
+A file marked `agent-guess-unchecked` is never treated as truth by a later
+agent. It is a lead to check, not a fact to repeat.
+
+A memory holds only the detail a future agent needs to act correctly, and
+nothing more. How much that is depends on the fact: a safety boundary may need
+a page, a preference may need two lines.
 
 `Related` is included only when there is at least one related file.
 
@@ -246,11 +309,15 @@ Rules for those sections:
 - `What it deliberately does not do` is included only when something was
   actually left out on purpose.
 - `Related` is included only when there is at least one related file.
-- A specification has no `Source:` line, because the user approved every word of
-  it before it was written.
+- A file in `specs/` carries no YAML block, because the user approved every
+  word of it before it was written.
 - A section with nothing to say is left out, never left in with a placeholder.
 
 ### How files link to each other
+
+One fact lives in exactly one file. Every other place that needs it links to
+that file instead of repeating it, because a copy drifts out of date and a
+link cannot.
 
 A link is a plain Markdown link pointing at the other file from where this one
 sits.
@@ -314,16 +381,21 @@ whether something is saved, because a transcript is not a save.
 
 A save runs in six steps:
 
-1. **Search first.** Read the index, and search the text inside `specs/` and
-   `memory/` for the fact about to be saved. `brainstorms/` does not count: a
-   fact sitting in a transcript is not saved.
+1. **Search first.** Before proposing anything, check what is already in
+   force: the instruction files this session already carries (the global
+   instruction file, the project's instruction files, and the rules folder),
+   and the text inside `specs/` and `memory/`. If the fact already lives in
+   any of those places, name the place and write nothing new. `brainstorms/`
+   does not count: a fact sitting in a transcript is not saved.
 2. **Prefer an edit.** If a file already covers the fact, propose an edit to
    that file. Never create a second file about the same fact.
 3. **Draft the real words.** Write out what would actually be saved, not a
    description of it. Number each piece and give its file path.
-4. **Label where every fact came from**, using one of the three `Source:` labels
-   word for word.
-5. **Show the user, then stop.** The user replies with numbers: keep, cut, or
+4. **Label where every fact came from**, using the fixed `source:` values.
+5. **Show the user, then stop.** Each piece leads with one line the user can
+   take in at a glance: its number, its destination, its one-sentence summary,
+   and its source value. The full words sit directly under it. The user
+   replies with numbers: keep, cut, or
    edit.
 6. **Write only what the user kept**, run the index script, then state exactly
    which files were written and what was cut.
@@ -348,9 +420,8 @@ so a deleted file can always be brought back.
 - **The user does not reply.** Write nothing. A pull request still opens with
   the code in it.
 - **The user cuts everything.** Write nothing, and keep no list for later.
-- **A fact is a guess.** Show it anyway, labelled
-  `Source: the agent worked this out. Nobody has checked it.`, so the user can
-  cut it on sight.
+- **A fact is a guess.** Show it anyway, marked
+  `source: agent-guess-unchecked`, so the user can cut it on sight.
 - **Two saved files disagree with each other.** Show the user both files and the
   exact sentences that disagree. Do not pick one, and do not edit either.
 - **A saved file disagrees with what the agent sees in the code or the running
@@ -372,4 +443,4 @@ so a deleted file can always be brought back.
 | A script that checks file shape | The user reading the exact words before the save is the check. A checker script is one more thing to maintain. |
 | A hand-maintained index | Tried in an earlier version. Agents spent more time tending the list than using it. A script rebuilds the index from the approved titles and summaries instead. |
 | The memory instructions copied into `CLAUDE.md` and `AGENTS.md` | Replaced by the four small lines that are always loaded. |
-| Any fixed field beyond `Source:`, `Date:`, and `Stops being true if:` | Every required field is one more thing to get wrong and one more thing to maintain. |
+| Any field beyond `source:`, `source-file:`, `date:`, `tags:`, and `superseded-by:` | Every field is one more thing to get wrong and one more thing to maintain. |
