@@ -43,6 +43,12 @@ Three kinds of change, and they follow the normal save rules exactly:
 - **A deletion**: the file goes. Say why. Git keeps every old version, so a
   deleted file can always be brought back.
 
+A rewritten or merged file is judged for length the same way a new one is. The
+two questions are in "How much detail to write" in
+[the remember skill](../remember/SKILL.md). Read them before proposing an edit,
+because a cleanup pass is the best chance to cut a file that grew past what it
+needed to be.
+
 ## How to show it
 
 Same as any save. Each piece leads with one line the user can take in at a
