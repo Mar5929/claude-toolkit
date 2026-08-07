@@ -1,419 +1,354 @@
-"""query_graph.py: impact queries over the compiled dependency graph.
+"""query_graph.py — what connects to this, and what breaks if it changes?
 
-Reads a graph built by build_graph.py (never builds or writes it) and answers
-the two daily org-merge questions for one component:
+WI-007 phase 6. Reads the JSON edge list `build_edges.py` writes and never
+builds or changes it. It answers the two questions asked every day about one
+component:
 
-  1. Where does this value come from?  (its writers / inputs)
-  2. If I rename or change this, what breaks?  (the N-hop impact radius)
+  1. Where does this value come from?  (what writes it, or what it is computed from)
+  2. If I rename or change this, what breaks?  (everything within N hops)
 
-Usage:
-    python3 tools/kb/query_graph.py <component> [--db PATH] [--hops N]
-                                    [--report FILE.md] [--include-contains]
-    python3 tools/kb/query_graph.py --group <fuzzy-name> [--db PATH]
-                                    [--report FILE.md]
+    python tools/kb/query_graph.py Case.Priority
+    python tools/kb/query_graph.py --org <name> "<name>:Flow:Case_Escalation" --hops 3
+    python tools/kb/query_graph.py --org <name> --unresolved npsp__Household__c
+    python tools/kb/query_graph.py --org <name> --map
 
-<component> is a component id ("Field:Contact.Events__c", "Flow:FA_Pull_Name")
-or a plain name / fragment ("Events", "Contact.Events__c"). If a fragment
-matches more than one component the tool lists the candidates and stops.
+`--org` can be left out when only one org has been built. `<component>` is a
+component id (`<org>:CustomField:Case.Priority`), a full api name
+(`Case.Priority`), or a fragment of either. A fragment matching more than one
+component lists the candidates and stops rather than picking one.
 
---group answers the near-duplicate-fields question (WI-003 Phase 6 / backlog
-A4): given a fuzzy name ("CRD", "mailing address", a field name), it returns
-every curated field group whose id, object, description, or member fields
-match, with each member's role and notes, the distinguishers a merge needs
-when several lookalike fields exist. Groups come from the curated
-_field_groups.yaml overlay (built with --scope yamls).
+Three things to know before reading a report:
 
-Notes:
-  - Edge direction: "src <kind> dst". A field X is usually the dst (writers
-    write TO it, readers read FROM it, formulas reference it). Anything that
-    NAMES X breaks when X is renamed, so the 1-hop "direct connections" section
-    lists every edge incident to X in either direction.
-  - The multi-hop radius walks the graph undirected but SKIPS `CONTAINS` by
-    default: an object CONTAINS all its fields, so one hop through the parent
-    object would otherwise pull in every sibling field. Pass --include-contains
-    to keep it.
-  - Read-only. Org-independent. No network, no `sf` commands.
+- **Direction.** An edge reads "source -> target". A field is usually the
+  target: writers write TO it, readers read FROM it, formulas reference it.
+  Anything that NAMES a component breaks when that component is renamed, which
+  is why the one-hop section lists every edge touching it in either direction.
+- **`contains` is skipped in the multi-hop walk.** An object contains all its
+  fields, so one hop through the parent object would drag in every sibling
+  field and the answer would be useless. `--include-contains` keeps it.
+- **What is missing.** `tools/kb/README.md` has the section "What this cannot
+  tell you". Read it before saying "nothing writes this field".
+
+Read-only. Org-independent: no network, no `sf` commands, no Salesforce org.
 """
 
 from __future__ import annotations
 
 import argparse
-import sqlite3
 import sys
-from collections import deque
 from pathlib import Path
 
-DEFAULT_DB = Path(__file__).parent / "_graph.sqlite"
+THIS_DIR = Path(__file__).resolve().parent
+if str(THIS_DIR) not in sys.path:
+    sys.path.insert(0, str(THIS_DIR))
 
-# One-hop edge kinds that answer "where does this value come from" when the
-# component is the dst (writers) or, for a formula/rollup, the src (its inputs).
-WRITER_KINDS = ("WRITES", "FORMULA_REFERENCES", "ROLLUP_OF")
+from classify_fields import classify  # noqa: E402
+from graph import (  # noqa: E402
+    CONTAINMENT, Graph, INPUT_RELATIONSHIPS, WRITER_RELATIONSHIPS,
+    built_orgs, load_reverse_index,
+)
 
-
-def connect(db_path: Path) -> sqlite3.Connection:
-    if not db_path.exists():
-        raise SystemExit(
-            f"graph db not found: {db_path}\n"
-            f"build it first, e.g.:\n"
-            f"  python3 tools/kb/build_graph.py --scope force-app "
-            f"--force-app <path/to/force-app/main/default> --db {db_path}"
-        )
-    conn = sqlite3.connect(str(db_path))
-    conn.row_factory = sqlite3.Row
-    return conn
-
-
-def resolve(conn: sqlite3.Connection, token: str) -> str:
-    """Return a single component id, or exit listing candidates."""
-    cur = conn.cursor()
-    exact = cur.execute("SELECT id FROM components WHERE id = ?", (token,)).fetchone()
-    if exact:
-        return exact["id"]
-    like = f"%{token}%"
-    rows = cur.execute(
-        "SELECT id, type, name FROM components "
-        "WHERE id LIKE ? OR name LIKE ? ORDER BY type, id LIMIT 50",
-        (like, like),
-    ).fetchall()
-    if not rows:
-        raise SystemExit(f"no component matches: {token!r}")
-    if len(rows) == 1:
-        return rows[0]["id"]
-    print(f"'{token}' matches {len(rows)} components; be more specific:\n")
-    for r in rows[:50]:
-        print(f"  {r['id']}")
-    raise SystemExit(2)
+CAVEAT = (
+    "This report is built from the metadata files on disk, not from a live org. "
+    "It cannot see everything: Apex writes are found by matching patterns "
+    "against code text so they are near-complete rather than exhaustive, "
+    "anything built at runtime (dynamic SOQL, `Type.forName`, a field name "
+    "inside a string) is largely invisible, and an integration writing through "
+    "the API leaves no metadata behind at all. An empty section means \"nothing "
+    "in this snapshot\", never \"nothing\". `tools/kb/README.md` has the full "
+    "list under \"What this cannot tell you\"."
+)
 
 
-def meta(conn: sqlite3.Connection) -> dict:
-    return {
-        r["id"]: (r["type"], r["name"])
-        for r in conn.execute("SELECT id, type, name FROM components")
-    }
+def _escape(text: str) -> str:
+    """Keep a pipe inside a value from splitting a markdown table cell."""
+    return str(text).replace("|", "\\|")
 
 
-def label(m: dict, cid: str):
-    """(type, name) for a component id. Falls back to the id's own "Type:Name"
-    shape for orphan endpoints (e.g. standard fields with no metadata file)."""
-    if cid in m:
-        return m[cid]
-    if ":" in cid:
-        return tuple(cid.split(":", 1))
-    return ("?", cid)
+def render(graph: Graph, cid: str, hops: int, include_contains: bool) -> str:
+    ctype, cname = graph.label(cid)
+    comp = graph.components.get(cid, {})
+    lines = []
+    write = lines.append
 
+    write(f"# Impact report: {cid}")
+    write("")
+    write(f"- **Component:** {ctype} `{cname}`")
+    if comp.get("file_path"):
+        write(f"- **Defined in:** `{comp['file_path']}`")
+    if comp.get("parent"):
+        write(f"- **Belongs to:** `{comp['parent']}`")
 
-def field_class(conn: sqlite3.Connection, cid: str):
-    row = conn.execute(
-        "SELECT primary_kind, writer_count, writer_kinds "
-        "FROM field_classification WHERE field_id = ?",
-        (cid,),
-    ).fetchone()
-    return row
+    if ctype == "CustomField":
+        row = classify(graph).get(cid)
+        if row:
+            write(f"- **How it is populated:** {row['primary_kind']} "
+                  f"({row['explanation']}); {row['writer_count']} write(s) found")
+    write(f"- **Radius:** {hops} hop(s); `{CONTAINMENT}` edges "
+          f"{'included' if include_contains else 'skipped in the multi-hop walk'}")
+    write("")
 
+    # Everything shown below comes from at most one extra pass of the file.
+    source_ids = graph.sources_of(cid)
+    incident_ids = graph.incident(cid)
+    detail = graph.detail(set(source_ids) | set(incident_ids))
 
-def incident_edges(conn: sqlite3.Connection, cid: str) -> list:
-    """Every edge that names cid, either direction."""
-    return conn.execute(
-        "SELECT src_id, dst_id, kind, writer_kind, source, confidence, evidence "
-        "FROM relationships WHERE src_id = ? OR dst_id = ? "
-        "ORDER BY kind, confidence DESC, src_id, dst_id",
-        (cid, cid),
-    ).fetchall()
-
-
-def sources_of(conn: sqlite3.Connection, cid: str) -> list:
-    """Writers/inputs: incoming WRITES to cid, plus a formula/rollup's own inputs."""
-    incoming = conn.execute(
-        "SELECT src_id, kind, writer_kind, source, confidence, evidence "
-        "FROM relationships WHERE dst_id = ? AND kind = 'WRITES' "
-        "ORDER BY confidence DESC, src_id",
-        (cid,),
-    ).fetchall()
-    outgoing = conn.execute(
-        "SELECT dst_id AS src_id, kind, writer_kind, source, confidence, evidence "
-        "FROM relationships WHERE src_id = ? AND kind IN ('FORMULA_REFERENCES','ROLLUP_OF') "
-        "ORDER BY kind, dst_id",
-        (cid,),
-    ).fetchall()
-    return list(incoming) + list(outgoing)
-
-
-def radius(conn, cid, hops, include_contains):
-    """BFS out to `hops`. Returns {node_id: (min_hop, [(kind, confidence, other)])}."""
-    edges = conn.execute(
-        "SELECT src_id, dst_id, kind, confidence FROM relationships"
-    ).fetchall()
-    adj: dict = {}
-    for e in edges:
-        if e["kind"] == "CONTAINS" and not include_contains:
-            continue
-        adj.setdefault(e["src_id"], []).append((e["dst_id"], e["kind"], e["confidence"]))
-        adj.setdefault(e["dst_id"], []).append((e["src_id"], e["kind"], e["confidence"]))
-    seen = {cid: (0, [])}
-    q = deque([cid])
-    while q:
-        node = q.popleft()
-        d, _ = seen[node]
-        if d >= hops:
-            continue
-        for nbr, kind, conf in adj.get(node, ()):
-            if nbr not in seen:
-                seen[nbr] = (d + 1, [(kind, conf, node)])
-                q.append(nbr)
-            elif seen[nbr][0] == d + 1:
-                seen[nbr][1].append((kind, conf, node))
-    del seen[cid]
-    return seen
-
-
-def render(conn, cid, hops, include_contains) -> str:
-    m = meta(conn)
-    typ, name = label(m, cid)
-    out: list = []
-    w = out.append
-
-    w(f"# Impact report: {cid}")
-    w("")
-    w(f"- **Component:** {typ} `{name}`  (`{cid}`)")
-    fc = field_class(conn, cid)
-    if fc:
-        w(f"- **How it's populated:** {fc['primary_kind']} "
-          f"(writers: {fc['writer_count']}; kinds seen: {fc['writer_kinds'] or 'none'})")
-    w(f"- **Radius:** {hops} hop(s); CONTAINS "
-      f"{'included' if include_contains else 'skipped in multi-hop'}")
-    w("")
-
-    # Section 1: where the value comes from
-    src = sources_of(conn, cid)
-    w(f"## Where this value comes from ({len(src)})")
-    if not src:
-        w("_No writer or formula/rollup input found. Likely manual entry, or filled "
-          "only by Apex/an integration (not captured by the Phase 1 parser)._")
+    # 1. where the value comes from
+    write(f"## Where this value comes from ({len(source_ids)})")
+    write("")
+    if not source_ids:
+        write("_Nothing in this snapshot writes it and it is not computed. It is "
+              "typed in by hand, written by Apex the pattern match did not catch, "
+              "or written through the API by an integration. See the caveat at "
+              "the bottom._")
     else:
-        w("")
-        w("| via | writer_kind | source | confidence | component |")
-        w("| --- | --- | --- | --- | --- |")
-        for r in src:
-            other = r["src_id"]
-            ot, on = label(m, other)
-            w(f"| {r['kind']} | {r['writer_kind'] or ''} | {r['source']} "
-              f"| {r['confidence']} | {ot} `{on}` |")
-    w("")
+        write("| relationship | from | confidence | evidence |")
+        write("| --- | --- | --- | --- |")
+        for eid in source_ids:
+            edge = detail[eid]
+            other = (edge.get("target", "") if edge["source"] == cid
+                     else edge["source"])
+            otype, oname = graph.label(other) if other else ("", edge.get(
+                "evidence", {}).get("raw_reference", ""))
+            evidence = edge.get("evidence", {})
+            write(f"| {edge['relationship']} | {otype} `{_escape(oname)}` "
+                  f"| {edge['confidence']} "
+                  f"| `{_escape(evidence.get('file_path', ''))}` "
+                  f"at `{_escape(evidence.get('location', ''))}` |")
+    write("")
 
-    # Section 2: direct connections (1 hop, either direction) = rename blast at 1 hop
-    inc = incident_edges(conn, cid)
-    w(f"## Direct connections (1 hop): what names this ({len(inc)})")
-    w("")
-    w("| direction | kind | confidence | other component | source |")
-    w("| --- | --- | --- | --- | --- |")
-    for r in inc:
-        if r["src_id"] == cid:
-            other, arrow = r["dst_id"], f"{typ} ->"
+    # 2. one hop, either direction: the rename blast radius
+    write(f"## Direct connections (1 hop): everything that names this "
+          f"({len(incident_ids)})")
+    write("")
+    write("| direction | relationship | other component | confidence | evidence |")
+    write("| --- | --- | --- | --- | --- |")
+    rows = []
+    for eid in incident_ids:
+        edge = detail[eid]
+        if edge["source"] == cid:
+            other, arrow = edge.get("target", ""), "this ->"
         else:
-            other, arrow = r["src_id"], f"-> {typ}"
-        ot, on = label(m, other)
-        w(f"| {arrow} | {r['kind']} | {r['confidence']} | {ot} `{on}` | {r['source']} |")
-    w("")
+            other, arrow = edge["source"], "-> this"
+        if other:
+            otype, oname = graph.label(other)
+        else:
+            otype = f"unresolved ({edge['resolution']})"
+            oname = edge.get("evidence", {}).get("raw_reference", "")
+        evidence = edge.get("evidence", {})
+        rows.append((edge["relationship"], f"{otype} {oname}", arrow,
+                     edge["confidence"], evidence.get("file_path", ""),
+                     evidence.get("location", "")))
+    for relationship, other, arrow, confidence, path, location in sorted(rows):
+        otype, _, oname = other.partition(" ")
+        write(f"| {arrow} | {relationship} | {otype} `{_escape(oname)}` "
+              f"| {confidence} | `{_escape(path)}` at `{_escape(location)}` |")
+    write("")
 
-    # Section 3: full N-hop impact radius
-    rad = radius(conn, cid, hops, include_contains)
-    w(f"## Impact radius (up to {hops} hop): what could break if this changes "
-      f"({len(rad)})")
-    if not rad:
-        w("_Nothing else connects within the radius._")
+    # 3. the N-hop radius
+    reach = graph.radius(cid, hops, include_contains)
+    write(f"## Impact radius (up to {hops} hop{'s' if hops != 1 else ''}): what "
+          f"could break if this changes ({len(reach)})")
+    write("")
+    if not reach:
+        write("_Nothing else connects within the radius._")
     else:
-        w("")
-        w("| hops | type | name | via kind(s) | confidence |")
-        w("| --- | --- | --- | --- | --- |")
-        for node, (d, vias) in sorted(rad.items(), key=lambda kv: (kv[1][0], kv[0])):
-            ot, on = label(m, node)
-            kinds = sorted({k for k, _, _ in vias})
-            confs = sorted({c for _, c, _ in vias})
-            w(f"| {d} | {ot} | `{on}` | {', '.join(kinds)} | {', '.join(confs)} |")
-    w("")
-    return "\n".join(out)
+        write("| hops | type | name | reached by |")
+        write("| --- | --- | --- | --- |")
+        ordered = sorted(reach.items(), key=lambda kv: (kv[1][0], kv[0]))
+        for node, (distance, vias) in ordered:
+            otype, oname = graph.label(node)
+            kinds = ", ".join(sorted({relationship for relationship, _ in vias}))
+            write(f"| {distance} | {otype} | `{_escape(oname)}` | {kinds} |")
+    write("")
+
+    write("---")
+    write("")
+    write(CAVEAT)
+    write("")
+    return "\n".join(lines)
 
 
-def find_field_groups(conn: sqlite3.Connection, fragment: str) -> list:
-    """Curated groups whose id/object/description or member fields match."""
-    like = f"%{fragment}%"
-    groups = conn.execute(
-        """
-        SELECT DISTINCT g.id, g.object_name, g.description, g.added
-        FROM field_groups g
-        LEFT JOIN field_group_members m ON m.group_id = g.id
-        WHERE g.id LIKE ? OR g.object_name LIKE ? OR g.description LIKE ?
-           OR m.field_id LIKE ?
-        ORDER BY g.id
-        """,
-        (like, like, like, like),
-    ).fetchall()
-    out = []
-    for g in groups:
-        members = conn.execute(
-            "SELECT field_id, role, notes FROM field_group_members "
-            "WHERE group_id = ? ORDER BY role, field_id",
-            (g["id"],),
-        ).fetchall()
-        out.append((g, members))
-    return out
+def render_unresolved(graph: Graph, name: str) -> str:
+    """Who asked for a name that points at nothing in this snapshot."""
+    index = load_reverse_index(graph.org, graph.out_dir)
+    bucket = index["by_unresolved_reference"]
+    entries = bucket.get(name)
+    lines = []
+    write = lines.append
+    write(f"# Unresolved reference: `{name}` in {graph.org}")
+    write("")
+    if not entries:
+        close = sorted(key for key in bucket if name.lower() in key.lower())
+        if not close:
+            write(f"_No unresolved reference in {graph.org} matches `{name}`. "
+                  "Either it resolved fine, or nothing names it._")
+            write("")
+            return "\n".join(lines)
+        write(f"_No exact match. {len(close)} unresolved names contain it:_")
+        write("")
+        for key in close[:50]:
+            write(f"- `{key}` ({len(bucket[key])} edge(s))")
+        write("")
+        return "\n".join(lines)
+
+    detail = graph.detail(entry["edge"] for entry in entries)
+    first = detail[entries[0]["edge"]]
+    write(f"- **Why it resolved to nothing:** {first['resolution']}")
+    write(f"- **The rule that decided:** {first.get('resolved_by', '')}")
+    write(f"- **In plain words:** {first.get('resolution_detail', '')}")
+    write(f"- **Held by:** {len(entries)} edge(s)")
+    write("")
+    write("| relationship | asked for by | evidence |")
+    write("| --- | --- | --- |")
+    for entry in entries:
+        edge = detail[entry["edge"]]
+        stype, sname = graph.label(edge["source"])
+        evidence = edge.get("evidence", {})
+        write(f"| {edge['relationship']} | {stype} `{_escape(sname)}` "
+              f"| `{_escape(evidence.get('file_path', ''))}` at "
+              f"`{_escape(evidence.get('location', ''))}` |")
+    write("")
+    return "\n".join(lines)
 
 
-def render_groups(conn: sqlite3.Connection, fragment: str) -> str:
-    matches = find_field_groups(conn, fragment)
-    out: list = []
-    w = out.append
-    w(f"# Field groups matching {fragment!r} ({len(matches)})")
-    w("")
-    if not matches:
-        w("_No curated field group matches. Either the fragment is off, or the_")
-        w("_group overlay is not loaded (build with `--scope yamls`), or no one_")
-        w("_has curated this cluster yet._")
-        w("")
-        return "\n".join(out)
-    for g, members in matches:
-        obj = g["object_name"] or "cross-object"
-        w(f"## {g['id']}  ({obj})")
-        w("")
-        desc = " ".join((g["description"] or "").split())
-        if desc:
-            w(desc)
-            w("")
-        w("| field | role | how populated | distinguishing notes |")
-        w("| --- | --- | --- | --- |")
-        for mrow in members:
-            fid = mrow["field_id"]
-            fc = field_class(conn, fid)
-            populated = fc["primary_kind"] if fc else ""
-            w(f"| `{fid}` | {mrow['role'] or ''} | {populated} "
-              f"| {mrow['notes'] or ''} |")
-        w("")
-    return "\n".join(out)
+def render_map(graph: Graph, limit: int) -> str:
+    """The subsystem worklist: what exists, ranked by how connected it is.
 
-
-def render_map(conn: sqlite3.Connection) -> str:
-    """Subsystem worklist for writing up an existing codebase.
-
-    Lists what exists and how connected it is, so the busiest subsystems get
-    written up first.
+    Somebody starting on an unfamiliar org reads this first: the objects with
+    the most fields, the flows doing the most, and the Apex classes everything
+    else calls. It is the list of where to look, not an answer in itself.
     """
-    out: list = []
-    w = out.append
-    w("# Subsystem map (from the compiled graph)")
-    w("")
+    lines = []
+    write = lines.append
+    counts = graph.header.get("counts", {})
+    write(f"# Subsystem map: {graph.org}")
+    write("")
+    write(f"- **Built from:** `{graph.header.get('generated_from', '')}`")
+    write(f"- **Holds:** {counts.get('components', 0)} components and "
+          f"{counts.get('edges', 0)} edges, of which "
+          f"{counts.get('resolved', 0)} resolved to a component in this org")
+    write("")
 
-    objects = conn.execute(
-        """
-        SELECT o.name AS name,
-          (SELECT COUNT(*) FROM components f
-            WHERE f.type = 'Field' AND f.parent_id = o.id) AS fields,
-          (SELECT COUNT(*) FROM relationships r
-            WHERE r.kind = 'TRIGGERS_ON' AND r.dst_id = o.id) AS triggered_by,
-          (SELECT COUNT(*) FROM relationships r
-            WHERE r.kind = 'READS' AND r.dst_id = o.id) AS read_by
-        FROM components o WHERE o.type = 'Object'
-        ORDER BY fields DESC, o.name
-        """
-    ).fetchall()
-    w(f"## Objects ({len(objects)})")
-    w("")
-    w("| object | fields | flows/triggers on it | read by |")
-    w("| --- | --- | --- | --- |")
-    for r in objects:
-        w(f"| `{r['name']}` | {r['fields']} | {r['triggered_by']} | {r['read_by']} |")
-    w("")
+    by_type = {}
+    for comp in graph.components.values():
+        by_type[comp["type"]] = by_type.get(comp["type"], 0) + 1
+    write(f"## What is in it ({len(by_type)} metadata types)")
+    write("")
+    write("| metadata type | components |")
+    write("| --- | --- |")
+    for name, count in sorted(by_type.items(), key=lambda kv: (-kv[1], kv[0])):
+        write(f"| {name} | {count} |")
+    write("")
 
-    flows = conn.execute(
-        """
-        SELECT c.name AS name,
-          COALESCE((SELECT GROUP_CONCAT(REPLACE(r.dst_id, 'Object:', ''), ', ')
-            FROM relationships r
-            WHERE r.src_id = c.id AND r.kind = 'TRIGGERS_ON'), '') AS objects,
-          (SELECT COUNT(*) FROM relationships r
-            WHERE r.src_id = c.id AND r.kind = 'WRITES') AS writes,
-          (SELECT COUNT(*) FROM relationships r
-            WHERE r.src_id = c.id AND r.kind = 'READS') AS reads
-        FROM components c WHERE c.type = 'Flow'
-        ORDER BY writes + reads DESC, c.name
-        """
-    ).fetchall()
-    w(f"## Flows ({len(flows)}), busiest first")
-    w("")
-    w("| flow | triggers on | writes | reads |")
-    w("| --- | --- | --- | --- |")
-    for r in flows:
-        w(f"| `{r['name']}` | {r['objects']} | {r['writes']} | {r['reads']} |")
-    w("")
+    def busiest(metadata_type, title, columns):
+        rows = []
+        for cid, comp in graph.components.items():
+            if comp["type"] != metadata_type:
+                continue
+            outgoing = len(graph.out.get(cid, ()))
+            incoming = len(graph.into.get(cid, ()))
+            children = sum(1 for other in graph.components.values()
+                           if other.get("parent") == cid)
+            rows.append((outgoing + incoming, comp["api_name"], outgoing,
+                         incoming, children))
+        rows.sort(key=lambda row: (-row[0], row[1]))
+        write(f"## {title} ({len(rows)}), busiest first")
+        write("")
+        write("| " + " | ".join(columns) + " |")
+        write("| " + " | ".join("---" for _ in columns) + " |")
+        for _total, name, outgoing, incoming, children in rows[:limit]:
+            if metadata_type == "CustomObject":
+                write(f"| `{_escape(name)}` | {children} | {incoming} | {outgoing} |")
+            else:
+                write(f"| `{_escape(name)}` | {outgoing} | {incoming} |")
+        if len(rows) > limit:
+            write(f"| _... and {len(rows) - limit} more_ | | |")
+        write("")
 
-    apex = conn.execute(
-        """
-        SELECT c.name AS name,
-          (SELECT COUNT(*) FROM relationships r
-            WHERE r.src_id = c.id) AS outgoing,
-          (SELECT COUNT(*) FROM relationships r
-            WHERE r.dst_id = c.id AND r.kind IN ('INVOKES','SCHEDULES')) AS invoked_by
-        FROM components c WHERE c.type = 'ApexClass'
-        ORDER BY outgoing + invoked_by DESC, c.name
-        """
-    ).fetchall()
-    w(f"## Apex classes ({len(apex)}), busiest first")
-    w("")
-    w("| class | outgoing connections | invoked/scheduled by |")
-    w("| --- | --- | --- |")
-    for r in apex:
-        w(f"| `{r['name']}` | {r['outgoing']} | {r['invoked_by']} |")
-    w("")
-    return "\n".join(out)
+    busiest("CustomObject", "Objects",
+            ["object", "fields", "pointed at by", "points at"])
+    busiest("Flow", "Flows", ["flow", "points at", "pointed at by"])
+    busiest("ApexClass", "Apex classes", ["class", "points at", "pointed at by"])
+    busiest("PermissionSet", "Permission sets",
+            ["permission set", "grants", "pointed at by"])
+
+    write("---")
+    write("")
+    write(CAVEAT)
+    write("")
+    return "\n".join(lines)
 
 
-def main() -> int:
-    p = argparse.ArgumentParser(description="Impact queries over the dependency graph.")
-    p.add_argument("component", nargs="?",
-                   help="component id or a name fragment")
-    p.add_argument("--db", default=str(DEFAULT_DB), help="graph SQLite file")
-    p.add_argument("--hops", type=int, default=2, help="impact radius depth (default 2)")
-    p.add_argument("--report", help="also write the report to this markdown file")
-    p.add_argument("--include-contains", action="store_true",
-                   help="keep CONTAINS edges in the multi-hop walk (noisier)")
-    p.add_argument("--group",
-                   help="fuzzy field/group name: list matching curated field "
-                        "groups with member roles + notes (near-duplicate "
-                        "clusters)")
-    p.add_argument("--map", action="store_true",
-                   help="print the subsystem worklist (objects, flows, apex "
-                        "ranked by connectedness) for the knowledge-layer "
-                        "backfill")
-    args = p.parse_args()
+def main(argv=None) -> int:
+    parser = argparse.ArgumentParser(
+        description="What connects to this, and what breaks if it changes?")
+    parser.add_argument("component", nargs="?",
+                        help="a component id, an api name, or a fragment")
+    parser.add_argument("--org", default=None,
+                        help="which org to read (default: the only one built)")
+    parser.add_argument("--out", default=None,
+                        help="where the edge lists are (default: tools/kb/out)")
+    parser.add_argument("--hops", type=int, default=2,
+                        help="how far the impact radius reaches (default 2)")
+    parser.add_argument("--include-contains", action="store_true",
+                        help="keep `contains` edges in the multi-hop walk; an "
+                             "object contains every one of its fields, so this "
+                             "is much noisier")
+    parser.add_argument("--unresolved", default=None,
+                        help="a reference string that points at nothing: who "
+                             "asked for it, and why it resolved to nothing")
+    parser.add_argument("--map", action="store_true",
+                        help="the subsystem worklist: what exists, ranked by "
+                             "how connected it is")
+    parser.add_argument("--limit", type=int, default=40,
+                        help="rows per section in --map (default 40)")
+    parser.add_argument("--report", help="also write the report to this file")
+    args = parser.parse_args(argv)
 
-    chosen = [bool(args.component), bool(args.group), args.map]
+    chosen = [bool(args.component), bool(args.unresolved), args.map]
     if sum(chosen) != 1:
-        p.error("give exactly one of: <component>, --group <fuzzy-name>, or --map")
+        parser.error("give exactly one of: <component>, --unresolved <name>, "
+                     "or --map")
 
-    # Windows consoles default to cp1252; never let a stray glyph crash output.
+    # A Windows console defaults to cp1252; never let one stray character crash
+    # a whole report.
     try:
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     except Exception:
         pass
 
-    conn = connect(Path(args.db))
-    if args.group or args.map:
-        report = render_map(conn) if args.map else render_groups(conn, args.group)
-        conn.close()
-        print(report)
-        if args.report:
-            Path(args.report).write_text(report, encoding="utf-8")
-            print(f"\n[wrote report to {args.report}]")
-        return 0
-    cid = resolve(conn, args.component)
-    report = render(conn, cid, args.hops, args.include_contains)
-    conn.close()
+    org = args.org
+    if not org:
+        available = built_orgs(args.out)
+        if not available:
+            print("no edge list has been built yet. Run:\n"
+                  "  python tools/kb/build_edges.py")
+            return 1
+        if len(available) > 1:
+            print(f"more than one org is built ({', '.join(available)}); say "
+                  "which with --org")
+            return 2
+        org = available[0]
+
+    graph = Graph(org, args.out)
+
+    if args.map:
+        report = render_map(graph, args.limit)
+    elif args.unresolved:
+        report = render_unresolved(graph, args.unresolved)
+    else:
+        cid = graph.resolve(args.component)
+        report = render(graph, cid, args.hops, args.include_contains)
 
     print(report)
     if args.report:
-        Path(args.report).write_text(report, encoding="utf-8")
-        print(f"\n[wrote report to {args.report}]")
+        path = Path(args.report)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(report, encoding="utf-8", newline="\n")
+        print(f"[wrote the report to {path}]")
     return 0
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    sys.exit(main())
