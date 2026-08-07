@@ -52,9 +52,18 @@ was set up, skipped, or declined.
 ## Voice is not a rule
 
 How Claude writes lives in `.claude/output-styles/plain-language.md`, which is
-selected in `.claude/settings.json`, re-stated every message by the
-`style-reminder` hook, and checked on the finished reply by the `writing-guard`
-hook. Do not add a writing rule to this folder. If Claude should say something
-differently, the change goes in the output style, and in the library copy at
+selected in `.claude/settings.json` and re-stated every message by the
+`style-reminder` hook. Do not add a writing rule to this folder. If Claude
+should say something differently, the change goes in the output style, and in
+the library copy at
 `plugins/project-init/library/output-styles/plain-language.md` in the same
 change.
+
+The `writing-guard` hook, which refused a finished reply containing an em dash
+or a section sign, is not run here any more. It worked, and the owner removed
+it on 2026-08-06 because of what refusing costs him: the refused reply is
+already on his screen when the hook fires, so the agent rewrites and he reads
+the same answer twice. That is the whole trade. The reminder every message is
+now the only thing holding the style, so follow it without being caught. The
+toolkit still ships the hook, and `.claude/toolkit-sync.md` records that this
+repository turned it off and why.
