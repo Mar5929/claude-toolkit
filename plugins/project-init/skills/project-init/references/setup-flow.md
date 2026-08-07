@@ -84,8 +84,11 @@ so they always know where they are.
   3. `library/rules/salesforce/dependency-graph.md` to `.claude/rules/`.
   4. The freshness Stop hook, in Gate 2 below.
 
-  It reads only local `force-app/` files and never contacts an org. Verify with
-  `test_catalog.py`, one build, and one field query before calling it done.
+  It reads only local `force-app/` files and never contacts an org, and it needs
+  nothing installed: Python standard library only. Org names come from the
+  project's own `sfdx-project.json` or `force-app/` folders, so there is nothing
+  to configure. Verify with the seven `test_*.py` files (skips are expected), one
+  build, and one field query before calling it done.
 
 **Gate 2: Hooks**
 - What needs guarding or automating? (deploy/env guard, secret guard,
