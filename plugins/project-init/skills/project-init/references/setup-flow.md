@@ -225,11 +225,16 @@ so they always know where they are.
   whatever still needs them, and writes nothing.
 - Offer `handoff` in every project, and recommend it. `/handoff` runs the memory
   check first, shows a table of what is worth saving, waits for the owner to
-  approve or cut rows, and only then writes a prompt for a fresh session with
-  everything not saved carried inside it. Needs no style, no memory system, and
-  no hooks; in a project without memory it skips the saving step. It pairs with
-  the `offer-context-handoff.md` rule from Gate 5, which covers the owner asking
-  in their own words.
+  approve or cut rows, then drafts a prompt for a fresh session with everything
+  not saved carried inside it. The prompt opens with the goal of the work and
+  why it matters, and `handoff-verifier`, an agent that never saw the
+  conversation, checks it against the repository before the owner sees it, so
+  facts do not get less accurate each time work is handed on. Anything it cannot
+  confirm is labelled inside the prompt rather than dropped, and `/handoff check`
+  runs the same check on a prompt the owner already has. Needs no style, no
+  memory system, and no hooks; in a project without memory it skips the saving
+  step. It pairs with the `offer-context-handoff.md` rule from Gate 5, which
+  covers the owner asking in their own words.
 - Record installed, skipped, or deferred so `project-sync` does not repeat a
   considered "no".
 

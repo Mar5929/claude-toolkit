@@ -379,12 +379,17 @@ in their own plugins.
   session, they approve or cut rows, and then they get a prompt to paste into
   the new chat with everything else carried inside it. Say why it matters: the
   longest sessions produce the most understanding and lose the most, and nothing
-  can catch `/clear` after the fact. It needs no output style, no memory system,
-  and no hooks. In a project without the memory system it skips the saving step
-  and puts everything in the prompt. It pairs with the
-  `offer-context-handoff.md` rule from Gate 5, which is what makes the same
-  thing happen when the owner asks in their own words instead of typing the
-  command.
+  can catch `/clear` after the fact. Say what happens to the prompt itself: it
+  opens with the goal of the work and why it matters, and a second agent that
+  never saw the conversation checks it against the repository before the owner
+  sees it, so facts do not get less accurate each time work is handed on.
+  Anything that cannot be confirmed is labelled inside the prompt rather than
+  dropped, and `/handoff check` runs that check on a prompt they already have.
+  It needs no output style, no memory system, and no hooks. In a project without
+  the memory system it skips the saving step and puts everything in the prompt.
+  It pairs with the `offer-context-handoff.md` rule from Gate 5, which is what
+  makes the same thing happen when the owner asks in their own words instead of
+  typing the command.
 - Record whether the owner installed, skipped, or deferred each one so a later
   `project-sync` respects that choice.
 

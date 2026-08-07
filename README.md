@@ -181,6 +181,8 @@ claude-toolkit/
       README.md
       .claude-plugin/plugin.json
       .codex-plugin/plugin.json
+      agents/
+        handoff-verifier.md       ← read-only check of the prompt before you see it
       skills/
         handoff/                  ← SKILL.md
   docs/
@@ -246,7 +248,7 @@ inside a project folder before it is useful, which is what the last column says:
 | **[grill-me](plugins/grill-me/README.md)** | Stress-tests a plan, design, or topic through a one-question-at-a-time interview and checkpoints every answer to a durable Markdown file before continuing. | Install and go |
 | **[work-tracker](plugins/work-tracker/README.md)** | Gives Claude and Codex one Git-authoritative backlog with exact handoffs, blockers, typed relationships, deterministic next-item selection, Git landing proof, generated dashboards, and optional GitHub Issues and Projects synchronization. | Sets up a project |
 | **[session-summary](plugins/session-summary/README.md)** | Recaps a session as a table, one row per main request you made, in your own words and in the order you asked, each carrying an honest status, then pulls whatever still needs you into its own block below. Answers "what did I ask for, and where does it stand?" and "what still needs me?" without a narrative of the assistant's own work. | Install and go |
-| **[handoff](plugins/handoff/README.md)** | Ends a long session without losing what it learned. `/handoff` shows you a table of what is worth saving, waits for you to approve, cut, or edit it, and only then writes a prompt you can paste into a fresh session, with everything you did not save carried inside it. Nothing can catch `/clear` after the fact, so this is the moment that has to be taken on purpose. | Install and go |
+| **[handoff](plugins/handoff/README.md)** | Ends a long session without losing what it learned. `/handoff` shows you a table of what is worth saving, waits for you to approve, cut, or edit it, then writes a prompt you can paste into a fresh session, with everything you did not save carried inside it. The prompt opens with the goal of the work and why it matters, and a second agent that never saw the conversation checks it against the repository before you see it, so facts do not get less accurate each time work is handed on. `/handoff check` runs that check on a prompt you already have. Nothing can catch `/clear` after the fact, so this is the moment that has to be taken on purpose. | Install and go |
 
 ---
 

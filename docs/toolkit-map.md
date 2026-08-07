@@ -24,7 +24,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | [grill-me](../plugins/grill-me/README.md) | Persistent discovery interviews that checkpoint every answer | `grill-me` | `/plugin install grill-me` | Install and go |
 | [work-tracker](../plugins/work-tracker/README.md) | Git-authoritative backlog, handoffs, relationships, landing proof, and optional GitHub Projects | `work` | `/plugin install work-tracker` | Sets up a project |
 | [session-summary](../plugins/session-summary/README.md) | Recap one session as a table row per main request, each with an honest status, plus a block for whatever still needs the owner | `session-summary` | `/plugin install session-summary` | Install and go |
-| [handoff](../plugins/handoff/README.md) | End a long session without losing what it learned: memory check first, then a prompt a fresh session can start from, carrying anything not saved | `handoff` | `/plugin install handoff` | Install and go |
+| [handoff](../plugins/handoff/README.md) | End a long session without losing what it learned: memory check first, then a prompt a fresh session can start from, opening with the goal of the work, carrying anything not saved, and checked by a second agent before the owner sees it | `handoff` | `/plugin install handoff` | Install and go |
 
 ## Skills at a glance
 
@@ -42,7 +42,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | grill-me | grill-me | Stress-test an idea one question at a time and preserve every answer | `/grill-me`, "grill me" |
 | work | work-tracker | Manage local work items and their optional GitHub Issues and Project mirror | `/work`, "add this to the backlog", "what should I work on next?" |
 | session-summary | session-summary | Table every request the owner made in a session, in their words, each with a status, then say what still needs them | `/session-summary`, "summarize this session", "what did I ask for?" |
-| handoff | handoff | Run the memory check, save what the owner approves, then write a self-contained prompt for a fresh session carrying whatever was not saved | `/handoff`, "write a handoff", "I'm going to clear context" |
+| handoff | handoff | Run the memory check, save what the owner approves, draft a prompt for a fresh session that opens with the goal and carries whatever was not saved, then have `handoff-verifier` check it before the owner sees it. `/handoff check` runs that check on its own against a prompt from anywhere | `/handoff`, `/handoff check`, "write a handoff", "I'm going to clear context" |
 
 ## The library: what lands in a project
 
@@ -336,6 +336,17 @@ The genuine watch-items are called out at the end.
   step is skipped and everything worth keeping goes into the prompt. It contains
   no memory types, no destinations, and no rule about what is worth keeping;
   those stay with the project's own rules. Same boundary `memory-pr-hook` keeps.
+- **handoff-verifier versus memory-verifier.** Two read-only checking agents
+  that look alike and guard different things.
+  `plugins/second-brain/agents/memory-verifier.md` checks words that are about
+  to be written into `specs/` or `memory/` and stay there, so it also asks where
+  a document should be filed and whether something already owns that truth.
+  `plugins/handoff/agents/handoff-verifier.md` checks a handoff prompt that is
+  about to be pasted into a fresh session and then thrown away, so it asks
+  instead whether the overarching goal is present and whether facts inherited
+  from an earlier handoff still hold. `handoff` deliberately does not depend on
+  `memory-verifier`, for the same reason it does not depend on the rest of
+  second-brain: it has to work in a project that never installed memory.
 - **session-summary versus work-tracker and the wrap-up ritual.** All three
   answer some version of "where do things stand", but for different scopes and
   audiences. `session-summary` is a read-only view of one conversation, written
