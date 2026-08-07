@@ -22,7 +22,7 @@ three weeks later in another project.
 |---|---|
 | 0. Orient | Done. Existing repository, not a new one, so this ran as a sync rather than an init. Node and Markdown, no application stack. |
 | 1. Scaffolding and work tracking | Already answered. Work is tracked on the `Claude-Toolkit-Project` board on GitHub. `CLAUDE.md` names it, and `spec-before-you-build.md` is installed alongside that pointer. No scaffolding was added: the folder layout already existed. |
-| 2. Hooks | Done, all three. `style-reminder`, `writing-guard`, and `memory-pr-hook`, copied into `.claude/hooks/` and registered in the committed `.claude/settings.json`. Each was run by hand in both directions before being called installed. **Changed 2026-08-06:** `memory-pr-hook` was replaced by `save-reminder.mjs`, this repository's own, which says the same thing but points at the new `remember` skill. |
+| 2. Hooks | Done, all three. `style-reminder`, `writing-guard`, and `memory-pr-hook`, copied into `.claude/hooks/` and registered in the committed `.claude/settings.json`. Each was run by hand in both directions before being called installed. **Changed 2026-08-06:** `memory-pr-hook` was replaced by `save-reminder.mjs`, this repository's own, which says the same thing but points at the new `remember` skill. **Also 2026-08-06:** `writing-guard` was turned off here, see below. Two hooks run now. |
 | 3. Second-brain v3 | **Replaced 2026-08-06.** It was installed complete: the canonical rule, the memory verifier, the memory routing in both root files, and every root index. All of it is gone now, along with `memory-index-build.mjs` and `memory-shape-check.mjs`. What runs instead is `specs/memory-system.md`: four always-loaded lines in both root files, the `remember`, `recall`, and `cleanup` skills under `.claude/skills/`, one index at `memory/index.md` built by `.claude/tools/build-memory-index.mjs`, and one hook. |
 | 4. Knowledge layer | Included with Gate 3. The graphify code graph was offered and declined, see below. |
 | 5. Root instructions, rules, output style | Done. `CLAUDE.md` and `AGENTS.md` rewritten thin, `.claude/rules/` created with thirteen general rules plus the memory rule, and the plain-language output style installed and selected. **Changed 2026-08-06:** the memory rule and `wrap-up-ritual.md` are no longer carried, and the memory section in both root files became the four lines. |
@@ -102,6 +102,31 @@ without being checked.
 the first time an issue changes what that capability does. Specifications were
 deliberately not written up front for the nine plugins. Every file in `specs/`
 and `memory/` is listed in `memory/index.md`.
+
+## The writing guard, turned off here
+
+`writing-guard` refused any finished reply containing an em dash or a section
+sign, which made the agent rewrite it. The owner turned it off on 2026-08-06 and
+the copy was removed from `.claude/hooks/`.
+
+It was not turned off for being wrong. It was turned off for what refusing
+costs: the hook runs on the Stop event, after the reply is finished and already
+on the owner's screen, so he reads the answer twice, once refused and once
+rewritten. When the reply contains a proposed memory file, he reads the whole
+file twice. He judged that worse than the occasional em dash.
+
+Know the history before switching it back on. The hook was removed once before,
+in issue #101, on the theory that the plain-language output style plus the
+`style-reminder` hook would hold the rule on their own. Issue #102 brought it
+back after measuring real transcripts: one em dash every 1.8 assistant messages
+in the worst project, against a rule four words long. So expect the violations
+to return. This time that is the accepted trade, not a surprise.
+
+To switch it back on: copy `plugins/hooks-library/hooks/writing-guard.mjs` into
+`.claude/hooks/` and add it back under `Stop` in `.claude/settings.json`. To
+soften it instead of removing it, `.claude/writing-guard.json` accepts
+`{ "maxBlocks": 1 }`, which refuses the first slip in a session and stays quiet
+after that. The toolkit still ships the hook to other projects either way.
 
 ## The built-in memory, turned off here
 
