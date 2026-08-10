@@ -233,7 +233,11 @@ checks:
   skill stays in its plugin. `handoff` is the one to recommend rather than
   merely list: it works with no output style, no memory system, and no hooks,
   and the moment it covers, a session about to clear its context, is the one
-  nothing else can catch. Report it as a gap alongside
+  nothing else can catch. It also makes every handoff prompt open with the goal
+  of the work and puts a second agent between the draft and the owner, so facts
+  do not get less accurate each time work is handed on. A project already
+  running `handoff` at version 0.2.0 or earlier has neither; say so, because
+  refreshing the plugin is what closes it. Report it as a gap alongside
   `.claude/rules/offer-context-handoff.md`, since the rule is what covers the
   owner asking for a handoff in their own words.
 - **Where work items are tracked:** read the root instructions for a structural
