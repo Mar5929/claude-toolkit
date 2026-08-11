@@ -177,6 +177,12 @@ claude-toolkit/
       .codex-plugin/plugin.json
       skills/
         session-summary/          ← SKILL.md + Codex UI metadata
+    explain-simply/               ← plugin: say that again in plain bullets, keeping every number
+      README.md
+      .claude-plugin/plugin.json
+      .codex-plugin/plugin.json
+      skills/
+        explain-simply/           ← SKILL.md + Codex UI metadata
     handoff/                      ← plugin: save what a session learned, then hand it off
       README.md
       .claude-plugin/plugin.json
@@ -249,6 +255,7 @@ inside a project folder before it is useful, which is what the last column says:
 | **[work-tracker](plugins/work-tracker/README.md)** | Gives Claude and Codex one Git-authoritative backlog with exact handoffs, blockers, typed relationships, deterministic next-item selection, Git landing proof, generated dashboards, and optional GitHub Issues and Projects synchronization. | Sets up a project |
 | **[session-summary](plugins/session-summary/README.md)** | Recaps a session as a table, one row per main request you made, in your own words and in the order you asked, each carrying an honest status, then pulls whatever still needs you into its own block below. Answers "what did I ask for, and where does it stand?" and "what still needs me?" without a narrative of the assistant's own work. | Install and go |
 | **[handoff](plugins/handoff/README.md)** | Ends a long session without losing what it learned. `/handoff` shows you a table of what is worth saving, waits for you to approve, cut, or edit it, then writes a prompt you can paste into a fresh session, with everything you did not save carried inside it. The prompt opens with the goal of the work and why it matters, and a second agent that never saw the conversation checks it against the repository before you see it, so facts do not get less accurate each time work is handed on. `/handoff check` runs that check on a prompt you already have. Nothing can catch `/clear` after the fact, so this is the moment that has to be taken on purpose. | Install and go |
+| **[explain-simply](plugins/explain-simply/README.md)** | Re-explains the last answer, a plan, or any file you name as short bullets grouped under bold headings, at a reading level anyone follows in one pass. Every number, date, file path, and name survives, because a simple explanation that dropped the facts is not simpler, only vaguer. Reads the project's active output style first, so the plain version sounds like the rest of the project. | Install and go |
 
 ---
 
@@ -397,6 +404,13 @@ For a recap of what you asked for in a session and where each request stands:
 ```text
 /plugin install session-summary
 /session-summary
+```
+
+When an answer did not land and you want it again in plain bullets:
+
+```text
+/plugin install explain-simply
+/explain-simply
 ```
 
 To end a long session without losing what it learned, before you clear context:
