@@ -25,6 +25,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | [work-tracker](../plugins/work-tracker/README.md) | Git-authoritative backlog, handoffs, relationships, landing proof, and optional GitHub Projects | `work` | `/plugin install work-tracker` | Sets up a project |
 | [session-summary](../plugins/session-summary/README.md) | Recap one session as a table row per main request, each with an honest status, plus a block for whatever still needs the owner | `session-summary` | `/plugin install session-summary` | Install and go |
 | [handoff](../plugins/handoff/README.md) | End a long session without losing what it learned: memory check first, then a prompt a fresh session can start from, opening with the goal of the work, carrying anything not saved, and checked by a second agent before the owner sees it | `handoff` | `/plugin install handoff` | Install and go |
+| [explain-simply](../plugins/explain-simply/README.md) | Re-explain the last answer, a plan, or a named file as short bullets anyone follows in one pass, keeping every number, date, path, and name | `explain-simply` | `/plugin install explain-simply` | Install and go |
 
 ## Skills at a glance
 
@@ -43,6 +44,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | work | work-tracker | Manage local work items and their optional GitHub Issues and Project mirror | `/work`, "add this to the backlog", "what should I work on next?" |
 | session-summary | session-summary | Table every request the owner made in a session, in their words, each with a status, then say what still needs them | `/session-summary`, "summarize this session", "what did I ask for?" |
 | handoff | handoff | Run the memory check, save what the owner approves, draft a prompt for a fresh session that opens with the goal and carries whatever was not saved, then have `handoff-verifier` check it before the owner sees it. `/handoff check` runs that check on its own against a prompt from anywhere | `/handoff`, `/handoff check`, "write a handoff", "I'm going to clear context" |
+| explain-simply | explain-simply | Re-explain the last answer or a named file as short bullets, simplifying the wording and never the facts | `/explain-simply`, "explain that like I'm five", "put that in plain bullets", "simpler" |
 
 ## The library: what lands in a project
 
@@ -321,6 +323,17 @@ The genuine watch-items are called out at the end.
   check first, saves what the owner approves, and then writes a prompt for a
   fresh session carrying everything that was not saved. Run both if you want
   both; neither covers the other.
+- **explain-simply versus session-summary.** Both shorten something, and they
+  shorten different things. `session-summary` reads the conversation and reports
+  which of the owner's requests are where. `explain-simply` takes one thing that
+  did not land, the last answer or a file it is pointed at, and says it again in
+  plainer words without changing what it says. One is a status view of a
+  session; the other is a second reading of one piece of material.
+- **explain-simply versus the output style and the style-reminder hook.** The
+  output style sets how everything is written and the hook keeps it in front of
+  the assistant. `explain-simply` is the escape hatch for the times that was not
+  enough, on material that is technical by nature. It reads the active output
+  style before writing, so it plainly restates rather than switching voice.
 - **handoff versus memory-pr-hook.** Same job at two different moments, solved
   two different ways, and the difference is not a preference. `gh pr create` is
   a bare terminal command carrying no instructions, so it needs a hook to

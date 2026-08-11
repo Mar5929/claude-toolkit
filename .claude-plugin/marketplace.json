@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Personal, portable toolkit of reusable Claude systems: skills, rules, hooks, and templates shared across every project and device.",
-    "version": "0.64.0"
+    "version": "0.65.0"
   },
   "plugins": [
     {
@@ -53,6 +53,11 @@
       "name": "session-summary",
       "source": "./plugins/session-summary",
       "description": "Recaps a session as a table, one row per main request the owner made, in the owner's own words and in the order asked, each carrying an honest status: done, done unverified, partly done, blocked, waiting on you, not started, dropped, or answered. A block below the table names whatever still needs the owner."
+    },
+    {
+      "name": "explain-simply",
+      "source": "./plugins/explain-simply",
+      "description": "Re-explains the last answer, a plan, or any file the owner names as short bullets grouped under bold headings, at a reading level anyone follows in one pass. Every number, date, file path and person's name survives, because a simple explanation that dropped the facts is not simpler, only vaguer. Reads the project's active output style first so the plain version sounds like the rest of the project, and ends with a numbered list of what the owner has to do, only when there is something to do."
     }
   ]
 }

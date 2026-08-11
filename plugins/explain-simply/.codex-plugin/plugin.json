@@ -1,0 +1,37 @@
+{
+  "name": "explain-simply",
+  "version": "0.1.0",
+  "description": "Re-explain the last answer, a plan, or any named document as short bullets a non-technical reader gets in one pass, keeping every number, name and file path.",
+  "author": {
+    "name": "Mike Rihm",
+    "email": "michael@rihm.com",
+    "url": "https://github.com/Mar5929"
+  },
+  "homepage": "https://github.com/Mar5929/claude-toolkit",
+  "repository": "https://github.com/Mar5929/claude-toolkit",
+  "keywords": [
+    "toolkit",
+    "plain-language",
+    "accessibility",
+    "communication",
+    "skills"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Explain Simply",
+    "shortDescription": "Say that again in short bullets, without losing a single number.",
+    "longDescription": "Takes the last answer, a plan, or any file you name and rewrites it as short bullets grouped under bold headings, at a reading level anyone can follow in one pass. Every number, date, file path and person's name survives, because a simple explanation that dropped the facts is not simpler, only vaguer. Ends with a numbered list of what you have to do, and only when there is something to do.",
+    "developerName": "Mike Rihm",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive"
+    ],
+    "websiteURL": "https://github.com/Mar5929/claude-toolkit",
+    "defaultPrompt": [
+      "Explain that like I'm five",
+      "Put that in plain bullets",
+      "Simpler, please"
+    ],
+    "brandColor": "#B45309"
+  }
+}
