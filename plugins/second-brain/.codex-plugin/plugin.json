@@ -1,7 +1,7 @@
 {
   "name": "second-brain",
-  "version": "3.0.0",
-  "description": "One Git-native project knowledge folder for Claude, Codex, and optional Obsidian, with owner-approved saves, generated startup context, and safe layout migration.",
+  "version": "3.1.0",
+  "description": "One Git-native project knowledge folder for Claude, Codex, and optional Obsidian, with fixed properties, project tags, visible provenance, read-only health reports, owner-approved saves, and safe migration.",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com",
@@ -18,7 +18,7 @@
   "interface": {
     "displayName": "Second Brain",
     "shortDescription": "One Markdown project brain for agents and people.",
-    "longDescription": "Installs one knowledge folder containing the project overview, generated index, specifications, seven durable memory types, raw brainstorms, and minimal optional Obsidian settings. Claude and Codex share the same Markdown and Git truth. Saves remain owner-approved, startup loads only the map, and migration detects flat, retired, mixed, unknown, and new layouts without guessing.",
+    "longDescription": "Installs one knowledge folder containing the project overview, generated index, specifications, seven durable memory types, project-specific tags, visible provenance, read-only health reports, raw brainstorms, and minimal optional Obsidian settings. Claude and Codex share the same Markdown and Git truth. Saves remain owner-approved, startup loads only the map, and migration detects flat, retired, mixed, unknown, and new layouts without guessing.",
     "developerName": "Mike Rihm",
     "category": "Productivity",
     "capabilities": [

@@ -16,6 +16,13 @@ The project knowledge procedure is packaged by the `second-brain` plugin. Do
 not copy a retired large memory rule, verifier instructions, or the full
 knowledge specification into either root file.
 
+Both root routes carry this short principle:
+
+> Keep project knowledge small: save stable facts, lasting events, decisions,
+> or states that prevent repeated explanation or a wrong action. Put live
+> progress in the tracker, reusable procedures in skills, source material in
+> references, and past conversations in session history.
+
 ## What a thin CLAUDE.md contains
 
 In this order:

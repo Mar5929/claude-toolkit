@@ -191,11 +191,22 @@ checks:
   named `memory`, `specs`, or `knowledge` from its name alone.
 - **Packaged runtime:** for a new layout, also check the installed `remember`,
   `recall`, and `cleanup` skills; `.claude/tools/knowledge-layout.mjs`; the
-  generated-index tool; `.claude/hooks/knowledge-session-start.mjs` registered
-  under Claude `SessionStart`; the packaged pull-request reminder; the short
-  root routes; and the optional equivalent `.codex/hooks.json` loader where
-  native Codex hooks are supported. Missing runtime is **partial**, not a reason
-  to rewrite knowledge documents.
+  generated-index tool; the read-only `.claude/tools/knowledge-health.mjs`;
+  `.claude/hooks/knowledge-session-start.mjs` registered under Claude
+  `SessionStart`; the packaged pull-request reminder; the short root routes and
+  knowledge principle; and the optional equivalent `.codex/hooks.json` loader
+  where native Codex hooks are supported. Missing runtime is **partial**, not a
+  reason to rewrite knowledge documents.
+  When the health tool is present, run its full JSON view during every
+  read-only audit of a new layout, even when the runtime is otherwise complete:
+
+  ```text
+  node .claude/tools/knowledge-health.mjs health --json
+  ```
+
+  Report concrete warnings and offer a focused cleanup for only the affected
+  files or tags. If the tool itself is missing, report the runtime gap first and
+  use the packaged copy only to inspect, never to write.
 - **Obsidian boundary:** check that only `knowledge/.obsidian/app.json` is
   shared, that it creates relative Markdown links and automatic link updates,
   and that `.gitignore` excludes every other `.obsidian` file. A shared core
@@ -524,7 +535,7 @@ should look in THIS project, confirm, act, summarize. Ground rules:
 
   For an approved **none**, **flat #149**, or **new** path, finish the same
   adoption unit before calling the system installed:
-  1. Copy the packaged `build-knowledge-index.mjs` and
+  1. Copy the packaged `build-knowledge-index.mjs`, `knowledge-health.mjs`, and
      `knowledge-layout.mjs` into `.claude/tools/`.
   2. Copy the packaged `knowledge-session-start.mjs` and `save-reminder.mjs`
      into `.claude/hooks/`.
@@ -533,14 +544,20 @@ should look in THIS project, confirm, act, summarize. Ground rules:
      `SessionStart` loader, and register the pull-request reminder under
      `PreToolUse` with the `Bash` matcher.
   4. Add the direct startup route to root `AGENTS.md`; add the short matching
-     route to root `CLAUDE.md`. Where native Codex hooks are supported, merge
-     the same fail-open loader into `.codex/hooks.json` without removing other
-     hooks.
+     route to root `CLAUDE.md`. Both carry the packaged principle separating
+     stable durable knowledge from live tracker progress, reusable skill
+     procedures, references, and session history. Where native Codex hooks are
+     supported, merge the same fail-open loader into `.codex/hooks.json`
+     without removing other hooks.
   5. Add the Obsidian ignore allowlist so only
      `knowledge/.obsidian/app.json` is shared.
   6. Rebuild `knowledge/index.md`, run the startup loader, rerun layout
      detection, and verify links. The result must report `knowledge` and load
      only `project.md` plus the generated index.
+  7. Run `node .claude/tools/knowledge-health.mjs health --json`. During an
+     ordinary project update, offer a focused cleanup only for concrete
+     warnings. After a memory migration, run a full cleanup review. The report
+     is read-only and is never committed.
 
   Do not remove old runtime or root routes until their current replacements are
   present and these checks pass. The flat mover removes only #149's hand-made

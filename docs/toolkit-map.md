@@ -17,7 +17,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | Plugin | Purpose | Skills | Install | Setup |
 |---|---|---|---|---|
 | [project-init](../plugins/project-init/README.md) | Put the toolkit's rules and systems into a project, new or existing, and the machine-wide ones onto the computer itself | `project-init`, `project-sync`, `machine-sync` | `/plugin install project-init` | Sets up a project, and sets up a machine |
-| [second-brain](../plugins/second-brain/README.md) | Portable Git-native project knowledge shared by Claude, Codex, and optional Obsidian | `second-brain`, `remember`, `recall`, `cleanup` | `/plugin install second-brain` | Sets up a project |
+| [second-brain](../plugins/second-brain/README.md) | Portable Git-native project knowledge with fixed properties, project-specific tags, visible provenance, and read-only health reports shared by Claude, Codex, and optional Obsidian | `second-brain`, `remember`, `recall`, `cleanup` | `/plugin install second-brain` | Sets up a project |
 | [sf-architect-solutioning](../plugins/sf-architect-solutioning/README.md) | Salesforce solution architect: approved solution plan before any build | `sf-architect-solutioning` | `/plugin install sf-architect-solutioning` | Install and go |
 | [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git lifecycle workflows | `pull-latest`, `reset-to-remote`, `merge-and-clean-up` | `/plugin install git-workflows` | Install and go |
 | [hooks-library](../plugins/hooks-library/README.md) | Reusable style, writing, Git-attribution, and Salesforce deployment hooks; system-specific knowledge hooks stay with second-brain | `hooks-library` | `/plugin install hooks-library` | Wires into settings |
@@ -35,9 +35,9 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | project-sync | project-init | Audit an EXISTING project against the toolkit and close approved gaps | `/project-sync` |
 | machine-sync | project-init | Audit THIS COMPUTER's `~/.claude/` against the toolkit's machine-wide set and close approved gaps. Also the whole setup for a new computer | `/machine-sync`, "set up this machine from my toolkit" |
 | second-brain | second-brain | Explain, install, audit, migrate, and maintain the complete project knowledge system | `/second-brain` |
-| remember | second-brain | Apply the four save filters, show the owner the exact proposed words, save only what is approved, and rebuild the knowledge index | `/remember`, "remember this" |
+| remember | second-brain | Apply the four save filters, check the canonical home and project tags, show provenance and the exact proposed words, save only what is approved, and rebuild the knowledge index | `/remember`, "remember this" |
 | recall | second-brain | Start from the project map and retrieve only the specifications and memories relevant to the task | `/recall`, "what does the project know about this?" |
-| cleanup | second-brain | Review stale, conflicting, repeated, or misplaced project knowledge through the same owner-approval flow | `/cleanup`, "clean up project knowledge" |
+| cleanup | second-brain | Combine read-only property, tag, provenance, and health findings with a meaning review, then repair only what the owner approves | `/cleanup`, "clean up project knowledge" |
 | sf-architect-solutioning | sf-architect-solutioning | 5-phase Salesforce solutioning to an approved plan | `/sf-architect-solutioning` |
 | pull-latest | git-workflows | Get current with the remote without rewriting or discarding | `/pull-latest` |
 | reset-to-remote | git-workflows | Hard-reset a repo to mirror the remote, safely gated | `/reset-to-remote` |
@@ -151,8 +151,8 @@ These are not duplicated here. Go to the index that owns them:
   `plugins/project-init/library/guides/mcp-best-practices.md`.
 - **Project knowledge runtime sources**: the four skills under
   `plugins/second-brain/skills/`, the startup and pull-request hooks under
-  `plugins/second-brain/hooks/`, the generated-index and migration tools under
-  `plugins/second-brain/tools/`, and the new-layout templates referenced by the
+  `plugins/second-brain/hooks/`, the generated-index, health, and migration
+  tools under `plugins/second-brain/tools/`, and the new-layout templates referenced by the
   setup skill. The [plugin README](../plugins/second-brain/README.md) is the
   canonical package description.
 - **Archived second-brain v1**:

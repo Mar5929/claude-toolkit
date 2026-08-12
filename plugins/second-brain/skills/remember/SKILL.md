@@ -25,6 +25,17 @@ Read, in order:
 Search before drafting. Prefer an edit to the existing canonical file. A fact
 that already has one owner gets a link, not a second copy.
 
+Before choosing tags, run the read-only project vocabulary view:
+
+```text
+node .claude/tools/knowledge-health.mjs tags --json
+```
+
+Read the complete project-specific vocabulary and usage counts yourself. Do not
+show the owner an unrelated wall of tags. A normal proposal shows only the
+relevant existing tags with counts, the proposed tags, and any warning about a
+new or overlapping tag.
+
 ## Apply the four filters in order
 
 Save only when every answer passes:
@@ -72,22 +83,39 @@ Every memory starts with only these fields:
 
 ```yaml
 ---
-source: user-said-it
-date: 2026-08-11
-session: current-session
-tags: [project-knowledge]
+source: owner-paraphrase
+date: 2026-08-12
+session: unavailable
+tags:
+  - project-subject
 ---
 ```
 
-- `source:` is exactly `user-said-it`, `read-from-file`,
-  `agent-saw-it-happen`, or `agent-guess-unchecked`.
+- `source:` is exactly `owner-quote`, `owner-paraphrase`, `read-from-file`,
+  `agent-observed`, or `agent-conclusion-unchecked`. Use `owner-quote` only for
+  verbatim words. A faithful rewrite is `owner-paraphrase`.
 - `source-file:` is the exact repository path, present only for
   `read-from-file`.
 - `date:` is the save or last-change date as `YYYY-MM-DD`.
-- `session:` is enough to trace the conversation or work session, never a
-  transcript copy.
-- `tags:` come from `knowledge/memory/tags.md`; propose a new tag with the save.
+- `session:` is a retrievable session reference when one exists, never a
+  transcript copy. Use `unavailable` when no retained reference exists.
+- `tags:` is a YAML list of one to three project subjects from
+  `knowledge/memory/tags.md`. The folder owns memory type and `source` owns
+  trust, so tags duplicate neither. A new project starts with its own empty
+  vocabulary, not the toolkit repository's tags.
 - `superseded-by:` appears only on retained history.
+
+Those six names are the complete property vocabulary. Never invent a field
+silently. If claims in one file come from different sources, mark the affected
+claims in the body so the file-level source does not give them false confidence.
+Use this adjacent marker consistently:
+
+```text
+> Claim source: read-from-file; path/to/source.md
+```
+
+Replace the source value and trace after the semicolon as needed. The marker
+belongs directly above the claim it qualifies.
 
 Then add a descriptive H1 and one-sentence summary. Use lower-case hyphenated
 file names. A specification has the same H1 and summary but no YAML.
@@ -104,6 +132,18 @@ Why
 Use short plain bullets. Say what will be created, edited, moved, or removed;
 why it passed the four filters; and what wrong action it prevents. Keep every
 path, number, date, and name.
+
+For a memory proposal also show, in plain words:
+
+- the relevant existing tags and their counts;
+- the proposed one to three tags;
+- whether any tag is new or overlaps an existing tag;
+- the source kind and whether the wording is quoted or paraphrased; and
+- the source file or session reference, including `unavailable` when honest.
+
+Creating, editing, merging, moving, superseding, and removing are equal memory
+actions. Prefer changing the current canonical home. Do not leave obsolete
+wording current merely to preserve it because Git already preserves history.
 
 For one or two short pieces, show numbered paths and the exact proposed words
 in chat. The owner may keep, cut, or edit each one. Then stop and wait.
@@ -125,9 +165,18 @@ not approve exact words. No reply means no write.
 
    ```text
    node .claude/tools/build-knowledge-index.mjs
+   node .claude/tools/knowledge-health.mjs health --focus <changed-memory-path> --json
    ```
 
 4. Report the paths written, moved, or removed and anything the owner cut.
+   Run the focused health command once for each changed memory. Specification
+   changes use the same path. The focused report still checks the complete tag
+   vocabulary and usage.
+   For a move or deletion, also focus the old path. This includes memories that
+   still point to the old file, even when that file no longer exists.
+5. Show only concrete health warnings tied to the changed files or proposed
+   tags. Finish the approved save first, then offer a focused cleanup review.
+   Never silently expand the approved change.
 
 If writing or index generation fails, the save is unfinished. Report the
 failure. Do not merge as though durable truth was saved.
@@ -150,5 +199,7 @@ several nearby completion moments when the result has not changed.
 - Saved knowledge conflicts with code or observed behavior: show both.
 - The owner cuts everything or does not reply: write nothing and keep no queue.
 - An agent-derived claim remains unchecked: keep it visibly
-  `agent-guess-unchecked` until the owner confirms it.
+  `agent-conclusion-unchecked` until the owner confirms it.
+- An older source value appears: propose the exact replacement and wait. Never
+  silently relabel existing durable knowledge.
 - The index is stale: source documents win; rebuild it.
