@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Personal, portable toolkit of reusable Claude systems: skills, rules, hooks, and templates shared across every project and device.",
-    "version": "0.67.0"
+    "version": "0.68.0"
   },
   "plugins": [
     {
@@ -22,7 +22,7 @@
     {
       "name": "second-brain",
       "source": "./plugins/second-brain",
-      "description": "Portable Git-native project knowledge for Claude, Codex, and optional Obsidian, with fixed properties, project tags, visible provenance, read-only health reports, owner-approved workflows, and safe migration."
+      "description": "Portable Git-native project knowledge for Claude, Codex, and optional Obsidian, with fixed properties, project tags, visible provenance, read-only health reports, owner-approved workflows, read-only Claude Code session search, and safe migration."
     },
     {
       "name": "git-workflows",

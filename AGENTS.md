@@ -101,8 +101,8 @@ copies of files this repo also ships. `tests/installed-copy-check.mjs` fails whe
 a shipped file and its copy stop matching, so nobody has to remember to change
 both.
 
-The `second-brain` plugin supplies the `remember`, `recall`, and `cleanup`
-skills. The installed startup loader, pull-request reminder, index builder,
+The `second-brain` plugin supplies the `remember`, `recall`, `cleanup`, and
+`session-search` skills. The installed startup loader, pull-request reminder,
 layout tool, and read-only health tool under `.claude/` are copies of what that
 plugin ships. The policy they follow is `knowledge/specs/memory-system.md`.
 Codex reads that policy before changing durable knowledge and starts every task

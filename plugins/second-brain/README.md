@@ -64,6 +64,28 @@ files are the one shared truth.
 - **cleanup** reviews stale, repeated, conflicting, or misplaced knowledge and
   combines the read-only health report with a meaning review, then proposes
   owner-approved repairs.
+- **session-search** searches existing local Claude Code CLI conversations only
+  after current project files fail to answer, and treats every match as history.
+
+## Session search boundary
+
+The agent is the main user of session search. It reads current project files
+first, then searches local Claude Code CLI history only when those files leave a
+real gap or the owner asks. Raw matches remain tool context unless the owner
+asks to see one or a conflict needs explaining.
+
+The first pass searches the current project and returns at most five excerpts
+of 500 characters each. It may be widened to the repository's worktrees.
+Searching every project requires the owner's explicit choice and a second
+command flag. A selected result may expand to its complete visible message or
+adjacent conversation turn. Match time, session start, and last activity are
+separate fields so a conversation spanning several days is not mislabeled.
+
+The reader uses Claude Code's documented local transcript location. Anthropic
+states that the JSONL record shape is internal and may change, so unknown
+records are skipped and unreadable history fails plainly. The reader never
+returns tool results or hidden thinking, changes a transcript, creates an
+index, writes project knowledge, or sends session data elsewhere.
 
 ## Fixed properties and project tags
 
@@ -164,12 +186,16 @@ no project write.
 ```text
 node plugins/second-brain/tests/knowledge-harness.mjs
 node plugins/second-brain/tests/retirement-harness.mjs
+node plugins/second-brain/tests/session-search-harness.mjs
 ```
 
 The knowledge harness builds temporary projects for every detector state,
 checks greenfield assets, runs flat migration, tests link repair and failures,
 creates retired review drafts, exercises both hooks, checks property, tag,
 provenance, and health behavior, and removes every fixture.
+The session-search harness builds local transcript fixtures, checks scope and
+privacy boundaries, expands selected messages, verifies failure states, and
+proves the transcript tree stays unchanged.
 
 ## Maintaining this plugin
 

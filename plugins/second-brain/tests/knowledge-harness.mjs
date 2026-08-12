@@ -148,6 +148,8 @@ try {
     "skills/remember/SKILL.md",
     "skills/recall/SKILL.md",
     "skills/cleanup/SKILL.md",
+    "skills/session-search/SKILL.md",
+    "skills/session-search/scripts/search-sessions.mjs",
     "tools/build-knowledge-index.mjs",
     "tools/knowledge-health.mjs",
     "tools/knowledge-layout.mjs",
@@ -164,8 +166,8 @@ try {
 
   const claudeManifest = JSON.parse(readFileSync(resolve(plugin, ".claude-plugin/plugin.json")));
   const codexManifest = JSON.parse(readFileSync(resolve(plugin, ".codex-plugin/plugin.json")));
-  ok(claudeManifest.version === "3.1.0", "Claude manifest is 3.1.0");
-  ok(codexManifest.version === "3.1.0", "Codex manifest is 3.1.0");
+  ok(claudeManifest.version === "3.2.0", "Claude manifest is 3.2.0");
+  ok(codexManifest.version === "3.2.0", "Codex manifest is 3.2.0");
   ok(claudeManifest.version === codexManifest.version, "plugin manifest versions match");
   const principle = "Keep project knowledge small: save stable facts";
   ok(readFileSync(resolve(root, "CLAUDE.md"), "utf8").split(principle).length === 2, "Claude loads the short knowledge principle once");

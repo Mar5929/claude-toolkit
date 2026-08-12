@@ -214,8 +214,8 @@ startup map.
   that framing.
 - Show the complete `knowledge/` tree and the proposed startup routes.
 - If approved, install `second-brain` from this marketplace and follow its
-  greenfield setup workflow. Use its packaged `remember`, `recall`, and
-  `cleanup` skills, index builder, read-only health tool, layout tool,
+  greenfield setup workflow. Use its packaged `remember`, `recall`, `cleanup`,
+  and `session-search` skills, index builder, read-only health tool, layout tool,
   session-start loader, and pull-request reminder. Do not retype or maintain
   copies in `project-init`.
 - Treat the tree, tools, hooks, root routes, and all seven typed memory homes as
