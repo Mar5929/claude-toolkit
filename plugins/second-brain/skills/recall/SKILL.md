@@ -37,14 +37,19 @@ and the map, not the whole vault.
 
 ## Trust what the source field allows
 
-- `user-said-it`: the owner stated it.
+- `owner-quote`: the words are the owner's exact words.
+- `owner-paraphrase`: the owner stated the meaning, but these are not presented
+  as verbatim words.
 - `read-from-file`: the named source file supports it; open that file when exact
   wording matters.
-- `agent-saw-it-happen`: an agent observed the result during the named session.
-- `agent-guess-unchecked`: a lead to verify, never current truth.
+- `agent-observed`: an agent directly observed the result during the named
+  session.
+- `agent-conclusion-unchecked`: a lead to verify, never current truth.
 
 A `superseded-by:` file is history. Follow the replacement.
 Specifications carry no source field because the owner approved their words.
+If a memory conflicts with a specification, show both and treat the
+specification as current behavior unless the owner approves changing it.
 
 ## Conflicts
 

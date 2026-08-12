@@ -1,7 +1,7 @@
 {
   "name": "project-init",
-  "description": "New-project setup, toolkit sync, and machine setup, with safe project-knowledge installation and migration, the Git-native work-tracker, shared Claude and Codex routing, and optional toolkit systems.",
-  "version": "0.42.0",
+  "description": "New-project setup, toolkit sync, and machine setup, with safe project-knowledge installation, read-only health review, and migration, plus the Git-native work-tracker and shared Claude and Codex routing.",
+  "version": "0.43.0",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com"

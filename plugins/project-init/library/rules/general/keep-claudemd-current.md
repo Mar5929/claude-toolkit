@@ -107,6 +107,13 @@ route. Claude's fail-open `SessionStart` loader reads `knowledge/project.md` and
 `knowledge/index.md`. `AGENTS.md` directly tells Codex to read the same two
 files and to treat `knowledge/brainstorms/` as unchecked.
 
+That short route also carries the anti-decay principle: save stable facts,
+lasting events, decisions, or states that prevent repeated explanation or a
+wrong action; put live progress in the tracker, reusable procedures in skills,
+source material in references, and past conversations in session history. It
+is the one always-loaded behavior summary. The detailed property, routing, save,
+and cleanup rules remain in the project-knowledge specification and skills.
+
 When those paths or delivery mechanisms change, update the applicable root
 route in the same change. Never copy the authority map, memory types, save
 procedure, or generated index into a root file. Their canonical homes are the

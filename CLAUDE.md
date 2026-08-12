@@ -56,6 +56,10 @@ Long is fine for drafts, scripts, posts, and documents. This whole style guide i
 4. Never make durable knowledge current without showing Mike the exact words
    and getting his approval. The full policy is
    `knowledge/specs/memory-system.md`.
+5. Keep project knowledge small: save stable facts, lasting events, decisions,
+   or states that prevent repeated explanation or a wrong action. Put live
+   progress in the tracker, reusable procedures in skills, source material in
+   references, and past conversations in session history.
 
 <!-- shared-with-agents-md:end -->
 
@@ -91,8 +95,8 @@ matching, so nobody has to remember to change both.
 
 The `second-brain` plugin supplies the `remember`, `recall`, `cleanup`, and
 `session-search` skills. The installed startup loader, pull-request reminder,
-and index builder under `.claude/` are copies of what that plugin ships. The
-policy they follow is `knowledge/specs/memory-system.md`.
+layout tool, and read-only health tool under `.claude/` are copies of what that
+plugin ships. The policy they follow is `knowledge/specs/memory-system.md`.
 
 ## Where work is tracked
 

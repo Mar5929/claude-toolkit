@@ -215,8 +215,9 @@ startup map.
 - Show the complete `knowledge/` tree and the proposed startup routes.
 - If approved, install `second-brain` from this marketplace and follow its
   greenfield setup workflow. Use its packaged `remember`, `recall`, `cleanup`,
-  and `session-search` skills, index builder, layout tool, session-start loader,
-  and pull-request reminder. Do not retype or maintain copies in `project-init`.
+  and `session-search` skills, index builder, read-only health tool, layout tool,
+  session-start loader, and pull-request reminder. Do not retype or maintain
+  copies in `project-init`.
 - Treat the tree, tools, hooks, root routes, and all seven typed memory homes as
   one adoption unit. Do not offer a broken partial variant.
 - Commit only `knowledge/.obsidian/app.json` with `alwaysUpdateLinks: true`,
@@ -230,6 +231,13 @@ startup map.
   `SessionStart` hook. Add the equivalent fail-open `.codex/hooks.json` route
   where native Codex hooks are supported, and always put the startup instruction
   in root `AGENTS.md` as the portable Codex route.
+- Put the packaged short knowledge principle in both root routes: save only
+  stable facts, lasting events, decisions, or states that prevent repeated
+  explanation or a wrong action; route live progress to the tracker, reusable
+  procedures to skills, source material to references, and past conversations
+  to session history.
+- Start `knowledge/memory/tags.md` with an empty project-specific vocabulary.
+  Never copy another project's topic tags into a new project.
 - Offer the initial durable pass after installation. The main agent shows
   `What I want to change`, `Why`, and the exact proposed words, then writes only
   what the owner approves.

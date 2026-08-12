@@ -1,7 +1,7 @@
 {
   "name": "project-init",
-  "version": "0.42.0",
-  "description": "New-project setup, toolkit sync, and machine setup, with safe project-knowledge installation and migration, the Git-native work-tracker, shared Claude and Codex routing, and optional toolkit systems.",
+  "version": "0.43.0",
+  "description": "New-project setup, toolkit sync, and machine setup, with safe project-knowledge installation, read-only health review, and migration, plus the Git-native work-tracker and shared Claude and Codex routing.",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com",
@@ -18,7 +18,7 @@
   "interface": {
     "displayName": "Project Init",
     "shortDescription": "Initialize or sync a project with Mike's toolkit.",
-    "longDescription": "Project setup and sync workflows from Mike Rihm's portable toolkit. Includes guided new-project setup, safe work-tracker adoption, signature-based project-knowledge installation and migration for Claude and Codex, existing-project audits, and optional standalone skills.",
+    "longDescription": "Project setup and sync workflows from Mike Rihm's portable toolkit. Includes guided new-project setup, safe work-tracker adoption, signature-based project-knowledge installation, read-only health review, and migration for Claude and Codex, existing-project audits, and optional standalone skills.",
     "developerName": "Mike Rihm",
     "category": "Productivity",
     "capabilities": [

@@ -11,6 +11,7 @@ import {
   symlinkSync,
   writeFileSync,
 } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { dirname, join, relative, resolve } from "node:path";
 import { realpathSync } from "node:fs";
@@ -18,6 +19,14 @@ import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 
 import { buildIndex } from "../tools/build-knowledge-index.mjs";
+import {
+  formatHealthReport,
+  formatPropertyReport,
+  formatProvenanceReport,
+  formatTagReport,
+  focusHealthReport,
+  inspectKnowledge,
+} from "../tools/knowledge-health.mjs";
 import {
   applyMigration,
   createRetiredReview,
@@ -142,6 +151,7 @@ try {
     "skills/session-search/SKILL.md",
     "skills/session-search/scripts/search-sessions.mjs",
     "tools/build-knowledge-index.mjs",
+    "tools/knowledge-health.mjs",
     "tools/knowledge-layout.mjs",
     "hooks/knowledge-session-start.mjs",
     "hooks/save-reminder.mjs",
@@ -156,9 +166,12 @@ try {
 
   const claudeManifest = JSON.parse(readFileSync(resolve(plugin, ".claude-plugin/plugin.json")));
   const codexManifest = JSON.parse(readFileSync(resolve(plugin, ".codex-plugin/plugin.json")));
-  ok(claudeManifest.version === "3.1.0", "Claude manifest is 3.1.0");
-  ok(codexManifest.version === "3.1.0", "Codex manifest is 3.1.0");
+  ok(claudeManifest.version === "3.2.0", "Claude manifest is 3.2.0");
+  ok(codexManifest.version === "3.2.0", "Codex manifest is 3.2.0");
   ok(claudeManifest.version === codexManifest.version, "plugin manifest versions match");
+  const principle = "Keep project knowledge small: save stable facts";
+  ok(readFileSync(resolve(root, "CLAUDE.md"), "utf8").split(principle).length === 2, "Claude loads the short knowledge principle once");
+  ok(readFileSync(resolve(root, "AGENTS.md"), "utf8").split(principle).length === 2, "Codex loads the short knowledge principle once");
 
   const template = resolve(plugin, "skills/second-brain/references/templates/knowledge");
   for (const path of [
@@ -180,6 +193,9 @@ try {
   ok(obsidian.alwaysUpdateLinks === true, "Obsidian updates links on rename");
   ok(obsidian.newLinkFormat === "relative", "Obsidian creates relative links");
   ok(obsidian.useMarkdownLinks === true, "Obsidian uses portable Markdown links");
+  const emptyTags = readFileSync(resolve(template, "memory/tags.md"), "utf8");
+  ok(emptyTags.includes("| Tag | Plain-language meaning |"), "greenfield tag vocabulary has the fixed empty table");
+  ok(!emptyTags.includes("project-knowledge"), "greenfield tags do not inherit toolkit topics");
 
   // Signature detector states.
   const none = fixture("none");
@@ -235,6 +251,23 @@ try {
   ok(firstIndex.includes("[Missing Title](memory/knowledge/missing-title.md)"), "missing H1 falls back to readable name");
   ok(!firstIndex.includes("tags.md") && !firstIndex.includes("raw.md"), "index excludes tags and brainstorms");
 
+  write(
+    indexed,
+    "knowledge/memory/decisions/old-choice.md",
+    "---\nsource: owner-paraphrase\ndate: 2020-01-01\nsession: unavailable\ntags: [billing]\nsuperseded-by: use-flow.md\n---\n\n# Old choice\n\nRetained history.\n",
+  );
+  write(
+    indexed,
+    "knowledge/memory/decisions/current-empty-replacement.md",
+    "---\nsource: owner-paraphrase\ndate: 2026-08-12\nsession: unavailable\ntags: [billing]\nsuperseded-by: \"\"\n---\n\n# Current empty replacement\n\nThis remains current.\n",
+  );
+  const supersededBuild = buildIndex(indexed);
+  const supersededIndex = read(indexed, "knowledge/index.md");
+  ok(supersededBuild.count === 4, "index excludes retained superseded memory");
+  ok(!supersededIndex.includes("Old choice"), "superseded wording is absent from startup truth");
+  ok(supersededIndex.includes("Current empty replacement"), "an empty optional replacement does not hide current memory");
+  ok(!supersededIndex.includes("source:") && !supersededIndex.includes("tags:"), "index stays limited to titles, summaries, and links");
+
   // Startup is read-only, ordered, narrow, and fail-open.
   const startup = loadKnowledge(indexed);
   ok(startup.indexOf("knowledge/project.md") < startup.indexOf("knowledge/index.md"), "startup prints project before index");
@@ -248,6 +281,159 @@ try {
   ok(!opensPullRequest('echo "gh pr create"'), "PR reminder ignores quoted prose");
   ok(!opensPullRequest("gh pr create --help"), "PR reminder ignores help");
   ok(buildMessage().includes("Invoke /remember"), "PR reminder points at the packaged remember skill");
+
+  // Fixed properties, project tags, provenance, and read-only health views.
+  const healthy = fixture("health");
+  makeKnowledge(healthy);
+  write(
+    healthy,
+    "knowledge/memory/tags.md",
+    [
+      "# Memory tags",
+      "",
+      "| Tag | Plain-language meaning |",
+      "| --- | --- |",
+      "| `billing` | Billing behavior. |",
+      "| `invoice` | Invoice behavior. |",
+      "| `invoices` | Invoice behavior in plural. |",
+      "| `unused` | A currently unused subject. |",
+      "| `Salesforce` | Salesforce platform behavior. |",
+      "| `account_owner` | Account ownership behavior. |",
+      "| `billing` | A repeated definition that needs review. |",
+      "",
+    ].join("\n"),
+  );
+  write(healthy, "evidence.md", "# Evidence\n\nSupports the claim.\n");
+  const outsideEvidence = fixture("outside-evidence");
+  write(outsideEvidence, "source.md", "# Outside\n");
+  symlinkSync(resolve(outsideEvidence, "source.md"), resolve(healthy, "linked-evidence.md"));
+  const validMemories = [
+    ["quote.md", "owner-quote", "billing", ""],
+    ["paraphrase.md", "owner-paraphrase", "billing", ""],
+    ["file.md", "read-from-file", "invoice", "source-file: evidence.md\n"],
+    ["observed.md", "agent-observed", "billing", ""],
+    ["unchecked.md", "agent-conclusion-unchecked", "billing", ""],
+  ];
+  for (const [name, source, tag, extra] of validMemories) {
+    write(
+      healthy,
+      `knowledge/memory/knowledge/${name}`,
+      `---\nsource: ${source}\n${extra}date: 2001-02-03\nsession: unavailable\ntags:\n  - ${tag}\n---\n\n# ${name}\n\nSummary.\n`,
+    );
+  }
+  write(
+    healthy,
+    "knowledge/memory/knowledge/mixed-source.md",
+    "---\nsource: owner-paraphrase\ndate: 2026-08-12\nsession: unavailable\ntags: [billing]\n---\n\n# Mixed source\n\n> Claim source: read-from-file; evidence.md\n\nA supported claim.\n\n```text\n> Claim source: read-from-file; missing-example.md\n```\n\n> Claim source: read-from-file; missing-claim.md\n\nAn unsupported claim.\n",
+  );
+  write(
+    healthy,
+    "knowledge/memory/knowledge/file-without-path.md",
+    "---\nsource: read-from-file\ndate: 2026-08-12\nsession: unavailable\ntags: [invoice]\n---\n\n# Missing source path\n\nSummary.\n",
+  );
+  write(
+    healthy,
+    "knowledge/memory/knowledge/escaped-source.md",
+    "---\nsource: read-from-file\nsource-file: linked-evidence.md\ndate: 2026-08-12\nsession: unavailable\ntags: [invoice]\n---\n\n# Escaped source\n\nSummary.\n",
+  );
+  write(
+    healthy,
+    "knowledge/memory/knowledge/directory-source.md",
+    "---\nsource: read-from-file\nsource-file: knowledge\ndate: 2026-08-12\nsession: unavailable\ntags: [invoice]\n---\n\n# Directory source\n\nSummary.\n",
+  );
+  write(
+    healthy,
+    "knowledge/memory/knowledge/empty-optionals.md",
+    "---\nsource: owner-paraphrase\nsource-file: \"\"\ndate: 2026-08-12\nsession: unavailable\ntags: [billing]\nsuperseded-by: \"\"\n---\n\n# Empty optional values\n\nSummary.\n",
+  );
+  write(
+    healthy,
+    "knowledge/memory/knowledge/invalid.md",
+    "---\nsource: user-said-it\nsource-file: missing.md\ndate: 2026-02-30\nsession: current-session\ntags: [Billing, billing, billing, billing?, 123]\nsuperseded-by:\n  - bad.md\nrogue-field: true\n---\n\n# Invalid\n\nSummary.\n",
+  );
+  write(
+    healthy,
+    "knowledge/specs/yaml-is-not-for-specs.md",
+    "---\nsource: owner-quote\n---\n\n# A specification\n\nApproved behavior.\n",
+  );
+  const healthBefore = treeDigest(healthy);
+  const health = inspectKnowledge(healthy);
+  const codes = new Set(health.warnings.map((item) => item.code));
+  ok(health.summary.memories === 11, "health report inventories every memory");
+  ok(health.tags.find((tag) => tag.name === "billing").count === 7, "tag view counts each memory once even when a tag repeats");
+  ok(health.unusedTags.includes("unused"), "health report identifies unused approved tags");
+  ok(health.overlappingTags.some(([left, right]) => left === "invoice" && right === "invoices"), "health report finds likely tag overlap");
+  ok(health.overlappingTags.some(([left, right]) => left === "Billing" && right === "billing"), "tag overlap includes unapproved case variants");
+  ok(codes.has("source-unchecked"), "unchecked agent conclusions are visible warnings");
+  ok(codes.has("source-retired"), "retired source values are reported without rewriting");
+  ok(codes.has("property-not-allowed"), "unknown properties are reported");
+  ok(codes.has("property-type-invalid"), "non-tag properties must be one text value");
+  ok(codes.has("property-empty"), "empty optional properties are reported");
+  ok(codes.has("date-invalid"), "impossible calendar dates are reported");
+  ok(codes.has("session-placeholder"), "session placeholders are reported");
+  ok(codes.has("too-many-tags") && codes.has("tag-repeated") && codes.has("tag-invalid") && codes.has("tag-not-approved"), "tag shape and approval rules are checked");
+  ok(!health.warnings.some((item) => item.code === "tag-definition-invalid" && /Salesforce|account_owner/.test(item.message)), "Obsidian-safe case and underscore tags remain valid");
+  ok(codes.has("source-file-unexpected") && codes.has("source-file-broken"), "broken and forbidden provenance paths are reported");
+  ok(codes.has("source-file-missing"), "read-from-file requires an exact repository path");
+  ok(codes.has("source-file-outside-project"), "source-file symlinks cannot escape the repository");
+  ok(codes.has("source-file-invalid"), "source-file must resolve to a file, not a directory");
+  ok(codes.has("claim-source-file-broken"), "mixed-source claim paths are checked");
+  ok(!health.warnings.some((item) => item.message.includes("missing-example.md")), "claim examples in fenced code are ignored");
+  ok(codes.has("specification-has-frontmatter"), "specification YAML is reported");
+  ok(codes.has("tag-definition-repeated"), "repeated tag definitions are reported");
+  ok(!health.warnings.some((item) => item.path.endsWith("quote.md") && item.code.includes("date")), "an old valid date creates no warning");
+  ok(formatHealthReport(health).includes("Project knowledge health"), "health text view renders");
+  ok(formatTagReport(health).includes("Project knowledge tags"), "tag text view renders");
+  ok(formatPropertyReport(health).includes("Project knowledge properties"), "property text view renders");
+  ok(formatProvenanceReport(health).includes("Project knowledge provenance"), "provenance text view renders");
+  ok(formatProvenanceReport(health).includes("line 10: read-from-file; evidence.md"), "provenance view includes body-level claim sources");
+  ok(JSON.stringify(inspectKnowledge(healthy)) === JSON.stringify(health), "health JSON is deterministic");
+  const focused = focusHealthReport(health, "knowledge/memory/knowledge/unchecked.md");
+  ok(
+    focused.memories.length === 1
+      && focused.warnings.every((item) => item.path === focused.focus || item.code === "tags-overlap"),
+    "focused health limits owner-facing warnings to the file and its tag overlaps",
+  );
+  const deletedFocus = focusHealthReport(health, "missing-claim.md");
+  ok(deletedFocus.warnings.some((item) => item.path.endsWith("mixed-source.md")), "focused health includes files that point to a deleted path");
+  const normalizedFocus = focusHealthReport(health, "docs/../missing-claim.md");
+  ok(normalizedFocus.warnings.some((item) => item.path.endsWith("mixed-source.md")), "focused health normalizes equivalent reference paths");
+  const cliJson = JSON.parse(execFileSync(
+    process.execPath,
+    [resolve(plugin, "tools/knowledge-health.mjs"), "tags", healthy, "--json"],
+    { encoding: "utf8" },
+  ));
+  ok(cliJson.schemaVersion === 1 && cliJson.view === "tags" && Array.isArray(cliJson.tags), "CLI emits a stable JSON tag view");
+  const provenanceJson = JSON.parse(execFileSync(
+    process.execPath,
+    [resolve(plugin, "tools/knowledge-health.mjs"), "provenance", healthy, "--json"],
+    { encoding: "utf8" },
+  ));
+  ok(provenanceJson.warnings.some((item) => item.code === "claim-source-file-broken"), "provenance JSON includes body-level claim warnings");
+  ok(treeDigest(healthy) === healthBefore, "every health view is read-only");
+
+  const history = fixture("history-health");
+  makeKnowledge(history);
+  write(
+    history,
+    "knowledge/memory/tags.md",
+    "# Memory tags\n\n| Tag | Plain-language meaning |\n| --- | --- |\n| `history` | Retained memory history. |\n",
+  );
+  for (const [name, target] of [["a.md", "b.md"], ["b.md", "a.md"], ["self.md", "self.md"], ["broken.md", "missing.md"]]) {
+    write(
+      history,
+      `knowledge/memory/decisions/${name}`,
+      `---\nsource: owner-paraphrase\ndate: 2026-08-12\nsession: unavailable\ntags: [history]\nsuperseded-by: ${target}\n---\n\n# ${name}\n\nHistory.\n`,
+    );
+  }
+  const historyHealth = inspectKnowledge(history);
+  const historyCodes = new Set(historyHealth.warnings.map((item) => item.code));
+  ok(historyCodes.has("superseded-by-cycle"), "health report finds supersession cycles");
+  ok(historyCodes.has("superseded-by-self"), "health report finds self-supersession");
+  ok(historyCodes.has("superseded-by-broken"), "health report finds broken replacements");
+  ok(historyHealth.tags[0].count === 0 && historyHealth.tags[0].historyCount === 4, "tag counts separate current memory from retained history");
+  ok(!historyHealth.unusedTags.includes("history"), "tags used by retained history are not called unused");
+  ok(buildIndex(history).count === 0, "all retained history stays out of the startup index");
 
   // Flat migration: no-write plan, exact-hash apply, link repair, and rerun.
   const dryDigest = treeDigest(flat);

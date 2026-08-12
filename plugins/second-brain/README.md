@@ -39,6 +39,7 @@ knowledge/
 .claude/hooks/knowledge-session-start.mjs
 .claude/hooks/save-reminder.mjs
 .claude/tools/build-knowledge-index.mjs
+.claude/tools/knowledge-health.mjs
 .claude/tools/knowledge-layout.mjs
 ```
 
@@ -56,11 +57,13 @@ files are the one shared truth.
 - **second-brain** detects, installs, adopts, migrates, or explains the whole
   system.
 - **remember** applies the four save filters, shows the owner the change and
-  why, then writes only approved words.
+  why, shows relevant project tags and provenance, then writes only approved
+  words.
 - **recall** reads the project map and opens only the knowledge relevant to the
   task.
 - **cleanup** reviews stale, repeated, conflicting, or misplaced knowledge and
-  proposes owner-approved repairs.
+  combines the read-only health report with a meaning review, then proposes
+  owner-approved repairs.
 - **session-search** searches existing local Claude Code CLI conversations only
   after current project files fail to answer, and treats every match as history.
 
@@ -83,6 +86,35 @@ states that the JSONL record shape is internal and may change, so unknown
 records are skipped and unreadable history fails plainly. The reader never
 returns tool results or hidden thinking, changes a transcript, creates an
 index, writes project knowledge, or sends session data elsewhere.
+
+## Fixed properties and project tags
+
+Every memory uses only six YAML properties: `source`, `source-file`, `date`,
+`session`, `tags`, and `superseded-by`. The source value separates exact owner
+quotes, owner paraphrases, named repository files, direct agent observations,
+and unchecked agent conclusions.
+
+Tags describe project subjects only. Each project owns its vocabulary, so a
+Salesforce project never inherits this toolkit repository's tags. A normal save
+checks every approved tag and its usage but shows the owner only relevant tags,
+proposed tags, and concrete warnings.
+
+The installed health tool generates four read-only views:
+
+```text
+node .claude/tools/knowledge-health.mjs health [project-root] [--json]
+node .claude/tools/knowledge-health.mjs properties [project-root] [--json]
+node .claude/tools/knowledge-health.mjs tags [project-root] [--json]
+node .claude/tools/knowledge-health.mjs provenance [project-root] [--json]
+```
+
+Add `--focus <repository-relative-path>` after an approved save to limit
+owner-facing warnings to that file while still checking the complete tag
+vocabulary and its usage.
+
+The reports are generated on demand from Markdown and are never committed.
+They identify mechanical risks. The cleanup skill reviews meaning and proposes
+the exact owner-approved repair. No tool silently changes durable knowledge.
 
 ## What each folder owns
 
@@ -159,7 +191,8 @@ node plugins/second-brain/tests/session-search-harness.mjs
 
 The knowledge harness builds temporary projects for every detector state,
 checks greenfield assets, runs flat migration, tests link repair and failures,
-creates retired review drafts, exercises both hooks, and removes every fixture.
+creates retired review drafts, exercises both hooks, checks property, tag,
+provenance, and health behavior, and removes every fixture.
 The session-search harness builds local transcript fixtures, checks scope and
 privacy boundaries, expands selected messages, verifies failure states, and
 proves the transcript tree stays unchanged.

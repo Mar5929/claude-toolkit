@@ -47,6 +47,7 @@ for (const path of [
   `${plugin}/skills/session-search/SKILL.md`,
   `${plugin}/skills/session-search/scripts/search-sessions.mjs`,
   `${plugin}/tools/build-knowledge-index.mjs`,
+  `${plugin}/tools/knowledge-health.mjs`,
   `${plugin}/tools/knowledge-layout.mjs`,
   `${plugin}/hooks/knowledge-session-start.mjs`,
   `${plugin}/hooks/save-reminder.mjs`,
