@@ -11,7 +11,7 @@ It also protects the project from the opposite failure: saving every interesting
 ## Who uses it
 
 - **The project owner** wants the project to remember the right things, wants every durable change to remain reviewable in Git, and may browse the same files in Obsidian.
-- **The main agent** needs a small startup map, an exact routing system, and a repeatable approval flow for saves.
+- **The main agent** needs a small startup map, an exact routing system, a repeatable approval flow for saves, and a separate way to find a past Claude Code CLI discussion when current project files leave a real gap.
 - **A helper agent** may read the vault for its assigned work but cannot approve or silently write durable project knowledge.
 
 ## What it must do
@@ -54,7 +54,7 @@ The `knowledge/` folder is deliberately exempt from the project's normal folder-
 
 ### Keep Markdown and Git authoritative
 
-The committed Markdown files and Git history are the system. There is no memory database, embedding index, transcript store, background curator, or private agent notebook.
+The committed Markdown files and Git history are the system. There is no memory database, embedding index, transcript store, background curator, or private agent notebook. Existing local Claude Code CLI transcripts remain a separate historical source. The system may search them read-only but never copies, indexes, or promotes them into current project truth.
 
 Obsidian is an optional viewer and editor. The system works without it. Files use ordinary relative Markdown links with explicit `.md` extensions, never Obsidian-only wikilinks or block references. A save made in Obsidian follows the same approval and Git rules as any other file edit.
 
@@ -146,13 +146,14 @@ The generator extracts each file's H1 and first prose paragraph after YAML, grou
 
 Nobody edits the index by hand. The save flow rebuilds it after an approved change. The source files win if an index is stale.
 
-### Provide three skills and two small hooks
+### Provide four focused skills and two small hooks
 
-The `second-brain` plugin ships:
+Alongside its `second-brain` setup and migration skill, the plugin ships:
 
 - `remember`, which applies the filters, finds the canonical home, obtains approval, writes the approved words, and rebuilds the index;
 - `recall`, which starts with `project.md` and the index, searches only as broadly as the task needs, and distinguishes current truth from brainstorms;
 - `cleanup`, which reviews stale, repeated, conflicting, or misplaced knowledge and uses the same approval rules before changing anything;
+- `session-search`, which searches existing local Claude Code CLI transcripts only after current project files fail to answer, returns small historical matches to the agent, and never writes project knowledge or transcript data;
 - a read-only startup loader that prints `project.md` and `index.md` and fails open if either is missing; and
 - a pull-request reminder that asks the main agent to run `remember` but never writes or approves a save.
 
@@ -195,7 +196,7 @@ For a flat #149 project, migration begins with a dry run. It checks target colli
 
 For a retired v3 project, the tool cannot safely infer the new YAML source, date, session, source-file, or tags from old `Basis:` lines and folder indexes. It therefore creates a review manifest and conversion drafts while leaving the old system untouched. The owner resolves every uncertain field and approves the conversion before finalization. Removal of the retired rule, verifier, tools, and per-folder indexes happens only after the new files, links, generated index, startup routes, and tests all pass. The DragonFly project performs its real conversion under ticket #171.
 
-Greenfield setup creates the exact new tree, asks the owner for the real `project.md` framing rather than inventing it, registers both supported startup routes, installs the three skills and packaged tools, and leaves empty type folders ready for use.
+Greenfield setup creates the exact new tree, asks the owner for the real `project.md` framing rather than inventing it, registers both supported startup routes, installs the four focused skills and packaged tools, and leaves empty type folders ready for use.
 
 ## How it behaves from the outside
 
@@ -216,6 +217,16 @@ Greenfield setup creates the exact new tree, asks the owner for the real `projec
 4. It follows useful links and reports conflicting current truth instead of choosing silently.
 5. It reads brainstorms only when raw exploration is relevant and labels them as unchecked.
 
+### Searching past Claude Code sessions
+
+1. The main agent reads the relevant current project files first. It searches session history only when those files do not answer and a past discussion may fill the gap, or when the owner asks.
+2. The default scope is the current project. The agent may widen to repository worktrees when relevant. It never searches every project on the machine without the owner's explicit permission.
+3. The first pass returns at most five matches. Each identifies the project, session, date, role, exact resume command, and no more than 500 characters around the match.
+4. Raw matches stay in agent tool context. The agent expands only one selected result to its complete visible message or adjacent conversation turn when the small excerpt is not enough.
+5. The agent checks current project files before relying on a historical claim. Current files remain authoritative, and any conflict is shown rather than silently resolved from history.
+6. The agent tells the owner that history was searched only when the answer depends on it, it conflicts with current files, or a failed search leaves a real gap. It does not narrate routine supporting searches or show raw matches unless asked.
+7. The owner may ask to open or resume the exact matching session. Saving any result as durable truth remains a separate `remember` action with normal approval.
+
 ### Reviewing in Obsidian
 
 1. The user opens the repository's `knowledge/` folder as a vault.
@@ -234,12 +245,15 @@ Greenfield setup creates the exact new tree, asks the owner for the real `projec
 - If retired content cannot be converted without guessing, keep the original, make the uncertainty visible in the draft manifest, and block finalization.
 - If the owner cuts every proposal or does not reply, write nothing and keep no hidden queue.
 - If the index disagrees with its source files, regenerate it; never hand-edit it.
+- If Claude Code transcript saving is disabled, or local history expired, was removed, moved, or is unreadable, say what is known without claiming no discussion happened.
+- If the transcript format contains an unknown record, skip that record and continue. Never guess that tool output, hidden thinking, or metadata is visible conversation text.
 
 ## What it deliberately does not do
 
 - It does not make Obsidian required or use Obsidian as a database.
 - It does not install or depend on the whole `kepano/obsidian-skills` package. Its Markdown skill prefers frontmatter and wikilinks that conflict with this specification. Its CLI skill may be used as an optional, on-demand link check when a compatible running Obsidian is available, but filesystem and Git checks remain authoritative.
 - It does not create canvases, Bases, generated visual maps, or a second representation of canonical knowledge.
+- It does not capture, copy, archive, index, edit, or upload Claude Code transcripts.
 - It does not let hooks, helper agents, or background processes write durable knowledge.
 - It does not restore the retired verifier, large rule, shape checker, or hand-maintained indexes.
 - It does not migrate ordinary similarly named folders without a verified system signature.

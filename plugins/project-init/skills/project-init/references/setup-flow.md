@@ -132,8 +132,8 @@ so they always know where they are.
   is tracked. Use those answers for `knowledge/project.md`, then show the
   complete knowledge tree plus root instruction edits.
 - If approved, install the second-brain plugin and follow its canonical
-  greenfield setup workflow, including the three skills, index and migration
-  tools, fail-open startup routes, and pull-request reminder.
+  greenfield setup workflow, including the four focused skills, index and
+  migration tools, fail-open startup routes, and pull-request reminder.
 - Commit only `knowledge/.obsidian/app.json` with `alwaysUpdateLinks: true`,
   `newLinkFormat: "relative"`, and `useMarkdownLinks: true`. Ignore all other
   `.obsidian` state and do not pin a

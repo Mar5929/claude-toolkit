@@ -1,7 +1,7 @@
 {
   "name": "second-brain",
-  "version": "3.0.0",
-  "description": "One Git-native project knowledge folder for Claude, Codex, and optional Obsidian, with owner-approved saves, generated startup context, and safe layout migration.",
+  "version": "3.1.0",
+  "description": "One Git-native project knowledge folder for Claude, Codex, and optional Obsidian, with owner-approved saves, generated startup context, read-only Claude Code session search, and safe layout migration.",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com",
@@ -18,7 +18,7 @@
   "interface": {
     "displayName": "Second Brain",
     "shortDescription": "One Markdown project brain for agents and people.",
-    "longDescription": "Installs one knowledge folder containing the project overview, generated index, specifications, seven durable memory types, raw brainstorms, and minimal optional Obsidian settings. Claude and Codex share the same Markdown and Git truth. Saves remain owner-approved, startup loads only the map, and migration detects flat, retired, mixed, unknown, and new layouts without guessing.",
+    "longDescription": "Installs one knowledge folder containing the project overview, generated index, specifications, seven durable memory types, raw brainstorms, and minimal optional Obsidian settings. Claude and Codex share the same Markdown and Git truth. Saves remain owner-approved, startup loads only the map, local Claude Code session search stays read-only and historical, and migration detects flat, retired, mixed, unknown, and new layouts without guessing.",
     "developerName": "Mike Rihm",
     "category": "Productivity",
     "capabilities": [
@@ -30,7 +30,8 @@
     "defaultPrompt": [
       "Set up project knowledge in this project",
       "Detect and plan this project's knowledge migration",
-      "Review this completed work for durable updates"
+      "Review this completed work for durable updates",
+      "Find a past Claude Code discussion that current project files do not answer"
     ],
     "brandColor": "#2563EB"
   }

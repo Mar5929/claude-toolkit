@@ -1,0 +1,4 @@
+interface:
+  display_name: "Session Search"
+  short_description: "Search local Claude Code session history."
+  default_prompt: "Use $session-search to find a past Claude Code discussion that current project files do not answer."

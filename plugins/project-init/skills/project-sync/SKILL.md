@@ -190,7 +190,8 @@ checks:
   Mixed or unknown stops adoption and migration. Never move an ordinary folder
   named `memory`, `specs`, or `knowledge` from its name alone.
 - **Packaged runtime:** for a new layout, also check the installed `remember`,
-  `recall`, and `cleanup` skills; `.claude/tools/knowledge-layout.mjs`; the
+  `recall`, `cleanup`, and `session-search` skills;
+  `.claude/tools/knowledge-layout.mjs`; the
   generated-index tool; `.claude/hooks/knowledge-session-start.mjs` registered
   under Claude `SessionStart`; the packaged pull-request reminder; the short
   root routes; and the optional equivalent `.codex/hooks.json` loader where
