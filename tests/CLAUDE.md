@@ -33,9 +33,8 @@ Each asks a different question, and each exists because something real broke.
   `shippedOriginalFor()`, an entry in `OWN_FILES`, or a folder in `OWN_FOLDERS`,
   or the check fails on purpose.
 - **The block between the markers must match word for word**, with no
-  exceptions. The one difference the two files used to be allowed, the
-  `host-specific` passage saying how each program invoked the memory verifier,
-  went with second-brain v3 in August 2026.
+  exceptions. Host-specific startup wiring belongs in the host settings files;
+  the shared root block carries the same short knowledge route for both.
 - Each script explains its own reason for existing in a comment at the top. Read
   that before changing what it checks.
 

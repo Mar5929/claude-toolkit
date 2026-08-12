@@ -6,13 +6,13 @@
   },
   "metadata": {
     "description": "Personal, portable toolkit of reusable Claude systems: skills, rules, hooks, and templates shared across every project and device.",
-    "version": "0.65.0"
+    "version": "0.66.0"
   },
   "plugins": [
     {
       "name": "project-init",
       "source": "./plugins/project-init",
-      "description": "Three skills: project-init offers the Git-native work-tracker and complete second-brain v3 during new-project setup; project-sync audits existing projects and safely adopts approved toolkit systems; machine-sync sets up a whole computer, installing the machine-wide rules, settings, and hooks that have to hold in every repository."
+      "description": "Three skills: project-init offers the Git-native work-tracker and portable second-brain knowledge vault during new-project setup; project-sync audits existing projects and safely adopts or migrates approved toolkit systems; machine-sync sets up a whole computer, installing the machine-wide rules, settings, and hooks that have to hold in every repository."
     },
     {
       "name": "sf-architect-solutioning",
@@ -22,7 +22,7 @@
     {
       "name": "second-brain",
       "source": "./plugins/second-brain",
-      "description": "Git-native Markdown memory and knowledge for Claude and Codex, with natural stopping-point reviews, a read-only verifier that checks every claim before the owner sees it, and a pre-merge parallel-memory check."
+      "description": "Portable Git-native project knowledge for Claude, Codex, and optional Obsidian, with a startup map, generated index, owner-approved remember/recall/cleanup workflows, and safe migration from older layouts."
     },
     {
       "name": "git-workflows",
@@ -47,7 +47,7 @@
     {
       "name": "handoff",
       "source": "./plugins/handoff",
-      "description": "Ends a long session without losing what it learned. Runs the project's memory check first, shows what it proposes to save as a table the owner approves, cuts, or edits, then drafts a self-contained prompt for a fresh session that opens with the goal of the work and why it matters. A second agent that never saw the conversation checks that prompt against the repository before the owner sees it, so facts do not get less accurate each time work is handed on. Anything not saved to memory is carried inside the prompt, and anything that cannot be confirmed is labelled rather than dropped."
+      "description": "Ends a long session without losing what it learned. Invokes the project's remember workflow when available, waits for owner approval, then drafts a self-contained prompt for a fresh session that opens with the goal and carries anything not saved. A second agent checks the prompt against the repository before the owner sees it."
     },
     {
       "name": "session-summary",

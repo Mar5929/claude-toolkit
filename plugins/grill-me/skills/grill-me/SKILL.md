@@ -18,24 +18,33 @@ question, so a context reset or interrupted session can resume from the file.
 If the session resumes after an interruption, read the capture file before
 continuing.
 
-This owner-invoked raw checkpoint is the one place second-brain lets anything
-reach a file without the owner approving the exact words first. `grill-me` may
-write only its non-authoritative brainstorm capture and index entry. Approved
-specifications and curated memory still go through the full flow: draft the real
-words, have `memory-verifier` check them, show the owner, then save.
+This owner-invoked raw checkpoint is the one place the project knowledge system
+lets anything reach a file without the owner approving the exact words first.
+`grill-me` may write only its non-authoritative brainstorm capture. Approved
+specifications and curated memory still go through the installed `remember`
+skill and its owner-approval flow.
 
 ## Set up before asking the first question
 
-1. Create `brainstorms/` in the current project if it does not exist.
+1. Detect the project's knowledge layout before writing:
+   - when `knowledge/project.md`, `knowledge/index.md`, and the nested
+     `knowledge/specs/`, `knowledge/memory/`, and `knowledge/brainstorms/`
+     trees are present, use `knowledge/brainstorms/`;
+   - when no knowledge-system signature is present, use an existing ordinary
+     brainstorm artifact folder, or create top-level `brainstorms/` after
+     telling the owner this is standalone raw capture; and
+   - when the layout is partial, mixed, or unknown, stop and recommend
+     `project-sync`. Never create one missing folder and turn ambiguity into a
+     partial knowledge system.
 2. Get today's date from the environment, such as with `date +%F`.
-3. Create `brainstorms/{YYYY-MM-DD}-{topic-slug}.md`. If that path already
+3. Create `{brainstorm-root}/{YYYY-MM-DD}-{topic-slug}.md`. If that path already
    contains notes for the same topic, read and continue it instead of
    overwriting it. Use a short, filesystem-safe topic slug.
 4. Add the title, date, one-line session goal, an empty running summary, an
    empty Q&A log, and an empty open-flags section.
-5. If `.claude/rules/second-brain.md` exists, read it and add the new brainstorm
-   to `brainstorms/README.md` with a one-sentence description. Keep the
-   brainstorm flat even when it may affect several system areas.
+5. Keep the brainstorm flat even when it may affect several system areas.
+   `knowledge/index.md` deliberately excludes brainstorms, so never hand-edit
+   it or create a second brainstorm index.
 6. Tell the user where the notes are being saved in one line, then ask Q1.
 
 Use this structure:
@@ -103,28 +112,25 @@ being preserved.
 1. Read the entire capture file.
 2. Reconcile contradictions, gaps, stale flags, and superseded decisions.
 3. Save the final running summary and open-flags list.
-4. When second-brain v3 is installed, conduct its end-of-interview durable
-   review:
+4. When the current project knowledge system is installed, invoke its
+   `remember` skill for the end-of-interview durable review:
    - identify approved behavior that belongs in one or more capability
      specifications;
    - identify other durable context, planning, decisions, knowledge,
      references, domain material, or operations worth preserving;
-   - draft the real words for each one, with a source on every claim, and no
-     fixed limit on how many;
-   - invoke `memory-verifier` in the foreground to check them before the owner
-     sees anything; and
-   - show the owner the checked text, and save what they approve in this
-     session's worktree.
+   - apply the four save filters before proposing anything;
+   - show `What I want to change` and `Why`, then the exact proposed words; and
+   - save only what the owner approves in this session's worktree.
 5. When the approved update creates or amends a specification, link the
    specification to this brainstorm and this brainstorm to every resulting
    specification.
 6. Give the user a short recap of what was captured, what remains flagged, and
    the recommended next step.
 
-Keep the raw capture in `brainstorms/`. A polished plan, map, or specification
-may later be created in the project's normal documentation location, but it
-does not replace or move the raw interview notes.
+Keep the raw capture in `knowledge/brainstorms/` when the knowledge system is
+installed, or in the stated standalone artifact folder otherwise. A polished
+plan, map, or specification does not replace or move the raw interview notes.
 
-Second-brain integration is conditional. Without an installed v3 rule, preserve
-the standalone brainstorm behavior and do not create a partial `specs/` or
-`memory/` system.
+Knowledge-system integration is conditional. Without the complete new layout,
+preserve the standalone brainstorm behavior and do not create a partial
+`knowledge/`, `specs/`, or `memory/` system.

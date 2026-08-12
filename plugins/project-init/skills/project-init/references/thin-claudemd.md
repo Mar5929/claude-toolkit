@@ -1,156 +1,101 @@
 # Writing thin root instructions (Gate 5)
 
-The behavioral rules do not go inside CLAUDE.md. They live as individual files in
-the project's `.claude/rules/` folder, copied there from the toolkit's rules
-libraries (`library/rules/general/` for every stack, `library/rules/salesforce/` for Salesforce
-projects). CLAUDE.md stays short and points at that folder.
-
-Keeping CLAUDE.md thin is the point: a session reads it first, so it should
-orient fast, not scroll through nineteen rules. The rules are still read every
-session, because a line in CLAUDE.md tells the session to read `.claude/rules/`.
-
-**Thin has exactly one exception: the second-brain v3 memory schema.** When Gate
-3 ran, the routing schema goes into both root files in full and goes in first.
-See "The memory section is the exception" below. Everything else on this page
-still applies.
+Root instructions orient a session quickly. Behavioral rules stay in
+`.claude/rules/`; durable project truth stays under `knowledge/`; folder detail
+stays in the folder's own `CLAUDE.md` where Claude can load it on demand.
 
 ## What Gate 5 does
 
-1. **Copy the selected rule files** into the project's `.claude/rules/`:
-   - From `library/rules/general/`: every default-ON file, unless the owner drops it.
-     See `library/rules/general/README.md` for the current list.
-   - From `second-brain`: keep `.claude/rules/second-brain.md` when Gate 3 ran.
-     This rule comes from the second-brain plugin and is not duplicated in the
-     general-rules library.
-   - From `library/rules/salesforce/` (Salesforce projects only): the set the owner
-     chose in Gate 1, if not already copied there.
-   - Adapt wording to the project's voice if the owner wants; the file is the
-     intent, not fixed prose.
-2. **Write a thin CLAUDE.md** with only the sections below.
-3. **Write or update AGENTS.md** with the same content list (see "What AGENTS.md
-   contains"). When v3 is installed, both root files carry the identical memory
-   section from the second-brain plugin, in the same position, pointing at the
-   same canonical rule.
-4. **Add or confirm a `.claude/rules/README.md`** so the folder has an index of
-   what each file does (copy the library READMEs' shape).
+1. Copy the approved default and conditional rules into `.claude/rules/`.
+2. Write or update the root `CLAUDE.md` with the short structure below.
+3. Write or update root `AGENTS.md` for Codex. Never create a nested
+   `AGENTS.md`.
+4. Add or update `.claude/rules/README.md` so each installed rule is indexed.
+
+The project knowledge procedure is packaged by the `second-brain` plugin. Do
+not copy a retired large memory rule, verifier instructions, or the full
+knowledge specification into either root file.
 
 ## What a thin CLAUDE.md contains
 
 In this order:
 
-- **Title and one-line description** of what the project is.
-- **`Read .claude/rules`**, a single line telling every session to read the
-  rules folder first. This is what keeps the behavioral rules in force.
-- **The project memory and knowledge section**, when Gate 3 ran. It comes before
-  the codemap and everything else. Copy it verbatim from the second-brain
-  plugin's `references/orientation-snippet.md`; do not retype or summarize it.
-- **Codemap / structural pointers**: the project's own layout and conventions
-  that are not behavioral rules. Keep the codemap to **one line per folder or
-  module**, naming what lives there, plus an inline invariant only where a
-  session that does not know it will break something. Dated history ("changed X
-  on this date, decision #17") never goes here; git and the design doc carry it.
-  A codemap that drifts into a changelog is how a thin CLAUDE.md becomes a
-  scrolled-past one. Examples of what belongs:
-  - the backlog / work-items structure and where the index lives
-  - the deployment layout (Salesforce projects)
-  - the toolkit port-back convention (if the project uses the toolkit), and how
-    to pull toolkit updates into this project: update the plugin
-    (`/plugin marketplace update claude-toolkit`), then run `/project-sync`
-  - which gates ran; when second-brain v3 was declined, say only that it was not
-    adopted (when it ran, the memory section above already covers it)
-  - where raw artifacts live (meeting notes, communications, deliverables,
-    client exports) when the project has such folders, so an agent can tell them
-    apart from curated memory at a glance
-- **MCP tool rules**: only for the MCP servers the project actually uses, folded
-  in from `library/guides/mcp-best-practices.md` (or copied as their own `.claude/rules/`
-  files if the project prefers one file per rule everywhere).
+- A title and one-line project description.
+- `Read .claude/rules first.`
+- When project knowledge is installed, one short line saying the fail-open
+  `SessionStart` loader reads `knowledge/project.md` and
+  `knowledge/index.md`, and that `knowledge/brainstorms/` is unchecked.
+- A codemap with one line per major folder or module.
+- Structural pointers that are not behavior rules, including the chosen work
+  tracker and how a refined item is marked.
+- Only the MCP instructions for servers this project actually uses.
 
-Everything else, the writing style, the response style, the working-style rules,
-the multi-agent worktree protocol, is a file in `.claude/rules/`, not prose in
-CLAUDE.md.
+The root file does not repeat the contents of `knowledge/project.md`, the
+generated index, the save policy, or any rule already installed under
+`.claude/rules/`.
 
-## What must stay in the root file
+## The knowledge startup route
 
-Folder detail moves out to a folder `CLAUDE.md` (see `folder-claudemd.md`). Four
-things never do, because an agent needs them before it opens any folder:
+When Gate 3 ran, Claude receives the project overview and map through
+`.claude/hooks/knowledge-session-start.mjs`, registered under `SessionStart` in
+`.claude/settings.json`. The hook fails open if either file is missing.
 
-- **How to talk to the owner.** The line selecting the project's output style,
-  and any project-specific note about how the owner wants to be addressed.
-- **The pointers to the most dangerous rules.** The `Read .claude/rules` line,
-  and a named pointer to any rule whose breach causes real damage, so a session
-  meets it before it acts rather than after.
-- **The memory routing section**, when Gate 3 ran, whole and first. See below.
-- **The codemap**, one line per folder or module. The line stays at the root and
-  names what lives there; the detail behind it is what moves into that folder's
-  own file.
-
-A folder file loads only when an agent reads a file in that folder. Anything an
-agent needs before that moment cannot live in one.
-
-## Folder detail belongs in a folder CLAUDE.md
-
-Detail about how to work inside one folder goes into a `CLAUDE.md` in that
-folder, which loads only when an agent reads a file there. `folder-claudemd.md`
-is the canonical guidance: what goes in one, what never does, which folders get
-one, and which are skipped. Gate 1 writes them alongside the folders.
-
-`AGENTS.md` is the exception to the move. Codex reads it and never reads any
-`CLAUDE.md`, root or nested, so detail that leaves the root `CLAUDE.md` for a
-folder file stays in `AGENTS.md` in full. Below the shared memory section, the
-two root files are allowed to differ for exactly this reason.
-
-## The memory section is the exception
-
-Every other rule is said once, in `.claude/rules/`, and CLAUDE.md only points at
-the folder. The v3 memory schema breaks that on purpose, and the reason is
-narrow: routing has to happen **before** an agent writes, and a rule an agent has
-not opened yet cannot route anything. A one-line label like
-"`memory/decisions/`: important choices and rationale" names a folder without
-telling anyone when to use it, so facts land in the wrong home or in none.
-
-So the root files carry the full routing schema: the authority map, and per home
-the purpose, the use-when, and the do-not-use-when. The canonical rule keeps
-everything else (worked examples, optional document aids, evidence and
-certainty, relationships, supersession, the Git and privacy boundaries, failure
-behavior) and stays authoritative if the two ever disagree.
-
-**The cost is real and must be paid.** The schema now exists in three files. Any
-change to the canonical rule's authority map, homes, or document contract has to
-update both root files in the same change. The `keep-claudemd-current.md` rule
-states this too. Do not extend this exception to any other rule.
+The root file carries a short signpost because a future maintainer needs to
+know why the hook exists. The hook output, not a copied schema, gives Claude the
+startup content.
 
 ## What AGENTS.md contains
 
-Codex reads `AGENTS.md` the way Claude reads `CLAUDE.md`, so it needs the same
-authority, not a stub:
+Codex does not reliably receive Claude's rules or hooks. Root `AGENTS.md`
+therefore contains:
 
-- Title and the same one-line project description.
-- The same `Read .claude/rules` line.
-- The **identical** memory section, in the same first position, byte-for-byte
-  from the orientation snippet. Never a shortened variant.
-- The same structural pointers, or a pointer to the CLAUDE.md section holding
-  them, so the two do not drift.
-- **Every piece of folder detail, in full**, including anything the root
-  CLAUDE.md handed off to a folder `CLAUDE.md`. Codex never reads a folder file,
-  so AGENTS.md is its only copy. This is the one place the two root files are
-  meant to differ in length.
-- Codex-specific repository instructions, if any, which is the only content that
-  legitimately differs between the two files.
+- the same title and one-line project description;
+- a direct instruction to open and read every `.md` rule under
+  `.claude/rules/` before work;
+- when project knowledge is installed, a direct instruction to read
+  `knowledge/project.md` and `knowledge/index.md` first, open only the relevant
+  specification or memory files, and treat `knowledge/brainstorms/` as
+  unchecked;
+- the same structural pointers as `CLAUDE.md`;
+- every safety-critical rule Codex must receive before it can open a referenced
+  file;
+- folder detail that Claude moved into nested `CLAUDE.md` files, because Codex
+  does not load those files; and
+- any Codex-specific repository instructions.
 
-Where the hosts genuinely differ, say so inline rather than forking the section.
-The known case: Claude invokes the installed `memory-verifier` agent, while
-Codex delegates to a subagent told to read `.claude/agents/memory-verifier.md`
-and `.claude/rules/second-brain.md` in full first.
+Where native Codex hooks are available, Gate 3 may also register the equivalent
+fail-open loader in `.codex/hooks.json`. `AGENTS.md` remains the portable route
+and is required even when that hook exists.
 
-## Why file-per-rule instead of one big CLAUDE.md
+## What stays in the root files
 
-- CLAUDE.md stays skimmable; a new session orients in seconds.
-- Each rule is individually skippable at setup and individually editable later.
-- A rule ported back to the toolkit lands as one file that projects copy
-  verbatim, instead of being retyped into each CLAUDE.md.
-- It matches how `library/rules/salesforce/` already works, so the two libraries behave
-  the same way.
+Four things stay at the root because an agent needs them before entering a
+folder:
 
-The memory schema is the one deliberate exception, for the reason given above.
-Weigh any future request to duplicate a rule into the root files against that
-bar: routing that must happen before the agent opens anything.
+- how to talk to the owner;
+- pointers to rules whose breach causes real damage;
+- the project-knowledge startup route; and
+- one codemap line per folder or module.
+
+Everything else routes to its one canonical home.
+
+## Folder detail belongs in folder CLAUDE.md files
+
+`folder-claudemd.md` owns which folders get a short `CLAUDE.md`, what belongs in
+one, and what is skipped. A folder file never owns an always-applicable rule.
+
+The entire `knowledge/` tree is skipped even though it has no hand-maintained
+README index. Its behavior is already owned by the root startup routes and the
+project-knowledge specification. Adding another instruction file inside the
+vault would duplicate authority.
+
+`AGENTS.md` is the exception to moving folder detail. Codex never reads a nested
+`CLAUDE.md`, so it keeps that detail in full. The two root files are deliberately
+different lengths.
+
+## Keep both files current
+
+When a path, startup route, tracker, or safety rule changes, update the root
+file that delivers it in the same change. Do not force the two files to match
+byte for byte. Check `AGENTS.md` stays below the host's size cap, and never use
+an `@` import or wildcard as though either host would expand it.

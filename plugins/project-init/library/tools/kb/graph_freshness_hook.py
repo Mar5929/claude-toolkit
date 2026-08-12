@@ -71,7 +71,7 @@ WHAT_TO_DO = """
 
 **What to do with this file.** Something under `force-app/` changed and the
 connections above moved with it. Read them, then check whether any of them
-contradicts something recorded in `memory/knowledge/` or in a work item. If one
+contradicts something recorded in `knowledge/memory/knowledge/` or in a work item. If one
 does, tell Mike and propose the correction; the memory librarian makes the
 change once he approves it. Then delete this file.
 

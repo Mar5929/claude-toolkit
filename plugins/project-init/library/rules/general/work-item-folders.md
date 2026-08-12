@@ -74,7 +74,7 @@ tracker.
 Capture a want when the owner says it. A request that exists only in a finished
 conversation is lost.
 
-When second-brain v3 is installed, link a work item to the specification,
+When project knowledge is installed, link a work item to the specification,
 planning document, decision, or memory that gives it durable context when that
 relationship helps, and never copy current item status, blockers, or handoff
 into those documents. `capture-the-thinking.md` carries the table of what

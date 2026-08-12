@@ -22,9 +22,9 @@ When a goal will outlast one chat, save it to the project's memory (the goal,
 where it stands, the next step) so the next session picks it up. With no memory
 system, hand off a short "where we are, what is next" note at wrap-up.
 
-When second-brain v3 is installed, separate durable direction from live work
+When project knowledge is installed, separate durable direction from live work
 state. Vision, goals, roadmap, milestones, durable risks, and assumptions belong
-in `memory/planning/`, saved through the approved memory workflow. Current
+in `knowledge/memory/planning/`, saved through `remember`. Current
 ticket status, blockers, exact next action, and handoff stay in the work
 tracker. Link between them when useful without copying live status into
 planning.

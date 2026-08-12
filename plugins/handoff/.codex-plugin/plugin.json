@@ -1,7 +1,7 @@
 {
   "name": "handoff",
-  "description": "Ends a long session without losing what it learned. Runs the project's memory check first, shows what it proposes to save as a table the owner approves, cuts, or edits, then drafts a self-contained prompt for a fresh session that opens with the goal of the work and why it matters. A second agent that never saw the conversation checks that prompt against the repository before the owner sees it, so facts do not get less accurate each time work is handed on. Anything not saved to memory is carried inside the prompt, and anything that cannot be confirmed is labelled rather than dropped.",
-  "version": "0.3.0",
+  "description": "Ends a long session without losing what it learned. Invokes the project's remember workflow first, then drafts and checks a self-contained prompt for a fresh session. Anything not saved is carried inside the prompt, and anything that cannot be confirmed is labelled rather than dropped.",
+  "version": "0.4.0",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com"

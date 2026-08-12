@@ -6,10 +6,13 @@ later `project-sync` run reads this so a considered "no" is not offered again.
 Synced against: `project-init` 0.34.0, on 2026-08-04, for GitHub issue #138.
 
 Changed since, on 2026-08-06, for GitHub issue #149: this repository replaced
-second-brain v3 with the memory system in `specs/memory-system.md`. What that
-changed is marked below. No plugin ships the new system yet; packaging it for
-other projects is a separate ticket, so every other project still runs
-second-brain v3 and the toolkit still ships it.
+the retired second-brain system with a smaller memory system. What that changed
+is marked below.
+
+Changed again on 2026-08-11 for GitHub issue #170: the smaller system became the
+packaged `second-brain` plugin, and this repository adopted it under one
+`knowledge/` root. The root is also a portable Obsidian vault, while Markdown
+and Git remain authoritative.
 
 This repository is the toolkit. It now runs the toolkit on itself, the same way
 Anchor, DragonFly, and Diligence Ready do, so a change to the memory system, the
@@ -22,10 +25,10 @@ three weeks later in another project.
 |---|---|
 | 0. Orient | Done. Existing repository, not a new one, so this ran as a sync rather than an init. Node and Markdown, no application stack. |
 | 1. Scaffolding and work tracking | Already answered. Work is tracked on the `Claude-Toolkit-Project` board on GitHub. `CLAUDE.md` names it, and `spec-before-you-build.md` is installed alongside that pointer. No scaffolding was added: the folder layout already existed. |
-| 2. Hooks | Done, all three. `style-reminder`, `writing-guard`, and `memory-pr-hook`, copied into `.claude/hooks/` and registered in the committed `.claude/settings.json`. Each was run by hand in both directions before being called installed. **Changed 2026-08-06:** `memory-pr-hook` was replaced by `save-reminder.mjs`, this repository's own, which says the same thing but points at the new `remember` skill. **Also 2026-08-06:** `writing-guard` was turned off here, see below. Two hooks run now. |
-| 3. Second-brain v3 | **Replaced 2026-08-06.** It was installed complete: the canonical rule, the memory verifier, the memory routing in both root files, and every root index. All of it is gone now, along with `memory-index-build.mjs` and `memory-shape-check.mjs`. What runs instead is `specs/memory-system.md`: four always-loaded lines in both root files, the `remember`, `recall`, and `cleanup` skills under `.claude/skills/`, one index at `memory/index.md` built by `.claude/tools/build-memory-index.mjs`, and one hook. |
+| 2. Hooks | Done. `style-reminder`, `save-reminder`, and `knowledge-session-start` are installed under `.claude/hooks/` and registered in `.claude/settings.json`. Codex registers the same startup loader in `.codex/hooks.json`. The writing guard remains off here, as explained below. |
+| 3. Project knowledge | **Adopted from the packaged plugin.** `knowledge/project.md` and the generated `knowledge/index.md` load at session start. Approved specifications, durable memory, and unchecked brainstorms live under the same knowledge root. The packaged `remember`, `recall`, and `cleanup` skills replace the hand-made local copies. The retired rule, verifier, shape checker, and per-folder indexes stay removed. |
 | 4. Knowledge layer | Included with Gate 3. The graphify code graph was offered and declined, see below. |
-| 5. Root instructions, rules, output style | Done. `CLAUDE.md` and `AGENTS.md` rewritten thin, `.claude/rules/` created with thirteen general rules plus the memory rule, and the plain-language output style installed and selected. **Changed 2026-08-06:** the memory rule and `wrap-up-ritual.md` are no longer carried, and the memory section in both root files became the four lines. |
+| 5. Root instructions, rules, output style | Done. `CLAUDE.md` and `AGENTS.md` carry the same short project knowledge route. `.claude/rules/` holds the applicable general rules, with no large memory rule or wrap-up ritual. The plain-language output style is installed and selected. |
 | 6. Optional toolkit skills | Done. `grill-me` was already on. `handoff` and `session-summary` were switched on in the machine settings at `~/.claude/settings.json`. |
 
 ## Rules installed
@@ -34,8 +37,9 @@ Every default-on general rule that fits, copied unmodified from
 `plugins/project-init/library/rules/general/`. `.claude/rules/README.md` lists
 what each one does, and which ones this repository does not carry.
 
-Two of them were dropped on 2026-08-06 with second-brain v3: `second-brain.md`
-and `wrap-up-ritual.md`.
+Two retired rules remain deliberately absent: `second-brain.md` and
+`wrap-up-ritual.md`. The current policy lives in
+`knowledge/specs/memory-system.md` and loads only when the task needs it.
 
 Two more default-on rules were deliberately left out from the start:
 
@@ -63,13 +67,13 @@ given MCP server, and this repository's own work uses none.
 Several sessions work in this repository at once, each in its own worktree. The
 memory system adds a shared file they can collide on that was not there before.
 
-Every save touches `memory/index.md` as well as the document itself. Two sessions
-saving on different branches usually edit different lines of it, so Git merges
-both with no reported conflict and no warning, and the result can still be wrong.
+Every approved save rebuilds `knowledge/index.md`. Two sessions saving on
+different branches can both change it, so Git may merge both with no reported
+conflict and still leave the result wrong.
 
 The answer is that nobody edits that file by hand. After bringing a branch
-current, run `node .claude/tools/build-memory-index.mjs` again: it rebuilds the
-index from the documents, which are what win whenever the two disagree.
+current, run `node .claude/tools/build-knowledge-index.mjs` again: it rebuilds
+the index from the documents, which are what win whenever the two disagree.
 `CLAUDE.md` states it under "Parallel sessions in this repo".
 
 ## The copies, and what keeps them honest
@@ -83,25 +87,22 @@ ships.
 matching, or when the block shared by `CLAUDE.md` and `AGENTS.md` differs between
 them. Run it with the other two checks before opening a pull request.
 
-The two files are compared word for word with no exceptions. The one passage they
-used to be allowed to word differently, between `<!-- host-specific:start -->`
-and `<!-- host-specific:end -->`, said how each program invoked the memory
-verifier. It went with second-brain v3 on 2026-08-06, along with the comparison
-of the root memory section against the second-brain plugin's
-`orientation-snippet.md`.
+The two files are compared word for word with no exceptions. The passage they
+used to word differently, between `<!-- host-specific:start -->` and
+`<!-- host-specific:end -->`, belonged to the retired verifier system. The
+obsolete root-schema comparison was removed with it.
 
-Not everything under `.claude/` is a copy. `.claude/skills/`,
-`.claude/tools/build-memory-index.mjs`, and `.claude/hooks/save-reminder.mjs` are
-this repository's own, because no plugin ships the new memory system yet. The
-check knows them by name and by folder, so a new copy still cannot be added
-without being checked.
+The knowledge runtime under `.claude/` is now installed from the packaged
+`second-brain` plugin: the startup loader, pull-request reminder, and generated
+index builder. The installed-copy check compares them with their plugin
+originals.
 
 ## Specifications
 
-`specs/` exists and fills as work happens. A capability gets its specification
+`knowledge/specs/` fills as work happens. A capability gets its specification
 the first time an issue changes what that capability does. Specifications were
-deliberately not written up front for the nine plugins. Every file in `specs/`
-and `memory/` is listed in `memory/index.md`.
+deliberately not written up front for the plugins. Every current specification
+and memory is listed in `knowledge/index.md`.
 
 ## The writing guard, turned off here
 
@@ -130,13 +131,9 @@ after that. The toolkit still ships the hook to other projects either way.
 
 ## The built-in memory, turned off here
 
-Claude Code keeps its own per-project notes, in a folder under `~/.claude/` that
-only Claude Code can read. `specs/memory-system.md` says this project has one
-memory, so `.claude/settings.json` sets `CLAUDE_CODE_DISABLE_AUTO_MEMORY` to
-`1` and Claude Code neither reads nor writes that folder here. The folder for
-this repository was empty when it was switched off, so nothing was lost.
-
-The same settings file switches the `second-brain` plugin off for this
-repository, so its skills and its memory verifier do not load here. It stays on
-everywhere else, in `~/.claude/settings.json`, because Mike's other projects
-still run second-brain v3.
+Claude Code keeps its own per-project notes in a folder under `~/.claude/` that
+only Claude Code can read. `knowledge/specs/memory-system.md` says this project
+has one shared knowledge system, so `.claude/settings.json` keeps
+`CLAUDE_CODE_DISABLE_AUTO_MEMORY` set to `1`. The same settings file enables the
+packaged `second-brain` plugin, whose skills read and write the Git-owned files
+under `knowledge/` through the owner-approval flow.

@@ -472,7 +472,7 @@ class TestFreshnessHook(unittest.TestCase):
         has to say it itself or nobody will know."""
         import graph_freshness_hook as hook
         self.assertIn("delete this file", hook.WHAT_TO_DO)
-        self.assertIn("memory/knowledge/", hook.WHAT_TO_DO)
+        self.assertIn("knowledge/memory/knowledge/", hook.WHAT_TO_DO)
         self.assertIn("README.md", hook.WHAT_TO_DO)
 
 

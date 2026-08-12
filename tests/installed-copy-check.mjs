@@ -6,8 +6,8 @@
  *
  * Why this exists: this repo is set up with its own toolkit, the same way
  * Anchor, DragonFly, and Diligence Ready are. So it holds two of almost
- * everything. `plugins/project-init/library/rules/general/wrap-up-ritual.md` is
- * what every other project receives, and `.claude/rules/wrap-up-ritual.md` is
+ * everything. A rule under `plugins/project-init/library/rules/general/` is
+ * what every other project receives, and its `.claude/rules/` counterpart is
  * the copy governing the session editing it. Change one and forget the other
  * and the repo starts telling other projects one thing while doing another.
  * That failure is silent: every other test passes, both files read fine on
@@ -30,14 +30,10 @@
  *    file and Codex reads the second, so a difference there means a session gets
  *    different instructions depending on which program it is.
  *
- * Two checks were removed in August 2026, when this repo replaced second-brain
- * v3 with the memory system in `specs/memory-system.md` (GitHub issue #149).
- * Both existed only to serve the old system: the `host-specific` passage the two
- * root files were allowed to word differently, which said how each program
- * invoked the memory verifier, and the comparison of the root memory section
- * against the second-brain plugin's `references/orientation-snippet.md`. This
- * repo no longer carries either. The four always-loaded lines that replaced them
- * are short enough to compare word for word like everything else in the block.
+ * The root knowledge route is short enough to compare word for word. Host hook
+ * wiring lives in settings files, outside the shared block. The project-local
+ * index and startup scripts are also checked against the second-brain package
+ * that other projects receive.
  *
  * Run: node tests/installed-copy-check.mjs
  */
@@ -51,7 +47,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, "..");
 
 const GENERAL_RULES = "plugins/project-init/library/rules/general";
-const SECOND_BRAIN = "plugins/second-brain/skills/second-brain/references";
+const SECOND_BRAIN = "plugins/second-brain";
 
 /**
  * Where a file under `.claude/` came from. `null` means the file is this
@@ -62,33 +58,21 @@ const OWN_FILES = new Set([
   ".claude/rules/README.md",
   ".claude/settings.json",
   ".claude/toolkit-sync.md",
-  ".claude/hooks/save-reminder.mjs",
-  ".claude/tools/build-memory-index.mjs",
 ]);
-
-/**
- * Folders this repo wrote itself. `.claude/skills/` holds the memory system
- * described in `specs/memory-system.md`, which no plugin ships yet: packaging it
- * for other projects is a separate ticket. Until then there is nothing to
- * compare it against.
- */
-const OWN_FOLDERS = [".claude/skills/"];
 
 function shippedOriginalFor(path) {
   if (OWN_FILES.has(path)) return null;
-  if (OWN_FOLDERS.some((folder) => path.startsWith(folder))) return null;
   let match = path.match(/^\.claude\/rules\/(.+\.md)$/);
   if (match) return `${GENERAL_RULES}/${match[1]}`;
-  match = path.match(/^\.claude\/agents\/(.+\.md)$/);
-  if (match) return `plugins/second-brain/agents/${match[1]}`;
   match = path.match(/^\.claude\/output-styles\/(.+\.md)$/);
   if (match) return `plugins/project-init/library/output-styles/${match[1]}`;
   match = path.match(/^\.claude\/hooks\/(.+)$/);
+  if (match && ["knowledge-session-start.mjs", "save-reminder.mjs"].includes(match[1])) {
+    return `${SECOND_BRAIN}/hooks/${match[1]}`;
+  }
   if (match) return `plugins/hooks-library/hooks/${match[1]}`;
-  match = path.match(/^\.claude\/references\/(.+\.md)$/);
-  if (match) return `${SECOND_BRAIN}/${match[1]}`;
   match = path.match(/^\.claude\/tools\/(.+)$/);
-  if (match) return `plugins/second-brain/tools/${match[1]}`;
+  if (match) return `${SECOND_BRAIN}/tools/${match[1]}`;
   return undefined;
 }
 

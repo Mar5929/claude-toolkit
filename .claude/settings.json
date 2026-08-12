@@ -4,9 +4,21 @@
     "CLAUDE_CODE_DISABLE_AUTO_MEMORY": "1"
   },
   "enabledPlugins": {
-    "second-brain@claude-toolkit": false
+    "second-brain@claude-toolkit": true
   },
   "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/knowledge-session-start.mjs\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
     "UserPromptSubmit": [
       {
         "hooks": [

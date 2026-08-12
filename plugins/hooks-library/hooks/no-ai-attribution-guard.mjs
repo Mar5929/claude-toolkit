@@ -14,18 +14,16 @@
  *
  * The owner's work must carry only their name, most of all in a client
  * repository. That makes a wrong pass worse than a wrong block here, which is
- * the opposite of how `memory-pr-hook` and `writing-guard` are tuned.
+ * the opposite of how `writing-guard` is tuned.
  *
  * This hook is machine-wide. It is registered in the user's own
  * `~/.claude/settings.json` and installed by the `machine-sync` skill, so it
  * covers every repository on the machine, including ones that were never set up
  * with the toolkit. Every other hook in this plugin is per-project.
  *
- * It reads INSIDE quotes and pasted-in text blocks, which is the reverse of
- * what `memory-pr-hook` does. That hook strips quoted text, because the command
- * name written inside a message is not a command. Here the quoted text IS the
- * thing being checked: the trailer lives in the commit message, and a commit
- * message is always quoted.
+ * It reads INSIDE quotes and pasted-in text blocks because the quoted text is
+ * the thing being checked: the trailer lives in the commit message, and a
+ * commit message is always quoted.
  *
  * What stops an ordinary commit being blocked by mistake. This repository
  * writes about the `Co-Authored-By: Claude` trailer in its own rules, tickets,

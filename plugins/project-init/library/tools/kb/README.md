@@ -281,6 +281,10 @@ project's own.
 | --- | --- |
 | `file_registry.py` | Walks an org's tree and records every file with its metadata type. |
 | `extractors/` | Turns those files into components and raw references: one generic pass over any metadata XML plus deep readers for the types carrying the real connections. |
+| `extractors/__init__.py`, `extractors/_kbpath.py` | Package boundary and path setup shared by extractor tests and command-line entry points. |
+| `extractors/interface.py`, `extractors/contracts.py`, `extractors/names.py` | Shared extractor contracts, result shapes, and canonical component names. |
+| `extractors/driver.py`, `extractors/generic.py`, `extractors/xmlutil.py` | Dispatch, generic XML extraction, and safe XML helpers used by every metadata reader. |
+| `extractors/analytics.py`, `extractors/apex.py`, `extractors/automation.py`, `extractors/data.py`, `extractors/flows.py`, `extractors/objects.py`, `extractors/security.py` | Deep readers for metadata families whose connections need type-specific handling. |
 | `extract.py` | Runs the extractors over an org and prints the coverage report. |
 | `resolver.py` | Turns each raw reference string into a real component id in the same org, or records why it could not. |
 | `resolve.py` | Runs the resolver over an org and prints the resolution report. |

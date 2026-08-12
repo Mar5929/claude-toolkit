@@ -1,14 +1,11 @@
 # second-brain plugin
 
-A production-ready Git-native project memory and knowledge system shared by
-Claude and Codex.
+One portable project-knowledge folder shared by Claude, Codex, Git, and an
+optional Obsidian vault.
 
-Second-brain v3 stores current specifications, discovery, and durable project
-knowledge as ordinary Markdown in the adopting repository. Git provides
-history, review, conflict detection, and recovery.
-
-**Setup: sets up a project.** Install once per machine, then each project opts
-in and gets its own `specs/`, `brainstorms/`, and `memory/` folders.
+**Setup: sets up a project.** New projects install it through `project-init`.
+Existing projects use `project-sync`, which begins with a read-only layout
+check and shows the owner every proposed move before anything changes.
 
 ## Install
 
@@ -16,200 +13,134 @@ in and gets its own `specs/`, `brainstorms/`, and `memory/` folders.
 /plugin install second-brain
 ```
 
-For a new project, `project-init` is the normal entry point. For an existing
-project, use `project-sync` so adoption begins with a read-only audit.
+The plugin keeps its established name so projects that already enable or
+disable `second-brain@claude-toolkit` do not need a settings rename.
+
+## What it installs
+
+```text
+knowledge/
+  .obsidian/
+    app.json
+  project.md
+  index.md
+  specs/
+  memory/
+    tags.md
+    context/
+    decisions/
+    domain/
+    knowledge/
+    operations/
+    planning/
+    references/
+  brainstorms/
+
+.claude/hooks/knowledge-session-start.mjs
+.claude/hooks/save-reminder.mjs
+.claude/tools/build-knowledge-index.mjs
+.claude/tools/knowledge-layout.mjs
+```
+
+The adopting project's root instructions receive a short route to
+`knowledge/project.md` and `knowledge/index.md`. Claude's `SessionStart` hook
+prints those two files. Codex receives the same read instruction through the
+root `AGENTS.md`; a project may also register the fail-open loader through its
+native Codex hook configuration when that host supports hooks.
+
+The project turns off Claude Code's private auto-memory. The committed Markdown
+files are the one shared truth.
 
 ## Skills
 
-- **second-brain** (`/second-brain`): explains, installs, audits, adopts,
-  reviews, and maintains the complete v3 system.
-- **remember** (`/remember`): drafts the real words for a clear owner-approved
-  request, has the memory verifier check every claim, shows the owner what will
-  be written, and saves it. It routes first: a statement about what the system
-  should do goes to `specs/`, everything else to the typed memory folders.
+- **second-brain** detects, installs, adopts, migrates, or explains the whole
+  system.
+- **remember** applies the four save filters, shows the owner the change and
+  why, then writes only approved words.
+- **recall** reads the project map and opens only the knowledge relevant to the
+  task.
+- **cleanup** reviews stale, repeated, conflicting, or misplaced knowledge and
+  proposes owner-approved repairs.
 
-## What v3 installs
+## What each folder owns
+
+- `knowledge/project.md`: what the project is, why it exists, what finished
+  looks like, its main workstreams and boundaries, who is involved, and where
+  active work is tracked.
+- `knowledge/specs/`: approved product or system behavior.
+- `knowledge/memory/`: durable context, decisions, domain language, project
+  conclusions, operations, planning, and external references.
+- `knowledge/brainstorms/`: raw exploration that is not approved truth.
+- `knowledge/index.md`: a generated map of specifications and memories.
+- `knowledge/.obsidian/`: one portable setting that keeps links relative and
+  updates Markdown links when Obsidian renames a file.
+
+Normal relative Markdown and Git remain authoritative. Obsidian is optional.
+The plugin installs no community Obsidian plugin and no Git synchronization.
+
+## Approval boundary
+
+Every proposal begins with `What I want to change` and `Why`, in plain bullets,
+before the exact words. Short saves are numbered in chat. Every specification
+and any large draft may be written to the current working branch for direct
+owner review. A branch draft is not approved truth and must not merge until the
+owner approves it.
+
+Nothing writes durable project knowledge automatically. Hooks remind and read.
+Helper agents may research, but they cannot approve a save.
+
+## Migration
+
+The installed layout tool has four modes:
 
 ```text
-.claude/rules/second-brain.md
-.claude/references/second-brain-reference.md
-.claude/agents/memory-verifier.md
-.claude/tools/memory-index-build.mjs
-.claude/tools/memory-shape-check.mjs
-brainstorms/README.md
-specs/README.md
-memory/README.md
-memory/context/README.md
-memory/planning/README.md
-memory/decisions/README.md
-memory/knowledge/README.md
-memory/references/README.md
-memory/domain/README.md
-memory/operations/README.md
+node .claude/tools/knowledge-layout.mjs detect [project-root] [--json]
+node .claude/tools/knowledge-layout.mjs plan [project-root] [--json]
+node .claude/tools/knowledge-layout.mjs apply [project-root] --approve <plan-hash>
+node .claude/tools/knowledge-layout.mjs review-retired [project-root] --output <empty-dir>
 ```
 
-`CLAUDE.md` and `AGENTS.md` receive the same compact project-memory map and
-route both agents to the canonical shared rule.
+Detection uses system signatures, not folder names. It reports `knowledge`,
+`flat-149`, `retired-v3`, `none`, `mixed`, or `unknown`.
 
-The complete schema installs as one coherent system. Project-specific areas
-such as `authentication/`, `billing/`, or `salesforce/` are created only when
-they are real areas in that project.
+`plan` never writes. A flat-layout plan checks targets, symlinks, and mapped
+Markdown links, and emits the hash required by `apply`. Apply moves documents
+without changing their bytes except for deterministic relative-link repair,
+discards the old generated index, and rebuilds the new one.
 
-## How information is organized
+Retired documents cannot be converted safely by guessing what an old `Basis:`
+line means for source, date, session, source file, and tags. `review-retired`
+therefore writes drafts and a manifest to a separate empty review directory.
+It never changes or finalizes the project. The owner resolves every placeholder
+before a later approved adoption pass.
 
-- `brainstorms/`: flat dated discovery and interviews, non-authoritative.
-- `specs/`: current approved behavior, organized by system area and capability.
-- `memory/context/`: durable circumstances and constraints.
-- `memory/planning/`: vision, roadmap, milestones, risks, and assumptions.
-- `memory/decisions/`: important choices and rationale.
-- `memory/knowledge/`: reusable non-obvious understanding.
-- `memory/references/`: useful sources and why they matter.
-- `memory/domain/`: business concepts, language, actors, and rules.
-- `memory/operations/`: operating, release, recovery, and support guidance.
+Mixed, partial, ambiguous, colliding, escaping, or dangling layouts stop with
+no project write.
 
-Work-tracker remains authoritative for tickets, status, blockers,
-relationships, handoffs, branches, pull requests, and landing proof. Raw
-meetings, transcripts, communications, deliverables, and source exports remain
-in the project's ordinary artifact scaffolding.
+## What is deliberately absent
 
-## Who does what
-
-**The main agent writes, and owns whether it is true.** It drafts the exact
-words, it saves them after the owner approves, and it never hands correctness to
-somebody else. That one sentence is the division of labour, written down here
-because it was never settled before and both sides assumed the other was
-checking.
-
-**The memory verifier checks, and never writes.** It has no Write or Edit tool.
-It confirms each claim against its stated source, flags anything nobody can
-confirm, and reports facts that already have a home. Then it stops.
-
-When the check runs, what the proposal looks like, and what counts as approval
-are all written in one place:
-`skills/second-brain/references/second-brain-rule.md`, under `Who may write, and
-who may not` and `When to run this`. This README does not restate them, because
-three slightly different wordings of the same rule is how they drifted apart
-before.
-
-Three things worth knowing without opening that file:
-
-- The check runs at the moment a pull request is opened. The pull request does
-  not wait for the owner's answer; it opens with the code in it and the approved
-  memory is added to the same branch before it is merged.
-- **Checking happens before the owner sees anything.** The owner is the one
-  person who cannot tell whether "nine months" should say "four days", so
-  nothing unchecked reaches them.
-- Asking the owner a yes-or-no question is not approval. They are shown the real
-  words that would be saved, already checked, not a table describing them.
-
-Two scripts do the mechanical part in about a second.
-`memory-index-build.mjs` builds each index's list of documents from the
-documents themselves, so a list cannot fall out of step with its folder.
-`memory-shape-check.mjs` confirms every document has a title, a one-sentence
-summary, a source line, an allowed folder, and an index entry. A failed shape
-check means the save is not finished.
-
-If an approved write fails, the task remains unfinished and the pull request
-does not merge as though it succeeded unless the owner explicitly waives it. A
-deferred proposal changes no durable document and creates no memory queue.
-
-Before a pull request containing specification or memory changes merges, the
-branch is brought current through the existing Git workflow. The main agent then
-invokes the verifier for a read-only comparison with the latest memory and
-indexes, sized to how big the change is. It reports duplicate canonical homes or
-conflicting current truth that parallel branches placed in different files,
-where Git cannot detect a text conflict. It performs no repair.
-
-A clear `remember this` request directly approves saving the identified content.
-An ambiguous request receives one focused question or a proposed durable
-takeaway.
-
-## Greenfield and brownfield use
-
-Greenfield setup proposes the complete core plus only the known project system
-areas, then offers an initial memory pass and `grill-me`.
-
-Brownfield adoption starts read-only. Existing documents are classified as:
-
-1. keep and link;
-2. move with approval;
-3. consolidate with approval; or
-4. leave unresolved.
-
-The audit distinguishes observed behavior, inference, owner-confirmed intent,
-and unknowns whenever confusing them could mislead future work.
-
-## What v3 does not use
-
-- database, Worker, or hosted memory service;
-- memory MCP server;
-- embeddings or semantic search;
-- hooks or scripts that capture, recall, place, or write memory;
-- transcript or per-message capture;
-- background, scheduled, or autonomous curation;
-- deterministic classification or approval parsing;
-- mandatory YAML, tags, sources, aliases, or fixed proposal counts; or
-- automatic Git, pull-request, merge, or deployment actions.
-
-A hook from the `hooks-library` plugin may enforce a rule or start the durable
-review at a completion point. That is the hook doing the remembering an agent
-skips. The owner still approves every proposal, and every proposal is still
-checked by the memory verifier before they see it. An owner-invoked `grill-me`
-session writes only its raw, non-authoritative brainstorm checkpoints and index
-entry.
-
-## Archived v1
-
-The previous Worker, Neon, MCP, curator, hook, outbox, and cache system remains
-retired. Its content is not a v3 migration source or current truth.
-
-One thing that lived in this plugin was never part of v1 and is not retired: the
-Salesforce dependency graph. It only ever read local metadata files, so it
-survived v1's retirement and now ships with `project-init`, at
-`plugins/project-init/library/guides/salesforce-dependency-graph.md`.
-It is not part of second-brain and never depended on it. It is not in the
-archive.
-
-All other v1 source has been removed from the installable plugin and
-consolidated in
-[`archive/second-brain-v1/`](../../archive/second-brain-v1/README.md) for
-historical inspection. Brownfield adoption may report committed local v1 wiring
-and separately offer local deactivation or approved removal. It never contacts
-cloud resources or reads legacy memory.
+- the retired memory verifier;
+- the retired large always-loaded memory rule;
+- the retired shape checker and per-folder indexes;
+- a database, embeddings, or memory server;
+- automatic transcript capture or background curation;
+- Obsidian-only wikilinks, canvases, Bases, community plugins, or Git plugins;
+- a private note store outside the repository.
 
 ## Verification
 
-Run:
-
 ```text
-node plugins/second-brain/tests/v3-harness.mjs
+node plugins/second-brain/tests/knowledge-harness.mjs
 node plugins/second-brain/tests/retirement-harness.mjs
-node tests/link-check.mjs
-claude plugin validate .
 ```
 
-The v3 harness assembles a temporary greenfield project, verifies the complete
-core and Claude/Codex route parity, checks brownfield guidance, and removes the
-fixture. It does not change a real project.
-
-`link-check.mjs` belongs in this list because this plugin is the one that tells
-writers to link to a canonical home instead of copying it. That instruction is
-only safe while the links resolve.
-
-## Canonical design
-
-This README, the shipped rule at
-[`skills/second-brain/references/second-brain-rule.md`](skills/second-brain/references/second-brain-rule.md),
-its longer companion
-[`second-brain-reference.md`](skills/second-brain/references/second-brain-reference.md),
-the agent at [`agents/memory-verifier.md`](agents/memory-verifier.md), and the
-two scripts under [`tools/`](tools/) are the design. There is no separate design
-document set. Issue #144 deleted the one that existed, because a second
-description of the same system is a second thing to keep in step, and it had
-already drifted.
+The knowledge harness builds temporary projects for every detector state,
+checks greenfield assets, runs flat migration, tests link repair and failures,
+creates retired review drafts, exercises both hooks, and removes every fixture.
 
 ## Maintaining this plugin
 
-A content change bumps both plugin manifests and the marketplace metadata
-version. Keep this README, the top README, `docs/toolkit-map.md`,
-`project-init`, `project-sync`, `grill-me`, and the v3 specification aligned.
+A content change updates both plugin manifests and the marketplace metadata.
+Keep the three consuming workflows aligned: `project-init`, `project-sync`, and
+this plugin. The project specification is the behavior authority; the package
+is its portable implementation.

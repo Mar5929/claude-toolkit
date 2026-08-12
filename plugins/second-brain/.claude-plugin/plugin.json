@@ -1,7 +1,7 @@
 {
   "name": "second-brain",
-  "description": "Git-native Markdown memory and knowledge for Claude and Codex, with natural stopping-point reviews, a read-only verifier that checks every claim before the owner sees it, and a pre-merge parallel-memory check.",
-  "version": "2.0.0",
+  "description": "One Git-native project knowledge folder for Claude, Codex, and optional Obsidian, with owner-approved saves, generated startup context, and safe layout migration.",
+  "version": "3.0.0",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com"

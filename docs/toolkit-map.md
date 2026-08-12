@@ -17,10 +17,10 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | Plugin | Purpose | Skills | Install | Setup |
 |---|---|---|---|---|
 | [project-init](../plugins/project-init/README.md) | Put the toolkit's rules and systems into a project, new or existing, and the machine-wide ones onto the computer itself | `project-init`, `project-sync`, `machine-sync` | `/plugin install project-init` | Sets up a project, and sets up a machine |
-| [second-brain](../plugins/second-brain/README.md) | Git-native Markdown specifications and durable memory shared by Claude and Codex | `second-brain`, `remember` | `/plugin install second-brain` | Sets up a project |
+| [second-brain](../plugins/second-brain/README.md) | Portable Git-native project knowledge shared by Claude, Codex, and optional Obsidian | `second-brain`, `remember`, `recall`, `cleanup` | `/plugin install second-brain` | Sets up a project |
 | [sf-architect-solutioning](../plugins/sf-architect-solutioning/README.md) | Salesforce solution architect: approved solution plan before any build | `sf-architect-solutioning` | `/plugin install sf-architect-solutioning` | Install and go |
 | [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git lifecycle workflows | `pull-latest`, `reset-to-remote`, `merge-and-clean-up` | `/plugin install git-workflows` | Install and go |
-| [hooks-library](../plugins/hooks-library/README.md) | Hooks that make a rule land mechanically instead of restating it: `style-reminder` re-states the output style every message, `writing-guard` checks the finished reply, `memory-pr-hook` starts the memory check when a pull request opens, `no-ai-attribution-guard` refuses a commit or pull request that credits an AI | `hooks-library` | `/plugin install hooks-library` | Wires into settings |
+| [hooks-library](../plugins/hooks-library/README.md) | Reusable style, writing, Git-attribution, and Salesforce deployment hooks; system-specific knowledge hooks stay with second-brain | `hooks-library` | `/plugin install hooks-library` | Wires into settings |
 | [grill-me](../plugins/grill-me/README.md) | Persistent discovery interviews that checkpoint every answer | `grill-me` | `/plugin install grill-me` | Install and go |
 | [work-tracker](../plugins/work-tracker/README.md) | Git-authoritative backlog, handoffs, relationships, landing proof, and optional GitHub Projects | `work` | `/plugin install work-tracker` | Sets up a project |
 | [session-summary](../plugins/session-summary/README.md) | Recap one session as a table row per main request, each with an honest status, plus a block for whatever still needs the owner | `session-summary` | `/plugin install session-summary` | Install and go |
@@ -34,8 +34,10 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | project-init | project-init | Walk a NEW project through setup gates, one skippable step at a time | `/project-init` |
 | project-sync | project-init | Audit an EXISTING project against the toolkit and close approved gaps | `/project-sync` |
 | machine-sync | project-init | Audit THIS COMPUTER's `~/.claude/` against the toolkit's machine-wide set and close approved gaps. Also the whole setup for a new computer | `/machine-sync`, "set up this machine from my toolkit" |
-| second-brain | second-brain | Explain, install, audit, adopt, review, and maintain the complete v3 system | `/second-brain` |
-| remember | second-brain | Draft the real words, have `memory-verifier` check them, show the owner, then save, routing what the system should do to `specs/` and everything else to memory | `/remember`, "remember this" |
+| second-brain | second-brain | Explain, install, audit, migrate, and maintain the complete project knowledge system | `/second-brain` |
+| remember | second-brain | Apply the four save filters, show the owner the exact proposed words, save only what is approved, and rebuild the knowledge index | `/remember`, "remember this" |
+| recall | second-brain | Start from the project map and retrieve only the specifications and memories relevant to the task | `/recall`, "what does the project know about this?" |
+| cleanup | second-brain | Review stale, conflicting, repeated, or misplaced project knowledge through the same owner-approval flow | `/cleanup`, "clean up project knowledge" |
 | sf-architect-solutioning | sf-architect-solutioning | 5-phase Salesforce solutioning to an approved plan | `/sf-architect-solutioning` |
 | pull-latest | git-workflows | Get current with the remote without rewriting or discarding | `/pull-latest` |
 | reset-to-remote | git-workflows | Hard-reset a repo to mirror the remote, safely gated | `/reset-to-remote` |
@@ -43,7 +45,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | grill-me | grill-me | Stress-test an idea one question at a time and preserve every answer | `/grill-me`, "grill me" |
 | work | work-tracker | Manage local work items and their optional GitHub Issues and Project mirror | `/work`, "add this to the backlog", "what should I work on next?" |
 | session-summary | session-summary | Table every request the owner made in a session, in their words, each with a status, then say what still needs them | `/session-summary`, "summarize this session", "what did I ask for?" |
-| handoff | handoff | Run the memory check, save what the owner approves, draft a prompt for a fresh session that opens with the goal and carries whatever was not saved, then have `handoff-verifier` check it before the owner sees it. `/handoff check` runs that check on its own against a prompt from anywhere | `/handoff`, `/handoff check`, "write a handoff", "I'm going to clear context" |
+| handoff | handoff | Invoke the project's remember workflow when available, then draft a fresh-session prompt that opens with the goal, carries anything unsaved, and is checked against the repository | `/handoff`, `/handoff check`, "write a handoff", "I'm going to clear context" |
 | explain-simply | explain-simply | Re-explain the last answer or a named file as short bullets, simplifying the wording and never the facts | `/explain-simply`, "explain that like I'm five", "put that in plain bullets", "simpler" |
 
 ## The library: what lands in a project
@@ -78,9 +80,9 @@ in the short `CLAUDE.md` inside each major folder, which Claude Code loads only
 when an agent reads a file in that folder. `project-sync` audits the folder
 files against the second one.
 
-Every hook in the toolkit lives in
-[`hooks-library`](../plugins/hooks-library/README.md), including the two
-Salesforce guards and their install guides, and the one machine-wide hook.
+Reusable hooks live in [`hooks-library`](../plugins/hooks-library/README.md),
+including the two Salesforce guards and the machine-wide Git-attribution guard.
+Second-brain ships its two system-specific lifecycle hooks beside its runtime.
 
 ## The machine-wide set: what lands on a computer
 
@@ -147,13 +149,12 @@ These are not duplicated here. Go to the index that owns them:
   policy file `templates/protected-orgs.json`.
 - **MCP tool rules** (per-server, conditional):
   `plugins/project-init/library/guides/mcp-best-practices.md`.
-- **second-brain v3 runtime sources**:
-  `second-brain-rule.md`, `second-brain-reference.md`, `folder-layout.md`,
-  `markdown-schemas.md`, `orientation-snippet.md`, `adoption-guide.md`, and
-  `templates/` under `plugins/second-brain/skills/second-brain/references/`,
-  plus the `memory-verifier.md` role under `plugins/second-brain/agents/` and
-  `memory-index-build.mjs` and `memory-shape-check.mjs` under
-  `plugins/second-brain/tools/`.
+- **Project knowledge runtime sources**: the four skills under
+  `plugins/second-brain/skills/`, the startup and pull-request hooks under
+  `plugins/second-brain/hooks/`, the generated-index and migration tools under
+  `plugins/second-brain/tools/`, and the new-layout templates referenced by the
+  setup skill. The [plugin README](../plugins/second-brain/README.md) is the
+  canonical package description.
 - **Archived second-brain v1**:
   [archive/second-brain-v1/README.md](../archive/second-brain-v1/README.md)
   indexes the retired Worker, Neon, MCP, curator, hook, and knowledge-backfill
@@ -168,23 +169,14 @@ These are not duplicated here. Go to the index that owns them:
   not installation, deployment, export, or migration guidance. The old Worker
   has no default deploy path. The dependency graph is NOT archived: it outlived
   v1 and ships from `project-init` (see below).
-- **Shipped second-brain v3**: the
-  [plugin README](../plugins/second-brain/README.md) describes it, and the
-  shipped rule, its routing reference, the agent file, and the two scripts under
-  `plugins/second-brain/` are the only description of it. There is no separate
-  design document set: issue #144 deleted it, because a second description of
-  the same system is a second thing to keep in step. V3 separates flat dated
-  brainstorms, area-based capability specifications, seven typed memory homes,
-  and work-tracker
-  authority. At completion points and natural stopping points after meaningful
-  work, the main agent drafts the exact words with a source on every claim, has
-  the read-only `memory-verifier` check them before the owner sees anything,
-  shows the owner the real text, and writes the approved ones itself in the task
-  worktree. Two scripts then rebuild the indexes and check each document's
-  shape. `memory-verifier` runs again before a merge, sized to the change, to
-  catch parallel semantic duplicates or conflicts. The plugin ships the
-  canonical rule, its routing reference, the role, the two scripts, templates,
-  setup, sync, and remember workflows.
+- **Shipped project knowledge package**: the
+  [plugin README](../plugins/second-brain/README.md) describes one `knowledge/`
+  vault with a short project overview, one generated index, approved
+  specifications, seven typed memory homes, and unchecked brainstorms. The
+  owner sees every durable change before it becomes current truth. The package
+  ships three focused knowledge workflows plus setup and safe migration. Its
+  startup hook reads only the map, its pull-request hook only reminds, and no
+  hook or helper agent writes or approves knowledge.
 - **Superseded second-brain v2 proposal**: deleted by issue #144, along with the
   v3 design documents. It was a proposal that was never built, and its numbered
   units and requirements were never inherited by v3. Git history has it.
@@ -221,20 +213,21 @@ The genuine watch-items are called out at the end.
   project has, a session reads one rule with that name.
 - **The dependency graph versus written knowledge.** The graph answers what
   connects to what, mechanically, rebuilt from the code every time, so it cannot
-  be wrong about structure and cannot record intent. Written knowledge (v3's
-  `memory/knowledge/`) answers why, and can be wrong the moment code changes,
+  be wrong about structure and cannot record intent. Written project knowledge
+  (`knowledge/memory/knowledge/`) answers why, and can be wrong the moment code
+  changes,
   which is what the freshness hook and its drift file exist to catch. Neither
   replaces the other, and a project can install the graph without installing
   second-brain at all.
-- **Archived second-brain v1 versus v3.** The repository archive preserves the
-  old implementation for historical inspection. The installable second-brain
-  plugin contains only v3. Project-sync may recognize old local wiring, but it
+- **Archived second-brain v1 versus the current package.** The repository
+  archive preserves the old implementation for historical inspection. The
+  installable second-brain plugin contains only the current Markdown vault.
+  Project-sync may recognize old local wiring, but it
   does not use the archive as a migration source.
-- **second-brain versus remember.** `second-brain` owns complete setup,
-  brownfield adoption, explanation, completion review, and maintenance.
-  `remember` is the focused entry point when the owner already knows what
-  should be saved. Both use the same canonical rule and the same draft, check,
-  approve, save flow, so there is no quick-write store or competing schema.
+- **second-brain versus its focused skills.** `second-brain` owns setup,
+  migration, explanation, and audit. `remember` saves owner-approved truth,
+  `recall` retrieves it, and `cleanup` maintains it. They use one vault and one
+  approval boundary, so there is no competing quick-note store.
 - **work-tracker versus the older work-items tree.** Not two trackers.
   work-tracker is the executable extension of the same four-stage convention.
   It adopts existing `SPEC.md`, `STATUS.md`, and notes in place, adds
@@ -242,9 +235,9 @@ The genuine watch-items are called out at the end.
   index as a generated view. The six structured statuses distinguish Backlog
   from Ready and In Progress from In Review without creating another folder
   hierarchy.
-- **work-tracker versus second-brain v3.** work-tracker owns task status,
+- **work-tracker versus project knowledge.** work-tracker owns task status,
   blockers, work-item relationships, branch and pull-request evidence, and the
-  current handoff. V3 may link specifications and durable memory to a work-item
+  current handoff. Project knowledge may link specifications and durable memory to a work-item
   folder, but it does not copy or overrule task status.
 - **work-tracker versus GitHub Projects.** Two different things share the word
   "Project". work-tracker's optional adapter creates or updates repository issues
@@ -280,27 +273,12 @@ The genuine watch-items are called out at the end.
   trigger a process agents forget or orient a session at its start, and neither
   of those checks anything. The three jobs and their separate bars are in
   [`hooks-library`](../plugins/hooks-library/README.md).
-- **hooks-library versus second-brain v3.** V3 was originally written as a
-  system with no hooks anywhere, which conflated two different promises.
-  Nothing may write memory automatically, and that still holds; v1 was retired
-  for breaking it. But enforcing a rule is not writing memory. A hook that makes
-  an agent read the memory rule, or that starts the memory check at a completion
-  point, serves the approval promise rather than breaking it. The memory core
-  still ships no hooks of its own, so anything hook-shaped comes from
-  `hooks-library` and passes through Gate 2.
-- **memory-pr-hook versus the memory rule it fires.** `memory-pr-hook` looks
-  like it belongs to second-brain and does not. It knows four things: a pull
-  request is about to open, this project checks what to save to memory first,
-  the rule is `wrap-up-ritual.md`, and what was found goes in the pull request
-  description. It holds no memory types, no destinations, no list of words that
-  decides what is worth saving, and no check for whether any memory system is
-  installed, which is why it works unchanged in a project that has none. All the
-  judgement stays with the agent and all the wording stays in the rules, so it
-  still passes the library's own admission test: the firing needs no judgement,
-  and what happens next needs plenty. The counter-example is in the ticket that
-  produced it: davis-advisors-sfdc built a memory hook with 46 text patterns
-  deciding what mattered, and its own log shows it firing on helper agent output
-  instead of on the owner's words.
+- **hooks-library versus project knowledge.** The general hook library owns
+  reusable guards and reminders. Second-brain owns its two project-knowledge
+  lifecycle hooks because their commands and messages are part of installing
+  that system. The startup hook reads only the two map files, and the
+  pull-request hook only pauses for the owner-approved `remember` review. Neither
+  writes knowledge.
 - **git-workflows versus the parallel-agent-sessions rule.** The rule states the
   behavior ("assume other sessions share the repo"); the three skills are the
   safe git commands that carry it out. Different layers, not duplicates. That
@@ -309,11 +287,11 @@ The genuine watch-items are called out at the end.
   explaining they were not the other, and both stated "one session, one worktree,
   one branch" and "do not fix a dirty tree, tell the owner".
 - **grill-me versus work-item and memory files.** `grill-me` owns raw discovery
-  notes in a flat, dated `brainstorms/` collection. Each brainstorm links to
+  notes in a flat, dated `knowledge/brainstorms/` collection. Each brainstorm links to
   every resulting specification without being copied into system-area folders.
   A work item's `SPEC.md` and `STATUS.md` own that ticket's approved scope and
   readable handoff, while `ITEM.json` owns structured task state. Top-level
-  `specs/` owns durable current behavior and second-brain owns durable project
+  `knowledge/specs/` owns durable current behavior and second-brain owns durable project
   knowledge. The brainstorm may inform those artifacts but does not replace
   them.
 - **handoff versus session-summary.** Both run at the end of a session and they
@@ -334,7 +312,7 @@ The genuine watch-items are called out at the end.
   the assistant. `explain-simply` is the escape hatch for the times that was not
   enough, on material that is technical by nature. It reads the active output
   style before writing, so it plainly restates rather than switching voice.
-- **handoff versus memory-pr-hook.** Same job at two different moments, solved
+- **handoff versus the second-brain pull-request reminder.** Same job at two different moments, solved
   two different ways, and the difference is not a preference. `gh pr create` is
   a bare terminal command carrying no instructions, so it needs a hook to
   interrupt it. `/handoff` is a slash command, and a slash command loads its own
@@ -348,32 +326,25 @@ The genuine watch-items are called out at the end.
   project, including one that never installs memory. In that project the memory
   step is skipped and everything worth keeping goes into the prompt. It contains
   no memory types, no destinations, and no rule about what is worth keeping;
-  those stay with the project's own rules. Same boundary `memory-pr-hook` keeps.
-- **handoff-verifier versus memory-verifier.** Two read-only checking agents
-  that look alike and guard different things.
-  `plugins/second-brain/agents/memory-verifier.md` checks words that are about
-  to be written into `specs/` or `memory/` and stay there, so it also asks where
-  a document should be filed and whether something already owns that truth.
-  `plugins/handoff/agents/handoff-verifier.md` checks a handoff prompt that is
-  about to be pasted into a fresh session and then thrown away, so it asks
-  instead whether the overarching goal is present and whether facts inherited
-  from an earlier handoff still hold. `handoff` deliberately does not depend on
-  `memory-verifier`, for the same reason it does not depend on the rest of
-  second-brain: it has to work in a project that never installed memory.
-- **session-summary versus work-tracker and the wrap-up ritual.** All three
+  those stay with the project's own knowledge system. The pull-request reminder
+  keeps the same boundary.
+- **handoff-verifier versus project-knowledge approval.** The handoff verifier
+  checks a temporary prompt against the repository before the owner sees it.
+  Durable project knowledge uses direct owner approval instead of a verifier
+  agent. Handoff still works in projects that never install second-brain.
+- **session-summary versus work-tracker and durable review.** All three
   answer some version of "where do things stand", but for different scopes and
   audiences. `session-summary` is a read-only view of one conversation, written
   around the owner's own requests as a table, ending in whatever still needs
   them, and it writes nothing. `work-tracker` owns
   durable ticket state that outlives the chat, so a request worth keeping goes
-  there rather than into a summary. The `wrap-up-ritual` rule is the moment that
-  says to update those durable records at the end of substantial work. The
+  there rather than into a summary. The `remember` review is the moment that
+  proposes durable project knowledge at the end of substantial work. The
   summary is what the owner reads; the tracker is what the next session reads.
 - **The session-continuity rule cluster.** Several general rules touch "do not
   lose context across sessions", which can read as overlap: `keep-claudemd-current`
   (write durable facts into CLAUDE.md, and route everything that is not a rule
-  out of it so the file stays readable), `wrap-up-ritual` (update the status or
-  handoff doc and commit), `offer-context-handoff` (hand a fresh session a
+  out of it so the file stays readable), `offer-context-handoff` (hand a fresh session a
   self-contained prompt), `work-item-folders` (use work-tracker and keep one
   canonical folder per item), `capture-the-thinking` (write the goal, why,
   requirements, edge cases, scenarios, and decisions into their canonical home
@@ -382,11 +353,10 @@ The genuine watch-items are called out at the end.
   completion review), and
   `steer-to-the-goal` (preserve a goal that outlasts one chat). Each targets a
   distinct moment, so they compose
-  rather than repeat. V3's shared rule owns the approved-completion durable
+  rather than repeat. The second-brain skills own the approved-completion
   knowledge review. `capture-the-thinking` is the standing obligation the others
-  assume: `work-item-folders` owns the containers and their fields, the v3
-  second-brain rule owns the durable homes and who may write them,
-  `wrap-up-ritual` owns the review at the end, and `capture-the-thinking` owns
+  assume: `work-item-folders` owns the containers and their fields, second-brain
+  owns the durable homes and approval boundary, and `capture-the-thinking` owns
   the during, which is the moment all three otherwise leave uncovered.
   `keep-claudemd-current` names the status doc, the design doc, and long-term
   memory as destinations for detail that does not belong in CLAUDE.md, but it
@@ -417,13 +387,13 @@ The genuine watch-items are called out at the end.
   fixed at this level. `follow-the-output-style` tells a helper agent to read
   the style file before writing anything the owner will read, and an agent that
   writes something the owner reads carries the rules in its own definition,
-  which is what the "How to write your report" section in `memory-verifier.md`
-  is.
+  which is why every helper-agent definition that writes owner-facing prose must
+  carry those writing rules itself.
 - **sf-architect-solutioning versus the Salesforce rules versus the dependency
   graph.**
   sf-architect decides what to build; the `salesforce-rules` install standing
   safety and workflow rules; the dependency graph answers impact questions
-  about the metadata that already exists. V3 may link to that evidence but does
+  about the metadata that already exists. Project knowledge may link to that evidence but does
   not require or own the analysis tool. Three different jobs on the same stack.
 
 ### Genuine watch-items (revisit these)
@@ -434,12 +404,12 @@ The genuine watch-items are called out at the end.
   retirement. Its source is consolidated in the
   [v1 archive](../archive/second-brain-v1/README.md) outside active plugins. Do
   not install it in a new project. The shipped
-  [second-brain v3](../plugins/second-brain/README.md) is a fresh Markdown-only
-  system and does not use that infrastructure.
+  [current second-brain package](../plugins/second-brain/README.md) is a fresh
+  Markdown-only system and does not use that infrastructure.
 - **Overlap with Claude Code's native memory.** Claude Code now ships an
   auto-memory feature that captures cross-session notes on its own (machine-local).
   It overlapped part of the legacy v1 capture system. Existing v1 projects
-  should deactivate the old automatic capture paths. V3 uses
+  should deactivate the old automatic capture paths. The current package uses
   project Markdown and does not require transcript capture.
 
 ## For an agent asked "what is X?"
@@ -478,6 +448,6 @@ file it ships to other projects, and the copy in `.claude/rules/` that governs
 the session editing it. Change one and forget the other and the toolkit starts
 telling other projects one thing while doing another, and every other test still
 passes. It also checks that the block both root instruction files carry is the
-same in each, and that the memory routing in them still matches the
-second-brain plugin's `orientation-snippet.md`. Run it with
+same in each, plus the project-local second-brain runtime copies against the
+files the plugin ships. Run it with
 `node tests/installed-copy-check.mjs`.

@@ -1,7 +1,7 @@
 {
   "name": "grill-me",
   "description": "Relentless discovery interview skill that asks one question at a time and checkpoints every answer to a durable brainstorm file before continuing.",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com"

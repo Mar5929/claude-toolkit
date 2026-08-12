@@ -10,8 +10,8 @@ TEMPLATE. Copy into the project as its operating runbook, then:
      (usually force-app/main/default).
   3. Fill in the "Verified on this org" section by running the check below.
   4. Delete this comment.
-Where it goes: memory/operations/salesforce-permissions/README.md when the
-project uses the second-brain layout, otherwise docs/ or engagement/deployment/.
+Where it goes: knowledge/memory/operations/salesforce-permissions.md when the
+project uses project knowledge, otherwise docs/ or engagement/deployment/.
 Keep it next to whatever the project already uses for operating procedures.
 -->
 

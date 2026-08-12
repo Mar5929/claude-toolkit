@@ -17,3 +17,8 @@ __pycache__/
 # Claude Code local state (never commit session-local files)
 .claude/settings.local.json
 .claude/worktrees/
+
+# Obsidian local state (only the portable vault settings are shared)
+**/.obsidian/**
+!knowledge/.obsidian/app.json
+!plugins/second-brain/skills/second-brain/references/templates/knowledge/.obsidian/app.json

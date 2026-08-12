@@ -34,8 +34,8 @@ Ten to twenty lines. Three things:
 - **Anything Codex must always know.** Codex reads `AGENTS.md` and nothing else.
   It never reads any `CLAUDE.md`, root or nested. So everything Codex needs
   stays in the root `AGENTS.md` in full, including any detail that left the root
-  `CLAUDE.md` for a folder file. The two root files are allowed to differ below
-  the shared section for exactly this reason.
+  `CLAUDE.md` for a folder file. The two root files are allowed to differ for
+  exactly this reason.
 - **A second copy of a `README.md` index.** The README stays the one index. The
   folder file points at it and never repeats it, so the two cannot drift apart.
 - **Live status.** Current phase, next action, and open work belong in the work
@@ -65,6 +65,9 @@ considered skip from an oversight.
 - **`.claude/` and everything under it.** Its rules, hooks, output styles, and
   agents already reach a session through their own mechanisms, and
   `.claude/rules/README.md` indexes the rules folder.
+- **`knowledge/` and everything under it.** Its root startup routes and
+  project-knowledge specification already own the vault contract. Adding a
+  folder instruction file there would create a second authority.
 - **A folder another plugin creates and indexes.** That plugin owns describing
   it. Leave it alone.
 - **A folder with an obvious name and no conventions to state.** A file that

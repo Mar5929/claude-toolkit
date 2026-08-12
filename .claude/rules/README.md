@@ -33,18 +33,15 @@ every other project receives.
 
 | File | Why not |
 |---|---|
-| `second-brain.md` | It is the memory rule for second-brain v3, which this repo replaced in August 2026 with the system in `specs/memory-system.md`. The four always-loaded lines in `CLAUDE.md` and `AGENTS.md` and the `remember`, `recall`, and `cleanup` skills under `.claude/skills/` do that job now. Other projects still run second-brain v3, so the toolkit still ships it. |
-| `wrap-up-ritual.md` | Same reason. It is the second-brain v3 save ritual, and it tells the session to invoke the `memory-verifier` agent, which this repo no longer has. `specs/memory-system.md` names the three moments a save runs, and `.claude/hooks/save-reminder.mjs` raises the one that is easy to miss. |
+| `second-brain.md` | It belonged to the retired large second-brain system. The short route in `CLAUDE.md` and `AGENTS.md`, the policy in `knowledge/specs/memory-system.md`, and the packaged `remember`, `recall`, and `cleanup` skills replace it without loading the full policy every session. |
+| `wrap-up-ritual.md` | It belonged to the retired save ritual and invoked the deleted verifier. The current policy names the natural save moments, and `.claude/hooks/save-reminder.mjs` raises the pull-request moment that is easy to miss. |
 | `work-item-folders.md` | It governs the Git-native work-tracker, one folder per work item in the repository. Work here is tracked on the `Claude-Toolkit-Project` board on GitHub, so there are no work-item folders for the rule to govern. |
 | `dependency-graph.md` | It is conditional on a code graph being installed. No graph is installed here, and the graphify kit was considered and declined. |
 
-One section of a rule this repo does carry is dead here.
-`keep-claudemd-current.md` has a section called "The memory section: keep all
-three copies in step", about copying second-brain v3's routing into `CLAUDE.md`
-and `AGENTS.md` from the second-brain plugin's `orientation-snippet.md`. There
-are no three copies here any more, and no `host-specific` passage. Ignore that
-section and the sentences around it that mention the memory verifier. Everything
-else in that file still holds, including the size limit on `AGENTS.md`.
+`keep-claudemd-current.md` owns the small exception to its normal anti-copying
+rule: `CLAUDE.md` and `AGENTS.md` carry the same short project knowledge route.
+The full policy stays in `knowledge/specs/memory-system.md`; the root files do
+not copy it.
 
 `.claude/toolkit-sync.md` holds the same record, along with everything else that
 was set up, skipped, or declined.
