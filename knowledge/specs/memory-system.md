@@ -8,6 +8,10 @@ A chat session ends, but a project must not forget what it is building, why it m
 
 It also protects the project from the opposite failure: saving every interesting sentence until useful knowledge is buried in agent notes. A save has to pass four filters and the user sees what will change before it becomes current project truth.
 
+Every new agent starts as a stranger. The system therefore uses one small,
+fixed structure that tells it what a file means, what it may trust, and which
+current home it should read or update without needing an earlier chat.
+
 ## Who uses it
 
 - **The project owner** wants the project to remember the right things, wants every durable change to remain reviewable in Git, and may browse the same files in Obsidian.
@@ -69,6 +73,13 @@ At the start of every main-agent session:
 3. open only the specification or memory files relevant to the task; and
 4. treat `knowledge/brainstorms/` as unchecked source material.
 
+The startup route also carries one short principle:
+
+> Keep project knowledge small: save stable facts, lasting events, decisions,
+> or states that prevent repeated explanation or a wrong action. Put live
+> progress in the tracker, reusable procedures in skills, source material in
+> references, and past conversations in session history.
+
 Claude receives the two startup files through a fail-open project `SessionStart` hook. Codex receives the same instruction through the project's root `AGENTS.md` and, where native Codex hooks are available, the equivalent fail-open `.codex/hooks.json` registration. Startup never loads the whole vault and never writes anything.
 
 The root `CLAUDE.md` and `AGENTS.md` keep only a short route to this system. They do not copy this specification or the contents of `project.md`.
@@ -110,23 +121,57 @@ Every memory starts with this YAML vocabulary:
 
 ```yaml
 ---
-source: user-said-it
-date: 2026-08-11
-session: current-session
-tags: [project-knowledge]
+source: owner-paraphrase
+date: 2026-08-12
+session: unavailable
+tags:
+  - project-subject
 ---
 ```
 
 The allowed fields are:
 
-- `source:` exactly one of `user-said-it`, `read-from-file`, `agent-saw-it-happen`, or `agent-guess-unchecked`.
+- `source:` exactly one of `owner-quote`, `owner-paraphrase`,
+  `read-from-file`, `agent-observed`, or `agent-conclusion-unchecked`.
+  `owner-quote` means verbatim words. `owner-paraphrase` means the owner stated
+  the meaning but these are not presented as exact words.
 - `source-file:` the exact repository path, present only when `source: read-from-file`.
 - `date:` the save or last-change date in `YYYY-MM-DD` form.
-- `session:` enough information to trace the conversation or work session that produced the save. It is not a transcript copy.
-- `tags:` a short list chosen from `knowledge/memory/tags.md`. A new tag is approved with the save.
+- `session:` a retrievable reference to the conversation or work session that
+  produced the save. It is not a transcript copy. It says `unavailable` when no
+  retained reference exists.
+- `tags:` an Obsidian-compatible YAML list of one to three project-specific
+  subjects chosen from `knowledge/memory/tags.md`. A new tag and its
+  plain-language meaning are approved with the save.
 - `superseded-by:` the relative path of the current replacement, present only on retained history.
 
-The source value covers the file. A fact from another source is marked in the body where it appears. `agent-guess-unchecked` is a lead to verify, never truth a later agent may repeat.
+These six names are the complete property vocabulary. An agent never invents a
+new field silently. The source value covers the file. A claim from another
+source is marked beside that claim in the body so the file-level value does not
+give it false confidence. The fixed marker sits directly above the affected
+claim:
+
+```text
+> Claim source: read-from-file; path/to/source.md
+```
+
+The source value and retrievable trace after the semicolon change to match the
+claim. `agent-conclusion-unchecked` is a lead to verify, never truth a later
+agent may repeat.
+
+Tags describe subjects only. The folder already says whether a memory is a
+decision, context, domain language, project knowledge, an operation, planning,
+or a reference. The `source` value already says how its claims were obtained.
+A new project begins with an empty project tag vocabulary and never inherits
+the toolkit repository's tags.
+
+Before proposing tags, the agent reads the complete approved vocabulary and its
+usage counts. The owner sees only relevant existing tags, proposed tags, and
+warnings about a new or overlapping tag during a normal save. A full health
+review shows the complete vocabulary, counts, unused tags, and likely overlaps.
+Reusing a tag is the default. Nothing merges, renames, or removes tags without
+the owner's approval. More than 20 approved tags creates a health warning so
+the vocabulary is reviewed rather than silently pruned.
 
 Documents moved mechanically from the flat #149 layout are grandfathered in
 their existing approved shape. Migration does not invent a missing `session:`
@@ -142,21 +187,33 @@ One fact has one canonical home. Other files link to it instead of copying it. R
 
 `knowledge/index.md` is generated from Markdown files beneath `knowledge/specs/` and `knowledge/memory/`. It excludes itself, `project.md`, `memory/tags.md`, brainstorms, Obsidian settings, and empty-folder markers.
 
+It also excludes a retained memory carrying `superseded-by:`. Git and the
+health view preserve access to that history, but obsolete wording does not
+remain in the startup map as current truth.
+
 The generator extracts each file's H1 and first prose paragraph after YAML, groups entries by their folder, sorts them deterministically, and writes paths relative to `knowledge/index.md`. Missing titles fall back to readable file names. Empty roots are valid.
 
 Nobody edits the index by hand. The save flow rebuilds it after an approved change. The source files win if an index is stale.
 
-### Provide three skills and two small hooks
+### Provide three skills, three tools, and two small hooks
 
 The `second-brain` plugin ships:
 
 - `remember`, which applies the filters, finds the canonical home, obtains approval, writes the approved words, and rebuilds the index;
 - `recall`, which starts with `project.md` and the index, searches only as broadly as the task needs, and distinguishes current truth from brainstorms;
 - `cleanup`, which reviews stale, repeated, conflicting, or misplaced knowledge and uses the same approval rules before changing anything;
+- a read-only health tool that generates health, property, tag, and provenance
+  views from the current Markdown without committing another representation of
+  truth;
 - a read-only startup loader that prints `project.md` and `index.md` and fails open if either is missing; and
 - a pull-request reminder that asks the main agent to run `remember` but never writes or approves a save.
 
-The plugin does not ship a verifier agent, a large always-loaded memory rule, a shape checker, per-folder indexes, background capture, or automatic curation.
+The health tool checks mechanical facts such as allowed properties, source
+values, tag usage, repository paths, and replacement links. The agent reviews
+meaning, including stale or conflicting claims, repeated facts, and content
+that no longer passes the save filters. The plugin does not ship a verifier
+agent, a large always-loaded memory rule, an automatic shape gate, per-folder
+indexes, background capture, or automatic curation.
 
 Built-in private auto-memory is disabled in projects that adopt this system.
 
@@ -178,6 +235,16 @@ For every specification and for a large draft that is easier to review in contex
 Owner edits are accepted as the owner's words. An agent-derived claim remains visibly unchecked until the owner confirms it. Helper agents may research or review but cannot substitute for the owner's approval.
 
 The save runs only at a natural moment: when the owner asks to remember, before a pull request opens, before a handoff or context reset, or at another meaningful completion point with a settled durable result. It does not run after every response, commit, or small fix.
+
+Creating, editing, merging, moving, superseding, and removing are equal
+first-class memory actions. All use the same visible approval. Git keeps older
+wording, so obsolete wording does not remain current merely to preserve history.
+
+A full health review runs when the owner asks or after a memory migration. A
+focused review is offered when an approved save or project update check finds a
+concrete warning. Startup, ordinary saves without warnings, a calendar
+schedule, and age alone do not prompt a review. Cleanup proposes exact repairs
+and never changes durable knowledge in the background.
 
 ### Migrate existing projects without losing knowledge
 
@@ -203,10 +270,14 @@ Greenfield setup creates the exact new tree, asks the owner for the real `projec
 
 1. The main agent reads `knowledge/project.md` and `knowledge/index.md`, then searches current instructions, specifications, and memories for an existing owner.
 2. It applies the four save filters in order. If nothing passes, it says so briefly and writes nothing.
-3. It prefers editing the existing canonical file. If a new area, tag, or file is required, that is part of the proposal.
-4. It shows `What I want to change` and `Why`, then the exact draft in chat or the complete working-branch file.
-5. It waits for owner approval. A helper-agent report, hook, or earlier brainstorm cannot approve a save.
-6. It writes only the approved words, rebuilds `knowledge/index.md`, repairs relevant links, and reports the changed paths.
+3. It checks the complete project-specific tag vocabulary and usage counts.
+4. It prefers editing the existing canonical file. If a new area, tag, or file is required, that is part of the proposal.
+5. It shows `What I want to change` and `Why`, the relevant tags, source kind,
+   trace, and exact draft in chat or the complete working-branch file.
+6. It waits for owner approval. A helper-agent report, hook, or earlier brainstorm cannot approve a save.
+7. It writes only the approved words, rebuilds `knowledge/index.md`, repairs relevant links, and reports the changed paths.
+8. It runs a focused read-only health check. It finishes the approved save, then
+   offers cleanup only when the check found a concrete warning.
 
 ### Recalling
 
@@ -228,6 +299,13 @@ Greenfield setup creates the exact new tree, asks the owner for the real `projec
 - If `project.md` or the index is missing at startup, the loader reports the missing file and allows the session to continue. It never creates framing on the owner's behalf.
 - If two current files disagree, show the exact conflict and change neither until the owner chooses.
 - If saved knowledge disagrees with code or observed behavior, show both sources. Do not silently trust either one.
+- If a memory disagrees with a specification, show both. Treat the
+  specification as current approved behavior unless the owner approves changing
+  it.
+- If an older memory uses a retired source value or lacks a session reference,
+  report the exact repair and wait. Never silently relabel it.
+- If a memory is old but remains correct, leave it alone. Age is not evidence of
+  staleness.
 - If an external source and the project conclusion are mixed, propose linked `references/` and `knowledge/` files.
 - If a migration finds both a top-level `project.md` and an older planning file that could become the overview, stop for an owner choice.
 - If a migration finds a collision, ambiguous signature, dangling mapped link, or path outside the repository, make no writes.

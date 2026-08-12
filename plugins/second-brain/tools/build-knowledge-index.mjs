@@ -41,17 +41,25 @@ function markdownFilesUnder(vault, relativeDir, out = []) {
 function documentHead(text) {
   const lines = text.replace(/\r\n/g, "\n").split("\n");
   let cursor = 0;
+  let superseded = false;
 
   while (cursor < lines.length && lines[cursor].trim() === "") cursor++;
   if (lines[cursor]?.trim() === "---") {
     cursor++;
-    while (cursor < lines.length && lines[cursor].trim() !== "---") cursor++;
+    while (cursor < lines.length && lines[cursor].trim() !== "---") {
+      const replacement = lines[cursor].match(/^superseded-by:\s*(.*?)\s*$/)?.[1] ?? null;
+      if (replacement !== null) {
+        const unquoted = replacement.replace(/^(?:""|'')$/, "");
+        if (unquoted) superseded = true;
+      }
+      cursor++;
+    }
     if (cursor < lines.length) cursor++;
   }
 
   while (cursor < lines.length && lines[cursor].trim() === "") cursor++;
   const titleMatch = lines[cursor]?.match(/^#\s+(.+?)\s*$/);
-  if (!titleMatch) return { title: null, summary: null };
+  if (!titleMatch) return { title: null, summary: null, superseded };
   cursor++;
 
   while (cursor < lines.length && lines[cursor].trim() === "") cursor++;
@@ -65,7 +73,7 @@ function documentHead(text) {
     cursor++;
   }
 
-  return { title: titleMatch[1].trim(), summary: summary.join(" ") || null };
+  return { title: titleMatch[1].trim(), summary: summary.join(" ") || null, superseded };
 }
 
 function readableName(path) {
@@ -106,7 +114,8 @@ export function buildIndex(projectRoot = root) {
     for (const path of markdownFilesUnder(vault, sourceRoot)) {
       const absolute = resolve(vault, path);
       const text = readFileSync(absolute, "utf8");
-      const { title, summary } = documentHead(text);
+      const { title, summary, superseded } = documentHead(text);
+      if (sourceRoot === "memory" && superseded) continue;
       const folder = posix(dirname(path));
       const href = posix(relative(vault, absolute));
       if (!groups.has(folder)) groups.set(folder, []);

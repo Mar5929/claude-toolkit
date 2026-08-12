@@ -19,11 +19,11 @@
  *
  * Two things are checked.
  *
- * 1. Every tracked file under `.claude/` that has a shipped original matches it
- *    byte for byte, ignoring line endings. This repo runs the shipped rules
- *    unmodified on purpose: it is the test of what it ships. A file under
- *    `.claude/` with no known original and no exemption fails, so a new copy
- *    cannot be added without being checked.
+ * 1. Every tracked or new unignored file under `.claude/` that has a shipped
+ *    original matches it byte for byte, ignoring line endings. This repo runs
+ *    the shipped rules unmodified on purpose: it is the test of what it ships.
+ *    A file under `.claude/` with no known original and no exemption fails, so
+ *    a new copy cannot be added without being checked.
  *
  * 2. The block between the `shared-with-agents-md` markers is identical in
  *    `CLAUDE.md` and `AGENTS.md`, with no exceptions. Claude reads the first
@@ -32,8 +32,8 @@
  *
  * The root knowledge route is short enough to compare word for word. Host hook
  * wiring lives in settings files, outside the shared block. The project-local
- * index and startup scripts are also checked against the second-brain package
- * that other projects receive.
+ * index, layout, health, and startup scripts are also checked against the
+ * second-brain package that other projects receive.
  *
  * Run: node tests/installed-copy-check.mjs
  */
@@ -81,10 +81,14 @@ function read(path) {
   return readFileSync(resolve(root, path), "utf8").replace(/\r\n/g, "\n");
 }
 
-const tracked = execFileSync("git", ["ls-files", ".claude"], {
-  cwd: root,
-  encoding: "utf8",
-})
+const tracked = execFileSync(
+  "git",
+  ["ls-files", "--cached", "--others", "--exclude-standard", ".claude"],
+  {
+    cwd: root,
+    encoding: "utf8",
+  },
+)
   .split("\n")
   .map((line) => line.trim())
   .filter(Boolean);

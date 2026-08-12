@@ -122,6 +122,7 @@ claude-toolkit/
         save-reminder.mjs          ← pauses pull requests for the owner-approved review
       tools/
         build-knowledge-index.mjs  ← rebuilds the generated vault index
+        knowledge-health.mjs       ← reports fields, tags, sources, and warnings without writing
         knowledge-layout.mjs       ← detects and safely migrates older layouts
       skills/
         second-brain/             ← install, audit, migrate, and maintain the vault
@@ -204,7 +205,7 @@ claude-toolkit/
     rules/                        ← copies of the rules it ships, plus their index
     hooks/                        ← style, writing, startup, and save-reminder copies
     output-styles/                ← plain-language.md, selected in settings.json
-    tools/                        ← installed index builder and layout migrator
+    tools/                        ← installed index builder, health report, and layout migrator
     toolkit-sync.md               ← what was set up, skipped, or declined, and why
   knowledge/                      ← this repo's Markdown knowledge vault
     .obsidian/                    ← portable link settings only
@@ -247,7 +248,7 @@ inside a project folder before it is useful, which is what the last column says:
 | Plugin | What it does | Setup |
 |---|---|---|
 | **[project-init](plugins/project-init/README.md)** | Sets up or syncs a project. It asks where work is tracked, carries the ticket rules into that tracker, offers work-tracker, and installs or safely migrates the portable `knowledge/` vault when selected. For Salesforce projects it also ships permission-set and dependency-graph tools. `machine-sync` installs the rules, settings, and hooks that must hold across the computer. | Sets up a project, and sets up a machine |
-| **[second-brain](plugins/second-brain/README.md)** | A portable `knowledge/` vault for Claude, Codex, Git, and optional Obsidian: project framing and a generated startup map, approved specifications, seven typed memory homes, raw brainstorms, three focused skills, and safe migration from older layouts. | Sets up a project |
+| **[second-brain](plugins/second-brain/README.md)** | A portable `knowledge/` vault for Claude, Codex, Git, and optional Obsidian: project framing and a generated startup map, approved specifications, seven typed memory homes, project-specific tags, visible provenance, read-only health reports, raw brainstorms, three focused skills, and safe migration from older layouts. | Sets up a project |
 | **[sf-architect-solutioning](plugins/sf-architect-solutioning/README.md)** | A Salesforce solution architect: pushes back on vague requirements, verifies platform facts against official docs by live fetch, designs declarative-first to Well-Architected standards, and presents a solution plan for approval before any build. Salesforce projects only. | Install and go |
 | **[git-workflows](plugins/git-workflows/README.md)** | Three parallel-session-safe git lifecycle skills: `pull-latest` gets current without rewriting history, `reset-to-remote` mirrors the remote behind confirmation, and `merge-and-clean-up` lands an approved PR before removing only its completed workspace. | Install and go |
 | **[hooks-library](plugins/hooks-library/README.md)** | Reusable hooks that make a rule land mechanically: `style-reminder` restores the active output style, `writing-guard` rejects an em dash or section sign in a finished reply, `no-ai-attribution-guard` refuses AI credit in Git text, and two Salesforce guards protect production and permission-set deploys. System-specific knowledge hooks ship with second-brain. | Wires into settings |

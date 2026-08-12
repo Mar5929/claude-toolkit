@@ -144,7 +144,8 @@ plugin.
 ## How it relates to the rest of the toolkit
 
 - project-init is the **entry point that installs the other plugins' systems**.
-  Gate 3 offers the complete packaged `second-brain` project knowledge system.
+  Gate 3 offers the complete packaged `second-brain` project knowledge system,
+  including its read-only property, tag, provenance, and health reports.
   Gate 4 offers optional impact-analysis tools without creating a competing
   store.
 - Gate 6 offers the standalone `grill-me` interview workflow without copying it
