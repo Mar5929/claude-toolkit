@@ -1,0 +1,19 @@
+{
+  "description": "Load this project's overview and generated knowledge map at session start.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(git rev-parse --show-toplevel)/.claude/hooks/knowledge-session-start.mjs\"",
+            "commandWindows": "powershell -NoProfile -Command \"$root = git rev-parse --show-toplevel; node (Join-Path $root '.claude/hooks/knowledge-session-start.mjs')\"",
+            "timeout": 10,
+            "statusMessage": "Loading the project overview and knowledge map"
+          }
+        ]
+      }
+    ]
+  }
+}

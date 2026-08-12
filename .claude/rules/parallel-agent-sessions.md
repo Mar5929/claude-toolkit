@@ -61,8 +61,8 @@ If a file you did not write appears, unstage it.
 
 ## 4. Keep shared-file edits narrow
 
-Some files every session edits: backlog and dashboard views, the `README.md`
-indexes under `memory/`, `CLAUDE.md`, and `AGENTS.md`.
+Some files every session edits: backlog and dashboard views, the generated
+`knowledge/index.md`, `CLAUDE.md`, and `AGENTS.md`.
 
 For an ordinary addition, append the new entry without reordering or rewriting
 unrelated entries. Reordering turns a clean addition into a conflict and rewrites
@@ -73,7 +73,7 @@ Shared does not mean immutable. When an owner-approved change moves, replaces,
 supersedes, merges, or deletes durable material, the corresponding index entries
 may be updated with it. Keep that edit limited to the approved
 material and preserve unrelated entries. Before merge, follow the project's
-memory rule for its latest-state duplicate and conflict review.
+knowledge procedure for its latest-state duplicate and conflict review.
 
 Keep edits to shared status and handoff documents small and additive so parallel
 pull requests merge cleanly.

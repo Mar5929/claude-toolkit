@@ -8,8 +8,8 @@ so they always know where they are.
 [ ] Gate 0 - Orient: read the working dir; identify stack & project state
 [ ] Gate 1 - Scaffolding, folder structure, and where work items are tracked
 [ ] Gate 2 - Hooks (guards & automation)
-[ ] Gate 3 - Second-brain v3          (complete Markdown memory system)
-[ ] Gate 4 - Knowledge layer          (included with Gate 3, or skipped with it)
+[ ] Gate 3 - Project knowledge        (one Markdown vault, packaged tools)
+[ ] Gate 4 - Mechanical knowledge aids (optional impact analysis)
 [ ] Gate 5 - Root instructions + rules (thin CLAUDE.md and AGENTS.md)
 [ ] Gate 6 - Optional toolkit skills  (offer grill-me, session-summary, handoff)
 [ ] Wrap-up - summarize, note follow-ups, port-back reminder
@@ -30,8 +30,8 @@ so they always know where they are.
 - Write each major folder's own short `CLAUDE.md` at the same time as the
   folder, even when it starts empty. `folder-claudemd.md` says what goes in one,
   which folders get one, and which are skipped (any folder with a `README.md`
-  index, and everything under `.claude/`). Record every skip. Never a nested
-  `AGENTS.md`.
+  index, everything under `.claude/`, and the complete `knowledge/` tree).
+  Record every skip. Never a nested `AGENTS.md`.
 - Every stack, as its own question: "Where do you track work items for this
   project?" Offer a GitHub Projects board, Linear, Jira, files in this
   repository, or somewhere else / nothing yet. `work-tracking-choice.md` has the
@@ -65,7 +65,7 @@ so they always know where they are.
      `tools/permissions/README.md` pointing at the runbook. This is what verifies
      a file against the org and reports what a deploy would delete.
   3. `library/templates/permissions-runbook.md` as the project's own operating runbook
-     (`memory/operations/salesforce-permissions/README.md` under the second-brain
+     (`knowledge/memory/operations/salesforce-permissions.md` under the project-knowledge
      layout, otherwise `docs/`). Fill in its placeholders.
   4. The deploy guard hook, in Gate 2 below.
 
@@ -94,19 +94,16 @@ so they always know where they are.
 - What needs guarding or automating? (deploy/env guard, secret guard,
   session-start orientation, format/lint)
 - Confirm exact trigger + action per hook; tell the user how to verify it fires.
-- Every project: offer all three general hooks from `hooks-library`
-  (`/hooks-library`). All three are default ON.
+- Every project: offer both general hooks from `hooks-library`
+  (`/hooks-library`). Both are default ON.
   `style-reminder` re-states the project's output style every time the owner
   sends a message, so the voice instructions do not go stale in a long session.
   `writing-guard` reads the finished reply and blocks on an em dash or a section
   sign, so a slip is caught rather than shipped. Those two pair with Gate 5;
   skip them if the owner skips the style.
-  `memory-pr-hook` holds the command that opens a pull request, once per branch
-  per session, so the memory check happens at the moment it applies instead of
-  being remembered from session start. It needs neither the style nor a memory
-  system, so it goes in either way, but it does point at `wrap-up-ritual.md`:
-  install that rule alongside it, because a hook naming a missing file is a dead
-  end.
+  The project knowledge package owns its startup loader and pull-request save
+  reminder. Gate 3 installs both. Do not restore the retired
+  `memory-pr-hook` plus `wrap-up-ritual.md` route.
 - Salesforce / SFDX: both Salesforce guards ship from `hooks-library` alongside
   every other hook. Install that plugin (`/plugin install hooks-library`) and
   follow its two guides. It is needed only while setting them up: the install
@@ -126,22 +123,29 @@ so they always know where they are.
   in `hooks.Stop`, not with the two PreToolUse guards, and it lives inside
   `tools/kb/` because it imports the rest of the tool.
 
-**Gate 3: Memory system**
+**Gate 3: Project knowledge system**
 - Offer `second-brain` as one coherent opt-in system.
-- Explain brainstorm, specification, typed-memory, raw-artifact, work-tracker,
-  and Git authority.
-- Recommend real project system areas and show the complete core tree plus root
-  instruction edits.
+- Explain `knowledge/brainstorms/`, `knowledge/specs/`, typed
+  `knowledge/memory/`, raw-artifact, work-tracker, and Git authority.
+- Ask the owner what the project is, why it exists, what finished looks like,
+  its main workstreams and boundaries, who is involved, and where active work
+  is tracked. Use those answers for `knowledge/project.md`, then show the
+  complete knowledge tree plus root instruction edits.
 - If approved, install the second-brain plugin and follow its canonical
-  greenfield setup workflow.
-- Offer an initial owner-approved memory pass after setup.
-- Do not install a database, memory MCP server, embeddings, scripts, hooks,
-  transcript capture, or background curation.
-- `specs/`, `brainstorms/`, and every `memory/` type folder ship a `README.md`
-  index, so none of them gets its own `CLAUDE.md`. Record the skips.
+  greenfield setup workflow, including the three skills, index and migration
+  tools, fail-open startup routes, and pull-request reminder.
+- Commit only `knowledge/.obsidian/app.json` with `alwaysUpdateLinks: true`,
+  `newLinkFormat: "relative"`, and `useMarkdownLinks: true`. Ignore all other
+  `.obsidian` state and do not pin a
+  core plugin list.
+- Offer an initial owner-approved durable pass after setup.
+- Do not install a database, memory MCP server, embeddings, transcript capture,
+  or background curation.
+- `knowledge/index.md` is generated. Create no per-folder indexes or folder
+  `CLAUDE.md` files inside `knowledge/`.
 
-**Gate 4: Knowledge layer**
-- Mark included with v3 when Gate 3 ran, or skipped with Gate 3.
+**Gate 4: Optional mechanical knowledge aids**
+- The Markdown knowledge layer already came from Gate 3 when accepted.
 - Do not create a second knowledge store or install retired v1 curators and
   drift hooks.
 - Treat a dependency graph as an optional analysis aid, not required memory
@@ -163,8 +167,8 @@ so they always know where they are.
   not into CLAUDE.md. See `thin-claudemd.md` and `library/rules/general/README.md`.
 - Copy the general rules from `library/rules/general/` into `.claude/rules/`: every
   default-ON file unless the owner drops it. Never copy retired v1 recognition
-  files into a new project. When v3 ran, keep its canonical
-  `second-brain.md` rule and index it once. Walk the list; let the owner accept,
+  files into a new project. The current knowledge procedure comes from its
+  plugin, not from the general rule library. Walk the list; let the owner accept,
   edit, or skip each.
 - Default-ON rules: multi-agent worktree protocol, language rules (no em dashes,
   no section signs, no AI filler, plain language), and working-style rules (lead
@@ -187,11 +191,10 @@ so they always know where they are.
 - Keep the codemap to one line per folder, pointing at that folder's own
   `CLAUDE.md` for the detail. Four things stay in the root file whatever else
   moves: how to talk to the owner, the pointers to the most dangerous rules, the
-  memory routing section, and the codemap lines. See "What must stay in the root
+  project-knowledge startup route, and the codemap lines. See "What must stay in the root
   file" in `thin-claudemd.md`.
 - `AGENTS.md` keeps the folder detail in full. Codex never reads a folder
-  `CLAUDE.md`, so below the shared memory section the two root files are meant
-  to differ in length.
+  `CLAUDE.md`, so the two root files are meant to differ in length.
 - Install the plain-language output style (default ON): copy
   `library/output-styles/plain-language.md` to `.claude/output-styles/` and set
   `"outputStyle": "plain-language"` in the committed `.claude/settings.json`.
@@ -204,39 +207,36 @@ so they always know where they are.
   and that a helper agent never sees an output style, which is what
   `follow-the-output-style.md` in the rules folder is for. See
   `library/output-styles/README.md`.
-- When v3 ran, the memory schema is the one exception to thin. Copy the full
-  section from the second-brain plugin's `references/orientation-snippet.md`
-  **verbatim** into BOTH CLAUDE.md and AGENTS.md, at the **top** of each file,
-  right after the title and the `Read .claude/rules` line and before the
-  codemap. It carries the authority map plus the use-when and do-not-use-when
-  for every home, because routing has to happen before an agent writes and a
-  rule it has not opened cannot route. Never shorten it, never let the two files
-  differ, and point both at the same canonical rule. See `thin-claudemd.md`.
-- Give AGENTS.md the same content list as CLAUDE.md, not a stub: title, the
-  rules line, the identical memory section in the same position, the same
-  structural pointers (or a pointer to them), plus any Codex-specific
-  instructions. See "What AGENTS.md contains" in `thin-claudemd.md`.
+- When project knowledge is installed, keep the route small. Claude's
+  `SessionStart` hook reads `knowledge/project.md` and `knowledge/index.md`.
+  `AGENTS.md` tells Codex to read those same two files before work; an equivalent
+  fail-open `.codex/hooks.json` route may reinforce it where native hooks are
+  supported. Neither root file copies the full knowledge specification.
+- Give `AGENTS.md` the same project description and structural pointers as
+  `CLAUDE.md`, plus the direct startup instruction and any Codex-specific
+  repository instructions. See "What AGENTS.md contains" in
+  `thin-claudemd.md`.
 
 **Gate 6: Optional standalone toolkit skills**
 - Offer `grill-me` for durable brainstorming and discovery interviews.
 - If approved, install its plugin from the toolkit marketplace. Do not copy its
   skill instructions into the project.
-- With v3 installed, it uses the flat brainstorm index and proposes approved
-  specification or memory outcomes at interview completion.
+- With project knowledge installed, it writes under `knowledge/brainstorms/`
+  and invokes `remember` for approved durable outcomes at interview completion.
 - Offer `session-summary` for long sessions and handoffs: it returns a table with
   one row per request the owner made, each with a status, then a block for
   whatever still needs them, and writes nothing.
-- Offer `handoff` in every project, and recommend it. `/handoff` runs the memory
-  check first, shows a table of what is worth saving, waits for the owner to
-  approve or cut rows, then drafts a prompt for a fresh session with everything
+- Offer `handoff` in every project, and recommend it. `/handoff` invokes
+  `remember` first, waits for any required owner decision, then drafts a prompt
+  for a fresh session with everything
   not saved carried inside it. The prompt opens with the goal of the work and
   why it matters, and `handoff-verifier`, an agent that never saw the
   conversation, checks it against the repository before the owner sees it, so
   facts do not get less accurate each time work is handed on. Anything it cannot
   confirm is labelled inside the prompt rather than dropped, and `/handoff check`
   runs the same check on a prompt the owner already has. Needs no style, no
-  memory system, and no hooks; in a project without memory it skips the saving
-  step. It pairs with the `offer-context-handoff.md` rule from Gate 5, which
+  project knowledge system, and no hooks; in a project without project knowledge
+  it skips the saving step. It pairs with the `offer-context-handoff.md` rule from Gate 5, which
   covers the owner asking in their own words.
 - Record installed, skipped, or deferred so `project-sync` does not repeat a
   considered "no".

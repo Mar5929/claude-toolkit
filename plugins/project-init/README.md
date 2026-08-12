@@ -22,8 +22,8 @@ files into a project, so every project it touches opts in deliberately.
      work items are tracked (a GitHub Projects board, Linear, Jira, files in
      this repository, or nothing yet)
   2. Hooks and guards
-  3. Complete second-brain v3 memory system
-  4. Knowledge layer included with second-brain v3
+  3. Packaged project knowledge system under `knowledge/`
+  4. Optional mechanical knowledge aids
   5. CLAUDE.md, AGENTS.md, and `.claude/rules/`
   6. Optional standalone toolkit skills, beginning with `grill-me`
   It asks before acting, recommends a per-stack layout, and copies in the
@@ -144,8 +144,9 @@ plugin.
 ## How it relates to the rest of the toolkit
 
 - project-init is the **entry point that installs the other plugins' systems**.
-  Gate 3 offers the complete `second-brain` v3 system. Gate 4 records its
-  knowledge layer as included rather than creating a competing store.
+  Gate 3 offers the complete packaged `second-brain` project knowledge system.
+  Gate 4 offers optional impact-analysis tools without creating a competing
+  store.
 - Gate 6 offers the standalone `grill-me` interview workflow without copying it
   into the project. The plugin remains its canonical home.
 - Gate 1 asks where work items are tracked, and the two guarantees that follow
@@ -163,12 +164,12 @@ plugin.
 - For the GitHub Projects board answer, Gate 1 sets up the board by hand from
   `work-tracking-choice.md` and no work-tracker code is involved. That board
   holds the work; the mirror above only reflects files that hold it.
-- project-sync performs a read-only v3 adoption audit before changing an
-  existing project. Separately, it identifies existing local v1 integrations.
-  With owner approval it may deactivate them or remove specifically approved
-  local files. It never contacts the Worker or Neon, reads legacy memory,
-  imports v1 into v3, or deletes cloud infrastructure. It detects committed v1
-  patterns directly and does not need archived v1 rule files in the plugin.
+- project-sync detects knowledge layouts by system signatures, not folder names.
+  It can install greenfield, dry-run and apply a flat #149 migration with an
+  approval hash, or produce owner-review drafts for retired v3 without touching
+  the old system. Mixed or unknown layouts stop without writing. Separately, it
+  may identify and offer to deactivate older cloud-backed v1 wiring, but it
+  never contacts the Worker or Neon or deletes cloud infrastructure.
 - **project-init versus project-sync is not redundancy.** They share the same
   inventory of toolkit systems but enter from opposite ends: project-init lays
   foundations in an empty project, project-sync audits and back-fills a project

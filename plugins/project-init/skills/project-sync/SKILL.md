@@ -7,8 +7,8 @@ description: >-
   in this project", "sync this project with claude-toolkit", "audit this
   project against the toolkit", or "/project-sync". This skill inventories
   everything the toolkit currently ships (the general and Salesforce rules
-  libraries, hooks, the Git-native work-tracker, the complete second-brain v3
-  system, retired v1 local-wiring recognition, standalone skills such as
+  libraries, hooks, the Git-native work-tracker, the packaged project knowledge
+  system, safe knowledge-layout migration, standalone skills such as
   grill-me, and any newer systems), cross-references the current project,
   reports the gaps, including rules the project has but that are behind the
   toolkit's current version, and closes each gap only with the user's approval.
@@ -64,7 +64,7 @@ automatically as it grows.
     can still have no style installed, so check them separately
   - the per-server MCP tool rules in `../../library/guides/mcp-best-practices.md`;
     these are conditional, so only audit the servers this project connects
-  - each system from the setup gates: hooks, memory system, knowledge layer
+  - each system from the setup gates: hooks, project knowledge, knowledge layer
   - the multi-part kits, which are a tool plus a rule plus a hook rather than a
     single file, so a partial install looks like a pass unless you check each
     part: the Salesforce permission set kit
@@ -75,17 +75,14 @@ automatically as it grows.
     `library/rules/general/dependency-graph.md`)
   - the `work-tracker` plugin and any existing `work-items/` or
     `engagement/work-items/` tree
-  - the `hooks-library` plugin and each of its three general hooks, checked
-    separately rather than as one item: `style-reminder` (UserPromptSubmit),
-    `writing-guard` (Stop), and `memory-pr-hook` (PreToolUse, `Bash` matcher).
-    For each one, check `.claude/settings.json` for a registered entry and
-    `.claude/hooks/` for the copied script. The first two pair with the output
-    style and do nothing useful without one, so audit those together and never
-    report either as installed when no style is selected. `memory-pr-hook` is
-    independent of the style and of any memory system, so a missing one is a gap
-    on its own. It points at `wrap-up-ritual.md`, so report a project that has
-    the hook without that rule: the hook still fires but names a file that is
-    not there
+  - the `hooks-library` plugin and both general hooks, checked separately rather
+    than as one item: `style-reminder` (UserPromptSubmit) and `writing-guard`
+    (Stop). For each one, check `.claude/settings.json` for a registered entry
+    and `.claude/hooks/` for the copied script. Both pair with the output style
+    and do nothing useful without one, so audit them together and never report
+    either as installed when no style is selected. If the retired
+    `memory-pr-hook` plus `wrap-up-ritual.md` path remains, report it for removal
+    after the current project-knowledge package is installed
   - a project still carrying the retired voice rules (`writing-and-language.md`,
     `how-to-reply.md`, `treat-owner-as-non-technical.md`,
     `define-your-terms.md`). All four were removed from the toolkit in favor of
@@ -105,9 +102,9 @@ automatically as it grows.
     folder with a `README.md` index, and everything under `.claude/`)
   - each standalone skill offered by the setup flow, including `grill-me`
   - anything newer listed in the toolkit README under "What's here now"
-  - skip roadmap items; they are not built and cannot be audited. Second-brain
-    v3 is shipped and must be inventoried from its plugin. Existing retired v1
-    integration remains a separate local finding
+  - skip roadmap items; they are not built and cannot be audited. The current
+    project-knowledge package is shipped and must be inventoried from its
+    plugin. Existing retired v1 integration remains a separate local finding
 - Note the toolkit version (from `plugin.json` or `marketplace.json`) for the
   sync record in step 5.
 
@@ -171,35 +168,40 @@ checks:
   A project that deliberately rebuilds by hand with `graphify update .` instead
   of using hooks is not missing anything. Record that choice so a later sync
   does not re-raise it.
-- **Second-brain v3 status:** v3 is the current Markdown and Git system. Audit
-  it as one coherent installation:
-  - `.claude/rules/second-brain.md`;
-  - `.claude/references/second-brain-reference.md`;
-  - `.claude/agents/memory-verifier.md`;
-  - `.claude/tools/memory-index-build.mjs` and
-    `.claude/tools/memory-shape-check.mjs`;
-  - the full memory section, identical and first, in `CLAUDE.md` and
-    `AGENTS.md`;
-  - `brainstorms/README.md`;
-  - `specs/README.md`;
-  - `memory/README.md`; and
-  - root indexes for context, planning, decisions, knowledge, references,
-    domain, and operations.
-  Classify v3 as present only when the complete core exists. A few similar
-  folders without the shared rule and role are existing project documentation,
-  not an installed v3 system.
-- **The old `memory-librarian` name:** a project set up before the rename has
-  `.claude/agents/memory-librarian.md` and a rule that names it. That project
-  still works, so this is a gap to close, not a break to report as urgent.
-  Detect it by the presence of `memory-librarian.md`, or by any text in
-  `.claude/`, `CLAUDE.md`, or `AGENTS.md` naming `memory-librarian` or "memory
-  librarian". Report it as one gap covering four things: the agent file, the
-  rule and its new companion reference, the two scripts, and every mention of
-  the old name in the project's own rules and root files. Files under the
-  project's `brainstorms/` or `archive/` folders keep the old name, because they
-  are dated records of past sessions. Say that in the report so the owner is not
-  surprised that some matches are being left alone.
-- **V3 document map:** inventory existing specifications, brainstorms, ADRs,
+- **Project knowledge layout:** use the packaged detector, never folder names
+  alone. Run the installed project copy when present; otherwise run the same
+  tool from the installed `second-brain` plugin during this read-only audit:
+
+  ```text
+  node .claude/tools/knowledge-layout.mjs detect . --json
+  ```
+
+  Classify exactly one state:
+  - **new knowledge layout:** `knowledge/project.md`, `knowledge/index.md`, and
+    the nested specifications, memory types, and brainstorm tree are present;
+  - **flat #149 layout:** top-level `specs/`, `memory/`, and `brainstorms/` plus
+    #149 index, tags, runtime, or root-route signatures are present;
+  - **retired v3 layout:** the old second-brain rule, verifier, tools, and
+    per-folder indexes identify the retired system;
+  - **none:** no project-knowledge-system signatures are present; or
+  - **mixed or unknown:** signatures conflict, are partial, or ordinary folders
+    could be mistaken for the system.
+
+  Mixed or unknown stops adoption and migration. Never move an ordinary folder
+  named `memory`, `specs`, or `knowledge` from its name alone.
+- **Packaged runtime:** for a new layout, also check the installed `remember`,
+  `recall`, and `cleanup` skills; `.claude/tools/knowledge-layout.mjs`; the
+  generated-index tool; `.claude/hooks/knowledge-session-start.mjs` registered
+  under Claude `SessionStart`; the packaged pull-request reminder; the short
+  root routes; and the optional equivalent `.codex/hooks.json` loader where
+  native Codex hooks are supported. Missing runtime is **partial**, not a reason
+  to rewrite knowledge documents.
+- **Obsidian boundary:** check that only `knowledge/.obsidian/app.json` is
+  shared, that it creates relative Markdown links and automatic link updates,
+  and that `.gitignore` excludes every other `.obsidian` file. A shared core
+  plugin list, workspace, hotkeys, appearance, plugin, theme, or device file is
+  an optional cleanup finding, not required project knowledge.
+- **Knowledge document map:** inventory existing specifications, brainstorms, ADRs,
   architecture and system maps, roadmaps, project overviews, runbooks,
   glossaries, references, and raw artifact folders. Report likely canonical
   homes, duplicates, contradictions, missing indexes, broken routes, and live
@@ -222,16 +224,16 @@ checks:
   listed committed v1 files after separate approval. Never bundle deletion of a
   non-empty outbox, cache, ignored file, token, connector, database, or cloud
   resource into ordinary project sync.
-- **Knowledge layer:** v3's typed memory is the knowledge layer. Do not create a
-  second store. Existing v1 curator files, `know-*` nodes, SHA pins, and drift
-  reports remain retired and are never refreshed, reconciled, imported, or
-  used as current truth.
+- **Knowledge layer:** `knowledge/memory/` is the durable knowledge layer. Do
+  not create a second store. Existing v1 curator files, `know-*` nodes, SHA
+  pins, and drift reports remain retired and are never refreshed, reconciled,
+  imported, or used as current truth.
 - **Standalone toolkit skills:** check the previous sync record and the
   available host plugins. For `grill-me`, `session-summary`, and `handoff`,
   classify each as available to invoke, previously declined, or not applicable.
   Do not look for a copied `SKILL.md` inside the project because the canonical
   skill stays in its plugin. `handoff` is the one to recommend rather than
-  merely list: it works with no output style, no memory system, and no hooks,
+  merely list: it works with no output style, no project knowledge system, and no hooks,
   and the moment it covers, a session about to clear its context, is the one
   nothing else can catch. It also makes every handoff prompt open with the goal
   of the work and puts a second agent between the draft and the owner, so facts
@@ -297,9 +299,8 @@ that is behind the current toolkit version, rules are the first place to look.
 When there is no sync record, check them all.
 
 The same drift question applies to any toolkit text a project copies, not only
-`.claude/rules/`. The v3 memory section in `CLAUDE.md` and `AGENTS.md` is
-already covered below; treat it as the worked example of this check rather than
-a separate rule.
+`.claude/rules/`. Startup routes and copied hooks are checked against their
+current packaged sources rather than paraphrased from memory.
 
 ### Codex reachability: can AGENTS.md deliver the rules?
 
@@ -363,16 +364,14 @@ presence. Read the file and report:
 - **Live state that belongs in the status doc.** Current phase, next action, and
   open TODOs drift the moment they are written here. Flag them for work-tracker
   or the live status doc.
-- **V3 memory section parity.** When second-brain is installed, confirm both
-  `CLAUDE.md` and `AGENTS.md` carry the full memory section from the plugin's
-  `references/orientation-snippet.md`, identical in both, positioned first
-  (after the title and the rules line, before the codemap), and pointing at
-  `.claude/rules/second-brain.md` as canonical. This section is the one
-  sanctioned duplication, so do not flag it as bloat and never propose trimming
-  it. Do flag: a shortened or paraphrased copy, the two files disagreeing, the
-  section buried below other sections, it being present in only one root file,
-  or it having drifted from the canonical rule's authority map, homes, or
-  document contract.
+- **Project-knowledge startup parity.** When the new layout is installed,
+  confirm Claude's `SessionStart` hook and Codex's root `AGENTS.md` route both
+  name `knowledge/project.md` and `knowledge/index.md`, load no other memory by
+  default, and treat brainstorms as unchecked. Confirm the Claude hook fails
+  open when either file is absent. Where `.codex/hooks.json` is supported,
+  confirm it reinforces the same route. A copied authority map or full save
+  procedure in either root file is stale duplication and should be replaced by
+  the short route after owner approval.
 - **Stale content.** Anything the code, paths, or decisions have since
   contradicted.
 
@@ -401,8 +400,9 @@ folders and report each one as:
 - **Missing.** A major folder the toolkit recognizes, with no `CLAUDE.md` and no
   `README.md` index. This is a gap.
 - **Skipped by design.** A folder with a `README.md` index, or anything under
-  `.claude/`, or a folder another plugin creates and indexes. Not a gap. Say so
-  rather than leaving it off the list, so it does not get raised again next run.
+  `.claude/`, the complete `knowledge/` tree, or a folder another plugin creates
+  and indexes. Not a gap. Say so rather than leaving it off the list, so it does
+  not get raised again next run.
 - **Not recognized.** A folder the toolkit did not create and whose purpose you
   cannot tell from the repository. Do not propose a file for it and do not guess
   what it is for. List it and ask the owner in step 4.
@@ -416,10 +416,10 @@ cannot carry a rule that applies always.
 ## Step 3: report before touching anything
 
 Show one table: item, status, and what specifically is missing or drifted. Make
-no changes in this step. Let the user pick what to fix, and recommend an order
-(complete v3 adoption, retired v1 local wiring as a separate choice, missing
-default-ON rules, outdated rules, then other systems).
-Existing v1 wiring does not block v3 adoption.
+no changes in this step. Let the user pick what to fix, and recommend an order:
+resolve mixed signatures, install or migrate project knowledge, retire duplicate
+local wiring as a separate choice, then update rules and other systems.
+Existing v1 wiring does not block the new knowledge layout.
 
 ## Step 4: close the approved gaps, one at a time
 
@@ -465,8 +465,8 @@ should look in THIS project, confirm, act, summarize. Ground rules:
      pointing at it.
   3. Never move a behavior rule out of the root file or out of
      `.claude/rules/`. Four other things never move either: how to talk to the
-     owner, the pointers to the most dangerous rules, the memory routing
-     section, and the codemap lines themselves. They are named in
+     owner, the pointers to the most dangerous rules, the project-knowledge
+     startup route, and the codemap lines themselves. They are named in
      `../project-init/references/thin-claudemd.md` under "What must stay in the
      root file".
   4. When the project has an `AGENTS.md`, it keeps that detail in full. Codex
@@ -479,13 +479,11 @@ should look in THIS project, confirm, act, summarize. Ground rules:
 - For a folder listed as **not recognized** in step 2, ask the owner what it is
   for in plain words, then either write the file from their answer or record the
   skip. Do not infer a purpose from the folder name.
-- For an approved `memory-pr-hook` gap, install it via `/hooks-library` and
-  check `.claude/rules/wrap-up-ritual.md` is present in the same pass, copying
-  it from `../../library/rules/general/` if it is not. Say plainly what changes
-  for the owner: nothing on most work, because the agent answers "Nothing worth
-  saving to memory here." and carries on. When there is something, the pull
-  request still opens right away and they get the real words, already checked,
-  to approve, cut, or edit.
+- For a retired `memory-pr-hook` plus `wrap-up-ritual.md` finding, first confirm
+  the current packaged pull-request reminder and `remember` skill are installed.
+  Then offer removal of the obsolete hook registration, copied script, config,
+  and rule as one reversible cleanup. Never leave two pull-request reminders
+  active.
 - **An older `writing-guard` in a project is an upgrade, not a removal.** #101
   retired the hook and #102 brought it back narrower, so a project that kept its
   old copy was right to. Offer to replace the script with the current one and
@@ -493,43 +491,61 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   stops counting, and the messages stop citing rule files that were deleted.
   Leave `.claude/writing-guard.json` alone unless the owner wants its checks
   changed.
-- For an approved v3 gap, install the `second-brain` plugin and follow its
-  brownfield adoption guide:
-  1. keep the audit read-only until the owner approves exact treatments;
-  2. show the complete core plus real project-specific system areas;
-  3. use the plugin's canonical rule, routing reference, role, two scripts,
-     orientation snippet, and index templates rather than retyping them;
-  4. preserve good existing homes;
-  5. treat each existing source as keep and link, move with approval,
-     consolidate with approval, or leave unresolved; and
-  6. offer an initial memory pass and `grill-me` after adoption.
-  Do not mass-move, duplicate, delete, or declare current truth to make an
-  existing project resemble a template. Risky or large structural work must be
-  separately visible and approved.
-- **For an approved `memory-librarian` rename gap, move the project across in
-  this order**, so it is never left half-way:
-  1. Copy `.claude/references/second-brain-reference.md` and both scripts into
-     `.claude/tools/` from the plugin. Nothing points at them yet, so this is
-     safe on its own.
-  2. Copy `memory-verifier.md` into `.claude/agents/`. Both agent files now
-     exist. The old one is still what the rule names, so the project keeps
-     working.
-  3. Replace `.claude/rules/second-brain.md` with the current version, and
-     update the memory section in `CLAUDE.md` and `AGENTS.md` from the plugin's
-     `references/orientation-snippet.md`. From here the project uses the
-     verifier.
-  4. Update every other mention of the old name in the project's own rules and
-     root files, in the project's existing voice. Leave `brainstorms/` and
-     `archive/` alone.
-  5. Delete `.claude/agents/memory-librarian.md` last, once nothing names it.
-     Confirm that with a search before deleting.
-  Then run `node .claude/tools/memory-shape-check.mjs` and
-  `node .claude/tools/memory-index-build.mjs --check` and report what they say.
-  A project whose existing memory documents were written before the `Basis:`
-  line was required will fail the shape check. That is expected, not a broken
-  install: report each document that needs a `Basis:` line and offer to add
-  them, remembering that only the owner can say whether a given document is
-  `Observed`, `Owner-confirmed`, `Source`, or `Inferred, unconfirmed`.
+- For any approved project-knowledge gap, install or refresh the `second-brain`
+  plugin first, then follow the state-specific path below. The packaged tool is
+  the only writer for layout migration.
+  - **None:** show the greenfield tree, obtain approval, and ask the owner what
+    the project is, why it exists, what finished looks like, its main
+    workstreams and boundaries, who is involved, and where active work is
+    tracked. Use those exact answers for `knowledge/project.md`, then install
+    the complete layout and runtime.
+  - **Flat #149:** run
+    `node .claude/tools/knowledge-layout.mjs plan . --json`. Show the dry-run
+    moves, collisions, link repairs, and approval hash. Write nothing until the
+    owner approves that exact plan. Then run
+    `node .claude/tools/knowledge-layout.mjs apply . --approve <plan-hash>`.
+    The tool moves documents byte-for-byte except deterministic Markdown link
+    repair, discards and rebuilds only the generated index, repairs tracked
+    Markdown links into the moved tree, and verifies no document was lost.
+  - **Retired v3:** do not apply a conversion. Run
+    `node .claude/tools/knowledge-layout.mjs review-retired . --output <empty-dir>`
+    to create a review manifest and conversion drafts outside the old layout.
+    The owner must resolve every uncertain source, date, session, source-file,
+    and tag and approve the conversion before a later finalization. Keep the
+    old rule, verifier, tools, and indexes until the new layout and links pass.
+  - **New:** install only missing runtime or regenerate the index. Never rewrite
+    approved documents merely to match current formatting.
+  - **Mixed or unknown:** stop without writing and show the conflicting
+    signatures.
+
+  A stale plan hash, collision, symlink escape, dangling mapped link, or target
+  outside the repository blocks apply. Rerunning a successful flat migration is
+  safe and reports the new layout.
+
+  For an approved **none**, **flat #149**, or **new** path, finish the same
+  adoption unit before calling the system installed:
+  1. Copy the packaged `build-knowledge-index.mjs` and
+     `knowledge-layout.mjs` into `.claude/tools/`.
+  2. Copy the packaged `knowledge-session-start.mjs` and `save-reminder.mjs`
+     into `.claude/hooks/`.
+  3. Merge, never replace, `.claude/settings.json`: disable private auto-memory,
+     enable `second-brain@claude-toolkit`, register the fail-open Claude
+     `SessionStart` loader, and register the pull-request reminder under
+     `PreToolUse` with the `Bash` matcher.
+  4. Add the direct startup route to root `AGENTS.md`; add the short matching
+     route to root `CLAUDE.md`. Where native Codex hooks are supported, merge
+     the same fail-open loader into `.codex/hooks.json` without removing other
+     hooks.
+  5. Add the Obsidian ignore allowlist so only
+     `knowledge/.obsidian/app.json` is shared.
+  6. Rebuild `knowledge/index.md`, run the startup loader, rerun layout
+     detection, and verify links. The result must report `knowledge` and load
+     only `project.md` plus the generated index.
+
+  Do not remove old runtime or root routes until their current replacements are
+  present and these checks pass. The flat mover removes only #149's hand-made
+  local skills and old generated-index tool after its approved plan has already
+  accounted for every knowledge document.
 - Do not install second-brain v1 or import its content. For an existing v1
   project, offer the following separately after reporting the exact local
   scope:
@@ -539,7 +555,7 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   2. **Remove local integration:** delete only the committed v1 files and
      settings the owner explicitly approves.
   Neither option contacts the Worker or Neon, reads legacy memory, imports
-  anything into v3, or deletes cloud infrastructure. Installing v3 does not
+  anything into project knowledge, or deletes cloud infrastructure. Installing the current system does not
   imply either v1 choice. Account-level connectors, local token cleanup, and
   cloud deletion are separate owner-approved work.
 - For an approved Salesforce dependency graph gap, install the whole kit from

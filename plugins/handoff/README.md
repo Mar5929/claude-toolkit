@@ -10,9 +10,10 @@ hooks, nothing copied into the project.
 
 `/handoff` runs these steps, in this order:
 
-1. **The memory check.** What did this session produce that is worth keeping?
-2. **The table.** What it proposes to save, as one row per item, waiting for the
-   owner to approve, cut, or edit.
+1. **The durable review.** It invokes the installed `remember` skill to decide
+   what is worth keeping and where it belongs.
+2. **The save decision.** `remember` shows `What I want to change`, `Why`, and
+   the exact words, then waits when owner approval is required.
 3. **The draft.** A prompt for a fresh session, opening with the goal of the
    work, then the task, what to read first, the decisions nobody has written
    down yet, the open questions, and one concrete first action. The owner does
@@ -23,11 +24,11 @@ hooks, nothing copied into the project.
 5. **The short list, then the prompt.** A few one-line notes saying what was
    corrected and what could not be confirmed, then one block to copy.
 
-Anything the owner does not approve for memory is carried inside the prompt
+Anything the owner does not approve for project knowledge is carried inside the prompt
 instead, so it is never silently dropped. Anything the checker could not confirm
 is labelled inside the prompt, so it is never passed on as fact.
 
-The order is the whole point. Write the prompt first and the memory step gets
+The order is the whole point. Write the prompt first and the durable review gets
 skipped, because once the prompt is on screen the session is over in the owner's
 head. Show the prompt before the check and the check never happens.
 
@@ -37,7 +38,7 @@ The sessions that produce the most valuable understanding are the ones most
 likely to lose it. A long exploration or planning session fills the context
 window, so the work is handed to a fresh agent through a prompt, and whatever
 did not make it into that prompt is gone the moment the old session ends. It
-never reaches memory, so the memory PR hook never sees it either.
+never reaches project knowledge.
 
 Two things then go wrong with the prompt itself, and steps 3 to 5 exist for
 them.
@@ -75,7 +76,7 @@ Two limits, on purpose:
 ## Checking a prompt you already have
 
 `/handoff check` runs the checker on its own, against a handoff prompt from an
-earlier session, another agent, or written by hand. No memory step, nothing
+earlier session, another agent, or written by hand. No durable review, nothing
 saved, nothing from the current session added. It hands back the same short list
 and the corrected prompt.
 
@@ -84,14 +85,13 @@ and the corrected prompt.
 - **Not a session summary.** `session-summary` answers "which of my requests are
   where, and what still needs me". This answers "how does somebody else pick
   this up". They do not overlap; run both if you want both.
-- **Not a memory system.** It contains no memory types, no destinations, and no
-  rule about what is worth keeping. All of that belongs to the project's own
-  rules, which is why it works unchanged in a project that has no memory system:
-  the memory step is skipped and everything worth keeping goes into the prompt.
-- **Not a writer of memory.** It drafts the real words, `memory-verifier` checks
-  them, the owner approves, and then they are written. Asking a yes-or-no
-  question is not approval, because the owner cannot approve words they have not
-  read.
+- **Not a project knowledge system.** It contains no knowledge types, no
+  destinations, and no save policy. Those belong to `remember`, which is why
+  handoff still works in a project with no project knowledge system: the
+  durable review is skipped and everything worth keeping goes into the prompt.
+- **Not a writer of project knowledge.** It invokes `remember`, which owns the
+  save filters, exact proposal, owner approval, writing, link repair, and index
+  rebuild.
 - **Not an editor.** `handoff-verifier` never removes a claim it dislikes and
   never rewrites a sentence that reads badly. It checks facts.
 
@@ -104,10 +104,8 @@ going. The pre-compaction event can stop a compaction but also cannot speak to
 the agent.
 
 So the trigger has to be something the owner does on purpose. A slash command
-loads its own instructions at the moment it is typed, which puts the memory
-check in front of the agent without any hook at all. That is the difference from
-`memory-pr-hook` in the `hooks-library` plugin: `gh pr create` is a bare
-terminal command carrying no instructions, so it needs a hook to interrupt it.
+loads its own instructions at the moment it is typed, which puts the durable
+review in front of the agent without a handoff-specific hook.
 
 ## Its known limit
 
@@ -127,5 +125,5 @@ typing the command.
 The plugin installs once per computer and copies nothing into a project, so
 every project on that computer gets the checked handoff without any per-project
 setup. `project-init` offers it during setup and `project-sync` audits for it,
-so a toolkit project gets it without asking. It needs no output style, no memory
-system, and no hooks.
+so a toolkit project gets it without asking. It needs no output style, no
+project knowledge system, and no hooks.

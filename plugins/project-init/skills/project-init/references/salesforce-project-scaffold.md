@@ -58,33 +58,33 @@ repo next to the metadata they describe.
 
 | Folder | Holds |
 |---|---|
-| `project-overview/` | Raw engagement brief or client-provided framing when the project needs that artifact home. With v3, curated durable project context belongs under `memory/context/project-wide/` |
+| `project-overview/` | Raw engagement brief or client-provided framing when the project needs that artifact home. Curated project framing belongs in `knowledge/project.md`, with other durable circumstances under `knowledge/memory/context/` |
 | `archive/` | Retired or superseded material kept for history |
 | `communications/` | Emails, Slack threads, client or team messages |
 | `deliverables/` | Finished artifacts handed to the client |
-| `deployment/` | Cutover plans, release evidence, and release notes. With v3, reusable operating procedures belong under `memory/operations/` |
-| `knowledge-base/` | Legacy standalone knowledge home only when v3 is declined. Do not create it alongside v3's typed memory |
+| `deployment/` | Cutover plans, release evidence, and release notes. Reusable operating procedures belong under `knowledge/memory/operations/` |
+| `knowledge-base/` | Legacy standalone knowledge home only when project knowledge is declined. Do not create it alongside `knowledge/` |
 | `meeting-notes/` | One file per call or working session |
 | `references/` | Source specs, org exports, third-party docs (read-only inputs) |
 | `work-items/` | Ticket work items in stage folders (`01-backlog/` holds the `BACKLOG.md` index); one folder per ticket (named by ticket key) with `SPEC.md` + `STATUS.md`. Layout: `work-items-structure.md` |
 | `data/` | Object and field mapping, transformation rules, load files |
 | `data/backups/` | Point-in-time data exports from the org(s) |
 
-`grill-me` saves discovery in the root flat `brainstorms/` collection. It does
+`grill-me` saves discovery in the flat `knowledge/brainstorms/` collection. It does
 not save interviews under `project-overview/` or copy them into a system area.
-With v3 installed, the brainstorm links to every resulting specification.
+With project knowledge installed, the brainstorm links to every resulting specification.
 
-When v3 is selected, omit the legacy `knowledge-base/` folder from new
-scaffolding. Use `memory/knowledge/`, `memory/references/`, and `memory/domain/`
+When project knowledge is selected, omit the legacy `knowledge-base/` folder from new
+scaffolding. Use `knowledge/memory/knowledge/`,
+`knowledge/memory/references/`, and `knowledge/memory/domain/`
 for curated agent memory. Keep raw meeting notes, communications, deliverables,
 deployment evidence, and client sources in the engagement folders above.
 
 **`.claude/`**: project-scoped Claude Code setup. Scaffold it empty at Gate 1
-with `rules/`, `hooks/`, `agents/`, and `settings.json`. Gate 2 adds approved
-guards. Gate 3 adds the v3 canonical rule, its routing reference in
-`references/`, the read-only memory verifier, and the two scripts in `tools/`,
-when the owner selects second-brain. Gate 4 records the knowledge layer as
-included with v3. Neither gate adds memory hooks or retired v1 agents.
+with `rules/`, `hooks/`, and `settings.json`. Gate 2 adds approved guards. Gate
+3 installs the packaged knowledge tools and fail-open startup loader when the
+owner selects project knowledge. It does not restore the retired verifier,
+large rule, or per-folder indexes.
 
 ## Config defaults
 
@@ -107,9 +107,9 @@ included with v3. Neither gate adds memory hooks or retired v1 agents.
 
 ## Variants
 
-- **Org merge**: use `references/` and `knowledge-base/` for the analysis of each
-  source org, `data/` for the field-level mapping between source and target, and
-  `deployment/` for the cutover plan. Consider running the `sf-org-knowledge`
-  skill against each source org first.
+- **Org merge**: use `references/` for raw source material,
+  `knowledge/memory/references/` and `knowledge/memory/knowledge/` for approved
+  source context and conclusions, `data/` for field-level mapping, and
+  `deployment/` for the cutover plan.
 - **Single org build or managed service**: the same tree works; some engagement
   folders stay empty until needed.

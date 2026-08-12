@@ -1,8 +1,8 @@
-# plugins: the nine plugins this repo ships
+# plugins: the ten plugins this repo ships
 
 Each folder here is one Claude Code plugin. Each has its own `README.md`, which
 is that plugin's canonical description. `docs/toolkit-map.md` is the
-cross-cutting catalog across all nine.
+cross-cutting catalog across all ten.
 
 One folder is not a plugin's own material: `project-init/library/` holds the
 reusable files other projects receive (`rules/general/`, `rules/salesforce/`,
@@ -32,9 +32,8 @@ folder stays small on purpose.
 - **Give every agent you add the writing rules in its own text.** An output
   style is delivered in the main conversation's system prompt and never reaches
   a helper agent, so an agent definition under `*/agents/` has to carry those
-  rules itself. `second-brain/agents/memory-verifier.md` has a "How to write"
-  section for exactly this reason: its findings are read back to Mike, so a word
-  he has to decode once would spread instead of being forgotten.
+  rules itself. Its findings are read back to Mike, so a word he has to decode
+  once would spread instead of being forgotten.
 - **Bump versions.** A content change to a plugin bumps `version` in its
   `.claude-plugin/plugin.json`, `version` in its `.codex-plugin/plugin.json`,
   and `metadata.version` in the repository's `.claude-plugin/marketplace.json`.

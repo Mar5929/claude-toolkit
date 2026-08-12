@@ -1,7 +1,7 @@
 {
   "name": "second-brain",
-  "version": "2.0.0",
-  "description": "Git-native Markdown memory and knowledge for Claude and Codex, with natural stopping-point reviews, a read-only verifier that checks every claim before the owner sees it, and a pre-merge parallel-memory check.",
+  "version": "3.0.0",
+  "description": "One Git-native project knowledge folder for Claude, Codex, and optional Obsidian, with owner-approved saves, generated startup context, and safe layout migration.",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com",
@@ -17,8 +17,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Second Brain",
-    "shortDescription": "Shared Markdown memory for Claude and Codex.",
-    "longDescription": "Installs the complete second-brain v3 project memory system: shared Claude and Codex routing, capability specifications, typed durable memory, natural stopping-point reviews, a read-only verifier that checks every claim before the owner sees it, and a pre-merge semantic check for parallel memory changes. Markdown and Git remain authoritative, with no database, embeddings, or background curation, and no hook that writes memory.",
+    "shortDescription": "One Markdown project brain for agents and people.",
+    "longDescription": "Installs one knowledge folder containing the project overview, generated index, specifications, seven durable memory types, raw brainstorms, and minimal optional Obsidian settings. Claude and Codex share the same Markdown and Git truth. Saves remain owner-approved, startup loads only the map, and migration detects flat, retired, mixed, unknown, and new layouts without guessing.",
     "developerName": "Mike Rihm",
     "category": "Productivity",
     "capabilities": [
@@ -28,8 +28,8 @@
     ],
     "websiteURL": "https://github.com/Mar5929/claude-toolkit",
     "defaultPrompt": [
-      "Set up second-brain v3 in this project",
-      "Audit this existing project for v3 adoption",
+      "Set up project knowledge in this project",
+      "Detect and plan this project's knowledge migration",
       "Review this completed work for durable updates"
     ],
     "brandColor": "#2563EB"

@@ -2,8 +2,8 @@
 name: project-init
 description: >-
   Walk the user through initializing a NEW project, one gate at a time:
-  scaffolding & folder structure, guard hooks, the complete second-brain v3
-  memory and knowledge system, CLAUDE.md and AGENTS.md, the Git-native
+  scaffolding & folder structure, guard hooks, the packaged project knowledge
+  system, CLAUDE.md and AGENTS.md, the Git-native
   work-tracker, and optional standalone toolkit skills. Use when
   the user is starting a new repo/project and wants help setting up the
   foundational scaffolding, or says things like "initialize this project", "set
@@ -65,7 +65,8 @@ form. Keep each gate tight.
   `CLAUDE.md` stay short without losing the detail. Read
   `references/folder-claudemd.md` first: it says what goes in one, what never
   does, which folders get one, and which are skipped (any folder with a
-  `README.md` index, and everything under `.claude/`). Record every skip so the
+  `README.md` index, everything under `.claude/`, and the complete
+  `knowledge/` tree). Record every skip so the
   wrap-up summary and a later `project-sync` can tell a considered skip from an
   oversight. Never create a nested `AGENTS.md`.
 
@@ -168,8 +169,8 @@ the graph and names the connections that moved. Unlike the two guards above it
 is a Stop hook and it lives inside `tools/kb/`, because it imports the rest of
 the tool.
 
-**Every project**: offer all three of the general hooks from the `hooks-library`
-plugin (`/hooks-library`). All three are default ON.
+**Every project**: offer both general hooks from the `hooks-library` plugin
+(`/hooks-library`). Both are default ON.
 
 - `style-reminder` puts the project's output style back in front of the session
   every time the owner sends a message. Offer it because measurement showed
@@ -180,72 +181,78 @@ plugin (`/hooks-library`). All three are default ON.
   section sign slipped through, so the owner never sees the bad version. Say the
   cost: when it fires the turn takes slightly longer, because the reply is
   written twice.
-- `memory-pr-hook` holds the command that opens a pull request, once per branch
-  per session, so the memory check happens at the moment it applies rather than
-  being remembered from session start. Offer it because the same measurement
-  found the check is raised in 3.4% of turns at best and 0.5% at worst. It
-  points at `wrap-up-ritual.md`, so install that rule alongside it; a hook
-  pointing at a missing file is a dead end.
-
 `style-reminder` and `writing-guard` only work next to an installed output
 style, so they pair with Gate 5; if the owner skips the style, skip those two.
-`memory-pr-hook` does not depend on the style or on any memory system, and goes
-in either way.
+
+The project knowledge package owns its own startup loader and pull-request save
+reminder. Gate 3 installs those with the system. Do not install the retired
+`memory-pr-hook` or `wrap-up-ritual.md` path from this gate.
 
 > Other reusable hooks (secret-scan and session-start orientation) are still
 > planned for the `hooks-library` plugin. Until they land, author any other hook
 > for the project directly. A hook may enforce a rule or start a review; no hook
 > writes memory.
 
-### Gate 3: Memory system
+### Gate 3: Project knowledge system
 
-**Purpose:** install the complete Git-native second-brain v3 system so Claude
-and Codex share approved specifications and durable project knowledge.
+**Purpose:** install the packaged Git-native project knowledge system so Claude
+and Codex share approved specifications, durable understanding, and one small
+startup map.
 
 - Offer the `second-brain` plugin as one coherent, opt-in system.
 - Explain the authority split in plain language:
-  - `brainstorms/` contains non-authoritative discovery;
-  - `specs/` contains current approved behavior;
-  - typed `memory/` contains context, planning, decisions, knowledge,
+  - `knowledge/brainstorms/` contains non-authoritative discovery;
+  - `knowledge/specs/` contains current approved behavior;
+  - typed `knowledge/memory/` contains context, planning, decisions, knowledge,
     references, domain material, and operations;
   - raw project artifacts remain in their ordinary scaffold;
   - work-tracker owns live work state; and
   - Git owns exact history.
-- Recommend initial system areas based on the project explanation and stack.
-- Show the complete core tree, only the real project-specific areas, and the
-  proposed `CLAUDE.md` and `AGENTS.md` routes.
+- Ask the owner for the real framing in `knowledge/project.md`: what the project
+  is, why it exists, what finished looks like, its main workstreams and
+  boundaries, who is involved, and where active work is tracked. Never invent
+  that framing.
+- Show the complete `knowledge/` tree and the proposed startup routes.
 - If approved, install `second-brain` from this marketplace and follow its
-  greenfield setup workflow. Use its canonical rule, routing reference,
-  memory-verifier role, two scripts, orientation snippet, and index templates.
-  Do not retype or maintain copies in `project-init`.
-- Treat the rule, its reference, the role, the two scripts, root routes, root
-  indexes, and all seven typed memory homes as one adoption unit. Do not offer a
-  broken partial variant.
-- Offer the initial memory pass after installation. The main agent drafts the
-  real words for useful initial context, planning, and already-approved
-  specifications, `memory-verifier` checks them, and only what the owner
-  approves is written.
+  greenfield setup workflow. Use its packaged `remember`, `recall`, and
+  `cleanup` skills, index builder, layout tool, session-start loader, and
+  pull-request reminder. Do not retype or maintain copies in `project-init`.
+- Treat the tree, tools, hooks, root routes, and all seven typed memory homes as
+  one adoption unit. Do not offer a broken partial variant.
+- Commit only `knowledge/.obsidian/app.json` with `alwaysUpdateLinks: true`,
+  `newLinkFormat: "relative"`, and `useMarkdownLinks: true`. Add a `.gitignore`
+  allowlist that ignores
+  every other file under `knowledge/.obsidian/`, including personal layouts,
+  hotkeys, appearance, plugins, themes, and device state. Do not commit a core
+  plugin list; browsing, search, backlinks, and graph views need no shared
+  plugin policy.
+- Register `.claude/hooks/knowledge-session-start.mjs` as a fail-open Claude
+  `SessionStart` hook. Add the equivalent fail-open `.codex/hooks.json` route
+  where native Codex hooks are supported, and always put the startup instruction
+  in root `AGENTS.md` as the portable Codex route.
+- Offer the initial durable pass after installation. The main agent shows
+  `What I want to change`, `Why`, and the exact proposed words, then writes only
+  what the owner approves.
 - Never add a database, memory MCP server, embeddings, transcript capture, or
-  background curator. The memory core installs no hooks of its own; a hook that
-  enforces a rule or starts a review comes from Gate 2 and the `hooks-library`
-  plugin. No hook writes memory.
+  background curator. Hooks may load or remind; they never approve or write
+  durable knowledge.
 - Never read or import retired v1 Worker, Neon, curator, outbox, or cache
   content.
-- The folders this gate creates all ship a `README.md` index: `specs/`,
-  `brainstorms/`, and every `memory/` type folder. So none of them gets its own
-  `CLAUDE.md` by default. Record the skips in the wrap-up summary. See
-  `references/folder-claudemd.md`.
+- `knowledge/index.md` is generated from specifications and memories. Nobody
+  hand-edits it, and no per-folder indexes are created. The `knowledge/` tree is
+  exempt from folder `CLAUDE.md` files because its contract is already owned by
+  the root routes and project-knowledge specification.
 
-### Gate 4: Knowledge layer
+### Gate 4: Optional mechanical knowledge aids
 
-**Purpose:** durable, reusable project understanding organized in human-readable
-Git documents and connected to the specifications and context it affects.
+**Purpose:** optional impact-analysis tools that support, but never replace, the
+Markdown knowledge system.
 
 - Do not offer a second or competing knowledge system. When Gate 3 was
-  approved, v3's `memory/knowledge/`, `memory/references/`, and
-  `memory/domain/` already provide the knowledge layer.
-- Mark this gate **included with second-brain v3** when Gate 3 ran, or
-  **skipped with Gate 3** when the owner declined v3.
+  approved, `knowledge/memory/knowledge/`, `knowledge/memory/references/`, and
+  `knowledge/memory/domain/` already provide the durable knowledge layer.
+- Mark this gate **available alongside project knowledge** when Gate 3 ran, or
+  **independent of project knowledge** when the owner declined Gate 3.
 - Explain that a dependency graph is a separately optional analysis aid for
   brownfield work, not required memory infrastructure and not automatically
   authoritative. It answers what connects to what; only a person records why.
@@ -278,9 +285,9 @@ list.
   into the project's `.claude/rules/`. Every default-ON file goes in unless the
   owner drops it; walk the list and let them accept, edit, or skip each. Adapt
   wording to the project's voice if they want; each file is the intent, not
-  fixed prose. The second-brain rule is installed by Gate 3 from the
-  second-brain plugin and is indexed once. No retired v1 files remain in the
-  active rule library.
+  fixed prose. The project knowledge procedure comes from Gate 3's installed
+  plugin and is not duplicated as a general rule. No retired memory rule or
+  verifier belongs in the active rule library.
 - **Default-ON rules** cover the multi-agent worktree protocol (own worktree per
   session, assume parallel agents, land by PR), the language rules (no em dashes,
   no section signs, no AI filler, plain language), and the working-style rules
@@ -314,20 +321,22 @@ list.
   structural pointers, include the one-line work-tracking pointer from
   `references/work-tracking-choice.md`, naming the tracker Gate 1 settled on and
   how a refined ticket is marked. Add the identical line to `AGENTS.md`. Reflect what the
-  earlier gates set up. When v3 was installed, preserve its compact project
-  memory route and add the equivalent route to `AGENTS.md`. Both route to
-  `.claude/rules/second-brain.md`; neither copies the complete schema.
+  earlier gates set up. When project knowledge was installed, keep a short
+  route in both files. `CLAUDE.md` names the fail-open session-start loader and
+  `knowledge/`; `AGENTS.md` directly instructs Codex to read
+  `knowledge/project.md` and `knowledge/index.md` first. Neither copies the
+  complete system specification.
   Keep other behavioral rules out of the root files.
 - **Keep the codemap to one line per folder**, and let that line point at the
   folder's own `CLAUDE.md` for the detail. Four things never leave the root
   file, because an agent needs them before it opens any folder: how to talk to
-  the owner, the pointers to the most dangerous rules, the memory routing
-  section, and the codemap lines themselves. `references/thin-claudemd.md` has
+  the owner, the pointers to the most dangerous rules, the project-knowledge
+  startup route, and the codemap lines themselves. `references/thin-claudemd.md` has
   the list under "What must stay in the root file".
 - **`AGENTS.md` keeps the folder detail in full.** Codex reads it and never
   reads any `CLAUDE.md`, root or nested, so anything the root `CLAUDE.md` handed
-  off to a folder file stays written out in `AGENTS.md`. Below the shared memory
-  section the two root files are meant to differ in length. Never write a nested
+  off to a folder file stays written out in `AGENTS.md`. The two root files are
+  meant to differ in length. Never write a nested
   `AGENTS.md` to close that gap.
 - **Add a `.claude/rules/README.md`** that indexes what each copied rule file
   does, so the folder is self-describing.
@@ -361,12 +370,14 @@ in their own plugins.
 
 - Offer `grill-me` when the owner wants a durable brainstorm or discovery
   workflow. Explain that it asks one question at a time and writes every answer
-  to `brainstorms/{date}-{topic}.md` before continuing.
+  to `knowledge/brainstorms/{date}-{topic}.md` before continuing when project
+  knowledge is installed.
 - Keep it opt-in. If approved, install the `grill-me` plugin from this
   marketplace. Do not copy its `SKILL.md` into the project.
-- When v3 is installed, explain that `grill-me` also updates the flat brainstorm
-  index and ends by proposing any resulting specification or durable-memory
-  updates. It does not make raw discovery authoritative.
+- When project knowledge is installed, explain that `grill-me` ends by invoking
+  `remember` for any resulting specification or durable-memory updates. The
+  generated index excludes brainstorms, and raw discovery stays
+  non-authoritative.
 - Offer `session-summary` when the owner works in long sessions or hands work
   between sessions. Explain that asking for a recap returns a table with one row
   per request they made, in their own words, each with a status such as done,
@@ -385,8 +396,9 @@ in their own plugins.
   sees it, so facts do not get less accurate each time work is handed on.
   Anything that cannot be confirmed is labelled inside the prompt rather than
   dropped, and `/handoff check` runs that check on a prompt they already have.
-  It needs no output style, no memory system, and no hooks. In a project without
-  the memory system it skips the saving step and puts everything in the prompt.
+  It needs no output style, no project knowledge system, and no hooks. In a
+  project without project knowledge it skips the saving step and puts everything
+  in the prompt.
   It pairs with the `offer-context-handoff.md` rule from Gate 5, which is what
   makes the same thing happen when the owner asks in their own words instead of
   typing the command.

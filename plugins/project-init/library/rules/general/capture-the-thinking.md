@@ -60,22 +60,22 @@ and do not invent a new location when an existing one fits.
 |---|---|
 | This ticket's goal, requirements, scope, edge cases, and decisions | The work item's `SPEC.md` in the project's work tracker |
 | Where the ticket stands, what is next, what is blocked | The work item's `STATUS.md` (or the tracker's status command) |
-| Exploration, interviews, options weighed, owner wording, unknowns | `brainstorms/` |
-| Approved product or system behavior beyond one ticket | `specs/` |
-| An important choice and its rationale | `memory/decisions/` |
-| Direction, goals, roadmap, durable risks and assumptions | `memory/planning/` |
-| Durable circumstances and constraints | `memory/context/` |
-| Reusable non-obvious understanding | `memory/knowledge/` |
-| A business term's project-specific meaning | `memory/domain/` |
-| Why a source matters and what it supports | `memory/references/` |
-| How the system is operated, released, or recovered | `memory/operations/` |
+| Exploration, interviews, options weighed, owner wording, unknowns | `knowledge/brainstorms/` |
+| Approved product or system behavior beyond one ticket | `knowledge/specs/` |
+| An important choice and its rationale | `knowledge/memory/decisions/` |
+| Direction, goals, roadmap, durable risks and assumptions | `knowledge/memory/planning/` |
+| Durable circumstances and constraints | `knowledge/memory/context/` |
+| Reusable non-obvious understanding | `knowledge/memory/knowledge/` |
+| A business term's project-specific meaning | `knowledge/memory/domain/` |
+| Why a source matters and what it supports | `knowledge/memory/references/` |
+| How the system is operated, released, or recovered | `knowledge/memory/operations/` |
 
 When the project has no work tracker item for what is being worked on, create
-one before building. When the second-brain memory areas are not installed, the
+one before building. When the project knowledge areas are not installed, the
 work item's `SPEC.md` carries all of it.
 
-Durable memory and specification writes follow the project's memory rule: draft
-the real words, have them checked, show the owner, then save. Writing a work
+Durable memory and specification writes use the installed `remember` skill:
+apply its filters, show the owner the exact words, then save. Writing a work
 item's `SPEC.md` and `STATUS.md` needs no such approval; that is ordinary work.
 
 ## When to write it
@@ -89,8 +89,8 @@ item's `SPEC.md` and `STATUS.md` needs no such approval; that is ordinary work.
    gets skipped and exactly when it matters.
 3. **When direction changes.** If the goal moves, update the written goal in
    the same session and say what changed.
-4. **At completion.** The wrap-up review catches what is durable beyond the
-   ticket. It is the last net, not the first.
+4. **At completion.** Invoke `remember` for what is durable beyond the ticket.
+   It is the last net, not the first.
 
 ## The test
 
@@ -123,9 +123,9 @@ requirements worth stating. If it does, they are worth writing down.
 
 ## This rule owns the during
 
-`work-item-folders.md` owns the containers, the project's memory rule owns who
-may write durable truth, and `wrap-up-ritual.md` owns the review at the end.
-This rule owns the moment those three leave uncovered: capture the thinking as
-it happens, so nothing important ever lives only in a conversation. The table
-above is the one place that says where each kind of content goes; other rules
-point at it rather than keeping their own copy.
+`work-item-folders.md` owns the containers, the project knowledge system owns
+the durable homes and owner-approval boundary, and `remember` owns the review at
+a natural completion point. This rule owns the moment they leave uncovered:
+capture the thinking as it happens, so nothing important ever lives only in a
+conversation. The table above is the one place that says where each kind of
+content goes; other rules point at it rather than keeping their own copy.

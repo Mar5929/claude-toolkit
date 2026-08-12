@@ -131,7 +131,8 @@ chooses how to resolve them.
   adoption.
 - The `work-item-folders.md` rule tells agents to use this tracker when it is
   installed.
-- second-brain v3 may link specifications and memory to work-item folders, but
+- second-brain may link files under `knowledge/specs/` and `knowledge/memory/`
+  to work-item folders, but
   work-tracker owns task status and handoff state.
 
 ## Verification

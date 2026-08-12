@@ -94,8 +94,8 @@ claude-toolkit/
       .claude-plugin/plugin.json
       .codex-plugin/plugin.json
       library/                    ← everything that gets COPIED INTO a project.
-        rules/general/               the standard .claude/rules files (17)
-        rules/salesforce/            the extra Salesforce rules (10)
+        rules/general/               the standard .claude/rules files (14)
+        rules/salesforce/            the extra Salesforce rules (9)
         output-styles/               plain-language.md, the voice Claude answers in
         tools/                       permsets.py and the kb/ dependency graph tool
         templates/                   copy-and-fill starting points
@@ -113,19 +113,21 @@ claude-toolkit/
                                      salesforce-project-scaffold)
         project-sync/             ← SKILL.md (reads the same library/)
         machine-sync/             ← SKILL.md (reads machine/, writes ~/.claude/)
-    second-brain/                 ← plugin: Git-native v3 memory for Claude and Codex
+    second-brain/                 ← plugin: Git-native project knowledge for Claude and Codex
       README.md
       .claude-plugin/plugin.json
       .codex-plugin/plugin.json
-      agents/
-        memory-verifier.md         ← read-only checking role shared by both agents
+      hooks/
+        knowledge-session-start.mjs ← loads the project map at session start
+        save-reminder.mjs          ← pauses pull requests for the owner-approved review
       tools/
-        memory-index-build.mjs     ← rebuilds each index list from the documents
-        memory-shape-check.mjs     ← title, summary, Basis line, index entry
+        build-knowledge-index.mjs  ← rebuilds the generated vault index
+        knowledge-layout.mjs       ← detects and safely migrates older layouts
       skills/
-        second-brain/             ← SKILL.md + canonical v3 rule, reference, schemas,
-                                     templates
+        second-brain/             ← install, audit, migrate, and maintain the vault
         remember/                 ← direct owner-approved capture workflow
+        recall/                   ← focused retrieval from the project map
+        cleanup/                  ← owner-approved maintenance workflow
     sf-architect-solutioning/     ← plugin: Salesforce solution architect
       README.md
       .claude-plugin/plugin.json
@@ -148,7 +150,6 @@ claude-toolkit/
       hooks/
         style-reminder.mjs        ← re-states the output style every message
         writing-guard.mjs         ← checks the finished reply before it is sent
-        memory-pr-hook.mjs        ← holds the pull request command for the memory check
         no-ai-attribution-guard.mjs ← refuses a commit or PR that credits an AI
                                      (machine-wide; installed by machine-sync)
         guard-protected-orgs.js   ← confirms before a deploy hits a production org
@@ -193,8 +194,6 @@ claude-toolkit/
         handoff/                  ← SKILL.md
   docs/
     toolkit-map.md                ← the catalog: every item and how they relate
-    architecture.html             ← visual map of how the pieces fit
-    second-brain-v3/              ← current shipped memory and knowledge specification
   tests/
     orphan-check.mjs              ← fails if the toolkit ships a file nothing points at
     link-check.mjs                ← fails if a Markdown link points at a file that is gone
@@ -203,16 +202,17 @@ claude-toolkit/
     second-brain-v1/              ← retired implementation, outside installable plugins
   .claude/                        ← this repo running the toolkit on itself
     rules/                        ← copies of the rules it ships, plus their index
-    hooks/                        ← style-reminder, writing-guard, save-reminder
+    hooks/                        ← style, writing, startup, and save-reminder copies
     output-styles/                ← plain-language.md, selected in settings.json
-    skills/                       ← remember, recall, cleanup: this repo's own
-                                     memory system, which no plugin ships yet
-    tools/                        ← build-memory-index.mjs, which writes
-                                     memory/index.md
+    tools/                        ← installed index builder and layout migrator
     toolkit-sync.md               ← what was set up, skipped, or declined, and why
-  brainstorms/                    ← this repo's own discovery notes
-  specs/                          ← approved behavior, filled as work happens
-  memory/                         ← this repo's own memory, listed in index.md
+  knowledge/                      ← this repo's Markdown knowledge vault
+    .obsidian/                    ← portable link settings only
+    project.md                    ← short project framing loaded at startup
+    index.md                      ← generated map of current specs and memories
+    brainstorms/                  ← unchecked discovery notes
+    specs/                        ← approved behavior
+    memory/                       ← durable project understanding by type
 ```
 
 Each **concern is its own plugin/skill** so it can evolve and be reused
@@ -229,7 +229,7 @@ relate (including what looks redundant but is not), see
 
 ## What's here now
 
-Eight plugins. Each has its own `README.md` with the detail;
+Ten plugins. Each has its own `README.md` with the detail;
 [`docs/toolkit-map.md`](docs/toolkit-map.md) indexes everything in one place and
 explains how the pieces relate.
 
@@ -246,15 +246,15 @@ inside a project folder before it is useful, which is what the last column says:
 
 | Plugin | What it does | Setup |
 |---|---|---|
-| **[project-init](plugins/project-init/README.md)** | Sets up or syncs a project. Asks where work items are tracked (a GitHub Projects board, Linear, Jira, files in the repository, or nothing), sets up the board itself for the GitHub answer, and carries the same ticket rules into the project whichever answer it gets. Offers work-tracker with safe adoption of older folders, and installs the complete second-brain v3 system when selected. For Salesforce projects it also ships two self-contained tools: the permission set kit, and a dependency graph that answers "if I change this field, what breaks?" from the project's own metadata. Existing-project sync begins with a read-only audit. Its third skill, `machine-sync`, sets up the computer instead of a project: it installs the rules, settings, and hooks that have to hold in every repository, starting with never putting AI credit on anything committed or pushed. | Sets up a project, and sets up a machine |
-| **[second-brain](plugins/second-brain/README.md)** | Production-ready Git-native Markdown memory and knowledge for Claude and Codex, with one shared rule, typed schemas, owner-approved updates, and a read-only memory verifier that checks every claim before the owner sees it. | Sets up a project |
+| **[project-init](plugins/project-init/README.md)** | Sets up or syncs a project. It asks where work is tracked, carries the ticket rules into that tracker, offers work-tracker, and installs or safely migrates the portable `knowledge/` vault when selected. For Salesforce projects it also ships permission-set and dependency-graph tools. `machine-sync` installs the rules, settings, and hooks that must hold across the computer. | Sets up a project, and sets up a machine |
+| **[second-brain](plugins/second-brain/README.md)** | A portable `knowledge/` vault for Claude, Codex, Git, and optional Obsidian: project framing and a generated startup map, approved specifications, seven typed memory homes, raw brainstorms, three focused skills, and safe migration from older layouts. | Sets up a project |
 | **[sf-architect-solutioning](plugins/sf-architect-solutioning/README.md)** | A Salesforce solution architect: pushes back on vague requirements, verifies platform facts against official docs by live fetch, designs declarative-first to Well-Architected standards, and presents a solution plan for approval before any build. Salesforce projects only. | Install and go |
 | **[git-workflows](plugins/git-workflows/README.md)** | Three parallel-session-safe git lifecycle skills: `pull-latest` gets current without rewriting history, `reset-to-remote` mirrors the remote behind confirmation, and `merge-and-clean-up` lands an approved PR before removing only its completed workspace. | Install and go |
-| **[hooks-library](plugins/hooks-library/README.md)** | Hooks that make a rule land mechanically instead of restating it: `style-reminder` puts the project's active output style back in front of Claude on every message, `writing-guard` reads the finished reply and blocks an em dash or a section sign before it is sent, `memory-pr-hook` holds the command that opens a pull request so the memory check happens, and `no-ai-attribution-guard` refuses any commit, tag, pull request, or release whose text credits an AI. | Wires into settings |
+| **[hooks-library](plugins/hooks-library/README.md)** | Reusable hooks that make a rule land mechanically: `style-reminder` restores the active output style, `writing-guard` rejects an em dash or section sign in a finished reply, `no-ai-attribution-guard` refuses AI credit in Git text, and two Salesforce guards protect production and permission-set deploys. System-specific knowledge hooks ship with second-brain. | Wires into settings |
 | **[grill-me](plugins/grill-me/README.md)** | Stress-tests a plan, design, or topic through a one-question-at-a-time interview and checkpoints every answer to a durable Markdown file before continuing. | Install and go |
 | **[work-tracker](plugins/work-tracker/README.md)** | Gives Claude and Codex one Git-authoritative backlog with exact handoffs, blockers, typed relationships, deterministic next-item selection, Git landing proof, generated dashboards, and optional GitHub Issues and Projects synchronization. | Sets up a project |
 | **[session-summary](plugins/session-summary/README.md)** | Recaps a session as a table, one row per main request you made, in your own words and in the order you asked, each carrying an honest status, then pulls whatever still needs you into its own block below. Answers "what did I ask for, and where does it stand?" and "what still needs me?" without a narrative of the assistant's own work. | Install and go |
-| **[handoff](plugins/handoff/README.md)** | Ends a long session without losing what it learned. `/handoff` shows you a table of what is worth saving, waits for you to approve, cut, or edit it, then writes a prompt you can paste into a fresh session, with everything you did not save carried inside it. The prompt opens with the goal of the work and why it matters, and a second agent that never saw the conversation checks it against the repository before you see it, so facts do not get less accurate each time work is handed on. `/handoff check` runs that check on a prompt you already have. Nothing can catch `/clear` after the fact, so this is the moment that has to be taken on purpose. | Install and go |
+| **[handoff](plugins/handoff/README.md)** | Ends a long session without losing what it learned. `/handoff` invokes the project's `remember` workflow when available, waits for any required owner decision, then writes a prompt for a fresh session with everything unsaved carried inside it. A second agent checks the prompt against the repository before you see it. `/handoff check` checks a prompt you already have. | Install and go |
 | **[explain-simply](plugins/explain-simply/README.md)** | Re-explains the last answer, a plan, or any file you name as short bullets grouped under bold headings, at a reading level anyone follows in one pass. Every number, date, file path, and name survives, because a simple explanation that dropped the facts is not simpler, only vaguer. Reads the project's active output style first, so the plain version sounds like the rest of the project. | Install and go |
 
 ---
@@ -264,39 +264,20 @@ inside a project folder before it is useful, which is what the last column says:
 These are the reusable systems I want to fold in here over time. Ordered roughly
 by priority; each becomes its own skill/plugin so `project-init` can pull it in.
 
-- [x] **Second-brain v3**: a shared Markdown memory and knowledge system for
-  Claude and Codex. Raw discovery uses a flat, dated `brainstorms/` collection.
-  Current product and system behavior is organized into capability folders
-  under `specs/`. Context, planning, decisions, knowledge, references, domain
-  material, and operations are organized by type and project-specific area
-  under `memory/`. Root `CLAUDE.md` and `AGENTS.md` files give every session
-  the compact folder map and route both agents to one canonical detailed rule.
-  Documents use ordinary Markdown backlinks. At approved completion points and
-  natural stopping points after meaningful work, the main agent drafts the exact
-  words it proposes to save, with a source on every claim. The read-only
-  `memory-verifier` checks that draft before the owner sees anything, and flags
-  every claim it cannot confirm. The owner then reads the real text, not a table
-  describing it, and approves, selects, edits, combines, defers, or skips in
-  normal language. An edit is written exactly as the owner wrote it. The main
-  agent saves the approved words in the task's worktree and pull request, then
-  runs two scripts that rebuild each index list from the documents and check
-  each document's shape. Before merge, `memory-verifier` runs again, sized to
-  the change, to catch parallel duplicate homes or conflicts Git cannot see.
-  Owner-approved cleanup may delete or reorganize memory, so the system does not
-  only accumulate files. There is no fixed proposal limit. The system requires
-  no database, MCP server, embeddings, transcript capture, background curation,
-  or scheduled jobs, and no hook ever writes memory. The
-  [plugin README](plugins/second-brain/README.md) describes it, and the plugin
-  ships the rule, its routing reference, the memory-verifier role, the two
-  scripts, templates, setup, sync, and remember workflows. Those files are the
-  design: the separate design document set was deleted, because a second
-  description of the same system is a second thing to keep in step. **This
-  repository stopped running it on 2026-08-06** and now runs the smaller system
-  in [`specs/memory-system.md`](specs/memory-system.md): four always-loaded
-  lines, three skills under `.claude/skills/`, one index, one hook, no checking
-  agent and no shape script. Every other project still runs second-brain v3, and
-  the plugin still ships it. Packaging the smaller system for other projects is
-  a separate ticket.
+- [x] **Project knowledge package**: one portable Markdown knowledge vault under
+  `knowledge/`, shared by Claude, Codex, Git, and optional Obsidian. A short
+  `project.md` and generated `index.md` orient each session without loading the
+  whole vault. Approved behavior lives under `specs/`, durable understanding
+  uses seven typed folders under `memory/`, and raw discovery stays under
+  `brainstorms/`. The `remember`, `recall`, and `cleanup` skills use the same
+  four save filters and owner-approval boundary. A small startup loader only
+  reads, and a pull-request hook only reminds. The package deliberately has no
+  verifier agent, large always-loaded rule, shape checker, per-folder indexes,
+  database, embeddings, transcript capture, or background writer. Project-sync
+  detects the retired v3, flat #149, new, absent, mixed, and unknown layouts;
+  safe flat migration repairs links, while retired-v3 conversion stops for
+  review instead of guessing metadata. The current behavior is specified in
+  [`knowledge/specs/memory-system.md`](knowledge/specs/memory-system.md).
 - [x] **`second-brain` v1 archive**: the retired Worker, Neon, MCP, curator,
   hook, knowledge-backfill, and structural-layer source has been removed from
   active plugin paths and consolidated under
@@ -308,7 +289,7 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
   handoffs, and verified landing evidence. Its optional GitHub adapter creates
   or links a Project with the six standard statuses and repository issues
   labeled bug, enhancement, or task.
-- [x] **Shared hooks library**: now the `hooks-library` plugin. Ships two hooks.
+- [x] **Shared hooks library**: now the `hooks-library` plugin.
   `style-reminder` puts the project's output style back in front of Claude every
   time I send a message, so the writing instructions are never stale hours into a
   session. `writing-guard` reads the finished reply and blocks on an em dash or a
@@ -316,10 +297,10 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
   #101 and brought back by #102, narrowed to those two characters; everything
   needing judgement stays with the style, because a wrong block costs me a turn.
   It also holds the two Salesforce guards, the production-org guard and the
-  permission set deploy guard, moved here by #126 so every hook in the toolkit
-  sits in one place. `project-init` Gate 2 still offers them; it now installs
-  this plugin and follows its two guides. Still to come: secret-scanning, a
-  SessionStart orientation hook, and the memory pull-request hook (#104).
+  permission set deploy guard, moved here by #126 so reusable hooks sit in one
+  place. `project-init` Gate 2 offers those hooks and follows
+  the two Salesforce guides. Second-brain keeps its startup and pull-request
+  hooks with the knowledge system whose paths and messages they depend on.
 - [x] **General rules library**: the standard rules are now individual files in
   `project-init`'s `library/rules/general/` folder (with a `README.md` index),
   copied

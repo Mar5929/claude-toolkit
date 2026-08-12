@@ -135,8 +135,9 @@ does.
    a perfect note for three of them. The freshness hook keeps it honest from then
    on.
 
-Where those notes live is the project's own choice: `memory/knowledge/` when
-second-brain is installed, otherwise `docs/`.
+Where those notes live is the project's own choice:
+`knowledge/memory/knowledge/` when project knowledge is installed, otherwise
+`docs/`.
 
 ## Known limits (say these out loud; do not oversell)
 

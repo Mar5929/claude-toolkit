@@ -39,8 +39,8 @@ Then keep the shape:
 - **Say each rule once.** If a rule is already a file in `.claude/rules/`, do not
   restate it in CLAUDE.md. Claude Code loads every `.md` file in that folder
   automatically at session start, so the rule is already in force and a second
-  copy only drifts. Two deliberate exceptions: the second-brain v3 memory
-  schema, covered below, and AGENTS.md, covered next.
+  copy only drifts. `AGENTS.md`, covered next, is the deliberate host-specific
+  exception.
 - **Prune while you are in there.** When you edit a section, delete what is now
   wrong, superseded, or said twice. Removing a stale line is part of keeping the
   file current, not a separate cleanup task.
@@ -100,27 +100,14 @@ while you are in there.
 - **Never repeat a `README.md` index.** Where a folder has one, the README stays
   the one index and the folder file points at it, or the folder is skipped.
 
-## The memory section: keep all three copies in step
+## Keep the project-knowledge route small and current
 
-When second-brain v3 is installed, the memory routing schema lives in three
-places on purpose: the canonical rule `.claude/rules/second-brain.md`, and the
-same section at the top of both CLAUDE.md and AGENTS.md. Routing has to happen
-before an agent writes anything, and a rule it has not opened cannot route.
+When project knowledge is installed, root instructions carry only the startup
+route. Claude's fail-open `SessionStart` loader reads `knowledge/project.md` and
+`knowledge/index.md`. `AGENTS.md` directly tells Codex to read the same two
+files and to treat `knowledge/brainstorms/` as unchecked.
 
-That exception comes with an obligation. Whenever the canonical rule's authority
-map, its list of homes, or its document contract changes, update the section in
-both root files in the same change. The canonical rule wins if they disagree.
-Never let the two root files carry different authority maps, and never shorten
-one of them into a summary; copy the section from the second-brain plugin's
-`references/orientation-snippet.md` verbatim.
-
-One passage inside the section is allowed to differ, and only this one. In the
-steps for a save, CLAUDE.md tells the session to invoke `memory-verifier` at
-`.claude/agents/memory-verifier.md`, which is a Claude Code agent file. Codex
-cannot invoke it, so AGENTS.md instead tells the session to delegate to a
-subagent and have that subagent read both that file and
-`.claude/rules/second-brain.md` in full first. Same obligation, two programs.
-Do not "fix" either one to match the other.
-
-When trimming CLAUDE.md, this section is not a candidate. It stays first and
-stays whole.
+When those paths or delivery mechanisms change, update the applicable root
+route in the same change. Never copy the authority map, memory types, save
+procedure, or generated index into a root file. Their canonical homes are the
+project-knowledge specification, packaged skills, and files under `knowledge/`.

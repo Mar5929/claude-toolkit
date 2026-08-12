@@ -1,7 +1,7 @@
 {
   "name": "hooks-library",
-  "description": "Hooks that make a rule land mechanically instead of asking an agent to remember it. Ships style-reminder, a UserPromptSubmit hook that puts the project's active output style back in front of the agent on every message; writing-guard, a Stop hook that hands back a reply containing an em dash or a section sign; memory-pr-hook, a PreToolUse hook that holds the command opening a pull request, once per branch per session, so the memory check happens at the moment it applies; and no-ai-attribution-guard, a machine-wide PreToolUse hook that refuses any commit, tag, pull request, or release whose text credits an AI. Built after measuring real transcripts showed these rules are stated clearly in several places and broken most of the time anyway.",
-  "version": "1.5.0",
+  "description": "Hooks that make a rule land mechanically. Ships style-reminder, writing-guard, two Salesforce deployment guards, and the machine-wide no-ai-attribution guard. Project-knowledge startup and pull-request reminders are owned by the project-knowledge package.",
+  "version": "2.0.0",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com"

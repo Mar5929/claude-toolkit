@@ -47,8 +47,7 @@ other is now handled a different way:
   rule in `../rules/general/` tells a helper agent to go read the style file before
   writing a commit message, pull request text, or a document. An agent that
   writes something the owner reads carries the rules in its own definition; see
-  the "How to write your report" section in
-  `second-brain/agents/memory-verifier.md`.
+  the `handoff-verifier` agent in the `handoff` plugin for an example.
 
 ## What ships today
 

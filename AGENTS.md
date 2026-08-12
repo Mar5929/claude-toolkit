@@ -46,16 +46,16 @@ I have ADHD. Talk to me like I am smart but not technical. Sixth-grade reading l
 
 Long is fine for drafts, scripts, posts, and documents. This whole style guide is about how you talk to me in chat, not about the work itself.
 
-## Project memory and specifications
+## Project knowledge
 
-1. `specs/` says what things must do. `memory/` says what is worth knowing.
-   Look there before searching the code, and before asking the user something
-   the project already wrote down.
-2. At the start of a session, read the index at `memory/index.md` to see what
-   is already written down.
-3. `brainstorms/` holds raw transcripts. Nothing in them is approved truth.
-4. Never write into `specs/` or `memory/` without first showing the user the
-   exact words and getting a yes from the user.
+1. At session start, read `knowledge/project.md` and `knowledge/index.md`.
+2. `knowledge/specs/` says what things must do. `knowledge/memory/` says what
+   is worth knowing. `knowledge/brainstorms/` is unchecked source material.
+3. Before changing behavior or asking something already documented, read the
+   relevant specification or memory.
+4. Never make durable knowledge current without showing Mike the exact words
+   and getting his approval. The full policy is
+   `knowledge/specs/memory-system.md`.
 
 <!-- shared-with-agents-md:end -->
 
@@ -72,8 +72,8 @@ match `CLAUDE.md`, and do not create nested `AGENTS.md` files.
 `tests/installed-copy-check.mjs` compares only the text between the markers, so
 below them nothing checks anything: when you change a passage here, change the
 matching passage in `CLAUDE.md` in the same edit, by hand.
-`memory/decisions/claude-md-and-agents-md-carry-the-same-block.md` says why the
-markers sit where they do.
+`knowledge/memory/decisions/claude-md-and-agents-md-carry-the-same-block.md`
+says why the markers sit where they do.
 
 ## Codemap
 
@@ -86,22 +86,23 @@ markers sit where they do.
 | `docs/toolkit-map.md` | The cross-cutting catalog: what each piece is, and the honest read on what looks redundant but is not. |
 | `tests/` | Node checks, run by hand. `link-check.mjs` (a link pointing at a file that is not there), `orphan-check.mjs` (a shipped file no index points at), `installed-copy-check.mjs` (a file this repo ships and the copy it runs have drifted apart). |
 | `archive/` | Retired material kept for history. Never a source of current truth. |
-| `.claude/` | What this repo runs on itself: the rule copies, the output style, the hooks, the three memory skills, the index script, and the setup record in `toolkit-sync.md`. |
+| `knowledge/` | The project overview, generated index, approved specifications, durable memory, raw brainstorms, and minimal Obsidian vault settings. |
+| `.claude/` | What this repo runs on itself: the rule copies, output style, installed hooks and tools, settings, and the setup record in `toolkit-sync.md`. |
 
 This repo runs the toolkit on itself. `.claude/rules/`, `.claude/hooks/`,
-`.claude/output-styles/`, `brainstorms/`, `specs/`, and
-`memory/` are the same setup every other toolkit project gets, installed here so
-a change is felt where it is written instead of three weeks later in another
-project. That means most files under `.claude/` are copies of files this repo
-also ships. `tests/installed-copy-check.mjs` fails when a shipped file and its
-copy stop matching, so nobody has to remember to change both.
+`.claude/output-styles/`, and `knowledge/` are the same setup every other toolkit
+project gets, installed here so a change is felt where it is written instead of
+three weeks later in another project. That means most files under `.claude/` are
+copies of files this repo also ships. `tests/installed-copy-check.mjs` fails when
+a shipped file and its copy stop matching, so nobody has to remember to change
+both.
 
-`.claude/skills/` and `.claude/tools/build-memory-index.mjs` are this repo's own,
-not copies. They are the memory system in `specs/memory-system.md`, which no
-plugin ships yet. Codex never sees a skill, so read
-`.claude/skills/remember/SKILL.md` yourself before writing anything into
-`specs/` or `memory/`, and `.claude/skills/recall/SKILL.md` before looking for
-what this project already knows.
+The `second-brain` plugin supplies the `remember`, `recall`, and `cleanup`
+skills. The installed startup loader, pull-request reminder, and index builder
+under `.claude/` are copies of what that plugin ships. The policy they follow is
+`knowledge/specs/memory-system.md`. Codex reads that policy before changing
+durable knowledge and starts every task from `knowledge/project.md` and
+`knowledge/index.md`.
 
 ## Where work is tracked
 
@@ -136,12 +137,12 @@ to this repo:
 
 - Worktrees are siblings of the primary checkout, named
   `claude-toolkit-<issue number>`, on a branch named `issue-<number>-<slug>`.
-- Memory and specification writes land in the worktree and reach `main` when the
-  pull request merges, so two sessions saving at once both touch
-  `memory/index.md`. Git can merge that with no reported conflict and still leave
-  the index wrong. After bringing your branch current, run
-  `node .claude/tools/build-memory-index.mjs` again: it rebuilds the index from
-  the files, which are what win.
+- Knowledge writes land in the worktree and reach `main` when the pull request
+  merges, so two sessions saving at once both rebuild `knowledge/index.md`. Git
+  can merge that with no reported conflict and still leave the index wrong.
+  After bringing your branch current, run
+  `node .claude/tools/build-knowledge-index.mjs` again: it rebuilds the index
+  from the files, which are what win.
 
 ## Your main job here: fold new lessons into the toolkit
 
@@ -175,8 +176,7 @@ write X down somewhere. Fit it into the system:
 5. **Give every agent you add the writing rules in its own text.** An output
    style is delivered in the main conversation's system prompt and never reaches
    a helper agent, so an agent definition under `plugins/*/agents/` has to carry
-   those rules itself. `memory-verifier.md` has a "How to write" section for
-   exactly this reason: its findings are read back to Mike, so a word he has to
+   those rules itself. Its findings are read back to Mike, so a word he has to
    decode once would spread instead of being forgotten.
 6. **Bump versions.** A content change to a plugin bumps its `plugin.json`
    version and `metadata.version` in `marketplace.json`.

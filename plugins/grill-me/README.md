@@ -24,7 +24,8 @@ this design," or "help me extract this idea into a document."
 
 ## Skill
 
-- **grill-me** (`/grill-me`): creates a dated file under `brainstorms/`, walks
+- **grill-me** (`/grill-me`): creates a dated file under
+  `knowledge/brainstorms/` when project knowledge is installed, walks
   the topic's decision tree in dependency order, records every answer and open
   flag before asking the next question, then closes with a contradiction check
   and short recap.
@@ -32,8 +33,10 @@ this design," or "help me extract this idea into a document."
 ## Persistence contract
 
 The capture file is the source of truth, not the conversation context. Raw
-notes remain under `brainstorms/` even if the session later produces a polished
-plan or specification elsewhere in the project.
+notes remain under `knowledge/brainstorms/` even if the session later produces
+a polished plan or specification elsewhere in the project. In a project with
+no knowledge-system signature, the skill can still use a clearly identified
+standalone brainstorm artifact folder without creating a partial system.
 
 ## How it relates to the rest of the toolkit
 
@@ -46,18 +49,18 @@ plan or specification elsewhere in the project.
   skill on purpose, so that removing this plugin never leaves it stale: what it
   requires is the session, and the six-part spec ending up in the ticket itself,
   whether that is a `SPEC.md` or an external tracker's ticket body. The dated
-  capture under `brainstorms/` stays what it always was, the raw record of how
-  the answers were reached, and is not the spec.
-- It does not depend on second-brain. The Markdown capture remains usable even
+  capture under `knowledge/brainstorms/` stays what it always was, the raw
+  record of how the answers were reached, and is not the spec.
+- It does not depend on the project knowledge package. The Markdown capture remains usable even
   when memory tooling is unavailable.
-- When second-brain v3 is installed, `grill-me` adds the dated capture to the
-  flat brainstorm index. At interview completion it drafts the resulting
-  specifications and other durable updates, has `memory-verifier` check them,
-  and saves what the owner approves. Raw discovery remains non-authoritative and
-  links both ways to every resulting specification.
+- When the current project knowledge system is installed, `grill-me` keeps the
+  capture in its flat brainstorm folder. At interview completion it invokes
+  `remember`, which applies the save filters, shows the owner the real proposed
+  words, and saves only what they approve. Raw discovery remains
+  non-authoritative and links to resulting specifications when useful.
 
-The owner-invoked raw brainstorm and its index entry are the one place anything
-reaches a file without the owner approving the exact words first. `grill-me`
+The owner-invoked raw brainstorm is the one place anything reaches a file
+without the owner approving the exact words first. `grill-me`
 writes those checkpoints so an interrupted interview loses nothing, and a
 brainstorm is never authoritative. It never writes curated memory or an approved
 specification itself.
