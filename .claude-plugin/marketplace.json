@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Personal, portable toolkit of reusable Claude systems: skills, rules, hooks, and templates shared across every project and device.",
-    "version": "0.68.0"
+    "version": "0.69.0"
   },
   "plugins": [
     {
@@ -35,29 +35,14 @@
       "description": "Hooks that make a rule land mechanically instead of restating it. style-reminder re-states the project's active output style every time the owner sends a message, so the voice instructions never go stale hours into a session. writing-guard reads the finished reply and blocks on an em dash or a section sign, so a slip is caught rather than shipped. no-ai-attribution-guard refuses any commit or pull request whose text credits an AI, on every repository on the machine."
     },
     {
-      "name": "grill-me",
-      "source": "./plugins/grill-me",
-      "description": "Relentless discovery interview skill that asks one question at a time, recommends a likely answer, and checkpoints every response to a durable brainstorm file before continuing."
-    },
-    {
       "name": "work-tracker",
       "source": "./plugins/work-tracker",
       "description": "Git-native work tracking shared by Claude and Codex, with deterministic status, handoffs, relationships, Git landing verification, generated dashboards, and optional GitHub Issues and Projects synchronization."
     },
     {
-      "name": "handoff",
-      "source": "./plugins/handoff",
-      "description": "Ends a long session without losing what it learned. Invokes the project's remember workflow when available, waits for owner approval, then drafts a self-contained prompt for a fresh session that opens with the goal and carries anything not saved. A second agent checks the prompt against the repository before the owner sees it."
-    },
-    {
-      "name": "session-summary",
-      "source": "./plugins/session-summary",
-      "description": "Recaps a session as a table, one row per main request the owner made, in the owner's own words and in the order asked, each carrying an honest status: done, done unverified, partly done, blocked, waiting on you, not started, dropped, or answered. A block below the table names whatever still needs the owner."
-    },
-    {
-      "name": "explain-simply",
-      "source": "./plugins/explain-simply",
-      "description": "Re-explains the last answer, a plan, or any file the owner names as short bullets grouped under bold headings, at a reading level anyone follows in one pass. Every number, date, file path and person's name survives, because a simple explanation that dropped the facts is not simpler, only vaguer. Reads the project's active output style first so the plain version sounds like the rest of the project, and ends with a numbered list of what the owner has to do, only when there is something to do."
+      "name": "session-skills",
+      "source": "./plugins/session-skills",
+      "description": "Five skills for working inside one conversation. explain-simply says the last answer again as plain bullets without losing a number, date, path, or name. grill-me interviews the owner one question at a time and checkpoints every answer to a durable file before continuing. handoff runs the durable review, then drafts a prompt a fresh session can start from, opening with the goal and checked by a second agent that never saw the conversation. session-summary tables what the owner asked for and gives each request an honest status. track-tasks keeps every still-open topic on Claude Code's built-in task list, including parked topics, unanswered questions, and blocked work."
     }
   ]
 }

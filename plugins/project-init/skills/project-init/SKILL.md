@@ -376,23 +376,36 @@ list.
 **Purpose:** offer reusable workflows that are useful in this project but live
 in their own plugins.
 
-- Offer `grill-me` when the owner wants a durable brainstorm or discovery
-  workflow. Explain that it asks one question at a time and writes every answer
-  to `knowledge/brainstorms/{date}-{topic}.md` before continuing when project
-  knowledge is installed.
-- Keep it opt-in. If approved, install the `grill-me` plugin from this
-  marketplace. Do not copy its `SKILL.md` into the project.
-- When project knowledge is installed, explain that `grill-me` ends by invoking
-  `remember` for any resulting specification or durable-memory updates. The
-  generated index excludes brainstorms, and raw discovery stays
-  non-authoritative.
-- Offer `session-summary` when the owner works in long sessions or hands work
-  between sessions. Explain that asking for a recap returns a table with one row
-  per request they made, in their own words, each with a status such as done,
-  partly done, blocked, or waiting on you, and then a block naming whatever still
-  needs them. It reads the conversation and writes nothing, so it does not
-  compete with the work tracker.
-- Offer `handoff` in every project, and recommend it. Explain what it does in
+- **Offer `session-skills` as one plugin, and recommend it.** It holds five
+  skills that run inside a conversation: `explain-simply`, `grill-me`,
+  `handoff`, `session-summary`, and `track-tasks`. They install and version
+  together, so this is a single yes or no, not five. If approved, install the
+  plugin from this marketplace. Do not copy any `SKILL.md` into the project.
+  Describe each one in the owner's terms, using the notes below.
+- `explain-simply` says an answer again as short bullets when it did not land
+  the first time, keeping every number, date, file path, and name. It re-reads
+  nothing, so it cannot quietly change the answer.
+- `grill-me` asks one question at a time and writes every answer to
+  `knowledge/brainstorms/{date}-{topic}.md` before continuing when project
+  knowledge is installed. Explain that it ends by invoking `remember` for any
+  resulting specification or durable-memory updates. The generated index
+  excludes brainstorms, and raw discovery stays non-authoritative.
+- `session-summary` returns a table with one row per request the owner made, in
+  their own words, each with a status such as done, partly done, blocked, or
+  waiting on you, and then a block naming whatever still needs them. It reads
+  the conversation and writes nothing, so it does not compete with the work
+  tracker.
+- `track-tasks` keeps every still-open topic in the session on Claude Code's
+  built-in task list, and `/track-tasks` prints it. Say what it catches that is
+  easiest to lose: topics the owner parked, questions asked of them that they
+  never answered, and work blocked behind something else. Say its limit out
+  loud, because the skill does: the list dies with the session, so anything that
+  has to outlive the conversation moves to the work tracker or into a handoff
+  prompt. It pairs with the `track-open-topics.md` rule from Gate 5, which makes
+  a session keep the list without being asked. That rule names no skill, so
+  taking the rule without this plugin is a valid choice and leaves nothing
+  stale.
+- `handoff` is the one to press hardest on. Explain what it does in
   the owner's terms: when a session gets long and they want to start fresh,
   typing `/handoff` first shows them a table of what is worth saving from that
   session, they approve or cut rows, and then they get a prompt to paste into

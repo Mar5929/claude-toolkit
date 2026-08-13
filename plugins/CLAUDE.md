@@ -1,8 +1,16 @@
-# plugins: the ten plugins this repo ships
+# plugins: the seven plugins this repo ships
 
 Each folder here is one Claude Code plugin. Each has its own `README.md`, which
 is that plugin's canonical description. `docs/toolkit-map.md` is the
-cross-cutting catalog across all ten.
+cross-cutting catalog across all seven.
+
+A plugin holds a group of skills, not one skill each. `session-skills` is the
+worked example: five single-skill plugins became one, because packaging each of
+them cost more than writing it and splitting them bought nothing at runtime.
+Claude Code loads every skill's name and one-line description at session start
+whatever plugin it sits in, so plugin count changes nothing in front of the
+agent. Before adding a plugin, ask whether the skill belongs in one that
+exists.
 
 One folder is not a plugin's own material: `project-init/library/` holds the
 reusable files other projects receive (`rules/general/`, `rules/salesforce/`,
@@ -34,6 +42,13 @@ folder stays small on purpose.
   a helper agent, so an agent definition under `*/agents/` has to carry those
   rules itself. Its findings are read back to Mike, so a word he has to decode
   once would spread instead of being forgotten.
+- **Check a new skill's name against Claude Code's own commands before using
+  it.** A skill named `x` creates `/x`, and Claude Code's built-in commands are
+  the same namespace. Searching this repo and the installed plugin cache does
+  not cover them. Read the list at `https://code.claude.com/docs/en/commands`.
+  Names that look natural for a toolkit skill and are already taken include
+  `/tasks`, `/init`, `/review`, `/debug`, `/recap`, `/goal`, `/plan`, `/focus`,
+  `/diff`, `/context`, `/memory`, `/branch`, and `/fork`.
 - **Bump versions.** A content change to a plugin bumps `version` in its
   `.claude-plugin/plugin.json`, `version` in its `.codex-plugin/plugin.json`,
   and `metadata.version` in the repository's `.claude-plugin/marketplace.json`.

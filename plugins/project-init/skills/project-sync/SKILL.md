@@ -8,8 +8,8 @@ description: >-
   project against the toolkit", or "/project-sync". This skill inventories
   everything the toolkit currently ships (the general and Salesforce rules
   libraries, hooks, the Git-native work-tracker, the packaged project knowledge
-  system, safe knowledge-layout migration, standalone skills such as
-  grill-me, and any newer systems), cross-references the current project,
+  system, safe knowledge-layout migration, the session-skills plugin, and any
+  newer systems), cross-references the current project,
   reports the gaps, including rules the project has but that are behind the
   toolkit's current version, and closes each gap only with the user's approval.
 ---
@@ -100,7 +100,8 @@ automatically as it grows.
     `../project-init/references/folder-claudemd.md`. Read that file so step 2
     can tell a missing one from a folder the toolkit deliberately skips (any
     folder with a `README.md` index, and everything under `.claude/`)
-  - each standalone skill offered by the setup flow, including `grill-me`
+  - each standalone skill offered by the setup flow, all five of which now ship
+    in the `session-skills` plugin
   - anything newer listed in the toolkit README under "What's here now"
   - skip roadmap items; they are not built and cannot be audited. The current
     project-knowledge package is shipped and must be inventoried from its
@@ -241,8 +242,12 @@ checks:
   pins, and drift reports remain retired and are never refreshed, reconciled,
   imported, or used as current truth.
 - **Standalone toolkit skills:** check the previous sync record and the
-  available host plugins. For `grill-me`, `session-summary`, and `handoff`,
-  classify each as available to invoke, previously declined, or not applicable.
+  available host plugins. All five (`explain-simply`, `grill-me`, `handoff`,
+  `session-summary`, `track-tasks`) ship together in the `session-skills`
+  plugin, so classify that one plugin as available to invoke, previously
+  declined, or not applicable. A project that declined an individual plugin
+  before the merge has that recorded under the old name; treat the record as
+  applying to the skill, not the package.
   Do not look for a copied `SKILL.md` inside the project because the canonical
   skill stays in its plugin. `handoff` is the one to recommend rather than
   merely list: it works with no output style, no project knowledge system, and no hooks,

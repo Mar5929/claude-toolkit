@@ -11,7 +11,7 @@ so they always know where they are.
 [ ] Gate 3 - Project knowledge        (one Markdown vault, packaged tools)
 [ ] Gate 4 - Mechanical knowledge aids (optional impact analysis)
 [ ] Gate 5 - Root instructions + rules (thin CLAUDE.md and AGENTS.md)
-[ ] Gate 6 - Optional toolkit skills  (offer grill-me, session-summary, handoff)
+[ ] Gate 6 - Optional toolkit skills  (offer the session-skills plugin: all five)
 [ ] Wrap-up - summarize, note follow-ups, port-back reminder
 ```
 
@@ -224,7 +224,12 @@ so they always know where they are.
   `thin-claudemd.md`.
 
 **Gate 6: Optional standalone toolkit skills**
-- Offer `grill-me` for durable brainstorming and discovery interviews.
+- Offer `session-skills` as ONE plugin holding five conversation skills:
+  `explain-simply`, `grill-me`, `handoff`, `session-summary`, `track-tasks`.
+  They install and version together, so this is a single yes or no.
+- `explain-simply` re-says an answer as plain bullets keeping every number,
+  date, path, and name.
+- `grill-me` for durable brainstorming and discovery interviews.
 - If approved, install its plugin from the toolkit marketplace. Do not copy its
   skill instructions into the project.
 - With project knowledge installed, it writes under `knowledge/brainstorms/`
@@ -244,6 +249,12 @@ so they always know where they are.
   project knowledge system, and no hooks; in a project without project knowledge
   it skips the saving step. It pairs with the `offer-context-handoff.md` rule from Gate 5, which
   covers the owner asking in their own words.
+- `track-tasks` keeps every still-open topic on Claude Code's built-in task
+  list, and `/track-tasks` prints it. It catches parked topics, questions the
+  owner never answered, and work blocked behind something else. Say its limit:
+  the list dies with the session, so anything that must outlive it moves to the
+  work tracker or a handoff prompt. It pairs with the `track-open-topics.md`
+  rule from Gate 5, which names no skill, so the rule alone is a valid install.
 - Record installed, skipped, or deferred so `project-sync` does not repeat a
   considered "no".
 
