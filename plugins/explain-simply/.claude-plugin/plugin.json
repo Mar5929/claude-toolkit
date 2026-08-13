@@ -1,9 +1,0 @@
-{
-  "name": "explain-simply",
-  "description": "Re-explains the last answer, a plan, or any named document as short bullets a non-technical reader gets in one pass, keeping every number, name and file path intact.",
-  "version": "0.1.0",
-  "author": {
-    "name": "Mike Rihm",
-    "email": "michael@rihm.com"
-  }
-}

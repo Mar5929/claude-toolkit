@@ -1,9 +1,0 @@
-{
-  "name": "session-summary",
-  "description": "Recaps a chat session as a table, one row per main request the owner made, in the owner's own words, each with an honest status, then a block naming whatever still needs them.",
-  "version": "0.3.1",
-  "author": {
-    "name": "Mike Rihm",
-    "email": "michael@rihm.com"
-  }
-}

@@ -25,7 +25,7 @@ files into a project, so every project it touches opts in deliberately.
   3. Packaged project knowledge system under `knowledge/`
   4. Optional mechanical knowledge aids
   5. CLAUDE.md, AGENTS.md, and `.claude/rules/`
-  6. Optional standalone toolkit skills, beginning with `grill-me`
+  6. Optional standalone toolkit skills, offered from the `session-skills` plugin
   It asks before acting, recommends a per-stack layout, and copies in the
   standard rule files. It does not hold the memory or knowledge systems itself;
   it points at their plugins so each can evolve on its own.
@@ -148,8 +148,9 @@ plugin.
   including its read-only property, tag, provenance, and health reports.
   Gate 4 offers optional impact-analysis tools without creating a competing
   store.
-- Gate 6 offers the standalone `grill-me` interview workflow without copying it
-  into the project. The plugin remains its canonical home.
+- Gate 6 offers the `session-skills` plugin, which holds `explain-simply`,
+  `grill-me`, `handoff`, `session-summary`, and `track-tasks`, without copying
+  anything into the project. The plugin remains their canonical home.
 - Gate 1 asks where work items are tracked, and the two guarantees that follow
   are the same whichever answer it gets: log the work in that tracker before
   building it, and refine the six-part spec before building it. Those live once

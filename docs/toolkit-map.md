@@ -21,11 +21,8 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | [sf-architect-solutioning](../plugins/sf-architect-solutioning/README.md) | Salesforce solution architect: approved solution plan before any build | `sf-architect-solutioning` | `/plugin install sf-architect-solutioning` | Install and go |
 | [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git lifecycle workflows | `pull-latest`, `reset-to-remote`, `merge-and-clean-up` | `/plugin install git-workflows` | Install and go |
 | [hooks-library](../plugins/hooks-library/README.md) | Reusable style, writing, Git-attribution, and Salesforce deployment hooks; system-specific knowledge hooks stay with second-brain | `hooks-library` | `/plugin install hooks-library` | Wires into settings |
-| [grill-me](../plugins/grill-me/README.md) | Persistent discovery interviews that checkpoint every answer | `grill-me` | `/plugin install grill-me` | Install and go |
 | [work-tracker](../plugins/work-tracker/README.md) | Git-authoritative backlog, handoffs, relationships, landing proof, and optional GitHub Projects | `work` | `/plugin install work-tracker` | Sets up a project |
-| [session-summary](../plugins/session-summary/README.md) | Recap one session as a table row per main request, each with an honest status, plus a block for whatever still needs the owner | `session-summary` | `/plugin install session-summary` | Install and go |
-| [handoff](../plugins/handoff/README.md) | End a long session without losing what it learned: memory check first, then a prompt a fresh session can start from, opening with the goal of the work, carrying anything not saved, and checked by a second agent before the owner sees it | `handoff` | `/plugin install handoff` | Install and go |
-| [explain-simply](../plugins/explain-simply/README.md) | Re-explain the last answer, a plan, or a named file as short bullets anyone follows in one pass, keeping every number, date, path, and name | `explain-simply` | `/plugin install explain-simply` | Install and go |
+| [session-skills](../plugins/session-skills/README.md) | The five things you reach for inside one conversation: say it simply, get grilled on it, hand it off, recap it, and track what is still open | `explain-simply`, `grill-me`, `handoff`, `session-summary`, `track-tasks` | `/plugin install session-skills` | Install and go |
 
 ## Skills at a glance
 
@@ -43,11 +40,12 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | pull-latest | git-workflows | Get current with the remote without rewriting or discarding | `/pull-latest` |
 | reset-to-remote | git-workflows | Hard-reset a repo to mirror the remote, safely gated | `/reset-to-remote` |
 | merge-and-clean-up | git-workflows | Merge one approved PR and remove only its completed branch and worktree | `/merge-and-clean-up`, "merge and clean up" |
-| grill-me | grill-me | Stress-test an idea one question at a time and preserve every answer | `/grill-me`, "grill me" |
 | work | work-tracker | Manage local work items and their optional GitHub Issues and Project mirror | `/work`, "add this to the backlog", "what should I work on next?" |
-| session-summary | session-summary | Table every request the owner made in a session, in their words, each with a status, then say what still needs them | `/session-summary`, "summarize this session", "what did I ask for?" |
-| handoff | handoff | Invoke the project's remember workflow when available, then draft a fresh-session prompt that opens with the goal, carries anything unsaved, and is checked against the repository | `/handoff`, `/handoff check`, "write a handoff", "I'm going to clear context" |
-| explain-simply | explain-simply | Re-explain the last answer or a named file as short bullets, simplifying the wording and never the facts | `/explain-simply`, "explain that like I'm five", "put that in plain bullets", "simpler" |
+| explain-simply | session-skills | Re-explain the last answer or a named file as short bullets, simplifying the wording and never the facts | `/explain-simply`, "explain that like I'm five", "put that in plain bullets", "simpler" |
+| grill-me | session-skills | Stress-test an idea one question at a time and preserve every answer | `/grill-me`, "grill me" |
+| handoff | session-skills | Invoke the project's remember workflow when available, then draft a fresh-session prompt that opens with the goal, carries anything unsaved, and is checked against the repository | `/handoff`, `/handoff check`, "write a handoff", "I'm going to clear context" |
+| session-summary | session-skills | Table every request the owner made in a session, in their words, each with a status, then say what still needs them | `/session-summary`, "summarize this session", "what did I ask for?" |
+| track-tasks | session-skills | Build or refresh the list of every topic still open in this session, then print it | `/track-tasks`, "what is still open", "where are we", "park that one" |
 
 ## The library: what lands in a project
 
@@ -309,6 +307,20 @@ The genuine watch-items are called out at the end.
   did not land, the last answer or a file it is pointed at, and says it again in
   plainer words without changing what it says. One is a status view of a
   session; the other is a second reading of one piece of material.
+- **track-tasks versus session-summary versus the work tracker.** Three views of
+  "what is outstanding", at three different lifespans. `track-tasks` holds what
+  is open right now, in this chat, and dies with the session. `session-summary`
+  reads the conversation once and reports which of the owner's requests are
+  where; it is a snapshot, not a list that is kept. The work tracker owns
+  anything that outlives the conversation, and is the only one of the three that
+  survives a `/clear`. A topic that turns into real work moves from the first to
+  the third; the middle one never holds anything on its own.
+- **The five skills in one plugin are still five skills.** `session-skills`
+  packages `explain-simply`, `grill-me`, `handoff`, `session-summary`, and
+  `track-tasks` together because each was a single-skill plugin whose packaging
+  cost more than its instructions, and because the owner wants all five on every
+  machine. Sharing a plugin does not blur what they do; the distinctions above
+  still hold. What it costs is granularity: they install and version together.
 - **explain-simply versus the output style and the style-reminder hook.** The
   output style sets how everything is written and the hook keeps it in front of
   the assistant. `explain-simply` is the escape hatch for the times that was not

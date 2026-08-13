@@ -162,38 +162,24 @@ claude-toolkit/
       tests/                      ← one harness per hook
       skills/
         hooks-library/            ← SKILL.md (install, verify, remove)
-    grill-me/                     ← plugin: persistent discovery interviews
-      README.md
-      .claude-plugin/plugin.json
-      .codex-plugin/plugin.json
-      skills/
-        grill-me/                 ← SKILL.md + Codex UI metadata
     work-tracker/                 ← plugin: Git-native work status and handoffs
       README.md
       .claude-plugin/plugin.json
       .codex-plugin/plugin.json
       skills/
         work/                     ← SKILL.md + dependency-free Node core
-    session-summary/              ← plugin: what you asked for, where it stands, what needs you
-      README.md
-      .claude-plugin/plugin.json
-      .codex-plugin/plugin.json
-      skills/
-        session-summary/          ← SKILL.md + Codex UI metadata
-    explain-simply/               ← plugin: say that again in plain bullets, keeping every number
-      README.md
-      .claude-plugin/plugin.json
-      .codex-plugin/plugin.json
-      skills/
-        explain-simply/           ← SKILL.md + Codex UI metadata
-    handoff/                      ← plugin: save what a session learned, then hand it off
+    session-skills/               ← plugin: the five things you reach for inside one conversation
       README.md
       .claude-plugin/plugin.json
       .codex-plugin/plugin.json
       agents/
-        handoff-verifier.md       ← read-only check of the prompt before you see it
+        handoff-verifier.md       ← read-only check of the handoff prompt before you see it
       skills/
-        handoff/                  ← SKILL.md
+        explain-simply/           ← say that again in plain bullets, keeping every number
+        grill-me/                 ← persistent discovery interviews
+        handoff/                  ← save what a session learned, then hand it off
+        session-summary/          ← what you asked for, where it stands, what needs you
+        track-tasks/              ← every topic still open in this session
   docs/
     toolkit-map.md                ← the catalog: every item and how they relate
   tests/
@@ -253,11 +239,8 @@ inside a project folder before it is useful, which is what the last column says:
 | **[sf-architect-solutioning](plugins/sf-architect-solutioning/README.md)** | A Salesforce solution architect: pushes back on vague requirements, verifies platform facts against official docs by live fetch, designs declarative-first to Well-Architected standards, and presents a solution plan for approval before any build. Salesforce projects only. | Install and go |
 | **[git-workflows](plugins/git-workflows/README.md)** | Three parallel-session-safe git lifecycle skills: `pull-latest` gets current without rewriting history, `reset-to-remote` mirrors the remote behind confirmation, and `merge-and-clean-up` lands an approved PR before removing only its completed workspace. | Install and go |
 | **[hooks-library](plugins/hooks-library/README.md)** | Reusable hooks that make a rule land mechanically: `style-reminder` restores the active output style, `writing-guard` rejects an em dash or section sign in a finished reply, `no-ai-attribution-guard` refuses AI credit in Git text, and two Salesforce guards protect production and permission-set deploys. System-specific knowledge hooks ship with second-brain. | Wires into settings |
-| **[grill-me](plugins/grill-me/README.md)** | Stress-tests a plan, design, or topic through a one-question-at-a-time interview and checkpoints every answer to a durable Markdown file before continuing. | Install and go |
 | **[work-tracker](plugins/work-tracker/README.md)** | Gives Claude and Codex one Git-authoritative backlog with exact handoffs, blockers, typed relationships, deterministic next-item selection, Git landing proof, generated dashboards, and optional GitHub Issues and Projects synchronization. | Sets up a project |
-| **[session-summary](plugins/session-summary/README.md)** | Recaps a session as a table, one row per main request you made, in your own words and in the order you asked, each carrying an honest status, then pulls whatever still needs you into its own block below. Answers "what did I ask for, and where does it stand?" and "what still needs me?" without a narrative of the assistant's own work. | Install and go |
-| **[handoff](plugins/handoff/README.md)** | Ends a long session without losing what it learned. `/handoff` invokes the project's `remember` workflow when available, waits for any required owner decision, then writes a prompt for a fresh session with everything unsaved carried inside it. A second agent checks the prompt against the repository before you see it. `/handoff check` checks a prompt you already have. | Install and go |
-| **[explain-simply](plugins/explain-simply/README.md)** | Re-explains the last answer, a plan, or any file you name as short bullets grouped under bold headings, at a reading level anyone follows in one pass. Every number, date, file path, and name survives, because a simple explanation that dropped the facts is not simpler, only vaguer. Reads the project's active output style first, so the plain version sounds like the rest of the project. | Install and go |
+| **[session-skills](plugins/session-skills/README.md)** | The five things you reach for inside one conversation, in one install. `explain-simply` says the last answer again as short bullets keeping every number, date, path, and name. `grill-me` interviews you one question at a time and writes every answer down before continuing. `handoff` saves what a long session learned, then writes a prompt a fresh session can start from, checked by a second agent first. `session-summary` tables what you asked for and gives each request an honest status. `track-tasks` keeps every still-open topic on the built-in task list. | Install and go |
 
 ---
 
@@ -370,13 +353,6 @@ For safe git lifecycle skills (`pull-latest`, `reset-to-remote`,
 /plugin install git-workflows
 ```
 
-For a persistent brainstorm or discovery interview:
-
-```
-/plugin install grill-me
-/grill-me
-```
-
 For Git-native work tracking, optionally mirrored to GitHub Projects:
 
 ```text
@@ -384,25 +360,20 @@ For Git-native work tracking, optionally mirrored to GitHub Projects:
 /work
 ```
 
-For a recap of what you asked for in a session and where each request stands:
+For the five things you reach for inside one conversation, all in one install:
 
 ```text
-/plugin install session-summary
-/session-summary
+/plugin install session-skills
 ```
 
-When an answer did not land and you want it again in plain bullets:
+Then use whichever one you need:
 
 ```text
-/plugin install explain-simply
-/explain-simply
-```
-
-To end a long session without losing what it learned, before you clear context:
-
-```text
-/plugin install handoff
-/handoff
+/explain-simply     when an answer did not land and you want plain bullets
+/grill-me           for a persistent brainstorm or discovery interview
+/handoff            before you clear context, to not lose what a session learned
+/session-summary    for what you asked for and where each request stands
+/track-tasks        for every topic still open in this session
 ```
 
 For Git-native project memory shared by Claude and Codex:
