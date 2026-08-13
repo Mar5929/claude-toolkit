@@ -26,6 +26,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | [session-summary](../plugins/session-summary/README.md) | Recap one session as a table row per main request, each with an honest status, plus a block for whatever still needs the owner | `session-summary` | `/plugin install session-summary` | Install and go |
 | [handoff](../plugins/handoff/README.md) | End a long session without losing what it learned: memory check first, then a prompt a fresh session can start from, opening with the goal of the work, carrying anything not saved, and checked by a second agent before the owner sees it | `handoff` | `/plugin install handoff` | Install and go |
 | [explain-simply](../plugins/explain-simply/README.md) | Re-explain the last answer, a plan, or a named file as short bullets anyone follows in one pass, keeping every number, date, path, and name | `explain-simply` | `/plugin install explain-simply` | Install and go |
+| [track-tasks](../plugins/track-tasks/README.md) | Keep every topic still open in the current session on the built-in task list, including parked topics, unanswered questions, and work blocked behind something else | `track-tasks` | `/plugin install track-tasks` | Install and go |
 
 ## Skills at a glance
 
@@ -48,6 +49,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | session-summary | session-summary | Table every request the owner made in a session, in their words, each with a status, then say what still needs them | `/session-summary`, "summarize this session", "what did I ask for?" |
 | handoff | handoff | Invoke the project's remember workflow when available, then draft a fresh-session prompt that opens with the goal, carries anything unsaved, and is checked against the repository | `/handoff`, `/handoff check`, "write a handoff", "I'm going to clear context" |
 | explain-simply | explain-simply | Re-explain the last answer or a named file as short bullets, simplifying the wording and never the facts | `/explain-simply`, "explain that like I'm five", "put that in plain bullets", "simpler" |
+| track-tasks | track-tasks | Build or refresh the list of every topic still open in this session, then print it | `/track-tasks`, "what is still open", "where are we", "park that one" |
 
 ## The library: what lands in a project
 
@@ -309,6 +311,14 @@ The genuine watch-items are called out at the end.
   did not land, the last answer or a file it is pointed at, and says it again in
   plainer words without changing what it says. One is a status view of a
   session; the other is a second reading of one piece of material.
+- **track-tasks versus session-summary versus the work tracker.** Three views of
+  "what is outstanding", at three different lifespans. `track-tasks` holds what
+  is open right now, in this chat, and dies with the session. `session-summary`
+  reads the conversation once and reports which of the owner's requests are
+  where; it is a snapshot, not a list that is kept. The work tracker owns
+  anything that outlives the conversation, and is the only one of the three that
+  survives a `/clear`. A topic that turns into real work moves from the first to
+  the third; the middle one never holds anything on its own.
 - **explain-simply versus the output style and the style-reminder hook.** The
   output style sets how everything is written and the hook keeps it in front of
   the assistant. `explain-simply` is the escape hatch for the times that was not

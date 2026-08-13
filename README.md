@@ -194,6 +194,12 @@ claude-toolkit/
         handoff-verifier.md       ← read-only check of the prompt before you see it
       skills/
         handoff/                  ← SKILL.md
+    track-tasks/                  ← plugin: every topic still open in this session, in one list
+      README.md
+      .claude-plugin/plugin.json
+      .codex-plugin/plugin.json
+      skills/
+        track-tasks/              ← SKILL.md + Codex UI metadata
   docs/
     toolkit-map.md                ← the catalog: every item and how they relate
   tests/
@@ -258,6 +264,7 @@ inside a project folder before it is useful, which is what the last column says:
 | **[session-summary](plugins/session-summary/README.md)** | Recaps a session as a table, one row per main request you made, in your own words and in the order you asked, each carrying an honest status, then pulls whatever still needs you into its own block below. Answers "what did I ask for, and where does it stand?" and "what still needs me?" without a narrative of the assistant's own work. | Install and go |
 | **[handoff](plugins/handoff/README.md)** | Ends a long session without losing what it learned. `/handoff` invokes the project's `remember` workflow when available, waits for any required owner decision, then writes a prompt for a fresh session with everything unsaved carried inside it. A second agent checks the prompt against the repository before you see it. `/handoff check` checks a prompt you already have. | Install and go |
 | **[explain-simply](plugins/explain-simply/README.md)** | Re-explains the last answer, a plan, or any file you name as short bullets grouped under bold headings, at a reading level anyone follows in one pass. Every number, date, file path, and name survives, because a simple explanation that dropped the facts is not simpler, only vaguer. Reads the project's active output style first, so the plain version sounds like the rest of the project. | Install and go |
+| **[track-tasks](plugins/track-tasks/README.md)** | Keeps every topic still open in the current session on Claude Code's built-in task list, so nothing raised mid-session is lost when the conversation moves on. Catches what is easiest to lose: topics you parked, questions asked of you that you never answered, and work blocked behind something else. Says its own limit out loud, that the list dies with the session, and names where anything that must outlive it should go instead. | Install and go |
 
 ---
 
@@ -403,6 +410,13 @@ To end a long session without losing what it learned, before you clear context:
 ```text
 /plugin install handoff
 /handoff
+```
+
+To see every topic still open in the session you are in right now:
+
+```text
+/plugin install track-tasks
+/track-tasks
 ```
 
 For Git-native project memory shared by Claude and Codex:

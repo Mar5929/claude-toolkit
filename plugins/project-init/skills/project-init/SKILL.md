@@ -410,6 +410,19 @@ in their own plugins.
   It pairs with the `offer-context-handoff.md` rule from Gate 5, which is what
   makes the same thing happen when the owner asks in their own words instead of
   typing the command.
+- Offer `track-tasks` in every project, and recommend it whenever the owner runs
+  long sessions that cover several unrelated things. Explain it in their terms:
+  Claude Code has a built-in task list, and this keeps every still-open topic on
+  it so nothing raised mid-session is lost when the conversation moves on, with
+  `/track-tasks` printing the list any time. Say what it catches that is easy to
+  lose: topics they parked, questions asked of them that they never answered, and
+  work blocked behind something else. Say its limit out loud, because the skill
+  does: the list dies with the session, so anything that has to outlive the
+  conversation moves to the work tracker or into a handoff prompt.
+  It pairs with the `track-open-topics.md` rule from Gate 5, which is the part
+  that makes a session keep the list without being asked. That rule names no
+  skill, so installing it without this plugin is a valid choice and leaves
+  nothing stale.
 - Record whether the owner installed, skipped, or deferred each one so a later
   `project-sync` respects that choice.
 

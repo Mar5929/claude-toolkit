@@ -11,7 +11,7 @@ so they always know where they are.
 [ ] Gate 3 - Project knowledge        (one Markdown vault, packaged tools)
 [ ] Gate 4 - Mechanical knowledge aids (optional impact analysis)
 [ ] Gate 5 - Root instructions + rules (thin CLAUDE.md and AGENTS.md)
-[ ] Gate 6 - Optional toolkit skills  (offer grill-me, session-summary, handoff)
+[ ] Gate 6 - Optional toolkit skills  (offer grill-me, session-summary, handoff, track-tasks)
 [ ] Wrap-up - summarize, note follow-ups, port-back reminder
 ```
 
@@ -244,6 +244,15 @@ so they always know where they are.
   project knowledge system, and no hooks; in a project without project knowledge
   it skips the saving step. It pairs with the `offer-context-handoff.md` rule from Gate 5, which
   covers the owner asking in their own words.
+- Offer `track-tasks` in every project, and recommend it for owners who run long
+  sessions covering several unrelated things. It keeps every still-open topic on
+  Claude Code's built-in task list, and `/track-tasks` prints it. It catches what
+  is easiest to lose: parked topics, questions the owner never answered, and work
+  blocked behind something else. Say its limit out loud: the list dies with the
+  session, so anything that must outlive it moves to the work tracker or a
+  handoff prompt. It pairs with the `track-open-topics.md` rule from Gate 5,
+  which is what makes a session keep the list unprompted. That rule names no
+  skill, so the rule alone is a valid install.
 - Record installed, skipped, or deferred so `project-sync` does not repeat a
   considered "no".
 

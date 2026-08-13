@@ -1,0 +1,9 @@
+{
+  "name": "track-tasks",
+  "description": "Keeps a running list of every topic still open in the current chat session on Claude Code's built-in task list, so nothing raised mid-session is lost when the conversation moves on.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Mike Rihm",
+    "email": "michael@rihm.com"
+  }
+}

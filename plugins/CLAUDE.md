@@ -1,8 +1,8 @@
-# plugins: the ten plugins this repo ships
+# plugins: the eleven plugins this repo ships
 
 Each folder here is one Claude Code plugin. Each has its own `README.md`, which
 is that plugin's canonical description. `docs/toolkit-map.md` is the
-cross-cutting catalog across all ten.
+cross-cutting catalog across all eleven.
 
 One folder is not a plugin's own material: `project-init/library/` holds the
 reusable files other projects receive (`rules/general/`, `rules/salesforce/`,

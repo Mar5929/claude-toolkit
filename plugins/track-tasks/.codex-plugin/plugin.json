@@ -1,0 +1,37 @@
+{
+  "name": "track-tasks",
+  "version": "0.1.0",
+  "description": "Keep a running list of every topic still open in the current session, so nothing raised mid-session is lost when the conversation moves on.",
+  "author": {
+    "name": "Mike Rihm",
+    "email": "michael@rihm.com",
+    "url": "https://github.com/Mar5929"
+  },
+  "homepage": "https://github.com/Mar5929/claude-toolkit",
+  "repository": "https://github.com/Mar5929/claude-toolkit",
+  "keywords": [
+    "toolkit",
+    "tasks",
+    "session",
+    "tracking",
+    "skills"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Track Tasks",
+    "shortDescription": "Every topic still open in this session, in one list.",
+    "longDescription": "Puts every unresolved topic in the current session on the built-in task list and prints it on request. Covers the ones easiest to lose: topics the owner parked, questions they have not answered, and work blocked behind something else. Marks an item finished only when it actually is, and says plainly when something has to move to the work tracker or a handoff prompt to survive the session ending.",
+    "developerName": "Mike Rihm",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive"
+    ],
+    "websiteURL": "https://github.com/Mar5929/claude-toolkit",
+    "defaultPrompt": [
+      "What is still open in this session?",
+      "Where are we?",
+      "Add that to the list"
+    ],
+    "brandColor": "#B45309"
+  }
+}
