@@ -34,6 +34,13 @@ folder stays small on purpose.
   a helper agent, so an agent definition under `*/agents/` has to carry those
   rules itself. Its findings are read back to Mike, so a word he has to decode
   once would spread instead of being forgotten.
+- **Check a new skill's name against Claude Code's own commands before using
+  it.** A skill named `x` creates `/x`, and Claude Code's built-in commands are
+  the same namespace. Searching this repo and the installed plugin cache does
+  not cover them. Read the list at `https://code.claude.com/docs/en/commands`.
+  Names that look natural for a toolkit skill and are already taken include
+  `/tasks`, `/init`, `/review`, `/debug`, `/recap`, `/goal`, `/plan`, `/focus`,
+  `/diff`, `/context`, `/memory`, `/branch`, and `/fork`.
 - **Bump versions.** A content change to a plugin bumps `version` in its
   `.claude-plugin/plugin.json`, `version` in its `.codex-plugin/plugin.json`,
   and `metadata.version` in the repository's `.claude-plugin/marketplace.json`.
