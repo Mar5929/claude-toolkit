@@ -27,6 +27,15 @@ Read, in order:
 4. the relevant current rule, skill, specification, memory, or reference; and
 5. the project's always-loaded instructions.
 
+The owner installs Obsidian tools on his machines outside this toolkit: an
+Obsidian MCP server (tools named `mcp__obsidian__*`) and the
+`kepano/obsidian-skills` skills. When they are present, use them to find, read,
+and search existing notes. Reading and searching only: every write follows the
+fixed file shapes below, with ordinary relative Markdown links and `.md`
+extensions, never Obsidian-only wikilinks, embeds, or extra properties, even
+when an Obsidian skill recommends them. The tools are optional; everything here
+works without them.
+
 Search before drafting. An open or closed external work item may already own a
 ticket-specific decision. A current file may already own a rule, procedure,
 behavior, fact, or source. Update or link to that owner instead of creating a

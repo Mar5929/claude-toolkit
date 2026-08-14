@@ -386,7 +386,7 @@ Greenfield setup creates the exact new tree, asks the owner for the real `projec
 ## What it deliberately does not do
 
 - It does not make Obsidian required or use Obsidian as a database.
-- It does not install or depend on the whole `kepano/obsidian-skills` package. Its Markdown skill prefers frontmatter and wikilinks that conflict with this specification. Its CLI skill may be used as an optional, on-demand link check when a compatible running Obsidian is available, but filesystem and Git checks remain authoritative.
+- It does not install or depend on the whole `kepano/obsidian-skills` package. Its Markdown skill prefers frontmatter and wikilinks that conflict with this specification. Its CLI skill may be used as an optional, on-demand link check when a compatible running Obsidian is available, but filesystem and Git checks remain authoritative. When a machine carries Obsidian tools installed outside the toolkit (that package or an Obsidian MCP server), the `remember`, `recall`, and `cleanup` skills may use them to find, read, and search notes, never to change how files are written.
 - It does not create canvases, Bases, generated visual maps, or a second representation of canonical knowledge.
 - It does not capture, copy, archive, index, edit, or upload Claude Code transcripts.
 - It does not let hooks, helper agents, or background processes write persistent knowledge.
