@@ -43,8 +43,10 @@ other per-item files), and `references/github-projects.md` (the mirror).
 
 ## Where tickets live
 
-Most projects use `work-items/`; Salesforce engagement projects may use
-`engagement/work-items/`.
+Most projects use `work-items/`. New Salesforce projects use
+`delivery/work-items/`. Existing Salesforce projects may keep
+`engagement/work-items/`; the tracker recognizes all three paths and never
+moves one automatically.
 
 Each ticket folder contains:
 
@@ -106,10 +108,12 @@ creation date, and ID. It explains the recommendation and uses no model.
 
 ## Existing manual folders
 
-`init` adopts the toolkit's prior `work-items/` convention. It identifies
-existing `WI-<number>-<slug>` folders, infers only safe metadata from their
-location, and marks it for review. It never overwrites `SPEC.md`, `STATUS.md`,
-or other notes.
+`init` adopts the toolkit's prior `work-items/` and
+`engagement/work-items/` conventions as well as the current Salesforce
+`delivery/work-items/` path. It identifies existing `WI-<number>-<slug>`
+folders, infers only safe metadata from their location, and marks it for
+review. It never overwrites `SPEC.md`, `STATUS.md`, or other notes. When more
+than one unconfigured path exists, it stops and asks for an explicit path.
 
 ## Optional GitHub Project
 

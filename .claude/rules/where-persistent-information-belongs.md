@@ -15,9 +15,10 @@ makes the project harder to trust.
   correcting the same wrong action. Put it in the current rule, skill,
   specification, memory, or reference that owns it.
 
-Raw exploration may stay in a brainstorm while it is still being worked out.
-Past conversation stays in session history. Neither becomes current project
-truth merely because it exists.
+Internal exploration may stay in a brainstorm while it is still being worked
+out. Raw client meetings and client-provided files stay with the project's
+delivery artifacts. Past conversation stays in session history. None becomes
+current project truth merely because it exists.
 
 ## Test whether something should persist
 
@@ -52,8 +53,9 @@ memories, and references before choosing a new home.
 | A non-obvious project conclusion that prevents a repeated mistake or investigation | `knowledge/memory/knowledge/` |
 | A project-specific operating, release, or recovery procedure | `knowledge/memory/operations/` |
 | Persistent direction, goals, roadmap, risks, or assumptions beyond one work item | `knowledge/memory/planning/` |
-| Outside source material and what it supports | `knowledge/memory/references/` |
-| Exploration, interviews, options, and unchecked ideas | `knowledge/brainstorms/` |
+| A durable note about outside source material and what it supports | `knowledge/memory/references/` |
+| Raw client meetings, client-provided files, and source records | The project's delivery or client-artifact folder |
+| Internal exploration, owner interviews, options, and unchecked ideas | `knowledge/brainstorms/` |
 | Past conversation that is useful only as history | Session history |
 
 Secrets and private personal information never go in project knowledge.

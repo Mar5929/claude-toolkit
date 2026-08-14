@@ -4,6 +4,9 @@ The project knowledge system keeps approved behavior, persistent understanding, 
 
 ## What it is for
 
+A project's `knowledge/` folder is curated working context that helps future
+agents work correctly. It is not a store for raw client delivery artifacts.
+
 A chat session ends, but a project must not forget what it is building, why it made a choice, or what a future session needs to avoid a wrong action. This system gives that information one visible home without creating a database, a private agent memory, or a second copy of the truth.
 
 It also protects the project from the opposite failure: saving every interesting sentence until useful knowledge is buried in agent notes. A save has to pass the persistent-information test and the user approves a short meaning summary before it becomes current project truth.
@@ -49,7 +52,7 @@ The folders have one responsibility each:
 - `knowledge/index.md` is generated from current specifications and memories. It gives each file's title, one-sentence summary, and relative link.
 - `knowledge/specs/` says what the product or system must do. One Markdown file owns each approved capability.
 - `knowledge/memory/` says what is worth knowing so future work is not done incorrectly or worked out again.
-- `knowledge/brainstorms/` holds raw exploration and interview transcripts. Nothing there is approved truth unless it is later saved through the normal process.
+- `knowledge/brainstorms/` holds internal exploration and owner interviews. Raw client meeting records and client-provided files stay in the project's delivery or client-artifact folder. Nothing in brainstorms is approved truth unless it is later saved through the normal process.
 - `knowledge/.obsidian/` contains only the small shared settings needed for portable Markdown links. Personal layouts, appearance, hotkeys, plugins, themes, graph state, and device state stay untracked.
 
 Empty type folders may contain `.gitkeep`. They do not get hand-maintained `README.md` indexes.

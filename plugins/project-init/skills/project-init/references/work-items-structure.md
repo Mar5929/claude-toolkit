@@ -10,7 +10,11 @@ work-item folder convention, not a second tracking system.
 ## Where it goes
 
 - Most projects: `work-items/`.
-- Salesforce engagement projects: `engagement/work-items/`.
+- New Salesforce projects: `delivery/work-items/`.
+- Existing Salesforce projects may keep `engagement/work-items/`.
+
+Initialize the tracker where the project already keeps work. Never rename or
+move an existing tracker automatically.
 
 ## The optional GitHub Project mirror
 

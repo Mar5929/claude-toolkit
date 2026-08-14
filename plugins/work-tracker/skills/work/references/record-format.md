@@ -15,7 +15,9 @@ work-items/
   04-archived/
 ```
 
-Salesforce engagement repositories may use `engagement/work-items/`.
+New Salesforce repositories use `delivery/work-items/`. Existing Salesforce
+repositories may keep `engagement/work-items/`. Root `work-items/` remains
+supported, and no existing tracker is moved automatically.
 
 `DASHBOARD.md` and `01-backlog/BACKLOG.md` are generated. Individual item
 records are authoritative.

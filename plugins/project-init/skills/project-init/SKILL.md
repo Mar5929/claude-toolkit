@@ -94,7 +94,9 @@ nothing inside Linear, Jira, or any other external tracker.
 For "files in this repository", install `work-tracker` from this marketplace and
 run its `init` command, as described in `references/work-items-structure.md`.
 `init` preserves and safely adopts an existing manual tree. Most projects place
-it at `work-items/`; Salesforce projects place it at `engagement/work-items/`.
+it at `work-items/`; new Salesforce projects place it at
+`delivery/work-items/`. Existing Salesforce projects may keep
+`engagement/work-items/`; never move them automatically.
 Do not hand-create a competing tracker.
 
 If the owner answers "somewhere else, or nothing yet", write nothing about
@@ -106,6 +108,11 @@ raise it every run.
 Salesforce (org build, org merge, or managed service). It stays optional and is
 still confirmed folder-by-folder with the owner; it is a starting point, not a
 forced template.
+
+Do not create `delivery/knowledge-base/` during Gate 1. Gate 3 owns the project
+knowledge choice. When the owner selects project knowledge, `knowledge/` is the
+one curated home. When they decline it, a delivery knowledge base may be offered
+separately if the project needs one.
 
 **Salesforce project rules library.** When the stack is Salesforce, after the
 `.claude/rules/` folder is scaffolded, offer to copy in the reusable Salesforce
@@ -449,7 +456,7 @@ library.
   including safe adoption of the older manual tree and the optional GitHub
   Project mirror of those files.
 - `references/salesforce-project-scaffold.md`: the standard Gate 1 layout for a
-  Salesforce / SFDX project (SFDX source plus an `engagement/` tree). Read it in
+  Salesforce / SFDX project (SFDX source plus a `delivery/` tree). Read it in
   Gate 1 when the stack is Salesforce.
 - `references/thin-claudemd.md`: how Gate 5 writes a thin CLAUDE.md that points
   at `.claude/rules/` instead of holding the rules inline, and what must stay in

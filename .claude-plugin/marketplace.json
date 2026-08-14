@@ -6,13 +6,13 @@
   },
   "metadata": {
     "description": "Personal, portable toolkit of reusable Claude systems: skills, rules, hooks, and templates shared across every project and device.",
-    "version": "0.72.0"
+    "version": "0.73.0"
   },
   "plugins": [
     {
       "name": "project-init",
       "source": "./plugins/project-init",
-      "description": "Three skills: project-init offers the Git-native work-tracker and portable second-brain knowledge vault during new-project setup; project-sync audits existing projects and safely adopts, health-checks, or migrates approved toolkit systems; machine-sync sets up a whole computer, installing the machine-wide rules, settings, and hooks that have to hold in every repository."
+      "description": "Three skills: project-init offers the Git-native work-tracker, the portable second-brain knowledge vault, and a Salesforce delivery scaffold during new-project setup; project-sync audits existing projects and safely adopts, health-checks, or migrates approved toolkit systems without renaming existing delivery paths; machine-sync sets up a whole computer, installing the machine-wide rules, settings, and hooks that have to hold in every repository."
     },
     {
       "name": "sf-architect-solutioning",
@@ -37,7 +37,7 @@
     {
       "name": "work-tracker",
       "source": "./plugins/work-tracker",
-      "description": "Git-native work tracking shared by Claude and Codex, with deterministic status, handoffs, relationships, Git landing verification, generated dashboards, and optional GitHub Issues and Projects synchronization."
+      "description": "Git-native work tracking shared by Claude and Codex, with root, Salesforce delivery, and existing engagement paths, deterministic status, handoffs, relationships, Git landing verification, generated dashboards, and optional GitHub Issues and Projects synchronization."
     },
     {
       "name": "session-skills",

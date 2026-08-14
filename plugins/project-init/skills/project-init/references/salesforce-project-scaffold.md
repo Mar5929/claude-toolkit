@@ -1,7 +1,7 @@
 # Salesforce project scaffold (Gate 1)
 
 The standard Gate 1 layout for a Salesforce project: an SFDX source project plus
-an `engagement/` tree for all non-code consulting work. Offer this whenever the
+a `delivery/` tree for client-work artifacts. Offer this whenever the
 stack is Salesforce or SFDX. It fits org builds, org merges, and ongoing
 managed-service work. Every folder is optional; confirm the set with the owner
 before creating anything.
@@ -22,13 +22,12 @@ before creating anything.
 ├── scripts/
 │   ├── apex/                      # anonymous Apex scratch files
 │   └── soql/                      # SOQL scratch queries
-├── engagement/                    # all non-code work
-│   ├── project-overview/          # project brief + grill-me interview output
+├── delivery/                      # client-work artifacts
+│   ├── project-overview/          # raw project brief and client framing
 │   ├── archive/                   # retired or superseded material
 │   ├── communications/            # emails, Slack, client/team messages
 │   ├── deliverables/              # finished artifacts handed to the client
 │   ├── deployment/                # cutover plans, deploy runbooks, release notes
-│   ├── knowledge-base/            # persistent reference knowledge about the org(s)
 │   ├── meeting-notes/             # one file per call or working session
 │   ├── references/                # source specs, org exports, third-party docs
 │   ├── work-items/                # ticket work items (see work-items-structure.md)
@@ -53,17 +52,17 @@ holds the metadata for the target org in SFDX source format. `manifest/package.x
 drives retrieve and deploy. `config/project-scratch-def.json` defines scratch
 orgs. `scripts/apex` and `scripts/soql` hold one-off Apex and queries.
 
-**`engagement/`**: everything that is not code. Keeps consulting artifacts in the
-repo next to the metadata they describe.
+**`delivery/`**: the briefs, records, sources, work files, and finished
+artifacts produced or received while doing the client work. Curated context
+that helps future agents work correctly belongs in `knowledge/`.
 
 | Folder | Holds |
 |---|---|
-| `project-overview/` | Raw engagement brief or client-provided framing when the project needs that artifact home. Curated project framing belongs in `knowledge/project.md`, with other persistent circumstances under `knowledge/memory/context/` |
+| `project-overview/` | Raw project brief or client-provided framing when the project needs that artifact home. Curated project framing belongs in `knowledge/project.md`, with other persistent circumstances under `knowledge/memory/context/` |
 | `archive/` | Retired or superseded material kept for history |
 | `communications/` | Emails, Slack threads, client or team messages |
 | `deliverables/` | Finished artifacts handed to the client |
 | `deployment/` | Cutover plans, release evidence, and release notes. Reusable operating procedures belong under `knowledge/memory/operations/` |
-| `knowledge-base/` | Legacy standalone knowledge home only when project knowledge is declined. Do not create it alongside `knowledge/` |
 | `meeting-notes/` | One file per call or working session |
 | `references/` | Source specs, org exports, third-party docs (read-only inputs) |
 | `work-items/` | Ticket work items in stage folders (`01-backlog/` holds the `BACKLOG.md` index); one folder per ticket (named by ticket key) with `SPEC.md` + `STATUS.md`. Layout: `work-items-structure.md` |
@@ -74,11 +73,13 @@ repo next to the metadata they describe.
 not save interviews under `project-overview/` or copy them into a system area.
 With project knowledge installed, the brainstorm links to every resulting specification.
 
-When project knowledge is selected, omit the legacy `knowledge-base/` folder from new
-scaffolding. Use `knowledge/memory/knowledge/`,
+When project knowledge is selected, do not create a `delivery/knowledge-base/`
+folder. Use `knowledge/memory/knowledge/`,
 `knowledge/memory/references/`, and `knowledge/memory/domain/`
 for curated agent memory. Keep raw meeting notes, communications, deliverables,
-deployment evidence, and client sources in the engagement folders above.
+deployment evidence, and client sources in the delivery folders above. If the
+owner declines project knowledge and needs a local reference library, offer
+`delivery/knowledge-base/` separately instead of adding it by default.
 
 **`.claude/`**: project-scoped Claude Code setup. Scaffold it empty at Gate 1
 with `rules/`, `hooks/`, and `settings.json`. Gate 2 adds approved guards. Gate
@@ -103,7 +104,7 @@ large rule, or per-folder indexes.
 - `.forceignore` should exclude `package.xml`, LWC config files, and Jest tests.
 - Data backups can hold real production data (personal data, secrets in note
   fields). Do not commit sensitive exports to a shared or public remote. If the
-  repo gets such a remote, add `engagement/data/backups/*` to `.gitignore`.
+  repo gets such a remote, add `delivery/data/backups/*` to `.gitignore`.
 
 ## Variants
 
@@ -111,5 +112,12 @@ large rule, or per-folder indexes.
   `knowledge/memory/references/` and `knowledge/memory/knowledge/` for approved
   source context and conclusions, `data/` for field-level mapping, and
   `deployment/` for the cutover plan.
-- **Single org build or managed service**: the same tree works; some engagement
+- **Single org build or managed service**: the same tree works; some delivery
   folders stay empty until needed.
+
+## Existing projects
+
+Existing Salesforce projects may keep an `engagement/` tree. Do not rename it,
+move its files, or create a parallel `delivery/` tree automatically. Setup and
+sync tools recognize both paths; `delivery/` is the default only for new
+projects.

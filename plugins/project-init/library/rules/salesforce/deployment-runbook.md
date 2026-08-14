@@ -10,7 +10,9 @@ verification, ordering-sensitive steps, and post-deploy spot checks.
 
 Keep the runbook wherever the project tracks work: a list in the task tracker
 (ClickUp, Linear, Jira), a checklist doc, or a local file under
-`engagement/deployment/`. One entry per operational step. Whatever the tool, each
+`delivery/deployment/`. Existing projects that already use
+`engagement/deployment/` keep that path. Do not move or duplicate their records.
+One entry per operational step. Whatever the tool, each
 step needs: a short imperative title, a phase, an order, an owner, and a body
 with instructions and verification.
 

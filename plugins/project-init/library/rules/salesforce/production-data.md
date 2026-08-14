@@ -1,12 +1,12 @@
-## Production Data Artifacts Live Under `engagement/data/`
+## Production Data Artifacts Live Under `delivery/data/`
 
-Every production data artifact for this project lives under `engagement/data/`,
+Every production data artifact for this project lives under `delivery/data/`,
 in one of two homes, and each one goes in its **own subfolder with a required
 `README.md`**:
 
-- `engagement/data/production-backups/`: restore-point **backups** taken BEFORE
+- `delivery/data/production-backups/`: restore-point **backups** taken BEFORE
   a live data change.
-- `engagement/data/data-loads/`: the **files loaded** to an org via Data Loader
+- `delivery/data/data-loads/`: the **files loaded** to an org via Data Loader
   / Bulk API.
 
 Never drop a backup or load file loose in either root, and never leave one as the
@@ -20,21 +20,22 @@ data, PII, and record IDs, and must not push to a remote). Keep each tree's
 each artifact stays self-describing in the repo even though the data never
 pushes.
 
-If this project uses a different top-level folder for engagement material, put
-`data/` under that instead and mirror the same two-home layout. If there is no
-engagement root at all, ask the owner where engagement artifacts live before
-creating anything.
+An existing project that already uses `engagement/data/` keeps that path. Do
+not move it or create a parallel `delivery/data/` tree. If the project uses a
+different top-level folder for delivery material, put `data/` under that
+instead and mirror the same two-home layout. If there is no delivery-artifact
+root at all, ask the owner where these artifacts live before creating anything.
 
 ---
 
-### Backups: `engagement/data/production-backups/`
+### Backups: `delivery/data/production-backups/`
 
 A backup is a read-only export of records captured as a **restore point before a
 live data change** (any Data Loader / Bulk API insert, update, upsert, or delete
 an org will receive). It is the file you would load back to undo the change.
 
 ```
-engagement/data/production-backups/
+delivery/data/production-backups/
   .gitignore
   README.md                          # explains the convention (committed)
   prod-backup-<MMDDYYYY>-<slug>/      # one subfolder per backup event
@@ -52,13 +53,13 @@ engagement/data/production-backups/
 
 ---
 
-### Data loads: `engagement/data/data-loads/`
+### Data loads: `delivery/data/data-loads/`
 
 Every file actually loaded to an org (Data Loader / Bulk API insert, update,
 upsert, or delete) is saved here after the load, in its own subfolder.
 
 ```
-engagement/data/data-loads/
+delivery/data/data-loads/
   .gitignore
   README.md                          # explains the convention (committed)
   <change-slug>-<MMDDYYYY>/           # one subfolder per load event

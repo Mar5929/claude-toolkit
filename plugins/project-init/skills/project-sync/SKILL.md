@@ -73,8 +73,8 @@ automatically as it grows.
     and, for every other stack, the graphify code graph
     (`graphify-dependency-graph.md`, whose rule is
     `library/rules/general/dependency-graph.md`)
-  - the `work-tracker` plugin and any existing `work-items/` or
-    `engagement/work-items/` tree
+  - the `work-tracker` plugin and any existing `delivery/work-items/`,
+    `engagement/work-items/`, or root `work-items/` tree
   - the `hooks-library` plugin and both general hooks, checked separately rather
     than as one item: `style-reminder` (UserPromptSubmit) and `writing-guard`
     (Stop). For each one, check `.claude/settings.json` for a registered entry
@@ -271,7 +271,9 @@ checks:
   rules already say something about ticket quality, show the difference against
   the toolkit's current wording and let the owner keep theirs, take the
   toolkit's, or merge the two. Never overwrite without asking.
-- **Work tracker:** detect `work-items/` and `engagement/work-items/`. If
+- **Work tracker:** detect `delivery/work-items/`, `engagement/work-items/`, and
+  root `work-items/`. Keep whichever path the project already uses; never move
+  or rename a tracker during sync. If
   `.work-tracker.json` and per-item `ITEM.json` records exist, run the tracker
   validator and classify the system as present or partial from its output. If
   only the older stage folders, `BACKLOG.md`, `SPEC.md`, and `STATUS.md` exist,

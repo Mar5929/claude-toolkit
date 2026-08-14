@@ -90,6 +90,31 @@ test("initializes safely in a path containing spaces and emits JSON", () => {
   assert.ok(fs.existsSync(path.join(repo, "work-items", "DASHBOARD.md")));
 });
 
+test("recognizes delivery and existing engagement tracker paths without moving them", () => {
+  for (const relative of [
+    path.join("delivery", "work-items"),
+    path.join("engagement", "work-items"),
+  ]) {
+    const repo = makeRepo(`tracker ${relative.split(path.sep)[0]}`);
+    const workRoot = path.join(repo, relative);
+    fs.mkdirSync(workRoot, { recursive: true });
+    const result = init(repo);
+    assert.equal(result.path, relative.replaceAll(path.sep, "/"));
+    assert.ok(fs.existsSync(path.join(workRoot, ".work-tracker.json")));
+    assert.equal(fs.existsSync(path.join(repo, "work-items")), false);
+  }
+});
+
+test("requires an explicit path when multiple uninitialized tracker folders exist", () => {
+  const repo = makeRepo("ambiguous tracker roots");
+  fs.mkdirSync(path.join(repo, "delivery", "work-items"), { recursive: true });
+  fs.mkdirSync(path.join(repo, "engagement", "work-items"), { recursive: true });
+  const result = jsonWork(repo, ["init"], { allowFailure: true });
+  assert.equal(result.status, 1);
+  assert.equal(JSON.parse(result.stderr).error, "ambiguous_path");
+  assert.equal(fs.existsSync(path.join(repo, "work-items")), false);
+});
+
 test("adopts an existing manual work item without overwriting notes", () => {
   const repo = makeRepo();
   const folder = path.join(repo, "work-items", "01-backlog", "WI-007-old-item");
