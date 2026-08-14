@@ -11,6 +11,12 @@ description: >-
 Read `knowledge/project.md` and `knowledge/index.md` first. They give the goal
 and the map, not the whole vault.
 
+The owner installs Obsidian tools on his machines outside this toolkit: an
+Obsidian MCP server (tools named `mcp__obsidian__*`) and the
+`kepano/obsidian-skills` skills. When they are present, use them to find, read,
+and search notes under `knowledge/`. They are optional; the vault is ordinary
+Markdown and everything here works without them.
+
 ## Find only what the task needs
 
 1. Open the relevant specification before changing behavior.

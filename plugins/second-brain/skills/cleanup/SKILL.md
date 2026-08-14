@@ -24,6 +24,14 @@ read-only mechanical report:
 node .claude/tools/knowledge-health.mjs health --json
 ```
 
+The owner installs Obsidian tools on his machines outside this toolkit: an
+Obsidian MCP server (tools named `mcp__obsidian__*`) and the
+`kepano/obsidian-skills` skills. When they are present, use them to find, read,
+and search notes during the review. Reading and searching only: repairs go
+through `remember` and stay ordinary Markdown with relative links, never
+Obsidian-only wikilinks, embeds, or extra properties. The tools are optional;
+everything here works without them.
+
 For a focused review, limit the explanation and proposals to the named warning,
 changed files, files that point to an old or deleted path, and any global tag
 overlap it caused. For a full review, include the complete approved tag
