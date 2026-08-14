@@ -35,7 +35,7 @@ existing project through `project-sync`.
 
 ## Who is involved
 
-- **Mike Rihm** owns the toolkit and approves its direction and durable project
+- **Mike Rihm** owns the toolkit and approves its direction and persistent project
   knowledge.
 - **Claude and Codex** build, review, test, and maintain the toolkit under the
   same repository rules.

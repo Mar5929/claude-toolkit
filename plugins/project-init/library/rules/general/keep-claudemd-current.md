@@ -21,7 +21,7 @@ Before adding, ask where the thing actually lives:
 
 - **A rule the session must follow** belongs in CLAUDE.md or `.claude/rules/`.
   That is the only category this file owns.
-- **Everything else routes out.** `capture-the-thinking.md` holds the one table
+- **Everything else routes out.** `where-persistent-information-belongs.md` holds the one table
   saying where each kind of content goes; follow it rather than a second list
   kept here. CLAUDE.md may carry a one-line pointer to a home, never a summary
   of it.
@@ -107,12 +107,14 @@ route. Claude's fail-open `SessionStart` loader reads `knowledge/project.md` and
 `knowledge/index.md`. `AGENTS.md` directly tells Codex to read the same two
 files and to treat `knowledge/brainstorms/` as unchecked.
 
-That short route also carries the anti-decay principle: save stable facts,
-lasting events, decisions, or states that prevent repeated explanation or a
-wrong action; put live progress in the tracker, reusable procedures in skills,
-source material in references, and past conversations in session history. It
-is the one always-loaded behavior summary. The detailed property, routing, save,
-and cleanup rules remain in the project-knowledge specification and skills.
+That short route also carries the anti-decay principle: save persistent
+information only when a stable fact, lasting event, decision, or state prevents
+repeated explanation or the same wrong action. Standing agent instructions go
+in rules, active work stays wherever its work item is tracked, reusable
+processes go in skills, outside source material goes in references, and past
+conversations stay in session history. It is the one always-loaded behavior
+summary. The detailed property, routing, save, and cleanup rules remain in the
+project-knowledge specification and skills.
 
 When those paths or delivery mechanisms change, update the applicable root
 route in the same change. Never copy the authority map, memory types, save

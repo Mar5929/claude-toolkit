@@ -17,14 +17,15 @@ A long session is about to end. Four things have to happen, in this order, and
 the order is the whole point.
 
 1. **Run the installed `remember` review**, so anything worth keeping passes
-   the project's save filters and owner approval.
-2. **Wait for the save decision**, so nothing is written the owner has not read.
+   the project's placement test and owner approval.
+2. **Wait for the save decision**, so nothing is written outside the meaning the
+   owner approved.
 3. **Draft a prompt a fresh session can start from**, carrying everything that
    was not saved, opening with the goal of the work.
 4. **Check the draft before the owner sees it**, then show what changed and the
    finished prompt.
 
-Do the durable review last and it gets skipped, because once the prompt is on
+Do the persistent review last and it gets skipped, because once the prompt is on
 screen the session is over in the owner's head. Skip the check and the prompt
 carries whatever this session believed, guesses included.
 
@@ -53,7 +54,7 @@ to the agent. By the time it runs the context is already going. That is why this
 is a command the owner types rather than a hook: typing it is the moment, and a
 command carries its own instructions.
 
-## Step 1: the durable review, before anything else
+## Step 1: the persistent review, before anything else
 
 Detect the current project knowledge system by its complete layout:
 
@@ -61,15 +62,15 @@ Detect the current project knowledge system by its complete layout:
 - `knowledge/specs/`, `knowledge/memory/`, and `knowledge/brainstorms/`; and
 - the installed `remember` skill.
 
-When all are present, invoke `remember`. That skill owns the four save filters,
-canonical placement, proposal shape, exact-draft review, approval, link repair,
-and index rebuild. Do not restate or replace that policy here.
+When all are present, invoke `remember`. That skill owns placement, the short
+meaning review, approval, link repair, and index rebuild. Do not restate or
+replace that policy here.
 
 When no knowledge-system signature exists, skip to step 3. Everything worth
 keeping goes into the handoff prompt instead. Say that plainly in one line.
 
 When the layout is partial, mixed, or unknown, do not guess which system owns
-the files. Say that the durable save is blocked, carry the candidate material
+the files. Say that the persistent save is blocked, carry the candidate material
 into the prompt, and recommend `project-sync` in the next session.
 
 Review what this session produced: decisions the owner made, understanding that
@@ -82,23 +83,22 @@ an empty table, and do not invent rows to fill one.
 
 ## Step 2: wait for the `remember` result
 
-`remember` shows the owner:
+`remember` shows the owner one short group for each independently routed item:
 
 ```markdown
-What I want to change
-
-- short plain-language bullets
-
-Why
-
-- why each durable change matters
-
-1. `knowledge/.../file.md`
-   The exact proposed words.
+1. Plain name
+   - What: the meaning that may change
+   - Where: the current or proposed home
+   - Why: the repeated explanation or wrong action this prevents
+   - Assumptions: every assumption, or None
+   - Unverified: every unchecked claim, or None
 ```
 
 Wait when `remember` requires the owner's answer. Continue only after it reports
 what was saved, declined, or blocked.
+
+Full file text appears only when the owner asks for it. Asking to see it is not
+approval. `remember` still waits for keep, change, or skip.
 
 Whatever the owner cuts or defers, and anything whose save failed, goes into
 step 3 instead. Nothing is queued anywhere, and nothing is dropped.
@@ -212,7 +212,7 @@ single line and keep the ones that would change what the next session does.
 
 `/handoff check` takes a handoff prompt the owner already has, from an earlier
 session, another agent, or written by hand, and runs step 4 against it with no
-durable review and no drafting.
+persistent review and no drafting.
 
 1. Ask for the prompt if the owner has not pasted it, and ask which repository
    it is about if that is not obvious.
@@ -232,7 +232,7 @@ getting long, write me something to paste into a new chat", "hand this off to a
 fresh session" all mean the same thing. Run the same steps.
 
 The rule that raises this before a loaded session is
-`offer-context-handoff.md`. The `remember` skill owns the durable review. This
+`offer-context-handoff.md`. The `remember` skill owns the persistent review. This
 command is the convenient path, not the only one.
 
 ## How to write the prompt itself
@@ -252,8 +252,8 @@ Follow the project's output style. Two things that matter here in particular:
 |---|---|
 | Nothing in the session is worth saving | One line saying so, then draft, check, and show the prompt. Do not invent a proposal |
 | The owner declines every `remember` proposal | Carry every declined item into the handoff prompt. Write nothing to project knowledge |
-| The owner approves some proposals and cuts others | Let `remember` save the approved words. Carry the cut ones into the prompt |
-| The owner edits a proposal | Let `remember` write the owner's words |
+| The owner approves some proposals and cuts others | Let `remember` save only the approved meaning. Carry the cut ones into the prompt |
+| The owner edits a proposal | Let `remember` write only the edited meaning |
 | The project has no project knowledge system | Skip steps 1 and 2, say so in one line, put everything worth keeping in the prompt |
 | The save or index rebuild cannot be finished | Report the failure plainly and carry that item into the prompt as well, so it survives either way. Do not pretend it was saved |
 | The goal is written in no file, only in this chat | It goes in the prompt, labelled not confirmed. Do not stop to write it into the work item first |
@@ -264,8 +264,8 @@ Follow the project's output style. Two things that matter here in particular:
 | The prompt claims tests or a build passed | The checker never runs them. With no command output from this session behind it, the claim is labelled not confirmed |
 | `/handoff` is run twice in a row | Do not re-propose what was already saved. Propose only what changed since the first run, then draft and check again from the current state |
 | The session is short and produced nothing | Say so. Write a short prompt if the owner still wants one. Do not pad it |
-| The work is unfinished | Normal. That is what a handoff is for. Unfinished state goes in the prompt and the work tracker, never in project knowledge |
-| The owner wants only the prompt, no durable review | Their call. Say once that nothing will be saved, then draft, check, and show the prompt with everything carried inside it |
+| The work is unfinished | Normal. That is what a handoff is for. Unfinished state goes in the prompt and wherever the work item is being tracked, never in project knowledge |
+| The owner wants only the prompt, no persistent review | Their call. Say once that nothing will be saved, then draft, check, and show the prompt with everything carried inside it |
 | The owner wants the prompt with no check | Their call. Say once that nothing in it will have been verified, then write it |
 | Another session is working in the same repository | Say which worktree and branch this session was in, so the next one does not assume it owns the checkout |
 

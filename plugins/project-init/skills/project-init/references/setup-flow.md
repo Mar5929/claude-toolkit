@@ -135,16 +135,19 @@ so they always know where they are.
   greenfield setup workflow, including the four focused skills, index and
   migration tools, read-only health tool, fail-open startup routes, and
   pull-request reminder.
-- Add the short startup principle that separates stable durable knowledge from
-  live tracker progress, reusable skill procedures, references, and session
-  history.
+- Add the short startup principle that routes standing agent instructions to
+  rules, active work wherever its work item is being tracked, reusable
+  processes to skills, outside source material to references, past conversation
+  to session history, and persistent project information to specifications or
+  memory.
 - Start with an empty project-specific tag vocabulary. Never inherit the
   toolkit repository's topic tags.
 - Commit only `knowledge/.obsidian/app.json` with `alwaysUpdateLinks: true`,
   `newLinkFormat: "relative"`, and `useMarkdownLinks: true`. Ignore all other
   `.obsidian` state and do not pin a
   core plugin list.
-- Offer an initial owner-approved durable pass after setup.
+- Offer an initial owner-approved persistent-information pass after setup, using
+  short What, Where, Why, Assumptions, and Unverified bullets.
 - Do not install a database, memory MCP server, embeddings, transcript capture,
   or background curation.
 - `knowledge/index.md` is generated. Create no per-folder indexes or folder
@@ -229,11 +232,11 @@ so they always know where they are.
   They install and version together, so this is a single yes or no.
 - `explain-simply` re-says an answer as plain bullets keeping every number,
   date, path, and name.
-- `grill-me` for durable brainstorming and discovery interviews.
+- `grill-me` for persistent brainstorming and discovery interviews.
 - If approved, install its plugin from the toolkit marketplace. Do not copy its
   skill instructions into the project.
 - With project knowledge installed, it writes under `knowledge/brainstorms/`
-  and invokes `remember` for approved durable outcomes at interview completion.
+  and invokes `remember` for approved persistent outcomes at interview completion.
 - Offer `session-summary` for long sessions and handoffs: it returns a table with
   one row per request the owner made, each with a status, then a block for
   whatever still needs them, and writes nothing.

@@ -1,6 +1,6 @@
 # Permission set and profile research: findings and evidence
 
-The durable record of what was established about Salesforce permission set and
+The persistent record of what was established about Salesforce permission set and
 profile metadata, so no future project repeats the research. Researched July
 2026 against API version 67.0 (Summer '26), with a live read-only test against a
 real full-copy sandbox.

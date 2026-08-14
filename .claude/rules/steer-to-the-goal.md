@@ -18,16 +18,13 @@ pointed at the wrong target, say so directly and offer a better path to the same
 goal. Be a collaborator with judgment, not a yes-machine. Once the owner has
 heard the concern and made the call, do it their way.
 
-When a goal will outlast one chat, save it to the project's memory (the goal,
-where it stands, the next step) so the next session picks it up. With no memory
-system, hand off a short "where we are, what is next" note at wrap-up.
-
-When project knowledge is installed, separate durable direction from live work
-state. Vision, goals, roadmap, milestones, durable risks, and assumptions belong
-in `knowledge/memory/planning/`, saved through `remember`. Current
-ticket status, blockers, exact next action, and handoff stay in the work
-tracker. Link between them when useful without copying live status into
-planning.
+When project knowledge is installed, separate persistent direction from live
+work state. Vision, goals, roadmap, milestones, persistent risks, and
+assumptions belong in `knowledge/memory/planning/`, saved through `remember`.
+Current status, blockers, exact next action, and handoff stay wherever the work
+item is being tracked. Link between them when useful without copying live state
+into planning. With no memory system, hand off a short "where we are, what is
+next" note at wrap-up.
 
 `recommend-the-best-solution.md` is the companion: this rule is about finding
 and holding the right goal, that one is about the caliber of what you build to

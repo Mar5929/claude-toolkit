@@ -196,7 +196,7 @@ reminder. Gate 3 installs those with the system. Do not install the retired
 ### Gate 3: Project knowledge system
 
 **Purpose:** install the packaged Git-native project knowledge system so Claude
-and Codex share approved specifications, durable understanding, and one small
+and Codex share approved specifications, persistent understanding, and one small
 startup map.
 
 - Offer the `second-brain` plugin as one coherent, opt-in system.
@@ -231,19 +231,21 @@ startup map.
   `SessionStart` hook. Add the equivalent fail-open `.codex/hooks.json` route
   where native Codex hooks are supported, and always put the startup instruction
   in root `AGENTS.md` as the portable Codex route.
-- Put the packaged short knowledge principle in both root routes: save only
-  stable facts, lasting events, decisions, or states that prevent repeated
-  explanation or a wrong action; route live progress to the tracker, reusable
-  procedures to skills, source material to references, and past conversations
-  to session history.
+- Put the packaged short knowledge principle in both root routes: save
+  persistent information only when a stable fact, lasting event, decision, or
+  state prevents repeated explanation or the same wrong action; route standing
+  agent instructions to rules, active work wherever its work item is being
+  tracked, reusable processes to skills, outside source material to references,
+  and past conversations to session history.
 - Start `knowledge/memory/tags.md` with an empty project-specific vocabulary.
   Never copy another project's topic tags into a new project.
-- Offer the initial durable pass after installation. The main agent shows
-  `What I want to change`, `Why`, and the exact proposed words, then writes only
-  what the owner approves.
+- Offer the initial persistent-information pass after installation. The main
+  agent shows short What, Where, Why, Assumptions, and Unverified bullets, then
+  writes only the meaning the owner approves. Full file text appears only when
+  the owner asks.
 - Never add a database, memory MCP server, embeddings, transcript capture, or
   background curator. Hooks may load or remind; they never approve or write
-  durable knowledge.
+  persistent knowledge.
 - Never read or import retired v1 Worker, Neon, curator, outbox, or cache
   content.
 - `knowledge/index.md` is generated from specifications and memories. Nobody
@@ -258,7 +260,7 @@ Markdown knowledge system.
 
 - Do not offer a second or competing knowledge system. When Gate 3 was
   approved, `knowledge/memory/knowledge/`, `knowledge/memory/references/`, and
-  `knowledge/memory/domain/` already provide the durable knowledge layer.
+  `knowledge/memory/domain/` already provide the persistent knowledge layer.
 - Mark this gate **available alongside project knowledge** when Gate 3 ran, or
   **independent of project knowledge** when the owner declined Gate 3.
 - Explain that a dependency graph is a separately optional analysis aid for
@@ -388,7 +390,7 @@ in their own plugins.
 - `grill-me` asks one question at a time and writes every answer to
   `knowledge/brainstorms/{date}-{topic}.md` before continuing when project
   knowledge is installed. Explain that it ends by invoking `remember` for any
-  resulting specification or durable-memory updates. The generated index
+  resulting specification or persistent-memory updates. The generated index
   excludes brainstorms, and raw discovery stays non-authoritative.
 - `session-summary` returns a table with one row per request the owner made, in
   their own words, each with a status such as done, partly done, blocked, or

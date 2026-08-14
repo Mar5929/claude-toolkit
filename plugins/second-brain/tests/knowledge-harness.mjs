@@ -63,6 +63,10 @@ function read(base, path) {
   return readFileSync(resolve(base, path), "utf8");
 }
 
+function oneLine(text) {
+  return text.replace(/^\s*>\s?/gm, "").replace(/\s+/g, " ").trim();
+}
+
 function treeDigest(base) {
   const rows = [];
   const walk = (dir = "") => {
@@ -166,12 +170,91 @@ try {
 
   const claudeManifest = JSON.parse(readFileSync(resolve(plugin, ".claude-plugin/plugin.json")));
   const codexManifest = JSON.parse(readFileSync(resolve(plugin, ".codex-plugin/plugin.json")));
-  ok(claudeManifest.version === "3.2.0", "Claude manifest is 3.2.0");
-  ok(codexManifest.version === "3.2.0", "Codex manifest is 3.2.0");
+  ok(claudeManifest.version === "3.3.0", "Claude manifest is 3.3.0");
+  ok(codexManifest.version === "3.3.0", "Codex manifest is 3.3.0");
   ok(claudeManifest.version === codexManifest.version, "plugin manifest versions match");
-  const principle = "Keep project knowledge small: save stable facts";
-  ok(readFileSync(resolve(root, "CLAUDE.md"), "utf8").split(principle).length === 2, "Claude loads the short knowledge principle once");
-  ok(readFileSync(resolve(root, "AGENTS.md"), "utf8").split(principle).length === 2, "Codex loads the short knowledge principle once");
+  const principle = "Keep project knowledge small: save persistent information only when a stable fact, lasting event, decision, or state prevents repeated explanation or the same wrong action.";
+  for (const path of [
+    "CLAUDE.md",
+    "AGENTS.md",
+    "knowledge/specs/memory-system.md",
+    "plugins/second-brain/skills/second-brain/SKILL.md",
+    "plugins/project-init/skills/project-init/references/thin-claudemd.md",
+  ]) {
+    ok(oneLine(readFileSync(resolve(root, path), "utf8")).includes(principle), `${path} carries the complete persistent-information principle`);
+  }
+
+  const placementRule = "plugins/project-init/library/rules/general/where-persistent-information-belongs.md";
+  ok(existsSync(resolve(root, placementRule)), "package contains the plainly named placement rule");
+  ok(existsSync(resolve(root, ".claude/rules/where-persistent-information-belongs.md")), "repository runs the plainly named placement rule");
+  ok(!existsSync(resolve(root, "plugins/project-init/library/rules/general/capture-the-thinking.md")), "package removes the unclear old placement-rule name");
+  ok(!existsSync(resolve(root, ".claude/rules/capture-the-thinking.md")), "repository removes the unclear old placement-rule copy");
+  const placementRuleText = readFileSync(resolve(root, placementRule), "utf8");
+  ok(placementRuleText.includes("Do not create missing `knowledge/` folders"), "placement rule handles projects without the optional knowledge system");
+  ok(placementRuleText.includes("wherever the work item is being tracked"), "placement fallback keeps active information with its work item");
+
+  const rememberText = readFileSync(resolve(plugin, "skills/remember/SKILL.md"), "utf8");
+  for (const expected of [
+    "Wherever the work item is being tracked",
+    "**Rules:** standing instructions",
+    "**Skills:** reusable processes",
+    "`knowledge/specs/`",
+    "`knowledge/memory/context/`",
+    "`knowledge/memory/decisions/`",
+    "`knowledge/memory/domain/`",
+    "`knowledge/memory/knowledge/`",
+    "`knowledge/memory/operations/`",
+    "`knowledge/memory/planning/`",
+    "`knowledge/memory/references/`",
+    "`knowledge/brainstorms/`",
+    "**Session history:**",
+    "- What:",
+    "- Where:",
+    "- Why:",
+    "- Assumptions:",
+    "- Unverified:",
+    "Full file text",
+    "Asking to see full text is not approval",
+    "Approval covers the meaning",
+    "write only the approved meaning",
+  ]) ok(rememberText.toLowerCase().includes(expected.toLowerCase()), `remember carries ${expected}`);
+
+  const activeSaveSurfaces = [
+    "CLAUDE.md",
+    "AGENTS.md",
+    "knowledge/specs/memory-system.md",
+    "plugins/second-brain/skills/remember/SKILL.md",
+    "plugins/second-brain/skills/cleanup/SKILL.md",
+    "plugins/second-brain/README.md",
+    "plugins/session-skills/skills/handoff/SKILL.md",
+    "plugins/session-skills/skills/grill-me/SKILL.md",
+    "plugins/session-skills/README.md",
+    "plugins/project-init/library/rules/general/offer-context-handoff.md",
+    "plugins/project-init/library/rules/general/where-persistent-information-belongs.md",
+    "plugins/project-init/skills/project-init/SKILL.md",
+    "plugins/project-init/skills/project-init/references/setup-flow.md",
+    "plugins/project-init/skills/project-init/references/thin-claudemd.md",
+    "docs/toolkit-map.md",
+  ].map((path) => readFileSync(resolve(root, path), "utf8").toLowerCase()).join("\n");
+  for (const forbidden of [
+    "capture-the-thinking",
+    "show the exact words",
+    "exact proposed words",
+    "exact-draft review",
+    "complete working-branch draft",
+    "durable review",
+    "live progress in the tracker",
+  ]) ok(!activeSaveSurfaces.includes(forbidden), `active save surfaces exclude ${forbidden}`);
+
+  for (const [name, version] of [
+    ["project-init", "0.44.0"],
+    ["session-skills", "1.1.0"],
+  ]) {
+    const claude = JSON.parse(readFileSync(resolve(root, `plugins/${name}/.claude-plugin/plugin.json`)));
+    const codex = JSON.parse(readFileSync(resolve(root, `plugins/${name}/.codex-plugin/plugin.json`)));
+    ok(claude.version === version, `${name} Claude manifest is ${version}`);
+    ok(codex.version === version, `${name} Codex manifest is ${version}`);
+  }
 
   const template = resolve(plugin, "skills/second-brain/references/templates/knowledge");
   for (const path of [
@@ -281,6 +364,8 @@ try {
   ok(!opensPullRequest('echo "gh pr create"'), "PR reminder ignores quoted prose");
   ok(!opensPullRequest("gh pr create --help"), "PR reminder ignores help");
   ok(buildMessage().includes("Invoke /remember"), "PR reminder points at the packaged remember skill");
+  ok(buildMessage().includes("What, Where, Why, Assumptions"), "PR reminder requests the short approval review");
+  ok(!buildMessage().includes("exact words"), "PR reminder does not request full file text");
 
   // Fixed properties, project tags, provenance, and read-only health views.
   const healthy = fixture("health");

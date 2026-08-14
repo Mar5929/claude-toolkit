@@ -218,7 +218,7 @@ checks:
   architecture and system maps, roadmaps, project overviews, runbooks,
   glossaries, references, and raw artifact folders. Report likely canonical
   homes, duplicates, contradictions, missing indexes, broken routes, and live
-  work state copied into durable documents. Distinguish observed facts,
+  work state copied into persistent documents. Distinguish observed facts,
   inference, owner-confirmed intent, and unknowns when the difference matters.
 - **Retired v1 status:** v1 is the old Neon/MCP architecture and is not a v3
   migration source. Identify only its local integration surface:
@@ -237,7 +237,7 @@ checks:
   listed committed v1 files after separate approval. Never bundle deletion of a
   non-empty outbox, cache, ignored file, token, connector, database, or cloud
   resource into ordinary project sync.
-- **Knowledge layer:** `knowledge/memory/` is the durable knowledge layer. Do
+- **Knowledge layer:** `knowledge/memory/` is the persistent knowledge layer. Do
   not create a second store. Existing v1 curator files, `know-*` nodes, SHA
   pins, and drift reports remain retired and are never refreshed, reconciled,
   imported, or used as current truth.
@@ -377,7 +377,7 @@ presence. Read the file and report:
 - **A codemap that became a changelog.** Codemap entries should be one line per
   folder or module plus any load-bearing invariant. Flag entries carrying dated
   history ("2026-07-17 changed X, decision #17"); that history belongs in Git
-  and the applicable specification or durable memory.
+  and the applicable specification or persistent memory.
 - **Live state that belongs in the status doc.** Current phase, next action, and
   open TODOs drift the moment they are written here. Flag them for work-tracker
   or the live status doc.
@@ -551,8 +551,8 @@ should look in THIS project, confirm, act, summarize. Ground rules:
      `PreToolUse` with the `Bash` matcher.
   4. Add the direct startup route to root `AGENTS.md`; add the short matching
      route to root `CLAUDE.md`. Both carry the packaged principle separating
-     stable durable knowledge from live tracker progress, reusable skill
-     procedures, references, and session history. Where native Codex hooks are
+     persistent knowledge from active work, standing agent instructions,
+     reusable skill processes, references, and session history. Where native Codex hooks are
      supported, merge the same fail-open loader into `.codex/hooks.json`
      without removing other hooks.
   5. Add the Obsidian ignore allowlist so only

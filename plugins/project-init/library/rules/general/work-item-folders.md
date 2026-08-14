@@ -8,7 +8,7 @@ Capture every ticket, feature, setup task, or deferred want in the project's
 declared work tracker. When the `work-tracker` plugin is installed, use its
 commands instead of manually moving folders or editing structured fields.
 
-The folder is the durable memory for one piece of work. It has to survive a
+The folder is the persistent record for one piece of work. It has to survive a
 context window filling up mid-task, a handoff to another agent, and the owner
 moving to a different machine. Chat history survives none of those; the folder
 does. That is the whole reason it exists, and it is the test for whether an
@@ -75,7 +75,7 @@ Capture a want when the owner says it. A request that exists only in a finished
 conversation is lost.
 
 When project knowledge is installed, link a work item to the specification,
-planning document, decision, or memory that gives it durable context when that
+planning document, decision, or memory that gives it persistent context when that
 relationship helps, and never copy current item status, blockers, or handoff
-into those documents. `capture-the-thinking.md` carries the table of what
+into those documents. `where-persistent-information-belongs.md` carries the table of what
 belongs where.

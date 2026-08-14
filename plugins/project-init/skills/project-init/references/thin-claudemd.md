@@ -1,7 +1,7 @@
 # Writing thin root instructions (Gate 5)
 
 Root instructions orient a session quickly. Behavioral rules stay in
-`.claude/rules/`; durable project truth stays under `knowledge/`; folder detail
+`.claude/rules/`; persistent project truth stays under `knowledge/`; folder detail
 stays in the folder's own `CLAUDE.md` where Claude can load it on demand.
 
 ## What Gate 5 does
@@ -18,10 +18,12 @@ knowledge specification into either root file.
 
 Both root routes carry this short principle:
 
-> Keep project knowledge small: save stable facts, lasting events, decisions,
-> or states that prevent repeated explanation or a wrong action. Put live
-> progress in the tracker, reusable procedures in skills, source material in
-> references, and past conversations in session history.
+> Keep project knowledge small: save persistent information only when a stable
+> fact, lasting event, decision, or state prevents repeated explanation or the
+> same wrong action. Put standing agent instructions in rules, active work
+> wherever its work item is being tracked, reusable processes in skills,
+> outside source material in references, and past conversations in session
+> history.
 
 ## What a thin CLAUDE.md contains
 

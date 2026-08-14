@@ -17,7 +17,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | Plugin | Purpose | Skills | Install | Setup |
 |---|---|---|---|---|
 | [project-init](../plugins/project-init/README.md) | Put the toolkit's rules and systems into a project, new or existing, and the machine-wide ones onto the computer itself | `project-init`, `project-sync`, `machine-sync` | `/plugin install project-init` | Sets up a project, and sets up a machine |
-| [second-brain](../plugins/second-brain/README.md) | Portable Git-native project knowledge with fixed properties, project-specific tags, visible provenance, read-only health reports, and separate read-only Claude Code session history shared by Claude, Codex, and optional Obsidian | `second-brain`, `remember`, `recall`, `cleanup`, `session-search` | `/plugin install second-brain` | Sets up a project |
+| [second-brain](../plugins/second-brain/README.md) | Portable Git-native project knowledge with fixed properties, project-specific tags, visible provenance, short meaning reviews, read-only health reports, and separate read-only Claude Code session history shared by Claude, Codex, and optional Obsidian | `second-brain`, `remember`, `recall`, `cleanup`, `session-search` | `/plugin install second-brain` | Sets up a project |
 | [sf-architect-solutioning](../plugins/sf-architect-solutioning/README.md) | Salesforce solution architect: approved solution plan before any build | `sf-architect-solutioning` | `/plugin install sf-architect-solutioning` | Install and go |
 | [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git lifecycle workflows | `pull-latest`, `reset-to-remote`, `merge-and-clean-up` | `/plugin install git-workflows` | Install and go |
 | [hooks-library](../plugins/hooks-library/README.md) | Reusable style, writing, Git-attribution, and Salesforce deployment hooks; system-specific knowledge hooks stay with second-brain | `hooks-library` | `/plugin install hooks-library` | Wires into settings |
@@ -32,7 +32,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | project-sync | project-init | Audit an EXISTING project against the toolkit and close approved gaps | `/project-sync` |
 | machine-sync | project-init | Audit THIS COMPUTER's `~/.claude/` against the toolkit's machine-wide set and close approved gaps. Also the whole setup for a new computer | `/machine-sync`, "set up this machine from my toolkit" |
 | second-brain | second-brain | Explain, install, audit, migrate, and maintain the complete project knowledge system | `/second-brain` |
-| remember | second-brain | Apply the four save filters, check the canonical home and project tags, show provenance and the exact proposed words, save only what is approved, and rebuild the knowledge index | `/remember`, "remember this" |
+| remember | second-brain | Decide where persistent information belongs, show short What, Where, Why, Assumptions, and Unverified bullets, save only the approved meaning, and rebuild the knowledge index | `/remember`, "remember this" |
 | recall | second-brain | Start from the project map and retrieve only the specifications and memories relevant to the task | `/recall`, "what does the project know about this?" |
 | cleanup | second-brain | Combine read-only property, tag, provenance, and health findings with a meaning review, then repair only what the owner approves | `/cleanup`, "clean up project knowledge" |
 | session-search | second-brain | Search saved local Claude Code CLI discussions only after current project files leave a real gap | `/session-search`, "find the earlier Claude Code discussion" |
@@ -172,7 +172,7 @@ These are not duplicated here. Go to the index that owns them:
   [plugin README](../plugins/second-brain/README.md) describes one `knowledge/`
   vault with a short project overview, one generated index, approved
   specifications, seven typed memory homes, and unchecked brainstorms. The
-  owner sees every durable change before it becomes current truth. The package
+  owner sees every persistent change before it becomes current truth. The package
   ships four focused knowledge workflows plus setup and safe migration. Its
   startup hook reads only the map, its pull-request hook only reminds, and no
   hook or helper agent writes or approves knowledge.
@@ -237,7 +237,7 @@ The genuine watch-items are called out at the end.
   hierarchy.
 - **work-tracker versus project knowledge.** work-tracker owns task status,
   blockers, work-item relationships, branch and pull-request evidence, and the
-  current handoff. Project knowledge may link specifications and durable memory to a work-item
+  current handoff. Project knowledge may link specifications and persistent memory to a work-item
   folder, but it does not copy or overrule task status.
 - **work-tracker versus GitHub Projects.** Two different things share the word
   "Project". work-tracker's optional adapter creates or updates repository issues
@@ -261,7 +261,7 @@ The genuine watch-items are called out at the end.
   hook is not a licence to thin the style: it fires on the finished reply in the
   main conversation, so it cannot shape a commit message, a document, or
   anything a helper agent writes. Those are covered by the
-  `follow-the-output-style` rule and, for an agent that writes durable files, by
+  `follow-the-output-style` rule and, for an agent that writes persistent files, by
   the writing rules inside its own definition. The split that decides whether
   something belongs in the hook is
   once-per-decision versus once-per-message. "Never commit a secret" fires at
@@ -291,7 +291,7 @@ The genuine watch-items are called out at the end.
   every resulting specification without being copied into system-area folders.
   A work item's `SPEC.md` and `STATUS.md` own that ticket's approved scope and
   readable handoff, while `ITEM.json` owns structured task state. Top-level
-  `knowledge/specs/` owns durable current behavior and second-brain owns durable project
+  `knowledge/specs/` owns persistent current behavior and second-brain owns persistent project
   knowledge. The brainstorm may inform those artifacts but does not replace
   them.
 - **handoff versus session-summary.** Both run at the end of a session and they
@@ -344,34 +344,29 @@ The genuine watch-items are called out at the end.
   keeps the same boundary.
 - **handoff-verifier versus project-knowledge approval.** The handoff verifier
   checks a temporary prompt against the repository before the owner sees it.
-  Durable project knowledge uses direct owner approval instead of a verifier
-  agent. Handoff still works in projects that never install second-brain.
-- **session-summary versus work-tracker and durable review.** All three
+  Persistent project knowledge uses short direct owner approval instead of a
+  verifier agent. Handoff still works in projects that never install
+  second-brain.
+- **session-summary versus work-tracker and persistent review.** All three
   answer some version of "where do things stand", but for different scopes and
   audiences. `session-summary` is a read-only view of one conversation, written
   around the owner's own requests as a table, ending in whatever still needs
   them, and it writes nothing. `work-tracker` owns
-  durable ticket state that outlives the chat, so a request worth keeping goes
+  persistent ticket state that outlives the chat, so a request worth keeping goes
   there rather than into a summary. The `remember` review is the moment that
-  proposes durable project knowledge at the end of substantial work. The
-  summary is what the owner reads; the tracker is what the next session reads.
+  proposes persistent project knowledge at the end of substantial work. The
+  summary is what the owner reads; the work item is what the next session reads.
 - **The session-continuity rule cluster.** Several general rules touch "do not
-  lose context across sessions", which can read as overlap: `keep-claudemd-current`
-  (write durable facts into CLAUDE.md, and route everything that is not a rule
-  out of it so the file stays readable), `offer-context-handoff` (hand a fresh session a
-  self-contained prompt), `work-item-folders` (use work-tracker and keep one
-  canonical folder per item), `capture-the-thinking` (write the goal, why,
-  requirements, edge cases, scenarios, and decisions into their canonical home
-  as they surface, mid-task, so nothing important lives only in a conversation,
-  plus the durable facts that arrive outside any task and so belong to no
-  completion review), and
-  `steer-to-the-goal` (preserve a goal that outlasts one chat). Each targets a
-  distinct moment, so they compose
-  rather than repeat. The second-brain skills own the approved-completion
-  knowledge review. `capture-the-thinking` is the standing obligation the others
-  assume: `work-item-folders` owns the containers and their fields, second-brain
-  owns the durable homes and approval boundary, and `capture-the-thinking` owns
-  the during, which is the moment all three otherwise leave uncovered.
+  lose context across sessions", which can read as overlap:
+  `keep-claudemd-current` keeps root instructions small,
+  `offer-context-handoff` prepares the next session, `work-item-folders` owns a
+  Git-based work-item structure, `where-persistent-information-belongs` routes
+  active work, rules, skills, specifications, memory, references, and session
+  history, and `steer-to-the-goal` preserves direction beyond one chat. The
+  second-brain skills own the approved completion review. The placement rule is
+  the standing obligation the others assume: work stays with its item,
+  persistent information gets one home, and nothing important lives only in a
+  conversation.
   `keep-claudemd-current` names the status doc, the design doc, and long-term
   memory as destinations for detail that does not belong in CLAUDE.md, but it
   does not own any of them; the rules above do. Naming where something goes is

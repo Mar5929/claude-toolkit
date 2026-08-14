@@ -4,7 +4,7 @@ description: >-
   Review project knowledge for stale, repeated, conflicting, unchecked, broken,
   malformed, badly tagged, untraceable, or misplaced content. Use when the owner
   asks, after a migration, or for a focused review after a concrete warning.
-  Propose exact changes and use the normal remember approval flow.
+  Propose short meaning summaries and use the normal remember approval flow.
 ---
 
 # cleanup
@@ -29,7 +29,7 @@ changed files, files that point to an old or deleted path, and any global tag
 overlap it caused. For a full review, include the complete approved tag
 vocabulary, counts, unused tags, and overlaps. Open every current specification
 and memory, then compare its claims with relevant code, settings, source files,
-and tracker state. The tool checks Markdown structure. The agent reviews meaning
+and work-item state. The tool checks Markdown structure. The agent reviews meaning
 because the tool cannot detect stale, repeated, conflicting, or misplaced ideas.
 
 ## Look for
@@ -47,15 +47,16 @@ because the tool cannot detect stale, repeated, conflicting, or misplaced ideas.
 - retained history missing `superseded-by:`;
 - broken relative links;
 - source material mixed with project conclusions;
-- live tracker state copied into durable knowledge;
+- live work-item state copied into persistent knowledge;
 - memories one authoritative repository file already says; and
 - content routed to the folder describing its topic instead of why it matters.
 
 ## Propose, never silently repair
 
 Use `remember` for every edit, merge, move, or deletion. Start with
-`What I want to change` and `Why`, then show the exact words or the complete
-working-branch draft. Structural changes remain visibly owner-approved.
+separate What, Where, Why, Assumptions, and Unverified bullets. Full file text
+appears only when the owner asks for it. Structural changes remain visibly
+owner-approved, and the repair adds no meaning outside the approved bullets.
 
 When merging files, repair every affected link in the same approved change.
 When deleting, say what replaces the file or why no replacement is needed. Git

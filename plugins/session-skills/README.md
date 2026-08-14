@@ -63,7 +63,7 @@ plain bullets", "simpler", or `/explain-simply path/to/file.md`.
 
 ## grill-me
 
-An interview that turns an incomplete plan, design, or idea into durable notes.
+An interview that turns an incomplete plan, design, or idea into persistent notes.
 It asks one question at a time, recommends a likely answer, and writes every
 response to a file before asking the next one.
 
@@ -85,10 +85,11 @@ brainstorm folder instead, rather than creating half a system.
 A brainstorm is not a specification and not a work item's `SPEC.md`. It is the
 record of how the answers were reached.
 
-At the end it invokes `remember`, which applies the save filters, shows you the
-real proposed words, and saves only what you approve. This is the one place
-anything reaches a file without you approving the exact words first, and that is
-deliberate: the checkpoints are what make an interrupted interview safe.
+At the end it invokes `remember`, which decides where persistent information
+belongs, shows short What, Where, Why, Assumptions, and Unverified bullets, and
+saves only the meaning you approve. The raw brainstorm checkpoint is the one
+place content reaches a file before that review, because the checkpoints make
+an interrupted interview safe.
 
 The `spec-before-you-build.md` rule requires a refinement session before work is
 built, and this is a good way to hold one. That rule names no skill on purpose,
@@ -108,10 +109,11 @@ start from.
 
 ### The five steps, in this order
 
-1. **The durable review.** It invokes the installed `remember` skill to decide
+1. **The persistent review.** It invokes the installed `remember` skill to decide
    what is worth keeping and where it belongs.
-2. **The save decision.** `remember` shows `What I want to change`, `Why`, and
-   the exact words, then waits when your approval is required.
+2. **The save decision.** `remember` shows short What, Where, Why, Assumptions,
+   and Unverified bullets, then waits when your approval is required. Full file
+   text appears only when you ask for it.
 3. **The draft.** A prompt for a fresh session, opening with the goal of the
    work, then the task, what to read first, the decisions nobody has written
    down yet, the open questions, and one concrete first action. You do not see
@@ -122,7 +124,7 @@ start from.
 5. **The short list, then the prompt.** A few one-line notes on what was
    corrected and what could not be confirmed, then one block to copy.
 
-**The order is the whole point.** Write the prompt first and the durable review
+**The order is the whole point.** Write the prompt first and the persistent review
 gets skipped, because once the prompt is on screen the session is over in your
 head. Show the prompt before the check and the check never happens.
 
@@ -169,7 +171,7 @@ Two limits, on purpose:
 ### Checking a prompt you already have
 
 `/handoff check` runs the checker on its own, against a prompt from an earlier
-session, another agent, or written by hand. No durable review, nothing saved,
+session, another agent, or written by hand. No persistent review, nothing saved,
 nothing from the current session added. You get the same short list and the
 corrected prompt.
 
@@ -269,8 +271,8 @@ done, not when a check is still failing, not when the last step was skipped.
 
 **The list belongs to this session and does not survive the session ending or
 the context being cleared.** Anything that has to outlive the conversation is
-named, along with where it should go instead: a ticket in the work tracker, or a
-handoff prompt.
+named, along with where it should go instead: wherever its work item is being
+tracked, or a handoff prompt.
 
 ### The rule is what makes it automatic
 

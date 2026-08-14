@@ -26,7 +26,7 @@ and the map, not the whole vault.
 | --- | --- |
 | `knowledge/project.md` | What the project is, why it exists, what finished looks like, main workstreams and boundaries, who is involved, and the tracker pointer |
 | `knowledge/specs/` | Current approved behavior |
-| `knowledge/memory/context/` | Durable circumstances and outside constraints |
+| `knowledge/memory/context/` | Persistent circumstances and outside constraints |
 | `knowledge/memory/decisions/` | Non-obvious choices and reasons |
 | `knowledge/memory/domain/` | Project-specific terms and business rules |
 | `knowledge/memory/knowledge/` | Project conclusions that prevent mistakes |

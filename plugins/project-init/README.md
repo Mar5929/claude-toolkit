@@ -158,6 +158,9 @@ plugin.
   `.claude/rules/` in
   Gate 5, with a one-line pointer in `CLAUDE.md` and `AGENTS.md` naming the
   tracker.
+- Gate 5 also installs `where-persistent-information-belongs.md`, the one plain
+  routing rule for active work, agent rules, reusable skills, specifications,
+  memory, references, brainstorms, and session history.
 - For the "files in this repository" answer, Gate 1 offers `work-tracker` as the
   one canonical task-status system. It can stay entirely local or, with separate
   approval, create or link a GitHub Project mirroring those files. Existing

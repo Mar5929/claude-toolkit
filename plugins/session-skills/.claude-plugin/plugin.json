@@ -1,7 +1,7 @@
 {
   "name": "session-skills",
   "description": "Five skills for working inside one conversation. explain-simply says the last answer again as plain bullets without losing a number. grill-me interviews you one question at a time and writes every answer down. handoff saves what a long session learned and writes a prompt a fresh session can start from. session-summary tables what you asked for and where each request stands. track-tasks keeps every still-open topic on the built-in task list. None of them writes to the project except where you approve it, and all five install together.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com"

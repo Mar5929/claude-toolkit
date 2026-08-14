@@ -56,9 +56,9 @@ files are the one shared truth.
 
 - **second-brain** detects, installs, adopts, migrates, or explains the whole
   system.
-- **remember** applies the four save filters, shows the owner the change and
-  why, shows relevant project tags and provenance, then writes only approved
-  words.
+- **remember** finds where persistent information belongs, shows short What,
+  Where, Why, Assumptions, and Unverified bullets, then writes only the approved
+  meaning.
 - **recall** reads the project map and opens only the knowledge relevant to the
   task.
 - **cleanup** reviews stale, repeated, conflicting, or misplaced knowledge and
@@ -114,7 +114,7 @@ vocabulary and its usage.
 
 The reports are generated on demand from Markdown and are never committed.
 They identify mechanical risks. The cleanup skill reviews meaning and proposes
-the exact owner-approved repair. No tool silently changes durable knowledge.
+the owner-approved repair. No tool silently changes persistent knowledge.
 
 ## What each folder owns
 
@@ -122,7 +122,7 @@ the exact owner-approved repair. No tool silently changes durable knowledge.
   looks like, its main workstreams and boundaries, who is involved, and where
   active work is tracked.
 - `knowledge/specs/`: approved product or system behavior.
-- `knowledge/memory/`: durable context, decisions, domain language, project
+- `knowledge/memory/`: persistent context, decisions, domain language, project
   conclusions, operations, planning, and external references.
 - `knowledge/brainstorms/`: raw exploration that is not approved truth.
 - `knowledge/index.md`: a generated map of specifications and memories.
@@ -134,13 +134,12 @@ The plugin installs no community Obsidian plugin and no Git synchronization.
 
 ## Approval boundary
 
-Every proposal begins with `What I want to change` and `Why`, in plain bullets,
-before the exact words. Short saves are numbered in chat. Every specification
-and any large draft may be written to the current working branch for direct
-owner review. A branch draft is not approved truth and must not merge until the
-owner approves it.
+Every proposal starts with short What, Where, Why, Assumptions, and Unverified
+bullets. Full file text appears only when the owner asks. Approval covers only
+the meaning in those bullets, and the write may add no unlisted claim, source,
+assumption, or background.
 
-Nothing writes durable project knowledge automatically. Hooks remind and read.
+Nothing writes persistent project knowledge automatically. Hooks remind and read.
 Helper agents may research, but they cannot approve a save.
 
 ## Migration

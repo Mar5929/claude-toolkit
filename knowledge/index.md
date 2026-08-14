@@ -29,8 +29,8 @@ by hand. If it disagrees with the source files, rebuild it.
 ## specs/
 
 - [How project knowledge works](specs/memory-system.md): The project knowledge
-  system keeps approved behavior, durable understanding, and raw exploration in
-  one portable Markdown vault that Git owns and Obsidian may view.
+  system keeps approved behavior, persistent understanding, and raw exploration
+  in one portable Markdown vault that Git owns and Obsidian may view.
 - [Product and system specifications](specs/README.md): This folder defines
   current approved product and system behavior.
 
