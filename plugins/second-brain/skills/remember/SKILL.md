@@ -12,8 +12,10 @@ description: >-
 
 # remember
 
-`knowledge/specs/memory-system.md` is the authority when the adopting project
-has it. This skill supplies the portable workflow.
+This skill is the complete portable save workflow; an adopting project needs
+no other file. The design authority behind it is the toolkit repository's own
+`knowledge/specs/memory-system.md`, which stays in the toolkit and is not
+installed into projects.
 
 ## Start with every possible owner
 
