@@ -291,7 +291,7 @@ The original bar, "checkable with no interpretation," is the **check** bar only.
 Applying it to the other two would rule out every hook that fires a process,
 since firing is not a judgement about content at all.
 
-What no hook here may do: decide what is true, write durable memory, or approve
+What no hook here may do: decide what is true, write persistent memory, or approve
 its own proposal. A trigger hook starts the review that produces proposals; the
 draft is still checked, the owner still answers it, and only then is it written.
 That boundary is what lets project knowledge use hooks without reopening the

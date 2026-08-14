@@ -28,6 +28,5 @@ the prompt.
 
 Unfinished work state is not project knowledge. Live status, blockers, and next
 actions belong wherever the work item is being tracked and in the handoff
-prompt, never in a knowledge document. Persistent project information is a
-stable fact, lasting event, decision, or state that prevents repeated
-explanation or the same wrong action.
+prompt, never in a knowledge document. `where-persistent-information-belongs.md`
+says what does qualify as persistent project information.

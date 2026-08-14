@@ -107,14 +107,12 @@ route. Claude's fail-open `SessionStart` loader reads `knowledge/project.md` and
 `knowledge/index.md`. `AGENTS.md` directly tells Codex to read the same two
 files and to treat `knowledge/brainstorms/` as unchecked.
 
-That short route also carries the anti-decay principle: save persistent
-information only when a stable fact, lasting event, decision, or state prevents
-repeated explanation or the same wrong action. Standing agent instructions go
-in rules, active work stays wherever its work item is tracked, reusable
-processes go in skills, outside source material goes in references, and past
-conversations stay in session history. It is the one always-loaded behavior
-summary. The detailed property, routing, save, and cleanup rules remain in the
-project-knowledge specification and skills.
+That short route also carries the anti-decay principle in one sentence, and it
+is the one always-loaded behavior summary. Do not restate that sentence here.
+`where-persistent-information-belongs.md` owns the full version: the test for
+what should persist, the routing table, and the short approval review. The
+detailed property, save, and cleanup rules remain in the project-knowledge
+specification and skills.
 
 When those paths or delivery mechanisms change, update the applicable root
 route in the same change. Never copy the authority map, memory types, save
