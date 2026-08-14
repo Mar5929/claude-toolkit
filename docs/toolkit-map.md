@@ -22,7 +22,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git lifecycle workflows | `pull-latest`, `reset-to-remote`, `merge-and-clean-up` | `/plugin install git-workflows` | Install and go |
 | [hooks-library](../plugins/hooks-library/README.md) | Reusable style, writing, Git-attribution, and Salesforce deployment hooks; system-specific knowledge hooks stay with second-brain | `hooks-library` | `/plugin install hooks-library` | Wires into settings |
 | [work-tracker](../plugins/work-tracker/README.md) | Git-authoritative backlog, handoffs, relationships, landing proof, and optional GitHub Projects | `work` | `/plugin install work-tracker` | Sets up a project |
-| [session-skills](../plugins/session-skills/README.md) | The five things you reach for inside one conversation: say it simply, get grilled on it, hand it off, recap it, and track what is still open | `explain-simply`, `grill-me`, `handoff`, `session-summary`, `track-tasks` | `/plugin install session-skills` | Install and go |
+| [session-skills](../plugins/session-skills/README.md) | The six things you reach for inside one conversation: play back a brain dump, say it simply, get grilled on it, hand it off, recap it, and track what is still open | `braindump`, `explain-simply`, `grill-me`, `handoff`, `session-summary`, `track-tasks` | `/plugin install session-skills` | Install and go |
 
 ## Skills at a glance
 
@@ -41,6 +41,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | reset-to-remote | git-workflows | Hard-reset a repo to mirror the remote, safely gated | `/reset-to-remote` |
 | merge-and-clean-up | git-workflows | Merge one approved PR and remove only its completed branch and worktree | `/merge-and-clean-up`, "merge and clean up" |
 | work | work-tracker | Manage local work items and their optional GitHub Issues and Project mirror | `/work`, "add this to the backlog", "what should I work on next?" |
+| braindump | session-skills | Play a pasted brain dump back in very simple words, list each ask and every guess, and wait for the owner's yes before any work starts | `/braindump`, "play that back", "tell me what you heard" |
 | explain-simply | session-skills | Re-explain the last answer or a named file as short bullets, simplifying the wording and never the facts | `/explain-simply`, "explain that like I'm five", "put that in plain bullets", "simpler" |
 | grill-me | session-skills | Stress-test an idea one question at a time and preserve every answer | `/grill-me`, "grill me" |
 | handoff | session-skills | Invoke the project's remember workflow when available, then draft a fresh-session prompt that opens with the goal, carries anything unsaved, and is checked against the repository | `/handoff`, `/handoff check`, "write a handoff", "I'm going to clear context" |
@@ -301,6 +302,12 @@ The genuine watch-items are called out at the end.
   check first, saves what the owner approves, and then writes a prompt for a
   fresh session carrying everything that was not saved. Run both if you want
   both; neither covers the other.
+- **braindump versus explain-simply versus grill-me.** Three moments around
+  understanding. `braindump` checks the assistant understood the owner, before
+  any work starts, in one playback and a yes. `explain-simply` re-says
+  something already answered so the owner understands the assistant.
+  `grill-me` is the long interview that builds the understanding question by
+  question and writes it to a file.
 - **explain-simply versus session-summary.** Both shorten something, and they
   shorten different things. `session-summary` reads the conversation and reports
   which of the owner's requests are where. `explain-simply` takes one thing that
@@ -315,11 +322,11 @@ The genuine watch-items are called out at the end.
   anything that outlives the conversation, and is the only one of the three that
   survives a `/clear`. A topic that turns into real work moves from the first to
   the third; the middle one never holds anything on its own.
-- **The five skills in one plugin are still five skills.** `session-skills`
-  packages `explain-simply`, `grill-me`, `handoff`, `session-summary`, and
-  `track-tasks` together because each was a single-skill plugin whose packaging
-  cost more than its instructions, and because the owner wants all five on every
-  machine. Sharing a plugin does not blur what they do; the distinctions above
+- **The six skills in one plugin are still six skills.** `session-skills`
+  packages `braindump`, `explain-simply`, `grill-me`, `handoff`,
+  `session-summary`, and `track-tasks` together because each would be a
+  single-skill plugin whose packaging cost more than its instructions, and
+  because the owner wants all six on every machine. Sharing a plugin does not blur what they do; the distinctions above
   still hold. What it costs is granularity: they install and version together.
 - **explain-simply versus the output style and the style-reminder hook.** The
   output style sets how everything is written and the hook keeps it in front of

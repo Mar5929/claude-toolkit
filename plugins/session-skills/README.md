@@ -1,7 +1,8 @@
 # session-skills
 
-Five skills for working inside one conversation: explain it simply, get grilled
-on it, hand it off, recap it, and track what is still open.
+Six skills for working inside one conversation: play back a brain dump, explain
+it simply, get grilled on it, hand it off, recap it, and track what is still
+open.
 
 **Setup: install and go.** One install per machine. Nothing is copied into a
 project and nothing has to exist first. Only `grill-me` and `handoff` write
@@ -11,17 +12,40 @@ files, and only where you approve it.
 /plugin install session-skills
 ```
 
-## The five
+## The six
 
 | Skill | Command | Reach for it when |
 |---|---|---|
+| braindump | `/braindump` | You pasted a loose brain dump and want it played back in simple words before any work starts |
 | explain-simply | `/explain-simply` | An answer did not land and you want it again in plain bullets |
 | grill-me | `/grill-me` | A plan or design is half-formed and you want it pulled out of your head |
 | handoff | `/handoff` | A session is getting long and you are about to start a fresh one |
 | session-summary | `/session-summary` | You lost the thread, or you are closing the window |
 | track-tasks | `/track-tasks` | Several unrelated things are open at once |
 
-All five also trigger from plain words. You never have to type the command.
+All six also trigger from plain words. You never have to type the command.
+
+---
+
+## braindump
+
+Paste a loose, spoken-style dump of what you want, type `/braindump`, and get
+back what was understood, in words a five year old could follow, before
+anything is done.
+
+The playback opens with the big idea in one or two sentences, lists each
+separate ask on its own line, says plainly what was a guess or could be read
+two ways, and ends with the questions that need answering before work can
+start. No files are written and no work begins until you say yes.
+
+If you correct something, only the corrected part is played back, then
+confirmed again. Once you confirm, the playback is the agreed scope, and the
+project's normal rules (tickets, specs, worktrees) take over from there.
+
+### Triggers
+
+"play that back", "tell me what you heard", "make sure you understood that
+before you start", or `/braindump` after the dump.
 
 ---
 
@@ -291,10 +315,16 @@ background work including finished subagents. Hence `/track-tasks`.
 
 ---
 
-## How the five relate
+## How the six relate
 
 They overlap less than they look.
 
+- **braindump versus explain-simply.** Opposite directions. `braindump` checks
+  that what you said was understood before work starts. `explain-simply` says
+  what was already answered again, more simply, after the fact.
+- **braindump versus grill-me.** `braindump` is one playback and a yes, for a
+  dump you already have. `grill-me` is a long interview that pulls the plan out
+  of your head question by question and writes it to a file.
 - **handoff versus session-summary.** Both run at the end of a session and
   answer different questions. `session-summary` answers "which of my requests
   are where, and what still needs me", is read-only, and writes nothing.
@@ -324,7 +354,7 @@ five, so the cost in front of the agent is identical either way.
 What is given up: you cannot install one without the others, and a change to any
 one of them moves the shared version number, so every machine sees an update
 even for parts it does not use. Accepted, because you would always want all
-five.
+six.
 
 ## If you had the old plugins
 
