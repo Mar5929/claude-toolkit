@@ -64,6 +64,8 @@ Long is fine for drafts, scripts, posts, and documents. This whole style guide i
    wherever its work item is being tracked, reusable processes in skills,
    outside source material in references, and past conversations in session
    history.
+6. The `remember` skill holds the save test, the placement routes, and the
+   required file shape. Invoke it for any save.
 
 <!-- shared-with-agents-md:end -->
 

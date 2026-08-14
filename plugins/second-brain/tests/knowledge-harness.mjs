@@ -166,8 +166,8 @@ try {
 
   const claudeManifest = JSON.parse(readFileSync(resolve(plugin, ".claude-plugin/plugin.json")));
   const codexManifest = JSON.parse(readFileSync(resolve(plugin, ".codex-plugin/plugin.json")));
-  ok(claudeManifest.version === "3.3.0", "Claude manifest is 3.3.0");
-  ok(codexManifest.version === "3.3.0", "Codex manifest is 3.3.0");
+  ok(claudeManifest.version === "3.4.0", "Claude manifest is 3.4.0");
+  ok(codexManifest.version === "3.4.0", "Codex manifest is 3.4.0");
   ok(claudeManifest.version === codexManifest.version, "plugin manifest versions match");
   const placementRule = "plugins/project-init/library/rules/general/where-persistent-information-belongs.md";
   ok(existsSync(resolve(root, placementRule)), "package contains the plainly named placement rule");
@@ -196,6 +196,15 @@ try {
     "- Assumptions:",
     "- Unverified:",
   ]) ok(rememberText.toLowerCase().includes(expected.toLowerCase()), `remember carries ${expected}`);
+
+  // The toolkit spec stays in this repository and remember ships to projects,
+  // so each must carry its own copy of the property vocabulary. This keeps the
+  // two copies from drifting apart on the field names themselves.
+  const specText = readFileSync(resolve(root, "knowledge/specs/memory-system.md"), "utf8");
+  for (const field of ["source:", "source-file:", "date:", "session:", "tags:", "superseded-by:"]) {
+    ok(specText.includes(`\`${field}\``), `memory-system spec carries property ${field}`);
+    ok(rememberText.includes(`\`${field}\``), `remember carries property ${field}`);
+  }
 
   const activeSaveSurfaces = [
     "CLAUDE.md",

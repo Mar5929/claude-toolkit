@@ -63,6 +63,11 @@ whole system. Then:
    > rules, active work wherever its work item is being tracked, reusable
    > processes in skills, outside source material in references, and past
    > conversations in session history.
+
+   End the route with one sentence naming where the detail lives, so a session
+   knows it exists without loading it: the `remember` skill holds the save
+   test, the placement routes, and the required file shape; invoke it for any
+   save.
 7. Set `CLAUDE_CODE_DISABLE_AUTO_MEMORY` to `1` and enable
    `second-brain@claude-toolkit` in the project's settings.
 8. Build the index and run the plugin harness or equivalent fixture checks.
