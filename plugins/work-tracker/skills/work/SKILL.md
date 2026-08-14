@@ -16,7 +16,9 @@ them; it does not silently replace local status.
 
 1. Run `node <skill-root>/scripts/work.mjs status --json`.
 2. If the tracker is not initialized, offer `init`. Confirm the location when
-   both `work-items/` and `engagement/work-items/` could be appropriate.
+   more than one of `delivery/work-items/`, `engagement/work-items/`, and root
+   `work-items/` exists or could be appropriate. New Salesforce projects use
+   `delivery/work-items/`; existing paths are never moved automatically.
 3. Read the selected item's `SPEC.md`, `STATUS.md`, and `ITEM.json` before
    implementing it.
 4. Use the commands below instead of manually moving folders or editing

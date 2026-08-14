@@ -1,23 +1,24 @@
 ## Component Tracker
 
-`engagement/deployment/component-tracker.csv` is the one master inventory of
+`delivery/deployment/component-tracker.csv` is the one master inventory of
 every Salesforce component this project authored. It holds **one row per
 component**, with a Yes/No flag per org showing where that component is deployed.
 There is exactly **one master tracker for the whole project**, no matter how many
 work items or deploys; do not split it per work item.
 
 Add a row the moment you author the metadata under `force-app/`. Update the org
-flags when a deploy lands. (If the project does not use the `engagement/` layout,
-keep the tracker and the folders below wherever it stores deployment records; the
-rules still apply.)
+flags when a deploy lands. New projects use `delivery/`. If an existing project
+already uses `engagement/`, keep that path and do not create a parallel
+`delivery/` tree. If the project uses another artifact root, keep the tracker
+wherever it stores deployment records. The rules still apply.
 
 ### The deployment folder
 
 Everything about deploying lives under one deployment folder,
-`engagement/deployment/`:
+`delivery/deployment/`:
 
 ```
-engagement/deployment/
+delivery/deployment/
   component-tracker.csv        the master tracker (this file), whole project
   _master/
       package.xml              the master manifest: mirrors the tracker
@@ -33,9 +34,9 @@ engagement/deployment/
 - `_master/` holds the full-cutover manifest (the package that can rebuild the
   whole org from source) and its manual-steps sheet.
 - Each work-item folder is named for its work item, using the same id as under
-  `engagement/work-items/` (for example `WI-12-account-merge`), so a manifest
+  `delivery/work-items/` (for example `WI-12-account-merge`), so a manifest
   maps clearly to the work it deploys. These folders are flat under
-  `engagement/deployment/`; the work-item folder already tracks status.
+  `delivery/deployment/`; the work-item folder already tracks status.
 
 A **manifest** (`package.xml`) is the file that names which components a
 Salesforce CLI deploy includes.
@@ -163,7 +164,7 @@ it changes.
 - **Replaced:** keep the replacement's row, drop the replaced component's row, and note it. If the replaced component is still being removed, set its row's Change Type to `Destructive` until the deletion lands.
 - Do not keep rows for components that no longer exist in `force-app/` and are deployed nowhere. The tracker is a current-state inventory, not a history log; git and the task tracker hold history.
 
-### Engagement-authored only
+### Project-authored only
 
 The tracker covers only components this project created or modified.
 

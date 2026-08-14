@@ -60,13 +60,36 @@ export function trackerPaths(repoRoot, requestedPath) {
   const explicit = requestedPath ? path.resolve(repoRoot, requestedPath) : null;
   let workRoot = explicit;
   if (!workRoot) {
-    const rootDefault = path.join(repoRoot, "work-items");
-    const salesforceDefault = path.join(repoRoot, "engagement", "work-items");
-    workRoot = fs.existsSync(rootDefault)
-      ? rootDefault
-      : fs.existsSync(salesforceDefault)
-        ? salesforceDefault
-        : rootDefault;
+    const candidates = [
+      path.join(repoRoot, "work-items"),
+      path.join(repoRoot, "delivery", "work-items"),
+      path.join(repoRoot, "engagement", "work-items"),
+    ];
+    const initialized = candidates.filter((candidate) =>
+      fs.existsSync(path.join(candidate, ".work-tracker.json")),
+    );
+    if (initialized.length > 1) {
+      throw new WorkError(
+        `Multiple initialized work trackers found: ${initialized
+          .map((candidate) => toPosix(path.relative(repoRoot, candidate)))
+          .join(", ")}. Pass --path to choose one.`,
+        "ambiguous_path",
+      );
+    }
+    if (initialized.length === 1) {
+      workRoot = initialized[0];
+    } else {
+      const existing = candidates.filter((candidate) => fs.existsSync(candidate));
+      if (existing.length > 1) {
+        throw new WorkError(
+          `Multiple work-item folders found: ${existing
+            .map((candidate) => toPosix(path.relative(repoRoot, candidate)))
+            .join(", ")}. Pass --path to choose one.`,
+          "ambiguous_path",
+        );
+      }
+      workRoot = existing[0] ?? candidates[0];
+    }
   }
   const relative = path.relative(repoRoot, workRoot);
   if (relative.startsWith("..") || path.isAbsolute(relative)) {

@@ -51,8 +51,13 @@ so they always know where they are.
   copied in Gate 5. The optional GitHub Project mirror of those files is the
   plugin's own command and needs explicit approval too.
 - Salesforce / SFDX: offer the standard scaffold in
-  `salesforce-project-scaffold.md` (SFDX source plus an `engagement/` tree;
-  its `engagement/work-items/` uses the same work-items structure).
+  `salesforce-project-scaffold.md` (SFDX source plus a `delivery/` tree; its
+  `delivery/work-items/` uses the same work-items structure). Existing
+  `engagement/` projects keep that path and are never renamed automatically.
+- Salesforce / SFDX: do not create `delivery/knowledge-base/` in Gate 1. If
+  Gate 3 installs project knowledge, `knowledge/` is the one curated home. If
+  the owner declines it, offer a delivery knowledge base separately only when
+  the project needs one.
 - Salesforce / SFDX: after `.claude/rules/` is scaffolded, offer the reusable
   Salesforce rules from `library/rules/salesforce/` (see its `README.md`); copy the ones
   the owner wants into the project's `.claude/rules/`.

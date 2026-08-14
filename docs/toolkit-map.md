@@ -16,12 +16,12 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 
 | Plugin | Purpose | Skills | Install | Setup |
 |---|---|---|---|---|
-| [project-init](../plugins/project-init/README.md) | Put the toolkit's rules and systems into a project, new or existing, and the machine-wide ones onto the computer itself | `project-init`, `project-sync`, `machine-sync` | `/plugin install project-init` | Sets up a project, and sets up a machine |
+| [project-init](../plugins/project-init/README.md) | Put the toolkit's rules and systems into a project, new or existing, including the Salesforce delivery and knowledge boundary, and put machine-wide ones onto the computer itself | `project-init`, `project-sync`, `machine-sync` | `/plugin install project-init` | Sets up a project, and sets up a machine |
 | [second-brain](../plugins/second-brain/README.md) | Portable Git-native project knowledge with fixed properties, project-specific tags, visible provenance, short meaning reviews, read-only health reports, and separate read-only Claude Code session history shared by Claude, Codex, and optional Obsidian | `second-brain`, `remember`, `recall`, `cleanup`, `session-search` | `/plugin install second-brain` | Sets up a project |
 | [sf-architect-solutioning](../plugins/sf-architect-solutioning/README.md) | Salesforce solution architect: approved solution plan before any build | `sf-architect-solutioning` | `/plugin install sf-architect-solutioning` | Install and go |
 | [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git lifecycle workflows | `pull-latest`, `reset-to-remote`, `merge-and-clean-up` | `/plugin install git-workflows` | Install and go |
 | [hooks-library](../plugins/hooks-library/README.md) | Reusable style, writing, Git-attribution, and Salesforce deployment hooks; system-specific knowledge hooks stay with second-brain | `hooks-library` | `/plugin install hooks-library` | Wires into settings |
-| [work-tracker](../plugins/work-tracker/README.md) | Git-authoritative backlog, handoffs, relationships, landing proof, and optional GitHub Projects | `work` | `/plugin install work-tracker` | Sets up a project |
+| [work-tracker](../plugins/work-tracker/README.md) | Git-authoritative backlog, handoffs, relationships, landing proof, optional GitHub Projects, and safe recognition of root, Salesforce delivery, and existing engagement paths | `work` | `/plugin install work-tracker` | Sets up a project |
 | [session-skills](../plugins/session-skills/README.md) | The six things you reach for inside one conversation: play back a brain dump, say it simply, get grilled on it, hand it off, recap it, and track what is still open | `braindump`, `explain-simply`, `grill-me`, `handoff`, `session-summary`, `track-tasks` | `/plugin install session-skills` | Install and go |
 
 ## Skills at a glance
@@ -121,7 +121,7 @@ These are not duplicated here. Go to the index that owns them:
   answers in): [output-styles/README.md](../plugins/project-init/library/output-styles/README.md).
   Marks each style default ON or optional. `plain-language.md` is the only one
   today, and it is default ON.
-- **Salesforce rules**: [salesforce-rules/README.md](../plugins/project-init/library/rules/salesforce/README.md).
+- **Salesforce rules**: [salesforce-rules/README.md](../plugins/project-init/library/rules/salesforce/README.md), including the boundary that puts client artifacts in `delivery/` and curated working context in `knowledge/`.
 - **Salesforce dependency graph**: the tool and its own `README.md` live at
   `plugins/project-init/library/tools/kb/`; the install
   and use guide is
@@ -235,7 +235,9 @@ The genuine watch-items are called out at the end.
   `ITEM.json` and deterministic commands, and rebuilds the old hand-edited
   index as a generated view. The six structured statuses distinguish Backlog
   from Ready and In Progress from In Review without creating another folder
-  hierarchy.
+  hierarchy. It recognizes root `work-items/`, new Salesforce
+  `delivery/work-items/`, and existing `engagement/work-items/` without moving
+  any of them.
 - **work-tracker versus project knowledge.** work-tracker owns task status,
   blockers, work-item relationships, branch and pull-request evidence, and the
   current handoff. Project knowledge may link specifications and persistent memory to a work-item

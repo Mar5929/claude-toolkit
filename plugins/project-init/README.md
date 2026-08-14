@@ -29,6 +29,9 @@ files into a project, so every project it touches opts in deliberately.
   It asks before acting, recommends a per-stack layout, and copies in the
   standard rule files. It does not hold the memory or knowledge systems itself;
   it points at their plugins so each can evolve on its own.
+  New Salesforce projects use `delivery/` for client-work artifacts and
+  `knowledge/` for curated working context. Existing `engagement/` projects
+  stay in place.
 
 - **project-sync** (`/project-sync`): the sibling for a project that ALREADY
   exists. It inventories everything the toolkit currently ships (reading the
@@ -78,7 +81,8 @@ the repository root would disappear the moment the plugin is installed.
   `.claude/rules` files copied into every project, marked default ON or
   conditional. Retired v1 examples are not part of this active library.
 - `library/rules/salesforce/` (with its own `README.md`): the same idea for
-  Salesforce projects.
+  Salesforce projects, including the complete boundary between delivery
+  artifacts and curated project knowledge.
 - `library/output-styles/` (with its own `README.md` index): the
   `.claude/output-styles` files that set the voice Claude answers in, installed
   in Gate 5. `plain-language.md` is default ON. A style is delivered through the

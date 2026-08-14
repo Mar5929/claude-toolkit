@@ -15,19 +15,20 @@ points at that folder so these files are read each session.
 
 | File | What it does |
 |---|---|
+| `delivery-and-knowledge-boundary.md` | Give client delivery artifacts and curated project knowledge one home each. New Salesforce projects use `delivery/`; existing `engagement/` projects stay in place. |
 | `salesforce-safety-guardrails.md` | Read-only against the orgs; never deploy to production; sandbox deploys need an explicit OK. The core deploy-safety policy. |
 | `salesforce-change-clarify.md` | Always confirm before object-model, security/permission, integration, or data-source-priority changes, or anything that contradicts the project's requirements. |
 | `deploy-hitchhiker-check.md` | Before any deploy, catch components or un-deployed edits that would ride along into the target org before their feature is ready. Ends with read-only verification against the org, never a flag based on a stale tracker. |
-| `component-tracker.md` | Keep one master one-row-per-component CSV inventory of what this project authored and where it is deployed, and a matching master manifest, both under one `engagement/deployment/` folder with a per-work-item manifest folder each. Kept in sync in the same change. Optional: assumes a deployment folder. |
+| `component-tracker.md` | Keep one master one-row-per-component CSV inventory of what this project authored and where it is deployed, and a matching master manifest, both under one `delivery/deployment/` folder with a per-work-item manifest folder each. Kept in sync in the same change. Optional: assumes a deployment folder. |
 | `deployment-runbook.md` | Track the operational steps a deploy cannot perform (permission-set assignments, data re-stamps, scheduled jobs, post-deploy checks). Tool-agnostic. Optional. |
 | `permissions-source-control.md` | Permission sets are tracked in git and deployed from it, behind a mandatory preflight that lists what a deploy would remove. A permission set retrieve is complete on its own (API 40.0 and later); the danger is the deploy, which replaces the whole component, and which no Salesforce CLI command warns about. Ships with `../../tools/permsets.py`. Profiles are excluded by default: lossy retrieve, overlay deploy, so their diff cannot show a revocation. Runbook: `../../guides/salesforce-permissions-retrieval.md`. |
-| `production-data.md` | One home for every production data artifact: backups (saved before a live data change) and data-load files each live in their own dated subfolder under `engagement/data/`, with a required README and gitignored data files so record IDs / PII never commit. |
+| `production-data.md` | One home for every production data artifact: backups (saved before a live data change) and data-load files each live in their own dated subfolder under `delivery/data/`, with a required README and gitignored data files so record IDs / PII never commit. |
 | `data-change-handoff.md` | No agent ever writes data to production; sandbox writes need the owner's yes in that same chat; reads are approved by default. Owns what the agent hands over instead: a ready-to-load CSV, a backup file, numbered load steps, what success looks like, and how to undo it. |
 | `dependency-graph.md` | Answer "what writes this field" and "what breaks if I change it" from the project's compiled dependency graph, not from memory, and keep that graph fresh. Names the graph's blind spot (no Apex or integration writers), what to do when the drift file appears, and that the tool never contacts an org. Ships with `../../tools/kb/`. Guide: `../../guides/salesforce-dependency-graph.md`. |
 
-The first three are the recommended default set for a Salesforce project. The
+The first four are the recommended default set for a Salesforce project. The
 next two (`component-tracker.md`, `deployment-runbook.md`) are heavier consulting
-conventions: offer them, but they only earn their keep on engagement-style
+conventions: offer them, but they only earn their keep on delivery-heavy
 projects that keep a deployment inventory and a cutover manifest. Offer
 `permissions-source-control.md` whenever the project tracks (or wants to start
 tracking) permission sets in git. **It is not a standalone rule.** When accepted,

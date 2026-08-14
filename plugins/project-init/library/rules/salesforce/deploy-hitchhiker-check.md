@@ -18,7 +18,7 @@ Two common shapes:
 
 ### The check
 
-1. **List the exact deploy set.** Every `<members>` in the `-x` manifest, every member in the `-m` list, every file or folder under `-d`. If the project keeps a full-cutover manifest that names every engagement component, an `-x` deploy of it is the highest-risk case: check the whole member list.
+1. **List the exact deploy set.** Every `<members>` in the `-x` manifest, every member in the `-m` list, every file or folder under `-d`. If the project keeps a full-cutover manifest that names every project component, an `-x` deploy of it is the highest-risk case: check the whole member list.
 2. **Remember what actually ships.** For each named component the entire current `force-app/` definition goes: label, inline help text, formula, rollup/summary filters, picklist values, all field metadata, and the component itself if the target does not have it. Deploying one file ships all pending edits in that file.
 3. **For each component, ask: is its feature already live in the target, or would this introduce something new?** Signals of a hitch-hiker:
    - The project's deployment or component tracker (if it keeps one) marks the component as not yet in the target org.

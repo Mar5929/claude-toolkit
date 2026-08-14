@@ -16,7 +16,7 @@ every other project receives.
 
 | File | What it does |
 |---|---|
-| `where-persistent-information-belongs.md` | Put active work, rules, skills, specifications, memory, references, and session history in the right place. Use short approval bullets and never create a second home for the same meaning. |
+| `where-persistent-information-belongs.md` | Put active work, client delivery artifacts, internal brainstorms, rules, skills, specifications, memory, references, and session history in the right place. Use short approval bullets and never create a second home for the same meaning. |
 | `keep-claudemd-current.md` | Update `CLAUDE.md` before a session ends whenever it surfaces a new path, convention, decision, or workflow. Prune while you are in there. |
 | `honest-verification.md` | Do not claim more than you verified. Report failures with their output. |
 | `parallel-agent-sessions.md` | Sharing a repo with other live sessions: look before you edit, work in your own worktree and branch, never `git add -A`, land by pull request. |
