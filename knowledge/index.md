@@ -11,6 +11,10 @@ by hand. If it disagrees with the source files, rebuild it.
   `AGENTS.md` holds a word for word copy of the shared instruction block in
   `CLAUDE.md` rather than pointing at it, because Codex cannot follow a
   pointer.
+- [The memory-system spec stays in the toolkit, not in projects](memory/decisions/memory-system-spec-stays-in-the-toolkit.md):
+  `knowledge/specs/memory-system.md` is the build authority for agents changing
+  the second-brain plugin in this repository; adopting projects receive only
+  the built skills and never a copy of the spec.
 
 ## memory/knowledge/
 
