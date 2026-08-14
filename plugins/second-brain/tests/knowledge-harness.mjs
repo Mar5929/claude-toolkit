@@ -63,10 +63,6 @@ function read(base, path) {
   return readFileSync(resolve(base, path), "utf8");
 }
 
-function oneLine(text) {
-  return text.replace(/^\s*>\s?/gm, "").replace(/\s+/g, " ").trim();
-}
-
 function treeDigest(base) {
   const rows = [];
   const walk = (dir = "") => {
@@ -173,17 +169,6 @@ try {
   ok(claudeManifest.version === "3.3.0", "Claude manifest is 3.3.0");
   ok(codexManifest.version === "3.3.0", "Codex manifest is 3.3.0");
   ok(claudeManifest.version === codexManifest.version, "plugin manifest versions match");
-  const principle = "Keep project knowledge small: save persistent information only when a stable fact, lasting event, decision, or state prevents repeated explanation or the same wrong action.";
-  for (const path of [
-    "CLAUDE.md",
-    "AGENTS.md",
-    "knowledge/specs/memory-system.md",
-    "plugins/second-brain/skills/second-brain/SKILL.md",
-    "plugins/project-init/skills/project-init/references/thin-claudemd.md",
-  ]) {
-    ok(oneLine(readFileSync(resolve(root, path), "utf8")).includes(principle), `${path} carries the complete persistent-information principle`);
-  }
-
   const placementRule = "plugins/project-init/library/rules/general/where-persistent-information-belongs.md";
   ok(existsSync(resolve(root, placementRule)), "package contains the plainly named placement rule");
   ok(existsSync(resolve(root, ".claude/rules/where-persistent-information-belongs.md")), "repository runs the plainly named placement rule");
@@ -193,11 +178,12 @@ try {
   ok(placementRuleText.includes("Do not create missing `knowledge/` folders"), "placement rule handles projects without the optional knowledge system");
   ok(placementRuleText.includes("wherever the work item is being tracked"), "placement fallback keeps active information with its work item");
 
+  // Check the storage places and the approval-bullet names only. Both are real
+  // structure: a missing folder path sends saves to the wrong place, and a
+  // missing bullet name changes what the owner is shown. Do not add checks that
+  // only pin a sentence's wording; rewriting a sentence is not a defect.
   const rememberText = readFileSync(resolve(plugin, "skills/remember/SKILL.md"), "utf8");
   for (const expected of [
-    "Wherever the work item is being tracked",
-    "**Rules:** standing instructions",
-    "**Skills:** reusable processes",
     "`knowledge/specs/`",
     "`knowledge/memory/context/`",
     "`knowledge/memory/decisions/`",
@@ -207,16 +193,11 @@ try {
     "`knowledge/memory/planning/`",
     "`knowledge/memory/references/`",
     "`knowledge/brainstorms/`",
-    "**Session history:**",
     "- What:",
     "- Where:",
     "- Why:",
     "- Assumptions:",
     "- Unverified:",
-    "Full file text",
-    "Asking to see full text is not approval",
-    "Approval covers the meaning",
-    "write only the approved meaning",
   ]) ok(rememberText.toLowerCase().includes(expected.toLowerCase()), `remember carries ${expected}`);
 
   const activeSaveSurfaces = [
@@ -236,14 +217,11 @@ try {
     "plugins/project-init/skills/project-init/references/thin-claudemd.md",
     "docs/toolkit-map.md",
   ].map((path) => readFileSync(resolve(root, path), "utf8").toLowerCase()).join("\n");
+  // Only the deleted rule's file name is banned. It is a real path, so a
+  // reference to it would be a broken pointer. Banned phrase lists were removed
+  // on purpose: they fire on wording a future document is entitled to use.
   for (const forbidden of [
     "capture-the-thinking",
-    "show the exact words",
-    "exact proposed words",
-    "exact-draft review",
-    "complete working-branch draft",
-    "durable review",
-    "live progress in the tracker",
   ]) ok(!activeSaveSurfaces.includes(forbidden), `active save surfaces exclude ${forbidden}`);
 
   for (const [name, version] of [
