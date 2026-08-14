@@ -118,7 +118,7 @@ Every memory starts with only these fields:
 ---
 source: owner-paraphrase
 date: 2026-08-12
-session: unavailable
+session: 6ef7ee24-1f50-4d7b-b9b3-2e007d86bc2e
 tags:
   - project-subject
 ---
@@ -130,8 +130,14 @@ tags:
 - `source-file:` is the exact repository path, present only for
   `read-from-file`.
 - `date:` is the save or last-change date as `YYYY-MM-DD`.
-- `session:` is a retrievable session reference when one exists, never a
-  transcript copy. Use `unavailable` when no retained reference exists.
+- `session:` is a retrievable session reference, never a transcript copy. The
+  knowledge session-start hook prints "This session's id is ..." at the top of
+  the session; write that id here. Use `unavailable` only when no id was
+  printed (a Codex session, for example, does not run the hook). Never guess
+  one or search transcripts for one.
+- When adding to an existing memory from a new session, leave the file-level
+  `session:` field alone; it belongs to the session that created the file.
+  Name the new session in the `Claim source:` marker on the new sections only.
 - `tags:` is a YAML list of one to three project subjects from
   `knowledge/memory/tags.md`. The folder owns memory type and `source` owns
   trust, so tags duplicate neither. A new project starts with its own empty
