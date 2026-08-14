@@ -8,11 +8,12 @@ self-contained handoff prompt they can paste into a fresh session. Skip this for
 small edits, quick lookups, or when the relevant context is still fresh.
 
 **A handoff runs `remember` first when project knowledge is installed.** Before
-writing the prompt, let that skill apply the save filters, show the owner the
-exact proposed words, and wait when approval is required. Anything not saved
-goes inside the handoff prompt instead, so the next session still has it. The
-order matters: write the prompt first and the durable review gets skipped, because once
-the prompt is on screen the session is over in the owner's head.
+writing the prompt, let that skill decide where persistent information belongs
+and show the owner only the short What, Where, Why, Assumptions, and Unverified
+bullets when approval is needed. Anything not saved goes inside the handoff
+prompt instead, so the next session still has it. The order matters: write the
+prompt first and the persistent review gets skipped, because once the prompt is
+on screen the session is over in the owner's head.
 
 This is the one moment where the most context is about to be destroyed and
 nothing else can catch it. The session-end event fires when the owner clears, but
@@ -26,7 +27,6 @@ run the same three steps yourself: the `remember` review, the owner's answer, th
 the prompt.
 
 Unfinished work state is not project knowledge. Live status, blockers, and next
-actions belong in the work tracker and in the handoff prompt, never in a
-knowledge document. What becomes project knowledge is what would have to be
-worked out again from scratch: decisions and their reasons, understanding that
-took effort to reach, and constraints that were discovered.
+actions belong wherever the work item is being tracked and in the handoff
+prompt, never in a knowledge document. `where-persistent-information-belongs.md`
+says what does qualify as persistent project information.

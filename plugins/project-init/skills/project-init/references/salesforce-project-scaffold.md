@@ -28,7 +28,7 @@ before creating anything.
 │   ├── communications/            # emails, Slack, client/team messages
 │   ├── deliverables/              # finished artifacts handed to the client
 │   ├── deployment/                # cutover plans, deploy runbooks, release notes
-│   ├── knowledge-base/            # durable reference knowledge about the org(s)
+│   ├── knowledge-base/            # persistent reference knowledge about the org(s)
 │   ├── meeting-notes/             # one file per call or working session
 │   ├── references/                # source specs, org exports, third-party docs
 │   ├── work-items/                # ticket work items (see work-items-structure.md)
@@ -58,7 +58,7 @@ repo next to the metadata they describe.
 
 | Folder | Holds |
 |---|---|
-| `project-overview/` | Raw engagement brief or client-provided framing when the project needs that artifact home. Curated project framing belongs in `knowledge/project.md`, with other durable circumstances under `knowledge/memory/context/` |
+| `project-overview/` | Raw engagement brief or client-provided framing when the project needs that artifact home. Curated project framing belongs in `knowledge/project.md`, with other persistent circumstances under `knowledge/memory/context/` |
 | `archive/` | Retired or superseded material kept for history |
 | `communications/` | Emails, Slack threads, client or team messages |
 | `deliverables/` | Finished artifacts handed to the client |

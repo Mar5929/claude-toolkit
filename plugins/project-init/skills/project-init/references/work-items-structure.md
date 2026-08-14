@@ -107,7 +107,7 @@ The systems have separate authority:
 
 - work-tracker owns task status, blockers, branch and pull-request evidence,
   relationships between work items, and the current handoff;
-- files under `knowledge/` may link decisions, requirements, and durable knowledge to a
+- files under `knowledge/` may link decisions, requirements, and persistent knowledge to a
   work-item ID; and
 - project knowledge must never copy or overrule task status.
 

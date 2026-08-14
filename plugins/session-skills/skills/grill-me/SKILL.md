@@ -1,6 +1,6 @@
 ---
 name: grill-me
-description: Interview the user relentlessly about a plan, design, or topic while checkpointing every answer to a brainstorm file so nothing is lost. Use when the user wants to stress-test a plan, get grilled on a design, run a brainstorm or discovery session, extract what is in their head into a durable document, or says "grill me".
+description: Interview the user relentlessly about a plan, design, or topic while checkpointing every answer to a brainstorm file so nothing is lost. Use when the user wants to stress-test a plan, get grilled on a design, run a brainstorm or discovery session, extract what is in their head into a persistent document, or says "grill me".
 ---
 
 # Grill Me
@@ -19,10 +19,10 @@ If the session resumes after an interruption, read the capture file before
 continuing.
 
 This owner-invoked raw checkpoint is the one place the project knowledge system
-lets anything reach a file without the owner approving the exact words first.
-`grill-me` may write only its non-authoritative brainstorm capture. Approved
-specifications and curated memory still go through the installed `remember`
-skill and its owner-approval flow.
+lets content reach a file without the short approval review first. `grill-me`
+may write only its non-authoritative brainstorm capture. Approved specifications
+and curated memory still go through the installed `remember` skill and its
+owner-approval flow.
 
 ## Set up before asking the first question
 
@@ -113,14 +113,14 @@ being preserved.
 2. Reconcile contradictions, gaps, stale flags, and superseded decisions.
 3. Save the final running summary and open-flags list.
 4. When the current project knowledge system is installed, invoke its
-   `remember` skill for the end-of-interview durable review:
+   `remember` skill for the end-of-interview persistent review:
    - identify approved behavior that belongs in one or more capability
      specifications;
-   - identify other durable context, planning, decisions, knowledge,
+   - identify other persistent context, planning, decisions, knowledge,
      references, domain material, or operations worth preserving;
-   - apply the four save filters before proposing anything;
-   - show `What I want to change` and `Why`, then the exact proposed words; and
-   - save only what the owner approves in this session's worktree.
+   - decide where each item belongs before proposing anything;
+   - show short What, Where, Why, Assumptions, and Unverified bullets; and
+   - save only the approved meaning in this session's worktree.
 5. When the approved update creates or amends a specification, link the
    specification to this brainstorm and this brainstorm to every resulting
    specification.

@@ -1,12 +1,12 @@
 # How project knowledge works
 
-The project knowledge system keeps approved behavior, durable understanding, and raw exploration in one portable Markdown vault that Git owns and Obsidian may view.
+The project knowledge system keeps approved behavior, persistent understanding, and raw exploration in one portable Markdown vault that Git owns and Obsidian may view.
 
 ## What it is for
 
 A chat session ends, but a project must not forget what it is building, why it made a choice, or what a future session needs to avoid a wrong action. This system gives that information one visible home without creating a database, a private agent memory, or a second copy of the truth.
 
-It also protects the project from the opposite failure: saving every interesting sentence until useful knowledge is buried in agent notes. A save has to pass four filters and the user sees what will change before it becomes current project truth.
+It also protects the project from the opposite failure: saving every interesting sentence until useful knowledge is buried in agent notes. A save has to pass the persistent-information test and the user approves a short meaning summary before it becomes current project truth.
 
 Every new agent starts as a stranger. The system therefore uses one small,
 fixed structure that tells it what a file means, what it may trust, and which
@@ -14,9 +14,9 @@ current home it should read or update without needing an earlier chat.
 
 ## Who uses it
 
-- **The project owner** wants the project to remember the right things, wants every durable change to remain reviewable in Git, and may browse the same files in Obsidian.
-- **The main agent** needs a small startup map, an exact routing system, a repeatable approval flow for saves, and a separate way to find a past Claude Code CLI discussion when current project files leave a real gap.
-- **A helper agent** may read the vault for its assigned work but cannot approve or silently write durable project knowledge.
+- **The project owner** wants the project to remember the right things, wants every persistent change to remain reviewable in Git, and may browse the same files in Obsidian.
+- **The main agent** needs a small startup map, a clear placement system, a short approval flow for saves, and a separate way to find a past Claude Code CLI discussion when current project files leave a real gap.
+- **A helper agent** may read the vault for its assigned work but cannot approve or silently write persistent project knowledge.
 
 ## What it must do
 
@@ -75,14 +75,35 @@ At the start of every main-agent session:
 
 The startup route also carries one short principle:
 
-> Keep project knowledge small: save stable facts, lasting events, decisions,
-> or states that prevent repeated explanation or a wrong action. Put live
-> progress in the tracker, reusable procedures in skills, source material in
-> references, and past conversations in session history.
+> Keep project knowledge small: save persistent information only when a stable
+> fact, lasting event, decision, or state prevents repeated explanation or the
+> same wrong action. Put standing agent instructions in rules, active work
+> wherever its work item is being tracked, reusable processes in skills,
+> outside source material in references, and past conversations in session
+> history.
 
 Claude receives the two startup files through a fail-open project `SessionStart` hook. Codex receives the same instruction through the project's root `AGENTS.md` and, where native Codex hooks are available, the equivalent fail-open `.codex/hooks.json` registration. Startup never loads the whole vault and never writes anything.
 
 The root `CLAUDE.md` and `AGENTS.md` keep only a short route to this system. They do not copy this specification or the contents of `project.md`.
+
+### Decide where persistent information belongs before saving
+
+The always-loaded `where-persistent-information-belongs.md` rule owns the full
+placement table. Before proposing a save, the main agent searches wherever the
+current work item is being tracked and the current rules, skills,
+specifications, memories, and references.
+
+Active work stays with its work item. Standing agent instructions go to rules.
+Reusable agent processes go to skills. Approved product or system behavior goes
+to specifications. Persistent project facts, lasting events, decisions, and
+states go to memory. Outside source material goes to references. Past
+conversation stays in session history.
+
+An open, closed, or external work item may already own a ticket-specific
+decision. Closing the item or keeping it outside the repository is not a reason
+to copy the decision into memory. The `remember` skill can identify a work item,
+rule, or skill as the correct home, but it writes only approved specification
+and memory changes. Other homes follow the project's normal work process.
 
 ### Route specifications and memories to one home
 
@@ -92,28 +113,36 @@ Memories use these seven types:
 
 | Folder | Use it for | Do not use it for |
 | --- | --- | --- |
-| `context/` | A durable circumstance, stakeholder, boundary, or outside constraint that shapes several pieces of work | Ticket state or a preference that belongs in the reusable toolkit |
+| `context/` | A persistent circumstance, stakeholder, boundary, or outside constraint that shapes several pieces of work | Work-item state or a preference that belongs in the reusable toolkit |
 | `decisions/` | A non-obvious choice and why it was made when that reason prevents reversal or repeated debate | A routine choice or behavior already owned by a specification |
 | `domain/` | A project-specific term or business rule an agent could misread | Product behavior or technical implementation |
 | `knowledge/` | A project conclusion that prevents a likely mistake or repeated investigation | Raw external material, an obvious code fact, or a decision |
 | `operations/` | A repeatable operating, release, or recovery procedure plus verification | A one-time task, current blocker, secret, or credential |
-| `planning/` | Direction and sequence that matter beyond one ticket: goals, roadmap, milestones, durable risks, and assumptions | Live status, assignment, or handoff state |
+| `planning/` | Direction and sequence that matter beyond one work item: goals, roadmap, milestones, persistent risks, and assumptions | Live status, assignment, or handoff state |
 | `references/` | External source material and the project-specific explanation of what it supports | A conclusion learned from the source, which belongs in `knowledge/` |
 
-External research and project understanding are not interchangeable. A scraped page, paper, exported source, or durable source note belongs in `references/`. A conclusion the project drew from it belongs in `knowledge/`. When research produces both, save two linked files rather than mixing source material and conclusion into one canonical file.
+External research and project understanding are not interchangeable. A scraped page, paper, exported source, or persistent source note belongs in `references/`. A conclusion the project drew from it belongs in `knowledge/`. When research produces both, save two linked files rather than mixing source material and conclusion into one canonical file.
 
-Live work status, branches, pull requests, blockers, assignments, and landing proof stay in the work tracker. Secrets and private personal information never go in the vault.
+Live work status, branches, pull requests, blockers, assignments, and landing
+proof stay wherever the work item is being tracked. Secrets and private
+personal information never go in the vault.
 
-### Apply four save filters in order
+### Apply the persistent-information test
 
-Before drafting a durable save, the agent asks these questions in order:
+Before drafting a persistent save, the agent asks these questions in order:
 
-1. **Is it relevant to this project?** If not, do not save it here.
-2. **Is it project work rather than a lesson about the agent or a reusable tool?** If it belongs in the toolkit, its settings, or another product, propose that home instead.
-3. **Can a future session find the answer in one existing authoritative file without doing meaningful work again?** If yes, link or name that file and do not create a memory. A narrow exception allows a project conclusion that only becomes clear by combining several files.
-4. **Would leaving it out make a future agent likely to take a wrong action?** If not, do not save it.
+1. **Will it still matter after the current task or session?** If not, keep it
+   wherever the work item is being tracked or in the handoff when no work item
+   exists.
+2. **Is it a stable fact, lasting event, decision, or state?** Difficulty,
+   novelty, and conversation length are not enough.
+3. **Does a current work item, rule, skill, specification, memory, or reference
+   already own it?** If yes, update or link to that home instead of copying it.
+4. **Would leaving it out cause a repeated explanation or the same wrong
+   action?** If not, do not create project knowledge.
 
-All four filters must pass. Difficulty, novelty, or conversation length alone does not make something durable knowledge.
+Questions 1, 2, and 4 must be yes. Question 3 must be resolved through the
+existing owner or a genuinely new home before anything is proposed.
 
 ### Use fixed file shapes
 
@@ -199,7 +228,7 @@ Nobody edits the index by hand. The save flow rebuilds it after an approved chan
 
 Alongside its `second-brain` setup and migration skill, the plugin ships:
 
-- `remember`, which applies the filters, finds the canonical home, obtains approval, writes the approved words, and rebuilds the index;
+- `remember`, which applies the persistent-information test, finds the canonical home, obtains approval, writes only the approved meaning, and rebuilds the index;
 - `recall`, which starts with `project.md` and the index, searches only as broadly as the task needs, and distinguishes current truth from brainstorms;
 - `cleanup`, which reviews stale, repeated, conflicting, or misplaced knowledge and uses the same approval rules before changing anything;
 - `session-search`, which searches existing local Claude Code CLI transcripts only after current project files fail to answer, returns small historical matches to the agent, and never writes project knowledge or transcript data;
@@ -212,40 +241,55 @@ Alongside its `second-brain` setup and migration skill, the plugin ships:
 The health tool checks mechanical facts such as allowed properties, source
 values, tag usage, repository paths, and replacement links. The agent reviews
 meaning, including stale or conflicting claims, repeated facts, and content
-that no longer passes the save filters. The plugin does not ship a verifier
+  that no longer passes the persistent-information test. The plugin does not ship a verifier
 agent, a large always-loaded memory rule, an automatic shape gate, per-folder
 indexes, background capture, or automatic curation.
 
 Built-in private auto-memory is disabled in projects that adopt this system.
 
-### Support two approval modes
+### Keep every approval review short
 
-Every proposal starts with plain-language bullets under these exact headings:
+The main agent shows one short group of plain bullets for each separately routed
+item:
 
 ```text
-What I want to change
-Why
+1. <plain name>
+   - What: <meaning that may be added, changed, moved, or removed>
+   - Where: <current or proposed home>
+   - Why: <repeated explanation or wrong action this prevents>
+   - Assumptions: <every assumption, or None>
+   - Unverified: <every unchecked claim, or None>
 ```
 
-The bullets tell the owner what will be saved, edited, moved, or removed and why it passes the four filters before presenting file contents.
+The owner may keep, change, or skip each item. No reply means no write. Different
+homes or meanings use separate groups and separate approval choices.
 
-Short saves are shown in chat with numbered paths and the exact proposed words. The owner may keep, cut, or edit each item. No reply means no write.
+Full file text, frontmatter, and complete diffs stay hidden unless the owner
+asks to see them. Asking to see full text is not approval. The main agent may
+show it in chat or put it in the current working branch, then waits for the
+owner's keep, change, or skip decision.
 
-For every specification and for a large draft that is easier to review in context, the main agent may write the complete draft to the current working branch, point the owner to that file, and stop for direct review. The branch is the visible proposal, not approved truth. The owner may edit the file directly or approve it in chat. The draft does not merge until approved.
+Approval covers the meaning in the five bullets. The agent writes only that
+meaning and required file structure. It does not add a claim, source,
+assumption, example, reason, or background that the bullets did not cover. If
+drafting needs anything new, the agent stops and shows a revised short review.
 
-Owner edits are accepted as the owner's words. An agent-derived claim remains visibly unchecked until the owner confirms it. Helper agents may research or review but cannot substitute for the owner's approval.
+Owner edits are accepted as the owner's meaning. An agent-derived claim remains
+visibly unchecked until the owner confirms it. Helper agents may research or
+review but cannot substitute for the owner's approval.
 
-The save runs only at a natural moment: when the owner asks to remember, before a pull request opens, before a handoff or context reset, or at another meaningful completion point with a settled durable result. It does not run after every response, commit, or small fix.
+The save runs only at a natural moment: when the owner asks to remember, before a pull request opens, before a handoff or context reset, or at another meaningful completion point with a settled persistent result. It does not run after every response, commit, or small fix.
 
 Creating, editing, merging, moving, superseding, and removing are equal
-first-class memory actions. All use the same visible approval. Git keeps older
+first-class memory actions. All use the same short approval. A merge, move, or
+removal says what becomes current and what stops being current. Git keeps older
 wording, so obsolete wording does not remain current merely to preserve history.
 
 A full health review runs when the owner asks or after a memory migration. A
 focused review is offered when an approved save or project update check finds a
 concrete warning. Startup, ordinary saves without warnings, a calendar
-schedule, and age alone do not prompt a review. Cleanup proposes exact repairs
-and never changes durable knowledge in the background.
+schedule, and age alone do not prompt a review. Cleanup proposes short repair
+summaries and never changes persistent knowledge in the background.
 
 ### Migrate existing projects without losing knowledge
 
@@ -269,16 +313,21 @@ Greenfield setup creates the exact new tree, asks the owner for the real `projec
 
 ### Saving
 
-1. The main agent reads `knowledge/project.md` and `knowledge/index.md`, then searches current instructions, specifications, and memories for an existing owner.
-2. It applies the four save filters in order. If nothing passes, it says so briefly and writes nothing.
-3. It checks the complete project-specific tag vocabulary and usage counts.
-4. It prefers editing the existing canonical file. If a new area, tag, or file is required, that is part of the proposal.
-5. It shows `What I want to change` and `Why`, the relevant tags, source kind,
-   trace, and exact draft in chat or the complete working-branch file.
-6. It waits for owner approval. A helper-agent report, hook, or earlier brainstorm cannot approve a save.
-7. It writes only the approved words, rebuilds `knowledge/index.md`, repairs relevant links, and reports the changed paths.
-8. It runs a focused read-only health check. It finishes the approved save, then
-   offers cleanup only when the check found a concrete warning.
+1. The main agent reads `knowledge/project.md` and `knowledge/index.md`, then
+   searches wherever the current work item is being tracked and the current
+   rules, skills, specifications, memories, and references.
+2. It applies the persistent-information test. If nothing qualifies, it says so
+   in one line and continues the handoff, pull request, or completion flow.
+3. It identifies the existing owner or correct new home. A work item, rule, or
+   skill follows the project's normal work process rather than becoming memory.
+4. For a specification or memory change, it checks the complete project tag
+   vocabulary and usage without showing an unrelated list.
+5. It shows separate What, Where, Why, Assumptions, and Unverified bullets for
+   each item and waits for the owner's keep, change, or skip decision.
+6. It writes only the approved meaning, rebuilds `knowledge/index.md`, repairs
+   relevant links, and reports the changed paths.
+7. It runs a focused read-only health check. It finishes the approved save,
+   then offers cleanup only when the check found a concrete warning.
 
 ### Recalling
 
@@ -296,7 +345,7 @@ Greenfield setup creates the exact new tree, asks the owner for the real `projec
 4. Raw matches stay in agent tool context. The agent expands only one selected result to its complete visible message or adjacent conversation turn when the small excerpt is not enough.
 5. The agent checks current project files before relying on a historical claim. Current files remain authoritative, and any conflict is shown rather than silently resolved from history.
 6. The agent tells the owner that history was searched only when the answer depends on it, it conflicts with current files, or a failed search leaves a real gap. It does not narrate routine supporting searches or show raw matches unless asked.
-7. The owner may ask to open or resume the exact matching session. Saving any result as durable truth remains a separate `remember` action with normal approval.
+7. The owner may ask to open or resume the exact matching session. Saving any result as persistent truth remains a separate `remember` action with normal approval.
 
 ### Reviewing in Obsidian
 
@@ -314,10 +363,18 @@ Greenfield setup creates the exact new tree, asks the owner for the real `projec
   specification as current approved behavior unless the owner approves changing
   it.
 - If an older memory uses a retired source value or lacks a session reference,
-  report the exact repair and wait. Never silently relabel it.
+  report the repair in the five short bullets and wait. Never silently relabel it.
 - If a memory is old but remains correct, leave it alone. Age is not evidence of
   staleness.
 - If an external source and the project conclusion are mixed, propose linked `references/` and `knowledge/` files.
+- If an open, closed, or external work item already owns the decision, update or
+  link to it instead of creating memory.
+- If a review contains different kinds of information, split it into separate
+  five-bullet groups and route each one independently.
+- If an assumption or claim is unchecked, show it before approval and keep it
+  visibly unchecked if saved.
+- If the owner asks for full text, show it and then wait for approval. The
+  request to see it is not approval.
 - If a migration finds both a top-level `project.md` and an older planning file that could become the overview, stop for an owner choice.
 - If a migration finds a collision, ambiguous signature, dangling mapped link, or path outside the repository, make no writes.
 - If retired content cannot be converted without guessing, keep the original, make the uncertainty visible in the draft manifest, and block finalization.
@@ -332,7 +389,7 @@ Greenfield setup creates the exact new tree, asks the owner for the real `projec
 - It does not install or depend on the whole `kepano/obsidian-skills` package. Its Markdown skill prefers frontmatter and wikilinks that conflict with this specification. Its CLI skill may be used as an optional, on-demand link check when a compatible running Obsidian is available, but filesystem and Git checks remain authoritative.
 - It does not create canvases, Bases, generated visual maps, or a second representation of canonical knowledge.
 - It does not capture, copy, archive, index, edit, or upload Claude Code transcripts.
-- It does not let hooks, helper agents, or background processes write durable knowledge.
+- It does not let hooks, helper agents, or background processes write persistent knowledge.
 - It does not restore the retired verifier, large rule, shape checker, or hand-maintained indexes.
 - It does not migrate ordinary similarly named folders without a verified system signature.
 - It does not silently rewrite, discard, or reinterpret existing saved documents during migration.

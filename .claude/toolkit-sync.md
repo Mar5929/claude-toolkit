@@ -23,7 +23,7 @@ Changed again on 2026-08-12 for GitHub issue #175: the memory system gained a
 fixed property vocabulary, project-specific tag checks, visible provenance,
 and the read-only `.claude/tools/knowledge-health.mjs` report. The startup route
 now carries one short rule that keeps live work and reusable procedures out of
-durable project knowledge.
+persistent project knowledge.
 
 This repository is the toolkit. It now runs the toolkit on itself, the same way
 Anchor, DragonFly, and Diligence Ready do, so a change to the memory system, the
@@ -37,7 +37,7 @@ three weeks later in another project.
 | 0. Orient | Done. Existing repository, not a new one, so this ran as a sync rather than an init. Node and Markdown, no application stack. |
 | 1. Scaffolding and work tracking | Already answered. Work is tracked on the `Claude-Toolkit-Project` board on GitHub. `CLAUDE.md` names it, and `spec-before-you-build.md` is installed alongside that pointer. No scaffolding was added: the folder layout already existed. |
 | 2. Hooks | Done. `style-reminder`, `save-reminder`, and `knowledge-session-start` are installed under `.claude/hooks/` and registered in `.claude/settings.json`. Codex registers the same startup loader in `.codex/hooks.json`. The writing guard remains off here, as explained below. |
-| 3. Project knowledge | **Adopted from the packaged plugin.** `knowledge/project.md` and the generated `knowledge/index.md` load at session start. Approved specifications, durable memory, and unchecked brainstorms live under the same knowledge root. The packaged `remember`, `recall`, `cleanup`, and read-only `session-search` skills plus the read-only health tool replace hand-made or automatic curation. The retired rule, verifier, shape checker, and per-folder indexes stay removed. |
+| 3. Project knowledge | **Adopted from the packaged plugin.** `knowledge/project.md` and the generated `knowledge/index.md` load at session start. Approved specifications, persistent memory, and unchecked brainstorms live under the same knowledge root. The packaged `remember`, `recall`, `cleanup`, and read-only `session-search` skills plus the read-only health tool replace hand-made or automatic curation. The retired rule, verifier, shape checker, and per-folder indexes stay removed. |
 | 4. Knowledge layer | Included with Gate 3. The graphify code graph was offered and declined, see below. |
 | 5. Root instructions, rules, output style | Done. `CLAUDE.md` and `AGENTS.md` carry the same short project knowledge route. `.claude/rules/` holds the applicable general rules, with no large memory rule or wrap-up ritual. The plain-language output style is installed and selected. |
 | 6. Optional toolkit skills | Done. All five now ship in one plugin, `session-skills`: `explain-simply`, `grill-me`, `handoff`, `session-summary`, and `track-tasks`. The four that predate the merge were already switched on in the machine settings at `~/.claude/settings.json`. |

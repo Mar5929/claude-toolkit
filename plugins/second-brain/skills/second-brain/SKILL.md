@@ -54,13 +54,15 @@ whole system. Then:
    in root `AGENTS.md`, because Claude hooks do not run for Codex.
 6. Add the same short route to root `CLAUDE.md` and `AGENTS.md`: read
    `knowledge/project.md`, then `knowledge/index.md`; specifications are
-   approved behavior, memory is durable knowledge, and brainstorms are
+   approved behavior, memory is persistent knowledge, and brainstorms are
    unchecked. Include this short principle:
 
-   > Keep project knowledge small: save stable facts, lasting events,
-   > decisions, or states that prevent repeated explanation or a wrong action.
-   > Put live progress in the tracker, reusable procedures in skills, source
-   > material in references, and past conversations in session history.
+   > Keep project knowledge small: save persistent information only when a
+   > stable fact, lasting event, decision, or state prevents repeated
+   > explanation or the same wrong action. Put standing agent instructions in
+   > rules, active work wherever its work item is being tracked, reusable
+   > processes in skills, outside source material in references, and past
+   > conversations in session history.
 7. Set `CLAUDE_CODE_DISABLE_AUTO_MEMORY` to `1` and enable
    `second-brain@claude-toolkit` in the project's settings.
 8. Build the index and run the plugin harness or equivalent fixture checks.
@@ -106,8 +108,9 @@ After migration and runtime installation, run a full read-only health report:
 node .claude/tools/knowledge-health.mjs health --json
 ```
 
-Use `cleanup` to show the owner exact repairs. Do not silently normalize old
-source values, add missing sessions, merge tags, or otherwise rewrite knowledge.
+Use `cleanup` to show the owner short repair summaries. Do not silently
+normalize old source values, add missing sessions, merge tags, or otherwise
+rewrite knowledge.
 
 ## Retired-layout review
 

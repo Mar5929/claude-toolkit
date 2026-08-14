@@ -53,13 +53,17 @@ Long is fine for drafts, scripts, posts, and documents. This whole style guide i
    is worth knowing. `knowledge/brainstorms/` is unchecked source material.
 3. Before changing behavior or asking something already documented, read the
    relevant specification or memory.
-4. Never make durable knowledge current without showing Mike the exact words
-   and getting his approval. The full policy is
+4. Never make persistent knowledge current until Mike approves short plain
+   bullets saying what changes, where it belongs, why it matters, every
+   assumption, and anything unverified. Show full file text only if he asks.
+   Write only the approved meaning. The full policy is
    `knowledge/specs/memory-system.md`.
-5. Keep project knowledge small: save stable facts, lasting events, decisions,
-   or states that prevent repeated explanation or a wrong action. Put live
-   progress in the tracker, reusable procedures in skills, source material in
-   references, and past conversations in session history.
+5. Keep project knowledge small: save persistent information only when a stable
+   fact, lasting event, decision, or state prevents repeated explanation or the
+   same wrong action. Put standing agent instructions in rules, active work
+   wherever its work item is being tracked, reusable processes in skills,
+   outside source material in references, and past conversations in session
+   history.
 
 <!-- shared-with-agents-md:end -->
 
@@ -82,7 +86,7 @@ says why the markers sit where they do.
 | `docs/` | `toolkit-map.md`, the cross-cutting catalog. Detail: `docs/CLAUDE.md`. |
 | `tests/` | Three Node checks, run by hand before every pull request. Detail: `tests/CLAUDE.md`. |
 | `archive/` | Retired material kept for history. Never a source of current truth. |
-| `knowledge/` | The project overview, generated index, approved specifications, durable memory, raw brainstorms, and minimal Obsidian vault settings. |
+| `knowledge/` | The project overview, generated index, approved specifications, persistent memory, raw brainstorms, and minimal Obsidian vault settings. |
 | `.claude/` | What this repo runs on itself: the rule copies, output style, installed hooks and tools, settings, and the setup record in `toolkit-sync.md`. |
 
 This repo runs the toolkit on itself. `.claude/rules/`, `.claude/hooks/`,

@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Personal, portable toolkit of reusable Claude systems: skills, rules, hooks, and templates shared across every project and device.",
-    "version": "0.69.0"
+    "version": "0.70.0"
   },
   "plugins": [
     {
@@ -42,7 +42,7 @@
     {
       "name": "session-skills",
       "source": "./plugins/session-skills",
-      "description": "Five skills for working inside one conversation. explain-simply says the last answer again as plain bullets without losing a number, date, path, or name. grill-me interviews the owner one question at a time and checkpoints every answer to a durable file before continuing. handoff runs the durable review, then drafts a prompt a fresh session can start from, opening with the goal and checked by a second agent that never saw the conversation. session-summary tables what the owner asked for and gives each request an honest status. track-tasks keeps every still-open topic on Claude Code's built-in task list, including parked topics, unanswered questions, and blocked work."
+      "description": "Five skills for working inside one conversation. explain-simply says the last answer again as plain bullets without losing a number, date, path, or name. grill-me interviews the owner one question at a time and checkpoints every answer to a persistent file before continuing. handoff runs the short persistent-information review, then drafts a prompt a fresh session can start from, opening with the goal and checked by a second agent that never saw the conversation. session-summary tables what the owner asked for and gives each request an honest status. track-tasks keeps every still-open topic on Claude Code's built-in task list, including parked topics, unanswered questions, and blocked work."
     }
   ]
 }
