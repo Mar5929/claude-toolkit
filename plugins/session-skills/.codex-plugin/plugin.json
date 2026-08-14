@@ -1,7 +1,7 @@
 {
   "name": "session-skills",
-  "version": "1.1.0",
-  "description": "Five skills for working inside one conversation: explain it simply, get grilled on it, hand it off, recap it, and track what is still open.",
+  "version": "1.2.0",
+  "description": "Six skills for working inside one conversation: play back a brain dump, explain it simply, get grilled on it, hand it off, recap it, and track what is still open.",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com",
@@ -21,8 +21,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Session Skills",
-    "shortDescription": "Explain it simply, get grilled on it, hand it off, recap it, track what is open.",
-    "longDescription": "Everything you reach for inside one conversation, in one install. explain-simply re-says the last answer as short bullets keeping every number and file path. grill-me runs a discovery interview one question at a time, checkpointing each answer to a persistent file. handoff reviews persistent information with short approval bullets, then writes a self-contained prompt for a fresh session, checked by a second agent first. session-summary returns a table of what you asked for and an honest status for each. track-tasks keeps every still-open topic on the built-in task list so nothing raised mid-session is lost.",
+    "shortDescription": "Play back a brain dump, explain it simply, get grilled on it, hand it off, recap it, track what is open.",
+    "longDescription": "Everything you reach for inside one conversation, in one install. braindump plays back a pasted brain dump in very simple words and waits for your yes before any work starts. explain-simply re-says the last answer as short bullets keeping every number and file path. grill-me runs a discovery interview one question at a time, checkpointing each answer to a persistent file. handoff reviews persistent information with short approval bullets, then writes a self-contained prompt for a fresh session, checked by a second agent first. session-summary returns a table of what you asked for and an honest status for each. track-tasks keeps every still-open topic on the built-in task list so nothing raised mid-session is lost.",
     "developerName": "Mike Rihm",
     "category": "Productivity",
     "capabilities": [
