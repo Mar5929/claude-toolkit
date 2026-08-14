@@ -142,7 +142,7 @@ export function buildIndex(projectRoot = root) {
   return { count, folders: groups.size, output: resolve(vault, "index.md") };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
   try {
     const result = buildIndex(root);
     console.log(
