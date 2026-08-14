@@ -166,8 +166,8 @@ try {
 
   const claudeManifest = JSON.parse(readFileSync(resolve(plugin, ".claude-plugin/plugin.json")));
   const codexManifest = JSON.parse(readFileSync(resolve(plugin, ".codex-plugin/plugin.json")));
-  ok(claudeManifest.version === "3.4.0", "Claude manifest is 3.4.0");
-  ok(codexManifest.version === "3.4.0", "Codex manifest is 3.4.0");
+  ok(claudeManifest.version === "3.5.0", "Claude manifest is 3.5.0");
+  ok(codexManifest.version === "3.5.0", "Codex manifest is 3.5.0");
   ok(claudeManifest.version === codexManifest.version, "plugin manifest versions match");
   const placementRule = "plugins/project-init/library/rules/general/where-persistent-information-belongs.md";
   ok(existsSync(resolve(root, placementRule)), "package contains the plainly named placement rule");
