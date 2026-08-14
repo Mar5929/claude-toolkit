@@ -152,7 +152,7 @@ Every memory starts with this YAML vocabulary:
 ---
 source: owner-paraphrase
 date: 2026-08-12
-session: unavailable
+session: 6ef7ee24-1f50-4d7b-b9b3-2e007d86bc2e
 tags:
   - project-subject
 ---
@@ -167,8 +167,12 @@ The allowed fields are:
 - `source-file:` the exact repository path, present only when `source: read-from-file`.
 - `date:` the save or last-change date in `YYYY-MM-DD` form.
 - `session:` a retrievable reference to the conversation or work session that
-  produced the save. It is not a transcript copy. It says `unavailable` when no
-  retained reference exists.
+  produced the save. It is not a transcript copy. The knowledge session-start
+  hook prints the current session id into the session so the agent can write
+  it. It says `unavailable` only when no id was printed, as in a Codex session,
+  which does not run the hook. When a later session adds to an existing file,
+  the file-level field keeps the creating session's id and the new session is
+  named in the `Claim source:` marker on the new sections.
 - `tags:` an Obsidian-compatible YAML list of one to three project-specific
   subjects chosen from `knowledge/memory/tags.md`. A new tag and its
   plain-language meaning are approved with the save.
