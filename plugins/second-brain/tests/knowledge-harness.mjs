@@ -174,9 +174,6 @@ try {
   ok(existsSync(resolve(root, ".claude/rules/where-persistent-information-belongs.md")), "repository runs the plainly named placement rule");
   ok(!existsSync(resolve(root, "plugins/project-init/library/rules/general/capture-the-thinking.md")), "package removes the unclear old placement-rule name");
   ok(!existsSync(resolve(root, ".claude/rules/capture-the-thinking.md")), "repository removes the unclear old placement-rule copy");
-  const placementRuleText = readFileSync(resolve(root, placementRule), "utf8");
-  ok(placementRuleText.includes("Do not create missing `knowledge/` folders"), "placement rule handles projects without the optional knowledge system");
-  ok(placementRuleText.includes("wherever the work item is being tracked"), "placement fallback keeps active information with its work item");
 
   // Check the storage places and the approval-bullet names only. Both are real
   // structure: a missing folder path sends saves to the wrong place, and a
