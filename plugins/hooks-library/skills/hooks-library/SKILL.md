@@ -14,19 +14,24 @@ description: >-
 This skill wires the toolkit's hooks into one project. Read `../../README.md`
 first for what each hook does and why it exists.
 
-Four hooks ship, in two groups.
+Five hooks ship, in two groups.
 
 **Every project.** `style-reminder` re-states the project's output style on every
 message, so the voice instruction never goes stale. `writing-guard` reads the
 finished reply and blocks on an em dash or a section sign, so a slip is caught
-rather than shipped. Both are default ON. Steps 1 to 5 below install
-`style-reminder`; the section after them installs `writing-guard`. Offer both
-unless the owner asks for fewer.
+rather than shipped. `spec-check-reminder` asks once, at the session's first
+file edit, whether the spec-check review has run, so a build from a drifted
+specification is caught as it starts; it belongs in projects that use the
+`session-skills` plugin, which ships the `spec-check` skill it points at. All
+three are default ON. Steps 1 to 5 below install `style-reminder`; the
+sections after them install `writing-guard` and `spec-check-reminder`. Offer
+all three unless the owner asks for fewer.
 
 Each hook registers under a different event, so installing one never disturbs
 another: `style-reminder` under `UserPromptSubmit`, `writing-guard` under
-`Stop`, and the two Salesforce guards under `PreToolUse` with a
-`Bash|PowerShell` matcher. Whichever you install, merge into the existing arrays
+`Stop`, `spec-check-reminder` under `PostToolUse` with an
+`Edit|Write|NotebookEdit` matcher, and the two Salesforce guards under
+`PreToolUse` with a `Bash|PowerShell` matcher. Whichever you install, merge into the existing arrays
 and preserve every entry already there.
 
 **Salesforce projects only.** `guard-protected-orgs.js` confirms before a deploy
@@ -189,6 +194,48 @@ Then the plugin's harness, if the toolkit clone is available:
 node plugins/hooks-library/tests/writing-guard-harness.mjs
 ```
 
+## The third hook: spec-check-reminder
+
+Same five steps, with these differences.
+
+**Copy it.** `hooks/spec-check-reminder.mjs` into the project's
+`.claude/hooks/`.
+
+**Register it** under `PostToolUse` with an `Edit|Write|NotebookEdit` matcher,
+merging into whatever `PostToolUse` entries already exist:
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/spec-check-reminder.mjs\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+**Prove it works.** Feed it a fake event twice with the same session id: the
+first run prints the reminder, the second prints nothing.
+
+```bash
+echo "{\"session_id\":\"install-check\"}" | node .claude/hooks/spec-check-reminder.mjs
+echo "{\"session_id\":\"install-check\"}" | node .claude/hooks/spec-check-reminder.mjs
+```
+
+**Only offer it where it points at something.** The reminder names the
+`spec-check` skill, which ships in the `session-skills` plugin. In a project
+without that plugin, offer to install `session-skills` first or skip this
+hook.
+
 ## Removing it
 
 For `style-reminder`:
@@ -200,7 +247,9 @@ For `style-reminder`:
 3. Delete `.claude/style-reminder.json` if it exists.
 
 For `writing-guard`, the same three steps against the `Stop` array,
-`writing-guard.mjs`, and `.claude/writing-guard.json`.
+`writing-guard.mjs`, and `.claude/writing-guard.json`. For
+`spec-check-reminder`, the `PostToolUse` array and `spec-check-reminder.mjs`;
+it has no config file.
 
 For either Salesforce guard, delete its entry from the `PreToolUse` array whose
 matcher is `Bash|PowerShell`, leaving the other guard's entry alone, then delete

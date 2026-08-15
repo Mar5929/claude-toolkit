@@ -1,6 +1,6 @@
 # session-skills
 
-Six skills for working inside one conversation: play back a brain dump, explain
+Seven skills for working inside one conversation: play back a brain dump, explain
 it simply, get grilled on it, hand it off, recap it, and track what is still
 open.
 
@@ -12,7 +12,7 @@ files, and only where you approve it.
 /plugin install session-skills
 ```
 
-## The six
+## The seven
 
 | Skill | Command | Reach for it when |
 |---|---|---|
@@ -21,9 +21,10 @@ files, and only where you approve it.
 | grill-me | `/grill-me` | A plan or design is half-formed and you want it pulled out of your head |
 | handoff | `/handoff` | A session is getting long and you are about to start a fresh one |
 | session-summary | `/session-summary` | You lost the thread, or you are closing the window |
+| spec-check | `/spec-check` | You are about to build from or design a solution from a specification |
 | track-tasks | `/track-tasks` | Several unrelated things are open at once |
 
-All six also trigger from plain words. You never have to type the command.
+All seven also trigger from plain words. You never have to type the command.
 
 ---
 
@@ -315,7 +316,30 @@ background work including finished subagents. Hence `/track-tasks`.
 
 ---
 
-## How the six relate
+## spec-check
+
+A specification that many sessions have touched drifts: agents add context,
+research, and detail, and each later agent builds from a slightly more
+polluted version, further from the goal. Run `/spec-check` before building
+from or designing a solution from a specification, meaning a
+`knowledge/specs/` file or a ticket body (a GitHub issue, a Linear ticket, or
+a work item's `SPEC.md`).
+
+The check names what it read, restates the goal in one line, then flags
+anything that could skew the work: contradictions, build details that crept
+into the requirements, statements that read two ways, research sitting in the
+body, and requirements with no reason attached. Every flag comes with a
+proposed fix. Nothing changes without your approval, a dismissed flag stays
+dismissed for the session, and approved fixes land in the specification
+itself before building starts. A clean specification gets one line saying so.
+
+The `spec-before-you-build` rule in the project-init library tells agents to
+run this check, and the `hooks-library` plugin ships `spec-check-reminder`,
+which asks once at the session's first file edit whether the check has run.
+
+---
+
+## How the seven relate
 
 They overlap less than they look.
 
@@ -333,6 +357,10 @@ They overlap less than they look.
 - **explain-simply versus session-summary.** One is a status view of a whole
   session. The other is a second reading of one piece of material that did not
   land.
+- **spec-check versus grill-me.** `grill-me` writes the specification during
+  refinement, before the ticket is ready. `spec-check` re-reads it later,
+  possibly many sessions later, to catch what drifted in between. One builds
+  the spec, the other defends it.
 - **track-tasks versus session-summary versus the work tracker.** Three views of
   what is outstanding, at three lifespans. `track-tasks` holds what is open right
   now and dies with the session. `session-summary` is a snapshot taken once, not

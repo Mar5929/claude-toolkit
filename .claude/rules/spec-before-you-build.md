@@ -55,6 +55,19 @@ Mark the ticket so anyone can see the session happened. Which mark depends on th
 tracker: a status, a label, or a line in the spec. The project's root
 instructions say which.
 
+## Check the spec again before building from it
+
+A specification that many sessions have touched drifts: agents add context,
+research, and detail along the way, and each later agent builds from a
+slightly more polluted version. So the refinement session is not the last
+look. Before building from or designing a solution from a specification, run
+the spec-check skill where it is installed (it ships in the session-skills
+plugin). Where it is not installed, do the same review by hand: name the
+specification, restate its goal in one line, flag anything that could skew the
+work (contradictions, build details in the requirements, statements that read
+two ways, research in the body, requirements with no reason), and fix the
+flags with the owner's approval before building starts.
+
 ## What to do when a ticket is missing or thin
 
 - **No ticket and work is about to start?** Stop. Write the ticket first.
