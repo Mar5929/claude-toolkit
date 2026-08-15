@@ -76,6 +76,23 @@ settings, then `~/.claude/settings.json`. A project that installs its own style
 still wins. This is what makes a machine-level install work in a repo that was
 never set up with this toolkit.
 
+### spec-check-reminder
+
+A `PostToolUse` hook on `Edit`, `Write`, and `NotebookEdit`. At the session's
+first file edit it asks one question: if this session is building from or
+designing a solution from a specification, has the spec-check skill run yet?
+Then it stays quiet for the rest of the session.
+
+Specifications drift as many sessions touch them, and the `spec-check` skill
+(in the `session-skills` plugin) exists to catch that before a build starts.
+The failure it cannot catch on its own is being forgotten. A rule alone gets
+buried in exactly the long handed-off sessions where drift happens, so this
+hook re-raises the question at the one moment that matters, the first write.
+
+It is a reminder, not a gate. It reads nothing the agent wrote, cannot tell
+real build work from a one-line fix, and never blocks an edit. State lives in
+a per-session file under the OS temp folder, which is how it fires only once.
+
 ### writing-guard
 
 A `Stop` hook. It reads the finished reply and blocks on an em dash or a section
@@ -182,6 +199,9 @@ permission set deploy forever.
 Use the `hooks-library` skill (`/hooks-library`), which wires a hook into the
 project's `.claude/settings.json` and verifies it runs. `project-init` and
 `project-sync` both offer them.
+
+`spec-check-reminder` is only useful next to the `spec-check` skill from the
+`session-skills` plugin, so install those together.
 
 `style-reminder` and `writing-guard` are only useful next to an installed output
 style, so install those together. `project-init` Gate 5 installs the style;

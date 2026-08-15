@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Personal, portable toolkit of reusable Claude systems: skills, rules, hooks, and templates shared across every project and device.",
-    "version": "0.73.0"
+    "version": "0.74.0"
   },
   "plugins": [
     {
@@ -32,7 +32,7 @@
     {
       "name": "hooks-library",
       "source": "./plugins/hooks-library",
-      "description": "Hooks that make a rule land mechanically instead of restating it. style-reminder re-states the project's active output style every time the owner sends a message, so the voice instructions never go stale hours into a session. writing-guard reads the finished reply and blocks on an em dash or a section sign, so a slip is caught rather than shipped. no-ai-attribution-guard refuses any commit or pull request whose text credits an AI, on every repository on the machine."
+      "description": "Hooks that make a rule land mechanically instead of restating it. style-reminder re-states the project's active output style every time the owner sends a message, so the voice instructions never go stale hours into a session. writing-guard reads the finished reply and blocks on an em dash or a section sign, so a slip is caught rather than shipped. no-ai-attribution-guard refuses any commit or pull request whose text credits an AI, on every repository on the machine. spec-check-reminder asks once, at the session's first file edit, whether the spec-check review has run, so building from a drifted specification is caught at the moment it starts."
     },
     {
       "name": "work-tracker",
@@ -42,7 +42,7 @@
     {
       "name": "session-skills",
       "source": "./plugins/session-skills",
-      "description": "Six skills for working inside one conversation. braindump plays back a pasted brain dump in very simple words and waits for the owner's yes before any work starts. explain-simply says the last answer again as plain bullets without losing a number, date, path, or name. grill-me interviews the owner one question at a time and checkpoints every answer to a persistent file before continuing. handoff runs the short persistent-information review, then drafts a prompt a fresh session can start from, opening with the goal and checked by a second agent that never saw the conversation. session-summary tables what the owner asked for and gives each request an honest status. track-tasks keeps every still-open topic on Claude Code's built-in task list, including parked topics, unanswered questions, and blocked work."
+      "description": "Seven skills for working inside one conversation. braindump plays back a pasted brain dump in very simple words and waits for the owner's yes before any work starts. explain-simply says the last answer again as plain bullets without losing a number, date, path, or name. grill-me interviews the owner one question at a time and checkpoints every answer to a persistent file before continuing. handoff runs the short persistent-information review, then drafts a prompt a fresh session can start from, opening with the goal and checked by a second agent that never saw the conversation. session-summary tables what the owner asked for and gives each request an honest status. track-tasks keeps every still-open topic on Claude Code's built-in task list, including parked topics, unanswered questions, and blocked work. spec-check reads the specification an agent is about to build from or design a solution from, flags anything that could skew the work, and proposes fixes the owner approves before building starts."
     }
   ]
 }

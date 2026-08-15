@@ -22,7 +22,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git lifecycle workflows | `pull-latest`, `reset-to-remote`, `merge-and-clean-up` | `/plugin install git-workflows` | Install and go |
 | [hooks-library](../plugins/hooks-library/README.md) | Reusable style, writing, Git-attribution, and Salesforce deployment hooks; system-specific knowledge hooks stay with second-brain | `hooks-library` | `/plugin install hooks-library` | Wires into settings |
 | [work-tracker](../plugins/work-tracker/README.md) | Git-authoritative backlog, handoffs, relationships, landing proof, optional GitHub Projects, and safe recognition of root, Salesforce delivery, and existing engagement paths | `work` | `/plugin install work-tracker` | Sets up a project |
-| [session-skills](../plugins/session-skills/README.md) | The six things you reach for inside one conversation: play back a brain dump, say it simply, get grilled on it, hand it off, recap it, and track what is still open | `braindump`, `explain-simply`, `grill-me`, `handoff`, `session-summary`, `track-tasks` | `/plugin install session-skills` | Install and go |
+| [session-skills](../plugins/session-skills/README.md) | The seven things you reach for inside one conversation: play back a brain dump, say it simply, get grilled on it, check the spec before building, hand it off, recap it, and track what is still open | `braindump`, `explain-simply`, `grill-me`, `handoff`, `session-summary`, `spec-check`, `track-tasks` | `/plugin install session-skills` | Install and go |
 
 ## Skills at a glance
 
@@ -45,6 +45,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | explain-simply | session-skills | Re-explain the last answer or a named file as short bullets, simplifying the wording and never the facts | `/explain-simply`, "explain that like I'm five", "put that in plain bullets", "simpler" |
 | grill-me | session-skills | Stress-test an idea one question at a time and preserve every answer | `/grill-me`, "grill me" |
 | handoff | session-skills | Invoke the project's remember workflow when available, then draft a fresh-session prompt that opens with the goal, carries anything unsaved, and is checked against the repository | `/handoff`, `/handoff check`, "write a handoff", "I'm going to clear context" |
+| spec-check | session-skills | Read the specification the session is about to build from or solution from, flag anything that could skew the work, and fix it with the owner's approval before building starts | `/spec-check`, "check the spec", "is this spec clean" |
 | session-summary | session-skills | Table every request the owner made in a session, in their words, each with a status, then say what still needs them | `/session-summary`, "summarize this session", "what did I ask for?" |
 | track-tasks | session-skills | Build or refresh the list of every topic still open in this session, then print it | `/track-tasks`, "what is still open", "where are we", "park that one" |
 
