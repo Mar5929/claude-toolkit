@@ -32,9 +32,10 @@ by hand. If it disagrees with the source files, rebuild it.
 
 ## specs/
 
-- [How project knowledge works](specs/memory-system.md): The project knowledge
-  system keeps approved behavior, persistent understanding, and raw exploration
-  in one portable Markdown vault that Git owns and Obsidian may view.
+- [Universal project memory system v2](specs/memory-system.md): This
+  specification defines the approved v2 design for a portable project memory
+  system that keeps agents oriented, keeps project knowledge trustworthy, and
+  works across Claude Code, Codex, and future compatible agents.
 - [Product and system specifications](specs/README.md): This folder defines
   current approved product and system behavior.
 
