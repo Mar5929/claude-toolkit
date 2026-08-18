@@ -76,9 +76,10 @@ The startup context, delivered through the host's own loading path, always cover
 4. the owner's working preferences;
 5. the folder map: one plain line per major folder saying what lives there, what is
    generated, and what must not be hand-edited;
-6. the memory contract: what may be stored, what may never be stored, which memory
-   skills and tools exist, and how to search; and
+6. the memory contract (See ## 5. What is and IS NOT considered "Memory"): what may be stored, what may never be stored, which memory
+   skills and tools exist, and how to search;
 7. any warnings (missing files, stale views, failed checks) as counts with links.
+8. output style when actually storing memories and specs.
 
 ## 4. Functional requirements
 
@@ -215,11 +216,20 @@ Proactive reminders are not required for v2 acceptance. They may be evaluated af
 the core memory system passes its acceptance tests, with separate owner approval for
 their behavior and interruption limits.
 
-## 5. What may never be stored
+## 5. What is and IS NOT considered "Memory"
 
-Tool calls; commands run; files opened; code-edit play-by-play; routine compiler and
+### What is considered "Memory"
+
+- Persistent facts, decisions, architectural decision records.
+- Semantic Memory (Facts & Profiles): Durable truths, company guidelines, user identity markers (name, role), and explicit constraints.
+- Episodic Memory (Past Events & Summaries): High-level takeaways from past interactions, milestone events, and specific user choices (e.g., "preferred Python over JavaScript for this project").
+- Working Memory (Active State): Normally stored in the current state or short-term memory system prompt. Immediate short-term context like current task goals and recent turns.
+
+### What IS NOT considered "Memory"
+
+Tool call results; commands run; files opened; code-edit play-by-play; routine compiler and
 test errors; temporary debugging hypotheses; hidden reasoning; casual conversation;
-restatements of active specs; live work-item status copied into memory;
+restatements of active specs or live code; live work-item status copied into memory;
 model-generated prose with no provenance; secrets and credentials; sensitive personal
 information that is not needed and approved for the repository.
 
@@ -239,7 +249,13 @@ changes are.
 - No auto-injection of the whole accumulated store at startup.
 - No session-history search before current project sources have actually failed.
 
-## 7. Acceptance: how we know it works
+## 7. Output style when writing memories or specs
+
+* No jargon, analogies, figures of speech, etc. that the user did not explicitly write first. You (the ai agent) are not writing a novel, you are storing memories to build the second brain for the project so the ai agent feels more and more like a progressively smarter assistant.
+- No assumptions or commentary on the memory facts themselves that the user did not explicitly ask for or mention.
+- Be careful writing something that may skew a future agent's thought process and reasoning when reading the memory.
+
+## 8. Acceptance: how we know it works
 
 The system is accepted when all of these are proven in a real project:
 
