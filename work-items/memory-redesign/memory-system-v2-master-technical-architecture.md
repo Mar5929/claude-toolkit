@@ -33,7 +33,7 @@ same startup, approval, retrieval, privacy, and validation contracts.
 The final design was resolved from these inputs:
 
 1. [functional-requirements.md](functional-requirements.md), including FR-001
-   through FR-086;
+   through FR-094;
 2. [memory-system-v2-master2.md](memory-system-v2-master2.md), the approved design
    from 2026-08-17; and
 3. [memory-system-v2-master.md](memory-system-v2-master.md), the more detailed
@@ -52,9 +52,9 @@ The final requirements added pinned memory after both master documents were writ
 This architecture therefore adds pin storage, operations, startup behavior, safety
 checks, migration, and acceptance tests.
 
-FR-065 through FR-081 were added during the current owner review. Their traceability
-rows remain visibly pending until the matching data-model, project-structure, and
-work-recap decisions are approved.
+FR-065 through FR-094 were added during the current owner review. Their traceability
+rows visibly distinguish settled architecture from decisions that still need owner
+review.
 
 The following conflicts are resolved here:
 
@@ -109,11 +109,12 @@ The following invariants apply to every component:
 2. Canonical project memory is readable Markdown tracked by Git.
 3. Active work stays in the configured work tracker.
 4. Rules define behavior. Skills define reusable processes. Specifications define
-   approved behavior. Memory records facts, events, decisions, and lasting context.
+   approved behavior. Memory records facts, decisions, events, and patterns.
 5. No current specification or memory write occurs without explicit owner approval.
 6. Generated files are rebuildable and never authoritative.
 7. Provenance stays attached to the claim and is not upgraded by age or repetition.
-8. Same-subject records from different sources remain separate.
+8. New evidence for unchanged meaning stays on one record. Conflicting meanings stay
+   separate and linked.
 9. Current and historical states are distinct and both retrievable.
 10. Retrieval starts with the smallest and most authoritative source.
 11. Empty results stay empty.
@@ -198,17 +199,12 @@ project/
     gold-set.md
     specs/
     memory/
-      tags.md
-      entities.md
-      context/
+      facts/
       decisions/
-      domain/
       events/
-      knowledge/
-      operations/
-      planning/
-      references/
+      patterns/
     brainstorms/
+  references/
   .memory/
   src/
   tests/
@@ -239,6 +235,8 @@ directory. knowledge/map.md records the physical route so the agent never guesse
   source files.
 - Files under knowledge/specs/ and knowledge/memory/ contain approved canonical
   behavior and knowledge.
+- Files under references/ contain outside documentation and research material. They
+  remain evidence, not durable memory, until an approved project record links to them.
 
 ### 7.2 Generated files
 
@@ -496,81 +494,127 @@ source authority, or query relevance.
 
 ## 12. Durable record model
 
-Every new v2 memory is one Markdown file with structured metadata, a descriptive H1,
-and one approved summary sentence directly below the H1.
+Every new v2 memory is one Markdown file containing one independently correctable or
+supersedable meaning, structured metadata, a descriptive H1, and one approved summary
+sentence directly below the H1. One meaning is not the same as one sentence. A
+decision may keep its context and rationale together when they share evidence, truth
+status, and effective dates.
 
 ~~~yaml
 ---
 id: decision-auth-004
-type: context | decision | domain | event | knowledge | operation | planning | reference
+type: fact | decision | event | pattern
 status: active | superseded | retired
+epistemic_status: documented | observed | reported | diagnosed | approved |
+                  inferred | suspected | unknown
 recorded_at: 2026-08-18
-effective_at: 2026-08-18
-valid_until: null
-session: session-id-or-unavailable
+effective_from: 2026-08-18
+effective_to: null
+occurred_at: null
 approval:
   actor: owner
   approved_at: 2026-08-18T14:00:00-04:00
   action: add
-source:
-  type: owner_statement | owner_approved_decision | client_statement |
-        client_document | source_code | git_commit | issue | pull_request |
-        web_source | research_paper | agent_observation | agent_inference
-  path: null
-  url: null
-  retrieved_at: null
+evidence:
+  - source_type: owner_approved_decision
+    locator: issue-123#comment-456
+    observed_at: 2026-08-18
+    retrieved_at: null
+    version: null
+    note: Owner approved the architecture choice.
 based_on: []
-tags: [authentication]
+domain: [authentication]
+topics: [token-storage]
 entities: [authentication, keychain]
 relates: []
+conflicts_with: []
 supersedes: null
 superseded_by: null
-paired_with: []
-confirmed_on: []
+confirmations: []
 review_after: null
 retired_because: null
-history: []
 ---
 
 # Refresh tokens use secure device storage
 
 Refresh tokens live in secure device storage, not normal application storage.
 
-The full meaning, rationale, evidence links, and claim-level source markers follow.
+## Context
+
+The application needs durable refresh tokens without placing them in ordinary
+application storage.
+
+## Decision
+
+Refresh tokens live in secure device storage.
+
+## Reason
+
+Secure device storage provides the approved protection boundary.
+
+## Rejected options
+
+- Ordinary application storage.
+
+## Consequences
+
+- Supported clients need access to the device security API.
 ~~~
 
-Required fields for new records are id, type, status, recorded_at, session,
-approval, source.type, and the one-sentence summary. An inference also requires a
-non-empty based_on list.
+Required fields for every new record are id, type, status, epistemic_status,
+recorded_at, approval, at least one evidence entry, and the one-sentence summary. An
+inference or pattern also requires a non-empty based_on list. An event requires an
+exact occurred_at value or an explicit date range or uncertainty statement. A
+decision requires context, decision, reason, rejected options, consequences, date,
+status, and evidence.
+
+Records live under the folder matching their type: facts, decisions, events, or
+patterns. Domain and topic describe subject matter without creating another copy or
+requiring a file move when the subject grows.
 
 Existing records remain usable without a forced bulk upgrade. The next approved edit
 may upgrade the touched record after showing missing fields in the approval review.
 
 ### 12.1 Provenance laws
 
-1. A new write without provenance is refused.
-2. Source provenance is immutable after creation.
-3. Verification is an audited correction with evidence. Repetition and age do not
-   promote an inference.
-4. A claim from another source carries its own marker beside that claim.
-5. A negative statement names the scope searched.
-6. Same-subject statements from different sources are separate records linked by
-   paired_with in both directions.
+1. A new write without recoverable evidence is refused.
+2. An incorrect evidence locator may be corrected only through CORRECT with a reason,
+   date, approval, and replacement evidence. Git preserves the earlier wording.
+3. Another source supporting unchanged meaning adds an evidence entry and, when the
+   owner rechecks it, a confirmation. It does not create a duplicate record.
+4. Conflicting meanings remain separate, keep their own truth status and evidence,
+   and link through conflicts_with.
+5. Verification is an audited correction or confirmation with evidence. Repetition
+   and age do not silently promote an inference.
+6. An inference or pattern names the records it is based on.
+7. A negative statement names the scope searched.
+8. A generated view or summary is never primary evidence.
 
 ### 12.2 Entities and relationships
 
-knowledge/memory/entities.md is a stable registry of project concept ids, meanings,
-and aliases. Records refer to entity ids for filtering and timelines.
+Simple records use inline evidence locators, names, and links. No entity, source, or
+relationship registry is required.
 
-Relationships are typed and state whether they are documented or suspected. A
-suspected link never looks like a verified fact. A graph may be derived from these
-links, but it is never the canonical record shape.
+A stable entity entry is created only when repeated use needs one identity or aliases
+would otherwise be ambiguous. A reusable source entry is created only when many
+records cite the same source identity. A relationship becomes its own sourced record
+only when the relationship itself changes over time or must be independently
+corrected. Otherwise, ordinary links are enough.
+
+Optional supporting entries do not create additional memory types. A durable
+relationship claim is stored as a fact with subject, relationship, object, truth
+status, effective dates, and evidence. A graph may be derived from these links, but it
+is never canonical.
 
 ### 12.3 Atomic record boundary
 
+The boundary is one independently correctable or supersedable meaning. Clauses that
+need different evidence, truth status, or effective dates become separate records.
+Context and rationale that cannot change independently may remain with the meaning.
+
 Retrieval returns the whole record rather than storing or searching detached chunks.
 Search results may show the summary, but consequential answers open the full record
-and follow its provenance.
+and follow its evidence.
 
 ### 12.4 Links and derived backlinks
 
@@ -649,7 +693,7 @@ The write coordinator binds approval to:
 - the proposed meaning;
 - the destination path and record id;
 - the lifecycle or pin operation;
-- the source content hashes reviewed by the owner; and
+- the evidence locators and source hashes reviewed by the owner; and
 - the exact pin statement when pin visibility is included.
 
 If any bound input changes before the write, the coordinator refuses and asks for a
@@ -663,7 +707,7 @@ An approved write is one reported operation even when it affects several files.
 2. Recheck source hashes and duplicate ids.
 3. Write a crash-recovery journal with preimages under .memory/.
 4. Stage canonical Markdown changes.
-5. Apply required pin, pairing, supersession, and retirement changes.
+5. Apply required pin, conflict-link, supersession, and retirement changes.
 6. Rebuild the generated navigation index and affected startup views. Retrieval does
    not depend on them.
 7. Run focused validation.
@@ -683,12 +727,12 @@ then reports the recovery.
 | Operation | Meaning | Required behavior |
 | --- | --- | --- |
 | NOOP | Store nothing | Expected for transient, repeated, weak, or misplaced information |
-| ADD | Add new durable meaning | Refuse duplicate id and warn on same-provenance duplicate meaning |
-| CONFIRM | Reaffirm unchanged meaning | Append a confirmation date without rewriting the summary |
-| CORRECT | Fix a record that was wrong | Preserve prior wording in history and record the correcting evidence |
+| ADD | Add new durable meaning | Refuse duplicate id or meaning and route another supporting source to evidence |
+| CONFIRM | Reaffirm unchanged meaning | Append actor, date, and evidence without rewriting the summary |
+| CORRECT | Fix a record that was wrong | Record the reason, date, approval, and correcting evidence while Git preserves the prior text |
 | SUPERSEDE | Replace a formerly true record | Create the successor, date the old record, and write both links |
 | RETIRE | End a record with no direct successor | Require a reason, remove it from current reads, and hunt current copies |
-| MERGE | Combine true duplicates | Allow only identical meaning and provenance and preserve both originals |
+| MERGE | Combine true duplicates | Allow only identical meaning with compatible truth status and effective dates, then consolidate every evidence entry |
 | DELETE | Remove an accidental, corrupt, duplicate-surplus, or privacy record | Require a reason, a visible diff, and any required privacy purge work |
 
 Retired and superseded records remain available for history and timeline questions.
@@ -696,17 +740,23 @@ They do not appear as current truth in startup or ordinary search.
 
 ### 14.1 Correction and supersession
 
-CORRECT means the record itself was wrong. The prior text moves to history with the
-reason, approval, evidence, and date.
+CORRECT means the record itself was wrong. The current record receives the reason,
+approval, correcting evidence, and date. Git preserves the prior full text instead of
+copying it into a growing history field.
 
 SUPERSEDE means the old record was true during an earlier period. The old and new
 records receive reciprocal ids and effective dates in one transaction.
 
-### 14.2 Fact-pair protection
+### 14.2 Evidence consolidation and conflict protection
 
-Records with the same subject but different sources are paired, not merged. The
-coordinator writes both paired_with links. Validation rejects a one-sided pair.
-Review and cleanup cannot retire or merge one merely because the wording is similar.
+The same meaning supported by another source remains one current record with multiple
+evidence entries. Confirmation records who rechecked the unchanged meaning, when, and
+against which evidence.
+
+Different or incompatible meanings remain separate even when they share a subject.
+They link through conflicts_with and retain their own truth status, effective dates,
+and evidence. Review and cleanup cannot merge them merely because their wording is
+similar.
 
 ### 14.3 Retirement phrase hunt
 
@@ -749,8 +799,8 @@ replacement are complete. The tool must not claim full erasure before that proof
 2. Tier 1, exact lookup. Use id, path, entity, or timeline.
 3. Tier 2, curated project search. Search specs, memory, procedures, and source
    metadata with filters.
-4. Tier 3, relationship and timeline expansion. Follow entities, pairs, predecessor
-   and successor records, decisions, events, specs, and nearby dates.
+4. Tier 3, relationship and timeline expansion. Follow entities, conflict links,
+   predecessor and successor records, decisions, events, specs, and nearby dates.
 5. Tier 4, active work and handoff. Search the configured tracker and approved
    pointer-only bridge if needed.
 6. Tier 5, session history. Search the original local host history only after the
@@ -912,14 +962,15 @@ memory_review is structurally read-only. Its interface has no write capability. 
 returns a worklist covering:
 
 - exact and near duplicate candidates;
-- same-subject records that should be paired;
+- same-meaning records whose evidence should be consolidated;
+- conflicting meanings that need an explicit link;
 - current conflicts;
 - invalid or missing provenance;
 - stale review dates;
 - broken ids and one-sided links;
 - supersession gaps;
 - surviving retired phrases;
-- unused, overlapping, or excessive tags;
+- unused, overlapping, or excessive domain and topic values;
 - records that no longer pass the durable-information test;
 - stale or hand-edited generated views;
 - pin errors and budget pressure;
@@ -942,13 +993,13 @@ memory_validate checks:
 2. shared root-block meaning and checked-copy drift;
 3. record schema, allowed values, unique ids, approval, and provenance;
 4. non-empty evidence for inference;
-5. bidirectional pairing and supersession links;
+5. valid conflict targets and reciprocal supersession links;
 6. pin eligibility, summary hashes, project scope, and startup rendering;
 7. startup budget and safe degradation;
 8. retired phrases and recorded exemptions;
 9. generated-view inputs, fingerprints, and hand edits;
 10. map coverage for major folders;
-11. tag vocabulary and usage;
+11. domain and topic vocabulary and usage;
 12. direct search returns complete records rather than detached fragments;
 13. no tracker bridge as the sole home of a fact;
 14. identical canonical results after deleting and rebuilding derived views;
@@ -998,9 +1049,9 @@ Migration is additive, project-specific, approved, and reversible.
 
 ### Phase 2: lifecycle and schema
 
-- Add permanent ids, status, dates, approval, entities, provenance objects, and
-  lifecycle tools.
-- Add events and the entity registry.
+- Add permanent ids, the four record types, truth status, dates, approval, evidence
+  entries, and lifecycle tools.
+- Add optional reusable entity or source entries only where the project needs them.
 - Upgrade a legacy record only through an approved operation that touches it.
 - Do not infer missing metadata.
 
@@ -1038,7 +1089,8 @@ changes. It never erases approved Markdown or rewrites Git history.
 | Missing provenance on new record | Refuse the write |
 | Missing legacy metadata | Show the gap and preserve the existing text |
 | Inference without evidence | Refuse the write |
-| Different provenance on merge | Refuse and propose pairing |
+| New source supports unchanged meaning | Add evidence or confirmation to the existing record |
+| Meaning, truth status, or dates conflict on merge | Refuse and preserve linked records |
 | Search parse error | Return an error, never no result |
 | .memory/ absent | Continue direct retrieval without creating it |
 | Session history unavailable | Scope the miss to available machine, host, and dates |
@@ -1083,7 +1135,7 @@ The architecture is implemented only when a real project proves:
 | AT-07 | Unpin removes startup visibility without deleting or hiding the record from search. |
 | AT-08 | Supersede and retire remove the old pin and never auto-pin a successor. |
 | AT-09 | Too many pins produce a visible refusal or review warning and never a silent omission. |
-| AT-10 | A different-source fact pair survives review and cleanup unchanged. |
+| AT-10 | Two sources supporting unchanged meaning remain as separate evidence entries on one current record after review and cleanup. |
 | AT-11 | A superseded record leaves current results and remains in its timeline. |
 | AT-12 | Retirement finds surviving current uses of the retired phrase. |
 | AT-13 | Consequential recall opens the record and original evidence. |
@@ -1096,6 +1148,11 @@ The architecture is implemented only when a real project proves:
 | AT-20 | The owner confirms that the boot brief remembers the right things without showing too much. |
 | AT-21 | A specification links to its supporting ADR, and memory_related returns that specification as a backlink with .memory/ absent. |
 | AT-22 | Moving or renaming a linked ADR repairs every affected project link in one approved operation or leaves every file unchanged. |
+| AT-23 | Two conflicting meanings remain separate, linked, and independently evidenced after review and cleanup. |
+| AT-24 | A reported or inferred fact never renders as documented or verified. |
+| AT-25 | A project ADR contains context, decision, reason, rejected options, consequences, date, status, and evidence. |
+| AT-26 | One meaning with shared evidence remains one readable record rather than one file per sentence. |
+| AT-27 | A simple durable record validates without a separate source, entity, or relationship registry. |
 
 ## 23. Architectural decision records
 
@@ -1144,14 +1201,17 @@ The architecture is implemented only when a real project proves:
 - **Reason:** A second status store becomes stale and violates one canonical home.
 - **Rejected:** A permanent memory task list or default per-session status archive.
 
-### ADR-007: Preserve the current taxonomy and add events
+### ADR-007: Use four meaning-based durable record types
 
-- **Decision:** Keep context, decisions, domain, knowledge, operations, planning, and
-  references. Add events and one entity registry.
-- **Reason:** Existing types route information clearly and events fill the historical
-  state-change gap.
-- **Rejected:** One broad facts folder, a relationship folder, or a graph as the
-  primary record structure.
+- **Decision:** Durable memory uses facts, decisions, events, and patterns. Each
+  record contains one independently correctable or supersedable meaning. Domain and
+  topic are metadata rather than competing record types. Every fact carries an
+  explicit truth status.
+- **Reason:** Context, domain, knowledge, operations, and planning overlap as storage
+  types. Meaning-based types make correction, time, evidence, and retrieval clear
+  while the truth label prevents the word "fact" from implying false certainty.
+- **Rejected:** The current folder-led taxonomy, one sentence per record, one mutable
+  memory document, and a graph as the canonical model.
 
 ### ADR-008: Owner approval is required for current truth and pin state
 
@@ -1178,12 +1238,15 @@ The architecture is implemented only when a real project proves:
   meaning requires.
 - **Rejected:** Free-form edits as the normal write path and update-or-merge guessing.
 
-### ADR-011: Different provenance prevents merge
+### ADR-011: Consolidate supporting evidence and preserve conflicts
 
-- **Decision:** Same-subject statements from different sources remain separate and
-  paired.
-- **Reason:** Source difference is information, not duplication.
-- **Rejected:** Similarity-based automatic deduplication.
+- **Decision:** Another source supporting the same meaning adds evidence to the same
+  record. Meanings with incompatible content, truth status, or effective dates remain
+  separate and link as conflicts.
+- **Reason:** Evidence difference is valuable, but it does not require duplicate
+  copies of unchanged meaning. Conflicting claims must remain independently visible.
+- **Rejected:** One record per source, similarity-based automatic merging, and silent
+  selection of one conflicting record as truth.
 
 ### ADR-012: Review is structurally read-only
 
@@ -1327,6 +1390,17 @@ The architecture is implemented only when a real project proves:
 - **Rejected:** A stored backlink registry, mandatory reciprocal links, Obsidian-only
   wikilinks, a graph database, or a search index as the source of link relationships.
 
+### ADR-027: Normalize supporting records only when reuse pays for them
+
+- **Decision:** Inline evidence locators, names, and ordinary links are the default.
+  Create a reusable source or entity entry only when repeated use or ambiguity makes
+  one stable identity valuable. Create a separate relationship record only when the
+  relationship itself is sourced, time-varying, and independently maintainable.
+- **Reason:** Optional normalization reduces real duplication without turning every
+  small project into a hand-maintained database.
+- **Rejected:** Mandatory source records, a global entity registry, a relationship
+  folder for ordinary links, and graph-first canonical storage.
+
 ## 24. Functional requirement traceability
 
 ### Orientation and context
@@ -1368,7 +1442,7 @@ The architecture is implemented only when a real project proves:
 | FR-023 | Sections 12 and 12.1 require based_on evidence and explicit verification. | AT-13 |
 | FR-024 | Section 14 defines every required lifecycle operation. | AT-03, AT-10, AT-11 |
 | FR-025 | Sections 14 and 15 exclude obsolete records from current reads and preserve timelines. | AT-11 |
-| FR-026 | Sections 14.2 and ADR-011 refuse merge across provenance. | AT-10 |
+| FR-026 | Sections 12.1 and 14.2 plus ADR-011 consolidate supporting evidence and refuse incompatible meanings, truth states, or effective dates. | AT-10, AT-23 |
 | FR-027 | Sections 14 and 14.4 constrain deletion and require a reason and audit evidence. | AT-16 |
 | FR-028 | Section 13.3 coordinates canonical writes, affected views, validation, reporting, and rollback. | AT-16 |
 
@@ -1395,7 +1469,7 @@ The architecture is implemented only when a real project proves:
 | FR-040 | Section 17 lists every required worklist category plus pin and direct-search health. | AT-10 |
 | FR-041 | Section 17 prevents review from merging, retiring, rewriting, deleting, pinning, or unpinning. | AT-10 |
 | FR-042 | Section 17 routes cleanup through approved lifecycle and pin operations. | AT-10 |
-| FR-043 | Sections 12.1, 14.2, and 17 preserve and pair different-source records. | AT-10 |
+| FR-043 | Sections 12.1, 14.2, and 17 consolidate supporting evidence while preserving linked conflicts. | AT-10, AT-23 |
 | FR-044 | Section 17 defines focused and threshold-based deep review. | AT-10 |
 | FR-045 | Section 17 states that age alone never deletes or retires. | AT-10 |
 
@@ -1434,8 +1508,8 @@ The architecture is implemented only when a real project proves:
 | --- | --- | --- |
 | FR-065 | Pending the project-structure decision. | Pending |
 | FR-066 | Pending the project-structure and scope decisions. | Pending |
-| FR-067 | Pending the durable data-model decision. | Pending |
-| FR-068 | Pending the durable data-model decision. | Pending |
+| FR-067 | Sections 7 and 12 plus ADR-007 define facts, decisions, events, and patterns. | AT-24, AT-25, AT-26 |
+| FR-068 | Sections 7 and 12 use one meaning-based type while domain and topic remain metadata. | AT-26 |
 | FR-069 | Pending the project-structure decision. | Pending |
 | FR-070 | Section 12.1 defines recoverable source identity, date, version, and evidence. | AT-13 |
 | FR-071 | Sections 12.1 and 13 require evidence and owner approval before research becomes current knowledge. | AT-04, AT-13 |
@@ -1446,7 +1520,7 @@ The architecture is implemented only when a real project proves:
 
 | Requirement | Architecture coverage | Acceptance proof |
 | --- | --- | --- |
-| FR-074 through FR-081 | Pending the durable data-model and write-flow decisions. | Pending |
+| FR-074 through FR-081 | Section 12 defines the event record used by a recap. The direct approval and write flow remains pending. | Pending |
 
 ### Links and backlinks
 
@@ -1457,6 +1531,19 @@ The architecture is implemented only when a real project proves:
 | FR-084 | Section 12.4 makes memory_related return outgoing links and derived incoming backlinks. | AT-21 |
 | FR-085 | Sections 18 and 20 make missing targets visible and prevent broken links from acting as evidence. | AT-21 |
 | FR-086 | Sections 12.4, 13.3, and 18 require complete link repair or rollback for a move or rename. | AT-22 |
+
+### Durable data model
+
+| Requirement | Architecture coverage | Acceptance proof |
+| --- | --- | --- |
+| FR-087 | Sections 12 and 12.3 plus ADR-007 define one independently maintainable meaning rather than one sentence. | AT-26 |
+| FR-088 | Section 12 and ADR-007 require explicit truth status on facts. | AT-24 |
+| FR-089 | Sections 12 and 12.1 plus ADR-011 preserve multiple evidence entries on unchanged meaning. | AT-10 |
+| FR-090 | Sections 12.1 and 14.2 plus ADR-011 keep conflicting meanings separate and linked. | AT-23 |
+| FR-091 | Section 12 defines the required decision and ADR content. | AT-25 |
+| FR-092 | Section 12 requires an event time, range, or honest uncertainty. | AT-13 |
+| FR-093 | Sections 12 and 12.1 require patterns to identify their evidence and remain epistemically distinct. | AT-13, AT-24 |
+| FR-094 | Section 12.2 and ADR-027 make supporting registries optional and evidence-based. | AT-27 |
 
 ### Deferred capability
 

@@ -165,8 +165,9 @@ The startup context, delivered through the host's own loading path, always cover
   and deleting records when each action is appropriate.
 - **FR-025:** Superseding or retiring a record must remove it from current retrieval
   without erasing history.
-- **FR-026:** A merge must be refused when it would erase or blur different
-  provenance or meaning.
+- **FR-026:** A merge must be refused when meanings conflict or their truth status or
+  effective dates are incompatible. Additional evidence for the same meaning must be
+  preserved on the surviving record.
 - **FR-027:** Deletion must be limited to duplication surplus, corruption, privacy
   removal, or accidental records and must require a reason.
 - **FR-028:** An approved write must leave canonical records and every affected
@@ -201,13 +202,14 @@ The startup context, delivered through the host's own loading path, always cover
 
 - **FR-039:** Memory review must be structurally read-only and return a worklist.
 - **FR-040:** The worklist must cover duplicate candidates, conflicts, stale review
-  dates, broken links, supersession gaps, retired phrases, tag problems, and
-  retrieval-test failures.
+  dates, broken links, supersession gaps, retired phrases, classification problems,
+  and retrieval-test failures.
 - **FR-041:** Review must not merge, retire, rewrite, or delete records.
 - **FR-042:** Cleanup must use the normal approval review and lifecycle tools for
   every change.
-- **FR-043:** Different-source statements about the same subject must remain separate
-  and be linked as a pair.
+- **FR-043:** Additional sources supporting the same meaning must be preserved as
+  evidence on one record. Conflicting meanings must remain separate and link to each
+  other.
 - **FR-044:** A focused review must run after an approved save; a deep review runs
   only on request, after migration, or when a concrete backlog threshold is crossed.
 - **FR-045:** Age alone must never delete or retire memory.
@@ -329,6 +331,30 @@ The startup context, delivered through the host's own loading path, always cover
 - **FR-086:** Moving or renaming a linked record must repair affected project links in
   the same approved operation or refuse the move without leaving partial changes.
 
+### Durable data model
+
+- **FR-087:** Each durable record must contain one independently correctable or
+  replaceable meaning. It may include supporting explanation that shares the same
+  evidence, truth status, and effective dates, and it must not be split into one file
+  per sentence.
+- **FR-088:** Every fact must show a truth status that distinguishes documented,
+  observed, reported, inferred, suspected, unknown, and other approved states so the
+  word "fact" never implies more certainty than the evidence supports.
+- **FR-089:** Every durable record must carry one or more recoverable evidence
+  entries. Additional sources supporting unchanged meaning must be added to that
+  evidence instead of creating duplicate records.
+- **FR-090:** Conflicting meanings must remain separate, show their own evidence and
+  truth status, and link to each other without the system silently choosing a winner.
+- **FR-091:** A decision record must state the context, chosen option, reason,
+  rejected options, consequences, date, status, and evidence.
+- **FR-092:** An event record must state when it happened or show an honest date range
+  or uncertainty when an exact time is unknown.
+- **FR-093:** A pattern record must link to the facts and events supporting it and
+  must remain distinct from a proven cause, diagnosis, rule, or required behavior.
+- **FR-094:** Separate reusable source, entity, or relationship records must be
+  optional. A simple durable record must remain complete without creating supporting
+  registries that do not provide clear reuse or disambiguation value.
+
 ### Deferred capability
 
 Proactive reminders are not required for v2 acceptance. They may be evaluated after
@@ -413,8 +439,16 @@ The system is accepted when all of these are proven in a real project:
 - A superseded or retired pinned memory stops appearing at startup, and its replacement
   is not pinned without owner approval.
 - Too many pins produce a visible review warning instead of silently dropping one.
-- A pair of same-subject facts from different sources survives every cleanup pass
-  unchanged.
+- Two sources supporting the same meaning remain as separate evidence entries on one
+  current record after review and cleanup.
+- Two conflicting meanings remain separate, linked, and unchanged after review and
+  cleanup.
+- A reported or inferred fact never appears as documented or verified merely because
+  it is stored under facts.
+- A project ADR contains its context, choice, reason, rejected options, consequences,
+  date, status, and evidence.
+- A simple durable record requires no separate source, entity, or relationship
+  registry.
 - A superseded record disappears from current answers and remains in its timeline.
 - A retired phrase's surviving copies are found wherever they still appear.
 - A consequential recall follows provenance to the original source.
