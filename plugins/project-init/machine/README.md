@@ -32,6 +32,7 @@ stays small on purpose.
 | `settings/required.json` | merged into `~/.claude/settings.json` | Sets `attribution.commit` and `attribution.pr` to an empty string, which is what removes the `Co-Authored-By: Claude` trailer and the "Generated with Claude Code" line Claude Code adds by itself. |
 | `no-ai-attribution-guard` hook | `~/.claude/hooks/` plus an entry in `~/.claude/settings.json` | Refuses a `git commit`, `git tag`, `gh pr create`, or `gh release create` whose text carries AI credit. Its script lives with every other hook in the toolkit, in `../../hooks-library/hooks/`, not here. |
 | `rules/propose-the-best-solution.md` | `~/.claude/rules/propose-the-best-solution.md` | The best answer always gets said out loud. Time, effort, cost, and resources never decide whether it is mentioned, only what the owner picks after seeing it. |
+| `rules/keep-design-out-of-requirements.md` | `~/.claude/rules/keep-design-out-of-requirements.md` | Build decisions never go in requirements. Splits the work into one functional requirements document of five sections, a separate technical specification, and the architectural decision records that join them. |
 
 The first three rows cover one rule between them, and each has a hole the other
 two fill. That rule file explains which hole belongs to which. Installing one
@@ -45,6 +46,15 @@ files each say where that border is. Keep them in step: the project rule owns
 the caliber of what gets built in a project, and this one owns the instruction
 that cost is never a reason to keep the best answer quiet, anywhere on the
 computer.
+
+`keep-design-out-of-requirements.md` stands on its own as well. It shares a
+border with the project rule "Log the Work, Spec It, Then Build It" in
+`../library/rules/general/spec-before-you-build.md`, which already says a
+ticket's requirements are what and why, never how. That rule stops at the ticket
+and reaches only a project someone set up with the toolkit. This one holds in
+every repository on the computer and adds what that one does not carry: the five
+sections of the functional requirements, the separate technical specification,
+and the architectural decision records that join the two. Keep them in step.
 
 ## Why the hook script is not in this folder
 
