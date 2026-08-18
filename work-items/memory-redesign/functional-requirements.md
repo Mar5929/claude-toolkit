@@ -385,6 +385,26 @@ The startup context, delivered through the host's own loading path, always cover
   decision, or specification must link to the research without copying it, and any
   promoted project meaning must follow its normal owner approval flow.
 
+### Session continuity
+
+- **FR-102:** The configured work tracker must own the current state, blockers, exact
+  next step, and an authored handoff that another agent can use without the prior
+  conversation.
+- **FR-103:** Cross-machine continuity must depend on the tracker and approved project
+  records. It must not depend on machine-local session history.
+- **FR-104:** Native host session history must remain optional, read-only, and in its
+  original host-owned location. The memory system may search it only when the owner
+  asks or current project sources are insufficient.
+- **FR-105:** The memory system must not copy transcripts, create a transcript index,
+  or generate session summaries, session cards, or another session-derived status
+  store.
+- **FR-106:** Missing, incomplete, or unsearchable native history must never block the
+  memory system. A history miss must name the available project, machine, host, and
+  date scope without claiming the conversation never happened.
+- **FR-107:** A history result used for exact past wording must identify the original
+  host session and message location so the agent can open the source before relying on
+  it.
+
 ### Deferred capability
 
 Proactive reminders are not required for v2 acceptance. They may be evaluated after
@@ -442,7 +462,8 @@ prevents repeated investigation or repeated work.
   per-project consent decision.
 - No background process, cron job, or silent curator changes memory.
 - No auto-injection of the whole accumulated store at startup.
-- No session-history search before current project sources have actually failed.
+- No session-history search unless the owner asks or current project sources are
+  insufficient.
 
 ## 7. Output style when writing memories or specs
 
@@ -501,6 +522,12 @@ The system is accepted when all of these are proven in a real project:
   its raw evidence in the original work item, and working links in both directions.
 - An unreviewed research report remains available as a labeled reference without
   becoming a decision, memory record, or approved specification.
+- A new session on another machine continues from the tracker's authored handoff
+  without requiring access to the previous machine's conversation history.
+- Removing or losing every searchable native session leaves current project recall
+  and continuity working from the tracker and approved project records.
+- The memory system creates no transcript copy, transcript index, generated session
+  summary, session card, or duplicate current-status record.
 - Gearset documentation gathered for a Salesforce project remains in the mapped
   reference area, while an approved Gearset decision, project behavior, or reusable
   process is found only in its owning memory, specification, or skill and links back

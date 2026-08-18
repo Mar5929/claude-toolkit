@@ -33,7 +33,7 @@ same startup, approval, retrieval, privacy, and validation contracts.
 The final design was resolved from these inputs:
 
 1. [functional-requirements.md](functional-requirements.md), including FR-001
-   through FR-101;
+   through FR-107;
 2. [memory-system-v2-master2.md](memory-system-v2-master2.md), the approved design
    from 2026-08-17; and
 3. [memory-system-v2-master.md](memory-system-v2-master.md), the more detailed
@@ -52,7 +52,7 @@ The final requirements added pinned memory after both master documents were writ
 This architecture therefore adds pin storage, operations, startup behavior, safety
 checks, migration, and acceptance tests.
 
-FR-065 through FR-101 were added during the current owner review. Their traceability
+FR-065 through FR-107 were added during the current owner review. Their traceability
 rows visibly distinguish settled architecture from decisions that still need owner
 review.
 
@@ -412,6 +412,18 @@ Normal tool-mediated writes cannot create this state.
 A missing source, stale view, failed check, or unavailable adapter produces a visible
 warning with a count and link. Startup remains usable. If the tracker is unavailable,
 the brief shows the latest dated handoff and labels live status unverified.
+
+### 10.6 Tracker-owned continuity
+
+The configured tracker is the only cross-machine owner of current state, blockers,
+the exact next step, and the authored handoff. The handoff must stand on its own for a
+new agent that cannot access the prior conversation. Memory does not copy those fields
+into another current-status record.
+
+Startup reads the tracker through its configured route. If the tracker is unavailable,
+the session reports that live continuity is unavailable and may show only a dated
+project-owned handoff that already exists. It never manufactures current status from
+native conversation history.
 
 ## 11. Pinned memory architecture
 
@@ -860,23 +872,26 @@ questions remain natural. Retrieval writes no working-set file, cache, metric, o
 other local state. If the question or scope changes, the agent searches the canonical
 files again.
 
-### 15.5 Session-history gate
+### 15.5 Native session-history fallback
 
-Tier 2 and Tier 4 return an opaque evidence token containing the project id, query
-hash, result count, relevance threshold, available source set, and timestamp.
+Native history remains in the original host-owned store. The memory system never
+copies it, indexes it, summarizes it, converts it into session cards, or uses it as a
+second owner of current status.
 
-session_search requires:
+session_search is available only when:
 
-- a token showing zero qualifying current results or fewer than the configured
-  minimum above the gold-set threshold; or
-- an explicit owner request.
+- the owner asks to search past conversations; or
+- the agent has searched the relevant current project owners and can name why they
+  are insufficient for the question.
 
-The search remains local and scoped to project, machine, host, and date range. A
-result includes session id, date, role, resume route, and a short excerpt. The agent
-opens the exact conversation segment before relying on it.
+No opaque evidence token or local gate file is required. The search remains read-only
+and scoped to the available project, machine, host, and date range. A result includes
+the host, session id, date, role, original message locator or resume route, and a short
+excerpt. The agent opens the exact conversation segment before relying on its wording.
 
-A miss means only that no evidence was found in the named available scope. It never
-means the subject was never discussed.
+History search is an optional host capability. Its absence never fails project memory
+or cross-machine continuity. A miss means only that no evidence was found in the named
+available scope. It never means the subject was never discussed.
 
 ### 15.6 Honest failure
 
@@ -914,7 +929,7 @@ memory_pin(id)
 memory_unpin(id)
 spec_search(query, filters)
 spec_get(id_or_path)
-session_search(query, scope, evidence_token)
+session_search(query, scope)
 memory_rebuild_views()
 memory_validate()
 ~~~
@@ -1163,6 +1178,10 @@ The architecture is implemented only when a real project proves:
 | AT-32 | A completed research spike leaves its editable report and generated reading copy in the mapped reference area, raw evidence in the original work item, and valid links in both directions. |
 | AT-33 | An unreviewed research report remains labeled as unreviewed and never appears as an approved decision, memory record, or specification. |
 | AT-34 | Later build work links to the research package, while approved decisions and behavior live only in their decision and specification owners. |
+| AT-35 | A cold session on a different machine continues from the tracker's current state, blockers, exact next step, and authored handoff without the prior conversation. |
+| AT-36 | Removing or disabling every native-history adapter leaves current retrieval and cross-machine continuity working from the tracker and approved project records. |
+| AT-37 | A complete project scan finds no transcript copy, transcript index, generated session summary, session card, or second current-status store created by the memory system. |
+| AT-38 | An owner-requested exact-wording search returns the original host, session, date, role, and message locator, or an honestly scoped miss. |
 
 ## 23. Architectural decision records
 
@@ -1311,14 +1330,15 @@ The architecture is implemented only when a real project proves:
 - **Rejected:** Treating leading memory products as interchangeable infrastructure or
   installing a provider seam before a measured project need exists.
 
-### ADR-016: Session history is last-resort and read-only
+### ADR-016: Native session history is optional, in place, and read-only
 
-- **Decision:** Search original local history in place only after current sources are
-  insufficient or on owner request.
-- **Reason:** Session history can recover wording but is incomplete, machine-scoped,
-  and not current project truth.
-- **Rejected:** Copying, committing, uploading, auto-injecting, or silently promoting
-  transcripts.
+- **Decision:** Search original host history in place only after current project
+  sources are insufficient or on owner request. History availability is never a
+  requirement for project memory or continuity.
+- **Reason:** Native history can recover exact wording but is incomplete, host-owned,
+  and usually limited to one machine.
+- **Rejected:** Copying, committing, uploading, auto-injecting, indexing, or silently
+  promoting transcripts, plus generated session summaries or session cards.
 
 ### ADR-017: Retrieval changes require the gold set
 
@@ -1456,6 +1476,17 @@ The architecture is implemented only when a real project proves:
   the report under durable memory, treating it as a specification, requiring the owner
   to read it before it can be stored as a reference, and copying it into later work.
 
+### ADR-032: The tracker handoff owns cross-machine continuity
+
+- **Decision:** The configured tracker owns current state, blockers, the exact next
+  step, and an authored handoff. A new session continues from that handoff and approved
+  project records without depending on the prior host conversation.
+- **Reason:** Tracker and project records can travel across machines. Native histories
+  are incomplete and usually remain on the machine and host that created them.
+- **Rejected:** A second memory-owned status store, copied transcripts, generated
+  session summaries, and treating native history as the cross-machine continuity
+  guarantee.
+
 ## 24. Functional requirement traceability
 
 ### Orientation and context
@@ -1511,7 +1542,7 @@ The architecture is implemented only when a real project proves:
 | FR-032 | Section 15.2 defines result layer, status, path or id, summary, provenance, and match reason. | AT-13 |
 | FR-033 | Sections 15.2 and 20 preserve empty results and expose errors. | AT-15, AT-18 |
 | FR-034 | Section 15.3 requires full-record and original-source expansion. | AT-13 |
-| FR-035 | Section 15.5 mechanically gates session-history search. | AT-14 |
+| FR-035 | Section 15.5 permits native-history search only on owner request or after current project sources are insufficient. | AT-14 |
 | FR-036 | Sections 15.5 and 15.6 scope a history miss to available project, machine, host, and dates. | AT-15 |
 | FR-037 | Sections 16.3 and ADR-014 require measured benefit and privacy consent where content leaves the boundary. | AT-17 |
 | FR-038 | Section 15.6 defines honest failure and searched scope. | AT-15 |
@@ -1616,6 +1647,17 @@ The architecture is implemented only when a real project proves:
 | FR-099 | Section 7.2.1 identifies the editable report and derived reading copies. | AT-32 |
 | FR-100 | Section 7.2.1 keeps raw evidence with the work item and requires links in both directions. | AT-32 |
 | FR-101 | Sections 7.2.1, 12.4, and 13 plus ADR-031 preserve review status, links, and normal promotion approval. | AT-33, AT-34 |
+
+### Session continuity
+
+| Requirement | Architecture coverage | Acceptance proof |
+| --- | --- | --- |
+| FR-102 | Section 10.6 and ADR-032 make the tracker the owner of current state and the authored handoff. | AT-35 |
+| FR-103 | Sections 10.6 and 15.5 plus ADR-032 keep cross-machine continuity independent of native history. | AT-35, AT-36 |
+| FR-104 | Section 15.5 and ADR-016 keep history optional, read-only, in place, and conditionally searched. | AT-14, AT-36 |
+| FR-105 | Section 15.5 plus ADR-016 and ADR-032 prohibit copied or generated session stores. | AT-37 |
+| FR-106 | Sections 15.5, 15.6, and 20 scope history gaps without blocking memory. | AT-15, AT-36 |
+| FR-107 | Section 15.5 requires the native session and original message locator before exact wording is used. | AT-38 |
 
 ### Deferred capability
 
