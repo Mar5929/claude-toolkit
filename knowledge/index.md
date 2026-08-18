@@ -15,6 +15,10 @@ by hand. If it disagrees with the source files, rebuild it.
   `knowledge/specs/memory-system.md` is the build authority for agents changing
   the second-brain plugin in this repository; adopting projects receive only
   the built skills and never a copy of the spec.
+- [The toolkit only asks where work is tracked, it does not own a tracker](memory/decisions/toolkit-only-asks-where-work-is-tracked.md):
+  Setting up a project means asking one question about work tracking, recording
+  the answer, and applying the two rules. Any method the owner names is one
+  more answer to that question, never a new system for the toolkit to build.
 
 ## memory/knowledge/
 
