@@ -34,16 +34,20 @@ so they always know where they are.
   Record every skip. Never a nested `AGENTS.md`.
 - Every stack, as its own question: "Where do you track work items for this
   project?" Offer a GitHub Projects board, Linear, Jira, files in this
-  repository, or somewhere else / nothing yet. `work-tracking-choice.md` has the
-  wording, what each answer does, and the GitHub board setup steps. Read it
-  first.
+  repository, the BMAD method, or somewhere else / nothing yet.
+  `work-tracking-choice.md` has the wording, what each answer does, and the
+  GitHub board setup steps. Read it first.
 - For answers other than "somewhere else, or nothing yet", Gate 5 copies the
   `spec-before-you-build.md` rule and adds a one-line pointer to `CLAUDE.md` and
   `AGENTS.md` naming the tracker.
-- A GitHub Projects board is the only answer the toolkit sets up. It creates
-  nothing without explicit approval: no board, no statuses, no labels, no
+- A GitHub Projects board is the only answer the toolkit builds itself. It
+  creates nothing without explicit approval: no board, no statuses, no labels, no
   issues. It creates and changes nothing inside Linear, Jira, or any other
   external tracker.
+- For the BMAD method, the toolkit only runs BMAD's own installer
+  (`npx bmad-method install`), with approval, and stops there. BMAD holds the
+  work, so it never pairs with `work-tracker` or a hand-built board, and its own
+  planning workflows are the refinement session.
 - For "files in this repository": install the `work-tracker` plugin and run
   `init`, per `work-items-structure.md`. It preserves the stage folders
   `01-backlog/` through `04-archived/`, adds structured records and validation,

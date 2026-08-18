@@ -257,8 +257,10 @@ The genuine watch-items are called out at the end.
   that hold anywhere: log the work before building it, and refine the six-part
   spec before building it. `work-item-folders` adds only what is specific to
   tracking work as files in the repository, and is meaningless in a project that
-  chose a GitHub board, Linear, or Jira. The six parts are stated once, in
-  `spec-before-you-build`.
+  chose a GitHub board, Linear, Jira, or the BMAD method. The six parts are
+  stated once, in `spec-before-you-build`. A BMAD project meets them through
+  BMAD's own requirements document and stories, never through a second
+  `SPEC.md`.
 - **hooks-library versus the output style it enforces.** The style is canonical
   and says what good writing is; `writing-guard` only catches the two characters
   a machine can catch with no interpretation. They are not duplicates, and the

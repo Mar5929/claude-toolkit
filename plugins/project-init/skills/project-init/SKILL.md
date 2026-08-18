@@ -75,8 +75,8 @@ form. Keep each gate tight.
 
 **Work tracking (every stack).** Ask, as its own question and not folded into the
 folder-layout question: "Where do you track work items for this project?" Offer a
-GitHub Projects board, Linear, Jira, files in this repository, or somewhere else
-/ nothing yet. `references/work-tracking-choice.md` carries the exact wording,
+GitHub Projects board, Linear, Jira, files in this repository, the BMAD method,
+or somewhere else / nothing yet. `references/work-tracking-choice.md` carries the exact wording,
 what each answer does, and the step-by-step setup for a GitHub Projects board.
 Read it before asking.
 
@@ -86,10 +86,12 @@ refinement session has filled in the six-part spec. Those live in the
 `library/rules/general/spec-before-you-build.md` rule, copied in Gate 5. Gate 5 also adds
 a one-line structural pointer to `CLAUDE.md` and `AGENTS.md` naming the tracker.
 
-A GitHub Projects board is the only answer where the toolkit creates the tracker
-as well as writing the rules, and it creates nothing without explicit approval:
-no board, no statuses, no labels, no issues. The toolkit creates and changes
-nothing inside Linear, Jira, or any other external tracker.
+A GitHub Projects board is the only answer where the toolkit builds the tracker
+itself, and it creates nothing without explicit approval: no board, no statuses,
+no labels, no issues. The BMAD method is the only other answer where the toolkit
+sets anything up, and there it only runs BMAD's own installer, with approval.
+The toolkit creates and changes nothing inside Linear, Jira, or any other
+external tracker.
 
 For "files in this repository", install `work-tracker` from this marketplace and
 run its `init` command, as described in `references/work-items-structure.md`.
@@ -98,6 +100,12 @@ it at `work-items/`; new Salesforce projects place it at
 `delivery/work-items/`. Existing Salesforce projects may keep
 `engagement/work-items/`; never move them automatically.
 Do not hand-create a competing tracker.
+
+For "the BMAD method", offer to run `npx bmad-method install` and run it only
+with a yes, as described in `references/work-tracking-choice.md`. BMAD holds the
+work itself, so never pair it with `work-tracker` or a hand-built board, and
+never write a six-part `SPEC.md` beside its stories. Its own planning workflows
+are the refinement session.
 
 If the owner answers "somewhere else, or nothing yet", write nothing about
 tracking, and record that they were asked and declined so `project-sync` does not
