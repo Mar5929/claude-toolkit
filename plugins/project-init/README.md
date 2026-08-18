@@ -65,10 +65,13 @@ It is deliberately small. Its `README.md` carries a two-question test for what
 belongs there: the thing has to hold in a repository nobody set up with the
 toolkit, and it must not already be in `library/` or the output styles. Anything
 failing either question is a project rule and goes in `library/` instead. It
-carries two rules today: `no-ai-attribution.md`, which keeps credit to Claude or
-any other AI agent off everything the owner commits or pushes, and
+carries three rules today: `no-ai-attribution.md`, which keeps credit to Claude
+or any other AI agent off everything the owner commits or pushes,
 `propose-the-best-solution.md`, which says the best answer always gets said out
-loud, whatever it would cost in time, effort, or resources.
+loud, whatever it would cost in time, effort, or resources, and
+`keep-design-out-of-requirements.md`, which keeps build decisions out of
+requirements and splits the work into functional requirements, a technical
+specification, and the architectural decision records that join them.
 
 ### The library: what lands in a project
 

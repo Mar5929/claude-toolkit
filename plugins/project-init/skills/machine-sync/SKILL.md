@@ -9,9 +9,10 @@ description: >-
   the toolkit", or "/machine-sync". It checks the machine-wide rules, the
   required settings values, and the machine-wide hooks. Today those are the rule
   that no commit or pull request ever carries credit to Claude or any other AI
-  agent, and the rule that the best solution is always proposed no matter how
-  much time, effort, or resources it would take. It reports every gap first and
-  changes nothing without approval.
+  agent, the rule that the best solution is always proposed no matter how much
+  time, effort, or resources it would take, and the rule that build decisions
+  never go in requirements. It reports every gap first and changes nothing
+  without approval.
 ---
 
 # machine-sync: bring a computer up to the toolkit
