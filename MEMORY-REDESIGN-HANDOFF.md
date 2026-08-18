@@ -1,6 +1,6 @@
 # Memory System v2 Design Handoff
 
-**Date:** 2026-08-18  
+**Date:** 2026-08-18
 **Status:** Owner review in progress. Several major decisions are approved and recorded. One continuity decision changed at the end of the session and still needs to be corrected in the design documents.
 
 ## Purpose
