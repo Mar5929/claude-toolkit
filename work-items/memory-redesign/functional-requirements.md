@@ -368,6 +368,23 @@ The startup context, delivered through the host's own loading path, always cover
   areas must be created only when used. Their absence must not break the common memory
   behavior.
 
+### Research-spike documentation
+
+- **FR-098:** When a research-only or spike work item produces documentation that may
+  guide future work, the completed report must remain findable in the project's mapped
+  reference area after the work item closes. It must not be treated as durable memory
+  or approved system behavior merely because the research is complete.
+- **FR-099:** A reference package with an editable source and one or more generated
+  reading or delivery formats must identify which copy is authoritative for edits.
+  Generated copies must be recreated from that source instead of edited separately.
+- **FR-100:** Raw queries, working notes, and other work-item evidence must remain with
+  the original work item. The work item and the lasting reference package must link to
+  each other.
+- **FR-101:** Unreviewed research may be stored in the reference area when its review
+  or verification state is visible. Storage is not owner approval. A later work item,
+  decision, or specification must link to the research without copying it, and any
+  promoted project meaning must follow its normal owner approval flow.
+
 ### Deferred capability
 
 Proactive reminders are not required for v2 acceptance. They may be evaluated after
@@ -480,6 +497,10 @@ The system is accepted when all of these are proven in a real project:
   folders, generated views, a separate identity file, or local runtime state.
 - An existing project maps its rules, skills, tracker, delivery, and reference areas
   without moving or copying them.
+- A completed research spike leaves its final report in the mapped reference area,
+  its raw evidence in the original work item, and working links in both directions.
+- An unreviewed research report remains available as a labeled reference without
+  becoming a decision, memory record, or approved specification.
 - Gearset documentation gathered for a Salesforce project remains in the mapped
   reference area, while an approved Gearset decision, project behavior, or reusable
   process is found only in its owning memory, specification, or skill and links back

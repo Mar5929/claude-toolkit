@@ -33,7 +33,7 @@ same startup, approval, retrieval, privacy, and validation contracts.
 The final design was resolved from these inputs:
 
 1. [functional-requirements.md](functional-requirements.md), including FR-001
-   through FR-097;
+   through FR-101;
 2. [memory-system-v2-master2.md](memory-system-v2-master2.md), the approved design
    from 2026-08-17; and
 3. [memory-system-v2-master.md](memory-system-v2-master.md), the more detailed
@@ -52,7 +52,7 @@ The final requirements added pinned memory after both master documents were writ
 This architecture therefore adds pin storage, operations, startup behavior, safety
 checks, migration, and acceptance tests.
 
-FR-065 through FR-097 were added during the current owner review. Their traceability
+FR-065 through FR-101 were added during the current owner review. Their traceability
 rows visibly distinguish settled architecture from decisions that still need owner
 review.
 
@@ -241,6 +241,26 @@ another. Existing areas are mapped in place rather than moved or copied.
 Profiles add only the fields, routes, validation, and privacy warnings their domain
 needs. They do not replace the common core or weaken approval, provenance, authority,
 scope, or privacy behavior.
+
+#### 7.2.1 Research-spike reference packages
+
+When a research-only or spike work item produces a report that may guide later work:
+
+- the final editable report moves or is written to the mapped project reference area;
+- a generated PDF or other reading copy may sit beside it, clearly labeled as derived
+  and regenerated from the editable report;
+- raw queries, working notes, and work-item evidence remain with the original work
+  item;
+- the work item links to the reference package and the reference package links back;
+- the reference states whether it has been reviewed or verified; and
+- later work items, decisions, and specifications link to the reference instead of
+  copying its contents.
+
+The reference package may be stored before the owner reads it because reference
+storage does not make it current project truth. Owner approval is required only when
+a conclusion is promoted into a durable fact, decision, event, pattern, specification,
+rule, or skill. In an established project, the mapped location may be
+engagement/references/, delivery/references/, references/, or another existing owner.
 
 ### 7.3 Generated and local state
 
@@ -1140,6 +1160,9 @@ The architecture is implemented only when a real project proves:
 | AT-29 | An existing project maps rules, skills, tracker, delivery, source, and reference roles without moving or copying them. |
 | AT-30 | Enabling a domain profile adds only its approved fields, routes, validation, and warnings without weakening the common safeguards. |
 | AT-31 | Removing the memory system leaves the remaining toolkit and every project-owned specification, reference, rule, skill, and work item intact. |
+| AT-32 | A completed research spike leaves its editable report and generated reading copy in the mapped reference area, raw evidence in the original work item, and valid links in both directions. |
+| AT-33 | An unreviewed research report remains labeled as unreviewed and never appears as an approved decision, memory record, or specification. |
+| AT-34 | Later build work links to the research package, while approved decisions and behavior live only in their decision and specification owners. |
 
 ## 23. Architectural decision records
 
@@ -1421,6 +1444,18 @@ The architecture is implemented only when a real project proves:
 - **Rejected:** Domain-based opt-in during normal setup and removal that strands or
   deletes project-owned material.
 
+### ADR-031: Keep lasting research-spike reports in the mapped reference area
+
+- **Decision:** A research-only or spike work item keeps its final editable report and
+  generated reading copies in the project's mapped reference area. Raw queries and
+  working evidence remain with the work item, and the two locations link to each
+  other. The reference may be stored as unreviewed.
+- **Reason:** The report remains easy to find months after the work item closes without
+  pretending the research is approved behavior or durable project truth.
+- **Rejected:** Leaving the only lasting report inside a completed work item, putting
+  the report under durable memory, treating it as a specification, requiring the owner
+  to read it before it can be stored as a reference, and copying it into later work.
+
 ## 24. Functional requirement traceability
 
 ### Orientation and context
@@ -1572,6 +1607,15 @@ The architecture is implemented only when a real project proves:
 | FR-095 | Section 7 and ADR-028 define the small cross-domain core. | AT-28 |
 | FR-096 | Sections 7.1 and 7.2 plus ADR-028 map existing owners without moves or copies. | AT-29 |
 | FR-097 | Sections 7.2 and 7.3 create optional areas only when used. | AT-28, AT-30 |
+
+### Research-spike documentation
+
+| Requirement | Architecture coverage | Acceptance proof |
+| --- | --- | --- |
+| FR-098 | Section 7.2.1 and ADR-031 keep lasting spike reports in the mapped reference area without promoting them. | AT-32, AT-33 |
+| FR-099 | Section 7.2.1 identifies the editable report and derived reading copies. | AT-32 |
+| FR-100 | Section 7.2.1 keeps raw evidence with the work item and requires links in both directions. | AT-32 |
+| FR-101 | Sections 7.2.1, 12.4, and 13 plus ADR-031 preserve review status, links, and normal promotion approval. | AT-33, AT-34 |
 
 ### Deferred capability
 
