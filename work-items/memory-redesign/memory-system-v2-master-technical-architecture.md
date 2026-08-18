@@ -107,7 +107,8 @@ The following invariants apply to every component:
 
 1. One meaning has one canonical home.
 2. Canonical project memory is readable Markdown tracked by Git.
-3. Active work stays in the configured work tracker.
+3. The memory system owns one small current-state record. Ticket-level active work
+   stays in the configured work tracker when the project has one.
 4. Rules define behavior. Skills define reusable processes. Specifications define
    approved behavior. Memory records facts, decisions, events, and patterns.
 5. No current specification or memory write occurs without explicit owner approval.
@@ -159,7 +160,8 @@ their full contents into project memory.
 | Agent identity | Host instructions, project overview, and an optional separate identity file | Who is the agent in this project and what must it protect? |
 | Detailed behavior | Rules, skills, output style | What behavior or process applies now? |
 | Project orientation | knowledge/project.md and knowledge/map.md | What is this project and where does information live? |
-| Active work | Configured work tracker | What is active, blocked, assigned, or next? |
+| Current focus and handoff | knowledge/current.md | What is being worked on now, what blocks it, and what is the exact next step? |
+| Ticket-level active work | Configured work tracker, when the project has one | What is assigned, scheduled, or open as a ticket? |
 | Approved behavior | knowledge/specs/ | What should the product or system do? |
 | Implemented state | Code, configuration, tests, deployed state | What exists now? |
 | Durable knowledge | knowledge/memory/ | What happened, what was decided, what is known, and why? |
@@ -171,7 +173,8 @@ Authority depends on the question:
 - Expected behavior comes from the current approved specification.
 - Actual behavior comes from inspected code, configuration, tests, and target state.
 - Decision rationale comes from the decision record and its evidence.
-- Active status comes from the tracker.
+- Current focus, blockers, next step, and handoff come from knowledge/current.md.
+- Ticket-level status comes from the tracker when one is configured.
 - Source wording comes from the original source.
 - Past conversation wording comes from original session history only after current
   sources are insufficient or when the owner asks.
@@ -187,6 +190,7 @@ project/
   CLAUDE.md
   knowledge/
     project.md
+    current.md
     map.md
     specs/
     memory/
@@ -213,7 +217,11 @@ physical routes so the agent never guesses or creates a duplicate.
 - AGENTS.md and CLAUDE.md are the root entry points for their supported hosts. Each
   provides the route to the toolkit and memory behavior that host can actually load.
 - knowledge/project.md contains purpose, users, boundaries, main workstreams, stable
-  project id, tracker route, and the project's physical root or approved subroot.
+  project id, the project's physical root or approved subroot, the current-state
+  freshness limit, and a tracker route only when the project has a tracker.
+- knowledge/current.md holds the current focus, blockers, the exact next step, and
+  the latest authored handoff. It is small, authored through memory-system
+  operations, and complete without a work tracker.
 - knowledge/map.md explains each major logical role, its current physical path, its
   owner, whether it is authoritative or derived, and how it is searched.
 - knowledge/specs/ contains approved project or system behavior.
@@ -282,7 +290,8 @@ sources, or session history.
 | Capability resolver | Reports available operations, privacy boundary, and degraded features | No |
 | Source resolver | Reads authored and canonical inputs by layer | No |
 | Boot brief assembler | Selects, orders, budgets, and links startup context | Generated views only through the coordinator |
-| Tracker adapter | Reads active and recent work from the configured tracker | No |
+| Current-state maintainer | Applies approved handoff, focus-change, and work-recap updates to knowledge/current.md | Only through the coordinator |
+| Tracker adapter, optional | Reads ticket status and links from a configured tracker when one exists | No |
 | Retrieval router | Applies question routing, tier order, ranking, and failure rules | No |
 | Canonical store | Reads and stages Markdown records and settings | Only through the write coordinator |
 | Write coordinator | Applies approval, concurrency, lifecycle, regeneration, validation, and rollback | Yes |
@@ -309,6 +318,8 @@ required structure remains complete without another configuration owner.
 ---
 schema_version: 2
 project_id: claude-toolkit
+current_max_age_days: 14
+# tracker is optional. Omit the whole block when the project has no tracker.
 tracker:
   adapter: github-project
   project: Claude-Toolkit-Project
@@ -351,10 +362,11 @@ contract. It contains no active task, history, project facts, or detailed rule l
 The boot brief renders these blocks:
 
 1. identity and operating route;
-2. project purpose, goal, phase, and tracker;
+2. project purpose, goal, and phase, plus the tracker route when one is configured;
 3. owner working contract from its canonical rules or output style;
-4. latest authored handoff line and work-item link;
-5. current state;
+4. latest authored handoff line from knowledge/current.md, plus a work-item link
+   when one exists;
+5. current state from knowledge/current.md;
 6. recent window;
 7. pinned memory;
 8. project map;
@@ -410,20 +422,44 @@ Normal tool-mediated writes cannot create this state.
 ### 10.5 Missing and stale inputs
 
 A missing source, stale view, failed check, or unavailable adapter produces a visible
-warning with a count and link. Startup remains usable. If the tracker is unavailable,
-the brief shows the latest dated handoff and labels live status unverified.
+warning with a count and link. Startup remains usable.
 
-### 10.6 Tracker-owned continuity
+If knowledge/current.md is missing, the brief says so, renders the recent window and
+pinned records, and names the operation that creates it. If knowledge/current.md is
+older than current_max_age_days, the brief renders it under a stale warning naming
+its date and age. Startup never replaces a stale current state with an inferred one.
 
-The configured tracker is the only cross-machine owner of current state, blockers,
-the exact next step, and the authored handoff. The handoff must stand on its own for a
-new agent that cannot access the prior conversation. Memory does not copy those fields
-into another current-status record.
+If a configured tracker is unavailable, the brief still renders knowledge/current.md
+and labels ticket-level status unverified. A project with no tracker configured shows
+no tracker warning, because no tracker is expected.
 
-Startup reads the tracker through its configured route. If the tracker is unavailable,
-the session reports that live continuity is unavailable and may show only a dated
-project-owned handoff that already exists. It never manufactures current status from
-native conversation history.
+### 10.6 Memory-owned continuity
+
+knowledge/current.md is the cross-machine owner of current focus, blockers, the exact
+next step, and the authored handoff. It travels with the repository, so continuity
+does not depend on any tracker, host, or machine. The handoff must stand on its own
+for a new agent that cannot access the prior conversation.
+
+A configured tracker is an optional contributor. Its adapter may add ticket links and
+live status to the brief. It never becomes the sole owner of current state, and its
+absence is a supported configuration rather than a degraded one.
+
+Maintenance is hybrid rather than hand-authored or transcript-derived. The memory
+system updates knowledge/current.md through three approved operations only:
+
+1. an explicit handoff;
+2. an approved current-focus change; and
+3. an owner-requested work recap.
+
+Startup is read-only. A deterministic assembler reads knowledge/current.md, the
+pinned records, and the dated one-sentence summaries of recently approved facts,
+decisions, events, and patterns, then renders the bounded brief in section 10.4. It
+does not rewrite knowledge/current.md, store a generated session summary, read every
+project file, or manufacture current status from native conversation history.
+
+Normal use requires no hand editing. A person may edit knowledge/current.md directly,
+and validation treats it as authored text, but every routine update arrives through
+one of the three operations above.
 
 ## 11. Pinned memory architecture
 
@@ -659,7 +695,7 @@ the preimages and reports the exact unresolved path.
 
 ~~~text
 new information
-  -> search the work tracker and all current owners
+  -> search knowledge/current.md, any work tracker, and all current owners
   -> route work state, rules, skills, specs, sources, and conversations first
   -> if memory is still the right home, run the durable-information test
   -> choose NOOP or a record type
@@ -802,7 +838,8 @@ replacement are complete. The tool must not claim full erasure before that proof
 | What should happen? | Current specification |
 | Why was this chosen? | Decision record and evidence |
 | What happened? | Event record and timeline |
-| What is active? | Work tracker |
+| What is being worked on now? | knowledge/current.md |
+| What is open as a ticket? | Work tracker, when one is configured |
 | What exists now? | Code, configuration, tests, deployed state |
 | What did the source say? | Original source |
 | What exact words were used in a conversation? | Original session history after the gate |
@@ -815,8 +852,8 @@ replacement are complete. The tool must not claim full erasure before that proof
    metadata with filters.
 4. Tier 3, relationship and timeline expansion. Follow entities, conflict links,
    predecessor and successor records, decisions, events, specs, and nearby dates.
-5. Tier 4, active work and handoff. Search the configured tracker and approved
-   pointer-only bridge if needed.
+5. Tier 4, active work and handoff. Read knowledge/current.md, then the configured
+   tracker and approved pointer-only bridge if one exists and is needed.
 6. Tier 5, session history. Search the original local host history only after the
    gate or on owner request.
 7. Tier 6, honest failure. Name the searched scope and unavailable sources.
@@ -898,7 +935,8 @@ available scope. It never means the subject was never discussed.
 The final response says that reliable evidence could not be found and names:
 
 - current project layers searched;
-- tracker availability;
+- current-state record availability and age;
+- tracker availability, where a tracker is configured;
 - direct-search availability;
 - session-history machines, hosts, and dates searched; and
 - any source that could not be accessed.
@@ -1058,8 +1096,9 @@ Migration is additive, project-specific, approved, and reversible.
 ### Phase 1: startup and discovery
 
 - Add only the required core from section 7.
-- Establish a stable project id, physical project root, tracker route, and semantic
-  map without moving existing project-owned areas.
+- Establish a stable project id, physical project root, semantic map, and an initial
+  knowledge/current.md without moving existing project-owned areas. Add a tracker
+  route only when the project has a tracker.
 - Add memory_capabilities and the boot brief.
 - Keep existing records and current skills working.
 - Create no optional identity, reference, brainstorm, profile, generated, or local
@@ -1178,10 +1217,14 @@ The architecture is implemented only when a real project proves:
 | AT-32 | A completed research spike leaves its editable report and generated reading copy in the mapped reference area, raw evidence in the original work item, and valid links in both directions. |
 | AT-33 | An unreviewed research report remains labeled as unreviewed and never appears as an approved decision, memory record, or specification. |
 | AT-34 | Later build work links to the research package, while approved decisions and behavior live only in their decision and specification owners. |
-| AT-35 | A cold session on a different machine continues from the tracker's current state, blockers, exact next step, and authored handoff without the prior conversation. |
-| AT-36 | Removing or disabling every native-history adapter leaves current retrieval and cross-machine continuity working from the tracker and approved project records. |
+| AT-35 | A cold session on a different machine, in a project with no tracker configured, continues from knowledge/current.md's current focus, blockers, exact next step, and authored handoff without the prior conversation. |
+| AT-36 | Removing or disabling every native-history adapter leaves current retrieval and cross-machine continuity working from knowledge/current.md and approved project records. |
 | AT-37 | A complete project scan finds no transcript copy, transcript index, generated session summary, session card, or second current-status store created by the memory system. |
 | AT-38 | An owner-requested exact-wording search returns the original host, session, date, role, and message locator, or an honestly scoped miss. |
+| AT-39 | Every new session receives the briefing automatically, within the section 10.4 budget, without the agent reading every project file. |
+| AT-40 | Starting and ending a session leaves knowledge/current.md byte-identical, and creates no stored session summary. |
+| AT-41 | A knowledge/current.md older than current_max_age_days renders under a dated stale warning, and startup states no current focus it cannot source from the file. |
+| AT-42 | An explicit handoff, an approved current-focus change, and an owner-requested work recap each update knowledge/current.md, while ordinary turns leave it unchanged. |
 
 ## 23. Architectural decision records
 
@@ -1225,12 +1268,16 @@ The architecture is implemented only when a real project proves:
   session.
 - **Rejected:** Model-generated current and recent summaries.
 
-### ADR-006: Active work remains in its tracker
+### ADR-006: Memory owns current focus, the tracker owns tickets
 
-- **Decision:** The memory system renders small current and recent views but does not
-  own status.
-- **Reason:** A second status store becomes stale and violates one canonical home.
-- **Rejected:** A permanent memory task list or default per-session status archive.
+- **Decision:** The memory system owns one small current-state record,
+  knowledge/current.md, holding current focus, blockers, the exact next step, and the
+  authored handoff. Ticket-level status, assignment, and scheduling stay in the
+  configured work tracker when a project has one. Neither duplicates the other.
+- **Reason:** Continuity has to work in a project with no tracker, and the two owners
+  answer different questions, so one canonical home is preserved rather than broken.
+- **Rejected:** A tracker as the only owner of current state, a permanent memory task
+  list, a per-session status archive, and copying ticket status into memory records.
 
 ### ADR-007: Use four meaning-based durable record types
 
@@ -1476,16 +1523,23 @@ The architecture is implemented only when a real project proves:
   the report under durable memory, treating it as a specification, requiring the owner
   to read it before it can be stored as a reference, and copying it into later work.
 
-### ADR-032: The tracker handoff owns cross-machine continuity
+### ADR-032: knowledge/current.md owns cross-machine continuity
 
-- **Decision:** The configured tracker owns current state, blockers, the exact next
-  step, and an authored handoff. A new session continues from that handoff and approved
-  project records without depending on the prior host conversation.
-- **Reason:** Tracker and project records can travel across machines. Native histories
-  are incomplete and usually remain on the machine and host that created them.
-- **Rejected:** A second memory-owned status store, copied transcripts, generated
-  session summaries, and treating native history as the cross-machine continuity
-  guarantee.
+- **Decision:** knowledge/current.md owns current focus, blockers, the exact next
+  step, and an authored handoff. Every new session automatically receives a bounded
+  read-only briefing built from that file, pinned records, and the dated summaries of
+  recently approved records. A configured tracker is an optional contributor of links
+  and status. A new session on another machine continues from the repository alone,
+  without the prior host conversation and without any tracker.
+- **Reason:** Approved project records travel with the repository. A tracker does not:
+  projects use GitHub Projects, ClickUp, Jira, repository work items, another system,
+  or none at all, so a tracker dependency makes continuity fail in ordinary projects.
+  Native histories are incomplete and usually stay on the machine and host that made
+  them.
+- **Rejected:** The tracker as the only cross-machine owner of current state, a
+  fully hand-maintained current file, an autonomous transcript summarizer, copied
+  transcripts, generated session summaries, a second memory-owned status store, and
+  treating native history as the cross-machine continuity guarantee.
 
 ## 24. Functional requirement traceability
 
@@ -1507,9 +1561,9 @@ The architecture is implemented only when a real project proves:
 | Requirement | Architecture coverage | Acceptance proof |
 | --- | --- | --- |
 | FR-009 | Section 13.1 defines the durable-information test before a save proposal. | AT-03 |
-| FR-010 | Section 13.1 searches the tracker and every information owner first. | AT-03, AT-04 |
+| FR-010 | Section 13.1 searches knowledge/current.md, any tracker, and every information owner first. | AT-03, AT-04 |
 | FR-011 | Sections 4, 6, 7, and ADR-021 enforce one home and links. | AT-16 |
-| FR-012 | Sections 6, 7, and ADR-006 keep active state in the tracker. | AT-01 |
+| FR-012 | Sections 6, 7, and ADR-006 split current focus from ticket-level tracker state. | AT-01, AT-35 |
 | FR-013 | Sections 6 and 13 route behavior to rules or output style and processes to skills. | AT-04 |
 | FR-014 | Sections 6 and 15.1 route approved behavior to specifications. | AT-13 |
 | FR-015 | Sections 6 and 12.1 keep sources and derived conclusions separate and linked. | AT-13 |
@@ -1652,10 +1706,14 @@ The architecture is implemented only when a real project proves:
 
 | Requirement | Architecture coverage | Acceptance proof |
 | --- | --- | --- |
-| FR-102 | Section 10.6 and ADR-032 make the tracker the owner of current state and the authored handoff. | AT-35 |
-| FR-103 | Sections 10.6 and 15.5 plus ADR-032 keep cross-machine continuity independent of native history. | AT-35, AT-36 |
+| FR-102 | Sections 7, 7.1, and 10.6 plus ADR-006 and ADR-032 make knowledge/current.md the owner of current state and the authored handoff. | AT-35 |
+| FR-103 | Sections 10.6 and 15.5 plus ADR-032 keep cross-machine continuity independent of any tracker and of native history. | AT-35, AT-36 |
 | FR-104 | Section 15.5 and ADR-016 keep history optional, read-only, in place, and conditionally searched. | AT-14, AT-36 |
 | FR-105 | Section 15.5 plus ADR-016 and ADR-032 prohibit copied or generated session stores. | AT-37 |
+| FR-108 | Sections 8, 9, 10.5, and 10.6 plus ADR-006 make the tracker adapter optional and additive. | AT-35 |
+| FR-109 | Section 10.6 limits knowledge/current.md updates to handoff, approved focus change, and work recap. | AT-42 |
+| FR-110 | Sections 10.2, 10.4, and 10.6 plus ADR-032 define the automatic read-only bounded briefing. | AT-39, AT-40 |
+| FR-111 | Sections 9 and 10.5 define current_max_age_days and the dated stale warning. | AT-41 |
 | FR-106 | Sections 15.5, 15.6, and 20 scope history gaps without blocking memory. | AT-15, AT-36 |
 | FR-107 | Section 15.5 requires the native session and original message locator before exact wording is used. | AT-38 |
 
@@ -1676,7 +1734,8 @@ Before implementation work is split into build tickets:
 - the direct file-search path works with .memory/ absent and creates no local state;
 - the pin budget and cross-project tests exist before pin operations ship;
 - migration has dry-run and rollback fixtures from current v1 projects; and
-- the work tracker carries implementation status, dependencies, and decisions made
+- knowledge/current.md carries current focus and handoff, and the work tracker, where
+  the project has one, carries implementation status, dependencies, and decisions made
   during the build.
 
 No implementation ticket may weaken an FR. A necessary architecture change updates

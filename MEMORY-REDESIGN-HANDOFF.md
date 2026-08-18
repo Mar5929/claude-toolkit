@@ -1,7 +1,7 @@
 # Memory System v2 Design Handoff
 
 **Date:** 2026-08-18
-**Status:** Owner review in progress. Several major decisions are approved and recorded. One continuity decision changed at the end of the session and still needs to be corrected in the design documents.
+**Status:** Owner review in progress. Several major decisions are approved and recorded. The tracker-only continuity wording has been corrected to the memory-owned design. Project scope and privacy is the next open decision.
 
 ## Purpose
 
@@ -59,6 +59,7 @@ project/
   CLAUDE.md
   knowledge/
     project.md
+    current.md
     map.md
     specs/
     memory/
@@ -99,37 +100,65 @@ project/
 - A result for exact wording must link back to the original host session and message location.
 - The system creates no transcript copy, transcript index, session card, or generated session summary.
 
-## Important correction still required
+## Continuity correction, applied
 
-The latest committed documents incorrectly make the configured tracker the only cross-machine owner of current state and handoff. The owner rejected that dependency after the commit because projects may use GitHub Projects, ClickUp, Jira, repository work items, another system, or no tracker.
+The earlier documents made the configured tracker the only cross-machine owner of
+current state and handoff. The owner rejected that dependency because projects may use
+GitHub Projects, ClickUp, Jira, repository work items, another system, or no tracker.
 
-The owner's latest approved direction is:
+The approved direction is now recorded across both current documents:
 
 - The memory system owns `knowledge/current.md`.
 - Every new session automatically receives a short current-and-recent briefing.
-- That briefing must work when no tracker exists.
-- A tracker adapter may contribute links and status when available, but it is optional.
-- The recent section comes from approved facts, decisions, events, and patterns, not from captured transcripts.
+- That briefing works when no tracker exists.
+- A tracker adapter may contribute links and ticket status when available, but it is
+  optional, and its absence is a supported configuration rather than a degraded one.
+- The recent section comes from approved facts, decisions, events, and patterns, not
+  from captured transcripts.
 - The agent does not read every project file at startup.
 
-Recommended maintenance mechanism:
+Maintenance is hybrid. The memory system updates `knowledge/current.md` during an
+explicit handoff, an approved current-focus change, or an owner-requested work recap.
+A deterministic startup assembler then reads that file, the pinned records, and the
+dated summaries of recently approved records, and renders a bounded briefing. Startup
+is read-only, never rewrites `knowledge/current.md`, and shows a dated stale warning
+rather than inventing current state.
 
-- Use a hybrid, not a fully hand-maintained file and not an autonomous transcript summarizer.
-- The memory system updates `knowledge/current.md` during an explicit handoff, an approved current-focus change, or "record what we just did."
-- A deterministic startup script reads `knowledge/current.md`, pinned records, and the dated summaries of recently approved records, then injects a bounded briefing.
-- Startup is read-only. It does not rewrite `knowledge/current.md` or create a stored transcript summary.
-- If `knowledge/current.md` is old, startup shows a stale warning instead of inventing current state.
-- A person should not need to edit the file by hand during normal use.
+Do not reopen whether an automatically injected short-term briefing is wanted. It is
+wanted, and it is now recorded.
 
-Before continuing to scope and privacy, revise the tracker-only wording in at least:
+### What changed, by location
 
-- FR-102 and FR-103 in `functional-requirements.md`;
-- section 10.6 in the master architecture;
-- ADR-006 and ADR-032;
-- AT-35 and the session-continuity traceability rows; and
-- the required project tree, which must add `knowledge/current.md`.
+In `work-items/memory-redesign/functional-requirements.md`:
 
-Do not reopen whether an automatically injected short-term briefing is wanted. It is wanted. The remaining work is to record the tracker-independent maintenance design consistently.
+- FR-010 searches the current-state record before choosing a home.
+- FR-012 splits ticket-level tracker state from current focus.
+- FR-030 routes active-work questions to the current-state record first.
+- FR-102 gives `knowledge/current.md` ownership of current focus, blockers, the exact
+  next step, and the authored handoff.
+- FR-103 makes cross-machine continuity work without any tracker.
+- FR-108 makes the tracker adapter optional and additive.
+- FR-109 limits updates to handoff, approved focus change, and work recap.
+- FR-110 requires the automatic, read-only, bounded briefing.
+- FR-111 requires a dated stale warning.
+- The closing acceptance-style bullets describe a project with no tracker.
+
+In `work-items/memory-redesign/memory-system-v2-master-technical-architecture.md`:
+
+- Principle 3, the authority table in section 6, and the authority bullets name
+  `knowledge/current.md` as the owner of current focus.
+- The required tree in section 7 and the core bullets in section 7.1 add
+  `knowledge/current.md`.
+- Section 8 adds a current-state maintainer and marks the tracker adapter optional.
+- Section 9 adds `current_max_age_days` and marks the tracker block optional.
+- Section 10.2 builds the handoff and current blocks from `knowledge/current.md`.
+- Section 10.5 defines the missing-file, stale-file, and no-tracker behaviors.
+- Section 10.6 is rewritten as memory-owned continuity.
+- Sections 13.1, 15.1, 15.2, 15.6, and 19 route through the current-state record.
+- ADR-006 is now "Memory owns current focus, the tracker owns tickets".
+- ADR-032 is now "knowledge/current.md owns cross-machine continuity".
+- AT-35 and AT-36 are rewritten. AT-39 through AT-42 are new.
+- Traceability rows for FR-010, FR-012, FR-102, FR-103, and FR-108 through FR-111.
 
 ## What the external research showed
 
@@ -174,18 +203,34 @@ ed99ac2 Define tracker-owned session continuity
 
 The last commit contains the tracker-only wording that must be corrected. Preserve its valid native-history decisions while replacing its tracker dependency.
 
-## Current document counts before the continuity correction
+## Current document counts
 
-- 107 functional requirements, FR-001 through FR-107.
+- 111 functional requirements, FR-001 through FR-111.
 - 32 ADRs, ADR-001 through ADR-032.
-- 38 acceptance tests, AT-01 through AT-38.
+- 42 acceptance tests, AT-01 through AT-42.
+
+All three sets are contiguous and free of duplicates.
+
+## Known gap, pre-existing
+
+FR-074 through FR-081, the work-recap requirements, have no rows in the section 24
+traceability table. That gap arrived with commit `9dd78e8` and is not caused by the
+continuity correction. Close it during the final consistency review.
+
+## Files whose status is unclear
+
+`work-items/memory-redesign/memory-system-v2-master.md` and
+`memory-system-v2-master2.md` still sit beside the two current documents and were last
+touched by the owner. They also carry the old tracker wording. They were left unchanged
+because the owner has not said whether they are current, superseded, or should move to
+`archive/`. Settle this before the final consistency review.
 
 ## Remaining major decisions
 
-1. Correct and finish memory-owned current-and-recent startup continuity.
-2. Decide project scope and privacy, including physical project-root enforcement, monorepo subroots, and sensitive health or personal projects.
-3. Reconcile any older startup, pin-storage, generated-view, and fixed 10 KB language with the approved minimal structure and continuity design.
-4. Run a final adversarial consistency review across all requirements, ADRs, acceptance tests, and traceability rows.
+1. Decide project scope and privacy, including physical project-root enforcement, monorepo subroots, and sensitive health or personal projects.
+2. Reconcile any older startup, pin-storage, generated-view, and fixed 10 KB language with the approved minimal structure and continuity design.
+3. Settle the status of the two master files named above.
+4. Run a final adversarial consistency review across all requirements, ADRs, acceptance tests, and traceability rows, including the FR-074 through FR-081 gap.
 5. Only after the architecture is fully approved, create implementation work items.
 
 ## Validation baseline
@@ -204,5 +249,4 @@ Run those checks again after correcting continuity and after any merge that chan
 1. Pull `origin/main`.
 2. Read this handoff and the two current design documents.
 3. Confirm the listed design commits are present.
-4. Correct the tracker-only continuity wording using the approved memory-owned design above.
-5. Continue with scope and privacy after the continuity documents agree.
+4. Continue with project scope and privacy. The continuity correction is done.
