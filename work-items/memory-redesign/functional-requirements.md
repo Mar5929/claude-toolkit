@@ -65,6 +65,13 @@ WHAT DO I NOT STORE?             the exclusion list
   evidence" instead of inventing a plausible story, and names what it searched.
 - **The files stay ordinary.** Everything is readable Markdown in Git. Obsidian can
   view it. No tool is required to read the project's own knowledge.
+- **Every toolkit project starts with memory available.** The toolkit and memory
+  routes are present by default in every project the toolkit initializes or syncs,
+  regardless of project type. The owner may remove the memory system when a project
+  does not need it.
+- **Outside documentation stays useful without becoming memory.** Product guides,
+  crawled websites, and other research remain in a mapped reference area. Approved
+  project conclusions link back to that material from the place that owns them.
 
 ## 3. What every agent must be told when it starts
 
@@ -122,8 +129,10 @@ The startup context, delivered through the host's own loading path, always cover
 - **FR-013:** Standing agent behavior must live in rules or the output style, and
   reusable agent processes must live in skills.
 - **FR-014:** Approved product behavior must live in specifications.
-- **FR-015:** External source material and conclusions drawn from it must remain
-  separate and linked.
+- **FR-015:** External source material must live outside durable memory in the
+  project's mapped reference area. Approved conclusions drawn from it must live in
+  the specification or memory record that owns the conclusion and link back to the
+  source material.
 - **FR-016:** Durable memory must remain readable Markdown tracked by Git.
 - **FR-017:** Every derived view and search aid must be rebuildable from canonical
   sources.
@@ -242,6 +251,38 @@ The startup context, delivered through the host's own loading path, always cover
   but it must not create a pin, decide what is true, or override status, provenance,
   source authority, or query relevance.
 
+### Project setup and folder roles
+
+- **FR-065:** Every project initialized or synced by the toolkit must include a
+  visible route to the toolkit's operating guidance and the memory system by default,
+  regardless of whether the project is for software, Salesforce, research, health,
+  client delivery, or another domain.
+- **FR-066:** A project may add one or more optional domain profiles, but every
+  profile must use the same core memory behavior and must not weaken approval,
+  provenance, authority, scope, or privacy requirements.
+- **FR-067:** Durable memory must be grouped by record type under
+  `knowledge/memory/facts/`, `knowledge/memory/decisions/`,
+  `knowledge/memory/events/`, and `knowledge/memory/patterns/`.
+- **FR-068:** Each durable memory must live in the one record-type folder that matches
+  what the record means. Subject areas such as Salesforce, Gearset, health, or
+  research must be represented through metadata and links instead of another copy of
+  the record.
+- **FR-069:** Outside documentation, including official product documentation,
+  web-crawl results, and agent-written research notes, must live in a mapped
+  `references/` area outside `knowledge/memory/`.
+- **FR-070:** An outside reference must identify its original source, retrieval date,
+  applicable version or snapshot when known, and whether its contents were verified.
+- **FR-071:** Research does not become current project truth by being downloaded or
+  summarized. A project-specific decision, lasting fact, event, or pattern enters
+  memory only through the normal owner approval flow and links to its evidence.
+- **FR-072:** Approved project behavior learned from outside documentation must live
+  in a specification. A reusable process learned from it must live in the appropriate
+  skill. Neither may be duplicated into memory.
+- **FR-073:** The owner must be able to remove the memory system from a project without
+  breaking the rest of the toolkit. Removal must clean up the memory startup route and
+  memory-only support files while preserving project-owned specifications, source
+  references, rules, skills, and work-tracker records.
+
 ### Deferred capability
 
 Proactive reminders are not required for v2 acceptance. They may be evaluated after
@@ -254,6 +295,15 @@ Durable memory is approved project information that will still matter after the
 current task or session. It is a stable fact, lasting event, decision, or persistent
 state whose absence would make the owner repeat an explanation or make a future agent
 repeat a wrong action.
+
+Durable records are grouped by what they mean:
+
+- **Facts:** lasting statements about the project, each with its evidence and truth
+  status made clear.
+- **Decisions:** approved choices, including why they were made and what they replace.
+- **Events:** meaningful occurrences or state changes, including when they happened.
+- **Patterns:** recurring, evidence-linked observations that remain separate from
+  proven causes, diagnoses, rules, or required behavior.
 
 - Stable project facts and boundaries.
 - Lasting decisions and the reasons they should not be debated again.
@@ -325,5 +375,14 @@ The system is accepted when all of these are proven in a real project:
 - A provider outage leaves plain Markdown recall working.
 - A migration dry run changes nothing, and an approved migration loses no file or
   link.
+- A project initialized or synced by the toolkit receives the toolkit and memory
+  routes by default, regardless of its domain profile.
+- Removing the memory system removes its startup route without breaking the remaining
+  toolkit or deleting project-owned specifications, references, rules, skills, or
+  work-tracker records.
+- Gearset documentation gathered for a Salesforce project remains in the mapped
+  reference area, while an approved Gearset decision, project behavior, or reusable
+  process is found only in its owning memory, specification, or skill and links back
+  to the documentation.
 - The owner reads the boot brief and confirms it feels like the project remembers the
   right things without showing too much. That is a real criterion.
