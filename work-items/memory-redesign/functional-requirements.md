@@ -72,6 +72,9 @@ WHAT DO I NOT STORE?             the exclusion list
 - **Outside documentation stays useful without becoming memory.** Product guides,
   crawled websites, and other research remain in a mapped reference area. Approved
   project conclusions link back to that material from the place that owns them.
+- **Meaningful completed work can be recorded on command.** The owner can say
+  "record what we just did" after material work, and the system saves one short,
+  evidence-linked event instead of a transcript or detailed activity log.
 
 ## 3. What every agent must be told when it starts
 
@@ -143,7 +146,8 @@ The startup context, delivered through the host's own loading path, always cover
 
 - **FR-019:** The main agent must show separate What, Where, Why, Assumptions, and
   Unverified bullets for each proposed specification or memory change and must wait
-  for keep, change, or skip before writing.
+  for keep, change, or skip before writing, except for the narrow owner-requested work
+  recap defined by FR-074 through FR-081.
 - **FR-020:** No reply, an unclear reply, or a request to see full text must not count
   as approval.
 - **FR-021:** A helper agent, hook, background process, or provider must not approve
@@ -283,6 +287,33 @@ The startup context, delivered through the host's own loading path, always cover
   memory-only support files while preserving project-owned specifications, source
   references, rules, skills, and work-tracker records.
 
+### Owner-requested work recap
+
+- **FR-074:** The owner must be able to say "record what we just did" or a clear
+  equivalent after completed work and have the system save one concise event record
+  about the work the owner is pointing to.
+- **FR-075:** That direct command counts as owner approval only for a recap of facts
+  the main agent directly observed during the completed work. It must not approve an
+  inferred decision, pattern, cause, recommendation, or unrelated memory.
+- **FR-076:** If the requested scope is unclear, the outcome is unverified, or the
+  work contains more than one separately meaningful event, the system must use the
+  normal What, Where, Why, Assumptions, and Unverified review before writing.
+- **FR-077:** The recap must state when the work occurred, the exact tool or system
+  involved, a plain description that supports later searches, what was done, the
+  material result, and links to available evidence.
+- **FR-078:** The recap must preserve useful search wording and aliases when they were
+  part of the work, such as describing a tool as Salesforce-specific and explaining
+  how it relates to Graphify, while keeping the tool's exact name.
+- **FR-079:** The recap must not copy a transcript, raw command log, tool-by-tool
+  history, hidden reasoning, or routine activity. It must link to the work tracker,
+  commit, changed files, test result, source report, or native session reference when
+  those sources are available.
+- **FR-080:** The system must never create these recaps automatically at the end of
+  every turn or session. An explicit owner request is required for each recap.
+- **FR-081:** Later recall must be able to answer whether the recorded work happened,
+  when it happened, what was done, and what resulted, while linking to the event and
+  its evidence and remaining honest when evidence is missing.
+
 ### Deferred capability
 
 Proactive reminders are not required for v2 acceptance. They may be evaluated after
@@ -308,6 +339,8 @@ Durable records are grouped by what they mean:
 - Stable project facts and boundaries.
 - Lasting decisions and the reasons they should not be debated again.
 - Meaningful project events that changed project state.
+- Owner-requested recaps of material work that prevent repeated investigation or
+  repeated work.
 - Persistent project-specific preferences, risks, assumptions, and constraints.
 - Verified conclusions that prevent repeated mistakes or repeated investigation.
 
@@ -324,8 +357,9 @@ memory; model-generated prose with no provenance; secrets and credentials; sensi
 personal information that is not needed and approved for the repository.
 
 The guiding test for events: **would someone working on this project six months from
-now care that this happened?** Agent activity is not project history; project state
-changes are.
+now care that this happened?** Agent activity is not project history by default. An
+owner-requested recap of material work may be a project event when remembering it
+prevents repeated investigation or repeated work.
 
 ## 6. What may never happen
 
@@ -384,5 +418,10 @@ The system is accepted when all of these are proven in a real project:
   reference area, while an approved Gearset decision, project behavior, or reusable
   process is found only in its owning memory, specification, or skill and links back
   to the documentation.
+- After material work, the owner says "record what we just did" and one concise event
+  is saved without a second approval step, while routine turns remain unsaved.
+- A later agent asking whether the project used a Salesforce-specific graph tool
+  instead of Graphify receives the recorded date, exact tool, work performed, result,
+  and evidence links without receiving a copied transcript or raw command history.
 - The owner reads the boot brief and confirms it feels like the project remembers the
   right things without showing too much. That is a real criterion.
