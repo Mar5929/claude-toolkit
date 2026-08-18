@@ -33,7 +33,7 @@ same startup, approval, retrieval, privacy, and validation contracts.
 The final design was resolved from these inputs:
 
 1. [functional-requirements.md](functional-requirements.md), including FR-001
-   through FR-081;
+   through FR-086;
 2. [memory-system-v2-master2.md](memory-system-v2-master2.md), the approved design
    from 2026-08-17; and
 3. [memory-system-v2-master.md](memory-system-v2-master.md), the more detailed
@@ -572,6 +572,29 @@ Retrieval returns the whole record rather than storing or searching detached chu
 Search results may show the summary, but consequential answers open the full record
 and follow its provenance.
 
+### 12.4 Links and derived backlinks
+
+Canonical records use ordinary relative Markdown links with explicit .md targets. A
+specification links to the decision that owns its rationale. The default project ADR
+home is knowledge/memory/decisions/. When a project already has an approved ADR home,
+knowledge/map.md points there and the specification links to that canonical location
+instead.
+
+Backlinks are derived when requested by searching canonical Markdown inside the
+resolved project root for the target record id and relative path. memory_related(id)
+returns both outgoing links and incoming backlinks. It reads current files directly
+and creates no backlink registry, graph, database, index, or cache.
+
+An ADR may contain authored links to key affected specifications when that helps a
+reader, but a second hand-maintained list of every backlink is not required. Obsidian
+may display the same ordinary links, but Obsidian behavior is never required for
+correctness.
+
+An approved record move or rename searches every tracked project Markdown file,
+repairs affected relative links, validates every new target, and commits the result as
+one write operation. If any affected link cannot be repaired, the coordinator restores
+the preimages and reports the exact unresolved path.
+
 ## 13. Approval and write coordination
 
 ### 13.1 Save decision
@@ -933,8 +956,10 @@ memory_validate checks:
 16. physical project-root isolation;
 17. privacy-boundary enforcement;
 18. migration file counts, links, hashes, and reversibility;
-19. the retrieval gold set; and
-20. quoted-source consistency for exact spans, dates, numbers, and identifiers.
+19. the retrieval gold set;
+20. quoted-source consistency for exact spans, dates, numbers, and identifiers;
+21. ordinary relative-link syntax and resolvable targets; and
+22. complete incoming-link repair after an approved move or rename.
 
 The validator does not claim to understand semantic truth. An unquoted paraphrase
 that changes meaning remains an agent review and owner decision.
@@ -1021,6 +1046,7 @@ changes. It never erases approved Markdown or rewrites Git history.
 | Changed source after approval | Refuse and request a fresh review |
 | Interrupted transaction | Recover from journal before current retrieval |
 | Migration ambiguity or collision | Make no writes |
+| Broken link target | Warn with the source path and do not treat the link as evidence |
 | Unpreservable link | Stop and show the exact gap |
 | Startup over budget | Degrade optional detail, preserve required blocks, and warn |
 | Invalid pin summary hash | Omit the invalid entry from current truth and report repair work |
@@ -1068,6 +1094,8 @@ The architecture is implemented only when a real project proves:
 | AT-18 | Any attempt to enable retrieval acceleration without a new approved ADR is refused visibly. |
 | AT-19 | A migration dry run changes nothing and an approved migration loses no file, link, or unchanged byte. |
 | AT-20 | The owner confirms that the boot brief remembers the right things without showing too much. |
+| AT-21 | A specification links to its supporting ADR, and memory_related returns that specification as a backlink with .memory/ absent. |
+| AT-22 | Moving or renaming a linked ADR repairs every affected project link in one approved operation or leaves every file unchanged. |
 
 ## 23. Architectural decision records
 
@@ -1287,6 +1315,18 @@ The architecture is implemented only when a real project proves:
   pinning, and migration behavior.
 - **Rejected:** Quietly adding interruption behavior to the v2 build.
 
+### ADR-026: Author links once and derive backlinks from current files
+
+- **Decision:** Canonical records use ordinary relative Markdown links. A
+  specification links to its supporting decision record. Incoming backlinks are
+  derived on request through project-scoped direct file search by record id and path.
+- **Reason:** The relationship remains visible in the file that needs it, while a
+  derived backlink view avoids a second hand-maintained relationship list that can
+  drift. The same links work in Git, ordinary editors, Obsidian, Claude Code, and
+  Codex.
+- **Rejected:** A stored backlink registry, mandatory reciprocal links, Obsidian-only
+  wikilinks, a graph database, or a search index as the source of link relationships.
+
 ## 24. Functional requirement traceability
 
 ### Orientation and context
@@ -1407,6 +1447,16 @@ The architecture is implemented only when a real project proves:
 | Requirement | Architecture coverage | Acceptance proof |
 | --- | --- | --- |
 | FR-074 through FR-081 | Pending the durable data-model and write-flow decisions. | Pending |
+
+### Links and backlinks
+
+| Requirement | Architecture coverage | Acceptance proof |
+| --- | --- | --- |
+| FR-082 | Section 12.4 defines ordinary links between canonical project records. | AT-21 |
+| FR-083 | Section 12.4 and ADR-026 let a specification reference its supporting decision without copying rationale. | AT-21 |
+| FR-084 | Section 12.4 makes memory_related return outgoing links and derived incoming backlinks. | AT-21 |
+| FR-085 | Sections 18 and 20 make missing targets visible and prevent broken links from acting as evidence. | AT-21 |
+| FR-086 | Sections 12.4, 13.3, and 18 require complete link repair or rollback for a move or rename. | AT-22 |
 
 ### Deferred capability
 

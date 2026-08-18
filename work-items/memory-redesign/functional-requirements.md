@@ -75,6 +75,9 @@ WHAT DO I NOT STORE?             the exclusion list
 - **Meaningful completed work can be recorded on command.** The owner can say
   "record what we just did" after material work, and the system saves one short,
   evidence-linked event instead of a transcript or detailed activity log.
+- **Related records stay connected.** A specification can point to the decision that
+  explains why it exists, and the decision can show every project record that points
+  back to it without copying the decision text.
 
 ## 3. What every agent must be told when it starts
 
@@ -313,6 +316,19 @@ The startup context, delivered through the host's own loading path, always cover
   when it happened, what was done, and what resulted, while linking to the event and
   its evidence and remaining honest when evidence is missing.
 
+### Links and backlinks
+
+- **FR-082:** A specification, memory record, reference, or other current project
+  record must be able to link to the record that owns related meaning or evidence.
+- **FR-083:** A specification must be able to reference the durable decision that
+  explains its rationale without copying that rationale into the specification.
+- **FR-084:** For any project record, the system must be able to show both the links
+  it contains and the project records that link back to it.
+- **FR-085:** A missing or broken link target must produce a visible validation
+  warning and must never be presented as verified evidence.
+- **FR-086:** Moving or renaming a linked record must repair affected project links in
+  the same approved operation or refuse the move without leaving partial changes.
+
 ### Deferred capability
 
 Proactive reminders are not required for v2 acceptance. They may be evaluated after
@@ -422,5 +438,10 @@ The system is accepted when all of these are proven in a real project:
 - A later agent asking whether the project used a Salesforce-specific graph tool
   instead of Graphify receives the recorded date, exact tool, work performed, result,
   and evidence links without receiving a copied transcript or raw command history.
+- A specification links to its supporting architectural decision, and asking for the
+  decision's backlinks returns that specification without a separately maintained
+  backlink list.
+- Moving or renaming a linked decision repairs every affected project link in the
+  same approved operation or changes nothing.
 - The owner reads the boot brief and confirms it feels like the project remembers the
   right things without showing too much. That is a real criterion.
