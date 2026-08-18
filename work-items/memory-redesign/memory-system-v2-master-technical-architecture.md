@@ -33,7 +33,7 @@ same startup, approval, retrieval, privacy, and validation contracts.
 The final design was resolved from these inputs:
 
 1. [functional-requirements.md](functional-requirements.md), including FR-001
-   through FR-094;
+   through FR-097;
 2. [memory-system-v2-master2.md](memory-system-v2-master2.md), the approved design
    from 2026-08-17; and
 3. [memory-system-v2-master.md](memory-system-v2-master.md), the more detailed
@@ -52,7 +52,7 @@ The final requirements added pinned memory after both master documents were writ
 This architecture therefore adds pin storage, operations, startup behavior, safety
 checks, migration, and acceptance tests.
 
-FR-065 through FR-094 were added during the current owner review. Their traceability
+FR-065 through FR-097 were added during the current owner review. Their traceability
 rows visibly distinguish settled architecture from decisions that still need owner
 review.
 
@@ -156,7 +156,7 @@ their full contents into project memory.
 | Layer | Canonical owner | Answers |
 | --- | --- | --- |
 | Host operating contract | AGENTS.md, CLAUDE.md, host system prompt | How must this agent work here? |
-| Agent identity | SOUL.md | Who is the agent in this project and what must it protect? |
+| Agent identity | Host instructions, project overview, and an optional separate identity file | Who is the agent in this project and what must it protect? |
 | Detailed behavior | Rules, skills, output style | What behavior or process applies now? |
 | Project orientation | knowledge/project.md and knowledge/map.md | What is this project and where does information live? |
 | Active work | Configured work tracker | What is active, blocked, assigned, or next? |
@@ -185,88 +185,74 @@ provenance. The agent does not silently choose.
 project/
   AGENTS.md
   CLAUDE.md
-  SOUL.md
-  rules/
-  skills/
   knowledge/
     project.md
     map.md
-    memory-settings.md
-    current.md
-    recent.md
-    index.md
-    crib.md
-    gold-set.md
     specs/
     memory/
       facts/
       decisions/
       events/
       patterns/
-    brainstorms/
-  references/
-  .memory/
-  src/
-  tests/
 ~~~
 
-The active tracker and delivery folders stay in their existing locations.
+This is the complete required physical core. It is installed by default in every
+toolkit project. The owner may remove the memory system without removing the rest of
+the toolkit or any project-owned material.
 
 The full memory-system specification stays in this toolkit. An adopting project gets
 the built rules, skills, templates, tools, and project-specific settings. It does not
 get a copy of this architecture.
 
-The layout is conceptual where hosts require different physical paths. For example,
-a host adapter may map rules/ to .claude/rules/ and skills/ to its installed skill
-directory. knowledge/map.md records the physical route so the agent never guesses.
+The active tracker, delivery folders, rules, skills, and source areas stay in their
+existing project-owned locations. knowledge/map.md records their logical roles and
+physical routes so the agent never guesses or creates a duplicate.
 
-### 7.1 Authored files
+### 7.1 Fixed authored core
 
-- SOUL.md contains stable identity and values only.
-- knowledge/project.md contains purpose, users, boundaries, main workstreams,
-  completion state, roadmap summary, stable project id, and tracker route.
-- knowledge/map.md explains each major folder, its owner, generated state, and search
-  route.
-- knowledge/memory-settings.md contains project-specific memory configuration,
-  including startup budget, project profile, privacy decisions, review threshold,
-  session-history scope, and pinned record ids.
-- knowledge/crib.md maps owner language to project terms.
-- knowledge/gold-set.md contains owner-worded retrieval questions and expected
-  source files.
-- Files under knowledge/specs/ and knowledge/memory/ contain approved canonical
-  behavior and knowledge.
-- Files under references/ contain outside documentation and research material. They
-  remain evidence, not durable memory, until an approved project record links to them.
+- AGENTS.md and CLAUDE.md are the root entry points for their supported hosts. Each
+  provides the route to the toolkit and memory behavior that host can actually load.
+- knowledge/project.md contains purpose, users, boundaries, main workstreams, stable
+  project id, tracker route, and the project's physical root or approved subroot.
+- knowledge/map.md explains each major logical role, its current physical path, its
+  owner, whether it is authoritative or derived, and how it is searched.
+- knowledge/specs/ contains approved project or system behavior.
+- knowledge/memory/ contains facts, decisions, events, and patterns in their named
+  folders.
 
-### 7.2 Generated files
+### 7.2 Mapped and optional areas
 
-- knowledge/current.md assembles current tracker and source-record lines.
-- knowledge/recent.md assembles recent tracker updates and approved handoff lines.
-- knowledge/index.md indexes current specifications and memory records.
+The map points to these roles when they exist. The memory system does not prescribe
+their physical folder names:
 
-Each generated file:
+- project rules and host instructions;
+- reusable skills and procedures;
+- the active work tracker;
+- delivery and client artifacts;
+- outside and project research references;
+- source records and raw evidence; and
+- optional domain-owned stores.
 
-- identifies itself as generated;
-- names its canonical inputs;
-- carries a deterministic input fingerprint;
-- links to every rendered source;
-- preserves exact source text, qualifiers, dates, and numbers; and
-- is replaced by regeneration if hand-edited.
+A project may add a references area, a brainstorm area, a separate identity file, or
+one or more domain profiles when it needs them. A reference role may resolve to
+references/ in one project and engagement/references/ or delivery/references/ in
+another. Existing areas are mapped in place rather than moved or copied.
 
-Wall-clock build times and local health details live under .memory/ only.
+Profiles add only the fields, routes, validation, and privacy warnings their domain
+needs. They do not replace the common core or weaken approval, provenance, authority,
+scope, or privacy behavior.
 
-### 7.3 Local disposable state
+### 7.3 Generated and local state
 
-.memory/ is gitignored and may hold:
+The required structure does not include memory-settings.md, current.md, recent.md,
+index.md, crib.md, gold-set.md, or another generated view. A later approved startup
+decision may define optional derived artifacts, but no such artifact becomes
+canonical merely because it is rebuildable.
 
-- write locks and crash-recovery journals; and
-- generated-view build metadata.
-
-Normal reads and retrieval do not create .memory/. The folder appears only when an
-approved write transaction or generated-view build needs it.
-
-Deleting .memory/ must not delete project knowledge, approval evidence, pin state, or
-session history.
+.memory/ is absent during normal reads. An approved write may create it temporarily
+for a lock or crash-recovery journal. Any local state must be disposable, gitignored,
+and removable without losing canonical knowledge, approval evidence, project-owned
+sources, or session history.
 
 ## 8. Component model
 
@@ -295,43 +281,34 @@ write path and requires a new approved ADR before it is built.
 
 ## 9. Project-specific settings
 
-knowledge/memory-settings.md is an authored Markdown file with structured front
-matter. It contains configuration, not duplicated project meaning.
+The baseline requires no separate settings file. Small stable values needed to
+identify and route the project live in knowledge/project.md front matter so the
+required structure remains complete without another configuration owner.
 
 ~~~yaml
 ---
 schema_version: 2
 project_id: claude-toolkit
-profile: software-project
-startup_budget_bytes: 10240
 tracker:
   adapter: github-project
   project: Claude-Toolkit-Project
-session_history:
-  enabled: true
-  local_only: true
-  scope: this-project
-external_transfer_allowed: false
-review:
-  deep_backlog_threshold: 20
-pins:
-  - record_id: decision-auth-004
-    pinned_at: 2026-08-18
-    approved_summary_hash: sha256-value
+project_root: .
+profiles:
+  - software
 ---
 
-# Project memory settings
+# Project overview
 
-This file controls this project's memory runtime. It does not contain memory
-statements or replace their canonical records.
+The authored overview follows this front matter.
 ~~~
 
 The stable project id scopes pin queries, retrieval results, and session-history
 searches. A path on one machine is never used as the project identity.
 
-A privacy decision records the allowed data categories, destination, purpose,
-approver, date, and any expiry for any future external transfer. An environment
-variable or installed client never counts as consent.
+Startup, pin, session-history, and privacy configuration remains subject to its later
+architecture decision. That decision must not add another required physical file
+without revising this ADR. An environment variable or installed client never counts
+as consent for external transfer.
 
 ## 10. Startup architecture
 
@@ -346,8 +323,8 @@ variable or installed client never counts as consent.
 The system never assumes one host can import another host's root file. Required
 shared meaning is copied only where needed and checked for drift.
 
-SOUL.md is read after the host operating contract. It contains no active task,
-history, project facts, or detailed rule list.
+When a project has a separate identity file, the host reads it after the operating
+contract. It contains no active task, history, project facts, or detailed rule list.
 
 ### 10.2 Boot brief order
 
@@ -380,6 +357,11 @@ retried, disproved assumptions, and lasting constraints.
 
 The map is authored. Validation compares its listed major paths to the repository and
 reports missing, renamed, or undocumented areas.
+
+If the later startup decision permits a stored generated view, that view identifies
+itself as generated, names and links every input, carries a deterministic input
+fingerprint, and is replaced by regeneration after a hand edit. This rule does not
+make a generated view part of the required project structure.
 
 ### 10.4 Budget behavior
 
@@ -456,7 +438,7 @@ memory_pin(id)
   -> run the startup budget preflight
   -> show What, Where, Why, Assumptions, Unverified
   -> wait for owner approval
-  -> add the id, date, and summary hash to memory-settings.md
+  -> add the id, date, and summary hash to the approved project-local pin-state owner
   -> rebuild the boot brief and validate project scope
 
 memory_unpin(id)
@@ -1040,12 +1022,13 @@ Migration is additive, project-specific, approved, and reversible.
 
 ### Phase 1: startup and discovery
 
-- Add SOUL.md, map.md, memory-settings.md, current.md, recent.md, crib.md, and
-  gold-set.md.
-- Establish a stable project id and tracker route.
+- Add only the required core from section 7.
+- Establish a stable project id, physical project root, tracker route, and semantic
+  map without moving existing project-owned areas.
 - Add memory_capabilities and the boot brief.
 - Keep existing records and current skills working.
-- Start with an empty pin registry.
+- Create no optional identity, reference, brainstorm, profile, generated, or local
+  state area until the project uses it.
 
 ### Phase 2: lifecycle and schema
 
@@ -1153,6 +1136,10 @@ The architecture is implemented only when a real project proves:
 | AT-25 | A project ADR contains context, decision, reason, rejected options, consequences, date, status, and evidence. |
 | AT-26 | One meaning with shared evidence remains one readable record rather than one file per sentence. |
 | AT-27 | A simple durable record validates without a separate source, entity, or relationship registry. |
+| AT-28 | A project with only the required physical core passes structure validation. |
+| AT-29 | An existing project maps rules, skills, tracker, delivery, source, and reference roles without moving or copying them. |
+| AT-30 | Enabling a domain profile adds only its approved fields, routes, validation, and warnings without weakening the common safeguards. |
+| AT-31 | Removing the memory system leaves the remaining toolkit and every project-owned specification, reference, rule, skill, and work item intact. |
 
 ## 23. Architectural decision records
 
@@ -1178,13 +1165,15 @@ The architecture is implemented only when a real project proves:
 - **Rejected:** A universal pointer that silently fails on a host that cannot follow
   it.
 
-### ADR-004: SOUL.md is mandatory and narrow
+### ADR-004: A separate identity file is optional and narrow
 
-- **Decision:** Every adopting project has a small identity file containing stable
-  role and values only.
-- **Reason:** Operating rules do not fully state whom the agent serves and what it
-  must protect.
-- **Rejected:** Tasks, status, project history, or detailed rules in SOUL.md.
+- **Decision:** Project identity may remain in host instructions and the project
+  overview. A separate identity file is added only when it owns distinct stable role
+  or values that do not belong in those files.
+- **Reason:** Every project needs identity context, but not every project needs a
+  second file carrying it.
+- **Rejected:** A mandatory identity file in every project, or putting tasks, status,
+  project history, and detailed rules into an optional identity file.
 
 ### ADR-005: Startup uses authored or assembled context
 
@@ -1340,8 +1329,10 @@ The architecture is implemented only when a real project proves:
 
 ### ADR-021: Pins store identity and approval, not copied meaning
 
-- **Decision:** The project settings store record id, pin date, and approved summary
-  hash. Startup reads the statement from the canonical record.
+- **Decision:** The approved project-local pin-state owner stores record id, pin date,
+  and approved summary hash. The startup decision will choose that owner without
+  adding a second copy of the statement. Startup reads the statement from the
+  canonical record.
 - **Reason:** This preserves one home for meaning and detects an unapproved summary
   change.
 - **Rejected:** Duplicating pin text in a second file, making pins rules, and
@@ -1401,16 +1392,45 @@ The architecture is implemented only when a real project proves:
 - **Rejected:** Mandatory source records, a global entity registry, a relationship
   folder for ordinary links, and graph-first canonical storage.
 
+### ADR-028: Use a small fixed core and map project-owned roles
+
+- **Decision:** Every toolkit project receives the fixed physical core in section 7.
+  Rules, skills, trackers, delivery material, sources, and references remain in their
+  existing owners and are resolved through knowledge/map.md.
+- **Reason:** Stable bootstrap paths make setup and validation reliable, while mapped
+  roles prevent duplicate trees and unnecessary moves in established projects.
+- **Rejected:** A universal full repository tree, fully unconstrained paths, moving
+  existing project areas to match the toolkit, and provider-defined folder layouts.
+
+### ADR-029: Profiles extend the core without replacing it
+
+- **Decision:** Software, Salesforce, research, health, client-delivery, and future
+  profiles may add fields, routes, validation, and privacy warnings only when used.
+- **Reason:** Projects need different domain support but the same approval,
+  provenance, authority, scope, and privacy behavior.
+- **Rejected:** Empty domain scaffolding in every project and separate incompatible
+  memory systems for each profile.
+
+### ADR-030: Memory is installed by default and removable cleanly
+
+- **Decision:** Project initialization and sync install the common memory system in
+  every toolkit project. The owner may remove it without deleting project-owned
+  specifications, references, rules, skills, delivery material, or work records.
+- **Reason:** Memory should be available in every project without making the rest of
+  the toolkit depend on it.
+- **Rejected:** Domain-based opt-in during normal setup and removal that strands or
+  deletes project-owned material.
+
 ## 24. Functional requirement traceability
 
 ### Orientation and context
 
 | Requirement | Architecture coverage | Acceptance proof |
 | --- | --- | --- |
-| FR-001 | Sections 7 and 10 define every required startup source, including pins and capabilities. | AT-01 |
+| FR-001 | Sections 7 and 10 define the required identity meaning without requiring a separate identity file. | AT-01, AT-28 |
 | FR-002 | Section 10.4 defines the byte budget, degradation order, and admission checks. | AT-02 |
-| FR-003 | Section 7.2 requires generated labels, inputs, and deterministic fingerprints. | AT-16 |
-| FR-004 | Sections 7.2 and 10.3 prohibit startup paraphrase and preserve source text. | AT-01, AT-20 |
+| FR-003 | Sections 7.3 and 10.3 require generated labels, inputs, and deterministic fingerprints when a startup view is stored. | AT-16 |
+| FR-004 | Section 10.3 prohibits startup paraphrase and preserves source text. | AT-01, AT-20 |
 | FR-005 | Section 10.3 defines three updates in 72 hours and dated fallback. | AT-01 |
 | FR-006 | Sections 7.1 and 10.3 define map meaning, ownership, generated state, and drift checks. | AT-01 |
 | FR-007 | Sections 10 and 16 expose skills, tools, and capability inspection. | AT-01, AT-18 |
@@ -1506,15 +1526,15 @@ The architecture is implemented only when a real project proves:
 
 | Requirement | Architecture coverage | Acceptance proof |
 | --- | --- | --- |
-| FR-065 | Pending the project-structure decision. | Pending |
-| FR-066 | Pending the project-structure and scope decisions. | Pending |
+| FR-065 | Section 7 and ADR-030 install the toolkit and memory route by default. | AT-28, AT-31 |
+| FR-066 | Section 7.2 and ADR-029 make profiles additive and preserve common safeguards. | AT-30 |
 | FR-067 | Sections 7 and 12 plus ADR-007 define facts, decisions, events, and patterns. | AT-24, AT-25, AT-26 |
 | FR-068 | Sections 7 and 12 use one meaning-based type while domain and topic remain metadata. | AT-26 |
-| FR-069 | Pending the project-structure decision. | Pending |
+| FR-069 | Sections 6 and 7.2 keep reference material outside durable memory and map its project-owned route. | AT-13, AT-29 |
 | FR-070 | Section 12.1 defines recoverable source identity, date, version, and evidence. | AT-13 |
 | FR-071 | Sections 12.1 and 13 require evidence and owner approval before research becomes current knowledge. | AT-04, AT-13 |
 | FR-072 | Sections 6 and 13 route approved behavior to specifications and reusable processes to skills. | AT-04 |
-| FR-073 | Pending the project-structure and migration decisions. | Pending |
+| FR-073 | Section 7 and ADR-030 require clean removal while preserving project-owned material. | AT-31 |
 
 ### Owner-requested work recap
 
@@ -1544,6 +1564,14 @@ The architecture is implemented only when a real project proves:
 | FR-092 | Section 12 requires an event time, range, or honest uncertainty. | AT-13 |
 | FR-093 | Sections 12 and 12.1 require patterns to identify their evidence and remain epistemically distinct. | AT-13, AT-24 |
 | FR-094 | Section 12.2 and ADR-027 make supporting registries optional and evidence-based. | AT-27 |
+
+### Minimal project setup
+
+| Requirement | Architecture coverage | Acceptance proof |
+| --- | --- | --- |
+| FR-095 | Section 7 and ADR-028 define the small cross-domain core. | AT-28 |
+| FR-096 | Sections 7.1 and 7.2 plus ADR-028 map existing owners without moves or copies. | AT-29 |
+| FR-097 | Sections 7.2 and 7.3 create optional areas only when used. | AT-28, AT-30 |
 
 ### Deferred capability
 

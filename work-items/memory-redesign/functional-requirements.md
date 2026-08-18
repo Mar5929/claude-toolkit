@@ -29,7 +29,7 @@ at startup, and everything else is retrieved only when the task needs it. At the
 of every session the agent can answer:
 
 ```text
-WHO AM I?                        identity (SOUL.md)
+WHO AM I?                        project identity, with a separate identity file only when needed
 HOW DO I OPERATE HERE?           the operating contract (AGENTS.md / CLAUDE.md)
 WHAT PROJECT AM I IN?            the project overview
 WHAT ARE WE BUILDING TOWARD?     the roadmap summary
@@ -83,8 +83,8 @@ WHAT DO I NOT STORE?             the exclusion list
 
 The startup context, delivered through the host's own loading path, always covers:
 
-1. the operating contract (`AGENTS.md` / `CLAUDE.md`) and the identity file
-   (`SOUL.md`);
+1. the operating contract and the project's stable identity, including a separate
+   identity file only when the project needs one;
 2. the project overview and a compact roadmap summary (current phase, objective,
    milestone, remaining areas);
 3. the current state of work and a recent window of roughly the last 2 to 3 days or
@@ -104,15 +104,17 @@ The startup context, delivered through the host's own loading path, always cover
 
 ### Orientation and context
 
-- **FR-001:** A cold session must receive the host operating contract, `SOUL.md`, the
-  project overview, the current view, the recent view, the project's pinned memories,
-  the project map, and the memory capability route before substantive work starts.
+- **FR-001:** A cold session must receive the host operating contract, the project's
+  stable identity and overview, current and recent context, the project's pinned
+  memories, the project map, and the memory capability route before substantive work
+  starts. A separate identity file is required only when those identity needs are not
+  already owned elsewhere.
 - **FR-002:** The startup content must fit the configured budget and degrade by
   pointer and count instead of blocking the session.
-- **FR-003:** Generated startup views must identify themselves as generated and list
-  their inputs.
-- **FR-004:** Startup views must preserve exact source meaning, qualifiers, dates, and
-  numbers and must link back to their authoritative sources.
+- **FR-003:** Any stored startup view must identify itself as generated and list its
+  inputs.
+- **FR-004:** Assembled or stored startup views must preserve exact source meaning,
+  qualifiers, dates, and numbers and must link back to their authoritative sources.
 - **FR-005:** The recent window must show a small, date-labeled set of the latest
   meaningful updates and clearly label older fallback content.
 - **FR-006:** The project map must explain folder meaning, ownership, generated state,
@@ -355,6 +357,17 @@ The startup context, delivered through the host's own loading path, always cover
   optional. A simple durable record must remain complete without creating supporting
   registries that do not provide clear reuse or disambiguation value.
 
+### Minimal project setup
+
+- **FR-095:** The default memory setup must provide one small common core that works
+  for every project type without requiring unused domain folders or support files.
+- **FR-096:** When a project already has an authoritative location for rules, skills,
+  active work, delivery material, or references, setup must map that location instead
+  of moving or copying its contents.
+- **FR-097:** Optional identity, reference, brainstorm, profile, and local support
+  areas must be created only when used. Their absence must not break the common memory
+  behavior.
+
 ### Deferred capability
 
 Proactive reminders are not required for v2 acceptance. They may be evaluated after
@@ -463,6 +476,10 @@ The system is accepted when all of these are proven in a real project:
 - Removing the memory system removes its startup route without breaking the remaining
   toolkit or deleting project-owned specifications, references, rules, skills, or
   work-tracker records.
+- A project with only the common memory setup passes validation without empty domain
+  folders, generated views, a separate identity file, or local runtime state.
+- An existing project maps its rules, skills, tracker, delivery, and reference areas
+  without moving or copying them.
 - Gearset documentation gathered for a Salesforce project remains in the mapped
   reference area, while an approved Gearset decision, project behavior, or reusable
   process is found only in its owning memory, specification, or skill and links back
