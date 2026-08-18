@@ -29,7 +29,7 @@ at startup, and everything else is retrieved only when the task needs it. At the
 of every session the agent can answer:
 
 ```text
-WHO AM I?                        identity (SOUL.md)
+WHO AM I?                        project identity, with a separate identity file only when needed
 HOW DO I OPERATE HERE?           the operating contract (AGENTS.md / CLAUDE.md)
 WHAT PROJECT AM I IN?            the project overview
 WHAT ARE WE BUILDING TOWARD?     the roadmap summary
@@ -83,8 +83,8 @@ WHAT DO I NOT STORE?             the exclusion list
 
 The startup context, delivered through the host's own loading path, always covers:
 
-1. the operating contract (`AGENTS.md` / `CLAUDE.md`) and the identity file
-   (`SOUL.md`);
+1. the operating contract and the project's stable identity, including a separate
+   identity file only when the project needs one;
 2. the project overview and a compact roadmap summary (current phase, objective,
    milestone, remaining areas);
 3. the current state of work and a recent window of roughly the last 2 to 3 days or
@@ -104,15 +104,17 @@ The startup context, delivered through the host's own loading path, always cover
 
 ### Orientation and context
 
-- **FR-001:** A cold session must receive the host operating contract, `SOUL.md`, the
-  project overview, the current view, the recent view, the project's pinned memories,
-  the project map, and the memory capability route before substantive work starts.
+- **FR-001:** A cold session must receive the host operating contract, the project's
+  stable identity and overview, current and recent context, the project's pinned
+  memories, the project map, and the memory capability route before substantive work
+  starts. A separate identity file is required only when those identity needs are not
+  already owned elsewhere.
 - **FR-002:** The startup content must fit the configured budget and degrade by
   pointer and count instead of blocking the session.
-- **FR-003:** Generated startup views must identify themselves as generated and list
-  their inputs.
-- **FR-004:** Startup views must preserve exact source meaning, qualifiers, dates, and
-  numbers and must link back to their authoritative sources.
+- **FR-003:** Any stored startup view must identify itself as generated and list its
+  inputs.
+- **FR-004:** Assembled or stored startup views must preserve exact source meaning,
+  qualifiers, dates, and numbers and must link back to their authoritative sources.
 - **FR-005:** The recent window must show a small, date-labeled set of the latest
   meaningful updates and clearly label older fallback content.
 - **FR-006:** The project map must explain folder meaning, ownership, generated state,
@@ -165,8 +167,9 @@ The startup context, delivered through the host's own loading path, always cover
   and deleting records when each action is appropriate.
 - **FR-025:** Superseding or retiring a record must remove it from current retrieval
   without erasing history.
-- **FR-026:** A merge must be refused when it would erase or blur different
-  provenance or meaning.
+- **FR-026:** A merge must be refused when meanings conflict or their truth status or
+  effective dates are incompatible. Additional evidence for the same meaning must be
+  preserved on the surviving record.
 - **FR-027:** Deletion must be limited to duplication surplus, corruption, privacy
   removal, or accidental records and must require a reason.
 - **FR-028:** An approved write must leave canonical records and every affected
@@ -201,13 +204,14 @@ The startup context, delivered through the host's own loading path, always cover
 
 - **FR-039:** Memory review must be structurally read-only and return a worklist.
 - **FR-040:** The worklist must cover duplicate candidates, conflicts, stale review
-  dates, broken links, supersession gaps, retired phrases, tag problems, and
-  retrieval-test failures.
+  dates, broken links, supersession gaps, retired phrases, classification problems,
+  and retrieval-test failures.
 - **FR-041:** Review must not merge, retire, rewrite, or delete records.
 - **FR-042:** Cleanup must use the normal approval review and lifecycle tools for
   every change.
-- **FR-043:** Different-source statements about the same subject must remain separate
-  and be linked as a pair.
+- **FR-043:** Additional sources supporting the same meaning must be preserved as
+  evidence on one record. Conflicting meanings must remain separate and link to each
+  other.
 - **FR-044:** A focused review must run after an approved save; a deep review runs
   only on request, after migration, or when a concrete backlog threshold is crossed.
 - **FR-045:** Age alone must never delete or retire memory.
@@ -329,6 +333,78 @@ The startup context, delivered through the host's own loading path, always cover
 - **FR-086:** Moving or renaming a linked record must repair affected project links in
   the same approved operation or refuse the move without leaving partial changes.
 
+### Durable data model
+
+- **FR-087:** Each durable record must contain one independently correctable or
+  replaceable meaning. It may include supporting explanation that shares the same
+  evidence, truth status, and effective dates, and it must not be split into one file
+  per sentence.
+- **FR-088:** Every fact must show a truth status that distinguishes documented,
+  observed, reported, inferred, suspected, unknown, and other approved states so the
+  word "fact" never implies more certainty than the evidence supports.
+- **FR-089:** Every durable record must carry one or more recoverable evidence
+  entries. Additional sources supporting unchanged meaning must be added to that
+  evidence instead of creating duplicate records.
+- **FR-090:** Conflicting meanings must remain separate, show their own evidence and
+  truth status, and link to each other without the system silently choosing a winner.
+- **FR-091:** A decision record must state the context, chosen option, reason,
+  rejected options, consequences, date, status, and evidence.
+- **FR-092:** An event record must state when it happened or show an honest date range
+  or uncertainty when an exact time is unknown.
+- **FR-093:** A pattern record must link to the facts and events supporting it and
+  must remain distinct from a proven cause, diagnosis, rule, or required behavior.
+- **FR-094:** Separate reusable source, entity, or relationship records must be
+  optional. A simple durable record must remain complete without creating supporting
+  registries that do not provide clear reuse or disambiguation value.
+
+### Minimal project setup
+
+- **FR-095:** The default memory setup must provide one small common core that works
+  for every project type without requiring unused domain folders or support files.
+- **FR-096:** When a project already has an authoritative location for rules, skills,
+  active work, delivery material, or references, setup must map that location instead
+  of moving or copying its contents.
+- **FR-097:** Optional identity, reference, brainstorm, profile, and local support
+  areas must be created only when used. Their absence must not break the common memory
+  behavior.
+
+### Research-spike documentation
+
+- **FR-098:** When a research-only or spike work item produces documentation that may
+  guide future work, the completed report must remain findable in the project's mapped
+  reference area after the work item closes. It must not be treated as durable memory
+  or approved system behavior merely because the research is complete.
+- **FR-099:** A reference package with an editable source and one or more generated
+  reading or delivery formats must identify which copy is authoritative for edits.
+  Generated copies must be recreated from that source instead of edited separately.
+- **FR-100:** Raw queries, working notes, and other work-item evidence must remain with
+  the original work item. The work item and the lasting reference package must link to
+  each other.
+- **FR-101:** Unreviewed research may be stored in the reference area when its review
+  or verification state is visible. Storage is not owner approval. A later work item,
+  decision, or specification must link to the research without copying it, and any
+  promoted project meaning must follow its normal owner approval flow.
+
+### Session continuity
+
+- **FR-102:** The configured work tracker must own the current state, blockers, exact
+  next step, and an authored handoff that another agent can use without the prior
+  conversation.
+- **FR-103:** Cross-machine continuity must depend on the tracker and approved project
+  records. It must not depend on machine-local session history.
+- **FR-104:** Native host session history must remain optional, read-only, and in its
+  original host-owned location. The memory system may search it only when the owner
+  asks or current project sources are insufficient.
+- **FR-105:** The memory system must not copy transcripts, create a transcript index,
+  or generate session summaries, session cards, or another session-derived status
+  store.
+- **FR-106:** Missing, incomplete, or unsearchable native history must never block the
+  memory system. A history miss must name the available project, machine, host, and
+  date scope without claiming the conversation never happened.
+- **FR-107:** A history result used for exact past wording must identify the original
+  host session and message location so the agent can open the source before relying on
+  it.
+
 ### Deferred capability
 
 Proactive reminders are not required for v2 acceptance. They may be evaluated after
@@ -386,7 +462,8 @@ prevents repeated investigation or repeated work.
   per-project consent decision.
 - No background process, cron job, or silent curator changes memory.
 - No auto-injection of the whole accumulated store at startup.
-- No session-history search before current project sources have actually failed.
+- No session-history search unless the owner asks or current project sources are
+  insufficient.
 
 ## 7. Output style when writing memories or specs
 
@@ -413,8 +490,16 @@ The system is accepted when all of these are proven in a real project:
 - A superseded or retired pinned memory stops appearing at startup, and its replacement
   is not pinned without owner approval.
 - Too many pins produce a visible review warning instead of silently dropping one.
-- A pair of same-subject facts from different sources survives every cleanup pass
-  unchanged.
+- Two sources supporting the same meaning remain as separate evidence entries on one
+  current record after review and cleanup.
+- Two conflicting meanings remain separate, linked, and unchanged after review and
+  cleanup.
+- A reported or inferred fact never appears as documented or verified merely because
+  it is stored under facts.
+- A project ADR contains its context, choice, reason, rejected options, consequences,
+  date, status, and evidence.
+- A simple durable record requires no separate source, entity, or relationship
+  registry.
 - A superseded record disappears from current answers and remains in its timeline.
 - A retired phrase's surviving copies are found wherever they still appear.
 - A consequential recall follows provenance to the original source.
@@ -429,6 +514,20 @@ The system is accepted when all of these are proven in a real project:
 - Removing the memory system removes its startup route without breaking the remaining
   toolkit or deleting project-owned specifications, references, rules, skills, or
   work-tracker records.
+- A project with only the common memory setup passes validation without empty domain
+  folders, generated views, a separate identity file, or local runtime state.
+- An existing project maps its rules, skills, tracker, delivery, and reference areas
+  without moving or copying them.
+- A completed research spike leaves its final report in the mapped reference area,
+  its raw evidence in the original work item, and working links in both directions.
+- An unreviewed research report remains available as a labeled reference without
+  becoming a decision, memory record, or approved specification.
+- A new session on another machine continues from the tracker's authored handoff
+  without requiring access to the previous machine's conversation history.
+- Removing or losing every searchable native session leaves current project recall
+  and continuity working from the tracker and approved project records.
+- The memory system creates no transcript copy, transcript index, generated session
+  summary, session card, or duplicate current-status record.
 - Gearset documentation gathered for a Salesforce project remains in the mapped
   reference area, while an approved Gearset decision, project behavior, or reusable
   process is found only in its owning memory, specification, or skill and links back
