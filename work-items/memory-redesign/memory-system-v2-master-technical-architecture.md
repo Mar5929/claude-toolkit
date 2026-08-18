@@ -1,6 +1,7 @@
 # Memory System v2: Final Master Technical Architecture
 
-**Status:** Final technical architecture for the memory redesign work item.
+**Status:** Owner review in progress. Settled decisions are recorded here as they are
+approved.
 
 **Authority:** functional-requirements.md controls behavior. This document controls
 the technical design. If they disagree, the functional requirement wins and this
@@ -21,7 +22,7 @@ This architecture defines a portable project memory system that:
 - keeps approved Markdown in Git as the only canonical project memory;
 - retrieves evidence progressively and reports honest failure;
 - supports owner-controlled pinned memory without turning it into a rule;
-- works when optional search providers and caches are missing; and
+- retrieves directly from canonical files without requiring a search index; and
 - migrates existing projects without silent rewrites or lost history.
 
 The architecture applies to Claude Code, Codex, and future hosts that can satisfy the
@@ -32,7 +33,7 @@ same startup, approval, retrieval, privacy, and validation contracts.
 The final design was resolved from these inputs:
 
 1. [functional-requirements.md](functional-requirements.md), including FR-001
-   through FR-064;
+   through FR-081;
 2. [memory-system-v2-master2.md](memory-system-v2-master2.md), the approved design
    from 2026-08-17; and
 3. [memory-system-v2-master.md](memory-system-v2-master.md), the more detailed
@@ -51,18 +52,22 @@ The final requirements added pinned memory after both master documents were writ
 This architecture therefore adds pin storage, operations, startup behavior, safety
 checks, migration, and acceptance tests.
 
+FR-065 through FR-081 were added during the current owner review. Their traceability
+rows remain visibly pending until the matching data-model, project-structure, and
+work-recap decisions are approved.
+
 The following conflicts are resolved here:
 
 | Topic | Final resolution |
 | --- | --- |
-| Generated build time | Committed generated views use deterministic input fingerprints. Wall-clock build time stays in the local cache so an unchanged rebuild creates no Git diff. |
+| Generated build time | Committed generated views use deterministic input fingerprints. Wall-clock build time stays in local build metadata so an unchanged rebuild creates no Git diff. |
 | Private host memory | It is never required or treated as project truth. It is disabled where the host allows it. |
 | Optional retrieval | Any optional method must prove a measured benefit. Recorded privacy consent is additionally required when content leaves the approved boundary. |
 | Sensitive personal information | It is refused when it is not needed and approved for the repository. Required, approved information still follows the privacy contract. |
 | Startup pins | Every valid pin is rendered from the canonical record summary. A pin admission check prevents normal writes from creating a budget conflict. |
 | Proactive reminders | They are outside v2 acceptance and remain disabled until a later approved design. |
 | Current and recent views | They are assembled from authored source lines. They are never model-written summaries. |
-| Search engine | Markdown, the generated index, and repository search are the baseline. A local full-text cache is optional acceleration. |
+| Search engine | V2 searches canonical Markdown directly by id, path, metadata, and project-scoped repository text search. It creates no search index or retrieval cache. |
 
 ## 3. Scope and exclusions
 
@@ -76,7 +81,7 @@ The following conflicts are resolved here:
 - pinned memory;
 - current, recent, map, and index views;
 - progressive retrieval and session-history gating;
-- optional provider conformance;
+- a decision gate for any future retrieval accelerator;
 - read-only review and approved cleanup;
 - deterministic validation and retrieval tests;
 - privacy boundaries;
@@ -92,12 +97,13 @@ The following conflicts are resolved here:
 - model-written startup summaries;
 - automatic bulk upgrades of existing memory;
 - proactive reminders in v2;
-- mandatory Obsidian, SQLite, embeddings, or any vendor; and
+- SQLite retrieval indexes, embeddings, graph search, retrieval providers, or other
+  search acceleration in v2; and
 - automatic project migration.
 
 ## 4. Architecture principles
 
-The following invariants apply to every component and provider:
+The following invariants apply to every component:
 
 1. One meaning has one canonical home.
 2. Canonical project memory is readable Markdown tracked by Git.
@@ -105,13 +111,13 @@ The following invariants apply to every component and provider:
 4. Rules define behavior. Skills define reusable processes. Specifications define
    approved behavior. Memory records facts, events, decisions, and lasting context.
 5. No current specification or memory write occurs without explicit owner approval.
-6. Generated files and indexes are rebuildable and never authoritative.
+6. Generated files are rebuildable and never authoritative.
 7. Provenance stays attached to the claim and is not upgraded by age or repetition.
 8. Same-subject records from different sources remain separate.
 9. Current and historical states are distinct and both retrievable.
 10. Retrieval starts with the smallest and most authoritative source.
 11. Empty results stay empty.
-12. Optional providers can fail without making canonical Markdown unavailable.
+12. Direct canonical-file retrieval works with no local runtime state.
 13. Project content does not cross its approved privacy boundary.
 14. Review cannot write.
 15. NOOP is a correct and expected result.
@@ -130,14 +136,12 @@ flowchart LR
     H --> RR[Retrieval router]
     RR --> CS
     RR --> TA
-    RR --> RP[Optional retrieval provider]
     RR --> SH[Local session history adapter]
     WC --> CS
     WC --> VG[View generator]
     WC --> V[Validator]
     VG --> CS
     V --> CS
-    V --> RP
     CS --> G[Git audit trail]
 ~~~
 
@@ -228,8 +232,8 @@ directory. knowledge/map.md records the physical route so the agent never guesse
 - knowledge/map.md explains each major folder, its owner, generated state, and search
   route.
 - knowledge/memory-settings.md contains project-specific memory configuration,
-  including startup budget, project profile, provider selection, privacy decisions,
-  review threshold, session-history scope, and pinned record ids.
+  including startup budget, project profile, privacy decisions, review threshold,
+  session-history scope, and pinned record ids.
 - knowledge/crib.md maps owner language to project terms.
 - knowledge/gold-set.md contains owner-worded retrieval questions and expected
   source files.
@@ -257,12 +261,11 @@ Wall-clock build times and local health details live under .memory/ only.
 
 .memory/ is gitignored and may hold:
 
-- a local full-text index;
-- capability and provider health caches;
-- the conversation working set;
-- retrieval metrics;
 - write locks and crash-recovery journals; and
 - generated-view build metadata.
+
+Normal reads and retrieval do not create .memory/. The folder appears only when an
+approved write transaction or generated-view build needs it.
 
 Deleting .memory/ must not delete project knowledge, approval evidence, pin state, or
 session history.
@@ -272,7 +275,7 @@ session history.
 | Component | Responsibility | May write canonical Markdown? |
 | --- | --- | --- |
 | Host startup adapter | Delivers the operating contract and starts the boot brief | No |
-| Capability resolver | Reports available operations, provider state, privacy boundary, and degraded features | No |
+| Capability resolver | Reports available operations, privacy boundary, and degraded features | No |
 | Source resolver | Reads authored and canonical inputs by layer | No |
 | Boot brief assembler | Selects, orders, budgets, and links startup context | Generated views only through the coordinator |
 | Tracker adapter | Reads active and recent work from the configured tracker | No |
@@ -285,13 +288,12 @@ session history.
 | Validator | Runs deterministic integrity and acceptance checks | No |
 | Review engine | Produces a repair worklist | No |
 | Cleanup skill | Converts approved worklist items into lifecycle operations | Only through the coordinator |
-| Retrieval provider | Builds disposable indexes and returns search candidates | No |
 | Session-history adapter | Searches original local host history with a scoped gate | No |
 | Migration engine | Detects, plans, applies, verifies, and rolls back approved migrations | Yes, through the coordinator |
 
-The canonical store and retrieval provider are separate seams. A provider never
-becomes a write path to project truth. Approved writes land in Markdown first, then
-derived views and provider indexes rebuild from that source.
+The retrieval router reads the canonical store directly. V2 has no retrieval-provider
+or search-index implementation. Any future accelerator remains outside the canonical
+write path and requires a new approved ADR before it is built.
 
 ## 9. Project-specific settings
 
@@ -311,10 +313,7 @@ session_history:
   enabled: true
   local_only: true
   scope: this-project
-provider:
-  name: file-search
-  external_transfer_allowed: false
-  consent_record: null
+external_transfer_allowed: false
 review:
   deep_backlog_threshold: 20
 pins:
@@ -329,13 +328,12 @@ This file controls this project's memory runtime. It does not contain memory
 statements or replace their canonical records.
 ~~~
 
-The stable project id scopes cache keys, provider namespaces, pin queries, retrieval
-results, and session-history searches. A path on one machine is never used as the
-project identity.
+The stable project id scopes pin queries, retrieval results, and session-history
+searches. A path on one machine is never used as the project identity.
 
-A privacy decision records the provider, allowed data categories, destination,
-purpose, approver, date, and any expiry. An environment variable or installed client
-never counts as consent.
+A privacy decision records the allowed data categories, destination, purpose,
+approver, date, and any expiry for any future external transfer. An environment
+variable or installed client never counts as consent.
 
 ## 10. Startup architecture
 
@@ -447,9 +445,8 @@ It does not copy the summary. Startup reads the summary from the record, verifie
 hash, and renders it with the record link. This preserves one home for meaning and
 detects a changed summary that has not been approved for startup.
 
-The startup adapter also seeds every valid pinned record id into the conversation
-working set as a protected entry. It remains available for the full session even when
-normal search results are refreshed.
+The startup adapter places every valid pinned record in the live session context. It
+remains available for the full session without creating a local working-set file.
 
 ### 11.3 Pin operations
 
@@ -481,17 +478,17 @@ Unpinning does not delete the record or remove it from normal retrieval.
   approve the corrected summary to remain pinned in the same review.
 - SUPERSEDE and RETIRE remove the old pin in the same reported transaction.
 - A successor is never pinned automatically.
-- DELETE removes any pin entry before rebuilding views and caches.
+- DELETE removes any pin entry before rebuilding affected views.
 - MERGE requires an explicit choice of whether the surviving record should be pinned.
 - A record with a missing, mismatched, cross-project, superseded, or retired pin
   entry is not rendered as current truth and produces a repair warning.
 
 ### 11.5 Cross-project isolation
 
-Every pin lookup uses the stable project id and repository root. Providers receive
-the project id as a required filter. A result without a matching project id is
-rejected before ranking. Conformance tests use two projects with overlapping record
-ids and prove that neither startup nor retrieval leaks a pin.
+Every pin lookup uses the stable project id and resolved repository root. A result
+without a matching project id or inside a different physical root is rejected before
+ranking. Tests use two projects with overlapping record ids and prove that neither
+startup nor retrieval leaks a pin.
 
 A model-generated importance score may help rank ordinary results. It cannot create
 or remove a pin, decide truth, or override project scope, record status, provenance,
@@ -571,9 +568,9 @@ links, but it is never the canonical record shape.
 
 ### 12.3 Atomic record boundary
 
-An indexer either emits the entire record or fails. No search chunk starts inside a
-record. Search results may show the summary, but consequential answers open the full
-record and follow its provenance.
+Retrieval returns the whole record rather than storing or searching detached chunks.
+Search results may show the summary, but consequential answers open the full record
+and follow its provenance.
 
 ## 13. Approval and write coordination
 
@@ -592,7 +589,7 @@ new information
   -> wait for keep, change, or skip
   -> verify the source files did not change after the review
   -> apply the approved transaction
-  -> rebuild affected views and provider indexes
+  -> rebuild affected generated views
   -> validate and report changed paths and any warning
 ~~~
 
@@ -644,12 +641,12 @@ An approved write is one reported operation even when it affects several files.
 3. Write a crash-recovery journal with preimages under .memory/.
 4. Stage canonical Markdown changes.
 5. Apply required pin, pairing, supersession, and retirement changes.
-6. Rebuild the generated index and affected startup views.
-7. Rebuild or invalidate disposable provider indexes.
-8. Run focused validation.
-9. On success, remove the journal and report every changed path.
-10. On failure, restore canonical preimages, discard disposable indexes, report the
-    failure, and leave no partial current state.
+6. Rebuild the generated navigation index and affected startup views. Retrieval does
+   not depend on them.
+7. Run focused validation.
+8. On success, remove the journal and report every changed path.
+9. On failure, restore canonical preimages, report the failure, and leave no partial
+   current state.
 
 The coordinator does not commit or push. Git remains the visible audit trail chosen
 by the project's normal delivery process.
@@ -669,7 +666,7 @@ then reports the recovery.
 | SUPERSEDE | Replace a formerly true record | Create the successor, date the old record, and write both links |
 | RETIRE | End a record with no direct successor | Require a reason, remove it from current reads, and hunt current copies |
 | MERGE | Combine true duplicates | Allow only identical meaning and provenance and preserve both originals |
-| DELETE | Remove an accidental, corrupt, duplicate-surplus, or privacy record | Require a reason, a visible diff, cache cleanup, and any required privacy purge work |
+| DELETE | Remove an accidental, corrupt, duplicate-surplus, or privacy record | Require a reason, a visible diff, and any required privacy purge work |
 
 Retired and superseded records remain available for history and timeline questions.
 They do not appear as current truth in startup or ordinary search.
@@ -701,8 +698,8 @@ paraphrase with no matching text, so review still checks meaning conflicts.
 ### 14.4 Privacy deletion
 
 A privacy deletion removes the sensitive content from current records, record
-history, generated views, disposable indexes, working sets, and provider copies. It
-keeps only non-sensitive audit metadata.
+history, generated views, and any separately approved external copies. It keeps only
+non-sensitive audit metadata.
 
 A normal Git commit does not erase earlier Git history. If policy requires complete
 repository-history removal, the deletion remains open until a separately approved
@@ -737,9 +734,14 @@ replacement are complete. The tool must not claim full erasure before that proof
    gate or on owner request.
 7. Tier 6, honest failure. Name the searched scope and unavailable sources.
 
-The baseline uses knowledge/index.md and repository file search. A local full-text
-provider may accelerate Tier 2. The agent writes a structured query using project
-terms and knowledge/crib.md aliases. Blind synonym expansion is not used.
+The baseline reads canonical Markdown directly. It uses exact record ids and paths,
+metadata filters, and text search constrained to the resolved project root. A
+generated navigation view may help a person browse, but retrieval does not depend on
+it and never treats it as evidence.
+
+The agent searches with project terms, exact tool names, and useful aliases recorded
+on the canonical record. Blind synonym expansion is not used. A match opens the whole
+record rather than a detached chunk.
 
 At equal relevance, results rank in this order:
 
@@ -760,12 +762,11 @@ status
 one-sentence summary
 provenance
 match reason or score
-provider
 degraded-state warning, when present
 ~~~
 
-An empty result stays empty. A parse error, provider failure, missing method, or
-scope error is returned as an error, not converted into no evidence.
+An empty result stays empty. A search failure, missing method, or scope error is
+returned as an error, not converted into no evidence.
 
 ### 15.3 Consequential recall
 
@@ -777,14 +778,12 @@ Search results locate evidence. Before a consequential answer, the retrieval rou
 4. checks status and effective dates; and
 5. returns conflicts and uncertainty with the answer.
 
-### 15.4 Working set
+### 15.4 Live follow-up context
 
-Tier 2 and later results form a conversation-local working set under .memory/. It
-contains project id, query, source paths, record ids, entities, dates, and input
-fingerprints. Follow-up questions reuse it until the entity set changes, a new date
-scope appears, or a canonical input changes.
-
-The working set is disposable and never becomes memory.
+The active conversation may retain paths and record ids it just opened so follow-up
+questions remain natural. Retrieval writes no working-set file, cache, metric, or
+other local state. If the question or scope changes, the agent searches the canonical
+files again.
 
 ### 15.5 Session-history gate
 
@@ -810,13 +809,13 @@ The final response says that reliable evidence could not be found and names:
 
 - current project layers searched;
 - tracker availability;
-- provider availability;
+- direct-search availability;
 - session-history machines, hosts, and dates searched; and
 - any source that could not be accessed.
 
 It does not substitute an unrelated recent memory or invent a likely answer.
 
-## 16. Provider and capability architecture
+## 16. Capability and future-acceleration architecture
 
 ### 16.1 Stable tool surface
 
@@ -841,60 +840,48 @@ memory_unpin(id)
 spec_search(query, filters)
 spec_get(id_or_path)
 session_search(query, scope, evidence_token)
-memory_rebuild()
+memory_rebuild_views()
 memory_validate()
 ~~~
 
 memory_capabilities returns:
 
-- provider name and version;
 - available operations;
 - approval mode, which is owner-approved;
-- enabled search modes;
+- search mode, which is direct canonical-file search in v2;
 - pin support and current pin count;
 - startup budget and required byte count;
 - project id and privacy boundary;
 - whether data may leave the machine;
-- index state and last local rebuild;
 - tracker adapter and session-history scope; and
 - degraded or unavailable features.
 
 The root route and boot brief name the four human-facing skills: remember, recall,
 cleanup, and session-search. The agent inspects capabilities and never guesses.
 
-### 16.2 Provider seam
+### 16.2 V2 retrieval boundary
 
-A retrieval provider may index and search canonical data. It may not directly create,
-correct, supersede, retire, merge, delete, pin, or unpin project truth.
+V2 implements no SQLite or other full-text index, embeddings, vector store, graph
+search, retrieval provider, search cache, retrieval metrics store, or background
+indexer. Normal reads do not create .memory/ or write anywhere else.
 
-A provider must:
+This is an intentional boundary, not a missing feature. Direct search is the complete
+v2 retrieval path until project evidence proves that it is inadequate.
 
-- preserve project scope, record status, schema, and provenance as queryable fields;
-- index whole records without fragmenting claim and attribution;
-- support current, superseded, and retired states;
-- return errors for missing capabilities;
-- keep canonical Markdown readable during outage;
-- rebuild from canonical sources;
-- export or clear every indexed copy;
-- honor the recorded privacy decision;
-- isolate projects with overlapping record ids;
-- preserve empty results; and
-- pass lifecycle, ranking, round-trip, privacy, outage, and cross-project tests.
+### 16.3 Gate for future acceleration
 
-The implementation must not use a missing-method guard that silently substitutes an
-empty list.
+Any later local index, embeddings, graph expansion, or external retrieval service
+requires a new owner-approved ADR. Popularity, vendor claims, and general benchmarks
+are not enough.
 
-### 16.3 Optional retrieval methods
+The proposal must show repeated failures on owner-worded project questions, a clear
+latency or recall target, measured improvement over direct search, stale-result
+prevention, complete export and purge behavior, outage fallback, physical project
+isolation, and privacy approval for any external transfer.
 
-An optional method, including local full-text search, embeddings, graph expansion, or
-an external service, may be enabled only after the gold set shows that it improves or
-preserves required retrieval.
-
-If any content leaves the approved boundary, enablement also requires a recorded
-per-project privacy decision. Environment variables and installed credentials do not
-count as approval.
-
-Embeddings are off by default. A local full-text cache is disposable and uncommitted.
+A future accelerator may return candidates only. It may never approve or write
+project truth, and direct canonical-file retrieval must continue to work when the
+accelerator is absent or broken.
 
 ## 17. Review and cleanup
 
@@ -914,7 +901,7 @@ returns a worklist covering:
 - stale or hand-edited generated views;
 - pin errors and budget pressure;
 - gold-set failures; and
-- provider or cache health failures.
+- direct-search scope or capability failures.
 
 cleanup receives a worklist, presents each proposed meaning separately through the
 five-bullet approval, and calls the normal lifecycle or pin operation. It does not
@@ -939,11 +926,11 @@ memory_validate checks:
 9. generated-view inputs, fingerprints, and hand edits;
 10. map coverage for major folders;
 11. tag vocabulary and usage;
-12. no index fragment beginning inside a record;
+12. direct search returns complete records rather than detached fragments;
 13. no tracker bridge as the sole home of a fact;
-14. identical canonical results after deleting and rebuilding derived state;
-15. provider export, clearing, re-index, and project isolation;
-16. provider outage and missing-capability behavior;
+14. identical canonical results after deleting and rebuilding derived views;
+15. reads and retrieval create no local state;
+16. physical project-root isolation;
 17. privacy-boundary enforcement;
 18. migration file counts, links, hashes, and reversibility;
 19. the retrieval gold set; and
@@ -967,9 +954,9 @@ The set includes:
 - punctuation, a hyphen, or digits;
 - a pinned-memory question;
 - a cross-project isolation question; and
-- a provider-outage question.
+- a question run with .memory/ absent.
 
-Every retrieval change and provider enablement runs the set.
+Every retrieval change runs the set.
 
 ## 19. Migration and compatibility
 
@@ -994,10 +981,10 @@ Migration is additive, project-specific, approved, and reversible.
 
 ### Phase 3: retrieval and validation
 
-- Add the retrieval router, working set, gold-set runner, project-scope checks, and
-  provider conformance suite.
+- Add the direct-file retrieval router, gold-set runner, and physical project-scope
+  checks.
 - Keep file search as the baseline.
-- Enable optional acceleration only after measurement.
+- Do not implement retrieval acceleration in v2.
 
 ### Phase 4: project adoption
 
@@ -1007,11 +994,11 @@ Migration is additive, project-specific, approved, and reversible.
 - Stop on ambiguity or collision.
 - Apply only after project-specific approval.
 - Verify byte preservation for unchanged files, link integrity, startup behavior,
-  pin isolation, provider fallback, and the gold set.
+  pin isolation, direct search with .memory/ absent, and the gold set.
 - Remove retired runtime pieces only after replacement checks pass.
 
-Rollback removes generated files, local caches, new runtime wiring, and uncommitted
-migration changes. It never erases approved Markdown or rewrites Git history.
+Rollback removes generated files, new runtime wiring, and uncommitted migration
+changes. It never erases approved Markdown or rewrites Git history.
 
 ## 20. Failure behavior
 
@@ -1027,9 +1014,8 @@ migration changes. It never erases approved Markdown or rewrites Git history.
 | Missing legacy metadata | Show the gap and preserve the existing text |
 | Inference without evidence | Refuse the write |
 | Different provenance on merge | Refuse and propose pairing |
-| Provider outage | Fall back to file search and label degraded mode |
-| Missing provider method | Return provider failure, never empty evidence |
 | Search parse error | Return an error, never no result |
+| .memory/ absent | Continue direct retrieval without creating it |
 | Session history unavailable | Scope the miss to available machine, host, and dates |
 | Partial approval | Write only approved groups |
 | Changed source after approval | Refuse and request a fresh review |
@@ -1046,15 +1032,15 @@ migration changes. It never erases approved Markdown or rewrites Git history.
 - Secrets and credentials are refused by validation and by the approval review.
 - Sensitive personal information is stored only when needed, explicitly approved,
   and allowed by repository and client policy.
-- Provider requests are project-scoped and deny external transfer by default.
-- Consent is committed, specific, reviewable, and revocable.
+- Any future external retrieval request is project-scoped and denied by default.
+- External-transfer consent is committed, specific, reviewable, and revocable.
 - Session history stays in its original local host store.
-- Caches and working sets are local, disposable, and excluded from Git.
+- Normal retrieval creates no cache, working set, metrics file, or local index.
 - Logs contain ids, paths, counts, and error codes, not full secret or private
   content.
-- Privacy deletion clears current records, histories, views, caches, and provider
-  copies and reports any remaining Git-history work.
-- A provider or hook cannot approve or write current truth.
+- Privacy deletion clears current records, histories, views, and any separately
+  approved external copies and reports any remaining Git-history work.
+- A future retrieval accelerator or hook cannot approve or write current truth.
 
 ## 22. Acceptance proof
 
@@ -1078,8 +1064,8 @@ The architecture is implemented only when a real project proves:
 | AT-14 | Session-history search cannot run before the current-source gate or owner request. |
 | AT-15 | An unanswerable question returns honest failure and searched scope. |
 | AT-16 | Deleting all derived state and rebuilding produces the same canonical results. |
-| AT-17 | Provider outage leaves Markdown recall usable. |
-| AT-18 | Missing provider capability fails visibly. |
+| AT-17 | Direct retrieval works with .memory/ absent and creates no local state. |
+| AT-18 | Any attempt to enable retrieval acceleration without a new approved ADR is refused visibly. |
 | AT-19 | A migration dry run changes nothing and an approved migration loses no file, link, or unchanged byte. |
 | AT-20 | The owner confirms that the boot brief remembers the right things without showing too much. |
 
@@ -1179,27 +1165,48 @@ The architecture is implemented only when a real project proves:
   hidden write path.
 - **Rejected:** A background curator or reflection process with write access.
 
-### ADR-013: File search is the baseline
+### ADR-013: Direct canonical-file search is the v2 retrieval system
 
-- **Decision:** Markdown, the generated index, and repository search work in every
-  project. Local full-text search is optional acceleration.
-- **Reason:** Correctness must not depend on an installed database.
-- **Rejected:** Mandatory SQLite and committed binary indexes.
+- **Decision:** V2 searches canonical Markdown directly through exact record ids,
+  paths, metadata, and project-scoped repository text search. It opens whole records
+  and follows their evidence. Reads create no index, cache, working-set file, or
+  retrieval metrics.
+- **Reason:** This keeps one stored copy of project meaning, removes stale-index risk,
+  minimizes the privacy surface, and satisfies the current project scale without
+  hidden runtime state.
+- **Research basis:** SQLite documents that external-content full-text indexes can
+  become inconsistent with their source and require explicit repair. See
+  [SQLite FTS5](https://www.sqlite.org/fts5.html).
+- **Rejected:** SQLite FTS, another full-text index, embeddings, vector search, graph
+  search, provider retrieval, detached chunks, and a generated index as a required
+  search dependency in v2.
 
-### ADR-014: Optional retrieval requires measured benefit
+### ADR-014: Future retrieval acceleration requires a new evidence-backed decision
 
-- **Decision:** Any optional method must improve or preserve the project gold set.
-  Methods that cross the privacy boundary also require recorded consent.
-- **Reason:** More infrastructure is not evidence of better or safer retrieval.
-- **Rejected:** Default embeddings, provider enablement by feature claim, or consent
-  inferred from credentials.
+- **Decision:** A later accelerator requires a new owner-approved ADR based on
+  repeated failures against owner-worded project questions. It must prove measured
+  improvement, stale-result prevention, purge and export behavior, outage fallback,
+  physical project isolation, and privacy approval for external transfer.
+- **Reason:** Rebuildability repairs stale derived data after the fact. It does not
+  remove drift, privacy, or hidden-state risk during normal use.
+- **Rejected:** Enabling an index or provider because a framework uses one, because a
+  generic benchmark favors one, or because credentials are already installed.
 
-### ADR-015: Providers are conformance-gated
+### ADR-015: Retrieval providers are deferred beyond v2
 
-- **Decision:** A provider is eligible only after it passes schema, project-scope,
-  lifecycle, retrieval, privacy, outage, export, and rebuild tests.
-- **Reason:** A common interface does not make destructive or silent behavior safe.
-- **Rejected:** Treating all memory products as interchangeable.
+- **Decision:** V2 implements no retrieval-provider seam. If a later ADR approves a
+  provider, it may return candidates only and must pass scope, lifecycle, privacy,
+  outage, export, purge, rebuild, and cross-project tests before use.
+- **Reason:** [Hindsight](https://github.com/vectorize-io/hindsight),
+  [Mem0](https://github.com/mem0ai/mem0),
+  [Zep Graphiti](https://github.com/getzep/graphiti), and
+  [Honcho](https://github.com/plastic-labs/honcho) demonstrate capable
+  database-backed retrieval, while
+  [memsearch](https://github.com/zilliztech/memsearch) demonstrates a rebuildable
+  Markdown shadow index. None proves that this project currently needs the added
+  state or consistency burden.
+- **Rejected:** Treating leading memory products as interchangeable infrastructure or
+  installing a provider seam before a measured project need exists.
 
 ### ADR-016: Session history is last-resort and read-only
 
@@ -1251,11 +1258,11 @@ The architecture is implemented only when a real project proves:
 
 ### ADR-022: Project scope uses a stable id
 
-- **Decision:** A committed stable project id scopes pins, providers, caches, and
-  session-history requests.
+- **Decision:** A committed stable project id scopes pins, direct retrieval, and
+  session-history requests. The resolved physical project root is also enforced.
 - **Reason:** Machine paths differ, and overlapping record ids must not leak across
   projects.
-- **Rejected:** Filesystem path or provider account as project identity.
+- **Rejected:** A filesystem path alone or an external account as project identity.
 
 ### ADR-023: Canonical writes use one coordinator
 
@@ -1323,7 +1330,7 @@ The architecture is implemented only when a real project proves:
 | FR-025 | Sections 14 and 15 exclude obsolete records from current reads and preserve timelines. | AT-11 |
 | FR-026 | Sections 14.2 and ADR-011 refuse merge across provenance. | AT-10 |
 | FR-027 | Sections 14 and 14.4 constrain deletion and require a reason and audit evidence. | AT-16 |
-| FR-028 | Section 13.3 coordinates canonical writes, views, indexes, validation, reporting, and rollback. | AT-16 |
+| FR-028 | Section 13.3 coordinates canonical writes, affected views, validation, reporting, and rollback. | AT-16 |
 
 ### Retrieval
 
@@ -1345,7 +1352,7 @@ The architecture is implemented only when a real project proves:
 | Requirement | Architecture coverage | Acceptance proof |
 | --- | --- | --- |
 | FR-039 | Section 17 gives review no write capability and returns a worklist. | AT-10 |
-| FR-040 | Section 17 lists every required worklist category plus pin and provider health. | AT-10 |
+| FR-040 | Section 17 lists every required worklist category plus pin and direct-search health. | AT-10 |
 | FR-041 | Section 17 prevents review from merging, retiring, rewriting, deleting, pinning, or unpinning. | AT-10 |
 | FR-042 | Section 17 routes cleanup through approved lifecycle and pin operations. | AT-10 |
 | FR-043 | Sections 12.1, 14.2, and 17 preserve and pair different-source records. | AT-10 |
@@ -1356,8 +1363,8 @@ The architecture is implemented only when a real project proves:
 
 | Requirement | Architecture coverage | Acceptance proof |
 | --- | --- | --- |
-| FR-046 | Sections 16.2 and 18 define provider conformance before enablement. | AT-17, AT-18 |
-| FR-047 | Sections 8, 16.2, and 20 keep Markdown recall available during provider failure. | AT-17 |
+| FR-046 | Section 16.3 and ADR-014 require a new approved decision and complete conformance proof before any future provider is enabled. | AT-18 |
+| FR-047 | Sections 15 and 16.3 plus ADR-013 keep direct canonical-file recall independent of any future provider. | AT-17 |
 | FR-048 | Sections 9, 16, and 21 enforce the recorded project privacy boundary. | AT-17 |
 | FR-049 | Sections 15.2, 16.2, and 20 make missing capabilities visible errors. | AT-18 |
 | FR-050 | Sections 10 and ADR-018 make private host memory unnecessary, non-authoritative, and disabled where possible. | AT-01 |
@@ -1381,6 +1388,26 @@ The architecture is implemented only when a real project proves:
 | FR-063 | Sections 10.4 and 11.1 prevent silent omission and produce a visible budget review. | AT-09 |
 | FR-064 | Sections 11 and 15 keep model ranking separate from pin state, truth, provenance, authority, and status. | AT-05, AT-13 |
 
+### Project setup and folder roles
+
+| Requirement | Architecture coverage | Acceptance proof |
+| --- | --- | --- |
+| FR-065 | Pending the project-structure decision. | Pending |
+| FR-066 | Pending the project-structure and scope decisions. | Pending |
+| FR-067 | Pending the durable data-model decision. | Pending |
+| FR-068 | Pending the durable data-model decision. | Pending |
+| FR-069 | Pending the project-structure decision. | Pending |
+| FR-070 | Section 12.1 defines recoverable source identity, date, version, and evidence. | AT-13 |
+| FR-071 | Sections 12.1 and 13 require evidence and owner approval before research becomes current knowledge. | AT-04, AT-13 |
+| FR-072 | Sections 6 and 13 route approved behavior to specifications and reusable processes to skills. | AT-04 |
+| FR-073 | Pending the project-structure and migration decisions. | Pending |
+
+### Owner-requested work recap
+
+| Requirement | Architecture coverage | Acceptance proof |
+| --- | --- | --- |
+| FR-074 through FR-081 | Pending the durable data-model and write-flow decisions. | Pending |
+
 ### Deferred capability
 
 Proactive reminders have no numbered functional requirement. Section 3.2 and ADR-025
@@ -1395,7 +1422,7 @@ Before implementation work is split into build tickets:
 - every test in section 22 maps to one or more automated or witnessed checks;
 - the project settings and record schemas have versioned validators;
 - the two supported hosts have startup adapter designs;
-- the baseline file-search path works without an optional provider;
+- the direct file-search path works with .memory/ absent and creates no local state;
 - the pin budget and cross-project tests exist before pin operations ship;
 - migration has dry-run and rollback fixtures from current v1 projects; and
 - the work tracker carries implementation status, dependencies, and decisions made

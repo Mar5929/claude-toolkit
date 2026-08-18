@@ -63,8 +63,8 @@ WHAT DO I NOT STORE?             the exclusion list
   something is retired, its leftover copies are hunted down.
 - **Honest answers about the past.** The agent says "I could not find reliable
   evidence" instead of inventing a plausible story, and names what it searched.
-- **The files stay ordinary.** Everything is readable Markdown in Git. Obsidian can
-  view it. No tool is required to read the project's own knowledge.
+- **The project knowledge stays open and portable.** The owner can read it, review
+  its history, and move it without depending on one agent, database, or vendor.
 - **Every toolkit project starts with memory available.** The toolkit and memory
   routes are present by default in every project the toolkit initializes or syncs,
   regardless of project type. The owner may remove the memory system when a project
@@ -136,7 +136,8 @@ The startup context, delivered through the host's own loading path, always cover
   project's mapped reference area. Approved conclusions drawn from it must live in
   the specification or memory record that owns the conclusion and link back to the
   source material.
-- **FR-016:** Durable memory must remain readable Markdown tracked by Git.
+- **FR-016:** Durable memory must remain human-readable, portable, owner-reviewable,
+  and versioned without depending on one agent, database, or vendor.
 - **FR-017:** Every derived view and search aid must be rebuildable from canonical
   sources.
 - **FR-018:** Secrets, credentials, and sensitive personal information that is not
@@ -165,7 +166,7 @@ The startup context, delivered through the host's own loading path, always cover
   provenance or meaning.
 - **FR-027:** Deletion must be limited to duplication surplus, corruption, privacy
   removal, or accidental records and must require a reason.
-- **FR-028:** An approved write must leave canonical Markdown and every affected
+- **FR-028:** An approved write must leave canonical records and every affected
   derived view or search aid consistent as one reported operation.
 
 ### Retrieval
@@ -212,7 +213,7 @@ The startup context, delivered through the host's own loading path, always cover
 
 - **FR-046:** A retrieval provider must pass the memory contract before it can be
   enabled.
-- **FR-047:** Provider failure must not make canonical Markdown unavailable.
+- **FR-047:** Provider failure must not make canonical project knowledge unavailable.
 - **FR-048:** A provider must not send project content outside the approved privacy
   boundary.
 - **FR-049:** A provider that lacks a required capability must fail visibly. It must
@@ -264,16 +265,14 @@ The startup context, delivered through the host's own loading path, always cover
 - **FR-066:** A project may add one or more optional domain profiles, but every
   profile must use the same core memory behavior and must not weaken approval,
   provenance, authority, scope, or privacy requirements.
-- **FR-067:** Durable memory must be grouped by record type under
-  `knowledge/memory/facts/`, `knowledge/memory/decisions/`,
-  `knowledge/memory/events/`, and `knowledge/memory/patterns/`.
-- **FR-068:** Each durable memory must live in the one record-type folder that matches
-  what the record means. Subject areas such as Salesforce, Gearset, health, or
-  research must be represented through metadata and links instead of another copy of
-  the record.
+- **FR-067:** Durable memory must distinguish facts, decisions, events, and patterns
+  as separate record types.
+- **FR-068:** Each durable memory must have the one record type that matches what the
+  record means. Subject areas such as Salesforce, Gearset, health, or research must
+  be represented without creating another copy of the record.
 - **FR-069:** Outside documentation, including official product documentation,
-  web-crawl results, and agent-written research notes, must live in a mapped
-  `references/` area outside `knowledge/memory/`.
+  web-crawl results, and agent-written research notes, must remain in a mapped
+  reference area outside durable memory.
 - **FR-070:** An outside reference must identify its original source, retrieval date,
   applicable version or snapshot when known, and whether its contents were verified.
 - **FR-071:** Research does not become current project truth by being downloaded or
@@ -364,7 +363,7 @@ prevents repeated investigation or repeated work.
 ## 6. What may never happen
 
 - No model-written paraphrase becomes the only home of any fact.
-- No database or vendor store becomes the source of truth; truth is Git-tracked text.
+- No optional database or vendor store becomes the only home of project knowledge.
 - No silent or unjustified deletes; any allowed deletion must use the approved narrow
   reasons and preserve the required audit evidence.
 - No project content leaves the project's privacy boundary without a recorded,
@@ -406,7 +405,7 @@ The system is accepted when all of these are proven in a real project:
 - Session-history search cannot run before current sources fail or the owner asks.
 - An unanswerable question gets an honest failure, with the searched scope named.
 - Deleting every derived search aid and rebuilding produces the same answers.
-- A provider outage leaves plain Markdown recall working.
+- A provider outage leaves canonical project recall working.
 - A migration dry run changes nothing, and an approved migration loses no file or
   link.
 - A project initialized or synced by the toolkit receives the toolkit and memory
