@@ -36,6 +36,7 @@ WHAT ARE WE BUILDING TOWARD?     the roadmap summary
 WHAT IS TRUE RIGHT NOW?          the current state
 WHAT HAPPENED RECENTLY?          the recent window (about the last 2 to 3 days)
 HOW DOES THE OWNER WORK?         the owner's working preferences
+WHAT MUST STAY TOP OF MIND?      the project's pinned memories
 WHERE DOES INFORMATION LIVE?     the folder map, one line per folder
 WHAT IS A SPEC VS A MEMORY
   VS A RULE?                     the information layers
@@ -50,6 +51,8 @@ WHAT DO I NOT STORE?             the exclusion list
 - **Startup feels like the project remembers.** The first answer of a cold session
   reflects the project goal, the current state, the last handoff, and how the owner
   likes to work, without the owner re-explaining anything. The brief stays short.
+- **Important memory can stay top of mind.** The owner can pin a project memory so
+  every future session receives its approved meaning without turning it into a rule.
 - **Saving is a short review, not a wall of text.** A proposed save is five plain
   bullets: What, Where, Why, Assumptions, Unverified. The owner keeps, changes, or
   skips each item. Silence means nothing gets written.
@@ -72,22 +75,25 @@ The startup context, delivered through the host's own loading path, always cover
 2. the project overview and a compact roadmap summary (current phase, objective,
    milestone, remaining areas);
 3. the current state of work and a recent window of roughly the last 2 to 3 days or
-   the last few meaningful sessions, including what failed and should not be retried;
+   the last few meaningful sessions, including failed project approaches, disproved
+   assumptions, and lasting constraints that should prevent repeated mistakes;
 4. the owner's working preferences;
-5. the folder map: one plain line per major folder saying what lives there, what is
+5. the project's pinned memories, each as a short approved statement linked to its
+   complete current record;
+6. the folder map: one plain line per major folder saying what lives there, what is
    generated, and what must not be hand-edited;
-6. the memory contract (See ## 5. What is and IS NOT considered "Memory"): what may be stored, what may never be stored, which memory
-   skills and tools exist, and how to search;
-7. any warnings (missing files, stale views, failed checks) as counts with links.
-8. output style when actually storing memories and specs.
+7. the memory contract: what counts as durable memory, what may never be stored,
+   which memory skills and tools exist, and how to search;
+8. any warnings (missing files, stale views, failed checks) as counts with links; and
+9. the writing safeguards for storing memories and specifications.
 
 ## 4. Functional requirements
 
 ### Orientation and context
 
 - **FR-001:** A cold session must receive the host operating contract, `SOUL.md`, the
-  project overview, the current view, the recent view, the project map, and the memory
-  capability route before substantive work starts.
+  project overview, the current view, the recent view, the project's pinned memories,
+  the project map, and the memory capability route before substantive work starts.
 - **FR-002:** The startup content must fit the configured budget and degrade by
   pointer and count instead of blocking the session.
 - **FR-003:** Generated startup views must identify themselves as generated and list
@@ -210,28 +216,62 @@ The startup context, delivered through the host's own loading path, always cover
 - **FR-055:** Existing records must remain usable and may be upgraded incrementally
   when touched instead of through a risky bulk rewrite.
 
+### Pinned memory
+
+- **FR-056:** The owner must be able to pin or unpin any current, approved memory in
+  the project without changing its canonical home or turning it into a rule.
+- **FR-057:** Only the owner may approve a pin or unpin. An agent may suggest either
+  action but must not change pin state silently.
+- **FR-058:** Every cold session in the project must receive each pinned memory before
+  substantive work starts, and the pinned meaning must remain available throughout
+  the session.
+- **FR-059:** Startup must receive a short, owner-approved statement for each pinned
+  memory and a link to the complete current record. The statement must preserve the
+  record's meaning, qualifiers, dates, and numbers.
+- **FR-060:** Pinning controls visibility, not authority. A pin must not override a
+  current specification, a primary source, or the record's current or historical
+  state, and it must not become a mandatory agent instruction.
+- **FR-061:** Unpinning must remove a memory from startup without deleting it or making
+  it unsearchable. Superseding or retiring a pinned memory must remove the old meaning
+  from startup, and a replacement must not be pinned without owner approval.
+- **FR-062:** Pins must be scoped to the current project and must never appear in a
+  different project's startup or retrieval results.
+- **FR-063:** If the pinned set cannot fit the startup budget, the system must warn the
+  owner and identify what needs review. It must not silently omit a pin.
+- **FR-064:** A model-generated importance score may help rank normal search results,
+  but it must not create a pin, decide what is true, or override status, provenance,
+  source authority, or query relevance.
+
 ### Deferred capability
 
 Proactive reminders are not required for v2 acceptance. They may be evaluated after
 the core memory system passes its acceptance tests, with separate owner approval for
 their behavior and interruption limits.
 
-## 5. What is and IS NOT considered "Memory"
+## 5. What counts as durable memory
 
-### What is considered "Memory"
+Durable memory is approved project information that will still matter after the
+current task or session. It is a stable fact, lasting event, decision, or persistent
+state whose absence would make the owner repeat an explanation or make a future agent
+repeat a wrong action.
 
-- Persistent facts, decisions, architectural decision records.
-- Semantic Memory (Facts & Profiles): Durable truths, company guidelines, user identity markers (name, role), and explicit constraints.
-- Episodic Memory (Past Events & Summaries): High-level takeaways from past interactions, milestone events, and specific user choices (e.g., "preferred Python over JavaScript for this project").
-- Working Memory (Active State): Normally stored in the current state or short-term memory system prompt. Immediate short-term context like current task goals and recent turns.
+- Stable project facts and boundaries.
+- Lasting decisions and the reasons they should not be debated again.
+- Meaningful project events that changed project state.
+- Persistent project-specific preferences, risks, assumptions, and constraints.
+- Verified conclusions that prevent repeated mistakes or repeated investigation.
 
-### What IS NOT considered "Memory"
+Pinning changes how visible an approved memory is. It does not make temporary or
+otherwise ineligible information qualify as durable memory.
 
-Tool call results; commands run; files opened; code-edit play-by-play; routine compiler and
-test errors; temporary debugging hypotheses; hidden reasoning; casual conversation;
-restatements of active specs or live code; live work-item status copied into memory;
-model-generated prose with no provenance; secrets and credentials; sensitive personal
-information that is not needed and approved for the repository.
+### What is not durable memory
+
+Temporary working context; current task goals; recent conversation turns; tool call
+results; commands run; files opened; code-edit play-by-play; routine compiler and test
+errors; temporary debugging hypotheses; hidden reasoning; casual conversation;
+restatements of active specifications or live code; live work-item status copied into
+memory; model-generated prose with no provenance; secrets and credentials; sensitive
+personal information that is not needed and approved for the repository.
 
 The guiding test for events: **would someone working on this project six months from
 now care that this happened?** Agent activity is not project history; project state
@@ -251,9 +291,12 @@ changes are.
 
 ## 7. Output style when writing memories or specs
 
-* No jargon, analogies, figures of speech, etc. that the user did not explicitly write first. You (the ai agent) are not writing a novel, you are storing memories to build the second brain for the project so the ai agent feels more and more like a progressively smarter assistant.
-- No assumptions or commentary on the memory facts themselves that the user did not explicitly ask for or mention.
-- Be careful writing something that may skew a future agent's thought process and reasoning when reading the memory.
+- Use plain, literal language. Do not add jargon, analogies, or figures of speech that
+  the owner did not use and approve.
+- Do not add assumptions, interpretations, recommendations, or commentary that the
+  owner did not explicitly approve.
+- Do not use wording that could steer a future agent beyond the approved facts,
+  decisions, requirements, or uncertainty.
 
 ## 8. Acceptance: how we know it works
 
@@ -265,6 +308,12 @@ The system is accepted when all of these are proven in a real project:
 - The startup brief stays inside its budget and degrades safely when too big.
 - A transient detail correctly produces no save.
 - A new persistent fact cannot be written without the five-bullet approval.
+- A pinned memory appears in cold Claude Code and Codex sessions for its project and
+  never appears in another project.
+- Unpinning removes a memory from startup without removing it from normal retrieval.
+- A superseded or retired pinned memory stops appearing at startup, and its replacement
+  is not pinned without owner approval.
+- Too many pins produce a visible review warning instead of silently dropping one.
 - A pair of same-subject facts from different sources survives every cleanup pass
   unchanged.
 - A superseded record disappears from current answers and remains in its timeline.
