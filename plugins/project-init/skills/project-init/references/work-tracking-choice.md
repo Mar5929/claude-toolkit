@@ -13,7 +13,8 @@ it.
 > 2. Linear
 > 3. Jira
 > 4. Files in this repository
-> 5. Somewhere else, or nothing yet
+> 5. The BMAD method
+> 6. Somewhere else, or nothing yet
 
 Offer these in plain words. Recommend a GitHub Projects board when the
 repository already has a GitHub remote and the owner has no tracker in use;
@@ -25,7 +26,7 @@ Linear and Jira. Name whichever one the owner actually said.
 
 ## What each answer does
 
-**Two things are true for answers 1 through 4**, and they are the reason this
+**Two things are true for answers 1 through 5**, and they are the reason this
 question exists:
 
 - every piece of work is logged in that tracker before it is built; and
@@ -72,7 +73,43 @@ plugin's six statuses (`Backlog`, `Ready`, `In Progress`, `In Review`, `Done`,
 below, because that board reflects the files rather than holding the work. Use
 the plugin's command for this, never the by-hand steps below.
 
-### 5. Somewhere else, or nothing yet
+### 5. The BMAD method
+
+BMAD holds the work itself, so it is an answer to this question and never an
+extra layered on top of another answer. Never set it up alongside the
+`work-tracker` plugin or alongside a board built by hand from the steps below.
+One project, one tracker.
+
+What it is, checked on 2026-08-18: version 6, MIT licensed, installed per
+project with `npx bmad-method install`, and needing Node 20.12 or newer. There
+is no machine-wide install. It writes `_bmad/` for the framework and
+`_bmad-output/` for the work. Its own documentation is at
+`https://docs.bmad-method.org`.
+
+What the toolkit does for this answer:
+
+1. Offer to run `npx bmad-method install` yourself. It writes a lot of files, so
+   say what it is about to do and wait for a yes. Never run it without one.
+2. Name `_bmad-output/` as the tracker in the Gate 5 pointer.
+3. Copy `spec-before-you-build.md` in Gate 5, the same as every other answer.
+
+The toolkit installs BMAD and nothing more. It does not wrap BMAD's workflows,
+copy BMAD files into the repository, or keep its own record of BMAD's work.
+
+**The refinement session is BMAD's own planning.** `bmad-prd` writes the
+requirements document, `bmad-create-epics-and-stories` breaks it into epics and
+stories, and `bmad-sprint-planning` is BMAD's readiness gate before building,
+returning `PASS`, `CONCERNS`, or `FAIL`. Those documents are the spec, and a
+story counts as refined once sprint planning passes it. Do not also write a
+six-part `SPEC.md` beside them. Two specs for one story is exactly the second
+home this project's rules forbid.
+
+**Say this once when the owner picks BMAD.** BMAD lets work skip planning
+entirely: its own workflow map says "Clear work can enter `bmad-build`
+directly." Doing that skips the refinement session, which is the guarantee this
+whole question exists to hold. Name it once, then it is the owner's call.
+
+### 6. Somewhere else, or nothing yet
 
 Write nothing about tracking. Do not copy the rule, do not add a structural
 pointer, do not create anything.
@@ -136,7 +173,7 @@ when its name differs from the list above. Their board, their names.
 
 ## What goes into the root instructions
 
-For answers 1 through 4, Gate 5 adds one structural pointer to `CLAUDE.md` and
+For answers 1 through 5, Gate 5 adds one structural pointer to `CLAUDE.md` and
 the same one to `AGENTS.md`, naming the tracker and how a refined ticket is
 marked. One or two lines, no more. For example:
 

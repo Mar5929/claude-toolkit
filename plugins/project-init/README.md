@@ -20,7 +20,7 @@ files into a project, so every project it touches opts in deliberately.
   skippable gate at a time, in a fixed order:
   1. Scaffolding and folder structure, plus a question of its own about where
      work items are tracked (a GitHub Projects board, Linear, Jira, files in
-     this repository, or nothing yet)
+     this repository, the BMAD method, or nothing yet)
   2. Hooks and guards
   3. Packaged project knowledge system under `knowledge/`
   4. Optional mechanical knowledge aids
@@ -119,10 +119,11 @@ project:
 
 - `setup-flow.md`: the ordered, gate-by-gate checklist project-init follows.
 - `work-tracking-choice.md`: the Gate 1 question about where work items are
-  tracked, what each of the five answers does, and the step-by-step setup for a
-  GitHub Projects board. The board is the only answer the toolkit sets up; it
-  creates and changes nothing inside Linear, Jira, or any other external
-  tracker.
+  tracked, what each of the six answers does, and the step-by-step setup for a
+  GitHub Projects board. The board is the only answer the toolkit builds itself.
+  For the BMAD method it runs BMAD's own installer with approval and stops
+  there. It creates and changes nothing inside Linear, Jira, or any other
+  external tracker.
 - `work-items-structure.md`: what Gate 1 does for the "files in this repository"
   answer. Installs the work-tracker, adopts existing folders safely, and
   separately offers an optional GitHub Project mirror of those files.
