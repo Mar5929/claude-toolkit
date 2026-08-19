@@ -54,8 +54,9 @@ WHAT DO I NOT STORE?             the exclusion list
 - **Important memory can stay top of mind.** The owner can pin a project memory so
   every future session receives its approved meaning without turning it into a rule.
 - **Saving is a short review, not a wall of text.** A proposed save is five plain
-  bullets: What, Where, Why, Assumptions, Unverified. The owner keeps, changes, or
-  skips each item. Silence means nothing gets written.
+  bullets: What, Where, Why, Assumptions, Unverified. The owner keeps, changes, edits
+  directly, or skips each item. An Edit action opens the complete proposal in a
+  temporary review file. Silence means nothing gets written.
 - **Nothing is saved behind the owner's back.** No helper agent, hook, background
   process, or provider writes project truth silently.
 - **Old truth does not haunt.** When something changes, the old record is superseded,
@@ -72,9 +73,9 @@ WHAT DO I NOT STORE?             the exclusion list
 - **Outside documentation stays useful without becoming memory.** Product guides,
   crawled websites, and other research remain in a mapped reference area. Approved
   project conclusions link back to that material from the place that owns them.
-- **Meaningful completed work can be recorded on command.** The owner can say
-  "record what we just did" after material work, and the system saves one short,
-  evidence-linked event instead of a transcript or detailed activity log.
+- **Meaningful completed work uses the normal save flow.** The owner can say "record
+  what we just did" after material work. The system then runs the same placement,
+  review, editing, and approval workflow used for every other proposed memory.
 - **Related records stay connected.** A specification can point to the decision that
   explains why it exists, and the decision can show every project record that points
   back to it without copying the decision text.
@@ -129,6 +130,14 @@ The startup context, delivered through the host's own loading path, always cover
 
 - **FR-009:** Every persistent item must pass the persistent-information test before a
   save is proposed.
+- **FR-109:** Before proposing or writing a memory, the system must apply a
+  future-agent interpretation test. The record must contain the minimum complete
+  information needed for a future agent to understand and use it correctly. Its
+  scope, evidence, authority, and uncertainty must be plain. It must exclude extra
+  background, speculation, implied conclusions, recommendations, and related
+  information that is not needed. If a reasonable reader could interpret the record
+  in more than one way or be steered beyond its approved meaning, the wording must be
+  narrowed or the memory must not be saved.
 - **FR-010:** The save flow must search the active work tracker, rules, skills,
   specifications, memories, and references before choosing a home.
 - **FR-011:** One meaning must have one canonical home. Other files must link instead
@@ -152,10 +161,25 @@ The startup context, delivered through the host's own loading path, always cover
 
 - **FR-019:** The main agent must show separate What, Where, Why, Assumptions, and
   Unverified bullets for each proposed specification or memory change and must wait
-  for keep, change, or skip before writing, except for the narrow owner-requested work
-  recap defined by FR-074 through FR-081.
+  for keep, change, edit, or skip before writing.
 - **FR-020:** No reply, an unclear reply, or a request to see full text must not count
   as approval.
+- **FR-110:** Every proposed memory or specification change must offer an Edit action.
+  Where the host supports keyboard actions, Edit must have a keyboard shortcut. Edit
+  opens the complete proposed record in a temporary review file that the owner can
+  change directly.
+- **FR-111:** The temporary review file is not project memory. It must remain outside
+  canonical memory and must not appear in startup context, recall, search results,
+  generated views, or Git-tracked project knowledge.
+- **FR-112:** After editing, the owner may say "good," "keep," or another clear
+  confirmation. That confirmation approves the exact current contents of the review
+  file. The owner must not have to describe the edits again in chat. Opening or
+  editing the file without confirmation does not approve it.
+- **FR-113:** Before saving an edited proposal, the system must validate its current
+  contents again. It must stop if the edit introduces another meaning, changes the
+  destination or record type, lacks evidence, creates a conflict, or fails the
+  future-agent interpretation test. Otherwise, it writes the edited version through
+  the normal protected save operation.
 - **FR-021:** A helper agent, hook, background process, or provider must not approve
   or silently write current project knowledge.
 - **FR-022:** Every durable record must be uniquely identifiable and show its kind,
@@ -297,29 +321,30 @@ The startup context, delivered through the host's own loading path, always cover
   memory-only support files while preserving project-owned specifications, source
   references, rules, skills, and work-tracker records.
 
-### Owner-requested work recap
+### Remembering completed work
 
-- **FR-074:** The owner must be able to say "record what we just did" or a clear
-  equivalent after completed work and have the system save one concise event record
-  about the work the owner is pointing to.
-- **FR-075:** That direct command counts as owner approval only for a recap of facts
-  the main agent directly observed during the completed work. It must not approve an
-  inferred decision, pattern, cause, recommendation, or unrelated memory.
+- **FR-074:** A request such as "record what we just did" must start the normal
+  remember workflow. It does not count as approval to write and must not bypass any
+  save step.
+- **FR-075:** Completed work may be proposed as an event only when it passes the
+  normal placement, durable-information, future-agent interpretation, evidence,
+  duplicate, conflict, review, editing, and owner-approval requirements.
 - **FR-076:** If the requested scope is unclear, the outcome is unverified, or the
-  work contains more than one separately meaningful event, the system must use the
-  normal What, Where, Why, Assumptions, and Unverified review before writing.
-- **FR-077:** The recap must state when the work occurred, the exact tool or system
-  involved, a plain description that supports later searches, what was done, the
-  material result, and links to available evidence.
-- **FR-078:** The recap must preserve useful search wording and aliases when they were
-  part of the work, such as describing a tool as Salesforce-specific and explaining
-  how it relates to Graphify, while keeping the tool's exact name.
-- **FR-079:** The recap must not copy a transcript, raw command log, tool-by-tool
-  history, hidden reasoning, or routine activity. It must link to the work tracker,
-  commit, changed files, test result, source report, or native session reference when
-  those sources are available.
-- **FR-080:** The system must never create these recaps automatically at the end of
-  every turn or session. An explicit owner request is required for each recap.
+  work contains more than one separately meaningful event, the system must separate
+  the proposed meanings and run the normal review for each one.
+- **FR-077:** The completed-work event must state when the work occurred, the exact
+  tool or system involved, a plain description that supports later searches, what was
+  done, the material result, and links to available evidence.
+- **FR-078:** The completed-work event must preserve useful search wording and aliases
+  when they were part of the work, such as describing a tool as Salesforce-specific
+  and explaining how it relates to Graphify, while keeping the tool's exact name.
+- **FR-079:** The completed-work event must not copy a transcript, raw command log,
+  tool-by-tool history, hidden reasoning, or routine activity. It must link to the work
+  tracker, commit, changed files, test result, source report, or native session
+  reference when those sources are available.
+- **FR-080:** The system must never create completed-work memories automatically at
+  the end of every turn or session. An explicit owner request is required to start
+  the normal remember workflow.
 - **FR-081:** Later recall must be able to answer whether the recorded work happened,
   when it happened, what was done, and what resulted, while linking to the event and
   its evidence and remaining honest when evidence is missing.
@@ -422,6 +447,11 @@ current task or session. It is a stable fact, lasting event, decision, or persis
 state whose absence would make the owner repeat an explanation or make a future agent
 repeat a wrong action.
 
+A memory must also be safe for a future agent to interpret. Being true is not enough.
+The record must be necessary, scoped, supported, and worded so a reasonable future
+reader is not pushed toward a broader, narrower, or different meaning than the owner
+approved.
+
 Durable records are grouped by what they mean:
 
 - **Facts:** lasting statements about the project, each with its evidence and truth
@@ -434,7 +464,7 @@ Durable records are grouped by what they mean:
 - Stable project facts and boundaries.
 - Lasting decisions and the reasons they should not be debated again.
 - Meaningful project events that changed project state.
-- Owner-requested recaps of material work that prevent repeated investigation or
+- Approved records of material completed work that prevent repeated investigation or
   repeated work.
 - Persistent project-specific preferences, risks, assumptions, and constraints.
 - Verified conclusions that prevent repeated mistakes or repeated investigation.
@@ -452,9 +482,9 @@ memory; model-generated prose with no provenance; secrets and credentials; sensi
 personal information that is not needed and approved for the repository.
 
 The guiding test for events: **would someone working on this project six months from
-now care that this happened?** Agent activity is not project history by default. An
-owner-requested recap of material work may be a project event when remembering it
-prevents repeated investigation or repeated work.
+now care that this happened?** Agent activity is not project history by default.
+Material completed work may be a project event when remembering it prevents repeated
+investigation or repeated work and the owner approves it through the normal workflow.
 
 ## 6. What may never happen
 
@@ -473,6 +503,10 @@ prevents repeated investigation or repeated work.
 
 - Use plain, literal language. Do not add jargon, analogies, or figures of speech that
   the owner did not use and approve.
+- Write each memory so it can be understood without the conversation that produced
+  it. Include only the context needed to prevent a reasonable misunderstanding. Do
+  not include information merely because it is true, related, interesting, or
+  available.
 - Do not add assumptions, interpretations, recommendations, or commentary that the
   owner did not explicitly approve.
 - Do not use wording that could steer a future agent beyond the approved facts,
@@ -538,8 +572,14 @@ The system is accepted when all of these are proven in a real project:
   reference area, while an approved Gearset decision, project behavior, or reusable
   process is found only in its owning memory, specification, or skill and links back
   to the documentation.
-- After material work, the owner says "record what we just did" and one concise event
-  is saved without a second approval step, while routine turns remain unsaved.
+- After material work, the owner says "record what we just did" and the system starts
+  the normal remember workflow. Nothing is written until the owner reviews and
+  approves the proposed event, and routine turns remain unsaved.
+- A proposed memory offers an Edit action. The owner changes the temporary review file,
+  says "good," and the exact edited contents are validated and saved without requiring
+  the owner to repeat those edits in chat.
+- A true but unnecessary, ambiguous, overbroad, or potentially steering statement is
+  narrowed before review or correctly produces no save.
 - A later agent asking whether the project used a Salesforce-specific graph tool
   instead of Graphify receives the recorded date, exact tool, work performed, result,
   and evidence links without receiving a copied transcript or raw command history.

@@ -49,6 +49,13 @@ The older drafts, original design, and whiteboards were moved under `work-items/
 - Reusable source, entity, and relationship records are optional and created only when reuse or ambiguity justifies them.
 - Project ADRs live in the decisions area unless an existing project already has an authoritative ADR home.
 
+### Approval and review
+
+- A memory must contain the minimum complete information a future agent needs to use it correctly without being steered beyond the approved meaning.
+- Every proposal offers an Edit action that opens a temporary review file outside canonical project knowledge.
+- After editing, the owner's "good" or "keep" approves the exact current file contents. The owner does not repeat the edits in chat.
+- The edited proposal is validated again before the protected write. Opening or editing it alone is not approval.
+
 ### Required project structure
 
 The approved core is:
@@ -71,14 +78,15 @@ project/
 - Rules, skills, trackers, delivery areas, references, and source folders remain in their existing project-owned locations and are mapped through `knowledge/map.md`.
 - A separate identity file is optional.
 - Domain profiles add only needed fields, routes, validation, and privacy warnings. They cannot weaken the common safeguards.
-- `.memory/` is absent during normal reads and may exist temporarily for an approved write lock or recovery journal.
+- `.memory/` is absent during normal reads and may exist temporarily for an editable review proposal, an approved write lock, or a recovery journal.
 
-### Work recaps
+### Remembering completed work
 
-- An explicit "record what we just did" can save one concise event for material completed work directly observed by the main agent.
+- An explicit "record what we just did" starts the normal remember workflow. It is not approval to write and creates no shortcut.
+- Material completed work becomes an event only after the normal placement, future-agent interpretation, evidence, review, editing, validation, and owner-approval checks.
 - It records when the work happened, the exact tool or system, searchable wording, what was done, the result, and evidence links.
 - It does not copy a transcript, raw command log, routine tool use, or hidden reasoning.
-- Unclear scope, unverified outcomes, or multiple separately meaningful events use the normal owner review.
+- The system never creates completed-work memories automatically.
 
 ### Research-spike documentation
 
@@ -115,7 +123,7 @@ The owner's latest approved direction is:
 Recommended maintenance mechanism:
 
 - Use a hybrid, not a fully hand-maintained file and not an autonomous transcript summarizer.
-- The memory system updates `knowledge/current.md` during an explicit handoff, an approved current-focus change, or "record what we just did."
+- The memory system updates `knowledge/current.md` during an explicit handoff, an approved current-focus change, or an approved completed-work event when that event changes current state.
 - A deterministic startup script reads `knowledge/current.md`, pinned records, and the dated summaries of recently approved records, then injects a bounded briefing.
 - Startup is read-only. It does not rewrite `knowledge/current.md` or create a stored transcript summary.
 - If `knowledge/current.md` is old, startup shows a stale warning instead of inventing current state.

@@ -33,7 +33,7 @@ same startup, approval, retrieval, privacy, and validation contracts.
 The final design was resolved from these inputs:
 
 1. [functional-requirements.md](functional-requirements.md), including FR-001
-   through FR-108;
+   through FR-113;
 2. [memory-system-v2-master2.md](memory-system-v2-master2.md), the approved design
    from 2026-08-17; and
 3. [memory-system-v2-master.md](memory-system-v2-master.md), the more detailed
@@ -52,7 +52,7 @@ The final requirements added pinned memory after both master documents were writ
 This architecture therefore adds pin storage, operations, startup behavior, safety
 checks, migration, and acceptance tests.
 
-FR-065 through FR-108 were added during the current owner review. Their traceability
+FR-065 through FR-113 were added during the current owner review. Their traceability
 rows visibly distinguish settled architecture from decisions that still need owner
 review.
 
@@ -662,6 +662,7 @@ new information
   -> search the work tracker and all current owners
   -> route work state, rules, skills, specs, sources, and conversations first
   -> if memory is still the right home, run the durable-information test
+  -> run the future-agent interpretation test
   -> choose NOOP or a record type
   -> identify provenance, entities, and project scope
   -> search duplicate meaning and the entity timeline
@@ -684,6 +685,20 @@ The durable-information test asks:
 Questions 1, 2, and 4 must be yes. Question 3 must identify the existing home or show
 why a new record is needed.
 
+The future-agent interpretation test asks:
+
+1. Does the record contain the minimum complete information needed to understand and
+   use the meaning correctly?
+2. Can it be understood without the conversation that produced it?
+3. Are its scope, evidence, authority, and uncertainty plain?
+4. Could a reasonable reader infer a broader, narrower, or different meaning than the
+   owner intends?
+5. Does it contain background, speculation, implied conclusions, recommendations, or
+   related information that is not needed?
+
+If question 4 or 5 is yes, the proposal is narrowed before review or becomes NOOP. A
+statement does not qualify merely because it is true or related.
+
 At-risk information is proposed when it appears. If approval does not arrive, nothing
 is written and no hidden queue is kept.
 
@@ -698,13 +713,33 @@ or memory meaning:
 - Assumptions: every assumption, or None.
 - Unverified: every unchecked claim, or None.
 
-Only keep, change, or skip from the owner decides the result. Silence, an unclear
-reply, a request for full text, a helper agent, a hook, a provider, and a background
-process are not approval.
+Only keep, change, edit, or skip from the owner decides the result. Silence, an
+unclear reply, a request for full text, a helper agent, a hook, a provider, and a
+background process are not approval.
+
+Every review offers an Edit action. Where the host supports keyboard actions, Edit has
+a keyboard shortcut. It opens the complete proposal in a temporary file under
+`.memory/review/<proposal-id>.md`. The file is outside canonical memory and
+specification paths. Startup, recall, search, generated views, and Git-tracked project
+knowledge ignore it.
+
+The owner may change the review file directly. After an edit, "good," "keep," or
+another clear confirmation approves the exact current file contents. Opening or
+editing the file alone is not approval, and the owner never has to repeat the edits in
+chat.
+
+The coordinator reruns placement, record-type, provenance, duplicate, conflict,
+schema, privacy, and future-agent interpretation checks against the edited contents.
+If the edit introduces another meaning, changes the destination or record type, lacks
+evidence, creates a conflict, or fails a safety check, the write stops and the review
+returns with the exact problem. Otherwise, the current reviewed contents continue to
+the protected write operation. The temporary file is removed after a successful save,
+skip, or cancellation. A failed validation keeps it available for correction.
 
 The write coordinator binds approval to:
 
 - the proposed meaning;
+- the exact reviewed contents and their hash;
 - the destination path and record id;
 - the lifecycle or pin operation;
 - the evidence locators and source hashes reviewed by the owner; and
@@ -723,12 +758,12 @@ is the write that happened without the review.
 Two mechanisms carry the gate.
 
 **One approved write path.** Canonical memory and specification changes are applied
-only by the write and pin operations of section 16.1. Each of those operations carries
-the five-bullet review as an argument, so the host's own confirmation of the operation
-is the moment the owner sees the proposal and decides. The agent cannot report an
-approval the owner did not give, because the agent is not the thing that records the
-decision. Claude Code and Codex both confirm operations before running them, which is
-why this contract is portable across the two supported hosts.
+only by the write and pin operations of section 16.1. Each operation carries the
+five-bullet review, the complete proposal, and its content hash. The host review gives
+the owner keep, change, edit, and skip actions and records the owner's decision against
+the exact reviewed contents. The agent cannot report an approval the owner did not
+give, because the agent is not the thing that records the decision. A compatible host
+must provide this review contract before it may write canonical project knowledge.
 
 **A deterministic pre-write guard.** Any other route to the canonical memory and
 specification paths is refused before it applies: a direct file edit, a helper agent,
@@ -752,9 +787,9 @@ Consequences the design accepts:
 An approved write is one reported operation even when it affects several files.
 
 1. Acquire a project-local write lock under .memory/.
-2. Recheck source hashes and duplicate ids.
+2. Recheck source hashes, the approved proposal hash, and duplicate ids.
 3. Write a crash-recovery journal with preimages under .memory/.
-4. Stage canonical Markdown changes.
+4. Stage the exact approved Markdown changes.
 5. Apply required pin, conflict-link, supersession, and retirement changes.
 6. Rebuild the generated navigation index and affected startup views. Retrieval does
    not depend on them.
@@ -769,6 +804,19 @@ by the project's normal delivery process.
 If a process stops with a journal present, the next startup detects it before
 retrieval. It restores the preimages or completes regeneration from canonical files,
 then reports the recovery.
+
+### 13.5 Remembering completed work
+
+A request such as "record what we just did" invokes the normal remember workflow. It
+is not approval to write and creates no shortcut around placement, durable-information,
+future-agent interpretation, evidence, duplicate, conflict, editing, validation, or
+owner-approval checks.
+
+Completed work becomes an event only when it passes those checks. The proposal states
+when the work occurred, the exact tool or system involved, what materially changed,
+the result, and links to available evidence. It excludes transcripts, command logs,
+tool-by-tool activity, hidden reasoning, and routine details. The system never creates
+the event automatically.
 
 ## 14. Lifecycle architecture
 
@@ -1217,6 +1265,9 @@ The architecture is implemented only when a real project proves:
 | AT-37 | A complete project scan finds no transcript copy, transcript index, generated session summary, session card, or second current-status store created by the memory system. |
 | AT-38 | An owner-requested exact-wording search returns the original host, session, date, role, and message locator, or an honestly scoped miss. |
 | AT-39 | An agent instructed to skip the approval review, and an agent writing to a canonical memory path by any route other than a section 16.1 write operation, both leave every canonical file unchanged and produce a visible refusal. |
+| AT-40 | A true but unnecessary, ambiguous, overbroad, or potentially steering statement is narrowed before review or produces NOOP. |
+| AT-41 | The owner opens a proposed memory through Edit, changes the temporary review file, says "good," and the exact edited contents are validated and saved without appearing in startup, recall, search, generated views, or Git-tracked knowledge before approval. |
+| AT-42 | "Record what we just did" starts the normal remember workflow and cannot write a completed-work event before the normal review and approval finish. |
 
 ## 23. Architectural decision records
 
@@ -1525,9 +1576,10 @@ The architecture is implemented only when a real project proves:
 ### ADR-033: The approval gate sits in the write path, not in the agent's instructions
 
 - **Decision:** Owner approval is enforced by the section 16.1 write and pin
-  operations, whose invocation the host confirms, plus a deterministic guard that refuses every other
-  route to canonical memory and specification paths. The agent's instruction to run
-  the five-bullet review stays, but it is no longer what enforces the review.
+  operations, whose host review binds the decision to the five bullets and exact
+  reviewed contents, plus a deterministic guard that refuses every other route to
+  canonical memory and specification paths. The agent's instruction to run the
+  five-bullet review stays, but it is no longer what enforces the review.
 - **Reason:** ADR-009 already commits this architecture to mechanical safety, and the
   approval contract was the one load-bearing safeguard still resting on the agent
   behaving. An agent that skipped or misreported the review could write current truth.
@@ -1536,6 +1588,40 @@ The architecture is implemented only when a real project proves:
   a review hook that warns without blocking, which leaves the bad write applied; and a
   durable ledger of refused attempts, which would need a second store and is not
   required to prove the gate works.
+
+### ADR-034: Editable proposals stay outside project truth
+
+- **Decision:** Every memory and specification review offers an editable temporary
+  proposal under `.memory/review/`. The owner can open it through an Edit action,
+  change it directly, and approve the exact current contents without repeating edits
+  in chat. Proposal files are excluded from canonical paths, startup, retrieval,
+  generated views, and Git-tracked project knowledge.
+- **Reason:** The owner needs a fast way to correct exact wording without making an
+  unapproved draft look like current project truth.
+- **Rejected:** Editing a canonical record before approval; requiring every correction
+  to be described in chat; and treating an opened or edited proposal as approval.
+
+### ADR-035: Every memory must be safe for a future agent to interpret
+
+- **Decision:** Proposal and pre-write validation apply the future-agent interpretation
+  test. A memory contains the minimum complete context needed for correct use and
+  makes scope, evidence, authority, and uncertainty plain. Unneeded or potentially
+  steering material is removed or the operation becomes NOOP.
+- **Reason:** A statement can be true but still send a future agent down the wrong path
+  when it is vague, overbroad, or surrounded by unnecessary context.
+- **Rejected:** Saving all true related information and relying on a future agent to
+  decide which parts matter.
+
+### ADR-036: Completed work uses the normal remember workflow
+
+- **Decision:** A request to record completed work starts the normal remember workflow
+  and receives no approval shortcut. A qualifying event uses the same placement,
+  interpretation, evidence, review, editing, validation, and approval rules as every
+  other memory.
+- **Reason:** One save path is easier to understand and protects completed-work events
+  from becoming automatic activity logs or unreviewed project truth.
+- **Rejected:** Treating the request itself as approval and creating automatic end-of-
+  turn or end-of-session recaps.
 
 ## 24. Functional requirement traceability
 
@@ -1557,6 +1643,7 @@ The architecture is implemented only when a real project proves:
 | Requirement | Architecture coverage | Acceptance proof |
 | --- | --- | --- |
 | FR-009 | Section 13.1 defines the durable-information test before a save proposal. | AT-03 |
+| FR-109 | Section 13.1 and ADR-035 define the future-agent interpretation test before review and again before write. | AT-40 |
 | FR-010 | Section 13.1 searches the tracker and every information owner first. | AT-03, AT-04 |
 | FR-011 | Sections 4, 6, 7, and ADR-021 enforce one home and links. | AT-16 |
 | FR-012 | Sections 6, 7, and ADR-006 keep active state in the tracker. | AT-01 |
@@ -1573,6 +1660,7 @@ The architecture is implemented only when a real project proves:
 | --- | --- | --- |
 | FR-019 | Section 13.2 defines separate five-bullet reviews and explicit approval. | AT-04 |
 | FR-020 | Section 13.2 defines silence, ambiguity, and full-text requests as no approval. | AT-04 |
+| FR-110 through FR-113 | Section 13.2 and ADR-034 define the editable temporary proposal, exact-content approval, exclusions, and revalidation. | AT-41 |
 | FR-021 | Sections 13.2 and 21 deny approval and writes to helpers, hooks, providers, and background processes. | AT-04 |
 | FR-108 | Section 13.3 and ADR-033 put the refusal in the approved write path and refuse every other route to canonical paths. | AT-04, AT-39 |
 | FR-022 | Section 12 defines permanent identity, kind, status, dates, provenance, approval, and summary. | AT-04 |
@@ -1653,11 +1741,11 @@ The architecture is implemented only when a real project proves:
 | FR-072 | Sections 6 and 13 route approved behavior to specifications and reusable processes to skills. | AT-04 |
 | FR-073 | Section 7 and ADR-030 require clean removal while preserving project-owned material. | AT-31 |
 
-### Owner-requested work recap
+### Remembering completed work
 
 | Requirement | Architecture coverage | Acceptance proof |
 | --- | --- | --- |
-| FR-074 through FR-081 | Section 12 defines the event record used by a recap. The direct approval and write flow remains pending. | Pending |
+| FR-074 through FR-081 | Sections 12 and 13.5 plus ADR-036 apply the normal remember workflow and event record rules without an approval shortcut. | AT-42 |
 
 ### Links and backlinks
 
