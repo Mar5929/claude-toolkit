@@ -33,7 +33,7 @@ same startup, approval, retrieval, privacy, and validation contracts.
 The final design was resolved from these inputs:
 
 1. [functional-requirements.md](functional-requirements.md), including FR-001
-   through FR-107;
+   through FR-108;
 2. [memory-system-v2-master2.md](memory-system-v2-master2.md), the approved design
    from 2026-08-17; and
 3. [memory-system-v2-master.md](memory-system-v2-master.md), the more detailed
@@ -52,7 +52,7 @@ The final requirements added pinned memory after both master documents were writ
 This architecture therefore adds pin storage, operations, startup behavior, safety
 checks, migration, and acceptance tests.
 
-FR-065 through FR-107 were added during the current owner review. Their traceability
+FR-065 through FR-108 were added during the current owner review. Their traceability
 rows visibly distinguish settled architecture from decisions that still need owner
 review.
 
@@ -713,7 +713,41 @@ The write coordinator binds approval to:
 If any bound input changes before the write, the coordinator refuses and asks for a
 fresh review.
 
-### 13.3 Transaction behavior
+### 13.3 Where the approval gate sits
+
+The approval contract above describes what the owner sees. This section decides what
+enforces it. Enforcement does not sit in the agent's instructions, because an
+instruction only holds while the agent follows it, and the failure mode that matters
+is the write that happened without the review.
+
+Two mechanisms carry the gate.
+
+**One approved write path.** Canonical memory and specification changes are applied
+only by the write and pin operations of section 16.1. Each of those operations carries
+the five-bullet review as an argument, so the host's own confirmation of the operation
+is the moment the owner sees the proposal and decides. The agent cannot report an
+approval the owner did not give, because the agent is not the thing that records the
+decision. Claude Code and Codex both confirm operations before running them, which is
+why this contract is portable across the two supported hosts.
+
+**A deterministic pre-write guard.** Any other route to the canonical memory and
+specification paths is refused before it applies: a direct file edit, a helper agent,
+a hook, a background process, a provider, or a script. The guard is deterministic, runs
+without a model in its path, and refuses with a message naming the operation that
+should have been used.
+
+Consequences the design accepts:
+
+- A refusal is reported in the session, so a blocked attempt is visible rather than
+  silent.
+- The guard refuses by path and operation, not by intent. It cannot tell an honest
+  mistake from a deliberate bypass, and it does not try to.
+- The owner retains ordinary Git access to every canonical file. This gate governs
+  agent writes, not the owner's own editing.
+- The gate does not record a durable ledger of refused attempts. Refusals are reported
+  where they happen, and canonical files stay unchanged, which is what AT-39 proves.
+
+### 13.4 Transaction behavior
 
 An approved write is one reported operation even when it affects several files.
 
@@ -1182,6 +1216,7 @@ The architecture is implemented only when a real project proves:
 | AT-36 | Removing or disabling every native-history adapter leaves current retrieval and cross-machine continuity working from the tracker and approved project records. |
 | AT-37 | A complete project scan finds no transcript copy, transcript index, generated session summary, session card, or second current-status store created by the memory system. |
 | AT-38 | An owner-requested exact-wording search returns the original host, session, date, role, and message locator, or an honestly scoped miss. |
+| AT-39 | An agent instructed to skip the approval review, and an agent writing to a canonical memory path by any route other than a section 16.1 write operation, both leave every canonical file unchanged and produce a visible refusal. |
 
 ## 23. Architectural decision records
 
@@ -1487,6 +1522,21 @@ The architecture is implemented only when a real project proves:
   session summaries, and treating native history as the cross-machine continuity
   guarantee.
 
+### ADR-033: The approval gate sits in the write path, not in the agent's instructions
+
+- **Decision:** Owner approval is enforced by the section 16.1 write and pin
+  operations, whose invocation the host confirms, plus a deterministic guard that refuses every other
+  route to canonical memory and specification paths. The agent's instruction to run
+  the five-bullet review stays, but it is no longer what enforces the review.
+- **Reason:** ADR-009 already commits this architecture to mechanical safety, and the
+  approval contract was the one load-bearing safeguard still resting on the agent
+  behaving. An agent that skipped or misreported the review could write current truth.
+  Moving the refusal into the write path makes the bypass fail instead of succeed.
+- **Rejected:** Approval by agent instruction alone, which cannot refuse anything;
+  a review hook that warns without blocking, which leaves the bad write applied; and a
+  durable ledger of refused attempts, which would need a second store and is not
+  required to prove the gate works.
+
 ## 24. Functional requirement traceability
 
 ### Orientation and context
@@ -1524,13 +1574,14 @@ The architecture is implemented only when a real project proves:
 | FR-019 | Section 13.2 defines separate five-bullet reviews and explicit approval. | AT-04 |
 | FR-020 | Section 13.2 defines silence, ambiguity, and full-text requests as no approval. | AT-04 |
 | FR-021 | Sections 13.2 and 21 deny approval and writes to helpers, hooks, providers, and background processes. | AT-04 |
+| FR-108 | Section 13.3 and ADR-033 put the refusal in the approved write path and refuse every other route to canonical paths. | AT-04, AT-39 |
 | FR-022 | Section 12 defines permanent identity, kind, status, dates, provenance, approval, and summary. | AT-04 |
 | FR-023 | Sections 12 and 12.1 require based_on evidence and explicit verification. | AT-13 |
 | FR-024 | Section 14 defines every required lifecycle operation. | AT-03, AT-10, AT-11 |
 | FR-025 | Sections 14 and 15 exclude obsolete records from current reads and preserve timelines. | AT-11 |
 | FR-026 | Sections 12.1 and 14.2 plus ADR-011 consolidate supporting evidence and refuse incompatible meanings, truth states, or effective dates. | AT-10, AT-23 |
 | FR-027 | Sections 14 and 14.4 constrain deletion and require a reason and audit evidence. | AT-16 |
-| FR-028 | Section 13.3 coordinates canonical writes, affected views, validation, reporting, and rollback. | AT-16 |
+| FR-028 | Section 13.4 coordinates canonical writes, affected views, validation, reporting, and rollback. | AT-16 |
 
 ### Retrieval
 
@@ -1571,7 +1622,7 @@ The architecture is implemented only when a real project proves:
 | FR-051 | Section 19 requires multi-signature detection, dry run, and stop on ambiguity or collision. | AT-19 |
 | FR-052 | Section 19 requires preservation of existing text, links, and unchanged bytes. | AT-19 |
 | FR-053 | Sections 12 and 19 preserve and report missing legacy metadata without invention. | AT-19 |
-| FR-054 | Sections 13.3 and 19 require recovery and rollback until every check passes. | AT-19 |
+| FR-054 | Sections 13.4 and 19 require recovery and rollback until every check passes. | AT-19 |
 | FR-055 | Sections 12 and 19 upgrade legacy records only when an approved edit touches them. | AT-19 |
 
 ### Pinned memory
@@ -1616,7 +1667,7 @@ The architecture is implemented only when a real project proves:
 | FR-083 | Section 12.4 and ADR-026 let a specification reference its supporting decision without copying rationale. | AT-21 |
 | FR-084 | Section 12.4 makes memory_related return outgoing links and derived incoming backlinks. | AT-21 |
 | FR-085 | Sections 18 and 20 make missing targets visible and prevent broken links from acting as evidence. | AT-21 |
-| FR-086 | Sections 12.4, 13.3, and 18 require complete link repair or rollback for a move or rename. | AT-22 |
+| FR-086 | Sections 12.4, 13.4, and 18 require complete link repair or rollback for a move or rename. | AT-22 |
 
 ### Durable data model
 
