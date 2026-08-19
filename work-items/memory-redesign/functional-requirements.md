@@ -174,6 +174,10 @@ The startup context, delivered through the host's own loading path, always cover
   removal, or accidental records and must require a reason.
 - **FR-028:** An approved write must leave canonical records and every affected
   derived view or search aid consistent as one reported operation.
+- **FR-108:** The refusal must sit in the saving step itself, not in the agent's
+  willingness to ask. An agent that skips the review, misstates the owner's answer, or
+  writes by another route must still fail to change current project knowledge, and the
+  refused attempt must be reported to the owner instead of failing silently.
 
 ### Retrieval
 
@@ -484,6 +488,8 @@ The system is accepted when all of these are proven in a real project:
 - The startup brief stays inside its budget and degrades safely when too big.
 - A transient detail correctly produces no save.
 - A new persistent fact cannot be written without the five-bullet approval.
+- An agent told to skip the approval review still cannot change current project
+  knowledge, and the refused attempt is visible to the owner.
 - A pinned memory appears in cold Claude Code and Codex sessions for its project and
   never appears in another project.
 - Unpinning removes a memory from startup without removing it from normal retrieval.
