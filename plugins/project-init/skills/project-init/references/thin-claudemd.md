@@ -6,11 +6,22 @@ stays in the folder's own `CLAUDE.md` where Claude can load it on demand.
 
 ## What Gate 5 does
 
-1. Copy the approved default and conditional rules into `.claude/rules/`.
-2. Write or update the root `CLAUDE.md` with the short structure below.
-3. Write or update root `AGENTS.md` for Codex. Never create a nested
+1. Ask whether the owner wants to create a root `SOUL.md`. If yes, work with
+   them to write it. Never install a fixed template or overwrite an existing
+   file.
+2. Copy the approved default and conditional rules into `.claude/rules/`.
+3. Write or update the root `CLAUDE.md` with the short structure below.
+4. Write or update root `AGENTS.md` for Codex. Never create a nested
    `AGENTS.md`.
-4. Add or update `.claude/rules/README.md` so each installed rule is indexed.
+5. Add or update `.claude/rules/README.md` so each installed rule is indexed.
+
+When `SOUL.md` exists, the first instruction in every root `CLAUDE.md` or
+`AGENTS.md` the project uses is:
+
+> Read SOUL.md first and follow it throughout this session.
+
+Put that instruction before the title or any other text. When the owner declines
+`SOUL.md`, do not add the instruction.
 
 The project knowledge procedure is packaged by the `second-brain` plugin. Do
 not copy a retired large memory rule, verifier instructions, or the full
@@ -29,6 +40,7 @@ Both root routes carry this short principle:
 
 In this order:
 
+- When `SOUL.md` exists, the instruction to read it first.
 - A title and one-line project description.
 - `Read .claude/rules first.`
 - When project knowledge is installed, one short line saying the fail-open
@@ -58,6 +70,7 @@ startup content.
 Codex does not reliably receive Claude's rules or hooks. Root `AGENTS.md`
 therefore contains:
 
+- when `SOUL.md` exists, the instruction to read it first;
 - the same title and one-line project description;
 - a direct instruction to open and read every `.md` rule under
   `.claude/rules/` before work;

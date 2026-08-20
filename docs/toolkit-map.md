@@ -28,7 +28,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 
 | Skill | Plugin | Purpose | Trigger |
 |---|---|---|---|
-| project-init | project-init | Walk a NEW project through setup gates, one skippable step at a time | `/project-init` |
+| project-init | project-init | Walk a NEW project through setup gates, including an optional owner-written `SOUL.md`, one skippable step at a time | `/project-init` |
 | project-sync | project-init | Audit an EXISTING project against the toolkit and close approved gaps | `/project-sync` |
 | machine-sync | project-init | Audit THIS COMPUTER's `~/.claude/` against the toolkit's machine-wide set and close approved gaps. Also the whole setup for a new computer | `/machine-sync`, "set up this machine from my toolkit" |
 | second-brain | second-brain | Explain, install, audit, migrate, and maintain the complete project knowledge system | `/second-brain` |
@@ -75,8 +75,9 @@ itself (`setup-flow.md`, `work-tracking-choice.md`, `work-items-structure.md`,
 `thin-claudemd.md`, `folder-claudemd.md`, `salesforce-project-scaffold.md`).
 Nothing there is copied into a project.
 
-`thin-claudemd.md` and `folder-claudemd.md` are a pair. The first says what the
-root `CLAUDE.md` holds and what must never leave it. The second says what goes
+`thin-claudemd.md` and `folder-claudemd.md` are a pair. The first says how an
+optional `SOUL.md` is referenced first, what the root `CLAUDE.md` holds, and
+what must never leave it. The second says what goes
 in the short `CLAUDE.md` inside each major folder, which Claude Code loads only
 when an agent reads a file in that folder. `project-sync` audits the folder
 files against the second one.

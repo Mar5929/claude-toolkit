@@ -3,7 +3,7 @@ name: project-init
 description: >-
   Walk the user through initializing a NEW project, one gate at a time:
   scaffolding & folder structure, guard hooks, the packaged project knowledge
-  system, CLAUDE.md and AGENTS.md, the Git-native
+  system, optional SOUL.md, CLAUDE.md and AGENTS.md, the Git-native
   work-tracker, and optional standalone toolkit skills. Use when
   the user is starting a new repo/project and wants help setting up the
   foundational scaffolding, or says things like "initialize this project", "set
@@ -295,10 +295,11 @@ Markdown knowledge system.
 - Do not install the retired v1 knowledge curator, drift hooks, SHA pins, or a
   database-like graph.
 
-### Gate 5: CLAUDE.md and the rules folder
+### Gate 5: SOUL.md, CLAUDE.md, and the rules folder
 
-**Purpose:** the project's orientation file that every future session reads
-first, plus the `.claude/rules/` folder that holds the behavioral rules.
+**Purpose:** optionally define the agent's identity, then write the project's
+root orientation files and the `.claude/rules/` folder that holds the
+behavioral rules.
 
 The behavioral rules do NOT go inside CLAUDE.md. They are individual files in the
 project's `.claude/rules/` folder, copied from the toolkit's rules libraries.
@@ -306,6 +307,17 @@ CLAUDE.md stays thin and points at that folder. Read `references/thin-claudemd.m
 for the exact structure, and `../../library/rules/general/README.md` for the rule
 list.
 
+- **Offer a project `SOUL.md`.** Ask: "Do you want to create a `SOUL.md` for
+  this project? It defines who the agent is, how it communicates, its defaults,
+  and what it should avoid." If the owner says yes, work with them to write the
+  root file during this gate. Do not install a fixed template or invent the
+  project's identity. Keep commands, paths, coding rules, and project workflows
+  in `CLAUDE.md`, `AGENTS.md`, or `.claude/rules/`, not `SOUL.md`. If a root
+  `SOUL.md` already exists, keep it and never overwrite it. Once the file
+  exists, put `Read SOUL.md first and follow it throughout this session.` as
+  the first instruction in every root agent instruction file the project uses,
+  before its title or any other text. If the owner declines, create no file and
+  add no reference.
 - **Copy the general rules** the owner wants from `../../library/rules/general/`
   into the project's `.claude/rules/`. Every default-ON file goes in unless the
   owner drops it; walk the list and let them accept, edit, or skip each. Adapt
