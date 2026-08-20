@@ -84,7 +84,7 @@ The following conflicts are resolved here:
 - a decision gate for any future retrieval accelerator;
 - read-only review and approved cleanup;
 - deterministic validation and retrieval tests;
-- privacy boundaries;
+- physical project scope, monorepo subroots, and privacy boundaries;
 - migration and rollback; and
 - compatibility across supported agent hosts.
 
@@ -271,17 +271,45 @@ a conclusion is promoted into a durable fact, decision, event, pattern, specific
 rule, or skill. In an established project, the mapped location may be
 engagement/references/, delivery/references/, references/, or another existing owner.
 
-### 7.3 Generated and local state
+### 7.3 Generated, optional canonical, and local state
 
 The required structure does not include memory-settings.md, recent.md, index.md,
-crib.md, gold-set.md, or another generated view. A later approved startup decision may
-define optional derived artifacts, but no such artifact becomes canonical merely
-because it is rebuildable.
+crib.md, or another generated view. This document is the startup decision, and v2
+stores no generated view by default. A project may approve an optional derived
+artifact later, but no such artifact becomes canonical merely because it is
+rebuildable, and none of them joins the required core.
 
 knowledge/current.md is not a generated view and this rule does not exclude it. It is
 authored content in the required core under section 7.1, written only through the
 write coordinator. The recent window is still rendered at startup from dated record
 summaries and is never stored as a file.
+
+#### 7.3.1 Optional canonical files
+
+Two files are canonical, Git-tracked, and owner-approved, yet belong to neither of the
+categories above. They are not generated views, so the exclusion list does not cover
+them, and they are not part of the required core, so section 7 does not list them. A
+new project has neither one. Each appears only when the project needs it:
+
+| File | Written by | Appears when | Absence means |
+| --- | --- | --- | --- |
+| knowledge/memory/pins.md | The pin manager, through the write coordinator | The owner approves the project's first pin | The project has no pins. Startup renders an empty pin block and reports no error |
+| knowledge/retrieval-gold-set.md | The owner, directly or through an approved write | The owner writes the project's retrieval questions | The project has no gold set. Validator check 19 reports it as a warning, and it blocks only a proposed retrieval change |
+
+This category is closed. A third optional canonical file requires a new approved ADR.
+Section 11.2 defines what pins.md holds and section 18.1 defines what the gold set
+holds. Neither file may hold the only copy of a meaning that belongs in a record, and
+neither is read to decide what is true.
+
+That is how this section and sections 11.2, 18.1, and ADR-021 agree. Those sections
+require a home for pin state and for the gold set. This section refuses to grow the
+required core. Naming both files optional satisfies both: the boot path still needs
+exactly the files in section 7, and a project that uses pins or measures retrieval has
+one committed place for each.
+
+A project that already owns a home for retrieval test material may map the gold set
+there through knowledge/map.md instead of using the default path. The runner and the
+validator read the mapped path, so neither guesses.
 
 .memory/ is absent during normal reads. An approved write may create it temporarily
 for a lock or crash-recovery journal. Any local state must be disposable, gitignored,
@@ -295,19 +323,25 @@ sources, or session history.
 | Host startup adapter | Delivers the operating contract and starts the boot brief | No |
 | Capability resolver | Reports available operations, privacy boundary, and degraded features | No |
 | Source resolver | Reads authored and canonical inputs by layer | No |
-| Boot brief assembler | Selects, orders, budgets, and links startup context | Generated views only through the coordinator |
+| Boot brief assembler | Selects, orders, budgets, and links startup context. It reads knowledge/current.md and assembles the recent window in memory | No. Startup is read-only under section 10.6 |
 | Tracker adapter (optional) | Reads active and recent work from the configured tracker, when one is configured and reachable. Startup and continuity work without it | No |
 | Retrieval router | Applies question routing, tier order, ranking, and failure rules | No |
 | Canonical store | Reads and stages Markdown records and settings | Only through the write coordinator |
 | Write coordinator | Applies approval, concurrency, lifecycle, regeneration, validation, and rollback | Yes |
 | Lifecycle engine | Builds approved record changes for named operations | Only through the coordinator |
 | Pin manager | Validates pin eligibility, budget, project scope, and summary hash | Only through the coordinator |
-| View generator | Rebuilds current, recent, index, and other derived views | Generated files only |
+| View generator | Rebuilds any optional derived artifact a project has separately approved, and reports that there are none when a project has none. It never writes knowledge/current.md, which is authored, and never stores the recent window, which is assembled at startup | Optional generated files only, and only inside a coordinator transaction |
 | Validator | Runs deterministic integrity and acceptance checks | No |
 | Review engine | Produces a repair worklist | No |
 | Cleanup skill | Converts approved worklist items into lifecycle operations | Only through the coordinator |
 | Session-history adapter | Searches original local host history with a scoped gate | No |
 | Migration engine | Detects, plans, applies, verifies, and rolls back approved migrations | Yes, through the coordinator |
+
+The view generator has nothing to rebuild in a default v2 project, and
+memory_rebuild_views says so rather than failing. It exists because the coordinator
+must be able to regenerate whatever a project has approved inside the same
+transaction, and because FR-003, FR-004, and FR-017 apply the moment such an artifact
+exists. Section 7.3 keeps that possibility from growing the required core.
 
 The retrieval router reads the canonical store directly. V2 has no retrieval-provider
 or search-index implementation. Any future accelerator remains outside the canonical
@@ -327,6 +361,13 @@ tracker:
   adapter: github-project
   project: Claude-Toolkit-Project
 project_root: .
+subroots: []
+privacy:
+  level: standard
+  external_transfer: denied
+  third_party_personal: refused
+startup:
+  budget_bytes: 10240
 profiles:
   - software
 ---
@@ -339,10 +380,21 @@ The authored overview follows this front matter.
 The stable project id scopes pin queries, retrieval results, and session-history
 searches. A path on one machine is never used as the project identity.
 
-Startup, pin, session-history, and privacy configuration remains subject to its later
-architecture decision. That decision must not add another required physical file
-without revising this ADR. An environment variable or installed client never counts
-as consent for external transfer.
+`project_root`, `subroots`, and `privacy` are the whole configuration surface for scope
+and privacy. Section 21 defines how they resolve, what they enforce, how a refusal
+reads, and which validator checks read them.
+
+`startup.budget_bytes` is the whole configuration surface for the boot brief. It is
+optional. When it is absent, the default in section 10.4 applies. Section 10.4 defines
+that default, the preflight that validates any change to it, and what may never be
+dropped to meet it.
+
+Startup, pin, session-history, and privacy configuration is settled here and in
+sections 10, 11, 15.5, and 21, and none of it adds a required physical file. Pin state
+and the retrieval gold set live in the optional canonical files named in section 7.3.1,
+which a new project does not have. Session-history scope is a request-time argument
+under section 15.5, not stored configuration. An environment variable or installed
+client never counts as consent for external transfer.
 
 ## 10. Startup architecture
 
@@ -394,15 +446,27 @@ retried, disproved assumptions, and lasting constraints.
 The map is authored. Validation compares its listed major paths to the repository and
 reports missing, renamed, or undocumented areas.
 
-If the later startup decision permits a stored generated view, that view identifies
+This document is the startup decision, and v2 stores no generated view. The current
+block reads authored lines from knowledge/current.md and the recent block is assembled
+in memory at startup, so neither is written to disk and neither can go stale as a file.
+If a project separately approves an optional derived artifact, that artifact identifies
 itself as generated, names and links every input, carries a deterministic input
-fingerprint, and is replaced by regeneration after a hand edit. This rule does not
-make a generated view part of the required project structure.
+fingerprint, and is replaced by regeneration after a hand edit. Approving one never
+makes it part of the required project structure.
 
 ### 10.4 Budget behavior
 
-The default total rendered budget is 10 KB. A project may lower it only while all
-required blocks still fit.
+The default total rendered budget is 10 KB, meaning 10240 bytes. It covers everything
+the brief renders, including the current block read from knowledge/current.md and the
+recent window assembled from approved records. Those two blocks are part of the budget,
+not an addition to it.
+
+A project may set a different budget in the `startup.budget_bytes` front-matter key in
+knowledge/project.md, up or down. Either direction runs the same preflight: the change
+is accepted only when the complete required set below still fits, and a change that
+would not fit is refused and returns the required byte count. So an owner whose
+required set genuinely needs more room raises the budget with the real number in front
+of them, instead of losing content to a figure this document picked.
 
 Optional detail degrades in this order:
 
@@ -411,13 +475,26 @@ Optional detail degrades in this order:
 3. unchanged current areas become a count and link; and
 4. the map keeps major folders only.
 
-Identity, project purpose, latest handoff, every valid pinned memory, and the memory
-tool route are never silently dropped.
+These are the required set, and they are never silently dropped at any budget:
+
+- identity and the operating route;
+- project purpose;
+- the current focus, the known blockers, and the exact next step from
+  knowledge/current.md;
+- the latest authored handoff line;
+- every valid pinned memory; and
+- the memory tool route.
+
+Degradation step 3 collapses only the current areas that have not changed, so it never
+touches the current focus, the blockers, or the next step. The stale warning defined in
+section 10.6 survives every
+step as one labeled line carrying its date, because a brief that hides how old its
+current state is misleads worse than a brief that runs long.
 
 The pin operation calculates the required brief size before writing. It refuses a new
 pin when the complete required brief would exceed the configured budget and returns
-the exact pin set and byte count that need review. Lowering the budget uses the same
-check.
+the exact pin set and byte count that need review. Every budget change runs the same
+check, in either direction.
 
 If a manual edit creates an invalid over-budget pin set, startup renders every valid
 pin, reports the configuration error, and continues in a visible overflow mode.
@@ -492,15 +569,27 @@ An agent may propose a pin or unpin. Only the owner may approve it.
 
 ### 11.2 Canonical pin state
 
-The pin registry stores only:
+Pin state lives in one file, knowledge/memory/pins.md. That file is an optional
+canonical file under section 7.3.1: Git-tracked, written only through the write
+coordinator, and absent until the owner approves the project's first pin. A project
+with no pins has no such file, which is why the required core in section 7 does not
+list it and why section 7.3 is not being contradicted here.
+
+Each entry stores only:
 
 - the canonical record id;
+- a relative link to that record;
 - the pin approval date; and
 - the hash of the exact approved summary.
 
 It does not copy the summary. Startup reads the summary from the record, verifies the
 hash, and renders it with the record link. This preserves one home for meaning and
-detects a changed summary that has not been approved for startup.
+detects a changed summary that has not been approved for startup. Keeping the hash in
+a different file from the summary it covers is what makes the mismatch detectable. A
+hand edit to a record cannot quietly update that record's own approval evidence.
+
+Removing the last entry removes the file. Deleting the file by hand removes every pin
+and nothing else: no record loses its content, its status, or its place in retrieval.
 
 The startup adapter places every valid pinned record in the live session context. It
 remains available for the full session without creating a local working-set file.
@@ -515,16 +604,22 @@ memory_pin(id)
   -> run the startup budget preflight
   -> show What, Where, Why, Assumptions, Unverified
   -> wait for owner approval
-  -> add the id, date, and summary hash to the approved project-local pin-state owner
-  -> rebuild the boot brief and validate project scope
+  -> add the id, link, date, and summary hash to knowledge/memory/pins.md,
+     creating that file when this is the project's first pin
+  -> recompute the rendered brief size and validate project scope
 
 memory_unpin(id)
   -> show the current startup statement and record link
   -> show the five approval bullets
   -> wait for owner approval
-  -> remove the registry entry
-  -> rebuild the boot brief
+  -> remove the entry from knowledge/memory/pins.md, removing that file with
+     the last entry
+  -> recompute the rendered brief size
 ~~~
+
+The brief itself is never a stored file. It is assembled at startup from current
+inputs, so a pin change takes effect at the next session start with nothing to
+regenerate.
 
 Unpinning does not delete the record or remove it from normal retrieval.
 
@@ -535,7 +630,8 @@ Unpinning does not delete the record or remove it from normal retrieval.
   approve the corrected summary to remain pinned in the same review.
 - SUPERSEDE and RETIRE remove the old pin in the same reported transaction.
 - A successor is never pinned automatically.
-- DELETE removes any pin entry before rebuilding affected views.
+- DELETE removes any pin entry in the same transaction, before any approved derived
+  artifact is rebuilt.
 - MERGE requires an explicit choice of whether the surviving record should be pinned.
 - A record with a missing, mismatched, cross-project, superseded, or retired pin
   entry is not rendered as current truth and produces a repair warning.
@@ -716,7 +812,7 @@ new information
   -> wait for keep, change, or skip
   -> verify the source files did not change after the review
   -> apply the approved transaction
-  -> rebuild affected generated views
+  -> rebuild any approved derived artifact the change affects
   -> validate and report changed paths and any warning
 ~~~
 
@@ -1161,8 +1257,8 @@ memory_validate checks:
 13. no tracker bridge as the sole home of a fact;
 14. identical canonical results after deleting and rebuilding derived views;
 15. reads and retrieval create no local state;
-16. physical project-root isolation;
-17. privacy-boundary enforcement;
+16. physical project-root isolation, defined step by step in section 21.9;
+17. privacy-boundary enforcement, defined step by step in section 21.10;
 18. migration file counts, links, hashes, and reversibility;
 19. the retrieval gold set;
 20. quoted-source consistency for exact spans, dates, numbers, and identifiers;
@@ -1176,6 +1272,21 @@ that changes meaning remains an agent review and owner decision.
 
 Each project keeps about ten owner-worded questions with expected source files. At
 least eight expected files must appear in the first five results.
+
+The set lives in knowledge/retrieval-gold-set.md, the optional canonical file defined
+in section 7.3.1. A project that already owns a home for test material may map the
+gold set there through knowledge/map.md instead. The runner and validator check 19
+read the mapped path and never guess one.
+
+The file is authored by the owner, because the questions have to be worded the way the
+owner actually asks. It is not generated, so section 7.3's exclusion list does not
+cover it, and it is not needed to start a session, so the required core in section 7
+does not list it.
+
+A project without a gold set is a reported state, not a failure. Validator check 19
+warns that the set is missing, and startup and ordinary retrieval are unaffected. What
+it does block is a proposed retrieval change: a change nobody can measure cannot be
+accepted, so the owner writes the set first.
 
 The set includes:
 
@@ -1264,22 +1375,298 @@ changes. It never erases approved Markdown or rewrites Git history.
 | Startup over budget | Degrade optional detail, preserve required blocks, and warn |
 | Invalid pin summary hash | Omit the invalid entry from current truth and report repair work |
 | External transfer without consent | Refuse before any content is sent |
+| Target path outside the resolved scope root | Refuse the write and return nothing for the read, naming the operation, path, and root |
+| Undeclared nested project, overlapping scopes, or duplicate project id | Stop the operation, name both paths, and pick no project |
+| Malformed or missing privacy setting | Resolve to the most restrictive setting and report it |
+| Sensitive record missing its category, need, or approval | Refuse the write |
 | Unanswerable question | Return honest failure with searched scope |
 
-## 21. Privacy and security
+## 21. Scope and privacy enforcement
 
-- Secrets and credentials are refused by validation and by the approval review.
-- Sensitive personal information is stored only when needed, explicitly approved,
-  and allowed by repository and client policy.
-- Any future external retrieval request is project-scoped and denied by default.
-- External-transfer consent is committed, specific, reviewable, and revocable.
-- Session history stays in its original local host store.
-- Normal retrieval creates no cache, working set, metrics file, or local index.
-- Logs contain ids, paths, counts, and error codes, not full secret or private
-  content.
-- Privacy deletion clears current records, histories, views, and any separately
-  approved external copies and reports any remaining Git-history work.
-- A future retrieval accelerator or hook cannot approve or write current truth.
+Two boundaries protect a project. The **physical scope** is the part of the filesystem
+this project's memory may read, search, and write. The **privacy boundary** decides
+what its content may become: what may be stored, what may be shown at startup, and
+whether anything may leave the machine.
+
+Both are resolved from files inside the project. No database, service, background
+process, or environment variable takes part. Every check in this section is
+deterministic: the same files produce the same answer, with no model in the path.
+
+### 21.1 Resolving the physical scope
+
+Resolution runs on every memory operation, in this order:
+
+1. Start at the working directory. Walk up the directory chain to the nearest ancestor
+   that contains `knowledge/project.md`. That file's front matter must carry
+   `project_id` and `project_root`.
+2. Resolve `project_root` against the directory found in step 1.
+3. Canonicalize the result. Expand every symbolic link, resolve `.` and `..`, and
+   produce one absolute real path. That path is the scope root.
+4. Require the scope root to contain the `knowledge/` directory found in step 1. If it
+   does not, resolution fails and the operation stops with `scope/unresolved-root`.
+5. Read the scope root's declared `subroots`. Each declared subroot subtree is removed
+   from this scope.
+
+Nothing else establishes scope. A stored absolute path, an environment variable, the
+host's idea of a workspace, and the Git remote are all ignored, because they differ
+from machine to machine while the project id must not. ADR-022 fixes the identity half
+of project scope. This section fixes the physical half.
+
+A member path is tested the same way. Canonicalize it to an absolute real path, then
+require that path to be the scope root or to sit beneath it, with declared subroots
+removed. Canonicalization happens before comparison, and the comparison requires a path
+separator at the boundary, so a sibling folder named `project-notes` never passes as a
+member of the scope root `project`.
+
+### 21.2 What the scope governs
+
+| Operation | Scope rule |
+| --- | --- |
+| Direct file search | Walks only the scope root, minus declared subroots and the project's ignore list |
+| memory_get, memory_timeline, memory_related, memory_sources | Refuse an id or path that resolves outside the scope |
+| Retrieval ranking | Drops an out-of-scope candidate before ranking, not after |
+| Pins | A pin must resolve inside the scope and carry the scope's project id, per section 11.5 |
+| Boot brief | Reads only files inside the scope |
+| Every write operation in section 16.1 | Refuses a target outside the scope |
+| Generated views, locks, and journals | Written only under the scope root |
+| session_search | Scoped by project id, not by path, because host session history lives outside every scope and stays read-only where the host put it |
+
+A symbolic link inside the scope whose target resolves outside it is outside the scope.
+It is not searched, not returned, and not written through. The file it points at
+belongs to whoever owns that other location.
+
+Normal retrieval still creates no cache, working set, metrics file, or local index,
+inside the scope or outside it.
+
+### 21.3 Monorepo subroots
+
+One repository may hold more than one memory scope. Each participating subroot carries
+its own `knowledge/project.md`, its own `project_id`, and `project_root: .`.
+
+- **Scopes never overlap.** Two scope roots may not be the same directory, and neither
+  may sit inside the other unless the outer one declares the inner one.
+- **A nested scope must be declared by its parent.** The parent lists it under
+  `subroots`, which removes that subtree from the parent's scope for search, retrieval,
+  pins, views, and writes.
+- **An undeclared nested project stops the operation.** Finding a second
+  `knowledge/project.md` inside the resolved scope that no `subroots` entry names is
+  `scope/undeclared-nested-scope`. The report names both paths. The system does not
+  guess which project the session belongs to.
+- **The nearest ancestor wins.** A session working inside `packages/billing` resolves
+  to billing's scope even when the repository root is also a scope.
+- **A repository root does not have to be a scope.** A monorepo may hold only subroot
+  projects. Where no ancestor of the working directory holds `knowledge/project.md`,
+  there is no active project and memory operations report that plainly rather than
+  inventing one.
+- **Project ids stay distinct.** Two scopes in one repository claiming the same
+  `project_id` is `scope/duplicate-project-id` and stops the operation.
+- **Record ids may repeat across scopes.** Two projects may both hold a record with the
+  same id. Scope resolution keeps them apart, which is what AT-06 proves.
+- **Links may cross, labeled.** A link or evidence entry whose target resolves into
+  another scope must name that scope's project id. An unlabeled crossing is a
+  validation warning. A cross-scope link is a pointer only. The linked record never
+  appears in this project's search results and never counts as this project's
+  evidence.
+
+~~~yaml
+---
+schema_version: 2
+project_id: acme-billing
+project_root: .
+---
+~~~
+
+~~~yaml
+---
+schema_version: 2
+project_id: acme-platform
+project_root: .
+subroots:
+  - packages/billing
+  - packages/reporting
+---
+~~~
+
+### 21.4 Refusal behavior
+
+The deterministic pre-write guard in section 13.3 also carries the scope and privacy
+refusals. A refused operation:
+
+- changes no file, creates no lock or journal entry, and leaves no partial write;
+- reports one message naming the operation, the path or field at fault, the resolved
+  scope root or the recorded privacy setting, and the reason code;
+- is visible in the session, so a blocked attempt is never silent; and
+- is never retried with a widened boundary. Widening requires an owner-approved change
+  to `knowledge/project.md`.
+
+Reason codes:
+
+| Code | Raised when |
+| --- | --- |
+| scope/unresolved-root | project_root is missing, or resolves to a directory that does not contain the knowledge folder |
+| scope/outside-root | A canonicalized target path is not the scope root and does not sit beneath it |
+| scope/symlink-escape | A path inside the scope resolves, through a link or junction, to a real path outside it |
+| scope/undeclared-nested-scope | A second knowledge/project.md sits inside the scope and no subroots entry names it |
+| scope/overlapping-scopes | Two scope roots are the same directory, or one sits inside the other without a declaration |
+| scope/duplicate-project-id | Two scopes in the repository claim the same project_id |
+| scope/cross-scope-result | A retrieval or pin candidate belongs to another scope |
+| privacy/transfer-denied | An operation would send project content outside the machine while external_transfer is denied |
+| privacy/consent-missing | external_transfer is approved but the consent record is missing, unresolvable, or incomplete |
+| privacy/secret-detected | The proposal or a canonical file matches the secret pattern set with no recorded exemption |
+| privacy/third-party-personal | A record identifies another person with no owner approval naming that record |
+| privacy/sensitive-unapproved-exposure | A sensitive record would enter startup, a pin, a generated view, or a log body with no recorded approval for that exposure |
+
+A read follows the same rules with one difference. An out-of-scope read returns nothing
+and says why, rather than refusing the whole question. Retrieval continues over the
+paths it may use, and the honest-failure rule in section 15.6 applies when nothing
+usable remains.
+
+### 21.5 The recorded privacy boundary
+
+Boundary values live in the `knowledge/project.md` front matter beside the project id,
+so the baseline still requires no separate settings file, per section 9.
+
+~~~yaml
+privacy:
+  level: standard
+  external_transfer: denied
+  third_party_personal: refused
+~~~
+
+- `level` is `standard` or `sensitive`.
+- `external_transfer` is `denied` or `approved`. `approved` requires a `consent` link to
+  an approved decision record naming the destination, the exact content scope, the
+  approval date, and how to revoke it.
+- `third_party_personal` is `refused` or `by-record`. `by-record` still requires
+  per-record owner approval with a named reason.
+- A missing, unreadable, or unknown value is read as the most restrictive setting:
+  `sensitive`, `denied`, `refused`. A malformed privacy block never fails open.
+
+`memory_capabilities` reports the resolved boundary so an agent reads it instead of
+guessing.
+
+Nothing outside this file widens it. An environment variable, an installed client, a
+provider, a hook, a host setting, and an agent instruction are all incapable of
+granting transfer consent. Revocation takes effect on the next operation, and there is
+no cache to invalidate because v2 keeps no cache. A future retrieval accelerator
+inherits these values and still may not approve or write current truth, per section
+16.3.
+
+### 21.6 Sensitive projects
+
+A health, personal, or other owner-marked sensitive project runs the same core with
+more restrictions and never with fewer. A domain profile may add to this list and may
+not subtract from it, per ADR-029.
+
+1. **Named need.** A record carrying sensitive personal content states its category and
+   one line saying why that detail is needed for the project's purpose. The approval
+   review shows both. Without them the write is refused.
+2. **Third parties.** Content identifying another person is refused by default. The
+   owner may approve one specific record with a named reason. Blanket permission is not
+   available.
+3. **No default startup exposure.** A record marked sensitive does not enter the boot
+   brief, a pin, or a generated view unless a separate recorded owner approval names
+   that exposure. Pin eligibility in section 11.1 checks this before the pin is
+   allowed. The record stays fully searchable when the owner asks for it.
+4. **History search is owner-request only.** The insufficient-current-sources path in
+   section 15.5 does not start `session_search` in a sensitive project. Only the owner
+   asking in that session starts it.
+5. **Transfer stays denied unless consent is complete.** Any missing part of the
+   consent record reads as denied.
+6. **Storage answer on record.** Before the first sensitive record is saved, setup
+   states plainly that a shared or remote repository keeps deleted content in Git
+   history, and records the owner's answer: a local-only repository, or a remote with
+   the history boundary accepted. The answer is a decision record. It is never assumed.
+
+### 21.7 Secrets, credentials, and logs
+
+Secret detection is a fixed pattern set, run over a proposal before the write and over
+canonical files during validation. It covers private key blocks, common provider token
+shapes, connection strings that carry a password, and environment-style assignments
+whose name contains secret, token, password, or key. A match refuses the write with
+`privacy/secret-detected` and names the file and line.
+
+Pattern matching is not judgment. The owner may record an exemption for a specific
+false positive. The exemption is itself a reviewed record naming the file, the pattern,
+and the reason, so validation stays deterministic and the exception stays visible.
+
+Logs, journals, and refusal messages carry ids, paths, counts, and reason codes. They
+never carry record bodies, matched secret text, or sensitive content.
+
+### 21.8 Privacy deletion and the history boundary
+
+This restates section 14.4 and ADR-024 from the privacy side. Deletion clears the
+content from current records, record history, generated views, pin state, and any
+separately approved external copy, keeps only non-sensitive audit metadata, and then
+reports whether an approved Git-history purge remains. The tool never claims complete
+erasure it has not proven.
+
+### 21.9 Validator check 16: physical project-root isolation
+
+1. Exactly one active `knowledge/project.md` resolves for the working directory, and
+   its front matter carries `project_id` and `project_root`.
+2. `project_root` resolves, and the resolved real path contains the `knowledge/`
+   directory that produced it.
+3. Every canonical memory, specification, view, and local-state path canonicalizes to a
+   real path inside the scope root.
+4. No symbolic link or junction inside the scope resolves to a real path outside it
+   without being reported.
+5. No `knowledge/project.md` sits inside the scope other than declared subroots.
+6. Every declared subroot exists, holds its own `knowledge/project.md`, and carries a
+   different `project_id`.
+7. No two scope roots in the repository are the same directory or nest without a
+   declaration.
+8. Every record, pin entry, and generated view in the scope carries the scope's
+   `project_id`.
+9. Every link whose target resolves into another scope names that scope's project id.
+10. The two-project fixture in section 21.11 returns no cross-scope record, pin, or
+    search result.
+
+### 21.10 Validator check 17: privacy-boundary enforcement
+
+1. `knowledge/project.md` carries a `privacy` block whose values are all known, and any
+   unknown or malformed value is reported as resolved to its most restrictive setting.
+2. `external_transfer: approved` has a resolvable consent record naming destination,
+   content scope, approval date, and revocation route. Any missing part is reported as
+   denied.
+3. No enabled component, hook, or provider declares an external destination while
+   transfer is denied.
+4. The secret pattern set matches nothing in canonical knowledge that lacks a recorded
+   exemption, and every exemption resolves to its reviewed record.
+5. In a sensitive project, every record carrying sensitive content has its category,
+   its needed-reason line, and its owner approval.
+6. In a sensitive project, no record identifying another person exists without a
+   per-record approval naming the reason.
+7. No sensitive record appears in knowledge/memory/pins.md, the boot brief inputs, or
+   any approved generated artifact without a recorded exposure approval.
+8. In a sensitive project, the configured `session_search` gate is owner-request only.
+9. Local state under the scope root contains no record body text, matched secret text,
+   or sensitive content.
+10. Every completed privacy deletion leaves no occurrence in current files, record
+    history, views, or pin state, and carries its reported Git-history status.
+
+### 21.11 Isolation fixtures
+
+Checks 16 and 17 run against fixtures that ship with the validator, so the proof does
+not depend on any one real project.
+
+- **Two sibling projects, shared record ids.** Two scopes hold a record with the same
+  id and a pin each. Neither project's startup, search, or pin lookup returns the
+  other's record. This is the direct AT-06 proof.
+- **Monorepo with declared subroots.** A parent scope declares two subroots. A session
+  in a subroot resolves to that subroot, and the parent's search returns nothing from
+  either subroot.
+- **Undeclared nested project.** The same tree with one `subroots` entry removed stops
+  with `scope/undeclared-nested-scope` and names both paths.
+- **Symlink escape.** A link inside the scope points at a file outside it. Search skips
+  it, retrieval never returns it, and a write through it is refused with
+  `scope/symlink-escape`.
+- **Similarly named sibling.** A directory beside the scope root whose name starts with
+  the root's name is refused with `scope/outside-root`.
+- **Sensitive project.** A sensitive record with no stated need is refused. An approved
+  sensitive record stays out of startup, pins, and views, and is still found by direct
+  search. Transfer with an incomplete consent record is refused with
+  `privacy/consent-missing`.
 
 ## 22. Acceptance proof
 
@@ -1331,6 +1718,8 @@ The architecture is implemented only when a real project proves:
 | AT-42 | "Record what we just did" starts the normal remember workflow and cannot write a completed-work event before the normal review and approval finish. |
 | AT-43 | A missing or out-of-date knowledge/current.md produces a visible stale warning naming its latest date, and the session states no current focus, blocker, or next step that the file does not contain. |
 | AT-44 | Two cold sessions over the same unchanged inputs render the same current-and-recent briefing, and neither run changes knowledge/current.md or writes any other stored state. Outside the three approved triggers, no route writes knowledge/current.md. |
+| AT-45 | A memory operation aimed outside the resolved scope root changes no file and produces a visible refusal naming the operation, the path, and the resolved root. This holds for a symlink escape, a similarly named sibling directory, an undeclared nested project, and a cross-scope record or pin id. |
+| AT-46 | A sensitive project refuses a sensitive record that lacks its category, needed reason, or owner approval; keeps approved sensitive records out of startup, pins, and generated views while leaving them findable by direct search; refuses external transfer when no complete consent record resolves; and reports the remaining Git-history work after a privacy deletion. |
 
 ## 23. Architectural decision records
 
@@ -1499,9 +1888,15 @@ The architecture is implemented only when a real project proves:
 ### ADR-017: Retrieval changes require the gold set
 
 - **Decision:** Each project measures retrieval with owner-worded questions and
-  expected sources.
-- **Reason:** Search quality must match how the owner actually asks.
-- **Rejected:** Acceptance based only on benchmarks or product claims.
+  expected sources, kept in knowledge/retrieval-gold-set.md or at the path
+  knowledge/map.md gives that role. The file is optional canonical state under section
+  7.3.1. A missing set is a warning, and it blocks a proposed retrieval change rather
+  than startup or ordinary search.
+- **Reason:** Search quality must match how the owner actually asks, and a retrieval
+  change nobody can measure cannot be accepted.
+- **Rejected:** Acceptance based only on benchmarks or product claims, and adding the
+  gold set to the required core, which would make every project carry a test file it
+  may never use.
 
 ### ADR-018: Private host memory is never project truth
 
@@ -1512,11 +1907,17 @@ The architecture is implemented only when a real project proves:
 
 ### ADR-019: Startup is byte-budgeted with required pins
 
-- **Decision:** The boot brief has a configured byte budget. Pin admission and budget
-  changes are validated before writing. Required content is never silently omitted.
-- **Reason:** Startup must stay small without hiding owner-selected memory.
-- **Rejected:** Unbounded injection, silent pin truncation, and post-startup discovery
-  of a preventable budget conflict.
+- **Decision:** The boot brief has a byte budget, defaulting to 10240 bytes and set in
+  the optional `startup.budget_bytes` key in knowledge/project.md front matter. The
+  budget covers the current block and the recent window along with everything else the
+  brief renders. Pin admission and budget changes, in either direction, are validated
+  before writing. Required content, listed in section 10.4, is never silently omitted.
+- **Reason:** Startup must stay small without hiding owner-selected memory, and the
+  owner needs a way to raise the ceiling with the real byte count in front of them
+  rather than losing content to a default.
+- **Rejected:** Unbounded injection, silent pin truncation, post-startup discovery of a
+  preventable budget conflict, a separate settings file for one number, and a
+  lower-only rule that leaves a legitimately large required set with nowhere to go.
 
 ### ADR-020: Research evidence is rationale, not authority
 
@@ -1528,14 +1929,18 @@ The architecture is implemented only when a real project proves:
 
 ### ADR-021: Pins store identity and approval, not copied meaning
 
-- **Decision:** The approved project-local pin-state owner stores record id, pin date,
-  and approved summary hash. The startup decision will choose that owner without
-  adding a second copy of the statement. Startup reads the statement from the
-  canonical record.
+- **Decision:** Pin state lives in knowledge/memory/pins.md and stores record id, a
+  relative link, pin date, and the approved summary hash. That file is optional
+  canonical state under section 7.3.1, not part of the required core, so a project with
+  no pins carries no extra file. Startup reads the statement from the canonical record.
 - **Reason:** This preserves one home for meaning and detects an unapproved summary
-  change.
-- **Rejected:** Duplicating pin text in a second file, making pins rules, and
-  model-written pin summaries.
+  change, because the hash sits in a different file from the summary it covers.
+- **Rejected:** Duplicating pin text in a second file, making pins rules, model-written
+  pin summaries, holding pin state in knowledge/project.md front matter where every pin
+  would rewrite the authored overview, holding it on the record itself where one hand
+  edit could change a summary and its own approval evidence together, and holding it
+  under .memory/ where it would be gitignored, disposable, and missing on every other
+  machine.
 
 ### ADR-022: Project scope uses a stable id
 
@@ -1705,6 +2110,36 @@ The architecture is implemented only when a real project proves:
 - **Rejected:** Treating the request itself as approval and creating automatic end-of-
   turn or end-of-session recaps.
 
+### ADR-037: A project's scope is a physical subtree resolved from its own files
+
+- **Decision:** The scope root is the canonicalized real path of `project_root`,
+  resolved against the nearest ancestor directory holding `knowledge/project.md`.
+  Membership is decided after symbolic links are expanded. A repository may hold
+  several scopes, and a nested scope must be declared by its parent under `subroots`.
+  An undeclared nested project, an overlap, or a duplicate project id stops the
+  operation.
+- **Reason:** Machine paths differ, symbolic links and similarly named folders defeat
+  string comparison, and a monorepo needs more than one project without letting one
+  project read or write another. Resolving from files in the project keeps the answer
+  deterministic and portable.
+- **Rejected:** Trusting a stored absolute path, an environment variable, or the host's
+  workspace notion. Comparing path strings without canonicalizing first. Guessing which
+  project a session belongs to when two candidates resolve.
+
+### ADR-038: The privacy boundary is recorded in the project and fails closed
+
+- **Decision:** `knowledge/project.md` front matter records sensitivity level, external
+  transfer, third-party personal content, and the consent record when transfer is
+  approved. A missing, unreadable, or unknown value resolves to the most restrictive
+  setting. Nothing outside that file can widen the boundary, and a sensitive project
+  adds restrictions rather than removing any.
+- **Reason:** A privacy setting that fails open is worse than none, because it reads as
+  a control while granting whatever the environment happens to allow. Keeping the
+  values with the project id keeps the required structure at one settings owner.
+- **Rejected:** A separate privacy settings file. Environment variables, installed
+  clients, or agent instructions as consent. Treating an unparsed privacy block as
+  permission.
+
 ## 24. Functional requirement traceability
 
 ### Orientation and context
@@ -1712,8 +2147,8 @@ The architecture is implemented only when a real project proves:
 | Requirement | Architecture coverage | Acceptance proof |
 | --- | --- | --- |
 | FR-001 | Sections 7 and 10 define the required identity meaning without requiring a separate identity file. | AT-01, AT-28 |
-| FR-002 | Section 10.4 defines the byte budget, degradation order, and admission checks. | AT-02 |
-| FR-003 | Sections 7.3 and 10.3 require generated labels, inputs, and deterministic fingerprints when a startup view is stored. | AT-16 |
+| FR-002 | Sections 9 and 10.4 define the byte budget, its `startup.budget_bytes` configuration key, the degradation order, the never-dropped set, and the admission preflight. | AT-02 |
+| FR-003 | Sections 7.3 and 10.3 store no generated startup view in v2 and require generated labels, inputs, and deterministic fingerprints for any derived artifact a project separately approves. | AT-16 |
 | FR-004 | Section 10.3 prohibits startup paraphrase and preserves source text. | AT-01, AT-20 |
 | FR-005 | Section 10.3 defines three updates in 72 hours and dated fallback. | AT-01 |
 | FR-006 | Sections 7.1 and 10.3 define map meaning, ownership, generated state, and drift checks. | AT-01 |
@@ -1765,7 +2200,7 @@ The architecture is implemented only when a real project proves:
 | FR-034 | Section 15.3 requires full-record and original-source expansion. | AT-13 |
 | FR-035 | Section 15.5 permits native-history search only on owner request or after current project sources are insufficient. | AT-14 |
 | FR-036 | Sections 15.5 and 15.6 scope a history miss to available project, machine, host, and dates. | AT-15 |
-| FR-037 | Sections 16.3 and ADR-014 require measured benefit and privacy consent where content leaves the boundary. | AT-17 |
+| FR-037 | Sections 16.3, 18.1, and ADR-014 require measured benefit against the project's gold set, and privacy consent where content leaves the boundary. | AT-17 |
 | FR-038 | Section 15.6 defines honest failure and searched scope. | AT-15 |
 
 ### Review and cleanup
@@ -1883,6 +2318,25 @@ The architecture is implemented only when a real project proves:
 | FR-115 | Sections 10.2, 10.3, and 10.6 make the current-and-recent briefing read-only, deterministic, and budgeted. | AT-44, AT-01 |
 | FR-116 | Sections 10.5, 10.6, and 20 require a visible stale warning naming the date and forbid invented current state. | AT-43 |
 | FR-117 | Sections 7.1 and 10.6 keep knowledge/current.md plain authored Markdown that the approved write path maintains without hand edits, including after an owner correction. | AT-35, AT-44 |
+
+### Project scope and privacy boundary
+
+| Requirement | Architecture coverage | Acceptance proof |
+| --- | --- | --- |
+| FR-118 | Sections 9 and 21.1 plus ADR-037 resolve the scope root from knowledge/project.md and canonicalize it, ignoring stored paths, environment, host, and remote. | AT-28, AT-45 |
+| FR-119 | Section 21.2 applies the scope to search, retrieval, pins, views, local state, and every write, after symbolic links are expanded. | AT-06, AT-17, AT-45 |
+| FR-120 | Section 21.4 defines the refusal message, the reason codes, and the no-partial-write rule, carried by the section 13.3 guard. | AT-39, AT-45 |
+| FR-121 | Section 21.3 and ADR-037 allow several scopes per repository, require declared subroots, and forbid overlap. | AT-06, AT-45 |
+| FR-122 | Sections 21.1 and 21.3 resolve the nearest ancestor and stop on an undeclared nested scope, a duplicate project id, an overlap, or an unresolved root. | AT-45 |
+| FR-123 | Sections 11.5, 21.2, and 21.3 drop cross-scope candidates before ranking and require a labeled cross-scope link that is never this project's evidence. | AT-06, AT-21 |
+| FR-124 | Sections 9 and 21.5 plus ADR-038 record the privacy boundary in project front matter and resolve missing or malformed values to the most restrictive setting. | AT-46 |
+| FR-125 | Section 21.5 and ADR-038 deny every route outside the recorded consent, including environment, client, provider, hook, and agent instruction, and apply revocation on the next operation. | AT-18, AT-46 |
+| FR-126 | Section 21.6 and ADR-029 make sensitive-project behavior additive and prevent a profile from weakening it. | AT-30, AT-46 |
+| FR-127 | Sections 13.2 and 21.6 require category, named need, and owner approval, and refuse third-party personal content without a per-record reason. | AT-04, AT-46 |
+| FR-128 | Sections 10.4, 11.1, and 21.6 keep sensitive content out of startup, pins, views, and log bodies without a recorded exposure approval. | AT-05, AT-46 |
+| FR-129 | Sections 15.5 and 21.6 restrict session_search in a sensitive project to an owner request in that session. | AT-14, AT-46 |
+| FR-130 | Sections 14.4, 21.6, and 21.8 plus ADR-024 require the recorded storage answer before the first sensitive save and the reported Git-history boundary after a deletion. | AT-46 |
+| FR-131 | Sections 18, 21.9, 21.10, and 21.11 define validator checks 16 and 17 and the shipped isolation fixtures. | AT-06, AT-45, AT-46 |
 
 ### Deferred capability
 

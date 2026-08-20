@@ -158,7 +158,8 @@ The startup context, delivered through the host's own loading path, always cover
 - **FR-017:** Every derived view and search aid must be rebuildable from canonical
   sources.
 - **FR-018:** Secrets, credentials, and sensitive personal information that is not
-  needed and approved for the repository must be refused.
+  needed and approved for the repository must be refused. What counts as needed and
+  approved is decided by the project's recorded privacy boundary under FR-124.
 
 ### Approval, records, and lifecycle
 
@@ -198,7 +199,8 @@ The startup context, delivered through the host's own loading path, always cover
   effective dates are incompatible. Additional evidence for the same meaning must be
   preserved on the surviving record.
 - **FR-027:** Deletion must be limited to duplication surplus, corruption, privacy
-  removal, or accidental records and must require a reason.
+  removal, or accidental records and must require a reason. A privacy removal must
+  also meet FR-130.
 - **FR-028:** An approved write must leave canonical records and every affected
   derived view or search aid consistent as one reported operation.
 - **FR-108:** The refusal must sit in the saving step itself, not in the agent's
@@ -253,7 +255,8 @@ The startup context, delivered through the host's own loading path, always cover
   enabled.
 - **FR-047:** Provider failure must not make canonical project knowledge unavailable.
 - **FR-048:** A provider must not send project content outside the approved privacy
-  boundary.
+  boundary. The approved boundary is the one the project records under FR-124, and
+  FR-125 forbids any provider from widening it.
 - **FR-049:** A provider that lacks a required capability must fail visibly. It must
   not silently return an empty result.
 - **FR-050:** Built-in private agent memory must not be required for correctness or
@@ -462,6 +465,73 @@ The startup context, delivered through the host's own loading path, always cover
   plain readable Markdown the owner can inspect and correct directly, and the system
   must keep maintaining it after a hand correction.
 
+### Project scope and privacy boundary
+
+- **FR-118:** A project's memory scope must be one physical subtree of the filesystem,
+  resolved from files inside the project. The scope starts at the directory that holds
+  `knowledge/project.md` and is adjusted by the `project_root` value in that file.
+  Resolution must be deterministic and must not depend on a stored absolute path, an
+  environment variable, the host's idea of a workspace, or the Git remote, because
+  those differ from machine to machine.
+- **FR-119:** Every memory read, search, retrieval result, pin, generated view, and
+  write must stay inside the resolved scope. A path that resolves outside it, whether
+  through a symbolic link, a junction, a parent traversal, or a similarly named
+  sibling directory, must be treated as outside the project. It must never be
+  searched, never be returned as a result or as evidence, and never be written.
+- **FR-120:** A refused scope or privacy operation must change no file, leave no
+  partial write, and report one visible message naming the operation, the path or
+  field at fault, the resolved scope root or the recorded privacy setting, and the
+  reason. The system must not retry the operation with a widened boundary.
+- **FR-121:** One repository may contain more than one memory scope. Each participating
+  subroot must carry its own `knowledge/project.md` and its own stable project id.
+  Scopes must never overlap, and a scope nested inside another scope must be declared
+  by the parent, which removes that subtree from the parent's scope.
+- **FR-122:** The active scope for a session must be the nearest ancestor of the
+  working directory that holds `knowledge/project.md`. An undeclared nested scope, two
+  scopes claiming the same project id, overlapping scope roots, or a `project_root`
+  that does not resolve must stop the operation and report the conflict with both
+  paths. The system must not pick one and continue.
+- **FR-123:** Records, pins, and retrieval results must never cross a scope boundary,
+  even when two scopes contain records with the same id. A link may point into another
+  scope only when it names that scope's project id. A cross-scope link is a pointer
+  only. The linked record must never be returned as this project's memory or counted
+  as this project's evidence.
+- **FR-124:** Every project must record its privacy boundary in `knowledge/project.md`:
+  its sensitivity level, whether project content may leave the machine, and, where
+  transfer is allowed, a link to the approved consent record. A missing, unreadable, or
+  unknown value must be read as the most restrictive setting. A malformed privacy
+  setting must never fail open.
+- **FR-125:** Nothing outside that recorded boundary may widen it. An environment
+  variable, an installed client, a provider, a hook, a host setting, and an agent
+  instruction must all be incapable of granting consent to send project content
+  outside the boundary. Widening requires an owner-approved change to the recorded
+  consent, and a revocation must take effect on the next operation.
+- **FR-126:** A project the owner marks sensitive, such as a health or personal
+  project, must run the same core memory behavior with additional restrictions and
+  never with fewer. A domain profile may add restrictions and must not remove any.
+- **FR-127:** In a sensitive project, a record holding sensitive personal content must
+  state its category and one line saying why that detail is needed for the project's
+  purpose, and must carry explicit owner approval for that content. Content that
+  identifies another person must be refused unless the owner approves that specific
+  record with a named reason. Blanket permission must not be available.
+- **FR-128:** Sensitive content must not appear in startup, a pin, a generated view, or
+  a log body without a separate recorded owner approval that names that exposure. The
+  default for a sensitive record is that it is searchable when asked for and absent
+  from startup.
+- **FR-129:** In a sensitive project, native session-history search must run only when
+  the owner asks for it in that session. The insufficient-current-sources path in
+  FR-104 must not start it.
+- **FR-130:** Before the first sensitive record is saved, the system must state plainly
+  that a shared or remote repository keeps deleted content in Git history, and must
+  record the owner's storage answer. A privacy removal must clear the content from
+  current records, record history, generated views, pin state, and any separately
+  approved external copy, and must then report any remaining Git-history work instead
+  of claiming complete removal.
+- **FR-131:** Deterministic validation must check physical scope isolation and the
+  privacy boundary on every validation run, and must prove with a fixture of two
+  projects that share record ids that no record, pin, or retrieval result crosses a
+  scope boundary.
+
 ### Deferred capability
 
 Proactive reminders are not required for v2 acceptance. They may be evaluated after
@@ -622,5 +692,18 @@ The system is accepted when all of these are proven in a real project:
   backlink list.
 - Moving or renaming a linked decision repairs every affected project link in the
   same approved operation or changes nothing.
+- A memory operation aimed at a path outside the project's resolved scope changes no
+  file and produces a visible refusal naming the operation, the path, and the resolved
+  root. That holds for a symbolic link pointing out of the project, for a similarly
+  named sibling folder, and for an undeclared project nested inside another project.
+- Two projects in one repository that contain records with the same id keep their
+  records, pins, and search results apart, and neither project's startup shows the
+  other's content.
+- A project marked sensitive refuses a sensitive record that has no stated category,
+  no reason it is needed, or no owner approval. It keeps sensitive content out of
+  startup, pins, and generated views unless the owner approved that exposure by name.
+  It refuses external transfer when no consent record resolves. After a privacy
+  removal it reports what remains in Git history instead of claiming the content is
+  gone.
 - The owner reads the boot brief and confirms it feels like the project remembers the
   right things without showing too much. That is a real criterion.
