@@ -1,13 +1,18 @@
 # Memory System v2: Functional Requirements and North Star
 
-**Status:** draft for owner review. Not approved for implementation.
+**Status:** draft for owner review. Not approved for implementation. Phase 0
+corrections applied 2026-08-20. Owner approval pending pull request review.
 
 **What this document is:** the proposed north star. It says what the memory system must
 do, what the owner and the agents experience, and what must never happen. It includes
-only behavior and necessary product constraints. The proposed technical answer to
-"how" lives in `memory-system-v2-master.md`. Neither file authorizes a build until the
-owner approves it. After approval, when the two disagree, this document wins and the
-technical design gets fixed.
+only behavior and necessary product constraints. The technical answer to "how" lives in
+[memory-system-v2-master-technical-architecture.md](memory-system-v2-master-technical-architecture.md).
+Those two files are the pair. The older drafts
+[memory-system-v2-master2.md](memory-system-v2-master2.md) and
+[memory-system-v2-master.md](memory-system-v2-master.md) are source material for the
+architecture document and are not authority on their own. Neither file in the pair
+authorizes a build until the owner approves it. After approval, when the two disagree,
+this document wins and the technical design gets fixed.
 
 ---
 
@@ -102,6 +107,15 @@ The startup context, delivered through the host's own loading path, always cover
 9. the writing safeguards for storing memories and specifications.
 
 ## 4. Functional requirements
+
+**About the numbering.** Requirement ids are permanent. A requirement keeps its id for
+life so every reference to it stays correct. Ids were handed out in the order the
+requirements were written, and each one then went to live in the topic section it
+belongs to. That is why a few sit out of numeric order on the page: FR-109 sits with
+placement, FR-110 through FR-113 sit with approval, and FR-108 sits with the write
+gate. FR-114 through FR-131 were added last and sit with continuity and with scope and
+privacy. Read by section, not by number. Ids run FR-001 through FR-131 with no gaps and
+no duplicates.
 
 ### Orientation and context
 

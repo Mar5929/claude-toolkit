@@ -36,10 +36,11 @@ by hand. If it disagrees with the source files, rebuild it.
 
 ## specs/
 
-- [Universal Project Memory System — v2 Specification](specs/memory-system-v2.md):
-  **Status:** proposed. Supersedes `memory-system.md` (v1) when the owner
-  approves it; v1 governs until then. Standalone — nothing here requires
-  reading v1, though §24 maps v1 concepts for migration.
+- [Memory system v2 draft spec (superseded, do not build from this)](specs/memory-system-v2.md):
+  **Status:** superseded on 2026-08-20. This draft is kept as history only, and
+  no build session may follow it. The authority documents are
+  `work-items/memory-redesign/functional-requirements.md` and
+  `work-items/memory-redesign/memory-system-v2-master-technical-architecture.md`.
 - [How project knowledge works](specs/memory-system.md): The project knowledge
   system keeps approved behavior, persistent understanding, and raw exploration
   in one portable Markdown vault that Git owns and Obsidian may view.

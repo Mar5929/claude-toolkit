@@ -1,8 +1,30 @@
-# Universal Project Memory System — v2 Specification
+# Memory system v2 draft spec (superseded, do not build from this)
 
-**Status:** proposed. Supersedes `memory-system.md` (v1) when the owner approves it; v1
-governs until then. Standalone — nothing here requires reading v1, though §24 maps v1
-concepts for migration.
+**Status:** superseded on 2026-08-20. This draft is kept as history only, and no build
+session may follow it. The authority documents are
+`work-items/memory-redesign/functional-requirements.md` and
+`work-items/memory-redesign/memory-system-v2-master-technical-architecture.md`.
+
+## What replaced this draft
+
+Two documents in `work-items/memory-redesign/` now define memory system v2:
+
+- [Functional requirements](../../work-items/memory-redesign/functional-requirements.md)
+- [Master technical architecture](../../work-items/memory-redesign/memory-system-v2-master-technical-architecture.md)
+
+Where this draft and those two documents disagree, those two win. They are the only
+documents a build session works from.
+
+This draft is not a smaller or older version of the approved design. It asks for parts the
+approved design rejects, including a `SOUL.md` identity file, session cards, and a
+pluggable provider layer. Building from it would build the wrong system.
+
+It also does not replace `memory-system.md`. That file keeps its path and stays the live
+v1 behavior spec until the v2 cutover replaces its content.
+
+Everything below this line is the original draft text, left unchanged.
+
+---
 
 **Lineage:** this document merges two inputs. (1) A provider-independent architecture spec
 (the seven-layer model, the file layout, the retrieval ladder, the tool surface). (2) The

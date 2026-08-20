@@ -1,7 +1,8 @@
 # Memory System v2: Final Master Technical Architecture
 
 **Status:** Owner review in progress. Settled decisions are recorded here as they are
-approved.
+approved. Phase 0 corrections applied 2026-08-20. Owner approval pending pull request
+review.
 
 **Authority:** functional-requirements.md controls behavior. This document controls
 the technical design. If they disagree, the functional requirement wins and this
@@ -32,8 +33,7 @@ same startup, approval, retrieval, privacy, and validation contracts.
 
 The final design was resolved from these inputs:
 
-1. [functional-requirements.md](functional-requirements.md), including FR-001
-   through FR-113;
+1. [functional-requirements.md](functional-requirements.md), FR-001 through FR-131;
 2. [memory-system-v2-master2.md](memory-system-v2-master2.md), the approved design
    from 2026-08-17; and
 3. [memory-system-v2-master.md](memory-system-v2-master.md), the more detailed
@@ -52,9 +52,16 @@ The final requirements added pinned memory after both master documents were writ
 This architecture therefore adds pin storage, operations, startup behavior, safety
 checks, migration, and acceptance tests.
 
-FR-065 through FR-113 were added during the current owner review. Their traceability
-rows visibly distinguish settled architecture from decisions that still need owner
-review.
+FR-065 through FR-131 were added during the owner review that produced this document.
+Section 24 carries a traceability row for every one of them, and the ids run FR-001
+through FR-131 with no gaps and no duplicates. A few requirements sit out of numeric
+order on the page because ids are permanent and each requirement lives in the topic
+section it belongs to. The requirements document explains that at the top of its
+section 4.
+
+The header at the top of this document is the only place that records where owner
+approval stands. Every section here is written in a settled voice, which is how a
+technical design reads, so do not take that voice as approval. Check the header.
 
 The following conflicts are resolved here:
 
@@ -79,7 +86,8 @@ The following conflicts are resolved here:
 - approval and write coordination;
 - lifecycle operations;
 - pinned memory;
-- current, recent, map, and index views;
+- the authored current-state file, the map, the recent window rendered at startup, and
+  any optional derived artifact a project separately approves;
 - progressive retrieval and session-history gating;
 - a decision gate for any future retrieval accelerator;
 - read-only review and approved cleanup;
@@ -133,7 +141,7 @@ flowchart LR
     H[Agent host] --> SA[Startup adapter]
     SA --> BA[Boot brief assembler]
     BA --> CS[Canonical Markdown store]
-    BA --> TA[Tracker adapter]
+    BA -.->|optional| TA[Tracker adapter]
     BA --> CM[Capability manifest]
     H --> RR[Retrieval router]
     RR --> CS
@@ -417,7 +425,7 @@ contract. It contains no active task, history, project facts, or detailed rule l
 The boot brief renders these blocks:
 
 1. identity and operating route;
-2. project purpose, goal, phase, and tracker;
+2. project purpose, goal, phase, and the tracker route when one is configured;
 3. owner working contract from its canonical rules or output style;
 4. latest authored handoff line from knowledge/current.md, plus the work-item link
    when a tracker is configured;
@@ -562,8 +570,10 @@ A record may be pinned only when:
 - it has valid provenance;
 - its current meaning was owner-approved;
 - it has a one-sentence summary;
-- its summary and qualifiers fit the pin statement limit; and
-- adding it keeps the required brief within budget.
+- its summary and qualifiers fit the pin statement limit;
+- adding it keeps the required brief within budget; and
+- it carries no sensitive content, or it carries a recorded owner approval naming
+  startup exposure for that record, per section 21.6.
 
 An agent may propose a pin or unpin. Only the owner may approve it.
 
@@ -933,8 +943,11 @@ An approved write is one reported operation even when it affects several files.
 3. Write a crash-recovery journal with preimages under .memory/.
 4. Stage the exact approved Markdown changes.
 5. Apply required pin, conflict-link, supersession, and retirement changes.
-6. Rebuild the generated navigation index and affected startup views. Retrieval does
-   not depend on them.
+6. Rebuild any optional derived artifact this project has separately approved and this
+   change affects. A default v2 project has none, and the step reports that rather than
+   failing. Nothing about startup is rebuilt here: the current block is authored in
+   knowledge/current.md and the recent window is assembled at startup, so neither is a
+   stored file. Retrieval never depends on a derived artifact.
 7. Run focused validation.
 8. On success, remove the journal and report every changed path.
 9. On failure, restore canonical preimages, report the failure, and leave no partial
@@ -1052,9 +1065,10 @@ replacement are complete. The tool must not claim full erasure before that proof
 7. Tier 6, honest failure. Name the searched scope and unavailable sources.
 
 The baseline reads canonical Markdown directly. It uses exact record ids and paths,
-metadata filters, and text search constrained to the resolved project root. A
-generated navigation view may help a person browse, but retrieval does not depend on
-it and never treats it as evidence.
+metadata filters, and text search constrained to the resolved project root. A default
+v2 project stores no navigation view. Where a project has separately approved one, it
+may help a person browse, but retrieval does not depend on it and never treats it as
+evidence.
 
 The agent searches with project terms, exact tool names, and useful aliases recorded
 on the canonical record. Blind synonym expansion is not used. A match opens the whole
@@ -1081,6 +1095,10 @@ provenance
 match reason or score
 degraded-state warning, when present
 ~~~
+
+The `project_id` on a result is the resolved scope's id from knowledge/project.md. It
+is not a field stored on the record. A result carries it so the reader can see which
+project answered, and section 21.9 decides membership by physical location.
 
 An empty result stays empty. A search failure, missing method, or scope error is
 returned as an error, not converted into no evidence.
@@ -1616,8 +1634,13 @@ erasure it has not proven.
    different `project_id`.
 7. No two scope roots in the repository are the same directory or nest without a
    declaration.
-8. Every record, pin entry, and generated view in the scope carries the scope's
-   `project_id`.
+8. Every record, pin entry, and approved derived artifact read as this project's
+   belongs to it by physical location: its canonicalized real path sits inside the
+   scope root, with declared subroots removed. Project membership is decided by
+   location, not by a field stamped on every file, because section 12 does not put
+   `project_id` in the record schema and section 11.2 does not put it in a pin entry.
+   Where a record or artifact does declare a `project_id`, that value must be this
+   scope's id, and a mismatch is reported.
 9. Every link whose target resolves into another scope names that scope's project id.
 10. The two-project fixture in section 21.11 returns no cross-scope record, pin, or
     search result.
@@ -2183,7 +2206,7 @@ The architecture is implemented only when a real project proves:
 | FR-022 | Section 12 defines permanent identity, kind, status, dates, provenance, approval, and summary. | AT-04 |
 | FR-023 | Sections 12 and 12.1 require based_on evidence and explicit verification. | AT-13 |
 | FR-024 | Section 14 defines every required lifecycle operation. | AT-03, AT-10, AT-11 |
-| FR-025 | Sections 14 and 15 exclude obsolete records from current reads and preserve timelines. | AT-11 |
+| FR-025 | Sections 14 and 15 exclude obsolete records from current reads and preserve timelines, and section 14.3 hunts surviving copies of a retired phrase. | AT-11, AT-12 |
 | FR-026 | Sections 12.1 and 14.2 plus ADR-011 consolidate supporting evidence and refuse incompatible meanings, truth states, or effective dates. | AT-10, AT-23 |
 | FR-027 | Sections 14 and 14.4 constrain deletion and require a reason and audit evidence. | AT-16 |
 | FR-028 | Section 13.4 coordinates canonical writes, affected views, validation, reporting, and rollback. | AT-16 |
@@ -2355,8 +2378,12 @@ Before implementation work is split into build tickets:
 - the direct file-search path works with .memory/ absent and creates no local state;
 - the pin budget and cross-project tests exist before pin operations ship;
 - migration has dry-run and rollback fixtures from current v1 projects; and
-- the work tracker carries implementation status, dependencies, and decisions made
-  during the build.
+- implementation status, dependencies, and decisions made during the build are written
+  down somewhere the owner can open without asking anyone. Where the project has a work
+  tracker, that is the tracker. Where it does not, the build's own work-item files hold
+  them, and knowledge/current.md carries the current focus, the blockers, and the next
+  step, as it does in every project. This condition is about the record existing, not
+  about owning a tracker.
 
 No implementation ticket may weaken an FR. A necessary architecture change updates
 this document and its ADR before the change is built.
