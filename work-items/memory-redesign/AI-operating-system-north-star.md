@@ -12,6 +12,11 @@ When there is ambiguity in a lower-level design, this document should help answe
 
 > **Are we still building the system we intended to build?**
 
+Decisions this document depends on live in
+[architectural-decision-records.md](architectural-decision-records.md). Before
+reversing anything here, read that file. It holds what was decided, what was
+rejected, and why.
+
 ---
 
 ## The Vision
