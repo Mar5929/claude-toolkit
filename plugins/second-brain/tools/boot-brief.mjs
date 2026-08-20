@@ -280,7 +280,7 @@ export { parsePins, summaryHash };
 const INELIGIBLE_PIN_STATUS = ["retired", "superseded"];
 
 /** Read the mapped roles and their physical paths from the authored map. */
-function parseMapRows(text) {
+export function parseMapRows(text) {
   const rows = [];
   for (const line of text.split("\n")) {
     const trimmed = line.trim();
@@ -300,7 +300,7 @@ function parseMapRows(text) {
   return rows;
 }
 
-function majorFolders(rows) {
+export function majorFolders(rows) {
   const folders = [];
   for (const row of rows) {
     if (!row.path || row.path.toLowerCase() === "not present") continue;

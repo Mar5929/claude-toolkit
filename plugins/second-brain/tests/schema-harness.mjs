@@ -195,19 +195,25 @@ try {
   );
   ok(entry(clean.payload, "MV-01").status === "pass", "the required core passes MV-01");
   ok(
-    entry(clean.payload, "MV-01").skipped_because.includes("host-route"),
-    "MV-01 names the half of itself that is not built yet",
+    entry(clean.payload, "MV-01").skipped_because.includes("route half"),
+    "MV-01 names the half of itself a project with no host route cannot run",
   );
   ok(entry(clean.payload, "MV-03").status === "pass", "well-formed records pass MV-03");
   ok(entry(clean.payload, "MV-04").status === "pass", "records with a basis pass MV-04");
-  ok(entry(clean.payload, "MV-02").status === "skipped", "a check whose component is missing is skipped");
+  ok(entry(clean.payload, "MV-18").status === "skipped", "the check whose engine is not built is skipped");
   ok(
-    typeof entry(clean.payload, "MV-02").skipped_because === "string",
+    entry(clean.payload, "MV-18").skipped_because.includes("P4-1"),
+    "MV-18 names the work item that builds what it inspects",
+  );
+  ok(
+    clean.payload.result
+      .filter((check) => check.status === "skipped")
+      .every((check) => typeof check.skipped_because === "string" && check.skipped_because.length > 0),
     "every skipped check names why it did not run",
   );
   ok(
-    clean.payload.result.filter((check) => check.status === "skipped").length === 15,
-    "this build runs seven checks and skips the other fifteen, MV-22 among them until a move happens",
+    clean.payload.result.filter((check) => check.status === "fail").length === 0,
+    "a well-formed project fails no check",
   );
   ok(clean.payload.errors.length === 0, "a well-formed project produces no errors");
   ok(call(good, "validate").stdout === clean.stdout, "two validate runs produce the same bytes");

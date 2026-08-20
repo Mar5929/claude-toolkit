@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import {
+  cpSync,
   existsSync,
   lstatSync,
   mkdtempSync,
@@ -166,8 +167,8 @@ try {
 
   const claudeManifest = JSON.parse(readFileSync(resolve(plugin, ".claude-plugin/plugin.json")));
   const codexManifest = JSON.parse(readFileSync(resolve(plugin, ".codex-plugin/plugin.json")));
-  ok(claudeManifest.version === "3.8.0", "Claude manifest is 3.8.0");
-  ok(codexManifest.version === "3.8.0", "Codex manifest is 3.8.0");
+  ok(claudeManifest.version === "3.9.0", "Claude manifest is 3.9.0");
+  ok(codexManifest.version === "3.9.0", "Codex manifest is 3.9.0");
   ok(claudeManifest.version === codexManifest.version, "plugin manifest versions match");
   const placementRule = "plugins/project-init/library/rules/general/where-persistent-information-belongs.md";
   ok(existsSync(resolve(root, placementRule)), "package contains the plainly named placement rule");
@@ -263,6 +264,86 @@ try {
   const emptyTags = readFileSync(resolve(template, "memory/tags.md"), "utf8");
   ok(emptyTags.includes("| Tag | Plain-language meaning |"), "greenfield tag vocabulary has the fixed empty table");
   ok(!emptyTags.includes("project-knowledge"), "greenfield tags do not inherit toolkit topics");
+
+  // ---------------------------------------------------------------------------
+  // The version 2 four-type tree, beside the version 1 tree above.
+  //
+  // This repository runs version 1 until the cutover work item, so every check
+  // above still has to prove the version 1 tools it ships. The checks below add
+  // the four-type tree the version 2 templates carry and pin what the version 1
+  // tools do when they meet one, which is what stops the cutover discovering it
+  // by accident. Both fixture sets stay until version 1 is removed.
+  // ---------------------------------------------------------------------------
+  const templateV2 = resolve(plugin, "skills/second-brain/references/templates-v2/knowledge");
+  for (const path of [
+    "project.md",
+    "map.md",
+    "current.md",
+    "specs/.gitkeep",
+    "memory/facts/.gitkeep",
+    "memory/decisions/.gitkeep",
+    "memory/events/.gitkeep",
+    "memory/patterns/.gitkeep",
+  ]) ok(existsSync(resolve(templateV2, path)), `version 2 template contains ${path}`);
+  for (const path of [
+    "index.md",
+    "memory/tags.md",
+    "memory/context/.gitkeep",
+    "memory/domain/.gitkeep",
+    "memory/knowledge/.gitkeep",
+    "memory/operations/.gitkeep",
+    "memory/planning/.gitkeep",
+    "memory/references/.gitkeep",
+    "brainstorms/.gitkeep",
+  ]) ok(!existsSync(resolve(templateV2, path)), `version 2 template drops ${path}`);
+
+  const v2Settings = readFileSync(resolve(templateV2, "project.md"), "utf8");
+  for (const key of ["schema_version:", "project_id:", "project_root:", "privacy:"]) {
+    ok(v2Settings.includes(key), `the version 2 project file carries ${key}`);
+  }
+
+  const rememberDraft = readFileSync(resolve(plugin, "skills/remember/SKILL-v2.md"), "utf8");
+  for (const type of ["`fact`", "`decision`", "`event`", "`pattern`"]) {
+    ok(rememberDraft.includes(type), `the remember draft routes saves to the ${type} type`);
+  }
+  for (const retired of [
+    "knowledge/memory/context/",
+    "knowledge/memory/domain/",
+    "knowledge/memory/operations/",
+    "knowledge/memory/planning/",
+    "knowledge/memory/references/",
+  ]) ok(!rememberDraft.includes(retired), `the remember draft no longer routes saves to ${retired}`);
+  ok(
+    readFileSync(resolve(plugin, "skills/remember/SKILL.md"), "utf8").includes("knowledge/memory/context/"),
+    "the live remember skill still routes saves the version 1 way until the cutover",
+  );
+
+  // A version 2 project in front of the version 1 tools. The detector must not
+  // read it as the version 1 knowledge layout, and the version 1 loader has to
+  // degrade rather than throw. The `v2` detected state lands with the migration
+  // engine in P4-1.
+  const v2Project = fixture("v2");
+  cpSync(templateV2, resolve(v2Project, "knowledge"), { recursive: true });
+  write(
+    v2Project,
+    "knowledge/project.md",
+    readFileSync(resolve(v2Project, "knowledge/project.md"), "utf8")
+      .replace("replace-with-a-stable-project-id", "fixture-v2"),
+  );
+  ok(
+    detectLayout(v2Project).layout === "unknown",
+    "the version 1 detector does not read a version 2 tree as the version 1 knowledge layout",
+  );
+  const v2Startup = loadKnowledge(v2Project);
+  ok(
+    v2Startup.includes("knowledge/index.md is missing"),
+    "the version 1 loader reports the generated index a version 2 project does not have",
+  );
+  ok(v2Startup.endsWith("\n"), "the version 1 loader still fails open on a version 2 tree");
+  ok(
+    !existsSync(resolve(v2Project, ".memory")),
+    "reading a version 2 project with the version 1 tools creates no local state",
+  );
 
   // Signature detector states.
   const none = fixture("none");

@@ -13,14 +13,17 @@
  * output and nothing else. Human-readable rendering is the skill's job.
  *
  * This build implements capabilities, status, the retrieval router (search,
- * get, timeline, related, sources, spec-search, and spec-get), validate,
- * update-current, rebuild-views, the seven writing lifecycle operations, pin
- * and unpin, and the noop, cancel, and move plumbing. The other operations are
- * not stubbed, because
- * a stub that answers is worse than one that says it is not here: capabilities
- * reports the whole build state, so an agent reads it instead of guessing. The
- * validator follows the same rule inside itself: a check whose component is
- * not built yet is reported as skipped with the reason, never as a pass.
+ * get, timeline, related, sources, spec-search, and spec-get), review,
+ * validate, update-current, rebuild-views, the seven writing lifecycle
+ * operations, pin and unpin, and the noop, cancel, and move plumbing. The
+ * other operations are not stubbed, because a stub that answers is worse than
+ * one that says it is not here: capabilities reports the whole build state, so
+ * an agent reads it instead of guessing. The validator and the review engine
+ * follow the same rule inside themselves: a check or a category whose
+ * component is not built yet, or which this project gives nothing to inspect,
+ * is reported as skipped with the reason, never as a pass. The validator runs
+ * every section 4 check except MV-18, migration integrity, which lands with
+ * the migration engine that builds what it inspects.
  *
  * Every write goes to memory-write.mjs. This file resolves scope and privacy,
  * reads flags, and prints the envelope. It never touches a canonical path
@@ -34,7 +37,13 @@
  * another entry point.
  */
 
-import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
+import {
+  existsSync,
+  readFileSync,
+  readdirSync,
+  realpathSync,
+  statSync,
+} from "node:fs";
 import { relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -62,8 +71,16 @@ import {
 } from "./lib/record-schema.mjs";
 import {
   CURRENT_TRIGGERS,
+  JOURNAL_FILE,
   LIFECYCLE_OPERATIONS,
+  LOCAL_STATE,
+  LOCK_FOLDER,
+  MOVE_RECEIPT,
   PIN_OPERATIONS,
+  PREIMAGE_FOLDER,
+  REVIEW_FOLDER,
+  SENSITIVE_SECTION,
+  STARTUP_EXPOSURE_SECTION,
   cancel as cancelProposal,
   lifecycle,
   moveRecord,
@@ -80,7 +97,14 @@ import {
   trackedMarkdown,
   updateCurrent,
 } from "./memory-write.mjs";
-import { assembleBootBrief } from "./boot-brief.mjs";
+import {
+  DEGRADATION_STEPS,
+  assembleBootBrief,
+  majorFolders,
+  parseMapRows,
+} from "./boot-brief.mjs";
+import { runGoldSet } from "./gold-set.mjs";
+import { runIsolationFixtures, runPrivacyFixtures } from "./isolation-fixtures.mjs";
 import {
   resolveLinkTarget,
   scanLinks,
@@ -109,11 +133,11 @@ const SEARCH_MODE = "direct-file";
 const BUILD_GAPS = [
   {
     feature: "review",
-    reason: "review is not available in this build",
+    reason: "review carries the section 17 categories it can judge from the files and reports the gold-set category as skipped until the gold-set runner is wired in",
   },
   {
     feature: "validation",
-    reason: "validate carries the required-file, record-schema, link, relative-link, move-repair, pin, and retired-phrase checks only, and reports every other check as skipped",
+    reason: "validate runs every section 4 check except MV-18, the migration integrity check, which lands with the migration engine in P4-1",
   },
   {
     feature: "session history",
@@ -1183,31 +1207,6 @@ function sourcesOperation(context, options) {
 }
 
 /**
- * MV-01, the required-files half. The host-route half of the same check needs
- * the startup routes, which are not built yet, so the entry names that gap in
- * skipped_because while still reporting the file verdict.
- */
-function checkRequiredFiles(scope) {
-  const findings = [];
-  for (const entry of REQUIRED_CORE) {
-    const path = resolve(scope.scopeRoot, entry.path);
-    const present = entry.kind === "directory" ? isDirectory(path) : existsSync(path);
-    if (!present) {
-      findings.push(note(
-        "record/schema-invalid",
-        `the required ${entry.kind} ${entry.path} is missing`,
-        { path: entry.path },
-      ));
-    }
-  }
-  return {
-    status: findings.length ? "fail" : "pass",
-    findings,
-    skipped_because: "the host-route half of this check is not available in this build",
-  };
-}
-
-/**
  * MV-03 and MV-04 read the same walk, so they are judged together and the
  * findings are split by reason code afterwards. MV-04 owns the empty based_on
  * refusal; MV-03 owns everything else the record schema defines.
@@ -1516,6 +1515,1160 @@ function checkMoveRepair(scope) {
   return { status: findings.length ? "fail" : "pass", findings, skipped_because: null };
 }
 
+// ---------------------------------------------------------------------------
+// The rest of the section 4 checks
+// ---------------------------------------------------------------------------
+
+/** The two host startup routes of contracts section 5, by where they live. */
+const CLAUDE_SETTINGS = ".claude/settings.json";
+const CODEX_ROUTE_FILE = "AGENTS.md";
+const CODEX_ROUTE_START = "<!-- second-brain:startup-route:start -->";
+const CODEX_ROUTE_END = "<!-- second-brain:startup-route:end -->";
+
+/** The four skills every host route names, per contracts section 5.3. */
+const ROUTE_SKILLS = Object.freeze(["remember", "recall", "cleanup", "session-search"]);
+
+/** The paths a route has to say are guarded, per contracts section 5.3 item 4. */
+const ROUTE_GUARDED = Object.freeze([
+  "knowledge/memory/",
+  "knowledge/specs/",
+  "knowledge/current.md",
+]);
+
+/** The markers around the block CLAUDE.md and AGENTS.md both carry. */
+const SHARED_BLOCK_START = "<!-- shared-with-agents-md:start -->";
+const SHARED_BLOCK_END = "<!-- shared-with-agents-md:end -->";
+
+/** Evidence source types that name a tracker item rather than a durable source. */
+const TRACKER_SOURCE_TYPES = Object.freeze([
+  "tracker",
+  "tracker_item",
+  "work_item",
+  "issue",
+  "ticket",
+  "board",
+  "card",
+  "backlog_item",
+]);
+
+/**
+ * The fixed secret pattern set of architecture section 21.7. Each entry has an
+ * id, because a finding names the pattern that matched and never the text that
+ * matched it.
+ */
+const SECRET_PATTERNS = Object.freeze([
+  { id: "private-key-block", pattern: /-----BEGIN [A-Z ]*PRIVATE KEY-----/ },
+  { id: "aws-access-key-id", pattern: /\bAKIA[0-9A-Z]{16}\b/ },
+  { id: "github-token", pattern: /\bgh[pousr]_[A-Za-z0-9]{20,}\b/ },
+  { id: "slack-token", pattern: /\bxox[abprs]-[A-Za-z0-9-]{10,}\b/ },
+  { id: "connection-string-password", pattern: /\b[a-z][a-z0-9+.-]*:\/\/[^\s:@/]+:[^\s:@/]+@/i },
+  {
+    id: "environment-assignment",
+    pattern: /\b[A-Za-z0-9_]*(secret|token|password|passwd|api[_-]?key)[A-Za-z0-9_]*\s*[:=]\s*["']?[A-Za-z0-9_\-/+.]{12,}/i,
+  },
+]);
+
+/** Only the local-state kinds contracts section 2.23.1 defines may sit under `.memory/`. */
+const LOCAL_STATE_KINDS = Object.freeze([REVIEW_FOLDER, LOCK_FOLDER, JOURNAL_FILE, PREIMAGE_FOLDER, MOVE_RECEIPT]);
+
+/**
+ * Every file inside the scope, by path, with its size and modification time.
+ * It is built for one comparison and thrown away. `.git` and installed
+ * dependencies are skipped: they are not this project's knowledge and walking
+ * them would make a read run slower than the thing it is proving.
+ */
+function projectFingerprint(root) {
+  const seen = new Map();
+  const walk = (directory) => {
+    let entries;
+    try {
+      entries = readdirSync(directory, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name));
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      if (entry.name === ".git" || entry.name === "node_modules") continue;
+      const path = resolve(directory, entry.name);
+      if (entry.isSymbolicLink()) {
+        seen.set(path, "symlink");
+        continue;
+      }
+      if (entry.isDirectory()) {
+        walk(path);
+        continue;
+      }
+      try {
+        const stat = statSync(path);
+        seen.set(path, `${stat.size}:${stat.mtimeMs}`);
+      } catch {
+        seen.set(path, "unreadable");
+      }
+    }
+  };
+  walk(root);
+  return seen;
+}
+
+/** Paths that appeared, disappeared, or changed between two fingerprints. */
+function fingerprintDiff(before, after) {
+  const changed = [];
+  for (const [path, stamp] of after) {
+    if (!before.has(path)) changed.push({ path, state: "created" });
+    else if (before.get(path) !== stamp) changed.push({ path, state: "changed" });
+  }
+  for (const path of before.keys()) {
+    if (!after.has(path)) changed.push({ path, state: "removed" });
+  }
+  return changed;
+}
+
+/** Every symbolic link inside the knowledge tree and the local-state folder. */
+function scopeSymlinks(scope) {
+  const found = [];
+  const walk = (directory) => {
+    let entries;
+    try {
+      entries = readdirSync(directory, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name));
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      const path = resolve(directory, entry.name);
+      if (entry.isSymbolicLink()) {
+        found.push(path);
+        continue;
+      }
+      if (entry.isDirectory()) walk(path);
+    }
+  };
+  for (const area of ["knowledge", LOCAL_STATE]) {
+    const base = resolve(scope.scopeRoot, area);
+    if (isDirectory(base)) walk(base);
+  }
+  return found;
+}
+
+/**
+ * Read one host startup route. `present` says the project installed it at all,
+ * which is what separates a v1 project with nothing to inspect from a v2
+ * project whose route is incomplete.
+ */
+function claudeRoute(scope) {
+  const path = resolve(scope.scopeRoot, CLAUDE_SETTINGS);
+  const text = readIfPresent(path);
+  if (text === null) return { host: "claude-code", present: false, reason: "the project has no .claude/settings.json" };
+
+  let settings;
+  try {
+    settings = JSON.parse(text);
+  } catch {
+    return { host: "claude-code", present: false, reason: ".claude/settings.json is not readable JSON" };
+  }
+
+  const commands = [];
+  const hooks = settings.hooks && typeof settings.hooks === "object" ? settings.hooks : {};
+  for (const entry of Array.isArray(hooks.SessionStart) ? hooks.SessionStart : []) {
+    for (const hook of Array.isArray(entry?.hooks) ? entry.hooks : []) {
+      if (typeof hook?.command === "string") commands.push(hook.command);
+    }
+  }
+  const registered = commands.filter((command) => command.includes("boot-brief"));
+  if (registered.length === 0) {
+    return {
+      host: "claude-code",
+      present: false,
+      reason: "no SessionStart hook in .claude/settings.json runs the version 2 boot brief",
+    };
+  }
+  return { host: "claude-code", present: true, path: CLAUDE_SETTINGS, commands: registered };
+}
+
+function codexRoute(scope) {
+  const path = resolve(scope.scopeRoot, CODEX_ROUTE_FILE);
+  const text = readIfPresent(path);
+  if (text === null) return { host: "codex", present: false, reason: "the project has no AGENTS.md" };
+  const start = text.indexOf(CODEX_ROUTE_START);
+  const end = text.indexOf(CODEX_ROUTE_END);
+  if (start === -1 || end === -1 || end < start) {
+    return {
+      host: "codex",
+      present: false,
+      reason: "AGENTS.md carries no version 2 startup-route block between its markers",
+    };
+  }
+  return {
+    host: "codex",
+    present: true,
+    path: CODEX_ROUTE_FILE,
+    block: text.slice(start + CODEX_ROUTE_START.length, end),
+  };
+}
+
+/**
+ * MV-01, both halves. The files half reads the required core of architecture
+ * section 7. The route half reads whichever host routes the project installed
+ * and asks each one for the meaning contracts section 5.3 requires. A project
+ * that has installed neither route has nothing to inspect, which is reported
+ * as a skipped half rather than as a pass it never earned.
+ */
+function checkRequiredFiles(scope) {
+  const findings = [];
+  for (const entry of REQUIRED_CORE) {
+    const path = resolve(scope.scopeRoot, entry.path);
+    const present = entry.kind === "directory" ? isDirectory(path) : existsSync(path);
+    if (!present) {
+      findings.push(note(
+        "record/schema-invalid",
+        `the required ${entry.kind} ${entry.path} is missing`,
+        { path: entry.path },
+      ));
+    }
+  }
+
+  const routes = [claudeRoute(scope), codexRoute(scope)];
+  const installed = routes.filter((route) => route.present);
+
+  for (const route of installed) {
+    if (route.host === "claude-code") {
+      // The Claude Code route is a program, so what the check can read is
+      // whether the registered hook is really there. What it renders is MV-07.
+      for (const command of route.commands) {
+        const named = command.split(/\s+/).find((word) => word.includes("boot-brief"));
+        const resolved = named ? resolve(scope.scopeRoot, named.replace(/^["']|["']$/g, "")) : null;
+        if (resolved && !existsSync(resolved) && !named.includes("${")) {
+          findings.push(note(
+            "startup/missing-source",
+            "the registered SessionStart hook names a file that is not there",
+            { path: route.path, detail: named },
+          ));
+        }
+      }
+      continue;
+    }
+
+    const block = route.block.toLowerCase();
+    if (!block.includes("boot-brief")) {
+      findings.push(note("record/schema-invalid", "the Codex startup route does not run the boot brief first", { path: route.path }));
+    }
+    if (!block.includes("memory.mjs") || !block.includes("capabilities")) {
+      findings.push(note("record/schema-invalid", "the Codex startup route does not name the memory tool path and how to ask for capabilities", { path: route.path }));
+    }
+    for (const skill of ROUTE_SKILLS) {
+      if (!block.includes(skill)) {
+        findings.push(note("record/schema-invalid", `the Codex startup route does not name the ${skill} skill`, { path: route.path }));
+      }
+    }
+    for (const guarded of ROUTE_GUARDED) {
+      if (!block.includes(guarded)) {
+        findings.push(note("record/schema-invalid", `the Codex startup route does not name ${guarded} as a guarded path`, { path: route.path }));
+      }
+    }
+    if (!block.includes("approval") && !block.includes("approve") && !block.includes("approved")) {
+      findings.push(note("record/schema-invalid", "the Codex startup route does not say that approval comes from the owner", { path: route.path }));
+    }
+  }
+
+  return {
+    status: findings.length ? "fail" : "pass",
+    findings,
+    skipped_because: installed.length
+      ? null
+      : `the route half of this check has nothing to inspect: ${routes.map((route) => route.reason).join("; ")}`,
+  };
+}
+
+/**
+ * MV-02, shared root-block meaning and checked-copy drift. The two root files
+ * carry one block between the same markers, and the block is the only place
+ * they are required to agree. Schema 2.0 defines no way to declare another
+ * copy pair, so this pair is the whole check.
+ */
+function checkSharedBlock(scope) {
+  const files = ["CLAUDE.md", CODEX_ROUTE_FILE];
+  const blocks = files.map((path) => {
+    const text = readIfPresent(resolve(scope.scopeRoot, path));
+    if (text === null) return { path, state: "absent" };
+    const normalized = text.replace(/\r\n/g, "\n");
+    const start = normalized.indexOf(SHARED_BLOCK_START);
+    const end = normalized.indexOf(SHARED_BLOCK_END);
+    if (start === -1 || end === -1 || end < start) return { path, state: "unmarked" };
+    return {
+      path,
+      state: "present",
+      lines: normalized
+        .slice(start + SHARED_BLOCK_START.length, end)
+        .split("\n")
+        .map((line) => line.replace(/\s+/g, " ").trim())
+        .filter(Boolean),
+    };
+  });
+
+  const present = blocks.filter((block) => block.state === "present");
+  if (present.length === 0) {
+    return {
+      status: "skipped",
+      findings: [],
+      skipped_because: "neither root instruction file carries a marked shared block to compare",
+    };
+  }
+  if (present.length === 1) {
+    const missing = blocks.find((block) => block.state !== "present");
+    return {
+      status: "fail",
+      findings: [note(
+        "record/schema-invalid",
+        `${present[0].path} carries the shared block and ${missing.path} is ${missing.state}, so one host reads meaning the other never sees`,
+        { path: missing.path },
+      )],
+      skipped_because: null,
+    };
+  }
+
+  const [first, second] = present;
+  const findings = [];
+  const length = Math.max(first.lines.length, second.lines.length);
+  for (let index = 0; index < length; index++) {
+    if (first.lines[index] === second.lines[index]) continue;
+    findings.push(note(
+      "record/schema-invalid",
+      `the shared block differs from ${second.path} at block line ${index + 1}, so the two hosts carry different meaning`,
+      { path: first.path, detail: `${first.lines.length} lines against ${second.lines.length}` },
+    ));
+    break;
+  }
+  return { status: findings.length ? "fail" : "pass", findings, skipped_because: null };
+}
+
+/**
+ * MV-07, startup budget and safe degradation. It renders the brief this
+ * project would actually assemble and reads three things: that the degradation
+ * steps ran in the fixed section 10.4 order, that nothing required was dropped
+ * to fit, and that an over-budget required set is reported with its exact byte
+ * count. Running long is a warning, because the brief is right to run long
+ * rather than hide a required block.
+ */
+function checkStartupBudget(scope) {
+  const brief = assembleBootBrief({ projectRoot: scope.scopeRoot });
+  if (!brief.ok) {
+    return {
+      status: "fail",
+      findings: [note("startup/missing-source", `the boot brief could not be assembled: ${brief.message}`, {
+        path: "knowledge/project.md",
+      })],
+      skipped_because: null,
+    };
+  }
+
+  const findings = [];
+  const expected = DEGRADATION_STEPS.slice(0, brief.applied.length).join(",");
+  if (brief.applied.join(",") !== expected) {
+    findings.push(note(
+      "record/schema-invalid",
+      `startup degraded in the order ${brief.applied.join(", ")} and section 10.4 fixes the order as ${DEGRADATION_STEPS.join(", ")}`,
+      { path: "knowledge/project.md" },
+    ));
+  }
+
+  const required = [
+    "1. Identity and operating route",
+    "2. Project purpose",
+    "4. Latest authored handoff",
+    "5. Current state",
+    "7. Pinned memory",
+    "9. Memory contract, skills, and tools",
+  ];
+  for (const heading of required) {
+    if (!brief.text.includes(`## ${heading}`)) {
+      findings.push(note(
+        "record/schema-invalid",
+        `the rendered brief is missing the required block ${heading}`,
+        { path: "knowledge/current.md" },
+      ));
+    }
+  }
+
+  if (findings.length) return { status: "fail", findings, skipped_because: null };
+  if (brief.overBudget) {
+    return {
+      status: "warn",
+      findings: [note(
+        "startup/over-budget",
+        `the required startup blocks are ${brief.bytes} bytes and the configured budget is ${brief.budget} bytes`,
+        { path: "knowledge/project.md" },
+      )],
+      skipped_because: null,
+    };
+  }
+  return { status: "pass", findings: [], skipped_because: null };
+}
+
+/**
+ * MV-09, derived-artifact inputs, fingerprints, and hand edits. A default v2
+ * project approves no artifact, so the check reports skipped rather than a
+ * pass over nothing.
+ */
+function checkGeneratedViews(scope) {
+  const planned = planViewRebuild(scope);
+  if (planned.artifacts.length === 0 && planned.errors.length === 0) {
+    return {
+      status: "skipped",
+      findings: [],
+      skipped_because: "this project has approved no generated artifact to inspect",
+    };
+  }
+
+  const findings = [...planned.errors];
+  for (const artifact of planned.artifacts) {
+    if (readIfPresent(resolve(scope.scopeRoot, artifact.path)) === artifact.contents) continue;
+    findings.push(note(
+      "record/schema-invalid",
+      "the generated artifact does not match what its declared inputs produce, so it is stale or hand edited",
+      { path: artifact.path },
+    ));
+  }
+  return { status: findings.length ? "warn" : "pass", findings, skipped_because: null };
+}
+
+/**
+ * MV-10, map coverage for major folders. A mapped path that is gone sends an
+ * agent to a folder that is not there, and a major folder the map never
+ * mentions is a place nobody was told about. Both are the owner's call, which
+ * is why this check warns.
+ */
+function checkMapCoverage(scope) {
+  const text = readIfPresent(resolve(scope.scopeRoot, "knowledge/map.md"));
+  if (text === null) {
+    return {
+      status: "warn",
+      findings: [note("startup/missing-source", "knowledge/map.md is missing, so no role has a stated home", {
+        path: "knowledge/map.md",
+      })],
+      skipped_because: null,
+    };
+  }
+
+  const findings = [];
+  const rows = parseMapRows(text);
+  for (const row of rows) {
+    if (!row.path || row.path.toLowerCase() === "not present") continue;
+    if (existsSync(resolve(scope.scopeRoot, row.path))) continue;
+    findings.push(note(
+      "record/schema-invalid",
+      `the map sends ${row.role} to a path that is not there`,
+      { path: "knowledge/map.md", detail: row.path },
+    ));
+  }
+
+  const mapped = new Set(majorFolders(rows).map((folder) => folder.replace(/\/$/, "")));
+  for (const entry of readdirSync(scope.scopeRoot, { withFileTypes: true })
+    .sort((a, b) => a.name.localeCompare(b.name))) {
+    if (!entry.isDirectory() || entry.name.startsWith(".") || entry.name === "node_modules") continue;
+    const absolute = resolve(scope.scopeRoot, entry.name);
+    if (!isMemberPath(scope, absolute)) continue;
+    if (entry.name === "knowledge" || mapped.has(entry.name)) continue;
+    findings.push(note(
+      "record/schema-invalid",
+      `the map does not mention the folder ${entry.name}/, so nothing says what it holds`,
+      { path: "knowledge/map.md", detail: `${entry.name}/` },
+    ));
+  }
+  return { status: findings.length ? "warn" : "pass", findings, skipped_because: null };
+}
+
+/**
+ * MV-11, domain and topic vocabulary and usage. The review engine already
+ * judges vocabulary for the cleanup worklist, so the validator reads the same
+ * judgment rather than carrying a second opinion about the same values.
+ */
+function checkVocabulary(scope) {
+  const collected = collectCandidates(scope, { records: true, specs: false });
+  const records = collected.candidates.filter((candidate) => candidate.kind === "record");
+  if (records.length === 0) {
+    return {
+      status: "skipped",
+      findings: [],
+      skipped_because: "this project holds no records, so it has no vocabulary to inspect",
+    };
+  }
+  const findings = reviewVocabulary(records).map((item) => note(
+    "record/schema-invalid",
+    item.what_is_wrong,
+    { path: item.paths[0] ?? "knowledge/memory" },
+  ));
+  return { status: findings.length ? "warn" : "pass", findings, skipped_because: null };
+}
+
+/** The section 15.2 minimum contract, by field name, so one list judges it. */
+const RESULT_CONTRACT_FIELDS = Object.freeze([
+  "project_id",
+  "layer",
+  "record_id",
+  "path",
+  "status",
+  "summary",
+  "provenance",
+  "match_reason",
+]);
+
+/**
+ * MV-12, direct search returns complete records. It runs real searches over
+ * this project's own records and asks two questions of every result: does it
+ * carry every field of the section 15.2 minimum contract, and does an exact
+ * lookup of the same path return the whole file rather than a detached
+ * fragment.
+ */
+function checkSearchContract(scope) {
+  const context = { scope, warnings: [] };
+  const collected = collectCandidates(scope, { records: true, specs: false });
+  const sample = collected.candidates
+    .filter((candidate) => candidate.status === "active" && candidate.id)
+    .sort((a, b) => a.path.localeCompare(b.path))
+    .slice(0, 5);
+  if (sample.length === 0) {
+    return {
+      status: "skipped",
+      findings: [],
+      skipped_because: "this project holds no active record for a sample search run",
+    };
+  }
+
+  const findings = [];
+  for (const candidate of sample) {
+    const run = searchOperation(context, {
+      query: candidate.id,
+      type: null,
+      status: null,
+      domain: null,
+      topic: null,
+      limit: 5,
+    });
+    if (run.status !== "ok") {
+      findings.push(note("retrieval/parse-error", "a sample search did not run", { path: candidate.path }));
+      continue;
+    }
+    for (const result of run.result) {
+      for (const field of RESULT_CONTRACT_FIELDS) {
+        if (Object.hasOwn(result, field)) continue;
+        findings.push(note(
+          "record/schema-invalid",
+          `a search result is missing the ${field} field of the section 15.2 minimum contract`,
+          { path: result.path ?? candidate.path },
+        ));
+      }
+    }
+    if (!run.result.some((result) => result.path === candidate.path)) {
+      findings.push(note(
+        "record/unknown-id",
+        "a search for a record's own id did not return that record",
+        { path: candidate.path },
+      ));
+      continue;
+    }
+
+    const opened = getOperation(context, { id: null, path: candidate.path });
+    if (opened.status !== "ok") {
+      findings.push(note("record/unknown-id", "an exact lookup of a record path did not open it", { path: candidate.path }));
+      continue;
+    }
+    const onDisk = readIfPresent(resolve(scope.scopeRoot, candidate.path));
+    if (opened.result.body !== onDisk) {
+      findings.push(note(
+        "record/schema-invalid",
+        "an exact lookup returned something other than the whole record file",
+        { path: candidate.path },
+      ));
+    }
+  }
+  return { status: findings.length ? "fail" : "pass", findings, skipped_because: null };
+}
+
+/**
+ * MV-13, no tracker bridge as the sole home of a fact. A record whose only
+ * evidence is a tracker item keeps its meaning alive only as long as the
+ * tracker does, which is the dependency FR-006 refuses.
+ */
+function checkTrackerBridge(scope) {
+  const findings = [];
+  const collected = collectCandidates(scope, { records: true, specs: false });
+  for (const candidate of collected.candidates) {
+    if (candidate.status !== "active") continue;
+    const types = candidate.provenance.evidence
+      .map((entry) => String(entry.source_type ?? "").trim().toLowerCase())
+      .filter(Boolean);
+    if (types.length === 0) continue;
+    if (!types.every((type) => TRACKER_SOURCE_TYPES.includes(type))) continue;
+    findings.push(note(
+      "record/missing-evidence",
+      "every source this record cites is a tracker item, so its meaning lives nowhere but the tracker bridge",
+      { path: candidate.path },
+    ));
+  }
+  return { status: findings.length ? "fail" : "pass", findings, skipped_because: null };
+}
+
+/** Local-state paths that are not one of the kinds contracts section 2.23.1 defines. */
+function unexpectedLocalState(scope) {
+  const base = resolve(scope.scopeRoot, LOCAL_STATE);
+  if (!isDirectory(base)) return [];
+  const strays = [];
+  const walk = (directory) => {
+    for (const entry of readdirSync(directory, { withFileTypes: true })
+      .sort((a, b) => a.name.localeCompare(b.name))) {
+      const path = resolve(directory, entry.name);
+      const relativeName = relativePath(scope, path);
+      if (LOCAL_STATE_KINDS.some((kind) => relativeName === kind || relativeName.startsWith(`${kind}/`))) {
+        continue;
+      }
+      if (entry.isDirectory()) {
+        walk(path);
+        continue;
+      }
+      strays.push(relativeName);
+    }
+  };
+  walk(base);
+  return strays;
+}
+
+/**
+ * MV-14, identical canonical results after deleting and rebuilding derived
+ * state. The validator writes nothing, so it does not delete a project's
+ * `.memory/` folder to prove this. It proves the two conditions that make the
+ * deletion safe: nothing canonical is read out of local state, and every
+ * declared artifact already matches what its inputs produce, so rebuilding it
+ * changes no byte. The destructive proof runs in the gold-set runner's
+ * self-test, which builds its own project and is the AT-16 fixture.
+ */
+function checkDerivedRebuild(scope) {
+  const findings = [];
+  for (const stray of unexpectedLocalState(scope)) {
+    findings.push(note(
+      "record/schema-invalid",
+      "a file under .memory/ is not one of the local-state kinds, so deleting the folder may lose something",
+      { path: stray },
+    ));
+  }
+
+  const planned = planViewRebuild(scope);
+  for (const artifact of planned.artifacts) {
+    if (readIfPresent(resolve(scope.scopeRoot, artifact.path)) === artifact.contents) continue;
+    findings.push(note(
+      "record/schema-invalid",
+      "a declared artifact does not match what a rebuild from its inputs produces",
+      { path: artifact.path },
+    ));
+  }
+
+  const context = { scope, warnings: [] };
+  const options = { query: "the", type: null, status: null, domain: null, topic: null, limit: 10 };
+  const first = searchOperation(context, options);
+  const second = searchOperation(context, options);
+  if (JSON.stringify(first.result) !== JSON.stringify(second.result)) {
+    findings.push(note(
+      "record/schema-invalid",
+      "two identical searches over unchanged files returned different results",
+      { path: "knowledge/memory" },
+    ));
+  }
+
+  return {
+    status: findings.length ? "fail" : "pass",
+    findings,
+    skipped_because: "the delete-and-rebuild half runs in the gold-set runner's self-test, which builds its own project rather than removing this one's local state",
+  };
+}
+
+/**
+ * MV-15, reads and retrieval create no local state. It fingerprints the whole
+ * scope, runs real read operations, and fingerprints it again. A read that
+ * left anything behind shows up as a created or changed path.
+ */
+function checkNoLocalState(scope) {
+  const before = projectFingerprint(scope.scopeRoot);
+  const context = { scope, warnings: [] };
+  searchOperation(context, { query: "project", type: null, status: null, domain: null, topic: null, limit: 5 });
+  specSearchOperation(context, { query: "project", type: null, status: null, domain: null, topic: null, limit: 5 });
+  timelineOperation(context, { entity: "project", from: null, to: null });
+  const after = projectFingerprint(scope.scopeRoot);
+
+  const findings = fingerprintDiff(before, after).map((entry) => note(
+    "record/schema-invalid",
+    `a read run left the path ${entry.state}, and reads create no local state`,
+    { path: relative(scope.scopeRoot, entry.path).split(sep).join("/") },
+  ));
+  return { status: findings.length ? "fail" : "pass", findings, skipped_because: null };
+}
+
+/**
+ * MV-16, physical project-root isolation. It runs the ten steps of
+ * architecture section 21.9 in order. Step ten is the shipped two-project
+ * fixture, which runs only under --fixtures, so a run without that flag says
+ * step ten was not inspected rather than counting it as passed.
+ */
+function checkIsolation(scope, { fixtures = false } = {}) {
+  const findings = [];
+
+  // Step 1 and 2. Scope resolution already refused a project whose file,
+  // project_id, or project_root does not resolve, so what is left to read is
+  // the settings surface itself.
+  for (const key of ["project_id", "project_root"]) {
+    if (String(scope.settings[key] ?? "").trim()) continue;
+    findings.push(note("scope/unresolved-root", `knowledge/project.md carries no ${key}`, { path: "knowledge/project.md" }));
+  }
+  if (!isMemberPath(scope, scope.knowledgeDir)) {
+    findings.push(note("scope/unresolved-root", "the knowledge folder that named the scope root does not sit inside it", {
+      path: "knowledge",
+    }));
+  }
+
+  // Step 3. Every canonical and local-state path canonicalizes inside the root.
+  const canonicalAreas = [
+    "knowledge/specs",
+    "knowledge/memory",
+    "knowledge/current.md",
+    "knowledge/map.md",
+    LOCAL_STATE,
+  ];
+  for (const area of canonicalAreas) {
+    const absolute = resolve(scope.scopeRoot, area);
+    if (!existsSync(absolute)) continue;
+    if (isMemberPath(scope, absolute)) continue;
+    findings.push(note("scope/outside-root", "a canonical or local-state path canonicalizes outside the scope root", {
+      path: area,
+    }));
+  }
+
+  // Step 4. A symbolic link that leaves the scope is reported, never followed.
+  for (const link of scopeSymlinks(scope)) {
+    let target;
+    try {
+      target = realpathSync(link);
+    } catch {
+      target = null;
+    }
+    if (target !== null && isMemberPath(scope, target)) continue;
+    findings.push(note("scope/symlink-escape", "a link inside the scope resolves outside it", {
+      path: relative(scope.scopeRoot, link).split(sep).join("/"),
+    }));
+  }
+
+  // Step 5 and 6. Nested project files, declared and undeclared.
+  const declared = new Set(scope.subroots);
+  const nested = [];
+  const hunt = (directory, depth) => {
+    if (depth > 6) return;
+    let entries;
+    try {
+      entries = readdirSync(directory, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name));
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      if (!entry.isDirectory() || entry.isSymbolicLink()) continue;
+      if (entry.name === ".git" || entry.name === "node_modules") continue;
+      const path = resolve(directory, entry.name);
+      if (existsSync(resolve(path, "knowledge/project.md"))) {
+        nested.push(path);
+        continue;
+      }
+      hunt(path, depth + 1);
+    }
+  };
+  hunt(scope.scopeRoot, 0);
+  for (const path of nested) {
+    if (declared.has(path)) continue;
+    findings.push(note(
+      "scope/undeclared-nested-scope",
+      "a second project sits inside this scope and is not a declared subroot",
+      { path: relative(scope.scopeRoot, path).split(sep).join("/") },
+    ));
+  }
+  for (const subroot of scope.subroots) {
+    const file = resolve(subroot, "knowledge/project.md");
+    const name = relative(scope.scopeRoot, subroot).split(sep).join("/");
+    if (!existsSync(file)) {
+      findings.push(note("scope/unresolved-root", "a declared subroot holds no knowledge/project.md", { path: name }));
+      continue;
+    }
+    const { data } = parseFrontMatter(readIfPresent(file) ?? "");
+    const childId = String(data.project_id ?? "").trim();
+    if (!childId || childId === scope.projectId) {
+      findings.push(note("scope/duplicate-project-id", "a declared subroot carries this project's id or none of its own", { path: name }));
+    }
+    for (const other of scope.subroots) {
+      if (other === subroot) continue;
+      if (!subroot.startsWith(`${other}${sep}`)) continue;
+      findings.push(note("scope/overlapping-scopes", "two declared subroots nest inside one another", { path: name }));
+    }
+  }
+
+  // Step 8. Membership is decided by location, and a declared id must match.
+  for (const entry of walkRecords(scope.scopeRoot)) {
+    if (!isMemberPath(scope, entry.absolute)) continue;
+    const { data } = parseFrontMatter(readIfPresent(entry.absolute) ?? "");
+    const declaredId = String(data.project_id ?? "").trim();
+    if (declaredId && declaredId !== scope.projectId) {
+      findings.push(note("scope/duplicate-project-id", "a record declares a project id that is not this scope's", {
+        path: entry.path,
+      }));
+    }
+  }
+  for (const pin of readPinRegistry(scope).entries) {
+    const resolved = resolvePinTarget(scope.scopeRoot, pin.target);
+    if (isMemberPath(scope, resolved.absolute)) continue;
+    findings.push(note("scope/cross-scope-result", `the pinned record ${pin.id} sits outside this project's scope`, {
+      path: PINS_PATH,
+    }));
+  }
+
+  // Step 9. A link into another scope names that scope's project id.
+  for (const path of canonicalMarkdown(scope)) {
+    const text = readIfPresent(resolve(scope.scopeRoot, path));
+    if (text === null) continue;
+    for (const link of scanLinks(text)) {
+      if (link.image || !link.relative) continue;
+      const absolute = resolve(scope.scopeRoot, path, "..", link.path);
+      if (!existsSync(absolute) || isMemberPath(scope, absolute)) continue;
+      const owner = nested.find((root) => absolute.startsWith(`${root}${sep}`));
+      const ownerId = owner
+        ? String(parseFrontMatter(readIfPresent(resolve(owner, "knowledge/project.md")) ?? "").data.project_id ?? "").trim()
+        : "";
+      if (ownerId && text.includes(ownerId)) continue;
+      findings.push(note(
+        "scope/cross-scope-result",
+        `line ${link.line} links into another scope without naming that scope's project id`,
+        { path, detail: link.path },
+      ));
+    }
+  }
+
+  // Step 10. The shipped fixtures.
+  let skipped = "step ten was not inspected: the shipped isolation fixtures run only with --fixtures";
+  if (fixtures) {
+    const run = runIsolationFixtures();
+    findings.push(...run.findings);
+    skipped = null;
+  }
+
+  return { status: findings.length ? "fail" : "pass", findings, skipped_because: skipped };
+}
+
+/**
+ * The H2 sections architecture section 21.6 requires of a record carrying
+ * sensitive personal content. The record schema has no field for either, so
+ * the write coordinator put both in the body and this reader stays with that
+ * one definition rather than inventing a second.
+ */
+function declaresSensitive(text) {
+  return text
+    .replace(/\r\n/g, "\n")
+    .split("\n")
+    .some((line) => line.trim().toLowerCase() === `## ${SENSITIVE_SECTION.toLowerCase()}`);
+}
+
+function hasStartupExposure(text) {
+  return text
+    .replace(/\r\n/g, "\n")
+    .split("\n")
+    .some((line) => line.trim().toLowerCase() === `## ${STARTUP_EXPOSURE_SECTION.toLowerCase()}`);
+}
+
+/**
+ * What a sensitive record is missing: the category line, or the one line
+ * saying why the detail is needed. The text is read and never carried into a
+ * message.
+ */
+function sensitiveGaps(text) {
+  const lines = text.replace(/\r\n/g, "\n").split("\n");
+  const start = lines.findIndex((line) => line.trim().toLowerCase() === `## ${SENSITIVE_SECTION.toLowerCase()}`);
+  if (start === -1) return [];
+
+  const body = [];
+  for (let index = start + 1; index < lines.length; index++) {
+    if (lines[index].startsWith("## ")) break;
+    body.push(lines[index].trim());
+  }
+  const gaps = [];
+  if (!body.some((line) => /^category:/i.test(line))) gaps.push("category");
+  if (!body.some((line) => /^needed because:/i.test(line))) gaps.push("needed-reason");
+  return gaps;
+}
+
+/** A recorded exemption names the file and the pattern, and is itself a record. */
+function secretExemptions(scope) {
+  const exemptions = [];
+  for (const entry of walkRecords(scope.scopeRoot)) {
+    const text = readIfPresent(entry.absolute);
+    if (text === null) continue;
+    if (!/exemption/i.test(text)) continue;
+    exemptions.push({ path: entry.path, text });
+  }
+  return exemptions;
+}
+
+/**
+ * MV-17, privacy-boundary enforcement. It runs the ten steps of architecture
+ * section 21.10 in order. Two of them cannot be read from files alone and say
+ * so: undeclared third-party content is judgment rather than a pattern, and a
+ * privacy deletion leaves no receipt for a later run to inspect.
+ */
+function checkPrivacy(scope, { fixtures = false } = {}) {
+  const findings = [];
+  const notInspected = [];
+
+  // Step 1. Unknown or malformed values resolve to the most restrictive
+  // setting, and scope resolution already reported each one.
+  for (const warning of scope.warnings) {
+    if (!warning.message.toLowerCase().includes("privacy")
+      && !warning.message.toLowerCase().includes("transfer")
+      && !warning.message.toLowerCase().includes("third_party")) continue;
+    findings.push(note("record/schema-invalid", warning.message, { path: "knowledge/project.md" }));
+  }
+
+  // Step 2. Approved transfer needs a complete consent record.
+  const block = scope.settings.privacy && typeof scope.settings.privacy === "object"
+    ? scope.settings.privacy
+    : {};
+  if (String(block.external_transfer ?? "").trim() === "approved") {
+    const consent = String(block.consent ?? "").trim();
+    const text = consent ? readIfPresent(resolve(scope.scopeRoot, consent)) : null;
+    if (!consent || text === null) {
+      findings.push(note("privacy/consent-missing", "external transfer is approved and its consent record does not resolve", {
+        path: "knowledge/project.md",
+      }));
+    } else {
+      const lower = text.toLowerCase();
+      for (const [part, probe] of [
+        ["destination", "destination"],
+        ["content scope", "content scope"],
+        ["approval date", "approved"],
+        ["revocation route", "revoke"],
+      ]) {
+        if (lower.includes(probe)) continue;
+        findings.push(note("privacy/consent-missing", `the consent record does not name the ${part}, so transfer reads as denied`, {
+          path: consent,
+        }));
+      }
+    }
+  }
+
+  // Step 3. No enabled component declares an external destination while
+  // transfer is denied.
+  if (scope.privacy.external_transfer === "denied") {
+    const tracker = scope.settings.tracker;
+    const destination = tracker && typeof tracker === "object"
+      ? String(tracker.destination ?? tracker.endpoint ?? "").trim()
+      : "";
+    if (/^[a-z][a-z0-9+.-]*:\/\//i.test(destination)) {
+      findings.push(note("privacy/transfer-denied", "a configured component declares an external destination while transfer is denied", {
+        path: "knowledge/project.md",
+      }));
+    }
+  }
+
+  // Step 4. The fixed secret pattern set over canonical knowledge.
+  const exemptions = secretExemptions(scope);
+  for (const path of canonicalMarkdown(scope)) {
+    const text = readIfPresent(resolve(scope.scopeRoot, path));
+    if (text === null) continue;
+    const lines = text.replace(/\r\n/g, "\n").split("\n");
+    for (const rule of SECRET_PATTERNS) {
+      for (let index = 0; index < lines.length; index++) {
+        if (!rule.pattern.test(lines[index])) continue;
+        const exempt = exemptions.some((record) => record.text.includes(path) && record.text.includes(rule.id));
+        if (exempt) continue;
+        findings.push(note(
+          "privacy/secret-detected",
+          `line ${index + 1} matches the ${rule.id} pattern and no reviewed record exempts it`,
+          { path, detail: rule.id },
+        ));
+        break;
+      }
+    }
+  }
+
+  // Step 5, 6, and 7. Sensitive records, their stated need, and their exposure.
+  const sensitiveProject = scope.privacy.level === "sensitive";
+  const sensitivePaths = new Set();
+  for (const entry of walkRecords(scope.scopeRoot)) {
+    const text = readIfPresent(entry.absolute);
+    if (text === null || !declaresSensitive(text)) continue;
+    sensitivePaths.add(entry.path);
+    for (const gap of sensitiveGaps(text)) {
+      findings.push(note(
+        "privacy/sensitive-unapproved-exposure",
+        `a record carrying sensitive content states no ${gap}`,
+        { path: entry.path },
+      ));
+    }
+    const { data } = parseFrontMatter(text);
+    const approval = data.approval && typeof data.approval === "object" ? data.approval : {};
+    if (!String(approval.actor ?? "").trim()) {
+      findings.push(note("approval/missing", "a record carrying sensitive content names no owner approval", {
+        path: entry.path,
+      }));
+    }
+  }
+  notInspected.push("step six, because content identifying another person is judgment rather than a pattern the validator can read");
+
+  for (const pin of readPinRegistry(scope).entries) {
+    const resolved = resolvePinTarget(scope.scopeRoot, pin.target);
+    const text = readIfPresent(resolved.absolute);
+    if (text === null) continue;
+    if (!sensitiveProject && !declaresSensitive(text)) continue;
+    if (hasStartupExposure(text)) continue;
+    findings.push(note(
+      "privacy/sensitive-unapproved-exposure",
+      `the pinned record ${pin.id} is sensitive and carries no recorded approval naming startup exposure`,
+      { path: resolved.path },
+    ));
+  }
+  const planned = planViewRebuild(scope);
+  for (const artifact of planned.artifacts) {
+    for (const input of artifact.inputs ?? []) {
+      const inputPath = typeof input === "string" ? input : String(input?.path ?? "");
+      if (!sensitivePaths.has(inputPath)) continue;
+      const text = readIfPresent(resolve(scope.scopeRoot, inputPath));
+      if (text !== null && hasStartupExposure(text)) continue;
+      findings.push(note(
+        "privacy/sensitive-unapproved-exposure",
+        "a generated artifact reads a sensitive record with no recorded exposure approval",
+        { path: artifact.path },
+      ));
+    }
+  }
+
+  // Step 8. A sensitive project may not weaken the history gate.
+  if (sensitiveProject) {
+    const gate = String(scope.settings.session_search?.gate ?? "").trim();
+    if (gate && gate !== "owner-request") {
+      findings.push(note(
+        "privacy/sensitive-unapproved-exposure",
+        `this project is sensitive and configures the history gate as ${gate}, and section 21.6 allows owner request only`,
+        { path: "knowledge/project.md" },
+      ));
+    }
+  }
+
+  // Step 9. Local state holds only the kinds contracts section 2.23.1 defines,
+  // and no secret text. Preimages and review files hold approved content by
+  // design, so what this reads is the kinds and the patterns, not the bodies.
+  for (const stray of unexpectedLocalState(scope)) {
+    findings.push(note("record/schema-invalid", "a file under .memory/ is not one of the local-state kinds", { path: stray }));
+  }
+  const journal = readIfPresent(resolve(scope.scopeRoot, JOURNAL_FILE));
+  if (journal !== null) {
+    for (const rule of SECRET_PATTERNS) {
+      if (!rule.pattern.test(journal)) continue;
+      findings.push(note("privacy/secret-detected", `the crash journal matches the ${rule.id} pattern`, {
+        path: JOURNAL_FILE,
+        detail: rule.id,
+      }));
+    }
+  }
+
+  // Step 10. A privacy deletion leaves no receipt, so there is nothing here to
+  // inspect after the fact.
+  notInspected.push("step ten, because a completed privacy deletion leaves no receipt for a later run to read");
+
+  if (fixtures) {
+    findings.push(...runPrivacyFixtures({ sensitiveGaps }).findings);
+  } else {
+    notInspected.push("the shipped sensitive-project fixtures, which run only with --fixtures");
+  }
+
+  return {
+    status: findings.length ? "fail" : "pass",
+    findings,
+    skipped_because: notInspected.length ? `not inspected: ${notInspected.join("; ")}` : null,
+  };
+}
+
+/**
+ * MV-19, the retrieval gold set. The runner is the one that measures
+ * retrieval, so the validator calls it rather than scoring questions a second
+ * way. A missing set is a warning that blocks only a proposed retrieval
+ * change; a set that runs and misses the bar is a failure.
+ */
+function checkGoldSet(scope) {
+  const where = readGoldSet(scope);
+  if (where === "missing") {
+    return {
+      status: "warn",
+      findings: [note(
+        "startup/missing-source",
+        "this project has written no retrieval gold set, which blocks a proposed retrieval change and nothing else",
+        { path: "knowledge/retrieval-gold-set.md" },
+      )],
+      skipped_because: null,
+    };
+  }
+
+  const run = runGoldSet({ root: scope.scopeRoot });
+  const result = run.result ?? {};
+  const findings = (run.errors ?? []).map((error) => note(error.code, error.message, { path: error.path }));
+  const setPath = result.gold_set ?? "knowledge/retrieval-gold-set.md";
+
+  if (result.verdict === "met" && findings.length === 0) {
+    return { status: "pass", findings: [], skipped_because: null };
+  }
+  if (result.verdict === "missed") {
+    findings.push(note("record/schema-invalid", `the gold set missed its bar: ${result.reason}`, { path: setPath }));
+    return { status: "fail", findings, skipped_because: null };
+  }
+  findings.push(note("startup/missing-source", `the gold set was not measured: ${result.reason}`, { path: setPath }));
+  return { status: findings.length > 1 ? "fail" : "warn", findings, skipped_because: null };
+}
+
+/** A quoted span long enough to be a quotation rather than a turn of phrase. */
+const QUOTE_PATTERN = /"([^"\n]{12,200})"/g;
+
+/**
+ * MV-20, quoted-source consistency. An exact quoted span in a record has to
+ * appear in one of the sources that record cites, where the source is a file
+ * inside the scope. A locator this build cannot reach is not judged, and
+ * paraphrase is never judged: that stays an agent review and an owner
+ * decision, which is what architecture section 18 says the validator cannot do.
+ */
+function checkQuotedSources(scope) {
+  const findings = [];
+  let inspected = 0;
+
+  for (const entry of walkRecords(scope.scopeRoot)) {
+    const text = readIfPresent(entry.absolute);
+    if (text === null) continue;
+    const { data } = parseRecord(text);
+    const reachable = blockList(data.evidence)
+      .map((item) => String(item.locator ?? "").trim())
+      .filter((locator) => locatorReach(scope, locator) === true)
+      .map((locator) => readIfPresent(resolve(scope.scopeRoot, locator.split("#")[0])))
+      .filter((source) => source !== null);
+    if (reachable.length === 0) continue;
+
+    const body = text.slice(text.indexOf("\n---\n") + 1);
+    for (const match of body.matchAll(QUOTE_PATTERN)) {
+      const span = match[1].trim();
+      if (!span) continue;
+      inspected++;
+      if (reachable.some((source) => source.includes(span))) continue;
+      findings.push(note(
+        "record/schema-invalid",
+        "a quoted span does not appear in any source this record cites",
+        { path: entry.path, detail: `${span.length} characters` },
+      ));
+    }
+  }
+
+  if (inspected === 0) {
+    return {
+      status: "skipped",
+      findings: [],
+      skipped_because: "no record quotes an exact span from a source this project holds",
+    };
+  }
+  return { status: findings.length ? "fail" : "pass", findings, skipped_because: null };
+}
+
 /**
  * The section 4 check catalog. Every id is permanent and every version is
  * <schema major>.<check revision>. A check whose component is not built yet
@@ -1524,109 +2677,39 @@ function checkMoveRepair(scope) {
  */
 const CHECKS = [
   { id: "MV-01", version: "2.0", severity: "fail", title: "required files and host startup routes" },
-  {
-    id: "MV-02",
-    version: "2.0",
-    severity: "fail",
-    title: "shared root-block meaning and checked-copy drift",
-    skipped_because: "the root-instruction drift reader is not available in this build",
-  },
+  { id: "MV-02", version: "2.0", severity: "fail", title: "shared root-block meaning and checked-copy drift" },
   { id: "MV-03", version: "2.0", severity: "fail", title: "record schema, allowed values, unique ids, approval, provenance" },
   { id: "MV-04", version: "2.0", severity: "fail", title: "non-empty evidence for inference" },
   { id: "MV-05", version: "2.0", severity: "fail", title: "valid conflict targets and reciprocal supersession" },
   { id: "MV-06", version: "2.0", severity: "fail", title: "pin eligibility, summary hashes, project scope, startup rendering" },
-  {
-    id: "MV-07",
-    version: "2.0",
-    severity: "fail",
-    title: "startup budget and safe degradation",
-    skipped_because: "the validator does not render the brief in this build",
-  },
+  { id: "MV-07", version: "2.0", severity: "fail", title: "startup budget and safe degradation" },
   { id: "MV-08", version: "2.0", severity: "fail", title: "retired phrases and recorded exemptions" },
-  {
-    id: "MV-09",
-    version: "2.0",
-    severity: "warn",
-    title: "derived-artifact inputs, fingerprints, and hand edits",
-    skipped_because: "the view generator is not available in this build",
-  },
-  {
-    id: "MV-10",
-    version: "2.0",
-    severity: "warn",
-    title: "map coverage for major folders",
-    skipped_because: "the map reader is not available in this build",
-  },
-  {
-    id: "MV-11",
-    version: "2.0",
-    severity: "warn",
-    title: "domain and topic vocabulary and usage",
-    skipped_because: "the vocabulary reader is not available in this build",
-  },
-  {
-    id: "MV-12",
-    version: "2.0",
-    severity: "fail",
-    title: "direct search returns complete records",
-    skipped_because: "this build does not inspect a search run",
-  },
-  {
-    id: "MV-13",
-    version: "2.0",
-    severity: "fail",
-    title: "no tracker bridge as the sole home of a fact",
-    skipped_because: "the tracker bridge reader is not available in this build",
-  },
+  { id: "MV-09", version: "2.0", severity: "warn", title: "derived-artifact inputs, fingerprints, and hand edits" },
+  { id: "MV-10", version: "2.0", severity: "warn", title: "map coverage for major folders" },
+  { id: "MV-11", version: "2.0", severity: "warn", title: "domain and topic vocabulary and usage" },
+  { id: "MV-12", version: "2.0", severity: "fail", title: "direct search returns complete records" },
+  { id: "MV-13", version: "2.0", severity: "fail", title: "no tracker bridge as the sole home of a fact" },
   {
     id: "MV-14",
     version: "2.0",
     severity: "fail",
     title: "identical canonical results after deleting and rebuilding derived state",
-    skipped_because: "the delete-and-rebuild fixtures are not available in this build",
   },
-  {
-    id: "MV-15",
-    version: "2.0",
-    severity: "fail",
-    title: "reads and retrieval create no local state",
-    skipped_because: "the no-local-state fixtures are not available in this build",
-  },
-  {
-    id: "MV-16",
-    version: "2.0",
-    severity: "fail",
-    title: "physical project-root isolation",
-    skipped_because: "the isolation steps and their fixtures are not available in this build",
-  },
-  {
-    id: "MV-17",
-    version: "2.0",
-    severity: "fail",
-    title: "privacy-boundary enforcement",
-    skipped_because: "the privacy enforcement steps are not available in this build",
-  },
+  { id: "MV-15", version: "2.0", severity: "fail", title: "reads and retrieval create no local state" },
+  { id: "MV-16", version: "2.0", severity: "fail", title: "physical project-root isolation" },
+  { id: "MV-17", version: "2.0", severity: "fail", title: "privacy-boundary enforcement" },
   {
     id: "MV-18",
     version: "2.0",
     severity: "fail",
     title: "migration file counts, links, hashes, and reversibility",
-    skipped_because: "the migration engine is not available in this build",
+    skipped_because: "the migration engine lands in P4-1, which builds what this check inspects",
   },
-  {
-    id: "MV-19",
-    version: "2.0",
-    severity: "warn",
-    title: "the retrieval gold set",
-    skipped_because: "the gold-set runner is not available in this build",
-  },
-  {
-    id: "MV-20",
-    version: "2.0",
-    severity: "fail",
-    title: "quoted-source consistency",
-    skipped_because: "the quoted-source reader is not available in this build",
-  },
+  // MV-19 carries the one split severity in section 4: a missing set is a
+  // warning, and a set that runs and misses its bar is a failure. The check
+  // itself returns the warning, so the catalog records the failing half.
+  { id: "MV-19", version: "2.0", severity: "fail", title: "the retrieval gold set" },
+  { id: "MV-20", version: "2.0", severity: "fail", title: "quoted-source consistency" },
   { id: "MV-21", version: "2.0", severity: "fail", title: "relative-link syntax and resolvable targets" },
   { id: "MV-22", version: "2.0", severity: "fail", title: "complete incoming-link repair after a move or rename" },
 ];
@@ -1638,18 +2721,32 @@ export function checkIds() {
 /** memory_validate: run the section 4 checks this build carries. */
 export function validate(context, options = {}) {
   const { scope, warnings } = context;
-  // The --fixtures flag adds the isolation fixtures to MV-16, which is not
-  // built yet, so this build accepts the flag and it changes nothing.
+  // The --fixtures flag adds the shipped section 21.11 fixtures to MV-16 and
+  // MV-17. Without it those two checks say which steps they did not inspect.
+  const fixtures = options.fixtures === true;
   const selected = options.check ?? null;
   const wanted = (id) => selected === null || selected.includes(id);
 
   const records = wanted("MV-03") || wanted("MV-04") ? checkRecords(scope) : {};
   const outcomes = {
     "MV-01": wanted("MV-01") ? checkRequiredFiles(scope) : null,
+    "MV-02": wanted("MV-02") ? checkSharedBlock(scope) : null,
     ...records,
     "MV-05": wanted("MV-05") ? checkLinks(scope) : null,
     "MV-06": wanted("MV-06") ? checkPins(scope) : null,
+    "MV-07": wanted("MV-07") ? checkStartupBudget(scope) : null,
     "MV-08": wanted("MV-08") ? checkRetiredPhrases(scope) : null,
+    "MV-09": wanted("MV-09") ? checkGeneratedViews(scope) : null,
+    "MV-10": wanted("MV-10") ? checkMapCoverage(scope) : null,
+    "MV-11": wanted("MV-11") ? checkVocabulary(scope) : null,
+    "MV-12": wanted("MV-12") ? checkSearchContract(scope) : null,
+    "MV-13": wanted("MV-13") ? checkTrackerBridge(scope) : null,
+    "MV-14": wanted("MV-14") ? checkDerivedRebuild(scope) : null,
+    "MV-15": wanted("MV-15") ? checkNoLocalState(scope) : null,
+    "MV-16": wanted("MV-16") ? checkIsolation(scope, { fixtures }) : null,
+    "MV-17": wanted("MV-17") ? checkPrivacy(scope, { fixtures }) : null,
+    "MV-19": wanted("MV-19") ? checkGoldSet(scope) : null,
+    "MV-20": wanted("MV-20") ? checkQuotedSources(scope) : null,
     "MV-21": wanted("MV-21") ? checkRelativeLinks(scope) : null,
     "MV-22": wanted("MV-22") ? checkMoveRepair(scope) : null,
   };
@@ -1687,6 +2784,601 @@ export function validate(context, options = {}) {
   }
 
   return { checks, errors };
+}
+
+// ---------------------------------------------------------------------------
+// The review engine, architecture section 17
+// ---------------------------------------------------------------------------
+
+/**
+ * memory_review is structurally read-only, and the structure is the promise.
+ * Nothing below writes, stages, proposes, or calls the coordinator. It reads
+ * canonical Markdown through the same collectors the retrieval router uses,
+ * judges it, and returns a worklist. Every repair leaves through the cleanup
+ * skill, which runs the ordinary two-phase review for each item the owner
+ * keeps, so review never becomes a second way into a canonical file.
+ *
+ * Two rules the categories below never break:
+ *
+ *   - Age alone is never a reason to delete or retire anything (FR-045). A
+ *     stale review date asks for a recheck, not a removal.
+ *   - Similar wording is never enough to merge (architecture section 14.2).
+ *     A duplicate item is a candidate for the owner to judge, and it says so.
+ */
+
+/** The two review scopes of FR-044. `focused` runs after an approved save. */
+const REVIEW_SCOPES = Object.freeze(["focused", "deep"]);
+
+/** Worklist ordering, most urgent first. */
+const SEVERITY_ORDER = Object.freeze({ high: 0, medium: 1, low: 2 });
+
+/**
+ * The section 17 categories. `depth` says which review runs the category: a
+ * focused review runs everything a save can break, and a deep review adds the
+ * three whole-corpus categories that need judgment or an outside runner.
+ */
+const REVIEW_CATEGORIES = Object.freeze([
+  { id: "duplicate-candidate", depth: "focused" },
+  { id: "evidence-consolidation", depth: "focused" },
+  { id: "current-conflict", depth: "focused" },
+  { id: "unlinked-conflict", depth: "focused" },
+  { id: "provenance", depth: "focused" },
+  { id: "stale-review-date", depth: "focused" },
+  { id: "broken-link", depth: "focused" },
+  { id: "supersession-gap", depth: "focused" },
+  { id: "retired-phrase", depth: "focused" },
+  { id: "stale-view", depth: "focused" },
+  { id: "pin-error", depth: "focused" },
+  { id: "search-capability", depth: "focused" },
+  { id: "vocabulary", depth: "deep" },
+  { id: "durable-information", depth: "deep" },
+  { id: "gold-set", depth: "deep" },
+]);
+
+const CATEGORY_ORDER = new Map(REVIEW_CATEGORIES.map((entry, index) => [entry.id, index]));
+
+/** Two meanings this close in wording are worth the owner comparing. */
+const DUPLICATE_OVERLAP = 0.75;
+
+/** More distinct topic values than this is a vocabulary the owner should thin. */
+const VOCABULARY_LIMIT = 20;
+
+/** Evidence that is only a conversation leaves a record resting on chat alone. */
+const CONVERSATION_SOURCE_TYPES = Object.freeze([
+  "chat",
+  "conversation",
+  "session",
+  "transcript",
+]);
+
+/** Wording that describes live work state rather than durable meaning. */
+const WORK_STATE_WORDING = /\b(currently|right now|as of now|today|this week|in progress|next step|todo|blocked on|working on)\b/i;
+
+/** The gold-set runner P3-5 builds. Review detects it and never imports it. */
+const GOLD_SET_RUNNER = "gold-set.mjs";
+
+/** One worklist item, in the fixed field order contracts section 2.8 names. */
+function worklistItem(category, severity, { ids = [], paths = [], what, operation }) {
+  return {
+    category,
+    severity,
+    record_ids: [...new Set(ids)].sort(),
+    paths: [...new Set(paths)].sort(),
+    what_is_wrong: what,
+    suggested_operation: operation,
+  };
+}
+
+/** The words a meaning is made of, with the question words dropped. */
+function meaningTerms(candidate) {
+  const words = `${candidate.title} ${candidate.summary}`
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter((word) => word.length > 2 && !STOPWORDS.has(word));
+  return new Set(words);
+}
+
+/** How much two meanings share, from 0 to 1. */
+function termOverlap(first, second) {
+  if (first.size === 0 || second.size === 0) return 0;
+  let shared = 0;
+  for (const term of first) if (second.has(term)) shared++;
+  return shared / (first.size + second.size - shared);
+}
+
+function normalizedMeaning(candidate) {
+  return `${candidate.title} ${candidate.summary}`
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+/** A vocabulary value, flattened so two spellings of one term meet. */
+function normalizedTerm(value) {
+  return String(value).toLowerCase().replace(/[^a-z0-9]+/g, "").replace(/s$/, "");
+}
+
+function evidenceLocators(candidate) {
+  return candidate.provenance.evidence
+    .map((entry) => entry.locator)
+    .filter(Boolean)
+    .sort();
+}
+
+/** True when two records already say how they relate to each other. */
+function alreadyLinked(first, second) {
+  const names = (holder, other) => ["conflicts_with", "supersedes", "superseded_by", "relates", "based_on"]
+    .some((field) => idList(holder.data[field]).includes(other.id));
+  return names(first, second) || names(second, first);
+}
+
+/** Every date a record carries that says when its meaning was settled. */
+function recordDates(candidate) {
+  const approval = candidate.data.approval && typeof candidate.data.approval === "object"
+    ? candidate.data.approval
+    : {};
+  return [candidate.data.recorded_at, candidate.data.effective_from, approval.approved_at]
+    .map((value) => String(value ?? "").trim().slice(0, 10))
+    .filter((value) => DATE_ONLY.test(value));
+}
+
+/** Turn a validator finding into one worklist item without rewording it. */
+function findingItem(category, severity, operation, finding, byPath) {
+  const path = finding.path ?? null;
+  const held = path ? byPath.get(path) : null;
+  return worklistItem(category, severity, {
+    ids: held?.id ? [held.id] : [],
+    paths: path ? [path] : [],
+    what: finding.detail ? `${finding.message} (${finding.detail})` : finding.message,
+    operation,
+  });
+}
+
+/** Exact and near duplicates, and the evidence that belongs on one record. */
+function reviewDuplicates(records, inFocus) {
+  const items = [];
+  for (let first = 0; first < records.length; first++) {
+    for (let second = first + 1; second < records.length; second++) {
+      const left = records[first];
+      const right = records[second];
+      if (left.type !== right.type) continue;
+      if (left.status !== "active" || right.status !== "active") continue;
+      if (!inFocus(left) && !inFocus(right)) continue;
+      if (alreadyLinked(left, right)) continue;
+      if (termOverlap(meaningTerms(left), meaningTerms(right)) < DUPLICATE_OVERLAP) continue;
+
+      const ids = [left.id, right.id].filter(Boolean);
+      const paths = [left.path, right.path];
+      const sameWording = normalizedMeaning(left) === normalizedMeaning(right);
+      const leftSources = evidenceLocators(left).join("|");
+      const rightSources = evidenceLocators(right).join("|");
+
+      if (sameWording && leftSources !== rightSources) {
+        items.push(worklistItem("evidence-consolidation", "medium", {
+          ids,
+          paths,
+          what: `two active ${left.type} records state the same meaning and rest on different sources, so the sources belong as evidence on one record instead of two`,
+          operation: "merge",
+        }));
+        continue;
+      }
+      items.push(worklistItem("duplicate-candidate", "medium", {
+        ids,
+        paths,
+        what: `two active ${left.type} records state nearly the same meaning and may be true duplicates, which only the owner can settle, because similar wording is never enough to merge`,
+        operation: "merge",
+      }));
+    }
+  }
+  return items;
+}
+
+/** Conflicts that are live on both sides, and conflicts linked on one side. */
+function reviewConflicts(records, byId, inFocus) {
+  const items = [];
+  const seenPair = new Set();
+  for (const held of records) {
+    if (!held.id) continue;
+    for (const target of idList(held.data.conflicts_with)) {
+      const other = byId.get(target);
+      if (!other) continue;
+      if (!inFocus(held) && !inFocus(other)) continue;
+
+      if (!idList(other.data.conflicts_with).includes(held.id)) {
+        items.push(worklistItem("unlinked-conflict", "high", {
+          ids: [held.id, other.id],
+          paths: [other.path],
+          what: `${held.id} names ${other.id} as a conflict and ${other.id} does not link back, so the conflict is visible from one side only`,
+          operation: "correct",
+        }));
+      }
+
+      const key = [held.id, other.id].sort().join("|");
+      if (held.status === "active" && other.status === "active" && !seenPair.has(key)) {
+        seenPair.add(key);
+        items.push(worklistItem("current-conflict", "high", {
+          ids: [held.id, other.id],
+          paths: [held.path, other.path],
+          what: `${held.id} and ${other.id} conflict and both are active, so two records claim current truth about the same subject`,
+          operation: "supersede",
+        }));
+      }
+    }
+  }
+  return items;
+}
+
+/** Provenance a record is missing, cannot support, or can no longer reach. */
+function reviewProvenance(scope, records) {
+  const items = [];
+  for (const held of records) {
+    const ids = held.id ? [held.id] : [];
+    const paths = [held.path];
+
+    if (held.legacy) {
+      items.push(worklistItem("provenance", "medium", {
+        ids,
+        paths,
+        what: "the record is missing version 2 metadata and stays usable until its next approved touch",
+        operation: "correct",
+      }));
+      continue;
+    }
+
+    const evidence = held.provenance.evidence;
+    if (evidence.length === 0) {
+      items.push(worklistItem("provenance", "high", {
+        ids,
+        paths,
+        what: "the record cites no evidence, so nothing says what its meaning rests on",
+        operation: "confirm",
+      }));
+    }
+    for (const entry of evidence) {
+      if (!entry.source_type || !entry.locator) {
+        items.push(worklistItem("provenance", "high", {
+          ids,
+          paths,
+          what: "an evidence entry is missing its source type or its locator",
+          operation: "correct",
+        }));
+        continue;
+      }
+      if (locatorReach(scope, entry.locator) === false) {
+        items.push(worklistItem("provenance", "medium", {
+          ids,
+          paths,
+          what: `the cited source ${entry.locator} is not reachable inside this project`,
+          operation: "correct",
+        }));
+      }
+    }
+
+    if (!held.provenance.approved_by || !held.provenance.approved_at) {
+      items.push(worklistItem("provenance", "high", {
+        ids,
+        paths,
+        what: "the record does not say who approved it and when",
+        operation: "correct",
+      }));
+    }
+    if (INFERRED_STATUSES.includes(held.provenance.epistemic_status ?? "")
+      && held.provenance.based_on.length === 0) {
+      items.push(worklistItem("provenance", "high", {
+        ids,
+        paths,
+        what: `an ${held.provenance.epistemic_status} record names nothing in based_on, so its claim rests on no stated basis`,
+        operation: "correct",
+      }));
+    }
+  }
+  return items;
+}
+
+/**
+ * Review dates that have passed. The comparison needs today's date, and no
+ * wall-clock value goes into the envelope: the item quotes the date the record
+ * itself carries. Nothing here proposes a deletion, because age alone is never
+ * a reason to remove a record (FR-045).
+ */
+function reviewStaleDates(records, today) {
+  const items = [];
+  for (const held of records) {
+    if (held.status !== "active") continue;
+    const due = String(held.data.review_after ?? "").trim();
+    if (!DATE_ONLY.test(due)) continue;
+    const age = daysBetween(due, today);
+    if (age === null || age <= 0) continue;
+    items.push(worklistItem("stale-review-date", "low", {
+      ids: held.id ? [held.id] : [],
+      paths: [held.path],
+      what: `the record asked to be rechecked after ${due} and has not been confirmed since, which asks for a recheck and never for a removal`,
+      operation: "confirm",
+    }));
+  }
+  return items;
+}
+
+/** Dates and statuses that do not agree about which record is current. */
+function reviewSupersession(records, byId) {
+  const items = [];
+  for (const held of records) {
+    const ids = held.id ? [held.id] : [];
+    const paths = [held.path];
+    const successors = idList(held.data.superseded_by);
+    const predecessors = idList(held.data.supersedes);
+
+    if (held.status === "superseded" && successors.length === 0) {
+      items.push(worklistItem("supersession-gap", "high", {
+        ids,
+        paths,
+        what: "the record is marked superseded and names no successor, so nothing says what replaced it",
+        operation: "supersede",
+      }));
+    }
+    if (held.status === "active" && successors.length > 0) {
+      items.push(worklistItem("supersession-gap", "high", {
+        ids: [...ids, ...successors],
+        paths,
+        what: "the record names a successor and is still active, so both it and its successor read as current truth",
+        operation: "supersede",
+      }));
+    }
+    if (held.status === "active" && String(held.data.effective_to ?? "").trim()) {
+      items.push(worklistItem("supersession-gap", "medium", {
+        ids,
+        paths,
+        what: "the record carries an effective_to date and is still active, so it is dated as ended and still reads as current",
+        operation: "supersede",
+      }));
+    }
+    for (const older of predecessors) {
+      const other = byId.get(older);
+      if (!other || other.status !== "active") continue;
+      items.push(worklistItem("supersession-gap", "high", {
+        ids: [...ids, older],
+        paths: [other.path],
+        what: `${held.id ?? held.path} supersedes ${older} and ${older} is still active`,
+        operation: "supersede",
+      }));
+    }
+  }
+  return items;
+}
+
+/** Generated views that no longer match what their inputs would produce. */
+function reviewViews(scope) {
+  const items = [];
+  const planned = planViewRebuild(scope);
+  for (const problem of planned.errors) {
+    items.push(worklistItem("stale-view", "medium", {
+      paths: problem.path ? [problem.path] : [],
+      what: problem.message,
+      operation: "memory_rebuild_views",
+    }));
+  }
+  for (const artifact of planned.artifacts) {
+    const current = readIfPresent(resolve(scope.scopeRoot, artifact.path));
+    if (current === artifact.contents) continue;
+    items.push(worklistItem("stale-view", "medium", {
+      paths: [artifact.path],
+      what: "the generated view does not match what its declared inputs produce, so it is stale or hand edited",
+      operation: "memory_rebuild_views",
+    }));
+  }
+  return items;
+}
+
+/** Pin entries that no longer render, and a pin set the budget cannot carry. */
+function reviewPins(scope, byPath) {
+  const items = [];
+  for (const finding of checkPins(scope).findings) {
+    items.push(findingItem("pin-error", "high", "unpin", finding, byPath));
+  }
+
+  const registry = readPinRegistry(scope);
+  if (registry.entries.length === 0) return items;
+
+  const brief = assembleBootBrief({ projectRoot: scope.scopeRoot });
+  if (!brief.ok) return items;
+  if (brief.overBudget) {
+    items.push(worklistItem("pin-error", "high", {
+      paths: [PINS_PATH],
+      what: `the required startup blocks are ${brief.bytes} bytes against a budget of ${brief.budget}, so the pin set needs thinning`,
+      operation: "unpin",
+    }));
+  } else if (brief.applied.length > 0) {
+    items.push(worklistItem("pin-error", "medium", {
+      paths: [PINS_PATH],
+      what: `startup already drops ${brief.applied.join(", ")} to fit the budget, so the pin set is under pressure`,
+      operation: "unpin",
+    }));
+  }
+  return items;
+}
+
+/** Domain and topic values that are unused, overlapping, or too many. */
+function reviewVocabulary(records) {
+  const items = [];
+  const usage = new Map();
+  for (const held of records) {
+    if (held.status !== "active") continue;
+    const values = [
+      ...textList(held.data.domain).map((value) => ["domain", value]),
+      ...textList(held.data.topics).map((value) => ["topic", value]),
+    ];
+    for (const [kind, value] of values) {
+      const key = `${kind}:${value}`;
+      if (!usage.has(key)) usage.set(key, { kind, value, paths: [] });
+      usage.get(key).paths.push(held.path);
+    }
+  }
+
+  for (const entry of [...usage.values()].sort((a, b) => `${a.kind}:${a.value}`.localeCompare(`${b.kind}:${b.value}`))) {
+    if (entry.paths.length > 1) continue;
+    items.push(worklistItem("vocabulary", "low", {
+      paths: entry.paths,
+      what: `the ${entry.kind} value ${entry.value} is used by one record only`,
+      operation: "correct",
+    }));
+  }
+
+  const families = new Map();
+  for (const entry of usage.values()) {
+    const key = `${entry.kind}:${normalizedTerm(entry.value)}`;
+    if (!families.has(key)) families.set(key, []);
+    families.get(key).push(entry);
+  }
+  for (const [key, family] of [...families.entries()].sort((a, b) => a[0].localeCompare(b[0]))) {
+    const spellings = [...new Set(family.map((entry) => entry.value))].sort();
+    if (spellings.length < 2) continue;
+    items.push(worklistItem("vocabulary", "medium", {
+      paths: family.flatMap((entry) => entry.paths),
+      what: `${key.split(":")[0]} values ${spellings.join(" and ")} are spellings of one term`,
+      operation: "correct",
+    }));
+  }
+
+  const topics = [...usage.values()].filter((entry) => entry.kind === "topic");
+  if (topics.length > VOCABULARY_LIMIT) {
+    items.push(worklistItem("vocabulary", "low", {
+      paths: RECORD_FOLDERS.map((folder) => `knowledge/memory/${folder}`),
+      what: `the project uses ${topics.length} distinct topic values, which is more than the ${VOCABULARY_LIMIT} a reader can hold, and thinning them is the owner's call`,
+      operation: "correct",
+    }));
+  }
+  return items;
+}
+
+/**
+ * Records that no longer look durable. Neither signal settles anything, and
+ * both are proposals the owner may reject. Age is not one of them.
+ */
+function reviewDurability(records) {
+  const items = [];
+  for (const held of records) {
+    if (held.status !== "active") continue;
+    const ids = held.id ? [held.id] : [];
+    const sources = held.provenance.evidence
+      .map((entry) => String(entry.source_type ?? "").toLowerCase())
+      .filter(Boolean);
+    if (sources.length > 0 && sources.every((type) => CONVERSATION_SOURCE_TYPES.includes(type))) {
+      items.push(worklistItem("durable-information", "medium", {
+        ids,
+        paths: [held.path],
+        what: "every source this record cites is a conversation, so nothing outside a chat supports it",
+        operation: "correct",
+      }));
+    }
+    if (WORK_STATE_WORDING.test(held.summary)) {
+      items.push(worklistItem("durable-information", "medium", {
+        ids,
+        paths: [held.path],
+        what: "the summary states live work state, which belongs wherever the work item is tracked rather than in memory",
+        operation: "retire",
+      }));
+    }
+  }
+  return items;
+}
+
+/** What the review could not read, and what it had to drop as out of scope. */
+function reviewSearchCapability(collected) {
+  const items = [];
+  for (const path of collected.unreadable) {
+    items.push(worklistItem("search-capability", "high", {
+      paths: [path],
+      what: "the file could not be read, so no search or review covers it",
+      operation: "correct",
+    }));
+  }
+  for (const warning of collected.warnings) {
+    if (warning.code !== "scope/cross-scope-result") continue;
+    items.push(worklistItem("search-capability", "medium", {
+      paths: warning.path ? [warning.path] : [],
+      what: warning.message,
+      operation: "move",
+    }));
+  }
+  return items;
+}
+
+/**
+ * memory_review. It reads, judges, and returns a worklist. It writes nothing,
+ * proposes nothing, and calls nothing that can write.
+ */
+function reviewOperation(context, options) {
+  const { scope } = context;
+  const deep = options.scope === "deep";
+  const since = options.since;
+  const today = isoDate(new Date());
+  const warnings = [];
+
+  const collected = collectCandidates(scope, { records: true, specs: false });
+  const records = collected.candidates.filter((candidate) => candidate.kind === "record");
+  const byId = new Map(records.filter((held) => held.id).map((held) => [held.id, held]));
+  const byPath = new Map(records.map((held) => [held.path, held]));
+
+  // --since narrows the record-scoped categories to what was settled on or
+  // after that date, which is what a focused review after a save looks at.
+  // The project-wide categories run either way, because a save can break a
+  // link, a view, or a pin in a record it never touched.
+  const inFocus = since === null
+    ? () => true
+    : (held) => recordDates(held).some((date) => date >= since);
+  const focused = since === null ? records : records.filter(inFocus);
+
+  const items = [
+    ...reviewDuplicates(records, inFocus),
+    ...reviewConflicts(records, byId, inFocus),
+    ...reviewProvenance(scope, focused),
+    ...reviewStaleDates(focused, today),
+    ...checkLinks(scope).findings.map((finding) => findingItem("broken-link", "high", "correct", finding, byPath)),
+    ...checkRelativeLinks(scope).findings.map((finding) => findingItem("broken-link", "high", "correct", finding, byPath)),
+    ...reviewSupersession(focused, byId),
+    ...checkRetiredPhrases(scope).findings.map((finding) => findingItem("retired-phrase", "high", "correct", finding, byPath)),
+    ...reviewViews(scope),
+    ...reviewPins(scope, byPath),
+    ...reviewSearchCapability(collected),
+  ];
+
+  if (deep) {
+    items.push(...reviewVocabulary(records), ...reviewDurability(records));
+  }
+
+  // The gold-set category needs the runner P3-5 builds. Review detects whether
+  // it is there and reports the category as skipped either way, because wiring
+  // the two together is P3-6's work, and a category that silently reports
+  // nothing reads as a pass it never earned.
+  const runner = resolve(fileURLToPath(new URL(".", import.meta.url)), GOLD_SET_RUNNER);
+  warnings.push(note(
+    "startup/missing-source",
+    existsSync(runner)
+      ? "the gold-set review category is skipped: the runner is present and review does not call it yet"
+      : "the gold-set review category is skipped: the gold-set runner is not available in this build",
+    { path: `tools/${GOLD_SET_RUNNER}` },
+  ));
+
+  items.sort((first, second) => {
+    const byCategory = CATEGORY_ORDER.get(first.category) - CATEGORY_ORDER.get(second.category);
+    if (byCategory !== 0) return byCategory;
+    const bySeverity = SEVERITY_ORDER[first.severity] - SEVERITY_ORDER[second.severity];
+    if (bySeverity !== 0) return bySeverity;
+    const byPathName = (first.paths[0] ?? "").localeCompare(second.paths[0] ?? "");
+    if (byPathName !== 0) return byPathName;
+    const byId2 = (first.record_ids[0] ?? "").localeCompare(second.record_ids[0] ?? "");
+    if (byId2 !== 0) return byId2;
+    return first.what_is_wrong.localeCompare(second.what_is_wrong);
+  });
+
+  return { status: "ok", result: items, warnings };
+}
+
+/** The category list, so the harness and the skill read one definition. */
+export function reviewCategories(depth = "deep") {
+  return REVIEW_CATEGORIES
+    .filter((entry) => depth === "deep" || entry.depth === "focused")
+    .map((entry) => entry.id);
 }
 
 /**
@@ -1791,6 +3483,14 @@ const OPERATIONS = new Map([
       operation: "memory_sources",
       run: sourcesOperation,
       parse: parseSourcesFlags,
+    },
+  ],
+  [
+    "review",
+    {
+      operation: "memory_review",
+      run: reviewOperation,
+      parse: parseReviewFlags,
     },
   ],
   [
@@ -2242,6 +3942,24 @@ function parseCancelFlags(args) {
   if (!read.ok) return read;
   if (!read.values.proposal) return { ok: false, message: "cancel needs --proposal" };
   return { ok: true, options: { proposalId: read.values.proposal } };
+}
+
+/**
+ * Read the review flags. The scope defaults to focused, which is the review
+ * that runs after every approved save.
+ */
+function parseReviewFlags(args) {
+  const read = readFlags(args, { scope: "value", since: "value" });
+  if (!read.ok) return read;
+  const wanted = read.values.scope ?? "focused";
+  if (!REVIEW_SCOPES.includes(wanted)) {
+    return { ok: false, message: `--scope takes ${REVIEW_SCOPES.join(" or ")}` };
+  }
+  const since = read.values.since ?? null;
+  if (since !== null && !DATE_ONLY.test(since)) {
+    return { ok: false, message: "--since takes a YYYY-MM-DD date" };
+  }
+  return { ok: true, options: { scope: wanted, since } };
 }
 
 /** Read the validate flags. An unknown check id stops the run before it starts. */

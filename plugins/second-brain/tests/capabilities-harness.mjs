@@ -126,6 +126,7 @@ try {
         "memory_timeline",
         "memory_related",
         "memory_sources",
+        "memory_review",
         "memory_validate",
         "memory_update_current",
         "memory_rebuild_views",
@@ -162,7 +163,7 @@ try {
   ok(
     result.degraded.some((entry) => entry.feature === "review")
       && result.degraded.some((entry) => entry.feature === "session history"),
-    "the degraded list names the features this build does not carry yet",
+    "the degraded list names the features this build does not carry in full",
   );
   ok(
     !result.degraded.some((entry) => entry.feature === "retrieval"),
@@ -306,7 +307,7 @@ try {
 
   // Call-shape refusals. An operation or flag this build does not define is a
   // call it could not evaluate, which is exit 2, not a refusal.
-  const unknown = call(plain, "review", "--scope", "focused");
+  const unknown = call(plain, "session-search", "--query", "anything");
   ok(unknown.code === 2, "an operation this build does not carry exits 2");
   ok(unknown.payload.status === "error", "an unavailable operation could not be evaluated");
   ok(
