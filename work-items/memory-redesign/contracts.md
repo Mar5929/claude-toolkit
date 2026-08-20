@@ -248,6 +248,7 @@ defined here so a build session does not invent codes per file.
 | write/link-repair-failed | A move or rename left a link that cannot be repaired, so nothing changed | 1 |
 | write/guard-refused | The pre-write guard refused a write that did not come through the coordinator | 1 |
 | cli/invalid-invocation | The operation name is not one this tool defines, or a required flag is missing or malformed. The message names which | 2 |
+| policy/acceleration-refused | Retrieval code imports or calls a database, index, embedding, or cache accelerator with no new approved ADR. AT-18 and ADR-014. This is a policy refusal, not a malformed record, and it carries its own code so a harness can tell the two apart | 1 |
 | retrieval/parse-error | A query or filter would not parse | 2 |
 | retrieval/unsupported-filter | A filter names a field the schema does not define | 2 |
 | startup/missing-source | A startup input is missing. Warning only | 0 |
@@ -418,6 +419,10 @@ How to read each contract:
 - Result: an array of worklist items, each with `category`, `severity`, the affected
   `record_ids` or `paths`, `what_is_wrong`, and `suggested_operation`. The suggested
   operation is always one of the section 14 lifecycle operations or a pin operation.
+- `severity` is one of `high`, `medium`, `low`. No design document names a severity
+  vocabulary, so P3-4 defined this one. It orders a worklist for the owner and changes
+  nothing that gets stored, because review writes nothing at all. Recorded as built and
+  flagged, at the low end of the flag list.
 - Errors: none beyond the shared preflight.
 - Approval: none, and this is structural. The review engine has no write capability at
   all. It cannot call the coordinator. Architecture principle 14 and ADR-012.
@@ -864,6 +869,14 @@ category, needed reason, or approval, sensitive content in startup inputs, pins,
 approved artifact, a sensitive project whose history gate is not owner-request only,
 local state carrying body or secret text, or an incomplete privacy deletion. Lands in
 P3-6.
+
+Three shapes this check needs are defined nowhere in either authority document, so
+P3-6 defined them and they are recorded here as built: the secret pattern set it
+matches against, the line shape that marks a sensitive section, and the record shape
+of an exemption. **These need Mike's approval on their substance, not just their
+existence.** They decide what counts as a leaked secret in every v2 project, and a
+pattern set that is too narrow fails quietly rather than loudly. The other invented
+values in this run are conveniences. These are the privacy boundary itself.
 
 **MV-18, migration file counts, links, hashes, and reversibility. Version 2.0. Severity: fail.**
 Inspects a migration plan against its apply result. Failure looks like a changed byte
