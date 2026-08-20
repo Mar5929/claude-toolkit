@@ -755,6 +755,54 @@ try {
     "every live check comes back green on a well-formed project",
   );
 
+  // -------------------------------------------------------------------------
+  // The other direction: a project that really fails a check has to refuse and
+  // exit 1, whatever reason code the finding carries. Contracts section 2.23
+  // maps the verdict to the exit, not the code.
+  // -------------------------------------------------------------------------
+  const brokenHook = project("broken-hook", {
+    files: {
+      ".claude/settings.json": `${JSON.stringify({
+        hooks: {
+          SessionStart: [
+            {
+              hooks: [
+                {
+                  type: "command",
+                  // Deliberately unbraced. The shipped snippet writes the
+                  // braced form, which MV-01 accepts; this fixture is the
+                  // broken one, so the check has something real to fail on.
+                  command: "node $CLAUDE_PROJECT_DIR/plugins/second-brain/tools/boot-brief.mjs",
+                },
+              ],
+            },
+          ],
+        },
+      }, null, 2)}\n`,
+    },
+  });
+  const brokenHookRun = call(brokenHook, "validate", "--check", "MV-01");
+  ok(statusOf(brokenHookRun.payload, "MV-01") === "fail", "an unbraced hook path names a file that is not there and fails MV-01");
+  ok(brokenHookRun.payload.status === "refused", "a failing check refuses the envelope");
+  ok(brokenHookRun.code === 1, "a failing check exits 1 even when its finding carries a warning-level code");
+  ok(
+    call(brokenHook, "validate").code === 1,
+    "the same project fails the whole catalog run, not only the filtered one",
+  );
+
+  const brokenRecord = project("broken-record", {
+    files: {
+      "knowledge/memory/facts/no-schema.md": "---\nid: fact-no-schema\n---\n\n# Missing everything\n",
+    },
+  });
+  const brokenRecordRun = call(brokenRecord, "validate", "--check", "MV-03");
+  ok(statusOf(brokenRecordRun.payload, "MV-03") === "fail", "a record missing its required front matter fails MV-03");
+  ok(brokenRecordRun.code === 1, "a record that fails its schema exits 1");
+
+  // A warning and a skipped check both leave the exit at 0.
+  ok(call(tight, "validate", "--check", "MV-07").code === 0, "a warning check still exits 0");
+  ok(call(healthy, "validate", "--check", "MV-18").code === 0, "a skipped check still exits 0");
+
   // The filter still works over the wider catalog.
   const filtered = call(healthy, "validate", "--check", "MV-13,MV-20");
   ok(filtered.payload.result.length === 2, "--check limits the run to the named checks");

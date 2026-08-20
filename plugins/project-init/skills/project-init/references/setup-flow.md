@@ -74,7 +74,7 @@ so they always know where they are.
      `tools/permissions/README.md` pointing at the runbook. This is what verifies
      a file against the org and reports what a deploy would delete.
   3. `library/templates/permissions-runbook.md` as the project's own operating runbook
-     (`knowledge/memory/operations/salesforce-permissions.md` under the project-knowledge
+     (`knowledge/specs/salesforce-permissions.md` under the project-knowledge
      layout, otherwise `docs/`). Fill in its placeholders.
   4. The deploy guard hook, in Gate 2 below.
 

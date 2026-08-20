@@ -12,7 +12,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/memory-write-guard.mjs\"",
+            "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/memory-write-guard.mjs\"",
             "timeout": 10
           }
         ]

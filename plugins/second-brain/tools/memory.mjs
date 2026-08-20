@@ -48,7 +48,6 @@ import { relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
-  REASON_CODES,
   emit,
   envelope,
   note,
@@ -2916,15 +2915,22 @@ export function validate(context, options = {}) {
     });
   }
 
+  // Contracts section 2.23 maps the verdict to the exit code, not the reason
+  // code: any check that fails refuses the run and exits 1, and a warn or a
+  // skipped check leaves the exit at 0. So a failing check hands every one of
+  // its findings to errors, including a finding whose code is warning-level on
+  // its own, because that finding is the reason the check failed.
   const errors = [];
+  let failed = false;
   for (const entry of checks) {
+    if (entry.status === "fail") failed = true;
     for (const finding of entry.findings) {
-      if (entry.status === "fail" && REASON_CODES[finding.code] > 0) errors.push(finding);
+      if (entry.status === "fail") errors.push(finding);
       else warnings.push(finding);
     }
   }
 
-  return { checks, errors };
+  return { status: failed ? "refused" : "ok", checks, errors };
 }
 
 // ---------------------------------------------------------------------------

@@ -32,16 +32,16 @@ In this order:
 - A title and one-line project description.
 - `Read .claude/rules first.`
 - When project knowledge is installed, one short line saying the fail-open
-  `SessionStart` loader reads `knowledge/project.md` and
-  `knowledge/index.md`, and that `knowledge/brainstorms/` is unchecked.
+  `SessionStart` loader reads `knowledge/project.md`, `knowledge/current.md`,
+  and `knowledge/map.md`, and that `knowledge/brainstorms/` is unchecked.
 - A codemap with one line per major folder or module.
 - Structural pointers that are not behavior rules, including the chosen work
   tracker and how a refined item is marked.
 - Only the MCP instructions for servers this project actually uses.
 
 The root file does not repeat the contents of `knowledge/project.md`, the
-generated index, the save policy, or any rule already installed under
-`.claude/rules/`.
+generated views that `rebuild-views` writes, the save policy, or any rule
+already installed under `.claude/rules/`.
 
 ## The knowledge startup route
 
@@ -62,9 +62,9 @@ therefore contains:
 - a direct instruction to open and read every `.md` rule under
   `.claude/rules/` before work;
 - when project knowledge is installed, a direct instruction to read
-  `knowledge/project.md` and `knowledge/index.md` first, open only the relevant
-  specification or memory files, and treat `knowledge/brainstorms/` as
-  unchecked;
+  `knowledge/project.md`, `knowledge/current.md`, and `knowledge/map.md` first,
+  open only the relevant specification or memory files, and treat
+  `knowledge/brainstorms/` as unchecked;
 - the same structural pointers as `CLAUDE.md`;
 - every safety-critical rule Codex must receive before it can open a referenced
   file;

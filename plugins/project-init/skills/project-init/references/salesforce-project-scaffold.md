@@ -58,11 +58,11 @@ that helps future agents work correctly belongs in `knowledge/`.
 
 | Folder | Holds |
 |---|---|
-| `project-overview/` | Raw project brief or client-provided framing when the project needs that artifact home. Curated project framing belongs in `knowledge/project.md`, with other persistent circumstances under `knowledge/memory/context/` |
+| `project-overview/` | Raw project brief or client-provided framing when the project needs that artifact home. Curated project framing belongs in `knowledge/project.md`, with other persistent circumstances under `knowledge/memory/facts/` |
 | `archive/` | Retired or superseded material kept for history |
 | `communications/` | Emails, Slack threads, client or team messages |
 | `deliverables/` | Finished artifacts handed to the client |
-| `deployment/` | Cutover plans, release evidence, and release notes. Reusable operating procedures belong under `knowledge/memory/operations/` |
+| `deployment/` | Cutover plans, release evidence, and release notes. Reusable operating procedures belong under `knowledge/specs/` |
 | `meeting-notes/` | One file per call or working session |
 | `references/` | Source specs, org exports, third-party docs (read-only inputs) |
 | `work-items/` | Ticket work items in stage folders (`01-backlog/` holds the `BACKLOG.md` index); one folder per ticket (named by ticket key) with `SPEC.md` + `STATUS.md`. Layout: `work-items-structure.md` |
@@ -74,11 +74,12 @@ not save interviews under `project-overview/` or copy them into a system area.
 With project knowledge installed, the brainstorm links to every resulting specification.
 
 When project knowledge is selected, do not create a `delivery/knowledge-base/`
-folder. Use `knowledge/memory/knowledge/`,
-`knowledge/memory/references/`, and `knowledge/memory/domain/`
-for curated agent memory. Keep raw meeting notes, communications, deliverables,
-deployment evidence, and client sources in the delivery folders above. If the
-owner declines project knowledge and needs a local reference library, offer
+folder. Use `knowledge/memory/facts/` and `knowledge/memory/decisions/`
+for curated agent memory, and the mapped reference area `knowledge/map.md`
+names for outside source material. Keep raw meeting notes, communications,
+deliverables, deployment evidence, and client sources in the delivery folders
+above. If the owner declines project knowledge and needs a local reference
+library, offer
 `delivery/knowledge-base/` separately instead of adding it by default.
 
 **`.claude/`**: project-scoped Claude Code setup. Scaffold it empty at Gate 1
@@ -109,7 +110,7 @@ large rule, or per-folder indexes.
 ## Variants
 
 - **Org merge**: use `references/` for raw source material,
-  `knowledge/memory/references/` and `knowledge/memory/knowledge/` for approved
+  `knowledge/memory/facts/` and `knowledge/memory/decisions/` for approved
   source context and conclusions, `data/` for field-level mapping, and
   `deployment/` for the cutover plan.
 - **Single org build or managed service**: the same tree works; some delivery
