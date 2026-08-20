@@ -24,6 +24,7 @@ Two documents are the authority on behavior. When this plan and those documents 
 - `main` stays installable at all times. No pull request may leave the plugin half working.
 - When a work item becomes a board issue, the issue body carries only the goal, the reason, and what finished means. The file paths and build steps in this plan go into the issue's comments, per the root `CLAUDE.md` board rules.
 - Mike requires that agents building these work items run on Claude Opus 5. A session or subagent doing build work from this plan uses the `claude-opus-5` model (`model: "opus"` when spawning agents or workflows).
+- `STATUS.md` in this folder tracks every work item's state. The pull request that lands a work item updates its row in the same pull request. New build sessions start from `session-kickoff.md` in this folder.
 
 ## Decisions this plan makes
 
