@@ -50,6 +50,7 @@ export const REASON_CODES = Object.freeze({
   "write/validation-failed": 1,
   "write/link-repair-failed": 1,
   "write/guard-refused": 1,
+  "cli/invalid-invocation": 2,
   "retrieval/parse-error": 2,
   "retrieval/unsupported-filter": 2,
   "startup/missing-source": 0,

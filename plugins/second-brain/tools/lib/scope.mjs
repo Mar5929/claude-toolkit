@@ -8,8 +8,8 @@
  * inside the project. A stored absolute path, an environment variable, the
  * host's idea of a workspace, and the Git remote take no part.
  *
- * The full versioned settings schema lands with the record schema module.
- * This file reads only the keys scope and privacy need.
+ * The full versioned settings schema lives in record-schema.mjs. This file
+ * reads only the keys scope and privacy need.
  */
 
 import { existsSync, readFileSync, realpathSync, statSync } from "node:fs";
@@ -96,8 +96,39 @@ export function parseFrontMatter(text) {
 
       if (line.text.startsWith("- ")) {
         if (list === null) list = [];
-        list.push(scalar(line.text.slice(2)));
+        const rest = line.text.slice(2);
+        const pair = rest.match(/^([A-Za-z0-9_-]+):(?:\s+(.*))?$/);
+        if (!pair) {
+          list.push(scalar(rest));
+          index++;
+          continue;
+        }
+        // A dash line that opens a map, which is the shape of an evidence
+        // entry. Its remaining keys sit at a deeper indent than the dash.
+        const item = {};
+        const [, firstKey, firstRaw = ""] = pair;
+        const firstList = parseInlineList(firstRaw);
+        item[firstKey] = firstRaw.trim()
+          ? (firstList === null ? scalar(firstRaw) : firstList)
+          : null;
         index++;
+        while (index < lines.length && lines[index].indent > line.indent) {
+          const child = lines[index];
+          const childPair = child.text.match(/^([A-Za-z0-9_-]+):(?:\s+(.*))?$/);
+          if (!childPair) {
+            problems.push(`could not read front matter line ${child.number}`);
+            index++;
+            continue;
+          }
+          const [, key, raw = ""] = childPair;
+          if (Object.hasOwn(item, key)) {
+            problems.push(`key ${key} appears more than once`);
+          }
+          const inline = parseInlineList(raw);
+          item[key] = raw.trim() ? (inline === null ? scalar(raw) : inline) : null;
+          index++;
+        }
+        list.push(item);
         continue;
       }
 

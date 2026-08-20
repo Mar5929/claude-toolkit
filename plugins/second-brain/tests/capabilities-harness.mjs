@@ -117,7 +117,21 @@ try {
 
   const result = caps.payload.result;
   ok(
-    JSON.stringify(result.operations) === JSON.stringify(["memory_capabilities", "memory_status"]),
+    JSON.stringify(result.operations)
+      === JSON.stringify([
+        "memory_capabilities",
+        "memory_status",
+        "memory_validate",
+        "memory_update_current",
+        "memory_rebuild_views",
+        "memory_add",
+        "memory_confirm",
+        "memory_correct",
+        "memory_supersede",
+        "memory_retire",
+        "memory_merge",
+        "memory_delete",
+      ]),
     "capabilities lists exactly the operations this build supports",
   );
   ok(result.approval_mode === "owner-approved", "the approval mode is owner-approved");
@@ -137,8 +151,8 @@ try {
     "every degraded entry names a feature and a reason",
   );
   ok(
-    result.degraded.some((entry) => entry.feature === "writes"),
-    "the degraded list names the missing write operations",
+    result.degraded.some((entry) => entry.feature === "pins"),
+    "the degraded list names the features this build does not carry yet",
   );
   ok(
     codes(caps.payload.warnings).includes("tracker/not-configured"),
@@ -276,16 +290,17 @@ try {
     "an unresolved scope names the scope reason code",
   );
 
-  // Call-shape refusals.
+  // Call-shape refusals. An operation or flag this build does not define is a
+  // call it could not evaluate, which is exit 2, not a refusal.
   const unknown = call(plain, "search", "--query", "anything");
-  ok(unknown.code === 1, "an operation this build does not carry is refused with exit 1");
-  ok(unknown.payload.status === "refused", "an unavailable operation is a refusal, not an error");
+  ok(unknown.code === 2, "an operation this build does not carry exits 2");
+  ok(unknown.payload.status === "error", "an unavailable operation could not be evaluated");
   ok(
-    codes(unknown.payload.errors).includes("record/schema-invalid"),
-    "the refusal names a reason code from the closed list",
+    codes(unknown.payload.errors).includes("cli/invalid-invocation"),
+    "the invalid call names a reason code from the closed list",
   );
-  ok(call(plain, "capabilities", "--json").code === 1, "capabilities refuses a flag it does not define");
-  ok(call(plain).code === 1, "a missing operation is refused");
+  ok(call(plain, "capabilities", "--json").code === 2, "capabilities rejects a flag it does not define");
+  ok(call(plain).code === 2, "a missing operation is an invalid invocation");
 
   // The shipped version 2 template tree resolves and reports.
   const fromTemplate = fixture("template");

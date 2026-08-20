@@ -4,5 +4,19 @@
   },
   "enabledPlugins": {
     "second-brain@claude-toolkit": true
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/memory-write-guard.mjs\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
   }
 }

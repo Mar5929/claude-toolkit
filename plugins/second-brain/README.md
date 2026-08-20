@@ -215,7 +215,11 @@ The v2 project shape lives under
 | `templates-v2/knowledge/memory/decisions/` | Durable decisions. Empty until the first record. |
 | `templates-v2/knowledge/memory/events/` | Durable events. Empty until the first record. |
 | `templates-v2/knowledge/memory/patterns/` | Durable patterns. Empty until the first record. |
-| `templates-v2/claude-settings-snippet.json` | The keys setup merges into a project's `.claude/settings.json`: `CLAUDE_CODE_DISABLE_AUTO_MEMORY` set to `1`, and the plugin enabled. Hook registration is added by the work items that build the v2 hooks. |
+| `templates-v2/records/fact.md` | The starting shape of a fact record: the version 2 front matter, the H1, the one-sentence summary under it, and a note on what each field has to carry. |
+| `templates-v2/records/decision.md` | The starting shape of a decision record, carrying the five required body sections: context, decision, reason, rejected options, and consequences. |
+| `templates-v2/records/event.md` | The starting shape of an event record, with the `occurred_at` field and what to write there when the exact date is unknown. |
+| `templates-v2/records/pattern.md` | The starting shape of a pattern record, with the non-empty `based_on` list a pattern must name and the line between a pattern and a proven cause. |
+| `templates-v2/claude-settings-snippet.json` | The keys setup merges into a project's `.claude/settings.json`: `CLAUDE_CODE_DISABLE_AUTO_MEMORY` set to `1`, the plugin enabled, and the `PreToolUse` registration for `memory-write-guard.mjs`. The `SessionStart` registration for the v2 boot brief is added by the cutover work item, which swaps it for the v1 loader. |
 | `templates-v2/gitignore-snippet.txt` | The `.memory/` entry setup appends to the project's root `.gitignore`. Local write state is disposable and never committed. |
 
 Empty type folders keep a `.gitkeep` until their first document, the same way
@@ -251,14 +255,37 @@ tools. Nothing here is installed by setup yet.
 ```text
 node plugins/second-brain/tools/memory.mjs capabilities
 node plugins/second-brain/tools/memory.mjs status
+node plugins/second-brain/tools/memory.mjs validate [--check MV-01,MV-03] [--fixtures]
+node plugins/second-brain/tools/memory.mjs update-current --trigger handoff|focus-change|completed-work --file <staged.md> --propose
+node plugins/second-brain/tools/memory.mjs update-current --trigger <same> --apply --proposal <id> --content-hash <hash>
+node plugins/second-brain/tools/memory.mjs rebuild-views
+node plugins/second-brain/tools/memory.mjs cancel --proposal <id>
+node plugins/second-brain/tools/memory.mjs noop [--reason "<text>"]
+node plugins/second-brain/tools/memory.mjs add --type fact|decision|event|pattern --file <staged.md> [--dest <path>] --propose
+node plugins/second-brain/tools/memory.mjs confirm --id <record-id> --evidence <locator> [--source-type <name>] --propose
+node plugins/second-brain/tools/memory.mjs correct --id <record-id> --file <corrected.md> --reason "<text>" --propose
+node plugins/second-brain/tools/memory.mjs supersede --old-id <record-id> --file <successor.md> [--dest <path>] --propose
+node plugins/second-brain/tools/memory.mjs retire --id <record-id> --reason "<text>" --phrase "<exact text>" [--phrase ...] [--exempt "<path>: <reason>"] --propose
+node plugins/second-brain/tools/memory.mjs merge --ids <id>,<id> --survivor <id> --pin keep|drop --propose
+node plugins/second-brain/tools/memory.mjs delete --id <record-id> --reason "<text>" [--privacy] --propose
 ```
+
+Every writing operation above takes the same second call as `update-current`:
+`--apply --proposal <id> --content-hash <hash>`.
 
 | File | What it is |
 | --- | --- |
-| `tools/memory.mjs` | The one entry for every v2 memory operation. It prints one JSON envelope and nothing else. This build carries `capabilities` and `status`; the rest of the surface is reported as unavailable rather than stubbed. |
+| `tools/memory.mjs` | The one entry for every v2 memory operation. It prints one JSON envelope and nothing else. This build carries `capabilities`, `status`, and `validate`; the rest of the surface is reported as unavailable rather than stubbed. |
 | `tools/lib/scope.mjs` | Physical scope resolution, member-path testing, and the recorded privacy boundary. One home, because every entry point needs the same answer. A missing or unknown privacy value reads as the most restrictive setting. |
 | `tools/lib/result.mjs` | The result envelope with its fixed field order, the closed reason-code list, and the exit mapping: 0 ran, 1 refused, 2 could not be evaluated. |
+| `tools/lib/record-schema.mjs` | Record schema 2.0 and project settings schema 2.0: the four types, the allowed values, the required fields, the decision sections, the required project core, and the judgment of one record against all of it. It reads no file it was not handed and writes nothing. |
 | `tests/capabilities-harness.mjs` | Builds temporary projects and runs the real command line: the capabilities payload, the status payload, the envelope shape, exit codes, the restrictive privacy fallback, the 72-hour stale rule, and byte-for-byte determinism. |
+| `tests/schema-harness.mjs` | Builds temporary projects and validates real records: every required field, every refusal the schema owns, the legacy warning that never fails a run, the shipped record templates, the check catalog with its skipped entries, the call-shape errors, and byte-for-byte determinism. |
+| `tools/memory-write.mjs` | The write coordinator and canonical store. It is the only file that changes canonical Markdown. Every write runs in two calls: `--propose` writes the whole proposal to `.memory/review/<proposal-id>.md` and changes nothing, and `--apply` rechecks the proposal hash, the destination, the record id, the pin statement, and every cited source hash before running one transaction: lock, journal with preimages, staged contents, legacy upgrades, view rebuild, focused validation, and either a clean finish or a full restore. It also holds the view generator and the `knowledge/current.md` update. There is no force flag and no non-interactive approval mode. |
+| `tests/coordinator-harness.mjs` | Builds temporary projects and drives the real coordinator: a proposal that changes nothing, every bound input that sends the review back, the Edit action with its re-validation, the four required `current.md` sections, the legacy touch upgrade, generated views with their fingerprints, a failed transaction that restores every preimage, and a child process killed mid-transaction that is recovered from the journal at the next call. It also drives the pre-write guard as its own process: a direct edit, a helper agent, and a script are each refused and leave every canonical file unchanged, while Git, a coordinator call, and a read are untouched. |
+| `hooks/memory-write-guard.mjs` | The Claude Code `PreToolUse` guard. It refuses `Edit`, `Write`, `MultiEdit`, `NotebookEdit`, and `Bash` writes into `knowledge/memory/`, `knowledge/specs/`, and `knowledge/current.md` from any route other than the coordinator, and refuses any change to `project_root`, `subroots`, or the `privacy` block in `knowledge/project.md`. No model sits in its path. It exits 0 on every path and refuses through the `permissionDecision` payload, naming the `memory.mjs` operation that should have been used. Fail-closed: a call it cannot evaluate that names a guarded path is denied. `git` commands and calls that invoke `memory.mjs` or `memory-write.mjs` are allowed, and it says nothing at all about anything else. |
+| `tools/memory-write.mjs` (lifecycle engine) | The seven writing operations of architecture section 14 live beside the coordinator, because each one only builds a request and hands it to the same two-phase review: ADD refuses a used id and a meaning the project already carries, CONFIRM appends evidence and a confirmation without touching the summary, CORRECT records the reason and requires evidence the record did not already carry, SUPERSEDE writes both links and both effective dates in one transaction, RETIRE hunts the exact phrases across tracked Markdown, MERGE allows only identical meaning with compatible truth status and dates, and DELETE shows the whole record as a visible diff and reports the Git-history boundary. NOOP is the default outcome: a call that would change no byte stores nothing and says so. |
+| `tests/lifecycle-harness.mjs` | Builds temporary projects and runs the real lifecycle operations end to end: each of the seven, the NOOP outcome, and every refusal each one owns. It proves AT-10 (two sources stay two evidence entries on one record), AT-11 (a superseded record leaves current truth, keeps both links and both dates, and stays on disk for the timeline), AT-12 (the retirement phrase hunt finds surviving current uses, honors quotations and exemptions, and MV-08 repeats it), and AT-23 (two conflicting meanings stay separate, linked, and independently evidenced). |
 
 `capabilities` answers what this project's memory can do, so an agent reads the
 build state instead of guessing: the operations it carries, the approval mode,
@@ -270,6 +297,41 @@ session-history scope, and every degraded feature with its reason.
 type, pin count, whether `knowledge/current.md` is present and how old its
 latest update is, whether a recovery journal is waiting, where the gold set
 lives, and the date the staleness comparison used.
+
+`validate` runs the twenty-two versioned checks, `MV-01` through `MV-22`, and
+prints one entry per check with its id, version, verdict, and findings. This
+build carries the required-files half of `MV-01`, the record schema in `MV-03`,
+and the inference basis in `MV-04`. Every other check reports `skipped` with the
+component it is waiting on, so nothing reads as a pass that was never run. A
+migrated record missing version 2 metadata is a `record/legacy-gap` warning
+naming the gaps, never a failure: migration does not invent metadata, and the
+record is upgraded on its next approved touch.
+
+`update-current` is the only route that writes `knowledge/current.md`, on the
+three triggers the design allows: an explicit handoff, an approved change of
+current focus, and an approved completed-work event that changes current state.
+The staged file has to carry all four headings, current focus, blockers, next
+step, and handoff, and the coordinator stamps the `updated` date on every write
+so startup can judge staleness. An approved completed-work event that changes
+current state writes the event and `current.md` in one transaction, and the
+owner sees both in one review.
+
+`rebuild-views` regenerates whatever derived artifact a project has separately
+approved. A default project has none, so the operation reports NOOP rather than
+failing. A view names itself with `generated: true`, lists its inputs, and
+carries a deterministic input fingerprint, so an unchanged rebuild produces an
+unchanged file and creates no Git diff.
+
+`cancel` removes a review file after a skip. It touches nothing canonical and
+is not part of the reported operation surface.
+
+Approval is never something the tool invents. The skill layer shows the five
+bullets and collects the owner's keep, change, edit, or skip. The apply call
+carries the proposal id and the hash of the exact review file, and any bound
+input that moved between the two calls sends the review back. The owner may
+edit the review file directly; the coordinator validates the edited contents
+again before it writes, and a confirmation approves them without the owner
+describing the edits a second time.
 
 ## Maintaining this plugin
 

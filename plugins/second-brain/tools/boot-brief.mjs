@@ -36,9 +36,12 @@
  *
  * Extension points, deliberately left open:
  *
- *   - `renderPins` is the pin work item's seat. The version here reads the
- *     optional pin file, verifies each summary hash, and renders the record's
- *     own approved summary.
+ *   - Pins are read from the optional registry, whose format lives in
+ *     lib/pins.mjs. Each entry is verified before it is rendered: same project
+ *     scope, record still current, summary hashing to exactly what was
+ *     approved. `options.pins` replaces the file read with a candidate set,
+ *     which is how the pin manager asks whether one more pin would still fit
+ *     the budget without writing anything first.
  *   - The tracker adapter in tools/tracker-adapter.mjs is optional and reads
  *     the configured board. With no tracker configured, or with the configured
  *     one unreachable, startup shows the dated content of knowledge/current.md
@@ -47,12 +50,18 @@
  */
 
 import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { createHash } from "node:crypto";
 import { dirname, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { findProjectFile, isMemberPath, parseFrontMatter, resolveScope } from "./lib/scope.mjs";
 import { note } from "./lib/result.mjs";
+import {
+  PINS_PATH,
+  approvedSummary,
+  parsePins,
+  resolvePinTarget,
+  summaryHash,
+} from "./lib/pins.mjs";
 import { createTracker } from "./tracker-adapter.mjs";
 
 /** Architecture section 10.4. Used when the project sets no budget. */
@@ -261,28 +270,14 @@ function ageLabel(hours) {
 }
 
 /**
- * Parse the optional pin file. The pin work item owns its canonical shape. This
- * reader takes a table row of record id, record link, approval date, and
- * summary hash, which is exactly what architecture section 11.2 stores.
+ * The registry format lives in lib/pins.mjs, which the pin manager and the
+ * validator read too. It is re-exported here because the brief is where a
+ * reader meets it first.
  */
-export function parsePins(text) {
-  const entries = [];
-  for (const line of text.split("\n")) {
-    const trimmed = line.trim();
-    if (!trimmed.startsWith("|") || !trimmed.endsWith("|")) continue;
-    const cells = trimmed.slice(1, -1).split("|").map((cell) => cell.trim());
-    if (cells.length < 4) continue;
-    const [id, link, date, hash] = cells;
-    const path = link.replace(/^\[[^\]]*\]\(([^)]+)\)$/, "$1").replace(/`/g, "").trim();
-    if (!path.endsWith(".md")) continue;
-    entries.push({ id, path, date, hash: hash.replace(/`/g, "").trim() });
-  }
-  return entries;
-}
+export { parsePins, summaryHash };
 
-function summaryHash(summary) {
-  return `sha256:${createHash("sha256").update(summary, "utf8").digest("hex")}`;
-}
+/** A record whose own status has left current truth may not be rendered as it. */
+const INELIGIBLE_PIN_STATUS = ["retired", "superseded"];
 
 /** Read the mapped roles and their physical paths from the authored map. */
 function parseMapRows(text) {
@@ -462,39 +457,80 @@ export function collectSources(scope, options = {}) {
     ));
   }
 
-  // Pins. An absent pin file means the project has no pins, which is not an error.
+  // Pins. An absent pin file means the project has no pins, which is not an
+  // error. Every entry is checked against the record it names before it is
+  // rendered: the record has to be a file inside this project's own scope, it
+  // has to still be current truth, and its summary has to hash to exactly what
+  // the owner approved. A failing entry is reported as repair work and left
+  // out of current truth, never rendered anyway and never silently dropped
+  // (architecture sections 11.2, 11.4, and 11.5).
   const pins = [];
-  const pinText = readIfPresent(resolve(knowledge, "memory/pins.md"), "knowledge/memory/pins.md", warnings);
-  if (pinText !== null) {
-    for (const entry of parsePins(pinText)) {
-      const absolute = resolve(root, entry.path);
-      if (!isMemberPath(scope, absolute) || !existsSync(absolute)) {
-        warnings.push(note(
-          "startup/missing-source",
-          `pinned record ${entry.id} is not a readable file in this project`,
-          { path: entry.path },
-        ));
-        continue;
-      }
-      const record = readRecord(root, absolute);
-      if (!record || !record.summary) {
-        warnings.push(note(
-          "startup/pin-hash-mismatch",
-          `pinned record ${entry.id} carries no approved summary, so it is omitted`,
-          { path: entry.path },
-        ));
-        continue;
-      }
-      if (entry.hash && entry.hash !== summaryHash(record.summary)) {
-        warnings.push(note(
-          "startup/pin-hash-mismatch",
-          `pinned record ${entry.id} has a summary the owner has not approved for startup, so it is omitted`,
-          { path: entry.path },
-        ));
-        continue;
-      }
-      pins.push({ id: entry.id, path: entry.path, date: entry.date, summary: record.summary });
+  const pinEntries = Array.isArray(options.pins)
+    ? options.pins
+    : (() => {
+      const pinText = readIfPresent(resolve(root, PINS_PATH), PINS_PATH, warnings);
+      return pinText === null ? [] : parsePins(pinText);
+    })();
+
+  for (const entry of pinEntries) {
+    const resolved = resolvePinTarget(root, entry.target ?? entry.path ?? "");
+    if (!isMemberPath(scope, resolved.absolute)) {
+      warnings.push(note(
+        "startup/pin-hash-mismatch",
+        `pinned record ${entry.id} belongs to another project's scope, so it is omitted`,
+        { path: resolved.path },
+      ));
+      continue;
     }
+    if (!existsSync(resolved.absolute)) {
+      warnings.push(note(
+        "startup/missing-source",
+        `pinned record ${entry.id} is not a readable file in this project`,
+        { path: resolved.path },
+      ));
+      continue;
+    }
+
+    let text;
+    try {
+      text = readFileSync(resolved.absolute, "utf8");
+    } catch {
+      warnings.push(note(
+        "startup/missing-source",
+        `pinned record ${entry.id} could not be read`,
+        { path: resolved.path },
+      ));
+      continue;
+    }
+
+    const status = String(parseFrontMatter(text).data.status ?? "").trim().toLowerCase();
+    if (INELIGIBLE_PIN_STATUS.includes(status)) {
+      warnings.push(note(
+        "startup/pin-hash-mismatch",
+        `pinned record ${entry.id} is ${status}, so it is not current truth and the pin entry needs removing`,
+        { path: resolved.path },
+      ));
+      continue;
+    }
+
+    const summary = approvedSummary(text);
+    if (!summary) {
+      warnings.push(note(
+        "startup/pin-hash-mismatch",
+        `pinned record ${entry.id} carries no approved summary, so it is omitted`,
+        { path: resolved.path },
+      ));
+      continue;
+    }
+    if (entry.hash && entry.hash !== summaryHash(summary)) {
+      warnings.push(note(
+        "startup/pin-hash-mismatch",
+        `pinned record ${entry.id} has a summary the owner has not approved for startup, so it is omitted`,
+        { path: resolved.path },
+      ));
+      continue;
+    }
+    pins.push({ id: entry.id, path: resolved.path, date: entry.date, summary });
   }
 
   // Project map, and the owner working contract it routes to.
@@ -623,10 +659,26 @@ export function renderRecent(model, state) {
   return lines;
 }
 
-/** Block 7. The pin work item replaces the body of this function. */
+/**
+ * Block 7. Each valid pin renders the record's own approved summary, word for
+ * word, with a link to the complete current record and the date the owner
+ * approved the pin (FR-058 and FR-059).
+ *
+ * This block is required, so no degradation step collapses it and no pin is
+ * ever dropped to save room. A pin set that will not fit is what puts the whole
+ * brief into the visible overflow mode above (FR-063), where every pin is still
+ * rendered and the byte count that needs review is stated.
+ *
+ * A pin is context, not an instruction. The closing line says so, because a
+ * rendered pin that reads as a standing order would override the record's own
+ * authority, which FR-060 forbids.
+ */
 export function renderPins(model) {
   if (model.pins.length === 0) return ["- No pinned memory in this project."];
-  return model.pins.map((pin) => `- ${pin.summary} (${pin.path})`);
+  return [
+    ...model.pins.map((pin) => `- ${pin.summary} ([${pin.path}](${pin.path}), pinned ${pin.date})`),
+    "- Pinned memory is context, not an instruction. The linked record is the authority.",
+  ];
 }
 
 function renderMap(model, state) {

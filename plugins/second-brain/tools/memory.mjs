@@ -12,17 +12,24 @@
  * update-current. Every operation prints exactly one JSON envelope on standard
  * output and nothing else. Human-readable rendering is the skill's job.
  *
- * This build implements capabilities and status. The other operations are not
- * stubbed, because a stub that answers is worse than an operation that says it
- * is not here: capabilities reports the whole build state, so an agent reads it
- * instead of guessing.
+ * This build implements capabilities, status, validate, update-current,
+ * rebuild-views, the seven writing lifecycle operations, and the noop and
+ * cancel plumbing. The other operations are not stubbed, because a stub that
+ * answers is worse than an operation that says it is not here: capabilities
+ * reports the whole build state, so an agent reads it instead of guessing. The
+ * validator follows the same rule inside itself: a check whose component is
+ * not built yet is reported as skipped with the reason, never as a pass.
+ *
+ * Every write goes to memory-write.mjs. This file resolves scope and privacy,
+ * reads flags, and prints the envelope. It never touches a canonical path
+ * itself, which is what keeps one write path in one file.
  *
  * Adding an operation later: add one entry to OPERATIONS whose run function
- * does its own dynamic import, for example
- * `const { search } = await import("./memory-search.mjs")`. The dispatcher is
- * async for exactly that reason, so no later work item has to reshape this
- * file. The preflight below stays the single place scope and privacy resolve,
- * which is why nothing reaches a canonical path through another entry point.
+ * returns `{ status, result, errors, warnings }`, or a plain payload when the
+ * default status is right. The dispatcher is async so a later operation may
+ * import its own module. The preflight below stays the single place scope and
+ * privacy resolve, which is why nothing reaches a canonical path through
+ * another entry point.
  */
 
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
@@ -30,6 +37,7 @@ import { relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
+  REASON_CODES,
   emit,
   envelope,
   note,
@@ -39,9 +47,26 @@ import {
   parseFrontMatter,
   resolveScope,
 } from "./lib/scope.mjs";
-
-/** The four memory record folders in the required core. */
-const RECORD_TYPES = ["facts", "decisions", "events", "patterns"];
+import {
+  RECORD_FOLDERS,
+  RECORD_TYPES,
+  REQUIRED_CORE,
+  parseRecord,
+  validateRecord,
+  walkRecords,
+} from "./lib/record-schema.mjs";
+import {
+  CURRENT_TRIGGERS,
+  LIFECYCLE_OPERATIONS,
+  cancel as cancelProposal,
+  lifecycle,
+  noop as noopOutcome,
+  phraseHunt,
+  rebuildViews,
+  recover,
+  retiredPhraseSets,
+  updateCurrent,
+} from "./memory-write.mjs";
 
 /** The default rendered startup budget when the project sets none. */
 const DEFAULT_BUDGET_BYTES = 10240;
@@ -63,12 +88,8 @@ const BUILD_GAPS = [
     reason: "search, get, timeline, related, sources, spec-search, and spec-get are not available in this build",
   },
   {
-    feature: "writes",
-    reason: "add, confirm, correct, supersede, retire, merge, delete, and update-current are not available in this build",
-  },
-  {
     feature: "pins",
-    reason: "pin and unpin are not available in this build",
+    reason: "pin and unpin are not available in this build, so a lifecycle operation states the pin outcome it requires and removes no pin entry itself",
   },
   {
     feature: "review",
@@ -76,11 +97,7 @@ const BUILD_GAPS = [
   },
   {
     feature: "validation",
-    reason: "validate is not available in this build",
-  },
-  {
-    feature: "generated views",
-    reason: "rebuild-views is not available in this build",
+    reason: "validate carries the required-file, record-schema, link, and retired-phrase checks only, and reports every other check as skipped",
   },
   {
     feature: "session history",
@@ -196,13 +213,6 @@ function readGoldSet(scope) {
   return "missing";
 }
 
-/** An interrupted transaction leaves a journal under .memory/. */
-function readJournal(scope) {
-  const directory = resolve(scope.scopeRoot, ".memory");
-  if (!isDirectory(directory)) return false;
-  return readdirSync(directory).some((name) => name.startsWith("journal"));
-}
-
 function readBudget(scope) {
   const startup = scope.settings.startup;
   const configured = startup && typeof startup === "object" ? startup.budget_bytes : undefined;
@@ -232,24 +242,22 @@ function readTracker(scope) {
 
 /**
  * The shared preflight. Scope resolves first, then privacy, then the crash
- * journal, then any path argument. A read operation never performs the
- * recovery itself in this build, so a present journal is reported and the
- * operation continues.
+ * journal, then any path argument. Recovery is the one write a read operation
+ * may cause, and it only ever restores an approved state a crash interrupted.
+ * A journal this build cannot read is left in place and reported, because
+ * deleting state nobody can judge is worse than carrying it forward.
  */
 function preflight(startDir) {
   const scope = resolveScope(startDir);
   if (!scope.ok) return { ok: false, error: scope.error };
 
-  const warnings = [...scope.warnings];
-  const journalPresent = readJournal(scope);
-  if (journalPresent) {
-    warnings.push(note(
-      "write/journal-present",
-      "an interrupted write left a recovery journal under .memory/ and recovery is not available in this build",
-      { path: ".memory/" },
-    ));
-  }
-  return { ok: true, scope, warnings, journalPresent };
+  const recovery = recover(scope);
+  return {
+    ok: true,
+    scope,
+    warnings: [...scope.warnings, ...recovery.warnings],
+    journalPresent: recovery.blocked,
+  };
 }
 
 /** memory_capabilities: what this project's memory can do, with no guessing. */
@@ -280,12 +288,14 @@ export function capabilities(context) {
   if (journalPresent) {
     degraded.push({
       feature: "crash recovery",
-      reason: "a recovery journal is present under .memory/ and recovery is not available in this build",
+      reason: "a recovery journal under .memory/ could not be read, so no write runs until it is cleared",
     });
   }
 
   return {
-    operations: [...OPERATIONS.values()].map((entry) => entry.operation),
+    operations: [...OPERATIONS.values()]
+      .filter((entry) => entry.surface !== false)
+      .map((entry) => entry.operation),
     approval_mode: APPROVAL_MODE,
     search_mode: SEARCH_MODE,
     pin_support: false,
@@ -312,18 +322,18 @@ export function status(context) {
   const asOf = isoDate(new Date());
 
   const counts = {};
-  for (const type of RECORD_TYPES) {
-    const folder = resolve(scope.scopeRoot, "knowledge/memory", type);
+  for (const name of RECORD_FOLDERS) {
+    const folder = resolve(scope.scopeRoot, "knowledge/memory", name);
     const count = countRecords(folder);
     if (count === null) {
       warnings.push(note(
         "startup/missing-source",
-        `the required record folder knowledge/memory/${type}/ is missing`,
-        { path: `knowledge/memory/${type}/` },
+        `the required record folder knowledge/memory/${name}/ is missing`,
+        { path: `knowledge/memory/${name}/` },
       ));
-      counts[type] = 0;
+      counts[name] = 0;
     } else {
-      counts[type] = count;
+      counts[name] = count;
     }
   }
 
@@ -358,13 +368,700 @@ export function status(context) {
 }
 
 /**
+ * MV-01, the required-files half. The host-route half of the same check needs
+ * the startup routes, which are not built yet, so the entry names that gap in
+ * skipped_because while still reporting the file verdict.
+ */
+function checkRequiredFiles(scope) {
+  const findings = [];
+  for (const entry of REQUIRED_CORE) {
+    const path = resolve(scope.scopeRoot, entry.path);
+    const present = entry.kind === "directory" ? isDirectory(path) : existsSync(path);
+    if (!present) {
+      findings.push(note(
+        "record/schema-invalid",
+        `the required ${entry.kind} ${entry.path} is missing`,
+        { path: entry.path },
+      ));
+    }
+  }
+  return {
+    status: findings.length ? "fail" : "pass",
+    findings,
+    skipped_because: "the host-route half of this check is not available in this build",
+  };
+}
+
+/**
+ * MV-03 and MV-04 read the same walk, so they are judged together and the
+ * findings are split by reason code afterwards. MV-04 owns the empty based_on
+ * refusal; MV-03 owns everything else the record schema defines.
+ */
+function checkRecords(scope) {
+  const schema = [];
+  const basis = [];
+  const legacy = [];
+  const seen = new Map();
+
+  for (const entry of walkRecords(scope.scopeRoot)) {
+    const text = readIfPresent(entry.absolute);
+    if (text === null) {
+      schema.push(note("record/schema-invalid", "the record could not be read", { path: entry.path }));
+      continue;
+    }
+    const verdict = validateRecord({
+      record: parseRecord(text),
+      path: entry.path,
+      folder: entry.folder,
+    });
+    for (const finding of verdict.errors) {
+      if (finding.code === "record/inference-without-basis") basis.push(finding);
+      else schema.push(finding);
+    }
+    legacy.push(...verdict.warnings);
+
+    if (verdict.id) {
+      const first = seen.get(verdict.id);
+      if (first) {
+        schema.push(note(
+          "record/duplicate-id",
+          `id ${verdict.id} is already used by ${first}`,
+          { path: entry.path },
+        ));
+      } else {
+        seen.set(verdict.id, entry.path);
+      }
+    }
+  }
+
+  return {
+    "MV-03": {
+      status: schema.length ? "fail" : "pass",
+      findings: [...schema, ...legacy],
+      skipped_because: null,
+    },
+    "MV-04": {
+      status: basis.length ? "fail" : "pass",
+      findings: basis,
+      skipped_because: null,
+    },
+  };
+}
+
+/** Read a front matter field that may hold one id, a list of ids, or nothing. */
+function idList(value) {
+  const entries = Array.isArray(value) ? value : [value];
+  return entries
+    .map((entry) => String(entry ?? "").trim())
+    .filter((entry) => entry && entry !== "null");
+}
+
+/**
+ * MV-05, valid conflict targets and reciprocal supersession. A link to an id
+ * this scope does not carry, or a supersession the other record does not link
+ * back, is what the lifecycle engine exists to prevent, so the validator
+ * repeats the check against the files themselves.
+ */
+function checkLinks(scope) {
+  const findings = [];
+  const records = new Map();
+
+  for (const entry of walkRecords(scope.scopeRoot)) {
+    const text = readIfPresent(entry.absolute);
+    if (text === null) continue;
+    const { data } = parseRecord(text);
+    const id = typeof data.id === "string" ? data.id.trim() : "";
+    if (id) records.set(id, { path: entry.path, data });
+  }
+
+  for (const [id, held] of records) {
+    for (const field of ["conflicts_with", "supersedes", "superseded_by"]) {
+      for (const target of idList(held.data[field])) {
+        if (!records.has(target)) {
+          findings.push(note(
+            "record/schema-invalid",
+            `${id} names ${target} in ${field} and no record in this scope carries that id`,
+            { path: held.path },
+          ));
+        }
+      }
+    }
+
+    for (const [field, mirror] of [["supersedes", "superseded_by"], ["superseded_by", "supersedes"]]) {
+      for (const target of idList(held.data[field])) {
+        const other = records.get(target);
+        if (!other) continue;
+        if (!idList(other.data[mirror]).includes(id)) {
+          findings.push(note(
+            "record/schema-invalid",
+            `${id} names ${target} in ${field} and ${target} does not link back in ${mirror}`,
+            { path: held.path },
+          ));
+        }
+      }
+    }
+  }
+
+  return { status: findings.length ? "fail" : "pass", findings, skipped_because: null };
+}
+
+/**
+ * MV-08, retired phrases and recorded exemptions. Every phrase a retired
+ * record declares is hunted again across tracked Markdown. A surviving
+ * occurrence that is neither a quotation, nor inside a record that is itself
+ * history, nor exempted with a reason on the retiring record, is a failure.
+ */
+function checkRetiredPhrases(scope) {
+  const sets = retiredPhraseSets(scope);
+  if (sets.length === 0) {
+    return { status: "pass", findings: [], skipped_because: null };
+  }
+
+  const findings = [];
+  for (const set of sets) {
+    const outstanding = phraseHunt(scope, set.phrases, {
+      skipPaths: [set.path],
+      exemptions: set.exemptions,
+    }).filter((found) => found.state === "needs-work");
+
+    for (const found of outstanding) {
+      findings.push(note(
+        "record/schema-invalid",
+        `line ${found.line} still states a phrase ${set.id} retired as current truth`,
+        { path: found.path, detail: found.phrase },
+      ));
+    }
+  }
+
+  return { status: findings.length ? "fail" : "pass", findings, skipped_because: null };
+}
+
+/**
+ * The section 4 check catalog. Every id is permanent and every version is
+ * <schema major>.<check revision>. A check whose component is not built yet
+ * carries the reason it is skipped, the same way capabilities reports a
+ * degraded feature.
+ */
+const CHECKS = [
+  { id: "MV-01", version: "2.0", severity: "fail", title: "required files and host startup routes" },
+  {
+    id: "MV-02",
+    version: "2.0",
+    severity: "fail",
+    title: "shared root-block meaning and checked-copy drift",
+    skipped_because: "the root-instruction drift reader is not available in this build",
+  },
+  { id: "MV-03", version: "2.0", severity: "fail", title: "record schema, allowed values, unique ids, approval, provenance" },
+  { id: "MV-04", version: "2.0", severity: "fail", title: "non-empty evidence for inference" },
+  { id: "MV-05", version: "2.0", severity: "fail", title: "valid conflict targets and reciprocal supersession" },
+  {
+    id: "MV-06",
+    version: "2.0",
+    severity: "fail",
+    title: "pin eligibility, summary hashes, project scope, startup rendering",
+    skipped_because: "the pin manager is not available in this build",
+  },
+  {
+    id: "MV-07",
+    version: "2.0",
+    severity: "fail",
+    title: "startup budget and safe degradation",
+    skipped_because: "the validator does not render the brief in this build",
+  },
+  { id: "MV-08", version: "2.0", severity: "fail", title: "retired phrases and recorded exemptions" },
+  {
+    id: "MV-09",
+    version: "2.0",
+    severity: "warn",
+    title: "derived-artifact inputs, fingerprints, and hand edits",
+    skipped_because: "the view generator is not available in this build",
+  },
+  {
+    id: "MV-10",
+    version: "2.0",
+    severity: "warn",
+    title: "map coverage for major folders",
+    skipped_because: "the map reader is not available in this build",
+  },
+  {
+    id: "MV-11",
+    version: "2.0",
+    severity: "warn",
+    title: "domain and topic vocabulary and usage",
+    skipped_because: "the vocabulary reader is not available in this build",
+  },
+  {
+    id: "MV-12",
+    version: "2.0",
+    severity: "fail",
+    title: "direct search returns complete records",
+    skipped_because: "the retrieval router is not available in this build",
+  },
+  {
+    id: "MV-13",
+    version: "2.0",
+    severity: "fail",
+    title: "no tracker bridge as the sole home of a fact",
+    skipped_because: "the retrieval router is not available in this build",
+  },
+  {
+    id: "MV-14",
+    version: "2.0",
+    severity: "fail",
+    title: "identical canonical results after deleting and rebuilding derived state",
+    skipped_because: "the retrieval router is not available in this build",
+  },
+  {
+    id: "MV-15",
+    version: "2.0",
+    severity: "fail",
+    title: "reads and retrieval create no local state",
+    skipped_because: "the retrieval router is not available in this build",
+  },
+  {
+    id: "MV-16",
+    version: "2.0",
+    severity: "fail",
+    title: "physical project-root isolation",
+    skipped_because: "the isolation steps and their fixtures are not available in this build",
+  },
+  {
+    id: "MV-17",
+    version: "2.0",
+    severity: "fail",
+    title: "privacy-boundary enforcement",
+    skipped_because: "the privacy enforcement steps are not available in this build",
+  },
+  {
+    id: "MV-18",
+    version: "2.0",
+    severity: "fail",
+    title: "migration file counts, links, hashes, and reversibility",
+    skipped_because: "the migration engine is not available in this build",
+  },
+  {
+    id: "MV-19",
+    version: "2.0",
+    severity: "warn",
+    title: "the retrieval gold set",
+    skipped_because: "the gold-set runner is not available in this build",
+  },
+  {
+    id: "MV-20",
+    version: "2.0",
+    severity: "fail",
+    title: "quoted-source consistency",
+    skipped_because: "the quoted-source reader is not available in this build",
+  },
+  {
+    id: "MV-21",
+    version: "2.0",
+    severity: "fail",
+    title: "relative-link syntax and resolvable targets",
+    skipped_because: "the link checker is not available in this build",
+  },
+  {
+    id: "MV-22",
+    version: "2.0",
+    severity: "fail",
+    title: "complete incoming-link repair after a move or rename",
+    skipped_because: "the link checker is not available in this build",
+  },
+];
+
+export function checkIds() {
+  return CHECKS.map((check) => check.id);
+}
+
+/** memory_validate: run the section 4 checks this build carries. */
+export function validate(context, options = {}) {
+  const { scope, warnings } = context;
+  // The --fixtures flag adds the isolation fixtures to MV-16, which is not
+  // built yet, so this build accepts the flag and it changes nothing.
+  const selected = options.check ?? null;
+  const wanted = (id) => selected === null || selected.includes(id);
+
+  const records = wanted("MV-03") || wanted("MV-04") ? checkRecords(scope) : {};
+  const outcomes = {
+    "MV-01": wanted("MV-01") ? checkRequiredFiles(scope) : null,
+    ...records,
+    "MV-05": wanted("MV-05") ? checkLinks(scope) : null,
+    "MV-08": wanted("MV-08") ? checkRetiredPhrases(scope) : null,
+  };
+
+  const checks = [];
+  for (const check of CHECKS) {
+    if (!wanted(check.id)) continue;
+    const outcome = outcomes[check.id];
+    if (!outcome) {
+      checks.push({
+        id: check.id,
+        version: check.version,
+        status: "skipped",
+        findings: [],
+        skipped_because: check.skipped_because,
+      });
+      continue;
+    }
+    const status = outcome.status === "fail" && check.severity === "warn" ? "warn" : outcome.status;
+    checks.push({
+      id: check.id,
+      version: check.version,
+      status,
+      findings: outcome.findings,
+      skipped_because: outcome.skipped_because,
+    });
+  }
+
+  const errors = [];
+  for (const entry of checks) {
+    for (const finding of entry.findings) {
+      if (entry.status === "fail" && REASON_CODES[finding.code] > 0) errors.push(finding);
+      else warnings.push(finding);
+    }
+  }
+
+  return { checks, errors };
+}
+
+/**
+ * memory_update_current. The three triggers of architecture section 10.6 are
+ * the only ways knowledge/current.md is written, and every one of them runs
+ * the same two-phase review as any other write.
+ */
+function updateCurrentOperation(context, options) {
+  return updateCurrent(context.scope, options);
+}
+
+/** memory_rebuild_views. Nothing to rebuild is a NOOP, never a failure. */
+function rebuildViewsOperation(context) {
+  return rebuildViews(context.scope);
+}
+
+/** cancel is plumbing for a skip, not an operation on the tool surface. */
+function cancelOperation(context, options) {
+  return cancelProposal(context.scope, options);
+}
+
+/**
+ * The seven writing lifecycle operations of architecture section 14. Each one
+ * builds its request and runs the same two-phase review as every other write,
+ * so no operation gets its own way into a canonical file.
+ */
+function lifecycleOperation(context, options) {
+  return lifecycle(context.scope, options);
+}
+
+/**
+ * NOOP, the default outcome. It is plumbing rather than a tool-surface
+ * operation: it changes nothing, and it exists so a session can report that
+ * no durable save was warranted without inventing a record to prove it.
+ */
+function noopOperation(context, options) {
+  return noopOutcome(context.scope, options);
+}
+
+/**
  * The dispatch table. The key is the command word, the operation is the
- * tool-surface name that appears in the envelope.
+ * tool-surface name that appears in the envelope. A `flags` entry lists the
+ * flags the operation defines; anything else is an invalid invocation.
+ * `surface: false` keeps a command out of the reported operation list, which
+ * is how cancel stays plumbing rather than a twenty-fourth operation.
  */
 const OPERATIONS = new Map([
   ["capabilities", { operation: "memory_capabilities", run: capabilities }],
   ["status", { operation: "memory_status", run: status }],
+  [
+    "validate",
+    {
+      operation: "memory_validate",
+      run: validate,
+      flags: { check: "value", fixtures: "switch" },
+      parse: parseValidateFlags,
+    },
+  ],
+  [
+    "update-current",
+    {
+      operation: "memory_update_current",
+      run: updateCurrentOperation,
+      parse: parseUpdateCurrentFlags,
+    },
+  ],
+  ["rebuild-views", { operation: "memory_rebuild_views", run: rebuildViewsOperation }],
+  ...LIFECYCLE_OPERATIONS.map((command) => [
+    command,
+    {
+      operation: `memory_${command}`,
+      run: lifecycleOperation,
+      parse: lifecycleParser(command),
+    },
+  ]),
+  [
+    "noop",
+    {
+      operation: "memory_noop",
+      surface: false,
+      run: noopOperation,
+      parse: parseNoopFlags,
+    },
+  ],
+  [
+    "cancel",
+    {
+      operation: "memory_cancel",
+      surface: false,
+      run: cancelOperation,
+      parse: parseCancelFlags,
+    },
+  ],
 ]);
+
+/** Read `--flag value` and switch pairs into one object. */
+function readFlags(args, spec) {
+  const values = {};
+  for (let index = 0; index < args.length; index++) {
+    const flag = args[index];
+    if (!flag.startsWith("--")) return { ok: false, message: `${flag} is not a flag` };
+    const name = flag.slice(2);
+    const kind = spec[name];
+    if (!kind) return { ok: false, message: `this operation does not define the flag ${flag}` };
+    if (kind === "switch") {
+      values[name] = true;
+      continue;
+    }
+    const value = args[index + 1];
+    if (value === undefined || value.startsWith("--")) {
+      return { ok: false, message: `${flag} needs a value` };
+    }
+    // A list flag may be repeated, which is how retire takes several phrases
+    // and several exemptions. Every other flag keeps its last value.
+    if (kind === "list") {
+      if (!Array.isArray(values[name])) values[name] = [];
+      values[name].push(value);
+    } else {
+      values[name] = value;
+    }
+    index++;
+  }
+  return { ok: true, values };
+}
+
+/** The two-phase flags every write operation shares. */
+function readPhase(values) {
+  if (values.propose && values.apply) {
+    return { ok: false, message: "--propose and --apply are two different calls" };
+  }
+  if (!values.propose && !values.apply) {
+    return { ok: false, message: "a write needs --propose or --apply" };
+  }
+  // An apply call missing its proposal id or content hash is not a malformed
+  // command line, it is a call with no approval behind it. Contracts section
+  // 1.6 gives that its own code and its own exit, so it goes to the
+  // coordinator rather than being caught here.
+  return {
+    ok: true,
+    mode: values.apply ? "apply" : "propose",
+    proposalId: values.proposal ?? null,
+    contentHash: values["content-hash"] ?? null,
+  };
+}
+
+function parseUpdateCurrentFlags(args, startDir) {
+  const read = readFlags(args, {
+    trigger: "value",
+    file: "value",
+    propose: "switch",
+    apply: "switch",
+    proposal: "value",
+    "content-hash": "value",
+  });
+  if (!read.ok) return read;
+
+  const values = read.values;
+  if (!CURRENT_TRIGGERS.includes(values.trigger ?? "")) {
+    return { ok: false, message: `--trigger has to be one of ${CURRENT_TRIGGERS.join(", ")}` };
+  }
+  const phase = readPhase(values);
+  if (!phase.ok) return phase;
+
+  const options = {
+    trigger: values.trigger,
+    mode: phase.mode,
+    proposalId: phase.proposalId,
+    contentHash: phase.contentHash,
+    contents: null,
+  };
+
+  if (phase.mode === "propose") {
+    if (!values.file) return { ok: false, message: "--propose needs --file naming the staged Markdown" };
+    const staged = readIfPresent(resolve(startDir, values.file));
+    if (staged === null) return { ok: false, message: `the staged file ${values.file} could not be read` };
+    options.contents = staged;
+  }
+
+  return { ok: true, options };
+}
+
+/** The flags each lifecycle operation defines, beyond the two-phase four. */
+const LIFECYCLE_FLAGS = Object.freeze({
+  add: { type: "value", file: "value", dest: "value", why: "value" },
+  confirm: { id: "value", evidence: "value", "source-type": "value" },
+  correct: { id: "value", file: "value", reason: "value" },
+  supersede: { "old-id": "value", file: "value", dest: "value", why: "value" },
+  retire: { id: "value", reason: "value", phrase: "list", exempt: "list" },
+  merge: { ids: "value", survivor: "value", pin: "value" },
+  delete: { id: "value", reason: "value", privacy: "switch" },
+});
+
+/** The flags whose absence is a malformed command line rather than a refusal. */
+const LIFECYCLE_REQUIRED = Object.freeze({
+  add: ["type", "file"],
+  confirm: ["id", "evidence"],
+  correct: ["id", "file", "reason"],
+  supersede: ["old-id", "file"],
+  retire: ["id", "reason", "phrase"],
+  merge: ["ids", "survivor", "pin"],
+  delete: ["id", "reason"],
+});
+
+/**
+ * One parser for all seven writing operations. A propose call reads its own
+ * flags. An apply call carries only the proposal id and the content hash,
+ * because approval binds to the reviewed bytes and not to the flags that
+ * produced them.
+ */
+function lifecycleParser(command) {
+  return (args, startDir) => {
+    const read = readFlags(args, {
+      ...LIFECYCLE_FLAGS[command],
+      propose: "switch",
+      apply: "switch",
+      proposal: "value",
+      "content-hash": "value",
+    });
+    if (!read.ok) return read;
+    const phase = readPhase(read.values);
+    if (!phase.ok) return phase;
+
+    const options = {
+      operation: command,
+      mode: phase.mode,
+      proposalId: phase.proposalId,
+      contentHash: phase.contentHash,
+    };
+    if (phase.mode === "apply") return { ok: true, options };
+
+    const values = read.values;
+    for (const flag of LIFECYCLE_REQUIRED[command]) {
+      const held = values[flag];
+      if (held === undefined || (Array.isArray(held) && held.length === 0)) {
+        return { ok: false, message: `${command} --propose needs --${flag}` };
+      }
+    }
+
+    if (command === "add" || command === "supersede") {
+      const staged = readIfPresent(resolve(startDir, values.file));
+      if (staged === null) return { ok: false, message: `the staged file ${values.file} could not be read` };
+      options.contents = staged;
+      if (values.dest) options.destination = values.dest;
+      if (values.why) options.why = values.why;
+    }
+    if (command === "add") {
+      if (!RECORD_TYPES.includes(values.type)) {
+        return { ok: false, message: `--type has to be one of ${RECORD_TYPES.join(", ")}` };
+      }
+      options.type = values.type;
+    }
+    if (command === "supersede") options.oldId = values["old-id"];
+    if (command === "confirm") {
+      options.id = values.id;
+      options.evidence = values.evidence;
+      if (values["source-type"]) options.sourceType = values["source-type"];
+    }
+    if (command === "correct") {
+      const staged = readIfPresent(resolve(startDir, values.file));
+      if (staged === null) return { ok: false, message: `the staged file ${values.file} could not be read` };
+      options.id = values.id;
+      options.contents = staged;
+      options.reason = values.reason;
+    }
+    if (command === "retire") {
+      options.id = values.id;
+      options.reason = values.reason;
+      options.phrases = values.phrase;
+      options.exemptions = [];
+      for (const entry of values.exempt ?? []) {
+        const split = entry.indexOf(":");
+        if (split === -1) {
+          return { ok: false, message: `--exempt takes "<path>: <reason>" and read ${entry}` };
+        }
+        const path = entry.slice(0, split).trim();
+        const why = entry.slice(split + 1).trim();
+        if (!path || !why) {
+          return { ok: false, message: `--exempt needs both a path and a reason, and read ${entry}` };
+        }
+        options.exemptions.push([path, why]);
+      }
+    }
+    if (command === "merge") {
+      options.ids = values.ids.split(",").map((id) => id.trim()).filter(Boolean);
+      options.survivor = values.survivor;
+      if (!["keep", "drop"].includes(values.pin)) {
+        return { ok: false, message: "--pin has to be keep or drop, because the pin outcome is your choice" };
+      }
+      options.pin = values.pin;
+    }
+    if (command === "delete") {
+      options.id = values.id;
+      options.reason = values.reason;
+      options.privacy = values.privacy === true;
+    }
+
+    return { ok: true, options };
+  };
+}
+
+function parseNoopFlags(args) {
+  const read = readFlags(args, { reason: "value" });
+  if (!read.ok) return read;
+  return { ok: true, options: { reason: read.values.reason ?? "" } };
+}
+
+function parseCancelFlags(args) {
+  const read = readFlags(args, { proposal: "value" });
+  if (!read.ok) return read;
+  if (!read.values.proposal) return { ok: false, message: "cancel needs --proposal" };
+  return { ok: true, options: { proposalId: read.values.proposal } };
+}
+
+/** Read the validate flags. An unknown check id stops the run before it starts. */
+function parseValidateFlags(args) {
+  const options = { check: null, fixtures: false };
+  for (let index = 0; index < args.length; index++) {
+    const flag = args[index];
+    if (flag === "--fixtures") {
+      options.fixtures = true;
+      continue;
+    }
+    if (flag === "--check") {
+      const value = args[index + 1];
+      if (value === undefined || value.startsWith("--")) {
+        return { ok: false, message: "--check needs a comma-separated list of check ids" };
+      }
+      index++;
+      const ids = value.split(",").map((item) => item.trim()).filter(Boolean);
+      const unknown = ids.filter((id) => !checkIds().includes(id));
+      if (unknown.length) {
+        return { ok: false, message: `unknown check id: ${unknown.join(", ")}` };
+      }
+      options.check = ids;
+      continue;
+    }
+    return { ok: false, message: `validate does not define the flag ${flag}` };
+  }
+  return { ok: true, options };
+}
 
 export function supportedCommands() {
   return [...OPERATIONS.keys()];
@@ -378,19 +1075,30 @@ export async function run(argv, startDir = process.cwd()) {
   if (!entry) {
     return envelope({
       operation: command || "unknown",
-      status: "refused",
+      status: "error",
       errors: [note(
-        "record/schema-invalid",
+        "cli/invalid-invocation",
         `${command ? "unknown" : "missing"} operation. This build supports: ${supportedCommands().join(", ")}`,
       )],
     });
   }
 
-  if (args.length > 1) {
+  let options = {};
+  if (entry.parse) {
+    const parsed = entry.parse(args.slice(1), startDir);
+    if (!parsed.ok) {
+      return envelope({
+        operation: entry.operation,
+        status: "error",
+        errors: [note("cli/invalid-invocation", parsed.message)],
+      });
+    }
+    options = parsed.options;
+  } else if (args.length > 1) {
     return envelope({
       operation: entry.operation,
-      status: "refused",
-      errors: [note("record/schema-invalid", `${command} takes no flags`)],
+      status: "error",
+      errors: [note("cli/invalid-invocation", `${command} defines no flags`)],
     });
   }
 
@@ -403,14 +1111,28 @@ export async function run(argv, startDir = process.cwd()) {
     });
   }
 
-  const result = await entry.run(context);
+  const outcome = await entry.run(context, options);
+  const errors = Array.isArray(outcome?.errors) ? outcome.errors : [];
+  const warnings = [
+    ...context.warnings,
+    ...(Array.isArray(outcome?.warnings) ? outcome.warnings : []),
+  ];
+
+  // An operation that names its own status keeps it, which is how a proposal
+  // reports awaiting-approval and a rebuild with nothing to do reports noop.
+  let result;
+  if (Object.hasOwn(outcome ?? {}, "checks")) result = outcome.checks;
+  else if (Object.hasOwn(outcome ?? {}, "status")) result = outcome.result ?? null;
+  else result = outcome;
+
   return envelope({
     operation: entry.operation,
-    status: "ok",
+    status: outcome?.status ?? (errors.length ? "refused" : "ok"),
     projectId: context.scope.projectId,
     scopeRoot: context.scope.scopeRoot,
     result,
-    warnings: context.warnings,
+    warnings,
+    errors,
   });
 }
 
