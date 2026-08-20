@@ -8,7 +8,7 @@ so they always know where they are.
 [ ] Gate 0 - Orient: read the working dir; identify stack & project state
 [ ] Gate 1 - Scaffolding, folder structure, and where work items are tracked
 [ ] Gate 2 - Hooks (guards & automation)
-[ ] Gate 3 - Project knowledge        (one Markdown vault, packaged tools)
+[ ] Gate 3 - Project knowledge        (memory system v2, packaged tools)
 [ ] Gate 4 - Mechanical knowledge aids (optional impact analysis)
 [ ] Gate 5 - Root instructions + rules (thin CLAUDE.md and AGENTS.md)
 [ ] Gate 6 - Optional toolkit skills  (offer the session-skills plugin: all five)
@@ -110,9 +110,9 @@ so they always know where they are.
   `writing-guard` reads the finished reply and blocks on an em dash or a section
   sign, so a slip is caught rather than shipped. Those two pair with Gate 5;
   skip them if the owner skips the style.
-  The project knowledge package owns its startup loader and pull-request save
-  reminder. Gate 3 installs both. Do not restore the retired
-  `memory-pr-hook` plus `wrap-up-ritual.md` route.
+  The project knowledge package owns its boot-brief startup hook, its pre-write
+  guard, and its pull-request save reminder. Gate 3 installs all three. Do not
+  restore the retired `memory-pr-hook` plus `wrap-up-ritual.md` route.
 - Salesforce / SFDX: both Salesforce guards ship from `hooks-library` alongside
   every other hook. Install that plugin (`/plugin install hooks-library`) and
   follow its two guides. It is needed only while setting them up: the install
@@ -133,34 +133,77 @@ so they always know where they are.
   `tools/kb/` because it imports the rest of the tool.
 
 **Gate 3: Project knowledge system**
-- Offer `second-brain` as one coherent opt-in system.
-- Explain `knowledge/brainstorms/`, `knowledge/specs/`, typed
-  `knowledge/memory/`, raw-artifact, work-tracker, and Git authority.
+- Offer `second-brain`, the version 2 memory system, to every project whatever
+  its domain. One core, no domain-specific folders.
+- Explain the authority split: `knowledge/project.md` is identity and the whole
+  settings surface; `knowledge/current.md` is where the work stands;
+  `knowledge/map.md` says where each role already lives; `knowledge/specs/` is
+  approved behavior; `knowledge/memory/` holds four types and only four, which
+  are `facts/`, `decisions/`, `events/`, and `patterns/`; the mapped reference
+  area holds outside documentation and research; the work tracker owns live
+  status; Git owns exact history.
 - Ask the owner what the project is, why it exists, what finished looks like,
   its main workstreams and boundaries, who is involved, and where active work
-  is tracked. Use those answers for `knowledge/project.md`, then show the
-  complete knowledge tree plus root instruction edits.
-- If approved, install the second-brain plugin and follow its canonical
-  greenfield setup workflow, including the four focused skills, index and
-  migration tools, read-only health tool, fail-open startup routes, and
-  pull-request reminder.
-- Add the short startup principle that routes standing agent instructions to
-  rules, active work wherever its work item is being tracked, reusable
-  processes to skills, outside source material to references, past conversation
-  to session history, and persistent project information to specifications or
-  memory.
-- Start with an empty project-specific tag vocabulary. Never inherit the
-  toolkit repository's topic tags.
-- Commit only `knowledge/.obsidian/app.json` with `alwaysUpdateLinks: true`,
-  `newLinkFormat: "relative"`, and `useMarkdownLinks: true`. Ignore all other
-  `.obsidian` state and do not pin a
-  core plugin list.
+  is tracked. Use those answers for `knowledge/project.md`, then show the whole
+  install and get approval for all of it at once.
+- One adoption unit: the tree, the tools, both hooks, the settings entries, the
+  gitignore entry, and both host startup routes go in together. No partial
+  variant.
+- Install steps, with `<plugin>` as the second-brain folder on this machine:
+  1. Copy `<plugin>/skills/second-brain/references/templates-v2/knowledge/` to
+     the project's `knowledge/`.
+  2. Fill the `knowledge/project.md` front matter with the owner:
+     `schema_version: 2`, `project_id`, `project_root`, `subroots`, `privacy`,
+     `profiles`, optional `tracker`, optional `startup.budget_bytes`. Replace
+     the body with their framing.
+  3. Fill `knowledge/map.md`, pointing every mapped row at a folder that already
+     exists. Delete rows the project has no home for.
+  4. Rewrite `knowledge/current.md` from existing handoff material and set its
+     `updated` date.
+  5. Copy the plugin's `tools/` folder, `lib/` included, into `.claude/tools/`,
+     leaving out the retired `build-knowledge-index.mjs` and
+     `knowledge-health.mjs`.
+  6. Copy `boot-brief-session-start.mjs`, `memory-write-guard.mjs`, and
+     `save-reminder.mjs` into `.claude/hooks/`, sibling to `.claude/tools/`.
+  7. Merge `templates-v2/claude-settings-snippet.json` into
+     `.claude/settings.json`, never replacing it. It sets
+     `CLAUDE_CODE_DISABLE_AUTO_MEMORY` to `1`, enables
+     `second-brain@claude-toolkit`, and registers the write guard. Add the
+     `SessionStart` registration for the boot brief and the `Bash` `PreToolUse`
+     registration for the save reminder. Write `${CLAUDE_PROJECT_DIR}` in braced
+     form in every hook command.
+  8. Append `templates-v2/gitignore-snippet.txt` to `.gitignore`, which ignores
+     `.memory/` local state.
+  9. Write the Codex startup-route block into root `AGENTS.md` from the
+     second-brain skill. Claude Code gets the same meaning from the
+     `SessionStart` hook, and both routes must keep saying the same five things.
+  10. Run `node .claude/tools/memory.mjs validate` and the boot brief once
+      before calling the gate done. A gold-set warning on a fresh project is
+      expected.
+- Map existing homes for rules, skills, tracker, delivery, source records, and
+  references in place. Never move, copy, or rename project material to fit the
+  map.
+- Create optional identity, reference, brainstorm, profile, and local-state
+  areas only when they are used. Absence breaks nothing.
+- Outside documentation, web crawls, and research notes stay in the mapped
+  reference area with source, retrieval date, version, and verification status.
+  They become memory only through owner approval. Approved behavior goes to a
+  specification, a reusable process to a skill, neither duplicated into memory.
+- Domain profiles add fields, routes, validation, and privacy warnings. They
+  never weaken approval, provenance, authority, scope, or privacy. An empty
+  `profiles` list is normal.
+- Say that the system is removable: removal unregisters the hooks and removes
+  the copied runtime, leaving `knowledge/` content and every other plugin
+  working.
 - Offer an initial owner-approved persistent-information pass after setup, using
   short What, Where, Why, Assumptions, and Unverified bullets.
 - Do not install a database, memory MCP server, embeddings, transcript capture,
   or background curation.
-- `knowledge/index.md` is generated. Create no per-folder indexes or folder
-  `CLAUDE.md` files inside `knowledge/`.
+- Do not install retired version 1 pieces: `knowledge/index.md` and its builder,
+  `knowledge/memory/tags.md`, the seven old memory folders,
+  `knowledge-session-start.mjs`, the health tool, or the `memory-pr-hook` plus
+  `wrap-up-ritual.md` route.
+- Create no per-folder indexes or folder `CLAUDE.md` files inside `knowledge/`.
 
 **Gate 4: Optional mechanical knowledge aids**
 - The Markdown knowledge layer already came from Gate 3 when accepted.
@@ -226,10 +269,10 @@ so they always know where they are.
   `follow-the-output-style.md` in the rules folder is for. See
   `library/output-styles/README.md`.
 - When project knowledge is installed, keep the route small. Claude's
-  `SessionStart` hook reads `knowledge/project.md` and `knowledge/index.md`.
-  `AGENTS.md` tells Codex to read those same two files before work; an equivalent
-  fail-open `.codex/hooks.json` route may reinforce it where native hooks are
-  supported. Neither root file copies the full knowledge specification.
+  `SessionStart` hook runs the boot brief, which carries identity, purpose,
+  current state, handoff, pins, and the map. `AGENTS.md` carries the Codex
+  startup-route block written in Gate 3, which runs the same boot brief first.
+  Neither root file copies the full memory specification.
 - Give `AGENTS.md` the same project description and structural pointers as
   `CLAUDE.md`, plus the direct startup instruction and any Codex-specific
   repository instructions. See "What AGENTS.md contains" in

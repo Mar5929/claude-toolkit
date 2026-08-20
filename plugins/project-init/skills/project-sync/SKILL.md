@@ -177,43 +177,64 @@ checks:
   node .claude/tools/knowledge-layout.mjs detect . --json
   ```
 
-  Classify exactly one state:
-  - **new knowledge layout:** `knowledge/project.md`, `knowledge/index.md`, and
-    the nested specifications, memory types, and brainstorm tree are present;
-  - **flat #149 layout:** top-level `specs/`, `memory/`, and `brainstorms/` plus
-    #149 index, tags, runtime, or root-route signatures are present;
-  - **retired v3 layout:** the old second-brain rule, verifier, tools, and
+  The tool reports exactly one state. Read it, do not decide it yourself:
+  - **`v2`, the current layout:** `knowledge/project.md` declares
+    `schema_version: 2`, and `knowledge/current.md`, `knowledge/map.md`, and the
+    `facts/`, `events/`, and `patterns/` memory folders are present;
+  - **`v1`, the previous layout:** `knowledge/project.md`, `knowledge/index.md`,
+    and the seven old memory folders plus the brainstorm tree are present. This
+    is the one state the packaged engine converts;
+  - **`flat-149` layout:** top-level `specs/`, `memory/`, and `brainstorms/` plus
+    index, tags, runtime, or root-route signatures are present;
+  - **`retired-v3` layout:** the old second-brain rule, verifier, tools, and
     per-folder indexes identify the retired system;
-  - **none:** no project-knowledge-system signatures are present; or
-  - **mixed or unknown:** signatures conflict, are partial, or ordinary folders
-    could be mistaken for the system.
+  - **`none`:** no project-knowledge-system signatures are present; or
+  - **`mixed` or `unknown`:** signatures conflict or are partial, so ordinary
+    folders could be mistaken for the system.
 
   Mixed or unknown stops adoption and migration. Never move an ordinary folder
   named `memory`, `specs`, or `knowledge` from its name alone.
-- **Packaged runtime:** for a new layout, also check the installed `remember`,
-  `recall`, `cleanup`, and `session-search` skills;
-  `.claude/tools/knowledge-layout.mjs`; the
-  generated-index tool; the read-only `.claude/tools/knowledge-health.mjs`;
-  `.claude/hooks/knowledge-session-start.mjs` registered under Claude
-  `SessionStart`; the packaged pull-request reminder; the short root routes and
-  knowledge principle; and the optional equivalent `.codex/hooks.json` loader
-  where native Codex hooks are supported. Missing runtime is **partial**, not a
-  reason to rewrite knowledge documents.
-  When the health tool is present, run its full JSON view during every
-  read-only audit of a new layout, even when the runtime is otherwise complete:
+- **Packaged runtime:** for a `v2` layout, check that all of it is installed and
+  registered. Missing runtime is **partial**, not a reason to rewrite knowledge
+  documents.
+  - the `remember`, `recall`, `cleanup`, and `session-search` skills;
+  - `.claude/tools/` holding `memory.mjs`, `memory-write.mjs`, `boot-brief.mjs`,
+    `knowledge-layout.mjs`, and the `lib/` folder they share;
+  - `.claude/hooks/boot-brief-session-start.mjs` registered under Claude
+    `SessionStart`;
+  - `.claude/hooks/memory-write-guard.mjs` registered under `PreToolUse` for
+    `Edit|Write|MultiEdit|NotebookEdit|Bash`. A project running the memory system
+    without this guard is the gap to report first: the guarded paths can be
+    written by hand and nothing refuses it;
+  - the packaged pull-request save reminder;
+  - `CLAUDE_CODE_DISABLE_AUTO_MEMORY` set to `1` and
+    `second-brain@claude-toolkit` enabled in `.claude/settings.json`; and
+  - `.memory/` present in `.gitignore`.
+
+  Report a version 1 runtime found next to a `v2` layout for removal:
+  `knowledge-session-start.mjs`, `build-knowledge-index.mjs`,
+  `knowledge-health.mjs`, `knowledge/index.md`, and `knowledge/memory/tags.md`.
+- **Version 2 audit:** on a `v2` layout, run the packaged validator during every
+  read-only audit, even when the runtime looks complete:
 
   ```text
-  node .claude/tools/knowledge-health.mjs health --json
+  node .claude/tools/memory.mjs validate
   ```
 
-  Report concrete warnings and offer a focused cleanup for only the affected
-  files or tags. If the tool itself is missing, report the runtime gap first and
-  use the packaged copy only to inspect, never to write.
-- **Obsidian boundary:** check that only `knowledge/.obsidian/app.json` is
-  shared, that it creates relative Markdown links and automatic link updates,
-  and that `.gitignore` excludes every other `.obsidian` file. A shared core
-  plugin list, workspace, hotkeys, appearance, plugin, theme, or device file is
-  an optional cleanup finding, not required project knowledge.
+  It writes nothing. Report every check that fails, and every check that warns
+  with the reason it gave. A fresh project usually warns that it has no
+  retrieval gold set, which blocks a proposed retrieval change and nothing else.
+  If the tool is missing, report the runtime gap first and run the packaged
+  plugin copy only to inspect, never to write.
+- **Startup parity:** the Claude Code hook and the `AGENTS.md` route block are
+  two deliveries of one meaning, and they drift silently because only one host
+  reads each. Check that both exist and that both carry all five required
+  points: the boot brief runs first, the memory tool path and the capabilities
+  call, the four skills by name, the guarded paths with only the write
+  operations allowed to change them, and that approval comes from the owner and
+  nothing stands in for it. One host route present and the other missing is a
+  finding, not a partial pass. The validator's first two checks cover this from
+  the file side; read them alongside your own reading of the two routes.
 - **Knowledge document map:** inventory existing specifications, brainstorms, ADRs,
   architecture and system maps, roadmaps, project overviews, runbooks,
   glossaries, references, and raw artifact folders. Report likely canonical
@@ -237,10 +258,12 @@ checks:
   listed committed v1 files after separate approval. Never bundle deletion of a
   non-empty outbox, cache, ignored file, token, connector, database, or cloud
   resource into ordinary project sync.
-- **Knowledge layer:** `knowledge/memory/` is the persistent knowledge layer. Do
-  not create a second store. Existing v1 curator files, `know-*` nodes, SHA
-  pins, and drift reports remain retired and are never refreshed, reconciled,
-  imported, or used as current truth.
+- **Knowledge layer:** `knowledge/memory/` is the persistent knowledge layer,
+  and in version 2 it holds four record types and only four: `facts/`,
+  `decisions/`, `events/`, and `patterns/`. Do not create a second store and do
+  not add a fifth folder for a subject area. Existing v1 curator files, `know-*`
+  nodes, SHA pins, and drift reports remain retired and are never refreshed,
+  reconciled, imported, or used as current truth.
 - **Standalone toolkit skills:** check the previous sync record and the
   available host plugins. All five (`explain-simply`, `grill-me`, `handoff`,
   `session-summary`, `track-tasks`) ship together in the `session-skills`
@@ -383,14 +406,14 @@ presence. Read the file and report:
 - **Live state that belongs in the status doc.** Current phase, next action, and
   open TODOs drift the moment they are written here. Flag them for work-tracker
   or the live status doc.
-- **Project-knowledge startup parity.** When the new layout is installed,
-  confirm Claude's `SessionStart` hook and Codex's root `AGENTS.md` route both
-  name `knowledge/project.md` and `knowledge/index.md`, load no other memory by
-  default, and treat brainstorms as unchecked. Confirm the Claude hook fails
-  open when either file is absent. Where `.codex/hooks.json` is supported,
-  confirm it reinforces the same route. A copied authority map or full save
-  procedure in either root file is stale duplication and should be replaced by
-  the short route after owner approval.
+- **Project-knowledge startup parity.** When the `v2` layout is installed,
+  confirm Claude's `SessionStart` hook and the Codex block in root `AGENTS.md`
+  both run the boot brief first and carry the five required points listed in the
+  read-only audit. Confirm the Claude hook fails open, printing a warning and
+  exiting 0, when the memory system is absent or broken. A copied authority map,
+  a full save procedure, or a list of memory folders in either root file is
+  stale duplication and should be replaced by the short route after owner
+  approval.
 - **Stale content.** Anything the code, paths, or decisions have since
   contradicted.
 
@@ -513,53 +536,53 @@ should look in THIS project, confirm, act, summarize. Ground rules:
 - For any approved project-knowledge gap, install or refresh the `second-brain`
   plugin first, then follow the state-specific path below. The packaged tool is
   the only writer for layout migration.
-  - **None:** show the greenfield tree, obtain approval, and ask the owner what
-    the project is, why it exists, what finished looks like, its main
+  - **`none`:** show the whole version 2 install, obtain approval, and ask the
+    owner what the project is, why it exists, what finished looks like, its main
     workstreams and boundaries, who is involved, and where active work is
-    tracked. Use those exact answers for `knowledge/project.md`, then install
-    the complete layout and runtime.
-  - **Flat #149 or retired v3:** the packaged engine detects both and converts
+    tracked. Use those exact answers for `knowledge/project.md`, then run the
+    Gate 3 install steps from `project-init`.
+  - **`v1`:** this is the one converted state. Run the packaged engine in plan
+    mode first and show the owner the dry report: file counts, hashes,
+    collisions, missing metadata, link changes, and the rollback steps. Old
+    planning and reference files are routed one at a time with the owner's
+    approval, never moved automatically, and missing version 2 metadata is
+    shown as a gap rather than invented. Apply only after they approve the plan.
+  - **`flat-149` or `retired-v3`:** the packaged engine detects both and converts
     neither. Tell the owner the detected state and that the migration which
     shipped in toolkit 3.6.0 has to run first. Write nothing.
-  - **New:** install only missing runtime or regenerate the index. Never rewrite
-    approved documents merely to match current formatting.
-  - **Mixed or unknown:** stop without writing and show the conflicting
+  - **`v2`:** install only missing runtime. Never rewrite approved documents
+    merely to match current formatting.
+  - **`mixed` or `unknown`:** stop without writing and show the conflicting
     signatures.
 
   A stale plan hash, collision, symlink escape, dangling mapped link, or target
-  outside the repository blocks apply. Rerunning a successful flat migration is
-  safe and reports the new layout.
+  outside the repository blocks apply. Rerunning a successful migration is safe
+  and reports `v2`.
 
-  For an approved **none**, **flat #149**, or **new** path, finish the same
+  For an approved **`none`**, **`v1`**, or **`v2`** path, finish the same
   adoption unit before calling the system installed:
-  1. Copy the packaged `build-knowledge-index.mjs`, `knowledge-health.mjs`, and
-     `knowledge-layout.mjs` into `.claude/tools/`.
-  2. Copy the packaged `knowledge-session-start.mjs` and `save-reminder.mjs`
-     into `.claude/hooks/`.
-  3. Merge, never replace, `.claude/settings.json`: disable private auto-memory,
-     enable `second-brain@claude-toolkit`, register the fail-open Claude
-     `SessionStart` loader, and register the pull-request reminder under
-     `PreToolUse` with the `Bash` matcher.
-  4. Add the direct startup route to root `AGENTS.md`; add the short matching
-     route to root `CLAUDE.md`. Both carry the packaged principle separating
-     persistent knowledge from active work, standing agent instructions,
-     reusable skill processes, references, and session history. Where native Codex hooks are
-     supported, merge the same fail-open loader into `.codex/hooks.json`
-     without removing other hooks.
-  5. Add the Obsidian ignore allowlist so only
-     `knowledge/.obsidian/app.json` is shared.
-  6. Rebuild `knowledge/index.md`, run the startup loader, rerun layout
-     detection, and verify links. The result must report `knowledge` and load
-     only `project.md` plus the generated index.
-  7. Run `node .claude/tools/knowledge-health.mjs health --json`. During an
-     ordinary project update, offer a focused cleanup only for concrete
-     warnings. After a memory migration, run a full cleanup review. The report
-     is read-only and is never committed.
+  1. Copy the packaged `tools/` folder, `lib/` included, into `.claude/tools/`,
+     leaving out the retired `build-knowledge-index.mjs` and
+     `knowledge-health.mjs`.
+  2. Copy the packaged `boot-brief-session-start.mjs`, `memory-write-guard.mjs`,
+     and `save-reminder.mjs` into `.claude/hooks/`.
+  3. Merge, never replace, `.claude/settings.json`: set
+     `CLAUDE_CODE_DISABLE_AUTO_MEMORY` to `1`, enable
+     `second-brain@claude-toolkit`, register the fail-open boot brief under
+     `SessionStart`, register the write guard under `PreToolUse` for
+     `Edit|Write|MultiEdit|NotebookEdit|Bash`, and register the pull-request
+     reminder under `PreToolUse` with the `Bash` matcher. Use the braced
+     `${CLAUDE_PROJECT_DIR}` form in every hook command.
+  4. Write or refresh the Codex startup-route block in root `AGENTS.md`, between
+     its two markers, changing nothing outside them. Keep the short matching
+     route in root `CLAUDE.md`. Neither file copies the full specification.
+  5. Add `.memory/` to `.gitignore` if it is not already there.
+  6. Run `node .claude/tools/memory.mjs validate`, then run the boot brief once
+     and read it. Rerun layout detection: it must report `v2`.
 
   Do not remove old runtime or root routes until their current replacements are
-  present and these checks pass. The flat mover removes only #149's hand-made
-  local skills and old generated-index tool after its approved plan has already
-  accounted for every knowledge document.
+  present and these checks pass. Retire the version 1 runtime only after the
+  approved migration plan has accounted for every knowledge document.
 - Do not install second-brain v1 or import its content. For an existing v1
   project, offer the following separately after reporting the exact local
   scope:

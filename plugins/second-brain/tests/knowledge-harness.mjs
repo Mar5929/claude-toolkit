@@ -236,7 +236,7 @@ try {
   ]) ok(!activeSaveSurfaces.includes(forbidden), `active save surfaces exclude ${forbidden}`);
 
   for (const [name, version] of [
-    ["project-init", "0.47.0"],
+    ["project-init", "0.48.0"],
     ["session-skills", "1.3.0"],
   ]) {
     const claude = JSON.parse(readFileSync(resolve(root, `plugins/${name}/.claude-plugin/plugin.json`)));

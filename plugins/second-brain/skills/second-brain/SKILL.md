@@ -1,9 +1,10 @@
 ---
 name: second-brain
 description: >-
-  Set up, adopt, detect, migrate, explain, or maintain the toolkit's portable
-  project knowledge system. Use for project memory, knowledge, specifications,
-  Obsidian-vault setup, flat-layout migration, or retired second-brain review.
+  Set up, adopt, detect, migrate, explain, maintain, or cleanly remove the
+  toolkit's portable project knowledge system. Use for project memory,
+  knowledge, specifications, Obsidian-vault setup, flat-layout migration,
+  removing the memory system, or retired second-brain review.
   Markdown and Git stay authoritative. Never infer a migration field, import
   similarly named ordinary folders, or restore retired verifier machinery.
 ---
@@ -140,11 +141,12 @@ Show the owner the detected state and the refusal. Write nothing.
 After the approved conversion is installed, run the same full health report and
 resolve every warning through `cleanup` before calling the migration complete.
 
-## Version 2 Codex startup route, being built
+## Version 2 Codex startup route
 
-This section belongs to the memory system v2 build. Setup does not install it
-yet. Every version 1 step above stays in force until the cutover work item
-swaps the routes, so a project already running version 1 keeps running it.
+This is the Codex route a version 2 project gets. Step 9 of project-init Gate 3
+sends the installer here, so a new project takes this block. Every version 1
+step above stays in force for a project already running version 1: it keeps its
+version 1 route until it migrates.
 
 Claude Code receives the v2 startup automatically from a `SessionStart` hook,
 `hooks/boot-brief-session-start.mjs`. Codex has no fail-open startup hook, and
@@ -240,6 +242,144 @@ checks arrive later in the v2 build. Until they do, compare the two routes by
 hand.
 
 Change one route and change the other in the same edit.
+
+## Removing the memory system from a project
+
+The owner may take this system out of a project without breaking the rest of the
+toolkit. Removal takes out the startup route and the memory-only support files.
+It never deletes what the project owns. The `knowledge/` content, the
+specifications, the references and sources, the rules, the other skills, the
+delivery material, and the work-tracker records all stay exactly where they are.
+
+Removing the system is not the same as deleting the knowledge. Deleting content
+is a separate decision the owner makes on its own, and it is never folded into
+these steps.
+
+### Before removing anything
+
+1. Ask which layout the project runs:
+
+   ```text
+   node <plugin path>/tools/knowledge-layout.mjs detect . --json
+   ```
+
+   `v2` follows the version 2 list below. `knowledge` follows the version 1
+   list. `mixed` or `unknown` stops here: name the signatures and ask the owner.
+2. Read `.claude/settings.json`, and `.claude/settings.local.json` where it
+   exists, and list every registration whose command names a memory file.
+3. Show the owner one list: every settings entry that goes, every file that
+   goes, and everything that stays. Remove nothing until they approve it.
+4. The Git boundary below still applies. Removal is an ordinary working
+   change in the requesting session's worktree.
+
+### Version 2 project
+
+1. **Unregister the two hooks.** In the settings file, delete only the hook
+   objects whose command names `boot-brief-session-start.mjs`, registered under
+   `SessionStart`, and `memory-write-guard.mjs`, registered under `PreToolUse`.
+   When a matcher group has no hooks left, delete the group. When an event
+   array is empty, delete the event key. When the `hooks` block itself is
+   empty, delete it. Every other hook stays untouched, including any that
+   shares the same matcher. Repeat the same narrow edit in
+   `.claude/settings.local.json` when it carries a copy.
+2. **Check for `save-reminder.mjs`.** A project carried over from version 1 may
+   still register it. It belongs to this system too, and all it does is raise
+   the save moment before a pull request. Name it and let the owner decide.
+3. **Drop `second-brain@claude-toolkit` from `enabledPlugins`,** leaving the
+   other entries alone. That is what takes the skills out of the session.
+   `remember`, `recall`, `cleanup`, `session-search`, and this skill ship with
+   the plugin and are never copied into a project, so there is nothing else to
+   delete. Remove a copy under `.claude/skills/` only where that project made
+   one.
+4. **Ask about `CLAUDE_CODE_DISABLE_AUTO_MEMORY`,** once. Left at `1`, the
+   host's built-in memory stays off. Deleted, it comes back on. Recommend
+   leaving it set: the project's knowledge is still Markdown that Git owns,
+   and the built-in memory would put a second, hidden store beside it.
+5. **Delete the copied hook files:**
+   `.claude/hooks/boot-brief-session-start.mjs` and
+   `.claude/hooks/memory-write-guard.mjs`.
+6. **Delete the copied tools** from `.claude/tools/`: `memory.mjs`,
+   `memory-write.mjs`, `boot-brief.mjs`, `tracker-adapter.mjs`, `gold-set.mjs`,
+   `knowledge-layout.mjs`, `isolation-fixtures.mjs`, and the `lib/` folder.
+   Setup copies the whole tools folder, so that list is every file it brings.
+   Leave every other file in that folder. A project that ran the tools from the
+   plugin folder has nothing to delete here.
+7. **Remove the Codex startup route** from `AGENTS.md`: delete the block between
+   the two `second-brain:startup-route` markers, and the markers, and nothing
+   else. Text outside them belongs to the project. Where the route was written
+   without markers, show the owner the exact lines before deleting them.
+8. **Remove the memory route from root `CLAUDE.md` and `AGENTS.md`:** the
+   startup reads, the authority split, the approval pointer, and the save
+   route. Leave every other instruction standing. Where the two files share one
+   marked block, edit both in the same change so they stay identical.
+9. **Delete `.memory/`** where it exists, and remove its `.gitignore` entry and
+   the comment above it. That state is local, disposable, and never canonical.
+10. **Leave `knowledge/` alone.** `project.md`, `map.md`, `current.md`,
+    `specs/`, the four record folders, and the optional `pins.md` and
+    `retrieval-gold-set.md` all stay. Records keep their front matter, which is
+    what makes re-adoption a matter of registering the routes again rather than
+    rebuilding anything.
+
+### Version 1 project
+
+A project that never adopted version 2 removes what version 1 setup installed.
+Same shape, different files.
+
+1. Unregister `knowledge-session-start.mjs`, under `SessionStart`, and
+   `save-reminder.mjs`, under `PreToolUse` with the `Bash` matcher, using the
+   same narrow settings edit as above.
+2. Delete `.claude/hooks/knowledge-session-start.mjs` and
+   `.claude/hooks/save-reminder.mjs`.
+3. Delete `.claude/tools/build-knowledge-index.mjs`,
+   `.claude/tools/knowledge-health.mjs`, and
+   `.claude/tools/knowledge-layout.mjs`. Leave every other file in that folder.
+4. Drop the plugin from `enabledPlugins` and settle the
+   `CLAUDE_CODE_DISABLE_AUTO_MEMORY` question, both as above.
+5. Remove the short knowledge route from root `CLAUDE.md` and `AGENTS.md`.
+6. Leave `knowledge/` in place, `knowledge/index.md` included. The index is
+   generated and its builder is gone, so it stops updating and becomes a
+   snapshot. Say that plainly. Deleting it is the owner's separate call.
+7. Leave `knowledge/.obsidian/app.json` and its `.gitignore` allowlist. They
+   belong to the folder the project is keeping.
+
+### What removal never touches
+
+- Anything under `knowledge/`.
+- Project rules, the output style, and every skill outside this plugin.
+- Any other plugin, its hooks, or its files. Guard hooks, setup material, and
+  every non-memory hook keep running.
+- The work tracker, delivery and client material, references, and source
+  records.
+- Git history.
+
+### After removal
+
+No brief prints at session start. Nothing refuses a hand edit under
+`knowledge/memory/`, `knowledge/specs/`, or `knowledge/current.md` any more, so
+those files are ordinary Markdown the owner edits directly. The skills are gone
+from the session.
+
+The read-only tools in the plugin folder still run by hand against the project,
+because the knowledge tree is intact and they only read it. That is the check
+that removal broke nothing:
+
+```text
+node <plugin path>/tools/memory.mjs capabilities
+```
+
+It reports the project, its pin count, and its `degraded` list, and it exits 0.
+A crash, or a report with no project, means something under `knowledge/` was
+removed that should not have been.
+
+### Check the removal
+
+1. Search the settings files for `boot-brief-session-start`,
+   `memory-write-guard`, `knowledge-session-start`, and `save-reminder`. Nothing
+   should match.
+2. Confirm every other hook is still registered and still fires.
+3. Confirm the project's Git status shows no change under `knowledge/`.
+4. Start a fresh session and confirm it prints no brief and reports no error.
+5. Report to the owner exactly what was removed and what stayed.
 
 ## Git boundary
 
