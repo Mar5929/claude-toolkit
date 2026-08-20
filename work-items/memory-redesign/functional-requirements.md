@@ -1,13 +1,18 @@
 # Memory System v2: Functional Requirements and North Star
 
-**Status:** draft for owner review. Not approved for implementation.
+**Status:** draft for owner review. Not approved for implementation. Phase 0
+corrections applied 2026-08-20. Owner approval pending pull request review.
 
 **What this document is:** the proposed north star. It says what the memory system must
 do, what the owner and the agents experience, and what must never happen. It includes
-only behavior and necessary product constraints. The proposed technical answer to
-"how" lives in `memory-system-v2-master.md`. Neither file authorizes a build until the
-owner approves it. After approval, when the two disagree, this document wins and the
-technical design gets fixed.
+only behavior and necessary product constraints. The technical answer to "how" lives in
+[memory-system-v2-master-technical-architecture.md](memory-system-v2-master-technical-architecture.md).
+Those two files are the pair. The older drafts
+[memory-system-v2-master2.md](memory-system-v2-master2.md) and
+[memory-system-v2-master.md](memory-system-v2-master.md) are source material for the
+architecture document and are not authority on their own. Neither file in the pair
+authorizes a build until the owner approves it. After approval, when the two disagree,
+this document wins and the technical design gets fixed.
 
 ---
 
@@ -103,6 +108,15 @@ The startup context, delivered through the host's own loading path, always cover
 
 ## 4. Functional requirements
 
+**About the numbering.** Requirement ids are permanent. A requirement keeps its id for
+life so every reference to it stays correct. Ids were handed out in the order the
+requirements were written, and each one then went to live in the topic section it
+belongs to. That is why a few sit out of numeric order on the page: FR-109 sits with
+placement, FR-110 through FR-113 sit with approval, and FR-108 sits with the write
+gate. FR-114 through FR-131 were added last and sit with continuity and with scope and
+privacy. Read by section, not by number. Ids run FR-001 through FR-131 with no gaps and
+no duplicates.
+
 ### Orientation and context
 
 - **FR-001:** A cold session must receive the host operating contract, the project's
@@ -142,7 +156,10 @@ The startup context, delivered through the host's own loading path, always cover
   specifications, memories, and references before choosing a home.
 - **FR-011:** One meaning must have one canonical home. Other files must link instead
   of restating it.
-- **FR-012:** Active work state must remain in the configured work tracker.
+- **FR-012:** Live work-item state must remain in the configured work tracker when a
+  project has one, and must not be copied into durable memory records. Continuity
+  content in `knowledge/current.md` links to the work item under FR-102 instead of
+  restating its live status.
 - **FR-013:** Standing agent behavior must live in rules or the output style, and
   reusable agent processes must live in skills.
 - **FR-014:** Approved product behavior must live in specifications.
@@ -155,7 +172,8 @@ The startup context, delivered through the host's own loading path, always cover
 - **FR-017:** Every derived view and search aid must be rebuildable from canonical
   sources.
 - **FR-018:** Secrets, credentials, and sensitive personal information that is not
-  needed and approved for the repository must be refused.
+  needed and approved for the repository must be refused. What counts as needed and
+  approved is decided by the project's recorded privacy boundary under FR-124.
 
 ### Approval, records, and lifecycle
 
@@ -195,7 +213,8 @@ The startup context, delivered through the host's own loading path, always cover
   effective dates are incompatible. Additional evidence for the same meaning must be
   preserved on the surviving record.
 - **FR-027:** Deletion must be limited to duplication surplus, corruption, privacy
-  removal, or accidental records and must require a reason.
+  removal, or accidental records and must require a reason. A privacy removal must
+  also meet FR-130.
 - **FR-028:** An approved write must leave canonical records and every affected
   derived view or search aid consistent as one reported operation.
 - **FR-108:** The refusal must sit in the saving step itself, not in the agent's
@@ -250,7 +269,8 @@ The startup context, delivered through the host's own loading path, always cover
   enabled.
 - **FR-047:** Provider failure must not make canonical project knowledge unavailable.
 - **FR-048:** A provider must not send project content outside the approved privacy
-  boundary.
+  boundary. The approved boundary is the one the project records under FR-124, and
+  FR-125 forbids any provider from widening it.
 - **FR-049:** A provider that lacks a required capability must fail visibly. It must
   not silently return an empty result.
 - **FR-050:** Built-in private agent memory must not be required for correctness or
@@ -416,11 +436,18 @@ The startup context, delivered through the host's own loading path, always cover
 
 ### Session continuity
 
-- **FR-102:** The configured work tracker must own the current state, blockers, exact
-  next step, and an authored handoff that another agent can use without the prior
-  conversation.
-- **FR-103:** Cross-machine continuity must depend on the tracker and approved project
-  records. It must not depend on machine-local session history.
+- **FR-102:** The memory system must own the project's current-state file at
+  `knowledge/current.md`. That file must carry the current focus, the known blockers,
+  the exact next step, and an authored handoff that another agent can use without the
+  prior conversation. It must work in a project that has no work tracker. Where a
+  tracker is configured, the file links to the live work item instead of copying its
+  status into a second current-status record.
+- **FR-103:** Cross-machine continuity must depend on `knowledge/current.md` and
+  approved project records. It must not depend on machine-local session history and
+  must not require a work tracker. A configured tracker adapter may add work-item
+  links and live status when it is reachable. When no tracker is configured, or the
+  configured tracker cannot be reached, startup must show the dated content of
+  `knowledge/current.md` and label live status unverified.
 - **FR-104:** Native host session history must remain optional, read-only, and in its
   original host-owned location. The memory system may search it only when the owner
   asks or current project sources are insufficient.
@@ -433,6 +460,91 @@ The startup context, delivered through the host's own loading path, always cover
 - **FR-107:** A history result used for exact past wording must identify the original
   host session and message location so the agent can open the source before relying on
   it.
+- **FR-114:** `knowledge/current.md` must be written only through the approved memory
+  write path, and only on three triggers: an explicit handoff, an approved change of
+  current focus, and an approved completed-work event that changes current state. No
+  other route, agent, hook, or background process may write it.
+- **FR-115:** Startup must deliver the current-and-recent briefing deterministically
+  and read-only. It reads `knowledge/current.md`, the project's pinned records, and
+  the dated summaries of recently approved records, then renders a briefing inside the
+  configured budget. The same inputs must always produce the same briefing. Startup
+  must not rewrite `knowledge/current.md`, create a session summary, or write any
+  other stored state.
+- **FR-116:** When `knowledge/current.md` is missing, or its latest dated update is
+  older than the recent window, startup must show a visible stale warning naming that
+  date and continue with the dated content it has. It must never invent current state
+  or build it from conversation history.
+- **FR-117:** Normal use must not require hand-editing `knowledge/current.md`. The
+  triggers in FR-114 keep it current through the approved write path. The file stays
+  plain readable Markdown the owner can inspect and correct directly, and the system
+  must keep maintaining it after a hand correction.
+
+### Project scope and privacy boundary
+
+- **FR-118:** A project's memory scope must be one physical subtree of the filesystem,
+  resolved from files inside the project. The scope starts at the directory that holds
+  `knowledge/project.md` and is adjusted by the `project_root` value in that file.
+  Resolution must be deterministic and must not depend on a stored absolute path, an
+  environment variable, the host's idea of a workspace, or the Git remote, because
+  those differ from machine to machine.
+- **FR-119:** Every memory read, search, retrieval result, pin, generated view, and
+  write must stay inside the resolved scope. A path that resolves outside it, whether
+  through a symbolic link, a junction, a parent traversal, or a similarly named
+  sibling directory, must be treated as outside the project. It must never be
+  searched, never be returned as a result or as evidence, and never be written.
+- **FR-120:** A refused scope or privacy operation must change no file, leave no
+  partial write, and report one visible message naming the operation, the path or
+  field at fault, the resolved scope root or the recorded privacy setting, and the
+  reason. The system must not retry the operation with a widened boundary.
+- **FR-121:** One repository may contain more than one memory scope. Each participating
+  subroot must carry its own `knowledge/project.md` and its own stable project id.
+  Scopes must never overlap, and a scope nested inside another scope must be declared
+  by the parent, which removes that subtree from the parent's scope.
+- **FR-122:** The active scope for a session must be the nearest ancestor of the
+  working directory that holds `knowledge/project.md`. An undeclared nested scope, two
+  scopes claiming the same project id, overlapping scope roots, or a `project_root`
+  that does not resolve must stop the operation and report the conflict with both
+  paths. The system must not pick one and continue.
+- **FR-123:** Records, pins, and retrieval results must never cross a scope boundary,
+  even when two scopes contain records with the same id. A link may point into another
+  scope only when it names that scope's project id. A cross-scope link is a pointer
+  only. The linked record must never be returned as this project's memory or counted
+  as this project's evidence.
+- **FR-124:** Every project must record its privacy boundary in `knowledge/project.md`:
+  its sensitivity level, whether project content may leave the machine, and, where
+  transfer is allowed, a link to the approved consent record. A missing, unreadable, or
+  unknown value must be read as the most restrictive setting. A malformed privacy
+  setting must never fail open.
+- **FR-125:** Nothing outside that recorded boundary may widen it. An environment
+  variable, an installed client, a provider, a hook, a host setting, and an agent
+  instruction must all be incapable of granting consent to send project content
+  outside the boundary. Widening requires an owner-approved change to the recorded
+  consent, and a revocation must take effect on the next operation.
+- **FR-126:** A project the owner marks sensitive, such as a health or personal
+  project, must run the same core memory behavior with additional restrictions and
+  never with fewer. A domain profile may add restrictions and must not remove any.
+- **FR-127:** In a sensitive project, a record holding sensitive personal content must
+  state its category and one line saying why that detail is needed for the project's
+  purpose, and must carry explicit owner approval for that content. Content that
+  identifies another person must be refused unless the owner approves that specific
+  record with a named reason. Blanket permission must not be available.
+- **FR-128:** Sensitive content must not appear in startup, a pin, a generated view, or
+  a log body without a separate recorded owner approval that names that exposure. The
+  default for a sensitive record is that it is searchable when asked for and absent
+  from startup.
+- **FR-129:** In a sensitive project, native session-history search must run only when
+  the owner asks for it in that session. The insufficient-current-sources path in
+  FR-104 must not start it.
+- **FR-130:** Before the first sensitive record is saved, the system must state plainly
+  that a shared or remote repository keeps deleted content in Git history, and must
+  record the owner's storage answer. A privacy removal must clear the content from
+  current records, record history, generated views, pin state, and any separately
+  approved external copy, and must then report any remaining Git-history work instead
+  of claiming complete removal.
+- **FR-131:** Deterministic validation must check physical scope isolation and the
+  privacy boundary on every validation run, and must prove with a fixture of two
+  projects that share record ids that no record, pin, or retrieval result crosses a
+  scope boundary.
 
 ### Deferred capability
 
@@ -562,10 +674,16 @@ The system is accepted when all of these are proven in a real project:
   its raw evidence in the original work item, and working links in both directions.
 - An unreviewed research report remains available as a labeled reference without
   becoming a decision, memory record, or approved specification.
-- A new session on another machine continues from the tracker's authored handoff
-  without requiring access to the previous machine's conversation history.
+- A new session on another machine continues from the authored handoff in
+  `knowledge/current.md` without requiring access to the previous machine's
+  conversation history, including in a project that has no work tracker.
 - Removing or losing every searchable native session leaves current project recall
-  and continuity working from the tracker and approved project records.
+  and continuity working from `knowledge/current.md` and approved project records.
+- An out-of-date `knowledge/current.md` produces a visible stale warning naming its
+  date instead of an invented current state.
+- Startup renders the current-and-recent briefing without writing anything, and
+  `knowledge/current.md` changes only through an explicit handoff, an approved
+  current-focus change, or an approved completed-work event.
 - The memory system creates no transcript copy, transcript index, generated session
   summary, session card, or duplicate current-status record.
 - Gearset documentation gathered for a Salesforce project remains in the mapped
@@ -588,5 +706,18 @@ The system is accepted when all of these are proven in a real project:
   backlink list.
 - Moving or renaming a linked decision repairs every affected project link in the
   same approved operation or changes nothing.
+- A memory operation aimed at a path outside the project's resolved scope changes no
+  file and produces a visible refusal naming the operation, the path, and the resolved
+  root. That holds for a symbolic link pointing out of the project, for a similarly
+  named sibling folder, and for an undeclared project nested inside another project.
+- Two projects in one repository that contain records with the same id keep their
+  records, pins, and search results apart, and neither project's startup shows the
+  other's content.
+- A project marked sensitive refuses a sensitive record that has no stated category,
+  no reason it is needed, or no owner approval. It keeps sensitive content out of
+  startup, pins, and generated views unless the owner approved that exposure by name.
+  It refuses external transfer when no consent record resolves. After a privacy
+  removal it reports what remains in Git history instead of claiming the content is
+  gone.
 - The owner reads the boot brief and confirms it feels like the project remembers the
   right things without showing too much. That is a real criterion.

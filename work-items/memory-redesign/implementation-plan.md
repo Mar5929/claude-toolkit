@@ -13,6 +13,8 @@ Two documents are the authority on behavior. When this plan and those documents 
 1. `work-items/memory-redesign/functional-requirements.md` (FR-001 through FR-113)
 2. `work-items/memory-redesign/memory-system-v2-master-technical-architecture.md` (ADR-001 through ADR-036, AT-01 through AT-42)
 
+Factual note, 2026-08-20: Phase 0 extended those ranges. The documents now run FR-001 through FR-131, ADR-001 through ADR-038, AT-01 through AT-46, plus validator checks MV-01 through MV-22 in `contracts.md`. The id ranges in this plan's text are as written at approval time; the documents themselves are current.
+
 `MEMORY-REDESIGN-HANDOFF.md` at the repo root lists what is still open in those documents. Phase 0 of this plan closes that list.
 
 ## Ground rules for every work item
