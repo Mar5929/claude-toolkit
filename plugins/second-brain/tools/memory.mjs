@@ -49,9 +49,12 @@ import {
   resolveScope,
 } from "./lib/scope.mjs";
 import {
+  INFERRED_STATUSES,
   RECORD_FOLDERS,
+  RECORD_STATUSES,
   RECORD_TYPES,
   REQUIRED_CORE,
+  legacyGaps,
   parseRecord,
   validateRecord,
   walkRecords,
@@ -101,10 +104,6 @@ const SEARCH_MODE = "direct-file";
  * calling something that is not here.
  */
 const BUILD_GAPS = [
-  {
-    feature: "retrieval",
-    reason: "search, get, timeline, sources, spec-search, and spec-get are not available in this build",
-  },
   {
     feature: "review",
     reason: "review is not available in this build",
@@ -491,6 +490,666 @@ export function related(context, options) {
       outgoing: sortLinks(outgoing),
       incoming: sortLinks(incoming),
     },
+  };
+}
+
+// ---------------------------------------------------------------------------
+// The retrieval router, architecture section 15
+// ---------------------------------------------------------------------------
+
+/** Approved behavior lives here, and it is the first authority of 15.2. */
+const SPEC_FOLDER = "knowledge/specs/";
+
+/**
+ * The authority order of section 15.2, lowest number first. A candidate's
+ * layer is read from what the record itself says: the folder it sits in, its
+ * epistemic status, and the kind of evidence it carries. Nothing here is
+ * stored on a record or written down anywhere.
+ */
+const AUTHORITY_ORDER = Object.freeze({
+  spec: 1,
+  "owner-statement": 2,
+  "code-evidence": 3,
+  "active-memory": 4,
+  observation: 5,
+  inference: 6,
+});
+
+/** Evidence source types that make a record an owner or client statement. */
+const OWNER_SOURCE_TYPES = Object.freeze([
+  "owner_statement",
+  "client_statement",
+  "owner",
+  "client",
+  "meeting",
+]);
+
+/** Evidence source types that make a record repository evidence. */
+const CODE_SOURCE_TYPES = Object.freeze([
+  "code",
+  "commit",
+  "config",
+  "git",
+  "issue",
+  "log",
+  "pull_request",
+  "repository",
+  "test",
+]);
+
+/** Ties break toward what is current before what is history. */
+const STATUS_ORDER = Object.freeze({ active: 0, current: 0, superseded: 1, retired: 2 });
+
+/**
+ * Words an owner-worded question carries that say nothing about the subject.
+ * They are dropped from the query so a common word cannot pull an unrelated
+ * record into the answer, which is the substitution FR-033 refuses. If the
+ * whole query is made of them, the query runs literally instead.
+ */
+const STOPWORDS = new Set([
+  "a", "about", "an", "and", "any", "are", "as", "at", "be", "been", "but",
+  "by", "can", "did", "do", "does", "for", "from", "had", "has", "have", "how",
+  "i", "if", "in", "into", "is", "it", "its", "me", "my", "no", "not", "of",
+  "on", "or", "our", "should", "so", "that", "the", "their", "them", "then",
+  "there", "these", "this", "to", "up", "us", "was", "we", "were", "what",
+  "when", "where", "which", "who", "why", "will", "with", "would", "you",
+  "your",
+]);
+
+/**
+ * Where a term matched, and what that match is worth. A term counts once per
+ * field, so a long record cannot outrank a precise one by repetition.
+ */
+const FIELD_WEIGHTS = Object.freeze({ title: 5, summary: 4, metadata: 3, body: 1 });
+
+const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
+
+/** Read a front matter field that holds one block, a list of blocks, or nothing. */
+function blockList(value) {
+  const entries = Array.isArray(value) ? value : [value];
+  return entries.filter((entry) => entry && typeof entry === "object" && !Array.isArray(entry));
+}
+
+function textList(value) {
+  const entries = Array.isArray(value) ? value : [value];
+  return entries
+    .map((entry) => String(entry ?? "").trim())
+    .filter((entry) => entry && entry !== "null");
+}
+
+/**
+ * The authority layer of one candidate. A spec outranks everything. After
+ * that an unsettled claim ranks itself down, an observation sits below
+ * evidenced memory, and the evidence a record cites decides the rest.
+ */
+function layerFor(data) {
+  const epistemic = String(data.epistemic_status ?? "").trim().toLowerCase();
+  if (INFERRED_STATUSES.includes(epistemic)) return "inference";
+  if (epistemic === "observed") return "observation";
+
+  const types = blockList(data.evidence)
+    .map((entry) => String(entry.source_type ?? "").trim().toLowerCase());
+  if (types.some((type) => OWNER_SOURCE_TYPES.includes(type))) return "owner-statement";
+  if (types.some((type) => CODE_SOURCE_TYPES.includes(type))) return "code-evidence";
+  return "active-memory";
+}
+
+/** What a result rests on, named without copying the record's body. */
+function provenanceOf(data) {
+  const approval = data.approval && typeof data.approval === "object" && !Array.isArray(data.approval)
+    ? data.approval
+    : {};
+  return {
+    epistemic_status: String(data.epistemic_status ?? "").trim() || null,
+    recorded_at: String(data.recorded_at ?? "").trim() || null,
+    approved_by: String(approval.actor ?? "").trim() || null,
+    approved_at: String(approval.approved_at ?? "").trim() || null,
+    evidence: blockList(data.evidence).map((entry) => ({
+      source_type: String(entry.source_type ?? "").trim() || null,
+      locator: String(entry.locator ?? "").trim() || null,
+    })),
+    based_on: textList(data.based_on),
+  };
+}
+
+/**
+ * The degraded-state warning of section 15.2, or null. A record that is no
+ * longer current truth, and a file whose provenance cannot be read, both have
+ * to say so on the result rather than in a footnote nobody opens.
+ */
+function degradedWarning(candidate) {
+  const reasons = [];
+  if (candidate.kind === "spec" && !candidate.frontMatter) {
+    reasons.push("this specification carries no front matter, so its status and provenance are unverified");
+  }
+  if (candidate.legacy) {
+    reasons.push("this record is missing version 2 metadata and stays usable until its next approved touch");
+  }
+  if (candidate.status === "superseded" || candidate.status === "retired") {
+    reasons.push(`this record is ${candidate.status} and is not current truth`);
+  }
+  if (candidate.kind === "record" && candidate.provenance.evidence.length === 0) {
+    reasons.push("this record cites no evidence");
+  }
+  if (reasons.length === 0) return null;
+  return reasons.join(". ");
+}
+
+/** One searchable candidate, built for this call and thrown away after it. */
+function buildCandidate(kind, path, text) {
+  const record = parseRecord(text);
+  const data = record.data ?? {};
+  const status = String(data.status ?? "").trim().toLowerCase()
+    || (kind === "spec" ? "current" : "");
+  const candidate = {
+    kind,
+    path,
+    text,
+    data,
+    frontMatter: record.found,
+    legacy: kind === "record" ? legacyGaps(data) !== null : false,
+    id: String(data.id ?? "").trim() || null,
+    type: String(data.type ?? "").trim() || null,
+    status,
+    title: record.h1 ?? "",
+    summary: record.summary ?? "",
+    layer: kind === "spec" ? "spec" : layerFor(data),
+    provenance: provenanceOf(data),
+  };
+  candidate.degraded = degradedWarning(candidate);
+  return candidate;
+}
+
+/**
+ * Every record in the scope as a candidate, plus every specification file. A
+ * candidate that belongs to another scope is dropped here, before ranking,
+ * and the drop is reported as a warning rather than as a result (FR-123).
+ */
+function collectCandidates(scope, { records = true, specs = true } = {}) {
+  const found = [];
+  const warnings = [];
+  const unreadable = [];
+  let recordFiles = 0;
+  let specFiles = 0;
+
+  if (records) {
+    for (const entry of walkRecords(scope.scopeRoot)) {
+      if (!isMemberPath(scope, entry.absolute)) {
+        warnings.push(note(
+          "scope/cross-scope-result",
+          "a record under this project's memory folder belongs to a declared subroot, so it was dropped",
+          { path: entry.path },
+        ));
+        continue;
+      }
+      recordFiles++;
+      const text = readIfPresent(entry.absolute);
+      if (text === null) {
+        unreadable.push(entry.path);
+        warnings.push(note("startup/missing-source", "the record could not be read", { path: entry.path }));
+        continue;
+      }
+      found.push(buildCandidate("record", entry.path, text));
+    }
+  }
+
+  if (specs) {
+    for (const absolute of trackedMarkdown(scope)) {
+      const path = relativePath(scope, absolute);
+      if (!path.startsWith(SPEC_FOLDER)) continue;
+      if (!isMemberPath(scope, absolute)) {
+        warnings.push(note(
+          "scope/cross-scope-result",
+          "a specification under this project's specs folder belongs to a declared subroot, so it was dropped",
+          { path },
+        ));
+        continue;
+      }
+      specFiles++;
+      const text = readIfPresent(absolute);
+      if (text === null) {
+        unreadable.push(path);
+        warnings.push(note("startup/missing-source", "the specification could not be read", { path }));
+        continue;
+      }
+      found.push(buildCandidate("spec", path, text));
+    }
+  }
+
+  return { candidates: found, warnings, unreadable, recordFiles, specFiles };
+}
+
+/**
+ * The scope a retrieval call actually covered, which is what an honest
+ * failure names (architecture section 15.6). It is reported whether the
+ * answer is empty or not, so a reader never has to guess what was looked at.
+ */
+function searchedScope(scope, collected, { records = true, specs = true } = {}) {
+  const searched = [];
+  if (specs) searched.push({ area: "knowledge/specs", files: collected.specFiles });
+  if (records) searched.push({ area: "knowledge/memory", files: collected.recordFiles });
+  searched.push({ area: "direct-file search", available: true });
+  searched.push({
+    area: "tracker",
+    available: false,
+    reason: readTracker(scope) === null
+      ? "no tracker is configured in knowledge/project.md"
+      : "the retrieval router does not call the tracker adapter",
+  });
+  searched.push({
+    area: "session-history",
+    available: false,
+    reason: "the session-history adapter is not available in this build",
+  });
+  for (const path of collected.unreadable) {
+    searched.push({ area: path, available: false, reason: "the file could not be read" });
+  }
+  return searched;
+}
+
+/**
+ * Read a query into terms. Quoted text stays one phrase. An unclosed quote or
+ * a query with nothing searchable in it is a parse error at exit 2, never an
+ * empty result (contracts section 1.4).
+ */
+function parseQuery(raw) {
+  const text = String(raw ?? "");
+  if ((text.match(/"/g) ?? []).length % 2 === 1) {
+    return { ok: false, message: "the query has an unclosed quotation mark" };
+  }
+
+  const phrases = [];
+  const remainder = text.replace(/"([^"]*)"/g, (_match, inner) => {
+    const phrase = inner.trim().toLowerCase();
+    if (phrase) phrases.push(phrase);
+    return " ";
+  });
+
+  const words = remainder
+    .toLowerCase()
+    .split(/[^\p{L}\p{N}_.\-/]+/u)
+    .map((word) => word.replace(/^[.\-/]+|[.\-/]+$/g, ""))
+    .filter(Boolean);
+
+  const all = [...new Set([...phrases, ...words])];
+  if (all.length === 0) {
+    return { ok: false, message: "the query holds no searchable term" };
+  }
+  const meaningful = all.filter((term) => !STOPWORDS.has(term));
+  return { ok: true, terms: meaningful.length ? meaningful : all };
+}
+
+/** The metadata a term may match, kept apart from the record's prose. */
+function metadataText(candidate) {
+  return [
+    candidate.id ?? "",
+    candidate.path,
+    String(candidate.data.domain ?? ""),
+    textList(candidate.data.topics).join(" "),
+    textList(candidate.data.entities).join(" "),
+  ].join(" ").toLowerCase();
+}
+
+/** Score one candidate against the query terms. Zero means no match at all. */
+function scoreCandidate(candidate, terms) {
+  const fields = {
+    title: candidate.title.toLowerCase(),
+    summary: candidate.summary.toLowerCase(),
+    metadata: metadataText(candidate),
+    body: candidate.text.toLowerCase(),
+  };
+
+  let score = 0;
+  const matched = [];
+  const where = [];
+  for (const term of terms) {
+    let hit = false;
+    for (const [field, haystack] of Object.entries(fields)) {
+      if (!haystack.includes(term)) continue;
+      score += FIELD_WEIGHTS[field];
+      hit = true;
+      if (!where.includes(field)) where.push(field);
+    }
+    if (hit) matched.push(term);
+  }
+  return { score, matched, fields: where };
+}
+
+/** The section 15.2 minimum result contract, in a fixed field order. */
+function retrievalResult(scope, candidate, matchReason, extra = {}) {
+  const result = {
+    project_id: scope.projectId,
+    layer: candidate.layer,
+    record_id: candidate.id,
+    path: candidate.path,
+    status: candidate.status,
+    summary: candidate.summary,
+    provenance: candidate.provenance,
+    match_reason: matchReason,
+    ...extra,
+  };
+  if (candidate.degraded) result.degraded_warning = candidate.degraded;
+  return result;
+}
+
+/**
+ * Rank by relevance first, then by the section 15.2 authority order, then by
+ * what is current, then by path. The last two keys make the order total, so
+ * the same project answers the same question the same way every time.
+ */
+function rankMatches(matches) {
+  return matches.sort((a, b) => b.matched.length - a.matched.length
+    || b.score - a.score
+    || AUTHORITY_ORDER[a.candidate.layer] - AUTHORITY_ORDER[b.candidate.layer]
+    || (STATUS_ORDER[a.candidate.status] ?? 3) - (STATUS_ORDER[b.candidate.status] ?? 3)
+    || a.candidate.path.localeCompare(b.candidate.path));
+}
+
+/** Apply the search filters. An unknown value is exit 2, never a quiet drop. */
+function applyFilters(candidates, options) {
+  if (options.type !== null && !RECORD_TYPES.includes(options.type)) {
+    return {
+      ok: false,
+      error: note(
+        "retrieval/unsupported-filter",
+        `--type ${options.type} is not one of ${RECORD_TYPES.join(", ")}`,
+      ),
+    };
+  }
+  if (options.status !== null && !RECORD_STATUSES.includes(options.status)) {
+    return {
+      ok: false,
+      error: note(
+        "retrieval/unsupported-filter",
+        `--status ${options.status} is not one of ${RECORD_STATUSES.join(", ")}`,
+      ),
+    };
+  }
+
+  const domain = options.domain === null ? null : options.domain.toLowerCase();
+  const topic = options.topic === null ? null : options.topic.toLowerCase();
+
+  const kept = candidates.filter((candidate) => {
+    if (options.type !== null && candidate.type !== options.type) return false;
+    if (options.status !== null) {
+      if (candidate.status !== options.status) return false;
+    } else if (candidate.kind === "record" && candidate.status !== "active") {
+      // A superseded or retired record is history, not current truth, so it
+      // answers only a question that asks for it (FR-025).
+      return false;
+    }
+    if (domain !== null && String(candidate.data.domain ?? "").trim().toLowerCase() !== domain) {
+      return false;
+    }
+    if (topic !== null
+      && !textList(candidate.data.topics).map((entry) => entry.toLowerCase()).includes(topic)) {
+      return false;
+    }
+    return true;
+  });
+
+  return { ok: true, candidates: kept };
+}
+
+/**
+ * memory_search: tier 2, curated project search over canonical Markdown. It
+ * opens whole records rather than detached chunks, drops out-of-scope
+ * candidates before ranking, and leaves an empty answer empty.
+ */
+function searchOperation(context, options, { specsOnly = false } = {}) {
+  const { scope } = context;
+  const query = parseQuery(options.query);
+  if (!query.ok) {
+    return { status: "error", errors: [note("retrieval/parse-error", query.message)] };
+  }
+
+  const areas = specsOnly ? { records: false, specs: true } : { records: true, specs: true };
+  const collected = collectCandidates(scope, areas);
+  const searched = searchedScope(scope, collected, areas);
+
+  const filtered = applyFilters(collected.candidates, options);
+  if (!filtered.ok) {
+    return { status: "error", errors: [filtered.error], warnings: collected.warnings, searched };
+  }
+
+  const matches = [];
+  for (const candidate of filtered.candidates) {
+    const scored = scoreCandidate(candidate, query.terms);
+    if (scored.score === 0) continue;
+    matches.push({ candidate, ...scored });
+  }
+
+  const ranked = rankMatches(matches).slice(0, options.limit);
+  const result = ranked.map((match) => retrievalResult(
+    scope,
+    match.candidate,
+    `matched ${match.matched.join(", ")} in ${match.fields.join(", ")} (score ${match.score})`,
+  ));
+
+  return { status: "ok", result, warnings: collected.warnings, searched };
+}
+
+function specSearchOperation(context, options) {
+  return searchOperation(context, options, { specsOnly: true });
+}
+
+/**
+ * memory_get: tier 1 exact lookup. It returns the whole record, its front
+ * matter, and the section 15.2 result fields, so a consequential answer can
+ * open the record rather than trust a search line about it.
+ */
+function getOperation(context, options, { specsOnly = false } = {}) {
+  const { scope } = context;
+  const areas = specsOnly ? { records: false, specs: true } : { records: true, specs: true };
+  const collected = collectCandidates(scope, areas);
+  const searched = searchedScope(scope, collected, areas);
+  const warnings = [...collected.warnings];
+
+  let found = null;
+  let reason = "";
+
+  if (options.path !== null) {
+    const absolute = resolve(scope.scopeRoot, options.path);
+    if (!isMemberPath(scope, absolute)) {
+      return {
+        status: "refused",
+        errors: [note("scope/outside-root", "the path does not sit inside this project's scope", {
+          path: options.path,
+        })],
+        warnings,
+        searched,
+      };
+    }
+    const wanted = relativePath(scope, absolute);
+    found = collected.candidates.find((candidate) => candidate.path === wanted) ?? null;
+    if (!found) {
+      // A canonical file the walk does not carry, such as a specification
+      // named by path when only records were collected, is still readable.
+      const text = isMemberPath(scope, absolute) ? readIfPresent(absolute) : null;
+      if (text !== null && wanted.endsWith(".md")) {
+        found = buildCandidate(wanted.startsWith(SPEC_FOLDER) ? "spec" : "record", wanted, text);
+      }
+    }
+    reason = "exact lookup by path";
+  } else {
+    const wanted = String(options.id ?? "").trim();
+    found = collected.candidates.find((candidate) => candidate.id === wanted) ?? null;
+    if (!found && specsOnly) {
+      // A specification file with no front matter is named by its file stem,
+      // because that is the only stable id such a file has.
+      found = collected.candidates.find((candidate) => {
+        const stem = candidate.path.slice(SPEC_FOLDER.length).replace(/\.md$/, "");
+        return stem === wanted || stem.split("/").pop() === wanted;
+      }) ?? null;
+    }
+    reason = "exact lookup by record id";
+  }
+
+  if (!found) {
+    return {
+      status: "refused",
+      errors: [note(
+        "record/unknown-id",
+        options.path !== null
+          ? `no canonical Markdown file sits at ${options.path} in this scope`
+          : `no ${specsOnly ? "specification" : "record"} in this scope carries the id ${String(options.id ?? "").trim()}`,
+        options.path !== null ? { path: options.path } : {},
+      )],
+      warnings,
+      searched,
+    };
+  }
+
+  return {
+    status: "ok",
+    result: retrievalResult(scope, found, reason, {
+      title: found.title || null,
+      front_matter: found.data,
+      body: found.text,
+    }),
+    warnings,
+    searched,
+  };
+}
+
+function specGetOperation(context, options) {
+  return getOperation(context, options, { specsOnly: true });
+}
+
+/**
+ * memory_timeline: the dated sequence for one entity, oldest first. It
+ * includes superseded and retired records on purpose, because a history
+ * question is exactly the question those records still answer (section 14).
+ */
+function timelineOperation(context, options) {
+  const { scope } = context;
+  for (const [flag, value] of [["--from", options.from], ["--to", options.to]]) {
+    if (value !== null && !DATE_ONLY.test(value)) {
+      return {
+        status: "error",
+        errors: [note("retrieval/parse-error", `${flag} is not a YYYY-MM-DD date`)],
+      };
+    }
+  }
+
+  const entity = String(options.entity ?? "").trim().toLowerCase();
+  const areas = { records: true, specs: false };
+  const collected = collectCandidates(scope, areas);
+  const searched = searchedScope(scope, collected, areas);
+
+  const entries = [];
+  for (const candidate of collected.candidates) {
+    const named = textList(candidate.data.entities).map((value) => value.toLowerCase());
+    if (!named.includes(entity)) continue;
+
+    const occurred = String(candidate.data.occurred_at ?? "").trim() || null;
+    const from = String(candidate.data.effective_from ?? "").trim() || null;
+    const recorded = String(candidate.data.recorded_at ?? "").trim() || null;
+    const when = occurred ?? from ?? recorded ?? "";
+    if (options.from !== null && when && when < options.from) continue;
+    if (options.to !== null && when && when > options.to) continue;
+
+    entries.push({
+      record_id: candidate.id,
+      type: candidate.type,
+      status: candidate.status,
+      effective_from: from,
+      effective_to: String(candidate.data.effective_to ?? "").trim() || null,
+      occurred_at: occurred,
+      summary: candidate.summary,
+      project_id: scope.projectId,
+      layer: candidate.layer,
+      path: candidate.path,
+      sort_key: when,
+      ...(candidate.degraded ? { degraded_warning: candidate.degraded } : {}),
+    });
+  }
+
+  entries.sort((a, b) => a.sort_key.localeCompare(b.sort_key)
+    || (a.record_id ?? "").localeCompare(b.record_id ?? "")
+    || a.path.localeCompare(b.path));
+  for (const entry of entries) delete entry.sort_key;
+
+  return { status: "ok", result: entries, warnings: collected.warnings, searched };
+}
+
+/**
+ * memory_sources: what a record rests on, so a consequential answer can
+ * follow provenance to the original evidence (section 15.3). A locator that
+ * names a path inside the project is checked; one that names anything else is
+ * reported as unchecked rather than as missing.
+ */
+function sourcesOperation(context, options) {
+  const { scope } = context;
+  const areas = { records: true, specs: true };
+  const collected = collectCandidates(scope, areas);
+  const searched = searchedScope(scope, collected, areas);
+  const warnings = [...collected.warnings];
+
+  const wanted = String(options.id ?? "").trim();
+  const found = collected.candidates.find((candidate) => candidate.id === wanted) ?? null;
+  if (!found) {
+    return {
+      status: "refused",
+      errors: [note("record/unknown-id", `no record in this scope carries the id ${wanted}`)],
+      warnings,
+      searched,
+    };
+  }
+
+  const evidence = blockList(found.data.evidence).map((entry) => {
+    const locator = String(entry.locator ?? "").trim() || null;
+    let reachable = null;
+    if (locator && !/^[a-z][a-z0-9+.-]*:/i.test(locator)) {
+      const absolute = resolve(scope.scopeRoot, locator.split("#")[0]);
+      reachable = isMemberPath(scope, absolute) && existsSync(absolute);
+      if (!reachable) {
+        warnings.push(note(
+          "startup/missing-source",
+          "a cited source is not reachable inside this project",
+          { path: found.path, detail: locator },
+        ));
+      }
+    }
+    return {
+      source_type: String(entry.source_type ?? "").trim() || null,
+      locator,
+      observed_at: String(entry.observed_at ?? "").trim() || null,
+      retrieved_at: String(entry.retrieved_at ?? "").trim() || null,
+      version: String(entry.version ?? "").trim() || null,
+      note: String(entry.note ?? "").trim() || null,
+      reachable,
+    };
+  });
+
+  const basedOn = [];
+  for (const id of textList(found.data.based_on)) {
+    const other = collected.candidates.find((candidate) => candidate.id === id) ?? null;
+    if (!other) {
+      warnings.push(note(
+        "record/unknown-id",
+        `based_on names ${id} and no record in this scope carries that id`,
+        { path: found.path },
+      ));
+      basedOn.push({ record_id: id, path: null, status: null, summary: null });
+      continue;
+    }
+    basedOn.push({
+      record_id: other.id,
+      path: other.path,
+      status: other.status,
+      summary: other.summary,
+    });
+  }
+
+  return {
+    status: "ok",
+    result: retrievalResult(scope, found, `the evidence ${wanted} rests on`, {
+      evidence,
+      based_on: basedOn,
+    }),
+    warnings,
+    searched,
   };
 }
 
@@ -1065,6 +1724,30 @@ function noopOperation(context, options) {
 const OPERATIONS = new Map([
   ["capabilities", { operation: "memory_capabilities", run: capabilities }],
   ["status", { operation: "memory_status", run: status }],
+  [
+    "search",
+    {
+      operation: "memory_search",
+      run: searchOperation,
+      parse: searchParser({ filters: true }),
+    },
+  ],
+  [
+    "get",
+    {
+      operation: "memory_get",
+      run: getOperation,
+      parse: parseGetFlags,
+    },
+  ],
+  [
+    "timeline",
+    {
+      operation: "memory_timeline",
+      run: timelineOperation,
+      parse: parseTimelineFlags,
+    },
+  ],
   [
     "related",
     {
