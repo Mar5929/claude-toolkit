@@ -20,6 +20,19 @@ sessions doing the work do.
 
 ## Where we are
 
+### The architecture rework is drafted, 2026-08-20
+
+The rework Mike called for after the revert is drafted on branch
+`claude/memory-system-architecture-n92ejj`. `functional-requirements.md` was
+rewritten to strip agent-added requirements, and its section 9 lists every
+removed or changed id with the reason.
+`memory-system-v2-master-technical-architecture.md` was rewritten around one
+idea: the agent is the runtime, so the system is the folder layout, four
+skills, two hooks, and two small scripts, with no engine. That document now
+marks `contracts.md`, `implementation-plan.md`, `pm-tracker.md`, and
+`session-kickoff.md` as superseded. Nothing is approved until Mike reviews the
+pull request. Nothing gets built until he does.
+
 ### The build was reverted on 2026-08-20
 
 Mike called the revert after reading the overengineering audit. Every file the
