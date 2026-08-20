@@ -16,14 +16,14 @@ every other project receives.
 
 | File | What it does |
 |---|---|
-| `where-persistent-information-belongs.md` | Put active work, client delivery artifacts, internal brainstorms, rules, skills, specifications, memory, references, and session history in the right place. Use short approval bullets and never create a second home for the same meaning. |
+| `where-persistent-information-belongs.md` | Put active work, the project's current state, client delivery artifacts, internal brainstorms, outside references, rules, skills, specifications, durable memory, and session history in the right place. Durable memory is four record types: facts, decisions, events, and patterns. Use short approval bullets and never create a second home for the same meaning. |
 | `keep-claudemd-current.md` | Update `CLAUDE.md` before a session ends whenever it surfaces a new path, convention, decision, or workflow. Prune while you are in there. |
 | `honest-verification.md` | Do not claim more than you verified. Report failures with their output. |
-| `parallel-agent-sessions.md` | Sharing a repo with other live sessions: look before you edit, work in your own worktree and branch, never `git add -A`, land by pull request. |
+| `parallel-agent-sessions.md` | Sharing a repo with other live sessions: look before you edit, work in your own worktree and branch, never `git add -A`, rebuild a derived artifact instead of merging it, land by pull request. |
 | `recommend-the-best-solution.md` | Propose the well-built solution and name the quick-patch tradeoff, and do not build more than was asked. |
 | `follow-the-output-style.md` | A helper agent never sees an output style, so anything it writes that the owner reads goes and reads the style file first. |
 | `ask-before-assuming.md` | Ask one specific question when intent or scope is ambiguous, and state the rough scope before an operation that reads or produces a lot. |
-| `offer-context-handoff.md` | When context is heavy and the next step is reasoning-heavy, offer a self-contained handoff prompt, after running the memory check. |
+| `offer-context-handoff.md` | When context is heavy and the next step is reasoning-heavy, offer a self-contained handoff prompt, after running the `remember` review. |
 | `steer-to-the-goal.md` | Find the real goal, name it early, hold it all session, push back when a request is aimed at the wrong target, and end every turn with the next step. |
 | `do-the-technical-work.md` | Do the git, config, and file work yourself. Hand over only the steps that are genuinely only-the-owner's. |
 | `spec-before-you-build.md` | Every piece of work is logged in the tracker before it is built, and nothing is built until a refinement session has filled in the six-part spec. `CLAUDE.md` names the tracker. |
@@ -34,7 +34,7 @@ every other project receives.
 
 | File | Why not |
 |---|---|
-| `second-brain.md` | It belonged to the retired large second-brain system. The short route in `CLAUDE.md` and `AGENTS.md`, the policy in `knowledge/specs/memory-system.md`, and the packaged `remember`, `recall`, and `cleanup` skills replace it without loading the full policy every session. |
+| `second-brain.md` | It belonged to the retired large second-brain system. The startup route in `CLAUDE.md` and `AGENTS.md`, the boot brief the startup hook runs, the policy in `knowledge/specs/memory-system.md`, and the packaged `remember`, `recall`, `cleanup`, and `session-search` skills replace it without loading the full policy every session. |
 | `wrap-up-ritual.md` | It belonged to the retired save ritual and invoked the deleted verifier. The current policy names the natural save moments, and `.claude/hooks/save-reminder.mjs` raises the pull-request moment that is easy to miss. |
 | `work-item-folders.md` | It governs the Git-native work-tracker, one folder per work item in the repository. Work here is tracked on the `Claude-Toolkit-Project` board on GitHub, so there are no work-item folders for the rule to govern. |
 | `dependency-graph.md` | It is conditional on a code graph being installed. No graph is installed here, and the graphify kit was considered and declined. |

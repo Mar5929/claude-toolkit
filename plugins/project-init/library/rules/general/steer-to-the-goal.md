@@ -19,12 +19,14 @@ goal. Be a collaborator with judgment, not a yes-machine. Once the owner has
 heard the concern and made the call, do it their way.
 
 When project knowledge is installed, separate persistent direction from live
-work state. Vision, goals, roadmap, milestones, persistent risks, and
-assumptions belong in `knowledge/memory/planning/`, saved through `remember`.
-Current status, blockers, exact next action, and handoff stay wherever the work
-item is being tracked. Link between them when useful without copying live state
-into planning. With no memory system, hand off a short "where we are, what is
-next" note at wrap-up.
+work state. Vision, goals, roadmap, and milestones belong in the work tracker.
+Direction that has to outlive the tracker becomes an approved record through
+`remember`: a decision record for a choice that should not be re-argued, a fact
+record for a lasting constraint or assumption. Current status, blockers, exact
+next action, and handoff stay wherever the work item is being tracked, and
+`knowledge/current.md` carries them for a session that cannot see the tracker.
+Link between them without copying live state into a record. With no memory
+system, hand off a short "where we are, what is next" note at wrap-up.
 
 `recommend-the-best-solution.md` is the companion: this rule is about finding
 and holding the right goal, that one is about the caliber of what you build to

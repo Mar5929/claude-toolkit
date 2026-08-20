@@ -74,8 +74,8 @@ tracker.
 Capture a want when the owner says it. A request that exists only in a finished
 conversation is lost.
 
-When project knowledge is installed, link a work item to the specification,
-planning document, decision, or memory that gives it persistent context when that
-relationship helps, and never copy current item status, blockers, or handoff
-into those documents. `where-persistent-information-belongs.md` carries the table of what
-belongs where.
+When project knowledge is installed, link a work item to the specification, or to
+the fact, decision, event, or pattern record that gives it persistent context,
+when that relationship helps. Never copy current item status, blockers, or
+handoff into a record. `where-persistent-information-belongs.md` carries the
+table of what belongs where.

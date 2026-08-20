@@ -103,18 +103,21 @@ while you are in there.
 ## Keep the project-knowledge route small and current
 
 When project knowledge is installed, root instructions carry only the startup
-route. Claude's fail-open `SessionStart` loader reads `knowledge/project.md` and
-`knowledge/index.md`. `AGENTS.md` directly tells Codex to read the same two
-files and to treat `knowledge/brainstorms/` as unchecked.
+route. On Claude Code a fail-open `SessionStart` hook runs the boot brief, which
+carries the project identity, the current state, the pinned memory, and the
+project map. Codex runs no hook, so `AGENTS.md` carries the same route as text:
+what to run first, where the memory tool is, the memory skills by name, and the
+paths no agent may write by hand.
 
 That short route also carries the anti-decay principle in one sentence, and it
 is the one always-loaded behavior summary. Do not restate that sentence here.
 `where-persistent-information-belongs.md` owns the full version: the test for
 what should persist, the routing table, and the short approval review. The
-detailed property, save, and cleanup rules remain in the project-knowledge
+detailed record, save, and cleanup rules remain in the project-knowledge
 specification and skills.
 
 When those paths or delivery mechanisms change, update the applicable root
-route in the same change. Never copy the authority map, memory types, save
-procedure, or generated index into a root file. Their canonical homes are the
-project-knowledge specification, packaged skills, and files under `knowledge/`.
+route in the same change. Never copy the project map, the four record types, the
+save procedure, or a generated view into a root file. Their canonical homes are
+the project-knowledge specification, packaged skills, and files under
+`knowledge/`.
