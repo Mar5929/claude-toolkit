@@ -28,12 +28,19 @@ sessions doing the work do.
 - This run is autonomous. The per-item board issues, refinement sessions, and
   per-item owner approvals the plan calls for are collapsed into that one
   review.
-- Next item: P1-1.
+- Phase 1 is built and audited, committed through `2205029`. Five plugin
+  harnesses pass, 416 checks in total, and the four repo checks are green.
+  No v1 runtime file was touched, so D2 holds.
+- second-brain is at 3.7.0 in both manifests and the marketplace is at 0.77.0.
+- Next item: P2-1.
 - Blocked: nothing.
-- Carried into Phase 2: architecture section 24 has no traceability row for
-  FR-075 through FR-080, FR-111, or FR-112, while section 2 claims every
-  requirement has one. Those requirements belong to P2-2 and P2-6, so this
-  must be fixed before Phase 2 is audited.
+- Carried into Phase 2, decided this run and needing Mike's review: the
+  `updated` date in `knowledge/current.md` front matter is an invented field.
+  Neither authority document names a place to hold the date FR-116 compares
+  against, so Phase 1 added one. `memory.mjs update-current` must write it.
+- Also carried: `memory.mjs` reports an unknown operation or a bad flag as
+  `record/schema-invalid`. `contracts.md` now defines `cli/invalid-invocation`
+  for that, and a Phase 2 item has to switch it over.
 
 ## Work items
 
@@ -50,12 +57,12 @@ No row may say "merged" until its work is actually merged to `main`.
 | P0-5 | Supersede the stale parallel spec | in review | PR #210, `97cb988` | `knowledge/specs/memory-system-v2.md` marked superseded in place, with a pointer to the authority pair. Moving it to `archive/` is still Mike's option. `knowledge/index.md` rebuilt and no longer lists it as a live proposal. |
 | P0-6 | Final consistency review and owner approval | in review | PR #210, `97cb988` | Consistency pass done. Ids verified by audit: FR-001 to FR-131, ADR-001 to ADR-038, AT-01 to AT-46, all unique with no gaps. Both headers now say Phase 0 corrections applied, owner approval pending pull request review. Owner approval itself is not done. Section 24 still misses eight requirement rows, listed in "Where we are". |
 | P0-7 | Section 25 pre-build artifacts | in review | PR #210, `97cb988` | `contracts.md` written and audited: 23 operations behind `memory.mjs`, components mapped to files, validator checks MV-01 to MV-22, and both host startup adapters. Decisions C7, C10, and C11 are new and need Mike. `session-kickoff.md` now points at it. |
-| P1-1 | v2 required core templates and settings | not started | | |
-| P1-2 | Boot brief assembler and Claude Code startup hook | not started | | |
-| P1-3 | memory_capabilities and memory_status | not started | | |
-| P1-4 | Optional tracker adapter | not started | | |
-| P1-5 | Codex startup route | not started | | |
-| P1-6 | Current and recent rendering | not started | | |
+| P1-1 | v2 required core templates and settings | in review | PR #210, `2205029` | Template tree under `skills/second-brain/references/templates-v2/`. `project.md` front matter, `map.md` with the research-spike area, `current.md` with the four required sections, `.gitkeep` in the four memory folders and `specs/`. Setup values ship as two snippets rather than edits to the live setup skill, because D2 forbids changing v1 setup behavior now. Templates no pins file and no gold set: section 7.3.1 says a new project has neither. |
+| P1-2 | Boot brief assembler and Claude Code startup hook | in review | PR #210, `2205029` | `tools/boot-brief.mjs` and `hooks/boot-brief-session-start.mjs`. Degradation order audited against section 10.4 and matches: warnings, recent, current, map. The required set is never dropped, step 3 spares focus, blockers, and next step, and an over-budget brief runs long in visible overflow with its byte count. Hook exits 0 on every path. |
+| P1-3 | memory_capabilities and memory_status | in review | PR #210, `2205029` | `tools/memory.mjs` ships `capabilities` and `status` only. The other 21 operations report as degraded with a reason instead of being stubbed. Added `tools/lib/scope.mjs` and `tools/lib/result.mjs`, which now hold scope resolution, the fail-closed privacy default, and the result envelope. |
+| P1-4 | Optional tracker adapter | in review | PR #210, `2205029` | `tools/tracker-adapter.mjs` with the `github-project` adapter over `gh`. The command runner is injectable so fixtures cover the absent and failing cases, and both leave startup usable. |
+| P1-5 | Codex startup route | in review | PR #210, `2205029` | One marked v2 section added to `skills/second-brain/SKILL.md`, 101 lines added and none removed, so v1 setup behavior is unchanged. The route text calls `boot-brief.mjs` directly. |
+| P1-6 | Current and recent rendering | in review | PR #210, `2205029` | Current and recent blocks render authored lines only. The 72-hour window comes from section 10.3 and no separate threshold was invented. Stale warning per FR-116 names the date and survives every degradation step. |
 | P2-1 | Record schema and core validator | not started | | |
 | P2-2 | Write coordinator and approval binding | not started | | |
 | P2-3 | Pre-write guard | not started | | |
