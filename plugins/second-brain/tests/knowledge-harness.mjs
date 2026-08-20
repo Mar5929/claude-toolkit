@@ -30,9 +30,12 @@ import {
 } from "../tools/knowledge-health.mjs";
 import {
   applyMigration,
-  createRetiredReview,
+  checkMigrationIntegrity,
   detectLayout,
+  entitiesIn,
   planMigration,
+  recordIdFor,
+  rollbackMigration,
 } from "../tools/knowledge-layout.mjs";
 import { loadKnowledge } from "../hooks/knowledge-session-start.mjs";
 import { buildMessage, opensPullRequest } from "../hooks/save-reminder.mjs";
@@ -331,8 +334,8 @@ try {
       .replace("replace-with-a-stable-project-id", "fixture-v2"),
   );
   ok(
-    detectLayout(v2Project).layout === "unknown",
-    "the version 1 detector does not read a version 2 tree as the version 1 knowledge layout",
+    detectLayout(v2Project).layout === "v2",
+    "the detector reports a version 2 tree as version 2, never as the version 1 layout",
   );
   const v2Startup = loadKnowledge(v2Project);
   ok(
@@ -355,7 +358,7 @@ try {
 
   const newLayout = fixture("knowledge");
   makeKnowledge(newLayout);
-  ok(detectLayout(newLayout).layout === "knowledge", "detector reports the complete knowledge layout");
+  ok(detectLayout(newLayout).layout === "v1", "detector reports the complete version 1 knowledge layout");
 
   const flat = fixture("flat");
   makeFlat(flat);
@@ -368,7 +371,7 @@ try {
   const mixed = fixture("mixed");
   makeKnowledge(mixed);
   makeFlat(mixed);
-  ok(detectLayout(mixed).layout === "mixed", "detector blocks mixed knowledge and flat layouts");
+  ok(detectLayout(mixed).layout === "mixed", "detector blocks mixed version 1 and flat layouts");
 
   const partialRetired = fixture("partial-retired");
   write(partialRetired, ".claude/rules/second-brain.md", "# Partial\n");
@@ -585,92 +588,269 @@ try {
   ok(!historyHealth.unusedTags.includes("history"), "tags used by retained history are not called unused");
   ok(buildIndex(history).count === 0, "all retained history stays out of the startup index");
 
-  // Flat migration: no-write plan, exact-hash apply, link repair, and rerun.
-  const dryDigest = treeDigest(flat);
-  const flatPlan = planMigration(flat);
-  ok(flatPlan.blockers.length === 0, "flat migration plan has no blockers");
-  ok(treeDigest(flat) === dryDigest, "flat migration plan writes nothing");
-  ok(flatPlan.moves.some((item) => item.destination === "knowledge/project.md"), "plan moves project overview");
-  ok(flatPlan.deletes.includes("memory/index.md"), "plan discards the old generated index");
-  ok(flatPlan.rewrites.some((item) => item.file === "README.md"), "plan repairs links from outside moved tree");
-  ok(flatPlan.rewrites.some((item) => item.file === "specs/app/capability.md"), "plan repairs moved links to repository files");
-
-  let wrongHashFailed = false;
-  try {
-    applyMigration(flat, "wrong-hash");
-  } catch (error) {
-    wrongHashFailed = error.message.includes("approval hash mismatch");
+  // ---------------------------------------------------------------------------
+  // The migration engine, version 1 to version 2.
+  //
+  // AT-19 in three parts: a dry run changes nothing, an approved apply loses no
+  // file, link, or unchanged byte, and a rollback puts every byte back. The
+  // fixture is a whole version 1 project, so every mapped folder, every
+  // owner-routed folder, and every preserved area is exercised at once.
+  // ---------------------------------------------------------------------------
+  function makeV1(base) {
+    write(base, "knowledge/project.md", "# What this project is\n\nA version 1 fixture project.\n");
+    write(base, "knowledge/index.md", "# What this project has written down\n\n- [Use a flow](memory/decisions/use-a-flow.md)\n");
+    write(base, "knowledge/.obsidian/app.json", '{\n  "alwaysUpdateLinks": true\n}\n');
+    write(
+      base,
+      "knowledge/specs/app/capability.md",
+      "# Capability\n\nThe capability works.\n\n[Why a flow](../../memory/decisions/use-a-flow.md)\n\n[The gotcha](../../memory/knowledge/a-gotcha.md)\n",
+    );
+    write(
+      base,
+      "knowledge/memory/decisions/use-a-flow.md",
+      "---\nsource: user-said-it\ndate: 2026-08-11\nsession: fixture\ntags: [billing, routing]\n---\n\n# Billing uses a flow\n\n`AGENTS.md` and `CLAUDE.md` both name the flow, so the flow is the one home.\n\n```markdown\n[example](../knowledge/missing.md)\n```\n",
+    );
+    write(
+      base,
+      "knowledge/memory/context/where-it-runs.md",
+      "---\nsource: owner-paraphrase\ndate: 2026-08-11\ntags: [hosting]\n---\n\n# It runs on one box\n\nOne box, no cluster.\n",
+    );
+    write(
+      base,
+      "knowledge/memory/domain/invoice.md",
+      "---\nsource: user-said-it\ndate: 2026-08-11\ntags: [billing]\n---\n\n# An invoice is one billing run\n\nOne run, one invoice.\n",
+    );
+    write(
+      base,
+      "knowledge/memory/knowledge/a-gotcha.md",
+      "---\nsource: agent-guess-unchecked\ndate: 2026-08-11\ntags: [testing]\n---\n\n# The check has no trigger\n\n`tests/installed-copy-check.mjs` runs only when a person types it.\n",
+    );
+    write(
+      base,
+      "knowledge/memory/operations/release.md",
+      "---\nsource: owner-paraphrase\ndate: 2026-08-11\ntags: [release]\n---\n\n# Release runs on Fridays\n\nFridays, never Mondays.\n",
+    );
+    write(
+      base,
+      "knowledge/memory/planning/roadmap.md",
+      "---\nsource: user-said-it\ndate: 2026-08-11\ntags: [planning]\n---\n\n# The roadmap\n\nThree milestones.\n",
+    );
+    write(
+      base,
+      "knowledge/memory/references/vendor-doc.md",
+      "---\nsource: doc-verified\ndate: 2026-08-11\ntags: [vendor]\n---\n\n# The vendor guide\n\nWhat the vendor published.\n",
+    );
+    write(base, "knowledge/memory/tags.md", "# Memory tags\n\n| Tag | Plain-language meaning |\n| --- | --- |\n");
+    write(base, "knowledge/brainstorms/2026-08-11-raw.md", "# Raw\n\nUnchecked.\n\n```markdown\n[example](../memory/knowledge/a-gotcha.md)\n```\n");
+    write(base, "knowledge/retrieval-gold-set.md", "# Retrieval gold set\n\n- Bar: 8 of 10\n");
+    write(base, "README.md", "# Fixture\n\n[The gotcha](knowledge/memory/knowledge/a-gotcha.md)\n");
+    for (const folder of ["context", "domain", "knowledge", "operations", "planning", "references"]) {
+      write(base, `knowledge/memory/${folder}/.gitkeep`);
+    }
   }
-  ok(wrongHashFailed, "apply rejects a stale or missing approval hash");
-  ok(treeDigest(flat) === dryDigest, "wrong approval hash writes nothing");
 
-  const keepBytes = read(flat, "memory/decisions/keep-bytes.md");
-  const applied = applyMigration(flat, flatPlan.hash);
-  ok(applied.layout === "knowledge", "successful flat migration reports the new layout");
-  ok(detectLayout(flat).layout === "knowledge", "detector recognizes migrated layout");
-  ok(read(flat, "knowledge/memory/decisions/keep-bytes.md") === keepBytes, "unlinked document bytes are preserved");
-  ok(read(flat, "knowledge/memory/tags.md") === "# Memory tags\n\n- routing\n", "tag list moves unchanged");
-  ok(read(flat, "README.md").includes("knowledge/specs/app/capability.md"), "outside link points into knowledge");
-  ok(read(flat, "knowledge/specs/app/capability.md").includes("../../../README.md"), "moved link still reaches repository root");
-  ok(read(flat, "knowledge/specs/app/capability.md").includes("../../../evidence.bin"), "moved link to non-Markdown source remains valid");
-  ok(read(flat, "knowledge/brainstorms/2026-08-11-test.md").includes("[example](../specs/missing.md)"), "code-fenced example stays unchanged");
-  ok(existsSync(resolve(flat, "knowledge/.obsidian/app.json")), "migration installs minimal Obsidian config");
-  ok(existsSync(resolve(flat, "knowledge/memory/context/.gitkeep")), "migration preserves empty memory types");
-  ok(!existsSync(resolve(flat, "memory/index.md")), "old generated index is gone");
-  ok(!existsSync(resolve(flat, ".claude/skills/remember")), "old local skill copy is removed");
-  ok(read(flat, "knowledge/index.md").includes("Invoice") === false, "rebuilt index comes from migrated fixture only");
-  ok(planMigration(flat).blockers.includes("project already uses the knowledge layout"), "rerun refuses to migrate the new layout again");
+  const answered = {
+    routes: {
+      "knowledge/memory/planning/roadmap.md": "planning/roadmap.md",
+      "knowledge/memory/references/vendor-doc.md": "references/vendor-doc.md",
+      "knowledge/memory/tags.md": "retire",
+    },
+    pins: ["decision-use-a-flow"],
+    asOf: "2026-08-20",
+  };
 
-  const alternate = fixture("alternate-project");
-  makeFlat(alternate, { alternativeProject: true });
-  const alternatePlan = planMigration(alternate);
-  ok(alternatePlan.blockers.length === 0, "older planning overview is a supported flat candidate");
-  ok(alternatePlan.moves.some((item) => item.source.endsWith("what-this-project-is.md") && item.destination === "knowledge/project.md"), "planning overview maps to knowledge/project.md");
+  const v1 = fixture("v1-migration");
+  makeV1(v1);
+  ok(detectLayout(v1).layout === "v1", "detector reports the version 1 layout as the supported source");
 
-  const noTags = fixture("missing-tags");
-  makeFlat(noTags);
-  rmSync(resolve(noTags, "memory/tags.md"));
-  const noTagsPlan = planMigration(noTags);
-  ok(noTagsPlan.blockers.length === 0, "flat layout may be detected when tags are missing");
-  ok(noTagsPlan.creates.some((item) => item.path === "knowledge/memory/tags.md"), "migration creates the required tag list when absent");
+  // Deterministic id and entity derivation, from the filename and the body.
+  ok(
+    recordIdFor("decision", "knowledge/memory/decisions/use-a-flow.md") === "decision-use-a-flow",
+    "a record id derives from the version 1 filename, deterministically",
+  );
+  ok(
+    entitiesIn(v1, "knowledge/memory/decisions/use-a-flow.md", read(v1, "knowledge/memory/decisions/use-a-flow.md"))
+      .includes("AGENTS.md"),
+    "entities come from the file names the record body really writes",
+  );
 
-  const duplicateProject = fixture("duplicate-project");
-  makeFlat(duplicateProject, { alternativeProject: true });
-  write(duplicateProject, "project.md", "# Second candidate\n\nConflict.\n");
-  ok(planMigration(duplicateProject).blockers.some((item) => item.includes("multiple project overview")), "two overview candidates block migration");
+  // AT-19 part one: the dry run.
+  const beforeDigest = treeDigest(v1);
+  const unanswered = planMigration(v1);
+  ok(treeDigest(v1) === beforeDigest, "a migration plan writes nothing");
+  ok(unanswered.layout === "v1" && unanswered.target === "v2", "the plan names the source and the target layout");
+  for (const path of [
+    "knowledge/memory/planning/roadmap.md",
+    "knowledge/memory/references/vendor-doc.md",
+    "knowledge/memory/tags.md",
+  ]) {
+    ok(
+      unanswered.ownerQuestions.some((item) => item.path === path && item.answer === null),
+      `${path} is shown for owner routing rather than moved`,
+    );
+    ok(
+      unanswered.blockers.some((item) => item.includes(path)),
+      `${path} blocks apply until the owner answers`,
+    );
+  }
+  ok(
+    unanswered.blockers.every((item) => item.startsWith("migration/")),
+    "every blocker carries a reason code from the closed list",
+  );
 
-  const collision = fixture("collision");
-  makeFlat(collision);
-  write(collision, "knowledge/specs/app/capability.md", "# Existing target\n");
-  const collisionBefore = treeDigest(collision);
-  ok(planMigration(collision).blockers.length > 0, "target collision or mixed target blocks before writes");
-  ok(treeDigest(collision) === collisionBefore, "colliding plan writes nothing");
+  const plan = planMigration(v1, answered);
+  ok(plan.blockers.length === 0, "an answered plan has no blockers");
+  ok(treeDigest(v1) === beforeDigest, "an answered plan still writes nothing");
+  ok(plan.counts.upgraded === 5, "the plan counts every mapped record");
+  ok(plan.counts.moved === 2, "the plan counts the two owner-routed files");
+  ok(plan.rollback.length >= 4 && plan.rollback.every((line) => typeof line === "string"), "the plan carries its rollback steps");
 
-  const dangling = fixture("dangling");
-  makeFlat(dangling);
-  write(dangling, "specs/app/capability.md", "# Capability\n\nSummary.\n\n[Missing](../missing.md)\n");
-  ok(planMigration(dangling).blockers.some((item) => item.includes("dangling migration link")), "dangling moved link blocks migration");
+  const mapped = new Map(plan.upgrades.map((item) => [item.source, item.destination]));
+  for (const [source, destination] of [
+    ["knowledge/memory/context/where-it-runs.md", "knowledge/memory/facts/where-it-runs.md"],
+    ["knowledge/memory/domain/invoice.md", "knowledge/memory/facts/invoice.md"],
+    ["knowledge/memory/knowledge/a-gotcha.md", "knowledge/memory/facts/a-gotcha.md"],
+    ["knowledge/memory/operations/release.md", "knowledge/memory/patterns/release.md"],
+    ["knowledge/memory/decisions/use-a-flow.md", "knowledge/memory/decisions/use-a-flow.md"],
+  ]) ok(mapped.get(source) === destination, `${source} maps to ${destination}`);
 
-  const symlinked = fixture("symlink");
-  makeFlat(symlinked);
-  symlinkSync(resolve(symlinked, "README.md"), resolve(symlinked, "memory/linked.md"));
-  ok(planMigration(symlinked).blockers.some((item) => item.includes("symlink inside migration source")), "source symlink blocks migration");
+  ok(
+    plan.metadataGaps.every((item) => item.missing.some((gap) => gap.startsWith("evidence:"))),
+    "missing version 2 metadata is shown as a gap for every migrated record",
+  );
+  ok(
+    plan.followUp.some((item) => item.path === "knowledge/current.md"),
+    "the plan says which version 2 core files setup still authors",
+  );
+  ok(
+    plan.preserved.some((item) => item.path === "knowledge/retrieval-gold-set.md"),
+    "the gold set is reported as kept where it is",
+  );
+  ok(
+    plan.preserved.some((item) => item.path === "knowledge/brainstorms"),
+    "brainstorms stay in place as a mapped area",
+  );
+  ok(
+    plan.retires.some((item) => item.path === "knowledge/index.md"),
+    "the version 1 generated index retires because generated views replace it",
+  );
 
-  // Retired v3 is review-only and source-preserving.
-  const retiredPlan = planMigration(retired);
-  ok(retiredPlan.blockers.some((item) => item.includes("requires flat-149")), "retired v3 cannot use flat apply");
-  const retiredBefore = treeDigest(retired);
-  const review = fixture("retired-review");
-  const manifest = createRetiredReview(retired, review);
-  ok(treeDigest(retired) === retiredBefore, "retired review leaves source project unchanged");
-  ok(manifest.finalizationAvailable === false, "retired review exposes no finalize path");
-  ok(manifest.documents.length === 3, "retired manifest accounts for every non-index document");
-  ok(manifest.ignoredIndexes.length >= 6, "retired per-folder indexes are listed but not converted");
-  const retiredMemoryDraft = read(review, "knowledge/memory/decisions/a-choice.md");
-  ok(retiredMemoryDraft.includes("source: REVIEW_REQUIRED"), "retired memory source is never inferred");
-  ok(retiredMemoryDraft.includes("session: REVIEW_REQUIRED"), "retired memory session is never inferred");
-  ok(retiredMemoryDraft.includes("Basis: Owner-confirmed 2026-08-01"), "retired source words remain in review draft");
-  ok(read(review, "manifest.json").includes('"reviewRequired": true'), "retired review writes a machine-readable manifest");
+  let wrongHash = false;
+  try {
+    applyMigration(v1, "not-the-hash", answered);
+  } catch (error) {
+    wrongHash = error.message.includes("approval hash mismatch");
+  }
+  ok(wrongHash, "apply refuses a stale or missing approval hash");
+  ok(treeDigest(v1) === beforeDigest, "a refused apply writes nothing");
+
+  // AT-19 part two: the approved apply.
+  const bodies = new Map();
+  for (const item of plan.upgrades) {
+    const text = read(v1, item.source);
+    bodies.set(item.destination, text.slice(text.indexOf("\n---\n") + 5));
+  }
+  const goldSetBytes = read(v1, "knowledge/retrieval-gold-set.md");
+  const brainstormBytes = read(v1, "knowledge/brainstorms/2026-08-11-raw.md");
+  const specBytes = read(v1, "knowledge/specs/app/capability.md");
+
+  const applied = applyMigration(v1, plan.hash, answered);
+  ok(applied.layout === "v2", "an applied migration reports the version 2 layout");
+  ok(detectLayout(v1).layout === "v2", "the detector reports version 2 after apply");
+  ok(applied.integrity === "pass", "apply verifies its own result before it returns");
+
+  for (const [destination, body] of bodies) {
+    const text = read(v1, destination);
+    ok(text.slice(text.indexOf("\n---\n") + 5) === body, `${destination} keeps every body byte`);
+  }
+  ok(read(v1, "knowledge/retrieval-gold-set.md") === goldSetBytes, "the gold set stays at its home, byte for byte");
+  ok(read(v1, "knowledge/brainstorms/2026-08-11-raw.md") === brainstormBytes, "a fenced example is never rewritten");
+  ok(specBytes !== read(v1, "knowledge/specs/app/capability.md"), "a specification linking to a moved record is repaired");
+  ok(
+    read(v1, "knowledge/specs/app/capability.md").includes("../../memory/facts/a-gotcha.md"),
+    "the repaired specification link points at the new type folder",
+  );
+  ok(
+    read(v1, "README.md").includes("knowledge/memory/facts/a-gotcha.md"),
+    "a link from outside knowledge/ is repaired to the new path",
+  );
+  ok(
+    read(v1, "knowledge/specs/app/capability.md").includes("../../memory/decisions/use-a-flow.md"),
+    "a link to a record that did not move keeps working",
+  );
+
+  const upgraded = read(v1, "knowledge/memory/decisions/use-a-flow.md");
+  ok(upgraded.includes("id: decision-use-a-flow"), "the migrated record carries the derived id");
+  ok(upgraded.includes("type: decision"), "the migrated record carries its version 2 type");
+  ok(upgraded.includes("recorded_at: 2026-08-11"), "the version 1 date becomes recorded_at");
+  ok(upgraded.includes("topics: [billing, routing]"), "version 1 tags become version 2 topics");
+  ok(upgraded.includes("AGENTS.md"), "the migrated record lists the entities its body names");
+  ok(upgraded.includes("schema_version: 1"), "a migrated record stays on schema 1 until an approved touch completes it");
+  ok(!upgraded.includes("epistemic_status:"), "no version 2 field is invented to close a gap");
+
+  ok(existsSync(resolve(v1, "planning/roadmap.md")), "an owner-routed planning file lands where the owner said");
+  ok(existsSync(resolve(v1, "references/vendor-doc.md")), "an owner-routed reference file lands where the owner said");
+  ok(!existsSync(resolve(v1, "knowledge/memory/tags.md")), "the retired tag registry is gone");
+  ok(!existsSync(resolve(v1, "knowledge/index.md")), "the version 1 generated index is gone");
+  for (const folder of ["context", "domain", "knowledge", "operations", "planning", "references"]) {
+    ok(!existsSync(resolve(v1, `knowledge/memory/${folder}`)), `the empty version 1 ${folder} folder is removed`);
+  }
+  ok(existsSync(resolve(v1, "knowledge/memory/events/.gitkeep")), "an empty version 2 type folder is held open");
+  ok(read(v1, "knowledge/memory/pins.md").includes("decision-use-a-flow"), "the pin the owner asked for is written");
+  ok(read(v1, "knowledge/memory/pins.md").includes("2026-08-20"), "the pin records the approval date the owner gave");
+
+  ok(checkMigrationIntegrity(v1).status === "pass", "MV-18 passes on a migration that did what it planned");
+  const secondApply = planMigration(v1, answered);
+  ok(
+    secondApply.blockers.some((item) => item.includes("already runs version 2")),
+    "a second run refuses a project that is already version 2",
+  );
+
+  // MV-18 catches a byte that changed in a file the plan called unchanged.
+  const drifted = fixture("v1-drift");
+  makeV1(drifted);
+  const driftPlan = planMigration(drifted, answered);
+  applyMigration(drifted, driftPlan.hash, answered);
+  ok(checkMigrationIntegrity(drifted).status === "pass", "the drift fixture starts clean");
+  write(drifted, "knowledge/project.md", "# What this project is\n\nEdited behind the migration.\n");
+  const driftVerdict = checkMigrationIntegrity(drifted);
+  ok(driftVerdict.status === "fail", "MV-18 fails when a byte changed in a file the plan said was unchanged");
+  ok(
+    driftVerdict.findings.some((item) => item.path === "knowledge/project.md"),
+    "MV-18 names the file whose bytes moved",
+  );
+
+  // AT-19 part three: rollback.
+  const rolled = fixture("v1-rollback");
+  makeV1(rolled);
+  const rollbackDigest = treeDigest(rolled);
+  const rollbackPlan = planMigration(rolled, answered);
+  applyMigration(rolled, rollbackPlan.hash, answered);
+  ok(treeDigest(rolled) !== rollbackDigest, "apply really changed the project");
+  const undone = rollbackMigration(rolled);
+  ok(treeDigest(rolled) === rollbackDigest, "rollback restores every byte the migration touched");
+  ok(undone.layout === "v1", "rollback leaves the project on the version 1 layout");
+  ok(!existsSync(resolve(rolled, ".memory")), "rollback removes the local state it created");
+  ok(
+    checkMigrationIntegrity(rolled).status === "skipped",
+    "MV-18 reports skipped once there is no applied migration to inspect",
+  );
+
+  // flat-149 and retired-v3 are detect-only.
+  for (const [name, base] of [["flat-149", flat], ["retired-v3", retired]]) {
+    ok(detectLayout(base).layout === name, `${name} is still detected`);
+    const refused = planMigration(base);
+    const digestBefore = treeDigest(base);
+    ok(
+      refused.blockers.some((item) => item.startsWith("migration/unsupported-source")),
+      `${name} is refused as an unsupported source`,
+    );
+    ok(
+      refused.blockers.some((item) => item.includes("3.6.0")),
+      `${name} is told which earlier migration to run first`,
+    );
+    ok(treeDigest(base) === digestBefore, `refusing ${name} writes nothing`);
+  }
 
   console.log(`ALL PASS (${passed} checks), FAIL: 0`);
 } finally {

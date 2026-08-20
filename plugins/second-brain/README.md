@@ -148,24 +148,49 @@ The installed layout tool has four modes:
 
 ```text
 node .claude/tools/knowledge-layout.mjs detect [project-root] [--json]
-node .claude/tools/knowledge-layout.mjs plan [project-root] [--json]
-node .claude/tools/knowledge-layout.mjs apply [project-root] --approve <plan-hash>
-node .claude/tools/knowledge-layout.mjs review-retired [project-root] --output <empty-dir>
+node .claude/tools/knowledge-layout.mjs plan [project-root] [--route <path>=<destination|retire>]... [--pin <record-id>]... [--as-of <YYYY-MM-DD>] [--json]
+node .claude/tools/knowledge-layout.mjs apply [project-root] --approve <plan-hash> [same routing flags]
+node .claude/tools/knowledge-layout.mjs rollback [project-root]
 ```
 
-Detection uses system signatures, not folder names. It reports `knowledge`,
+Detection uses system signatures, not folder names. It reports `v1`, `v2`,
 `flat-149`, `retired-v3`, `none`, `mixed`, or `unknown`.
 
-`plan` never writes. A flat-layout plan checks targets, symlinks, and mapped
-Markdown links, and emits the hash required by `apply`. Apply moves documents
-without changing their bytes except for deterministic relative-link repair,
-discards the old generated index, and rebuilds the new one.
+The one supported source is `v1`, the version 1 `knowledge/` layout, and the
+target is the version 2 four-type tree. `flat-149` and `retired-v3` are
+detected and reported only: a project still on one of those runs the migration
+that shipped in toolkit 3.6.0 first, then this one.
 
-Retired documents cannot be converted safely by guessing what an old `Basis:`
-line means for source, date, session, source file, and tags. `review-retired`
-therefore writes drafts and a manifest to a separate empty review directory.
-It never changes or finalizes the project. The owner resolves every placeholder
-before a later approved adoption pass.
+`plan` never writes. It reports the file counts, the hashes, the collisions,
+the missing version 2 metadata, the link changes, and the rollback steps, and
+it emits the hash `apply` requires. Apply is byte-preserving for every file
+that does not change, and it stops on any ambiguity or collision before it
+writes anything.
+
+| Version 1 | Version 2 |
+| --- | --- |
+| `memory/decisions/` | `memory/decisions/` |
+| `memory/context/`, `memory/domain/`, `memory/knowledge/` | `memory/facts/` |
+| `memory/operations/` | `memory/patterns/` |
+| `memory/planning/` | The work tracker. Shown per file for owner approval, never auto-moved |
+| `memory/references/` | The reference area `knowledge/map.md` names. Shown per file for owner approval, never auto-moved |
+| `memory/tags.md` | Nothing. Version 2 has no tag registry, so the file is shown for owner routing or retirement |
+| `index.md` | Nothing. Generated views replace it |
+| `brainstorms/`, `specs/`, `project.md`, `retrieval-gold-set.md` | Kept exactly where they are |
+
+A migrated record keeps its body byte for byte and gets the version 2 fields
+this engine can derive from real version 1 content: the permanent `id` from the
+version 1 filename, the `type` from the folder mapping, `status`, `recorded_at`
+from the version 1 date, `topics` from the version 1 tags, and `entities` from
+the file names the record body actually writes. `epistemic_status`, `approval`,
+and `evidence` are reported as gaps rather than invented, and the record keeps
+`schema_version: 1` until an approved operation completes it, so the validator
+reads it as a legacy gap rather than a schema failure.
+
+Apply writes a receipt at `.memory/last-migration.json` and a preimage of every
+file it changed. `rollback` restores every one of them, deletes the files the
+migration created, and removes the receipt. It never erases approved Markdown
+and never rewrites Git history. Validator check `MV-18` reads the same receipt.
 
 Mixed, partial, ambiguous, colliding, escaping, or dangling layouts stop with
 no project write.
@@ -294,7 +319,7 @@ Every writing operation above takes the same second call as `update-current`:
 
 | File | What it is |
 | --- | --- |
-| `tools/memory.mjs` | The one entry for every v2 memory operation. It prints one JSON envelope and nothing else. This build carries `capabilities`, `status`, the retrieval router (`search`, `get`, `timeline`, `related`, `sources`, `spec-search`, and `spec-get`), `review`, `validate`, `update-current`, `rebuild-views`, the seven writing lifecycle operations, `pin`, `unpin`, and the `noop`, `cancel`, and `move` plumbing; the rest of the surface is reported as unavailable rather than stubbed. `move` stays plumbing rather than a twenty-fourth operation, because the stable surface is closed and a move creates no meaning. |
+| `tools/memory.mjs` | The one entry for every v2 memory operation. It prints one JSON envelope and nothing else. This build carries `capabilities`, `status`, the retrieval router (`search`, `get`, `timeline`, `related`, `sources`, `spec-search`, `spec-get`, and the gated `session-search`), `review`, `validate`, `update-current`, `rebuild-views`, the seven writing lifecycle operations, `pin`, `unpin`, and the `noop`, `cancel`, and `move` plumbing; the rest of the surface is reported as unavailable rather than stubbed. `move` stays plumbing rather than a twenty-fourth operation, because the stable surface is closed and a move creates no meaning. |
 | `tools/lib/scope.mjs` | Physical scope resolution, member-path testing, and the recorded privacy boundary. One home, because every entry point needs the same answer. A missing or unknown privacy value reads as the most restrictive setting. |
 | `tools/lib/result.mjs` | The result envelope with its fixed field order, the closed reason-code list, and the exit mapping: 0 ran, 1 refused, 2 could not be evaluated. |
 | `tools/lib/record-schema.mjs` | Record schema 2.0 and project settings schema 2.0: the four types, the allowed values, the required fields, the decision sections, the required project core, and the judgment of one record against all of it. It reads no file it was not handed and writes nothing. |
@@ -315,15 +340,20 @@ Every writing operation above takes the same second call as `update-current`:
 | `tests/retrieval-harness.mjs` | Builds temporary projects and runs the real command line across all six retrieval operations: the result contract, the authority order, the filters, the line between current truth and history, the exact-lookup refusals, and the two specification operations. It proves AT-13 (a search locates the record, `get` opens the whole record, and `sources` reaches the original evidence file in full), AT-15 (an unanswerable question comes back empty with the searched scope named), and AT-17 (every operation answers with no `.memory/` folder present, and the project holds exactly the same files and the same bytes afterwards). A candidate inside a declared subroot is dropped before ranking and reported as a warning. |
 | `tools/memory.mjs` (review engine) | The read-only review of architecture section 17. It reads canonical Markdown through the same collectors retrieval uses, judges it across the section 17 categories, and returns a worklist: `duplicate-candidate`, `evidence-consolidation`, `current-conflict`, `unlinked-conflict`, `provenance`, `stale-review-date`, `broken-link`, `supersession-gap`, `retired-phrase`, `stale-view`, `pin-error`, `search-capability`, and, in a deep review, `vocabulary`, `durable-information`, and the gold set. Each item names the category, the severity, the records and paths it is about, one plain sentence saying what is wrong, and one operation that would fix it. The structure is the promise: nothing in the review path writes, stages, proposes, or calls the write coordinator, so a repair can only leave through the cleanup skill and the ordinary two-phase approval. A focused review runs after every approved save and `--since` narrows it to what was settled on or after a date; a deep review runs on request, after a migration, or when the backlog is long. Age alone never proposes a deletion, similar wording never merges two records, and a category this build cannot run is reported as skipped rather than as a pass. |
 | `tests/review-harness.mjs` | Builds temporary projects and runs the real command line: a healthy project returning an empty worklist at exit 0, one project carrying an example of every focused category, the deep categories appearing only in a deep review, `--since` narrowing the record categories while the link, view, and pin categories keep running, and the call-shape refusals. It proves the write ban from both sides: after a review that found a worklist of problems the project holds exactly the same files and the same bytes with no `.memory/` folder before or after, and the P2-3 guard refuses a hand edit of the record the review just flagged, so the only route from an item to a change is an approved lifecycle operation. |
-| `tools/memory.mjs` (validator) | The section 4 checks, `MV-01` through `MV-22`. Every one runs except `MV-18`, which waits for the migration engine that builds what it inspects. It reads the required core and both host startup routes, the shared root block, the record schema and its links, the pin registry, the rendered startup brief and its degradation order, retired phrases, declared artifacts, map coverage, vocabulary, a real sample search against the section 15.2 result contract, records stranded on the tracker bridge, the local-state kinds a rebuild may delete, a before-and-after fingerprint proving a read leaves nothing behind, the ten isolation steps of section 21.9, the ten privacy steps of section 21.10, the gold set through the P3-5 runner, quoted spans against the sources they cite, relative links, and the last move's link repair. The validator writes nothing, and a check with nothing to inspect reports `skipped` with the reason. |
+| `tools/memory.mjs` (validator) | The section 4 checks, `MV-01` through `MV-22`. Every one runs. It reads the required core and both host startup routes, the shared root block, the record schema and its links, the pin registry, the rendered startup brief and its degradation order, retired phrases, declared artifacts, map coverage, vocabulary, a real sample search against the section 15.2 result contract, records stranded on the tracker bridge, the local-state kinds a rebuild may delete, a before-and-after fingerprint proving a read leaves nothing behind, the ten isolation steps of section 21.9, the ten privacy steps of section 21.10, the gold set through the P3-5 runner, quoted spans against the sources they cite, relative links, and the last move's link repair, and the migration receipt behind `MV-18`. The validator writes nothing, and a check with nothing to inspect reports `skipped` with the reason. |
 | `tools/isolation-fixtures.mjs` | The shipped section 21.11 fixtures behind `MV-16` and `MV-17`, reached only by `validate --fixtures`: two sibling projects holding the same record id and a pin each, a monorepo with declared subroots, an undeclared nested project, a symbolic link out of the scope, a similarly named sibling directory, a sensitive project, and an incomplete consent record. Each one is built under the operating system's temporary folder, read through the same scope and pin readers a real project uses, and removed before the run returns. They sit in their own file because building a fixture writes, and the retrieval path may not carry a write call. |
-| `tests/validate-harness.mjs` | Builds temporary projects and runs the real command line across the whole catalog: a healthy project where no check fails and every skipped check names its reason, and a project that really fails each check that can fail. It proves an incomplete host route, a drifted shared block, an over-budget brief, a hand-edited artifact, a map that points nowhere, a topic used once, a fact stranded on the tracker, a stray file under `.memory/`, an undeclared nested project, a link out of the scope, a secret with no reviewed exemption, a sensitive record with no stated need, approved transfer with no consent, a gold set that misses its bar, and a quoted span that is not in its source. It also proves the validator writes nothing, with and without `--fixtures`, and carries one project where every live check has something to inspect, so all twenty-one run green and `MV-18` is the only entry left reporting `skipped`. |
+| `tests/validate-harness.mjs` | Builds temporary projects and runs the real command line across the whole catalog: a healthy project where no check fails and every skipped check names its reason, and a project that really fails each check that can fail. It proves an incomplete host route, a drifted shared block, an over-budget brief, a hand-edited artifact, a map that points nowhere, a topic used once, a fact stranded on the tracker, a stray file under `.memory/`, an undeclared nested project, a link out of the scope, a secret with no reviewed exemption, a sensitive record with no stated need, approved transfer with no consent, a gold set that misses its bar, and a quoted span that is not in its source. It also proves the validator writes nothing, with and without `--fixtures`, and carries one project where every live check has something to inspect, so all twenty-one run green and `MV-18` is the only entry left reporting `skipped`, because that project was never migrated. |
+| `tools/lib/cross-scope.mjs` | The cross-scope answer, in one place. A record id or a path another scope owns is `scope/cross-scope-result`, and one that resolves nowhere stays `record/unknown-id`, so the two refusals keep meaning different things. Each message names the operation, the path, and the resolved scope root, which is what AT-45 asks a blocked attempt to show. It looks only inside the resolved root, at the record files the member test rejects and at the record trees of declared subroots: reading an undeclared sibling project to describe it would itself cross the boundary section 21 draws. It writes nothing and builds no registry, index, or cache. |
+| `tools/memory.mjs` (`session-search`) | Tier 5 of architecture section 15.5, the gated read of the host's own session history. It resolves the project scope, hands `--reason` to the gate in the session-search skill's script, and prints the contract 2.21 result: host, session id, date, role, message locator or resume route, and a short excerpt. A call with no reason, a one-word reason, or the insufficient-sources path in a sensitive project is refused with `history/gate-closed` at exit 1. A miss is `history/unavailable` at exit 0, naming the machine, host, project, and dates actually covered, because nothing found in that scope is not the same as the subject never being discussed. It copies nothing, indexes nothing, summarizes nothing, and writes nothing. |
+| `tools/knowledge-layout.mjs` | The migration engine, version 1 to version 2. It detects the layout by signature and reports `v1`, `v2`, `flat-149`, `retired-v3`, `none`, `mixed`, or `unknown`. `plan` never writes: it maps the seven version 1 memory folders onto the four version 2 types, shows every `planning/` file, `references/` file, and the tag registry for owner routing rather than moving any of them, reports the file counts, hashes, collisions, missing version 2 metadata, link changes, and rollback steps, and returns the hash `apply` requires. `apply` keeps every record body byte for byte, derives only the version 2 fields real version 1 content supports, leaves the rest as reported gaps, and stops on any ambiguity or collision. It writes a receipt and a preimage of every file it changed, which is what `rollback` restores and what validator check `MV-18` reads. `flat-149` and `retired-v3` are detect-only; their conversions retired with the version 1 engine. |
+| `tests/knowledge-harness.mjs` (migration fixtures) | Builds a whole version 1 project and proves AT-19 in three parts: a dry run leaves the tree digest untouched, an approved apply keeps every unchanged byte and every link while moving each mapped folder onto its version 2 type, and a rollback restores the exact tree the migration started from. It also proves the routing questions block apply until the owner answers, the derived id and the entities read out of a record body, the pin the owner asked for, `MV-18` failing on a byte that changed in a file the plan called unchanged, and both detect-only layouts refusing with no write. |
 
 `capabilities` answers what this project's memory can do, so an agent reads the
 build state instead of guessing: the operations it carries, the approval mode,
 the search mode, pin support and count, the startup budget, the project id and
 privacy boundary, whether data may leave the machine, the tracker adapter, the
-session-history scope, and every degraded feature with its reason.
+session-history scope and whether it is reachable, and every degraded feature
+with its reason.
 
 `status` answers what this project's memory holds right now: record counts by
 type, pin count, whether `knowledge/current.md` is present and how old its
@@ -332,9 +362,9 @@ lives, and the date the staleness comparison used.
 
 `validate` runs the twenty-two versioned checks, `MV-01` through `MV-22`, and
 prints one entry per check with its id, version, verdict, and findings. Every
-check runs except `MV-18`, migration integrity, which lands with the migration
-engine that builds what it inspects and reports `skipped` naming that work item
-until then.
+check runs. `MV-18`, migration integrity, reads the receipt the migration
+engine wrote, so a project that has never been migrated reports `skipped` and
+names the receipt it looked for.
 
 A check reports `skipped` whenever this project gives it nothing to inspect: no
 host startup route, no marked shared block, no records, no approved artifact,

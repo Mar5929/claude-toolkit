@@ -42,6 +42,7 @@ import { dirname, relative, resolve, sep } from "node:path";
 
 import { note } from "./lib/result.mjs";
 import { isMemberPath, parseFrontMatter } from "./lib/scope.mjs";
+import { unknownOrCrossScope } from "./lib/cross-scope.mjs";
 import {
   isRelativeTarget,
   relativeLinkText,
@@ -1638,7 +1639,7 @@ function pinBudgetCheck(scope, entries, options) {
  */
 function buildPin(scope, options, today) {
   const held = loadRecord(scope, options.id);
-  if (!held) return { ok: false, errors: [unknownId(options.id)] };
+  if (!held) return { ok: false, errors: [unknownId(scope, "pin", options.id)] };
 
   const errors = [];
   if (!isMemberPath(scope, absPath(scope, held.path))) {
@@ -2076,6 +2077,10 @@ function loadRecord(scope, id) {
   const wanted = String(id ?? "").trim();
   if (!wanted) return null;
   for (const entry of walkRecords(scope.scopeRoot)) {
+    // A record a declared subroot owns is not this scope's to load, let alone
+    // to write. Refusing it here is what keeps every lifecycle operation
+    // inside the resolved root (AT-45).
+    if (!isMemberPath(scope, entry.absolute)) continue;
     const text = readIfPresent(entry.absolute);
     if (text === null) continue;
     const record = parseRecord(text);
@@ -2085,8 +2090,13 @@ function loadRecord(scope, id) {
   return null;
 }
 
-function unknownId(id) {
-  return note("record/unknown-id", `no record in this scope carries the id ${id}`);
+/**
+ * The unknown-id refusal, or the cross-scope one when another scope inside
+ * this root owns the id. AT-45 wants a blocked attempt to name the operation
+ * and the resolved root rather than read as "no such record".
+ */
+function unknownId(scope, operation, id) {
+  return unknownOrCrossScope(scope, `memory_${operation}`, id);
 }
 
 /** The meaning a merge and a duplicate search compare, normalized. */
@@ -2324,7 +2334,7 @@ function buildAdd(scope, options, today) {
  */
 function buildConfirm(scope, options, today) {
   const held = loadRecord(scope, options.id);
-  if (!held) return { ok: false, errors: [unknownId(options.id)] };
+  if (!held) return { ok: false, errors: [unknownId(scope, "confirm", options.id)] };
 
   const locator = oneLine(options.evidence);
   if (!locator) {
@@ -2378,7 +2388,7 @@ function buildConfirm(scope, options, today) {
  */
 function buildCorrect(scope, options, today) {
   const held = loadRecord(scope, options.id);
-  if (!held) return { ok: false, errors: [unknownId(options.id)] };
+  if (!held) return { ok: false, errors: [unknownId(scope, "correct", options.id)] };
 
   const reason = oneLine(options.reason);
   if (!reason) {
@@ -2466,7 +2476,7 @@ function buildCorrect(scope, options, today) {
  */
 function buildSupersede(scope, options, today) {
   const held = loadRecord(scope, options.oldId);
-  if (!held) return { ok: false, errors: [unknownId(options.oldId)] };
+  if (!held) return { ok: false, errors: [unknownId(scope, "supersede", options.oldId)] };
 
   const successor = parseRecord(options.contents);
   const newId = String(successor.data.id ?? "").trim();
@@ -2548,7 +2558,7 @@ function buildSupersede(scope, options, today) {
  */
 function buildRetire(scope, options, today) {
   const held = loadRecord(scope, options.id);
-  if (!held) return { ok: false, errors: [unknownId(options.id)] };
+  if (!held) return { ok: false, errors: [unknownId(scope, "retire", options.id)] };
 
   const reason = oneLine(options.reason);
   const phrases = (options.phrases ?? []).map((phrase) => String(phrase).trim()).filter(Boolean);
@@ -2637,7 +2647,7 @@ function buildMerge(scope, options, today) {
   const errors = [];
   for (const id of ids) {
     const held = loadRecord(scope, id);
-    if (!held) errors.push(unknownId(id));
+    if (!held) errors.push(unknownId(scope, "merge", id));
     else loaded.push(held);
   }
   if (errors.length) return { ok: false, errors };
@@ -2731,7 +2741,7 @@ function buildMerge(scope, options, today) {
  */
 function buildDelete(scope, options, today) {
   const held = loadRecord(scope, options.id);
-  if (!held) return { ok: false, errors: [unknownId(options.id)] };
+  if (!held) return { ok: false, errors: [unknownId(scope, "delete", options.id)] };
 
   const reason = oneLine(options.reason);
   if (!reason) {
@@ -2982,7 +2992,7 @@ export function moveRecord(scope, options = {}) {
 
   const held = loadRecord(scope, options.id);
   if (!held) {
-    return { ok: false, status: "refused", errors: [unknownId(options.id)], warnings: state.warnings };
+    return { ok: false, status: "refused", errors: [unknownId(scope, "move", options.id)], warnings: state.warnings };
   }
 
   const destination = String(options.to ?? "").trim().replace(/^\.\//, "");

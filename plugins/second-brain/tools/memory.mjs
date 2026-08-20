@@ -13,7 +13,8 @@
  * output and nothing else. Human-readable rendering is the skill's job.
  *
  * This build implements capabilities, status, the retrieval router (search,
- * get, timeline, related, sources, spec-search, and spec-get), review,
+ * get, timeline, related, sources, spec-search, spec-get, and the gated
+ * session-search), review,
  * validate, update-current, rebuild-views, the seven writing lifecycle
  * operations, pin and unpin, and the noop, cancel, and move plumbing. The
  * other operations are not stubbed, because a stub that answers is worse than
@@ -22,8 +23,7 @@
  * follow the same rule inside themselves: a check or a category whose
  * component is not built yet, or which this project gives nothing to inspect,
  * is reported as skipped with the reason, never as a pass. The validator runs
- * every section 4 check except MV-18, migration integrity, which lands with
- * the migration engine that builds what it inspects.
+ * every section 4 check, MV-01 through MV-22.
  *
  * Every write goes to memory-write.mjs. This file resolves scope and privacy,
  * reads flags, and prints the envelope. It never touches a canonical path
@@ -58,6 +58,12 @@ import {
   parseFrontMatter,
   resolveScope,
 } from "./lib/scope.mjs";
+import {
+  crossScopeNote,
+  locateCrossScopePath,
+  outsideRootNote,
+  unknownOrCrossScope,
+} from "./lib/cross-scope.mjs";
 import {
   INFERRED_STATUSES,
   RECORD_FOLDERS,
@@ -105,6 +111,7 @@ import {
 } from "./boot-brief.mjs";
 import { runGoldSet } from "./gold-set.mjs";
 import { runIsolationFixtures, runPrivacyFixtures } from "./isolation-fixtures.mjs";
+import { checkMigrationIntegrity } from "./knowledge-layout.mjs";
 import {
   resolveLinkTarget,
   scanLinks,
@@ -137,11 +144,7 @@ const BUILD_GAPS = [
   },
   {
     feature: "validation",
-    reason: "validate runs every section 4 check except MV-18, the migration integrity check, which lands with the migration engine in P4-1",
-  },
-  {
-    feature: "session history",
-    reason: "session-search is not available in this build",
+    reason: "validate runs every section 4 check, MV-01 through MV-22; a check this project gives nothing to inspect reports skipped with the reason",
   },
   {
     feature: "boot brief",
@@ -340,8 +343,10 @@ export function capabilities(context) {
     session_history_scope: {
       scoped_by: "project_id",
       project_id: scope.projectId,
-      available: false,
-      reason: "the session-history adapter is not available in this build",
+      available: true,
+      reason: scope.privacy.level === "sensitive"
+        ? "gated: in a sensitive project only an owner request in this session opens session history"
+        : "gated: session-search runs only with a reason, either the owner asking or a named insufficiency of the current owners",
     },
     degraded,
   };
@@ -420,6 +425,9 @@ function recordIndex(scope) {
   const byId = new Map();
   const byPath = new Map();
   for (const entry of walkRecords(scope.scopeRoot)) {
+    // A record sitting in a declared subroot belongs to that scope, not this
+    // one, so it never becomes a link target this project can resolve.
+    if (!isMemberPath(scope, entry.absolute)) continue;
     const text = readIfPresent(entry.absolute);
     if (text === null) continue;
     const record = parseRecord(text);
@@ -464,7 +472,7 @@ export function related(context, options) {
   if (!held) {
     return {
       status: "refused",
-      errors: [note("record/unknown-id", `no record in this scope carries the id ${wanted}`)],
+      errors: [unknownOrCrossScope(scope, context.operation ?? "memory_related", wanted)],
     };
   }
 
@@ -780,7 +788,7 @@ function searchedScope(scope, collected, { records = true, specs = true } = {}) 
   searched.push({
     area: "session-history",
     available: false,
-    reason: "the session-history adapter is not available in this build",
+    reason: "session-history is tier 5 and gated, so a curated search never reaches it. Run session-search with a reason.",
   });
   for (const path of collected.unreadable) {
     searched.push({ area: path, available: false, reason: "the file could not be read" });
@@ -993,14 +1001,20 @@ function getOperation(context, options, { specsOnly = false } = {}) {
   let found = null;
   let reason = "";
 
+  const operation = context.operation ?? (specsOnly ? "spec_get" : "memory_get");
+
   if (options.path !== null) {
     const absolute = resolve(scope.scopeRoot, options.path);
     if (!isMemberPath(scope, absolute)) {
+      // Inside the root but owned by a declared subroot is a cross-scope
+      // answer. Not beneath the root at all is scope/outside-root, which is
+      // where a symlink escape and a similarly named sibling land.
+      const foreign = locateCrossScopePath(scope, options.path);
       return {
         status: "refused",
-        errors: [note("scope/outside-root", "the path does not sit inside this project's scope", {
-          path: options.path,
-        })],
+        errors: [foreign
+          ? crossScopeNote(scope, operation, foreign)
+          : outsideRootNote(scope, operation, options.path)],
         warnings,
         searched,
       };
@@ -1043,14 +1057,20 @@ function getOperation(context, options, { specsOnly = false } = {}) {
   }
 
   if (!found) {
+    if (options.path === null) {
+      const wanted = String(options.id ?? "").trim();
+      const refusal = unknownOrCrossScope(scope, operation, wanted);
+      if (refusal.code === "record/unknown-id" && specsOnly) {
+        refusal.message = `no specification in this scope carries the id ${wanted}`;
+      }
+      return { status: "refused", errors: [refusal], warnings, searched };
+    }
     return {
       status: "refused",
       errors: [note(
         "record/unknown-id",
-        options.path !== null
-          ? `no canonical Markdown file sits at ${options.path} in this scope`
-          : `no ${specsOnly ? "specification" : "record"} in this scope carries the id ${String(options.id ?? "").trim()}`,
-        options.path !== null ? { path: options.path } : {},
+        `no canonical Markdown file sits at ${options.path} in this scope`,
+        { path: options.path },
       )],
       warnings,
       searched,
@@ -1071,6 +1091,106 @@ function getOperation(context, options, { specsOnly = false } = {}) {
 
 function specGetOperation(context, options) {
   return getOperation(context, options, { specsOnly: true });
+}
+
+/**
+ * session_search, tier 5 of architecture section 15.5 and contract 2.21.
+ *
+ * The adapter itself is the session-search skill's script, which reads the
+ * host's own store in place. This operation resolves the project scope, hands
+ * the gate its reason, and turns the adapter's answer into the one envelope
+ * every operation prints. It copies nothing, indexes nothing, summarizes
+ * nothing, and writes nothing.
+ *
+ * The adapter is imported on the call rather than at module load, because a
+ * capabilities or status run has no business reading the transcript reader.
+ */
+async function sessionSearchOperation(context, options) {
+  const { scope } = context;
+  const operation = context.operation ?? "session_search";
+
+  let adapter;
+  try {
+    adapter = await import("../skills/session-search/scripts/search-sessions.mjs");
+  } catch (error) {
+    return {
+      status: "error",
+      errors: [note(
+        "retrieval/parse-error",
+        `the session-history adapter could not be loaded: ${error.code ?? "import failed"}`,
+      )],
+    };
+  }
+
+  let answer;
+  try {
+    answer = await adapter.searchSessionsGated({
+      query: options.query,
+      reason: options.reason,
+      projectDir: scope.scopeRoot,
+      projectId: scope.projectId,
+      sensitiveProject: scope.privacy.level === "sensitive",
+      since: options.from,
+      until: options.to,
+    });
+  } catch (error) {
+    return { status: "error", errors: [note("retrieval/parse-error", error.message)] };
+  }
+
+  const covered = {
+    machine: answer.machine ?? answer.scope?.machine ?? null,
+    host: answer.host ?? answer.scope?.host ?? null,
+    from: options.from,
+    to: options.to,
+  };
+  const searched = [{
+    area: "session-history",
+    available: true,
+    machine: covered.machine,
+    host: covered.host,
+    project_id: scope.projectId,
+    from: covered.from,
+    to: covered.to,
+  }];
+
+  if (answer.status === "refused") {
+    return {
+      status: "refused",
+      errors: [note("history/gate-closed", answer.message, {
+        detail: `resolved scope root ${scope.scopeRoot}`,
+      })],
+      searched,
+    };
+  }
+
+  // A host or machine this session cannot reach is a scoped miss, not a
+  // failure: nothing was found in the scope actually covered, which is the
+  // only honest thing to say (contract 2.21, architecture section 15.6).
+  const askedElsewhere = (options.host !== null && options.host !== covered.host)
+    || (options.machine !== null && options.machine !== covered.machine);
+
+  if (answer.status === "unavailable" || askedElsewhere) {
+    const message = askedElsewhere
+      ? `this session can read only host ${covered.host} on machine ${covered.machine}.`
+      : (answer.warnings?.[0]?.message ?? "no searchable session history is available.");
+    return {
+      status: "ok",
+      result: [],
+      warnings: [note(
+        "history/unavailable",
+        `${message} Covered machine ${covered.machine}, host ${covered.host}, project ${scope.projectId}, dates ${covered.from ?? "any"} to ${covered.to ?? "any"}.`,
+      )],
+      searched,
+    };
+  }
+
+  const entries = Array.isArray(answer.entries) ? answer.entries : [];
+  const warnings = entries.length ? [] : [note(
+    "history/unavailable",
+    `nothing matched in the scope searched. Covered machine ${covered.machine}, host ${covered.host}, project ${scope.projectId}, dates ${covered.from ?? "any"} to ${covered.to ?? "any"}. Nothing found here is not the same as the subject never being discussed.`,
+  )];
+
+  return { status: "ok", result: entries, warnings, searched };
 }
 
 /**
@@ -1148,7 +1268,7 @@ function sourcesOperation(context, options) {
   if (!found) {
     return {
       status: "refused",
-      errors: [note("record/unknown-id", `no record in this scope carries the id ${wanted}`)],
+      errors: [unknownOrCrossScope(scope, context.operation ?? "memory_sources", wanted)],
       warnings,
       searched,
     };
@@ -2585,6 +2705,22 @@ function checkPrivacy(scope, { fixtures = false } = {}) {
 }
 
 /**
+ * MV-18, migration file counts, links, hashes, and reversibility. The
+ * migration engine is the one that knows what it did, so the validator reads
+ * the receipt that engine wrote rather than reconstructing a plan a second
+ * way. A project that has never been migrated holds no receipt and reports
+ * skipped, which is not the same as a pass.
+ */
+function checkMigration(scope) {
+  const outcome = checkMigrationIntegrity(scope.scopeRoot);
+  return {
+    status: outcome.status,
+    findings: outcome.findings.map((finding) => note(finding.code, finding.message, { path: finding.path })),
+    skipped_because: outcome.skipped_because,
+  };
+}
+
+/**
  * MV-19, the retrieval gold set. The runner is the one that measures
  * retrieval, so the validator calls it rather than scoring questions a second
  * way. A missing set is a warning that blocks only a proposed retrieval
@@ -2703,7 +2839,6 @@ const CHECKS = [
     version: "2.0",
     severity: "fail",
     title: "migration file counts, links, hashes, and reversibility",
-    skipped_because: "the migration engine lands in P4-1, which builds what this check inspects",
   },
   // MV-19 carries the one split severity in section 4: a missing set is a
   // warning, and a set that runs and misses its bar is a failure. The check
@@ -2745,6 +2880,7 @@ export function validate(context, options = {}) {
     "MV-15": wanted("MV-15") ? checkNoLocalState(scope) : null,
     "MV-16": wanted("MV-16") ? checkIsolation(scope, { fixtures }) : null,
     "MV-17": wanted("MV-17") ? checkPrivacy(scope, { fixtures }) : null,
+    "MV-18": wanted("MV-18") ? checkMigration(scope) : null,
     "MV-19": wanted("MV-19") ? checkGoldSet(scope) : null,
     "MV-20": wanted("MV-20") ? checkQuotedSources(scope) : null,
     "MV-21": wanted("MV-21") ? checkRelativeLinks(scope) : null,
@@ -3546,6 +3682,14 @@ const OPERATIONS = new Map([
     },
   ],
   [
+    "session-search",
+    {
+      operation: "session_search",
+      run: sessionSearchOperation,
+      parse: parseSessionSearchFlags,
+    },
+  ],
+  [
     "noop",
     {
       operation: "memory_noop",
@@ -3892,6 +4036,44 @@ function parseSourcesFlags(args) {
   return { ok: true, options: { id: read.values.id } };
 }
 
+/**
+ * Session search of contract 2.21.
+ *
+ * `--reason` is read here and judged by the gate, never by this parser. A call
+ * with no reason is a closed gate at exit 1, not a malformed call at exit 2,
+ * because contract 2.21 says exactly that: the missing reason is the refusal,
+ * and the message has to tell the agent what would open it.
+ */
+function parseSessionSearchFlags(args) {
+  const read = readFlags(args, {
+    query: "value",
+    reason: "value",
+    host: "value",
+    machine: "value",
+    from: "value",
+    to: "value",
+  });
+  if (!read.ok) return read;
+  if (!read.values.query) return { ok: false, message: "session-search needs --query" };
+  for (const flag of ["from", "to"]) {
+    const value = read.values[flag];
+    if (value !== undefined && !DATE_ONLY.test(value)) {
+      return { ok: false, message: `--${flag} takes a YYYY-MM-DD date` };
+    }
+  }
+  return {
+    ok: true,
+    options: {
+      query: read.values.query,
+      reason: read.values.reason ?? null,
+      host: read.values.host ?? null,
+      machine: read.values.machine ?? null,
+      from: read.values.from ?? null,
+      to: read.values.to ?? null,
+    },
+  };
+}
+
 function parseRelatedFlags(args) {
   const read = readFlags(args, { id: "value" });
   if (!read.ok) return read;
@@ -4037,6 +4219,11 @@ export async function run(argv, startDir = process.cwd()) {
       errors: [context.error],
     });
   }
+
+  // The scope refusals of architecture section 21.4 name the operation in the
+  // message itself, so the context carries it rather than every operation
+  // rediscovering its own name.
+  context.operation = entry.operation;
 
   const outcome = await entry.run(context, options);
   const errors = Array.isArray(outcome?.errors) ? outcome.errors : [];

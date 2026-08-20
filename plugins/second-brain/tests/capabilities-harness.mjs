@@ -141,6 +141,7 @@ try {
         "memory_unpin",
         "spec_search",
         "spec_get",
+        "session_search",
       ]),
     "capabilities lists exactly the operations this build supports",
   );
@@ -155,15 +156,22 @@ try {
   ok(result.external_transfer === "denied", "capabilities reports whether data may leave the machine");
   ok(result.tracker === null, "no configured tracker reports null");
   ok(result.session_history_scope.scoped_by === "project_id", "session history is scoped by project id");
-  ok(result.session_history_scope.available === false, "session history is unavailable in this build");
+  ok(result.session_history_scope.available === true, "session history is available now that the gated adapter is wired in");
+  ok(
+    result.session_history_scope.reason.startsWith("gated:"),
+    "capabilities says session history is reached through the gate, not freely",
+  );
   ok(
     result.degraded.every((entry) => typeof entry.feature === "string" && typeof entry.reason === "string"),
     "every degraded entry names a feature and a reason",
   );
   ok(
-    result.degraded.some((entry) => entry.feature === "review")
-      && result.degraded.some((entry) => entry.feature === "session history"),
+    result.degraded.some((entry) => entry.feature === "review"),
     "the degraded list names the features this build does not carry in full",
+  );
+  ok(
+    !result.degraded.some((entry) => entry.feature === "session history"),
+    "session history is no longer a build gap",
   );
   ok(
     !result.degraded.some((entry) => entry.feature === "retrieval"),
@@ -307,12 +315,86 @@ try {
 
   // Call-shape refusals. An operation or flag this build does not define is a
   // call it could not evaluate, which is exit 2, not a refusal.
-  const unknown = call(plain, "session-search", "--query", "anything");
+  const unknown = call(plain, "migrate", "--from", "v1");
   ok(unknown.code === 2, "an operation this build does not carry exits 2");
   ok(unknown.payload.status === "error", "an unavailable operation could not be evaluated");
   ok(
     codes(unknown.payload.errors).includes("cli/invalid-invocation"),
     "the invalid call names a reason code from the closed list",
+  );
+
+  // The session-history gate. A call with no reason is a closed gate at exit 1,
+  // not a malformed call: contract 2.21 makes the missing reason the refusal.
+  const noReason = call(plain, "session-search", "--query", "the budget number");
+  ok(noReason.code === 1, "session-search with no reason exits 1");
+  ok(noReason.payload.status === "refused", "a closed gate is a refusal, not an error");
+  ok(
+    codes(noReason.payload.errors).includes("history/gate-closed"),
+    "the closed gate names history/gate-closed",
+  );
+  ok(
+    noReason.payload.errors[0].message.includes("owner-request"),
+    "the refusal says what would open the gate",
+  );
+  ok(noReason.payload.result === null, "a refused history search returns no entries");
+
+  const oneWord = call(plain, "session-search", "--query", "budget", "--reason", "curious");
+  ok(oneWord.code === 1, "a one-word reason does not open the gate");
+  ok(
+    codes(oneWord.payload.errors).includes("history/gate-closed"),
+    "a reason that names no insufficiency is still a closed gate",
+  );
+
+  const sensitiveGate = project("sensitive-history", {
+    frontMatter: [
+      "schema_version: 2",
+      "project_id: sensitive-project",
+      "project_root: .",
+      "subroots: []",
+      "privacy:",
+      "  level: sensitive",
+      "  external_transfer: denied",
+      "  third_party_personal: refused",
+      "",
+    ].join("\n"),
+    current: daysAgo(0),
+  });
+  ok(
+    call(sensitiveGate, "capabilities").payload.result.session_history_scope.reason
+      .includes("only an owner request"),
+    "a sensitive project says only an owner request opens session history",
+  );
+  const insufficient = call(
+    sensitiveGate,
+    "session-search",
+    "--query",
+    "the budget number",
+    "--reason",
+    "the current records and the specification do not carry this number",
+  );
+  ok(insufficient.code === 1, "the insufficient-sources path does not open history in a sensitive project");
+  ok(
+    codes(insufficient.payload.errors).includes("history/gate-closed"),
+    "the sensitive refusal names history/gate-closed",
+  );
+
+  ok(
+    call(plain, "session-search", "--query", "x", "--reason", "owner-request", "--from", "yesterday").code === 2,
+    "a malformed date is a call-shape error",
+  );
+  const opened = call(plain, "session-search", "--query", "a phrase nobody typed", "--reason", "owner-request");
+  ok(opened.code === 0, "an owner request opens the gate and a miss is not a failure");
+  ok(
+    codes(opened.payload.warnings).includes("history/unavailable"),
+    "a miss is a scoped history/unavailable warning",
+  );
+  ok(
+    opened.payload.searched.some((entry) => entry.area === "session-history" && entry.available === true),
+    "the answer names the session-history scope it covered",
+  );
+  ok(
+    JSON.stringify(opened.payload.result) === "[]",
+    "an opened gate with no match returns an empty array",
   );
   ok(call(plain, "capabilities", "--json").code === 2, "capabilities rejects a flag it does not define");
   ok(call(plain).code === 2, "a missing operation is an invalid invocation");

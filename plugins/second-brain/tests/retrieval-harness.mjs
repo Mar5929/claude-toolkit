@@ -619,6 +619,94 @@ try {
   ok(scoped.code === 0, "a dropped out-of-scope candidate does not fail the search");
 
   // -------------------------------------------------------------------------
+  // AT-45: an id or path another scope owns is a cross-scope refusal naming
+  // the operation, the path, and the resolved root. An id nothing owns stays
+  // record/unknown-id, so the two answers keep meaning different things.
+  // -------------------------------------------------------------------------
+  const crossGet = call(nested, "get", "--id", "fact-vendor-state");
+  ok(crossGet.code === 1, "get on an id another scope owns exits 1");
+  ok(
+    codes(crossGet.payload.errors).includes("scope/cross-scope-result"),
+    "AT-45: a cross-scope id is scope/cross-scope-result, not record/unknown-id",
+  );
+  const crossMessage = crossGet.payload.errors[0].message;
+  ok(crossMessage.includes("memory_get"), "AT-45: the refusal names the operation");
+  ok(
+    crossMessage.includes("knowledge/memory/facts/vendor/vendor-state.md"),
+    "AT-45: the refusal names the path",
+  );
+  ok(
+    crossMessage.includes(crossGet.payload.scope_root),
+    "AT-45: the refusal names the resolved scope root",
+  );
+  ok(
+    codes(call(nested, "get", "--id", "fact-not-here-at-all").payload.errors)
+      .includes("record/unknown-id"),
+    "an id no scope carries stays record/unknown-id",
+  );
+  ok(
+    codes(call(nested, "get", "--path", "knowledge/memory/facts/vendor/vendor-state.md").payload.errors)
+      .includes("scope/cross-scope-result"),
+    "a path inside the root that a subroot owns is cross-scope, not outside-root",
+  );
+  ok(
+    codes(call(nested, "get", "--path", "../escape.md").payload.errors).includes("scope/outside-root"),
+    "a path that is not beneath the root at all stays scope/outside-root",
+  );
+  ok(
+    call(nested, "get", "--path", "../escape.md").payload.errors[0].message
+      .includes(crossGet.payload.scope_root),
+    "AT-45: the outside-root refusal names the operation and the resolved root too",
+  );
+  ok(
+    codes(call(nested, "related", "--id", "fact-vendor-state").payload.errors)
+      .includes("scope/cross-scope-result"),
+    "related refuses a cross-scope id the same way",
+  );
+  ok(
+    codes(call(nested, "sources", "--id", "fact-vendor-state").payload.errors)
+      .includes("scope/cross-scope-result"),
+    "sources refuses a cross-scope id the same way",
+  );
+
+  // The same answer when the subroot is a project in its own right, which is
+  // the section 21.11 monorepo fixture. The message names that project.
+  const parent = project("monorepo", { subroot: "apps/vendor" });
+  const child = resolve(parent, "apps/vendor");
+  cpSync(templates, resolve(child, "knowledge"), { recursive: true });
+  write(
+    child,
+    "knowledge/project.md",
+    read(child, "knowledge/project.md").replace("replace-with-a-stable-project-id", "fixture-vendor"),
+  );
+  write(child, "knowledge/current.md", currentText());
+  write(
+    child,
+    "knowledge/memory/facts/own-state.md",
+    record("fact", "fact-vendor-own-state", "The vendor project keeps its own state"),
+  );
+  const acrossProjects = call(parent, "get", "--id", "fact-vendor-own-state");
+  ok(acrossProjects.code === 1, "a record another declared project owns is refused");
+  ok(
+    codes(acrossProjects.payload.errors).includes("scope/cross-scope-result"),
+    "AT-45: a record in a declared nested project is a cross-scope refusal",
+  );
+  ok(
+    acrossProjects.payload.errors[0].message.includes("fixture-vendor"),
+    "AT-45: the refusal names the project that owns the record",
+  );
+  ok(
+    call(parent, "pin", "--id", "fact-vendor-own-state", "--propose").payload.errors[0].code
+      === "scope/cross-scope-result",
+    "AT-45: a cross-scope pin id is refused with the same code",
+  );
+  ok(
+    codes(call(parent, "delete", "--id", "fact-vendor-own-state", "--reason", "not mine", "--propose")
+      .payload.errors).includes("scope/cross-scope-result"),
+    "AT-45: a lifecycle operation cannot reach a record another scope owns",
+  );
+
+  // -------------------------------------------------------------------------
   // AT-17: every retrieval operation works with `.memory/` absent and leaves
   // the project byte for byte as it found it.
   // -------------------------------------------------------------------------

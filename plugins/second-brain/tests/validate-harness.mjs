@@ -303,10 +303,10 @@ try {
     clean.payload.result.every((check) => check.skipped_because === null || typeof check.skipped_because === "string"),
     "a check that ran only in part still names the half it could not read",
   );
-  ok(statusOf(clean.payload, "MV-18") === "skipped", "MV-18 is the one check this build does not run");
+  ok(statusOf(clean.payload, "MV-18") === "skipped", "a project with no applied migration skips MV-18");
   ok(
-    entry(clean.payload, "MV-18").skipped_because.includes("P4-1"),
-    "MV-18 names the work item that builds what it inspects",
+    entry(clean.payload, "MV-18").skipped_because.includes("last-migration.json"),
+    "MV-18 names the receipt it would have inspected",
   );
   ok(
     clean.payload.result.filter((check) => check.status === "skipped").length
@@ -748,7 +748,7 @@ try {
   ok(
     complete.payload.result.filter((check) => check.status === "skipped")
       .map((check) => check.id).join(",") === "MV-18",
-    "MV-18 is the only check left reporting skipped",
+    "MV-18 is the only check left reporting skipped, because this project was never migrated",
   );
   ok(
     live.every((check) => check.status === "pass" || check.status === "warn"),

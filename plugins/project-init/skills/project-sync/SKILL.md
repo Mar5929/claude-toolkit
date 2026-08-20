@@ -518,20 +518,9 @@ should look in THIS project, confirm, act, summarize. Ground rules:
     workstreams and boundaries, who is involved, and where active work is
     tracked. Use those exact answers for `knowledge/project.md`, then install
     the complete layout and runtime.
-  - **Flat #149:** run
-    `node .claude/tools/knowledge-layout.mjs plan . --json`. Show the dry-run
-    moves, collisions, link repairs, and approval hash. Write nothing until the
-    owner approves that exact plan. Then run
-    `node .claude/tools/knowledge-layout.mjs apply . --approve <plan-hash>`.
-    The tool moves documents byte-for-byte except deterministic Markdown link
-    repair, discards and rebuilds only the generated index, repairs tracked
-    Markdown links into the moved tree, and verifies no document was lost.
-  - **Retired v3:** do not apply a conversion. Run
-    `node .claude/tools/knowledge-layout.mjs review-retired . --output <empty-dir>`
-    to create a review manifest and conversion drafts outside the old layout.
-    The owner must resolve every uncertain source, date, session, source-file,
-    and tag and approve the conversion before a later finalization. Keep the
-    old rule, verifier, tools, and indexes until the new layout and links pass.
+  - **Flat #149 or retired v3:** the packaged engine detects both and converts
+    neither. Tell the owner the detected state and that the migration which
+    shipped in toolkit 3.6.0 has to run first. Write nothing.
   - **New:** install only missing runtime or regenerate the index. Never rewrite
     approved documents merely to match current formatting.
   - **Mixed or unknown:** stop without writing and show the conflicting

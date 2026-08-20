@@ -430,6 +430,7 @@ export const RETRIEVAL_PATH_FILES = [
   "tools/lib/record-schema.mjs",
   "tools/lib/links.mjs",
   "tools/lib/pins.mjs",
+  "tools/lib/cross-scope.mjs",
   "hooks/boot-brief-session-start.mjs",
   "skills/session-search/scripts/search-sessions.mjs",
 ];

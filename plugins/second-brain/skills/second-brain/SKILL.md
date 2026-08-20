@@ -78,9 +78,10 @@ the toolkit repository's topic tags into another project.
 Do not create per-folder README indexes or a nested instruction file inside
 `knowledge/`. Empty type folders use `.gitkeep` until their first document.
 
-## Flat-layout migration
+## Migration
 
-First produce the no-write plan:
+The one supported source is the version 1 `knowledge/` layout. First produce
+the no-write plan:
 
 ```text
 node .claude/tools/knowledge-layout.mjs plan .
@@ -88,24 +89,34 @@ node .claude/tools/knowledge-layout.mjs plan .
 
 Show the owner:
 
-- every source and target;
-- every old generated file that will be discarded and rebuilt;
+- every source and target, and every file kept exactly where it is;
+- every generated file that will be discarded;
+- every file the owner has to route, one at a time, because the engine never
+  moves a `planning/` file, a `references/` file, or the tag registry on its
+  own;
+- every version 2 field that is missing, which is reported as a gap and never
+  filled in;
 - every Markdown file whose relative links will change;
-- every warning or blocker; and
+- every warning, collision, or blocker;
+- the rollback steps; and
 - the plan hash.
 
-After the owner approves that exact plan, run:
+Answer each routing question with a `--route <path>=<destination>` or
+`--route <path>=retire` flag, and pass the same flags to `apply`. After the
+owner approves that exact plan, run:
 
 ```text
 node .claude/tools/knowledge-layout.mjs apply . --approve <plan-hash>
 ```
 
-Then install or refresh the runtime assets and root routes described above.
-The tool moves knowledge documents and repairs Markdown links. The setup skill
-owns instruction files, settings, and hook registration because those files may
-already contain project-specific configuration.
+`node .claude/tools/knowledge-layout.mjs rollback .` undoes it while the
+receipt is still there.
 
-Never hand-edit the generated index. Rebuild it.
+Then install or refresh the runtime assets and root routes described above.
+The tool moves knowledge documents, rewrites record front matter, and repairs
+Markdown links. The setup skill owns instruction files, settings, and hook
+registration because those files may already contain project-specific
+configuration.
 
 After migration and runtime installation, run a full read-only health report:
 
@@ -117,26 +128,14 @@ Use `cleanup` to show the owner short repair summaries. Do not silently
 normalize old source values, add missing sessions, merge tags, or otherwise
 rewrite knowledge.
 
-## Retired-layout review
+## Layouts this engine detects but does not convert
 
-The old system's `Basis:` values and folder indexes cannot prove the source,
-date, session, source file, or tags required by the current memory shape.
+`flat-149` and `retired-v3` are reported by `detect` and refused by `plan`.
+Their conversions shipped in toolkit 3.6.0 and were retired with the version 1
+engine. A project on either one runs that earlier migration first, reaches the
+version 1 `knowledge/` layout, and then runs this engine.
 
-Create review material in a new empty directory outside the old knowledge tree:
-
-```text
-node .claude/tools/knowledge-layout.mjs review-retired . --output ../knowledge-review
-```
-
-The command copies supported specifications, memories, and brainstorms into
-draft paths, adds visible placeholders to memory drafts, and writes a manifest
-that accounts for each source. It leaves the project untouched and provides no
-finalize command.
-
-The owner reviews and approves every converted document through `remember`.
-Only after every source is accounted for, links resolve, the new index is
-built, startup routes work, and tests pass may an approved migration remove the
-old rule, verifier, tools, and per-folder indexes.
+Show the owner the detected state and the refusal. Write nothing.
 
 After the approved conversion is installed, run the same full health report and
 resolve every warning through `cleanup` before calling the migration complete.

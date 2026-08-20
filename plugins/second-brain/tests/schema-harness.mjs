@@ -200,10 +200,10 @@ try {
   );
   ok(entry(clean.payload, "MV-03").status === "pass", "well-formed records pass MV-03");
   ok(entry(clean.payload, "MV-04").status === "pass", "records with a basis pass MV-04");
-  ok(entry(clean.payload, "MV-18").status === "skipped", "the check whose engine is not built is skipped");
+  ok(entry(clean.payload, "MV-18").status === "skipped", "a project with no applied migration skips MV-18");
   ok(
-    entry(clean.payload, "MV-18").skipped_because.includes("P4-1"),
-    "MV-18 names the work item that builds what it inspects",
+    entry(clean.payload, "MV-18").skipped_because.includes("last-migration.json"),
+    "MV-18 names the receipt it would have inspected",
   );
   ok(
     clean.payload.result
