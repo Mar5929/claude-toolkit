@@ -24,7 +24,8 @@ files into a project, so every project it touches opts in deliberately.
   2. Hooks and guards
   3. Packaged project knowledge system under `knowledge/`
   4. Optional mechanical knowledge aids
-  5. CLAUDE.md, AGENTS.md, and `.claude/rules/`
+  5. An optional owner-written SOUL.md, plus CLAUDE.md, AGENTS.md, and
+     `.claude/rules/`
   6. Optional standalone toolkit skills, offered from the `session-skills` plugin
   It asks before acting, recommends a per-stack layout, and copies in the
   standard rule files. It does not hold the memory or knowledge systems itself;

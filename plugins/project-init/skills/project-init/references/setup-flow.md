@@ -10,7 +10,7 @@ so they always know where they are.
 [ ] Gate 2 - Hooks (guards & automation)
 [ ] Gate 3 - Project knowledge        (one Markdown vault, packaged tools)
 [ ] Gate 4 - Mechanical knowledge aids (optional impact analysis)
-[ ] Gate 5 - Root instructions + rules (thin CLAUDE.md and AGENTS.md)
+[ ] Gate 5 - Optional SOUL.md + root instructions + rules
 [ ] Gate 6 - Optional toolkit skills  (offer the session-skills plugin: all five)
 [ ] Wrap-up - summarize, note follow-ups, port-back reminder
 ```
@@ -180,7 +180,14 @@ so they always know where they are.
   Say the hook caveat out loud: git hooks are never committed, so each fresh
   clone needs that command run once or its graph silently stops updating.
 
-**Gate 5: CLAUDE.md and the rules folder**
+**Gate 5: SOUL.md, CLAUDE.md, and the rules folder**
+- Ask whether the owner wants to create a root `SOUL.md`. Explain that it holds
+  the agent's identity, communication style, defaults, and behaviors to avoid.
+  If yes, work with the owner to write it. Do not install a fixed template or
+  invent its content. Keep an existing file and never overwrite it. If the file
+  exists, put `Read SOUL.md first and follow it throughout this session.` at the
+  very top of every root `CLAUDE.md` or `AGENTS.md` the project uses. If the
+  owner declines, create no file and add no reference.
 - Behavioral rules go into the project's `.claude/rules/` as individual files,
   not into CLAUDE.md. See `thin-claudemd.md` and `library/rules/general/README.md`.
 - Copy the general rules from `library/rules/general/` into `.claude/rules/`: every
