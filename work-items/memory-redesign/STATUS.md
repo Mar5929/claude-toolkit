@@ -31,8 +31,15 @@ sessions doing the work do.
 - Phase 1 and Phase 2 are built and audited, committed through `57f6508`.
   Nine plugin harnesses pass, 940 checks in total, and the four repo checks
   are green. No v1 runtime file has been touched in either phase, so D2 holds.
-- second-brain is at 3.8.0 in both manifests and the marketplace is at 0.78.0.
-- Next item: P3-1.
+- Phase 3 is built and audited. Eleven plugin harnesses pass, 1247 checks in
+  total, the gold-set self-test adds 39, and the four repo checks are green.
+  `search-sessions.mjs` is the one v1 runtime file this phase edits, which the
+  plan allows for P3-3, and its change is additive: the pre-P3-3 harness still
+  passes unchanged against it. Four `SKILL-v2.md` drafts now sit beside four
+  untouched live `SKILL.md` files, so D2 holds. `retirement-harness.mjs` is
+  deleted per D4 with its README row removed.
+- second-brain is at 3.9.0 in both manifests and the marketplace is at 0.79.0.
+- Next item: P4-1.
 - Blocked: nothing.
 - Must be fixed before P4-2 puts the guard live in this repository: the
   pre-write guard reads Bash commands well but four indirect shapes get past
@@ -78,12 +85,12 @@ No row may say "merged" until its work is actually merged to `main`.
 | P2-5 | Pins | in review | PR #210, `57f6508` | A container restart interrupted the first build of this item. The workflow resumed from cache and a fresh agent reviewed and finished the partial work. I audited the result rather than the process: pins are complete, the registry is `knowledge/memory/pins.md`, rendering verifies the summary hash, and the cross-project isolation pair passes. Two things to note: the 320-byte pin statement limit is an invented number no document names, and the AT-06 retrieval half is deferred to Phase 3. |
 | P2-6 | Rewrite the remember skill | in review | PR #210, `57f6508` | `skills/remember/SKILL-v2.md` drafted beside the live skill, which is untouched, so D2 holds. Follows the section 13.1 pipeline and the extended 13.5 completed-work rules, and names `knowledge/specs/memory-system.md` as its authority with a note that P4-6 fills that file in. |
 | P2-7 | Links, backlinks, and move repair | in review | PR #210, `57f6508` | `lib/links.mjs`, `memory.mjs related`, and coordinator move and rename with repo-wide relative-link repair and preimage restore when any link cannot be repaired. Links harness 87 checks including the failing-repair fixture that changes nothing. Writes a `.memory/last-move.json` receipt for validator check MV-22, which no document had named. |
-| P3-1 | Retrieval router | not started | | |
-| P3-2 | Rewrite the recall skill | not started | | |
-| P3-3 | Session-history gate rework | not started | | |
-| P3-4 | Review engine and cleanup skill | not started | | |
-| P3-5 | Gold set runner | not started | | |
-| P3-6 | Full validator and harness consolidation | not started | | |
+| P3-1 | Retrieval router | in review | PR #210, retrieval harness 97 checks | `memory.mjs` gained `search`, `get`, `timeline`, `sources`, `spec-search`, and `spec-get`, all reading canonical Markdown on every call. Results carry the section 15.2 contract and rank by term coverage then the authority order. Empty stays empty at exit 0, parse and filter failures are errors at exit 2, and the envelope's `searched` field names the layers covered. The AT-17 `.memory/`-absent fixture proves reads leave the project byte for byte unchanged. |
+| P3-2 | Rewrite the recall skill | in review | PR #210, skill review against section 15 | `skills/recall/SKILL-v2.md` drafted beside the untouched live skill, so D2 holds. Teaches question routing, tiers 0 to 6, the 15.2 result contract, the authority order, the four record types with domain and topics in place of the seven v1 folders, what each `epistemic_status` permits, consequential recall through `get` plus `sources` plus original evidence, and honest failure. |
+| P3-3 | Session-history gate rework | in review | PR #210, session-search harness 21 to 62 checks | The one v1 file this phase may edit. `search-sessions.mjs` keeps every v1 field, flag, and exit code and adds host, machine, date, a message locator, and a `searchSessionsGated` entry point reached with `--reason`. A blank, missing, or one-word reason refuses with `history/gate-closed` at exit 1. `SKILL-v2.md` drafted beside the untouched live skill. Backward compatibility was proved by running the pre-P3-3 harness unchanged against the new script: 28 of 28 pass. |
+| P3-4 | Review engine and cleanup skill | in review | PR #210, review harness 68 checks | `memory.mjs review` is a structurally read-only router over fifteen section 17 categories returning the contracts 2.8 worklist shape, focused by default, `--scope deep` adding the whole-corpus categories, and the gold-set category reported as skipped rather than importing the P3-5 runner. It reuses the validator link, pin, and phrase checks, `planViewRebuild`, and `assembleBootBrief`, so nothing `lib/links.mjs` or `lib/pins.mjs` owns is duplicated. `skills/cleanup/SKILL-v2.md` routes every repair through the P2-4 operations. |
+| P3-5 | Gold set runner | in review | PR #210, self-test 36 to 39 checks | `tools/gold-set.mjs` reads the set from `knowledge/retrieval-gold-set.md` or the path `knowledge/map.md` maps it to, runs each question through the real router as a separate process, and checks the expected file against the first five results at a bar of 8 of 10. Pending, blocked, partial, and not-measured are separate outcomes, so no pass is claimed that was not earned. This repo's ten owner-worded questions are written. One defect found and fixed at phase close: the AT-18 acceleration scan waved through every `node:` specifier while the token pass strips strings, so `import { DatabaseSync } from "node:sqlite"` was not refused. A waved-through specifier is now read for the forbidden names, and three self-test checks cover it. |
+| P3-6 | Full validator and harness consolidation | in review | PR #210, validate harness 91 checks | Every section 4 check now runs except MV-18, which reports skipped naming P4-1. A check with nothing to inspect reports skipped with the reason, and MV-16 and MV-17 name the steps they did not read. `tools/isolation-fixtures.mjs` holds the section 21.11 fixtures, in its own file because the AT-18 scan forbids a write call in the retrieval path. MV-19 carries the one split severity: a missing set warns, a missed bar fails. Three things this item defines that no document named: the secret pattern set, the `Category:` and `Needed because:` lines inside a record's sensitive section, and an exemption record naming the file and the pattern id. `retirement-harness.mjs` deleted per D4. `knowledge-harness.mjs` gained v2 four-type fixtures beside its v1 ones. |
 | P4-1 | Migration engine, v1 to v2 | not started | | |
 | P4-2 | Migrate this repo and cut its runtime over | not started | | |
 | P4-3 | project-init and project-sync rewrite | not started | | |
