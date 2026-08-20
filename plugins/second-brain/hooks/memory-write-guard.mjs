@@ -104,23 +104,53 @@ const MUTATIONS = [
 ];
 
 /**
- * Two shapes hide their target from the guard rather than naming it.
+ * Three shapes hide their target from the guard rather than naming it.
  *
  *   - xargs takes its paths from another command's output, so a writer behind a
  *     pipe never receives the guarded path as an argument.
  *   - An interpreter one-liner carries the path inside a code string, where the
  *     guard cannot tell a read from a write.
+ *   - An interpreter fed by a heredoc or a here-string carries the same code
+ *     without a code flag. The body arrives on standard input, so nothing on the
+ *     command line says what it does.
  *
- * Neither is decided by reading arguments, so neither is evaluable, and the
- * fail-closed rule above answers both: a call that names a guarded path and
- * cannot be evaluated is refused. An interpreter code string holding a guarded
- * path is refused even when it may only read it, which is the accepted cost of
- * not guessing at what a code string does. xargs into a reader such as cat or
- * grep is not a writer and stays allowed.
+ * None is decided by reading arguments, so none is evaluable, and the
+ * fail-closed rule above answers all three: a call that names a guarded path and
+ * cannot be evaluated is refused. An interpreter code string or heredoc holding
+ * a guarded path is refused even when it may only read it, which is the accepted
+ * cost of not guessing at what a code body does. xargs into a reader such as cat
+ * or grep is not a writer and stays allowed, and so is a heredoc fed to anything
+ * that is not an interpreter.
  */
 const XARGS = /(^|\s)xargs(\s|$)/;
 const INTERPRETERS = /^(?:.*\/)?(python[0-9.]*|node|deno|bun|perl|ruby|php)$/;
 const CODE_FLAG = /^--?[A-Za-z0-9.]*[ceiE]/;
+const HEREDOC = /<<-?<?\s*(?:["'\\]?)[A-Za-z_]/;
+
+/**
+ * rsync copies into its destination, which is the last path argument rather
+ * than a named flag, so an ordinary token scan cannot tell the destination from
+ * the sources. The parser below reads the argument list and answers only when
+ * the direction is provable. Copying out of the guarded set to an unguarded
+ * destination is a read and stays allowed. Anything else, including
+ * --files-from, where the source list arrives from a file, is unevaluable and
+ * refused.
+ */
+const RSYNC = /(^|\s)rsync(\s|$)/;
+
+/** rsync options whose value is a separate word, so the value is not a path argument. */
+const RSYNC_VALUE_OPTIONS = new Set([
+  "-e", "-f", "-T", "-B", "--rsh", "--filter", "--exclude", "--include",
+  "--exclude-from", "--include-from", "--files-from", "--log-file", "--temp-dir",
+  "--compare-dest", "--copy-dest", "--link-dest", "--partial-dir", "--out-format",
+  "--password-file", "--block-size", "--modify-window", "--bwlimit", "--timeout",
+  "--contimeout", "--port", "--chmod", "--chown", "--suffix", "--backup-dir",
+  "--max-size", "--min-size", "--write-batch", "--read-batch", "--only-write-batch",
+  "--protocol", "--iconv", "--sockopts", "--address", "--info", "--debug",
+]);
+
+/** The rsync option that supplies the source list from a file rather than the command line. */
+const RSYNC_HIDDEN_SOURCES = "--files-from";
 
 /** Redirect targets, which are writes whatever the command in front of them is. */
 const REDIRECT = /(?:^|[^0-9<>&])(?:\d?>>?|&>>?)\s*(["']?)([^\s;|&()<>"']+)\1/g;
@@ -403,6 +433,61 @@ function carriesCode(text) {
 }
 
 /**
+ * Whether this piece feeds an interpreter from a heredoc or a here-string. The
+ * code body is not on the command line at all, so there is nothing to read.
+ */
+function carriesHeredoc(text) {
+  const words = text.split(/\s+/).filter(Boolean);
+  for (let index = 0; index < words.length; index++) {
+    if (!INTERPRETERS.test(words[index].replace(/^["']|["']$/g, ""))) continue;
+    if (HEREDOC.test(words.slice(index + 1).join(" "))) return true;
+  }
+  return false;
+}
+
+function unquote(word) {
+  return word.replace(/^["']|["']$/g, "");
+}
+
+/**
+ * The argument list of an rsync command piece, or null when the piece is not
+ * rsync. `hidden` is true when the source list comes from a file rather than
+ * from the command line, which makes the direction unprovable.
+ */
+function rsyncPlan(text) {
+  if (!RSYNC.test(text)) return null;
+  const words = text.split(/\s+/).filter(Boolean).map(unquote);
+  const start = words.findIndex((word) => /^(?:.*\/)?rsync$/.test(word));
+  if (start === -1) return { args: [], hidden: true };
+
+  const args = [];
+  let hidden = false;
+  let pending = null;
+
+  for (let index = start + 1; index < words.length; index++) {
+    const word = words[index];
+    if (pending !== null) {
+      if (pending === RSYNC_HIDDEN_SOURCES) hidden = true;
+      pending = null;
+      continue;
+    }
+    if (word.startsWith("-") && word !== "-") {
+      const name = word.includes("=") ? word.slice(0, word.indexOf("=")) : word;
+      if (word.includes("=")) {
+        if (name === RSYNC_HIDDEN_SOURCES) hidden = true;
+      } else if (RSYNC_VALUE_OPTIONS.has(name)) {
+        pending = name;
+      }
+      continue;
+    }
+    args.push(word);
+  }
+
+  if (pending !== null) hidden = true;
+  return { args, hidden };
+}
+
+/**
  * What one command-line token is, as far as this guard is concerned. The kind
  * is "unresolved" when the scope will not resolve and the shape of the text is
  * all that is left to read.
@@ -428,6 +513,23 @@ const UNRESOLVED_REFUSAL = () => refusal(
   + " project scope would not resolve, so the guard could not evaluate it",
   "memory.mjs with the operation the change needs, once the scope resolves",
 );
+
+/** The refusal for a command that would change one guarded target outright. */
+function writeRefusal(found, intent) {
+  if (found.kind === "settings") {
+    return refusal(
+      "settings/owner-only",
+      "this command would rewrite knowledge/project.md, which carries the"
+      + " recorded scope and privacy boundary",
+      "an owner edit, made by the owner and not by an agent",
+    );
+  }
+  return refusal(
+    "write/guard-refused",
+    `this command would change ${label(found.kind)} without the owner's review`,
+    operationFor(found.kind, found.absolute, intent),
+  );
+}
 
 /** One Bash call. Each piece of the command line is judged on its own. */
 export function checkBashCall(input, startDir) {
@@ -470,6 +572,37 @@ export function checkBashCall(input, startDir) {
   for (const { text, cwd: at, allowed } of pieces) {
     if (allowed) continue;
 
+    // rsync names its destination by position rather than by flag, so the
+    // argument list is read directly. Copying out of the guarded set into an
+    // unguarded destination is a read and stays allowed. A guarded destination
+    // is a write. A direction the guard cannot prove is refused instead.
+    const rsync = rsyncPlan(text);
+    if (rsync !== null) {
+      const provable = !rsync.hidden && rsync.args.length >= 2;
+      const scanned = provable ? [rsync.args[rsync.args.length - 1]] : [...rsync.args, ...pathTokens(text)];
+      for (const candidate of scanned) {
+        const found = guardedTarget(roots, candidate, at);
+        if (found === null) continue;
+        if (found.kind === "unresolved") return UNRESOLVED_REFUSAL();
+        if (provable) return writeRefusal(found, "write");
+        if (found.kind === "settings") {
+          return refusal(
+            "settings/owner-only",
+            "this rsync command names knowledge/project.md and the guard could not"
+            + " prove the file is only being read from, so it could not evaluate the"
+            + " call, and that file carries the recorded scope and privacy boundary",
+            "an owner edit, made by the owner and not by an agent",
+          );
+        }
+        return refusal(
+          "write/guard-refused",
+          `this rsync command names ${label(found.kind)} and the guard could not prove`
+          + " the path is only being read from, so it could not evaluate the call",
+          operationFor(found.kind, found.absolute, "write"),
+        );
+      }
+    }
+
     const kind = mutationKind(text);
     const targets = redirectTargets(text);
     if (kind === null && targets.length === 0) continue;
@@ -484,41 +617,35 @@ export function checkBashCall(input, startDir) {
       const found = guardedTarget(roots, candidate, at);
       if (found === null) continue;
       if (found.kind === "unresolved") return UNRESOLVED_REFUSAL();
-      if (found.kind === "settings") {
-        return refusal(
-          "settings/owner-only",
-          "this command would rewrite knowledge/project.md, which carries the"
-          + " recorded scope and privacy boundary",
-          "an owner edit, made by the owner and not by an agent",
-        );
-      }
-      return refusal(
-        "write/guard-refused",
-        `this command would change ${label(found.kind)} without the owner's review`,
-        operationFor(found.kind, found.absolute, kind ?? "write"),
-      );
+      return writeRefusal(found, kind ?? "write");
     }
   }
 
   // Pass two: a piece that writes without ever naming its target. xargs reads
   // its paths from the pipeline, so the whole command line is searched for
-  // them. An interpreter code string carries its own, so only that piece is.
+  // them. An interpreter code string carries its own, so only that piece is. A
+  // heredoc body arrives on its own lines, which are pieces of their own, so the
+  // whole command line is searched for that shape too.
   for (const { text, cwd: at, allowed } of pieces) {
     if (allowed) continue;
     const feeder = XARGS.test(text) ? mutationKind(text) : null;
     const code = carriesCode(text);
-    if (feeder === null && !code) continue;
+    const heredoc = !code && carriesHeredoc(text);
+    if (feeder === null && !code && !heredoc) continue;
 
-    const searched = feeder === null ? [{ text, cwd: at }] : pieces;
+    const searched = feeder === null && !heredoc ? [{ text, cwd: at }] : pieces;
     for (const { text: source, cwd: sourceCwd } of searched) {
       for (const candidate of pathTokens(source)) {
         const found = guardedTarget(roots, candidate, sourceCwd);
         if (found === null) continue;
         if (found.kind === "unresolved") return UNRESOLVED_REFUSAL();
 
-        const how = feeder === null
-          ? "inside an interpreter code string the guard cannot read"
-          : "into a writer through xargs, where the write target is never named";
+        let how = "inside an interpreter code string the guard cannot read";
+        if (feeder !== null) {
+          how = "into a writer through xargs, where the write target is never named";
+        } else if (heredoc) {
+          how = "inside an interpreter heredoc body the guard cannot read";
+        }
         if (found.kind === "settings") {
           return refusal(
             "settings/owner-only",

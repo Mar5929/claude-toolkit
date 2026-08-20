@@ -920,7 +920,32 @@ try {
   ok(viaLink.denied, "linking over a canonical record is denied");
   ok(viaLink.reason.includes("memory.mjs correct"), "the link refusal names memory.mjs correct");
 
-  ok(same(guardBefore, snapshot(guarded)), "every canonical file is unchanged after the four hidden-target routes");
+  const viaHeredoc = guard(guarded, {
+    tool_name: "Bash",
+    tool_input: {
+      command: "python3 <<EOF\nopen('knowledge/memory/facts/kept.md','w').write('x')\nEOF",
+    },
+  });
+  ok(viaHeredoc.denied, "an interpreter fed a heredoc holding a canonical path is denied");
+  ok(viaHeredoc.reason.includes("write/guard-refused"), "the heredoc refusal carries the write/guard-refused code");
+  ok(viaHeredoc.reason.includes("memory.mjs correct"), "the heredoc refusal names the operation for an existing record");
+
+  const viaRsync = guard(guarded, {
+    tool_name: "Bash",
+    tool_input: { command: "rsync -av /tmp/replacement/ knowledge/memory/facts/" },
+  });
+  ok(viaRsync.denied, "rsync copying into the canonical memory tree is denied");
+  ok(viaRsync.reason.includes("write/guard-refused"), "the rsync refusal carries the write/guard-refused code");
+
+  const viaRsyncList = guard(guarded, {
+    tool_name: "Bash",
+    tool_input: { command: "rsync -av --files-from=list.txt knowledge/memory /tmp/backup" },
+  });
+  ok(viaRsyncList.denied, "an rsync whose source list comes from a file is denied as unevaluable");
+  ok(viaHeredoc.code === 0 && viaRsync.code === 0 && viaRsyncList.code === 0,
+    "the guard still exits 0 when it refuses a heredoc or an rsync");
+
+  ok(same(guardBefore, snapshot(guarded)), "every canonical file is unchanged after the seven hidden-target routes");
 
   // The same shapes when they only read. A guard that refused these would make
   // the guarded set unreadable, which is not what it is for.
@@ -936,6 +961,14 @@ try {
     tool_name: "Bash",
     tool_input: { command: "dd if=knowledge/memory/facts/kept.md of=/tmp/copy.md" },
   }).denied, "dd reading a canonical record and writing elsewhere is allowed");
+  ok(!guard(guarded, {
+    tool_name: "Bash",
+    tool_input: { command: "rsync -av knowledge/memory/ /tmp/backup/" },
+  }).denied, "rsync copying out of the canonical memory tree to an unguarded destination is allowed");
+  ok(!guard(guarded, {
+    tool_name: "Bash",
+    tool_input: { command: "cat <<EOF > /tmp/note.md\nknowledge/memory/facts/kept.md\nEOF" },
+  }).denied, "a heredoc fed to something that is not an interpreter is not refused");
 
   // What the guard does not touch.
   ok(!guard(guarded, {
