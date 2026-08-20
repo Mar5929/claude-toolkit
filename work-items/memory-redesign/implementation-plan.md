@@ -23,6 +23,7 @@ Two documents are the authority on behavior. When this plan and those documents 
 - Any change to a plugin's shipped content bumps that plugin's version numbers in the same pull request: its `.claude-plugin/plugin.json`, its `.codex-plugin/plugin.json`, and `metadata.version` in `.claude-plugin/marketplace.json`. Current second-brain values: 3.6.0, 3.6.0. Current project-init: 0.47.0. Marketplace: 0.76.0. During Phases 1 to 3, second-brain takes ordinary 3.7.x bumps per pull request. The 4.0.0 release happens once, in P4-7.
 - `main` stays installable at all times. No pull request may leave the plugin half working.
 - When a work item becomes a board issue, the issue body carries only the goal, the reason, and what finished means. The file paths and build steps in this plan go into the issue's comments, per the root `CLAUDE.md` board rules.
+- Mike requires that agents building these work items run on Claude Opus 5. A session or subagent doing build work from this plan uses the `claude-opus-5` model (`model: "opus"` when spawning agents or workflows).
 
 ## Decisions this plan makes
 
