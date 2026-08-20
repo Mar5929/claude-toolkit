@@ -28,6 +28,12 @@ Read, in this order:
    When the plan, this file, or anything else disagrees with them, they
    win. When they contradict each other or are ambiguous, stop and ask
    Mike. Never guess.
+4. [contracts.md](contracts.md), if your work item builds or changes a
+   runtime file, a tool operation, a validator check, or a startup route.
+   It names the file that owns every component, the call and error shape
+   of every operation, the id and version of every validator check, and
+   the two host startup adapters. The two authority documents still win
+   over it.
 
 ### 2. Pick and claim
 
