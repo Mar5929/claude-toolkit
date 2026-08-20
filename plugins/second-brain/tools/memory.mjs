@@ -80,6 +80,7 @@ import {
   trackedMarkdown,
   updateCurrent,
 } from "./memory-write.mjs";
+import { assembleBootBrief } from "./boot-brief.mjs";
 import {
   resolveLinkTarget,
   scanLinks,
