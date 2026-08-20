@@ -124,8 +124,21 @@ negotiable at build time:
 - A refusal writes nothing. No lock, no journal, no partial file, no retry with a
   widened boundary.
 
-The two hooks always exit 0. They are fail-open by design, so a broken memory system
-degrades a session instead of stopping one.
+Both hooks exit 0 in every path, but for different reasons, and the difference matters.
+
+- `boot-brief-session-start.mjs` is **fail-open**. It exits 0 because a broken memory
+  system should degrade a session, never stop one.
+- `memory-write-guard.mjs` exits 0 because that is how a Claude Code `PreToolUse` hook
+  reports a decision. It refuses by printing
+  `{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny",
+  "permissionDecisionReason":"<message>"}}` on standard output, which is the shape the
+  other guard hooks in this repository already use. The exit code is not the refusal.
+- The guard is **fail-closed on the guarded paths**. If it cannot decide, because scope
+  resolution failed or the tool input would not parse, and the call names a path that
+  could be inside the guarded set, it denies and says why. An undecidable guard that
+  allows the write is not a guard (architecture section 13.3).
+- The guard stays silent on every call it does not guard. A tool call that touches
+  nothing in the guarded set prints nothing.
 
 ### 1.5 Two-phase writes
 
@@ -166,6 +179,29 @@ Where the owner edited the review file, the agent passes `--content-hash` comput
 the current file contents. The coordinator reruns placement, record type, provenance,
 duplicate, conflict, schema, privacy, and future-agent interpretation checks against
 those contents before it writes anything (FR-113).
+
+A successful apply returns this `result` payload. It is the same for every two-phase
+operation, so the contracts in section 2 do not repeat it. They name only the fields
+their own operation adds.
+
+```json
+{
+  "proposal_id": "p-2026-08-20-0001",
+  "operation": "memory_add",
+  "changed_paths": ["knowledge/memory/decisions/example.md"],
+  "record_id": "decision-example-001",
+  "pin_removed": null,
+  "artifacts_rebuilt": [],
+  "validation": "passed",
+  "journal": "cleared"
+}
+```
+
+`changed_paths` lists every canonical path the transaction touched, which is
+architecture section 13.4 step 8. One approved write is one reported operation even
+when it changes several files. A failed transaction restores the preimages, reports
+`write/validation-failed` or `write/link-repair-failed`, and returns
+`changed_paths: []`, because nothing changed.
 
 A skip needs no second call. The review file is removed by
 `memory.mjs cancel --proposal <id>`, which touches nothing canonical.
@@ -259,7 +295,23 @@ Twenty-three operations. Every one of them is reached through `memory.mjs`. Each
 contract names the file that does the work behind it.
 
 Fields shared by every contract are in section 1 and are not repeated. Where a contract
-says "Approval: two-phase", it runs the propose and apply flow in section 1.5.
+says "Approval: two-phase", it runs the propose and apply flow in section 1.5, and its
+apply result is the payload defined there.
+
+How to read each contract:
+
+- **Inputs** are the flags on the `Command` line. A flag in square brackets is
+  optional. Every other flag is required, and a missing one is refused before the
+  preflight with `record/schema-invalid`. Where a default matters, a separate Inputs
+  line names it. No operation reads standard input.
+- **Outputs** are the `Result` line, carried in the `result` field of the section 1.3
+  envelope. A read operation that finds nothing returns an empty array or `null`, never
+  a message.
+- **Errors** are the reason codes from section 1.6, carried in the `errors` array.
+  Every code the contract does not name is still possible from the shared preflight in
+  section 1.8.
+- **Exit** follows section 1.4. Only `memory_validate` states its own exit rule, and it
+  states it because its exit depends on the worst check status in the run.
 
 ### 2.1 memory_capabilities
 
@@ -667,6 +719,17 @@ when what the check inspects or what counts as a failure changes.
   warning, never a failure, because migration preserves legacy records without
   inventing metadata (FR-053).
 
+Which checks read which schema, so section 25's "the project settings and record
+schemas have versioned validators" resolves to named checks rather than to a module:
+
+| Schema | Read by |
+| --- | --- |
+| Record schema 2.0 | MV-03 (fields, allowed values, unique ids, approval, provenance), MV-04 (evidence for inference), MV-05 (link fields), MV-12 (the result contract built from it) |
+| Project settings schema 2.0 | MV-01 (the keys the required core needs), MV-07 (`startup.budget_bytes`), MV-16 (`project_id`, `project_root`, `subroots`), MV-17 (the `privacy` block) |
+
+No check reads a schema field that `tools/lib/record-schema.mjs` does not define. That
+is what keeps one home for the schema and stops a check from inventing a rule.
+
 ### 4.2 The checks
 
 Severity `fail` means exit 1. Severity `warn` means exit 0 with a finding.
@@ -844,6 +907,17 @@ which is ADR-003. Neither host imports the other host's root file.
 identity, the operating route, project purpose, the current focus, the blockers, the
 next step, the latest handoff line, any valid pin, or the memory tool route.
 
+Three rendering rules the assembler cannot trade away for room:
+
+- The stale warning defined in architecture section 10.6 survives every degradation
+  step, as one labeled line carrying its date. A brief that hides how old its current
+  state is misleads worse than a brief that runs long. That is AT-43.
+- Degradation step 3 collapses only current areas that have not changed. It never
+  touches the current focus, the blockers, or the next step.
+- When the required set alone will not fit, the hook renders every required block
+  anyway, reports `startup/over-budget` with the exact byte count, and continues in a
+  visible overflow mode. It never drops a required block to fit.
+
 ### 5.2 Codex
 
 Codex reads `AGENTS.md` and nothing else. No `CLAUDE.md`, no `.claude/rules/`, and no
@@ -933,6 +1007,10 @@ provide before it may write canonical project knowledge (architecture section 13
   this as an addition to the architecture's code list, for the owner to accept or drop.
 - The guard is deterministic. No model sits in its path. The same call always produces
   the same answer.
+- A refusal is a `permissionDecision` of `deny` printed on standard output, with the
+  reason code and the operation that should have been used in
+  `permissionDecisionReason`. The hook still exits 0, per section 1.4. On a guarded
+  path it fails closed: an unparsed tool input or a failed scope resolution denies.
 - A refusal is visible in the session. Refusals are not logged to a durable ledger, and
   the canonical files stay unchanged, which is what AT-39 proves.
 - The coordinator itself is never blocked, because it writes to the filesystem from
@@ -945,7 +1023,7 @@ provide before it may write canonical project knowledge (architecture section 13
 | Every section 8 component has an owner and a package destination | Section 3 of this document |
 | Every section 16.1 tool has an interface contract and an error contract | Sections 1 and 2 of this document |
 | Every section 22 test maps to a check | The AT traceability table in `implementation-plan.md`, plus the harness list in section 3 here. See the gap noted in section 8 |
-| Project settings and record schemas have versioned validators | Section 4.1 and `tools/lib/record-schema.mjs` |
+| Project settings and record schemas have versioned validators | Section 4.1, including the table naming which checks read which schema, backed by `tools/lib/record-schema.mjs` |
 | The two supported hosts have startup adapter designs | Section 5 |
 | Direct file search works with `.memory/` absent and creates no local state | Contracts 2.3 through 2.7, and checks MV-14 and MV-15 |
 | Pin budget and cross-project tests exist before pin operations ship | Contract 2.16, check MV-06, and the section 21.11 fixtures run by MV-16 |
@@ -954,7 +1032,7 @@ provide before it may write canonical project knowledge (architecture section 13
 
 ## 7. Decisions this document makes
 
-Nine choices the authority documents left open. Each one picks the reading that
+Eleven choices the authority documents left open. Each one picks the reading that
 contradicts nothing and can be built.
 
 - **C1: One command-line entry, `memory.mjs`, for all 23 operations.** The plan already
@@ -987,6 +1065,16 @@ contradicts nothing and can be built.
 - **C9: Two supporting commands, `cancel` and `brief`, exist without joining the
   section 16.1 surface.** Both are plumbing for operations that surface already
   defines. Neither can write canonical Markdown.
+- **C10: The startup hook fails open and the guard hook fails closed.** Both exit 0,
+  because that is how a Claude Code hook reports a decision, so the exit code was never
+  the control. The startup hook exits 0 with a warning when anything breaks, because a
+  broken memory system should not stop a session. The guard denies when it cannot
+  decide about a guarded path, because a guard that allows what it could not evaluate
+  is not a guard. Architecture section 13.3 requires the refusal to happen before the
+  write applies, and this is the only reading that delivers that.
+- **C11: One apply result shape for every two-phase write.** Section 1.5 defines it
+  once, including `changed_paths`, which is architecture section 13.4 step 8. A per
+  operation result shape would drift, and the harnesses have to assert one shape.
 
 ## 8. What this document does not decide, and one gap
 
