@@ -2710,6 +2710,11 @@ function checkPrivacy(scope, { fixtures = false } = {}) {
  * the receipt that engine wrote rather than reconstructing a plan a second
  * way. A project that has never been migrated holds no receipt and reports
  * skipped, which is not the same as a pass.
+ *
+ * The receipt declares an expected-follow-up set: the files the owner has to
+ * change after apply, project.md front matter among them. A changed byte in
+ * one of those is expected and lands in skipped_because. Every other
+ * divergence from the receipt still fails.
  */
 function checkMigration(scope) {
   const outcome = checkMigrationIntegrity(scope.scopeRoot);

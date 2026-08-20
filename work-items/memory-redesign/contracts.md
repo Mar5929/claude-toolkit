@@ -883,6 +883,26 @@ Inspects a migration plan against its apply result. Failure looks like a changed
 in a file the plan said was unchanged, a link that did not survive, a count mismatch,
 or a rollback that does not restore. Lands in P4-1, which builds what it checks.
 
+The plan and the receipt carry a **declared expected-follow-up set**: the files the
+owner has to change after apply, which the engine does not author. It is
+`knowledge/project.md` for the version 2 front matter, `knowledge/current.md`, and
+`knowledge/map.md`. A changed byte in a declared follow-up file is expected. MV-18
+reports it in `skipped_because`, naming the files whose bytes it did not compare, and
+still passes. A declared follow-up file that is gone is not the change the plan
+declared and still fails. Every other divergence from the receipt fails as above.
+
+*Amendment, 2026-08-20, for Mike to review at the pull request.* As first written,
+MV-18 could never pass on a real migrated project. The engine records
+`knowledge/project.md` as unchanged, the owner then has to add the version 2 front
+matter to it because scope cannot resolve without it, and MV-18 failed on exactly that
+byte. The fix is the declared set above rather than a special case for one path: the
+plan says up front which files the owner must change, and the check answers against
+that declaration. Two things Mike decides here. **One:** whether the set is right at
+those three files. **Two:** whether this raises the check to version 2.1. Section 4.1
+says a change to what counts as a failure raises the revision, and this is one. The
+build left it at 2.0 because the version number is asserted across the harnesses and
+was outside the fix's brief, so the bump is a one-line follow-up once Mike accepts it.
+
 **MV-19, the retrieval gold set. Version 2.0. Severity: warn when the set is missing, fail when it runs and misses the bar.**
 Inspects `knowledge/retrieval-gold-set.md`, or the path `knowledge/map.md` maps it to.
 Failure looks like fewer than eight of the ten expected files appearing in the first
@@ -1047,6 +1067,14 @@ provide before it may write canonical project knowledge (architecture section 13
   with a mutation token: a redirect, `tee`, `cp`, `mv`, `rm`, `sed -i`, `truncate`, or
   an editor invocation. A Bash call that invokes `memory.mjs` or `memory-write.mjs` is
   allowed, because those carry the review.
+- A `Bash` call that hands a guarded path to an interpreter inside a code string, a
+  heredoc, or a here-string is refused as unevaluable, because nothing on the command
+  line says whether the body reads or writes. Shells are interpreters for this rule:
+  `bash`, `sh`, `zsh`, `dash`, `ksh`, and the `sh` in `busybox sh`, alongside `node`,
+  `python`, and the rest. `bash -c 'rm <guarded>'` hides its mutation token inside a
+  quoted string, so the argument scan never sees a writer, and reading the string would
+  mean parsing a second shell. The accepted cost is that `bash -c 'cat <guarded>'` is
+  refused too. A direct `cat` or `grep` of a guarded path stays allowed.
 - `git` commands are allowed. The owner keeps ordinary Git access to every canonical
   file, and approved writes still have to be committed. This is a stated consequence in
   section 13.3, not an oversight: an agent that runs `git checkout` on a canonical file

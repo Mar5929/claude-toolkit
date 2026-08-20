@@ -190,7 +190,10 @@ reads it as a legacy gap rather than a schema failure.
 Apply writes a receipt at `.memory/last-migration.json` and a preimage of every
 file it changed. `rollback` restores every one of them, deletes the files the
 migration created, and removes the receipt. It never erases approved Markdown
-and never rewrites Git history. Validator check `MV-18` reads the same receipt.
+and never rewrites Git history. The receipt also carries the declared
+expected-follow-up set, the files the owner still has to author after apply:
+`knowledge/project.md` for the version 2 front matter, `knowledge/current.md`,
+and `knowledge/map.md`. Validator check `MV-18` reads the same receipt.
 
 Mixed, partial, ambiguous, colliding, escaping, or dangling layouts stop with
 no project write.
@@ -346,7 +349,7 @@ Every writing operation above takes the same second call as `update-current`:
 | `tools/lib/cross-scope.mjs` | The cross-scope answer, in one place. A record id or a path another scope owns is `scope/cross-scope-result`, and one that resolves nowhere stays `record/unknown-id`, so the two refusals keep meaning different things. Each message names the operation, the path, and the resolved scope root, which is what AT-45 asks a blocked attempt to show. It looks only inside the resolved root, at the record files the member test rejects and at the record trees of declared subroots: reading an undeclared sibling project to describe it would itself cross the boundary section 21 draws. It writes nothing and builds no registry, index, or cache. |
 | `tools/memory.mjs` (`session-search`) | Tier 5 of architecture section 15.5, the gated read of the host's own session history. It resolves the project scope, hands `--reason` to the gate in the session-search skill's script, and prints the contract 2.21 result: host, session id, date, role, message locator or resume route, and a short excerpt. A call with no reason, a one-word reason, or the insufficient-sources path in a sensitive project is refused with `history/gate-closed` at exit 1. A miss is `history/unavailable` at exit 0, naming the machine, host, project, and dates actually covered, because nothing found in that scope is not the same as the subject never being discussed. It copies nothing, indexes nothing, summarizes nothing, and writes nothing. |
 | `tools/knowledge-layout.mjs` | The migration engine, version 1 to version 2. It detects the layout by signature and reports `v1`, `v2`, `flat-149`, `retired-v3`, `none`, `mixed`, or `unknown`. `plan` never writes: it maps the seven version 1 memory folders onto the four version 2 types, shows every `planning/` file, `references/` file, and the tag registry for owner routing rather than moving any of them, reports the file counts, hashes, collisions, missing version 2 metadata, link changes, and rollback steps, and returns the hash `apply` requires. `apply` keeps every record body byte for byte, derives only the version 2 fields real version 1 content supports, leaves the rest as reported gaps, and stops on any ambiguity or collision. It writes a receipt and a preimage of every file it changed, which is what `rollback` restores and what validator check `MV-18` reads. `flat-149` and `retired-v3` are detect-only; their conversions retired with the version 1 engine. |
-| `tests/knowledge-harness.mjs` (migration fixtures) | Builds a whole version 1 project and proves AT-19 in three parts: a dry run leaves the tree digest untouched, an approved apply keeps every unchanged byte and every link while moving each mapped folder onto its version 2 type, and a rollback restores the exact tree the migration started from. It also proves the routing questions block apply until the owner answers, the derived id and the entities read out of a record body, the pin the owner asked for, `MV-18` failing on a byte that changed in a file the plan called unchanged, and both detect-only layouts refusing with no write. |
+| `tests/knowledge-harness.mjs` (migration fixtures) | Builds a whole version 1 project and proves AT-19 in three parts: a dry run leaves the tree digest untouched, an approved apply keeps every unchanged byte and every link while moving each mapped folder onto its version 2 type, and a rollback restores the exact tree the migration started from. It also proves the routing questions block apply until the owner answers, the derived id and the entities read out of a record body, the pin the owner asked for, `MV-18` failing on a byte that changed in a file the plan called unchanged and passing on the follow-up the plan declared, and both detect-only layouts refusing with no write. |
 
 `capabilities` answers what this project's memory can do, so an agent reads the
 build state instead of guessing: the operations it carries, the approval mode,
@@ -364,7 +367,9 @@ lives, and the date the staleness comparison used.
 prints one entry per check with its id, version, verdict, and findings. Every
 check runs. `MV-18`, migration integrity, reads the receipt the migration
 engine wrote, so a project that has never been migrated reports `skipped` and
-names the receipt it looked for.
+names the receipt it looked for. On a migrated project it expects the owner to
+change the files the receipt declared as follow-ups, reports those rather than
+failing on them, and fails on every other divergence.
 
 A check reports `skipped` whenever this project gives it nothing to inspect: no
 host startup route, no marked shared block, no records, no approved artifact,

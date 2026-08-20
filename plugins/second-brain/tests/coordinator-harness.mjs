@@ -906,6 +906,38 @@ try {
     tool_input: { command: "node -e \"require('fs').writeFileSync('knowledge/current.md','x')\"" },
   }).reason.includes("memory.mjs update-current"), "a node one-liner naming knowledge/current.md is denied and names update-current");
 
+  // A shell is an interpreter too. Both of these reached the guarded set
+  // before the shells joined the code-string rule: the mutation token sits
+  // inside a quoted string, so the argument scan in pass one never sees a
+  // writer, and the guard has no business parsing a second shell to find one.
+  const viaShellCode = guard(guarded, {
+    tool_name: "Bash",
+    tool_input: { command: "bash -c 'rm knowledge/memory/facts/kept.md'" },
+  });
+  ok(viaShellCode.denied, "a shell code string holding a canonical path is denied");
+  ok(viaShellCode.reason.includes("write/guard-refused"), "the shell refusal carries the write/guard-refused code");
+  ok(viaShellCode.reason.includes("shell code string"), "the shell refusal says the code string could not be read");
+
+  const viaHereString = guard(guarded, {
+    tool_name: "Bash",
+    tool_input: { command: "sh <<< 'rm knowledge/memory/facts/kept.md'" },
+  });
+  ok(viaHereString.denied, "a shell here-string holding a canonical path is denied");
+  ok(viaHereString.reason.includes("write/guard-refused"), "the here-string refusal carries the write/guard-refused code");
+
+  ok(guard(guarded, {
+    tool_name: "Bash",
+    tool_input: { command: "busybox sh -c 'rm knowledge/memory/facts/kept.md'" },
+  }).denied, "busybox sh is the same shape and is denied on the sh that follows it");
+
+  // Pass one still owns a command that names its target outright, so a plain
+  // removal is refused as the write it is rather than re-described as a code
+  // string the guard could not read.
+  ok(
+    !scriptRemove.reason.includes("code string"),
+    "a plainly named removal is still judged once, by the pass that reads arguments",
+  );
+
   const viaDd = guard(guarded, {
     tool_name: "Bash",
     tool_input: { command: "dd if=/dev/null of=knowledge/current.md" },
@@ -945,7 +977,7 @@ try {
   ok(viaHeredoc.code === 0 && viaRsync.code === 0 && viaRsyncList.code === 0,
     "the guard still exits 0 when it refuses a heredoc or an rsync");
 
-  ok(same(guardBefore, snapshot(guarded)), "every canonical file is unchanged after the seven hidden-target routes");
+  ok(same(guardBefore, snapshot(guarded)), "every canonical file is unchanged after every hidden-target route");
 
   // The same shapes when they only read. A guard that refused these would make
   // the guarded set unreadable, which is not what it is for.
@@ -957,6 +989,14 @@ try {
     tool_name: "Bash",
     tool_input: { command: "python3 -c \"print('hello')\"" },
   }).denied, "an interpreter one-liner that names no canonical path is allowed");
+  ok(!guard(guarded, {
+    tool_name: "Bash",
+    tool_input: { command: "bash -c 'echo hello'" },
+  }).denied, "a shell code string that names no canonical path is allowed");
+  ok(!guard(guarded, {
+    tool_name: "Bash",
+    tool_input: { command: "grep -n heading knowledge/memory/facts/kept.md" },
+  }).denied, "a direct read of a canonical file with grep is still allowed");
   ok(!guard(guarded, {
     tool_name: "Bash",
     tool_input: { command: "dd if=knowledge/memory/facts/kept.md of=/tmp/copy.md" },

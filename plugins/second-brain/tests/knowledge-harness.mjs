@@ -10,6 +10,7 @@ import {
   readdirSync,
   rmSync,
   symlinkSync,
+  unlinkSync,
   writeFileSync,
 } from "node:fs";
 import { execFileSync } from "node:child_process";
@@ -806,18 +807,75 @@ try {
     "a second run refuses a project that is already version 2",
   );
 
-  // MV-18 catches a byte that changed in a file the plan called unchanged.
+  // MV-18 catches a byte that changed in a file the plan called unchanged and
+  // did not declare as an owner follow-up.
   const drifted = fixture("v1-drift");
   makeV1(drifted);
   const driftPlan = planMigration(drifted, answered);
-  applyMigration(drifted, driftPlan.hash, answered);
+  const driftApplied = applyMigration(drifted, driftPlan.hash, answered);
   ok(checkMigrationIntegrity(drifted).status === "pass", "the drift fixture starts clean");
-  write(drifted, "knowledge/project.md", "# What this project is\n\nEdited behind the migration.\n");
+  ok(
+    driftApplied.followUp.map((item) => item.path).sort().join(",")
+      === "knowledge/current.md,knowledge/map.md,knowledge/project.md",
+    "apply declares the expected-follow-up set the owner still has to author",
+  );
+  write(drifted, "knowledge/brainstorms/2026-08-11-raw.md", "# Raw\n\nEdited behind the migration.\n");
   const driftVerdict = checkMigrationIntegrity(drifted);
   ok(driftVerdict.status === "fail", "MV-18 fails when a byte changed in a file the plan said was unchanged");
   ok(
-    driftVerdict.findings.some((item) => item.path === "knowledge/project.md"),
+    driftVerdict.findings.some((item) => item.path === "knowledge/brainstorms/2026-08-11-raw.md"),
     "MV-18 names the file whose bytes moved",
+  );
+
+  // The other direction. The post-migration follow-up the owner is told to do
+  // is the one change MV-18 expects, so the check reports it and still passes.
+  // Without this, MV-18 could never pass on a real migrated project: scope
+  // does not resolve until the version 2 front matter is in project.md.
+  const followed = fixture("v1-follow-up");
+  makeV1(followed);
+  const followPlan = planMigration(followed, answered);
+  applyMigration(followed, followPlan.hash, answered);
+  ok(checkMigrationIntegrity(followed).status === "pass", "the follow-up fixture starts clean");
+  write(
+    followed,
+    "knowledge/project.md",
+    "---\nschema_version: 2\nproject_id: follow-up\nproject_root: .\n---\n\n# What this project is\n",
+  );
+  const followVerdict = checkMigrationIntegrity(followed);
+  ok(
+    followVerdict.status === "pass",
+    "MV-18 passes when the owner makes the version 2 front matter follow-up the plan declared",
+  );
+  ok(followVerdict.findings.length === 0, "the declared follow-up raises no finding");
+  ok(
+    followVerdict.skipped_because.includes("knowledge/project.md"),
+    "MV-18 reports the declared follow-up file whose bytes it did not compare",
+  );
+
+  // The declaration covers the declared files and nothing else, so an ordinary
+  // file that drifts in the same project still fails alongside it.
+  write(followed, "knowledge/brainstorms/2026-08-11-raw.md", "# Raw\n\nAlso edited.\n");
+  const bothVerdict = checkMigrationIntegrity(followed);
+  ok(bothVerdict.status === "fail", "a declared follow-up does not excuse any other file in the same project");
+  ok(
+    bothVerdict.findings.length === 1
+      && bothVerdict.findings[0].path === "knowledge/brainstorms/2026-08-11-raw.md",
+    "the failure names only the file the plan never declared",
+  );
+
+  // A declared follow-up file that is gone is not the change the plan
+  // declared, so it still fails. The declaration says the owner edits these
+  // files, not that they may delete them.
+  const removed = fixture("v1-follow-up-gone");
+  makeV1(removed);
+  const removedPlan = planMigration(removed, answered);
+  applyMigration(removed, removedPlan.hash, answered);
+  unlinkSync(resolve(removed, "knowledge/project.md"));
+  const removedVerdict = checkMigrationIntegrity(removed);
+  ok(removedVerdict.status === "fail", "MV-18 still fails when a declared follow-up file is gone entirely");
+  ok(
+    removedVerdict.findings.some((item) => item.path === "knowledge/project.md"),
+    "MV-18 names the declared follow-up file that is gone",
   );
 
   // AT-19 part three: rollback.

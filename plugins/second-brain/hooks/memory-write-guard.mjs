@@ -121,9 +121,22 @@ const MUTATIONS = [
  * cost of not guessing at what a code body does. xargs into a reader such as cat
  * or grep is not a writer and stays allowed, and so is a heredoc fed to anything
  * that is not an interpreter.
+ *
+ * A shell is an interpreter here, which is why bash, sh, zsh, dash, and ksh are
+ * on the list beside python and node. `bash -c 'rm <guarded>'` is the same shape
+ * as `node -e`: the code lives in a string, and the mutation token inside that
+ * string is quoted, so the argument scan in pass one never sees a writer at all.
+ * Reading the string would mean parsing a second shell, which is exactly the
+ * guessing this rule refuses to do. `busybox sh -c` needs no entry of its own,
+ * because the word this test matches is the `sh` that follows `busybox`.
+ *
+ * The two passes stay separate. Pass one judges a command that names its target
+ * as an argument, and it runs first, so a plain `rm <guarded>` is still refused
+ * as the ordinary write it is and is never re-described as a code string. Pass
+ * two only sees the shapes pass one could not decide.
  */
 const XARGS = /(^|\s)xargs(\s|$)/;
-const INTERPRETERS = /^(?:.*\/)?(python[0-9.]*|node|deno|bun|perl|ruby|php)$/;
+const INTERPRETERS = /^(?:.*\/)?(python[0-9.]*|node|deno|bun|perl|ruby|php|bash|sh|zsh|dash|ksh)$/;
 const CODE_FLAG = /^--?[A-Za-z0-9.]*[ceiE]/;
 const HEREDOC = /<<-?<?\s*(?:["'\\]?)[A-Za-z_]/;
 
@@ -640,11 +653,11 @@ export function checkBashCall(input, startDir) {
         if (found === null) continue;
         if (found.kind === "unresolved") return UNRESOLVED_REFUSAL();
 
-        let how = "inside an interpreter code string the guard cannot read";
+        let how = "inside an interpreter or shell code string the guard cannot read";
         if (feeder !== null) {
           how = "into a writer through xargs, where the write target is never named";
         } else if (heredoc) {
-          how = "inside an interpreter heredoc body the guard cannot read";
+          how = "inside an interpreter or shell heredoc or here-string body the guard cannot read";
         }
         if (found.kind === "settings") {
           return refusal(

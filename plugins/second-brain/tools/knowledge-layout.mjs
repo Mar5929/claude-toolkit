@@ -120,7 +120,22 @@ export const PRESERVED_IN_PLACE = Object.freeze([
   { path: "knowledge/.obsidian", role: "Editor settings, not project truth" },
 ]);
 
-/** The version 2 core this engine does not author, because the owner does. */
+/**
+ * The declared expected-follow-up set: the version 2 core this engine does not
+ * author, because the owner does, after apply returns.
+ *
+ * The plan reports it as `followUp` and the receipt records it as `follow_up`,
+ * so the set is declared before the migration runs and is still readable long
+ * afterwards. MV-18 reads it from the receipt.
+ *
+ * Declaring the set is what keeps MV-18 answerable on a real project. Every
+ * one of these files has to change after apply for the project to work at all:
+ * scope cannot resolve until the version 2 front matter is in project.md. A
+ * check that recorded those files as unchanged and then failed on the owner
+ * doing the very thing the migration told them to do could never pass. So the
+ * declaration is part of the plan, and MV-18 treats a changed byte in one of
+ * these files as expected and reports it. Any other divergence still fails.
+ */
 export const OWNER_AUTHORED_CORE = Object.freeze([
   {
     path: "knowledge/current.md",
@@ -1185,6 +1200,15 @@ function rmTree(absolute) {
  * Inspect an applied migration against the plan that produced it. This is what
  * validator check MV-18 calls. A project with no receipt has no migration to
  * inspect, which is reported as skipped rather than as a pass.
+ *
+ * One divergence is expected rather than wrong. The plan declares an
+ * expected-follow-up set, OWNER_AUTHORED_CORE above, and the receipt carries it
+ * as `follow_up`. Those files are the ones the owner has to change after apply,
+ * so their bytes are not compared against the receipt: a changed byte in a
+ * declared follow-up file is reported in `skipped_because` and the check still
+ * passes. A file that is gone is not a follow-up change and still fails,
+ * because the declaration says the owner edits these files, not that they may
+ * delete them. Every other divergence from the receipt fails exactly as before.
  */
 export function checkMigrationIntegrity(projectRoot) {
   const root = resolve(projectRoot || process.cwd());
@@ -1200,6 +1224,11 @@ export function checkMigrationIntegrity(projectRoot) {
   }
 
   const add = (code, message, path) => findings.push({ code, message, path });
+
+  // The declared expected-follow-up set, read from the receipt so an older
+  // receipt with no declaration behaves exactly as it did before.
+  const followUp = new Set((receipt.follow_up ?? []).map((item) => item.path));
+  const changedFollowUp = [];
 
   const counts = receipt.counts ?? {};
   const measured = {
@@ -1242,7 +1271,8 @@ export function checkMigrationIntegrity(projectRoot) {
     const bytes = readIfPresent(resolve(root, item.path), true);
     if (bytes === null) add("migration/ambiguous", "a file the migration created is gone", item.path);
     else if (sha256(bytes) !== item.sha256) {
-      add("migration/ambiguous", "a file the migration created no longer matches its recorded hash", item.path);
+      if (followUp.has(item.path)) changedFollowUp.push(item.path);
+      else add("migration/ambiguous", "a file the migration created no longer matches its recorded hash", item.path);
     }
   }
 
@@ -1250,7 +1280,8 @@ export function checkMigrationIntegrity(projectRoot) {
     const bytes = readIfPresent(resolve(root, item.path), true);
     if (bytes === null) add("migration/ambiguous", "a file the plan said was unchanged is gone", item.path);
     else if (sha256(bytes) !== item.sha256) {
-      add("migration/ambiguous", "a byte changed in a file the plan said was unchanged", item.path);
+      if (followUp.has(item.path)) changedFollowUp.push(item.path);
+      else add("migration/ambiguous", "a byte changed in a file the plan said was unchanged", item.path);
     }
   }
 
@@ -1289,7 +1320,22 @@ export function checkMigrationIntegrity(projectRoot) {
     skipped = "the migration is no longer marked reversible, so the rollback half of this check has nothing to inspect";
   }
 
-  return { status: findings.length > 0 ? "fail" : "pass", findings, skipped_because: skipped };
+  // Declared follow-up files are reported rather than failed, in the same
+  // field the check already uses to name a half it did not inspect.
+  const reported = [];
+  if (skipped !== null) reported.push(skipped);
+  if (changedFollowUp.length > 0) {
+    reported.push(
+      "these files changed after apply and the plan declared them as owner follow-ups, so their bytes"
+      + ` were not compared against the receipt: ${[...new Set(changedFollowUp)].sort().join(", ")}`,
+    );
+  }
+
+  return {
+    status: findings.length > 0 ? "fail" : "pass",
+    findings,
+    skipped_because: reported.length > 0 ? reported.join("; ") : null,
+  };
 }
 
 function isRecordedElsewhere(receipt, path) {
@@ -1387,7 +1433,7 @@ function printPlan(plan, asJson) {
     for (const item of visible.metadataGaps) console.log(`  ${item.path}: ${item.missing.join("; ")}`);
   }
   if (visible.followUp.length) {
-    console.log("Setup still authors:");
+    console.log("Expected follow-up, declared here and recorded in the receipt, which setup still authors:");
     for (const item of visible.followUp) console.log(`  ${item.path}: ${item.note}`);
   }
   if (visible.collisions.length) {
