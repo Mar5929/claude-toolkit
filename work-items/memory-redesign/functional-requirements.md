@@ -142,7 +142,10 @@ The startup context, delivered through the host's own loading path, always cover
   specifications, memories, and references before choosing a home.
 - **FR-011:** One meaning must have one canonical home. Other files must link instead
   of restating it.
-- **FR-012:** Active work state must remain in the configured work tracker.
+- **FR-012:** Live work-item state must remain in the configured work tracker when a
+  project has one, and must not be copied into durable memory records. Continuity
+  content in `knowledge/current.md` links to the work item under FR-102 instead of
+  restating its live status.
 - **FR-013:** Standing agent behavior must live in rules or the output style, and
   reusable agent processes must live in skills.
 - **FR-014:** Approved product behavior must live in specifications.
@@ -416,11 +419,18 @@ The startup context, delivered through the host's own loading path, always cover
 
 ### Session continuity
 
-- **FR-102:** The configured work tracker must own the current state, blockers, exact
-  next step, and an authored handoff that another agent can use without the prior
-  conversation.
-- **FR-103:** Cross-machine continuity must depend on the tracker and approved project
-  records. It must not depend on machine-local session history.
+- **FR-102:** The memory system must own the project's current-state file at
+  `knowledge/current.md`. That file must carry the current focus, the known blockers,
+  the exact next step, and an authored handoff that another agent can use without the
+  prior conversation. It must work in a project that has no work tracker. Where a
+  tracker is configured, the file links to the live work item instead of copying its
+  status into a second current-status record.
+- **FR-103:** Cross-machine continuity must depend on `knowledge/current.md` and
+  approved project records. It must not depend on machine-local session history and
+  must not require a work tracker. A configured tracker adapter may add work-item
+  links and live status when it is reachable. When no tracker is configured, or the
+  configured tracker cannot be reached, startup must show the dated content of
+  `knowledge/current.md` and label live status unverified.
 - **FR-104:** Native host session history must remain optional, read-only, and in its
   original host-owned location. The memory system may search it only when the owner
   asks or current project sources are insufficient.
@@ -433,6 +443,24 @@ The startup context, delivered through the host's own loading path, always cover
 - **FR-107:** A history result used for exact past wording must identify the original
   host session and message location so the agent can open the source before relying on
   it.
+- **FR-114:** `knowledge/current.md` must be written only through the approved memory
+  write path, and only on three triggers: an explicit handoff, an approved change of
+  current focus, and an approved completed-work event that changes current state. No
+  other route, agent, hook, or background process may write it.
+- **FR-115:** Startup must deliver the current-and-recent briefing deterministically
+  and read-only. It reads `knowledge/current.md`, the project's pinned records, and
+  the dated summaries of recently approved records, then renders a briefing inside the
+  configured budget. The same inputs must always produce the same briefing. Startup
+  must not rewrite `knowledge/current.md`, create a session summary, or write any
+  other stored state.
+- **FR-116:** When `knowledge/current.md` is missing, or its latest dated update is
+  older than the recent window, startup must show a visible stale warning naming that
+  date and continue with the dated content it has. It must never invent current state
+  or build it from conversation history.
+- **FR-117:** Normal use must not require hand-editing `knowledge/current.md`. The
+  triggers in FR-114 keep it current through the approved write path. The file stays
+  plain readable Markdown the owner can inspect and correct directly, and the system
+  must keep maintaining it after a hand correction.
 
 ### Deferred capability
 
@@ -562,10 +590,16 @@ The system is accepted when all of these are proven in a real project:
   its raw evidence in the original work item, and working links in both directions.
 - An unreviewed research report remains available as a labeled reference without
   becoming a decision, memory record, or approved specification.
-- A new session on another machine continues from the tracker's authored handoff
-  without requiring access to the previous machine's conversation history.
+- A new session on another machine continues from the authored handoff in
+  `knowledge/current.md` without requiring access to the previous machine's
+  conversation history, including in a project that has no work tracker.
 - Removing or losing every searchable native session leaves current project recall
-  and continuity working from the tracker and approved project records.
+  and continuity working from `knowledge/current.md` and approved project records.
+- An out-of-date `knowledge/current.md` produces a visible stale warning naming its
+  date instead of an invented current state.
+- Startup renders the current-and-recent briefing without writing anything, and
+  `knowledge/current.md` changes only through an explicit handoff, an approved
+  current-focus change, or an approved completed-work event.
 - The memory system creates no transcript copy, transcript index, generated session
   summary, session card, or duplicate current-status record.
 - Gearset documentation gathered for a Salesforce project remains in the mapped
