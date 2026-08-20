@@ -121,7 +121,11 @@ try {
       === JSON.stringify([
         "memory_capabilities",
         "memory_status",
+        "memory_search",
+        "memory_get",
+        "memory_timeline",
         "memory_related",
+        "memory_sources",
         "memory_validate",
         "memory_update_current",
         "memory_rebuild_views",
@@ -134,6 +138,8 @@ try {
         "memory_delete",
         "memory_pin",
         "memory_unpin",
+        "spec_search",
+        "spec_get",
       ]),
     "capabilities lists exactly the operations this build supports",
   );
@@ -154,8 +160,13 @@ try {
     "every degraded entry names a feature and a reason",
   );
   ok(
-    result.degraded.some((entry) => entry.feature === "retrieval"),
+    result.degraded.some((entry) => entry.feature === "review")
+      && result.degraded.some((entry) => entry.feature === "session history"),
     "the degraded list names the features this build does not carry yet",
+  );
+  ok(
+    !result.degraded.some((entry) => entry.feature === "retrieval"),
+    "retrieval is no longer degraded now that the router is built",
   );
   ok(
     codes(caps.payload.warnings).includes("tracker/not-configured"),
@@ -295,7 +306,7 @@ try {
 
   // Call-shape refusals. An operation or flag this build does not define is a
   // call it could not evaluate, which is exit 2, not a refusal.
-  const unknown = call(plain, "search", "--query", "anything");
+  const unknown = call(plain, "review", "--scope", "focused");
   ok(unknown.code === 2, "an operation this build does not carry exits 2");
   ok(unknown.payload.status === "error", "an unavailable operation could not be evaluated");
   ok(

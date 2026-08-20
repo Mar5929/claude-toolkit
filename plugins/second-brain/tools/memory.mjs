@@ -12,7 +12,8 @@
  * update-current. Every operation prints exactly one JSON envelope on standard
  * output and nothing else. Human-readable rendering is the skill's job.
  *
- * This build implements capabilities, status, related, validate,
+ * This build implements capabilities, status, the retrieval router (search,
+ * get, timeline, related, sources, spec-search, and spec-get), validate,
  * update-current, rebuild-views, the seven writing lifecycle operations, pin
  * and unpin, and the noop, cancel, and move plumbing. The other operations are
  * not stubbed, because
@@ -69,6 +70,7 @@ import {
   noop as noopOutcome,
   phraseHunt,
   pinOperation,
+  planViewRebuild,
   readMoveReceipt,
   readPinRegistry,
   rebuildViews,
@@ -594,6 +596,20 @@ function layerFor(data) {
   return "active-memory";
 }
 
+/**
+ * Whether one evidence locator names a file this project actually holds.
+ * `null` means the question does not apply, which is what a locator carrying a
+ * scheme (a URL, a ticket reference) gets: this build does not reach outside
+ * the project to check it. `sources` and the review engine ask the same
+ * question, so they read the same answer.
+ */
+function locatorReach(scope, locator) {
+  const text = String(locator ?? "").trim();
+  if (!text || /^[a-z][a-z0-9+.-]*:/i.test(text)) return null;
+  const absolute = resolve(scope.scopeRoot, text.split("#")[0]);
+  return isMemberPath(scope, absolute) && existsSync(absolute);
+}
+
 /** What a result rests on, named without copying the record's body. */
 function provenanceOf(data) {
   const approval = data.approval && typeof data.approval === "object" && !Array.isArray(data.approval)
@@ -834,13 +850,17 @@ function retrievalResult(scope, candidate, matchReason, extra = {}) {
 
 /**
  * Rank by relevance first, then by the section 15.2 authority order, then by
- * what is current, then by path. The last two keys make the order total, so
- * the same project answers the same question the same way every time.
+ * the weighted score, then by what is current, then by path. Relevance is how
+ * many of the query's terms the candidate answers. Two candidates that answer
+ * the same terms are equally relevant, which is the case FR-031 settles in
+ * favor of the specification or the primary source. The last keys make the
+ * order total, so the same project answers the same question the same way
+ * every time.
  */
 function rankMatches(matches) {
   return matches.sort((a, b) => b.matched.length - a.matched.length
-    || b.score - a.score
     || AUTHORITY_ORDER[a.candidate.layer] - AUTHORITY_ORDER[b.candidate.layer]
+    || b.score - a.score
     || (STATUS_ORDER[a.candidate.status] ?? 3) - (STATUS_ORDER[b.candidate.status] ?? 3)
     || a.candidate.path.localeCompare(b.candidate.path));
 }
@@ -961,6 +981,18 @@ function getOperation(context, options, { specsOnly = false } = {}) {
       };
     }
     const wanted = relativePath(scope, absolute);
+    if (specsOnly && !wanted.startsWith(SPEC_FOLDER)) {
+      return {
+        status: "refused",
+        errors: [note(
+          "record/unknown-id",
+          `${wanted} is not a specification, so spec-get does not answer for it`,
+          { path: wanted },
+        )],
+        warnings,
+        searched,
+      };
+    }
     found = collected.candidates.find((candidate) => candidate.path === wanted) ?? null;
     if (!found) {
       // A canonical file the walk does not carry, such as a specification
@@ -1099,17 +1131,13 @@ function sourcesOperation(context, options) {
 
   const evidence = blockList(found.data.evidence).map((entry) => {
     const locator = String(entry.locator ?? "").trim() || null;
-    let reachable = null;
-    if (locator && !/^[a-z][a-z0-9+.-]*:/i.test(locator)) {
-      const absolute = resolve(scope.scopeRoot, locator.split("#")[0]);
-      reachable = isMemberPath(scope, absolute) && existsSync(absolute);
-      if (!reachable) {
-        warnings.push(note(
-          "startup/missing-source",
-          "a cited source is not reachable inside this project",
-          { path: found.path, detail: locator },
-        ));
-      }
+    const reachable = locatorReach(scope, locator);
+    if (reachable === false) {
+      warnings.push(note(
+        "startup/missing-source",
+        "a cited source is not reachable inside this project",
+        { path: found.path, detail: locator },
+      ));
     }
     return {
       source_type: String(entry.source_type ?? "").trim() || null,
@@ -1540,28 +1568,28 @@ const CHECKS = [
     version: "2.0",
     severity: "fail",
     title: "direct search returns complete records",
-    skipped_because: "the retrieval router is not available in this build",
+    skipped_because: "this build does not inspect a search run",
   },
   {
     id: "MV-13",
     version: "2.0",
     severity: "fail",
     title: "no tracker bridge as the sole home of a fact",
-    skipped_because: "the retrieval router is not available in this build",
+    skipped_because: "the tracker bridge reader is not available in this build",
   },
   {
     id: "MV-14",
     version: "2.0",
     severity: "fail",
     title: "identical canonical results after deleting and rebuilding derived state",
-    skipped_because: "the retrieval router is not available in this build",
+    skipped_because: "the delete-and-rebuild fixtures are not available in this build",
   },
   {
     id: "MV-15",
     version: "2.0",
     severity: "fail",
     title: "reads and retrieval create no local state",
-    skipped_because: "the retrieval router is not available in this build",
+    skipped_because: "the no-local-state fixtures are not available in this build",
   },
   {
     id: "MV-16",
@@ -1757,6 +1785,14 @@ const OPERATIONS = new Map([
     },
   ],
   [
+    "sources",
+    {
+      operation: "memory_sources",
+      run: sourcesOperation,
+      parse: parseSourcesFlags,
+    },
+  ],
+  [
     "validate",
     {
       operation: "memory_validate",
@@ -1790,6 +1826,24 @@ const OPERATIONS = new Map([
       parse: pinParser(command),
     },
   ]),
+  // The two specification operations carry no memory_ prefix, because the
+  // stable surface names them spec_search and spec_get.
+  [
+    "spec-search",
+    {
+      operation: "spec_search",
+      run: specSearchOperation,
+      parse: searchParser({ filters: false }),
+    },
+  ],
+  [
+    "spec-get",
+    {
+      operation: "spec_get",
+      run: specGetOperation,
+      parse: parseGetFlags,
+    },
+  ],
   [
     "noop",
     {
@@ -2063,6 +2117,80 @@ function pinParser(command) {
   };
 }
 
+/** Read --limit, which is a whole number above zero or nothing at all. */
+function readLimit(raw, fallback) {
+  if (raw === undefined) return { ok: true, limit: fallback };
+  if (!/^\d+$/.test(raw) || Number(raw) === 0) {
+    return { ok: false, message: "--limit takes a whole number above zero" };
+  }
+  return { ok: true, limit: Number(raw) };
+}
+
+/**
+ * One parser for search and spec-search. spec-search defines no record
+ * filters, because a specification is not one of the four record types.
+ */
+function searchParser({ filters }) {
+  return (args) => {
+    const read = readFlags(args, filters
+      ? { query: "value", type: "value", status: "value", domain: "value", topic: "value", limit: "value" }
+      : { query: "value", limit: "value" });
+    if (!read.ok) return read;
+    if (read.values.query === undefined) {
+      return { ok: false, message: "search needs --query" };
+    }
+    const limit = readLimit(read.values.limit, 20);
+    if (!limit.ok) return limit;
+
+    return {
+      ok: true,
+      options: {
+        query: read.values.query,
+        type: read.values.type ?? null,
+        status: read.values.status ?? null,
+        domain: read.values.domain ?? null,
+        topic: read.values.topic ?? null,
+        limit: limit.limit,
+      },
+    };
+  };
+}
+
+/** One parser for get and spec-get. Exactly one of --id and --path. */
+function parseGetFlags(args) {
+  const read = readFlags(args, { id: "value", path: "value" });
+  if (!read.ok) return read;
+  const { id, path } = read.values;
+  if (id === undefined && path === undefined) {
+    return { ok: false, message: "get needs --id or --path" };
+  }
+  if (id !== undefined && path !== undefined) {
+    return { ok: false, message: "--id and --path are two different lookups" };
+  }
+  return { ok: true, options: { id: id ?? null, path: path ?? null } };
+}
+
+function parseTimelineFlags(args) {
+  const read = readFlags(args, { entity: "value", from: "value", to: "value" });
+  if (!read.ok) return read;
+  if (!read.values.entity) return { ok: false, message: "timeline needs --entity" };
+  return {
+    ok: true,
+    options: {
+      entity: read.values.entity,
+      from: read.values.from ?? null,
+      to: read.values.to ?? null,
+    },
+  };
+}
+
+function parseSourcesFlags(args) {
+  const read = readFlags(args, { id: "value" });
+  if (!read.ok) return read;
+  if (!read.values.id) return { ok: false, message: "sources needs --id" };
+  return { ok: true, options: { id: read.values.id } };
+}
+
 function parseRelatedFlags(args) {
   const read = readFlags(args, { id: "value" });
   if (!read.ok) return read;
@@ -2213,6 +2341,9 @@ export async function run(argv, startDir = process.cwd()) {
     result,
     warnings,
     errors,
+    // Only retrieval names the scope it covered. Every other operation leaves
+    // the field empty, which is what contracts section 1.3 asks for.
+    searched: Array.isArray(outcome?.searched) ? outcome.searched : [],
   });
 }
 

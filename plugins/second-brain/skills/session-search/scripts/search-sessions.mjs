@@ -2,7 +2,7 @@
 
 import { createReadStream, realpathSync } from "node:fs";
 import { readdir, stat } from "node:fs/promises";
-import { homedir } from "node:os";
+import { homedir, hostname } from "node:os";
 import { basename, isAbsolute, relative, resolve } from "node:path";
 import { createInterface } from "node:readline";
 import { execFileSync } from "node:child_process";
@@ -11,6 +11,36 @@ import { fileURLToPath } from "node:url";
 const DEFAULT_LIMIT = 5;
 const MAX_LIMIT = 20;
 const DEFAULT_EXCERPT = 500;
+
+/**
+ * The host application whose own store this adapter reads. History stays in
+ * that store: nothing here copies, indexes, or summarizes a transcript, and
+ * nothing here writes any file at all.
+ */
+const HOST = "claude-code-cli";
+
+/** The reason value that means the owner asked for this search in this session. */
+const OWNER_REQUEST = "owner-request";
+
+/** The shortest named insufficiency the gate accepts. One word is not a reason. */
+const MINIMUM_REASON_LENGTH = 12;
+
+function machineName() {
+  try {
+    return hostname();
+  } catch {
+    return "unknown-machine";
+  }
+}
+
+/**
+ * A locator an agent can carry back to the original message. It names the
+ * host, the session, the message, and the transcript line, so the exact
+ * wording can be opened before anyone relies on it (FR-107).
+ */
+function locatorFor(sessionId, messageIdValue, lineNumber) {
+  return `${HOST}:session/${sessionId}/message/${messageIdValue}#line-${lineNumber}`;
+}
 
 function enabled(value) {
   return value != null && !["", "0", "false", "no"].includes(String(value).toLowerCase());
@@ -245,6 +275,8 @@ function historyUnavailable(configDir, projectsDir) {
   return {
     status: "unavailable",
     source: "Claude Code CLI local transcripts",
+    host: HOST,
+    machine: machineName(),
     configDir,
     projectsDir,
     message:
@@ -256,9 +288,13 @@ function baseResult(options, scopePaths, selectedProjects) {
   return {
     source: "Claude Code CLI local transcripts",
     historyIsCurrentTruth: false,
+    host: HOST,
+    machine: machineName(),
     scope: {
       kind: options.scope,
       project: resolve(options.projectDir),
+      host: HOST,
+      machine: machineName(),
       paths: scopePaths,
       projects: [...new Set(selectedProjects.map((project) => project.cwd ?? project.encodedName))],
     },
@@ -387,14 +423,19 @@ export async function searchSessions(rawOptions = {}) {
           const scored = matchScore(text, terms, normalizeText(options.query));
           if (!scored.coverage) return false;
           const sessionId = entry.sessionId ?? entry.session_id ?? sessionIdFromFile;
+          const matchedMessageId = messageId(entry, lineNumber);
           matches.push({
             project: project.cwd ?? entry.cwd ?? project.encodedName,
             cwd: entry.cwd ?? project.cwd,
             sessionId,
             sessionTitle,
-            messageId: messageId(entry, lineNumber),
+            messageId: matchedMessageId,
             matchedAt: new Date(effectiveTime).toISOString(),
             role: entry.message.role,
+            host: HOST,
+            machine: machineName(),
+            date: new Date(effectiveTime).toISOString(),
+            messageLocator: locatorFor(sessionId, matchedMessageId, lineNumber),
             excerpt: excerptAround(text, scored.firstIndex, options.excerpt),
             matchSource: "passage",
             resumeCommand: `claude --resume ${shellQuote(sessionId)}`,
@@ -426,6 +467,14 @@ export async function searchSessions(rawOptions = {}) {
               messageId: representative.messageId,
               matchedAt: new Date(representative.effectiveTime).toISOString(),
               role: representative.role,
+              host: HOST,
+              machine: machineName(),
+              date: new Date(representative.effectiveTime).toISOString(),
+              messageLocator: locatorFor(
+                representative.sessionId,
+                representative.messageId,
+                representative.lineNumber,
+              ),
               excerpt: excerptAround(representative.text, 0, options.excerpt),
               matchSource: "session-title",
               resumeCommand: `claude --resume ${shellQuote(representative.sessionId)}`,
@@ -485,13 +534,16 @@ async function visibleMessages(file) {
     const key = `${entry.message.role}:${id}:${text}`;
     if (seen.has(key)) return false;
     seen.add(key);
+    const sessionId = entry.sessionId ?? entry.session_id ?? basename(file.path, ".jsonl");
     messages.push({
       messageId: id,
       role: entry.message.role,
       date: entry.timestamp ?? new Date(file.mtimeMs).toISOString(),
       text,
       cwd: entry.cwd,
-      sessionId: entry.sessionId ?? entry.session_id ?? basename(file.path, ".jsonl"),
+      sessionId,
+      host: HOST,
+      messageLocator: locatorFor(sessionId, id, lineNumber),
     });
     return false;
   });
@@ -595,6 +647,125 @@ export async function expandSession(rawOptions = {}) {
   };
 }
 
+/**
+ * The section 15.5 gate. History search opens only when the owner asks in this
+ * session, or when the agent can name why the current project owners were
+ * insufficient. In a sensitive project only the owner request opens it
+ * (architecture section 21.6 point 4). A closed gate is `history/gate-closed`.
+ */
+export function evaluateHistoryGate(rawReason, rawOptions = {}) {
+  const reason = normalizeText(rawReason);
+  const sensitiveProject = rawOptions.sensitiveProject === true;
+  const closed = (message) => ({
+    open: false,
+    code: "history/gate-closed",
+    message,
+  });
+
+  if (!reason) {
+    return closed(
+      "Session history is gated. Pass --reason owner-request when the owner asked for this search, or --reason with a sentence naming the current project owners you searched and why they were insufficient.",
+    );
+  }
+  if (reason.toLowerCase() === OWNER_REQUEST) {
+    return { open: true, openedBy: "owner-request", reason, sensitiveProject };
+  }
+  if (sensitiveProject) {
+    return closed(
+      "This project is marked sensitive, so only an owner request in this session opens session history. Pass --reason owner-request after the owner asks.",
+    );
+  }
+  if (reason.length < MINIMUM_REASON_LENGTH || !/\s/.test(reason)) {
+    return closed(
+      "The reason must name which current project owners were searched and why they were insufficient. One word is not a reason.",
+    );
+  }
+  return { open: true, openedBy: "sources-insufficient", reason, sensitiveProject };
+}
+
+function gatedScope(result, options) {
+  return {
+    project_id: options.projectId ?? resolve(options.projectDir ?? process.cwd()),
+    project: resolve(options.projectDir ?? process.cwd()),
+    machine: machineName(),
+    host: HOST,
+    kind: result?.scope?.kind ?? options.scope ?? "project",
+    paths: result?.scope?.paths ?? [],
+    since: options.since ?? null,
+    until: options.until ?? null,
+  };
+}
+
+function gatedEntry(match) {
+  return {
+    host: match.host ?? HOST,
+    session_id: match.sessionId,
+    date: match.date ?? match.matchedAt,
+    role: match.role,
+    message_locator: match.messageLocator
+      ?? locatorFor(match.sessionId, match.messageId, "unknown"),
+    excerpt: match.excerpt,
+    session_title: match.sessionTitle ?? null,
+    resume_route: match.resumeCommand,
+    project: match.project,
+  };
+}
+
+/**
+ * session_search of contracts section 2.21. It runs the gate, then reads the
+ * host's own store through the v1 search above and returns the contract shape.
+ * A miss is a scoped warning at exit 0, never a claim that nothing was ever
+ * discussed (FR-106).
+ */
+export async function searchSessionsGated(rawOptions = {}) {
+  const gate = evaluateHistoryGate(rawOptions.reason, rawOptions);
+  if (!gate.open) {
+    return {
+      status: "refused",
+      code: gate.code,
+      source: "Claude Code CLI local transcripts",
+      host: HOST,
+      machine: machineName(),
+      message: gate.message,
+      entries: [],
+    };
+  }
+
+  const result = await searchSessions(rawOptions);
+  const scope = gatedScope(result, rawOptions);
+  const gateBlock = { opened_by: gate.openedBy, reason: gate.reason };
+
+  if (result.status === "unavailable" || result.status === "no-history-for-scope") {
+    return {
+      status: "unavailable",
+      source: result.source,
+      historyIsCurrentTruth: false,
+      gate: gateBlock,
+      scope,
+      entries: [],
+      warnings: [
+        {
+          code: "history/unavailable",
+          message: `${result.message} Searched machine ${scope.machine}, host ${scope.host}, project ${scope.project}, dates ${scope.since ?? "any"} to ${scope.until ?? "any"}. Nothing was found in that scope, which is not the same as the subject never being discussed.`,
+        },
+      ],
+    };
+  }
+
+  return {
+    status: result.matches.length ? "ok" : "no-matches",
+    source: result.source,
+    historyIsCurrentTruth: false,
+    gate: gateBlock,
+    scope,
+    query: result.query,
+    entries: result.matches.map(gatedEntry),
+    searched: result.searched,
+    message: result.message,
+    ...(result.warnings ? { warnings: result.warnings } : {}),
+  };
+}
+
 function help() {
   return `Search local Claude Code CLI transcripts without changing them.
 
@@ -607,8 +778,18 @@ Expand one result:
   node search-sessions.mjs --session <id> --message <id>
     --expand message|turn [same scope options]
 
+Gated search, the memory system v2 route:
+  node search-sessions.mjs --query <words> --reason owner-request
+  node search-sessions.mjs --query <words> --reason "<why current owners were insufficient>"
+    [--sensitive-project] [--project-id <id>] [same scope options]
+
 The default scope is the current project. All-project search is refused unless
---allow-all-projects is present after the owner chooses that wider scope.`;
+--allow-all-projects is present after the owner chooses that wider scope.
+
+--reason opens the section 15.5 gate and switches the result to the contract
+shape: host, session id, date, role, message locator, and excerpt per entry. A
+closed gate refuses with history/gate-closed and exit 1. In a sensitive project
+only --reason owner-request opens the gate.`;
 }
 
 export function parseArguments(argv) {
@@ -630,6 +811,9 @@ export function parseArguments(argv) {
     else if (argument === "--message") options.messageId = take();
     else if (argument === "--expand") options.expand = take();
     else if (argument === "--allow-all-projects") options.allowAllProjects = true;
+    else if (argument === "--reason") options.reason = take();
+    else if (argument === "--project-id") options.projectId = take();
+    else if (argument === "--sensitive-project") options.sensitiveProject = true;
     else if (argument === "--help" || argument === "-h") options.help = true;
     else throw new Error(`Unknown argument: ${argument}`);
   }
@@ -643,10 +827,39 @@ async function main() {
       process.stdout.write(`${help()}\n`);
       return;
     }
-    const result = options.sessionId || options.messageId || options.expand
-      ? await expandSession(options)
-      : await searchSessions(options);
+    const gated = options.reason != null || options.sensitiveProject === true;
+    const expanding = options.sessionId || options.messageId || options.expand;
+
+    if (gated && expanding) {
+      const gate = evaluateHistoryGate(options.reason, options);
+      if (!gate.open) {
+        process.stdout.write(`${JSON.stringify({
+          status: "refused",
+          code: gate.code,
+          source: "Claude Code CLI local transcripts",
+          host: HOST,
+          machine: machineName(),
+          message: gate.message,
+          messages: [],
+        }, null, 2)}\n`);
+        process.exitCode = 1;
+        return;
+      }
+      const expanded = await expandSession(options);
+      process.stdout.write(`${JSON.stringify({
+        ...expanded,
+        gate: { opened_by: gate.openedBy, reason: gate.reason },
+      }, null, 2)}\n`);
+      return;
+    }
+
+    const result = gated
+      ? await searchSessionsGated(options)
+      : expanding
+        ? await expandSession(options)
+        : await searchSessions(options);
     process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
+    if (result.status === "refused") process.exitCode = 1;
   } catch (error) {
     process.stdout.write(`${JSON.stringify({ status: "error", message: error.message }, null, 2)}\n`);
     process.exitCode = 2;
