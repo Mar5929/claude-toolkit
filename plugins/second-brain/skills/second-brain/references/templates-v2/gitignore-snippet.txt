@@ -1,4 +1,0 @@
-# Memory system v2 local state. A lock or crash-recovery journal lives here
-# during an approved write. It is disposable and never canonical, so it is
-# never committed.
-.memory/

@@ -199,9 +199,9 @@ the tool.
 `style-reminder` and `writing-guard` only work next to an installed output
 style, so they pair with Gate 5; if the owner skips the style, skip those two.
 
-The project knowledge package owns its own startup hook, pre-write guard, and
-pull-request save reminder. Gate 3 installs all three with the system. Do not
-install the retired `memory-pr-hook` or `wrap-up-ritual.md` path from this gate.
+The project knowledge package owns its own startup loader and pull-request save
+reminder. Gate 3 installs those with the system. Do not install the retired
+`memory-pr-hook` or `wrap-up-ritual.md` path from this gate.
 
 > Other reusable hooks (secret-scan and session-start orientation) are still
 > planned for the `hooks-library` plugin. Until they land, author any other hook
@@ -210,178 +210,63 @@ install the retired `memory-pr-hook` or `wrap-up-ritual.md` path from this gate.
 
 ### Gate 3: Project knowledge system
 
-**Purpose:** install the packaged Git-native memory system, version 2, so Claude
-and Codex share one project identity, one current state, one map of where things
-live, approved specifications, and four kinds of durable memory.
+**Purpose:** install the packaged Git-native project knowledge system so Claude
+and Codex share approved specifications, persistent understanding, and one small
+startup map.
 
-Offer this gate to every project, whatever its domain. Software, Salesforce,
-research, health, and client delivery all get the same core. The core is small
-on purpose, and nothing in it is domain-specific.
-
-**The authority split, in plain language:**
-
-- `knowledge/project.md` is the project identity and the whole settings surface.
-  There is no second settings file.
-- `knowledge/current.md` is where the work stands right now: current focus,
-  blockers, next step, and handoff. A new session reads it instead of guessing
-  from conversation history.
-- `knowledge/map.md` says what each role means here and which folder it already
-  resolves to.
-- `knowledge/specs/` is current approved behavior.
-- `knowledge/memory/` holds four record types and only four: `facts/`,
-  `decisions/`, `events/`, and `patterns/`. Every durable memory gets the one
-  type that matches what the record means. A subject area such as Salesforce,
-  Gearset, health, or research is a field on the record, never a fifth folder
-  and never a second copy of the record.
-- The mapped reference area holds outside documentation, web-crawl results, and
-  agent-written research. That material stays outside durable memory.
-- The work tracker owns live work state.
-- Git owns exact history.
-
-**Before installing:**
-
-- Ask the owner for the real framing that goes in `knowledge/project.md`: what
-  the project is, why it exists, what finished looks like, its main workstreams
-  and boundaries, who is involved, and where active work is tracked. Never
-  invent that framing, and never ship the template placeholder as if it were
-  the answer.
-- Show the complete `knowledge/` tree, the two hooks, the settings changes, and
-  the Codex route block, then get approval for the whole thing at once.
-- Treat the tree, the tools, both hooks, the settings entries, the gitignore
-  entry, and both host startup routes as **one adoption unit**. A project that
-  takes the folders without the write guard, or the hooks without the tools, is
-  a broken install, not a light install. Do not offer a partial variant.
-
-**Install steps, once approved.** Install `second-brain` from this marketplace
-first. `<plugin>` below is that plugin's folder on this machine, normally
-`~/.claude/plugins/marketplaces/claude-toolkit/plugins/second-brain`.
-
-1. Copy `<plugin>/skills/second-brain/references/templates-v2/knowledge/` to the
-   project's `knowledge/`. That is the required core: `project.md`, `current.md`,
-   `map.md`, `specs/`, and the four memory folders, each holding a `.gitkeep`
-   until its first record.
-2. Fill in the front matter of `knowledge/project.md` with the owner. The keys
-   are described under "Front-matter settings" below. Replace the whole body
-   with the framing they gave you.
-3. Fill in `knowledge/map.md`. The required-core rows are fixed. For every other
-   row, point at a folder the project already has, or delete the row. See
-   "Mapping, not moving" below.
-4. Rewrite `knowledge/current.md` from whatever handoff material the project
-   already has, or leave the four sections empty and let startup report it as
-   stale until the first approved update. Set the `updated` date.
-5. Copy the plugin's `tools/` folder into `.claude/tools/`, keeping `lib/`
-   inside it. Copy everything there except the retired version 1 tools
-   `build-knowledge-index.mjs` and `knowledge-health.mjs`. The tools import each
-   other by relative path, so copy the folder rather than picking files.
-6. Copy `<plugin>/hooks/boot-brief-session-start.mjs`,
-   `<plugin>/hooks/memory-write-guard.mjs`, and `<plugin>/hooks/save-reminder.mjs`
-   into `.claude/hooks/`. The hooks reach the tools as `../tools/`, so
-   `.claude/tools/` from step 5 has to be its sibling.
-7. Merge `<plugin>/skills/second-brain/references/templates-v2/claude-settings-snippet.json`
-   into the project's `.claude/settings.json`. Merge, never replace: the file
-   usually already carries an output style and other hooks. The snippet brings
-   `CLAUDE_CODE_DISABLE_AUTO_MEMORY` set to `1`, which turns off the host's own
-   private auto-memory so this system is the only one recording anything;
-   `second-brain@claude-toolkit` enabled; and the `memory-write-guard.mjs`
-   `PreToolUse` registration. Then add the `SessionStart` registration for
-   `boot-brief-session-start.mjs` and the `Bash` `PreToolUse` registration for
-   `save-reminder.mjs`. Write the project variable in braced form,
-   `${CLAUDE_PROJECT_DIR}`, in every hook command: that is the form the startup
-   check reads when it confirms the registered hook file is really there.
-8. Append `<plugin>/skills/second-brain/references/templates-v2/gitignore-snippet.txt`
-   to the project's `.gitignore`. It ignores `.memory/`, which holds a lock or a
-   crash-recovery journal during an approved write. That folder is disposable,
-   never canonical, and never committed.
-9. Write the Codex startup route into root `AGENTS.md`. The exact block, its two
-   markers, and the setup and sync steps are in the second-brain skill. Claude
-   Code gets the same meaning automatically from the `SessionStart` hook, so the
-   two host routes are two deliveries of one meaning and have to keep saying the
-   same five things: the boot brief runs first, the memory tool path and the
-   capabilities call, the four skills by name, the guarded paths and that only
-   the write operations may change them, and that approval comes from the owner
-   and nothing stands in for it.
-10. Verify before you call the gate done. Run
-    `node .claude/tools/memory.mjs validate` from the project root and read the
-    result. Every check has to pass, warn, or say why it was skipped. A fresh
-    project normally warns on the retrieval gold set, which is expected and
-    blocks nothing. Then run the boot brief once and read what it prints.
-
-**Front-matter settings.** `knowledge/project.md` carries the whole
-configuration surface:
-
-- `schema_version: 2`, which is what tells every tool this is a version 2
-  project.
-- `project_id`, a stable identity that scopes pins, retrieval, and
-  session-history search. It never changes when the folder moves, and a machine
-  path is never used as the identity.
-- `project_root` and `subroots`, the physical scope. Only the owner changes
-  them, and the write guard refuses an agent route that tries.
-- `privacy`, the approved boundary. A missing or unreadable value reads as the
-  most restrictive setting. Nothing outside this file widens it.
-- `profiles`, the optional domain profiles. An empty list is normal.
-- `tracker`, optional. Without it the project still works and current state
-  comes from `knowledge/current.md` alone.
-- `startup.budget_bytes`, optional, defaulting to 10240.
-
-**Mapping, not moving.** When the project already has an authoritative home for
-rules, skills, active work, delivery material, source records, or references,
-map that home in `knowledge/map.md` and leave it exactly where it is. Never move,
-copy, or rename project material to fit the shape the map prefers. A role with
-no home yet is deleted from the table or marked `not present`. Absence is not an
-error, and an empty folder is never created to fill a row.
-
-**Create optional areas only when they are used.** An identity file, a reference
-area, a brainstorm area, a profile, and `.memory/` local state are all optional.
-Their absence must not break anything. Do not scaffold them at setup.
-
-**Outside documentation and research.** Official product documentation,
-web-crawl results, and agent-written research notes live in the mapped reference
-area, not in `knowledge/memory/`. Each reference names its original source, the
-date it was retrieved, the version or snapshot when that is known, and whether
-anyone verified it. Downloading or summarizing something does not make it
-project truth. A conclusion becomes a fact, decision, event, or pattern only
-through the normal owner approval flow, and the record links back to the
-evidence. Approved project behavior learned from outside documentation belongs
-in a specification, and a reusable process learned from it belongs in a skill.
-Neither is copied into memory as well.
-
-**Domain profiles.** A project may enable one or more profiles by listing them
-in `profiles`. A profile adds fields, routes, validation, and privacy warnings
-that its domain needs. It never replaces the core and never weakens approval,
-provenance, authority, scope, or privacy. If a proposed profile would relax any
-of those, it is not a profile and this gate does not install it. Offer a profile
-only when the project actually uses it; an empty `profiles` list is the normal
-state.
-
-**Removability.** The owner can take this system back out without breaking the
-rest of the toolkit. Removal unregisters the two hooks, removes the copied tools
-and skills, and leaves `knowledge/` content, project specifications, source
-references, rules, skills, and work-tracker records in place. The steps are in
-the second-brain skill. Say this at the gate so the owner knows the decision is
-reversible.
-
-**After installation:** offer the first persistent-information pass. The main
-agent shows short What, Where, Why, Assumptions, and Unverified bullets, then
-writes only the meaning the owner approves. Full file text appears only when the
-owner asks.
-
-**Never:**
-
-- Never add a database, memory MCP server, embeddings, transcript capture, or a
-  background curator. Hooks load and remind; they never approve or write durable
-  memory.
-- Never write into `knowledge/memory/`, `knowledge/specs/`, or
-  `knowledge/current.md` by hand or with a shell command. Those paths change only
-  through `memory.mjs` write operations, and only with the owner's approval. The
-  write guard refuses the rest.
-- Never install the retired version 1 pieces: `knowledge/index.md` and its
-  builder, `knowledge/memory/tags.md`, the seven old memory folders, the
-  `knowledge-session-start.mjs` loader, the health tool, the `memory-pr-hook`
-  plus `wrap-up-ritual.md` path, or any Worker, Neon, curator, outbox, or cache
+- Offer the `second-brain` plugin as one coherent, opt-in system.
+- Explain the authority split in plain language:
+  - `knowledge/brainstorms/` contains non-authoritative discovery;
+  - `knowledge/specs/` contains current approved behavior;
+  - typed `knowledge/memory/` contains context, planning, decisions, knowledge,
+    references, domain material, and operations;
+  - raw project artifacts remain in their ordinary scaffold;
+  - work-tracker owns live work state; and
+  - Git owns exact history.
+- Ask the owner for the real framing in `knowledge/project.md`: what the project
+  is, why it exists, what finished looks like, its main workstreams and
+  boundaries, who is involved, and where active work is tracked. Never invent
+  that framing.
+- Show the complete `knowledge/` tree and the proposed startup routes.
+- If approved, install `second-brain` from this marketplace and follow its
+  greenfield setup workflow. Use its packaged `remember`, `recall`, `cleanup`,
+  and `session-search` skills, index builder, read-only health tool, layout tool,
+  session-start loader, and pull-request reminder. Do not retype or maintain
+  copies in `project-init`.
+- Treat the tree, tools, hooks, root routes, and all seven typed memory homes as
+  one adoption unit. Do not offer a broken partial variant.
+- Commit only `knowledge/.obsidian/app.json` with `alwaysUpdateLinks: true`,
+  `newLinkFormat: "relative"`, and `useMarkdownLinks: true`. Add a `.gitignore`
+  allowlist that ignores
+  every other file under `knowledge/.obsidian/`, including personal layouts,
+  hotkeys, appearance, plugins, themes, and device state. Do not commit a core
+  plugin list; browsing, search, backlinks, and graph views need no shared
+  plugin policy.
+- Register `.claude/hooks/knowledge-session-start.mjs` as a fail-open Claude
+  `SessionStart` hook. Add the equivalent fail-open `.codex/hooks.json` route
+  where native Codex hooks are supported, and always put the startup instruction
+  in root `AGENTS.md` as the portable Codex route.
+- Put the packaged short knowledge principle in both root routes: save
+  persistent information only when a stable fact, lasting event, decision, or
+  state prevents repeated explanation or the same wrong action; route standing
+  agent instructions to rules, active work wherever its work item is being
+  tracked, reusable processes to skills, outside source material to references,
+  and past conversations to session history.
+- Start `knowledge/memory/tags.md` with an empty project-specific vocabulary.
+  Never copy another project's topic tags into a new project.
+- Offer the initial persistent-information pass after installation. The main
+  agent shows short What, Where, Why, Assumptions, and Unverified bullets, then
+  writes only the meaning the owner approves. Full file text appears only when
+  the owner asks.
+- Never add a database, memory MCP server, embeddings, transcript capture, or
+  background curator. Hooks may load or remind; they never approve or write
+  persistent knowledge.
+- Never read or import retired v1 Worker, Neon, curator, outbox, or cache
   content.
-- Never create per-folder README indexes or a folder `CLAUDE.md` inside
-  `knowledge/`. Its contract is owned by the root routes, the map, and the
-  memory-system specification.
+- `knowledge/index.md` is generated from specifications and memories. Nobody
+  hand-edits it, and no per-folder indexes are created. The `knowledge/` tree is
+  exempt from folder `CLAUDE.md` files because its contract is already owned by
+  the root routes and project-knowledge specification.
 
 ### Gate 4: Optional mechanical knowledge aids
 
@@ -389,8 +274,8 @@ owner asks.
 Markdown knowledge system.
 
 - Do not offer a second or competing knowledge system. When Gate 3 was
-  approved, the four memory types and the mapped reference area already provide
-  the persistent knowledge layer.
+  approved, `knowledge/memory/knowledge/`, `knowledge/memory/references/`, and
+  `knowledge/memory/domain/` already provide the persistent knowledge layer.
 - Mark this gate **available alongside project knowledge** when Gate 3 ran, or
   **independent of project knowledge** when the owner declined Gate 3.
 - Explain that a dependency graph is a separately optional analysis aid for
@@ -462,10 +347,10 @@ list.
   `references/work-tracking-choice.md`, naming the tracker Gate 1 settled on and
   how a refined ticket is marked. Add the identical line to `AGENTS.md`. Reflect what the
   earlier gates set up. When project knowledge was installed, keep a short
-  route in both files. `CLAUDE.md` names the fail-open boot-brief
-  `SessionStart` hook, the write guard, and `knowledge/`. `AGENTS.md` carries
-  the Codex startup-route block from Gate 3 step 9, which runs the boot brief
-  first. Neither copies the complete system specification.
+  route in both files. `CLAUDE.md` names the fail-open session-start loader and
+  `knowledge/`; `AGENTS.md` directly instructs Codex to read
+  `knowledge/project.md` and `knowledge/index.md` first. Neither copies the
+  complete system specification.
   Keep other behavioral rules out of the root files.
 - **Keep the codemap to one line per folder**, and let that line point at the
   folder's own `CLAUDE.md` for the detail. Four things never leave the root
@@ -517,12 +402,11 @@ in their own plugins.
 - `explain-simply` says an answer again as short bullets when it did not land
   the first time, keeping every number, date, file path, and name. It re-reads
   nothing, so it cannot quietly change the answer.
-- `grill-me` asks one question at a time and writes every answer down before
-  continuing. When project knowledge is installed it writes into the project's
-  mapped brainstorm area, which is created the first time it is used and not
-  before. Explain that it ends by invoking `remember` for any resulting
-  specification or durable-memory updates. Raw discovery stays
-  non-authoritative and never becomes project truth on its own.
+- `grill-me` asks one question at a time and writes every answer to
+  `knowledge/brainstorms/{date}-{topic}.md` before continuing when project
+  knowledge is installed. Explain that it ends by invoking `remember` for any
+  resulting specification or persistent-memory updates. The generated index
+  excludes brainstorms, and raw discovery stays non-authoritative.
 - `session-summary` returns a table with one row per request the owner made, in
   their own words, each with a status such as done, partly done, blocked, or
   waiting on you, and then a block naming whatever still needs them. It reads

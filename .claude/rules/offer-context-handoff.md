@@ -26,10 +26,7 @@ installed, use it. Where it is not, or when the owner asks in their own words
 run the same three steps yourself: the `remember` review, the owner's answer, then
 the prompt.
 
-Unfinished work state is not a durable memory record. Live status, blockers, and
-next actions belong wherever the work item is being tracked, in
-`knowledge/current.md`, and in the handoff prompt, never in a fact, decision,
-event, or pattern record. `knowledge/current.md` is written only by the memory
-tool's current-state update, on an approved handoff, so `remember` covers it in
-the same review. `where-persistent-information-belongs.md` says what does qualify
-as persistent project information.
+Unfinished work state is not project knowledge. Live status, blockers, and next
+actions belong wherever the work item is being tracked and in the handoff
+prompt, never in a knowledge document. `where-persistent-information-belongs.md`
+says what does qualify as persistent project information.

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { createHash } from "node:crypto";
-import { execFileSync, spawnSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 import {
   mkdirSync,
   mkdtempSync,
@@ -10,19 +10,13 @@ import {
   rmSync,
   writeFileSync,
 } from "node:fs";
-import { hostname, tmpdir } from "node:os";
+import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
 import {
-  evaluateHistoryGate,
   expandSession,
   searchSessions,
-  searchSessionsGated,
 } from "../skills/session-search/scripts/search-sessions.mjs";
-
-const script = resolve(
-  new URL("../skills/session-search/scripts/search-sessions.mjs", import.meta.url).pathname,
-);
 
 const fixtures = [];
 let passed = 0;
@@ -70,12 +64,11 @@ function message(type, cwd, sessionId, id, timestamp, content, extra = {}) {
   };
 }
 
-function digest(path, skip = []) {
+function digest(path) {
   const rows = [];
   const walk = (directory) => {
     for (const entry of readdirSync(directory, { withFileTypes: true })
       .sort((a, b) => a.name.localeCompare(b.name))) {
-      if (skip.includes(entry.name)) continue;
       const child = join(directory, entry.name);
       if (entry.isDirectory()) walk(child);
       else rows.push(`${child}:${createHash("sha256").update(readFileSync(child)).digest("hex")}`);
@@ -83,21 +76,6 @@ function digest(path, skip = []) {
   };
   walk(path);
   return createHash("sha256").update(rows.join("\n")).digest("hex");
-}
-
-/** Run the real command line so exit codes are proved, not assumed. */
-function cli(args, configDir = null) {
-  const result = spawnSync(process.execPath, [script, ...args], {
-    encoding: "utf8",
-    env: configDir ? { ...process.env, CLAUDE_CONFIG_DIR: configDir } : process.env,
-  });
-  let payload = null;
-  try {
-    payload = JSON.parse(result.stdout);
-  } catch {
-    payload = null;
-  }
-  return { code: result.status, payload, stdout: result.stdout };
 }
 
 function git(path, ...args) {
@@ -208,7 +186,6 @@ try {
   writeFileSync(unrelatedPath, `${readFileSync(unrelatedPath, "utf8")}not-json\n`, "utf8");
 
   const before = digest(configDir);
-  const projectBefore = digest(project, [".git"]);
   const projectResult = await searchSessions({
     query: '"amber launch" rule',
     projectDir: project,
@@ -317,126 +294,7 @@ try {
     configDir: changedConfig,
   });
   ok(changed.status === "unavailable" && changed.message.includes("format may have changed"), "unknown transcript shapes fail plainly instead of claiming no match");
-
-  // Locator additions, FR-107 and AT-38. Every v1 field above still holds.
-  const located = projectResult.matches.find((match) => match.messageId === "user-a");
-  ok(located.host === "claude-code-cli", "each match names the host it came from");
-  ok(located.machine === hostname(), "each match names the machine it was read on");
-  ok(located.date === located.matchedAt, "each match carries the message date");
-  ok(
-    located.messageLocator.includes(sessionA) && located.messageLocator.includes("user-a"),
-    "each match carries a locator naming the session and the message",
-  );
-  ok(projectResult.scope.host === "claude-code-cli" && projectResult.scope.machine === hostname(), "the scope names the host and the machine covered");
-  ok(
-    expandedMessage.messages[0].messageLocator === located.messageLocator,
-    "expansion returns the same locator the search result carried",
-  );
-
-  // The section 15.5 gate.
-  const noReason = evaluateHistoryGate(undefined);
-  ok(noReason.open === false && noReason.code === "history/gate-closed", "no reason closes the gate");
-  ok(evaluateHistoryGate("   ").open === false, "a blank reason closes the gate");
-  ok(evaluateHistoryGate("because").open === false, "a one-word reason closes the gate");
-  ok(evaluateHistoryGate("owner-request").openedBy === "owner-request", "the owner request opens the gate");
-  ok(
-    evaluateHistoryGate("owner-request", { sensitiveProject: true }).open === true,
-    "an owner request opens the gate in a sensitive project",
-  );
-  ok(
-    evaluateHistoryGate("current specs and memory hold no wording for this", { sensitiveProject: true }).open === false,
-    "a named insufficiency does not open the gate in a sensitive project",
-  );
-
-  const refused = await searchSessionsGated({
-    query: "amber launch",
-    projectDir: project,
-    configDir,
-  });
-  ok(refused.status === "refused" && refused.code === "history/gate-closed", "a gated search with no reason is refused");
-  ok(refused.entries.length === 0, "a refused search returns no history at all");
-
-  const opened = await searchSessionsGated({
-    query: '"amber launch" rule',
-    projectDir: project,
-    configDir,
-    projectId: "claude-toolkit",
-    reason: "the current specs and memory records do not carry this wording",
-  });
-  ok(opened.status === "ok" && opened.gate.opened_by === "sources-insufficient", "a named insufficiency opens the gate");
-  ok(opened.scope.project_id === "claude-toolkit", "the gated scope names the project id it was given");
-  ok(
-    opened.scope.machine === hostname() && opened.scope.host === "claude-code-cli",
-    "the gated scope names the machine and the host",
-  );
-  const entry = opened.entries[0];
-  ok(
-    ["host", "session_id", "date", "role", "message_locator", "excerpt"].every((field) => entry[field]),
-    "each gated entry carries host, session id, date, role, message locator, and excerpt",
-  );
-  ok(entry.session_id === sessionA && entry.message_locator.includes(sessionA), "the gated entry locates the original session");
-  ok(opened.historyIsCurrentTruth === false, "a gated result still labels history as non-authoritative");
-
-  const ownerAsked = await searchSessionsGated({
-    query: "amber launch",
-    projectDir: project,
-    configDir,
-    reason: "owner-request",
-    sensitiveProject: true,
-  });
-  ok(ownerAsked.status === "ok" && ownerAsked.gate.opened_by === "owner-request", "an owner request searches a sensitive project");
-  const sensitiveRefusal = await searchSessionsGated({
-    query: "amber launch",
-    projectDir: project,
-    configDir,
-    reason: "current project owners did not answer this question",
-    sensitiveProject: true,
-  });
-  ok(sensitiveRefusal.status === "refused", "insufficient current sources do not open a sensitive project's history");
-
-  const gatedMiss = await searchSessionsGated({
-    query: "amber launch",
-    projectDir: project,
-    configDir: emptyConfig,
-    reason: "owner-request",
-  });
-  ok(gatedMiss.status === "unavailable" && gatedMiss.warnings[0].code === "history/unavailable", "an unreadable store is a warning, not a refusal");
-  ok(
-    gatedMiss.warnings[0].message.includes(hostname())
-      && gatedMiss.warnings[0].message.includes("claude-code-cli")
-      && gatedMiss.warnings[0].message.includes("never being discussed"),
-    "the miss names the machine, host, and dates covered without claiming nothing was discussed",
-  );
-
-  // The gate refuses at the command line too, with the contract exit code.
-  const bypass = cli(["--query", "amber launch", "--project", project, "--reason", ""], configDir);
-  ok(bypass.code === 1, "a gate bypass exits 1");
-  ok(bypass.payload.code === "history/gate-closed", "a gate bypass names history/gate-closed");
-  ok(bypass.payload.entries.length === 0, "a gate bypass returns no entries");
-  const bypassExpand = cli([
-    "--project", project,
-    "--session", sessionA,
-    "--message", "user-a",
-    "--expand", "message",
-    "--reason", "x",
-  ], configDir);
-  ok(bypassExpand.code === 1 && bypassExpand.payload.messages.length === 0, "a gate bypass on expansion refuses as well");
-  const allowed = cli([
-    "--query", "amber launch",
-    "--project", project,
-    "--reason", "owner-request",
-  ], configDir);
-  ok(allowed.code === 0 && allowed.payload.gate.opened_by === "owner-request", "the owner request runs at the command line");
-
-  // v1 invocations keep their exact shape, flags, and exit behavior.
-  const v1 = cli(["--query", "amber launch", "--project", project], configDir);
-  ok(v1.code === 0 && v1.payload.status === "ok" && Array.isArray(v1.payload.matches), "the v1 command line still returns matches at exit 0");
-  ok(v1.payload.gate === undefined, "an ungated v1 call carries no gate block");
-  ok(cli(["--help"]).code === 0, "help still exits 0");
-  ok(cli(["--query"], configDir).code === 2, "a missing flag value still exits 2");
-
   ok(digest(configDir) === before, "search and expansion never change transcript data");
-  ok(digest(project, [".git"]) === projectBefore, "no search path writes anything into the project");
 
   console.log(`ALL PASS (${passed} checks), FAIL: 0`);
 } finally {

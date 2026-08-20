@@ -61,26 +61,19 @@ If a file you did not write appears, unstage it.
 
 ## 4. Keep shared-file edits narrow
 
-Some files every session edits: backlog and dashboard views, `CLAUDE.md`,
-`AGENTS.md`, and any derived artifact the project has approved.
+Some files every session edits: backlog and dashboard views, the generated
+`knowledge/index.md`, `CLAUDE.md`, and `AGENTS.md`.
 
 For an ordinary addition, append the new entry without reordering or rewriting
 unrelated entries. Reordering turns a clean addition into a conflict and rewrites
 another session's words under your commit. If a tool generates the file, do not
 hand-edit it at all.
 
-A derived artifact is rebuilt, never merged. Git can merge two sessions' versions
-of one with no reported conflict and still leave it wrong. After bringing your
-branch current, run `memory.mjs rebuild-views` again: it regenerates the artifact
-from the records, which are what win. A project with no derived artifact gets a
-no-op, which is the normal answer.
-
 Shared does not mean immutable. When an owner-approved change moves, replaces,
-supersedes, merges, or deletes persistent material, the records that point at it
-may be updated with it, through the memory tool's write operations. Keep that
-edit limited to the approved material and preserve unrelated records. Before
-merge, follow the project's knowledge procedure for its duplicate and conflict
-review.
+supersedes, merges, or deletes persistent material, the corresponding index entries
+may be updated with it. Keep that edit limited to the approved
+material and preserve unrelated entries. Before merge, follow the project's
+knowledge procedure for its latest-state duplicate and conflict review.
 
 Keep edits to shared status and handoff documents small and additive so parallel
 pull requests merge cleanly.

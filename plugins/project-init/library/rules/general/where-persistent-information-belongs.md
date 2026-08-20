@@ -4,32 +4,28 @@ Important information should survive a chat in the place that already owns it.
 Not every important item is memory, and copying one fact into several places
 makes the project harder to trust.
 
-## Three kinds of information must leave chat
+## Two kinds of information must leave chat
 
 - **Information about the active work item** includes its goal, reason,
   requirements, scope, edge cases, decisions, open questions, progress, and
   blockers. Put it wherever that work item is being tracked while the work is
   happening.
-- **Where the project stands right now** is the current focus, the blockers, the
-  next step, and the handoff. Put it in `knowledge/current.md`, which a fresh
-  session reads instead of guessing from a conversation it cannot see.
-- **Persistent project information** includes lasting facts, decisions, events,
-  and patterns that prevent the owner from repeating an explanation or
+- **Persistent project information** includes stable facts, lasting events,
+  decisions, or states that prevent the owner from repeating an explanation or
   correcting the same wrong action. Put it in the current rule, skill,
-  specification, or memory record that owns it.
+  specification, memory, or reference that owns it.
 
-Internal exploration may stay in the project's brainstorm area while it is still
-being worked out. Outside documentation and agent-written research stay in the
-mapped reference area. Raw client meetings and client-provided files stay with
-the project's delivery artifacts. Past conversation stays in session history.
-None becomes current project truth merely because it exists.
+Internal exploration may stay in a brainstorm while it is still being worked
+out. Raw client meetings and client-provided files stay with the project's
+delivery artifacts. Past conversation stays in session history. None becomes
+current project truth merely because it exists.
 
 ## Test whether something should persist
 
 Before proposing persistent project information, ask:
 
 1. Will this still matter after the current task or session?
-2. Is it a lasting fact, decision, event, or pattern?
+2. Is it a stable fact, lasting event, decision, or state?
 3. Would leaving it out make the owner repeat an explanation or make a future
    agent take the same wrong action?
 4. Does an existing current place already own it?
@@ -42,34 +38,25 @@ persistent.
 ## Where it goes
 
 Search the active work item and the existing rules, skills, specifications,
-memory records, and references before choosing a new home.
+memories, and references before choosing a new home.
 
 | Information | Home |
 |---|---|
 | This work item's goal, reason, requirements, scope, edge cases, and decisions | Wherever the work item is being tracked |
 | This work item's progress, blockers, assignments, and next action | Wherever the work item is being tracked |
-| Where the whole project stands right now, and the handoff a fresh session needs | `knowledge/current.md` |
 | A standing instruction for how agents behave or work in this project | `.claude/rules/`, plus the project's Codex instructions when required |
 | A reusable process agents should follow across tasks or projects | The appropriate skill |
 | Approved product or system behavior beyond one work item | `knowledge/specs/` |
-| Something that is true about this project, with its evidence and how sure anyone is of it | `knowledge/memory/facts/` |
-| A choice, why it was made, what was turned down, and what it costs | `knowledge/memory/decisions/` |
-| Something that happened, with its date | `knowledge/memory/events/` |
-| A way things repeatedly behave here, drawn from facts and events and still short of a proven cause | `knowledge/memory/patterns/` |
-| Outside documentation, web-crawl results, and agent-written research | The reference area named in `knowledge/map.md` |
-| Raw client meetings, client-provided files, and source records | The delivery or source-record area named in `knowledge/map.md` |
-| Internal exploration, owner interviews, options, and unchecked ideas | The brainstorm area named in `knowledge/map.md`, when the project has one |
+| A persistent circumstance, stakeholder, boundary, or outside constraint | `knowledge/memory/context/` |
+| A persistent choice and the reason it should not be reversed or debated again | `knowledge/memory/decisions/` |
+| A project-specific term or business rule | `knowledge/memory/domain/` |
+| A non-obvious project conclusion that prevents a repeated mistake or investigation | `knowledge/memory/knowledge/` |
+| A project-specific operating, release, or recovery procedure | `knowledge/memory/operations/` |
+| Persistent direction, goals, roadmap, risks, or assumptions beyond one work item | `knowledge/memory/planning/` |
+| A durable note about outside source material and what it supports | `knowledge/memory/references/` |
+| Raw client meetings, client-provided files, and source records | The project's delivery or client-artifact folder |
+| Internal exploration, owner interviews, options, and unchecked ideas | `knowledge/brainstorms/` |
 | Past conversation that is useful only as history | Session history |
-
-Durable memory has those four record types and no others. A subject area such as
-Salesforce, health, or research is a field on the record, never a fifth folder
-and never a second copy of the record. Persistent direction, goals, and roadmap
-belong to the work tracker; a direction choice that must not be re-argued becomes
-a decision record.
-
-`knowledge/memory/`, `knowledge/specs/`, and `knowledge/current.md` change only
-through the memory tool's write operations, and only after the owner approves. A
-hand edit or a shell write into those paths is refused.
 
 Secrets and private personal information never go in project knowledge.
 
@@ -97,8 +84,8 @@ Do not turn it into memory merely because the implementation is not finished.
 ## Keep the review short
 
 The installed `remember` skill owns the placement and approval review for
-specification, memory, and current-state changes. Before it writes, it shows one
-short group of plain bullets for each separately routed item:
+specification and memory changes. Before it writes, it shows one short group of
+plain bullets for each separately routed item:
 
 - **What:** the meaning that may be added, changed, moved, or removed.
 - **Where:** the current or proposed home.
@@ -138,9 +125,7 @@ continuing.
 ## What not to do
 
 - Do not save the conversation that produced a fact, decision, or rule.
-- Do not copy live work status into a memory record.
-- Do not hand-edit a canonical knowledge file to save a step. The write is
-  refused, and the point of the refusal is the approval it protects.
+- Do not copy live work status into memory.
 - Do not use a memory file as the only home for an agent instruction.
 - Do not mix outside research into an approved decision.
 - Do not add reasoning, claims, or background that the approval bullets did not

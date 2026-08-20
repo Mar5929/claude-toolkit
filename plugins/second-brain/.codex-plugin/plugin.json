@@ -1,6 +1,6 @@
 {
   "name": "second-brain",
-  "version": "3.9.0",
+  "version": "3.6.0",
   "description": "One Git-native project knowledge folder for Claude, Codex, and optional Obsidian, with fixed properties, project tags, visible provenance, read-only health reports, owner-approved saves, read-only Claude Code session search, and safe migration.",
   "author": {
     "name": "Mike Rihm",

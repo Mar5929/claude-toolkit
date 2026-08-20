@@ -152,9 +152,8 @@ plugin.
 ## How it relates to the rest of the toolkit
 
 - project-init is the **entry point that installs the other plugins' systems**.
-  Gate 3 offers the complete packaged `second-brain` memory system, version 2:
-  the required `knowledge/` core, the four memory types, the boot-brief startup
-  hook, the pre-write guard, and the read-only validator.
+  Gate 3 offers the complete packaged `second-brain` project knowledge system,
+  including its read-only property, tag, provenance, and health reports.
   Gate 4 offers optional impact-analysis tools without creating a competing
   store.
 - Gate 6 offers the `session-skills` plugin, which holds `explain-simply`,
@@ -179,11 +178,9 @@ plugin.
   `work-tracking-choice.md` and no work-tracker code is involved. That board
   holds the work; the mirror above only reflects files that hold it.
 - project-sync detects knowledge layouts by system signatures, not folder names.
-  It can install version 2 greenfield, dry-run and apply the version 1 to
-  version 2 migration with an approval hash, or report `flat-149` and
-  `retired-v3` without converting either. Mixed or unknown layouts stop without
-  writing. It also audits an installed version 2 runtime and checks that the
-  Claude Code and Codex startup routes still carry the same meaning. Separately, it
+  It can install greenfield, dry-run and apply a flat #149 migration with an
+  approval hash, or produce owner-review drafts for retired v3 without touching
+  the old system. Mixed or unknown layouts stop without writing. Separately, it
   may identify and offer to deactivate older cloud-backed v1 wiring, but it
   never contacts the Worker or Neon or deletes cloud infrastructure.
 - **project-init versus project-sync is not redundancy.** They share the same
