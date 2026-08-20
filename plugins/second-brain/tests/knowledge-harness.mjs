@@ -166,8 +166,8 @@ try {
 
   const claudeManifest = JSON.parse(readFileSync(resolve(plugin, ".claude-plugin/plugin.json")));
   const codexManifest = JSON.parse(readFileSync(resolve(plugin, ".codex-plugin/plugin.json")));
-  ok(claudeManifest.version === "3.5.0", "Claude manifest is 3.5.0");
-  ok(codexManifest.version === "3.5.0", "Codex manifest is 3.5.0");
+  ok(claudeManifest.version === "3.7.0", "Claude manifest is 3.7.0");
+  ok(codexManifest.version === "3.7.0", "Codex manifest is 3.7.0");
   ok(claudeManifest.version === codexManifest.version, "plugin manifest versions match");
   const placementRule = "plugins/project-init/library/rules/general/where-persistent-information-belongs.md";
   ok(existsSync(resolve(root, placementRule)), "package contains the plainly named placement rule");
@@ -231,8 +231,8 @@ try {
   ]) ok(!activeSaveSurfaces.includes(forbidden), `active save surfaces exclude ${forbidden}`);
 
   for (const [name, version] of [
-    ["project-init", "0.44.0"],
-    ["session-skills", "1.1.0"],
+    ["project-init", "0.47.0"],
+    ["session-skills", "1.3.0"],
   ]) {
     const claude = JSON.parse(readFileSync(resolve(root, `plugins/${name}/.claude-plugin/plugin.json`)));
     const codex = JSON.parse(readFileSync(resolve(root, `plugins/${name}/.codex-plugin/plugin.json`)));
