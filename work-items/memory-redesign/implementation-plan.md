@@ -1,6 +1,6 @@
 # Memory system v2: implementation plan
 
-Status: draft, not approved. No build work starts from this plan until Phase 0 lands and Mike approves it.
+Status: approved by Mike on 2026-08-20. Phase 0 lands before any build work starts.
 Date: 2026-08-20
 Owner: Mike Rihm
 
