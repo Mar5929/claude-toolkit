@@ -631,11 +631,39 @@ How to read each contract:
   validator itself could not run.
 - Approval: none. The validator writes nothing.
 
-### 2.24 Two supporting commands that are not tool operations
+### 2.23.1 Derived files the write path keeps under `.memory/`
+
+Three files live beside the review file. None is project memory, all sit under
+`.memory/`, which the project gitignores, and none is read to decide what is true.
+Deleting the folder loses nothing that cannot be rebuilt.
+
+| File | Holds | Why it is not in the review file |
+| --- | --- | --- |
+| `.memory/review/<proposal-id>.md` | The complete proposal, exactly as the owner reviews and may edit it | This is the file FR-111 and FR-112 describe |
+| `.memory/review/<proposal-id>.proposal.json` | The section 13.2 approval binding: proposal hash, destination path, record id, evidence locators and source hashes, pin statement | The review file has to stay pure content. Binding data inside it would be editable by the owner in the same pass that edits the text, and FR-112 approves the exact contents of that file |
+| `.memory/journal.json` | The crash-recovery journal for an interrupted transaction | Section 13.4 |
+| `.memory/last-move.json` | A receipt for the most recent approved move or rename, which validator check MV-22 reads to confirm link repair was complete | A receipt of a finished write is not part of a pending proposal |
+
+`.memory/last-move.json` is the one entry here that the architecture does not name.
+It is a convenience for MV-22, not a requirement. Flagged for owner review.
+
+### 2.24 Supporting commands that are not tool operations
 
 `memory.mjs cancel --proposal <id>` removes a review file after a skip. It touches no
 canonical path. It does not add an operation to the section 16.1 surface. It is
 plumbing for operations that surface already defines.
+
+`memory.mjs move --id <record-id> --to <relative-path>` moves or renames an approved
+record through the coordinator, repairing every incoming link in the same transaction
+or changing nothing. Architecture section 16.1 does not list a move operation, yet
+FR-086 requires the behavior and something has to invoke it. It is recorded here as a
+supporting command for that reason, not as a twenty-fourth operation on the section
+16.1 surface. If the owner would rather see it in section 16.1, that is an architecture
+edit and this row follows it. Flagged for owner review.
+
+Every one of these commands returns the section 1.5 apply result shape, including
+`changed_paths`, because C11 makes that shape universal for a two-phase write.
+`rebuild-views` returns it too: it writes, so it reports what it wrote.
 
 The boot brief has no `memory.mjs` command. `tools/boot-brief.mjs` is the assembler and
 is run directly, which is what the section 5.2 Codex route text does and what the
@@ -676,15 +704,20 @@ are here so nothing in the build is homeless.
 | Gold set runner | `plugins/second-brain/tools/gold-set.mjs` | P3-5 | Architecture section 18.1 |
 | Save reminder | `plugins/second-brain/hooks/save-reminder.mjs` | Unchanged from v1 | Existing behavior. It knows nothing about the taxonomy |
 
-Three shared modules sit under `plugins/second-brain/tools/lib/`. Each exists because
+Five shared modules sit under `plugins/second-brain/tools/lib/`. Each exists because
 more than one entry point needs the same deterministic answer, and two copies of a
 boundary rule is how boundaries drift.
+
+Work item P2-1 owns this folder. A later item that needs new shared behavior adds it
+here rather than copying it into a tool, and says so in its own row.
 
 | Module | Holds | Used by |
 | --- | --- | --- |
 | `lib/scope.mjs` | Scope resolution (21.1), member-path testing, privacy boundary reading (21.5) | `memory.mjs`, `memory-write.mjs`, `boot-brief.mjs`, `memory-write-guard.mjs` |
 | `lib/record-schema.mjs` | The versioned record schema and the versioned project-settings schema | `memory.mjs`, `memory-write.mjs`, `knowledge-layout.mjs` |
 | `lib/result.mjs` | The result envelope, the reason codes, and the exit mapping | Every tool and both hooks |
+| `lib/links.mjs` | Outgoing-link parsing, derived backlink search, and relative-link repair for a move (12.4, FR-082 to FR-086) | `memory.mjs`, `memory-write.mjs` |
+| `lib/pins.mjs` | The pin registry shape, the summary hash, and the budget preflight (11.2, 11.3) | `memory.mjs`, `memory-write.mjs`, `boot-brief.mjs` |
 
 The four human-facing skills are the owner's route into all of it.
 

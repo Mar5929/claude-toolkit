@@ -28,19 +28,27 @@ sessions doing the work do.
 - This run is autonomous. The per-item board issues, refinement sessions, and
   per-item owner approvals the plan calls for are collapsed into that one
   review.
-- Phase 1 is built and audited, committed through `2205029`. Five plugin
-  harnesses pass, 416 checks in total, and the four repo checks are green.
-  No v1 runtime file was touched, so D2 holds.
-- second-brain is at 3.7.0 in both manifests and the marketplace is at 0.77.0.
-- Next item: P2-1.
+- Phase 1 and Phase 2 are built and audited, committed through `57f6508`.
+  Nine plugin harnesses pass, 940 checks in total, and the four repo checks
+  are green. No v1 runtime file has been touched in either phase, so D2 holds.
+- second-brain is at 3.8.0 in both manifests and the marketplace is at 0.78.0.
+- Next item: P3-1.
 - Blocked: nothing.
+- Must be fixed before P4-2 puts the guard live in this repository: the
+  pre-write guard reads Bash commands well but four indirect shapes get past
+  it. `xargs` feeding a guarded path into a writing command, an interpreter
+  one-liner such as `python3 -c` or `node -e` with the path inside the code
+  string, `dd of=`, and `ln -sf` over a canonical file. The structured tools,
+  redirects, subshells, `tee`, `sed -i`, `cp`, heredocs, `sh -c`, and `eval`
+  are all refused correctly, and the guard fails closed outside a project.
 - Carried into Phase 2, decided this run and needing Mike's review: the
   `updated` date in `knowledge/current.md` front matter is an invented field.
   Neither authority document names a place to hold the date FR-116 compares
   against, so Phase 1 added one. `memory.mjs update-current` must write it.
-- Also carried: `memory.mjs` reports an unknown operation or a bad flag as
-  `record/schema-invalid`. `contracts.md` now defines `cli/invalid-invocation`
-  for that, and a Phase 2 item has to switch it over.
+- Carried into Phase 3 and Phase 4: a cross-scope record or pin id currently
+  answers `record/unknown-id`, which does not name the resolved root. AT-45
+  requires a refusal naming the operation, the path, and the resolved root, so
+  `scope/cross-scope-result` has to become reachable before P4-9.
 
 ## Work items
 
@@ -63,13 +71,13 @@ No row may say "merged" until its work is actually merged to `main`.
 | P1-4 | Optional tracker adapter | in review | PR #210, `2205029` | `tools/tracker-adapter.mjs` with the `github-project` adapter over `gh`. The command runner is injectable so fixtures cover the absent and failing cases, and both leave startup usable. |
 | P1-5 | Codex startup route | in review | PR #210, `2205029` | One marked v2 section added to `skills/second-brain/SKILL.md`, 101 lines added and none removed, so v1 setup behavior is unchanged. The route text calls `boot-brief.mjs` directly. |
 | P1-6 | Current and recent rendering | in review | PR #210, `2205029` | Current and recent blocks render authored lines only. The 72-hour window comes from section 10.3 and no separate threshold was invented. Stale warning per FR-116 names the date and survives every degradation step. |
-| P2-1 | Record schema and core validator | not started | | |
-| P2-2 | Write coordinator and approval binding | not started | | |
-| P2-3 | Pre-write guard | not started | | |
-| P2-4 | Lifecycle operations | not started | | |
-| P2-5 | Pins | not started | | |
-| P2-6 | Rewrite the remember skill | not started | | |
-| P2-7 | Links, backlinks, and move repair | not started | | |
+| P2-1 | Record schema and core validator | in review | PR #210, `57f6508` | `lib/record-schema.mjs` at schema 2.0 and `memory.mjs validate`. All 22 MV checks are listed in the output, three run now and 19 report as skipped, so nothing looks checked that is not. `record/legacy-gap` warns and never fails. Four record templates. Schema harness 77 checks. Also switched the CLI to `cli/invalid-invocation`, which the last check-in asked for. |
+| P2-2 | Write coordinator and approval binding | in review | PR #210, `57f6508` | `tools/memory-write.mjs`: two-phase propose and apply, project lock, journal, preimage restore, focused validation, view rebuild. Review file plus a `.proposal.json` sidecar holding the section 13.2 binding, which keeps the reviewed Markdown pure content. `update-current` writes the four required sections and stamps the date. Legacy touch-upgrade included. FR-110's keyboard shortcut stays unmet through its own escape clause: Claude Code gives a skill no way to register one. |
+| P2-3 | Pre-write guard | in review | PR #210, `57f6508` | `hooks/memory-write-guard.mjs` denies through the `PreToolUse` payload and exits 0 on every path, per C10. Covers Edit, Write, MultiEdit, NotebookEdit, and Bash. Guards `knowledge/memory/`, `knowledge/specs/`, `current.md`, and the three boundary keys in `project.md`. I tested it myself against 30 shapes: it holds on the structured tools, fails closed outside a project, and allows reads and git. Four Bash evasion shapes get through, recorded below and in the notes for P4-2. |
+| P2-4 | Lifecycle operations | in review | PR #210, `57f6508` | The eight operations sit beside the coordinator in `memory-write.mjs`. Duplicate-id refusal, reciprocal supersession in one transaction, the retire phrase hunt, merge only for identical meaning, and delete with the privacy-purge boundary report. Lifecycle harness 193 checks. |
+| P2-5 | Pins | in review | PR #210, `57f6508` | A container restart interrupted the first build of this item. The workflow resumed from cache and a fresh agent reviewed and finished the partial work. I audited the result rather than the process: pins are complete, the registry is `knowledge/memory/pins.md`, rendering verifies the summary hash, and the cross-project isolation pair passes. Two things to note: the 320-byte pin statement limit is an invented number no document names, and the AT-06 retrieval half is deferred to Phase 3. |
+| P2-6 | Rewrite the remember skill | in review | PR #210, `57f6508` | `skills/remember/SKILL-v2.md` drafted beside the live skill, which is untouched, so D2 holds. Follows the section 13.1 pipeline and the extended 13.5 completed-work rules, and names `knowledge/specs/memory-system.md` as its authority with a note that P4-6 fills that file in. |
+| P2-7 | Links, backlinks, and move repair | in review | PR #210, `57f6508` | `lib/links.mjs`, `memory.mjs related`, and coordinator move and rename with repo-wide relative-link repair and preimage restore when any link cannot be repaired. Links harness 87 checks including the failing-repair fixture that changes nothing. Writes a `.memory/last-move.json` receipt for validator check MV-22, which no document had named. |
 | P3-1 | Retrieval router | not started | | |
 | P3-2 | Rewrite the recall skill | not started | | |
 | P3-3 | Session-history gate rework | not started | | |
