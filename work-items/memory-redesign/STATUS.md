@@ -20,49 +20,70 @@ sessions doing the work do.
 
 ## Where we are
 
-- Plan approved by Mike and merged 2026-08-20.
-- Phase 0 is built on branch `claude/memory-redesign-impl-t5e3go`, committed
-  through `97cb988`, and open as draft pull request #210. Nothing is merged.
-  Mike has approved none of it. The whole run gets one review at that pull
-  request.
-- This run is autonomous. The per-item board issues, refinement sessions, and
-  per-item owner approvals the plan calls for are collapsed into that one
-  review.
-- Phase 1 and Phase 2 are built and audited, committed through `57f6508`.
-  Nine plugin harnesses pass, 940 checks in total, and the four repo checks
-  are green. No v1 runtime file has been touched in either phase, so D2 holds.
-- Phase 3 is built and audited. Eleven plugin harnesses pass, 1248 checks in
-  total, the gold-set self-test adds 39, and the four repo checks are green.
-  `search-sessions.mjs` is the one v1 runtime file this phase edits, which the
-  plan allows for P3-3, and its change is additive: the pre-P3-3 harness still
-  passes unchanged against it. Four `SKILL-v2.md` drafts now sit beside four
-  untouched live `SKILL.md` files, so D2 holds. `retirement-harness.mjs` is
-  deleted per D4 with its README row removed.
-- second-brain is at 3.9.0 in both manifests and the marketplace is at 0.79.0.
-- Next item: P4-1. Phase 4 is the only phase that removes v1 files. One commit
-  in it must carry P4-2, P4-4, and P4-5 together, or `installed-copy-check`
-  sees a half-migrated repository. Two smaller traps sit with it: P4-1 reworks
-  `knowledge-layout.mjs`, which has an installed copy under `.claude/tools/`
-  that must change in the same commit, and `build-knowledge-index.mjs` has to
-  be removed from the plugin and from `.claude/tools/` together.
-- Blocked: nothing.
-- Still open before the acceptance run, roughly in order of weight:
-  `memory.mjs session-search` is not wired, so nothing on the v2 tool surface
-  reaches the history gate. Two narrow guard shapes still pass: an interpreter
-  fed by a heredoc rather than by `-c`, and `rsync` into a guarded path.
-  MV-18 lands with P4-1. The AT-06 retrieval half was deferred out of P2-5.
-- The guard gap found at the Phase 2 audit is closed. All four shapes now
-  refuse, and so do `ruby -e`, `xargs tee`, `busybox sh -c`, and `find -exec`,
-  which I added. No false refusal appeared in any of the 40 shapes I have
-  fired at it. Two narrower shapes still get through and are listed below.
-- Carried into Phase 2, decided this run and needing Mike's review: the
-  `updated` date in `knowledge/current.md` front matter is an invented field.
-  Neither authority document names a place to hold the date FR-116 compares
-  against, so Phase 1 added one. `memory.mjs update-current` must write it.
-- Carried into Phase 3 and Phase 4: a cross-scope record or pin id currently
-  answers `record/unknown-id`, which does not name the resolved root. AT-45
-  requires a refusal naming the operation, the path, and the resolved root, so
-  `scope/cross-scope-result` has to become reachable before P4-9.
+**The build ran to the cutover and stopped there on purpose.** Phases 0 through
+3 are complete and audited. Phase 4 landed its migration engine, its
+project-init and project-sync rewrite, its removal path, and its rules rewrite.
+The cutover itself is held for Mike.
+
+- Everything is on branch `claude/memory-redesign-impl-t5e3go`, committed
+  through `147c3fc`, open as draft pull request #210. **Nothing is merged and
+  Mike has approved none of it.** The whole run gets one review at that pull
+  request. Where a row below says a decision was made, it means made by an
+  agent and waiting for him.
+- This run was autonomous. The per-item board issues, refinement sessions, and
+  per-item owner approvals the plan calls for were collapsed into that review.
+- Green as of the final audit: eleven plugin harnesses, 1357 checks, plus a
+  39-check gold-set self-test, plus the four repo checks, plus
+  `claude plugin validate .`. I ran all of them myself at `147c3fc`.
+- **This repository still runs v1, and it works.** The v1 SessionStart hook is
+  still registered in `.claude/settings.json` and still produces its briefing.
+  The v1 tools are still in `.claude/tools/`. All four live `SKILL.md` files are
+  untouched with their `SKILL-v2.md` drafts beside them. The v1 `knowledge/`
+  tree is untouched. D2 held for the entire run.
+- second-brain is at 3.9.0 in both manifests, project-init at 0.49.0, the
+  marketplace at 0.79.0. The 4.0.0 release has not happened.
+
+### One thing to know before you work in this repository
+
+The rules in `.claude/rules/` now describe the v2 taxonomy, but this repo's
+`knowledge/` tree is still v1. So `where-persistent-information-belongs.md`
+will route a save to `knowledge/memory/facts/`, which does not exist here yet.
+Until the cutover lands, save by the tree you can actually see: `context`,
+`decisions`, `domain`, `knowledge`, `operations`, `planning`, `references`.
+This is temporary and known. Reverting the rules would break
+`installed-copy-check`, which is why they were left ahead of the tree.
+
+### Why the cutover stopped
+
+The P4-2 agent was blocked by the platform's safety layer. Rewriting this
+repository's own live `.claude/settings.json`, deleting live runtime files, and
+swapping live `SKILL.md` files reads as self-modification, and that needs Mike's
+explicit confirmation. An unattended overnight run cannot give it. The block was
+respected rather than worked around. That was the correct outcome: this is
+exactly the change a person should be awake for.
+
+### How to resume
+
+1. Mike approves the cutover explicitly, in a session he is present for.
+2. Re-run stage C. The workflow script is at the scratchpad path
+   `phase-4c-workflow.js`, resuming from run id `wf_cd653f3d-d78`. **Skip P4-4**,
+   which is already committed at `147c3fc`. The stage is P4-2 with P4-5 inside
+   it, in one commit.
+3. That one commit must carry all of it or `installed-copy-check` sees a
+   half-migrated repository: the migration of `knowledge/`, the new
+   `current.md` and `map.md`, `project.md` front matter, the `.claude/` hook and
+   tool swap, the `.claude/settings.json` registration, removal of the v1 hook
+   and the v1 tools, the four `SKILL-v2.md` swaps, the hardcoded filename list
+   in `tests/installed-copy-check.mjs`, and the root marker blocks in
+   `CLAUDE.md` and `AGENTS.md`. `build-knowledge-index.mjs` must leave the
+   plugin and `.claude/tools/` together, and installing `tools/lib/` means the
+   copy walker has to recurse.
+4. Then P4-6, then P4-7 with the 4.0.0 bump, then P4-9.
+5. The gold set is the proof the migration worked. It reports ten blocked today
+   because scope does not resolve on a v1 tree. After the cutover it must score
+   10 of 10, which needs three things from the migration: the shared-block
+   decision keeps the exact record id the set names, that record lists
+   `AGENTS.md` among its entities, and the memory-spec decision is pinned.
 
 ## Work items
 
@@ -98,12 +119,12 @@ No row may say "merged" until its work is actually merged to `main`.
 | P3-4 | Review engine and cleanup skill | in review | PR #210, review harness 68 checks | `memory.mjs review` is a structurally read-only router over fifteen section 17 categories returning the contracts 2.8 worklist shape, focused by default, `--scope deep` adding the whole-corpus categories, and the gold-set category reported as skipped rather than importing the P3-5 runner. It reuses the validator link, pin, and phrase checks, `planViewRebuild`, and `assembleBootBrief`, so nothing `lib/links.mjs` or `lib/pins.mjs` owns is duplicated. `skills/cleanup/SKILL-v2.md` routes every repair through the P2-4 operations. |
 | P3-5 | Gold set runner | in review | PR #210, self-test 36 to 39 checks | `tools/gold-set.mjs` reads the set from `knowledge/retrieval-gold-set.md` or the path `knowledge/map.md` maps it to, runs each question through the real router as a separate process, and checks the expected file against the first five results at a bar of 8 of 10. Pending, blocked, partial, and not-measured are separate outcomes, so no pass is claimed that was not earned. This repo's ten owner-worded questions are written. One defect found and fixed at phase close: the AT-18 acceleration scan waved through every `node:` specifier while the token pass strips strings, so `import { DatabaseSync } from "node:sqlite"` was not refused. A waved-through specifier is now read for the forbidden names, and three self-test checks cover it. |
 | P3-6 | Full validator and harness consolidation | in review | PR #210, validate harness 91 checks | Every section 4 check now runs except MV-18, which reports skipped naming P4-1. A check with nothing to inspect reports skipped with the reason, and MV-16 and MV-17 name the steps they did not read. `tools/isolation-fixtures.mjs` holds the section 21.11 fixtures, in its own file because the AT-18 scan forbids a write call in the retrieval path. MV-19 carries the one split severity: a missing set warns, a missed bar fails. Three things this item defines that no document named: the secret pattern set, the `Category:` and `Needed because:` lines inside a record's sensitive section, and an exemption record naming the file and the pattern id. `retirement-harness.mjs` deleted per D4. `knowledge-harness.mjs` gained v2 four-type fixtures beside its v1 ones. |
-| P4-1 | Migration engine, v1 to v2 | not started | | |
-| P4-2 | Migrate this repo and cut its runtime over | not started | | |
-| P4-3 | project-init and project-sync rewrite | not started | | |
-| P4-4 | Rules rewrite | not started | | |
-| P4-5 | Root routes in CLAUDE.md and AGENTS.md | not started | | |
-| P4-6 | Replace the v1 spec content | not started | | |
-| P4-7 | Catalogs, docs, manifests, and version bumps | not started | | |
-| P4-8 | Clean removal path | not started | | |
-| P4-9 | Full acceptance run | not started | | |
+| P4-1 | Migration engine, v1 to v2 | in review | PR #210, `a6c49dc` | `knowledge-layout.mjs` reworked: the v1 `knowledge` layout is the one supported source, `v2` is a detected state, plan mode emits a dry report with counts, hashes, collisions, missing metadata, link changes, and rollback steps, and apply is byte-preserving and stops on any ambiguity. `flat-149` and `retired-v3` are detect-only per D4. MV-18 landed with it. The installed copy at `.claude/tools/knowledge-layout.mjs` was updated in the same commit, which is what kept `installed-copy-check` green. This commit also carried the four fixes the audits had opened: the guard bypasses (F9 and F13), the unreachable cross-scope refusal (F11, now in `lib/cross-scope.mjs`), and wiring `session-search` onto the tool surface (F14). |
+| P4-2 | Migrate this repo and cut its runtime over | blocked | | Held for Mike. The run's safety layer stopped this item: rewriting this repository's own live `.claude/settings.json`, deleting live runtime files, and swapping live `SKILL.md` files is self-modification, and it needs Mike's explicit confirmation, which an unattended run cannot give. The block was respected rather than worked around, which is the right call. Nothing of the cutover was attempted. This repository still runs v1 end to end. |
+| P4-3 | project-init and project-sync rewrite | in review | PR #210, `d75f392` and `a5fe506` | Gate 3 in `project-init/SKILL.md` and `references/setup-flow.md` rewritten to the four memory types, `current.md`, `map.md`, front-matter settings, the v2 hooks, the one-adoption-unit rule, and removability. `project-sync/SKILL.md` gained a v2 layout detection class, a v2 runtime audit, and a startup parity check. Setup writes the `.memory/` gitignore entry. project-init is at 0.49.0. |
+| P4-4 | Rules rewrite | in review, with a live mismatch | PR #210, `147c3fc` | Every shipped rule that named the v1 taxonomy now routes to facts, decisions, events, patterns, `current.md`, the mapped reference area, and the tracker, and each library original moved with its `.claude/rules/` copy so `installed-copy-check` stayed green. The mismatch: this repository's own tree is still v1, so these rules now describe folders this repo does not have yet. Reverting them would break `installed-copy-check`, so this is the least-wrong state, but it is a real one. A session working here before the cutover lands should route saves by the v1 tree it can see, not by the rule text. The note explaining this currently exists only in the commit message, which no session reads, so it is repeated in "Where we are" above. |
+| P4-5 | Root routes in CLAUDE.md and AGENTS.md | blocked | | Held with P4-2. It was always meant to merge inside the cutover commit, because the marker blocks in both root files point sessions at `knowledge/index.md` and the v1 folders until it lands. Nothing was written. |
+| P4-6 | Replace the v1 spec content | blocked | | Depends on P4-2. `knowledge/specs/memory-system.md` still holds the v1 text, which is correct while this repo still runs v1. |
+| P4-7 | Catalogs, docs, manifests, and version bumps | blocked | | Depends on P4-2 through P4-6. second-brain is at 3.9.0, not 4.0.0, and the marketplace is at 0.79.0. The 4.0.0 release belongs to this item and has not happened. |
+| P4-8 | Clean removal path | in review | PR #210, `d75f392` | Removal steps added to `skills/second-brain/SKILL.md`: unregister the hooks, remove the tools and skills, leave `knowledge/` content in place, leave every other plugin working. Not yet exercised against a scratch project, because that check belongs with the acceptance run. |
+| P4-9 | Full acceptance run | blocked | | Depends on everything above. No acceptance test has been run as a suite. Three of them cannot be run by any unattended session at all: AT-20 is a manual owner check, and the Codex halves of AT-01 and AT-05 need a real Codex session. |
