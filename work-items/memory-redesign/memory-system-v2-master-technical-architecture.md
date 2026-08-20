@@ -967,11 +967,28 @@ is not approval to write and creates no shortcut around placement, durable-infor
 future-agent interpretation, evidence, duplicate, conflict, editing, validation, or
 owner-approval checks.
 
-Completed work becomes an event only when it passes those checks. The proposal states
-when the work occurred, the exact tool or system involved, what materially changed,
-the result, and links to available evidence. It excludes transcripts, command logs,
-tool-by-tool activity, hidden reasoning, and routine details. The system never creates
-the event automatically.
+Completed work becomes an event only when it passes those checks. Before any proposal
+is shown, the coordinator separates the requested work into the meanings it actually
+contains. Unclear requested scope, an unverified outcome, and work holding more than
+one separately meaningful event each produce separate proposed meanings, and every one
+runs its own section 13.2 review. The section 12.3 atomic record boundary decides where
+the split falls.
+
+Each proposal states when the work occurred, the exact tool or system involved, a plain
+description written in the wording a later search would use, what was done, the
+material result, and links to available evidence. Search wording and aliases that were
+part of the work are preserved, including a tool's role or product family alongside its
+exact name. The alias never replaces the exact name.
+
+A proposal excludes transcripts, raw command logs, tool-by-tool history, hidden
+reasoning, and routine activity. In their place it links to the work-tracker item,
+commit, changed files, test result, source report, or native session reference wherever
+those exist. The record carries `occurred_at` and holds those locators as evidence
+entries, which is what later recall follows.
+
+The system never creates a completed-work event on its own. No end-of-turn route, no
+end-of-session route, and no background process may propose or write one. An explicit
+owner request is the only way the workflow starts.
 
 When an approved completed-work event changes the current focus, the blockers, or the
 next step, the same transaction updates knowledge/current.md. The owner sees that
@@ -2200,7 +2217,10 @@ The architecture is implemented only when a real project proves:
 | --- | --- | --- |
 | FR-019 | Section 13.2 defines separate five-bullet reviews and explicit approval. | AT-04 |
 | FR-020 | Section 13.2 defines silence, ambiguity, and full-text requests as no approval. | AT-04 |
-| FR-110 through FR-113 | Section 13.2 and ADR-034 define the editable temporary proposal, exact-content approval, exclusions, and revalidation. | AT-41 |
+| FR-110 | Section 13.2 and ADR-034 offer an Edit action on every proposal, give it a keyboard shortcut where the host supports one, and open the complete proposal in a temporary review file. | AT-41 |
+| FR-111 | Section 13.2 and ADR-034 keep the temporary review file under `.memory/review/` outside canonical memory and specification paths, and out of startup, recall, search, generated views, and Git-tracked knowledge. | AT-41 |
+| FR-112 | Section 13.2 makes a clear confirmation approve the exact current contents of the review file without the owner describing the edits again, and treats opening or editing alone as no approval. | AT-41 |
+| FR-113 | Section 13.2 and ADR-034 revalidate the edited contents and stop the write on another meaning, a changed destination or record type, missing evidence, a conflict, or a failed interpretation test, otherwise writing through the protected save operation. | AT-41 |
 | FR-021 | Sections 13.2 and 21 deny approval and writes to helpers, hooks, providers, and background processes. | AT-04 |
 | FR-108 | Section 13.3 and ADR-033 put the refusal in the approved write path and refuse every other route to canonical paths. | AT-04, AT-39 |
 | FR-022 | Section 12 defines permanent identity, kind, status, dates, provenance, approval, and summary. | AT-04 |
@@ -2285,7 +2305,14 @@ The architecture is implemented only when a real project proves:
 
 | Requirement | Architecture coverage | Acceptance proof |
 | --- | --- | --- |
-| FR-074 through FR-081 | Sections 12 and 13.5 plus ADR-036 apply the normal remember workflow and event record rules without an approval shortcut. | AT-42 |
+| FR-074 | Section 13.5 and ADR-036 route a request to record completed work into the normal remember workflow and give it no approval shortcut. | AT-42 |
+| FR-075 | Sections 13.1, 13.2, and 13.5 gate a completed-work event on the placement, durable-information, future-agent interpretation, evidence, duplicate, conflict, review, editing, and owner-approval checks. | AT-42, AT-04 |
+| FR-076 | Sections 12.3 and 13.5 separate unclear requested scope, an unverified outcome, and multiple meaningful events into separate proposed meanings, each running its own section 13.2 review. | AT-42, AT-26 |
+| FR-077 | Sections 12 and 13.5 require the occurrence time, the exact tool or system, a search-usable plain description, what was done, the material result, and evidence links. | AT-42, AT-13 |
+| FR-078 | Section 13.5 preserves the search wording and aliases that were part of the work while keeping the tool's exact name. | AT-42 |
+| FR-079 | Section 13.5 excludes transcripts, raw command logs, tool-by-tool history, hidden reasoning, and routine activity, and requires links to the available tracker item, commit, changed files, test result, source report, or native session reference. | AT-42 |
+| FR-080 | Section 13.5 and ADR-036 forbid automatic end-of-turn, end-of-session, and background creation of completed-work memories and require an explicit owner request. | AT-42 |
+| FR-081 | Sections 12.1, 13.5, 15.3, and 15.6 let recall answer whether the work happened, when, what was done, and what resulted, follow the event's evidence links, and stay honest when evidence is missing. | AT-42, AT-13, AT-15 |
 
 ### Links and backlinks
 
