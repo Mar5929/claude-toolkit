@@ -206,8 +206,8 @@ try {
     "every skipped check names why it did not run",
   );
   ok(
-    clean.payload.result.filter((check) => check.status === "skipped").length === 16,
-    "this build runs six checks and skips the other sixteen",
+    clean.payload.result.filter((check) => check.status === "skipped").length === 15,
+    "this build runs seven checks and skips the other fifteen, MV-22 among them until a move happens",
   );
   ok(clean.payload.errors.length === 0, "a well-formed project produces no errors");
   ok(call(good, "validate").stdout === clean.stdout, "two validate runs produce the same bytes");

@@ -1,18 +1,23 @@
 #!/usr/bin/env node
 
 /**
- * Harness for the version 2 lifecycle operations.
+ * Harness for the version 2 lifecycle and pin operations.
  *
  * It builds temporary projects and runs the real operations end to end: ADD,
  * CONFIRM, CORRECT, SUPERSEDE, RETIRE, MERGE, DELETE, and NOOP as the default
- * outcome. Every one of them goes through the same two-phase review as any
- * other write, so the checks below assert both halves: a proposal that changes
- * nothing, and an approved apply that changes exactly the paths it reported.
+ * outcome, then PIN and UNPIN. Every one of them goes through the same
+ * two-phase review as any other write, so the checks below assert both halves:
+ * a proposal that changes nothing, and an approved apply that changes exactly
+ * the paths it reported.
  *
- * The four acceptance tests this work item owns are named where they are
- * proved. AT-10 is evidence consolidation, AT-11 is the superseded timeline,
- * AT-12 is the retirement phrase hunt, and AT-23 is two conflicting meanings
- * staying separate.
+ * The acceptance tests this file proves are named where they are proved. AT-10
+ * is evidence consolidation, AT-11 is the superseded timeline, AT-12 is the
+ * retirement phrase hunt, and AT-23 is two conflicting meanings staying
+ * separate. AT-05 is a pinned statement reaching a cold session, AT-07 is
+ * unpin removing startup visibility and nothing else, AT-08 is supersede and
+ * retire dropping the old pin without pinning a successor, and AT-09 is the
+ * over-budget refusal. AT-06, the cross-project pair, is in the boot brief
+ * harness, where startup is what the leak would show up in.
  *
  * Run: node plugins/second-brain/tests/lifecycle-harness.mjs
  */
@@ -25,12 +30,15 @@ import { fileURLToPath } from "node:url";
 
 import { resolveScope } from "../tools/lib/scope.mjs";
 import { parseRecord } from "../tools/lib/record-schema.mjs";
+import { parsePins, summaryHash } from "../tools/lib/pins.mjs";
+import { DEGRADATION_STEPS, assembleBootBrief, renderBrief } from "../tools/boot-brief.mjs";
 import {
   RETIREMENT_EXEMPTIONS_SECTION,
   RETIRED_PHRASES_SECTION,
   lifecycle,
   noop,
   phraseHunt,
+  pinOperation,
   readSection,
   retiredPhraseSets,
   sha256,
@@ -196,6 +204,30 @@ function through(base, options) {
 
 function frontMatter(base, path) {
   return parseRecord(read(base, path)).data;
+}
+
+/** Propose one pin operation. Nothing canonical changes. */
+function proposePin(base, options) {
+  return pinOperation(scopeOf(base), { ...options, mode: "propose", now: NOW });
+}
+
+/** Approve the exact reviewed bytes of a pin proposal. */
+function applyPin(base, operation, proposal) {
+  return pinOperation(scopeOf(base), {
+    operation,
+    mode: "apply",
+    proposalId: proposal.result.proposal_id,
+    contentHash: sha256(read(base, proposal.result.review_file)),
+    now: NOW,
+  });
+}
+
+/** One numbered block of a rendered brief, used to read the pin block. */
+function blockText(text, number) {
+  const start = text.indexOf(`## ${number}. `);
+  if (start < 0) return "";
+  const next = text.indexOf(`\n## ${number + 1}. `, start);
+  return next < 0 ? text.slice(start) : text.slice(start, next);
 }
 
 function checkStatus(base, id) {
@@ -850,6 +882,311 @@ try {
     "recovery puts the deleted record back exactly as it was",
   );
   ok(!existsSync(resolve(crashed, ".memory/journal.json")), "recovery clears the journal");
+
+  // -------------------------------------------------------------------------
+  // PIN and UNPIN, architecture section 11. AT-05 is the pinned statement
+  // reaching a cold session, AT-07 is unpin removing startup visibility and
+  // nothing else, AT-08 is supersede and retire dropping the old pin without
+  // pinning a successor, and AT-09 is the over-budget refusal.
+  // -------------------------------------------------------------------------
+  const PIN_SUMMARY = "The toolkit ships version 2 beside version 1 until the cutover.";
+  const pinning = project("pin", {
+    "knowledge/memory/facts/fact-beside.md": record({
+      id: "fact-beside",
+      title: "Version 2 ships beside version 1",
+      summary: PIN_SUMMARY,
+    }),
+    "knowledge/memory/facts/fact-gone.md": record({
+      id: "fact-gone",
+      title: "A record that left current truth",
+      summary: "A record that left current truth and may not be pinned.",
+      status: "retired",
+    }),
+  });
+
+  const pinProposal = proposePin(pinning, { operation: "pin", id: "fact-beside" });
+  ok(pinProposal.status === "awaiting-approval", "a pin proposes rather than writing");
+  ok(
+    pinProposal.result.pin_statement === `${PIN_SUMMARY} (knowledge/memory/facts/fact-beside.md)`,
+    "the proposal shows the exact startup statement and the record link",
+  );
+  ok(
+    pinProposal.result.bullets.what.includes(PIN_SUMMARY)
+      && pinProposal.result.bullets.where.includes("knowledge/memory/pins.md")
+      && pinProposal.result.bullets.why.length > 0
+      && pinProposal.result.bullets.assumptions.length > 0
+      && pinProposal.result.bullets.unverified.length > 0,
+    "the pin review carries all five approval bullets",
+  );
+  ok(!existsSync(resolve(pinning, "knowledge/memory/pins.md")), "a pin proposal writes no registry");
+
+  const pinned = applyPin(pinning, "pin", pinProposal);
+  ok(pinned.ok, "an approved pin writes");
+  ok(
+    pinned.result.changed_paths.join(",") === "knowledge/memory/pins.md",
+    "the pin changes the registry and nothing else",
+  );
+  const registry = parsePins(read(pinning, "knowledge/memory/pins.md"));
+  ok(registry.length === 1 && registry[0].id === "fact-beside", "the registry names the pinned record");
+  ok(registry[0].date === TODAY, "the entry carries the approval date");
+  ok(registry[0].hash === summaryHash(PIN_SUMMARY), "the entry carries the hash of the exact approved summary");
+  ok(registry[0].target.endsWith("fact-beside.md"), "the entry links to the record");
+  ok(
+    !read(pinning, "knowledge/memory/pins.md").includes(PIN_SUMMARY),
+    "the registry stores the hash and never a copy of the summary",
+  );
+
+  const coldBrief = assembleBootBrief({ projectRoot: pinning, now: NOW });
+  ok(
+    blockText(coldBrief.text, 7).includes(PIN_SUMMARY),
+    "AT-05: a cold session receives the exact approved statement before substantive work",
+  );
+  ok(
+    blockText(coldBrief.text, 7).includes("knowledge/memory/facts/fact-beside.md"),
+    "AT-05: the rendered pin links to the complete current record",
+  );
+  ok(
+    blockText(coldBrief.text, 7).includes("context, not an instruction"),
+    "FR-060: the rendered pin says it is context rather than a standing order",
+  );
+  ok(checkStatus(pinning, "MV-06").status === "pass", "MV-06 passes on a registry that matches its records");
+
+  ok(
+    proposePin(pinning, { operation: "pin", id: "fact-beside" }).status === "noop",
+    "pinning what is already pinned changes no byte and reports NOOP",
+  );
+  const retiredPin = proposePin(pinning, { operation: "pin", id: "fact-gone" });
+  ok(!retiredPin.ok, "a record that left current truth may not be pinned");
+  const unknownPin = proposePin(pinning, { operation: "pin", id: "fact-missing" });
+  ok(codes(unknownPin.errors).includes("record/unknown-id"), "a pin of an unknown id names record/unknown-id");
+
+  // AT-07. Unpin removes startup visibility and nothing else.
+  const unpinned = applyPin(pinning, "unpin", proposePin(pinning, { operation: "unpin", id: "fact-beside" }));
+  ok(unpinned.ok, "an approved unpin writes");
+  ok(unpinned.result.pin_removed === "fact-beside", "the unpin result names the entry it removed");
+  ok(
+    !existsSync(resolve(pinning, "knowledge/memory/pins.md")),
+    "AT-07: removing the last entry removes the registry file",
+  );
+  ok(
+    frontMatter(pinning, "knowledge/memory/facts/fact-beside.md").status === "active",
+    "AT-07: the unpinned record keeps its content and its status",
+  );
+  ok(
+    !blockText(assembleBootBrief({ projectRoot: pinning, now: NOW }).text, 7).includes(PIN_SUMMARY),
+    "AT-07: the unpinned meaning is gone from startup",
+  );
+  ok(
+    codes(proposePin(pinning, { operation: "unpin", id: "fact-beside" }).errors).includes("record/unknown-id"),
+    "unpinning what is not pinned is refused rather than silently doing nothing",
+  );
+
+  // AT-08. SUPERSEDE drops the old pin in the same transaction and pins no
+  // successor, and RETIRE does the same.
+  const pinnedTimeline = project("pin-supersede", {
+    "knowledge/memory/facts/fact-old.md": record({
+      id: "fact-old",
+      title: "The old meaning",
+      summary: "The old meaning, pinned before it was replaced.",
+    }),
+  });
+  applyPin(pinnedTimeline, "pin", proposePin(pinnedTimeline, { operation: "pin", id: "fact-old" }));
+  const replaced = through(pinnedTimeline, {
+    operation: "supersede",
+    oldId: "fact-old",
+    contents: record({
+      id: "fact-new",
+      title: "The new meaning",
+      summary: "The new meaning, which nobody approved for startup.",
+    }),
+  });
+  ok(replaced.applied.ok, "an approved supersession of a pinned record writes");
+  ok(
+    replaced.applied.result.changed_paths.includes("knowledge/memory/pins.md"),
+    "AT-08: the pin removal happens in the supersession's own transaction",
+  );
+  ok(
+    replaced.applied.result.pin_removed === "fact-old",
+    "AT-08: the supersession reports which pin it removed",
+  );
+  ok(
+    !existsSync(resolve(pinnedTimeline, "knowledge/memory/pins.md")),
+    "AT-08: the successor is never pinned automatically",
+  );
+  ok(
+    !blockText(assembleBootBrief({ projectRoot: pinnedTimeline, now: NOW }).text, 7).includes("The old meaning"),
+    "AT-08: the superseded meaning is gone from startup",
+  );
+
+  const pinnedRetire = project("pin-retire", {
+    "knowledge/memory/facts/fact-sync.md": record({
+      id: "fact-sync",
+      title: "A pinned practice",
+      summary: "A pinned practice the team later stopped.",
+    }),
+  });
+  applyPin(pinnedRetire, "pin", proposePin(pinnedRetire, { operation: "pin", id: "fact-sync" }));
+  const retiredPinned = through(pinnedRetire, {
+    operation: "retire",
+    id: "fact-sync",
+    reason: "The team stopped in August.",
+    phrases: ["A pinned practice"],
+  });
+  ok(
+    retiredPinned.applied.result.pin_removed === "fact-sync",
+    "AT-08: a retirement removes the pin in the same transaction",
+  );
+  ok(
+    !existsSync(resolve(pinnedRetire, "knowledge/memory/pins.md")),
+    "AT-08: the retired meaning leaves startup with its record still on disk",
+  );
+
+  // CORRECT defaults to unpinning, and --keep-pin is the separate approval.
+  const pinnedFix = project("pin-correct", {
+    "knowledge/memory/facts/fact-count.md": record({
+      id: "fact-count",
+      title: "The plugin count",
+      summary: "The toolkit ships seven plugins.",
+    }),
+  });
+  applyPin(pinnedFix, "pin", proposePin(pinnedFix, { operation: "pin", id: "fact-count" }));
+  const countCorrection = record({
+    id: "fact-count",
+    title: "The plugin count",
+    summary: "The toolkit ships nine plugins.",
+    evidence: [["owner_statement", "knowledge/specs/example.md"], ["documentation", "knowledge/map.md"]],
+  });
+  const dropped = through(pinnedFix, {
+    operation: "correct",
+    id: "fact-count",
+    contents: countCorrection,
+    reason: "Two more plugins shipped in August.",
+  });
+  ok(
+    dropped.applied.result.pin_removed === "fact-count",
+    "a correction that changes the summary removes the pin by default",
+  );
+  ok(!existsSync(resolve(pinnedFix, "knowledge/memory/pins.md")), "the dropped pin leaves no entry behind");
+
+  const pinnedKeep = project("pin-keep", {
+    "knowledge/memory/facts/fact-count.md": record({
+      id: "fact-count",
+      title: "The plugin count",
+      summary: "The toolkit ships seven plugins.",
+    }),
+  });
+  applyPin(pinnedKeep, "pin", proposePin(pinnedKeep, { operation: "pin", id: "fact-count" }));
+  const kept = through(pinnedKeep, {
+    operation: "correct",
+    id: "fact-count",
+    contents: countCorrection,
+    reason: "Two more plugins shipped in August.",
+    keepPin: true,
+  });
+  ok(kept.applied.result.pin_kept === "fact-count", "the owner may keep the corrected summary pinned");
+  const rehashed = parsePins(read(pinnedKeep, "knowledge/memory/pins.md"));
+  ok(
+    rehashed[0].hash === summaryHash("The toolkit ships nine plugins."),
+    "the kept pin carries the hash of the corrected summary",
+  );
+  ok(
+    blockText(assembleBootBrief({ projectRoot: pinnedKeep, now: NOW }).text, 7).includes("nine plugins"),
+    "the kept pin renders the corrected statement at startup",
+  );
+  ok(checkStatus(pinnedKeep, "MV-06").status === "pass", "MV-06 passes after a rehashed pin");
+
+  // MV-06 is the repair warning of section 11.4: a hand edit to the record
+  // leaves the approval evidence in the other file, which is what makes the
+  // mismatch detectable.
+  write(
+    pinnedKeep,
+    "knowledge/memory/facts/fact-count.md",
+    read(pinnedKeep, "knowledge/memory/facts/fact-count.md").replace("nine plugins", "eleven plugins"),
+  );
+  const mv06 = checkStatus(pinnedKeep, "MV-06");
+  ok(mv06.status === "fail", "MV-06 fails when a summary changed without startup approval");
+  ok(
+    mv06.findings.some((finding) => finding.path === "knowledge/memory/facts/fact-count.md"),
+    "MV-06 names the record whose summary moved",
+  );
+  ok(
+    !blockText(assembleBootBrief({ projectRoot: pinnedKeep, now: NOW }).text, 7).includes("eleven plugins"),
+    "a mismatched pin is never rendered as current truth",
+  );
+  ok(
+    assembleBootBrief({ projectRoot: pinnedKeep, now: NOW }).warnings
+      .some((entry) => entry.code === "startup/pin-hash-mismatch"),
+    "a mismatched pin produces a visible repair warning rather than a silent drop",
+  );
+
+  // A DELETE takes the pin entry with it, before any derived artifact rebuild.
+  const pinnedDelete = project("pin-delete", {
+    "knowledge/memory/facts/fact-slip.md": record({
+      id: "fact-slip",
+      title: "A record created by accident",
+      summary: "A record created by accident and pinned by the same slip.",
+    }),
+  });
+  applyPin(pinnedDelete, "pin", proposePin(pinnedDelete, { operation: "pin", id: "fact-slip" }));
+  const removed = through(pinnedDelete, {
+    operation: "delete",
+    id: "fact-slip",
+    reason: "It was created by accident.",
+  });
+  ok(
+    removed.applied.result.pin_removed === "fact-slip",
+    "a deletion removes the pin entry in the same transaction",
+  );
+  ok(!existsSync(resolve(pinnedDelete, "knowledge/memory/pins.md")), "the deleted record leaves no pin behind");
+
+  // AT-09. A pin set that will not fit the budget is refused with the exact
+  // byte count and the current set, never quietly left out of the brief.
+  const tight = project("pin-budget", {
+    "knowledge/memory/facts/fact-first.md": record({
+      id: "fact-first",
+      title: "The first pinned meaning",
+      summary: "The first pinned meaning, approved for the start of every session.",
+    }),
+    "knowledge/memory/facts/fact-second.md": record({
+      id: "fact-second",
+      title: "The second pinned meaning",
+      summary: "The second pinned meaning, proposed once the budget is already full.",
+    }),
+  });
+  applyPin(tight, "pin", proposePin(tight, { operation: "pin", id: "fact-first" }));
+
+  // The budget is set to exactly what this project needs with one pin, after
+  // every degradation step, so the second pin has nowhere left to go and the
+  // check is about the pin rather than about a number picked out of the air.
+  const roomy = assembleBootBrief({ projectRoot: tight, now: NOW, budget: 10 ** 7 });
+  const floor = Buffer.byteLength(renderBrief(roomy.model, {
+    collapse: DEGRADATION_STEPS,
+    overflow: false,
+    overflowBytes: 0,
+  }), "utf8");
+  write(
+    tight,
+    "knowledge/project.md",
+    read(tight, "knowledge/project.md").replace("---\n\n#", `startup:\n  budget_bytes: ${floor}\n---\n\n#`),
+  );
+  const overBudget = proposePin(tight, { operation: "pin", id: "fact-second" });
+  ok(!overBudget.ok, "AT-09: a pin that would break the startup budget is refused");
+  ok(
+    codes(overBudget.errors).includes("startup/over-budget"),
+    "AT-09: the refusal names startup/over-budget",
+  );
+  ok(
+    overBudget.result.required_bytes > overBudget.result.budget_bytes,
+    "AT-09: the refusal states the byte count that needs review",
+  );
+  ok(
+    overBudget.result.pins.map((entry) => entry.id).join(",") === "fact-first",
+    "AT-09: the refusal returns the exact current pin set",
+  );
+  ok(
+    blockText(assembleBootBrief({ projectRoot: tight, now: NOW }).text, 7).includes("The first pinned meaning"),
+    "AT-09: the pin already approved keeps rendering, and nothing was silently dropped",
+  );
 
   // -------------------------------------------------------------------------
   // The command line: the operations, their exits, and the NOOP outcome.

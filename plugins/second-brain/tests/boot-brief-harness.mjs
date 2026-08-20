@@ -9,13 +9,18 @@
  * mode, missing sources, a project with no tracker, pin hash verification, the
  * stale warning, byte-for-byte repeatability, and fail-open behavior.
  *
+ * It also carries AT-06, the cross-project pin pair: two projects, two physical
+ * roots, and one record id used by both. Neither startup shows the other's
+ * meaning, and an entry reaching into the other root renders nothing and is
+ * reported as repair work.
+ *
  * Run: node plugins/second-brain/tests/boot-brief-harness.mjs
  */
 
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { dirname, join, resolve } from "node:path";
+import { dirname, join, relative, resolve, sep } from "node:path";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 
@@ -664,6 +669,69 @@ try {
   ok(
     !blockText(pinBrief.text, 7).includes("This summary was edited after"),
     "a mismatched pin is omitted from the pin block, and the record keeps its place elsewhere",
+  );
+
+  // AT-06, architecture section 11.5. Two projects, two physical roots, and one
+  // record id used by both. The id is deliberately identical, because an id is
+  // unique inside a scope and never across scopes. Each brief may show only its
+  // own project's meaning, and a pin entry pointing into the other root is
+  // rejected before it can be rendered.
+  const alpha = fixture("isolation-alpha");
+  const beta = fixture("isolation-beta");
+  const sharedId = "fact-release-window";
+  const alphaSummary = "Alpha releases on the first Tuesday of the month.";
+  const betaSummary = "Beta releases whenever the client signs off.";
+
+  for (const [base, projectId, summary] of [
+    [alpha, "isolation-alpha", alphaSummary],
+    [beta, "isolation-beta", betaSummary],
+  ]) {
+    makeProject(base, { projectId });
+    writeCurrent(base, { updated: dayString(now, 0) });
+    writeRecord(base, "facts", "release-window", { date: dayString(now, 1), summary });
+    write(base, "knowledge/memory/pins.md", [
+      "| Record id | Record | Pinned | Summary hash |",
+      "| --- | --- | --- | --- |",
+      `| ${sharedId} | knowledge/memory/facts/release-window.md | ${dayString(now, 1)} | ${summaryHash(summary)} |`,
+      "",
+    ].join("\n"));
+  }
+
+  const alphaBrief = assembleBootBrief({ projectRoot: alpha, now });
+  const betaBrief = assembleBootBrief({ projectRoot: beta, now });
+  ok(
+    blockText(alphaBrief.text, 7).includes(alphaSummary) && !blockText(alphaBrief.text, 7).includes(betaSummary),
+    "AT-06: one project's startup renders its own pin and never the other project's",
+  );
+  ok(
+    blockText(betaBrief.text, 7).includes(betaSummary) && !blockText(betaBrief.text, 7).includes(alphaSummary),
+    "AT-06: the same record id in the other project resolves to that project's own record",
+  );
+  ok(
+    alphaBrief.model.projectId !== betaBrief.model.projectId,
+    "AT-06: each brief is stamped with its own stable project id",
+  );
+  ok(
+    alphaBrief.model.pins.every((pin) => existsSync(resolve(alpha, pin.path))),
+    "AT-06: every rendered pin resolves inside its own physical root",
+  );
+
+  // A pin entry that reaches into the other project's root is dropped with a
+  // warning, so a copied or hand-edited registry cannot leak across scopes.
+  write(beta, "knowledge/memory/pins.md", [
+    "| Record id | Record | Pinned | Summary hash |",
+    "| --- | --- | --- | --- |",
+    `| ${sharedId} | ${relative(resolve(beta, "knowledge/memory"), resolve(alpha, "knowledge/memory/facts/release-window.md")).split(sep).join("/")} | ${dayString(now, 1)} | ${summaryHash(alphaSummary)} |`,
+    "",
+  ].join("\n"));
+  const leaked = assembleBootBrief({ projectRoot: beta, now });
+  ok(
+    !blockText(leaked.text, 7).includes(alphaSummary),
+    "AT-06: a pin entry pointing into another project's root renders nothing",
+  );
+  ok(
+    warningCodes(leaked).includes("startup/pin-hash-mismatch"),
+    "AT-06: the cross-project entry is reported as repair work rather than dropped in silence",
   );
 
   // The four degradation steps, in the exact order, then visible overflow.

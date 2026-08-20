@@ -255,6 +255,7 @@ tools. Nothing here is installed by setup yet.
 ```text
 node plugins/second-brain/tools/memory.mjs capabilities
 node plugins/second-brain/tools/memory.mjs status
+node plugins/second-brain/tools/memory.mjs related --id <record-id>
 node plugins/second-brain/tools/memory.mjs validate [--check MV-01,MV-03] [--fixtures]
 node plugins/second-brain/tools/memory.mjs update-current --trigger handoff|focus-change|completed-work --file <staged.md> --propose
 node plugins/second-brain/tools/memory.mjs update-current --trigger <same> --apply --proposal <id> --content-hash <hash>
@@ -268,6 +269,9 @@ node plugins/second-brain/tools/memory.mjs supersede --old-id <record-id> --file
 node plugins/second-brain/tools/memory.mjs retire --id <record-id> --reason "<text>" --phrase "<exact text>" [--phrase ...] [--exempt "<path>: <reason>"] --propose
 node plugins/second-brain/tools/memory.mjs merge --ids <id>,<id> --survivor <id> --pin keep|drop --propose
 node plugins/second-brain/tools/memory.mjs delete --id <record-id> --reason "<text>" [--privacy] --propose
+node plugins/second-brain/tools/memory.mjs pin --id <record-id> [--why "<text>"] --propose
+node plugins/second-brain/tools/memory.mjs unpin --id <record-id> [--why "<text>"] --propose
+node plugins/second-brain/tools/memory.mjs move --id <record-id> --to <new path> [--why "<text>"] --propose
 ```
 
 Every writing operation above takes the same second call as `update-current`:
@@ -275,7 +279,7 @@ Every writing operation above takes the same second call as `update-current`:
 
 | File | What it is |
 | --- | --- |
-| `tools/memory.mjs` | The one entry for every v2 memory operation. It prints one JSON envelope and nothing else. This build carries `capabilities`, `status`, and `validate`; the rest of the surface is reported as unavailable rather than stubbed. |
+| `tools/memory.mjs` | The one entry for every v2 memory operation. It prints one JSON envelope and nothing else. This build carries `capabilities`, `status`, `related`, `validate`, `update-current`, `rebuild-views`, the seven writing lifecycle operations, `pin`, `unpin`, and the `noop`, `cancel`, and `move` plumbing; the rest of the surface is reported as unavailable rather than stubbed. `move` stays plumbing rather than a twenty-fourth operation, because the stable surface is closed and a move creates no meaning. |
 | `tools/lib/scope.mjs` | Physical scope resolution, member-path testing, and the recorded privacy boundary. One home, because every entry point needs the same answer. A missing or unknown privacy value reads as the most restrictive setting. |
 | `tools/lib/result.mjs` | The result envelope with its fixed field order, the closed reason-code list, and the exit mapping: 0 ran, 1 refused, 2 could not be evaluated. |
 | `tools/lib/record-schema.mjs` | Record schema 2.0 and project settings schema 2.0: the four types, the allowed values, the required fields, the decision sections, the required project core, and the judgment of one record against all of it. It reads no file it was not handed and writes nothing. |
@@ -285,7 +289,13 @@ Every writing operation above takes the same second call as `update-current`:
 | `tests/coordinator-harness.mjs` | Builds temporary projects and drives the real coordinator: a proposal that changes nothing, every bound input that sends the review back, the Edit action with its re-validation, the four required `current.md` sections, the legacy touch upgrade, generated views with their fingerprints, a failed transaction that restores every preimage, and a child process killed mid-transaction that is recovered from the journal at the next call. It also drives the pre-write guard as its own process: a direct edit, a helper agent, and a script are each refused and leave every canonical file unchanged, while Git, a coordinator call, and a read are untouched. |
 | `hooks/memory-write-guard.mjs` | The Claude Code `PreToolUse` guard. It refuses `Edit`, `Write`, `MultiEdit`, `NotebookEdit`, and `Bash` writes into `knowledge/memory/`, `knowledge/specs/`, and `knowledge/current.md` from any route other than the coordinator, and refuses any change to `project_root`, `subroots`, or the `privacy` block in `knowledge/project.md`. No model sits in its path. It exits 0 on every path and refuses through the `permissionDecision` payload, naming the `memory.mjs` operation that should have been used. Fail-closed: a call it cannot evaluate that names a guarded path is denied. `git` commands and calls that invoke `memory.mjs` or `memory-write.mjs` are allowed, and it says nothing at all about anything else. |
 | `tools/memory-write.mjs` (lifecycle engine) | The seven writing operations of architecture section 14 live beside the coordinator, because each one only builds a request and hands it to the same two-phase review: ADD refuses a used id and a meaning the project already carries, CONFIRM appends evidence and a confirmation without touching the summary, CORRECT records the reason and requires evidence the record did not already carry, SUPERSEDE writes both links and both effective dates in one transaction, RETIRE hunts the exact phrases across tracked Markdown, MERGE allows only identical meaning with compatible truth status and dates, and DELETE shows the whole record as a visible diff and reports the Git-history boundary. NOOP is the default outcome: a call that would change no byte stores nothing and says so. |
-| `tests/lifecycle-harness.mjs` | Builds temporary projects and runs the real lifecycle operations end to end: each of the seven, the NOOP outcome, and every refusal each one owns. It proves AT-10 (two sources stay two evidence entries on one record), AT-11 (a superseded record leaves current truth, keeps both links and both dates, and stays on disk for the timeline), AT-12 (the retirement phrase hunt finds surviving current uses, honors quotations and exemptions, and MV-08 repeats it), and AT-23 (two conflicting meanings stay separate, linked, and independently evidenced). |
+| `tests/lifecycle-harness.mjs` | Builds temporary projects and runs the real lifecycle operations end to end: each of the seven, the NOOP outcome, and every refusal each one owns. It also runs PIN and UNPIN end to end and proves AT-05 (a cold session receives the exact approved statement with its link), AT-07 (unpin removes startup visibility and nothing else), AT-08 (supersede, retire, correct, and delete drop the old pin in their own transaction and never pin a successor), AT-09 (a pin that would break the startup budget is refused with the byte count and the current pin set), and MV-06 in both directions. It proves AT-10 (two sources stay two evidence entries on one record), AT-11 (a superseded record leaves current truth, keeps both links and both dates, and stays on disk for the timeline), AT-12 (the retirement phrase hunt finds surviving current uses, honors quotations and exemptions, and MV-08 repeats it), and AT-23 (two conflicting meanings stay separate, linked, and independently evidenced). |
+| `tools/lib/pins.mjs` | The pin registry format, in one place: the path of `knowledge/memory/pins.md`, its four columns (record id, link, approval date, summary hash), the pin statement limit, the summary hash, and the reader that turns a row into an entry. The pin manager writes it, the boot brief renders from it, and validator check MV-06 judges it, so none of the three carries a second copy of the format. It reads no file it was not handed except to resolve a link target, and it writes nothing. |
+| `tools/memory-write.mjs` (pin manager) | PIN and UNPIN of architecture section 11, beside the coordinator because both go through the same two-phase review. PIN runs every eligibility check of section 11.1 in order, then the budget preflight that renders the brief the project would actually assemble with the candidate set and refuses rather than letting startup discover the overflow later. The entry it writes holds only the record id, a relative link, the approval date, and the hash of the exact approved summary; the summary itself is never copied. UNPIN removes startup visibility and nothing else, and removing the last entry removes the file. Section 11.4 lives here too: supersede, retire, and delete drop the old pin in their own transaction, correct drops it unless `--keep-pin` re-approves the corrected wording, merge requires an explicit choice, and a successor is never pinned automatically. |
+| `tools/lib/links.mjs` | Ordinary relative Markdown links, in one place: what counts as one, where it points inside the scope, the link text one file uses to reach another, and the rewriter that changes a target and no other byte. Fenced blocks and code spans are examples rather than links, so nothing reads or repairs them. `related`, validator checks MV-21 and MV-22, and the move transaction all read the same answer, because two link parsers is how a repair and a check start disagreeing about the same line. It writes nothing and needs no `.memory/`. |
+| `tools/memory.mjs` (`related`) | The links a record carries and the project records that link back to it. Backlinks are derived on request by reading the current files, so there is no backlink registry, graph, database, index, or cache, and the whole operation works with `.memory/` absent. A front matter relation comes back under its own field name, a body link comes back as `links_to`, a file that names the record without linking to it comes back as `mentions`, and a candidate in another scope is dropped rather than returned. |
+| `tools/memory-write.mjs` (move and rename) | MOVE of architecture section 12.4. One record changes its canonical path, every tracked project Markdown file that links to it is repaired, the record's own outgoing links are retargeted, and all of it lands in one approved transaction. A link this project may not write, such as one inside a declared subroot, refuses the whole move and names the exact path instead of leaving half of it behind. The transaction checks the repository again after staging, so a link that appeared after the review restores every preimage. The outcome is recorded in `.memory/last-move.json`, which is local and disposable, and which is what validator check MV-22 inspects. |
+| `tests/links-harness.mjs` | Builds temporary projects and runs the real command line: an unknown id, the outgoing and incoming shape of `related`, AT-21 with `.memory/` absent and no local state left behind, MV-21 on resolvable and broken links, and AT-22 as one approved move that repairs a specification, a record, and a `README.md` outside `knowledge/` while leaving code spans and fenced examples alone. Two failing-repair fixtures change nothing: one refuses at the proposal, and one refuses inside the transaction after a new link appears, restoring every preimage. |
 
 `capabilities` answers what this project's memory can do, so an agent reads the
 build state instead of guessing: the operations it carries, the approval mode,
@@ -301,8 +311,12 @@ lives, and the date the staleness comparison used.
 `validate` runs the twenty-two versioned checks, `MV-01` through `MV-22`, and
 prints one entry per check with its id, version, verdict, and findings. This
 build carries the required-files half of `MV-01`, the record schema in `MV-03`,
-and the inference basis in `MV-04`. Every other check reports `skipped` with the
-component it is waiting on, so nothing reads as a pass that was never run. A
+the inference basis in `MV-04`, the record links in `MV-05`, the pin registry in
+`MV-06`, the retired phrases in `MV-08`, the relative links in `MV-21`, and the
+move repair in `MV-22`. Every other check reports `skipped` with the component
+it is waiting on, so nothing reads as a pass that was never run. `MV-22` reports
+`skipped` too in a project that has never moved a record, because it has nothing
+to inspect. A
 migrated record missing version 2 metadata is a `record/legacy-gap` warning
 naming the gaps, never a failure: migration does not invent metadata, and the
 record is upgraded on its next approved touch.
@@ -332,6 +346,16 @@ input that moved between the two calls sends the review back. The owner may
 edit the review file directly; the coordinator validates the edited contents
 again before it writes, and a confirmation approves them without the owner
 describing the edits a second time.
+
+## Version 2 skill drafts, being built
+
+A rewritten skill text would drive the v2 workflow while every installed project
+still runs v1, so each rewrite ships as a draft beside its live `SKILL.md`. The
+live files keep working until the cutover work item swaps the drafts in.
+
+| File | What it is |
+| --- | --- |
+| `skills/remember/SKILL-v2.md` | Draft rewrite of the `remember` skill for memory system v2, swapped in at cutover. It runs the save pipeline end to end: check what this build can do, search the tracker and every current owner, route work state, rules, skills, specs, and source material out first, run the durable-information and future-agent interpretation tests, choose NOOP or a record type, fix provenance and scope, search duplicate meaning and the entity timeline, choose the lifecycle operation, stage the file, propose, show the five bullets, wait for the owner, apply against the reviewed hash, and report only what actually changed. It carries the completed-work event shape with its proposal splitting, required `occurred_at`, exact tool names beside their aliases, evidence links instead of transcripts, and the rule that no automatic route may ever start it. It also carries the three `knowledge/current.md` triggers with the four required sections, and the approval path for promoting unreviewed research. The live `skills/remember/SKILL.md` is untouched. |
 
 ## Maintaining this plugin
 

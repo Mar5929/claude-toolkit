@@ -121,6 +121,7 @@ try {
       === JSON.stringify([
         "memory_capabilities",
         "memory_status",
+        "memory_related",
         "memory_validate",
         "memory_update_current",
         "memory_rebuild_views",

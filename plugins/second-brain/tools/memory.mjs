@@ -12,10 +12,11 @@
  * update-current. Every operation prints exactly one JSON envelope on standard
  * output and nothing else. Human-readable rendering is the skill's job.
  *
- * This build implements capabilities, status, validate, update-current,
- * rebuild-views, the seven writing lifecycle operations, pin and unpin, and
- * the noop and cancel plumbing. The other operations are not stubbed, because a stub that
- * answers is worse than an operation that says it is not here: capabilities
+ * This build implements capabilities, status, related, validate,
+ * update-current, rebuild-views, the seven writing lifecycle operations, pin
+ * and unpin, and the noop, cancel, and move plumbing. The other operations are
+ * not stubbed, because
+ * a stub that answers is worse than one that says it is not here: capabilities
  * reports the whole build state, so an agent reads it instead of guessing. The
  * validator follows the same rule inside itself: a check whose component is
  * not built yet is reported as skipped with the reason, never as a pass.
@@ -61,15 +62,23 @@ import {
   PIN_OPERATIONS,
   cancel as cancelProposal,
   lifecycle,
+  moveRecord,
   noop as noopOutcome,
   phraseHunt,
   pinOperation,
+  readMoveReceipt,
   readPinRegistry,
   rebuildViews,
   recover,
   retiredPhraseSets,
+  survivingLinks,
+  trackedMarkdown,
   updateCurrent,
 } from "./memory-write.mjs";
+import {
+  resolveLinkTarget,
+  scanLinks,
+} from "./lib/links.mjs";
 import {
   PINS_PATH,
   approvedSummary,
@@ -94,7 +103,7 @@ const SEARCH_MODE = "direct-file";
 const BUILD_GAPS = [
   {
     feature: "retrieval",
-    reason: "search, get, timeline, related, sources, spec-search, and spec-get are not available in this build",
+    reason: "search, get, timeline, sources, spec-search, and spec-get are not available in this build",
   },
   {
     feature: "review",
@@ -102,7 +111,7 @@ const BUILD_GAPS = [
   },
   {
     feature: "validation",
-    reason: "validate carries the required-file, record-schema, link, and retired-phrase checks only, and reports every other check as skipped",
+    reason: "validate carries the required-file, record-schema, link, relative-link, move-repair, pin, and retired-phrase checks only, and reports every other check as skipped",
   },
   {
     feature: "session history",
@@ -363,6 +372,128 @@ export function status(context) {
   };
 }
 
+// ---------------------------------------------------------------------------
+// memory_related, architecture section 12.4
+// ---------------------------------------------------------------------------
+
+/** The front matter fields that name another record by id. */
+const LINK_FIELDS = Object.freeze([
+  "based_on",
+  "conflicts_with",
+  "relates",
+  "supersedes",
+  "superseded_by",
+]);
+
+/**
+ * Every record in the scope, read straight from the files, by id and by path.
+ * It is built for one call and thrown away: nothing here is a registry, an
+ * index, or a cache, and none of it is written down.
+ */
+function recordIndex(scope) {
+  const byId = new Map();
+  const byPath = new Map();
+  for (const entry of walkRecords(scope.scopeRoot)) {
+    const text = readIfPresent(entry.absolute);
+    if (text === null) continue;
+    const record = parseRecord(text);
+    const id = typeof record.data.id === "string" ? record.data.id.trim() : "";
+    const held = { id, path: entry.path, text, data: record.data };
+    byPath.set(entry.path, held);
+    if (id && !byId.has(id)) byId.set(id, held);
+  }
+  return { byId, byPath };
+}
+
+function linkEntry(recordId, path, relation) {
+  return { record_id: recordId ?? null, path: path ?? null, relation };
+}
+
+function sortLinks(entries) {
+  const seen = new Set();
+  const out = [];
+  for (const entry of entries) {
+    const key = `${entry.relation}|${entry.record_id ?? ""}|${entry.path ?? ""}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(entry);
+  }
+  return out.sort((a, b) => (a.path ?? "").localeCompare(b.path ?? "")
+    || a.relation.localeCompare(b.relation)
+    || (a.record_id ?? "").localeCompare(b.record_id ?? ""));
+}
+
+/**
+ * memory_related: the links a record carries, and the project records that
+ * link back to it. Backlinks are derived by reading the current files, so
+ * there is no backlink registry, graph, database, index, or cache to keep in
+ * step, and the whole operation works with `.memory/` absent. A candidate in
+ * another scope is dropped rather than returned (FR-123).
+ */
+export function related(context, options) {
+  const { scope } = context;
+  const wanted = String(options.id ?? "").trim();
+  const index = recordIndex(scope);
+  const held = index.byId.get(wanted);
+  if (!held) {
+    return {
+      status: "refused",
+      errors: [note("record/unknown-id", `no record in this scope carries the id ${wanted}`)],
+    };
+  }
+
+  const outgoing = [];
+  for (const field of LINK_FIELDS) {
+    for (const target of idList(held.data[field])) {
+      outgoing.push(linkEntry(target, index.byId.get(target)?.path ?? null, field));
+    }
+  }
+  for (const link of scanLinks(held.text)) {
+    if (!link.relative || link.image) continue;
+    const target = resolveLinkTarget(scope.scopeRoot, held.path, link.path);
+    if (target === null || target === held.path) continue;
+    outgoing.push(linkEntry(index.byPath.get(target)?.id ?? null, target, "links_to"));
+  }
+
+  const incoming = [];
+  for (const absolute of trackedMarkdown(scope)) {
+    if (!isMemberPath(scope, absolute)) continue;
+    const from = relativePath(scope, absolute);
+    if (from === held.path) continue;
+    const text = readIfPresent(absolute);
+    if (text === null) continue;
+
+    const fromId = index.byPath.get(from)?.id ?? null;
+    const found = [];
+    const { data } = parseFrontMatter(text);
+    for (const field of LINK_FIELDS) {
+      if (idList(data[field]).includes(wanted)) found.push(linkEntry(fromId, from, field));
+    }
+    for (const link of scanLinks(text)) {
+      if (!link.relative || link.image) continue;
+      if (resolveLinkTarget(scope.scopeRoot, from, link.path) !== held.path) continue;
+      found.push(linkEntry(fromId, from, "links_to"));
+    }
+    // A file that names the record without linking to it is still a backlink
+    // a reader wants, and saying so is honest. A file that already links is
+    // reported once, by the link, rather than twice.
+    if (found.length === 0 && (text.includes(wanted) || text.includes(held.path))) {
+      found.push(linkEntry(fromId, from, "mentions"));
+    }
+    incoming.push(...found);
+  }
+
+  return {
+    status: "ok",
+    result: {
+      id: wanted,
+      path: held.path,
+      outgoing: sortLinks(outgoing),
+      incoming: sortLinks(incoming),
+    },
+  };
+}
+
 /**
  * MV-01, the required-files half. The host-route half of the same check needs
  * the startup routes, which are not built yet, so the entry names that gap in
@@ -602,6 +733,101 @@ function checkRetiredPhrases(scope) {
   return { status: findings.length ? "fail" : "pass", findings, skipped_because: null };
 }
 
+/** Every canonical Markdown file: the knowledge tree inside this scope. */
+function canonicalMarkdown(scope) {
+  return trackedMarkdown(scope)
+    .filter((absolute) => isMemberPath(scope, absolute))
+    .map((absolute) => relativePath(scope, absolute))
+    .filter((path) => path.startsWith("knowledge/"));
+}
+
+/**
+ * MV-21, relative-link syntax and resolvable targets. Architecture section
+ * 12.4 gives canonical records ordinary relative Markdown links with explicit
+ * .md targets, so a relative link that names anything else, or that names a
+ * file which is not there, is repair work.
+ */
+function checkRelativeLinks(scope) {
+  const findings = [];
+  for (const path of canonicalMarkdown(scope)) {
+    const text = readIfPresent(resolve(scope.scopeRoot, path));
+    if (text === null) continue;
+    for (const link of scanLinks(text)) {
+      if (link.image || !link.relative) continue;
+      if (!link.path.endsWith(".md")) {
+        findings.push(note(
+          "record/schema-invalid",
+          `line ${link.line} is a relative link with no explicit .md target`,
+          { path, detail: link.path },
+        ));
+        continue;
+      }
+      const target = resolveLinkTarget(scope.scopeRoot, path, link.path);
+      if (target === null || !existsSync(resolve(scope.scopeRoot, target))) {
+        findings.push(note(
+          "record/schema-invalid",
+          `line ${link.line} links to a file that is not there`,
+          { path, detail: link.path },
+        ));
+      }
+    }
+  }
+  return { status: findings.length ? "fail" : "pass", findings, skipped_because: null };
+}
+
+/**
+ * MV-22, complete incoming-link repair after a move or rename. It reads the
+ * outcome the last move recorded under `.memory/` and inspects the repository
+ * against it: an applied move leaves no link to the old path, and a restored
+ * one leaves the old path exactly where it was. A project that has never moved
+ * a record has nothing to inspect and says so rather than reporting a pass.
+ */
+function checkMoveRepair(scope) {
+  const receipt = readMoveReceipt(scope);
+  if (!receipt) {
+    return {
+      status: "skipped",
+      findings: [],
+      skipped_because: "this project holds no record of a move to inspect",
+    };
+  }
+
+  const findings = [];
+  if (receipt.status === "applied") {
+    if (!existsSync(resolve(scope.scopeRoot, receipt.new_path))) {
+      findings.push(note(
+        "record/unknown-id",
+        "the moved record is not at the path the last move reported",
+        { path: receipt.new_path },
+      ));
+    }
+    for (const found of survivingLinks(scope, receipt.old_path)) {
+      findings.push(note(
+        "record/schema-invalid",
+        `line ${found.line} still links to the path the last move left behind`,
+        { path: found.path, detail: receipt.old_path },
+      ));
+    }
+  } else {
+    if (!existsSync(resolve(scope.scopeRoot, receipt.old_path))) {
+      findings.push(note(
+        "record/schema-invalid",
+        "a restored move left nothing at the old path",
+        { path: receipt.old_path },
+      ));
+    }
+    if (existsSync(resolve(scope.scopeRoot, receipt.new_path))) {
+      findings.push(note(
+        "record/schema-invalid",
+        "a restored move left a file at the new path",
+        { path: receipt.new_path },
+      ));
+    }
+  }
+
+  return { status: findings.length ? "fail" : "pass", findings, skipped_because: null };
+}
+
 /**
  * The section 4 check catalog. Every id is permanent and every version is
  * <schema major>.<check revision>. A check whose component is not built yet
@@ -713,20 +939,8 @@ const CHECKS = [
     title: "quoted-source consistency",
     skipped_because: "the quoted-source reader is not available in this build",
   },
-  {
-    id: "MV-21",
-    version: "2.0",
-    severity: "fail",
-    title: "relative-link syntax and resolvable targets",
-    skipped_because: "the link checker is not available in this build",
-  },
-  {
-    id: "MV-22",
-    version: "2.0",
-    severity: "fail",
-    title: "complete incoming-link repair after a move or rename",
-    skipped_because: "the link checker is not available in this build",
-  },
+  { id: "MV-21", version: "2.0", severity: "fail", title: "relative-link syntax and resolvable targets" },
+  { id: "MV-22", version: "2.0", severity: "fail", title: "complete incoming-link repair after a move or rename" },
 ];
 
 export function checkIds() {
@@ -748,6 +962,8 @@ export function validate(context, options = {}) {
     "MV-05": wanted("MV-05") ? checkLinks(scope) : null,
     "MV-06": wanted("MV-06") ? checkPins(scope) : null,
     "MV-08": wanted("MV-08") ? checkRetiredPhrases(scope) : null,
+    "MV-21": wanted("MV-21") ? checkRelativeLinks(scope) : null,
+    "MV-22": wanted("MV-22") ? checkMoveRepair(scope) : null,
   };
 
   const checks = [];
@@ -823,6 +1039,14 @@ function pinOperationRun(context, options) {
 }
 
 /**
+ * MOVE. One record changes its canonical path and every project link to it is
+ * repaired in the same approved transaction (architecture section 12.4).
+ */
+function moveOperation(context, options) {
+  return moveRecord(context.scope, options);
+}
+
+/**
  * NOOP, the default outcome. It is plumbing rather than a tool-surface
  * operation: it changes nothing, and it exists so a session can report that
  * no durable save was warranted without inventing a record to prove it.
@@ -841,6 +1065,14 @@ function noopOperation(context, options) {
 const OPERATIONS = new Map([
   ["capabilities", { operation: "memory_capabilities", run: capabilities }],
   ["status", { operation: "memory_status", run: status }],
+  [
+    "related",
+    {
+      operation: "memory_related",
+      run: related,
+      parse: parseRelatedFlags,
+    },
+  ],
   [
     "validate",
     {
@@ -891,6 +1123,18 @@ const OPERATIONS = new Map([
       surface: false,
       run: cancelOperation,
       parse: parseCancelFlags,
+    },
+  ],
+  // Move is plumbing too. The stable surface in architecture section 16.1 is
+  // closed, and a move creates no meaning: it changes where one record lives
+  // and repairs every project link that points at it.
+  [
+    "move",
+    {
+      operation: "memory_move",
+      surface: false,
+      run: moveOperation,
+      parse: parseMoveFlags,
     },
   ],
 ]);
@@ -1134,6 +1378,45 @@ function pinParser(command) {
     if (read.values.why) options.why = read.values.why;
     return { ok: true, options };
   };
+}
+
+function parseRelatedFlags(args) {
+  const read = readFlags(args, { id: "value" });
+  if (!read.ok) return read;
+  if (!read.values.id) return { ok: false, message: "related needs --id" };
+  return { ok: true, options: { id: read.values.id } };
+}
+
+/**
+ * Move takes the record id and the new path on the proposal, and the proposal
+ * id and content hash on the approval, exactly as every other write does.
+ */
+function parseMoveFlags(args) {
+  const read = readFlags(args, {
+    id: "value",
+    to: "value",
+    why: "value",
+    propose: "switch",
+    apply: "switch",
+    proposal: "value",
+    "content-hash": "value",
+  });
+  if (!read.ok) return read;
+  const phase = readPhase(read.values);
+  if (!phase.ok) return phase;
+
+  const options = {
+    mode: phase.mode,
+    proposalId: phase.proposalId,
+    contentHash: phase.contentHash,
+  };
+  if (phase.mode === "apply") return { ok: true, options };
+  if (!read.values.id) return { ok: false, message: "move --propose needs --id" };
+  if (!read.values.to) return { ok: false, message: "move --propose needs --to naming the new path" };
+  options.id = read.values.id;
+  options.to = read.values.to;
+  if (read.values.why) options.why = read.values.why;
+  return { ok: true, options };
 }
 
 function parseNoopFlags(args) {

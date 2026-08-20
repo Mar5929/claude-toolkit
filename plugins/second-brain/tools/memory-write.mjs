@@ -43,6 +43,13 @@ import { dirname, relative, resolve, sep } from "node:path";
 import { note } from "./lib/result.mjs";
 import { isMemberPath, parseFrontMatter } from "./lib/scope.mjs";
 import {
+  isRelativeTarget,
+  relativeLinkText,
+  resolveLinkTarget,
+  rewriteLinks,
+  scanLinks,
+} from "./lib/links.mjs";
+import {
   CURRENT_SECTIONS,
   RECORD_FOLDERS,
   RECORD_TYPES,
@@ -71,6 +78,16 @@ export const LOCK_FOLDER = `${LOCAL_STATE}/lock`;
 export const JOURNAL_FILE = `${LOCAL_STATE}/journal.json`;
 export const PREIMAGE_FOLDER = `${LOCAL_STATE}/preimages`;
 export const JOURNAL_SCHEMA = "memory-journal/1";
+
+/**
+ * The outcome of the last move or rename. Local, disposable, and outside every
+ * canonical path, the same as the journal. It exists so validator check MV-22
+ * can inspect the repository after a move instead of taking the tool's word
+ * for it: an applied move has to leave no link to the old path, and a restored
+ * one has to have left the old path exactly where it was.
+ */
+export const MOVE_RECEIPT = `${LOCAL_STATE}/last-move.json`;
+export const MOVE_RECEIPT_SCHEMA = "memory-move/1";
 
 /** The three triggers that may write knowledge/current.md. */
 export const CURRENT_TRIGGERS = Object.freeze(["handoff", "focus-change", "completed-work"]);
@@ -840,6 +857,29 @@ function destinationGuard(scope, destination) {
 }
 
 /**
+ * The guard a link repair passes instead of the canonical-destination guard.
+ * Architecture section 12.4 has a move search every tracked project Markdown
+ * file, and a project README that links into knowledge/ is one of them, so a
+ * repair may touch a tracked file outside knowledge/. It may never create a
+ * file, never leave the scope, and never touch anything that is not Markdown
+ * already on disk, which is the whole of what this widens.
+ */
+function repairGuard(scope, path) {
+  if (!path) return note("record/schema-invalid", "a link repair names no path");
+  const target = absPath(scope, path);
+  if (!isMemberPath(scope, target)) {
+    return note("scope/outside-root", "a link repair is outside this project's scope", { path });
+  }
+  if (!path.endsWith(".md")) {
+    return note("record/schema-invalid", "a link repair names a file that is not Markdown", { path });
+  }
+  if (!existsSync(target) || isDirectory(target)) {
+    return note("record/unknown-id", "a link repair names a file that is not there", { path });
+  }
+  return null;
+}
+
+/**
  * Check the staged contents of one destination. This is the same set of checks
  * an edited review file runs again before the write, which is what FR-113
  * asks for.
@@ -910,10 +950,15 @@ export function propose(scope, request, options = {}) {
   }
 
   const removals = [...new Set(request.removals ?? [])];
+  const repairs = request.repairs ?? [];
   const guarded = [request.destination, ...(request.changes ?? []).map((change) => change.path), ...removals];
   for (const path of guarded) {
     const destinationError = destinationGuard(scope, path);
     if (destinationError) return { ok: false, status: "refused", errors: [destinationError], warnings };
+  }
+  for (const repair of repairs) {
+    const repairError = repairGuard(scope, repair.path);
+    if (repairError) return { ok: false, status: "refused", errors: [repairError], warnings };
   }
 
   // One staged block per path, first write wins, so a caller that names the
@@ -929,6 +974,7 @@ export function propose(scope, request, options = {}) {
 
   stage(request.destination, request.contents);
   for (const change of request.changes ?? []) stage(change.path, change.contents);
+  for (const repair of repairs) stage(repair.path, repair.contents);
   if (request.currentContents) stage(CURRENT_PATH, request.currentContents);
 
   const stagedPaths = staged.map((change) => change.path);
@@ -1042,6 +1088,7 @@ export function propose(scope, request, options = {}) {
       source_hashes: proposal.source_hashes,
       preimages,
       removals,
+      repairs: repairs.map((repair) => repair.path),
       lifecycle: request.lifecycle ?? null,
       upgrades: upgrades.map((upgrade) => ({ path: upgrade.path, missing: upgrade.missing })),
       owner_requested: request.ownerRequested !== false,
@@ -1188,9 +1235,12 @@ export function applyProposal(scope, options = {}) {
   const stagedPaths = staged.map((change) => change.path);
   const request = { ownerRequested: bound.owner_requested !== false };
   const ignorePaths = [...stagedPaths, ...review.removals];
+  const repairPaths = new Set(bound.repairs ?? []);
   const contentErrors = [];
   for (const change of staged) {
-    const guard = destinationGuard(scope, change.path);
+    const guard = repairPaths.has(change.path)
+      ? repairGuard(scope, change.path)
+      : destinationGuard(scope, change.path);
     if (guard) contentErrors.push(guard);
     else contentErrors.push(...checkStaged(scope, request, change.contents, change.path, ignorePaths));
   }
@@ -1211,6 +1261,7 @@ export function applyProposal(scope, options = {}) {
     operation: bound.operation,
     changes: [...staged, ...upgrades.map((upgrade) => ({ path: upgrade.path, contents: upgrade.contents }))],
     removals: review.removals,
+    moves: bound.lifecycle?.kind === "move" ? [bound.lifecycle] : [],
   }, options);
 
   warnings.push(...outcome.warnings);
@@ -1291,10 +1342,23 @@ function transact(scope, plan, options = {}) {
     const rebuilt = planViewRebuild(scope, touched);
     for (const view of rebuilt.artifacts) writeText(absPath(scope, view.path), view.contents);
 
+    // A move is validated against the repository as it now stands, not against
+    // the proposal. A link that appeared after the review is exactly the case
+    // this catches, and it restores every preimage rather than leaving a
+    // record whose old path is still linked (architecture section 12.4).
+    const moves = plan.moves ?? [];
+    const moveErrors = moves.flatMap((move) => moveValidation(scope, move));
+    if (moveErrors.length) {
+      rollback(scope, entries);
+      for (const move of moves) writeMoveReceipt(scope, move, "restored", []);
+      return { ok: false, status: "refused", errors: moveErrors, warnings, changedPaths: [] };
+    }
+
     const validation = focusedValidation(scope, paths, removals);
     warnings.push(...validation.warnings);
     if (validation.errors.length) {
       rollback(scope, entries);
+      for (const move of moves) writeMoveReceipt(scope, move, "restored", []);
       return {
         ok: false,
         status: "refused",
@@ -1307,6 +1371,7 @@ function transact(scope, plan, options = {}) {
       };
     }
 
+    for (const move of moves) writeMoveReceipt(scope, move, "applied", move.repaired ?? []);
     clearJournal(scope);
     return {
       ok: true,
@@ -1548,11 +1613,15 @@ function pinStatementFor(summary, path) {
  * would actually assemble with the candidate pin set and refuses a pin that
  * would push the required blocks past the budget, rather than letting startup
  * discover it later. Nothing is written to ask the question.
+ *
+ * The caller's clock is handed on, so the preflight measures the same brief the
+ * caller's own session would assemble rather than one dated somewhere else.
  */
 function pinBudgetCheck(scope, entries, options) {
   const brief = assembleBootBrief({
     projectRoot: scope.scopeRoot,
     pins: entries,
+    ...(options.now instanceof Date ? { now: options.now } : {}),
     ...(typeof options.tracker === "function" ? { tracker: options.tracker } : {}),
   });
   if (!brief.ok || !brief.overBudget) return null;
@@ -2137,6 +2206,15 @@ function lifecycleResult(scope, lifecycle) {
   }
   if (lifecycle.kind === "supersede") {
     return { ...base, superseded: lifecycle.old_id, successor: lifecycle.record_id };
+  }
+  if (lifecycle.kind === "move") {
+    return {
+      ...base,
+      moved: lifecycle.record_id,
+      moved_from: lifecycle.old_path,
+      moved_to: lifecycle.new_path,
+      links_repaired: lifecycle.repaired ?? [],
+    };
   }
   if (lifecycle.kind === "correct") return { ...base, corrected: lifecycle.record_id };
   if (lifecycle.kind === "confirm") return { ...base, confirmed: lifecycle.record_id };
@@ -2740,6 +2818,264 @@ export function lifecycle(scope, options = {}) {
   }
 
   const outcome = propose(scope, { ...built.request, noopWhenUnchanged: true }, options);
+  return { ...outcome, warnings: [...state.warnings, ...(outcome.warnings ?? [])] };
+}
+
+// ---------------------------------------------------------------------------
+// Move and rename, architecture section 12.4
+// ---------------------------------------------------------------------------
+
+/**
+ * Move is plumbing rather than a twenty-fourth tool operation. The stable
+ * surface in architecture section 16.1 is closed, and a move creates no
+ * meaning: it changes where one record lives and repairs the links that point
+ * at it. It runs the same two-phase review as every write, because it changes
+ * canonical bytes in several files at once.
+ */
+export const MOVE_OPERATION = "memory_move";
+
+/** Every tracked Markdown link that still resolves to one path. */
+export function survivingLinks(scope, path) {
+  const found = [];
+  for (const absolute of trackedMarkdown(scope)) {
+    const from = relPath(scope, absolute);
+    const text = readIfPresent(absolute);
+    if (text === null) continue;
+    for (const link of scanLinks(text)) {
+      if (!link.relative || link.image) continue;
+      if (resolveLinkTarget(scope.scopeRoot, from, link.path) !== path) continue;
+      found.push({ path: from, line: link.line, target: link.path });
+    }
+  }
+  return found.sort((a, b) => a.path.localeCompare(b.path) || a.line - b.line);
+}
+
+/**
+ * What has to be true once a move is staged: the record is at its new path,
+ * nothing is left at the old one, and no tracked file still links to it.
+ */
+function moveValidation(scope, move) {
+  const errors = [];
+  if (!existsSync(absPath(scope, move.new_path))) {
+    errors.push(note("write/link-repair-failed", "the moved record is not at its new path", { path: move.new_path }));
+  }
+  if (existsSync(absPath(scope, move.old_path))) {
+    errors.push(note("write/link-repair-failed", "a file is still at the path this move left behind", { path: move.old_path }));
+  }
+  for (const found of survivingLinks(scope, move.old_path)) {
+    errors.push(note(
+      "write/link-repair-failed",
+      `line ${found.line} still links to the path this move left behind, so every preimage was restored`,
+      { path: found.path, detail: move.old_path },
+    ));
+  }
+  return errors;
+}
+
+function writeMoveReceipt(scope, move, status, repaired) {
+  writeText(absPath(scope, MOVE_RECEIPT), `${JSON.stringify({
+    schema: MOVE_RECEIPT_SCHEMA,
+    record_id: move.record_id ?? null,
+    old_path: move.old_path,
+    new_path: move.new_path,
+    status,
+    repaired: [...repaired].sort(),
+  }, null, 2)}\n`);
+}
+
+/** The last move's outcome, or null when this project has never moved a record. */
+export function readMoveReceipt(scope) {
+  const text = readIfPresent(absPath(scope, MOVE_RECEIPT));
+  if (text === null) return null;
+  try {
+    const held = JSON.parse(text);
+    return held && held.schema === MOVE_RECEIPT_SCHEMA ? held : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Every tracked Markdown file that links to the old path, rewritten to point
+ * at the new one. A file that cannot be repaired is reported by its exact path
+ * instead of being rewritten anyway: a link inside a declared subroot belongs
+ * to another project's scope, and this project may not write there.
+ */
+export function planLinkRepair(scope, oldPath, newPath) {
+  const repairs = [];
+  const unrepairable = [];
+
+  for (const absolute of trackedMarkdown(scope)) {
+    const from = relPath(scope, absolute);
+    if (from === oldPath) continue;
+    const text = readIfPresent(absolute);
+    if (text === null) continue;
+
+    const hits = scanLinks(text).filter((link) => link.relative
+      && !link.image
+      && resolveLinkTarget(scope.scopeRoot, from, link.path) === oldPath);
+    if (hits.length === 0) continue;
+
+    if (!isMemberPath(scope, absolute)) {
+      unrepairable.push({
+        path: from,
+        line: hits[0].line,
+        reason: "the file sits in a declared subroot, which is another project's scope",
+      });
+      continue;
+    }
+
+    const rewritten = rewriteLinks(text, (link) => {
+      if (link.image || !isRelativeTarget(link.path)) return null;
+      if (resolveLinkTarget(scope.scopeRoot, from, link.path) !== oldPath) return null;
+      return relativeLinkText(from, newPath);
+    });
+    if (rewritten.changed === 0) {
+      unrepairable.push({
+        path: from,
+        line: hits[0].line,
+        reason: "the link could not be rewritten where it is written",
+      });
+      continue;
+    }
+    repairs.push({ path: from, contents: rewritten.text, links: rewritten.changed });
+  }
+
+  return { repairs, unrepairable };
+}
+
+/**
+ * The moved record's own outgoing links, rewritten so they point at the same
+ * files from the new location. A link whose target was already missing is left
+ * exactly as written, because rewriting a broken link would be a guess, and it
+ * is reported in the proposal's Unverified bullet instead.
+ */
+function retargetMovedRecord(scope, text, oldPath, newPath) {
+  const broken = [];
+  const rewritten = rewriteLinks(text, (link) => {
+    if (link.image || !isRelativeTarget(link.path)) return null;
+    const target = resolveLinkTarget(scope.scopeRoot, oldPath, link.path);
+    if (target === null) return null;
+    // A record that links to itself follows itself to the new path.
+    if (target === oldPath) return relativeLinkText(newPath, newPath);
+    if (!existsSync(absPath(scope, target))) {
+      broken.push(`${link.path} on line ${link.line}`);
+      return null;
+    }
+    return relativeLinkText(newPath, target);
+  });
+  return { contents: rewritten.text, changed: rewritten.changed, broken };
+}
+
+/**
+ * MOVE. One record changes its canonical path, every project link to it is
+ * repaired in the same approved transaction, and a link that cannot be
+ * repaired refuses the whole move rather than leaving half of it behind
+ * (FR-086). The record's id, meaning, and every other byte stay as they are:
+ * changing an id changes identity, which is what SUPERSEDE is for.
+ */
+export function moveRecord(scope, options = {}) {
+  if (options.mode === "apply") return applyProposal(scope, options);
+
+  const state = recover(scope);
+  if (state.blocked) return { ok: false, status: "error", errors: state.warnings, warnings: [] };
+
+  const held = loadRecord(scope, options.id);
+  if (!held) {
+    return { ok: false, status: "refused", errors: [unknownId(options.id)], warnings: state.warnings };
+  }
+
+  const destination = String(options.to ?? "").trim().replace(/^\.\//, "");
+  if (destination === held.path) {
+    return {
+      ok: true,
+      status: "noop",
+      errors: [],
+      warnings: state.warnings,
+      result: {
+        outcome: "NOOP",
+        operation: MOVE_OPERATION,
+        destination,
+        record_id: held.id,
+        changed_paths: [],
+        reason: "the record already sits at that path",
+      },
+    };
+  }
+
+  const errors = [];
+  const guard = destinationGuard(scope, destination);
+  if (guard) errors.push(guard);
+  else {
+    if (!destination.endsWith(".md")) {
+      errors.push(note("record/schema-invalid", "a record's destination has to be a Markdown file", { path: destination }));
+    }
+    if (existsSync(absPath(scope, destination))) {
+      errors.push(note("record/schema-invalid", "a file already sits at the destination", { path: destination }));
+    }
+    const folder = recordFolderOf(destination);
+    const type = String(held.record.data.type ?? "").trim();
+    if (!folder) {
+      errors.push(note(
+        "record/schema-invalid",
+        "a record stays under knowledge/memory/ in the folder its type names",
+        { path: destination },
+      ));
+    } else if (TYPE_FOLDERS[type] !== folder) {
+      errors.push(note(
+        "record/schema-invalid",
+        `a ${type || "typeless"} record belongs under knowledge/memory/${TYPE_FOLDERS[type] ?? "its own type folder"}/`,
+        { path: destination },
+      ));
+    }
+  }
+  if (errors.length) return { ok: false, status: "refused", errors, warnings: state.warnings };
+
+  const plan = planLinkRepair(scope, held.path, destination);
+  if (plan.unrepairable.length) {
+    return {
+      ok: false,
+      status: "refused",
+      warnings: state.warnings,
+      errors: plan.unrepairable.map((found) => note(
+        "write/link-repair-failed",
+        `line ${found.line} links to this record and cannot be repaired, so nothing changed: ${found.reason}`,
+        { path: found.path, detail: held.path },
+      )),
+    };
+  }
+
+  const moved = retargetMovedRecord(scope, held.text, held.path, destination);
+  const linkCount = plan.repairs.reduce((total, repair) => total + repair.links, 0);
+
+  const request = {
+    operation: MOVE_OPERATION,
+    destination,
+    contents: moved.contents,
+    recordId: held.id,
+    removals: [held.path],
+    repairs: plan.repairs,
+    sources: [],
+    ownerRequested: true,
+    bullets: {
+      what: `Move the record ${held.id} from ${held.path} to ${destination}, repairing ${linkCount} link${linkCount === 1 ? "" : "s"} in ${plan.repairs.length} file${plan.repairs.length === 1 ? "" : "s"} and ${moved.changed} of its own.`,
+      where: destination,
+      why: oneLine(options.why) || "The record's canonical home changed, and every project link to it moves in the same approved operation.",
+      assumptions: "None",
+      unverified: moved.broken.length
+        ? `The record carries ${moved.broken.length} link whose target is already missing, left exactly as written: ${moved.broken.join(", ")}.`
+        : "None",
+    },
+    lifecycle: {
+      kind: "move",
+      record_id: held.id,
+      old_path: held.path,
+      new_path: destination,
+      repaired: plan.repairs.map((repair) => repair.path),
+    },
+  };
+
+  const outcome = propose(scope, request, options);
   return { ...outcome, warnings: [...state.warnings, ...(outcome.warnings ?? [])] };
 }
 
