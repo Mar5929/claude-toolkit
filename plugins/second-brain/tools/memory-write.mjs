@@ -1452,6 +1452,341 @@ function whyFor(trigger) {
 }
 
 // ---------------------------------------------------------------------------
+// The pin manager
+// ---------------------------------------------------------------------------
+
+/**
+ * Architecture section 11. A pin is project-local startup visibility and
+ * nothing else: it does not change a record's authority, type, status, search
+ * rank, or canonical home.
+ *
+ * The registry format lives in lib/pins.mjs, because the boot brief and the
+ * validator read the same file. What lives here is the part that writes: the
+ * eligibility checks of section 11.1, the budget preflight of section 11.3,
+ * and the lifecycle interaction of section 11.4, all of them going through the
+ * same two-phase review as every other write.
+ */
+export const PIN_OPERATIONS = Object.freeze(["pin", "unpin"]);
+
+/**
+ * A record carrying sensitive personal content declares it in its own body
+ * (section 21.6 rule 1), and a separate recorded approval naming startup
+ * exposure is what makes it pinnable (rule 3). The record schema has no field
+ * for either, so both are H2 sections on the record, which is where the owner
+ * writes the category, the needed reason, and the exposure approval.
+ */
+export const SENSITIVE_SECTION = "Sensitive content";
+export const STARTUP_EXPOSURE_SECTION = "Startup exposure";
+
+/**
+ * Read the registry, with every link resolved to its root-relative path so a
+ * rewrite is byte-stable no matter which of the two link forms was on disk.
+ */
+export function readPinRegistry(scope) {
+  const text = readIfPresent(absPath(scope, PINS_PATH));
+  if (text === null) return { present: false, entries: [] };
+  const entries = parsePins(text).map((entry) => ({
+    ...entry,
+    path: resolvePinTarget(scope.scopeRoot, entry.target).path,
+  }));
+  return { present: true, entries };
+}
+
+/** Stage the registry, or remove it when the last entry is gone. */
+function stagePinRegistry(entries) {
+  if (entries.length === 0) return { changes: [], removals: [PINS_PATH] };
+  return { changes: [{ path: PINS_PATH, contents: renderPinsFile(entries) }], removals: [] };
+}
+
+/**
+ * The pin side of one lifecycle operation, per architecture section 11.4.
+ * Removing a record's meaning from current truth removes its pin in the same
+ * transaction. Correcting a summary the owner wants to keep pinned rewrites
+ * that entry's hash instead. An operation that changes no entry stages
+ * nothing, so it never touches a file it has no reason to.
+ */
+function planPinChange(scope, plan, today) {
+  const { entries, present } = readPinRegistry(scope);
+  const removedIds = [];
+  const keptIds = [];
+  if (!present || entries.length === 0) {
+    return { changes: [], removals: [], removedIds, keptIds };
+  }
+
+  let next = entries;
+  for (const id of plan.remove ?? []) {
+    if (!next.some((entry) => entry.id === id)) continue;
+    removedIds.push(id);
+    next = next.filter((entry) => entry.id !== id);
+  }
+
+  const rehash = plan.rehash ?? null;
+  if (rehash && next.some((entry) => entry.id === rehash.id)) {
+    keptIds.push(rehash.id);
+    next = next.map((entry) => (entry.id === rehash.id
+      ? { ...entry, path: rehash.path, target: rehash.path, date: today, hash: rehash.hash }
+      : entry));
+  }
+
+  if (removedIds.length === 0 && keptIds.length === 0) {
+    return { changes: [], removals: [], removedIds, keptIds };
+  }
+  return { ...stagePinRegistry(next), removedIds, keptIds };
+}
+
+/**
+ * The startup statement a pin renders: the record's exact approved summary and
+ * a link to the complete current record. Nothing here paraphrases, because the
+ * hash covers these exact bytes.
+ */
+function pinStatementFor(summary, path) {
+  return `${summary} (${path})`;
+}
+
+/**
+ * The budget preflight of contract 2.16. It renders the brief the project
+ * would actually assemble with the candidate pin set and refuses a pin that
+ * would push the required blocks past the budget, rather than letting startup
+ * discover it later. Nothing is written to ask the question.
+ */
+function pinBudgetCheck(scope, entries, options) {
+  const brief = assembleBootBrief({
+    projectRoot: scope.scopeRoot,
+    pins: entries,
+    ...(typeof options.tracker === "function" ? { tracker: options.tracker } : {}),
+  });
+  if (!brief.ok || !brief.overBudget) return null;
+  return {
+    bytes: brief.bytes,
+    budget: brief.budget,
+  };
+}
+
+/**
+ * PIN. Every check of architecture section 11.1, in the order section 11.3
+ * runs them, then the budget preflight, then the same five-bullet review every
+ * other write goes through.
+ */
+function buildPin(scope, options, today) {
+  const held = loadRecord(scope, options.id);
+  if (!held) return { ok: false, errors: [unknownId(options.id)] };
+
+  const errors = [];
+  if (!isMemberPath(scope, absPath(scope, held.path))) {
+    errors.push(note(
+      "scope/cross-scope-result",
+      `${held.id} sits outside this project's scope, so it may not be pinned here`,
+      { path: held.path },
+    ));
+    return { ok: false, errors };
+  }
+
+  const status = oneLine(held.record.data.status ?? "");
+  if (status !== "active") {
+    errors.push(note(
+      "record/schema-invalid",
+      `a pinned record has to be active, and ${held.id} is ${status || "carrying no status"}`,
+      { path: held.path },
+    ));
+  }
+
+  // Provenance and the rest of the record schema. A record the validator would
+  // fail is not eligible to be the first thing every session reads.
+  errors.push(...validateRecord({ record: held.record, path: held.path, folder: held.folder }).errors);
+
+  const approval = held.record.data.approval;
+  const approved = approval
+    && typeof approval === "object"
+    && !Array.isArray(approval)
+    && oneLine(approval.actor) === "owner"
+    && !blank(approval.approved_at);
+  if (!approved) {
+    errors.push(note(
+      "record/schema-invalid",
+      `the current meaning of ${held.id} carries no owner approval, so it may not be pinned`,
+      { path: held.path },
+    ));
+  }
+
+  const summary = approvedSummary(held.text);
+  if (!summary) {
+    errors.push(note(
+      "record/schema-invalid",
+      `${held.id} carries no one-sentence summary to render at startup`,
+      { path: held.path },
+    ));
+  } else if (countSentences(summary) > 1) {
+    errors.push(note(
+      "record/schema-invalid",
+      `the summary of ${held.id} is more than one sentence, so it is not a startup statement`,
+      { path: held.path },
+    ));
+  } else if (Buffer.byteLength(summary, "utf8") > PIN_STATEMENT_LIMIT) {
+    errors.push(note(
+      "record/schema-invalid",
+      `the summary of ${held.id} is ${Buffer.byteLength(summary, "utf8")} bytes and the pin statement limit is ${PIN_STATEMENT_LIMIT}`,
+      { path: held.path },
+    ));
+  }
+
+  const sections = new Set(held.record.sections.map((heading) => heading.trim().toLowerCase()));
+  const sensitive = scope.privacy.level === "sensitive" || sections.has(SENSITIVE_SECTION.toLowerCase());
+  if (sensitive && !sections.has(STARTUP_EXPOSURE_SECTION.toLowerCase())) {
+    errors.push(note(
+      "privacy/sensitive-unapproved-exposure",
+      `${held.id} is sensitive and carries no recorded approval naming startup exposure, so it may not be pinned`,
+      { path: held.path },
+    ));
+  }
+
+  if (errors.length) return { ok: false, errors };
+
+  const { entries } = readPinRegistry(scope);
+  const existing = entries.find((entry) => entry.id === held.id);
+  const hash = summaryHash(summary);
+  const entry = {
+    id: held.id,
+    path: held.path,
+    target: held.path,
+    // An entry whose hash already matches keeps its own approval date, so
+    // pinning what is already pinned changes no byte and reports NOOP.
+    date: existing && existing.hash === hash ? existing.date : today,
+    hash,
+  };
+  const next = [...entries.filter((held_) => held_.id !== held.id), entry];
+
+  const over = pinBudgetCheck(scope, next, options);
+  if (over) {
+    return {
+      ok: false,
+      errors: [note(
+        "startup/over-budget",
+        `pinning ${held.id} would make the required startup blocks ${over.bytes} bytes against a budget of ${over.budget}, so the pin set needs review first`,
+        { path: PINS_PATH },
+      )],
+      result: {
+        operation: "memory_pin",
+        record_id: held.id,
+        required_bytes: over.bytes,
+        budget_bytes: over.budget,
+        pins: entries.map((held_) => ({ id: held_.id, path: held_.path, date: held_.date })),
+      },
+    };
+  }
+
+  const statement = pinStatementFor(summary, held.path);
+  return {
+    ok: true,
+    request: {
+      operation: "memory_pin",
+      destination: PINS_PATH,
+      contents: renderPinsFile(next),
+      recordId: held.id,
+      // The record is a bound input: a summary that moves between the review
+      // and the approval invalidates the hash the owner approved.
+      sources: [held.path],
+      lifecycle: { kind: "pin", record_id: held.id, summary_hash: hash },
+      pinStatement: statement,
+      bullets: {
+        what: `Show this at the start of every session in this project: ${statement}`,
+        where: `${PINS_PATH}, which stores only the id, the link, the date, and the hash of that summary.`,
+        why: options.why
+          ? oneLine(options.why)
+          : "It is meaning every session needs before substantive work, and a pin is the only way it arrives without being asked for.",
+        assumptions: "None. A pin is visibility only: it does not outrank the record, a specification, or a primary source.",
+        unverified: "None",
+      },
+    },
+  };
+}
+
+/**
+ * UNPIN. It removes startup visibility and nothing else. The record keeps its
+ * content, its status, and its place in retrieval (FR-061).
+ */
+function buildUnpin(scope, options) {
+  const id = oneLine(options.id);
+  const { entries } = readPinRegistry(scope);
+  const entry = entries.find((held) => held.id === id);
+  if (!entry) {
+    return {
+      ok: false,
+      errors: [note("record/unknown-id", `no pin entry names the record ${id}`, { path: PINS_PATH })],
+    };
+  }
+
+  const remaining = entries.filter((held) => held.id !== id);
+  const held = loadRecord(scope, id);
+  const summary = held ? approvedSummary(held.text) : null;
+  const statement = summary ? pinStatementFor(summary, entry.path) : `${id} (${entry.path})`;
+
+  return {
+    ok: true,
+    request: {
+      operation: "memory_unpin",
+      destination: PINS_PATH,
+      contents: remaining.length ? renderPinsFile(remaining) : null,
+      removals: remaining.length ? [] : [PINS_PATH],
+      recordId: id,
+      lifecycle: { kind: "unpin", record_id: id, pin_removed: [id] },
+      pinStatement: statement,
+      bullets: {
+        what: `Stop showing this at the start of every session: ${statement}`,
+        where: remaining.length
+          ? `${PINS_PATH}, which keeps ${remaining.length} other entry or entries.`
+          : `${PINS_PATH}, which is removed with its last entry.`,
+        why: options.why
+          ? oneLine(options.why)
+          : "It no longer needs to reach every cold session before work starts.",
+        assumptions: "None",
+        unverified: `None. ${id} keeps its content, its status, and its place in search.`,
+      },
+    },
+  };
+}
+
+/**
+ * The one entry for both pin operations. Propose builds the request and hands
+ * it to the coordinator; apply is the shared second phase, exactly as it is
+ * for every lifecycle operation.
+ */
+export function pinOperation(scope, options = {}) {
+  const operation = String(options.operation ?? "");
+  if (!PIN_OPERATIONS.includes(operation)) {
+    return {
+      ok: false,
+      status: "error",
+      warnings: [],
+      errors: [note("cli/invalid-invocation", `${operation || "no operation"} is not a pin operation`)],
+    };
+  }
+
+  if (options.mode === "apply") return applyProposal(scope, options);
+
+  const now = options.now instanceof Date ? options.now : new Date();
+  const today = isoDate(now);
+
+  const state = recover(scope);
+  if (state.blocked) return { ok: false, status: "error", errors: state.warnings, warnings: [] };
+
+  const built = operation === "pin"
+    ? buildPin(scope, options, today)
+    : buildUnpin(scope, options, today);
+  if (!built.ok) {
+    return {
+      ok: false,
+      status: "refused",
+      errors: built.errors,
+      warnings: state.warnings,
+      result: built.result ?? null,
+    };
+  }
+
+  const outcome = propose(scope, { ...built.request, noopWhenUnchanged: true }, options);
+  return { ...outcome, warnings: [...state.warnings, ...(outcome.warnings ?? [])] };
+}
+
+// ---------------------------------------------------------------------------
 // The lifecycle engine
 // ---------------------------------------------------------------------------
 
@@ -1752,12 +2087,31 @@ function historyBoundary(scope, privacy) {
 function lifecycleResult(scope, lifecycle) {
   if (!lifecycle) return {};
 
+  // Every operation reports what happened to the pin set, so the owner never
+  // has to open the registry to find out (architecture section 11.4).
+  const pinned = [];
+  if (Array.isArray(lifecycle.pin_removed) && lifecycle.pin_removed.length) {
+    pinned.push(["pin_removed", lifecycle.pin_removed.join(", ")]);
+  }
+  if (Array.isArray(lifecycle.pin_kept) && lifecycle.pin_kept.length) {
+    pinned.push(["pin_kept", lifecycle.pin_kept.join(", ")]);
+  }
+  const base = Object.fromEntries(pinned);
+
+  if (lifecycle.kind === "pin") {
+    return { pinned: lifecycle.record_id, summary_hash: lifecycle.summary_hash };
+  }
+  if (lifecycle.kind === "unpin") {
+    return { unpinned: lifecycle.record_id, pin_removed: lifecycle.record_id };
+  }
+
   if (lifecycle.kind === "retire") {
     const locations = phraseHunt(scope, lifecycle.phrases ?? [], {
       skipPaths: lifecycle.skip_paths ?? [],
       exemptions: lifecycle.exemptions ?? [],
     });
     return {
+      ...base,
       retired: lifecycle.record_id,
       phrase_locations: locations.filter((found) => found.state === "needs-work"),
     };
@@ -1768,6 +2122,7 @@ function lifecycleResult(scope, lifecycle) {
       .filter((found) => found.state === "needs-work");
     const boundary = lifecycle.boundary ?? { purge_complete: null, git_history_remaining: null };
     return {
+      ...base,
       deleted: lifecycle.record_id,
       purge_complete: boundary.purge_complete === true && references.length === 0
         ? true
@@ -1778,15 +2133,15 @@ function lifecycleResult(scope, lifecycle) {
   }
 
   if (lifecycle.kind === "merge") {
-    return { survivor: lifecycle.survivor_id, merged_ids: lifecycle.merged_ids ?? [] };
+    return { ...base, survivor: lifecycle.survivor_id, merged_ids: lifecycle.merged_ids ?? [] };
   }
   if (lifecycle.kind === "supersede") {
-    return { superseded: lifecycle.old_id, successor: lifecycle.record_id };
+    return { ...base, superseded: lifecycle.old_id, successor: lifecycle.record_id };
   }
-  if (lifecycle.kind === "correct") return { corrected: lifecycle.record_id };
-  if (lifecycle.kind === "confirm") return { confirmed: lifecycle.record_id };
-  if (lifecycle.kind === "add") return { added: lifecycle.record_id };
-  return {};
+  if (lifecycle.kind === "correct") return { ...base, corrected: lifecycle.record_id };
+  if (lifecycle.kind === "confirm") return { ...base, confirmed: lifecycle.record_id };
+  if (lifecycle.kind === "add") return { ...base, added: lifecycle.record_id };
+  return base;
 }
 
 function blank(value) {
@@ -1982,17 +2337,38 @@ function buildCorrect(scope, options, today) {
     reason,
   );
 
+  // Architecture section 11.4. A changed summary defaults to unpinning,
+  // because the approved startup statement is no longer what the record says.
+  // --keep-pin is the separate approval that keeps it pinned, and it rewrites
+  // the entry's hash to the corrected summary in this same transaction.
+  const correctedSummary = approvedSummary(contents);
+  const keepPin = options.keepPin === true && Boolean(correctedSummary);
+  const pinPlan = planPinChange(scope, !summaryChanged
+    ? {}
+    : (keepPin
+      ? { rehash: { id: held.id, path: held.path, hash: summaryHash(correctedSummary) } }
+      : { remove: [held.id] }), today);
+
   return {
     ok: true,
     request: {
       operation: "memory_correct",
       destination: held.path,
       contents,
+      changes: pinPlan.changes,
+      removals: pinPlan.removals,
       recordId: held.id,
       sources: correcting,
-      lifecycle: { kind: "correct", record_id: held.id },
+      lifecycle: {
+        kind: "correct",
+        record_id: held.id,
+        pin_removed: pinPlan.removedIds,
+        pin_kept: pinPlan.keptIds,
+      },
       pinStatement: summaryChanged
-        ? `The approved summary of ${held.id} changes, so any pin on it is removed unless you approve the corrected summary for startup in this same review.`
+        ? (pinPlan.keptIds.length
+          ? `You are approving the corrected summary of ${held.id} to stay pinned, and its startup statement becomes: ${correctedSummary}`
+          : `The approved summary of ${held.id} changes, so any pin on it is removed in this same transaction.`)
         : `The approved summary of ${held.id} does not change, so any pin on it stays.`,
       bullets: {
         what: `Correct the record ${held.id}.`,
@@ -2053,16 +2429,26 @@ function buildSupersede(scope, options, today) {
     today,
   );
 
+  // Section 11.4. The old meaning leaves current truth, so it leaves startup
+  // in the same transaction. The successor is never pinned automatically.
+  const pinPlan = planPinChange(scope, { remove: [held.id] }, today);
+
   return {
     ok: true,
     request: {
       operation: "memory_supersede",
       destination,
       contents: successorContents,
-      changes: [{ path: held.path, contents: oldContents }],
+      changes: [{ path: held.path, contents: oldContents }, ...pinPlan.changes],
+      removals: pinPlan.removals,
       recordId: newId,
       sources: asArray(successor.data.evidence).map((entry) => entry?.locator).filter(Boolean),
-      lifecycle: { kind: "supersede", record_id: newId, old_id: held.id },
+      lifecycle: {
+        kind: "supersede",
+        record_id: newId,
+        old_id: held.id,
+        pin_removed: pinPlan.removedIds,
+      },
       pinStatement: `Any pin on ${held.id} is removed in this same transaction, and the successor ${newId} is not pinned automatically.`,
       bullets: {
         what: `Replace ${held.id} with ${newId} and date both records.`,
@@ -2117,6 +2503,7 @@ function buildRetire(scope, options, today) {
 
   const locations = phraseHunt(scope, phrases, { skipPaths: [held.path], exemptions });
   const outstanding = locations.filter((found) => found.state === "needs-work");
+  const pinPlan = planPinChange(scope, { remove: [held.id] }, today);
 
   return {
     ok: true,
@@ -2124,6 +2511,8 @@ function buildRetire(scope, options, today) {
       operation: "memory_retire",
       destination: held.path,
       contents,
+      changes: pinPlan.changes,
+      removals: pinPlan.removals,
       recordId: held.id,
       phraseLocations: locations,
       lifecycle: {
@@ -2132,6 +2521,7 @@ function buildRetire(scope, options, today) {
         phrases,
         exemptions,
         skip_paths: [held.path],
+        pin_removed: pinPlan.removedIds,
       },
       pinStatement: `Any pin on ${held.id} is removed in this same transaction.`,
       bullets: {
@@ -2219,19 +2609,27 @@ function buildMerge(scope, options, today) {
     today,
   );
 
+  // Section 11.4. The merged-away records are gone, so their entries go with
+  // them. The survivor's own entry follows the explicit choice the owner made.
+  const pinPlan = planPinChange(scope, {
+    remove: [...others.map((held) => held.id), ...(options.pin === "drop" ? [survivor.id] : [])],
+  }, today);
+
   return {
     ok: true,
     request: {
       operation: "memory_merge",
       destination: survivor.path,
       contents,
-      removals: others.map((held) => held.path),
+      changes: pinPlan.changes,
+      removals: [...others.map((held) => held.path), ...pinPlan.removals],
       recordId: survivor.id,
       lifecycle: {
         kind: "merge",
         record_id: survivor.id,
         survivor_id: survivor.id,
         merged_ids: others.map((held) => held.id),
+        pin_removed: pinPlan.removedIds,
       },
       pinStatement: options.pin === "keep"
         ? `You chose that the surviving record ${survivor.id} stays pinned if it was pinned.`
@@ -2253,7 +2651,7 @@ function buildMerge(scope, options, today) {
  * Git-history boundary instead of claiming an erasure it has not proven
  * (sections 14.4 and 21.8).
  */
-function buildDelete(scope, options) {
+function buildDelete(scope, options, today) {
   const held = loadRecord(scope, options.id);
   if (!held) return { ok: false, errors: [unknownId(options.id)] };
 
@@ -2264,6 +2662,9 @@ function buildDelete(scope, options) {
 
   const privacy = options.privacy === true;
   const boundary = historyBoundary(scope, privacy);
+  // Section 11.4. The pin entry goes in the same transaction, and the view
+  // rebuild inside that transaction runs after it.
+  const pinPlan = planPinChange(scope, { remove: [held.id] }, today);
 
   return {
     ok: true,
@@ -2271,7 +2672,8 @@ function buildDelete(scope, options) {
       operation: "memory_delete",
       destination: held.path,
       contents: null,
-      removals: [held.path],
+      changes: pinPlan.changes,
+      removals: [held.path, ...pinPlan.removals],
       recordId: held.id,
       boundary,
       lifecycle: {
@@ -2280,6 +2682,7 @@ function buildDelete(scope, options) {
         privacy,
         boundary: boundary ?? { purge_complete: null, git_history_remaining: null },
         skip_paths: [held.path],
+        pin_removed: pinPlan.removedIds,
       },
       pinStatement: `Any pin on ${held.id} is removed in this same transaction, before any derived artifact is rebuilt.`,
       bullets: {

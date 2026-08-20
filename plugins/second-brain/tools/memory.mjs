@@ -13,8 +13,8 @@
  * output and nothing else. Human-readable rendering is the skill's job.
  *
  * This build implements capabilities, status, validate, update-current,
- * rebuild-views, the seven writing lifecycle operations, and the noop and
- * cancel plumbing. The other operations are not stubbed, because a stub that
+ * rebuild-views, the seven writing lifecycle operations, pin and unpin, and
+ * the noop and cancel plumbing. The other operations are not stubbed, because a stub that
  * answers is worse than an operation that says it is not here: capabilities
  * reports the whole build state, so an agent reads it instead of guessing. The
  * validator follows the same rule inside itself: a check whose component is
@@ -58,15 +58,24 @@ import {
 import {
   CURRENT_TRIGGERS,
   LIFECYCLE_OPERATIONS,
+  PIN_OPERATIONS,
   cancel as cancelProposal,
   lifecycle,
   noop as noopOutcome,
   phraseHunt,
+  pinOperation,
+  readPinRegistry,
   rebuildViews,
   recover,
   retiredPhraseSets,
   updateCurrent,
 } from "./memory-write.mjs";
+import {
+  PINS_PATH,
+  approvedSummary,
+  resolvePinTarget,
+  summaryHash,
+} from "./lib/pins.mjs";
 
 /** The default rendered startup budget when the project sets none. */
 const DEFAULT_BUDGET_BYTES = 10240;
@@ -86,10 +95,6 @@ const BUILD_GAPS = [
   {
     feature: "retrieval",
     reason: "search, get, timeline, related, sources, spec-search, and spec-get are not available in this build",
-  },
-  {
-    feature: "pins",
-    reason: "pin and unpin are not available in this build, so a lifecycle operation states the pin outcome it requires and removes no pin entry itself",
   },
   {
     feature: "review",
@@ -185,11 +190,8 @@ function readCurrent(scope, asOf) {
 
 /** The pins file is optional. Absent means the project has no pins. */
 function readPins(scope) {
-  const path = resolve(scope.scopeRoot, "knowledge/memory/pins.md");
-  if (!existsSync(path)) return { present: false, count: 0 };
-  // The pin manager owns the entry format, so this build reports the file
-  // without guessing how many entries it holds.
-  return { present: true, count: null };
+  const registry = readPinRegistry(scope);
+  return { present: registry.present, count: registry.entries.length };
 }
 
 /**
@@ -273,12 +275,6 @@ export function capabilities(context) {
   }
 
   const degraded = [...BUILD_GAPS];
-  if (pins.present) {
-    degraded.push({
-      feature: "pin count",
-      reason: "knowledge/memory/pins.md is present and the pin manager that reads it is not available in this build",
-    });
-  }
   if (tracker === null) {
     degraded.push({
       feature: "tracker",
@@ -298,7 +294,7 @@ export function capabilities(context) {
       .map((entry) => entry.operation),
     approval_mode: APPROVAL_MODE,
     search_mode: SEARCH_MODE,
-    pin_support: false,
+    pin_support: true,
     pin_count: pins.count,
     budget_bytes: budget.bytes,
     required_bytes: null,
@@ -506,6 +502,76 @@ function checkLinks(scope) {
 }
 
 /**
+ * MV-06, pin eligibility, summary hashes, project scope, and startup
+ * rendering. It reads the registry against the records it names, which is the
+ * same judgment the boot brief makes at startup, repeated here so a broken
+ * entry is reported as repair work instead of only going quiet in the brief.
+ */
+function checkPins(scope) {
+  const registry = readPinRegistry(scope);
+  if (!registry.present) return { status: "pass", findings: [], skipped_because: null };
+
+  const findings = [];
+  const seen = new Set();
+  for (const entry of registry.entries) {
+    if (seen.has(entry.id)) {
+      findings.push(note("record/duplicate-id", `${entry.id} is pinned more than once`, { path: PINS_PATH }));
+      continue;
+    }
+    seen.add(entry.id);
+
+    const resolved = resolvePinTarget(scope.scopeRoot, entry.target);
+    if (!isMemberPath(scope, resolved.absolute)) {
+      findings.push(note(
+        "scope/cross-scope-result",
+        `the pinned record ${entry.id} sits outside this project's scope`,
+        { path: PINS_PATH },
+      ));
+      continue;
+    }
+    const text = readIfPresent(resolved.absolute);
+    if (text === null) {
+      findings.push(note(
+        "record/unknown-id",
+        `the pinned record ${entry.id} is not a readable file in this project`,
+        { path: resolved.path },
+      ));
+      continue;
+    }
+
+    const { data } = parseFrontMatter(text);
+    const status = String(data.status ?? "").trim().toLowerCase();
+    if (status === "retired" || status === "superseded") {
+      findings.push(note(
+        "record/schema-invalid",
+        `the pinned record ${entry.id} is ${status}, so its entry needs removing`,
+        { path: resolved.path },
+      ));
+      continue;
+    }
+
+    const summary = approvedSummary(text);
+    if (!summary) {
+      findings.push(note(
+        "record/schema-invalid",
+        `the pinned record ${entry.id} carries no approved summary to render`,
+        { path: resolved.path },
+      ));
+      continue;
+    }
+    if (entry.hash !== summaryHash(summary)) {
+      findings.push(note(
+        "record/schema-invalid",
+        `the summary of ${entry.id} no longer hashes to the value the owner approved for startup`,
+        { path: resolved.path },
+      ));
+    }
+  }
+
+  return { status: findings.length ? "fail" : "pass", findings, skipped_because: null };
+}
+
+/**
  * MV-08, retired phrases and recorded exemptions. Every phrase a retired
  * record declares is hunted again across tracked Markdown. A surviving
  * occurrence that is neither a quotation, nor inside a record that is itself
@@ -554,13 +620,7 @@ const CHECKS = [
   { id: "MV-03", version: "2.0", severity: "fail", title: "record schema, allowed values, unique ids, approval, provenance" },
   { id: "MV-04", version: "2.0", severity: "fail", title: "non-empty evidence for inference" },
   { id: "MV-05", version: "2.0", severity: "fail", title: "valid conflict targets and reciprocal supersession" },
-  {
-    id: "MV-06",
-    version: "2.0",
-    severity: "fail",
-    title: "pin eligibility, summary hashes, project scope, startup rendering",
-    skipped_because: "the pin manager is not available in this build",
-  },
+  { id: "MV-06", version: "2.0", severity: "fail", title: "pin eligibility, summary hashes, project scope, startup rendering" },
   {
     id: "MV-07",
     version: "2.0",
@@ -686,6 +746,7 @@ export function validate(context, options = {}) {
     "MV-01": wanted("MV-01") ? checkRequiredFiles(scope) : null,
     ...records,
     "MV-05": wanted("MV-05") ? checkLinks(scope) : null,
+    "MV-06": wanted("MV-06") ? checkPins(scope) : null,
     "MV-08": wanted("MV-08") ? checkRetiredPhrases(scope) : null,
   };
 
@@ -753,6 +814,15 @@ function lifecycleOperation(context, options) {
 }
 
 /**
+ * The two pin operations of architecture section 11.3. They change startup
+ * visibility and nothing else, and they run the same two-phase review as every
+ * other write.
+ */
+function pinOperationRun(context, options) {
+  return pinOperation(context.scope, options);
+}
+
+/**
  * NOOP, the default outcome. It is plumbing rather than a tool-surface
  * operation: it changes nothing, and it exists so a session can report that
  * no durable save was warranted without inventing a record to prove it.
@@ -795,6 +865,14 @@ const OPERATIONS = new Map([
       operation: `memory_${command}`,
       run: lifecycleOperation,
       parse: lifecycleParser(command),
+    },
+  ]),
+  ...PIN_OPERATIONS.map((command) => [
+    command,
+    {
+      operation: `memory_${command}`,
+      run: pinOperationRun,
+      parse: pinParser(command),
     },
   ]),
   [
@@ -907,7 +985,7 @@ function parseUpdateCurrentFlags(args, startDir) {
 const LIFECYCLE_FLAGS = Object.freeze({
   add: { type: "value", file: "value", dest: "value", why: "value" },
   confirm: { id: "value", evidence: "value", "source-type": "value" },
-  correct: { id: "value", file: "value", reason: "value" },
+  correct: { id: "value", file: "value", reason: "value", "keep-pin": "switch" },
   supersede: { "old-id": "value", file: "value", dest: "value", why: "value" },
   retire: { id: "value", reason: "value", phrase: "list", exempt: "list" },
   merge: { ids: "value", survivor: "value", pin: "value" },
@@ -985,6 +1063,9 @@ function lifecycleParser(command) {
       options.id = values.id;
       options.contents = staged;
       options.reason = values.reason;
+      // Section 11.4: a corrected summary drops its pin unless the owner
+      // approves the corrected wording for startup in this same review.
+      options.keepPin = values["keep-pin"] === true;
     }
     if (command === "retire") {
       options.id = values.id;
@@ -1018,6 +1099,39 @@ function lifecycleParser(command) {
       options.privacy = values.privacy === true;
     }
 
+    return { ok: true, options };
+  };
+}
+
+/**
+ * One parser for pin and unpin. Both take the record id and an optional
+ * reason on the proposal, and both take the proposal id and content hash on
+ * the approval, exactly as the lifecycle operations do.
+ */
+function pinParser(command) {
+  return (args) => {
+    const read = readFlags(args, {
+      id: "value",
+      why: "value",
+      propose: "switch",
+      apply: "switch",
+      proposal: "value",
+      "content-hash": "value",
+    });
+    if (!read.ok) return read;
+    const phase = readPhase(read.values);
+    if (!phase.ok) return phase;
+
+    const options = {
+      operation: command,
+      mode: phase.mode,
+      proposalId: phase.proposalId,
+      contentHash: phase.contentHash,
+    };
+    if (phase.mode === "apply") return { ok: true, options };
+    if (!read.values.id) return { ok: false, message: `${command} --propose needs --id` };
+    options.id = read.values.id;
+    if (read.values.why) options.why = read.values.why;
     return { ok: true, options };
   };
 }

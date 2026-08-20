@@ -131,12 +131,14 @@ try {
         "memory_retire",
         "memory_merge",
         "memory_delete",
+        "memory_pin",
+        "memory_unpin",
       ]),
     "capabilities lists exactly the operations this build supports",
   );
   ok(result.approval_mode === "owner-approved", "the approval mode is owner-approved");
   ok(result.search_mode === "direct-file", "the search mode is direct canonical-file search");
-  ok(result.pin_support === false, "pin support is false while the pin manager is absent");
+  ok(result.pin_support === true, "pin support is true now that the pin manager is built");
   ok(result.pin_count === 0, "a project with no pins file reports no pins");
   ok(result.budget_bytes === 10240, "the startup budget defaults to 10240 bytes");
   ok(result.required_bytes === null, "the required brief size is unavailable without the assembler");
@@ -151,7 +153,7 @@ try {
     "every degraded entry names a feature and a reason",
   );
   ok(
-    result.degraded.some((entry) => entry.feature === "pins"),
+    result.degraded.some((entry) => entry.feature === "retrieval"),
     "the degraded list names the features this build does not carry yet",
   );
   ok(
@@ -214,7 +216,7 @@ try {
   const loadedCaps = call(loaded, "capabilities");
   ok(loadedCaps.payload.result.tracker === "github-project", "a configured tracker adapter is reported by name");
   ok(loadedCaps.payload.result.budget_bytes === 12288, "a configured startup budget wins over the default");
-  ok(loadedCaps.payload.result.pin_count === null, "an existing pins file reports an unreadable count");
+  ok(loadedCaps.payload.result.pin_count === 0, "a pins file holding no entry reports no pins");
   ok(
     loadedCaps.payload.result.degraded.some((entry) => entry.feature === "crash recovery"),
     "a present journal appears in the degraded list",
