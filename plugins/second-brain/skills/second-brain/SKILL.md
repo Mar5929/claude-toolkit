@@ -141,6 +141,107 @@ old rule, verifier, tools, and per-folder indexes.
 After the approved conversion is installed, run the same full health report and
 resolve every warning through `cleanup` before calling the migration complete.
 
+## Version 2 Codex startup route, being built
+
+This section belongs to the memory system v2 build. Setup does not install it
+yet. Every version 1 step above stays in force until the cutover work item
+swaps the routes, so a project already running version 1 keeps running it.
+
+Claude Code receives the v2 startup automatically from a `SessionStart` hook,
+`hooks/boot-brief-session-start.mjs`. Codex has no fail-open startup hook, and
+it reads root `AGENTS.md` and nothing else: no `CLAUDE.md`, no
+`.claude/rules/`, and no `@` import. So the Codex adapter is text in
+`AGENTS.md`, not a hook.
+
+### The block
+
+One block between two markers. The markers are what the sync step and the drift
+check find, so never rename or drop them.
+
+```text
+<!-- second-brain:startup-route:start -->
+Run this first, before anything else in this repository:
+
+    node <plugin path>/tools/boot-brief.mjs
+
+Read its whole output. It carries the project identity, purpose, current focus,
+blockers, next step, handoff, pinned memory, and project map.
+
+Memory operations run through `node <plugin path>/tools/memory.mjs <operation>`.
+Run `memory.mjs capabilities` to see what this project supports. Never guess.
+
+The four skills are remember, recall, cleanup, and session-search. Their texts
+are in the plugin's skills folder. Read the one you need before using it.
+
+Never write into knowledge/memory/, knowledge/specs/, or knowledge/current.md by
+hand. Those paths change only through memory.mjs write operations, and only with
+the owner's approval. Nothing else stands in for that approval.
+<!-- second-brain:startup-route:end -->
+```
+
+Replace `<plugin path>` in both places with the real plugin folder on this
+machine, normally
+`~/.claude/plugins/marketplaces/claude-toolkit/plugins/second-brain`. Codex
+expands no plugin variable, so the path is written out in full.
+
+A command, not a hook, because Codex has no fail-open startup hook today. When
+it gains one, that adapter replaces the first step and this block stays as the
+fallback with its meaning unchanged. If the command fails, the block still
+carries the operating contract, the tool route, and the write refusal, so the
+session is less oriented but not unsafe.
+
+### Setup step
+
+1. Resolve the plugin folder on this machine, then run
+   `node <plugin path>/tools/boot-brief.mjs .` from the project root once and
+   read the brief it prints. A path that does not run is a path not worth
+   writing into an instruction file.
+2. Create root `AGENTS.md` if the project has none.
+3. Show the owner the exact block text and where it will land, and write it
+   only after they approve.
+4. Append the block at the end of `AGENTS.md`, with the plugin path filled in.
+   Change nothing outside the two markers. If the markers are already present,
+   this is a sync, not a setup: follow the sync step instead.
+
+### Sync step
+
+1. Read what currently sits between the two markers.
+2. Compare it against the block above.
+3. Where they differ, show the owner the difference and replace only the text
+   between the markers after they approve. Text outside the markers belongs to
+   the project and is never touched.
+4. Where the markers are missing but an unmarked v2 route is already in
+   `AGENTS.md`, stop and ask the owner before writing. Two copies of the route
+   is the failure this step exists to prevent.
+5. Confirm the plugin path in the block still resolves on this machine.
+
+### The two host routes are checked together
+
+The Claude Code hook and this block are two deliveries of one meaning, not two
+documents. Both must carry:
+
+1. the boot brief runs first;
+2. the memory tool path and how to ask for capabilities;
+3. the four skills by name;
+4. the guarded paths and the fact that only the write operations may change
+   them; and
+5. that approval comes from the owner and nothing else stands in for it.
+
+Shape may differ. A hook delivers this on Claude Code, a written instruction on
+Codex. Neither host imitates the other, and neither imports the other host's
+root file.
+
+Two validator checks hold that together. `MV-01` confirms each host route
+exists and names the memory tool path and the four skills. `MV-02` confirms the
+two carry the same meaning for the startup route, the authority split, and the
+approval policy pointer, the same way it checks the block shared by `CLAUDE.md`
+and `AGENTS.md`. The command is
+`node <plugin path>/tools/memory.mjs validate --check MV-01,MV-02`. Those
+checks arrive later in the v2 build. Until they do, compare the two routes by
+hand.
+
+Change one route and change the other in the same edit.
+
 ## Git boundary
 
 All changes stay in the requesting session's worktree. This plugin does not

@@ -196,6 +196,81 @@ The session-search harness builds local transcript fixtures, checks scope and
 privacy boundaries, expands selected messages, verifies failure states, and
 proves the transcript tree stays unchanged.
 
+## Version 2 templates, being built
+
+The memory system v2 build ships beside the version 1 files above. Nothing here
+is installed by setup yet. The v1 template tree, hooks, and tools keep working
+until the cutover.
+
+The v2 project shape lives under
+`skills/second-brain/references/templates-v2/`:
+
+| File | What it is |
+| --- | --- |
+| `templates-v2/knowledge/project.md` | Project identity and the whole settings surface in YAML front matter: `schema_version`, `project_id`, `project_root`, `subroots`, `privacy`, `profiles`, and the optional `tracker` and `startup.budget_bytes`. |
+| `templates-v2/knowledge/map.md` | Logical roles, their current physical paths, owners, authority, and how each is searched. Includes the reference area that keeps research-spike reports findable. Mapped areas point at folders that already exist. |
+| `templates-v2/knowledge/current.md` | The authored current focus, blockers, next step, and handoff. Written only through the write coordinator. |
+| `templates-v2/knowledge/specs/` | Approved project or system behavior. Empty until the first document. |
+| `templates-v2/knowledge/memory/facts/` | Durable facts. Empty until the first record. |
+| `templates-v2/knowledge/memory/decisions/` | Durable decisions. Empty until the first record. |
+| `templates-v2/knowledge/memory/events/` | Durable events. Empty until the first record. |
+| `templates-v2/knowledge/memory/patterns/` | Durable patterns. Empty until the first record. |
+| `templates-v2/claude-settings-snippet.json` | The keys setup merges into a project's `.claude/settings.json`: `CLAUDE_CODE_DISABLE_AUTO_MEMORY` set to `1`, and the plugin enabled. Hook registration is added by the work items that build the v2 hooks. |
+| `templates-v2/gitignore-snippet.txt` | The `.memory/` entry setup appends to the project's root `.gitignore`. Local write state is disposable and never committed. |
+
+Empty type folders keep a `.gitkeep` until their first document, the same way
+the v1 tree does. `knowledge/memory/pins.md` and `knowledge/retrieval-gold-set.md`
+are optional canonical files, so the template does not create them. A new
+project has neither, and their absence is not an error.
+
+The v2 startup path ships beside the v1 loader. Nothing below is registered in
+any project yet; the cutover work item swaps the hooks.
+
+| File | What it is |
+| --- | --- |
+| `tools/boot-brief.mjs` | The source resolver and boot brief assembler. It reads the startup inputs, renders the ten blocks in order, keeps them inside `startup.budget_bytes`, degrades optional detail in the fixed four-step order, and reports a missing, stale, or over-budget input as a visible warning. The current block renders the authored lines of `knowledge/current.md` and the recent block shows up to three approved updates from the last 72 hours, or the latest dated update labeled with its age. Neither writes a new statement. Read-only. Run it directly for the Codex route: `node tools/boot-brief.mjs [project-root] [--json]`. |
+| `tools/tracker-adapter.mjs` | The optional tracker adapter. A project with no `tracker` block in `knowledge/project.md` runs no adapter and starts no command. Where one is configured, the `github-project` adapter reads that board through the `gh` command line and hands the brief up to three work-item lines with their live status and links. Every wait is bounded, nothing throws, and an unreachable tracker returns a short mechanical reason that never carries command output. The command runner is injectable, which is how the tests drive the success path with no network call. |
+| `hooks/boot-brief-session-start.mjs` | The Claude Code `SessionStart` adapter. It runs the assembler and prints the brief as session context. Fail-open: every path exits 0, a directory outside a memory project prints nothing, and a broken memory system degrades a session rather than stopping one. |
+| `tests/boot-brief-harness.mjs` | Builds temporary v2 projects from the templates above and checks block order, the exact degradation order, what is never dropped, visible overflow, missing sources, pin hash verification, the 72 hour stale window, the recent window rule with its fallback and empty cases, byte-for-byte repeatability, and the hook's fail-open paths. The tracker fixtures cover an absent adapter, a failing one, an unknown adapter name, and a reachable board driven by an injected command runner. Every fixture date is derived from a fixed injected clock, so no check depends on the wall clock. |
+
+```text
+node plugins/second-brain/tests/boot-brief-harness.mjs
+```
+
+Codex has no fail-open startup hook and reads root `AGENTS.md` and nothing
+else, so its v2 route is text rather than a hook. The block, the setup step,
+the sync step, and the drift rule that keeps the two host routes carrying the
+same meaning are in `skills/second-brain/SKILL.md`, under "Version 2 Codex
+startup route".
+
+## Version 2 tools, being built
+
+The v2 memory operations run through one command-line entry beside the v1
+tools. Nothing here is installed by setup yet.
+
+```text
+node plugins/second-brain/tools/memory.mjs capabilities
+node plugins/second-brain/tools/memory.mjs status
+```
+
+| File | What it is |
+| --- | --- |
+| `tools/memory.mjs` | The one entry for every v2 memory operation. It prints one JSON envelope and nothing else. This build carries `capabilities` and `status`; the rest of the surface is reported as unavailable rather than stubbed. |
+| `tools/lib/scope.mjs` | Physical scope resolution, member-path testing, and the recorded privacy boundary. One home, because every entry point needs the same answer. A missing or unknown privacy value reads as the most restrictive setting. |
+| `tools/lib/result.mjs` | The result envelope with its fixed field order, the closed reason-code list, and the exit mapping: 0 ran, 1 refused, 2 could not be evaluated. |
+| `tests/capabilities-harness.mjs` | Builds temporary projects and runs the real command line: the capabilities payload, the status payload, the envelope shape, exit codes, the restrictive privacy fallback, the 72-hour stale rule, and byte-for-byte determinism. |
+
+`capabilities` answers what this project's memory can do, so an agent reads the
+build state instead of guessing: the operations it carries, the approval mode,
+the search mode, pin support and count, the startup budget, the project id and
+privacy boundary, whether data may leave the machine, the tracker adapter, the
+session-history scope, and every degraded feature with its reason.
+
+`status` answers what this project's memory holds right now: record counts by
+type, pin count, whether `knowledge/current.md` is present and how old its
+latest update is, whether a recovery journal is waiting, where the gold set
+lives, and the date the staleness comparison used.
+
 ## Maintaining this plugin
 
 A content change updates both plugin manifests and the marketplace metadata.
