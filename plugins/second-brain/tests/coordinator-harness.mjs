@@ -883,6 +883,60 @@ try {
 
   ok(same(guardBefore, snapshot(guarded)), "every canonical file is unchanged after all three refused routes");
 
+  // AT-39, route three again: a write that never names its target as an
+  // argument. xargs takes the path from the pipeline and an interpreter
+  // one-liner hides it in a code string, so both are refused as unevaluable.
+  // dd names its target with of= and ln names one with the link name.
+  const viaXargs = guard(guarded, {
+    tool_name: "Bash",
+    tool_input: { command: "echo knowledge/memory/facts/kept.md | xargs rm" },
+  });
+  ok(viaXargs.denied, "feeding a canonical record into rm through xargs is denied");
+  ok(viaXargs.reason.includes("write/guard-refused"), "the xargs refusal carries the write/guard-refused code");
+  ok(viaXargs.reason.includes("memory.mjs retire"), "the xargs removal names memory.mjs retire");
+
+  const viaPython = guard(guarded, {
+    tool_name: "Bash",
+    tool_input: { command: "python3 -c \"open('knowledge/memory/facts/kept.md','w').write('x')\"" },
+  });
+  ok(viaPython.denied, "a python one-liner holding a canonical path in its code string is denied");
+  ok(viaPython.reason.includes("memory.mjs correct"), "the interpreter refusal names the operation for an existing record");
+  ok(guard(guarded, {
+    tool_name: "Bash",
+    tool_input: { command: "node -e \"require('fs').writeFileSync('knowledge/current.md','x')\"" },
+  }).reason.includes("memory.mjs update-current"), "a node one-liner naming knowledge/current.md is denied and names update-current");
+
+  const viaDd = guard(guarded, {
+    tool_name: "Bash",
+    tool_input: { command: "dd if=/dev/null of=knowledge/current.md" },
+  });
+  ok(viaDd.denied, "dd writing to knowledge/current.md with of= is denied");
+  ok(viaDd.reason.includes("memory.mjs update-current"), "the dd refusal names memory.mjs update-current");
+
+  const viaLink = guard(guarded, {
+    tool_name: "Bash",
+    tool_input: { command: "ln -sf /tmp/replacement.md knowledge/memory/facts/kept.md" },
+  });
+  ok(viaLink.denied, "linking over a canonical record is denied");
+  ok(viaLink.reason.includes("memory.mjs correct"), "the link refusal names memory.mjs correct");
+
+  ok(same(guardBefore, snapshot(guarded)), "every canonical file is unchanged after the four hidden-target routes");
+
+  // The same shapes when they only read. A guard that refused these would make
+  // the guarded set unreadable, which is not what it is for.
+  ok(!guard(guarded, {
+    tool_name: "Bash",
+    tool_input: { command: "echo knowledge/memory/facts/kept.md | xargs cat" },
+  }).denied, "feeding a canonical record into cat through xargs is allowed");
+  ok(!guard(guarded, {
+    tool_name: "Bash",
+    tool_input: { command: "python3 -c \"print('hello')\"" },
+  }).denied, "an interpreter one-liner that names no canonical path is allowed");
+  ok(!guard(guarded, {
+    tool_name: "Bash",
+    tool_input: { command: "dd if=knowledge/memory/facts/kept.md of=/tmp/copy.md" },
+  }).denied, "dd reading a canonical record and writing elsewhere is allowed");
+
   // What the guard does not touch.
   ok(!guard(guarded, {
     tool_name: "Bash",

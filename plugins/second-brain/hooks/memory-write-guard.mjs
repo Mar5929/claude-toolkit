@@ -100,7 +100,27 @@ const MUTATIONS = [
   { pattern: /(^|\s)(perl|ruby)\s+(-\S+\s+)*-\S*i/, kind: "write" },
   { pattern: /(^|\s)(vi|vim|nvim|nano|emacs|ed|pico)(\s|$)/, kind: "write" },
   { pattern: /(^|\s)(dd|install|patch|touch|chmod|chown)(\s|$)/, kind: "write" },
+  { pattern: /(^|\s)ln(\s|$)/, kind: "write" },
 ];
+
+/**
+ * Two shapes hide their target from the guard rather than naming it.
+ *
+ *   - xargs takes its paths from another command's output, so a writer behind a
+ *     pipe never receives the guarded path as an argument.
+ *   - An interpreter one-liner carries the path inside a code string, where the
+ *     guard cannot tell a read from a write.
+ *
+ * Neither is decided by reading arguments, so neither is evaluable, and the
+ * fail-closed rule above answers both: a call that names a guarded path and
+ * cannot be evaluated is refused. An interpreter code string holding a guarded
+ * path is refused even when it may only read it, which is the accepted cost of
+ * not guessing at what a code string does. xargs into a reader such as cat or
+ * grep is not a writer and stays allowed.
+ */
+const XARGS = /(^|\s)xargs(\s|$)/;
+const INTERPRETERS = /^(?:.*\/)?(python[0-9.]*|node|deno|bun|perl|ruby|php)$/;
+const CODE_FLAG = /^--?[A-Za-z0-9.]*[ceiE]/;
 
 /** Redirect targets, which are writes whatever the command in front of them is. */
 const REDIRECT = /(?:^|[^0-9<>&])(?:\d?>>?|&>>?)\s*(["']?)([^\s;|&()<>"']+)\1/g;
@@ -356,6 +376,59 @@ function mutationKind(text) {
   return null;
 }
 
+/**
+ * dd names its output with of= and its input with if=, so neither reads as an
+ * ordinary path token. The of= value is the write target. The if= value is a
+ * read and is left alone, so dd copying a canonical file somewhere else is
+ * allowed. Returns null when the piece is not a dd command.
+ */
+function ddTargets(text) {
+  if (!/(^|\s)dd(\s|$)/.test(text)) return null;
+  const found = [];
+  for (const match of text.matchAll(/(^|\s)of=(["']?)([^\s"';|&()<>]+)\2/g)) found.push(match[3]);
+  return found;
+}
+
+/** Whether this piece hands an interpreter a code string on the command line. */
+function carriesCode(text) {
+  const words = text.split(/\s+/).filter(Boolean);
+  for (let index = 0; index < words.length; index++) {
+    if (!INTERPRETERS.test(words[index].replace(/^["']|["']$/g, ""))) continue;
+    for (let next = index + 1; next < words.length; next++) {
+      if (!words[next].startsWith("-")) break;
+      if (CODE_FLAG.test(words[next])) return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * What one command-line token is, as far as this guard is concerned. The kind
+ * is "unresolved" when the scope will not resolve and the shape of the text is
+ * all that is left to read.
+ */
+function guardedTarget(roots, candidate, cwd) {
+  const absolute = resolve(isAbsolute(candidate) ? candidate : resolve(cwd, candidate));
+  if (roots === null || roots.ok === false) {
+    const shaped = looksGuarded(textual(absolute)) || looksGuarded(textual(candidate));
+    return shaped ? { absolute, kind: "unresolved" } : null;
+  }
+  const kind = classifyPath(roots, absolute);
+  return kind === null ? null : { absolute, kind };
+}
+
+/** How a refusal names one guarded kind. */
+function label(kind) {
+  return kind === "current" ? "knowledge/current.md" : `canonical ${kind}`;
+}
+
+const UNRESOLVED_REFUSAL = () => refusal(
+  "write/guard-refused",
+  "this command names a path shaped like a canonical memory path and the"
+  + " project scope would not resolve, so the guard could not evaluate it",
+  "memory.mjs with the operation the change needs, once the scope resolves",
+);
+
 /** One Bash call. Each piece of the command line is judged on its own. */
 export function checkBashCall(input, startDir) {
   const command = input?.command;
@@ -374,6 +447,9 @@ export function checkBashCall(input, startDir) {
     return ALLOW;
   }
 
+  // Each piece is kept with the working directory in force when it runs, so
+  // both passes below resolve a bare file name to the same place.
+  const pieces = [];
   let cwd = startDir;
   for (const piece of segments(command)) {
     const text = withoutSettings(piece).replace(/\s+/g, " ");
@@ -387,31 +463,28 @@ export function checkBashCall(input, startDir) {
       continue;
     }
 
-    if (ALLOWED_COMMANDS.some((pattern) => pattern.test(text))) continue;
+    pieces.push({ text, cwd, allowed: ALLOWED_COMMANDS.some((pattern) => pattern.test(text)) });
+  }
+
+  // Pass one: a piece that writes and names its target as an argument.
+  for (const { text, cwd: at, allowed } of pieces) {
+    if (allowed) continue;
 
     const kind = mutationKind(text);
     const targets = redirectTargets(text);
     if (kind === null && targets.length === 0) continue;
 
-    const candidates = kind === null ? targets : [...pathTokens(text), ...targets];
+    const dd = ddTargets(text);
+    const tokens = dd === null
+      ? pathTokens(text)
+      : [...dd, ...pathTokens(text).filter((token) => !/^[A-Za-z_][A-Za-z0-9_]*=/.test(token))];
+    const candidates = kind === null ? targets : [...tokens, ...targets];
+
     for (const candidate of candidates) {
-      const absolute = resolve(isAbsolute(candidate) ? candidate : resolve(cwd, candidate));
-
-      if (roots === null || roots.ok === false) {
-        if (looksGuarded(textual(absolute)) || looksGuarded(textual(candidate))) {
-          return refusal(
-            "write/guard-refused",
-            "this command names a path shaped like a canonical memory path and the"
-            + " project scope would not resolve, so the guard could not evaluate it",
-            "memory.mjs with the operation the change needs, once the scope resolves",
-          );
-        }
-        continue;
-      }
-
-      const guarded = classifyPath(roots, absolute);
-      if (guarded === null) continue;
-      if (guarded === "settings") {
+      const found = guardedTarget(roots, candidate, at);
+      if (found === null) continue;
+      if (found.kind === "unresolved") return UNRESOLVED_REFUSAL();
+      if (found.kind === "settings") {
         return refusal(
           "settings/owner-only",
           "this command would rewrite knowledge/project.md, which carries the"
@@ -421,10 +494,46 @@ export function checkBashCall(input, startDir) {
       }
       return refusal(
         "write/guard-refused",
-        `this command would change ${guarded === "current" ? "knowledge/current.md" : `canonical ${guarded}`}`
-        + " without the owner's review",
-        operationFor(guarded, absolute, kind ?? "write"),
+        `this command would change ${label(found.kind)} without the owner's review`,
+        operationFor(found.kind, found.absolute, kind ?? "write"),
       );
+    }
+  }
+
+  // Pass two: a piece that writes without ever naming its target. xargs reads
+  // its paths from the pipeline, so the whole command line is searched for
+  // them. An interpreter code string carries its own, so only that piece is.
+  for (const { text, cwd: at, allowed } of pieces) {
+    if (allowed) continue;
+    const feeder = XARGS.test(text) ? mutationKind(text) : null;
+    const code = carriesCode(text);
+    if (feeder === null && !code) continue;
+
+    const searched = feeder === null ? [{ text, cwd: at }] : pieces;
+    for (const { text: source, cwd: sourceCwd } of searched) {
+      for (const candidate of pathTokens(source)) {
+        const found = guardedTarget(roots, candidate, sourceCwd);
+        if (found === null) continue;
+        if (found.kind === "unresolved") return UNRESOLVED_REFUSAL();
+
+        const how = feeder === null
+          ? "inside an interpreter code string the guard cannot read"
+          : "into a writer through xargs, where the write target is never named";
+        if (found.kind === "settings") {
+          return refusal(
+            "settings/owner-only",
+            `this command puts knowledge/project.md ${how}, and that file carries the`
+            + " recorded scope and privacy boundary, so the guard could not evaluate it",
+            "an owner edit, made by the owner and not by an agent",
+          );
+        }
+        return refusal(
+          "write/guard-refused",
+          `this command puts ${label(found.kind)} ${how},`
+          + " so the guard could not evaluate it",
+          operationFor(found.kind, found.absolute, feeder ?? "write"),
+        );
+      }
     }
   }
 
