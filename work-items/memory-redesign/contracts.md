@@ -247,6 +247,7 @@ defined here so a build session does not invent codes per file.
 | write/validation-failed | Focused validation failed after staging, so the preimages were restored | 1 |
 | write/link-repair-failed | A move or rename left a link that cannot be repaired, so nothing changed | 1 |
 | write/guard-refused | The pre-write guard refused a write that did not come through the coordinator | 1 |
+| cli/invalid-invocation | The operation name is not one this tool defines, or a required flag is missing or malformed. The message names which | 2 |
 | retrieval/parse-error | A query or filter would not parse | 2 |
 | retrieval/unsupported-filter | A filter names a field the schema does not define | 2 |
 | startup/missing-source | A startup input is missing. Warning only | 0 |
@@ -633,10 +634,14 @@ How to read each contract:
 ### 2.24 Two supporting commands that are not tool operations
 
 `memory.mjs cancel --proposal <id>` removes a review file after a skip. It touches no
-canonical path. `memory.mjs brief` runs the boot brief assembler from a terminal, which
-is what the Codex route uses and what the harnesses call. Neither adds an operation to
-the section 16.1 surface. Both are plumbing for operations that surface already
-defines.
+canonical path. It does not add an operation to the section 16.1 surface. It is
+plumbing for operations that surface already defines.
+
+The boot brief has no `memory.mjs` command. `tools/boot-brief.mjs` is the assembler and
+is run directly, which is what the section 5.2 Codex route text does and what the
+harnesses call. An earlier draft of this section named a `memory.mjs brief` passthrough
+and contradicted section 5.2. The direct call wins: one entry point per job, no second
+name to keep in step with the route text already shipped in `AGENTS.md`.
 
 ## 3. Component to file ownership
 
