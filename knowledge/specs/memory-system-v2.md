@@ -1,19 +1,22 @@
 # Memory system v2 draft spec (superseded, do not build from this)
 
-**Status:** superseded on 2026-08-20. This draft is kept as history only, and no build
-session may follow it. The authority documents are
-`work-items/memory-redesign/functional-requirements.md` and
-`work-items/memory-redesign/memory-system-v2-master-technical-architecture.md`.
+**Status:** superseded on 2026-08-21 by
+[How the knowledge system works](knowledge-system.md). Kept as history only, and
+no build session may follow it.
 
 ## What replaced this draft
 
-Two documents in `work-items/memory-redesign/` now define memory system v2:
+`knowledge/specs/knowledge-system.md` is the build authority. Its design input is
+`work-items/memory-redesign/knowledge-system-north-star.md`.
 
-- [Functional requirements](../../work-items/memory-redesign/functional-requirements.md)
-- [Master technical architecture](../../work-items/memory-redesign/memory-system-v2-master-technical-architecture.md)
+The two documents this file previously pointed at, `functional-requirements.md`
+and the master technical architecture, were archived on 2026-08-21 to
+`work-items/memory-redesign/archive/`. They are not current and no build session
+works from them either.
 
-Where this draft and those two documents disagree, those two win. They are the only
-documents a build session works from.
+Note that the paragraph below is now wrong in one respect: the current design
+does include a `SOUL.md` identity file. It was rejected by the v2 design, not by
+this one.
 
 This draft is not a smaller or older version of the approved design. It asks for parts the
 approved design rejects, including a `SOUL.md` identity file, session cards, and a

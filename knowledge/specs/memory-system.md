@@ -1,4 +1,10 @@
-# How project knowledge works
+# How project knowledge works (superseded, do not build from this)
+
+**Superseded on 2026-08-21 by [How the knowledge system works](knowledge-system.md).**
+Kept as history. It describes the layout with seven memory subfolders and a fixed
+tag list, which the current design replaced with one flat folder and free-form
+tags. Where this file and `knowledge-system.md` disagree, `knowledge-system.md`
+wins.
 
 The project knowledge system keeps approved behavior, persistent understanding, and raw exploration in one portable Markdown vault that Git owns and Obsidian may view.
 

@@ -36,14 +36,19 @@ by hand. If it disagrees with the source files, rebuild it.
 
 ## specs/
 
+- [How the knowledge system works](specs/knowledge-system.md): This is the
+  build authority for agents changing the `second-brain` plugin in this
+  repository. It says what the system must do, precisely enough to build from.
 - [Memory system v2 draft spec (superseded, do not build from this)](specs/memory-system-v2.md):
-  **Status:** superseded on 2026-08-20. This draft is kept as history only, and
-  no build session may follow it. The authority documents are
-  `work-items/memory-redesign/functional-requirements.md` and
-  `work-items/memory-redesign/memory-system-v2-master-technical-architecture.md`.
-- [How project knowledge works](specs/memory-system.md): The project knowledge
-  system keeps approved behavior, persistent understanding, and raw exploration
-  in one portable Markdown vault that Git owns and Obsidian may view.
+  **Status:** superseded on 2026-08-21 by [How the knowledge system
+  works](knowledge-system.md). Kept as history only, and no build session may
+  follow it.
+- [How project knowledge works (superseded, do not build from this)](specs/memory-system.md):
+  **Superseded on 2026-08-21 by [How the knowledge system
+  works](knowledge-system.md).** Kept as history. It describes the layout with
+  seven memory subfolders and a fixed tag list, which the current design
+  replaced with one flat folder and free-form tags. Where this file and
+  `knowledge-system.md` disagree, `knowledge-system.md` wins.
 - [Product and system specifications](specs/README.md): This folder defines
   current approved product and system behavior.
 
