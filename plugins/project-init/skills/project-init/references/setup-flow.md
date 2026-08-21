@@ -18,12 +18,14 @@ so they always know where they are.
 ## Per-gate prompts (keep them short; one gate at a time)
 
 **Gate 0: Orient**
+
 - Is this greenfield or does it already have code?
 - What's the stack (language, framework, app/library/service, mono/single)?
 - If the project already exists and mainly needs to catch up with the toolkit,
   switch to the `project-sync` skill instead.
 
 **Gate 1: Scaffolding**
+
 - Recommend a conventional layout for the stack; explain the why briefly.
 - Confirm before creating dirs/files. Cover: source, tests, config, `.gitignore`,
   README, license, editor/formatter, CI stub.
@@ -100,16 +102,15 @@ so they always know where they are.
   build, and one field query before calling it done.
 
 **Gate 2: Hooks**
+
 - What needs guarding or automating? (deploy/env guard, secret guard,
   session-start orientation, format/lint)
 - Confirm exact trigger + action per hook; tell the user how to verify it fires.
-- Every project: offer both general hooks from `hooks-library`
-  (`/hooks-library`). Both are default ON.
-  `style-reminder` re-states the project's output style every time the owner
-  sends a message, so the voice instructions do not go stale in a long session.
-  `writing-guard` reads the finished reply and blocks on an em dash or a section
-  sign, so a slip is caught rather than shipped. Those two pair with Gate 5;
-  skip them if the owner skips the style.
+- Every project: offer the general hook from `hooks-library`
+  (`/hooks-library`). `spec-check-reminder` asks once per session, at the first
+  file edit, whether the spec-check review has run. It points at the
+  `spec-check` skill from `session-skills`; skip it where that plugin is not
+  installed.
   The project knowledge package owns its startup loader and pull-request save
   reminder. Gate 3 installs both. Do not restore the retired
   `memory-pr-hook` plus `wrap-up-ritual.md` route.
@@ -133,6 +134,7 @@ so they always know where they are.
   `tools/kb/` because it imports the rest of the tool.
 
 **Gate 3: Project knowledge system**
+
 - Offer `second-brain` as one coherent opt-in system.
 - Explain `knowledge/brainstorms/`, `knowledge/specs/`, typed
   `knowledge/memory/`, raw-artifact, work-tracker, and Git authority.
@@ -163,6 +165,7 @@ so they always know where they are.
   `CLAUDE.md` files inside `knowledge/`.
 
 **Gate 4: Optional mechanical knowledge aids**
+
 - The Markdown knowledge layer already came from Gate 3 when accepted.
 - Do not create a second knowledge store or install retired v1 curators and
   drift hooks.
@@ -181,6 +184,7 @@ so they always know where they are.
   clone needs that command run once or its graph silently stops updating.
 
 **Gate 5: SOUL.md, CLAUDE.md, and the rules folder**
+
 - Ask whether the owner wants to create a root `SOUL.md`. Explain that it holds
   the agent's identity, communication style, defaults, and behaviors to avoid.
   If yes, work with the owner to write it. Do not install a fixed template or
@@ -224,9 +228,7 @@ so they always know where they are.
   `library/output-styles/plain-language.md` to `.claude/output-styles/` and set
   `"outputStyle": "plain-language"` in the committed `.claude/settings.json`.
   This is the only home for how Claude talks; there are no voice rules in
-  `.claude/rules/` any more. Pair it with the two Gate 2 style hooks:
-  `style-reminder` re-states it on every message, `writing-guard` checks the
-  finished reply. Offer
+  `.claude/rules/` any more. Offer
   the machine-wide copy at `~/.claude/output-styles/` as well if the owner wants
   this voice in every project. Say that it starts on the owner's next session,
   and that a helper agent never sees an output style, which is what
@@ -243,6 +245,7 @@ so they always know where they are.
   `thin-claudemd.md`.
 
 **Gate 6: Optional standalone toolkit skills**
+
 - Offer `session-skills` as ONE plugin holding five conversation skills:
   `explain-simply`, `grill-me`, `handoff`, `session-summary`, `track-tasks`.
   They install and version together, so this is a single yes or no.
@@ -278,6 +281,7 @@ so they always know where they are.
   considered "no".
 
 **Wrap-up**
+
 - Summarize done vs. skipped, including which folders got their own `CLAUDE.md`
   and which were skipped and why.
 - List follow-ups from skipped/deferred gates.

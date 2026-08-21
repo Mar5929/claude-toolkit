@@ -43,7 +43,7 @@ When I tell a session here to "remember" or "add" something, it doesn't just get
 written down somewhere. It gets fitted into the system:
 
 | What I bring | Where it lands |
-|---|---|
+| --- | --- |
 | A rule every project should follow (behavior, writing style, workflow) | Its own file in `library/rules/general/`, copied into each new project's `.claude/rules/` |
 | A rule that must hold in every repository on the machine, even ones I never set up | Its own file in `machine/rules/`, copied into `~/.claude/rules/` by the `machine-sync` skill. Only when a project rule genuinely cannot cover it, because that folder stays small |
 | A change to the voice Claude answers in, every turn | `library/output-styles/`, copied into each project's `.claude/output-styles/` and switched on in its settings. Use this only for something already written as a rule: a style is the short operative form, delivered where the session gets reminded of it each turn |
@@ -63,7 +63,7 @@ plugin marketplace**. One repo can hold many plugins; each plugin bundles skills
 (and later hooks/commands/agents where the host supports them).
 
 | Surface | How it consumes this repo | How it updates |
-|---|---|---|
+| --- | --- | --- |
 | **Claude Code** (Mac + Windows, every project) | `/plugin marketplace add Mar5929/claude-toolkit` once per machine, then `/plugin install project-init` | `/plugin marketplace update` (git-pulls) |
 | **Codex CLI / ChatGPT desktop Codex** | `codex plugin marketplace add /path/to/claude-toolkit`, then `codex plugin add <plugin>@claude-toolkit` | `codex plugin marketplace upgrade claude-toolkit`, then reinstall changed plugins |
 | **Claude Code**, no-plugin fallback | clone this repo, symlink `plugins/*/skills/*` into `~/.claude/skills/` | `git pull` |
@@ -146,13 +146,12 @@ claude-toolkit/
         pull-latest/              ← SKILL.md
         reset-to-remote/          ← SKILL.md
         merge-and-clean-up/       ← SKILL.md + Codex UI metadata
-    hooks-library/                ← plugin: hooks that check or re-deliver a rule
+    hooks-library/                ← plugin: hooks that check a moment mechanically
       README.md
       .claude-plugin/plugin.json
       .codex-plugin/plugin.json
       hooks/
-        style-reminder.mjs        ← re-states the output style every message
-        writing-guard.mjs         ← checks the finished reply before it is sent
+        spec-check-reminder.mjs   ← asks once per session whether spec-check ran
         no-ai-attribution-guard.mjs ← refuses a commit or PR that credits an AI
                                      (machine-wide; installed by machine-sync)
         guard-protected-orgs.js   ← confirms before a deploy hits a production org
@@ -160,7 +159,7 @@ claude-toolkit/
       templates/protected-orgs.json  ← the production guard's policy file
       salesforce-prod-guard-hook.md      ← install guide for the production guard
       salesforce-permset-guard-hook.md   ← install guide for the permset guard
-      tests/                      ← one harness per hook
+      tests/                      ← the attribution guard's harness
       skills/
         hooks-library/            ← SKILL.md (install, verify, remove)
     work-tracker/                 ← plugin: Git-native work status and handoffs
@@ -230,18 +229,18 @@ machine. What actually differs between them is whether a plugin needs anything
 inside a project folder before it is useful, which is what the last column says:
 
 | Label | Means |
-|---|---|
+| --- | --- |
 | Install and go | Nothing to set up. Install once on a machine and use it anywhere |
 | Sets up a project | Puts files in the repository. Each project opts in, usually through `project-init` or `project-sync` |
 | Wires into settings | Installs a hook by editing a settings file, on the machine or in the project |
 
 | Plugin | What it does | Setup |
-|---|---|---|
+| --- | --- | --- |
 | **[project-init](plugins/project-init/README.md)** | Sets up or syncs a project. It asks where work is tracked, carries the ticket rules into that tracker, offers work-tracker, and installs or safely migrates the portable `knowledge/` vault when selected. New Salesforce projects use `delivery/` for client-work artifacts while existing `engagement/` projects stay in place. It also ships Salesforce permission-set and dependency-graph tools. `machine-sync` installs the rules, settings, and hooks that must hold across the computer. | Sets up a project, and sets up a machine |
 | **[second-brain](plugins/second-brain/README.md)** | A portable `knowledge/` vault for Claude, Codex, Git, and optional Obsidian: project framing and a generated startup map, approved specifications, seven typed memory homes, project-specific tags, visible provenance, short meaning reviews, read-only health reports, raw brainstorms, four focused skills including read-only Claude Code session search, and safe migration from older layouts. | Sets up a project |
 | **[sf-architect-solutioning](plugins/sf-architect-solutioning/README.md)** | A Salesforce solution architect: pushes back on vague requirements, verifies platform facts against official docs by live fetch, designs declarative-first to Well-Architected standards, and presents a solution plan for approval before any build. Salesforce projects only. | Install and go |
 | **[git-workflows](plugins/git-workflows/README.md)** | Three parallel-session-safe git lifecycle skills: `pull-latest` gets current without rewriting history, `reset-to-remote` mirrors the remote behind confirmation, and `merge-and-clean-up` lands an approved PR before removing only its completed workspace. | Install and go |
-| **[hooks-library](plugins/hooks-library/README.md)** | Reusable hooks that make a rule land mechanically: `style-reminder` restores the active output style, `writing-guard` rejects an em dash or section sign in a finished reply, `no-ai-attribution-guard` refuses AI credit in Git text, and two Salesforce guards protect production and permission-set deploys. System-specific knowledge hooks ship with second-brain. | Wires into settings |
+| **[hooks-library](plugins/hooks-library/README.md)** | Reusable hooks that make a rule land mechanically: `spec-check-reminder` asks once per session whether the spec-check review ran, `no-ai-attribution-guard` refuses AI credit in Git text, and two Salesforce guards protect production and permission-set deploys. System-specific knowledge hooks ship with second-brain. | Wires into settings |
 | **[work-tracker](plugins/work-tracker/README.md)** | Gives Claude and Codex one Git-authoritative backlog with exact handoffs, blockers, typed relationships, deterministic next-item selection, Git landing proof, generated dashboards, and optional GitHub Issues and Projects synchronization. It recognizes root `work-items/`, new Salesforce `delivery/work-items/`, and existing `engagement/work-items/` without moving them. | Sets up a project |
 | **[session-skills](plugins/session-skills/README.md)** | The seven things you reach for inside one conversation, in one install. `braindump` plays a pasted brain dump back in very simple words and waits for your yes before any work starts. `explain-simply` says the last answer again as short bullets keeping every number, date, path, and name. `grill-me` interviews you one question at a time and writes every answer down before continuing. `handoff` saves what a long session learned, then writes a prompt a fresh session can start from, checked by a second agent first. `session-summary` tables what you asked for and gives each request an honest status. `track-tasks` keeps every still-open topic on the built-in task list. `spec-check` flags anything in a specification that could skew a build before the build starts. | Install and go |
 
@@ -280,17 +279,17 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
   or links a Project with the six standard statuses and repository issues
   labeled bug, enhancement, or task.
 - [x] **Shared hooks library**: now the `hooks-library` plugin.
-  `style-reminder` puts the project's output style back in front of Claude every
-  time I send a message, so the writing instructions are never stale hours into a
-  session. `writing-guard` reads the finished reply and blocks on an em dash or a
-  section sign, so a slip is caught rather than shipped. The guard was deleted in
-  #101 and brought back by #102, narrowed to those two characters; everything
-  needing judgement stays with the style, because a wrong block costs me a turn.
-  It also holds the two Salesforce guards, the production-org guard and the
+  `spec-check-reminder` asks once per session, at the first file edit, whether
+  the spec-check review has run, so building from a drifted specification is
+  caught as it starts. `no-ai-attribution-guard` refuses any commit or pull
+  request whose text credits an AI, on every repository on the machine. It also
+  holds the two Salesforce guards, the production-org guard and the
   permission set deploy guard, moved here by #126 so reusable hooks sit in one
   place. `project-init` Gate 2 offers those hooks and follows
   the two Salesforce guides. Second-brain keeps its startup and pull-request
   hooks with the knowledge system whose paths and messages they depend on.
+  The two per-message style hooks, `style-reminder` and `writing-guard`, were
+  removed in August 2026: the output style alone carries the voice now.
 - [x] **General rules library**: the standard rules are now individual files in
   `project-init`'s `library/rules/general/` folder (with a `README.md` index),
   copied

@@ -22,8 +22,6 @@ Those two halves meet in a single move: never silently build the bigger thing.
 Recommending it is right; building it unasked is gold-plating. Once the owner
 has made the call, do it their way.
 
-`steer-to-the-goal.md` is the companion: that rule is about finding and holding
-the right goal, this one is about the caliber of what you build to reach it.
 `ask-before-assuming.md` covers the neighbouring case of not guessing when
 intent is unclear.
 

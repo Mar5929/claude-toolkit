@@ -75,23 +75,23 @@ automatically as it grows.
     `library/rules/general/dependency-graph.md`)
   - the `work-tracker` plugin and any existing `delivery/work-items/`,
     `engagement/work-items/`, or root `work-items/` tree
-  - the `hooks-library` plugin and both general hooks, checked separately rather
-    than as one item: `style-reminder` (UserPromptSubmit) and `writing-guard`
-    (Stop). For each one, check `.claude/settings.json` for a registered entry
-    and `.claude/hooks/` for the copied script. Both pair with the output style
-    and do nothing useful without one, so audit them together and never report
-    either as installed when no style is selected. If the retired
-    `memory-pr-hook` plus `wrap-up-ritual.md` path remains, report it for removal
-    after the current project-knowledge package is installed
+  - the `hooks-library` plugin and its general hook, `spec-check-reminder`
+    (PostToolUse): check `.claude/settings.json` for a registered entry and
+    `.claude/hooks/` for the copied script. It points at the `spec-check` skill
+    from `session-skills`, so only audit it where that plugin is installed. If
+    the retired `memory-pr-hook` plus `wrap-up-ritual.md` path remains, report
+    it for removal after the current project-knowledge package is installed
   - a project still carrying the retired voice rules (`writing-and-language.md`,
     `how-to-reply.md`, `treat-owner-as-non-technical.md`,
     `define-your-terms.md`). All four were removed from the toolkit in favor of
     the output style. Report them, but see step 4 before touching any
-  - a project whose `writing-guard.mjs` predates #102. The old copy checks
-    filler openers by default and cites three rule files that no longer exist.
-    The current one checks the em dash and the section sign, leaves filler
-    openers off, and ignores anything inside a fenced block or a backtick span.
-    Offer the newer script
+  - a project still carrying the retired style hooks (`style-reminder` under
+    `UserPromptSubmit`, `writing-guard` under `Stop`, or their scripts and
+    `.claude/style-reminder.json` and `.claude/writing-guard.json` config
+    files). Both were removed from the toolkit in August 2026 as per-message
+    overhead, and the output style now stands alone. Report them for removal:
+    delete the settings entry, the script, and the config file, leaving every
+    other hook entry alone
   - a project whose `.claude/output-styles/plain-language.md` predates #102. The
     old copy is a flat bullet list, says "prefer lists and bullet points", and
     has no goal, no examples, and nothing about invented names or figures of
@@ -456,18 +456,16 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   project's existing voice. Never replace the file wholesale with the toolkit's
   text: that throws away every local adaptation the project made on purpose, and
   those adaptations are the reason the wording differs in the first place.
-- For an approved output style gap, do all four parts: copy the file from
-  `../../library/output-styles/` into `.claude/output-styles/`, set
-  `outputStyle` in the committed `.claude/settings.json`, and install both
-  `style-reminder` and `writing-guard` via `/hooks-library`. The style alone is
-  delivered once at session start and then goes stale; either hook alone does
-  nothing useful. If the owner already selected a different style, show them the
-  clash and let them choose rather than overwriting it. Say plainly that the new
-  voice starts on their next session, so they do not think it failed.
+- For an approved output style gap, do both parts: copy the file from
+  `../../library/output-styles/` into `.claude/output-styles/` and set
+  `outputStyle` in the committed `.claude/settings.json`. If the owner already
+  selected a different style, show them the clash and let them choose rather
+  than overwriting it. Say plainly that the new voice starts on their next
+  session, so they do not think it failed.
 - **For the retired voice rules, propose the swap, never a bare deletion.** A
-  project on the old setup has working guidance; removing it before the style is
-  in leaves the project with neither. Install and verify the style plus its two
-  hooks first, then offer to delete `.claude/rules/writing-and-language.md`,
+  project on the old setup has working guidance; removing it before the style
+  is in leaves the project with neither. Install and verify the style first,
+  then offer to delete `.claude/rules/writing-and-language.md`,
   `how-to-reply.md`, `treat-owner-as-non-technical.md`, and
   `define-your-terms.md`. Say the one remaining cost out loud so the owner is
   choosing with it in view: a helper agent still never sees an output style,
@@ -503,13 +501,6 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   Then offer removal of the obsolete hook registration, copied script, config,
   and rule as one reversible cleanup. Never leave two pull-request reminders
   active.
-- **An older `writing-guard` in a project is an upgrade, not a removal.** #101
-  retired the hook and #102 brought it back narrower, so a project that kept its
-  old copy was right to. Offer to replace the script with the current one and
-  say what changes: filler openers stop being checked by default, quoted text
-  stops counting, and the messages stop citing rule files that were deleted.
-  Leave `.claude/writing-guard.json` alone unless the owner wants its checks
-  changed.
 - For any approved project-knowledge gap, install or refresh the `second-brain`
   plugin first, then follow the state-specific path below. The packaged tool is
   the only writer for layout migration.

@@ -24,10 +24,8 @@ every other project receives.
 | `follow-the-output-style.md` | A helper agent never sees an output style, so anything it writes that the owner reads goes and reads the style file first. |
 | `ask-before-assuming.md` | Ask one specific question when intent or scope is ambiguous, and state the rough scope before an operation that reads or produces a lot. |
 | `offer-context-handoff.md` | When context is heavy and the next step is reasoning-heavy, offer a self-contained handoff prompt, after running the memory check. |
-| `steer-to-the-goal.md` | Find the real goal, name it early, hold it all session, push back when a request is aimed at the wrong target, and end every turn with the next step. |
 | `do-the-technical-work.md` | Do the git, config, and file work yourself. Hand over only the steps that are genuinely only-the-owner's. |
 | `spec-before-you-build.md` | Every piece of work is logged in the tracker before it is built, and nothing is built until a refinement session has filled in the six-part spec. `CLAUDE.md` names the tracker. |
-| `show-phase-progress.md` | When work splits into phases, print a one-line progress bar at every transition. |
 | `track-open-topics.md` | Keep every still-open topic in the session on Claude Code's built-in task list, from the moment a second one appears. Parked topics, unanswered questions, and blocked work all stay visible, and the list dying with the session is said out loud. |
 
 ## Rules this repo deliberately does not carry
@@ -50,18 +48,16 @@ was set up, skipped, or declined.
 ## Voice is not a rule
 
 How Claude writes lives in `.claude/output-styles/plain-language.md`, which is
-selected in `.claude/settings.json` and re-stated every message by the
-`style-reminder` hook. Do not add a writing rule to this folder. If Claude
-should say something differently, the change goes in the output style, and in
-the library copy at
+selected in `.claude/settings.json` and delivered in the system prompt. Do not
+add a writing rule to this folder. If Claude should say something differently,
+the change goes in the output style, and in the library copy at
 `plugins/project-init/library/output-styles/plain-language.md` in the same
 change.
 
-The `writing-guard` hook, which refused a finished reply containing an em dash
-or a section sign, is not run here any more. It worked, and the owner removed
-it on 2026-08-06 because of what refusing costs him: the refused reply is
-already on his screen when the hook fires, so the agent rewrites and he reads
-the same answer twice. That is the whole trade. The reminder every message is
-now the only thing holding the style, so follow it without being caught. The
-toolkit still ships the hook, and `.claude/toolkit-sync.md` records that this
-repository turned it off and why.
+This repo used to reinforce the style with two hooks. `writing-guard` refused a
+finished reply containing an em dash or a section sign; the owner turned it off
+here on 2026-08-06 because the refused reply was already on his screen, so he
+read the same answer twice. `style-reminder` re-stated the style on every
+message; the owner removed it later that month as per-message overhead for an
+instruction the harness already re-delivers. The toolkit no longer ships either
+hook, and `.claude/toolkit-sync.md` records the history.

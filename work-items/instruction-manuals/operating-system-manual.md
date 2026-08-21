@@ -252,10 +252,6 @@ the memory folder.
 Hooks are small programs that run automatically at set moments. You do not call
 them. They fire on their own.
 
-- `style-reminder` restates how to write, every message, so it does not fade
-  hours into a session.
-- `writing-guard` reads a finished reply and blocks it if it has an em dash or a
-  section sign.
 - `no-ai-attribution-guard` refuses any commit or pull request that credits an AI.
 - `spec-check-reminder` asks once, at the first file edit, whether the
   specification was checked.

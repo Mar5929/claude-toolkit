@@ -15,7 +15,7 @@ also needs something inside a project folder: **Install and go** needs nothing,
 project, and **Wires into settings** installs a hook by editing a settings file.
 
 | Plugin | Purpose | Skills | Install | Setup |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | [project-init](../plugins/project-init/README.md) | Put the toolkit's rules and systems into a project, new or existing, including the Salesforce delivery and knowledge boundary, and put machine-wide ones onto the computer itself | `project-init`, `project-sync`, `machine-sync` | `/plugin install project-init` | Sets up a project, and sets up a machine |
 | [second-brain](../plugins/second-brain/README.md) | Portable Git-native project knowledge with fixed properties, project-specific tags, visible provenance, short meaning reviews, read-only health reports, and separate read-only Claude Code session history shared by Claude, Codex, and optional Obsidian | `second-brain`, `remember`, `recall`, `cleanup`, `session-search` | `/plugin install second-brain` | Sets up a project |
 | [sf-architect-solutioning](../plugins/sf-architect-solutioning/README.md) | Salesforce solution architect: approved solution plan before any build | `sf-architect-solutioning` | `/plugin install sf-architect-solutioning` | Install and go |
@@ -27,7 +27,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 ## Skills at a glance
 
 | Skill | Plugin | Purpose | Trigger |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | project-init | project-init | Walk a NEW project through setup gates, including an optional owner-written `SOUL.md`, one skippable step at a time | `/project-init` |
 | project-sync | project-init | Audit an EXISTING project against the toolkit and close approved gaps | `/project-sync` |
 | machine-sync | project-init | Audit THIS COMPUTER's `~/.claude/` against the toolkit's machine-wide set and close approved gaps. Also the whole setup for a new computer | `/machine-sync`, "set up this machine from my toolkit" |
@@ -55,7 +55,7 @@ Rules, output styles, tools, templates, and the guides that install them all sit
 together in one folder, `plugins/project-init/library/`:
 
 | Folder | Holds |
-|---|---|
+| --- | --- |
 | `library/rules/general/` | the standard `.claude/rules/` files every project gets |
 | `library/rules/salesforce/` | the extra `.claude/rules/` files a Salesforce project gets |
 | `library/output-styles/` | the `.claude/output-styles/` files that set the voice |
@@ -95,7 +95,7 @@ this goes into the owner's own `~/.claude/` and applies to every repository on
 the machine, including ones nobody ever set up.
 
 | Folder | Holds |
-|---|---|
+| --- | --- |
 | `machine/rules/` | rule files that install to `~/.claude/rules/`, loaded in every project on the machine |
 | `machine/settings/required.json` | the settings values `~/.claude/settings.json` must carry, merged in key by key and never written over the file |
 
@@ -265,23 +265,18 @@ The genuine watch-items are called out at the end.
   stated once, in `spec-before-you-build`. A BMAD project meets them through
   BMAD's own requirements document and stories, never through a second
   `SPEC.md`.
-- **hooks-library versus the output style it enforces.** The style is canonical
-  and says what good writing is; `writing-guard` only catches the two characters
-  a machine can catch with no interpretation. They are not duplicates, and the
-  hook is not a licence to thin the style: it fires on the finished reply in the
-  main conversation, so it cannot shape a commit message, a document, or
-  anything a helper agent writes. Those are covered by the
+- **hooks-library versus the output style.** The style is canonical
+  and says what good writing is. The toolkit used to ship two hooks that
+  reinforced it: `style-reminder` re-stated the style on every message and
+  `writing-guard` blocked a finished reply over an em dash or a section sign.
+  Both were removed in August 2026 as per-message overhead, and the style now
+  stands alone, delivered in the system prompt. Neither hook could ever shape a
+  commit message, a document, or anything a helper agent writes; those are
+  covered by the
   `follow-the-output-style` rule and, for an agent that writes persistent files, by
-  the writing rules inside its own definition. The split that decides whether
-  something belongs in the hook is
-  once-per-decision versus once-per-message. "Never commit a secret" fires at
-  one point and holds on instruction alone. "No em dashes" fires on every
-  sentence, thousands of tokens after the rule was last read, and measurement
-  put it at one per 1.8 messages in the worst project. That second kind needs a
-  check. That once-per-decision test decides whether a rule needs a *check*
-  hook. It does not decide whether a hook is allowed at all: a hook may also
-  trigger a process agents forget or orient a session at its start, and neither
-  of those checks anything. The three jobs and their separate bars are in
+  the writing rules inside its own definition. A hook may still enforce a rule,
+  trigger a process agents forget, or orient a session at its start. The jobs
+  and their separate bars are in
   [`hooks-library`](../plugins/hooks-library/README.md).
 - **hooks-library versus project knowledge.** The general hook library owns
   reusable guards and reminders. Second-brain owns its two project-knowledge
@@ -337,10 +332,10 @@ The genuine watch-items are called out at the end.
   single-skill plugin whose packaging cost more than its instructions, and
   because the owner wants all six on every machine. Sharing a plugin does not blur what they do; the distinctions above
   still hold. What it costs is granularity: they install and version together.
-- **explain-simply versus the output style and the style-reminder hook.** The
-  output style sets how everything is written and the hook keeps it in front of
-  the assistant. `explain-simply` is the escape hatch for the times that was not
-  enough, on material that is technical by nature. It reads the active output
+- **explain-simply versus the output style.** The
+  output style sets how everything is written. `explain-simply` is the escape
+  hatch for the times that was not enough, on material that is technical by
+  nature. It reads the active output
   style before writing, so it plainly restates rather than switching voice.
 - **handoff versus the second-brain pull-request reminder.** Same job at two different moments, solved
   two different ways, and the difference is not a preference. `gh pr create` is
@@ -378,7 +373,7 @@ The genuine watch-items are called out at the end.
   `offer-context-handoff` prepares the next session, `work-item-folders` owns a
   Git-based work-item structure, `where-persistent-information-belongs` routes
   active work, rules, skills, specifications, memory, references, and session
-  history, and `steer-to-the-goal` preserves direction beyond one chat. The
+  history. The
   second-brain skills own the approved completion review. The placement rule is
   the standing obligation the others assume: work stays with its item,
   persistent information gets one home, and nothing important lives only in a
@@ -389,7 +384,7 @@ The genuine watch-items are called out at the end.
   what keeps CLAUDE.md from absorbing all three.
 - **Voice is not a rule any more.** How Claude writes and replies was four
   rule files, then three, and is now none. It lives in the `plain-language`
-  output style, reinforced every turn by the `style-reminder` hook. The path
+  output style alone, delivered in the system prompt. The path
   there was one long consolidation: `lead-with-the-answer`,
   `close-with-the-ask`, `quiet-while-working`, and `answer-last-question-box`
   merged into `how-to-reply`; then `how-to-reply`, `writing-and-language`, and
@@ -397,18 +392,18 @@ The genuine watch-items are called out at the end.
   is delivery, not content. A rule file is read once at session start, and
   measuring real sessions showed the voice rules were the most-broken in the
   library: em dashes once per 1.8 messages, staying quiet and closing with the
-  next step broken in 56 to 60 percent of turns. An output style is delivered in
-  the system prompt and re-stated on every message by the hook.
-  `show-phase-progress` remains the one deliberate exception, and its one-line
-  bar is exactly the mid-work budget the style allows. `steer-to-the-goal` still
-  adds its own distinct constraint on top. `define-your-terms` was the fourth
+  next step broken in 56 to 60 percent of turns.
+  `define-your-terms` was the fourth
   rule to go, folded into the style by #102.
-  **The two known costs, and what became of them.** Nothing checked a finished
-  reply once `writing-guard` was deleted, which was accepted on a stated
-  condition: bring the check back if em dashes returned. #102 restored it,
-  narrowed to the em dash and the section sign, with every judgement call left
-  to the style. The other cost stands: an output style never reaches a helper
-  agent. It is now handled twice over rather than fixed, since it cannot be
+  **The per-message enforcement, and what became of it.** Two hooks used to
+  reinforce the style: `style-reminder` re-stated it on every message, and
+  `writing-guard` blocked a finished reply containing an em dash or a section
+  sign. The owner removed both from the toolkit in August 2026: the reminder
+  repeated an instruction the harness already re-delivers, and the guard's
+  rewrite meant he read every refused reply twice. Expect the violations the
+  guard caught to return; that is the accepted trade, not a surprise. The cost
+  that stands is the one the hooks never touched: an output style never reaches a helper
+  agent. It is handled twice over rather than fixed, since it cannot be
   fixed at this level. `follow-the-output-style` tells a helper agent to read
   the style file before writing anything the owner will read, and an agent that
   writes something the owner reads carries the rules in its own definition,

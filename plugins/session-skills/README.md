@@ -15,7 +15,7 @@ files, and only where you approve it.
 ## The seven
 
 | Skill | Command | Reach for it when |
-|---|---|---|
+| --- | --- | --- |
 | braindump | `/braindump` | You pasted a loose brain dump and want it played back in simple words before any work starts |
 | explain-simply | `/explain-simply` | An answer did not land and you want it again in plain bullets |
 | grill-me | `/grill-me` | A plan or design is half-formed and you want it pulled out of your head |
@@ -223,7 +223,7 @@ honest status, then pulls anything that still needs you into its own block below
 First, the table. One row per request, in the order you asked:
 
 | # | What you asked | Status | Where it landed |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | 1 | Fix the login timeout on staging | ✅ **Done** | Session cookie lifetime corrected in `auth/session.ts`, deployed to staging. |
 | 2 | Add a retry to the payment webhook | ⏳ **Partly done** | Retry is in. The dead-letter queue for repeated failures is still open. |
 | 3 | Why does the nightly job run twice? | 💬 **Answered** | Two cron entries exist, one left over from the old deploy. |
@@ -247,7 +247,7 @@ made? If not, it belongs to that request.
 ### The status words
 
 | Status | Written as | Means |
-|---|---|---|
+| --- | --- | --- |
 | Done | ✅ **Done** | Finished, and checked |
 | Done, unverified | ⚠️ **Done, unverified** | Finished, but not tested or confirmed |
 | Partly done | ⏳ **Partly done** | Some landed, and what is left is named |
@@ -406,9 +406,6 @@ through the `outputStyle` setting in `.claude/settings.local.json`, then
 `.claude/settings.json`, then `~/.claude/settings.json`. So their output sounds
 like the rest of the project rather than like a different assistant. With no
 output style installed, their own rules are enough.
-
-Pairs with `hooks-library`, whose `style-reminder` hook keeps that same output
-style in front of the assistant on every message.
 
 ## Maintaining this plugin
 
