@@ -1,248 +1,272 @@
 ---
 name: remember
 description: >-
-  Decide where persistent information belongs and save approved specification or
-  memory changes under knowledge/. Use when the owner says remember, save,
+  Decide where persistent information belongs and save approved memory or
+  specification files under knowledge/. Use when the owner says remember, save,
   capture, or write this down; before a pull request opens; before a handoff or
-  context reset; or at another settled completion point. Check the current work
-  item, rules, skills, specifications, memory, and references before proposing
-  anything. Show short What, Where, Why, Assumptions, and Unverified bullets,
-  then write only the meaning the owner approves.
+  context reset; when a work item finishes; or at another settled completion
+  point. Search what already exists before proposing anything. Show short What,
+  Where, Source, Tags, and Assumptions bullets, then write only what the owner
+  approves.
 ---
 
 # remember
 
-This skill is the complete portable save workflow; an adopting project needs
-no other file. The design authority behind it is the toolkit repository's own
-`knowledge/specs/memory-system.md`, which stays in the toolkit and is not
-installed into projects.
+The complete save workflow. An adopting project needs no other file.
 
-## Start with every possible owner
+The design authority behind this skill is the toolkit repository's own
+`knowledge/specs/knowledge-system.md`, which stays in the toolkit and is never
+installed into a project.
 
-Read, in order:
+Nothing is written without approval. No hook, background job, or helper agent
+writes on its own. That is what makes what is saved worth trusting.
 
-1. `knowledge/project.md`;
-2. `knowledge/index.md`;
-3. wherever the current work item is being tracked;
-4. the relevant current rule, skill, specification, memory, or reference; and
-5. the project's always-loaded instructions.
+## 1. Search before drafting
 
-The owner installs Obsidian tools on his machines outside this toolkit: an
-Obsidian MCP server (tools named `mcp__obsidian__*`) and the
-`kepano/obsidian-skills` skills. When they are present, use them to find, read,
-and search existing notes. Reading and searching only: every write follows the
-fixed file shapes below, with ordinary relative Markdown links and `.md`
-extensions, never Obsidian-only wikilinks, embeds, or extra properties, even
-when an Obsidian skill recommends them. The tools are optional; everything here
-works without them.
+Go down the find ladder and stop at the first tier that answers:
 
-Search before drafting. An open or closed external work item may already own a
-ticket-specific decision. A current file may already own a rule, procedure,
-behavior, fact, or source. Update or link to that owner instead of creating a
-second copy.
+1. `knowledge/current.md`. What is happening now.
+2. `.claude/rules/`. It may be a standing instruction, not a fact.
+3. Skills. It may be a procedure rather than something to look up.
+4. `knowledge/memory/memory-index.md` and `knowledge/specs/spec-index.md`, then
+   the files themselves, then the links inside what you find.
+5. The work tracker. An open or closed work item may already own the decision.
 
-Before choosing memory tags, run the read-only project vocabulary view:
+**If a current file already says it, name that file and write nothing.** Closing,
+or living outside the repository, is not a reason to create a second copy. Two
+files saying the same thing drift apart, and then neither can be trusted.
 
-```text
-node .claude/tools/knowledge-health.mjs tags --json
-```
+Where the owner has Obsidian tools installed (an Obsidian MCP server with
+`mcp__obsidian__*` tools, or the `kepano/obsidian-skills` skills), use them to
+find, read, and search. Reading and searching only. Every write follows the file
+shape below with ordinary relative Markdown links and `.md` extensions, never
+Obsidian-only wikilinks, embeds, or extra properties, even when an Obsidian skill
+recommends them. The tools are optional and everything here works without them.
 
-Read the complete project-specific vocabulary and usage counts yourself. Do not
-show the owner an unrelated wall of tags. Mention a tag only when the proposal
-adds, removes, renames, or changes the meaning of one.
+## 2. Test whether it should be saved
 
-## Test whether anything should persist
+Seven questions. The first four decide whether it should exist. The last three
+decide whether it is safe to write. Ask all seven.
 
-Persistent project information is a stable fact, lasting event, decision, or
-state that prevents the owner from repeating an explanation or a future agent
-from taking the same wrong action.
+**Should it exist?**
 
-Ask these four questions:
+1. **Is it a lasting fact, decision, event, or state?** How hard it was, how new
+   it felt, how much work it took, and how long it was discussed do not count.
+2. **Did the project change, or did the agent just do work?** What the agent did
+   is not project history. What it changed about the project might be.
+3. **Will it still be true in six months?** A fact that goes out of date is worse
+   than no fact, because a future agent will believe it.
+4. **If it is missing, does the owner have to explain it again, or does a future
+   agent get it wrong?** If neither, it is not needed.
 
-1. **Will it still matter after the current task or session?** If not, keep it
-   wherever the work item is being tracked or in the handoff.
-2. **Is it a stable fact, lasting event, decision, or state?** Difficulty,
-   novelty, and conversation length are not enough.
-3. **Does a current work item, rule, skill, specification, memory, or reference
-   already own it?** If yes, update or link to that home. Do not copy it.
-4. **Would leaving it out cause a repeated explanation or the same wrong
-   action?** If not, do not create project knowledge.
+**Is it safe to write?**
 
-Continue only when questions 1, 2, and 4 are yes and question 3 has been
-resolved through the existing owner or a genuinely new home.
+5. **Can this be found or worked out from what is already there?** If yes, link
+   to it. Never write a second copy. Two files from genuinely different sources
+   are two pieces of evidence, not a copy.
+6. **Can it say where it came from and where to go check it?** If not, it does
+   not get written.
+7. **Could a future agent read this as meaning more than it does?** Something
+   true in one narrow case, written loosely, gets read as a general rule and
+   followed. Tighten the wording or do not save it.
 
-## Decide where it belongs
+**When unsure, do not save.** Not saving costs one missed note. Saving carelessly
+makes everything else less trustworthy. The owner can always say "remember this."
 
-Use the project's `where-persistent-information-belongs.md` rule when present.
-This is the portable fallback:
+## 3. Decide where it belongs
 
-- **Wherever the work item is being tracked:** its goal, reason, requirements,
-  scope, edge cases, decisions, progress, blockers, assignments, and next step.
-- **Rules:** standing instructions for how agents behave or work.
-- **Skills:** reusable processes agents should follow across tasks or projects.
-- **`knowledge/specs/`:** approved product or system behavior beyond one work
-  item.
-- **`knowledge/memory/context/`:** persistent circumstances, stakeholders,
-  boundaries, and outside constraints.
-- **`knowledge/memory/decisions/`:** persistent choices and the reasons that
-  prevent reversal or repeated debate.
-- **`knowledge/memory/domain/`:** project-specific terms and business rules.
-- **`knowledge/memory/knowledge/`:** non-obvious project conclusions that
-  prevent repeated mistakes or investigation.
-- **`knowledge/memory/operations/`:** project-specific operating, release, or
-  recovery procedures. A reusable agent process belongs in a skill instead.
-- **`knowledge/memory/planning/`:** persistent direction, roadmap, milestones,
-  risks, and assumptions beyond one work item.
-- **`knowledge/memory/references/`:** outside source material and what it
-  supports.
-- **`knowledge/brainstorms/`:** raw exploration only. It is not a save and does
-  not become truth merely because it exists.
-- **Session history:** past conversation that is useful only as history.
+| The question | Where it goes |
+|---|---|
+| Who the agent is in this project | `SOUL.md` |
+| A standing instruction for how agents behave | `.claude/rules/` |
+| A repeatable procedure for a kind of work | A skill |
+| How the system is meant to work, once settled | `knowledge/specs/` |
+| A lasting fact, decision, event, or piece of context | `knowledge/memory/` |
+| What is being worked on right now | `knowledge/current.md` |
+| A work item's requirements and status | The work tracker |
+| Only needed to finish the task at hand | Nowhere |
 
-If the right home is a work item, rule, or skill, say so and follow the
-project's normal work process. Do not create memory as a temporary substitute.
-This skill writes only approved specification and memory changes.
+**A procedure is not a memory.** If it is a repeatable way of working, say so and
+propose a rule or a skill. Follow the project's normal work process to build it.
+Do not save it as memory as a temporary substitute. This skill writes memory and
+specification files only.
 
-External material belongs in `references/`. A conclusion drawn for this project
-belongs in `knowledge/`. When both independently pass the persistent test,
-propose them as separate items. Never mix unchecked research into an approved
+**A specification beats a memory.** Once behavior is settled it belongs in
+`knowledge/specs/`. A memory may explain the history and point at it.
+
+Raw exploration stays in `knowledge/brainstorms/` and is not a save. Outside
+source material and a conclusion drawn from it are two separate items when both
+pass the test on their own. Never mix unchecked research into an approved
 decision.
 
-Secrets and private personal information never go in the vault.
+**Secrets and private personal information never go in knowledge.** This folder
+is in Git and Git keeps everything.
 
-## Use the fixed file shapes
+## 4. Use the file shape
 
-Every memory starts with only these fields:
+`knowledge/memory/` is flat. One file per topic. The filename is the topic in
+plain words: lowercase, hyphen-separated, ending `.md`. Not a date, not a code,
+not a ticket number.
+
+Nine required fields:
 
 ```yaml
 ---
-source: owner-paraphrase
-date: 2026-08-12
-session: 6ef7ee24-1f50-4d7b-b9b3-2e007d86bc2e
-tags:
-  - project-subject
+summary: One sentence saying what this file tells you.
+type: decision
+status: current
+source: Mike said it in the 2026-08-21 session about the migration
+confidence: reported
+created_at: 2026-08-21
+tags: [migration, contact, salesforce]
+approved_by: Mike Rihm
+approval_date: 2026-08-21
 ---
 ```
 
-- `source:` is exactly `owner-quote`, `owner-paraphrase`, `read-from-file`,
-  `agent-observed`, or `agent-conclusion-unchecked`. Use `owner-quote` only for
-  verbatim words. A faithful rewrite is `owner-paraphrase`.
-- `source-file:` is the exact repository path, present only for
-  `read-from-file`.
-- `date:` is the save or last-change date as `YYYY-MM-DD`.
-- `session:` is a retrievable session reference, never a transcript copy. The
-  knowledge session-start hook prints "This session's id is ..." at the top of
-  the session; write that id here. Use `unavailable` only when no id was
-  printed (a Codex session, for example, does not run the hook). Never guess
-  one or search transcripts for one.
-- When adding to an existing memory from a new session, leave the file-level
-  `session:` field alone; it belongs to the session that created the file.
-  Name the new session in the `Claim source:` marker on the new sections only.
-- `tags:` is a YAML list of one to three project subjects from
-  `knowledge/memory/tags.md`. The folder owns memory type and `source` owns
-  trust, so tags duplicate neither. A new project starts with its own empty
-  vocabulary, not the toolkit repository's tags.
-- `superseded-by:` appears only on retained history.
+- `type` is `fact`, `decision`, `event`, `context`, or `constraint`. It records
+  what kind of thing this mostly is. It does not decide where the file sits.
+- `status` is `current`, `superseded`, or `retired`. Only `current` answers
+  questions about what is true now.
+- `source` says where it came from and where to go check it: a file path, a
+  commit, a link, or the name of the person who said it.
+- `confidence` is `observed` (the agent checked it), `reported` (someone said
+  it), or `inferred` (the agent worked it out). Something inferred stays inferred
+  until somebody checks it. Never promote it because time has passed.
+- `tags` are free-form. There is no fixed list and no vocabulary file. Use as
+  many as the file needs.
 
-Those six names are the complete property vocabulary. Never invent a field
-silently. If claims in one file come from different sources, mark the affected
-claims in the body so the file-level source does not give them false confidence.
-Use this adjacent marker consistently:
+Optional, written only when they apply: `confirmed_at` (the last time someone
+checked it is still true), `source_quote`, `effective_from`, `effective_to`,
+`project`, `work_item`, `supersedes`, `superseded_by`, `related_memories`.
 
-```text
-> Claim source: read-from-file; path/to/source.md
-```
+Below the frontmatter, a title in plain words, then what is true, written so
+someone reading it a year from now understands it without the conversation that
+produced it. Links are plain relative file paths in the body.
 
-Replace the source value and trace after the semicolon as needed. The marker
-belongs directly above the claim it qualifies.
+A specification file uses the same fields minus `confidence` and `type`, plus
+`area` naming the process or function area it covers. A specification never
+restates the production code: nothing goes in it that an agent could work out by
+reading the source.
 
-Then add a descriptive H1 and one-sentence summary. Use lower-case hyphenated
-file names. A specification has the same H1 and summary but no YAML.
-
-## Show a short meaning review
-
-For each separately routed item, show only this short group first:
+If different claims in one file come from different sources, mark the affected
+claim in the body so the file-level `source` does not lend it false confidence:
 
 ```text
-1. <plain name>
-   - What: <meaning that may be added, changed, moved, or removed>
-   - Where: <current or proposed home>
-   - Why: <repeated explanation or wrong action this prevents>
-   - Assumptions: <every assumption, or None>
-   - Unverified: <every unchecked claim, or None>
+> Claim source: read from plugins/second-brain/tools/build-knowledge-index.mjs
 ```
 
-Keep every path, number, date, and name needed to make the decision. Include a
-new tag and its plain meaning, a source change, a missing trace, or a metadata
-change inside `What`, `Assumptions`, or `Unverified` when it needs approval.
-Do not show unrelated tag counts or metadata.
+## 5. Show the approval bullets
 
-The owner may keep, change, or skip each item. No reply means no write. When
-nothing qualifies, say so in one line and continue the handoff, pull request,
-or completion flow.
+One group per file. Write nothing until the owner answers.
 
-Do not show full file text, frontmatter, or a full diff unless the owner asks.
-Asking to see full text is not approval. Show it in chat or in a working-branch
-file, then wait for keep, change, or skip.
+```text
+1. <plain name of the thing>
+   - What: <what it says, three sentences at most>
+   - Where: <exact file path, and whether it is new or an update>
+   - Source: <where the fact came from, and observed, reported, or inferred>
+   - Tags: <the tags, and anything else about how it is being filed>
+   - Assumptions: <everything assumed, guessed at, or unchecked, or None>
+```
 
-Approval covers the meaning in the five bullets. It does not permit extra
-claims, sources, assumptions, reasoning, examples, or background. Draft only
-the approved meaning and the file structure needed to store it. If drafting
-requires anything new, stop and show a revised short proposal.
+**What the owner approves is What and Source.** The other three are shown so he
+can see how it is being filed, and he may change any of them.
 
-Creating, editing, merging, moving, superseding, and removing use the same
-review. For a merge, move, or removal, `What` says what becomes current and
-what stops being current.
+- **Assumptions get approved separately from the content.** If he approves the
+  content but not an assumption, the assumption comes out and the file is written
+  without it.
+- **Silence is not approval.** No answer, an unclear answer, or asking to see the
+  full text all mean nothing gets written. Asking to see the text is not
+  approval.
+- **Write only what was approved.** Not the surrounding context, not an improved
+  version, not one extra sentence that seemed useful. If drafting needs anything
+  new, stop and show a revised proposal.
+- **When the owner edits the words, his words are written exactly as typed**, with
+  no argument and no further checking. He is the source.
 
-## Finish an approved save
+Keep every path, number, date, and name needed to make the decision. Do not show
+full file text unless asked.
 
-1. Write only the approved meaning and required file structure.
-2. Repair any relative Markdown links affected by the approved change.
-3. Run:
+Creating, updating, merging, moving, superseding, and removing all use this same
+review. For a merge, move, or removal, `What` says what becomes current and what
+stops being current.
+
+## 6. Finish the save
+
+1. Write only the approved meaning and the required file structure.
+2. Repair any relative links the change affected.
+3. Run both:
 
    ```text
    node .claude/tools/build-knowledge-index.mjs
-   node .claude/tools/knowledge-health.mjs health --focus <changed-path> --json
+   node .claude/tools/check-knowledge.mjs
    ```
 
-4. Report the paths written, moved, or removed and anything the owner skipped.
-   Run the focused health command once for each changed memory or specification.
-5. Show only concrete health warnings tied to the changed files or proposed
-   tags. Finish the approved save first, then offer a focused cleanup review.
-   Never silently expand the approved change.
+4. Report the exact paths written, moved, or removed, and anything the owner
+   skipped.
 
-For a move or deletion, also focus the old path. This includes memories that
-still point to a path that no longer exists.
+If a write, the index build, or the check fails, the save is unfinished. Report
+the failure with its output. Never continue as though it saved.
 
-If writing or index generation fails, the save is unfinished. Report the
-failure. Do not merge as though persistent information was saved.
+## Updating, superseding, retiring, deleting
+
+**Never just add.** Check whether a file on this topic already exists first.
+
+**Update** when the new information agrees and adds to it. Edit the file, set
+`confirmed_at` to today, note what changed. No new file.
+
+**Supersede** when the new information contradicts it and the new information is
+right. Three steps, together or not at all:
+
+1. Write the new file with `supersedes` pointing at the old one.
+2. On the old file set `status: superseded` and `superseded_by` to the new path.
+3. Search for the old filename and fix anything still treating it as current.
+
+The old file stays. Often the fact that something changed is the useful part.
+
+**Retire** when a file no longer applies but its history matters. Set
+`status: retired`.
+
+**Delete** only for a copy made by mistake, a secret that should never have been
+written, or something that was never true. Say which one out loud. Something that
+stopped being true is superseded or retired, never deleted.
+
+**Being old is never a reason to retire something.** Written two years ago and
+still true means still true.
 
 ## When this runs
 
-- the owner asks to remember or save something;
-- a pull request is about to open;
-- a session is about to hand off or clear context; or
-- another natural completion point has a settled persistent result.
+- The owner says remember, save, capture, or write this down.
+- A pull request is about to open.
+- A work item finishes.
+- A session is about to hand off or clear context.
+- Another natural completion point with a settled result.
 
-Do not run it after every message, commit, or small fix. One review may cover
-several nearby completion moments when the result has not changed.
+Not after every message, commit, or small fix. One review may cover several
+nearby completion moments when the result has not changed.
+
+The owner saying "remember this" starts this review. It is not permission to
+write and it skips no step.
 
 ## Edge cases
 
-- Nothing passes the test: say so in one line and write nothing.
-- The item is already owned: name the owner in one line and do not copy it.
-- The home is unclear: show separate candidate routes with their assumptions.
-  Do not guess.
-- One review contains different kinds of information: split them into separate
-  five-bullet groups with separate approval choices.
-- A closed or external work item owns the decision: link or update it. Closing
-  or living outside the repository is not a reason to create memory.
-- Full text is requested: show it, then wait for approval.
-- Current files conflict: show the exact conflict and change neither.
-- Saved knowledge conflicts with code or observed behavior: show both.
-- The owner skips everything or does not reply: write nothing and keep no queue.
-- An agent-derived claim remains unchecked: keep it visibly
-  `agent-conclusion-unchecked` until the owner confirms it.
-- An older source value appears: include the proposed replacement in `What` and
-  wait. Never silently relabel existing persistent information.
-- The index is stale: source documents win; rebuild it.
+- **Nothing passes the test.** Say so in one line and write nothing.
+- **A current file already owns it.** Name that file in one line and do not copy.
+- **The home is unclear.** Show the candidate routes with their assumptions. Do
+  not guess.
+- **One review covers different kinds of information.** Split into separate
+  groups with separate approval choices.
+- **Full text is requested.** Show it, then wait for approval. Showing is not
+  approving.
+- **Two current files conflict.** Show the exact conflict and change neither.
+- **Saved knowledge conflicts with the code or observed behavior.** Show both and
+  say they disagree. Do not silently prefer one.
+- **A memory conflicts with a current specification.** The specification wins for
+  what is true now. Say so and name both.
+- **The owner skips everything, or does not reply.** Write nothing and keep no
+  queue for later.
+- **A claim is a guess.** Show it, marked `inferred`, and let the owner decide.
+  Keep it `inferred` until somebody checks it.
+- **What is being saved is really live work status.** Route it to the work
+  tracker or `knowledge/current.md`, not to memory or a specification.
+- **The index is stale.** The source files win. Rebuild it.
