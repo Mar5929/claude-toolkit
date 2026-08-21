@@ -46,7 +46,23 @@ A major responsibility of the operating system is helping the agent understand *
 
 Suppose we are four months into a Salesforce implementation, and I tell the agent "for the migration we are going to need to create a custom field on contact to retain the original created date rather than preserve the Salesforce created date."
 
-## Types of memories
+## Key Principles of the second brain system
+
+### Specifications Are Authoritative; Memory Provides Context
+
+The memory system and the specification system serve different purposes.
+
+**Memory tells the agent what has happened, what has been learned, what context matters, and what decisions were made.**
+
+**Specifications tell the agent how the system is intended to work.**
+
+When a feature, workflow, architecture, behavior, or interface has been finalized, its authoritative definition should be persisted in the specification system rather than existing only as a memory.
+
+Memory may reference or explain the history behind a specification, but it should not become a competing source of truth for finalized system behavior.
+
+If memory and an active specification disagree, the system should recognize that conflict rather than blindly treating both as equally valid.
+
+## Types of memory
 
 **Short-term memory is where the work is right now.** One file,
 `knowledge/current.md`. It says what is being worked on, what is blocking it, and
@@ -56,22 +72,16 @@ new agent reads it and carries on without the earlier conversation.
 **Long-term memory is what stays true after the work is done.** A folder of
 Markdown files, `knowledge/memory/`.
 
-Episodic Memory: Records specific past events, interactions, or time-stamped experiences (e.g., "what happened during last Tuesday's deployment").
-Semantic Memory: Stores factual, generalized knowledge and constant truths independent of single events (e.g., "this user prefers Python and concise answers").
-
 The difference is not how old something is. It is whether it survives the work
 finishing. "We are halfway through moving the data" is short-term. "The move has
 to run in this order or it fails" is long-term.
 
-### The Memory Model
-
-The operating system should use a clear memory model so that agents do not treat every piece of context as the same kind of knowledge.
-
-A useful model, borrowed from cognitive science and increasingly used in AI-agent systems, distinguishes **working memory, semantic memory, episodic memory, and procedural memory**.
-
-These categories describe **what kind of knowledge something is**. They do not require every category to live in the same physical memory folder.
-
-In this operating system, that distinction is important: some forms of durable agent knowledge belong in the persistent memory base, while others belong in skills, rules, specifications, or native agent instructions.
+Long-term memory comes in a few kinds, borrowed from cognitive science: working
+memory, semantic memory, episodic memory, and procedural memory. These categories
+describe **what kind of knowledge something is**. They do not require every
+category to live in the same physical folder. Some forms of durable agent
+knowledge belong in the persistent memory base, while others belong in skills,
+rules, specifications, or native agent instructions.
 
 ---
 
@@ -206,7 +216,7 @@ Examples include:
 - reusable task recipes;
 - learned skills.
 
-Procedural memory is a valid category of agent memory conceptually, procedural memory should never be stored in the knowledge or specification system. These are stored as rules or skills for the AI agent!!!!!
+Procedural memory is a valid category of agent memory conceptually, procedural memory should never be stored in the knowledge or specification system. **These are stored as rules or skills for the AI agent!!!!!**
 
 - durable behavioral requirements belong in **Rules** or native agent instructions;
 - reusable procedures belong in **Skills**;
@@ -242,6 +252,40 @@ changes how it works.
 answers "how does this work." A memory can explain the history and point at it.
 When a memory and a current specification disagree, say so out loud. Do not
 quietly pick one.
+
+## What a spec file looks like - The Schema
+
+One file per process/function area of the software. The files can be related to other process areas.
+
+The filename is the process/function area, in plain words.
+
+```markdown
+Spec Schema
+
+id:
+summary: One sentence saying what this file tells you.
+area: 
+status:
+source: where this came from, where to check it out
+source_quote:
+created_at:
+effective_from:
+effective_to:
+entities:
+tags: [tag-one, tag-two, tag-three...]
+project:
+work_item:
+supersedes:
+superseded_by:
+approved_by:
+approval_date:
+
+
+# Title - Plain Words
+
+What is true, written so someone reading it a year from now understands it
+without the conversation that produced it.
+```
 
 ## What a memory file looks like - The Schema
 
@@ -345,27 +389,24 @@ makes everything else in the folder less trustworthy. The owner can always say
 
 ### What never goes in memory
 
-Tool calls, searches, and commands run. Rough thinking. Ideas that were tried and
-dropped. Ordinary test and compiler errors. Files opened. A blow-by-blow of
-edits. Chit-chat. Copies of code or specifications that already exist. Live
-status of current work. Passwords, keys, and tokens, ever, because this folder is
-in Git and Git keeps everything.
-
-Memory Must Be Protected From Pollution
-
 The system should aggressively avoid storing transient or low-value information.
+None of this becomes durable memory:
 
-Examples of things that generally should **not** become durable memory include:
-
-- individual tool calls;
-- routine web searches;
-- temporary implementation steps;
-- scratchpad reasoning;
-- intermediate hypotheses that were later abandoned;
-- conversational filler;
-- every action performed by a sub-agent;
-- low-level execution details that have no lasting relevance;
-- procedural instructions that actually belong in a rule or skill.
+- Tool calls, searches, web lookups, and commands run.
+- Rough thinking and scratchpad reasoning.
+- Ideas or hypotheses that were tried and dropped.
+- Temporary implementation steps and low-level execution details with no lasting relevance.
+- Ordinary test and compiler errors.
+- Files opened, and a blow-by-blow of edits.
+- Every action performed by a sub-agent.
+- Chit-chat and conversational filler.
+- Copies of code or specifications that already exist. Never save something an agent could work out by reading the production code.
+- A procedure that belongs in a rule or a skill.
+- Authoritative system behavior that belongs in a specification.
+- An open task or implementation step that belongs in work-item tracking.
+- Live status of current work.
+- Anything stale, superseded, or contradicted with no historical value.
+- Passwords, keys, and tokens, ever, because this folder is in Git and Git keeps everything.
 
 ### Other Info about whether or not memory should be stored
 
@@ -384,41 +425,101 @@ Information is a good candidate for long-term memory when one or more of the fol
 - it is difficult to reconstruct reliably from existing authoritative artifacts;
 - it connects other important knowledge in a way that improves future understanding.
 
-Information should generally **not** be promoted when:
+Anything that fails these tests, or that appears in the "What never goes in
+memory" list above, should not be promoted.
 
-- it is only needed to finish the current task;
-- it is a raw tool call, command, search, or execution trace;
-- it is conversational filler;
-- it is an unverified hypothesis;
-- it is an intermediate implementation detail with no future value;
-- it duplicates information that is already authoritative and easy to retrieve;
-- it is a procedure that belongs in a rule or skill;
-- it is authoritative system behavior that belongs in a specification;
-- it is simply an open task or implementation step that belongs in work-item tracking;
-- it is stale, superseded, or contradicted without historical value;
-- it is sensitive information that should not be retained.
+### Memory Should Consolidate, Not Merely Accumulate
 
-## When to store
+A healthy memory system should not behave like an append-only transcript.
 
-**Never break off what you are doing to save something.** Keep a quiet list while
-you work and say nothing about it.
+As knowledge grows, the system should be able to recognize:
 
-**Offer the list at a stopping point.** There are four:
+- duplicates;
+- overlapping facts;
+- contradictions;
+- changed preferences;
+- superseded decisions;
+- repeated episodes that imply a broader pattern;
+- memories whose value has expired.
+
+New information should be reconciled with existing knowledge rather than blindly added beside it.
+
+Depending on the situation, the correct action may be to:
+
+- create a new memory;
+- enrich an existing memory;
+- link related memories;
+- merge duplicates;
+- supersede an older memory;
+- retire stale knowledge;
+- preserve an old memory for historical context;
+- delete information that was simply wrong or never should have been retained.
+
+The goal is not to maximize the number of memories.
+
+The goal is to maintain a **small, trustworthy, connected body of durable knowledge** that improves future reasoning.
+
+## How to invoke the memory process
+
+Human users can use the /remember skill to initiate the process and tell the agent that the human wants to persist the valuable memories from the chat session into the second brain.
+
+## When to store memories and specs
+
+### Memories should be stored at natural stopping points, such as the ones below
 
 - when a task or work item finishes
-- before a commit or pull request
-- before a handoff or before clearing context
+- before a commit or pull request (need a hook to remind the agent for this)
+- before a handoff or before clearing context (there should be an instruction in the /handoff skill to remind the agent to invoke the /remember process)
 - when the session has run long
 
-**The owner can say "remember this" at any time.** That starts the review below.
+**The owner can say "remember this" at any time or use the /remember skill.** That starts the review below.
 It is not permission to write. It starts the process, it does not skip it.
 
 **Never write memory without approval.** No hook, background job, or helper agent
 writes memory on its own. That is what makes the memory worth trusting.
 
+### Specs are FINALIZED and APPROVED specifications on HOW the software, process, etc. should function
+
+Specs are considered testable specifications on how certain areas of a software application should function, such as:
+
+- process flows
+- logic flows
+- user click paths
+- how a user should use the system
+- etc...
+
+These could theoretically be used to QA the system if need be. They are not direct one-to-one copies of the raw source production code, and they do not just regurgitate how the code functions. **The second brain system should never save something that an agent could determine simply by looking at the raw production code!!!!!**
+
+## Work items and specs
+
+A work item is one piece of work: a feature, a fix, a change. Work items are
+tracked in different places depending on the project. One project uses GitHub
+Issues. Another uses folders of files in the repo. Another uses an outside tool
+like Linear. Every project is different, and this system does not dictate where
+work items live.
+
+Whatever the tracker is, it owns two things about each work item:
+
+- **The requirements.** What has to be true for the work item to count as done.
+- **The status.** Where the work stands right now: not started, in progress,
+  blocked, done.
+
+Requirements and status are live work state, so they belong in the tracker, not
+in memory and not in a spec. The second brain never holds a copy of them.
+
+**When a work item finishes, evaluate the specs.** The finished build is the
+moment to ask: did this work change how any part of the system is meant to work?
+If yes, the spec for that area gets updated to match what was actually built,
+through the normal approval process. The spec folder always reflects the
+finalized state of the system, and finished work items are what move it forward.
+
+This is what keeps specs trustworthy. A spec that never gets updated after the
+work lands drifts away from the real system, and then it answers questions
+wrong.
+
 ## How to ask for approval
 
-Show these four bullets for each thing being saved. One group per file. Write
+The ai agents should show these four bullets for each thing being saved. One group per file. Write
 nothing until the owner answers.
 
 > **What:** what the memory says. Three sentences at most.
@@ -439,7 +540,7 @@ Rules for the review:
 - **Write only what was approved.** Not the surrounding context, not an improved
   version, not one extra sentence that seemed useful.
 
-## 7. Updating, superseding, retiring, deleting
+## Updating, superseding, retiring, deleting
 
 **Never just add.** Writing a new file every time something comes up is how the
 folder turns into a mess nobody trusts. Before writing anything new, check
@@ -473,7 +574,7 @@ stays findable.
 **Being old is never a reason to retire something.** Written two years ago and
 still true means still true.
 
-## 8. Finding things
+## Finding things
 
 Search here before asking the owner, and before searching the code broadly.
 
@@ -488,3 +589,21 @@ Search here before asking the owner, and before searching the code broadly.
 
 Only files marked `current` answer questions about what is true now. A superseded
 file answers questions about history.
+
+### Memory Index
+
+There should be a `knowledge/memory/memory-index` index that is auto-generated and is a one-line summary of each of the files. That single line summary is derived directly from the summary property of the memory schema in the YAML.
+
+## Overall proposed solution of Second Brain System (Memories and Spec)
+
+We will use out-of-the-box Coding Agent configuration as much as possible, where appropriate.
+
+This second brain system is built to be the second brain for an AI agent, so we will use the native Claude Code and codex mechanisms to empower the agent to use this persistent second brain system.
+
+- Skills for maintaining memories: /remember, /retire, /reflect (job to clean up, deduplication, and consolidate memories)
+- Hooks where appropriate (maybe before a pull request and a hook to detect when a work item is finished?) to force the agent to evaluate if there is something we should persist to memory or the spec system.
+- Claude.md + .claude/rules to inject the operating manual of the AI operating system and the second-brain (within the AI operating system) into the agent's context
+- SOUL.md to remind the agent of its purpose
+- YAML for the markdown file memory and spec schemas
+- SQLlite only if we need it.
+- We don't need extensive testing frameworks that hard code and test evals to be shipped along with this second brain system.
