@@ -19,7 +19,7 @@ repository. It says what the system must do, precisely enough to build from.
 
 Adopting projects never receive this file. They receive the skills, rules, hooks,
 tools, and folder templates the plugin ships. This is the same split recorded in
-`knowledge/memory/decisions/memory-system-spec-stays-in-the-toolkit.md`.
+`knowledge/memory/memory-system-spec-stays-in-the-toolkit.md`.
 
 The design input is
 `work-items/memory-redesign/knowledge-system-north-star.md`. Where this

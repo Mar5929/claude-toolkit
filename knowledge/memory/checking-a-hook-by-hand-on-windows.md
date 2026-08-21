@@ -1,7 +1,15 @@
 ---
-source: agent-guess-unchecked
-date: 2026-08-06
+summary: When you run one of this repository's hooks by hand on Windows, the form of the path you give it decides the result, and a path the hook cannot read makes a working hook look broken.
+type: fact
+status: current
+source: Seen while installing the three hooks for GitHub issue #138 on 2026-08-04. Never confirmed by a deliberate test.
+confidence: inferred
+created_at: 2026-08-06
 tags: [hooks, windows, testing]
+approved_by: Mike Rihm
+approval_date: 2026-08-06
+project: claude-toolkit
+work_item: "138"
 ---
 
 # Checking a hook by hand on Windows
@@ -49,7 +57,7 @@ hook to a Windows path too, and pass that path.
 ## What the hooks-library skill already warns about
 
 The install steps in
-[the hooks-library skill](../../../plugins/hooks-library/skills/hooks-library/SKILL.md)
+[the hooks-library skill](../../plugins/hooks-library/skills/hooks-library/SKILL.md)
 warn about a related trap that ends the same silent way: piping a string in
 PowerShell sends it as UTF-16, and the hook cannot read that as JSON. That
 warning covers PowerShell only. It says nothing about the Git Bash path form
@@ -66,7 +74,7 @@ them.
 
 ## Where these checks came from
 
-[The toolkit setup record](../../../.claude/toolkit-sync.md) says all three
+[The toolkit setup record](../../.claude/toolkit-sync.md) says all three
 hooks were run by hand in both directions before being called installed. These
 are the runs behind that line, and the path form is what made the first attempts
 read as failures.

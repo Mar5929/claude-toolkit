@@ -1,3 +1,17 @@
+---
+summary: Every major folder in a toolkit project carries its own short CLAUDE.md unless another canonical file already owns its instructions, so folder detail reaches an agent when it opens that folder instead of loading in every session.
+area: project-setup
+status: current
+source: GitHub issue #150, and the folder instruction files this repository runs
+created_at: 2026-08-12
+confirmed_at: 2026-08-21
+tags: [project-setup, folder-instructions, claude-md, context-budget]
+approved_by: Mike Rihm
+approval_date: 2026-08-12
+project: claude-toolkit
+work_item: "150"
+---
+
 # Folder instruction files
 
 Every major folder in a toolkit project carries its own short `CLAUDE.md` unless
@@ -105,13 +119,13 @@ that folder's orientation with it.
 
 ## Related
 
-- [folder-claudemd.md](../../../plugins/project-init/skills/project-init/references/folder-claudemd.md):
+- [folder-claudemd.md](../../plugins/project-init/skills/project-init/references/folder-claudemd.md):
   what goes in one, what never does, which folders get one, which are skipped,
   and the template.
-- [thin-claudemd.md](../../../plugins/project-init/skills/project-init/references/thin-claudemd.md):
+- [thin-claudemd.md](../../plugins/project-init/skills/project-init/references/thin-claudemd.md):
   what must stay in the root file, and what `AGENTS.md` keeps in full.
-- [keep-claudemd-current.md](../../../plugins/project-init/library/rules/general/keep-claudemd-current.md):
+- [keep-claudemd-current.md](../../plugins/project-init/library/rules/general/keep-claudemd-current.md):
   the rule that keeps the folder files current after setup.
-- [CLAUDE.md and AGENTS.md carry the same block, not a pointer](../../memory/decisions/claude-md-and-agents-md-carry-the-same-block.md):
+- [CLAUDE.md and AGENTS.md carry the same block, not a pointer](../memory/claude-md-and-agents-md-carry-the-same-block.md):
   why this repository's two root files hold the same block, and what the block
   covers now.

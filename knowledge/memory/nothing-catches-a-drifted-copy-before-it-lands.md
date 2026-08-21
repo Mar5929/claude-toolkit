@@ -1,7 +1,14 @@
 ---
-source: user-said-it
-date: 2026-08-06
-tags: [testing, writing-voice]
+summary: The installed-copy check has no automatic trigger, so it catches drift only when a person types the command, and the plain-language output style reached main wrong twice before anyone noticed.
+type: fact
+status: current
+source: Mike, on 2026-08-06, pointing at commits 09f28ab and 36d2c2e
+confidence: reported
+created_at: 2026-08-06
+tags: [testing, installed-copies, drift, writing-voice]
+approved_by: Mike Rihm
+approval_date: 2026-08-06
+project: claude-toolkit
 ---
 
 # Nothing catches a drifted copy before it lands

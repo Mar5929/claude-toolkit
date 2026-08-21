@@ -1,9 +1,15 @@
 ---
-source: owner-paraphrase
-date: 2026-08-14
-session: unavailable
-tags:
-  - memory-system
+summary: The knowledge-system specification is the build authority for agents changing the second-brain plugin in this repository, and adopting projects receive only the built skills, never a copy of it.
+type: decision
+status: current
+source: Mike, in the 2026-08-14 session
+confidence: reported
+created_at: 2026-08-14
+confirmed_at: 2026-08-21
+tags: [memory-system, knowledge-system, second-brain, plugin-boundary]
+approved_by: Mike Rihm
+approval_date: 2026-08-14
+project: claude-toolkit
 ---
 
 # The memory-system spec stays in the toolkit, not in projects

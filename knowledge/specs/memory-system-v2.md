@@ -1,3 +1,16 @@
+---
+summary: A draft of a memory system v2 that was never built, superseded first on 2026-08-20 and again on 2026-08-21, kept only as history.
+area: knowledge-system
+status: superseded
+source: A design draft written during the v2 redesign attempt
+created_at: 2026-08-14
+tags: [knowledge-system, memory, second-brain, history]
+approved_by: Mike Rihm
+approval_date: 2026-08-14
+project: claude-toolkit
+superseded_by: knowledge/specs/knowledge-system.md
+---
+
 # Memory system v2 draft spec (superseded, do not build from this)
 
 **Status:** superseded on 2026-08-21 by

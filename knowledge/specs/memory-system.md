@@ -1,3 +1,16 @@
+---
+summary: How project knowledge worked under the layout with seven memory subfolders and a fixed tag list, superseded on 2026-08-21 and kept only as history.
+area: knowledge-system
+status: superseded
+source: The design this repository ran until issue #215
+created_at: 2026-08-04
+tags: [knowledge-system, memory, second-brain, history]
+approved_by: Mike Rihm
+approval_date: 2026-08-04
+project: claude-toolkit
+superseded_by: knowledge/specs/knowledge-system.md
+---
+
 # How project knowledge works (superseded, do not build from this)
 
 **Superseded on 2026-08-21 by [How the knowledge system works](knowledge-system.md).**

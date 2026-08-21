@@ -1,10 +1,14 @@
 ---
-source: owner-paraphrase
-date: 2026-08-18
-session: 5000ea02-03a6-46a0-a567-8665b40403fa
-tags:
-  - work-tracking
-  - project-setup
+summary: Setting up a project means asking one question about work tracking and recording the answer, so any method the owner names is one more answer to that question and never a new system for the toolkit to build.
+type: decision
+status: current
+source: Mike, in the 2026-08-18 session
+confidence: reported
+created_at: 2026-08-18
+tags: [work-tracking, project-setup]
+approved_by: Mike Rihm
+approval_date: 2026-08-18
+project: claude-toolkit
 ---
 
 # The toolkit only asks where work is tracked, it does not own a tracker
