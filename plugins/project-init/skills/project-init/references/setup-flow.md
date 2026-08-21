@@ -11,7 +11,7 @@ so they always know where they are.
 [ ] Gate 3 - Project knowledge        (one Markdown vault, packaged tools)
 [ ] Gate 4 - Mechanical knowledge aids (optional impact analysis)
 [ ] Gate 5 - Optional SOUL.md + root instructions + rules
-[ ] Gate 6 - Optional toolkit skills  (offer the session-skills plugin: all five)
+[ ] Gate 6 - Optional toolkit skills  (offer the session-skills plugin: all eight)
 [ ] Wrap-up - summarize, note follow-ups, port-back reminder
 ```
 
@@ -246,9 +246,10 @@ so they always know where they are.
 
 **Gate 6: Optional standalone toolkit skills**
 
-- Offer `session-skills` as ONE plugin holding five conversation skills:
-  `explain-simply`, `grill-me`, `handoff`, `session-summary`, `track-tasks`.
-  They install and version together, so this is a single yes or no.
+- Offer `session-skills` as ONE plugin holding eight conversation skills:
+  `braindump`, `explain-simply`, `grill-me`, `handoff`, `session-summary`,
+  `spec-check`, `track-tasks`, `unslop`. They install and version together, so
+  this is a single yes or no.
 - `explain-simply` re-says an answer as plain bullets keeping every number,
   date, path, and name.
 - `grill-me` for persistent brainstorming and discovery interviews.
@@ -277,6 +278,12 @@ so they always know where they are.
   the list dies with the session, so anything that must outlive it moves to the
   work tracker or a handoff prompt. It pairs with the `track-open-topics.md`
   rule from Gate 5, which names no skill, so the rule alone is a valid install.
+- `unslop` strips the patterns that make existing writing read as
+  machine-written and puts a voice back, on a named file, pasted text, or the
+  last answer. It shows every tell with its fix, then the rewrite, and writes
+  only on the owner's yes. Every number, date, path, name, and field name
+  survives unchanged, and it reads the project's active output style first, so
+  the project's voice wins on any disagreement.
 - Record installed, skipped, or deferred so `project-sync` does not repeat a
   considered "no".
 

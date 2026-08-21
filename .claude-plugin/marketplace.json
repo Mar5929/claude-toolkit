@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Personal, portable toolkit of reusable Claude systems: skills, rules, hooks, and templates shared across every project and device.",
-    "version": "0.78.0"
+    "version": "0.79.0"
   },
   "plugins": [
     {
@@ -42,7 +42,7 @@
     {
       "name": "session-skills",
       "source": "./plugins/session-skills",
-      "description": "Seven skills for working inside one conversation. braindump plays back a pasted brain dump in very simple words and waits for the owner's yes before any work starts. explain-simply says the last answer again as plain bullets without losing a number, date, path, or name. grill-me interviews the owner one question at a time and checkpoints every answer to a persistent file before continuing. handoff runs the short persistent-information review, then drafts a prompt a fresh session can start from, opening with the goal and checked by a second agent that never saw the conversation. session-summary tables what the owner asked for and gives each request an honest status. track-tasks keeps every still-open topic on Claude Code's built-in task list, including parked topics, unanswered questions, and blocked work. spec-check reads the specification an agent is about to build from or design a solution from, flags anything that could skew the work, and proposes fixes the owner approves before building starts."
+      "description": "Eight skills for working inside one conversation. braindump plays back a pasted brain dump in very simple words and waits for the owner's yes before any work starts. explain-simply says the last answer again as plain bullets without losing a number, date, path, or name. grill-me interviews the owner one question at a time and checkpoints every answer to a persistent file before continuing. handoff runs the short persistent-information review, then drafts a prompt a fresh session can start from, opening with the goal and checked by a second agent that never saw the conversation. session-summary tables what the owner asked for and gives each request an honest status. track-tasks keeps every still-open topic on Claude Code's built-in task list, including parked topics, unanswered questions, and blocked work. spec-check reads the specification an agent is about to build from or design a solution from, flags anything that could skew the work, and proposes fixes the owner approves before building starts. unslop takes writing that already exists, names every pattern in it that reads as machine-written, and hands back a version with those patterns gone and a voice put back, writing to a file only on the owner's yes."
     }
   ]
 }
