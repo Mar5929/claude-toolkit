@@ -13,8 +13,8 @@
  * of what Claude decides, use a PreToolUse hook instead." This is that hook.
  *
  * The owner's work must carry only their name, most of all in a client
- * repository. That makes a wrong pass worse than a wrong block here, which is
- * the opposite of how `writing-guard` is tuned.
+ * repository. That makes a wrong pass worse than a wrong block here, so this
+ * hook leans toward blocking rather than letting a doubtful command through.
  *
  * This hook is machine-wide. It is registered in the user's own
  * `~/.claude/settings.json` and installed by the `machine-sync` skill, so it

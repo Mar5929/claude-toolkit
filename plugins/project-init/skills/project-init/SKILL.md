@@ -184,20 +184,13 @@ the graph and names the connections that moved. Unlike the two guards above it
 is a Stop hook and it lives inside `tools/kb/`, because it imports the rest of
 the tool.
 
-**Every project**: offer both general hooks from the `hooks-library` plugin
-(`/hooks-library`). Both are default ON.
+**Every project**: offer the general hook from the `hooks-library` plugin
+(`/hooks-library`). Default ON where the project uses `session-skills`.
 
-- `style-reminder` puts the project's output style back in front of the session
-  every time the owner sends a message. Offer it because measurement showed
-  voice rules are stated clearly in several places and broken in a quarter to
-  over half of all messages anyway: a rule applied once per message does not
-  survive one delivery at session start.
-- `writing-guard` reads the finished reply and hands it back if an em dash or a
-  section sign slipped through, so the owner never sees the bad version. Say the
-  cost: when it fires the turn takes slightly longer, because the reply is
-  written twice.
-`style-reminder` and `writing-guard` only work next to an installed output
-style, so they pair with Gate 5; if the owner skips the style, skip those two.
+- `spec-check-reminder` asks once, at the session's first file edit, whether
+  the spec-check review has run, so a build from a drifted specification is
+  caught as it starts. It points at the `spec-check` skill from the
+  `session-skills` plugin, so skip it where that plugin is not installed.
 
 The project knowledge package owns its own startup loader and pull-request save
 reminder. Gate 3 installs those with the system. Do not install the retired
@@ -386,10 +379,7 @@ list.
   first, a shape that matches the content, every fact kept, no filler, no em
   dashes, no section signs, quiet between tool calls, and the owner's actions at
   the end. There are no voice rules in `.claude/rules/` any more; do not write
-  one. Pair it with the two Gate 2 style hooks: `style-reminder` re-states the
-  style on every message so it does not go stale in a long session, and
-  `writing-guard` checks the finished reply for an em dash or a section sign.
-  See
+  one. See
   `../../library/output-styles/README.md`. Tell the owner it takes effect on their
   next session, not the current one, and that a helper agent never sees an
   output style, which is why `follow-the-output-style.md` is in the rules folder.

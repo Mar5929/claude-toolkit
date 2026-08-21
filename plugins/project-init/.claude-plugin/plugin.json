@@ -1,7 +1,7 @@
 {
   "name": "project-init",
   "description": "New-project setup, toolkit sync, and machine setup, with an optional owner-written SOUL.md, safe project-knowledge installation, read-only health review and migration, the Git-native work-tracker, and shared Claude and Codex routing.",
-  "version": "0.48.0",
+  "version": "0.49.0",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com"

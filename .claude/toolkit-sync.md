@@ -33,10 +33,10 @@ three weeks later in another project.
 ## Gates
 
 | Gate | Result |
-|---|---|
+| --- | --- |
 | 0. Orient | Done. Existing repository, not a new one, so this ran as a sync rather than an init. Node and Markdown, no application stack. |
 | 1. Scaffolding and work tracking | Already answered. Work is tracked on the `Claude-Toolkit-Project` board on GitHub. `CLAUDE.md` names it, and `spec-before-you-build.md` is installed alongside that pointer. No scaffolding was added: the folder layout already existed. |
-| 2. Hooks | Done. `style-reminder`, `save-reminder`, and `knowledge-session-start` are installed under `.claude/hooks/` and registered in `.claude/settings.json`. Codex registers the same startup loader in `.codex/hooks.json`. The writing guard remains off here, as explained below. |
+| 2. Hooks | Done. `save-reminder` and `knowledge-session-start` are installed under `.claude/hooks/` and registered in `.claude/settings.json`. Codex registers the same startup loader in `.codex/hooks.json`. The two style hooks were removed with the toolkit, as explained below. |
 | 3. Project knowledge | **Adopted from the packaged plugin.** `knowledge/project.md` and the generated `knowledge/index.md` load at session start. Approved specifications, persistent memory, and unchecked brainstorms live under the same knowledge root. The packaged `remember`, `recall`, `cleanup`, and read-only `session-search` skills plus the read-only health tool replace hand-made or automatic curation. The retired rule, verifier, shape checker, and per-folder indexes stay removed. |
 | 4. Knowledge layer | Included with Gate 3. The graphify code graph was offered and declined, see below. |
 | 5. Root instructions, rules, output style | Done. `CLAUDE.md` and `AGENTS.md` carry the same short project knowledge route. `.claude/rules/` holds the applicable general rules, with no large memory rule or wrap-up ritual. The plain-language output style is installed and selected. |
@@ -115,30 +115,26 @@ the first time an issue changes what that capability does. Specifications were
 deliberately not written up front for the plugins. Every current specification
 and memory is listed in `knowledge/index.md`.
 
-## The writing guard, turned off here
+## The style hooks, removed with the toolkit
 
 `writing-guard` refused any finished reply containing an em dash or a section
-sign, which made the agent rewrite it. The owner turned it off on 2026-08-06 and
-the copy was removed from `.claude/hooks/`.
+sign, which made the agent rewrite it. The owner turned it off here on
+2026-08-06, because the hook runs on the Stop event, after the reply is
+finished and already on the owner's screen, so he read every refused answer
+twice, once refused and once rewritten.
 
-It was not turned off for being wrong. It was turned off for what refusing
-costs: the hook runs on the Stop event, after the reply is finished and already
-on the owner's screen, so he reads the answer twice, once refused and once
-rewritten. When the reply contains a proposed memory file, he reads the whole
-file twice. He judged that worse than the occasional em dash.
+`style-reminder` re-stated the output style on every message. The owner removed
+it here on 2026-08-21 as per-message overhead for an instruction the harness
+already re-delivers, and dropped both hooks from the toolkit in the same
+change, along with the `show-phase-progress` and `steer-to-the-goal` rules.
 
-Know the history before switching it back on. The hook was removed once before,
-in issue #101, on the theory that the plain-language output style plus the
-`style-reminder` hook would hold the rule on their own. Issue #102 brought it
-back after measuring real transcripts: one em dash every 1.8 assistant messages
-in the worst project, against a rule four words long. So expect the violations
-to return. This time that is the accepted trade, not a surprise.
-
-To switch it back on: copy `plugins/hooks-library/hooks/writing-guard.mjs` into
-`.claude/hooks/` and add it back under `Stop` in `.claude/settings.json`. To
-soften it instead of removing it, `.claude/writing-guard.json` accepts
-`{ "maxBlocks": 1 }`, which refuses the first slip in a session and stays quiet
-after that. The toolkit still ships the hook to other projects either way.
+Know the history before asking for anything like them back. `writing-guard` was
+removed once before, in issue #101, on the theory that the plain-language
+output style plus the `style-reminder` hook would hold the rule on their own.
+Issue #102 brought it back after measuring real transcripts: one em dash every
+1.8 assistant messages in the worst project, against a rule four words long. So
+expect the violations to return. This time that is the accepted trade, not a
+surprise.
 
 ## The built-in memory, turned off here
 

@@ -15,7 +15,7 @@ structure Gate 5 writes.
 ## Default ON: copy into every project unless the owner opts out
 
 | File | What it does |
-|---|---|
+| --- | --- |
 | `where-persistent-information-belongs.md` | Put active work wherever its work item is tracked, raw client material with delivery artifacts, internal exploration in brainstorms, agent instructions in rules, reusable processes in skills, approved behavior in specifications, and persistent project information in memory. Uses short approval bullets and prevents copies. |
 | `keep-claudemd-current.md` | Update CLAUDE.md before a session ends whenever it surfaces a new path, convention, decision, or workflow. A slightly-too-full CLAUDE.md beats a stale one. Two-sided: also prune while you are in there, route detail to the design, status, or project-knowledge layer, and keep the codemap one line per folder instead of a changelog. |
 | `honest-verification.md` | Do not claim more than you verified. If it was not run or tested, say so and leave the steps. Report failures with output. |
@@ -24,11 +24,9 @@ structure Gate 5 writes.
 | `follow-the-output-style.md` | Anything a helper agent writes that the owner reads (commit message, pull request text, a document in the repo) follows the project's active output style. A pointer to the style file, never a second copy of the rules. Exists because an output style reaches the main conversation only. |
 | `ask-before-assuming.md` | Two pauses, both before acting: when intent, naming, behavior, or scope is ambiguous, ask one specific question rather than picking the reading that lets you start sooner; and before an operation that reads or produces a lot, state the rough scope and get a go-ahead. |
 | `offer-context-handoff.md` | When context is heavy and the next step is reasoning-heavy, offer a self-contained handoff prompt for a fresh session. Run the installed `remember` review before writing that prompt, and carry anything the owner does not save inside the prompt itself. This is the moment that destroys the most context, and nothing can catch a clear after it happens. The `handoff` plugin's `/handoff` command does it in order; this rule is the backup when the owner asks in their own words. |
-| `steer-to-the-goal.md` | Find the real goal behind the request, name it early, hold it all session, own the steering, and end every turn with the next step. Push back directly when a request is risky, over-built, or aimed at the wrong target, then do it the owner's way once decided. Persistent direction goes to `knowledge/memory/planning/`; live next actions stay wherever the work item is tracked. |
 | `do-the-technical-work.md` | Do the git/config/deploy/file work yourself. Only hand the owner steps that are genuinely only-they, and make those copy-paste simple. Recommend, do not dump raw choices. |
 | `spec-before-you-build.md` | Two things hold whatever the project tracks work in: every piece of work is logged in that tracker before it is built, and nothing is built until a refinement session has filled in the six-part spec (requirements, goal, reason, what the person using it experiences, how it behaves from the outside, edge cases). Says what to do when a ticket is missing or thin, and requires keeping the spec current instead of letting a written requirement go stale. Also requires re-checking the spec for drift before building or solutioning from it, with the spec-check skill where installed or the same review by hand. Tracker-neutral: the project's root instructions name the tracker, this rule says what to do with it. Sits above `work-item-folders` (which owns one specific tracker) and applies equally to a GitHub board, Linear, or Jira. Never ships alone: it reads the tracker's name out of the project's root instructions, so it goes in only alongside the work-tracking pointer that Gate 1 and Gate 5 write. Names no skill and no tracker, so removing a plugin or changing tracker never leaves it stale. |
 | `work-item-folders.md` | Use the Git-native work-tracker as the task authority: one folder per item, exact handoffs, typed relationships, Git landing proof, generated views, and safe adoption of older manual folders. Conditional in practice: only meaningful when the project chose to track work as files in the repository. |
-| `show-phase-progress.md` | When work splits into phases, print a one-line progress bar at every transition and when the last phase finishes. |
 | `track-open-topics.md` | Keep a running list of every topic still open in the session on Claude Code's built-in task list, starting the moment a second topic goes unresolved. Covers the ones easiest to lose: topics the owner parked, questions they have not answered, and work blocked behind something else. Mark an item finished only when it actually is, and say plainly that the list dies with the session, so anything that has to outlive it moves to the work tracker or a handoff prompt. Names no skill, so declining the `session-skills` plugin never leaves it stale. |
 
 ## Voice is not a rule any more
@@ -37,9 +35,8 @@ How Claude writes and replies used to live here in four files:
 `writing-and-language.md`, `how-to-reply.md`,
 `treat-owner-as-non-technical.md`, and `define-your-terms.md`. All four were
 removed. That job now belongs to the `plain-language` output style in
-`../../output-styles/`, which is delivered through the system prompt, re-stated
-every turn by the `style-reminder` hook, and checked on the finished reply by
-the `writing-guard` hook, instead of being read once as a rule file.
+`../../output-styles/`, which is delivered through the system prompt instead of
+being read once as a rule file.
 
 Do not add a voice rule to this folder. If Claude should say something
 differently, the change goes in the output style. This folder is for how Claude

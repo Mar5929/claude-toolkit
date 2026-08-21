@@ -1,6 +1,6 @@
 {
   "name": "session-skills",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Seven skills for working inside one conversation: play back a brain dump, explain it simply, get grilled on it, check the spec before building, hand it off, recap it, and track what is still open.",
   "author": {
     "name": "Mike Rihm",
