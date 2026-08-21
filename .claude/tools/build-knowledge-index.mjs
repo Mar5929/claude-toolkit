@@ -1,156 +1,148 @@
 #!/usr/bin/env node
 
 /**
- * Rebuild knowledge/index.md from knowledge/specs/ and knowledge/memory/.
+ * Rebuild the two knowledge indexes:
  *
- * The source documents win. This script only produces a deterministic map. It
- * deliberately performs no schema validation and never reads brainstorms or
- * Obsidian state.
+ *   knowledge/memory/memory-index.md
+ *   knowledge/specs/spec-index.md
+ *
+ * One line per file, taken from that file's `summary` field, so the summary
+ * lives in exactly one place and is copied nowhere. The source files always
+ * win: this script only produces a deterministic list of what is there.
+ *
+ * It validates nothing. `check-knowledge.mjs` does that.
  */
 
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { parseFrontmatter } from "./frontmatter.mjs";
+
 const installedRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const root = resolve(process.argv[2] || installedRoot);
-const roots = ["specs", "memory"];
-const excluded = new Set(["memory/tags.md"]);
 const width = 79;
 
 const posix = (value) => value.split(sep).join("/");
 
-function markdownFilesUnder(vault, relativeDir, out = []) {
+const FOLDERS = [
+  {
+    dir: "memory",
+    index: "memory-index.md",
+    heading: "What this project knows",
+    blurb: [
+      "Every memory file, with the one sentence it uses to describe itself.",
+      "",
+      "A line marked superseded or retired does not answer questions about what is",
+      "true now. Open it only for history.",
+    ],
+  },
+  {
+    dir: "specs",
+    index: "spec-index.md",
+    heading: "How this project is meant to work",
+    blurb: [
+      "Every specification, with the one sentence it uses to describe itself.",
+      "",
+      "A current specification beats a memory. A line marked superseded or retired",
+      "describes how something used to work.",
+    ],
+  },
+];
+
+/** Markdown files directly inside a knowledge folder, minus its own index. */
+function filesIn(vault, folder) {
   let entries;
   try {
-    entries = readdirSync(resolve(vault, relativeDir), { withFileTypes: true });
+    entries = readdirSync(resolve(vault, folder.dir), { withFileTypes: true });
   } catch {
-    return out;
+    return { files: [], subfolders: [] };
   }
 
+  const files = [];
+  const subfolders = [];
   for (const entry of [...entries].sort((a, b) => a.name.localeCompare(b.name))) {
-    const path = posix(`${relativeDir}/${entry.name}`);
-    if (entry.isDirectory()) markdownFilesUnder(vault, path, out);
-    else if (entry.isFile() && entry.name.endsWith(".md") && !excluded.has(path)) {
-      out.push(path);
+    if (entry.isDirectory()) {
+      subfolders.push(entry.name);
+      continue;
     }
+    if (!entry.isFile() || !entry.name.endsWith(".md")) continue;
+    if (entry.name === folder.index) continue;
+    files.push(entry.name);
   }
-  return out;
+  return { files, subfolders };
 }
 
-function documentHead(text) {
-  const lines = text.replace(/\r\n/g, "\n").split("\n");
-  let cursor = 0;
-  let superseded = false;
+function wrapEntry(name, status, summary) {
+  const label = status && status !== "current" ? ` (${status})` : "";
+  const head = `- \`${name}\`${label}:`;
+  if (!summary) return [`${head} (no summary)`];
 
-  while (cursor < lines.length && lines[cursor].trim() === "") cursor++;
-  if (lines[cursor]?.trim() === "---") {
-    cursor++;
-    while (cursor < lines.length && lines[cursor].trim() !== "---") {
-      const replacement = lines[cursor].match(/^superseded-by:\s*(.*?)\s*$/)?.[1] ?? null;
-      if (replacement !== null) {
-        const unquoted = replacement.replace(/^(?:""|'')$/, "");
-        if (unquoted) superseded = true;
-      }
-      cursor++;
-    }
-    if (cursor < lines.length) cursor++;
-  }
-
-  while (cursor < lines.length && lines[cursor].trim() === "") cursor++;
-  const titleMatch = lines[cursor]?.match(/^#\s+(.+?)\s*$/);
-  if (!titleMatch) return { title: null, summary: null, superseded };
-  cursor++;
-
-  while (cursor < lines.length && lines[cursor].trim() === "") cursor++;
-  const summary = [];
-  while (
-    cursor < lines.length
-    && lines[cursor].trim() !== ""
-    && !/^#{1,6}\s/.test(lines[cursor])
-  ) {
-    summary.push(lines[cursor].trim());
-    cursor++;
-  }
-
-  return { title: titleMatch[1].trim(), summary: summary.join(" ") || null, superseded };
-}
-
-function readableName(path) {
-  return path
-    .split("/")
-    .pop()
-    .replace(/\.md$/i, "")
-    .split("-")
-    .filter(Boolean)
-    .map((word) => word[0]?.toUpperCase() + word.slice(1))
-    .join(" ") || path;
-}
-
-function wrapEntry(href, title, summary) {
-  const first = `- [${title}](${href})${summary ? ":" : ""}`;
-  if (!summary) return [first];
-
-  const words = summary.split(/\s+/);
-  const lines = [first];
-  for (const word of words) {
-    const index = lines.length - 1;
-    const separator = lines[index] === first ? " " : " ";
-    if (`${lines[index]}${separator}${word}`.length <= width) {
-      lines[index] += `${separator}${word}`;
-    } else {
-      lines.push(`  ${word}`);
-    }
+  const lines = [head];
+  for (const word of summary.split(/\s+/)) {
+    const last = lines.length - 1;
+    if (`${lines[last]} ${word}`.length <= width) lines[last] += ` ${word}`;
+    else lines.push(`  ${word}`);
   }
   return lines;
 }
 
-export function buildIndex(projectRoot = root) {
+export function buildIndexes(projectRoot = root) {
   const vault = resolve(projectRoot, "knowledge");
-  const groups = new Map();
-  let count = 0;
+  const written = [];
+  const warnings = [];
+  let total = 0;
 
-  for (const sourceRoot of roots) {
-    for (const path of markdownFilesUnder(vault, sourceRoot)) {
-      const absolute = resolve(vault, path);
-      const text = readFileSync(absolute, "utf8");
-      const { title, summary, superseded } = documentHead(text);
-      if (sourceRoot === "memory" && superseded) continue;
-      const folder = posix(dirname(path));
-      const href = posix(relative(vault, absolute));
-      if (!groups.has(folder)) groups.set(folder, []);
-      groups.get(folder).push(...wrapEntry(href, title || readableName(path), summary));
-      count++;
+  for (const folder of FOLDERS) {
+    const { files, subfolders } = filesIn(vault, folder);
+
+    for (const name of subfolders) {
+      warnings.push(
+        `knowledge/${folder.dir}/${name}/ is a subfolder. This folder is flat, so`
+        + " nothing inside it is indexed.",
+      );
     }
+
+    const entries = [];
+    for (const name of files) {
+      const text = readFileSync(resolve(vault, folder.dir, name), "utf8");
+      const { data } = parseFrontmatter(text);
+      const summary = typeof data.summary === "string" ? data.summary.trim() : "";
+      const status = typeof data.status === "string" ? data.status.trim() : "";
+      entries.push(...wrapEntry(name, status, summary));
+      total++;
+    }
+
+    const lines = [
+      `# ${folder.heading}`,
+      "",
+      ...folder.blurb,
+      "",
+      "Built by `node .claude/tools/build-knowledge-index.mjs`. Nobody edits this",
+      "file by hand. If it disagrees with the files on disk, the files win:",
+      "rebuild it.",
+      "",
+    ];
+    lines.push(...(entries.length ? entries : ["Nothing saved yet."]));
+    lines.push("");
+
+    const output = resolve(vault, folder.dir, folder.index);
+    writeFileSync(output, lines.join("\n"), "utf8");
+    written.push({ path: output, count: files.length });
   }
 
-  const lines = [
-    "# What this project has written down",
-    "",
-    "Every current specification and memory, with its one-sentence summary.",
-    "",
-    "Built by `node .claude/tools/build-knowledge-index.mjs`. Nobody edits this file",
-    "by hand. If it disagrees with the source files, rebuild it.",
-  ];
-
-  for (const folder of [...groups.keys()].sort()) {
-    lines.push("", `## ${folder}/`, "", ...groups.get(folder));
-  }
-  lines.push("");
-
-  writeFileSync(resolve(vault, "index.md"), lines.join("\n"), "utf8");
-  return { count, folders: groups.size, output: resolve(vault, "index.md") };
+  return { written, warnings, total };
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
   try {
-    const result = buildIndex(root);
-    console.log(
-      `Wrote ${posix(relative(root, result.output))}: ${result.count} file(s) in `
-      + `${result.folders} folder(s).`,
-    );
+    const result = buildIndexes(root);
+    for (const { path, count } of result.written) {
+      console.log(`Wrote ${posix(relative(root, path))}: ${count} file(s).`);
+    }
+    for (const warning of result.warnings) console.warn(`Warning: ${warning}`);
   } catch (error) {
-    console.error(`Could not build knowledge/index.md: ${error.message}`);
+    console.error(`Could not build the knowledge indexes: ${error.message}`);
     process.exitCode = 1;
   }
 }

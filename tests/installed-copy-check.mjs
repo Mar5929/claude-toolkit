@@ -58,6 +58,7 @@ const OWN_FILES = new Set([
   ".claude/rules/README.md",
   ".claude/settings.json",
   ".claude/toolkit-sync.md",
+  ".claude/agents/product-manager.md",
 ]);
 
 function shippedOriginalFor(path) {

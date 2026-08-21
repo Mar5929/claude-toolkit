@@ -219,13 +219,17 @@ specification beats a memory.
    something the project already answered.
 
 **For the details, read
-[the knowledge system manual](knowledge-system-manual.md).** It has the file
-format, the seven questions that decide what to save, when to offer a save, the
-four bullets to show the owner, and how to update, replace, or retire something.
+[the knowledge system north star](../memory-redesign/knowledge-system-north-star.md)
+for the intent, and
+[how the knowledge system works](../../knowledge/specs/knowledge-system.md) for
+the buildable version.** Between them they hold the file format, the seven
+questions that decide what to save, when to offer a save, the bullets to show the
+owner, the find ladder, and how to update, replace, or retire something.
 
-**This part is being rebuilt right now.** The memory folder currently has
-subfolders per category. The redesign removes them in favor of one flat folder
-with tags. Until that lands, follow the existing layout.
+**This part is being rebuilt right now** under issue #215. The memory folder is
+becoming one flat folder with free-form tags, replacing the subfolders per
+category. `knowledge/specs/knowledge-system.md` is the current design; follow it
+rather than the old layout.
 
 ---
 
