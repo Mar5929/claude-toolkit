@@ -119,17 +119,20 @@ claude-toolkit/
       .claude-plugin/plugin.json
       .codex-plugin/plugin.json
       hooks/
-        knowledge-session-start.mjs ← loads the project map at session start
-        save-reminder.mjs          ← pauses pull requests for the owner-approved review
+        knowledge-session-start.mjs ← loads SOUL.md, current.md, and both indexes
+        save-reminder.mjs          ← pauses pull requests for the owner-approved save
+        work-item-close.mjs        ← asks whether a finished work item left a spec stale
+        command-parsing.mjs        ← what a Bash command is about to do, shared by both
       tools/
-        build-knowledge-index.mjs  ← rebuilds the generated vault index
-        knowledge-health.mjs       ← reports fields, tags, sources, and warnings without writing
-        knowledge-layout.mjs       ← detects and safely migrates older layouts
+        build-knowledge-index.mjs  ← rebuilds the memory and spec indexes
+        check-knowledge.mjs        ← read-only: bad fields, broken links, secrets
+        frontmatter.mjs            ← the one YAML reader both tools use
       skills/
-        second-brain/             ← install, audit, migrate, and maintain the vault
-        remember/                 ← persistent placement and short approval workflow
-        recall/                   ← focused retrieval from the project map
-        cleanup/                  ← owner-approved maintenance workflow
+        second-brain/             ← install, audit, convert, and explain the system
+        remember/                 ← placement, the save test, and the approval bullets
+        recall/                   ← the five-tier find ladder
+        retire/                   ← supersede, retire, or delete one file
+        reflect/                  ← sweep for duplicates and contradictions
         session-search/           ← read-only search of local Claude Code CLI history
     sf-architect-solutioning/     ← plugin: Salesforce solution architect
       README.md

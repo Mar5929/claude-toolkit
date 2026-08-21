@@ -219,8 +219,7 @@ The genuine watch-items are called out at the end.
 - **The dependency graph versus written knowledge.** The graph answers what
   connects to what, mechanically, rebuilt from the code every time, so it cannot
   be wrong about structure and cannot record intent. Written project knowledge
-  (`knowledge/memory/knowledge/`) answers why, and can be wrong the moment code
-  changes,
+  (`knowledge/memory/`) answers why, and can be wrong the moment code changes,
   which is what the freshness hook and its drift file exist to catch. Neither
   replaces the other, and a project can install the graph without installing
   second-brain at all.

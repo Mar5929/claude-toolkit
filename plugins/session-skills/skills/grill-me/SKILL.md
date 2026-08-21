@@ -27,9 +27,8 @@ owner-approval flow.
 ## Set up before asking the first question
 
 1. Detect the project's knowledge layout before writing:
-   - when `knowledge/project.md`, `knowledge/index.md`, and the nested
-     `knowledge/specs/`, `knowledge/memory/`, and `knowledge/brainstorms/`
-     trees are present, use `knowledge/brainstorms/`;
+   - when `knowledge/project.md`, `knowledge/specs/`, `knowledge/memory/`, and
+     `knowledge/brainstorms/` are present, use `knowledge/brainstorms/`;
    - when no knowledge-system signature is present, use an existing ordinary
      brainstorm artifact folder, or create top-level `brainstorms/` after
      telling the owner this is standalone raw capture; and
@@ -43,8 +42,8 @@ owner-approval flow.
 4. Add the title, date, one-line session goal, an empty running summary, an
    empty Q&A log, and an empty open-flags section.
 5. Keep the brainstorm flat even when it may affect several system areas.
-   `knowledge/index.md` deliberately excludes brainstorms, so never hand-edit
-   it or create a second brainstorm index.
+   The generated indexes deliberately exclude brainstorms, so never hand-edit
+   them or create a brainstorm index.
 6. Tell the user where the notes are being saved in one line, then ask Q1.
 
 Use this structure:

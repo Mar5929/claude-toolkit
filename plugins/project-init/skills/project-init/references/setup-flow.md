@@ -76,7 +76,7 @@ so they always know where they are.
      `tools/permissions/README.md` pointing at the runbook. This is what verifies
      a file against the org and reports what a deploy would delete.
   3. `library/templates/permissions-runbook.md` as the project's own operating runbook
-     (`knowledge/memory/operations/salesforce-permissions.md` under the project-knowledge
+     (`knowledge/memory/salesforce-permissions.md` under the project-knowledge
      layout, otherwise `docs/`). Fill in its placeholders.
   4. The deploy guard hook, in Gate 2 below.
 
@@ -161,7 +161,7 @@ so they always know where they are.
   short What, Where, Why, Assumptions, and Unverified bullets.
 - Do not install a database, memory MCP server, embeddings, transcript capture,
   or background curation.
-- `knowledge/index.md` is generated. Create no per-folder indexes or folder
+- The two knowledge indexes are generated. Create no other indexes or folder
   `CLAUDE.md` files inside `knowledge/`.
 
 **Gate 4: Optional mechanical knowledge aids**
@@ -235,7 +235,8 @@ so they always know where they are.
   `follow-the-output-style.md` in the rules folder is for. See
   `library/output-styles/README.md`.
 - When project knowledge is installed, keep the route small. Claude's
-  `SessionStart` hook reads `knowledge/project.md` and `knowledge/index.md`.
+  `SessionStart` hook reads `SOUL.md`, `knowledge/current.md`, and the two
+  generated knowledge indexes.
   `AGENTS.md` tells Codex to read those same two files before work; an equivalent
   fail-open `.codex/hooks.json` route may reinforce it where native hooks are
   supported. Neither root file copies the full knowledge specification.

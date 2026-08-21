@@ -58,11 +58,11 @@ that helps future agents work correctly belongs in `knowledge/`.
 
 | Folder | Holds |
 |---|---|
-| `project-overview/` | Raw project brief or client-provided framing when the project needs that artifact home. Curated project framing belongs in `knowledge/project.md`, with other persistent circumstances under `knowledge/memory/context/` |
+| `project-overview/` | Raw project brief or client-provided framing when the project needs that artifact home. Curated project framing belongs in `knowledge/project.md`, with other persistent circumstances under `knowledge/memory/` |
 | `archive/` | Retired or superseded material kept for history |
 | `communications/` | Emails, Slack threads, client or team messages |
 | `deliverables/` | Finished artifacts handed to the client |
-| `deployment/` | Cutover plans, release evidence, and release notes. Reusable operating procedures belong under `knowledge/memory/operations/` |
+| `deployment/` | Cutover plans, release evidence, and release notes. Reusable operating procedures belong in a skill, not in memory |
 | `meeting-notes/` | One file per call or working session |
 | `references/` | Source specs, org exports, third-party docs (read-only inputs) |
 | `work-items/` | Ticket work items in stage folders (`01-backlog/` holds the `BACKLOG.md` index); one folder per ticket (named by ticket key) with `SPEC.md` + `STATUS.md`. Layout: `work-items-structure.md` |
@@ -74,8 +74,7 @@ not save interviews under `project-overview/` or copy them into a system area.
 With project knowledge installed, the brainstorm links to every resulting specification.
 
 When project knowledge is selected, do not create a `delivery/knowledge-base/`
-folder. Use `knowledge/memory/knowledge/`,
-`knowledge/memory/references/`, and `knowledge/memory/domain/`
+folder. Use `knowledge/memory/`
 for curated agent memory. Keep raw meeting notes, communications, deliverables,
 deployment evidence, and client sources in the delivery folders above. If the
 owner declines project knowledge and needs a local reference library, offer
@@ -109,7 +108,7 @@ large rule, or per-folder indexes.
 ## Variants
 
 - **Org merge**: use `references/` for raw source material,
-  `knowledge/memory/references/` and `knowledge/memory/knowledge/` for approved
+  `knowledge/memory/` for approved
   source context and conclusions, `data/` for field-level mapping, and
   `deployment/` for the cutover plan.
 - **Single org build or managed service**: the same tree works; some delivery
