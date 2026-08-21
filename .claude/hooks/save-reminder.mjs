@@ -12,39 +12,14 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { matchesAny, OPENS_PULL_REQUEST } from "./command-parsing.mjs";
+
 function failOpen() {
   process.exitCode = 0;
 }
 
-export function stripHeredocs(command) {
-  return command.replace(
-    /<<[-~]?[ \t]*(['"]?)([A-Za-z_][A-Za-z0-9_]*)\1[\s\S]*?(?:\n[ \t]*\2[ \t]*(?=\n|$)|$)/g,
-    " ",
-  );
-}
-
-export function stripQuoted(command) {
-  return command.replace(/"(?:\\.|[^"\\])*"/g, " ").replace(/'[^']*'/g, " ");
-}
-
-function bareCommand(segment) {
-  let text = segment.trim();
-  while (/^[A-Za-z_][A-Za-z0-9_]*=\S*[ \t]+/.test(text)) {
-    text = text.replace(/^[A-Za-z_][A-Za-z0-9_]*=\S*[ \t]+/, "");
-  }
-  return text.replace(/\s+/g, " ");
-}
-
 export function opensPullRequest(command) {
-  if (typeof command !== "string" || !command.includes("gh")) return false;
-  const scannable = stripQuoted(stripHeredocs(command));
-  for (const segment of scannable.split(/\|\||&&|[;|&\n()]/)) {
-    const text = bareCommand(segment);
-    if (!/^gh +pr +create\b/.test(text)) continue;
-    if (/(^| )(--help|-h)( |$)/.test(text)) continue;
-    return true;
-  }
-  return false;
+  return matchesAny(command, OPENS_PULL_REQUEST);
 }
 
 function branchKey(projectRoot) {
@@ -92,14 +67,14 @@ function writeState(path, state) {
 
 export function buildMessage() {
   return [
-    "Held once. A pull request opening is a project-knowledge review moment.",
+    "Held once. A pull request opening is a save moment.",
     "",
     "Invoke /remember and follow it, then run this command again.",
     "",
     "- Nothing needs to persist? Say so in one line and retry.",
-    "- Something may persist? Show short What, Where, Why, Assumptions, and",
-    "  Unverified bullets. The pull request may open now, but the change does not",
-    "  merge until the owner approves its meaning.",
+    "- Something may persist? Show What, Where, Source, Tags, and Assumptions",
+    "  bullets per file. The pull request may open now, but it does not merge",
+    "  until the owner has approved what would be saved.",
     "",
     "If you are a helper agent, stop and report this to the main agent.",
     "This branch will not be held again in this session.",
