@@ -61,8 +61,8 @@ If a file you did not write appears, unstage it.
 
 ## 4. Keep shared-file edits narrow
 
-Some files every session edits: backlog and dashboard views, the generated
-`knowledge/index.md`, `CLAUDE.md`, and `AGENTS.md`.
+Some files every session edits: backlog and dashboard views, the two generated
+knowledge indexes, `CLAUDE.md`, and `AGENTS.md`.
 
 For an ordinary addition, append the new entry without reordering or rewriting
 unrelated entries. Reordering turns a clean addition into a conflict and rewrites

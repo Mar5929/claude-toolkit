@@ -24,24 +24,35 @@ I have ADHD. Talk to me like I am smart but not technical. Sixth-grade reading l
 
 ## Project knowledge
 
-1. At session start, read `knowledge/project.md` and `knowledge/index.md`.
-2. `knowledge/specs/` says what things must do. `knowledge/memory/` says what
-   is worth knowing. `knowledge/brainstorms/` is unchecked source material.
-3. Before changing behavior or asking something already documented, read the
-   relevant specification or memory.
-4. Never make persistent knowledge current until Mike approves short plain
-   bullets saying what changes, where it belongs, why it matters, every
-   assumption, and anything unverified. Show full file text only if he asks.
-   Write only the approved meaning. The full policy is
-   `knowledge/specs/memory-system.md`.
-5. Keep project knowledge small: save persistent information only when a stable
-   fact, lasting event, decision, or state prevents repeated explanation or the
-   same wrong action. Put standing agent instructions in rules, active work
-   wherever its work item is being tracked, reusable processes in skills,
-   outside source material in references, and past conversations in session
-   history.
-6. The `remember` skill holds the save test, the placement routes, and the
-   required file shape. Invoke it for any save.
+1. At session start, read `SOUL.md`, `knowledge/project.md`, and
+   `knowledge/current.md`. Then read `knowledge/memory/memory-index.md` and
+   `knowledge/specs/spec-index.md`, which list one line per file.
+2. `knowledge/current.md` is short-term working memory: what is being worked on
+   right now, what is blocking it, the next step. It is overwritten, never added
+   to, and nothing in it is a lasting fact.
+3. `knowledge/specs/` says how the system is meant to work, once settled.
+   `knowledge/memory/` says what is worth knowing: lasting facts, decisions,
+   events, and context, one flat folder with one file per topic.
+   `knowledge/brainstorms/` is unchecked source material. A current
+   specification beats a memory; when they disagree, say so and name both.
+4. Before asking Mike something, or searching the code broadly, go down the find
+   ladder and stop at the first answer: `knowledge/current.md`, then
+   `.claude/rules/`, then skills, then memory and specifications, then past
+   sessions. Past sessions are the lowest tier: offer it rather than doing it
+   silently, and hand every result back asking whether it is still accurate.
+5. Never write to memory or a specification without showing Mike the exact words
+   first and getting a yes. Show What, Where, Source, Tags, and Assumptions.
+   Silence, an unclear answer, or asking to see the full text all mean nothing
+   gets written. Write only what he approved.
+6. Keep project knowledge small: save only when a stable fact, lasting event,
+   decision, or state prevents repeated explanation or the same wrong action.
+   Standing agent instructions go in rules, active work wherever its work item is
+   tracked, reusable processes in skills, outside source material in references,
+   and past conversations in session history. A procedure is never a memory.
+7. The `remember` skill holds the save test, the placement routes, and the file
+   shape. `recall` walks the find ladder. `retire` takes one file out of current
+   use. `reflect` sweeps for duplicates and contradictions. Invoke them rather
+   than working from memory about how they work.
 
 <!-- shared-with-agents-md:end -->
 
@@ -58,7 +69,7 @@ match `CLAUDE.md`, and do not create nested `AGENTS.md` files.
 `tests/installed-copy-check.mjs` compares only the text between the markers, so
 below them nothing checks anything: when you change a passage here, change the
 matching passage in `CLAUDE.md` in the same edit, by hand.
-`knowledge/memory/decisions/claude-md-and-agents-md-carry-the-same-block.md`
+`knowledge/memory/claude-md-and-agents-md-carry-the-same-block.md`
 says why the markers sit where they do.
 
 ## Codex communication rules
@@ -118,11 +129,12 @@ a shipped file and its copy stop matching, so nobody has to remember to change
 both.
 
 The `second-brain` plugin supplies the `remember`, `recall`, `cleanup`, and
-`session-search` skills. The installed startup loader, pull-request reminder,
-layout tool, and read-only health tool under `.claude/` are copies of what that
-plugin ships. The policy they follow is `knowledge/specs/memory-system.md`.
-Codex reads that policy before changing persistent knowledge and starts every task
-from `knowledge/project.md` and `knowledge/index.md`.
+`retire`, `reflect`, and `session-search` skills. The installed startup
+loader, pull-request reminder, work-item reminder, index builder, and knowledge
+checker under `.claude/` are copies of what that plugin ships. The policy they
+follow is `knowledge/specs/knowledge-system.md`. Codex reads that policy before
+changing persistent knowledge, and starts every task from `SOUL.md`,
+`knowledge/project.md`, `knowledge/current.md`, and the two generated indexes.
 
 ## Where work is tracked
 
@@ -158,11 +170,12 @@ to this repo:
 - Worktrees are siblings of the primary checkout, named
   `claude-toolkit-<issue number>`, on a branch named `issue-<number>-<slug>`.
 - Knowledge writes land in the worktree and reach `main` when the pull request
-  merges, so two sessions saving at once both rebuild `knowledge/index.md`. Git
-  can merge that with no reported conflict and still leave the index wrong.
-  After bringing your branch current, run
-  `node .claude/tools/build-knowledge-index.mjs` again: it rebuilds the index
-  from the files, which are what win.
+  merges, so two sessions saving at once both rebuild the two generated
+  indexes, `knowledge/memory/memory-index.md` and
+  `knowledge/specs/spec-index.md`. Git can merge those with no reported conflict
+  and still leave them wrong. After bringing your branch current, run
+  `node .claude/tools/build-knowledge-index.mjs` again: it rebuilds them from
+  the files, which are what win.
 
 ## Your main job here: fold new lessons into the toolkit
 
