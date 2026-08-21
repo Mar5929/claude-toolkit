@@ -1,18 +1,40 @@
 ---
 name: session-search
 description: >-
-  Search locally saved Claude Code CLI conversations when current project files
-  do not answer and a past discussion may fill the gap, or when the owner asks
-  to find an earlier session. Search read-only transcript history by project,
-  repository worktrees, words or topic, and date. Never treat a past session as
-  current truth, copy it into project knowledge, or silently search every
-  project on the machine.
+  Search locally saved Claude Code CLI conversations. This is tier 5 of the find
+  ladder, reached only when short-term memory, rules, skills, and long-term
+  memory have all come up empty, or when the owner asks to find an earlier
+  session. Search read-only transcript history by project, repository worktrees,
+  words or topic, and date. Every result comes back flagged as possibly out of
+  date. Never treat a past session as current truth, copy it into project
+  knowledge, or silently search every project on the machine.
 ---
 
 # session search
 
-Use current project files first. Invoke this skill only when they leave a real
-gap that a past Claude Code CLI discussion may answer, or when the owner asks.
+## Where this sits
+
+This is **tier 5 of the find ladder**, the lowest tier. Not a last-ditch effort:
+a real place to look, reached in order.
+
+1. `knowledge/current.md`, short-term memory.
+2. `.claude/rules/`, in case it is a standing instruction.
+3. Skills, in case it is a procedure rather than a fact.
+4. `knowledge/memory/` and `knowledge/specs/`, long-term memory.
+5. Here.
+
+`recall` walks tiers 1 to 4. Invoke this skill only when those left a real gap,
+or when the owner asks for an earlier session directly.
+
+## Offer it, never take it silently
+
+Before searching, say what the earlier tiers found and ask:
+
+> I cannot find it. Do you want me to search past sessions?
+
+The owner may say yes, or you may use your own judgment and search. Either way
+it is offered or announced first. Never search past sessions silently and
+present the result as though it came from the project.
 
 ## Search the smallest scope
 
@@ -56,17 +78,23 @@ node "${CLAUDE_SKILL_DIR}/scripts/search-sessions.mjs" \
 Use `--expand turn` only when the matching message and its reply are both
 needed. Reuse the original `--scope` and all-project permission flag.
 
-## Answer without narrating routine search
+## Flag every result, every time
 
-Check current project files before relying on any historical claim. Current
-files win when they answer. If they conflict with the past session, show the
-conflict and treat the session as historical evidence only.
+A past session is a record of what was said once. It is not current truth, and
+it may have been overtaken by everything that happened since.
 
-Tell the owner that session history was used only when:
+So every answer that leans on a session match comes back with the flag attached:
 
-- the answer depends on it;
-- it conflicts with current files; or
-- a failed search leaves a real gap.
+> I found this in a previous session. Is this still accurate?
+
+That is not optional and it is not reserved for uncertain cases. The owner is
+the only one who knows whether something said weeks ago still holds.
+
+Name the session and its date alongside the flag, so he can judge how old it is.
+
+Current project files win when they answer. If a session match conflicts with a
+current file, show the conflict and treat the session as historical evidence
+only.
 
 Do not paste raw matches unless the owner asks or the passage is needed to
 explain uncertainty. If the owner wants the full conversation, use the returned
@@ -77,8 +105,9 @@ session ID with Claude Code's `/resume` picker or `claude --resume <session-id>`
 - Search Claude Code CLI history only. Desktop, editor, web, and Codex histories
   are separate capabilities.
 - Never edit, move, copy, index, or archive a transcript.
-- Never write a result into `knowledge/` or a tracker. `remember` is a separate
-  owner-approved action.
+- Never write a result into `knowledge/` or a tracker on the strength of having
+  found it here. If it turns out to still be true, it goes through `remember`
+  like anything else, with its own approval.
 - Never return tool results, hidden thinking, or metadata-only records as
   conversation matches.
 - Unknown JSONL records are skipped because Claude Code's internal transcript
