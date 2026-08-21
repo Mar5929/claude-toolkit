@@ -168,7 +168,7 @@ claude-toolkit/
       .codex-plugin/plugin.json
       skills/
         work/                     ← SKILL.md + dependency-free Node core
-    session-skills/               ← plugin: the seven things you reach for inside one conversation
+    session-skills/               ← plugin: the eight things you reach for inside one conversation
       README.md
       .claude-plugin/plugin.json
       .codex-plugin/plugin.json
@@ -182,6 +182,8 @@ claude-toolkit/
         session-summary/          ← what you asked for, where it stands, what needs you
         spec-check/               ← flag what could skew a build before building from a spec
         track-tasks/              ← every topic still open in this session
+        unslop/                   ← strip the AI tells out of a draft and put a voice back
+        unslop/                   ← strip the AI tells out of a draft and put a voice back
   docs/
     toolkit-map.md                ← the catalog: every item and how they relate
   tests/
@@ -242,7 +244,7 @@ inside a project folder before it is useful, which is what the last column says:
 | **[git-workflows](plugins/git-workflows/README.md)** | Three parallel-session-safe git lifecycle skills: `pull-latest` gets current without rewriting history, `reset-to-remote` mirrors the remote behind confirmation, and `merge-and-clean-up` lands an approved PR before removing only its completed workspace. | Install and go |
 | **[hooks-library](plugins/hooks-library/README.md)** | Reusable hooks that make a rule land mechanically: `spec-check-reminder` asks once per session whether the spec-check review ran, `no-ai-attribution-guard` refuses AI credit in Git text, and two Salesforce guards protect production and permission-set deploys. System-specific knowledge hooks ship with second-brain. | Wires into settings |
 | **[work-tracker](plugins/work-tracker/README.md)** | Gives Claude and Codex one Git-authoritative backlog with exact handoffs, blockers, typed relationships, deterministic next-item selection, Git landing proof, generated dashboards, and optional GitHub Issues and Projects synchronization. It recognizes root `work-items/`, new Salesforce `delivery/work-items/`, and existing `engagement/work-items/` without moving them. | Sets up a project |
-| **[session-skills](plugins/session-skills/README.md)** | The seven things you reach for inside one conversation, in one install. `braindump` plays a pasted brain dump back in very simple words and waits for your yes before any work starts. `explain-simply` says the last answer again as short bullets keeping every number, date, path, and name. `grill-me` interviews you one question at a time and writes every answer down before continuing. `handoff` saves what a long session learned, then writes a prompt a fresh session can start from, checked by a second agent first. `session-summary` tables what you asked for and gives each request an honest status. `track-tasks` keeps every still-open topic on the built-in task list. `spec-check` flags anything in a specification that could skew a build before the build starts. | Install and go |
+| **[session-skills](plugins/session-skills/README.md)** | The eight things you reach for inside one conversation, in one install. `braindump` plays a pasted brain dump back in very simple words and waits for your yes before any work starts. `explain-simply` says the last answer again as short bullets keeping every number, date, path, and name. `grill-me` interviews you one question at a time and writes every answer down before continuing. `handoff` saves what a long session learned, then writes a prompt a fresh session can start from, checked by a second agent first. `session-summary` tables what you asked for and gives each request an honest status. `track-tasks` keeps every still-open topic on the built-in task list. `spec-check` flags anything in a specification that could skew a build before the build starts. `unslop` takes a draft that reads as machine-written, names every tell in it with the fix, and rewrites it with a voice put back. | Install and go |
 
 ---
 
@@ -362,7 +364,7 @@ For Git-native work tracking, optionally mirrored to GitHub Projects:
 /work
 ```
 
-For the seven things you reach for inside one conversation, all in one install:
+For the eight things you reach for inside one conversation, all in one install:
 
 ```text
 /plugin install session-skills
@@ -378,6 +380,7 @@ Then use whichever one you need:
 /session-summary    for what you asked for and where each request stands
 /spec-check         to catch what could skew a build before building from a spec
 /track-tasks        for every topic still open in this session
+/unslop             to strip the AI tells out of a draft and put a voice back
 ```
 
 For Git-native project memory shared by Claude and Codex:

@@ -1,18 +1,18 @@
 # session-skills
 
-Seven skills for working inside one conversation: play back a brain dump, explain
-it simply, get grilled on it, hand it off, recap it, and track what is still
-open.
+Eight skills for working inside one conversation: play back a brain dump, explain
+it simply, get grilled on it, check the spec, unslop a draft, hand it off, recap
+it, and track what is still open.
 
 **Setup: install and go.** One install per machine. Nothing is copied into a
-project and nothing has to exist first. Only `grill-me` and `handoff` write
-files, and only where you approve it.
+project and nothing has to exist first. Only `grill-me`, `handoff`, and `unslop`
+write files, and only where you approve it.
 
 ```text
 /plugin install session-skills
 ```
 
-## The seven
+## The eight
 
 | Skill | Command | Reach for it when |
 | --- | --- | --- |
@@ -23,8 +23,9 @@ files, and only where you approve it.
 | session-summary | `/session-summary` | You lost the thread, or you are closing the window |
 | spec-check | `/spec-check` | You are about to build from or design a solution from a specification |
 | track-tasks | `/track-tasks` | Several unrelated things are open at once |
+| unslop | `/unslop` | A document or draft reads as machine-written and you want it cleaned up |
 
-All seven also trigger from plain words. You never have to type the command.
+All eight also trigger from plain words. You never have to type the command.
 
 ---
 
@@ -339,7 +340,76 @@ which asks once at the session's first file edit whether the check has run.
 
 ---
 
-## How the seven relate
+---
+
+## unslop
+
+Point it at writing that already exists and it names every pattern in there that
+reads as machine-written, shows the fix for each one, and hands back a rewritten
+version. It writes to a file only after you say yes.
+
+It works on a file you name, on text you paste, or on the last substantial
+answer in the conversation if you name nothing.
+
+### Removing the tells is only half of it
+
+Text with every tell stripped out and nothing put back reads as machine-written
+too, just blander. So the rewrite also puts a voice in: an actual opinion about
+a fact, sentences of different lengths, a thing allowed to be two things at
+once, "I" where it fits, some mess instead of perfect parallel structure.
+
+The limit on that half: adding voice never adds a claim. It does not invent an
+opinion about something it cannot check, and it does not add colour that asserts
+something the original did not say.
+
+### What it will not touch
+
+Numbers, dates, money, file paths, branch names, commands, people's real names,
+record ids, object names, and field names all survive the rewrite exactly as
+they were. `dd_Universe_Identifier__c` keeps its spelling even though it looks
+like jargon; only the prose around it changes. Quoted material and code blocks
+are left alone, because rewriting a quotation changes what somebody said.
+
+Where a tell cannot go without losing one of those, the fact wins and you get
+one line saying which tell was left and why.
+
+### The project's voice wins
+
+It reads the active output style first. Where one of its patterns and that style
+disagree, the style wins, and it tells you which rule it followed. It is a
+cleanup pass over existing text, not a second set of instructions competing with
+the project's own voice.
+
+### What you get back
+
+A findings list first, one line per fix, naming the pattern, quoting the phrase,
+and giving the replacement:
+
+```text
+Line 4   metaphor noun       "the north star for the team"  ->  "what the team is aiming at"
+Line 11  passive voice       "the records are merged"       ->  "the batch job merges the records"
+Line 19  inline-header list  "**Cost:** Cost dropped 40%."  ->  "Cost dropped 40%."
+Line 26  em dash             two of them                    ->  full stops
+```
+
+Then the rewrite. Then it stops. You can take some fixes and not others.
+
+On writing that is already clean it says so in one line and stops, rather than
+inventing findings to look useful.
+
+### Where the pattern list came from
+
+The public `unslop` skill in the `cursor/plugins` repository, adapted. The
+always-on instruction was dropped so this runs only when asked, the approval
+step was added, and the rule about deferring to the project's output style was
+added so it does not compete with the project's voice.
+
+### Triggers
+
+"this reads like AI wrote it", "unslop this", "make this sound human", "take the
+AI out of this", "remove the AI tells", or `/unslop path/to/file.md`.
+
+## How the eight relate
 
 They overlap less than they look.
 
@@ -368,6 +438,16 @@ They overlap less than they look.
   conversation, and is the only one of the three that survives a `/clear`.
 - **grill-me versus the work tracker.** `grill-me` captures raw discovery. It
   does not replace a work item's `SPEC.md` or `STATUS.md`.
+- **unslop versus explain-simply.** Both rewrite something that is already
+  written, for different reasons. `explain-simply` is for an answer that did not
+  land: it drops the reading level and keeps every fact. `unslop` is for writing
+  that landed fine but sounds machine-made: it keeps the reading level and
+  changes the voice.
+- **unslop versus the output style.** The output style governs how Claude writes
+  new text and reaches only the main conversation. `unslop` runs over text that
+  already exists, whoever or whatever wrote it, and defers to the style wherever
+  the two disagree. Nothing else in the toolkit cleans up a document after the
+  fact.
 
 ## Why they are one plugin
 
@@ -382,7 +462,7 @@ five, so the cost in front of the agent is identical either way.
 What is given up: you cannot install one without the others, and a change to any
 one of them moves the shared version number, so every machine sees an update
 even for parts it does not use. Accepted, because you would always want all
-six.
+eight.
 
 ## If you had the old plugins
 
@@ -409,7 +489,7 @@ output style installed, their own rules are enough.
 
 ## Maintaining this plugin
 
-A content change to any of the five bumps `version` in both plugin manifests and
+A content change to any of the eight bumps `version` in both plugin manifests and
 `metadata.version` in the repo's `.claude-plugin/marketplace.json`. Keep this
 README, the top-level README, and `docs/toolkit-map.md` current when a skill
 changes.
