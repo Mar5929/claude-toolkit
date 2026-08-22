@@ -1,11 +1,12 @@
 ---
 name: remember
 description: >-
-  Decide where persistent information belongs and save approved memory or
-  specification files under knowledge/. Use when the owner says remember, save,
-  capture, or write this down; before a pull request; before a handoff; when a
-  work item finishes; or at another settled stopping point. Search first,
-  propose exact meaning, and write only what the owner approves.
+  Scope persistent information to the current project, decide where it belongs,
+  and save approved memory or specification files under knowledge/. Use when the
+  owner says remember, save, capture, or write this down; before a pull request;
+  before a handoff; when a work item finishes; or at another settled stopping
+  point. Search first, propose exact meaning, and write only what the owner
+  approves.
 ---
 
 # remember
@@ -16,10 +17,23 @@ the needed sections after compaction. If the manual is missing, do not invent a
 replacement policy or write lasting knowledge. Report the gap and recommend
 `project-sync`.
 
-## 1. Gather candidates
+## 1. Gather and scope candidates
 
 Review what changed or became settled. A trigger is only a reason to check. It
 does not mean the session produced anything worth saving.
+
+Use `knowledge/project.md`, the current work item, and the repository to define
+the current project. For every candidate, finish this sentence privately:
+"Future work on this project needs this because ..." It passes only when the
+answer names a future project action or decision that could otherwise be wrong,
+or project-specific context the owner would have to explain again. Keep that
+answer as the proposal's `Project value`.
+
+Where a lesson happened does not make it project knowledge. Drop generic Claude,
+Codex, shell, tool-call, sub-agent, and troubleshooting lessons. When an incident
+reveals a lasting project constraint, keep only the constraint. In a project that
+builds agent tooling, platform behavior passes only when it changes that
+project's requirements, design, or supported workflows.
 
 When the owner named exact content, preserve that meaning. When the trigger is a
 pull request, handoff, or finished work item, gather candidates from the work,
@@ -85,5 +99,7 @@ Finish by naming exactly what was written, updated, declined, or blocked.
 - It never writes secrets or private personal information.
 - It never commits, pushes, opens a pull request, or merges.
 - It never treats a helper agent, hook, or old session as approval.
+- It never reroutes a rejected generic candidate into global memory. A stable,
+  repeated, broadly useful lesson needs a separate global rule or skill review.
 - Converting already-approved files from an older layout belongs to the
   `second-brain` skill, not this one.

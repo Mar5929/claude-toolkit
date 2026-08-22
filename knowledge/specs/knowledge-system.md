@@ -2,14 +2,14 @@
 summary: How the knowledge system works, in enough detail to build it, covering the two file schemas, the find ladder, the routing table, the save test, and the lifecycle of a saved file.
 area: knowledge-system
 status: current
-source: work-items/memory-redesign/knowledge-system-north-star.md and the owner-approved requirements in GitHub issues #215 and #219
+source: work-items/memory-redesign/knowledge-system-north-star.md and the owner-approved requirements in GitHub issues #215, #219, and #221
 created_at: 2026-08-21
 confirmed_at: 2026-08-22
 tags: [knowledge-system, memory, specifications, second-brain, schema, build-authority]
 approved_by: Mike Rihm
 approval_date: 2026-08-22
 project: claude-toolkit
-work_item: "219"
+work_item: "221"
 supersedes: knowledge/specs/memory-system.md, knowledge/specs/memory-system-v2.md
 ---
 
@@ -286,29 +286,34 @@ file answers questions about history.
 
 ## What gets saved
 
-Seven questions. The first four decide whether it should exist. The last three
-decide whether it is safe to write. Ask all seven.
+The project-scope gate runs before search, drafting, or an owner review. Seven
+questions follow. The first four decide whether the candidate should exist. The
+last three decide whether it is safe to write. Ask all seven.
 
 **Should it exist?**
 
 1. **Is it a lasting fact, decision, event, or state?** How hard it was, how new
    it felt, how much work it took, and how long it was discussed do not count. A
    session feeling important is not proof that anything lasting came out of it.
-2. **Did the project change, or did the agent just do work?** What the agent did
+2. **Does it belong to the current project?** Name the future project action or
+   decision it protects from being wrong, or the project-specific explanation
+   the owner would otherwise have to repeat. Where the lesson happened does not
+   make it project knowledge. In a project that builds agent tooling, platform
+   behavior qualifies only when it changes that project's requirements, design,
+   or supported workflows.
+3. **Did the project change, or did the agent just do work?** What the agent did
    is not project history. "Wrote fourteen files today" is not a memory. What
    those files changed about the project might be.
-3. **Will it still be true in six months?** A fact that goes out of date is worse
+4. **Will it still be true in six months?** A fact that goes out of date is worse
    than no fact, because a future agent will believe it.
-4. **If it is missing, does the owner have to explain it again, or does a future
-   agent get it wrong?** If neither happens, it is not needed.
 
 **Is it safe to write?**
 
-5. **Can this be found or worked out from what is already there?** The code, a
-   specification, a rule, a skill, the work tracker, or an existing memory. If
-   yes, link to it. Never write a second copy; the two will drift and then
-   neither can be trusted. Two files saying the same thing from genuinely
-   different sources are two pieces of evidence, not a copy.
+5. **Can this be found or worked out from what is already there?** The code,
+   configuration, documentation, a specification, a rule, a skill, the work
+   tracker, or an existing memory. If yes, link to it. Never write a second copy;
+   the two will drift and then neither can be trusted. Two files saying the same
+   thing from genuinely different sources are two pieces of evidence, not a copy.
 6. **Can it say where it came from and where to go check it?** A memory that
    cannot say where it came from does not get written.
 7. **Could a future agent read this as meaning more than it does?** Something
@@ -321,11 +326,13 @@ makes everything else in the folder less trustworthy. The owner can always say
 
 ## What never gets saved
 
-- Tool calls, searches, web lookups, and commands run.
+- Tool calls, searches, web lookups, commands run, and generic agent, shell, or
+  tool behavior.
+- One-off troubleshooting and routine errors. If an incident reveals a lasting
+  project constraint, only that constraint may pass the save test.
 - Rough thinking and scratchpad reasoning.
 - Ideas or hypotheses that were tried and dropped.
 - Temporary implementation steps and low-level execution details.
-- Ordinary test and compiler errors.
 - Files opened, and a blow-by-blow of edits.
 - Every action performed by a sub-agent.
 - Chit-chat and conversational filler.
@@ -337,6 +344,10 @@ makes everything else in the folder less trustworthy. The owner can always say
 - Anything stale, superseded, or contradicted with no historical value.
 - Passwords, keys, and tokens, ever. This folder is in Git and Git keeps
   everything.
+
+A rejected generic candidate is not automatically rerouted to global memory. A
+stable, repeated, broadly useful lesson needs a separate global rule or skill
+review.
 
 ## When a save happens
 
@@ -362,6 +373,7 @@ Before writing, show one group of bullets per file. Write nothing until the owne
 answers.
 
 > **What:** what it says. Three sentences at most.
+> **Project value:** how this helps future work on the current project.
 > **Where:** the exact file path, and whether it is new or an update.
 > **Source:** where the fact came from, and whether it is observed, reported, or
 > inferred.
@@ -369,8 +381,9 @@ answers.
 > **Assumptions:** anything being assumed, guessed at, or not checked. Write
 > `None` when there is none.
 
-What the owner is approving is **What** and **Source**. The other three are shown
-so he can see how it is being filed, and he may change any of them.
+What the owner is approving is **What**, **Project value**, and **Source**. The
+other three are shown so he can see how it is being filed, and he may change any
+of them.
 
 Rules for the review:
 

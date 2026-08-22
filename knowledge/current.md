@@ -6,19 +6,19 @@ file. Capped at 2,000 characters, and the checker enforces it.
 
 ## Objective
 
-Give every equipped agent one clean knowledge operating manual. Issue #219.
+No active work.
 
 ## Work item
 
-GitHub issue #219, branch `issue-219-knowledge-operating-manual`.
+Issue #221 completed by pull request #222.
 
 ## Blocked on
 
-Owner review of pull request #220.
+Nothing.
 
 ## Next step
 
-Review and merge pull request #220.
+None.
 
 ## Picked up this session
 
