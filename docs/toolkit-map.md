@@ -22,7 +22,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git lifecycle workflows | `pull-latest`, `reset-to-remote`, `merge-and-clean-up` | `/plugin install git-workflows` | Install and go |
 | [hooks-library](../plugins/hooks-library/README.md) | Reusable style, writing, Git-attribution, and Salesforce deployment hooks; system-specific knowledge hooks stay with second-brain | `hooks-library` | `/plugin install hooks-library` | Wires into settings |
 | [work-tracker](../plugins/work-tracker/README.md) | Git-authoritative backlog, handoffs, relationships, landing proof, optional GitHub Projects, and safe recognition of root, Salesforce delivery, and existing engagement paths | `work` | `/plugin install work-tracker` | Sets up a project |
-| [session-skills](../plugins/session-skills/README.md) | The seven things you reach for inside one conversation: play back a brain dump, say it simply, get grilled on it, check the spec before building, hand it off, recap it, and track what is still open | `braindump`, `explain-simply`, `grill-me`, `handoff`, `session-summary`, `spec-check`, `track-tasks` | `/plugin install session-skills` | Install and go |
+| [session-skills](../plugins/session-skills/README.md) | The eight things you reach for inside one conversation: play back a brain dump, say it simply, get grilled on it, check the spec before building, unslop a draft, hand it off, recap it, and track what is still open | `braindump`, `explain-simply`, `grill-me`, `handoff`, `session-summary`, `spec-check`, `track-tasks`, `unslop` | `/plugin install session-skills` | Install and go |
 
 ## Skills at a glance
 
@@ -48,6 +48,8 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | spec-check | session-skills | Read the specification the session is about to build from or solution from, flag anything that could skew the work, and fix it with the owner's approval before building starts | `/spec-check`, "check the spec", "is this spec clean" |
 | session-summary | session-skills | Table every request the owner made in a session, in their words, each with a status, then say what still needs them | `/session-summary`, "summarize this session", "what did I ask for?" |
 | track-tasks | session-skills | Build or refresh the list of every topic still open in this session, then print it | `/track-tasks`, "what is still open", "where are we", "park that one" |
+| unslop | session-skills | Name every pattern in a file, pasted text, or the last answer that reads as machine-written, show the fix for each, then rewrite with a voice put back and write only on approval | `/unslop`, "this reads like AI wrote it", "make this sound human", "remove the AI tells" |
+| unslop | session-skills | Name every pattern in a file, pasted text, or the last answer that reads as machine-written, show the fix for each, then rewrite with a voice put back and write only on approval | `/unslop`, "this reads like AI wrote it", "make this sound human", "remove the AI tells" |
 
 ## The library: what lands in a project
 
@@ -325,12 +327,13 @@ The genuine watch-items are called out at the end.
   anything that outlives the conversation, and is the only one of the three that
   survives a `/clear`. A topic that turns into real work moves from the first to
   the third; the middle one never holds anything on its own.
-- **The six skills in one plugin are still six skills.** `session-skills`
+- **The eight skills in one plugin are still eight skills.** `session-skills`
   packages `braindump`, `explain-simply`, `grill-me`, `handoff`,
-  `session-summary`, and `track-tasks` together because each would be a
-  single-skill plugin whose packaging cost more than its instructions, and
-  because the owner wants all six on every machine. Sharing a plugin does not blur what they do; the distinctions above
-  still hold. What it costs is granularity: they install and version together.
+  `session-summary`, `spec-check`, `track-tasks`, and `unslop` together because
+  each would be a single-skill plugin whose packaging cost more than its
+  instructions, and because the owner wants all eight on every machine. Sharing
+  a plugin does not blur what they do; the distinctions above still hold. What
+  it costs is granularity: they install and version together.
 - **explain-simply versus the output style.** The
   output style sets how everything is written. `explain-simply` is the escape
   hatch for the times that was not enough, on material that is technical by

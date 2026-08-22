@@ -397,10 +397,11 @@ list.
 **Purpose:** offer reusable workflows that are useful in this project but live
 in their own plugins.
 
-- **Offer `session-skills` as one plugin, and recommend it.** It holds five
-  skills that run inside a conversation: `explain-simply`, `grill-me`,
-  `handoff`, `session-summary`, and `track-tasks`. They install and version
-  together, so this is a single yes or no, not five. If approved, install the
+- **Offer `session-skills` as one plugin, and recommend it.** It holds eight
+  skills that run inside a conversation: `braindump`, `explain-simply`,
+  `grill-me`, `handoff`, `session-summary`, `spec-check`, `track-tasks`, and
+  `unslop`. They install and version together, so this is a single yes or no,
+  not eight. If approved, install the
   plugin from this marketplace. Do not copy any `SKILL.md` into the project.
   Describe each one in the owner's terms, using the notes below.
 - `explain-simply` says an answer again as short bullets when it did not land
@@ -426,6 +427,17 @@ in their own plugins.
   a session keep the list without being asked. That rule names no skill, so
   taking the rule without this plugin is a valid choice and leaves nothing
   stale.
+- `unslop` takes writing that already exists and strips the patterns that make
+  it read as machine-written, then puts a voice back. Say what it works on: a
+  file the owner names, text they paste, or the last answer in the
+  conversation. Say what it shows them: a list of every tell it found with the
+  fix for each, then the rewrite, and it writes to a file only on their yes.
+  Say the two limits, because they are what make it safe. Every number, date,
+  file path, name, and field name survives the rewrite unchanged, and it reads
+  the project's active output style first, so the project's own voice wins
+  wherever the two disagree. Point out that it is the only thing in the
+  toolkit that cleans up a document after the fact; the output style only
+  governs text Claude is writing now.
 - `handoff` is the one to press hardest on. Explain what it does in
   the owner's terms: when a session gets long and they want to start fresh,
   typing `/handoff` first shows them a table of what is worth saving from that
