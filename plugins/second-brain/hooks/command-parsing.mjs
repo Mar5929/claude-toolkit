@@ -1,0 +1,48 @@
+/**
+ * Work out what a Bash command is actually about to do.
+ *
+ * Shared by the reminder hooks so they cannot disagree about whether a command
+ * opens a pull request or closes a work item. Quoted text and heredoc bodies
+ * are stripped first, so a command that merely mentions `gh pr create` inside a
+ * commit message never triggers a hold.
+ */
+
+export function stripHeredocs(command) {
+  return command.replace(
+    /<<[-~]?[ \t]*(['"]?)([A-Za-z_][A-Za-z0-9_]*)\1[\s\S]*?(?:\n[ \t]*\2[ \t]*(?=\n|$)|$)/g,
+    " ",
+  );
+}
+
+export function stripQuoted(command) {
+  return command.replace(/"(?:\\.|[^"\\])*"/g, " ").replace(/'[^']*'/g, " ");
+}
+
+/** Drop leading `VAR=value` prefixes and collapse whitespace. */
+export function bareCommand(segment) {
+  let text = segment.trim();
+  while (/^[A-Za-z_][A-Za-z0-9_]*=\S*[ \t]+/.test(text)) {
+    text = text.replace(/^[A-Za-z_][A-Za-z0-9_]*=\S*[ \t]+/, "");
+  }
+  return text.replace(/\s+/g, " ");
+}
+
+/** Every runnable segment of a command line, cleaned up. */
+export function segmentsOf(command) {
+  return stripQuoted(stripHeredocs(command))
+    .split(/\|\||&&|[;|&\n()]/)
+    .map(bareCommand)
+    .filter((text) => text && !/(^| )(--help|-h)( |$)/.test(text));
+}
+
+/** True when any segment starts with one of the given patterns. */
+export function matchesAny(command, patterns) {
+  if (typeof command !== "string") return false;
+  for (const segment of segmentsOf(command)) {
+    if (patterns.some((pattern) => pattern.test(segment))) return true;
+  }
+  return false;
+}
+
+export const OPENS_PULL_REQUEST = [/^gh +pr +create\b/];
+export const CLOSES_WORK_ITEM = [/^gh +issue +close\b/, /^gh +pr +merge\b/];

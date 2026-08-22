@@ -1,161 +1,152 @@
 ---
 name: second-brain
 description: >-
-  Set up, adopt, detect, migrate, explain, or maintain the toolkit's portable
+  Set up, adopt, detect, convert, explain, or maintain the toolkit's portable
   project knowledge system. Use for project memory, knowledge, specifications,
-  Obsidian-vault setup, flat-layout migration, or retired second-brain review.
-  Markdown and Git stay authoritative. Never infer a migration field, import
-  similarly named ordinary folders, or restore retired verifier machinery.
+  SOUL.md, Obsidian-vault setup, converting a project off an older knowledge
+  layout, or explaining how the system works. Markdown and Git stay
+  authoritative. Never guess what an old file meant, and never convert without
+  showing the owner what changed.
 ---
 
 # Project knowledge system
 
-The whole project brain lives under `knowledge/`. Obsidian may open that folder
-as a vault, but normal Markdown files and Git remain the source of truth.
+The project brain lives under `knowledge/`, plus `SOUL.md` at the root. Obsidian
+may open the folder as a vault, but ordinary Markdown and Git are the source of
+truth.
 
-## Choose the path
+`knowledge/specs/knowledge-system.md` in the toolkit repository is the design
+authority. It is not installed into projects. This skill is the portable version.
 
-Run the installed detector first in an existing project:
+## What gets installed
 
 ```text
-node .claude/tools/knowledge-layout.mjs detect . --json
+SOUL.md                            who the agent is here
+knowledge/
+  project.md                       what the project is and where work is tracked
+  current.md                       short-term working memory, overwritten
+  memory/
+    memory-index.md                generated, one line per file
+  specs/
+    spec-index.md                  generated, one line per file
+  brainstorms/                     raw exploration, never current truth
+  .obsidian/app.json               minimal vault settings
+.claude/
+  rules/where-persistent-information-belongs.md
+  tools/build-knowledge-index.mjs
+  tools/check-knowledge.mjs
+  tools/frontmatter.mjs
+  hooks/knowledge-session-start.mjs
+  hooks/save-reminder.mjs
+  hooks/work-item-close.mjs
 ```
 
-If the tools are not installed yet, run the copy in this plugin.
+`knowledge/memory/` and `knowledge/specs/` are **flat**. One file per topic, no
+subfolders by type. Tags are free-form with no vocabulary file.
 
-- `knowledge`: audit the installed assets and routes. Do not migrate again.
-- `flat-149`: run a no-write plan, show it, and apply only after the owner
-  approves that exact plan.
-- `retired-v3`: create separate review drafts. Never finalize automatically.
-- `none`: offer the complete greenfield tree.
-- `mixed` or `unknown`: stop. Name the signatures and ask the owner rather than
-  moving anything.
+## Work out what shape the project is in
 
-Folder names alone never prove that this system is installed.
+Look before doing anything. There is no detector script: read the folder.
 
-## Greenfield setup
+| What you see | What it is |
+|---|---|
+| No `knowledge/` folder | **New.** Offer the full setup. |
+| `knowledge/memory/` flat, files with `summary` and `confidence` in frontmatter | **Current.** Audit what is missing, convert nothing. |
+| `knowledge/memory/` with subfolders like `context/`, `decisions/`, `domain/` | **Older layout.** Offer the conversion below. |
+| `knowledge/memory/tags.md`, or frontmatter with `source: owner-paraphrase` and `session:` | **Older layout.** Same. |
+| A `memory/` or `specs/` folder with none of those signs | **Not this system.** Say so and ask. Folder names alone prove nothing. |
+| Signs of more than one shape at once | **Stop.** Name exactly what you found and ask. Do not move anything. |
 
-Show the complete tree from the plugin README and receive approval for the
-whole system. Then:
+## New project setup
 
-1. Copy the template tree from this skill's `references/templates/knowledge/`.
-2. Draft the real `knowledge/project.md` framing with the owner: what the
-   project is, why it exists, what finished looks like, its main workstreams
-   and boundaries, who is involved, and where active work is tracked. Do not
-   copy the placeholder template as finished project truth.
-3. Copy `build-knowledge-index.mjs`, `knowledge-health.mjs`, and
-   `knowledge-layout.mjs` from the plugin's `tools/` folder into
-   `.claude/tools/`.
-4. Copy `knowledge-session-start.mjs` and `save-reminder.mjs` into
-   `.claude/hooks/`.
-5. Register the startup loader under Claude `SessionStart` and the reminder
-   under `PreToolUse` with the `Bash` matcher. Where native Codex hooks exist,
-   register the same fail-open startup loader. Always put the read instruction
-   in root `AGENTS.md`, because Claude hooks do not run for Codex.
-6. Add the same short route to root `CLAUDE.md` and `AGENTS.md`: read
-   `knowledge/project.md`, then `knowledge/index.md`; specifications are
-   approved behavior, memory is persistent knowledge, and brainstorms are
-   unchecked. Include this short principle:
-
-   > Keep project knowledge small: save persistent information only when a
-   > stable fact, lasting event, decision, or state prevents repeated
-   > explanation or the same wrong action. Put standing agent instructions in
-   > rules, active work wherever its work item is being tracked, reusable
-   > processes in skills, outside source material in references, and past
-   > conversations in session history.
-
-   End the route with one sentence naming where the detail lives, so a session
-   knows it exists without loading it: the `remember` skill holds the save
-   test, the placement routes, and the required file shape; invoke it for any
-   save.
-7. Set `CLAUDE_CODE_DISABLE_AUTO_MEMORY` to `1` and enable
+1. Show the tree above and get approval for the whole thing before writing.
+2. Copy `references/templates/` into place.
+3. Write the real `SOUL.md` and `knowledge/project.md` with the owner. What the
+   project is, why it exists, what finished looks like, its boundaries, who is
+   involved, and where active work is tracked. The templates are prompts, not
+   finished truth: never leave the placeholder wording in place.
+4. Copy `build-knowledge-index.mjs`, `check-knowledge.mjs`, and
+   `frontmatter.mjs` from this plugin's `tools/` into `.claude/tools/`.
+5. Copy the three hooks from `hooks/` into `.claude/hooks/`.
+6. Register them: the startup loader under Claude `SessionStart`, the save
+   reminder under `PreToolUse` with the `Bash` matcher, the work-item hook where
+   the project's tracker signals a close. Where native Codex hooks exist,
+   register the same fail-open startup loader.
+7. Add the short knowledge route to root `CLAUDE.md`, and the same words to
+   `AGENTS.md`. Claude hooks never run for Codex, so `AGENTS.md` has to say it
+   in full rather than point at anything.
+8. Set `CLAUDE_CODE_DISABLE_AUTO_MEMORY` to `1` and enable
    `second-brain@claude-toolkit` in the project's settings.
-8. Build the index and run the plugin harness or equivalent fixture checks.
+9. Run `node .claude/tools/build-knowledge-index.mjs` and then
+   `node .claude/tools/check-knowledge.mjs`. Both must pass.
 
-New projects start with an empty project-specific tag vocabulary. Never copy
-the toolkit repository's topic tags into another project.
+A new project starts with no tags and no memories. Never copy another project's
+content or tags in.
 
-Do not create per-folder README indexes or a nested instruction file inside
-`knowledge/`. Empty type folders use `.gitkeep` until their first document.
+## Converting a project off an older layout
 
-## Flat-layout migration
+The older layout put memory in seven subfolders by type, restricted tags to a
+list in `knowledge/memory/tags.md`, and used a different frontmatter shape.
 
-First produce the no-write plan:
+**This is the one place approval comes after the write rather than before**, and
+only because every one of those files was already approved once, in its old
+shape. Everything else in this system shows the owner the words first.
 
-```text
-node .claude/tools/knowledge-layout.mjs plan .
-```
+1. **Count first.** List every file that will convert, grouped by its current
+   subfolder, and show the owner the count before starting.
+2. **Convert in batches he can actually read.** Ten files at a time, not all of
+   them at once.
+3. **Map the old fields to the new ones:**
 
-Show the owner:
+   | Old | New |
+   |---|---|
+   | `source: owner-quote` or `owner-paraphrase` | `confidence: reported`, and `source` says the owner said it |
+   | `source: read-from-file` plus `source-file:` | `confidence: observed`, `source` is that path |
+   | `source: agent-observed` | `confidence: observed` |
+   | `source: agent-conclusion-unchecked` | `confidence: inferred` |
+   | `date:` | `created_at:` |
+   | `superseded-by:` | `superseded_by:`, and `status: superseded` |
+   | the containing subfolder | `type:`, chosen from fact, decision, event, context, constraint |
+   | `tags:` from the fixed list | `tags:`, unchanged, now free-form |
+   | `session:` | dropped |
 
-- every source and target;
-- every old generated file that will be discarded and rebuilt;
-- every Markdown file whose relative links will change;
-- every warning or blocker; and
-- the plan hash.
+   `summary` is written from the file's existing first sentence. `approved_by`
+   and `approval_date` record the original approval where the file says it, and
+   the conversion date where it does not, with that noted.
 
-After the owner approves that exact plan, run:
+4. **Never guess at meaning.** The words in the body carry over unchanged. If a
+   file will not map cleanly, stop on it, name it, and ask. Do not invent a
+   `type` or a `confidence` to make a file fit.
+5. **Flatten.** Every file moves up into `knowledge/memory/`. Delete the empty
+   subfolders and `knowledge/memory/tags.md`.
+6. **Repair links.** Every relative path that changed gets fixed in the same
+   change.
+7. **Show each batch** and take his answer by number: keep, change, or revert.
+8. **Rebuild and check.** Run the index builder and the checker. Both must pass
+   before the conversion is called done.
+9. **Remove the old machinery** if the project still has it: the old memory rule,
+   any verifier agent, `knowledge-health.mjs`, `knowledge-layout.mjs`, and the
+   old harnesses. Record what was removed in the project's sync record.
 
-```text
-node .claude/tools/knowledge-layout.mjs apply . --approve <plan-hash>
-```
-
-Then install or refresh the runtime assets and root routes described above.
-The tool moves knowledge documents and repairs Markdown links. The setup skill
-owns instruction files, settings, and hook registration because those files may
-already contain project-specific configuration.
-
-Never hand-edit the generated index. Rebuild it.
-
-After migration and runtime installation, run a full read-only health report:
-
-```text
-node .claude/tools/knowledge-health.mjs health --json
-```
-
-Use `cleanup` to show the owner short repair summaries. Do not silently
-normalize old source values, add missing sessions, merge tags, or otherwise
-rewrite knowledge.
-
-## Retired-layout review
-
-The old system's `Basis:` values and folder indexes cannot prove the source,
-date, session, source file, or tags required by the current memory shape.
-
-Create review material in a new empty directory outside the old knowledge tree:
-
-```text
-node .claude/tools/knowledge-layout.mjs review-retired . --output ../knowledge-review
-```
-
-The command copies supported specifications, memories, and brainstorms into
-draft paths, adds visible placeholders to memory drafts, and writes a manifest
-that accounts for each source. It leaves the project untouched and provides no
-finalize command.
-
-The owner reviews and approves every converted document through `remember`.
-Only after every source is accounted for, links resolve, the new index is
-built, startup routes work, and tests pass may an approved migration remove the
-old rule, verifier, tools, and per-folder indexes.
-
-After the approved conversion is installed, run the same full health report and
-resolve every warning through `cleanup` before calling the migration complete.
+No fact is lost. A file that says something before says the same thing after.
 
 ## Git boundary
 
-All changes stay in the requesting session's worktree. This plugin does not
-commit, push, open or merge pull requests, or clean up branches. The project's
-Git workflow owns those actions.
+Everything stays in the requesting session's worktree. This plugin never
+commits, pushes, opens or merges pull requests, or deletes branches. The
+project's Git workflow owns all of that.
 
 ## Hard boundaries
 
-- Do not write on detection or planning.
-- Do not apply a plan with a different hash.
+- Do not write anything while detecting or planning.
+- Do not treat an ordinary `memory/`, `specs/`, or `knowledge/` folder as this
+  system without its signatures.
 - Do not follow a symlink outside the repository.
-- Do not overwrite a target or merge two candidate project overviews.
-- Do not treat an ordinary `memory/`, `specs/`, or `knowledge/` folder as an
-  installed system without its signatures.
-- Do not restore the verifier, large memory rule, shape checker, per-folder
-  indexes, background curation, or automatic capture.
-- Do not commit health, property, tag, or provenance reports. Generate them on
-  demand from the Markdown that Git already owns.
+- Do not overwrite an existing file or merge two candidate project overviews.
+- Do not restore retired machinery: the verifier, the health tool, the layout
+  tool, the always-loaded memory rule, per-folder indexes, background curation,
+  or automatic capture.
+- Do not commit a generated report. The indexes are the only generated files
+  that belong in Git.
+- Do not create per-folder README files or a nested instruction file inside
+  `knowledge/`.

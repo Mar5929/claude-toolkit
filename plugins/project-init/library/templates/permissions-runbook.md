@@ -10,7 +10,7 @@ TEMPLATE. Copy into the project as its operating runbook, then:
      (usually force-app/main/default).
   3. Fill in the "Verified on this org" section by running the check below.
   4. Delete this comment.
-Where it goes: knowledge/memory/operations/salesforce-permissions.md when the
+Where it goes: knowledge/memory/salesforce-permissions.md when the
 project uses project knowledge, otherwise `docs/` or `delivery/deployment/`. An
 existing project that already uses `engagement/deployment/` keeps that path.
 Keep it next to whatever the project already uses for operating procedures.

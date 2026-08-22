@@ -8,8 +8,8 @@ description: >-
   project against the toolkit", or "/project-sync". This skill inventories
   everything the toolkit currently ships (the general and Salesforce rules
   libraries, hooks, the Git-native work-tracker, the packaged project knowledge
-  system, safe knowledge-layout migration, the session-skills plugin, and any
-  newer systems), cross-references the current project,
+  system, safe conversion off an older knowledge layout, the session-skills
+  plugin, and any newer systems), cross-references the current project,
   reports the gaps, including rules the project has but that are behind the
   toolkit's current version, and closes each gap only with the user's approval.
 ---
@@ -169,46 +169,43 @@ checks:
   A project that deliberately rebuilds by hand with `graphify update .` instead
   of using hooks is not missing anything. Record that choice so a later sync
   does not re-raise it.
-- **Project knowledge layout:** use the packaged detector, never folder names
-  alone. Run the installed project copy when present; otherwise run the same
-  tool from the installed `second-brain` plugin during this read-only audit:
+- **Project knowledge layout:** read the folder, never go by folder names
+  alone. There is no detector script. Classify exactly one state:
+  - **current layout:** `knowledge/memory/` is flat and its files carry
+    `summary`, `status`, and `confidence` in YAML frontmatter;
+  - **older layout:** `knowledge/memory/` has subfolders by type
+    (`context/`, `decisions/`, `domain/`, and the rest), or
+    `knowledge/memory/tags.md` exists, or frontmatter carries
+    `source: owner-paraphrase` and `session:`;
+  - **none:** no knowledge-system signatures are present; or
+  - **mixed or unknown:** signatures conflict, are partial, or an ordinary
+    folder could be mistaken for the system.
 
-  ```text
-  node .claude/tools/knowledge-layout.mjs detect . --json
-  ```
-
-  Classify exactly one state:
-  - **new knowledge layout:** `knowledge/project.md`, `knowledge/index.md`, and
-    the nested specifications, memory types, and brainstorm tree are present;
-  - **flat #149 layout:** top-level `specs/`, `memory/`, and `brainstorms/` plus
-    #149 index, tags, runtime, or root-route signatures are present;
-  - **retired v3 layout:** the old second-brain rule, verifier, tools, and
-    per-folder indexes identify the retired system;
-  - **none:** no project-knowledge-system signatures are present; or
-  - **mixed or unknown:** signatures conflict, are partial, or ordinary folders
-    could be mistaken for the system.
-
-  Mixed or unknown stops adoption and migration. Never move an ordinary folder
-  named `memory`, `specs`, or `knowledge` from its name alone.
-- **Packaged runtime:** for a new layout, also check the installed `remember`,
-  `recall`, `cleanup`, and `session-search` skills;
-  `.claude/tools/knowledge-layout.mjs`; the
-  generated-index tool; the read-only `.claude/tools/knowledge-health.mjs`;
+  Mixed or unknown stops adoption and conversion: name exactly what you found
+  and ask. Never move an ordinary folder called `memory`, `specs`, or
+  `knowledge` on its name alone.
+- **Packaged runtime:** for a current layout, also check the installed
+  `remember`, `recall`, `retire`, `reflect`, `second-brain`, and
+  `session-search` skills; `.claude/tools/build-knowledge-index.mjs`,
+  `check-knowledge.mjs`, and `frontmatter.mjs`;
   `.claude/hooks/knowledge-session-start.mjs` registered under Claude
-  `SessionStart`; the packaged pull-request reminder; the short root routes and
-  knowledge principle; and the optional equivalent `.codex/hooks.json` loader
-  where native Codex hooks are supported. Missing runtime is **partial**, not a
-  reason to rewrite knowledge documents.
-  When the health tool is present, run its full JSON view during every
-  read-only audit of a new layout, even when the runtime is otherwise complete:
+  `SessionStart`; the pull-request and work-item reminders registered under
+  `PreToolUse` with the `Bash` matcher; `SOUL.md`;
+  `.claude/rules/where-persistent-information-belongs.md`; the short root routes
+  in `CLAUDE.md` and `AGENTS.md`; and the optional equivalent `.codex/hooks.json`
+  loader where native Codex hooks are supported. Missing runtime is **partial**,
+  not a reason to rewrite knowledge documents.
+
+  When the checker is present, run it during every read-only audit of a current
+  layout, even when the runtime is otherwise complete:
 
   ```text
-  node .claude/tools/knowledge-health.mjs health --json
+  node .claude/tools/check-knowledge.mjs
   ```
 
-  Report concrete warnings and offer a focused cleanup for only the affected
-  files or tags. If the tool itself is missing, report the runtime gap first and
-  use the packaged copy only to inspect, never to write.
+  Report every problem it names and offer to fix only those files. If the tool
+  itself is missing, report the runtime gap first and use the packaged copy only
+  to inspect, never to write.
 - **Obsidian boundary:** check that only `knowledge/.obsidian/app.json` is
   shared, that it creates relative Markdown links and automatic link updates,
   and that `.gitignore` excludes every other `.obsidian` file. A shared core
@@ -383,11 +380,11 @@ presence. Read the file and report:
 - **Live state that belongs in the status doc.** Current phase, next action, and
   open TODOs drift the moment they are written here. Flag them for work-tracker
   or the live status doc.
-- **Project-knowledge startup parity.** When the new layout is installed,
+- **Project-knowledge startup parity.** When the current layout is installed,
   confirm Claude's `SessionStart` hook and Codex's root `AGENTS.md` route both
-  name `knowledge/project.md` and `knowledge/index.md`, load no other memory by
-  default, and treat brainstorms as unchecked. Confirm the Claude hook fails
-  open when either file is absent. Where `.codex/hooks.json` is supported,
+  name `SOUL.md`, `knowledge/current.md`, and the two generated indexes, load no
+  other memory by default, and treat brainstorms as unchecked. Confirm the
+  Claude hook fails open when any of those files is absent. Where `.codex/hooks.json` is supported,
   confirm it reinforces the same route. A copied authority map or full save
   procedure in either root file is stale duplication and should be replaced by
   the short route after owner approval.
@@ -502,66 +499,53 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   and rule as one reversible cleanup. Never leave two pull-request reminders
   active.
 - For any approved project-knowledge gap, install or refresh the `second-brain`
-  plugin first, then follow the state-specific path below. The packaged tool is
-  the only writer for layout migration.
-  - **None:** show the greenfield tree, obtain approval, and ask the owner what
-    the project is, why it exists, what finished looks like, its main
-    workstreams and boundaries, who is involved, and where active work is
-    tracked. Use those exact answers for `knowledge/project.md`, then install
-    the complete layout and runtime.
-  - **Flat #149:** run
-    `node .claude/tools/knowledge-layout.mjs plan . --json`. Show the dry-run
-    moves, collisions, link repairs, and approval hash. Write nothing until the
-    owner approves that exact plan. Then run
-    `node .claude/tools/knowledge-layout.mjs apply . --approve <plan-hash>`.
-    The tool moves documents byte-for-byte except deterministic Markdown link
-    repair, discards and rebuilds only the generated index, repairs tracked
-    Markdown links into the moved tree, and verifies no document was lost.
-  - **Retired v3:** do not apply a conversion. Run
-    `node .claude/tools/knowledge-layout.mjs review-retired . --output <empty-dir>`
-    to create a review manifest and conversion drafts outside the old layout.
-    The owner must resolve every uncertain source, date, session, source-file,
-    and tag and approve the conversion before a later finalization. Keep the
-    old rule, verifier, tools, and indexes until the new layout and links pass.
-  - **New:** install only missing runtime or regenerate the index. Never rewrite
-    approved documents merely to match current formatting.
+  plugin first, then follow the state-specific path below.
+  - **None:** show the tree from the plugin README, obtain approval, and ask the
+    owner what the project is, why it exists, what finished looks like, its
+    boundaries, who is involved, and where active work is tracked. Use those
+    exact answers for `SOUL.md` and `knowledge/project.md`, then install the
+    complete layout and runtime.
+  - **Older layout:** use the `second-brain` skill's conversion path. Count the
+    files first and show the owner the total. Convert in batches of ten, mapping
+    the old fields to the new ones, and show each batch for approval. This is
+    the one place approval comes after the write, and only because every one of
+    those files was already approved once in its old shape. Anything that will
+    not map cleanly is stopped on and named, never guessed. Flatten the
+    subfolders, delete `knowledge/memory/tags.md`, repair every changed link,
+    and remove the old machinery only after the checker passes.
+  - **Current:** install only missing runtime or rebuild the indexes. Never
+    rewrite approved documents merely to match current formatting.
   - **Mixed or unknown:** stop without writing and show the conflicting
     signatures.
 
-  A stale plan hash, collision, symlink escape, dangling mapped link, or target
-  outside the repository blocks apply. Rerunning a successful flat migration is
-  safe and reports the new layout.
-
-  For an approved **none**, **flat #149**, or **new** path, finish the same
-  adoption unit before calling the system installed:
-  1. Copy the packaged `build-knowledge-index.mjs`, `knowledge-health.mjs`, and
-     `knowledge-layout.mjs` into `.claude/tools/`.
-  2. Copy the packaged `knowledge-session-start.mjs` and `save-reminder.mjs`
-     into `.claude/hooks/`.
-  3. Merge, never replace, `.claude/settings.json`: disable private auto-memory,
+  For an approved **none**, **older layout**, or **current** path, finish the
+  same adoption unit before calling the system installed:
+  1. Copy the packaged `build-knowledge-index.mjs`, `check-knowledge.mjs`, and
+     `frontmatter.mjs` into `.claude/tools/`.
+  2. Copy the packaged `knowledge-session-start.mjs`, `save-reminder.mjs`,
+     `work-item-close.mjs`, and `command-parsing.mjs` into `.claude/hooks/`.
+  3. Copy the packaged `where-persistent-information-belongs.md` into
+     `.claude/rules/`.
+  4. Merge, never replace, `.claude/settings.json`: disable private auto-memory,
      enable `second-brain@claude-toolkit`, register the fail-open Claude
-     `SessionStart` loader, and register the pull-request reminder under
-     `PreToolUse` with the `Bash` matcher.
-  4. Add the direct startup route to root `AGENTS.md`; add the short matching
-     route to root `CLAUDE.md`. Both carry the packaged principle separating
-     persistent knowledge from active work, standing agent instructions,
-     reusable skill processes, references, and session history. Where native Codex hooks are
-     supported, merge the same fail-open loader into `.codex/hooks.json`
-     without removing other hooks.
-  5. Add the Obsidian ignore allowlist so only
-     `knowledge/.obsidian/app.json` is shared.
-  6. Rebuild `knowledge/index.md`, run the startup loader, rerun layout
-     detection, and verify links. The result must report `knowledge` and load
-     only `project.md` plus the generated index.
-  7. Run `node .claude/tools/knowledge-health.mjs health --json`. During an
-     ordinary project update, offer a focused cleanup only for concrete
-     warnings. After a memory migration, run a full cleanup review. The report
-     is read-only and is never committed.
+     `SessionStart` loader, and register both reminders under `PreToolUse` with
+     the `Bash` matcher.
+  5. Add the startup route to root `AGENTS.md` in full, and the same words to
+     root `CLAUDE.md`. Codex reads only `AGENTS.md` and cannot follow a pointer,
+     so that copy is the one it gets. Where native Codex hooks are supported,
+     merge the same fail-open loader into `.codex/hooks.json` without removing
+     other hooks.
+  6. Add the Obsidian ignore allowlist so only `knowledge/.obsidian/app.json` is
+     shared.
+  7. Run `node .claude/tools/build-knowledge-index.mjs`, then
+     `node .claude/tools/check-knowledge.mjs`. Both must pass. Then run the
+     startup loader and confirm it prints only `SOUL.md`,
+     `knowledge/current.md`, and the entry lines of the two indexes.
+  8. After converting a folder off an older layout, run the `reflect` skill once.
+     A conversion is exactly when duplicates and contradictions surface.
 
   Do not remove old runtime or root routes until their current replacements are
-  present and these checks pass. The flat mover removes only #149's hand-made
-  local skills and old generated-index tool after its approved plan has already
-  accounted for every knowledge document.
+  present and these checks pass.
 - Do not install second-brain v1 or import its content. For an existing v1
   project, offer the following separately after reporting the exact local
   scope:
