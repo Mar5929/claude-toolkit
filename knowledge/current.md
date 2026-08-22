@@ -6,22 +6,20 @@ file. Capped at 2,000 characters, and the checker enforces it.
 
 ## Objective
 
-Keep project knowledge scoped to the current project. Issue #221.
+No active work.
 
 ## Work item
 
-GitHub issue #221, branch `issue-221-project-scoped-memory`.
+Issue #221 completed by pull request #222.
 
 ## Blocked on
 
-Owner approval for the knowledge-system specification update.
+Nothing.
 
 ## Next step
 
-Write the approved specification update, rebuild the index, and open the pull
-request.
+None.
 
 ## Picked up this session
 
-- The save check must remove generic agent, tool, shell, and troubleshooting
-  lessons before the owner sees a proposal.
+- None.
