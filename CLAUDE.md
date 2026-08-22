@@ -1,5 +1,7 @@
 # CLAUDE.md: working in claude-toolkit
 
+Read @SOUL.md first...always
+
 Mike's single source of truth for the reusable pieces he wants in every project,
 packaged as a Claude Code plugin marketplace. `README.md` has the full picture.
 
@@ -8,19 +10,9 @@ packaged as a Claude Code plugin marketplace. `README.md` has the full picture.
 Read `.claude/rules` first. Every file in that folder is a rule for how you work
 here, and they are in force for the whole session.
 
-Communication
+## Communication
 
 I have ADHD. Talk to me like I am smart but not technical. Sixth-grade reading level. Short sentences. Plain words.
-
-#### Communication Rules
-
-- Read @.claude/output-styles/plain-language.md every time
-
-#### When you have a question for me
-
-- Ask one question at a time.
-- Give me the options as bullets.
-- Tell me which one you recommend and why, in one line.
 
 ## Project knowledge
 
