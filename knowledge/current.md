@@ -14,12 +14,11 @@ GitHub issue #219, branch `issue-219-knowledge-operating-manual`.
 
 ## Blocked on
 
-Nothing.
+Owner review of pull request #220.
 
 ## Next step
 
-Finish the manual cleanup, run the full toolkit checks, then open the pull
-request.
+Review and merge pull request #220.
 
 ## Picked up this session
 
