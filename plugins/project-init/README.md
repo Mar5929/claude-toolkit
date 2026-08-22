@@ -43,8 +43,8 @@ files into a project, so every project it touches opts in deliberately.
   plugin first, so running it also pulls the latest toolkit onto that machine.
 
 - **machine-sync** (`/machine-sync`): the third sibling, working one level up. It
-  sets up the COMPUTER rather than a project, comparing `~/.claude/` against the
-  toolkit's machine-wide set and installing what you approve. Same shape as
+  sets up the COMPUTER rather than a project, comparing the Claude and Codex
+  homes against the toolkit's machine-wide set and installing what you approve. Same shape as
   project-sync: read the toolkit, audit, report every gap in one table, change
   nothing until you answer. It exists because the other two only reach inside a
   repository someone ran them on, and some rules have to hold in a repository
@@ -56,7 +56,7 @@ This plugin holds three separate piles, and the difference matters.
 
 ### The machine-wide set: what lands on a computer
 
-`machine/` holds what `machine-sync` installs into `~/.claude/`, with its own
+`machine/` holds what `machine-sync` installs into the host homes, with its own
 `README.md` index: `rules/` for the rule files, `settings/required.json` for the
 settings values every machine must carry, and a pointer to the machine-wide
 hooks, whose scripts live with every other hook in the
@@ -66,7 +66,8 @@ It is deliberately small. Its `README.md` carries a two-question test for what
 belongs there: the thing has to hold in a repository nobody set up with the
 toolkit, and it must not already be in `library/` or the output styles. Anything
 failing either question is a project rule and goes in `library/` instead. It
-carries three rules today: `no-ai-attribution.md`, which keeps credit to Claude
+carries four rules today: `activate-project-knowledge.md`, which conditionally
+opens an equipped project's manual; `no-ai-attribution.md`, which keeps credit to Claude
 or any other AI agent off everything the owner commits or pushes,
 `propose-the-best-solution.md`, which says the best answer always gets said out
 loud, whatever it would cost in time, effort, or resources, and
@@ -154,7 +155,8 @@ plugin.
 
 - project-init is the **entry point that installs the other plugins' systems**.
   Gate 3 offers the complete packaged `second-brain` project knowledge system,
-  including its read-only property, tag, provenance, and health reports.
+  including its managed operating manual, startup map, task-specific skills,
+  index builder, and checker.
   Gate 4 offers optional impact-analysis tools without creating a competing
   store.
 - Gate 6 offers the `session-skills` plugin, which holds `explain-simply`,
@@ -167,9 +169,9 @@ plugin.
   `.claude/rules/` in
   Gate 5, with a one-line pointer in `CLAUDE.md` and `AGENTS.md` naming the
   tracker.
-- Gate 5 also installs `where-persistent-information-belongs.md`, the one plain
-  routing rule for active work, agent rules, reusable skills, specifications,
-  memory, references, brainstorms, and session history.
+- Gate 5 installs no general knowledge rule. Projects that accept Gate 3 receive
+  `knowledge/README.md` as the one routing and operating manual; projects that
+  decline it receive no knowledge policy.
 - For the "files in this repository" answer, Gate 1 offers `work-tracker` as the
   one canonical task-status system. It can stay entirely local or, with separate
   approval, create or link a GitHub Project mirroring those files. Existing
@@ -197,6 +199,6 @@ plugin.
 
 ## Maintaining this plugin
 
-A content change here bumps `version` in `.claude-plugin/plugin.json` and
-`metadata.version` in the repo's `.claude-plugin/marketplace.json`. Keep this
-README and `docs/toolkit-map.md` current when the skills or gates change.
+A content change here bumps both plugin manifests and `metadata.version` in the
+repo's `.claude-plugin/marketplace.json`. Keep this README and
+`docs/toolkit-map.md` current when the skills or gates change.

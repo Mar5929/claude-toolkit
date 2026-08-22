@@ -2,14 +2,14 @@
 summary: Every major folder in a toolkit project carries its own short CLAUDE.md unless another canonical file already owns its instructions, so folder detail reaches an agent when it opens that folder instead of loading in every session.
 area: project-setup
 status: current
-source: GitHub issue #150, and the folder instruction files this repository runs
+source: GitHub issues #150 and #219, the folder instruction files this repository runs, and current Codex AGENTS.md loading behavior
 created_at: 2026-08-12
-confirmed_at: 2026-08-21
+confirmed_at: 2026-08-22
 tags: [project-setup, folder-instructions, claude-md, context-budget]
 approved_by: Mike Rihm
-approval_date: 2026-08-12
+approval_date: 2026-08-22
 project: claude-toolkit
-work_item: "150"
+work_item: "219"
 ---
 
 # Folder instruction files
@@ -64,10 +64,11 @@ without being lost.
 - **Four things stay in the root file:** how to talk to the owner, the pointers
   to the most dangerous rules, the project-knowledge startup route when that
   system is installed, and the codemap lines themselves.
-- **Codex is unaffected.** Codex reads the root `AGENTS.md` and never reads any
-  `CLAUDE.md`, root or nested. Nothing Codex needs lives only in a folder file,
-  and `AGENTS.md` keeps in full any detail the root `CLAUDE.md` handed off. No
-  nested `AGENTS.md` files are created.
+- **Codex is unaffected.** Codex never reads any `CLAUDE.md`, root or nested.
+  Nothing Codex needs lives only in a folder file, and root `AGENTS.md` keeps in
+  full any detail the root `CLAUDE.md` handed off. Codex supports layered
+  AGENTS.md files, but toolkit projects deliberately keep one root file so both
+  hosts' maps can be audited together.
 - **They are kept current.** When later work changes what a folder is for, that
   folder's `CLAUDE.md` is updated in the same session, the same way the root
   file is.

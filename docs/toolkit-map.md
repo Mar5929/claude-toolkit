@@ -8,7 +8,7 @@ depth lives in each plugin's own `README.md` and reference indexes.
 
 ## Plugins at a glance
 
-Installing is always per machine. Every plugin lands in `~/.claude/` and is then
+Installing is always per machine. Every plugin lands in its host's plugin home and is then
 available in every project on that machine. The `Setup` column says whether it
 also needs something inside a project folder: **Install and go** needs nothing,
 **Sets up a project** writes files into the repository and is opted into per
@@ -17,7 +17,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | Plugin | Purpose | Skills | Install | Setup |
 | --- | --- | --- | --- | --- |
 | [project-init](../plugins/project-init/README.md) | Put the toolkit's rules and systems into a project, new or existing, including the Salesforce delivery and knowledge boundary, and put machine-wide ones onto the computer itself | `project-init`, `project-sync`, `machine-sync` | `/plugin install project-init` | Sets up a project, and sets up a machine |
-| [second-brain](../plugins/second-brain/README.md) | Portable Git-native project knowledge with fixed properties, project-specific tags, visible provenance, short meaning reviews, read-only health reports, and separate read-only Claude Code session history shared by Claude, Codex, and optional Obsidian | `second-brain`, `remember`, `recall`, `cleanup`, `session-search` | `/plugin install second-brain` | Sets up a project |
+| [second-brain](../plugins/second-brain/README.md) | Portable Git-native project knowledge with one managed operating manual, a small shared startup map, flat memory, approved specifications, owner-approved saves, one checker, and separate read-only Claude Code session history | `second-brain`, `remember`, `recall`, `retire`, `reflect`, `session-search` | `/plugin install second-brain` | Sets up a project |
 | [sf-architect-solutioning](../plugins/sf-architect-solutioning/README.md) | Salesforce solution architect: approved solution plan before any build | `sf-architect-solutioning` | `/plugin install sf-architect-solutioning` | Install and go |
 | [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git lifecycle workflows | `pull-latest`, `reset-to-remote`, `merge-and-clean-up` | `/plugin install git-workflows` | Install and go |
 | [hooks-library](../plugins/hooks-library/README.md) | Reusable style, writing, Git-attribution, and Salesforce deployment hooks; system-specific knowledge hooks stay with second-brain | `hooks-library` | `/plugin install hooks-library` | Wires into settings |
@@ -30,11 +30,12 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | --- | --- | --- | --- |
 | project-init | project-init | Walk a NEW project through setup gates, including an optional owner-written `SOUL.md`, one skippable step at a time | `/project-init` |
 | project-sync | project-init | Audit an EXISTING project against the toolkit and close approved gaps | `/project-sync` |
-| machine-sync | project-init | Audit THIS COMPUTER's `~/.claude/` against the toolkit's machine-wide set and close approved gaps. Also the whole setup for a new computer | `/machine-sync`, "set up this machine from my toolkit" |
+| machine-sync | project-init | Audit this computer's Claude and Codex homes against the toolkit's machine-wide set and close approved gaps | `/machine-sync`, "set up this machine from my toolkit" |
 | second-brain | second-brain | Explain, install, audit, migrate, and maintain the complete project knowledge system | `/second-brain` |
-| remember | second-brain | Decide where persistent information belongs, show short What, Where, Why, Assumptions, and Unverified bullets, save only the approved meaning, and rebuild the knowledge index | `/remember`, "remember this" |
+| remember | second-brain | Follow the managed manual to search, propose, save approved meaning, and verify it | `/remember`, "remember this" |
 | recall | second-brain | Start from the project map and retrieve only the specifications and memories relevant to the task | `/recall`, "what does the project know about this?" |
-| cleanup | second-brain | Combine read-only property, tag, provenance, and health findings with a meaning review, then repair only what the owner approves | `/cleanup`, "clean up project knowledge" |
+| retire | second-brain | Supersede, retire, or delete one knowledge file safely | `/retire`, "this is no longer true" |
+| reflect | second-brain | Review the whole knowledge folder for duplicates, conflicts, and expired value | `/reflect`, "review project knowledge" |
 | session-search | second-brain | Search saved local Claude Code CLI discussions only after current project files leave a real gap | `/session-search`, "find the earlier Claude Code discussion" |
 | sf-architect-solutioning | sf-architect-solutioning | 5-phase Salesforce solutioning to an approved plan | `/sf-architect-solutioning` |
 | pull-latest | git-workflows | Get current with the remote without rewriting or discarding | `/pull-latest` |
@@ -93,22 +94,24 @@ Second-brain ships its two system-specific lifecycle hooks beside its runtime.
 `plugins/project-init/machine/` is the third pile in that plugin and the one
 most easily confused with `library/`. The difference is where it lands:
 `library/` goes into a project folder when someone runs a setup skill on it,
-this goes into the owner's own `~/.claude/` and applies to every repository on
+this goes into the owner's Claude and Codex homes and applies to every repository on
 the machine, including ones nobody ever set up.
 
 | Folder | Holds |
 | --- | --- |
 | `machine/rules/` | rule files that install to `~/.claude/rules/`, loaded in every project on the machine |
+| managed Codex block | the exact conditional knowledge-manual pointer, merged into `~/.codex/AGENTS.md` without touching other text |
 | `machine/settings/required.json` | the settings values `~/.claude/settings.json` must carry, merged in key by key and never written over the file |
 
 It also names the machine-wide hooks, whose scripts stay in `hooks-library` with
-every other hook. `machine-sync` installs all three kinds.
+every other hook. `machine-sync` installs all four kinds.
 
 It is deliberately small, and its own `README.md` carries the test that keeps it
 that way: a thing belongs there only if it must hold in a repository nobody set
 up, and only if it is not already in `library/` or the output styles. Shipping
 the same guidance in both piles would mean two copies that drift apart. Today it
-holds three rules. `no-ai-attribution.md` comes with a settings value and a hook
+holds four rules. `activate-project-knowledge.md` is a conditional pointer shared
+with Codex. `no-ai-attribution.md` comes with a settings value and a hook
 that each close a hole the other two leave. `propose-the-best-solution.md`
 stands alone and says the best answer always gets said out loud, whatever it
 would cost in time, effort, or resources.
@@ -156,12 +159,13 @@ These are not duplicated here. Go to the index that owns them:
   policy file `templates/protected-orgs.json`.
 - **MCP tool rules** (per-server, conditional):
   `plugins/project-init/library/guides/mcp-best-practices.md`.
-- **Project knowledge runtime sources**: the five skills under
-  `plugins/second-brain/skills/`, the startup and pull-request hooks under
-  `plugins/second-brain/hooks/`, the generated-index, health, and migration
-  tools under `plugins/second-brain/tools/`, and the new-layout templates referenced by the
-  setup skill. The [plugin README](../plugins/second-brain/README.md) is the
-  canonical package description.
+- **Project knowledge runtime sources**: the six skills under
+  `plugins/second-brain/skills/`, the startup and reminder hooks under
+  `plugins/second-brain/hooks/`, the index builder and checker under
+  `plugins/second-brain/tools/`, and the managed manual and layout templates
+  referenced by the setup skill. The
+  [plugin README](../plugins/second-brain/README.md) is the canonical package
+  description.
 - **Archived second-brain v1**:
   [archive/second-brain-v1/README.md](../archive/second-brain-v1/README.md)
   indexes the retired Worker, Neon, MCP, curator, hook, and knowledge-backfill
@@ -178,11 +182,10 @@ These are not duplicated here. Go to the index that owns them:
   v1 and ships from `project-init` (see below).
 - **Shipped project knowledge package**: the
   [plugin README](../plugins/second-brain/README.md) describes one `knowledge/`
-  vault with a short project overview, one generated index, approved
-  specifications, seven typed memory homes, and unchecked brainstorms. The
-  owner sees every persistent change before it becomes current truth. The package
-  ships four focused knowledge workflows plus setup and safe migration. Its
-  startup hook reads only the map, its pull-request hook only reminds, and no
+  system with one managed operating manual, a small project map, two generated
+  indexes, approved specifications, flat memory, and unchecked brainstorms. The
+  package ships task-specific workflows plus setup and safe migration. Its
+  startup hook reads only the manual and map, reminder hooks only remind, and no
   hook or helper agent writes or approves knowledge.
 - **Superseded second-brain v2 proposal**: deleted by issue #144, along with the
   v3 design documents. It was a proposal that was never built, and its numbered
@@ -232,9 +235,10 @@ The genuine watch-items are called out at the end.
   does not use the archive as a migration source.
 - **second-brain versus its focused skills.** `second-brain` owns setup,
   migration, explanation, and audit. `remember` saves owner-approved truth,
-  `recall` retrieves it, and `cleanup` maintains it. `session-search` reads past
-  Claude Code CLI discussions only after current files fail to answer and never
-  turns history into current truth. There is no competing quick-note store.
+  `recall` retrieves it, `retire` changes one file's lifecycle, and `reflect`
+  reviews the whole folder. `session-search` reads past Claude Code CLI
+  discussions only after current files fail to answer. All point to the same
+  manual, so none owns a second copy of policy.
 - **work-tracker versus the older work-items tree.** Not two trackers.
   work-tracker is the executable extension of the same four-stage convention.
   It adopts existing `SPEC.md`, `STATUS.md`, and notes in place, adds
@@ -282,7 +286,7 @@ The genuine watch-items are called out at the end.
 - **hooks-library versus project knowledge.** The general hook library owns
   reusable guards and reminders. Second-brain owns its two project-knowledge
   lifecycle hooks because their commands and messages are part of installing
-  that system. The startup hook reads only the two map files, and the
+  that system. The startup hook reads only the managed manual and small map, and the
   pull-request hook only pauses for the owner-approved `remember` review. Neither
   writes knowledge.
 - **git-workflows versus the parallel-agent-sessions rule.** The rule states the
@@ -372,14 +376,10 @@ The genuine watch-items are called out at the end.
 - **The session-continuity rule cluster.** Several general rules touch "do not
   lose context across sessions", which can read as overlap:
   `keep-claudemd-current` keeps root instructions small,
-  `offer-context-handoff` prepares the next session, `work-item-folders` owns a
-  Git-based work-item structure, `where-persistent-information-belongs` routes
-  active work, rules, skills, specifications, memory, references, and session
-  history. The
-  second-brain skills own the approved completion review. The placement rule is
-  the standing obligation the others assume: work stays with its item,
-  persistent information gets one home, and nothing important lives only in a
-  conversation.
+  `offer-context-handoff` prepares the next session, and `work-item-folders`
+  owns one Git-based tracker. When project knowledge is installed,
+  `knowledge/README.md` owns placement and the second-brain skills own their task
+  steps. Projects that decline it receive no knowledge rule.
   `keep-claudemd-current` names the status doc, the design doc, and long-term
   memory as destinations for detail that does not belong in CLAUDE.md, but it
   does not own any of them; the rules above do. Naming where something goes is
@@ -457,10 +457,10 @@ README, reference index, or this map. It exists because a July 2026 cleanup
 deleted the last pointer to the Salesforce dependency graph and nothing noticed
 for weeks. Run it with `node tests/orphan-check.mjs`.
 
-`tests/link-check.mjs` guards the other direction. The memory rule tells writers
-to link to one canonical home instead of copying it, so every copy that rule
-removes becomes a link, and a link that points at a deleted file still looks
-like a home while leading nowhere. It checks every relative Markdown link in the
+`tests/link-check.mjs` guards the other direction. The knowledge manual tells
+writers to link to one canonical home instead of copying it, so every removed
+copy becomes a link, and a link that points at a deleted file still looks like a
+home while leading nowhere. It checks every relative Markdown link in the
 repository and skips the examples inside code blocks. Run it with
 `node tests/link-check.mjs`.
 
@@ -473,3 +473,8 @@ passes. It also checks that the block both root instruction files carry is the
 same in each, plus the project-local second-brain runtime copies against the
 files the plugin ships. Run it with
 `node tests/installed-copy-check.mjs`.
+
+`tests/knowledge-startup-check.mjs` guards the operating contract. It checks the
+manual's size and checksum, its single ownership markers, the exact loader
+order, fail-open behavior, identical short root fallback, and Claude and Codex
+hook parity. Run it with `node tests/knowledge-startup-check.mjs`.

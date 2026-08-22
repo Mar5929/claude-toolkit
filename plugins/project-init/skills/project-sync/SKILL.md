@@ -171,8 +171,13 @@ checks:
   does not re-raise it.
 - **Project knowledge layout:** read the folder, never go by folder names
   alone. There is no detector script. Classify exactly one state:
-  - **current layout:** `knowledge/memory/` is flat and its files carry
-    `summary`, `status`, and `confidence` in YAML frontmatter;
+  - **current layout:** `knowledge/README.md` starts with
+    `<!-- claude-toolkit:knowledge-manual -->`, the flat memory and specification
+    folders and their indexes exist, and any saved files use current YAML
+    frontmatter. A fresh setup with no saved files is current;
+  - **partial current layout:** the flat folders and indexes have current
+    signatures, but the managed manual is missing. Offer to restore it and do
+    not convert approved files;
   - **older layout:** `knowledge/memory/` has subfolders by type
     (`context/`, `decisions/`, `domain/`, and the rest), or
     `knowledge/memory/tags.md` exists, or frontmatter carries
@@ -185,16 +190,17 @@ checks:
   and ask. Never move an ordinary folder called `memory`, `specs`, or
   `knowledge` on its name alone.
 - **Packaged runtime:** for a current layout, also check the installed
+  managed `knowledge/README.md` against the packaged template byte for byte;
   `remember`, `recall`, `retire`, `reflect`, `second-brain`, and
   `session-search` skills; `.claude/tools/build-knowledge-index.mjs`,
   `check-knowledge.mjs`, and `frontmatter.mjs`;
   `.claude/hooks/knowledge-session-start.mjs` registered under Claude
   `SessionStart`; the pull-request and work-item reminders registered under
-  `PreToolUse` with the `Bash` matcher; `SOUL.md`;
-  `.claude/rules/where-persistent-information-belongs.md`; the short root routes
-  in `CLAUDE.md` and `AGENTS.md`; and the optional equivalent `.codex/hooks.json`
-  loader where native Codex hooks are supported. Missing runtime is **partial**,
-  not a reason to rewrite knowledge documents.
+  `PreToolUse` with the `Bash` matcher; `SOUL.md`; the short root routes in
+  `CLAUDE.md` and `AGENTS.md`; and the equivalent `.codex/hooks.json` loader
+  where native Codex hooks are supported. A missing manual is **partial**. A
+  changed manual is **outdated**: show the diff and ask before restoring the
+  managed copy. Neither finding is a reason to rewrite approved knowledge.
 
   When the checker is present, run it during every read-only audit of a current
   layout, even when the runtime is otherwise complete:
@@ -327,20 +333,20 @@ answers for the two programs.
 - **Claude Code loads `.claude/rules/` automatically.** Every `.md` file there
   without `paths:` frontmatter is in context at session start. No import needed,
   and CLAUDE.md does not have to mention the folder for it to work.
-- **Codex loads `AGENTS.md` and nothing else.** Not `CLAUDE.md`, not
-  `.claude/rules/`, and it has no `@` import syntax, so any `@` line in
-  AGENTS.md is plain text the model may or may not act on. Codex caps the file
-  at 32 KB and drops the rest silently.
+- **Codex discovers `AGENTS.md` files, not Claude rule files.** The toolkit keeps
+  one root `AGENTS.md` for a clean audit surface. That root file tells Codex to
+  read every `.claude/rules/*.md` file before work. Codex has no Claude `@`
+  import syntax, so an `@` line is not a load instruction.
 
-So a project can pass every rule check while a Codex session runs on whatever
-fraction of the rules happens to be inline in AGENTS.md. Report:
+So a project can pass every file check while its root Codex route is missing or
+stale. Report:
 
-- **The delivery gap.** How many lines are in `.claude/rules/`, and how many
-  reach Codex? Say it as a number, because the ratio is usually startling.
-- **Which safety-critical rules are missing from AGENTS.md entirely.** For each
-  rule whose breach causes real damage (production writes, deploys, destructive
-  commands, secrets, anything a guard hook exists for), check whether AGENTS.md
-  states it inline. A pointer to a rule file is not delivery.
+- **The root route.** Confirm `AGENTS.md` tells Codex to read every project rule
+  before work and points to the managed knowledge manual as a fallback. A clear
+  instruction to read those files is delivery. Do not copy every rule body into
+  `AGENTS.md`.
+- **Host limits.** Report when local Codex settings prevent that route or the
+  startup hook from reaching the session. Do not assume Claude settings apply.
 - **Whether a guard hook covers the gap.** Claude Code `PreToolUse` hooks do not
   fire for Codex, and `~/.codex/config.toml` usually registers none. A rule
   Codex cannot see, backed by a hook that never runs for Codex, is unenforced in
@@ -351,11 +357,10 @@ fraction of the rules happens to be inline in AGENTS.md. Report:
   load-bearing and expand to nothing in either program.
 - **AGENTS.md size** against the 32 KB cap, so nothing is being truncated.
 
-The fix, when the owner approves it, is not to shrink CLAUDE.md into AGENTS.md
-or the reverse. It is to write the damaging rules out in full in AGENTS.md, add
-a table saying which rule file to open before which kind of work, and record in
-`keep-claudemd-current.md` that the two root files diverge on purpose so the next
-session does not helpfully "fix" them back into copies.
+The fix, when the owner approves it, is the toolkit's root `AGENTS.md` route and
+the matching short project-knowledge fallback. Keep rule bodies in their one
+canonical file. The toolkit intentionally uses no nested `AGENTS.md` files even
+though Codex supports layered files.
 
 Skip this check only when the owner confirms Codex never runs in the project.
 
@@ -381,13 +386,11 @@ presence. Read the file and report:
   open TODOs drift the moment they are written here. Flag them for work-tracker
   or the live status doc.
 - **Project-knowledge startup parity.** When the current layout is installed,
-  confirm Claude's `SessionStart` hook and Codex's root `AGENTS.md` route both
-  name `SOUL.md`, `knowledge/current.md`, and the two generated indexes, load no
-  other memory by default, and treat brainstorms as unchecked. Confirm the
-  Claude hook fails open when any of those files is absent. Where `.codex/hooks.json` is supported,
-  confirm it reinforces the same route. A copied authority map or full save
-  procedure in either root file is stale duplication and should be replaced by
-  the short route after owner approval.
+  confirm both hosts register the same loader and that it reads, in order,
+  `SOUL.md`, `knowledge/README.md`, `knowledge/project.md`,
+  `knowledge/current.md`, and the entry lines of both indexes. Confirm it loads
+  no other memory and fails open when a file is absent. Both root files carry
+  only the same short fallback. Any copied policy is stale duplication.
 - **Stale content.** Anything the code, paths, or decisions have since
   contradicted.
 
@@ -424,8 +427,8 @@ folders and report each one as:
   what it is for. List it and ask the owner in step 4.
 
 Two things this check never does. It never reports a nested `AGENTS.md` as
-missing, because there is no such thing: Codex reads the root `AGENTS.md` and
-nothing else. And it never proposes moving a behavior rule out of
+missing, because toolkit projects deliberately use one root file even though
+Codex supports layering. And it never proposes moving a behavior rule out of
 `.claude/rules/` into a folder file, because a file that loads only sometimes
 cannot carry a rule that applies always.
 
@@ -524,23 +527,23 @@ should look in THIS project, confirm, act, summarize. Ground rules:
      `frontmatter.mjs` into `.claude/tools/`.
   2. Copy the packaged `knowledge-session-start.mjs`, `save-reminder.mjs`,
      `work-item-close.mjs`, and `command-parsing.mjs` into `.claude/hooks/`.
-  3. Copy the packaged `where-persistent-information-belongs.md` into
-     `.claude/rules/`.
+  3. Copy the packaged knowledge manual unchanged to `knowledge/README.md`.
+     When a copy differs, show the diff and get approval before replacing it.
   4. Merge, never replace, `.claude/settings.json`: disable private auto-memory,
      enable `second-brain@claude-toolkit`, register the fail-open Claude
      `SessionStart` loader, and register both reminders under `PreToolUse` with
      the `Bash` matcher.
-  5. Add the startup route to root `AGENTS.md` in full, and the same words to
-     root `CLAUDE.md`. Codex reads only `AGENTS.md` and cannot follow a pointer,
-     so that copy is the one it gets. Where native Codex hooks are supported,
-     merge the same fail-open loader into `.codex/hooks.json` without removing
-     other hooks.
+  5. Add the same short startup and fallback pointer to root `AGENTS.md` and
+     `CLAUDE.md`. Merge the same fail-open loader into `.codex/hooks.json`
+     without removing other hooks, with at least 5,000 tokens of additional
+     context.
   6. Add the Obsidian ignore allowlist so only `knowledge/.obsidian/app.json` is
      shared.
   7. Run `node .claude/tools/build-knowledge-index.mjs`, then
      `node .claude/tools/check-knowledge.mjs`. Both must pass. Then run the
-     startup loader and confirm it prints only `SOUL.md`,
-     `knowledge/current.md`, and the entry lines of the two indexes.
+     startup loader and confirm it prints `SOUL.md`, the manual,
+     `knowledge/project.md`, `knowledge/current.md`, and the entry lines of both
+     indexes, once each and in that order.
   8. After converting a folder off an older layout, run the `reflect` skill once.
      A conversion is exactly when duplicates and contradictions surface.
 

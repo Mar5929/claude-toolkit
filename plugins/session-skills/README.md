@@ -111,11 +111,10 @@ brainstorm folder instead, rather than creating half a system.
 A brainstorm is not a specification and not a work item's `SPEC.md`. It is the
 record of how the answers were reached.
 
-At the end it invokes `remember`, which decides where persistent information
-belongs, shows short What, Where, Why, Assumptions, and Unverified bullets, and
-saves only the meaning you approve. The raw brainstorm checkpoint is the one
-place content reaches a file before that review, because the checkpoints make
-an interrupted interview safe.
+At the end it invokes `remember`, which follows the installed knowledge manual
+and saves only the meaning you approve. The raw brainstorm checkpoint is the
+one place content reaches a file before that review, because the checkpoints
+make an interrupted interview safe.
 
 The `spec-before-you-build.md` rule requires a refinement session before work is
 built, and this is a good way to hold one. That rule names no skill on purpose,
@@ -137,9 +136,8 @@ start from.
 
 1. **The persistent review.** It invokes the installed `remember` skill to decide
    what is worth keeping and where it belongs.
-2. **The save decision.** `remember` shows short What, Where, Why, Assumptions,
-   and Unverified bullets, then waits when your approval is required. Full file
-   text appears only when you ask for it.
+2. **The save decision.** `remember` follows the installed manual and waits when
+   your approval is required. Full file text appears only when you ask for it.
 3. **The draft.** A prompt for a fresh session, opening with the goal of the
    work, then the task, what to read first, the decisions nobody has written
    down yet, the open questions, and one concrete first action. You do not see

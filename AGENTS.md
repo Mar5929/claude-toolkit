@@ -14,41 +14,17 @@ I have ADHD. Talk to me like I am smart but not technical. Sixth-grade reading l
 
 ## Project knowledge
 
-1. At session start, read `SOUL.md`, `knowledge/project.md`, and
-   `knowledge/current.md`. Then read `knowledge/memory/memory-index.md` and
-   `knowledge/specs/spec-index.md`, which list one line per file.
-2. `knowledge/current.md` is short-term working memory: what is being worked on
-   right now, what is blocking it, the next step. It is overwritten, never added
-   to, and nothing in it is a lasting fact.
-3. `knowledge/specs/` says how the system is meant to work, once settled.
-   `knowledge/memory/` says what is worth knowing: lasting facts, decisions,
-   events, and context, one flat folder with one file per topic.
-   `knowledge/brainstorms/` is unchecked source material. A current
-   specification beats a memory; when they disagree, say so and name both.
-4. Before asking Mike something, or searching the code broadly, go down the find
-   ladder and stop at the first answer: `knowledge/current.md`, then
-   `.claude/rules/`, then skills, then memory and specifications, then past
-   sessions. Past sessions are the lowest tier: offer it rather than doing it
-   silently, and hand every result back asking whether it is still accurate.
-5. Never write to memory or a specification without showing Mike the exact words
-   first and getting a yes. Show What, Where, Source, Tags, and Assumptions.
-   Silence, an unclear answer, or asking to see the full text all mean nothing
-   gets written. Write only what he approved.
-6. Keep project knowledge small: save only when a stable fact, lasting event,
-   decision, or state prevents repeated explanation or the same wrong action.
-   Standing agent instructions go in rules, active work wherever its work item is
-   tracked, reusable processes in skills, outside source material in references,
-   and past conversations in session history. A procedure is never a memory.
-7. The `remember` skill holds the save test, the placement routes, and the file
-   shape. `recall` walks the find ladder. `retire` takes one file out of current
-   use. `reflect` sweeps for duplicates and contradictions. Invoke them rather
-   than working from memory about how they work.
+The startup hook loads `SOUL.md`, then `knowledge/README.md` once, then
+`knowledge/project.md`, `knowledge/current.md`, and the two knowledge indexes.
+If that map is not already in this session, read those files once in that order.
+If a file is missing, continue and report it. `knowledge/README.md` wins when
+project-knowledge instructions disagree.
 
 <!-- shared-with-agents-md:end -->
 
-Everything above the end marker is in `CLAUDE.md` word for word, with no
-exceptions, and `tests/installed-copy-check.mjs` checks it. Edit either file
-above the marker and copy the block across in the same change.
+The block between the markers is in `CLAUDE.md` word for word, and
+`tests/installed-copy-check.mjs` checks it. Edit either marked block and copy it
+across in the same change.
 
 Everything **below** the marker is allowed to differ, and does. `CLAUDE.md` keeps
 one line per folder there and sends the detail to a `CLAUDE.md` inside that
@@ -59,8 +35,6 @@ match `CLAUDE.md`, and do not create nested `AGENTS.md` files.
 `tests/installed-copy-check.mjs` compares only the text between the markers, so
 below them nothing checks anything: when you change a passage here, change the
 matching passage in `CLAUDE.md` in the same edit, by hand.
-`knowledge/memory/claude-md-and-agents-md-carry-the-same-block.md`
-says why the markers sit where they do.
 
 ## Codex communication rules
 
@@ -102,7 +76,7 @@ limit the requested work product.
 |---|---|
 | `plugins/` | The nine plugins this repo ships. Each has its own `README.md`, which is that plugin's canonical description. |
 | `plugins/project-init/library/` | The reusable material other projects receive: `rules/general/`, `rules/salesforce/`, `output-styles/`, `tools/`, `templates/`, `guides/`. Each has a `README.md` index. |
-| `plugins/project-init/machine/` | The material a whole computer receives, installed into `~/.claude/` by the `machine-sync` skill: machine-wide rules and the settings values every machine must carry. Its `README.md` holds the two-question test for what belongs here instead of in `library/`, and that folder stays small on purpose. |
+| `plugins/project-init/machine/` | The material a whole computer receives through `machine-sync`: Claude rules and settings plus the managed Codex project-knowledge pointer. Its `README.md` holds the two-question test for what belongs here instead of in `library/`. |
 | `.claude-plugin/marketplace.json` | Registers every plugin for Claude Code. `.agents/plugins/marketplace.json` does the same for Codex. |
 | `docs/toolkit-map.md` | The cross-cutting catalog: what each piece is, and the honest read on what looks redundant but is not. |
 | `tests/` | Node checks, run by hand. `link-check.mjs` (a link pointing at a file that is not there), `orphan-check.mjs` (a shipped file no index points at), `installed-copy-check.mjs` (a file this repo ships and the copy it runs have drifted apart). |
@@ -118,13 +92,12 @@ copies of files this repo also ships. `tests/installed-copy-check.mjs` fails whe
 a shipped file and its copy stop matching, so nobody has to remember to change
 both.
 
-The `second-brain` plugin supplies the `remember`, `recall`, `cleanup`, and
-`retire`, `reflect`, and `session-search` skills. The installed startup
-loader, pull-request reminder, work-item reminder, index builder, and knowledge
-checker under `.claude/` are copies of what that plugin ships. The policy they
-follow is `knowledge/specs/knowledge-system.md`. Codex reads that policy before
-changing persistent knowledge, and starts every task from `SOUL.md`,
-`knowledge/project.md`, `knowledge/current.md`, and the two generated indexes.
+The `second-brain` plugin supplies the `remember`, `recall`, `retire`,
+`reflect`, and `session-search` skills. The installed manual, startup loader,
+pull-request reminder, work-item reminder, index builder, and knowledge checker
+are managed copies of what that plugin ships. `knowledge/README.md` is the
+runtime authority. `knowledge/specs/knowledge-system.md` is the build authority
+for the plugin itself.
 
 ## Where work is tracked
 
@@ -247,11 +220,10 @@ This repo is one of those projects now. It runs the toolkit on itself, so a
 merged change reaches it the same way: refresh the plugin, then sync.
 ## Codex-specific instructions
 
-Codex reads this file and nothing else. It does not load `.claude/rules/`
-automatically the way Claude Code does, and it has no `@` import, so the line
-above pointing at that folder is an instruction, not a load. Open
-`.claude/rules/` and read every `.md` file in it before starting work here.
+Codex loads this root file automatically. The instruction above to read
+`.claude/rules/` is still needed because those Claude rule files are not loaded
+by Codex on their own. Open and read every `.md` file there before work.
 
-The hooks in `.claude/settings.json` are Claude Code hooks. They do not fire for
-Codex, so the rules they back are unenforced in a Codex session and have to be
-followed from the written rule alone.
+Codex also runs the project startup hook registered in `.codex/hooks.json` when
+the project is trusted. The short root route remains the fallback if that hook
+does not run.

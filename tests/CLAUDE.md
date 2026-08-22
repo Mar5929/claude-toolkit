@@ -1,4 +1,4 @@
-# tests: three Node checks, run by hand
+# tests: four Node checks, run by hand
 
 Nothing runs these automatically. Run all three before opening a pull request:
 
@@ -6,6 +6,7 @@ Nothing runs these automatically. Run all three before opening a pull request:
 node tests/link-check.mjs
 node tests/orphan-check.mjs
 node tests/installed-copy-check.mjs
+node tests/knowledge-startup-check.mjs
 ```
 
 Each asks a different question, and each exists because something real broke.
@@ -15,6 +16,7 @@ Each asks a different question, and each exists because something real broke.
 | `link-check.mjs` | Does what a file points at still exist? |
 | `orphan-check.mjs` | Can a shipped file still be found, meaning is it named by at least one index document? |
 | `installed-copy-check.mjs` | Do two files that must say the same thing still say it? |
+| `knowledge-startup-check.mjs` | Do both hosts load one managed manual and the same small project map? |
 
 ## Working in here
 
@@ -35,6 +37,9 @@ Each asks a different question, and each exists because something real broke.
 - **The block between the markers must match word for word**, with no
   exceptions. Host-specific startup wiring belongs in the host settings files;
   the shared root block carries the same short knowledge route for both.
+- **`knowledge-startup-check.mjs` owns the startup contract.** It checks the
+  loader order, fail-open behavior, host registration, root fallback, manual
+  size and checksum, and the absence of a second marked policy owner.
 - Each script explains its own reason for existing in a comment at the top. Read
   that before changing what it checks.
 

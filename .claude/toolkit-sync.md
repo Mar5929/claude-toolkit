@@ -34,6 +34,11 @@ back flagged as possibly out of date. 2,659 lines of health, layout, and
 harness machinery were deleted in favour of one read-only checker: that
 machinery was a large part of why saving cost more than it gave back.
 
+Cleaned up on 2026-08-22 for GitHub issue #219. The system now has one managed
+`knowledge/README.md` operating manual. Claude Code and Codex load it once with
+the same small project map. Root files, rules, hooks, and skills point to the
+manual instead of carrying policy copies.
+
 This repository is the toolkit. It now runs the toolkit on itself, the same way
 Anchor, DragonFly, and Diligence Ready do, so a change to the memory system, the
 rules, the output style, or the hooks is felt where it is written instead of
@@ -46,7 +51,7 @@ three weeks later in another project.
 | 0. Orient | Done. Existing repository, not a new one, so this ran as a sync rather than an init. Node and Markdown, no application stack. |
 | 1. Scaffolding and work tracking | Already answered. Work is tracked on the `Claude-Toolkit-Project` board on GitHub. `CLAUDE.md` names it, and `spec-before-you-build.md` is installed alongside that pointer. No scaffolding was added: the folder layout already existed. |
 | 2. Hooks | Done. `save-reminder` and `knowledge-session-start` are installed under `.claude/hooks/` and registered in `.claude/settings.json`. Codex registers the same startup loader in `.codex/hooks.json`. The two style hooks were removed with the toolkit, as explained below. |
-| 3. Project knowledge | **Adopted from the packaged plugin.** `SOUL.md`, `knowledge/current.md`, and the two generated indexes load at session start. Approved specifications, flat persistent memory, and unchecked brainstorms live under the same knowledge root. The packaged `remember`, `recall`, `retire`, `reflect`, `second-brain`, and read-only `session-search` skills, plus the read-only checker, replace hand-made or automatic curation. The retired rule, verifier, shape checker, health tool, layout tool, and per-folder indexes stay removed. |
+| 3. Project knowledge | **Adopted from the packaged plugin.** `SOUL.md`, the managed operating manual, `knowledge/project.md`, `knowledge/current.md`, and both generated index entry lists load at session start. Approved specifications, flat persistent memory, and unchecked brainstorms live under the same knowledge root. The packaged skills keep only task-specific steps. The retired policy rule and machinery stay removed. |
 | 4. Knowledge layer | Included with Gate 3. The graphify code graph was offered and declined, see below. |
 | 5. Root instructions, rules, output style | Done. `CLAUDE.md` and `AGENTS.md` carry the same short project knowledge route. `.claude/rules/` holds the applicable general rules, with no large memory rule or wrap-up ritual. The plain-language output style is installed and selected. |
 | 6. Optional toolkit skills | Done. All five now ship in one plugin, `session-skills`: `explain-simply`, `grill-me`, `handoff`, `session-summary`, and `track-tasks`. The four that predate the merge were already switched on in the machine settings at `~/.claude/settings.json`. |
@@ -59,7 +64,7 @@ what each one does, and which ones this repository does not carry.
 
 Two retired rules remain deliberately absent: `second-brain.md` and
 `wrap-up-ritual.md`. The current policy lives in
-`knowledge/specs/memory-system.md` and loads only when the task needs it.
+`knowledge/README.md` and loads once at session start.
 
 Two more default-on rules were deliberately left out from the start:
 
@@ -105,8 +110,10 @@ are unmodified on purpose. Adapting them would make this a worse test of what it
 ships.
 
 `tests/installed-copy-check.mjs` fails when a shipped file and its copy stop
-matching, or when the block shared by `CLAUDE.md` and `AGENTS.md` differs between
-them. Run it with the other two checks before opening a pull request.
+matching, including the managed manual, or when the block shared by `CLAUDE.md`
+and `AGENTS.md` differs. `tests/knowledge-startup-check.mjs` enforces the startup
+order, host parity, manual size, and single policy owner. Run both with the other
+checks before opening a pull request.
 
 The two files are compared word for word with no exceptions. The passage they
 used to word differently, between `<!-- host-specific:start -->` and
@@ -115,8 +122,8 @@ obsolete root-schema comparison was removed with it.
 
 The knowledge runtime under `.claude/` is now installed from the packaged
 `second-brain` plugin: the startup loader, pull-request reminder, generated
-index builder, layout tool, and read-only health tool. The installed-copy check
-compares them with their plugin originals.
+index builder, checker, frontmatter reader, and managed manual. The
+installed-copy check compares them with their plugin originals.
 
 ## Specifications
 

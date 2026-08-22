@@ -3,9 +3,7 @@
 /**
  * Read-only SessionStart loader.
  *
- * Prints exactly four things into a new session: who the agent is, what is
- * happening right now, and the one-line-per-file listing of memory and of
- * specifications. Nothing else.
+ * Prints the one operating manual and the small project map into a new session.
  *
  * From the two indexes it prints only the entry lines, never the explanation
  * at the top of those files. That explanation is for a person opening the file;
@@ -23,8 +21,14 @@ import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const FILES = [
+export const STARTUP_FILES = [
   { path: "SOUL.md", label: "Who you are in this project", whole: true },
+  {
+    path: "knowledge/README.md",
+    label: "How to use project knowledge",
+    whole: true,
+  },
+  { path: "knowledge/project.md", label: "What this project is", whole: true },
   { path: "knowledge/current.md", label: "What is happening right now", whole: true },
   {
     path: "knowledge/memory/memory-index.md",
@@ -59,9 +63,15 @@ export function loadKnowledge(projectRoot) {
   const root = resolve(projectRoot || process.cwd());
   const sections = [];
 
-  for (const { path, label, whole } of FILES) {
+  for (const { path, label, whole } of STARTUP_FILES) {
     const absolute = resolve(root, path);
-    if (!existsSync(absolute)) continue;
+    if (!existsSync(absolute)) {
+      const detail = path === "knowledge/README.md"
+        ? " Do not invent knowledge policy; project sync can restore the managed copy."
+        : "";
+      sections.push(`[Project startup file missing: ${path}. Continuing without it.${detail}]`);
+      continue;
+    }
     let text;
     try {
       text = readFileSync(absolute, "utf8").replace(/\r\n/g, "\n").trim();
@@ -70,17 +80,14 @@ export function loadKnowledge(projectRoot) {
       continue;
     }
     const body = whole ? text : entriesOnly(text);
-    if (body.trim()) sections.push(`${label} (${path}):\n\n${body}`);
+    if (body.trim()) {
+      sections.push(`${label} (${path}):\n\n${body}`);
+    } else if (!whole && text) {
+      sections.push(`${label} (${path}):\n\nNothing saved yet.`);
+    } else {
+      sections.push(`[Project startup file empty: ${path}. Continuing without it.]`);
+    }
   }
-
-  if (sections.length === 0) return "";
-
-  sections.push(
-    "Only files marked current answer questions about what is true now."
-    + " Before asking the owner something, or searching the code broadly, use"
-    + " `recall`. Nothing is written to memory or a specification without"
-    + " showing him the exact words first and getting a yes.",
-  );
 
   return sections.join("\n\n---\n\n") + "\n";
 }

@@ -1,45 +1,22 @@
 ---
 name: session-search
 description: >-
-  Search locally saved Claude Code CLI conversations. This is tier 5 of the find
-  ladder, reached only when short-term memory, rules, skills, and long-term
-  memory have all come up empty, or when the owner asks to find an earlier
-  session. Search read-only transcript history by project, repository worktrees,
-  words or topic, and date. Every result comes back flagged as possibly out of
-  date. Never treat a past session as current truth, copy it into project
-  knowledge, or silently search every project on the machine.
+  Search locally saved Claude Code CLI conversations after project knowledge
+  has not answered, or when the owner asks for an earlier session. Search by
+  project, repository worktrees, words, or date. Read only and never search
+  unrelated projects silently.
 ---
 
 # session search
 
-## Where this sits
-
-This is **tier 5 of the find ladder**, the lowest tier. Not a last-ditch effort:
-a real place to look, reached in order.
-
-1. `knowledge/current.md`, short-term memory.
-2. `.claude/rules/`, in case it is a standing instruction.
-3. Skills, in case it is a procedure rather than a fact.
-4. `knowledge/memory/` and `knowledge/specs/`, long-term memory.
-5. Here.
-
-`recall` walks tiers 1 to 4. Invoke this skill only when those left a real gap,
-or when the owner asks for an earlier session directly.
-
-## Offer it, never take it silently
-
-Before searching, say what the earlier tiers found and ask:
-
-> I cannot find it. Do you want me to search past sessions?
-
-The owner may say yes, or you may use your own judgment and search. Either way
-it is offered or announced first. Never search past sessions silently and
-present the result as though it came from the project.
+This is the historical tier defined by `knowledge/README.md`. Follow the
+manual's rules for announcing the search, treating results as possibly out of
+date, and confirming anything that may still be true. This skill owns only how
+to run the read-only search.
 
 ## Search the smallest scope
 
-Choose two to four distinctive words, a quoted phrase, or a known session title.
-Run the bundled read-only script:
+Choose two to four distinctive words, a quoted phrase, or a known session title:
 
 ```text
 node "${CLAUDE_SKILL_DIR}/scripts/search-sessions.mjs" \
@@ -47,25 +24,23 @@ node "${CLAUDE_SKILL_DIR}/scripts/search-sessions.mjs" \
   --project "${CLAUDE_PROJECT_DIR}"
 ```
 
-The default `project` scope searches sessions tied to the current project only.
-If that scope does not answer and another worktree of the same repository is
-relevant, add `--scope repository`.
+The default scope searches sessions tied to the current project. If another
+worktree of the same repository is relevant, add `--scope repository`.
 
 Use `--since YYYY-MM-DD` and `--until YYYY-MM-DD` when the likely date is known.
 Use `--limit N` only when the default five matches are not enough.
 
 Never search unrelated projects without the owner's explicit permission. After
 permission, use both `--scope all` and `--allow-all-projects`. The script refuses
-an all-project search without that second flag.
+an all-project search without the second flag.
 
-## Read results as history
+## Expand only a useful result
 
-The script returns JSON for the agent. Keep raw matches in tool context by
-default. Each first-pass result contains at most 500 characters, the project,
-session, matching-message time, session start and last activity, role, exact
-resume command, and the identifiers needed to expand one result.
+The first pass returns short JSON excerpts plus project, session, time, role,
+resume command, and result identifiers. Keep raw matches in tool context unless
+the owner asks for them.
 
-If one excerpt is promising but incomplete, expand only that result:
+Expand only a promising result:
 
 ```text
 node "${CLAUDE_SKILL_DIR}/scripts/search-sessions.mjs" \
@@ -75,42 +50,25 @@ node "${CLAUDE_SKILL_DIR}/scripts/search-sessions.mjs" \
   --expand message
 ```
 
-Use `--expand turn` only when the matching message and its reply are both
-needed. Reuse the original `--scope` and all-project permission flag.
+Use `--expand turn` only when the matching message and reply are both needed.
+Reuse the original scope and all-project permission flag.
 
-## Flag every result, every time
+## Return the result
 
-A past session is a record of what was said once. It is not current truth, and
-it may have been overtaken by everything that happened since.
+Apply the manual's historical-result warning every time. Name the session and
+date so the owner can judge its age. Current project files win when they answer;
+show any conflict instead of blending the sources.
 
-So every answer that leans on a session match comes back with the flag attached:
+If the owner wants the whole conversation, use the returned session ID with
+Claude Code's resume command.
 
-> I found this in a previous session. Is this still accurate?
+## Boundaries
 
-That is not optional and it is not reserved for uncertain cases. The owner is
-the only one who knows whether something said weeks ago still holds.
-
-Name the session and its date alongside the flag, so he can judge how old it is.
-
-Current project files win when they answer. If a session match conflicts with a
-current file, show the conflict and treat the session as historical evidence
-only.
-
-Do not paste raw matches unless the owner asks or the passage is needed to
-explain uncertainty. If the owner wants the full conversation, use the returned
-session ID with Claude Code's `/resume` picker or `claude --resume <session-id>`.
-
-## Keep the boundary
-
-- Search Claude Code CLI history only. Desktop, editor, web, and Codex histories
-  are separate capabilities.
+- Search Claude Code CLI history only. Other hosts have separate histories.
 - Never edit, move, copy, index, or archive a transcript.
-- Never write a result into `knowledge/` or a tracker on the strength of having
-  found it here. If it turns out to still be true, it goes through `remember`
-  like anything else, with its own approval.
-- Never return tool results, hidden thinking, or metadata-only records as
-  conversation matches.
-- Unknown JSONL records are skipped because Claude Code's internal transcript
-  shape may change.
-- If history is disabled, expired, removed, missing, or unreadable, report that
-  possibility without claiming no discussion happened.
+- Never write a result into project knowledge or a tracker merely because it was
+  found.
+- Never return tool output, hidden reasoning, or metadata-only records as a
+  conversation match.
+- If history is unavailable, say so without claiming the discussion never
+  happened.

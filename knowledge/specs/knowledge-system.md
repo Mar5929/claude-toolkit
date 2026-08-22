@@ -2,13 +2,14 @@
 summary: How the knowledge system works, in enough detail to build it, covering the two file schemas, the find ladder, the routing table, the save test, and the lifecycle of a saved file.
 area: knowledge-system
 status: current
-source: work-items/memory-redesign/knowledge-system-north-star.md, approved by Mike Rihm on 2026-08-21, plus the schema decisions settled in the session that opened issue #215
+source: work-items/memory-redesign/knowledge-system-north-star.md and the owner-approved requirements in GitHub issues #215 and #219
 created_at: 2026-08-21
+confirmed_at: 2026-08-22
 tags: [knowledge-system, memory, specifications, second-brain, schema, build-authority]
 approved_by: Mike Rihm
-approval_date: 2026-08-21
+approval_date: 2026-08-22
 project: claude-toolkit
-work_item: "215"
+work_item: "219"
 supersedes: knowledge/specs/memory-system.md, knowledge/specs/memory-system-v2.md
 ---
 
@@ -17,9 +18,18 @@ supersedes: knowledge/specs/memory-system.md, knowledge/specs/memory-system-v2.m
 This is the build authority for agents changing the `second-brain` plugin in this
 repository. It says what the system must do, precisely enough to build from.
 
-Adopting projects never receive this file. They receive the skills, rules, hooks,
-tools, and folder templates the plugin ships. This is the same split recorded in
-`knowledge/memory/memory-system-spec-stays-in-the-toolkit.md`.
+Adopting projects never receive this build specification. They receive one
+managed `knowledge/README.md` operating manual, task-specific skills, hooks,
+tools, and folder templates. The manual is the runtime authority and is copied
+unchanged from the plugin template. This specification remains the authority
+for maintainers changing the plugin.
+
+The fail-open startup loader supplies, in order, `SOUL.md`, the manual,
+`knowledge/project.md`, `knowledge/current.md`, and the entry lines of both
+generated indexes. Claude Code and Codex register the same loader. Both root
+instruction files contain only a short activation and fallback pointer. Rules,
+skills, hooks, setup material, and machine-wide files point to the manual instead
+of repeating shared policy.
 
 The design input is
 `work-items/memory-redesign/knowledge-system-north-star.md`. Where this
@@ -39,7 +49,7 @@ stale or over-general note and acts on it.
 
 ## Where information goes
 
-Eight destinations. Putting something in the wrong one causes real damage, so
+Eleven destinations. Putting something in the wrong one causes real damage, so
 this gets checked before anything is saved.
 
 | The question | Where it goes |
@@ -52,10 +62,13 @@ this gets checked before anything is saved.
 | What is being worked on right now | `knowledge/current.md` |
 | A work item's requirements and status | The project's work tracker |
 | Only needed to finish the task at hand | Nowhere. It stays in the conversation. |
+| Unchecked internal exploration | `knowledge/brainstorms/` |
+| Outside source material | The project's reference or delivery files |
+| A past conversation | Session history |
 
-The North Star's own table has six rows. The two extra rows here make explicit
-what it states elsewhere in prose: live work state belongs in the tracker or in
-short-term memory, never in `knowledge/memory/` or `knowledge/specs/`.
+The North Star's own table has six rows. The five extra rows here make explicit
+what it states elsewhere in prose: live work, raw exploration, outside sources,
+and past conversations do not become memory or specifications by default.
 
 Two of these get mixed up constantly, and both are damaging:
 

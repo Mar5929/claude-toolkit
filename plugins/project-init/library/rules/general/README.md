@@ -16,7 +16,6 @@ structure Gate 5 writes.
 
 | File | What it does |
 | --- | --- |
-| `where-persistent-information-belongs.md` | Put active work wherever its work item is tracked, raw client material with delivery artifacts, internal exploration in brainstorms, agent instructions in rules, reusable processes in skills, approved behavior in specifications, and persistent project information in memory. Uses short approval bullets and prevents copies. |
 | `keep-claudemd-current.md` | Update CLAUDE.md before a session ends whenever it surfaces a new path, convention, decision, or workflow. A slightly-too-full CLAUDE.md beats a stale one. Two-sided: also prune while you are in there, route detail to the design, status, or project-knowledge layer, and keep the codemap one line per folder instead of a changelog. |
 | `honest-verification.md` | Do not claim more than you verified. If it was not run or tested, say so and leave the steps. Report failures with output. |
 | `parallel-agent-sessions.md` | Sharing a repo with other live sessions, in one rule: where you work and how you behave. Look before you edit (`git worktree list`, `git status`, `git log`); work in your own worktree on your own branch and never in the shared primary checkout; never `git add -A`; keep shared-file edits narrow and preserve unrelated entries while allowing owner-approved project-knowledge maintenance; claim a sequential identifier by pushing it first, because parallel agents WILL collide on numbers; never touch another session's branch or commit its uncommitted work; land by PR, merge only on owner approval and only after a collision check. Written after one session caused a work-item number collision, had its staged files swept into another session's commit twice, and reordered a shared backlog. Absorbed the separate `worktree-isolation` rule. |
@@ -61,9 +60,10 @@ and either one lands in the project as `.claude/rules/dependency-graph.md`.
 
 ## Project knowledge procedure
 
-The current procedure comes from the `second-brain` plugin as packaged skills,
-tools, and fail-open hooks. Do not restore or duplicate the retired large rule,
-verifier, or per-folder indexes in this library.
+The current procedure comes from the `second-brain` plugin as one managed
+`knowledge/README.md`, task-specific skills, tools, and fail-open hooks. Projects
+that decline the system receive no knowledge rule from this library. Do not
+restore or duplicate the retired large rule, verifier, or per-folder indexes.
 
 Retired v1 recognition examples no longer live in this active rule library.
 `project-sync` identifies legacy local wiring directly, without installing or

@@ -45,7 +45,7 @@ written down somewhere. It gets fitted into the system:
 | What I bring | Where it lands |
 | --- | --- |
 | A rule every project should follow (behavior, writing style, workflow) | Its own file in `library/rules/general/`, copied into each new project's `.claude/rules/` |
-| A rule that must hold in every repository on the machine, even ones I never set up | Its own file in `machine/rules/`, copied into `~/.claude/rules/` by the `machine-sync` skill. Only when a project rule genuinely cannot cover it, because that folder stays small |
+| A rule that must hold in every repository on the machine, even ones I never set up | Its own file in `machine/rules/`, installed for Claude Code and, where needed, as a managed Codex block by `machine-sync`. Only when a project rule genuinely cannot cover it |
 | A change to the voice Claude answers in, every turn | `library/output-styles/`, copied into each project's `.claude/output-styles/` and switched on in its settings. Use this only for something already written as a rule: a style is the short operative form, delivered where the session gets reminded of it each turn |
 | A setup step for new projects | A gate (or part of one) in the `project-init` skill |
 | A guard hook or automation | The [`hooks-library`](plugins/hooks-library/README.md) plugin. A hook does one of three jobs: check an output against a rule a machine can test with no interpretation, trigger a process at a moment agents forget, or orient a session at its start. If it needs none of those, it stays a rule |
@@ -100,12 +100,12 @@ claude-toolkit/
         tools/                       permsets.py and the kb/ dependency graph tool
         templates/                   copy-and-fill starting points
         guides/                      how-to docs for installing the kits above
-      machine/                    ← everything that gets COPIED INTO ~/.claude,
-                                     so it holds in EVERY repo on the machine
+      machine/                    ← machine-wide Claude and Codex material
         README.md                    the test for what belongs here, not in library/
         rules/                       no-ai-attribution.md,
                                      propose-the-best-solution.md,
-                                     keep-design-out-of-requirements.md
+                                     keep-design-out-of-requirements.md,
+                                     activate-project-knowledge.md
         settings/required.json       the attribution values that kill the AI credit lines
       skills/
         project-init/             ← SKILL.md + references/: the gate script only
@@ -113,13 +113,13 @@ claude-toolkit/
                                      work-items-structure, thin-claudemd,
                                      salesforce-project-scaffold)
         project-sync/             ← SKILL.md (reads the same library/)
-        machine-sync/             ← SKILL.md (reads machine/, writes ~/.claude/)
+        machine-sync/             ← SKILL.md (reads machine/, writes host homes)
     second-brain/                 ← plugin: Git-native project knowledge for Claude and Codex
       README.md
       .claude-plugin/plugin.json
       .codex-plugin/plugin.json
       hooks/
-        knowledge-session-start.mjs ← loads SOUL.md, current.md, and both indexes
+        knowledge-session-start.mjs ← loads the manual and small project map
         save-reminder.mjs          ← pauses pull requests for the owner-approved save
         work-item-close.mjs        ← asks whether a finished work item left a spec stale
         command-parsing.mjs        ← what a Bash command is about to do, shared by both
@@ -129,8 +129,8 @@ claude-toolkit/
         frontmatter.mjs            ← the one YAML reader both tools use
       skills/
         second-brain/             ← install, audit, convert, and explain the system
-        remember/                 ← placement, the save test, and the approval bullets
-        recall/                   ← the five-tier find ladder
+        remember/                 ← task steps for an approved save
+        recall/                   ← task steps for finding saved knowledge
         retire/                   ← supersede, retire, or delete one file
         reflect/                  ← sweep for duplicates and contradictions
         session-search/           ← read-only search of local Claude Code CLI history
@@ -193,21 +193,23 @@ claude-toolkit/
     orphan-check.mjs              ← fails if the toolkit ships a file nothing points at
     link-check.mjs                ← fails if a Markdown link points at a file that is gone
     installed-copy-check.mjs      ← fails if a shipped file and the copy this repo runs differ
+    knowledge-startup-check.mjs   ← enforces the manual and both hosts' startup contract
   archive/
     second-brain-v1/              ← retired implementation, outside installable plugins
   .claude/                        ← this repo running the toolkit on itself
     rules/                        ← copies of the rules it ships, plus their index
     hooks/                        ← style, writing, startup, and save-reminder copies
     output-styles/                ← plain-language.md, selected in settings.json
-    tools/                        ← installed index builder, health report, and layout migrator
+    tools/                        ← installed index builder and knowledge checker
     toolkit-sync.md               ← what was set up, skipped, or declined, and why
   knowledge/                      ← this repo's Markdown knowledge vault
+    README.md                     ← managed operating manual loaded once
     .obsidian/                    ← portable link settings only
     project.md                    ← short project framing loaded at startup
-    index.md                      ← generated map of current specs and memories
+    current.md                    ← short-term work state, overwritten
     brainstorms/                  ← unchecked discovery notes
-    specs/                        ← approved behavior
-    memory/                       ← persistent project understanding by type
+    specs/                        ← approved behavior plus generated index
+    memory/                       ← flat persistent topics plus generated index
 ```
 
 Each **concern is its own plugin/skill** so it can evolve and be reused
@@ -229,7 +231,7 @@ Ten plugins. Each has its own `README.md` with the detail;
 explains how the pieces relate.
 
 **Installing is always per machine, never per project.** Every plugin here
-installs into `~/.claude/` and is then available in every project on that
+installs into its host's plugin home and is then available in every project on that
 machine. What actually differs between them is whether a plugin needs anything
 inside a project folder before it is useful, which is what the last column says:
 
@@ -242,7 +244,7 @@ inside a project folder before it is useful, which is what the last column says:
 | Plugin | What it does | Setup |
 | --- | --- | --- |
 | **[project-init](plugins/project-init/README.md)** | Sets up or syncs a project. It asks where work is tracked, carries the ticket rules into that tracker, offers work-tracker, and installs or safely migrates the portable `knowledge/` vault when selected. New Salesforce projects use `delivery/` for client-work artifacts while existing `engagement/` projects stay in place. It also ships Salesforce permission-set and dependency-graph tools. `machine-sync` installs the rules, settings, and hooks that must hold across the computer. | Sets up a project, and sets up a machine |
-| **[second-brain](plugins/second-brain/README.md)** | A portable `knowledge/` vault for Claude, Codex, Git, and optional Obsidian: project framing and a generated startup map, approved specifications, seven typed memory homes, project-specific tags, visible provenance, short meaning reviews, read-only health reports, raw brainstorms, four focused skills including read-only Claude Code session search, and safe migration from older layouts. | Sets up a project |
+| **[second-brain](plugins/second-brain/README.md)** | A portable `knowledge/` system for Claude, Codex, Git, and optional Obsidian: one managed operating manual, a small shared startup map, flat memory, approved specifications, visible provenance, owner-approved saves, task-specific skills, one checker, and safe migration from older layouts. | Sets up a project |
 | **[sf-architect-solutioning](plugins/sf-architect-solutioning/README.md)** | A Salesforce solution architect: pushes back on vague requirements, verifies platform facts against official docs by live fetch, designs declarative-first to Well-Architected standards, and presents a solution plan for approval before any build. Salesforce projects only. | Install and go |
 | **[git-workflows](plugins/git-workflows/README.md)** | Three parallel-session-safe git lifecycle skills: `pull-latest` gets current without rewriting history, `reset-to-remote` mirrors the remote behind confirmation, and `merge-and-clean-up` lands an approved PR before removing only its completed workspace. | Install and go |
 | **[hooks-library](plugins/hooks-library/README.md)** | Reusable hooks that make a rule land mechanically: `spec-check-reminder` asks once per session whether the spec-check review ran, `no-ai-attribution-guard` refuses AI credit in Git text, and two Salesforce guards protect production and permission-set deploys. System-specific knowledge hooks ship with second-brain. | Wires into settings |
@@ -257,21 +259,15 @@ These are the reusable systems I want to fold in here over time. Ordered roughly
 by priority; each becomes its own skill/plugin so `project-init` can pull it in.
 
 - [x] **Project knowledge package**: one portable Markdown knowledge vault under
-  `knowledge/`, shared by Claude, Codex, Git, and optional Obsidian. A short
-  `project.md` and generated `index.md` orient each session without loading the
-  whole vault. Approved behavior lives under `specs/`, persistent understanding
-  uses seven typed folders under `memory/`, and raw discovery stays under
-  `brainstorms/`. The `remember`, `recall`, and `cleanup` skills use one
-  placement test and the same short owner-approval boundary. `session-search` keeps past
-  Claude Code CLI conversations separate from current project truth. A small
-  startup loader only reads, and a pull-request hook only reminds. The package
-  deliberately has no verifier agent, large always-loaded rule, shape checker,
-  per-folder indexes,
-  database, embeddings, transcript capture, or background writer. Project-sync
-  detects the retired v3, flat #149, new, absent, mixed, and unknown layouts;
-  safe flat migration repairs links, while retired-v3 conversion stops for
-  review instead of guessing metadata. The current behavior is specified in
-  [`knowledge/specs/memory-system.md`](knowledge/specs/memory-system.md).
+  `knowledge/`, shared by Claude, Codex, Git, and optional Obsidian. One managed
+  `knowledge/README.md` owns the operating policy. The startup hook loads it
+  once with SOUL, project framing, current work, and the two generated indexes.
+  Flat memory holds one file per topic, specifications hold approved behavior,
+  and brainstorms stay unchecked. The focused skills point to the manual and
+  keep only their own task steps. The package has one checker and deliberately
+  has no database, embeddings, automatic capture, background writer, or large
+  always-loaded rule. The current build behavior is specified in
+  [`knowledge/specs/knowledge-system.md`](knowledge/specs/knowledge-system.md).
 - [x] **`second-brain` v1 archive**: the retired Worker, Neon, MCP, curator,
   hook, knowledge-backfill, and structural-layer source has been removed from
   active plugin paths and consolidated under
@@ -342,7 +338,7 @@ Install once per machine:
 /machine-sync
 ```
 
-It compares that machine's `~/.claude/` against the toolkit's machine-wide set
+It compares that machine's Claude and Codex homes against the toolkit's machine-wide set
 and installs what you approve, so the rules that have to hold in every
 repository are in place before you clone one. Run it again after any toolkit
 update that touched `plugins/project-init/machine/`.
