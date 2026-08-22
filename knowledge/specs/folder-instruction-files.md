@@ -126,6 +126,3 @@ that folder's orientation with it.
   what must stay in the root file, and what `AGENTS.md` keeps in full.
 - [keep-claudemd-current.md](../../plugins/project-init/library/rules/general/keep-claudemd-current.md):
   the rule that keeps the folder files current after setup.
-- [CLAUDE.md and AGENTS.md carry the same block, not a pointer](../memory/claude-md-and-agents-md-carry-the-same-block.md):
-  why this repository's two root files hold the same block, and what the block
-  covers now.
