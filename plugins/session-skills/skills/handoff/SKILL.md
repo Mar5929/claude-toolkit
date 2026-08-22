@@ -58,7 +58,8 @@ command carries its own instructions.
 
 Detect the current project knowledge system by its complete layout:
 
-- `SOUL.md`, `knowledge/project.md`, and `knowledge/current.md`;
+- `SOUL.md`, `knowledge/README.md`, `knowledge/project.md`, and
+  `knowledge/current.md`;
 - `knowledge/specs/`, `knowledge/memory/`, and `knowledge/brainstorms/`; and
 - the installed `remember` skill.
 
@@ -83,22 +84,9 @@ an empty table, and do not invent rows to fill one.
 
 ## Step 2: wait for the `remember` result
 
-`remember` shows the owner one short group for each independently routed item:
-
-```markdown
-1. Plain name
-   - What: the meaning that may change
-   - Where: the current or proposed home
-   - Why: the repeated explanation or wrong action this prevents
-   - Assumptions: every assumption, or None
-   - Unverified: every unchecked claim, or None
-```
-
-Wait when `remember` requires the owner's answer. Continue only after it reports
-what was saved, declined, or blocked.
-
-Full file text appears only when the owner asks for it. Asking to see it is not
-approval. `remember` still waits for keep, change, or skip.
+`remember` follows the approval contract in `knowledge/README.md`. Do not copy
+that contract here. Wait when it requires the owner's answer. Continue only
+after it reports what was saved, declined, or blocked.
 
 Whatever the owner cuts or defers, and anything whose save failed, goes into
 step 3 instead. Nothing is queued anywhere, and nothing is dropped.

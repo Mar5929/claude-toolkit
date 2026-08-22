@@ -16,7 +16,6 @@ every other project receives.
 
 | File | What it does |
 |---|---|
-| `where-persistent-information-belongs.md` | Put active work, client delivery artifacts, internal brainstorms, rules, skills, specifications, memory, references, and session history in the right place. Use short approval bullets and never create a second home for the same meaning. |
 | `keep-claudemd-current.md` | Update `CLAUDE.md` before a session ends whenever it surfaces a new path, convention, decision, or workflow. Prune while you are in there. |
 | `honest-verification.md` | Do not claim more than you verified. Report failures with their output. |
 | `parallel-agent-sessions.md` | Sharing a repo with other live sessions: look before you edit, work in your own worktree and branch, never `git add -A`, land by pull request. |
@@ -32,15 +31,14 @@ every other project receives.
 
 | File | Why not |
 |---|---|
-| `second-brain.md` | It belonged to the retired large second-brain system. The short route in `CLAUDE.md` and `AGENTS.md`, the policy in `knowledge/specs/knowledge-system.md`, and the packaged `remember`, `recall`, `retire`, and `reflect` skills replace it without loading the full policy every session. |
+| `second-brain.md` | It belonged to the retired large second-brain system. The managed `knowledge/README.md`, short root fallback, and task-specific skills replace it. |
 | `wrap-up-ritual.md` | It belonged to the retired save ritual and invoked the deleted verifier. The current policy names the natural save moments, and `.claude/hooks/save-reminder.mjs` raises the pull-request moment that is easy to miss. |
 | `work-item-folders.md` | It governs the Git-native work-tracker, one folder per work item in the repository. Work here is tracked on the `Claude-Toolkit-Project` board on GitHub, so there are no work-item folders for the rule to govern. |
 | `dependency-graph.md` | It is conditional on a code graph being installed. No graph is installed here, and the graphify kit was considered and declined. |
 
 `keep-claudemd-current.md` owns the small exception to its normal anti-copying
 rule: `CLAUDE.md` and `AGENTS.md` carry the same short project knowledge route.
-The full policy stays in `knowledge/specs/memory-system.md`; the root files do
-not copy it.
+The runtime policy stays in `knowledge/README.md`; the root files do not copy it.
 
 `.claude/toolkit-sync.md` holds the same record, along with everything else that
 was set up, skipped, or declined.

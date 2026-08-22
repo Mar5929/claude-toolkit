@@ -16,13 +16,15 @@ may open the folder as a vault, but ordinary Markdown and Git are the source of
 truth.
 
 `knowledge/specs/knowledge-system.md` in the toolkit repository is the design
-authority. It is not installed into projects. This skill is the portable version.
+authority. It is not installed into projects. The managed
+`knowledge/README.md` template is the portable operating manual.
 
 ## What gets installed
 
 ```text
 SOUL.md                            who the agent is here
 knowledge/
+  README.md                        managed operating manual
   project.md                       what the project is and where work is tracked
   current.md                       short-term working memory, overwritten
   memory/
@@ -32,7 +34,6 @@ knowledge/
   brainstorms/                     raw exploration, never current truth
   .obsidian/app.json               minimal vault settings
 .claude/
-  rules/where-persistent-information-belongs.md
   tools/build-knowledge-index.mjs
   tools/check-knowledge.mjs
   tools/frontmatter.mjs
@@ -51,7 +52,8 @@ Look before doing anything. There is no detector script: read the folder.
 | What you see | What it is |
 |---|---|
 | No `knowledge/` folder | **New.** Offer the full setup. |
-| `knowledge/memory/` flat, files with `summary` and `confidence` in frontmatter | **Current.** Audit what is missing, convert nothing. |
+| `knowledge/README.md` starts with `<!-- claude-toolkit:knowledge-manual -->`, both flat folders and indexes exist, and any saved files use current frontmatter | **Current.** This includes a fresh setup with no saved files. Audit what is missing, convert nothing. |
+| The flat folders and indexes have current signatures, but the managed manual is missing | **Partial current.** Offer to restore the manual; do not convert approved files. |
 | `knowledge/memory/` with subfolders like `context/`, `decisions/`, `domain/` | **Older layout.** Offer the conversion below. |
 | `knowledge/memory/tags.md`, or frontmatter with `source: owner-paraphrase` and `session:` | **Older layout.** Same. |
 | A `memory/` or `specs/` folder with none of those signs | **Not this system.** Say so and ask. Folder names alone prove nothing. |
@@ -60,21 +62,23 @@ Look before doing anything. There is no detector script: read the folder.
 ## New project setup
 
 1. Show the tree above and get approval for the whole thing before writing.
-2. Copy `references/templates/` into place.
+2. Copy `references/templates/` into place. `knowledge/README.md` is a managed
+   exact copy, not project-authored knowledge.
 3. Write the real `SOUL.md` and `knowledge/project.md` with the owner. What the
    project is, why it exists, what finished looks like, its boundaries, who is
    involved, and where active work is tracked. The templates are prompts, not
    finished truth: never leave the placeholder wording in place.
 4. Copy `build-knowledge-index.mjs`, `check-knowledge.mjs`, and
    `frontmatter.mjs` from this plugin's `tools/` into `.claude/tools/`.
-5. Copy the three hooks from `hooks/` into `.claude/hooks/`.
+5. Copy all four hooks from `hooks/` into `.claude/hooks/`.
 6. Register them: the startup loader under Claude `SessionStart`, the save
    reminder under `PreToolUse` with the `Bash` matcher, the work-item hook where
    the project's tracker signals a close. Where native Codex hooks exist,
-   register the same fail-open startup loader.
-7. Add the short knowledge route to root `CLAUDE.md`, and the same words to
-   `AGENTS.md`. Claude hooks never run for Codex, so `AGENTS.md` has to say it
-   in full rather than point at anything.
+   register the same fail-open startup loader with at least 5,000 tokens of
+   additional context so the manual and map are not cut off.
+7. Add the same short startup and fallback route to root `CLAUDE.md` and
+   `AGENTS.md`. It points to the manual and map without copying policy. Register
+   the native Codex hook where available; the root route remains the fallback.
 8. Set `CLAUDE_CODE_DISABLE_AUTO_MEMORY` to `1` and enable
    `second-brain@claude-toolkit` in the project's settings.
 9. Run `node .claude/tools/build-knowledge-index.mjs` and then
@@ -149,4 +153,4 @@ project's Git workflow owns all of that.
 - Do not commit a generated report. The indexes are the only generated files
   that belong in Git.
 - Do not create per-folder README files or a nested instruction file inside
-  `knowledge/`.
+  `knowledge/`, except the managed root `knowledge/README.md` manual.

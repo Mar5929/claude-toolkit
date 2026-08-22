@@ -1,7 +1,7 @@
 {
   "name": "second-brain",
-  "version": "4.0.0",
-  "description": "One Git-native project knowledge folder for Claude, Codex, and optional Obsidian. Flat memory with one file per topic, free-form tags, a small required property set with visible provenance, owner-approved saves, a five-tier find ladder ending in read-only session search, and one checker instead of a test framework.",
+  "version": "4.1.0",
+  "description": "One Git-native project knowledge system for Claude, Codex, and optional Obsidian. A managed operating manual, shared startup map, flat memory, visible provenance, owner-approved saves, task-specific skills, read-only session search, and one checker.",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com",
@@ -18,7 +18,7 @@
   "interface": {
     "displayName": "Second Brain",
     "shortDescription": "One Markdown project brain for agents and people.",
-    "longDescription": "Installs SOUL.md and one knowledge folder: the project overview, a short-term working memory file, flat long-term memory with one file per topic, approved specifications, two generated indexes, raw brainstorms, and minimal optional Obsidian settings. Claude and Codex share the same Markdown and Git truth. Saving shows the owner the exact words first and writes only what he keeps. Finding follows a five-tier ladder from short-term memory through rules, skills, and long-term memory to read-only session search, whose results always come back flagged as possibly out of date.",
+    "longDescription": "Installs SOUL.md and one knowledge folder with a managed operating manual, project overview, short-term work state, flat long-term memory, approved specifications, two generated indexes, raw brainstorms, and minimal optional Obsidian settings. Claude and Codex load the same manual and small map. Task-specific skills follow that one policy for finding, saving, lifecycle changes, review, setup, and read-only session history.",
     "developerName": "Mike Rihm",
     "category": "Productivity",
     "capabilities": [

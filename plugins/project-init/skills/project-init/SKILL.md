@@ -208,26 +208,20 @@ and Codex share approved specifications, persistent understanding, and one small
 startup map.
 
 - Offer the `second-brain` plugin as one coherent, opt-in system.
-- Explain the authority split in plain language:
-  - `knowledge/brainstorms/` contains non-authoritative discovery;
-  - `knowledge/specs/` contains current approved behavior;
-  - typed `knowledge/memory/` contains context, planning, decisions, knowledge,
-    references, domain material, and operations;
-  - raw project artifacts remain in their ordinary scaffold;
-  - work-tracker owns live work state; and
-  - Git owns exact history.
+- Explain that the managed `knowledge/README.md` is the one operating manual.
+  It owns placement, finding, saving, file shape, approval, trust, lifecycle,
+  and the skill map. Other runtime files point to it instead of copying policy.
 - Ask the owner for the real framing in `knowledge/project.md`: what the project
   is, why it exists, what finished looks like, its main workstreams and
   boundaries, who is involved, and where active work is tracked. Never invent
   that framing.
 - Show the complete `knowledge/` tree and the proposed startup routes.
 - If approved, install `second-brain` from this marketplace and follow its
-  greenfield setup workflow. Use its packaged `remember`, `recall`, `cleanup`,
-  and `session-search` skills, index builder, read-only health tool, layout tool,
-  session-start loader, and pull-request reminder. Do not retype or maintain
-  copies in `project-init`.
-- Treat the tree, tools, hooks, root routes, and all seven typed memory homes as
-  one adoption unit. Do not offer a broken partial variant.
+  greenfield setup workflow. Copy the packaged manual unchanged and use the
+  plugin's task-specific skills, tools, and hooks. Do not retype their policy in
+  `project-init`.
+- Treat the manual, flat folders, tools, hooks, and short root fallback as one
+  adoption unit. Do not offer a broken partial variant.
 - Commit only `knowledge/.obsidian/app.json` with `alwaysUpdateLinks: true`,
   `newLinkFormat: "relative"`, and `useMarkdownLinks: true`. Add a `.gitignore`
   allowlist that ignores
@@ -237,31 +231,14 @@ startup map.
   plugin policy.
 - Register `.claude/hooks/knowledge-session-start.mjs` as a fail-open Claude
   `SessionStart` hook. Add the equivalent fail-open `.codex/hooks.json` route
-  where native Codex hooks are supported, and always put the startup instruction
-  in root `AGENTS.md` as the portable Codex route.
-- Put the packaged short knowledge principle in both root routes: save
-  persistent information only when a stable fact, lasting event, decision, or
-  state prevents repeated explanation or the same wrong action; route standing
-  agent instructions to rules, active work wherever its work item is being
-  tracked, reusable processes to skills, outside source material to references,
-  and past conversations to session history.
-- Tags are free-form. There is no vocabulary file and no fixed list. A new
-  project starts with no tags and no memories, and never inherits another
-  project's.
-- Offer the initial persistent-information pass after installation. The main
-  agent shows What, Where, Source, Tags, and Assumptions bullets, then writes
-  only what the owner approves. Full file text appears only when he asks, and
-  asking to see it is not approval.
-- Never add a database, memory MCP server, embeddings, transcript capture, or
-  background curator. Hooks may load or remind; they never approve or write
-  persistent knowledge.
-- Never read or import retired v1 Worker, Neon, curator, outbox, or cache
-  content.
-- `knowledge/memory/memory-index.md` and `knowledge/specs/spec-index.md` are
-  generated. Nobody hand-edits them, and no other indexes are created. Both
-  folders are flat: one file per topic, no subfolders by type. The `knowledge/`
-  tree is exempt from folder `CLAUDE.md` files because its contract is already
-  owned by the root routes and the knowledge-system specification.
+  and add the same short startup and fallback pointer to both root files. The
+  hook loads `SOUL.md`, the manual, project framing, current work, and both
+  index entry lists in that order. Give the Codex handler at least 5,000 tokens
+  of additional context. The root files copy none of the policy.
+- After installation, offer to invoke `remember` for any initial candidates. It
+  follows the manual and writes only approved meaning.
+- A new project starts with no memories. Never inherit another project's
+  knowledge, tags, or manual edits.
 
 ### Gate 4: Optional mechanical knowledge aids
 
@@ -309,10 +286,10 @@ list.
   project's identity. Keep commands, paths, coding rules, and project workflows
   in `CLAUDE.md`, `AGENTS.md`, or `.claude/rules/`, not `SOUL.md`. If a root
   `SOUL.md` already exists, keep it and never overwrite it. Once the file
-  exists, put `Read SOUL.md first and follow it throughout this session.` as
-  the first instruction in every root agent instruction file the project uses,
-  before its title or any other text. If the owner declines, create no file and
-  add no reference.
+  exists and Gate 3 was declined, put `Read SOUL.md first and follow it
+  throughout this session.` at the top of each root agent file. When Gate 3 ran,
+  its startup loader and short fallback already own the SOUL route. If the owner
+  declines, create no file and add no reference.
 - **Copy the general rules** the owner wants from `../../library/rules/general/`
   into the project's `.claude/rules/`. Every default-ON file goes in unless the
   owner drops it; walk the list and let them accept, edit, or skip each. Adapt
@@ -353,11 +330,9 @@ list.
   structural pointers, include the one-line work-tracking pointer from
   `references/work-tracking-choice.md`, naming the tracker Gate 1 settled on and
   how a refined ticket is marked. Add the identical line to `AGENTS.md`. Reflect what the
-  earlier gates set up. When project knowledge was installed, keep a short
-  route in both files. `CLAUDE.md` names the fail-open session-start loader and
-  `knowledge/`; `AGENTS.md` directly instructs Codex to read `SOUL.md`,
-  `knowledge/project.md`, `knowledge/current.md`, and the two generated indexes
-  first. Neither copies the complete system specification.
+  earlier gates set up. When project knowledge was installed, put the same short
+  startup and fallback route in both files. It names the manual and map once;
+  neither root copies knowledge policy.
   Keep other behavioral rules out of the root files.
 - **Keep the codemap to one line per folder**, and let that line point at the
   folder's own `CLAUDE.md` for the detail. Four things never leave the root
@@ -365,11 +340,10 @@ list.
   the owner, the pointers to the most dangerous rules, the project-knowledge
   startup route, and the codemap lines themselves. `references/thin-claudemd.md` has
   the list under "What must stay in the root file".
-- **`AGENTS.md` keeps the folder detail in full.** Codex reads it and never
-  reads any `CLAUDE.md`, root or nested, so anything the root `CLAUDE.md` handed
-  off to a folder file stays written out in `AGENTS.md`. The two root files are
-  meant to differ in length. Never write a nested
-  `AGENTS.md` to close that gap.
+- **`AGENTS.md` keeps the folder detail in full.** Codex does not read Claude
+  instruction files, so anything the root `CLAUDE.md` handed to a folder file
+  stays written out in root `AGENTS.md`. Toolkit projects deliberately keep one
+  root AGENTS.md even though Codex supports layered files.
 - **Add a `.claude/rules/README.md`** that indexes what each copied rule file
   does, so the folder is self-describing.
 - **Install the plain-language output style** (default ON). Copy

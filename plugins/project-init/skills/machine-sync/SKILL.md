@@ -2,25 +2,24 @@
 name: machine-sync
 description: >-
   Audit THIS COMPUTER against the claude-toolkit's machine-wide set and install
-  whatever is missing into the owner's own ~/.claude folder. Use when the owner
+  whatever is missing into the owner's own Claude and Codex folders. Use when the owner
   is setting up a new computer, or says things like "set up this machine from my
   toolkit", "point this computer at the toolkit", "I have a new laptop", "make
   sure my machine-wide rules are here", "check my global Claude settings against
   the toolkit", or "/machine-sync". It checks the machine-wide rules, the
   required settings values, and the machine-wide hooks. Today those are the rule
-  that no commit or pull request ever carries credit to Claude or any other AI
-  agent, the rule that the best solution is always proposed no matter how much
-  time, effort, or resources it would take, and the rule that build decisions
-  never go in requirements. It reports every gap first and changes nothing
-  without approval.
+  that equipped projects activate their one knowledge manual, the rule that no
+  commit or pull request carries AI credit, the rule that the best solution is
+  always proposed, and the rule that build decisions never go in requirements.
+  It reports every gap first and changes nothing without approval.
 ---
 
 # machine-sync: bring a computer up to the toolkit
 
 `project-init` and `project-sync` set up a project folder. This skill is the
 third sibling and it works one level up: it sets up the **computer**, by
-comparing `~/.claude/` against the toolkit's machine-wide set and installing
-what is missing.
+comparing `~/.claude/` and `~/.codex/` against the toolkit's machine-wide set
+and installing what is missing.
 
 Why a separate scope exists at all: everything the other two skills install
 lands inside one repository, so a repository nobody ever ran them on gets
@@ -62,6 +61,11 @@ It has three kinds of thing:
 - **`machine/rules/*.md`**: rule files that install to `~/.claude/rules/`.
   Claude Code loads every `.md` file in that folder in every project on the
   machine, so a file there is in force everywhere with no wiring needed.
+- **The project-knowledge activation rule** also becomes a managed block in
+  `~/.codex/AGENTS.md`. The text between
+  `<!-- claude-toolkit:project-knowledge:start -->` and
+  `<!-- claude-toolkit:project-knowledge:end -->` must match the source rule
+  exactly. Preserve everything outside those markers.
 - **`machine/settings/required.json`**: settings keys and values that
   `~/.claude/settings.json` must carry. This is a fragment to merge, never a
   file to copy over the owner's settings.
@@ -75,7 +79,7 @@ Find the toolkit files in this order: the installed plugin copy this skill ships
 inside, then a local clone of the repository if the owner has one, then fetch
 `Mar5929/claude-toolkit`, then ask.
 
-## Step 3: find this computer's Claude folder
+## Step 3: find this computer's host folders
 
 It is `~/.claude/`. On Windows that is `C:\Users\<name>\.claude`, and on macOS
 and Linux `/home/<name>/.claude` or `/Users/<name>/.claude`.
@@ -85,6 +89,9 @@ assuming the default, and use whatever it points at for every path below.
 
 Confirm the resolved path out loud in the report, so the owner can see which
 folder is about to be touched.
+
+Codex uses `~/.codex/` on each platform. Resolve that path too. Never assume the
+Claude and Codex folders share content.
 
 ## Step 4: audit, changing nothing
 
@@ -104,6 +111,11 @@ What to check, item by item:
 toolkit's copy. Judge by intent, not exact wording: a file saying the same thing
 in different words is not behind. Only a file genuinely missing something the
 toolkit's copy now says is behind.
+
+The activation rule is the exception: compare it exactly, because the same text
+must be managed across both hosts. Also inspect the marked block in
+`~/.codex/AGENTS.md`. Missing markers, changed text inside them, or only one host
+having the pointer are separate findings. Preserve unmarked Codex instructions.
 
 **Also check `~/.claude/CLAUDE.md` for the same rule written inline.** The
 machine-wide rules folder is newer than that file, so the rule may already be
@@ -132,6 +144,14 @@ a script that is not there fails on every command. Report each half separately.
 pieces cover one rule, a partial install is not a pass. Say which piece is
 missing and what that leaves uncovered, in plain words.
 
+**Known retired knowledge instructions.** Inspect only the machine instruction
+files already being audited, plus `~/.claude/rules/steer-to-the-goal.md` and
+`~/.claude/rules/parallel-agent-sessions.md` when they exist. Report any old
+typed-memory paths, `memory/planning/`, retired placement-rule names, or copied
+save and find policy. Offer to remove only the stale knowledge passage after
+showing the exact diff. Preserve every unrelated instruction in the file. Do
+not search personal files or project content for this cleanup.
+
 **Projects that override a machine-wide settings value.** Optional and only when
 the owner asks or a project is open: a project's `.claude/settings.json` or
 `.claude/settings.local.json` beats the machine's. If one sets a key the
@@ -154,6 +174,24 @@ a computer that needs nothing.
 
 **Rule files.** Copy into `~/.claude/rules/`. Create the folder if it is not
 there.
+
+**Codex project-knowledge activation.** Merge the exact source text into
+`~/.codex/AGENTS.md` between these managed markers:
+
+```text
+<!-- claude-toolkit:project-knowledge:start -->
+<exact text from machine/rules/activate-project-knowledge.md>
+<!-- claude-toolkit:project-knowledge:end -->
+```
+
+Create the file if it does not exist. If the block exists, replace only the text
+inside the two markers after approval. Never replace or reorder text outside the
+block.
+
+**Approved retired-policy cleanup.** Remove only the exact stale passage shown
+in the audit. Never delete the containing machine rule when it still has another
+purpose. If the stale wording cannot be separated safely, leave it and report
+the blocker.
 
 **Settings values.** Merge into `~/.claude/settings.json` key by key. Read the
 file, change only the approved keys, write it back. Never write the toolkit's
@@ -206,6 +244,9 @@ Do not report success because a file was written. Show it actually running.
 **A rule file**: confirm it is in `~/.claude/rules/` and tell the owner it takes
 effect in their next session, not this one. Rules load at session start.
 
+**The Codex activation block**: read it back, compare the text between the
+markers to the source rule, and say it takes effect in the next Codex session.
+
 **A settings value**: read the file back and show the key.
 
 **A hook**: run it by hand against a command it should refuse and one it should
@@ -234,7 +275,9 @@ deliberate "no" again.
 
 - Change anything before the owner approves the specific item.
 - Write over `~/.claude/settings.json` instead of merging into it.
-- Remove a rule, a hook, or a settings value the toolkit did not install.
+- Remove a rule, a hook, or a settings value the toolkit did not install. The
+  narrow exception is an owner-approved stale knowledge passage from the known
+  legacy files audited above; preserve the rest of that file.
 - Remove a section from `~/.claude/CLAUDE.md` as a side effect of installing
   something. That is its own approved item or it does not happen.
 - Touch any project folder. That is what `project-sync` is for, and the two are

@@ -1,7 +1,5 @@
 # CLAUDE.md: working in claude-toolkit
 
-Read @SOUL.md first...always
-
 Mike's single source of truth for the reusable pieces he wants in every project,
 packaged as a Claude Code plugin marketplace. `README.md` has the full picture.
 
@@ -16,47 +14,19 @@ I have ADHD. Talk to me like I am smart but not technical. Sixth-grade reading l
 
 ## Project knowledge
 
-1. At session start, read `SOUL.md`, `knowledge/project.md`, and
-   `knowledge/current.md`. Then read `knowledge/memory/memory-index.md` and
-   `knowledge/specs/spec-index.md`, which list one line per file.
-2. `knowledge/current.md` is short-term working memory: what is being worked on
-   right now, what is blocking it, the next step. It is overwritten, never added
-   to, and nothing in it is a lasting fact.
-3. `knowledge/specs/` says how the system is meant to work, once settled.
-   `knowledge/memory/` says what is worth knowing: lasting facts, decisions,
-   events, and context, one flat folder with one file per topic.
-   `knowledge/brainstorms/` is unchecked source material. A current
-   specification beats a memory; when they disagree, say so and name both.
-4. Before asking Mike something, or searching the code broadly, go down the find
-   ladder and stop at the first answer: `knowledge/current.md`, then
-   `.claude/rules/`, then skills, then memory and specifications, then past
-   sessions. Past sessions are the lowest tier: offer it rather than doing it
-   silently, and hand every result back asking whether it is still accurate.
-5. Never write to memory or a specification without showing Mike the exact words
-   first and getting a yes. Show What, Where, Source, Tags, and Assumptions.
-   Silence, an unclear answer, or asking to see the full text all mean nothing
-   gets written. Write only what he approved.
-6. Keep project knowledge small: save only when a stable fact, lasting event,
-   decision, or state prevents repeated explanation or the same wrong action.
-   Standing agent instructions go in rules, active work wherever its work item is
-   tracked, reusable processes in skills, outside source material in references,
-   and past conversations in session history. A procedure is never a memory.
-7. The `remember` skill holds the save test, the placement routes, and the file
-   shape. `recall` walks the find ladder. `retire` takes one file out of current
-   use. `reflect` sweeps for duplicates and contradictions. Invoke them rather
-   than working from memory about how they work.
+The startup hook loads `SOUL.md`, then `knowledge/README.md` once, then
+`knowledge/project.md`, `knowledge/current.md`, and the two knowledge indexes.
+If that map is not already in this session, read those files once in that order.
+If a file is missing, continue and report it. `knowledge/README.md` wins when
+project-knowledge instructions disagree.
 
 <!-- shared-with-agents-md:end -->
 
-Everything above that marker is in `AGENTS.md` word for word. Everything below it
-may differ, and does: this file keeps one line per folder and sends the detail to
-that folder's own `CLAUDE.md`, while `AGENTS.md` writes the same detail out in
-full because Codex never reads any `CLAUDE.md`. `tests/installed-copy-check.mjs`
-compares only the text between the markers, so below them nothing checks
-anything: change a passage here and change the matching passage in `AGENTS.md` in
-the same edit, by hand.
-`knowledge/memory/claude-md-and-agents-md-carry-the-same-block.md`
-says why the markers sit where they do.
+The block between the markers is in `AGENTS.md` word for word. Everything below
+it may differ, and does: this file keeps one line per folder and sends detail to
+that folder's own `CLAUDE.md`, while `AGENTS.md` keeps that detail because Codex
+never reads Claude instruction files. `tests/installed-copy-check.mjs` compares
+only the marked block. Change matching passages below it in both files by hand.
 
 ## Codemap
 
@@ -79,10 +49,11 @@ copies of files this repo also ships.
 matching, so nobody has to remember to change both.
 
 The `second-brain` plugin supplies the `remember`, `recall`, `retire`,
-`reflect`, and `session-search` skills. The installed startup loader,
+`reflect`, and `session-search` skills. The installed manual, startup loader,
 pull-request reminder, work-item reminder, index builder, and knowledge checker
-under `.claude/` are copies of what that plugin ships. The policy they follow is
-`knowledge/specs/knowledge-system.md`.
+are managed copies of what that plugin ships. `knowledge/README.md` is the
+runtime authority. `knowledge/specs/knowledge-system.md` is the build authority
+for the plugin itself.
 
 ## Where work is tracked
 

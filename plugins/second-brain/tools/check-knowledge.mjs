@@ -14,6 +14,7 @@
  *   node check-knowledge.mjs [project-root]
  */
 
+import { createHash } from "node:crypto";
 import { readdirSync, readFileSync, existsSync } from "node:fs";
 import { dirname, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -27,6 +28,7 @@ const posix = (value) => value.split(sep).join("/");
 
 const CURRENT_MD_MAX_CHARS = 2000;
 const SUMMARY_MAX_CHARS = 250;
+export const MANUAL_SHA256 = "9b744ab6d3f86fc6682161f9c27dae37e8100a0c00ba80546c3ce1fa6ba0f9ef";
 
 const STATUS_VALUES = ["current", "superseded", "retired"];
 const TYPE_VALUES = ["fact", "decision", "event", "context", "constraint"];
@@ -233,12 +235,31 @@ function checkCurrent(vault) {
   }
 }
 
+function checkManual(vault) {
+  const path = resolve(vault, "README.md");
+  if (!existsSync(path)) {
+    fail("knowledge/README.md",
+      "is missing. This managed operating manual is required for an equipped"
+      + " project. Run project-sync to restore it.");
+    return;
+  }
+  const text = readFileSync(path, "utf8").replace(/\r\n/g, "\n");
+  filesChecked++;
+  const actual = createHash("sha256").update(text).digest("hex");
+  if (actual !== MANUAL_SHA256) {
+    fail("knowledge/README.md",
+      "does not match the toolkit's managed operating manual. Run project-sync"
+      + " to review the difference and restore the managed copy.");
+  }
+}
+
 export function checkKnowledge(projectRoot = root) {
   problems.length = 0;
   filesChecked = 0;
   const vault = resolve(projectRoot, "knowledge");
   if (!existsSync(vault)) return { problems: [], filesChecked: 0, skipped: true };
 
+  checkManual(vault);
   checkCurrent(vault);
   checkFolder(vault, "memory", "memory", "memory-index.md");
   checkFolder(vault, "specs", "spec", "spec-index.md");

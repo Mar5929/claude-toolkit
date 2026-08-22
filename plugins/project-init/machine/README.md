@@ -2,7 +2,7 @@
 
 What belongs to a whole computer rather than to one project. The `machine-sync`
 skill compares a computer against this folder and installs what the owner
-approves into `~/.claude/`.
+approves into `~/.claude/` and `~/.codex/`.
 
 `../library/` is the other pile and the difference is the whole point:
 `library/` lands in a project folder, this lands in the owner's home folder.
@@ -24,20 +24,26 @@ Two questions, and both have to be yes:
 Anything that fails either question goes in `../library/` instead. This folder
 stays small on purpose.
 
+The project-knowledge activation is the narrow pointer exception. An equipped
+project carries the same short fallback because machine setup is optional. The
+machine copy reaches repositories before project files load, but it contains no
+knowledge policy and does nothing when the manual is absent.
+
 ## What is in it
 
 | Piece | Lands at | What it does |
 |---|---|---|
+| `rules/activate-project-knowledge.md` | `~/.claude/rules/activate-project-knowledge.md` and one managed block in `~/.codex/AGENTS.md` | If `knowledge/README.md` carries the toolkit marker and the session hook did not load it, read it once. Other folders with that name do nothing. This is a pointer only, never a policy copy. |
 | `rules/no-ai-attribution.md` | `~/.claude/rules/no-ai-attribution.md` | Nothing the owner commits or pushes carries a line saying an AI helped write it. Covers commit trailers, pull request text, code comments, file headers, and documents. |
 | `settings/required.json` | merged into `~/.claude/settings.json` | Sets `attribution.commit` and `attribution.pr` to an empty string, which is what removes the `Co-Authored-By: Claude` trailer and the "Generated with Claude Code" line Claude Code adds by itself. |
 | `no-ai-attribution-guard` hook | `~/.claude/hooks/` plus an entry in `~/.claude/settings.json` | Refuses a `git commit`, `git tag`, `gh pr create`, or `gh release create` whose text carries AI credit. Its script lives with every other hook in the toolkit, in `../../hooks-library/hooks/`, not here. |
 | `rules/propose-the-best-solution.md` | `~/.claude/rules/propose-the-best-solution.md` | The best answer always gets said out loud. Time, effort, cost, and resources never decide whether it is mentioned, only what the owner picks after seeing it. |
 | `rules/keep-design-out-of-requirements.md` | `~/.claude/rules/keep-design-out-of-requirements.md` | Build decisions never go in requirements. Splits the work into one functional requirements document of five sections, a separate technical specification, and the architectural decision records that join them. |
 
-The first three rows cover one rule between them, and each has a hole the other
-two fill. That rule file explains which hole belongs to which. Installing one
-without the others leaves a real gap, so `machine-sync` treats them as one item
-and reports a partial install as incomplete.
+The `no-ai-attribution` rule, settings fragment, and guard hook cover one rule
+between them, and each has a hole the other two fill. Installing one without the
+others leaves a real gap, so `machine-sync` treats them as one item and reports
+a partial install as incomplete.
 
 `propose-the-best-solution.md` stands on its own, with no settings value or hook
 behind it. It shares a border with the project rule "Build It Well, and Never

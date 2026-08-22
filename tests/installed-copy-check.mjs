@@ -17,7 +17,7 @@
  * orphan-check.mjs asks whether a file can still be FOUND.
  * This one asks whether two files that must say the same thing still do.
  *
- * Two things are checked.
+ * Three things are checked.
  *
  * 1. Every tracked or new unignored file under `.claude/` that has a shipped
  *    original matches it byte for byte, ignoring line endings. This repo runs
@@ -30,9 +30,11 @@
  *    file and Codex reads the second, so a difference there means a session gets
  *    different instructions depending on which program it is.
  *
+ * 3. The project knowledge operating manual matches the packaged template.
+ *
  * The root knowledge route is short enough to compare word for word. Host hook
  * wiring lives in settings files, outside the shared block. The project-local
- * index builder, knowledge checker, frontmatter parser, and the three knowledge
+ * index builder, knowledge checker, frontmatter parser, and the four knowledge
  * hooks are also checked against the second-brain package that other projects
  * receive.
  *
@@ -49,6 +51,12 @@ const root = resolve(here, "..");
 
 const GENERAL_RULES = "plugins/project-init/library/rules/general";
 const SECOND_BRAIN = "plugins/second-brain";
+const MANAGED_COPIES = [
+  [
+    "knowledge/README.md",
+    `${SECOND_BRAIN}/skills/second-brain/references/templates/knowledge/README.md`,
+  ],
+];
 
 /**
  * Where a file under `.claude/` came from. `null` means the file is this
@@ -129,6 +137,22 @@ for (const path of tracked) {
       `  ${path}\n    no longer matches ${original}.\n`
         + "    This repo runs what it ships, unmodified. Make the change in"
         + " both files.",
+    );
+  }
+}
+
+for (const [installed, original] of MANAGED_COPIES) {
+  if (!existsSync(resolve(root, installed)) || !existsSync(resolve(root, original))) {
+    failures.push(
+      `  ${installed}\n    cannot be compared with ${original} because one is missing.`,
+    );
+    continue;
+  }
+  checked++;
+  if (read(installed) !== read(original)) {
+    failures.push(
+      `  ${installed}\n    no longer matches ${original}.\n`
+        + "    The operating manual is managed by the toolkit and is not project-specific.",
     );
   }
 }

@@ -136,33 +136,31 @@ so they always know where they are.
 **Gate 3: Project knowledge system**
 
 - Offer `second-brain` as one coherent opt-in system.
-- Explain `knowledge/brainstorms/`, `knowledge/specs/`, typed
-  `knowledge/memory/`, raw-artifact, work-tracker, and Git authority.
+- Explain that the managed `knowledge/README.md` is the one operating manual and
+  the remaining skills and hooks point to it.
 - Ask the owner what the project is, why it exists, what finished looks like,
   its main workstreams and boundaries, who is involved, and where active work
   is tracked. Use those answers for `knowledge/project.md`, then show the
   complete knowledge tree plus root instruction edits.
 - If approved, install the second-brain plugin and follow its canonical
-  greenfield setup workflow, including the four focused skills, index and
-  migration tools, read-only health tool, fail-open startup routes, and
-  pull-request reminder.
-- Add the short startup principle that routes standing agent instructions to
-  rules, active work wherever its work item is being tracked, reusable
-  processes to skills, outside source material to references, past conversation
-  to session history, and persistent project information to specifications or
-  memory.
-- Start with an empty project-specific tag vocabulary. Never inherit the
-  toolkit repository's topic tags.
+  greenfield setup workflow, including the exact managed manual, task-specific
+  skills, checker, index builder, fail-open startup routes, and reminders.
+- Give the Codex startup handler at least 5,000 tokens of additional context so
+  the manual and map are not cut off.
+- Add the same short startup and fallback pointer to both root agent files. Do
+  not copy policy into either file.
+- Start with no memories. Never inherit the toolkit repository's knowledge or
+  tags.
 - Commit only `knowledge/.obsidian/app.json` with `alwaysUpdateLinks: true`,
   `newLinkFormat: "relative"`, and `useMarkdownLinks: true`. Ignore all other
   `.obsidian` state and do not pin a
   core plugin list.
-- Offer an initial owner-approved persistent-information pass after setup, using
-  short What, Where, Why, Assumptions, and Unverified bullets.
+- Offer an initial `remember` pass after setup. It follows the manual's approval
+  contract.
 - Do not install a database, memory MCP server, embeddings, transcript capture,
   or background curation.
 - The two knowledge indexes are generated. Create no other indexes or folder
-  `CLAUDE.md` files inside `knowledge/`.
+  instruction files inside `knowledge/`; its root README is the manual.
 
 **Gate 4: Optional mechanical knowledge aids**
 
@@ -188,10 +186,10 @@ so they always know where they are.
 - Ask whether the owner wants to create a root `SOUL.md`. Explain that it holds
   the agent's identity, communication style, defaults, and behaviors to avoid.
   If yes, work with the owner to write it. Do not install a fixed template or
-  invent its content. Keep an existing file and never overwrite it. If the file
-  exists, put `Read SOUL.md first and follow it throughout this session.` at the
-  very top of every root `CLAUDE.md` or `AGENTS.md` the project uses. If the
-  owner declines, create no file and add no reference.
+  invent its content. Keep an existing file and never overwrite it. When Gate 3
+  was declined, put `Read SOUL.md first and follow it throughout this session.`
+  at the top of both root files. When Gate 3 ran, its loader and fallback own
+  that route. If the owner declines, create no file and add no reference.
 - Behavioral rules go into the project's `.claude/rules/` as individual files,
   not into CLAUDE.md. See `thin-claudemd.md` and `library/rules/general/README.md`.
 - Copy the general rules from `library/rules/general/` into `.claude/rules/`: every
@@ -234,12 +232,10 @@ so they always know where they are.
   and that a helper agent never sees an output style, which is what
   `follow-the-output-style.md` in the rules folder is for. See
   `library/output-styles/README.md`.
-- When project knowledge is installed, keep the route small. Claude's
-  `SessionStart` hook reads `SOUL.md`, `knowledge/current.md`, and the two
-  generated knowledge indexes.
-  `AGENTS.md` tells Codex to read those same two files before work; an equivalent
-  fail-open `.codex/hooks.json` route may reinforce it where native hooks are
-  supported. Neither root file copies the full knowledge specification.
+- When project knowledge is installed, keep the route small and identical. Both
+  hosts register the loader for `SOUL.md`, `knowledge/README.md`,
+  `knowledge/project.md`, `knowledge/current.md`, and the two index entry lists.
+  Both root files say to read that map once only if the hook did not supply it.
 - Give `AGENTS.md` the same project description and structural pointers as
   `CLAUDE.md`, plus the direct startup instruction and any Codex-specific
   repository instructions. See "What AGENTS.md contains" in

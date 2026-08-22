@@ -15,38 +15,35 @@ stays in the folder's own `CLAUDE.md` where Claude can load it on demand.
    `AGENTS.md`.
 5. Add or update `.claude/rules/README.md` so each installed rule is indexed.
 
-When `SOUL.md` exists, the first instruction in every root `CLAUDE.md` or
-`AGENTS.md` the project uses is:
+When `SOUL.md` exists without the project knowledge system, the first
+instruction in every root `CLAUDE.md` or `AGENTS.md` is:
 
 > Read SOUL.md first and follow it throughout this session.
 
-Put that instruction before the title or any other text. When the owner declines
-`SOUL.md`, do not add the instruction.
+Put that instruction before the title. When project knowledge is installed, the
+startup hook and shared fallback route already load SOUL, so do not add a second
+route. When the owner declines `SOUL.md`, do not add an instruction.
 
 The project knowledge procedure is packaged by the `second-brain` plugin. Do
 not copy a retired large memory rule, verifier instructions, or the full
 knowledge specification into either root file.
 
-Both root routes carry this short principle:
+Both root files carry only this knowledge activation when the system is present:
 
-> Keep project knowledge small: save persistent information only when a stable
-> fact, lasting event, decision, or state prevents repeated explanation or the
-> same wrong action. Put standing agent instructions in rules, active work
-> wherever its work item is being tracked, reusable processes in skills,
-> outside source material in references, and past conversations in session
-> history.
+> The startup hook loads `SOUL.md`, then `knowledge/README.md` once, then
+> `knowledge/project.md`, `knowledge/current.md`, and the two knowledge indexes.
+> If that map is not already in this session, read those files once in that
+> order. If a file is missing, continue and report it. `knowledge/README.md`
+> wins when project-knowledge instructions disagree.
 
 ## What a thin CLAUDE.md contains
 
 In this order:
 
-- When `SOUL.md` exists, the instruction to read it first.
+- When `SOUL.md` exists without project knowledge, the instruction to read it.
 - A title and one-line project description.
 - `Read .claude/rules first.`
-- When project knowledge is installed, one short line saying the fail-open
-  `SessionStart` loader reads `knowledge/project.md` and
-  the two generated knowledge indexes, and that `knowledge/brainstorms/` is
-  unchecked.
+- When project knowledge is installed, the exact short activation above.
 - A codemap with one line per major folder or module.
 - Structural pointers that are not behavior rules, including the chosen work
   tracker and how a refined item is marked.
@@ -58,9 +55,9 @@ generated index, the save policy, or any rule already installed under
 
 ## The knowledge startup route
 
-When Gate 3 ran, Claude receives the project overview and map through
+When Gate 3 ran, both hosts receive the manual and project map through
 `.claude/hooks/knowledge-session-start.mjs`, registered under `SessionStart` in
-`.claude/settings.json`. The hook fails open if either file is missing.
+their project hook configuration. The hook fails open if a file is missing.
 
 The root file carries a short signpost because a future maintainer needs to
 know why the hook exists. The hook output, not a copied schema, gives Claude the
@@ -68,18 +65,15 @@ startup content.
 
 ## What AGENTS.md contains
 
-Codex does not reliably receive Claude's rules or hooks. Root `AGENTS.md`
+Codex does not load Claude's rules or instruction files. Root `AGENTS.md`
 therefore contains:
 
 - when `SOUL.md` exists, the instruction to read it first;
 - the same title and one-line project description;
 - a direct instruction to open and read every `.md` rule under
   `.claude/rules/` before work;
-- when project knowledge is installed, a direct instruction to read
-  `SOUL.md`, `knowledge/project.md`, and the two indexes first, open only the
-  relevant
-  specification or memory files, and treat `knowledge/brainstorms/` as
-  unchecked;
+- when project knowledge is installed, the same short activation and fallback
+  route as CLAUDE.md;
 - the same structural pointers as `CLAUDE.md`;
 - every safety-critical rule Codex must receive before it can open a referenced
   file;
@@ -87,9 +81,8 @@ therefore contains:
   does not load those files; and
 - any Codex-specific repository instructions.
 
-Where native Codex hooks are available, Gate 3 may also register the equivalent
-fail-open loader in `.codex/hooks.json`. `AGENTS.md` remains the portable route
-and is required even when that hook exists.
+Gate 3 registers the equivalent fail-open loader in `.codex/hooks.json` where
+native hooks are available. AGENTS.md remains the portable fallback.
 
 ## What stays in the root files
 
@@ -108,14 +101,13 @@ Everything else routes to its one canonical home.
 `folder-claudemd.md` owns which folders get a short `CLAUDE.md`, what belongs in
 one, and what is skipped. A folder file never owns an always-applicable rule.
 
-The entire `knowledge/` tree is skipped even though it has no hand-maintained
-README index. Its behavior is already owned by the root startup routes and the
-project-knowledge specification. Adding another instruction file inside the
-vault would duplicate authority.
+The entire `knowledge/` tree is skipped because its root `README.md` already
+owns the operating instructions. Adding a CLAUDE.md there would duplicate
+authority.
 
-`AGENTS.md` is the exception to moving folder detail. Codex never reads a nested
-`CLAUDE.md`, so it keeps that detail in full. The two root files are deliberately
-different lengths.
+`AGENTS.md` is the exception to moving folder detail. Codex never reads a
+CLAUDE.md, so it keeps that detail in full. Toolkit projects deliberately keep
+one root AGENTS.md even though Codex supports layered files.
 
 ## Keep both files current
 

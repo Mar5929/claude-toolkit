@@ -77,5 +77,4 @@ conversation is lost.
 When project knowledge is installed, link a work item to the specification,
 planning document, decision, or memory that gives it persistent context when that
 relationship helps, and never copy current item status, blockers, or handoff
-into those documents. `where-persistent-information-belongs.md` carries the table of what
-belongs where.
+into those documents. `knowledge/README.md` owns the placement table.

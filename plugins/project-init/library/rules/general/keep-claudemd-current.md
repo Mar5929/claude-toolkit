@@ -21,10 +21,9 @@ Before adding, ask where the thing actually lives:
 
 - **A rule the session must follow** belongs in CLAUDE.md or `.claude/rules/`.
   That is the only category this file owns.
-- **Everything else routes out.** `where-persistent-information-belongs.md` holds the one table
-  saying where each kind of content goes; follow it rather than a second list
-  kept here. CLAUDE.md may carry a one-line pointer to a home, never a summary
-  of it.
+- **Everything else routes out.** When the project knowledge system is present,
+  `knowledge/README.md` holds the one routing table. CLAUDE.md may carry a short
+  pointer to a canonical home, never a summary of it.
 - **What is happening right now** (current phase, next action, open TODOs) does
   not belong here even as a pointer. It is stale the moment it is written.
 - **What changed and when** belongs in git history, not in prose.
@@ -56,10 +55,10 @@ allowed to differ and must not be flattened back into copies of each other.
 - **Claude Code loads every `.md` file in `.claude/rules/` automatically** at
   session start, with no import needed. So CLAUDE.md can point at a rule instead
   of repeating it, and repeating one there is the duplication this rule bans.
-- **Codex loads AGENTS.md and nothing else.** Not `CLAUDE.md`, not
-  `.claude/rules/`, and `@` file references are ordinary text to it. So AGENTS.md
-  has to write out, in full, every rule that causes real damage when broken.
-  That restatement is not bloat; it is the only copy a Codex session ever sees.
+- **Codex loads AGENTS.md files but not Claude rule files.** It does not load
+  `CLAUDE.md` or `.claude/rules/`, and `@` file references are ordinary text to
+  it. Root AGENTS.md therefore points Codex at the rule folder and carries any
+  safety instruction needed before that folder can be read.
 
 Two hard constraints on AGENTS.md:
 
@@ -91,32 +90,29 @@ while you are in there.
   the start of every session. A folder file loads only when an agent reads a
   file in that folder, and never when an agent only runs a command against it. A
   folder file may point at a rule; it may never hold the only copy of one.
-- **Never let anything Codex needs live only in one.** Codex reads AGENTS.md and
-  nothing else, and never reads any `CLAUDE.md`, root or nested. Detail that
-  leaves the root `CLAUDE.md` for a folder file stays in AGENTS.md in full. That
-  is why the two root files may differ in length below the shared memory
-  section.
-- **Never add a nested `AGENTS.md`.** Codex would not read it.
+- **Never let anything Codex needs live only in a CLAUDE.md.** Codex never reads
+  Claude instruction files. Detail that leaves the root `CLAUDE.md` for a folder
+  file stays in AGENTS.md in full. That is why the two root files may differ in
+  length below the shared block.
+- **Do not add nested `AGENTS.md` files in toolkit projects.** Codex supports
+  layered AGENTS.md files, but this toolkit keeps one root file so the Claude and
+  Codex maps can be audited together.
 - **Never repeat a `README.md` index.** Where a folder has one, the README stays
   the one index and the folder file points at it, or the folder is skipped.
 
 ## Keep the project-knowledge route small and current
 
-When project knowledge is installed, root instructions carry only the startup
-route. Claude's fail-open `SessionStart` loader reads `SOUL.md`,
-`knowledge/current.md`, and the two generated indexes,
-`knowledge/memory/memory-index.md` and `knowledge/specs/spec-index.md`.
-`AGENTS.md` directly tells Codex to read the same files, plus
-`knowledge/project.md`, and to treat `knowledge/brainstorms/` as unchecked.
+When project knowledge is installed, both root files carry only a short startup
+and fallback route. The fail-open `SessionStart` loader reads `SOUL.md`, the
+managed `knowledge/README.md`, `knowledge/project.md`, `knowledge/current.md`,
+and the entry lines of both generated indexes, in that order. Claude and Codex
+register the same loader. The root route tells either host to read that map once
+if the hook did not supply it.
 
-That short route also carries the anti-decay principle in one sentence, and it
-is the one always-loaded behavior summary. Do not restate that sentence here.
-`where-persistent-information-belongs.md` owns the full version: the test for
-what should persist, the routing table, the find ladder, and the short approval
-review. The detailed file shape, save, and consolidation rules stay in the
-knowledge-system specification and the packaged skills.
+`knowledge/README.md` owns the shared policy: placement, finding, saving, file
+shape, approval, trust, lifecycle, and the skill map. Rules and skills may point
+to it and keep only their own task steps. They never restate its sections.
 
 When those paths or delivery mechanisms change, update the applicable root
-route in the same change. Never copy the authority map, memory types, save
-procedure, or generated index into a root file. Their canonical homes are the
-project-knowledge specification, packaged skills, and files under `knowledge/`.
+route in the same change. Never copy the manual's policy into a root file, rule,
+hook, or skill.

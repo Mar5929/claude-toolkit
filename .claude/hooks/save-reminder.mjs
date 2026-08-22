@@ -69,12 +69,7 @@ export function buildMessage() {
   return [
     "Held once. A pull request opening is a save moment.",
     "",
-    "Invoke /remember and follow it, then run this command again.",
-    "",
-    "- Nothing needs to persist? Say so in one line and retry.",
-    "- Something may persist? Show What, Where, Source, Tags, and Assumptions",
-    "  bullets per file. The pull request may open now, but it does not merge",
-    "  until the owner has approved what would be saved.",
+    "Invoke the remember skill and follow it, then run this command again.",
     "",
     "If you are a helper agent, stop and report this to the main agent.",
     "This branch will not be held again in this session.",
