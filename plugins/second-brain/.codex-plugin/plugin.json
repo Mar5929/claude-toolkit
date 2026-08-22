@@ -1,7 +1,7 @@
 {
   "name": "second-brain",
-  "version": "4.1.0",
-  "description": "One Git-native project knowledge system for Claude, Codex, and optional Obsidian. A managed operating manual, shared startup map, flat memory, visible provenance, owner-approved saves, task-specific skills, read-only session search, and one checker.",
+  "version": "4.1.1",
+  "description": "One Git-native project knowledge system for Claude, Codex, and optional Obsidian. A managed operating manual, shared startup map, flat memory, visible provenance, project-scoped owner-approved saves, task-specific skills, read-only session search, and one checker.",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com",
@@ -18,7 +18,7 @@
   "interface": {
     "displayName": "Second Brain",
     "shortDescription": "One Markdown project brain for agents and people.",
-    "longDescription": "Installs SOUL.md and one knowledge folder with a managed operating manual, project overview, short-term work state, flat long-term memory, approved specifications, two generated indexes, raw brainstorms, and minimal optional Obsidian settings. Claude and Codex load the same manual and small map. Task-specific skills follow that one policy for finding, saving, lifecycle changes, review, setup, and read-only session history.",
+    "longDescription": "Installs SOUL.md and one knowledge folder with a managed operating manual, project overview, short-term work state, flat long-term memory, approved specifications, two generated indexes, raw brainstorms, and minimal optional Obsidian settings. Claude and Codex load the same manual and small map. Task-specific skills follow that one policy for project-scoped saves, finding, lifecycle changes, review, setup, and read-only session history.",
     "developerName": "Mike Rihm",
     "category": "Productivity",
     "capabilities": [

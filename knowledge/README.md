@@ -2,13 +2,13 @@
 
 # How to use project knowledge
 
-Read this file once when a session starts. It is the operating manual for this
-project's knowledge system and wins if another knowledge instruction disagrees.
-Skills may reopen the section they need after context is compacted.
+Read this once at session start. It is the operating manual and wins when another
+knowledge instruction disagrees. Skills may reopen a needed section after
+compaction.
 
 ## What loads at startup
 
-The fail-open startup loader reads these files in order when they exist:
+The fail-open loader reads these files in order when present:
 
 1. `SOUL.md`: who the agent is in this project.
 2. `knowledge/README.md`: this operating manual.
@@ -17,9 +17,8 @@ The fail-open startup loader reads these files in order when they exist:
 5. `knowledge/memory/memory-index.md`: one line per memory file.
 6. `knowledge/specs/spec-index.md`: one line per specification file.
 
-Missing files never block the session. If this manual was not supplied by the
-startup loader, read it once before using project knowledge. Do not reload it on
-every prompt.
+Missing files do not block. If the loader did not supply this manual, read it
+once before using project knowledge. Do not reload it on every prompt.
 
 ## Put information in one place
 
@@ -39,18 +38,16 @@ every prompt.
 | Outside source material | The project's reference or delivery files |
 | Past conversations | Session history |
 
-A procedure is never a memory. Live work is never long-term memory. Do not copy
-requirements, code, source material, or another file's meaning into knowledge.
-Link to the canonical home instead.
+Procedures and live work are not memory. Link to requirements, code, source
+material, or another canonical home instead of copying its meaning.
 
 <!-- knowledge-policy:routing:end -->
 
 <!-- knowledge-policy:trust:start -->
 
-`knowledge/current.md` is overwritten, never appended, and is not trusted as a
-lasting fact. `knowledge/brainstorms/` is unchecked. A current specification
-beats a memory about how the system works. When current files disagree, name
-both instead of silently choosing.
+`knowledge/current.md` is overwritten and not trusted as lasting fact.
+`knowledge/brainstorms/` is unchecked. A current specification beats memory
+about system behavior. Name disagreements instead of silently choosing.
 
 <!-- knowledge-policy:trust:end -->
 
@@ -67,14 +64,12 @@ Use `recall` and stop at the first tier that answers:
    links. Check the work tracker when the question is about a work item.
 5. Past sessions through `session-search`.
 
-When tiers 1 through 4 find nothing, say what was searched. Offer or announce a
-session search before running it. Treat every result as possibly out of date and
-ask whether it is still accurate. A past session never becomes current truth or
-gets saved on the strength of being found there.
+When tiers 1 through 4 fail, name what was searched and offer or announce a
+session search. Treat its results as possibly outdated, ask whether they remain
+accurate, and never save them solely because they were found.
 
-Only files marked `current` answer what is true now. Superseded and retired files
-answer questions about history. An index is a map, not evidence. Open the file
-before relying on its line.
+Only `current` files answer what is true now. Others provide history. An index is
+a map, not evidence; open the file before relying on it.
 
 <!-- knowledge-policy:find:end -->
 
@@ -85,11 +80,15 @@ before relying on its line.
 Use `remember`. Before proposing a save, answer all seven questions:
 
 1. Is it a lasting fact, decision, event, state, context, or constraint?
-2. Did the project change, rather than the agent merely doing work?
-3. Is it likely to remain useful and true in six months?
-4. Would omitting it force the owner to explain it again or cause a wrong act?
-5. Can it already be found or worked out from code, a rule, skill,
-   specification, work item, or existing memory?
+2. Does it belong to the current project? Name the future project action or
+   decision it prevents from being wrong, or the project explanation the owner
+   would otherwise repeat. Where it happened does not make it project knowledge.
+   For an agent-tooling project, platform behavior qualifies only when it changes
+   a project requirement, design, or supported workflow.
+3. Did the project change, rather than the agent merely doing work?
+4. Is it likely to remain useful and true in six months?
+5. Can it already be found or worked out from code, configuration,
+   documentation, a rule, skill, specification, work item, or existing memory?
 6. Can it name its source and where that source can be checked?
 7. Could a future agent read it as broader or more certain than it is?
 
@@ -100,11 +99,12 @@ safe, link, tighten, verify, or do not save. When unsure, do not save.
 
 <!-- knowledge-policy:never-save:start -->
 
-Never save tool calls, searches, commands, scratch reasoning, dropped ideas,
-temporary steps, routine errors, files opened, edit logs, sub-agent activity,
-chat, copies of code or specifications, procedures, open tasks, live status,
-stale claims with no historical value, passwords, keys, tokens, or private
-personal information.
+Never save tool calls, searches, commands, generic agent, shell, or tool behavior,
+one-off troubleshooting, routine errors, scratch reasoning, dropped ideas,
+temporary steps, files opened, edit logs, sub-agent activity, chat, copies of
+code or specifications, procedures, open tasks, live status, stale claims with
+no historical value, secrets, or private personal information. Do not reroute a
+rejected candidate to global memory; a global rule or skill is a separate review.
 
 <!-- knowledge-policy:never-save:end -->
 
@@ -112,28 +112,26 @@ personal information.
 
 <!-- knowledge-policy:file-shapes:start -->
 
-Memory is flat under `knowledge/memory/`, one topic per Markdown file. A memory
-requires these YAML fields:
+Memory is flat under `knowledge/memory/`, one topic per file, and requires:
 
 `summary`, `type`, `status`, `source`, `confidence`, `created_at`, `tags`,
 `approved_by`, `approval_date`.
 
-- `type`: `fact`, `decision`, `event`, `context`, or `constraint`.
-- `status`: `current`, `superseded`, or `retired`.
-- `confidence`: `observed`, `reported`, or `inferred`.
-- `tags`: free-form YAML list. There is no fixed vocabulary.
+- `type`: `fact`, `decision`, `event`, `context`, or `constraint`;
+- `status`: `current`, `superseded`, or `retired`;
+- `confidence`: `observed`, `reported`, or `inferred`;
+- `tags`: a free-form YAML list with no fixed vocabulary.
 
-A specification lives under `knowledge/specs/` and requires `summary`, `area`,
-`status`, `source`, `created_at`, `tags`, `approved_by`, and `approval_date`.
-Specifications have no `type` or `confidence`.
+A specification under `knowledge/specs/` requires `summary`, `area`, `status`,
+`source`, `created_at`, `tags`, `approved_by`, and `approval_date`, with no
+`type` or `confidence`.
 
 Optional fields go in only when they apply: `confirmed_at`, `source_quote`,
 `effective_from`, `effective_to`, `project`, `work_item`, `supersedes`,
 `superseded_by`, and, for memory, `related_memories`.
 
-Use a lowercase, hyphen-separated topic filename. The body starts with a plain
-title and explains the truth without depending on the original conversation.
-Use ordinary relative Markdown links. Never edit either generated index by hand.
+Use a lowercase, hyphenated topic filename. Start the body with a plain title and
+standalone truth. Use relative Markdown links. Never hand-edit generated indexes.
 
 <!-- knowledge-policy:file-shapes:end -->
 
@@ -151,13 +149,15 @@ Show one numbered group per proposed file:
 ```text
 1. <plain name>
    - What: <the meaning, three sentences at most>
+   - Project value: <how this helps future work on the current project>
    - Where: <exact path and action>
    - Source: <source and observed, reported, or inferred>
    - Tags: <tags and filing details>
    - Assumptions: <everything unchecked, or None>
 ```
 
-The owner approves `What` and `Source`; assumptions are approved separately.
+The owner approves `What`, `Project value`, and `Source`; assumptions are
+approved separately.
 Silence, an unclear answer, or asking to see full text is not approval. Write
 only the approved meaning and source. If the owner edits the words, use those
 words exactly.

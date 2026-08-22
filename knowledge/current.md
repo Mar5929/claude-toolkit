@@ -6,20 +6,22 @@ file. Capped at 2,000 characters, and the checker enforces it.
 
 ## Objective
 
-Give every equipped agent one clean knowledge operating manual. Issue #219.
+Keep project knowledge scoped to the current project. Issue #221.
 
 ## Work item
 
-GitHub issue #219, branch `issue-219-knowledge-operating-manual`.
+GitHub issue #221, branch `issue-221-project-scoped-memory`.
 
 ## Blocked on
 
-Owner review of pull request #220.
+Owner approval for the knowledge-system specification update.
 
 ## Next step
 
-Review and merge pull request #220.
+Write the approved specification update, rebuild the index, and open the pull
+request.
 
 ## Picked up this session
 
-- None.
+- The save check must remove generic agent, tool, shell, and troubleshooting
+  lessons before the owner sees a proposal.

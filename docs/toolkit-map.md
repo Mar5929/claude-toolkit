@@ -17,7 +17,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | Plugin | Purpose | Skills | Install | Setup |
 | --- | --- | --- | --- | --- |
 | [project-init](../plugins/project-init/README.md) | Put the toolkit's rules and systems into a project, new or existing, including the Salesforce delivery and knowledge boundary, and put machine-wide ones onto the computer itself | `project-init`, `project-sync`, `machine-sync` | `/plugin install project-init` | Sets up a project, and sets up a machine |
-| [second-brain](../plugins/second-brain/README.md) | Portable Git-native project knowledge with one managed operating manual, a small shared startup map, flat memory, approved specifications, owner-approved saves, one checker, and separate read-only Claude Code session history | `second-brain`, `remember`, `recall`, `retire`, `reflect`, `session-search` | `/plugin install second-brain` | Sets up a project |
+| [second-brain](../plugins/second-brain/README.md) | Portable Git-native project knowledge with one managed operating manual, a small shared startup map, flat memory, approved specifications, project-scoped owner-approved saves, one checker, and separate read-only Claude Code session history | `second-brain`, `remember`, `recall`, `retire`, `reflect`, `session-search` | `/plugin install second-brain` | Sets up a project |
 | [sf-architect-solutioning](../plugins/sf-architect-solutioning/README.md) | Salesforce solution architect: approved solution plan before any build | `sf-architect-solutioning` | `/plugin install sf-architect-solutioning` | Install and go |
 | [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git lifecycle workflows | `pull-latest`, `reset-to-remote`, `merge-and-clean-up` | `/plugin install git-workflows` | Install and go |
 | [hooks-library](../plugins/hooks-library/README.md) | Reusable style, writing, Git-attribution, and Salesforce deployment hooks; system-specific knowledge hooks stay with second-brain | `hooks-library` | `/plugin install hooks-library` | Wires into settings |
@@ -32,7 +32,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | project-sync | project-init | Audit an EXISTING project against the toolkit and close approved gaps | `/project-sync` |
 | machine-sync | project-init | Audit this computer's Claude and Codex homes against the toolkit's machine-wide set and close approved gaps | `/machine-sync`, "set up this machine from my toolkit" |
 | second-brain | second-brain | Explain, install, audit, migrate, and maintain the complete project knowledge system | `/second-brain` |
-| remember | second-brain | Follow the managed manual to search, propose, save approved meaning, and verify it | `/remember`, "remember this" |
+| remember | second-brain | Scope candidates to the current project, then search, propose, save approved meaning, and verify it | `/remember`, "remember this" |
 | recall | second-brain | Start from the project map and retrieve only the specifications and memories relevant to the task | `/recall`, "what does the project know about this?" |
 | retire | second-brain | Supersede, retire, or delete one knowledge file safely | `/retire`, "this is no longer true" |
 | reflect | second-brain | Review the whole knowledge folder for duplicates, conflicts, and expired value | `/reflect`, "review project knowledge" |

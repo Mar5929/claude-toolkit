@@ -1,7 +1,8 @@
 # second-brain plugin
 
 One portable project-knowledge system shared by Claude Code, Codex, Git, and an
-optional Obsidian vault.
+optional Obsidian vault. Its save gate removes generic agent, tool, shell, and
+troubleshooting lessons before the owner sees a project-knowledge proposal.
 
 New projects install it through `project-init`. Existing projects use
 `project-sync`, which reports every change before touching the project.
@@ -64,7 +65,8 @@ Git remain the shared source of truth.
 
 ## Skills
 
-- **remember** searches, proposes, writes approved meaning, and verifies it.
+- **remember** scopes candidates to the current project, searches, proposes,
+  writes approved meaning, and verifies it.
 - **recall** walks the manual's find order and opens only relevant files.
 - **retire** safely changes one file's lifecycle.
 - **reflect** reviews the whole folder for meaning problems.
