@@ -1,6 +1,9 @@
 # Memory System
 
-**Status: draft, 2026-08-20. Not approved. Do not build from this yet.**
+**Status: approved, 2026-08-21. This is the design being built under issue #215.**
+
+This document is the only design input for that build. The earlier redesign
+drafts are in `archive/` and none of them is current.
 
 This is the manual an agent reads to use this project's memory. The short version
 lives in `CLAUDE.md` and `AGENTS.md`. This file holds the details.
@@ -578,14 +581,62 @@ still true means still true.
 
 Search here before asking the owner, and before searching the code broadly.
 
-1. Read `knowledge/current.md`. It says what is happening now.
-2. Search `knowledge/memory/` for the topic. Look at filenames, summaries, and
-   tags.
-3. Check `knowledge/specs/` for how something is meant to work. A current
-   specification beats a memory.
-4. Follow the links inside whatever you find. One step usually gets you there.
-5. If nothing turns up, say so plainly and name what you searched. Never make up
-   a believable answer, and never hand back something recent but unrelated.
+### The find ladder
+
+In Mike's words:
+
+> Essentially, session search is not a last-ditch effort, but the lowest tier in
+> trying to find information for the AI agent.
+>
+> The AI agent always starts:
+>
+> 1. Do I see if I can find something in my short-term memory?
+> 2. Is it in my rules folder?
+> 3. Is it a procedural thing?
+>
+> If I can't find it in short-term working memory, then it goes to long-term
+> memory and searches there. If it can't find it there, then it'll ask the user,
+> "Hey, I can't find it. Do you want me to do a session search or something?"
+> The user can say yes, or the agent can use its discretion to search through
+> sessions. It should always highlight to the user, "Hey, I found this in a
+> previous session. Is this still accurate?"
+
+Written out as the order to follow. Stop at the first tier that answers.
+
+1. **Short-term memory.** Read `knowledge/current.md`. It says what is happening
+   now.
+2. **Rules.** Check `.claude/rules/`. The answer may be a standing instruction
+   rather than a fact. These are already loaded, so this is a check, not a
+   search.
+3. **Skills.** Ask whether this is a procedural thing, a repeatable way of
+   working, rather than something to look up.
+4. **Long-term memory and specifications.** Search `knowledge/memory/` for the
+   topic, using filenames, summaries, and tags, then check `knowledge/specs/` for
+   how something is meant to work. A current specification beats a memory. Follow
+   the links inside whatever you find; one step usually gets you there.
+5. **Past sessions.** The lowest tier, not a last resort. Reached only when the
+   four above came up empty.
+
+### What happens when tier 4 finds nothing
+
+Say so plainly and name what you searched. Never make up a believable answer, and
+never hand back something recent but unrelated.
+
+Then offer tier 5: ask the owner whether to search past sessions. He can say yes,
+or the agent may use its own judgment and search. Either way it is offered or
+announced, never done silently.
+
+### Everything found in a past session comes back flagged
+
+A past session is not current truth. It is a record of what was said once. So
+every result from tier 5 is handed back with the flag attached: "I found this in
+a previous session. Is this still accurate?"
+
+Nothing from a past session is written into memory or a specification on the
+strength of having been found there. If it turns out to still be true, it goes
+through the normal approval process like anything else.
+
+### Status decides what answers
 
 Only files marked `current` answer questions about what is true now. A superseded
 file answers questions about history.
@@ -601,6 +652,7 @@ We will use out-of-the-box Coding Agent configuration as much as possible, where
 This second brain system is built to be the second brain for an AI agent, so we will use the native Claude Code and codex mechanisms to empower the agent to use this persistent second brain system.
 
 - Skills for maintaining memories: /remember, /retire, /reflect (job to clean up, deduplication, and consolidate memories)
+- Skills for finding things: /recall walks the find ladder above. /session-search is tier 5 of that ladder, and everything it returns comes back flagged as possibly out of date.
 - Hooks where appropriate (maybe before a pull request and a hook to detect when a work item is finished?) to force the agent to evaluate if there is something we should persist to memory or the spec system.
 - Claude.md + .claude/rules to inject the operating manual of the AI operating system and the second-brain (within the AI operating system) into the agent's context
 - SOUL.md to remind the agent of its purpose

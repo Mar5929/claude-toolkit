@@ -45,7 +45,8 @@ In this order:
 - `Read .claude/rules first.`
 - When project knowledge is installed, one short line saying the fail-open
   `SessionStart` loader reads `knowledge/project.md` and
-  `knowledge/index.md`, and that `knowledge/brainstorms/` is unchecked.
+  the two generated knowledge indexes, and that `knowledge/brainstorms/` is
+  unchecked.
 - A codemap with one line per major folder or module.
 - Structural pointers that are not behavior rules, including the chosen work
   tracker and how a refined item is marked.
@@ -75,7 +76,8 @@ therefore contains:
 - a direct instruction to open and read every `.md` rule under
   `.claude/rules/` before work;
 - when project knowledge is installed, a direct instruction to read
-  `knowledge/project.md` and `knowledge/index.md` first, open only the relevant
+  `SOUL.md`, `knowledge/project.md`, and the two indexes first, open only the
+  relevant
   specification or memory files, and treat `knowledge/brainstorms/` as
   unchecked;
 - the same structural pointers as `CLAUDE.md`;

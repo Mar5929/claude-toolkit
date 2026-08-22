@@ -32,7 +32,7 @@ every other project receives.
 
 | File | Why not |
 |---|---|
-| `second-brain.md` | It belonged to the retired large second-brain system. The short route in `CLAUDE.md` and `AGENTS.md`, the policy in `knowledge/specs/memory-system.md`, and the packaged `remember`, `recall`, and `cleanup` skills replace it without loading the full policy every session. |
+| `second-brain.md` | It belonged to the retired large second-brain system. The short route in `CLAUDE.md` and `AGENTS.md`, the policy in `knowledge/specs/knowledge-system.md`, and the packaged `remember`, `recall`, `retire`, and `reflect` skills replace it without loading the full policy every session. |
 | `wrap-up-ritual.md` | It belonged to the retired save ritual and invoked the deleted verifier. The current policy names the natural save moments, and `.claude/hooks/save-reminder.mjs` raises the pull-request moment that is easy to miss. |
 | `work-item-folders.md` | It governs the Git-native work-tracker, one folder per work item in the repository. Work here is tracked on the `Claude-Toolkit-Project` board on GitHub, so there are no work-item folders for the rule to govern. |
 | `dependency-graph.md` | It is conditional on a code graph being installed. No graph is installed here, and the graphify kit was considered and declined. |

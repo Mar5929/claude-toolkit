@@ -4,8 +4,8 @@ One portable project-knowledge folder shared by Claude, Codex, Git, and an
 optional Obsidian vault.
 
 **Setup: sets up a project.** New projects install it through `project-init`.
-Existing projects use `project-sync`, which begins with a read-only layout
-check and shows the owner every proposed move before anything changes.
+Existing projects use `project-sync`, which reads the folder first and shows the
+owner everything that would change before anything moves.
 
 ## Install
 
@@ -13,192 +13,185 @@ check and shows the owner every proposed move before anything changes.
 /plugin install second-brain
 ```
 
-The plugin keeps its established name so projects that already enable or
+The plugin keeps its established name, so projects that already enable or
 disable `second-brain@claude-toolkit` do not need a settings rename.
 
 ## What it installs
 
 ```text
-knowledge/
-  .obsidian/
-    app.json
-  project.md
-  index.md
-  specs/
-  memory/
-    tags.md
-    context/
-    decisions/
-    domain/
-    knowledge/
-    operations/
-    planning/
-    references/
-  brainstorms/
+SOUL.md                              who the agent is in this project
 
+knowledge/
+  project.md                         what the project is, where work is tracked
+  current.md                         short-term working memory, overwritten
+  memory/
+    memory-index.md                  generated, one line per file
+  specs/
+    spec-index.md                    generated, one line per file
+  brainstorms/                       raw exploration, never approved truth
+  .obsidian/app.json                 one portable vault setting
+
+.claude/rules/where-persistent-information-belongs.md
 .claude/hooks/knowledge-session-start.mjs
 .claude/hooks/save-reminder.mjs
+.claude/hooks/work-item-close.mjs
+.claude/hooks/command-parsing.mjs
 .claude/tools/build-knowledge-index.mjs
-.claude/tools/knowledge-health.mjs
-.claude/tools/knowledge-layout.mjs
+.claude/tools/check-knowledge.mjs
+.claude/tools/frontmatter.mjs
 ```
 
-The adopting project's root instructions receive a short route to
-`knowledge/project.md` and `knowledge/index.md`. Claude's `SessionStart` hook
-prints those two files. Codex receives the same read instruction through the
-root `AGENTS.md`; a project may also register the fail-open loader through its
-native Codex hook configuration when that host supports hooks.
+`knowledge/memory/` and `knowledge/specs/` are **flat**. One file per topic, no
+subfolders by type. A note about one topic is usually a fact and a decision and a
+piece of history at once, so nobody picks a bin.
+
+Claude's `SessionStart` hook prints `SOUL.md`, `knowledge/current.md`, and the
+entry lines of the two indexes. Codex receives the same instruction through the
+root `AGENTS.md`, written out in full because Codex reads that file and nothing
+else. A project may also register the fail-open loader through its native Codex
+hook configuration where that host supports hooks.
 
 The project turns off Claude Code's private auto-memory. The committed Markdown
-files are the one shared truth.
+is the one shared truth.
 
 ## Skills
 
-- **second-brain** detects, installs, adopts, migrates, or explains the whole
-  system.
-- **remember** finds where persistent information belongs, shows short What,
-  Where, Why, Assumptions, and Unverified bullets, then writes only the approved
-  meaning.
-- **recall** reads the project map and opens only the knowledge relevant to the
-  task.
-- **cleanup** reviews stale, repeated, conflicting, or misplaced knowledge and
-  combines the read-only health report with a meaning review, then proposes
-  owner-approved repairs.
-- **session-search** searches existing local Claude Code CLI conversations only
-  after current project files fail to answer, and treats every match as history.
+- **remember** decides where persistent information belongs, shows What, Where,
+  Source, Tags, and Assumptions bullets, and writes only what the owner keeps.
+- **recall** walks the find ladder and opens only what the task needs.
+- **retire** takes one file out of current use: supersede, retire, or delete.
+- **reflect** sweeps the whole folder for duplicates, overlaps, contradictions,
+  and expired value, and proposes an action for each.
+- **second-brain** detects, installs, adopts, converts, or explains the system.
+- **session-search** searches local Claude Code CLI history. Tier 5 of the find
+  ladder.
 
-## Session search boundary
+## The find ladder
 
-The agent is the main user of session search. It reads current project files
-first, then searches local Claude Code CLI history only when those files leave a
-real gap or the owner asks. Raw matches remain tool context unless the owner
-asks to see one or a conflict needs explaining.
+When an agent needs to know something it goes down these tiers and stops at the
+first that answers.
 
-The first pass searches the current project and returns at most five excerpts
-of 500 characters each. It may be widened to the repository's worktrees.
-Searching every project requires the owner's explicit choice and a second
-command flag. A selected result may expand to its complete visible message or
-adjacent conversation turn. Match time, session start, and last activity are
-separate fields so a conversation spanning several days is not mislabeled.
+| Tier | Where |
+|---|---|
+| 1 | `knowledge/current.md`, short-term working memory |
+| 2 | `.claude/rules/`, in case it is a standing instruction |
+| 3 | Skills, in case it is a procedure rather than a fact |
+| 4 | `knowledge/memory/` then `knowledge/specs/`, through their indexes |
+| 5 | Past sessions, through `session-search` |
 
-The reader uses Claude Code's documented local transcript location. Anthropic
-states that the JSONL record shape is internal and may change, so unknown
-records are skipped and unreadable history fails plainly. The reader never
-returns tool results or hidden thinking, changes a transcript, creates an
-index, writes project knowledge, or sends session data elsewhere.
+When tier 4 finds nothing, the agent says so and names what it searched, then
+offers tier 5 rather than taking it silently.
 
-## Fixed properties and project tags
+Everything tier 5 returns comes back flagged: "I found this in a previous
+session. Is this still accurate?" A past session is a record of what was said
+once, never current truth, and nothing is written on the strength of having been
+found there.
 
-Every memory uses only six YAML properties: `source`, `source-file`, `date`,
-`session`, `tags`, and `superseded-by`. The source value separates exact owner
-quotes, owner paraphrases, named repository files, direct agent observations,
-and unchecked agent conclusions.
+## The file shape
 
-Tags describe project subjects only. Each project owns its vocabulary, so a
-Salesforce project never inherits this toolkit repository's tags. A normal save
-checks every approved tag and its usage but shows the owner only relevant tags,
-proposed tags, and concrete warnings.
+Nine required fields on every memory file:
 
-The installed health tool generates four read-only views:
+`summary`, `type` (fact, decision, event, context, constraint), `status`
+(current, superseded, retired), `source`, `confidence` (observed, reported,
+inferred), `created_at`, `tags`, `approved_by`, `approval_date`.
+
+Optional, written only when they apply: `confirmed_at`, `source_quote`,
+`effective_from`, `effective_to`, `project`, `work_item`, `supersedes`,
+`superseded_by`, `related_memories`.
+
+A specification file uses the same set minus `confidence` and `type`, plus
+`area`. A specification is approved behavior, so "how sure are we" does not apply
+to it.
+
+`confidence` is what makes a saved file safe to read: **observed** means the
+agent checked it, **reported** means someone said it, **inferred** means the
+agent worked it out and nobody checked. Inferred stays inferred until somebody
+checks it. Time passing does not promote it.
+
+`tags` are free-form. There is no fixed vocabulary and no tag file. Each project
+grows its own.
+
+## Checking
 
 ```text
-node .claude/tools/knowledge-health.mjs health [project-root] [--json]
-node .claude/tools/knowledge-health.mjs properties [project-root] [--json]
-node .claude/tools/knowledge-health.mjs tags [project-root] [--json]
-node .claude/tools/knowledge-health.mjs provenance [project-root] [--json]
+node .claude/tools/build-knowledge-index.mjs   # rebuild both indexes
+node .claude/tools/check-knowledge.mjs          # read-only, exits 1 on a problem
 ```
 
-Add `--focus <repository-relative-path>` after an approved save to limit
-owner-facing warnings to that file while still checking the complete tag
-vocabulary and its usage.
+The checker fails on a missing required field, a value outside its list, a bad
+date, an over-long summary, tags that are not a list, a `superseded_by` pointing
+at a file that does not exist, a `superseded_by` whose status disagrees with it,
+a subfolder under a flat folder, a filename that is not the topic in plain words,
+a file with no title, a `current.md` over its 2,000 character cap, and eight
+shapes of secret.
 
-The reports are generated on demand from Markdown and are never committed.
-They identify mechanical risks. The cleanup skill reviews meaning and proposes
-the owner-approved repair. No tool silently changes persistent knowledge.
+It never edits, moves, or deletes anything. It exists so a save can be verified
+instead of assumed.
 
-## What each folder owns
+## What each file owns
 
-- `knowledge/project.md`: what the project is, why it exists, what finished
-  looks like, its main workstreams and boundaries, who is involved, and where
-  active work is tracked.
-- `knowledge/specs/`: approved product or system behavior.
-- `knowledge/memory/`: persistent context, decisions, domain language, project
-  conclusions, operations, planning, and external references.
+- `SOUL.md`: who the agent is here, its role, its purpose.
+- `knowledge/project.md`: what the project is, why it exists, what finished looks
+  like, its boundaries, who is involved, and where active work is tracked.
+- `knowledge/current.md`: what is being worked on now, what is blocking it, the
+  next step. Overwritten, never appended, and nothing in it is a lasting fact.
+- `knowledge/specs/`: how the system is meant to work, once settled.
+- `knowledge/memory/`: lasting facts, decisions, events, context, constraints.
 - `knowledge/brainstorms/`: raw exploration that is not approved truth.
-- `knowledge/index.md`: a generated map of specifications and memories.
-- `knowledge/.obsidian/`: one portable setting that keeps links relative and
-  updates Markdown links when Obsidian renames a file.
+- The two indexes: generated, never hand-edited. If one disagrees with the files
+  on disk, the files win.
 
-Normal relative Markdown and Git remain authoritative. Obsidian is optional.
-The plugin installs no community Obsidian plugin and no Git synchronization.
+A current specification beats a memory. When a memory and a current
+specification disagree, the agent says so and names both rather than quietly
+picking one.
 
 ## Approval boundary
 
-Every proposal starts with short What, Where, Why, Assumptions, and Unverified
-bullets. Full file text appears only when the owner asks. Approval covers only
-the meaning in those bullets, and the write may add no unlisted claim, source,
-assumption, or background.
+Every proposal shows What, Where, Source, Tags, and Assumptions. The owner
+approves **What** and **Source**; the rest is shown so he can see how it is
+being filed, and he may change any of it.
 
-Nothing writes persistent project knowledge automatically. Hooks remind and read.
-Helper agents may research, but they cannot approve a save.
+Silence, an unclear answer, or asking to see the full text all mean nothing gets
+written. Asking to see the text is not approval. The write adds no claim,
+source, assumption, or background the bullets did not cover.
 
-## Migration
+Nothing writes persistent knowledge automatically. Hooks remind and read. Helper
+agents may research; they cannot approve a save.
 
-The installed layout tool has four modes:
-
-```text
-node .claude/tools/knowledge-layout.mjs detect [project-root] [--json]
-node .claude/tools/knowledge-layout.mjs plan [project-root] [--json]
-node .claude/tools/knowledge-layout.mjs apply [project-root] --approve <plan-hash>
-node .claude/tools/knowledge-layout.mjs review-retired [project-root] --output <empty-dir>
-```
-
-Detection uses system signatures, not folder names. It reports `knowledge`,
-`flat-149`, `retired-v3`, `none`, `mixed`, or `unknown`.
-
-`plan` never writes. A flat-layout plan checks targets, symlinks, and mapped
-Markdown links, and emits the hash required by `apply`. Apply moves documents
-without changing their bytes except for deterministic relative-link repair,
-discards the old generated index, and rebuilds the new one.
-
-Retired documents cannot be converted safely by guessing what an old `Basis:`
-line means for source, date, session, source file, and tags. `review-retired`
-therefore writes drafts and a manifest to a separate empty review directory.
-It never changes or finalizes the project. The owner resolves every placeholder
-before a later approved adoption pass.
-
-Mixed, partial, ambiguous, colliding, escaping, or dangling layouts stop with
-no project write.
+The one exception is converting a project off an older layout, where the files
+were already approved once in their old shape. There the owner approves in
+batches after the write, and anything that will not convert cleanly is stopped
+on and named rather than guessed.
 
 ## What is deliberately absent
 
-- the retired memory verifier;
-- the retired large always-loaded memory rule;
-- the retired shape checker and per-folder indexes;
 - a database, embeddings, or memory server;
+- a shipped test or eval framework;
+- the retired memory verifier, health tool, and layout tool;
+- the retired always-loaded memory rule and per-folder indexes;
 - automatic transcript capture or background curation;
 - Obsidian-only wikilinks, canvases, Bases, community plugins, or Git plugins;
 - a private note store outside the repository.
 
 ## Verification
 
+There is no harness to run. The two tools are the check:
+
 ```text
-node plugins/second-brain/tests/knowledge-harness.mjs
-node plugins/second-brain/tests/retirement-harness.mjs
-node plugins/second-brain/tests/session-search-harness.mjs
+node .claude/tools/check-knowledge.mjs
+node .claude/tools/build-knowledge-index.mjs
 ```
 
-The knowledge harness builds temporary projects for every detector state,
-checks greenfield assets, runs flat migration, tests link repair and failures,
-creates retired review drafts, exercises both hooks, checks property, tag,
-provenance, and health behavior, and removes every fixture.
-The session-search harness builds local transcript fixtures, checks scope and
-privacy boundaries, expands selected messages, verifies failure states, and
-proves the transcript tree stays unchanged.
+Build the index twice and confirm the second run changes nothing. Run the
+checker against a file with a field removed and confirm it fails with a plain
+message naming the file.
 
 ## Maintaining this plugin
 
 A content change updates both plugin manifests and the marketplace metadata.
 Keep the three consuming workflows aligned: `project-init`, `project-sync`, and
-this plugin. The project specification is the behavior authority; the package
-is its portable implementation.
+this plugin.
+
+The behavior authority is `knowledge/specs/knowledge-system.md` in the toolkit
+repository. It is not installed into projects; this package is its portable
+implementation.

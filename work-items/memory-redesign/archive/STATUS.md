@@ -1,7 +1,7 @@
 # Memory system v2: build status
 
 One glance answers three questions: where are we, what comes next, what is
-blocked. [implementation-plan.md](implementation-plan.md) defines the work
+blocked. [implementation-plan.md](context/implementation-plan.md) defines the work
 items. This file tracks their state. Mike does not maintain this file. The
 sessions doing the work do.
 

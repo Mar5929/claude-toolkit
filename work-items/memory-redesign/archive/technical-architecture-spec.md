@@ -34,9 +34,9 @@ same startup, approval, retrieval, privacy, and validation contracts.
 The final design was resolved from these inputs:
 
 1. [functional-requirements.md](functional-requirements.md), FR-001 through FR-131;
-2. [memory-system-v2-master2.md](memory-system-v2-master2.md), the approved design
+2. [memory-system-v2-master2.md](draft%20designs/memory-system-v2-master2.md), the approved design
    from 2026-08-17; and
-3. [memory-system-v2-master.md](memory-system-v2-master.md), the more detailed
+3. [memory-system-v2-master.md](draft%20designs/memory-system-v2-master.md), the more detailed
    technical draft.
 
 The inputs are used in this order:

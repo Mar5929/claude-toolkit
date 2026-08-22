@@ -25,6 +25,15 @@ and the read-only `.claude/tools/knowledge-health.mjs` report. The startup route
 now carries one short rule that keeps live work and reusable procedures out of
 persistent project knowledge.
 
+Rebuilt on 2026-08-21 for GitHub issue #215. Memory became one flat folder with
+one file per topic and free-form tags, replacing seven subfolders by type and a
+fixed tag list. `SOUL.md` and `knowledge/current.md` are new. The nine required
+properties carry visible provenance through `source` and `confidence`. Finding
+follows a five-tier ladder ending in session search, whose results always come
+back flagged as possibly out of date. 2,659 lines of health, layout, and
+harness machinery were deleted in favour of one read-only checker: that
+machinery was a large part of why saving cost more than it gave back.
+
 This repository is the toolkit. It now runs the toolkit on itself, the same way
 Anchor, DragonFly, and Diligence Ready do, so a change to the memory system, the
 rules, the output style, or the hooks is felt where it is written instead of
@@ -37,7 +46,7 @@ three weeks later in another project.
 | 0. Orient | Done. Existing repository, not a new one, so this ran as a sync rather than an init. Node and Markdown, no application stack. |
 | 1. Scaffolding and work tracking | Already answered. Work is tracked on the `Claude-Toolkit-Project` board on GitHub. `CLAUDE.md` names it, and `spec-before-you-build.md` is installed alongside that pointer. No scaffolding was added: the folder layout already existed. |
 | 2. Hooks | Done. `save-reminder` and `knowledge-session-start` are installed under `.claude/hooks/` and registered in `.claude/settings.json`. Codex registers the same startup loader in `.codex/hooks.json`. The two style hooks were removed with the toolkit, as explained below. |
-| 3. Project knowledge | **Adopted from the packaged plugin.** `knowledge/project.md` and the generated `knowledge/index.md` load at session start. Approved specifications, persistent memory, and unchecked brainstorms live under the same knowledge root. The packaged `remember`, `recall`, `cleanup`, and read-only `session-search` skills plus the read-only health tool replace hand-made or automatic curation. The retired rule, verifier, shape checker, and per-folder indexes stay removed. |
+| 3. Project knowledge | **Adopted from the packaged plugin.** `SOUL.md`, `knowledge/current.md`, and the two generated indexes load at session start. Approved specifications, flat persistent memory, and unchecked brainstorms live under the same knowledge root. The packaged `remember`, `recall`, `retire`, `reflect`, `second-brain`, and read-only `session-search` skills, plus the read-only checker, replace hand-made or automatic curation. The retired rule, verifier, shape checker, health tool, layout tool, and per-folder indexes stay removed. |
 | 4. Knowledge layer | Included with Gate 3. The graphify code graph was offered and declined, see below. |
 | 5. Root instructions, rules, output style | Done. `CLAUDE.md` and `AGENTS.md` carry the same short project knowledge route. `.claude/rules/` holds the applicable general rules, with no large memory rule or wrap-up ritual. The plain-language output style is installed and selected. |
 | 6. Optional toolkit skills | Done. All five now ship in one plugin, `session-skills`: `explain-simply`, `grill-me`, `handoff`, `session-summary`, and `track-tasks`. The four that predate the merge were already switched on in the machine settings at `~/.claude/settings.json`. |
@@ -78,9 +87,10 @@ given MCP server, and this repository's own work uses none.
 Several sessions work in this repository at once, each in its own worktree. The
 memory system adds a shared file they can collide on that was not there before.
 
-Every approved save rebuilds `knowledge/index.md`. Two sessions saving on
-different branches can both change it, so Git may merge both with no reported
-conflict and still leave the result wrong.
+Every approved save rebuilds `knowledge/memory/memory-index.md` and
+`knowledge/specs/spec-index.md`. Two sessions saving on different branches can
+both change them, so Git may merge both with no reported conflict and still
+leave the result wrong.
 
 The answer is that nobody edits that file by hand. After bringing a branch
 current, run `node .claude/tools/build-knowledge-index.mjs` again: it rebuilds
@@ -113,7 +123,7 @@ compares them with their plugin originals.
 `knowledge/specs/` fills as work happens. A capability gets its specification
 the first time an issue changes what that capability does. Specifications were
 deliberately not written up front for the plugins. Every current specification
-and memory is listed in `knowledge/index.md`.
+and memory is listed in one of the two generated indexes.
 
 ## The style hooks, removed with the toolkit
 

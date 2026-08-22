@@ -32,8 +32,9 @@
  *
  * The root knowledge route is short enough to compare word for word. Host hook
  * wiring lives in settings files, outside the shared block. The project-local
- * index, layout, health, and startup scripts are also checked against the
- * second-brain package that other projects receive.
+ * index builder, knowledge checker, frontmatter parser, and the three knowledge
+ * hooks are also checked against the second-brain package that other projects
+ * receive.
  *
  * Run: node tests/installed-copy-check.mjs
  */
@@ -58,6 +59,7 @@ const OWN_FILES = new Set([
   ".claude/rules/README.md",
   ".claude/settings.json",
   ".claude/toolkit-sync.md",
+  ".claude/agents/product-manager.md",
 ]);
 
 function shippedOriginalFor(path) {
@@ -67,7 +69,13 @@ function shippedOriginalFor(path) {
   match = path.match(/^\.claude\/output-styles\/(.+\.md)$/);
   if (match) return `plugins/project-init/library/output-styles/${match[1]}`;
   match = path.match(/^\.claude\/hooks\/(.+)$/);
-  if (match && ["knowledge-session-start.mjs", "save-reminder.mjs"].includes(match[1])) {
+  const secondBrainHooks = [
+    "knowledge-session-start.mjs",
+    "save-reminder.mjs",
+    "work-item-close.mjs",
+    "command-parsing.mjs",
+  ];
+  if (match && secondBrainHooks.includes(match[1])) {
     return `${SECOND_BRAIN}/hooks/${match[1]}`;
   }
   if (match) return `plugins/hooks-library/hooks/${match[1]}`;

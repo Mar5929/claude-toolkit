@@ -80,9 +80,10 @@ README.md                What this project is, for humans.
 knowledge/
   project.md             What this project is and what it is for.
   current.md             What is being worked on right now.
-  index.md               A generated list of everything written down. Never edit by hand.
-  memory/                Lasting facts, decisions, events, context.
+  memory/                Lasting facts, decisions, events, context. One flat folder.
+    memory-index.md      Generated list of the above. Never edit by hand.
   specs/                 Settled, approved behavior.
+    spec-index.md        Generated list of the above. Never edit by hand.
   brainstorms/           Rough ideas. Not true yet. Never quote as fact.
 
 work-items/              Active work, one folder per item. Only in some projects.
@@ -93,8 +94,9 @@ Two of these are easy to get wrong:
 **`knowledge/brainstorms/` is not true.** It holds unfinished thinking. Never
 treat anything in it as settled, and never quote it as a fact.
 
-**`knowledge/index.md` is generated.** A script builds it from the files. Editing
-it by hand does nothing, because the next rebuild overwrites you.
+**The two indexes are generated.** `knowledge/memory/memory-index.md` and
+`knowledge/specs/spec-index.md` are built from the files by a script. Editing
+one by hand does nothing, because the next rebuild overwrites you.
 
 ---
 
@@ -150,8 +152,9 @@ Skills the toolkit provides:
 - `remember` decides where something belongs and saves it after the owner
   approves.
 - `recall` finds what the project already wrote down.
-- `cleanup` reviews the knowledge folder for stale, repeated, or conflicting
-  content.
+- `retire` takes one file out of current use: supersede, retire, or delete.
+- `reflect` sweeps the knowledge folder for duplicates, contradictions, and
+  anything whose value has expired.
 - `session-search` searches past conversations, read-only, when current files do
   not answer.
 
@@ -219,13 +222,17 @@ specification beats a memory.
    something the project already answered.
 
 **For the details, read
-[the knowledge system manual](knowledge-system-manual.md).** It has the file
-format, the seven questions that decide what to save, when to offer a save, the
-four bullets to show the owner, and how to update, replace, or retire something.
+[the knowledge system north star](../memory-redesign/knowledge-system-north-star.md)
+for the intent, and
+[how the knowledge system works](../../knowledge/specs/knowledge-system.md) for
+the buildable version.** Between them they hold the file format, the seven
+questions that decide what to save, when to offer a save, the bullets to show the
+owner, the find ladder, and how to update, replace, or retire something.
 
-**This part is being rebuilt right now.** The memory folder currently has
-subfolders per category. The redesign removes them in favor of one flat folder
-with tags. Until that lands, follow the existing layout.
+**This part is being rebuilt right now** under issue #215. The memory folder is
+becoming one flat folder with free-form tags, replacing the subfolders per
+category. `knowledge/specs/knowledge-system.md` is the current design; follow it
+rather than the old layout.
 
 ---
 

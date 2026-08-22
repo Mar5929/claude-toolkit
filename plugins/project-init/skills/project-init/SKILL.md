@@ -245,21 +245,23 @@ startup map.
   agent instructions to rules, active work wherever its work item is being
   tracked, reusable processes to skills, outside source material to references,
   and past conversations to session history.
-- Start `knowledge/memory/tags.md` with an empty project-specific vocabulary.
-  Never copy another project's topic tags into a new project.
+- Tags are free-form. There is no vocabulary file and no fixed list. A new
+  project starts with no tags and no memories, and never inherits another
+  project's.
 - Offer the initial persistent-information pass after installation. The main
-  agent shows short What, Where, Why, Assumptions, and Unverified bullets, then
-  writes only the meaning the owner approves. Full file text appears only when
-  the owner asks.
+  agent shows What, Where, Source, Tags, and Assumptions bullets, then writes
+  only what the owner approves. Full file text appears only when he asks, and
+  asking to see it is not approval.
 - Never add a database, memory MCP server, embeddings, transcript capture, or
   background curator. Hooks may load or remind; they never approve or write
   persistent knowledge.
 - Never read or import retired v1 Worker, Neon, curator, outbox, or cache
   content.
-- `knowledge/index.md` is generated from specifications and memories. Nobody
-  hand-edits it, and no per-folder indexes are created. The `knowledge/` tree is
-  exempt from folder `CLAUDE.md` files because its contract is already owned by
-  the root routes and project-knowledge specification.
+- `knowledge/memory/memory-index.md` and `knowledge/specs/spec-index.md` are
+  generated. Nobody hand-edits them, and no other indexes are created. Both
+  folders are flat: one file per topic, no subfolders by type. The `knowledge/`
+  tree is exempt from folder `CLAUDE.md` files because its contract is already
+  owned by the root routes and the knowledge-system specification.
 
 ### Gate 4: Optional mechanical knowledge aids
 
@@ -267,8 +269,8 @@ startup map.
 Markdown knowledge system.
 
 - Do not offer a second or competing knowledge system. When Gate 3 was
-  approved, `knowledge/memory/knowledge/`, `knowledge/memory/references/`, and
-  `knowledge/memory/domain/` already provide the persistent knowledge layer.
+  approved, `knowledge/memory/` and `knowledge/specs/` already provide the
+  persistent knowledge layer.
 - Mark this gate **available alongside project knowledge** when Gate 3 ran, or
   **independent of project knowledge** when the owner declined Gate 3.
 - Explain that a dependency graph is a separately optional analysis aid for
@@ -353,9 +355,9 @@ list.
   how a refined ticket is marked. Add the identical line to `AGENTS.md`. Reflect what the
   earlier gates set up. When project knowledge was installed, keep a short
   route in both files. `CLAUDE.md` names the fail-open session-start loader and
-  `knowledge/`; `AGENTS.md` directly instructs Codex to read
-  `knowledge/project.md` and `knowledge/index.md` first. Neither copies the
-  complete system specification.
+  `knowledge/`; `AGENTS.md` directly instructs Codex to read `SOUL.md`,
+  `knowledge/project.md`, `knowledge/current.md`, and the two generated indexes
+  first. Neither copies the complete system specification.
   Keep other behavioral rules out of the root files.
 - **Keep the codemap to one line per folder**, and let that line point at the
   folder's own `CLAUDE.md` for the detail. Four things never leave the root

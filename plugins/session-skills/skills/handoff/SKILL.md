@@ -58,7 +58,7 @@ command carries its own instructions.
 
 Detect the current project knowledge system by its complete layout:
 
-- `knowledge/project.md` and `knowledge/index.md`;
+- `SOUL.md`, `knowledge/project.md`, and `knowledge/current.md`;
 - `knowledge/specs/`, `knowledge/memory/`, and `knowledge/brainstorms/`; and
 - the installed `remember` skill.
 

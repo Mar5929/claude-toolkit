@@ -136,7 +136,7 @@ does.
    on.
 
 Where those notes live is the project's own choice:
-`knowledge/memory/knowledge/` when project knowledge is installed, otherwise
+`knowledge/memory/` when project knowledge is installed, otherwise
 `docs/`.
 
 ## Known limits (say these out loud; do not oversell)
