@@ -14,7 +14,8 @@ approval before any building starts.
 ## What counts as a specification
 
 - A file under `knowledge/specs/`.
-- A ticket body: a GitHub issue, a Linear ticket, or a work item's `SPEC.md`.
+- A ticket body: a GitHub issue, a Linear ticket, or a local work item's
+  `REQUIREMENTS.md`.
 
 If the work has no specification at all, say so in one line and stop. The
 project's spec-before-you-build rule takes over: the ticket gets written first.

@@ -21,7 +21,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | [sf-architect-solutioning](../plugins/sf-architect-solutioning/README.md) | Salesforce solution architect: approved solution plan before any build | `sf-architect-solutioning` | `/plugin install sf-architect-solutioning` | Install and go |
 | [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git lifecycle workflows | `pull-latest`, `reset-to-remote`, `merge-and-clean-up` | `/plugin install git-workflows` | Install and go |
 | [hooks-library](../plugins/hooks-library/README.md) | Reusable style, writing, Git-attribution, and Salesforce deployment hooks; system-specific knowledge hooks stay with second-brain | `hooks-library` | `/plugin install hooks-library` | Wires into settings |
-| [work-tracker](../plugins/work-tracker/README.md) | Git-authoritative backlog, handoffs, relationships, landing proof, optional GitHub Projects, and safe recognition of root, Salesforce delivery, and existing engagement paths | `work` | `/plugin install work-tracker` | Sets up a project |
+| [work-tracker](../plugins/work-tracker/README.md) | Flat local backlog under Git-ignored `.work-items/`, with YAML records, owner-approved requirements, handoffs, relationships, landing proof, and preview-first conversion of older staged trackers | `work` | `/plugin install work-tracker` | Sets up a project |
 | [session-skills](../plugins/session-skills/README.md) | The eight things you reach for inside one conversation: play back a brain dump, say it simply, get grilled on it, check the spec before building, unslop a draft, hand it off, recap it, and track what is still open | `braindump`, `explain-simply`, `grill-me`, `handoff`, `session-summary`, `spec-check`, `track-tasks`, `unslop` | `/plugin install session-skills` | Install and go |
 
 ## Skills at a glance
@@ -41,7 +41,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | pull-latest | git-workflows | Get current with the remote without rewriting or discarding | `/pull-latest` |
 | reset-to-remote | git-workflows | Hard-reset a repo to mirror the remote, safely gated | `/reset-to-remote` |
 | merge-and-clean-up | git-workflows | Merge one approved PR and remove only its completed branch and worktree | `/merge-and-clean-up`, "merge and clean up" |
-| work | work-tracker | Manage local work items and their optional GitHub Issues and Project mirror | `/work`, "add this to the backlog", "what should I work on next?" |
+| work | work-tracker | Manage local work items in flat Git-ignored folders and safely convert the older staged tracker | `/work`, "add this to the backlog", "what should I work on next?" |
 | braindump | session-skills | Play a pasted brain dump back in very simple words, list each ask and every guess, and wait for the owner's yes before any work starts | `/braindump`, "play that back", "tell me what you heard" |
 | explain-simply | session-skills | Re-explain the last answer or a named file as short bullets, simplifying the wording and never the facts | `/explain-simply`, "explain that like I'm five", "put that in plain bullets", "simpler" |
 | grill-me | session-skills | Stress-test an idea one question at a time and preserve every answer | `/grill-me`, "grill me" |
@@ -240,32 +240,26 @@ The genuine watch-items are called out at the end.
   discussions only after current files fail to answer. All point to the same
   manual, so none owns a second copy of policy.
 - **work-tracker versus the older work-items tree.** Not two trackers.
-  work-tracker is the executable extension of the same four-stage convention.
-  It adopts existing `SPEC.md`, `STATUS.md`, and notes in place, adds
-  `ITEM.json` and deterministic commands, and rebuilds the old hand-edited
-  index as a generated view. The six structured statuses distinguish Backlog
-  from Ready and In Progress from In Review without creating another folder
-  hierarchy. It recognizes root `work-items/`, new Salesforce
-  `delivery/work-items/`, and existing `engagement/work-items/` without moving
-  any of them.
+  The current tracker uses flat work-item folders under Git-ignored
+  `.work-items/`, `ITEM.yaml`, and owner-approved `REQUIREMENTS.md`. The older
+  tree used four status folders under root `work-items/`, Salesforce
+  `delivery/work-items/`, or `engagement/work-items/`. `work migrate` previews
+  and then copies those items without deleting or overwriting the old source.
 - **work-tracker versus project knowledge.** work-tracker owns task status,
   blockers, work-item relationships, branch and pull-request evidence, and the
   current handoff. Project knowledge may link specifications and persistent memory to a work-item
   folder, but it does not copy or overrule task status.
 - **work-tracker versus GitHub Projects.** Two different things share the word
-  "Project". work-tracker's optional adapter creates or updates repository issues
-  and a Project as a **mirror** of local files that stay authoritative, using its
-  own six statuses, and everything can be reconciled from the local records.
-  Separately, a project may answer the Gate 1 tracking question with a GitHub
-  Projects board that **holds** the work, with no work-items folder at all. That
-  one is set up by hand from `project-init`'s `work-tracking-choice.md`, uses
-  seven statuses including `Refining`, and involves no work-tracker code. Never
-  point both setups at one board.
+  `work-tracker` is fully local and has no GitHub mirror. A project may instead
+  answer the Gate 1 tracking question with a GitHub Projects board that holds
+  the shared work, with no `.work-items/` tracker. That board is set up by hand
+  from `project-init`'s `work-tracking-choice.md`, uses seven statuses including
+  `Refining`, and involves no work-tracker code.
 - **spec-before-you-build versus work-item-folders.** Not two rules about
   tickets. `spec-before-you-build` is tracker-neutral and states the two things
   that hold anywhere: log the work before building it, and refine the six-part
   spec before building it. `work-item-folders` adds only what is specific to
-  tracking work as files in the repository, and is meaningless in a project that
+  tracking work in local folders, and is meaningless in a project that
   chose a GitHub board, Linear, Jira, or the BMAD method. The six parts are
   stated once, in `spec-before-you-build`. A BMAD project meets them through
   BMAD's own requirements document and stories, never through a second
@@ -299,8 +293,8 @@ The genuine watch-items are called out at the end.
 - **grill-me versus work-item and memory files.** `grill-me` owns raw discovery
   notes in a flat, dated `knowledge/brainstorms/` collection. Each brainstorm links to
   every resulting specification without being copied into system-area folders.
-  A work item's `SPEC.md` and `STATUS.md` own that ticket's approved scope and
-  readable handoff, while `ITEM.json` owns structured task state. Top-level
+  A work item's `REQUIREMENTS.md` and `STATUS.md` own that ticket's approved
+  scope and readable handoff, while `ITEM.yaml` owns structured task state. Top-level
   `knowledge/specs/` owns persistent current behavior and second-brain owns persistent project
   knowledge. The brainstorm may inform those artifacts but does not replace
   them.

@@ -1,12 +1,11 @@
 # work-tracker plugin
 
-A production-ready Git-native work tracker shared by Claude and Codex. It gives
-every session one reliable answer to what exists, what is active or blocked,
-what comes next, where the work lives, and whether a claimed completion is
-actually in the default branch.
+A local work tracker shared by Claude and Codex. It keeps each work item in one
+flat, Git-ignored folder and makes owner-approved requirements the gate before
+building starts.
 
-**Setup: sets up a project.** Install once per machine, then each project opts
-in and gets its own work-item folders and generated views.
+**Setup: sets up a project.** Install once per machine. A project opts in when
+the owner chooses local folders for work tracking.
 
 ## Install
 
@@ -26,51 +25,79 @@ skill.
 
 ## What it installs
 
-- **work**: agent instructions used by both Claude and Codex.
-- **`work.mjs`**: one dependency-free Node.js implementation for every command,
-  built on three modules in `scripts/lib/`: `tracker.mjs` (reads and writes the
-  work-item records), `github.mjs` (the optional issues and Project mirror), and
-  `common.mjs` (shared file, Git, and formatting helpers).
-- **Validation and reconciliation**: deterministic checks suitable for CI.
-- **Optional GitHub adapter**: creates or links a GitHub Project and mirrors
-  local work into repository issues.
+- **work**: agent instructions used by Claude and Codex.
+- **`work.mjs`**: one dependency-free Node.js command for local work items,
+  built on `scripts/lib/tracker.mjs` for tracker behavior and
+  `scripts/lib/common.mjs` for shared file, YAML, Git, and command helpers.
+- **Validation and reconciliation**: deterministic checks for local records and
+  Git landing proof.
+- **Safe conversion**: a preview-first copy from the older staged tracker.
 
-No database, model, cloud service, or external tracker is required for the core.
+No database, model, cloud service, or external tracker is required.
 
-Its reference documents are `references/command-reference.md` (every command and
-flag), `references/record-format.md` (the exact shape of `ITEM.json` and the
-other per-item files), and `references/github-projects.md` (the mirror).
+The detailed references are `references/command-reference.md` for commands and
+`references/record-format.md` for files, fields, and conversion.
 
 ## Where tickets live
 
-Most projects use `work-items/`. New Salesforce projects use
-`delivery/work-items/`. Existing Salesforce projects may keep
-`engagement/work-items/`; the tracker recognizes all three paths and never
-moves one automatically.
+Every project uses the same hidden root folder:
 
-Each ticket folder contains:
+```text
+.work-items/
+  .work-tracker.yaml
+  DASHBOARD.md
+  WI-014-example/
+    ITEM.yaml
+    REQUIREMENTS.md
+    STATUS.md
+    HISTORY.ndjson
+```
 
-- `ITEM.json`: structured status, priority, type, relationships, blockers, Git
-  evidence, and optional GitHub identifiers.
-- `SPEC.md`: the user-authored purpose, requirements, and decisions.
-- `STATUS.md`: the readable current handoff and recent dated history.
-- `HISTORY.ndjson`: the complete dated history.
+`work init` adds `/.work-items/` to `.gitignore`. The work records stay in the
+current checkout and never enter Git. Agents can update them without filling a
+branch or pull request with routine status changes.
 
-The existing four stage folders remain:
+Linked Git worktrees in the same clone share the primary checkout's
+`.work-items/` folder and lock. Commands run from a linked worktree return the
+shared folder's full path, so agents can open the same records without copying
+them. Separate clones and computers do not share it.
 
-- `01-backlog/`: Backlog and Ready.
-- `02-in-progress/`: In Progress and In Review.
-- `03-completed/`: Done.
-- `04-archived/`: Cancelled and archived completed items.
+Every work item sits directly inside `.work-items/`. There are no status
+folders. Status changes in `ITEM.yaml`; the folder stays put.
 
-`DASHBOARD.md` and `01-backlog/BACKLOG.md` are generated views. They can be
-deleted and rebuilt without losing ticket truth.
+## The requirements gate
+
+Every item contains `REQUIREMENTS.md` with YAML fields at the top. Its status is
+either:
+
+- `refining`: the owner interview is still open; or
+- `finalized`: the owner approved the complete requirements.
+
+The body holds the goal, reason, requirements, user experience, outside
+behavior, and edge cases. It contains only what the owner said or approved. It
+contains no technical plan and no unapproved agent assumptions.
+
+New items start in `Backlog` with refining requirements. Finalizing a complete
+file moves the item to `Ready`. `work start` refuses anything else. Reopening
+requirements returns open work to `Backlog`.
+
+## Item records and handoffs
+
+- `ITEM.yaml`: description, status, priority, type, dates, next step, blockers,
+  relationships, and Git landing evidence.
+- `REQUIREMENTS.md`: owner-approved needs and their refinement state.
+- `STATUS.md`: readable current handoff, recent history, and preserved owner
+  notes.
+- `HISTORY.ndjson`: complete dated command history.
+- `DASHBOARD.md`: generated view that can be deleted and rebuilt.
 
 ## Commands
 
 ```text
 work init
+work migrate
 work add
+work requirements
 work status
 work next
 work start
@@ -81,7 +108,6 @@ work landed
 work reconcile
 work validate
 work dashboard
-work github ...
 ```
 
 Every command supports readable output. Agent workflows use `--json`.
@@ -90,11 +116,11 @@ Validation and command failures return nonzero exit codes.
 ## How completion is proven
 
 `finish` records the completion commit and asks Git whether that commit is an
-ancestor of the configured default branch. If yes, the item becomes Done and
-records the landed commit and date. If not, it becomes In Review.
+ancestor of the configured default branch. If yes, the item becomes `Done`. If
+not, it becomes `In Review`.
 
 An agent statement, branch name, closed issue, or pull-request number alone
-cannot mark a ticket Done. `validate` rejects false completion evidence.
+cannot mark a ticket `Done`. `validate` rejects false completion evidence.
 
 ## Relationships and next-item selection
 
@@ -103,41 +129,39 @@ Relationships include `depends_on`, `blocks`, `related_to`, `parent`, and
 rejects dependency cycles.
 
 `next` ranks deterministically. It continues actionable active work first, then
-considers Ready and Backlog items by priority, dependency readiness, blockers,
-creation date, and ID. It explains the recommendation and uses no model.
+considers `Ready` items by priority, dependency readiness, blockers, creation
+date, and ID. A `Backlog` item with refining requirements is never recommended
+for implementation.
 
-## Existing manual folders
+## Converting the older tracker
 
-`init` adopts the toolkit's prior `work-items/` and
-`engagement/work-items/` conventions as well as the current Salesforce
-`delivery/work-items/` path. It identifies existing `WI-<number>-<slug>`
-folders, infers only safe metadata from their location, and marks it for
-review. It never overwrites `SPEC.md`, `STATUS.md`, or other notes. When more
-than one unconfigured path exists, it stops and asks for an explicit path.
+The older format may live in `work-items/`, `delivery/work-items/`, or
+`engagement/work-items/`. It uses four status folders, `ITEM.json`, and
+`SPEC.md`.
 
-## Optional GitHub Project
+`work migrate` previews the conversion and changes nothing. After approval,
+`work migrate --apply` copies every item into the flat `.work-items/` folder,
+converts known fields to YAML, creates refining requirements when needed, and
+preserves all legacy and unknown files. The old tracker remains unchanged until
+the owner verifies the copy and approves its removal.
 
-The adapter can create a Project or link an existing one. It configures:
+Old GitHub mirror settings are reported and not carried forward.
 
-- statuses: Backlog, Ready, In Progress, In Review, Done, Cancelled;
-- repository labels: bug, enhancement, task; and
-- one issue and Project item per local work item.
+## GitHub tracking is separate
 
-It uses the existing `gh` authentication and stores no credentials. Git remains
-authoritative. GitHub edits are reported as drift until the owner explicitly
-chooses how to resolve them.
+Local-folder mode has no GitHub mirror. A project that needs shared GitHub work
+tracking should choose the GitHub Projects board option during `project-init`
+or `project-sync` instead.
 
 ## How it relates to the toolkit
 
-- `project-init` offers work-tracker during scaffolding instead of creating a
-  second manual tracking system.
-- `project-sync` detects the existing four-stage convention and offers safe
-  adoption.
-- The `work-item-folders.md` rule tells agents to use this tracker when it is
-  installed.
-- second-brain may link files under `knowledge/specs/` and `knowledge/memory/`
-  to work-item folders, but
-  work-tracker owns task status and handoff state.
+- `project-init` offers work-tracker when the owner chooses local folders.
+- `project-sync` detects `.work-items/` and offers safe conversion for the older
+  staged format.
+- `work-item-folders.md` tells agents how to protect requirements and update the
+  local tracker.
+- Project knowledge may link to a work-item ID, but work-tracker owns task
+  status and handoff state.
 
 ## Verification
 
@@ -145,16 +169,13 @@ Run:
 
 ```text
 node --test plugins/work-tracker/tests/work-tracker.test.mjs
-node plugins/work-tracker/skills/work/scripts/work.mjs validate --cwd PROJECT
 claude plugin validate .
 ```
 
-The test suite uses temporary Git repositories and a fake GitHub CLI
-(`tests/fixtures/mock-gh.mjs`). It never changes a live Project or issue. The toolkit's bundled Codex plugin validator
-also checks the Codex manifest during release validation.
+The tests use temporary Git repositories and never change a live project.
 
 ## Maintaining this plugin
 
-A content change bumps both plugin manifests and the marketplace version. Keep
-this README, the top-level README, project-init and project-sync, the work-item
-rule, and `docs/toolkit-map.md` current in the same change.
+A content change bumps the plugin manifest and marketplace version. Keep this
+README, the top-level README, project-init, project-sync, the work-item rule,
+and `docs/toolkit-map.md` current in the same change.

@@ -30,11 +30,6 @@ before creating anything.
 │   ├── deployment/                # cutover plans, deploy runbooks, release notes
 │   ├── meeting-notes/             # one file per call or working session
 │   ├── references/                # source specs, org exports, third-party docs
-│   ├── work-items/                # ticket work items (see work-items-structure.md)
-│   │   ├── 01-backlog/            #   holds BACKLOG.md, the running index
-│   │   ├── 02-in-progress/
-│   │   ├── 03-completed/
-│   │   └── 04-archived/
 │   └── data/
 │       └── backups/               # point-in-time data exports
 └── .claude/
@@ -65,7 +60,6 @@ that helps future agents work correctly belongs in `knowledge/`.
 | `deployment/` | Cutover plans, release evidence, and release notes. Reusable operating procedures belong in a skill, not in memory |
 | `meeting-notes/` | One file per call or working session |
 | `references/` | Source specs, org exports, third-party docs (read-only inputs) |
-| `work-items/` | Ticket work items in stage folders (`01-backlog/` holds the `BACKLOG.md` index); one folder per ticket (named by ticket key) with `SPEC.md` + `STATUS.md`. Layout: `work-items-structure.md` |
 | `data/` | Object and field mapping, transformation rules, load files |
 | `data/backups/` | Point-in-time data exports from the org(s) |
 
@@ -99,7 +93,9 @@ large rule, or per-folder indexes.
   in each folder so the structure survives the first commit. A short README per
   folder doubles as documentation.
 - `.gitignore` should cover SFDX local state (`.sfdx/`, `.sf/`,
-  `.localdevserver/`, `*.log`) and `.claude/worktrees/`.
+  `.localdevserver/`, `*.log`) and `.claude/worktrees/`. When the owner chooses
+  local work tracking, `work init` also adds `/.work-items/` and creates the
+  flat tracker at the repository root.
 - `.forceignore` should exclude `package.xml`, LWC config files, and Jest tests.
 - Data backups can hold real production data (personal data, secrets in note
   fields). Do not commit sensitive exports to a shared or public remote. If the
@@ -119,4 +115,6 @@ large rule, or per-folder indexes.
 Existing Salesforce projects may keep an `engagement/` tree. Do not rename it,
 move its files, or create a parallel `delivery/` tree automatically. Setup and
 sync tools recognize both paths; `delivery/` is the default only for new
-projects.
+projects. An older `delivery/work-items/` or `engagement/work-items/` tracker is
+not current delivery structure. Offer the preview-first `work migrate` flow and
+leave the source unchanged until the owner approves cleanup.

@@ -26,15 +26,20 @@ while doing the client work. It owns:
 - project briefs and framing supplied by the client;
 - communications and meeting records;
 - raw client sources and org exports;
-- work items and their routine choices;
 - deployment records and release evidence;
 - data files and backups;
 - deliverables; and
 - archives.
 
+## What the declared work tracker owns
+
+The tracker named in the project's root instructions owns work-item
+requirements, status, blockers, handoffs, and routine ticket choices. When the
+owner chose local folders, that is the Git-ignored `.work-items/` tracker.
+
 ## The boundary cases
 
-- Keep routine ticket choices in `delivery/work-items/`. Save a decision to
+- Keep routine ticket choices in the declared work tracker. Save a decision to
   `knowledge/` only when it matters beyond that work item and passes the
   project's persistent-information test.
 - Keep raw client meetings and client-provided artifacts in `delivery/`. Put

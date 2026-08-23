@@ -72,9 +72,9 @@ every ticket before work starts. What is specific to this board:
 - **Everything else goes in the issue comments.** Progress, decisions made while
   building, blockers, and pointers to files by relative path. Comments are dated
   and in order, so they carry the story of the work without letting it rot the
-  requirements. This is the same split `work-tracker` makes between `SPEC.md`
-  and `STATUS.md`: here the body is the `SPEC.md` and the comments are the
-  `STATUS.md`.
+  requirements. This is the same split `work-tracker` makes between
+  `REQUIREMENTS.md` and `STATUS.md`: here the body plays the requirements role
+  and the comments play the status role.
 - When direction changes, edit the body in that same session rather than leaving
   the old target standing, and put the reason in a comment.
 - The `grill-me` skill is one way to run the refinement session. What the rule

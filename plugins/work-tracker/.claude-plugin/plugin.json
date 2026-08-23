@@ -1,7 +1,7 @@
 {
   "name": "work-tracker",
-  "description": "Git-native work tracking shared by Claude and Codex, with deterministic status, handoffs, relationships, Git landing verification, and optional GitHub Projects synchronization.",
-  "version": "1.1.0",
+  "description": "Local work tracking shared by Claude and Codex, with flat Git-ignored folders, YAML records, owner-approved requirements, handoffs, relationships, and Git landing verification.",
+  "version": "2.0.0",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com"

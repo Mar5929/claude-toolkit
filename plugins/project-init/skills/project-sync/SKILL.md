@@ -7,7 +7,7 @@ description: >-
   in this project", "sync this project with claude-toolkit", "audit this
   project against the toolkit", or "/project-sync". This skill inventories
   everything the toolkit currently ships (the general and Salesforce rules
-  libraries, hooks, the Git-native work-tracker, the packaged project knowledge
+  libraries, hooks, the local-folder work-tracker, the packaged project knowledge
   system, safe conversion off an older knowledge layout, the session-skills
   plugin, and any newer systems), cross-references the current project,
   reports the gaps, including rules the project has but that are behind the
@@ -73,8 +73,8 @@ automatically as it grows.
     and, for every other stack, the graphify code graph
     (`graphify-dependency-graph.md`, whose rule is
     `library/rules/general/dependency-graph.md`)
-  - the `work-tracker` plugin and any existing `delivery/work-items/`,
-    `engagement/work-items/`, or root `work-items/` tree
+  - the `work-tracker` plugin, root `.work-items/`, and any older
+    `delivery/work-items/`, `engagement/work-items/`, or root `work-items/` tree
   - the `hooks-library` plugin and its general hook, `spec-check-reminder`
     (PostToolUse): check `.claude/settings.json` for a registered entry and
     `.claude/hooks/` for the copied script. It points at the `spec-check` skill
@@ -265,8 +265,9 @@ checks:
 - **Where work items are tracked:** read the root instructions for a structural
   pointer naming a tracker, and for a recorded decline. Classify as one of:
   answered and set up, answered and declined, or never asked. A project that has
-  a `work-items/` tree but no pointer counts as never asked. Never-asked is a gap
-  to offer in step 4; a recorded decline is respected and not raised again.
+  `.work-items/` or an older `work-items/` tree but no pointer counts as never
+  asked. Never-asked is a gap to offer in step 4; a recorded decline is
+  respected and not raised again.
 - **The `spec-before-you-build.md` rule:** classify as present, missing, or
   previously declined in `.claude/rules/`. When a tracker is named but the rule
   is missing, that is a gap: the project has somewhere to log work and no
@@ -274,18 +275,19 @@ checks:
   rules already say something about ticket quality, show the difference against
   the toolkit's current wording and let the owner keep theirs, take the
   toolkit's, or merge the two. Never overwrite without asking.
-- **Work tracker:** detect `delivery/work-items/`, `engagement/work-items/`, and
-  root `work-items/`. Keep whichever path the project already uses; never move
-  or rename a tracker during sync. If
-  `.work-tracker.json` and per-item `ITEM.json` records exist, run the tracker
-  validator and classify the system as present or partial from its output. If
-  only the older stage folders, `BACKLOG.md`, `SPEC.md`, and `STATUS.md` exist,
-  classify them as safely adoptable, not as a competing tracker. If neither
-  exists, classify work-tracker as missing or previously declined.
-- **GitHub Project option:** inspect only the checked-in tracker configuration.
-  Report whether GitHub mirroring is configured. Do not create, link, or modify
-  a Project during the audit. Offer it separately in step 4 because it changes
-  external issues, labels, fields, and Project items.
+- **Work tracker:** detect root `.work-items/` first. If it contains
+  `.work-tracker.yaml` and per-item `ITEM.yaml` records, run `work validate` and
+  classify the system as present or partial from its output. Confirm that
+  `.gitignore` ignores the whole folder and Git tracks none of its contents.
+  Separately detect older `delivery/work-items/`, `engagement/work-items/`, and
+  root `work-items/` trees. Classify those as ready for preview-first conversion,
+  not as a competing tracker. Never move, copy, delete, or stop tracking them
+  during the read-only audit.
+- **Old GitHub mirror settings:** when an older `.work-tracker.json` exists,
+  report whether it contains GitHub settings and say they will not be carried
+  into local-folder mode. Do not create, link, sync, or modify GitHub during the
+  audit. If the owner wants shared GitHub tracking, offer the separate GitHub
+  Projects board answer instead.
 - **Previous sync record**: read it if present (step 5 format) so deliberate
   opt-outs are respected.
 
@@ -583,14 +585,17 @@ should look in THIS project, confirm, act, summarize. Ground rules:
 - When the owner names a different tracker than the one already recorded, rewrite
   the pointer and the rule. Never delete tickets, issues, or boards from the
   tracker they are leaving; moving existing work across is theirs to do by hand.
-- For an approved work-tracker gap, install the plugin and run `work init` at
-  the detected canonical path. This may add metadata and generated views, but
-  it must not overwrite existing `SPEC.md`, `STATUS.md`, or notes. Show any
-  adopted records that still need owner review.
-- Treat GitHub Projects as a second approval. Local tracker installation does
-  not imply permission to create issues or a Project. If approved, use
-  `work github connect` and report the exact repository and Project before
-  synchronizing tickets.
+- For an approved new local work-tracker gap, install the plugin and run
+  `work init`. It creates flat YAML work items under Git-ignored `.work-items/`.
+  Say plainly that these records stay in the current checkout.
+- For an approved older-tracker conversion, run `work migrate --from <path>`
+  first and show the preview. Run it again with `--apply` only after approval.
+  Validate the copied tracker and show every `REQUIREMENTS.md` still in
+  `refining`. Leave the old tracker unchanged until the owner verifies the copy
+  and separately approves removing it.
+- Local-folder mode has no GitHub mirror. When the owner wants shared GitHub
+  tracking, return to the Gate 1 choice and set up a GitHub Projects board as
+  the tracker instead.
 
 ## Step 5: record the sync
 

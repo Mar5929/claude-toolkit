@@ -34,9 +34,10 @@ delivery/deployment/
 - `_master/` holds the full-cutover manifest (the package that can rebuild the
   whole org from source) and its manual-steps sheet.
 - Each work-item folder is named for its work item, using the same id as under
-  `delivery/work-items/` (for example `WI-12-account-merge`), so a manifest
-  maps clearly to the work it deploys. These folders are flat under
-  `delivery/deployment/`; the work-item folder already tracks status.
+  the project's declared tracker (for example `WI-12-account-merge`), so a
+  manifest maps clearly to the work it deploys. When local folders were chosen,
+  the matching tracker item is under root `.work-items/`. Deployment folders
+  remain flat under `delivery/deployment/`; the tracker already owns status.
 
 A **manifest** (`package.xml`) is the file that names which components a
 Salesforce CLI deploy includes.

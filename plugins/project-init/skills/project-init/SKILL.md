@@ -3,7 +3,7 @@ name: project-init
 description: >-
   Walk the user through initializing a NEW project, one gate at a time:
   scaffolding & folder structure, guard hooks, the packaged project knowledge
-  system, optional SOUL.md, CLAUDE.md and AGENTS.md, the Git-native
+  system, optional SOUL.md, CLAUDE.md and AGENTS.md, the local-folder
   work-tracker, and optional standalone toolkit skills. Use when
   the user is starting a new repo/project and wants help setting up the
   foundational scaffolding, or says things like "initialize this project", "set
@@ -75,7 +75,7 @@ form. Keep each gate tight.
 
 **Work tracking (every stack).** Ask, as its own question and not folded into the
 folder-layout question: "Where do you track work items for this project?" Offer a
-GitHub Projects board, Linear, Jira, files in this repository, the BMAD method,
+GitHub Projects board, Linear, Jira, local folders on this computer, the BMAD method,
 or somewhere else / nothing yet. `references/work-tracking-choice.md` carries the exact wording,
 what each answer does, and the step-by-step setup for a GitHub Projects board.
 Read it before asking.
@@ -86,20 +86,21 @@ refinement session has filled in the six-part spec. Those live in the
 `library/rules/general/spec-before-you-build.md` rule, copied in Gate 5. Gate 5 also adds
 a one-line structural pointer to `CLAUDE.md` and `AGENTS.md` naming the tracker.
 
-A GitHub Projects board is the only answer where the toolkit builds the tracker
-itself, and it creates nothing without explicit approval: no board, no statuses,
-no labels, no issues. The BMAD method is the only other answer where the toolkit
-sets anything up, and there it only runs BMAD's own installer, with approval.
-The toolkit creates and changes nothing inside Linear, Jira, or any other
-external tracker.
+A GitHub Projects board and local folders are the two tracker choices the toolkit
+can set up. GitHub setup creates nothing without explicit approval: no board, no
+statuses, no labels, no issues. Local setup creates an ignored `.work-items/`
+folder only after the owner chooses it. The BMAD method is the only other answer
+where the toolkit sets anything up, and there it only runs BMAD's own installer,
+with approval. The toolkit creates and changes nothing inside Linear, Jira, or
+any other external tracker.
 
-For "files in this repository", install `work-tracker` from this marketplace and
-run its `init` command, as described in `references/work-items-structure.md`.
-`init` preserves and safely adopts an existing manual tree. Most projects place
-it at `work-items/`; new Salesforce projects place it at
-`delivery/work-items/`. Existing Salesforce projects may keep
-`engagement/work-items/`; never move them automatically.
-Do not hand-create a competing tracker.
+For "local folders on this computer", install `work-tracker` from this
+marketplace and run its `init` command, as described in
+`references/work-items-structure.md`. It always uses the flat, Git-ignored
+`.work-items/` folder at the repository root. If an older staged tracker exists,
+preview `work migrate`, get approval, then copy it with `--apply`. Leave the old
+tracker untouched until the owner verifies the copy and separately approves
+removal. Do not hand-create a competing tracker or connect local mode to GitHub.
 
 For "the BMAD method", offer to run `npx bmad-method install` and run it only
 with a yes, as described in `references/work-tracking-choice.md`. BMAD holds the
@@ -447,12 +448,12 @@ library.
 - `references/setup-flow.md`: the gate-by-gate checklist to track progress
   against during the run.
 - `references/work-tracking-choice.md`: the Gate 1 question about where work
-  items are tracked, what each of the five answers does, and the step-by-step
+  items are tracked, what each of the six answers does, and the step-by-step
   setup for a GitHub Projects board. Read it in Gate 1, before asking.
 - `references/work-items-structure.md`: how Gate 1 initializes the `work-tracker`
-  plugin when the owner chose to track work as files in this repository,
-  including safe adoption of the older manual tree and the optional GitHub
-  Project mirror of those files.
+  plugin when the owner chose local folders on this computer, including the
+  owner-approved requirements gate and preview-first conversion of the older
+  staged tracker.
 - `references/salesforce-project-scaffold.md`: the standard Gate 1 layout for a
   Salesforce / SFDX project (SFDX source plus a `delivery/` tree). Read it in
   Gate 1 when the stack is Salesforce.

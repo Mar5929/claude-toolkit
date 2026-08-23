@@ -1,7 +1,7 @@
 {
   "name": "session-skills",
   "description": "Eight skills for working inside one conversation. braindump plays back a pasted brain dump in very simple words and waits for your yes before any work starts. explain-simply says the last answer again as plain bullets without losing a number. grill-me interviews you one question at a time and writes every answer down. handoff saves what a long session learned and writes a prompt a fresh session can start from. session-summary tables what you asked for and where each request stands. track-tasks keeps every still-open topic on the built-in task list. spec-check reads the specification an agent is about to build from, flags anything that could skew the work, and proposes fixes before building starts. unslop strips the patterns that make a document read as machine-written and puts a voice back, on your say-so. None of them writes to the project except where you approve it, and all eight install together.",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com"

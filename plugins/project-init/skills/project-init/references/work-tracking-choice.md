@@ -12,7 +12,7 @@ it.
 > 1. A GitHub Projects board
 > 2. Linear
 > 3. Jira
-> 4. Files in this repository
+> 4. Local folders on this computer
 > 5. The BMAD method
 > 6. Somewhere else, or nothing yet
 
@@ -40,8 +40,8 @@ named and how the refinement session is marked.
 ### 1. A GitHub Projects board
 
 The toolkit has a setup for this one. It is the only answer where the toolkit
-creates the tracker as well as writing the rules. Walk the steps in "Setting up a
-GitHub Projects board" below.
+creates a shared external tracker. Walk the steps in "Setting up a GitHub
+Projects board" below.
 
 The refinement session is marked with the `Refining` status and the
 `refined` label.
@@ -56,22 +56,20 @@ ticket marked (a status they already have, a label, or a line in the ticket).
 Then write the structural pointer into the root instructions and copy the rule in
 Gate 5. That is the whole of what the toolkit does here.
 
-### 4. Files in this repository
+### 4. Local folders on this computer
 
 Install the `work-tracker` plugin and run `work init`, exactly as
-`work-items-structure.md` describes. Nothing about that plugin changes.
+`work-items-structure.md` describes. It creates a flat `.work-items/` folder
+that Git ignores. Say plainly that these records stay in this checkout and do
+not sync to another computer.
 
-The refinement session is marked by the item's status: an item stays in `Backlog`
-until its `SPEC.md` answers the six parts, then it moves to `Ready`. Do not run
-`work start` on an item that is not `Ready`; say which of the six parts are
-missing instead.
+The refinement session is marked in `REQUIREMENTS.md`: it stays `refining`
+until the owner approves all six parts, then becomes `finalized` and the item
+moves to `Ready`. The file contains only owner-stated or owner-approved needs,
+with no technical plan or unapproved assumptions.
 
-The owner may want a GitHub board mirroring these files as well. That is the
-plugin's own `work github connect` command, and it configures the board with the
-plugin's six statuses (`Backlog`, `Ready`, `In Progress`, `In Review`, `Done`,
-`Cancelled`). Those are deliberately not the same as the statuses in the setup
-below, because that board reflects the files rather than holding the work. Use
-the plugin's command for this, never the by-hand steps below.
+Local-folder mode has no GitHub mirror. If the owner wants shared GitHub
+tracking, choose answer 1 instead.
 
 ### 5. The BMAD method
 
@@ -143,10 +141,8 @@ does not check out.
 6. **Create the board and link it to the repository.**
 7. **Set the statuses** to: `Backlog`, `Refining`, `Ready`, `In progress`,
    `In review`, `Done`, `Cancelled`. Type them exactly as written, lower-case
-   second words included. These are not the `work-tracker` plugin's statuses and
-   are not interchangeable with them: that plugin uses six, spelled
-   `In Progress` and `In Review`, and has no `Refining`. A board set up by hand
-   here must never also be connected with `work github connect`.
+   second words included. This board holds the work itself. Do not pair it with
+   the local `work-tracker` plugin.
 8. **Add the `refined` label** to the repository, described as the mark that a
    refinement session finished and the six-part spec is written. Name the label
    for what it means, never after whichever skill happened to run the session.

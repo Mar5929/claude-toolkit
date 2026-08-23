@@ -6,70 +6,71 @@ with Node.js.
 ## Global options
 
 - `--cwd PATH`: target repository or any path inside it.
-- `--path PATH`: non-default work-items directory, relative to the Git root.
 - `--json`: machine-readable success and error output.
 
-Paths are passed as arguments, not interpolated shell fragments, so repositories
-with spaces are supported.
+Local files always live at `.work-items/`. There is no custom tracker path.
+Paths are passed as arguments, not interpolated shell fragments, so repository
+names with spaces are supported.
 
-## Local tracker
+## Setup and conversion
 
 ```text
-work init [--path work-items] [--default-branch main]
-work add --title TITLE --purpose PURPOSE --priority medium --type task \
-  --next-step STEP [--status Backlog] [--id WI-014] [--github]
+work init [--default-branch main]
+work migrate [--from work-items]
+work migrate [--from work-items] --apply
+```
+
+`init` adds `/.work-items/` to `.gitignore` and creates the flat local tracker.
+If it detects an older staged tracker, it stops and points to `migrate`.
+
+`migrate` without `--apply` changes nothing. It shows the source, work-item IDs,
+conflicts, whether old GitHub settings exist, and what the applied conversion
+will preserve. `--apply` copies the items. It never deletes the old tracker.
+
+## Local work
+
+```text
+work add --title TITLE --description DESCRIPTION --priority medium --type task \
+  --next-step STEP [--created-date YYYY-MM-DD] [--id WI-014]
+work requirements WI-014
+work requirements WI-014 --finalize --approved-by NAME
+work requirements WI-014 --reopen
 work status [--all] [--json]
 work next [--json]
 work start WI-014 [--branch BRANCH] [--next-step STEP] \
-  [--allow-shared-branch] [--github]
+  [--allow-shared-branch]
 work update WI-014 [--status Ready] [--next-step STEP] [--branch BRANCH] \
   [--blocker REASON] [--blocker-item WI-002] \
-  [--clear-blocker B-001|all] [--note NOTE] [--allow-shared-branch] [--github]
+  [--clear-blocker B-001|all] [--note NOTE] [--allow-shared-branch]
 work link WI-014 --type depends_on --target WI-002 [--remove]
-work finish WI-014 [--commit SHA] [--pr NUMBER_OR_URL] \
-  [--next-step STEP] [--github]
+work finish WI-014 [--commit SHA] [--pr NUMBER_OR_URL] [--next-step STEP]
 work landed WI-014
-work archive WI-014
 work dashboard
-work reconcile [--github]
+work reconcile
 work validate [--json]
 ```
 
-`start` uses the current branch when `--branch` is omitted. It rejects a branch
-already claimed by another active item unless `--allow-shared-branch` is
-explicit.
+`add` always creates a `Backlog` item whose requirements are `refining`.
+`--description` becomes the preserved starting request. The older `--purpose`
+name remains accepted as a compatibility alias.
+
+`requirements --finalize` requires all six sections plus the person who
+approved them. It changes a `Backlog` item to `Ready`. `--reopen` returns open
+work to `Backlog` and clears the approval fields.
+
+`start` accepts only a `Ready` item with finalized requirements. It uses the
+current branch when `--branch` is omitted. It rejects a branch already claimed
+by another active item unless `--allow-shared-branch` is explicit.
 
 `finish` resolves `HEAD` when `--commit` is omitted. It marks `Done` only when
 `git merge-base --is-ancestor` proves the commit is in the configured default
 branch. Otherwise it records `In Review`.
 
-## GitHub Projects
-
-```text
-work github connect --create [--owner OWNER] [--repo OWNER/REPO] [--title TITLE]
-work github connect --project-number N [--owner OWNER] [--repo OWNER/REPO]
-  [--configure-status] [--no-link]
-work github sync [WI-014 ... | --all]
-work github reconcile
-work github status
-```
-
-Connecting requires `gh auth login` and the `project` scope. If needed:
-
-```text
-gh auth refresh -s project
-```
-
-Creating a Project configures its built-in Status field. Linking an existing
-Project validates the field first. Replacing an existing Project's Status
-options requires `--configure-status` because it can clear values that do not
-map to the requested workflow.
-
 ## Exit behavior
 
 - `0`: command succeeded.
 - `1`: command or input failed.
-- `2`: `validate` found invalid canonical records.
+- `2`: `validate` found invalid local records.
 
 JSON errors are written to standard error with `outcome`, `error`, and
 `message`.

@@ -1,119 +1,102 @@
-# Tracking work as files in this repository (Gate 1)
+# Tracking work in local folders (Gate 1)
 
-Read this only after the owner has answered the Gate 1 question in
-`work-tracking-choice.md` with "files in this repository". That file owns the
-question and the other four answers; this one covers what to do for this answer.
+Read this only after the owner answers the Gate 1 tracker question with local
+folders. `work-tracking-choice.md` owns the question and the other answers.
 
-The `work-tracker` plugin is the executable version of the toolkit's established
-work-item folder convention, not a second tracking system.
+The `work-tracker` plugin is the executable local tracker. Do not create a
+second hand-built folder system beside it.
 
 ## Where it goes
 
-- Most projects: `work-items/`.
-- New Salesforce projects: `delivery/work-items/`.
-- Existing Salesforce projects may keep `engagement/work-items/`.
+Every project uses `.work-items/` at the repository root. `work init` adds
+`/.work-items/` to `.gitignore`.
 
-Initialize the tracker where the project already keeps work. Never rename or
-move an existing tracker automatically.
+The records stay in the current checkout. They do not travel through Git and do
+not sync to another computer. Say this plainly before setup so the owner knows
+the tradeoff they chose.
 
-## The optional GitHub Project mirror
-
-The plugin needs only Node.js and Git. A GitHub Project mirroring these files is
-a separate, optional choice on top, requiring an existing `gh` login with the
-`project` scope and explicit approval for external changes. Installing the local
-tracker does not authorize GitHub writes.
-
-That mirror is not the same thing as a GitHub Projects board holding the work
-itself, which is a different answer to the Gate 1 question and is set up by hand
-per `work-tracking-choice.md`. The mirror is created by the plugin's own
-`work github connect` command and uses the plugin's six statuses. Never mix the
-two setups on one board.
+Linked Git worktrees in the same clone share the primary checkout's
+`.work-items/` records and lock. Commands return the shared folder's full path
+when called from a linked worktree. Separate clones do not share it.
 
 ## The refinement gate
 
-An item stays in `Backlog` until its `SPEC.md` answers the six parts named in the
-`spec-before-you-build.md` rule, then moves to `Ready`. Do not run `work start`
-on an item that is not `Ready`. Say which of the six parts are missing and offer
-to run the refinement session instead.
+Every item has `REQUIREMENTS.md`. Its YAML status is `refining` until the owner
+approves all six parts named in `spec-before-you-build.md`. Only then may it be
+`finalized` and the work item become `Ready`.
+
+The file contains only what the owner said or approved. It contains no
+technical plan and no unapproved agent assumptions. `work start` refuses an
+item that is not ready.
 
 ## Initialize
 
-After the owner approves:
+After the owner approves local-folder tracking:
 
 1. install the `work-tracker` plugin from this marketplace;
 2. invoke its `work` skill;
-3. run `work init` at the chosen path;
+3. run `work init`;
 4. run `work validate`; and
-5. show any adopted items whose inferred metadata needs review.
+5. name `.work-items/` in the root tracker pointer.
 
-Do not manually create a parallel index or alternative status file.
+Do not create a parallel index or alternative status file.
 
 ## Canonical layout
 
 ```text
-work-items/
-├── .work-tracker.json
+.gitignore
+.work-items/
+├── .work-tracker.yaml
 ├── README.md
 ├── DASHBOARD.md                  # generated and rebuildable
-├── 01-backlog/
-│   ├── BACKLOG.md                # generated and rebuildable
-│   └── WI-014-example/
-│       ├── ITEM.json             # structured canonical record
-│       ├── SPEC.md               # user-authored specification
-│       ├── STATUS.md             # readable current handoff
-│       └── HISTORY.ndjson        # complete dated event history
-├── 02-in-progress/
-├── 03-completed/
-└── 04-archived/
+├── WI-014-example/
+│   ├── ITEM.yaml                 # structured local record
+│   ├── REQUIREMENTS.md           # owner-approved needs
+│   ├── STATUS.md                 # readable current handoff
+│   └── HISTORY.ndjson            # complete dated command history
+└── WI-015-another-item/
 ```
 
-The structured status in `ITEM.json` is authoritative:
+Every item folder stays directly under `.work-items/`. `ITEM.yaml.status` is
+authoritative. Status never moves the folder.
 
-| Status | Stage folder |
-|---|---|
-| Backlog, Ready | `01-backlog/` |
-| In Progress, In Review | `02-in-progress/` |
-| Done | `03-completed/` |
-| Cancelled | `04-archived/` |
+## Existing staged trackers
 
-A Done item may later be archived without losing its verified Done status.
+The older toolkit convention may exist at `work-items/`,
+`delivery/work-items/`, or `engagement/work-items/`. It uses four status folders
+with `ITEM.json`, `SPEC.md`, `STATUS.md`, and `HISTORY.ndjson`.
 
-## Existing manual folders
+Do not move or delete it automatically.
 
-The earlier toolkit convention used the same four stage folders with
-`SPEC.md`, `STATUS.md`, and a hand-edited `BACKLOG.md`. `work init` adopts that
-tree safely:
+1. Run `work migrate --from <old path>` and show the preview.
+2. Ask the owner to approve the copy.
+3. Run the same command with `--apply`.
+4. Run `work validate` against the new local tracker.
+5. Show every refining requirements file that still needs the owner interview.
+6. Keep the old tracker unchanged until the owner verifies the copy and
+   separately approves removing it.
 
-- it never overwrites tickets or notes;
-- it creates missing structured records beside existing files;
-- it infers only the ID, title, and coarse status that the folder proves;
-- it marks inferred metadata for owner review; and
-- it replaces the hand-edited index only with a generated, rebuildable view.
+The copy preserves old and unknown files. Known data moves into `ITEM.yaml`.
+Missing or invalid `REQUIREMENTS.md` files are created in `refining` state. Old
+GitHub mirror settings are reported and not carried forward.
 
-If duplicate IDs or ambiguous paths exist, initialization stops and reports
-them. Do not guess which item wins.
+Duplicate IDs or target conflicts stop the conversion before writing.
 
-## Optional GitHub Project
+## GitHub tracking is a different answer
 
-With separate owner approval, `work github connect` can create or link a
-Project for the repository. It uses:
-
-- statuses: Backlog, Ready, In Progress, In Review, Done, Cancelled; and
-- labels: bug, enhancement, task.
-
-Git remains authoritative. The adapter creates or updates repository issues and
-Project items from local records. It reports GitHub drift instead of silently
-importing external edits.
+Local-folder tracking has no GitHub mirror. A GitHub Projects board is another
+answer to the Gate 1 question. If the owner needs shared tracking, choose and
+set up that board instead of layering it onto `.work-items/`.
 
 ## How this pairs with project knowledge
 
 The systems have separate authority:
 
-- work-tracker owns task status, blockers, branch and pull-request evidence,
-  relationships between work items, and the current handoff;
-- files under `knowledge/` may link decisions, requirements, and persistent knowledge to a
-  work-item ID; and
-- project knowledge must never copy or overrule task status.
+- work-tracker owns current task status, blockers, branch and pull-request
+  evidence, relationships, and handoff;
+- project knowledge may link a lasting decision or specification to a work-item
+  ID; and
+- project knowledge never copies or overrules current work-item state.
 
-Generated dashboards, future search indexes, and GitHub mirrors are derived
-views. Deleting them cannot remove the authoritative local records.
+The dashboard is derived. Deleting it cannot remove authoritative local
+records.

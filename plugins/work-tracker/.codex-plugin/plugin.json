@@ -1,7 +1,7 @@
 {
   "name": "work-tracker",
-  "version": "1.1.0",
-  "description": "Git-native work tracking for Claude and Codex with deterministic status, relationships, Git landing verification, and optional GitHub Projects synchronization.",
+  "version": "2.0.0",
+  "description": "Local work tracking for Claude and Codex with flat Git-ignored folders, YAML records, owner-approved requirements, relationships, and Git landing verification.",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com",
@@ -12,21 +12,20 @@
   "keywords": [
     "toolkit",
     "work-tracker",
-    "github-projects",
+    "local-work",
     "skills"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Work Tracker",
-    "shortDescription": "Track work in Git and optional GitHub Projects.",
-    "longDescription": "A shared Claude and Codex work tracker with deterministic commands, cold-session handoffs, dependency validation, Git landing proof, generated dashboards, and optional GitHub Issues and Projects synchronization.",
+    "shortDescription": "Track local work in flat folders that Git ignores.",
+    "longDescription": "A local Claude and Codex work tracker with flat YAML records, owner-approved requirements, deterministic commands, cold-session handoffs, dependency validation, Git landing proof, generated dashboards, and preview-first conversion of older staged trackers.",
     "developerName": "Mike Rihm",
     "category": "Productivity",
     "capabilities": [
       "Interactive",
       "Write",
-      "Repository",
-      "GitHub"
+      "Repository"
     ],
     "websiteURL": "https://github.com/Mar5929/claude-toolkit",
     "defaultPrompt": [

@@ -33,7 +33,7 @@ every other project receives.
 |---|---|
 | `second-brain.md` | It belonged to the retired large second-brain system. The managed `knowledge/README.md`, short root fallback, and task-specific skills replace it. |
 | `wrap-up-ritual.md` | It belonged to the retired save ritual and invoked the deleted verifier. The current policy names the natural save moments, and `.claude/hooks/save-reminder.mjs` raises the pull-request moment that is easy to miss. |
-| `work-item-folders.md` | It governs the Git-native work-tracker, one folder per work item in the repository. Work here is tracked on the `Claude-Toolkit-Project` board on GitHub, so there are no work-item folders for the rule to govern. |
+| `work-item-folders.md` | It governs the local work-tracker, one flat item folder under Git-ignored `.work-items/`. Work here is tracked on the `Claude-Toolkit-Project` board on GitHub, so there are no local work-item folders for the rule to govern. |
 | `dependency-graph.md` | It is conditional on a code graph being installed. No graph is installed here, and the graphify kit was considered and declined. |
 
 `keep-claudemd-current.md` owns the small exception to its normal anti-copying
