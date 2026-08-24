@@ -47,6 +47,10 @@ primary checkout.** That pulls files out from under other sessions. Reading
 there is fine, and so is `git fetch` or `git pull` while it sits on the default
 branch. The primary checkout stays on the default branch, clean, always.
 
+The local `work-tracker` is the narrow exception: its command resolves the
+Git-ignored `.work-items/` folder shared by linked worktrees and may update it.
+Use the command; do not manually edit other files in the primary checkout.
+
 If sessions share a device, simulator, or server for testing, do not fight over
 it; spin up your own instance.
 
@@ -85,9 +89,15 @@ arithmetic, not carelessness.
 
 Before taking a work item number or any other sequential identifier, check every
 place one may already exist: every folder the tracker uses, every other
-worktree, and the remote. Then claim it by creating and pushing the folder as
-your **first** action, before doing the actual work, so a second agent can see it
-is taken.
+worktree, and the remote.
+
+When the project uses the local `work-tracker` plugin, run `work add`. Its lock
+and ID allocator are shared by every linked worktree in that clone, even though
+Git ignores `.work-items/`. Do not assign its number by hand.
+
+For a committed folder or another identifier that Git owns, claim it by
+creating and pushing the folder as your **first** action, before doing the
+actual work, so a second agent can see it is taken.
 
 If you discover a collision after the fact, renumber **your own** item, never the
 other session's, and search the whole repository for references to the old

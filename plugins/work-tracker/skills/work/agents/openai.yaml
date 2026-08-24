@@ -1,4 +1,4 @@
 interface:
   display_name: "Work Tracker"
-  short_description: "Manage Git-native work and GitHub Projects"
+  short_description: "Manage local work in flat ignored folders"
   default_prompt: "Use $work to show what I should work on next."

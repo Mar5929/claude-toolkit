@@ -108,7 +108,7 @@ brainstorm folder instead, rather than creating half a system.
 
 ### It is raw material, never approved truth
 
-A brainstorm is not a specification and not a work item's `SPEC.md`. It is the
+A brainstorm is not a specification and not a work item's `REQUIREMENTS.md`. It is the
 record of how the answers were reached.
 
 At the end it invokes `remember`, which follows the installed knowledge manual
@@ -322,7 +322,7 @@ research, and detail, and each later agent builds from a slightly more
 polluted version, further from the goal. Run `/spec-check` before building
 from or designing a solution from a specification, meaning a
 `knowledge/specs/` file or a ticket body (a GitHub issue, a Linear ticket, or
-a work item's `SPEC.md`).
+a work item's `REQUIREMENTS.md`).
 
 The check names what it read, restates the goal in one line, then flags
 anything that could skew the work: contradictions, build details that crept
@@ -435,7 +435,7 @@ They overlap less than they look.
   a list that is kept. The work tracker owns anything that outlives the
   conversation, and is the only one of the three that survives a `/clear`.
 - **grill-me versus the work tracker.** `grill-me` captures raw discovery. It
-  does not replace a work item's `SPEC.md` or `STATUS.md`.
+  does not replace a work item's `REQUIREMENTS.md` or `STATUS.md`.
 - **unslop versus explain-simply.** Both rewrite something that is already
   written, for different reasons. `explain-simply` is for an answer that did not
   land: it drops the reading level and keeps every fact. `unslop` is for writing

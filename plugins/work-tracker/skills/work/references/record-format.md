@@ -1,81 +1,109 @@
-# Canonical work-item format
+# Canonical local work-item format
 
-## Repository layout
+## Folder layout
 
 ```text
-work-items/
-  .work-tracker.json
+.gitignore                         # contains /.work-items/
+.work-items/                       # ignored by Git
+  .work-tracker.yaml
   README.md
-  DASHBOARD.md
-  01-backlog/
-    BACKLOG.md
-    WI-014-example/
-  02-in-progress/
-  03-completed/
-  04-archived/
+  DASHBOARD.md                     # generated and rebuildable
+  WI-014-example/
+    ITEM.yaml
+    REQUIREMENTS.md
+    STATUS.md
+    HISTORY.ndjson
+    other-owner-notes.md
 ```
 
-New Salesforce repositories use `delivery/work-items/`. Existing Salesforce
-repositories may keep `engagement/work-items/`. Root `work-items/` remains
-supported, and no existing tracker is moved automatically.
+Every work-item folder is directly under `.work-items/`. Status changes only in
+`ITEM.yaml`; the folder never moves. There are no status folders.
 
-`DASHBOARD.md` and `01-backlog/BACKLOG.md` are generated. Individual item
-records are authoritative.
+Linked Git worktrees in one clone resolve to the primary checkout's
+`.work-items/` folder. Commands return its full path when called from a linked
+worktree. They share records, locks, and ID allocation. Another clone or
+computer has a different local tracker.
 
-## Item folder
+## `ITEM.yaml`
 
-```text
-WI-014-example/
-  ITEM.json
-  SPEC.md
-  STATUS.md
-  HISTORY.ndjson
-  other-user-notes.md
+`ITEM.yaml` is command-managed. Its top-level fields are:
+
+- `schema_version`: current record shape, now `2`;
+- `id`, `title`, and `description`;
+- `type`: `bug`, `enhancement`, or `task`;
+- `priority`: `urgent`, `high`, `medium`, or `low`;
+- `status`: `Backlog`, `Ready`, `In Progress`, `In Review`, `Done`, or
+  `Cancelled`;
+- `created_date` and `updated_date`, both `YYYY-MM-DD`;
+- `next_step`;
+- `blockers` and `relationships`; and
+- `git`, which holds branch, pull-request, completion, and landing proof.
+
+Nested lists and objects use YAML flow form, such as `blockers: []` and
+`git: {"branch":null}`. This remains valid YAML while letting the plugin stay
+dependency-free. Use commands instead of hand-editing it.
+
+## `REQUIREMENTS.md`
+
+The YAML fields at the top are:
+
+```yaml
+status: "refining"
+created_date: "2026-08-23"
+updated_date: "2026-08-23"
+finalized_date: null
+approved_by: null
 ```
 
-- `ITEM.json`: structured status, priority, type, blockers, relationships, Git
-  evidence, and optional GitHub identifiers.
-- `SPEC.md`: user-authored purpose, requirements, and decisions.
-- `STATUS.md`: current readable handoff, recent history, and a preserved
-  user-notes region.
-- `HISTORY.ndjson`: complete dated event history, one JSON object per line.
-- Other files: preserved and never interpreted as executable input.
+The body records the owner's starting request and the six agreed parts:
 
-## Status and stage mapping
+- goal;
+- why;
+- what has to be true for the item to count as finished;
+- what the person using it experiences;
+- how it behaves from the outside; and
+- edge cases.
 
-The structured `ITEM.json.status` is authoritative because the six-state
-workflow is more precise than the legacy four-stage tree.
+`refining` means the interview is still open. `finalized` means the owner saw
+and approved the complete file. Finalized records require `finalized_date` and
+`approved_by`.
 
-| Status | Stage folder |
-|---|---|
-| Backlog, Ready | `01-backlog/` |
-| In Progress, In Review | `02-in-progress/` |
-| Done | `03-completed/` |
-| Cancelled | `04-archived/` |
+This file contains no implementation plan, file path choices, tool or version
+choices, or unapproved agent assumptions. When direction changes, reopen it
+before editing.
 
-A Done item may later be archived into `04-archived/` without losing its Done
-status. Validation permits that explicit archive case.
+## Other item files
 
-## Relationships
+- `STATUS.md`: readable current handoff, recent history, and preserved owner
+  notes.
+- `HISTORY.ndjson`: complete dated command history, one JSON object per line.
+- Other files: preserved and never treated as executable input.
 
-- `depends_on` and `blocks` are inverses.
-- `related_to` is symmetric.
-- `parent` and `children` are inverses.
-- `supersedes` and `superseded_by` are inverses.
+`DASHBOARD.md` is generated. Deleting it cannot delete a work item.
 
-Validation rejects missing targets, missing inverses, duplicates, self-links,
-and dependency cycles.
-
-## Landing evidence
+## Git landing proof
 
 `git.completion_commit` means work appears complete at that commit.
-`git.landed_commit`, `git.landed_at`, and `git.default_branch` mean Git ancestry
-was verified. A record with status Done and false or missing landing evidence
-fails validation.
+`git.landed_commit`, `git.landed_date`, and `git.default_branch` mean Git
+ancestry was verified. A `Done` item without that proof fails validation.
 
-## Existing-folder adoption
+The tracker records are ignored by Git. Git is used only to prove whether the
+implementation landed.
 
-`init` recognizes existing `WI-<number>-<slug>` folders in the four legacy
-stages. It creates missing `ITEM.json` and `HISTORY.ndjson` files without
-rewriting `SPEC.md`, `STATUS.md`, or any other note. Inferred metadata is marked
-`migration.needs_review` until the owner confirms it.
+## Conversion from the older tracker
+
+Older trackers may exist at `work-items/`, `delivery/work-items/`, or
+`engagement/work-items/` with four status folders, `ITEM.json`, and `SPEC.md`.
+
+`work migrate` is a read-only preview. `work migrate --apply`:
+
+- copies every item into a flat `.work-items/` folder;
+- converts known structured data into `ITEM.yaml`;
+- creates a refining `REQUIREMENTS.md` when a valid one is not present;
+- preserves `SPEC.md`, `ITEM.json`, `STATUS.md`, history, and unknown files;
+- leaves the old tracker unchanged for review;
+- reports old GitHub mirror settings but does not carry them over; and
+- stops before writing when IDs or target folders conflict.
+
+After the owner verifies the copy, removing the old tracked folder is a
+separate, explicit cleanup. Git history remains the backup.

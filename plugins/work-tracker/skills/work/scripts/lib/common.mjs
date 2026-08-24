@@ -80,6 +80,78 @@ export function readJson(filePath, label = path.basename(filePath)) {
   }
 }
 
+export function parseYaml(source, label = "YAML") {
+  const value = {};
+  const lines = String(source).replace(/^\uFEFF/, "").split(/\r?\n/);
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    if (!line.trim() || line.trimStart().startsWith("#")) continue;
+    const match = line.match(/^([A-Za-z_][A-Za-z0-9_-]*):(?:\s*(.*))?$/);
+    if (!match) {
+      throw new WorkError(
+        `${label} line ${index + 1} must be a top-level key and value`,
+        "invalid_yaml",
+      );
+    }
+    const [, key, raw = ""] = match;
+    if (Object.hasOwn(value, key)) {
+      throw new WorkError(`${label} repeats the key ${key}`, "invalid_yaml");
+    }
+    value[key] = parseYamlValue(raw.trim(), label, index + 1);
+  }
+  return value;
+}
+
+export function readYaml(filePath, label = path.basename(filePath)) {
+  let source;
+  try {
+    source = fs.readFileSync(filePath, "utf8");
+  } catch (error) {
+    if (error.code === "ENOENT") {
+      throw new WorkError(`${label} does not exist at ${filePath}`, "missing_file");
+    }
+    throw error;
+  }
+  return parseYaml(source, label);
+}
+
+export function stableYaml(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new WorkError("YAML output must be a top-level object", "invalid_yaml_value");
+  }
+  return `${Object.entries(value)
+    .map(([key, entry]) => `${key}: ${yamlScalar(entry)}`)
+    .join("\n")}\n`;
+}
+
+function parseYamlValue(raw, label, lineNumber) {
+  if (raw === "" || raw === "null" || raw === "~") return null;
+  if (raw === "true") return true;
+  if (raw === "false") return false;
+  if (/^-?(?:0|[1-9]\d*)(?:\.\d+)?$/.test(raw)) return Number(raw);
+  if (/^[\[{"]/.test(raw)) {
+    try {
+      return JSON.parse(raw);
+    } catch (error) {
+      throw new WorkError(
+        `${label} line ${lineNumber} has an invalid YAML value: ${error.message}`,
+        "invalid_yaml",
+      );
+    }
+  }
+  if (raw.startsWith("'") && raw.endsWith("'")) {
+    return raw.slice(1, -1).replace(/''/g, "'");
+  }
+  return raw;
+}
+
+function yamlScalar(value) {
+  if (value === null || value === undefined) return "null";
+  if (typeof value === "boolean" || typeof value === "number") return String(value);
+  if (typeof value === "string") return JSON.stringify(value);
+  return JSON.stringify(value);
+}
+
 export function stableJson(value) {
   return `${JSON.stringify(value, null, 2)}\n`;
 }
@@ -113,6 +185,10 @@ export function atomicWrite(filePath, content) {
 
 export function atomicWriteJson(filePath, value) {
   atomicWrite(filePath, stableJson(value));
+}
+
+export function atomicWriteYaml(filePath, value) {
+  atomicWrite(filePath, stableYaml(value));
 }
 
 export function atomicBatchWrite(entries) {

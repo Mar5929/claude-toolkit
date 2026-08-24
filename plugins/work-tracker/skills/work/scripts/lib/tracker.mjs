@@ -4,14 +4,16 @@ import {
   WorkError,
   atomicBatchWrite,
   atomicWrite,
-  atomicWriteJson,
+  atomicWriteYaml,
   git,
   isoDate,
   isoTimestamp,
   isIsoDate,
+  parseYaml,
   readJson,
+  readYaml,
   slugify,
-  stableJson,
+  stableYaml,
   toPosix,
   withLock,
 } from "./common.mjs";
@@ -28,22 +30,17 @@ export const RELATIONSHIPS = [
   "supersedes",
   "superseded_by",
 ];
-export const STAGES = {
-  backlog: "01-backlog",
-  active: "02-in-progress",
-  completed: "03-completed",
-  archived: "04-archived",
-};
 
-const STATUS_STAGE = {
-  Backlog: STAGES.backlog,
-  Ready: STAGES.backlog,
-  "In Progress": STAGES.active,
-  "In Review": STAGES.active,
-  Done: STAGES.completed,
-  Cancelled: STAGES.archived,
-};
-
+const REQUIREMENTS_STATUSES = ["refining", "finalized"];
+const REQUIRED_REQUIREMENTS_SECTIONS = [
+  "Goal",
+  "Why",
+  "What has to be true for this to count as finished",
+  "What the person using it experiences",
+  "How it behaves from the outside",
+  "Edge cases",
+];
+const LEGACY_STAGES = ["01-backlog", "02-in-progress", "03-completed", "04-archived"];
 const PRIORITY_SCORE = { urgent: 0, high: 1, medium: 2, low: 3 };
 const STATUS_SCORE = { "In Progress": 0, "In Review": 1, Ready: 2, Backlog: 3 };
 const INVERSES = {
@@ -57,51 +54,23 @@ const INVERSES = {
 };
 
 export function trackerPaths(repoRoot, requestedPath) {
-  const explicit = requestedPath ? path.resolve(repoRoot, requestedPath) : null;
-  let workRoot = explicit;
-  if (!workRoot) {
-    const candidates = [
-      path.join(repoRoot, "work-items"),
-      path.join(repoRoot, "delivery", "work-items"),
-      path.join(repoRoot, "engagement", "work-items"),
-    ];
-    const initialized = candidates.filter((candidate) =>
-      fs.existsSync(path.join(candidate, ".work-tracker.json")),
+  if (requestedPath && normalizeRelativePath(requestedPath) !== ".work-items") {
+    throw new WorkError(
+      "Local work items always live in .work-items at the repository root.",
+      "invalid_path",
     );
-    if (initialized.length > 1) {
-      throw new WorkError(
-        `Multiple initialized work trackers found: ${initialized
-          .map((candidate) => toPosix(path.relative(repoRoot, candidate)))
-          .join(", ")}. Pass --path to choose one.`,
-        "ambiguous_path",
-      );
-    }
-    if (initialized.length === 1) {
-      workRoot = initialized[0];
-    } else {
-      const existing = candidates.filter((candidate) => fs.existsSync(candidate));
-      if (existing.length > 1) {
-        throw new WorkError(
-          `Multiple work-item folders found: ${existing
-            .map((candidate) => toPosix(path.relative(repoRoot, candidate)))
-            .join(", ")}. Pass --path to choose one.`,
-          "ambiguous_path",
-        );
-      }
-      workRoot = existing[0] ?? candidates[0];
-    }
   }
-  const relative = path.relative(repoRoot, workRoot);
-  if (relative.startsWith("..") || path.isAbsolute(relative)) {
-    throw new WorkError("The work-items path must be inside the Git repository", "invalid_path");
-  }
+  const sharedRoot = primaryWorktreeRoot(repoRoot);
+  const workRoot = path.join(sharedRoot, ".work-items");
   return {
     repoRoot,
+    sharedRoot,
     workRoot,
-    configPath: path.join(workRoot, ".work-tracker.json"),
+    configPath: path.join(workRoot, ".work-tracker.yaml"),
     dashboardPath: path.join(workRoot, "DASHBOARD.md"),
-    backlogPath: path.join(workRoot, STAGES.backlog, "BACKLOG.md"),
+    readmePath: path.join(workRoot, "README.md"),
     lockPath: path.join(workRoot, ".work-tracker.lock"),
+    gitignorePath: path.join(repoRoot, ".gitignore"),
   };
 }
 
@@ -130,25 +99,33 @@ export function loadTracker(repoRoot, requestedPath, options = {}) {
   if (!fs.existsSync(paths.configPath)) {
     if (options.allowMissing) return { paths, config: null, items: [] };
     throw new WorkError(
-      `Work tracker is not initialized. Run "work init${requestedPath ? ` --path ${requestedPath}` : ""}".`,
+      "Work tracker is not initialized. Run work init.",
       "not_initialized",
     );
   }
-  const config = readJson(paths.configPath, "tracker configuration");
+  const config = readYaml(paths.configPath, "tracker configuration");
   const items = scanItems(paths);
   return { paths, config, items };
 }
 
 export function initialize(repoRoot, options = {}) {
   const paths = trackerPaths(repoRoot, options.path);
-  return withLock(paths.lockPath, () => {
-    for (const stage of Object.values(STAGES)) {
-      fs.mkdirSync(path.join(paths.workRoot, stage), { recursive: true });
-      const keep = path.join(paths.workRoot, stage, ".gitkeep");
-      if (!fs.existsSync(keep)) atomicWrite(keep, "");
-    }
+  const directCandidates = scanFlatItemFolders(paths);
+  const legacy = legacyTrackerRoots(repoRoot);
+  if (!fs.existsSync(paths.configPath) && legacy.length && directCandidates.length === 0) {
+    throw new WorkError(
+      `An older local tracker exists at ${legacy.map((entry) => entry.relative).join(", ")}. Run work migrate --from ${legacy[0].relative} to review the conversion, then add --apply after approval.`,
+      "legacy_tracker_found",
+      { legacy_paths: legacy.map((entry) => entry.relative) },
+    );
+  }
 
-    const candidates = scanItemFolders(paths);
+  ensureGitignore(paths);
+  return withLock(paths.lockPath, () => {
+    const createdConfig = ensureTrackerShell(paths, {
+      defaultBranch: options.defaultBranch ?? defaultBranch(repoRoot),
+    });
+    const candidates = scanFlatItemFolders(paths);
     const duplicateIds = duplicates(candidates.map((candidate) => candidate.id));
     if (duplicateIds.length) {
       throw new WorkError(
@@ -157,82 +134,144 @@ export function initialize(repoRoot, options = {}) {
       );
     }
 
-    let config;
-    let createdConfig = false;
-    if (fs.existsSync(paths.configPath)) {
-      config = readJson(paths.configPath, "tracker configuration");
-    } else {
-      config = {
-        schema_version: 1,
-        id_prefix: "WI",
-        id_width: 3,
-        default_branch: options.defaultBranch ?? defaultBranch(repoRoot),
-        github: null,
-      };
-      atomicWriteJson(paths.configPath, config);
-      createdConfig = true;
-    }
-
     const adopted = [];
     for (const candidate of candidates) {
       if (fs.existsSync(candidate.itemPath)) continue;
       const title = titleFromFolder(candidate.folderName);
-      const inferredStatus = statusFromStage(candidate.stage);
       const record = newRecord({
         id: candidate.id,
         title,
+        description: title,
         type: "task",
         priority: "medium",
-        status: inferredStatus,
-        nextStep:
-          inferredStatus === "Done" || inferredStatus === "Cancelled"
-            ? ""
-            : "Review the preserved STATUS.md and set the exact next step.",
-        createdAt: isoDate(),
+        status: "Backlog",
+        nextStep: "Refine and finalize REQUIREMENTS.md with the owner.",
+        createdDate: isoDate(),
       });
       record.migration = {
-        adopted_at: isoDate(),
-        needs_review: true,
-        note: "Metadata was inferred from the existing folder. Existing files were preserved.",
+        source: toPosix(path.relative(repoRoot, candidate.path)),
+        migrated_date: isoDate(),
       };
-      const specPath = path.join(candidate.path, "SPEC.md");
-      const statusPath = path.join(candidate.path, "STATUS.md");
-      const historyPath = path.join(candidate.path, "HISTORY.ndjson");
-      const adoptedEntry = historyEntry(
+      const entry = historyEntry(
         "adopted",
-        "Existing work-item folder adopted without overwriting its files.",
+        "Existing flat work-item folder adopted without overwriting its files.",
       );
-      const existingHistory = fs.existsSync(historyPath) ? fs.readFileSync(historyPath, "utf8") : "";
-      const entries = [
-        { path: candidate.itemPath, content: stableJson(record) },
-        { path: historyPath, content: `${existingHistory}${JSON.stringify(adoptedEntry)}\n` },
+      const writes = [
+        { path: candidate.itemPath, content: stableYaml(record) },
+        { path: candidate.historyPath, content: appendHistoryContent(candidate, entry) },
       ];
-      if (!fs.existsSync(specPath)) {
-        entries.push({
-          path: specPath,
-          content: renderSpec(record, "Review this adopted item and record its purpose."),
+      if (!fs.existsSync(candidate.requirementsPath)) {
+        writes.push({
+          path: candidate.requirementsPath,
+          content: renderRequirements(record, "_Not recorded. Interview the owner before finalizing._"),
         });
       }
-      if (!fs.existsSync(statusPath)) {
-        entries.push({ path: statusPath, content: renderStatus(record, [adoptedEntry]) });
+      if (!fs.existsSync(candidate.statusPath)) {
+        writes.push({ path: candidate.statusPath, content: renderStatus(record, [entry]) });
       }
-      atomicBatchWrite(entries);
+      atomicBatchWrite(writes);
       adopted.push(candidate.id);
     }
 
-    const tracker = loadTracker(repoRoot, path.relative(repoRoot, paths.workRoot));
+    const tracker = loadTracker(repoRoot);
     const generated = regenerate(tracker);
-    if (!fs.existsSync(path.join(paths.workRoot, "README.md"))) {
-      atomicWrite(path.join(paths.workRoot, "README.md"), workItemsReadme());
-    }
     return {
       outcome: "initialized",
-      path: toPosix(path.relative(repoRoot, paths.workRoot)),
+      path: ".work-items",
+      gitignored: true,
       config_created: createdConfig,
       adopted,
       item_count: tracker.items.length,
       generated,
-      text: `Work tracker ready at ${toPosix(path.relative(repoRoot, paths.workRoot))}. ${adopted.length ? `Adopted ${adopted.length} existing item(s) without overwriting their files.` : "No existing items needed adoption."}`,
+      text: `Local work tracker ready at .work-items. Git ignores the folder. ${adopted.length ? `Adopted ${adopted.length} existing flat item(s) without overwriting their files.` : "No existing items needed adoption."}`,
+    };
+  });
+}
+
+export function migrateLegacyTracker(repoRoot, options = {}) {
+  const paths = trackerPaths(repoRoot);
+  const source = resolveLegacySource(repoRoot, options.from);
+  const candidates = scanLegacyItemFolders(source.path);
+  if (!candidates.length) {
+    throw new WorkError(`No legacy work-item folders were found in ${source.relative}`, "no_legacy_items");
+  }
+  const duplicateIds = duplicates(candidates.map((candidate) => candidate.id));
+  if (duplicateIds.length) {
+    throw new WorkError(
+      `Cannot migrate because IDs are duplicated: ${duplicateIds.join(", ")}`,
+      "duplicate_ids",
+    );
+  }
+  const existing = scanFlatItemFolders(paths);
+  const existingIds = new Set(existing.map((candidate) => candidate.id));
+  const existingNames = new Set(existing.map((candidate) => candidate.folderName));
+  const conflicts = candidates
+    .filter((candidate) => existingIds.has(candidate.id) || existingNames.has(candidate.folderName))
+    .map((candidate) => candidate.id);
+  const legacyConfigPath = path.join(source.path, ".work-tracker.json");
+  let legacyGithubDetected = false;
+  if (fs.existsSync(legacyConfigPath)) {
+    const legacyConfig = readJson(legacyConfigPath, "legacy tracker configuration");
+    legacyGithubDetected = Boolean(legacyConfig.github);
+  }
+
+  if (!options.apply) {
+    return {
+      outcome: "migration_preview",
+      source: source.relative,
+      target: ".work-items",
+      item_count: candidates.length,
+      ids: candidates.map((candidate) => candidate.id),
+      conflicts,
+      source_will_be_preserved: true,
+      legacy_github_detected: legacyGithubDetected,
+      text: `${candidates.length} item(s) can be copied from ${source.relative} into flat .work-items folders.${conflicts.length ? ` Conflicts must be fixed first: ${conflicts.join(", ")}.` : " The old tracker will remain unchanged for review."}${legacyGithubDetected ? " Existing GitHub mirror settings will not be carried over." : ""}\nRun work migrate --from ${source.relative} --apply after the owner approves this preview.`,
+    };
+  }
+  if (conflicts.length) {
+    throw new WorkError(`Migration conflicts with existing items: ${conflicts.join(", ")}`, "migration_conflict");
+  }
+
+  ensureGitignore(paths);
+  return withLock(paths.lockPath, () => {
+    ensureTrackerShell(paths, { defaultBranch: defaultBranch(repoRoot) });
+    const tempRoot = path.join(paths.workRoot, `.migration-${process.pid}-${Date.now()}`);
+    const installed = [];
+    fs.mkdirSync(tempRoot, { recursive: false });
+    try {
+      for (const candidate of candidates) {
+        const preparedPath = path.join(tempRoot, candidate.folderName);
+        fs.cpSync(candidate.path, preparedPath, { recursive: true, errorOnExist: true });
+        prepareMigratedFolder(repoRoot, preparedPath, candidate);
+      }
+      for (const candidate of candidates) {
+        const preparedPath = path.join(tempRoot, candidate.folderName);
+        const targetPath = path.join(paths.workRoot, candidate.folderName);
+        fs.renameSync(preparedPath, targetPath);
+        installed.push({ targetPath, preparedPath });
+      }
+    } catch (error) {
+      for (const entry of [...installed].reverse()) {
+        try {
+          if (fs.existsSync(entry.targetPath)) fs.renameSync(entry.targetPath, entry.preparedPath);
+        } catch {
+          // Validation reports an interrupted migration if rollback cannot finish.
+        }
+      }
+      throw error;
+    } finally {
+      fs.rmSync(tempRoot, { recursive: true, force: true });
+    }
+    const tracker = loadTracker(repoRoot);
+    regenerate(tracker);
+    return {
+      outcome: "migrated",
+      source: source.relative,
+      target: ".work-items",
+      migrated: candidates.map((candidate) => candidate.id),
+      source_preserved: true,
+      legacy_github_detected: legacyGithubDetected,
+      text: `Copied ${candidates.length} item(s) into flat .work-items folders. The old ${source.relative} tracker is unchanged for review.${legacyGithubDetected ? " Its GitHub mirror settings were not carried over." : ""}`,
     };
   });
 }
@@ -245,54 +284,126 @@ export function addItem(tracker, input) {
     }
     const type = normalizeEnum(input.type ?? "task", TYPES, "type");
     const priority = normalizeEnum(input.priority ?? "medium", PRIORITIES, "priority");
-    const status = input.status ? normalizeStatus(input.status) : "Backlog";
-    if (!["Backlog", "Ready"].includes(status)) {
-      throw new WorkError("New work items must start as Backlog or Ready", "invalid_initial_status");
+    const createdDate = input.createdDate ?? isoDate();
+    if (!isIsoDate(createdDate)) {
+      throw new WorkError(`Creation date must be YYYY-MM-DD: ${createdDate}`, "invalid_date");
     }
     const record = newRecord({
       id,
       title: requiredText(input.title, "title"),
+      description: requiredText(input.description, "description"),
       type,
       priority,
-      status,
+      status: "Backlog",
       nextStep: requiredText(input.nextStep, "next step"),
-      createdAt: input.createdAt ?? isoDate(),
+      createdDate,
     });
-    if (!isIsoDate(record.created_at)) {
-      throw new WorkError(`Creation date must be YYYY-MM-DD: ${record.created_at}`, "invalid_date");
-    }
     const folderName = `${id}-${slugify(record.title)}`;
-    const itemDir = path.join(tracker.paths.workRoot, STATUS_STAGE[status], folderName);
+    const itemDir = path.join(tracker.paths.workRoot, folderName);
     if (fs.existsSync(itemDir)) {
       throw new WorkError(`Refusing to overwrite existing folder ${itemDir}`, "path_exists");
     }
     fs.mkdirSync(itemDir, { recursive: false });
-    const purpose = requiredText(input.purpose, "purpose");
     try {
       atomicBatchWrite([
-        { path: path.join(itemDir, "ITEM.json"), content: stableJson(record) },
-        { path: path.join(itemDir, "SPEC.md"), content: renderSpec(record, purpose) },
+        { path: path.join(itemDir, "ITEM.yaml"), content: stableYaml(record) },
+        {
+          path: path.join(itemDir, "REQUIREMENTS.md"),
+          content: renderRequirements(record, record.description),
+        },
         { path: path.join(itemDir, "STATUS.md"), content: renderStatus(record, []) },
         {
           path: path.join(itemDir, "HISTORY.ndjson"),
-          content: `${JSON.stringify(historyEntry("created", `Created in ${status}.`))}\n`,
+          content: `${JSON.stringify(historyEntry("created", "Created in Backlog with requirements still refining."))}\n`,
         },
       ]);
     } catch (error) {
       try {
         fs.rmdirSync(itemDir);
       } catch {
-        // Leave recoverable evidence if an unexpected file appeared concurrently.
+        // Leave recoverable evidence if another process added a file concurrently.
       }
       throw error;
     }
     const refreshed = reload(tracker);
     regenerate(refreshed);
-    const item = refreshed.items.find((candidate) => candidate.id === id);
+    const item = requireItem(refreshed, id);
     return {
       outcome: "created",
-      item: publicItem(item, tracker.paths.repoRoot),
-      text: `${id} added to ${status}: ${record.title}\nNext: ${record.next_step}`,
+      item: publicItem(item, tracker.paths),
+      text: `${id} added to Backlog: ${record.title}\nRequirements: refining\nNext: ${record.next_step}`,
+    };
+  });
+}
+
+export function requirementsStatus(tracker, id) {
+  const item = requireItem(tracker, id);
+  const requirements = readRequirements(item);
+  return {
+    outcome: "ok",
+    item: id,
+    requirements: requirements.meta,
+    missing_sections: missingRequirementsSections(requirements.body),
+    text: `${id} requirements are ${requirements.meta.status}.${requirements.meta.approved_by ? ` Approved by ${requirements.meta.approved_by} on ${requirements.meta.finalized_date}.` : ""}`,
+  };
+}
+
+export function updateRequirementsStatus(tracker, id, input) {
+  return withLock(tracker.paths.lockPath, () => {
+    const item = requireItem(tracker, id);
+    const requirements = readRequirements(item);
+    const record = structuredClone(item.record);
+    let note;
+    if (input.finalize) {
+      const approvedBy = requiredText(input.approvedBy, "approved by");
+      const missing = missingRequirementsSections(requirements.body);
+      if (missing.length) {
+        throw new WorkError(
+          `Requirements cannot be finalized. Complete: ${missing.join(", ")}.`,
+          "incomplete_requirements",
+          { missing_sections: missing },
+        );
+      }
+      requirements.meta.status = "finalized";
+      requirements.meta.updated_date = isoDate();
+      requirements.meta.finalized_date = isoDate();
+      requirements.meta.approved_by = approvedBy;
+      if (record.status === "Backlog") record.status = "Ready";
+      record.updated_date = isoDate();
+      note = `Requirements finalized with owner approval from ${approvedBy}.`;
+    } else if (input.reopen) {
+      if (["Done", "Cancelled"].includes(record.status)) {
+        throw new WorkError(
+          `Requirements for a ${record.status} item cannot be reopened. Create a new work item for changed direction.`,
+          "closed_item",
+        );
+      }
+      requirements.meta.status = "refining";
+      requirements.meta.updated_date = isoDate();
+      requirements.meta.finalized_date = null;
+      requirements.meta.approved_by = null;
+      record.status = "Backlog";
+      record.next_step = "Refine and finalize REQUIREMENTS.md with the owner.";
+      record.updated_date = isoDate();
+      note = "Requirements reopened for owner refinement; item returned to Backlog.";
+    } else {
+      throw new WorkError("Choose --finalize or --reopen", "missing_action");
+    }
+    const history = historyEntry(input.finalize ? "requirements_finalized" : "requirements_reopened", note);
+    atomicBatchWrite([
+      { path: item.itemPath, content: stableYaml(record) },
+      { path: item.requirementsPath, content: renderRequirementsFile(requirements.meta, requirements.body) },
+      { path: item.historyPath, content: appendHistoryContent(item, history) },
+      {
+        path: item.statusPath,
+        content: renderStatus(record, recentHistory(item, history), readStatus(item), requirements.meta.status),
+      },
+    ]);
+    regenerate(reload(tracker));
+    return {
+      outcome: input.finalize ? "finalized" : "reopened",
+      item: publicItem(requireItem(reload(tracker), id), tracker.paths),
+      text: `${id}: ${note}`,
     };
   });
 }
@@ -301,34 +412,29 @@ export function getStatus(tracker, options = {}) {
   const groups = {
     backlog: tracker.items.filter((item) => ["Backlog", "Ready"].includes(item.record.status)),
     active: tracker.items.filter((item) => ["In Progress", "In Review"].includes(item.record.status)),
-    completed: tracker.items.filter((item) => item.record.status === "Done" && item.stage !== STAGES.archived),
+    completed: tracker.items.filter((item) => item.record.status === "Done"),
     cancelled: tracker.items.filter((item) => item.record.status === "Cancelled"),
-    archived: tracker.items.filter((item) => item.stage === STAGES.archived),
     blocked: tracker.items.filter((item) => effectiveBlockers(item, tracker.items).length > 0),
   };
   const next = chooseNext(tracker, { allowNone: true });
-  const text = renderStatusList(groups, next, options.all, tracker.items);
   return {
     outcome: "ok",
     counts: Object.fromEntries(Object.entries(groups).map(([key, items]) => [key, items.length])),
     groups: Object.fromEntries(
       Object.entries(groups).map(([key, items]) => [
         key,
-        items.map((item) => publicItem(item, tracker.paths.repoRoot)),
+        items.map((item) => publicItem(item, tracker.paths)),
       ]),
     ),
     next: next ? publicRecommendation(next) : null,
-    text,
+    text: renderStatusList(groups, next, options.all, tracker.items),
   };
 }
 
 export function chooseNext(tracker, options = {}) {
   const candidates = tracker.items
-    .filter((item) => ["Backlog", "Ready", "In Progress", "In Review"].includes(item.record.status))
-    .map((item) => ({
-      item,
-      blockers: effectiveBlockers(item, tracker.items),
-    }))
+    .filter((item) => ["Ready", "In Progress", "In Review"].includes(item.record.status))
+    .map((item) => ({ item, blockers: effectiveBlockers(item, tracker.items) }))
     .filter((candidate) => candidate.blockers.length === 0)
     .sort((a, b) => compareActionable(a.item, b.item));
   if (!candidates.length) {
@@ -342,10 +448,8 @@ export function chooseNext(tracker, options = {}) {
     reason = "Continue the highest-priority unblocked item already in progress.";
   } else if (selected.record.status === "In Review") {
     reason = "Finish review or landing for the highest-priority unblocked active item.";
-  } else if (selected.record.status === "Ready") {
-    reason = `Highest-priority Ready item with ${dependencyCount ? "all dependencies done" : "no dependencies"} and no blockers.`;
   } else {
-    reason = `Highest-priority actionable backlog item with ${dependencyCount ? "all dependencies done" : "no dependencies"} and no blockers.`;
+    reason = `Highest-priority Ready item with ${dependencyCount ? "all dependencies done" : "no dependencies"} and no blockers.`;
   }
   return { item: selected, reason };
 }
@@ -362,31 +466,22 @@ export function nextItem(tracker) {
 export function startItem(tracker, id, input) {
   return withLock(tracker.paths.lockPath, () => {
     const item = requireItem(tracker, id);
-    const branch = requiredText(input.branch, "branch");
-    if (!input.allowSharedBranch) {
-      const collision = tracker.items.find(
-        (candidate) =>
-          candidate.id !== item.id &&
-          ["In Progress", "In Review"].includes(candidate.record.status) &&
-          candidate.record.git.branch === branch,
-      );
-      if (collision) {
-        throw new WorkError(
-          `${branch} is already claimed by ${collision.id}. Use --allow-shared-branch only when the overlap is intentional.`,
-          "branch_claimed",
-        );
-      }
+    requireFinalizedRequirements(item);
+    if (item.record.status !== "Ready") {
+      throw new WorkError(`${item.id} must be Ready before it can start`, "item_not_ready");
     }
+    const branch = requiredText(input.branch, "branch");
+    assertBranchAvailable(tracker, item.id, branch, input.allowSharedBranch);
     const nextStep = requiredText(input.nextStep ?? item.record.next_step, "next step");
     const updated = structuredClone(item.record);
     updated.status = "In Progress";
     updated.next_step = nextStep;
     updated.git.branch = branch;
-    updated.updated_at = isoDate();
+    updated.updated_date = isoDate();
     writeItemUpdate(tracker, item, updated, "started", `Started on branch ${branch}.`);
     return {
       outcome: "started",
-      item: publicItem(requireItem(reload(tracker), id), tracker.paths.repoRoot),
+      item: publicItem(requireItem(reload(tracker), id), tracker.paths),
       text: `${item.id} is In Progress on ${branch}.\nNext: ${nextStep}`,
     };
   });
@@ -405,6 +500,9 @@ export function updateItem(tracker, id, input) {
           "finish_required",
         );
       }
+      if (["Ready", "In Progress", "In Review"].includes(requestedStatus)) {
+        requireFinalizedRequirements(item);
+      }
       updated.status = requestedStatus;
       changes.push(`status changed to ${updated.status}`);
     }
@@ -422,7 +520,7 @@ export function updateItem(tracker, id, input) {
         id: nextBlockerId(updated.blockers),
         reason: cleanReason,
         work_item_id: input.blockerItem ? normalizeId(input.blockerItem) : null,
-        created_at: isoDate(),
+        created_date: isoDate(),
       });
       changes.push(`blocker added: ${cleanReason}`);
     }
@@ -442,34 +540,18 @@ export function updateItem(tracker, id, input) {
     if (!changes.length && !input.note) {
       throw new WorkError("No update was requested", "empty_update");
     }
-    if (
-      !input.allowSharedBranch &&
-      ["In Progress", "In Review"].includes(updated.status) &&
-      updated.git.branch
-    ) {
-      const collision = tracker.items.find(
-        (candidate) =>
-          candidate.id !== item.id &&
-          ["In Progress", "In Review"].includes(candidate.record.status) &&
-          candidate.record.git.branch === updated.git.branch,
-      );
-      if (collision) {
-        throw new WorkError(
-          `${updated.git.branch} is already claimed by ${collision.id}. Use --allow-shared-branch only when intentional.`,
-          "branch_claimed",
-        );
-      }
+    if (["In Progress", "In Review"].includes(updated.status) && updated.git.branch) {
+      assertBranchAvailable(tracker, item.id, updated.git.branch, input.allowSharedBranch);
     }
     if (!["Done", "Cancelled"].includes(updated.status) && !updated.next_step) {
       throw new WorkError("Active and backlog items require an exact next step", "missing_next_step");
     }
-    updated.updated_at = isoDate();
+    updated.updated_date = isoDate();
     const note = input.note ? requiredText(input.note, "note") : changes.join("; ");
     writeItemUpdate(tracker, item, updated, "updated", note);
-    const refreshed = requireItem(reload(tracker), id);
     return {
       outcome: "updated",
-      item: publicItem(refreshed, tracker.paths.repoRoot),
+      item: publicItem(requireItem(reload(tracker), id), tracker.paths),
       text: `${item.id} updated: ${note}\nNext: ${updated.next_step || "None"}`,
     };
   });
@@ -490,36 +572,19 @@ export function linkItems(tracker, sourceId, type, targetId) {
     const targetRecord = structuredClone(target.record);
     addUnique(sourceRecord.relationships[relationship], target.id);
     addUnique(targetRecord.relationships[INVERSES[relationship]], source.id);
-    sourceRecord.updated_at = isoDate();
-    targetRecord.updated_at = isoDate();
-
+    sourceRecord.updated_date = isoDate();
+    targetRecord.updated_date = isoDate();
     const allRecords = tracker.items.map((item) =>
       item.id === source.id ? sourceRecord : item.id === target.id ? targetRecord : item.record,
     );
     const cycles = dependencyCycles(allRecords);
     if (cycles.length) {
-      throw new WorkError(`Relationship would create a dependency cycle: ${cycles[0].join(" -> ")}`, "dependency_cycle");
+      throw new WorkError(
+        `Relationship would create a dependency cycle: ${cycles[0].join(" -> ")}`,
+        "dependency_cycle",
+      );
     }
-    const entries = [];
-    for (const [item, record, event] of [
-      [source, sourceRecord, `${relationship} ${target.id}`],
-      [target, targetRecord, `${INVERSES[relationship]} ${source.id}`],
-    ]) {
-      const destination = destinationFor(item, record.status);
-      if (destination !== item.path) {
-        throw new WorkError("Linking cannot also move an item between stages", "unexpected_stage_change");
-      }
-      entries.push({ path: item.itemPath, content: stableJson(record) });
-      entries.push({
-        path: item.historyPath,
-        content: appendHistoryContent(item, historyEntry("linked", event)),
-      });
-      entries.push({
-        path: item.statusPath,
-        content: renderStatus(record, recentHistory(item, historyEntry("linked", event)), readStatus(item)),
-      });
-    }
-    atomicBatchWrite(entries);
+    writeLinkedItems(source, sourceRecord, target, targetRecord, relationship, false);
     regenerate(reload(tracker));
     return {
       outcome: "linked",
@@ -549,22 +614,9 @@ export function unlinkItems(tracker, sourceId, type, targetId) {
     targetRecord.relationships[inverse] = targetRecord.relationships[inverse].filter(
       (id) => id !== source.id,
     );
-    sourceRecord.updated_at = isoDate();
-    targetRecord.updated_at = isoDate();
-    const entries = [];
-    for (const [item, record, event] of [
-      [source, sourceRecord, `removed ${relationship} ${target.id}`],
-      [target, targetRecord, `removed ${inverse} ${source.id}`],
-    ]) {
-      const entry = historyEntry("unlinked", event);
-      entries.push({ path: item.itemPath, content: stableJson(record) });
-      entries.push({ path: item.historyPath, content: appendHistoryContent(item, entry) });
-      entries.push({
-        path: item.statusPath,
-        content: renderStatus(record, recentHistory(item, entry), readStatus(item)),
-      });
-    }
-    atomicBatchWrite(entries);
+    sourceRecord.updated_date = isoDate();
+    targetRecord.updated_date = isoDate();
+    writeLinkedItems(source, sourceRecord, target, targetRecord, relationship, true);
     regenerate(reload(tracker));
     return {
       outcome: "unlinked",
@@ -579,20 +631,21 @@ export function unlinkItems(tracker, sourceId, type, targetId) {
 export function finishItem(tracker, id, input) {
   return withLock(tracker.paths.lockPath, () => {
     const item = requireItem(tracker, id);
+    requireFinalizedRequirements(item);
     const commit = resolveCommit(tracker.paths.repoRoot, input.commit ?? "HEAD");
     const defaultRef = resolveDefaultRef(tracker.paths.repoRoot, tracker.config.default_branch);
     const landed = isAncestor(tracker.paths.repoRoot, commit, defaultRef);
     const updated = structuredClone(item.record);
     updated.git.completion_commit = commit;
     updated.git.pull_request = normalizePullRequest(input.pullRequest, updated.git.pull_request);
-    updated.git.work_complete_at = isoDate();
-    updated.updated_at = isoDate();
+    updated.git.work_complete_date = isoDate();
+    updated.updated_date = isoDate();
     let event;
     if (landed) {
       updated.status = "Done";
       updated.next_step = "";
       updated.git.landed_commit = commit;
-      updated.git.landed_at = isoDate();
+      updated.git.landed_date = isoDate();
       updated.git.default_branch = tracker.config.default_branch;
       event = `Verified ${commit.slice(0, 12)} is in ${defaultRef}; marked Done.`;
     } else {
@@ -601,7 +654,7 @@ export function finishItem(tracker, id, input) {
         input.nextStep ??
         `Get commit ${commit.slice(0, 12)} reviewed and landed in ${tracker.config.default_branch}.`;
       updated.git.landed_commit = null;
-      updated.git.landed_at = null;
+      updated.git.landed_date = null;
       event = `Work recorded at ${commit.slice(0, 12)}, but it is not in ${defaultRef}; marked In Review.`;
     }
     writeItemUpdate(tracker, item, updated, "finish_checked", event);
@@ -610,35 +663,11 @@ export function finishItem(tracker, id, input) {
       outcome: landed ? "landed" : "branch_complete",
       landed,
       default_ref: defaultRef,
-      item: publicItem(refreshed, tracker.paths.repoRoot),
+      item: publicItem(refreshed, tracker.paths),
       text: landed
         ? `${id} is Done. Git verifies ${commit.slice(0, 12)} is in ${defaultRef}.`
         : `${id} appears complete on a branch, but ${commit.slice(0, 12)} is not in ${defaultRef}. It remains In Review.`,
     };
-  });
-}
-
-export function archiveItem(tracker, id) {
-  return withLock(tracker.paths.lockPath, () => {
-    const item = requireItem(tracker, id);
-    if (!["Done", "Cancelled"].includes(item.record.status)) {
-      throw new WorkError("Only Done or Cancelled items can be archived", "not_archiveable");
-    }
-    const destination = path.join(tracker.paths.workRoot, STAGES.archived, item.folderName);
-    if (destination === item.path) {
-      return { outcome: "already_archived", text: `${item.id} is already archived.` };
-    }
-    if (fs.existsSync(destination)) {
-      throw new WorkError(`Archive destination already exists: ${destination}`, "path_exists");
-    }
-    fs.renameSync(item.path, destination);
-    const refreshed = reload(tracker);
-    const archived = requireItem(refreshed, id);
-    const updated = structuredClone(archived.record);
-    updated.updated_at = isoDate();
-    writeItemFiles(archived, updated, "archived", "Moved to the archived stage.");
-    regenerate(reload(tracker));
-    return { outcome: "archived", text: `${id} archived.` };
   });
 }
 
@@ -649,7 +678,7 @@ export function landingStatus(tracker, id) {
     return {
       outcome: "no_completion_commit",
       landed: false,
-      item: publicItem(item, tracker.paths.repoRoot),
+      item: publicItem(item, tracker.paths),
       text: `${item.id} has no completion commit recorded, so landing cannot be verified.`,
     };
   }
@@ -657,7 +686,7 @@ export function landingStatus(tracker, id) {
     return {
       outcome: "commit_unavailable",
       landed: false,
-      item: publicItem(item, tracker.paths.repoRoot),
+      item: publicItem(item, tracker.paths),
       text: `${item.id} records ${commit}, but that commit is not available in this clone. Fetch branches and retry.`,
     };
   }
@@ -666,7 +695,7 @@ export function landingStatus(tracker, id) {
     return {
       outcome: "default_branch_unavailable",
       landed: false,
-      item: publicItem(item, tracker.paths.repoRoot),
+      item: publicItem(item, tracker.paths),
       text: `Cannot verify ${item.id} because ${tracker.config.default_branch} is not available locally or on origin.`,
     };
   }
@@ -676,7 +705,7 @@ export function landingStatus(tracker, id) {
     landed,
     commit,
     default_ref: ref,
-    item: publicItem(item, tracker.paths.repoRoot),
+    item: publicItem(item, tracker.paths),
     text: landed
       ? `${item.id} is in ${ref}; Git ancestry includes ${commit.slice(0, 12)}.`
       : `${item.id} is not in ${ref}; Git ancestry does not include ${commit.slice(0, 12)}.`,
@@ -687,20 +716,19 @@ export function validateTracker(tracker) {
   const errors = [];
   const warnings = [];
   validateConfig(tracker.config, errors);
+  if (!hasWorkItemsIgnore(tracker.paths)) {
+    errors.push(".gitignore must ignore /.work-items/");
+  }
+  const tracked = trackedWorkItemFiles(tracker.paths.repoRoot);
+  if (tracked.length) {
+    errors.push(`Git still tracks local work-item files: ${tracked.join(", ")}`);
+  }
   const duplicateIds = duplicates(tracker.items.map((item) => item.id));
   for (const id of duplicateIds) errors.push(`Duplicate ID: ${id}`);
   const byId = new Map(tracker.items.map((item) => [item.id, item]));
 
   for (const item of tracker.items) {
     validateRecord(item, errors, warnings);
-    const expectedStage = STATUS_STAGE[item.record.status];
-    if (expectedStage && item.stage !== expectedStage) {
-      const archiveException =
-        item.stage === STAGES.archived && ["Done", "Cancelled"].includes(item.record.status);
-      if (!archiveException) {
-        errors.push(`${item.id}: status ${item.record.status} belongs in ${expectedStage}, not ${item.stage}`);
-      }
-    }
     for (const type of RELATIONSHIPS) {
       for (const targetId of item.record.relationships?.[type] ?? []) {
         if (targetId === item.id) errors.push(`${item.id}: ${type} cannot reference itself`);
@@ -758,14 +786,14 @@ export function reconcileTracker(tracker) {
     severity: "error",
     code: "validation",
     message,
-    repair: "Correct the canonical record, then run work validate.",
+    repair: "Correct the local record, then run work validate.",
   }));
   for (const warning of validation.warnings) {
     findings.push({
       severity: "warning",
       code: "validation_warning",
       message: warning,
-      repair: "Review the evidence before changing the ticket.",
+      repair: "Review the local work item before changing it.",
     });
   }
   const branches = listBranches(tracker.paths.repoRoot);
@@ -797,20 +825,14 @@ export function reconcileTracker(tracker) {
     }
   }
   const expectedDashboard = renderDashboard(tracker.items);
-  if (!fs.existsSync(tracker.paths.dashboardPath) || fs.readFileSync(tracker.paths.dashboardPath, "utf8") !== expectedDashboard) {
+  if (
+    !fs.existsSync(tracker.paths.dashboardPath) ||
+    fs.readFileSync(tracker.paths.dashboardPath, "utf8") !== expectedDashboard
+  ) {
     findings.push({
       severity: "warning",
       code: "stale_dashboard",
       message: "DASHBOARD.md is missing or stale.",
-      repair: "Run work dashboard.",
-    });
-  }
-  const expectedBacklog = renderBacklog(tracker.items, tracker.paths);
-  if (!fs.existsSync(tracker.paths.backlogPath) || fs.readFileSync(tracker.paths.backlogPath, "utf8") !== expectedBacklog) {
-    findings.push({
-      severity: "warning",
-      code: "stale_backlog",
-      message: "BACKLOG.md is missing or stale.",
       repair: "Run work dashboard.",
     });
   }
@@ -819,84 +841,263 @@ export function reconcileTracker(tracker) {
     findings,
     text: findings.length
       ? `Reconciliation found ${findings.length} issue(s):\n${findings.map((finding) => `- ${finding.message} Repair: ${finding.repair}`).join("\n")}`
-      : "Tracker records, Git evidence, relationships, and generated files are consistent.",
+      : "Local records, Git evidence, relationships, and the dashboard are consistent.",
   };
 }
 
 export function regenerate(tracker) {
-  const dashboard = renderDashboard(tracker.items);
-  const backlog = renderBacklog(tracker.items, tracker.paths);
-  atomicBatchWrite([
-    { path: tracker.paths.dashboardPath, content: dashboard },
-    { path: tracker.paths.backlogPath, content: backlog },
-  ]);
+  atomicWrite(tracker.paths.dashboardPath, renderDashboard(tracker.items));
   return {
-    dashboard: toPosix(path.relative(tracker.paths.repoRoot, tracker.paths.dashboardPath)),
-    backlog: toPosix(path.relative(tracker.paths.repoRoot, tracker.paths.backlogPath)),
+    dashboard: displayTrackerPath(tracker.paths, tracker.paths.dashboardPath),
   };
 }
 
 export function scanItems(paths) {
   const items = [];
-  for (const candidate of scanItemFolders(paths)) {
+  for (const candidate of scanFlatItemFolders(paths)) {
     if (!fs.existsSync(candidate.itemPath)) {
-      items.push({
-        ...candidate,
-        record: invalidPlaceholder(candidate),
-        missingRecord: true,
-        historyPath: path.join(candidate.path, "HISTORY.ndjson"),
-        statusPath: path.join(candidate.path, "STATUS.md"),
-        specPath: path.join(candidate.path, "SPEC.md"),
-      });
+      items.push({ ...candidate, record: invalidPlaceholder(candidate), missingRecord: true });
       continue;
     }
-    const record = readJson(candidate.itemPath, `${candidate.id} ITEM.json`);
+    const record = readYaml(candidate.itemPath, `${candidate.id} ITEM.yaml`);
     items.push({
       ...candidate,
       folderId: candidate.id,
       id: record.id ?? candidate.id,
       record,
-      historyPath: path.join(candidate.path, "HISTORY.ndjson"),
-      statusPath: path.join(candidate.path, "STATUS.md"),
-      specPath: path.join(candidate.path, "SPEC.md"),
     });
   }
   return items.sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
 }
 
-function scanItemFolders(paths) {
+function scanFlatItemFolders(paths) {
+  if (!fs.existsSync(paths.workRoot)) return [];
   const candidates = [];
-  if (!fs.existsSync(paths.workRoot)) return candidates;
-  for (const stage of Object.values(STAGES)) {
-    const stagePath = path.join(paths.workRoot, stage);
-    if (!fs.existsSync(stagePath)) continue;
-    for (const entry of fs.readdirSync(stagePath, { withFileTypes: true })) {
+  for (const entry of fs.readdirSync(paths.workRoot, { withFileTypes: true })) {
+    if (!entry.isDirectory() || entry.name.startsWith(".")) continue;
+    const match = entry.name.match(/^([A-Za-z][A-Za-z0-9]*-\d+)(?:-|$)/);
+    if (!match) continue;
+    candidates.push(itemCandidate(path.join(paths.workRoot, entry.name), entry.name, match[1]));
+  }
+  return candidates;
+}
+
+function scanLegacyItemFolders(sourceRoot) {
+  const candidates = [];
+  const roots = [];
+  for (const stage of LEGACY_STAGES) {
+    const stagePath = path.join(sourceRoot, stage);
+    if (fs.existsSync(stagePath)) roots.push({ path: stagePath, stage });
+  }
+  if (!roots.length) roots.push({ path: sourceRoot, stage: null });
+  for (const root of roots) {
+    for (const entry of fs.readdirSync(root.path, { withFileTypes: true })) {
       if (!entry.isDirectory()) continue;
       const match = entry.name.match(/^([A-Za-z][A-Za-z0-9]*-\d+)(?:-|$)/);
       if (!match) continue;
-      const itemDir = path.join(stagePath, entry.name);
       candidates.push({
-        id: match[1].toUpperCase(),
-        stage,
-        folderName: entry.name,
-        path: itemDir,
-        itemPath: path.join(itemDir, "ITEM.json"),
+        ...itemCandidate(path.join(root.path, entry.name), entry.name, match[1]),
+        legacyStage: root.stage,
       });
     }
   }
   return candidates;
 }
 
-function newRecord({ id, title, type, priority, status, nextStep, createdAt }) {
+function itemCandidate(itemPath, folderName, rawId) {
+  const id = rawId.toUpperCase();
   return {
-    schema_version: 1,
+    id,
+    folderName,
+    path: itemPath,
+    itemPath: path.join(itemPath, "ITEM.yaml"),
+    legacyItemPath: path.join(itemPath, "ITEM.json"),
+    requirementsPath: path.join(itemPath, "REQUIREMENTS.md"),
+    specPath: path.join(itemPath, "SPEC.md"),
+    statusPath: path.join(itemPath, "STATUS.md"),
+    historyPath: path.join(itemPath, "HISTORY.ndjson"),
+  };
+}
+
+function ensureTrackerShell(paths, options = {}) {
+  fs.mkdirSync(paths.workRoot, { recursive: true });
+  let createdConfig = false;
+  if (!fs.existsSync(paths.configPath)) {
+    atomicWriteYaml(paths.configPath, {
+      schema_version: 2,
+      id_prefix: "WI",
+      id_width: 3,
+      default_branch: options.defaultBranch ?? "main",
+    });
+    createdConfig = true;
+  }
+  if (!fs.existsSync(paths.readmePath)) atomicWrite(paths.readmePath, workItemsReadme());
+  if (!fs.existsSync(paths.dashboardPath)) atomicWrite(paths.dashboardPath, renderDashboard([]));
+  return createdConfig;
+}
+
+function ensureGitignore(paths) {
+  const existing = fs.existsSync(paths.gitignorePath)
+    ? fs.readFileSync(paths.gitignorePath, "utf8")
+    : "";
+  if (hasWorkItemsIgnoreContent(existing)) return false;
+  const prefix = existing && !existing.endsWith("\n") ? "\n" : "";
+  atomicWrite(paths.gitignorePath, `${existing}${prefix}/.work-items/\n`);
+  return true;
+}
+
+function hasWorkItemsIgnore(paths) {
+  if (!fs.existsSync(paths.gitignorePath)) return false;
+  return hasWorkItemsIgnoreContent(fs.readFileSync(paths.gitignorePath, "utf8"));
+}
+
+function hasWorkItemsIgnoreContent(content) {
+  return content
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .some((line) => ["/.work-items/", ".work-items/", "/.work-items", ".work-items"].includes(line));
+}
+
+function trackedWorkItemFiles(repoRoot) {
+  return git(repoRoot, ["ls-files", "--", ".work-items"]).stdout.split(/\r?\n/).filter(Boolean);
+}
+
+function primaryWorktreeRoot(repoRoot) {
+  const listing = git(repoRoot, ["worktree", "list", "--porcelain"]).stdout;
+  const first = listing.split(/\r?\n/).find((line) => line.startsWith("worktree "));
+  if (!first) return repoRoot;
+  const candidate = first.slice("worktree ".length);
+  return fs.existsSync(candidate) ? fs.realpathSync(candidate) : repoRoot;
+}
+
+function legacyTrackerRoots(repoRoot) {
+  return ["work-items", "delivery/work-items", "engagement/work-items"]
+    .map((relative) => ({ relative, path: path.join(repoRoot, ...relative.split("/")) }))
+    .filter((entry) => fs.existsSync(entry.path));
+}
+
+function resolveLegacySource(repoRoot, requested) {
+  const roots = legacyTrackerRoots(repoRoot);
+  if (!requested) {
+    if (roots.length === 0) {
+      throw new WorkError("No older local tracker was found", "missing_legacy_tracker");
+    }
+    if (roots.length > 1) {
+      throw new WorkError(
+        `More than one older tracker exists: ${roots.map((entry) => entry.relative).join(", ")}. Pass --from.`,
+        "ambiguous_path",
+      );
+    }
+    return roots[0];
+  }
+  const resolved = path.resolve(repoRoot, String(requested));
+  const relative = path.relative(repoRoot, resolved);
+  if (relative.startsWith("..") || path.isAbsolute(relative) || resolved === path.join(repoRoot, ".work-items")) {
+    throw new WorkError("The migration source must be an older tracker inside this repository", "invalid_path");
+  }
+  if (!fs.existsSync(resolved)) {
+    throw new WorkError(`Migration source does not exist: ${normalizeRelativePath(relative)}`, "missing_legacy_tracker");
+  }
+  return { path: resolved, relative: normalizeRelativePath(relative) };
+}
+
+function prepareMigratedFolder(repoRoot, preparedPath, candidate) {
+  const copied = itemCandidate(preparedPath, candidate.folderName, candidate.id);
+  let legacyRecord = null;
+  if (fs.existsSync(copied.legacyItemPath)) {
+    legacyRecord = readJson(copied.legacyItemPath, `${candidate.id} legacy ITEM.json`);
+  }
+  const title = requiredText(legacyRecord?.title ?? titleFromFolder(candidate.folderName), "title");
+  const createdDate = validDateOrToday(legacyRecord?.created_date ?? legacyRecord?.created_at);
+  const updatedDate = validDateOrToday(legacyRecord?.updated_date ?? legacyRecord?.updated_at ?? createdDate);
+  const record = newRecord({
+    id: candidate.id,
+    title,
+    description: legacyRecord?.description ?? title,
+    type: TYPES.includes(legacyRecord?.type) ? legacyRecord.type : "task",
+    priority: PRIORITIES.includes(legacyRecord?.priority) ? legacyRecord.priority : "medium",
+    status: legacyStatus(legacyRecord?.status, candidate.legacyStage),
+    nextStep:
+      legacyRecord?.next_step ||
+      (["Done", "Cancelled"].includes(legacyRecord?.status)
+        ? ""
+        : "Refine and finalize REQUIREMENTS.md with the owner."),
+    createdDate,
+  });
+  record.updated_date = updatedDate;
+  if (Array.isArray(legacyRecord?.blockers)) record.blockers = legacyRecord.blockers;
+  if (legacyRecord?.relationships && typeof legacyRecord.relationships === "object") {
+    for (const type of RELATIONSHIPS) {
+      if (Array.isArray(legacyRecord.relationships[type])) {
+        record.relationships[type] = legacyRecord.relationships[type];
+      }
+    }
+  }
+  if (legacyRecord?.git && typeof legacyRecord.git === "object") {
+    record.git = {
+      branch: legacyRecord.git.branch ?? null,
+      pull_request: legacyRecord.git.pull_request ?? null,
+      completion_commit: legacyRecord.git.completion_commit ?? null,
+      work_complete_date:
+        legacyRecord.git.work_complete_date ?? legacyRecord.git.work_complete_at ?? null,
+      landed_commit: legacyRecord.git.landed_commit ?? null,
+      landed_date: legacyRecord.git.landed_date ?? legacyRecord.git.landed_at ?? null,
+      default_branch: legacyRecord.git.default_branch ?? null,
+    };
+  }
+  record.migration = {
+    source: toPosix(path.relative(repoRoot, candidate.path)),
+    migrated_date: isoDate(),
+  };
+  atomicWriteYaml(copied.itemPath, record);
+
+  if (!fs.existsSync(copied.requirementsPath)) {
+    atomicWrite(
+      copied.requirementsPath,
+      renderRequirements(record, "_Not recorded. Review the preserved legacy files with the owner._"),
+    );
+  } else {
+    try {
+      readRequirements(copied);
+    } catch {
+      const legacyRequirements = uniqueLegacyPath(preparedPath, "LEGACY-REQUIREMENTS", ".md");
+      fs.renameSync(copied.requirementsPath, legacyRequirements);
+      atomicWrite(
+        copied.requirementsPath,
+        renderRequirements(record, "_Not recorded. Review the preserved legacy requirements with the owner._"),
+      );
+    }
+  }
+  const entry = historyEntry(
+    "migrated",
+    "Copied into the flat local tracker. Legacy files and the source tracker were preserved.",
+  );
+  atomicWrite(copied.historyPath, appendHistoryContent(copied, entry));
+  if (!fs.existsSync(copied.statusPath)) {
+    atomicWrite(copied.statusPath, renderStatus(record, [entry]));
+  }
+}
+
+function uniqueLegacyPath(folder, base, extension) {
+  for (let index = 0; index < 1000; index += 1) {
+    const suffix = index === 0 ? "" : `-${index + 1}`;
+    const candidate = path.join(folder, `${base}${suffix}${extension}`);
+    if (!fs.existsSync(candidate)) return candidate;
+  }
+  throw new WorkError(`Could not preserve ${base}${extension}`, "path_exists");
+}
+
+function newRecord({ id, title, description, type, priority, status, nextStep, createdDate }) {
+  return {
+    schema_version: 2,
     id,
     title,
+    description,
     type,
     priority,
-    created_at: createdAt,
-    updated_at: createdAt,
     status,
+    created_date: createdDate,
+    updated_date: createdDate,
     next_step: nextStep,
     blockers: [],
     relationships: Object.fromEntries(RELATIONSHIPS.map((typeName) => [typeName, []])),
@@ -904,16 +1105,10 @@ function newRecord({ id, title, type, priority, status, nextStep, createdAt }) {
       branch: null,
       pull_request: null,
       completion_commit: null,
-      work_complete_at: null,
+      work_complete_date: null,
       landed_commit: null,
-      landed_at: null,
+      landed_date: null,
       default_branch: null,
-    },
-    github: {
-      issue_number: null,
-      issue_url: null,
-      project_item_id: null,
-      last_synced_at: null,
     },
   };
 }
@@ -923,30 +1118,44 @@ function invalidPlaceholder(candidate) {
     ...newRecord({
       id: candidate.id,
       title: titleFromFolder(candidate.folderName),
+      description: titleFromFolder(candidate.folderName),
       type: "task",
       priority: "medium",
-      status: statusFromStage(candidate.stage),
+      status: "Backlog",
       nextStep: "",
-      createdAt: isoDate(),
+      createdDate: isoDate(),
     }),
     _invalid_missing_record: true,
   };
 }
 
-function statusFromStage(stage) {
-  if (stage === STAGES.active) return "In Progress";
-  if (stage === STAGES.completed) return "Done";
-  if (stage === STAGES.archived) return "Cancelled";
+function legacyStatus(value, stage) {
+  if (value !== undefined) {
+    try {
+      return normalizeStatus(value);
+    } catch {
+      // Fall back to the only status the old folder proves.
+    }
+  }
+  if (stage === "02-in-progress") return "In Progress";
+  if (stage === "03-completed") return "Done";
+  if (stage === "04-archived") return "Cancelled";
   return "Backlog";
 }
 
+function validDateOrToday(value) {
+  return isIsoDate(value) ? value : isoDate();
+}
+
 function titleFromFolder(folderName) {
-  return folderName
-    .replace(/^[A-Za-z][A-Za-z0-9]*-\d+-?/, "")
-    .split("-")
-    .filter(Boolean)
-    .map((word) => `${word[0]?.toUpperCase() ?? ""}${word.slice(1)}`)
-    .join(" ") || folderName;
+  return (
+    folderName
+      .replace(/^[A-Za-z][A-Za-z0-9]*-\d+-?/, "")
+      .split("-")
+      .filter(Boolean)
+      .map((word) => `${word[0]?.toUpperCase() ?? ""}${word.slice(1)}`)
+      .join(" ") || folderName
+  );
 }
 
 function allocateId(config, items) {
@@ -979,7 +1188,10 @@ function normalizeStatus(status) {
 function normalizeEnum(value, allowed, label) {
   const normalized = String(value).trim().toLowerCase().replace(/\s+/g, "_");
   if (!allowed.includes(normalized)) {
-    throw new WorkError(`Invalid ${label} "${value}". Use ${allowed.join(", ")}.`, `invalid_${label.replace(/\s+/g, "_")}`);
+    throw new WorkError(
+      `Invalid ${label} "${value}". Use ${allowed.join(", ")}.`,
+      `invalid_${label.replace(/\s+/g, "_")}`,
+    );
   }
   return normalized;
 }
@@ -996,35 +1208,114 @@ function requireItem(tracker, id) {
   if (matches.length === 0) throw new WorkError(`Work item ${normalized} does not exist`, "missing_item");
   if (matches.length > 1) throw new WorkError(`Work item ${normalized} is duplicated`, "duplicate_id");
   if (matches[0].missingRecord) {
-    throw new WorkError(`${normalized} is missing ITEM.json. Run work init to adopt it.`, "missing_record");
+    throw new WorkError(`${normalized} is missing ITEM.yaml. Run work init to adopt it.`, "missing_record");
   }
   return matches[0];
 }
 
 function reload(tracker) {
-  return loadTracker(
-    tracker.paths.repoRoot,
-    path.relative(tracker.paths.repoRoot, tracker.paths.workRoot),
-  );
+  return loadTracker(tracker.paths.repoRoot);
 }
 
-function renderSpec(record, purpose) {
-  return `# ${record.id}: ${record.title}
+function renderRequirements(record, startingRequest) {
+  const meta = {
+    status: "refining",
+    created_date: record.created_date,
+    updated_date: record.created_date,
+    finalized_date: null,
+    approved_by: null,
+  };
+  const body = `# ${record.id}: ${record.title}
 
-## Purpose
+This file contains only needs stated by the owner and suggestions the owner
+approved. It contains no build plan or technical solution.
 
-${purpose}
+## Starting request
 
-## Requirements and decisions
+${startingRequest}
 
-Add approved requirements, decisions, constraints, and useful links here. Keep
-the goal current when the work changes direction.
+## Goal
+
+_Not agreed yet._
+
+## Why
+
+_Not agreed yet._
+
+## What has to be true for this to count as finished
+
+_Not agreed yet._
+
+## What the person using it experiences
+
+_Not agreed yet._
+
+## How it behaves from the outside
+
+_Not agreed yet._
+
+## Edge cases
+
+_Not agreed yet._
 `;
+  return renderRequirementsFile(meta, body);
 }
 
-function renderStatus(record, history, existing = "") {
+function renderRequirementsFile(meta, body) {
+  return `---\n${stableYaml(meta)}---\n\n${body.trim()}\n`;
+}
+
+function readRequirements(item) {
+  if (!fs.existsSync(item.requirementsPath)) {
+    throw new WorkError(`${item.id} is missing REQUIREMENTS.md`, "missing_requirements");
+  }
+  const source = fs.readFileSync(item.requirementsPath, "utf8");
+  const match = source.match(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)([\s\S]*)$/);
+  if (!match) {
+    throw new WorkError(`${item.id} REQUIREMENTS.md needs YAML fields at the top`, "invalid_requirements");
+  }
+  const meta = parseYaml(match[1], `${item.id} REQUIREMENTS.md fields`);
+  return { meta, body: match[2].trim() };
+}
+
+function missingRequirementsSections(body) {
+  const missing = [];
+  for (const heading of REQUIRED_REQUIREMENTS_SECTIONS) {
+    const content = markdownSection(body, heading);
+    if (!content || /^_?(?:not agreed yet|todo|tbd)[.!]?_?$/i.test(content.trim())) {
+      missing.push(heading);
+    }
+  }
+  return missing;
+}
+
+function markdownSection(body, heading) {
+  const escaped = escapeRegex(heading);
+  const match = body.match(
+    new RegExp(`(?:^|\\n)## ${escaped}\\s*\\n([\\s\\S]*?)(?=\\n## |$)`),
+  );
+  return match?.[1]?.trim() ?? "";
+}
+
+function requireFinalizedRequirements(item) {
+  const requirements = readRequirements(item);
+  if (requirements.meta.status !== "finalized") {
+    throw new WorkError(
+      `${item.id} requirements are still refining. Finalize them with owner approval first.`,
+      "requirements_not_finalized",
+    );
+  }
+  return requirements;
+}
+
+function renderStatus(record, history, existing = "", requirementsStatusValue = undefined) {
   const blockers = record.blockers.length
-    ? record.blockers.map((blocker) => `- ${blocker.id}: ${blocker.reason}${blocker.work_item_id ? ` (${blocker.work_item_id})` : ""}`).join("\n")
+    ? record.blockers
+        .map(
+          (blocker) =>
+            `- ${blocker.id}: ${blocker.reason}${blocker.work_item_id ? ` (${blocker.work_item_id})` : ""}`,
+        )
+        .join("\n")
     : "- None";
   const relations = RELATIONSHIPS.flatMap((type) =>
     record.relationships[type].length ? [`- ${type}: ${record.relationships[type].join(", ")}`] : [],
@@ -1036,11 +1327,12 @@ function renderStatus(record, history, existing = "") {
     `- Landed commit: ${record.git.landed_commit ?? "Not verified"}`,
     `- Default branch: ${record.git.default_branch ?? "Not verified"}`,
   ];
-  const historyLines = history
-    .slice(-12)
-    .reverse()
-    .map((entry) => `- ${entry.at}: **${entry.action}**. ${entry.note}`)
-    .join("\n") || "- No history yet.";
+  const historyLines =
+    history
+      .slice(-12)
+      .reverse()
+      .map((entry) => `- ${entry.at}: **${entry.action}**. ${entry.note}`)
+      .join("\n") || "- No history yet.";
   const userNotes = extractUserNotes(existing);
   return `# ${record.id}: ${record.title}
 
@@ -1048,10 +1340,11 @@ function renderStatus(record, history, existing = "") {
 ## Current handoff
 
 - Status: ${record.status}
+- Requirements: ${requirementsStatusValue ?? "See REQUIREMENTS.md"}
 - Priority: ${record.priority}
 - Type: ${record.type}
 - Exact next step: ${record.next_step || "None"}
-- Updated: ${record.updated_at}
+- Updated: ${record.updated_date}
 
 ### Blockers
 
@@ -1101,7 +1394,10 @@ function readHistory(item) {
     try {
       return JSON.parse(line);
     } catch (error) {
-      throw new WorkError(`${item.id} HISTORY.ndjson line ${index + 1} is invalid JSON: ${error.message}`, "invalid_history");
+      throw new WorkError(
+        `${item.id} HISTORY.ndjson line ${index + 1} is invalid JSON: ${error.message}`,
+        "invalid_history",
+      );
     }
   });
 }
@@ -1120,46 +1416,67 @@ function readStatus(item) {
 }
 
 function writeItemUpdate(tracker, item, record, action, note) {
-  const destination = destinationFor(item, record.status);
-  if (destination !== item.path) {
-    if (fs.existsSync(destination)) {
-      throw new WorkError(`Destination already exists: ${destination}`, "path_exists");
-    }
-    const originals = [
-      { path: item.itemPath, content: fs.readFileSync(item.itemPath, "utf8") },
-      {
-        path: item.historyPath,
-        content: fs.existsSync(item.historyPath) ? fs.readFileSync(item.historyPath, "utf8") : "",
-      },
-      {
-        path: item.statusPath,
-        content: fs.existsSync(item.statusPath) ? fs.readFileSync(item.statusPath, "utf8") : "",
-      },
-    ];
-    writeItemFiles(item, record, action, note);
-    try {
-      fs.renameSync(item.path, destination);
-    } catch (error) {
-      atomicBatchWrite(originals);
-      throw error;
-    }
-  } else {
-    writeItemFiles(item, record, action, note);
-  }
+  writeItemFiles(item, record, action, note);
   regenerate(reload(tracker));
 }
 
 function writeItemFiles(item, record, action, note) {
   const entry = historyEntry(action, note);
+  const requirements = readRequirements(item);
   atomicBatchWrite([
-    { path: item.itemPath, content: stableJson(record) },
+    { path: item.itemPath, content: stableYaml(record) },
     { path: item.historyPath, content: appendHistoryContent(item, entry) },
-    { path: item.statusPath, content: renderStatus(record, recentHistory(item, entry), readStatus(item)) },
+    {
+      path: item.statusPath,
+      content: renderStatus(
+        record,
+        recentHistory(item, entry),
+        readStatus(item),
+        requirements.meta.status,
+      ),
+    },
   ]);
 }
 
-function destinationFor(item, status) {
-  return path.join(path.dirname(path.dirname(item.path)), STATUS_STAGE[status], item.folderName);
+function writeLinkedItems(source, sourceRecord, target, targetRecord, relationship, remove) {
+  const inverse = INVERSES[relationship];
+  const action = remove ? "unlinked" : "linked";
+  const entries = [];
+  for (const [item, record, event] of [
+    [source, sourceRecord, `${remove ? "removed " : ""}${relationship} ${target.id}`],
+    [target, targetRecord, `${remove ? "removed " : ""}${inverse} ${source.id}`],
+  ]) {
+    const history = historyEntry(action, event);
+    const requirements = readRequirements(item);
+    entries.push({ path: item.itemPath, content: stableYaml(record) });
+    entries.push({ path: item.historyPath, content: appendHistoryContent(item, history) });
+    entries.push({
+      path: item.statusPath,
+      content: renderStatus(
+        record,
+        recentHistory(item, history),
+        readStatus(item),
+        requirements.meta.status,
+      ),
+    });
+  }
+  atomicBatchWrite(entries);
+}
+
+function assertBranchAvailable(tracker, itemId, branch, allowSharedBranch) {
+  if (allowSharedBranch) return;
+  const collision = tracker.items.find(
+    (candidate) =>
+      candidate.id !== itemId &&
+      ["In Progress", "In Review"].includes(candidate.record.status) &&
+      candidate.record.git.branch === branch,
+  );
+  if (collision) {
+    throw new WorkError(
+      `${branch} is already claimed by ${collision.id}. Use --allow-shared-branch only when intentional.`,
+      "branch_claimed",
+    );
+  }
 }
 
 function formatPr(pr) {
@@ -1198,7 +1515,7 @@ function compareActionable(a, b) {
   return (
     STATUS_SCORE[a.record.status] - STATUS_SCORE[b.record.status] ||
     PRIORITY_SCORE[a.record.priority] - PRIORITY_SCORE[b.record.priority] ||
-    a.record.created_at.localeCompare(b.record.created_at) ||
+    a.record.created_date.localeCompare(b.record.created_date) ||
     a.id.localeCompare(b.id, undefined, { numeric: true })
   );
 }
@@ -1216,13 +1533,23 @@ function effectiveBlockers(item, items) {
   return blockers;
 }
 
-function publicItem(item, repoRoot) {
+function publicItem(item, paths) {
+  let requirementStatusValue = "invalid";
+  try {
+    requirementStatusValue = readRequirements(item).meta.status;
+  } catch {
+    // Validation reports the exact file problem.
+  }
   return {
     id: item.id,
     title: item.record.title,
+    description: item.record.description,
     status: item.record.status,
+    requirements_status: requirementStatusValue,
     priority: item.record.priority,
     type: item.record.type,
+    created_date: item.record.created_date,
+    updated_date: item.record.updated_date,
     next_step: item.record.next_step,
     blockers: item.record.blockers,
     relationships: item.record.relationships,
@@ -1230,10 +1557,16 @@ function publicItem(item, repoRoot) {
     pull_request: item.record.git.pull_request,
     completion_commit: item.record.git.completion_commit,
     landed_commit: item.record.git.landed_commit,
-    landed_at: item.record.git.landed_at,
-    github: item.record.github,
-    path: toPosix(path.relative(repoRoot, item.path)),
+    landed_date: item.record.git.landed_date,
+    path: displayTrackerPath(paths, item.path),
   };
+}
+
+function displayTrackerPath(paths, targetPath) {
+  if (paths.repoRoot === paths.sharedRoot) {
+    return `.work-items/${toPosix(path.relative(paths.workRoot, targetPath))}`;
+  }
+  return toPosix(targetPath);
 }
 
 function publicRecommendation(recommendation) {
@@ -1252,7 +1585,9 @@ function renderStatusList(groups, next, all, allItems) {
   if (groups.active.length) {
     lines.push("Active:");
     for (const item of groups.active) {
-      lines.push(`- ${item.id} [${item.record.status}] ${item.record.title}; next: ${item.record.next_step}; ${gitSummary(item.record)}`);
+      lines.push(
+        `- ${item.id} [${item.record.status}] ${item.record.title}; next: ${item.record.next_step}; ${gitSummary(item.record)}`,
+      );
     }
   } else {
     lines.push("Active: none");
@@ -1263,22 +1598,20 @@ function renderStatusList(groups, next, all, allItems) {
       lines.push(`- ${item.id}: ${effectiveBlockers(item, allItems).join("; ")}`);
     }
   }
+  lines.push(next ? `Next: ${next.item.id} (${next.reason})` : "Next: no actionable item");
   lines.push(
-    next
-      ? `Next: ${next.item.id} (${next.reason})`
-      : "Next: no actionable item",
-  );
-  lines.push(
-    `Counts: backlog ${groups.backlog.length}, active ${groups.active.length}, completed ${groups.completed.length}, archived ${groups.archived.length}.`,
+    `Counts: backlog ${groups.backlog.length}, active ${groups.active.length}, completed ${groups.completed.length}, cancelled ${groups.cancelled.length}.`,
   );
   if (all) {
     for (const [label, items] of [
       ["Backlog", groups.backlog],
       ["Completed", groups.completed],
-      ["Archived", groups.archived],
+      ["Cancelled", groups.cancelled],
     ]) {
       lines.push(`${label}:`);
-      for (const item of items) lines.push(`- ${item.id} [${item.record.status}] ${item.record.title}; ${gitSummary(item.record)}`);
+      for (const item of items) {
+        lines.push(`- ${item.id} [${item.record.status}] ${item.record.title}; ${gitSummary(item.record)}`);
+      }
       if (!items.length) lines.push("- None");
     }
   }
@@ -1290,13 +1623,15 @@ function gitSummary(record) {
   if (record.git.branch) values.push(`branch ${record.git.branch}`);
   if (record.git.pull_request) values.push(`PR ${formatPr(record.git.pull_request)}`);
   if (record.git.landed_commit) values.push(`landed ${record.git.landed_commit.slice(0, 12)}`);
-  else if (record.git.completion_commit) values.push(`complete ${record.git.completion_commit.slice(0, 12)}, not verified landed`);
+  else if (record.git.completion_commit) {
+    values.push(`complete ${record.git.completion_commit.slice(0, 12)}, not verified landed`);
+  }
   return values.length ? values.join(", ") : "Git evidence not recorded";
 }
 
 function renderDashboard(items) {
   const actionable = items
-    .filter((item) => ["Backlog", "Ready", "In Progress", "In Review"].includes(item.record.status))
+    .filter((item) => ["Ready", "In Progress", "In Review"].includes(item.record.status))
     .map((item) => ({ item, blockers: effectiveBlockers(item, items) }));
   const active = actionable.filter((candidate) =>
     ["In Progress", "In Review"].includes(candidate.item.record.status),
@@ -1306,14 +1641,28 @@ function renderDashboard(items) {
     .sort((a, b) => compareActionable(a.item, b.item))
     .slice(0, 10);
   const blocked = actionable.filter((candidate) => candidate.blockers.length > 0);
+  const refining = items.filter((item) => {
+    try {
+      return readRequirements(item).meta.status === "refining";
+    } catch {
+      return true;
+    }
+  });
   const completed = items
     .filter((item) => item.record.status === "Done")
-    .sort((a, b) => b.record.updated_at.localeCompare(a.record.updated_at) || b.id.localeCompare(a.id))
+    .sort(
+      (a, b) =>
+        b.record.updated_date.localeCompare(a.record.updated_date) || b.id.localeCompare(a.id),
+    )
     .slice(0, 10);
-  return `# Work tracker dashboard
+  return `# Local work tracker dashboard
 
-> Generated from each work item's \`ITEM.json\`. Rebuild with \`work dashboard\`.
+> Generated from each work item's \`ITEM.yaml\`. Rebuild with \`work dashboard\`.
 > Do not edit this file as a source of truth.
+
+## Requirements still refining
+
+${dashboardRows(refining.map((item) => ({ item, blockers: [] })))}
 
 ## Active work
 
@@ -1343,64 +1692,33 @@ function dashboardRows(candidates, showBlockers = false) {
   const rows = candidates.map(({ item, blockers }) => {
     const record = item.record;
     const detail = showBlockers ? blockers.join("; ") : record.next_step || "None";
-    const gitInfo = [record.git.branch, formatPr(record.git.pull_request)]
-      .filter((value) => value && value !== "Not recorded")
-      .join(" / ") || "Not recorded";
+    const gitInfo =
+      [record.git.branch, formatPr(record.git.pull_request)]
+        .filter((value) => value && value !== "Not recorded")
+        .join(" / ") || "Not recorded";
     return `| ${item.id} | ${record.status} | ${record.priority} | ${record.type} | ${escapeCell(detail)} | ${escapeCell(gitInfo)} |`;
   });
   return [header, ...rows].join("\n");
 }
 
-function renderBacklog(items, paths) {
-  const sorted = [...items].sort(
-    (a, b) =>
-      PRIORITY_SCORE[a.record.priority] - PRIORITY_SCORE[b.record.priority] ||
-      a.id.localeCompare(b.id, undefined, { numeric: true }),
-  );
-  const lines = sorted.map((item) => {
-    const marker =
-      item.record.status === "Done"
-        ? "[x]"
-        : item.record.status === "Cancelled"
-          ? "[-]"
-          : ["In Progress", "In Review"].includes(item.record.status)
-            ? "[~]"
-            : "[ ]";
-    const relative = toPosix(path.relative(path.dirname(paths.backlogPath), item.path));
-    return `- ${marker} [${item.id}: ${item.record.title}](${relative}/STATUS.md) | ${item.record.status} | ${item.record.priority} | ${item.record.type}`;
-  });
-  return `# Backlog: generated work-item index
-
-> Generated from canonical \`ITEM.json\` records. Rebuild with \`work dashboard\`.
-> Do not edit this file as a source of truth.
-
-Status key: \`[ ]\` backlog/ready, \`[~]\` active/review, \`[x]\` done,
-\`[-]\` cancelled.
-
-## Items
-
-${lines.length ? lines.join("\n") : "_None yet._"}
-`;
-}
-
 function workItemsReadme() {
-  return `# Work items
+  return `# Local work items
 
-This folder is managed by the work-tracker plugin.
+This ignored folder is managed by the work-tracker plugin. It stays on this
+computer and is not copied through Git.
 
-- Each item has one folder containing \`ITEM.json\`, \`SPEC.md\`, \`STATUS.md\`,
-  and \`HISTORY.ndjson\`.
-- \`ITEM.json\` owns structured status, relationships, blockers, and Git evidence.
-- \`SPEC.md\` and the user-notes section of \`STATUS.md\` remain user-authored.
-- \`DASHBOARD.md\` and \`01-backlog/BACKLOG.md\` are generated and rebuildable.
-- Existing notes are preserved when an older manual folder is adopted.
+- Every work item is one flat \`WI-<number>-<name>/\` folder.
+- \`ITEM.yaml\` owns structured status, dates, relationships, blockers, and Git evidence.
+- \`REQUIREMENTS.md\` contains only owner-stated or owner-approved needs.
+- \`STATUS.md\` is the readable handoff. \`HISTORY.ndjson\` keeps dated events.
+- \`DASHBOARD.md\` is generated and rebuildable.
 
-Run \`work status\` for a concise orientation or \`work validate\` for CI.
+Run \`work status\` for orientation or \`work validate\` to check local records.
 `;
 }
 
 function validateConfig(config, errors) {
-  if (config.schema_version !== 1) errors.push("Tracker configuration schema_version must be 1");
+  if (config.schema_version !== 2) errors.push("Tracker configuration schema_version must be 2");
   if (!/^[A-Z][A-Z0-9]*$/.test(String(config.id_prefix ?? ""))) {
     errors.push("Tracker id_prefix must contain uppercase letters and digits");
   }
@@ -1410,41 +1728,30 @@ function validateConfig(config, errors) {
   if (typeof config.default_branch !== "string" || !config.default_branch.trim()) {
     errors.push("Tracker default_branch is required");
   }
-  if (config.github !== null && config.github !== undefined) {
-    if (config.github.authority !== "git") errors.push("GitHub adapter authority must be git");
-    if (!/^[^/]+\/[^/]+$/.test(String(config.github.repository ?? ""))) {
-      errors.push("GitHub adapter repository must be owner/name");
-    }
-    if (!Number.isInteger(config.github.project_number) || config.github.project_number < 1) {
-      errors.push("GitHub adapter project_number must be a positive integer");
-    }
-    if (!config.github.project_id || !config.github.status_field_id) {
-      errors.push("GitHub adapter project_id and status_field_id are required");
-    }
-    for (const status of STATUSES) {
-      if (!config.github.status_options?.[status]) {
-        errors.push(`GitHub adapter is missing status option ${status}`);
-      }
-    }
+  if (Object.hasOwn(config, "github") && config.github !== null) {
+    errors.push("Local tracker configuration cannot contain GitHub mirror settings");
   }
 }
 
 function validateRecord(item, errors, warnings) {
   const record = item.record;
   if (item.missingRecord || record._invalid_missing_record) {
-    errors.push(`${item.id}: ITEM.json is missing`);
+    errors.push(`${item.id}: ITEM.yaml is missing`);
     return;
   }
-  if (record.schema_version !== 1) errors.push(`${item.id}: schema_version must be 1`);
+  if (record.schema_version !== 2) errors.push(`${item.id}: schema_version must be 2`);
   if (record.id !== item.folderId) {
     errors.push(`${item.id}: record id ${record.id} does not match folder id ${item.folderId}`);
   }
   if (typeof record.title !== "string" || !record.title.trim()) errors.push(`${item.id}: title is required`);
+  if (typeof record.description !== "string" || !record.description.trim()) {
+    errors.push(`${item.id}: description is required`);
+  }
   if (!TYPES.includes(record.type)) errors.push(`${item.id}: invalid type ${record.type}`);
   if (!PRIORITIES.includes(record.priority)) errors.push(`${item.id}: invalid priority ${record.priority}`);
   if (!STATUSES.includes(record.status)) errors.push(`${item.id}: invalid status ${record.status}`);
-  if (!isIsoDate(record.created_at)) errors.push(`${item.id}: malformed created_at ${record.created_at}`);
-  if (!isIsoDate(record.updated_at)) errors.push(`${item.id}: malformed updated_at ${record.updated_at}`);
+  if (!isIsoDate(record.created_date)) errors.push(`${item.id}: malformed created_date ${record.created_date}`);
+  if (!isIsoDate(record.updated_date)) errors.push(`${item.id}: malformed updated_date ${record.updated_date}`);
   if (!["Done", "Cancelled"].includes(record.status) && !(record.next_step ?? "").trim()) {
     errors.push(`${item.id}: exact next_step is required while ${record.status}`);
   }
@@ -1453,13 +1760,14 @@ function validateRecord(item, errors, warnings) {
     errors.push(`${item.id}: relationships object is required`);
   } else {
     for (const type of RELATIONSHIPS) {
-      if (!Array.isArray(record.relationships[type])) errors.push(`${item.id}: relationships.${type} must be an array`);
-      else if (new Set(record.relationships[type]).size !== record.relationships[type].length) {
+      if (!Array.isArray(record.relationships[type])) {
+        errors.push(`${item.id}: relationships.${type} must be an array`);
+      } else if (new Set(record.relationships[type]).size !== record.relationships[type].length) {
         errors.push(`${item.id}: relationships.${type} contains duplicates`);
       }
     }
   }
-  if (!fs.existsSync(item.specPath)) errors.push(`${item.id}: SPEC.md is missing`);
+  validateRequirements(item, errors);
   if (!fs.existsSync(item.statusPath)) errors.push(`${item.id}: STATUS.md is missing`);
   if (!fs.existsSync(item.historyPath)) warnings.push(`${item.id}: HISTORY.ndjson is missing`);
   else {
@@ -1476,17 +1784,49 @@ function validateRecord(item, errors, warnings) {
       errors.push(error.message);
     }
   }
-  if (record.migration?.needs_review) warnings.push(`${item.id}: adopted metadata still needs owner review`);
+}
+
+function validateRequirements(item, errors) {
+  let requirements;
+  try {
+    requirements = readRequirements(item);
+  } catch (error) {
+    errors.push(error.message);
+    return;
+  }
+  const meta = requirements.meta;
+  if (!REQUIREMENTS_STATUSES.includes(meta.status)) {
+    errors.push(`${item.id}: requirements status must be refining or finalized`);
+  }
+  if (!isIsoDate(meta.created_date)) {
+    errors.push(`${item.id}: requirements created_date is malformed`);
+  }
+  if (!isIsoDate(meta.updated_date)) {
+    errors.push(`${item.id}: requirements updated_date is malformed`);
+  }
+  if (meta.status === "finalized") {
+    if (!isIsoDate(meta.finalized_date)) errors.push(`${item.id}: finalized requirements need finalized_date`);
+    if (typeof meta.approved_by !== "string" || !meta.approved_by.trim()) {
+      errors.push(`${item.id}: finalized requirements need approved_by`);
+    }
+    const missing = missingRequirementsSections(requirements.body);
+    if (missing.length) errors.push(`${item.id}: finalized requirements are missing ${missing.join(", ")}`);
+  }
+  if (["Ready", "In Progress", "In Review", "Done"].includes(item.record.status) && meta.status !== "finalized") {
+    errors.push(`${item.id}: status ${item.record.status} requires finalized requirements`);
+  }
 }
 
 function validateCompletionEvidence(tracker, item, errors, warnings) {
   const record = item.record;
   if (record.status !== "Done") return;
-  if (!record.git.landed_commit || !record.git.landed_at || !record.git.default_branch) {
-    errors.push(`${item.id}: Done requires landed_commit, landed_at, and default_branch`);
+  if (!record.git.landed_commit || !record.git.landed_date || !record.git.default_branch) {
+    errors.push(`${item.id}: Done requires landed_commit, landed_date, and default_branch`);
     return;
   }
-  if (!isIsoDate(record.git.landed_at)) errors.push(`${item.id}: malformed landed_at ${record.git.landed_at}`);
+  if (!isIsoDate(record.git.landed_date)) {
+    errors.push(`${item.id}: malformed landed_date ${record.git.landed_date}`);
+  }
   if (!commitExists(tracker.paths.repoRoot, record.git.landed_commit)) {
     warnings.push(`${item.id}: landed commit ${record.git.landed_commit} is not available in this clone`);
     return;
@@ -1497,7 +1837,9 @@ function validateCompletionEvidence(tracker, item, errors, warnings) {
     return;
   }
   if (!isAncestor(tracker.paths.repoRoot, record.git.landed_commit, ref)) {
-    errors.push(`${item.id}: false completion evidence; ${record.git.landed_commit.slice(0, 12)} is not in ${ref}`);
+    errors.push(
+      `${item.id}: false completion evidence; ${record.git.landed_commit.slice(0, 12)} is not in ${ref}`,
+    );
   }
 }
 
@@ -1570,6 +1912,10 @@ function listBranches(repoRoot) {
     "refs/remotes/origin",
   ]);
   return new Set(result.stdout.split(/\r?\n/).filter(Boolean));
+}
+
+function normalizeRelativePath(value) {
+  return String(value).split(path.sep).join("/").replace(/^\.\//, "").replace(/\/$/, "");
 }
 
 function escapeCell(value) {

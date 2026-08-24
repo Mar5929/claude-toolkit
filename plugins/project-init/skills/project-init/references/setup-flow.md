@@ -35,31 +35,32 @@ so they always know where they are.
   index, everything under `.claude/`, and the complete `knowledge/` tree).
   Record every skip. Never a nested `AGENTS.md`.
 - Every stack, as its own question: "Where do you track work items for this
-  project?" Offer a GitHub Projects board, Linear, Jira, files in this
-  repository, the BMAD method, or somewhere else / nothing yet.
+  project?" Offer a GitHub Projects board, Linear, Jira, local folders on this
+  computer, the BMAD method, or somewhere else / nothing yet.
   `work-tracking-choice.md` has the wording, what each answer does, and the
   GitHub board setup steps. Read it first.
 - For answers other than "somewhere else, or nothing yet", Gate 5 copies the
   `spec-before-you-build.md` rule and adds a one-line pointer to `CLAUDE.md` and
   `AGENTS.md` naming the tracker.
-- A GitHub Projects board is the only answer the toolkit builds itself. It
-  creates nothing without explicit approval: no board, no statuses, no labels, no
-  issues. It creates and changes nothing inside Linear, Jira, or any other
-  external tracker.
+- A GitHub Projects board and local folders are the two tracker choices the
+  toolkit can set up. GitHub setup creates nothing without explicit approval:
+  no board, no statuses, no labels, no issues. Local setup writes only after the
+  owner chooses it. The toolkit creates and changes nothing inside Linear, Jira,
+  or any other external tracker.
 - For the BMAD method, the toolkit only runs BMAD's own installer
   (`npx bmad-method install`), with approval, and stops there. BMAD holds the
   work, so it never pairs with `work-tracker` or a hand-built board, and its own
   planning workflows are the refinement session.
-- For "files in this repository": install the `work-tracker` plugin and run
-  `init`, per `work-items-structure.md`. It preserves the stage folders
-  `01-backlog/` through `04-archived/`, adds structured records and validation,
-  and safely adopts existing folders. Pairs with the `work-item-folders.md` rule
-  copied in Gate 5. The optional GitHub Project mirror of those files is the
-  plugin's own command and needs explicit approval too.
+- For "local folders on this computer": install the `work-tracker` plugin and
+  run `init`, per `work-items-structure.md`. It creates flat item folders under
+  Git-ignored `.work-items/`, uses YAML records, and requires owner-approved
+  `REQUIREMENTS.md` before work starts. Pairs with the `work-item-folders.md`
+  rule copied in Gate 5. If an older staged tracker exists, preview and approve
+  `work migrate` before copying it. Local mode has no GitHub mirror.
 - Salesforce / SFDX: offer the standard scaffold in
-  `salesforce-project-scaffold.md` (SFDX source plus a `delivery/` tree; its
-  `delivery/work-items/` uses the same work-items structure). Existing
-  `engagement/` projects keep that path and are never renamed automatically.
+  `salesforce-project-scaffold.md` (SFDX source plus a `delivery/` tree). Local
+  work tracking still uses root `.work-items/`; older `delivery/work-items/` or
+  `engagement/work-items/` trees use the preview-first conversion flow.
 - Salesforce / SFDX: do not create `delivery/knowledge-base/` in Gate 1. If
   Gate 3 installs project knowledge, `knowledge/` is the one curated home. If
   the owner declines it, offer a delivery knowledge base separately only when

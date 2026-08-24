@@ -19,8 +19,8 @@ files into a project, so every project it touches opts in deliberately.
 - **project-init** (`/project-init`): walks a NEW project through setup one
   skippable gate at a time, in a fixed order:
   1. Scaffolding and folder structure, plus a question of its own about where
-     work items are tracked (a GitHub Projects board, Linear, Jira, files in
-     this repository, the BMAD method, or nothing yet)
+     work items are tracked (a GitHub Projects board, Linear, Jira, local
+     folders on this computer, the BMAD method, or nothing yet)
   2. Hooks and guards
   3. Packaged project knowledge system under `knowledge/`
   4. Optional mechanical knowledge aids
@@ -125,13 +125,14 @@ project:
 - `setup-flow.md`: the ordered, gate-by-gate checklist project-init follows.
 - `work-tracking-choice.md`: the Gate 1 question about where work items are
   tracked, what each of the six answers does, and the step-by-step setup for a
-  GitHub Projects board. The board is the only answer the toolkit builds itself.
+  GitHub Projects board. The toolkit can also set up the local-folder answer.
   For the BMAD method it runs BMAD's own installer with approval and stops
   there. It creates and changes nothing inside Linear, Jira, or any other
   external tracker.
-- `work-items-structure.md`: what Gate 1 does for the "files in this repository"
-  answer. Installs the work-tracker, adopts existing folders safely, and
-  separately offers an optional GitHub Project mirror of those files.
+- `work-items-structure.md`: what Gate 1 does for the "local folders on this
+  computer" answer. Installs the flat, Git-ignored work-tracker, enforces
+  owner-approved requirements, and previews conversion before copying an older
+  staged tracker.
 - `thin-claudemd.md`: how Gate 5 writes a short CLAUDE.md that points at
   `.claude/rules/` instead of holding the rules inline, and the four things that
   must stay in the root file whatever else moves out.
@@ -172,14 +173,14 @@ plugin.
 - Gate 5 installs no general knowledge rule. Projects that accept Gate 3 receive
   `knowledge/README.md` as the one routing and operating manual; projects that
   decline it receive no knowledge policy.
-- For the "files in this repository" answer, Gate 1 offers `work-tracker` as the
-  one canonical task-status system. It can stay entirely local or, with separate
-  approval, create or link a GitHub Project mirroring those files. Existing
-  manual work-item folders are adopted without overwriting their specifications,
-  handoffs, or notes.
+- For the "local folders on this computer" answer, Gate 1 offers `work-tracker`
+  as the one canonical task-status system. It uses flat YAML records under
+  Git-ignored `.work-items/` and requires an owner-approved `REQUIREMENTS.md`
+  before work starts. Existing staged trackers use a preview-first copy that
+  leaves their original files untouched for review.
 - For the GitHub Projects board answer, Gate 1 sets up the board by hand from
   `work-tracking-choice.md` and no work-tracker code is involved. That board
-  holds the work; the mirror above only reflects files that hold it.
+  holds the shared work. Local-folder mode has no GitHub mirror.
 - project-sync detects knowledge layouts by system signatures, not folder names.
   It can install greenfield, dry-run and apply a flat #149 migration with an
   approval hash, or produce owner-review drafts for retired v3 without touching

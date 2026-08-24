@@ -36,15 +36,17 @@ Six parts, in plain words:
   what should happen in each one. Name the behavior, do not just name the case.
 
 Write them into the ticket itself, wherever the ticket lives. In a tracker that
-holds work as files in the repository, that is the work item's `SPEC.md`. In an
+holds local work as files, that is the work item's `REQUIREMENTS.md`. In an
 external tracker, it is the ticket body.
 
 ## The refinement session
 
 A refinement session is the owner and the agent working through those six parts
 together until they agree on all of them, one question at a time. The agent asks,
-recommends an answer, and writes down what the owner decides. It ends when every
-part is answered and nothing contradicts anything else.
+recommends an answer, and writes down what the owner decides. The agent never
+writes its suggestion or assumption into the requirements until the owner
+approves it. It ends when every part is answered and nothing contradicts
+anything else.
 
 The session is what this rule requires. No particular tool is. If the project has
 a skill installed for running a discovery interview one question at a time, use
