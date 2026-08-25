@@ -22,6 +22,7 @@ before creating anything.
 ├── scripts/
 │   ├── apex/                      # anonymous Apex scratch files
 │   └── soql/                      # SOQL scratch queries
+├── ai-external-knowledge/         # outside docs saved as Markdown for agents
 ├── delivery/                      # client-work artifacts
 │   ├── project-overview/          # raw project brief and client framing
 │   ├── archive/                   # retired or superseded material
@@ -29,7 +30,7 @@ before creating anything.
 │   ├── deliverables/              # finished artifacts handed to the client
 │   ├── deployment/                # cutover plans, deploy runbooks, release notes
 │   ├── meeting-notes/             # one file per call or working session
-│   ├── references/                # source specs, org exports, third-party docs
+│   ├── references/                # source specs, org exports, client docs
 │   └── data/
 │       └── backups/               # point-in-time data exports
 └── .claude/
@@ -59,13 +60,18 @@ that helps future agents work correctly belongs in `knowledge/`.
 | `deliverables/` | Finished artifacts handed to the client |
 | `deployment/` | Cutover plans, release evidence, and release notes. Reusable operating procedures belong in a skill, not in memory |
 | `meeting-notes/` | One file per call or working session |
-| `references/` | Source specs, org exports, third-party docs (read-only inputs) |
+| `references/` | Source specs, org exports, and client-supplied documents (read-only inputs). Public documentation captured for agents goes in root `ai-external-knowledge/` instead |
 | `data/` | Object and field mapping, transformation rules, load files |
 | `data/backups/` | Point-in-time data exports from the org(s) |
 
 `grill-me` saves discovery in the flat `knowledge/brainstorms/` collection. It does
 not save interviews under `project-overview/` or copy them into a system area.
 With project knowledge installed, the brainstorm links to every resulting specification.
+
+**`ai-external-knowledge/`**: public documentation pulled in with a scraper such
+as Firecrawl and saved as Markdown, one folder per topic. It sits at the project
+root, not under `delivery/`, because every project gets it whatever the stack.
+The `ai-external-knowledge.md` rule in `library/rules/general/` governs it.
 
 When project knowledge is selected, do not create a `delivery/knowledge-base/`
 folder. Use `knowledge/memory/`

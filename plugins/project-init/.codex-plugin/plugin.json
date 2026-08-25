@@ -1,6 +1,6 @@
 {
   "name": "project-init",
-  "version": "0.51.0",
+  "version": "0.52.0",
   "description": "New-project setup, toolkit sync, and machine setup, with one managed project-knowledge manual, safe migration, the local-folder work-tracker, and shared Claude and Codex routing.",
   "author": {
     "name": "Mike Rihm",

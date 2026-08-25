@@ -112,6 +112,12 @@ If the owner answers "somewhere else, or nothing yet", write nothing about
 tracking, and record that they were asked and declined so `project-sync` does not
 raise it every run.
 
+Offer `ai-external-knowledge/` at the project root for every stack. It holds
+outside documentation captured as Markdown so agents can read it locally, one
+folder per topic. Create it empty with a short `README.md`, or skip it until the
+project needs one. Gate 5 copies the `ai-external-knowledge.md` rule that governs
+it.
+
 **Salesforce / SFDX projects** have a standard scaffold worth reusing: see
 `references/salesforce-project-scaffold.md`. Offer it whenever the stack is
 Salesforce (org build, org merge, or managed service). It stays optional and is

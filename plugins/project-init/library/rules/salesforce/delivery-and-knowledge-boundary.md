@@ -44,6 +44,11 @@ owner chose local folders, that is the Git-ignored `.work-items/` tracker.
   project's persistent-information test.
 - Keep raw client meetings and client-provided artifacts in `delivery/`. Put
   internal exploration and owner interviews in `knowledge/brainstorms/`.
+- Public documentation captured for agents is neither delivery nor knowledge. It
+  goes in `ai-external-knowledge/` at the project root, which every project gets
+  whatever the stack. The `ai-external-knowledge.md` general rule governs it.
+  What the project decided after reading it still belongs in `knowledge/`,
+  linked back to the source file.
 - A source record may preserve what someone originally said. It does not become
   a second current authority. Link it to the approved specification or memory
   instead of copying current meaning back into the source.
