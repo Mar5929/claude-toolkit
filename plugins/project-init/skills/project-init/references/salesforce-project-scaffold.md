@@ -24,12 +24,13 @@ before creating anything.
 │   └── soql/                      # SOQL scratch queries
 ├── delivery/                      # client-work artifacts
 │   ├── project-overview/          # raw project brief and client framing
+│   ├── ai-external-knowledge/     # outside docs saved as Markdown for agents
 │   ├── archive/                   # retired or superseded material
 │   ├── communications/            # emails, Slack, client/team messages
 │   ├── deliverables/              # finished artifacts handed to the client
 │   ├── deployment/                # cutover plans, deploy runbooks, release notes
 │   ├── meeting-notes/             # one file per call or working session
-│   ├── references/                # source specs, org exports, third-party docs
+│   ├── references/                # source specs, org exports, client docs
 │   └── data/
 │       └── backups/               # point-in-time data exports
 └── .claude/
@@ -54,18 +55,25 @@ that helps future agents work correctly belongs in `knowledge/`.
 | Folder | Holds |
 |---|---|
 | `project-overview/` | Raw project brief or client-provided framing when the project needs that artifact home. Curated project framing belongs in `knowledge/project.md`, with other persistent circumstances under `knowledge/memory/` |
+| `ai-external-knowledge/` | Outside documentation captured as Markdown so agents can read it locally: vendor docs, API references, framework guides. One folder per topic. Raw source only |
 | `archive/` | Retired or superseded material kept for history |
 | `communications/` | Emails, Slack threads, client or team messages |
 | `deliverables/` | Finished artifacts handed to the client |
 | `deployment/` | Cutover plans, release evidence, and release notes. Reusable operating procedures belong in a skill, not in memory |
 | `meeting-notes/` | One file per call or working session |
-| `references/` | Source specs, org exports, third-party docs (read-only inputs) |
+| `references/` | Source specs, org exports, and client-supplied documents (read-only inputs). Public documentation captured for agents goes in `ai-external-knowledge/` instead |
 | `data/` | Object and field mapping, transformation rules, load files |
 | `data/backups/` | Point-in-time data exports from the org(s) |
 
 `grill-me` saves discovery in the flat `knowledge/brainstorms/` collection. It does
 not save interviews under `project-overview/` or copy them into a system area.
 With project knowledge installed, the brainstorm links to every resulting specification.
+
+`ai-external-knowledge/` is the home for public documentation pulled in with a
+scraper such as Firecrawl and saved as Markdown. It is raw source material, so
+it never becomes current project truth on its own. Nothing loads it at session
+start either, so when agents should read it by default, point at it from a rule,
+a skill, or an approved memory.
 
 When project knowledge is selected, do not create a `delivery/knowledge-base/`
 folder. Use `knowledge/memory/`

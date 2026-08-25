@@ -34,7 +34,7 @@ once before using project knowledge. Do not reload it on every prompt.
 | Current objective, blocker, and next step | `knowledge/current.md` |
 | Requirements and status for one piece of work | The work tracker |
 | Information needed only for this task | The conversation only |
-| Unchecked exploration | `knowledge/brainstorms/` |
+| `grill-me` scratch pad, unchecked exploration | `knowledge/brainstorms/` |
 | Outside source material | The project's reference or delivery files |
 | Past conversations | Session history |
 
