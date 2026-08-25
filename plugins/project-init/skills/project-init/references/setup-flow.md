@@ -57,6 +57,9 @@ so they always know where they are.
   `REQUIREMENTS.md` before work starts. Pairs with the `work-item-folders.md`
   rule copied in Gate 5. If an older staged tracker exists, preview and approve
   `work migrate` before copying it. Local mode has no GitHub mirror.
+- Every stack: offer `ai-external-knowledge/` at the project root, for outside
+  documentation captured as Markdown, one folder per topic. Empty with a short
+  `README.md` is fine. Gate 5 copies the `ai-external-knowledge.md` rule with it.
 - Salesforce / SFDX: offer the standard scaffold in
   `salesforce-project-scaffold.md` (SFDX source plus a `delivery/` tree). Local
   work tracking still uses root `.work-items/`; older `delivery/work-items/` or

@@ -26,8 +26,6 @@ while doing the client work. It owns:
 - project briefs and framing supplied by the client;
 - communications and meeting records;
 - raw client sources and org exports;
-- outside documentation captured as Markdown for agents to read, in
-  `ai-external-knowledge/`;
 - deployment records and release evidence;
 - data files and backups;
 - deliverables; and
@@ -46,11 +44,11 @@ owner chose local folders, that is the Git-ignored `.work-items/` tracker.
   project's persistent-information test.
 - Keep raw client meetings and client-provided artifacts in `delivery/`. Put
   internal exploration and owner interviews in `knowledge/brainstorms/`.
-- Put scraped public documentation in `delivery/ai-external-knowledge/`, saved
-  as Markdown, one folder per topic. It stays raw source material. What the
-  project decided after reading it belongs in `knowledge/`, linked back to the
-  source file. Nothing loads that folder at session start, so when agents should
-  read it by default, point at it from a rule, a skill, or an approved memory.
+- Public documentation captured for agents is neither delivery nor knowledge. It
+  goes in `ai-external-knowledge/` at the project root, which every project gets
+  whatever the stack. The `ai-external-knowledge.md` general rule governs it.
+  What the project decided after reading it still belongs in `knowledge/`,
+  linked back to the source file.
 - A source record may preserve what someone originally said. It does not become
   a second current authority. Link it to the approved specification or memory
   instead of copying current meaning back into the source.
