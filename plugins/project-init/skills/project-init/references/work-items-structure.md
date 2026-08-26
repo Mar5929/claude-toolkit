@@ -54,11 +54,21 @@ Do not create a parallel index or alternative status file.
 │   ├── REQUIREMENTS.md           # owner-approved needs
 │   ├── STATUS.md                 # readable current handoff
 │   └── HISTORY.ndjson            # complete dated command history
-└── WI-015-another-item/
+├── WI-015-another-item/
+└── archive/                      # items the owner set aside
+    └── WI-003-older-example/
 ```
 
-Every item folder stays directly under `.work-items/`. `ITEM.yaml.status` is
-authoritative. Status never moves the folder.
+Every open item folder stays directly under `.work-items/`. `ITEM.yaml.status`
+is authoritative. Status never moves the folder.
+
+Items inside `archive/` are archived, and sitting there is the only record of
+it. The owner drags folders in and out; no command is required. `work archive`
+and `work unarchive` do the same move for an agent. Archiving is organizing, not
+a status change, so nothing inside the item changes. Archived items are hidden
+from `work status`, `work next`, and the dashboard, are listed by
+`work status --archived`, stay validated and linked, and their ID numbers are
+never reused.
 
 ## Existing staged trackers
 

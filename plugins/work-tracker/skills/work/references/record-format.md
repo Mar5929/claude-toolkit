@@ -14,10 +14,31 @@
     STATUS.md
     HISTORY.ndjson
     other-owner-notes.md
+  archive/                         # items the owner set aside
+    WI-003-older-example/
 ```
 
-Every work-item folder is directly under `.work-items/`. Status changes only in
-`ITEM.yaml`; the folder never moves. There are no status folders.
+Every open work-item folder is directly under `.work-items/`. Status changes
+only in `ITEM.yaml`; status never moves the folder. There are no status folders.
+
+## The archive folder
+
+`.work-items/archive/` holds items the owner no longer wants to see. Sitting in
+that folder is the only record that an item is archived. Nothing is written into
+the item's own files, so the owner can drag folders in and out in a file
+manager and the next command already agrees with what they did. `work archive`
+and `work unarchive` move the same folders for an agent.
+
+Archiving is organizing, not a status change. Any item may be archived at any
+status, and archiving changes nothing inside it.
+
+- Hidden from `work status`, `work next`, and `DASHBOARD.md`.
+- Listed by `work status --archived`, and included in `work status --all`.
+- Still validated, still reachable by ID, and still linked in both directions.
+- Their ID numbers are never handed out again.
+
+Folders the owner nests inside `archive/` to group items are searched too.
+Anything in there that is not a work-item folder is ignored.
 
 Linked Git worktrees in one clone resolve to the primary checkout's
 `.work-items/` folder. Commands return its full path when called from a linked

@@ -41,6 +41,9 @@ const REQUIRED_REQUIREMENTS_SECTIONS = [
   "Edge cases",
 ];
 const LEGACY_STAGES = ["01-backlog", "02-in-progress", "03-completed", "04-archived"];
+const ARCHIVE_FOLDER = "archive";
+const ARCHIVE_MAX_DEPTH = 6;
+const ITEM_FOLDER_PATTERN = /^([A-Za-z][A-Za-z0-9]*-\d+)(?:-|$)/;
 const PRIORITY_SCORE = { urgent: 0, high: 1, medium: 2, low: 3 };
 const STATUS_SCORE = { "In Progress": 0, "In Review": 1, Ready: 2, Backlog: 3 };
 const INVERSES = {
@@ -66,6 +69,7 @@ export function trackerPaths(repoRoot, requestedPath) {
     repoRoot,
     sharedRoot,
     workRoot,
+    archiveRoot: path.join(workRoot, ARCHIVE_FOLDER),
     configPath: path.join(workRoot, ".work-tracker.yaml"),
     dashboardPath: path.join(workRoot, "DASHBOARD.md"),
     readmePath: path.join(workRoot, "README.md"),
@@ -409,12 +413,16 @@ export function updateRequirementsStatus(tracker, id, input) {
 }
 
 export function getStatus(tracker, options = {}) {
+  // Blockers and relationships are always resolved against every item, archived
+  // ones included, so an archived target never reads as missing.
+  const visible = options.archived ? tracker.items : tracker.items.filter((item) => !item.archived);
   const groups = {
-    backlog: tracker.items.filter((item) => ["Backlog", "Ready"].includes(item.record.status)),
-    active: tracker.items.filter((item) => ["In Progress", "In Review"].includes(item.record.status)),
-    completed: tracker.items.filter((item) => item.record.status === "Done"),
-    cancelled: tracker.items.filter((item) => item.record.status === "Cancelled"),
-    blocked: tracker.items.filter((item) => effectiveBlockers(item, tracker.items).length > 0),
+    backlog: visible.filter((item) => ["Backlog", "Ready"].includes(item.record.status)),
+    active: visible.filter((item) => ["In Progress", "In Review"].includes(item.record.status)),
+    completed: visible.filter((item) => item.record.status === "Done"),
+    cancelled: visible.filter((item) => item.record.status === "Cancelled"),
+    blocked: visible.filter((item) => effectiveBlockers(item, tracker.items).length > 0),
+    archived: tracker.items.filter((item) => item.archived),
   };
   const next = chooseNext(tracker, { allowNone: true });
   return {
@@ -427,12 +435,13 @@ export function getStatus(tracker, options = {}) {
       ]),
     ),
     next: next ? publicRecommendation(next) : null,
-    text: renderStatusList(groups, next, options.all, tracker.items),
+    text: renderStatusList(groups, next, options, tracker.items, tracker.paths),
   };
 }
 
 export function chooseNext(tracker, options = {}) {
   const candidates = tracker.items
+    .filter((item) => !item.archived)
     .filter((item) => ["Ready", "In Progress", "In Review"].includes(item.record.status))
     .map((item) => ({ item, blockers: effectiveBlockers(item, tracker.items) }))
     .filter((candidate) => candidate.blockers.length === 0)
@@ -774,6 +783,7 @@ export function validateTracker(tracker) {
     errors,
     warnings,
     item_count: tracker.items.length,
+    archived_count: tracker.items.filter((item) => item.archived).length,
     text: errors.length
       ? `Tracker invalid: ${errors.length} error(s), ${warnings.length} warning(s).\n${errors.map((error) => `- ${error}`).join("\n")}`
       : `Tracker valid: ${tracker.items.length} item(s), ${warnings.length} warning(s).${warnings.length ? `\n${warnings.map((warning) => `- ${warning}`).join("\n")}` : ""}`,
@@ -845,6 +855,52 @@ export function reconcileTracker(tracker) {
   };
 }
 
+export function archiveItem(tracker, id) {
+  return moveItemFolder(tracker, id, true);
+}
+
+export function unarchiveItem(tracker, id) {
+  return moveItemFolder(tracker, id, false);
+}
+
+function moveItemFolder(tracker, id, archive) {
+  return withLock(tracker.paths.lockPath, () => {
+    const item = requireItem(tracker, id);
+    if (Boolean(item.archived) === archive) {
+      return {
+        outcome: "unchanged",
+        id: item.id,
+        archived: archive,
+        path: displayTrackerPath(tracker.paths, item.path),
+        text: `${item.id} is already ${archive ? "archived" : "not archived"}. Nothing moved.`,
+      };
+    }
+    const destinationRoot = archive ? tracker.paths.archiveRoot : tracker.paths.workRoot;
+    const destination = path.join(destinationRoot, item.folderName);
+    if (fs.existsSync(destination)) {
+      throw new WorkError(`Refusing to overwrite existing folder ${destination}`, "path_exists");
+    }
+    fs.mkdirSync(destinationRoot, { recursive: true });
+    fs.renameSync(item.path, destination);
+    const moved = itemCandidate(destination, item.folderName, item.folderId ?? item.id, archive);
+    const entry = historyEntry(
+      archive ? "archived" : "unarchived",
+      archive
+        ? "Folder moved into the archive folder. Status and requirements were not changed."
+        : "Folder moved out of the archive folder. Status and requirements were not changed.",
+    );
+    atomicWrite(moved.historyPath, appendHistoryContent(moved, entry));
+    const shown = displayTrackerPath(tracker.paths, destination);
+    return {
+      outcome: archive ? "archived" : "unarchived",
+      id: item.id,
+      archived: archive,
+      path: shown,
+      text: `${item.id} moved to ${shown}. Its status is unchanged.`,
+    };
+  });
+}
+
 export function regenerate(tracker) {
   atomicWrite(tracker.paths.dashboardPath, renderDashboard(tracker.items));
   return {
@@ -875,9 +931,30 @@ function scanFlatItemFolders(paths) {
   const candidates = [];
   for (const entry of fs.readdirSync(paths.workRoot, { withFileTypes: true })) {
     if (!entry.isDirectory() || entry.name.startsWith(".")) continue;
-    const match = entry.name.match(/^([A-Za-z][A-Za-z0-9]*-\d+)(?:-|$)/);
+    if (path.join(paths.workRoot, entry.name) === paths.archiveRoot) continue;
+    const match = entry.name.match(ITEM_FOLDER_PATTERN);
     if (!match) continue;
-    candidates.push(itemCandidate(path.join(paths.workRoot, entry.name), entry.name, match[1]));
+    candidates.push(itemCandidate(path.join(paths.workRoot, entry.name), entry.name, match[1], false));
+  }
+  return [...candidates, ...scanArchivedItemFolders(paths)];
+}
+
+// The archive folder is the only record that an item is archived. The owner
+// moves folders in and out of it by hand, so the location is read fresh on
+// every command and nothing about it is stored in the item's own files.
+// Folders the owner nests inside the archive to group things are searched too.
+function scanArchivedItemFolders(paths, root = paths.archiveRoot, depth = 0) {
+  if (depth > ARCHIVE_MAX_DEPTH || !fs.existsSync(root)) return [];
+  const candidates = [];
+  for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
+    if (!entry.isDirectory() || entry.name.startsWith(".")) continue;
+    const entryPath = path.join(root, entry.name);
+    const match = entry.name.match(ITEM_FOLDER_PATTERN);
+    if (match) {
+      candidates.push(itemCandidate(entryPath, entry.name, match[1], true));
+      continue;
+    }
+    candidates.push(...scanArchivedItemFolders(paths, entryPath, depth + 1));
   }
   return candidates;
 }
@@ -893,7 +970,7 @@ function scanLegacyItemFolders(sourceRoot) {
   for (const root of roots) {
     for (const entry of fs.readdirSync(root.path, { withFileTypes: true })) {
       if (!entry.isDirectory()) continue;
-      const match = entry.name.match(/^([A-Za-z][A-Za-z0-9]*-\d+)(?:-|$)/);
+      const match = entry.name.match(ITEM_FOLDER_PATTERN);
       if (!match) continue;
       candidates.push({
         ...itemCandidate(path.join(root.path, entry.name), entry.name, match[1]),
@@ -904,11 +981,12 @@ function scanLegacyItemFolders(sourceRoot) {
   return candidates;
 }
 
-function itemCandidate(itemPath, folderName, rawId) {
+function itemCandidate(itemPath, folderName, rawId, archived = false) {
   const id = rawId.toUpperCase();
   return {
     id,
     folderName,
+    archived,
     path: itemPath,
     itemPath: path.join(itemPath, "ITEM.yaml"),
     legacyItemPath: path.join(itemPath, "ITEM.json"),
@@ -931,6 +1009,7 @@ function ensureTrackerShell(paths, options = {}) {
     });
     createdConfig = true;
   }
+  fs.mkdirSync(paths.archiveRoot, { recursive: true });
   if (!fs.existsSync(paths.readmePath)) atomicWrite(paths.readmePath, workItemsReadme());
   if (!fs.existsSync(paths.dashboardPath)) atomicWrite(paths.dashboardPath, renderDashboard([]));
   return createdConfig;
@@ -1545,6 +1624,7 @@ function publicItem(item, paths) {
     title: item.record.title,
     description: item.record.description,
     status: item.record.status,
+    archived: Boolean(item.archived),
     requirements_status: requirementStatusValue,
     priority: item.record.priority,
     type: item.record.type,
@@ -1580,7 +1660,9 @@ function publicRecommendation(recommendation) {
   };
 }
 
-function renderStatusList(groups, next, all, allItems) {
+function renderStatusList(groups, next, options, allItems, paths) {
+  const all = Boolean(options?.all);
+  const showArchived = Boolean(options?.archived);
   const lines = [];
   if (groups.active.length) {
     lines.push("Active:");
@@ -1600,20 +1682,22 @@ function renderStatusList(groups, next, all, allItems) {
   }
   lines.push(next ? `Next: ${next.item.id} (${next.reason})` : "Next: no actionable item");
   lines.push(
-    `Counts: backlog ${groups.backlog.length}, active ${groups.active.length}, completed ${groups.completed.length}, cancelled ${groups.cancelled.length}.`,
+    `Counts: backlog ${groups.backlog.length}, active ${groups.active.length}, completed ${groups.completed.length}, cancelled ${groups.cancelled.length}, archived ${groups.archived.length}.`,
   );
+  const sections = [];
   if (all) {
-    for (const [label, items] of [
-      ["Backlog", groups.backlog],
-      ["Completed", groups.completed],
-      ["Cancelled", groups.cancelled],
-    ]) {
-      lines.push(`${label}:`);
-      for (const item of items) {
-        lines.push(`- ${item.id} [${item.record.status}] ${item.record.title}; ${gitSummary(item.record)}`);
-      }
-      if (!items.length) lines.push("- None");
+    sections.push(["Backlog", groups.backlog], ["Completed", groups.completed], ["Cancelled", groups.cancelled]);
+  }
+  if (all || showArchived) sections.push(["Archived", groups.archived]);
+  for (const [label, items] of sections) {
+    lines.push(`${label}:`);
+    for (const item of items) {
+      const where = label === "Archived" && paths ? `; at ${displayTrackerPath(paths, item.path)}` : "";
+      lines.push(
+        `- ${item.id} [${item.record.status}] ${item.record.title}; ${gitSummary(item.record)}${where}`,
+      );
     }
+    if (!items.length) lines.push("- None");
   }
   return lines.join("\n");
 }
@@ -1629,10 +1713,11 @@ function gitSummary(record) {
   return values.length ? values.join(", ") : "Git evidence not recorded";
 }
 
-function renderDashboard(items) {
+function renderDashboard(allItems) {
+  const items = allItems.filter((item) => !item.archived);
   const actionable = items
     .filter((item) => ["Ready", "In Progress", "In Review"].includes(item.record.status))
-    .map((item) => ({ item, blockers: effectiveBlockers(item, items) }));
+    .map((item) => ({ item, blockers: effectiveBlockers(item, allItems) }));
   const active = actionable.filter((candidate) =>
     ["In Progress", "In Review"].includes(candidate.item.record.status),
   );
@@ -1708,12 +1793,18 @@ This ignored folder is managed by the work-tracker plugin. It stays on this
 computer and is not copied through Git.
 
 - Every work item is one flat \`WI-<number>-<name>/\` folder.
+- Drag folders into \`archive/\` to get them out of the way. Nothing else is
+  needed: sitting in that folder is what makes an item archived, and dragging
+  one back out undoes it. Archived items are hidden from \`work status\`,
+  \`work next\`, and the dashboard. \`work status --archived\` lists them, and
+  their ID numbers are never handed out again.
 - \`ITEM.yaml\` owns structured status, dates, relationships, blockers, and Git evidence.
 - \`REQUIREMENTS.md\` contains only owner-stated or owner-approved needs.
 - \`STATUS.md\` is the readable handoff. \`HISTORY.ndjson\` keeps dated events.
 - \`DASHBOARD.md\` is generated and rebuildable.
 
 Run \`work status\` for orientation or \`work validate\` to check local records.
+Validation covers archived items too.
 `;
 }
 

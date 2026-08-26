@@ -51,6 +51,8 @@ Every project uses the same hidden root folder:
     REQUIREMENTS.md
     STATUS.md
     HISTORY.ndjson
+  archive/
+    WI-003-older-example/
 ```
 
 `work init` adds `/.work-items/` to `.gitignore`. The work records stay in the
@@ -62,8 +64,30 @@ Linked Git worktrees in the same clone share the primary checkout's
 shared folder's full path, so agents can open the same records without copying
 them. Separate clones and computers do not share it.
 
-Every work item sits directly inside `.work-items/`. There are no status
-folders. Status changes in `ITEM.yaml`; the folder stays put.
+Every open work item sits directly inside `.work-items/`. There are no status
+folders. Status changes in `ITEM.yaml`; status never moves the folder.
+
+## The archive folder
+
+`.work-items/archive/` is where items go when the owner no longer wants to see
+them. Expanding the tracker in an editor then shows the archive folder and the
+items still in play, instead of everything ever created.
+
+Sitting in that folder is the only record that an item is archived. Nothing is
+written into the item's own files, so the owner can drag folders in and out and
+the next command already agrees. `work archive` and `work unarchive` move the
+same folders for an agent.
+
+Archiving is organizing, not a status change. Any item may be archived at any
+status, and nothing inside it changes.
+
+- Hidden from `work status`, `work next`, and `DASHBOARD.md`.
+- Listed by `work status --archived`, and included in `work status --all`.
+- Still validated, still reachable by ID, still linked in both directions.
+- Their ID numbers are never handed out again.
+
+Folders the owner nests inside `archive/` to group items are searched too.
+Anything in there that is not a work-item folder is ignored.
 
 ## The requirements gate
 
@@ -105,6 +129,8 @@ work update
 work link
 work finish
 work landed
+work archive
+work unarchive
 work reconcile
 work validate
 work dashboard

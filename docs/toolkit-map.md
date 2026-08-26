@@ -21,7 +21,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | [sf-architect-solutioning](../plugins/sf-architect-solutioning/README.md) | Salesforce solution architect: approved solution plan before any build | `sf-architect-solutioning` | `/plugin install sf-architect-solutioning` | Install and go |
 | [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git lifecycle workflows | `pull-latest`, `reset-to-remote`, `merge-and-clean-up` | `/plugin install git-workflows` | Install and go |
 | [hooks-library](../plugins/hooks-library/README.md) | Reusable style, writing, Git-attribution, and Salesforce deployment hooks; system-specific knowledge hooks stay with second-brain | `hooks-library` | `/plugin install hooks-library` | Wires into settings |
-| [work-tracker](../plugins/work-tracker/README.md) | Flat local backlog under Git-ignored `.work-items/`, with YAML records, owner-approved requirements, handoffs, relationships, landing proof, and preview-first conversion of older staged trackers | `work` | `/plugin install work-tracker` | Sets up a project |
+| [work-tracker](../plugins/work-tracker/README.md) | Flat local backlog under Git-ignored `.work-items/`, with YAML records, owner-approved requirements, handoffs, relationships, landing proof, an `archive/` folder for set-aside items, and preview-first conversion of older staged trackers | `work` | `/plugin install work-tracker` | Sets up a project |
 | [session-skills](../plugins/session-skills/README.md) | The eight things you reach for inside one conversation: play back a brain dump, say it simply, get grilled on it, check the spec before building, unslop a draft, hand it off, recap it, and track what is still open | `braindump`, `explain-simply`, `grill-me`, `handoff`, `session-summary`, `spec-check`, `track-tasks`, `unslop` | `/plugin install session-skills` | Install and go |
 
 ## Skills at a glance
@@ -41,7 +41,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | pull-latest | git-workflows | Get current with the remote without rewriting or discarding | `/pull-latest` |
 | reset-to-remote | git-workflows | Hard-reset a repo to mirror the remote, safely gated | `/reset-to-remote` |
 | merge-and-clean-up | git-workflows | Merge one approved PR and remove only its completed branch and worktree | `/merge-and-clean-up`, "merge and clean up" |
-| work | work-tracker | Manage local work items in flat Git-ignored folders and safely convert the older staged tracker | `/work`, "add this to the backlog", "what should I work on next?" |
+| work | work-tracker | Manage local work items in flat Git-ignored folders, archive the ones the owner has set aside, and safely convert the older staged tracker | `/work`, "add this to the backlog", "what should I work on next?" |
 | braindump | session-skills | Play a pasted brain dump back in very simple words, list each ask and every guess, and wait for the owner's yes before any work starts | `/braindump`, "play that back", "tell me what you heard" |
 | explain-simply | session-skills | Re-explain the last answer or a named file as short bullets, simplifying the wording and never the facts | `/explain-simply`, "explain that like I'm five", "put that in plain bullets", "simpler" |
 | grill-me | session-skills | Stress-test an idea one question at a time and preserve every answer | `/grill-me`, "grill me" |
@@ -245,6 +245,12 @@ The genuine watch-items are called out at the end.
   tree used four status folders under root `work-items/`, Salesforce
   `delivery/work-items/`, or `engagement/work-items/`. `work migrate` previews
   and then copies those items without deleting or overwriting the old source.
+- **The archive folder versus the older `04-archived` status folder.** Not the
+  same idea. `04-archived` was a status: an item's folder moved between four
+  stage folders as its state changed. `.work-items/archive/` is not a status.
+  Any item may sit there at any status, its `ITEM.yaml` is untouched, and it is
+  hidden from the everyday views only so the tracker folder stays short. Status
+  still lives in `ITEM.yaml` and still never moves a folder.
 - **work-tracker versus project knowledge.** work-tracker owns task status,
   blockers, work-item relationships, branch and pull-request evidence, and the
   current handoff. Project knowledge may link specifications and persistent memory to a work-item
