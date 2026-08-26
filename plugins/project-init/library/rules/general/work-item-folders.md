@@ -58,9 +58,22 @@ makes it `Ready`. Do not start anything else.
 
 Date every `STATUS.md` entry absolutely, never "yesterday" or "last week".
 
-The structured status in `ITEM.yaml` is authoritative. Work-item folders remain
-directly under `.work-items/` for every status. `DASHBOARD.md` is generated and
-is never a source of truth.
+The structured status in `ITEM.yaml` is authoritative. An open work-item folder
+sits directly under `.work-items/` whatever its status; status never moves it.
+`DASHBOARD.md` is generated and is never a source of truth.
+
+## Leave the archive folder to the owner
+
+`.work-items/archive/` holds items the owner set aside. Sitting in that folder is
+the only record of it, so the owner archives things by dragging folders and no
+command runs. Use `work archive` and `work unarchive` when the owner asks you to
+move one.
+
+Archiving is organizing, not a status change. Never archive an item on your own
+initiative, and never treat it as a way to close, cancel, or finish work.
+Archived items are hidden from `work status`, `work next`, and the dashboard;
+`work status --archived` lists them. Their IDs are never reused and links to them
+still work, so an archived item is set aside, not gone.
 
 If the plugin is not installed but an older staged tracker exists, preserve it
 and offer the preview-first `work migrate` flow. Never move or delete it without

@@ -1,6 +1,6 @@
 {
   "name": "work-tracker",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Local work tracking for Claude and Codex with flat Git-ignored folders, YAML records, owner-approved requirements, relationships, and Git landing verification.",
   "author": {
     "name": "Mike Rihm",

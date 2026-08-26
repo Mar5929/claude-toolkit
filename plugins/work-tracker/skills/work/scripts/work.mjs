@@ -15,6 +15,7 @@ import {
 } from "./lib/common.mjs";
 import {
   addItem,
+  archiveItem,
   finishItem,
   getStatus,
   initialize,
@@ -27,13 +28,14 @@ import {
   regenerate,
   requirementsStatus,
   startItem,
+  unarchiveItem,
   unlinkItems,
   updateItem,
   updateRequirementsStatus,
   validateTracker,
 } from "./lib/tracker.mjs";
 
-const VERSION = "2.0.0";
+const VERSION = "2.1.0";
 
 export async function main(argv = process.argv.slice(2)) {
   const { positionals, flags } = parseArgs(argv);
@@ -111,8 +113,23 @@ export async function main(argv = process.argv.slice(2)) {
       break;
     }
     case "status": {
-      assertAllowedFlags(flags, ["cwd", "all", "json"]);
-      result = getStatus(loadTracker(repoRoot), { all: Boolean(flags.all) });
+      assertAllowedFlags(flags, ["cwd", "all", "archived", "json"]);
+      result = getStatus(loadTracker(repoRoot), {
+        all: Boolean(flags.all),
+        archived: Boolean(flags.archived),
+      });
+      break;
+    }
+    case "archive": {
+      assertAllowedFlags(flags, ["cwd", "json"]);
+      const id = requiredPositional(positionals, 1, "work-item ID");
+      result = archiveItem(loadTracker(repoRoot), id);
+      break;
+    }
+    case "unarchive": {
+      assertAllowedFlags(flags, ["cwd", "json"]);
+      const id = requiredPositional(positionals, 1, "work-item ID");
+      result = unarchiveItem(loadTracker(repoRoot), id);
       break;
     }
     case "next":
@@ -237,18 +254,23 @@ Usage:
   work requirements WI-001
   work requirements WI-001 --finalize --approved-by NAME
   work requirements WI-001 --reopen
-  work status [--all] [--json]
+  work status [--all] [--archived] [--json]
   work next [--json]
   work start WI-001 [--branch BRANCH] [--next-step STEP]
   work update WI-001 [--status Ready] [--next-step STEP] [--blocker REASON] [--clear-blocker ID]
   work link WI-001 --type depends_on --target WI-002 [--remove]
   work finish WI-001 [--commit SHA] [--pr NUMBER_OR_URL]
   work landed WI-001
+  work archive WI-001
+  work unarchive WI-001
   work reconcile
   work validate [--json]
   work dashboard
 
 Local files always live in .work-items and Git ignores that folder.
+Items inside .work-items/archive are archived. Moving the folder by hand does
+the same thing as the archive command. Archived items are hidden from status,
+next, and the dashboard, and their ID numbers are never reused.
 Statuses: Backlog, Ready, In Progress, In Review, Done, Cancelled.
 Requirements statuses: refining, finalized.
 Types: bug, enhancement, task.
