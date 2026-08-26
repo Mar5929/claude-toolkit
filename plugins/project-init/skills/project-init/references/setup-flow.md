@@ -187,6 +187,15 @@ so they always know where they are.
 
 **Gate 5: SOUL.md, CLAUDE.md, and the rules folder**
 
+- Two fixed lines go above the title in both root files: the SOUL route (only
+  when `SOUL.md` exists and Gate 3 was declined), then the owner's self-check
+  instruction, verbatim, in every project. `thin-claudemd.md` has the exact
+  wording; do not reword it or put it in only one file.
+- `AGENTS.md` is a short pointer file: fixed lines, title, an instruction to read
+  `CLAUDE.md` then `.claude/rules/` then the folder file, the rules too dangerous
+  to wait, and the shared Communication and Project knowledge sections. No
+  codemap, no folder detail. Codex expands no import syntax, so write it in
+  words. `root-file-examples.md` has a finished pair.
 - Ask whether the owner wants to create a root `SOUL.md`. Explain that it holds
   the agent's identity, communication style, defaults, and behaviors to avoid.
   If yes, work with the owner to write it. Do not install a fixed template or

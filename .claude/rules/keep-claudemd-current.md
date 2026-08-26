@@ -96,32 +96,38 @@ Then keep the shape:
 If a trim would renumber sections that other files cross-reference, say so and
 let the owner decide before renumbering.
 
-## AGENTS.md is not a copy of CLAUDE.md, on purpose
+## AGENTS.md points at CLAUDE.md; it is not a second copy
 
-The two root files serve two programs that load rules differently. They are
-allowed to differ and must not be flattened back into copies of each other.
+The two root files serve two programs that load files differently.
 
 - **Claude Code loads every `.md` file in `.claude/rules/` automatically** at
   session start, with no import needed. So CLAUDE.md can point at a rule instead
   of repeating it, and repeating one there is the duplication this rule bans.
-- **Codex loads AGENTS.md files but not Claude rule files.** It does not load
-  `CLAUDE.md` or `.claude/rules/`, and `@` file references are ordinary text to
-  it. Root AGENTS.md therefore points Codex at the rule folder and carries any
-  safety instruction needed before that folder can be read.
+- **Codex reads `AGENTS.md` and nothing else on its own.** Not `CLAUDE.md`, not
+  a folder `CLAUDE.md`, not `.claude/rules/`. It does follow a plain instruction
+  to open a file, which is what AGENTS.md gives it: read `CLAUDE.md`, then every
+  rule file, then the folder file before editing in a folder.
 
-Two hard constraints on AGENTS.md:
+So AGENTS.md stays short. It carries the fixed lines above the title, the title,
+those read instructions, the rules whose breach causes real damage in short form,
+and the shared `Communication` and `Project knowledge` sections. It does not
+carry the codemap, the structural pointers, or the folder detail. One copy of
+each thing, and a pointer to it.
 
-- **Codex caps it at 32 KB** and silently drops whatever is past that. Keep the
-  file under about 24 KB and check with `wc -c AGENTS.md` (or
-  `(Get-Item AGENTS.md).Length`) after editing.
-- **Never add an import expecting it to load something.** Neither program
-  expands a wildcard such as `@.claude/rules/**`. Claude Code resolves the text
-  after `@` as a literal path and drops it with no warning when the file does
-  not exist, so the line looks like it works and does nothing. Codex has no
-  import syntax at all.
+Three hard constraints on AGENTS.md:
 
-When a rule in AGENTS.md's always-in-force set changes, update its rule file and
-that section together, in the same change.
+- **Never add an import expecting it to load something.** Codex has no import
+  syntax at all, so an `@CLAUDE.md` line sits there as plain text and loads
+  nothing while looking like it worked. Claude Code does expand `@` in
+  `CLAUDE.md`, but resolves the text after it as a literal path and drops the
+  line with no warning when the file does not exist. Neither program expands a
+  wildcard such as `@.claude/rules/**`. Write the instruction in words instead.
+- **Codex caps it at 32 KB** and silently drops whatever is past that. The
+  pointer version is nowhere near it, which is part of the point. Check with
+  `wc -c AGENTS.md` (or `(Get-Item AGENTS.md).Length`) after editing.
+- **A rule too dangerous to wait stays written out**, in short form, naming the
+  rule file that holds the whole thing. When one of those rules changes, update
+  its rule file and that section together, in the same change.
 
 ## This rule covers the folder CLAUDE.md files too
 
@@ -139,10 +145,10 @@ while you are in there.
   the start of every session. A folder file loads only when an agent reads a
   file in that folder, and never when an agent only runs a command against it. A
   folder file may point at a rule; it may never hold the only copy of one.
-- **Never let anything Codex needs live only in a CLAUDE.md.** Codex never reads
-  Claude instruction files. Detail that leaves the root `CLAUDE.md` for a folder
-  file stays in AGENTS.md in full. That is why the two root files may differ in
-  length below the shared block.
+- **AGENTS.md sends Codex into the folder files rather than copying them.**
+  Codex reads no `CLAUDE.md` on its own, so AGENTS.md tells it to open a
+  folder's file before editing files there. That instruction is what keeps
+  folder detail in one place, and it is why the two root files differ in length.
 - **Do not add nested `AGENTS.md` files in toolkit projects.** Codex supports
   layered AGENTS.md files, but this toolkit keeps one root file so the Claude and
   Codex maps can be audited together.

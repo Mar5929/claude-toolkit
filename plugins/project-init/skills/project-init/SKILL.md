@@ -293,6 +293,12 @@ project's `.claude/rules/` folder, copied from the toolkit's rules libraries.
 CLAUDE.md stays thin and points at that folder. Read
 `../../library/rules/general/README.md` for the rule list.
 
+- **Put the two fixed lines above the title in both root files.** The SOUL
+  route, only when `SOUL.md` exists and Gate 3 was declined. Then the owner's
+  self-check instruction, in every project, verbatim and on one line:
+  `After you generate your response. Simulate the user saying "Huh? What are you saying?". Then regenerate your response based on that.`
+  Never reword, shorten, or repunctuate it, and never put it in only one of the
+  two files. `references/thin-claudemd.md` has the order and the reasoning.
 - **Offer a project `SOUL.md`.** Ask: "Do you want to create a `SOUL.md` for
   this project? It defines who the agent is, how it communicates, its defaults,
   and what it should avoid." If the owner says yes, work with them to write the
@@ -360,9 +366,14 @@ CLAUDE.md stays thin and points at that folder. Read
   a specifications folder or any reference data the project keeps. Nothing else
   in a session mentions those folders, so an agent reaches them only from here.
   This is the routing job, and it is the part usually left out.
-- **`AGENTS.md` keeps the folder detail in full.** Codex does not read Claude
-  instruction files, so anything the root `CLAUDE.md` handed to a folder file
-  stays written out in root `AGENTS.md`. Toolkit projects deliberately keep one
+- **`AGENTS.md` is a short pointer file, not a second copy.** Codex reads no
+  `CLAUDE.md` and no rule file on its own, and it expands no import syntax, so an
+  `@CLAUDE.md` line would load nothing. It does follow a plain instruction to
+  open a file. So `AGENTS.md` carries the fixed lines, the title, an instruction
+  to read `CLAUDE.md` then every file in `.claude/rules/` then the folder file
+  before editing in a folder, the rules whose breach causes real damage in short
+  form, and the shared `Communication` and `Project knowledge` sections. It
+  carries no codemap and no folder detail. Toolkit projects deliberately keep one
   root AGENTS.md even though Codex supports layered files.
 - **Add a `.claude/rules/README.md`** that indexes what each copied rule file
   does, so the folder is self-describing.
@@ -481,6 +492,9 @@ library.
   three tests a line has to pass before it goes in, how Gate 5 writes a thin
   CLAUDE.md that points at `.claude/rules/` instead of holding the rules inline,
   and what must stay in the root file.
+- `references/root-file-examples.md`: a finished `CLAUDE.md` and the matching
+  pointer-model `AGENTS.md` for one example project, plus the two fixed lines
+  that sit above the title. Read it in Gate 5, alongside `thin-claudemd.md`.
 - `references/folder-claudemd.md`: the short `CLAUDE.md` Gate 1 writes inside
   each major folder. What goes in one, what never does, which folders get one,
   and which are skipped. Read it in Gate 1, before creating folders.

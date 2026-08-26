@@ -16,7 +16,7 @@ every other project receives.
 
 | File | What it does |
 |---|---|
-| `keep-claudemd-current.md` | What `CLAUDE.md` and `AGENTS.md` are for: carry the few things an agent must know before it acts, and route it to where everything in the repository lives. The codemap names the context sources too. Three tests keep the rest out. Update the file before a session ends whenever it surfaces a new path, convention, decision, or workflow, and prune while you are in there. |
+| `keep-claudemd-current.md` | What `CLAUDE.md` and `AGENTS.md` are for: carry the few things an agent must know before it acts, and route it to where everything in the repository lives. The codemap names the context sources too. Three tests keep the rest out. Update the file before a session ends whenever it surfaces a new path, convention, decision, or workflow, and prune while you are in there. `AGENTS.md` is a short pointer file, not a second copy. |
 | `honest-verification.md` | Do not claim more than you verified. Report failures with their output. |
 | `parallel-agent-sessions.md` | Sharing a repo with other live sessions: look before you edit, work in your own worktree and branch, never `git add -A`, land by pull request. |
 | `recommend-the-best-solution.md` | Propose the well-built solution and name the quick-patch tradeoff, and do not build more than was asked. |

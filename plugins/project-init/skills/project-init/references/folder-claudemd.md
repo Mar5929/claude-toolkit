@@ -31,11 +31,11 @@ Ten to twenty lines. Three things:
   file in that folder, and never when an agent only runs a command against it.
   A file that loads sometimes cannot carry a rule that applies always. A folder
   file may point at a rule; it may never hold the only copy of one.
-- **Anything Codex must always know.** Codex reads `AGENTS.md` and nothing else.
-  It never reads any `CLAUDE.md`, root or nested. So everything Codex needs
-  stays in the root `AGENTS.md` in full, including any detail that left the root
-  `CLAUDE.md` for a folder file. The two root files are allowed to differ for
-  exactly this reason.
+- **A rule too dangerous for Codex to reach late.** Codex reads `AGENTS.md` and
+  nothing else on its own. Root `AGENTS.md` tells it to open a folder's
+  `CLAUDE.md` before editing files there, so ordinary folder detail is safe to
+  keep here. What is not safe is a rule that must land before the folder is
+  opened at all: that stays written out in root `AGENTS.md`.
 - **A second copy of a `README.md` index.** The README stays the one index. The
   folder file points at it and never repeats it, so the two cannot drift apart.
 - **Live status.** Current phase, next action, and open work belong in the work
