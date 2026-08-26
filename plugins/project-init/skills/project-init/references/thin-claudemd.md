@@ -4,6 +4,44 @@ Root instructions orient a session quickly. Behavioral rules stay in
 `.claude/rules/`; persistent project truth stays under `knowledge/`; folder detail
 stays in the folder's own `CLAUDE.md` where Claude can load it on demand.
 
+## What the two root files are for
+
+Say this to the owner while writing them, because it decides every later
+question about what goes in.
+
+`CLAUDE.md` and `AGENTS.md` are the first thing an agent reads in a session,
+before it knows anything else about the project. They do two jobs:
+
+1. **Carry what an agent must know before it does anything**: how to talk to the
+   owner, the rules whose breach causes real damage, and the startup route into
+   project knowledge.
+2. **Route.** When the owner asks for something, the root file is how the agent
+   knows where that thing lives in this repository, so it can go open it.
+
+The second job is the one that gets built badly. An agent asked to design a
+Salesforce role hierarchy should be able to see from the root file that
+`ai-external-knowledge/` holds vendor documentation captured for questions like
+that, and go read it. A source nothing points at is a source nobody opens. So
+the codemap names the context sources, not only the code folders.
+
+Space in these files is the most expensive space in the project. A line that
+does neither job is not harmless: it takes attention away from the lines that do.
+
+## Three tests before a line goes in
+
+Run them on every line, and again on any line an agent added later. Any yes
+means it stays out.
+
+1. **Could an agent find this out in one command?** That a folder is
+   Git-ignored, that a file is generated, that a directory is empty right now.
+2. **Is it about where something came from, or when it arrived?** "This folder
+   came in with the latest toolkit sync." Git history owns that.
+3. **Would a session that never read this line still do the right thing and
+   still find what it needed?**
+
+`keep-claudemd-current.md` in the general rules library carries the same three
+tests, so every later session applies them too.
+
 ## What Gate 5 does
 
 1. Ask whether the owner wants to create a root `SOUL.md`. If yes, work with
@@ -44,7 +82,10 @@ In this order:
 - A title and one-line project description.
 - `Read .claude/rules first.`
 - When project knowledge is installed, the exact short activation above.
-- A codemap with one line per major folder or module.
+- A codemap with one line per major folder or module, naming the context
+  sources alongside the code: captured outside documentation, the
+  specifications folder, any reference data the project keeps. Each line says
+  what is inside and when to open it.
 - Structural pointers that are not behavior rules, including the chosen work
   tracker and how a refined item is marked.
 - Only the MCP instructions for servers this project actually uses.
@@ -92,7 +133,7 @@ folder:
 - how to talk to the owner;
 - pointers to rules whose breach causes real damage;
 - the project-knowledge startup route; and
-- one codemap line per folder or module.
+- one codemap line per folder, module, or context source.
 
 Everything else routes to its one canonical home.
 

@@ -194,6 +194,10 @@ so they always know where they are.
   was declined, put `Read SOUL.md first and follow it throughout this session.`
   at the top of both root files. When Gate 3 ran, its loader and fallback own
   that route. If the owner declines, create no file and add no reference.
+- The root files do two jobs: carry the few things an agent must know before it
+  acts, and route, so the agent knows where each thing lives in this repository.
+  Say that to the owner up front, and keep out anything that does neither.
+  `thin-claudemd.md` has the three tests a line has to pass.
 - Behavioral rules go into the project's `.claude/rules/` as individual files,
   not into CLAUDE.md. See `thin-claudemd.md` and `library/rules/general/README.md`.
 - Copy the general rules from `library/rules/general/` into `.claude/rules/`: every
@@ -219,6 +223,10 @@ so they always know where they are.
 - Write a thin CLAUDE.md _with_ the user: what it is, codemap and structural
   pointers, a `Read .claude/rules` line, which gates ran. Add a
   `.claude/rules/README.md` index.
+- The codemap names the context sources too, not only the code: give
+  `ai-external-knowledge/` a line saying what topics are captured there and when
+  to open it, and the same for a specifications folder or reference data. An
+  agent reaches those folders only from here.
 - Keep the codemap to one line per folder, pointing at that folder's own
   `CLAUDE.md` for the detail. Four things stay in the root file whatever else
   moves: how to talk to the owner, the pointers to the most dangerous rules, the

@@ -384,6 +384,20 @@ presence. Read the file and report:
   folder or module plus any load-bearing invariant. Flag entries carrying dated
   history ("2026-07-17 changed X, decision #17"); that history belongs in Git
   and the applicable specification or persistent memory.
+- **Lines an agent never needed.** Run the three tests from `thin-claudemd.md`
+  over the file and flag every line where any answer is yes: could an agent find
+  this out in one command (a folder is Git-ignored, a file is generated, a
+  directory is empty), is it about where something came from or when it arrived
+  ("this folder came in with the latest toolkit sync"), would a session that
+  never read the line still do the right thing. These arrive one at a time,
+  usually from a sub-agent tidying up at the end of a task, and in an old file
+  they are most of the bulk.
+- **Context sources the codemap does not name.** Routing is the root file's
+  second job. Look for folders holding context an agent should pull in on
+  demand: `ai-external-knowledge/`, a specifications folder, captured reference
+  data. Any one the codemap does not name is a folder no agent will open,
+  however good what is in it. Propose the line, saying what is inside and when
+  to open it.
 - **Live state that belongs in the status doc.** Current phase, next action, and
   open TODOs drift the moment they are written here. Flag them for work-tracker
   or the live status doc.

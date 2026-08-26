@@ -1,12 +1,56 @@
 # Keep CLAUDE.md Current
 
-Keep this file current. If, during a session, we identify something future
-sessions would need to know (a new convention, a corrected assumption, a
-decision, a gotcha, a changed workflow), update CLAUDE.md to capture it before
-the task ends. In particular, whenever you add or change a path, a project
-instruction, or an agent/session workflow, check whether CLAUDE.md needs
-updating to match. Do not let hard-won context evaporate when the session
-closes. If unsure whether something belongs here, ask; a slightly-too-full
+## What the root files are for
+
+`CLAUDE.md` and `AGENTS.md` are the first thing an agent reads in a session,
+before it knows anything else about the project. They do two jobs and nothing
+else.
+
+**They carry what an agent must know before it does anything.** How to talk to
+the owner, the rules whose breach causes real damage, and the startup route into
+project knowledge.
+
+**They route.** When someone asks for something, the root file is how the agent
+knows where that thing lives in this repository, so it can go open it. Every
+folder, every index, and every source of context the project keeps on hand gets
+one line naming what is in it and when to open it.
+
+Routing is the half that gets forgotten. Take an agent asked to design a
+Salesforce role hierarchy. The project may already hold vendor documentation on
+sharing and visibility, captured into `ai-external-knowledge/` for that exact
+question. The agent uses it only if the root file says the folder is there and
+what is in it. A source nothing points at is a source nobody opens.
+
+Space in these two files is the most expensive space in the project. Every line
+takes attention away from every other line, so a line that does neither of the
+two jobs above is not harmless. It costs.
+
+## Keep them current
+
+If, during a session, we identify something future sessions would need to know
+(a new convention, a corrected assumption, a decision, a gotcha, a changed
+workflow), update CLAUDE.md to capture it before the task ends. In particular,
+whenever you add or change a path, a project instruction, or an agent/session
+workflow, check whether CLAUDE.md needs updating to match. Do not let hard-won
+context evaporate when the session closes.
+
+## Three tests before you add a line
+
+Most lines that do not belong here were written by an agent being helpful at the
+end of a task, often a sub-agent that saw one corner of the project. Run these
+three tests first. Any yes means leave it out.
+
+1. **Could an agent find this out in one command?** That a folder is
+   Git-ignored, that a file is generated, that a directory is empty right now:
+   `git check-ignore`, `ls`, and opening the file answer all of those faster
+   than a line here, and they are never out of date.
+2. **Is it about where something came from, or when it arrived?** "This folder
+   came in with the latest toolkit sync" tells an agent nothing about how to
+   work. Git history owns that.
+3. **Would a session that never read this line still do the right thing and
+   still find what it needed?** Then the line is not earning its place.
+
+If a line passes all three and you are still unsure, ask. A slightly-too-full
 CLAUDE.md beats a stale one.
 
 ## Current also means thin
@@ -35,6 +79,11 @@ Then keep the shape:
   something ("gate on this flag, never that one"). A codemap entry that has
   grown into a dated changelog is the single most common way this file bloats:
   collapse it, and let git and the design doc carry the history.
+- **The codemap names the context sources too, not just the code.** A folder of
+  captured vendor documentation, a specifications folder, a reference dataset:
+  one line each, saying what is inside and when to open it. These lines are
+  worth the most, because nothing else in the session will mention those folders
+  and an agent will not go looking.
 - **Say each rule once.** If a rule is already a file in `.claude/rules/`, do not
   restate it in CLAUDE.md. Claude Code loads every `.md` file in that folder
   automatically at session start, so the rule is already in force and a second
