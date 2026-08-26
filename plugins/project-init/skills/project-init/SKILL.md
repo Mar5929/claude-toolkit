@@ -293,12 +293,15 @@ project's `.claude/rules/` folder, copied from the toolkit's rules libraries.
 CLAUDE.md stays thin and points at that folder. Read
 `../../library/rules/general/README.md` for the rule list.
 
-- **Put the two fixed lines above the title in both root files.** The SOUL
-  route, only when `SOUL.md` exists and Gate 3 was declined. Then the owner's
-  self-check instruction, in every project, verbatim and on one line:
+- **Put the three fixed lines above the title in both root files.** The SOUL
+  route first, only when `SOUL.md` exists and Gate 3 was declined. Then two the
+  owner supplies, in every project, verbatim:
   `After you generate your response. Simulate the user saying "Huh? What are you saying?". Then regenerate your response based on that.`
-  Never reword, shorten, or repunctuate it, and never put it in only one of the
-  two files. `references/thin-claudemd.md` has the order and the reasoning.
+  and
+  `Always execute work with the context in mind that the user will likely continue work across multiple AI coding sessions where the session context is cleared and picked up again. You must assist the user in helping establish that continuity across sessions while not adding context that might pollute future agents and skew them. Information must be curated and intentional.`
+  Never reword, shorten, or repunctuate either one, and never put one in only
+  one of the two files. `references/thin-claudemd.md` has the order and the
+  reasoning; `references/root-file-examples.md` shows them in place.
 - **Offer a project `SOUL.md`.** Ask: "Do you want to create a `SOUL.md` for
   this project? It defines who the agent is, how it communicates, its defaults,
   and what it should avoid." If the owner says yes, work with them to write the
@@ -493,7 +496,7 @@ library.
   CLAUDE.md that points at `.claude/rules/` instead of holding the rules inline,
   and what must stay in the root file.
 - `references/root-file-examples.md`: a finished `CLAUDE.md` and the matching
-  pointer-model `AGENTS.md` for one example project, plus the two fixed lines
+  pointer-model `AGENTS.md` for one example project, plus the three fixed lines
   that sit above the title. Read it in Gate 5, alongside `thin-claudemd.md`.
 - `references/folder-claudemd.md`: the short `CLAUDE.md` Gate 1 writes inside
   each major folder. What goes in one, what never does, which folders get one,

@@ -55,7 +55,8 @@ tests, so every later session applies them too.
 
 ### The fixed lines above the title
 
-Two instructions sit above the title in both root files, in this order.
+Three instructions sit above the title in both root files, in this order. The
+first is conditional; the other two are in every project.
 
 **1. The SOUL route**, only when `SOUL.md` exists and the project declined the
 project knowledge system:
@@ -79,6 +80,20 @@ differently. Write it as a single line, not as a block quote.
 It sits at the top rather than in `.claude/rules/` or the output style on the
 owner's instruction, and it is the one voice-shaped line the root files carry.
 
+**3. The continuity instruction**, in every project, verbatim:
+
+> Always execute work with the context in mind that the user will likely
+> continue work across multiple AI coding sessions where the session context is
+> cleared and picked up again. You must assist the user in helping establish
+> that continuity across sessions while not adding context that might pollute
+> future agents and skew them. Information must be curated and intentional.
+
+Same handling: copy it exactly, in both files, on one line, and do not reword or
+shorten it. It is quoted here for readability; in a root file it is one line.
+It is the standing reason the rest of this document exists. A session works
+knowing its context will be cleared and picked up by an agent that was not here,
+so it writes down what that agent needs and leaves out what would mislead it.
+
 The project knowledge procedure is packaged by the `second-brain` plugin. Do
 not copy a retired large memory rule, verifier instructions, or the full
 knowledge specification into either root file.
@@ -96,7 +111,8 @@ Both root files carry only this knowledge activation when the system is present:
 In this order:
 
 - When `SOUL.md` exists without project knowledge, the instruction to read it.
-- The verbatim self-check instruction, always.
+- The verbatim self-check instruction, then the verbatim continuity
+  instruction. Both always.
 - A title and one-line project description.
 - `Read .claude/rules first.`
 - When project knowledge is installed, the exact short activation above.

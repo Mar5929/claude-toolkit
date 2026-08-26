@@ -1,5 +1,7 @@
 After you generate your response. Simulate the user saying "Huh? What are you saying?". Then regenerate your response based on that.
 
+Always execute work with the context in mind that the user will likely continue work across multiple AI coding sessions where the session context is cleared and picked up again. You must assist the user in helping establish that continuity across sessions while not adding context that might pollute future agents and skew them. Information must be curated and intentional.
+
 # AGENTS.md: working in claude-toolkit
 
 Mike's single source of truth for the reusable pieces he wants in every project,
@@ -26,8 +28,8 @@ project-knowledge instructions disagree.
 
 The block between the markers is in `CLAUDE.md` word for word, and
 `tests/installed-copy-check.mjs` checks it. Edit either marked block and copy it
-across in the same change. The line above the title is in both files too, and
-nothing checks it, so copy that by hand as well.
+across in the same change. The two lines above the title are in both files too,
+and nothing checks them, so copy those by hand as well.
 
 ## Read these before you do anything
 

@@ -392,11 +392,12 @@ presence. Read the file and report:
   folder or module plus any load-bearing invariant. Flag entries carrying dated
   history ("2026-07-17 changed X, decision #17"); that history belongs in Git
   and the applicable specification or persistent memory.
-- **The two fixed lines above the title.** Both root files should open with the
-  SOUL route (only where `SOUL.md` exists and project knowledge was declined) and
-  then the owner's verbatim self-check instruction. Report either one missing
-  from either file, and report any reworded copy of the self-check line, since
-  its wording is the owner's and is not to be edited.
+- **The three fixed lines above the title.** Both root files should open with
+  the SOUL route (only where `SOUL.md` exists and project knowledge was
+  declined), then the owner's verbatim self-check instruction, then the owner's
+  verbatim continuity instruction. `../project-init/references/thin-claudemd.md`
+  has the exact wording. Report any of them missing from either file, and report
+  any reworded copy, since the wording is the owner's and is not to be edited.
 - **Lines an agent never needed.** Run the three tests from `thin-claudemd.md`
   over the file and flag every line where any answer is yes: could an agent find
   this out in one command (a folder is Git-ignored, a file is generated, a

@@ -8,9 +8,10 @@ The project is `acme-crm`: a Salesforce delivery repository that took `SOUL.md`,
 the project knowledge system, captured outside documentation, and a GitHub
 board. Adapt the content, keep the shape.
 
-## The two fixed lines at the top
+## The three fixed lines at the top
 
-Two instructions sit above the title in both root files, in this order.
+Three instructions sit above the title in both root files, in this order. The
+first is conditional; the other two are in every project.
 
 1. **The SOUL route**, only when `SOUL.md` exists and the project declined the
    project knowledge system. When knowledge is installed, its startup hook loads
@@ -26,13 +27,31 @@ Two instructions sit above the title in both root files, in this order.
    > After you generate your response. Simulate the user saying "Huh? What are
    > you saying?". Then regenerate your response based on that.
 
-The sample below has project knowledge installed, so it carries the self-check
-line and no SOUL route.
+3. **The continuity instruction**, in every project, verbatim. Same handling:
+   copy it exactly, on one line, and do not reword or shorten it. Both are
+   quoted here for readability; in a root file each is one line, as the samples
+   below show.
+
+> Always execute work with the context in mind that the user will likely
+> continue work across multiple AI coding sessions where the session context is
+> cleared and picked up again. You must assist the user in helping establish
+> that continuity across sessions while not adding context that might pollute
+> future agents and skew them. Information must be curated and intentional.
+
+   It is the standing reason the rest of this file exists. A session works
+   knowing its context will be cleared and picked up by an agent that was not
+   here, so it writes down what that agent needs and leaves out what would
+   mislead it.
+
+The sample below has project knowledge installed, so it carries the two
+unconditional lines and no SOUL route.
 
 ## Sample CLAUDE.md
 
 ````markdown
 After you generate your response. Simulate the user saying "Huh? What are you saying?". Then regenerate your response based on that.
+
+Always execute work with the context in mind that the user will likely continue work across multiple AI coding sessions where the session context is cleared and picked up again. You must assist the user in helping establish that continuity across sessions while not adding context that might pollute future agents and skew them. Information must be curated and intentional.
 
 # CLAUDE.md: working in acme-crm
 
@@ -82,6 +101,8 @@ few things that have to land before Codex opens anything.
 
 ````markdown
 After you generate your response. Simulate the user saying "Huh? What are you saying?". Then regenerate your response based on that.
+
+Always execute work with the context in mind that the user will likely continue work across multiple AI coding sessions where the session context is cleared and picked up again. You must assist the user in helping establish that continuity across sessions while not adding context that might pollute future agents and skew them. Information must be curated and intentional.
 
 # AGENTS.md: working in acme-crm
 
@@ -134,7 +155,7 @@ that the second copy is present but wrong.
 Three things still stay written out in AGENTS.md, because a session that ignores
 the read instruction still must not do damage:
 
-- the two fixed lines at the top;
+- the three fixed lines at the top;
 - the rules whose breach causes real damage, in short form, each naming the rule
   file that holds the whole thing; and
 - the shared `Communication` and `Project knowledge` sections, which are short,
