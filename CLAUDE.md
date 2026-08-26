@@ -1,3 +1,7 @@
+After you generate your response. Simulate the user saying "Huh? What are you saying?". Then regenerate your response based on that.
+
+Always execute work with the context in mind that the user will likely continue work across multiple AI coding sessions where the session context is cleared and picked up again. You must assist the user in helping establish that continuity across sessions while not adding context that might pollute future agents and skew them. Information must be curated and intentional.
+
 # CLAUDE.md: working in claude-toolkit
 
 Mike's single source of truth for the reusable pieces he wants in every project,
@@ -22,11 +26,16 @@ project-knowledge instructions disagree.
 
 <!-- shared-with-agents-md:end -->
 
-The block between the markers is in `AGENTS.md` word for word. Everything below
-it may differ, and does: this file keeps one line per folder and sends detail to
-that folder's own `CLAUDE.md`, while `AGENTS.md` keeps that detail because Codex
-never reads Claude instruction files. `tests/installed-copy-check.mjs` compares
-only the marked block. Change matching passages below it in both files by hand.
+The block between the markers is in `AGENTS.md` word for word, and
+`tests/installed-copy-check.mjs` checks it. So are the two lines above the title,
+which nothing checks, so copy those by hand.
+
+Everything else differs on purpose. This file is the map. `AGENTS.md` is a short
+pointer that tells Codex to come read this file, then `.claude/rules/`, then the
+output style, then a folder's own `CLAUDE.md` before editing there. It holds no
+codemap and no folder detail, so there is nothing below the markers to keep in
+step. What it does hold is the handful of rules too dangerous for Codex to reach
+late; when one of those changes, change it there too.
 
 ## Codemap
 

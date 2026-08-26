@@ -116,7 +116,8 @@ Offer `ai-external-knowledge/` at the project root for every stack. It holds
 outside documentation captured as Markdown so agents can read it locally, one
 folder per topic. Create it empty with a short `README.md`, or skip it until the
 project needs one. Gate 5 copies the `ai-external-knowledge.md` rule that governs
-it.
+it, and gives the folder its own codemap line in `CLAUDE.md` and `AGENTS.md`.
+Without that line an agent never learns the folder is there.
 
 **Salesforce / SFDX projects** have a standard scaffold worth reusing: see
 `references/salesforce-project-scaffold.md`. Offer it whenever the stack is
@@ -280,12 +281,27 @@ Markdown knowledge system.
 root orientation files and the `.claude/rules/` folder that holds the
 behavioral rules.
 
+`CLAUDE.md` and `AGENTS.md` are the first thing an agent reads in a session.
+They do two jobs: carry the few things it must know before it acts, and route,
+so that when the owner asks for something the agent knows where in this
+repository that thing lives. Tell the owner that while writing them, and keep
+out anything that does neither job. `references/thin-claudemd.md` has the exact
+structure and the three tests a line has to pass.
+
 The behavioral rules do NOT go inside CLAUDE.md. They are individual files in the
 project's `.claude/rules/` folder, copied from the toolkit's rules libraries.
-CLAUDE.md stays thin and points at that folder. Read `references/thin-claudemd.md`
-for the exact structure, and `../../library/rules/general/README.md` for the rule
-list.
+CLAUDE.md stays thin and points at that folder. Read
+`../../library/rules/general/README.md` for the rule list.
 
+- **Put the three fixed lines above the title in both root files.** The SOUL
+  route first, only when `SOUL.md` exists and Gate 3 was declined. Then two the
+  owner supplies, in every project, verbatim:
+  `After you generate your response. Simulate the user saying "Huh? What are you saying?". Then regenerate your response based on that.`
+  and
+  `Always execute work with the context in mind that the user will likely continue work across multiple AI coding sessions where the session context is cleared and picked up again. You must assist the user in helping establish that continuity across sessions while not adding context that might pollute future agents and skew them. Information must be curated and intentional.`
+  Never reword, shorten, or repunctuate either one, and never put one in only
+  one of the two files. `references/thin-claudemd.md` has the order and the
+  reasoning; `references/root-file-examples.md` shows them in place.
 - **Offer a project `SOUL.md`.** Ask: "Do you want to create a `SOUL.md` for
   this project? It defines who the agent is, how it communicates, its defaults,
   and what it should avoid." If the owner says yes, work with them to write the
@@ -347,9 +363,20 @@ list.
   the owner, the pointers to the most dangerous rules, the project-knowledge
   startup route, and the codemap lines themselves. `references/thin-claudemd.md` has
   the list under "What must stay in the root file".
-- **`AGENTS.md` keeps the folder detail in full.** Codex does not read Claude
-  instruction files, so anything the root `CLAUDE.md` handed to a folder file
-  stays written out in root `AGENTS.md`. Toolkit projects deliberately keep one
+- **The codemap names the context sources, not only the code.** Give
+  `ai-external-knowledge/` its own line saying what topics are captured there
+  and to open it before designing against an outside system, and do the same for
+  a specifications folder or any reference data the project keeps. Nothing else
+  in a session mentions those folders, so an agent reaches them only from here.
+  This is the routing job, and it is the part usually left out.
+- **`AGENTS.md` is a short pointer file, not a second copy.** Codex reads no
+  `CLAUDE.md` and no rule file on its own, and it expands no import syntax, so an
+  `@CLAUDE.md` line would load nothing. It does follow a plain instruction to
+  open a file. So `AGENTS.md` carries the fixed lines, the title, an instruction
+  to read `CLAUDE.md` then every file in `.claude/rules/` then the folder file
+  before editing in a folder, the rules whose breach causes real damage in short
+  form, and the shared `Communication` and `Project knowledge` sections. It
+  carries no codemap and no folder detail. Toolkit projects deliberately keep one
   root AGENTS.md even though Codex supports layered files.
 - **Add a `.claude/rules/README.md`** that indexes what each copied rule file
   does, so the folder is self-describing.
@@ -463,9 +490,14 @@ library.
 - `references/salesforce-project-scaffold.md`: the standard Gate 1 layout for a
   Salesforce / SFDX project (SFDX source plus a `delivery/` tree). Read it in
   Gate 1 when the stack is Salesforce.
-- `references/thin-claudemd.md`: how Gate 5 writes a thin CLAUDE.md that points
-  at `.claude/rules/` instead of holding the rules inline, and what must stay in
-  the root file.
+- `references/thin-claudemd.md`: what the two root files are for (carry the few
+  things an agent must know first, and route it to where everything lives), the
+  three tests a line has to pass before it goes in, how Gate 5 writes a thin
+  CLAUDE.md that points at `.claude/rules/` instead of holding the rules inline,
+  and what must stay in the root file.
+- `references/root-file-examples.md`: a finished `CLAUDE.md` and the matching
+  pointer-model `AGENTS.md` for one example project, plus the three fixed lines
+  that sit above the title. Read it in Gate 5, alongside `thin-claudemd.md`.
 - `references/folder-claudemd.md`: the short `CLAUDE.md` Gate 1 writes inside
   each major folder. What goes in one, what never does, which folders get one,
   and which are skipped. Read it in Gate 1, before creating folders.
