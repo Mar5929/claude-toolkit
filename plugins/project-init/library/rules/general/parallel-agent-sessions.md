@@ -144,6 +144,9 @@ assuming it was the only one in the repository.
 
 ## Related rules
 
+- `knowledge-direct-commit.md`: the owner-approved exception for saves that
+  touch only `knowledge/`. Where the knowledge system is installed, those land
+  directly on the default branch, including from the primary checkout.
 - `work-item-folders.md`: the work tracker and how identifiers are assigned.
 - `ask-before-assuming.md`: when the state of the repository is unclear, ask
   rather than guess.

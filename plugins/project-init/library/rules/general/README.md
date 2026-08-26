@@ -53,6 +53,7 @@ would drift from the first.
 
 | File | Copy it when | What it does |
 |---|---|---|
+| `knowledge-direct-commit.md` | the project runs the toolkit knowledge system (the `second-brain` plugin's managed `knowledge/` folder) | A save that touches only `knowledge/` commits straight to the default branch instead of going through a worktree and pull request. The owner-approved exception to `parallel-agent-sessions.md`: content approval still comes from the knowledge manual's save flow, and the agent falls back to the normal flow on branch protection, a real conflict, or any file outside `knowledge/`. |
 | `dependency-graph.md` | the project installed the graphify code graph (see `../../guides/graphify-dependency-graph.md`) | Answer "what calls this?" and "what breaks if I change it?" from the graph, citing file and line, instead of from a text search or memory. Owns the freshness duty too: keep the automatic rebuild hooks installed, once per clone, because git hooks are never committed and a fresh clone silently has none. Also covers keeping the build offline, never committing it, and naming the graph's blind spot (runtime dispatch and configuration wiring) before saying "nothing uses this". |
 
 A Salesforce project gets `../salesforce/dependency-graph.md` instead: the

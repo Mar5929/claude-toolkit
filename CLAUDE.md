@@ -97,8 +97,10 @@ to this repo:
 
 - Worktrees are siblings of the primary checkout, named
   `claude-toolkit-<issue number>`, on a branch named `issue-<number>-<slug>`.
-- Knowledge writes land in the worktree and reach `main` when the pull request
-  merges, so two sessions saving at once both rebuild the two generated
+- A save that touches only `knowledge/` lands directly on `main`, per
+  `.claude/rules/knowledge-direct-commit.md`. Knowledge writes made during
+  branch work land in the worktree instead and reach `main` when the pull
+  request merges. Either way, two sessions saving at once both rebuild the two generated
   indexes, `knowledge/memory/memory-index.md` and
   `knowledge/specs/spec-index.md`. Git can merge those with no reported conflict
   and still leave them wrong. After bringing your branch current, run
