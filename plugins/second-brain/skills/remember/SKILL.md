@@ -11,11 +11,17 @@ description: >-
 
 # remember
 
-Use `knowledge/README.md` as the authority for placement, the save test, items
-that never get saved, file shape, approval, trust, and lifecycle. Reopen only
-the needed sections after compaction. If the manual is missing, do not invent a
-replacement policy or write lasting knowledge. Report the gap and recommend
-`project-sync`.
+## Read the save rules first
+
+Before gathering a single candidate, open `knowledge/README.md` and read its
+save-test and never-save sections in full. Do this every time this skill runs.
+It is not conditional on how long the session has been, on compaction, or on
+having read the manual earlier.
+
+That manual is the authority for placement, the save test, items that never get
+saved, file shape, approval, trust, and lifecycle. If it is missing, do not
+invent a replacement policy or write lasting knowledge. Report the gap and
+recommend `project-sync`.
 
 ## 1. Gather and scope candidates
 
@@ -58,8 +64,16 @@ Markdown file shape or approval boundary.
 ## 3. Draft and wait
 
 Choose the canonical home and draft the standalone meaning. Then show the
-numbered approval group required by the manual, one group per file. Do not show
-full file text unless asked.
+numbered approval group required by the manual, one group per file, with a
+verdict block attached to that group. Do not show full file text unless asked.
+
+The verdict block is one line per save-test question, numbered 1 to 7. Each line
+says pass or fail and the reason in a few words. The line for question 5 names
+what you actually searched: the files, rules, and config you opened. Saying
+nothing was found without naming what you looked at is not a verdict.
+
+A candidate that fails any question is not proposed. Say in one line that it was
+dropped and which question failed.
 
 Wait. Nothing is queued, cached for later, or written on silence, an unclear
 answer, or a request to see more text.

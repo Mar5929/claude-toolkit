@@ -309,11 +309,14 @@ last three decide whether it is safe to write. Ask all seven.
 
 **Is it safe to write?**
 
-5. **Can this be found or worked out from what is already there?** The code,
-   configuration, documentation, a specification, a rule, a skill, the work
-   tracker, or an existing memory. If yes, link to it. Never write a second copy;
-   the two will drift and then neither can be trusted. Two files saying the same
-   thing from genuinely different sources are two pieces of evidence, not a copy.
+5. **Does the fact already exist in a committed file, a loaded rule, or an
+   existing memory?** Search the code, configuration, documentation, the
+   specifications, the rules, the skills, the work tracker, and saved memory. If
+   it exists in any of them, the proposal may only be a pointer to it. Restating
+   the content is a rejection even when the pointer is included. This is
+   mechanical, not a judgment call, because the two copies drift and then neither
+   can be trusted. Two files saying the same thing from genuinely different
+   sources are two pieces of evidence, not a copy.
 6. **Can it say where it came from and where to go check it?** A memory that
    cannot say where it came from does not get written.
 7. **Could a future agent read this as meaning more than it does?** Something
@@ -380,10 +383,16 @@ answers.
 > **Tags:** the tags, and anything else about how it is being filed.
 > **Assumptions:** anything being assumed, guessed at, or not checked. Write
 > `None` when there is none.
+> **Verdict:** one line per save-test question, 1 to 7, each saying pass or fail
+> and why. The line for question 5 names what was actually searched, by file,
+> rule, and config.
+
+The verdict lines are shown with the bullets so the owner sees the reasoning on
+screen before answering. Weak reasoning is then visible instead of hidden.
 
 What the owner is approving is **What**, **Project value**, and **Source**. The
-other three are shown so he can see how it is being filed, and he may change any
-of them.
+other bullets are shown so he can see how it is being filed, and he may change
+any of them.
 
 Rules for the review:
 
