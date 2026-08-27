@@ -424,3 +424,191 @@ test("local mode has no GitHub mirror command", () => {
   assert.equal(result.status, 1);
   assert.equal(JSON.parse(result.stderr).error, "unknown_command");
 });
+
+function archivePath(repo) {
+  return path.join(repo, ".work-items", "archive");
+}
+
+function archivedItemPath(repo, id) {
+  const root = archivePath(repo);
+  const folder = fs.readdirSync(root).find((name) => name.startsWith(`${id}-`));
+  if (!folder) throw new Error(`Missing archived ${id}`);
+  return path.join(root, folder);
+}
+
+test("init creates the archive folder", () => {
+  const repo = makeRepo();
+  init(repo);
+  assert.ok(fs.existsSync(archivePath(repo)));
+  assert.match(fs.readFileSync(path.join(repo, ".work-items", "README.md"), "utf8"), /archive\//);
+});
+
+test("archive moves a folder, hides it from the everyday views, and keeps it findable", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Old finished thing");
+  add(repo, "Live thing");
+  finalize(repo, "WI-002");
+
+  const archived = jsonWork(repo, ["archive", "WI-001"]).json;
+  assert.equal(archived.outcome, "archived");
+  assert.equal(archived.archived, true);
+  assert.equal(archived.path, ".work-items/archive/WI-001-old-finished-thing");
+  assert.ok(fs.existsSync(archivedItemPath(repo, "WI-001")));
+  assert.equal(fs.existsSync(path.join(repo, ".work-items", "WI-001-old-finished-thing")), false);
+
+  const status = jsonWork(repo, ["status"]).json;
+  assert.equal(status.counts.archived, 1);
+  assert.equal(status.counts.backlog, 1);
+  assert.deepEqual(
+    status.groups.backlog.map((item) => item.id),
+    ["WI-002"],
+  );
+  assert.deepEqual(
+    status.groups.archived.map((item) => item.id),
+    ["WI-001"],
+  );
+
+  assert.equal(jsonWork(repo, ["next"]).json.recommendation.id, "WI-002");
+
+  jsonWork(repo, ["dashboard"]);
+  const dashboard = fs.readFileSync(path.join(repo, ".work-items", "DASHBOARD.md"), "utf8");
+  assert.equal(dashboard.includes("WI-001"), false);
+  assert.ok(dashboard.includes("WI-002"));
+
+  const listed = jsonWork(repo, ["status", "--archived"]).json;
+  assert.deepEqual(
+    listed.groups.backlog.map((item) => item.id),
+    ["WI-001", "WI-002"],
+  );
+  assert.ok(listed.text.includes(".work-items/archive/WI-001-old-finished-thing"));
+
+  const history = fs
+    .readFileSync(path.join(archivedItemPath(repo, "WI-001"), "HISTORY.ndjson"), "utf8")
+    .trim()
+    .split("\n")
+    .map((line) => JSON.parse(line));
+  assert.equal(history.at(-1).action, "archived");
+  assert.equal(jsonWork(repo, ["validate"]).json.archived_count, 1);
+});
+
+test("a folder moved into the archive by hand is archived, with no command run", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Dragged by hand");
+  const source = itemPath(repo, "WI-001");
+  fs.renameSync(source, path.join(archivePath(repo), path.basename(source)));
+
+  const status = jsonWork(repo, ["status"]).json;
+  assert.equal(status.counts.archived, 1);
+  assert.equal(status.counts.backlog, 0);
+  assert.equal(status.groups.archived[0].archived, true);
+  assert.equal(jsonWork(repo, ["validate"]).status, 0);
+});
+
+test("items nested in subfolders of the archive are still found", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Grouped item");
+  const source = itemPath(repo, "WI-001");
+  const group = path.join(archivePath(repo), "2026-q1");
+  fs.mkdirSync(group, { recursive: true });
+  fs.renameSync(source, path.join(group, path.basename(source)));
+
+  const status = jsonWork(repo, ["status", "--archived"]).json;
+  assert.equal(status.counts.archived, 1);
+  assert.equal(status.groups.archived[0].path, ".work-items/archive/2026-q1/WI-001-grouped-item");
+  assert.equal(jsonWork(repo, ["validate"]).json.item_count, 1);
+});
+
+test("an archived ID number is never handed out again", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "First");
+  add(repo, "Second");
+  jsonWork(repo, ["archive", "WI-001"]);
+  jsonWork(repo, ["archive", "WI-002"]);
+  assert.equal(add(repo, "Third").item.id, "WI-003");
+});
+
+test("links between an archived item and an open one stay valid both ways", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Open work");
+  add(repo, "Retired work");
+  jsonWork(repo, ["link", "WI-001", "--type", "depends_on", "--target", "WI-002"]);
+  jsonWork(repo, ["archive", "WI-002"]);
+
+  const validation = jsonWork(repo, ["validate"]).json;
+  assert.deepEqual(validation.errors, []);
+  assert.equal(validation.valid, true);
+  assert.deepEqual(readYaml(path.join(archivedItemPath(repo, "WI-002"), "ITEM.yaml")).relationships.blocks, [
+    "WI-001",
+  ]);
+});
+
+test("archiving an open item is allowed and changes nothing about the item", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Still open");
+  finalize(repo, "WI-001");
+  jsonWork(repo, ["start", "WI-001", "--branch", "feature/open"]);
+  const before = readYaml(path.join(itemPath(repo, "WI-001"), "ITEM.yaml"));
+
+  const archived = jsonWork(repo, ["archive", "WI-001"]).json;
+  assert.equal(archived.outcome, "archived");
+  const after = readYaml(path.join(archivedItemPath(repo, "WI-001"), "ITEM.yaml"));
+  assert.deepEqual(after, before);
+  assert.equal(after.status, "In Progress");
+
+  const result = jsonWork(repo, ["next"], { allowFailure: true });
+  assert.equal(result.status, 1);
+  assert.equal(JSON.parse(result.stderr).error, "no_actionable_item");
+});
+
+test("archiving twice reports no change, and unarchive puts the folder back", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Round trip");
+  jsonWork(repo, ["archive", "WI-001"]);
+
+  const again = jsonWork(repo, ["archive", "WI-001"]).json;
+  assert.equal(again.outcome, "unchanged");
+  assert.match(again.text, /already archived/);
+
+  const restored = jsonWork(repo, ["unarchive", "WI-001"]).json;
+  assert.equal(restored.outcome, "unarchived");
+  assert.equal(restored.archived, false);
+  assert.equal(restored.path, ".work-items/WI-001-round-trip");
+  assert.ok(fs.existsSync(itemPath(repo, "WI-001")));
+  assert.equal(jsonWork(repo, ["status"]).json.counts.backlog, 1);
+
+  const noop = jsonWork(repo, ["unarchive", "WI-001"]).json;
+  assert.equal(noop.outcome, "unchanged");
+  assert.match(noop.text, /already not archived/);
+});
+
+test("something that is not a work item in the archive is ignored", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Real item");
+  fs.mkdirSync(path.join(archivePath(repo), "screenshots"), { recursive: true });
+  fs.writeFileSync(path.join(archivePath(repo), "notes.txt"), "loose file\n");
+
+  const validation = jsonWork(repo, ["validate"]).json;
+  assert.equal(validation.item_count, 1);
+  assert.equal(validation.archived_count, 0);
+  assert.equal(validation.valid, true);
+});
+
+test("validation still covers archived items", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Broken later");
+  jsonWork(repo, ["archive", "WI-001"]);
+  fs.rmSync(path.join(archivedItemPath(repo, "WI-001"), "ITEM.yaml"));
+
+  const result = jsonWork(repo, ["validate"], { allowFailure: true });
+  assert.equal(result.status, 2);
+  assert.ok(result.json.errors.some((error) => error.includes("WI-001: ITEM.yaml is missing")));
+});

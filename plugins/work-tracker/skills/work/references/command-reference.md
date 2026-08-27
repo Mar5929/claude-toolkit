@@ -9,6 +9,7 @@ with Node.js.
 - `--json`: machine-readable success and error output.
 
 Local files always live at `.work-items/`. There is no custom tracker path.
+Items inside `.work-items/archive/` are archived.
 Paths are passed as arguments, not interpolated shell fragments, so repository
 names with spaces are supported.
 
@@ -35,7 +36,7 @@ work add --title TITLE --description DESCRIPTION --priority medium --type task \
 work requirements WI-014
 work requirements WI-014 --finalize --approved-by NAME
 work requirements WI-014 --reopen
-work status [--all] [--json]
+work status [--all] [--archived] [--json]
 work next [--json]
 work start WI-014 [--branch BRANCH] [--next-step STEP] \
   [--allow-shared-branch]
@@ -45,6 +46,8 @@ work update WI-014 [--status Ready] [--next-step STEP] [--branch BRANCH] \
 work link WI-014 --type depends_on --target WI-002 [--remove]
 work finish WI-014 [--commit SHA] [--pr NUMBER_OR_URL] [--next-step STEP]
 work landed WI-014
+work archive WI-014
+work unarchive WI-014
 work dashboard
 work reconcile
 work validate [--json]
@@ -61,6 +64,13 @@ work to `Backlog` and clears the approval fields.
 `start` accepts only a `Ready` item with finalized requirements. It uses the
 current branch when `--branch` is omitted. It rejects a branch already claimed
 by another active item unless `--allow-shared-branch` is explicit.
+
+`archive` moves an item's folder into `.work-items/archive/` and `unarchive`
+moves it back. Neither changes the item's status or its files. Moving the folder
+by hand does exactly the same thing, so no command is required. Archived items
+are hidden from `status`, `next`, and the dashboard; `status --archived` lists
+them and `status --all` includes them. Archiving something already archived
+reports no change.
 
 `finish` resolves `HEAD` when `--commit` is omitted. It marks `Done` only when
 `git merge-base --is-ancestor` proves the commit is in the configured default

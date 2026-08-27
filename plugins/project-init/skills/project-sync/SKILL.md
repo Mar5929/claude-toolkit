@@ -343,10 +343,17 @@ answers for the two programs.
 So a project can pass every file check while its root Codex route is missing or
 stale. Report:
 
-- **The root route.** Confirm `AGENTS.md` tells Codex to read every project rule
-  before work and points to the managed knowledge manual as a fallback. A clear
-  instruction to read those files is delivery. Do not copy every rule body into
+- **The root route.** Confirm `AGENTS.md` tells Codex to read, in order,
+  `CLAUDE.md`, then every `.md` file in `.claude/rules/`, then the folder's own
+  `CLAUDE.md` before editing files in a folder. A clear instruction to read those
+  files is delivery. Do not copy rule bodies, the codemap, or folder detail into
   `AGENTS.md`.
+- **Duplication between the two root files.** Where `AGENTS.md` repeats the
+  codemap, the structural pointers, or folder detail that `CLAUDE.md` already
+  carries, report it as a trim: the pointer model keeps one copy and sends Codex
+  to read it. What legitimately stays in both is the fixed lines above the title,
+  `Communication`, the project-knowledge route, and the rules whose breach causes
+  real damage.
 - **Host limits.** Report when local Codex settings prevent that route or the
   startup hook from reaching the session. Do not assume Claude settings apply.
 - **Whether a guard hook covers the gap.** Claude Code `PreToolUse` hooks do not
@@ -360,8 +367,9 @@ stale. Report:
 - **AGENTS.md size** against the 32 KB cap, so nothing is being truncated.
 
 The fix, when the owner approves it, is the toolkit's root `AGENTS.md` route and
-the matching short project-knowledge fallback. Keep rule bodies in their one
-canonical file. The toolkit intentionally uses no nested `AGENTS.md` files even
+the matching short project-knowledge fallback, written out in
+`../project-init/references/root-file-examples.md`. Keep rule bodies, the
+codemap, and folder detail in their one canonical file. The toolkit intentionally uses no nested `AGENTS.md` files even
 though Codex supports layered files.
 
 Skip this check only when the owner confirms Codex never runs in the project.
@@ -384,6 +392,26 @@ presence. Read the file and report:
   folder or module plus any load-bearing invariant. Flag entries carrying dated
   history ("2026-07-17 changed X, decision #17"); that history belongs in Git
   and the applicable specification or persistent memory.
+- **The three fixed lines above the title.** Both root files should open with
+  the SOUL route (only where `SOUL.md` exists and project knowledge was
+  declined), then the owner's verbatim self-check instruction, then the owner's
+  verbatim continuity instruction. `../project-init/references/thin-claudemd.md`
+  has the exact wording. Report any of them missing from either file, and report
+  any reworded copy, since the wording is the owner's and is not to be edited.
+- **Lines an agent never needed.** Run the three tests from `thin-claudemd.md`
+  over the file and flag every line where any answer is yes: could an agent find
+  this out in one command (a folder is Git-ignored, a file is generated, a
+  directory is empty), is it about where something came from or when it arrived
+  ("this folder came in with the latest toolkit sync"), would a session that
+  never read the line still do the right thing. These arrive one at a time,
+  usually from a sub-agent tidying up at the end of a task, and in an old file
+  they are most of the bulk.
+- **Context sources the codemap does not name.** Routing is the root file's
+  second job. Look for folders holding context an agent should pull in on
+  demand: `ai-external-knowledge/`, a specifications folder, captured reference
+  data. Any one the codemap does not name is a folder no agent will open,
+  however good what is in it. Propose the line, saying what is inside and when
+  to open it.
 - **Live state that belongs in the status doc.** Current phase, next action, and
   open TODOs drift the moment they are written here. Flag them for work-tracker
   or the live status doc.
@@ -488,12 +516,12 @@ should look in THIS project, confirm, act, summarize. Ground rules:
      startup route, and the codemap lines themselves. They are named in
      `../project-init/references/thin-claudemd.md` under "What must stay in the
      root file".
-  4. When the project has an `AGENTS.md`, it keeps that detail in full. Codex
-     never reads a folder file, so moving the text out of `AGENTS.md` would
-     leave a Codex session without it. If the project pins the two root files to
-     each other with a shared block and a check, the block has to shrink to the
-     part that genuinely must match before anything below it can differ. Say
-     that out loud before touching either file.
+  4. When the project has an `AGENTS.md`, do not copy the folder detail into it.
+     `AGENTS.md` tells Codex to open a folder's `CLAUDE.md` before editing files
+     there, so one copy is enough. If the project pins the two root files to each
+     other with a shared block and a check, the block covers only the part that
+     genuinely must match: the fixed lines above the title, `Communication`, the
+     project-knowledge route, and the rules too dangerous to reach late.
   5. Never create a nested `AGENTS.md`.
 - For a folder listed as **not recognized** in step 2, ask the owner what it is
   for in plain words, then either write the file from their answer or record the

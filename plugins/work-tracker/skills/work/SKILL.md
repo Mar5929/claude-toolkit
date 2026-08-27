@@ -1,6 +1,6 @@
 ---
 name: work
-description: Manage a repository's local work items in the flat, Git-ignored .work-items folder. Use for requests such as "add this to the backlog", "what should I work on next?", "start WI-014", "update the handoff", "what is blocking this?", "is this in main?", "mark this finished", or "convert the old work-items folders". Also use at the start or end of substantial repository work when a local work item should be read or updated.
+description: Manage a repository's local work items in the flat, Git-ignored .work-items folder. Use for requests such as "add this to the backlog", "what should I work on next?", "start WI-014", "update the handoff", "what is blocking this?", "is this in main?", "mark this finished", "archive this item", "what have I archived?", or "convert the old work-items folders". Also use at the start or end of substantial repository work when a local work item should be read or updated.
 ---
 
 # Work Tracker
@@ -23,7 +23,7 @@ separate tracker choice, not a mirror of this one.
 3. Read the selected item's `REQUIREMENTS.md`, `STATUS.md`, and `ITEM.yaml`
    before implementing it.
 4. Use tracker commands instead of moving folders or directly changing
-   `ITEM.yaml`.
+   `ITEM.yaml`. The archive folder is the one exception: see below.
 
 ## Protect the owner's requirements
 
@@ -59,6 +59,7 @@ an item whose requirements are not finalized.
 | Change status, next step, branch, or blockers | `update` |
 | Relate or unrelate tickets | `link` |
 | Is this work in the default branch? | `landed` |
+| Get an item out of the way, or bring it back | `archive`, `unarchive` |
 | Record branch completion or verified landing | `finish` |
 | Compare local tickets with Git | `reconcile` |
 | Check local tracker integrity | `validate` |
@@ -84,6 +85,22 @@ the commit is not in the default branch, the item remains `In Review`.
 
 Use `bug`, `enhancement`, or `task` as the type. Use `urgent`, `high`, `medium`,
 or `low` as priority.
+
+## Respect the archive folder
+
+Items inside `.work-items/archive/` are archived. Sitting in that folder is the
+only record of it, so the owner archives things by dragging folders in a file
+manager and no command is needed. Use `archive` and `unarchive` to move the same
+folders yourself.
+
+Archiving is organizing, not a status change. Any item may be archived at any
+status, and archiving never edits the item's files. `status`, `next`, and the
+dashboard skip archived items. Use `status --archived` when the owner asks what
+they have archived, or to find one. Their ID numbers are never reused, links to
+them keep working, and validation still covers them.
+
+Never archive an item on your own initiative. Never treat archiving as a way to
+close, cancel, or finish work.
 
 ## Preserve the handoff
 
