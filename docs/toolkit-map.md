@@ -35,7 +35,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | remember | second-brain | Scope candidates to the current project, then search, propose, save approved meaning, and verify it | `/remember`, "remember this" |
 | recall | second-brain | Start from the project map and retrieve only the specifications and memories relevant to the task | `/recall`, "what does the project know about this?" |
 | retire | second-brain | Supersede, retire, or delete one knowledge file safely | `/retire`, "this is no longer true" |
-| reflect | second-brain | Review the whole knowledge folder for duplicates, conflicts, and expired value | `/reflect`, "review project knowledge" |
+| reflect | second-brain | Review the whole knowledge folder for duplicates, conflicts, and expired value, and consolidate the memory self-improvement record | `/reflect`, "review project knowledge" |
 | session-search | second-brain | Search saved local Claude Code CLI discussions only after current project files leave a real gap | `/session-search`, "find the earlier Claude Code discussion" |
 | sf-architect-solutioning | sf-architect-solutioning | 5-phase Salesforce solutioning to an approved plan | `/sf-architect-solutioning` |
 | pull-latest | git-workflows | Get current with the remote without rewriting or discarding | `/pull-latest` |

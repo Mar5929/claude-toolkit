@@ -207,6 +207,7 @@ claude-toolkit/
     .obsidian/                    ← portable link settings only
     project.md                    ← short project framing loaded at startup
     current.md                    ← short-term work state, overwritten
+    memory-self-improvement.md    ← what the owner counts as memory-worthy
     brainstorms/                  ← unchecked discovery notes
     specs/                        ← approved behavior plus generated index
     memory/                       ← flat persistent topics plus generated index

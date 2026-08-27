@@ -23,6 +23,13 @@ saved, file shape, approval, trust, and lifecycle. If it is missing, do not
 invent a replacement policy or write lasting knowledge. Report the gap and
 recommend `project-sync`.
 
+In the same step, open `knowledge/memory-self-improvement.md` and read it. It
+carries what this project already learned about what the owner counts as
+memory-worthy. Use those lessons to drop or reshape candidates before proposing
+them. If a lesson there disagrees with the manual, the manual wins and the
+disagreement is said out loud. If the file is missing, say so in one line,
+continue, and recommend `project-sync`.
+
 ## 1. Gather and scope candidates
 
 Review what changed or became settled. A trigger is only a reason to check. It
@@ -105,6 +112,23 @@ check fails, the save is unfinished. Report the failure and do not claim the
 knowledge is safely stored.
 
 Finish by naming exactly what was written, updated, declined, or blocked.
+
+## 6. Log what the owner decided
+
+Append one line per candidate to the `## Recent decisions` section of
+`knowledge/memory-self-improvement.md`. Each line carries the date, the
+candidate in a few words, the outcome (approved, edited, or rejected), and the
+owner's reason in the owner's own words. Write "no reason given" when the owner
+gave none. Never invent a reason, and never write a secret or private personal
+information.
+
+This write needs no approval. It is operational state, not memory, so it does
+not go through the approval group.
+
+If the append would push the file past its 8,000 character cap, consolidate it
+first the way `reflect` does, or say plainly that it needs consolidating and
+leave it alone. Never truncate it silently. If the file is missing, skip the
+append, say so in one line, and recommend `project-sync`.
 
 ## Boundaries
 

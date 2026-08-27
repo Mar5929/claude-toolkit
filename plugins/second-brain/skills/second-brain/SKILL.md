@@ -27,6 +27,7 @@ knowledge/
   README.md                        managed operating manual
   project.md                       what the project is and where work is tracked
   current.md                       short-term working memory, overwritten
+  memory-self-improvement.md       what the owner counts as memory-worthy
   memory/
     memory-index.md                generated, one line per file
   specs/
