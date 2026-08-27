@@ -3,8 +3,8 @@
 # How to use project knowledge
 
 Read this once at session start. It is the operating manual and wins when another
-knowledge instruction disagrees. Skills may reopen a needed section after
-compaction.
+knowledge instruction disagrees. Skills reopen a needed section whenever their
+own steps say to.
 
 ## What loads at startup
 
@@ -87,8 +87,11 @@ Use `remember`. Before proposing a save, answer all seven questions:
    a project requirement, design, or supported workflow.
 3. Did the project change, rather than the agent merely doing work?
 4. Is it likely to remain useful and true in six months?
-5. Can it already be found or worked out from code, configuration,
-   documentation, a rule, skill, specification, work item, or existing memory?
+5. Does the fact already exist in a committed file, a loaded rule, or an existing
+   memory? Search the code, configuration, documentation, rules, skills,
+   specifications, work items, and saved memory. If it exists in any of them, the
+   proposal may only be a pointer to it. Restating the content is a rejection
+   even when the pointer is included.
 6. Can it name its source and where that source can be checked?
 7. Could a future agent read it as broader or more certain than it is?
 
@@ -107,6 +110,24 @@ no historical value, secrets, or private personal information. Do not reroute a
 rejected candidate to global memory; a global rule or skill is a separate review.
 
 <!-- knowledge-policy:never-save:end -->
+
+### Reject example
+
+A real proposal, rejected. It asked to amend a memory about which Salesforce org
+is which: "The CLI default org for this repository is GREEN_FullCopy, set in the
+committed `.sf/config.json`. Mike set it to GREEN on 2026-08-11 in commit a0605f0
+and changed it to GREEN_FullCopy the next day in commit 3a53b56. A read without
+`-o` returns sandbox rows that look like production data. Always name the org.
+The policy and reasoning are in the `salesforce-safety-guardrails` rule."
+
+It fails three ways:
+
+- Question 5: the default value sits in a committed config file, so a pointer to
+  that file is the only allowed form.
+- Routing: "always name the org" is a procedure a loaded rule already owns, and
+  procedures are never memory.
+- Question 3: the commit-by-commit history is agent work history, not a change
+  to the project.
 
 ## Use the two file shapes
 
@@ -154,7 +175,12 @@ Show one numbered group per proposed file:
    - Source: <source and observed, reported, or inferred>
    - Tags: <tags and filing details>
    - Assumptions: <everything unchecked, or None>
+   - Verdict: <one line per save-test question, 1 to 7, each saying pass or fail
+     and why. Question 5's line names the files, rules, and config searched.>
 ```
+
+The verdict lines are shown with the group, so the owner sees the reasoning
+before answering.
 
 The owner approves `What`, `Project value`, and `Source`; assumptions are
 approved separately.
