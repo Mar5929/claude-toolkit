@@ -559,6 +559,9 @@ should look in THIS project, confirm, act, summarize. Ground rules:
      `work-item-close.mjs`, and `command-parsing.mjs` into `.claude/hooks/`.
   3. Copy the packaged knowledge manual unchanged to `knowledge/README.md`.
      When a copy differs, show the diff and get approval before replacing it.
+     Copy the packaged `memory-self-improvement.md` template to
+     `knowledge/memory-self-improvement.md` when the project has no such file.
+     What that file learns is per project, so never replace one that exists.
   4. Merge, never replace, `.claude/settings.json`: disable private auto-memory,
      enable `second-brain@claude-toolkit`, register the fail-open Claude
      `SessionStart` loader, and register both reminders under `PreToolUse` with

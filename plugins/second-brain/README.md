@@ -25,6 +25,7 @@ knowledge/
   README.md                          managed operating manual
   project.md                         project framing and tracker location
   current.md                         short-term work state, overwritten
+  memory-self-improvement.md         what the owner counts as memory-worthy
   memory/
     memory-index.md                  generated, one line per memory
   specs/
@@ -66,10 +67,11 @@ Git remain the shared source of truth.
 ## Skills
 
 - **remember** scopes candidates to the current project, searches, proposes,
-  writes approved meaning, and verifies it.
+  writes approved meaning, verifies it, and logs what the owner decided.
 - **recall** walks the manual's find order and opens only relevant files.
 - **retire** safely changes one file's lifecycle.
-- **reflect** reviews the whole folder for meaning problems.
+- **reflect** reviews the whole folder for meaning problems and consolidates the
+  self-improvement record.
 - **second-brain** detects, installs, converts, or repairs the system.
 - **session-search** searches local Claude Code CLI history read-only.
 
@@ -82,8 +84,9 @@ node .claude/tools/check-knowledge.mjs
 
 The builder creates the two deterministic indexes. The checker validates the
 managed manual, knowledge file shape, links, flat-folder layout,
-`knowledge/current.md` size, and common secret patterns. It reports problems and
-never edits, moves, or deletes anything.
+`knowledge/current.md` and `knowledge/memory-self-improvement.md` size, and
+common secret patterns. It reports problems and never edits, moves, or deletes
+anything.
 
 ## Deliberately absent
 

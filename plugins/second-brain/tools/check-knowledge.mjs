@@ -27,8 +27,9 @@ const root = resolve(process.argv[2] || installedRoot);
 const posix = (value) => value.split(sep).join("/");
 
 const CURRENT_MD_MAX_CHARS = 2000;
+const SELF_IMPROVEMENT_MAX_CHARS = 8000;
 const SUMMARY_MAX_CHARS = 250;
-export const MANUAL_SHA256 = "432e3d635614b414bf6f6cd0e643384a14a5448644892b36842851898d28d17e";
+export const MANUAL_SHA256 = "b555d0c05691e08b8f5f3dc42ca1f2a8f05ed4ec9bf9f8675eceb5f7b7c5b8e7";
 
 const STATUS_VALUES = ["current", "superseded", "retired"];
 const TYPE_VALUES = ["fact", "decision", "event", "context", "constraint"];
@@ -235,6 +236,21 @@ function checkCurrent(vault) {
   }
 }
 
+function checkSelfImprovement(vault) {
+  const path = resolve(vault, "memory-self-improvement.md");
+  if (!existsSync(path)) return;
+  const text = readFileSync(path, "utf8");
+  filesChecked++;
+  checkSecrets("knowledge/memory-self-improvement.md", text);
+  if (text.length > SELF_IMPROVEMENT_MAX_CHARS) {
+    fail("knowledge/memory-self-improvement.md",
+      `is ${text.length} characters, over the ${SELF_IMPROVEMENT_MAX_CHARS} cap.`
+      + " It is a short record of what the owner counts as memory-worthy, not a"
+      + " log of every review. Run reflect to merge repeated lines into lessons."
+      + " Nothing here is truncated silently.");
+  }
+}
+
 function checkManual(vault) {
   const path = resolve(vault, "README.md");
   if (!existsSync(path)) {
@@ -261,6 +277,7 @@ export function checkKnowledge(projectRoot = root) {
 
   checkManual(vault);
   checkCurrent(vault);
+  checkSelfImprovement(vault);
   checkFolder(vault, "memory", "memory", "memory-index.md");
   checkFolder(vault, "specs", "spec", "spec-index.md");
 

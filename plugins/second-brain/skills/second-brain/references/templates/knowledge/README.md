@@ -32,6 +32,7 @@ once before using project knowledge. Do not reload it on every prompt.
 | Settled behavior of the system | `knowledge/specs/` |
 | A lasting fact, decision, event, context, or constraint | `knowledge/memory/` |
 | Current objective, blocker, and next step | `knowledge/current.md` |
+| Lessons about what this owner saves | `knowledge/memory-self-improvement.md` |
 | Requirements and status for one piece of work | The work tracker |
 | Information needed only for this task | The conversation only |
 | `grill-me` scratch pad, unchecked exploration | `knowledge/brainstorms/` |
@@ -220,6 +221,22 @@ node .claude/tools/check-knowledge.mjs
 The source files win if an index disagrees with them.
 
 <!-- knowledge-policy:lifecycle:end -->
+
+## Memory self-improvement
+
+`knowledge/memory-self-improvement.md` is this project's record of what the
+owner counts as memory-worthy. It holds distilled lessons and a short rolling
+log of recent proposal outcomes.
+
+`remember` reads it with the save rules before gathering candidates, and appends
+one line per candidate after the owner decides. Those appends are operational
+state and need no approval. `reflect` merges repeated lines into lessons and
+keeps the file under its 8,000 character cap, which the checker enforces.
+
+The file is never a memory store. When a lesson there disagrees with this
+manual, the manual wins and the disagreement is said out loud. Lessons stay in
+this project. One that keeps recurring across projects graduates into this
+manual through the normal toolkit change flow.
 
 ## Skill map
 

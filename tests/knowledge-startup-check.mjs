@@ -196,8 +196,8 @@ check("manual size, markers, copy, and checksum", () => {
   const installed = read(manualCopy);
   assert.equal(source, installed);
   assert.equal(count(source, "<!-- claude-toolkit:knowledge-manual -->"), 1);
-  assert.ok(source.split("\n").length <= 236, "manual exceeds 236 lines");
-  assert.ok(source.trim().split(/\s+/).length <= 1425, "manual exceeds 1,425 words");
+  assert.ok(source.split("\n").length <= 253, "manual exceeds 253 lines");
+  assert.ok(source.trim().split(/\s+/).length <= 1557, "manual exceeds 1,557 words");
   const actualHash = createHash("sha256").update(source).digest("hex");
   assert.equal(actualHash, MANUAL_SHA256);
   for (const policy of [

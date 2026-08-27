@@ -33,6 +33,21 @@ nearby topics. Look for:
 Age by itself is not a finding. Separate files from genuinely different sources
 may be independent evidence rather than duplicates.
 
+## Consolidate the self-improvement record
+
+Open `knowledge/memory-self-improvement.md`. If it is missing, skip this and say
+so in one line.
+
+Merge repeated or similar decision lines into one distilled lesson under
+`## Lessons`, then prune the lines it replaced. Keep the owner's own words.
+Leave a line alone when it is still the only record of its lesson. Keep the file
+under its 8,000 character cap, which the checker enforces, and never truncate it
+to fit.
+
+This file is operational state, so consolidating it needs no approval. Report
+what was merged and what was pruned. Raise a lesson that disagrees with
+`knowledge/README.md` with the owner instead of keeping it.
+
 ## Propose and wait
 
 Number each independent finding. State the problem, every affected path, the
