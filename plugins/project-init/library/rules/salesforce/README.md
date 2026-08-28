@@ -15,7 +15,7 @@ points at that folder so these files are read each session.
 
 | File | What it does |
 |---|---|
-| `delivery-and-knowledge-boundary.md` | Give client delivery artifacts and curated project knowledge one home each. New Salesforce projects use `delivery/`; existing `engagement/` projects stay in place. |
+| `delivery-and-knowledge-boundary.md` | Add the Salesforce delivery-root choice to the general project file lifecycle rule. New projects use `delivery/`; existing `engagement/` projects stay in place. |
 | `salesforce-safety-guardrails.md` | Read-only against the orgs; never deploy to production; sandbox deploys need an explicit OK. The core deploy-safety policy. |
 | `salesforce-change-clarify.md` | Always confirm before object-model, security/permission, integration, or data-source-priority changes, or anything that contradicts the project's requirements. |
 | `deploy-hitchhiker-check.md` | Before any deploy, catch components or un-deployed edits that would ride along into the target org before their feature is ready. Ends with read-only verification against the org, never a flag based on a stale tracker. |

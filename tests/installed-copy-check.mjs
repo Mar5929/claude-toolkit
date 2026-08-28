@@ -17,7 +17,7 @@
  * orphan-check.mjs asks whether a file can still be FOUND.
  * This one asks whether two files that must say the same thing still do.
  *
- * Three things are checked.
+ * Four things are checked.
  *
  * 1. Every tracked or new unignored file under `.claude/` that has a shipped
  *    original matches it byte for byte, ignoring line endings. This repo runs
@@ -31,6 +31,10 @@
  *    different instructions depending on which program it is.
  *
  * 3. The project knowledge operating manual matches the packaged template.
+ *
+ * 4. The default project file lifecycle rule and the Salesforce scaffold keep
+ *    architecture, presentation deliverables, and retired material in the
+ *    exact homes the owner approved.
  *
  * The root knowledge route is short enough to compare word for word. Host hook
  * wiring lives in settings files, outside the shared block. The project-local
@@ -157,6 +161,74 @@ for (const [installed, original] of MANAGED_COPIES) {
   }
 }
 
+const lifecycleRulePath = `${GENERAL_RULES}/project-file-lifecycle.md`;
+const lifecycleRule = read(lifecycleRulePath);
+const generalRulesIndex = read(`${GENERAL_RULES}/README.md`);
+const salesforceScaffold = read(
+  "plugins/project-init/skills/project-init/references/salesforce-project-scaffold.md",
+);
+const salesforceCompatibility = read(
+  "plugins/project-init/library/rules/salesforce/delivery-and-knowledge-boundary.md",
+);
+
+const lifecycleChecks = [
+  [
+    lifecycleRule,
+    "`<delivery-root>/architecture/<area>/`",
+    `${lifecycleRulePath} does not keep active architecture in its approved home`,
+  ],
+  [
+    lifecycleRule,
+    "`<delivery-root>/deliverables/`",
+    `${lifecycleRulePath} does not name the presentation deliverables home`,
+  ],
+  [
+    lifecycleRule,
+    "PowerPoints, executive summaries, and high-level project overviews only",
+    `${lifecycleRulePath} no longer limits deliverables to presentation material`,
+  ],
+  [
+    lifecycleRule,
+    "Completion is not a reason to archive it.",
+    `${lifecycleRulePath} no longer keeps current architecture after work closes`,
+  ],
+  [
+    salesforceScaffold,
+    "architecture/              # current detailed designs, grouped by area",
+    "the Salesforce scaffold does not offer the architecture folder",
+  ],
+  [
+    salesforceScaffold,
+    "PowerPoints, executive summaries, and high-level project overviews only",
+    "the Salesforce scaffold no longer limits deliverables to presentation material",
+  ],
+  [
+    salesforceCompatibility,
+    "The general `project-file-lifecycle.md` rule owns",
+    "the Salesforce compatibility rule does not point to the general lifecycle authority",
+  ],
+];
+
+for (const [content, required, message] of lifecycleChecks) {
+  checked++;
+  if (!content.includes(required)) failures.push(`  ${message}`);
+}
+
+const defaultStart = generalRulesIndex.indexOf("## Default ON");
+const conditionalStart = generalRulesIndex.indexOf("## Conditional");
+const lifecycleEntry = generalRulesIndex.indexOf("| `project-file-lifecycle.md`");
+checked++;
+if (
+  defaultStart === -1
+  || conditionalStart === -1
+  || lifecycleEntry < defaultStart
+  || lifecycleEntry > conditionalStart
+) {
+  failures.push(
+    "  the general rules index does not list project-file-lifecycle.md as default ON",
+  );
+}
+
 /** The block both root instruction files must carry word for word. */
 function sharedBlock(path) {
   const text = read(path);
@@ -204,5 +276,5 @@ if (failures.length > 0) {
 
 console.log(
   `ALL PASS (${checked} checks: installed copies match what this repo ships, `
-    + "and the two root instruction files agree), FAIL: 0",
+    + "the lifecycle homes agree, and the two root instruction files agree), FAIL: 0",
 );

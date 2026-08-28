@@ -25,9 +25,10 @@ before creating anything.
 ├── ai-external-knowledge/         # outside docs saved as Markdown for agents
 ├── delivery/                      # client-work artifacts
 │   ├── project-overview/          # raw project brief and client framing
+│   ├── architecture/              # current detailed designs, grouped by area
 │   ├── archive/                   # retired or superseded material
 │   ├── communications/            # emails, Slack, client/team messages
-│   ├── deliverables/              # finished artifacts handed to the client
+│   ├── deliverables/              # presentations and high-level summaries only
 │   ├── deployment/                # cutover plans, deploy runbooks, release notes
 │   ├── meeting-notes/             # one file per call or working session
 │   ├── references/                # source specs, org exports, client docs
@@ -55,9 +56,10 @@ that helps future agents work correctly belongs in `knowledge/`.
 | Folder | Holds |
 |---|---|
 | `project-overview/` | Raw project brief or client-provided framing when the project needs that artifact home. Curated project framing belongs in `knowledge/project.md`, with other persistent circumstances under `knowledge/memory/` |
+| `architecture/` | Current detailed designs, diagrams, models, and architecture workbooks, grouped by area. Keep them here after the related work item closes |
 | `archive/` | Retired or superseded material kept for history |
 | `communications/` | Emails, Slack threads, client or team messages |
-| `deliverables/` | Finished artifacts handed to the client |
+| `deliverables/` | PowerPoints, executive summaries, and high-level project overviews only |
 | `deployment/` | Cutover plans, release evidence, and release notes. Reusable operating procedures belong in a skill, not in memory |
 | `meeting-notes/` | One file per call or working session |
 | `references/` | Source specs, org exports, and client-supplied documents (read-only inputs). Public documentation captured for agents goes in root `ai-external-knowledge/` instead |
@@ -95,9 +97,9 @@ large rule, or per-folder indexes.
 
 ## Notes
 
-- Git does not track empty folders. Add a `.gitkeep` or a one-line `README.md`
-  in each folder so the structure survives the first commit. A short README per
-  folder doubles as documentation.
+- Git does not track empty folders. Add a `.gitkeep` when an empty folder must
+  survive the first commit. A folder README may help people, but the installed
+  `project-file-lifecycle.md` rule is what tells agents where files belong.
 - `.gitignore` should cover SFDX local state (`.sfdx/`, `.sf/`,
   `.localdevserver/`, `*.log`) and `.claude/worktrees/`. When the owner chooses
   local work tracking, `work init` also adds `/.work-items/` and creates the

@@ -39,6 +39,12 @@ Cleaned up on 2026-08-22 for GitHub issue #219. The system now has one managed
 the same small project map. Root files, rules, hooks, and skills point to the
 manual instead of carrying policy copies.
 
+Changed on 2026-08-28 for GitHub issue #236. This project now runs the default
+project file lifecycle rule it ships. The rule keeps work tracking, active
+architecture, approved behavior, lasting decisions, implementation,
+presentation deliverables, and retired material in separate authoritative
+homes.
+
 This repository is the toolkit. It now runs the toolkit on itself, the same way
 Anchor, DragonFly, and Diligence Ready do, so a change to the memory system, the
 rules, the output style, or the hooks is felt where it is written instead of

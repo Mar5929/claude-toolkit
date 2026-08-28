@@ -28,7 +28,8 @@ files into a project, so every project it touches opts in deliberately.
      `.claude/rules/`
   6. Optional standalone toolkit skills, offered from the `session-skills` plugin
   It asks before acting, recommends a per-stack layout, and copies in the
-  standard rule files. It does not hold the memory or knowledge systems itself;
+  standard rule files, including the project file lifecycle that every agent
+  receives through `.claude/rules/`. It does not hold the memory or knowledge systems itself;
   it points at their plugins so each can evolve on its own.
   New Salesforce projects use `delivery/` for client-work artifacts and
   `knowledge/` for curated working context. Existing `engagement/` projects
@@ -84,10 +85,13 @@ the repository root would disappear the moment the plugin is installed.
 
 - `library/rules/general/` (with its own `README.md` index): the standard
   `.claude/rules` files copied into every project, marked default ON or
-  conditional. Retired v1 examples are not part of this active library.
+  conditional. The default file lifecycle rule keeps work tracking, active
+  architecture, approved behavior, lasting decisions, implementation,
+  presentation deliverables, and retired material in their proper homes.
+  Retired v1 examples are not part of this active library.
 - `library/rules/salesforce/` (with its own `README.md`): the same idea for
-  Salesforce projects, including the complete boundary between delivery
-  artifacts and curated project knowledge.
+  Salesforce projects, including compatibility for existing `engagement/`
+  delivery roots.
 - `library/output-styles/` (with its own `README.md` index): the
   `.claude/output-styles` files that set the voice Claude answers in, installed
   in Gate 5. `plain-language.md` is default ON. A style is delivered through the

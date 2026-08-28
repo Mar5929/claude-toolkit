@@ -1,67 +1,24 @@
-# Salesforce Delivery and Knowledge Have Separate Homes
+# Salesforce Delivery Root Compatibility
 
-Use one current home for each kind of project information. Link between homes
-when useful, but do not copy the same meaning into both.
+The general `project-file-lifecycle.md` rule owns where project information
+belongs and what happens when a work item closes. This rule adds the Salesforce
+delivery-root choice only.
 
-## What `knowledge/` owns
+## New Salesforce projects
 
-`knowledge/` is curated working context that helps future agents work
-correctly. It owns:
+Use `delivery/` as the default root for client-work artifacts. Use the general
+lifecycle rule for its folder meanings, including `architecture/`,
+`deliverables/`, and `archive/`.
 
-- approved product and system behavior;
-- durable Salesforce org and client context;
-- important decisions that matter beyond one work item;
-- lasting risks, assumptions, and direction;
-- business terms and meaning; and
-- reusable operating knowledge.
+When the toolkit knowledge system is installed, use its `knowledge/` folder.
+Do not create `delivery/knowledge-base/` as a second curated knowledge home.
 
-Use the project's normal approval process before making any of this current
-knowledge.
-
-## What `delivery/` owns
-
-New Salesforce projects use `delivery/` for the files produced or received
-while doing the client work. It owns:
-
-- project briefs and framing supplied by the client;
-- communications and meeting records;
-- raw client sources and org exports;
-- deployment records and release evidence;
-- data files and backups;
-- deliverables; and
-- archives.
-
-## What the declared work tracker owns
-
-The tracker named in the project's root instructions owns work-item
-requirements, status, blockers, handoffs, and routine ticket choices. When the
-owner chose local folders, that is the Git-ignored `.work-items/` tracker.
-
-## The boundary cases
-
-- Keep routine ticket choices in the declared work tracker. Save a decision to
-  `knowledge/` only when it matters beyond that work item and passes the
-  project's persistent-information test.
-- Keep raw client meetings and client-provided artifacts in `delivery/`. Put
-  internal exploration and owner interviews in `knowledge/brainstorms/`.
-- Public documentation captured for agents is neither delivery nor knowledge. It
-  goes in `ai-external-knowledge/` at the project root, which every project gets
-  whatever the stack. The `ai-external-knowledge.md` general rule governs it.
-  What the project decided after reading it still belongs in `knowledge/`,
-  linked back to the source file.
-- A source record may preserve what someone originally said. It does not become
-  a second current authority. Link it to the approved specification or memory
-  instead of copying current meaning back into the source.
-- When the project knowledge system is selected, do not create
-  `delivery/knowledge-base/`. The knowledge system is the one curated knowledge
-  home.
-
-## Existing projects stay where they are
+## Existing Salesforce projects
 
 An existing Salesforce project may already use `engagement/`. Keep using it as
 that project's delivery-artifact root. Do not rename it, move its files, or
 create a parallel `delivery/` tree automatically.
 
-When a rule below names a `delivery/` path, substitute the existing
+When a rule names a `delivery/` path, substitute the existing
 `engagement/` path for a project that already uses it. The ownership boundary
 stays the same.
