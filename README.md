@@ -94,7 +94,7 @@ claude-toolkit/
       .claude-plugin/plugin.json
       .codex-plugin/plugin.json
       library/                    ← everything that gets COPIED INTO a project.
-        rules/general/               the standard .claude/rules files (14)
+        rules/general/               the standard .claude/rules files (15)
         rules/salesforce/            the extra Salesforce rules (9)
         output-styles/               plain-language.md, the voice Claude answers in
         tools/                       permsets.py and the kb/ dependency graph tool
