@@ -88,8 +88,8 @@ claude-toolkit/
   .agents/plugins/
     marketplace.json              ← Codex marketplace pointing at the same plugins
   plugins/
-    project-init/                 ← plugin: set up a new project, sync an existing
-                                     one, or set up a whole computer
+    project-init/                 ← plugin: set up or sync a project, apply its
+                                     file lifecycle, or set up a whole computer
       README.md                   ← what this plugin is
       .claude-plugin/plugin.json
       .codex-plugin/plugin.json
@@ -113,6 +113,7 @@ claude-toolkit/
                                      work-items-structure, thin-claudemd,
                                      salesforce-project-scaffold)
         project-sync/             ← SKILL.md (reads the same library/)
+        work-item-lifecycle/      ← SKILL.md (applies the file lifecycle rule)
         machine-sync/             ← SKILL.md (reads machine/, writes host homes)
     second-brain/                 ← plugin: Git-native project knowledge for Claude and Codex
       README.md
@@ -244,7 +245,7 @@ inside a project folder before it is useful, which is what the last column says:
 
 | Plugin | What it does | Setup |
 | --- | --- | --- |
-| **[project-init](plugins/project-init/README.md)** | Sets up or syncs a project. It asks where work is tracked, carries the ticket rules into that tracker, offers work-tracker, and installs or safely migrates the portable `knowledge/` vault when selected. New Salesforce projects use `delivery/` for client-work artifacts while existing `engagement/` projects stay in place. It also ships Salesforce permission-set and dependency-graph tools. `machine-sync` installs the rules, settings, and hooks that must hold across the computer. | Sets up a project, and sets up a machine |
+| **[project-init](plugins/project-init/README.md)** | Sets up or syncs a project. It asks where work is tracked, carries the ticket rules into that tracker, offers work-tracker, and installs or safely migrates the portable `knowledge/` vault when selected. `work-item-lifecycle` applies the file lifecycle rule when project information is created, moved, organized, or completed. New Salesforce projects use `delivery/` for client-work artifacts while existing `engagement/` projects stay in place. `machine-sync` installs the rules, settings, and hooks that must hold across the computer. | Sets up a project, and sets up a machine |
 | **[second-brain](plugins/second-brain/README.md)** | A portable `knowledge/` system for Claude, Codex, Git, and optional Obsidian: one managed operating manual, a small shared startup map, flat memory, approved specifications, project-scoped owner-approved saves, task-specific skills, one checker, and safe migration from older layouts. | Sets up a project |
 | **[sf-architect-solutioning](plugins/sf-architect-solutioning/README.md)** | A Salesforce solution architect: pushes back on vague requirements, verifies platform facts against official docs by live fetch, designs declarative-first to Well-Architected standards, and presents a solution plan for approval before any build. Salesforce projects only. | Install and go |
 | **[git-workflows](plugins/git-workflows/README.md)** | Three parallel-session-safe git lifecycle skills: `pull-latest` gets current without rewriting history, `reset-to-remote` mirrors the remote behind confirmation, and `merge-and-clean-up` lands an approved PR before removing only its completed workspace. | Install and go |
