@@ -43,6 +43,14 @@ files into a project, so every project it touches opts in deliberately.
   does not re-nag about a deliberate "no". Its Step 1 refreshes the installed
   plugin first, so running it also pulls the latest toolkit onto that machine.
 
+- **work-item-lifecycle** (`/work-item-lifecycle`): applies the project's
+  standing file lifecycle to a real file or work-item event. Its description
+  lets an agent select it when creating, moving, organizing, completing, or
+  archiving work-item information, or when deciding where architecture,
+  specifications, decisions, deliverables, or retired material belong. It
+  reads the project rule instead of copying a second lifecycle, searches for an
+  existing authority, and treats advice separately from permission to write.
+
 - **machine-sync** (`/machine-sync`): the third sibling, working one level up. It
   sets up the COMPUTER rather than a project, comparing the Claude and Codex
   homes against the toolkit's machine-wide set and installing what you approve. Same shape as
@@ -162,6 +170,9 @@ plugin.
   Gate 3 offers the complete packaged `second-brain` project knowledge system,
   including its managed operating manual, startup map, task-specific skills,
   index builder, and checker.
+- `work-item-lifecycle` is the action layer for the default project file
+  lifecycle rule. The rule is always-loaded policy; the skill is selected when
+  a specific file or work-item event needs that policy applied.
   Gate 4 offers optional impact-analysis tools without creating a competing
   store.
 - Gate 6 offers the `session-skills` plugin, which holds `explain-simply`,

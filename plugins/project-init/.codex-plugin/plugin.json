@@ -1,7 +1,7 @@
 {
   "name": "project-init",
-  "version": "0.57.0",
-  "description": "New-project setup, toolkit sync, and machine setup, with one managed project-knowledge manual, safe migration, the local-folder work-tracker, and shared Claude and Codex routing.",
+  "version": "0.58.0",
+  "description": "New-project setup, toolkit sync, work-item file lifecycle, and machine setup, with one managed project-knowledge manual, safe migration, the local-folder work-tracker, and shared Claude and Codex routing.",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com",
@@ -18,7 +18,7 @@
   "interface": {
     "displayName": "Project Init",
     "shortDescription": "Initialize or sync a project with Mike's toolkit.",
-    "longDescription": "Project setup and sync workflows from Mike Rihm's portable toolkit. Includes guided new-project setup, preview-first work-tracker conversion, one managed project-knowledge manual and shared startup map for Claude and Codex, existing-project audits, migration, machine-wide activation, and optional standalone skills.",
+    "longDescription": "Project setup and sync workflows from Mike Rihm's portable toolkit. Includes guided new-project setup, work-item file lifecycle decisions, preview-first work-tracker conversion, one managed project-knowledge manual and shared startup map for Claude and Codex, existing-project audits, migration, machine-wide activation, and optional standalone skills.",
     "developerName": "Mike Rihm",
     "category": "Productivity",
     "capabilities": [
