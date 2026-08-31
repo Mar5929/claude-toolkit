@@ -55,14 +55,13 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 
 ## The library: what lands in a project
 
-Rules, output styles, tools, templates, and the guides that install them all sit
+Rules, tools, templates, and the guides that install them all sit
 together in one folder, `plugins/project-init/library/`:
 
 | Folder | Holds |
 | --- | --- |
 | `library/rules/general/` | the standard `.claude/rules/` files every project gets |
 | `library/rules/salesforce/` | the extra `.claude/rules/` files a Salesforce project gets |
-| `library/output-styles/` | the `.claude/output-styles/` files that set the voice |
 | `library/tools/` | `permsets.py` and the `kb/` dependency graph tool |
 | `library/templates/` | copy-and-fill starting points |
 | `library/guides/` | how-to documents for installing the kits above |
@@ -109,7 +108,7 @@ every other hook. `machine-sync` installs all four kinds.
 
 It is deliberately small, and its own `README.md` carries the test that keeps it
 that way: a thing belongs there only if it must hold in a repository nobody set
-up, and only if it is not already in `library/` or the output styles. Shipping
+up, and only if it is not already in `library/`. Shipping
 the same guidance in both piles would mean two copies that drift apart. Today it
 holds four rules. `activate-project-knowledge.md` is a conditional pointer shared
 with Codex. `no-ai-attribution.md` comes with a settings value and a hook
@@ -128,10 +127,11 @@ These are not duplicated here. Go to the index that owns them:
   project): [general-rules/README.md](../plugins/project-init/library/rules/general/README.md).
   Marks active rules default ON or conditional. Retired v1 examples are not
   part of this installable library.
-- **Output styles** (the `.claude/output-styles` files that set the voice Claude
-  answers in): [output-styles/README.md](../plugins/project-init/library/output-styles/README.md).
-  Marks each style default ON or optional. `plain-language.md` is the only one
-  today, and it is default ON.
+- **Output style**: there is no index, because the toolkit ships no style. Every
+  project selects Claude Code's built-in `Concise` style, written into the
+  project's committed settings by `project-init` Gate 5. The hand-written
+  `plain-language` style and its `library/output-styles/` folder were removed in
+  #245.
 - **Salesforce rules**: [salesforce-rules/README.md](../plugins/project-init/library/rules/salesforce/README.md), including the boundary that puts client artifacts in `delivery/` and curated working context in `knowledge/`.
 - **Salesforce dependency graph**: the tool and its own `README.md` live at
   `plugins/project-init/library/tools/kb/`; the install
@@ -271,16 +271,15 @@ The genuine watch-items are called out at the end.
   stated once, in `spec-before-you-build`. A BMAD project meets them through
   BMAD's own requirements document and stories, never through a second
   `SPEC.md`.
-- **hooks-library versus the output style.** The style is canonical
-  and says what good writing is. The toolkit used to ship two hooks that
-  reinforced it: `style-reminder` re-stated the style on every message and
-  `writing-guard` blocked a finished reply over an em dash or a section sign.
-  Both were removed in August 2026 as per-message overhead, and the style now
-  stands alone, delivered in the system prompt. Neither hook could ever shape a
-  commit message, a document, or anything a helper agent writes; those are
-  covered by the
-  `follow-the-output-style` rule and, for an agent that writes persistent files, by
-  the writing rules inside its own definition. A hook may still enforce a rule,
+- **hooks-library versus the output style.** The built-in `Concise` style is
+  canonical and says what good writing is. The toolkit used to ship two hooks
+  that reinforced a style of its own: `style-reminder` re-stated it on every
+  message and `writing-guard` blocked a finished reply over an em dash or a
+  section sign. Both were removed in August 2026 as per-message overhead, and
+  the hand-written style itself was removed in #245. Neither hook could ever
+  shape a commit message, a document, or anything a helper agent writes; those
+  are covered by the `follow-the-output-style` rule and, for an agent that
+  writes persistent files, by the writing rules inside its own definition. A hook may still enforce a rule,
   trigger a process agents forget, or orient a session at its start. The jobs
   and their separate bars are in
   [`hooks-library`](../plugins/hooks-library/README.md).
@@ -339,11 +338,12 @@ The genuine watch-items are called out at the end.
   instructions, and because the owner wants all eight on every machine. Sharing
   a plugin does not blur what they do; the distinctions above still hold. What
   it costs is granularity: they install and version together.
-- **explain-simply versus the output style.** The
-  output style sets how everything is written. `explain-simply` is the escape
-  hatch for the times that was not enough, on material that is technical by
-  nature. It reads the active output
-  style before writing, so it plainly restates rather than switching voice.
+- **explain-simply versus the output style.** The output style sets how
+  everything is written. `explain-simply` is the escape hatch for the times that
+  was not enough, on material that is technical by nature. It checks the active
+  output style before writing, so it plainly restates rather than switching
+  voice. With the built-in `Concise` style there is no file to read and it
+  simply writes plainly.
 - **handoff versus the second-brain pull-request reminder.** Same job at two different moments, solved
   two different ways, and the difference is not a preference. `gh pr create` is
   a bare terminal command carrying no instructions, so it needs a hook to
@@ -385,9 +385,10 @@ The genuine watch-items are called out at the end.
   memory as destinations for detail that does not belong in CLAUDE.md, but it
   does not own any of them; the rules above do. Naming where something goes is
   what keeps CLAUDE.md from absorbing all three.
-- **Voice is not a rule any more.** How Claude writes and replies was four
-  rule files, then three, and is now none. It lives in the `plain-language`
-  output style alone, delivered in the system prompt. The path
+- **Voice is not a rule, and is no longer the toolkit's to ship.** How Claude
+  writes and replies was four rule files, then three, then a single
+  hand-written output style, and is now Claude Code's built-in `Concise` style,
+  which the toolkit selects but does not author. The path
   there was one long consolidation: `lead-with-the-answer`,
   `close-with-the-ask`, `quiet-while-working`, and `answer-last-question-box`
   merged into `how-to-reply`; then `how-to-reply`, `writing-and-language`, and
@@ -397,7 +398,11 @@ The genuine watch-items are called out at the end.
   library: em dashes once per 1.8 messages, staying quiet and closing with the
   next step broken in 56 to 60 percent of turns.
   `define-your-terms` was the fourth
-  rule to go, folded into the style by #102.
+  rule to go, folded into the style by #102. Then #245 removed the
+  hand-written style too: the owner reads the built-in `Concise` voice
+  everywhere else, and maintaining a second one meant a file nobody selected.
+  Its index had set a 50-line working ceiling that the file had passed by more
+  than three times.
   **The per-message enforcement, and what became of it.** Two hooks used to
   reinforce the style: `style-reminder` re-stated it on every message, and
   `writing-guard` blocked a finished reply containing an em dash or a section
@@ -405,13 +410,14 @@ The genuine watch-items are called out at the end.
   repeated an instruction the harness already re-delivers, and the guard's
   rewrite meant he read every refused reply twice. Expect the violations the
   guard caught to return; that is the accepted trade, not a surprise. The cost
-  that stands is the one the hooks never touched: an output style never reaches a helper
-  agent. It is handled twice over rather than fixed, since it cannot be
-  fixed at this level. `follow-the-output-style` tells a helper agent to read
-  the style file before writing anything the owner will read, and an agent that
-  writes something the owner reads carries the rules in its own definition,
-  which is why every helper-agent definition that writes owner-facing prose must
-  carry those writing rules itself.
+  that stands is the one the hooks never touched: an output style never reaches
+  a helper agent. Moving to a built-in style widened that cost rather than
+  fixing it, knowingly. There is no style file for a helper agent to open now,
+  so `follow-the-output-style` resolves to its own fallback, which is to write
+  plainly. That makes the writing rules inside an agent's own definition the
+  only real voice control helper agents have, and it is why every helper-agent
+  definition that writes owner-facing prose must carry those writing rules
+  itself.
 - **sf-architect-solutioning versus the Salesforce rules versus the dependency
   graph.**
   sf-architect decides what to build; the `salesforce-rules` install standing

@@ -78,8 +78,6 @@ function shippedOriginalFor(path) {
   if (OWN_FILES.has(path)) return null;
   let match = path.match(/^\.claude\/rules\/(.+\.md)$/);
   if (match) return `${GENERAL_RULES}/${match[1]}`;
-  match = path.match(/^\.claude\/output-styles\/(.+\.md)$/);
-  if (match) return `plugins/project-init/library/output-styles/${match[1]}`;
   match = path.match(/^\.claude\/hooks\/(.+)$/);
   const secondBrainHooks = [
     "knowledge-session-start.mjs",

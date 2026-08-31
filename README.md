@@ -46,7 +46,7 @@ written down somewhere. It gets fitted into the system:
 | --- | --- |
 | A rule every project should follow (behavior, writing style, workflow) | Its own file in `library/rules/general/`, copied into each new project's `.claude/rules/` |
 | A rule that must hold in every repository on the machine, even ones I never set up | Its own file in `machine/rules/`, installed for Claude Code and, where needed, as a managed Codex block by `machine-sync`. Only when a project rule genuinely cannot cover it |
-| A change to the voice Claude answers in, every turn | `library/output-styles/`, copied into each project's `.claude/output-styles/` and switched on in its settings. Use this only for something already written as a rule: a style is the short operative form, delivered where the session gets reminded of it each turn |
+| A change to the voice Claude answers in, every turn | Nothing here. The toolkit ships no output style. Every project selects Claude Code's built-in `Concise` style, and a project wanting a different voice sets `outputStyle` for itself |
 | A setup step for new projects | A gate (or part of one) in the `project-init` skill |
 | A guard hook or automation | The [`hooks-library`](plugins/hooks-library/README.md) plugin. A hook does one of three jobs: check an output against a rule a machine can test with no interpretation, trigger a process at a moment agents forget, or orient a session at its start. If it needs none of those, it stays a rule |
 | A whole reusable system | Its own plugin/skill that `project-init` offers |
@@ -95,8 +95,7 @@ claude-toolkit/
       .codex-plugin/plugin.json
       library/                    ← everything that gets COPIED INTO a project.
         rules/general/               the standard .claude/rules files (15)
-        rules/salesforce/            the extra Salesforce rules (9)
-        output-styles/               plain-language.md, the voice Claude answers in
+        rules/salesforce/            the extra Salesforce rules (10)
         tools/                       permsets.py and the kb/ dependency graph tool
         templates/                   copy-and-fill starting points
         guides/                      how-to docs for installing the kits above
@@ -200,7 +199,6 @@ claude-toolkit/
   .claude/                        ← this repo running the toolkit on itself
     rules/                        ← copies of the rules it ships, plus their index
     hooks/                        ← style, writing, startup, and save-reminder copies
-    output-styles/                ← plain-language.md, selected in settings.json
     tools/                        ← installed index builder and knowledge checker
     toolkit-sync.md               ← what was set up, skipped, or declined, and why
   knowledge/                      ← this repo's Markdown knowledge vault
@@ -292,27 +290,30 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
   the two Salesforce guides. Second-brain keeps its startup and pull-request
   hooks with the knowledge system whose paths and messages they depend on.
   The two per-message style hooks, `style-reminder` and `writing-guard`, were
-  removed in August 2026: the output style alone carries the voice now.
+  removed in August 2026 as per-message overhead.
 - [x] **General rules library**: the standard rules are now individual files in
   `project-init`'s `library/rules/general/` folder (with a `README.md` index),
   copied
   into each project's `.claude/rules/` verbatim instead of retyped into CLAUDE.md.
-- [x] **Output styles library**: `project-init`'s `library/output-styles/` folder
-  (with a `README.md` index), copied into each project's `.claude/output-styles/` and
-  switched on in its settings, or into `~/.claude/output-styles/` to cover every
-  project on the machine at once. `plain-language.md` is default ON, and it is
-  the only home for how Claude talks to me. Rewritten by #102 as a goal, then
-  real before-and-after examples, then the rules: real names only and never one
-  Claude invented, no figures of speech, common words, the answer first, a shape
-  that matches the content, every fact kept, no filler, no em dashes, no section
-  signs, quiet between tool calls, and my actions at the end. The four voice
-  rules it replaced (`writing-and-language`, `how-to-reply`,
-  `treat-owner-as-non-technical`, `define-your-terms`) were all deleted.
-  `library/rules/general/` now covers how Claude *works*, not how it *talks*. The one
-  cost that stands: a helper agent never sees an output style. Two things cover
-  it instead. The `follow-the-output-style` rule sends a helper agent to read the
-  style file before it writes a commit message, pull request text, or a document,
-  and an agent that writes persistent files carries the rules in its own definition.
+- [x] **Voice: Claude Code's built-in `Concise` style, and nothing of my own**.
+  The toolkit used to ship a hand-written `plain-language` style in a
+  `library/output-styles/` folder, which replaced four earlier voice rules
+  (`writing-and-language`, `how-to-reply`, `treat-owner-as-non-technical`,
+  `define-your-terms`). I removed the whole folder in #245 and switched to the
+  built-in `Concise` style everywhere, because I read that voice in every other
+  tool anyway and keeping a second one meant maintaining a file nobody selected.
+  `project-init` now writes `"outputStyle": "Concise"` into a project's committed
+  settings and copies no style file. `library/rules/general/` still covers how
+  Claude *works*, not how it *talks*.
+
+  **What I gave up, knowingly.** A built-in style has no file on disk, and a
+  helper agent never receives an output style either way. So the helper agents
+  that write my commit messages, pull request text, and handoff prompts now get
+  no voice instruction at all. `follow-the-output-style` stays and already
+  handles a built-in style having no file: it tells a helper agent to write
+  plainly. An agent that writes owner-facing prose still carries the writing
+  rules in its own definition, and that is now the only place those rules exist
+  for helper agents.
 - [ ] **Publish tooling**: a small script/checklist to export skills to the
   Claude desktop and web apps so those surfaces stay in sync with this repo.
 - [ ] **"Port-back" convention**: a documented flow (and a reminder baked into

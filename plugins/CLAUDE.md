@@ -14,7 +14,7 @@ exists.
 
 One folder is not a plugin's own material: `project-init/library/` holds the
 reusable files other projects receive (`rules/general/`, `rules/salesforce/`,
-`output-styles/`, `tools/`, `templates/`, `guides/`). It sits inside the
+`tools/`, `templates/`, `guides/`). It sits inside the
 `project-init` plugin because a plugin ships only the files inside its own
 folder, so a `library/` at the repository root would vanish on install.
 `project-sync` reads the same folder.
