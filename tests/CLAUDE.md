@@ -52,5 +52,6 @@ Each asks a different question, and each exists because something real broke.
 
 - The comment block at the top of each script: why it exists and what it
   enforces.
-- `../.claude/rules/keep-claudemd-current.md`: the rules the third check
-  mechanically enforces about `CLAUDE.md`, `AGENTS.md`, and the folder files.
+- `../plugins/project-init/skills/project-init/references/thin-claudemd.md`: what
+  `CLAUDE.md` and `AGENTS.md` are for, and why `installed-copy-check.mjs`
+  refuses an `AGENTS.md` that is anything but the one pointer line.

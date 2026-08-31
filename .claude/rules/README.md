@@ -16,7 +16,6 @@ every other project receives.
 
 | File | What it does |
 |---|---|
-| `keep-claudemd-current.md` | What `CLAUDE.md` and `AGENTS.md` are for: carry what an agent must know before it acts, and route it to where things live. Three tests keep other lines out. Covers folder `CLAUDE.md` files and why `AGENTS.md` is a pointer, not a copy. |
 | `parallel-agent-sessions.md` | Sharing a repo with other live sessions: look before you edit, work in your own worktree and branch, never `git add -A`, land by pull request. |
 | `knowledge-direct-commit.md` | A save that touches only `knowledge/` commits straight to the default branch. No worktree, no pull request. The owner-approved exception to `parallel-agent-sessions.md`; the knowledge manual still decides what may be saved. |
 | `recommend-the-best-solution.md` | Propose the well-built solution and name the quick-patch tradeoff, and do not build more than was asked. |
@@ -34,10 +33,7 @@ every other project receives.
 | `wrap-up-ritual.md` | It belonged to the retired save ritual and invoked the deleted verifier. The current policy names the natural save moments, and `.claude/hooks/save-reminder.mjs` raises the pull-request moment that is easy to miss. |
 | `work-item-folders.md` | It governs the local work-tracker, one flat item folder under Git-ignored `.work-items/`. Work here is tracked on the `Claude-Toolkit-Project` board on GitHub, so there are no local work-item folders for the rule to govern. |
 | `dependency-graph.md` | It is conditional on a code graph being installed. No graph is installed here, and the graphify kit was considered and declined. |
-
-`keep-claudemd-current.md` owns the small exception to its normal anti-copying
-rule: `CLAUDE.md` and `AGENTS.md` carry the same short project knowledge route.
-The runtime policy stays in `knowledge/README.md`; the root files do not copy it.
+| `keep-claudemd-current.md` | The toolkit stopped shipping it on 2026-08-31. It spent words in every session on a file that `project-init` writes and `project-sync` audits. `plugins/project-init/skills/project-init/references/thin-claudemd.md` is now the only home for the CLAUDE.md structure, read at the moment the file is written. |
 
 `.claude/toolkit-sync.md` holds the same record, along with everything else that
 was set up, skipped, or declined.

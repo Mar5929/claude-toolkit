@@ -166,18 +166,20 @@ when its name differs from the list above. Their board, their names.
 
 ## What goes into the root instructions
 
-For answers 1 through 5, Gate 5 adds one structural pointer to `CLAUDE.md` and
-the same one to `AGENTS.md`, naming the tracker and how a refined ticket is
-marked. One or two lines, no more. For example:
+For answers 1 through 5, Gate 5 gives `CLAUDE.md` a "Where work is tracked"
+section naming the tracker and how a refined ticket is marked. One or two lines,
+no more. `AGENTS.md` gets nothing: it is one line pointing Codex at `CLAUDE.md`.
+For example:
 
-> **Work tracking.** Work items live on the `<board name>` GitHub Projects board
-> connected to this repository. A ticket moves to `Refining` when its refinement
-> session starts, and to `Ready` with the `refined` label once its requirements
-> are agreed.
+> ## Where work is tracked
+>
+> The `<board name>` GitHub Projects board, connected to this repository. A
+> ticket moves to `Refining` when its refinement session starts, and to `Ready`
+> with the `refined` label once its requirements are agreed.
 
-The pointer names the tracker and how a ticket is marked ready, and stops there.
-Keeping detail out of the root files is the same thin-root-instructions
-convention every other pointer follows, described in `thin-claudemd.md`.
+The section names the tracker and how a ticket is marked ready, and stops there.
+Keeping the detail out is the same router-and-map convention every other part of
+`CLAUDE.md` follows, described in `thin-claudemd.md`.
 
 ## If the owner changes tracker later
 

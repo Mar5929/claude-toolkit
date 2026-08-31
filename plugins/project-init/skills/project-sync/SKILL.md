@@ -327,25 +327,26 @@ answers for the two programs.
 - **Claude Code loads `.claude/rules/` automatically.** Every `.md` file there
   without `paths:` frontmatter is in context at session start. No import needed,
   and CLAUDE.md does not have to mention the folder for it to work.
-- **Codex discovers `AGENTS.md` files, not Claude rule files.** The toolkit keeps
-  one root `AGENTS.md` for a clean audit surface. That root file tells Codex to
-  read every `.claude/rules/*.md` file before work. Codex has no Claude `@`
-  import syntax, so an `@` line is not a load instruction.
+- **Codex discovers `AGENTS.md` files, not Claude rule files.** It expands no
+  import syntax, so an `@` line is not a load instruction, but it does follow a
+  plain instruction to open a file. The toolkit's `AGENTS.md` is one line:
+  `Read CLAUDE.md in this folder and follow it.` Everything else reaches Codex
+  through `CLAUDE.md`, which opens with `Read .claude/rules first.`
 
-So a project can pass every file check while its root Codex route is missing or
-stale. Report:
+So a project can pass every file check while that two-hop route is broken.
+Report:
 
-- **The root route.** Confirm `AGENTS.md` tells Codex to read, in order,
-  `CLAUDE.md`, then every `.md` file in `.claude/rules/`, then the folder's own
-  `CLAUDE.md` before editing files in a folder. A clear instruction to read those
-  files is delivery. Do not copy rule bodies, the codemap, or folder detail into
-  `AGENTS.md`.
-- **Duplication between the two root files.** Where `AGENTS.md` repeats the
-  codemap, the structural pointers, or folder detail that `CLAUDE.md` already
-  carries, report it as a trim: the pointer model keeps one copy and sends Codex
-  to read it. What legitimately stays in both is the fixed lines above the title,
-  `Communication`, the project-knowledge route, and the rules whose breach causes
-  real damage.
+- **`AGENTS.md` is the one line and nothing else.** Anything more is a
+  hand-maintained second copy of `CLAUDE.md` that drifts. Report every extra
+  section as a trim, and say what in `CLAUDE.md` already covers it.
+- **The second hop.** Confirm `CLAUDE.md` still carries `Read .claude/rules
+  first.` Without it the chain stops at `CLAUDE.md` and Codex never reaches the
+  rules.
+- **Nested `AGENTS.md` files.** The toolkit keeps one root file. Report any
+  other, and propose deleting it.
+- **Dead imports.** Grep both root files for `@` lines. Report any that resolve
+  to nothing, especially wildcards such as `@.claude/rules/**`, which look
+  load-bearing and expand to nothing in either program.
 - **Host limits.** Report when local Codex settings prevent that route or the
   startup hook from reaching the session. Do not assume Claude settings apply.
 - **Whether a guard hook covers the gap.** Claude Code `PreToolUse` hooks do not
@@ -353,76 +354,76 @@ stale. Report:
   Codex cannot see, backed by a hook that never runs for Codex, is unenforced in
   both directions at once. Flag that combination explicitly; it is the worst
   state a project can be in and it is invisible to every other check.
-- **Dead imports.** Grep both root files for `@` lines. Report any that resolve
-  to nothing, especially wildcards such as `@.claude/rules/**`, which look
-  load-bearing and expand to nothing in either program.
-- **AGENTS.md size** against the 32 KB cap, so nothing is being truncated.
 
-The fix, when the owner approves it, is the toolkit's root `AGENTS.md` route and
-the matching short project-knowledge fallback, written out in
-`../project-init/references/root-file-examples.md`. Keep rule bodies, the
-codemap, and folder detail in their one canonical file. The toolkit intentionally uses no nested `AGENTS.md` files even
-though Codex supports layered files.
+The fix, when the owner approves it, is the one-line `AGENTS.md` written out in
+`../project-init/references/root-file-examples.md`.
 
 Skip this check only when the owner confirms Codex never runs in the project.
 
 ### CLAUDE.md health
 
 A project can pass every check above and still have a CLAUDE.md nobody reads.
-The file only ratchets: `keep-claudemd-current.md` tells every session to add to
-it, and nothing tells a session to subtract. So audit its shape, not just its
-presence. Read the file and report:
+The file only ratchets: sessions add to it and nothing tells a session to
+subtract. So audit its shape, not just its presence. `CLAUDE.md` is a router and
+a map, answering four questions and nothing else: what is this project, what is
+in each folder and file and when do I open it, what tools does this project run
+on, and where is work tracked. Read the file and report:
 
-- **Size.** How many lines? The thin model (`thin-claudemd.md`) targets a file a
-  session reads in full. Past roughly 250 lines, flag it and say which sections
-  account for the bulk.
+- **Size.** How many lines? Anthropic targets under 200 lines, because the file
+  loads into every session and a bloated one makes agents ignore the
+  instructions that matter. Past that, flag it and say which sections account
+  for the bulk.
 - **Duplication against `.claude/rules/`.** For each rule file in that folder,
   is the same rule also spelled out in CLAUDE.md? Restating it is worse than
   moving it, because the two copies drift and neither wins. List every rule that
   is said twice.
+- **A communication section.** How to talk to the owner lives once, in the
+  owner's own `~/.claude/`, and is in force in every project. A copy here is
+  duplication. Flag it for removal.
+- **Multi-step procedures.** Anything reading as a numbered sequence of steps
+  belongs in a skill, which loads on demand instead of in every session. Name
+  each one and propose where it goes.
 - **A codemap that became a changelog.** Codemap entries should be one line per
-  folder or module plus any load-bearing invariant. Flag entries carrying dated
-  history ("2026-07-17 changed X, decision #17"); that history belongs in Git
-  and the applicable specification or persistent memory.
-- **The three fixed lines above the title.** Both root files should open with
-  the SOUL route (only where `SOUL.md` exists and project knowledge was
-  declined), then the owner's verbatim self-check instruction, then the owner's
-  verbatim continuity instruction. `../project-init/references/thin-claudemd.md`
-  has the exact wording. Report any of them missing from either file, and report
-  any reworded copy, since the wording is the owner's and is not to be edited.
-- **Lines an agent never needed.** Run the three tests from `thin-claudemd.md`
-  over the file and flag every line where any answer is yes: could an agent find
-  this out in one command (a folder is Git-ignored, a file is generated, a
-  directory is empty), is it about where something came from or when it arrived
-  ("this folder came in with the latest toolkit sync"), would a session that
-  never read the line still do the right thing. These arrive one at a time,
-  usually from a sub-agent tidying up at the end of a task, and in an old file
-  they are most of the bulk.
-- **Context sources the codemap does not name.** Routing is the root file's
-  second job. Look for folders holding context an agent should pull in on
-  demand: `ai-external-knowledge/`, a specifications folder, captured reference
-  data. Any one the codemap does not name is a folder no agent will open,
-  however good what is in it. Propose the line, saying what is inside and when
-  to open it.
-- **Live state that belongs in the status doc.** Current phase, next action, and
-  open TODOs drift the moment they are written here. Flag them for work-tracker
-  or the live status doc.
+  folder or module, saying what is in it and when to open it. Flag entries
+  carrying dated history ("2026-07-17 changed X, decision #17"); that history
+  belongs in Git and the applicable specification or persistent memory.
+- **A missing tools section.** Name the MCP servers, generated graphs or
+  indexes, and build, test, and deploy commands the project actually runs.
+  Any the file does not name is a tool a session will not reach for. Propose the
+  row, naming the command and where the detail lives.
+- **The fixed lines above the title.** `CLAUDE.md` should open with the SOUL
+  route (only where `SOUL.md` exists and project knowledge was declined), then
+  the owner's verbatim self-check instruction, then the owner's verbatim
+  continuity instruction. `../project-init/references/thin-claudemd.md` has the
+  exact wording. Report any missing, and report any reworded copy, since the
+  wording is the owner's and is not to be edited.
+- **Lines an agent never needed.** For each line ask whether removing it would
+  make an agent get something wrong. Flag every line where the answer is no,
+  starting with: what a session could find in one command (a folder is
+  Git-ignored, a file is generated, a directory is empty), and where something
+  came from or when it arrived ("this folder came in with the latest toolkit
+  sync"). These arrive one at a time, usually from a sub-agent tidying up at the
+  end of a task, and in an old file they are most of the bulk.
+- **Context sources the codemap does not name.** Look for folders holding
+  context an agent should pull in on demand: `ai-external-knowledge/`, a
+  specifications folder, captured reference data. Any one the codemap does not
+  name is a folder no agent will open, however good what is in it. Propose the
+  line, saying what is inside and when to open it.
+- **Live state that belongs in the tracker.** Current phase, next action, and
+  open TODOs drift the moment they are written here.
 - **Project-knowledge startup parity.** When the current layout is installed,
   confirm both hosts register the same loader and that it reads, in order,
   `SOUL.md`, `knowledge/README.md`, `knowledge/project.md`,
   `knowledge/current.md`, and the entry lines of both indexes. Confirm it loads
-  no other memory and fails open when a file is absent. Both root files carry
-  only the same short fallback. Any copied policy is stale duplication.
+  no other memory and fails open when a file is absent. `CLAUDE.md` carries only
+  the short fallback. Any copied policy is stale duplication.
 - **Stale content.** Anything the code, paths, or decisions have since
   contradicted.
 
 Report this as findings with a recommended trim, not as a pass or fail, and
-treat the trim as one more item the owner opts into at step 4. Two constraints
-on any trim you propose:
+treat the trim as one more item the owner opts into at step 4. One constraint on
+any trim you propose:
 
-- **Never drop the file's self-maintenance mandate.** The wording making
-  CLAUDE.md a living document that sessions must keep current stays, verbatim.
-  A trim that removes it guarantees the file goes stale next.
 - **Check cross-references before renumbering.** Grep the repo for references to
   CLAUDE.md section or rule numbers. If a trim would renumber sections other
   files point at, say exactly which, and let the owner choose between
