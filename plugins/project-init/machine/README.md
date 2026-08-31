@@ -33,7 +33,6 @@ knowledge policy and does nothing when the manual is absent.
 
 | Piece | Lands at | What it does |
 |---|---|---|
-| `rules/activate-project-knowledge.md` | `~/.claude/rules/activate-project-knowledge.md` and one managed block in `~/.codex/AGENTS.md` | If `knowledge/README.md` carries the toolkit marker and the session hook did not load it, read it once. Other folders with that name do nothing. This is a pointer only, never a policy copy. |
 | `rules/no-ai-attribution.md` | `~/.claude/rules/no-ai-attribution.md` | Nothing the owner commits or pushes carries a line saying an AI helped write it. Covers commit trailers, pull request text, code comments, file headers, and documents. |
 | `settings/required.json` | merged into `~/.claude/settings.json` | Sets `attribution.commit` and `attribution.pr` to an empty string, which is what removes the `Co-Authored-By: Claude` trailer and the "Generated with Claude Code" line Claude Code adds by itself. |
 | `no-ai-attribution-guard` hook | `~/.claude/hooks/` plus an entry in `~/.claude/settings.json` | Refuses a `git commit`, `git tag`, `gh pr create`, or `gh release create` whose text carries AI credit. Its script lives with every other hook in the toolkit, in `../../hooks-library/hooks/`, not here. |

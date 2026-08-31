@@ -84,6 +84,7 @@ function shippedOriginalFor(path) {
     "save-reminder.mjs",
     "work-item-close.mjs",
     "command-parsing.mjs",
+    "memory-reminder.mjs",
   ];
   if (match && secondBrainHooks.includes(match[1])) {
     return `${SECOND_BRAIN}/hooks/${match[1]}`;

@@ -59,8 +59,8 @@ matching, so nobody has to remember to change both.
 
 The `second-brain` plugin supplies the `remember`, `recall`, `retire`,
 `reflect`, and `session-search` skills. The installed manual, startup loader,
-pull-request reminder, work-item reminder, index builder, and knowledge checker
-are managed copies of what that plugin ships. `knowledge/README.md` is the
+per-prompt memory reminder, pull-request reminder, work-item reminder, index
+builder, and knowledge checker are managed copies of what that plugin ships. `knowledge/README.md` is the
 runtime authority. `knowledge/specs/knowledge-system.md` is the build authority
 for the plugin itself.
 

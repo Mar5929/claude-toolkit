@@ -12,6 +12,7 @@
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import {
+  existsSync,
   mkdtempSync,
   mkdirSync,
   readFileSync,
@@ -291,15 +292,37 @@ check("no second policy owner", () => {
   assert.ok(!active.some((path) => path.endsWith("where-persistent-information-belongs.md")));
 });
 
-check("machine-wide fallback stays a pointer", () => {
-  const source = read("plugins/project-init/machine/rules/activate-project-knowledge.md");
-  assert.ok(source.includes("knowledge/README.md"));
-  assert.ok(source.includes("<!-- claude-toolkit:knowledge-manual -->"));
-  assert.ok(source.includes("If the marker is absent, do nothing"));
-  assert.ok(source.trim().split(/\s+/).length <= 50);
+check("the per-prompt reminder stays a pointer", () => {
+  const source = read("plugins/second-brain/hooks/memory-reminder.mjs");
+  assert.ok(source.includes("knowledge/README.md"),
+    "the reminder does not name the manual");
+  assert.ok(source.includes("<!-- claude-toolkit:knowledge-manual -->"),
+    "the reminder does not gate on the managed manual marker");
+  assert.ok(!source.includes("knowledge-policy:"),
+    "the reminder copies a manual policy block instead of pointing at it");
+  const body = source.match(/export const REMINDER = \[([\s\S]*?)\]\.join/);
+  assert.ok(body, "the reminder text is no longer a single exported block");
+  assert.ok(body[1].length <= 1600,
+    "the reminder is long enough to be a copy of the manual, not a pointer");
+});
+
+check("the retired activation rule is gone and removable", () => {
+  assert.ok(!existsSync(resolve(root, "plugins/project-init/machine/rules/activate-project-knowledge.md")),
+    "the retired rule still ships");
+  for (const path of [
+    "plugins/project-init/machine/README.md",
+    "plugins/project-init/README.md",
+    "docs/toolkit-map.md",
+    "README.md",
+  ]) {
+    assert.ok(!read(path).includes("activate-project-knowledge"),
+      `${path} still promises the retired rule`);
+  }
   const sync = read("plugins/project-init/skills/machine-sync/SKILL.md");
-  assert.ok(sync.includes("<!-- claude-toolkit:project-knowledge:start -->"));
-  assert.ok(sync.includes("<!-- claude-toolkit:project-knowledge:end -->"));
+  assert.ok(sync.includes("activate-project-knowledge.md"),
+    "machine-sync cannot tell an already-equipped machine what to remove");
+  assert.ok(sync.includes("<!-- claude-toolkit:project-knowledge:start -->"),
+    "machine-sync no longer names the Codex block to remove");
 });
 
 check("fresh projects are recognized as current", () => {

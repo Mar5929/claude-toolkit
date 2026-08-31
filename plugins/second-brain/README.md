@@ -34,6 +34,7 @@ knowledge/
   .obsidian/app.json                 minimal portable vault setting
 
 .claude/hooks/knowledge-session-start.mjs
+.claude/hooks/memory-reminder.mjs
 .claude/hooks/save-reminder.mjs
 .claude/hooks/work-item-close.mjs
 .claude/hooks/command-parsing.mjs

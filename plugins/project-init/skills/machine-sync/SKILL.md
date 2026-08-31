@@ -152,6 +152,17 @@ save and find policy. Offer to remove only the stale knowledge passage after
 showing the exact diff. Preserve every unrelated instruction in the file. Do
 not search personal files or project content for this cleanup.
 
+**Retired machine rules.** The toolkit retires a machine-wide rule when a
+project hook or another rule covers the same ground better. Retiring it in the
+repository does not remove it from a computer that already has it, so the audit
+names every retired rule it still finds and offers removal.
+
+| Retired rule and its pieces | Retired on | What covers it now |
+|---|---|---|
+| `~/.claude/rules/activate-project-knowledge.md`, plus the block between `<!-- claude-toolkit:project-knowledge:start -->` and `<!-- claude-toolkit:project-knowledge:end -->` in `~/.codex/AGENTS.md` | 2026-08-31 | The `memory-reminder` hook, which the `second-brain` plugin installs in each equipped project and which names the manual ahead of every prompt, and the project knowledge route already carried by each project's `CLAUDE.md` and `AGENTS.md`. |
+
+Show the file and the exact block before removing either one.
+
 **Projects that override a machine-wide settings value.** Optional and only when
 the owner asks or a project is open: a project's `.claude/settings.json` or
 `.claude/settings.local.json` beats the machine's. If one sets a key the
@@ -175,18 +186,11 @@ a computer that needs nothing.
 **Rule files.** Copy into `~/.claude/rules/`. Create the folder if it is not
 there.
 
-**Codex project-knowledge activation.** Merge the exact source text into
-`~/.codex/AGENTS.md` between these managed markers:
-
-```text
-<!-- claude-toolkit:project-knowledge:start -->
-<exact text from machine/rules/activate-project-knowledge.md>
-<!-- claude-toolkit:project-knowledge:end -->
-```
-
-Create the file if it does not exist. If the block exists, replace only the text
-inside the two markers after approval. Never replace or reorder text outside the
-block.
+**Approved retired-rule removal.** Delete the whole rule file named in the
+retired table, and remove the managed block along with its two markers from
+`~/.codex/AGENTS.md`, leaving every line outside the block untouched. Only a
+rule listed in that table may be removed this way. Removal needs the same
+approval as an install.
 
 **Approved retired-policy cleanup.** Remove only the exact stale passage shown
 in the audit. Never delete the containing machine rule when it still has another
@@ -275,9 +279,11 @@ deliberate "no" again.
 
 - Change anything before the owner approves the specific item.
 - Write over `~/.claude/settings.json` instead of merging into it.
-- Remove a rule, a hook, or a settings value the toolkit did not install. The
-  narrow exception is an owner-approved stale knowledge passage from the known
-  legacy files audited above; preserve the rest of that file.
+- Remove a rule, a hook, or a settings value the toolkit did not install. Two
+  narrow exceptions, both needing the owner's approval first: a stale knowledge
+  passage from the known legacy files audited above, where the rest of that file
+  is preserved, and a rule listed in the retired table above, which is removed
+  whole.
 - Remove a section from `~/.claude/CLAUDE.md` as a side effect of installing
   something. That is its own approved item or it does not happen.
 - Touch any project folder. That is what `project-sync` is for, and the two are

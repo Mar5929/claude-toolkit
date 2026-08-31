@@ -103,8 +103,7 @@ claude-toolkit/
         README.md                    the test for what belongs here, not in library/
         rules/                       no-ai-attribution.md,
                                      propose-the-best-solution.md,
-                                     keep-design-out-of-requirements.md,
-                                     activate-project-knowledge.md
+                                     keep-design-out-of-requirements.md
         settings/required.json       the attribution values that kill the AI credit lines
       skills/
         project-init/             ← SKILL.md + references/: the gate script only
