@@ -61,17 +61,17 @@ without being lost.
 - **No rule moves.** Behavior rules stay in `.claude/rules/`, which loads every
   session. A folder file may point at a rule and may never hold the only copy of
   one.
-- **Four things stay in the root file:** how to talk to the owner, the pointers
-  to the most dangerous rules, the project-knowledge startup route when that
-  system is installed, and the codemap lines themselves.
-- **Codex is unaffected.** Codex never reads any `CLAUDE.md`, root or nested.
-  Nothing Codex needs lives only in a folder file, and root `AGENTS.md` keeps in
-  full any detail the root `CLAUDE.md` handed off. Codex supports layered
-  AGENTS.md files, but toolkit projects deliberately keep one root file so both
-  hosts' maps can be audited together.
+- **The root file stays a router and a map:** what the project is, what is in
+  each folder and when to open it, what tools the project runs on, and where
+  work is tracked. A codemap line naming a folder is what sends an agent to that
+  folder's own file.
+- **Codex reaches the folder files by opening them.** Root `AGENTS.md` is one
+  line sending Codex to `CLAUDE.md`, which sends it to `.claude/rules/`. Nothing
+  Codex must always know lives only in a folder file. Codex supports layered
+  AGENTS.md files, but toolkit projects deliberately keep one root file.
 - **They are kept current.** When later work changes what a folder is for, that
-  folder's `CLAUDE.md` is updated in the same session, the same way the root
-  file is.
+  folder's `CLAUDE.md` is updated in the same change, the same way the root file
+  is.
 
 ## How it behaves from the outside
 
