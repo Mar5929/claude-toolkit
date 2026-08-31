@@ -49,8 +49,8 @@ Choose the canonical home and draft memory or specification. Memory and specific
 
 Then show the numbered approval group required by the `knowledge/README.md` manual, one group per file. Do not show full file text unless asked.
 
-A candidate that fails any question is not proposed. Say in one line that it was
-dropped and which question failed.
+A candidate that fails any of the manual's rules is not proposed. Say in one
+line that it was dropped and which rule it failed.
 
 Wait. Nothing is queued, cached for later, or written on silence, an unclear
 answer, or a request to see more text.
@@ -89,8 +89,8 @@ Finish by naming exactly what was written, updated, declined, or blocked.
 
 If the user proposed an addition to what to consider memory or project-specific memory instructions, append one line per candidate to the `## Recent decisions` section of
 `knowledge/memory-self-improvement.md`. Each line carries the date, the
-candidate in a fee (approved, edited, or rejected), and the
-owner's reason in the owner's own wow words, the outcomrds. Write "no reason given" when the owner
+candidate in a few words, the outcome (approved, edited, or rejected), and the
+owner's reason in the owner's own words. Write "no reason given" when the owner
 gave none. Never invent a reason, and never write a secret or private personal
 information.
 

@@ -1,6 +1,6 @@
 {
   "name": "second-brain",
-  "version": "4.3.0",
+  "version": "4.4.0",
   "description": "One Git-native project knowledge system for Claude, Codex, and optional Obsidian. A managed operating manual, shared startup map, flat memory, visible provenance, project-scoped owner-approved saves, task-specific skills, read-only session search, and one checker.",
   "author": {
     "name": "Mike Rihm",

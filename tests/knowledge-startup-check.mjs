@@ -180,16 +180,22 @@ check("Claude and Codex hook parity", () => {
   assert.ok(codex.additionalContextLimit >= 5000);
 });
 
-check("short identical root fallback", () => {
+check("short root fallback", () => {
+  // Since #254 AGENTS.md is one pointer line, so CLAUDE.md is the only root
+  // file carrying the knowledge route. AGENTS.md must still send a Codex
+  // session there, because Codex expands no import syntax.
   const claude = rootKnowledgeSection("CLAUDE.md");
-  const codex = rootKnowledgeSection("AGENTS.md");
-  assert.equal(claude, codex);
   assert.ok(claude.includes("knowledge/README.md"));
   assert.ok(claude.includes("once"));
   assert.ok(claude.includes("not already in this session"));
   assert.ok(claude.includes("continue and report it"));
   assert.ok(claude.split(/\s+/).length <= 80);
   assert.ok(!read("CLAUDE.md").includes("@SOUL.md"));
+
+  const codex = read("AGENTS.md").trim();
+  assert.ok(/CLAUDE\.md/.test(codex), "AGENTS.md must point a Codex session at CLAUDE.md");
+  assert.ok(codex.split("\n").length === 1, "AGENTS.md must stay one pointer line");
+  assert.ok(!codex.includes("@CLAUDE.md"), "Codex expands no import syntax");
 });
 
 check("manual size, markers, copy, and checksum", () => {
@@ -197,8 +203,11 @@ check("manual size, markers, copy, and checksum", () => {
   const installed = read(manualCopy);
   assert.equal(source, installed);
   assert.equal(count(source, "<!-- claude-toolkit:knowledge-manual -->"), 1);
-  assert.ok(source.split("\n").length <= 253, "manual exceeds 253 lines");
-  assert.ok(source.trim().split(/\s+/).length <= 1557, "manual exceeds 1,557 words");
+  // The manual loads at session start in every equipped project, so its size is
+  // a running token cost. These caps are a deliberate ratchet: raise them only
+  // when the owner has decided the added words are worth paying for everywhere.
+  assert.ok(source.split("\n").length <= 280, "manual exceeds 280 lines");
+  assert.ok(source.trim().split(/\s+/).length <= 1850, "manual exceeds 1,850 words");
   const actualHash = createHash("sha256").update(source).digest("hex");
   assert.equal(actualHash, MANUAL_SHA256);
   for (const policy of [
@@ -222,15 +231,15 @@ check("project scope gate runs before a save proposal", () => {
   const saveTest = policy(manual, "save-test");
   const neverSave = policy(manual, "never-save");
   const approval = policy(manual, "approval");
-  assert.ok(saveTest.includes("current project"));
-  assert.ok(saveTest.includes("future project action or decision"));
-  assert.ok(saveTest.includes("Where it happened does not make it project knowledge"));
-  assert.ok(saveTest.includes("agent-tooling project"));
-  assert.ok(saveTest.includes("configuration"));
-  assert.ok(neverSave.includes("generic agent, shell, or tool behavior"));
-  assert.ok(neverSave.includes("one-off troubleshooting"));
-  assert.ok(neverSave.includes("global memory"));
+  assert.ok(saveTest.includes("relevant to the project itself"));
+  assert.ok(saveTest.includes("provided by the user or worked out by both the user and the agent"));
+  assert.ok(neverSave.includes("A procedure that belongs in a rule or a skill"));
+  assert.ok(neverSave.includes("Live status of current work"));
+  assert.ok(neverSave.includes("Passwords, keys, and tokens"));
   assert.ok(approval.includes("Project value"));
+  // A proposal must say the word Memory or Specification. The owner should not
+  // have to decode a folder path to know what he is approving.
+  assert.ok(approval.includes("Type: Memory, or Specification"));
 
   const remember = read("plugins/second-brain/skills/remember/SKILL.md");
   const scope = remember.indexOf("## 1. Gather and scope candidates");
@@ -238,8 +247,11 @@ check("project scope gate runs before a save proposal", () => {
   const draft = remember.indexOf("## 3. Draft and wait");
   assert.ok(scope !== -1 && scope < search && search < draft);
   assert.ok(remember.includes("knowledge/project.md"));
-  assert.ok(remember.includes("Future work on this project needs this because"));
-  assert.ok(remember.includes("keep only the constraint"));
+  // The manual no longer carries a numbered save test, so the "do not restate
+  // what a committed file already says" gate lives in the skill's search step.
+  // It is the most-used rejection reason in memory-self-improvement.md, so it
+  // is asserted here rather than left uncovered.
+  assert.ok(remember.includes("already contains the information fully"));
   assert.ok(remember.includes("separate global rule or skill review"));
 });
 

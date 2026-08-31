@@ -15,7 +15,8 @@ rebuild it.
   instead of loading in every session.
 - `knowledge-system.md`: How the knowledge system works, in enough detail to
   build it, covering the two file schemas, the find ladder, the routing table,
-  the save test, and the lifecycle of a saved file.
+  the reasoning behind the save and approval design, and the lifecycle of a
+  saved file.
 - `memory-system-v2.md` (superseded): A draft of a memory system v2 that was
   never built, superseded first on 2026-08-20 and again on 2026-08-21, kept
   only as history.

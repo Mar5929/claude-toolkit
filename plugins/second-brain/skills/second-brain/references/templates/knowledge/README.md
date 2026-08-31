@@ -102,14 +102,14 @@ A tool result, transcript, execution trace, or scratch note should not become lo
 <!-- knowledge-policy:save-test:start -->
 ### Long-term memory
 
-Long-term memory comes in a few kinds, borrowed from cognitive science: working
-memory, semantic memory, episodic memory, and procedural memory. These categories
+Long-term memory comes in a few kinds, borrowed from cognitive science: semantic
+memory, episodic memory, and procedural memory. These categories
 describe **what kind of knowledge something is**. They do not require every
 category to live in the same physical folder. Some forms of durable agent
 knowledge belong in the persistent memory base, while others belong in skills,
 rules, specifications, or native agent instructions.
 
-These are the non-negotiables of what are considered AI Memory :
+These are the non-negotiables of what are considered AI Memory:
 
 1. The information MUST be relevant to the project itself.
 2. Project memory is: persistent facts, decisions, user feedback, project milestones, project context (people, places, things, goals, etc.), project state, meaningful project events that occurred, constraints, relationships, facts that are difficult to infer from the repository alone, current truths about the project that the future agents will otherwise repeatedly need explained. These pieces of memory must be provided by the user or worked out by both the user and the agent together during a particular session.
@@ -140,27 +140,9 @@ None of this becomes durable memory:
 
 <!-- knowledge-policy:never-save:end -->
 
-### Reject example
-
-A real proposal, rejected. It asked to amend a memory about which Salesforce org
-is which: "The CLI default org for this repository is GREEN_FullCopy, set in the
-committed `.sf/config.json`. Mike set it to GREEN on 2026-08-11 in commit a0605f0
-and changed it to GREEN_FullCopy the next day in commit 3a53b56. A read without
-`-o` returns sandbox rows that look like production data. Always name the org.
-The policy and reasoning are in the `salesforce-safety-guardrails` rule."
-
-It fails three ways:
-
-- Question 5: the default value sits in a committed config file, so a pointer to
-  that file is the only allowed form.
-- Routing: "always name the org" is a procedure a loaded rule already owns, and
-  procedures are never memory.
-- Question 3: the commit-by-commit history is agent work history, not a change
-  to the project.
-
 ## What should be saved as a `knowledge/specs/`
 
-Specs are finalized, approved specifications and requirements about how the system should behave - logic, behavior, UI, UX, and other requirements that an AI cannot determine from reading the raw code. The specs should not simple regurgitate what can be understood from reading the raw code.
+Specs are finalized, approved specifications and requirements about how the system should behave - logic, behavior, UI, UX, and other requirements that an AI cannot determine from reading the raw code. The specs should not simply regurgitate what can be understood from reading the raw code.
 
 Specs must be written in clear, concise, laymen's terms without jargon. They should be organized neatly in system areas. They are living truth and must be deduplicated and updated when the AI works with the user to finalize work items. The typical lifecycle of a work item is listed here under the '## For your (AI agent) reference on what a typical work-item lifecycle is' heading for reference.
 
@@ -204,17 +186,23 @@ Show one numbered group per proposed file:
 
 ```text
 1. <plain name>
+   - Type: Memory, or Specification. Say which one, in that word.
    - What: <the meaning, three sentences at most>
    - Project value: <how this helps future work on the current project>
    - Where: <exact path and action>
    - Source: <source and observed, reported, or inferred>
    - Tags: <tags and filing details>
    - Assumptions: <everything unchecked, or None>
-   - Verdict: <one line per save-test question, 1 to 7, each saying pass or fail
-     and why. Question 5's line names the files, rules, and config searched.>
+   - Verdict: <why this counts as project memory under this manual, and what
+     was searched to confirm it is not already written down. Name the files,
+     rules, and config opened.>
 ```
 
-The verdict lines are shown with the group, so the owner sees the reasoning
+`Type` comes first and is never left out. The owner should not have to read a
+folder path to work out whether he is being asked to approve a memory or a
+specification.
+
+The verdict line is shown with the group, so the owner sees the reasoning
 before answering.
 
 The owner approves `What`, `Project value`, and `Source`; assumptions are
