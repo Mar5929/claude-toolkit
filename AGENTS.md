@@ -44,10 +44,13 @@ and read, in order:
    projects.
 2. Every `.md` file in `.claude/rules/`. Each one is a rule for how you work
    here, and all of them are in force for the whole session.
-3. `.claude/output-styles/plain-language.md`. It is how Mike wants you to write.
-   Claude receives it through the system prompt; you do not, so read the file.
-4. The `CLAUDE.md` inside any folder before you edit files in it. `plugins/`,
+3. The `CLAUDE.md` inside any folder before you edit files in it. `plugins/`,
    `docs/`, and `tests/` each have one.
+
+There is no output style file to read. Claude Code sessions here use its
+built-in `Concise` style, which Codex cannot receive. So write plainly and
+briefly: lead with the result, use common words, keep every fact, and skip the
+preamble.
 
 This file used to write all of that out a second time. It stopped, because two
 copies of the same thing drift and neither one wins.
@@ -69,8 +72,8 @@ The full versions are in `.claude/rules/`, which you are about to read.
 ## Codex-specific instructions
 
 Codex loads this root file automatically. The instructions above to read
-`CLAUDE.md`, the rule files, and the output style are needed because Codex loads
-none of them on its own.
+`CLAUDE.md` and the rule files are needed because Codex loads
+neither on its own.
 
 Codex also runs the project startup hook registered in `.codex/hooks.json` when
 the project is trusted. The short root route above remains the fallback if that

@@ -1,8 +1,7 @@
 # Track Local Work in Flat, Ignored Folders
 
 This rule is for projects whose owner chose local folders for work tracking.
-`spec-before-you-build.md` is the tracker-neutral rule; this one adds what is
-specific to the `work-tracker` plugin.
+It covers what is specific to the `work-tracker` plugin.
 
 Capture every ticket, feature, setup task, or deferred want in `.work-items/`.
 Use the plugin commands instead of moving folders or directly editing
@@ -25,8 +24,9 @@ Each item has one flat `WI-<number>-<name>/` folder containing:
 
 ## Protect the requirements
 
-`REQUIREMENTS.md` answers the six parts in `spec-before-you-build.md`: the goal,
-reason, requirements, user experience, outside behavior, and edge cases.
+`REQUIREMENTS.md` answers six things: the goal, the reason, the requirements,
+what the person using it experiences, how it behaves from the outside, and the
+edge cases.
 
 Its YAML status is `refining` until the owner has reviewed and approved the
 complete file. Only then may it become `finalized`.

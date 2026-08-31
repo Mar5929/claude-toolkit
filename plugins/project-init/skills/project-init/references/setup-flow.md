@@ -39,9 +39,8 @@ so they always know where they are.
   computer, the BMAD method, or somewhere else / nothing yet.
   `work-tracking-choice.md` has the wording, what each answer does, and the
   GitHub board setup steps. Read it first.
-- For answers other than "somewhere else, or nothing yet", Gate 5 copies the
-  `spec-before-you-build.md` rule and adds a one-line pointer to `CLAUDE.md` and
-  `AGENTS.md` naming the tracker.
+- For answers other than "somewhere else, or nothing yet", Gate 5 adds a
+  one-line pointer to `CLAUDE.md` and `AGENTS.md` naming the tracker.
 - A GitHub Projects board and local folders are the two tracker choices the
   toolkit can set up. GitHub setup creates nothing without explicit approval:
   no board, no statuses, no labels, no issues. Local setup writes only after the
@@ -245,16 +244,17 @@ so they always know where they are.
   file" in `thin-claudemd.md`.
 - `AGENTS.md` keeps the folder detail in full. Codex never reads a folder
   `CLAUDE.md`, so the two root files are meant to differ in length.
-- Install the plain-language output style (default ON): copy
-  `library/output-styles/plain-language.md` to `.claude/output-styles/` and set
-  `"outputStyle": "plain-language"` in the committed `.claude/settings.json`.
-  This is the only home for how Claude talks; there are no voice rules in
-  `.claude/rules/` any more. Offer
-  the machine-wide copy at `~/.claude/output-styles/` as well if the owner wants
-  this voice in every project. Say that it starts on the owner's next session,
-  and that a helper agent never sees an output style, which is what
-  `follow-the-output-style.md` in the rules folder is for. See
-  `library/output-styles/README.md`.
+- Select Claude Code's built-in `Concise` output style (default ON): set
+  `"outputStyle": "Concise"` in the committed `.claude/settings.json`. Copy no
+  style file. `Concise` is built into Claude Code, and the toolkit stopped
+  shipping a style of its own in issue #245. There are no voice rules in
+  `.claude/rules/` either. Offer the same setting in
+  `~/.claude/settings.json` if the owner wants this voice in every repository on
+  the machine. Say that it starts on the owner's next session, that a helper
+  agent never receives an output style, which is what
+  `follow-the-output-style.md` in the rules folder is for, and that with a
+  built-in style there is no file for that rule to point at, so helper agents
+  fall back to writing plainly.
 - When project knowledge is installed, keep the route small and identical. Both
   hosts register the loader for `SOUL.md`, `knowledge/README.md`,
   `knowledge/project.md`, `knowledge/current.md`, and the two index entry lists.
@@ -296,8 +296,7 @@ so they always know where they are.
   list, and `/track-tasks` prints it. It catches parked topics, questions the
   owner never answered, and work blocked behind something else. Say its limit:
   the list dies with the session, so anything that must outlive it moves to the
-  work tracker or a handoff prompt. It pairs with the `track-open-topics.md`
-  rule from Gate 5, which names no skill, so the rule alone is a valid install.
+  work tracker or a handoff prompt.
 - `unslop` strips the patterns that make existing writing read as
   machine-written and puts a voice back, on a named file, pasted text, or the
   last answer. It shows every tell with its fix, then the rewrite, and writes

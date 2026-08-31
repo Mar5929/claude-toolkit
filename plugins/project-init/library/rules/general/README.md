@@ -16,40 +16,59 @@ structure Gate 5 writes.
 
 | File | What it does |
 | --- | --- |
-| `keep-claudemd-current.md` | What `CLAUDE.md` and `AGENTS.md` are for, and how to keep them that way. They are the first thing an agent reads, and they do two jobs: carry the few things it must know before it acts, and route, so it knows where each thing in the repository lives. That means the codemap names the context sources (captured outside documentation, specifications, reference data) and not only the code, because an agent reaches those folders only from here. Three tests keep the rest out: could an agent find this out in one command, is it about where something came from or when, would a session that never read the line still be fine. Then the older two-sided duty: update the file before a session ends whenever it surfaces a new path, convention, decision, or workflow, and prune while you are in there. Covers folder `CLAUDE.md` files, and why `AGENTS.md` is a short pointer file rather than a second copy: Codex reads no `CLAUDE.md` and expands no import syntax, so an `@CLAUDE.md` line loads nothing, but a plain instruction to open the file works. |
+| `keep-claudemd-current.md` | What `CLAUDE.md` and `AGENTS.md` are for: carry the few things an agent must know before it acts, and route it to where everything in the repository lives, context sources included. Three tests keep other lines out. Update the file when a session surfaces a new path, convention, decision, or workflow, and prune while in there. Covers folder `CLAUDE.md` files, and why `AGENTS.md` is a short pointer rather than a second copy. |
 | `honest-verification.md` | Do not claim more than you verified. If it was not run or tested, say so and leave the steps. Report failures with output. |
-| `parallel-agent-sessions.md` | Sharing a repo with other live sessions, in one rule: where you work and how you behave. Look before you edit (`git worktree list`, `git status`, `git log`); work in your own worktree on your own branch and never in the shared primary checkout; never `git add -A`; keep shared-file edits narrow and preserve unrelated entries while allowing owner-approved project-knowledge maintenance; claim a sequential identifier by pushing it first, because parallel agents WILL collide on numbers; never touch another session's branch or commit its uncommitted work; land by PR, merge only on owner approval and only after a collision check. Written after one session caused a work-item number collision, had its staged files swept into another session's commit twice, and reordered a shared backlog. Absorbed the separate `worktree-isolation` rule. |
+| `parallel-agent-sessions.md` | Sharing a repository with other live sessions. Look before you edit, work in your own worktree on your own branch, never stage everything, keep shared-file edits additive, claim a sequential number before using it, and land by pull request with the owner's approval after a merge-safety check. |
 | `recommend-the-best-solution.md` | Build it well, and never quietly build more than was asked. Propose the well-architected, best-practice solution rather than a band-aid, and name the quick-patch tradeoff so the owner can choose. Do not expand beyond the request without checking first. The two halves meet in one move: recommending the bigger thing is right, building it unasked is gold-plating. Once the owner decides, do it their way. Absorbed the separate `stay-in-scope` rule. |
 | `follow-the-output-style.md` | Anything a helper agent writes that the owner reads (commit message, pull request text, a document in the repo) follows the project's active output style. A pointer to the style file, never a second copy of the rules. Exists because an output style reaches the main conversation only. |
 | `ask-before-assuming.md` | Two pauses, both before acting: when intent, naming, behavior, or scope is ambiguous, ask one specific question rather than picking the reading that lets you start sooner; and before an operation that reads or produces a lot, state the rough scope and get a go-ahead. |
 | `offer-context-handoff.md` | When context is heavy and the next step is reasoning-heavy, offer a self-contained handoff prompt for a fresh session. Run the installed `remember` review before writing that prompt, and carry anything the owner does not save inside the prompt itself. This is the moment that destroys the most context, and nothing can catch a clear after it happens. The `handoff` plugin's `/handoff` command does it in order; this rule is the backup when the owner asks in their own words. |
 | `do-the-technical-work.md` | Do the git/config/deploy/file work yourself. Only hand the owner steps that are genuinely only-they, and make those copy-paste simple. Recommend, do not dump raw choices. |
-| `spec-before-you-build.md` | Two things hold whatever the project tracks work in: every piece of work is logged in that tracker before it is built, and nothing is built until a refinement session has filled in the six-part spec (requirements, goal, reason, what the person using it experiences, how it behaves from the outside, edge cases). Says what to do when a ticket is missing or thin, and requires keeping the spec current instead of letting a written requirement go stale. Also requires re-checking the spec for drift before building or solutioning from it, with the spec-check skill where installed or the same review by hand. Tracker-neutral: the project's root instructions name the tracker, this rule says what to do with it. Sits above `work-item-folders` (which owns one specific tracker) and applies equally to a GitHub board, Linear, or Jira. Never ships alone: it reads the tracker's name out of the project's root instructions, so it goes in only alongside the work-tracking pointer that Gate 1 and Gate 5 write. Names no skill and no tracker, so removing a plugin or changing tracker never leaves it stale. |
-| `project-file-lifecycle.md` | Give project information one lasting authoritative home. Work items track the work, active architecture stays under the declared delivery architecture area, approved behavior and lasting decisions use the project's declared knowledge homes, code stays with the implementation, deliverables hold only presentations and high-level summaries, and only retired working material goes to the archive. New client-work projects default to `delivery/`; existing delivery roots stay in place. Folder README files may help people but never own the rule. |
+| `project-file-lifecycle.md` | Give each kind of project information one lasting home, and do not archive current truth just because a work item closed. Only retired or replaced material moves to an archive. |
 | `work-item-folders.md` | Use the local work-tracker as the task authority: flat Git-ignored item folders, owner-approved requirements, exact handoffs, typed relationships, Git landing proof, and preview-first conversion of older staged folders. Conditional in practice: only meaningful when the project chose local-folder tracking. |
 | `ai-external-knowledge.md` | Outside documentation captured for agents to read (vendor docs, API references, framework guides) goes in `ai-external-knowledge/` at the project root, one folder per topic, each naming its source URL and capture date. It stays raw source material: the project's own conclusions live in the project's knowledge or documentation and link back to it, the project's truth wins any disagreement, and a captured document is never edited to agree with the project. Also says the folder is findable but not read, so agents reach it only when a rule, a skill, or persistent knowledge points at a topic. |
-| `track-open-topics.md` | Keep a running list of every topic still open in the session on Claude Code's built-in task list, starting the moment a second topic goes unresolved. Covers the ones easiest to lose: topics the owner parked, questions they have not answered, and work blocked behind something else. Mark an item finished only when it actually is, and say plainly that the list dies with the session, so anything that has to outlive it moves to the work tracker or a handoff prompt. Names no skill, so declining the `session-skills` plugin never leaves it stale. |
-| `size-documents-to-the-task.md` | A document written to disk is as long as its content and no longer: no filler sections, no closing summary that repeats the document, no introduction explaining what is about to be said, no hedging that names no situation and no tradeoff. Completeness still wins, in words, so a fact, number, date, path, warning, or reason is never cut to save space, and a long document with long content is correct. Lives here rather than in the output style because Claude Code loads a rule into a helper agent's context and never loads a style there, and helper agents write specifications, pull request text, and handoff prompts. Added for Claude Opus 5, which writes longer documents than earlier models by default. |
 
-## Voice is not a rule any more
+## Voice is not a rule, and the toolkit no longer ships one
 
 How Claude writes and replies used to live here in four files:
 `writing-and-language.md`, `how-to-reply.md`,
 `treat-owner-as-non-technical.md`, and `define-your-terms.md`. All four were
-removed. That job now belongs to the `plain-language` output style in
-`../../output-styles/`, which is delivered through the system prompt instead of
-being read once as a rule file.
+removed in favor of a hand-written `plain-language` output style, and in issue
+#245 that style was removed too. Every project now selects Claude Code's
+built-in `Concise` style, written into the project's committed settings by
+`project-init` Gate 5. The toolkit authors no voice file at all.
 
-Do not add a voice rule to this folder. If Claude should say something
-differently, the change goes in the output style. This folder is for how Claude
-*works*, not how it *talks*.
+Do not add a voice rule to this folder. This folder is for how Claude *works*,
+not how it *talks*. A project that wants a different voice sets `outputStyle`
+in its own settings.
 
 The one thing that does live here is `follow-the-output-style.md`, and it is a
 sign, not a rule about writing. An output style reaches the main conversation
 only, so a helper agent writing a commit message or a document never sees it.
-That rule tells the helper agent where the style file is and to go read it. It
-deliberately does not repeat a single writing instruction, because a second copy
-would drift from the first.
+That rule sends the helper agent to the active style file. With a built-in
+style there is no file, and the rule's own fallback applies: write plainly and
+move on. That fallback is now the only voice instruction a helper agent gets,
+which is why any helper-agent definition that writes owner-facing prose has to
+carry the writing rules in its own text.
+
+## Rules removed on 2026-08-31, and why
+
+The owner reviewed the whole default-on set and cut it roughly in half. The set
+had grown to about 6,900 words, which loads into every session before anyone
+types anything. A rule set that long stops being read and starts being skimmed.
+
+Two files were removed outright. Do not add them back without asking the owner.
+
+| Removed file | What it did | Why it went |
+|---|---|---|
+| `spec-before-you-build.md` | Required every piece of work to be logged in the project's tracker before it was built, and required a refinement session covering six parts before anyone started. | The owner decided the ceremony cost more than it returned. The `spec-check` skill in the `session-skills` plugin still exists for checking a specification before building from it, and is now offered on its own merits rather than because a rule demanded it. |
+| `track-open-topics.md` | Required a running session task list of every unresolved topic. | Claude Code's built-in task list is used when it helps. It did not need a standing rule spending words in every session to say so. |
+
+Three more rules were kept but cut hard in the same change:
+`keep-claudemd-current.md`, `parallel-agent-sessions.md`, and
+`project-file-lifecycle.md`. Their instructions are unchanged. What went was the
+explanation, the history, and the worked reasoning around them. If one of them
+reads as blunt now, that is deliberate.
 
 ## Conditional: copy only when the project has the thing the rule governs
 

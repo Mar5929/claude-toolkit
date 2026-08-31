@@ -55,11 +55,11 @@ three weeks later in another project.
 | Gate | Result |
 | --- | --- |
 | 0. Orient | Done. Existing repository, not a new one, so this ran as a sync rather than an init. Node and Markdown, no application stack. |
-| 1. Scaffolding and work tracking | Already answered. Work is tracked on the `Claude-Toolkit-Project` board on GitHub. `CLAUDE.md` names it, and `spec-before-you-build.md` is installed alongside that pointer. No scaffolding was added: the folder layout already existed. |
+| 1. Scaffolding and work tracking | Already answered. Work is tracked on the `Claude-Toolkit-Project` board on GitHub. `CLAUDE.md` names it. `spec-before-you-build.md` was installed alongside that pointer until 2026-08-31, when the toolkit dropped the rule and it was removed here too. No scaffolding was added: the folder layout already existed. |
 | 2. Hooks | Done. `save-reminder` and `knowledge-session-start` are installed under `.claude/hooks/` and registered in `.claude/settings.json`. Codex registers the same startup loader in `.codex/hooks.json`. The two style hooks were removed with the toolkit, as explained below. |
 | 3. Project knowledge | **Adopted from the packaged plugin.** `SOUL.md`, the managed operating manual, `knowledge/project.md`, `knowledge/current.md`, and both generated index entry lists load at session start. Approved specifications, flat persistent memory, and unchecked brainstorms live under the same knowledge root. The packaged skills keep only task-specific steps. The retired policy rule and machinery stay removed. |
 | 4. Knowledge layer | Included with Gate 3. The graphify code graph was offered and declined, see below. |
-| 5. Root instructions, rules, output style | Done. `CLAUDE.md` and `AGENTS.md` carry the same short project knowledge route. `.claude/rules/` holds the applicable general rules, with no large memory rule or wrap-up ritual. The plain-language output style is installed and selected. |
+| 5. Root instructions, rules, output style | Done. `CLAUDE.md` and `AGENTS.md` carry the same short project knowledge route. `.claude/rules/` holds the applicable general rules, with no large memory rule or wrap-up ritual. Claude Code's built-in `Concise` style is selected in `.claude/settings.json`; the hand-written `plain-language` style this repo used to ship was removed from the toolkit in issue #245. |
 | 6. Optional toolkit skills | Done. All five now ship in one plugin, `session-skills`: `explain-simply`, `grill-me`, `handoff`, `session-summary`, and `track-tasks`. The four that predate the merge were already switched on in the machine settings at `~/.claude/settings.json`. |
 
 ## Rules installed
@@ -152,12 +152,16 @@ already re-delivers, and dropped both hooks from the toolkit in the same
 change, along with the `show-phase-progress` and `steer-to-the-goal` rules.
 
 Know the history before asking for anything like them back. `writing-guard` was
-removed once before, in issue #101, on the theory that the plain-language
-output style plus the `style-reminder` hook would hold the rule on their own.
-Issue #102 brought it back after measuring real transcripts: one em dash every
-1.8 assistant messages in the worst project, against a rule four words long. So
-expect the violations to return. This time that is the accepted trade, not a
-surprise.
+removed once before, in issue #101, on the theory that the hand-written
+`plain-language` output style plus the `style-reminder` hook would hold the rule
+on their own. Issue #102 brought it back after measuring real transcripts: one
+em dash every 1.8 assistant messages in the worst project, against a rule four
+words long. So expect the violations to return. This time that is the accepted
+trade, not a surprise.
+
+Issue #245 then removed the `plain-language` style itself and switched every
+toolkit project to Claude Code's built-in `Concise` style. Nothing hand-written
+now enforces voice at any level, and helper agents receive no style at all.
 
 ## The built-in memory, turned off here
 

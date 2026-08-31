@@ -31,8 +31,8 @@ The block between the markers is in `AGENTS.md` word for word, and
 which nothing checks, so copy those by hand.
 
 Everything else differs on purpose. This file is the map. `AGENTS.md` is a short
-pointer that tells Codex to come read this file, then `.claude/rules/`, then the
-output style, then a folder's own `CLAUDE.md` before editing there. It holds no
+pointer that tells Codex to come read this file, then `.claude/rules/`, then a
+folder's own `CLAUDE.md` before editing there. It holds no
 codemap and no folder detail, so there is nothing below the markers to keep in
 step. What it does hold is the handful of rules too dangerous for Codex to reach
 late; when one of those changes, change it there too.
@@ -47,10 +47,10 @@ late; when one of those changes, change it there too.
 | `tests/` | Three Node checks, run by hand before every pull request. Detail: `tests/CLAUDE.md`. |
 | `archive/` | Retired material kept for history. Never a source of current truth. |
 | `knowledge/` | The project overview, generated index, approved specifications, persistent memory, raw brainstorms, and minimal Obsidian vault settings. |
-| `.claude/` | What this repo runs on itself: the rule copies, output style, installed hooks and tools, settings, and the setup record in `toolkit-sync.md`. |
+| `.claude/` | What this repo runs on itself: the rule copies, installed hooks and tools, settings, and the setup record in `toolkit-sync.md`. |
 
-This repo runs the toolkit on itself. `.claude/rules/`, `.claude/hooks/`,
-`.claude/output-styles/`, and `knowledge/` are the same setup every other toolkit
+This repo runs the toolkit on itself. `.claude/rules/`, `.claude/hooks/`, and
+`knowledge/` are the same setup every other toolkit
 project gets, installed here so a change is felt where it is written instead of
 three weeks later in another project. That means most files under `.claude/` are
 copies of files this repo also ships.
@@ -67,8 +67,7 @@ for the plugin itself.
 ## Where work is tracked
 
 The `Claude-Toolkit-Project` board on GitHub, which is connected to this
-repository. `.claude/rules/spec-before-you-build.md` says what has to be true of
-every ticket before work starts. What is specific to this board:
+repository. How this board works:
 
 - Move the issue to `Refining` when the refinement session starts. When the
   session ends and the spec is agreed, add the `refined` label and move it to

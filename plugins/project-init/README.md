@@ -73,7 +73,7 @@ hooks, whose scripts live with every other hook in the
 
 It is deliberately small. Its `README.md` carries a two-question test for what
 belongs there: the thing has to hold in a repository nobody set up with the
-toolkit, and it must not already be in `library/` or the output styles. Anything
+toolkit, and it must not already be in `library/`. Anything
 failing either question is a project rule and goes in `library/` instead. It
 carries four rules today: `activate-project-knowledge.md`, which conditionally
 opens an equipped project's manual; `no-ai-attribution.md`, which keeps credit to Claude
@@ -100,12 +100,6 @@ the repository root would disappear the moment the plugin is installed.
 - `library/rules/salesforce/` (with its own `README.md`): the same idea for
   Salesforce projects, including compatibility for existing `engagement/`
   delivery roots.
-- `library/output-styles/` (with its own `README.md` index): the
-  `.claude/output-styles` files that set the voice Claude answers in, installed
-  in Gate 5. `plain-language.md` is default ON. A style is delivered through the
-  system prompt and re-stated to the session each turn, which is what a voice
-  rule needs and a rule file cannot do; it sits alongside the voice rules rather
-  than replacing them, because a subagent never sees a style.
 - `library/tools/permsets.py`: the permission set tool the
   `permissions-source-control.md` rule depends on. Copied to
   `tools/permissions/` in the project.
@@ -178,13 +172,10 @@ plugin.
 - Gate 6 offers the `session-skills` plugin, which holds `explain-simply`,
   `grill-me`, `handoff`, `session-summary`, and `track-tasks`, without copying
   anything into the project. The plugin remains their canonical home.
-- Gate 1 asks where work items are tracked, and the two guarantees that follow
-  are the same whichever answer it gets: log the work in that tracker before
-  building it, and refine the six-part spec before building it. Those live once
-  in `library/rules/general/spec-before-you-build.md`, copied into
-  `.claude/rules/` in
-  Gate 5, with a one-line pointer in `CLAUDE.md` and `AGENTS.md` naming the
-  tracker.
+- Gate 1 asks where work items are tracked. Gate 5 writes a one-line pointer in
+  `CLAUDE.md` and `AGENTS.md` naming that tracker, so every session knows where
+  the work lives. No rule about ticket quality ships with it: the rule that used
+  to, `spec-before-you-build.md`, was removed from the toolkit on 2026-08-31.
 - Gate 5 installs no general knowledge rule. Projects that accept Gate 3 receive
   `knowledge/README.md` as the one routing and operating manual; projects that
   decline it receive no knowledge policy.

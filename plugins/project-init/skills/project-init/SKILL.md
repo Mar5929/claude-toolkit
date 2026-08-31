@@ -80,11 +80,9 @@ or somewhere else / nothing yet. `references/work-tracking-choice.md` carries th
 what each answer does, and the step-by-step setup for a GitHub Projects board.
 Read it before asking.
 
-Whatever the owner names, two things then hold in that project: every piece of
-work is logged in that tracker before it is built, and nothing is built until a
-refinement session has filled in the six-part spec. Those live in the
-`library/rules/general/spec-before-you-build.md` rule, copied in Gate 5. Gate 5 also adds
-a one-line structural pointer to `CLAUDE.md` and `AGENTS.md` naming the tracker.
+Whatever the owner names, Gate 5 adds a one-line structural pointer to
+`CLAUDE.md` and `AGENTS.md` naming that tracker, so every session knows where the
+work lives. No rule about ticket quality is copied alongside it.
 
 A GitHub Projects board and local folders are the two tracker choices the toolkit
 can set up. GitHub setup creates nothing without explicit approval: no board, no
@@ -341,12 +339,6 @@ CLAUDE.md stays thin and points at that folder. Read
   Calendar, Linear, Notion, Playwright), fold in that server's section (as a
   short CLAUDE.md section or its own `.claude/rules/` file). Skip the servers the
   project doesn't use.
-- **`spec-before-you-build.md` never ships alone.** It reads the tracker's name
-  out of the root instructions and tells an agent to stop and ask when none is
-  there. Copy it only when Gate 1's tracking question was answered with a real
-  tracker, and write the pointer named below in the same pass. When the answer
-  was "somewhere else, or nothing yet", skip the rule too and record the
-  decline.
 - **Write the thin CLAUDE.md** _with_ the user, walking the sections rather than
   generating a wall of text: what the project is, the codemap and structural
   pointers, a `Read .claude/rules` line, and which gates ran. Among the
@@ -380,25 +372,21 @@ CLAUDE.md stays thin and points at that folder. Read
   root AGENTS.md even though Codex supports layered files.
 - **Add a `.claude/rules/README.md`** that indexes what each copied rule file
   does, so the folder is self-describing.
-- **Install the plain-language output style** (default ON). Copy
-  `../../library/output-styles/plain-language.md` to the project's
-  `.claude/output-styles/`, and set `"outputStyle": "plain-language"` in the
-  project's committed `.claude/settings.json`. This is the project's only home
-  for how Claude talks: written for a non-technical reader, real names only and
-  never one Claude invented, no figures of speech, common words, the answer
-  first, a shape that matches the content, every fact kept, no filler, no em
-  dashes, no section signs, quiet between tool calls, and the owner's actions at
-  the end. There are no voice rules in `.claude/rules/` any more; do not write
-  one. See
-  `../../library/output-styles/README.md`. Tell the owner it takes effect on their
-  next session, not the current one, and that a helper agent never sees an
-  output style, which is why `follow-the-output-style.md` is in the rules folder.
-- **Offer the machine-wide install too**, if the owner wants this voice
-  everywhere and not just here. Copy the same file to
-  `~/.claude/output-styles/plain-language.md` and set `"outputStyle"` in
-  `~/.claude/settings.json`. Then every project gets it, including ones that were
-  never set up with this toolkit. The project copy still wins where it exists,
-  and it is the one that travels to other machines, so doing both is normal.
+- **Select Claude Code's built-in `Concise` output style** (default ON). Set
+  `"outputStyle": "Concise"` in the project's committed `.claude/settings.json`.
+  Copy no style file: `Concise` is built into Claude Code, so there is nothing
+  to install and nothing to keep in step. The toolkit stopped shipping its own
+  style in issue #245. There are no voice rules in `.claude/rules/` either; do
+  not write one. Tell the owner three things: it takes effect on their next
+  session rather than the current one; a helper agent never receives an output
+  style, which is why `follow-the-output-style.md` is in the rules folder; and
+  with a built-in style there is no file for that rule to point a helper agent
+  at, so helper agents fall back to writing plainly.
+- **Offer the machine-wide setting too**, if the owner wants this voice
+  everywhere and not just here. Set `"outputStyle": "Concise"` in
+  `~/.claude/settings.json`. Then every repository gets it, including ones never
+  set up with this toolkit. The project setting still wins where it exists, and
+  it is the one that travels to other machines, so doing both is normal.
 
 ### Gate 6: Optional standalone toolkit skills
 
@@ -431,10 +419,7 @@ in their own plugins.
   never answered, and work blocked behind something else. Say its limit out
   loud, because the skill does: the list dies with the session, so anything that
   has to outlive the conversation moves to the work tracker or into a handoff
-  prompt. It pairs with the `track-open-topics.md` rule from Gate 5, which makes
-  a session keep the list without being asked. That rule names no skill, so
-  taking the rule without this plugin is a valid choice and leaves nothing
-  stale.
+  prompt.
 - `unslop` takes writing that already exists and strips the patterns that make
   it read as machine-written, then puts a voice back. Say what it works on: a
   file the owner names, text they paste, or the last answer in the
@@ -511,10 +496,6 @@ library.
 - `../../library/rules/salesforce/`: a growing set of reusable `.claude/rules/`
   files for Salesforce projects (with its own `README.md` index). Offer these in
   Gate 1 after `.claude/rules/` is scaffolded, when the stack is Salesforce.
-- `../../library/output-styles/`: the `.claude/output-styles/` files (with its
-  own `README.md` index) that set the voice Claude answers in, installed in
-  Gate 5. `plain-language.md` is default ON. Read the index for why an output
-  style sits alongside the voice rules rather than replacing them.
 - `../../library/tools/permsets.py`: the tool the permission set rule depends on
   (fetch, verify, check, tidy, preflight). Copy to `tools/permissions/` in the
   project. The rule without the tool is advice with no enforcement.
