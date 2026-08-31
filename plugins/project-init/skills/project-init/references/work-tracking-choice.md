@@ -57,7 +57,7 @@ Gate 5. That is the whole of what the toolkit does here.
 ### 4. Local folders on this computer
 
 Install the `work-tracker` plugin and run `work init`, exactly as
-`work-items-structure.md` describes. It creates a flat `.work-items/` folder
+`work-items-structure.md` describes. It creates a `.work-items/` folder
 that Git ignores. Say plainly that these records stay in this checkout and do
 not sync to another computer.
 

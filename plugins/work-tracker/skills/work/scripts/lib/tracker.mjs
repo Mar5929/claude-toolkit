@@ -42,8 +42,18 @@ const REQUIRED_REQUIREMENTS_SECTIONS = [
 ];
 const LEGACY_STAGES = ["01-backlog", "02-in-progress", "03-completed", "04-archived"];
 const ARCHIVE_FOLDER = "archive";
-const ARCHIVE_MAX_DEPTH = 6;
+// Only a stop for a runaway walk, far past any nesting the owner would create by
+// hand. It is not a limit on how they may group their work.
+const FOLDER_MAX_DEPTH = 10;
 const ITEM_FOLDER_PATTERN = /^([A-Za-z][A-Za-z0-9]*-\d+)(?:-|$)/;
+const ITEM_FILE_NAMES = [
+  "ITEM.yaml",
+  "ITEM.json",
+  "REQUIREMENTS.md",
+  "SPEC.md",
+  "STATUS.md",
+  "HISTORY.ndjson",
+];
 const PRIORITY_SCORE = { urgent: 0, high: 1, medium: 2, low: 3 };
 const STATUS_SCORE = { "In Progress": 0, "In Review": 1, Ready: 2, Backlog: 3 };
 const INVERSES = {
@@ -114,7 +124,7 @@ export function loadTracker(repoRoot, requestedPath, options = {}) {
 
 export function initialize(repoRoot, options = {}) {
   const paths = trackerPaths(repoRoot, options.path);
-  const directCandidates = scanFlatItemFolders(paths);
+  const directCandidates = scanItemFolders(paths);
   const legacy = legacyTrackerRoots(repoRoot);
   if (!fs.existsSync(paths.configPath) && legacy.length && directCandidates.length === 0) {
     throw new WorkError(
@@ -129,7 +139,7 @@ export function initialize(repoRoot, options = {}) {
     const createdConfig = ensureTrackerShell(paths, {
       defaultBranch: options.defaultBranch ?? defaultBranch(repoRoot),
     });
-    const candidates = scanFlatItemFolders(paths);
+    const candidates = scanItemFolders(paths);
     const duplicateIds = duplicates(candidates.map((candidate) => candidate.id));
     if (duplicateIds.length) {
       throw new WorkError(
@@ -206,7 +216,7 @@ export function migrateLegacyTracker(repoRoot, options = {}) {
       "duplicate_ids",
     );
   }
-  const existing = scanFlatItemFolders(paths);
+  const existing = scanItemFolders(paths);
   const existingIds = new Set(existing.map((candidate) => candidate.id));
   const existingNames = new Set(existing.map((candidate) => candidate.folderName));
   const conflicts = candidates
@@ -302,11 +312,13 @@ export function addItem(tracker, input) {
       nextStep: requiredText(input.nextStep, "next step"),
       createdDate,
     });
+    const groupDir = resolveGroupDir(tracker.paths, input.group);
     const folderName = `${id}-${slugify(record.title)}`;
-    const itemDir = path.join(tracker.paths.workRoot, folderName);
+    const itemDir = path.join(groupDir, folderName);
     if (fs.existsSync(itemDir)) {
       throw new WorkError(`Refusing to overwrite existing folder ${itemDir}`, "path_exists");
     }
+    fs.mkdirSync(groupDir, { recursive: true });
     fs.mkdirSync(itemDir, { recursive: false });
     try {
       atomicBatchWrite([
@@ -875,14 +887,31 @@ function moveItemFolder(tracker, id, archive) {
         text: `${item.id} is already ${archive ? "archived" : "not archived"}. Nothing moved.`,
       };
     }
-    const destinationRoot = archive ? tracker.paths.archiveRoot : tracker.paths.workRoot;
+    // Archiving and unarchiving keep the group folder the owner put the item in,
+    // so an item comes back where it came from. An unarchived item whose group
+    // folder was deleted meanwhile gets it recreated.
+    const destinationRoot = archive
+      ? path.join(
+          tracker.paths.archiveRoot,
+          relativeParent(tracker.paths.workRoot, item.path),
+        )
+      : path.join(
+          tracker.paths.workRoot,
+          relativeParent(tracker.paths.archiveRoot, item.path),
+        );
     const destination = path.join(destinationRoot, item.folderName);
     if (fs.existsSync(destination)) {
       throw new WorkError(`Refusing to overwrite existing folder ${destination}`, "path_exists");
     }
     fs.mkdirSync(destinationRoot, { recursive: true });
     fs.renameSync(item.path, destination);
-    const moved = itemCandidate(destination, item.folderName, item.folderId ?? item.id, archive);
+    const moved = itemCandidate(
+      destination,
+      item.folderName,
+      item.folderId ?? item.id,
+      archive,
+      tracker.paths,
+    );
     const entry = historyEntry(
       archive ? "archived" : "unarchived",
       archive
@@ -910,7 +939,7 @@ export function regenerate(tracker) {
 
 export function scanItems(paths) {
   const items = [];
-  for (const candidate of scanFlatItemFolders(paths)) {
+  for (const candidate of scanItemFolders(paths)) {
     if (!fs.existsSync(candidate.itemPath)) {
       items.push({ ...candidate, record: invalidPlaceholder(candidate), missingRecord: true });
       continue;
@@ -926,37 +955,94 @@ export function scanItems(paths) {
   return items.sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
 }
 
-function scanFlatItemFolders(paths) {
-  if (!fs.existsSync(paths.workRoot)) return [];
-  const candidates = [];
-  for (const entry of fs.readdirSync(paths.workRoot, { withFileTypes: true })) {
-    if (!entry.isDirectory() || entry.name.startsWith(".")) continue;
-    if (path.join(paths.workRoot, entry.name) === paths.archiveRoot) continue;
-    const match = entry.name.match(ITEM_FOLDER_PATTERN);
-    if (!match) continue;
-    candidates.push(itemCandidate(path.join(paths.workRoot, entry.name), entry.name, match[1], false));
-  }
-  return [...candidates, ...scanArchivedItemFolders(paths)];
-}
-
-// The archive folder is the only record that an item is archived. The owner
-// moves folders in and out of it by hand, so the location is read fresh on
-// every command and nothing about it is stored in the item's own files.
-// Folders the owner nests inside the archive to group things are searched too.
-function scanArchivedItemFolders(paths, root = paths.archiveRoot, depth = 0) {
-  if (depth > ARCHIVE_MAX_DEPTH || !fs.existsSync(root)) return [];
+// Where a folder sits is the only record of how the owner has organised it, for
+// grouping and for archiving alike. Both are read fresh on every command and
+// neither is stored in the item's own files, so the owner can drag folders in a
+// file manager and the next command already agrees with what they did.
+//
+// The walk looks inside every folder, work items included. A work item may hold
+// other work items: the owner works the parent as a real item with its own
+// status and requirements, keeps that area's shared documents in it, and nests
+// the pieces underneath. Both the parent and its children are found.
+function scanItemFolders(paths, root = paths.workRoot, archived = false, depth = 0) {
+  if (depth > FOLDER_MAX_DEPTH || !fs.existsSync(root)) return [];
   const candidates = [];
   for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
     if (!entry.isDirectory() || entry.name.startsWith(".")) continue;
     const entryPath = path.join(root, entry.name);
+    const inArchive = archived || entryPath === paths.archiveRoot;
     const match = entry.name.match(ITEM_FOLDER_PATTERN);
-    if (match) {
-      candidates.push(itemCandidate(entryPath, entry.name, match[1], true));
-      continue;
+    if (match && holdsItemFiles(entryPath)) {
+      candidates.push(itemCandidate(entryPath, entry.name, match[1], inArchive, paths));
     }
-    candidates.push(...scanArchivedItemFolders(paths, entryPath, depth + 1));
+    candidates.push(...scanItemFolders(paths, entryPath, inArchive, depth + 1));
   }
   return candidates;
+}
+
+// Whether a folder is really a work item, rather than one that only shares the
+// shape of the name. The owner names group folders things like "phase-1" and
+// "epic-2", which match the same pattern, and mistaking one of those for a work
+// item hides every item inside it. So the files decide, not the name. A work item
+// missing its ITEM.yaml still counts, so validate can report the damage instead
+// of the item quietly disappearing.
+function holdsItemFiles(dirPath) {
+  return ITEM_FILE_NAMES.some((name) => fs.existsSync(path.join(dirPath, name)));
+}
+
+// The folder path an item sits in, relative to .work-items, or null at the top
+// level. An archived item keeps the archive folder in its group so the reported
+// location is always the real one.
+function itemGroup(paths, itemPath) {
+  const relative = toPosix(path.relative(paths.workRoot, path.dirname(itemPath)));
+  return relative && relative !== "." ? relative : null;
+}
+
+function relativeParent(root, itemPath) {
+  const relative = path.relative(root, path.dirname(itemPath));
+  return relative === "." ? "" : relative;
+}
+
+// Turns an owner-supplied group name into a folder inside .work-items. Refuses a
+// path that escapes the tracker, one that would bury the item in the archive, and
+// one whose folder would be mistaken for a work item by the walk above.
+function resolveGroupDir(paths, group) {
+  if (group === undefined || group === null) return paths.workRoot;
+  const cleaned = String(group)
+    .trim()
+    .replace(/\\/g, "/")
+    .replace(/^\.\/+/, "")
+    .replace(/^\/+|\/+$/g, "");
+  if (!cleaned) return paths.workRoot;
+  const parts = cleaned.split("/").filter((part) => part !== "" && part !== ".");
+  if (!parts.length) return paths.workRoot;
+  if (path.isAbsolute(cleaned) || parts.includes("..")) {
+    throw new WorkError(
+      `Group folder must be a path inside .work-items: ${group}`,
+      "invalid_group",
+    );
+  }
+  if (parts[0] === ARCHIVE_FOLDER) {
+    throw new WorkError(
+      "Create the item outside the archive folder, then archive it.",
+      "invalid_group",
+    );
+  }
+  // A group folder may be called anything the owner likes, "phase-1" included:
+  // holdsItemFiles decides what is a work item, not the name. A dot-prefixed
+  // folder is the exception, because the walk skips those entirely.
+  for (const part of parts) {
+    if (part.startsWith(".")) {
+      throw new WorkError(`Group folder must not start with a dot: ${part}`, "invalid_group");
+    }
+  }
+  if (parts.length > FOLDER_MAX_DEPTH) {
+    throw new WorkError(
+      `Group folder is nested deeper than ${FOLDER_MAX_DEPTH} folders: ${cleaned}`,
+      "invalid_group",
+    );
+  }
+  return path.join(paths.workRoot, ...parts);
 }
 
 function scanLegacyItemFolders(sourceRoot) {
@@ -981,12 +1067,13 @@ function scanLegacyItemFolders(sourceRoot) {
   return candidates;
 }
 
-function itemCandidate(itemPath, folderName, rawId, archived = false) {
+function itemCandidate(itemPath, folderName, rawId, archived = false, paths = null) {
   const id = rawId.toUpperCase();
   return {
     id,
     folderName,
     archived,
+    group: paths ? itemGroup(paths, itemPath) : null,
     path: itemPath,
     itemPath: path.join(itemPath, "ITEM.yaml"),
     legacyItemPath: path.join(itemPath, "ITEM.json"),
@@ -1625,6 +1712,7 @@ function publicItem(item, paths) {
     description: item.record.description,
     status: item.record.status,
     archived: Boolean(item.archived),
+    group: item.group ?? null,
     requirements_status: requirementStatusValue,
     priority: item.record.priority,
     type: item.record.type,
@@ -1668,7 +1756,7 @@ function renderStatusList(groups, next, options, allItems, paths) {
     lines.push("Active:");
     for (const item of groups.active) {
       lines.push(
-        `- ${item.id} [${item.record.status}] ${item.record.title}; next: ${item.record.next_step}; ${gitSummary(item.record)}`,
+        `- ${item.id} [${item.record.status}] ${item.record.title}${groupSummary(item)}; next: ${item.record.next_step}; ${gitSummary(item.record)}`,
       );
     }
   } else {
@@ -1693,13 +1781,18 @@ function renderStatusList(groups, next, options, allItems, paths) {
     lines.push(`${label}:`);
     for (const item of items) {
       const where = label === "Archived" && paths ? `; at ${displayTrackerPath(paths, item.path)}` : "";
+      const inGroup = label === "Archived" ? "" : groupSummary(item);
       lines.push(
-        `- ${item.id} [${item.record.status}] ${item.record.title}; ${gitSummary(item.record)}${where}`,
+        `- ${item.id} [${item.record.status}] ${item.record.title}${inGroup}; ${gitSummary(item.record)}${where}`,
       );
     }
     if (!items.length) lines.push("- None");
   }
   return lines.join("\n");
+}
+
+function groupSummary(item) {
+  return item.group ? `; in ${item.group}` : "";
 }
 
 function gitSummary(record) {
@@ -1792,12 +1885,21 @@ function workItemsReadme() {
 This ignored folder is managed by the work-tracker plugin. It stays on this
 computer and is not copied through Git.
 
-- Every work item is one flat \`WI-<number>-<name>/\` folder.
+- Every work item is one \`WI-<number>-<name>/\` folder.
+- Drag work items into any folder to group work that belongs together. Two ways,
+  and both work the same:
+  - A plain folder you make, such as \`security-and-permissions/\`.
+  - A work item itself, when the area is something you actually work. It keeps
+    its own status, requirements, and next step, holds that area's shared
+    documents, and the pieces sit inside it.
+- Nesting can go as deep as you like, and everything found inside is listed
+  normally. Notes and documents in any of those folders are left alone.
 - Drag folders into \`archive/\` to get them out of the way. Nothing else is
   needed: sitting in that folder is what makes an item archived, and dragging
-  one back out undoes it. Archived items are hidden from \`work status\`,
-  \`work next\`, and the dashboard. \`work status --archived\` lists them, and
-  their ID numbers are never handed out again.
+  one back out undoes it. Dragging a whole group in archives everything inside
+  it. Archived items are hidden from \`work status\`, \`work next\`, and the
+  dashboard. \`work status --archived\` lists them, and their ID numbers are
+  never handed out again.
 - \`ITEM.yaml\` owns structured status, dates, relationships, blockers, and Git evidence.
 - \`REQUIREMENTS.md\` contains only owner-stated or owner-approved needs.
 - \`STATUS.md\` is the readable handoff. \`HISTORY.ndjson\` keeps dated events.

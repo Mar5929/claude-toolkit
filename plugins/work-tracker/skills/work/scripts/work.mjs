@@ -35,7 +35,7 @@ import {
   validateTracker,
 } from "./lib/tracker.mjs";
 
-const VERSION = "2.1.0";
+const VERSION = "2.2.0";
 
 export async function main(argv = process.argv.slice(2)) {
   const { positionals, flags } = parseArgs(argv);
@@ -76,6 +76,7 @@ export async function main(argv = process.argv.slice(2)) {
         "type",
         "next-step",
         "created-date",
+        "group",
         "id",
         "json",
       ]);
@@ -91,6 +92,7 @@ export async function main(argv = process.argv.slice(2)) {
         type: flags.type,
         nextStep: requiredFlag(flags, "next-step"),
         createdDate: flags["created-date"],
+        group: flags.group === true ? undefined : flags.group,
       });
       break;
     }
@@ -251,6 +253,7 @@ Usage:
   work init [--default-branch main]
   work migrate [--from work-items] [--apply]
   work add --title TITLE --description DESCRIPTION --priority medium --type task --next-step STEP
+    [--group FOLDER]
   work requirements WI-001
   work requirements WI-001 --finalize --approved-by NAME
   work requirements WI-001 --reopen
@@ -268,9 +271,15 @@ Usage:
   work dashboard
 
 Local files always live in .work-items and Git ignores that folder.
-Items inside .work-items/archive are archived. Moving the folder by hand does
-the same thing as the archive command. Archived items are hidden from status,
-next, and the dashboard, and their ID numbers are never reused.
+Every folder in there is searched for work items, at any depth. That includes
+work-item folders, so a work item may hold other work items: the parent keeps
+its own status and requirements and is listed alongside them. There is no epic
+type.
+Items inside .work-items/archive are archived, however deep. Moving the folder
+by hand does the same thing as the archive command, for grouping and archiving
+alike, and archiving a folder archives everything inside it. Archived items are
+hidden from status, next, and the dashboard, and their ID numbers are never
+reused.
 Statuses: Backlog, Ready, In Progress, In Review, Done, Cancelled.
 Requirements statuses: refining, finalized.
 Types: bug, enhancement, task.

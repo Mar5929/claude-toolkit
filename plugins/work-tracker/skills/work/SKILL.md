@@ -1,6 +1,6 @@
 ---
 name: work
-description: Manage a repository's local work items in the flat, Git-ignored .work-items folder. Use for requests such as "add this to the backlog", "what should I work on next?", "start WI-014", "update the handoff", "what is blocking this?", "is this in main?", "mark this finished", "archive this item", "what have I archived?", or "convert the old work-items folders". Also use at the start or end of substantial repository work when a local work item should be read or updated.
+description: Manage a repository's local work items in the Git-ignored .work-items folder, including the folders the owner makes to group related items. Use for requests such as "add this to the backlog", "what should I work on next?", "start WI-014", "update the handoff", "what is blocking this?", "is this in main?", "mark this finished", "archive this item", "what have I archived?", "group these items together", "put this under the security work", or "convert the old work-items folders". Also use at the start or end of substantial repository work when a local work item should be read or updated.
 ---
 
 # Work Tracker
@@ -23,7 +23,8 @@ separate tracker choice, not a mirror of this one.
 3. Read the selected item's `REQUIREMENTS.md`, `STATUS.md`, and `ITEM.yaml`
    before implementing it.
 4. Use tracker commands instead of moving folders or directly changing
-   `ITEM.yaml`. The archive folder is the one exception: see below.
+   `ITEM.yaml`. Where a folder sits is the exception: it is how the owner
+   groups and archives, and both are read fresh on every command. See below.
 
 ## Protect the owner's requirements
 
@@ -59,6 +60,7 @@ an item whose requirements are not finalized.
 | Change status, next step, branch, or blockers | `update` |
 | Relate or unrelate tickets | `link` |
 | Is this work in the default branch? | `landed` |
+| Add this under an area of work | `add --group NAME` |
 | Get an item out of the way, or bring it back | `archive`, `unarchive` |
 | Record branch completion or verified landing | `finish` |
 | Compare local tickets with Git | `reconcile` |
@@ -86,12 +88,51 @@ the commit is not in the default branch, the item remains `In Review`.
 Use `bug`, `enhancement`, or `task` as the type. Use `urgent`, `high`, `medium`,
 or `low` as priority.
 
+## Respect the owner's folders
+
+Where a work-item folder sits is the owner's own organizing, and it is the only
+record of it. Nothing about it is stored in the item's files, so the owner drags
+folders in a file manager and the next command already agrees.
+
+Any folder may hold work items, and the walk looks inside all of them. There are
+two kinds and they behave identically:
+
+- **A plain folder the owner made**, such as `security-and-permissions/`. It
+  carries no status, no requirements, and nothing to finish. It is a name on
+  disk and the tracker records nothing about it.
+- **A work item that holds other work items.** The owner works a large area as
+  one item, so it keeps its own status, requirements, and next step, holds that
+  area's shared documents, and the pieces sit inside it. Both the parent and the
+  items inside it are listed normally.
+
+Nesting may go as deep as the owner takes it. Notes, documents, and anything
+else in any of those folders are left alone.
+
+- Pass `add --group security-and-permissions` to create an item in a folder,
+  naming a work-item folder when the item belongs under one. The folder is
+  created if it does not exist yet.
+- Never move an item between folders, or invent a grouping, on your own
+  initiative. Ask the owner.
+- `status` names the folder each item is in. Nothing about status, requirements,
+  priority, or the six-part gate changes with grouping.
+- Folder position and the `parent` relationship are separate. Nesting an item
+  inside another does not write a `parent` link, and linking does not move a
+  folder. The owner may use either, or both.
+
+Remind the owner once, when they first keep a document in a group folder, that
+Git ignores `.work-items/`, so nothing in there is backed up or shared. Notes
+are fine there. A document that others need, such as a solution architecture,
+belongs in the repository instead.
+
 ## Respect the archive folder
 
-Items inside `.work-items/archive/` are archived. Sitting in that folder is the
-only record of it, so the owner archives things by dragging folders in a file
-manager and no command is needed. Use `archive` and `unarchive` to move the same
-folders yourself.
+Items inside `.work-items/archive/` are archived, at any depth. Sitting in that
+folder is the only record of it, so the owner archives things by dragging
+folders in a file manager and no command is needed. Dragging a folder in
+archives everything inside it, and `archive` on a work item that holds other
+work items takes those along too. Say how many items are moving before running
+it. Use `archive` and `unarchive` to move the same folders yourself; both keep
+the item where it sat, so it comes back to the same place.
 
 Archiving is organizing, not a status change. Any item may be archived at any
 status, and archiving never edits the item's files. `status`, `next`, and the
@@ -111,7 +152,10 @@ Tracker commands preserve the user-notes section of `STATUS.md`. The full dated
 history lives in `HISTORY.ndjson`; `STATUS.md` shows the latest entries.
 
 Use `depends_on`, `blocks`, `related_to`, `parent`, or `supersedes` for
-relationships. The tool writes the inverse and rejects dependency cycles.
+relationships. The tool writes the inverse and rejects dependency cycles. These
+link one item to another and have nothing to do with which folder an item sits
+in. Grouping is folders; relationships are fields. Use `depends_on` when items
+in one group have to happen in a set order.
 
 ## Close substantial work
 

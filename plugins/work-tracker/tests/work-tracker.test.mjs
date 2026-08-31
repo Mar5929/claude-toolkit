@@ -74,11 +74,13 @@ function add(repo, title, extra = []) {
   ]).json;
 }
 
+// Searches group folders too, so a test can finalize or read an item wherever
+// the owner filed it. The archive is excluded; archivedItemPath covers that.
 function itemPath(repo, id) {
   const root = path.join(repo, ".work-items");
-  const folder = fs.readdirSync(root).find((name) => name.startsWith(`${id}-`));
-  if (!folder) throw new Error(`Missing ${id}`);
-  return path.join(root, folder);
+  const found = findItemPath(repo, id, root, path.join(root, "archive"));
+  if (!found) throw new Error(`Missing ${id}`);
+  return found;
 }
 
 function fillRequirements(repo, id) {
@@ -430,10 +432,9 @@ function archivePath(repo) {
 }
 
 function archivedItemPath(repo, id) {
-  const root = archivePath(repo);
-  const folder = fs.readdirSync(root).find((name) => name.startsWith(`${id}-`));
-  if (!folder) throw new Error(`Missing archived ${id}`);
-  return path.join(root, folder);
+  const found = findItemPath(repo, id, archivePath(repo));
+  if (!found) throw new Error(`Missing archived ${id}`);
+  return found;
 }
 
 test("init creates the archive folder", () => {
@@ -611,4 +612,252 @@ test("validation still covers archived items", () => {
   const result = jsonWork(repo, ["validate"], { allowFailure: true });
   assert.equal(result.status, 2);
   assert.ok(result.json.errors.some((error) => error.includes("WI-001: ITEM.yaml is missing")));
+});
+
+function workRoot(repo) {
+  return path.join(repo, ".work-items");
+}
+
+// Finds a work item wherever the owner has filed it, so these tests never assume
+// the flat layout the grouping feature exists to relax.
+// Mirrors the tracker's own rule: a folder is a work item when its name looks
+// like one AND it holds work-item files. A group the owner called "phase-1" is
+// still a group, and a work item may hold work items, so this looks inside
+// everything.
+function isItemFolder(dirPath, name) {
+  if (!/^[A-Za-z][A-Za-z0-9]*-\d+(?:-|$)/.test(name)) return false;
+  return ["ITEM.yaml", "ITEM.json", "REQUIREMENTS.md", "SPEC.md", "STATUS.md", "HISTORY.ndjson"]
+    .some((file) => fs.existsSync(path.join(dirPath, file)));
+}
+
+function findItemPath(repo, id, root = workRoot(repo), skip = null) {
+  for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    const entryPath = path.join(root, entry.name);
+    if (skip && entryPath === skip) continue;
+    if (entry.name.startsWith(`${id}-`) && isItemFolder(entryPath, entry.name)) return entryPath;
+    const found = findItemPath(repo, id, entryPath, skip);
+    if (found) return found;
+  }
+  return null;
+}
+
+function moveByHand(fromPath, toPath) {
+  fs.mkdirSync(path.dirname(toPath), { recursive: true });
+  fs.renameSync(fromPath, toPath);
+}
+
+test("a folder the owner makes is a group and its work items are found", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Org wide defaults", ["--group", "security-and-permissions"]);
+  add(repo, "Ungrouped item");
+
+  const created = findItemPath(repo, "WI-001");
+  assert.equal(
+    path.relative(workRoot(repo), created),
+    path.join("security-and-permissions", "WI-001-org-wide-defaults"),
+  );
+
+  const status = jsonWork(repo, ["status"]).json;
+  assert.equal(status.counts.backlog, 2);
+  const grouped = status.groups.backlog.find((item) => item.id === "WI-001");
+  assert.equal(grouped.group, "security-and-permissions");
+  assert.equal(grouped.path, ".work-items/security-and-permissions/WI-001-org-wide-defaults");
+  assert.equal(status.groups.backlog.find((item) => item.id === "WI-002").group, null);
+});
+
+test("groups may be nested and their other files are left alone", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Sharing rules", ["--group", "security-and-permissions/record-access"]);
+
+  const architecture = path.join(workRoot(repo), "security-and-permissions", "ARCHITECTURE.md");
+  fs.writeFileSync(architecture, "# Overall solution architecture\n");
+  fs.mkdirSync(path.join(workRoot(repo), "security-and-permissions", "diagrams"), {
+    recursive: true,
+  });
+
+  const validation = jsonWork(repo, ["validate"]).json;
+  assert.equal(validation.valid, true);
+  assert.equal(validation.item_count, 1);
+  assert.equal(
+    jsonWork(repo, ["status"]).json.groups.backlog[0].group,
+    "security-and-permissions/record-access",
+  );
+  assert.equal(fs.readFileSync(architecture, "utf8"), "# Overall solution architecture\n");
+});
+
+test("moving a work item into a group by hand needs no command", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Permission sets");
+
+  moveByHand(
+    findItemPath(repo, "WI-001"),
+    path.join(workRoot(repo), "security-and-permissions", "WI-001-permission-sets"),
+  );
+
+  const status = jsonWork(repo, ["status", "--all"]).json;
+  assert.equal(status.groups.backlog[0].group, "security-and-permissions");
+  assert.match(status.text, /in security-and-permissions/);
+  assert.equal(jsonWork(repo, ["validate"]).json.valid, true);
+});
+
+test("archiving keeps the group and unarchiving puts the item back in it", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Field level security", ["--group", "security-and-permissions"]);
+
+  const archived = jsonWork(repo, ["archive", "WI-001"]).json;
+  assert.equal(archived.outcome, "archived");
+  assert.equal(
+    archived.path,
+    ".work-items/archive/security-and-permissions/WI-001-field-level-security",
+  );
+  assert.equal(jsonWork(repo, ["status"]).json.counts.backlog, 0);
+  assert.equal(jsonWork(repo, ["status", "--archived"]).json.counts.archived, 1);
+
+  // The owner may well have deleted the empty group folder in the meantime.
+  fs.rmSync(path.join(workRoot(repo), "security-and-permissions"), {
+    recursive: true,
+    force: true,
+  });
+
+  const restored = jsonWork(repo, ["unarchive", "WI-001"]).json;
+  assert.equal(restored.outcome, "unarchived");
+  assert.equal(restored.path, ".work-items/security-and-permissions/WI-001-field-level-security");
+  assert.equal(jsonWork(repo, ["status"]).json.groups.backlog[0].group, "security-and-permissions");
+});
+
+test("moving a whole group folder into the archive archives everything in it", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Owd", ["--group", "security-and-permissions"]);
+  add(repo, "Sharing", ["--group", "security-and-permissions"]);
+  add(repo, "Unrelated");
+
+  moveByHand(
+    path.join(workRoot(repo), "security-and-permissions"),
+    path.join(archivePath(repo), "security-and-permissions"),
+  );
+
+  const status = jsonWork(repo, ["status", "--all"]).json;
+  assert.equal(status.counts.archived, 2);
+  assert.equal(status.counts.backlog, 1);
+  assert.equal(status.groups.backlog[0].id, "WI-003");
+  assert.equal(
+    status.groups.archived.every((item) => item.group === "archive/security-and-permissions"),
+    true,
+  );
+  assert.equal(jsonWork(repo, ["validate"]).json.valid, true);
+});
+
+// The owner works a big area as one item, keeps that area's shared documents in
+// its folder, and nests the pieces underneath it. The parent stays a real work
+// item with its own status; the children are found alongside it.
+test("a work item may hold other work items, and both are found", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Security and permissions");
+  add(repo, "Org wide defaults");
+  add(repo, "Sharing rules");
+
+  const parent = findItemPath(repo, "WI-001");
+  fs.mkdirSync(path.join(parent, "diagrams"), { recursive: true });
+  fs.writeFileSync(path.join(parent, "ARCHITECTURE.md"), "# Overall solution\n");
+  moveByHand(findItemPath(repo, "WI-002"), path.join(parent, "WI-002-org-wide-defaults"));
+  moveByHand(findItemPath(repo, "WI-003"), path.join(parent, "WI-003-sharing-rules"));
+
+  const status = jsonWork(repo, ["status", "--all"]).json;
+  assert.equal(status.counts.backlog, 3);
+  const byId = Object.fromEntries(status.groups.backlog.map((item) => [item.id, item]));
+  assert.equal(byId["WI-001"].group, null);
+  assert.equal(byId["WI-002"].group, "WI-001-security-and-permissions");
+  assert.equal(byId["WI-003"].group, "WI-001-security-and-permissions");
+  assert.equal(jsonWork(repo, ["validate"]).json.valid, true);
+  assert.equal(fs.readFileSync(path.join(parent, "ARCHITECTURE.md"), "utf8"), "# Overall solution\n");
+});
+
+test("archiving a parent work item takes the work items inside it along", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Security and permissions");
+  add(repo, "Org wide defaults");
+
+  const parent = findItemPath(repo, "WI-001");
+  moveByHand(findItemPath(repo, "WI-002"), path.join(parent, "WI-002-org-wide-defaults"));
+
+  const archived = jsonWork(repo, ["archive", "WI-001"]).json;
+  assert.equal(archived.path, ".work-items/archive/WI-001-security-and-permissions");
+  const after = jsonWork(repo, ["status", "--all"]).json;
+  assert.equal(after.counts.archived, 2);
+  assert.equal(after.counts.backlog, 0);
+
+  const restored = jsonWork(repo, ["unarchive", "WI-001"]).json;
+  assert.equal(restored.outcome, "unarchived");
+  assert.equal(jsonWork(repo, ["status"]).json.counts.backlog, 2);
+  assert.equal(
+    jsonWork(repo, ["status"]).json.groups.backlog.find((item) => item.id === "WI-002").group,
+    "WI-001-security-and-permissions",
+  );
+});
+
+test("add refuses a group that escapes the tracker or hides the item", () => {
+  const repo = makeRepo();
+  init(repo);
+
+  for (const group of ["../outside", "archive", "archive/old", ".hidden"]) {
+    const result = work(
+      repo,
+      ["add", "--title", "Guarded", "--description", "Owner request.", "--next-step", "Refine",
+        "--priority", "medium", "--type", "task", "--group", group, "--json"],
+      { allowFailure: true },
+    );
+    assert.equal(result.status, 1, `expected ${group} to be refused`);
+    assert.equal(JSON.parse(result.stderr).error, "invalid_group");
+  }
+  assert.equal(jsonWork(repo, ["status"]).json.counts.backlog, 0);
+});
+
+// The owner groups work by phase and by epic, so these names are the ones they
+// will actually type. They match the work-item pattern, and treating one as a
+// work item would hide everything inside it.
+test("a group folder named like a work item is still a group", () => {
+  const repo = makeRepo();
+  init(repo);
+
+  for (const group of ["phase-1", "epic-2", "sprint-3"]) {
+    const created = add(repo, `Item for ${group}`, ["--group", group]);
+    assert.equal(created.outcome, "created");
+  }
+
+  const status = jsonWork(repo, ["status"]).json;
+  assert.equal(status.counts.backlog, 3);
+  assert.deepEqual(
+    status.groups.backlog.map((item) => item.group).sort(),
+    ["epic-2", "phase-1", "sprint-3"],
+  );
+  assert.equal(
+    status.groups.backlog.every((item) => item.id.startsWith("WI-")),
+    true,
+  );
+  assert.equal(jsonWork(repo, ["validate"]).json.valid, true);
+
+  // init must not adopt one of those folders as a work item either.
+  assert.equal(jsonWork(repo, ["validate"]).json.item_count, 3);
+});
+
+test("an ordinary subfolder inside a work item is not reported as hidden work", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Real item");
+
+  for (const name of ["notes-2024", "screenshots-2", "v2-1", "diagrams"]) {
+    fs.mkdirSync(path.join(findItemPath(repo, "WI-001"), name), { recursive: true });
+  }
+
+  const validation = jsonWork(repo, ["validate"]).json;
+  assert.equal(validation.valid, true);
+  assert.equal(validation.item_count, 1);
 });

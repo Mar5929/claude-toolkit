@@ -14,20 +14,72 @@
     STATUS.md
     HISTORY.ndjson
     other-owner-notes.md
+  security-and-permissions/        # a plain folder the owner made
+    ARCHITECTURE.md                # their own material, left alone
+    WI-015-org-wide-defaults/
+  WI-017-billing-rework/           # a work item holding work items
+    ITEM.yaml                      # its own status and requirements
+    diagrams/                      # the area's shared documents
+    WI-018-invoice-model/
+    WI-019-payment-terms/
   archive/                         # items the owner set aside
     WI-003-older-example/
 ```
 
-Every open work-item folder is directly under `.work-items/`. Status changes
-only in `ITEM.yaml`; status never moves the folder. There are no status folders.
+Status changes only in `ITEM.yaml`; status never moves a folder. There are no
+status folders.
+
+## Grouping folders
+
+The scan walks every folder under `.work-items/`, work items included, and
+collects every work item it finds at any depth. Two kinds of folder can hold
+work items, and the scan treats them the same:
+
+- **A plain folder the owner made**, such as `security-and-permissions/`. It has
+  no record of its own; nothing about it is stored anywhere.
+- **A work item holding other work items**, such as
+  `WI-014-security-and-permissions/`. The parent is a normal work item with its
+  own `ITEM.yaml`, status, and requirements, and it is listed alongside the items
+  inside it. There is no epic or parent type; a parent is a work item that
+  happens to have work items in it.
+
+Everything else in those folders is left alone and never read as tracker input.
+An empty folder, and one holding only documents, are both fine and neither is an
+error.
+
+A folder is a work item when **both** are true:
+
+1. its name matches `<PREFIX>-<number>`, optionally followed by `-<slug>`; and
+2. it holds at least one of `ITEM.yaml`, `ITEM.json`, `REQUIREMENTS.md`,
+   `SPEC.md`, `STATUS.md`, or `HISTORY.ndjson`.
+
+The second test is what lets the owner name a folder `phase-1` or `epic-2`
+without it being taken for a work item and hiding everything inside it. A work
+item whose `ITEM.yaml` was deleted still passes it, so `validate` reports the
+damage instead of the item quietly disappearing.
+
+Nesting deeper than ten folders is not walked. That is a stop for a runaway
+walk, not a limit on how the owner may group work.
+
+Each item carries the folder path it sits in, relative to `.work-items/`, as
+`group` in `--json` output and in `work status`. An item at the top level has no
+group; one inside a work item has that work item's folder name. An archived
+item's group keeps its `archive/` prefix, so the reported location is always the
+real one.
+
+Folder position and the `parent` and `children` relationship fields are separate
+and neither drives the other. Nesting an item inside another writes no link, and
+linking two items moves no folder.
 
 ## The archive folder
 
 `.work-items/archive/` holds items the owner no longer wants to see. Sitting in
-that folder is the only record that an item is archived. Nothing is written into
-the item's own files, so the owner can drag folders in and out in a file
-manager and the next command already agrees with what they did. `work archive`
-and `work unarchive` move the same folders for an agent.
+that folder, at any depth, is the only record that an item is archived. Nothing
+is written into the item's own files, so the owner can drag folders in and out in
+a file manager and the next command already agrees with what they did. Dragging a
+whole group in archives everything inside it. `work archive` and `work unarchive`
+move the same folders for an agent, keeping the item in its group so it returns
+where it came from; a group folder deleted meanwhile is recreated.
 
 Archiving is organizing, not a status change. Any item may be archived at any
 status, and archiving changes nothing inside it.

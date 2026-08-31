@@ -51,7 +51,7 @@ so they always know where they are.
   work, so it never pairs with `work-tracker` or a hand-built board, and its own
   planning workflows are the refinement session.
 - For "local folders on this computer": install the `work-tracker` plugin and
-  run `init`, per `work-items-structure.md`. It creates flat item folders under
+  run `init`, per `work-items-structure.md`. It creates item folders under
   Git-ignored `.work-items/`, uses YAML records, and requires owner-approved
   `REQUIREMENTS.md` before work starts. Pairs with the `work-item-folders.md`
   rule copied in Gate 5. If an older staged tracker exists, preview and approve
