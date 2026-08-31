@@ -31,11 +31,3 @@ the fact. Then delete the sentence that only introduced it.
 
 A long document is not automatically padded. A specification with twenty
 requirements is long because it has twenty requirements, and that is correct.
-
-## Why this is a rule and not part of the output style
-
-The output style shapes how Claude talks in the conversation, and it is
-delivered in the main conversation's system prompt only. A helper agent never
-sees it, and helper agents write specifications, pull request descriptions, and
-handoff prompts. Claude Code loads every rule file into a helper agent's
-context, so this rule reaches them and a style could not.
