@@ -4,6 +4,10 @@
 
 Read this once at session start or when invoked via the remember skill. It is the knowledge operating manual for the AI second-brain AKA "knowledge" for the project.
 
+A KNOWLEDGE BASE WITH POLLUTED INFORMATION OR MORE INFORMATION THAN NECESSARY OR INCORRECT FACTS IS WORSE THAN NO KNOWLEDGE BASE!! BE AS CLEAR, CONCISE, AND PURPOSEFUL WITH YOUR KNOWLEDGE BASE MAINTENANCE AS POSSIBLE!!
+
+REMEMBER THE GOAL OF LONG TERM MEMORY IS SO THE AI AGENT GETS PROGRESSIVELY SMARTER AND UNDERSTANDS AND KEEPS TRACK OF THINGS BETTER THAN THE USER!
+
 ## What loads at startup
 
 The loader reads these files in order when present:
@@ -71,45 +75,37 @@ a map, not evidence; open the file before relying on it.
 
 The typical lifecycle of a work item is discovery->refinement->requirements finalization->solution design->OPTIONAL work item breakdown and further sub-item refinement->implementation plan->project management setup (for work item implementation tracking)->build phase->testing->iteration bug fixing->user approval->PR/push->deployment. The spec is typically updated after deployment since requirements could slightly change during build/testing phases.
 
-## What should be saved into the memory base
+## Memory Base
+
+### What should be saved into the Memory base
 
 Knowledge base memories are typically surfaced during a working session with the AI agent and the user in a project chat session (i.e. working on a work item, solutioning, user providing context, etc. etc.). The typical lifecycle of a work item is listed here under the '## For your (AI agent) reference on what a typical work-item lifecycle is' heading for reference.
 
-### Working/short-term memory
+These are the things that should be saved into the memory base.
 
-Working memory is the active context required to complete the current task.
+#### Working/short-term memory
+
+Save this type of information into the short term `knowledge/current.md`. KEEP INFORMATION AS CONCISE AND LEAN AS POSSIBLE. DO NOT JUST RAMBLE INTO THIS SHORT TERM MEMORY BASE!!
+
+Working memory is the active context required to complete current tasks. All entries should be as concise as possible and be dated so future agents know when information is no longer relevant in short-term memory.
+
 Examples include:
 
-- the current conversation;
-- active goals and plans;
-- tool outputs;
-- retrieved documents;
-- temporary files;
+- unorganized todo's the user asked for that they want to get to later;
+- upcoming events;
+- active items, their goals and plans;
+- summary of large tasks and a path to work;
 - intermediate calculations;
 - scratch notes;
 - unverified hypotheses;
-- current debugging observations;
 - partial implementation state.
 
-Working memory is necessary, but it is not automatically durable knowledge.
-
-Most working memory should disappear when the work is complete.
-
-The system may preserve session or work-item state long enough to resume interrupted work, but **resumability is not the same thing as long-term memory**.
-
-A tool result, transcript, execution trace, or scratch note should not become long-term memory merely because it existed.
-
 <!-- knowledge-policy:save-test:start -->
-### Long-term memory
+#### Long-term memory
 
-Long-term memory comes in a few kinds, borrowed from cognitive science: semantic
-memory, episodic memory, and procedural memory. These categories
-describe **what kind of knowledge something is**. They do not require every
-category to live in the same physical folder. Some forms of durable agent
-knowledge belong in the persistent memory base, while others belong in skills,
-rules, specifications, or native agent instructions.
+REMEMBER THE GOAL OF LONG TERM MEMORY IS SO THE AI AGENT GETS PROGRESSIVELY SMARTER AND UNDERSTANDS AND KEEPS TRACK OF THINGS BETTER THAN THE USER!
 
-These are the non-negotiables of what are considered AI Memory:
+These are the non-negotiables of what are considered long-term AI Memory:
 
 1. The information MUST be relevant to the project itself.
 2. Project memory is: persistent facts, decisions, user feedback, project milestones, project context (people, places, things, goals, etc.), project state, meaningful project events that occurred, constraints, relationships, facts that are difficult to infer from the repository alone, current truths about the project that the future agents will otherwise repeatedly need explained. These pieces of memory must be provided by the user or worked out by both the user and the agent together during a particular session.
@@ -117,7 +113,7 @@ These are the non-negotiables of what are considered AI Memory:
 <!-- knowledge-policy:save-test:end -->
 
 <!-- knowledge-policy:never-save:start -->
-### What never goes in memory
+### What never goes into the memory base
 
 The system should aggressively avoid storing transient or low-value information.
 None of this becomes durable memory:
@@ -248,7 +244,7 @@ The source files win if an index disagrees with them.
 
 `knowledge/memory-self-improvement.md` is this project's record of what the
 owner counts as memory-worthy. It holds distilled lessons and a short rolling
-log of recent proposal outcomes.
+log of recent proposal outcomes. If the user proposed an addition to what to consider memory or project-specific memory instructions, append one line per candidate to the `## Recent decisions` section of this file.
 
 `remember` reads it with the save rules before gathering candidates, and appends
 one line per candidate after the owner decides. Those appends are operational
