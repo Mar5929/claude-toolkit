@@ -29,3 +29,7 @@ words, or "no reason given".
 - 2026-08-31. The plain-language style is 183 lines over its own 50-line ceiling. Rejected before proposing. Live status and an open task, and now recorded in the output-styles index.
 - 2026-08-31. write-for-a-stranger.md is missing from the toolkit's machine rules. Rejected before proposing. A gap to ticket, not lasting truth.
 - 2026-08-31. The handoff-verifier subagent versus the Opus 5 warning about verifier subagents. Rejected before proposing. The owner has not ruled on it, so nothing is settled.
+- 2026-08-31. The toolkit deleted spec-before-you-build.md and track-open-topics.md and cut three rules hard. Rejected before proposing, question 5. The removal record and its reasons are committed in plugins/project-init/library/rules/general/README.md, project-sync/SKILL.md, and session-skills/README.md.
+- 2026-08-31. The spec-check and track-tasks skills now stand with no rule behind them. Rejected before proposing, question 5. Written into their own README sections in the same change.
+- 2026-08-31. A word budget for the default-on rule set. Rejected before proposing, questions 1 and 6. The owner cut specific files and never set a number, so a budget would be invented.
+- 2026-08-31. The work-tracker carve-out must stay in parallel-agent-sessions.md or an agent refuses to run the local tracker. Rejected before proposing, question 5. The carve-out line is committed in the rule itself.
