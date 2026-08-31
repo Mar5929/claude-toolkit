@@ -73,7 +73,7 @@ hooks, whose scripts live with every other hook in the
 
 It is deliberately small. Its `README.md` carries a two-question test for what
 belongs there: the thing has to hold in a repository nobody set up with the
-toolkit, and it must not already be in `library/` or the output styles. Anything
+toolkit, and it must not already be in `library/`. Anything
 failing either question is a project rule and goes in `library/` instead. It
 carries four rules today: `activate-project-knowledge.md`, which conditionally
 opens an equipped project's manual; `no-ai-attribution.md`, which keeps credit to Claude
@@ -100,12 +100,6 @@ the repository root would disappear the moment the plugin is installed.
 - `library/rules/salesforce/` (with its own `README.md`): the same idea for
   Salesforce projects, including compatibility for existing `engagement/`
   delivery roots.
-- `library/output-styles/` (with its own `README.md` index): the
-  `.claude/output-styles` files that set the voice Claude answers in, installed
-  in Gate 5. `plain-language.md` is default ON. A style is delivered through the
-  system prompt and re-stated to the session each turn, which is what a voice
-  rule needs and a rule file cannot do; it sits alongside the voice rules rather
-  than replacing them, because a subagent never sees a style.
 - `library/tools/permsets.py`: the permission set tool the
   `permissions-source-control.md` rule depends on. Copied to
   `tools/permissions/` in the project.

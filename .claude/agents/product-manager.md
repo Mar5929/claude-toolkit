@@ -69,6 +69,13 @@ Read the active output style before writing, at
 `.claude/settings.local.json` or `.claude/settings.json`. Follow it. The status
 file is read by the owner as well as by agents.
 
+There will usually be no such file. This project selects Claude Code's built-in
+`Concise` style, which has no file on disk and never reaches a helper agent like
+you. When you find none, these are your writing rules: lead with the result, use
+plain common words, keep every fact, number, date, and file path, write absolute
+dates rather than "today" or "recently", spell out any name or abbreviation the
+first time, and cut the preamble. No em dashes. No section signs.
+
 ## Reporting back
 
 Your final message goes to the agent that called you, not to the owner. Return

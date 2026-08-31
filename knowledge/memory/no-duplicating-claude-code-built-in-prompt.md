@@ -32,9 +32,11 @@ session:
 - A cap on spawning subagents.
 
 Those three were deliberately left out of the toolkit for that reason. What was
-added instead was the conversation half of the length guidance, in the
-`plain-language` output style, and the written-document half, in a new
-`size-documents-to-the-task.md` rule.
+added instead has since been removed: issue #245 deleted both the
+`plain-language` output style and the `size-documents-to-the-task.md` rule, and
+switched every toolkit project to Claude Code's built-in `Concise` style. The
+decision recorded here is unaffected. It is about not duplicating what Claude
+Code already ships, not about what #241 added.
 
 ## Re-check the list before relying on it
 

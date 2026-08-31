@@ -42,7 +42,7 @@ automatically as it grows.
 - Locate the toolkit files, in order of preference:
   1. They ship with this plugin. From this skill's directory, `../../library/`
      holds `rules/general/` (with its `README.md` index), `rules/salesforce/`
-     (with its own index), `output-styles/` (with its own index), `tools/`,
+     (with its own index), `tools/`,
      `templates/`, and `guides/`. The sibling skill's
      `../project-init/references/` holds `thin-claudemd.md` and `setup-flow.md`,
      and the plugin root holds `.claude-plugin/plugin.json`.
@@ -59,9 +59,10 @@ automatically as it grows.
     says, so step 2 can tell a project copy that is merely worded differently
     from one that is genuinely behind; Salesforce projects also get the
     `library/rules/salesforce/` files
-  - every file in `library/output-styles/`, noting from its `README.md` which are
-    default ON. These are not rule files and a project that carries every rule
-    can still have no style installed, so check them separately
+  - the output style setting, which is not a file. The toolkit ships no style;
+    every project should select Claude Code's built-in `Concise`. A project that
+    carries every rule can still have the wrong style selected, so check it
+    separately
   - the per-server MCP tool rules in `../../library/guides/mcp-best-practices.md`;
     these are conditional, so only audit the servers this project connects
   - each system from the setup gates: hooks, project knowledge, knowledge layer
@@ -84,18 +85,17 @@ automatically as it grows.
   - a project still carrying the retired voice rules (`writing-and-language.md`,
     `how-to-reply.md`, `treat-owner-as-non-technical.md`,
     `define-your-terms.md`). All four were removed from the toolkit in favor of
-    the output style. Report them, but see step 4 before touching any
+    an output style. Report them, but see step 4 before touching any
   - a project still carrying the retired style hooks (`style-reminder` under
     `UserPromptSubmit`, `writing-guard` under `Stop`, or their scripts and
     `.claude/style-reminder.json` and `.claude/writing-guard.json` config
     files). Both were removed from the toolkit in August 2026 as per-message
-    overhead, and the output style now stands alone. Report them for removal:
+    overhead. Report them for removal:
     delete the settings entry, the script, and the config file, leaving every
     other hook entry alone
-  - a project whose `.claude/output-styles/plain-language.md` predates #102. The
-    old copy is a flat bullet list, says "prefer lists and bullet points", and
-    has no goal, no examples, and nothing about invented names or figures of
-    speech. Offer the rewrite
+  - a project still carrying a `.claude/output-styles/plain-language.md` file,
+    at any vintage. The toolkit removed that style in issue #245. Offer to
+    delete the file and select `Concise`
   - the short `CLAUDE.md` the toolkit now writes inside each major folder, per
     `../project-init/references/folder-claudemd.md`. Read that file so step 2
     can tell a missing one from a folder the toolkit deliberately skips (any
@@ -120,11 +120,12 @@ checks:
   `.claude/rules/`, and does that folder carry each default-ON general rule (a
   file, or the rule's intent folded into CLAUDE.md)? Judge by intent, not exact
   wording or file name.
-- **Output style**: does `.claude/output-styles/` hold each default-ON file, and
-  does a settings file actually select one (`outputStyle` in
-  `.claude/settings.json` or `.claude/settings.local.json`)? Both halves matter.
-  A copied style file that nothing selects is inert, and a selected style whose
-  file is missing silently falls back to the default. Judge the file by intent,
+- **Output style**: does a settings file select `Concise` (`outputStyle` in
+  `.claude/settings.json` or `.claude/settings.local.json`)? The toolkit ships
+  no style file any more, so there is nothing to copy and only the setting to
+  check. A selected style whose file is missing silently falls back to the
+  default, which is the state a project is left in if it still names the deleted
+  `plain-language`. Judge any leftover file by intent,
   not exact wording, the same as a rule.
 - **CLAUDE.md health** (presence is not enough, see below).
 - **Can a Codex session actually reach the rules?** (see below). A project can
@@ -477,21 +478,22 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   project's existing voice. Never replace the file wholesale with the toolkit's
   text: that throws away every local adaptation the project made on purpose, and
   those adaptations are the reason the wording differs in the first place.
-- For an approved output style gap, do both parts: copy the file from
-  `../../library/output-styles/` into `.claude/output-styles/` and set
-  `outputStyle` in the committed `.claude/settings.json`. If the owner already
-  selected a different style, show them the clash and let them choose rather
-  than overwriting it. Say plainly that the new voice starts on their next
-  session, so they do not think it failed.
+- For an approved output style gap, set `"outputStyle": "Concise"` in the
+  committed `.claude/settings.json`, and offer to delete a leftover
+  `.claude/output-styles/plain-language.md`. If the owner deliberately selected
+  a different style, show them the clash and let them choose rather than
+  overwriting it. Say plainly that the new voice starts on their next session,
+  so they do not think it failed.
 - **For the retired voice rules, propose the swap, never a bare deletion.** A
   project on the old setup has working guidance; removing it before the style
-  is in leaves the project with neither. Install and verify the style first,
+  is in leaves the project with neither. Select and verify `Concise` first,
   then offer to delete `.claude/rules/writing-and-language.md`,
   `how-to-reply.md`, `treat-owner-as-non-technical.md`, and
-  `define-your-terms.md`. Say the one remaining cost out loud so the owner is
-  choosing with it in view: a helper agent still never sees an output style,
-  which is why `follow-the-output-style.md` goes into the rules folder in the
-  same pass.
+  `define-your-terms.md`. Say the remaining cost out loud so the owner is
+  choosing with it in view: a helper agent never receives an output style, and
+  a built-in style leaves no file for one to read either, so
+  `follow-the-output-style.md` goes into the rules folder in the same pass and
+  its fallback (write plainly) is all a helper agent gets.
 - **For an approved folder `CLAUDE.md` gap, do one folder at a time, and offer
   the move with it.** Adding the folder file alone leaves the root `CLAUDE.md`
   exactly as long as it was, which is the whole thing this is meant to fix. So

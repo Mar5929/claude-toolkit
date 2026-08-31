@@ -27,7 +27,6 @@ every other project receives.
 | `do-the-technical-work.md` | Do the git, config, and file work yourself. Hand over only the steps that are genuinely only-the-owner's. |
 | `project-file-lifecycle.md` | Give each kind of project information one lasting home, and do not archive current truth just because a work item closed. |
 | `ai-external-knowledge.md` | Outside documentation captured for agents (vendor docs, API references, framework guides) goes in `ai-external-knowledge/` at the project root, one folder per topic, each naming its source URL and capture date. It stays raw source material, and nothing reads it unless a rule, a skill, or persistent knowledge points at a topic. |
-| `size-documents-to-the-task.md` | A document written to disk is as long as its content and no longer. No filler sections, no summary repeating the document, no introduction to what is about to be said. Completeness beats brevity: never cut a fact, number, date, path, warning, or reason to save space. Lives in the rules folder rather than the output style because a rule reaches helper agents and a style does not. |
 
 ## Rules this repo deliberately does not carry
 
@@ -47,12 +46,16 @@ was set up, skipped, or declined.
 
 ## Voice is not a rule
 
-How Claude writes lives in `.claude/output-styles/plain-language.md`, which is
-selected in `.claude/settings.json` and delivered in the system prompt. Do not
-add a writing rule to this folder. If Claude should say something differently,
-the change goes in the output style, and in the library copy at
-`plugins/project-init/library/output-styles/plain-language.md` in the same
-change.
+How Claude writes here is Claude Code's built-in `Concise` style, selected as
+`"outputStyle": "Concise"` in `.claude/settings.json` and delivered in the
+system prompt. It is a built-in, so there is no file in this repository to edit.
+Do not add a writing rule to this folder. A different voice means changing that
+one settings value, or writing a project-specific style file, and neither is a
+rule.
+
+This repo shipped a hand-written `plain-language` style until issue #245, which
+removed it from the toolkit and switched every project to the built-in. The
+history is in `.claude/toolkit-sync.md`.
 
 This repo used to reinforce the style with two hooks. `writing-guard` refused a
 finished reply containing an em dash or a section sign; the owner turned it off

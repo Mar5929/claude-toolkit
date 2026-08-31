@@ -27,27 +27,29 @@ structure Gate 5 writes.
 | `project-file-lifecycle.md` | Give each kind of project information one lasting home, and do not archive current truth just because a work item closed. Only retired or replaced material moves to an archive. |
 | `work-item-folders.md` | Use the local work-tracker as the task authority: flat Git-ignored item folders, owner-approved requirements, exact handoffs, typed relationships, Git landing proof, and preview-first conversion of older staged folders. Conditional in practice: only meaningful when the project chose local-folder tracking. |
 | `ai-external-knowledge.md` | Outside documentation captured for agents to read (vendor docs, API references, framework guides) goes in `ai-external-knowledge/` at the project root, one folder per topic, each naming its source URL and capture date. It stays raw source material: the project's own conclusions live in the project's knowledge or documentation and link back to it, the project's truth wins any disagreement, and a captured document is never edited to agree with the project. Also says the folder is findable but not read, so agents reach it only when a rule, a skill, or persistent knowledge points at a topic. |
-| `size-documents-to-the-task.md` | A document written to disk is as long as its content and no longer: no filler sections, no closing summary that repeats the document, no introduction explaining what is about to be said, no hedging that names no situation and no tradeoff. Completeness still wins, in words, so a fact, number, date, path, warning, or reason is never cut to save space, and a long document with long content is correct. Lives here rather than in the output style because Claude Code loads a rule into a helper agent's context and never loads a style there, and helper agents write specifications, pull request text, and handoff prompts. Added for Claude Opus 5, which writes longer documents than earlier models by default. |
 
-## Voice is not a rule any more
+## Voice is not a rule, and the toolkit no longer ships one
 
 How Claude writes and replies used to live here in four files:
 `writing-and-language.md`, `how-to-reply.md`,
 `treat-owner-as-non-technical.md`, and `define-your-terms.md`. All four were
-removed. That job now belongs to the `plain-language` output style in
-`../../output-styles/`, which is delivered through the system prompt instead of
-being read once as a rule file.
+removed in favor of a hand-written `plain-language` output style, and in issue
+#245 that style was removed too. Every project now selects Claude Code's
+built-in `Concise` style, written into the project's committed settings by
+`project-init` Gate 5. The toolkit authors no voice file at all.
 
-Do not add a voice rule to this folder. If Claude should say something
-differently, the change goes in the output style. This folder is for how Claude
-*works*, not how it *talks*.
+Do not add a voice rule to this folder. This folder is for how Claude *works*,
+not how it *talks*. A project that wants a different voice sets `outputStyle`
+in its own settings.
 
 The one thing that does live here is `follow-the-output-style.md`, and it is a
 sign, not a rule about writing. An output style reaches the main conversation
 only, so a helper agent writing a commit message or a document never sees it.
-That rule tells the helper agent where the style file is and to go read it. It
-deliberately does not repeat a single writing instruction, because a second copy
-would drift from the first.
+That rule sends the helper agent to the active style file. With a built-in
+style there is no file, and the rule's own fallback applies: write plainly and
+move on. That fallback is now the only voice instruction a helper agent gets,
+which is why any helper-agent definition that writes owner-facing prose has to
+carry the writing rules in its own text.
 
 ## Rules removed on 2026-08-31, and why
 
