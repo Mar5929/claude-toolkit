@@ -94,20 +94,30 @@ Where a work-item folder sits is the owner's own organizing, and it is the only
 record of it. Nothing about it is stored in the item's files, so the owner drags
 folders in a file manager and the next command already agrees.
 
-A folder in `.work-items/` that is not named like a work item is a group the
-owner made, such as `security-and-permissions/`. Work items inside it are found
-and behave exactly like items at the top level. Groups may hold groups. Notes,
-documents, and anything else in a group folder are left alone.
+Any folder may hold work items, and the walk looks inside all of them. There are
+two kinds and they behave identically:
 
-- Pass `add --group security-and-permissions` to create an item in a group. The
-  folder is created if it does not exist yet.
-- Never move an item between groups, or invent a grouping, on your own
+- **A plain folder the owner made**, such as `security-and-permissions/`. It
+  carries no status, no requirements, and nothing to finish. It is a name on
+  disk and the tracker records nothing about it.
+- **A work item that holds other work items.** The owner works a large area as
+  one item, so it keeps its own status, requirements, and next step, holds that
+  area's shared documents, and the pieces sit inside it. Both the parent and the
+  items inside it are listed normally.
+
+Nesting may go as deep as the owner takes it. Notes, documents, and anything
+else in any of those folders are left alone.
+
+- Pass `add --group security-and-permissions` to create an item in a folder,
+  naming a work-item folder when the item belongs under one. The folder is
+  created if it does not exist yet.
+- Never move an item between folders, or invent a grouping, on your own
   initiative. Ask the owner.
-- Never put a work-item folder inside another work-item folder. Work items are
-  not searched for work items, so an item in there is invisible to every
-  command. `validate` reports it, and the fix is to move it out.
-- `status` and the dashboard name the group each item is in. Nothing about
-  status, requirements, priority, or the six-part gate changes with grouping.
+- `status` names the folder each item is in. Nothing about status, requirements,
+  priority, or the six-part gate changes with grouping.
+- Folder position and the `parent` relationship are separate. Nesting an item
+  inside another does not write a `parent` link, and linking does not move a
+  folder. The owner may use either, or both.
 
 Remind the owner once, when they first keep a document in a group folder, that
 Git ignores `.work-items/`, so nothing in there is backed up or shared. Notes
@@ -118,10 +128,11 @@ belongs in the repository instead.
 
 Items inside `.work-items/archive/` are archived, at any depth. Sitting in that
 folder is the only record of it, so the owner archives things by dragging
-folders in a file manager and no command is needed. Dragging a whole group in
-archives everything inside it. Use `archive` and `unarchive` to move the same
-folders yourself; both keep the item in its group, so an item comes back where
-it came from.
+folders in a file manager and no command is needed. Dragging a folder in
+archives everything inside it, and `archive` on a work item that holds other
+work items takes those along too. Say how many items are moving before running
+it. Use `archive` and `unarchive` to move the same folders yourself; both keep
+the item where it sat, so it comes back to the same place.
 
 Archiving is organizing, not a status change. Any item may be archived at any
 status, and archiving never edits the item's files. `status`, `next`, and the

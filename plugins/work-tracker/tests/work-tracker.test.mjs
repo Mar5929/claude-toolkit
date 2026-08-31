@@ -622,7 +622,8 @@ function workRoot(repo) {
 // the flat layout the grouping feature exists to relax.
 // Mirrors the tracker's own rule: a folder is a work item when its name looks
 // like one AND it holds work-item files. A group the owner called "phase-1" is
-// still a group, so this must look inside it.
+// still a group, and a work item may hold work items, so this looks inside
+// everything.
 function isItemFolder(dirPath, name) {
   if (!/^[A-Za-z][A-Za-z0-9]*-\d+(?:-|$)/.test(name)) return false;
   return ["ITEM.yaml", "ITEM.json", "REQUIREMENTS.md", "SPEC.md", "STATUS.md", "HISTORY.ndjson"]
@@ -635,7 +636,6 @@ function findItemPath(repo, id, root = workRoot(repo), skip = null) {
     const entryPath = path.join(root, entry.name);
     if (skip && entryPath === skip) continue;
     if (entry.name.startsWith(`${id}-`) && isItemFolder(entryPath, entry.name)) return entryPath;
-    if (isItemFolder(entryPath, entry.name)) continue;
     const found = findItemPath(repo, id, entryPath, skip);
     if (found) return found;
   }
@@ -753,24 +753,53 @@ test("moving a whole group folder into the archive archives everything in it", (
   assert.equal(jsonWork(repo, ["validate"]).json.valid, true);
 });
 
-test("a work item hidden inside another work item is reported by validate", () => {
+// The owner works a big area as one item, keeps that area's shared documents in
+// its folder, and nests the pieces underneath it. The parent stays a real work
+// item with its own status; the children are found alongside it.
+test("a work item may hold other work items, and both are found", () => {
   const repo = makeRepo();
   init(repo);
-  add(repo, "Outer item");
-  add(repo, "Inner item");
+  add(repo, "Security and permissions");
+  add(repo, "Org wide defaults");
+  add(repo, "Sharing rules");
 
-  moveByHand(
-    findItemPath(repo, "WI-002"),
-    path.join(findItemPath(repo, "WI-001"), "WI-002-inner-item"),
-  );
+  const parent = findItemPath(repo, "WI-001");
+  fs.mkdirSync(path.join(parent, "diagrams"), { recursive: true });
+  fs.writeFileSync(path.join(parent, "ARCHITECTURE.md"), "# Overall solution\n");
+  moveByHand(findItemPath(repo, "WI-002"), path.join(parent, "WI-002-org-wide-defaults"));
+  moveByHand(findItemPath(repo, "WI-003"), path.join(parent, "WI-003-sharing-rules"));
 
-  assert.equal(jsonWork(repo, ["status"]).json.counts.backlog, 1);
-  const result = jsonWork(repo, ["validate"], { allowFailure: true });
-  assert.equal(result.status, 2);
-  assert.ok(
-    result.json.errors.some(
-      (error) => error.includes("WI-002-inner-item") && error.includes("invisible to the tracker"),
-    ),
+  const status = jsonWork(repo, ["status", "--all"]).json;
+  assert.equal(status.counts.backlog, 3);
+  const byId = Object.fromEntries(status.groups.backlog.map((item) => [item.id, item]));
+  assert.equal(byId["WI-001"].group, null);
+  assert.equal(byId["WI-002"].group, "WI-001-security-and-permissions");
+  assert.equal(byId["WI-003"].group, "WI-001-security-and-permissions");
+  assert.equal(jsonWork(repo, ["validate"]).json.valid, true);
+  assert.equal(fs.readFileSync(path.join(parent, "ARCHITECTURE.md"), "utf8"), "# Overall solution\n");
+});
+
+test("archiving a parent work item takes the work items inside it along", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Security and permissions");
+  add(repo, "Org wide defaults");
+
+  const parent = findItemPath(repo, "WI-001");
+  moveByHand(findItemPath(repo, "WI-002"), path.join(parent, "WI-002-org-wide-defaults"));
+
+  const archived = jsonWork(repo, ["archive", "WI-001"]).json;
+  assert.equal(archived.path, ".work-items/archive/WI-001-security-and-permissions");
+  const after = jsonWork(repo, ["status", "--all"]).json;
+  assert.equal(after.counts.archived, 2);
+  assert.equal(after.counts.backlog, 0);
+
+  const restored = jsonWork(repo, ["unarchive", "WI-001"]).json;
+  assert.equal(restored.outcome, "unarchived");
+  assert.equal(jsonWork(repo, ["status"]).json.counts.backlog, 2);
+  assert.equal(
+    jsonWork(repo, ["status"]).json.groups.backlog.find((item) => item.id === "WI-002").group,
+    "WI-001-security-and-permissions",
   );
 });
 

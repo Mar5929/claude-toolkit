@@ -271,13 +271,15 @@ Usage:
   work dashboard
 
 Local files always live in .work-items and Git ignores that folder.
-Any folder in there that is not named like a work item is a group the owner
-made. Work items inside one are found and behave the same as items at the top
-level. Work items are never searched for more work items.
+Every folder in there is searched for work items, at any depth. That includes
+work-item folders, so a work item may hold other work items: the parent keeps
+its own status and requirements and is listed alongside them. There is no epic
+type.
 Items inside .work-items/archive are archived, however deep. Moving the folder
 by hand does the same thing as the archive command, for grouping and archiving
-alike. Archived items are hidden from status, next, and the dashboard, and
-their ID numbers are never reused.
+alike, and archiving a folder archives everything inside it. Archived items are
+hidden from status, next, and the dashboard, and their ID numbers are never
+reused.
 Statuses: Backlog, Ready, In Progress, In Review, Done, Cancelled.
 Requirements statuses: refining, finalized.
 Types: bug, enhancement, task.

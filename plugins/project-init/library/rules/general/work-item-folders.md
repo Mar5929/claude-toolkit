@@ -65,23 +65,30 @@ The structured status in `ITEM.yaml` is authoritative. Status never moves a
 folder, whatever it changes to. `DASHBOARD.md` is generated and is never a
 source of truth.
 
-## Leave the owner's grouping folders alone
+## Leave the owner's folders alone
 
-A folder in `.work-items/` that is not named like a work item is one the owner
-made to group work that belongs together, such as `security-and-permissions/`.
-Work items inside it are found and behave exactly like items at the top level,
-and a group may hold groups. Anything else in there, such as notes or a
-document, is left alone and never treated as tracker input.
+Any folder under `.work-items/` may hold work items, and every one of them is
+searched. There are two kinds and they behave identically:
 
-- Create an item in a group with `work add --group NAME`.
-- Never move an item between groups, invent a grouping, or reorganize the
+- **A plain folder the owner made**, such as `security-and-permissions/`. It has
+  no status, no requirements, and nothing to finish. The tracker records nothing
+  about it.
+- **A work item holding other work items.** The owner works a large area as one
+  item, so it keeps its own status, requirements, and next step, holds that
+  area's shared documents, and the pieces sit inside it.
+
+Nesting goes as deep as the owner takes it. Notes and documents in any of those
+folders are left alone and never treated as tracker input.
+
+- Create an item inside a folder with `work add --group NAME`, naming a
+  work-item folder when it belongs under one.
+- Never move an item between folders, invent a grouping, or reorganize the
   owner's folders on your own initiative. Ask.
-- Never put a work-item folder inside another work-item folder. Work items are
-  not searched for work items, so an item in there is invisible to every
-  command. `work validate` reports it; the fix is to move it out.
-- Grouping is folders, relationships are fields. `parent`, `depends_on`, and
-  the rest link one item to another and say nothing about which folder an item
-  sits in. When items in one group have to happen in order, use `depends_on`.
+- Archiving a folder archives everything inside it, so `work archive` on a work
+  item that holds others moves them all. Say how many are moving first.
+- Folder position and relationships are separate. Nesting an item inside another
+  writes no `parent` link, and linking moves no folder. When items have to
+  happen in order, use `depends_on`.
 
 `.work-items/` is ignored by Git, so a document kept in a group folder is not
 backed up or shared. Notes are fine there. Say so once when the owner first

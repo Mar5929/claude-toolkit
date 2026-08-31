@@ -14,11 +14,14 @@
     STATUS.md
     HISTORY.ndjson
     other-owner-notes.md
-  security-and-permissions/        # a group folder the owner made
+  security-and-permissions/        # a plain folder the owner made
     ARCHITECTURE.md                # their own material, left alone
     WI-015-org-wide-defaults/
-    record-access/                 # groups may hold groups
-      WI-016-sharing-rules/
+  WI-017-billing-rework/           # a work item holding work items
+    ITEM.yaml                      # its own status and requirements
+    diagrams/                      # the area's shared documents
+    WI-018-invoice-model/
+    WI-019-payment-terms/
   archive/                         # items the owner set aside
     WI-003-older-example/
 ```
@@ -26,13 +29,23 @@
 Status changes only in `ITEM.yaml`; status never moves a folder. There are no
 status folders.
 
-## Group folders
+## Grouping folders
 
-Any folder under `.work-items/` that is not a work item is a group the owner
-made. The scan looks inside it, so work items in there are found and behave
-exactly like items at the top level. Everything else in a group folder is left
-alone and never read as tracker input. An empty group, and one holding only
-documents, are both fine and neither is an error.
+The scan walks every folder under `.work-items/`, work items included, and
+collects every work item it finds at any depth. Two kinds of folder can hold
+work items, and the scan treats them the same:
+
+- **A plain folder the owner made**, such as `security-and-permissions/`. It has
+  no record of its own; nothing about it is stored anywhere.
+- **A work item holding other work items**, such as
+  `WI-014-security-and-permissions/`. The parent is a normal work item with its
+  own `ITEM.yaml`, status, and requirements, and it is listed alongside the items
+  inside it. There is no epic or parent type; a parent is a work item that
+  happens to have work items in it.
+
+Everything else in those folders is left alone and never read as tracker input.
+An empty folder, and one holding only documents, are both fine and neither is an
+error.
 
 A folder is a work item when **both** are true:
 
@@ -40,21 +53,23 @@ A folder is a work item when **both** are true:
 2. it holds at least one of `ITEM.yaml`, `ITEM.json`, `REQUIREMENTS.md`,
    `SPEC.md`, `STATUS.md`, or `HISTORY.ndjson`.
 
-The second test is what lets the owner name a group `phase-1` or `epic-2`
+The second test is what lets the owner name a folder `phase-1` or `epic-2`
 without it being taken for a work item and hiding everything inside it. A work
 item whose `ITEM.yaml` was deleted still passes it, so `validate` reports the
 damage instead of the item quietly disappearing.
-
-A work-item folder is never searched for more work items, so one placed inside
-another is invisible to every command. `validate` reports it by name.
 
 Nesting deeper than ten folders is not walked. That is a stop for a runaway
 walk, not a limit on how the owner may group work.
 
 Each item carries the folder path it sits in, relative to `.work-items/`, as
 `group` in `--json` output and in `work status`. An item at the top level has no
-group. An archived item's group keeps its `archive/` prefix, so the reported
-location is always the real one.
+group; one inside a work item has that work item's folder name. An archived
+item's group keeps its `archive/` prefix, so the reported location is always the
+real one.
+
+Folder position and the `parent` and `children` relationship fields are separate
+and neither drives the other. Nesting an item inside another writes no link, and
+linking two items moves no folder.
 
 ## The archive folder
 

@@ -72,33 +72,53 @@ them. Separate clones and computers do not share it.
 There are no status folders. Status changes in `ITEM.yaml`; status never moves a
 folder.
 
-## Group folders
+## Grouping work items
 
 Where a folder sits is the owner's own organizing, and the tracker reads it
 fresh on every command. That covers grouping and archiving alike, so the owner
 arranges work in a file manager and nothing has to be run afterwards.
 
-Any folder in `.work-items/` that is not a work item is a group the owner made,
-such as `security-and-permissions/`. Work items inside it are found and behave
-exactly like items at the top level: same statuses, same requirements gate, same
-commands. A group may hold groups. Notes, documents, and anything else in there
-are left alone and never read as tracker input.
+Any folder may hold work items, and every one of them is searched. There are two
+kinds, and they behave identically:
 
-`work status` names the group each item is in. `work add --group NAME` creates an
-item in one, making the folder if it does not exist.
+**A plain folder the owner made.** `security-and-permissions/` with the work
+items dragged into it. The folder has no status, no requirements, and nothing to
+finish. The tracker records nothing about it. It is a name on disk.
+
+**A work item that holds other work items.** When the area is something the owner
+actually works, the parent stays a real work item with its own status,
+requirements, and next step, keeps that area's shared documents in its folder,
+and the pieces sit inside it:
+
+```text
+WI-014-security-and-permissions/     In Progress
+  ITEM.yaml  REQUIREMENTS.md  STATUS.md
+  analysis/  diagrams/  evidence/    # the shared documents
+  WI-023-security-personas/          Backlog
+  WI-024-default-visibility/         Backlog
+  WI-032-security-sign-off/          Backlog
+```
+
+Both the parent and the items inside it are listed normally. There is no epic or
+parent type: a parent is just a work item that happens to have work items in it.
+
+Nesting goes as deep as the owner takes it. Notes, documents, and anything else
+in any of those folders are left alone and never read as tracker input.
+
+`work status` names the folder each item is in. `work add --group NAME` creates
+an item inside one, making the folder if it does not exist.
 
 A folder counts as a work item when its name looks like one **and** it holds
-work-item files. So a group called `phase-1` or `epic-2` is still a group, even
+work-item files. So a folder called `phase-1` or `epic-2` is just a folder, even
 though the name matches the pattern.
 
-Two things to know:
+Folder position and the `parent` relationship are separate. Nesting an item
+inside another writes no `parent` link, and linking moves no folder. Use either,
+or both.
 
-- Never put a work-item folder inside another work-item folder. Work items are
-  not searched for work items, so an item in there is invisible. `work validate`
-  reports it.
-- Git ignores `.work-items/`, so a document kept in a group folder is not backed
-  up or shared. Notes are fine. A solution architecture others need belongs in
-  the repository.
+Git ignores `.work-items/`, so a document kept in one of these folders is not
+backed up or shared. Notes are fine. A solution architecture others need belongs
+in the repository.
 
 ## The archive folder
 

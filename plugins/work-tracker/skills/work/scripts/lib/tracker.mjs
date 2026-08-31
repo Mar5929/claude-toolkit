@@ -750,11 +750,6 @@ export function validateTracker(tracker) {
 
   for (const item of tracker.items) {
     validateRecord(item, errors, warnings);
-    for (const nested of nestedItemFolders(item)) {
-      errors.push(
-        `${item.id}: work item folder ${nested} sits inside ${item.folderName} and is invisible to the tracker. Move it into a group folder or up to .work-items.`,
-      );
-    }
     for (const type of RELATIONSHIPS) {
       for (const targetId of item.record.relationships?.[type] ?? []) {
         if (targetId === item.id) errors.push(`${item.id}: ${type} cannot reference itself`);
@@ -965,9 +960,10 @@ export function scanItems(paths) {
 // neither is stored in the item's own files, so the owner can drag folders in a
 // file manager and the next command already agrees with what they did.
 //
-// A folder named like a work item is one. Anything else is a folder the owner
-// made to group things, so the walk looks inside it. A work-item folder is never
-// searched for more work items; validate reports any hidden inside one.
+// The walk looks inside every folder, work items included. A work item may hold
+// other work items: the owner works the parent as a real item with its own
+// status and requirements, keeps that area's shared documents in it, and nests
+// the pieces underneath. Both the parent and its children are found.
 function scanItemFolders(paths, root = paths.workRoot, archived = false, depth = 0) {
   if (depth > FOLDER_MAX_DEPTH || !fs.existsSync(root)) return [];
   const candidates = [];
@@ -978,7 +974,6 @@ function scanItemFolders(paths, root = paths.workRoot, archived = false, depth =
     const match = entry.name.match(ITEM_FOLDER_PATTERN);
     if (match && holdsItemFiles(entryPath)) {
       candidates.push(itemCandidate(entryPath, entry.name, match[1], inArchive, paths));
-      continue;
     }
     candidates.push(...scanItemFolders(paths, entryPath, inArchive, depth + 1));
   }
@@ -993,22 +988,6 @@ function scanItemFolders(paths, root = paths.workRoot, archived = false, depth =
 // of the item quietly disappearing.
 function holdsItemFiles(dirPath) {
   return ITEM_FILE_NAMES.some((name) => fs.existsSync(path.join(dirPath, name)));
-}
-
-// A work item folder the owner dropped inside another work item folder. The walk
-// does not look in there, so without this check the item would vanish from every
-// command with no sign of where it went.
-function nestedItemFolders(item) {
-  if (!fs.existsSync(item.path)) return [];
-  const found = [];
-  for (const entry of fs.readdirSync(item.path, { withFileTypes: true })) {
-    if (!entry.isDirectory() || entry.name.startsWith(".")) continue;
-    const entryPath = path.join(item.path, entry.name);
-    if (ITEM_FOLDER_PATTERN.test(entry.name) && holdsItemFiles(entryPath)) {
-      found.push(entry.name);
-    }
-  }
-  return found;
 }
 
 // The folder path an item sits in, relative to .work-items, or null at the top
@@ -1907,12 +1886,14 @@ This ignored folder is managed by the work-tracker plugin. It stays on this
 computer and is not copied through Git.
 
 - Every work item is one \`WI-<number>-<name>/\` folder.
-- Make a folder of your own and drag work items into it to group work that
-  belongs together, such as \`security-and-permissions/\`. Nothing else is
-  needed. Keep that area's notes and documents in there too; they are left
-  alone. A group can hold groups.
-- Never put a work item folder inside another work item folder. It would be
-  invisible to every command. \`work validate\` reports it if it happens.
+- Drag work items into any folder to group work that belongs together. Two ways,
+  and both work the same:
+  - A plain folder you make, such as \`security-and-permissions/\`.
+  - A work item itself, when the area is something you actually work. It keeps
+    its own status, requirements, and next step, holds that area's shared
+    documents, and the pieces sit inside it.
+- Nesting can go as deep as you like, and everything found inside is listed
+  normally. Notes and documents in any of those folders are left alone.
 - Drag folders into \`archive/\` to get them out of the way. Nothing else is
   needed: sitting in that folder is what makes an item archived, and dragging
   one back out undoes it. Dragging a whole group in archives everything inside
