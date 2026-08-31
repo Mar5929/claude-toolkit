@@ -1,7 +1,8 @@
 # work-tracker plugin
 
 A local work tracker shared by Claude and Codex. It keeps each work item in one
-flat, Git-ignored folder and makes owner-approved requirements the gate before
+Git-ignored folder, groups them in folders the owner makes, and makes
+owner-approved requirements the gate before
 building starts.
 
 **Setup: sets up a project.** Install once per machine. A project opts in when
@@ -51,6 +52,10 @@ Every project uses the same hidden root folder:
     REQUIREMENTS.md
     STATUS.md
     HISTORY.ndjson
+  security-and-permissions/          # a group folder the owner made
+    ARCHITECTURE.md                  # their own notes, left alone
+    WI-015-org-wide-defaults/
+    WI-016-sharing-rules/
   archive/
     WI-003-older-example/
 ```
@@ -64,8 +69,36 @@ Linked Git worktrees in the same clone share the primary checkout's
 shared folder's full path, so agents can open the same records without copying
 them. Separate clones and computers do not share it.
 
-Every open work item sits directly inside `.work-items/`. There are no status
-folders. Status changes in `ITEM.yaml`; status never moves the folder.
+There are no status folders. Status changes in `ITEM.yaml`; status never moves a
+folder.
+
+## Group folders
+
+Where a folder sits is the owner's own organizing, and the tracker reads it
+fresh on every command. That covers grouping and archiving alike, so the owner
+arranges work in a file manager and nothing has to be run afterwards.
+
+Any folder in `.work-items/` that is not a work item is a group the owner made,
+such as `security-and-permissions/`. Work items inside it are found and behave
+exactly like items at the top level: same statuses, same requirements gate, same
+commands. A group may hold groups. Notes, documents, and anything else in there
+are left alone and never read as tracker input.
+
+`work status` names the group each item is in. `work add --group NAME` creates an
+item in one, making the folder if it does not exist.
+
+A folder counts as a work item when its name looks like one **and** it holds
+work-item files. So a group called `phase-1` or `epic-2` is still a group, even
+though the name matches the pattern.
+
+Two things to know:
+
+- Never put a work-item folder inside another work-item folder. Work items are
+  not searched for work items, so an item in there is invisible. `work validate`
+  reports it.
+- Git ignores `.work-items/`, so a document kept in a group folder is not backed
+  up or shared. Notes are fine. A solution architecture others need belongs in
+  the repository.
 
 ## The archive folder
 
@@ -73,9 +106,11 @@ folders. Status changes in `ITEM.yaml`; status never moves the folder.
 them. Expanding the tracker in an editor then shows the archive folder and the
 items still in play, instead of everything ever created.
 
-Sitting in that folder is the only record that an item is archived. Nothing is
-written into the item's own files, so the owner can drag folders in and out and
-the next command already agrees. `work archive` and `work unarchive` move the
+Sitting in that folder, at any depth, is the only record that an item is
+archived. Nothing is written into the item's own files, so the owner can drag
+folders in and out and the next command already agrees. Dragging a whole group
+in archives everything inside it. `work archive` and `work unarchive` keep the
+item in its group, so it comes back where it came from, and they move the
 same folders for an agent.
 
 Archiving is organizing, not a status change. Any item may be archived at any
@@ -166,7 +201,7 @@ The older format may live in `work-items/`, `delivery/work-items/`, or
 `SPEC.md`.
 
 `work migrate` previews the conversion and changes nothing. After approval,
-`work migrate --apply` copies every item into the flat `.work-items/` folder,
+`work migrate --apply` copies every item into the `.work-items/` folder,
 converts known fields to YAML, creates refining requirements when needed, and
 preserves all legacy and unknown files. The old tracker remains unchanged until
 the owner verifies the copy and approves its removal.

@@ -14,20 +14,57 @@
     STATUS.md
     HISTORY.ndjson
     other-owner-notes.md
+  security-and-permissions/        # a group folder the owner made
+    ARCHITECTURE.md                # their own material, left alone
+    WI-015-org-wide-defaults/
+    record-access/                 # groups may hold groups
+      WI-016-sharing-rules/
   archive/                         # items the owner set aside
     WI-003-older-example/
 ```
 
-Every open work-item folder is directly under `.work-items/`. Status changes
-only in `ITEM.yaml`; status never moves the folder. There are no status folders.
+Status changes only in `ITEM.yaml`; status never moves a folder. There are no
+status folders.
+
+## Group folders
+
+Any folder under `.work-items/` that is not a work item is a group the owner
+made. The scan looks inside it, so work items in there are found and behave
+exactly like items at the top level. Everything else in a group folder is left
+alone and never read as tracker input. An empty group, and one holding only
+documents, are both fine and neither is an error.
+
+A folder is a work item when **both** are true:
+
+1. its name matches `<PREFIX>-<number>`, optionally followed by `-<slug>`; and
+2. it holds at least one of `ITEM.yaml`, `ITEM.json`, `REQUIREMENTS.md`,
+   `SPEC.md`, `STATUS.md`, or `HISTORY.ndjson`.
+
+The second test is what lets the owner name a group `phase-1` or `epic-2`
+without it being taken for a work item and hiding everything inside it. A work
+item whose `ITEM.yaml` was deleted still passes it, so `validate` reports the
+damage instead of the item quietly disappearing.
+
+A work-item folder is never searched for more work items, so one placed inside
+another is invisible to every command. `validate` reports it by name.
+
+Nesting deeper than ten folders is not walked. That is a stop for a runaway
+walk, not a limit on how the owner may group work.
+
+Each item carries the folder path it sits in, relative to `.work-items/`, as
+`group` in `--json` output and in `work status`. An item at the top level has no
+group. An archived item's group keeps its `archive/` prefix, so the reported
+location is always the real one.
 
 ## The archive folder
 
 `.work-items/archive/` holds items the owner no longer wants to see. Sitting in
-that folder is the only record that an item is archived. Nothing is written into
-the item's own files, so the owner can drag folders in and out in a file
-manager and the next command already agrees with what they did. `work archive`
-and `work unarchive` move the same folders for an agent.
+that folder, at any depth, is the only record that an item is archived. Nothing
+is written into the item's own files, so the owner can drag folders in and out in
+a file manager and the next command already agrees with what they did. Dragging a
+whole group in archives everything inside it. `work archive` and `work unarchive`
+move the same folders for an agent, keeping the item in its group so it returns
+where it came from; a group folder deleted meanwhile is recreated.
 
 Archiving is organizing, not a status change. Any item may be archived at any
 status, and archiving changes nothing inside it.

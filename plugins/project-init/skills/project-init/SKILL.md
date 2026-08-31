@@ -94,7 +94,7 @@ any other external tracker.
 
 For "local folders on this computer", install `work-tracker` from this
 marketplace and run its `init` command, as described in
-`references/work-items-structure.md`. It always uses the flat, Git-ignored
+`references/work-items-structure.md`. It always uses the Git-ignored
 `.work-items/` folder at the repository root. If an older staged tracker exists,
 preview `work migrate`, get approval, then copy it with `--apply`. Leave the old
 tracker untouched until the owner verifies the copy and separately approves

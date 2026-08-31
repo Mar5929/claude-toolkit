@@ -609,7 +609,7 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   the pointer. Never delete tickets, issues, or boards from the
   tracker they are leaving; moving existing work across is theirs to do by hand.
 - For an approved new local work-tracker gap, install the plugin and run
-  `work init`. It creates flat YAML work items under Git-ignored `.work-items/`.
+  `work init`. It creates YAML work items under Git-ignored `.work-items/`.
   Say plainly that these records stay in the current checkout.
 - For an approved older-tracker conversion, run `work migrate --from <path>`
   first and show the preview. Run it again with `--apply` only after approval.

@@ -9,7 +9,9 @@ with Node.js.
 - `--json`: machine-readable success and error output.
 
 Local files always live at `.work-items/`. There is no custom tracker path.
-Items inside `.work-items/archive/` are archived.
+Items inside `.work-items/archive/` are archived, at any depth.
+Any other folder in there is a group the owner made, and the items inside it are
+found normally. See `record-format.md` for what separates the two.
 Paths are passed as arguments, not interpolated shell fragments, so repository
 names with spaces are supported.
 
@@ -32,7 +34,7 @@ will preserve. `--apply` copies the items. It never deletes the old tracker.
 
 ```text
 work add --title TITLE --description DESCRIPTION --priority medium --type task \
-  --next-step STEP [--created-date YYYY-MM-DD] [--id WI-014]
+  --next-step STEP [--created-date YYYY-MM-DD] [--group FOLDER] [--id WI-014]
 work requirements WI-014
 work requirements WI-014 --finalize --approved-by NAME
 work requirements WI-014 --reopen
@@ -57,6 +59,12 @@ work validate [--json]
 `--description` becomes the preserved starting request. The older `--purpose`
 name remains accepted as a compatibility alias.
 
+`--group` puts the new item in a group folder under `.work-items/`, creating the
+folder when it does not exist. Nested names such as
+`security-and-permissions/record-access` work. It refuses a path that leaves the
+tracker, one starting with `archive`, and any folder whose name starts with a
+dot, since the scan skips those.
+
 `requirements --finalize` requires all six sections plus the person who
 approved them. It changes a `Backlog` item to `Ready`. `--reopen` returns open
 work to `Backlog` and clears the approval fields.
@@ -66,11 +74,13 @@ current branch when `--branch` is omitted. It rejects a branch already claimed
 by another active item unless `--allow-shared-branch` is explicit.
 
 `archive` moves an item's folder into `.work-items/archive/` and `unarchive`
-moves it back. Neither changes the item's status or its files. Moving the folder
-by hand does exactly the same thing, so no command is required. Archived items
-are hidden from `status`, `next`, and the dashboard; `status --archived` lists
-them and `status --all` includes them. Archiving something already archived
-reports no change.
+moves it back. Both keep the item in its group folder, so an item returns where
+it came from, and a group folder deleted meanwhile is recreated. Neither changes
+the item's status or its files. Moving the folder by hand does exactly the same
+thing, so no command is required, and dragging a whole group into `archive/`
+archives everything inside it. Archived items are hidden from `status`, `next`,
+and the dashboard; `status --archived` lists them and `status --all` includes
+them. Archiving something already archived reports no change.
 
 `finish` resolves `HEAD` when `--commit` is omitted. It marks `Done` only when
 `git merge-base --is-ancestor` proves the commit is in the configured default
