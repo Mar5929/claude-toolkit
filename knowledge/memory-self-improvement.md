@@ -34,3 +34,4 @@ words, or "no reason given".
 - 2026-08-31. The spec-check and track-tasks skills now stand with no rule behind them. Rejected before proposing, question 5. Written into their own README sections in the same change.
 - 2026-08-31. A word budget for the default-on rule set. Rejected before proposing, questions 1 and 6. The owner cut specific files and never set a number, so a budget would be invented.
 - 2026-08-31. The work-tracker carve-out must stay in parallel-agent-sessions.md or an agent refuses to run the local tracker. Rejected before proposing, question 5. The carve-out line is committed in the rule itself.
+- 2026-08-31. Widen the no-duplicating-Claude-Code memory to say the principle also removes rules already in the toolkit, after honest-verification.md and do-the-technical-work.md were deleted for that reason. Rejected. Reason: "Skip it, just open the PR". The removal record in the general rules index already carries the facts.

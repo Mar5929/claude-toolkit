@@ -1,6 +1,6 @@
 # tests: four Node checks, run by hand
 
-Nothing runs these automatically. Run all three before opening a pull request:
+Nothing runs these automatically. Run all four before opening a pull request:
 
 ```
 node tests/link-check.mjs
@@ -40,6 +40,11 @@ Each asks a different question, and each exists because something real broke.
 - **`knowledge-startup-check.mjs` owns the startup contract.** It checks the
   loader order, fail-open behavior, host registration, root fallback, manual
   size and checksum, and the absence of a second marked policy owner.
+- **Stage a deletion before running the checks.** `link-check.mjs` and
+  `knowledge-startup-check.mjs` both walk `git ls-files --cached`, so a file
+  deleted from disk but not yet staged is still listed and then fails to open.
+  The failure reads as a broken link or a missing policy owner, which points at
+  the wrong problem. `git add` the deleted path first, then run them.
 - Each script explains its own reason for existing in a comment at the top. Read
   that before changing what it checks.
 
