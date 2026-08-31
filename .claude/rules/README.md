@@ -16,7 +16,7 @@ every other project receives.
 
 | File | What it does |
 |---|---|
-| `keep-claudemd-current.md` | What `CLAUDE.md` and `AGENTS.md` are for: carry the few things an agent must know before it acts, and route it to where everything in the repository lives. The codemap names the context sources too. Three tests keep the rest out. Update the file before a session ends whenever it surfaces a new path, convention, decision, or workflow, and prune while you are in there. `AGENTS.md` is a short pointer file, not a second copy. |
+| `keep-claudemd-current.md` | What `CLAUDE.md` and `AGENTS.md` are for: carry what an agent must know before it acts, and route it to where things live. Three tests keep other lines out. Covers folder `CLAUDE.md` files and why `AGENTS.md` is a pointer, not a copy. |
 | `honest-verification.md` | Do not claim more than you verified. Report failures with their output. |
 | `parallel-agent-sessions.md` | Sharing a repo with other live sessions: look before you edit, work in your own worktree and branch, never `git add -A`, land by pull request. |
 | `knowledge-direct-commit.md` | A save that touches only `knowledge/` commits straight to the default branch. No worktree, no pull request. The owner-approved exception to `parallel-agent-sessions.md`; the knowledge manual still decides what may be saved. |
@@ -25,10 +25,8 @@ every other project receives.
 | `ask-before-assuming.md` | Ask one specific question when intent or scope is ambiguous, and state the rough scope before an operation that reads or produces a lot. |
 | `offer-context-handoff.md` | When context is heavy and the next step is reasoning-heavy, offer a self-contained handoff prompt, after running the memory check. |
 | `do-the-technical-work.md` | Do the git, config, and file work yourself. Hand over only the steps that are genuinely only-the-owner's. |
-| `spec-before-you-build.md` | Every piece of work is logged in the tracker before it is built, and nothing is built until a refinement session has filled in the six-part spec. `CLAUDE.md` names the tracker. |
-| `project-file-lifecycle.md` | Give project information one lasting authoritative home. Work items track the work, current architecture stays in its architecture area, deliverables hold only presentations and high-level summaries, and completing a work item does not archive current project truth. |
+| `project-file-lifecycle.md` | Give each kind of project information one lasting home, and do not archive current truth just because a work item closed. |
 | `ai-external-knowledge.md` | Outside documentation captured for agents (vendor docs, API references, framework guides) goes in `ai-external-knowledge/` at the project root, one folder per topic, each naming its source URL and capture date. It stays raw source material, and nothing reads it unless a rule, a skill, or persistent knowledge points at a topic. |
-| `track-open-topics.md` | Keep every still-open topic in the session on Claude Code's built-in task list, from the moment a second one appears. Parked topics, unanswered questions, and blocked work all stay visible, and the list dying with the session is said out loud. |
 | `size-documents-to-the-task.md` | A document written to disk is as long as its content and no longer. No filler sections, no summary repeating the document, no introduction to what is about to be said. Completeness beats brevity: never cut a fact, number, date, path, warning, or reason to save space. Lives in the rules folder rather than the output style because a rule reaches helper agents and a style does not. |
 
 ## Rules this repo deliberately does not carry

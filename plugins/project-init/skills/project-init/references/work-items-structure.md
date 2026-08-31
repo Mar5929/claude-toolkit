@@ -22,8 +22,9 @@ when called from a linked worktree. Separate clones do not share it.
 ## The refinement gate
 
 Every item has `REQUIREMENTS.md`. Its YAML status is `refining` until the owner
-approves all six parts named in `spec-before-you-build.md`. Only then may it be
-`finalized` and the work item become `Ready`.
+approves all six parts: the goal, the reason, the requirements, what the person
+using it experiences, how it behaves from the outside, and the edge cases. Only
+then may it be `finalized` and the work item become `Ready`.
 
 The file contains only what the owner said or approved. It contains no
 technical plan and no unapproved agent assumptions. `work start` refuses an

@@ -178,13 +178,10 @@ plugin.
 - Gate 6 offers the `session-skills` plugin, which holds `explain-simply`,
   `grill-me`, `handoff`, `session-summary`, and `track-tasks`, without copying
   anything into the project. The plugin remains their canonical home.
-- Gate 1 asks where work items are tracked, and the two guarantees that follow
-  are the same whichever answer it gets: log the work in that tracker before
-  building it, and refine the six-part spec before building it. Those live once
-  in `library/rules/general/spec-before-you-build.md`, copied into
-  `.claude/rules/` in
-  Gate 5, with a one-line pointer in `CLAUDE.md` and `AGENTS.md` naming the
-  tracker.
+- Gate 1 asks where work items are tracked. Gate 5 writes a one-line pointer in
+  `CLAUDE.md` and `AGENTS.md` naming that tracker, so every session knows where
+  the work lives. No rule about ticket quality ships with it: the rule that used
+  to, `spec-before-you-build.md`, was removed from the toolkit on 2026-08-31.
 - Gate 5 installs no general knowledge rule. Projects that accept Gate 3 receive
   `knowledge/README.md` as the one routing and operating manual; projects that
   decline it receive no knowledge policy.

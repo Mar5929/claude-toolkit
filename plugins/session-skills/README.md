@@ -116,9 +116,10 @@ and saves only the meaning you approve. The raw brainstorm checkpoint is the
 one place content reaches a file before that review, because the checkpoints
 make an interrupted interview safe.
 
-The `spec-before-you-build.md` rule requires a refinement session before work is
-built, and this is a good way to hold one. That rule names no skill on purpose,
-so removing this plugin never leaves it stale.
+A refinement session before work starts is a good habit, and this is a good way
+to hold one. Nothing requires it: the toolkit rule that used to,
+`spec-before-you-build.md`, was removed on 2026-08-31, so this skill stands on
+its own merits.
 
 ### Triggers
 
@@ -298,15 +299,12 @@ the context being cleared.** Anything that has to outlive the conversation is
 named, along with where it should go instead: wherever its work item is being
 tracked, or a handoff prompt.
 
-### The rule is what makes it automatic
+### There is no rule behind it
 
-The skill gives you a command. The rule is what makes a session keep the list
-without being asked.
-
-`track-open-topics.md` ships in the general rules library, not in this plugin,
-and is copied into a project's `.claude/rules/` during setup, where Claude Code
-loads it at the start of every session. It names no skill, so removing this
-plugin never leaves a rule pointing at something that is not there.
+The skill gives you a command, and that is all. A rule called
+`track-open-topics.md` used to make a session keep the list without being asked.
+It was removed from the toolkit on 2026-08-31, so run `/track-tasks` when you
+want the list.
 
 ### The name
 
@@ -332,9 +330,9 @@ proposed fix. Nothing changes without your approval, a dismissed flag stays
 dismissed for the session, and approved fixes land in the specification
 itself before building starts. A clean specification gets one line saying so.
 
-The `spec-before-you-build` rule in the project-init library tells agents to
-run this check, and the `hooks-library` plugin ships `spec-check-reminder`,
-which asks once at the session's first file edit whether the check has run.
+The `hooks-library` plugin ships `spec-check-reminder`, which asks once at the
+session's first file edit whether the check has run. No rule requires the check:
+the rule that used to point at it was removed from the toolkit on 2026-08-31.
 
 ---
 

@@ -80,11 +80,9 @@ or somewhere else / nothing yet. `references/work-tracking-choice.md` carries th
 what each answer does, and the step-by-step setup for a GitHub Projects board.
 Read it before asking.
 
-Whatever the owner names, two things then hold in that project: every piece of
-work is logged in that tracker before it is built, and nothing is built until a
-refinement session has filled in the six-part spec. Those live in the
-`library/rules/general/spec-before-you-build.md` rule, copied in Gate 5. Gate 5 also adds
-a one-line structural pointer to `CLAUDE.md` and `AGENTS.md` naming the tracker.
+Whatever the owner names, Gate 5 adds a one-line structural pointer to
+`CLAUDE.md` and `AGENTS.md` naming that tracker, so every session knows where the
+work lives. No rule about ticket quality is copied alongside it.
 
 A GitHub Projects board and local folders are the two tracker choices the toolkit
 can set up. GitHub setup creates nothing without explicit approval: no board, no
@@ -341,12 +339,6 @@ CLAUDE.md stays thin and points at that folder. Read
   Calendar, Linear, Notion, Playwright), fold in that server's section (as a
   short CLAUDE.md section or its own `.claude/rules/` file). Skip the servers the
   project doesn't use.
-- **`spec-before-you-build.md` never ships alone.** It reads the tracker's name
-  out of the root instructions and tells an agent to stop and ask when none is
-  there. Copy it only when Gate 1's tracking question was answered with a real
-  tracker, and write the pointer named below in the same pass. When the answer
-  was "somewhere else, or nothing yet", skip the rule too and record the
-  decline.
 - **Write the thin CLAUDE.md** _with_ the user, walking the sections rather than
   generating a wall of text: what the project is, the codemap and structural
   pointers, a `Read .claude/rules` line, and which gates ran. Among the
@@ -431,10 +423,7 @@ in their own plugins.
   never answered, and work blocked behind something else. Say its limit out
   loud, because the skill does: the list dies with the session, so anything that
   has to outlive the conversation moves to the work tracker or into a handoff
-  prompt. It pairs with the `track-open-topics.md` rule from Gate 5, which makes
-  a session keep the list without being asked. That rule names no skill, so
-  taking the rule without this plugin is a valid choice and leaves nothing
-  stale.
+  prompt.
 - `unslop` takes writing that already exists and strips the patterns that make
   it read as machine-written, then puts a voice back. Say what it works on: a
   file the owner names, text they paste, or the last answer in the

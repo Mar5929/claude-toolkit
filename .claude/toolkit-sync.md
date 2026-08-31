@@ -55,7 +55,7 @@ three weeks later in another project.
 | Gate | Result |
 | --- | --- |
 | 0. Orient | Done. Existing repository, not a new one, so this ran as a sync rather than an init. Node and Markdown, no application stack. |
-| 1. Scaffolding and work tracking | Already answered. Work is tracked on the `Claude-Toolkit-Project` board on GitHub. `CLAUDE.md` names it, and `spec-before-you-build.md` is installed alongside that pointer. No scaffolding was added: the folder layout already existed. |
+| 1. Scaffolding and work tracking | Already answered. Work is tracked on the `Claude-Toolkit-Project` board on GitHub. `CLAUDE.md` names it. `spec-before-you-build.md` was installed alongside that pointer until 2026-08-31, when the toolkit dropped the rule and it was removed here too. No scaffolding was added: the folder layout already existed. |
 | 2. Hooks | Done. `save-reminder` and `knowledge-session-start` are installed under `.claude/hooks/` and registered in `.claude/settings.json`. Codex registers the same startup loader in `.codex/hooks.json`. The two style hooks were removed with the toolkit, as explained below. |
 | 3. Project knowledge | **Adopted from the packaged plugin.** `SOUL.md`, the managed operating manual, `knowledge/project.md`, `knowledge/current.md`, and both generated index entry lists load at session start. Approved specifications, flat persistent memory, and unchecked brainstorms live under the same knowledge root. The packaged skills keep only task-specific steps. The retired policy rule and machinery stay removed. |
 | 4. Knowledge layer | Included with Gate 3. The graphify code graph was offered and declined, see below. |
