@@ -2,13 +2,11 @@
 
 # How to use project knowledge
 
-Read this once at session start. It is the operating manual and wins when another
-knowledge instruction disagrees. Skills reopen a needed section whenever their
-own steps say to.
+Read this once at session start or when invoked via the remember skill. It is the knowledge operating manual for the AI second-brain AKA "knowledge" for the project.
 
 ## What loads at startup
 
-The fail-open loader reads these files in order when present:
+The loader reads these files in order when present:
 
 1. `SOUL.md`: who the agent is in this project.
 2. `knowledge/README.md`: this operating manual.
@@ -17,19 +15,16 @@ The fail-open loader reads these files in order when present:
 5. `knowledge/memory/memory-index.md`: one line per memory file.
 6. `knowledge/specs/spec-index.md`: one line per specification file.
 
-Missing files do not block. If the loader did not supply this manual, read it
-once before using project knowledge. Do not reload it on every prompt.
-
 ## Put information in one place
 
 <!-- knowledge-policy:routing:start -->
 
 | Information | Canonical home |
-|---|---|
+| --- | --- |
 | The agent's role and purpose here | `SOUL.md` |
 | A standing instruction for agent behavior | `.claude/rules/` |
 | A repeatable procedure | A skill |
-| Settled behavior of the system | `knowledge/specs/` |
+| Settled behavior of the system, written in non-technical language | `knowledge/specs/` |
 | A lasting fact, decision, event, context, or constraint | `knowledge/memory/` |
 | Current objective, blocker, and next step | `knowledge/current.md` |
 | Lessons about what this owner saves | `knowledge/memory-self-improvement.md` |
@@ -47,7 +42,7 @@ material, or another canonical home instead of copying its meaning.
 <!-- knowledge-policy:trust:start -->
 
 `knowledge/current.md` is overwritten and not trusted as lasting fact.
-`knowledge/brainstorms/` is unchecked. A current specification beats memory
+`knowledge/brainstorms/` is just unchecked scratch pad recordings. A current specification beats memory
 about system behavior. Name disagreements instead of silently choosing.
 
 <!-- knowledge-policy:trust:end -->
@@ -56,79 +51,100 @@ about system behavior. Name disagreements instead of silently choosing.
 
 <!-- knowledge-policy:find:start -->
 
-Use `recall` and stop at the first tier that answers:
+Use `recall` to find information. Use this tiered search path:
 
 1. `knowledge/current.md`.
 2. `.claude/rules/`.
 3. Skills.
 4. The memory and specification indexes, then only the relevant files and their
    links. Check the work tracker when the question is about a work item.
-5. Past sessions through `session-search`.
+5. Past sessions through `session-search` as a final resort or if relevant context may be found from this.
 
-When tiers 1 through 4 fail, name what was searched and offer or announce a
-session search. Treat its results as possibly outdated, ask whether they remain
-accurate, and never save them solely because they were found.
+Name where you found the information.
 
 Only `current` files answer what is true now. Others provide history. An index is
 a map, not evidence; open the file before relying on it.
 
 <!-- knowledge-policy:find:end -->
 
-## Save only durable, useful truth
+## For your (AI agent) reference on what a typical work-item lifecycle is
+
+The typical lifecycle of a work item is discovery->refinement->requirements finalization->solution design->OPTIONAL work item breakdown and further sub-item refinement->implementation plan->project management setup (for work item implementation tracking)->build phase->testing->iteration bug fixing->user approval->PR/push->deployment. The spec is typically updated after deployment since requirements could slightly change during build/testing phases.
+
+## What should be saved into the memory base
+
+Knowledge base memories are typically surfaced during a working session with the AI agent and the user in a project chat session (i.e. working on a work item, solutioning, user providing context, etc. etc.). The typical lifecycle of a work item is listed here under the '## For your (AI agent) reference on what a typical work-item lifecycle is' heading for reference.
+
+### Working/short-term memory
+
+Working memory is the active context required to complete the current task.
+Examples include:
+
+- the current conversation;
+- active goals and plans;
+- tool outputs;
+- retrieved documents;
+- temporary files;
+- intermediate calculations;
+- scratch notes;
+- unverified hypotheses;
+- current debugging observations;
+- partial implementation state.
+
+Working memory is necessary, but it is not automatically durable knowledge.
+
+Most working memory should disappear when the work is complete.
+
+The system may preserve session or work-item state long enough to resume interrupted work, but **resumability is not the same thing as long-term memory**.
+
+A tool result, transcript, execution trace, or scratch note should not become long-term memory merely because it existed.
 
 <!-- knowledge-policy:save-test:start -->
+### Long-term memory
 
-Use `remember`. Before proposing a save, answer all seven questions:
+Long-term memory comes in a few kinds, borrowed from cognitive science: semantic
+memory, episodic memory, and procedural memory. These categories
+describe **what kind of knowledge something is**. They do not require every
+category to live in the same physical folder. Some forms of durable agent
+knowledge belong in the persistent memory base, while others belong in skills,
+rules, specifications, or native agent instructions.
 
-1. Is it a lasting fact, decision, event, state, context, or constraint?
-2. Does it belong to the current project? Name the future project action or
-   decision it prevents from being wrong, or the project explanation the owner
-   would otherwise repeat. Where it happened does not make it project knowledge.
-   For an agent-tooling project, platform behavior qualifies only when it changes
-   a project requirement, design, or supported workflow.
-3. Did the project change, rather than the agent merely doing work?
-4. Is it likely to remain useful and true in six months?
-5. Does the fact already exist in a committed file, a loaded rule, or an existing
-   memory? Search the code, configuration, documentation, rules, skills,
-   specifications, work items, and saved memory. If it exists in any of them, the
-   proposal may only be a pointer to it. Restating the content is a rejection
-   even when the pointer is included.
-6. Can it name its source and where that source can be checked?
-7. Could a future agent read it as broader or more certain than it is?
+These are the non-negotiables of what are considered AI Memory:
 
-If the first four are not satisfied, do not save. If the last three are not
-safe, link, tighten, verify, or do not save. When unsure, do not save.
+1. The information MUST be relevant to the project itself.
+2. Project memory is: persistent facts, decisions, user feedback, project milestones, project context (people, places, things, goals, etc.), project state, meaningful project events that occurred, constraints, relationships, facts that are difficult to infer from the repository alone, current truths about the project that the future agents will otherwise repeatedly need explained. These pieces of memory must be provided by the user or worked out by both the user and the agent together during a particular session.
 
 <!-- knowledge-policy:save-test:end -->
 
 <!-- knowledge-policy:never-save:start -->
+### What never goes in memory
 
-Never save tool calls, searches, commands, generic agent, shell, or tool behavior,
-one-off troubleshooting, routine errors, scratch reasoning, dropped ideas,
-temporary steps, files opened, edit logs, sub-agent activity, chat, copies of
-code or specifications, procedures, open tasks, live status, stale claims with
-no historical value, secrets, or private personal information. Do not reroute a
-rejected candidate to global memory; a global rule or skill is a separate review.
+The system should aggressively avoid storing transient or low-value information.
+None of this becomes durable memory:
+
+- Tool calls, searches, web lookups, and commands run.
+- Rough thinking and scratchpad reasoning.
+- Ideas or hypotheses that were tried and dropped.
+- Temporary implementation steps and low-level execution details with no lasting relevance.
+- Ordinary test and compiler errors.
+- Files opened, and a blow-by-blow of edits.
+- Every action performed by a sub-agent.
+- Chit-chat and conversational filler.
+- Copies of code or specifications that already exist. Never save something an agent could work out by reading the production code.
+- A procedure that belongs in a rule or a skill.
+- Authoritative system behavior that belongs in a specification.
+- An open task or implementation step that belongs in work-item tracking.
+- Live status of current work.
+- Anything stale, superseded, or contradicted with no historical value.
+- Passwords, keys, and tokens, ever, because this folder is in Git and Git keeps everything.
 
 <!-- knowledge-policy:never-save:end -->
 
-### Reject example
+## What should be saved as a `knowledge/specs/`
 
-A real proposal, rejected. It asked to amend a memory about which Salesforce org
-is which: "The CLI default org for this repository is GREEN_FullCopy, set in the
-committed `.sf/config.json`. Mike set it to GREEN on 2026-08-11 in commit a0605f0
-and changed it to GREEN_FullCopy the next day in commit 3a53b56. A read without
-`-o` returns sandbox rows that look like production data. Always name the org.
-The policy and reasoning are in the `salesforce-safety-guardrails` rule."
+Specs are finalized, approved specifications and requirements about how the system should behave - logic, behavior, UI, UX, and other requirements that an AI cannot determine from reading the raw code. The specs should not simply regurgitate what can be understood from reading the raw code.
 
-It fails three ways:
-
-- Question 5: the default value sits in a committed config file, so a pointer to
-  that file is the only allowed form.
-- Routing: "always name the org" is a procedure a loaded rule already owns, and
-  procedures are never memory.
-- Question 3: the commit-by-commit history is agent work history, not a change
-  to the project.
+Specs must be written in clear, concise, laymen's terms without jargon. They should be organized neatly in system areas. They are living truth and must be deduplicated and updated when the AI works with the user to finalize work items. The typical lifecycle of a work item is listed here under the '## For your (AI agent) reference on what a typical work-item lifecycle is' heading for reference.
 
 ## Use the two file shapes
 
@@ -176,11 +192,12 @@ Show one numbered group per proposed file:
    - Source: <source and observed, reported, or inferred>
    - Tags: <tags and filing details>
    - Assumptions: <everything unchecked, or None>
-   - Verdict: <one line per save-test question, 1 to 7, each saying pass or fail
-     and why. Question 5's line names the files, rules, and config searched.>
+   - Verdict: <why this counts as project memory under this manual, and what
+     was searched to confirm it is not already written down. Name the files,
+     rules, and config opened.>
 ```
 
-The verdict lines are shown with the group, so the owner sees the reasoning
+The verdict line is shown with the group, so the owner sees the reasoning
 before answering.
 
 The owner approves `What`, `Project value`, and `Source`; assumptions are
