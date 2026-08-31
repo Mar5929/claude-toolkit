@@ -10,8 +10,12 @@ So before you write any of those, read the active output style and follow it.
 The file is `.claude/output-styles/<name>.md`, where `<name>` is the
 `outputStyle` value in `.claude/settings.local.json`, then
 `.claude/settings.json`, then the owner's `~/.claude/settings.json`. A built-in
-style (Explanatory, Learning, Proactive, Default) has no file; if you find none,
-write plainly and move on.
+style (Concise, Explanatory, Learning, Proactive, Default) has no file; if you
+find none, write plainly and move on.
+
+Expect to find none. Toolkit projects select the built-in `Concise` style, so
+the fallback is the normal case rather than the exception, and writing plainly
+is the whole instruction you get.
 
 This rule points at the style on purpose and does not restate it. A second copy
 of the writing rules would fall out of step with the first, and then two files

@@ -44,7 +44,7 @@ run without going back and forth:
 
 Write these steps in plain words, with the real file path and the real values.
 "Map the fields appropriately" is not a step. Assume the owner has no technical
-background, per the project's `plain-language` output style.
+background, per the project's output style.
 
 ## Where the files go
 

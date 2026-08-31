@@ -380,25 +380,21 @@ CLAUDE.md stays thin and points at that folder. Read
   root AGENTS.md even though Codex supports layered files.
 - **Add a `.claude/rules/README.md`** that indexes what each copied rule file
   does, so the folder is self-describing.
-- **Install the plain-language output style** (default ON). Copy
-  `../../library/output-styles/plain-language.md` to the project's
-  `.claude/output-styles/`, and set `"outputStyle": "plain-language"` in the
-  project's committed `.claude/settings.json`. This is the project's only home
-  for how Claude talks: written for a non-technical reader, real names only and
-  never one Claude invented, no figures of speech, common words, the answer
-  first, a shape that matches the content, every fact kept, no filler, no em
-  dashes, no section signs, quiet between tool calls, and the owner's actions at
-  the end. There are no voice rules in `.claude/rules/` any more; do not write
-  one. See
-  `../../library/output-styles/README.md`. Tell the owner it takes effect on their
-  next session, not the current one, and that a helper agent never sees an
-  output style, which is why `follow-the-output-style.md` is in the rules folder.
-- **Offer the machine-wide install too**, if the owner wants this voice
-  everywhere and not just here. Copy the same file to
-  `~/.claude/output-styles/plain-language.md` and set `"outputStyle"` in
-  `~/.claude/settings.json`. Then every project gets it, including ones that were
-  never set up with this toolkit. The project copy still wins where it exists,
-  and it is the one that travels to other machines, so doing both is normal.
+- **Select Claude Code's built-in `Concise` output style** (default ON). Set
+  `"outputStyle": "Concise"` in the project's committed `.claude/settings.json`.
+  Copy no style file: `Concise` is built into Claude Code, so there is nothing
+  to install and nothing to keep in step. The toolkit stopped shipping its own
+  style in issue #245. There are no voice rules in `.claude/rules/` either; do
+  not write one. Tell the owner three things: it takes effect on their next
+  session rather than the current one; a helper agent never receives an output
+  style, which is why `follow-the-output-style.md` is in the rules folder; and
+  with a built-in style there is no file for that rule to point a helper agent
+  at, so helper agents fall back to writing plainly.
+- **Offer the machine-wide setting too**, if the owner wants this voice
+  everywhere and not just here. Set `"outputStyle": "Concise"` in
+  `~/.claude/settings.json`. Then every repository gets it, including ones never
+  set up with this toolkit. The project setting still wins where it exists, and
+  it is the one that travels to other machines, so doing both is normal.
 
 ### Gate 6: Optional standalone toolkit skills
 
@@ -511,10 +507,6 @@ library.
 - `../../library/rules/salesforce/`: a growing set of reusable `.claude/rules/`
   files for Salesforce projects (with its own `README.md` index). Offer these in
   Gate 1 after `.claude/rules/` is scaffolded, when the stack is Salesforce.
-- `../../library/output-styles/`: the `.claude/output-styles/` files (with its
-  own `README.md` index) that set the voice Claude answers in, installed in
-  Gate 5. `plain-language.md` is default ON. Read the index for why an output
-  style sits alongside the voice rules rather than replacing them.
 - `../../library/tools/permsets.py`: the tool the permission set rule depends on
   (fetch, verify, check, tidy, preflight). Copy to `tools/permissions/` in the
   project. The rule without the tool is advice with no enforcement.
