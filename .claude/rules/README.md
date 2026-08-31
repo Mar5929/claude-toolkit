@@ -29,6 +29,7 @@ every other project receives.
 | `project-file-lifecycle.md` | Give project information one lasting authoritative home. Work items track the work, current architecture stays in its architecture area, deliverables hold only presentations and high-level summaries, and completing a work item does not archive current project truth. |
 | `ai-external-knowledge.md` | Outside documentation captured for agents (vendor docs, API references, framework guides) goes in `ai-external-knowledge/` at the project root, one folder per topic, each naming its source URL and capture date. It stays raw source material, and nothing reads it unless a rule, a skill, or persistent knowledge points at a topic. |
 | `track-open-topics.md` | Keep every still-open topic in the session on Claude Code's built-in task list, from the moment a second one appears. Parked topics, unanswered questions, and blocked work all stay visible, and the list dying with the session is said out loud. |
+| `size-documents-to-the-task.md` | A document written to disk is as long as its content and no longer. No filler sections, no summary repeating the document, no introduction to what is about to be said. Completeness beats brevity: never cut a fact, number, date, path, warning, or reason to save space. Lives in the rules folder rather than the output style because a rule reaches helper agents and a style does not. |
 
 ## Rules this repo deliberately does not carry
 

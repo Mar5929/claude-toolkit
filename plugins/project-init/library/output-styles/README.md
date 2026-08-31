@@ -39,7 +39,7 @@ One cost of a style-only setup is real and stays handled a different way:
 
 | File | What it does |
 |---|---|
-| `plain-language.md` | The owner is not technical, reads the answer once, and wants the point in one pass with no clutter. Every fact kept while the wording is simplified. Real names only and never one Claude invented, no figures of speech, no jargon the owner did not use first, no em dashes, no section signs, quiet between tool calls, and the owner's actions at the end. Sets `keep-coding-instructions: true`, so normal coding behavior is untouched. |
+| `plain-language.md` | The owner is not technical, reads the answer once, and wants the point in one pass with no clutter. Every fact kept while the wording is simplified. Real names only and never one Claude invented, no figures of speech, no jargon the owner did not use first, no em dashes, no section signs, quiet between tool calls, and the owner's actions at the end. Also controls length on Claude Opus 5, which talks more than earlier models: caveats stay to a line, an explanation defaults to the high-level version, commentary during a long task drops to one sentence up front and the outcome at the end, and a closing `tone_preference` reminder repeats the brevity instruction where the system prompt ends. Sets `keep-coding-instructions: true`, so normal coding behavior is untouched. |
 
 **Written as goal then rules.** The goal says who the reply is for and what they
 need out of it. The rules underneath are the ones that do not follow from
@@ -58,7 +58,10 @@ objected to.
 every line in it competes with every other line. **50 lines is the working
 ceiling**, and that is a decision made in #102, not a limit imposed by anything.
 Nothing breaks at 51. The number exists so the next person to add a line has to
-take one out. Detailed procedure (how to write a numbered instruction list, when
+take one out. **The file is at 183 lines and the ceiling is not being kept.**
+Worked examples went back in after #102 and the Opus 5 length instructions were
+added in #241 without a matching cut. Trimming it back is open work, not a
+settled state. Detailed procedure (how to write a numbered instruction list, when
 to use the question box) belongs in a rule in `../rules/general/`, which is
 about working rather than talking.
 
