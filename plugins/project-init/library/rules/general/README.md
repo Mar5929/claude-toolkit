@@ -6,17 +6,16 @@ files into the new project's `.claude/rules/` folder, and write a thin CLAUDE.md
 that points at that folder. Each rule is a standalone file, same model as the
 `../salesforce/` library.
 
-Keep the behavioral rules in these files, not inside CLAUDE.md. CLAUDE.md should
-stay short: what the project is, its structural pointers (backlog, work-items,
-deployment, toolkit port-back), which gates ran, and a line telling every
-session to read `.claude/rules/`. See `thin-claudemd.md` in the `project-init` skill for the CLAUDE.md
-structure Gate 5 writes.
+Keep the behavioral rules in these files, not inside CLAUDE.md. CLAUDE.md is a
+router and a map: what the project is, what is in each folder and when to open
+it, what tools the project runs on, where work is tracked, and a line telling
+every session to read `.claude/rules/`. See `thin-claudemd.md` in the
+`project-init` skill for the structure Gate 5 writes.
 
 ## Default ON: copy into every project unless the owner opts out
 
 | File | What it does |
 | --- | --- |
-| `keep-claudemd-current.md` | What `CLAUDE.md` and `AGENTS.md` are for: carry the few things an agent must know before it acts, and route it to where everything in the repository lives, context sources included. Three tests keep other lines out. Update the file when a session surfaces a new path, convention, decision, or workflow, and prune while in there. Covers folder `CLAUDE.md` files, and why `AGENTS.md` is a short pointer rather than a second copy. |
 | `parallel-agent-sessions.md` | Sharing a repository with other live sessions. Look before you edit, work in your own worktree on your own branch, never stage everything, keep shared-file edits additive, claim a sequential number before using it, and land by pull request with the owner's approval after a merge-safety check. |
 | `recommend-the-best-solution.md` | Build it well, and never quietly build more than was asked. Propose the well-architected, best-practice solution rather than a band-aid, and name the quick-patch tradeoff so the owner can choose. Do not expand beyond the request without checking first. The two halves meet in one move: recommending the bigger thing is right, building it unasked is gold-plating. Once the owner decides, do it their way. Absorbed the separate `stay-in-scope` rule. |
 | `follow-the-output-style.md` | Anything a helper agent writes that the owner reads (commit message, pull request text, a document in the repo) follows the project's active output style. A pointer to the style file, never a second copy of the rules. Exists because an output style reaches the main conversation only. |
@@ -55,7 +54,7 @@ The owner reviewed the whole default-on set and cut it roughly in half. The set
 had grown to about 6,900 words, which loads into every session before anyone
 types anything. A rule set that long stops being read and starts being skimmed.
 
-Four files were removed outright. Do not add any of them back without asking
+Five files were removed outright. Do not add any of them back without asking
 the owner.
 
 | Removed file | What it did | Why it went |
@@ -64,12 +63,13 @@ the owner.
 | `track-open-topics.md` | Required a running session task list of every unresolved topic. | Claude Code's built-in task list is used when it helps. It did not need a standing rule spending words in every session to say so. |
 | `honest-verification.md` | Said not to claim more than you verified, and to report failures with their output. | The owner dropped it from this repository first, then from the toolkit on 2026-08-31. Claude Code's own system prompt already tells an agent to report outcomes faithfully, so the rule was paying for an instruction the harness delivers anyway. |
 | `do-the-technical-work.md` | Said to do the git, config, deploy, and file work yourself, and to hand the owner only the steps that are genuinely theirs. | Removed with `honest-verification.md` on 2026-08-31, for the same reason. The behavior it asked for is already the default an agent is given. |
+| `keep-claudemd-current.md` | Said what `CLAUDE.md` and `AGENTS.md` are for, gave three tests for keeping lines out, and told a session to update the file when it surfaced a new path or convention. | Removed on 2026-08-31. It spent words in every session on a file that gets rewritten during `project-init` and audited during `project-sync`. `thin-claudemd.md` in the `project-init` skill is now the only home for the CLAUDE.md structure, and it is read at the moment the file is actually written. |
 
-Three more rules were kept but cut hard in the same change:
-`keep-claudemd-current.md`, `parallel-agent-sessions.md`, and
-`project-file-lifecycle.md`. Their instructions are unchanged. What went was the
-explanation, the history, and the worked reasoning around them. If one of them
-reads as blunt now, that is deliberate.
+Two more rules were kept but cut hard in the same change:
+`parallel-agent-sessions.md` and `project-file-lifecycle.md`. Their
+instructions are unchanged. What went was the explanation, the history, and the
+worked reasoning around them. If one of them reads as blunt now, that is
+deliberate.
 
 ## Conditional: copy only when the project has the thing the rule governs
 

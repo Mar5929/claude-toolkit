@@ -101,20 +101,18 @@ that folder's orientation with it.
   rules stay in `.claude/rules/`.
 - **A folder the toolkit did not create.** Sync lists it as not recognized and
   asks the owner what it is for, rather than inferring a purpose from the name.
-- **A Codex session works in the project.** It sees no folder file at all.
-  Everything Codex must always know stays in the root `AGENTS.md`.
-- **A project pins its two root files to each other with a shared block and an
-  automatic check.** Detail cannot leave the root `CLAUDE.md` while it sits
-  inside that block, because removing it would remove it from `AGENTS.md` too.
-  The block has to shrink to the part that genuinely must match first, and that
-  is said out loud before either file is touched.
+- **A Codex session works in the project.** It sees no folder file until it opens
+  one. Root `AGENTS.md` is one line sending it to `CLAUDE.md`, which sends it to
+  `.claude/rules/`. Everything Codex must always know is in those rules.
 
 ## What it deliberately does not do
 
 - **No automatic staleness check.** Nothing detects a folder file that has
-  fallen behind what its folder now holds. The upkeep rests on
-  `keep-claudemd-current.md`, which loads at the start of every session. If
-  staleness shows up in practice, a reminder hook can be a later ticket.
+  fallen behind what its folder now holds. The upkeep rests on `project-sync`,
+  which audits the folder files when it runs. There is no session-level rule
+  behind it: `keep-claudemd-current.md` was removed from the toolkit on
+  2026-08-31. If staleness shows up in practice, a reminder hook can be a later
+  ticket.
 - **No nested `AGENTS.md` files.** Codex would not read them, and they would
   double the files to keep current for no gain.
 
@@ -124,6 +122,5 @@ that folder's orientation with it.
   what goes in one, what never does, which folders get one, which are skipped,
   and the template.
 - [thin-claudemd.md](../../plugins/project-init/skills/project-init/references/thin-claudemd.md):
-  what must stay in the root file, and what `AGENTS.md` keeps in full.
-- [keep-claudemd-current.md](../../plugins/project-init/library/rules/general/keep-claudemd-current.md):
-  the rule that keeps the folder files current after setup.
+  that the root `CLAUDE.md` is a router and a map, what never goes in it, and
+  the one line that is the whole of `AGENTS.md`.

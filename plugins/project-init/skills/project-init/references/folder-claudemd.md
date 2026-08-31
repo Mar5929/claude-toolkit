@@ -31,11 +31,9 @@ Ten to twenty lines. Three things:
   file in that folder, and never when an agent only runs a command against it.
   A file that loads sometimes cannot carry a rule that applies always. A folder
   file may point at a rule; it may never hold the only copy of one.
-- **A rule too dangerous for Codex to reach late.** Codex reads `AGENTS.md` and
-  nothing else on its own. Root `AGENTS.md` tells it to open a folder's
-  `CLAUDE.md` before editing files there, so ordinary folder detail is safe to
-  keep here. What is not safe is a rule that must land before the folder is
-  opened at all: that stays written out in root `AGENTS.md`.
+- **A rule that must land before the folder is opened at all.** A folder file is
+  read late, when an agent is already editing there. Anything that has to be
+  true before that belongs in `.claude/rules/`, which loads at session start.
 - **A second copy of a `README.md` index.** The README stays the one index. The
   folder file points at it and never repeats it, so the two cannot drift apart.
 - **Live status.** Current phase, next action, and open work belong in the work
@@ -92,6 +90,5 @@ considered skip from an oversight.
 
 ## Keeping them current
 
-`keep-claudemd-current.md` in the general rules library covers the folder files
-as well as the root file. When work changes what a folder is for, that folder's
-`CLAUDE.md` is updated in the same session.
+When work changes what a folder is for, that folder's `CLAUDE.md` is updated in
+the same change. `project-sync` audits the folder files against this document.

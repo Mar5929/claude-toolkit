@@ -39,8 +39,8 @@ so they always know where they are.
   computer, the BMAD method, or somewhere else / nothing yet.
   `work-tracking-choice.md` has the wording, what each answer does, and the
   GitHub board setup steps. Read it first.
-- For answers other than "somewhere else, or nothing yet", Gate 5 adds a
-  one-line pointer to `CLAUDE.md` and `AGENTS.md` naming the tracker.
+- For answers other than "somewhere else, or nothing yet", Gate 5 gives
+  `CLAUDE.md` a "Where work is tracked" section naming the tracker.
 - A GitHub Projects board and local folders are the two tracker choices the
   toolkit can set up. GitHub setup creates nothing without explicit approval:
   no board, no statuses, no labels, no issues. Local setup writes only after the
@@ -186,28 +186,26 @@ so they always know where they are.
 
 **Gate 5: SOUL.md, CLAUDE.md, and the rules folder**
 
-- Three fixed lines go above the title in both root files: the SOUL route (only
-  when `SOUL.md` exists and Gate 3 was declined), then the owner's self-check
+- Three fixed lines go above the title in `CLAUDE.md`: the SOUL route (only when
+  `SOUL.md` exists and Gate 3 was declined), then the owner's self-check
   instruction, then the owner's continuity instruction. The last two are
   verbatim and in every project. `thin-claudemd.md` has the exact wording and
-  `root-file-examples.md` shows them in place; do not reword either or put one
-  in only one file.
-- `AGENTS.md` is a short pointer file: fixed lines, title, an instruction to read
-  `CLAUDE.md` then `.claude/rules/` then the folder file, the rules too dangerous
-  to wait, and the shared Communication and Project knowledge sections. No
-  codemap, no folder detail. Codex expands no import syntax, so write it in
-  words. `root-file-examples.md` has a finished pair.
+  `root-file-examples.md` shows them in place; do not reword either.
+- `AGENTS.md` is one line and nothing else:
+  `Read CLAUDE.md in this folder and follow it.` Codex expands no import syntax,
+  so `@CLAUDE.md` would load nothing, but a plain instruction to open a file is
+  followed. Anything more is a hand-maintained second copy that drifts.
 - Ask whether the owner wants to create a root `SOUL.md`. Explain that it holds
   the agent's identity, communication style, defaults, and behaviors to avoid.
   If yes, work with the owner to write it. Do not install a fixed template or
   invent its content. Keep an existing file and never overwrite it. When Gate 3
   was declined, put `Read SOUL.md first and follow it throughout this session.`
-  at the top of both root files. When Gate 3 ran, its loader and fallback own
-  that route. If the owner declines, create no file and add no reference.
-- The root files do two jobs: carry the few things an agent must know before it
-  acts, and route, so the agent knows where each thing lives in this repository.
-  Say that to the owner up front, and keep out anything that does neither.
-  `thin-claudemd.md` has the three tests a line has to pass.
+  at the top of `CLAUDE.md`. When Gate 3 ran, its loader and fallback own that
+  route. If the owner declines, create no file and add no reference.
+- `CLAUDE.md` is a router and a map: what the project is, what is in each folder
+  and when to open it, what tools the project runs on, and where work is
+  tracked. Say that to the owner up front, and keep out anything that answers
+  none of those. `thin-claudemd.md` has the list of what never goes in.
 - Behavioral rules go into the project's `.claude/rules/` as individual files,
   not into CLAUDE.md. See `thin-claudemd.md` and `library/rules/general/README.md`.
 - Copy the general rules from `library/rules/general/` into `.claude/rules/`: every
@@ -238,12 +236,11 @@ so they always know where they are.
   to open it, and the same for a specifications folder or reference data. An
   agent reaches those folders only from here.
 - Keep the codemap to one line per folder, pointing at that folder's own
-  `CLAUDE.md` for the detail. Four things stay in the root file whatever else
-  moves: how to talk to the owner, the pointers to the most dangerous rules, the
-  project-knowledge startup route, and the codemap lines. See "What must stay in the root
-  file" in `thin-claudemd.md`.
-- `AGENTS.md` keeps the folder detail in full. Codex never reads a folder
-  `CLAUDE.md`, so the two root files are meant to differ in length.
+  `CLAUDE.md` for the detail. Every line says what is in the folder and when to
+  open it.
+- Write a tools section from what the project actually runs: MCP servers,
+  generated graphs or indexes, build, test, and deploy commands. One row each,
+  naming the command and the file that holds the detail.
 - Select Claude Code's built-in `Concise` output style (default ON): set
   `"outputStyle": "Concise"` in the committed `.claude/settings.json`. Copy no
   style file. `Concise` is built into Claude Code, and the toolkit stopped
@@ -255,14 +252,11 @@ so they always know where they are.
   `follow-the-output-style.md` in the rules folder is for, and that with a
   built-in style there is no file for that rule to point at, so helper agents
   fall back to writing plainly.
-- When project knowledge is installed, keep the route small and identical. Both
-  hosts register the loader for `SOUL.md`, `knowledge/README.md`,
-  `knowledge/project.md`, `knowledge/current.md`, and the two index entry lists.
-  Both root files say to read that map once only if the hook did not supply it.
-- Give `AGENTS.md` the same project description and structural pointers as
-  `CLAUDE.md`, plus the direct startup instruction and any Codex-specific
-  repository instructions. See "What AGENTS.md contains" in
-  `thin-claudemd.md`.
+- When project knowledge is installed, keep the route small. Both hosts register
+  the loader for `SOUL.md`, `knowledge/README.md`, `knowledge/project.md`,
+  `knowledge/current.md`, and the two index entry lists. `CLAUDE.md` says to
+  read that map once only if the hook did not supply it, and copies no knowledge
+  policy. See "The project knowledge startup route" in `thin-claudemd.md`.
 
 **Gate 6: Optional standalone toolkit skills**
 

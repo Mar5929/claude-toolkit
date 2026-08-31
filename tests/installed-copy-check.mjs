@@ -25,10 +25,10 @@
  *    A file under `.claude/` with no known original and no exemption fails, so
  *    a new copy cannot be added without being checked.
  *
- * 2. The block between the `shared-with-agents-md` markers is identical in
- *    `CLAUDE.md` and `AGENTS.md`, with no exceptions. Claude reads the first
- *    file and Codex reads the second, so a difference there means a session gets
- *    different instructions depending on which program it is.
+ * 2. `AGENTS.md` is the single pointer line and nothing else. Codex reads that
+ *    file, expands no import syntax, and follows a plain instruction to open
+ *    another one. So anything written into it is a hand-maintained second copy
+ *    of `CLAUDE.md` that drifts from the first.
  *
  * 3. The project knowledge operating manual matches the packaged template.
  *
@@ -36,11 +36,9 @@
  *    architecture, presentation deliverables, and retired material in the
  *    exact homes the owner approved.
  *
- * The root knowledge route is short enough to compare word for word. Host hook
- * wiring lives in settings files, outside the shared block. The project-local
- * index builder, knowledge checker, frontmatter parser, and the four knowledge
- * hooks are also checked against the second-brain package that other projects
- * receive.
+ * The project-local index builder, knowledge checker, frontmatter parser, and
+ * the four knowledge hooks are also checked against the second-brain package
+ * that other projects receive.
  *
  * Run: node tests/installed-copy-check.mjs
  */
@@ -228,41 +226,21 @@ if (
   );
 }
 
-/** The block both root instruction files must carry word for word. */
-function sharedBlock(path) {
-  const text = read(path);
-  const start = text.indexOf("<!-- shared-with-agents-md:start -->");
-  const end = text.indexOf("<!-- shared-with-agents-md:end -->");
-  if (start === -1 || end === -1) return null;
-  return text.slice(start, end);
-}
+/**
+ * AGENTS.md is one pointer line and nothing else. Codex reads it and expands no
+ * import syntax, so anything written into it is a second copy of what CLAUDE.md
+ * already says, maintained by hand, drifting from the first.
+ */
+const AGENTS_MD = "Read CLAUDE.md in this folder and follow it.";
 
-const claudeBlock = sharedBlock("CLAUDE.md");
-const agentsBlock = sharedBlock("AGENTS.md");
-
-if (claudeBlock === null || agentsBlock === null) {
-  const missing = [
-    claudeBlock === null ? "CLAUDE.md" : null,
-    agentsBlock === null ? "AGENTS.md" : null,
-  ]
-    .filter(Boolean)
-    .join(" and ");
+checked++;
+if (read("AGENTS.md").trim() !== AGENTS_MD) {
   failures.push(
-    `  ${missing}\n    is missing a shared-with-agents-md marker, so the two`
-      + " root files cannot be\n    compared. Claude reads CLAUDE.md and Codex"
-      + " reads AGENTS.md; the block\n    between the markers has to be in"
-      + " both.",
+    "  AGENTS.md\n    is not the single pointer line. Codex reads this file and"
+      + " expands no import\n    syntax, so anything else here is a hand-copied"
+      + " second CLAUDE.md that will\n    drift. The whole file has to be:\n"
+      + `      ${AGENTS_MD}`,
   );
-} else {
-  checked++;
-  if (claudeBlock !== agentsBlock) {
-    failures.push(
-      "  CLAUDE.md / AGENTS.md\n    the block between the markers differs"
-        + " between them. Claude reads one file\n    and Codex reads the other,"
-        + " so a session gets different instructions\n    depending on which"
-        + " program it is. Copy the block across.",
-    );
-  }
 }
 
 if (failures.length > 0) {
@@ -275,5 +253,5 @@ if (failures.length > 0) {
 
 console.log(
   `ALL PASS (${checked} checks: installed copies match what this repo ships, `
-    + "the lifecycle homes agree, and the two root instruction files agree), FAIL: 0",
+    + "the lifecycle homes agree, and AGENTS.md is still one line), FAIL: 0",
 );

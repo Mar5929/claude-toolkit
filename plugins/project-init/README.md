@@ -138,9 +138,10 @@ project:
   computer" answer. Installs the flat, Git-ignored work-tracker, enforces
   owner-approved requirements, and previews conversion before copying an older
   staged tracker.
-- `thin-claudemd.md`: how Gate 5 writes a short CLAUDE.md that points at
-  `.claude/rules/` instead of holding the rules inline, and the four things that
-  must stay in the root file whatever else moves out.
+- `thin-claudemd.md`: how Gate 5 writes a CLAUDE.md that is a router and a map
+  (what the project is, what is in each folder and when to open it, what tools
+  it runs on, where work is tracked), what never goes in it, and the one line
+  that is the whole of `AGENTS.md`.
 - `folder-claudemd.md`: the short CLAUDE.md Gate 1 writes inside each major
   folder, which Claude Code loads only when an agent reads a file in that
   folder. What goes in one, what never does, which folders get one, and which

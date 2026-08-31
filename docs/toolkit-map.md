@@ -78,12 +78,13 @@ itself (`setup-flow.md`, `work-tracking-choice.md`, `work-items-structure.md`,
 `thin-claudemd.md`, `folder-claudemd.md`, `salesforce-project-scaffold.md`).
 Nothing there is copied into a project.
 
-`thin-claudemd.md` and `folder-claudemd.md` are a pair. The first says how an
-optional `SOUL.md` is referenced first, what the root `CLAUDE.md` holds, and
-what must never leave it. The second says what goes
-in the short `CLAUDE.md` inside each major folder, which Claude Code loads only
-when an agent reads a file in that folder. `project-sync` audits the folder
-files against the second one.
+`thin-claudemd.md` and `folder-claudemd.md` are a pair. The first says that the
+root `CLAUDE.md` is a router and a map (what the project is, what is in each
+folder and when to open it, what tools it runs on, where work is tracked), what
+must never go in it, and that `AGENTS.md` is one pointer line. The second says
+what goes in the short `CLAUDE.md` inside each major folder, which Claude Code
+loads only when an agent reads a file in that folder. `project-sync` audits the
+folder files against the second one.
 
 Reusable hooks live in [`hooks-library`](../plugins/hooks-library/README.md),
 including the two Salesforce guards and the machine-wide Git-attribution guard.
@@ -369,17 +370,16 @@ The genuine watch-items are called out at the end.
   there rather than into a summary. The `remember` review is the moment that
   proposes persistent project knowledge at the end of substantial work. The
   summary is what the owner reads; the work item is what the next session reads.
-- **The session-continuity rule cluster.** Several general rules touch "do not
-  lose context across sessions", which can read as overlap:
-  `keep-claudemd-current` keeps root instructions small,
-  `offer-context-handoff` prepares the next session, and `work-item-folders`
-  owns one Git-based tracker. When project knowledge is installed,
-  `knowledge/README.md` owns placement and the second-brain skills own their task
-  steps. Projects that decline it receive no knowledge rule.
-  `keep-claudemd-current` names the status doc, the design doc, and long-term
-  memory as destinations for detail that does not belong in CLAUDE.md, but it
-  does not own any of them; the rules above do. Naming where something goes is
-  what keeps CLAUDE.md from absorbing all three.
+- **The session-continuity rule cluster.** Two general rules touch "do not lose
+  context across sessions", which can read as overlap: `offer-context-handoff`
+  prepares the next session, and `work-item-folders` owns one Git-based tracker.
+  When project knowledge is installed, `knowledge/README.md` owns placement and
+  the second-brain skills own their task steps. Projects that decline it receive
+  no knowledge rule. The third member of this cluster was
+  `keep-claudemd-current`, removed on 2026-08-31: it spent words in every
+  session on a file that `project-init` writes and `project-sync` audits, and
+  `thin-claudemd.md` now owns the CLAUDE.md structure at the moment the file is
+  written.
 - **Voice is not a rule, and is no longer the toolkit's to ship.** How Claude
   writes and replies was four rule files, then three, then a single
   hand-written output style, and is now Claude Code's built-in `Concise` style,

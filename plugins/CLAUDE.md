@@ -58,11 +58,26 @@ folder stays small on purpose.
 - Older files may still contain em dashes and section signs. Clean them up in
   any file you are already editing.
 
+## Where a new piece goes
+
+Most sessions here start with Mike saying some version of "I want every project
+to also do X". Classify X first, then place it.
+
+| X is... | It goes... |
+| --- | --- |
+| A rule for how agents behave, write, or work in every project | A new file in `project-init/library/rules/general/`, plus a row in that folder's `README.md` (default ON or conditional) |
+| A rule that must hold in every repository on the machine, including ones nobody set up with the toolkit | A new file in `project-init/machine/rules/`, plus a row in that folder's `README.md` and an entry in the `machine-sync` skill. Only when a project rule genuinely cannot cover it |
+| A setup step for new projects | The right gate in `project-init/skills/project-init/SKILL.md` and `references/setup-flow.md`, or a proposed new gate |
+| A guard hook or automation | The `hooks-library` plugin. A hook checks an output, triggers a process agents forget to run, or orients a session at its start. If it needs none of those, it stays a rule |
+| A repeatable procedure | A skill, in a plugin that already exists where one fits |
+| A whole reusable system | A new plugin here, with its own `README.md`, registered in `../.claude-plugin/marketplace.json`, offered by `project-init`, and listed in `../docs/toolkit-map.md` |
+
+Mike describes things loosely. Tighten the wording, keep the intent, and ask
+before writing when placement is ambiguous.
+
 ## Where the detail lives
 
 - Each plugin's `README.md`: what that plugin is.
 - `../docs/toolkit-map.md`: how the pieces relate, and what looks redundant but
   is not.
 - `../tests/CLAUDE.md`: what each check asks and how to run it.
-- `../CLAUDE.md`: which kind of change goes where, in the table under "Your main
-  job here: fold new lessons into the toolkit".
