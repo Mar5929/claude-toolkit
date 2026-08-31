@@ -26,16 +26,14 @@ Linear and Jira. Name whichever one the owner actually said.
 
 ## What each answer does
 
-**Two things are true for answers 1 through 5**, and they are the reason this
-question exists:
+**This question exists so the project's root instructions can name one
+tracker.** Every session then knows where to look for the work without asking.
+What changes per answer is only which tracker gets named, and how a ticket is
+marked ready.
 
-- every piece of work is logged in that tracker before it is built; and
-- nothing is built until a refinement session has filled in the six-part spec.
-
-Those two live in the `library/rules/general/spec-before-you-build.md` rule, which is
-their one canonical home. Gate 5 copies it into `.claude/rules/`. Do not restate
-its contents anywhere else. What changes per answer is only which tracker gets
-named and how the refinement session is marked.
+The toolkit ships no rule saying what a ticket must contain. It used to, and
+that rule was removed on 2026-08-31. Do not write a replacement into the project
+during setup.
 
 ### 1. A GitHub Projects board
 
@@ -89,7 +87,6 @@ What the toolkit does for this answer:
 1. Offer to run `npx bmad-method install` yourself. It writes a lot of files, so
    say what it is about to do and wait for a yes. Never run it without one.
 2. Name `_bmad-output/` as the tracker in the Gate 5 pointer.
-3. Copy `spec-before-you-build.md` in Gate 5, the same as every other answer.
 
 The toolkit installs BMAD and nothing more. It does not wrap BMAD's workflows,
 copy BMAD files into the repository, or keep its own record of BMAD's work.
@@ -175,13 +172,12 @@ marked. One or two lines, no more. For example:
 
 > **Work tracking.** Work items live on the `<board name>` GitHub Projects board
 > connected to this repository. A ticket moves to `Refining` when its refinement
-> session starts, and to `Ready` with the `refined` label when the
-> six-part spec is agreed. See `.claude/rules/spec-before-you-build.md`.
+> session starts, and to `Ready` with the `refined` label once its requirements
+> are agreed.
 
-The rules themselves stay in `.claude/rules/spec-before-you-build.md`. The
-pointer names the tracker; the rule says what to do. Keeping the rules out of the
-root files is the same thin-root-instructions convention every other rule
-follows, described in `thin-claudemd.md`.
+The pointer names the tracker and how a ticket is marked ready, and stops there.
+Keeping detail out of the root files is the same thin-root-instructions
+convention every other pointer follows, described in `thin-claudemd.md`.
 
 ## If the owner changes tracker later
 

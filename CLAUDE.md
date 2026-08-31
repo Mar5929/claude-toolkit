@@ -67,8 +67,7 @@ for the plugin itself.
 ## Where work is tracked
 
 The `Claude-Toolkit-Project` board on GitHub, which is connected to this
-repository. `.claude/rules/spec-before-you-build.md` says what has to be true of
-every ticket before work starts. What is specific to this board:
+repository. How this board works:
 
 - Move the issue to `Refining` when the refinement session starts. When the
   session ends and the spec is agreed, add the `refined` label and move it to

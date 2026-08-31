@@ -120,14 +120,6 @@ checks:
   `.claude/rules/`, and does that folder carry each default-ON general rule (a
   file, or the rule's intent folded into CLAUDE.md)? Judge by intent, not exact
   wording or file name.
-
-  One exception to the "copy every default-ON rule" pass:
-  `spec-before-you-build.md` reads the tracker's name out of the project's root
-  instructions and tells an agent to stop and ask when none is there. Never copy
-  it on its own. It ships only together with a settled answer to the tracking
-  question and the pointer that answer produces, both covered below. A project
-  that gets the rule with no pointer stalls the next time an agent goes to log
-  work.
 - **Output style**: does a settings file select `Concise` (`outputStyle` in
   `.claude/settings.json` or `.claude/settings.local.json`)? The toolkit ships
   no style file any more, so there is nothing to copy and only the setting to
@@ -269,13 +261,12 @@ checks:
   `.work-items/` or an older `work-items/` tree but no pointer counts as never
   asked. Never-asked is a gap to offer in step 4; a recorded decline is
   respected and not raised again.
-- **The `spec-before-you-build.md` rule:** classify as present, missing, or
-  previously declined in `.claude/rules/`. When a tracker is named but the rule
-  is missing, that is a gap: the project has somewhere to log work and no
-  instruction to log it there. When the project's root instructions or its own
-  rules already say something about ticket quality, show the difference against
-  the toolkit's current wording and let the owner keep theirs, take the
-  toolkit's, or merge the two. Never overwrite without asking.
+- **Rules the toolkit dropped on 2026-08-31:** `spec-before-you-build.md` and
+  `track-open-topics.md`. The toolkit no longer ships either one. When a project
+  still carries one in `.claude/rules/`, report it as a rule the toolkit has
+  dropped, say in one line what it used to do, and offer to delete it. Never
+  delete it without approval. A project may have come to depend on it, and that
+  is the owner's call.
 - **Work tracker:** detect root `.work-items/` first. If it contains
   `.work-tracker.yaml` and per-item `ITEM.yaml` records, run `work validate` and
   classify the system as present or partial from its output. Confirm that
@@ -611,12 +602,11 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   rule of the same name instead.
 - When the project was never asked where work items are tracked, ask the Gate 1
   question from `../project-init/references/work-tracking-choice.md` and follow
-  that file for whichever answer comes back. Copy
-  `library/rules/general/spec-before-you-build.md` into `.claude/rules/` and add the
-  one-line pointer to `CLAUDE.md` and `AGENTS.md`, unless the answer is
-  "somewhere else, or nothing yet", in which case record the decline instead.
+  that file for whichever answer comes back. Add the one-line pointer to
+  `CLAUDE.md` and `AGENTS.md`, unless the answer is "somewhere else, or nothing
+  yet", in which case record the decline instead.
 - When the owner names a different tracker than the one already recorded, rewrite
-  the pointer and the rule. Never delete tickets, issues, or boards from the
+  the pointer. Never delete tickets, issues, or boards from the
   tracker they are leaving; moving existing work across is theirs to do by hand.
 - For an approved new local work-tracker gap, install the plugin and run
   `work init`. It creates flat YAML work items under Git-ignored `.work-items/`.

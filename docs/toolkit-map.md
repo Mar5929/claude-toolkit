@@ -262,15 +262,11 @@ The genuine watch-items are called out at the end.
   the shared work, with no `.work-items/` tracker. That board is set up by hand
   from `project-init`'s `work-tracking-choice.md`, uses seven statuses including
   `Refining`, and involves no work-tracker code.
-- **spec-before-you-build versus work-item-folders.** Not two rules about
-  tickets. `spec-before-you-build` is tracker-neutral and states the two things
-  that hold anywhere: log the work before building it, and refine the six-part
-  spec before building it. `work-item-folders` adds only what is specific to
-  tracking work in local folders, and is meaningless in a project that
-  chose a GitHub board, Linear, Jira, or the BMAD method. The six parts are
-  stated once, in `spec-before-you-build`. A BMAD project meets them through
-  BMAD's own requirements document and stories, never through a second
-  `SPEC.md`.
+- **work-item-folders is only for local tracking.** It adds what is specific to
+  tracking work in Git-ignored local folders, and is meaningless in a project
+  that chose a GitHub board, Linear, Jira, or the BMAD method. It used to sit
+  under a tracker-neutral rule, `spec-before-you-build`, which was removed from
+  the toolkit on 2026-08-31.
 - **hooks-library versus the output style.** The built-in `Concise` style is
   canonical and says what good writing is. The toolkit used to ship two hooks
   that reinforced a style of its own: `style-reminder` re-stated it on every

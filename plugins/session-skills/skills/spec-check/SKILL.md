@@ -17,9 +17,9 @@ approval before any building starts.
 - A ticket body: a GitHub issue, a Linear ticket, or a local work item's
   `REQUIREMENTS.md`.
 
-If the work has no specification at all, say so in one line and stop. The
-project's spec-before-you-build rule takes over: the ticket gets written first.
-Do not run the check on nothing.
+If the work has no specification at all, say so in one line and stop, and ask
+the owner to write the ticket or specification first. Do not run the check on
+nothing.
 
 ## The check
 

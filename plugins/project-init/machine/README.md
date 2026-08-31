@@ -53,14 +53,15 @@ the caliber of what gets built in a project, and this one owns the instruction
 that cost is never a reason to keep the best answer quiet, anywhere on the
 computer.
 
-`keep-design-out-of-requirements.md` stands on its own as well. It shares a
-border with the project rule "Log the Work, Spec It, Then Build It" in
-`../library/rules/general/spec-before-you-build.md`, which already says a
-ticket's requirements are what and why, never how. That rule stops at the ticket
-and reaches only a project someone set up with the toolkit. This one holds in
-every repository on the computer and adds what that one does not carry: the five
-sections of the functional requirements, the separate technical specification,
-and the architectural decision records that join the two. Keep them in step.
+`keep-design-out-of-requirements.md` stands on its own as well. It holds in
+every repository on the computer, including ones nobody set up with the toolkit,
+and it carries the five sections of the functional requirements, the separate
+technical specification, and the architectural decision records that join the
+two. It used to share a border with a project rule, "Log the Work, Spec It, Then
+Build It", which said a ticket's requirements are what and why, never how. That
+project rule was removed from the toolkit on 2026-08-31, so this file is now the
+only place that instruction lives. Do not assume a project rule is backing it
+up.
 
 ## Why the hook script is not in this folder
 
