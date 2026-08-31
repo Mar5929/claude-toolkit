@@ -237,6 +237,9 @@ check("project scope gate runs before a save proposal", () => {
   assert.ok(neverSave.includes("Live status of current work"));
   assert.ok(neverSave.includes("Passwords, keys, and tokens"));
   assert.ok(approval.includes("Project value"));
+  // A proposal must say the word Memory or Specification. The owner should not
+  // have to decode a folder path to know what he is approving.
+  assert.ok(approval.includes("Type: Memory, or Specification"));
 
   const remember = read("plugins/second-brain/skills/remember/SKILL.md");
   const scope = remember.indexOf("## 1. Gather and scope candidates");

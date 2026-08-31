@@ -186,6 +186,7 @@ Show one numbered group per proposed file:
 
 ```text
 1. <plain name>
+   - Type: Memory, or Specification. Say which one, in that word.
    - What: <the meaning, three sentences at most>
    - Project value: <how this helps future work on the current project>
    - Where: <exact path and action>
@@ -196,6 +197,10 @@ Show one numbered group per proposed file:
      was searched to confirm it is not already written down. Name the files,
      rules, and config opened.>
 ```
+
+`Type` comes first and is never left out. The owner should not have to read a
+folder path to work out whether he is being asked to approve a memory or a
+specification.
 
 The verdict line is shown with the group, so the owner sees the reasoning
 before answering.
