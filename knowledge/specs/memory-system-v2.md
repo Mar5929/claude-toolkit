@@ -20,11 +20,11 @@ no build session may follow it.
 ## What replaced this draft
 
 `knowledge/specs/knowledge-system.md` is the build authority. Its design input is
-`work-items/memory-redesign/knowledge-system-north-star.md`.
+`archive/memory-redesign/knowledge-system-north-star.md`.
 
 The two documents this file previously pointed at, `functional-requirements.md`
 and the master technical architecture, were archived on 2026-08-21 to
-`work-items/memory-redesign/archive/`. They are not current and no build session
+`archive/memory-redesign/chatgpt-reports/`. They are not current and no build session
 works from them either.
 
 Note that the paragraph below is now wrong in one respect: the current design

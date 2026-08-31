@@ -22,3 +22,9 @@ __pycache__/
 **/.obsidian/**
 !knowledge/.obsidian/app.json
 !plugins/second-brain/skills/second-brain/references/templates/knowledge/.obsidian/app.json
+
+# Generated code graphs (graphify output is rebuilt, never committed)
+graphify-out/
+
+# Salesforce CLI local cache (no Salesforce source lives in this repo)
+.sf/

@@ -2,7 +2,7 @@
 summary: How the knowledge system works, in enough detail to build it, covering the two file schemas, the find ladder, the routing table, the reasoning behind the save and approval design, and the lifecycle of a saved file.
 area: knowledge-system
 status: current
-source: work-items/memory-redesign/knowledge-system-north-star.md and the owner-approved requirements in GitHub issues #215, #219, and #221
+source: archive/memory-redesign/knowledge-system-north-star.md and the owner-approved requirements in GitHub issues #215, #219, and #221
 created_at: 2026-08-21
 confirmed_at: 2026-08-31
 tags: [knowledge-system, memory, specifications, second-brain, schema, build-authority]
@@ -49,7 +49,7 @@ knowledge system that is not installed. It is registered on Claude Code's
 root instruction route remains the Codex fallback.
 
 The design input is
-`work-items/memory-redesign/knowledge-system-north-star.md`. Where this
+`archive/memory-redesign/knowledge-system-north-star.md`. Where this
 specification is more precise than the North Star, it is filling a gap the North
 Star left. Where the two disagree on meaning, that is a bug in this file.
 

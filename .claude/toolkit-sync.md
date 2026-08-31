@@ -45,6 +45,34 @@ architecture, approved behavior, lasting decisions, implementation,
 presentation deliverables, and retired material in separate authoritative
 homes.
 
+Synced again on 2026-08-31, against toolkit version 0.100.0, from a
+`/project-sync` run rather than an issue. Every rule, hook, tool, and knowledge
+file already matched what this repository ships, and all four checks passed
+before anything changed. Four gaps were closed:
+
+- **`spec-check-reminder` was installed.** The `hooks-library` plugin ships it
+  for every project that uses `session-skills`, which this one does, and it was
+  the only shipped piece this repository qualified for and did not run. It is
+  copied to `.claude/hooks/` and registered under `PostToolUse` with an
+  `Edit|Write|NotebookEdit` matcher. Verified by feeding it the same session id
+  twice: it printed once, then stayed quiet.
+- **`CLAUDE.md` said there were three checks.** There are four.
+  `knowledge-startup-check.mjs` existed, passed, and was named correctly in
+  `tests/CLAUDE.md`, but the root codemap and tools table both left it out, so a
+  session reading only the root file skipped it before every pull request.
+- **Root `work-items/memory-redesign/` moved to `archive/memory-redesign/`.** It
+  held the spent source notes for the knowledge-system rebuild, no index pointed
+  at it, and `project-file-lifecycle.md` puts replaced material in the archive.
+  `archive/README.md` and a new folder `README.md` now name it. The 19 committed
+  `graphify-out/` files were generated output and were deleted; `graphify-out/`
+  is now ignored. Paths naming the old location were repaired in
+  `knowledge/specs/knowledge-system.md` and `memory-system-v2.md`.
+- **`.sf/orgs/.../catalog.json` was untracked.** A Salesforce CLI cache file in a
+  repository with no Salesforce source, and the only dirty file in the tree. The
+  file stays on disk; `.sf/` is now ignored.
+
+Nothing was declined in this run.
+
 This repository is the toolkit. It now runs the toolkit on itself, the same way
 Anchor, DragonFly, and Diligence Ready do, so a change to the memory system, the
 rules, the output style, or the hooks is felt where it is written instead of
@@ -56,7 +84,7 @@ three weeks later in another project.
 | --- | --- |
 | 0. Orient | Done. Existing repository, not a new one, so this ran as a sync rather than an init. Node and Markdown, no application stack. |
 | 1. Scaffolding and work tracking | Already answered. Work is tracked on the `Claude-Toolkit-Project` board on GitHub. `CLAUDE.md` names it. `spec-before-you-build.md` was installed alongside that pointer until 2026-08-31, when the toolkit dropped the rule and it was removed here too. No scaffolding was added: the folder layout already existed. |
-| 2. Hooks | Done. `save-reminder` and `knowledge-session-start` are installed under `.claude/hooks/` and registered in `.claude/settings.json`. Codex registers the same startup loader in `.codex/hooks.json`. The two style hooks were removed with the toolkit, as explained below. |
+| 2. Hooks | Done. `save-reminder`, `work-item-close`, `memory-reminder`, `knowledge-session-start`, and `spec-check-reminder` are installed under `.claude/hooks/` and registered in `.claude/settings.json`. Codex registers the same startup loader in `.codex/hooks.json`. The two style hooks were removed with the toolkit, as explained below. |
 | 3. Project knowledge | **Adopted from the packaged plugin.** `SOUL.md`, the managed operating manual, `knowledge/project.md`, `knowledge/current.md`, and both generated index entry lists load at session start. Approved specifications, flat persistent memory, and unchecked brainstorms live under the same knowledge root. The packaged skills keep only task-specific steps. The retired policy rule and machinery stay removed. |
 | 4. Knowledge layer | Included with Gate 3. The graphify code graph was offered and declined, see below. |
 | 5. Root instructions, rules, output style | Done. `CLAUDE.md` and `AGENTS.md` carry the same short project knowledge route. `.claude/rules/` holds the applicable general rules, with no large memory rule or wrap-up ritual. Claude Code's built-in `Concise` style is selected in `.claude/settings.json`; the hand-written `plain-language` style this repo used to ship was removed from the toolkit in issue #245. |

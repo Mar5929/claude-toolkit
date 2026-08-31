@@ -26,7 +26,7 @@ project-knowledge instructions disagree.
 | `docs/toolkit-map.md` | The cross-cutting catalog: what every plugin and skill is, how they relate, and what looks redundant but is not. Open it to answer "does this already exist somewhere?". Detail: `docs/CLAUDE.md`. |
 | `.claude-plugin/marketplace.json` | Registers every plugin for Claude Code. `.agents/plugins/marketplace.json` does the same for Codex. Update both when adding or renaming a plugin. |
 | `knowledge/` | What this project decided and why: specifications, memory, current state, raw brainstorms. The routing table in its `README.md` says which goes where. |
-| `tests/` | Three Node checks, run by hand before every pull request. Detail: `tests/CLAUDE.md`. |
+| `tests/` | Four Node checks, run by hand before every pull request. Detail: `tests/CLAUDE.md`. |
 | `.claude/` | What this repo runs on itself: the rule copies, installed hooks and tools, settings, and the setup record in `toolkit-sync.md`. |
 | `archive/` | Retired material kept for history. Never a source of current truth. |
 
@@ -37,7 +37,7 @@ of files it also ships. Change the shipped original, not the copy.
 
 | Tool | Use it for | Detail |
 | --- | --- | --- |
-| `node tests/link-check.mjs`, `tests/orphan-check.mjs`, `tests/installed-copy-check.mjs` | The three checks. Run all three before every pull request. | `tests/CLAUDE.md` |
+| `node tests/link-check.mjs`, `tests/orphan-check.mjs`, `tests/installed-copy-check.mjs`, `tests/knowledge-startup-check.mjs` | The four checks. Run all four before every pull request. | `tests/CLAUDE.md` |
 | `claude plugin validate .` | Must pass, because `main` is what every machine installs from. | `plugins/CLAUDE.md` |
 | `node .claude/tools/build-knowledge-index.mjs` | Rebuilding the two generated knowledge indexes. Run it again after bringing a branch current: Git merges those two files with no reported conflict and still leaves them wrong. | `knowledge/README.md` |
 | `gh` (GitHub CLI) | Reading and writing issues on the board named below. | |
