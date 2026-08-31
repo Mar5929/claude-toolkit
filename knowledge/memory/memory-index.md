@@ -9,4 +9,7 @@ Built by `node .claude/tools/build-knowledge-index.mjs`. Nobody edits this
 file by hand. If it disagrees with the files on disk, the files win:
 rebuild it.
 
-Nothing saved yet.
+- `no-duplicating-claude-code-built-in-prompt.md`: When adding agent-behavior
+  instructions to the toolkit, check Claude Code's own built-in system prompt
+  first and leave out anything already there, because a second copy drifts from
+  the first.

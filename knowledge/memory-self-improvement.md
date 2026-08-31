@@ -24,4 +24,8 @@ One line per candidate: the date, the candidate in a few words, the outcome
 (approved, edited, or rejected), and the owner's reason in the owner's own
 words, or "no reason given".
 
-Nothing learned yet.
+- 2026-08-31. Do not copy instructions Claude Code already ships, with the three found on that date. Approved. Reason: "okay, you can add that proposal".
+- 2026-08-31. Where voice instructions go, output style versus rules folder. Rejected before proposing, question 5. Already written in the output-styles index and in the new rule file.
+- 2026-08-31. The plain-language style is 183 lines over its own 50-line ceiling. Rejected before proposing. Live status and an open task, and now recorded in the output-styles index.
+- 2026-08-31. write-for-a-stranger.md is missing from the toolkit's machine rules. Rejected before proposing. A gap to ticket, not lasting truth.
+- 2026-08-31. The handoff-verifier subagent versus the Opus 5 warning about verifier subagents. Rejected before proposing. The owner has not ruled on it, so nothing is settled.
