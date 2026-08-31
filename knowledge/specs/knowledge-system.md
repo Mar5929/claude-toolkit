@@ -1,5 +1,5 @@
 ---
-summary: How the knowledge system works, in enough detail to build it, covering the two file schemas, the find ladder, the routing table, the save test, and the lifecycle of a saved file.
+summary: How the knowledge system works, in enough detail to build it, covering the two file schemas, the find ladder, the routing table, the reasoning behind the save and approval design, and the lifecycle of a saved file.
 area: knowledge-system
 status: current
 source: work-items/memory-redesign/knowledge-system-north-star.md and the owner-approved requirements in GitHub issues #215, #219, and #221
@@ -301,73 +301,35 @@ anything else.
 **Only `current` files answer questions about what is true now.** A superseded
 file answers questions about history.
 
-## What gets saved
+## What gets saved, and what never is
 
-The project-scope gate runs before search, drafting, or an owner review. Seven
-questions follow. The first four decide whether the candidate should exist. The
-last three decide whether it is safe to write. Ask all seven.
+`knowledge/README.md` owns this, in its "What should be saved into the memory
+base" and "What never goes in memory" sections. It is the file that actually
+ships to every equipped project and the one an agent reads at session start, so
+it is the only copy.
 
-**Should it exist?**
+This specification deliberately does not restate it. It used to, and the two
+copies drifted: the manual was rewritten on 2026-08-31 to replace a seven-
+question save test with a working-memory / long-term-memory split and two
+non-negotiables, and this file went on describing the deleted version.
 
-1. **Is it a lasting fact, decision, event, or state?** How hard it was, how new
-   it felt, how much work it took, and how long it was discussed do not count. A
-   session feeling important is not proof that anything lasting came out of it.
-2. **Does it belong to the current project?** Name the future project action or
-   decision it protects from being wrong, or the project-specific explanation
-   the owner would otherwise have to repeat. Where the lesson happened does not
-   make it project knowledge. In a project that builds agent tooling, platform
-   behavior qualifies only when it changes that project's requirements, design,
-   or supported workflows.
-3. **Did the project change, or did the agent just do work?** What the agent did
-   is not project history. "Wrote fourteen files today" is not a memory. What
-   those files changed about the project might be.
-4. **Will it still be true in six months?** A fact that goes out of date is worse
-   than no fact, because a future agent will believe it.
+What belongs here instead is the reasoning behind the design, which the manual
+has no room for:
 
-**Is it safe to write?**
-
-5. **Does the fact already exist in a committed file, a loaded rule, or an
-   existing memory?** Search the code, configuration, documentation, the
-   specifications, the rules, the skills, the work tracker, and saved memory. If
-   it exists in any of them, the proposal may only be a pointer to it. Restating
-   the content is a rejection even when the pointer is included. This is
-   mechanical, not a judgment call, because the two copies drift and then neither
-   can be trusted. Two files saying the same thing from genuinely different
-   sources are two pieces of evidence, not a copy.
-6. **Can it say where it came from and where to go check it?** A memory that
-   cannot say where it came from does not get written.
-7. **Could a future agent read this as meaning more than it does?** Something
-   true in one narrow case, written loosely, gets read as a general rule and
-   followed. If the wording can be read two ways, tighten it or do not save it.
-
-**When unsure, do not save.** Not saving costs one missed note. Saving carelessly
-makes everything else in the folder less trustworthy. The owner can always say
-"remember this."
-
-## What never gets saved
-
-- Tool calls, searches, web lookups, commands run, and generic agent, shell, or
-  tool behavior.
-- One-off troubleshooting and routine errors. If an incident reveals a lasting
-  project constraint, only that constraint may pass the save test.
-- Rough thinking and scratchpad reasoning.
-- Ideas or hypotheses that were tried and dropped.
-- Temporary implementation steps and low-level execution details.
-- Files opened, and a blow-by-blow of edits.
-- Every action performed by a sub-agent.
-- Chit-chat and conversational filler.
-- Copies of code or specifications that already exist.
-- A procedure that belongs in a rule or a skill.
-- Authoritative system behavior that belongs in a specification.
-- An open task or implementation step that belongs in the work tracker.
-- Live status of current work.
-- Anything stale, superseded, or contradicted with no historical value.
-- Passwords, keys, and tokens, ever. This folder is in Git and Git keeps
-  everything.
-
-A rejected generic candidate is not automatically rerouted to global memory. A
-stable, repeated, broadly useful lesson needs a separate global rule or skill
-review.
+- **The gate runs before search, drafting, or an owner review.** Testing late
+  means an agent has already written a proposal it is now motivated to defend.
+- **"Already written down" is mechanical, not a judgment call.** Two copies of
+  a fact drift and then neither can be trusted. Two files saying the same thing
+  from genuinely different sources are two pieces of evidence, not a copy.
+- **A fact that goes out of date is worse than no fact**, because a future agent
+  will believe it.
+- **What the agent did is not project history.** "Wrote fourteen files today" is
+  not a memory. What those files changed about the project might be.
+- **A rejected generic candidate is not rerouted to global memory.** A stable,
+  repeated, broadly useful lesson needs a separate global rule or skill review.
+- **When unsure, do not save.** Not saving costs one missed note. Saving
+  carelessly makes everything else in the folder less trustworthy. The owner can
+  always say "remember this."
 
 ## When a save happens
 
@@ -389,26 +351,22 @@ files" below.
 
 ## How approval works
 
-Before writing, show one group of bullets per file. Write nothing until the owner
-answers.
+`knowledge/README.md` owns the field list, in its "Get exact approval before
+changing lasting knowledge" section. Do not copy it here.
 
-> **What:** what it says. Three sentences at most.
-> **Project value:** how this helps future work on the current project.
-> **Where:** the exact file path, and whether it is new or an update.
-> **Source:** where the fact came from, and whether it is observed, reported, or
-> inferred.
-> **Tags:** the tags, and anything else about how it is being filed.
-> **Assumptions:** anything being assumed, guessed at, or not checked. Write
-> `None` when there is none.
-> **Verdict:** one line per save-test question, 1 to 7, each saying pass or fail
-> and why. The line for question 5 names what was actually searched, by file,
-> rule, and config.
+Two things about that format are design decisions rather than mechanics, and
+they belong in this file:
 
-The verdict lines are shown with the bullets so the owner sees the reasoning on
-screen before answering. Weak reasoning is then visible instead of hidden.
+- **`Type` comes first and carries the word Memory or Specification.** The
+  destination was once shown only as a folder path, and the owner had to decode
+  `knowledge/memory/` against `knowledge/specs/` to know what he was approving.
+  He asked twice in one session on 2026-08-31, which is how the field got added.
+- **The verdict is shown with the group, not held back.** The owner sees the
+  reasoning on screen before answering, so weak reasoning is visible instead of
+  hidden.
 
 What the owner is approving is **What**, **Project value**, and **Source**. The
-other bullets are shown so he can see how it is being filed, and he may change
+other fields are shown so he can see how it is being filed, and he may change
 any of them.
 
 Rules for the review:
