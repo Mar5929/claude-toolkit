@@ -112,8 +112,8 @@ automatically as it grows.
 ## Step 2: audit the current project
 
 For each inventory item, look for evidence in the project. Judge by intent, not
-exact wording: a CLAUDE.md that says "say what you actually ran and what it
-printed" satisfies `honest-verification.md` even if the prose differs. Typical
+exact wording: a CLAUDE.md that says "stop and ask when a request could mean two
+things" satisfies `ask-before-assuming.md` even if the prose differs. Typical
 checks:
 
 - **CLAUDE.md and `.claude/rules/`**: does CLAUDE.md exist and point at

@@ -34,8 +34,6 @@ every other project receives.
 | `wrap-up-ritual.md` | It belonged to the retired save ritual and invoked the deleted verifier. The current policy names the natural save moments, and `.claude/hooks/save-reminder.mjs` raises the pull-request moment that is easy to miss. |
 | `work-item-folders.md` | It governs the local work-tracker, one flat item folder under Git-ignored `.work-items/`. Work here is tracked on the `Claude-Toolkit-Project` board on GitHub, so there are no local work-item folders for the rule to govern. |
 | `dependency-graph.md` | It is conditional on a code graph being installed. No graph is installed here, and the graphify kit was considered and declined. |
-| `honest-verification.md` | Dropped by the owner on 2026-08-31, in the same pass that cut the rule set roughly in half. The toolkit still ships it to other projects as default ON. |
-| `do-the-technical-work.md` | Dropped by the owner on 2026-08-31, in the same pass. The toolkit still ships it to other projects as default ON. |
 
 `keep-claudemd-current.md` owns the small exception to its normal anti-copying
 rule: `CLAUDE.md` and `AGENTS.md` carry the same short project knowledge route.
