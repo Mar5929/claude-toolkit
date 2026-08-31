@@ -4,7 +4,7 @@ area: knowledge-system
 status: current
 source: work-items/memory-redesign/knowledge-system-north-star.md and the owner-approved requirements in GitHub issues #215, #219, and #221
 created_at: 2026-08-21
-confirmed_at: 2026-08-22
+confirmed_at: 2026-08-31
 tags: [knowledge-system, memory, specifications, second-brain, schema, build-authority]
 approved_by: Mike Rihm
 approval_date: 2026-08-22
@@ -24,12 +24,29 @@ tools, and folder templates. The manual is the runtime authority and is copied
 unchanged from the plugin template. This specification remains the authority
 for maintainers changing the plugin.
 
+Project knowledge reaches an agent two ways.
+
 The fail-open startup loader supplies, in order, `SOUL.md`, the manual,
 `knowledge/project.md`, `knowledge/current.md`, and the entry lines of both
 generated indexes. Claude Code and Codex register the same loader. Both root
 instruction files contain only a short activation and fallback pointer. Rules,
 skills, hooks, setup material, and machine-wide files point to the manual instead
 of repeating shared policy.
+
+A second fail-open hook then repeats a short reminder ahead of every prompt,
+because the manual is long, loads once, and slides out of an agent's attention
+over a session. The reminder names the manual's path, the one-line split between
+a memory and a specification, the conditions a save must meet, what is never
+saved, where rejected material goes instead, and that saves run through the
+`remember` skill with the owner's approval. Three constraints hold it in shape.
+It points at the manual and never copies a policy block, which
+`tests/knowledge-startup-check.mjs` enforces. It is worded as a reference rather
+than an instruction, because text read as an order on every turn makes an agent
+propose saves on turns that call for none. It stays silent unless
+`knowledge/README.md` carries the managed manual marker, so it can never claim a
+knowledge system that is not installed. It is registered on Claude Code's
+`UserPromptSubmit`; whether Codex has an equivalent event is unconfirmed, and the
+root instruction route remains the Codex fallback.
 
 The design input is
 `work-items/memory-redesign/knowledge-system-north-star.md`. Where this

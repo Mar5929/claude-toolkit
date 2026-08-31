@@ -39,6 +39,7 @@ knowledge/
   tools/check-knowledge.mjs
   tools/frontmatter.mjs
   hooks/knowledge-session-start.mjs
+  hooks/memory-reminder.mjs
   hooks/save-reminder.mjs
   hooks/work-item-close.mjs
 ```
@@ -71,8 +72,9 @@ Look before doing anything. There is no detector script: read the folder.
    finished truth: never leave the placeholder wording in place.
 4. Copy `build-knowledge-index.mjs`, `check-knowledge.mjs`, and
    `frontmatter.mjs` from this plugin's `tools/` into `.claude/tools/`.
-5. Copy all four hooks from `hooks/` into `.claude/hooks/`.
-6. Register them: the startup loader under Claude `SessionStart`, the save
+5. Copy all five hooks from `hooks/` into `.claude/hooks/`.
+6. Register them: the startup loader under Claude `SessionStart`, the memory
+   reminder under `UserPromptSubmit` with no matcher, the save
    reminder under `PreToolUse` with the `Bash` matcher, the work-item hook where
    the project's tracker signals a close. Where native Codex hooks exist,
    register the same fail-open startup loader with at least 5,000 tokens of

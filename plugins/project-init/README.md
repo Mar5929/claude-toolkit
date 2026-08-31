@@ -75,8 +75,7 @@ It is deliberately small. Its `README.md` carries a two-question test for what
 belongs there: the thing has to hold in a repository nobody set up with the
 toolkit, and it must not already be in `library/`. Anything
 failing either question is a project rule and goes in `library/` instead. It
-carries four rules today: `activate-project-knowledge.md`, which conditionally
-opens an equipped project's manual; `no-ai-attribution.md`, which keeps credit to Claude
+carries three rules today: `no-ai-attribution.md`, which keeps credit to Claude
 or any other AI agent off everything the owner commits or pushes,
 `propose-the-best-solution.md`, which says the best answer always gets said out
 loud, whatever it would cost in time, effort, or resources, and
