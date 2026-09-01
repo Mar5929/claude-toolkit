@@ -165,14 +165,17 @@ Every item contains `REQUIREMENTS.md` with YAML fields at the top. Its status is
 either:
 
 - `refining`: the owner interview is still open; or
-- `finalized`: the owner approved the complete requirements.
+- `finalized`: the owner approved the requirements.
 
-The body holds the goal, reason, requirements, user experience, outside
-behavior, and edge cases. It contains only what the owner said or approved. It
-contains no technical plan and no unapproved agent assumptions.
+The body runs as long as the work needs. A chore keeps the one line the owner
+asked for; work that needs refining grows the goal, reason, requirements, user
+experience, outside behavior, and edge cases. Either way it holds only what the
+owner said or approved, with no technical plan and no unapproved agent
+assumptions.
 
-New items start in `Backlog` with refining requirements. Finalizing a complete
-file moves the item to `Ready`. `work start` refuses anything else. Reopening
+New items start in `Backlog` with refining requirements. Finalizing moves the
+item to `Ready`, and all it needs is the owner's approval and their name.
+Nothing counts headings. `work start` refuses anything not finalized. Reopening
 requirements returns open work to `Backlog`.
 
 ## Item records and handoffs

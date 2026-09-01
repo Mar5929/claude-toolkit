@@ -35,6 +35,17 @@ skipped.
 `03-requirements-approved`, `11-user-approval`, and `12-pr-and-push` are never
 skipped. Every other stage may be skipped when it does not apply.
 
+Approval is not the same thing as a long document. `03` means the owner said
+build it, and requirements run as long as the work needs and no longer. For a
+chore that is the one line the owner asked for, and writing more would mean
+inventing needs they never stated. For work that is genuinely unclear it means
+the interview, one question at a time, until these are answered: the goal, why
+it matters, what has to be true for it to count as finished, what the person
+using it experiences, how it behaves from the outside, and the edge cases.
+
+Judging which one a piece of work is belongs to whoever is doing it. Guessing
+short costs a conversation. Guessing long puts words in the owner's mouth.
+
 A skipped stage goes in the progress log with the reason it was skipped.
 Several stages skipped at once are one entry, not one each. Nobody walks the
 list stage by stage: set the stage the work is actually at, and say in that one
