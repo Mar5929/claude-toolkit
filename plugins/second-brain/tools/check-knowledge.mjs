@@ -29,7 +29,7 @@ const posix = (value) => value.split(sep).join("/");
 const CURRENT_MD_MAX_CHARS = 2000;
 const SELF_IMPROVEMENT_MAX_CHARS = 8000;
 const SUMMARY_MAX_CHARS = 250;
-export const MANUAL_SHA256 = "315bc0ea0dae1f8b9911f664effb7e529c72414a5677adfc6b5a1713b26de376";
+export const MANUAL_SHA256 = "2d0baf46fa74a8f4b96863fc3f86f27dfde516d198f6201ada3e1b0ed3ade986";
 
 const STATUS_VALUES = ["current", "superseded", "retired"];
 const TYPE_VALUES = ["fact", "decision", "event", "context", "constraint"];

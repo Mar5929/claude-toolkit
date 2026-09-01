@@ -17,6 +17,10 @@ Save a memory or a specification in this project, with the owner's approval.
 `knowledge/README.md` is the manual. Read all of it. Every time. It does not
 matter how long the session has run or that you read it earlier.
 
+[`references/proposal-template.md`](references/proposal-template.md) is the shape
+every proposal takes. Read it before you show the owner anything, every run. It
+is the only approved layout, and a proposal is never wrapped in a code fence.
+
 `knowledge/memory-self-improvement.md` holds what this project has learned about
 what the owner counts as memory-worthy. Use those lessons to drop or reshape
 candidates before proposing them. When a lesson disagrees with the manual, the
@@ -57,8 +61,9 @@ Pick the canonical home and draft the file. Write in plain, clear language. Say
 only what is needed. Context a future agent could work out for itself pollutes
 the knowledge base and buries what matters.
 
-Show the manual's numbered approval group, one group per file. Keep it short.
-Do not show full file text unless asked.
+Show the proposal in the template's exact shape, one numbered block per file,
+as rendered Markdown and never inside a code fence. Same labels, same order,
+every time. Keep it short, and do not show full file text unless asked.
 
 A candidate that fails a rule in the manual is never proposed. Say in one line
 that it was dropped and which rule it failed.
