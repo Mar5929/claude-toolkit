@@ -62,6 +62,31 @@ otherwise be asked to change, which is nearly all of them. It does not repeat
 `salesforce-safety-guardrails.md`; that file owns which commands are allowed, and
 this one owns what happens instead of the forbidden write.
 
+## Three of these load only when they are needed
+
+A rule that opens with a `paths:` block loads only when the agent reads a file
+matching one of its globs, instead of at the start of every session. The general
+library's README explains the mechanism. Three files here are scoped:
+
+| File | Loads when the agent reads |
+|---|---|
+| `permissions-source-control.md` | a permission set, permission set group, or profile under `force-app/` |
+| `dependency-graph.md` | anything under `force-app/` or `tools/kb/` |
+| `deployment-runbook.md` | anything under `delivery/deployment/` |
+
+The rest stay unscoped on purpose. `salesforce-safety-guardrails.md`,
+`data-change-handoff.md`, `salesforce-change-clarify.md`,
+`deploy-hitchhiker-check.md`, and `production-data.md` all govern what an agent
+may do to an org or to production data. Those decisions are made when a command
+is about to run, or in the conversation before it, not while reading a metadata
+file. Scoping them would mean they arrive after the moment they exist to
+prevent.
+
+`component-tracker.md` is unscoped for a narrower reason: it asks the agent to
+update the tracker in the same response that authors a component. Authoring
+often means writing a new file rather than reading an existing one, and a
+path-scoped rule triggers on reads.
+
 ## Adding a rule
 
 Drop a new `<name>.md` here (plain language, no em dashes, no section signs,

@@ -26,6 +26,42 @@ every session to read `.claude/rules/`. See `thin-claudemd.md` in the
 | `work-item-stages.md` | Every work item carries one current stage from the same list of fourteen, and a dated progress log of short plain-language entries. The stage sets the tracker status, three stages are never skipped, and a skip or a move backwards is written down with its reason. Names where the stage and the log live for a local folder tracker and for GitHub issues, and the exact `gh` commands for the GitHub side. Nothing enforces it: a tracker stores the stage, derives the status, and appends the log line, and this rule decides the rest. |
 | `ai-external-knowledge.md` | Outside documentation captured for agents to read (vendor docs, API references, framework guides) goes in `ai-external-knowledge/` at the project root, one folder per topic, each naming its source URL and capture date. It stays raw source material: the project's own conclusions live in the project's knowledge or documentation and link back to it, the project's truth wins any disagreement, and a captured document is never edited to agree with the project. Also says the folder is findable but not read, so agents reach it only when a rule, a skill, or persistent knowledge points at a topic. |
 
+## Some rules load only when they are needed
+
+A rule file with no frontmatter loads at the start of every session. A rule that
+opens with a `paths:` block loads only when the agent reads a file matching one
+of its globs:
+
+```
+---
+paths:
+  - "knowledge/**"
+---
+```
+
+This is Claude Code's own behavior, not a convention of ours, and it needs
+v2.1.198 or later. The whole set loads before the owner types anything, so a
+rule that only matters inside one folder is worth scoping. Two files here are:
+`knowledge-direct-commit.md` on `knowledge/**`, and `ai-external-knowledge.md`
+on `ai-external-knowledge/**`.
+
+Most rules must not be scoped. Scoping is the wrong tool for anything that has
+to be true before the agent touches a file: how to work alongside other
+sessions, when to ask instead of guess, what to recommend, whether an action is
+safe to take at all. Those decisions happen in the conversation, and a rule that
+arrives after the first file read arrives too late to change them. When in
+doubt, leave the rule unscoped. The cost of a rule loading when it was not
+needed is some context. The cost of one loading after the moment it governs is
+that it does nothing at all, quietly.
+
+Scoping is also not enforcement. Claude Code's own documentation says these
+files are context rather than enforced configuration: the harness guarantees the
+rule reaches the agent, never that the agent obeys it. A rule that must hold
+every time needs a hook behind it. `knowledge-direct-commit.md` has one, in the
+`second-brain` plugin's `save-reminder.mjs`.
+
+To see what actually loaded in a session, run `/context`.
+
 ## Voice is not a rule, and the toolkit no longer ships one
 
 How Claude writes and replies used to live here in four files:

@@ -1,3 +1,7 @@
+---
+paths:
+  - "ai-external-knowledge/**"
+---
 # Outside Documentation Goes in ai-external-knowledge
 
 Agents work better when the documentation they need is already in the repository

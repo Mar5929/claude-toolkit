@@ -1,3 +1,7 @@
+---
+paths:
+  - "knowledge/**"
+---
 # Knowledge-Only Saves Land Directly
 
 A save that touches only files under `knowledge/` commits straight to the

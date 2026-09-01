@@ -1,3 +1,8 @@
+---
+paths:
+  - "force-app/**"
+  - "tools/kb/**"
+---
 # Answer Impact Questions From the Dependency Edge List, and Keep It Fresh
 
 This project compiles its own `force-app/` metadata into a local dependency edge
