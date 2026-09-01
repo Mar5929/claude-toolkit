@@ -109,11 +109,13 @@ so they always know where they are.
 - What needs guarding or automating? (deploy/env guard, secret guard,
   session-start orientation, format/lint)
 - Confirm exact trigger + action per hook; tell the user how to verify it fires.
-- Every project: offer the general hook from `hooks-library`
+- Every project: offer the two general hooks from `hooks-library`
   (`/hooks-library`). `spec-check-reminder` asks once per session, at the first
   file edit, whether the spec-check review has run. It points at the
   `spec-check` skill from `session-skills`; skip it where that plugin is not
-  installed.
+  installed. `explain-simply-reminder` asks on every message for an answer a
+  five-year-old could follow; offer it, never default it on, and say that it
+  applies to documents and commit messages too.
   The project knowledge package owns its startup loader and pull-request save
   reminder. Gate 3 installs both. Do not restore the retired
   `memory-pr-hook` plus `wrap-up-ritual.md` route.
