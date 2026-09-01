@@ -72,6 +72,21 @@ them. Separate clones and computers do not share it.
 There are no status folders. Status changes in `ITEM.yaml`; status never moves a
 folder.
 
+## Stages and the progress log
+
+An item also carries a `stage`, one of the fourteen in `work-item-stages.md`,
+and a "Progress log" section in its `STATUS.md`. One command writes the stage,
+the status the stage maps to, and a dated log line together:
+
+```text
+work update WI-014 --stage 08 --note "Started the build."
+```
+
+The code stores and derives, and decides nothing. It does not check that a stage
+is real, refuse a move backwards, or ask why a stage was skipped. The rule says
+what is correct. An item with no stage is normal: nothing was converted when
+stages arrived.
+
 ## Grouping work items
 
 Where a folder sits is the owner's own organizing, and the tracker reads it

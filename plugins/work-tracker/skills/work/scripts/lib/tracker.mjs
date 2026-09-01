@@ -21,6 +21,28 @@ import {
 export const STATUSES = ["Backlog", "Ready", "In Progress", "In Review", "Done", "Cancelled"];
 export const PRIORITIES = ["urgent", "high", "medium", "low"];
 export const TYPES = ["bug", "enhancement", "task"];
+// The fourteen stages every project shares, in order. The two-digit prefix is
+// part of the name so stages sort correctly wherever they are listed. This list
+// is here to derive a status and to write a readable log line, and for nothing
+// else: `work-item-stages.md` decides which stage is correct, and no code
+// refuses a stage, a skip, or a move backwards.
+export const STAGES = [
+  "01-discovery",
+  "02-refinement",
+  "03-requirements-approved",
+  "04-solution-design",
+  "05-breakdown",
+  "06-implementation-plan",
+  "07-tracking-setup",
+  "08-build",
+  "09-testing",
+  "10-bug-fixing",
+  "11-user-approval",
+  "12-pr-and-push",
+  "13-deployment",
+  "14-spec-update",
+];
+
 export const RELATIONSHIPS = [
   "depends_on",
   "blocks",
@@ -513,6 +535,23 @@ export function updateItem(tracker, id, input) {
     const item = requireItem(tracker, id);
     const updated = structuredClone(item.record);
     const changes = [];
+    if (input.stage !== undefined) {
+      updated.stage = normalizeStage(input.stage);
+      changes.push(`stage set to ${updated.stage}`);
+      const derived = statusForStage(updated.stage);
+      // Done is the one status update never sets. `finish` owns it, because it
+      // is the command that proves the work is in the default branch.
+      if (derived && derived !== "Done" && derived !== updated.status) {
+        // The same requirements gate an explicit --status passes through. It is
+        // not a check on the stage: it stops a derived status from writing a
+        // record that `work validate` would then call invalid.
+        if (["Ready", "In Progress", "In Review"].includes(derived)) {
+          requireFinalizedRequirements(item);
+        }
+        updated.status = derived;
+        changes.push(`status changed to ${derived}`);
+      }
+    }
     if (input.status) {
       const requestedStatus = normalizeStatus(input.status);
       if (requestedStatus === "Done" && item.record.status !== "Done") {
@@ -569,11 +608,15 @@ export function updateItem(tracker, id, input) {
     }
     updated.updated_date = isoDate();
     const note = input.note ? requiredText(input.note, "note") : changes.join("; ");
-    writeItemUpdate(tracker, item, updated, "updated", note);
+    const progressEntry =
+      input.stage === undefined
+        ? undefined
+        : `${isoDate()} | ${stageLabel(updated.stage)} | ${note}`;
+    writeItemUpdate(tracker, item, updated, "updated", note, progressEntry);
     return {
       outcome: "updated",
       item: publicItem(requireItem(reload(tracker), id), tracker.paths),
-      text: `${item.id} updated: ${note}\nNext: ${updated.next_step || "None"}`,
+      text: `${item.id} updated: ${note}\nStage: ${updated.stage ?? "Not set"}\nNext: ${updated.next_step || "None"}`,
     };
   });
 }
@@ -1262,6 +1305,7 @@ function newRecord({ id, title, description, type, priority, status, nextStep, c
     type,
     priority,
     status,
+    stage: null,
     created_date: createdDate,
     updated_date: createdDate,
     next_step: nextStep,
@@ -1474,7 +1518,48 @@ function requireFinalizedRequirements(item) {
   return requirements;
 }
 
-function renderStatus(record, history, existing = "", requirementsStatusValue = undefined) {
+// Accepts a number ("8", "08"), a bare name ("build"), or the whole thing
+// ("08-build"), and returns the canonical name. Anything it does not recognize
+// is stored exactly as it was typed: the rule decides what a real stage is, not
+// this function.
+function normalizeStage(value) {
+  const text = String(value).trim().toLowerCase();
+  if (!text) throw new WorkError("Stage cannot be empty", "invalid_stage");
+  const match = STAGES.find(
+    (stage) =>
+      stage === text ||
+      stage.slice(0, 2) === text.padStart(2, "0") ||
+      stage.slice(3) === text,
+  );
+  return match ?? String(value).trim();
+}
+
+// The mapping from `work-item-stages.md`. Returns null for anything unknown,
+// which leaves the status alone.
+function statusForStage(stage) {
+  const number = Number(String(stage).slice(0, 2));
+  if (!Number.isInteger(number)) return null;
+  if (number >= 1 && number <= 2) return "Backlog";
+  if (number === 3) return "Ready";
+  if (number >= 4 && number <= 11) return "In Progress";
+  if (number >= 12 && number <= 13) return "In Review";
+  if (number === 14) return "Done";
+  return null;
+}
+
+// "04 solution-design", the form the log line uses.
+function stageLabel(stage) {
+  const text = String(stage);
+  return STAGES.includes(text) ? `${text.slice(0, 2)} ${text.slice(3)}` : text;
+}
+
+function renderStatus(
+  record,
+  history,
+  existing = "",
+  requirementsStatusValue = undefined,
+  progressEntry = undefined,
+) {
   const blockers = record.blockers.length
     ? record.blockers
         .map(
@@ -1500,12 +1585,14 @@ function renderStatus(record, history, existing = "", requirementsStatusValue = 
       .map((entry) => `- ${entry.at}: **${entry.action}**. ${entry.note}`)
       .join("\n") || "- No history yet.";
   const userNotes = extractUserNotes(existing);
+  const progressLog = appendProgressEntry(extractProgressLog(existing), progressEntry);
   return `# ${record.id}: ${record.title}
 
 <!-- work-tracker:current:start -->
 ## Current handoff
 
 - Status: ${record.status}
+- Stage: ${record.stage ?? "Not set"}
 - Requirements: ${requirementsStatusValue ?? "See REQUIREMENTS.md"}
 - Priority: ${record.priority}
 - Type: ${record.type}
@@ -1531,12 +1618,36 @@ ${historyLines}
 
 The complete machine-readable history is in \`HISTORY.ndjson\`.
 
+<!-- work-tracker:progress-log:start -->
+## Progress log
+
+${progressLog || "No entries yet. `work update <id> --stage <stage> --note <what happened>` writes one."}
+<!-- work-tracker:progress-log:end -->
+
 <!-- work-tracker:user-notes:start -->
 ## User notes
 
 ${userNotes || "Add free-form notes here. Tracker commands preserve this section."}
 <!-- work-tracker:user-notes:end -->
 `;
+}
+
+// The progress log is the item's own history in plain language, kept across
+// renders the same way the user notes are. Oldest entry first, so a session
+// catching up reads it top to bottom.
+function extractProgressLog(existing) {
+  if (!existing) return "";
+  const marked = existing.match(
+    /<!-- work-tracker:progress-log:start -->\s*## Progress log\s*([\s\S]*?)<!-- work-tracker:progress-log:end -->/,
+  );
+  if (!marked) return "";
+  const body = marked[1].trim();
+  return body.startsWith("No entries yet.") ? "" : body;
+}
+
+function appendProgressEntry(existingLog, entry) {
+  if (!entry) return existingLog;
+  return existingLog ? `${existingLog}\n${entry}` : entry;
 }
 
 function extractUserNotes(existing) {
@@ -1581,12 +1692,12 @@ function readStatus(item) {
   return fs.existsSync(item.statusPath) ? fs.readFileSync(item.statusPath, "utf8") : "";
 }
 
-function writeItemUpdate(tracker, item, record, action, note) {
-  writeItemFiles(item, record, action, note);
+function writeItemUpdate(tracker, item, record, action, note, progressEntry) {
+  writeItemFiles(item, record, action, note, progressEntry);
   regenerate(reload(tracker));
 }
 
-function writeItemFiles(item, record, action, note) {
+function writeItemFiles(item, record, action, note, progressEntry) {
   const entry = historyEntry(action, note);
   const requirements = readRequirements(item);
   atomicBatchWrite([
@@ -1599,6 +1710,7 @@ function writeItemFiles(item, record, action, note) {
         recentHistory(item, entry),
         readStatus(item),
         requirements.meta.status,
+        progressEntry,
       ),
     },
   ]);
@@ -1711,6 +1823,7 @@ function publicItem(item, paths) {
     title: item.record.title,
     description: item.record.description,
     status: item.record.status,
+    stage: item.record.stage ?? null,
     archived: Boolean(item.archived),
     group: item.group ?? null,
     requirements_status: requirementStatusValue,
@@ -1748,6 +1861,12 @@ function publicRecommendation(recommendation) {
   };
 }
 
+// An item with no stage shows nothing here. Most items predate stages and a
+// missing one is normal.
+function stageSummary(record) {
+  return record.stage ? ` [${record.stage}]` : "";
+}
+
 function renderStatusList(groups, next, options, allItems, paths) {
   const all = Boolean(options?.all);
   const showArchived = Boolean(options?.archived);
@@ -1756,7 +1875,7 @@ function renderStatusList(groups, next, options, allItems, paths) {
     lines.push("Active:");
     for (const item of groups.active) {
       lines.push(
-        `- ${item.id} [${item.record.status}] ${item.record.title}${groupSummary(item)}; next: ${item.record.next_step}; ${gitSummary(item.record)}`,
+        `- ${item.id} [${item.record.status}]${stageSummary(item.record)} ${item.record.title}${groupSummary(item)}; next: ${item.record.next_step}; ${gitSummary(item.record)}`,
       );
     }
   } else {
@@ -1783,7 +1902,7 @@ function renderStatusList(groups, next, options, allItems, paths) {
       const where = label === "Archived" && paths ? `; at ${displayTrackerPath(paths, item.path)}` : "";
       const inGroup = label === "Archived" ? "" : groupSummary(item);
       lines.push(
-        `- ${item.id} [${item.record.status}] ${item.record.title}${inGroup}; ${gitSummary(item.record)}${where}`,
+        `- ${item.id} [${item.record.status}]${stageSummary(item.record)} ${item.record.title}${inGroup}; ${gitSummary(item.record)}${where}`,
       );
     }
     if (!items.length) lines.push("- None");

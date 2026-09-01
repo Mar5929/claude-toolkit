@@ -71,15 +71,15 @@ a map, not evidence; open the file before relying on it.
 
 <!-- knowledge-policy:find:end -->
 
-## For your (AI agent) reference on what a typical work-item lifecycle is
+## How a work item moves
 
-The typical lifecycle of a work item is discovery->refinement->requirements finalization->solution design->OPTIONAL work item breakdown and further sub-item refinement->implementation plan->project management setup (for work item implementation tracking)->build phase->testing->iteration bug fixing->user approval->PR/push->deployment. The spec is typically updated after deployment since requirements could slightly change during build/testing phases.
+The fourteen stages a work item moves through, and the progress log it keeps, are in `.claude/rules/work-item-stages.md`.
 
 ## Memory Base
 
 ### What should be saved into the Memory base
 
-Knowledge base memories are typically surfaced during a working session with the AI agent and the user in a project chat session (i.e. working on a work item, solutioning, user providing context, etc. etc.). The typical lifecycle of a work item is listed here under the '## For your (AI agent) reference on what a typical work-item lifecycle is' heading for reference.
+Knowledge base memories are typically surfaced during a working session with the AI agent and the user in a project chat session (i.e. working on a work item, solutioning, user providing context, etc. etc.). The stages a work item moves through are in `.claude/rules/work-item-stages.md`.
 
 These are the things that should be saved into the memory base.
 
@@ -140,7 +140,7 @@ None of this becomes durable memory:
 
 Specs are finalized, approved specifications and requirements about how the system should behave - logic, behavior, UI, UX, and other requirements that an AI cannot determine from reading the raw code. The specs should not simply regurgitate what can be understood from reading the raw code.
 
-Specs must be written in clear, concise, laymen's terms without jargon. They should be organized neatly in system areas. They are living truth and must be deduplicated and updated when the AI works with the user to finalize work items. The typical lifecycle of a work item is listed here under the '## For your (AI agent) reference on what a typical work-item lifecycle is' heading for reference.
+Specs must be written in clear, concise, laymen's terms without jargon. They should be organized neatly in system areas. They are living truth and must be deduplicated and updated when the AI works with the user to finalize work items. The stages a work item moves through are in `.claude/rules/work-item-stages.md`.
 
 ## Use the two file shapes
 

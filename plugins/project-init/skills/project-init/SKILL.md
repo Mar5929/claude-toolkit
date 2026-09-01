@@ -190,7 +190,7 @@ the graph and names the connections that moved. Unlike the two guards above it
 is a Stop hook and it lives inside `tools/kb/`, because it imports the rest of
 the tool.
 
-**Every project**: offer the two general hooks from the `hooks-library` plugin
+**Every project**: offer the three general hooks from the `hooks-library` plugin
 (`/hooks-library`).
 
 - `spec-check-reminder` asks once, at the session's first file edit, whether
@@ -204,6 +204,12 @@ the tool.
   Always OFF unless the owner asks for it, and say before installing it that it
   applies to every answer in the project, documents and commit messages
   included.
+
+- `work-item-stage-reminder` asks once, at the session's first file edit, which
+  work item this is, what stage it is at, and whether the progress log is
+  current. It goes with the `work-item-stages.md` rule and needs a tracker to
+  point at, so offer it only where Gate 1 named one. Default ON there, and skip
+  it where the owner tracks work somewhere else or nowhere yet.
 
 The project knowledge package owns its own startup loader and pull-request save
 reminder. Gate 3 installs those with the system. Do not install the retired

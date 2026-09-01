@@ -23,6 +23,7 @@ every other project receives.
 | `ask-before-assuming.md` | Ask one specific question when intent or scope is ambiguous, and state the rough scope before an operation that reads or produces a lot. |
 | `offer-context-handoff.md` | When context is heavy and the next step is reasoning-heavy, offer a self-contained handoff prompt, after running the memory check. |
 | `project-file-lifecycle.md` | Give each kind of project information one lasting home, and do not archive current truth just because a work item closed. |
+| `work-item-stages.md` | One current stage per work item, from the same list of fourteen, plus a dated progress log. The stage sets the tracker status, and nothing enforces any of it. |
 | `ai-external-knowledge.md` | Outside documentation captured for agents (vendor docs, API references, framework guides) goes in `ai-external-knowledge/` at the project root, one folder per topic, each naming its source URL and capture date. It stays raw source material, and nothing reads it unless a rule, a skill, or persistent knowledge points at a topic. |
 
 ## Rules this repo deliberately does not carry

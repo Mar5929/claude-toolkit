@@ -3,7 +3,8 @@ name: hooks-library
 description: >-
   Install, remove, or check the toolkit's hooks in a project. Use when the user
   says "install the spec check reminder", "set up the hooks", "add the hooks
-  library", "turn off the spec check reminder", "make Claude explain things
+  library", "turn off the spec check reminder", "remind me about the work item
+  stage", "make Claude explain things
   simply every time", "answer me like I'm five on every message", "turn off the
   explain simply reminder", or "/hooks-library". These hooks check a moment
   mechanically that an agent otherwise has to remember on its own.
@@ -14,7 +15,7 @@ description: >-
 This skill wires the toolkit's hooks into one project. Read `../../README.md`
 first for what each hook does and why it exists.
 
-Four hooks install through this skill, in three groups.
+Five hooks install through this skill, in four groups.
 
 **Every project that uses `session-skills`.** `spec-check-reminder` asks once,
 at the session's first file edit, whether the spec-check review has run, so a
@@ -22,6 +23,15 @@ build from a drifted specification is caught as it starts. It belongs in
 projects that use the `session-skills` plugin, which ships the `spec-check`
 skill it points at. It registers under `PostToolUse` with an
 `Edit|Write|NotebookEdit` matcher.
+
+**Every project that tracks work items with stages.**
+`work-item-stage-reminder` asks once, at the session's first file edit, which
+work item this is, what stage it is at, and whether the progress log is current.
+It belongs in projects that answered the tracker question and carry the
+`work-item-stages.md` rule; without both there is no stage to set and the
+reminder is noise. It registers under `PostToolUse` with the same
+`Edit|Write|NotebookEdit` matcher as `spec-check-reminder`, so both entries sit
+in that one matcher's `hooks` array.
 
 **Any project, when the owner asks for it.** `explain-simply-reminder` asks, on
 every message the owner sends, for the answer to be written as if the reader is
@@ -46,7 +56,7 @@ The `machine-sync` skill in the `project-init` plugin installs it into
 Everything here is opt-in and reversible. Never install a hook the owner has not
 approved, and never edit `settings.json` without showing what will change.
 
-The five steps below cover the two general hooks. Work out first which one the
+The five steps below cover the three general hooks. Work out first which one the
 owner is asking for, and run the steps for that one.
 
 ## Step 1: work out what is already there
