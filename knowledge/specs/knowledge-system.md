@@ -97,6 +97,16 @@ later as a fact and gets followed as an instruction. That is how an agent quietl
 changes how it works. When the agent notices a reusable procedure, it proposes a
 skill or a rule. It never saves the procedure as a memory instead.
 
+**A past fix is not a procedure.** One failure this project hit, and what
+resolved it, is a memory. It records something that happened here on a date: the
+symptom, the cause, and the fix. That is the "meaningful project events that
+occurred" line in the manual's save test, not a standing instruction. The test
+is whether the agent would follow it or read it. "Always deploy this way" is a
+procedure and goes in a skill. "The pipeline failed with this error, and clearing
+that cache fixed it" is a memory, and `recall` is what finds it the next time the
+same error appears. Sending these to the rules folder instead would fill it with
+hundreds of one-off rules and bury the standing instructions that belong there.
+
 **A specification beats a memory.** Once behavior is settled, the specification
 answers "how does this work." A memory may explain the history and point at it,
 but it never becomes a competing answer. When a memory and a current
