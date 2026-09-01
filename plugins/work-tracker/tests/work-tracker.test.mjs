@@ -173,7 +173,7 @@ test("adds a flat YAML work item with refining raw requirements", () => {
   assert.equal(git(repo, "ls-files", "--", ".work-items").stdout.trim(), "");
 });
 
-test("requires complete owner-approved requirements before work starts", () => {
+test("requires owner-approved requirements before work starts", () => {
   const repo = makeRepo();
   init(repo);
   add(repo, "Approval gate");
@@ -183,12 +183,6 @@ test("requires complete owner-approved requirements before work starts", () => {
     { allowFailure: true },
   );
   assert.equal(JSON.parse(earlyStart.stderr).error, "requirements_not_finalized");
-  const earlyFinalize = jsonWork(
-    repo,
-    ["requirements", "WI-001", "--finalize", "--approved-by", "Mike"],
-    { allowFailure: true },
-  );
-  assert.equal(JSON.parse(earlyFinalize.stderr).error, "incomplete_requirements");
   const finalized = finalize(repo, "WI-001");
   assert.equal(finalized.item.status, "Ready");
   assert.equal(finalized.item.requirements_status, "finalized");
@@ -202,6 +196,48 @@ test("requires complete owner-approved requirements before work starts", () => {
     "Build approved behavior",
   ]).json;
   assert.equal(started.item.status, "In Progress");
+});
+
+test("a one-line requirement is enough to approve and start small work", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Fix the broken link");
+  const filePath = path.join(itemPath(repo, "WI-001"), "REQUIREMENTS.md");
+  const frontmatter = fs.readFileSync(filePath, "utf8").match(/^---\r?\n([\s\S]*?)\r?\n---/)?.[1];
+  assert.ok(frontmatter);
+  fs.writeFileSync(
+    filePath,
+    `---\n${frontmatter}\n---\n\n# WI-001: Agreed requirements\n\n## Goal\n\nFix the broken link.\n`,
+  );
+  const finalized = jsonWork(repo, [
+    "requirements",
+    "WI-001",
+    "--finalize",
+    "--approved-by",
+    "Mike",
+  ]).json;
+  assert.equal(finalized.item.status, "Ready");
+  assert.equal(finalized.item.requirements_status, "finalized");
+  const started = jsonWork(repo, [
+    "start",
+    "WI-001",
+    "--branch",
+    "codex/short",
+    "--next-step",
+    "Fix the link",
+  ]).json;
+  assert.equal(started.item.status, "In Progress");
+  assert.equal(jsonWork(repo, ["validate"]).json.errors.length, 0);
+});
+
+test("a new item is not pre-filled with headings the owner never answered", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Nothing agreed yet");
+  const body = fs.readFileSync(path.join(itemPath(repo, "WI-001"), "REQUIREMENTS.md"), "utf8");
+  assert.match(body, /## Goal/);
+  assert.doesNotMatch(body, /## Edge cases/);
+  assert.equal(body.split("_Not agreed yet._").length - 1, 1);
 });
 
 test("reopening requirements returns active work to the flat backlog without moving it", () => {

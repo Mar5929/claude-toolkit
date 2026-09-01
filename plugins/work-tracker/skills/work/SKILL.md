@@ -32,19 +32,24 @@ Every new item starts in `Backlog`. Its `REQUIREMENTS.md` starts as `refining`.
 
 - Pass the owner's starting request through `--description`. Do not replace it
   with an invented goal.
-- Interview the owner one question at a time until the six parts in the project
-  spec rule are answered.
+- Match the length to the work. A chore's requirements are the one line the
+  owner asked for. Work that is genuinely unclear gets the interview, one
+  question at a time, covering the parts `work-item-stages.md` lists.
 - Write only what the owner said or approved. A suggestion stays out of the
   file until the owner says yes to it.
+- Never fill in a heading the owner did not answer. Leaving it out is better
+  than writing a need they never stated.
 - Keep build steps, file choices, tools, versions, and technical design out of
   `REQUIREMENTS.md`.
-- Show the completed requirements to the owner. Only after their clear approval
-  run `requirements WI-001 --finalize --approved-by NAME`.
+- Show the requirements to the owner. Only after their clear approval run
+  `requirements WI-001 --finalize --approved-by NAME`.
 - If the direction changes, run `requirements WI-001 --reopen` before editing
   the requirements. This returns the item to `Backlog`.
 
-The command refuses to finalize a file with missing sections. `start` refuses
-an item whose requirements are not finalized.
+Nothing checks how long the file is or which headings it carries, so the
+approval is the whole of the check. Running `--finalize` without the owner's
+clear yes is the one thing that breaks this. `start` refuses an item whose
+requirements are not finalized.
 
 ## Route natural requests
 

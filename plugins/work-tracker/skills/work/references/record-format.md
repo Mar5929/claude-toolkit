@@ -131,18 +131,14 @@ finalized_date: null
 approved_by: null
 ```
 
-The body records the owner's starting request and the six agreed parts:
-
-- goal;
-- why;
-- what has to be true for the item to count as finished;
-- what the person using it experiences;
-- how it behaves from the outside; and
-- edge cases.
+The body records the owner's starting request and whatever was agreed. A new
+item starts with that request and an unanswered goal, and how much it grows
+depends on the work: a chore keeps the one line the owner asked for, and work
+that needs refining grows the parts `work-item-stages.md` lists.
 
 `refining` means the interview is still open. `finalized` means the owner saw
-and approved the complete file. Finalized records require `finalized_date` and
-`approved_by`.
+and approved the file. Nothing checks its length or its headings. Finalized
+records require `finalized_date` and `approved_by`.
 
 This file contains no implementation plan, file path choices, tool or version
 choices, or unapproved agent assumptions. When direction changes, reopen it

@@ -54,14 +54,6 @@ export const RELATIONSHIPS = [
 ];
 
 const REQUIREMENTS_STATUSES = ["refining", "finalized"];
-const REQUIRED_REQUIREMENTS_SECTIONS = [
-  "Goal",
-  "Why",
-  "What has to be true for this to count as finished",
-  "What the person using it experiences",
-  "How it behaves from the outside",
-  "Edge cases",
-];
 const LEGACY_STAGES = ["01-backlog", "02-in-progress", "03-completed", "04-archived"];
 const ARCHIVE_FOLDER = "archive";
 // Only a stop for a runaway walk, far past any nesting the owner would create by
@@ -381,7 +373,6 @@ export function requirementsStatus(tracker, id) {
     outcome: "ok",
     item: id,
     requirements: requirements.meta,
-    missing_sections: missingRequirementsSections(requirements.body),
     text: `${id} requirements are ${requirements.meta.status}.${requirements.meta.approved_by ? ` Approved by ${requirements.meta.approved_by} on ${requirements.meta.finalized_date}.` : ""}`,
   };
 }
@@ -393,15 +384,14 @@ export function updateRequirementsStatus(tracker, id, input) {
     const record = structuredClone(item.record);
     let note;
     if (input.finalize) {
+      // Requirements run as long as the work needs and no longer. A chore's
+      // requirements are the one line the owner asked for, so nothing here
+      // checks length or headings. What makes them real is `approved_by`: the
+      // owner read this and said build it. Counting headings only proved they
+      // were not empty, and on small items it forced a choice between invented
+      // content and a permanent Backlog. `work-item-stages.md` decides how much
+      // refining a piece of work needs.
       const approvedBy = requiredText(input.approvedBy, "approved by");
-      const missing = missingRequirementsSections(requirements.body);
-      if (missing.length) {
-        throw new WorkError(
-          `Requirements cannot be finalized. Complete: ${missing.join(", ")}.`,
-          "incomplete_requirements",
-          { missing_sections: missing },
-        );
-      }
       requirements.meta.status = "finalized";
       requirements.meta.updated_date = isoDate();
       requirements.meta.finalized_date = isoDate();
@@ -1447,26 +1437,6 @@ ${startingRequest}
 ## Goal
 
 _Not agreed yet._
-
-## Why
-
-_Not agreed yet._
-
-## What has to be true for this to count as finished
-
-_Not agreed yet._
-
-## What the person using it experiences
-
-_Not agreed yet._
-
-## How it behaves from the outside
-
-_Not agreed yet._
-
-## Edge cases
-
-_Not agreed yet._
 `;
   return renderRequirementsFile(meta, body);
 }
@@ -1486,25 +1456,6 @@ function readRequirements(item) {
   }
   const meta = parseYaml(match[1], `${item.id} REQUIREMENTS.md fields`);
   return { meta, body: match[2].trim() };
-}
-
-function missingRequirementsSections(body) {
-  const missing = [];
-  for (const heading of REQUIRED_REQUIREMENTS_SECTIONS) {
-    const content = markdownSection(body, heading);
-    if (!content || /^_?(?:not agreed yet|todo|tbd)[.!]?_?$/i.test(content.trim())) {
-      missing.push(heading);
-    }
-  }
-  return missing;
-}
-
-function markdownSection(body, heading) {
-  const escaped = escapeRegex(heading);
-  const match = body.match(
-    new RegExp(`(?:^|\\n)## ${escaped}\\s*\\n([\\s\\S]*?)(?=\\n## |$)`),
-  );
-  return match?.[1]?.trim() ?? "";
 }
 
 function requireFinalizedRequirements(item) {
@@ -2121,8 +2072,6 @@ function validateRequirements(item, errors) {
     if (typeof meta.approved_by !== "string" || !meta.approved_by.trim()) {
       errors.push(`${item.id}: finalized requirements need approved_by`);
     }
-    const missing = missingRequirementsSections(requirements.body);
-    if (missing.length) errors.push(`${item.id}: finalized requirements are missing ${missing.join(", ")}`);
   }
   if (["Ready", "In Progress", "In Review", "Done"].includes(item.record.status) && meta.status !== "finalized") {
     errors.push(`${item.id}: status ${item.record.status} requires finalized requirements`);

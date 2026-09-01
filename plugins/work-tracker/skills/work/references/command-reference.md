@@ -67,8 +67,10 @@ as `security-and-permissions/record-access`, or a work-item folder name such as
 refuses a path that leaves the tracker, one starting with `archive`, and any
 folder whose name starts with a dot, since the scan skips those.
 
-`requirements --finalize` requires all six sections plus the person who
-approved them. It changes a `Backlog` item to `Ready`. `--reopen` returns open
+`requirements --finalize` requires only the person who approved them. It does
+not check the file's length or its headings, because requirements run as long
+as the work needs; `work-item-stages.md` says how much refining work needs. It
+changes a `Backlog` item to `Ready`. `--reopen` returns open
 work to `Backlog` and clears the approval fields.
 
 `--stage` writes the stage into `ITEM.yaml`, sets the status the stage maps to,
