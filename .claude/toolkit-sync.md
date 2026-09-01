@@ -73,6 +73,37 @@ before anything changed. Four gaps were closed:
 
 Nothing was declined in this run.
 
+Synced again on 2026-09-01, against `project-init` 0.64.0, from a
+`/project-sync` run rather than an issue. Every rule matched what this
+repository ships, all four checks passed before anything changed, and the
+knowledge checker passed on nine files. One gap was found and closed.
+
+**The work-item stage standard was one part of three.** The rule
+`.claude/rules/work-item-stages.md` was here, and `CLAUDE.md` already told
+every session that an issue carries one of the fourteen stage labels. Neither
+of the other two parts existed, so following that instruction failed:
+`gh issue edit --add-label 08-build` had no such label to add. All three parts
+now run together:
+
+- **The fourteen labels were created** on this repository, in order, so they
+  sort. Nothing was relabelled in bulk. Issues from before the standard carry
+  no stage, which is expected.
+- **`work-item-stage-reminder` was installed.** It is copied to
+  `.claude/hooks/` and added to the existing `PostToolUse`
+  `Edit|Write|NotebookEdit` matcher, alongside `spec-check-reminder`, rather
+  than as a second entry. Verified by feeding it one session id twice: it
+  printed the reminder once, then stayed quiet. Without it the rule is only
+  read at session start, which is exactly when a long session has not yet
+  moved a stage.
+- **The retired `refined` label was deleted.** It meant the same thing as
+  `03-requirements-approved`, so the board was carrying two words for one
+  state. The three open issues that had it, #237, #182, and #171, were moved
+  to `03-requirements-approved` first so they kept their ready-to-build mark.
+  Closed issues simply lost a label that no longer means anything.
+
+Nothing was declined in this run either. The graphify decline below still
+stands and was not re-offered.
+
 This repository is the toolkit. It now runs the toolkit on itself, the same way
 Anchor, DragonFly, and Diligence Ready do, so a change to the memory system, the
 rules, the output style, or the hooks is felt where it is written instead of
@@ -84,7 +115,7 @@ three weeks later in another project.
 | --- | --- |
 | 0. Orient | Done. Existing repository, not a new one, so this ran as a sync rather than an init. Node and Markdown, no application stack. |
 | 1. Scaffolding and work tracking | Already answered. Work is tracked on the `Claude-Toolkit-Project` board on GitHub. `CLAUDE.md` names it. `spec-before-you-build.md` was installed alongside that pointer until 2026-08-31, when the toolkit dropped the rule and it was removed here too. No scaffolding was added: the folder layout already existed. The board's vocabulary changed in issue #260: an issue now carries one stage label from `work-item-stages.md`, and `03-requirements-approved` replaced the retired `refined` label as the mark that an issue is ready to build. |
-| 2. Hooks | Done. `save-reminder`, `work-item-close`, `memory-reminder`, `knowledge-session-start`, and `spec-check-reminder` are installed under `.claude/hooks/` and registered in `.claude/settings.json`. Codex registers the same startup loader in `.codex/hooks.json`. The two style hooks were removed with the toolkit, as explained below. |
+| 2. Hooks | Done. `save-reminder`, `work-item-close`, `memory-reminder`, `knowledge-session-start`, `spec-check-reminder`, and `work-item-stage-reminder` are installed under `.claude/hooks/` and registered in `.claude/settings.json`. Codex registers the same startup loader in `.codex/hooks.json`. The two style hooks were removed with the toolkit, as explained below. |
 | 3. Project knowledge | **Adopted from the packaged plugin.** `SOUL.md`, the managed operating manual, `knowledge/project.md`, `knowledge/current.md`, and both generated index entry lists load at session start. Approved specifications, flat persistent memory, and unchecked brainstorms live under the same knowledge root. The packaged skills keep only task-specific steps. The retired policy rule and machinery stay removed. |
 | 4. Knowledge layer | Included with Gate 3. The graphify code graph was offered and declined, see below. |
 | 5. Root instructions, rules, output style | Done. `CLAUDE.md` and `AGENTS.md` carry the same short project knowledge route. `.claude/rules/` holds the applicable general rules, with no large memory rule or wrap-up ritual. Claude Code's built-in `Concise` style is selected in `.claude/settings.json`; the hand-written `plain-language` style this repo used to ship was removed from the toolkit in issue #245. |

@@ -44,6 +44,11 @@
             "type": "command",
             "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/spec-check-reminder.mjs\"",
             "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/work-item-stage-reminder.mjs\"",
+            "timeout": 10
           }
         ]
       }
