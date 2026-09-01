@@ -194,6 +194,9 @@ Show one numbered group per proposed file:
      rules, and config opened.>
 ```
 
+Keep every line short and plain. No preamble, no restated context, no
+filler. A proposal the owner has to wade through is one that gets skimmed.
+
 `Type` comes first and is never left out. The owner should not have to read a
 folder path to work out whether he is being asked to approve a memory or a
 specification.
