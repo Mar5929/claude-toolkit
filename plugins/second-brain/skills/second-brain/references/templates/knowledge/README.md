@@ -109,6 +109,7 @@ These are the non-negotiables of what are considered long-term AI Memory:
 
 1. The information MUST be relevant to the project itself.
 2. Project memory is: persistent facts, decisions, user feedback, project milestones, project context (people, places, things, goals, etc.), project state, meaningful project events that occurred, constraints, relationships, facts that are difficult to infer from the repository alone, current truths about the project that the future agents will otherwise repeatedly need explained. These pieces of memory must be provided by the user or worked out by both the user and the agent together during a particular session.
+3. How a real failure here was fixed is memory: what broke, the cause, the resolution.
 
 <!-- knowledge-policy:save-test:end -->
 
@@ -127,7 +128,7 @@ None of this becomes durable memory:
 - Every action performed by a sub-agent.
 - Chit-chat and conversational filler.
 - Copies of code or specifications that already exist. Never save something an agent could work out by reading the production code.
-- A procedure that belongs in a rule or a skill.
+- A procedure that belongs in a rule or a skill. One past fix is not this.
 - Authoritative system behavior that belongs in a specification.
 - An open task or implementation step that belongs in work-item tracking.
 - Live status of current work.

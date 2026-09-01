@@ -209,7 +209,9 @@ check("manual size, markers, copy, and checksum", () => {
   // a running token cost. These caps are a deliberate ratchet: raise them only
   // when the owner has decided the added words are worth paying for everywhere.
   assert.ok(source.split("\n").length <= 280, "manual exceeds 280 lines");
-  assert.ok(source.trim().split(/\s+/).length <= 1950, "manual exceeds 1,950 words");
+  // Raised from 1,950 to 2,000 when the past-fix carve-out landed at 1,949 and
+  // left the next edit nowhere to go. Mike's call.
+  assert.ok(source.trim().split(/\s+/).length <= 2000, "manual exceeds 2,000 words");
   const actualHash = createHash("sha256").update(source).digest("hex");
   assert.equal(actualHash, MANUAL_SHA256);
   for (const policy of [
@@ -236,6 +238,11 @@ check("project scope gate runs before a save proposal", () => {
   assert.ok(saveTest.includes("relevant to the project itself"));
   assert.ok(saveTest.includes("provided by the user or worked out by both the user and the agent"));
   assert.ok(neverSave.includes("A procedure that belongs in a rule or a skill"));
+  // A fix this project worked out is a memory, not a procedure. The never-save
+  // bullet above reads as if it swallows one, so both halves are asserted here:
+  // recall is told to look for a past fix, and remember has to have saved it.
+  assert.ok(saveTest.includes("How a real failure here was fixed is memory"));
+  assert.ok(neverSave.includes("One past fix is not this"));
   assert.ok(neverSave.includes("Live status of current work"));
   assert.ok(neverSave.includes("Passwords, keys, and tokens"));
   assert.ok(approval.includes("Why keep it"));
@@ -259,6 +266,12 @@ check("project scope gate runs before a save proposal", () => {
   // is asserted here rather than left uncovered.
   assert.ok(remember.includes("already contains the information fully"));
   assert.ok(remember.includes("separate global rule or skill review"));
+
+  // The read side and the write side have to agree, or recall searches for
+  // something remember was never willing to write.
+  const recall = read("plugins/second-brain/skills/recall/SKILL.md");
+  assert.ok(recall.includes("troubleshooting"));
+  assert.ok(remember.includes("after working"));
 });
 
 check("one proposal template, and the skill reads it", () => {

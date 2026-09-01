@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Personal, portable toolkit of reusable Claude systems: skills, rules, hooks, and templates shared across every project and device.",
-    "version": "0.101.0"
+    "version": "0.104.0"
   },
   "plugins": [
     {
@@ -32,7 +32,7 @@
     {
       "name": "hooks-library",
       "source": "./plugins/hooks-library",
-      "description": "Hooks that make a rule land mechanically instead of restating it. no-ai-attribution-guard refuses any commit or pull request whose text credits an AI, on every repository on the machine. spec-check-reminder asks once, at the session's first file edit, whether the spec-check review has run, so building from a drifted specification is caught at the moment it starts. explain-simply-reminder asks, on every message the owner sends, for an answer a five-year-old could follow, in whichever project opts into it. Two Salesforce guards protect production deploys and permission-set deploys."
+      "description": "Hooks that make a rule land mechanically instead of restating it. no-ai-attribution-guard refuses any commit or pull request whose text credits an AI, on every repository on the machine. spec-check-reminder asks once, at the session's first file edit, whether the spec-check review has run, so building from a drifted specification is caught at the moment it starts. explain-simply-reminder asks, on every message the owner sends, for an answer a five-year-old could follow, in whichever project opts into it. work-item-stage-reminder asks once per session which work item this is, what stage it is at, and whether its progress log is current. Two Salesforce guards protect production deploys and permission-set deploys."
     },
     {
       "name": "work-tracker",
