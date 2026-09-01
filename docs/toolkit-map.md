@@ -20,7 +20,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | [second-brain](../plugins/second-brain/README.md) | Portable Git-native project knowledge with one managed operating manual, a small shared startup map, flat memory, approved specifications, project-scoped owner-approved saves, one checker, and separate read-only Claude Code session history | `second-brain`, `remember`, `recall`, `retire`, `reflect`, `session-search` | `/plugin install second-brain` | Sets up a project |
 | [sf-architect-solutioning](../plugins/sf-architect-solutioning/README.md) | Salesforce solution architect: approved solution plan before any build | `sf-architect-solutioning` | `/plugin install sf-architect-solutioning` | Install and go |
 | [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git lifecycle workflows | `pull-latest`, `reset-to-remote`, `merge-and-clean-up` | `/plugin install git-workflows` | Install and go |
-| [hooks-library](../plugins/hooks-library/README.md) | Reusable style, writing, Git-attribution, and Salesforce deployment hooks; system-specific knowledge hooks stay with second-brain | `hooks-library` | `/plugin install hooks-library` | Wires into settings |
+| [hooks-library](../plugins/hooks-library/README.md) | Reusable spec-check, plain-answer, Git-attribution, and Salesforce deployment hooks; system-specific knowledge hooks stay with second-brain | `hooks-library` | `/plugin install hooks-library` | Wires into settings |
 | [work-tracker](../plugins/work-tracker/README.md) | Local backlog under Git-ignored `.work-items/`, with YAML records, owner-approved requirements, handoffs, relationships, landing proof, folders the owner makes to group related items, an `archive/` folder for set-aside items, and preview-first conversion of older staged trackers | `work` | `/plugin install work-tracker` | Sets up a project |
 | [session-skills](../plugins/session-skills/README.md) | The eight things you reach for inside one conversation: play back a brain dump, say it simply, get grilled on it, check the spec before building, unslop a draft, hand it off, recap it, and track what is still open | `braindump`, `explain-simply`, `grill-me`, `handoff`, `session-summary`, `spec-check`, `track-tasks`, `unslop` | `/plugin install session-skills` | Install and go |
 
@@ -276,8 +276,9 @@ The genuine watch-items are called out at the end.
   shape a commit message, a document, or anything a helper agent writes; those
   are covered by the `follow-the-output-style` rule and, for an agent that
   writes persistent files, by the writing rules inside its own definition. A hook may still enforce a rule,
-  trigger a process agents forget, or orient a session at its start. The jobs
-  and their separate bars are in
+  trigger a process agents forget, or orient a session at its start, and
+  `explain-simply-reminder` is the one named exception that does none of those
+  three. The jobs, their separate bars, and the exception's reasoning are in
   [`hooks-library`](../plugins/hooks-library/README.md).
 - **hooks-library versus project knowledge.** The general hook library owns
   reusable guards and reminders. Second-brain owns its two project-knowledge
@@ -340,6 +341,15 @@ The genuine watch-items are called out at the end.
   output style before writing, so it plainly restates rather than switching
   voice. With the built-in `Concise` style there is no file to read and it
   simply writes plainly.
+- **explain-simply the skill versus explain-simply-reminder the hook.** Same
+  voice, opposite defaults, and neither replaces the other. The skill is asked
+  for: the owner reaches for it when one answer did not land, and it re-explains
+  material already established without re-researching it. The hook in
+  `hooks-library` is standing: it asks for that voice on every message, in a
+  project that opted in, and can never re-explain anything because it runs
+  before the answer exists. A project can have both, and a project with the hook
+  still wants the skill for "say that last part again". The hook does not
+  install the skill and does not need it.
 - **handoff versus the second-brain pull-request reminder.** Same job at two different moments, solved
   two different ways, and the difference is not a preference. `gh pr create` is
   a bare terminal command carrying no instructions, so it needs a hook to
@@ -413,6 +423,19 @@ The genuine watch-items are called out at the end.
   only real voice control helper agents have, and it is why every helper-agent
   definition that writes owner-facing prose must carry those writing rules
   itself.
+  **One per-message reminder came back on purpose, and it is not that one.**
+  `explain-simply-reminder` shipped in September 2026, a `UserPromptSubmit` hook
+  asking on every message for an answer a five-year-old could follow. Read the
+  difference before treating it as `style-reminder` returning. The old hook
+  resolved the project's active output style and re-sent the whole style file,
+  up to 4000 characters, every turn; that size was the objection that removed
+  it. This one is a fixed six-line string in the script, roughly 90 tokens, with
+  no file read, no settings lookup, and no config. It also carries a different
+  instruction from the style rather than repeating it, so it is not a second
+  copy of the voice that could drift. The owner made the call knowing the
+  history. It is opted into per project and installed nowhere by default, and
+  the reasoning to re-test before it grows is in
+  [`hooks-library`](../plugins/hooks-library/README.md).
 - **sf-architect-solutioning versus the Salesforce rules versus the dependency
   graph.**
   sf-architect decides what to build; the `salesforce-rules` install standing

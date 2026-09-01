@@ -76,11 +76,14 @@ automatically as it grows.
     `library/rules/general/dependency-graph.md`)
   - the `work-tracker` plugin, root `.work-items/`, and any older
     `delivery/work-items/`, `engagement/work-items/`, or root `work-items/` tree
-  - the `hooks-library` plugin and its general hook, `spec-check-reminder`
-    (PostToolUse): check `.claude/settings.json` for a registered entry and
-    `.claude/hooks/` for the copied script. It points at the `spec-check` skill
-    from `session-skills`, so only audit it where that plugin is installed. If
-    the retired `memory-pr-hook` plus `wrap-up-ritual.md` path remains, report
+  - the `hooks-library` plugin and its two general hooks. For
+    `spec-check-reminder` (PostToolUse): check `.claude/settings.json` for a
+    registered entry and `.claude/hooks/` for the copied script. It points at
+    the `spec-check` skill from `session-skills`, so only audit it where that
+    plugin is installed. Do not audit for `explain-simply-reminder`
+    (UserPromptSubmit): it changes the voice of every answer, so a project
+    without it is not a gap. Mention it only if the owner asks for that voice.
+    If the retired `memory-pr-hook` plus `wrap-up-ritual.md` path remains, report
     it for removal after the current project-knowledge package is installed
   - a project still carrying the retired voice rules (`writing-and-language.md`,
     `how-to-reply.md`, `treat-owner-as-non-technical.md`,
@@ -92,7 +95,10 @@ automatically as it grows.
     files). Both were removed from the toolkit in August 2026 as per-message
     overhead. Report them for removal:
     delete the settings entry, the script, and the config file, leaving every
-    other hook entry alone
+    other hook entry alone. **`explain-simply-reminder` is not one of these.**
+    It also sits under `UserPromptSubmit` and it is current, shipped in
+    September 2026 and named in the `hooks-library` README. Match on the script
+    name, never on the event, and leave it exactly where it is
   - a project still carrying a `.claude/output-styles/plain-language.md` file,
     at any vintage. The toolkit removed that style in issue #245. Offer to
     delete the file and select `Concise`

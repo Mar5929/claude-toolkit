@@ -1,7 +1,7 @@
 {
   "name": "hooks-library",
-  "description": "Hooks that make a rule land mechanically. Ships spec-check-reminder, two Salesforce deployment guards, and the machine-wide no-ai-attribution guard. Project-knowledge startup and pull-request reminders are owned by the project-knowledge package.",
-  "version": "3.0.0",
+  "description": "Hooks that make a rule land mechanically. Ships spec-check-reminder, explain-simply-reminder, two Salesforce deployment guards, and the machine-wide no-ai-attribution guard. Project-knowledge startup and pull-request reminders are owned by the project-knowledge package.",
+  "version": "3.1.0",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com"

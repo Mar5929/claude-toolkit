@@ -190,13 +190,20 @@ the graph and names the connections that moved. Unlike the two guards above it
 is a Stop hook and it lives inside `tools/kb/`, because it imports the rest of
 the tool.
 
-**Every project**: offer the general hook from the `hooks-library` plugin
-(`/hooks-library`). Default ON where the project uses `session-skills`.
+**Every project**: offer the two general hooks from the `hooks-library` plugin
+(`/hooks-library`).
 
 - `spec-check-reminder` asks once, at the session's first file edit, whether
   the spec-check review has run, so a build from a drifted specification is
   caught as it starts. It points at the `spec-check` skill from the
   `session-skills` plugin, so skip it where that plugin is not installed.
+  Default ON where the project uses `session-skills`.
+- `explain-simply-reminder` asks, on every message the owner sends, for an
+  answer a five-year-old could follow: plain words, short, bullet points, and
+  never dropping a number or a file path to get there. It needs no other plugin.
+  Always OFF unless the owner asks for it, and say before installing it that it
+  applies to every answer in the project, documents and commit messages
+  included.
 
 The project knowledge package owns its own startup loader and pull-request save
 reminder. Gate 3 installs those with the system. Do not install the retired
