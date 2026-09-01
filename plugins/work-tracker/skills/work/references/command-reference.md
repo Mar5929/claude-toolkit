@@ -43,7 +43,7 @@ work status [--all] [--archived] [--json]
 work next [--json]
 work start WI-014 [--branch BRANCH] [--next-step STEP] \
   [--allow-shared-branch]
-work update WI-014 [--status Ready] [--next-step STEP] [--branch BRANCH] \
+work update WI-014 [--stage 08] [--note WHAT_HAPPENED] [--status Ready]   [--next-step STEP] [--branch BRANCH] \
   [--blocker REASON] [--blocker-item WI-002] \
   [--clear-blocker B-001|all] [--note NOTE] [--allow-shared-branch]
 work link WI-014 --type depends_on --target WI-002 [--remove]
@@ -70,6 +70,20 @@ folder whose name starts with a dot, since the scan skips those.
 `requirements --finalize` requires all six sections plus the person who
 approved them. It changes a `Backlog` item to `Ready`. `--reopen` returns open
 work to `Backlog` and clears the approval fields.
+
+`--stage` writes the stage into `ITEM.yaml`, sets the status the stage maps to,
+and appends a dated line to the "Progress log" section of `STATUS.md`, all in
+one call. It takes a number (`8`, `08`), a name (`build`), or the whole thing
+(`08-build`), and stores anything it does not recognize exactly as typed. The
+log line uses `--note` as its text, or the summary of what changed when there is
+no note. Passing `--status` as well overrides the derived status.
+
+`14-spec-update` maps to `Done`, which `update` never writes; use `finish` for
+that. A stage mapping to `Ready`, `In Progress`, or `In Review` needs finalized
+requirements, the same as an explicit `--status`.
+
+Nothing validates the stage itself. `work-item-stages.md` says which stage is
+correct, when one may be skipped, and what belongs in the log.
 
 `start` accepts only a `Ready` item with finalized requirements. It uses the
 current branch when `--branch` is omitted. It rejects a branch already claimed

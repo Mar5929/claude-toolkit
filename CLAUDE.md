@@ -52,7 +52,10 @@ The `Claude-Toolkit-Project` board on GitHub, connected to this repository.
   paths, no version numbers, no build plan.
 - Everything else goes in the issue comments: progress, decisions made while
   building, blockers, and pointers to files by relative path.
-- An issue is ready to build when it carries the `refined` label. Nothing gets
-  built before that.
+- An issue carries one stage label from the fourteen in
+  `.claude/rules/work-item-stages.md`, and one comment titled "Progress log"
+  that is edited in place. It is ready to build when it carries
+  `03-requirements-approved`. Nothing gets built before that. The old `refined`
+  label meant the same thing and is retired.
 - Worktrees are siblings of the primary checkout, named
   `claude-toolkit-<issue number>`, on a branch named `issue-<number>-<slug>`.

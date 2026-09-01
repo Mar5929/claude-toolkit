@@ -94,7 +94,7 @@ claude-toolkit/
       .claude-plugin/plugin.json
       .codex-plugin/plugin.json
       library/                    ← everything that gets COPIED INTO a project.
-        rules/general/               the standard .claude/rules files (15)
+        rules/general/               the standard .claude/rules files (11)
         rules/salesforce/            the extra Salesforce rules (10)
         tools/                       permsets.py and the kb/ dependency graph tool
         templates/                   copy-and-fill starting points
@@ -156,6 +156,8 @@ claude-toolkit/
         spec-check-reminder.mjs   ← asks once per session whether spec-check ran
         explain-simply-reminder.mjs ← asks every message for a five-year-old-level
                                      answer (opt in per project)
+        work-item-stage-reminder.mjs ← asks once per session for the work item,
+                                     its stage, and its progress log
         no-ai-attribution-guard.mjs ← refuses a commit or PR that credits an AI
                                      (machine-wide; installed by machine-sync)
         guard-protected-orgs.js   ← confirms before a deploy hits a production org
@@ -248,8 +250,8 @@ inside a project folder before it is useful, which is what the last column says:
 | **[second-brain](plugins/second-brain/README.md)** | A portable `knowledge/` system for Claude, Codex, Git, and optional Obsidian: one managed operating manual, a small shared startup map, flat memory, approved specifications, project-scoped owner-approved saves, task-specific skills, one checker, and safe migration from older layouts. | Sets up a project |
 | **[sf-architect-solutioning](plugins/sf-architect-solutioning/README.md)** | A Salesforce solution architect: pushes back on vague requirements, verifies platform facts against official docs by live fetch, designs declarative-first to Well-Architected standards, and presents a solution plan for approval before any build. Salesforce projects only. | Install and go |
 | **[git-workflows](plugins/git-workflows/README.md)** | Three parallel-session-safe git lifecycle skills: `pull-latest` gets current without rewriting history, `reset-to-remote` mirrors the remote behind confirmation, and `merge-and-clean-up` lands an approved PR before removing only its completed workspace. | Install and go |
-| **[hooks-library](plugins/hooks-library/README.md)** | Reusable hooks that make a rule land mechanically: `spec-check-reminder` asks once per session whether the spec-check review ran, `explain-simply-reminder` asks every message for an answer a five-year-old could follow in whichever project opts into it, `no-ai-attribution-guard` refuses AI credit in Git text, and two Salesforce guards protect production and permission-set deploys. System-specific knowledge hooks ship with second-brain. | Wires into settings |
-| **[work-tracker](plugins/work-tracker/README.md)** | Gives Claude and Codex one local backlog under Git-ignored `.work-items/`: YAML records, owner-approved requirements, exact handoffs, blockers, typed relationships, deterministic next-item selection, Git landing proof, generated dashboards, an `archive/` folder for items the owner has set aside, and preview-first conversion of older staged trackers. Shared GitHub tracking remains a separate tracker choice. | Sets up a project |
+| **[hooks-library](plugins/hooks-library/README.md)** | Reusable hooks that make a rule land mechanically: `spec-check-reminder` asks once per session whether the spec-check review ran, `explain-simply-reminder` asks every message for an answer a five-year-old could follow in whichever project opts into it, `work-item-stage-reminder` asks once per session for the work item, its stage, and whether its progress log is current, `no-ai-attribution-guard` refuses AI credit in Git text, and two Salesforce guards protect production and permission-set deploys. System-specific knowledge hooks ship with second-brain. | Wires into settings |
+| **[work-tracker](plugins/work-tracker/README.md)** | Gives Claude and Codex one local backlog under Git-ignored `.work-items/`: YAML records, owner-approved requirements, exact handoffs, blockers, typed relationships, deterministic next-item selection, a stage from the shared list of fourteen with a dated progress log, Git landing proof, generated dashboards, an `archive/` folder for items the owner has set aside, and preview-first conversion of older staged trackers. Shared GitHub tracking remains a separate tracker choice. | Sets up a project |
 | **[session-skills](plugins/session-skills/README.md)** | The eight things you reach for inside one conversation, in one install. `braindump` plays a pasted brain dump back in very simple words and waits for your yes before any work starts. `explain-simply` says the last answer again as short bullets keeping every number, date, path, and name. `grill-me` interviews you one question at a time and writes every answer down before continuing. `handoff` saves what a long session learned, then writes a prompt a fresh session can start from, checked by a second agent first. `session-summary` tables what you asked for and gives each request an honest status. `track-tasks` keeps every still-open topic on the built-in task list. `spec-check` flags anything in a specification that could skew a build before the build starts. `unslop` takes a draft that reads as machine-written, names every tell in it with the fix, and rewrites it with a voice put back. | Install and go |
 
 ---

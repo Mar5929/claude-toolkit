@@ -42,7 +42,7 @@ creates a shared external tracker. Walk the steps in "Setting up a GitHub
 Projects board" below.
 
 The refinement session is marked with the `Refining` status and the
-`refined` label.
+`03-requirements-approved` stage label.
 
 ### 2 and 3. Linear, Jira, or another external tracker
 
@@ -140,9 +140,13 @@ does not check out.
    `In review`, `Done`, `Cancelled`. Type them exactly as written, lower-case
    second words included. This board holds the work itself. Do not pair it with
    the local `work-tracker` plugin.
-8. **Add the `refined` label** to the repository, described as the mark that a
-   refinement session finished and the six-part spec is written. Name the label
-   for what it means, never after whichever skill happened to run the session.
+8. **Add the fourteen stage labels** from
+   `../../library/rules/general/work-item-stages.md`, in order, so they sort:
+   `01-discovery` through `14-spec-update`. They are the board's one vocabulary
+   for where a piece of work stands. `03-requirements-approved` is the one that
+   means a refinement session finished and the requirements are agreed. Do not
+   also add a `refined` label; it means the same thing under another name, and
+   two words for one state is how a board stops being trusted.
 9. **Report what you made**, including the board's link.
 
 ### When the board already exists but is incomplete
@@ -157,7 +161,8 @@ when its name differs from the list above. Their board, their names.
 - `Refining`: a refinement session is under way. Move the ticket here when the
   session starts.
 - `Ready`: the six-part spec is written and agreed. Move it here when the session
-  ends, and add the `refined` label. Work may start now, and not before.
+  ends, and add the `03-requirements-approved` label. Work may start now, and not
+  before.
 - `In progress`: being built.
 - `In review`: built, waiting on review or a merge.
 - `Done`: landed.
@@ -175,7 +180,7 @@ For example:
 >
 > The `<board name>` GitHub Projects board, connected to this repository. A
 > ticket moves to `Refining` when its refinement session starts, and to `Ready`
-> with the `refined` label once its requirements are agreed.
+> with the `03-requirements-approved` label once its requirements are agreed.
 
 The section names the tracker and how a ticket is marked ready, and stops there.
 Keeping the detail out is the same router-and-map convention every other part of

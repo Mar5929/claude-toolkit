@@ -33,6 +33,24 @@ It is a reminder, not a gate. It reads nothing the agent wrote, cannot tell
 real build work from a one-line fix, and never blocks an edit. State lives in
 a per-session file under the OS temp folder, which is how it fires only once.
 
+### work-item-stage-reminder
+
+A `PostToolUse` hook on `Edit`, `Write`, and `NotebookEdit`. At the session's
+first file edit it asks the agent to name the work item it is on, name that
+item's current stage, and check that the progress log is current. Then it stays
+quiet for the rest of the session.
+
+It goes with the `work-item-stages.md` rule, which gives every work item one
+stage from a shared list of fourteen and a dated progress log. The failure the
+rule cannot catch on its own is the log going stale: a session works for an
+hour, the stage moved two steps, and nobody wrote either down, so the next
+session starts by reconstructing what happened.
+
+It is a reminder, not a gate. It reads no tracker, checks no stage, and never
+blocks an edit. It cannot tell work-item work from a one-line fix, so it asks on
+the first edit either way. State lives in a per-session file under the OS temp
+folder, which is how it fires only once.
+
 ### explain-simply-reminder
 
 A `UserPromptSubmit` hook, with no matcher, that fires on every message the
@@ -149,6 +167,11 @@ project's `.claude/settings.json` and verifies it runs. `project-init` and
 
 `spec-check-reminder` is only useful next to the `spec-check` skill from the
 `session-skills` plugin, so install those together.
+
+`work-item-stage-reminder` is only useful in a project that has answered where
+work items are tracked and carries the `work-item-stages.md` rule. Install it
+with them, never before them: a reminder to set a stage is noise in a project
+with no tracker to set one in.
 
 `explain-simply-reminder` needs nothing else installed, and shipping it turns it
 on nowhere. It changes the voice of every answer in whichever project takes it,

@@ -107,6 +107,9 @@ computer has a different local tracker.
 - `priority`: `urgent`, `high`, `medium`, or `low`;
 - `status`: `Backlog`, `Ready`, `In Progress`, `In Review`, `Done`, or
   `Cancelled`;
+- `stage`: the item's current stage from the fourteen in `work-item-stages.md`,
+  or `null`. Items created before stages existed have no `stage` key at all,
+  which is the same thing as `null` and is never an error;
 - `created_date` and `updated_date`, both `YYYY-MM-DD`;
 - `next_step`;
 - `blockers` and `relationships`; and
@@ -145,10 +148,38 @@ This file contains no implementation plan, file path choices, tool or version
 choices, or unapproved agent assumptions. When direction changes, reopen it
 before editing.
 
+## The stage and the progress log
+
+`work update <id> --stage <stage> --note <what happened>` writes three things in
+one call: the `stage` field in `ITEM.yaml`, the status the stage maps to, and a
+dated line in the "Progress log" section of `STATUS.md`. The log line reads
+
+```text
+2026-08-29 | 04 solution-design | Chose a rule file so there is one copy of the stage list.
+```
+
+`--stage` takes a number (`8`, `08`), a name (`build`), or the whole thing
+(`08-build`). Anything it does not recognize is stored exactly as typed.
+
+The mapping is `01` and `02` to `Backlog`, `03` to `Ready`, `04` through `11` to
+`In Progress`, `12` and `13` to `In Review`, and `14` to `Done`. `Done` is the
+one status this never writes: `finish` owns it, because it is the command that
+proves the commit is in the default branch. `Cancelled` stays hand-set.
+
+The command checks nothing else. It does not test that a stage is real, refuse a
+move backwards, ask why a stage was skipped, or look for a changed
+specification. `work-item-stages.md` decides all of that, and agents follow it
+the way they follow any other rule. The one thing that does still apply is the
+tracker's existing requirements gate: a stage whose status is `Ready`,
+`In Progress`, or `In Review` needs finalized requirements, exactly as an
+explicit `--status` does, so the stage cannot write a record `validate` would
+then call invalid.
+
 ## Other item files
 
-- `STATUS.md`: readable current handoff, recent history, and preserved owner
-  notes.
+- `STATUS.md`: readable current handoff, the progress log, recent history, and
+  preserved owner notes. The progress log and the user notes both sit between
+  HTML comment markers and are carried across every rewrite.
 - `HISTORY.ndjson`: complete dated command history, one JSON object per line.
 - Other files: preserved and never treated as executable input.
 

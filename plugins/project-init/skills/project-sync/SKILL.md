@@ -76,11 +76,21 @@ automatically as it grows.
     `library/rules/general/dependency-graph.md`)
   - the `work-tracker` plugin, root `.work-items/`, and any older
     `delivery/work-items/`, `engagement/work-items/`, or root `work-items/` tree
-  - the `hooks-library` plugin and its two general hooks. For
+  - the work-item stage standard, which is three parts and looks present when
+    only one is there: `library/rules/general/work-item-stages.md` in
+    `.claude/rules/`, the `work-item-stage-reminder` hook, and the stage markers
+    the project's chosen tracker needs (a `stage` field for the local tracker,
+    fourteen labels for a GitHub board). It depends on the Gate 1 tracker
+    question having an answer, so a project that was never asked is not missing
+    the standard, it is missing the question
+  - the `hooks-library` plugin and its three general hooks. For
     `spec-check-reminder` (PostToolUse): check `.claude/settings.json` for a
     registered entry and `.claude/hooks/` for the copied script. It points at
     the `spec-check` skill from `session-skills`, so only audit it where that
-    plugin is installed. Do not audit for `explain-simply-reminder`
+    plugin is installed. For `work-item-stage-reminder` (PostToolUse, the same
+    `Edit|Write|NotebookEdit` matcher): audit it only where the tracker question
+    is answered and `work-item-stages.md` is present, since without both there
+    is no stage to set. Do not audit for `explain-simply-reminder`
     (UserPromptSubmit): it changes the voice of every answer, so a project
     without it is not a gap. Mention it only if the owner asks for that voice.
     If the retired `memory-pr-hook` plus `wrap-up-ritual.md` path remains, report
@@ -267,6 +277,17 @@ checks:
   `.work-items/` or an older `work-items/` tree but no pointer counts as never
   asked. Never-asked is a gap to offer in step 4; a recorded decline is
   respected and not raised again.
+- **Work-item stages:** classify the three parts separately, because one of
+  them present makes the whole thing look installed. Is
+  `.claude/rules/work-item-stages.md` there? Is `work-item-stage-reminder`
+  registered under `PostToolUse` with the script copied into `.claude/hooks/`?
+  And does the project's tracker actually hold a stage: a `stage` field in
+  `ITEM.yaml` for the local tracker, or the fourteen stage labels on the
+  repository for a GitHub board (`gh label list`)? **A project that has never
+  answered the tracker question is not missing this.** It is missing the
+  question, so raise that first and this after. Never backfill a stage onto an
+  existing work item or issue; items from before the standard carry none, and
+  that is normal.
 - **Rules the toolkit dropped on 2026-08-31:** `spec-before-you-build.md` and
   `track-open-topics.md`. The toolkit no longer ships either one. When a project
   still carries one in `.claude/rules/`, report it as a rule the toolkit has
@@ -612,6 +633,35 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   that file for whichever answer comes back. Add the one-line pointer to
   `CLAUDE.md` and `AGENTS.md`, unless the answer is "somewhere else, or nothing
   yet", in which case record the decline instead.
+- **For an approved work-item stages gap, the tracker choice comes first.**
+  A stage standard with no tracker to hold it is advice nobody can follow, so if
+  the Gate 1 question was never answered, ask it and finish that answer before
+  installing any part of this. Then install all three parts together:
+  1. Copy `library/rules/general/work-item-stages.md` into `.claude/rules/`.
+  2. Set up the stage marker the chosen tracker needs. For the local tracker
+     that is already there, since `stage` is a field `work update --stage`
+     writes. For a GitHub Projects board, create the fourteen labels on the
+     repository, in order, so they sort:
+
+     ```bash
+     for stage in 01-discovery 02-refinement 03-requirements-approved        04-solution-design 05-breakdown 06-implementation-plan 07-tracking-setup        08-build 09-testing 10-bug-fixing 11-user-approval 12-pr-and-push        13-deployment 14-spec-update; do
+       gh label create "$stage" --description "Work-item stage $stage" || true
+     done
+     ```
+
+     Show the owner the list and wait for a yes before creating anything on
+     GitHub, the same as every other board change. A label that already exists
+     is left exactly as it is.
+  3. Install `work-item-stage-reminder` through the `hooks-library` skill. It
+     shares the `Edit|Write|NotebookEdit` matcher with `spec-check-reminder`, so
+     add it to that matcher's existing `hooks` array rather than making a second
+     entry.
+
+  Then retire any label that now means the same thing as a stage, so the project
+  has one vocabulary instead of two. A board set up before this has a `refined`
+  label, which is `03-requirements-approved` under another name: point the root
+  instructions at the stage label, and offer to delete the old one. Never
+  relabel existing issues in bulk. They carry no stage until someone sets one.
 - When the owner names a different tracker than the one already recorded, rewrite
   the pointer. Never delete tickets, issues, or boards from the
   tracker they are leaving; moving existing work across is theirs to do by hand.
