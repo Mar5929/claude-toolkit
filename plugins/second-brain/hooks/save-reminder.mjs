@@ -24,7 +24,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { matchesAny, OPENS_PULL_REQUEST } from "./command-parsing.mjs";
+import { effectiveDirectory, matchesAny, OPENS_PULL_REQUEST } from "./command-parsing.mjs";
 
 const KNOWLEDGE_PREFIX = "knowledge/";
 
@@ -188,12 +188,13 @@ function main() {
   const projectRoot = resolve(
     payload.cwd || process.env.CLAUDE_PROJECT_DIR || process.cwd(),
   );
-  const branch = branchKey(projectRoot);
+  const workingDirectory = effectiveDirectory(command, projectRoot);
+  const branch = branchKey(workingDirectory);
   const path = statePath(payload.session_id);
   const state = readState(path);
   if (state.branches.includes(branch)) return failOpen();
 
-  const paths = changedPaths(projectRoot);
+  const paths = changedPaths(workingDirectory);
   writeState(path, { branches: [...state.branches, branch] });
   deny(isKnowledgeOnly(paths) ? buildDirectCommitMessage(paths) : buildMessage());
 }
