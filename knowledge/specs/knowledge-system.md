@@ -4,7 +4,7 @@ area: knowledge-system
 status: current
 source: archive/memory-redesign/knowledge-system-north-star.md and the owner-approved requirements in GitHub issues #215, #219, and #221
 created_at: 2026-08-21
-confirmed_at: 2026-08-31
+confirmed_at: 2026-09-01
 tags: [knowledge-system, memory, specifications, second-brain, schema, build-authority]
 approved_by: Mike Rihm
 approval_date: 2026-08-22
@@ -356,26 +356,38 @@ files" below.
 `knowledge/README.md` owns the field list, in its "Get exact approval before
 changing lasting knowledge" section. Do not copy it here.
 
-Two things about that format are design decisions rather than mechanics, and
+The shape itself lives in one file, `references/proposal-template.md` in the
+`remember` skill, which the skill reads on every run before showing the owner
+anything. The manual states the contract and points at that file, so there is
+never a second copy of the shape to drift.
+
+Four things about that format are design decisions rather than mechanics, and
 they belong in this file:
 
-- **`Type` comes first and carries the word Memory or Specification.** The
-  destination was once shown only as a folder path, and the owner had to decode
+- **A plain subject line comes first.** It names what is being saved in
+  ordinary words, so the owner knows what he is looking at before he reads a
+  single detail.
+- **`Save as` carries the word Memory or Specification.** The destination was
+  once shown only as a folder path, and the owner had to decode
   `knowledge/memory/` against `knowledge/specs/` to know what he was approving.
   He asked twice in one session on 2026-08-31, which is how the field got added.
-- **The verdict is shown with the group, not held back.** The owner sees the
-  reasoning on screen before answering, so weak reasoning is visible instead of
-  hidden.
+- **The proposal is rendered Markdown, never inside a code fence.** The shape
+  used to sit in the manual inside a fence, so agents echoed the fence and the
+  owner read his own proposals as monospace with no title and no white space. A
+  blank line after every label is part of the shape, not decoration.
+- **`What I checked` is shown with the block, not held back.** The owner sees
+  the reasoning on screen before answering, so weak reasoning is visible instead
+  of hidden.
 
-What the owner is approving is **What**, **Project value**, and **Source**. The
-other fields are shown so he can see how it is being filed, and he may change
-any of them.
+What the owner is approving is **What it says**, **Why keep it**, and **Where it
+came from**. The other parts are shown so he can see how it is being filed, and
+he may change any of them.
 
 Rules for the review:
 
-- **Assumptions get approved separately from the content.** An assumption is how
-  memory gets polluted. If the owner approves the content but not an assumption,
-  the assumption comes out and the file is written without it.
+- **`Guesses I made` is approved separately from the content.** A guess is how
+  memory gets polluted. If the owner approves the content but not a guess, the
+  guess comes out and the file is written without it.
 - **Silence is not approval.** No answer, an unclear answer, or asking to see the
   full text all mean nothing gets written. Asking to see the text is not
   approval.
