@@ -179,37 +179,26 @@ a specification without the owner's clear approval. Hooks only remind. Helper
 agents cannot approve. The conversion of already-approved older files is the
 only documented exception.
 
-Show one numbered group per proposed file:
+Every proposal uses one fixed shape, the same in every project: a numbered block
+per file, opening with a plain subject line naming what is being saved, then
+`Save as`, `What it says`, `Why keep it`, `Where it goes`, `Where it came from`,
+`Labels`, `Guesses I made`, and `What I checked`, in that order.
 
-```text
-1. <plain name>
-   - Type: Memory, or Specification. Say which one, in that word.
-   - What: <the meaning, three sentences at most>
-   - Project value: <how this helps future work on the current project>
-   - Where: <exact path and action>
-   - Source: <source and observed, reported, or inferred>
-   - Tags: <tags and filing details>
-   - Assumptions: <everything unchecked, or None>
-   - Verdict: <why this counts as project memory under this manual, and what
-     was searched to confirm it is not already written down. Name the files,
-     rules, and config opened.>
-```
+Send it as rendered Markdown, with a blank line between every part. Never put a
+proposal inside a code fence. Write every line as if the owner is five years
+old: short words, no jargon. `Save as` names Memory or Specification in that
+word, so the owner never has to read a folder path to know which he is
+approving. `What I checked` names what was opened to confirm the information is
+not already written down, and is shown with the block so he sees the reasoning
+before he answers.
 
-Keep every line short and plain. No preamble, no restated context, no
-filler. A proposal the owner has to wade through is one that gets skimmed.
+The exact template, with its two worked examples, is in the `remember` skill at
+`references/proposal-template.md`. Read it before proposing.
 
-`Type` comes first and is never left out. The owner should not have to read a
-folder path to work out whether he is being asked to approve a memory or a
-specification.
-
-The verdict line is shown with the group, so the owner sees the reasoning
-before answering.
-
-The owner approves `What`, `Project value`, and `Source`; assumptions are
-approved separately.
-Silence, an unclear answer, or asking to see full text is not approval. Write
-only the approved meaning and source. If the owner edits the words, use those
-words exactly.
+The owner approves `What it says`, `Why keep it`, and `Where it came from`.
+`Guesses I made` is approved separately. Silence, an unclear answer, or asking
+to see full text is not approval. Write only the approved meaning and source. If
+the owner edits the words, use those words exactly.
 
 `knowledge/current.md`, work items, generated index rebuilds, and broken-link
 repairs do not need this meaning approval. Their own workflows still apply.

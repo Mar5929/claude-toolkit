@@ -37,6 +37,8 @@ const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, "..");
 const manualSource = "plugins/second-brain/skills/second-brain/references/templates/knowledge/README.md";
 const manualCopy = "knowledge/README.md";
+const proposalTemplate =
+  "plugins/second-brain/skills/remember/references/proposal-template.md";
 const failures = [];
 let checks = 0;
 
@@ -243,10 +245,14 @@ check("project scope gate runs before a save proposal", () => {
   assert.ok(neverSave.includes("One past fix is not this"));
   assert.ok(neverSave.includes("Live status of current work"));
   assert.ok(neverSave.includes("Passwords, keys, and tokens"));
-  assert.ok(approval.includes("Project value"));
+  assert.ok(approval.includes("Why keep it"));
   // A proposal must say the word Memory or Specification. The owner should not
   // have to decode a folder path to know what he is approving.
-  assert.ok(approval.includes("Type: Memory, or Specification"));
+  assert.ok(approval.includes("names Memory or Specification in that"));
+  // The proposal's look is one fixed shape, defined in one place. The manual
+  // states the contract and points at it; it never carries a second template.
+  assert.ok(approval.includes("references/proposal-template.md"));
+  assert.ok(approval.includes("Never put a"));
 
   const remember = read("plugins/second-brain/skills/remember/SKILL.md");
   const scope = remember.indexOf("## 1. Gather and scope candidates");
@@ -268,6 +274,30 @@ check("project scope gate runs before a save proposal", () => {
   assert.ok(remember.includes("after working"));
 });
 
+check("one proposal template, and the skill reads it", () => {
+  const template = read(proposalTemplate);
+  const labels = [
+    "**Save as**", "**What it says**", "**Why keep it**", "**Where it goes**",
+    "**Where it came from**", "**Labels**", "**Guesses I made**",
+    "**What I checked**",
+  ];
+  // Order matters as much as presence. The owner reads every proposal the same
+  // way, so a reshuffled template is the same failure as a missing label.
+  let at = -1;
+  for (const label of labels) {
+    const next = template.indexOf(label, at + 1);
+    assert.ok(next > at, `proposal template is missing or reorders ${label}`);
+    at = next;
+  }
+  assert.ok(template.includes("Never put a proposal inside a code fence"),
+    "the template does not forbid a code-fenced proposal");
+
+  const remember = read("plugins/second-brain/skills/remember/SKILL.md");
+  const readFirst = remember.indexOf("## Read these first");
+  const pointer = remember.indexOf("references/proposal-template.md");
+  assert.ok(pointer !== -1 && pointer > readFirst,
+    "remember does not read the proposal template before proposing");
+});
 check("checker catches a missing or changed managed manual", () => {
   const project = mkdtempSync(join(tmpdir(), "knowledge-manual-drift-"));
   try {
@@ -292,7 +322,8 @@ check("no second policy owner", () => {
     /^(CLAUDE\.md|AGENTS\.md|README\.md|docs\/|\.claude\/rules\/|plugins\/(project-init|second-brain|session-skills)\/)/.test(path)
       && /\.(md|mjs)$/.test(path)
       && path !== manualSource
-      && path !== manualCopy);
+      && path !== manualCopy
+      && path !== proposalTemplate);
 
   const forbiddenHeadings = [
     "## The find ladder",
@@ -308,7 +339,8 @@ check("no second policy owner", () => {
       assert.ok(!text.includes(heading), `${path} repeats manual policy as ${heading}`);
     }
     const labels = [
-      "What:", "Project value:", "Where:", "Source:", "Tags:", "Assumptions:",
+      "**What it says**", "**Why keep it**", "**Where it goes**",
+      "**Where it came from**", "**Labels**", "**Guesses I made**",
     ];
     assert.ok(!labels.every((label) => text.includes(label)),
       `${path} repeats the complete approval contract`);
