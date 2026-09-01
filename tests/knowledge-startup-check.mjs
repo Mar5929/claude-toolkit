@@ -207,7 +207,9 @@ check("manual size, markers, copy, and checksum", () => {
   // a running token cost. These caps are a deliberate ratchet: raise them only
   // when the owner has decided the added words are worth paying for everywhere.
   assert.ok(source.split("\n").length <= 280, "manual exceeds 280 lines");
-  assert.ok(source.trim().split(/\s+/).length <= 1950, "manual exceeds 1,950 words");
+  // Raised from 1,950 to 2,000 when the past-fix carve-out landed at 1,949 and
+  // left the next edit nowhere to go. Mike's call.
+  assert.ok(source.trim().split(/\s+/).length <= 2000, "manual exceeds 2,000 words");
   const actualHash = createHash("sha256").update(source).digest("hex");
   assert.equal(actualHash, MANUAL_SHA256);
   for (const policy of [
