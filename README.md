@@ -119,7 +119,8 @@ claude-toolkit/
       .codex-plugin/plugin.json
       hooks/
         knowledge-session-start.mjs ← loads the manual and small project map
-        save-reminder.mjs          ← pauses pull requests for the owner-approved save
+        save-reminder.mjs          ← pauses pull requests for the owner-approved save,
+                                     and sends a knowledge-only branch to the default branch
         work-item-close.mjs        ← asks whether a finished work item left a spec stale
         command-parsing.mjs        ← what a Bash command is about to do, shared by both
       tools/

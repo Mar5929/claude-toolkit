@@ -1,3 +1,9 @@
+---
+paths:
+  - "force-app/**/permissionsets/**"
+  - "force-app/**/permissionsetgroups/**"
+  - "force-app/**/profiles/**"
+---
 # Permission Sets in Git: Prove Complete, Preflight Every Deploy
 
 Permission sets can be tracked in source control and deployed from it, safely,

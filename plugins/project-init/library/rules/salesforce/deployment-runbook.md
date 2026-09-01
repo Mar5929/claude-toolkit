@@ -1,3 +1,7 @@
+---
+paths:
+  - "delivery/deployment/**"
+---
 ## Deployment Runbook
 
 The component tracker (`component-tracker.md`) captures *what* was built and
