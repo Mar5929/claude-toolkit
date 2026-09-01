@@ -1,7 +1,7 @@
 ---
 name: remember
 description: >-
-  A skill for determining what to save to project knowledge to memory or specs. Use
+  A skill for determining what to save to project knowledge, as memory or specs. Use
   when the owner says remember, save, capture, or write this down; before a pull
   request; before a handoff; when a work item finishes; or at another settled
   stopping point. Search first, propose exact meaning, and write only what the
