@@ -37,12 +37,14 @@ A second fail-open hook then repeats a short reminder ahead of every prompt,
 because the manual is long, loads once, and slides out of an agent's attention
 over a session. The reminder names the manual's path, the one-line split between
 a memory and a specification, the conditions a save must meet, what is never
-saved, where rejected material goes instead, and that saves run through the
-`remember` skill with the owner's approval. Three constraints hold it in shape.
+saved, where rejected material goes instead, that saves run through the
+`remember` skill with the owner's approval, and where the proposal format
+lives. Three constraints hold it in shape.
 It points at the manual and never copies a policy block, which
-`tests/knowledge-startup-check.mjs` enforces. It is worded as a reference rather
-than an instruction, because text read as an order on every turn makes an agent
-propose saves on turns that call for none. It stays silent unless
+`tests/knowledge-startup-check.mjs` enforces. It asks whether this turn has a
+specification to update or a memory to add, and answers "usually not" in the
+same breath. The default of no is load-bearing: a bare order on every turn makes
+an agent propose saves on turns that call for none. It stays silent unless
 `knowledge/README.md` carries the managed manual marker, so it can never claim a
 knowledge system that is not installed. It is registered on Claude Code's
 `UserPromptSubmit`; whether Codex has an equivalent event is unconfirmed, and the
@@ -94,6 +96,16 @@ something, that is a skill or a rule. Saving it as a memory means it comes back
 later as a fact and gets followed as an instruction. That is how an agent quietly
 changes how it works. When the agent notices a reusable procedure, it proposes a
 skill or a rule. It never saves the procedure as a memory instead.
+
+**A past fix is not a procedure.** One failure this project hit, and what
+resolved it, is a memory. It records something that happened here on a date: the
+symptom, the cause, and the fix. That is the "meaningful project events that
+occurred" line in the manual's save test, not a standing instruction. The test
+is whether the agent would follow it or read it. "Always deploy this way" is a
+procedure and goes in a skill. "The pipeline failed with this error, and clearing
+that cache fixed it" is a memory, and `recall` is what finds it the next time the
+same error appears. Sending these to the rules folder instead would fill it with
+hundreds of one-off rules and bury the standing instructions that belong there.
 
 **A specification beats a memory.** Once behavior is settled, the specification
 answers "how does this work." A memory may explain the history and point at it,

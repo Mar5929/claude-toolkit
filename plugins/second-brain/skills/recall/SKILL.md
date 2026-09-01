@@ -4,7 +4,10 @@ description: >-
   Find what this project already knows before searching code broadly or asking
   the owner something already answered. Use when picking up work, before
   changing behavior, when asking what was decided, or when the owner runs
-  /recall.
+  /recall. Always use at the start of troubleshooting an error, a failure, or a
+  broken process, and before running a multi-step procedure: check whether this
+  project has hit the same thing before and already saved how it was fixed, so
+  a known solution is reused instead of worked out again.
 ---
 
 # recall

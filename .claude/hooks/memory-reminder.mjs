@@ -13,9 +13,11 @@
  * outside the manual from carrying a policy marker block, so the reminder names
  * the manual and the skill and lets those hold the actual policy.
  *
- * It is a reference, not an instruction to save. Wording that reads as a command
- * makes an agent propose a save on turns that call for none, which is worse than
- * the drift it was meant to fix.
+ * It asks the save question every turn and answers it "usually not" in the same
+ * breath. Both halves are needed. Without the question the check only happens at
+ * a pull request, so a spec goes stale mid-session. Without the default of no, a
+ * command-shaped nudge makes an agent propose a save on turns that call for
+ * none, which is worse than the drift it was meant to fix.
  *
  * Silent when the project has no toolkit knowledge manual, so it can never claim
  * a memory system that is not there.
@@ -42,7 +44,7 @@ export const REMINDER = [
   "Instead: procedure goes to a skill. Standing instruction goes to .claude/rules/. Live status goes to the work tracker.",
   "",
   "Saves happen through the remember skill, never by hand, never without the owner's approval.",
-  "This is a reference, not a prompt to save. Most turns need no action.",
+  "Before you answer: is there a spec to update or a memory to add? Usually not, and then you say nothing. If there is, invoke remember; knowledge/README.md shows how to display the proposal.",
 ].join("\n");
 
 /** True only for a manual this toolkit manages. */
