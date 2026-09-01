@@ -51,8 +51,9 @@ what was merged and what was pruned. Raise a lesson that disagrees with
 ## Propose and wait
 
 Number each independent finding. State the problem, every affected path, the
-evidence, the recommended lifecycle action, and any uncertainty. Use the
-manual's approval group instead of inventing a second review format.
+evidence, the recommended lifecycle action, and any uncertainty. Use the shape
+in the `remember` skill's `references/proposal-template.md` instead of inventing
+a second review format.
 
 Do not bundle unrelated findings. Do not carry a rejected finding into a later
 review. Rebuilding generated indexes and repairing a broken link may happen

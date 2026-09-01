@@ -13,6 +13,15 @@
  * outside the manual from carrying a policy marker block, so the reminder names
  * the manual and the skill and lets those hold the actual policy.
  *
+ * It names the parts of a proposal anyway, which is the one place that pointing
+ * was not enough. The manual is printed in full at session start and then never
+ * again, and it defers the proposal's markup to the remember skill's template.
+ * So an agent deciding to propose forty turns later has the names nowhere in
+ * reach and a pointer that stops one file short of the answer. It writes its
+ * own block instead, which is the failure this list exists to prevent. Names
+ * only: what they mean stays in the manual, how they look stays in the
+ * template.
+ *
  * It asks the save question every turn and answers it "usually not" in the same
  * breath. Both halves are needed. Without the question the check only happens at
  * a pull request, so a spec goes stale mid-session. Without the default of no, a
@@ -33,6 +42,25 @@ import { fileURLToPath } from "node:url";
 export const MANUAL_PATH = "knowledge/README.md";
 export const MANUAL_MARKER = "<!-- claude-toolkit:knowledge-manual -->";
 
+/**
+ * The parts of a save proposal, in order. The manual owns what they mean and
+ * the template owns how they look. This list carries only their names, because
+ * an agent that cannot recall the names invents its own block instead.
+ *
+ * `tests/knowledge-startup-check.mjs` fails when this list stops matching the
+ * manual, so the two cannot drift apart.
+ */
+export const PROPOSAL_LABELS = [
+  "Save as",
+  "What it says",
+  "Why keep it",
+  "Where it goes",
+  "Where it came from",
+  "Labels",
+  "Guesses I made",
+  "What I checked",
+];
+
 export const REMINDER = [
   "Project knowledge is active. Manual: knowledge/README.md - reopen it before proposing any save.",
   "",
@@ -44,7 +72,10 @@ export const REMINDER = [
   "Instead: procedure goes to a skill. Standing instruction goes to .claude/rules/. Live status goes to the work tracker.",
   "",
   "Saves happen through the remember skill, never by hand, never without the owner's approval.",
-  "Before you answer: is there a spec to update or a memory to add? Usually not, and then you say nothing. If there is, invoke remember; knowledge/README.md shows how to display the proposal.",
+  "Before you answer: is there a spec to update or a memory to add? Usually not, and then you say nothing. If there is, invoke remember.",
+  "",
+  `A proposal has one fixed shape: subject line, then ${PROPOSAL_LABELS.join(", ")}.`,
+  "Rendered Markdown, blank line after each label, never in a code fence. Never invent a shape. Template: the remember skill's references/proposal-template.md.",
 ].join("\n");
 
 /** True only for a manual this toolkit manages. */

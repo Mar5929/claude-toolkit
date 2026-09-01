@@ -32,6 +32,10 @@ import {
   MANUAL_SHA256,
   checkKnowledge,
 } from "../plugins/second-brain/tools/check-knowledge.mjs";
+import {
+  PROPOSAL_LABELS,
+  REMINDER,
+} from "../plugins/second-brain/hooks/memory-reminder.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, "..");
@@ -347,6 +351,37 @@ check("no second policy owner", () => {
   }
 
   assert.ok(!active.some((path) => path.endsWith("where-persistent-information-belongs.md")));
+});
+
+check("the reminder's proposal labels match the manual and the template", () => {
+  // The reminder names the parts of a proposal so an agent deciding to save
+  // does not have to go and look them up. That is a second copy, and a second
+  // copy drifts. These assertions are what keeps it honest: rename a part in
+  // the manual and this fails until the reminder agrees.
+  const manual = read(manualSource);
+  const template = read(proposalTemplate);
+
+  for (const label of PROPOSAL_LABELS) {
+    assert.ok(manual.includes(`\`${label}\``),
+      `the manual does not name ${label}`);
+    assert.ok(template.includes(`**${label}**`),
+      `the template does not name ${label}`);
+  }
+
+  // Order matters as much as membership: the owner reads every proposal the
+  // same way, so a reordered list is a broken promise even when nothing is
+  // missing. Compare against the manual's own sentence, which is the source.
+  const positions = PROPOSAL_LABELS.map((label) => manual.indexOf(`\`${label}\``));
+  assert.deepEqual([...positions].sort((a, b) => a - b), positions,
+    "the reminder lists the parts in a different order than the manual");
+
+  // Nothing may quietly fall out of the list either.
+  assert.equal(PROPOSAL_LABELS.length, 8,
+    "the proposal has eight parts; update the manual and template together");
+  assert.ok(REMINDER.includes(PROPOSAL_LABELS.join(", ")),
+    "the reminder no longer prints the parts it exports");
+  assert.ok(REMINDER.includes("never in a code fence"),
+    "the reminder drops the rule that a proposal is not a code block");
 });
 
 check("the per-prompt reminder stays a pointer", () => {

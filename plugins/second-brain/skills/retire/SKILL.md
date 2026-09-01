@@ -18,7 +18,8 @@ Open the file, its source, related current files, and every repository reference
 to its filename. Decide which lifecycle action from the manual fits. An update
 belongs to `remember` instead.
 
-Show the normal numbered approval group from the manual. The proposed meaning
+Show the normal numbered block, in the shape the `remember` skill's
+`references/proposal-template.md` sets out. The proposed meaning
 must name what stops being current, what replaces it if anything, and the exact
 action. For deletion, name the allowed reason. Then wait.
 
