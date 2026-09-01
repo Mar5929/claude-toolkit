@@ -35,7 +35,7 @@ import {
   validateTracker,
 } from "./lib/tracker.mjs";
 
-const VERSION = "2.2.0";
+const VERSION = "2.3.0";
 
 export async function main(argv = process.argv.slice(2)) {
   const { positionals, flags } = parseArgs(argv);
@@ -155,6 +155,7 @@ export async function main(argv = process.argv.slice(2)) {
     case "update": {
       assertAllowedFlags(flags, [
         "cwd",
+        "stage",
         "status",
         "next-step",
         "branch",
@@ -167,6 +168,7 @@ export async function main(argv = process.argv.slice(2)) {
       ]);
       const id = requiredPositional(positionals, 1, "work-item ID");
       result = updateItem(loadTracker(repoRoot), id, {
+        stage: flags.stage === true ? undefined : flags.stage,
         status: flags.status === true ? undefined : flags.status,
         nextStep: flags["next-step"] === true ? "" : flags["next-step"],
         branch: flags.branch === true ? "" : flags.branch,
@@ -260,7 +262,8 @@ Usage:
   work status [--all] [--archived] [--json]
   work next [--json]
   work start WI-001 [--branch BRANCH] [--next-step STEP]
-  work update WI-001 [--status Ready] [--next-step STEP] [--blocker REASON] [--clear-blocker ID]
+  work update WI-001 [--stage 08] [--note WHAT_HAPPENED] [--status Ready] [--next-step STEP]
+    [--blocker REASON] [--clear-blocker ID]
   work link WI-001 --type depends_on --target WI-002 [--remove]
   work finish WI-001 [--commit SHA] [--pr NUMBER_OR_URL]
   work landed WI-001
@@ -281,6 +284,12 @@ alike, and archiving a folder archives everything inside it. Archived items are
 hidden from status, next, and the dashboard, and their ID numbers are never
 reused.
 Statuses: Backlog, Ready, In Progress, In Review, Done, Cancelled.
+Stages: 01-discovery, 02-refinement, 03-requirements-approved, 04-solution-design,
+05-breakdown, 06-implementation-plan, 07-tracking-setup, 08-build, 09-testing,
+10-bug-fixing, 11-user-approval, 12-pr-and-push, 13-deployment, 14-spec-update.
+--stage takes a number, a name, or both. It sets the stage, derives the status,
+and appends a dated line to the Progress log in STATUS.md. An item with no stage
+is normal. work-item-stages.md decides which stage is correct; nothing here does.
 Requirements statuses: refining, finalized.
 Types: bug, enhancement, task.
 

@@ -1,6 +1,6 @@
 ---
 name: work
-description: Manage a repository's local work items in the Git-ignored .work-items folder, including the folders the owner makes to group related items. Use for requests such as "add this to the backlog", "what should I work on next?", "start WI-014", "update the handoff", "what is blocking this?", "is this in main?", "mark this finished", "archive this item", "what have I archived?", "group these items together", "put this under the security work", or "convert the old work-items folders". Also use at the start or end of substantial repository work when a local work item should be read or updated.
+description: Manage a repository's local work items in the Git-ignored .work-items folder, including the folders the owner makes to group related items. Use for requests such as "add this to the backlog", "what should I work on next?", "start WI-014", "move this to the build stage", "update the handoff", "what is blocking this?", "is this in main?", "mark this finished", "archive this item", "what have I archived?", "group these items together", "put this under the security work", or "convert the old work-items folders". Also use at the start or end of substantial repository work when a local work item should be read or updated.
 ---
 
 # Work Tracker
@@ -58,6 +58,7 @@ an item whose requirements are not finalized.
 | What should I work on next? | `next` |
 | Start this item | `start` |
 | Change status, next step, branch, or blockers | `update` |
+| Move the work to a new stage and log what happened | `update --stage --note` |
 | Relate or unrelate tickets | `link` |
 | Is this work in the default branch? | `landed` |
 | Add this under an area of work | `add --group NAME` |
@@ -87,6 +88,33 @@ the commit is not in the default branch, the item remains `In Review`.
 
 Use `bug`, `enhancement`, or `task` as the type. Use `urgent`, `high`, `medium`,
 or `low` as priority.
+
+## Record the stage and the log together
+
+A work item carries one current stage from the fourteen in
+`work-item-stages.md`, and a progress log of short plain-language entries. Read
+that rule for which stage is correct, which stages are never skipped, and what
+belongs in the log. This skill only writes what the rule decides.
+
+One command writes all three parts, and the log is the part that gets forgotten,
+so never write the stage without it:
+
+```text
+work update WI-014 --stage 08 --note "Started the build."
+```
+
+It sets `stage` in `ITEM.yaml`, sets the status the stage maps to, and appends a
+dated line to the "Progress log" section of `STATUS.md`.
+
+- Stages map to statuses `01`-`02` Backlog, `03` Ready, `04`-`11` In Progress,
+  `12`-`13` In Review, `14` Done. `14` never writes `Done` itself, because
+  `finish` is what proves the commit landed. `Cancelled` stays hand-set.
+- `work status` shows the stage in brackets after the status.
+- **An item with no stage is normal.** Nothing here was converted, so most
+  existing items have none until someone sets one. Never treat that as an error
+  or backfill one on your own.
+- Nothing checks the stage. Moving backwards, skipping, and a stage name the
+  list does not hold are all allowed by the command and governed by the rule.
 
 ## Respect the owner's folders
 

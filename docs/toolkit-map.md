@@ -262,6 +262,23 @@ The genuine watch-items are called out at the end.
   the shared work, with no `.work-items/` tracker. That board is set up by hand
   from `project-init`'s `work-tracking-choice.md`, uses seven statuses including
   `Refining`, and involves no work-tracker code.
+- **work-item-stages versus work-item-folders versus the tracker itself.**
+  Three layers, one subject, and they do not overlap. `work-item-stages.md` is
+  the standard: fourteen named stages every project shares, which stage maps to
+  which status, which three are never skipped, and what a progress log entry
+  looks like. It is tracker-neutral and holds whether work lives in
+  `.work-items/`, on a GitHub board, or in Linear. `work-item-folders.md` is
+  about one tracker only, the Git-ignored local folders. The `work` command and
+  the `gh` commands are what write the stage down. **The code stores, the rule
+  decides:** `work update --stage` writes the stage, derives the status, and
+  appends the log line, and does nothing else. It does not check that a stage is
+  real, refuse a move backwards, ask why a stage was skipped, or look for a
+  changed specification. That was a deliberate call in issue #260, so an agent
+  reading the tracker code and finding no guard has found the design, not a gap.
+  `work-item-stage-reminder` in `hooks-library` is the third piece: it asks once
+  a session whether the stage and the log are current, and it is a reminder that
+  blocks nothing. The three ship together and a project that has not answered
+  where work is tracked gets none of them.
 - **work-item-folders is only for local tracking.** It adds what is specific to
   tracking work in Git-ignored local folders, and is meaningless in a project
   that chose a GitHub board, Linear, Jira, or the BMAD method. It used to sit
