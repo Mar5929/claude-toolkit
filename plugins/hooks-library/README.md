@@ -51,43 +51,6 @@ blocks an edit. It cannot tell work-item work from a one-line fix, so it asks on
 the first edit either way. State lives in a per-session file under the OS temp
 folder, which is how it fires only once.
 
-### explain-simply-reminder
-
-A `UserPromptSubmit` hook, with no matcher, that fires on every message the
-owner sends. It asks for the answer to be written as if the reader is five years
-old: plain everyday words, short, in bullet points, and simplifying the wording
-without ever simplifying the facts.
-
-`hooks/explain-simply-reminder.mjs` is the whole thing. The reminder is a fixed
-six-line string inside the script. It reads no other file, resolves no settings,
-and has no config file, so it behaves the same in a project that installed
-nothing else from the toolkit. It is deliberately not paired with the
-`explain-simply` skill in `session-skills`: that skill re-explains one answer on
-request, this covers every answer, and neither needs the other installed.
-
-It fires every turn, with no per-session throttle. That is the point. The
-failure it exists for is an instruction going stale deep in a long session, and
-a throttle would put that failure straight back.
-
-It is a reminder, not a check. It reads nothing the agent wrote and blocks
-nothing. It cannot catch a complicated answer, only make one less likely. It
-fails open: any unexpected error exits 0 with nothing written.
-
-**It is the one named exception to what a hook is for.** The top-level
-`README.md` says a hook does one of three jobs, and re-stating an instruction is
-not among them. This does exactly that, on purpose, with the owner's decision
-behind it.
-
-Know the history before changing it or asking for more like it. The toolkit
-shipped a hook of this shape once. `style-reminder` resolved the project's
-active output style and re-sent the whole style file, up to 4000 characters, on
-every message; the owner removed it in August 2026 as per-message overhead, and
-`writing-guard` went with it. The difference that made this one worth shipping
-anyway is size: a fixed six lines, roughly 90 tokens, against thousands. That is
-the reasoning the owner accepted, and it is the reasoning to re-test before this
-grows. A reminder here that starts reading files or restating a whole style has
-turned back into the hook that was already deleted once.
-
 ### no-ai-attribution-guard
 
 A `PreToolUse` hook on the `Bash` matcher. It refuses any command that would put
@@ -173,10 +136,6 @@ work items are tracked and carries the `work-item-stages.md` rule. Install it
 with them, never before them: a reminder to set a stage is noise in a project
 with no tracker to set one in.
 
-`explain-simply-reminder` needs nothing else installed, and shipping it turns it
-on nowhere. It changes the voice of every answer in whichever project takes it,
-so it is offered and never applied by default.
-
 The two Salesforce guards install from their own guides in this folder,
 `salesforce-prod-guard-hook.md` and `salesforce-permset-guard-hook.md`, which
 `project-init` Gate 2 follows step by step.
@@ -203,6 +162,26 @@ Optional, at `no-ai-attribution-guard.json` next to the installed script in
 Omit the file to get it on. Setting `enabled` to false switches the guard off,
 and it is an escape hatch for a wrong block that cannot be reworded, not a
 normal setting. The written rule still applies when the guard is off.
+
+## Removed: explain-simply-reminder
+
+A `UserPromptSubmit` hook shipped in issue #258. It fired on every message the
+owner sent, carrying a fixed six-line reminder, roughly 90 tokens, asking for an
+answer a five-year-old could follow. Issue #271 removed it and replaced it with
+the `plain-english` output style in
+[`project-init`](../project-init/library/output-styles/README.md).
+
+Know the trade before proposing anything like it again, because #271 decided it
+the opposite way from #258. A hook fires every turn and never goes stale. An
+output style is delivered once at session start, so deep in a long session it is
+the oldest instruction in the window. #258 shipped the hook for exactly that
+reason. #271 chose the style anyway: one short file, no per-message cost, and
+one place to change the voice.
+
+That makes three per-message voice reminders this library has now removed,
+counting `style-reminder` and `writing-guard` in August 2026. Voice is the
+output style's job. Do not ship a fourth without the owner asking for it in his
+own words.
 
 ## Test
 

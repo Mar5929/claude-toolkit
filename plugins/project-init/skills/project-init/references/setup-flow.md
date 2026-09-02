@@ -113,9 +113,7 @@ so they always know where they are.
   (`/hooks-library`). `spec-check-reminder` asks once per session, at the first
   file edit, whether the spec-check review has run. It points at the
   `spec-check` skill from `session-skills`; skip it where that plugin is not
-  installed. `explain-simply-reminder` asks on every message for an answer a
-  five-year-old could follow; offer it, never default it on, and say that it
-  applies to documents and commit messages too. `work-item-stage-reminder` asks
+  installed. `work-item-stage-reminder` asks
   once per session which work item this is, what stage it is at, and whether the
   progress log is current; offer it only where Gate 1 named a tracker, since
   without one there is no stage to set.
@@ -248,8 +246,7 @@ so they always know where they are.
   naming the command and the file that holds the detail.
 - Select Claude Code's built-in `Concise` output style (default ON): set
   `"outputStyle": "Concise"` in the committed `.claude/settings.json`. Copy no
-  style file. `Concise` is built into Claude Code, and the toolkit stopped
-  shipping a style of its own in issue #245. There are no voice rules in
+  style file. `Concise` is built into Claude Code. There are no voice rules in
   `.claude/rules/` either. Offer the same setting in
   `~/.claude/settings.json` if the owner wants this voice in every repository on
   the machine. Say that it starts on the owner's next session, that a helper
@@ -257,6 +254,15 @@ so they always know where they are.
   `follow-the-output-style.md` in the rules folder is for, and that with a
   built-in style there is no file for that rule to point at, so helper agents
   fall back to writing plainly.
+- Offer `plain-english` as the alternative (default OFF), from
+  `library/output-styles/`. It answers as if the reader is five years old: plain
+  everyday words, no jargon, no figures of speech, bullet points where they
+  help. Ask once and move on. If the owner takes it, copy the file to
+  `.claude/output-styles/plain-english.md` and set
+  `"outputStyle": "plain-english"` in place of `Concise`, never alongside it.
+  The file on disk is what `follow-the-output-style.md` sends a helper agent to
+  read, so helper agents get the voice too, which is the one thing the built-in
+  style cannot do.
 - When project knowledge is installed, keep the route small. Both hosts register
   the loader for `SOUL.md`, `knowledge/README.md`, `knowledge/project.md`,
   `knowledge/current.md`, and the two index entry lists. `CLAUDE.md` says to
