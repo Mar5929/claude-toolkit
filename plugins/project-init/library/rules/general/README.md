@@ -62,28 +62,30 @@ every time needs a hook behind it. `knowledge-direct-commit.md` has one, in the
 
 To see what actually loaded in a session, run `/context`.
 
-## Voice is not a rule, and the toolkit no longer ships one
+## Voice is not a rule, and it does not live here
 
 How Claude writes and replies used to live here in four files:
 `writing-and-language.md`, `how-to-reply.md`,
 `treat-owner-as-non-technical.md`, and `define-your-terms.md`. All four were
-removed in favor of a hand-written `plain-language` output style, and in issue
-#245 that style was removed too. Every project now selects Claude Code's
-built-in `Concise` style, written into the project's committed settings by
-`project-init` Gate 5. The toolkit authors no voice file at all.
+removed in favor of an output style.
+
+Voice now lives in one place: [`../../output-styles/`](../../output-styles/README.md).
+Every project selects Claude Code's built-in `Concise` style, written into the
+project's committed settings by `project-init` Gate 5. `plain-english.md` is the
+one alternative the toolkit ships, offered per project and never on by default.
 
 Do not add a voice rule to this folder. This folder is for how Claude *works*,
-not how it *talks*. A project that wants a different voice sets `outputStyle`
-in its own settings.
+not how it *talks*.
 
 The one thing that does live here is `follow-the-output-style.md`, and it is a
 sign, not a rule about writing. An output style reaches the main conversation
 only, so a helper agent writing a commit message or a document never sees it.
-That rule sends the helper agent to the active style file. With a built-in
-style there is no file, and the rule's own fallback applies: write plainly and
-move on. That fallback is now the only voice instruction a helper agent gets,
-which is why any helper-agent definition that writes owner-facing prose has to
-carry the writing rules in its own text.
+That rule sends the helper agent to the active style file. On `Concise` there is
+no file, and the rule's own fallback applies: write plainly and move on. That
+fallback is what a helper agent gets in most projects, which is why any
+helper-agent definition that writes owner-facing prose has to carry the writing
+rules in its own text. A project on `plain-english` is the exception, because
+there the rule has a real file to point at.
 
 ## Rules removed on 2026-08-31, and why
 

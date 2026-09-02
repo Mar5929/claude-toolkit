@@ -46,9 +46,9 @@ written down somewhere. It gets fitted into the system:
 | --- | --- |
 | A rule every project should follow (behavior, writing style, workflow) | Its own file in `library/rules/general/`, copied into each new project's `.claude/rules/` |
 | A rule that must hold in every repository on the machine, even ones I never set up | Its own file in `machine/rules/`, installed for Claude Code and, where needed, as a managed Codex block by `machine-sync`. Only when a project rule genuinely cannot cover it |
-| A change to the voice Claude answers in, every turn | Nothing here, with one exception. The toolkit ships no output style: every project selects Claude Code's built-in `Concise` style, and a project wanting a different voice sets `outputStyle` for itself. The exception is `explain-simply-reminder`, a hook that re-states one short fixed instruction each turn. A whole voice is still the setting's job |
+| A change to the voice Claude answers in | An output style in [`library/output-styles/`](plugins/project-init/library/output-styles/README.md), never a rule and never a hook. Every project selects Claude Code's built-in `Concise` style by default; `plain-english` is the one alternative shipped, offered per project and on by default nowhere |
 | A setup step for new projects | A gate (or part of one) in the `project-init` skill |
-| A guard hook or automation | The [`hooks-library`](plugins/hooks-library/README.md) plugin. A hook does one of three jobs: check an output against a rule a machine can test with no interpretation, trigger a process at a moment agents forget, or orient a session at its start. If it needs none of those, it stays a rule. One hook is a named exception, and the plugin's README carries the reasoning and the history behind it |
+| A guard hook or automation | The [`hooks-library`](plugins/hooks-library/README.md) plugin. A hook does one of three jobs: check an output against a rule a machine can test with no interpretation, trigger a process at a moment agents forget, or orient a session at its start. If it needs none of those, it stays a rule. Voice is never one of them; the plugin's README carries the history of three attempts that were removed |
 | A whole reusable system | Its own plugin/skill that `project-init` offers |
 
 `CLAUDE.md` in this repo gives agents the full instructions for handling these
@@ -155,8 +155,6 @@ claude-toolkit/
       .codex-plugin/plugin.json
       hooks/
         spec-check-reminder.mjs   ← asks once per session whether spec-check ran
-        explain-simply-reminder.mjs ← asks every message for a five-year-old-level
-                                     answer (opt in per project)
         work-item-stage-reminder.mjs ← asks once per session for the work item,
                                      its stage, and its progress log
         no-ai-attribution-guard.mjs ← refuses a commit or PR that credits an AI
@@ -251,7 +249,7 @@ inside a project folder before it is useful, which is what the last column says:
 | **[second-brain](plugins/second-brain/README.md)** | A portable `knowledge/` system for Claude, Codex, Git, and optional Obsidian: one managed operating manual, a small shared startup map, flat memory, approved specifications, project-scoped owner-approved saves, task-specific skills, one checker, and safe migration from older layouts. | Sets up a project |
 | **[sf-architect-solutioning](plugins/sf-architect-solutioning/README.md)** | A Salesforce solution architect: pushes back on vague requirements, verifies platform facts against official docs by live fetch, designs declarative-first to Well-Architected standards, and presents a solution plan for approval before any build. Salesforce projects only. | Install and go |
 | **[git-workflows](plugins/git-workflows/README.md)** | Three parallel-session-safe git lifecycle skills: `pull-latest` gets current without rewriting history, `reset-to-remote` mirrors the remote behind confirmation, and `merge-and-clean-up` lands an approved PR before removing only its completed workspace. | Install and go |
-| **[hooks-library](plugins/hooks-library/README.md)** | Reusable hooks that make a rule land mechanically: `spec-check-reminder` asks once per session whether the spec-check review ran, `explain-simply-reminder` asks every message for an answer a five-year-old could follow in whichever project opts into it, `work-item-stage-reminder` asks once per session for the work item, its stage, and whether its progress log is current, `no-ai-attribution-guard` refuses AI credit in Git text, and two Salesforce guards protect production and permission-set deploys. System-specific knowledge hooks ship with second-brain. | Wires into settings |
+| **[hooks-library](plugins/hooks-library/README.md)** | Reusable hooks that make a rule land mechanically: `spec-check-reminder` asks once per session whether the spec-check review ran, `work-item-stage-reminder` asks once per session for the work item, its stage, and whether its progress log is current, `no-ai-attribution-guard` refuses AI credit in Git text, and two Salesforce guards protect production and permission-set deploys. System-specific knowledge hooks ship with second-brain. | Wires into settings |
 | **[work-tracker](plugins/work-tracker/README.md)** | Gives Claude and Codex one local backlog under Git-ignored `.work-items/`: YAML records, owner-approved requirements, exact handoffs, blockers, typed relationships, deterministic next-item selection, a stage from the shared list of fourteen with a dated progress log, Git landing proof, generated dashboards, an `archive/` folder for items the owner has set aside, and preview-first conversion of older staged trackers. Shared GitHub tracking remains a separate tracker choice. | Sets up a project |
 | **[session-skills](plugins/session-skills/README.md)** | The eight things you reach for inside one conversation, in one install. `braindump` plays a pasted brain dump back in very simple words and waits for your yes before any work starts. `explain-simply` says the last answer again as short bullets keeping every number, date, path, and name. `grill-me` interviews you one question at a time and writes every answer down before continuing. `handoff` saves what a long session learned, then writes a prompt a fresh session can start from, checked by a second agent first. `session-summary` tables what you asked for and gives each request an honest status. `track-tasks` keeps every still-open topic on the built-in task list. `spec-check` flags anything in a specification that could skew a build before the build starts. `unslop` takes a draft that reads as machine-written, names every tell in it with the fix, and rewrites it with a voice put back. | Install and go |
 
@@ -293,34 +291,41 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
   place. `project-init` Gate 2 offers those hooks and follows
   the two Salesforce guides. Second-brain keeps its startup and pull-request
   hooks with the knowledge system whose paths and messages they depend on.
-  The two per-message style hooks, `style-reminder` and `writing-guard`, were
-  removed in August 2026 as per-message overhead. `explain-simply-reminder`
-  joined in September 2026 as the one deliberate per-message reminder: a fixed
-  six lines asking for a five-year-old-level answer, with no file read and no
-  config, opted into per project.
+  Three per-message style hooks have now been removed: `style-reminder` and
+  `writing-guard` in August 2026 as per-message overhead, and
+  `explain-simply-reminder` in #271, replaced by the `plain-english` output
+  style. Voice is the style's job, not a hook's.
 - [x] **General rules library**: the standard rules are now individual files in
   `project-init`'s `library/rules/general/` folder (with a `README.md` index),
   copied
   into each project's `.claude/rules/` verbatim instead of retyped into CLAUDE.md.
-- [x] **Voice: Claude Code's built-in `Concise` style, and nothing of my own**.
+- [x] **Voice: `Concise` by default, `plain-english` when I want it**.
   The toolkit used to ship a hand-written `plain-language` style in a
   `library/output-styles/` folder, which replaced four earlier voice rules
   (`writing-and-language`, `how-to-reply`, `treat-owner-as-non-technical`,
   `define-your-terms`). I removed the whole folder in #245 and switched to the
   built-in `Concise` style everywhere, because I read that voice in every other
   tool anyway and keeping a second one meant maintaining a file nobody selected.
-  `project-init` now writes `"outputStyle": "Concise"` into a project's committed
+  `project-init` writes `"outputStyle": "Concise"` into a project's committed
   settings and copies no style file. `library/rules/general/` still covers how
   Claude *works*, not how it *talks*.
 
-  **What I gave up, knowingly.** A built-in style has no file on disk, and a
-  helper agent never receives an output style either way. So the helper agents
-  that write my commit messages, pull request text, and handoff prompts now get
-  no voice instruction at all. `follow-the-output-style` stays and already
-  handles a built-in style having no file: it tells a helper agent to write
-  plainly. An agent that writes owner-facing prose still carries the writing
-  rules in its own definition, and that is now the only place those rules exist
-  for helper agents.
+  [The folder came back in #271](plugins/project-init/library/output-styles/README.md),
+  with one file and a different job. `plain-english.md` answers as if the reader
+  is five years old: plain everyday words, no jargon, no figures of speech,
+  bullet points where they help. It is nine lines, it is off by default, and a
+  project only gets it if I ask. #245 removed a 183-line default nobody
+  selected; this is a short optional one. `Concise` is still what every project
+  gets.
+
+  **What I gave up, knowingly.** A helper agent never receives an output style,
+  and a built-in style has no file on disk either. So on `Concise` the helper
+  agents that write my commit messages, pull request text, and handoff prompts
+  get no voice instruction at all. `follow-the-output-style` stays and already
+  handles that: it tells a helper agent to write plainly. An agent that writes
+  owner-facing prose still carries the writing rules in its own definition. A
+  project on `plain-english` is the exception, because there the rule has a real
+  file to send it to.
 - [ ] **Publish tooling**: a small script/checklist to export skills to the
   Claude desktop and web apps so those surfaces stay in sync with this repo.
 - [ ] **"Port-back" convention**: a documented flow (and a reminder baked into

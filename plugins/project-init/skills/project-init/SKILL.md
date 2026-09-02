@@ -198,13 +198,6 @@ the tool.
   caught as it starts. It points at the `spec-check` skill from the
   `session-skills` plugin, so skip it where that plugin is not installed.
   Default ON where the project uses `session-skills`.
-- `explain-simply-reminder` asks, on every message the owner sends, for an
-  answer a five-year-old could follow: plain words, short, bullet points, and
-  never dropping a number or a file path to get there. It needs no other plugin.
-  Always OFF unless the owner asks for it, and say before installing it that it
-  applies to every answer in the project, documents and commit messages
-  included.
-
 - `work-item-stage-reminder` asks once, at the session's first file edit, which
   work item this is, what stage it is at, and whether the progress log is
   current. It goes with the `work-item-stages.md` rule and needs a tracker to
@@ -386,13 +379,23 @@ CLAUDE.md stays thin and points at that folder. Read
 - **Select Claude Code's built-in `Concise` output style** (default ON). Set
   `"outputStyle": "Concise"` in the project's committed `.claude/settings.json`.
   Copy no style file: `Concise` is built into Claude Code, so there is nothing
-  to install and nothing to keep in step. The toolkit stopped shipping its own
-  style in issue #245. There are no voice rules in `.claude/rules/` either; do
-  not write one. Tell the owner three things: it takes effect on their next
-  session rather than the current one; a helper agent never receives an output
-  style, which is why `follow-the-output-style.md` is in the rules folder; and
-  with a built-in style there is no file for that rule to point a helper agent
-  at, so helper agents fall back to writing plainly.
+  to install and nothing to keep in step. There are no voice rules in
+  `.claude/rules/` either; do not write one. Tell the owner three things: it
+  takes effect on their next session rather than the current one; a helper agent
+  never receives an output style, which is why `follow-the-output-style.md` is in
+  the rules folder; and with a built-in style there is no file for that rule to
+  point a helper agent at, so helper agents fall back to writing plainly.
+- **Offer `plain-english` instead, for an owner who wants a simpler voice**
+  (default OFF). Ask once; do not push it. It answers as if the reader is five
+  years old: plain everyday words, no jargon, no figures of speech, bullet
+  points where they help. If the owner takes it, copy
+  `library/output-styles/plain-english.md` to
+  `.claude/output-styles/plain-english.md` and set
+  `"outputStyle": "plain-english"` instead of `Concise`. A project has one style
+  or none, so this replaces the selection rather than adding to it. Because
+  there is now a file on disk, `follow-the-output-style.md` has something real
+  to send a helper agent to, which the built-in style does not. The folder's
+  `README.md` has the rest.
 - **Offer the machine-wide setting too**, if the owner wants this voice
   everywhere and not just here. Set `"outputStyle": "Concise"` in
   `~/.claude/settings.json`. Then every repository gets it, including ones never

@@ -59,8 +59,9 @@ automatically as it grows.
     says, so step 2 can tell a project copy that is merely worded differently
     from one that is genuinely behind; Salesforce projects also get the
     `library/rules/salesforce/` files
-  - the output style setting, which is not a file. The toolkit ships no style;
-    every project should select Claude Code's built-in `Concise`. A project that
+  - the output style setting. Every project should select Claude Code's
+    built-in `Concise`, which is not a file, unless its owner chose
+    `plain-english` from `library/output-styles/`, which is. A project that
     carries every rule can still have the wrong style selected, so check it
     separately
   - the per-server MCP tool rules in `../../library/guides/mcp-best-practices.md`;
@@ -90,11 +91,9 @@ automatically as it grows.
     plugin is installed. For `work-item-stage-reminder` (PostToolUse, the same
     `Edit|Write|NotebookEdit` matcher): audit it only where the tracker question
     is answered and `work-item-stages.md` is present, since without both there
-    is no stage to set. Do not audit for `explain-simply-reminder`
-    (UserPromptSubmit): it changes the voice of every answer, so a project
-    without it is not a gap. Mention it only if the owner asks for that voice.
-    If the retired `memory-pr-hook` plus `wrap-up-ritual.md` path remains, report
-    it for removal after the current project-knowledge package is installed
+    is no stage to set. If the retired `memory-pr-hook` plus `wrap-up-ritual.md`
+    path remains, report it for removal after the current project-knowledge
+    package is installed
   - a project still carrying the retired voice rules (`writing-and-language.md`,
     `how-to-reply.md`, `treat-owner-as-non-technical.md`,
     `define-your-terms.md`). All four were removed from the toolkit in favor of
@@ -105,13 +104,17 @@ automatically as it grows.
     files). Both were removed from the toolkit in August 2026 as per-message
     overhead. Report them for removal:
     delete the settings entry, the script, and the config file, leaving every
-    other hook entry alone. **`explain-simply-reminder` is not one of these.**
-    It also sits under `UserPromptSubmit` and it is current, shipped in
-    September 2026 and named in the `hooks-library` README. Match on the script
-    name, never on the event, and leave it exactly where it is
+    other hook entry alone
+  - a project still carrying `explain-simply-reminder` under `UserPromptSubmit`.
+    The toolkit shipped it in September 2026 and removed it in issue #271, where
+    the `plain-english` output style replaced it. Report it for removal, and
+    offer the style in its place rather than a bare deletion. Match on the
+    script name, never on the event: `memory-reminder.mjs` sits under the same
+    event, belongs to project knowledge, and stays
   - a project still carrying a `.claude/output-styles/plain-language.md` file,
     at any vintage. The toolkit removed that style in issue #245. Offer to
-    delete the file and select `Concise`
+    delete the file and select `Concise`, or `plain-english` if the owner wants
+    the simpler voice
   - the short `CLAUDE.md` the toolkit now writes inside each major folder, per
     `../project-init/references/folder-claudemd.md`. Read that file so step 2
     can tell a missing one from a folder the toolkit deliberately skips (any
@@ -137,12 +140,13 @@ checks:
   file, or the rule's intent folded into CLAUDE.md)? Judge by intent, not exact
   wording or file name.
 - **Output style**: does a settings file select `Concise` (`outputStyle` in
-  `.claude/settings.json` or `.claude/settings.local.json`)? The toolkit ships
-  no style file any more, so there is nothing to copy and only the setting to
-  check. A selected style whose file is missing silently falls back to the
-  default, which is the state a project is left in if it still names the deleted
-  `plain-language`. Judge any leftover file by intent,
-  not exact wording, the same as a rule.
+  `.claude/settings.json` or `.claude/settings.local.json`)? `Concise` is the
+  default and is built in, so it needs no file. `plain-english` is the one
+  alternative the toolkit ships, it is a file, and a project only has it if its
+  owner asked for it, so its absence is never a gap. A selected style whose file
+  is missing silently falls back to the default, which is the state a project is
+  left in if it still names the deleted `plain-language`. Judge any leftover
+  file by intent, not exact wording, the same as a rule.
 - **CLAUDE.md health** (presence is not enough, see below).
 - **Can a Codex session actually reach the rules?** (see below). A project can
   hold every rule and still deliver almost none of them to Codex.
@@ -508,10 +512,12 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   those adaptations are the reason the wording differs in the first place.
 - For an approved output style gap, set `"outputStyle": "Concise"` in the
   committed `.claude/settings.json`, and offer to delete a leftover
-  `.claude/output-styles/plain-language.md`. If the owner deliberately selected
-  a different style, show them the clash and let them choose rather than
-  overwriting it. Say plainly that the new voice starts on their next session,
-  so they do not think it failed.
+  `.claude/output-styles/plain-language.md`. Where the owner wants the simpler
+  voice instead, copy `library/output-styles/plain-english.md` into
+  `.claude/output-styles/` and select that in place of `Concise`, never
+  alongside it. If the owner deliberately selected some other style, show them
+  the clash and let them choose rather than overwriting it. Say plainly that the
+  new voice starts on their next session, so they do not think it failed.
 - **For the retired voice rules, propose the swap, never a bare deletion.** A
   project on the old setup has working guidance; removing it before the style
   is in leaves the project with neither. Select and verify `Concise` first,
