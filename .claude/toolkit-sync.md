@@ -118,7 +118,7 @@ three weeks later in another project.
 | 2. Hooks | Done. `save-reminder`, `work-item-close`, `memory-reminder`, `knowledge-session-start`, `spec-check-reminder`, and `work-item-stage-reminder` are installed under `.claude/hooks/` and registered in `.claude/settings.json`. Codex registers the same startup loader in `.codex/hooks.json`. The two style hooks were removed with the toolkit, as explained below. |
 | 3. Project knowledge | **Adopted from the packaged plugin.** `SOUL.md`, the managed operating manual, `knowledge/project.md`, `knowledge/current.md`, and both generated index entry lists load at session start. Approved specifications, flat persistent memory, and unchecked brainstorms live under the same knowledge root. The packaged skills keep only task-specific steps. The retired policy rule and machinery stay removed. |
 | 4. Knowledge layer | Included with Gate 3. The graphify code graph was offered and declined, see below. |
-| 5. Root instructions, rules, output style | Done. `CLAUDE.md` and `AGENTS.md` carry the same short project knowledge route. `.claude/rules/` holds the applicable general rules, with no large memory rule or wrap-up ritual. Claude Code's built-in `Concise` style is selected in `.claude/settings.json`; the hand-written `plain-language` style this repo used to ship was removed from the toolkit in issue #245. |
+| 5. Root instructions, rules, output style | Done. `CLAUDE.md` and `AGENTS.md` carry the same short project knowledge route. `.claude/rules/` holds the applicable general rules, with no large memory rule or wrap-up ritual. The `Plain English` style is selected in `.claude/settings.json` and installed at `.claude/output-styles/plain-english.md`, copied from `plugins/project-init/library/output-styles/`. This repo ran Claude Code's built-in `Concise` style before that, and the hand-written `plain-language` style before that, removed from the toolkit in issue #245. |
 | 6. Optional toolkit skills | Done. All five now ship in one plugin, `session-skills`: `explain-simply`, `grill-me`, `handoff`, `session-summary`, and `track-tasks`. The four that predate the merge were already switched on in the machine settings at `~/.claude/settings.json`. |
 
 ## Rules installed
@@ -219,8 +219,13 @@ words long. So expect the violations to return. This time that is the accepted
 trade, not a surprise.
 
 Issue #245 then removed the `plain-language` style itself and switched every
-toolkit project to Claude Code's built-in `Concise` style. Nothing hand-written
-now enforces voice at any level, and helper agents receive no style at all.
+toolkit project to Claude Code's built-in `Concise` style. Issue #271 brought
+the output-styles folder back with one short optional file, `plain-english.md`,
+and this repo turned it on for itself on 2026-09-03 at the owner's request. It
+is nine lines, well under the 50-line ceiling, and it is delivered once at
+session start like any other style. Nothing per-message enforces voice at any
+level, and helper agents still receive no style at all: they follow
+`follow-the-output-style.md`, which now sends them to the file above.
 
 ## The built-in memory, turned off here
 

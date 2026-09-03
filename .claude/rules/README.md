@@ -41,16 +41,19 @@ was set up, skipped, or declined.
 
 ## Voice is not a rule
 
-How Claude writes here is Claude Code's built-in `Concise` style, selected as
-`"outputStyle": "Concise"` in `.claude/settings.json` and delivered in the
-system prompt. It is a built-in, so there is no file in this repository to edit.
-Do not add a writing rule to this folder. A different voice means changing that
-one settings value, or writing a project-specific style file, and neither is a
+How Claude writes here is the `Plain English` style, selected as
+`"outputStyle": "plain-english"` in `.claude/settings.json` and delivered in the
+system prompt. The file is `.claude/output-styles/plain-english.md`, a copy of
+what the toolkit ships in `plugins/project-init/library/output-styles/`, so a
+change goes in the shipped original and `tests/installed-copy-check.mjs` keeps
+the two matching. Do not add a writing rule to this folder. A different voice
+means changing that one settings value or that one style file, and neither is a
 rule.
 
-This repo shipped a hand-written `plain-language` style until issue #245, which
-removed it from the toolkit and switched every project to the built-in. The
-history is in `.claude/toolkit-sync.md`.
+Every other toolkit project still defaults to Claude Code's built-in `Concise`
+style. This repo ran `Concise` too until it switched to `Plain English`, and it
+shipped a hand-written `plain-language` style before that, until issue #245
+removed it. The history is in `.claude/toolkit-sync.md`.
 
 This repo used to reinforce the style with two hooks. `writing-guard` refused a
 finished reply containing an em dash or a section sign; the owner turned it off

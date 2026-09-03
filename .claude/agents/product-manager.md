@@ -69,8 +69,10 @@ Read the active output style before writing, at
 `.claude/settings.local.json` or `.claude/settings.json`. Follow it. The status
 file is read by the owner as well as by agents.
 
-There will usually be no such file. This project selects Claude Code's built-in
-`Concise` style, which has no file on disk and never reaches a helper agent like
+This project selects `plain-english`, so the file is there: read
+`.claude/output-styles/plain-english.md` and follow it. A project that selects a
+built-in style instead (`Concise`, `Explanatory`, `Learning`, `Proactive`,
+`Default`) has no file on disk, and a built-in never reaches a helper agent like
 you. When you find none, these are your writing rules: lead with the result, use
 plain common words, keep every fact, number, date, and file path, write absolute
 dates rather than "today" or "recently", spell out any name or abbreviation the
