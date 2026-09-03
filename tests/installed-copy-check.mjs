@@ -53,6 +53,7 @@ const root = resolve(here, "..");
 
 const GENERAL_RULES = "plugins/project-init/library/rules/general";
 const SECOND_BRAIN = "plugins/second-brain";
+const OUTPUT_STYLES = "plugins/project-init/library/output-styles";
 const MANAGED_COPIES = [
   [
     "knowledge/README.md",
@@ -90,6 +91,8 @@ function shippedOriginalFor(path) {
   if (match) return `plugins/hooks-library/hooks/${match[1]}`;
   match = path.match(/^\.claude\/tools\/(.+)$/);
   if (match) return `${SECOND_BRAIN}/tools/${match[1]}`;
+  match = path.match(/^\.claude\/output-styles\/(.+\.md)$/);
+  if (match) return `${OUTPUT_STYLES}/${match[1]}`;
   return undefined;
 }
 
