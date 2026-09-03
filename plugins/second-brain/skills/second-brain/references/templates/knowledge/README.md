@@ -179,26 +179,36 @@ a specification without the owner's clear approval. Hooks only remind. Helper
 agents cannot approve. The conversion of already-approved older files is the
 only documented exception.
 
-Every proposal uses one fixed shape, the same in every project: a numbered block
-per file, opening with a plain subject line naming what is being saved, then
-`Save as`, `What it says`, `Why keep it`, `Where it goes`, `Where it came from`,
-`Labels`, `Guesses I made`, and `What I checked`, in that order.
+Every proposal uses one fixed shape, the same in every project. Each numbered
+proposal is three blocks:
 
-Send it as rendered Markdown, with a blank line between every part. Never put a
-proposal inside a code fence. Write every line as if the owner is five years
-old: short words, no jargon. `Save as` names Memory or Specification in that
-word, so the owner never has to read a folder path to know which he is
-approving. `What I checked` names what was opened to confirm the information is
-not already written down, and is shown with the block so he sees the reasoning
-before he answers.
+1. a bold headline, one plain sentence saying what gets saved, then an arrow and
+   one of `New memory file`, `Memory, edit to an existing file`, `New spec file`,
+   or `Spec, edit to an existing file`;
+2. a block quote holding the meaning that would land in the file, three
+   sentences at most; and
+3. five one-line bullets, in this order: `Why`, `Where`, `From`, `Unsure`,
+   `Checked`.
+
+The headline and the quoted text carry the decision. The bullets are supporting
+detail and stay short.
+
+Send it as rendered Markdown, with a blank line between the three blocks. Never
+put a proposal inside a code fence. Write every line as if the owner is five
+years old: short words, no jargon. The arrow says memory or spec in those words,
+so the owner never has to read a folder path to know which he is approving.
+`Where` carries the path, whether the file is new or an edit, and the tags.
+`Checked` names what was opened to confirm the information is not already
+written down, and is shown with the block so he sees the reasoning before he
+answers.
 
 The exact template, with its two worked examples, is in the `remember` skill at
 `references/proposal-template.md`. Read it before proposing.
 
-The owner approves `What it says`, `Why keep it`, and `Where it came from`.
-`Guesses I made` is approved separately. Silence, an unclear answer, or asking
-to see full text is not approval. Write only the approved meaning and source. If
-the owner edits the words, use those words exactly.
+The owner approves the quoted text, `Why`, and `From`. `Unsure` is approved
+separately. Silence, an unclear answer, or asking to see full text is not
+approval. Write only the approved meaning and source. If the owner edits the
+words, use those words exactly.
 
 `knowledge/current.md`, work items, generated index rebuilds, and broken-link
 repairs do not need this meaning approval. Their own workflows still apply.
