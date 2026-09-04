@@ -71,6 +71,12 @@ const OWN_FILES = new Set([
   ".claude/settings.json",
   ".claude/toolkit-sync.md",
   ".claude/agents/product-manager.md",
+  // This repo is the only one that builds Claude Code hooks, skills, plugins,
+  // and agents, and the only one carrying the captured Claude Code
+  // documentation the rule sends a session to. Shipping either to every
+  // project would be a rule nobody there can follow.
+  ".claude/rules/claude-code-docs-first.md",
+  ".claude/tools/capture-claude-code-docs.mjs",
 ]);
 
 function shippedOriginalFor(path) {
