@@ -37,7 +37,7 @@ export const REMINDER = [
   "Project knowledge is active. Manual: knowledge/README.md - reopen it before proposing any save.",
   "",
   "Memory (knowledge/memory/) = a lasting fact, decision, event, context, or constraint. Why things are the way they are.",
-  "PRD (knowledge/prds/) = settled behavior of the system. How it is meant to work. A current PRD beats a memory. This folder used to be called knowledge/specs/.",
+  "PRD (knowledge/prds/) = one living document per feature area. It opens as status: proposed, what we want built, and is edited to status: current once it describes what was actually built. Only a current PRD is settled truth, and only a current PRD beats a memory. This folder used to be called knowledge/specs/.",
   "",
   "Memory must be about this project, and must come from the owner or from the owner and agent working it out together. Not from the agent alone.",
   "Never save: commands, tool calls, agent or shell behavior, troubleshooting, errors, scratch reasoning, dropped ideas, edit logs, sub-agent activity, copies of code or specs, procedures, open tasks, live status, secrets.",

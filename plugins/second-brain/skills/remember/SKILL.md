@@ -11,7 +11,12 @@ description: >-
 
 # remember
 
-Save a memory or a specification in this project, with the owner's approval.
+Save a memory or a PRD in this project, with the owner's approval.
+
+A PRD is one living document per feature area. Save a new one as `proposed`
+when it is what the owner wants built, and edit the same file to `current`
+once the build is done and it describes what is actually there. Only a
+current PRD is settled truth.
 
 ## Read these first, every run
 

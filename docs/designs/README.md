@@ -18,8 +18,8 @@ One file per work item, named `<issue number>-<short-slug>.md`. For example,
 
 - Created at stage `04-solution-design`.
 - Merged in the same pull request as the code it describes.
-- **Deleted at stage `14-spec-update`**, once the specification has been brought
-  up to date.
+- **Deleted at stage `14-spec-update`**, once the PRD has been brought up to
+  date.
 
 Deleting it loses nothing. Git history keeps the file forever.
 
@@ -35,7 +35,8 @@ finishes the work item has to do it.
 
 ## What this folder is not
 
-- **Not requirements.** Those live in the work tracker.
-- **Not the requirements for a whole feature area.** Those live in
-  `docs/PRDs/`.
-- **Not settled behavior.** That is `knowledge/prds/`.
+- **Not requirements.** One work item's requirements live in the work tracker.
+  A whole feature area's live in `knowledge/prds/`.
+- **Not settled behavior.** That is `knowledge/prds/` too. Requirements and
+  settled behavior are the same document at two points in time, told apart by
+  its `status` line.

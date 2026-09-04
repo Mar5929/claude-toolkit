@@ -25,6 +25,8 @@ Walk the manual's tiers in order and stop at the first answer.
 - Check loaded rules and available skills before looking for a saved fact.
 - At the saved-knowledge tier, read both generated indexes. Open only files
   whose summaries may answer the question, then follow their relative links.
+- Answer "how does this work now" only from a PRD marked current. A PRD marked
+  proposed is what someone wants built, so name it as not yet true.
 - Read `knowledge/project.md` when the question is about project shape.
 - Check the work tracker when the question is about a requirement, status, or
   decision owned by one work item.

@@ -13,7 +13,9 @@ approval before any building starts.
 
 ## What counts as a specification
 
-- A file under `knowledge/prds/`.
+- A file under `knowledge/prds/`. Building from one, read the `proposed` PRD,
+  because a `current` one describes what is already there rather than what is
+  being asked for.
 - A ticket body: a GitHub issue, a Linear ticket, or a local work item's
   `REQUIREMENTS.md`.
 
