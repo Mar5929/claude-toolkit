@@ -245,10 +245,10 @@ check("project scope gate runs before a save proposal", () => {
   assert.ok(neverSave.includes("One past fix is not this"));
   assert.ok(neverSave.includes("Live status of current work"));
   assert.ok(neverSave.includes("Passwords, keys, and tokens"));
-  assert.ok(approval.includes("Why keep it"));
+  assert.ok(approval.includes("The owner approves the quoted text"));
   // A proposal must say the word Memory or Specification. The owner should not
   // have to decode a folder path to know what he is approving.
-  assert.ok(approval.includes("names Memory or Specification in that"));
+  assert.ok(approval.includes("The arrow says memory or spec in those words"));
   // The proposal's look is one fixed shape, defined in one place. The manual
   // states the contract and points at it; it never carries a second template.
   assert.ok(approval.includes("references/proposal-template.md"));
@@ -277,9 +277,7 @@ check("project scope gate runs before a save proposal", () => {
 check("one proposal template, and the skill reads it", () => {
   const template = read(proposalTemplate);
   const labels = [
-    "**Save as**", "**What it says**", "**Why keep it**", "**Where it goes**",
-    "**Where it came from**", "**Labels**", "**Guesses I made**",
-    "**What I checked**",
+    "**Why:**", "**Where:**", "**From:**", "**Unsure:**", "**Checked:**",
   ];
   // Order matters as much as presence. The owner reads every proposal the same
   // way, so a reshuffled template is the same failure as a missing label.
@@ -288,6 +286,12 @@ check("one proposal template, and the skill reads it", () => {
     const next = template.indexOf(label, at + 1);
     assert.ok(next > at, `proposal template is missing or reorders ${label}`);
     at = next;
+  }
+  // The headline and the quoted meaning carry the decision, so the template has
+  // to keep naming all four things the arrow can say.
+  for (const kind of ["New memory file", "Memory, edit to an existing file",
+                      "New spec file", "Spec, edit to an existing file"]) {
+    assert.ok(template.includes(kind), `proposal template drops the "${kind}" arrow`);
   }
   assert.ok(template.includes("Never put a proposal inside a code fence"),
     "the template does not forbid a code-fenced proposal");
@@ -339,8 +343,7 @@ check("no second policy owner", () => {
       assert.ok(!text.includes(heading), `${path} repeats manual policy as ${heading}`);
     }
     const labels = [
-      "**What it says**", "**Why keep it**", "**Where it goes**",
-      "**Where it came from**", "**Labels**", "**Guesses I made**",
+      "**Why:**", "**Where:**", "**From:**", "**Unsure:**", "**Checked:**",
     ];
     assert.ok(!labels.every((label) => text.includes(label)),
       `${path} repeats the complete approval contract`);
