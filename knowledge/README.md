@@ -33,6 +33,8 @@ The loader reads these files in order when present:
 | Current objective, blocker, and next step | `knowledge/current.md` |
 | Lessons about what this owner saves | `knowledge/memory-self-improvement.md` |
 | Requirements and status for one piece of work | The work tracker |
+| Requirements for a product or feature area bigger than one work item | `docs/PRDs/` |
+| How one work item gets built, deleted once its specification is current | `docs/designs/` |
 | Information needed only for this task | The conversation only |
 | `grill-me` scratch pad, unchecked exploration | `knowledge/brainstorms/` |
 | Outside source material | `ai-external-knowledge/` or the project's delivery files |

@@ -24,8 +24,10 @@ Source: https://code.claude.com/docs/en/memory
 4. The project knowledge startup route, when that system is installed.
 5. **Codemap.** A table, one row per folder, module, or context source. Each row
    says what is in it and when to open it. Name the context sources, not only
-   the code: captured outside documentation, specifications, reference data. A
-   source nothing points at is a source nobody opens.
+   the code: captured outside documentation, specifications, reference data, the
+   build plans in `docs/designs/`, the product requirements in `docs/PRDs/`. A
+   source nothing points at is a source nobody opens, and a folder that is still
+   empty is the easiest one to leave out.
 6. **Tools.** The major tools this project runs on: MCP servers, generated
    graphs or indexes, build and deploy commands. One line each, naming the
    command and the file that holds the detail.
