@@ -3,8 +3,18 @@
 A design says **how** one work item gets built. It is written after that item's
 requirements are approved, and before any code is written.
 
-One file per work item, named `<issue number>-<short-slug>.md`. For example,
+One file per work item, named `<work item id>-<short-slug>.md`. For example,
 `270-work-item-upkeep.md`.
+
+## When this folder applies
+
+This folder is for a project whose work items live **outside** the repository,
+on a GitHub issue board, in Linear, in Jira, or in anything else. There is no
+folder on disk for the item, so the design needs a home of its own.
+
+A project that tracks work in the Git-ignored `.work-items/` folder keeps each
+design with its own item, the way every other file of that item is kept. It does
+not use this folder.
 
 ## What goes in one file
 

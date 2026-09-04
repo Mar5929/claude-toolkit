@@ -127,6 +127,11 @@ and **deleted once the project's specification has been brought up to date**.
 Git history keeps it, so nothing is lost, and a design left behind stops
 matching the code that a later agent will read it as describing.
 
+The design folder is for a project whose work items are tracked outside the
+repository, on a GitHub issue board or in Linear or Jira. A project that picked
+the Git-ignored `.work-items/` tracker keeps each design with its own item
+instead, and does not need the folder.
+
 `docs/PRDs/` holds requirements for a product or feature area that is bigger
 than one work item, one file per area: the goal, why it matters, what the people
 using it need, what has to be true for the whole area to count as finished, and

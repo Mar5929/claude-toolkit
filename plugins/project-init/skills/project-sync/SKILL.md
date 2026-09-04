@@ -71,9 +71,12 @@ automatically as it grows.
     `docs/PRDs/`. Each is the folder plus a short `README.md` plus its own line
     in the codemap, and a folder with no codemap line is a folder no agent
     opens, so check all three parts. `../project-init/references/setup-flow.md`
-    has what each holds and how long a file in it lives. A project that was
-    offered them and declined is not missing them; record the decline so this
-    audit stops raising it
+    has what each holds and how long a file in it lives. `docs/designs/` only
+    applies where work items are tracked outside the repository; a project on
+    the Git-ignored `.work-items/` tracker keeps each design with its own item,
+    so the folder is not a gap there. A project that was offered them and
+    declined is not missing them; record the decline so this audit stops raising
+    it
   - the multi-part kits, which are a tool plus a rule plus a hook rather than a
     single file, so a partial install looks like a pass unless you check each
     part: the Salesforce permission set kit

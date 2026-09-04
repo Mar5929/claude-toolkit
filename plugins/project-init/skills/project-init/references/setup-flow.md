@@ -61,7 +61,10 @@ so they always know where they are.
   `README.md` is fine. Gate 5 copies the `ai-external-knowledge.md` rule with it.
 - Every stack: offer `docs/designs/` and `docs/PRDs/` at the project root.
   `docs/designs/` holds the build plan for one work item, written once its
-  requirements are approved and deleted once the specification is current.
+  requirements are approved and deleted once the specification is current. It is
+  for a project whose work items are tracked outside the repository; a project
+  on the Git-ignored `.work-items/` tracker keeps each design with its own item
+  instead.
   `docs/PRDs/` holds requirements for a product or feature area bigger than one
   work item, and is kept for as long as that area lasts. Create both empty, each
   with a short `README.md` saying what it holds and how long a file in it lives.

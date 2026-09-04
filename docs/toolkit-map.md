@@ -487,9 +487,11 @@ The genuine watch-items are called out at the end.
   needs, above the level of any one issue, and stays as long as the area does.
   The work tracker holds one issue's requirements and its status, and that has
   not changed. [`docs/designs/`](designs/README.md) says how that one issue gets
-  built, and is deleted once the specification is current. `knowledge/specs/`
-  says how the finished system behaves, and it is the only one of the four still
-  true after the build. Picking up work in an area, read them in that order: the
+  built, and is deleted once the specification is current; it is the home for a
+  design only where work items are tracked outside the repository, since a
+  project on the local `.work-items/` tracker keeps each design with its item.
+  `knowledge/specs/` says how the finished system behaves, and it is the only
+  one of the four still true after the build. Picking up work in an area, read them in that order: the
   PRD for the shape, the issue for the job, the design for the plan, the
   specifications for what is already there.
 
