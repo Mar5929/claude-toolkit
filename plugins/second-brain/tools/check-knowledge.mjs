@@ -29,7 +29,7 @@ const posix = (value) => value.split(sep).join("/");
 const CURRENT_MD_MAX_CHARS = 2000;
 const SELF_IMPROVEMENT_MAX_CHARS = 8000;
 const SUMMARY_MAX_CHARS = 250;
-export const MANUAL_SHA256 = "87fbb5185a954af496561161928a661e4f4b37d74c60d48e53bc8e4b1945e261";
+export const MANUAL_SHA256 = "e3d7dc5390a51ca496f3a4870311f00c73885c4be871bd84ad80f497cb784de2";
 
 const STATUS_VALUES = ["current", "superseded", "retired"];
 const TYPE_VALUES = ["fact", "decision", "event", "context", "constraint"];
@@ -279,7 +279,7 @@ export function checkKnowledge(projectRoot = root) {
   checkCurrent(vault);
   checkSelfImprovement(vault);
   checkFolder(vault, "memory", "memory", "memory-index.md");
-  checkFolder(vault, "specs", "spec", "spec-index.md");
+  checkFolder(vault, "prds", "spec", "spec-index.md");
 
   return { problems: [...problems], filesChecked, skipped: false };
 }

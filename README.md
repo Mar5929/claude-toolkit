@@ -214,7 +214,7 @@ claude-toolkit/
     current.md                    ← short-term work state, overwritten
     memory-self-improvement.md    ← what the owner counts as memory-worthy
     brainstorms/                  ← unchecked discovery notes
-    specs/                        ← approved behavior plus generated index
+    prds/                         ← approved behavior plus generated index
     memory/                       ← flat persistent topics plus generated index
 ```
 
@@ -273,7 +273,7 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
   keep only their own task steps. The package has one checker and deliberately
   has no database, embeddings, automatic capture, background writer, or large
   always-loaded rule. The current build behavior is specified in
-  [`knowledge/specs/knowledge-system.md`](knowledge/specs/knowledge-system.md).
+  [`knowledge/prds/knowledge-system.md`](knowledge/prds/knowledge-system.md).
 - [x] **`second-brain` v1 archive**: the retired Worker, Neon, MCP, curator,
   hook, knowledge-backfill, and structural-layer source has been removed from
   active plugin paths and consolidated under

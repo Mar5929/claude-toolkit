@@ -25,7 +25,7 @@ Deleting it loses nothing. Git history keeps the file forever.
 
 The reason to delete it: a design that outlives its build stops matching the
 code. A later agent reads it, believes it, and builds against a plan that
-changed during the build. After the build, `knowledge/specs/` is what is true.
+changed during the build. After the build, `knowledge/prds/` is what is true.
 
 So this folder only ever holds designs for work happening right now. An empty
 folder is the normal state, not a gap.
@@ -38,4 +38,4 @@ finishes the work item has to do it.
 - **Not requirements.** Those live in the work tracker.
 - **Not the requirements for a whole feature area.** Those live in
   `docs/PRDs/`.
-- **Not settled behavior.** That is `knowledge/specs/`.
+- **Not settled behavior.** That is `knowledge/prds/`.

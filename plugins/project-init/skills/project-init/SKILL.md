@@ -282,7 +282,7 @@ startup map.
 Markdown knowledge system.
 
 - Do not offer a second or competing knowledge system. When Gate 3 was
-  approved, `knowledge/memory/` and `knowledge/specs/` already provide the
+  approved, `knowledge/memory/` and `knowledge/prds/` already provide the
   persistent knowledge layer.
 - Mark this gate **available alongside project knowledge** when Gate 3 ran, or
   **independent of project knowledge** when the owner declined Gate 3.

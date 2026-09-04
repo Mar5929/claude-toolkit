@@ -37,14 +37,14 @@ export const REMINDER = [
   "Project knowledge is active. Manual: knowledge/README.md - reopen it before proposing any save.",
   "",
   "Memory (knowledge/memory/) = a lasting fact, decision, event, context, or constraint. Why things are the way they are.",
-  "Spec (knowledge/specs/) = settled behavior of the system. How it is meant to work. A current spec beats a memory.",
+  "PRD (knowledge/prds/) = settled behavior of the system. How it is meant to work. A current PRD beats a memory. This folder used to be called knowledge/specs/.",
   "",
   "Memory must be about this project, and must come from the owner or from the owner and agent working it out together. Not from the agent alone.",
   "Never save: commands, tool calls, agent or shell behavior, troubleshooting, errors, scratch reasoning, dropped ideas, edit logs, sub-agent activity, copies of code or specs, procedures, open tasks, live status, secrets.",
   "Instead: procedure goes to a skill. Standing instruction goes to .claude/rules/. Live status goes to the work tracker.",
   "",
   "Saves happen through the remember skill, never by hand, never without the owner's approval.",
-  "Before you answer: is there a spec to update or a memory to add? Usually not, and then you say nothing. If there is, invoke remember; knowledge/README.md shows how to display the proposal.",
+  "Before you answer: is there a PRD to update or a memory to add? Usually not, and then you say nothing. If there is, invoke remember; knowledge/README.md shows how to display the proposal.",
 ].join("\n");
 
 /** True only for a manual this toolkit manages. */

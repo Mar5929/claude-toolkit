@@ -26,4 +26,6 @@ together.
 - **Not one ticket's requirements.** Those stay in the issue body, or in the
   work item. That has not changed.
 - **Not the build plan.** That is `docs/designs/`.
-- **Not how the finished system behaves.** That is `knowledge/specs/`.
+- **Not how the finished system behaves.** That is `knowledge/prds/`. Both
+  folders say PRD. This one holds what should be built for a feature area. That
+  one holds how the system already behaves once it is settled.

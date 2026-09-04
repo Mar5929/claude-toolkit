@@ -10,7 +10,7 @@ approved_by: Mike Rihm
 approval_date: 2026-08-22
 project: claude-toolkit
 work_item: "221"
-supersedes: knowledge/specs/memory-system.md, knowledge/specs/memory-system-v2.md
+supersedes: knowledge/prds/memory-system.md, knowledge/prds/memory-system-v2.md
 ---
 
 # How the knowledge system works
@@ -76,7 +76,7 @@ this gets checked before anything is saved.
 | Who the agent is in this project | `SOUL.md` |
 | A standing instruction for how the agent must behave | `.claude/rules/` |
 | A repeatable procedure for a kind of work | A skill |
-| How the system is meant to work, once settled | `knowledge/specs/` |
+| How the system is meant to work, once settled | `knowledge/prds/` |
 | A lasting fact, decision, event, or piece of context | `knowledge/memory/` |
 | What is being worked on right now | `knowledge/current.md` |
 | A work item's requirements and status | The project's work tracker |
@@ -120,7 +120,7 @@ quietly picks one.
 | `SOUL.md` | Who the agent is in this project, its role, its purpose. Project root. |
 | `knowledge/current.md` | Short-term working memory. One file. Overwritten, never appended. |
 | `knowledge/memory/` | Long-term memory. Flat. One file per topic. |
-| `knowledge/specs/` | Approved system behavior. One file per process or function area. |
+| `knowledge/prds/` | Approved system behavior. One file per process or function area. |
 
 Plus two generated lists, described under "The two indexes" below.
 
@@ -262,7 +262,7 @@ the filename.
 Two generated files, one line per source file, never edited by hand.
 
 - `knowledge/memory/memory-index.md`
-- `knowledge/specs/spec-index.md`
+- `knowledge/prds/spec-index.md`
 
 Each line is built from the file's `summary` field, so the summary exists in one
 place and is copied nowhere. Entry format:
@@ -293,7 +293,7 @@ the code broadly.
 | 1 | `knowledge/current.md` | What is happening now. |
 | 2 | `.claude/rules/` | The answer may be a standing instruction rather than a fact. Already loaded, so this is a check, not a search. |
 | 3 | Skills | Is this a procedural thing rather than something to look up? |
-| 4 | `knowledge/memory/` then `knowledge/specs/`, through their indexes, then the links inside what is found | A current specification beats a memory. |
+| 4 | `knowledge/memory/` then `knowledge/prds/`, through their indexes, then the links inside what is found | A current specification beats a memory. |
 | 5 | Past sessions, through `session-search` | The lowest tier, not a last resort. |
 
 **When tier 4 finds nothing**, say so plainly and name what was searched. Never
@@ -379,7 +379,7 @@ they belong in this file:
   single detail.
 - **`Save as` carries the word Memory or Specification.** The destination was
   once shown only as a folder path, and the owner had to decode
-  `knowledge/memory/` against `knowledge/specs/` to know what he was approving.
+  `knowledge/memory/` against `knowledge/prds/` to know what he was approving.
   He asked twice in one session on 2026-08-31, which is how the field got added.
 - **The proposal is rendered Markdown, never inside a code fence.** The shape
   used to sit in the manual inside a fence, so agents echoed the fence and the

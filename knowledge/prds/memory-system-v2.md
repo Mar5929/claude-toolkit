@@ -8,7 +8,7 @@ tags: [knowledge-system, memory, second-brain, history]
 approved_by: Mike Rihm
 approval_date: 2026-08-14
 project: claude-toolkit
-superseded_by: knowledge/specs/knowledge-system.md
+superseded_by: knowledge/prds/knowledge-system.md
 ---
 
 # Memory system v2 draft spec (superseded, do not build from this)
@@ -19,7 +19,7 @@ no build session may follow it.
 
 ## What replaced this draft
 
-`knowledge/specs/knowledge-system.md` is the build authority. Its design input is
+`knowledge/prds/knowledge-system.md` is the build authority. Its design input is
 `archive/memory-redesign/knowledge-system-north-star.md`.
 
 The two documents this file previously pointed at, `functional-requirements.md`
@@ -139,7 +139,7 @@ Seven layers, never interchangeable:
 2. AGENT IDENTITY               SOUL.md
 3. RULES                        rules/
 4. ORIENTATION / WORKING STATE  knowledge/project.md · current.md · recent.md · map.md
-5. NORMATIVE TRUTH              knowledge/specs/
+5. NORMATIVE TRUTH              knowledge/prds/
 6. DURABLE KNOWLEDGE            knowledge/memory/
 7. RAW SESSION EVIDENCE         sessions (cards + transcripts)
 ```

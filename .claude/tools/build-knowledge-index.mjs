@@ -4,7 +4,7 @@
  * Rebuild the two knowledge indexes:
  *
  *   knowledge/memory/memory-index.md
- *   knowledge/specs/spec-index.md
+ *   knowledge/prds/spec-index.md
  *
  * One line per file, taken from that file's `summary` field, so the summary
  * lives in exactly one place and is copied nowhere. The source files always
@@ -38,7 +38,7 @@ const FOLDERS = [
     ],
   },
   {
-    dir: "specs",
+    dir: "prds",
     index: "spec-index.md",
     heading: "How this project is meant to work",
     blurb: [

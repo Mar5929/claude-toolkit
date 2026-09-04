@@ -326,7 +326,7 @@ The genuine watch-items are called out at the end.
   every resulting specification without being copied into system-area folders.
   A work item's `REQUIREMENTS.md` and `STATUS.md` own that ticket's approved
   scope and readable handoff, while `ITEM.yaml` owns structured task state. Top-level
-  `knowledge/specs/` owns persistent current behavior and second-brain owns persistent project
+  `knowledge/prds/` owns persistent current behavior and second-brain owns persistent project
   knowledge. The brainstorm may inform those artifacts but does not replace
   them.
 - **handoff versus session-summary.** Both run at the end of a session and they
@@ -487,11 +487,17 @@ The genuine watch-items are called out at the end.
   needs, above the level of any one issue, and stays as long as the area does.
   The work tracker holds one issue's requirements and its status, and that has
   not changed. [`docs/designs/`](designs/README.md) says how that one issue gets
-  built, and is deleted once the specification is current. `knowledge/specs/`
+  built, and is deleted once the specification is current. `knowledge/prds/`
   says how the finished system behaves, and it is the only one of the four still
   true after the build. Picking up work in an area, read them in that order: the
-  PRD for the shape, the issue for the job, the design for the plan, the
-  specifications for what is already there.
+  docs PRD for the shape, the issue for the job, the design for the plan, the
+  knowledge PRD for what is already there.
+
+  Two of those folders are called PRDs and they are not the same thing. Say
+  which one every time. `docs/PRDs/` is what should be built. `knowledge/prds/`
+  is how the system already works. `knowledge/prds/` was called
+  `knowledge/specs/` until issue #288, so an older project and an older session
+  may still call those files specs.
 
 ### Genuine watch-items (revisit these)
 

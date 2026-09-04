@@ -207,8 +207,14 @@ checks:
     folder could be mistaken for the system.
 
   Mixed or unknown stops adoption and conversion: name exactly what you found
-  and ask. Never move an ordinary folder called `memory`, `specs`, or
+  and ask. Never move an ordinary folder called `memory`, `prds`, `specs`, or
   `knowledge` on its name alone.
+- **Old folder name:** a project set up before the rename has
+  `knowledge/specs/` where the current layout has `knowledge/prds/`. That is
+  the same folder under its old name, not an older layout. Report it, list what
+  is in it, and offer to rename it with `git mv` and fix every pointer to the
+  old path. Do nothing without the owner's yes. If both folders exist, stop,
+  say what is in each, and ask. The `second-brain` skill has the steps.
 - **Packaged runtime:** for a current layout, also check the installed
   managed `knowledge/README.md` against the packaged template byte for byte;
   `remember`, `recall`, `retire`, `reflect`, `second-brain`, and

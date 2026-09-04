@@ -60,7 +60,7 @@ Detect the current project knowledge system by its complete layout:
 
 - `SOUL.md`, `knowledge/README.md`, `knowledge/project.md`, and
   `knowledge/current.md`;
-- `knowledge/specs/`, `knowledge/memory/`, and `knowledge/brainstorms/`; and
+- `knowledge/prds/`, `knowledge/memory/`, and `knowledge/brainstorms/`; and
 - the installed `remember` skill.
 
 When all are present, invoke `remember`. That skill owns placement, the short
@@ -186,7 +186,7 @@ to take.
 ```markdown
 Checked the handoff prompt: 2 fixed, 3 not confirmed.
 
-- Fixed: the plan is at `knowledge/specs/export-timing.md`, not `docs/export-plan.md`
+- Fixed: the plan is at `knowledge/prds/export-timing.md`, not `docs/export-plan.md`
 - Fixed: the branch is `issue-88-export-timing`, not `export-fix`
 - Not confirmed: the goal is written in no file, only in this chat
 - Not confirmed: "the nightly job times out at 40 minutes", nobody recorded it

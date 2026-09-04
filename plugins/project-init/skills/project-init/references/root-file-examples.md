@@ -41,7 +41,7 @@ project-knowledge instructions disagree.
 | `ai-external-knowledge/` | Salesforce documentation captured as Markdown, one folder per topic. Open it before designing against a platform feature, instead of searching the web. Today: `sharing-and-visibility/`, `flow-limits/`. |
 | `knowledge/` | What this project decided and why: specifications, memory, current state. The routing table in its `README.md` says which goes where. |
 | `docs/` | Documents written for Acme, not for agents. Detail: `docs/CLAUDE.md`. |
-| `docs/designs/` | The build plan for one work item: how each approved requirement is met, which files change, how it is tested. Open it when building or reviewing that item. Written once the item's requirements are approved, deleted once `knowledge/specs/` is current. |
+| `docs/designs/` | The build plan for one work item: how each approved requirement is met, which files change, how it is tested. Open it when building or reviewing that item. Written once the item's requirements are approved, deleted once `knowledge/prds/` is current. |
 | `docs/PRDs/` | Requirements for a feature area bigger than one work item, plus links to the items made from it. Open it before writing items in that area. Kept for as long as the area lasts. Today: `renewals.md`. |
 | `scripts/` | Deploy and data-load scripts. Detail: `scripts/CLAUDE.md`. |
 | `.claude/` | Rules, hooks, settings. |
