@@ -59,6 +59,13 @@ so they always know where they are.
 - Every stack: offer `ai-external-knowledge/` at the project root, for outside
   documentation captured as Markdown, one folder per topic. Empty with a short
   `README.md` is fine. Gate 5 copies the `ai-external-knowledge.md` rule with it.
+- Every stack: offer `docs/designs/` and `docs/PRDs/` at the project root.
+  `docs/designs/` holds the build plan for one work item, written once its
+  requirements are approved and deleted once the specification is current.
+  `docs/PRDs/` holds requirements for a product or feature area bigger than one
+  work item, and is kept for as long as that area lasts. Create both empty, each
+  with a short `README.md` saying what it holds and how long a file in it lives.
+  No rule file governs either, and nothing checks that a design was deleted.
 - Salesforce / SFDX: offer the standard scaffold in
   `salesforce-project-scaffold.md` (SFDX source plus a `delivery/` tree). Local
   work tracking still uses root `.work-items/`; older `delivery/work-items/` or
@@ -238,6 +245,9 @@ so they always know where they are.
   `ai-external-knowledge/` a line saying what topics are captured there and when
   to open it, and the same for a specifications folder or reference data. An
   agent reaches those folders only from here.
+- Give `docs/designs/` and `docs/PRDs/` their own codemap lines where Gate 1
+  created them, saying what is in each and how long a file in it lives. Both are
+  usually still empty here, which is when the line is easiest to skip.
 - Keep the codemap to one line per folder, pointing at that folder's own
   `CLAUDE.md` for the detail. Every line says what is in the folder and when to
   open it.

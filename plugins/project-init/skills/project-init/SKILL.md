@@ -117,6 +117,30 @@ project needs one. Gate 5 copies the `ai-external-knowledge.md` rule that govern
 it, and gives the folder its own codemap line in `CLAUDE.md`.
 Without that line an agent never learns the folder is there.
 
+Offer `docs/designs/` and `docs/PRDs/` at the project root for every stack.
+`docs/designs/` holds the build plan for one work item: how each approved
+requirement is met, which files the change touches, how it is tested, the order
+of work, and the decisions made while designing. One file per work item, named
+for that item's identifier and a short slug. It is written once that item's
+requirements are approved, merged in the same change as the code it describes,
+and **deleted once the project's specification has been brought up to date**.
+Git history keeps it, so nothing is lost, and a design left behind stops
+matching the code that a later agent will read it as describing.
+
+`docs/PRDs/` holds requirements for a product or feature area that is bigger
+than one work item, one file per area: the goal, why it matters, what the people
+using it need, what has to be true for the whole area to count as finished, and
+links to the work items made from it. Unlike a design it is kept, for as long as
+the feature area exists. It does not change where one work item's requirements
+live; those stay in the tracker Gate 1 settled on.
+
+Create both empty, each with a short `README.md` saying what the folder holds,
+what one file in it contains, and how long a file in it lives. Gate 5 gives each
+folder its own codemap line in `CLAUDE.md`; without that line an agent never
+learns the folder is there. No rule file governs either folder, and nothing
+checks that a finished design was deleted. Say so rather than implying a check
+exists.
+
 **Salesforce / SFDX projects** have a standard scaffold worth reusing: see
 `references/salesforce-project-scaffold.md`. Offer it whenever the stack is
 Salesforce (org build, org merge, or managed service). It stays optional and is
@@ -363,6 +387,13 @@ CLAUDE.md stays thin and points at that folder. Read
   a specifications folder or any reference data the project keeps. Nothing else
   in a session mentions those folders, so an agent reaches them only from here.
   This is the routing job, and it is the part usually left out.
+- **Give `docs/designs/` and `docs/PRDs/` their own codemap lines** where Gate 1
+  created them. The design line says the build plan for the work item in flight
+  lives there, one file per item, written once its requirements are approved and
+  deleted once the specification is current. The PRD line says the requirements
+  for a whole product or feature area live there, above the level of one work
+  item, and are kept. Both folders are usually empty on day one, which is
+  exactly when a codemap line is easiest to leave out and hardest to add back.
 - **Write the tools section from what the project actually runs.** MCP servers,
   generated graphs or indexes, build, test, and deploy commands. One row each,
   naming the command and the file that holds the detail. This is where the MCP

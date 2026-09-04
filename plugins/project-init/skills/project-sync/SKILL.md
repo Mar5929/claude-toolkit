@@ -67,6 +67,13 @@ automatically as it grows.
   - the per-server MCP tool rules in `../../library/guides/mcp-best-practices.md`;
     these are conditional, so only audit the servers this project connects
   - each system from the setup gates: hooks, project knowledge, knowledge layer
+  - the two document folders Gate 1 offers every project, `docs/designs/` and
+    `docs/PRDs/`. Each is the folder plus a short `README.md` plus its own line
+    in the codemap, and a folder with no codemap line is a folder no agent
+    opens, so check all three parts. `../project-init/references/setup-flow.md`
+    has what each holds and how long a file in it lives. A project that was
+    offered them and declined is not missing them; record the decline so this
+    audit stops raising it
   - the multi-part kits, which are a tool plus a rule plus a hook rather than a
     single file, so a partial install looks like a pass unless you check each
     part: the Salesforce permission set kit
@@ -436,10 +443,13 @@ on, and where is work tracked. Read the file and report:
   sync"). These arrive one at a time, usually from a sub-agent tidying up at the
   end of a task, and in an old file they are most of the bulk.
 - **Context sources the codemap does not name.** Look for folders holding
-  context an agent should pull in on demand: `ai-external-knowledge/`, a
-  specifications folder, captured reference data. Any one the codemap does not
-  name is a folder no agent will open, however good what is in it. Propose the
-  line, saying what is inside and when to open it.
+  context an agent should pull in on demand: `ai-external-knowledge/`,
+  `docs/designs/`, `docs/PRDs/`, a specifications folder, captured reference
+  data. Any one the codemap does not name is a folder no agent will open,
+  however good what is in it. Propose the line, saying what is inside and when
+  to open it. For the two document folders also say how long a file in each
+  lives, since that is the part a session gets wrong: a design is deleted once
+  the specification is current, and a PRD is kept.
 - **Live state that belongs in the tracker.** Current phase, next action, and
   open TODOs drift the moment they are written here.
 - **Project-knowledge startup parity.** When the current layout is installed,

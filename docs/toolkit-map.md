@@ -194,6 +194,17 @@ These are not duplicated here. Go to the index that owns them:
 - **sf-architect references**: the `metadata/*` guides and templates under
   `plugins/sf-architect-solutioning/skills/sf-architect-solutioning/references/`.
 
+## `docs/`: this repository's own working documents
+
+Two folders sit beside this map. `project-init` offers both to every project it
+sets up, so they are part of what the toolkit ships as well as part of how this
+repository works.
+
+| Folder | What is in it | How long a file lives |
+| --- | --- | --- |
+| [`designs/`](designs/README.md) | The build plan for one work item: how each approved requirement is met, which files change, how it is tested, in what order. One file per issue, named `<issue number>-<short-slug>.md` | Created at stage `04-solution-design`, merged with the code it describes, deleted at stage `14-spec-update` |
+| [`PRDs/`](PRDs/README.md) | Requirements for a product or feature area bigger than one issue, plus links to the issues made from it. One file per area | As long as the feature area does. Never deleted because an issue closed |
+
 ## How the pieces relate (and what looks redundant but is not)
 
 Most apparent overlaps in this toolkit are pairs that answer different questions.
@@ -468,6 +479,19 @@ The genuine watch-items are called out at the end.
   safety and workflow rules; the dependency graph answers impact questions
   about the metadata that already exists. Project knowledge may link to that evidence but does
   not require or own the analysis tool. Three different jobs on the same stack.
+- **PRDs versus the work tracker versus designs versus specifications.** Four
+  places now hold text that looks like requirements, or looks like behavior.
+  They answer four different questions, at four different sizes, and they do
+  not live for the same length of time.
+  [`docs/PRDs/`](PRDs/README.md) says what a whole product or feature area
+  needs, above the level of any one issue, and stays as long as the area does.
+  The work tracker holds one issue's requirements and its status, and that has
+  not changed. [`docs/designs/`](designs/README.md) says how that one issue gets
+  built, and is deleted once the specification is current. `knowledge/specs/`
+  says how the finished system behaves, and it is the only one of the four still
+  true after the build. Picking up work in an area, read them in that order: the
+  PRD for the shape, the issue for the job, the design for the plan, the
+  specifications for what is already there.
 
 ### Genuine watch-items (revisit these)
 

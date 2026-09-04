@@ -191,6 +191,10 @@ claude-toolkit/
         unslop/                   ← strip the AI tells out of a draft and put a voice back
   docs/
     toolkit-map.md                ← the catalog: every item and how they relate
+    designs/                      ← the build plan for one work item, deleted
+                                     once the specification is brought current
+    PRDs/                         ← requirements for a product or feature area
+                                     bigger than one issue, kept for its life
   tests/
     orphan-check.mjs              ← fails if the toolkit ships a file nothing points at
     link-check.mjs                ← fails if a Markdown link points at a file that is gone
