@@ -48,11 +48,17 @@ of files it also ships. Change the shipped original, not the copy.
 
 The `Claude-Toolkit-Project` board on GitHub, connected to this repository.
 
-- The issue body holds the functional requirements and nothing else: the goal,
-  why it matters, and what has to be true for it to count as finished. No file
-  paths, no version numbers, no build plan.
-- Everything else goes in the issue comments: progress, decisions made while
-  building, blockers, and pointers to files by relative path.
+- The issue body is where the work currently stands: the goal, why it matters,
+  what has to be true for it to count as finished, and everything settled
+  since. A new session reads the body and knows the state without reading the
+  comments.
+- When something is approved or decided, it goes into the body. Nothing stays
+  settled only in a comment. A comment is where a thing is argued; the body is
+  where it lands.
+- Comments hold the working record: progress, the reasoning behind a decision,
+  blockers, what is still open, and pointers to files by relative path. Keep
+  the reasoning there and the conclusion in the body, rather than repeating
+  both.
 - An issue carries one stage label from the fourteen in
   `.claude/rules/work-item-stages.md`, and one comment titled "Progress log"
   that is edited in place. It is ready to build when it carries
