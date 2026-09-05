@@ -26,9 +26,8 @@ project-knowledge instructions disagree.
 | `plugins/` | The seven plugins this repo ships, plus `project-init/library/`, the material other projects receive, and `project-init/machine/`, the material every computer receives. Open before changing anything the toolkit ships. Detail: `plugins/CLAUDE.md`. |
 | `docs/toolkit-map.md` | The cross-cutting catalog: what every plugin and skill is, how they relate, and what looks redundant but is not. Open it to answer "does this already exist somewhere?". Detail: `docs/CLAUDE.md`. |
 | `docs/designs/` | The build plan for one work item: how each approved requirement is met, which files change, how it is tested, in what order. One file per issue, written at stage `04` and deleted at stage `14`. Open it when building or reviewing that item. Detail: `docs/designs/README.md`. |
-| `docs/PRDs/` | Requirements for a product or feature area bigger than one issue, and links to the issues made from it. It stays for as long as the area does. Open it before writing issues in that area. Detail: `docs/PRDs/README.md`. |
 | `.claude-plugin/marketplace.json` | Registers every plugin for Claude Code. `.agents/plugins/marketplace.json` does the same for Codex. Update both when adding or renaming a plugin. |
-| `knowledge/` | What this project decided and why: specifications, memory, current state, raw brainstorms. The routing table in its `README.md` says which goes where. |
+| `knowledge/` | What this project decided and why: PRDs, memory, current state, raw brainstorms. A PRD is one living document per feature area, holding its requirements first and its settled behavior after the build. The routing table in its `README.md` says which goes where. |
 | `tests/` | Four Node checks, run by hand before every pull request. Detail: `tests/CLAUDE.md`. |
 | `.claude/` | What this repo runs on itself: the rule copies, installed hooks and tools, settings, and the setup record in `toolkit-sync.md`. |
 | `archive/` | Retired material kept for history. Never a source of current truth. |

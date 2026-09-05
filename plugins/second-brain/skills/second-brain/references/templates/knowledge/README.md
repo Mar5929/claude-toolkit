@@ -17,7 +17,7 @@ The loader reads these files in order when present:
 3. `knowledge/project.md`: what the project is and where work is tracked.
 4. `knowledge/current.md`: disposable short-term work state.
 5. `knowledge/memory/memory-index.md`: one line per memory file.
-6. `knowledge/specs/spec-index.md`: one line per specification file.
+6. `knowledge/prds/spec-index.md`: one line per specification file.
 
 ## Put information in one place
 
@@ -28,13 +28,12 @@ The loader reads these files in order when present:
 | The agent's role and purpose here | `SOUL.md` |
 | A standing instruction for agent behavior | `.claude/rules/` |
 | A repeatable procedure | A skill |
-| Settled behavior of the system, written in non-technical language | `knowledge/specs/` |
+| Requirements for a feature area, then how it settled | `knowledge/prds/` |
 | A lasting fact, decision, event, context, or constraint | `knowledge/memory/` |
 | Current objective, blocker, and next step | `knowledge/current.md` |
 | Lessons about what this owner saves | `knowledge/memory-self-improvement.md` |
 | Requirements and status for one piece of work | The work tracker |
-| Requirements for a product or feature area bigger than one work item | `docs/PRDs/` |
-| How one work item gets built, deleted once its specification is current | `docs/designs/` |
+| How one work item gets built, deleted once its PRD is current | `docs/designs/` |
 | Information needed only for this task | The conversation only |
 | `grill-me` scratch pad, unchecked exploration | `knowledge/brainstorms/` |
 | Outside source material | `ai-external-knowledge/` or the project's delivery files |
@@ -139,11 +138,13 @@ None of this becomes durable memory:
 
 <!-- knowledge-policy:never-save:end -->
 
-## What should be saved as a `knowledge/specs/`
+## What should be saved as a `knowledge/prds/`
 
-Specs are finalized, approved specifications and requirements about how the system should behave - logic, behavior, UI, UX, and other requirements that an AI cannot determine from reading the raw code. The specs should not simply regurgitate what can be understood from reading the raw code.
+PRD is short for product requirements document. This folder was `knowledge/specs/`; older sessions call them specs.
 
-Specs must be written in clear, concise, laymen's terms without jargon. They should be organized neatly in system areas. They are living truth and must be deduplicated and updated when the AI works with the user to finalize work items. The stages a work item moves through are in `.claude/rules/work-item-stages.md`.
+A PRD is one living document per feature area, the same file for its whole life. Its `status` says where it is: `proposed` is what we want built; `current` is how it behaves now, after stage `14-spec-update` edited it to match. Only a `current` PRD is settled truth: never answer "how does this work today" from a `proposed` one, nor let one beat a memory. `superseded` and `retired` are history.
+
+A PRD says how the system should behave in clear, laymen's terms without jargon - logic, behavior, UI, UX, and anything an AI cannot get from the code. It should not regurgitate what the code already says. Organize them by system area; deduplicate and update them as work items finish. The stages a work item moves through are in `.claude/rules/work-item-stages.md`.
 
 ## Use the two file shapes
 
@@ -159,9 +160,9 @@ Memory is flat under `knowledge/memory/`, one topic per file, and requires:
 - `confidence`: `observed`, `reported`, or `inferred`;
 - `tags`: a free-form YAML list with no fixed vocabulary.
 
-A specification under `knowledge/specs/` requires `summary`, `area`, `status`,
+A PRD under `knowledge/prds/` requires `summary`, `area`, `status`,
 `source`, `created_at`, `tags`, `approved_by`, and `approval_date`, with no
-`type` or `confidence`.
+`type` or `confidence`. Only a PRD may be `proposed`.
 
 Optional fields go in only when they apply: `confirmed_at`, `source_quote`,
 `effective_from`, `effective_to`, `project`, `work_item`, `supersedes`,

@@ -8,7 +8,7 @@ tags: [knowledge-system, memory, second-brain, history]
 approved_by: Mike Rihm
 approval_date: 2026-08-04
 project: claude-toolkit
-superseded_by: knowledge/specs/knowledge-system.md
+superseded_by: knowledge/prds/knowledge-system.md
 ---
 
 # How project knowledge works (superseded, do not build from this)
@@ -69,7 +69,7 @@ The folders have one responsibility each:
 
 - `knowledge/project.md` is the short project overview: what the project is, why it exists, what finished looks like, its main workstreams and boundaries, who is involved, and where active work is tracked. It is framing, not a second specification or status report.
 - `knowledge/index.md` is generated from current specifications and memories. It gives each file's title, one-sentence summary, and relative link.
-- `knowledge/specs/` says what the product or system must do. One Markdown file owns each approved capability.
+- `knowledge/prds/` says what the product or system must do. One Markdown file owns each approved capability.
 - `knowledge/memory/` says what is worth knowing so future work is not done incorrectly or worked out again.
 - `knowledge/brainstorms/` holds internal exploration and owner interviews. Raw client meeting records and client-provided files stay in the project's delivery or client-artifact folder. Nothing in brainstorms is approved truth unless it is later saved through the normal process.
 - `knowledge/.obsidian/` contains only the small shared settings needed for portable Markdown links. Personal layouts, appearance, hotkeys, plugins, themes, graph state, and device state stay untracked.
@@ -240,7 +240,7 @@ One fact has one canonical home. Other files link to it instead of copying it. R
 
 ### Generate one index
 
-`knowledge/index.md` is generated from Markdown files beneath `knowledge/specs/` and `knowledge/memory/`. It excludes itself, `project.md`, `memory/tags.md`, brainstorms, Obsidian settings, and empty-folder markers.
+`knowledge/index.md` is generated from Markdown files beneath `knowledge/prds/` and `knowledge/memory/`. It excludes itself, `project.md`, `memory/tags.md`, brainstorms, Obsidian settings, and empty-folder markers.
 
 It also excludes a retained memory carrying `superseded-by:`. Git and the
 health view preserve access to that history, but obsolete wording does not
@@ -359,7 +359,7 @@ Greenfield setup creates the exact new tree, asks the owner for the real `projec
 
 1. The main agent starts with the project overview and generated index.
 2. It opens the relevant specification before changing behavior.
-3. It searches `knowledge/specs/` and the most likely memory type, then widens only when needed.
+3. It searches `knowledge/prds/` and the most likely memory type, then widens only when needed.
 4. It follows useful links and reports conflicting current truth instead of choosing silently.
 5. It reads brainstorms only when raw exploration is relevant and labels them as unchecked.
 

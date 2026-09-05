@@ -29,9 +29,13 @@ const posix = (value) => value.split(sep).join("/");
 const CURRENT_MD_MAX_CHARS = 2000;
 const SELF_IMPROVEMENT_MAX_CHARS = 8000;
 const SUMMARY_MAX_CHARS = 250;
-export const MANUAL_SHA256 = "87fbb5185a954af496561161928a661e4f4b37d74c60d48e53bc8e4b1945e261";
+export const MANUAL_SHA256 = "994fd7091e364adbf73af3aa0a0081247bbf0b4dd0d4d64f6dba4220d6bfeb8e";
 
 const STATUS_VALUES = ["current", "superseded", "retired"];
+// A PRD is one living document. It opens as proposed, holding the
+// requirements, and becomes current once the build is done and it
+// describes what was actually built. Memory never sits at proposed.
+const SPEC_STATUS_VALUES = ["proposed", ...STATUS_VALUES];
 const TYPE_VALUES = ["fact", "decision", "event", "context", "constraint"];
 const CONFIDENCE_VALUES = ["observed", "reported", "inferred"];
 
@@ -143,9 +147,10 @@ function checkFile(vault, folder, name, kind) {
   if (kind === "memory" && data.type && !TYPE_VALUES.includes(data.type)) {
     fail(path, `has type "${data.type}". It must be one of: ${TYPE_VALUES.join(", ")}.`);
   }
-  if (data.status && !STATUS_VALUES.includes(data.status)) {
+  const statusValues = kind === "memory" ? STATUS_VALUES : SPEC_STATUS_VALUES;
+  if (data.status && !statusValues.includes(data.status)) {
     fail(path, `has status "${data.status}". It must be one of:`
-      + ` ${STATUS_VALUES.join(", ")}.`);
+      + ` ${statusValues.join(", ")}.`);
   }
 
   for (const field of DATE_FIELDS) {
@@ -279,7 +284,7 @@ export function checkKnowledge(projectRoot = root) {
   checkCurrent(vault);
   checkSelfImprovement(vault);
   checkFolder(vault, "memory", "memory", "memory-index.md");
-  checkFolder(vault, "specs", "spec", "spec-index.md");
+  checkFolder(vault, "prds", "spec", "spec-index.md");
 
   return { problems: [...problems], filesChecked, skipped: false };
 }

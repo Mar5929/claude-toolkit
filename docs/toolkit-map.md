@@ -203,7 +203,6 @@ repository works.
 | Folder | What is in it | How long a file lives |
 | --- | --- | --- |
 | [`designs/`](designs/README.md) | The build plan for one work item: how each approved requirement is met, which files change, how it is tested, in what order. One file per issue, named `<issue number>-<short-slug>.md` | Created at stage `04-solution-design`, merged with the code it describes, deleted at stage `14-spec-update` |
-| [`PRDs/`](PRDs/README.md) | Requirements for a product or feature area bigger than one issue, plus links to the issues made from it. One file per area | As long as the feature area does. Never deleted because an issue closed |
 
 ## How the pieces relate (and what looks redundant but is not)
 
@@ -326,7 +325,7 @@ The genuine watch-items are called out at the end.
   every resulting specification without being copied into system-area folders.
   A work item's `REQUIREMENTS.md` and `STATUS.md` own that ticket's approved
   scope and readable handoff, while `ITEM.yaml` owns structured task state. Top-level
-  `knowledge/specs/` owns persistent current behavior and second-brain owns persistent project
+  `knowledge/prds/` owns persistent current behavior and second-brain owns persistent project
   knowledge. The brainstorm may inform those artifacts but does not replace
   them.
 - **handoff versus session-summary.** Both run at the end of a session and they
@@ -483,15 +482,18 @@ The genuine watch-items are called out at the end.
   places now hold text that looks like requirements, or looks like behavior.
   They answer four different questions, at four different sizes, and they do
   not live for the same length of time.
-  [`docs/PRDs/`](PRDs/README.md) says what a whole product or feature area
-  needs, above the level of any one issue, and stays as long as the area does.
+`knowledge/prds/` holds one living
+  PRD per feature area. Requirements and settled behavior are the same document
+  at two points in time, told apart by its `status` line: `proposed` while it is
+  what someone wants built, `current` once it describes what was actually built.
   The work tracker holds one issue's requirements and its status, and that has
   not changed. [`docs/designs/`](designs/README.md) says how that one issue gets
-  built, and is deleted once the specification is current. `knowledge/specs/`
-  says how the finished system behaves, and it is the only one of the four still
-  true after the build. Picking up work in an area, read them in that order: the
-  PRD for the shape, the issue for the job, the design for the plan, the
-  specifications for what is already there.
+  built, and is deleted once the PRD is current. Picking up work in an area,
+  read them in that order: the PRD for the shape, the issue for the job, the
+  design for the plan.
+
+  `knowledge/prds/` was called `knowledge/specs/` until issue #288, so an older
+  project and an older session may still call those files specs.
 
 ### Genuine watch-items (revisit these)
 
