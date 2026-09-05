@@ -71,8 +71,11 @@ automatically as it grows.
     folder plus a short `README.md` plus its own line in the codemap, and a
     folder with no codemap line is a folder no agent opens, so check all three
     parts. `../project-init/references/setup-flow.md` has what it holds and how
-    long a file in it lives. A project that was offered it and declined is not
-    missing it; record the decline so this audit stops raising it
+    long a file in it lives. It only applies where work items are tracked
+    outside the repository; a project on the Git-ignored `.work-items/` tracker
+    keeps each design with its own item, so the folder is not a gap there. A
+    project that was offered it and declined is not missing it; record the
+    decline so this audit stops raising it
   - the multi-part kits, which are a tool plus a rule plus a hook rather than a
     single file, so a partial install looks like a pass unless you check each
     part: the Salesforce permission set kit

@@ -61,11 +61,14 @@ so they always know where they are.
   `README.md` is fine. Gate 5 copies the `ai-external-knowledge.md` rule with it.
 - Every stack: offer `docs/designs/` at the project root. It holds the build
   plan for one work item, written once its requirements are approved and deleted
-  once that area's PRD is current. Create it empty with a short `README.md`
-  saying what it holds and how long a file in it lives. Requirements for a
-  feature area are not a separate folder: they are the PRD in `knowledge/prds/`,
-  the same document that later describes the settled behavior. No rule file
-  governs the designs folder, and nothing checks that a design was deleted.
+  once that area's PRD is current. It is for a project whose work items are
+  tracked outside the repository; a project on the Git-ignored `.work-items/`
+  tracker keeps each design with its own item instead. Create it empty with a
+  short `README.md` saying what it holds and how long a file in it lives.
+  Requirements for a feature area are not a separate folder: they are the PRD in
+  `knowledge/prds/`, the same document that later describes the settled
+  behavior. No rule file governs the designs folder, and nothing checks that a
+  design was deleted.
 - Salesforce / SFDX: offer the standard scaffold in
   `salesforce-project-scaffold.md` (SFDX source plus a `delivery/` tree). Local
   work tracking still uses root `.work-items/`; older `delivery/work-items/` or

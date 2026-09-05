@@ -491,6 +491,9 @@ The genuine watch-items are called out at the end.
   built, and is deleted once the PRD is current. Picking up work in an area,
   read them in that order: the PRD for the shape, the issue for the job, the
   design for the plan.
+  The design folder applies only where work items are tracked outside the
+  repository. A project on the local `.work-items/` tracker keeps each design
+  with its own item, so the folder is not part of that project at all.
 
   `knowledge/prds/` was called `knowledge/specs/` until issue #288, so an older
   project and an older session may still call those files specs.
