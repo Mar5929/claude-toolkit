@@ -35,13 +35,25 @@ import { fileURLToPath } from "node:url";
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, "..");
 
+/**
+ * Captured outside documentation is not checked. The files under
+ * `ai-external-knowledge/` are somebody else's pages, saved as published, and
+ * their links belong to the site they came from rather than to this
+ * repository. `.claude/rules/ai-external-knowledge.md` forbids editing them to
+ * suit this project, so a link this check disliked could not be fixed anyway.
+ * The capture script rewrites the site's own `/docs/...` links to full URLs;
+ * what is left is example text inside the pages.
+ */
+const CAPTURED_DOCS = "ai-external-knowledge/";
+
 const markdownFiles = execFileSync("git", ["ls-files", "*.md"], {
   cwd: root,
   encoding: "utf8",
 })
   .split("\n")
   .map((line) => line.trim())
-  .filter(Boolean);
+  .filter(Boolean)
+  .filter((path) => !path.startsWith(CAPTURED_DOCS));
 
 /** Inline `code spans`, so an example link inside backticks is not a link. */
 function stripCodeSpans(line) {

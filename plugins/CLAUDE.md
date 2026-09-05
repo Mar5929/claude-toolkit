@@ -27,6 +27,14 @@ folder stays small on purpose.
 
 ## Working in here
 
+- **Read the Claude Code page before you build the Claude Code thing.** The
+  official documentation is in this repo at `ai-external-knowledge/claude-code/`,
+  indexed by its `README.md`. Open the page for a hook event, a skill's
+  frontmatter, a plugin manifest field, an agent definition, a command, an
+  output style, or a settings key before writing one. Claude Code changes fast,
+  and a remembered field name that no longer exists produces something that
+  reads correctly and does nothing. `../.claude/rules/claude-code-docs-first.md`
+  is the rule.
 - **One canonical home.** Each item lives in exactly one place; other files
   reference it. When you change something, update every document that mentions
   it: the plugin's `SKILL.md`, `references/setup-flow.md`, and the `README.md`
