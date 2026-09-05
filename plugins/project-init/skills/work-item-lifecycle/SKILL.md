@@ -13,25 +13,28 @@ description: >-
 
 # Work item lifecycle
 
-Apply the project's standing file lifecycle to one real question or work-item
-event. The rule owns the policy. This skill finds the project's actual homes,
-applies the rule, and keeps the action inside the user's request.
+Apply the project's file lifecycle to one real question or work-item event. This
+skill finds the project's actual homes, applies the principle below, and keeps
+the action inside the user's request.
 
-## Load the authority
+## The principle
 
-1. Read the project's root instructions and their codemap.
-2. Read `.claude/rules/project-file-lifecycle.md` in the project.
-3. If the project copy is missing, read the
-   [packaged lifecycle rule](../../library/rules/general/project-file-lifecycle.md)
-   as a temporary reference. Say that the project copy is missing and that
-   `project-sync` can offer it. Do not install it without approval.
-4. If neither copy exists, stop and report that the lifecycle authority is
-   missing. Do not invent a replacement.
+Each kind of project information gets one lasting home and stays there. A closed
+work item is not a reason to archive something that is still true, and only
+retired or replaced material moves to an archive.
 
-The lifecycle rule owns the boundary between project homes. Once it routes
-information into the declared tracker, knowledge system, or source tree, that
-system's own instructions govern work inside that home. Name any disagreement
-instead of silently choosing one.
+Read these to find where things actually go:
+
+1. The project's root instructions and their codemap. They name the work
+   tracker, the delivery root, and the source folders.
+2. `docs/designs/README.md`, for where a solution design lives and what happens
+   to it afterwards.
+3. `knowledge/README.md`, for what belongs in persistent project knowledge, in a
+   project that has it.
+
+Once information is routed into the declared tracker, knowledge system, or
+source tree, that system's own instructions govern work inside that home. Name
+any disagreement instead of silently choosing one.
 
 ## Find the project's real homes
 
@@ -76,7 +79,7 @@ make only the requested changes. Selecting this skill does not grant permission
 to move files, edit an external tracker, save persistent knowledge, or create a
 new top-level project structure.
 
-Apply the loaded lifecycle rule to determine:
+Apply the principle above to determine:
 
 - which existing file is authoritative, or the exact new home when none exists;
 - which work item or supporting file should link to that authority;
@@ -106,7 +109,7 @@ Use short bullets:
 
 - **Authority:** the existing or proposed authoritative file.
 - **Home:** the exact folder or tracker.
-- **Why:** the lifecycle rule that puts it there.
+- **Why:** what puts it there.
 - **Action:** what changed, or `No changes` for advice-only work.
 - **Links or gaps:** links updated and anything missing, conflicting, or
   unverified.

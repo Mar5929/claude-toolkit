@@ -140,9 +140,9 @@ automatically as it grows.
 ## Step 2: audit the current project
 
 For each inventory item, look for evidence in the project. Judge by intent, not
-exact wording: a CLAUDE.md that says "stop and ask when a request could mean two
-things" satisfies `ask-before-assuming.md` even if the prose differs. Typical
-checks:
+exact wording: a CLAUDE.md that says "work on your own branch and land by pull
+request" satisfies `parallel-agent-sessions.md` even if the prose differs.
+Typical checks:
 
 - **CLAUDE.md and `.claude/rules/`**: does CLAUDE.md exist and point at
   `.claude/rules/`, and does that folder carry each default-ON general rule (a
@@ -542,10 +542,8 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   then offer to delete `.claude/rules/writing-and-language.md`,
   `how-to-reply.md`, `treat-owner-as-non-technical.md`, and
   `define-your-terms.md`. Say the remaining cost out loud so the owner is
-  choosing with it in view: a helper agent never receives an output style, and
-  a built-in style leaves no file for one to read either, so
-  `follow-the-output-style.md` goes into the rules folder in the same pass and
-  its fallback (write plainly) is all a helper agent gets.
+  choosing with it in view: a helper agent never receives an output style at
+  all, so writing plainly is all a helper agent gets.
 - **For an approved folder `CLAUDE.md` gap, do one folder at a time, and offer
   the move with it.** Adding the folder file alone leaves the root `CLAUDE.md`
   exactly as long as it was, which is the whole thing this is meant to fix. So

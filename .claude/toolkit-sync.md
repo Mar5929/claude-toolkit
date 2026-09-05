@@ -39,11 +39,11 @@ Cleaned up on 2026-08-22 for GitHub issue #219. The system now has one managed
 the same small project map. Root files, rules, hooks, and skills point to the
 manual instead of carrying policy copies.
 
-Changed on 2026-08-28 for GitHub issue #236. This project now runs the default
-project file lifecycle rule it ships. The rule keeps work tracking, active
+Changed on 2026-08-28 for GitHub issue #236. This project started running the
+default project file lifecycle rule it shipped, which kept work tracking, active
 architecture, approved behavior, lasting decisions, implementation,
 presentation deliverables, and retired material in separate authoritative
-homes.
+homes. The owner deleted that rule on 2026-09-02, so it no longer runs anywhere.
 
 Synced again on 2026-08-31, against toolkit version 0.100.0, from a
 `/project-sync` run rather than an issue. Every rule, hook, tool, and knowledge
@@ -62,7 +62,8 @@ before anything changed. Four gaps were closed:
   session reading only the root file skipped it before every pull request.
 - **Root `work-items/memory-redesign/` moved to `archive/memory-redesign/`.** It
   held the spent source notes for the knowledge-system rebuild, no index pointed
-  at it, and `project-file-lifecycle.md` puts replaced material in the archive.
+  at it, and the then-current `project-file-lifecycle.md` put replaced material
+  in the archive.
   `archive/README.md` and a new folder `README.md` now name it. The 19 committed
   `graphify-out/` files were generated output and were deleted; `graphify-out/`
   is now ignored. Paths naming the old location were repaired in
@@ -103,6 +104,24 @@ now run together:
 
 Nothing was declined in this run either. The graphify decline below still
 stands and was not re-offered.
+
+Changed on 2026-09-05 for GitHub issue #294. On 2026-09-02 the owner deleted
+six rule files on purpose, in three commits all named "mike updates". Four were
+default-on general rules: `recommend-the-best-solution.md`,
+`follow-the-output-style.md`, `ask-before-assuming.md`, and
+`project-file-lifecycle.md`. One was the Salesforce rule
+`keep-design-out-of-requirements.md`. One was the machine-wide rule
+`propose-the-best-solution.md`. Nothing that pointed at them was updated at the
+time, so `link-check.mjs` and `installed-copy-check.mjs` failed on every pull
+request and the machine README promised three rules where the folder held one.
+
+This change cleaned that up everywhere. The two copies this repository was still
+running, `ask-before-assuming.md` and `follow-the-output-style.md`, were deleted
+from `.claude/rules/` and recorded in the "does not carry" table below. The
+rules indexes now log all six as removed by the owner. The
+`work-item-lifecycle` skill carries its lifecycle principle in its own words and
+points at `docs/designs/README.md` and `knowledge/README.md` instead of a rule
+file that no longer exists. None of the six were restored, and none should be.
 
 This repository is the toolkit. It now runs the toolkit on itself, the same way
 Anchor, DragonFly, and Diligence Ready do, so a change to the memory system, the
@@ -224,8 +243,10 @@ the output-styles folder back with one short optional file, `plain-english.md`,
 and this repo turned it on for itself on 2026-09-03 at the owner's request. It
 is nine lines, well under the 50-line ceiling, and it is delivered once at
 session start like any other style. Nothing per-message enforces voice at any
-level, and helper agents still receive no style at all: they follow
-`follow-the-output-style.md`, which now sends them to the file above.
+level, and helper agents still receive no style at all. A rule,
+`follow-the-output-style.md`, used to send them to the file above. The owner
+removed it on 2026-09-02, so a helper agent gets a voice only when its own
+definition carries the writing rules.
 
 ## The built-in memory, turned off here
 

@@ -42,12 +42,14 @@ conversation's system prompt only. A helper agent runs its own prompt, and
 helper agents are what write commit messages, pull request text, and documents
 that land in the repo.
 
-Two things cover that gap:
+One thing covers that gap: a helper-agent definition that writes owner-facing
+prose carries the writing rules in its own text. See the `handoff-verifier`
+agent in `session-skills`.
 
-- `follow-the-output-style.md` in `../rules/general/` sends a helper agent to
-  read the active style file before writing any of those.
-- A helper-agent definition that writes owner-facing prose carries the writing
-  rules in its own text. See the `handoff-verifier` agent in `session-skills`.
+A rule used to cover it too. `follow-the-output-style.md` in `../rules/general/`
+sent a helper agent to read the active style file first. The owner removed it on
+2026-09-02, so an agent definition carrying its own writing rules is now the
+only cover there is.
 
 ## Per-message reminders are not the answer, and the toolkit stopped trying
 
