@@ -36,8 +36,8 @@ export const STARTUP_FILES = [
     whole: false,
   },
   {
-    path: "knowledge/specs/spec-index.md",
-    label: "How this project is meant to work. A current spec beats a memory",
+    path: "knowledge/prds/spec-index.md",
+    label: "How this project is meant to work. Only a current PRD is settled truth, and only a current PRD beats a memory. A proposed one is not built yet",
     whole: false,
   },
 ];

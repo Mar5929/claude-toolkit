@@ -4,7 +4,7 @@
  * Rebuild the two knowledge indexes:
  *
  *   knowledge/memory/memory-index.md
- *   knowledge/specs/spec-index.md
+ *   knowledge/prds/spec-index.md
  *
  * One line per file, taken from that file's `summary` field, so the summary
  * lives in exactly one place and is copied nowhere. The source files always
@@ -38,14 +38,17 @@ const FOLDERS = [
     ],
   },
   {
-    dir: "specs",
+    dir: "prds",
     index: "spec-index.md",
     heading: "How this project is meant to work",
     blurb: [
-      "Every specification, with the one sentence it uses to describe itself.",
+      "Every PRD, with the one sentence it uses to describe itself.",
       "",
-      "A current specification beats a memory. A line marked superseded or retired",
-      "describes how something used to work.",
+      "A PRD is one living document per feature area. Anything other than current",
+      "is labelled in brackets after the filename. A line marked proposed is what",
+      "we want built and is not true yet. A line marked superseded or retired",
+      "describes how something used to work. Only a current PRD is settled truth,",
+      "and only a current PRD beats a memory.",
     ],
   },
 ];

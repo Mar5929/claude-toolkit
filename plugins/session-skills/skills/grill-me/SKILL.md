@@ -27,7 +27,7 @@ owner-approval flow.
 ## Set up before asking the first question
 
 1. Detect the project's knowledge layout before writing:
-   - when `knowledge/project.md`, `knowledge/specs/`, `knowledge/memory/`, and
+   - when `knowledge/project.md`, `knowledge/prds/`, `knowledge/memory/`, and
      `knowledge/brainstorms/` are present, use `knowledge/brainstorms/`;
    - when no knowledge-system signature is present, use an existing ordinary
      brainstorm artifact folder, or create top-level `brainstorms/` after
@@ -128,4 +128,4 @@ plan, map, or specification does not replace or move the raw interview notes.
 
 Knowledge-system integration is conditional. Without the complete new layout,
 preserve the standalone brainstorm behavior and do not create a partial
-`knowledge/`, `specs/`, or `memory/` system.
+`knowledge/`, `prds/`, or `memory/` system.

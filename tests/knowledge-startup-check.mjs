@@ -89,7 +89,7 @@ check("startup file order", () => {
     "knowledge/project.md",
     "knowledge/current.md",
     "knowledge/memory/memory-index.md",
-    "knowledge/specs/spec-index.md",
+    "knowledge/prds/spec-index.md",
   ]);
   assert.equal(new Set(STARTUP_FILES.map((item) => item.path)).size, 6);
 });
@@ -102,7 +102,7 @@ try {
     ["knowledge/project.md", "PROJECT_SENTINEL"],
     ["knowledge/current.md", "CURRENT_SENTINEL"],
     ["knowledge/memory/memory-index.md", "# ignored\n\n- MEMORY_SENTINEL\n  wrapped"],
-    ["knowledge/specs/spec-index.md", "# ignored\n\n- SPEC_SENTINEL"],
+    ["knowledge/prds/spec-index.md", "# ignored\n\n- SPEC_SENTINEL"],
   ]);
   for (const [path, text] of files) {
     const absolute = resolve(fixture, path);
@@ -156,13 +156,13 @@ try {
       "# What this project knows\n\nNothing saved yet.\n",
     );
     writeFileSync(
-      resolve(fixture, "knowledge/specs/spec-index.md"),
+      resolve(fixture, "knowledge/prds/spec-index.md"),
       "# How this project is meant to work\n\nNothing saved yet.\n",
     );
     const output = loadKnowledge(fixture);
     assert.equal(count(output, "Nothing saved yet."), 2);
     assert.ok(!output.includes("Project startup file empty: knowledge/memory/memory-index.md"));
-    assert.ok(!output.includes("Project startup file empty: knowledge/specs/spec-index.md"));
+    assert.ok(!output.includes("Project startup file empty: knowledge/prds/spec-index.md"));
   });
 } finally {
   rmSync(fixture, { recursive: true, force: true });

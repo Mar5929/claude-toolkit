@@ -15,7 +15,7 @@ The project brain lives under `knowledge/`, plus `SOUL.md` at the root. Obsidian
 may open the folder as a vault, but ordinary Markdown and Git are the source of
 truth.
 
-`knowledge/specs/knowledge-system.md` in the toolkit repository is the design
+`knowledge/prds/knowledge-system.md` in the toolkit repository is the design
 authority. It is not installed into projects. The managed
 `knowledge/README.md` template is the portable operating manual.
 
@@ -30,7 +30,7 @@ knowledge/
   memory-self-improvement.md       what the owner counts as memory-worthy
   memory/
     memory-index.md                generated, one line per file
-  specs/
+  prds/
     spec-index.md                  generated, one line per file
   brainstorms/                     raw exploration, never current truth
   .obsidian/app.json               minimal vault settings
@@ -44,7 +44,7 @@ knowledge/
   hooks/work-item-close.mjs
 ```
 
-`knowledge/memory/` and `knowledge/specs/` are **flat**. One file per topic, no
+`knowledge/memory/` and `knowledge/prds/` are **flat**. One file per topic, no
 subfolders by type. Tags are free-form with no vocabulary file.
 
 ## Work out what shape the project is in
@@ -58,7 +58,8 @@ Look before doing anything. There is no detector script: read the folder.
 | The flat folders and indexes have current signatures, but the managed manual is missing | **Partial current.** Offer to restore the manual; do not convert approved files. |
 | `knowledge/memory/` with subfolders like `context/`, `decisions/`, `domain/` | **Older layout.** Offer the conversion below. |
 | `knowledge/memory/tags.md`, or frontmatter with `source: owner-paraphrase` and `session:` | **Older layout.** Same. |
-| A `memory/` or `specs/` folder with none of those signs | **Not this system.** Say so and ask. Folder names alone prove nothing. |
+| A `knowledge/specs/` folder alongside the other signs above | **Old folder name.** `specs/` was renamed to `prds/`. Report it and offer the rename below. |
+| A `memory/`, `specs/`, or `prds/` folder with none of those signs | **Not this system.** Say so and ask. Folder names alone prove nothing. |
 | Signs of more than one shape at once | **Stop.** Name exactly what you found and ask. Do not move anything. |
 
 ## New project setup
@@ -137,6 +138,27 @@ shape. Everything else in this system shows the owner the words first.
 
 No fact is lost. A file that says something before says the same thing after.
 
+## Renaming an old `knowledge/specs/` folder
+
+The folder that holds approved system behavior used to be called
+`knowledge/specs/`. It is now `knowledge/prds/`, short for product requirements
+document. Nothing inside a file changes. Only the folder name does.
+
+A project set up before the rename still has the old name. Detect it, report it,
+and offer the rename. Do not rename anything without the owner saying yes.
+
+1. **Detect.** `knowledge/specs/` exists and `knowledge/prds/` does not.
+2. **Report.** Say the folder is on the old name, and list the files in it so
+   the owner sees what moves.
+3. **Offer.** Ask whether to rename it. If the answer is no, stop and leave the
+   folder alone. The project keeps working; only the name is behind.
+4. **Rename with `git mv`** so the history of every file follows it.
+5. **Fix every pointer** to the old path in that project: the installed tools,
+   the hooks, `CLAUDE.md`, `AGENTS.md`, and any document that names the folder.
+6. **Rebuild and check.** Run the index builder and the checker. Both must pass.
+
+If both folders exist, stop. Do not merge them. Name what is in each and ask.
+
 ## Git boundary
 
 Everything stays in the requesting session's worktree. This plugin never
@@ -146,8 +168,8 @@ project's Git workflow owns all of that.
 ## Hard boundaries
 
 - Do not write anything while detecting or planning.
-- Do not treat an ordinary `memory/`, `specs/`, or `knowledge/` folder as this
-  system without its signatures.
+- Do not treat an ordinary `memory/`, `prds/`, `specs/`, or `knowledge/` folder
+  as this system without its signatures.
 - Do not follow a symlink outside the repository.
 - Do not overwrite an existing file or merge two candidate project overviews.
 - Do not restore retired machinery: the verifier, the health tool, the layout

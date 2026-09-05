@@ -67,16 +67,15 @@ automatically as it grows.
   - the per-server MCP tool rules in `../../library/guides/mcp-best-practices.md`;
     these are conditional, so only audit the servers this project connects
   - each system from the setup gates: hooks, project knowledge, knowledge layer
-  - the two document folders Gate 1 offers every project, `docs/designs/` and
-    `docs/PRDs/`. Each is the folder plus a short `README.md` plus its own line
-    in the codemap, and a folder with no codemap line is a folder no agent
-    opens, so check all three parts. `../project-init/references/setup-flow.md`
-    has what each holds and how long a file in it lives. `docs/designs/` only
-    applies where work items are tracked outside the repository; a project on
-    the Git-ignored `.work-items/` tracker keeps each design with its own item,
-    so the folder is not a gap there. A project that was offered them and
-    declined is not missing them; record the decline so this audit stops raising
-    it
+  - the document folder Gate 1 offers every project, `docs/designs/`. It is the
+    folder plus a short `README.md` plus its own line in the codemap, and a
+    folder with no codemap line is a folder no agent opens, so check all three
+    parts. `../project-init/references/setup-flow.md` has what it holds and how
+    long a file in it lives. It only applies where work items are tracked
+    outside the repository; a project on the Git-ignored `.work-items/` tracker
+    keeps each design with its own item, so the folder is not a gap there. A
+    project that was offered it and declined is not missing it; record the
+    decline so this audit stops raising it
   - the multi-part kits, which are a tool plus a rule plus a hook rather than a
     single file, so a partial install looks like a pass unless you check each
     part: the Salesforce permission set kit
@@ -210,8 +209,14 @@ checks:
     folder could be mistaken for the system.
 
   Mixed or unknown stops adoption and conversion: name exactly what you found
-  and ask. Never move an ordinary folder called `memory`, `specs`, or
+  and ask. Never move an ordinary folder called `memory`, `prds`, `specs`, or
   `knowledge` on its name alone.
+- **Old folder name:** a project set up before the rename has
+  `knowledge/specs/` where the current layout has `knowledge/prds/`. That is
+  the same folder under its old name, not an older layout. Report it, list what
+  is in it, and offer to rename it with `git mv` and fix every pointer to the
+  old path. Do nothing without the owner's yes. If both folders exist, stop,
+  say what is in each, and ask. The `second-brain` skill has the steps.
 - **Packaged runtime:** for a current layout, also check the installed
   managed `knowledge/README.md` against the packaged template byte for byte;
   `remember`, `recall`, `retire`, `reflect`, `second-brain`, and
@@ -447,12 +452,12 @@ on, and where is work tracked. Read the file and report:
   end of a task, and in an old file they are most of the bulk.
 - **Context sources the codemap does not name.** Look for folders holding
   context an agent should pull in on demand: `ai-external-knowledge/`,
-  `docs/designs/`, `docs/PRDs/`, a specifications folder, captured reference
-  data. Any one the codemap does not name is a folder no agent will open,
-  however good what is in it. Propose the line, saying what is inside and when
-  to open it. For the two document folders also say how long a file in each
-  lives, since that is the part a session gets wrong: a design is deleted once
-  the specification is current, and a PRD is kept.
+  `docs/designs/`, `knowledge/prds/`, captured reference data. Any one the
+  codemap does not name is a folder no agent will open, however good what is in
+  it. Propose the line, saying what is inside and when to open it. For those two
+  also say how long a file in each lives, since that is the part a session gets
+  wrong: a design is deleted once that area's PRD is current, and a PRD is kept
+  for the life of the area.
 - **Live state that belongs in the tracker.** Current phase, next action, and
   open TODOs drift the moment they are written here.
 - **Project-knowledge startup parity.** When the current layout is installed,

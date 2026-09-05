@@ -23,7 +23,8 @@ nearby topics. Look for:
 - duplicates from the same source;
 - topics split across files so neither answers clearly;
 - current files that contradict each other;
-- memory competing with a current specification;
+- memory competing with a current PRD;
+- a PRD still marked proposed after the work it describes was built;
 - files replaced in fact but still marked current;
 - saved claims contradicted by their source, code, or observed behavior;
 - inferred claims that can now be checked;

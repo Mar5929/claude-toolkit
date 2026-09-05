@@ -54,7 +54,7 @@ try {
 process.stdout.write(
   [
     'First file change of this session. If this edit is part of building from',
-    'or designing a solution from a specification (a knowledge/specs/ file or',
+    'or designing a solution from a specification (a knowledge/prds/ file or',
     'a ticket body), and the spec-check skill has not run yet, run it now and',
     'show the owner what it finds before building further. If this is not',
     'build-from-a-spec work, or the check already ran, continue; this reminder',
