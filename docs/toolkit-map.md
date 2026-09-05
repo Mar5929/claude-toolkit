@@ -111,13 +111,10 @@ It is deliberately small, and its own `README.md` carries the test that keeps it
 that way: a thing belongs there only if it must hold in a repository nobody set
 up, and only if it is not already in `library/`. Shipping
 the same guidance in both piles would mean two copies that drift apart. Today it
-holds three rules. `no-ai-attribution.md` comes with a settings value and a hook
-that each close a hole the other two leave. `propose-the-best-solution.md`
-stands alone and says the best answer always gets said out loud, whatever it
-would cost in time, effort, or resources.
-`keep-design-out-of-requirements.md` stands alone too and keeps build decisions
-out of requirements, splitting the work into functional requirements, a
-technical specification, and the decision records that join them.
+holds one rule. `no-ai-attribution.md` comes with a settings value and a hook
+that each close a hole the other two leave. Two more sat here until the owner
+removed them on 2026-09-02: `propose-the-best-solution.md` and
+`keep-design-out-of-requirements.md`. The folder's own `README.md` records both.
 
 ## Rules and references (canonical indexes)
 
@@ -301,8 +298,8 @@ The genuine watch-items are called out at the end.
   section sign. Both were removed in August 2026 as per-message overhead, and
   the hand-written style itself was removed in #245. Neither hook could ever
   shape a commit message, a document, or anything a helper agent writes; those
-  are covered by the `follow-the-output-style` rule and, for an agent that
-  writes persistent files, by the writing rules inside its own definition. A hook
+  are covered only by the writing rules inside an agent's own definition, since
+  the owner removed the `follow-the-output-style` rule on 2026-09-02. A hook
   enforces a rule, triggers a process agents forget, or orients a session at its
   start. Voice is not on that list, and three attempts to put it there have all
   been removed. The jobs, their separate bars, and that history are in
@@ -452,12 +449,11 @@ The genuine watch-items are called out at the end.
   guard caught to return; that is the accepted trade, not a surprise. The cost
   that stands is the one the hooks never touched: an output style never reaches
   a helper agent. Moving to a built-in style widened that cost rather than
-  fixing it, knowingly. There is no style file for a helper agent to open now,
-  so `follow-the-output-style` resolves to its own fallback, which is to write
-  plainly. That makes the writing rules inside an agent's own definition the
-  only real voice control helper agents have, and it is why every helper-agent
-  definition that writes owner-facing prose must carry those writing rules
-  itself.
+  fixing it, knowingly. A rule called `follow-the-output-style` used to send a
+  helper agent to the style file, and the owner removed it on 2026-09-02. So the
+  writing rules inside an agent's own definition are the only voice control
+  helper agents have, and every helper-agent definition that writes owner-facing
+  prose must carry those writing rules itself.
   **One per-message reminder came back, then went away again.**
   `explain-simply-reminder` shipped in September 2026, a `UserPromptSubmit` hook
   asking on every message for an answer a five-year-old could follow. It was a
@@ -478,10 +474,10 @@ The genuine watch-items are called out at the end.
   safety and workflow rules; the dependency graph answers impact questions
   about the metadata that already exists. Project knowledge may link to that evidence but does
   not require or own the analysis tool. Three different jobs on the same stack.
-- **PRDs versus the work tracker versus designs versus specifications.** Four
-  places now hold text that looks like requirements, or looks like behavior.
-  They answer four different questions, at four different sizes, and they do
-  not live for the same length of time.
+- **PRDs versus the work tracker versus designs.** Three places now hold text
+  that looks like requirements, or looks like behavior. They answer three
+  different questions, at three different sizes, and they do not live for the
+  same length of time.
 `knowledge/prds/` holds one living
   PRD per feature area. Requirements and settled behavior are the same document
   at two points in time, told apart by its `status` line: `proposed` while it is
