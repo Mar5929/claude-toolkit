@@ -7,11 +7,10 @@ description: >-
   toolkit", "point this computer at the toolkit", "I have a new laptop", "make
   sure my machine-wide rules are here", "check my global Claude settings against
   the toolkit", or "/machine-sync". It checks the machine-wide rules, the
-  required settings values, and the machine-wide hooks. Today those are the rule
-  that equipped projects activate their one knowledge manual, the rule that no
-  commit or pull request carries AI credit, the rule that the best solution is
-  always proposed, and the rule that build decisions never go in requirements.
-  It reports every gap first and changes nothing without approval.
+  required settings values, and the machine-wide hooks. Today that is the rule
+  that no commit or pull request carries AI credit, the settings values behind
+  it, and the guard hook that enforces it. It reports every gap first and
+  changes nothing without approval.
 ---
 
 # machine-sync: bring a computer up to the toolkit

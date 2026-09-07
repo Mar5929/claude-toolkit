@@ -28,8 +28,8 @@ files into a project, so every project it touches opts in deliberately.
      `.claude/rules/`
   6. Optional standalone toolkit skills, offered from the `session-skills` plugin
   It asks before acting, recommends a per-stack layout, and copies in the
-  standard rule files, including the project file lifecycle that every agent
-  receives through `.claude/rules/`. It does not hold the memory or knowledge systems itself;
+  standard rule files that every agent receives through `.claude/rules/`.
+  It does not hold the memory or knowledge systems itself;
   it points at their plugins so each can evolve on its own.
   New Salesforce projects use `delivery/` for client-work artifacts and
   `knowledge/` for curated working context. Existing `engagement/` projects
@@ -43,13 +43,14 @@ files into a project, so every project it touches opts in deliberately.
   does not re-nag about a deliberate "no". Its Step 1 refreshes the installed
   plugin first, so running it also pulls the latest toolkit onto that machine.
 
-- **work-item-lifecycle** (`/work-item-lifecycle`): applies the project's
-  standing file lifecycle to a real file or work-item event. Its description
-  lets an agent select it when creating, moving, organizing, completing, or
-  archiving work-item information, or when deciding where architecture,
-  specifications, decisions, deliverables, or retired material belong. It
-  reads the project rule instead of copying a second lifecycle, searches for an
-  existing authority, and treats advice separately from permission to write.
+- **work-item-lifecycle** (`/work-item-lifecycle`): applies the project's file
+  lifecycle to a real file or work-item event. Its description lets an agent
+  select it when creating, moving, organizing, completing, or archiving
+  work-item information, or when deciding where architecture, designs,
+  decisions, deliverables, or retired material belong. It carries the principle
+  itself, reads the project's own routing documents for where things go,
+  searches for an existing authority, and treats advice separately from
+  permission to write.
 
 - **machine-sync** (`/machine-sync`): the third sibling, working one level up. It
   sets up the COMPUTER rather than a project, comparing the Claude and Codex
@@ -75,13 +76,10 @@ It is deliberately small. Its `README.md` carries a two-question test for what
 belongs there: the thing has to hold in a repository nobody set up with the
 toolkit, and it must not already be in `library/`. Anything
 failing either question is a project rule and goes in `library/` instead. It
-carries three rules today: `no-ai-attribution.md`, which keeps credit to Claude
-or any other AI agent off everything the owner commits or pushes,
-`propose-the-best-solution.md`, which says the best answer always gets said out
-loud, whatever it would cost in time, effort, or resources, and
-`keep-design-out-of-requirements.md`, which keeps build decisions out of
-requirements and splits the work into functional requirements, a technical
-specification, and the architectural decision records that join them.
+carries one rule today: `no-ai-attribution.md`, which keeps credit to Claude or
+any other AI agent off everything the owner commits or pushes. Two more sat here
+until the owner removed them on 2026-09-02, and the folder's own `README.md`
+says which.
 
 ### The library: what lands in a project
 
@@ -92,10 +90,9 @@ the repository root would disappear the moment the plugin is installed.
 
 - `library/rules/general/` (with its own `README.md` index): the standard
   `.claude/rules` files copied into every project, marked default ON or
-  conditional. The default file lifecycle rule keeps work tracking, active
-  architecture, approved behavior, lasting decisions, implementation,
-  presentation deliverables, and retired material in their proper homes.
-  Retired v1 examples are not part of this active library.
+  conditional. That index also logs the rules the owner has removed, so a
+  session can tell a rule that never existed from one that was taken out on
+  purpose. Retired v1 examples are not part of this active library.
 - `library/rules/salesforce/` (with its own `README.md`): the same idea for
   Salesforce projects, including compatibility for existing `engagement/`
   delivery roots.
@@ -164,9 +161,9 @@ plugin.
   Gate 3 offers the complete packaged `second-brain` project knowledge system,
   including its managed operating manual, startup map, task-specific skills,
   index builder, and checker.
-- `work-item-lifecycle` is the action layer for the default project file
-  lifecycle rule. The rule is always-loaded policy; the skill is selected when
-  a specific file or work-item event needs that policy applied.
+- `work-item-lifecycle` is the action layer for the project's file lifecycle.
+  It is selected when a specific file or work-item event needs that policy
+  applied, and it reads the project's own routing documents to find the homes.
   Gate 4 offers optional impact-analysis tools without creating a competing
   store.
 - Gate 6 offers the `session-skills` plugin, which holds `explain-simply`,

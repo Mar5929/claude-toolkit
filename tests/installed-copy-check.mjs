@@ -32,9 +32,11 @@
  *
  * 3. The project knowledge operating manual matches the packaged template.
  *
- * 4. The default project file lifecycle rule and the Salesforce scaffold keep
- *    architecture, presentation deliverables, and retired material in the
- *    exact homes the owner approved.
+ * 4. The Salesforce scaffold and the Salesforce delivery-root rule keep
+ *    architecture and presentation deliverables in the exact homes the owner
+ *    approved. This used to cover a general project file lifecycle rule too.
+ *    The owner deleted that rule on 2026-09-02, so those expectations went
+ *    with it.
  *
  * The project-local index builder, knowledge checker, frontmatter parser, and
  * the four knowledge hooks are also checked against the second-brain package
@@ -167,9 +169,6 @@ for (const [installed, original] of MANAGED_COPIES) {
   }
 }
 
-const lifecycleRulePath = `${GENERAL_RULES}/project-file-lifecycle.md`;
-const lifecycleRule = read(lifecycleRulePath);
-const generalRulesIndex = read(`${GENERAL_RULES}/README.md`);
 const salesforceScaffold = read(
   "plugins/project-init/skills/project-init/references/salesforce-project-scaffold.md",
 );
@@ -178,26 +177,6 @@ const salesforceCompatibility = read(
 );
 
 const lifecycleChecks = [
-  [
-    lifecycleRule,
-    "`<delivery-root>/architecture/<area>/`",
-    `${lifecycleRulePath} does not keep active architecture in its approved home`,
-  ],
-  [
-    lifecycleRule,
-    "`<delivery-root>/deliverables/`",
-    `${lifecycleRulePath} does not name the presentation deliverables home`,
-  ],
-  [
-    lifecycleRule,
-    "PowerPoints, executive summaries, and high-level project overviews only",
-    `${lifecycleRulePath} no longer limits deliverables to presentation material`,
-  ],
-  [
-    lifecycleRule,
-    "Completion is not a reason to archive it.",
-    `${lifecycleRulePath} no longer keeps current architecture after work closes`,
-  ],
   [
     salesforceScaffold,
     "architecture/              # current detailed designs, grouped by area",
@@ -210,29 +189,14 @@ const lifecycleChecks = [
   ],
   [
     salesforceCompatibility,
-    "The general `project-file-lifecycle.md` rule owns",
-    "the Salesforce compatibility rule does not point to the general lifecycle authority",
+    "This rule owns one thing: which folder holds a Salesforce project's",
+    "the Salesforce compatibility rule no longer owns only the delivery-root choice",
   ],
 ];
 
 for (const [content, required, message] of lifecycleChecks) {
   checked++;
   if (!content.includes(required)) failures.push(`  ${message}`);
-}
-
-const defaultStart = generalRulesIndex.indexOf("## Default ON");
-const conditionalStart = generalRulesIndex.indexOf("## Conditional");
-const lifecycleEntry = generalRulesIndex.indexOf("| `project-file-lifecycle.md`");
-checked++;
-if (
-  defaultStart === -1
-  || conditionalStart === -1
-  || lifecycleEntry < defaultStart
-  || lifecycleEntry > conditionalStart
-) {
-  failures.push(
-    "  the general rules index does not list project-file-lifecycle.md as default ON",
-  );
 }
 
 /**

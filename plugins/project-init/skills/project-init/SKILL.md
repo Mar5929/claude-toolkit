@@ -413,10 +413,9 @@ CLAUDE.md stays thin and points at that folder. Read
   Copy no style file: `Concise` is built into Claude Code, so there is nothing
   to install and nothing to keep in step. There are no voice rules in
   `.claude/rules/` either; do not write one. Tell the owner three things: it
-  takes effect on their next session rather than the current one; a helper agent
-  never receives an output style, which is why `follow-the-output-style.md` is in
-  the rules folder; and with a built-in style there is no file for that rule to
-  point a helper agent at, so helper agents fall back to writing plainly.
+  takes effect on their next session rather than the current one; and a helper
+  agent never receives an output style, so a helper agent writing a commit
+  message or a document falls back to writing plainly.
 - **Offer `plain-english` instead, for an owner who wants a simpler voice**
   (default OFF). Ask once; do not push it. It answers as if the reader is five
   years old: plain everyday words, no jargon, no figures of speech, bullet
@@ -424,9 +423,7 @@ CLAUDE.md stays thin and points at that folder. Read
   `library/output-styles/plain-english.md` to
   `.claude/output-styles/plain-english.md` and set
   `"outputStyle": "plain-english"` instead of `Concise`. A project has one style
-  or none, so this replaces the selection rather than adding to it. Because
-  there is now a file on disk, `follow-the-output-style.md` has something real
-  to send a helper agent to, which the built-in style does not. The folder's
+  or none, so this replaces the selection rather than adding to it. The folder's
   `README.md` has the rest.
 - **Offer the machine-wide setting too**, if the owner wants this voice
   everywhere and not just here. Set `"outputStyle": "Concise"` in

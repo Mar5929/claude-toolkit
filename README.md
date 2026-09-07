@@ -101,9 +101,7 @@ claude-toolkit/
         guides/                      how-to docs for installing the kits above
       machine/                    ← machine-wide Claude and Codex material
         README.md                    the test for what belongs here, not in library/
-        rules/                       no-ai-attribution.md,
-                                     propose-the-best-solution.md,
-                                     keep-design-out-of-requirements.md
+        rules/                       no-ai-attribution.md
         settings/required.json       the attribution values that kill the AI credit lines
       skills/
         project-init/             ← SKILL.md + references/: the gate script only
@@ -324,11 +322,11 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
   **What I gave up, knowingly.** A helper agent never receives an output style,
   and a built-in style has no file on disk either. So on `Concise` the helper
   agents that write my commit messages, pull request text, and handoff prompts
-  get no voice instruction at all. `follow-the-output-style` stays and already
-  handles that: it tells a helper agent to write plainly. An agent that writes
-  owner-facing prose still carries the writing rules in its own definition. A
-  project on `plain-english` is the exception, because there the rule has a real
-  file to send it to.
+  get no voice instruction at all. A rule called `follow-the-output-style` used
+  to handle that by sending a helper agent to the style file, and I removed it
+  on 2026-09-02. So an agent that writes owner-facing prose has to carry the
+  writing rules in its own definition, and that is now the only thing covering
+  this.
 - [ ] **Publish tooling**: a small script/checklist to export skills to the
   Claude desktop and web apps so those surfaces stay in sync with this repo.
 - [ ] **"Port-back" convention**: a documented flow (and a reminder baked into

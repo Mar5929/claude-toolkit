@@ -98,8 +98,8 @@ large rule, or per-folder indexes.
 ## Notes
 
 - Git does not track empty folders. Add a `.gitkeep` when an empty folder must
-  survive the first commit. A folder README may help people, but the installed
-  `project-file-lifecycle.md` rule is what tells agents where files belong.
+  survive the first commit. A folder README may help people, but the folder
+  table above is what tells agents where files belong.
 - `.gitignore` should cover SFDX local state (`.sfdx/`, `.sf/`,
   `.localdevserver/`, `*.log`) and `.claude/worktrees/`. When the owner chooses
   local work tracking, `work init` also adds `/.work-items/` and creates the

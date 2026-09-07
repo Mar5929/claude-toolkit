@@ -36,31 +36,18 @@ knowledge policy and does nothing when the manual is absent.
 | `rules/no-ai-attribution.md` | `~/.claude/rules/no-ai-attribution.md` | Nothing the owner commits or pushes carries a line saying an AI helped write it. Covers commit trailers, pull request text, code comments, file headers, and documents. |
 | `settings/required.json` | merged into `~/.claude/settings.json` | Sets `attribution.commit` and `attribution.pr` to an empty string, which is what removes the `Co-Authored-By: Claude` trailer and the "Generated with Claude Code" line Claude Code adds by itself. |
 | `no-ai-attribution-guard` hook | `~/.claude/hooks/` plus an entry in `~/.claude/settings.json` | Refuses a `git commit`, `git tag`, `gh pr create`, or `gh release create` whose text carries AI credit. Its script lives with every other hook in the toolkit, in `../../hooks-library/hooks/`, not here. |
-| `rules/propose-the-best-solution.md` | `~/.claude/rules/propose-the-best-solution.md` | The best answer always gets said out loud. Time, effort, cost, and resources never decide whether it is mentioned, only what the owner picks after seeing it. |
-| `rules/keep-design-out-of-requirements.md` | `~/.claude/rules/keep-design-out-of-requirements.md` | Build decisions never go in requirements. Splits the work into one functional requirements document of five sections, a separate technical specification, and the architectural decision records that join them. |
 
 The `no-ai-attribution` rule, settings fragment, and guard hook cover one rule
 between them, and each has a hole the other two fill. Installing one without the
 others leaves a real gap, so `machine-sync` treats them as one item and reports
 a partial install as incomplete.
 
-`propose-the-best-solution.md` stands on its own, with no settings value or hook
-behind it. It shares a border with the project rule "Build It Well, and Never
-Quietly Build More Than Was Asked" in `../library/rules/general/`, and the two
-files each say where that border is. Keep them in step: the project rule owns
-the caliber of what gets built in a project, and this one owns the instruction
-that cost is never a reason to keep the best answer quiet, anywhere on the
-computer.
-
-`keep-design-out-of-requirements.md` stands on its own as well. It holds in
-every repository on the computer, including ones nobody set up with the toolkit,
-and it carries the five sections of the functional requirements, the separate
-technical specification, and the architectural decision records that join the
-two. It used to share a border with a project rule, "Log the Work, Spec It, Then
-Build It", which said a ticket's requirements are what and why, never how. That
-project rule was removed from the toolkit on 2026-08-31, so this file is now the
-only place that instruction lives. Do not assume a project rule is backing it
-up.
+That leaves one rule file in this folder. Two others used to sit here and were
+removed by the owner on 2026-09-02: `propose-the-best-solution.md`, which said
+the best answer always gets said out loud whatever it costs, and
+`keep-design-out-of-requirements.md`, which kept build decisions out of a
+ticket's requirements. Neither had a settings value or a hook behind it. Do not
+add either back without asking the owner.
 
 ## Why the hook script is not in this folder
 

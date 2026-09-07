@@ -24,11 +24,7 @@ genuinely could not help another project.
 |---|---|
 | `parallel-agent-sessions.md` | Sharing a repo with other live sessions: look before you edit, work in your own worktree and branch, never `git add -A`, land by pull request. |
 | `knowledge-direct-commit.md` | A save that touches only `knowledge/` commits straight to the default branch. No worktree, no pull request. The owner-approved exception to `parallel-agent-sessions.md`; the knowledge manual still decides what may be saved. |
-| `recommend-the-best-solution.md` | Propose the well-built solution and name the quick-patch tradeoff, and do not build more than was asked. |
-| `follow-the-output-style.md` | A helper agent never sees an output style, so anything it writes that the owner reads goes and reads the style file first. |
-| `ask-before-assuming.md` | Ask one specific question when intent or scope is ambiguous, and state the rough scope before an operation that reads or produces a lot. |
 | `offer-context-handoff.md` | When context is heavy and the next step is reasoning-heavy, offer a self-contained handoff prompt, after running the memory check. |
-| `project-file-lifecycle.md` | Give each kind of project information one lasting home, and do not archive current truth just because a work item closed. |
 | `work-item-stages.md` | One current stage per work item, from the same list of fourteen, plus a dated progress log. The stage sets the tracker status, and nothing enforces any of it. |
 | `ai-external-knowledge.md` | Outside documentation captured for agents (vendor docs, API references, framework guides) goes in `ai-external-knowledge/` at the project root, one folder per topic, each naming its source URL and capture date. It stays raw source material, and nothing reads it unless a rule, a skill, or persistent knowledge points at a topic. |
 | `claude-code-docs-first.md` | This repo's own rule, not shipped. Before building or changing a hook, skill, plugin, agent, command, output style, or setting, read the page that covers it in `ai-external-knowledge/claude-code/`. This is the pointer `ai-external-knowledge.md` asks for, aimed at the one captured topic this repo has. |
@@ -42,6 +38,10 @@ genuinely could not help another project.
 | `work-item-folders.md` | It governs the local work-tracker, one flat item folder under Git-ignored `.work-items/`. Work here is tracked on the `Claude-Toolkit-Project` board on GitHub, so there are no local work-item folders for the rule to govern. |
 | `dependency-graph.md` | It is conditional on a code graph being installed. No graph is installed here, and the graphify kit was considered and declined. |
 | `keep-claudemd-current.md` | The toolkit stopped shipping it on 2026-08-31. It spent words in every session on a file that `project-init` writes and `project-sync` audits. `plugins/project-init/skills/project-init/references/thin-claudemd.md` is now the only home for the CLAUDE.md structure, read at the moment the file is written. |
+| `recommend-the-best-solution.md` | The owner removed it from the toolkit on 2026-09-02. |
+| `follow-the-output-style.md` | The owner removed it from the toolkit on 2026-09-02. The copy this repo ran was dropped in the same change. |
+| `ask-before-assuming.md` | The owner removed it from the toolkit on 2026-09-02. The copy this repo ran was dropped in the same change. |
+| `project-file-lifecycle.md` | The owner removed it from the toolkit on 2026-09-02. |
 
 `.claude/toolkit-sync.md` holds the same record, along with everything else that
 was set up, skipped, or declined.
