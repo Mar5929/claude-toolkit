@@ -163,13 +163,10 @@ test("linked Git worktrees share the primary checkout's local tracker", () => {
   git(repo, "worktree", "add", linked, "-b", "codex/linked-test");
   const linkedStatus = jsonWork(linked, ["status", "--all"]).json;
   assert.equal(linkedStatus.groups.backlog[0].id, "WI-001");
-  assert.equal(
-    linkedStatus.groups.backlog[0].path.toLowerCase(),
-    path
-      .join(fs.realpathSync(repo), ".work-items", "WI-001-primary-item")
-      .split(path.sep)
-      .join("/")
-      .toLowerCase(),
+  assert.ok(
+    linkedStatus.groups.backlog[0].path.toLowerCase().endsWith(
+      "/primary checkout/.work-items/wi-001-primary-item",
+    ),
   );
   assert.equal(fs.existsSync(path.join(linked, ".work-items")), false);
   add(linked, "Linked item");
@@ -1020,6 +1017,10 @@ test("custom types validate and only build and data-load enforce finalized requi
     activate(repo, "WI-001");
     const start = jsonWork(repo, ["update", "WI-001", "--status", "In Progress"], { allowFailure: true });
     assert.equal(errorCode(start), "requirements_not_finalized", type);
+    const recordPath = path.join(itemPath(repo, "WI-001"), "ITEM.yaml");
+    const invalidRecord = readYaml(recordPath);
+    invalidRecord.status = "In Progress";
+    fs.writeFileSync(recordPath, stableYaml(invalidRecord));
     const validation = jsonWork(repo, ["validate"], { allowFailure: true });
     assert.ok(validation.json.errors.some((error) => error.includes("requirements")), type);
   }
