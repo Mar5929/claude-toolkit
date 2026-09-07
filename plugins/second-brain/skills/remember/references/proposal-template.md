@@ -117,10 +117,10 @@ Same shape. Only the arrow and the path change.
 > shows a message saying it already went through. Nothing is lost.
 
 - **Why:** the code shows the check exists, but not that the second click is meant to be friendly instead of an error
-- **Where:** `knowledge/specs/intake-form.md` (edit, adds one section) · tags: intake, forms
+- **Where:** `knowledge/prds/intake-form.md` (edit, adds one section) · tags: intake, forms
 - **From:** you and I worked it out together during the intake work item
 - **Unsure:** I assumed the wording of the message is ours to pick. Tell me if you already have wording.
-- **Checked:** the spec index and `knowledge/specs/intake-form.md`. It covers the fields but says nothing about double submits.
+- **Checked:** the spec index and `knowledge/prds/intake-form.md`. It covers the fields but says nothing about double submits.
 ```
 
 ## After the blocks

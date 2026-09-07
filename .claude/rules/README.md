@@ -4,13 +4,19 @@ Every `.md` file in this folder is loaded at the start of a Claude Code session
 and is in force for the whole session. Codex does not load them automatically,
 which is why `AGENTS.md` tells a Codex session to open this folder and read them.
 
-These are copies. The originals live in
+Almost all of these are copies. The originals live in
 `plugins/project-init/library/rules/general/`, which is what every other toolkit
 project receives. This repo runs them unmodified so a change is felt where it is
 written. `tests/installed-copy-check.mjs` fails when an original and its copy
 here stop matching. A rule this repo should stop following is dropped from this
 folder rather than edited, because editing the copy would mean editing what
 every other project receives.
+
+One rule is this repo's own and is not shipped anywhere:
+`claude-code-docs-first.md`. It is listed by name in the `OWN_FILES` set in
+`tests/installed-copy-check.mjs`, which is how that check knows it has no
+original to match. Add a repo-only rule the same way, and only when the rule
+genuinely could not help another project.
 
 ## What each file does
 
@@ -25,6 +31,7 @@ every other project receives.
 | `project-file-lifecycle.md` | Give each kind of project information one lasting home, and do not archive current truth just because a work item closed. |
 | `work-item-stages.md` | One current stage per work item, from the same list of fourteen, plus a dated progress log. The stage sets the tracker status, and nothing enforces any of it. |
 | `ai-external-knowledge.md` | Outside documentation captured for agents (vendor docs, API references, framework guides) goes in `ai-external-knowledge/` at the project root, one folder per topic, each naming its source URL and capture date. It stays raw source material, and nothing reads it unless a rule, a skill, or persistent knowledge points at a topic. |
+| `claude-code-docs-first.md` | This repo's own rule, not shipped. Before building or changing a hook, skill, plugin, agent, command, output style, or setting, read the page that covers it in `ai-external-knowledge/claude-code/`. This is the pointer `ai-external-knowledge.md` asks for, aimed at the one captured topic this repo has. |
 
 ## Rules this repo deliberately does not carry
 

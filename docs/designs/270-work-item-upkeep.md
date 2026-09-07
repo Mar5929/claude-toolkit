@@ -1,350 +1,571 @@
-# 270: agents keep the active work item accurate
+# 270: Keep the active work item accurate
 
-The build plan for GitHub issue #270 on `Mar5929/claude-toolkit`. Requirements
-and approved design decisions live in that issue body. This file says how they
-get built and does not restate them.
+This is the build plan for GitHub issue #270. The approved requirements and
+design decisions remain in the issue body. This file defines the smallest
+Claude Code solution that meets them.
 
-Read the issue first: `gh issue view 270 --repo Mar5929/claude-toolkit --comments`.
+Read the issue before building:
 
-## The shape of the answer
+```text
+gh issue view 270 --repo Mar5929/claude-toolkit --comments
+```
 
-Three layers, following the split recorded in `docs/toolkit-map.md` for issue
-#260: **the code stores, the rule decides.**
+This revision follows a full repository audit and the linked
+[Claude Code best-practice reference](https://github.com/shanraisshan/claude-code-best-practice?tab=readme-ov-file#how-to-use).
+That repository is reference material, not a workflow to copy. The useful
+principles here are: keep `CLAUDE.md` small, put shared behavior in rules, use a
+skill for a repeatable action, use scripts for facts that must be enforced, and
+use hooks only for narrow deterministic jobs.
 
-| Layer | File | Covers |
-| --- | --- | --- |
-| Code | `plugins/work-tracker/skills/work/scripts/lib/tracker.mjs` | Local-folder tracker only |
-| Skill | `plugins/work-tracker/skills/work/SKILL.md` | Local-folder tracker only |
-| Rule | `plugins/project-init/library/rules/general/work-item-stages.md` | Both modes, tracker-neutral |
+## The decision
 
-Approved decision 1 says the code lands in the local tracker and the written
-guidance covers both modes. GitHub-issue mode has no code, so everything it
-needs goes in the rule, which is already tracker-neutral and already carries a
-GitHub commands section.
+Use the parts that already own this behavior:
 
-No new skill and no new rule. Approved decision 5.
-
-## Eight code changes
-
-Numbered `C1` to `C8` and referenced by number below.
-
-### C1. A note without a stage reaches the progress log
-
-`tracker.mjs:601-604`. Today the progress entry is built only when `--stage` was
-passed, so `work update WI-014 --note "Mike approved the API shape"` reaches
-`HISTORY.ndjson` and never reaches the Progress log in `STATUS.md`. Most of what
-requirement 7 asks agents to capture does not move a stage.
-
-Build the entry when `--stage` was passed **or** `--note` was given explicitly.
-Not when neither was: `note` currently falls back to `changes.join("; ")`, and
-writing "branch updated" into the progress log is exactly the routine activity
-requirement 10 excludes.
-
-The stage label falls back to the item's existing stage, or `--` when the item
-has none. An item with no stage stays normal (requirement 15).
-
-This is the smallest change here and the highest value one.
-
-### C2. Work type becomes flexible
-
-`tracker.mjs:23` fixes type to `bug`, `enhancement`, `task`. `validateRecord`
-rejects anything else at line 2013, and `update` has no `--type` flag, so a type
-cannot be corrected after creation.
-
-- Rename `TYPES` to `COMMON_TYPES` and add the approved list: `discovery`,
-  `solution-design`, `build`, `data-load`, `maintenance`, `research`, `task`.
-  Keep `bug` and `enhancement` so existing items stay valid.
-- `validateRecord` accepts any non-empty single-token string. The common list
-  becomes a suggestion surfaced in `help`, not a gate.
-- Add `--type` to `update`.
-
-Requirement 14 forbids backfill, so nothing rewrites an existing item's type.
-
-### C3. The requirements gate stops blocking non-build work
-
-`requireFinalizedRequirements` fires from three places: `updateItem` when a
-stage derives Ready, In Progress or In Review (lines 538-540), `startItem`
-(line 502), and `finishItem` (line 688). Discovery, research and solution design
-are exactly the work approved answer 4 exempts, and they all derive In Progress.
-
-The **type** decides, not the status:
-
-- `build` and `data-load` keep the gate. Requirement 3 says so directly.
-- `discovery`, `research`, `solution-design` do not.
-- Every other type, including a missing one, keeps the gate. Failing closed on
-  an unknown type is safer than the reverse, and the agent can change the type.
-
-This narrows a gate that already exists. It is not a new guard and so is not a
-reversal of #260. Say that plainly in the commit message; a reader seeing
-`requireFinalizedRequirements` move will otherwise assume the opposite.
-
-### C4. `finish` records who approved, and never refuses
-
-`finishItem` (line 685) sets Done from `git merge-base --is-ancestor` alone. No
-approver, no prompt. Approved decision 4 settles the shape: record it, say so
-when it is missing, surface it in validation, block nothing.
-
-- Add optional `approved_by` and `approved_date` to the record. Optional on
-  read, so requirement 14 holds and no existing item fails.
-- `finish --approved-by NAME` records both.
-- Without it, `finish` still works and still sets Done. Its output says in one
-  line that no approver is recorded.
-
-`REQUIREMENTS.md` already carries `approved_by`, so this follows a precedent
-rather than inventing a field.
-
-### C5. Cancelled stays hand-set
-
-No code change. `update --status Cancelled` already works, `validateRecord`
-already exempts Cancelled from needing a next step, and C1 makes the reason
-reach the progress log. Requirement 14 is guidance, and it lands in the skill
-and the rule.
-
-Listed here so a reader does not go looking for the code that implements it.
-
-### C6. A completion event other systems can read
-
-Requirement 16 and the boundary drawn with issue #269.
-
-One append-only file, `.work-items/EVENTS.ndjson`, at the tracker root. One JSON
-object per line: item id, title, event kind, resulting status and stage, date,
-approver where one exists, and the landing commit.
-
-Written inside the same `atomicBatchWrite` call as the item update in
-`writeItemFiles` (line 1651), so the event can never disagree with the record it
-describes.
-
-`finish` writes `work_completed` when the commit lands and the item goes Done.
-Nothing else writes an event yet. Keep it to completion; requirement 16 asks for
-a work-completion event and nothing wider.
-
-The second brain reads this file and writes only into `knowledge/`. It never
-writes into `.work-items/`, which makes "the tracker remains the only owner"
-true by construction instead of by instruction.
-
-### C7. The session knows which item is active
-
-Approved decision 3. The one genuinely new component, and the only mechanism
-behind hard stop 1.
-
-`.work-items/ACTIVE.json` maps a **branch name** to an item id, a date, and
-nothing else. Branch, not session id: an agent cannot reliably read a session
-id, one branch is one piece of work in this workflow, and the mapping survives a
-session ending.
-
-New commands:
-
-- `work session` reports the active item for the current branch.
-- `work session set WI-014` records it.
-- `work session clear` removes it.
-
-`update` and `finish` **refuse** an item that is not the current branch's active
-item, unless `--force` is passed. When the branch has no entry, nothing is
-enforced, so every existing item and every ad-hoc use is unaffected.
-
-Refusing is deliberate here. Approved decision 4 softened hard stop 3 only. Hard
-stops 1 and 2 were approved as refusals and are not quietly softened to match.
-
-**Open for Mike:** he may want this to warn instead of refuse, for the same
-reason he gave on decision 4. Ask before building C7, not after.
-
-### C8. Validation surfaces a stale item
-
-The audit's unexpected finding: a stale item passes `validate` clean. The
-DragonFly WI-014 evidence in the issue validates with no complaints. Validation
-checks structure, links, dates and completion evidence, and never staleness.
-
-Two new **warnings**, never errors:
-
-- An `In Progress` item whose `updated_date` is more than 14 days old.
-- A `Done` item with no `approved_by` (from C4).
-
-Warnings because requirement 14 forbids backfill: as errors, every existing Done
-item would fail validation on the first run.
-
-**This is a partial reversal of #260.** The code is being taught to judge, not
-just to store. It is limited to warnings so the reversal stays small, but it is
-a reversal. Present it as one in the pull request. Do not slip it in.
-
-## Requirement-by-requirement mapping
-
-Every functional requirement in the issue body, in the order it appears there.
-
-| # | Requirement, in short | How it is met |
-| --- | --- | --- |
-| 1 | Check the active item before substantial work; ask rather than guess | C7 stores it, `update`/`finish` refuse a mismatch. Skill `S3` adds the orientation step. Rule `R1` covers GitHub mode |
-| 2 | Each item identifies its type of work | C2 |
-| 3 | Type guides the lifecycle and approval needs without forcing one process | C2 plus C3. Build and data-load keep the requirements gate; discovery, research and solution design do not |
-| 4 | Status, stage, next step, blockers, update date and landing evidence stay accurate | Already stored. C8 makes a stale item visible. Skill `S4` and rule `R4` say when to write |
-| 5 | One action updates stage, status, progress log and history together, all or nothing | Already true through `atomicBatchWrite` in `writeItemFiles`. C1 fixes the one branch where the progress log was skipped. C6 puts the event inside the same batch |
-| 6 | Judgment about what counts as meaningful progress | Rule `R2`. No code |
-| 7 | Record Mike's choices and decisions during the conversation, not at the end | C1 is the mechanism. Skill `S4` and rule `R2` say to use it |
-| 8 | Shorten his wording, never interpret it; ask when unclear | Rule `R2`. No code. Nothing can check this |
-| 9 | Record a reported outside approval without claiming to have verified it | C4 stores the approver. Rule `R3` says not to claim verification |
-| 10 | Routine activity is not progress | C1's condition: a bare mechanical change writes no progress line |
-| 11 | Stages may be skipped, revisited, or gone backwards | Already true; nothing in code checks a stage. Rule `R5` |
-| 12 | At the end of substantial work, record the exact next step and blockers | Skill `S5`, rule `R4`, and the handoff skill change `H1` |
-| 13 | Summarize, then ask whether to mark it Done; an earlier clear yes counts | C4 plus skill `S5` |
-| 14 | Stopped work is Cancelled, not Done; build work says whether it reached the default branch | C5, plus `finish` already reporting ancestry |
-| 15 | Legacy items are not backfilled | Every new field is optional on read. C8's checks are warnings for this reason |
-| 16 | A dependable completion event other systems can react to | C6 |
-
-## Approved design decision mapping
-
-| Decision | How it is met |
+| Owner | Responsibility |
 | --- | --- |
-| 1. Both modes, split by layer | Code in `tracker.mjs` (local only). Guidance split: skill for local, rule for both. GitHub commands go in `R6` |
-| 2. The design document lives in the repository | This file, at `docs/designs/270-work-item-upkeep.md`. Deleted at stage 14 per that folder's README |
-| 3. Session active-item tracking is built; the stage-reminder hook is retired with it | C7 builds it. `X1` retires the hook |
-| 4. `finish` records approval, never refuses; validation surfaces the gap | C4 plus C8. His reason is quoted in the rule at `R3` so it is not lost |
-| 5. No new skill, no new rule | Every change edits an existing file. The change list below has no new skill or rule in it |
+| `work-item-stages.md` | The tracker-neutral policy for orientation, meaningful progress, flexible stages, handoff, and completion |
+| The existing `work` skill | How an agent operates the local-folder tracker |
+| The existing `work` CLI | Local state, objective checks, rollback-protected writes, and completion events |
+| The existing `handoff` skill | A conditional final tracker update before its memory review and prompt |
+| GitHub Issues and Projects | Shared work-item state and the native issue-close event in GitHub mode |
+
+Do not add a skill, rule, agent, task mirror, memory store, background worker,
+transcript parser, or replacement lifecycle hook. Retire the late
+`PostToolUse` stage reminder. The lifecycle rule already loads at session start,
+and the local CLI supplies the hard check the rule cannot supply by itself.
+
+The split remains: **the rule decides; the tracker stores and checks objective
+facts.**
+
+## Two tracker modes
+
+### Local-folder mode
+
+The local tracker owns `.work-items/`. It gets branch-scoped active-item state,
+one central wrong-item check, type-aware requirements handling, consistent
+progress writes, type-appropriate completion evidence, and an idempotent
+completion event.
+
+All related local writes use the existing tracker-wide lock and
+`atomicBatchWrite`. Describe this accurately: it is rollback-protected against
+ordinary command failures and tested failure injection. It is not a database
+transaction and cannot promise recovery from a killed process between file
+renames. `validate` and `reconcile` report recoverable damage.
+
+### GitHub mode
+
+Do not build a local mirror or a second GitHub tracker. The issue remains the
+active work item.
+
+The agent resolves the issue from an explicit issue number, an `issue-<number>`
+branch, or an unambiguous pull-request link. Before a change, it reads the issue
+number, title, body, current Progress log comment, stage label, and board status.
+If zero or several issues are plausible, it asks Mike one short question.
+
+GitHub cannot update the issue body, progress comment, label, and board field in
+one transaction. Treat them as one logical update, read them back afterward,
+and repair or report any partial failure. Never claim local atomicity for GitHub
+mode.
+
+An approved issue close is GitHub mode's machine-readable completion event.
+Closing as not planned represents cancellation. Issue #269 may consume the
+native close event later; it does not own or rewrite the issue.
+
+## Session flow
+
+### 1. Orient before substantial work
+
+The lifecycle rule tells the agent to identify the tracker and active item
+before substantial work.
+
+In local mode:
+
+1. Run `work active`.
+2. Read the active item's requirements and status.
+3. If the branch has no active item, select the clear item with
+   `work active set ID` or ask Mike when the choice is unclear.
+4. A conflicting item is a hard stop until the agent intentionally replaces it
+   with `work active set ID --replace`.
+
+In GitHub mode:
+
+1. Resolve the issue from the request, branch, or pull request.
+2. Run `gh issue view ISSUE --comments` and read the board state.
+3. Reuse that verified issue number for later mutations.
+
+Subagents may research or inspect. They return findings to the main agent and
+do not claim, update, or complete the canonical work item independently.
+
+### 2. Record meaningful progress when it happens
+
+Meaningful progress includes:
+
+- a stage or status change;
+- an approval or rejection;
+- a material choice, requirement answer, or constraint from Mike;
+- a blocker appearing or clearing;
+- a discovery that changes the plan;
+- a direction change;
+- a substantial requested outcome finishing; or
+- the exact next step changing because the plan changed.
+
+Routine commands, files opened, ordinary tests, small edits, and discarded
+ideas stay out.
+
+In local mode, an explicit `work update ID --note "..."` appends the same
+meaning to `HISTORY.ndjson` and the Progress log. Stage, status, type, blocker,
+requirements-approval, start, and finish actions also create a short progress
+entry. A next-step-only or branch-only mechanical correction does not create
+one unless `--note` is supplied.
+
+In GitHub mode, settled requirements and decisions go in the issue body. The
+single Progress log comment receives the short dated event. The agent preserves
+Mike's meaning and never adds rationale, scope, conditions, or certainty he did
+not provide.
+
+### 3. Leave an exact handoff
+
+Before `handoff` starts its memory review, it checks the tracker declared by the
+project:
+
+- local mode: read `work active`, update the exact next step, blockers or none,
+  open decisions, and current stage/status, then run `work validate`;
+- GitHub mode: update those same facts in the active issue and read the issue
+  back;
+- no tracker or no active item: skip safely and say so.
+
+Then the handoff skill continues its existing memory review, wait, prompt draft,
+verification, and display flow. It points to the lifecycle rule for the tracker
+procedure instead of copying local and GitHub commands into the skill.
+
+### 4. Complete or cancel honestly
+
+Before completion, the agent gives Mike a short result, known gaps, and evidence
+appropriate to the work. A clear earlier approval counts.
+
+`Done` means the intended outcome was accepted. `Cancelled` means work stopped
+without achieving it. Repository work also states whether its commit reached
+the default branch. Git is evidence for repository work, not the universal
+definition of completion.
+
+The approved exception remains: the local tool does not refuse Done only
+because an approver is missing. It records the missing approval, says so in its
+output, warns in validation, and emits no approved-completion event. The rule
+still tells the agent not to mark Done without Mike's approval.
+
+## Local tracker changes
+
+### A. Active item
+
+Add `.work-items/ACTIVE.json`:
+
+```json
+{
+  "schema_version": 1,
+  "branches": {
+    "issue-270-work-item-upkeep": {
+      "item_id": "WI-014",
+      "set_at": "2026-09-04T18:30:00.000Z"
+    }
+  }
+}
+```
+
+Add these commands:
+
+```text
+work active
+work active set WI-014
+work active set WI-014 --replace
+work active clear
+```
+
+Use `active`, not `session`, because the mapping survives sessions. `work start
+ID` sets the current branch's active item when no mapping exists. If another
+item is active, it refuses and points to the explicit replacement command.
+
+One `assertActiveTarget` check covers every command that mutates a named item:
+
+- requirements finalize or reopen;
+- start;
+- update;
+- link or unlink, using the source item as the active target;
+- finish;
+- archive or unarchive.
+
+Evaluate terminal finish calls before the active-target guard. An exact replay
+of supplied, already-stored completion values returns a no-op. One narrow
+exception then permits `finish ID --approved-by ...` to target an already-Done
+item with no active mapping when it only fills missing completion approval.
+Any differing terminal mutation refuses. This makes retries and late approval
+reconciliation possible after the original finish has cleared the mapping,
+without creating a general terminal-item bypass.
+
+Reads, `add`, `init`, `migrate`, `dashboard`, `validate`, and `reconcile` do not
+need an active target. Do not add a generic `--force` bypass. Intentional
+replacement has one clear command.
+
+Finishing or cancelling the active item clears its branch mapping in the same
+write batch as the item update.
+
+### B. Flexible type and approval gate
+
+Accept a non-empty lower-case kebab-case custom type. Suggest these values:
+
+```text
+discovery
+solution-design
+build
+data-load
+repository-maintenance
+research
+task
+```
+
+Keep `bug` and `enhancement` valid for existing items. Add `--type` to `update`.
+Do not backfill old items.
+
+The hard requirements gate applies only to `build` and `data-load`. Discovery,
+research, and solution design may be active while they create clarity. Legacy
+`bug` and `enhancement` values remain valid, but they do not prove that
+implementation is beginning; like repository maintenance, tasks, and custom
+types, they follow the rule's risk-based judgment instead of a fail-closed code
+gate.
+
+Use this same matrix in mutation and validation paths. Today those paths have
+separate status-wide checks; both must change together.
+
+### C. Stage and status agreement
+
+Stages are the normal path, not a conveyor belt. They may be skipped, repeated,
+or revisited with a short meaningful reason.
+
+Known stages derive an active status:
+
+| Stages | Status |
+| --- | --- |
+| `01` to `02` | Backlog |
+| `03` | Ready |
+| `04` to `11` | In Progress |
+| `12` to `14` | In Review |
+
+`Done` is written only by `finish`; `Cancelled` is set intentionally. These
+terminal states override the active-stage mapping. This removes the current
+contradiction where the rule maps stage 14 to Done while `update` deliberately
+refuses to do so.
+
+A known stage with the wrong non-terminal status is a validation error. An
+unknown stage is preserved and warned about, not invented into a known stage.
+A missing stage remains valid for legacy items.
+
+### D. One progress write path
+
+Refactor item transitions through one helper that prepares:
+
+- `ITEM.yaml`;
+- `HISTORY.ndjson`;
+- the Progress log in `STATUS.md`;
+- `ACTIVE.json` when the active mapping changes; and
+- `EVENTS.ndjson` when an approved completion occurs.
+
+It then hands all changed files to one `atomicBatchWrite` call. Dashboard
+regeneration remains derived output after the item write.
+
+The progress entry uses the current stage, or `--` when no stage exists. A
+blocker-only update is meaningful and must not disappear merely because no
+stage or explicit note was passed.
+
+### E. Type-appropriate finish
+
+Add an optional completion block to `ITEM.yaml`:
+
+```yaml
+completion:
+  approved_by: Mike Rihm
+  approved_date: 2026-09-04
+  evidence: Approved solution design in docs/designs/270-work-item-upkeep.md.
+  recorded_at: 2026-09-04T18:45:00.000Z
+```
+
+Add finish options:
+
+```text
+work finish ID --evidence TEXT [--approved-by NAME] [--approved-date DATE]
+  [--commit SHA] [--pr NUMBER_OR_URL]
+work finish ID --approved-by NAME [--approved-date DATE]
+```
+
+Rules:
+
+- Evidence is required when creating a completion block. The approval-only form
+  is valid only when filling approval on an existing unapproved completion.
+- `--commit` and `--pr` are optional because non-repository work must be able to
+  finish without a fake commit.
+- When a commit is supplied, verify and store whether it is in the default
+  branch. The rule decides whether landing is part of this item's intended
+  outcome; the tracker records the fact but does not redefine Done from Git
+  state alone.
+- When approval is absent, the tool follows the approved exception: it records
+  the gap, reports it, and validation warns.
+- A later `finish ID --approved-by ...` uses the narrow terminal exception to
+  fill missing approval without an active mapping or a second completion.
+- Repeating the same finish is a no-op: no duplicate history and no duplicate
+  event.
+- Cancelled work never emits `work_completed`.
+
+Intermediate or outside approvals that are not completion approval remain
+progress events. They do not overwrite the completion approver.
+
+### F. Dependable completion event
+
+Add `.work-items/EVENTS.ndjson`. It is an append-only outbox owned by the work
+tracker. Each approved completion line contains:
+
+```json
+{
+  "schema_version": 1,
+  "event_id": "work_completed:WI-014",
+  "occurred_at": "2026-09-04T18:45:00.000Z",
+  "kind": "work_completed",
+  "item_id": "WI-014",
+  "title": "Keep the active work item accurate",
+  "type": "solution-design",
+  "status": "Done",
+  "stage": null,
+  "approval": {
+    "approved_by": "Mike Rihm",
+    "approved_date": "2026-09-04"
+  },
+  "evidence": "Approved solution design in docs/designs/270-work-item-upkeep.md.",
+  "git": null
+}
+```
+
+The stable event ID makes consumption repeatable. Emit it exactly once when the
+item is both Done and approved, including when approval is added after an
+unapproved Done. Check existing event IDs before appending. Issue #269 may read
+the outbox and write to `knowledge/`; it never writes tracker state.
+
+`stage` is either the recorded stage string or `null`. A valid legacy item may
+therefore complete without inventing a stage.
+
+### G. Objective validation
+
+Extend `work validate` only for facts code can check:
+
+- custom type syntax;
+- the same type-aware requirements gate used by mutations;
+- known stage and non-terminal status agreement;
+- active-file schema, referenced item, and terminal-item mappings;
+- completion-block shape, dates, and non-empty evidence;
+- supplied Git reference shape, existence, and ancestry;
+- missing approver on Done as a warning;
+- event JSON, schema, references, required fields, and duplicate IDs.
+
+Legacy items with no stage, completion block, active mapping, or event history
+remain readable and are not backfilled. Do not add an invented staleness period.
+Freshness is judgment for the rule and handoff review, not an objective error.
 
 ## Guidance changes
 
-### Skill: `plugins/work-tracker/skills/work/SKILL.md`
+### Lifecycle rule
 
-- **S1.** Line 86 defines In Progress as "actively being implemented". Approved
-  answer 4 says the opposite. Change to "actively being worked", and say that an
-  In Progress item does not by itself mean building has started.
-- **S2.** Replace the fixed `bug`/`enhancement`/`task` line with the flexible
-  list from C2.
-- **S3.** Add the session active item to "Orient before changing work" as a new
-  first step, ahead of `status`.
-- **S4.** New section on recording Mike's decisions while they happen: use
-  `update --note`, keep his words, do not add reasoning he did not give, ask one
-  short question when the meaning is unclear.
-- **S5.** Extend "Close substantial work" with the completion conversation:
-  summarize what was done, name known gaps, give the evidence, ask, then
-  `finish --approved-by`.
-- **S6.** The existing line saying a solution architecture "belongs in the
-  repository instead" now has an address: `docs/designs/`.
+Update the shipped original
+`plugins/project-init/library/rules/general/work-item-stages.md` and its
+byte-identical installed copy `.claude/rules/work-item-stages.md` together.
 
-### Rule: `work-item-stages.md`
+Keep this as the single tracker-neutral authority. It owns:
 
-The shipped original is
-`plugins/project-init/library/rules/general/work-item-stages.md`. This repo's
-copy at `.claude/rules/work-item-stages.md` must stay byte-identical or
-`tests/installed-copy-check.mjs` fails. **Change both in the same commit.**
+- orientation before substantial work;
+- active work versus implementation;
+- the type-aware approval boundary;
+- meaningful progress and faithful conversational capture;
+- flexible lifecycle movement;
+- local and GitHub update procedures;
+- handoff state;
+- acceptance, cancellation, and completion events.
 
-- **R1.** In Progress means actively worked. Type guides approval needs.
-- **R2.** What counts as meaningful progress, and how to record Mike's words
-  without interpreting them.
-- **R3.** The completion conversation, the approver, and not claiming to have
-  verified an approval that was reported rather than witnessed. Carry his reason
-  for decision 4 in his own framing: he wants agents managing the process rather
-  than the process hard-coded into the tool.
-- **R4.** The end-of-work handoff: exact next step, blockers or none, open
-  questions.
-- **R5.** Stage `04` says the design goes in `docs/designs/<id>-<slug>.md`.
-  Stage `14` says delete it once the specification is current. Without these two
-  lines an agent at stage 14 is never told the file exists, and the folder fills
-  with stale build plans.
-- **R6.** The `gh` commands for GitHub-issue mode, for each of the above.
-- **R7.** Legacy items carry no stage and that is not an error. Already present;
-  check it still reads correctly beside the new material.
+Keep the rule unscoped. It must load at session start, before the agent knows
+which files the active work will touch. Do not add `paths:` frontmatter and do
+not repeat the rule in root `CLAUDE.md`.
 
-### Handoff skill: `plugins/session-skills/skills/handoff/SKILL.md`
+Remove the rigid claim that stages 03, 11, and 12 always apply. Approval before
+build or data load remains mandatory; pull-request stages apply only to
+repository work.
 
-- **H1.** Its five steps are knowledge review, wait, draft, verify, show. There
-  is no tracker step at all, which is why session-end handoffs lose work-item
-  state. Add one step: update the work item's next step and blockers before
-  drafting the prompt. This is requirement 12's real gap.
+### Local work skill and folder rule
 
-### Retiring the stage-reminder hook: `X1`
+Extend `plugins/work-tracker/skills/work/SKILL.md` with active-item orientation,
+prompt capture, the type-aware gate, handoff, and completion. Keep detailed
+command and record material in its existing references.
 
-Approved decision 3. Orientation moves to the start of work, so the hook's
-timing (after the first file edit, blind to shell commands) is no longer needed.
-It touches more places than it looks:
+Trim
+`plugins/project-init/library/rules/general/work-item-folders.md` to its local
+folder ownership, grouping, archive, and file-protection rules. Replace its
+duplicate requirements, pickup, handoff, and completion instructions with
+pointers to the `work` skill and `work-item-stages.md`. This resolves the
+existing six-part-requirements contradiction without adding another authority.
 
-- `plugins/hooks-library/hooks/work-item-stage-reminder.mjs` and the installed
-  copy `.claude/hooks/work-item-stage-reminder.mjs`
-- `.claude/settings.json:50`
-- `.claude-plugin/marketplace.json:35`
-- `plugins/hooks-library/.claude-plugin/plugin.json` and `.codex-plugin/plugin.json`
-- `plugins/hooks-library/README.md` (two places)
-- `plugins/hooks-library/skills/hooks-library/SKILL.md`
-- `plugins/project-init/skills/project-init/SKILL.md` and
-  `references/setup-flow.md`
-- `plugins/project-init/skills/project-sync/SKILL.md` (three places)
-- `docs/toolkit-map.md:278`
-- `.claude/toolkit-sync.md`, which records why it was retired
+### Handoff skill
+
+Add the conditional tracker step described above to
+`plugins/session-skills/skills/handoff/SKILL.md` before its memory review. The
+skill must work when the project uses local folders, GitHub, another tracker, or
+no tracker. It does not assume `work-tracker` is installed.
+
+### Hooks
+
+Delete `work-item-stage-reminder` from the hooks library and this repository's
+installed `.claude` copy and settings. It runs after the first selected edit,
+misses shell changes, and reads no tracker state. Do not replace it with
+`UserPromptSubmit`, `Stop`, or `SessionEnd` automation. Those would add constant
+overhead or run at the wrong boundary.
+
+Keep the second-brain `work-item-close` hook. It only raises the memory/spec
+review before GitHub close or merge commands; it is not tracker state or the
+completion event.
+
+## Requirement mapping
+
+| # | Requirement | Solution |
+| --- | --- | --- |
+| 1 | Identify and read the active item | Lifecycle orientation, local `ACTIVE.json`, and verified GitHub issue identity |
+| 2 | Record a flexible work type | Kebab-case custom type plus common suggestions and `update --type` |
+| 3 | Type guides approval without a rigid process | Shared type matrix; code gates build/data-load; guidance handles legacy, maintenance, task, and custom judgment |
+| 4 | Keep current state and evidence accurate | Existing record plus central transition helper, validation, and read-back in GitHub mode |
+| 5 | One action keeps related state consistent | One local write batch; one verified logical GitHub update with honest partial-failure handling |
+| 6 | Record meaningful progress | Lifecycle rule plus one progress write path |
+| 7 | Capture Mike's choices during conversation | Local note-to-progress behavior and GitHub issue-body/progress update |
+| 8 | Preserve Mike's actual meaning | Lifecycle rule; one short question when materially unclear |
+| 9 | Record reported outside approval honestly | Progress entry with approver and supplied conditions; no false verification claim |
+| 10 | Exclude routine activity | Explicit progress rules and no automatic transcript/tool logging |
+| 11 | Keep stages flexible | Type-aware rule; skip, repeat, and revisit with a meaningful reason |
+| 12 | Leave exact next step and blockers | Conditional tracker-first handoff step |
+| 13 | Summarize and ask before Done | Completion conversation in rule and skill; earlier clear approval counts |
+| 14 | Distinguish Done, Cancelled, and landing | Type-appropriate finish, explicit cancellation, optional verified Git evidence |
+| 15 | Do not invent legacy history | Optional new fields, no backfill, missing stage remains valid |
+| 16 | Expose dependable completion | Idempotent local outbox and GitHub's native approved issue-close event |
+
+## Approved-decision mapping
+
+| Decision | Solution |
+| --- | --- |
+| Both tracker modes, split by layer | Local code and skill; tracker-neutral rule and native GitHub behavior |
+| Design lives in the repository | This file under `docs/designs/`; delete it at stage 14 after the lasting specification is current |
+| Build active-item tracking and retire the stage reminder | Local `ACTIVE.json`, GitHub verified identity, and complete hook retirement |
+| Do not hard-block Done only for missing approval | Record and warn; emit no approved completion event until approval exists |
+| No new skill or rule | Every change extends or trims an existing owner |
+
+## Complete file inventory
+
+### Work-tracker plugin
+
+- `plugins/work-tracker/skills/work/scripts/lib/tracker.mjs`
+- `plugins/work-tracker/skills/work/scripts/lib/common.mjs`
+- `plugins/work-tracker/skills/work/scripts/work.mjs`, including its runtime version
+- `plugins/work-tracker/tests/work-tracker.test.mjs`
+- `plugins/work-tracker/skills/work/SKILL.md`
+- `plugins/work-tracker/skills/work/references/command-reference.md`
+- `plugins/work-tracker/skills/work/references/record-format.md`
+- `plugins/work-tracker/README.md`
+- both work-tracker plugin manifests
+
+### Project-init plugin
+
+- the shipped and installed `work-item-stages.md` pair
+- `plugins/project-init/library/rules/general/work-item-folders.md`
+- `plugins/project-init/library/rules/general/README.md`
+- `plugins/project-init/skills/project-init/SKILL.md`
+- `plugins/project-init/skills/project-init/references/setup-flow.md`
+- `plugins/project-init/skills/project-init/references/work-tracking-choice.md`
+- `plugins/project-init/skills/project-init/references/work-items-structure.md`
+- `plugins/project-init/skills/project-sync/SKILL.md`
+- `plugins/project-init/README.md`
+- both project-init plugin manifests
+
+### Session-skills plugin
+
+- `plugins/session-skills/skills/handoff/SKILL.md`
+- `plugins/session-skills/README.md`
+- both session-skills plugin manifests
+
+### Hooks-library plugin and installed copy
+
+- delete `plugins/hooks-library/hooks/work-item-stage-reminder.mjs`
+- delete `.claude/hooks/work-item-stage-reminder.mjs`
+- remove its `.claude/settings.json` registration
+- update `plugins/hooks-library/README.md`
+- update `plugins/hooks-library/skills/hooks-library/SKILL.md`
+- update both hooks-library plugin manifests
+
+### Cross-cutting copies and catalogs
+
+- top-level `README.md`, including both stage-reminder references
+- `docs/toolkit-map.md`
+- `.claude/toolkit-sync.md`
+- `.claude-plugin/marketplace.json` description and metadata version
+
+Do not change `.agents/plugins/marketplace.json`; no plugin is added or renamed.
+After all content changes, bump each affected plugin's Claude and Codex manifest
+version once. Keep every plugin README and the marketplace description aligned
+with what ships.
 
 ## Tests
 
-**The constraint that shapes this: stages, the progress log and the
-stage-to-status mapping have no test coverage.** Of 37 tests in
-`plugins/work-tracker/tests/work-tracker.test.mjs`, `updateItem` is exercised
-once, at line 375, and only on a path expected to fail. This issue changes
-untested code.
+Write characterization tests before changing the existing stage, status,
+progress, and finish behavior. Then test the final behavior:
 
-**Phase 0 comes before any change.** Write characterization tests for what the
-code does today:
+- note-only, blocker, stage, status, type, requirements, start, and finish
+  events update Progress and History as designed;
+- branch-only and next-step-only mechanical updates do not create noise;
+- every common and custom type follows the same gate in mutation and validation;
+- known stages derive the listed status, non-linear movement works, and missing
+  legacy stage remains valid;
+- `start` selects the active item;
+- every named mutator refuses the wrong active target;
+- explicit replacement works and terminal work clears the mapping;
+- linked worktrees share the correct active map through the primary tracker;
+- non-repository work finishes without a fake commit;
+- supplied Git evidence is checked and reported accurately;
+- unapproved Done warns and emits no event;
+- later approval works without an active mapping and emits one event;
+- a legacy item with no stage emits an event with `stage: null` and is not
+  backfilled;
+- repeated finish creates no duplicate history or event;
+- malformed active/event files and duplicate event IDs are reported;
+- injected failure after at least one batch install leaves item, history,
+  status, active state, and event state unchanged;
+- existing items are never silently backfilled.
 
-- `update --stage` writes the stage, derives the status, appends the log line.
-- `update --note` alone writes history and no log line. *This test passes now
-  and must be inverted by C1. That inversion is the proof C1 worked.*
-- Each stage number derives the right status, and `14` never writes Done.
-- An unknown stage string is stored as typed.
-- An item with no stage stays valid.
+Run:
 
-Then per change:
+```text
+node --test plugins/work-tracker/tests/work-tracker.test.mjs
+node tests/link-check.mjs
+node tests/orphan-check.mjs
+node tests/installed-copy-check.mjs
+node tests/knowledge-startup-check.mjs
+claude plugin validate .
+```
 
-| Change | What the test proves |
-| --- | --- |
-| C1 | A note alone reaches the Progress log; a bare mechanical change does not |
-| C2 | A custom type is accepted and validates; `update --type` corrects one |
-| C3 | A `discovery` item reaches In Progress with refining requirements; a `build` item still cannot |
-| C4 | `finish --approved-by` records it; `finish` without it still sets Done and says so |
-| C6 | The event line is written in the same batch, and an interrupted write leaves neither |
-| C7 | A mismatched id is refused; `--force` passes; no entry means no enforcement |
-| C8 | A stale item warns and stays valid; a Done item with no approver warns |
+Record the baseline before implementation. Report a pre-existing repository
+failure separately from a regression, and report Windows `spawn EPERM` or a
+hung child-process run as unverified rather than passed or failed behavior.
 
-Then the four repository checks, all of which must pass:
-`node tests/link-check.mjs`, `tests/orphan-check.mjs`,
-`tests/installed-copy-check.mjs`, `tests/knowledge-startup-check.mjs`, plus
-`claude plugin validate .`.
+## Build order
 
-**Two of those four fail on `main` today**, for a reason that predates this
-issue: commit `8dac831` deleted
-`plugins/project-init/library/rules/general/project-file-lifecycle.md` and left
-eight references to it, including
-`tests/installed-copy-check.mjs:164`, which reads the file with no guard and
-crashes. Establish the baseline before starting, and do not attribute those two
-failures to this work. Fixing them is a separate decision for Mike.
+1. Add characterization tests for current tracker behavior.
+2. Add active-item state and the central mutation guard.
+3. Add flexible types, the shared approval matrix, corrected status mapping,
+   and matching validation.
+4. Add the single progress transition path.
+5. Add type-appropriate finish, approval recording, and the idempotent outbox.
+6. Update and deduplicate the lifecycle rule, local work skill, and folder rule.
+7. Add tracker-first conditional handoff behavior.
+8. Retire the stage-reminder hook without replacing it.
+9. Update every reference, README, catalog, installed copy, and version.
+10. Run focused and repository-wide validation, then present the result and
+    known limits to Mike for implementation approval.
 
-## Order of work
-
-Each numbered step is independently shippable. Stop at any of them and what
-landed still works.
-
-0. **Characterization tests.** Nothing else starts first.
-1. **C1**, the progress-log branch. Smallest change, largest effect.
-2. **C2** and **S2**, flexible type.
-3. **C3**, narrowing the requirements gate. Depends on C2, because type decides.
-4. **C4** and **C8**, the approver and the two warnings. Present C8 as a partial
-   #260 reversal.
-5. **C7**, session active item. **Ask Mike about refuse-versus-warn first.**
-6. **C6**, the completion event. Last of the code, because #269 consumes it and
-   that is separate work.
-7. **S1, S3, S4, S5, S6**, the skill.
-8. **R1** to **R7**, the rule, in both copies in one commit.
-9. **H1**, the handoff skill step.
-10. **X1**, retiring the hook, with the `.claude/toolkit-sync.md` record.
-
-## What this design does not settle
-
-- **C7 refuses; decision 4 says record and surface.** The two pull in opposite
-  directions. Hard stop 1 was approved as a refusal and hard stop 3 was
-  explicitly softened, so refusing is the honest reading. Confirm with Mike
-  before building step 5.
-- **The 14-day staleness threshold in C8 is invented.** Nothing approved a
-  number. It is a warning, so a wrong guess is cheap, but it is a guess.
-- **GitHub-issue mode gets no atomic write, no `validate`, and no session
-  tracking.** There is no code there to change. The single-batch guarantee in
-  requirement 5 holds in local-folder mode only, and the rule has to say so
-  rather than imply the guarantee is universal.
-- **This repository runs GitHub mode**, so the local tracker cannot be exercised
-  here. Testing needs a repository with `.work-items/` initialized.
-- **Windows.** Every write is a `renameSync` over its target, including the
-  batch paths. Whether a held file gives `EPERM` mid-batch is inference, not
-  something anyone has observed. Do not write it up as a known failure.
+Nothing in this design authorizes implementation. Building starts only after
+Mike approves this revised solution.

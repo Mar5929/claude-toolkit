@@ -35,5 +35,5 @@ behavior.
     correcting things, two diagnoses that turned out to be wrong, and how the
     memory librarian came to be replaced by a read-only agent that checks.
 
-Approved behavior belongs in `knowledge/specs/`. A brainstorm is stored once in this flat
+Approved behavior belongs in `knowledge/prds/`. A brainstorm is stored once in this flat
 folder even when it informs several system areas.

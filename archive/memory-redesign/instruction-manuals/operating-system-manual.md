@@ -224,7 +224,7 @@ specification beats a memory.
 **For the details, read
 [the knowledge system north star](../knowledge-system-north-star.md)
 for the intent, and
-[how the knowledge system works](../../../knowledge/specs/knowledge-system.md) for
+[how the knowledge system works](../../../knowledge/prds/knowledge-system.md) for
 the buildable version.** Between them they hold the file format, the seven
 questions that decide what to save, when to offer a save, the bullets to show the
 owner, the find ladder, and how to update, replace, or retire something.

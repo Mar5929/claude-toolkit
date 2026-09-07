@@ -66,7 +66,7 @@ before anything changed. Four gaps were closed:
   `archive/README.md` and a new folder `README.md` now name it. The 19 committed
   `graphify-out/` files were generated output and were deleted; `graphify-out/`
   is now ignored. Paths naming the old location were repaired in
-  `knowledge/specs/knowledge-system.md` and `memory-system-v2.md`.
+  `knowledge/prds/knowledge-system.md` and `memory-system-v2.md`.
 - **`.sf/orgs/.../catalog.json` was untracked.** A Salesforce CLI cache file in a
   repository with no Salesforce source, and the only dirty file in the tree. The
   file stays on disk; `.sf/` is now ignored.
@@ -158,7 +158,7 @@ Several sessions work in this repository at once, each in its own worktree. The
 memory system adds a shared file they can collide on that was not there before.
 
 Every approved save rebuilds `knowledge/memory/memory-index.md` and
-`knowledge/specs/spec-index.md`. Two sessions saving on different branches can
+`knowledge/prds/spec-index.md`. Two sessions saving on different branches can
 both change them, so Git may merge both with no reported conflict and still
 leave the result wrong.
 
@@ -192,7 +192,7 @@ installed-copy check compares them with their plugin originals.
 
 ## Specifications
 
-`knowledge/specs/` fills as work happens. A capability gets its specification
+`knowledge/prds/` fills as work happens. A capability gets its specification
 the first time an issue changes what that capability does. Specifications were
 deliberately not written up front for the plugins. Every current specification
 and memory is listed in one of the two generated indexes.
@@ -230,7 +230,7 @@ level, and helper agents still receive no style at all: they follow
 ## The built-in memory, turned off here
 
 Claude Code keeps its own per-project notes in a folder under `~/.claude/` that
-only Claude Code can read. `knowledge/specs/memory-system.md` says this project
+only Claude Code can read. `knowledge/prds/memory-system.md` says this project
 has one shared knowledge system, so `.claude/settings.json` keeps
 `CLAUDE_CODE_DISABLE_AUTO_MEMORY` set to `1`. The same settings file enables the
 packaged `second-brain` plugin, whose skills read and write the Git-owned files

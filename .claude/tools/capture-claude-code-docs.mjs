@@ -1,0 +1,262 @@
+#!/usr/bin/env node
+
+/**
+ * capture-claude-code-docs.mjs: refresh the copy of the official Claude Code
+ * documentation this repository keeps in `ai-external-knowledge/claude-code/`.
+ *
+ * Why this exists: this repository builds Claude Code hooks, skills, plugins,
+ * agents, commands, and settings. An agent that guesses at a hook event name or
+ * a plugin manifest field writes something that looks right and does not work.
+ * `.claude/rules/claude-code-docs-first.md` sends a session to the captured page
+ * instead, and this script is what puts the pages there.
+ *
+ * Where the pages come from: the docs site publishes every page as plain
+ * Markdown at the page URL plus `.md`, and publishes the list of every page at
+ * `https://code.claude.com/docs/llms.txt`. So the capture needs no scraper, no
+ * API key, and no HTML cleanup. It reads the official index, fetches each page's
+ * own Markdown, and writes it out.
+ *
+ * What is changed on the way in, and nothing else:
+ *   - The "Documentation Index" banner the site prepends to every `.md`
+ *     response is dropped. It is site chrome, not the page.
+ *   - Links written as `/docs/en/hooks` become the full
+ *     `https://code.claude.com/docs/en/hooks`. Site-relative links would
+ *     otherwise read as paths into this repository, which they are not.
+ *   - A short header naming the source URL and the capture date is added on
+ *     top, which `.claude/rules/ai-external-knowledge.md` requires.
+ *
+ * The words of the documentation are never touched. These files are somebody
+ * else's writing, and the rule above says to keep them as published.
+ *
+ * The folder's `README.md` is generated here too, from the titles and
+ * descriptions in `llms.txt`, so the index cannot drift from what was captured.
+ *
+ * Run: node .claude/tools/capture-claude-code-docs.mjs
+ * Add --dry-run to see what would be written without writing it.
+ */
+
+import { mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const here = dirname(fileURLToPath(import.meta.url));
+const root = resolve(here, "..", "..");
+const outDir = resolve(root, "ai-external-knowledge", "claude-code");
+
+const INDEX_URL = "https://code.claude.com/docs/llms.txt";
+const PAGE_BASE = "https://code.claude.com/docs/en/";
+const DRY_RUN = process.argv.includes("--dry-run");
+const CONCURRENCY = 8;
+
+/**
+ * Sections of `llms.txt` that are not captured.
+ *
+ * The weekly feed and the translation list say nothing about how anything
+ * works. The gateway pages document a separate self-hosted product. The
+ * adoption kits are rollout and advocacy material rather than documentation.
+ */
+const SKIP_SECTIONS = new Set([
+  "What's New",
+  "Indexes",
+  "Claude apps gateway",
+  "Adoption",
+]);
+
+const today = new Date().toISOString().slice(0, 10);
+
+async function fetchText(url) {
+  let lastError;
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      const response = await fetch(url, { redirect: "follow" });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.text();
+    } catch (error) {
+      lastError = error;
+      await new Promise((done) => setTimeout(done, 500 * attempt));
+    }
+  }
+  throw lastError;
+}
+
+/** Read `llms.txt` into a flat list of pages, each remembering its section. */
+function parseIndex(text) {
+  const pages = [];
+  let group = "";
+  let section = "";
+  for (const rawLine of text.replace(/\r\n/g, "\n").split("\n")) {
+    const line = rawLine.trim();
+    const topHeading = line.match(/^##\s+(?!#)(.+)$/);
+    if (topHeading) {
+      group = topHeading[1].trim();
+      section = group;
+      continue;
+    }
+    const subHeading = line.match(/^#{3,4}\s+(.+)$/);
+    if (subHeading) {
+      section = subHeading[1].trim();
+      continue;
+    }
+    const entry = line.match(
+      /^-\s+\[([^\]]+)\]\((https:\/\/code\.claude\.com\/docs\/en\/[^)]+)\)\s*:?\s*(.*)$/,
+    );
+    if (!entry) continue;
+    if (SKIP_SECTIONS.has(group) || SKIP_SECTIONS.has(section)) continue;
+    const slug = entry[2].slice(PAGE_BASE.length).replace(/\.md$/, "");
+    pages.push({
+      slug,
+      file: `${slug.replace(/\//g, "-")}.md`,
+      pageUrl: `${PAGE_BASE}${slug}`,
+      sourceUrl: `${PAGE_BASE}${slug}.md`,
+      title: entry[1].trim(),
+      description: entry[3].trim(),
+      group,
+      section,
+    });
+  }
+  return pages;
+}
+
+/** Strip the site's banner, absolutize its links, and add the required header. */
+function prepare(page, body) {
+  let text = body.replace(/\r\n/g, "\n");
+  text = text.replace(/^(?:>[^\n]*\n)+\n?/, "");
+  text = text.replace(/\]\(\/docs\//g, "](https://code.claude.com/docs/");
+  const header = [
+    `> **Source:** ${page.pageUrl}`,
+    `> **Captured:** ${today}`,
+    "> Captured documentation, kept as published. Do not edit this file.",
+    "> Refresh it with `node .claude/tools/capture-claude-code-docs.mjs`.",
+    "",
+    "---",
+    "",
+    "",
+  ].join("\n");
+  return header + text.trimStart() + "\n";
+}
+
+function buildReadme(pages) {
+  const groups = new Map();
+  for (const page of pages) {
+    if (!groups.has(page.group)) groups.set(page.group, new Map());
+    const sections = groups.get(page.group);
+    if (!sections.has(page.section)) sections.set(page.section, []);
+    sections.get(page.section).push(page);
+  }
+
+  const escape = (value) => value.replace(/\|/g, "\\|");
+  const lines = [
+    "# Claude Code documentation, captured",
+    "",
+    `**Source:** ${PAGE_BASE}`,
+    "",
+    `**Captured:** ${today}`,
+    "",
+    `**Pages:** ${pages.length}`,
+    "",
+    "The official Claude Code documentation, saved here so an agent building a",
+    "hook, a skill, a plugin, an agent, a command, or a setting can read how the",
+    "thing actually works instead of guessing. The rule",
+    "`.claude/rules/claude-code-docs-first.md` says when to open a page.",
+    "",
+    "This is somebody else's writing. It is not this project's truth, and it is",
+    "never edited to agree with this project. When a page and this project",
+    "disagree, say so out loud rather than quietly picking one.",
+    "",
+    "Every file starts with a header naming the page it came from and the day it",
+    "was captured. Links the site writes as `/docs/en/...` were rewritten to full",
+    "URLs so they resolve from a local file. Nothing else was changed.",
+    "",
+    "## How to refresh",
+    "",
+    "```",
+    "node .claude/tools/capture-claude-code-docs.mjs",
+    "```",
+    "",
+    "That script reads the official page list at",
+    "`https://code.claude.com/docs/llms.txt`, fetches each page's own Markdown",
+    "from the docs site, and rewrites this folder and this index. It needs no API",
+    "key and no scraper. Add `--dry-run` to see what it would write without",
+    "writing it.",
+    "",
+    "What the script leaves out: the weekly What's New feed, the list of",
+    "translated indexes, the Claude apps gateway pages, which are a separate",
+    "product, and the adoption kits, which are rollout material rather than",
+    "documentation.",
+    "",
+    "## What is here",
+    "",
+  ];
+
+  for (const [group, sections] of groups) {
+    lines.push(`### ${group}`, "");
+    for (const [section, items] of sections) {
+      if (section !== group) lines.push(`**${section}**`, "");
+      lines.push("| Page | File | What it covers |", "| --- | --- | --- |");
+      for (const item of items) {
+        const description = escape(item.description) || "No description published.";
+        lines.push(`| ${escape(item.title)} | \`${item.file}\` | ${description} |`);
+      }
+      lines.push("");
+    }
+  }
+
+  return lines.join("\n");
+}
+
+const index = await fetchText(INDEX_URL);
+const pages = parseIndex(index);
+
+const byFile = new Map();
+for (const page of pages) {
+  if (byFile.has(page.file)) {
+    throw new Error(`Two pages want the same file name: ${page.file}`);
+  }
+  byFile.set(page.file, page);
+}
+
+console.log(`${pages.length} pages listed at ${INDEX_URL}`);
+
+async function capture() {
+  mkdirSync(outDir, { recursive: true });
+  for (const existing of readdirSync(outDir)) {
+    if (existing.endsWith(".md")) rmSync(resolve(outDir, existing));
+  }
+
+  const failed = new Set();
+  const queue = [...pages];
+  let written = 0;
+
+  async function worker() {
+    while (queue.length > 0) {
+      const page = queue.shift();
+      try {
+        const body = await fetchText(page.sourceUrl);
+        writeFileSync(resolve(outDir, page.file), prepare(page, body));
+        written++;
+      } catch (error) {
+        failed.add(page.slug);
+        console.error(`  could not capture ${page.sourceUrl}: ${error.message}`);
+      }
+    }
+  }
+
+  await Promise.all(Array.from({ length: CONCURRENCY }, worker));
+
+  const captured = pages.filter((page) => !failed.has(page.slug));
+  writeFileSync(resolve(outDir, "README.md"), `${buildReadme(captured)}\n`);
+
+  console.log(
+    `Wrote ${written} pages and README.md to ai-external-knowledge/claude-code/`,
+  );
+  if (failed.size > 0) {
+    console.error(`FAILED to capture ${failed.size} page(s).`);
+    process.exitCode = 1;
+  }
+}
+
+if (DRY_RUN) {
+  for (const page of pages) console.log(`  ${page.file}  <- ${page.sourceUrl}`);
+} else {
+  await capture();
+}

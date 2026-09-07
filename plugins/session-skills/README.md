@@ -319,7 +319,7 @@ A specification that many sessions have touched drifts: agents add context,
 research, and detail, and each later agent builds from a slightly more
 polluted version, further from the goal. Run `/spec-check` before building
 from or designing a solution from a specification, meaning a
-`knowledge/specs/` file or a ticket body (a GitHub issue, a Linear ticket, or
+`knowledge/prds/` file or a ticket body (a GitHub issue, a Linear ticket, or
 a work item's `REQUIREMENTS.md`).
 
 The check names what it read, restates the goal in one line, then flags

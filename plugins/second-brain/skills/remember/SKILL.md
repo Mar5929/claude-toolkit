@@ -1,7 +1,7 @@
 ---
 name: remember
 description: >-
-  A skill for determining what to save to project knowledge, as memory or specs. Use
+  A skill for determining what to save to project knowledge, as memory or PRDs. Use
   when the owner says remember, save, capture, or write this down; after working
   out the fix for an error, a failure, or a broken process, so the next agent
   reuses it instead of solving it again; before a pull request; before a
@@ -11,7 +11,12 @@ description: >-
 
 # remember
 
-Save a memory or a specification in this project, with the owner's approval.
+Save a memory or a PRD in this project, with the owner's approval.
+
+A PRD is one living document per feature area. Save a new one as `proposed`
+when it is what the owner wants built, and edit the same file to `current`
+once the build is done and it describes what is actually there. Only a
+current PRD is settled truth.
 
 ## Read these first, every run
 

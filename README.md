@@ -192,9 +192,7 @@ claude-toolkit/
   docs/
     toolkit-map.md                ← the catalog: every item and how they relate
     designs/                      ← the build plan for one work item, deleted
-                                     once the specification is brought current
-    PRDs/                         ← requirements for a product or feature area
-                                     bigger than one issue, kept for its life
+                                     once the PRD is brought current
   tests/
     orphan-check.mjs              ← fails if the toolkit ships a file nothing points at
     link-check.mjs                ← fails if a Markdown link points at a file that is gone
@@ -214,7 +212,8 @@ claude-toolkit/
     current.md                    ← short-term work state, overwritten
     memory-self-improvement.md    ← what the owner counts as memory-worthy
     brainstorms/                  ← unchecked discovery notes
-    specs/                        ← approved behavior plus generated index
+    prds/                         ← one living PRD per feature area, plus
+                                     generated index
     memory/                       ← flat persistent topics plus generated index
 ```
 
@@ -273,7 +272,7 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
   keep only their own task steps. The package has one checker and deliberately
   has no database, embeddings, automatic capture, background writer, or large
   always-loaded rule. The current build behavior is specified in
-  [`knowledge/specs/knowledge-system.md`](knowledge/specs/knowledge-system.md).
+  [`knowledge/prds/knowledge-system.md`](knowledge/prds/knowledge-system.md).
 - [x] **`second-brain` v1 archive**: the retired Worker, Neon, MCP, curator,
   hook, knowledge-backfill, and structural-layer source has been removed from
   active plugin paths and consolidated under

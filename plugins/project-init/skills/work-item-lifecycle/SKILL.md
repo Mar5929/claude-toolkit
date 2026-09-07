@@ -3,12 +3,12 @@ name: work-item-lifecycle
 description: >-
   Apply the project's file lifecycle to work-item information. Use when
   creating, saving, moving, organizing, completing, closing, or archiving
-  work-item files, or when deciding where architecture, specifications,
-  lasting decisions, implementation records, presentation deliverables, or
-  retired material belong. Also use for questions like "where should this file
-  go?" and "what happens to this when the ticket is done?" Do not use for a
-  status-only ticket update that changes no project files or lasting
-  information.
+  work-item files, or when deciding where architecture, solution designs,
+  specifications, lasting decisions, implementation records, presentation
+  deliverables, or retired material belong. Also use for questions like "where
+  should this file go?" and "what happens to this when the ticket is done?" Do
+  not use for a status-only ticket update that changes no project files or
+  lasting information.
 ---
 
 # Work item lifecycle
@@ -49,6 +49,22 @@ meaning, update or link to it instead of making another copy.
 
 If two files both appear authoritative, or the project declares no suitable
 home, show the conflict and ask the owner before writing or moving anything.
+
+## Route the solution design
+
+A solution design says how one work item gets built. Where it goes depends on
+where the work item itself is kept.
+
+- **Work items in the Git-ignored `.work-items/` folder.** The design stays with
+  its item, the way every other file of that item does.
+- **Work items tracked outside the repository**, on a GitHub issue board or in
+  Linear or Jira or anything else. The design goes in `docs/designs/`, one file
+  per item, named `<work item id>-<short-slug>.md`.
+
+Either way the design is written after the item's requirements are approved,
+merged in the same pull request as the code it describes, and deleted once the
+specification is brought up to date. Git history keeps it, so deleting it loses
+nothing. The project's `docs/designs/README.md` holds the detail.
 
 ## Match the action to the request
 

@@ -1,17 +1,18 @@
-# docs: the catalog, the build plans, and the product requirements
+# docs: the catalog and the build plans
 
-Three things live here, and they do three different jobs.
+Two things live here, and they do two different jobs.
 
 - **`toolkit-map.md`** is the catalog across every plugin: what each piece is,
   how the pieces relate, and the straight answer on what looks redundant but is
   not. It is the only place that answers "is anything here duplicated?" A
   plugin's own `README.md` describes that plugin and cannot see the others.
 - **`designs/`** holds the build plan for one work item, written once that
-  item's requirements are approved and deleted once the specification has been
-  brought up to date. Its `README.md` has the rules.
-- **`PRDs/`** holds the requirements for a product or feature area that is
-  bigger than one issue. It stays for as long as the area does. Its `README.md`
-  has the rules.
+  item's requirements are approved and deleted once the PRD has been brought up
+  to date. Its `README.md` has the rules.
+
+Requirements do not live here. They live in `knowledge/prds/`, because
+requirements and settled behavior are the same document at two points in time,
+told apart by its `status` line.
 
 ## Working in here
 
@@ -34,21 +35,13 @@ Three things live here, and they do three different jobs.
 - **One file per work item**, named `<issue number>-<short-slug>.md`.
 - **Create it at stage `04-solution-design`**, and merge it in the same pull
   request as the code it describes.
-- **Delete it at stage `14-spec-update`**, once `knowledge/specs/` is current.
+- **Delete it at stage `14-spec-update`**, once `knowledge/prds/` is current.
   Git history keeps it, so nothing is lost. Nothing checks that you did this.
 - An empty folder is the normal state between jobs, not a gap.
 
-### `PRDs/`
-
-- **One file per product or feature area**, never one per issue.
-- **Keep it.** It is not deleted when an issue closes.
-- **Link the issues it produced back into the file**, so the area and its
-  issues stay together.
-
 ## Where the detail lives
 
-- `designs/README.md` and `PRDs/README.md`: what each folder holds and how long
-  a file in it lives.
+- `designs/README.md`: what that folder holds and how long a file in it lives.
 - `../README.md`: what the toolkit is and how to install it.
 - Each plugin's `README.md` under `../plugins/`: that plugin's own description.
 - `../tests/CLAUDE.md`: what each check asks.

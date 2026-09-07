@@ -28,7 +28,7 @@ knowledge/
   memory-self-improvement.md         what the owner counts as memory-worthy
   memory/
     memory-index.md                  generated, one line per memory
-  specs/
+  prds/
     spec-index.md                    generated, one line per specification
   brainstorms/                       unchecked exploration
   .obsidian/app.json                 minimal portable vault setting
@@ -60,7 +60,7 @@ Git remain the shared source of truth.
 
 - `knowledge/README.md` owns all shared runtime policy, including placement,
   finding, saving, file shape, approval, trust, lifecycle, and the skill map.
-- `knowledge/specs/knowledge-system.md` in the toolkit repository is the build
+- `knowledge/prds/knowledge-system.md` in the toolkit repository is the build
   authority for maintainers. Adopting projects do not receive that file.
 - Each skill below owns only the steps unique to its task and points to the
   manual for shared policy.

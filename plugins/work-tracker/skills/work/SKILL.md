@@ -157,6 +157,17 @@ Git ignores `.work-items/`, so nothing in there is backed up or shared. Notes
 are fine there. A document that others need, such as a solution architecture,
 belongs in the repository instead.
 
+## Where the solution design goes
+
+While this tracker is the project's work tracker, the design stays with its item
+under `.work-items/`, the way every other file of that item does.
+
+A project that tracks its work somewhere outside the repository instead, on a
+GitHub issue board or in Linear or Jira, has no folder to put it in. There the
+design goes in `docs/designs/`, one file per item, named
+`<work item id>-<short-slug>.md`. `docs/designs/README.md` says what goes in
+the file and how long it lives.
+
 ## Respect the archive folder
 
 Items inside `.work-items/archive/` are archived, at any depth. Sitting in that
