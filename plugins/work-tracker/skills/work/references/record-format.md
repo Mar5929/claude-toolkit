@@ -137,10 +137,9 @@ finalized_date: null
 approved_by: null
 ```
 
-The body records the owner's starting request and whatever was agreed. A new
-item starts with that request and an unanswered goal, and how much it grows
-depends on the work: a chore keeps the one line the owner asked for, and work
-that needs refining grows the parts `work-item-stages.md` lists.
+The body records the owner's starting request and whatever was agreed. Its
+length and shape follow the work: a clear chore may keep the one line the owner
+asked for, while unclear work grows only through the owner's answers.
 
 `refining` means the interview is still open. `finalized` means the owner saw
 and approved the file. Nothing checks its length or its headings. Finalized
@@ -167,12 +166,11 @@ The mapping is `01` and `02` to `Backlog`, `03` to `Ready`, `04` through
 `11` to `In Progress`, and `12` through `14` to `In Review`. Only
 `finish` writes `Done`; `Cancelled` is intentional.
 
-The command checks nothing else. It does not test that a stage is real, refuse a
-move backwards, ask why a stage was skipped, or look for a changed
-specification. `work-item-stages.md` decides all of that, and agents follow it
-the way they follow any other rule. The hard finalized-requirements gate
-applies to `build` and `data-load`. Other types follow the lifecycle rule's
-risk judgment.
+The command accepts an unknown stage and permits skips or backward moves.
+`work-item-stages.md` decides whether those choices are correct. The command
+does enforce record consistency: known stages derive active status, and
+`build` or `data-load` cannot enter an active state before requirements are
+finalized.
 
 ## Other item files
 
@@ -190,10 +188,54 @@ risk judgment.
 same file in the primary tracker. Terminal work clears its mapping. A different
 named mutation is refused until the mapping is intentionally replaced.
 
+```json
+{
+  "schema_version": 1,
+  "branches": {
+    "issue-270-work-item-upkeep": {
+      "item_id": "WI-014",
+      "set_at": "2026-09-07T15:00:00Z"
+    }
+  }
+}
+```
+
 A completion block records non-empty evidence, recording time, and optional
 approval. `EVENTS.ndjson` receives one stable `work_completed:<ID>` event only
 after the item is both Done and approved. A late approval may fill the missing
 approval without an active mapping. Legacy items are not backfilled.
+
+Each line is one JSON event. A pull-request-only example is:
+
+```json
+{
+  "schema_version": 1,
+  "event_id": "work_completed:WI-014",
+  "occurred_at": "2026-09-07T15:30:00Z",
+  "kind": "work_completed",
+  "item_id": "WI-014",
+  "title": "Keep the active work item accurate",
+  "type": "solution-design",
+  "status": "Done",
+  "stage": null,
+  "approval": {
+    "approved_by": "Mike Rihm",
+    "approved_date": "2026-09-07"
+  },
+  "evidence": "Mike accepted the completed design.",
+  "git": {
+    "completion_commit": null,
+    "landed": false,
+    "pull_request": {
+      "number": 301,
+      "url": null,
+      "merged_at": null
+    }
+  }
+}
+```
+
+`git` is `null` when neither commit nor pull-request evidence was supplied.
 
 ## Git landing proof
 

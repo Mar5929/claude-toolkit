@@ -157,6 +157,7 @@ export function activeItem(tracker, input = {}) {
     return { outcome: "active", branch, item: item ? publicItem(item, tracker.paths) : { id: entry.item_id }, text: `${entry.item_id} is active for ${branch}.` };
   }
   return withLock(tracker.paths.lockPath, () => {
+    tracker = reload(tracker);
     const { branch, active, entry } = activeEntry(tracker);
     if (input.clear) {
       if (!entry) return { outcome: "unchanged", branch, text: `No active work item is selected for ${branch}.` };
@@ -175,6 +176,20 @@ export function activeItem(tracker, input = {}) {
     }
     throw new WorkError("No active action was selected", "missing_action");
   });
+}
+
+function assertNoActiveMappingForLateApproval(tracker, itemId) {
+  const active = readActive(tracker.paths);
+  const currentBranch = branchName(tracker.paths.repoRoot);
+  const entries = Object.entries(active.branches).filter(
+    ([branch, entry]) => branch === currentBranch || entry?.item_id === itemId,
+  );
+  if (!entries.length) return;
+  const [branch, entry] = entries[0];
+  throw new WorkError(
+    `${entry.item_id} is active for ${branch}; clear active work before recording late approval for ${itemId}.`,
+    "wrong_active_item",
+  );
 }
 
 export function defaultBranch(repoRoot) {
@@ -381,6 +396,7 @@ export function migrateLegacyTracker(repoRoot, options = {}) {
 
 export function addItem(tracker, input) {
   return withLock(tracker.paths.lockPath, () => {
+    tracker = reload(tracker);
     const id = input.id ? normalizeId(input.id) : allocateId(tracker.config, tracker.items);
     if (tracker.items.some((item) => item.id === id)) {
       throw new WorkError(`Work item ${id} already exists`, "duplicate_id");
@@ -454,6 +470,7 @@ export function requirementsStatus(tracker, id) {
 
 export function updateRequirementsStatus(tracker, id, input) {
   return withLock(tracker.paths.lockPath, () => {
+    tracker = reload(tracker);
     assertActiveTarget(tracker, normalizeId(id));
     const item = requireItem(tracker, id);
     const requirements = readRequirements(item);
@@ -475,6 +492,10 @@ export function updateRequirementsStatus(tracker, id, input) {
       if (record.status === "Backlog") record.status = "Ready";
       record.updated_date = isoDate();
       note = `Requirements finalized with owner approval from ${approvedBy}.`;
+      if (record.stage && STAGES.includes(record.stage) && record.status === "Ready") {
+        record.stage = "03-requirements-approved";
+        note += " Stage set to 03-requirements-approved.";
+      }
     } else if (input.reopen) {
       if (["Done", "Cancelled"].includes(record.status)) {
         throw new WorkError(
@@ -490,6 +511,10 @@ export function updateRequirementsStatus(tracker, id, input) {
       record.next_step = "Refine and finalize REQUIREMENTS.md with the owner.";
       record.updated_date = isoDate();
       note = "Requirements reopened for owner refinement; item returned to Backlog.";
+      if (record.stage && STAGES.includes(record.stage)) {
+        record.stage = "02-refinement";
+        note += " Stage set to 02-refinement.";
+      }
     } else {
       throw new WorkError("Choose --finalize or --reopen", "missing_action");
     }
@@ -500,7 +525,13 @@ export function updateRequirementsStatus(tracker, id, input) {
       { path: item.historyPath, content: appendHistoryContent(item, history) },
       {
         path: item.statusPath,
-        content: renderStatus(record, recentHistory(item, history), readStatus(item), requirements.meta.status),
+        content: renderStatus(
+          record,
+          recentHistory(item, history),
+          readStatus(item),
+          requirements.meta.status,
+          progressEntryFor(record, note),
+        ),
       },
     ]);
     regenerate(reload(tracker));
@@ -574,6 +605,7 @@ export function nextItem(tracker) {
 
 export function startItem(tracker, id, input) {
   return withLock(tracker.paths.lockPath, () => {
+    tracker = reload(tracker);
     const item = requireItem(tracker, id);
     const activeState = activeEntry(tracker);
     if (activeState.entry && activeState.entry.item_id !== item.id) {
@@ -588,12 +620,21 @@ export function startItem(tracker, id, input) {
     const nextStep = requiredText(input.nextStep ?? item.record.next_step, "next step");
     const updated = structuredClone(item.record);
     updated.status = "In Progress";
+    let startNote = `Started on branch ${branch}.`;
+    if (updated.stage && STAGES.includes(updated.stage) && statusForStage(updated.stage) !== "In Progress") {
+      if (["build", "data-load"].includes(updated.type)) updated.stage = "08-build";
+      else if (updated.type === "solution-design") updated.stage = "04-solution-design";
+      else {
+        updated.stage = null;
+        startNote = `Started on branch ${branch}; active work, stage not set until its real phase is known.`;
+      }
+    }
     updated.next_step = nextStep;
     updated.git.branch = branch;
     updated.updated_date = isoDate();
     const active = activeState.active;
     active.branches[activeState.branch] = { item_id: item.id, set_at: isoTimestamp() };
-    writeItemUpdate(tracker, item, updated, "started", `Started on branch ${branch}.`, undefined, { active, activePath: tracker.paths.activePath });
+    writeItemUpdate(tracker, item, updated, "started", startNote, undefined, { active, activePath: tracker.paths.activePath });
     return {
       outcome: "started",
       item: publicItem(requireItem(reload(tracker), id), tracker.paths),
@@ -604,6 +645,7 @@ export function startItem(tracker, id, input) {
 
 export function updateItem(tracker, id, input) {
   return withLock(tracker.paths.lockPath, () => {
+    tracker = reload(tracker);
     const item = requireItem(tracker, id);
     assertActiveTarget(tracker, item.id);
     const updated = structuredClone(item.record);
@@ -616,8 +658,8 @@ export function updateItem(tracker, id, input) {
       updated.stage = normalizeStage(input.stage);
       changes.push(`stage set to ${updated.stage}`);
       const derived = statusForStage(updated.stage);
-      // Done is the one status update never sets. `finish` owns it, because it
-      // is the command that proves the work is in the default branch.
+      // Done is the one status update never sets. `finish` owns the required
+      // completion evidence and approval record.
       if (derived && derived !== "Done" && derived !== updated.status) {
         // The same requirements gate an explicit --status passes through. It is
         // not a check on the stage: it stops a derived status from writing a
@@ -633,7 +675,7 @@ export function updateItem(tracker, id, input) {
       const requestedStatus = normalizeStatus(input.status);
       if (requestedStatus === "Done" && item.record.status !== "Done") {
         throw new WorkError(
-          "Use work finish to mark an item Done so landing evidence is verified.",
+          "Use work finish to mark an item Done with completion evidence.",
           "finish_required",
         );
       }
@@ -680,6 +722,15 @@ export function updateItem(tracker, id, input) {
     if (typeNeedsRequirements(updated.type) && ["Ready", "In Progress", "In Review", "Done"].includes(updated.status)) {
       requireRequirementsForType(item, updated.type);
     }
+    if (input.status && updated.stage && STAGES.includes(updated.stage) && !["Done", "Cancelled"].includes(updated.status)) {
+      const expected = statusForStage(updated.stage);
+      if (expected !== updated.status) {
+        throw new WorkError(
+          `Stage ${updated.stage} derives ${expected}; use --stage to move the item to the matching phase before setting ${updated.status}.`,
+          "stage_status_mismatch",
+        );
+      }
+    }
     if (["In Progress", "In Review"].includes(updated.status) && updated.git.branch) {
       assertBranchAvailable(tracker, item.id, updated.git.branch, input.allowSharedBranch);
     }
@@ -693,7 +744,16 @@ export function updateItem(tracker, id, input) {
       (input.blockers?.length ?? 0) > 0 || input.clearBlocker !== undefined,
     );
     const progressEntry = meaningful ? progressEntryFor(updated, note) : undefined;
-    writeItemUpdate(tracker, item, updated, "updated", note, progressEntry);
+    const transition = {};
+    if (updated.status === "Cancelled") {
+      const active = readActive(tracker.paths);
+      for (const [branch, entry] of Object.entries(active.branches)) {
+        if (entry?.item_id === item.id) delete active.branches[branch];
+      }
+      transition.active = active;
+      transition.activePath = tracker.paths.activePath;
+    }
+    writeItemUpdate(tracker, item, updated, "updated", note, progressEntry, transition);
     return {
       outcome: "updated",
       item: publicItem(requireItem(reload(tracker), id), tracker.paths),
@@ -704,6 +764,7 @@ export function updateItem(tracker, id, input) {
 
 export function linkItems(tracker, sourceId, type, targetId) {
   return withLock(tracker.paths.lockPath, () => {
+    tracker = reload(tracker);
     const source = requireItem(tracker, sourceId);
     assertActiveTarget(tracker, source.id);
     const target = requireItem(tracker, targetId);
@@ -745,6 +806,7 @@ export function linkItems(tracker, sourceId, type, targetId) {
 
 export function unlinkItems(tracker, sourceId, type, targetId) {
   return withLock(tracker.paths.lockPath, () => {
+    tracker = reload(tracker);
     const source = requireItem(tracker, sourceId);
     assertActiveTarget(tracker, source.id);
     const target = requireItem(tracker, targetId);
@@ -777,6 +839,7 @@ export function unlinkItems(tracker, sourceId, type, targetId) {
 
 export function finishItem(tracker, id, input) {
   return withLock(tracker.paths.lockPath, () => {
+    tracker = reload(tracker);
     const item = requireItem(tracker, id);
     const suppliedApproval = input.approvedBy ? requiredText(input.approvedBy, "approved by") : null;
     const existing = item.record.completion;
@@ -784,6 +847,7 @@ export function finishItem(tracker, id, input) {
     // mutation allowed after a terminal transition is filling a missing approver.
     if (["Done", "Cancelled"].includes(item.record.status)) {
       if (item.record.status === "Done" && existing && !existing.approved_by && suppliedApproval && !input.evidence && !input.commit && !input.pullRequest) {
+        assertNoActiveMappingForLateApproval(tracker, item.id);
         const updated = structuredClone(item.record);
         updated.completion.approved_by = suppliedApproval;
         updated.completion.approved_date = input.approvedDate ? checkedDate(input.approvedDate, "approved date") : isoDate();
@@ -1013,6 +1077,7 @@ export function unarchiveItem(tracker, id) {
 
 function moveItemFolder(tracker, id, archive) {
   return withLock(tracker.paths.lockPath, () => {
+    tracker = reload(tracker);
     const item = requireItem(tracker, id);
     assertActiveOrTerminalMaintenance(tracker, item);
     if (Boolean(item.archived) === archive) {
@@ -2236,8 +2301,19 @@ function validateEvents(tracker, byId, errors) {
   try { events = readEvents(tracker.paths.eventsPath); } catch (error) { errors.push(`EVENTS.ndjson is invalid JSON: ${error.message}`); return; }
   const ids = new Set();
   for (const event of events) {
+    if (!event || typeof event !== "object" || Array.isArray(event)) {
+      errors.push("EVENTS.ndjson contains an invalid completion event");
+      continue;
+    }
     const approval = event?.approval;
-    if (!event || event.schema_version !== 1 || event.kind !== "work_completed" || typeof event.event_id !== "string" || !event.event_id || typeof event.occurred_at !== "string" || Number.isNaN(new Date(event.occurred_at).valueOf()) || typeof event.item_id !== "string" || !byId.has(event.item_id) || typeof event.title !== "string" || !event.title.trim() || !/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/.test(String(event.type ?? "")) || event.status !== "Done" || !(event.stage === null || typeof event.stage === "string") || !approval || typeof approval !== "object" || typeof approval.approved_by !== "string" || !approval.approved_by.trim() || !isIsoDate(approval.approved_date) || typeof event.evidence !== "string" || !event.evidence.trim() || !(event.git === null || typeof event.git === "object")) errors.push("EVENTS.ndjson contains an invalid completion event");
+    const item = byId.get(event?.item_id);
+    if (!event || event.schema_version !== 1 || event.kind !== "work_completed" || typeof event.event_id !== "string" || event.event_id !== `work_completed:${event.item_id}` || typeof event.occurred_at !== "string" || Number.isNaN(new Date(event.occurred_at).valueOf()) || typeof event.item_id !== "string" || !item || typeof event.title !== "string" || !event.title.trim() || !/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/.test(String(event.type ?? "")) || event.status !== "Done" || !(event.stage === null || typeof event.stage === "string") || !approval || typeof approval !== "object" || typeof approval.approved_by !== "string" || !approval.approved_by.trim() || !isIsoDate(approval.approved_date) || typeof event.evidence !== "string" || !event.evidence.trim() || !(event.git === null || typeof event.git === "object")) errors.push("EVENTS.ndjson contains an invalid completion event");
+    if (item && item.record.status !== "Done") errors.push(`EVENTS.ndjson completion event references nonterminal ${item.id}`);
+    if (item?.record.status === "Done" && !item.record.completion) {
+      errors.push(`EVENTS.ndjson completion event has no completion block on terminal ${item.id}`);
+    } else if (item?.record.status === "Done" && (
+      event.title !== item.record.title || event.type !== item.record.type || event.stage !== (item.record.stage ?? null) || event.evidence !== item.record.completion.evidence || approval?.approved_by !== item.record.completion.approved_by || approval?.approved_date !== item.record.completion.approved_date || !sameJson(event.git, eventGitForRecord(item.record))
+    )) errors.push(`EVENTS.ndjson completion event does not match terminal ${item.id}`);
     if (ids.has(event.event_id)) errors.push(`EVENTS.ndjson duplicates event ID ${event.event_id}`);
     ids.add(event.event_id);
   }
@@ -2301,10 +2377,14 @@ function completionMatches(completion, input, record, repoRoot) {
   }
   if (!input.evidence) return false;
   const matchingGit = !input.commit || record.git?.completion_commit === resolveCommit(repoRoot, input.commit);
-  const matchingPr = !input.pullRequest || record.git?.pull_request === normalizePullRequest(input.pullRequest, null);
+  const matchingPr = !input.pullRequest || sameJson(record.git?.pull_request, normalizePullRequest(input.pullRequest, null));
   return matchingGit && matchingPr && completion.evidence === String(input.evidence).trim()
     && (input.approvedBy ? completion.approved_by === String(input.approvedBy).trim() : !completion.approved_by)
     && (!input.approvedDate || completion.approved_date === String(input.approvedDate));
+}
+
+function sameJson(left, right) {
+  return JSON.stringify(left ?? null) === JSON.stringify(right ?? null);
 }
 
 function completionEvent(tracker, record, completion) {
@@ -2320,7 +2400,16 @@ function completionEvent(tracker, record, completion) {
     stage: record.stage ?? null,
     approval: { approved_by: completion.approved_by, approved_date: completion.approved_date },
     evidence: completion.evidence,
-    git: record.git?.completion_commit ? { completion_commit: record.git.completion_commit, landed: Boolean(record.git.landed_commit), pull_request: record.git.pull_request ?? null } : null,
+    git: eventGitForRecord(record),
+  };
+}
+
+function eventGitForRecord(record) {
+  if (!record.git?.completion_commit && !record.git?.pull_request) return null;
+  return {
+    completion_commit: record.git.completion_commit ?? null,
+    landed: Boolean(record.git.landed_commit),
+    pull_request: record.git.pull_request ?? null,
   };
 }
 

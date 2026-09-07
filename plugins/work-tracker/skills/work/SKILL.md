@@ -27,7 +27,8 @@ Before substantial work:
 
 `work start ID` selects the item when the branch has no active mapping. Named
 mutations refuse a different active item. Reads and tracker-wide checks do not
-need an active item.
+need an active item. After terminal work clears its mapping, archive or
+unarchive that terminal item only while no other item is active.
 
 ## Capture what the owner means
 
@@ -134,5 +135,6 @@ intended outcome was accepted; it does not universally mean a commit landed.
 If approval is omitted, the tool records and reports the gap, validation warns,
 and no `work_completed` event is emitted. Later approval uses the narrow form
 `work finish ID --approved-by NAME [--approved-date DATE]`, even after the
-active mapping was cleared. Repeating identical completion values is a no-op.
-Cancelled work emits no completion event.
+active mapping was cleared. It requires no item active on the current branch
+and no stale mapping for the completed item. Repeating identical completion
+values is a no-op. Cancelled work emits no completion event.

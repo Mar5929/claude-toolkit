@@ -83,9 +83,9 @@ the status the stage maps to, and a dated log line together:
 work update WI-014 --stage 08 --note "Started the build."
 ```
 
-Stages may be skipped, repeated, or revisited. Known stages derive active
-statuses; `Done` and `Cancelled` are intentional terminal actions. An item
-with no stage is normal and is never backfilled.
+Stages may be skipped, repeated, or revisited. A recorded known stage and its
+active status stay consistent; `Done` and `Cancelled` are intentional terminal
+actions. An item with no stage is normal and is never backfilled.
 
 ## Grouping work items
 
@@ -218,8 +218,9 @@ Validation and command failures return nonzero exit codes.
 ## How completion is recorded
 
 `finish` records evidence appropriate to the work and optional approval, commit,
-and pull-request facts. Repository evidence is verified when supplied, but
-non-repository work needs no fake commit. Approved Done work emits one stable
+and pull-request references. Supplied commits are checked against local Git;
+pull-request references are recorded, not remotely verified. Non-repository
+work needs no fake commit. Approved Done work emits one stable
 `work_completed` event. Missing completion approval is reported and warned
 about, and emits no event until approval is added.
 
