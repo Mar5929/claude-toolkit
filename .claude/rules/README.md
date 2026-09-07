@@ -49,7 +49,7 @@ was set up, skipped, or declined.
 ## Voice is not a rule
 
 How Claude writes here is the `Plain English` style, selected as
-`"outputStyle": "plain-english"` in `.claude/settings.json` and delivered in the
+`"outputStyle": "Plain English"` in `.claude/settings.json` and delivered in the
 system prompt. The file is `.claude/output-styles/plain-english.md`, a copy of
 what the toolkit ships in `plugins/project-init/library/output-styles/`, so a
 change goes in the shipped original and `tests/installed-copy-check.mjs` keeps

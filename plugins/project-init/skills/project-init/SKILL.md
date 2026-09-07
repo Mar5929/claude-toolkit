@@ -418,7 +418,7 @@ CLAUDE.md stays thin and points at that folder. Read
   points where they help. If the owner takes it, copy
   `library/output-styles/plain-english.md` to
   `.claude/output-styles/plain-english.md` and set
-  `"outputStyle": "plain-english"` instead of `Concise`. A project has one style
+  `"outputStyle": "Plain English"` instead of `Concise`. A project has one style
   or none, so this replaces the selection rather than adding to it. The folder's
   `README.md` has the rest.
 - **Offer the machine-wide setting too**, if the owner wants this voice

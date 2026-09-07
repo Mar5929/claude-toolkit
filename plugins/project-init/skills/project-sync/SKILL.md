@@ -521,9 +521,11 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   committed `.claude/settings.json`, and offer to delete a leftover
   `.claude/output-styles/plain-language.md`. Where the owner wants the simpler
   voice instead, copy `library/output-styles/plain-english.md` into
-  `.claude/output-styles/` and select that in place of `Concise`, never
-  alongside it. If the owner deliberately selected some other style, show them
-  the clash and let them choose rather than overwriting it. Say plainly that the
+  `.claude/output-styles/` and set `"outputStyle": "Plain English"` in place
+  of `Concise`, never alongside it. That value is the `name` inside the style
+  file, not the file name, and Claude Code silently ignores a value matching
+  no style. If the owner deliberately selected some other style, show them the
+  clash and let them choose rather than overwriting it. Say plainly that the
   new voice starts on their next session, so they do not think it failed.
 - **For the retired voice rules, propose the swap, never a bare deletion.** A
   project on the old setup has working guidance; removing it before the style
