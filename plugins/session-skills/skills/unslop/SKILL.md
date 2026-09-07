@@ -25,8 +25,7 @@ If none of those exist, say so in one line and ask what to clean up. Never guess
 at a file.
 
 Before starting on anything long, say roughly how much text it is and get a
-go-ahead. `ask-before-assuming.md` requires that for any operation that reads or
-produces a lot.
+go-ahead.
 
 ## Run it in this order
 

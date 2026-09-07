@@ -15,7 +15,7 @@ Each asks a different question, and each exists because something real broke.
 | --- | --- |
 | `link-check.mjs` | Does what a file points at still exist? |
 | `orphan-check.mjs` | Can a shipped file still be found, meaning is it named by at least one index document? |
-| `installed-copy-check.mjs` | Do two files that must say the same thing still say it, and do the lifecycle rule and Salesforce scaffold keep their required homes? |
+| `installed-copy-check.mjs` | Do two files that must say the same thing still say it, and does the Salesforce scaffold keep its required homes? |
 | `knowledge-startup-check.mjs` | Do both hosts load one managed manual and the same small project map? |
 
 ## Working in here
