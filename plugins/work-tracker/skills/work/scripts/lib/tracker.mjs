@@ -1988,6 +1988,7 @@ function publicItem(item, paths) {
     completion_commit: item.record.git.completion_commit,
     landed_commit: item.record.git.landed_commit,
     landed_date: item.record.git.landed_date,
+    completion: item.record.completion ?? null,
     path: displayTrackerPath(paths, item.path),
   };
 }

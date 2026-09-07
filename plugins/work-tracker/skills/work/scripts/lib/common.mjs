@@ -229,9 +229,6 @@ export function atomicBatchWrite(entries) {
         throw new WorkError("Injected failure after first batch install", "injected_failure");
       }
     }
-    for (const entry of prepared) {
-      if (entry.backedUp) fs.unlinkSync(entry.backupPath);
-    }
   } catch (error) {
     for (const entry of [...prepared].reverse()) {
       try {
@@ -241,10 +238,21 @@ export function atomicBatchWrite(entries) {
         }
         if (fs.existsSync(entry.tempPath)) fs.unlinkSync(entry.tempPath);
       } catch {
-        // Validation and reconciliation will report any interrupted recovery.
+        // Preserve remaining files for validation and manual recovery.
       }
     }
     throw error;
+  }
+  // Installation is committed once every replacement is in place. A failed
+  // backup cleanup must leave the committed files intact; the leftover backup
+  // is recoverable evidence rather than a reason to roll back a partial commit.
+  for (const entry of prepared) {
+    if (!entry.backedUp) continue;
+    try {
+      fs.unlinkSync(entry.backupPath);
+    } catch {
+      // Keep any undeleted backup for manual recovery.
+    }
   }
 }
 
