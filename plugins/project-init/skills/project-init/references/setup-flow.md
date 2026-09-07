@@ -268,7 +268,7 @@ so they always know where they are.
   everyday words, no jargon, no figures of speech, bullet points where they
   help. Ask once and move on. If the owner takes it, copy the file to
   `.claude/output-styles/plain-english.md` and set
-  `"outputStyle": "plain-english"` in place of `Concise`, never alongside it.
+  `"outputStyle": "Plain English"` in place of `Concise`, never alongside it.
 - When project knowledge is installed, keep the route small. Both hosts register
   the loader for `SOUL.md`, `knowledge/README.md`, `knowledge/project.md`,
   `knowledge/current.md`, and the two index entry lists. `CLAUDE.md` says to

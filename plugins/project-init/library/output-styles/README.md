@@ -82,11 +82,21 @@ in his own words.
 
    ```json
    {
-     "outputStyle": "plain-english"
+     "outputStyle": "Plain English"
    }
    ```
 
-   The value is the file name without `.md`, not the `name` field inside it.
+   The value is the style's name, which is the `name` field at the top of the
+   file, and only falls back to the file name when the file sets no `name`.
+   `plain-english.md` sets `name: Plain English`, so the value is
+   `Plain English`.
+
+   Claude Code matches that text exactly and takes a value that matches
+   nothing as no style at all: it falls back to the default, reports no error,
+   and writes nothing to the log. A wrong value here does not look like a
+   mistake, it looks like the style quietly doing nothing. Check it with
+   `/context` after restarting, or pick the style from the `/config` menu,
+   which writes the correct value for you.
 3. Tell the owner it takes effect on their next session, not the current one.
    The system prompt is read once at session start, so an already-open session
    keeps the old voice until it restarts.
