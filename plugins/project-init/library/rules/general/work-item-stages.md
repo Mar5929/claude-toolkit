@@ -1,146 +1,113 @@
-# Every Work Item Moves Through the Same Fourteen Stages
+# Keep the Active Work Item Accurate
 
-A work item carries one current stage. The stage is where the work stands right
-now, written down, so a session picking the work up reads it instead of asking
-the owner or rereading a conversation.
+The work tracker is the source of truth for current work. Before substantial
+work, identify the tracker and active item, then read its requirements, current
+state, progress, blockers, and next step. Use the item named by the owner, an
+unambiguous branch or pull request, or the tracker's active-item record. If no
+tracker is configured, skip tracker work. If a tracker exists but no item or
+more than one item fits, ask one short question.
 
-## The fourteen stages
+Subagents may do delegated work. The main agent alone updates or completes the
+canonical item.
 
-| Stage | What it covers |
-| --- | --- |
-| `01-discovery` | Working out what the owner actually wants. |
-| `02-refinement` | Turning that into requirements, one question at a time. |
-| `03-requirements-approved` | The owner approved the requirements. Building may start. |
-| `04-solution-design` | Deciding how it gets built. |
-| `05-breakdown` | Splitting the work into smaller items when it is too big for one. |
-| `06-implementation-plan` | The ordered steps for building it. |
-| `07-tracking-setup` | Creating whatever the tracker needs to follow the build. |
-| `08-build` | Writing the code or the documents. |
-| `09-testing` | Checking it does what the requirements said. |
-| `10-bug-fixing` | Fixing what testing found. |
-| `11-user-approval` | The owner saw it and approved it. |
-| `12-pr-and-push` | The change is on a branch, in a pull request, pushed. |
-| `13-deployment` | It is live wherever it goes live. |
-| `14-spec-update` | The project's specification is brought back in line with what was built. |
+## Work type sets the approval boundary
 
-The two-digit prefix is part of the name, so the stages sort in order everywhere
-they are listed.
+Record a short lower-case kebab-case type. Common types are `discovery`,
+`solution-design`, `build`, `data-load`, `repository-maintenance`, `research`,
+and `task`. A project may use another clear type. Existing `bug` and
+`enhancement` values remain valid.
 
-Spec-update is its own stage on purpose. Build and testing change what was
-agreed, and a step folded inside another step is the one that gets quietly
-skipped.
+`In Progress` means the item is active. It does not mean implementation has
+started. `build` and `data-load` require approved requirements before that work
+starts. For every other type, judge the approval needed from the real risk and
+scope. Do not turn a small maintenance item into a fixed ceremony, and do not
+use a broad type to avoid approval for implementation.
 
-## Skipping, and going backwards
+## Stages describe, not command
 
-`03-requirements-approved`, `11-user-approval`, and `12-pr-and-push` are never
-skipped. Every other stage may be skipped when it does not apply.
+A work item may carry one current stage:
 
-Approval is not the same thing as a long document. `03` means the owner said
-build it, and requirements run as long as the work needs and no longer. For a
-chore that is the one line the owner asked for, and writing more would mean
-inventing needs they never stated. For work that is genuinely unclear it means
-the interview, one question at a time, until these are answered: the goal, why
-it matters, what has to be true for it to count as finished, what the person
-using it experiences, how it behaves from the outside, and the edge cases.
+| Stage | What it covers | Active status |
+| --- | --- | --- |
+| `01-discovery` | Working out what the owner wants. | Backlog |
+| `02-refinement` | Turning that into requirements. | Backlog |
+| `03-requirements-approved` | The owner approved the requirements. | Ready |
+| `04-solution-design` | Deciding how it gets built. | In Progress |
+| `05-breakdown` | Splitting work that is too large. | In Progress |
+| `06-implementation-plan` | Ordering the build steps. | In Progress |
+| `07-tracking-setup` | Creating build tracking when needed. | In Progress |
+| `08-build` | Producing the requested change. | In Progress |
+| `09-testing` | Checking it against the requirements. | In Progress |
+| `10-bug-fixing` | Fixing what testing found. | In Progress |
+| `11-user-approval` | The owner reviews the result. | In Progress |
+| `12-pr-and-push` | Repository work is in a pushed pull request. | In Review |
+| `13-deployment` | The result is put where it belongs. | In Review |
+| `14-spec-update` | Lasting specifications match the result. | In Review |
 
-Judging which one a piece of work is belongs to whoever is doing it. Guessing
-short costs a conversation. Guessing long puts words in the owner's mouth.
+Use the stage the work is actually in. Stages may be skipped, repeated, or
+revisited when that fits the work. Record one short reason when a move is not
+obvious. Pull-request stages apply only to repository work. A legacy item with
+no stage is valid; never invent or backfill history.
 
-A skipped stage goes in the progress log with the reason it was skipped.
-Several stages skipped at once are one entry, not one each. Nobody walks the
-list stage by stage: set the stage the work is actually at, and say in that one
-line what was passed over and why. A small item honestly runs `03`, `08`, `11`,
-`12` and logs four entries.
+Known stages derive the active status shown above. `Done` and `Cancelled` are
+terminal states set by an intentional completion or cancellation action, not by
+a stage. An unknown stage is preserved and reported rather than silently
+changed.
 
-A work item may go back to an earlier stage. That goes in the log with its
-reason too.
+## Record meaningful progress
 
-## The stage sets the status
+Update the active item when meaning changes:
 
-The stage decides the tracker status, so the two can never disagree.
+- a stage, status, type, blocker, or exact next step changes;
+- the owner gives a material choice, answer, requirement, constraint, approval,
+  or rejection;
+- an outside approval is reported, including who approved and any supplied
+  conditions, without claiming it was independently verified;
+- a discovery or decision changes the plan; or
+- a substantial requested outcome finishes.
 
-| Stage | Status |
-| --- | --- |
-| `01`, `02` | Backlog |
-| `03` | Ready |
-| `04` through `11` | In Progress |
-| `12`, `13` | In Review |
-| `14` | Done |
+Capture the owner's meaning promptly and briefly. Do not add rationale, scope,
+conditions, or certainty the owner did not give. If ambiguity would materially
+change the record, ask one short question. Do not log routine commands, files
+opened, ordinary tests, tiny edits, or discarded ideas.
 
-`Cancelled` is set by hand at any stage, and no stage produces it.
+## Update the chosen tracker
 
-Reaching `14-spec-update` is not on its own proof that the work landed. Where a
-tracker requires evidence that the change is in the default branch before it
-will say Done, that requirement stands.
+**Local folders.** Run `work active`, then use the `work` skill. A conflicting
+active item is a hard stop until it is intentionally replaced. Commands update
+the item, readable progress, history, and active state together.
 
-## The progress log
+**GitHub.** Resolve and read the issue number, title, body, single Progress log
+comment, stage label, and board status before changing it. Settled requirements
+and decisions go in the issue body. Append the short dated event to the one
+Progress log comment. Treat body, comment, label, and board field as one logical
+update, read them back, and repair or report any partial failure. Do not create
+a local mirror.
 
-Every work item carries a progress log: short, plain-language entries, each one
-dated and marked with the stage it happened in.
+**Another tracker.** Follow its project instructions and keep one canonical
+item. Never create a second tracker to make this rule fit.
 
-```text
-2026-08-29 | 04 solution-design | Chose a rule file over the knowledge manual so there is one copy of the stage list.
-2026-08-30 | 05 breakdown | Skipped. One file changes, no sub-items.
-2026-08-31 | 09 testing | The owner rejected the label names. Wants two digits so they sort.
-```
+## Leave a usable handoff
 
-Write an entry when:
+Before ending substantial unfinished work, leave the active item with the exact
+next action, blockers or none, open decisions, and true stage and status. Read
+the result back or run the tracker's validation. The `handoff` skill performs
+this tracker step before its memory review.
 
-- a stage starts;
-- a stage is skipped;
-- a decision changes direction;
-- the owner approves or rejects something;
-- a blocker appears or clears;
-- something is learned that changes the plan; or
-- a piece of work the owner asked for is finished.
+## Finish or cancel honestly
 
-Write one outside that list when a future session would be lost without it.
+Before marking work `Done`, give the owner a short result, known gaps, and
+evidence appropriate to the item, then ask for approval. A clear earlier
+approval of that result counts. Do not mark `Done` without approval or describe
+an unverified outcome as complete.
 
-Never write an entry that repeats what Git, the pull request, or the
-requirements already say. These all stay out:
+`Done` means the intended outcome was accepted. `Cancelled` means work stopped
+without achieving it. For repository work, also state whether the completion
+commit reached the default branch. Git evidence is not required for work that
+does not change a repository.
 
-- "Ran the tests." Git says it.
-- "Read the tracker code and its documents." Files opened is not an event.
-- "Fixed a typo." Nothing a future session needs.
-- "Considered seven stages and dropped it." A dropped idea, not a decision that
-  stuck.
-
-## Where the stage and the log are written
-
-**A local folder tracker.** The `stage` field in the item's `ITEM.yaml`, and a
-"Progress log" section in its `STATUS.md`. One command writes the stage, the
-status, and the log line together, so none of the three can be done without the
-others:
-
-```text
-work update WI-014 --stage 08 --note "Started the build."
-```
-
-**GitHub issues.** A label named for the stage, and one comment titled "Progress
-log" that is edited in place. Never open a second comment.
-
-```text
-gh issue comment 42 --body "## Progress log"
-gh issue edit 42 --remove-label 07-tracking-setup --add-label 08-build
-gh api repos/OWNER/REPO/issues/42/comments --jq '.[] | select(.body | startswith("## Progress log")) | .id'
-gh api --method PATCH repos/OWNER/REPO/issues/comments/COMMENT_ID -f body="$(cat log.md)"
-```
-
-The first command runs once, when the issue has no log comment yet. Set the
-board's Status field to what the mapping above says, the same way the project
-already sets it.
-
-## Reaching the last stage
-
-`14-spec-update` means running the project's `remember` review and bringing the
-specification current, so the written behavior matches what was actually built.
-
-## Nothing enforces any of this
-
-No code checks that a stage name is real, refuses a move backwards, demands a
-reason for a skip, or looks for a changed specification. A tracker stores the
-stage, derives the status, and appends the log line. This file says what is
-correct, and agents follow it the way they follow every other rule.
-
-Work items that existed before this carry no stage until someone sets one. A
-missing stage is normal and is never an error.
+Local approved completion emits one `work_completed` event. An unapproved local
+completion may be recorded only as the tool's explicit exception: report the
+missing approval, emit no approved-completion event, and add approval later
+through the narrow completion command. In GitHub mode, closing the approved
+issue is the completion event; close as not planned for cancellation.

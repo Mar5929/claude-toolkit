@@ -39,15 +39,21 @@ work add --title TITLE --description DESCRIPTION --priority medium --type task \
 work requirements WI-014
 work requirements WI-014 --finalize --approved-by NAME
 work requirements WI-014 --reopen
+work active
+work active set WI-014 [--replace]
+work active clear
 work status [--all] [--archived] [--json]
 work next [--json]
 work start WI-014 [--branch BRANCH] [--next-step STEP] \
   [--allow-shared-branch]
-work update WI-014 [--stage 08] [--note WHAT_HAPPENED] [--status Ready]   [--next-step STEP] [--branch BRANCH] \
+work update WI-014 [--stage 08] [--type TYPE] [--status Ready] \
+  [--next-step STEP] [--branch BRANCH] \
   [--blocker REASON] [--blocker-item WI-002] \
   [--clear-blocker B-001|all] [--note NOTE] [--allow-shared-branch]
 work link WI-014 --type depends_on --target WI-002 [--remove]
-work finish WI-014 [--commit SHA] [--pr NUMBER_OR_URL] [--next-step STEP]
+work finish WI-014 --evidence TEXT [--approved-by NAME] \
+  [--approved-date YYYY-MM-DD] [--commit SHA] [--pr NUMBER_OR_URL]
+work finish WI-014 --approved-by NAME [--approved-date YYYY-MM-DD]
 work landed WI-014
 work archive WI-014
 work unarchive WI-014
@@ -80,16 +86,17 @@ one call. It takes a number (`8`, `08`), a name (`build`), or the whole thing
 log line uses `--note` as its text, or the summary of what changed when there is
 no note. Passing `--status` as well overrides the derived status.
 
-`14-spec-update` maps to `Done`, which `update` never writes; use `finish` for
-that. A stage mapping to `Ready`, `In Progress`, or `In Review` needs finalized
-requirements, the same as an explicit `--status`.
+`14-spec-update` maps to `In Review`; only `finish` writes `Done`.
 
 Nothing validates the stage itself. `work-item-stages.md` says which stage is
 correct, when one may be skipped, and what belongs in the log.
 
-`start` accepts only a `Ready` item with finalized requirements. It uses the
-current branch when `--branch` is omitted. It rejects a branch already claimed
-by another active item unless `--allow-shared-branch` is explicit.
+`active` reads the current branch mapping. `active set` selects one item and
+requires `--replace` to change a conflicting mapping. `start` selects its item
+when no mapping exists. Named mutations refuse a different active item.
+
+The hard finalized-requirements gate applies to `build` and `data-load`.
+Other lower-case kebab-case types follow the lifecycle rule's risk judgment.
 
 `archive` moves an item's folder into `.work-items/archive/` and `unarchive`
 moves it back. Both keep the item in the folder it sat in, so it returns where it
@@ -106,9 +113,11 @@ Archived items are hidden from `status`, `next`, and the dashboard;
 `status --archived` lists them and `status --all` includes them. Archiving
 something already archived reports no change.
 
-`finish` resolves `HEAD` when `--commit` is omitted. It marks `Done` only when
-`git merge-base --is-ancestor` proves the commit is in the configured default
-branch. Otherwise it records `In Review`.
+`finish` requires evidence for a new completion. Commit and pull-request
+references are optional and are verified when supplied. Missing approval is
+recorded and warned about but emits no completion event. The approval-only form
+fills approval on an existing unapproved completion. Identical retries are
+no-ops.
 
 ## Exit behavior
 

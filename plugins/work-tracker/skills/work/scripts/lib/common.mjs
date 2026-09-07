@@ -218,13 +218,16 @@ export function atomicBatchWrite(entries) {
     if (process.env.WORK_TRACKER_FAIL_AFTER_TEMP === "1") {
       throw new WorkError("Injected failure before atomic batch rename", "injected_failure");
     }
-    for (const entry of prepared) {
+    for (const [index, entry] of prepared.entries()) {
       if (entry.existed) {
         fs.renameSync(entry.path, entry.backupPath);
         entry.backedUp = true;
       }
       fs.renameSync(entry.tempPath, entry.path);
       entry.installed = true;
+      if (process.env.WORK_TRACKER_FAIL_AFTER_INSTALL === "1" && index === 0) {
+        throw new WorkError("Injected failure after first batch install", "injected_failure");
+      }
     }
     for (const entry of prepared) {
       if (entry.backedUp) fs.unlinkSync(entry.backupPath);

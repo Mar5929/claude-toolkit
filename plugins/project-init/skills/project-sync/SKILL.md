@@ -86,23 +86,17 @@ automatically as it grows.
     `library/rules/general/dependency-graph.md`)
   - the `work-tracker` plugin, root `.work-items/`, and any older
     `delivery/work-items/`, `engagement/work-items/`, or root `work-items/` tree
-  - the work-item stage standard, which is three parts and looks present when
-    only one is there: `library/rules/general/work-item-stages.md` in
-    `.claude/rules/`, the `work-item-stage-reminder` hook, and the stage markers
-    the project's chosen tracker needs (a `stage` field for the local tracker,
-    fourteen labels for a GitHub board). It depends on the Gate 1 tracker
-    question having an answer, so a project that was never asked is not missing
-    the standard, it is missing the question
-  - the `hooks-library` plugin and its three general hooks. For
-    `spec-check-reminder` (PostToolUse): check `.claude/settings.json` for a
-    registered entry and `.claude/hooks/` for the copied script. It points at
-    the `spec-check` skill from `session-skills`, so only audit it where that
-    plugin is installed. For `work-item-stage-reminder` (PostToolUse, the same
-    `Edit|Write|NotebookEdit` matcher): audit it only where the tracker question
-    is answered and `work-item-stages.md` is present, since without both there
-    is no stage to set. If the retired `memory-pr-hook` plus `wrap-up-ritual.md`
-    path remains, report it for removal after the current project-knowledge
-    package is installed
+  - the work-item lifecycle rule in `.claude/rules/`, the declared tracker,
+    and its stage markers (a local `stage` field or GitHub stage labels).
+    Local mode also needs the current work skill and CLI for active-item
+    selection, progress, validation, and completion events. Missing optional
+    fields on legacy items are valid; never backfill them.
+  - the `hooks-library` plugin. Audit `spec-check-reminder` under
+    `PostToolUse` only where `session-skills` is installed. Check its settings
+    entry and copied script. Report any retired `work-item-stage-reminder`
+    script or registration for removal, preserving all other hooks. Also
+    report the retired `memory-pr-hook` plus `wrap-up-ritual.md` route for
+    removal after the current knowledge package is installed.
   - a project still carrying the retired voice rules (`writing-and-language.md`,
     `how-to-reply.md`, `treat-owner-as-non-technical.md`,
     `define-your-terms.md`). All four were removed from the toolkit in favor of
@@ -296,17 +290,12 @@ checks:
   `.work-items/` or an older `work-items/` tree but no pointer counts as never
   asked. Never-asked is a gap to offer in step 4; a recorded decline is
   respected and not raised again.
-- **Work-item stages:** classify the three parts separately, because one of
-  them present makes the whole thing look installed. Is
-  `.claude/rules/work-item-stages.md` there? Is `work-item-stage-reminder`
-  registered under `PostToolUse` with the script copied into `.claude/hooks/`?
-  And does the project's tracker actually hold a stage: a `stage` field in
-  `ITEM.yaml` for the local tracker, or the fourteen stage labels on the
-  repository for a GitHub board (`gh label list`)? **A project that has never
-  answered the tracker question is not missing this.** It is missing the
-  question, so raise that first and this after. Never backfill a stage onto an
-  existing work item or issue; items from before the standard carry none, and
-  that is normal.
+- **Work-item stages:** check the unscoped `work-item-stages.md` rule and
+  the tracker it names. Local mode uses the current work CLI; GitHub mode uses
+  stage labels. Report the retired stage-reminder script and registration for
+  removal, not installation. If the tracker question was never answered, ask
+  that first. Do not add guessed stages to existing items.
+
 - **Rules the toolkit dropped on 2026-08-31:** `spec-before-you-build.md` and
   `track-open-topics.md`. The toolkit no longer ships either one. When a project
   still carries one in `.claude/rules/`, report it as a rule the toolkit has
@@ -660,7 +649,8 @@ should look in THIS project, confirm, act, summarize. Ground rules:
 - **For an approved work-item stages gap, the tracker choice comes first.**
   A stage standard with no tracker to hold it is advice nobody can follow, so if
   the Gate 1 question was never answered, ask it and finish that answer before
-  installing any part of this. Then install all three parts together:
+  installing any part of this. Then update the rule and tracker and remove the
+  retired hook if present:
   1. Copy `library/rules/general/work-item-stages.md` into `.claude/rules/`.
   2. Set up the stage marker the chosen tracker needs. For the local tracker
      that is already there, since `stage` is a field `work update --stage`
@@ -676,10 +666,10 @@ should look in THIS project, confirm, act, summarize. Ground rules:
      Show the owner the list and wait for a yes before creating anything on
      GitHub, the same as every other board change. A label that already exists
      is left exactly as it is.
-  3. Install `work-item-stage-reminder` through the `hooks-library` skill. It
-     shares the `Edit|Write|NotebookEdit` matcher with `spec-check-reminder`, so
-     add it to that matcher's existing `hooks` array rather than making a second
-     entry.
+  3. Remove the retired `work-item-stage-reminder` registration and copied
+     script after the owner approves the sync. Keep other hooks in the same
+     matcher. The lifecycle rule handles orientation before substantial work;
+     there is no replacement hook.
 
   Then retire any label that now means the same thing as a stage, so the project
   has one vocabulary instead of two. A board set up before this has a `refined`

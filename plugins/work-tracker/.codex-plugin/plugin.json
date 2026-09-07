@@ -1,7 +1,7 @@
 {
   "name": "work-tracker",
-  "version": "2.3.0",
-  "description": "Local work tracking for Claude and Codex with Git-ignored folders the owner can group by hand, YAML records, owner-approved requirements, relationships, and Git landing verification.",
+  "version": "2.4.0",
+  "description": "Local work tracking for Claude and Codex with Git-ignored folders, flexible work types, branch-scoped active items, consistent progress, approved completion events, and optional Git landing evidence.",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com",
@@ -19,7 +19,7 @@
   "interface": {
     "displayName": "Work Tracker",
     "shortDescription": "Track local work in folders that Git ignores.",
-    "longDescription": "A local Claude and Codex work tracker with YAML records, owner-made group folders, owner-approved requirements, deterministic commands, cold-session handoffs, dependency validation, Git landing proof, generated dashboards, and preview-first conversion of older staged trackers.",
+    "longDescription": "A local Claude and Codex work tracker with YAML records, owner-made group folders, flexible work types, branch-scoped active selection, consistent progress, approval-aware completion, optional Git evidence, handoffs, dependency validation, generated dashboards, and preview-first conversion of older staged trackers.",
     "developerName": "Mike Rihm",
     "category": "Productivity",
     "capabilities": [

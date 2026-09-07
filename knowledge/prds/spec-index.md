@@ -26,3 +26,6 @@ rebuild it.
 - `memory-system.md` (superseded): How project knowledge worked under the
   layout with seven memory subfolders and a fixed tag list, superseded on
   2026-08-21 and kept only as history.
+- `work-item-upkeep.md`: Work tracking keeps the active item's decisions,
+  progress, handoff, and accepted outcome accurate across sessions, using
+  flexible stages and one owner of tracker state.

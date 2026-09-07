@@ -53,7 +53,8 @@ so they always know where they are.
 - For "local folders on this computer": install the `work-tracker` plugin and
   run `init`, per `work-items-structure.md`. It creates item folders under
   Git-ignored `.work-items/`, uses YAML records, and requires owner-approved
-  `REQUIREMENTS.md` before work starts. Pairs with the `work-item-folders.md`
+  `REQUIREMENTS.md` before build or data-load execution. Discovery and design
+  may already be active work. Pairs with the `work-item-folders.md`
   rule copied in Gate 5. If an older staged tracker exists, preview and approve
   `work migrate` before copying it. Local mode has no GitHub mirror.
 - Every stack: offer `ai-external-knowledge/` at the project root, for outside
@@ -119,14 +120,11 @@ so they always know where they are.
 - What needs guarding or automating? (deploy/env guard, secret guard,
   session-start orientation, format/lint)
 - Confirm exact trigger + action per hook; tell the user how to verify it fires.
-- Every project: offer the three general hooks from `hooks-library`
+- Every project using `session-skills`: offer `spec-check-reminder` from `hooks-library`
   (`/hooks-library`). `spec-check-reminder` asks once per session, at the first
   file edit, whether the spec-check review has run. It points at the
   `spec-check` skill from `session-skills`; skip it where that plugin is not
-  installed. `work-item-stage-reminder` asks
-  once per session which work item this is, what stage it is at, and whether the
-  progress log is current; offer it only where Gate 1 named a tracker, since
-  without one there is no stage to set.
+  installed.
   The project knowledge package owns its startup loader and pull-request save
   reminder. Gate 3 installs both. Do not restore the retired
   `memory-pr-hook` plus `wrap-up-ritual.md` route.

@@ -2,8 +2,7 @@
 
 A local work tracker shared by Claude and Codex. It keeps each work item in one
 Git-ignored folder, groups them in folders the owner makes, and makes
-owner-approved requirements the gate before
-building starts.
+active-item protection, faithful progress, and type-aware approval gates.
 
 **Setup: sets up a project.** Install once per machine. A project opts in when
 the owner chooses local folders for work tracking.
@@ -46,6 +45,8 @@ Every project uses the same hidden root folder:
 ```text
 .work-items/
   .work-tracker.yaml
+  ACTIVE.json
+  EVENTS.ndjson
   DASHBOARD.md
   WI-014-example/
     ITEM.yaml
@@ -82,10 +83,9 @@ the status the stage maps to, and a dated log line together:
 work update WI-014 --stage 08 --note "Started the build."
 ```
 
-The code stores and derives, and decides nothing. It does not check that a stage
-is real, refuse a move backwards, or ask why a stage was skipped. The rule says
-what is correct. An item with no stage is normal: nothing was converted when
-stages arrived.
+Stages may be skipped, repeated, or revisited. Known stages derive active
+statuses; `Done` and `Cancelled` are intentional terminal actions. An item
+with no stage is normal and is never backfilled.
 
 ## Grouping work items
 
@@ -159,7 +159,7 @@ status, and nothing inside it changes.
 Folders the owner nests inside `archive/` to group items are searched too.
 Anything in there that is not a work-item folder is ignored.
 
-## The requirements gate
+## Type-aware approval
 
 Every item contains `REQUIREMENTS.md` with YAML fields at the top. Its status is
 either:
@@ -173,10 +173,10 @@ experience, outside behavior, and edge cases. Either way it holds only what the
 owner said or approved, with no technical plan and no unapproved agent
 assumptions.
 
-New items start in `Backlog` with refining requirements. Finalizing moves the
-item to `Ready`, and all it needs is the owner's approval and their name.
-Nothing counts headings. `work start` refuses anything not finalized. Reopening
-requirements returns open work to `Backlog`.
+New items start in `Backlog` with refining requirements. Finalizing records
+the owner's approval. The hard command gate applies to `build` and
+`data-load`; other types use risk-based judgment from `work-item-stages.md`.
+Types are lower-case kebab-case, with suggested values rather than a fixed list.
 
 ## Item records and handoffs
 
@@ -186,6 +186,8 @@ requirements returns open work to `Backlog`.
 - `STATUS.md`: readable current handoff, recent history, and preserved owner
   notes.
 - `HISTORY.ndjson`: complete dated command history.
+- `ACTIVE.json`: branch-scoped active-item selections.
+- `EVENTS.ndjson`: approved completion events, emitted once.
 - `DASHBOARD.md`: generated view that can be deleted and rebuilt.
 
 ## Commands
@@ -197,6 +199,7 @@ work add
 work requirements
 work status
 work next
+work active
 work start
 work update
 work link
@@ -212,14 +215,13 @@ work dashboard
 Every command supports readable output. Agent workflows use `--json`.
 Validation and command failures return nonzero exit codes.
 
-## How completion is proven
+## How completion is recorded
 
-`finish` records the completion commit and asks Git whether that commit is an
-ancestor of the configured default branch. If yes, the item becomes `Done`. If
-not, it becomes `In Review`.
-
-An agent statement, branch name, closed issue, or pull-request number alone
-cannot mark a ticket `Done`. `validate` rejects false completion evidence.
+`finish` records evidence appropriate to the work and optional approval, commit,
+and pull-request facts. Repository evidence is verified when supplied, but
+non-repository work needs no fake commit. Approved Done work emits one stable
+`work_completed` event. Missing completion approval is reported and warned
+about, and emits no event until approval is added.
 
 ## Relationships and next-item selection
 

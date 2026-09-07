@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Personal, portable toolkit of reusable Claude systems: skills, rules, hooks, and templates shared across every project and device.",
-    "version": "0.105.0"
+    "version": "0.106.0"
   },
   "plugins": [
     {
@@ -32,12 +32,12 @@
     {
       "name": "hooks-library",
       "source": "./plugins/hooks-library",
-      "description": "Hooks that make a rule land mechanically instead of restating it. no-ai-attribution-guard refuses any commit or pull request whose text credits an AI, on every repository on the machine. spec-check-reminder asks once, at the session's first file edit, whether the spec-check review has run, so building from a drifted specification is caught at the moment it starts. work-item-stage-reminder asks once per session which work item this is, what stage it is at, and whether its progress log is current. Two Salesforce guards protect production deploys and permission-set deploys."
+      "description": "Hooks that make a rule land mechanically instead of restating it. no-ai-attribution-guard refuses any commit or pull request whose text credits an AI, on every repository on the machine. spec-check-reminder asks once, at the session's first file edit, whether the spec-check review has run, so building from a drifted specification is caught at the moment it starts. Two Salesforce guards protect production deploys and permission-set deploys."
     },
     {
       "name": "work-tracker",
       "source": "./plugins/work-tracker",
-      "description": "Local work tracking shared by Claude and Codex, with flat Git-ignored .work-items folders, YAML records, owner-approved requirements, deterministic status, handoffs, relationships, Git landing verification, generated dashboards, and preview-first conversion of older staged trackers."
+      "description": "Local work tracking shared by Claude and Codex, with flat Git-ignored .work-items folders, YAML records, owner-approved requirements, branch-scoped active items, flexible types, consistent progress, handoffs, relationships, approved completion events, optional Git landing evidence, generated dashboards, and preview-first conversion of older staged trackers."
     },
     {
       "name": "session-skills",

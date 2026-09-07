@@ -181,8 +181,9 @@ plugin.
   decline it receive no knowledge policy.
 - For the "local folders on this computer" answer, Gate 1 offers `work-tracker`
   as the one canonical task-status system. It uses flat YAML records under
-  Git-ignored `.work-items/` and requires an owner-approved `REQUIREMENTS.md`
-  before work starts. Existing staged trackers use a preview-first copy that
+  Git-ignored `.work-items/`, branch-scoped active-item selection, and approved
+  requirements before build or data-load execution. The lifecycle rule guides
+  meaningful progress, handoff, and completion for local and GitHub trackers. Existing staged trackers use a preview-first copy that
   leaves their original files untouched for review.
 - For the GitHub Projects board answer, Gate 1 sets up the board by hand from
   `work-tracking-choice.md` and no work-tracker code is involved. That board

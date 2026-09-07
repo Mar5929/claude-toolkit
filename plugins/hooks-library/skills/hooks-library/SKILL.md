@@ -3,8 +3,7 @@ name: hooks-library
 description: >-
   Install, remove, or check the toolkit's hooks in a project. Use when the user
   says "install the spec check reminder", "set up the hooks", "add the hooks
-  library", "turn off the spec check reminder", "remind me about the work item
-  stage", or "/hooks-library". These hooks check a moment mechanically that an
+  library", "turn off the spec check reminder", or "/hooks-library". These hooks check a moment mechanically that an
   agent otherwise has to remember on its own.
 ---
 
@@ -13,7 +12,7 @@ description: >-
 This skill wires the toolkit's hooks into one project. Read `../../README.md`
 first for what each hook does and why it exists.
 
-Five hooks install through this skill, in four groups.
+Three hooks install through this skill, in two groups.
 
 **Every project that uses `session-skills`.** `spec-check-reminder` asks once,
 at the session's first file edit, whether the spec-check review has run, so a
@@ -21,15 +20,6 @@ build from a drifted specification is caught as it starts. It belongs in
 projects that use the `session-skills` plugin, which ships the `spec-check`
 skill it points at. It registers under `PostToolUse` with an
 `Edit|Write|NotebookEdit` matcher.
-
-**Every project that tracks work items with stages.**
-`work-item-stage-reminder` asks once, at the session's first file edit, which
-work item this is, what stage it is at, and whether the progress log is current.
-It belongs in projects that answered the tracker question and carry the
-`work-item-stages.md` rule; without both there is no stage to set and the
-reminder is noise. It registers under `PostToolUse` with the same
-`Edit|Write|NotebookEdit` matcher as `spec-check-reminder`, so both entries sit
-in that one matcher's `hooks` array.
 
 **Salesforce projects only.** `guard-protected-orgs.js` confirms before a deploy
 or destructive command hits a production org. `guard-permission-set-deploy.js`
@@ -47,7 +37,7 @@ The `machine-sync` skill in the `project-init` plugin installs it into
 Everything here is opt-in and reversible. Never install a hook the owner has not
 approved, and never edit `settings.json` without showing what will change.
 
-The five steps below cover the three general hooks. Work out first which one the
+The five steps below cover `spec-check-reminder`. Work out first which one the
 owner is asking for, and run the steps for that one.
 
 ## Step 1: work out what is already there
@@ -59,7 +49,7 @@ owner is asking for, and run the steps for that one.
   The reminder names the `spec-check` skill, which ships there. In a project
   without that plugin, offer to install `session-skills` first or skip this
   hook.
-- Is `node` available? Both hooks need it. `node --version`.
+- Is `node` available? The hooks need it. `node --version`.
 
 Report what you found before changing anything.
 
@@ -146,7 +136,7 @@ the script from `.claude/hooks/`. Removing `guard-protected-orgs.js` also makes
 ## If the owner says it is noisy
 
 That is real information, so do not talk them out of it, and do not offer to
-tune it. Neither hook has a setting to turn down.
+tune it. The reminder has no setting to turn down.
 
 `spec-check-reminder` already fires only once per session. If that is still too
 much, remove it with the steps above.

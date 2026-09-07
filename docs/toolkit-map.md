@@ -21,7 +21,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | [sf-architect-solutioning](../plugins/sf-architect-solutioning/README.md) | Salesforce solution architect: approved solution plan before any build | `sf-architect-solutioning` | `/plugin install sf-architect-solutioning` | Install and go |
 | [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git lifecycle workflows | `pull-latest`, `reset-to-remote`, `merge-and-clean-up` | `/plugin install git-workflows` | Install and go |
 | [hooks-library](../plugins/hooks-library/README.md) | Reusable spec-check, work-item-stage, Git-attribution, and Salesforce deployment hooks; system-specific knowledge hooks stay with second-brain | `hooks-library` | `/plugin install hooks-library` | Wires into settings |
-| [work-tracker](../plugins/work-tracker/README.md) | Local backlog under Git-ignored `.work-items/`, with YAML records, owner-approved requirements, handoffs, relationships, landing proof, folders the owner makes to group related items, an `archive/` folder for set-aside items, and preview-first conversion of older staged trackers | `work` | `/plugin install work-tracker` | Sets up a project |
+| [work-tracker](../plugins/work-tracker/README.md) | Local backlog under Git-ignored `.work-items/`, with branch-scoped active items, flexible types, consistent progress, approved completion events, optional Git evidence, handoffs, relationships, folders the owner makes to group related items, an `archive/` folder for set-aside items, and preview-first conversion of older staged trackers | `work` | `/plugin install work-tracker` | Sets up a project |
 | [session-skills](../plugins/session-skills/README.md) | The eight things you reach for inside one conversation: play back a brain dump, say it simply, get grilled on it, check the spec before building, unslop a draft, hand it off, recap it, and track what is still open | `braindump`, `explain-simply`, `grill-me`, `handoff`, `session-summary`, `spec-check`, `track-tasks`, `unslop` | `/plugin install session-skills` | Install and go |
 
 ## Skills at a glance
@@ -46,7 +46,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | braindump | session-skills | Play a pasted brain dump back in very simple words, list each ask and every guess, and wait for the owner's yes before any work starts | `/braindump`, "play that back", "tell me what you heard" |
 | explain-simply | session-skills | Re-explain the last answer or a named file as short bullets, simplifying the wording and never the facts | `/explain-simply`, "explain that like I'm five", "put that in plain bullets", "simpler" |
 | grill-me | session-skills | Stress-test an idea one question at a time and preserve every answer | `/grill-me`, "grill me" |
-| handoff | session-skills | Invoke the project's remember workflow when available, then draft a fresh-session prompt that opens with the goal, carries anything unsaved, and is checked against the repository | `/handoff`, `/handoff check`, "write a handoff", "I'm going to clear context" |
+| handoff | session-skills | Update the active tracker when present, invoke the project's remember workflow when available, then draft a fresh-session prompt that opens with the goal, carries anything unsaved, and is checked against the repository | `/handoff`, `/handoff check`, "write a handoff", "I'm going to clear context" |
 | spec-check | session-skills | Read the specification the session is about to build from or solution from, flag anything that could skew the work, and fix it with the owner's approval before building starts | `/spec-check`, "check the spec", "is this spec clean" |
 | session-summary | session-skills | Table every request the owner made in a session, in their words, each with a status, then say what still needs them | `/session-summary`, "summarize this session", "what did I ask for?" |
 | track-tasks | session-skills | Build or refresh the list of every topic still open in this session, then print it | `/track-tasks`, "what is still open", "where are we", "park that one" |
@@ -273,22 +273,15 @@ The genuine watch-items are called out at the end.
   from `project-init`'s `work-tracking-choice.md`, uses seven statuses including
   `Refining`, and involves no work-tracker code.
 - **work-item-stages versus work-item-folders versus the tracker itself.**
-  Three layers, one subject, and they do not overlap. `work-item-stages.md` is
-  the standard: fourteen named stages every project shares, which stage maps to
-  which status, which three are never skipped, and what a progress log entry
-  looks like. It is tracker-neutral and holds whether work lives in
-  `.work-items/`, on a GitHub board, or in Linear. `work-item-folders.md` is
-  about one tracker only, the Git-ignored local folders. The `work` command and
-  the `gh` commands are what write the stage down. **The code stores, the rule
-  decides:** `work update --stage` writes the stage, derives the status, and
-  appends the log line, and does nothing else. It does not check that a stage is
-  real, refuse a move backwards, ask why a stage was skipped, or look for a
-  changed specification. That was a deliberate call in issue #260, so an agent
-  reading the tracker code and finding no guard has found the design, not a gap.
-  `work-item-stage-reminder` in `hooks-library` is the third piece: it asks once
-  a session whether the stage and the log are current, and it is a reminder that
-  blocks nothing. The three ship together and a project that has not answered
-  where work is tracked gets none of them.
+  `work-item-stages.md` is the unscoped, tracker-neutral lifecycle policy:
+  orientation, meaningful progress, flexible stages, type-aware approval,
+  handoff, and accepted completion. `work-item-folders.md` owns local folder
+  organization and file protection; the `work` skill owns local commands.
+  The CLI checks active identity and objective state, writes related progress
+  in one rollback-protected batch, and emits an approved completion event.
+  GitHub mode uses the issue and its native close event, with no local mirror.
+  The stage-reminder hook was retired in #270. `handoff` refreshes the chosen
+  tracker before reviewing project knowledge.
 - **work-item-folders is only for local tracking.** It adds what is specific to
   tracking work in Git-ignored local folders, and is meaningless in a project
   that chose a GitHub board, Linear, Jira, or the BMAD method. It used to sit
