@@ -6,6 +6,8 @@
 .gitignore                         # contains /.work-items/
 .work-items/                       # ignored by Git
   .work-tracker.yaml
+  ACTIVE.json                       # active item by branch
+  EVENTS.ndjson                    # approved completion outbox
   README.md
   DASHBOARD.md                     # generated and rebuildable
   WI-014-example/
@@ -103,7 +105,10 @@ computer has a different local tracker.
 
 - `schema_version`: current record shape, now `2`;
 - `id`, `title`, and `description`;
-- `type`: `bug`, `enhancement`, or `task`;
+- `type`: a non-empty lower-case kebab-case value. Common suggestions are
+  `discovery`, `solution-design`, `build`, `data-load`,
+  `repository-maintenance`, `research`, and `task`; legacy `bug` and
+  `enhancement` remain valid;
 - `priority`: `urgent`, `high`, `medium`, or `low`;
 - `status`: `Backlog`, `Ready`, `In Progress`, `In Review`, `Done`, or
   `Cancelled`;
@@ -113,7 +118,8 @@ computer has a different local tracker.
 - `created_date` and `updated_date`, both `YYYY-MM-DD`;
 - `next_step`;
 - `blockers` and `relationships`; and
-- `git`, which holds branch, pull-request, completion, and landing proof.
+- `git`, which holds branch, pull-request, completion, and landing proof; and
+- optional `completion`, which holds approval, evidence, and recording time.
 
 Nested lists and objects use YAML flow form, such as `blockers: []` and
 `git: {"branch":null}`. This remains valid YAML while letting the plugin stay
@@ -131,10 +137,9 @@ finalized_date: null
 approved_by: null
 ```
 
-The body records the owner's starting request and whatever was agreed. A new
-item starts with that request and an unanswered goal, and how much it grows
-depends on the work: a chore keeps the one line the owner asked for, and work
-that needs refining grows the parts `work-item-stages.md` lists.
+The body records the owner's starting request and whatever was agreed. Its
+length and shape follow the work: a clear chore may keep the one line the owner
+asked for, while unclear work grows only through the owner's answers.
 
 `refining` means the interview is still open. `finalized` means the owner saw
 and approved the file. Nothing checks its length or its headings. Finalized
@@ -157,19 +162,15 @@ dated line in the "Progress log" section of `STATUS.md`. The log line reads
 `--stage` takes a number (`8`, `08`), a name (`build`), or the whole thing
 (`08-build`). Anything it does not recognize is stored exactly as typed.
 
-The mapping is `01` and `02` to `Backlog`, `03` to `Ready`, `04` through `11` to
-`In Progress`, `12` and `13` to `In Review`, and `14` to `Done`. `Done` is the
-one status this never writes: `finish` owns it, because it is the command that
-proves the commit is in the default branch. `Cancelled` stays hand-set.
+The mapping is `01` and `02` to `Backlog`, `03` to `Ready`, `04` through
+`11` to `In Progress`, and `12` through `14` to `In Review`. Only
+`finish` writes `Done`; `Cancelled` is intentional.
 
-The command checks nothing else. It does not test that a stage is real, refuse a
-move backwards, ask why a stage was skipped, or look for a changed
-specification. `work-item-stages.md` decides all of that, and agents follow it
-the way they follow any other rule. The one thing that does still apply is the
-tracker's existing requirements gate: a stage whose status is `Ready`,
-`In Progress`, or `In Review` needs finalized requirements, exactly as an
-explicit `--status` does, so the stage cannot write a record `validate` would
-then call invalid.
+The command accepts an unknown stage and permits skips or backward moves.
+`work-item-stages.md` decides whether those choices are correct. The command
+does enforce record consistency: known stages derive active status, and
+`build` or `data-load` cannot enter an active state before requirements are
+finalized.
 
 ## Other item files
 
@@ -181,11 +182,68 @@ then call invalid.
 
 `DASHBOARD.md` is generated. Deleting it cannot delete a work item.
 
+## Active item and completion
+
+`ACTIVE.json` maps each branch to one active item. Linked worktrees use the
+same file in the primary tracker. Terminal work clears its mapping. A different
+named mutation is refused until the mapping is intentionally replaced.
+
+```json
+{
+  "schema_version": 1,
+  "branches": {
+    "issue-270-work-item-upkeep": {
+      "item_id": "WI-014",
+      "set_at": "2026-09-07T15:00:00Z"
+    }
+  }
+}
+```
+
+A completion block records non-empty evidence, recording time, and optional
+approval. `EVENTS.ndjson` receives one stable `work_completed:<ID>` event only
+after the item is both Done and approved. A late approval may fill the missing
+approval without an active mapping. Legacy items are not backfilled.
+
+Each line is one JSON event. A pull-request-only example is:
+
+```json
+{
+  "schema_version": 1,
+  "event_id": "work_completed:WI-014",
+  "occurred_at": "2026-09-07T15:30:00Z",
+  "kind": "work_completed",
+  "item_id": "WI-014",
+  "title": "Keep the active work item accurate",
+  "type": "solution-design",
+  "status": "Done",
+  "stage": null,
+  "approval": {
+    "approved_by": "Mike Rihm",
+    "approved_date": "2026-09-07"
+  },
+  "evidence": "Mike accepted the completed design.",
+  "git": {
+    "completion_commit": null,
+    "landed": false,
+    "pull_request": {
+      "number": 301,
+      "url": null,
+      "merged_at": null
+    }
+  }
+}
+```
+
+`git` is `null` when neither commit nor pull-request evidence was supplied.
+
 ## Git landing proof
 
 `git.completion_commit` means work appears complete at that commit.
 `git.landed_commit`, `git.landed_date`, and `git.default_branch` mean Git
-ancestry was verified. A `Done` item without that proof fails validation.
+ancestry was verified. These fields are optional for non-repository work. When
+supplied, their shape, existence, and ancestry are validated. Git landing does
+not by itself define whether the intended outcome was accepted.
 
 The tracker records are ignored by Git. Git is used only to prove whether the
 implementation landed.

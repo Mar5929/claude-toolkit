@@ -7,22 +7,24 @@ description: >-
   session", "this session is getting long", "carry this over", "prompt for a new
   chat", or runs /handoff. Use the check on its own, with "/handoff check", when
   the owner has a handoff prompt from somewhere else and wants it verified.
-  Always run the installed remember review first, before writing the prompt, and always run
-  the accuracy check before showing the prompt.
+  Update any active work tracker first, then run the installed remember review
+  before writing the prompt. Always run the accuracy check before showing it.
 ---
 
 # Handoff
 
-A long session is about to end. Four things have to happen, in this order, and
+A long session is about to end. Six things have to happen, in this order, and
 the order is the whole point.
 
-1. **Run the installed `remember` review**, so anything worth keeping passes
+1. **Update the active work item when one exists**, so the tracker carries the
+   exact next step and blockers before context is cleared.
+2. **Run the installed `remember` review**, so anything worth keeping passes
    the project's placement test and owner approval.
-2. **Wait for the save decision**, so nothing is written outside the meaning the
+3. **Wait for the save decision**, so nothing is written outside the meaning the
    owner approved.
-3. **Draft a prompt a fresh session can start from**, carrying everything that
+4. **Draft a prompt a fresh session can start from**, carrying everything that
    was not saved, opening with the goal of the work.
-4. **Check the draft before the owner sees it**, then show what changed and the
+5. **Check the draft before the owner sees it**, then show what changed and the
    finished prompt.
 
 Do the persistent review last and it gets skipped, because once the prompt is on
@@ -54,7 +56,23 @@ to the agent. By the time it runs the context is already going. That is why this
 is a command the owner types rather than a hook: typing it is the moment, and a
 command carries its own instructions.
 
-## Step 1: the persistent review, before anything else
+## Step 1: update the tracker when there is one
+
+Read the project's tracker instructions. If an active work item exists, update
+its exact next step, blockers or none, open decisions, and true stage and
+status. Then read the item back or run the tracker's validation.
+
+- For local folders, use the installed `work` skill and its active-item state.
+- For GitHub, update the verified issue and read its body, single Progress log,
+  labels, and board status back.
+- For another tracker, follow its project instructions.
+- With no tracker or no active item, skip this step and say so in one line.
+
+Do not assume `work-tracker` is installed, create a tracker, or copy current
+status into project knowledge. The project lifecycle rule owns what belongs in
+the tracker.
+
+## Step 2: the persistent review
 
 Detect the current project knowledge system by its complete layout:
 
@@ -67,7 +85,7 @@ When all are present, invoke `remember`. That skill owns placement, the short
 meaning review, approval, link repair, and index rebuild. Do not restate or
 replace that policy here.
 
-When no knowledge-system signature exists, skip to step 3. Everything worth
+When no knowledge-system signature exists, skip to step 4. Everything worth
 keeping goes into the handoff prompt instead. Say that plainly in one line.
 
 When the layout is partial, mixed, or unknown, do not guess which system owns
@@ -79,19 +97,19 @@ took work to reach, constraints that were discovered, references that turned out
 to matter, and anything that would have to be worked out again from scratch by
 the next session.
 
-**If nothing is worth saving**, say so in one line and go to step 3. Do not show
+**If nothing is worth saving**, say so in one line and go to step 4. Do not show
 an empty table, and do not invent rows to fill one.
 
-## Step 2: wait for the `remember` result
+## Step 3: wait for the `remember` result
 
 `remember` follows the approval contract in `knowledge/README.md`. Do not copy
 that contract here. Wait when it requires the owner's answer. Continue only
 after it reports what was saved, declined, or blocked.
 
 Whatever the owner cuts or defers, and anything whose save failed, goes into
-step 3 instead. Nothing is queued anywhere, and nothing is dropped.
+step 4 instead. Nothing is queued anywhere, and nothing is dropped.
 
-## Step 3: draft the prompt, and do not show it yet
+## Step 4: draft the prompt, and do not show it yet
 
 The prompt is for an agent that knows nothing about this session. Write it as an
 instruction to that agent, not as a summary of what happened here.
@@ -124,7 +142,7 @@ prompt without one.
   or ticket, the plan, the files being changed.
 - **Decisions made in this session that are not written down anywhere yet.**
   Call these out under their own heading. They are the part that disappears, and
-  they include everything the owner declined or cut from the proposals in step 2. Say what was
+  they include everything the owner declined or cut from the proposals in step 3. Say what was
   decided and, where it matters, why.
 - **Open questions and constraints** the owner has raised and nobody has settled.
 - **What to do first.** One concrete action, not a direction.
@@ -132,7 +150,7 @@ prompt without one.
 ### Every fact carries where it came from
 
 As you draft, keep a source for each factual claim. You will hand these to the
-checker in step 4, and the ones that survive nothing become labels inside the
+checker in step 5, and the ones that survive nothing become labels inside the
 finished prompt. There are four kinds:
 
 | Source kind | What it means |
@@ -142,12 +160,12 @@ finished prompt. There are four kinds:
 | owner | The owner said it in this conversation. Quote their actual words when you can |
 | worked out | This session concluded it. Nothing recorded it |
 
-Say plainly, inside the prompt, which facts were proposed in step 2 and were not
+Say plainly, inside the prompt, which facts were proposed in step 3 and were not
 saved. The next session should know it is holding the only copy.
 
-**Do not show this draft to the owner.** It goes to step 4 first.
+**Do not show this draft to the owner.** It goes to step 5 first.
 
-## Step 4: check the draft
+## Step 5: check the draft
 
 Run the `handoff-verifier` agent, in the foreground, and wait for its report.
 Its file is `agents/handoff-verifier.md` in this plugin.
@@ -177,7 +195,7 @@ If the checker fails, errors, or cannot be run at all, say so in one line, write
 the prompt anyway, and say inside the prompt that it was not checked. The check
 never blocks the handoff.
 
-## Step 5: show the short list, then the prompt
+## Step 6: show the short list, then the prompt
 
 The owner sees a few one-line notes, then one fenced block they can copy in one
 click. Nothing else above it, and nothing below it but the one action they have
@@ -199,7 +217,7 @@ single line and keep the ones that would change what the next session does.
 ## Running the check on its own
 
 `/handoff check` takes a handoff prompt the owner already has, from an earlier
-session, another agent, or written by hand, and runs step 4 against it with no
+session, another agent, or written by hand, and runs step 5 against it with no
 persistent review and no drafting.
 
 1. Ask for the prompt if the owner has not pasted it, and ask which repository
@@ -242,7 +260,7 @@ Follow the project's output style. Two things that matter here in particular:
 | The owner declines every `remember` proposal | Carry every declined item into the handoff prompt. Write nothing to project knowledge |
 | The owner approves some proposals and cuts others | Let `remember` save only the approved meaning. Carry the cut ones into the prompt |
 | The owner edits a proposal | Let `remember` write only the edited meaning |
-| The project has no project knowledge system | Skip steps 1 and 2, say so in one line, put everything worth keeping in the prompt |
+| The project has no project knowledge system | Skip steps 2 and 3, say so in one line, put everything worth keeping in the prompt |
 | The save or index rebuild cannot be finished | Report the failure plainly and carry that item into the prompt as well, so it survives either way. Do not pretend it was saved |
 | The goal is written in no file, only in this chat | It goes in the prompt, labelled not confirmed. Do not stop to write it into the work item first |
 | The goal's pointer names a file or ticket that does not exist | The goal stays, labelled not confirmed against any file. Say so in the short list |

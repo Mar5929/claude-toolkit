@@ -41,8 +41,8 @@ The toolkit has a setup for this one. It is the only answer where the toolkit
 creates a shared external tracker. Walk the steps in "Setting up a GitHub
 Projects board" below.
 
-The refinement session is marked with the `Refining` status and the
-`03-requirements-approved` stage label.
+Refinement uses `02-refinement`; `03-requirements-approved` records the owner's
+approval. Follow `work-item-stages.md` for matching stage and status.
 
 ### 2 and 3. Linear, Jira, or another external tracker
 
@@ -61,10 +61,10 @@ Install the `work-tracker` plugin and run `work init`, exactly as
 that Git ignores. Say plainly that these records stay in this checkout and do
 not sync to another computer.
 
-The refinement session is marked in `REQUIREMENTS.md`: it stays `refining`
-until the owner approves all six parts, then becomes `finalized` and the item
-moves to `Ready`. The file contains only owner-stated or owner-approved needs,
-with no technical plan or unapproved assumptions.
+The work skill owns requirements and approval procedures. `REQUIREMENTS.md`
+contains owner-stated needs, with technical design kept separately. Build and
+data-load execution require approved requirements; discovery and design may
+be the work itself. The lifecycle rule owns the type-aware boundary.
 
 Local-folder mode has no GitHub mirror. If the owner wants shared GitHub
 tracking, choose answer 1 instead.
@@ -160,12 +160,10 @@ when its name differs from the list above. Their board, their names.
 - `Backlog`: logged, not yet refined.
 - `Refining`: a refinement session is under way. Move the ticket here when the
   session starts.
-- `Ready`: the six-part spec is written and agreed. Move it here when the session
-  ends, and add the `03-requirements-approved` label. Work may start now, and not
-  before.
-- `In progress`: being built.
-- `In review`: built, waiting on review or a merge.
-- `Done`: landed.
+- `Ready`: requirements are agreed; add `03-requirements-approved`.
+- `In progress`: actively being worked, including discovery or design.
+- `In review`: the outcome is being checked or prepared for completion.
+- `Done`: the owner accepted the intended outcome; report Git landing separately.
 - `Cancelled`: decided against. Close the issue as not planned and say why in the
   ticket, rather than deleting it, so the reason survives.
 

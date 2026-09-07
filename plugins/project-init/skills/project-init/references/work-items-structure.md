@@ -19,16 +19,17 @@ Linked Git worktrees in the same clone share the primary checkout's
 `.work-items/` records and lock. Commands return the shared folder's full path
 when called from a linked worktree. Separate clones do not share it.
 
-## The refinement gate
+## Requirements and active work
 
-Every item has `REQUIREMENTS.md`. Its YAML status is `refining` until the owner
-approves all six parts: the goal, the reason, the requirements, what the person
-using it experiences, how it behaves from the outside, and the edge cases. Only
-then may it be `finalized` and the work item become `Ready`.
+The `work` skill owns requirements, active-item selection, progress, and
+completion commands. The `work-item-stages.md` rule owns lifecycle judgment.
+Build and data-load execution require approved requirements. Discovery,
+research, and solution design may proceed while they create clarity.
 
-The file contains only what the owner said or approved. It contains no
-technical plan and no unapproved agent assumptions. `work start` refuses an
-item that is not ready.
+Keep owner-stated needs in `REQUIREMENTS.md` and technical design separately.
+Select the branch's active item with `work active set ID` before updating it;
+`work start ID` selects it when no item is active. Linked worktrees share
+records while their branch selections remain separate.
 
 ## Initialize
 
@@ -50,6 +51,8 @@ Do not create a parallel index or alternative status file.
 ├── .work-tracker.yaml
 ├── README.md
 ├── DASHBOARD.md                  # generated and rebuildable
+├── ACTIVE.json                   # branch selections, created when used
+├── EVENTS.ndjson                 # approved completion notices, created when used
 ├── WI-014-example/
 │   ├── ITEM.yaml                 # structured local record
 │   ├── REQUIREMENTS.md           # owner-approved needs

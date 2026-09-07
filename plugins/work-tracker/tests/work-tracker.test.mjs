@@ -6,10 +6,12 @@ import { spawnSync } from "node:child_process";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import {
+  atomicBatchWrite,
   parseYaml,
   readYaml,
   stableYaml,
 } from "../skills/work/scripts/lib/common.mjs";
+import { loadTracker, updateItem } from "../skills/work/scripts/lib/tracker.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const cli = path.resolve(here, "../skills/work/scripts/work.mjs");
@@ -57,6 +59,12 @@ function init(repo) {
   return jsonWork(repo, ["init"]).json;
 }
 
+function activate(repo, id, replace = true) {
+  const args = ["active", "set", id];
+  if (replace) args.push("--replace");
+  return jsonWork(repo, args).json;
+}
+
 function add(repo, title, extra = []) {
   const defaultOptions = [];
   if (!extra.includes("--priority")) defaultOptions.push("--priority", "medium");
@@ -96,7 +104,31 @@ function fillRequirements(repo, id) {
 
 function finalize(repo, id, owner = "Mike") {
   fillRequirements(repo, id);
+  activate(repo, id);
   return jsonWork(repo, ["requirements", id, "--finalize", "--approved-by", owner]).json;
+}
+
+function history(repo, id) {
+  const source = fs.readFileSync(path.join(itemPath(repo, id), "HISTORY.ndjson"), "utf8").trim();
+  return source ? source.split("\n").map((line) => JSON.parse(line)) : [];
+}
+
+function progress(repo, id) {
+  const source = fs.readFileSync(path.join(itemPath(repo, id), "STATUS.md"), "utf8");
+  const section = source.match(/<!-- work-tracker:progress-log:start -->\r?\n([\s\S]*?)\r?\n<!-- work-tracker:progress-log:end -->/);
+  assert.ok(section, `${id} STATUS.md is missing its Progress log section`);
+  return section[1];
+}
+
+function events(repo) {
+  const eventPath = path.join(workRoot(repo), "EVENTS.ndjson");
+  if (!fs.existsSync(eventPath)) return [];
+  const source = fs.readFileSync(eventPath, "utf8").trim();
+  return source ? source.split("\n").map((line) => JSON.parse(line)) : [];
+}
+
+function errorCode(result) {
+  return JSON.parse(result.stderr).error;
 }
 
 function requirementsMeta(repo, id) {
@@ -131,12 +163,10 @@ test("linked Git worktrees share the primary checkout's local tracker", () => {
   git(repo, "worktree", "add", linked, "-b", "codex/linked-test");
   const linkedStatus = jsonWork(linked, ["status", "--all"]).json;
   assert.equal(linkedStatus.groups.backlog[0].id, "WI-001");
-  assert.equal(
-    linkedStatus.groups.backlog[0].path,
-    path
-      .join(fs.realpathSync(repo), ".work-items", "WI-001-primary-item")
-      .split(path.sep)
-      .join("/"),
+  assert.ok(
+    linkedStatus.groups.backlog[0].path.toLowerCase().endsWith(
+      "/primary checkout/.work-items/wi-001-primary-item",
+    ),
   );
   assert.equal(fs.existsSync(path.join(linked, ".work-items")), false);
   add(linked, "Linked item");
@@ -176,7 +206,8 @@ test("adds a flat YAML work item with refining raw requirements", () => {
 test("requires owner-approved requirements before work starts", () => {
   const repo = makeRepo();
   init(repo);
-  add(repo, "Approval gate");
+  add(repo, "Approval gate", ["--type", "build"]);
+  activate(repo, "WI-001");
   const earlyStart = jsonWork(
     repo,
     ["start", "WI-001", "--branch", "codex/approval"],
@@ -186,6 +217,7 @@ test("requires owner-approved requirements before work starts", () => {
   const finalized = finalize(repo, "WI-001");
   assert.equal(finalized.item.status, "Ready");
   assert.equal(finalized.item.requirements_status, "finalized");
+  assert.match(progress(repo, "WI-001"), /Requirements finalized with owner approval from Mike/);
   assert.equal(requirementsMeta(repo, "WI-001").approved_by, "Mike");
   const started = jsonWork(repo, [
     "start",
@@ -196,12 +228,14 @@ test("requires owner-approved requirements before work starts", () => {
     "Build approved behavior",
   ]).json;
   assert.equal(started.item.status, "In Progress");
+  assert.match(progress(repo, "WI-001"), /Started on branch codex\/approval/);
 });
 
 test("a one-line requirement is enough to approve and start small work", () => {
   const repo = makeRepo();
   init(repo);
-  add(repo, "Fix the broken link");
+  add(repo, "Fix the broken link", ["--type", "build"]);
+  activate(repo, "WI-001");
   const filePath = path.join(itemPath(repo, "WI-001"), "REQUIREMENTS.md");
   const frontmatter = fs.readFileSync(filePath, "utf8").match(/^---\r?\n([\s\S]*?)\r?\n---/)?.[1];
   assert.ok(frontmatter);
@@ -260,7 +294,9 @@ test("prevents accidental active branch sharing", () => {
   add(repo, "Second");
   finalize(repo, "WI-001");
   finalize(repo, "WI-002");
+  activate(repo, "WI-001");
   jsonWork(repo, ["start", "WI-001", "--branch", "codex/shared"]);
+  activate(repo, "WI-002");
   const collision = jsonWork(
     repo,
     ["start", "WI-002", "--branch", "codex/shared"],
@@ -274,6 +310,7 @@ test("maintains inverse relationships in YAML and rejects dependency cycles", ()
   init(repo);
   add(repo, "One");
   add(repo, "Two");
+  activate(repo, "WI-001");
   const linked = jsonWork(repo, [
     "link",
     "WI-001",
@@ -285,6 +322,7 @@ test("maintains inverse relationships in YAML and rejects dependency cycles", ()
   assert.equal(linked.inverse, "blocks");
   const target = readYaml(path.join(itemPath(repo, "WI-002"), "ITEM.yaml"));
   assert.deepEqual(target.relationships.blocks, ["WI-001"]);
+  activate(repo, "WI-002");
   const cycle = jsonWork(
     repo,
     ["link", "WI-002", "--type", "depends_on", "--target", "WI-001"],
@@ -317,14 +355,12 @@ test("does not report branch-complete work as landed until Git ancestry proves i
   git(repo, "commit", "-m", "feature work");
   const commit = git(repo, "rev-parse", "HEAD").stdout.trim();
   jsonWork(repo, ["start", "WI-001", "--branch", "codex/feature"]);
-  const first = jsonWork(repo, ["finish", "WI-001", "--commit", commit]).json;
-  assert.equal(first.landed, false);
-  assert.equal(first.item.status, "In Review");
+  const first = jsonWork(repo, ["finish", "WI-001", "--evidence", "Mike accepted the feature.", "--approved-by", "Mike", "--commit", commit]).json;
+  assert.equal(first.item.landed_commit, null);
+  assert.equal(first.item.status, "Done");
   assert.equal(jsonWork(repo, ["landed", "WI-001"]).json.landed, false);
   git(repo, "branch", "-f", "main", commit);
-  const second = jsonWork(repo, ["finish", "WI-001", "--commit", commit]).json;
-  assert.equal(second.landed, true);
-  assert.equal(second.item.status, "Done");
+  assert.equal(jsonWork(repo, ["landed", "WI-001"]).json.landed, true);
   assert.ok(fs.existsSync(path.join(itemPath(repo, "WI-001"), "ITEM.yaml")));
 });
 
@@ -368,6 +404,7 @@ test("an interrupted atomic write leaves records intact and no partial new item"
   const repo = makeRepo();
   init(repo);
   add(repo, "Existing");
+  activate(repo, "WI-001");
   const existingPath = path.join(itemPath(repo, "WI-001"), "ITEM.yaml");
   const before = fs.readFileSync(existingPath, "utf8");
   const failedUpdate = jsonWork(
@@ -487,6 +524,7 @@ test("archive moves a folder, hides it from the everyday views, and keeps it fin
   add(repo, "Live thing");
   finalize(repo, "WI-002");
 
+  activate(repo, "WI-001");
   const archived = jsonWork(repo, ["archive", "WI-001"]).json;
   assert.equal(archived.outcome, "archived");
   assert.equal(archived.archived, true);
@@ -563,7 +601,9 @@ test("an archived ID number is never handed out again", () => {
   init(repo);
   add(repo, "First");
   add(repo, "Second");
+  activate(repo, "WI-001");
   jsonWork(repo, ["archive", "WI-001"]);
+  activate(repo, "WI-002");
   jsonWork(repo, ["archive", "WI-002"]);
   assert.equal(add(repo, "Third").item.id, "WI-003");
 });
@@ -573,7 +613,9 @@ test("links between an archived item and an open one stay valid both ways", () =
   init(repo);
   add(repo, "Open work");
   add(repo, "Retired work");
+  activate(repo, "WI-001");
   jsonWork(repo, ["link", "WI-001", "--type", "depends_on", "--target", "WI-002"]);
+  activate(repo, "WI-002");
   jsonWork(repo, ["archive", "WI-002"]);
 
   const validation = jsonWork(repo, ["validate"]).json;
@@ -607,6 +649,7 @@ test("archiving twice reports no change, and unarchive puts the folder back", ()
   const repo = makeRepo();
   init(repo);
   add(repo, "Round trip");
+  activate(repo, "WI-001");
   jsonWork(repo, ["archive", "WI-001"]);
 
   const again = jsonWork(repo, ["archive", "WI-001"]).json;
@@ -642,6 +685,7 @@ test("validation still covers archived items", () => {
   const repo = makeRepo();
   init(repo);
   add(repo, "Broken later");
+  activate(repo, "WI-001");
   jsonWork(repo, ["archive", "WI-001"]);
   fs.rmSync(path.join(archivedItemPath(repo, "WI-001"), "ITEM.yaml"));
 
@@ -745,6 +789,7 @@ test("archiving keeps the group and unarchiving puts the item back in it", () =>
   init(repo);
   add(repo, "Field level security", ["--group", "security-and-permissions"]);
 
+  activate(repo, "WI-001");
   const archived = jsonWork(repo, ["archive", "WI-001"]).json;
   assert.equal(archived.outcome, "archived");
   assert.equal(
@@ -824,6 +869,7 @@ test("archiving a parent work item takes the work items inside it along", () => 
   const parent = findItemPath(repo, "WI-001");
   moveByHand(findItemPath(repo, "WI-002"), path.join(parent, "WI-002-org-wide-defaults"));
 
+  activate(repo, "WI-001");
   const archived = jsonWork(repo, ["archive", "WI-001"]).json;
   assert.equal(archived.path, ".work-items/archive/WI-001-security-and-permissions");
   const after = jsonWork(repo, ["status", "--all"]).json;
@@ -896,4 +942,440 @@ test("an ordinary subfolder inside a work item is not reported as hidden work", 
   const validation = jsonWork(repo, ["validate"]).json;
   assert.equal(validation.valid, true);
   assert.equal(validation.item_count, 1);
+});
+
+test("active identity is branch scoped, shared by linked worktrees, and explicitly replaceable", () => {
+  const repo = makeRepo("active primary");
+  init(repo);
+  add(repo, "First");
+  add(repo, "Second");
+  const selected = activate(repo, "WI-001", false);
+  assert.equal(selected.item, "WI-001");
+  assert.equal(jsonWork(repo, ["active"]).json.item.id, "WI-001");
+
+  const conflict = jsonWork(repo, ["active", "set", "WI-002"], { allowFailure: true });
+  assert.equal(errorCode(conflict), "active_item_exists");
+  assert.equal(activate(repo, "WI-002").item, "WI-002");
+
+  git(repo, "add", ".gitignore");
+  git(repo, "commit", "-m", "ignore tracker");
+  const linked = path.join(path.dirname(repo), "active linked");
+  git(repo, "worktree", "add", linked, "-b", "issue-999-linked");
+  assert.equal(jsonWork(linked, ["active"]).json.item, null);
+  activate(linked, "WI-001", false);
+  const activeState = JSON.parse(fs.readFileSync(path.join(workRoot(repo), "ACTIVE.json"), "utf8"));
+  assert.equal(activeState.branches.main.item_id, "WI-002");
+  assert.equal(activeState.branches["issue-999-linked"].item_id, "WI-001");
+  jsonWork(linked, ["active", "clear"]);
+  assert.equal(jsonWork(linked, ["active"]).json.item, null);
+});
+
+test("every named mutator refuses a target other than the branch's active item", () => {
+  const cases = [
+    ["requirements", "WI-002", "--reopen"],
+    ["start", "WI-002", "--branch", "feature/two"],
+    ["update", "WI-002", "--note", "Wrong item"],
+    ["link", "WI-002", "--type", "related_to", "--target", "WI-001"],
+    ["link", "WI-002", "--type", "related_to", "--target", "WI-001", "--remove"],
+    ["finish", "WI-002", "--evidence", "Owner accepted the result."],
+    ["archive", "WI-002"],
+    ["unarchive", "WI-002"],
+  ];
+  for (const args of cases) {
+    const repo = makeRepo(`wrong active ${args[0]}`);
+    init(repo);
+    add(repo, "First");
+    add(repo, "Second");
+    if (args.includes("--remove")) {
+      activate(repo, "WI-002");
+      jsonWork(repo, ["link", "WI-002", "--type", "related_to", "--target", "WI-001"]);
+    }
+    if (args[0] === "unarchive") {
+      activate(repo, "WI-002");
+      jsonWork(repo, ["archive", "WI-002"]);
+    }
+    activate(repo, "WI-001");
+    const result = jsonWork(repo, args, { allowFailure: true });
+    assert.equal(errorCode(result), "wrong_active_item", `${args[0]} must enforce active identity`);
+  }
+});
+
+test("custom types validate and only build and data-load enforce finalized requirements", () => {
+  for (const type of ["discovery", "solution-design", "repository-maintenance", "research", "task", "bug", "enhancement", "customer-interview"]) {
+    const repo = makeRepo(`ungated ${type}`);
+    init(repo);
+    add(repo, `Work of type ${type}`, ["--type", type]);
+    activate(repo, "WI-001");
+    const started = jsonWork(repo, ["update", "WI-001", "--status", "In Progress"]).json;
+    assert.equal(started.item.status, "In Progress", type);
+    assert.deepEqual(jsonWork(repo, ["validate"]).json.errors, [], type);
+  }
+  for (const type of ["build", "data-load"]) {
+    const repo = makeRepo(`gated ${type}`);
+    init(repo);
+    add(repo, `Work of type ${type}`, ["--type", type]);
+    activate(repo, "WI-001");
+    const start = jsonWork(repo, ["update", "WI-001", "--status", "In Progress"], { allowFailure: true });
+    assert.equal(errorCode(start), "requirements_not_finalized", type);
+    const recordPath = path.join(itemPath(repo, "WI-001"), "ITEM.yaml");
+    const invalidRecord = readYaml(recordPath);
+    invalidRecord.status = "In Progress";
+    fs.writeFileSync(recordPath, stableYaml(invalidRecord));
+    const validation = jsonWork(repo, ["validate"], { allowFailure: true });
+    assert.ok(validation.json.errors.some((error) => error.includes("requirements")), type);
+  }
+  const repo = makeRepo("invalid custom type");
+  init(repo);
+  const invalid = jsonWork(repo, ["add", "--title", "Bad type", "--description", "No.", "--next-step", "Fix type", "--priority", "medium", "--type", "Not Valid"], { allowFailure: true });
+  assert.equal(errorCode(invalid), "invalid_type");
+});
+
+test("note, blocker, type, stage, and status transitions share history and meaningful progress", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Transition coverage", ["--type", "research"]);
+  activate(repo, "WI-001");
+  const before = history(repo, "WI-001").length;
+  jsonWork(repo, ["update", "WI-001", "--note", "Mike chose the smaller scope."]);
+  jsonWork(repo, ["update", "WI-001", "--blocker", "Waiting for the owner."]);
+  jsonWork(repo, ["update", "WI-001", "--type", "solution-design"]);
+  jsonWork(repo, ["update", "WI-001", "--status", "Ready"]);
+  jsonWork(repo, ["update", "WI-001", "--stage", "12", "--note", "Moved directly to review."]);
+  assert.equal(readYaml(path.join(itemPath(repo, "WI-001"), "ITEM.yaml")).status, "In Review");
+  const status = progress(repo, "WI-001");
+  for (const meaning of ["Mike chose the smaller scope", "Waiting for the owner", "solution-design", "Ready", "12 pr-and-push"]) {
+    assert.match(status, new RegExp(meaning));
+  }
+  assert.equal(history(repo, "WI-001").length, before + 5);
+
+  const mechanicalBefore = progress(repo, "WI-001");
+  jsonWork(repo, ["update", "WI-001", "--next-step", "Read back the review"]);
+  jsonWork(repo, ["update", "WI-001", "--branch", "feature/mechanical"]);
+  assert.equal(progress(repo, "WI-001"), mechanicalBefore);
+});
+
+test("known stages derive status, allow non-linear movement, and validation catches disagreement", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Stage map", ["--type", "research"]);
+  activate(repo, "WI-001");
+  for (const [stage, status] of [["01", "Backlog"], ["03", "Ready"], ["08", "In Progress"], ["14", "In Review"], ["02", "Backlog"]]) {
+    const updated = jsonWork(repo, ["update", "WI-001", "--stage", stage, "--note", `Moved to ${stage}`]).json;
+    assert.equal(updated.item.status, status, stage);
+  }
+  const recordPath = path.join(itemPath(repo, "WI-001"), "ITEM.yaml");
+  const record = readYaml(recordPath);
+  record.stage = "08-build";
+  record.status = "Ready";
+  fs.writeFileSync(recordPath, stableYaml(record));
+  const invalid = jsonWork(repo, ["validate"], { allowFailure: true });
+  assert.ok(invalid.json.errors.some((error) => error.includes("stage") && error.includes("status")));
+  record.stage = "owner-defined-stage";
+  record.status = "Ready";
+  fs.writeFileSync(recordPath, stableYaml(record));
+  const unknown = jsonWork(repo, ["validate"]).json;
+  assert.ok(unknown.warnings.some((warning) => warning.includes("owner-defined-stage")));
+  const preserved = jsonWork(repo, ["update", "WI-001", "--stage", "08-custom", "--note", "Owner uses a custom stage."]).json;
+  assert.equal(preserved.item.status, "Ready");
+});
+
+test("a combined type and active-stage update applies the new type's requirements gate", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Type transition", ["--type", "research"]);
+  activate(repo, "WI-001");
+  const result = jsonWork(repo, ["update", "WI-001", "--type", "build", "--stage", "04", "--note", "Implementation would start."], { allowFailure: true });
+  assert.equal(errorCode(result), "requirements_not_finalized");
+  assert.equal(readYaml(path.join(itemPath(repo, "WI-001"), "ITEM.yaml")).type, "research");
+});
+
+test("requirements finalize and reopen normalize known stages and append progress", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Requirements lifecycle", ["--type", "build"]);
+  activate(repo, "WI-001");
+  jsonWork(repo, ["update", "WI-001", "--stage", "02", "--note", "Refining the requirements."]);
+  fillRequirements(repo, "WI-001");
+  const finalized = jsonWork(repo, ["requirements", "WI-001", "--finalize", "--approved-by", "Mike"]).json;
+  assert.equal(finalized.item.stage, "03-requirements-approved");
+  assert.equal(finalized.item.status, "Ready");
+  assert.match(progress(repo, "WI-001"), /Requirements finalized with owner approval from Mike/);
+  jsonWork(repo, ["update", "WI-001", "--stage", "08", "--note", "Started implementation."]);
+  const reopened = jsonWork(repo, ["requirements", "WI-001", "--reopen"]).json;
+  assert.equal(reopened.item.stage, "02-refinement");
+  assert.equal(reopened.item.status, "Backlog");
+  assert.match(progress(repo, "WI-001"), /Requirements reopened for owner refinement/);
+});
+
+test("finish supports non-Git evidence, late approval, idempotent replay, and one completion event", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Accepted research", ["--type", "research"]);
+  activate(repo, "WI-001");
+  const finished = jsonWork(repo, ["finish", "WI-001", "--evidence", "Mike reviewed the research summary."]).json;
+  assert.equal(finished.item.status, "Done");
+  assert.match(progress(repo, "WI-001"), /without recorded approval/);
+  assert.equal(events(repo).length, 0);
+  const warning = jsonWork(repo, ["validate"]).json;
+  assert.ok(warning.warnings.some((entry) => entry.includes("approval")));
+  assert.equal(jsonWork(repo, ["active"]).json.item, null);
+
+  const approved = jsonWork(repo, ["finish", "WI-001", "--approved-by", "Mike", "--approved-date", "2026-09-07"]).json;
+  assert.equal(approved.item.completion.approved_by, "Mike");
+  assert.equal(readYaml(path.join(itemPath(repo, "WI-001"), "ITEM.yaml")).completion.approved_by, "Mike");
+  assert.match(progress(repo, "WI-001"), /Completion approved by Mike/);
+  assert.equal(events(repo).length, 1);
+  const historyCount = history(repo, "WI-001").length;
+  const replay = jsonWork(repo, ["finish", "WI-001", "--approved-by", "Mike", "--approved-date", "2026-09-07"]).json;
+  assert.equal(replay.outcome, "unchanged");
+  assert.equal(history(repo, "WI-001").length, historyCount);
+  assert.equal(events(repo).length, 1);
+});
+
+test("legacy completion keeps stage null and never backfills optional state", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Legacy result", ["--type", "research"]);
+  const recordPath = path.join(itemPath(repo, "WI-001"), "ITEM.yaml");
+  const before = readYaml(recordPath);
+  delete before.stage;
+  fs.writeFileSync(recordPath, stableYaml(before));
+  assert.equal(before.completion, undefined);
+  activate(repo, "WI-001");
+  jsonWork(repo, ["finish", "WI-001", "--evidence", "Owner accepted the legacy result.", "--approved-by", "Mike"]);
+  assert.equal(events(repo)[0].stage, null);
+  assert.equal(Object.hasOwn(readYaml(recordPath), "stage"), false);
+});
+
+test("validation reports malformed active and event state plus duplicate event IDs", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Validation fixture", ["--type", "research"]);
+  fs.writeFileSync(path.join(workRoot(repo), "ACTIVE.json"), JSON.stringify({ schema_version: 99, branches: { main: { item_id: "WI-999" } } }));
+  fs.writeFileSync(path.join(workRoot(repo), "EVENTS.ndjson"), '{bad json}\n');
+  let invalid = jsonWork(repo, ["validate"], { allowFailure: true });
+  assert.ok(invalid.json.errors.some((error) => error.includes("ACTIVE.json")));
+  assert.ok(invalid.json.errors.some((error) => error.includes("EVENTS.ndjson")));
+
+  fs.writeFileSync(path.join(workRoot(repo), "ACTIVE.json"), `${JSON.stringify({ schema_version: 1, branches: {} }, null, 2)}\n`);
+  const event = { schema_version: 1, event_id: "work_completed:WI-001", occurred_at: "2026-09-07T12:00:00.000Z", kind: "work_completed", item_id: "WI-001", title: "Validation fixture", type: "research", status: "Done", stage: null, approval: { approved_by: "Mike", approved_date: "2026-09-07" }, evidence: "Accepted.", git: null };
+  fs.writeFileSync(path.join(workRoot(repo), "EVENTS.ndjson"), `${JSON.stringify(event)}\n${JSON.stringify(event)}\n`);
+  invalid = jsonWork(repo, ["validate"], { allowFailure: true });
+  assert.ok(invalid.json.errors.some((error) => error.includes("duplicates event ID")));
+});
+
+test("finish rolls all five canonical files back after an installed write fails", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Atomic completion", ["--type", "research"]);
+  activate(repo, "WI-001");
+  const paths = [
+    path.join(itemPath(repo, "WI-001"), "ITEM.yaml"),
+    path.join(itemPath(repo, "WI-001"), "HISTORY.ndjson"),
+    path.join(itemPath(repo, "WI-001"), "STATUS.md"),
+    path.join(workRoot(repo), "ACTIVE.json"),
+    path.join(workRoot(repo), "EVENTS.ndjson"),
+  ];
+  const snapshot = paths.map((file) => fs.existsSync(file) ? fs.readFileSync(file) : null);
+  const failed = jsonWork(repo, ["finish", "WI-001", "--evidence", "Owner accepted it.", "--approved-by", "Mike"], {
+    allowFailure: true,
+    env: { WORK_TRACKER_FAIL_AFTER_INSTALL: "1" },
+  });
+  assert.equal(errorCode(failed), "injected_failure");
+  paths.forEach((file, index) => {
+    if (snapshot[index] === null) assert.equal(fs.existsSync(file), false, file);
+    else assert.deepEqual(fs.readFileSync(file), snapshot[index], file);
+  });
+});
+
+test("batch commit survives a backup cleanup failure after every install", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "work-tracker-batch-"));
+  const files = [path.join(dir, "one.txt"), path.join(dir, "two.txt")];
+  files.forEach((file, index) => fs.writeFileSync(file, `old ${index}\n`));
+  const originalUnlink = fs.unlinkSync;
+  let backupDeletes = 0;
+  fs.unlinkSync = function injectedUnlink(file) {
+    if (String(file).endsWith(".bak") && ++backupDeletes === 2) {
+      const error = new Error("injected backup cleanup failure");
+      error.code = "EACCES";
+      throw error;
+    }
+    return originalUnlink.call(fs, file);
+  };
+  try {
+    atomicBatchWrite(files.map((file, index) => ({ path: file, content: `new ${index}\n` })));
+  } finally {
+    fs.unlinkSync = originalUnlink;
+  }
+  assert.deepEqual(files.map((file) => fs.readFileSync(file, "utf8")), ["new 0\n", "new 1\n"]);
+  assert.equal(fs.readdirSync(dir).some((name) => name.endsWith(".bak")), true);
+});
+
+test("finishing clears every branch mapping for the terminal item", () => {
+  const repo = makeRepo("multi branch active");
+  init(repo);
+  add(repo, "Shared active item", ["--type", "research"]);
+  activate(repo, "WI-001");
+  git(repo, "add", ".gitignore");
+  git(repo, "commit", "-m", "ignore tracker");
+  const linked = path.join(path.dirname(repo), "multi branch linked");
+  git(repo, "worktree", "add", linked, "-b", "issue-998-linked");
+  activate(linked, "WI-001");
+  jsonWork(repo, ["finish", "WI-001", "--evidence", "Accepted in both branches.", "--approved-by", "Mike"]);
+  const active = JSON.parse(fs.readFileSync(path.join(workRoot(repo), "ACTIVE.json"), "utf8"));
+  assert.equal(Object.values(active.branches).some((entry) => entry.item_id === "WI-001"), false);
+  assert.deepEqual(jsonWork(repo, ["validate"]).json.errors, []);
+});
+
+test("terminal finish refuses changed evidence, commit, and pull request values", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Immutable completion", ["--type", "research"]);
+  activate(repo, "WI-001");
+  fs.writeFileSync(path.join(repo, "result.txt"), "result\n");
+  git(repo, "add", "result.txt");
+  git(repo, "commit", "-m", "result");
+  const head = git(repo, "rev-parse", "HEAD").stdout.trim();
+  jsonWork(repo, ["finish", "WI-001", "--evidence", "Accepted once.", "--approved-by", "Mike", "--commit", head, "--pr", "12"]);
+  for (const changed of [
+    ["--evidence", "Different evidence", "--approved-by", "Mike", "--commit", head, "--pr", "12"],
+    ["--evidence", "Accepted once.", "--approved-by", "Mike", "--commit", "HEAD~1", "--pr", "12"],
+    ["--evidence", "Accepted once.", "--approved-by", "Mike", "--commit", head, "--pr", "13"],
+  ]) {
+    const result = jsonWork(repo, ["finish", "WI-001", ...changed], { allowFailure: true });
+    assert.equal(errorCode(result), "terminal_item");
+  }
+});
+
+test("validation rejects null events and malformed completion event fields", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Malformed events", ["--type", "research"]);
+  const eventPath = path.join(workRoot(repo), "EVENTS.ndjson");
+  for (const event of [
+    null,
+    { schema_version: 1, event_id: "bad-approval", occurred_at: "2026-09-07T12:00:00.000Z", kind: "work_completed", item_id: "WI-001", title: "Malformed events", type: "research", status: "Done", stage: null, approval: null, evidence: "Accepted.", git: null },
+    { schema_version: 1, event_id: "bad-date", occurred_at: "not-a-date", kind: "work_completed", item_id: "WI-001", title: "Malformed events", type: "research", status: "Done", stage: null, approval: { approved_by: "Mike", approved_date: "2026-99-99" }, evidence: "Accepted.", git: null },
+    { schema_version: 1, event_id: "bad-stage", occurred_at: "2026-09-07T12:00:00.000Z", kind: "work_completed", item_id: "WI-001", title: "Malformed events", type: "research", status: "Done", stage: 8, approval: { approved_by: "Mike", approved_date: "2026-09-07" }, evidence: "Accepted.", git: null },
+  ]) {
+    fs.writeFileSync(eventPath, `${JSON.stringify(event)}\n`);
+    const invalid = jsonWork(repo, ["validate"], { allowFailure: true });
+    assert.ok(invalid.json.errors.some((error) => error.includes("invalid completion event")));
+  }
+});
+
+test("cancellation clears every branch mapping in the same transition", () => {
+  const repo = makeRepo("cancel primary");
+  init(repo);
+  add(repo, "Cancelled everywhere", ["--type", "research"]);
+  activate(repo, "WI-001");
+  git(repo, "add", ".gitignore");
+  git(repo, "commit", "-m", "ignore tracker");
+  const linked = path.join(path.dirname(repo), "cancel linked");
+  git(repo, "worktree", "add", linked, "-b", "issue-997-linked");
+  activate(linked, "WI-001");
+  jsonWork(repo, ["update", "WI-001", "--status", "Cancelled", "--note", "Mike stopped this work."]);
+  const active = JSON.parse(fs.readFileSync(path.join(workRoot(repo), "ACTIVE.json"), "utf8"));
+  assert.equal(Object.values(active.branches).some((entry) => entry.item_id === "WI-001"), false);
+  assert.deepEqual(jsonWork(repo, ["validate"]).json.errors, []);
+  assert.equal(events(repo).length, 0);
+});
+
+test("late approval refuses while another active mapping remains", () => {
+  const repo = makeRepo("late approval primary");
+  init(repo);
+  add(repo, "Late approval", ["--type", "research"]);
+  activate(repo, "WI-001");
+  jsonWork(repo, ["finish", "WI-001", "--evidence", "Awaiting approval."]);
+  const activePath = path.join(workRoot(repo), "ACTIVE.json");
+  fs.writeFileSync(activePath, `${JSON.stringify({ schema_version: 1, branches: { stale: { item_id: "WI-001", set_at: "2026-09-07T12:00:00.000Z" } } }, null, 2)}\n`);
+  const refused = jsonWork(repo, ["finish", "WI-001", "--approved-by", "Mike"], { allowFailure: true });
+  assert.equal(errorCode(refused), "wrong_active_item");
+  assert.equal(events(repo).length, 0);
+});
+
+test("late approval ignores an unrelated item active only on another branch", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Late approval", ["--type", "research"]);
+  add(repo, "Other branch work", ["--type", "research"]);
+  activate(repo, "WI-001");
+  jsonWork(repo, ["finish", "WI-001", "--evidence", "Awaiting approval."]);
+  fs.writeFileSync(path.join(workRoot(repo), "ACTIVE.json"), `${JSON.stringify({ schema_version: 1, branches: { other: { item_id: "WI-002", set_at: "2026-09-07T12:00:00.000Z" } } }, null, 2)}\n`);
+  const approved = jsonWork(repo, ["finish", "WI-001", "--approved-by", "Mike"]).json;
+  assert.equal(approved.outcome, "approved");
+  assert.equal(events(repo).length, 1);
+});
+
+test("an identical pull-request completion replay is a no-op", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "PR replay", ["--type", "research"]);
+  activate(repo, "WI-001");
+  jsonWork(repo, ["finish", "WI-001", "--evidence", "Accepted.", "--approved-by", "Mike", "--pr", "https://github.com/acme/example/pull/12"]);
+  const before = history(repo, "WI-001").length;
+  const replay = jsonWork(repo, ["finish", "WI-001", "--evidence", "Accepted.", "--approved-by", "Mike", "--pr", "https://github.com/acme/example/pull/12"]).json;
+  assert.equal(replay.outcome, "unchanged");
+  assert.equal(history(repo, "WI-001").length, before);
+  assert.equal(events(repo).length, 1);
+  assert.deepEqual(events(repo)[0].git, {
+    completion_commit: null,
+    landed: false,
+    pull_request: { number: 12, url: "https://github.com/acme/example/pull/12", merged_at: null },
+  });
+  assert.deepEqual(jsonWork(repo, ["validate"]).json.errors, []);
+});
+
+test("validation ties completion event identity and fields to its item record", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Consistent event", ["--type", "research"]);
+  activate(repo, "WI-001");
+  jsonWork(repo, ["finish", "WI-001", "--evidence", "Accepted.", "--approved-by", "Mike"]);
+  const eventPath = path.join(workRoot(repo), "EVENTS.ndjson");
+  const event = events(repo)[0];
+  event.event_id = "work_completed:WI-999";
+  event.evidence = "Conflicts with the item.";
+  fs.writeFileSync(eventPath, `${JSON.stringify(event)}\n`);
+  const invalid = jsonWork(repo, ["validate"], { allowFailure: true });
+  assert.ok(invalid.json.errors.some((error) => error.includes("event ID") || error.includes("does not match")));
+});
+
+test("validation rejects a completion event for a live item", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Still live", ["--type", "research"]);
+  const event = { schema_version: 1, event_id: "work_completed:WI-001", occurred_at: "2026-09-07T12:00:00.000Z", kind: "work_completed", item_id: "WI-001", title: "Still live", type: "research", status: "Done", stage: null, approval: { approved_by: "Mike", approved_date: "2026-09-07" }, evidence: "Not actually complete.", git: null };
+  fs.writeFileSync(path.join(workRoot(repo), "EVENTS.ndjson"), `${JSON.stringify(event)}\n`);
+  const invalid = jsonWork(repo, ["validate"], { allowFailure: true });
+  assert.ok(invalid.json.errors.some((error) => error.includes("non-Done") || error.includes("terminal")));
+});
+
+test("start normalizes known stages to build but leaves a legacy missing stage absent", () => {
+  for (const fixture of [{ initialStage: "03", type: "solution-design", expectedStage: "04-solution-design" }, { initialStage: null, type: "research", expectedStage: null }]) {
+    const { initialStage, type, expectedStage } = fixture;
+    const repo = makeRepo(`start stage ${initialStage ?? "legacy"}`);
+    init(repo);
+    add(repo, "Start stage", ["--type", type]);
+    activate(repo, "WI-001");
+    if (initialStage) jsonWork(repo, ["update", "WI-001", "--stage", initialStage, "--note", "Ready to start."]);
+    else jsonWork(repo, ["update", "WI-001", "--status", "Ready"]);
+    const started = jsonWork(repo, ["start", "WI-001", "--branch", `feature/${initialStage ?? "legacy"}`]).json;
+    assert.equal(started.item.stage, expectedStage);
+    assert.equal(started.item.status, "In Progress");
+    assert.deepEqual(jsonWork(repo, ["validate"]).json.errors, []);
+  }
+});
+
+test("sequential mutations reload a stale tracker object under the lock", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Concurrent updates", ["--type", "research"]);
+  activate(repo, "WI-001");
+  const stale = loadTracker(repo);
+  updateItem(stale, "WI-001", { note: "First sequential note." });
+  updateItem(stale, "WI-001", { note: "Second sequential note." });
+  const log = progress(repo, "WI-001");
+  assert.match(log, /First sequential note/);
+  assert.match(log, /Second sequential note/);
 });

@@ -418,8 +418,9 @@ They overlap less than they look.
 - **handoff versus session-summary.** Both run at the end of a session and
   answer different questions. `session-summary` answers "which of my requests
   are where, and what still needs me", is read-only, and writes nothing.
-  `handoff` answers "how does somebody else pick this up". Run both if you want
-  both; neither covers the other.
+  `handoff` first updates an active tracker when one exists, then answers "how
+  does somebody else pick this up". Run both if you want both; neither covers
+  the other.
 - **explain-simply versus session-summary.** One is a status view of a whole
   session. The other is a second reading of one piece of material that did not
   land.

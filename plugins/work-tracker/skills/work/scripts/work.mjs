@@ -15,6 +15,7 @@ import {
 } from "./lib/common.mjs";
 import {
   addItem,
+  activeItem,
   archiveItem,
   finishItem,
   getStatus,
@@ -35,7 +36,7 @@ import {
   validateTracker,
 } from "./lib/tracker.mjs";
 
-const VERSION = "2.3.0";
+const VERSION = "2.4.0";
 
 export async function main(argv = process.argv.slice(2)) {
   const { positionals, flags } = parseArgs(argv);
@@ -114,6 +115,18 @@ export async function main(argv = process.argv.slice(2)) {
       }
       break;
     }
+    case "active": {
+      assertAllowedFlags(flags, ["cwd", "replace", "json"]);
+      const action = positionals[1];
+      if (!action) result = activeItem(loadTracker(repoRoot));
+      else if (action === "clear") {
+        if (positionals[2]) throw new WorkError("work active clear takes no work-item ID", "unexpected_argument");
+        result = activeItem(loadTracker(repoRoot), { clear: true });
+      } else if (action === "set") {
+        result = activeItem(loadTracker(repoRoot), { set: requiredPositional(positionals, 2, "work-item ID"), replace: Boolean(flags.replace) });
+      } else throw new WorkError("Usage: work active [set ID [--replace]|clear]", "invalid_active_command");
+      break;
+    }
     case "status": {
       assertAllowedFlags(flags, ["cwd", "all", "archived", "json"]);
       result = getStatus(loadTracker(repoRoot), {
@@ -159,6 +172,7 @@ export async function main(argv = process.argv.slice(2)) {
         "status",
         "next-step",
         "branch",
+        "type",
         "blocker",
         "blocker-item",
         "clear-blocker",
@@ -172,6 +186,7 @@ export async function main(argv = process.argv.slice(2)) {
         status: flags.status === true ? undefined : flags.status,
         nextStep: flags["next-step"] === true ? "" : flags["next-step"],
         branch: flags.branch === true ? "" : flags.branch,
+        type: flags.type === true ? undefined : flags.type,
         blockers: flagList(flags, "blocker").map(String),
         blockerItem: flags["blocker-item"] === true ? undefined : flags["blocker-item"],
         clearBlocker: flags["clear-blocker"] === true ? "all" : flags["clear-blocker"],
@@ -191,12 +206,15 @@ export async function main(argv = process.argv.slice(2)) {
       break;
     }
     case "finish": {
-      assertAllowedFlags(flags, ["cwd", "commit", "pr", "next-step", "json"]);
+      assertAllowedFlags(flags, ["cwd", "evidence", "approved-by", "approved-date", "commit", "pr", "next-step", "json"]);
       const id = requiredPositional(positionals, 1, "work-item ID");
       result = finishItem(loadTracker(repoRoot), id, {
         commit: flags.commit === true ? undefined : flags.commit,
         pullRequest: flags.pr === true ? undefined : flags.pr,
         nextStep: flags["next-step"] === true ? undefined : flags["next-step"],
+        evidence: flags.evidence === true ? undefined : flags.evidence,
+        approvedBy: flags["approved-by"] === true ? undefined : flags["approved-by"],
+        approvedDate: flags["approved-date"] === true ? undefined : flags["approved-date"],
       });
       break;
     }
@@ -259,13 +277,14 @@ Usage:
   work requirements WI-001
   work requirements WI-001 --finalize --approved-by NAME
   work requirements WI-001 --reopen
+  work active [set WI-001 [--replace]|clear]
   work status [--all] [--archived] [--json]
   work next [--json]
   work start WI-001 [--branch BRANCH] [--next-step STEP]
-  work update WI-001 [--stage 08] [--note WHAT_HAPPENED] [--status Ready] [--next-step STEP]
+  work update WI-001 [--stage 08] [--type build] [--note WHAT_HAPPENED] [--status Ready] [--next-step STEP]
     [--blocker REASON] [--clear-blocker ID]
   work link WI-001 --type depends_on --target WI-002 [--remove]
-  work finish WI-001 [--commit SHA] [--pr NUMBER_OR_URL]
+  work finish WI-001 --evidence TEXT [--approved-by NAME] [--approved-date YYYY-MM-DD] [--commit SHA] [--pr NUMBER_OR_URL]
   work landed WI-001
   work archive WI-001
   work unarchive WI-001
@@ -291,7 +310,7 @@ Stages: 01-discovery, 02-refinement, 03-requirements-approved, 04-solution-desig
 and appends a dated line to the Progress log in STATUS.md. An item with no stage
 is normal. work-item-stages.md decides which stage is correct; nothing here does.
 Requirements statuses: refining, finalized.
-Types: bug, enhancement, task.
+Types: discovery, solution-design, build, data-load, repository-maintenance, research, task, or a custom lower-case kebab-case type. Only build and data-load require finalized requirements in code.
 
 All commands accept --cwd PATH and --json where shown.
 `;

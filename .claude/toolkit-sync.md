@@ -89,7 +89,7 @@ now run together:
 - **The fourteen labels were created** on this repository, in order, so they
   sort. Nothing was relabelled in bulk. Issues from before the standard carry
   no stage, which is expected.
-- **`work-item-stage-reminder` was installed.** It is copied to
+- **`work-item-stage-reminder` was installed, then retired in #270.** It was copied to
   `.claude/hooks/` and added to the existing `PostToolUse`
   `Edit|Write|NotebookEdit` matcher, alongside `spec-check-reminder`, rather
   than as a second entry. Verified by feeding it one session id twice: it
@@ -134,7 +134,7 @@ three weeks later in another project.
 | --- | --- |
 | 0. Orient | Done. Existing repository, not a new one, so this ran as a sync rather than an init. Node and Markdown, no application stack. |
 | 1. Scaffolding and work tracking | Already answered. Work is tracked on the `Claude-Toolkit-Project` board on GitHub. `CLAUDE.md` names it. `spec-before-you-build.md` was installed alongside that pointer until 2026-08-31, when the toolkit dropped the rule and it was removed here too. No scaffolding was added: the folder layout already existed. The board's vocabulary changed in issue #260: an issue now carries one stage label from `work-item-stages.md`, and `03-requirements-approved` replaced the retired `refined` label as the mark that an issue is ready to build. |
-| 2. Hooks | Done. `save-reminder`, `work-item-close`, `memory-reminder`, `knowledge-session-start`, `spec-check-reminder`, and `work-item-stage-reminder` are installed under `.claude/hooks/` and registered in `.claude/settings.json`. Codex registers the same startup loader in `.codex/hooks.json`. The two style hooks were removed with the toolkit, as explained below. |
+| 2. Hooks | Done. `save-reminder`, `work-item-close`, `memory-reminder`, `knowledge-session-start`, and `spec-check-reminder` are installed under `.claude/hooks/` and registered in `.claude/settings.json`. Codex registers the same startup loader in `.codex/hooks.json`. The two style hooks were removed with the toolkit, as explained below. |
 | 3. Project knowledge | **Adopted from the packaged plugin.** `SOUL.md`, the managed operating manual, `knowledge/project.md`, `knowledge/current.md`, and both generated index entry lists load at session start. Approved specifications, flat persistent memory, and unchecked brainstorms live under the same knowledge root. The packaged skills keep only task-specific steps. The retired policy rule and machinery stay removed. |
 | 4. Knowledge layer | Included with Gate 3. The graphify code graph was offered and declined, see below. |
 | 5. Root instructions, rules, output style | Done. `CLAUDE.md` and `AGENTS.md` carry the same short project knowledge route. `.claude/rules/` holds the applicable general rules, with no large memory rule or wrap-up ritual. The `Plain English` style is selected in `.claude/settings.json` and installed at `.claude/output-styles/plain-english.md`, copied from `plugins/project-init/library/output-styles/`. This repo ran Claude Code's built-in `Concise` style before that, and the hand-written `plain-language` style before that, removed from the toolkit in issue #245. |
@@ -256,3 +256,10 @@ has one shared knowledge system, so `.claude/settings.json` keeps
 `CLAUDE_CODE_DISABLE_AUTO_MEMORY` set to `1`. The same settings file enables the
 packaged `second-brain` plugin, whose skills read and write the Git-owned files
 under `knowledge/` through the owner-approval flow.
+
+## 2026-09-07: work-item upkeep (#270)
+
+Updated the shipped and installed lifecycle rule together. It now directs
+orientation before substantial work and faithful progress capture. Removed
+the retired `work-item-stage-reminder` script and its registration, keeping
+all other hooks. Handoff refreshes the chosen tracker before memory review.

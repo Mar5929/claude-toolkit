@@ -33,24 +33,6 @@ It is a reminder, not a gate. It reads nothing the agent wrote, cannot tell
 real build work from a one-line fix, and never blocks an edit. State lives in
 a per-session file under the OS temp folder, which is how it fires only once.
 
-### work-item-stage-reminder
-
-A `PostToolUse` hook on `Edit`, `Write`, and `NotebookEdit`. At the session's
-first file edit it asks the agent to name the work item it is on, name that
-item's current stage, and check that the progress log is current. Then it stays
-quiet for the rest of the session.
-
-It goes with the `work-item-stages.md` rule, which gives every work item one
-stage from a shared list of fourteen and a dated progress log. The failure the
-rule cannot catch on its own is the log going stale: a session works for an
-hour, the stage moved two steps, and nobody wrote either down, so the next
-session starts by reconstructing what happened.
-
-It is a reminder, not a gate. It reads no tracker, checks no stage, and never
-blocks an edit. It cannot tell work-item work from a one-line fix, so it asks on
-the first edit either way. State lives in a per-session file under the OS temp
-folder, which is how it fires only once.
-
 ### no-ai-attribution-guard
 
 A `PreToolUse` hook on the `Bash` matcher. It refuses any command that would put
@@ -131,11 +113,6 @@ project's `.claude/settings.json` and verifies it runs. `project-init` and
 `spec-check-reminder` is only useful next to the `spec-check` skill from the
 `session-skills` plugin, so install those together.
 
-`work-item-stage-reminder` is only useful in a project that has answered where
-work items are tracked and carries the `work-item-stages.md` rule. Install it
-with them, never before them: a reminder to set a stage is noise in a project
-with no tracker to set one in.
-
 The two Salesforce guards install from their own guides in this folder,
 `salesforce-prod-guard-hook.md` and `salesforce-permset-guard-hook.md`, which
 `project-init` Gate 2 follows step by step.
@@ -162,6 +139,14 @@ Optional, at `no-ai-attribution-guard.json` next to the installed script in
 Omit the file to get it on. Setting `enabled` to false switches the guard off,
 and it is an escape hatch for a wrong block that cannot be reworded, not a
 normal setting. The written rule still applies when the guard is off.
+
+## Removed: work-item-stage-reminder
+
+Issue #270 retired the reminder that ran after the first edit. The lifecycle
+rule asks for orientation before substantial work; the local tracker checks
+the active item and handoff refreshes it. Existing projects remove the old
+script and its settings entry through `project-sync`. There is no replacement
+lifecycle hook.
 
 ## Removed: explain-simply-reminder
 
