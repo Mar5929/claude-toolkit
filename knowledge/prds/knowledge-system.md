@@ -644,6 +644,9 @@ Requirement 7 says why.
 
 Once tier 5 is done, and only then, ask the owner.
 
+The same order applies to every kind of task. There is no separate order for
+fixing a bug, designing, or resuming work.
+
 - Always name where the answer was found, in the shape requirement 6 sets.
 - An index is a map, not evidence. Open the file before relying on its line.
 - Only `current` files answer what is true now. Everything else answers questions about history.
