@@ -83,6 +83,11 @@ Run `node <skill-root>/scripts/work.mjs help` for exact flags. Read
 
 ## Stages and status
 
+For roadmap or milestone planning, follow the adaptable-plan guidance in
+`work-item-stages.md`. Keep it in an existing suitable document or linked
+canonical plan; do not add guessed fields to `ITEM.yaml` or hand-edit generated
+`STATUS.md`. Use `update` for current progress, next steps, and blockers.
+
 Follow `work-item-stages.md`. Stages are flexible descriptions: skip, repeat,
 or revisit them with a short meaningful reason. A missing legacy stage is valid
 and must not be backfilled.

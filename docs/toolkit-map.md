@@ -22,7 +22,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git lifecycle workflows | `pull-latest`, `reset-to-remote`, `merge-and-clean-up` | `/plugin install git-workflows` | Install and go |
 | [hooks-library](../plugins/hooks-library/README.md) | Reusable spec-check, Git-attribution, and Salesforce deployment hooks; system-specific knowledge hooks stay with second-brain | `hooks-library` | `/plugin install hooks-library` | Wires into settings |
 | [work-tracker](../plugins/work-tracker/README.md) | Local backlog under Git-ignored `.work-items/`, with branch-scoped active items, flexible types, consistent progress, approved completion events, optional Git evidence, handoffs, relationships, folders the owner makes to group related items, an `archive/` folder for set-aside items, and preview-first conversion of older staged trackers | `work` | `/plugin install work-tracker` | Sets up a project |
-| [session-skills](../plugins/session-skills/README.md) | The eight things you reach for inside one conversation: play back a brain dump, say it simply, get grilled on it, check the spec before building, unslop a draft, hand it off, recap it, and track what is still open | `braindump`, `explain-simply`, `grill-me`, `handoff`, `session-summary`, `spec-check`, `track-tasks`, `unslop` | `/plugin install session-skills` | Install and go |
+| [session-skills](../plugins/session-skills/README.md) | Eleven conversation skills including adaptable delivery, requirements, and design, with focused research/review helpers | `work-guide`, `requirements-helper`, `solution-helper`, `braindump`, `explain-simply`, `grill-me`, `handoff`, `session-summary`, `spec-check`, `track-tasks`, `unslop` | `/plugin install session-skills` | Install and go |
 
 ## Skills at a glance
 
@@ -43,6 +43,9 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | reset-to-remote | git-workflows | Hard-reset a repo to mirror the remote, safely gated | `/reset-to-remote` |
 | merge-and-clean-up | git-workflows | Merge one approved PR and remove only its completed branch and worktree | `/merge-and-clean-up`, "merge and clean up" |
 | work | work-tracker | Manage local work items in Git-ignored folders, group them in folders the owner makes, archive the ones the owner has set aside, and safely convert the older staged tracker | `/work`, "add this to the backlog", "what should I work on next?" |
+| work-guide | session-skills | Coordinate delivery and adaptable plans using the existing tracker and scoped specialist help | `/session-skills:work-guide`, "help me organize this work", "continue this item" |
+| requirements-helper | session-skills | Interview one question at a time and maintain canonical draft requirements | `/session-skills:requirements-helper`, "help me refine these requirements" |
+| solution-helper | session-skills | Map requirements to simple, evidence-backed solution choices | `/session-skills:solution-helper`, "design this solution" |
 | braindump | session-skills | Play a pasted brain dump back in very simple words, list each ask and every guess, and wait for the owner's yes before any work starts | `/braindump`, "play that back", "tell me what you heard" |
 | explain-simply | session-skills | Re-explain the last answer or a named file as short bullets, simplifying the wording and never the facts | `/explain-simply`, "explain that like I'm five", "put that in plain bullets", "simpler" |
 | grill-me | session-skills | Stress-test an idea one question at a time and preserve every answer | `/grill-me`, "grill me" |
@@ -345,13 +348,16 @@ The genuine watch-items are called out at the end.
   anything that outlives the conversation, and is the only one of the three that
   survives a `/clear`. A topic that turns into real work moves from the first to
   the third; the middle one never holds anything on its own.
-- **The eight skills in one plugin are still eight skills.** `session-skills`
-  packages `braindump`, `explain-simply`, `grill-me`, `handoff`,
-  `session-summary`, `spec-check`, `track-tasks`, and `unslop` together because
-  each would be a single-skill plugin whose packaging cost more than its
-  instructions, and because the owner wants all eight on every machine. Sharing
-  a plugin does not blur what they do; the distinctions above still hold. What
-  it costs is granularity: they install and version together.
+- **Guided delivery versus work tracking.** `work-guide` helps the main
+  conversation plan and coordinate; #270's existing tracker and lifecycle rule
+  own canonical state. `requirements-helper` maintains a draft in the chosen
+  requirements home, while `grill-me` captures raw discovery notes.
+  `solution-helper` coordinates domain methods and requirement coverage.
+  `delivery-researcher` and `delivery-reviewer` return evidence to the owning
+  conversation. They neither own another tracker nor create persistent teams.
+- **Eleven skills in one plugin.** The methods remain separately discoverable
+  while installing and versioning together. Read the session-skills README for
+  Claude agent discovery and native-worker fallback in other hosts.
 - **explain-simply versus the output style.** The output style sets how
   everything is written. `explain-simply` is the escape hatch for the times that
   was not enough, on material that is technical by nature. It checks the active

@@ -122,8 +122,8 @@ automatically as it grows.
     `../project-init/references/folder-claudemd.md`. Read that file so step 2
     can tell a missing one from a folder the toolkit deliberately skips (any
     folder with a `README.md` index, and everything under `.claude/`)
-  - each standalone skill offered by the setup flow, all five of which now ship
-    in the `session-skills` plugin
+  - each conversation skill and helper agent offered by the setup flow, which
+    ship in the `session-skills` plugin
   - anything newer listed in the toolkit README under "What's here now"
   - skip roadmap items; they are not built and cannot be audited. The current
     project-knowledge package is shipped and must be inventoried from its
@@ -267,12 +267,19 @@ Typical checks:
   pins, and drift reports remain retired and are never refreshed, reconciled,
   imported, or used as current truth.
 - **Standalone toolkit skills:** check the previous sync record and the
-  available host plugins. All five (`explain-simply`, `grill-me`, `handoff`,
-  `session-summary`, `track-tasks`) ship together in the `session-skills`
-  plugin, so classify that one plugin as available to invoke, previously
+  available host plugins. The conversation skills ship together in the
+  `session-skills` plugin, so classify it as available to invoke, previously
   declined, or not applicable. A project that declined an individual plugin
   before the merge has that recorded under the old name; treat the record as
   applying to the skill, not the package.
+  Include `work-guide`, `requirements-helper`, and `solution-helper`, plus the
+  packaged `delivery-researcher` and `delivery-reviewer` agents. Compare the
+  installed version and host-visible capabilities with the current package;
+  source files alone do not establish that this session can invoke them.
+  Offer a refresh when these methods are missing from an accepted installation.
+  They use the existing tracker and project guidance, including work-item
+  variations. Do not require local work items, copy specialist instructions,
+  create a separate guidance file, or configure a default team.
   Do not look for a copied `SKILL.md` inside the project because the canonical
   skill stays in its plugin. `handoff` is the one to recommend rather than
   merely list: it works with no output style, no project knowledge system, and no hooks,

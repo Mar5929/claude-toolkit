@@ -1,21 +1,24 @@
 # session-skills
 
-Eight skills for working inside one conversation: play back a brain dump, explain
-it simply, get grilled on it, check the spec, unslop a draft, hand it off, recap
-it, and track what is still open.
+Eleven skills for working inside one conversation, including guided delivery,
+requirements interviewing, and solution design.
 
-**Setup: install and go.** One install per machine. Nothing is copied into a
-project and nothing has to exist first. Only `grill-me`, `handoff`, and `unslop`
-write files, and only where you approve it.
+**Setup: install and go.** Use the project's chosen tracker and document homes.
+Skills keep authorized drafts and records current; their names do not grant
+permission to write. No local tracker, fixed milestone structure, or extra
+project guidance file is required.
 
 ```text
 /plugin install session-skills
 ```
 
-## The eight
+## The skills
 
 | Skill | Command | Reach for it when |
 | --- | --- | --- |
+| [work-guide](skills/work-guide/SKILL.md) | `/session-skills:work-guide` | Coordinate the work, adapt its plan, switch context, or assess parallel items |
+| [requirements-helper](skills/requirements-helper/SKILL.md) | `/session-skills:requirements-helper` | Turn thoughts and changed answers into canonical draft requirements |
+| [solution-helper](skills/solution-helper/SKILL.md) | `/session-skills:solution-helper` | Explain a design against each requirement using existing capabilities and sources |
 | braindump | `/braindump` | You pasted a loose brain dump and want it played back in simple words before any work starts |
 | explain-simply | `/explain-simply` | An answer did not land and you want it again in plain bullets |
 | grill-me | `/grill-me` | A plan or design is half-formed and you want it pulled out of your head |
@@ -25,7 +28,61 @@ write files, and only where you approve it.
 | track-tasks | `/track-tasks` | Several unrelated things are open at once |
 | unslop | `/unslop` | A document or draft reads as machine-written and you want it cleaned up |
 
-All eight also trigger from plain words. You never have to type the command.
+All eleven also trigger from plain words. You never have to type the command.
+
+---
+
+## Guided delivery
+
+Keep discussion and decisions in the main conversation. `work-guide` reads the
+project and item context, helps maintain a useful plan, coordinates bounded
+specialist help, and restores the next step when work resumes.
+`requirements-helper` asks one question at a time, gives a supported
+recommendation, and saves clear answers or corrections in the chosen draft.
+`solution-helper` maps requirements to simple build, benefit, and verification
+bullets, reusing relevant domain skills such as Salesforce solutioning.
+
+The existing tracker owns status and progress. These skills use its native
+fields, notes, and linked documents; they do not introduce another tracker or
+milestone schema. Templates and milestone suggestions can be changed or omitted
+for a project, use case, or item. Real approval and environment boundaries
+still apply.
+
+### Focused helpers
+
+- [delivery-researcher](agents/delivery-researcher.md): investigate a bounded
+  question using project evidence and official sources.
+- [delivery-reviewer](agents/delivery-reviewer.md): independently review
+  requirements, a design, or a plan for material gaps and inconsistencies.
+
+Claude Code discovers the agents from this plugin's `agents/` directory; use
+the registered names the host exposes. Codex does not load these Markdown
+definitions as native custom-agent configuration. The skills instead read the
+role file and pass its full instructions and scoped context to an available
+native worker. Supply excerpts when its allowed tools cannot open the sources.
+The fallback's read-only instructions are not a tool-enforced sandbox. If no
+worker is available, the main conversation continues and says no independent
+review ran.
+
+Each item's main conversation owns its updates. Helpers return findings;
+separate sessions can own separate items. Worktrees isolate code, while shared
+orgs, metadata, and release dependencies still require coordination. A saved
+assignment is not evidence that another session is running.
+
+For an example, say: "Help me plan these two Salesforce features. One is waiting
+on a decision, and the other can move ahead." The guide reads the actual items,
+uses the project's terminology, and recommends the next useful work. It does
+not create a permanent team or ask for a fixed set of milestones.
+
+### Adoption and updates
+
+Install or update `session-skills` through the host's plugin manager, then use a
+fresh session or its supported reload. `project-init` and `project-sync` offer
+the package and check that the methods are available; project-specific additions
+stay in the project's existing guidance. A repository merge alone does not
+update installed caches or other projects. The bare skill-folder copy fallback
+must include the three sibling skills and their linked agent files; use the full
+plugin for this workflow so relative references resolve.
 
 ---
 
@@ -478,15 +535,15 @@ Every command keeps working exactly as before.
 
 ## It follows the project's own voice
 
-Before writing, these skills read the project's active output style, found
-through the `outputStyle` setting in `.claude/settings.local.json`, then
-`.claude/settings.json`, then `~/.claude/settings.json`. So their output sounds
-like the rest of the project rather than like a different assistant. With no
-output style installed, their own rules are enough.
+The skills follow the project's applicable writing guidance. Existing
+conversation tools include an explicit output-style lookup; the guided-delivery
+skills load project guidance through work-guide. Helper definitions carry their
+own plain-writing instructions because a separate worker may not inherit the
+main conversation's output style.
 
 ## Maintaining this plugin
 
-A content change to any of the eight bumps `version` in both plugin manifests and
+A content change to any of the eleven bumps `version` in both plugin manifests and
 `metadata.version` in the repo's `.claude-plugin/marketplace.json`. Keep this
 README, the top-level README, and `docs/toolkit-map.md` current when a skill
 changes.
