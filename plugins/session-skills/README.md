@@ -17,7 +17,7 @@ project guidance file is required.
 | Skill | Command | Reach for it when |
 | --- | --- | --- |
 | [work-guide](skills/work-guide/SKILL.md) | `/session-skills:work-guide` | Coordinate the work, adapt its plan, switch context, or assess parallel items |
-| [requirements-helper](skills/requirements-helper/SKILL.md) | `/session-skills:requirements-helper` | Turn thoughts and changed answers into canonical draft requirements |
+| [requirements-helper](skills/requirements-helper/SKILL.md) | `/session-skills:requirements-helper` | Write plain-language PRDs and refine required behavior without prescribing the build |
 | [solution-helper](skills/solution-helper/SKILL.md) | `/session-skills:solution-helper` | Explain a design against each requirement using existing capabilities and sources |
 | braindump | `/braindump` | You pasted a loose brain dump and want it played back in simple words before any work starts |
 | explain-simply | `/explain-simply` | An answer did not land and you want it again in plain bullets |
