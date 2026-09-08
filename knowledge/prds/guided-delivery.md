@@ -2,7 +2,7 @@
 summary: Guided delivery lets the owner focus on decisions while the main conversation maintains adaptable plans and brings in focused requirements, design, research, and review help using the project's existing records.
 area: guided-delivery
 status: current
-source: GitHub issue 300 and Mike's 2026-09-08 instruction to use a team to build and ship the settled adaptable, tracker-independent approach
+source: GitHub issues 300 and 302; Mike's 2026-09-08 build-and-ship instruction and requested plain-language PRD addition
 created_at: 2026-09-08
 tags: [delivery, requirements, design, collaboration]
 approved_by: Mike Rihm
@@ -42,6 +42,17 @@ draft requirements. Save clear answers and authorized corrections promptly;
 keep unknowns and suggestions distinct from settled meaning. Ask only about
 material ambiguity, and recognize approval already given under the project's
 save policy.
+
+PRDs use plain language with no jargon. They describe goals, required behavior,
+and rules clearly enough that someone who missed the conversation can understand
+what must happen and recognize success. Unanswered details stay open. The
+requirements guide the solution without prescribing how to build it.
+
+Any retained ideas about how to build belong only in notes at the very bottom
+of the PRD, linked to their relevant requirements. They are clearly labeled
+potential paths to explore, not requirements, approved design, or instructions
+to build that way. Actual design decisions live in the separate design record
+with their approval status preserved.
 
 Designs explain how each requirement will be met, what existing capability is
 reused, and how the result can be checked. Simple headings and bullets are a

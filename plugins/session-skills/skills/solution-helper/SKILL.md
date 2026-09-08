@@ -14,6 +14,10 @@ methods, and specialist help; reuse orientation already completed.
 - Read the canonical requirements, recorded approvals, unresolved questions,
   project constraints, and existing decisions. Use the project's specification
   check when available. Identify actual gaps before suggesting new components.
+- Treat linked solution notes at the bottom of a PRD only as potential paths
+  to evaluate. They are not requirements, approved design, or build instructions.
+  Choose against the required behavior and rules; keep actual design decisions
+  in the canonical design record with their true approval status.
 - Inspect existing capabilities and relevant implementation evidence. Mark
   what is reused, extended, or new, and distinguish code that exists from
   behavior verified in the intended environment.

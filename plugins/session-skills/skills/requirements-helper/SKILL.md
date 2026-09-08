@@ -1,6 +1,6 @@
 ---
 name: requirements-helper
-description: Turn a user's thoughts into clear draft requirements in the project's chosen record through a guided, one-question-at-a-time conversation. Use to clarify a work item's problem, refine requirements, handle changed answers, or resume a requirements interview.
+description: Write or refine plain-language PRDs and work-item requirements in the project's chosen record through a guided, one-question-at-a-time conversation. Use to clarify a problem, capture required behavior, handle changed answers, or resume a requirements interview.
 ---
 
 # Requirements helper
@@ -18,9 +18,36 @@ completed in this session.
 - Use the project's requirements format. If none is chosen, offer a small
   draft organized around the goal, people, required behavior, process or logic,
   and open questions. Omit or reshape sections to fit this item.
-- Keep requirements about what must be true and why, with observable outcomes.
-  Keep technology choices and build instructions in the separate design;
-  preserve an owner-supplied solution idea as a proposal unless it is agreed.
+
+## Write requirements someone else can use
+
+- Use plain language with no jargon. State the goal, what people must be able
+  to do, what must happen, and the rules that govern it. Keep each requirement
+  about what must be true and why, not how to build it.
+- Make behavior explicit: who is affected, when the rule applies, the expected
+  result, and relevant exceptions or boundaries. Include observable completion
+  expectations where needed. Use only settled details; leave missing decisions
+  open and clarify them one at a time instead of inventing precision.
+- Check that someone without the interview can understand the goal, required
+  behavior, and how to recognize success. Replace vague claims such as "easy"
+  or "fast" with the owner's intended meaning. Clear requirements guide design
+  choices without prescribing an implementation or removing valid alternatives.
+- Put retained how-to ideas only in a notes section at the very bottom of the
+  PRD, after all requirements and open questions. Link each note back to the
+  relevant requirement using its existing heading, identifier, or tracker link.
+  Label the section "Potential paths to explore" and explicitly say its ideas
+  are not requirements, approved design, or instructions for how to build.
+  Add no empty notes section when there are no ideas to retain.
+- Keep actual design choices and build instructions in the separate canonical
+  design record, including choices the owner already approved. Preserve their
+  approval there rather than downgrading them to tentative notes. Agreement to
+  consider an idea does not approve its implementation. Revisit linked notes
+  when a requirement changes so an old idea cannot silently control the design.
+
+For example, a settled requirement might say: "When a submitted request is
+rejected, its requester can see the reason." A linked bottom note might say:
+"For [Rejection reason](#rejection-reason): a page message or an email are
+potential paths to explore, not requirements or an approved design."
 
 ## Discuss and capture
 

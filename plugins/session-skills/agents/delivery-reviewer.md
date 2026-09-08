@@ -29,7 +29,12 @@ findings to the owning main conversation. You advise; the owner decides.
 - **Requirements:** Do the requirements express the owner's goal and actual
   answers? Are important behavior, boundaries, and completion expectations clear?
   Flag contradictions, missing decisions, and solution suggestions presented as
-  requirements. Keep unconfirmed answers open.
+  requirements. Can a new reader understand the goals, behaviors, rules, and
+  success expectations in plain language without the interview? Check for
+  jargon or vague meaning. Retained solution ideas belong only in bottom PRD
+  notes linked to requirements and clearly labeled potential paths to explore,
+  not requirements or approved design. Several implementations satisfying the
+  same clear behavior are not a defect. Keep unconfirmed answers open.
 - **Design:** Does the design cover the requirements and explain how each
   choice helps? Check existing capabilities before accepting new components.
   Verify platform claims against current official sources where material;
