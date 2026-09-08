@@ -26,6 +26,12 @@ project.
   4. Design declarative-first to Salesforce Well-Architected standards.
   5. Present a solution plan with trade-offs for approval before any build.
 
+The phases are an adaptable checklist. Read current context first, ask one
+question at a time, and reuse approvals already given for the same scope.
+When `solution-helper` coordinates the work, keep the interview and canonical
+record there. After plan approval, use the project's available implementation
+workflow; an absent `sf-develop` skill does not strand the work.
+
 ## Key references
 
 Bundled under `skills/sf-architect-solutioning/references/`: the official

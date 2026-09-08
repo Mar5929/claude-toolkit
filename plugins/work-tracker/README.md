@@ -178,6 +178,14 @@ the owner's approval. The hard command gate applies to `build` and
 `data-load`; other types use risk-based judgment from `work-item-stages.md`.
 Types are lower-case kebab-case, with suggested values rather than a fixed list.
 
+## Adaptable plans
+
+The shared lifecycle guidance describes what is useful to track, without adding
+a milestone schema to the local tool. Keep optional roadmap detail in existing
+item notes or a linked canonical plan. The `work-guide` skill, when available,
+helps develop and revise it. A small item may need only its next step; a custom
+plan shape is not a completion failure. The tracker still owns status and history.
+
 ## Item records and handoffs
 
 - `ITEM.yaml`: description, status, priority, type, dates, next step, blockers,

@@ -432,13 +432,23 @@ CLAUDE.md stays thin and points at that folder. Read
 **Purpose:** offer reusable workflows that are useful in this project but live
 in their own plugins.
 
-- **Offer `session-skills` as one plugin, and recommend it.** It holds eight
+- **Offer `session-skills` as one plugin, and recommend it.** It holds eleven
   skills that run inside a conversation: `braindump`, `explain-simply`,
-  `grill-me`, `handoff`, `session-summary`, `spec-check`, `track-tasks`, and
-  `unslop`. They install and version together, so this is a single yes or no,
-  not eight. If approved, install the
-  plugin from this marketplace. Do not copy any `SKILL.md` into the project.
+  `grill-me`, `handoff`, `session-summary`, `spec-check`, `track-tasks`,
+  `unslop`, `work-guide`, `requirements-helper`, and `solution-helper`.
+  They install and version together, so this is a single yes or no.
+  If approved, install the plugin from this marketplace. Do not copy any
+  `SKILL.md` into the project.
   Describe each one in the owner's terms, using the notes below.
+- `work-guide` coordinates the current work in the main conversation;
+  `requirements-helper` interviews and maintains draft requirements;
+  `solution-helper` develops a design using existing specialists where useful.
+  The packaged `delivery-researcher` and `delivery-reviewer` agents handle
+  bounded research and independent reviews when needed, not a default team.
+  These methods use whichever tracker the project chose and do not require
+  `work-tracker` or local work-item files. Reuse declared project guidance and
+  item-specific variations; record any new agreed preference in its existing
+  appropriate home, without requiring a separate specialist-guidance file.
 - `explain-simply` says an answer again as short bullets when it did not land
   the first time, keeping every number, date, file path, and name. It re-reads
   nothing, so it cannot quietly change the answer.

@@ -1,6 +1,7 @@
 ---
 name: track-tasks
-description: Build or refresh the running list of every topic still open in this chat session, using Claude Code's built-in task list, then print it. Use when the owner runs /track-tasks, or says "what is still open", "where are we", "what are we tracking", "list the open topics", "what have we not finished", "add that to the list", "park that one", or "close that one". Also use when a session has drifted across several unrelated topics and no list exists yet. Do not use for work that outlives this session: a ticket belongs in the project's work tracker, and unfinished state being carried to a fresh session belongs in a handoff prompt.
+description: >-
+  Build or refresh the running list of every topic still open in this chat session, using Claude Code's built-in task list, then print it. Use when the owner runs /track-tasks, or says "what is still open", "where are we", "what are we tracking", "list the open topics", "what have we not finished", "add that to the list", "park that one", or "close that one". Also use when a session has drifted across several unrelated topics and no list exists yet. Do not use for work that outlives this session: a ticket belongs in the project's work tracker, and unfinished state being carried to a fresh session belongs in a handoff prompt.
 ---
 
 # Track the open topics in this session

@@ -11,7 +11,7 @@ so they always know where they are.
 [ ] Gate 3 - Project knowledge        (one Markdown vault, packaged tools)
 [ ] Gate 4 - Mechanical knowledge aids (optional impact analysis)
 [ ] Gate 5 - Optional SOUL.md + root instructions + rules
-[ ] Gate 6 - Optional toolkit skills  (offer the session-skills plugin: all eight)
+[ ] Gate 6 - Optional toolkit skills  (offer the session-skills plugin)
 [ ] Wrap-up - summarize, note follow-ups, port-back reminder
 ```
 
@@ -277,10 +277,15 @@ so they always know where they are.
 
 **Gate 6: Optional standalone toolkit skills**
 
-- Offer `session-skills` as ONE plugin holding eight conversation skills:
+- Offer `session-skills` as ONE plugin holding eleven conversation skills:
   `braindump`, `explain-simply`, `grill-me`, `handoff`, `session-summary`,
-  `spec-check`, `track-tasks`, `unslop`. They install and version together, so
+  `spec-check`, `track-tasks`, `unslop`, `work-guide`, `requirements-helper`,
+  `solution-helper`. They install and version together, so
   this is a single yes or no.
+- Explain the guided working methods and the packaged `delivery-researcher`
+  and `delivery-reviewer` helpers using Gate 6 in `SKILL.md`. Reuse the project's
+  chosen tracker and guidance, including individual work-item variations.
+  No local tracker, separate guidance file, or team per epic is required.
 - `explain-simply` re-says an answer as plain bullets keeping every number,
   date, path, and name.
 - `grill-me` for persistent brainstorming and discovery interviews.

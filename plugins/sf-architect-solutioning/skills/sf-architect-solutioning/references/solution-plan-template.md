@@ -1,6 +1,9 @@
 # Solution Plan Template
 
-Use this template when presenting a solution plan to the user after the pre-implementation checklist passes.
+Use this as a starting point when presenting a solution plan. Adapt, combine,
+or omit sections to fit the owner's project or work item, including a design
+organized as requirement headings with simple bullets. Check the relevant
+pre-implementation concerns; the template itself is not an approval gate.
 
 ---
 

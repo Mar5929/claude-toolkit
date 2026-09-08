@@ -16,6 +16,10 @@ rebuild it.
   carries its own short CLAUDE.md unless another canonical file already owns
   its instructions, so folder detail reaches an agent when it opens that folder
   instead of loading in every session.
+- `guided-delivery.md`: Guided delivery lets the owner focus on decisions while
+  the main conversation maintains adaptable plans and brings in focused
+  requirements, design, research, and review help using the project's existing
+  records.
 - `knowledge-system.md` (proposed): What the project second brain must do, so
   every new session already knows what has been going on here and saving
   anything worth keeping costs the owner one short yes.

@@ -1,6 +1,6 @@
 {
   "name": "work-tracker",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "description": "Local work tracking for Claude and Codex with Git-ignored folders, flexible work types, branch-scoped active items, consistent progress, approved completion events, and optional Git landing evidence.",
   "author": {
     "name": "Mike Rihm",

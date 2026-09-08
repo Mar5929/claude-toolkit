@@ -10,9 +10,26 @@ more than one item fits, ask one short question.
 Subagents may do delegated work. The main agent alone updates or completes the
 canonical item.
 
+## Keep a useful, adaptable plan
+
+Teach the agent what to consider; use the project's chosen tracker to record it.
+Keep the intended outcomes, current position, next action and responsible person
+or session, dependencies, blockers, and open decisions clear. Add an ordered
+roadmap or milestones with completion evidence when they help explain the work.
+Revise the plan as decisions or dependencies change, keeping completed history
+accurate.
+
+These are considerations, not a required field schema or milestone sequence.
+Use native fields, existing sections, or linked canonical documents. Adapt
+toolkit defaults to the project, use case, or individual item and briefly record
+a meaningful variation in its existing home. Do not create a local mirror,
+require a separate planning file, or block completion because a template differs.
+Actual approval, permission, and environment boundaries still apply.
+
 ## Work type sets the approval boundary
 
-Record a short lower-case kebab-case type. Common types are `discovery`,
+Use the project's native work type. Toolkit local records use a short
+lower-case kebab-case type. Common types are `discovery`,
 `solution-design`, `build`, `data-load`, `repository-maintenance`, `research`,
 and `task`. A project may use another clear type. Existing `bug` and
 `enhancement` values remain valid.
@@ -25,7 +42,9 @@ use a broad type to avoid approval for implementation.
 
 ## Stages describe, not command
 
-A work item may carry one current stage:
+A work item may carry one current stage. The table below supplies toolkit
+defaults; an external tracker can use its own terminology and process. Preserve
+its native fields and map the meaning instead of imposing this table as a schema.
 
 | Stage | What it covers | Active status |
 | --- | --- | --- |
@@ -49,7 +68,8 @@ revisited when that fits the work. Record one short reason when a move is not
 obvious. Pull-request stages apply only to repository work. A legacy item with
 no stage is valid; never invent or backfill history.
 
-Known stages derive the active status shown above. `Done` and `Cancelled` are
+When using toolkit stages, known stages derive the active status shown above.
+`Done` and `Cancelled` are
 terminal states set by an intentional completion or cancellation action, not by
 a stage. An unknown stage is preserved and reported rather than silently
 changed.

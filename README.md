@@ -169,13 +169,18 @@ claude-toolkit/
       .codex-plugin/plugin.json
       skills/
         work/                     ← SKILL.md + dependency-free Node core
-    session-skills/               ← plugin: the eight things you reach for inside one conversation
+    session-skills/               ← plugin: eleven conversation and guided-delivery skills
       README.md
       .claude-plugin/plugin.json
       .codex-plugin/plugin.json
       agents/
+        delivery-researcher.md    ← focused, read-only source research
+        delivery-reviewer.md      ← independent requirements, design, or plan review
         handoff-verifier.md       ← read-only check of the handoff prompt before you see it
       skills/
+        work-guide/              ← adaptable delivery with the project's tracker
+        requirements-helper/     ← guided canonical requirements
+        solution-helper/         ← requirement-mapped designs
         braindump/                ← play a pasted brain dump back in simple words before any work starts
         explain-simply/           ← say that again in plain bullets, keeping every number
         grill-me/                 ← persistent discovery interviews
@@ -250,7 +255,7 @@ inside a project folder before it is useful, which is what the last column says:
 | **[git-workflows](plugins/git-workflows/README.md)** | Three parallel-session-safe git lifecycle skills: `pull-latest` gets current without rewriting history, `reset-to-remote` mirrors the remote behind confirmation, and `merge-and-clean-up` lands an approved PR before removing only its completed workspace. | Install and go |
 | **[hooks-library](plugins/hooks-library/README.md)** | Reusable hooks that make a rule land mechanically: `spec-check-reminder` asks once per session whether the spec-check review ran, `no-ai-attribution-guard` refuses AI credit in Git text, and two Salesforce guards protect production and permission-set deploys. System-specific knowledge hooks ship with second-brain. | Wires into settings |
 | **[work-tracker](plugins/work-tracker/README.md)** | Gives Claude and Codex one local backlog under Git-ignored `.work-items/`: YAML records, owner-approved requirements, exact handoffs, blockers, typed relationships, deterministic next-item selection, branch-scoped active-item selection, flexible work types and stages, a dated progress log, accepted completion events and optional Git landing proof, generated dashboards, an `archive/` folder for items the owner has set aside, and preview-first conversion of older staged trackers. Shared GitHub tracking remains a separate tracker choice. | Sets up a project |
-| **[session-skills](plugins/session-skills/README.md)** | The eight things you reach for inside one conversation, in one install. `braindump` plays a pasted brain dump back in very simple words and waits for your yes before any work starts. `explain-simply` says the last answer again as short bullets keeping every number, date, path, and name. `grill-me` interviews you one question at a time and writes every answer down before continuing. `handoff` updates the active tracker and saves what a long session learned, then writes a prompt a fresh session can start from, checked by a second agent first. `session-summary` tables what you asked for and gives each request an honest status. `track-tasks` keeps every still-open topic on the built-in task list. `spec-check` flags anything in a specification that could skew a build before the build starts. `unslop` takes a draft that reads as machine-written, names every tell in it with the fix, and rewrites it with a voice put back. | Install and go |
+| **[session-skills](plugins/session-skills/README.md)** | Eleven conversation skills. `work-guide` coordinates adaptable delivery through the chosen tracker; `requirements-helper` interviews and updates the draft; `solution-helper` explains requirement-mapped designs. Focused research/review agents assist the main conversation. Existing brain dump, explanation, discovery, handoff, recap, specification check, task-list, and writing tools remain included. | Install and go |
 
 ---
 
@@ -377,7 +382,7 @@ For local work tracking in folders that Git ignores:
 /work
 ```
 
-For the eight things you reach for inside one conversation, all in one install:
+For eleven conversation and guided-delivery skills, all in one install:
 
 ```text
 /plugin install session-skills
@@ -386,6 +391,9 @@ For the eight things you reach for inside one conversation, all in one install:
 Then use whichever one you need:
 
 ```text
+/session-skills:work-guide           to coordinate an item or parallel work
+/session-skills:requirements-helper  to refine requirements in their chosen home
+/session-skills:solution-helper      to propose a requirement-mapped design
 /braindump          to hear a pasted brain dump back in simple words before work starts
 /explain-simply     when an answer did not land and you want plain bullets
 /grill-me           for a persistent brainstorm or discovery interview

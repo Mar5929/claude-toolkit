@@ -166,9 +166,11 @@ plugin.
   applied, and it reads the project's own routing documents to find the homes.
   Gate 4 offers optional impact-analysis tools without creating a competing
   store.
-- Gate 6 offers the `session-skills` plugin, which holds `explain-simply`,
-  `grill-me`, `handoff`, `session-summary`, and `track-tasks`, without copying
-  anything into the project. The plugin remains their canonical home.
+- Gate 6 offers the `session-skills` plugin, including `work-guide`,
+  `requirements-helper`, and `solution-helper`, plus focused research/review
+  agents and the existing conversation tools. It uses the chosen tracker and
+  existing project guidance, without copying skills or requiring a new file.
+  The plugin remains their canonical home; host availability is checked.
 - Gate 1 asks where work items are tracked. Gate 5 writes a one-line pointer in
   `CLAUDE.md` and `AGENTS.md` naming that tracker, so every session knows where
   the work lives. No rule about ticket quality ships with it: the rule that used
