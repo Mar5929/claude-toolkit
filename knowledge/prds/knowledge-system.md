@@ -21,7 +21,7 @@ work_item: "269"
 - [How to read this](#how-to-read-this)
 - [A session, start to finish](#a-session-start-to-finish)
 - [1. Plain parts only](#1-plain-parts-only)
-- [2. Rules before any change](#2-rules-before-any-change)
+- [2. The agent follows this system](#2-the-agent-follows-this-system)
 - [3. Guarantees, not advice](#3-guarantees-not-advice)
 - [4. Picks up where the last left off](#4-picks-up-where-the-last-left-off)
 - [5. Check memory first](#5-check-memory-first)
@@ -87,7 +87,7 @@ pulls work into the second brain that another part already owns is wrong.
 - It says what must happen, what the owner sees, and why. It never says which hook, file, or code does it. Those are build decisions and go in a design file under `docs/designs/`.
 - This document holds the goal, the requirement, and the behavior. Each requirement is written explicitly enough to guide the design: so clear and so well written that the design choices basically choose themselves. If a builder has to guess between two designs, the requirement is not finished yet and gets sharpened here first.
 - When the owner says something that belongs in this document, the agent writes it here in that same reply. It is never logged on an issue instead, because an issue comment gets lost and this document then never gets updated.
-- Requirements 2 and 3 are the one exception. They name kinds of mechanism, because no wording alone can meet them. Which mechanism delivers each one is still the design's job.
+- Requirement 3 is the one exception. It names kinds of mechanism, because no wording alone can meet it. Which mechanism delivers each one is still the design's job.
 - "A session, start to finish" follows one session through every requirement, so the numbered list is easier to follow.
 - The closing section "Notes for the builder" holds ideas that bind nothing.
 - Where this document and `knowledge/README.md` disagree, this document wins. Each disagreement is called out where it happens, and the manual is brought in line.
@@ -137,7 +137,7 @@ flowchart TD
 - What the owner sees: a first message saying what was in progress last time, what happened, and the next step. Nobody asked for it.
 - What happens: the briefing loads. Who the agent is, the standing rules, the rules of this system, what the project is, what is happening now, the glossary, the two indexes, the list of captured outside topics, and a few hundred characters saying where the gates are.
 - Files read: `SOUL.md`, `.claude/rules/`, `knowledge/README.md`, `knowledge/project.md`, `knowledge/current.md`, `knowledge/glossary.md`, `knowledge/memory/memory-index.md`, `knowledge/prds/spec-index.md`.
-- Enforced by: a gate. Nothing in the project can change until the rules of this system were read whole in this session. If the briefing was cut short, the gate stays shut until the agent opens the manual itself. Requirements 2 and 4.
+- Enforced by: the briefing arrives whole, never cut off, and the gates in requirement 3 hold from the first message. If anything the agent needs did not arrive, it opens that file itself before doing anything else. Requirements 2 and 4.
 
 **2. The owner asks for something**
 
@@ -195,15 +195,16 @@ flowchart TD
 **Check:** list every moving part of the system. Each one is a rule file, a
 hook, a skill, a Markdown file, or Git. There is nothing else.
 
-## 2. Rules before any change
+## 2. The agent follows this system
 
-- Nothing that changes the project happens in a session until the rules of this system have been read whole in that session. A file edit, a write, a command that changes state: each one is refused until then.
-- Read whole means all of the rules. Not a preview, not a summary, not a file path to open later.
-- The refusal says what to read, so the agent is never stopped without being told what to do next.
-- This is a gate in the sense requirement 3 sets out. It is not advice the agent may weigh against something else.
+- In every session, the agent follows the knowledge system: when to save, what to save, how to save, where to save, what to check first, what to cite, and what never to write. Every requirement in this document is something the agent does, not something it knows about.
+- It follows the system whether or not the owner mentions it. The owner never has to remind it.
+- How the agent comes to know the rules is a design choice. Reading them at startup, reading them at the moment of a save, or being refused until it has read them are all ways to get there. Which way is chosen is the design's job. What is not a choice is the outcome: the rules are followed.
+- Following is proven, not assumed. Requirement 3 says how each behavior is enforced, and the counts at session end show any miss.
 
-**Check:** in a fresh session, try to edit a file first. The edit is refused, and
-the refusal says what to read.
+**Check:** run a whole session without mentioning memory once. At every moment
+this document names, the agent does what this document says. Any moment where it
+did not is visible in the counts.
 
 ## 3. Guarantees, not advice
 
@@ -218,13 +219,11 @@ Three strengths exist, and each behavior is given one by name:
 - **Output check.** The reply is rejected and redone when it breaks the rule.
 - **Count.** The miss is recorded afterwards, so it is visible.
 
-### Rules read: gate
+### System followed: the sum of the rest
 
-No action that changes anything in the project happens until the rules have been
-read whole in that session. Requirement 2 states it in full.
-
-**Check:** in a fresh session, try to edit a file first. The edit is refused and
-the refusal says what to read.
+Requirement 2 says the agent follows this system. There is no single gate for
+that. Each behavior below is enforced at its own moment, and together they are
+the proof.
 
 ### Memory checked: gate, then count
 
