@@ -25,9 +25,9 @@ Nothing. (2026-09-08)
    The removed "works today / left to build" list is parked for the issue body.
 2. On the owner's go, read all 79 Davis memory files as good and bad examples
    of memory, and report.
-3. Owner to say whether the two superseded PRDs (`memory-system.md`,
-   `memory-system-v2.md`) stay. They are deleted, uncommitted, in the main
-   checkout, and the new PRD's `supersedes` line points at them.
+3. The two old PRDs (`memory-system.md`, `memory-system-v2.md`) are deleted on
+   main by the owner (commit f3237f3). The new PRD no longer points at them.
+   Nothing left to decide there.
 
 ## Picked up this session
 

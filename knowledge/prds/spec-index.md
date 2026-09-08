@@ -19,9 +19,6 @@ rebuild it.
 - `knowledge-system.md` (proposed): What the project second brain must do, so
   every new session already knows what has been going on here and saving
   anything worth keeping costs the owner one short yes.
-- `memory-system-v2.md` (superseded): A draft of a memory system v2 that was
-  never built, superseded first on 2026-08-20 and again on 2026-08-21, kept
-  only as history.
-- `memory-system.md` (superseded): How project knowledge worked under the
-  layout with seven memory subfolders and a fixed tag list, superseded on
-  2026-08-21 and kept only as history.
+- `work-item-upkeep.md`: Work tracking keeps the active item's decisions,
+  progress, handoff, and accepted outcome accurate across sessions, using
+  flexible stages and one owner of tracker state.

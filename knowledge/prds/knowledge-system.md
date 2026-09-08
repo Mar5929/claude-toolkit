@@ -10,7 +10,6 @@ approved_by: Mike Rihm
 approval_date: 2026-09-07
 project: claude-toolkit
 work_item: "269"
-supersedes: knowledge/prds/memory-system.md, knowledge/prds/memory-system-v2.md
 ---
 
 # The project second brain
