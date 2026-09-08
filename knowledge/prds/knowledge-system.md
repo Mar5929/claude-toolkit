@@ -135,7 +135,7 @@ flowchart TD
 **1. The owner opens a session**
 
 - What the owner sees: a first message saying what was in progress last time, what happened, and the next step. Nobody asked for it.
-- What happens: the briefing loads. Who the agent is, the standing rules, the rules of this system, what the project is, what is happening now, the glossary, the two indexes, the list of captured outside topics, and a few hundred characters saying where the gates are.
+- What happens: the briefing loads. Who the agent is, the standing rules, the rules of this system, what the project is, what is happening now, the two indexes, the list of captured outside topics, and a few hundred characters saying where the gates are.
 - Files read: `SOUL.md`, `.claude/rules/`, `knowledge/README.md`, `knowledge/project.md`, `knowledge/current.md`, `knowledge/glossary.md`, `knowledge/memory/memory-index.md`, `knowledge/prds/spec-index.md`.
 - Enforced by: the briefing arrives whole, never cut off, and the gates in requirement 3 hold from the first message. If anything the agent needs did not arrive, it opens that file itself before doing anything else. Requirements 2 and 4.
 
@@ -319,7 +319,7 @@ The system ships a glossary: one file, `knowledge/glossary.md`. It maps the
 owner's words and the client's shorthand to the real thing, which may be a field
 name, a system, a person, or a process.
 
-- The agent has the glossary from the first message of every session, the same way it has the current focus. It loads at session start.
+- From the first message of every session, the agent uses the glossary's meanings without being told to. How it gets them is the builder's choice.
 - When a term in the glossary is used, the agent applies it and does not ask.
 - When the owner uses a term the agent does not know, the agent asks once, then proposes the mapping through the one card, one yes flow.
 - The glossary is checked before tier 4 of the find order, because a search for the owner's shorthand finds nothing.
