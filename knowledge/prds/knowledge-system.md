@@ -124,7 +124,7 @@ flowchart TD
     P -- no --> O
     P -- yes --> Q[Pull request or work item close]
     Q --> R{Save review ran this session?}
-    R -- no --> S[Held once, reminder shown]
+    R -- no --> S[Refused, told to run the review]
     S --> Q
     R -- yes --> T[Work lands, PRD for the area updated]
     T --> U[Session ends, counts written]
@@ -169,10 +169,10 @@ flowchart TD
 
 **6. The work lands**
 
-- What the owner sees: a pull request, or a work item closed. The first time either is tried in a session without a save review, it is held once and the agent is told to run the review.
+- What the owner sees: a pull request, or a work item closed. If the save review has not run for this work in this session, the attempt is refused, every time, until it has. Each refusal tells the agent to run the review. There is no second try that slips through.
 - What happens: code lands by pull request with the owner's approval. A change that touches only `knowledge/` commits straight to the default branch. When the work item closes, the agent checks whether the area's behavior changed. If it did, that area's PRD is edited to match, through the normal card and yes, and its status moves from proposed to current.
 - Files written: the branch and pull request. The work item's stage and progress log. The PRD for the area, after yes.
-- Enforced by: a gate on opening a pull request and a gate on closing a work item, each held once per session. A gate on the write for the PRD edit. Requirements 3, 16.
+- Enforced by: a gate on opening a pull request and a gate on closing a work item, held until the review is done. A gate on the write for the PRD edit. Requirements 3, 16.
 
 **7. The session ends**
 
