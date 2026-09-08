@@ -85,6 +85,8 @@ pulls work into the second brain that another part already owns is wrong.
 
 - The status is `proposed`. This describes the finished system, not today's.
 - It says what must happen, what the owner sees, and why. It never says which hook, file, or code does it. Those are build decisions and go in a design file under `docs/designs/`.
+- This document holds the goal, the requirement, and the behavior. Each requirement is written explicitly enough to guide the design: so clear and so well written that the design choices basically choose themselves. If a builder has to guess between two designs, the requirement is not finished yet and gets sharpened here first.
+- When the owner says something that belongs in this document, the agent writes it here in that same reply. It is never logged on an issue instead, because an issue comment gets lost and this document then never gets updated.
 - Requirements 2 and 3 are the one exception. They name kinds of mechanism, because no wording alone can meet them. Which mechanism delivers each one is still the design's job.
 - "A session, start to finish" follows one session through every requirement, so the numbered list is easier to follow.
 - The closing section "Notes for the builder" holds ideas that bind nothing.
