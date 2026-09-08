@@ -197,7 +197,8 @@ hook, a skill, a Markdown file, or Git. There is nothing else.
 
 ## 2. The agent follows this system
 
-- In every session, the agent follows the knowledge system: when to save, what to save, how to save, where to save, what to check first, what to cite, and what never to write. Every requirement in this document is something the agent does, not something it knows about.
+- In every session, the agent follows the knowledge system: when to save, what to save, how to save, where to save, what to check first, what to cite, and what never to write.
+- Reading a rule is not enough. The agent has to actually do what the rule says, every time. Example: requirement 9 says a save card appears when a task finishes. The test is not "did the agent read that rule". The test is "did the card show up".
 - It follows the system whether or not the owner mentions it. The owner never has to remind it.
 - How the agent comes to know the rules is a design choice. Reading them at startup, reading them at the moment of a save, or being refused until it has read them are all ways to get there. Which way is chosen is the design's job. What is not a choice is the outcome: the rules are followed.
 - Following is proven, not assumed. Requirement 3 says how each behavior is enforced, and the counts at session end show any miss.
