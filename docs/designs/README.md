@@ -1,7 +1,5 @@
 # docs/designs: the build plan for one work item
 
-Current build: [#300 guided delivery](300-guided-delivery.md).
-
 A design says **how** one work item gets built. It is written after that item's
 requirements are approved, and before any code is written.
 
