@@ -1,6 +1,5 @@
 ---
 summary: This computer has two GitHub accounts, and only the personal one, Mar5929, may ever be used for this repository; the work account cannot push here, and a Git login window on push means the saved login flipped to the work one.
-group: Git and GitHub
 type: constraint
 status: current
 source: Mike Rihm, in the session on 2026-09-09, after pushes to main failed with "Invalid username or token" and Git kept opening a login window
