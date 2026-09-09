@@ -20,9 +20,9 @@ rebuild it.
   the main conversation maintains adaptable plans and brings in focused
   requirements, design, research, and review help using the project's existing
   records.
-- `knowledge-system.md` (proposed): What the project second brain must do, so
-  every new session already knows what has been going on here and saving
-  anything worth keeping costs the owner one short yes.
+- `knowledge-system.md` (proposed): What the project second brain must do.
+  Every new session already knows what has been going on in this project.
+  Saving something worth keeping takes one short yes from the owner.
 - `work-item-upkeep.md`: Work tracking keeps the active item's decisions,
   progress, handoff, and accepted outcome accurate across sessions, using
   flexible stages and one owner of tracker state.
