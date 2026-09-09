@@ -429,7 +429,7 @@ fails points 2 and 3, and no card is ever proposed for it.
 ## 12. What never counts
 
 - Small things the agent did alone while doing a task, with no human in it. The owner's example: asked to open Amazon in a browser, the agent had to update a Python package to get there. That is not memory.
-- Commands run, tool calls, searches, web lookups, agent behavior, and shell behavior.
+- Commands run, tool calls, searches, web lookups, agent behavior, and shell behavior. One exception: a trap in this project's own tools or setup that cost real time, once found and fixed, is a real fix, and requirement 11 makes that memory. Example: the Salesforce command line fails under Bash in this project, so run it from PowerShell. The three-point test still applies, so a one-off hiccup with no lesson in it is never saved.
 - Raw error text and scratch thinking. The lesson from a significant fix is memory. The raw error is not.
 - Ideas that were tried and dropped. One exception: an idea that was acted on and later found wrong is memory, when the wrong answer had already spread into other files. Example: a test in August said an idea failed, three documents copied that, and the test was found wrong in late August. The memory says the conclusion was withdrawn and why, so no later agent finds a copy and acts on it.
 - A step by step record of files opened and edits made, and everything a helper agent did.
