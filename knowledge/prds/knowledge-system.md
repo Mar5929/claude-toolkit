@@ -579,6 +579,7 @@ area, kept in `knowledge/prds/`.
 - It opens as `proposed`, which is what we want built. It is edited to `finalized` once every work item on its roadmap is done and it describes what was actually built. A small PRD that one work item delivers is finalized when that item finishes. While a big PRD is being built, each requirement that is done gets a line saying "Built on YYYY-MM-DD", so progress is visible inside the PRD.
 - Only a `finalized` PRD is settled truth. Never answer "how does this work today" from a `proposed` one.
 - Only a `finalized` PRD beats a memory. When a memory and a finalized PRD disagree, the agent follows the PRD, says so, and names both files. It never picks one without saying. A `proposed` PRD never beats a memory, because it is not built yet.
+- When a project also has a project knowledge base, the order is: a finalized PRD wins on what the system should do, the knowledge base wins on how the system is put together, and the live system wins on what exists right now. Memory never beats any of those three. The knowledge base is not part of the second brain; it is its own plugin with its own PRD.
 - `superseded` and `retired` are history.
 - This folder used to be called `knowledge/specs/`, and older sessions call these files specs.
 - A PRD says how the system should behave in plain words: the logic, the behavior, what the user does, what the user sees. It never restates the code. If an agent could work it out by reading the source, it does not go here.
@@ -646,6 +647,7 @@ requirement 17 forbids.
 | Who the agent is in this project | `SOUL.md` |
 | A standing instruction for how the agent behaves | `.claude/rules/` |
 | Where this project keeps its things: the real systems it uses, their names and IDs, and the folders and paths that matter | `knowledge/project.md` |
+| How a part of the system is put together, and what it is for: its objects, fields, processes, sub-applications, and what links to what | The project knowledge base, when the project has one. It is a separate toolkit plugin the owner turns on per project, with its own PRD. Memory keeps only the decision or the trap, and links to the knowledge base page. |
 | A repeatable procedure | A project skill at `.claude/skills/<name>/SKILL.md` |
 | What we want built, and later how it actually works | `knowledge/prds/` |
 | A lasting fact, decision, event, context, or constraint | `knowledge/memory/` |
