@@ -65,14 +65,14 @@ agent believes something stale and acts on it.
 ## Where it sits
 
 The toolkit ships a whole set of parts for working with an AI agent on a
-project: rules, hooks, skills, the work tracker, design files, and captured
+project: rules, hooks, skills, the work tracker, and captured
 outside documentation. The second brain is two of those parts. It is the memory,
 and it is the record of why the product was designed the way it was, which is
 what a PRD holds. It keeps what is true in this project and why. Anything else
 belongs to another part, and the second brain does not keep it. A repeatable
 procedure goes to a skill. A standing instruction goes to `.claude/rules/`,
 written so that it loads only when it is needed. Live status goes to the work
-tracker. How one item gets built goes to `docs/designs/`. Outside documentation
+tracker. How one item gets built goes on that work item, in the work tracker. Outside documentation
 the agent can use goes to `ai-external-knowledge/`. Requirement 18 is the full
 list.
 
@@ -90,7 +90,7 @@ is wrong.
 ## How to read this
 
 - The status is `proposed`. This document describes the finished system. It does not describe how the system works today.
-- It says what must happen, what the owner sees, and why. It never says which hook, file, or code does it. Those are build decisions and go in a design file under `docs/designs/`.
+- It says what must happen, what the owner sees, and why. It never says which hook, file, or code does it. Those are build decisions and go on the work item, in the work tracker.
 - This document holds the goal, the requirement, and the behavior. Each requirement is written clearly enough that a builder can design from it without guessing. If a builder would have to guess between two designs, the requirement is not finished. It gets rewritten here first.
 - When the owner says something that belongs in this document, the agent writes it here in that same reply. It is never logged on an issue instead, because an issue comment gets lost and this document then never gets updated.
 - Requirement 3 is the one exception. It names kinds of mechanism, because no wording alone can meet it. Which mechanism delivers each one is still the design's job.
@@ -484,7 +484,7 @@ Required on every memory file:
 
 | Field | What it is | Allowed values |
 | --- | --- | --- |
-| `summary` | The headline: the fact itself in one short line, so the index answers the question without the file being opened. Under 160 characters, which is about 20 words. The index shows this line. | Free text, one line |
+| `summary` | The headline: the fact itself in one short line, so the index answers the question without the file being opened. Under 200 characters, which is about 30 words. The index shows this line. | Free text, one line |
 | `group` | The topic heading this file sits under in the index. A few plain words, reused across files on the same topic. | Free text, a few words |
 | `type` | What kind of thing it mostly is. Does not decide where the file sits. | `fact`, `decision`, `event`, `context`, `constraint` |
 | `status` | Whether it answers questions about what is true now. | `current`, `superseded`, `retired` |
@@ -547,7 +547,7 @@ What a memory's body holds, in this order, and nothing else:
 
 Most memories fit on one screen. When a memory keeps growing past that, it is
 really a document, not a memory. Move the long content into a PRD, a skill, or
-a design file. What stays in the memory file is the one-line summary and the
+the work item it belongs to. What stays in the memory file is the one-line summary and the
 path to where the long content now lives.
 
 Before writing, the agent answers three questions. What is the one thing a
@@ -586,8 +586,9 @@ allowed, and it is the exception.
 
 - When a PRD is too big for one work item, it is broken down into smaller work items in the work tracker. Each work item points back to the PRD and names the numbered requirements it delivers. That is why the requirements are numbered.
 - A big PRD has a roadmap, written as its own section inside the PRD. The roadmap lists the work items in the order they will be built. Each line has the work item's link in the tracker and the numbers of the requirements that item covers. So the roadmap says two things: the build order, and which requirements each work item covers. It never copies a work item's stage or status. The tracker holds those, and the link leads there.
-- Each work item gets its own implementation plan, in `docs/designs/`, one file per work item. The plan says how that item gets built. It never lives in the PRD.
-- The agent keeps all three up to date: the PRD, its roadmap, and the plans. When a work item is created, reordered, split, or finished, the roadmap is updated in that same session through the normal card and yes. When a work item finishes, the PRD is edited so it describes how the area now behaves, and that item's plan file is deleted, as requirement 18 says.
+- Each work item carries its own solution design, on the work item itself in the work tracker. The design says how that item gets built. It never lives in the PRD. The PRD stays separate because it is the testable, living truth of how the system should function. What one work item does is a different thing.
+- There is no separate folder for designs. The toolkit used to have `docs/designs/`, one file per work item, and files that point at it. That folder is dropped. Everything about how an item gets built stays with the item.
+- The agent keeps both up to date: the PRD and its roadmap. When a work item is created, reordered, split, or finished, the roadmap is updated in that same session through the normal card and yes. When a work item finishes, the PRD is edited so it describes how the area now behaves. The work item's design stays with the work item.
 - The owner never has to ask for any of this upkeep. It happens at the moment the work item changes.
 
 **Check:** open a PRD that more than one work item delivers. It has a roadmap
@@ -648,7 +649,7 @@ requirement 17 forbids.
 | What this owner accepts and rejects as memory | `knowledge/memory-self-improvement.md` |
 | Requirements and status for one piece of work | The work tracker |
 | The order in which a feature's work items get built, and which requirements each covers | The roadmap section of that feature's PRD |
-| How one work item gets built | `docs/designs/`, one file per work item, deleted once its PRD is current |
+| How one work item gets built | The work item itself, in the work tracker |
 | Documentation from outside this project | `ai-external-knowledge/`, one folder per topic, each naming its source address and capture date |
 | Unchecked exploration and raw brain dumps | `knowledge/brainstorms/` |
 | Only needed to finish the task at hand | Nowhere. It stays in the conversation. |
@@ -740,7 +741,7 @@ never opens a file to decide.
 - The header above the entries is two lines at most. The index points at files. It does not explain how anything works.
 - Never edited by hand. The order of files inside a group follows one fixed rule. Two sessions rebuilding the index at the same time then produce the same lines in the same order, so their changes do not conflict in Git.
 - If an index disagrees with the files on disk, the files win. Rebuild it.
-- One read-only checker confirms required fields, allowed values, and three size limits: the `summary` line of any memory file or PRD is under 160 characters, `knowledge/current.md` is under 3,000 characters, and `knowledge/memory-self-improvement.md` is under 8,000 characters. Nothing else has a size limit. The checker never writes anything.
+- One read-only checker confirms required fields, allowed values, and three size limits: the `summary` line of any memory file or PRD is under 200 characters, `knowledge/current.md` is under 5,000 characters, and `knowledge/memory-self-improvement.md` is under 10,000 characters. Nothing else has a size limit. The checker never writes anything.
 - When a file breaks a limit or a field rule, the checker names the file and the rule it broke. A save that fails the checker is not finished. The agent shortens or fixes the file and runs the checker again before it says the save is done. Nothing is ever cut off silently.
 - After any lasting knowledge change, the index is rebuilt and the checker is run. A failing check means the save is not finished, and the agent says so instead of claiming the knowledge is stored.
 
