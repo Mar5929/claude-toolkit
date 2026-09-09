@@ -177,7 +177,7 @@ flowchart TD
 **6. The work lands**
 
 - What the owner sees: a pull request, or a work item closed. If the save review has not run for this work in this session, the attempt is refused. It stays refused every time until the review has run. Each refusal tells the agent to run the review. No later attempt is allowed through without it.
-- What happens: code lands by pull request with the owner's approval. A change that touches only `knowledge/` commits straight to the default branch. When the work item closes, the agent checks whether the area's behavior changed. If it did, that area's PRD is edited to match, through the normal card and yes, and its status moves from proposed to current.
+- What happens: code lands by pull request with the owner's approval. A change that touches only `knowledge/` commits straight to the default branch. When the work item closes, the agent checks whether the area's behavior changed. If it did, that area's PRD is edited to match, through the normal card and yes. When the last work item on that PRD's roadmap closes, its status moves from `proposed` to `finalized`.
 - Files written: the branch and pull request. The work item's stage and progress log. The PRD for the area, after yes.
 - Enforced by: a gate on opening a pull request and a gate on closing a work item, held until the review is done. A gate on the write for the PRD edit. Requirements 3, 16.
 
@@ -484,7 +484,7 @@ Required on every memory file:
 
 | Field | What it is | Allowed values |
 | --- | --- | --- |
-| `summary` | The headline: the fact itself in one short line, so the index answers the question without the file being opened. Under about 20 words. The index shows this line. | Free text, one line |
+| `summary` | The headline: the fact itself in one short line, so the index answers the question without the file being opened. Under 160 characters, which is about 20 words. The index shows this line. | Free text, one line |
 | `group` | The topic heading this file sits under in the index. A few plain words, reused across files on the same topic. | Free text, a few words |
 | `type` | What kind of thing it mostly is. Does not decide where the file sits. | `fact`, `decision`, `event`, `context`, `constraint` |
 | `status` | Whether it answers questions about what is true now. | `current`, `superseded`, `retired` |
@@ -572,9 +572,9 @@ A product requirements document, PRD for short, is one document per feature
 area, kept in `knowledge/prds/`.
 
 - Same file for its whole life. The filename is the feature area in plain words, same naming rules as a memory file.
-- It opens as `proposed`, which is what we want built. It is edited to `current` once it describes what was actually built.
-- Only a `current` PRD is settled truth. Never answer "how does this work today" from a `proposed` one.
-- Only a `current` PRD beats a memory. When a memory and a current PRD disagree, the agent follows the PRD, says so, and names both files. It never picks one without saying. A `proposed` PRD never beats a memory, because it is not built yet.
+- It opens as `proposed`, which is what we want built. It is edited to `finalized` once every work item on its roadmap is done and it describes what was actually built. A small PRD that one work item delivers is finalized when that item finishes. While a big PRD is being built, each requirement that is done gets a line saying "Built on YYYY-MM-DD", so progress is visible inside the PRD.
+- Only a `finalized` PRD is settled truth. Never answer "how does this work today" from a `proposed` one.
+- Only a `finalized` PRD beats a memory. When a memory and a finalized PRD disagree, the agent follows the PRD, says so, and names both files. It never picks one without saying. A `proposed` PRD never beats a memory, because it is not built yet.
 - `superseded` and `retired` are history.
 - This folder used to be called `knowledge/specs/`, and older sessions call these files specs.
 - A PRD says how the system should behave in plain words: the logic, the behavior, what the user does, what the user sees. It never restates the code. If an agent could work it out by reading the source, it does not go here.
@@ -598,8 +598,9 @@ describes how the area behaves changes before the work item is called done.
 
 Required fields: `summary`, `group`, `area`, `status`, `source`, `created_at`,
 `tags`, `approved_by`, `approval_date`. They mean the same as they do on a
-memory file, and take the same values, with one difference: a PRD's `status` may
-also be `proposed`. `area` names the feature area and normally matches the
+memory file, and take the same values, with one difference: a PRD's `status` is
+`proposed`, `finalized`, `superseded`, or `retired`. A PRD never uses the word
+`current`. The word for a built PRD is `finalized`. `area` names the feature area and normally matches the
 filename.
 
 Optional fields: `confirmed_at`, `source_quote`, `effective_from`,
@@ -610,7 +611,8 @@ Two fields are never on a PRD. `confidence` is left out, because a PRD is
 approved behavior and "how sure are we" does not apply. `type` is left out,
 because every file in the folder is the same kind of thing.
 
-`proposed` is the one status only a PRD may carry. No memory file ever has it.
+`proposed` and `finalized` are statuses only a PRD may carry. No memory file ever
+has them. A memory that is still true is `current`.
 
 **Check:** open a PRD marked `proposed` and ask the agent how the system works
 today. The agent says that PRD describes what is wanted, not what exists, and
@@ -666,7 +668,7 @@ searching the code broadly.
 | 1 | `knowledge/current.md` | What is happening now. |
 | 2 | `.claude/rules/` | The answer may be a standing instruction. Claude Code loads the rules into every session on its own, so the agent re-reads what it already has instead of searching the folder. |
 | 3 | Skills | Is this a procedure rather than a fact to look up? |
-| 4 | `knowledge/memory/` and `knowledge/prds/`, through their indexes, then the links inside what is found | A current PRD beats a memory. Check the work tracker when the question belongs to one work item. |
+| 4 | `knowledge/memory/` and `knowledge/prds/`, through their indexes, then the links inside what is found | A finalized PRD beats a memory. Check the work tracker when the question belongs to one work item. |
 | 5 | Past sessions, through `session-search` | The agent says it is searching past sessions, then does it. It does not wait for a yes. It never does it silently. |
 
 Before tier 4, check `knowledge/glossary.md` and turn the owner's words into the
@@ -680,7 +682,7 @@ fixing a bug, designing, or resuming work.
 
 - Always name where the answer was found, in the shape requirement 6 sets.
 - An index line is only a pointer to a file. Never answer from the index line alone. Open the file it points at and read it before using what it says.
-- Only `current` files answer what is true now. Everything else answers questions about history.
+- Only a memory marked `current` or a PRD marked `finalized` answers what is true now. Everything else answers questions about history.
 - When tier 4 finds nothing, say so plainly and name what was searched. Never invent a believable answer, and never hand back something recent but unrelated.
 - Everything from tier 5 comes back flagged: "I found this in an earlier session. Is this still true?" Being found there is never by itself a reason to save it. If it is still true it goes through the normal save.
 
@@ -734,11 +736,12 @@ never opens a file to decide.
 - The index is grouped under short topic headings, not one flat alphabetical list. The heading comes from each file's `group` field. Files with the same `group` sit together under that heading. The order of the groups, and the order of files inside a group, follow one fixed rule, so the same set of files always produces the same index. The rule is alphabetical: groups by their heading, files by their filename.
 - Each entry is one line: a link to the file, then the file's `summary`. The summary is the headline fact itself, in plain words, not a description of the file. A reader gets the answer from the line and opens the file only for the detail. The owner's model for this is the memory index in his Davis project, where a line reads like "Never send via Gmail; paste the email or save it to a file".
 - The summary is written once, in the file's own `summary` field, and the index copies it word for word. The index adds nothing of its own. Every line in it comes from a file.
-- A file whose status is not `current` shows its status on its line, so a superseded, retired, or proposed file is visibly not an answer to what is true now.
+- A memory whose status is not `current`, or a PRD whose status is not `finalized`, shows its status on its line, so a superseded, retired, or proposed file is visibly not an answer to what is true now.
 - The header above the entries is two lines at most. The index points at files. It does not explain how anything works.
 - Never edited by hand. The order of files inside a group follows one fixed rule. Two sessions rebuilding the index at the same time then produce the same lines in the same order, so their changes do not conflict in Git.
 - If an index disagrees with the files on disk, the files win. Rebuild it.
-- One read-only checker confirms required fields, allowed values, and size limits. It never writes anything.
+- One read-only checker confirms required fields, allowed values, and three size limits: the `summary` line of any memory file or PRD is under 160 characters, `knowledge/current.md` is under 3,000 characters, and `knowledge/memory-self-improvement.md` is under 8,000 characters. Nothing else has a size limit. The checker never writes anything.
+- When a file breaks a limit or a field rule, the checker names the file and the rule it broke. A save that fails the checker is not finished. The agent shortens or fixes the file and runs the checker again before it says the save is done. Nothing is ever cut off silently.
 - After any lasting knowledge change, the index is rebuilt and the checker is run. A failing check means the save is not finished, and the agent says so instead of claiming the knowledge is stored.
 
 **Check:** rename a memory file and rebuild. The index line follows, under the
@@ -800,15 +803,14 @@ correctly here, and gets an answer.
 
 ## 25. Codex
 
-- A Codex session gets the same knowledge files and the same startup briefing as a Claude session.
-- It does not get the gates, because Codex has no way to hold a command before it runs.
-- So a Codex session reads the rules and follows them. Every gate in requirement 3 works in a Claude session only. In a Codex session there are no gates, so the same rules are advice the agent is expected to follow.
+- A Codex session follows every requirement in this document, the same as a Claude session. Same files, same startup briefing, same cards, same counts, same rules about what to save and where.
+- How each behavior is enforced in Codex is the design's job, the same way requirement 3 leaves it to the design for Claude. Codex has different hooks than Claude Code, so the design may need a different way to reach the same result.
+- Where the design finds that Codex cannot enforce one behavior at all, it says which one, and the setup report for every project says so too. It never quietly leaves a gap.
 - Nothing in the saved files is specific to one agent. Both read the same Markdown.
 
-**Check:** open the project in Codex. The first message says what was in
-progress last time, the same as in a Claude session. Finish a piece of work and
-the agent shows a save card. Then try to change a file before any search: it is
-not refused, because there are no gates here.
+**Check:** open the project in Codex and run the same session as in "A session,
+start to finish". Every step gives the owner the same result it gives in Claude.
+Any step that cannot be enforced in Codex is named in the setup report.
 
 ## Notes for the builder: options, not requirements
 
