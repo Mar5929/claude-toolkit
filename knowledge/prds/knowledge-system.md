@@ -332,6 +332,7 @@ name, a system, a person, or a process.
 - From the first message of every session, the agent uses the glossary's meanings without being told to. How it gets them is the builder's choice.
 - When a term in the glossary is used, the agent applies it and does not ask.
 - When the owner uses a term the agent does not know, the agent asks once, then proposes the mapping through the one card, one yes flow.
+- The glossary is one Markdown table. Each row holds the term, what it means in plain words, the real thing it points at (a field name, a system, a person, a process), and where and when that was verified. Example: "Cap Level" means the field `MS_Capacity__c`, verified in the production org on a named date. Anything longer than a row is a memory the row links to.
 - The glossary is checked before tier 4 of the find order, because a search for the owner's shorthand finds nothing.
 - The owner's example: he said "match on the discovery email field and the core email field", and the agent knew exactly which two fields those were, like a colleague who had been on the project for years.
 
@@ -430,11 +431,13 @@ fails points 2 and 3, and no card is ever proposed for it.
 - Small things the agent did alone while doing a task, with no human in it. The owner's example: asked to open Amazon in a browser, the agent had to update a Python package to get there. That is not memory.
 - Commands run, tool calls, searches, web lookups, agent behavior, and shell behavior.
 - Raw error text and scratch thinking. The lesson from a significant fix is memory. The raw error is not.
-- Ideas that were tried and dropped.
+- Ideas that were tried and dropped. One exception: an idea that was acted on and later found wrong is memory, when the wrong answer had already spread into other files. Example: a test in August said an idea failed, three documents copied that, and the test was found wrong in late August. The memory says the conclusion was withdrawn and why, so no later agent finds a copy and acts on it.
 - A step by step record of files opened and edits made, and everything a helper agent did.
-- Copies of code, or anything an agent could work out by reading the source.
+- Copies of code, or anything an agent could work out by reading the source or the live system. Example: a write-up of how the sharing model works today, when the org itself shows it. If a project keeps research like that, it keeps it in its own reference folder outside the second brain. Memory holds only the decision or the trap that came out of the research.
 - A repeatable procedure. That is a skill. One past fix is not a procedure.
-- An open task, an implementation step, or the live status of work in flight. Those belong to the work tracker.
+- An open task, an implementation step, or the live status of work in flight. Those belong to the work tracker. Example: a manual step still owed in production is a ticket, never a memory. If no ticket exists, make one.
+- A "read this first" pointer for a piece of work. The work item carries its own entry point, and `knowledge/current.md` carries the active ones.
+- The story behind a standing instruction. The rule file may say in one line why it exists. Nothing else about its history is kept.
 - Anything stale or contradicted with no historical value.
 - Passwords, keys, and tokens, ever. The `knowledge/` folder is in Git. Git keeps a copy of every past version of every file, so deleting the secret later does not remove it.
 
@@ -625,6 +628,7 @@ refuses to answer the question from it.
 - It becomes a project skill at `.claude/skills/<name>/SKILL.md`. A skill in that folder is used in this project and nowhere else. It is not copied to other projects. Whether a procedure is worth sharing with other projects is not this system's job.
 - The agent proposes it through the same one card, one yes flow used for a save.
 - A procedure must never be saved as a memory file. A memory file is read back later as a fact about the project, so a procedure stored there gets followed as an instruction that nobody approved as an instruction. Example: an agent saves "we deploy by running the build script twice" as a memory. A later agent reads that line as a rule and runs the script twice, even after the real procedure changed.
+- The traps and gotchas that go with a procedure live in that skill, next to the steps, not in memory. Example: the five ways a field-change search gives a confidently wrong answer sit in the skill that does the search.
 
 **Check:** teach the agent a repeatable way of doing something here. It offers a
 project skill at that path, not a memory file.
@@ -641,6 +645,7 @@ requirement 17 forbids.
 | --- | --- |
 | Who the agent is in this project | `SOUL.md` |
 | A standing instruction for how the agent behaves | `.claude/rules/` |
+| Where this project keeps its things: the real systems it uses, their names and IDs, and the folders and paths that matter | `knowledge/project.md` |
 | A repeatable procedure | A project skill at `.claude/skills/<name>/SKILL.md` |
 | What we want built, and later how it actually works | `knowledge/prds/` |
 | A lasting fact, decision, event, context, or constraint | `knowledge/memory/` |
@@ -654,6 +659,8 @@ requirement 17 forbids.
 | Unchecked exploration and raw brain dumps | `knowledge/brainstorms/` |
 | Only needed to finish the task at hand | Nowhere. It stays in the conversation. |
 | A past conversation | Session history |
+
+This table is given to the agent in every project, so it never has to guess where something goes. Requirement 2 makes following it a must, and the setup of a new project shows the table and one example per row.
 
 **Check:** hand the agent one item of each kind. Each lands in the right home,
 and the agent names the home before it writes.
