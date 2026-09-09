@@ -143,7 +143,7 @@ flowchart TD
 
 - What the owner sees: a first message saying what was in progress last time, what happened, and the next step. The owner did not have to ask for it.
 - What happens: the briefing loads. Who the agent is, the standing rules, the rules of this system, what the project is, what is happening now, the two indexes, the list of captured outside topics, and a few hundred characters saying where the gates are.
-- Files read: `SOUL.md`, `.claude/rules/`, `knowledge/README.md`, `knowledge/project.md`, `knowledge/current.md`, `knowledge/glossary.md`, `knowledge/memory/memory-index.md`, `knowledge/prds/spec-index.md`.
+- Files read: `SOUL.md`, `.claude/rules/`, `knowledge/README.md`, `knowledge/project.md`, `knowledge/current.md`, `knowledge/glossary.md`, `knowledge/memory/memory-index.md`, `knowledge/prds/prd-index.md`.
 - Enforced by: the briefing arrives whole, never cut off, and the gates in requirement 3 hold from the first message. If anything the agent needs did not arrive, it opens that file itself before doing anything else. Requirements 2 and 4.
 
 **2. The owner asks for something**
@@ -263,7 +263,7 @@ shows how often a captured topic was opened.
 
 ### Save proposed at the right moment: gate, plus a count
 
-- A gate at each fixed moment: opening a pull request, closing a work item, a handoff, and the end of any turn in which real work was done. The design sets the threshold for real work and states it.
+- A gate at each fixed moment: opening a pull request, closing a work item, a handoff, the end of any turn in which real work was done, and any time the owner says to save something. The design sets the threshold for real work and states it.
 - The moment cannot pass until either a card was shown, or the agent wrote one line saying nothing needs saving and why.
 - At session end, two numbers are written to a file the owner can read: how many moments needed a card, and how many cards were shown.
 
@@ -353,7 +353,8 @@ first, and says which page it read and when the page was captured.
 - Every save is one short card and one yes. This is true whether the save is a memory or a product requirements document.
 - No long review. No back and forth. No reading a full file before deciding.
 - The agent proposes at the right moment on its own. The owner never has to remember to ask.
-- The right moments are: a task or work item finishes, a commit or pull request is coming, a handoff or a context clear is coming, the session has run long, a real problem here has just been fixed, and any time the owner says to save something.
+- Five moments are forced. The agent cannot pass them without a card or a one-line "nothing to save": a work item finishes or closes, a pull request is being opened, a handoff or a context clear is coming, a turn ends after real work was done, and any time the owner says to save something. Requirement 3 says how they are forced.
+- Two moments are the agent's own judgment. It should propose a save, but nothing forces it: a real problem here has just been fixed, and a commit is coming. A miss at one of these is caught at the next forced moment.
 - The owner saying "remember this" starts the save flow that leads to a card. It is not permission to write, and it skips no step.
 - The save review is that same flow run over everything the session did since the last one. It gathers candidates, drops any that fail requirements 11 and 12, and then shows one card per candidate, or says in one line that nothing needs saving. It is what the gates in requirement 3 wait for.
 - When approved, memory or PRDs are saved directly to the default branch and pushed!!! They are not lost in worktree branches or buried in something that a future agent would not easily find.
@@ -666,7 +667,7 @@ searching the code broadly.
 | 2 | `.claude/rules/` | The answer may be a standing instruction. Claude Code loads the rules into every session on its own, so the agent re-reads what it already has instead of searching the folder. |
 | 3 | Skills | Is this a procedure rather than a fact to look up? |
 | 4 | `knowledge/memory/` and `knowledge/prds/`, through their indexes, then the links inside what is found | A current PRD beats a memory. Check the work tracker when the question belongs to one work item. |
-| 5 | Past sessions, through `session-search` | Offered or announced, never done silently. |
+| 5 | Past sessions, through `session-search` | The agent says it is searching past sessions, then does it. It does not wait for a yes. It never does it silently. |
 
 Before tier 4, check `knowledge/glossary.md` and turn the owner's words into the
 project's real names. A search for the owner's shorthand finds nothing.
@@ -686,7 +687,8 @@ fixing a bug, designing, or resuming work.
 Outside documentation is not a tier. Requirement 8 says when the agent opens it.
 
 **Check:** ask something nothing in the project answers. The agent names what it
-searched, offers the session search, and then says it does not know. It never
+searched, says it is searching past sessions and does so, and then says it does
+not know. It never
 fills the gap with a guess.
 
 ## 20. The save card
@@ -728,7 +730,7 @@ never opens a file to decide.
 
 ## 21. Indexes and the checker
 
-- Two generated files: `knowledge/memory/memory-index.md` and `knowledge/prds/spec-index.md`.
+- Two generated files: `knowledge/memory/memory-index.md` and `knowledge/prds/prd-index.md`. Both have the same shape and are built the same way. The PRD index used to be called `spec-index.md`.
 - The index is grouped under short topic headings, not one flat alphabetical list. The heading comes from each file's `group` field. Files with the same `group` sit together under that heading. The order of the groups, and the order of files inside a group, follow one fixed rule, so the same set of files always produces the same index. The rule is alphabetical: groups by their heading, files by their filename.
 - Each entry is one line: a link to the file, then the file's `summary`. The summary is the headline fact itself, in plain words, not a description of the file. A reader gets the answer from the line and opens the file only for the detail. The owner's model for this is the memory index in his Davis project, where a line reads like "Never send via Gmail; paste the email or save it to a file".
 - The summary is written once, in the file's own `summary` field, and the index copies it word for word. The index adds nothing of its own. Every line in it comes from a file.
