@@ -9,6 +9,10 @@ Built by `node .claude/tools/build-knowledge-index.mjs`. Nobody edits this
 file by hand. If it disagrees with the files on disk, the files win:
 rebuild it.
 
+- `github-account-for-pushes.md`: This computer has two GitHub accounts, and
+  only the personal one, Mar5929, may ever be used for this repository; the
+  work account cannot push here, and a Git login window on push means the saved
+  login flipped to the work one.
 - `knowledge-manual-voice.md` (retired): Mike rewrote the save rules in the
   knowledge manual and the remember skill himself because the agent-written
   version was unclear, so those sections are deliberately plainer and longer
