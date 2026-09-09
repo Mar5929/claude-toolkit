@@ -45,6 +45,7 @@ work_item: "269"
 - [23. Learning what to save](#23-learning-what-to-save)
 - [24. The six commands](#24-the-six-commands)
 - [25. Codex](#25-codex)
+- [26. Built the way Claude Code's documentation says](#26-built-the-way-claude-codes-documentation-says)
 - [Notes for the builder: options, not requirements](#notes-for-the-builder-options-not-requirements)
 
 ## Why this exists
@@ -811,6 +812,24 @@ correctly here, and gets an answer.
 **Check:** open the project in Codex and run the same session as in "A session,
 start to finish". Every step gives the owner the same result it gives in Claude.
 Any step that cannot be enforced in Codex is named in the setup report.
+
+## 26. Built the way Claude Code's documentation says
+
+Everything this system puts into a project, and everything the toolkit ships
+for it, is built the way the official Claude Code documentation says to build
+it. That covers every rule file, hook, skill, plugin part, settings entry, and
+startup text that relates to memory, PRDs, or the second brain.
+
+- Best practice here means the captured documentation in `ai-external-knowledge/claude-code/`, not what an agent remembers or assumes. Before building or changing a part, the builder reads the page that covers that kind of part.
+- Example: a rule file that only matters when the agent is working in certain folders carries a `paths:` line in its frontmatter naming those folders. Claude Code then applies that rule only while the agent works with matching files, instead of loading it into every session. A rule that matters everywhere has no `paths:` line and stays short, because it costs every session.
+- Example: startup text stays short, because the documentation says long startup text makes the agent follow instructions less reliably.
+- The design for each part names the documentation page it followed and the practice it applied, so a reviewer can check the part against the page.
+- When the documentation and this document disagree, this document decides what the system does, and the documentation decides how Claude Code is used to do it. The disagreement is said out loud, never quietly picked.
+
+**Check:** pick any part the system ships. The design names the documentation
+page it followed. Open that page. The part matches what the page says. Pick any
+rule file: it either has a `paths:` line naming the folders it applies to, or
+it applies everywhere and is short.
 
 ## Notes for the builder: options, not requirements
 
