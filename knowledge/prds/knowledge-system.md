@@ -317,6 +317,24 @@ the one line.
 **Check:** write a file with a bad field. The save is reported unfinished. Show a
 card missing a bullet. It is redone.
 
+### A failure pauses the affected work
+
+When a knowledge save fails, pause that save and any work that depends on its
+successful completion. Continue unrelated work that can be done accurately
+within existing approval. One failed save does not stop the whole session.
+
+The agent says what failed, what was actually saved, what remains unfinished,
+which dependent work is waiting, and the next step. It fixes what it can within
+existing approval and permissions. If it cannot finish, it reports the blocker
+and never claims that the save or dependent work is complete. This applies to
+validation and publication failures as well as a missing required approval.
+
+**Check:** make a knowledge save fail while the session has one task that needs
+the saved result and another that does not. The save and dependent task remain
+unfinished; the agent reports the failure and continues the unrelated task.
+Once the save succeeds, the dependent task can resume under its existing
+approval.
+
 ### Why it is built this way
 
 An agent stops following text it was only asked to remember, and it stops more
@@ -406,7 +424,7 @@ original source or states what could not be verified.
 - A save is finished only when the file is on the default branch and pushed, and not before.
 - No worktree, no feature branch, no pull request, no draft, no "later". This holds even when the session is doing its other work on a branch. The save still goes straight to the default branch. The session's own branch gets the saved file later, whenever someone merges or pulls the default branch into it. Nothing extra has to happen for the save itself to be finished.
 - One yes finishes the owner's part. He runs no Git command and does nothing else. The save then completes on its own, and the reply tells him it is done or tells him it failed. Whether the writing happens inside that reply or just after it is the design's job, so long as a failure is never silent.
-- If the push fails, the agent says so in that same reply and the save is not finished. Nothing is ever parked silently.
+- If the push fails, the agent says so in that same reply and the save is not finished. Requirement 3 sets what pauses and what can continue. Nothing is ever parked silently.
 - There is never a second place to look for a save. If the owner has to remember where a save is, it will be forgotten.
 
 **This changes today's direct-commit rule,** which is the file
@@ -416,9 +434,10 @@ on a branch is a save the owner has to go and find. This document removes that
 exception, so every approved save goes to the default branch.
 
 **Check:** finish a piece of work. In that same reply the agent shows one card.
-One word of approval writes the file, and before the reply ends the file is on
-the default branch and pushed. Nothing else is asked of the owner. Then ask "is
-there a save waiting anywhere?" The answer is never yes.
+With a successful save, one word of approval writes the file, and before the
+reply ends the file is on the default branch and pushed. Nothing else is asked
+of the owner. If the save fails, the agent identifies the unfinished save and
+follows requirement 3; it never claims that no save is waiting.
 
 ## 10. Approval before any write
 
