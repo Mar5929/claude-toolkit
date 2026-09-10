@@ -78,9 +78,9 @@ tracker. How one item gets built goes on that work item, in the work tracker. Ou
 the agent can use goes to `ai-external-knowledge/`. Requirement 18 is the full
 list.
 
-This set of parts is a fixed workflow with the agent working inside it. Hooks
-fire at fixed moments, rules load, skills run. The agent uses its judgment
-inside those fixed moments. It never uses its judgment to decide whether a fixed
+This set of parts is a fixed workflow with the agent working inside it. The
+moments are fixed by the system, not chosen by the agent. The agent uses its
+judgment inside those fixed moments. It never uses its judgment to decide whether a fixed
 moment happens at all. Example: the agent decides what a save card says. It does
 not decide whether the card appears. That is why requirement 3 reads the way it
 does.
@@ -144,8 +144,8 @@ flowchart TD
 **1. The owner opens a session**
 
 - What the owner sees: a first message saying what was in progress last time, what happened, and the next step. The owner did not have to ask for it.
-- What happens: the briefing loads. Who the agent is, the standing rules, the rules of this system, what the project is, what is happening now, the two indexes, the list of captured outside topics, and a few hundred characters saying where the gates are.
-- Files read: `SOUL.md`, `.claude/rules/`, `knowledge/README.md`, `knowledge/project.md`, `knowledge/current.md`, `knowledge/glossary.md`, `knowledge/memory/memory-index.md`, `knowledge/prds/prd-index.md`.
+- What happens: the briefing loads. Who the agent is, the standing rules, the rules of this system, what the project is, what is happening now, the two indexes, the list of captured outside topics, and the fact that the gates exist. Anything the system puts in front of the agent every session is kept small enough that the agent still reads it. How small, and how it gets there, is the design's job.
+- What the agent knows by its first message: who it is here, the standing rules, the rules of this system, what the project is, what is happening now, the project's own words, and what memory and PRDs exist. Whether each of these is read up front or reached on demand is the design's job. Requirement 2 sets the outcome: the rules are followed either way.
 - Enforced by: the briefing arrives whole, never cut off, and the gates in requirement 3 hold from the first message. If anything the agent needs did not arrive, it opens that file itself before doing anything else. Requirements 2 and 4.
 
 **2. The owner asks for something**
@@ -178,7 +178,7 @@ flowchart TD
 
 **6. The work lands**
 
-- What the owner sees: a pull request, or a work item closed. If the save review has not run for this work in this session, the attempt is refused. It stays refused every time until the review has run. Each refusal tells the agent to run the review. No later attempt is allowed through without it.
+- What the owner sees: a pull request, or a work item closed. These two moments are held until the save review of requirement 9 has run for this work in this session. A single card does not unlock them. They stay held every time until the review has run, and each refusal says to run the review.
 - What happens: code lands by pull request with the owner's approval. A change that touches only `knowledge/` commits straight to the default branch. When the work item closes, the agent checks whether the area's behavior changed. If it did, that area's PRD is edited to match, through the normal card and yes. When the last work item on that PRD's roadmap closes, its status moves from `proposed` to `finalized`.
 - Files written: the branch and pull request. The work item's stage and progress log. The PRD for the area, after yes.
 - Enforced by: a gate on opening a pull request and a gate on closing a work item, held until the review is done. A gate on the write for the PRD edit. Requirements 3, 16.
@@ -198,11 +198,14 @@ flowchart TD
 
 ## 1. Plain parts only
 
-- Build it from what Claude Code already ships: rules, hooks, skills, Markdown files, and Git.
-- No database. No background writer. These files are the only place this knowledge is kept.
+- Every piece of knowledge this system keeps is a plain text file in this repository, and those files are the only copy. No database. No background writer. No separate store the owner cannot open.
+- Built from what Claude Code already ships: rules, hooks, skills, Markdown files, and Git. Nothing else.
+- The owner can read, edit, move, or delete any of these files by hand, with no agent involved, and the system still works.
 
-**Check:** list every part the system is built from. Each one is a rule file, a
-hook, a skill, a Markdown file, or Git. Nothing else is on the list.
+**Check:** open any piece of knowledge in a text editor. Change it by hand.
+Delete one. The system keeps working and later sessions read what the owner
+left. Then list every part the system is built from. Each one is a rule file, a
+hook, a skill, a Markdown file, or Git.
 
 ## 2. The agent follows this system
 
@@ -256,7 +259,7 @@ there is nothing left to enforce.
 
 ### Outside documentation used: in front of the agent, and counted
 
-- The list of captured topics is shown to the agent in every session, inside the one short block of text the system shows on purpose. That block holds the list of captured topics and the names of the gates, and the whole block stays under a few hundred characters.
+- In every session, before the agent does any work, it knows which outside topics are captured and that the gates exist. How it comes to know that is the design's job. Whatever is put in front of the agent every session stays small enough that the agent still reads it.
 - Use of a captured topic is counted.
 - This one cannot be gated. Gating it would mean guessing which topic a task needs.
 
@@ -266,7 +269,7 @@ shows how often a captured topic was opened.
 ### Save proposed at the right moment: gate, plus a count
 
 - A gate at each fixed moment: opening a pull request, closing a work item, a handoff, the end of any turn in which real work was done, and any time the owner says to save something. The design sets the threshold for real work and states it.
-- The moment cannot pass until either a card was shown, or the agent wrote one line saying nothing needs saving and why.
+- At a pull request or a work item close, the moment cannot pass until the save review of requirement 9 has run. At the end of a turn, at a handoff, or when the owner asks, it cannot pass until either a card was shown or the agent wrote one line saying nothing needs saving and why.
 - At session end, two numbers are written to a file the owner can read: how many moments needed a card, and how many cards were shown.
 
 **Check:** finish a task and try to end the turn. It cannot end without a card or
@@ -287,10 +290,8 @@ often the longer a session runs. The owner has already watched a rule file go
 unfollowed, and Claude Code itself cut an 18,000 character briefing down to a
 2,000 character preview. Advice gets ignored. A refusal cannot be ignored.
 
-The text the system shows the agent keeps one small job. It is a few hundred
-characters naming the gates and the captured outside topics, so the agent knows
-about each gate before it reaches one. Which mechanism delivers each gate,
-output check, and count belongs to the solution design.
+The agent knows about each gate before it reaches one. Which mechanism delivers
+each gate, output check, and count belongs to the solution design.
 
 ## 4. Picks up where the last left off
 
@@ -363,7 +364,7 @@ first, and says which page it read and when the page was captured.
 - When approved, memory or PRDs are saved directly to the default branch and pushed!!! They are not lost in worktree branches or buried in something that a future agent would not easily find.
 - A save is finished only when the file is on the default branch and pushed, and not before.
 - No worktree, no feature branch, no pull request, no draft, no "later". This holds even when the session is doing its other work on a branch. The save still goes straight to the default branch. The session's own branch gets the saved file later, whenever someone merges or pulls the default branch into it. Nothing extra has to happen for the save itself to be finished.
-- Everything from the card to the push happens in the same reply as the yes. The owner does nothing else and runs no Git command.
+- One yes finishes the owner's part. He runs no Git command and does nothing else. The save then completes on its own, and the reply tells him it is done or tells him it failed. Whether the writing happens inside that reply or just after it is the design's job, so long as a failure is never silent.
 - If the push fails, the agent says so in that same reply and the save is not finished. Nothing is ever parked silently.
 - There is never a second place to look for a save. If the owner has to remember where a save is, it will be forgotten.
 
@@ -380,7 +381,7 @@ there a save waiting anywhere?" The answer is never yes.
 
 ## 10. Approval before any write
 
-- No hook, background job, or helper agent writes memory or a requirements document on its own.
+- Nothing writes memory or a requirements document without the owner's yes. Not the agent, not anything the agent starts, not anything running on its own.
 - Silence is not approval. An unclear answer is not approval. Asking to see the full text is not approval.
 - The owner may change the wording, the place, the tags, or drop the whole thing.
 - When the owner edits the words, those words are written exactly as typed. The agent does not tidy them, shorten them, or improve them.
@@ -400,7 +401,7 @@ Something is memory when all three are true:
 2. It is significant. It is a lasting fact, a decision, a constraint, or a real lesson about how something here works or how a real problem here was fixed. The test is time: without it, the next agent would lose real time working the same thing out again. The words in the memory itself must be about this project.
 3. The human user (owner) was part of it. He said it, decided it, or worked it out with the agent.
 
-There is one addition. If the agent alone finds and fixes a real, significant problem that is related to and valuable to this project, it may propose that as memory. Point 3 is still met, because the owner's yes is what puts the human in it.
+There is one carve-out. A real, significant problem in this project that the agent found and fixed alone may be proposed as memory, even though the owner was not part of working it out. Nothing else skips point 3. A routine thing the agent did alone still fails point 2, so it is never proposed.
 
 How a real failure here was fixed is memory, not a rule. The memory says what
 broke, what caused it, and what fixed it. Writing one rule per fix would put
@@ -425,7 +426,8 @@ same reply, and nobody asked for it.
 **Check:** give the agent two candidates. The owner says "the client moved the
 demo to Thursday". That passes all three points and a card is proposed. The
 agent, working alone, updated a Python package so a browser would open. That
-fails points 2 and 3, and no card is ever proposed for it.
+fails point 2, so the carve-out never reaches it, and no card is ever proposed
+for it.
 
 ## 12. What never counts
 
@@ -660,7 +662,7 @@ requirement 17 forbids.
 | Where this project keeps its things: the real systems it uses, their names and IDs, and the folders and paths that matter | `knowledge/project.md` |
 | How a part of the system is put together, and what it is for: its objects, fields, processes, sub-applications, and what links to what | The System Guide at `knowledge/system/`, when the project has one. It is a separate toolkit plugin the owner turns on per project, with its own PRD. Memory keeps only the decision or the trap, and links to the System Guide page. |
 | A repeatable procedure | A project skill at `.claude/skills/<name>/SKILL.md` |
-| What we want built, and later how it actually works | `knowledge/prds/` |
+| What we want built, and later the behavior we actually got | `knowledge/prds/` |
 | A lasting fact, decision, event, context, or constraint | `knowledge/memory/` |
 | The current objective, blocker, and next step | `knowledge/current.md` |
 | A word the owner or the client uses for something | `knowledge/glossary.md` |
@@ -698,7 +700,7 @@ searching the code broadly.
 | Tier | Where | Notes |
 | --- | --- | --- |
 | 1 | `knowledge/current.md` | What is happening now. |
-| 2 | `.claude/rules/` | The answer may be a standing instruction. Claude Code loads the rules into every session on its own, so the agent re-reads what it already has instead of searching the folder. |
+| 2 | The standing rules in `.claude/rules/` | The answer may be a standing instruction. Check what is already in force before looking further. |
 | 3 | Skills | Is this a procedure rather than a fact to look up? |
 | 4 | `knowledge/memory/` and `knowledge/prds/`, through their indexes, then the links inside what is found | A finalized PRD beats a memory. Check the work tracker when the question belongs to one work item. |
 | 5 | Past sessions, through `session-search` | The agent says it is searching past sessions, then does it. It does not wait for a yes. It never does it silently. |
@@ -765,20 +767,21 @@ never opens a file to decide.
 ## 21. Indexes and the checker
 
 - Two generated files: `knowledge/memory/memory-index.md` and `knowledge/prds/prd-index.md`. In the PRD index, a child PRD is listed under its parent, indented one level, so the reader sees the area and its parts together. Both have the same shape and are built the same way. The PRD index used to be called `spec-index.md`.
-- The index is grouped under short topic headings, not one flat alphabetical list. Each heading reads like the question a reader would ask, such as "Deploy and org-safety rules" or "Where things live", so the index answers the question before any file is opened. The heading comes from each file's `group` field. Files with the same `group` sit together under that heading. The order of the groups, and the order of files inside a group, follow one fixed rule, so the same set of files always produces the same index. The rule is alphabetical: groups by their heading, files by their filename.
+- The index is grouped under short topic headings, not one flat alphabetical list. Each heading reads like the question a reader would ask, such as "Deploy and org-safety rules" or "Where things live", so the index answers the question before any file is opened. The heading comes from each file's `group` field. Files with the same `group` sit together under that heading. The order of the groups, and the order of files inside a group, follow one fixed rule, so the same set of files always produces exactly the same index. Which rule is the design's job.
 - Each entry is one line: a link to the file, then the file's `summary`. The summary is the headline fact itself, in plain words, not a description of the file. A reader gets the answer from the line and opens the file only for the detail. The owner's model for this is the memory index in his Davis project, where a line reads like "Never send via Gmail; paste the email or save it to a file".
 - The summary is written once, in the file's own `summary` field, and the index copies it word for word. The index adds nothing of its own. Every line in it comes from a file.
 - A memory whose status is not `current`, or a PRD whose status is not `finalized`, shows its status on its line, so a superseded, retired, or proposed file is visibly not an answer to what is true now.
 - The header above the entries is two lines at most. The index points at files. It does not explain how anything works.
 - Never edited by hand. The order of files inside a group follows one fixed rule. Two sessions rebuilding the index at the same time then produce the same lines in the same order, so their changes do not conflict in Git.
 - If an index disagrees with the files on disk, the files win. Rebuild it.
-- One read-only checker confirms required fields, allowed values, and four size limits: the `summary` line of any memory file or PRD is under 200 characters, `knowledge/current.md` is under 5,000 characters, `knowledge/memory-self-improvement.md` is under 10,000 characters, and any one memory file is under 5,000 characters. Nothing else has a size limit. The checker never writes anything.
-- When a file breaks a limit or a field rule, the checker names the file and the rule it broke. A save that fails the checker is not finished. The agent shortens or fixes the file and runs the checker again before it says the save is done. Nothing is ever cut off silently.
+- Every saved memory file and PRD is confirmed against the field rules and four size limits: the `summary` line of any memory file or PRD is under 200 characters, `knowledge/current.md` is under 5,000 characters, `knowledge/memory-self-improvement.md` is under 10,000 characters, and any one memory file is under 5,000 characters. Nothing else has a size limit. Confirming never changes a file.
+- A file that breaks a limit or a field rule is named, along with the rule it broke. A save that fails is not finished. The agent fixes the file and confirms it again before it says the save is done. Nothing is ever cut off silently.
 - After any lasting knowledge change, the index is rebuilt and the checker is run. A failing check means the save is not finished, and the agent says so instead of claiming the knowledge is stored.
 
 **Check:** rename a memory file and rebuild. The index line follows, under the
 heading its `group` names. Read any line: it states a fact, not "this file is
-about". Break a required field and run the checker. It fails and names the file.
+about". Break a required field and try to save. The save is reported unfinished, and the
+file and the broken rule are named.
 
 ## 22. Keeping current truth clean
 
@@ -853,15 +856,14 @@ it. That covers every rule file, hook, skill, plugin part, settings entry, and
 startup text that relates to memory, PRDs, or the second brain.
 
 - Best practice here means the captured documentation in `ai-external-knowledge/claude-code/`, not what an agent remembers or assumes. Before building or changing a part, the builder reads the page that covers that kind of part.
-- Example: a rule file that only matters when the agent is working in certain folders carries a `paths:` line in its frontmatter naming those folders. Claude Code then applies that rule only while the agent works with matching files, instead of loading it into every session. A rule that matters everywhere has no `paths:` line and stays short, because it costs every session.
-- Example: startup text stays short, because the documentation says long startup text makes the agent follow instructions less reliably.
+- Example: a rule that only matters while the agent works in certain folders is set up so it applies there and nowhere else, instead of being loaded into every session. In Claude Code that is the `paths:` line in the rule's frontmatter, naming the folders. Another tool uses its own equivalent. A rule that matters everywhere stays short, because it costs every session.
+- Example: whatever the system puts in front of the agent every session stays short, because the documentation says long startup text makes the agent follow instructions less reliably.
 - The design for each part names the documentation page it followed and the practice it applied, so a reviewer can check the part against the page.
 - When the documentation and this document disagree, this document decides what the system does, and the documentation decides how Claude Code is used to do it. The disagreement is said out loud, never quietly picked.
 
 **Check:** pick any part the system ships. The design names the documentation
-page it followed. Open that page. The part matches what the page says. Pick any
-rule file: it either has a `paths:` line naming the folders it applies to, or
-it applies everywhere and is short.
+page it followed. Open that page. The part matches what the page says. Pick any rule file. Either it is scoped to the places it applies to, or it
+applies everywhere and is short.
 
 ## 27. Installed once, turned on per project, and checked
 
