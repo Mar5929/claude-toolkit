@@ -1,0 +1,9 @@
+{
+  "name": "system-guide",
+  "description": "Optional source-backed maps and owner-approved explanations of a project's existing system, with safe refresh and focused startup guidance.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Mike Rihm",
+    "email": "michael@rihm.com"
+  }
+}

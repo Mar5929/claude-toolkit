@@ -2,8 +2,8 @@
 name: project-init
 description: >-
   Walk the user through initializing a NEW project, one gate at a time:
-  scaffolding & folder structure, guard hooks, the packaged project knowledge
-  system, optional SOUL.md, CLAUDE.md and AGENTS.md, the local-folder
+  scaffolding & folder structure, guard hooks, the optional System Guide and
+  packaged project knowledge system, optional SOUL.md, CLAUDE.md and AGENTS.md, the local-folder
   work-tracker, and optional standalone toolkit skills. Use when
   the user is starting a new repo/project and wants help setting up the
   foundational scaffolding, or says things like "initialize this project", "set
@@ -150,10 +150,12 @@ Salesforce (org build, org merge, or managed service). It stays optional and is
 still confirmed folder-by-folder with the owner; it is a starting point, not a
 forced template.
 
-Do not create `delivery/knowledge-base/` during Gate 1. Gate 3 owns the project
-knowledge choice. When the owner selects project knowledge, `knowledge/` is the
-one curated home. When they decline it, a delivery knowledge base may be offered
-separately if the project needs one.
+Do not create `delivery/knowledge-base/` or `knowledge/system/` during Gate 1.
+Gate 3 owns the two independent choices: System Guide and the project knowledge
+system. A new guide normally uses `knowledge/system/`; a new project knowledge
+system uses the rest of `knowledge/`. Choosing either one never chooses or
+creates the other. When the owner declines either choice, record it and do not
+offer a substitute store.
 
 **Salesforce project rules library.** When the stack is Salesforce, after the
 `.claude/rules/` folder is scaffolded, offer to copy in the reusable Salesforce
@@ -227,22 +229,46 @@ the tool.
   Default ON where the project uses `session-skills`.
 
 
-The project knowledge package owns its own startup loader and pull-request save
-reminder. Gate 3 installs those with the system. Do not install the retired
-`memory-pr-hook` or `wrap-up-ritual.md` path from this gate.
+System Guide and the project knowledge package each own their own startup
+behavior. Gate 3 installs the applicable plugin behavior with each chosen
+system. Do not copy either startup policy into this gate, and do not install the
+retired `memory-pr-hook` or `wrap-up-ritual.md` path from here.
 
 > Other reusable hooks (secret-scan and session-start orientation) are still
 > planned for the `hooks-library` plugin. Until they land, author any other hook
 > for the project directly. A hook may enforce a rule or start a review; no hook
 > writes memory.
 
-### Gate 3: Project knowledge system
+### Gate 3: System Guide and project knowledge
 
-**Purpose:** install the packaged Git-native project knowledge system so Claude
-and Codex share approved specifications, persistent understanding, and one small
-startup map.
+**Purpose:** offer two independent systems: an optional reference explaining how
+the current system is put together, and the Git-native project knowledge system
+for approved specifications, persistent understanding, and one small startup
+map.
 
-- Offer the `second-brain` plugin as one coherent, opt-in system.
+Ask about these separately. Accepting or declining either answer never decides
+the other, and a guide-only project receives no `SOUL.md`, memory, PRD, Obsidian,
+second-brain tool, or second-brain hook.
+
+**System Guide.** Offer the `system-guide` plugin for projects where useful
+explanations of parts, purpose, processes, and connections would prevent
+substantial investigation from being repeated. Explain that it keeps generated
+source evidence separate from owner-approved meaning, normally under
+`knowledge/system/`, and works without the second brain.
+
+- Ask where its real sources are and whether each source is complete or partial.
+- For a new project, install and enable `system-guide@claude-toolkit` at project
+  scope, then invoke that plugin's canonical setup workflow with the approved
+  relative source paths. Do not create any second-brain files.
+- If a suitable guide already exists, preserve its established relative path.
+  Show what will be adopted and use the plugin's explicit adoption path only
+  after the owner chooses it. Never move, replace, or silently adopt existing
+  content.
+- The plugin owns guide placement, generated-versus-meaning rules, upkeep, and
+  its one configured startup briefing. This skill only offers and connects it.
+
+**Project knowledge.** Offer the `second-brain` plugin as its own choice.
+
 - Explain that the managed `knowledge/README.md` is the one operating manual.
   It owns placement, finding, saving, file shape, approval, trust, lifecycle,
   and the skill map. Other runtime files point to it instead of copying policy.
@@ -274,6 +300,10 @@ startup map.
   follows the manual and writes only approved meaning.
 - A new project starts with no memories. Never inherit another project's
   knowledge, tags, or manual edits.
+- If System Guide is also enabled, keep its existing config and content. The
+  second brain adds shared lookup and routing; it does not recreate the guide or
+  treat `knowledge/system/` as legacy memory. If System Guide is off, the second
+  brain's startup says only that it is not configured.
 
 ### Gate 4: Optional mechanical knowledge aids
 

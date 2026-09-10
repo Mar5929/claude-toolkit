@@ -132,6 +132,14 @@ claude-toolkit/
         retire/                   ← supersede, retire, or delete one file
         reflect/                  ← sweep for duplicates and contradictions
         session-search/           ← read-only search of local Claude Code CLI history
+    system-guide/                ← plugin: optional system understanding
+      README.md
+      .claude-plugin/plugin.json
+      .codex-plugin/plugin.json
+      skills/                    ← use, refresh, and maintain the guide
+      tools/                     ← local source readers and safe updates
+      hooks/                     ← small independent startup guidance
+      tests/                     ← isolated code and Salesforce examples
     sf-architect-solutioning/     ← plugin: Salesforce solution architect
       README.md
       .claude-plugin/plugin.json
@@ -251,6 +259,7 @@ inside a project folder before it is useful, which is what the last column says:
 | --- | --- | --- |
 | **[project-init](plugins/project-init/README.md)** | Sets up or syncs a project. It asks where work is tracked, carries the ticket rules into that tracker, offers work-tracker, and installs or safely migrates the portable `knowledge/` vault when selected. `work-item-lifecycle` applies the file lifecycle rule when project information is created, moved, organized, or completed. New Salesforce projects use `delivery/` for client-work artifacts while existing `engagement/` projects stay in place. `machine-sync` installs the rules, settings, and hooks that must hold across the computer. | Sets up a project, and sets up a machine |
 | **[second-brain](plugins/second-brain/README.md)** | A portable `knowledge/` system for Claude, Codex, Git, and optional Obsidian: one managed operating manual, a small shared startup map, flat memory, approved specifications, project-scoped owner-approved saves, task-specific skills, one checker, and safe migration from older layouts. | Sets up a project |
+| **[system-guide](plugins/system-guide/README.md)** | Optional system understanding under `knowledge/system/`: useful source maps, evidence, and owner-approved explanations that save repeated investigation. Local tools refresh generated pages and preserve meaning; deliberate cleanup removes content that no longer helps. Works independently and joins the second brain's lookup when both are enabled. | Sets up a project |
 | **[sf-architect-solutioning](plugins/sf-architect-solutioning/README.md)** | A Salesforce solution architect: pushes back on vague requirements, verifies platform facts against official docs by live fetch, designs declarative-first to Well-Architected standards, and presents a solution plan for approval before any build. Salesforce projects only. | Install and go |
 | **[git-workflows](plugins/git-workflows/README.md)** | Three parallel-session-safe git lifecycle skills: `pull-latest` gets current without rewriting history, `reset-to-remote` mirrors the remote behind confirmation, and `merge-and-clean-up` lands an approved PR before removing only its completed workspace. | Install and go |
 | **[hooks-library](plugins/hooks-library/README.md)** | Reusable hooks that make a rule land mechanically: `spec-check-reminder` asks once per session whether the spec-check review ran, `no-ai-attribution-guard` refuses AI credit in Git text, and two Salesforce guards protect production and permission-set deploys. System-specific knowledge hooks ship with second-brain. | Wires into settings |

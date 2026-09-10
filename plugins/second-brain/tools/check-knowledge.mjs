@@ -29,13 +29,13 @@ const posix = (value) => value.split(sep).join("/");
 const CURRENT_MD_MAX_CHARS = 2000;
 const SELF_IMPROVEMENT_MAX_CHARS = 8000;
 const SUMMARY_MAX_CHARS = 250;
-export const MANUAL_SHA256 = "994fd7091e364adbf73af3aa0a0081247bbf0b4dd0d4d64f6dba4220d6bfeb8e";
+export const MANUAL_SHA256 = "7c591d49f97c2f58f958b36bbcfa2fffd153c8825e3d68ee333a47779b680c87";
 
 const STATUS_VALUES = ["current", "superseded", "retired"];
 // A PRD is one living document. It opens as proposed, holding the
-// requirements, and becomes current once the build is done and it
+// requirements, and becomes finalized once the build is done and it
 // describes what was actually built. Memory never sits at proposed.
-const SPEC_STATUS_VALUES = ["proposed", ...STATUS_VALUES];
+const SPEC_STATUS_VALUES = ["proposed", "finalized", ...STATUS_VALUES];
 const TYPE_VALUES = ["fact", "decision", "event", "context", "constraint"];
 const CONFIDENCE_VALUES = ["observed", "reported", "inferred"];
 
@@ -49,12 +49,12 @@ const SPEC_REQUIRED = [
 ];
 
 const MEMORY_KNOWN = new Set([
-  ...MEMORY_REQUIRED, "confirmed_at", "source_quote", "effective_from",
+  ...MEMORY_REQUIRED, "group", "confirmed_at", "source_quote", "effective_from",
   "effective_to", "project", "work_item", "supersedes", "superseded_by",
   "related_memories",
 ]);
 const SPEC_KNOWN = new Set([
-  ...SPEC_REQUIRED, "confirmed_at", "source_quote", "effective_from",
+  ...SPEC_REQUIRED, "group", "confirmed_at", "source_quote", "effective_from",
   "effective_to", "project", "work_item", "supersedes", "superseded_by",
 ]);
 

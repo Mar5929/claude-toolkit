@@ -15,6 +15,11 @@ The project brain lives under `knowledge/`, plus `SOUL.md` at the root. Obsidian
 may open the folder as a vault, but ordinary Markdown and Git are the source of
 truth.
 
+An optional System Guide may also use `knowledge/system/`, or another path saved
+in project-root `.system-guide.json`. It is a separate plugin and works without
+this one. Preserve that config and tree, and exclude them when detecting or
+converting a second-brain layout.
+
 `knowledge/prds/knowledge-system.md` in the toolkit repository is the design
 authority. It is not installed into projects. The managed
 `knowledge/README.md` template is the portable operating manual.
@@ -53,7 +58,7 @@ Look before doing anything. There is no detector script: read the folder.
 
 | What you see | What it is |
 |---|---|
-| No `knowledge/` folder | **New.** Offer the full setup. |
+| No second-brain signatures after excluding `.system-guide.json` and its configured guide tree | **New.** Offer the full setup. A guide-only `knowledge/system/` tree still belongs in this row. |
 | `knowledge/README.md` starts with `<!-- claude-toolkit:knowledge-manual -->`, both flat folders and indexes exist, and any saved files use current frontmatter | **Current.** This includes a fresh setup with no saved files. Audit what is missing, convert nothing. |
 | The flat folders and indexes have current signatures, but the managed manual is missing | **Partial current.** Offer to restore the manual; do not convert approved files. |
 | `knowledge/memory/` with subfolders like `context/`, `decisions/`, `domain/` | **Older layout.** Offer the conversion below. |
@@ -87,6 +92,12 @@ Look before doing anything. There is no detector script: read the folder.
    `second-brain@claude-toolkit` in the project's settings.
 9. Run `node .claude/tools/build-knowledge-index.mjs` and then
    `node .claude/tools/check-knowledge.mjs`. Both must pass.
+
+If System Guide is already configured, leave its config, established path, and
+content byte-for-byte intact. Add the shared lookup and routing from the managed
+manual; do not adopt, rebuild, or recreate the guide. The System Guide plugin
+owns configured startup status. This plugin says `System Guide is not
+configured.` only when the guide config is absent or disabled.
 
 A new project starts with no tags and no memories. Never copy another project's
 content or tags in.
@@ -170,6 +181,8 @@ project's Git workflow owns all of that.
 - Do not write anything while detecting or planning.
 - Do not treat an ordinary `memory/`, `prds/`, `specs/`, or `knowledge/` folder
   as this system without its signatures.
+- Do not treat `.system-guide.json` or its configured guide tree as legacy
+  memory, migration input, or a second-brain setup signature.
 - Do not follow a symlink outside the repository.
 - Do not overwrite an existing file or merge two candidate project overviews.
 - Do not restore retired machinery: the verifier, the health tool, the layout
@@ -178,4 +191,6 @@ project's Git workflow owns all of that.
 - Do not commit a generated report. The indexes are the only generated files
   that belong in Git.
 - Do not create per-folder README files or a nested instruction file inside
-  `knowledge/`, except the managed root `knowledge/README.md` manual.
+  the second brain's part of `knowledge/`, except the managed root
+  `knowledge/README.md` manual. README files and layer folders inside a
+  configured System Guide belong to that plugin and stay untouched.
