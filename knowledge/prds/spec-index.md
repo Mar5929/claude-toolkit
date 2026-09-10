@@ -26,6 +26,10 @@ rebuild it.
 - `system-guide.md` (proposed): The optional System Guide keeps useful insights
   about a system and its parts, so future sessions do not repeat substantial
   investigation. It does not simply restate the code.
+- `toolkit-operating-system.md` (proposed): The toolkit helps Mike turn
+  requests into checked results, keep control of decisions, and carry useful
+  project understanding into the next session without managing the parts
+  himself.
 - `work-item-upkeep.md`: Work tracking keeps the active item's decisions,
   progress, handoff, and accepted outcome accurate across sessions, using
   flexible stages and one owner of tracker state.
