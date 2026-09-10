@@ -308,10 +308,11 @@ Markdown knowledge system.
 root orientation files and the `.claude/rules/` folder that holds the
 behavioral rules.
 
-`CLAUDE.md` is a router and a map. It answers four questions and nothing else:
+`CLAUDE.md` is a router and a map. It answers five questions and nothing else:
 what is this project, what is in each folder and file and when do I open it,
-what tools does this project run on, and where is work tracked. Tell the owner
-that while writing it, and keep out anything that answers none of the four.
+what tools does this project run on, which configured folders use quick saves,
+and where is work tracked. Tell the owner that while writing it, and keep out
+anything that answers none of the five.
 `AGENTS.md` is one line pointing Codex at `CLAUDE.md`.
 `references/thin-claudemd.md` has the exact structure and the list of what never
 goes in.
@@ -372,11 +373,23 @@ CLAUDE.md stays thin and points at that folder. Read
 - **Write the CLAUDE.md** _with_ the user, walking the sections rather than
   generating a wall of text: what the project is, a `Read .claude/rules` line,
   the knowledge startup route where Gate 3 ran, the codemap, the tools, and
-  where work is tracked. Take the work-tracking wording from
+  the short quick-save table, and where work is tracked. Take the quick-save
+  wording from `references/thin-claudemd.md`. Include only configured systems:
+  `knowledge/` when Gate 3 ran and `.work-items/` when Gate 1 selected local
+  tracking. Point to the owning instructions; do not copy their procedures or
+  imply that an absent or declined system exists. Take the work-tracking wording from
   `references/work-tracking-choice.md`, naming the tracker Gate 1 settled on and
   how a refined ticket is marked. Reflect what the earlier gates set up. Keep
   behavioral rules out of the file, and keep the knowledge policy out of it:
   the route names the manual and map once, and copies nothing from it.
+- **Install the matching quick-save rules.** A project with Gate 3 knowledge
+  receives `knowledge-direct-commit.md`; a project with local `.work-items/`
+  receives `work-item-folders.md`. The knowledge rule is the narrow exception
+  to the normal worktree rule: an approved knowledge-only update lands through
+  the primary checkout on the default branch even while implementation work is
+  in another worktree. The local tracker remains the existing shared,
+  Git-ignored store and never gets a worktree, commit, or push. Do not install
+  either rule for a system the project did not select.
 - **Keep the codemap to one line per folder**, and let that line point at the
   folder's own `CLAUDE.md` for the detail. Every line says what is in the folder
   and when to open it.

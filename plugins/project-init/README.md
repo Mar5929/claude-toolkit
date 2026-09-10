@@ -29,6 +29,10 @@ files into a project, so every project it touches opts in deliberately.
   6. Optional standalone toolkit skills, offered from the `session-skills` plugin
   It asks before acting, recommends a per-stack layout, and copies in the
   standard rule files that every agent receives through `.claude/rules/`.
+  The root `CLAUDE.md` also gets a short Quick saves table for the systems the
+  project selected. Project knowledge points to its approved direct-to-default-
+  branch save rule; local `.work-items/` points to its shared Git-ignored
+  tracker workflow. Unconfigured systems get no row.
   It does not hold the memory or knowledge systems itself;
   it points at their plugins so each can evolve on its own.
   New Salesforce projects use `delivery/` for client-work artifacts and
@@ -42,6 +46,8 @@ files into a project, so every project it touches opts in deliberately.
   you approve, and records the toolkit version it synced against so a later run
   does not re-nag about a deliberate "no". Its Step 1 refreshes the installed
   plugin first, so running it also pulls the latest toolkit onto that machine.
+  It also repairs missing or stale Quick saves pointers while preserving the
+  project's chosen knowledge and tracker setup.
 
 - **work-item-lifecycle** (`/work-item-lifecycle`): applies the project's file
   lifecycle to a real file or work-item event. Its description lets an agent

@@ -89,7 +89,10 @@ provenance does not make it look more certain than it is.
 Use relative Markdown links and `.md` extensions. Never hand-edit a generated
 index.
 
-A knowledge-only save may commit to the default branch and push once approved.
+An approved knowledge-only save commits to the default branch and is pushed,
+even while implementation is in a worktree. Follow the project's direct-save
+rule for checkout selection and concurrent edits. Do not park the save on the
+implementation branch; report any unfinished save and its next step.
 
 ## 5. Verify
 

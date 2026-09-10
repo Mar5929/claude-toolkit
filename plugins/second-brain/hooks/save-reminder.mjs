@@ -13,9 +13,9 @@
  * landed. Reaching `gh pr create` with nothing but `knowledge/` in the diff is
  * the moment that mistake becomes visible, so it is the moment to say so.
  *
- * The hold is once per branch either way. The rule itself sends the agent back
- * to a pull request when branch protection refuses the push, so a permanent
- * block would break the fallback the rule depends on.
+ * The hold is once per branch either way, not enforcement of the save route.
+ * A refused direct push is reported to the owner; it does not automatically
+ * authorize a pull request or a retry through another account.
  */
 
 import { execFileSync } from "node:child_process";
@@ -152,13 +152,15 @@ export function buildDirectCommitMessage(paths) {
     "",
     `Files: ${paths.join(", ")}`,
     "",
-    "Follow .claude/rules/knowledge-direct-commit.md instead: pull the default",
-    "branch, rebuild the generated indexes, stage these exact paths, read",
-    "`git diff --cached --name-status` to confirm every file is one you wrote,",
-    "then commit and push to the default branch.",
+    "Follow .claude/rules/knowledge-direct-commit.md from the existing",
+    "default-branch checkout, even while implementation is in a worktree.",
+    "Reconcile only approved meaning with the latest destination, rebuild",
+    "and check the indexes, and commit and push only this authorized save.",
+    "Preserve other sessions' edits and staged work.",
     "",
-    "Go back to a pull request only if that push is refused, and say why.",
-    "Run this command again to open one; this branch will not be held again.",
+    "If validation or pushing fails, report the unfinished save and next step.",
+    "A refused push or login window means stop; do not automatically retry",
+    "or open a pull request. This reminder is not enforcement of that rule.",
     "",
     "If you are a helper agent, stop and report this to the main agent.",
   ].join("\n");
