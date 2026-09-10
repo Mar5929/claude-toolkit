@@ -150,9 +150,14 @@ Memory is flat under `knowledge/memory/`, one topic per file, and requires:
 - `confidence`: `observed`, `reported`, or `inferred`;
 - `tags`: a free-form YAML list with no fixed vocabulary.
 
-A PRD under `knowledge/prds/` requires `summary`, `area`, `status`,
-`source`, `created_at`, `tags`, `approved_by`, and `approval_date`, with no
-`type` or `confidence`. Only a PRD may be `proposed`.
+A PRD requires `summary`, `area`, `status`, `source`, `created_at`, and `tags`,
+with no `type` or `confidence`. Only a PRD may be `proposed`.
+
+For PRDs, `approved_by` and `approval_date` record requirements approval, not
+permission to save. An unapproved proposed PRD omits both. Once requirements
+are approved, include both, even while proposed. Every other PRD status
+requires both. Supplied approval fields must be nonblank strings; the date
+must be a real `YYYY-MM-DD`. Permission to save is still required.
 
 Optional fields go in only when they apply: `confirmed_at`, `source_quote`,
 `effective_from`, `effective_to`, `project`, `work_item`, `supersedes`,

@@ -70,6 +70,9 @@ shape or the approval boundary.
 
 ## 3. Draft and wait
 
+If the owner already authorized this exact save, proceed to step 4 without
+repeating the proposal or permission question. Otherwise use the flow below.
+
 Pick the canonical home and draft the file. Write in plain, clear language. Say
 only what is needed. Context a future agent could work out for itself pollutes
 the knowledge base and buries what matters.
@@ -92,6 +95,10 @@ Create or update the exact approved path. Fill the frontmatter the manual
 requires, adding no meaning the owner did not approve. When claims in one file
 come from different sources, mark the affected claim in the body, so file-level
 provenance does not make it look more certain than it is.
+
+For a proposed PRD, apply the manual's approval-field distinction: permission
+to save the draft is not approval of its requirements. Do not invent an
+approver or date to make the checker pass.
 
 Use relative Markdown links and `.md` extensions. Never hand-edit a generated
 index.

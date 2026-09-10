@@ -317,6 +317,58 @@ check("checker catches a missing or changed managed manual", () => {
   }
 });
 
+// An authorized draft save must not manufacture requirements approval.
+const completeApproval = "approved_by: Mike Rihm\napproval_date: 2026-09-10\n";
+const approvalCases = [
+  ["unapproved proposed PRD", "proposed", "", "", null],
+  ["approved proposed PRD", "proposed", completeApproval, "", null],
+  ["approved legacy PRD", "current", completeApproval, "", null],
+  ["approved finalized PRD", "finalized", completeApproval, "", null],
+  ["approved retired PRD", "retired", completeApproval, "", null],
+  ["approved memory", "memory", completeApproval, "", null],
+  ["approver alone", "proposed", "approved_by: Mike Rihm\n", "", "approval_date"],
+  ["date alone", "proposed", "approval_date: 2026-09-10\n", "", "approved_by"],
+  ["blank approval pair", "proposed", "approved_by:\napproval_date:\n", "", "invalid"],
+  ["whitespace approver", "proposed", completeApproval.replace("Mike Rihm", '\"   \"'), "", "invalid"],
+  ["list approver", "proposed", completeApproval.replace("Mike Rihm", "[Mike Rihm]"), "", "invalid"],
+  ["list approval date", "proposed", completeApproval.replace("2026-09-10", "[2026-09-10]"), "", "invalid"],
+  ["impossible date", "proposed", completeApproval.replace("2026-09-10", "2026-02-30"), "", "Dates"],
+  ["unknown draft field", "proposed", "unrecognized: value\n", "", "unknown field"],
+  ["invalid draft date", "proposed", "confirmed_at: yesterday\n", "", "Dates"],
+  ["draft secret", "proposed", "", "ghp-".replace("-", "_") + "x".repeat(36), "GitHub token"],
+  ["draft broken replacement link", "proposed", "supersedes: missing.md\n", "", "does not exist"],
+  ...["current", "finalized", "retired", "superseded", "memory"].map((status) =>
+    [`unapproved ${status}`, status, "", "", "approved_by"]),
+];
+for (const [name, status, approval, body, error] of approvalCases) {
+  check(`knowledge approval: ${name}`, () => {
+    const project = mkdtempSync(join(tmpdir(), "knowledge-approval-"));
+    try {
+      const memory = status === "memory";
+      const folder = resolve(project, "knowledge", memory ? "memory" : "prds");
+      mkdirSync(folder, { recursive: true });
+      writeFileSync(resolve(project, "knowledge/README.md"), read(manualSource));
+      const fields = memory ? "type: fact\nconfidence: observed\n" : "area: example\n";
+      const document = `---\nsummary: A small example.\n${fields}`
+        + `status: ${memory ? "current" : status}\nsource: Owner request\n`
+        + `created_at: 2026-09-10\ntags: [example]\n${approval}---\n\n# Example\n\n${body}\n`;
+      const file = resolve(folder, "example.md");
+      writeFileSync(file, document);
+      const result = checkKnowledge(project);
+      if (error) {
+        assert.ok(result.problems.some((problem) => problem.includes(error)),
+          `expected ${error}: ${JSON.stringify(result.problems)}`);
+      } else {
+        assert.deepEqual(result.problems, []);
+      }
+      assert.equal(readFileSync(file, "utf8"), document, "checker changed the record");
+    } finally {
+      // mkdtempSync creates this exact fixture beneath the system temp directory.
+      rmSync(project, { recursive: true, force: true });
+    }
+  });
+}
+
 check("no second policy owner", () => {
   const active = execFileSync(
     "git",
