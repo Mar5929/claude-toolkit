@@ -7,8 +7,8 @@ description: >-
   in this project", "sync this project with claude-toolkit", "audit this
   project against the toolkit", or "/project-sync". This skill inventories
   everything the toolkit currently ships (the general and Salesforce rules
-  libraries, hooks, the local-folder work-tracker, the packaged project knowledge
-  system, safe conversion off an older knowledge layout, the session-skills
+  libraries, hooks, the optional System Guide, the local-folder work-tracker,
+  the packaged project knowledge system, safe conversion off an older knowledge layout, the session-skills
   plugin, and any newer systems), cross-references the current project,
   reports the gaps, including rules the project has but that are behind the
   toolkit's current version, and closes each gap only with the user's approval.
@@ -48,7 +48,7 @@ automatically as it grows.
      and the plugin root holds `.claude-plugin/plugin.json`.
   2. A local clone of the toolkit repo, if the user has one.
   3. Fetch the repo (`Mar5929/claude-toolkit`), or ask the user where it lives.
-- For a separately packaged system such as `second-brain`, locate its installed
+- For a separately packaged system such as `system-guide` or `second-brain`, locate its installed
   plugin or the sibling source in the local toolkit clone. During the read-only
   audit, the marketplace manifest is enough to report availability. Install
   the system plugin only after the owner approves adoption, then use its
@@ -66,7 +66,8 @@ automatically as it grows.
     separately
   - the per-server MCP tool rules in `../../library/guides/mcp-best-practices.md`;
     these are conditional, so only audit the servers this project connects
-  - each system from the setup gates: hooks, project knowledge, knowledge layer
+  - each system from the setup gates: hooks, System Guide, project knowledge,
+    knowledge layer
   - the document folder Gate 1 offers every project, `docs/designs/`. It is the
     folder plus a short `README.md` plus its own line in the codemap, and a
     folder with no codemap line is a folder no agent opens, so check all three
@@ -185,6 +186,37 @@ Typical checks:
   A project that deliberately rebuilds by hand with `graphify update .` instead
   of using hooks is not missing anything. Record that choice so a later sync
   does not re-raise it.
+- **System Guide:** report exactly `on`, `off`, or `needs repair`, and name the
+  configured guide path whenever one is available. Read the previous sync
+  record, project-root `.system-guide.json`, the required guide files, and the
+  project's active plugin selection. A plugin present in a marketplace, cache,
+  or checkout is only available; it does not prove the project enabled it.
+  - **off:** `.system-guide.json` is absent or has `enabled: false`. Preserve a
+    recorded decline and do not raise it again. An enabled plugin or an existing
+    folder alone does not change this state.
+  - **on:** the config is valid and enabled, its relative in-project
+    `guidePath` exists, the required entry, tour, section indexes, and layer
+    folders are present, and `system-guide@claude-toolkit` is enabled at project
+    scope for each supported host the project uses.
+  - **needs repair:** an enabled config is malformed or unsafe, a required guide
+    part is missing, the plugin is unavailable or inactive for a host that uses
+    it, or the System Guide check reports a problem. Name every problem; do not
+    collapse this into off.
+
+  When the System Guide tool is available, run its cheap read-only status path
+  from the canonical plugin source:
+
+  ```text
+  node <system-guide-plugin>/tools/system-guide.mjs status --root <project-root> --json
+  ```
+
+  Also inspect project activation because that status reports project config and
+  guide health, not whether a static plugin copy is selected in this project.
+  When the tool is unavailable, read the config and required paths directly and
+  report that tool validation is unavailable. Do not install anything during
+  the audit. A suitable existing guide without config remains off and is an
+  adoption candidate, never an automatic adoption; preserve its established
+  location and ask the owner in step 4.
 - **Project knowledge layout:** read the folder, never go by folder names
   alone. There is no detector script. Classify exactly one state:
   - **current layout:** `knowledge/README.md` starts with
@@ -198,11 +230,14 @@ Typical checks:
     (`context/`, `decisions/`, `domain/`, and the rest), or
     `knowledge/memory/tags.md` exists, or frontmatter carries
     `source: owner-paraphrase` and `session:`;
-  - **none:** no knowledge-system signatures are present; or
+  - **none:** no second-brain signatures are present; or
   - **mixed or unknown:** signatures conflict, are partial, or an ordinary
     folder could be mistaken for the system.
 
-  Mixed or unknown stops adoption and conversion: name exactly what you found
+  Ignore `.system-guide.json` and the configured System Guide tree while making
+  this classification. A guide-only `knowledge/system/` tree is **none** for
+  second-brain setup, not an older or mixed knowledge layout. Mixed or unknown
+  stops adoption and conversion: name exactly what you found
   and ask. Never move an ordinary folder called `memory`, `prds`, `specs`, or
   `knowledge` on its name alone.
 - **Old folder name:** a project set up before the rename has
@@ -329,6 +364,10 @@ Classify every item: **present**, **outdated** (present, but behind the
 toolkit's current version, see below), **partial**, **missing**, **retired** (a
 v1 integration that should be deactivated or removed), **declined** (the owner
 previously opted out), or **not applicable** (say why).
+
+System Guide uses its user-facing states `on`, `off`, and `needs repair` in this
+same report. Keep a prior decline beside `off` so the state is clear without
+turning a respected choice back into a gap.
 
 ### Rule drift
 
@@ -572,13 +611,35 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   Then offer removal of the obsolete hook registration, copied script, config,
   and rule as one reversible cleanup. Never leave two pull-request reminders
   active.
+- For an approved System Guide change, use the canonical `system-guide` plugin
+  and its CLI rather than copying its setup or maintenance rules here.
+  - To turn an off project on, first install and enable
+    `system-guide@claude-toolkit` at project scope. Then run `setup --root` with
+    the owner-approved relative `--guide-path` and one `--source
+    kind:completeness:relative/path` per source. A new guide normally uses
+    `knowledge/system/`. This creates no second-brain files.
+  - For an existing suitable guide, show the location and what setup would add.
+    Pass `--adopt` only after the owner explicitly chooses adoption. Never move
+    the guide merely to use the plugin, and never overwrite existing bytes.
+  - For `needs repair`, run `status` and `check`, repair only the named config,
+    activation, or required-file gaps, then rerun both. Preserve all meaning and
+    unrelated guide content. A repair does not approve a meaning change.
+  - To disable the guide, run its `disable` command. Keep its config and content
+    so it can be re-enabled. Do not remove second-brain files. Removing or
+    disabling second-brain likewise leaves an enabled guide and its plugin
+    behavior intact.
+  - When enabled, add the exact shared root fallback from
+    `../project-init/references/thin-claudemd.md` once in `CLAUDE.md`. Do not
+    repeat it in `AGENTS.md`. The System Guide plugin owns configured Claude
+    startup status; the second brain reports only the off case.
 - For any approved project-knowledge gap, install or refresh the `second-brain`
   plugin first, then follow the state-specific path below.
   - **None:** show the tree from the plugin README, obtain approval, and ask the
-    owner what the project is, why it exists, what finished looks like, its
-    boundaries, who is involved, and where active work is tracked. Use those
-    exact answers for `SOUL.md` and `knowledge/project.md`, then install the
-    complete layout and runtime.
+     owner what the project is, why it exists, what finished looks like, its
+     boundaries, who is involved, and where active work is tracked. Use those
+     exact answers for `SOUL.md` and `knowledge/project.md`, then install the
+     complete layout and runtime. Preserve `.system-guide.json` and its guide
+     path. A guide-only `knowledge/system/` tree is not migration input.
   - **Older layout:** use the `second-brain` skill's conversion path. Count the
     files first and show the owner the total. Convert in batches of ten, mapping
     the old fields to the new ones, and show each batch for approval. This is
@@ -712,6 +773,8 @@ sync changelog. Record:
 - items brought up to date, naming what was added to each
 - items the owner deliberately declined, so future syncs never re-nag about a
   considered "no"
+- System Guide state and its actual configured path, or the owner's recorded
+  decline. Record this independently from the second-brain choice.
 
 ## Wrap-up
 

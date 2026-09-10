@@ -14,9 +14,9 @@ description: >-
 Save a memory or a PRD in this project, with the owner's approval.
 
 A PRD is one living document per feature area. Save a new one as `proposed`
-when it is what the owner wants built, and edit the same file to `current`
+when it is what the owner wants built, and edit the same file to `finalized`
 once the build is done and it describes what is actually there. Only a
-current PRD is settled truth.
+`finalized` PRD is settled truth; legacy `current` means finalized.
 
 ## Read these first, every run
 
@@ -40,6 +40,13 @@ A trigger is a reason to check. It is not proof there is something to save.
 Use the manual to drop candidates that are not memory-worthy, and its lifecycle
 path to drop candidates that are not ready yet. Define the current project from
 `knowledge/project.md`, the current work item, and the repository.
+
+Route an explanation of existing system parts, purpose, processes, connections,
+or impact to System Guide when `.system-guide.json` is enabled, and follow that
+plugin's proposal and approval workflow at its actual `guidePath`. Do not write
+it as memory or a PRD. When the guide is absent or disabled, name that it is not
+configured; do not use memory or a PRD as a fallback destination for the
+description.
 
 When the owner named exact content, keep that meaning. When the trigger is a
 pull request, handoff, or finished work item, gather from the work itself, never
@@ -120,8 +127,9 @@ this, say so in one line, and recommend `project-sync`.
 
 ## Boundaries
 
-- Writes memory and specifications only. It may point a procedure at a rule or
-  a skill, and live status at the tracker, but it does not build those.
+- Writes memory and specifications only. It may route a useful existing-system
+  explanation to the enabled System Guide, point a procedure at a rule or a
+  skill, and live status at the tracker, but it does not write those.
 - Never writes secrets or private personal information.
 - Never treats a helper agent, hook, or old session as approval.
 - Never reroutes a rejected generic candidate into global memory. A stable,

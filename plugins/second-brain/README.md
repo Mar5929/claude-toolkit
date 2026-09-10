@@ -56,6 +56,20 @@ the fallback when a hook does not run. It does not repeat policy.
 The project turns off Claude Code's private auto-memory. Committed Markdown and
 Git remain the shared source of truth.
 
+## Optional System Guide
+
+System Guide is a separate plugin for useful explanations of existing system
+parts, purpose, processes, connections, and impact. Either plugin works alone.
+When `.system-guide.json` is enabled, this plugin's manual and `recall` add the
+guide at the saved-knowledge tier, using the configured `guidePath`; `remember`
+routes guide explanations there instead of copying them into memory or PRDs.
+
+The System Guide plugin owns every configured on or repair startup briefing.
+This plugin reports only `System Guide is not configured.` when its own startup
+loader runs and the guide config is absent or disabled. It never imports a
+sibling plugin path. Enabling second-brain later preserves an existing guide,
+and disabling either plugin leaves the other's files and behavior intact.
+
 ## What owns what
 
 - `knowledge/README.md` owns all shared runtime policy, including placement,

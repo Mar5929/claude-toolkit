@@ -4,8 +4,8 @@
 This file shows one finished pair, so Gate 5 has something to write against.
 
 The project is `acme-crm`: a Salesforce delivery repository that took `SOUL.md`,
-the project knowledge system, captured outside documentation, and a GitHub
-board. Adapt the content, keep the shape.
+System Guide, the project knowledge system, captured outside documentation, and
+a GitHub board. Adapt the content, keep the shape.
 
 ## Sample CLAUDE.md
 
@@ -33,15 +33,16 @@ If that map is not already in this session, read those files once in that order.
 If a file is missing, continue and report it. `knowledge/README.md` wins when
 project-knowledge instructions disagree.
 
+When .system-guide.json is enabled, use the System Guide plugin's system-guide skill for questions or work about existing system structure, purpose, connections, or impact.
+
 ## Codemap
 
 | Path | What is there, and when to open it |
 | --- | --- |
 | `force-app/main/default/` | The org's metadata: objects, flows, Apex, permission sets. Detail: `force-app/CLAUDE.md`. |
 | `ai-external-knowledge/` | Salesforce documentation captured as Markdown, one folder per topic. Open it before designing against a platform feature, instead of searching the web. Today: `sharing-and-visibility/`, `flow-limits/`. |
-| `knowledge/` | What this project decided and why: PRDs, memory, current state. A PRD is one living document per feature area, holding its requirements first and its settled behavior after the build. The routing table in its `README.md` says which goes where. |
+| `knowledge/` | What this project decided and why, plus the separately enabled System Guide under its configured path. Open the guide index for existing system structure, purpose, connections, or impact; the routing table in `knowledge/README.md` separates guide explanations from PRDs and memory. |
 | `docs/` | Documents written for Acme, not for agents. Detail: `docs/CLAUDE.md`. |
-| `docs/designs/` | The build plan for one work item: how each approved requirement is met, which files change, how it is tested. Open it when building or reviewing that item. Written once the item's requirements are approved, deleted once `knowledge/prds/` is current. |
 | `scripts/` | Deploy and data-load scripts. Detail: `scripts/CLAUDE.md`. |
 | `.claude/` | Rules, hooks, settings. |
 
@@ -54,9 +55,10 @@ project-knowledge instructions disagree.
 
 ## Where work is tracked
 
-The Acme CRM board on GitHub, connected to this repository. The issue body holds
-the requirements and nothing else; progress and decisions go in the comments. An
-issue is ready to build when it carries the `refined` label.
+The Acme CRM board on GitHub, connected to this repository. The chosen issue
+holds its requirements, solution design, progress, and decisions in the board's
+established fields and comments. An issue is ready to build when it carries the
+project's approved-requirements stage.
 ````
 
 ## Sample AGENTS.md

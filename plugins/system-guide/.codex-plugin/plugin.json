@@ -1,0 +1,39 @@
+{
+  "name": "system-guide",
+  "version": "1.0.0",
+  "description": "Optional source-backed maps and owner-approved explanations of a project's existing system, with safe refresh and focused startup guidance.",
+  "author": {
+    "name": "Mike Rihm",
+    "email": "michael@rihm.com",
+    "url": "https://github.com/Mar5929"
+  },
+  "homepage": "https://github.com/Mar5929/claude-toolkit",
+  "repository": "https://github.com/Mar5929/claude-toolkit",
+  "keywords": [
+    "documentation",
+    "project-knowledge",
+    "system-map"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "System Guide",
+    "shortDescription": "Understand and maintain a project's system map.",
+    "longDescription": "Explains important existing parts, purposes, and connections from real project sources. Generated evidence refreshes without replacing owner-approved meaning, and the skill raises focused corrections or useful investigation findings during ordinary work.",
+    "developerName": "Mike Rihm",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write",
+      "Repository"
+    ],
+    "websiteURL": "https://github.com/Mar5929/claude-toolkit",
+    "defaultPrompt": [
+      "Explain how this system part works and what it affects",
+      "Refresh the System Guide from the configured sources",
+      "Propose this corrected business meaning for the guide",
+      "Check the System Guide for stale or incomplete coverage"
+    ],
+    "brandColor": "#0F766E"
+  }
+}

@@ -21,7 +21,8 @@ Source: https://code.claude.com/docs/en/memory
    and the continuity instruction. Both are quoted below.
 2. Title, and one line saying what the project is.
 3. `Read .claude/rules first.`
-4. The project knowledge startup route, when that system is installed.
+4. The project knowledge startup route, when that system is installed, and the
+   one System Guide fallback line when that independent plugin is enabled.
 5. **Codemap.** A table, one row per folder, module, or context source. Each row
    says what is in it and when to open it. Name the context sources, not only
    the code: captured outside documentation, reference data, the PRDs in
@@ -80,6 +81,16 @@ When Gate 3 ran, use this wording and no more:
 
 Do not copy the save policy, the routing table, or the knowledge specification
 into the root file. `knowledge/README.md` owns those.
+
+## The System Guide fallback route
+
+When `.system-guide.json` is enabled, add this one line to `CLAUDE.md` exactly:
+
+> When .system-guide.json is enabled, use the System Guide plugin's system-guide skill for questions or work about existing system structure, purpose, connections, or impact.
+
+The System Guide plugin owns its Claude startup status and all detailed guide
+policy. This line is the shared discovery fallback for Claude and Codex. Put it
+once in `CLAUDE.md`; `AGENTS.md` already sends Codex there.
 
 ## AGENTS.md
 

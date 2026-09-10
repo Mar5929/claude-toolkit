@@ -22,14 +22,15 @@ files into a project, so every project it touches opts in deliberately.
      work items are tracked (a GitHub Projects board, Linear, Jira, local
      folders on this computer, the BMAD method, or nothing yet)
   2. Hooks and guards
-  3. Packaged project knowledge system under `knowledge/`
+  3. Two independent choices: the optional System Guide for existing-system
+     explanations, and the packaged project knowledge system
   4. Optional mechanical knowledge aids
   5. An optional owner-written SOUL.md, plus CLAUDE.md, AGENTS.md, and
      `.claude/rules/`
   6. Optional standalone toolkit skills, offered from the `session-skills` plugin
   It asks before acting, recommends a per-stack layout, and copies in the
   standard rule files that every agent receives through `.claude/rules/`.
-  It does not hold the memory or knowledge systems itself;
+  It does not hold the System Guide or memory systems itself;
   it points at their plugins so each can evolve on its own.
   New Salesforce projects use `delivery/` for client-work artifacts and
   `knowledge/` for curated working context. Existing `engagement/` projects
@@ -158,9 +159,12 @@ plugin.
 ## How it relates to the rest of the toolkit
 
 - project-init is the **entry point that installs the other plugins' systems**.
-  Gate 3 offers the complete packaged `second-brain` project knowledge system,
-  including its managed operating manual, startup map, task-specific skills,
-  index builder, and checker.
+  Gate 3 offers `system-guide` and `second-brain` as separate choices. A project
+  can use either one or both. System Guide keeps generated evidence and
+  owner-approved explanations at its configured path, normally
+  `knowledge/system/`; second-brain supplies its managed operating manual,
+  startup map, task-specific skills, index builder, and checker. Choosing one
+  never creates files for the other.
 - `work-item-lifecycle` is the action layer for the project's file lifecycle.
   It is selected when a specific file or work-item event needs that policy
   applied, and it reads the project's own routing documents to find the homes.
@@ -178,6 +182,11 @@ plugin.
 - Gate 5 installs no general knowledge rule. Projects that accept Gate 3 receive
   `knowledge/README.md` as the one routing and operating manual; projects that
   decline it receive no knowledge policy.
+- An enabled System Guide adds one shared discovery line to `CLAUDE.md`; the
+  System Guide plugin owns its configured Claude startup status and guide
+  policy. `project-sync` reads `.system-guide.json`, required guide files, and
+  active project plugin selection before reporting it on, off, or needing
+  repair. A cached or checked-out plugin alone is not active setup.
 - For the "local folders on this computer" answer, Gate 1 offers `work-tracker`
   as the one canonical task-status system. It uses flat YAML records under
   Git-ignored `.work-items/`, branch-scoped active-item selection, and approved
@@ -193,6 +202,10 @@ plugin.
   the old system. Mixed or unknown layouts stop without writing. Separately, it
   may identify and offer to deactivate older cloud-backed v1 wiring, but it
   never contacts the Worker or Neon or deletes cloud infrastructure.
+- A configured System Guide tree is excluded from second-brain layout detection.
+  Enabling second-brain later keeps the guide in place and only adds shared
+  lookup and routing; disabling either plugin preserves the other's files and
+  behavior.
 - **project-init versus project-sync is not redundancy.** They share the same
   inventory of toolkit systems but enter from opposite ends: project-init lays
   foundations in an empty project, project-sync audits and back-fills a project

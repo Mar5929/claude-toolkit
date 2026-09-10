@@ -29,7 +29,7 @@ const posix = (value) => value.split(sep).join("/");
 const CURRENT_MD_MAX_CHARS = 2000;
 const SELF_IMPROVEMENT_MAX_CHARS = 8000;
 const SUMMARY_MAX_CHARS = 250;
-export const MANUAL_SHA256 = "994fd7091e364adbf73af3aa0a0081247bbf0b4dd0d4d64f6dba4220d6bfeb8e";
+export const MANUAL_SHA256 = "077379d9652eaeeefbd872200c22689b4c3219c371713fc610c16b24656bfbd3";
 
 const STATUS_VALUES = ["current", "superseded", "retired"];
 // A PRD is one living document. It opens as proposed, holding the
@@ -49,12 +49,12 @@ const SPEC_REQUIRED = [
 ];
 
 const MEMORY_KNOWN = new Set([
-  ...MEMORY_REQUIRED, "confirmed_at", "source_quote", "effective_from",
+  ...MEMORY_REQUIRED, "group", "confirmed_at", "source_quote", "effective_from",
   "effective_to", "project", "work_item", "supersedes", "superseded_by",
   "related_memories",
 ]);
 const SPEC_KNOWN = new Set([
-  ...SPEC_REQUIRED, "confirmed_at", "source_quote", "effective_from",
+  ...SPEC_REQUIRED, "group", "confirmed_at", "source_quote", "effective_from",
   "effective_to", "project", "work_item", "supersedes", "superseded_by",
 ]);
 

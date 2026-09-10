@@ -21,6 +21,9 @@ import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+export const SYSTEM_GUIDE_CONFIG = ".system-guide.json";
+export const SYSTEM_GUIDE_OFF_MESSAGE = "System Guide is not configured.";
+
 export const STARTUP_FILES = [
   { path: "SOUL.md", label: "Who you are in this project", whole: true },
   {
@@ -59,6 +62,23 @@ export function entriesOnly(text) {
   return kept.join("\n");
 }
 
+/**
+ * The System Guide plugin owns every configured on/repair briefing. The second
+ * brain reports only an explicit off state, without importing or locating a
+ * sibling plugin. A malformed config is left for project-sync or the guide
+ * plugin to report as needing repair; calling it off would hide that problem.
+ */
+export function systemGuideOffMessage(projectRoot) {
+  const configPath = resolve(projectRoot, SYSTEM_GUIDE_CONFIG);
+  if (!existsSync(configPath)) return SYSTEM_GUIDE_OFF_MESSAGE;
+  try {
+    const config = JSON.parse(readFileSync(configPath, "utf8"));
+    return config && config.enabled === false ? SYSTEM_GUIDE_OFF_MESSAGE : "";
+  } catch {
+    return "";
+  }
+}
+
 export function loadKnowledge(projectRoot) {
   const root = resolve(projectRoot || process.cwd());
   const sections = [];
@@ -88,6 +108,9 @@ export function loadKnowledge(projectRoot) {
       sections.push(`[Project startup file empty: ${path}. Continuing without it.]`);
     }
   }
+
+  const guideStatus = systemGuideOffMessage(root);
+  if (guideStatus) sections.push(guideStatus);
 
   return sections.join("\n\n---\n\n") + "\n";
 }

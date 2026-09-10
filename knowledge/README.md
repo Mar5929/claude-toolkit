@@ -23,32 +23,30 @@ The loader reads these files in order when present:
 
 <!-- knowledge-policy:routing:start -->
 
-| Information | Canonical home |
+| Information | Home |
 | --- | --- |
-| The agent's role and purpose here | `SOUL.md` |
-| A standing instruction for agent behavior | `.claude/rules/` |
-| A repeatable procedure | A skill |
-| Requirements for a feature area, then how it settled | `knowledge/prds/` |
-| A lasting fact, decision, event, context, or constraint | `knowledge/memory/` |
-| Current objective, blocker, and next step | `knowledge/current.md` |
-| Lessons about what this owner saves | `knowledge/memory-self-improvement.md` |
-| Requirements and status for one piece of work | The work tracker |
-| How one work item gets built, deleted once its PRD is current | `docs/designs/` |
-| Information needed only for this task | The conversation only |
-| `grill-me` scratch pad, unchecked exploration | `knowledge/brainstorms/` |
-| Outside source material | `ai-external-knowledge/` or the project's delivery files |
+| Agent role and purpose | `SOUL.md` |
+| Standing behavior | `.claude/rules/` |
+| Repeatable procedure | A skill |
+| Required feature behavior | `knowledge/prds/` |
+| Existing parts, purpose, processes, connections | Enabled System Guide's `guidePath` |
+| Lasting fact, decision, event, context, constraint | `knowledge/memory/` |
+| Objective, blocker, next step | `knowledge/current.md` |
+| Memory-selection lessons | `knowledge/memory-self-improvement.md` |
+| One work item's requirements and status | Work tracker |
+| One work item's build plan | `docs/designs/`, deleted when its PRD is current |
+| Task-only information | Conversation |
+| Unchecked `grill-me` exploration | `knowledge/brainstorms/` |
+| Outside sources | `ai-external-knowledge/` or delivery files |
 | Past conversations | Session history |
 
-Procedures and live work are not memory. Link to requirements, code, source
-material, or another canonical home instead of copying its meaning.
+Procedures and live work are not memory. Link instead of copying meaning. Read the enabled `.system-guide.json` for the actual guide path and use its skill. When absent or disabled, System Guide is not configured; descriptions do not fall back into memory or PRDs. Use an existing named reference or name the missing destination.
 
 <!-- knowledge-policy:routing:end -->
 
 <!-- knowledge-policy:trust:start -->
 
-`knowledge/current.md` is overwritten and not trusted as lasting fact.
-`knowledge/brainstorms/` is just unchecked scratch pad recordings. A current specification beats memory
-about system behavior. Name disagreements instead of silently choosing.
+`knowledge/current.md` is temporary; brainstorms are unchecked. A current PRD wins on required behavior, System Guide on structure, and the live system on existence. Memory overrides none. Proposed PRDs and old snapshots do not prove current behavior. Name disagreements.
 
 <!-- knowledge-policy:trust:end -->
 
@@ -56,19 +54,15 @@ about system behavior. Name disagreements instead of silently choosing.
 
 <!-- knowledge-policy:find:start -->
 
-Use `recall` to find information. Use this tiered search path:
+Use `recall` in this order:
 
 1. `knowledge/current.md`.
 2. `.claude/rules/`.
 3. Skills.
-4. The memory and specification indexes, then only the relevant files and their
-   links. Check the work tracker when the question is about a work item.
-5. Past sessions through `session-search` as a final resort or if relevant context may be found from this.
+4. Memory and PRD indexes plus the enabled guide's index, then relevant pages and links. Start structure, purpose, connections, and impact at the guide; required behavior at PRDs; decisions and lessons at memory; work-item questions at the tracker.
+5. `session-search`, last.
 
-Name where you found the information.
-
-Only `current` files answer what is true now. Others provide history. An index is
-a map, not evidence; open the file before relying on it.
+Before step 4, use any glossary for the owner's words. Skip an off guide. Name the source. In memory and PRDs, only `current` files answer current truth; others are history. Indexes are maps, not evidence: open the file. Apply the source order above.
 
 <!-- knowledge-policy:find:end -->
 
@@ -117,23 +111,18 @@ These are the non-negotiables of what are considered long-term AI Memory:
 <!-- knowledge-policy:never-save:start -->
 ### What never goes into the memory base
 
-The system should aggressively avoid storing transient or low-value information.
 None of this becomes durable memory:
 
-- Tool calls, searches, web lookups, and commands run.
-- Rough thinking and scratchpad reasoning.
-- Ideas or hypotheses that were tried and dropped.
-- Temporary implementation steps and low-level execution details with no lasting relevance.
-- Ordinary test and compiler errors.
-- Files opened, and a blow-by-blow of edits.
-- Every action performed by a sub-agent.
-- Chit-chat and conversational filler.
-- Copies of code or specifications that already exist. Never save something an agent could work out by reading the production code.
+- Tool calls, searches, commands, and files opened.
+- Scratch reasoning, dropped ideas, temporary steps, and ordinary errors.
+- Edit logs, sub-agent activity, and conversational filler.
+- Code or specification copies. Never save what production code already shows.
+- Existing-system explanations. Route useful insight to System Guide; reject code summaries. Memory and PRDs are not fallback homes.
 - A procedure that belongs in a rule or a skill. One past fix is not this.
 - Authoritative system behavior that belongs in a specification.
 - An open task or implementation step that belongs in work-item tracking.
 - Live status of current work.
-- Anything stale, superseded, or contradicted with no historical value.
+- Stale or contradicted information with no historical value.
 - Passwords, keys, and tokens, ever, because this folder is in Git and Git keeps everything.
 
 <!-- knowledge-policy:never-save:end -->
@@ -266,10 +255,10 @@ manual through the normal toolkit change flow.
 
 <!-- knowledge-policy:skill-map:start -->
 
-- `recall`: walk the find order and report conflicts or gaps.
-- `remember`: test, place, propose, write approved meaning, rebuild, and check.
-- `retire`: supersede, retire, or delete one file safely.
-- `reflect`: review the whole folder and propose cleanup.
-- `session-search`: read-only search of past Claude Code CLI sessions.
-- `second-brain`: install, detect, convert, or repair this system.
+- `recall`: find and report conflicts or gaps.
+- `remember`: test, propose, write approved meaning, rebuild, check.
+- `retire`: supersede, retire, or delete one file.
+- `reflect`: review the folder and propose cleanup.
+- `session-search`: search past Claude CLI sessions read-only.
+- `second-brain`: install or repair this system. Enabled `system-guide`: find, refresh, and propose guide upkeep.
 <!-- knowledge-policy:skill-map:end -->

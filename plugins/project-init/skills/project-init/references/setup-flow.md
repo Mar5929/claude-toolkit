@@ -8,7 +8,7 @@ so they always know where they are.
 [ ] Gate 0 - Orient: read the working dir; identify stack & project state
 [ ] Gate 1 - Scaffolding, folder structure, and where work items are tracked
 [ ] Gate 2 - Hooks (guards & automation)
-[ ] Gate 3 - Project knowledge        (one Markdown vault, packaged tools)
+[ ] Gate 3 - System Guide and project knowledge (two independent choices)
 [ ] Gate 4 - Mechanical knowledge aids (optional impact analysis)
 [ ] Gate 5 - Optional SOUL.md + root instructions + rules
 [ ] Gate 6 - Optional toolkit skills  (offer the session-skills plugin)
@@ -74,10 +74,10 @@ so they always know where they are.
   `salesforce-project-scaffold.md` (SFDX source plus a `delivery/` tree). Local
   work tracking still uses root `.work-items/`; older `delivery/work-items/` or
   `engagement/work-items/` trees use the preview-first conversion flow.
-- Salesforce / SFDX: do not create `delivery/knowledge-base/` in Gate 1. If
-  Gate 3 installs project knowledge, `knowledge/` is the one curated home. If
-  the owner declines it, offer a delivery knowledge base separately only when
-  the project needs one.
+- Salesforce / SFDX: do not create `delivery/knowledge-base/` or
+  `knowledge/system/` in Gate 1. Gate 3 offers System Guide and project
+  knowledge separately. Record either decline and do not offer a substitute
+  store.
 - Salesforce / SFDX: after `.claude/rules/` is scaffolded, offer the reusable
   Salesforce rules from `library/rules/salesforce/` (see its `README.md`); copy the ones
   the owner wants into the project's `.claude/rules/`.
@@ -125,8 +125,9 @@ so they always know where they are.
   file edit, whether the spec-check review has run. It points at the
   `spec-check` skill from `session-skills`; skip it where that plugin is not
   installed.
-  The project knowledge package owns its startup loader and pull-request save
-  reminder. Gate 3 installs both. Do not restore the retired
+  System Guide and the project knowledge package own their own startup behavior.
+  Gate 3 installs the applicable behavior with each chosen plugin. Do not
+  duplicate either here or restore the retired
   `memory-pr-hook` plus `wrap-up-ritual.md` route.
 - Salesforce / SFDX: both Salesforce guards ship from `hooks-library` alongside
   every other hook. Install that plugin (`/plugin install hooks-library`) and
@@ -147,9 +148,22 @@ so they always know where they are.
   in `hooks.Stop`, not with the two PreToolUse guards, and it lives inside
   `tools/kb/` because it imports the rest of the tool.
 
-**Gate 3: Project knowledge system**
+**Gate 3: System Guide and project knowledge**
 
-- Offer `second-brain` as one coherent opt-in system.
+- Ask two separate questions. A yes or no to System Guide never answers the
+  second-brain question, and a guide-only project gets no second-brain files.
+- Offer `system-guide` when explanations of existing parts, purpose, processes,
+  and connections would save substantial repeated investigation. Explain that
+  generated source evidence and owner-approved meaning stay separate and that
+  the guide works without the second brain.
+- Ask for each relative source path, its kind (`code` or `salesforce`), and
+  whether coverage is `complete` or `partial`. For a new guide, enable
+  `system-guide@claude-toolkit` at project scope and follow that plugin's setup
+  workflow. The normal path is `knowledge/system/`.
+- If the project already has a suitable guide, preserve its location. Show the
+  adoption first and use `--adopt` only after the owner chooses it. Never move,
+  replace, or silently adopt existing content.
+- Offer `second-brain` as its own coherent opt-in system.
 - Explain that the managed `knowledge/README.md` is the one operating manual and
   the remaining skills and hooks point to it.
 - Ask the owner what the project is, why it exists, what finished looks like,
@@ -165,6 +179,9 @@ so they always know where they are.
   not copy policy into either file.
 - Start with no memories. Never inherit the toolkit repository's knowledge or
   tags.
+- When both are enabled, keep the existing System Guide config and content. The
+  second brain adds shared lookup and routing without recreating the guide or
+  treating `knowledge/system/` as legacy memory.
 - Commit only `knowledge/.obsidian/app.json` with `alwaysUpdateLinks: true`,
   `newLinkFormat: "relative"`, and `useMarkdownLinks: true`. Ignore all other
   `.obsidian` state and do not pin a
@@ -217,6 +234,9 @@ so they always know where they are.
   and when to open it, what tools the project runs on, and where work is
   tracked. Say that to the owner up front, and keep out anything that answers
   none of those. `thin-claudemd.md` has the list of what never goes in.
+- When System Guide is enabled, add the one shared root fallback line from
+  `thin-claudemd.md` to `CLAUDE.md`. Do not repeat it in `AGENTS.md`; that file
+  already points Codex to `CLAUDE.md`.
 - Behavioral rules go into the project's `.claude/rules/` as individual files,
   not into CLAUDE.md. See `thin-claudemd.md` and `library/rules/general/README.md`.
 - Copy the general rules from `library/rules/general/` into `.claude/rules/`: every
