@@ -115,7 +115,8 @@ is wrong.
 - The status is `proposed`. This document describes the finished system. It does not describe how the system works today.
 - It says what must happen, what the owner sees, and why. It never says which hook, file, or code does it. Those are build decisions and go on the work item, in the work tracker.
 - This document holds the goal, the requirement, and the behavior. Each requirement is written clearly enough that a builder can design from it without guessing. If a builder would have to guess between two designs, the requirement is not finished. It gets rewritten here first.
-- When the owner says something that belongs in this document, the agent writes it here in that same reply. It is never logged on an issue instead, because an issue comment gets lost and this document then never gets updated.
+- When the owner gives a clear answer or correction within authorized refinement of this document, the agent writes it here in that same reply under requirement 10. It is never logged on an issue instead, because an issue comment gets lost and this document then never gets updated.
+- Mike authorized ongoing refinement of this PRD and approved the drafting-permission rule in requirement 10 on 2026-09-10. That permission covers faithful capture of his answers and corrections; it does not approve every requirement, a solution design, or implementation.
 - Requirement 3 is the one exception. It names kinds of mechanism, because no wording alone can meet it. Which mechanism delivers each one is still the design's job.
 - "A session, start to finish" follows one session through every requirement, so the numbered list is easier to follow.
 - The closing section "Notes for the builder" holds ideas that bind nothing.
@@ -413,7 +414,7 @@ original source or states what could not be verified.
 
 ## 9. Saving is frictionless
 
-- Every save is one short card and one yes. This is true whether the save is a memory or a product requirements document.
+- A save needing new approval is one short card and one yes, whether it is a memory or a product requirements document. Clear answers and corrections within already-authorized PRD refinement are saved immediately under requirement 10, without another card and yes for the same instruction.
 - No long review. No back and forth. No reading a full file before deciding.
 - The agent proposes at the right moment on its own. The owner never has to remember to ask.
 - Five moments are forced. The agent cannot pass them without a card or a one-line "nothing to save": a work item finishes or closes, a pull request is being opened, a handoff or a context clear is coming, a turn ends after real work was done, and any time the owner says to save something. Requirement 3 says how they are forced.
@@ -442,6 +443,10 @@ follows requirement 3; it never claims that no save is waiting.
 ## 10. Approval before any write
 
 - Nothing writes memory or a requirements document without the owner's yes. Not the agent, not anything the agent starts, not anything running on its own.
+- Approval already given for drafting or refining a named PRD covers faithful capture of the owner's clear answers and corrections within that scope. Save those in the same reply without asking him to approve his own instruction again. The normal placement, validation, and publication requirements still apply.
+- If the owner's words are ambiguous, clarify the meaning before changing the requirement. A new requirement the agent invents or recommends needs the owner's agreement before it becomes a requirement in the draft. Drafting permission does not approve that new meaning.
+- A separate lasting-memory proposal still uses the standard card and approval, even when it arose during an authorized PRD interview. Drafting or saving permission does not approve the requirements as a whole, a solution design, or implementation. Requirement 16 defines what a PRD's approval fields mean.
+- Record the drafting permission, who gave it, its source and date, and its scope in the existing canonical draft or linked work record. A later session reads that record and carries forward the same permission while it remains applicable. It does not ask again solely because the session or model changed, and it never expands the recorded scope.
 - The same approval boundary covers changing lasting meaning and merging, superseding, retiring, or deleting lasting knowledge. The agent independently identifies and proposes the need; after approval it carries out the approved operation and its checks without making the owner manage the files.
 - Silence is not approval. An unclear answer is not approval. Asking to see the full text is not approval.
 - The owner may change the wording, the place, the tags, or drop the whole thing.
@@ -453,6 +458,14 @@ follows requirement 3; it never claims that no save is waiting.
 
 **Check:** show a proposal and say nothing back. Nothing is written and nothing
 is held for later.
+
+**Check:** authorize refinement of a named PRD, then give a clear correction.
+The correction is saved in that reply without a new approval question. Start
+a fresh session: it finds the recorded permission and handles another in-scope
+correction the same way. Give an ambiguous answer: it asks for clarification.
+Let the agent recommend a new requirement or identify a separate memory: it
+seeks the appropriate approval. None of these steps starts implementation or
+marks the full requirements approved.
 
 ## 11. What counts as memory
 
