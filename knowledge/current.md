@@ -6,32 +6,32 @@ file. Capped at 2,000 characters, and the checker enforces it.
 
 ## Objective
 
-Finish the knowledge-system PRD rewrite for issue #269, then compare it
-against the issue body and comments. (2026-09-08)
+Finish refining the knowledge-system PRD for issue #269 with the owner, then
+bring the issue body in line with it. (2026-09-09)
 
 ## Work item
 
-Issue #269. The rewritten PRD (status proposed, 25 requirements, a session
-walkthrough, builder notes) is on main at `knowledge/prds/knowledge-system.md`.
-Editing continues on main directly.
+Issue #269. The PRD is `knowledge/prds/knowledge-system.md`, status proposed,
+26 requirements, edited on main directly as the owner decides things. All of
+today's decisions are already in it.
 
 ## Blocked on
 
-Nothing. (2026-09-08)
+Nothing. (2026-09-09)
 
 ## Next step
 
-1. Compare the PRD to everything in issue #269 and report the differences.
-   The removed "works today / left to build" list is parked for the issue body.
-2. On the owner's go, read all 79 Davis memory files as good and bad examples
-   of memory, and report.
-3. The two old PRDs (`memory-system.md`, `memory-system-v2.md`) are deleted on
-   main by the owner (commit f3237f3). The new PRD no longer points at them.
-   Nothing left to decide there.
+1. Rewrite the #269 body to match the PRD: 26 requirements, the parked
+   "already works / left to build" list, the dropped `docs/designs/` folder,
+   the System Guide as a separate plugin, and the stale spec-path lines.
+2. Owner picks the stage label for #269 and what happens to the twelve design
+   sub-issues #273 to #284, which were written against the old 12 requirements.
+3. The System Guide (`knowledge/system/`) starts as its own plugin and PRD in a
+   new session; the owner has a handoff prompt for it.
 
 ## Picked up this session
 
-- The startup briefing is about 18,000 characters and Claude Code delivers at
-  most 10,000 from a hook, so sessions get a preview, not the manual.
-- The other session's 2026-09-05 comments on #269 (requirements 7 and 10)
-  are unreviewed. Nothing from it is on disk.
+- Build work the PRD now requires but nothing has started: the `group` field,
+  the `prd-index.md` rename, the manual and the per-prompt reminder brought in
+  line, the direct-commit rule losing its worktree exception, the toolkit files
+  that still name `docs/designs/`.
