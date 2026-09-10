@@ -21,13 +21,11 @@ Nothing. (2026-09-09)
 
 ## Next step
 
-1. Rewrite the #269 body to match the PRD: 26 requirements, the parked
-   "already works / left to build" list, the dropped `docs/designs/` folder,
-   the System Guide as a separate plugin, and the stale spec-path lines.
-2. Owner picks the stage label for #269 and what happens to the twelve design
-   sub-issues #273 to #284, which were written against the old 12 requirements.
-3. The System Guide (`knowledge/system/`) starts as its own plugin and PRD in a
-   new session; the owner has a handoff prompt for it.
+1. The owner says the PRD is approved. Then the #269 label moves to
+   `03-requirements-approved` and solution design starts on the issue, one
+   section per requirement, the way the issue body says.
+2. The System Guide (`knowledge/system/`) is its own plugin on issue #304, in
+   another session. The rules audit is issue #305.
 
 ## Picked up this session
 
