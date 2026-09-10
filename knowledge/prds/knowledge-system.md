@@ -579,7 +579,7 @@ area, kept in `knowledge/prds/`.
 - It opens as `proposed`, which is what we want built. It is edited to `finalized` once every work item on its roadmap is done and it describes what was actually built. A small PRD that one work item delivers is finalized when that item finishes. While a big PRD is being built, each requirement that is done gets a line saying "Built on YYYY-MM-DD", so progress is visible inside the PRD.
 - Only a `finalized` PRD is settled truth. Never answer "how does this work today" from a `proposed` one.
 - Only a `finalized` PRD beats a memory. When a memory and a finalized PRD disagree, the agent follows the PRD, says so, and names both files. It never picks one without saying. A `proposed` PRD never beats a memory, because it is not built yet.
-- When a project also has a project knowledge base, the order is: a finalized PRD wins on what the system should do, the knowledge base wins on how the system is put together, and the live system wins on what exists right now. Memory never beats any of those three. The knowledge base is not part of the second brain; it is its own plugin with its own PRD.
+- When a project also has a System Guide at `knowledge/system/`, the order is: a finalized PRD wins on what the system should do, the System Guide wins on how the system is put together, and the live system wins on what exists right now. Memory never beats any of those three. The agent reports the disagreement instead of quietly picking. The System Guide is not part of the second brain; it is its own plugin with its own PRD.
 - `superseded` and `retired` are history.
 - This folder used to be called `knowledge/specs/`, and older sessions call these files specs.
 - A PRD says how the system should behave in plain words: the logic, the behavior, what the user does, what the user sees. It never restates the code. If an agent could work it out by reading the source, it does not go here.
@@ -647,7 +647,7 @@ requirement 17 forbids.
 | Who the agent is in this project | `SOUL.md` |
 | A standing instruction for how the agent behaves | `.claude/rules/` |
 | Where this project keeps its things: the real systems it uses, their names and IDs, and the folders and paths that matter | `knowledge/project.md` |
-| How a part of the system is put together, and what it is for: its objects, fields, processes, sub-applications, and what links to what | The project knowledge base, when the project has one. It is a separate toolkit plugin the owner turns on per project, with its own PRD. Memory keeps only the decision or the trap, and links to the knowledge base page. |
+| How a part of the system is put together, and what it is for: its objects, fields, processes, sub-applications, and what links to what | The System Guide at `knowledge/system/`, when the project has one. It is a separate toolkit plugin the owner turns on per project, with its own PRD. Memory keeps only the decision or the trap, and links to the System Guide page. |
 | A repeatable procedure | A project skill at `.claude/skills/<name>/SKILL.md` |
 | What we want built, and later how it actually works | `knowledge/prds/` |
 | A lasting fact, decision, event, context, or constraint | `knowledge/memory/` |
@@ -662,7 +662,18 @@ requirement 17 forbids.
 | Only needed to finish the task at hand | Nowhere. It stays in the conversation. |
 | A past conversation | Session history |
 
-This table is given to the agent in every project, so it never has to guess where something goes. Requirement 2 makes following it a must, and the setup of a new project shows the table and one example per row.
+Four homes are easy to mix up. Test each piece of information on its own, and split a note that holds several kinds.
+
+| Ask this | Home | Example |
+| --- | --- | --- |
+| Does it say what the system must do, or what a user gets? | A PRD | "A user can find an advisor by name or firm." |
+| Does it explain an existing part, what it is for, or how parts connect? | The System Guide | "The search uses Contact and Account. This field identifies the advisor's firm." |
+| Does it record a lasting decision or a costly mistake? | Memory | "Mike rejected name-only matching because two advisors shared a name." Link to the detail. |
+| Does it say what work remains, or where a change was deployed? | The work tracker | "Production deployment is still owed." |
+
+The PRD keeps the intended behavior and its business reason. The System Guide explains the existing structure and each part's purpose. Memory keeps the short decision or lesson. The tracker keeps what is owed and what shipped where. Requirement 16 says who wins when they disagree.
+
+The full table above, and this test, are given to the agent in every project, so it never has to guess where something goes. Requirement 2 makes following it a must, and the setup of a new project shows the table and one example per row.
 
 **Check:** hand the agent one item of each kind. Each lands in the right home,
 and the agent names the home before it writes.
