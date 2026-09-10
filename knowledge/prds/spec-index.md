@@ -23,6 +23,9 @@ rebuild it.
 - `knowledge-system.md` (proposed): What the project second brain must do.
   Every new session already knows what has been going on in this project.
   Saving something worth keeping takes one short yes from the owner.
+- `system-guide.md` (proposed): The optional System Guide keeps useful insights
+  about a system and its parts, so future sessions do not repeat substantial
+  investigation. It does not simply restate the code.
 - `work-item-upkeep.md`: Work tracking keeps the active item's decisions,
   progress, handoff, and accepted outcome accurate across sessions, using
   flexible stages and one owner of tracker state.
