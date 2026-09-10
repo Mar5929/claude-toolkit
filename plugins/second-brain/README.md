@@ -89,6 +89,12 @@ managed manual, knowledge file shape, links, flat-folder layout,
 common secret patterns. It reports problems and never edits, moves, or deletes
 anything.
 
+Approved knowledge saves commit and push directly to the default branch,
+including during implementation in a worktree. Project-init supplies the
+direct-save rule and short project entry pointer. The save reminder points to
+that rule; it does not enforce the route. Validation or push failures leave
+the save unfinished and must be reported.
+
 ## Deliberately absent
 
 - a database, embeddings, or memory server;

@@ -91,6 +91,12 @@ automatically as it grows.
     Local mode also needs the current work skill and CLI for active-item
     selection, progress, validation, and completion events. Missing optional
     fields on legacy items are valid; never backfill them.
+  - the root `CLAUDE.md` quick-save table and its matching rules. Expect a
+    `knowledge/` row only for configured project knowledge and a `.work-items/`
+    row only for configured local tracking. Each row points to the canonical
+    manual, rule, or skill and does not repeat the full procedure. Report a
+    missing or stale row, a row for an absent system, and a configured quick-save
+    system whose owning instructions are missing or outdated
   - the `hooks-library` plugin. Audit `spec-check-reminder` under
     `PostToolUse` only where `session-skills` is installed. Check its settings
     entry and copied script. Report any retired `work-item-stage-reminder`
@@ -297,6 +303,14 @@ Typical checks:
   `.work-items/` or an older `work-items/` tree but no pointer counts as never
   asked. Never-asked is a gap to offer in step 4; a recorded decline is
   respected and not raised again.
+- **Quick saves:** read the root `CLAUDE.md` and the project's recorded choices.
+  For configured project knowledge, confirm that `knowledge/` is named and
+  points to `knowledge/README.md` plus the installed knowledge direct-commit
+  rule. For configured local tracking, confirm that `.work-items/` is named and
+  points to the local tracker instructions. Report rows for systems that are
+  absent, declined, external, or no longer selected. Do not infer a quick-save
+  folder from its name; any additional row needs an explicit owner designation
+  and a canonical instruction source.
 - **Work-item stages:** check the unscoped `work-item-stages.md` rule and
   the tracker it names. Local mode uses the current work CLI; GitHub mode uses
   stage labels. Report the retired stage-reminder script and registration for
@@ -407,9 +421,10 @@ Skip this check only when the owner confirms Codex never runs in the project.
 A project can pass every check above and still have a CLAUDE.md nobody reads.
 The file only ratchets: sessions add to it and nothing tells a session to
 subtract. So audit its shape, not just its presence. `CLAUDE.md` is a router and
-a map, answering four questions and nothing else: what is this project, what is
+a map, answering five questions and nothing else: what is this project, what is
 in each folder and file and when do I open it, what tools does this project run
-on, and where is work tracked. Read the file and report:
+on, which configured folders use quick saves, and where is work tracked. Read
+the file and report:
 
 - **Size.** How many lines? Anthropic targets under 200 lines, because the file
   loads into every session and a bloated one makes agents ignore the
@@ -686,6 +701,15 @@ should look in THIS project, confirm, act, summarize. Ground rules:
 - When the owner names a different tracker than the one already recorded, rewrite
   the pointer. Never delete tickets, issues, or boards from the
   tracker they are leaving; moving existing work across is theirs to do by hand.
+- For an approved quick-save gap, preserve the project's selected systems and
+  existing root-file voice. Add or update only the applicable rows from
+  `../project-init/references/thin-claudemd.md`, and install or refresh their
+  matching rules. The `knowledge/` row permits approved knowledge-only work to
+  use the primary checkout and land directly on the default branch even while
+  implementation continues in a worktree. The `.work-items/` row uses the
+  existing shared, Git-ignored local store with no worktree, commit, or push.
+  Remove a misleading row when its system is no longer configured. Do not add a
+  local path for an external tracker or a recorded no-tracker choice.
 - For an approved new local work-tracker gap, install the plugin and run
   `work init`. It creates YAML work items under Git-ignored `.work-items/`.
   Say plainly that these records stay in the current checkout.

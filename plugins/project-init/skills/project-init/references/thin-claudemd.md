@@ -2,12 +2,13 @@
 
 ## What CLAUDE.md is
 
-A router and a map. It answers four questions and nothing else:
+A router and a map. It answers five questions and nothing else:
 
 - What is this project?
 - What is in each folder and file, and when do I open it?
 - What tools does this project run on?
 - Where is work tracked?
+- Which configured folders use a quick save instead of ordinary branch work?
 
 It loads into every session, so every line costs context in every conversation.
 Anthropic's guidance: keep it under 200 lines, and for each line ask "would
@@ -31,20 +32,26 @@ Source: https://code.claude.com/docs/en/memory
 6. **Tools.** The major tools this project runs on: MCP servers, generated
    graphs or indexes, build and deploy commands. One line each, naming the
    command and the file that holds the detail.
-7. **Where work is tracked.** The tracker, and how an item is marked ready to
+7. **Quick saves.** Only the configured folders where an agent should update
+   the canonical source immediately instead of creating branch work. Name the
+   path, the short handling rule, and the canonical instructions. Do not copy
+   their procedures here.
+8. **Where work is tracked.** The tracker, and how an item is marked ready to
    build.
 
 ## What never goes in it
 
 - **A rule that already has a file in `.claude/rules/`.** Claude Code loads that
   folder every session. Two copies drift, and an agent reading both picks one at
-  random.
+  random. The Quick saves table is the narrow exception: it names the action
+  and points to the rule without copying its procedure.
 - **How to talk to the owner.** That lives once, in the owner's own
   `~/.claude/`, and is in force in every project already.
 - **A multi-step procedure.** That is a skill. Skills load on demand instead of
   in every session.
 - **Anything an agent finds in one command:** what is Git-ignored, what is
-  generated, which folders are empty.
+  generated, which folders are empty. The local tracker row may say it is
+  Git-ignored because that fact explains why it has no commit or push.
 - **Where something came from or when it arrived.** Git history owns that.
 - **Current status, next action, or open work.** The tracker owns that.
 - **What `knowledge/` contains.** Its `README.md` owns that.
@@ -80,6 +87,28 @@ When Gate 3 ran, use this wording and no more:
 
 Do not copy the save policy, the routing table, or the knowledge specification
 into the root file. `knowledge/README.md` owns those.
+
+## Quick saves
+
+Write this section from the systems the project actually selected. Include the
+`knowledge/` row only when project knowledge is configured. Include the
+`.work-items/` row only when local work tracking is configured. A project with
+no tracker, or a different tracker, gets no `.work-items/` row.
+Omit the whole section when no quick-save locations are configured.
+
+```markdown
+## Quick saves
+
+| Path | How updates land | Instructions |
+| --- | --- | --- |
+| `knowledge/` | Save an approved knowledge-only update directly to the default branch, then commit and push, even while implementation work continues in a worktree. | `knowledge/README.md` and `.claude/rules/knowledge-direct-commit.md` |
+| `.work-items/` | Update the existing shared, Git-ignored local tracker. Do not create a worktree, commit, or push for the tracker update. | `.claude/rules/work-item-folders.md` and the `work` skill |
+```
+
+Keep each row to a pointer and one sentence. The linked manual, rule, or skill
+owns approval, commands, conflict handling, and every other step. Add another
+folder only when the owner has explicitly named it as a quick-save location and
+identified the instructions that own it.
 
 ## AGENTS.md
 
