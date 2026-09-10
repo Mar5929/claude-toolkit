@@ -437,3 +437,12 @@ test("CLI status is machine-readable and check uses health exit status", () => {
   assert.equal(result.status, 1);
   assert.equal(JSON.parse(result.stdout).issues[0].code, "source_changed");
 });
+
+test("cheap status reports a corrupt build record as needs repair without scanning sources", () => {
+  const root = makeProject();
+  setupGuide(root, { sources: [{ path: "missing-source", kind: "code", completeness: "complete" }] });
+  write(root, "knowledge/system/generated/build.json", "not json\n");
+  const inspected = inspectGuide(root);
+  assert.equal(inspected.state, "needs-repair");
+  assert.equal(inspected.problems.some((entry) => entry.code === "invalid_build_record"), true);
+});

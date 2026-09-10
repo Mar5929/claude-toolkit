@@ -53,6 +53,12 @@ When .system-guide.json is enabled, use the System Guide plugin's system-guide s
 | Salesforce CLI (`sf`) | Deploying and retrieving metadata, running Apex tests. | `.claude/rules/salesforce-safety-guardrails.md` |
 | `kb-graph` MCP server | Field, flow, and permission questions across the org. Build it with `python3 tools/kb/build_graph.py`. | `tools/kb/README.md` |
 
+## Quick saves
+
+| Path | How updates land | Instructions |
+| --- | --- | --- |
+| `knowledge/` | Save an approved knowledge-only update directly to the default branch, then commit and push, even while implementation work continues in a worktree. | `knowledge/README.md` and `.claude/rules/knowledge-direct-commit.md` |
+
 ## Where work is tracked
 
 The Acme CRM board on GitHub, connected to this repository. The chosen issue
@@ -81,12 +87,23 @@ wrong.
 
 ## What is deliberately not in either file
 
-- Any rule already in `.claude/rules/`.
+- Any rule already in `.claude/rules/`, beyond a short Quick saves pointer to
+  its canonical instructions.
 - How to talk to the owner. That is machine-wide, in the owner's own
   `~/.claude/`.
 - Any multi-step procedure. Those are skills.
 - Anything a session could find in one command: what is Git-ignored, what is
-  generated, which folders are empty.
+  generated, which folders are empty. The local quick-save row may name its
+  Git-ignored boundary because that explains its handling.
 - Where anything came from or when it arrived. Git history owns that.
 - Current phase, next action, or open work. The tracker owns that.
 - What the knowledge folder contains. Its `README.md` owns that.
+
+This example uses GitHub for work tracking, so it has no `.work-items/` row. A
+project that selected local tracking adds this row as well:
+
+```markdown
+| `.work-items/` | Update the existing shared, Git-ignored local tracker. Do not create a worktree, commit, or push for the tracker update. | `.claude/rules/work-item-folders.md` and the `work` skill |
+```
+
+Omit the whole Quick saves section when no quick-save locations are configured.

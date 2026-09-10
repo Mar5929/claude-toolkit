@@ -69,8 +69,9 @@ guidance that routes relevant work to the skill and configured guide.
   commands, host behavior, and examples.
 - `hooks/hooks.json` and `hooks/system-guide-session-start.mjs`: one cheap,
   fail-open Claude startup briefing with no source scan or writes.
-- `tools/`: inspection, setup, refresh, validation, preview, approval, and
-  disable operations shared by the skill and integrations.
+- `tools/README.md` and `tools/system-guide.mjs`: command reference plus
+  inspection, setup, refresh, validation, preview, approval, and disable
+  operations shared by the skill and integrations.
 - `tests/core.test.mjs`: core setup, refresh, safety, and approval checks.
 - `../../tests/experience-system-guide.test.mjs`: startup and host-experience
   checks.

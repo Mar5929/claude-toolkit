@@ -335,6 +335,7 @@ export function inspectGuide(root) {
   }
   const guideRoot = safeResolve(projectRoot, config.guidePath, "guidePath");
   const problems = [];
+  if (!record) problems.push({ code: "invalid_build_record", message: `Missing or invalid ${config.guidePath}/generated/build.json` });
   for (const entry of requiredGuideEntries()) {
     if (!fs.existsSync(path.join(guideRoot, ...entry.split("/")))) {
       problems.push({ code: "missing_guide_entry", message: `Missing ${config.guidePath}/${entry}` });

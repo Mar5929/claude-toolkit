@@ -29,13 +29,13 @@ const posix = (value) => value.split(sep).join("/");
 const CURRENT_MD_MAX_CHARS = 2000;
 const SELF_IMPROVEMENT_MAX_CHARS = 8000;
 const SUMMARY_MAX_CHARS = 250;
-export const MANUAL_SHA256 = "077379d9652eaeeefbd872200c22689b4c3219c371713fc610c16b24656bfbd3";
+export const MANUAL_SHA256 = "7c591d49f97c2f58f958b36bbcfa2fffd153c8825e3d68ee333a47779b680c87";
 
 const STATUS_VALUES = ["current", "superseded", "retired"];
 // A PRD is one living document. It opens as proposed, holding the
-// requirements, and becomes current once the build is done and it
+// requirements, and becomes finalized once the build is done and it
 // describes what was actually built. Memory never sits at proposed.
-const SPEC_STATUS_VALUES = ["proposed", ...STATUS_VALUES];
+const SPEC_STATUS_VALUES = ["proposed", "finalized", ...STATUS_VALUES];
 const TYPE_VALUES = ["fact", "decision", "event", "context", "constraint"];
 const CONFIDENCE_VALUES = ["observed", "reported", "inferred"];
 

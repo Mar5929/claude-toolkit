@@ -33,8 +33,7 @@ The loader reads these files in order when present:
 | Lasting fact, decision, event, context, constraint | `knowledge/memory/` |
 | Objective, blocker, next step | `knowledge/current.md` |
 | Memory-selection lessons | `knowledge/memory-self-improvement.md` |
-| One work item's requirements and status | Work tracker |
-| One work item's build plan | `docs/designs/`, deleted when its PRD is current |
+| One work item's requirements, status, and build plan | Work tracker |
 | Task-only information | Conversation |
 | Unchecked `grill-me` exploration | `knowledge/brainstorms/` |
 | Outside sources | `ai-external-knowledge/` or delivery files |
@@ -46,7 +45,7 @@ Procedures and live work are not memory. Link instead of copying meaning. Read t
 
 <!-- knowledge-policy:trust:start -->
 
-`knowledge/current.md` is temporary; brainstorms are unchecked. A current PRD wins on required behavior, System Guide on structure, and the live system on existence. Memory overrides none. Proposed PRDs and old snapshots do not prove current behavior. Name disagreements.
+`knowledge/current.md` is temporary; brainstorms are unchecked. A finalized PRD (or legacy `current` PRD) wins on required behavior, System Guide on structure, and the live system on existence. Memory overrides none. Proposed PRDs and old snapshots do not prove current behavior. Name disagreements.
 
 <!-- knowledge-policy:trust:end -->
 
@@ -62,7 +61,7 @@ Use `recall` in this order:
 4. Memory and PRD indexes plus the enabled guide's index, then relevant pages and links. Start structure, purpose, connections, and impact at the guide; required behavior at PRDs; decisions and lessons at memory; work-item questions at the tracker.
 5. `session-search`, last.
 
-Before step 4, use any glossary for the owner's words. Skip an off guide. Name the source. In memory and PRDs, only `current` files answer current truth; others are history. Indexes are maps, not evidence: open the file. Apply the source order above.
+Before step 4, use any glossary for the owner's words. Skip an off guide. Name the source. Current memory and finalized or legacy `current` PRDs can answer current truth; others are history. Indexes are maps, not evidence: open the file. Apply the source order above.
 
 <!-- knowledge-policy:find:end -->
 
@@ -131,7 +130,9 @@ None of this becomes durable memory:
 
 PRD is short for product requirements document. This folder was `knowledge/specs/`; older sessions call them specs.
 
-A PRD is one living document per feature area, the same file for its whole life. Its `status` says where it is: `proposed` is what we want built; `current` is how it behaves now, after stage `14-spec-update` edited it to match. Only a `current` PRD is settled truth: never answer "how does this work today" from a `proposed` one, nor let one beat a memory. `superseded` and `retired` are history.
+A PRD is one living document per feature area. `proposed` is wanted behavior;
+`finalized` is settled after the build. Legacy `current` means finalized. Never
+answer current behavior from a proposed PRD. `superseded` and `retired` are history.
 
 A PRD says how the system should behave in clear, laymen's terms without jargon - logic, behavior, UI, UX, and anything an AI cannot get from the code. It should not regurgitate what the code already says. Organize them by system area; deduplicate and update them as work items finish. The stages a work item moves through are in `.claude/rules/work-item-stages.md`.
 
