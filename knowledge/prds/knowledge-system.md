@@ -164,7 +164,7 @@ flowchart TD
 **4. Something worth keeping comes up mid-work**
 
 - What the owner sees: a card in that same reply, in the shape requirement 20 sets. It has a bold headline, an arrow saying where the file goes, the exact words to be written, and five bullets. The owner answers it with one word.
-- What happens: one of these happened. The owner said a trigger phrase, such as "actually", "going forward", or "never do X". Or the owner brought up something new, such as a new person or a switch to a different tool. Or a real problem in this project was just fixed. Or the work produced a result the project will look up again. Before showing a card, the agent reads `knowledge/memory-self-improvement.md`, so something the owner already rejected is dropped or changed before he sees it.
+- What happens: one of these happened. The owner said a trigger phrase, such as "actually", "going forward", or "never do X". Or the owner brought up something new, such as a new person or a switch to a different tool. Or a real problem in this project was just fixed. Or the work produced a result the project will look up again. Or someone's role changed or they left. Or a recorded fact turned out to be stale during a check. Or a decision landed about which source is the authority for a piece of data. Before showing a card, the agent reads `knowledge/memory-self-improvement.md`, so something the owner already rejected is dropped or changed before he sees it.
 - Files written, after yes: one file under `knowledge/memory/` or `knowledge/prds/`, the index, and one line in `knowledge/memory-self-improvement.md` recording the outcome. All of it is committed to the default branch and pushed in the same reply.
 - Enforced by: an output check on the card's shape. A gate on the write: the checker runs, and a failing check means the save is not finished. The moment itself is the agent's judgment, backed by the count in step 7. Requirements 9, 10, 11, 20, 21, 23.
 
@@ -356,7 +356,7 @@ first, and says which page it read and when the page was captured.
 - No long review. No back and forth. No reading a full file before deciding.
 - The agent proposes at the right moment on its own. The owner never has to remember to ask.
 - Five moments are forced. The agent cannot pass them without a card or a one-line "nothing to save": a work item finishes or closes, a pull request is being opened, a handoff or a context clear is coming, a turn ends after real work was done, and any time the owner says to save something. Requirement 3 says how they are forced.
-- Two moments are the agent's own judgment. It should propose a save, but nothing forces it: a real problem here has just been fixed, and a commit is coming. A miss at one of these is caught at the next forced moment.
+- The other moments are the agent's own judgment. It should propose a save, but nothing forces it: a real problem here has just been fixed, a commit is coming, or one of the events step 4 names happened, such as a new person, a role change, a tool switch, a stale fact found, or a data-authority decision. A miss at one of these is caught at the next forced moment.
 - The owner saying "remember this" starts the save flow that leads to a card. It is not permission to write, and it skips no step.
 - The save review is that same flow run over everything the session did since the last one. It gathers candidates, drops any that fail requirements 11 and 12, and then shows one card per candidate, or says in one line that nothing needs saving. It is what the gates in requirement 3 wait for.
 - When approved, memory or PRDs are saved directly to the default branch and pushed!!! They are not lost in worktree branches or buried in something that a future agent would not easily find.
@@ -549,7 +549,12 @@ What a memory's body holds, in this order, and nothing else:
 3. What to do differently because of it, when there is something.
 4. Where the detail lives, as a path or a link, instead of the detail itself.
 
-Most memories fit on one screen. When a memory keeps growing past that, it is
+When the memory settles a question that was open, it says so and names what
+proved it, so no later agent works the same thing out again. Example: "Settled
+2026-07-02: manual account edits are reverted every morning; proven three times."
+
+A memory file stays under 5,000 characters, and the checker refuses one that
+grows past that line. Most memories fit on one screen. When a memory keeps growing past that, it is
 really a document, not a memory. Move the long content into a PRD, a skill, or
 the work item it belongs to. What stays in the memory file is the one-line summary and the
 path to where the long content now lives.
@@ -754,14 +759,14 @@ never opens a file to decide.
 ## 21. Indexes and the checker
 
 - Two generated files: `knowledge/memory/memory-index.md` and `knowledge/prds/prd-index.md`. Both have the same shape and are built the same way. The PRD index used to be called `spec-index.md`.
-- The index is grouped under short topic headings, not one flat alphabetical list. The heading comes from each file's `group` field. Files with the same `group` sit together under that heading. The order of the groups, and the order of files inside a group, follow one fixed rule, so the same set of files always produces the same index. The rule is alphabetical: groups by their heading, files by their filename.
+- The index is grouped under short topic headings, not one flat alphabetical list. Each heading reads like the question a reader would ask, such as "Deploy and org-safety rules" or "Where things live", so the index answers the question before any file is opened. The heading comes from each file's `group` field. Files with the same `group` sit together under that heading. The order of the groups, and the order of files inside a group, follow one fixed rule, so the same set of files always produces the same index. The rule is alphabetical: groups by their heading, files by their filename.
 - Each entry is one line: a link to the file, then the file's `summary`. The summary is the headline fact itself, in plain words, not a description of the file. A reader gets the answer from the line and opens the file only for the detail. The owner's model for this is the memory index in his Davis project, where a line reads like "Never send via Gmail; paste the email or save it to a file".
 - The summary is written once, in the file's own `summary` field, and the index copies it word for word. The index adds nothing of its own. Every line in it comes from a file.
 - A memory whose status is not `current`, or a PRD whose status is not `finalized`, shows its status on its line, so a superseded, retired, or proposed file is visibly not an answer to what is true now.
 - The header above the entries is two lines at most. The index points at files. It does not explain how anything works.
 - Never edited by hand. The order of files inside a group follows one fixed rule. Two sessions rebuilding the index at the same time then produce the same lines in the same order, so their changes do not conflict in Git.
 - If an index disagrees with the files on disk, the files win. Rebuild it.
-- One read-only checker confirms required fields, allowed values, and three size limits: the `summary` line of any memory file or PRD is under 200 characters, `knowledge/current.md` is under 5,000 characters, and `knowledge/memory-self-improvement.md` is under 10,000 characters. Nothing else has a size limit. The checker never writes anything.
+- One read-only checker confirms required fields, allowed values, and four size limits: the `summary` line of any memory file or PRD is under 200 characters, `knowledge/current.md` is under 5,000 characters, `knowledge/memory-self-improvement.md` is under 10,000 characters, and any one memory file is under 5,000 characters. Nothing else has a size limit. The checker never writes anything.
 - When a file breaks a limit or a field rule, the checker names the file and the rule it broke. A save that fails the checker is not finished. The agent shortens or fixes the file and runs the checker again before it says the save is done. Nothing is ever cut off silently.
 - After any lasting knowledge change, the index is rebuilt and the checker is run. A failing check means the save is not finished, and the agent says so instead of claiming the knowledge is stored.
 
@@ -777,6 +782,7 @@ about". Break a required field and run the checker. It fails and names the file.
 - **Retire** when a file no longer applies but its history still matters. Set `status` to `retired`. It stops answering what is true now and stays findable.
 - **Delete** for three reasons only, and name the reason in the reply: a copy made by mistake, a secret that should never have been written down, or something that was never true. Something that stopped being true is superseded or retired, never deleted.
 - Age alone is never a reason. Written two years ago and still true means still true.
+- A memory nobody will look up again is found and proposed for retirement without the owner hunting for it. He says yes. The reason is never age. The reason is that the result it holds will not be needed again. Example: a spreadsheet built once in June, checked and delivered, with nothing pointing at it months later.
 - This happens at each save, for the files the search turned up, and across the whole folder when `reflect` runs. Two files saying the same thing are merged into one. Two files that disagree are resolved by the supersede steps above. Two files on the same topic get `related_memories` pointing each at the other. The aim is a small set of files the agent can trust, where related files point at each other, not a large set.
 
 **Check:** save something that contradicts an existing file. The agent shows the
