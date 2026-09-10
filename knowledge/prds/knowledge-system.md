@@ -687,19 +687,36 @@ work items links back to the PRD and names its requirements. Finish one work
 item. The roadmap changes in the same session. The part of the PRD that
 describes how the area behaves changes before the work item is called done.
 
-Required fields: `summary`, `group`, `area`, `status`, `source`, `created_at`, `updated_at`,
-`tags`, `approved_by`, `approval_date`. They mean the same as they do on a
-memory file, and take the same values, with one difference: a PRD's `status` is
-`proposed`, `finalized`, `superseded`, or `retired`. A PRD never uses the word
-`current`. The word for a built PRD is `finalized`. `area` names the feature area and normally matches the
-filename.
+Required fields: `summary`, `group`, `area`, `status`, `source`, `created_at`,
+`updated_at`, and `tags`. They follow the memory field meanings except for
+approval: on a PRD, `approved_by` and `approval_date` record approval of its
+requirements, not permission to write or save the draft. An unapproved
+`proposed` PRD omits both. Once requirements are approved, both are required,
+even while the PRD remains proposed. Every other PRD status requires both.
+If either approval field is supplied, both must be nonblank strings, and the
+approval date must be a real `YYYY-MM-DD` date. Do not invent approval metadata.
+Memory approval remains required.
+
+This approval-format clarification was approved and built on 2026-09-10 in
+[issue 311](https://github.com/Mar5929/claude-toolkit/issues/311) and
+[PR 312](https://github.com/Mar5929/claude-toolkit/pull/312). It does not mark
+the rest of this proposed knowledge system as built.
+
+**Approval check:** save an authorized unapproved draft without either field;
+validation passes without claiming requirements approval. Add only one field,
+an empty pair, or an invalid date; validation fails. Existing approved PRDs
+and memories still pass with complete valid approval records.
+
+A PRD's `status` is `proposed`, `finalized`, `superseded`, or `retired`. A PRD
+never uses the word `current`. The word for a built PRD is `finalized`. `area`
+names the feature area and normally matches the filename.
 
 Optional fields: `confirmed_at`, `source_quote`, `effective_from`,
 `effective_to`, `project`, `work_item`, `supersedes`, `superseded_by`,
 with the same meanings and rules as the memory file table.
 
-Two fields are never on a PRD. `confidence` is left out, because a PRD is
-approved behavior and "how sure are we" does not apply. `type` is left out,
+Two fields are never on a PRD. `confidence` is left out, because a PRD states
+what should happen, rather than how certain a fact is. `type` is left out,
 because every file in the folder is the same kind of thing.
 
 `proposed` and `finalized` are statuses only a PRD may carry. No memory file ever

@@ -27,11 +27,13 @@ been approved as a whole. Approval metadata is therefore absent. Mike has
 explicitly authorized committing and pushing this proposed draft to main.
 Permission to save must not appear as requirements approval. The numbered
 requirements are proposals unless a separate decision is identified and linked.
-The unresolved approval-metadata format is recorded below.
+The approval-metadata format was separately settled under R15.
 
 R25 was separately approved for implementation and shipped on 2026-09-10 in
-[PR 308](https://github.com/Mar5929/claude-toolkit/pull/308). The other
-requirements remain proposed. Shipping R25 does not approve the whole PRD.
+[PR 308](https://github.com/Mar5929/claude-toolkit/pull/308). The approval-format
+part of R15 was separately approved and shipped in
+[PR 312](https://github.com/Mar5929/claude-toolkit/pull/312). Remaining proposals
+are not approved merely because these parts shipped.
 
 This PRD owns the whole experience. Component PRDs keep their detailed rules.
 The approved parent-and-child folder shape is available, but whether these
@@ -48,7 +50,9 @@ visible until Mike settles it and that component's own record is updated.
   Plans adapt to the task. No automatic team or duplicate planner is needed.
 - Read existing answers first. Ask one focused question at a time. State a
   recommendation and explain a meaningful disagreement in plain words.
-- Drafting permission does not authorize implementation.
+- Drafting permission does not authorize implementation. Permission to save
+  an unapproved proposed PRD does not require or record requirements approval;
+  its approval fields remain absent until those requirements are approved.
 - The System Guide name, place, summary, and folder shape were approved.
   Its detailed decisions belong to its own PRD and work item; this list does
   not turn individual draft requirements into approved requirements.
@@ -291,6 +295,12 @@ single clear instruction may cover several; do not require repeated approval
 for the same scope. Silence, a stage label, an assignment, or a helper's
 recommendation cannot supply missing approval.
 
+The approval-field agreement is owned by
+[second-brain requirement 16](knowledge-system.md#16-requirements-documents).
+That part was built on 2026-09-10 in PR 312: an authorized unapproved draft can
+pass validation without fabricated approval. This does not approve the rest
+of this PRD or change the separate built/finalized status.
+
 **Check:** "Write and refine the proposed PRD" permits draft changes and
 tracking them. It does not permit building the proposed system or marking
 the result accepted.
@@ -491,7 +501,6 @@ authorizes implementation or changes the neighboring PRD by implication.
 | Searches for simple requests | Second-brain requirements 5 and 19 require the same knowledge search for every task or question, with past-session search before asking when earlier tiers fail. This PRD must also keep small tasks small. Does that include self-contained requests unrelated to project knowledge? | Keep relevant lookup mandatory for project work, but exempt requests fully answerable from supplied text, such as shortening one sentence. This is a proposed change to the component agreement, not a settled exception. |
 | Draft refinement and save cards | Guided delivery recognizes authorized draft corrections. Second-brain requirements 9 and 10 call for a card and yes for each PRD save. Mike explicitly authorized this draft and refinement. | Treat that explicit authority as sufficient for faithful draft updates; keep new lasting meaning outside that scope under its normal approval. Align the component wording before claiming this is the general rule. |
 | Hard refusals and lightweight work | Second-brain requirement 3 proposes forced save-review moments. Upkeep favors adaptable stages and deliberately allows an unapproved local Done record while reporting the gap. A component's mechanism cannot be assumed to enforce the whole experience. | Preserve each component's existing decision. Specify the effect of knowledge-review failures on work completion before design; do not add blanket process gates here. |
-| Approval metadata for unapproved drafts | The schema requires an approver and a nonempty approval date. This PRD has drafting permission, not approval of all requirements. Filling those fields with drafting permission misrepresents its state. | Permit an unapproved proposed PRD to omit both approval fields. Require them once requirements are approved, and keep approval separate from built status. This is a proposed schema decision, not implemented here. |
 | Remaining knowledge-format transition | The manual and proposed second brain still differ on naming and metadata, including the proposed content-change date. Group and finalized status are now accepted by the checker, alongside legacy current. | Keep the remaining transition with #269. Compatibility support does not prove the full second-brain proposal is implemented. |
 | Helper agents | The ask-first instruction for this drafting session does not establish a permanent policy. Guided delivery permits bounded delegation without a blanket ask-first rule. | Retain guided delivery's bounded delegation, while honoring owner limits and scoped permissions. Ask Mike before making ask-first a toolkit-wide requirement. |
 | Parent or sibling PRDs | The parent-and-child folder shape is available. Its application to this overall PRD and the five components has not been decided. | Review them as children of the overall experience if that ownership is intended. Confirm scope and authority before moving files or changing component decisions. |
@@ -503,10 +512,9 @@ The former worktree-save conflict is resolved by R25 and PR 308: authorized
 knowledge saves go directly to the default branch and are pushed. Do not
 reopen that choice or preserve the earlier branch-parking rule.
 
-Mike explicitly directed this draft's commit and push to main despite the
-reported approval-metadata conflict. That save does not settle the general
-schema decision. Review the remaining owner choices one at a time; they do
-not hold up this authorized save or become approved merely by being saved.
+The approval-metadata conflict is also resolved through issue 311 and PR 312.
+Review the remaining owner choices one at a time; they do not hold up an
+authorized save or become approved merely by being saved.
 
 ## Roadmap and review
 
@@ -516,6 +524,10 @@ boundaries with Mike and apply his answers here in the same reply.
 
 The component work stays separate:
 
+- [311](https://github.com/Mar5929/claude-toolkit/issues/311) delivered the
+  approval-format part of R15 and the existing-save-authorization guidance
+  supporting R25 in PR 312. Neither requirement is treated as wholly proven
+  across every installed project by this narrow fix.
 - [307](https://github.com/Mar5929/claude-toolkit/issues/307) delivered R25 in
   PR 308. The remaining requirements on this overall PRD are still in review.
 - [269](https://github.com/Mar5929/claude-toolkit/issues/269) owns second-brain
