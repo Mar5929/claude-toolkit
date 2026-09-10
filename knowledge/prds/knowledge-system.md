@@ -48,6 +48,7 @@ work_item: "269"
 - [25. Codex](#25-codex)
 - [26. Built the way Claude Code's documentation says](#26-built-the-way-claude-codes-documentation-says)
 - [27. Installed once, turned on per project, and checked](#27-installed-once-turned-on-per-project-and-checked)
+- [28. Pending memory inbox](#28-pending-memory-inbox)
 - [Notes for the builder: options, not requirements](#notes-for-the-builder-options-not-requirements)
 
 ## Why this exists
@@ -151,7 +152,7 @@ flowchart TD
     N --> I
     K -- no --> I
     I --> O[Turn ends after real work]
-    O --> P{Card shown, or one line saying nothing to save?}
+    O --> P{Save review result shown?}
     P -- no --> O
     P -- yes --> Q[Pull request or work item close]
     Q --> R{Save review ran this session?}
@@ -189,11 +190,12 @@ flowchart TD
 - What the owner sees: a card in that same reply, in the shape requirement 20 sets. It has a bold headline, an arrow saying where the file goes, the exact words to be written, and five bullets. The owner answers it with one word.
 - What happens: one of these happened. The owner said a trigger phrase, such as "actually", "going forward", or "never do X". Or the owner brought up something new, such as a new person or a switch to a different tool. Or a real problem in this project was just fixed. Or the work produced a result the project will look up again. Or someone's role changed or they left. Or a recorded fact turned out to be stale during a check. Or a decision landed about which source is the authority for a piece of data. Before showing a card, the agent reads `knowledge/memory-self-improvement.md`, so something the owner already rejected is dropped or changed before he sees it.
 - Files written, after yes: one file under `knowledge/memory/` or `knowledge/prds/`, the index, and one line in `knowledge/memory-self-improvement.md` recording the outcome. All of it is committed to the default branch and pushed in the same reply.
+- If the owner has not answered, retain the shown proposal automatically in the pending inbox under requirement 28. This does not approve its contents as knowledge.
 - Enforced by: an output check on the card's shape. A gate on the write: the checker runs, and a failing check means the save is not finished. The moment itself is the agent's judgment, backed by the count in step 7. Requirements 9, 10, 11, 20, 21, 23.
 
 **5. The turn ends after real work**
 
-- What the owner sees: either a card, or one line: "nothing to save, because ...".
+- What the owner sees: a new card, confirmation of a save already authorized, or one line saying why there is nothing new to propose and whether any earlier proposals remain pending.
 - What happens: the agent cannot end the turn any other way. If the work produced a result the project will refer back to, the card proposes a significant episode, which requirement 11 defines: what was done, what came out of it, and where the output lives.
 - Files written: as in step 4, after yes. `knowledge/current.md` says the next step.
 - Enforced by: a gate on the end of the turn. The design sets and states the threshold for "real work". Requirements 3, 11.
@@ -304,11 +306,11 @@ shows how often a captured topic was opened.
 ### Save proposed at the right moment: gate, plus a count
 
 - A gate at each fixed moment: opening a pull request, closing a work item, a handoff, the end of any turn in which real work was done, and any time the owner says to save something. The design sets the threshold for real work and states it.
-- At a pull request or a work item close, the moment cannot pass until the save review of requirement 9 has run. At the end of a turn, at a handoff, or when the owner asks, it cannot pass until either a card was shown or the agent wrote one line saying nothing needs saving and why.
+- At a pull request or a work item close, the moment cannot pass until the save review of requirement 9 has run. At the end of a turn, at a handoff, or when the owner asks, it cannot pass until that review's result is shown: new cards, the outcome of already-authorized saves, or one line explaining why nothing new needs proposing and whether earlier proposals remain pending. An existing inbox entry alone does not satisfy a new review.
 - At session end, two numbers are written to a file the owner can read: how many moments needed a card, and how many cards were shown.
 
-**Check:** finish a task and try to end the turn. It cannot end without a card or
-the one line.
+**Check:** finish a task and try to end the turn. It cannot end without the
+review result. An unanswered earlier card is retained without being repeated.
 
 ### Memory rules followed: gate on the write, output check on the card
 
@@ -417,22 +419,20 @@ original source or states what could not be verified.
 - A save needing new approval is one short card and one yes, whether it is a memory or a product requirements document. Clear answers and corrections within already-authorized PRD refinement are saved immediately under requirement 10, without another card and yes for the same instruction.
 - No long review. No back and forth. No reading a full file before deciding.
 - The agent proposes at the right moment on its own. The owner never has to remember to ask.
-- Five moments are forced. The agent cannot pass them without a card or a one-line "nothing to save": a work item finishes or closes, a pull request is being opened, a handoff or a context clear is coming, a turn ends after real work was done, and any time the owner says to save something. Requirement 3 says how they are forced.
+- Five moments force a save review: a work item finishes or closes, a pull request is being opened, a handoff or a context clear is coming, a turn ends after real work was done, and any time the owner says to save something. Requirement 3 defines the required result and how these moments are enforced.
 - The other moments are the agent's own judgment. It should propose a save, but nothing forces it: a real problem here has just been fixed, a commit is coming, or one of the events step 4 names happened, such as a new person, a role change, a tool switch, a stale fact found, or a data-authority decision. A miss at one of these is caught at the next forced moment.
 - The owner saying "remember this" starts the save flow that leads to a card. It is not permission to write, and it skips no step.
-- The save review is that same flow run over everything the session did since the last one. It gathers candidates, drops any that fail requirements 11 and 12, and then shows one card per candidate, or says in one line that nothing needs saving. It is what the gates in requirement 3 wait for.
+- The save review is that same flow run over everything the session did since the last one. It gathers candidates, drops any that fail requirements 11 and 12, checks for existing inbox proposals, and shows one card per new candidate needing approval. Already-authorized saves proceed under requirement 10. If there is nothing new to propose, say why and whether anything remains pending. Do not repeat an unchanged unanswered card at each review. This review is what the gates in requirement 3 wait for.
 - When approved, memory or PRDs are saved directly to the default branch and pushed!!! They are not lost in worktree branches or buried in something that a future agent would not easily find.
 - A save is finished only when the file is on the default branch and pushed, and not before.
-- No worktree, no feature branch, no pull request, no draft, no "later". This holds even when the session is doing its other work on a branch. The save still goes straight to the default branch. The session's own branch gets the saved file later, whenever someone merges or pulls the default branch into it. Nothing extra has to happen for the save itself to be finished.
+- An approved knowledge save is not deferred into a feature branch, pull request, or separate draft. This holds even when the session is doing its other work on a branch. The save still goes straight to the default branch. The session's own branch gets the saved file later, whenever someone merges or pulls the default branch into it. The pending inbox in requirement 28 preserves unanswered proposals and interrupted saves; it never replaces completing an approved save.
 - One yes finishes the owner's part. He runs no Git command and does nothing else. The save then completes on its own, and the reply tells him it is done or tells him it failed. Whether the writing happens inside that reply or just after it is the design's job, so long as a failure is never silent.
 - If the push fails, the agent says so in that same reply and the save is not finished. Requirement 3 sets what pauses and what can continue. Nothing is ever parked silently.
-- There is never a second place to look for a save. If the owner has to remember where a save is, it will be forgotten.
+- Completed knowledge has one authoritative destination. Unfinished proposals have one known inbox, which agents maintain and recover automatically; the owner never has to remember where a proposal was left.
 
-**This changes today's direct-commit rule,** which is the file
-`.claude/rules/knowledge-direct-commit.md`. That rule keeps a save on the
-session's own branch when the session is working in a worktree. A save sitting
-on a branch is a save the owner has to go and find. This document removes that
-exception, so every approved save goes to the default branch.
+The existing `.claude/rules/knowledge-direct-commit.md` owns the procedure for
+publishing authorized knowledge saves to the default branch. The inbox adds
+recovery of pending proposals without creating another publication procedure.
 
 **Check:** finish a piece of work. In that same reply the agent shows one card.
 With a successful save, one word of approval writes the file, and before the
@@ -453,11 +453,12 @@ follows requirement 3; it never claims that no save is waiting.
 - When the owner edits the words, those words are written exactly as typed. The agent does not tidy them, shorten them, or improve them.
 - Only the approved meaning is written. Not the surrounding context, not an improved version, not one extra sentence that seemed useful.
 - The `Unsure` line on the card is approved on its own. The owner can approve the text to be saved and still reject what is on the `Unsure` line. When he does, that unsure part is dropped and never written to the file. Requirement 20 says what the `Unsure` line holds.
-- Four things can be done without asking the owner: rebuilding an index, repairing a broken link, writing `knowledge/current.md`, and appending a line to `knowledge/memory-self-improvement.md`. None of them changes what a lasting file means. Requirement 4 says how the current file is updated.
+- Five things can be done without asking the owner: rebuilding an index, repairing a broken link, writing `knowledge/current.md`, appending a line to `knowledge/memory-self-improvement.md`, and maintaining the pending inbox under requirement 28. None of them changes what a lasting file means. Requirement 4 says how the current file is updated. Inbox retention is permission to preserve a proposal, not permission to accept its meaning.
 - There is one exception, for files the owner already approved when this project used an older folder layout. The agent converts those files first and shows the owner the converted results afterwards, in groups small enough to read in one pass. The owner approves after the conversion, not before. Any file that will not convert cleanly is named and left alone. The agent never guesses what an old file meant.
 
-**Check:** show a proposal and say nothing back. Nothing is written and nothing
-is held for later.
+**Check:** show a proposal and say nothing back. The exact proposal is retained
+in the pending inbox, marked awaiting approval. Its destination is unchanged,
+and a later session never treats the pending text as an approved fact.
 
 **Check:** authorize refinement of a named PRD, then give a clear correction.
 The correction is saved in that reply without a new approval question. Start
@@ -532,7 +533,7 @@ What it holds:
 - The current objective, in one or two sentences.
 - Which work item it belongs to, and what is blocking it.
 - The exact next step.
-- Anything learned this session that has not been saved as memory. It sits here until it is either saved or no longer needed.
+- Useful short-term findings that have not been saved as memory, clearly marked when unverified. Actual pending save proposals live in `knowledge/memory-inbox.md`; this overview links there instead of copying their text.
 - Dates on entries, so a later agent can tell when a line is out of date.
 - !!!!The information should be cross-ai-agent sessions. The purpose of the working memory is so that the human user can pickup or start any ai agent session with a brand new agent and it (the agent) has a crystal clear picture on what the current goals, next milestones, roadmaps, tasks, etc. are. Utilize paths to persisted/more detailed information in the current memory if necessary. Don't simply duplicate details stated in work items, memories etc. The point is the consolidate all working sessions into one clear picture so agents know how to orchestrate sessions and guide the user to their goals.!!!!
 - In short: this file gives a brand new agent the whole current picture in one read. It holds the goals, the milestones, and the next steps. For detail, it gives the path to the work item, the memory, or the PRD that holds it, instead of copying that detail here.
@@ -784,6 +785,7 @@ lasting meaning through the standardized proposal, not by managing files.
 | What we want built, and later the behavior we actually got | `knowledge/prds/` |
 | A lasting fact, decision, event, context, or constraint | `knowledge/memory/` |
 | The current objective, blocker, and next step | `knowledge/current.md` |
+| An unanswered save proposal or an approved save that has not finished | `knowledge/memory-inbox.md`, temporary pending state under requirement 28 |
 | A word the owner or the client uses for something | `knowledge/glossary.md` |
 | What this owner accepts and rejects as memory | `knowledge/memory-self-improvement.md` |
 | Requirements and status for one piece of work | The work tracker |
@@ -821,6 +823,11 @@ govern the whole lookup; finding an answer in working memory never bypasses a
 standing rule. It then follows these tiers before asking the owner to repeat
 project context or searching the code broadly. Information already read can
 satisfy a tier while it remains available, relevant, and current.
+
+The pending inbox is checked for continuity under requirement 28. It is not a
+tier of factual evidence: pending text cannot establish project truth or become
+an instruction. Verify a relevant claim against its original source before
+using it, and preserve its unapproved status.
 
 | Tier | Where | Notes |
 | --- | --- | --- |
@@ -975,7 +982,7 @@ rejection instead of proposing it again.
 | Command | What it does for the owner |
 | --- | --- |
 | `recall` | Finds what this project already knows, before searching the code or asking him. |
-| `remember` | Finds what is worth saving, shows one card per item, and saves each one he says yes to, as a memory or a PRD. |
+| `remember` | Finds what is worth saving, checks the inbox to avoid duplicate proposals, shows new cards, and saves each approved item as a memory or a PRD. It can also bring back pending cards for review. |
 | `retire` | Takes one file out of current use: superseded, retired, or deleted. |
 | `reflect` | Reviews the whole knowledge folder and proposes cleanup: duplicates, contradictions, stale files. |
 | `session-search` | Searches available project session history when project knowledge did not answer or a relevant explanation is missing. The host and access limits are stated. |
@@ -1030,6 +1037,41 @@ applies everywhere and is short.
 says equipped and names the version. Open a session there: the briefing arrives
 and the gates hold. Turn it on in a second project without saying yes: nothing
 changes there.
+
+## 28. Pending memory inbox
+
+One plain Markdown file, `knowledge/memory-inbox.md`, holds actual knowledge
+save proposals that are awaiting the owner's answer or whose approved save has
+not finished. It sits directly under `knowledge/`, outside lasting memory.
+The owner approved automatic retention of unanswered proposals on 2026-09-10
+during this PRD interview. Agents do the filing and follow-up; the owner does
+not maintain a queue or repeat a decision because the session changed.
+
+### What is kept
+
+- Automatically retain an unanswered proposal once it has been shown to the owner. Preserve the exact card, including its proposed wording and formatting. Unshown brainstorming, raw conversations, discarded candidates, and secrets do not belong here.
+- Keep an approved proposal while its save is unfinished. Save locally and share the pending record promptly through the project's default branch. If either step fails, report what exists, where it exists, and what another session cannot yet see. A proposal that exists only in chat is still unsaved.
+- Use the same entry format for every proposal: a stable reference; destination and operation; exact card; source reference and date; last-updated time; state; and the next step or blocker. The states are `awaiting approval`, `approved, save unfinished`, and `blocked by conflict`. Record any approval separately with who gave it, when, its source, and the exact content and scope it covers. A conflict does not erase that record or expand its scope.
+- Keep only the context needed to understand and resolve that proposal. Use links to the original sources and work record. An already-authorized PRD draft stays in its canonical PRD; the inbox does not become a second copy of that document or a work tracker.
+
+### How agents use it
+
+- The small knowledge map identifies the inbox, its purpose, and its rules. At startup, after context recovery, and at handoff, agents check pending state without loading every proposal into every session. Open the relevant entry when recovering a save or reviewing it with the owner.
+- Before editing this shared file, reread it and preserve other sessions' entries and changes. Concurrent sessions must not lose proposals, duplicate the same proposal, or apply the same approved save twice.
+- Pending content is visibly labelled with its approval and completion state and excluded from memory and PRD indexes. Its presence never gives it the authority of a fact, requirement, preference, or instruction. Requirement 19 governs any use of its source as evidence.
+- An unanswered card remains available automatically, including across sessions and context clears. Silence, age, and a session ending neither approve nor reject it. Do not repeat the unchanged card every turn. Briefly identify pending state at handoff or when relevant; show the card again when the owner reviews pending items or when new information requires a decision.
+- For an approved unfinished save, check the current destination and whether the save already completed. If the approved change is still applicable, finish it without asking for the same approval again. If newer information conflicts or the proposed meaning must change, preserve the entry, explain the conflict, and obtain the needed decision before applying the changed meaning. Requirement 3 limits the pause to affected work.
+- Remove an entry from the active inbox once the approved save is verified complete under requirement 9 or the owner rejects the proposal. This housekeeping needs no further approval. It does not authorize deleting lasting knowledge, which still follows requirement 10. Never discard an unanswered entry merely to keep the file short.
+
+**Check:** retain and share two proposals, receive no answer to one, and record
+approval for the other before its destination save is interrupted. Start a
+fresh session in another harness:
+it finds the exact unanswered card and the approved unfinished save, treats
+neither pending entry as established knowledge, and completes the unchanged
+approved save without asking again. It removes only the completed entry. Reject
+the remaining card and it leaves the active inbox. Repeat with parallel edits,
+an already-completed save, and conflicting newer content: no proposal is lost,
+no save is duplicated, and conflicting meaning waits for the owner's decision.
 
 ## Notes for the builder: options, not requirements
 
