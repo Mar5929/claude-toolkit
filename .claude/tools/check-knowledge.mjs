@@ -29,7 +29,7 @@ const posix = (value) => value.split(sep).join("/");
 const CURRENT_MD_MAX_CHARS = 2000;
 const SELF_IMPROVEMENT_MAX_CHARS = 8000;
 const SUMMARY_MAX_CHARS = 250;
-export const MANUAL_SHA256 = "7c591d49f97c2f58f958b36bbcfa2fffd153c8825e3d68ee333a47779b680c87";
+export const MANUAL_SHA256 = "2f0d1a53bc234a7695631f41c412cafcdd535185d0c29bd67c13f4d695fa678e";
 
 const STATUS_VALUES = ["current", "superseded", "retired"];
 // A PRD is one living document. It opens as proposed, holding the
@@ -125,12 +125,26 @@ function checkFile(vault, folder, name, kind) {
   const required = kind === "memory" ? MEMORY_REQUIRED : SPEC_REQUIRED;
   const known = kind === "memory" ? MEMORY_KNOWN : SPEC_KNOWN;
 
+  // Saving a proposed PRD does not approve its requirements. Omit the pair
+  // only when neither approval field has been supplied; placeholders are invalid.
+  const unapprovedDraft = kind === "spec" && data.status === "proposed"
+    && !Object.hasOwn(data, "approved_by") && !Object.hasOwn(data, "approval_date");
+  const approvalFields = ["approved_by", "approval_date"];
+
   for (const field of required) {
+    if (unapprovedDraft && approvalFields.includes(field)) continue;
     const value = data[field];
     const empty = value === undefined
       || value === ""
       || (Array.isArray(value) && value.length === 0);
     if (empty) fail(path, `is missing the required field \`${field}\`.`);
+  }
+
+  for (const field of approvalFields) {
+    if (Object.hasOwn(data, field)
+      && (typeof data[field] !== "string" || !data[field].trim())) {
+      fail(path, `has an invalid \`${field}\`. Approval fields must be nonblank strings.`);
+    }
   }
 
   for (const field of Object.keys(data)) {

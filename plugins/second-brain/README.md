@@ -101,7 +101,10 @@ The builder creates the two deterministic indexes. The checker validates the
 managed manual, knowledge file shape, links, flat-folder layout,
 `knowledge/current.md` and `knowledge/memory-self-improvement.md` size, and
 common secret patterns. It reports problems and never edits, moves, or deletes
-anything.
+anything. An unapproved proposed PRD may omit both approval fields. Supplied
+approval records must be complete and valid; memory and other PRD statuses
+still require approval. The manual owns this distinction between permission
+to save and requirements approval.
 
 Approved knowledge saves commit and push directly to the default branch,
 including during implementation in a worktree. Project-init supplies the
