@@ -579,9 +579,14 @@ loses nothing, that sentence should not have been in the file.
 ## 16. Requirements documents
 
 A product requirements document, PRD for short, is one document per feature
-area, kept in `knowledge/prds/`.
+area, kept in `knowledge/prds/`. A big feature area may be a folder instead of
+one file, with a parent PRD and child PRDs inside it.
 
 - Same file for its whole life. The filename is the feature area in plain words, same naming rules as a memory file.
+- A feature area may be a folder: `knowledge/prds/<area>/<area>.md` is the parent PRD, and every other file in that folder is a child PRD. A child covers one sub-part of the area with its own numbered requirements, its own status, and the same fields as any PRD. The parent holds the goal, the requirements that span the whole area, and a contents list naming each child. Example: `knowledge/prds/knowledge-system/knowledge-system.md` is the parent, and `knowledge/prds/knowledge-system/indexes-and-checker.md` is a child holding the requirements for the two indexes and the checker.
+- A small feature area stays one file at the top of `knowledge/prds/`. Nothing forces a folder.
+- A child never repeats a requirement the parent already states. It refers to the parent by requirement number. When the two disagree, the parent wins and the disagreement is said out loud.
+- The parent's roadmap lists work items for the whole area, children included.
 - It opens as `proposed`, which is what we want built. It is edited to `finalized` once every work item on its roadmap is done and it describes what was actually built. A small PRD that one work item delivers is finalized when that item finishes. While a big PRD is being built, each requirement that is done gets a line saying "Built on YYYY-MM-DD", so progress is visible inside the PRD.
 - Only a `finalized` PRD is settled truth. Never answer "how does this work today" from a `proposed` one.
 - Only a `finalized` PRD beats a memory. When a memory and a finalized PRD disagree, the agent follows the PRD, says so, and names both files. It never picks one without saying. A `proposed` PRD never beats a memory, because it is not built yet.
@@ -759,7 +764,7 @@ never opens a file to decide.
 
 ## 21. Indexes and the checker
 
-- Two generated files: `knowledge/memory/memory-index.md` and `knowledge/prds/prd-index.md`. Both have the same shape and are built the same way. The PRD index used to be called `spec-index.md`.
+- Two generated files: `knowledge/memory/memory-index.md` and `knowledge/prds/prd-index.md`. In the PRD index, a child PRD is listed under its parent, indented one level, so the reader sees the area and its parts together. Both have the same shape and are built the same way. The PRD index used to be called `spec-index.md`.
 - The index is grouped under short topic headings, not one flat alphabetical list. Each heading reads like the question a reader would ask, such as "Deploy and org-safety rules" or "Where things live", so the index answers the question before any file is opened. The heading comes from each file's `group` field. Files with the same `group` sit together under that heading. The order of the groups, and the order of files inside a group, follow one fixed rule, so the same set of files always produces the same index. The rule is alphabetical: groups by their heading, files by their filename.
 - Each entry is one line: a link to the file, then the file's `summary`. The summary is the headline fact itself, in plain words, not a description of the file. A reader gets the answer from the line and opens the file only for the detail. The owner's model for this is the memory index in his Davis project, where a line reads like "Never send via Gmail; paste the email or save it to a file".
 - The summary is written once, in the file's own `summary` field, and the index copies it word for word. The index adds nothing of its own. Every line in it comes from a file.
