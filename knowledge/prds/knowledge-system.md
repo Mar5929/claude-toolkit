@@ -46,6 +46,7 @@ work_item: "269"
 - [24. The six commands](#24-the-six-commands)
 - [25. Codex](#25-codex)
 - [26. Built the way Claude Code's documentation says](#26-built-the-way-claude-codes-documentation-says)
+- [27. Installed once, turned on per project, and checked](#27-installed-once-turned-on-per-project-and-checked)
 - [Notes for the builder: options, not requirements](#notes-for-the-builder-options-not-requirements)
 
 ## Why this exists
@@ -856,6 +857,18 @@ startup text that relates to memory, PRDs, or the second brain.
 page it followed. Open that page. The part matches what the page says. Pick any
 rule file: it either has a `paths:` line naming the folders it applies to, or
 it applies everywhere and is short.
+
+## 27. Installed once, turned on per project, and checked
+
+- The second brain is installed once on a computer. A project gets it only when the owner says yes to turning it on there.
+- Turning it on is one step that finishes completely. Every part the project needs is put in place in that one step, not some now and some later.
+- Afterwards, the setup checks itself and tells the owner plainly whether the project is equipped, and which version is active. It never calls a half-finished setup healthy.
+- Turning it on again later, to bring a project up to date, works the same way and reports the same way.
+
+**Check:** turn the second brain on in a fresh project with one yes. The report
+says equipped and names the version. Open a session there: the briefing arrives
+and the gates hold. Turn it on in a second project without saying yes: nothing
+changes there.
 
 ## Notes for the builder: options, not requirements
 
