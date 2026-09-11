@@ -379,14 +379,37 @@ name, a system, a person, or a process.
 - From the first message of every session, the agent uses the glossary's meanings without being told to. How it gets them is the builder's choice.
 - When a term in the glossary is used, the agent applies it and does not ask.
 - When a term is unfamiliar, first use the conversation, glossary, and relevant project sources to resolve it. Ask one focused question only when uncertainty remains that could change the answer or action. Propose a glossary entry when the mapping is useful recurring project shorthand, through the normal card and approval flow.
-- The glossary is one Markdown table. Each row holds the term, what it means in plain words, the real thing it points at (a field name, a system, a person, a process), and where and when that was verified. Example: "Cap Level" means the field `MS_Capacity__c`, verified in the production org on a named date. Longer supporting detail is linked from its proper home under requirement 18; its length does not make it memory.
+- The glossary has a title, one sentence explaining its purpose, and one alphabetical Markdown table, with one short row per term. Use the template below. No heading or paragraph for each term; keep every cell brief.
+- Put alternate names in the same row. If a term means different things in different systems, clearly identify the context.
+- Keep only a short caution in the table. Link to detailed explanations or important history in their proper home under requirement 18. Their length does not make them memory.
+- Update the existing row when its meaning changes; remove obsolete or duplicate wording. Do not append another account of the same meaning.
+- Record the source and date per row, distinguishing reported meanings from verified ones. Clearly mark unresolved meanings instead of presenting them as settled.
+- Add terms that need explanation in this project, not every ordinary word.
 - Resolve project shorthand before tier 4 so searches use the intended names. Reuse a mapping already established and current; an unfamiliar word alone does not require a new glossary entry.
 - The owner's example: he said "match on the discovery email field and the core email field", and the agent knew exactly which two fields those were, like a colleague who had been on the project for years.
+
+### Glossary template
+
+Approved by the owner on 2026-09-11. The file title is "Terminology glossary",
+followed by this purpose sentence and table. The PCO row illustrates the format;
+each project supplies its own terms and sources.
+
+Project words and shorthand, what they mean, and what they refer to.
+
+| Term / aliases | Plain meaning | Refers to | Watch out | Source / date |
+| --- | --- | --- | --- | --- |
+| PCO | Patient Care Operations | The PCO department | Older documents contain an incorrect expansion. | Mike, 2026-09-08; reported |
 
 **Check:** use a known term, then an unfamiliar term whose meaning is clear
 from a project source. The agent resolves both without asking. Use a term with
 two plausible meanings that change the action: it asks one focused question.
 It proposes a glossary entry for a useful recurring mapping, not every new word.
+
+**Check:** scan a glossary containing several terms, alternate names, a meaning
+that differs between systems, and an unresolved term. The table stays compact
+and alphabetical, identifies the different contexts and uncertainty, and names
+each row's source and date. Updating a meaning edits its row; detailed history
+is linked rather than expanded into paragraphs under the term.
 
 ## 8. Read the real documentation first
 
@@ -575,12 +598,19 @@ Required on every memory file:
 | `type` | What kind of thing it mostly is. Does not decide where the file sits. | `fact`, `decision`, `event`, `context`, `constraint` |
 | `status` | Whether it answers questions about what is true now. | `current`, `superseded`, `retired` |
 | `source` | Where it came from and where to go check it: a file path, a commit, a link, or the name of the person who said it. | Free text |
+| `context` | The discussion, event, or circumstances the memory came from, with its date when known. Example: "Memory created from the meeting about security and permissions on 2026-09-11." | Brief plain-language text |
 | `confidence` | How the agent knows. | `observed`, `reported`, `inferred` |
 | `created_at` | The date the file was first written. Never changes. | `YYYY-MM-DD` |
 | `updated_at` | The date its content or status last changed. Creation sets it too. This is not proof that its facts were rechecked. | `YYYY-MM-DD` |
 | `tags` | How a topic is found across many files. Free-form, no fixed list, as many as needed. | YAML list of strings |
 | `approved_by` | Who approved it. | A person's name |
 | `approval_date` | When they approved it. Never empty. | `YYYY-MM-DD` |
+
+Both `source` and `context` are required on long-term memory files. `source`
+identifies the evidence; `context` briefly explains the occasion it came from.
+The context is not a meeting transcript or an expanding activity log. The
+example date above is illustrative; use the actual date when known, never an
+invented one. (Owner clarification, 2026-09-11.)
 
 What `confidence` means: `observed` is the agent checked it directly. `reported`
 is someone said it. `inferred` is the agent worked it out. Inferred stays
@@ -612,6 +642,10 @@ file's name.
 
 **Check:** write one memory file. Every required field is present and holds an
 allowed value, and the checker passes.
+
+**Check:** a memory from a meeting identifies its evidence in `source` and
+briefly names the meeting topic and known date in `context`. Omit either
+property: the checker reports the missing required field.
 
 **Check:** save several related details and later a changed decision in the same
 topic area. The agent updates one Markdown file, removes or rewrites outdated
