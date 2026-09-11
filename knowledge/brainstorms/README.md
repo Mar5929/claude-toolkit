@@ -6,6 +6,9 @@ behavior.
 
 ## Brainstorms
 
+- [2026-09-10 knowledge-system potential paths to explore](2026-09-10-knowledge-system-potential-paths.md)
+  - Optional implementation ideas separated from the PRD; not an approved
+    design or a list of required mechanisms.
 - [2026-07-28 second-brain v3 project memory](2026-07-28-second-brain-v3-project-memory.md)
   - How v3 should hold roadmaps, timelines, goals, and whole-project knowledge
     without duplicating the work tracker.

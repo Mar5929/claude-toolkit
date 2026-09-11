@@ -23,7 +23,7 @@ work_item: "269"
 - [A session, start to finish](#a-session-start-to-finish)
 - [1. Plain parts only](#1-plain-parts-only)
 - [2. The agent follows this system](#2-the-agent-follows-this-system)
-- [3. Guarantees, not advice](#3-guarantees-not-advice)
+- [3. Reliable behavior without reminders](#3-reliable-behavior-without-reminders)
 - [4. Picks up where the last left off](#4-picks-up-where-the-last-left-off)
 - [5. Check memory first](#5-check-memory-first)
 - [6. Cite the source](#6-cite-the-source)
@@ -49,7 +49,7 @@ work_item: "269"
 - [26. Built the way Claude Code's documentation says](#26-built-the-way-claude-codes-documentation-says)
 - [27. Installed once, turned on per project, and checked](#27-installed-once-turned-on-per-project-and-checked)
 - [28. Pending memory inbox](#28-pending-memory-inbox)
-- [Notes for the builder: options, not requirements](#notes-for-the-builder-options-not-requirements)
+- [Potential paths to explore](#potential-paths-to-explore)
 
 ## Why this exists
 
@@ -105,9 +105,9 @@ list.
 This set of parts is a fixed workflow with the agent working inside it. The
 moments are fixed by the system, not chosen by the agent. The agent uses its
 judgment inside those fixed moments. It never uses its judgment to decide whether a fixed
-moment happens at all. Example: the agent decides what a save card says. It does
-not decide whether the card appears. That is why requirement 3 reads the way it
-does.
+moment happens at all. Example: the agent decides which information is worth proposing within the
+selection rules. It still performs every required save review and obtains
+approval when needed. Requirement 3 defines how reliability is demonstrated.
 
 Judge every requirement below against that whole set of parts. If a requirement
 moves work into the second brain that another part already owns, the requirement
@@ -120,107 +120,82 @@ is wrong.
 - This document holds the goal, the requirement, and the behavior. Each requirement is written clearly enough that a builder can design from it without guessing the intended behavior. The solution design may choose among different ways to meet the same requirement; the PRD does not make that implementation choice.
 - When the owner gives a clear answer or correction within authorized refinement of this document, the agent writes it here in that same reply under requirement 10. It is never logged on an issue instead, because an issue comment gets lost and this document then never gets updated.
 - Mike authorized ongoing refinement of this PRD and approved the drafting-permission rule in requirement 10 on 2026-09-10. That permission covers faithful capture of his answers and corrections; it does not approve every requirement, a solution design, or implementation.
-- Requirement 3 is the one exception. It names kinds of mechanism, because no wording alone can meet it. Which mechanism delivers each one is still the design's job.
+- Requirement 3 defines the reliability outcomes and the evidence needed to demonstrate them. The solution design chooses how documented harness capabilities deliver those outcomes and identifies any limits.
 - "A session, start to finish" follows one session through every requirement, so the numbered list is easier to follow.
-- The closing section "Notes for the builder" holds ideas that bind nothing.
+- The closing section links to separate exploratory design notes. Those notes are not requirements or an approved solution design.
 - Where this document and `knowledge/README.md` disagree, this document wins. Each disagreement is named in the place it happens, and `knowledge/README.md` is then changed to match this document.
 
 ## A session, start to finish
 
-This section follows one session from start to finish: one project, one owner,
-one agent. It walks through every part of the system in the order it happens, so
-the numbered requirements below are easier to follow. Every step names what the
-owner sees, what happens, which files are read or written, and how the rule is
-enforced. A rule is enforced by a gate, an output check, a count, or by nothing
-but the agent's judgment. Requirement 3 explains those four.
+This walkthrough describes what the owner experiences and what must be
+preserved. The numbered requirements define the checks and approval boundaries;
+the solution design chooses the mechanisms that deliver them.
 
 ```mermaid
 flowchart TD
-    A[Owner opens a session] --> B[Startup briefing loads]
-    B --> C[Agent says where things stand]
-    C --> D[Owner asks for work or asks a question]
-    D --> E[Glossary turns the owner's words into real things]
-    E --> F[Agent searches project knowledge and cites each hit]
-    F --> G{Outside docs cover this?}
-    G -- yes --> H[Read the captured page first]
-    G -- no --> I
-    H --> I[Work happens]
-    I --> J[Working memory rewritten as phases end]
-    I --> K{Owner says a trigger phrase?}
-    K -- yes --> L[Save card appears mid-work]
-    L --> M{Owner says yes?}
-    M -- yes --> N[File written, checker runs, index rebuilt]
-    M -- no --> I
-    N --> I
-    K -- no --> I
-    I --> O[Turn ends after real work]
-    O --> P{Save review result shown?}
-    P -- no --> O
-    P -- yes --> Q[Pull request or work item close]
-    Q --> R{Save review ran this session?}
-    R -- no --> S[Refused, told to run the review]
-    S --> Q
-    R -- yes --> T[Work lands, PRD for the area updated]
-    T --> U[Session ends, counts written]
-    U --> V[Two days later, owner opens a session]
-    V --> B
+    A[Owner opens or resumes a session] --> B[Agent finds current guidance and shared context]
+    B --> C[Agent explains where work stands and the next step]
+    C --> D[Owner asks a question or requests work]
+    D --> E[Agent checks relevant knowledge and sources]
+    E --> F[Work proceeds within existing approval]
+    F --> G[Useful continuation context is kept current]
+    G --> H[Save review at the required moment]
+    H --> I{New approval needed?}
+    I -- yes --> J[Owner sees the standard proposal]
+    J --> K{Owner decision}
+    K -- approve --> L[Approved save completed and verified]
+    K -- unanswered --> M[Proposal retained in the inbox]
+    K -- reject --> N[Proposal leaves the active inbox]
+    I -- no --> O[Complete authorized saves or explain why none are needed]
+    L --> P[Handoff identifies saved state and unfinished work]
+    M --> P
+    N --> P
+    O --> P
+    P --> A
 ```
 
-**1. The owner opens a session**
+**1. The owner opens or resumes a session**
 
-- What the owner sees: a first message saying what was in progress last time, what happened, and the next step. The owner did not have to ask for it.
-- What happens: the briefing loads. Who the agent is, the standing rules, the rules of this system, what the project is, what is happening now, the two indexes, the list of captured outside topics, and the fact that the gates exist. Anything the system puts in front of the agent every session is kept small enough that the agent still reads it. How small, and how it gets there, is the design's job.
-- What the agent knows by its first message: who it is here, the standing rules, the rules of this system, what the project is, what is happening now, the project's own words, and what memory and PRDs exist. Whether each of these is read up front or reached on demand is the design's job. Requirement 2 sets the outcome: the rules are followed either way.
-- Enforced by: the briefing arrives whole, never cut off, and the gates in requirement 3 hold from the first message. If anything the agent needs did not arrive, it opens that file itself before doing anything else. Requirements 2 and 4.
+- The first response gives a brief, accurate picture of relevant work and its next step. The owner does not have to reconstruct the previous conversation.
+- The agent can reach the small knowledge map, current instructions, shared working context, pending inbox, and relevant indexes. Details are opened when needed, including after context is condensed or another session updates a record.
+- Missing guidance or unavailable shared context is identified and recovered before work that depends on it proceeds. Requirements 2, 3, 4, 13, and 28 apply.
 
 **2. The owner asks for something**
 
-- What the owner sees: the agent uses the project's own words, and uses them correctly. When the agent does not know a term, it asks one question. Then it shows a card offering to add that term to the glossary.
-- What happens: the agent follows requirement 19. It establishes applicable instructions and current work, uses relevant skills, resolves shorthand through the glossary, and opens relevant memory, PRDs, or System Guide pages through their indexes. It scans the external-knowledge index for relevant documentation before relying on outside-platform assumptions. If project records do not answer, or a missing explanation may be in a conversation, it searches available project session history. If that still leaves a gap, it asks one focused question. Every finding names its source.
-- Files read: `knowledge/glossary.md`, `knowledge/current.md`, the relevant knowledge indexes and source files, the System Guide entry when enabled, `ai-external-knowledge/README.md` and relevant captured pages, and the work item when the task belongs to one. Detailed files are opened when needed.
-- Enforced by: a gate on the first change. No file changes until the search happened. A plain question changes no file, so it is not gated. A question answered without a search is counted instead. Citing is built into the search itself. Outside-docs use is counted. Requirements 5, 6, 7, 8.
+- The agent follows the find order, uses the project's terminology, and names the sources supporting its answer. It resolves unfamiliar terms from available context and evidence before asking the owner about remaining consequential ambiguity.
+- It checks relevant captured outside documentation and, when needed, available session history. Historical findings are verified before being presented as current. Requirements 5 through 8 and 19 apply.
 
-**3. The work happens**
+**3. Work happens**
 
-- What the owner sees: the work, in plain language. When a piece of the work finishes, or when the work is blocked, the agent updates what we are working on and says so in one line. It does not ask.
-- What happens: the agent builds. If the task is a repeatable procedure this project already has, the project skill runs instead of the agent improvising. The work item's stage moves as the work moves. Working memory is rewritten, never appended.
-- Files written: `knowledge/current.md`, updated without asking. The work item in the tracker. A project skill under `.claude/skills/` when a procedure is being recorded.
-- Enforced by: the agent's judgment for when a phase ended, plus the gate at the end of the turn (step 5) that catches what it missed. Requirements 4, 13, 17.
+- The agent reasons, investigates, or builds within the task's authorization, using applicable existing skills. It keeps the chosen work record current through that component's workflow.
+- It preserves useful continuation context in `knowledge/current.md`, with links to detail and clear labels for unverified findings. Other sessions' useful context is preserved. Disposable scratch details stay out. Requirements 4, 13, 17, and 18 apply.
 
-**4. Something worth keeping comes up mid-work**
+**4. Something worth keeping comes up**
 
-- What the owner sees: a card in that same reply, in the shape requirement 20 sets. It has a bold headline, an arrow saying where the file goes, the exact words to be written, and five bullets. The owner answers it with one word.
-- What happens: one of these happened. The owner said a trigger phrase, such as "actually", "going forward", or "never do X". Or the owner brought up something new, such as a new person or a switch to a different tool. Or a real problem in this project was just fixed. Or the work produced a result the project will look up again. Or someone's role changed or they left. Or a recorded fact turned out to be stale during a check. Or a decision landed about which source is the authority for a piece of data. Before showing a card, the agent reads `knowledge/memory-self-improvement.md`, so something the owner already rejected is dropped or changed before he sees it.
-- Files written, after yes: one file under `knowledge/memory/` or `knowledge/prds/`, the index, and one line in `knowledge/memory-self-improvement.md` recording the outcome. All of it is committed to the default branch and pushed in the same reply.
-- If the owner has not answered, retain the shown proposal automatically in the pending inbox under requirement 28. This does not approve its contents as knowledge.
-- Enforced by: an output check on the card's shape. A gate on the write: the checker runs, and a failing check means the save is not finished. The moment itself is the agent's judgment, backed by the count in step 7. Requirements 9, 10, 11, 20, 21, 23.
+- The agent identifies a meaningful candidate, checks whether it belongs in lasting knowledge, and uses the destination's rules. It reads relevant memory-selection lessons before proposing something the owner already rejected.
+- When new approval is needed, the owner sees the standard card and can approve, edit, or reject it. Clear corrections within authorized PRD refinement are saved without asking again for the same permission.
+- An unanswered card is retained automatically in the pending inbox. An approved save is completed and verified, or its failure and next step are reported. Requirements 9 through 12, 20 through 23, and 28 apply.
 
-**5. The turn ends after real work**
+**5. A turn ends after real work**
 
-- What the owner sees: a new card, confirmation of a save already authorized, or one line saying why there is nothing new to propose and whether any earlier proposals remain pending.
-- What happens: the agent cannot end the turn any other way. If the work produced a result the project will refer back to, the card proposes a significant episode, which requirement 11 defines: what was done, what came out of it, and where the output lives.
-- Files written: as in step 4, after yes. `knowledge/current.md` says the next step.
-- Enforced by: a gate on the end of the turn. The design sets and states the threshold for "real work". Requirements 3, 11.
+- The required save review covers work since the previous review. The owner sees new proposals, the result of authorized saves, or a brief explanation that nothing new needs proposing and whether earlier proposals remain pending.
+- Unchanged unanswered cards are not repeated. The current overview identifies the next step. Requirements 3 and 9 apply.
 
-**6. The work lands**
+**6. Work is handed over or closed**
 
-- What the owner sees: a pull request, or a work item closed. These two moments are held until the save review of requirement 9 has run for this work in this session. A single card does not unlock them. They stay held every time until the review has run, and each refusal says to run the review.
-- What happens: code lands by pull request with the owner's approval. A change that touches only `knowledge/` commits straight to the default branch. When the work item closes, the agent checks whether the area's behavior changed. If it did, that area's PRD is edited to match within the approval rules of requirement 10. Completion evidence stays in the tracker. Requirement 16 governs when the PRD can move from `proposed` to `finalized`; the PRD holds no build roadmap.
-- Files written: the branch and pull request. The work item's stage and progress log. The PRD for the area, after yes.
-- Enforced by: a gate on opening a pull request and a gate on closing a work item, held until the review is done. A gate on the write for the PRD edit. Requirements 3, 16.
+- Before opening a pull request or closing a work item, the agent completes the knowledge review for that work. A prior unrelated review or a single card does not satisfy it.
+- The delivery workflow owns work status, completion evidence, and implementation approval. Knowledge changes follow their own approval, validation, and publication requirements. If required behavior changes, its PRD is updated within the owner's approval; it gains no build roadmap or progress log.
+- An unfinished save and work that depends on it stay visibly unfinished. Unrelated authorized work may continue. Requirements 3, 9, 10, 16, and 18 apply.
 
-**7. The session ends**
+**7. The session ends or context is cleared**
 
-- What the owner sees: nothing, unless he opens the count file. If he says he is about to clear context, the save review runs first and then he gets a handoff prompt.
-- What happens: three counts are written. How many moments needed a save card, and how many cards were actually shown. How many questions were answered with no search. How many times a captured outside topic was opened.
-- Files written: the count file the design names, somewhere the owner can read.
-- Enforced by: a count. This is what makes a missed moment visible instead of silent. Requirement 3.
+- At a known handoff or planned context clear, the agent performs the save review and identifies the shared state, unresolved proposals, and next steps. Useful context is maintained throughout the session so continuity does not rely solely on a final message.
+- If sharing failed, the agent says what exists locally and what a later session cannot yet see. A later session recovers unfinished saves and pending proposals from the available shared records. Requirements 3, 4, 13, and 28 apply.
 
 **8. Two days later**
 
-- What the owner sees: he opens a session and asks "what were we working on?", or does not even have to, because step 1 already said so.
-- What happens: the loop starts again from step 1, and the agent knows what the last one knew.
-- Enforced by: everything above. This is the check for requirement 4.
+- A new session finds the relevant saved context and current work records, checks their freshness, and continues without making the owner repeat settled decisions.
+- It distinguishes verified information from pending proposals and unverified findings. The checks in requirements 3 and 4 demonstrate this behavior.
 
 ## 1. Plain parts only
 
@@ -237,18 +212,18 @@ hook, a skill, a Markdown file, or Git.
 ## 2. The agent follows this system
 
 - In every session, the agent follows the knowledge system: when to save, what to save, how to save, where to save, what to check first, what to cite, and what never to write.
-- Reading a rule is not enough. The agent has to actually do what the rule says, every time. Example: requirement 9 says a save card appears when a task finishes. The test is not "did the agent read that rule". The test is "did the card show up".
+- Reading a rule is not enough. The agent has to actually do what the rule says, every time. Example: requirement 9 requires a save review at the end of meaningful work. The test is whether the right proposals, authorized saves, and pending state result, not merely whether the agent read the rule.
 - It follows the system whether or not the owner mentions it. The owner never has to remind it.
 - A small map is available at startup and whenever context is condensed, cleared, or resumed. It points to the current operating instructions, information homes, indexes, and the checks that apply. Detailed rules, templates, and knowledge are reached when needed; the whole knowledge base and every procedure are not loaded up front.
 - Before a lookup, the agent establishes the applicable find order. Before proposing or making a knowledge change, it establishes the destination rules, exclusions, approval rules, file fields, template, and writing standard. It follows the current instructions for that operation even late in a long session. Already-read guidance can be reused while it remains available and current. Missing guidance is opened again before the affected operation proceeds.
 - The same guidance applies when the owner changes tasks or another session changes the relevant records. A completed check for an earlier task does not establish that the new task's knowledge was checked.
 - The system is responsible for bringing the needed guidance back at these moments. A one-time startup briefing or the owner repeating a rule is not sufficient. Which documented harness mechanism delivers that guidance and the requirement 3 checks is the design's job.
 - The agent uses judgment to understand meaning, choose relevant sources, reject low-value candidates, and write a useful proposal. It cannot use that judgment to skip the system's required lookup, approval, validation, or upkeep moments.
-- Following is proven, not assumed. Requirement 3 says how each behavior is enforced, and the counts at session end show any miss.
+- Following is demonstrated, not assumed. Requirement 3 defines the outcomes, verification scenarios, and handling of missed or incomplete operations.
 
 **Check:** run a whole session without mentioning memory once. At every moment
 this document names, the agent does what this document says. Any moment where it
-did not is visible in the counts.
+did not is identified during verification and handled under requirement 3.
 
 **Check:** run a long requirements or design conversation, condense its context,
 then introduce a correction, a lasting decision, and a routine detail that must
@@ -258,69 +233,44 @@ and waits for the required approval. Repeat after switching tasks and in a
 fresh session on each supported harness. An initial briefing alone does not
 pass this check.
 
-## 3. Guarantees, not advice
+## 3. Reliable behavior without reminders
 
-Text the system shows the agent is only advice. The agent can ignore it, and an
-agent that has already read a lot in one session often does. A refusal that
-holds until a condition is met is a guarantee. So every behavior below is
-written as something that is impossible or refused, never as something the agent
-should do.
+The owner must be able to rely on knowledge upkeep throughout long and parallel
+sessions. Reading instructions once is not enough. The system brings back the
+needed guidance, checks the required conditions, and makes an unfinished or
+failed operation visible without waiting for the owner to notice.
 
-There are three ways to enforce a behavior. Every behavior below is given one of
-them by name:
+### Required outcomes
 
-- **Gate.** The action cannot happen until the condition holds.
-- **Output check.** The reply is rejected and redone when it breaks the rule.
-- **Count.** The miss is recorded afterwards, so it is visible.
+- Before answering or acting on project information, the agent checks the relevant knowledge under requirement 19. Relevant, current sources already available in context can satisfy that check. A check for an earlier task does not cover a different task automatically.
+- An answer or proposal based on saved knowledge identifies its supporting source under requirement 6. This applies however the agent found or opened that source. A path attached to a search result alone does not establish that the answer is supported.
+- The external-knowledge index is reachable from the small map. The agent opens relevant outside documentation before relying on it, as requirement 8 requires.
+- A save review happens at every moment in requirement 9. Opening a pull request or closing a work item requires that review for the work being handed over. At the end of a turn involving real work, at handoff, or when asked to save, the agent shows the review result: new cards, the outcome of already-authorized saves, or a brief explanation of why nothing new needs proposing and whether earlier proposals remain pending. An existing inbox entry alone does not satisfy a new review.
+- Lasting knowledge is changed only within the owner's approval. Proposals follow the standard format, and a proposal missing required information is corrected before requesting approval. A save is not reported complete until its content, required fields, indexes, and publication have been checked. Failed checks leave the save unfinished.
+- When a required check or save was missed, the agent identifies the gap and performs the needed review or recovery within existing approval. It never claims the missing check happened or asks the owner to reconstruct the session for it.
 
-### System followed: enforced by all of the rest
+### How reliability is demonstrated
 
-Requirement 2 says the agent follows this system. There is no single gate for
-that. Each behavior below is enforced at its own moment, and together they are
-the proof.
+The solution design identifies which conditions the supported harness can
+check or prevent mechanically, which depend on the agent understanding meaning,
+and how the latter are guided and verified. Use existing toolkit and documented
+harness capabilities first. A custom gate, reply parser, single retrieval route,
+or session counter is not required merely because it could be built.
 
-### Memory checked: gate, then count
+The required outcomes remain mandatory. Any unsupported protection or remaining
+reliance on agent judgment is stated in the design and project setup report,
+with its practical effect and recovery behavior. Do not describe a reminder as
+a guaranteed block, or claim that counts prove the right information was found
+or saved. A reported limitation is not evidence that the requirement is met.
 
-- Gate: the first action in a session that changes anything is refused until the project's knowledge has been searched for the task at hand.
-- Count: answering a question changes no file, so a question is not gated. A question answered with no search is counted instead, and the count is visible at the end of the session.
-
-**Check:** in a fresh session, try to change a file before any search. It is
-refused. For questions, the session-end count shows how many were answered
-without a search.
-
-### Source cited: built in
-
-There is one way the agent reads project knowledge, and it hands back every
-finding with its path beside it. A finding without a source cannot exist, so
-there is nothing left to enforce.
-
-**Check:** every result of a knowledge search shows a path beside every hit.
-
-### Outside documentation used: in front of the agent, and counted
-
-- In every session, before the agent does any work, it can reach the external-knowledge index required by requirement 8 and knows that the gates exist. The small map points to the index; it does not load every captured page. How it reaches the agent is the design's job.
-- Use of a captured topic is counted.
-- This one cannot be gated. Gating it would mean guessing which topic a task needs.
-
-**Check:** the topic index is reachable in a fresh session, and the session-end count
-shows how often a captured topic was opened.
-
-### Save proposed at the right moment: gate, plus a count
-
-- A gate at each fixed moment: opening a pull request, closing a work item, a handoff, the end of any turn in which real work was done, and any time the owner says to save something. The design sets the threshold for real work and states it.
-- At a pull request or a work item close, the moment cannot pass until the save review of requirement 9 has run. At the end of a turn, at a handoff, or when the owner asks, it cannot pass until that review's result is shown: new cards, the outcome of already-authorized saves, or one line explaining why nothing new needs proposing and whether earlier proposals remain pending. An existing inbox entry alone does not satisfy a new review.
-- At session end, two numbers are written to a file the owner can read: how many moments needed a card, and how many cards were shown.
-
-**Check:** finish a task and try to end the turn. It cannot end without the
-review result. An unanswered earlier card is retained without being repeated.
-
-### Memory rules followed: gate on the write, output check on the card
-
-- Gate: a save is not finished until the checker has run on the written file and passed. A failing check means the save is not finished, and the agent says so.
-- Output check: a card missing the headline, the arrow, the quote, or any of the five bullets is rejected and redone.
-
-**Check:** write a file with a bad field. The save is reported unfinished. Show a
-card missing a bullet. It is redone.
+**Check:** run representative sessions on every supported harness: a fresh
+session, a long reasoning conversation with context condensed, a task switch,
+and parallel sessions changing shared knowledge. Include a known fact, a
+correction needing approval, an already-approved save, a low-value detail that
+must stay out, a failed save, and a handoff. Verify the resulting proposals,
+source-backed answers, saved files, and recovered state against the expected
+outcomes. The owner supplies no reminders. Record failures and gaps; reading a
+rule, calling a tool, or increasing a counter alone does not pass the check.
 
 ### A failure pauses the affected work
 
@@ -340,16 +290,6 @@ unfinished; the agent reports the failure and continues the unrelated task.
 Once the save succeeds, the dependent task can resume under its existing
 approval.
 
-### Why it is built this way
-
-An agent stops following text it was only asked to remember, and it stops more
-often the longer a session runs. The owner has already watched a rule file go
-unfollowed, and Claude Code itself cut an 18,000 character briefing down to a
-2,000 character preview. Advice gets ignored. A refusal cannot be ignored.
-
-The agent knows about each gate before it reaches one. Which mechanism delivers
-each gate, output check, and count belongs to the solution design.
-
 ## 4. Picks up where the last left off
 
 - The owner comes back after two days, asks "what were we working on?", and the agent answers.
@@ -366,7 +306,7 @@ transcript.
 
 - When the owner asks something, or the agent starts a task, the agent first checks whether this project already knows the answer, already solved it, or holds useful context.
 - It brings that up without being asked.
-- The agent does not get to choose whether to do this. Before the first change it is forced. For a plain question it cannot be forced, so a miss is counted, as requirement 3 says.
+- This check is required for both questions and tasks. Use relevant, current context already available rather than repeating a search solely to record another search. Requirement 3 defines reliability and verification.
 
 **Check:** ask about something already saved. The agent answers from the saved
 file and names it, instead of searching the code or asking the owner.
@@ -390,14 +330,15 @@ name, a system, a person, or a process.
 
 - From the first message of every session, the agent uses the glossary's meanings without being told to. How it gets them is the builder's choice.
 - When a term in the glossary is used, the agent applies it and does not ask.
-- When the owner uses a term the agent does not know, the agent asks once, then proposes the mapping through the one card, one yes flow.
-- The glossary is one Markdown table. Each row holds the term, what it means in plain words, the real thing it points at (a field name, a system, a person, a process), and where and when that was verified. Example: "Cap Level" means the field `MS_Capacity__c`, verified in the production org on a named date. Anything longer than a row is a memory the row links to.
-- The glossary is checked before tier 4 of the find order, because a search for the owner's shorthand finds nothing.
+- When a term is unfamiliar, first use the conversation, glossary, and relevant project sources to resolve it. Ask one focused question only when uncertainty remains that could change the answer or action. Propose a glossary entry when the mapping is useful recurring project shorthand, through the normal card and approval flow.
+- The glossary is one Markdown table. Each row holds the term, what it means in plain words, the real thing it points at (a field name, a system, a person, a process), and where and when that was verified. Example: "Cap Level" means the field `MS_Capacity__c`, verified in the production org on a named date. Longer supporting detail is linked from its proper home under requirement 18; its length does not make it memory.
+- Resolve project shorthand before tier 4 so searches use the intended names. Reuse a mapping already established and current; an unfamiliar word alone does not require a new glossary entry.
 - The owner's example: he said "match on the discovery email field and the core email field", and the agent knew exactly which two fields those were, like a colleague who had been on the project for years.
 
-**Check:** use a term that is in the glossary. The agent acts on the right thing
-without asking. Use one that is not. The agent asks once, and a card for the
-mapping appears.
+**Check:** use a known term, then an unfamiliar term whose meaning is clear
+from a project source. The agent resolves both without asking. Use a term with
+two plausible meanings that change the action: it asks one focused question.
+It proposes a glossary entry for a useful recurring mapping, not every new word.
 
 ## 8. Read the real documentation first
 
@@ -407,7 +348,7 @@ mapping appears.
 - One folder per topic. Each names its source address and the date it was captured.
 - Adding, refreshing, moving, or removing a captured topic updates its index entry as part of the same upkeep. This index belongs to outside-documentation upkeep; it is separate from the two generated memory and PRD indexes in requirement 21.
 - Captured documentation is outside source material, not approved project truth. The agent checks whether its date and version are suitable for the task. When a missing or outdated page matters, it checks the current original source when access allows, or states the gap. It never presents an old capture as verified current behavior.
-- The agent does not get to choose whether to do this. It cannot be forced, because nothing can know in advance which topic a task needs, so each use is counted, as requirement 3 says.
+- The agent judges which outside topics are relevant, then follows the required source checks before relying on them. Requirement 3 defines how this behavior is demonstrated.
 
 **Check:** ask for something a captured topic covers without naming the folder.
 The agent finds the topic through the index, opens the relevant page before
@@ -422,9 +363,9 @@ original source or states what could not be verified.
 - No long review. No back and forth. No reading a full file before deciding.
 - The agent proposes at the right moment on its own. The owner never has to remember to ask.
 - Five moments force a save review: a work item finishes or closes, a pull request is being opened, a handoff or a context clear is coming, a turn ends after real work was done, and any time the owner says to save something. Requirement 3 defines the required result and how these moments are enforced.
-- The other moments are the agent's own judgment. It should propose a save, but nothing forces it: a real problem here has just been fixed, a commit is coming, or one of the events step 4 names happened, such as a new person, a role change, a tool switch, a stale fact found, or a data-authority decision. A miss at one of these is caught at the next forced moment.
+- The other moments are the agent's own judgment. It should propose a save when useful: a real problem here has just been fixed, a commit is coming, or relevant context changed, such as a new person, a role change, a tool switch, a stale fact found, or a data-authority decision. A missed candidate is reviewed at the next required moment.
 - The owner saying "remember this" starts the save flow that leads to a card. It is not permission to write, and it skips no step.
-- The save review is that same flow run over everything the session did since the last one. It gathers candidates, drops any that fail requirements 11 and 12, checks for existing inbox proposals, and shows one card per new candidate needing approval. Already-authorized saves proceed under requirement 10. If there is nothing new to propose, say why and whether anything remains pending. Do not repeat an unchanged unanswered card at each review. This review is what the gates in requirement 3 wait for.
+- The save review is that same flow run over everything the session did since the last one. It gathers candidates, drops any that fail requirements 11 and 12, checks for existing inbox proposals, and shows one card per new candidate needing approval. Already-authorized saves proceed under requirement 10. If there is nothing new to propose, say why and whether anything remains pending. Do not repeat an unchanged unanswered card at each review. Requirement 3 requires this review and its visible result.
 - When approved, memory or PRDs are saved directly to the default branch and pushed!!! They are not lost in worktree branches or buried in something that a future agent would not easily find.
 - A save is finished only when the file is on the default branch and pushed, and not before.
 - An approved knowledge save is not deferred into a feature branch, pull request, or separate draft. This holds even when the session is doing its other work on a branch. The save still goes straight to the default branch. The session's own branch gets the saved file later, whenever someone merges or pulls the default branch into it. The pending inbox in requirement 28 preserves unanswered proposals and interrupted saves; it never replaces completing an approved save.
@@ -645,11 +586,12 @@ When the memory settles a question that was open, it says so and names what
 proved it, so no later agent works the same thing out again. Example: "Settled
 2026-07-02: manual account edits are reverted every morning; proven three times."
 
-A memory file stays under 5,000 characters, and the checker refuses one that
-grows past that line. Most memories fit on one screen. When a memory keeps growing past that, it is
-really a document, not a memory. Move the long content into a PRD, a skill, or
-the work item it belongs to. What stays in the memory file is the one-line summary and the
-path to where the long content now lives.
+A memory file stays under 5,000 characters. If it grows beyond that limit,
+remove repetition, summarize faithfully, split distinct topics into appropriate
+memories, or link to supporting detail in its proper home under requirement 18.
+Preserve the source and approved meaning. Length alone never turns a fact into
+a PRD requirement, a procedure, or a work item. Lasting changes still follow
+the approval rules; a failed size check never permits silently dropping meaning.
 
 Before writing, the agent answers three questions. What is the one thing a
 future agent must know? What would that agent get wrong without it? What is the
@@ -657,9 +599,10 @@ shortest wording that still says it? The card shows the answer to the third
 question, never a first draft. Accuracy comes first. Being short and clear
 comes second. Neither one is a reason to drop something a future agent needs.
 
-A PRD is written the same way as a memory, under all the rules above. It says
-how the system behaves and what the owner sees, in plain sentences. Every
-requirement in it can be checked. It never restates code.
+A PRD shares the plain-language, accuracy, and concise-writing standards above.
+Its structure and fields follow requirement 16; the memory-only body template
+and memory size limit do not apply. It describes system behavior and the user
+experience, with requirements whose outcomes can be checked.
 
 **Check:** hand a memory to someone who was not in the conversation. In one
 read they can say what is true, why, and what to do about it, and nothing makes
@@ -801,7 +744,8 @@ lasting meaning through the standardized proposal, not by managing files.
 | How one work item gets built | Its solution design, kept with or linked from the work item |
 | Documentation from outside this project | `ai-external-knowledge/`, one folder per topic, each naming its source address and capture date |
 | Unchecked exploration and raw brain dumps | `knowledge/brainstorms/` |
-| Only needed to finish the task at hand | Nowhere. It stays in the conversation. |
+| Useful temporary context another session needs to continue | `knowledge/current.md`, with links to detail in the authoritative work record and clear labels for unverified findings |
+| Disposable scratch details with no continuation value | Conversation only |
 | A past conversation | Session history |
 
 Four homes are easy to mix up. Test each piece of information on its own, and split a note that holds several kinds.
@@ -845,9 +789,9 @@ using it, and preserve its unapproved status.
 | 4 | Memory, PRDs, and the System Guide when enabled, through their indexes and links | Use memory for lasting decisions and lessons, a PRD for required behavior and why, and the System Guide for useful explanations of existing parts and their connections. Open the relevant source, following requirement 16 when sources disagree. |
 | 5 | Available project session history, through `session-search` | Use this when the earlier sources do not answer or a relevant explanation from an earlier conversation is still missing. Say what context is being sought, then search without an extra yes within existing access permissions. An unavailable history source is reported, not treated as an empty search result. |
 
-Before tier 4, check `knowledge/glossary.md` and turn the owner's words into the
-project's real names. A search for the owner's shorthand finds nothing.
-Requirement 7 says why.
+Before tier 4, use the glossary and relevant context to resolve project
+shorthand where needed. Reuse a meaning already established and current.
+Requirement 7 governs when remaining ambiguity needs the owner's answer.
 
 At a relevant point in the lookup, scan the external-knowledge index as
 requirement 8 describes. Open the matching captured page before making a claim
@@ -874,7 +818,7 @@ fixing a bug, designing, or resuming work.
 - An index line is only a pointer to a file. Never answer from the index line alone. Open the file it points at and read it before using what it says.
 - Only a memory marked `current` or a PRD marked `finalized` answers what is true now. Everything else answers questions about history.
 - When tier 4 finds nothing, say so plainly and name what was searched. Never invent a believable answer, and never hand back something recent but unrelated.
-- Everything from tier 5 comes back flagged: "I found this in an earlier session. Is this still true?" Being found there is never by itself a reason to save it. If it is still true it goes through the normal save.
+- A tier 5 finding is identified as historical, with its source and date. Before relying on it as current, verify it against relevant project records or direct evidence. Ask the owner only when material uncertainty remains that available sources cannot resolve. If verification is unavailable, state that limit. Being found in history is never by itself a reason to save something; lasting candidates still pass the normal selection and approval steps.
 
 Outside documentation supports the relevant tier; it does not replace the
 project's decisions or instructions. Requirement 8 owns its index and upkeep.
@@ -883,8 +827,9 @@ project's decisions or instructions. Requirement 8 owns its index and upkeep.
 an existing system interaction, and a vendor capability. Without naming a
 command, the owner gets an answer grounded in the appropriate source. Ask for
 an explanation missing from project records but present in an earlier session:
-the agent searches that history and labels the finding for confirmation. Ask
-something none of the available sources answers: it names the gap and asks one
+the agent identifies the historical source and date, verifies relevant claims
+against available evidence, and asks only about remaining material uncertainty.
+Ask something none of the available sources answers: it names the gap and asks one
 focused question. Repeat with history unavailable and confirm it reports that
 limitation instead of pretending a search found nothing.
 
@@ -956,7 +901,7 @@ file and the broken rule are named.
 - **Delete** for three reasons only, and name the reason in the reply: a copy made by mistake, a secret that should never have been written down, or something that was never true. Something that stopped being true is superseded or retired, never deleted.
 - Age alone is never a reason. Written two years ago and still true means still true.
 - A memory nobody will look up again is found and proposed for retirement without the owner hunting for it. He says yes. The reason is never age. The reason is that the result it holds will not be needed again. Example: a spreadsheet built once in June, checked and delivered, with nothing pointing at it months later.
-- This happens at each save, for the files the search turned up, and across the whole folder when `reflect` runs. Two files saying the same thing are merged into one. Two files that disagree are resolved by the supersede steps above. Two files on the same topic get `related_memories` pointing each at the other. The aim is a small set of files the agent can trust, where related files point at each other, not a large set.
+- This happens at each save, for the files the search turned up, and across the whole folder when `reflect` runs. Two files saying the same thing are merged into one. Two files that disagree are resolved by the supersede steps above. Add `related_memories` links only when understanding or applying one file benefits from opening the other, following requirement 14. A shared topic alone does not require direct links between every pair; the index already supports topic discovery. The aim is a small set of files the agent can trust, where related files point at each other, not a large set.
 
 **Check:** save something that contradicts an existing file. The agent shows the
 conflict, supersedes rather than adding a second file beside it, and afterwards
@@ -979,7 +924,7 @@ what this owner accepts and rejects AS IT RELATES TO MEMORY, so its proposals ge
 
 - When a lesson in this file disagrees with anything in this document, this document wins. The agent names the disagreement in its reply instead of quietly following one of them.
 - The `reflect` command merges repeated lines into a single lesson, so the file stays small.
-- A lesson stays in this project's own file. If the same lesson keeps coming up in more than one project, it stops being a lesson here and is written into the shared knowledge manual, `knowledge/README.md`, which every project receives. That edit goes through the same approval as any other change to the manual.
+- Lessons stay in this project. If evidence available within authorized access suggests a useful toolkit-wide improvement, propose it through the existing toolkit change workflow. Local memory upkeep does not search other projects, change shared instructions, or roll out policy to them on its own. A wider change needs its own scope and approval.
 
 **Check:** reject a proposal and give a reason. A line appears in the file with
 that reason. Propose something similar later and the agent names the earlier
@@ -1008,8 +953,8 @@ correctly here, and gets an answer.
 
 ## 25. Codex
 
-- A Codex session follows every requirement in this document, the same as a Claude session. Same files, same startup briefing, same cards, same counts, same rules about what to save and where.
-- How each behavior is enforced in Codex is the design's job, the same way requirement 3 leaves it to the design for Claude. Codex has different hooks than Claude Code, so the design may need a different way to reach the same result.
+- A Codex session follows every requirement in this document, the same as a Claude session. Same shared files, equivalent startup orientation, same cards, and the same rules about what to save and where.
+- The design uses each supported harness's documented capabilities to meet the same outcomes and performs requirement 3's verification on each. It does not assume that one harness's mechanisms exist in another.
 - Where the design finds that Codex cannot enforce one behavior at all, it says which one, and the setup report for every project says so too. It never quietly leaves a gap.
 - Nothing in the saved files is specific to one agent. Both read the same Markdown.
 
@@ -1025,8 +970,8 @@ it. That covers every rule file, hook, skill, plugin part, settings entry, and
 startup text that relates to memory, PRDs, or the second brain.
 
 - Best practice here means the captured documentation in `ai-external-knowledge/claude-code/`, not what an agent remembers or assumes. Before building or changing a part, the builder reads the page that covers that kind of part.
-- Example: a rule that only matters while the agent works in certain folders is set up so it applies there and nowhere else, instead of being loaded into every session. In Claude Code that is the `paths:` line in the rule's frontmatter, naming the folders. Another tool uses its own equivalent. A rule that matters everywhere stays short, because it costs every session.
-- Example: whatever the system puts in front of the agent every session stays short, because the documentation says long startup text makes the agent follow instructions less reliably.
+- Guidance is available where it applies without filling every session with unrelated instructions. The design chooses the documented way to scope it in each supported harness.
+- Routine startup guidance stays compact and leads to detail when needed, as requirement 2 requires.
 - The design for each part names the documentation page it followed and the practice it applied, so a reviewer can check the part against the page.
 - When the documentation and this document disagree, this document decides what the system does, and the documentation decides how Claude Code is used to do it. The disagreement is said out loud, never quietly picked.
 
@@ -1043,7 +988,7 @@ applies everywhere and is short.
 
 **Check:** turn the second brain on in a fresh project with one yes. The report
 says equipped and names the version. Open a session there: the briefing arrives
-and the gates hold. Turn it on in a second project without saying yes: nothing
+and the required checks and save behavior work. Turn it on in a second project without saying yes: nothing
 changes there.
 
 ## 28. Pending memory inbox
@@ -1081,17 +1026,8 @@ the remaining card and it leaves the active inbox. Repeat with parallel edits,
 an already-completed save, and conflicting newer content: no proposal is lost,
 no save is duplicated, and conflicting meaning waits for the owner's decision.
 
-## Notes for the builder: options, not requirements
+## Potential paths to explore
 
-These are ideas the owner and earlier agents found useful while working this
-out. They bind nothing. The solution design may take any of them, change them,
-or drop them.
-
-- **Gate by list.** Keep a list, for this session only, of every required file the agent has read. Refuse any action that would change a file until that list holds the entries the gate asks for.
-- **Gate by marker.** Each process step leaves a marker. The next step, or the end of the turn, is refused until the marker exists.
-- **Output check at the end of the turn.** Read the final reply and reject it when it breaks a rule about shape, such as a card missing a bullet or a finding with no path.
-- **Something that runs on every message and usually does nothing.** It acts only when the owner's words match a fixed list of trigger phrases: a new person, "actually", "going forward", "never do X", a tool switch, a focus change. Otherwise it does nothing at all. This already works in another project of the owner's.
-- **A count written at the end of the session:** how many save moments came up, against how many cards were shown. It goes in a small log file. This already works in the same project as the bullet above.
-- **A background write.** After the owner says yes, a separate helper process may do the writing and pushing, so the owner is not left waiting while it finishes. This is not the background writer requirement 1 forbids. That one writes without asking the owner. This one writes only what he already approved.
-- **The glossary as a rule plus one file.** The owner's other project keeps two things side by side: the glossary file, and a rule in `.claude/rules/` saying to check the glossary before guessing what a term means. The same pair could be used here.
-- **Keep the text put in front of the agent each session to a few hundred characters.** Where the gates are, and which outside-documentation topics exist. Nothing else.
+[Exploratory implementation ideas](../brainstorms/2026-09-10-knowledge-system-potential-paths.md)
+are kept separately. They are possible approaches to requirements 1 through 3, 7, 9,
+and 26, not requirements, verified harness capabilities, or an approved design.
