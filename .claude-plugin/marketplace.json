@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Personal, portable toolkit of reusable Claude systems: skills, rules, hooks, and templates shared across every project and device.",
-    "version": "0.110.1"
+    "version": "0.111.0"
   },
   "plugins": [
     {
@@ -48,6 +48,11 @@
       "name": "system-guide",
       "source": "./plugins/system-guide",
       "description": "Optional System Guide: useful source maps and owner-approved explanations under knowledge/system/, safe local refresh and cleanup, independent startup, and optional second-brain lookup."
+    },
+    {
+      "name": "voice-reply",
+      "source": "./plugins/voice-reply",
+      "description": "Optional Windows speech output for Codex and Claude Code with independent chat switches and user-level setup."
     }
   ]
 }
