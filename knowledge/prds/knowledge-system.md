@@ -839,6 +839,11 @@ limitation instead of pretending a search found nothing.
 Every save proposal, in every project, uses one shape. Same parts, same order,
 same labels, so the tenth card reads the same way as the first.
 
+The owner does not have time to read every memory in full. A quick scan of the
+proposal must be enough to understand what the agent will save. The headline
+and short quote must carry that meaning without requiring him to read the full
+file or all the supporting details. (Owner clarification, 2026-09-11.)
+
 - A bold headline. One plain sentence saying what gets saved. Not a file path and not a short tag-like phrase. Good: "The client moved the demo to Thursday." Bad: `knowledge/memory/demo-date.md`. Bad: "Demo date change".
 - Then an arrow, the character →, and one of four phrases: `New memory file`, `Memory, edit to an existing file`, `New PRD file`, `PRD, edit to an existing file`.
 - Those four phrases identify memory and PRD writes. For a removal or status change, the arrow names the destination and actual operation, such as `Memory, retire an existing file` or `Memory, delete an existing file`. The quote identifies the meaning being removed or taken out of current use. A glossary, standing-instruction, or skill proposal names its actual destination and operation in the same position, retaining the same headline, quote, and five bullets. It follows that destination's own approval and delivery rules. A System Guide proposal follows that component's standard. Routing another kind of information never silently extends the knowledge-only Git exception to it.
@@ -868,9 +873,10 @@ them.
 **This changes today's template.** The arrow line currently offers the word
 "spec". The folder is `knowledge/prds/` and the word is PRD.
 
-**Check:** read a card. The owner can tell in one pass what is being saved,
+**Check:** scan a card's headline and short quote. The owner can tell what is being saved,
 whether it is a memory or a PRD, and exactly which words will be written. He
-never opens a file to decide.
+never has to read the full memory or all the supporting details to understand
+the proposed save, and never opens a file to decide.
 
 ## 21. Indexes and the checker
 
