@@ -20,6 +20,7 @@ work_item: "269"
 - [How the owner works](#how-the-owner-works)
 - [Where it sits](#where-it-sits)
 - [How to read this](#how-to-read-this)
+- [Project folder layout](#project-folder-layout)
 - [A session, start to finish](#a-session-start-to-finish)
 - [1. Plain parts only](#1-plain-parts-only)
 - [2. The agent follows this system](#2-the-agent-follows-this-system)
@@ -125,6 +126,53 @@ is wrong.
 - The closing section links to separate exploratory design notes. Those notes are not requirements or an approved solution design.
 - Where this document and `knowledge/README.md` disagree, this document wins. Each disagreement is named in the place it happens, and `knowledge/README.md` is then changed to match this document.
 
+## Project folder layout
+
+The project uses this layout. The owner supplied it in `misc/temp.txt` and
+confirmed on 2026-09-11 that brainstorms belong at the project root.
+
+```text
+project/
+├── brainstorms/
+└── knowledge/
+    ├── README.md
+    ├── project.md
+    ├── memory/
+    │   ├── memory-index.md
+    │   ├── memory-entries/
+    │   │   ├── terminology-glossary.md
+    │   │   ├── memory-topicarea1.md
+    │   │   └── memory-topicarea2.md
+    │   ├── current.md
+    │   └── memory-self-improvement.md
+    ├── prds/
+    ├── .obsidian/
+    └── system-guide/
+        ├── system-guide-index.md
+        └── system-guide-entries/
+            ├── system-guide-area1.md
+            └── system-guide-area2.md
+```
+
+The topic and area filenames are examples. System Guide remains a separate,
+optional component; this layout names its home when enabled. Its index points
+to pages in `system-guide-entries/`. Brainstorms live in `brainstorms/` at the
+project root, outside `knowledge/`.
+
+The PRD index and parent-and-child PRDs remain under `knowledge/prds/` as
+requirements 16 and 21 describe. The pending inbox remains at
+`knowledge/memory-inbox.md` under requirement 28; the supplied layout did not
+specify a different home for it.
+
+This replaces the old paths and flat memory-folder layout in the current
+knowledge manual. On adoption, existing content and working links must be
+preserved, and the instructions and indexes must lead to the new locations.
+
+**Check:** compare the project folders with this layout. Memory topics and the
+glossary are in `memory-entries/`; current work and memory lessons are beside
+that folder. An enabled System Guide has its own index and entries folder.
+Brainstorms are at the project root. Existing content remains reachable.
+
 ## A session, start to finish
 
 This walkthrough describes what the owner experiences and what must be
@@ -168,7 +216,7 @@ flowchart TD
 **3. Work happens**
 
 - The agent reasons, investigates, or builds within the task's authorization, using applicable existing skills. It keeps the chosen work record current through that component's workflow.
-- It preserves useful continuation context in `knowledge/current.md`, with links to detail and clear labels for unverified findings. Other sessions' useful context is preserved. Disposable scratch details stay out. Requirements 4, 13, 17, and 18 apply.
+- It preserves useful continuation context in `knowledge/memory/current.md`, with links to detail and clear labels for unverified findings. Other sessions' useful context is preserved. Disposable scratch details stay out. Requirements 4, 13, 17, and 18 apply.
 
 **4. Something worth keeping comes up**
 
@@ -295,7 +343,7 @@ approval.
 - The owner comes back after two days, asks "what were we working on?", and the agent answers.
 - The answer covers what is in progress, what happened last time, and which session handed off to which.
 - The owner never pieces this together himself.
-- So `knowledge/current.md` is kept up to date as work happens, across sessions, not only at the end of one.
+- So `knowledge/memory/current.md` is kept up to date as work happens, across sessions, not only at the end of one.
 - Updates to it are quick and short. The agent makes them on its own, without asking, and tells the owner in one line that it did. This file is not lasting memory, so a wrong line costs little and the owner can fix it by hand. A stale file costs a lot more.
 
 **Check:** work in one session, close it, open a fresh session two days later and
@@ -324,7 +372,7 @@ names the file it came from, and the owner can open that file and find it there.
 
 ## 7. Speaks the project's language
 
-The system ships a glossary: one file, `knowledge/glossary.md`. It maps the
+The system ships a glossary: one file, `knowledge/memory/memory-entries/terminology-glossary.md`. It maps the
 owner's words and the client's shorthand to the real thing, which may be a field
 name, a system, a person, or a process.
 
@@ -396,7 +444,7 @@ follows requirement 3; it never claims that no save is waiting.
 - When the owner edits the words, those words are written exactly as typed. The agent does not tidy them, shorten them, or improve them.
 - Only the approved meaning is written. Not the surrounding context, not an improved version, not one extra sentence that seemed useful.
 - The `Unsure` line on the card is approved on its own. The owner can approve the text to be saved and still reject what is on the `Unsure` line. When he does, that unsure part is dropped and never written to the file. Requirement 20 says what the `Unsure` line holds.
-- Five things can be done without asking the owner: rebuilding an index, repairing a broken link, writing `knowledge/current.md`, appending a line to `knowledge/memory-self-improvement.md`, and maintaining the pending inbox under requirement 28. None of them changes what a lasting file means. Requirement 4 says how the current file is updated. Inbox retention is permission to preserve a proposal, not permission to accept its meaning.
+- Five things can be done without asking the owner: rebuilding an index, repairing a broken link, writing `knowledge/memory/current.md`, appending a line to `knowledge/memory/memory-self-improvement.md`, and maintaining the pending inbox under requirement 28. None of them changes what a lasting file means. Requirement 4 says how the current file is updated. Inbox retention is permission to preserve a proposal, not permission to accept its meaning.
 - There is one exception, for files the owner already approved when this project used an older folder layout. The agent converts those files first and shows the owner the converted results afterwards, in groups small enough to read in one pass. The owner approves after the conversion, not before. Any file that will not convert cleanly is named and left alone. The agent never guesses what an old file meant.
 
 **Check:** show a proposal and say nothing back. The exact proposal is retained
@@ -457,7 +505,7 @@ for it.
 - Copies of code, or anything an agent could work out by reading the source or the live system. Example: a write-up of how the sharing model works today, when the org itself shows it. If a project keeps research like that, it keeps it in its own reference folder outside the second brain. Memory holds only the decision or the trap that came out of the research.
 - A repeatable procedure. That is a skill. One past fix is not a procedure.
 - An open task, an implementation step, or the live status of work in flight. Those belong to the work tracker. Example: a manual step still owed in production is a ticket, never a memory. If no ticket exists, make one.
-- A "read this first" pointer for a piece of work. The work item carries its own entry point, and `knowledge/current.md` carries the active ones.
+- A "read this first" pointer for a piece of work. The work item carries its own entry point, and `knowledge/memory/current.md` carries the active ones.
 - The story behind a standing instruction. The rule file may say in one line why it exists. Nothing else about its history is kept.
 - Anything stale or contradicted with no historical value.
 - Passwords, keys, and tokens, ever. The `knowledge/` folder is in Git. Git keeps a copy of every past version of every file, so deleting the secret later does not remove it.
@@ -468,7 +516,7 @@ one line which bullet dropped it.
 
 ## 13. Working memory
 
-One file, `knowledge/current.md`. It is the shared overview across agent
+One file, `knowledge/memory/current.md`. It is the shared overview across agent
 conversations in this project and answers "what is happening right now".
 
 What it holds:
@@ -483,7 +531,7 @@ What it holds:
 
 What it never holds:
 
-- A lasting fact. Nothing in this file is trusted as a lasting fact after the work is finished. Lasting facts go through the normal save into `knowledge/memory/`.
+- A lasting fact. Nothing in this file is trusted as a lasting fact after the work is finished. Lasting facts go through the normal save into `knowledge/memory/memory-entries/`.
 - A log of what happened. It is overwritten, never appended.
 - A work item's requirements. Those belong to the tracker.
 - Secrets.
@@ -511,10 +559,12 @@ uses that state instead of repeating the older overview.
 
 ## 14. Memory file shape
 
-- Flat under `knowledge/memory/`. No subfolders at all.
-- One topic per file. The filename is the topic in plain words: lowercase, hyphens between words, ending in `.md`. Not a date, not a code, not a ticket number.
-- Flat on purpose. One note is usually a fact, a decision, and a piece of history at once, so sorting into folders by type makes every save start with a question that has no right answer.
-- Each file starts with a settings block. The block sits between two lines that hold only `---`, and it is written in real YAML. This document calls that block the frontmatter.
+- Agents must keep one Markdown file per topic area under `knowledge/memory/memory-entries/`. Related facts, decisions, and lessons belong together in that file, not in separate files for each tiny detail. The memory index, current work, and memory lessons sit outside the entries folder, as shown in the folder layout.
+- Before saving, find the existing topic-area file and update it. Create a file only for a distinct topic area that does not already have one. The filename names the topic area in plain words: lowercase, hyphens between words, ending in `.md`. Not a date, not a code, not a ticket number.
+- Each file is maintained, not continually appended to. Rewrite or remove outdated, repeated, or conflicting information when appropriate, within the approval rules. Keep the current account clear. Retain an important timeline or superseded decision trail in the same file only when that history is useful, with dates and clear labels showing what no longer applies. (Owner clarification, 2026-09-11.)
+- Do not sort memory topics into subfolders by type. A note can hold a fact, a decision, and a piece of history together.
+- The terminology glossary shares the entries folder but keeps the table format in requirement 7. It is not a memory topic and does not require memory fields.
+- Each memory topic file starts with a settings block. The block sits between two lines that hold only `---`, and it is written in real YAML. This document calls that block the frontmatter.
 
 Required on every memory file:
 
@@ -546,9 +596,9 @@ Optional fields, written only when they apply and left out otherwise:
 | `effective_to` | The date the fact stopped applying. | When a fact has a known end date. Not a substitute for `status`. |
 | `project` | The project name. | When the file could be read outside its project. |
 | `work_item` | The work item that produced the file. | When one work item did. |
-| `supersedes` | The path of the file this one replaces. | Only in the supersede step of requirement 22, together with `superseded_by` on the old file. |
-| `superseded_by` | The path of the file that replaced this one. | Only in that same step, on the old file. Its `status` becomes `superseded` at the same time. |
-| `related_memories` | Paths of other memory files on the same topic. | When a link helps a reader. Write the link on both files, so each one points at the other. |
+| `supersedes` | The path of an older file this one replaced. | When an existing file-level replacement needs to remain traceable. An ordinary change within a topic area updates the same file under requirement 22. |
+| `superseded_by` | The path of the file that replaced this older file. | When retaining that older file's replacement link. It does not require creating another file when a decision changes. |
+| `related_memories` | Paths of memory files covering other related topic areas. | When a link helps a reader. Write the link on both files, so each one points at the other. |
 
 All dates are `YYYY-MM-DD`. All paths are relative to the project root.
 
@@ -563,6 +613,11 @@ file's name.
 **Check:** write one memory file. Every required field is present and holds an
 allowed value, and the checker passes.
 
+**Check:** save several related details and later a changed decision in the same
+topic area. The agent updates one Markdown file, removes or rewrites outdated
+content with approval, and leaves no competing current statements. Useful dated
+history stays clearly marked in that file. No file is created for each detail.
+
 ## 15. How the words are written
 
 This applies to every memory file, every PRD, and every card. The reader is a
@@ -575,20 +630,22 @@ technical.
 - Concrete, not abstract: the real name, the real value, the real path, the real date. Write the full date, never "last week". Name the system or the organization every time. When something was left undone, say so.
 - Nothing that points at a conversation the reader cannot see. No "as discussed", no "per our call".
 
-What a memory's body holds, in this order, and nothing else:
+What a topic-area memory's body holds, using short sections when useful:
 
-1. The fact, decision, or lesson itself, in one or two sentences.
+1. The current facts, decisions, and lessons for that topic area, stated briefly and coherently.
 2. Why it is so, in enough words that a later agent can tell whether it still applies.
 3. What to do differently because of it, when there is something.
 4. Where the detail lives, as a path or a link, instead of the detail itself.
+5. An important timeline or superseded decision trail, only when needed, clearly separated from what is true now.
 
 When the memory settles a question that was open, it says so and names what
 proved it, so no later agent works the same thing out again. Example: "Settled
 2026-07-02: manual account edits are reverted every morning; proven three times."
 
 A memory file stays under 5,000 characters. If it grows beyond that limit,
-remove repetition, summarize faithfully, split distinct topics into appropriate
-memories, or link to supporting detail in its proper home under requirement 18.
+remove repetition, summarize faithfully, separate genuinely distinct topic areas,
+or link to supporting detail in its proper home under requirement 18. Never
+split one topic area into files for tiny details merely to meet the size limit.
 Preserve the source and approved meaning. Length alone never turns a fact into
 a PRD requirement, a procedure, or a work item. Lasting changes still follow
 the approval rules; a failed size check never permits silently dropping meaning.
@@ -623,7 +680,7 @@ one file, with a parent PRD and child PRDs inside it.
 - It opens as `proposed`, which is what we want built. It is edited to `finalized` once the work delivering its requirements is verified complete in the tracker and the document accurately describes the delivered behavior. A small PRD follows the same rule. Build progress, delivery dates, and completion evidence stay in the tracker; the PRD does not maintain a second progress record.
 - When answering how something works today, the agent uses current evidence. It does not treat a proposed requirement as proof that the behavior exists. A document's status alone, including `finalized`, does not establish what is true now. Requirement 19 governs source checks.
 - When a memory and a PRD disagree, the agent names both sources and distinguishes required behavior from evidence of existing behavior. A finalized PRD remains the reference for required behavior; a proposal does not replace verified facts merely by describing a desired change.
-- When a project also has a System Guide at `knowledge/system/`, the order is: a finalized PRD wins on what the system should do, the System Guide wins on how the system is put together, and the live system wins on what exists right now. Memory never beats any of those three. The agent reports the disagreement instead of quietly picking. The System Guide is not part of the second brain; it is its own plugin with its own PRD.
+- When a project also has a System Guide at `knowledge/system-guide/`, the order is: a finalized PRD wins on what the system should do, the System Guide wins on how the system is put together, and the live system wins on what exists right now. Memory never beats any of those three. The agent reports the disagreement instead of quietly picking. The System Guide is not part of the second brain; it is its own plugin with its own PRD.
 - `superseded` and `retired` are history.
 - This folder used to be called `knowledge/specs/`, and older sessions call these files specs.
 - A PRD describes what the system does or should do, its behavior, the end user's experience, process requirements, constraints, and observable completion expectations. It states these in plain language and distinguishes intended behavior from verified existing behavior. It does not reproduce code or prescribe the build plan.
@@ -731,21 +788,21 @@ lasting meaning through the standardized proposal, not by managing files.
 | Who the agent is in this project | `SOUL.md` |
 | A standing instruction for how the agent behaves | The project's root instructions, such as `CLAUDE.md` or `AGENTS.md`, and applicable rules in `.claude/rules/` or the harness equivalent |
 | Where this project keeps its things: the real systems it uses, their names and IDs, and the folders and paths that matter | `knowledge/project.md` |
-| How a part of the system is put together, and what it is for: its objects, fields, processes, sub-applications, and what links to what | The System Guide at `knowledge/system/`, when the project has one. It is a separate toolkit plugin the owner turns on per project, with its own PRD. Memory keeps only the decision or the trap, and links to the System Guide page. |
+| How a part of the system is put together, and what it is for: its objects, fields, processes, sub-applications, and what links to what | The System Guide at `knowledge/system-guide/`, when the project has one. It is a separate toolkit plugin the owner turns on per project, with its own PRD. Memory keeps only the decision or the trap, and links to the System Guide page. |
 | A repeatable procedure | A project skill at `.claude/skills/<name>/SKILL.md` |
 | What we want built, and later the behavior we actually got | `knowledge/prds/` |
-| A lasting fact, decision, event, context, or constraint | `knowledge/memory/` |
-| The current objective, blocker, and next step | `knowledge/current.md` |
+| A lasting fact, decision, event, context, or constraint | `knowledge/memory/memory-entries/` |
+| The current objective, blocker, and next step | `knowledge/memory/current.md` |
 | An unanswered save proposal or an approved save that has not finished | `knowledge/memory-inbox.md`, temporary pending state under requirement 28 |
-| A word the owner or the client uses for something | `knowledge/glossary.md` |
-| What this owner accepts and rejects as memory | `knowledge/memory-self-improvement.md` |
+| A word the owner or the client uses for something | `knowledge/memory/memory-entries/terminology-glossary.md` |
+| What this owner accepts and rejects as memory | `knowledge/memory/memory-self-improvement.md` |
 | Requirements and status for one piece of work | The work tracker |
 | Build order and delivery roadmap | The solution design and work-item plan, kept with or linked from the chosen tracker |
 | Which PRD requirements a work item delivers | The work item, referring to the PRD's numbered requirements |
 | How one work item gets built | Its solution design, kept with or linked from the work item |
 | Documentation from outside this project | `ai-external-knowledge/`, one folder per topic, each naming its source address and capture date |
-| Unchecked exploration and raw brain dumps | `knowledge/brainstorms/` |
-| Useful temporary context another session needs to continue | `knowledge/current.md`, with links to detail in the authoritative work record and clear labels for unverified findings |
+| Unchecked exploration and raw brain dumps | `brainstorms/` |
+| Useful temporary context another session needs to continue | `knowledge/memory/current.md`, with links to detail in the authoritative work record and clear labels for unverified findings |
 | Disposable scratch details with no continuation value | Conversation only |
 | A past conversation | Session history |
 
@@ -784,7 +841,7 @@ using it, and preserve its unapproved status.
 
 | Tier | Where | Notes |
 | --- | --- | --- |
-| 1 | `knowledge/current.md` | Orient to shared work across sessions. For an item's actual scope, status, approval, or next step, open its authoritative tracker record. |
+| 1 | `knowledge/memory/current.md` | Orient to shared work across sessions. For an item's actual scope, status, approval, or next step, open its authoritative tracker record. |
 | 2 | Applicable root instructions and standing rules | Use the instructions already in force; open relevant guidance that is missing from context. They define procedures and restrictions, not a substitute for evidence about the live system. |
 | 3 | Skills | Find an existing procedure that applies. Use its instructions and supporting references when performing that procedure. |
 | 4 | Memory, PRDs, and the System Guide when enabled, through their indexes and links | Use memory for lasting decisions and lessons, a PRD for required behavior and why, and the System Guide for useful explanations of existing parts and their connections. Open the relevant source, following requirement 16 when sources disagree. |
@@ -844,7 +901,7 @@ proposal must be enough to understand what the agent will save. The headline
 and short quote must carry that meaning without requiring him to read the full
 file or all the supporting details. (Owner clarification, 2026-09-11.)
 
-- A bold headline. One plain sentence saying what gets saved. Not a file path and not a short tag-like phrase. Good: "The client moved the demo to Thursday." Bad: `knowledge/memory/demo-date.md`. Bad: "Demo date change".
+- A bold headline. One plain sentence saying what gets saved. Not a file path and not a short tag-like phrase. Good: "The client moved the demo to Thursday." Bad: `knowledge/memory/memory-entries/demo-date.md`. Bad: "Demo date change".
 - Then an arrow, the character →, and one of four phrases: `New memory file`, `Memory, edit to an existing file`, `New PRD file`, `PRD, edit to an existing file`.
 - Those four phrases identify memory and PRD writes. For a removal or status change, the arrow names the destination and actual operation, such as `Memory, retire an existing file` or `Memory, delete an existing file`. The quote identifies the meaning being removed or taken out of current use. A glossary, standing-instruction, or skill proposal names its actual destination and operation in the same position, retaining the same headline, quote, and five bullets. It follows that destination's own approval and delivery rules. A System Guide proposal follows that component's standard. Routing another kind of information never silently extends the knowledge-only Git exception to it.
 - A block quote holding the exact text that would land in the file. Three sentences at most. Not the full file text.
@@ -888,7 +945,7 @@ the proposed save, and never opens a file to decide.
 - The header above the entries is two lines at most. The index points at files. It does not explain how anything works.
 - Never edited by hand. The order of files inside a group follows one fixed rule. Two sessions rebuilding the index at the same time then produce the same lines in the same order, so their changes do not conflict in Git.
 - If an index disagrees with the files on disk, the files win. Rebuild it.
-- Every saved memory file and PRD is confirmed against the field rules and four size limits: the `summary` line of any memory file or PRD is under 200 characters, `knowledge/current.md` is under 5,000 characters, `knowledge/memory-self-improvement.md` is under 10,000 characters, and any one memory file is under 5,000 characters. Nothing else has a size limit. Confirming never changes a file.
+- Every saved memory file and PRD is confirmed against the field rules and four size limits: the `summary` line of any memory file or PRD is under 200 characters, `knowledge/memory/current.md` is under 5,000 characters, `knowledge/memory/memory-self-improvement.md` is under 10,000 characters, and any one memory file is under 5,000 characters. Nothing else has a size limit. Confirming never changes a file.
 - A file that breaks a limit or a field rule is named, along with the rule it broke. A save that fails is not finished. The agent fixes the file and confirms it again before it says the save is done. Nothing is ever cut off silently.
 - After any lasting knowledge change, the index is rebuilt and the checker is run. A failing check means the save is not finished, and the agent says so instead of claiming the knowledge is stored.
 
@@ -900,19 +957,20 @@ file and the broken rule are named.
 ## 22. Keeping current truth clean
 
 - The agent notices and proposes cleanup without being asked. Every proposal names the affected content, the operation, and its reason in the standard format. Owner approval is required before a lasting edit, merge, supersession, retirement, or deletion; after approval, the agent completes the operation and checks the result itself. It does not ask the owner to perform the file maintenance.
-- Never just add. Search for a file on this topic first. A new file every time something comes up fills the folder with near-duplicates until nobody trusts it.
+- Never just append or create another file. Search for the topic area's existing Markdown file first and maintain that file under requirement 14.
 - Keep the original creation date, update the content-change date, and retain evidence for the current meaning. Record a verification date only when the claim was actually rechecked. A recent edit alone never makes an old claim newly verified.
-- **Update** when the new information agrees with the file and adds to it. Edit the file, set `updated_at` to today, and say in the file body what changed and on what date. Set `confirmed_at` only when its claim was rechecked and found still true. No new file.
-- **Supersede** when the new information contradicts the file and is right. Three steps, together or not at all: write the new file with `supersedes` pointing at the old, mark the old file `superseded` with `superseded_by` pointing at the new, then fix anything still treating the old file as current. The old file stays, because often the fact that something changed is the useful part.
+- **Update** by editing the topic-area file into a clear current account. Rewrite or remove outdated, repeated, or unnecessary content with approval; do not accumulate every new detail at the end. Set `updated_at` to today. Record a dated change in the body only when its history matters. Set `confirmed_at` only when its claim was rechecked and found still true.
+- **Supersede a decision or fact** within the same topic-area file when an approved replacement changes what is true. Replace the current statement and repair references that still treat the old statement as current. Keep the earlier decision, its date, and why it changed only when that trail matters; label it as superseded. Otherwise remove the outdated wording. A changed decision does not create another memory file.
 - **Retire** when a file no longer applies but its history still matters. Set `status` to `retired`. It stops answering what is true now and stays findable.
-- **Delete** for three reasons only, and name the reason in the reply: a copy made by mistake, a secret that should never have been written down, or something that was never true. Something that stopped being true is superseded or retired, never deleted.
+- **Delete a whole file** for three reasons only, and name the reason in the reply: a copy made by mistake, a secret that should never have been written down, or something that was never true. This whole-file rule does not prevent approved removal or rewriting of content within a maintained topic-area file. Preserve important history when needed; do not keep obsolete wording merely because it was once written.
 - Age alone is never a reason. Written two years ago and still true means still true.
 - A memory nobody will look up again is found and proposed for retirement without the owner hunting for it. He says yes. The reason is never age. The reason is that the result it holds will not be needed again. Example: a spreadsheet built once in June, checked and delivered, with nothing pointing at it months later.
-- This happens at each save, for the files the search turned up, and across the whole folder when `reflect` runs. Two files saying the same thing are merged into one. Two files that disagree are resolved by the supersede steps above. Add `related_memories` links only when understanding or applying one file benefits from opening the other, following requirement 14. A shared topic alone does not require direct links between every pair; the index already supports topic discovery. The aim is a small set of files the agent can trust, where related files point at each other, not a large set.
+- This happens at each save, for the files the search turned up, and across the whole folder when `reflect` runs. Multiple files for the same topic area are consolidated into one with approval, preserving useful content and repairing links. Conflicting statements are resolved rather than left side by side as current truth. Link different topic-area files through `related_memories` only when understanding or applying one benefits from opening the other. The aim is a small set of maintained files, not many files for tiny details.
 
 **Check:** save something that contradicts an existing file. The agent shows the
-conflict, supersedes rather than adding a second file beside it, and afterwards
-both files point at each other.
+conflict and, after approval, updates that same topic-area file. The replacement
+is clearly current. Any useful earlier decision remains dated and marked as
+superseded; unnecessary old wording is removed. No second memory file is added.
 
 **Check:** let the agent find an accidental duplicate. It proposes the removal
 and explains why without prompting. Withhold approval: the file remains.
@@ -921,7 +979,7 @@ result, and reports completion. A later session follows the surviving source.
 
 ## 23. Learning what to save
 
-`knowledge/memory-self-improvement.md` is where the agent keeps lessons about
+`knowledge/memory/memory-self-improvement.md` is where the agent keeps lessons about
 what this owner accepts and rejects AS IT RELATES TO MEMORY, so its proposals get better over time.
 
 - It holds lessons and a short log of recent proposal outcomes.
