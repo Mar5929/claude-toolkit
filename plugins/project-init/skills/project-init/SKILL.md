@@ -472,6 +472,11 @@ CLAUDE.md stays thin and points at that folder. Read
 
 ### Gate 6: Optional standalone toolkit skills
 
+On Windows, offer optional `voice-reply` for spoken replies when useful to the
+owner. Route to `machine-sync` or the `voice-reply` plugin's `voice-setup` skill.
+It is installed for the Windows user across projects, with each new chat OFF;
+do not configure it in this project.
+
 **Purpose:** offer reusable workflows that are useful in this project but live
 in their own plugins.
 

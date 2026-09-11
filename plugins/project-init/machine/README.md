@@ -31,6 +31,11 @@ knowledge policy and does nothing when the manual is absent.
 
 ## What is in it
 
+Optional Windows speech output is owned by the complete
+[voice-reply system](../../voice-reply/README.md). `machine-sync` offers its
+installer separately from required machine rules. It installs user-level
+hooks and a discovery skill for both hosts; no project files are involved.
+
 | Piece | Lands at | What it does |
 |---|---|---|
 | `rules/no-ai-attribution.md` | `~/.claude/rules/no-ai-attribution.md` | Nothing the owner commits or pushes carries a line saying an AI helped write it. Covers commit trailers, pull request text, code comments, file headers, and documents. |
@@ -51,7 +56,7 @@ add either back without asking the owner.
 
 ## Why the hook script is not in this folder
 
-Every hook in the toolkit lives in the `hooks-library` plugin, so there is one
+General guard hooks live in the `hooks-library` plugin, so there is one
 place to look for one. This is the first hook that is registered in the owner's
 own settings instead of a project's, but it is still a hook, and splitting hooks
 across two plugins by scope would mean checking two folders to answer "what

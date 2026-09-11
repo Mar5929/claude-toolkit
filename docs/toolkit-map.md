@@ -8,6 +8,11 @@ depth lives in each plugin's own `README.md` and reference indexes.
 
 ## Plugins at a glance
 
+Optional [voice-reply](../plugins/voice-reply/README.md) provides Windows speech
+output for both hosts. Its `voice-setup` skill installs at user scope through
+the same route offered by `machine-sync`; `toolkit-voice` is the installed help
+skill. No project setup is required.
+
 Installing is always per machine. Every plugin lands in its host's plugin home and is then
 available in every project on that machine. The `Setup` column says whether it
 also needs something inside a project folder: **Install and go** needs nothing,

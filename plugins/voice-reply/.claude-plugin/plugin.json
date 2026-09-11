@@ -1,0 +1,6 @@
+{
+  "name": "voice-reply",
+  "version": "0.1.0",
+  "description": "Optional Windows voice replies for Codex and Claude Code, with separate chat switches and user-level settings.",
+  "author": { "name": "Mike Rihm", "email": "michael@rihm.com" }
+}
