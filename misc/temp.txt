@@ -1,0 +1,18 @@
+knowledge
+	memory
+		memory-index.md
+		memory-entries
+			terminology-glossary.md
+			memory-topicarea1.md
+			memory-topicarea2.md
+		current.md
+		memory-self-improvement.md
+	project.md
+	README.md
+	prds
+	.obsidian
+	system-guide
+		system-guide-index.md
+		system-guide-entries
+			system-guide-area1.md
+			system-guide-area2.md

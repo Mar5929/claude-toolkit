@@ -10,6 +10,8 @@ Plain words only. No idioms. EVERY WORD YOU RESPOND WITH COSTS THE USER MONEY VI
 
 ## Shape of a reply
 
+The user needs to be able to scan the response quickly and understand what you are saying. The user does not have time to read everything since they are working in multiple parallel agent chat sessions at once.
+
 Group related points under a short header, then put tight bullets under it. Bullets in the same group sit on consecutive lines with no blank line between them.
 
 Never put a blank line between every sentence. That makes every point look separate and hides what belongs together. A blank line separates topics, not sentences.
