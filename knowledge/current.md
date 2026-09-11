@@ -17,14 +17,14 @@ them. The full requirements and implementation are not yet approved.
 
 ## Blocked on
 
-Remaining requirements decisions are under review; no implementation is
-authorized by this refinement. (2026-09-10)
+Full requirements approval is still pending; no implementation is authorized
+by this refinement. (2026-09-10)
 
 ## Next step
 
-1. Next review: distinguish proposed from verified existing behavior when only
-   part of a feature is delivered. The seven scope-review corrections are saved
-   in the PRD. Full requirements approval and design remain pending.
+1. Review the consolidated PRD for full requirements approval and capture any
+   remaining owner corrections. The source-evidence clarification is saved;
+   no separate delivery-state feature was added. Design remains pending.
 2. The System Guide (`knowledge/system/`) is its own plugin on issue #304, in
    another session. The rules audit is issue #305.
 
@@ -37,3 +37,5 @@ authorized by this refinement. (2026-09-10)
   required; mechanisms go to design. Routing follows meaning, useful context
   survives, and needless questions, links, and shared-policy changes are removed.
   Exploratory ideas: `knowledge/brainstorms/2026-09-10-knowledge-system-potential-paths.md`.
+- Approved 2026-09-10: current-behavior answers need current evidence; proposed
+  requirements and document status alone are not proof. PRD 16, 19, and 21.

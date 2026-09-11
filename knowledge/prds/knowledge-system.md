@@ -621,8 +621,8 @@ one file, with a parent PRD and child PRDs inside it.
 - A small feature area stays one file at the top of `knowledge/prds/`. Nothing forces a folder.
 - A child never repeats a requirement the parent already states. It refers to the parent by requirement number. When the two disagree, the parent wins and the disagreement is said out loud.
 - It opens as `proposed`, which is what we want built. It is edited to `finalized` once the work delivering its requirements is verified complete in the tracker and the document accurately describes the delivered behavior. A small PRD follows the same rule. Build progress, delivery dates, and completion evidence stay in the tracker; the PRD does not maintain a second progress record.
-- Only a `finalized` PRD is settled truth. Never answer "how does this work today" from a `proposed` one.
-- Only a `finalized` PRD beats a memory. When a memory and a finalized PRD disagree, the agent follows the PRD, says so, and names both files. It never picks one without saying. A `proposed` PRD never beats a memory, because it is not built yet.
+- When answering how something works today, the agent uses current evidence. It does not treat a proposed requirement as proof that the behavior exists. A document's status alone, including `finalized`, does not establish what is true now. Requirement 19 governs source checks.
+- When a memory and a PRD disagree, the agent names both sources and distinguishes required behavior from evidence of existing behavior. A finalized PRD remains the reference for required behavior; a proposal does not replace verified facts merely by describing a desired change.
 - When a project also has a System Guide at `knowledge/system/`, the order is: a finalized PRD wins on what the system should do, the System Guide wins on how the system is put together, and the live system wins on what exists right now. Memory never beats any of those three. The agent reports the disagreement instead of quietly picking. The System Guide is not part of the second brain; it is its own plugin with its own PRD.
 - `superseded` and `retired` are history.
 - This folder used to be called `knowledge/specs/`, and older sessions call these files specs.
@@ -686,9 +686,10 @@ because every file in the folder is the same kind of thing.
 `proposed` and `finalized` are statuses only a PRD may carry. No memory file ever
 has them. A memory that is still true is `current`.
 
-**Check:** open a PRD marked `proposed` and ask the agent how the system works
-today. The agent says that PRD describes what is wanted, not what exists, and
-refuses to answer the question from it.
+**Check:** a proposed requirement says customers should receive an email after
+checkout. Ask whether those emails are being sent today. The agent checks
+current evidence rather than treating the requirement as proof. If it cannot
+verify the behavior, it says so. A finalized label alone does not skip this check.
 
 ## 17. Procedures become skills
 
@@ -816,7 +817,7 @@ fixing a bug, designing, or resuming work.
 
 - Always name where the answer was found, in the shape requirement 6 sets.
 - An index line is only a pointer to a file. Never answer from the index line alone. Open the file it points at and read it before using what it says.
-- Only a memory marked `current` or a PRD marked `finalized` answers what is true now. Everything else answers questions about history.
+- Answer what is true now from relevant, current evidence. Memory, PRDs, and historical records can point to useful sources, but a status label or proposed requirement alone does not prove existing behavior. Check the supporting evidence, name disagreements, and state what remains unverified. Reuse evidence already read while it remains relevant and current.
 - When tier 4 finds nothing, say so plainly and name what was searched. Never invent a believable answer, and never hand back something recent but unrelated.
 - A tier 5 finding is identified as historical, with its source and date. Before relying on it as current, verify it against relevant project records or direct evidence. Ask the owner only when material uncertainty remains that available sources cannot resolve. If verification is unavailable, state that limit. Being found in history is never by itself a reason to save something; lasting candidates still pass the normal selection and approval steps.
 
@@ -877,7 +878,7 @@ never opens a file to decide.
 - The index is grouped under short topic headings, not one flat alphabetical list. Each heading reads like the question a reader would ask, such as "Deploy and org-safety rules" or "Where things live", so the reader can quickly find the relevant source. The heading comes from each file's `group` field. Files with the same `group` sit together under that heading. The order of the groups, and the order of files inside a group, follow one fixed rule, so the same set of files always produces exactly the same index. Which rule is the design's job.
 - Each entry is one line: a link to the file, then the file's `summary`. The summary is the headline fact itself, in plain words, not a description of the file. It helps a reader choose the source; the agent opens that file before relying on the claim, as requirement 19 requires. The owner's model for this is the memory index in his Davis project, where a line reads like "Never send via Gmail; paste the email or save it to a file".
 - The summary is written once, in the file's own `summary` field, and the index copies it word for word. The index adds nothing of its own. Every line in it comes from a file.
-- A memory whose status is not `current`, or a PRD whose status is not `finalized`, shows its status on its line, so a superseded, retired, or proposed file is visibly not an answer to what is true now.
+- A memory whose status is not `current`, or a PRD whose status is not `finalized`, shows its status on its line, so historical records and proposed requirements are clearly identified. No index label substitutes for requirement 19's source checks.
 - The header above the entries is two lines at most. The index points at files. It does not explain how anything works.
 - Never edited by hand. The order of files inside a group follows one fixed rule. Two sessions rebuilding the index at the same time then produce the same lines in the same order, so their changes do not conflict in Git.
 - If an index disagrees with the files on disk, the files win. Rebuild it.
