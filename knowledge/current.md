@@ -22,17 +22,18 @@ authorized by this refinement. (2026-09-10)
 
 ## Next step
 
-1. Review knowledge versus tracker responsibilities, one decision at a time.
-   Check the remaining requirements for consistency. Full requirements
-   approval and solution design follow those remaining choices.
+1. Next review: distinguish proposed from verified existing behavior when only
+   part of a feature is delivered. The seven scope-review corrections are saved
+   in the PRD. Full requirements approval and design remain pending.
 2. The System Guide (`knowledge/system/`) is its own plugin on issue #304, in
    another session. The rules audit is issue #305.
 
 ## Picked up this session
 
-- Approved on 2026-09-10: a failed save pauses only it and dependent work;
-  authorized PRD refinement covers clear owner answers and corrections without
-  repeat approval. Boundaries and checks are in PRD requirements 3 and 10.
-- Approved on 2026-09-10: automatically retain unanswered proposals in a planned
-  `knowledge/memory-inbox.md`, separate from trusted knowledge; recover approved
-  unfinished saves without repeat approval. PRD requirement 28; not implemented.
+- Approved 2026-09-10: failure and drafting approval boundaries (PRD 3, 10),
+  automatic pending inbox retention (28), and PRD versus delivery ownership
+  (16, 18). These requirements do not authorize implementation.
+- Approved 2026-09-10: seven scope-review corrections. Reliability outcomes stay
+  required; mechanisms go to design. Routing follows meaning, useful context
+  survives, and needless questions, links, and shared-policy changes are removed.
+  Exploratory ideas: `knowledge/brainstorms/2026-09-10-knowledge-system-potential-paths.md`.
