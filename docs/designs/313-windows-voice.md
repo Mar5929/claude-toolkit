@@ -10,9 +10,9 @@ and discovery skill. This is a reusable system, not a general guard hook.
 The existing ElevenLabs MCP registration and helper remain independent evidence.
 Do not replace them or duplicate credentials. No MCP dependency is required.
 
-The primary checkout has a pending removal of `docs/toolkit-map.md`. This
-change leaves that file untouched and indexes the system through the root and
-plugin READMEs, avoiding an overlap with the owner's separate cleanup.
+Keep `docs/toolkit-map.md` and add the voice entry there. The owner confirmed
+that it must remain until a better replacement exists; a future System Guide
+may provide that replacement, but none is in place now.
 
 ## Behavior and implementation
 
