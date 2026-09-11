@@ -22,9 +22,9 @@ authorized by this refinement. (2026-09-10)
 
 ## Next step
 
-1. Review knowledge versus tracker responsibilities, one decision at a time.
-   Check the remaining requirements for consistency. Full requirements
-   approval and solution design follow those remaining choices.
+1. Review the remaining requirements for consistency, including how proposed
+   and partly delivered behavior is distinguished. Full requirements approval
+   and solution design follow the remaining choices.
 2. The System Guide (`knowledge/system/`) is its own plugin on issue #304, in
    another session. The rules audit is issue #305.
 
@@ -36,3 +36,6 @@ authorized by this refinement. (2026-09-10)
 - Approved on 2026-09-10: automatically retain unanswered proposals in a planned
   `knowledge/memory-inbox.md`, separate from trusted knowledge; recover approved
   unfinished saves without repeat approval. PRD requirement 28; not implemented.
+- Approved on 2026-09-10: PRDs hold behavior, user experience, and process
+  requirements. Build roadmaps belong in solution designs and work-item plans;
+  delivery status stays in the tracker. PRD requirements 16 and 18.

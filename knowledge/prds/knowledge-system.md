@@ -91,12 +91,14 @@ boundaries. Requirements 2, 13, 18, and 19 define this behavior.
 The toolkit ships a whole set of parts for working with an AI agent on a
 project: rules, hooks, skills, the work tracker, and captured
 outside documentation. The second brain is two of those parts. It is the memory,
-and it is the record of why the product was designed the way it was, which is
-what a PRD holds. It keeps what is true in this project and why. Anything else
+and it is the record of the product's required behavior, user experience,
+process requirements, and reasons, which is what a PRD holds. It keeps what
+is true in this project and why. Anything else
 belongs to another part, and the second brain does not keep it. A repeatable
 procedure goes to a skill. A standing instruction goes to `.claude/rules/`,
 written so that it loads only when it is needed. Live status goes to the work
-tracker. How one item gets built goes on that work item, in the work tracker. Outside documentation
+tracker. How one item gets built and its build order belong in its solution
+design and work-item plan, kept with or linked from the chosen tracker. Outside documentation
 the agent can use goes to `ai-external-knowledge/`. Requirement 18 is the full
 list.
 
@@ -115,7 +117,7 @@ is wrong.
 
 - The status is `proposed`. This document describes the finished system. It does not describe how the system works today.
 - It says what must happen, what the owner sees, and why. It never says which hook, file, or code does it. Those are build decisions and go on the work item, in the work tracker.
-- This document holds the goal, the requirement, and the behavior. Each requirement is written clearly enough that a builder can design from it without guessing. If a builder would have to guess between two designs, the requirement is not finished. It gets rewritten here first.
+- This document holds the goal, the requirement, and the behavior. Each requirement is written clearly enough that a builder can design from it without guessing the intended behavior. The solution design may choose among different ways to meet the same requirement; the PRD does not make that implementation choice.
 - When the owner gives a clear answer or correction within authorized refinement of this document, the agent writes it here in that same reply under requirement 10. It is never logged on an issue instead, because an issue comment gets lost and this document then never gets updated.
 - Mike authorized ongoing refinement of this PRD and approved the drafting-permission rule in requirement 10 on 2026-09-10. That permission covers faithful capture of his answers and corrections; it does not approve every requirement, a solution design, or implementation.
 - Requirement 3 is the one exception. It names kinds of mechanism, because no wording alone can meet it. Which mechanism delivers each one is still the design's job.
@@ -203,7 +205,7 @@ flowchart TD
 **6. The work lands**
 
 - What the owner sees: a pull request, or a work item closed. These two moments are held until the save review of requirement 9 has run for this work in this session. A single card does not unlock them. They stay held every time until the review has run, and each refusal says to run the review.
-- What happens: code lands by pull request with the owner's approval. A change that touches only `knowledge/` commits straight to the default branch. When the work item closes, the agent checks whether the area's behavior changed. If it did, that area's PRD is edited to match, through the normal card and yes. When the last work item on that PRD's roadmap closes, its status moves from `proposed` to `finalized`.
+- What happens: code lands by pull request with the owner's approval. A change that touches only `knowledge/` commits straight to the default branch. When the work item closes, the agent checks whether the area's behavior changed. If it did, that area's PRD is edited to match within the approval rules of requirement 10. Completion evidence stays in the tracker. Requirement 16 governs when the PRD can move from `proposed` to `finalized`; the PRD holds no build roadmap.
 - Files written: the branch and pull request. The work item's stage and progress log. The PRD for the area, after yes.
 - Enforced by: a gate on opening a pull request and a gate on closing a work item, held until the review is done. A gate on the write for the PRD edit. Requirements 3, 16.
 
@@ -675,31 +677,36 @@ one file, with a parent PRD and child PRDs inside it.
 - A feature area may be a folder: `knowledge/prds/<area>/<area>.md` is the parent PRD, and every other file in that folder is a child PRD. A child covers one sub-part of the area with its own numbered requirements, its own status, and the same fields as any PRD. The parent holds the goal, the requirements that span the whole area, and a contents list naming each child. Example: `knowledge/prds/knowledge-system/knowledge-system.md` is the parent, and `knowledge/prds/knowledge-system/indexes-and-checker.md` is a child holding the requirements for the two indexes and the checker.
 - A small feature area stays one file at the top of `knowledge/prds/`. Nothing forces a folder.
 - A child never repeats a requirement the parent already states. It refers to the parent by requirement number. When the two disagree, the parent wins and the disagreement is said out loud.
-- The parent's roadmap lists work items for the whole area, children included.
-- It opens as `proposed`, which is what we want built. It is edited to `finalized` once every work item on its roadmap is done and it describes what was actually built. A small PRD that one work item delivers is finalized when that item finishes. While a big PRD is being built, each requirement that is done gets a line saying "Built on YYYY-MM-DD", so progress is visible inside the PRD.
+- It opens as `proposed`, which is what we want built. It is edited to `finalized` once the work delivering its requirements is verified complete in the tracker and the document accurately describes the delivered behavior. A small PRD follows the same rule. Build progress, delivery dates, and completion evidence stay in the tracker; the PRD does not maintain a second progress record.
 - Only a `finalized` PRD is settled truth. Never answer "how does this work today" from a `proposed` one.
 - Only a `finalized` PRD beats a memory. When a memory and a finalized PRD disagree, the agent follows the PRD, says so, and names both files. It never picks one without saying. A `proposed` PRD never beats a memory, because it is not built yet.
 - When a project also has a System Guide at `knowledge/system/`, the order is: a finalized PRD wins on what the system should do, the System Guide wins on how the system is put together, and the live system wins on what exists right now. Memory never beats any of those three. The agent reports the disagreement instead of quietly picking. The System Guide is not part of the second brain; it is its own plugin with its own PRD.
 - `superseded` and `retired` are history.
 - This folder used to be called `knowledge/specs/`, and older sessions call these files specs.
-- A PRD says how the system should behave in plain words: the logic, the behavior, what the user does, what the user sees. It never restates the code. If an agent could work it out by reading the source, it does not go here.
-- When a work item finishes, check whether it changed how any area is meant to behave. If it did, that area's PRD is edited to match, through the normal card and yes. That is what keeps a PRD trustworthy.
+- A PRD describes what the system does or should do, its behavior, the end user's experience, process requirements, constraints, and observable completion expectations. It states these in plain language and distinguishes intended behavior from verified existing behavior. It does not reproduce code or prescribe the build plan.
+- Build order, delivery roadmaps, implementation tasks, schedules, work-item status, and solution designs do not belong in a PRD. Required runtime sequences do belong: for example, approval must precede a lasting-memory write. That describes how the product behaves, not which part to build first.
+- When a work item finishes, check whether it changed how any area is meant to behave. If it did, update that area's PRD within requirement 10's approval rules. Reordering delivery alone never changes the product requirements.
 
 **A PRD is usually big.** Most of the time it describes a large feature, too
 much for one work item to deliver. A small PRD that one work item delivers is
 allowed, and it is the exception.
 
 - When a PRD is too big for one work item, it is broken down into smaller work items in the work tracker. Each work item points back to the PRD and names the numbered requirements it delivers. That is why the requirements are numbered.
-- A big PRD has a roadmap, written as its own section inside the PRD. The roadmap lists the work items in the order they will be built. Each line has the work item's link in the tracker and the numbers of the requirements that item covers. So the roadmap says two things: the build order, and which requirements each work item covers. It never copies a work item's stage or status. The tracker holds those, and the link leads there.
-- Each work item carries its own solution design, on the work item itself in the work tracker. The design says how that item gets built. It never lives in the PRD. The PRD stays separate because it is the testable, living truth of how the system should function. What one work item does is a different thing.
-- The agent keeps both up to date: the PRD and its roadmap. When a work item is created, reordered, split, or finished, the roadmap is updated in that same session through the normal card and yes. When a work item finishes, the PRD is edited so it describes how the area now behaves. The work item's design stays with the work item.
-- The owner never has to ask for any of this upkeep. It happens at the moment the work item changes.
+- The solution design and work-item plan own how the work gets built, its roadmap, and build order. They live with the work item or in the project's designated design document linked from that item. The chosen tracker owns current delivery status, dependencies, blockers, and next actions. Use the existing delivery workflow; the knowledge system creates no second planner or tracker.
+- A PRD may link to the relevant work item or delivery plan so the agent can find it. It does not copy that plan, build order, or status. Each work item names the PRD requirements it delivers, preserving the connection between requirements and implementation.
+- Agents keep each record current in its own home when the work changes, within existing approval. A work item being created, reordered, or split updates the delivery records. A change to required behavior updates the PRD. The owner never has to direct the filing or keep these records aligned by hand.
 
-**Check:** open a PRD that more than one work item delivers. It has a roadmap
-section. Every work item in it links to the tracker, and every one of those
-work items links back to the PRD and names its requirements. Finish one work
-item. The roadmap changes in the same session. The part of the PRD that
-describes how the area behaves changes before the work item is called done.
+The owner confirmed this boundary during the PRD interview on 2026-09-10:
+PRDs describe the system and its required behavior; delivery roadmaps belong
+in the solution design and work-item plan.
+
+**Check:** open a PRD that more than one work item delivers. Its links lead to
+the delivery records, and the work items name the requirements they cover.
+Ask to build search before the inbox: the delivery plan changes, and the PRD
+gains no roadmap, tasks, or progress entries. Change the required search
+behavior: the PRD captures that approved meaning. A fresh session finds both
+the required behavior and current delivery plan without the owner directing
+it to the right files.
 
 Required fields: `summary`, `group`, `area`, `status`, `source`, `created_at`,
 `updated_at`, and `tags`. They follow the memory field meanings except for
@@ -789,8 +796,9 @@ lasting meaning through the standardized proposal, not by managing files.
 | A word the owner or the client uses for something | `knowledge/glossary.md` |
 | What this owner accepts and rejects as memory | `knowledge/memory-self-improvement.md` |
 | Requirements and status for one piece of work | The work tracker |
-| The order in which a feature's work items get built, and which requirements each covers | The roadmap section of that feature's PRD |
-| How one work item gets built | The work item itself, in the work tracker |
+| Build order and delivery roadmap | The solution design and work-item plan, kept with or linked from the chosen tracker |
+| Which PRD requirements a work item delivers | The work item, referring to the PRD's numbered requirements |
+| How one work item gets built | Its solution design, kept with or linked from the work item |
 | Documentation from outside this project | `ai-external-knowledge/`, one folder per topic, each naming its source address and capture date |
 | Unchecked exploration and raw brain dumps | `knowledge/brainstorms/` |
 | Only needed to finish the task at hand | Nowhere. It stays in the conversation. |
