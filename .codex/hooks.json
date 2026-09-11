@@ -8,7 +8,7 @@
           {
             "type": "command",
             "command": "node \"$(git rev-parse --show-toplevel)/.claude/hooks/knowledge-session-start.mjs\"",
-            "commandWindows": "powershell -NoProfile -Command \"$root = git rev-parse --show-toplevel; node (Join-Path $root '.claude/hooks/knowledge-session-start.mjs')\"",
+            "commandWindows": "$knowledgeRoot = git rev-parse --show-toplevel; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; Set-Location -LiteralPath $knowledgeRoot; node '.claude/hooks/knowledge-session-start.mjs'",
             "timeout": 10,
             "additionalContextLimit": 5000,
             "statusMessage": "Loading the knowledge manual and project map"
