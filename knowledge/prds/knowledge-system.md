@@ -6,8 +6,6 @@ source: Owner requirements interview for GitHub issue #269, with clarification o
 created_at: 2026-08-21
 confirmed_at: 2026-09-10
 tags: [knowledge-system, memory, prds, second-brain, schema, requirements, solution-philosophy, high-level-architecture]
-approved_by: Mike Rihm
-approval_date: 2026-09-07
 project: claude-toolkit
 work_item: "269"
 ---
@@ -98,8 +96,8 @@ process requirements, and reasons, which is what a PRD holds. It keeps what
 is true in this project and why. Anything else
 belongs to another part, and the second brain does not keep it. A repeatable
 procedure goes to a skill. A standing instruction goes to `.claude/rules/`,
-written so that it loads only when it is needed. Live status goes to the work
-tracker. How one item gets built and its build order belong in its solution
+scoped through the runtime’s supported rule behavior. Live status goes to the
+work tracker. How one item gets built and its build order belong in its solution
 design and work-item plan, kept with or linked from the chosen tracker. Outside documentation
 the agent can use goes to `ai-external-knowledge/`. Requirement 18 is the full
 list.
@@ -413,7 +411,8 @@ a hook, a skill, a Markdown file, or Git.
 - In every session, the agent follows the knowledge system: when to save, what to save, how to save, where to save, what to check first, what to cite, and what never to write.
 - Reading a rule is not enough. The agent has to actually do what the rule says, every time. Example: requirement 9 requires a save review at the end of meaningful work. The test is whether the right proposals, authorized saves, and pending state result, not merely whether the agent read the rule.
 - It follows the system whether or not the owner mentions it. The owner never has to remind it.
-- At a new session start, the agent reads the canonical knowledge-system manual and shows the owner one short confirmation, such as “I’ve read the knowledge manual.” Show it once after reading, without a checklist or repeated confirmations on normal turns. The manual explains the knowledge homes, what belongs and does not belong in each, selection and proposal rules, approval, and file conventions, with pointers to each component’s detailed guidance.
+- At a new session start, the agent reads the canonical knowledge-system manual at `knowledge/README.md` and shows the owner one short confirmation, such as “I’ve read the knowledge manual.” Show it once after reading, without a checklist or repeated confirmations on normal turns. The manual explains the knowledge homes, what belongs and does not belong in each, selection and proposal rules, approval, and file conventions, with pointers to each component’s detailed guidance.
+- If the manual or other required guidance is unavailable, the agent reports the missing source and pauses only work that depends on it. Unrelated authorized work may continue. It never confirms reading an unavailable manual.
 - A small map is available at startup and whenever context is condensed, cleared, or resumed. It points to the current operating instructions, information homes, indexes, and the checks that apply. Detailed rules, templates, and knowledge are reached when needed; the whole knowledge base and every procedure are not loaded up front.
 - Before a lookup, the agent establishes the applicable find order. Before proposing or making a knowledge change, it establishes the destination rules, exclusions, approval rules, file fields, template, and writing standard. It follows the current instructions for that operation even late in a long session. Already-read guidance can be reused while it remains available and current. Missing guidance is opened again before the affected operation proceeds.
 - The same guidance applies when the owner changes tasks or another session changes the relevant records. A completed check for an earlier task does not establish that the new task's knowledge was checked.
@@ -423,7 +422,8 @@ a hook, a skill, a Markdown file, or Git.
 
 **Check:** at a new session start, the owner sees one short confirmation after
 the agent reads the manual. Normal turns contain no repeated confirmation or
-startup checklist.
+startup checklist. Make the manual unavailable: no confirmation is shown, the
+missing path is reported, and only dependent work pauses.
 
 **Check:** run a whole session without mentioning memory once. At every moment
 this document names, the agent does what this document says. Any moment where it
