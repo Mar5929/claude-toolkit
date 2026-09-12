@@ -698,10 +698,18 @@ shortest wording that still says it? The card shows the answer to the third
 question, never a first draft. Accuracy comes first. Being short and clear
 comes second. Neither one is a reason to drop something a future agent needs.
 
-A PRD shares the plain-language, accuracy, and concise-writing standards above.
+A PRD uses direct, simplified technical English that a junior software
+developer can understand without the original conversation. Explain necessary
+technical terms. Remove conversational preambles, drafting commentary, and
+unnecessary repetition. Keep the behavior, decision rules, process, user
+experience, data model, and useful examples explicit. Each requirement has one
+main home; other sections refer to it when needed.
+
 Its structure and fields follow requirement 16; the memory-only body template
-and memory size limit do not apply. It describes system behavior and the user
-experience, with requirements whose outcomes can be checked.
+and memory size limit do not apply. Before design, review requirements for
+wording that could be implemented literally while missing the intended result.
+Identify the competing interpretations and resolve choices that change behavior
+with the owner. Editing for clarity must preserve the requirement's meaning.
 
 **Check:** hand a memory to someone who was not in the conversation. In one
 read they can say what is true, why, and what to do about it, and nothing makes
