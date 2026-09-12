@@ -196,7 +196,7 @@ flowchart TD
     K -- approve --> L[Approved save completed and verified]
     K -- unanswered --> M[Proposal retained in the inbox]
     K -- reject --> N[Proposal leaves the active inbox]
-    I -- no --> O[Complete authorized saves or explain why none are needed]
+    I -- no --> O[Complete authorized saves; empty routine reviews stay quiet]
     L --> P[Handoff identifies saved state and unfinished work]
     M --> P
     N --> P
@@ -538,8 +538,9 @@ for it.
 - Passwords, keys, and tokens, ever. The `knowledge/` folder is in Git. Git keeps a copy of every past version of every file, so deleting the secret later does not remove it.
 
 **Check:** run this list against a session's candidates. Anything that matches a
-bullet on this list is dropped before a card is written, and the agent says in
-one line which bullet dropped it.
+bullet on this list is dropped before a card is written. During an explicit
+review, the agent can identify which exclusion applies; routine reviews stay
+quiet under requirement 9.
 
 ## 13. Working memory
 
@@ -1163,7 +1164,10 @@ clarifies requirements 1–3, 5, 10, 18, 19, and 25.
 ### Process and user experience
 
 1. At session start, the agent reads the canonical knowledge-system manual and
-   acknowledges it. The manual teaches the knowledge homes, what belongs and
+   shows the owner one short confirmation after reading it, such as “I’ve read
+   the knowledge manual.” Show it once at startup, without a checklist or
+   repeated reminders. The owner approved this visible one-liner during the
+   voice interview on 2026-09-12. The manual teaches the knowledge homes, what belongs and
    does not belong in each, selection rules, proposal process, approval rules,
    and file conventions. It points to each component's detailed guidance.
 2. During ordinary work, the agent reasons and investigates freely within the
@@ -1180,9 +1184,9 @@ clarifies requirements 1–3, 5, 10, 18, 19, and 25.
    failure recovery; requirement 28 preserves unfinished proposals and saves.
 
 Reading the manual once does not mean forgetting it after context loss. Recover
-missing or changed guidance under requirement 2. Exact recovery triggers and
-whether acknowledgements are visible to the owner remain design/interview
-questions. The owner settled routine end-of-turn reviews on 2026-09-12:
+missing or changed guidance under requirement 2. The design determines how to
+detect and recover missing or changed guidance. The owner settled routine
+end-of-turn reviews on 2026-09-12:
 perform them quietly and speak up only for something to approve, a completed
 save, or a problem. Requirements 3 and 9 reflect that decision.
 
@@ -1208,7 +1212,9 @@ or open a fixed number of results. A later decision worth preserving triggers
 the relevant policy and approval flow. An unapproved or malformed lasting
 write fails its required checks; an already-authorized PRD correction does not
 ask for the same permission again. Session bookkeeping never appears as a
-project memory. Test actual outcomes as requirement 3 requires.
+project memory. At a fresh session start, the owner sees one short confirmation
+after the agent reads the manual, without a long checklist or repeated
+confirmations on normal turns. Test actual outcomes as requirement 3 requires.
 
 ## Potential paths to explore
 
@@ -1290,8 +1296,6 @@ Explore these questions without assuming their answers:
   treating an old acknowledgement as proof that current guidance is available?
 - How can write checks cover actual edits and existing approval without adding
   a large controller or blocking legitimate work?
-- Should the startup acknowledgement be visible to the owner or internal?
-  Routine end-of-turn reviews already follow the quiet behavior in requirement 9.
 - How will representative sessions expose missed obligations, false blocks,
   repeated reminders, context overhead, and degradation of ordinary work?
 
