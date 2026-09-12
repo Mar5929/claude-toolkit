@@ -190,7 +190,8 @@ design selects any additional triggers or enforcement mechanisms.
 ```mermaid
 flowchart TD
     S[Optional: second-brain setup or repair under requirements 24 and 27] -. Verified equipped .-> A
-    A[Owner opens or resumes the project] --> B[Native runtime: project instructions and skill discovery are available]
+    A[Owner opens or resumes the project] --> B[Native runtime: project instructions, rules, and skill discovery are available]
+    B -. Claude Code rule timing .-> BR[.claude/rules/: general rules at startup; path-scoped rules when matching files are read]
     B --> C[Knowledge system: read knowledge/README.md at new-session startup; recover missing guidance on resume]
     C -- New session, manual read --> D[Owner sees one short manual-read confirmation]
     C -- Guidance unavailable --> Y
@@ -223,10 +224,18 @@ a new proposal, or a visit to every source.
 
 ### 1. Start or resume the session
 
-The native runtime makes project instructions and available skills accessible
+The native runtime makes project instructions, rules, and available skills accessible
 through its supported mechanisms, including files such as `CLAUDE.md` or
 `AGENTS.md`. This step supplies context for the walkthrough; its implementation
 is outside the knowledge system.
+
+In Claude Code, [native rule handling](https://code.claude.com/docs/en/memory#path-specific-rules) includes:
+
+- Project rules in `.claude/rules/`. Rules without a `paths` field load at startup when project rules are enabled.
+- Rules with YAML `paths` patterns. These load when Claude reads matching files, rather than all loading at startup.
+- Personal rules in `~/.claude/rules/`, which apply across projects.
+
+Codex uses its supported instruction mechanisms under requirement 25.
 
 At a new session start, the agent reads `knowledge/README.md` and gives the
 single short confirmation in requirement 2. On resume or context loss, it
