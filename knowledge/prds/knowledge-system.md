@@ -130,9 +130,6 @@ is wrong.
 
 ## Project folder layout
 
-The project uses this layout. The owner supplied it in `misc/temp.txt` and
-confirmed on 2026-09-11 that brainstorms belong at the project root.
-
 ```text
 project/
 ├── brainstorms/
