@@ -6,36 +6,34 @@ file. Capped at 2,000 characters, and the checker enforces it.
 
 ## Objective
 
-Finish refining the knowledge-system PRD for issue #269 with the owner, then
-bring the issue body in line with it. (2026-09-10)
+Continue issue #269 requirements refinement: reliable knowledge across sessions,
+consistent file templates and upkeep, and quick PRD saves. (2026-09-12)
 
 ## Work item
 
-Issue #269. The PRD is `knowledge/prds/knowledge-system.md`, status proposed,
-28 requirements. Approved clarifications are saved there as the owner decides
-them. The full requirements and implementation are not yet approved.
+Issue #269, stage `02-refinement`. `knowledge/prds/knowledge-system.md` has 28
+numbered requirements and remains proposed. Full requirements, solution design,
+and implementation approval remain pending.
 
 ## Blocked on
 
-Full requirements approval is still pending; no implementation is authorized
-by this refinement. (2026-09-10)
+Owner review of the remaining template decisions and full PRD. No implementation
+is authorized by this refinement. (2026-09-12)
 
 ## Next step
 
-1. Review the consolidated PRD for full requirements approval and capture any
-   remaining owner corrections. The source-evidence clarification is saved;
-   no separate delivery-state feature was added. Design remains pending.
-2. The System Guide (`knowledge/system/`) is its own plugin on issue #304, in
-   another session. The rules audit is issue #305.
+1. For the laptop transition, read the [handoff](https://github.com/Mar5929/claude-toolkit/blob/issue-269-second-brain-design/misc/269-session-handoff.md).
+2. Review the proposed system-wide template requirement and the remaining
+   per-file formats. No new `current.md` entry schema was approved.
+3. Review `misc/SKILL (2).md` on branch `issue-269-second-brain-design`. It keeps
+   Mike's PRD hierarchy and adds quick saves; it is an unpublished skill draft.
+4. Resume full PRD review, then reconcile the issue body. Related scopes:
+   System Guide #304; rules audit #305.
 
 ## Picked up this session
 
-- Approved 2026-09-10: failure and drafting approval boundaries (PRD 3, 10),
-  automatic pending inbox retention (28), and PRD versus delivery ownership
-  (16, 18). These requirements do not authorize implementation.
-- Approved 2026-09-10: seven scope-review corrections. Reliability outcomes stay
-  required; mechanisms go to design. Routing follows meaning, useful context
-  survives, and needless questions, links, and shared-policy changes are removed.
-  Exploratory ideas: `knowledge/brainstorms/2026-09-10-knowledge-system-potential-paths.md`.
-- Approved 2026-09-10: current-behavior answers need current evidence; proposed
-  requirements and document status alone are not proof. PRD 16, 19, and 21.
+- Saved PRD refinements include folder layout, maintained topic-area memories,
+  scannable proposals, the glossary table, and source/context properties.
+- The read-only template audit found uneven coverage. Its recommendations are
+  in the handoff, not approved implementation. Current runtime paths and shipped
+  templates do not yet match all the proposed requirements.
