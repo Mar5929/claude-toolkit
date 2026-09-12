@@ -1,21 +1,35 @@
 ---
 name: prd-creator
-description: "Generate a Product Requirements Document (PRD) for a new feature, app, or project. Use when planning a feature, starting a new project, or when asked to create a PRD. Triggers on: create a prd, write prd for, plan this feature, requirements for, spec out."
+description: "Create and refine a Product Requirements Document (PRD) for a feature, app, or project. Use for PRD drafting, requirements interviews, corrections, or resuming refinement. Keep the agreed draft saved as the owner answers."
 user-invocable: true
 ---
 
 # PRD Generator
 
-Create detailed Product Requirements Documents that are clear, actionable, and suitable for implementation. The PRD should store functional requirements, process requirements, logic requirements, UI/UX requirements, data model requirements, end-user experience, etc. This should never store solution design or technical information. If while refining the PRD the user mentions some potenital solution design options to explore when designing the solution from a technical perspective, put those in the
+Create clear, detailed PRDs using the structure below. Describe required
+functionality, processes, business rules, information needs, UI/UX, and the
+end-user experience in plain language. Someone who missed the conversation
+must be able to understand the intended behavior and recognize when it works.
+
+Keep technical solution design and build plans in their own project record.
+If the owner raises a possible implementation approach, retain it only in the
+final "Potential Solution Designs to Explore" section, linked to the relevant
+requirement and clearly identified as an idea to explore.
 
 ---
 
 ## The Job
 
-1. Receive a feature description from the user
-2. Ask 3-5 essential clarifying questions (with lettered options)
-3. Generate a structured PRD based on answers
-4. Save to `tasks/prd-[feature-name].md`
+1. Read the owner's description, existing PRD, and relevant project context.
+2. Find the project's canonical PRD location and save rules. In an equipped
+   toolkit project, use the appropriate file under `knowledge/prds/`; update
+   the existing feature-area PRD rather than creating a competing draft.
+3. Start the draft from what is already known, using the structure below.
+   Leave unanswered details open rather than guessing.
+4. Refine it through conversation. Ask the next useful question and save clear
+   answers and corrections during the same turn.
+5. When the draft is ready, review its requirements and remaining questions
+   with the owner. Record full requirements approval only when given.
 
 **Important:** Do NOT start implementing. Just create the PRD.
 
@@ -23,110 +37,197 @@ Create detailed Product Requirements Documents that are clear, actionable, and s
 
 ## Step 1: Clarifying Questions
 
-Ask only critical questions where the initial prompt is ambiguous. Focus on:
+Ask only questions that materially clarify the requirements. Read available
+answers first. Focus on:
 
 - **Problem/Goal:** What problem does this solve?
 - **Core Functionality:** What are the key actions?
 - **Scope/Boundaries:** What should it NOT do?
 - **Success Criteria:** How do we know it's done?
+- **People and Process:** Who uses it, and what happens before and after?
+- **Rules and Exceptions:** What conditions, permissions, or failures change
+  what should happen?
+
+Prefer one question at a time so the owner can think aloud. Use a small batch
+only when the questions are independent and quick to answer. Do not require a
+fixed questionnaire before starting or saving the draft.
 
 ### Format Questions Like This
 
 ```
-1. Question?
-   A. Answer 1 (recommended)
-   B. Answer 2
-   C. Answer 3
-   D. Other: [please specify]
-
-2. Question?
-   A. Answer 1 (recommended)
-   B. Answer 2
-   C. Answer 3
-   D. Other: [please specify]
-
-3. Question?
-   A. Answer 1 (recommended)
-   B. Answer 2
-   C. Answer 3
-   D. Other: [please specify]
+1. Who may approve a submitted request?
+   A. Its assigned reviewer (recommended)
+   B. Any member of the review team
+   C. Another approach you describe
 ```
 
-List which answer you recommend always. This lets users respond with "1A, 2C, 3B" for quick iteration. Remember to indent the options.
+Recommend an answer when the available context supports one, and briefly say
+why. Do not manufacture a recommendation when a business decision is unknown.
+Accept either a short option answer or ordinary conversation. If several
+questions are shown, the owner can answer "1A, 2C". Use the host's question tool
+when available and follow its presentation rules.
 
 ---
 
 ## Step 2: PRD Structure
 
-Generate the PRD with these sections:
+Keep this section order and the requirement-area hierarchy. Use the project's
+required metadata, including draft status and actual approval details. Saving
+an evolving draft does not approve its full contents.
 
 ### Table of Contents
 
-Table of contents go here
+Link to the main sections, requirement areas, and useful subareas. Keep those
+links current as the PRD changes.
 
 ### 1. Introduction/Overview
 
-Brief description of the feature and the problem it solves.
+Describe the feature, the problem it solves, and who will use or be affected
+by it. Explain where it fits in the user's existing process.
 
 #### Why this exists
 
-Content
+Explain the reason for the feature and the practical consequence of leaving
+the problem unresolved. Keep this separate from the measurable goals below.
 
 ### 2. Goals
 
-Specific, measurable objectives (bullet list).
+List the intended outcomes in plain words. Use measurable objectives where
+meaningful, with agreed targets. Do not invent percentages, deadlines, or
+business commitments to fill the template.
 
 ### 3. Requirements
 
-### Requirement Area 1
+Group requirements into meaningful areas. Add subareas when they make a large
+area easier to read; a small area can contain requirements directly.
 
-#### Requirement Sub Area 1
+#### Requirement Area 1: [Area name]
 
-##### Requirement 1
+##### Requirement Subarea 1.1: [Subarea name, when useful]
 
-1. Requirement Title
+###### R1. [Requirement title]
 
-2. Description
-3. Acceptance Criteria
+**Description**
 
-Each requirement should be small enough to implement in one focused session.
+State who is involved, what triggers the behavior, what must happen, and the
+result the person experiences. Include the business reason when it helps
+explain the requirement.
 
-**Important:**
+**Rules and exceptions, when relevant**
 
-- Acceptance criteria must be verifiable, not vague. "Works correctly" is bad. "Button shows confirmation dialog before deleting" is good.
-- **For any requirement with UI changes:**
+Capture conditions, permissions, important limits, and failure or alternative
+paths that change the behavior. Link to another requirement when it owns a
+shared rule instead of repeating that rule here.
 
-Be explicit and unambiguous.
+**Acceptance criteria**
 
-### 5. Non-Goals (Out of Scope)
+Use concrete, observable checks. For example:
 
-What this feature will NOT include. Critical for managing scope.
+- When the assigned reviewer approves a pending request, the requester sees
+  its approved status.
+- A person without approval permission cannot approve the request.
+- If approval cannot be saved, the reviewer sees that it is unfinished and
+  the request remains pending.
 
-### 8. Success Metrics
+Keep each requirement about one coherent behavior or rule. Build tasks can
+later divide the work into implementation sessions. Preserve requirement IDs
+as the document changes so links and references remain useful.
 
-How will success be measured?
+For **UI/UX requirements**, describe the relevant actions, visible results,
+and important empty, loading, error, or access states. Include accessibility
+and device behavior when they affect the intended experience.
 
-- "Reduce time to complete X by 50%"
-- "Increase conversion rate by 10%"
+For **data requirements**, describe the information the business needs, its
+meaning, relationships, and validation rules. Leave tables, code, APIs, and
+other technical design choices to solution design unless the owner explicitly
+requires a particular compatibility constraint or interface.
 
-### 9. Open Questions
+### 4. Non-Goals (Out of Scope)
 
-Remaining questions or areas needing clarification.
+State the boundaries the owner agreed to. Distinguish something excluded from
+this feature from something still undecided. Do not silently exclude work
+merely because it has not been discussed.
 
-### 10. Potential Solution Designs to Explore
+### 5. Success Metrics
 
-1. x
-2. y
-3. z
+Explain how the overall outcome will be judged after use. Acceptance criteria
+check individual requirements; these measures assess whether the feature solves
+the problem. Include a baseline, target, and measurement period when agreed.
+
+Examples, not default commitments:
+
+- Reduce the time needed to complete a request, against an agreed baseline.
+- Reduce requests returned because required information is missing.
+
+If a target is unknown, record the question instead of inventing a number.
+
+### 6. Open Questions
+
+List the unresolved decision, the requirement it affects, and why an answer
+matters. Keep possible answers visibly tentative. As answers arrive, update
+the affected requirement and remove the resolved question from this section.
+
+### 7. Potential Solution Designs to Explore
+
+Label these as **Potential paths to explore**. They are possible approaches,
+not requirements, approved design, or instructions to build that way.
+
+For each retained idea, name the relevant requirement and link to the supporting
+design note when one exists. Keep long technical discussion outside the PRD.
+Approved design decisions belong in the separate design record with their
+approval preserved. Omit this optional section when there are no ideas to keep.
+
+This is always the final section of the generated PRD.
+
+---
+
+## Step 3: Save as the Owner Answers
+
+Once drafting or refinement is authorized, save each clear answer or correction
+in the canonical PRD during the same turn. Do not wait until the interview ends
+or ask the owner to repeat approval for the same change.
+
+- Update the existing requirement, its acceptance criteria, and any directly
+  affected wording. Remove contradictions and duplication instead of appending
+  another account of the answer. Preserve useful existing content.
+- Keep owner answers distinct from the agent's suggestions. An unanswered
+  suggestion is not an agreed requirement. Ask only when uncertainty would
+  materially change what gets saved.
+- Reread the destination before editing and preserve other sessions' changes.
+  Use the project's existing save workflow and required document checks.
+- For Git-backed PRDs, finish the authorized commit and push as part of the
+  same save. Follow the project's branch and approval rules; where knowledge
+  saves go directly to the default branch, use that route. Group the changes
+  from one answer into one focused save, not a commit for every sentence.
+- Stage only the intended document changes and required generated indexes.
+  Inspect the staged diff and verify the push succeeded before saying the
+  change is shared. Use focused document checks, not an unrelated full software
+  test suite for each answer.
+- If access, a conflict, or a save failure prevents completion, state what is
+  saved locally, committed, and pushed, and what remains unfinished. Resolve
+  routine problems within existing authorization. Never bypass required access
+  approval or claim that a local edit reached the shared record.
+- Keep the acknowledgement short: "Saved: only the assigned reviewer can
+  approve." Continue the conversation naturally. Do not repeat the whole PRD
+  or turn each answer into another approval ceremony.
+
+Before calling the PRD ready for full approval, check for contradictions,
+unanswered material questions, unapproved assumptions, broken references, and
+technical design presented as a requirement. Use the project's existing review
+workflow when available. Draft approval, requirements approval, and permission
+to build remain separate decisions.
 
 ---
 
 ## Writing for Junior Developers
 
-The PRD reader may be a junior developer or AI agent. Therefore:
+The PRD must also make sense to a nontechnical owner and a future reader who
+has not seen this conversation. Therefore:
 
 - Be explicit and unambiguous
-- Avoid jargon or explain it
+- Use plain language and explain necessary project terms
 - Provide enough detail to understand purpose and core logic
 - Number requirements for easy reference
 - Use concrete examples where helpful
+- Keep the PRD a maintained account of required behavior, not a transcript or
+  an ever-growing log of every suggestion
