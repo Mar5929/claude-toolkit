@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Knowledge walkthrough · Growing diagram</title>
+<style>
+  :root { color-scheme:light dark; --page:light-dark(#fafafa,#17191c); --text:light-dark(#202326,#e8eaed); --muted:light-dark(#58616a,#aab3bc); --line:light-dark(#c7cdd3,#515961); --native:light-dark(#eef0f3,#272c33); --knowledge:light-dark(#eaf2ed,#21352a); --owner:light-dark(#edf1f8,#263248); }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--page); color:var(--text); font:16px/1.45 system-ui,-apple-system,sans-serif; }
+  main { max-width:650px; margin:auto; padding:28px 20px 36px; }
+  header { margin-bottom:28px; }
+  .eyebrow { font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }
+  h1 { font-size:25px; line-height:1.25; font-weight:600; margin:6px 0; }
+  h2 { font-size:20px; font-weight:500; margin:6px 0 18px; }
+  .context { font-size:14px; color:var(--muted); margin:0; }
+  .node { border-radius:10px; padding:16px 18px; background:var(--native); }
+  .node.knowledge, #part-2 .node { background:var(--knowledge); }
+  .node.owner, #part-2 .node.owner { background:var(--owner); }
+  .node.system, #part-2 .node.system { border-left:4px solid var(--line); background:var(--native); }
+  .flow-note { margin:14px 0 0; font-size:14px; }
+  .outcome { margin:12px 0; text-align:center; font-size:14px; font-weight:500; }
+  .kind { font-size:12px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); margin-bottom:5px; }
+  .label { font-size:18px; font-weight:500; }
+  .detail { margin-top:5px; font-size:14px; overflow-wrap:anywhere; }
+  code { font-size:14px; overflow-wrap:anywhere; }
+  .arrow { height:28px; display:flex; justify-content:center; align-items:center; color:var(--muted); font-size:22px; }
+  .connector { height:56px; }
+  .branch { margin:12px 0 0 18px; padding:8px 0 8px 14px; border-left:2px solid var(--line); font-size:14px; }
+  .branch strong { font-weight:500; }
+  footer { margin-top:24px; padding-top:14px; border-top:1px solid var(--line); font-size:14px; color:var(--muted); }
+  nav { display:flex; flex-wrap:wrap; gap:16px; margin-top:14px; font-size:14px; }
+  a { color:inherit; text-underline-offset:3px; }
+  details { margin-top:14px; font-size:14px; }
+  summary { cursor:pointer; font-weight:500; padding:8px 0; }
+  table { border-collapse:collapse; width:100%; margin-top:10px; font-size:14px; }
+  th, td { text-align:left; vertical-align:top; padding:10px 6px; border-bottom:1px solid var(--line); overflow-wrap:anywhere; }
+  th { font-weight:500; }
+  .overview { margin:20px 0 0; padding:0; font-size:14px; }
+  .overview-step { text-align:center; padding:6px; }
+  .overview .arrow { height:20px; font-size:18px; }
+  .overview-branch { margin-top:12px; padding-left:12px; border-left:2px solid var(--line); }
+  .section-gap { margin-top:36px; }
+  @media (max-width:360px) { main { padding:20px 12px; } .node { padding:14px; } }
+</style>
+</head>
+<body>
+<main aria-label="Knowledge-system walkthrough: cumulative diagram">
+  <header>
+    <div class="eyebrow">Knowledge-system walkthrough</div>
+    <h1>One session, start to finish</h1>
+    <p class="context">Draft · Full flow for review · Planned system behavior</p>
+    <p class="context">Visual companion to <code>knowledge/prds/knowledge-system.md</code>. Work item: <a href="https://github.com/Mar5929/claude-toolkit/issues/269">Make the second brain reliable in real project sessions</a>.</p>
+    <p class="flow-note"><strong>Required:</strong> must happen. <strong>Conditional:</strong> happens when its stated condition applies. <strong>Owner choice:</strong> the owner decides.</p>
+    <p class="flow-note">System guidance and completion checks are required outcomes. The supported triggers, hooks, or other mechanisms will be selected and tested during solution design.</p>
+    <p class="flow-note">Checkpoints confirm applicable guidance and required steps. The agent chooses how to reason and investigate. An acknowledgement does not prove understanding; answers and saved results must also meet the relevant rules.</p>
+    <nav aria-label="Diagram parts"><a href="#flow-overview">Overview</a><a href="#part-1">1. Startup</a><a href="#part-2">2. Shared context</a><a href="#part-3">3. Use knowledge during work</a><a href="#part-4">4. Review and write updates</a><a href="#part-5">5. Repair and cleanup</a><a href="#part-6">6. Handoff and recovery</a></nav>
+    <section class="overview" id="flow-overview" aria-label="Whole-flow overview">
+      <h2>The connected flow</h2>
+      <div class="overview-step"><a href="#part-1">New session: required startup reads and confirmation</a></div>
+      <div class="arrow" aria-hidden="true">↓</div>
+      <div class="overview-step"><a href="#part-2">Shared context → request → memory relevance → optional work item</a></div>
+      <div class="arrow" aria-hidden="true">↓</div>
+      <div class="overview-step"><a href="#part-3">Use relevant evidence → answer or act → maintain changed work state</a></div>
+      <div class="arrow" aria-hidden="true">↓</div>
+      <div class="overview-step"><a href="#part-4">Review updates → route → applicable approval → write and verify</a></div>
+      <div class="arrow" aria-hidden="true">↓</div>
+      <div class="overview-step"><a href="#next-step">Continue working</a> or <a href="#part-6">prepare a handoff → recover in the next session</a></div>
+      <div class="overview-branch"><a href="#part-5">Repair or cleanup when needed</a> → validate → return to the interrupted step.</div>
+      <div class="overview-branch"><a href="#pending-recovery">Unanswered or unfinished saves</a> → preserve their state → resume only the authorized path.</div>
+    </section>
+  </header>
+  <section id="part-1" aria-labelledby="startup-heading">
+    <div class="eyebrow">Draft</div>
+    <h2 id="startup-heading">1. Start the session</h2>
+    <section aria-label="Startup flow">
+    <div class="node owner">
+      <div class="kind">Owner</div>
+      <div class="label">Opens a session in the project</div>
+    </div>
+    <div class="arrow" aria-hidden="true">↓</div>
+    <div class="node">
+      <div class="kind">Native runtime · Already provided</div>
+      <div class="label">Project instructions, rules, and skills are available</div>
+      <div class="detail"><code>CLAUDE.md</code> or <code>AGENTS.md</code>, with the runtime’s supported instruction and skill mechanisms.</div>
+      <div class="detail"><strong>Claude Code rules</strong></div>
+      <ul class="detail">
+        <li><code>.claude/rules/</code>: project rules without path restrictions load at startup when enabled.</li>
+        <li>YAML <code>paths</code>: conditional rules load when matching files are read.</li>
+        <li><code>~/.claude/rules/</code>: personal rules across projects.</li>
+      </ul>
+      <div class="detail">Codex uses its supported instruction mechanisms.</div>
+    </div>
+    <div class="arrow" aria-hidden="true">↓</div>
+    <div class="node system">
+      <div class="kind">Required · System guidance</div>
+      <div class="label">Deliver the required startup reading steps to the agent</div>
+      <div class="detail">The guidance must reach the agent before the reads below. The three files must be read in this order.</div>
+    </div>
+    <div class="arrow" aria-hidden="true">↓</div>
+    <div class="node knowledge">
+      <div class="kind">Required startup read · Agent</div>
+      <div class="label"><code>SOUL.md</code></div>
+      <div class="detail">What the agent is responsible for in this project.</div>
+    </div>
+    <div class="arrow" aria-hidden="true">↓</div>
+    <div class="node knowledge">
+      <div class="kind">Required startup read · Agent</div>
+      <div class="label"><code>knowledge/project.md</code></div>
+      <div class="detail">What the project is, its resources, and where work is tracked.</div>
+    </div>
+    <div class="arrow" aria-hidden="true">↓</div>
+    <div class="node knowledge">
+      <div class="kind">Required startup read · Agent</div>
+      <div class="label"><code>knowledge/README.md</code></div>
+      <div class="detail">The knowledge manual: how to find, use, propose, and maintain project knowledge.</div>
+    </div>
+    <div class="arrow" aria-hidden="true">↓</div>
+    <div class="node system">
+      <div class="kind">Required · System completion check</div>
+      <div class="label">Have all three startup reads been completed?</div>
+      <div class="detail">Check that the file contents reached the agent and were read. Listing file names or issuing a reminder does not complete the read.</div>
+    </div>
+    <div class="branch"><strong>No — a read is incomplete:</strong> direct the agent to complete it. Withhold the success confirmation and pause dependent work until the read is complete.</div>
+    <div class="branch"><strong>No — a required file is unavailable:</strong> report which file is missing and pause only work that depends on it. Return to the missing read when the file becomes available.</div>
+    <div class="outcome">Yes · Continue ↓</div>
+    <div class="node owner">
+      <div class="kind">Required response · Owner sees</div>
+      <div class="label">“I’ve read the knowledge manual.”</div>
+      <div class="detail">One short confirmation at new-session startup.</div>
+    </div>
+  </section>
+  </section>
+  <div class="arrow connector" aria-hidden="true">↓</div>
+  <section id="part-2" aria-labelledby="context-heading">
+    <div class="eyebrow">Draft</div>
+    <h2 id="context-heading">2. Understand where the project stands</h2>
+    <section aria-label="Shared-context flow">
+        <div class="node">
+      <div class="kind">Required startup read · Agent</div>
+      <div class="label"><code>knowledge/memory/current.md</code></div>
+      <div class="detail">Active goals, work items, blockers, next steps, dates, and links across sessions.</div>
+      <div class="detail">Unverified findings remain labelled. This overview points to detailed records.</div>
+    </div>
+    <div class="arrow" aria-hidden="true">↓</div>
+    <div class="node">
+      <div class="kind">Required check · Agent</div>
+      <div class="label"><code>knowledge/memory-inbox.md</code></div>
+      <div class="detail">Find unanswered proposals and approved saves that remain unfinished. Open the relevant entries.</div>
+      <div class="detail">Pending wording is not established project knowledge. Unchanged unanswered cards are not repeated automatically.</div>
+      <div class="detail">Use the <a href="#pending-recovery">pending-save recovery paths</a> for relevant entries, preserving their approval and completion state.</div>
+    </div>
+    <div class="arrow" aria-hidden="true">↓</div>
+    <div class="node system">
+      <div class="kind">Required · System completion check</div>
+      <div class="label">Has the agent read shared context and checked pending saves?</div>
+      <div class="detail">The manual supplies these required steps. If a step was missed, direct the agent back to it. If an expected source is missing, report the gap and pause only dependent work.</div>
+    </div>
+    <div class="outcome">Completed · Continue ↓</div>
+    <div class="node owner" id="request-context">
+      <div class="kind">Owner input · New or existing request</div>
+      <div class="label">“Can we change who can access an account for the next release?”</div>
+      <div class="detail">Establish this request before judging memory relevance. Use the request already provided, or clarify the goal with the owner.</div>
+    </div>
+    <div class="arrow" aria-hidden="true">↓</div>
+    <div class="node system">
+      <div class="kind">Required · System guidance and check</div>
+      <div class="label">Prompt the agent to consider relevant long-term memory</div>
+      <div class="detail">Confirm the relevance decision for this request. Reuse it while the scope and relevant information remain unchanged; a new tool call alone does not require another decision.</div>
+    </div>
+    <div class="arrow" aria-hidden="true">↓</div>
+    <div class="node">
+      <div class="kind">Required decision · Agent judgment</div>
+      <div class="label">Could long-term project knowledge affect this answer or action?</div>
+      <div class="branch"><strong>No:</strong> continue without a memory lookup.</div>
+      <div class="branch"><strong>Yes — source already read and current:</strong> reuse that source content.</div>
+      <div class="branch"><strong>Yes — source content is needed:</strong> find and read it with the agent’s native tools. Later steps reuse it while it remains relevant, current, and available.</div>
+      <div class="detail">When needed, use <code>knowledge/memory/memory-entries/terminology-glossary.md</code> and <code>knowledge/memory/memory-index.md</code> to locate the relevant source in <code>knowledge/memory/memory-entries/</code>. An index entry or pending save is not evidence.</div>
+    </div>
+    <div class="outcome">Both paths continue ↓</div>
+    <div class="node">
+      <div class="kind">Conditional · Work tracker</div>
+      <div class="label">Use an existing item, or ask about a new one</div>
+      <div class="detail">Use the owner’s request and the project’s work-tracking process.</div>
+    </div>
+    <div class="branch"><strong>Existing work:</strong> open the relevant item and check its scope, status, approvals, blocker, and next step against the dated overview.</div>
+    <div class="branch"><strong>New work:</strong> understand the request together and check whether it is already tracked.</div>
+    <div class="branch"><strong>Required owner choice before creating a new item:</strong> ask, “Would you like me to create a work item for this?” An explicit request to create one already answers this question.
+      <div class="detail"><strong>Yes:</strong> create the item through the project’s process, capture the goal and open questions, and refine it with the owner.</div>
+      <div class="detail"><strong>No:</strong> continue without creating a new item. Use an existing item when relevant.</div>
+    </div>
+    <div class="branch"><strong>If expected records are missing or disagree:</strong> recover from relevant sources, state what remains uncertain, and pause only dependent work.</div>
+    <div class="branch"><strong>If project shorthand is needed:</strong> apply <code>knowledge/memory/memory-entries/terminology-glossary.md</code> before the briefing.</div>
+    <div class="arrow" aria-hidden="true">↓</div>
+    <div class="node owner">
+      <div class="kind">Owner sees · Example briefing</div>
+      <div class="label">“The account-access review is open. Next, we’ll check the proposed change against the earlier constraint.”</div>
+      <div class="detail">In this branch, an existing item and an earlier constraint were found. The agent names the supporting records and the actual source of the constraint. Relevant pending work is identified without treating it as completed.</div>
+    </div>
+  </section>
+  </section>
+  <div class="arrow connector" aria-hidden="true">↓</div>
+  <section id="part-3" aria-labelledby="work-heading">
+    <div class="eyebrow">Next part · Draft for review</div>
+    <h2 id="work-heading">3. Use knowledge while doing the work</h2>
+    <section aria-label="Knowledge use and work flow">
+      <div class="node knowledge">
+        <div class="kind">Same request · Continue from Part 2</div>
+        <div class="label">Continue assessing the account-access change</div>
+        <div class="detail">Carry forward the request, relevance decision, and sources already read. Both memory outcomes continue here; other relevant evidence may still be needed. Reconsider relevance when the scope or relevant information changes.</div>
+      </div>
+      <div class="arrow" aria-hidden="true">↓</div>
+      <div class="node system">
+        <div class="kind">Required checkpoint · Guidance and completed steps</div>
+        <div class="label">Confirm the applicable guidance is available and followed</div>
+        <div class="detail">Reuse current guidance already in context. Recover missing guidance and address missed required steps. The agent chooses queries, tools, and investigation depth, and judges evidence. This checkpoint does not prescribe a search script or a search-quality scorer.</div>
+      </div>
+      <div class="arrow" aria-hidden="true">↓</div>
+      <div class="node knowledge">
+        <div class="kind">Required · Agent interprets the request</div>
+        <div class="label">Use the project’s meanings and applicable instructions</div>
+        <div class="detail">Apply current rules already in context. Read missing applicable root or folder instructions. When a procedure applies, read its skill instructions before performing it.</div>
+        <div class="branch"><strong>If shorthand needs resolving:</strong> use <code>knowledge/memory/memory-entries/terminology-glossary.md</code> and relevant context. Reuse known, current meanings. Ask only about remaining ambiguity that could change the answer.</div>
+        <div class="detail">A useful recurring term can enter the <a href="#part-4">update review in Part 4</a> for a glossary proposal.</div>
+        <div class="detail">Instructions govern the work; the glossary explains terms. Claims about existing behavior need supporting evidence.</div>
+      </div>
+      <div class="arrow" aria-hidden="true">↓</div>
+      <div class="node knowledge">
+        <div class="kind">Conditional source reads · Agent’s native search</div>
+        <div class="label">Reuse available evidence; open only additional sources needed</div>
+        <div class="detail">The source choices below apply when more information is needed. A relevant, current source already read satisfies its step; stop when the evidence is sufficient.</div>
+        <div class="branch"><strong>Earlier decision:</strong> reuse <code>knowledge/memory/memory-entries/account-access.md</code> if it was read in Part 2 and remains current. Otherwise, when relevant, locate it through <code>knowledge/memory/memory-index.md</code> and read it. This example file contains the earlier access constraint.</div>
+        <div class="branch"><strong>Required behavior:</strong> use <code>knowledge/prds/prd-index.md</code>, then the relevant PRD in <code>knowledge/prds/</code>. Proposed behavior does not prove that it is built.</div>
+        <div class="branch"><strong>Existing parts and connections:</strong> when System Guide is enabled, use <code>knowledge/system-guide/system-guide-index.md</code>, then its relevant page in <code>system-guide-entries/</code>.</div>
+        <div class="branch"><strong>What works today:</strong> inspect relevant code or live evidence to establish current account-access behavior. A document’s status alone does not verify it.</div>
+        <div class="branch"><strong>Vendor behavior:</strong> scan <code>ai-external-knowledge/README.md</code> during lookup; open a relevant captured page before relying on it. Reuse a current scan. Check its date and version; consult the original source if the capture is missing or outdated and access allows.</div>
+        <div class="detail">Choose only relevant sources. Indexes point to files; read the actual source before relying on its claims. Topic filenames are examples.</div>
+        <div class="detail">A stale claim, duplicate, or useful missing explanation can enter the <a href="#part-4">update review in Part 4</a>. A broken link or structure can enter <a href="#part-5">repair and cleanup</a>.</div>
+      </div>
+      <div class="arrow" aria-hidden="true">↓</div>
+      <div class="node knowledge">
+        <div class="kind">Required decision · Agent judgment</div>
+        <div class="label">Is there enough relevant, current evidence for the next answer or action?</div>
+        <div class="branch"><strong>No — more evidence is available:</strong> open relevant sources. If project records leave missing past context, use available project session history through <code>session-search</code> before asking the owner to reconstruct it. Verify historical claims before treating them as current.</div>
+        <div class="branch"><strong>No — a gap or conflict remains:</strong> name the sources and what is unresolved. Ask one focused question if the owner’s answer is needed. Pause only dependent work; return when new evidence or a decision is available.</div>
+        <div class="detail">Missing access is reported as a limitation. It is not presented as a search that found nothing.</div>
+      </div>
+      <div class="outcome">Yes · Continue ↓</div>
+      <div class="node owner">
+        <div class="kind">Required source citation · Owner sees</div>
+        <div class="label">“There is an earlier access constraint to consider before choosing the change.”</div>
+        <div class="detail">Source: <code>knowledge/memory/memory-entries/account-access.md</code></div>
+        <div class="detail">The answer explains the relevant finding, any uncertainty, and the next step. Each finding used has its source directly below it; historical and captured sources include the required date.</div>
+      </div>
+      <div class="arrow" aria-hidden="true">↓</div>
+      <div class="node">
+        <div class="kind">Native agent · Within the owner’s authorization</div>
+        <div class="label">Investigate, explain options, or carry out approved work</div>
+        <div class="detail">For this question, assess the change and explain the options. Implement only when the task’s authorization and delivery process allow it. Reading a proposed PRD is not build approval.</div>
+        <div class="detail">The agent uses its own reasoning and tools. New questions return to the relevant decision and source steps.</div>
+      </div>
+      <div class="arrow" aria-hidden="true">↓</div>
+      <div class="node knowledge">
+        <div class="kind">Required when the relevant state changes · Agent</div>
+        <div class="label">Keep changed work state in its proper record</div>
+        <div class="branch"><strong>Work-item state changed:</strong> update its existing tracker record when one is being used.</div>
+        <div class="branch"><strong>Shared continuation context changed:</strong> reread <code>knowledge/memory/current.md</code>, then revise the objective, blocker, next step, dates, and links as needed. Preserve other sessions’ active work.</div>
+        <div class="branch"><strong>Neither changed:</strong> continue without rewriting either record.</div>
+        <div class="detail">Link to detailed records instead of copying them. Label unverified findings. Keep disposable scratch details in the conversation. This update does not make information long-term memory.</div>
+      </div>
+      <div class="arrow" aria-hidden="true">↓</div>
+      <div class="node system">
+        <div class="kind">Required after a shared-context change · Completion check</div>
+        <div class="label">Is the update saved and available to the next project session?</div>
+        <div class="branch"><strong>Yes:</strong> give one short confirmation that the shared overview was updated.</div>
+        <div class="branch"><strong>No:</strong> report where it was saved and what is not yet shared. Keep the unfinished step visible; do not claim another session can see it.</div>
+      </div>
+    </section>
+  </section>
+  <div class="arrow connector" aria-hidden="true">↓</div>
+  <section id="part-4" aria-labelledby="save-heading">
+    <div class="eyebrow">Next part · Draft for review</div>
+    <h2 id="save-heading">4. Review and write updates</h2>
+    <p class="flow-note">This flow also connects to earlier parts: resolving terminology, finding outdated content, changing shared context, settling requirements, or learning something useful during work.</p>
+    <section aria-label="Update review and save flow">
+      <div class="node system">
+        <div class="kind">Required review moments · System guidance and checks</div>
+        <div class="label">Prompt and check the review at the required moments</div>
+        <div class="detail">Review work since the previous review when a work item finishes or closes, before opening a pull request, before a handoff or context clear, at the end of a turn with real work, and whenever the owner requests a save.</div>
+        <div class="detail">The agent also judges when a useful fix, decision, upcoming commit, or meaningful context change warrants a review during work. A required review can result in no write.</div>
+      </div>
+      <div class="arrow" aria-hidden="true">↓</div>
+      <div class="node knowledge">
+        <div class="kind">Required before proposing or writing · Agent</div>
+        <div class="label">Establish the current rules for the proposed update</div>
+        <div class="detail"><code>knowledge/README.md</code> explains each information home and points to its detailed instructions. Before the operation, establish what belongs there, what stays out, the file format and fields, the writing standard, approval, and required checks.</div>
+        <div class="detail">Reuse guidance while it remains available and current; recover missing guidance before proceeding. The system must bring back the relevant guidance after context loss or a task change.</div>
+        <div class="detail">Before gathering memory candidates, read <code>knowledge/memory/memory-self-improvement.md</code> for this owner’s prior proposal feedback.</div>
+      </div>
+      <div class="arrow" aria-hidden="true">↓</div>
+      <div class="node knowledge">
+        <div class="kind">Required decision · Agent judgment</div>
+        <div class="label">Is there useful information that needs an update?</div>
+        <div class="detail">Check relevance, support, lasting value where required, exclusions, existing files, and pending proposals. Maintain the existing topic or record when it already owns the information.</div>
+        <div class="branch"><strong>No:</strong> return to the work. A routine review stays quiet. An explicit save or review request receives a clear answer.</div>
+        <div class="branch"><strong>Already awaiting approval:</strong> retain the existing proposal and return to the work. No destination write and no repeated unchanged card.</div>
+        <div class="branch"><strong>Already approved, save unfinished:</strong> retain the approval and scope, then go directly to the <a href="#pre-write-check">pre-write check</a>. Complete an unchanged applicable save without asking again.</div>
+        <div class="branch"><strong>Blocked by a conflict:</strong> preserve existing approval, obtain only the additional decision needed, and pause this update.</div>
+        <div class="branch"><strong>Already verified complete:</strong> remove its completed inbox entry if present and return to the work. No duplicate write.</div>
+      </div>
+      <div class="outcome">New candidate needing an update ↓</div>
+      <div class="node knowledge">
+        <div class="kind">Required decision · Agent chooses the destination</div>
+        <div class="label">Put each kind of information in its proper home</div>
+        <div class="detail">One discovery may produce different updates with different purposes. Link between their records; keep each meaning in one authoritative home.</div>
+        <details>
+          <summary>Destinations and what causes an update</summary>
+          <table>
+            <thead><tr><th>Information or change</th><th>Destination and action</th></tr></thead>
+            <tbody>
+              <tr><td>A useful recurring term or changed meaning</td><td>Edit the alphabetical table in <code>knowledge/memory/memory-entries/terminology-glossary.md</code>; preserve source, date, and uncertainty.</td></tr>
+              <tr><td>A lasting project fact, decision, constraint, or costly lesson</td><td>Maintain its topic in <code>knowledge/memory/memory-entries/</code>. Apply memory selection and approval rules.</td></tr>
+              <tr><td>A significant completed result worth finding later</td><td>Propose an event memory with the result and output location. Routine activity does not qualify.</td></tr>
+              <tr><td>Changed objective, blocker, next step, or useful continuation context</td><td>Update <code>knowledge/memory/current.md</code> under Part 3’s shared-context flow.</td></tr>
+              <tr><td>New or changed required behavior</td><td>Update the relevant existing PRD in <code>knowledge/prds/</code>, within the owner’s approval. When work finishes, check whether it changed the required behavior.</td></tr>
+              <tr><td>Verified completed implementation</td><td>Reconcile the relevant PRD with delivered behavior. Mark it finalized only when its covered work is verified complete and the document accurately describes the result. Keep build progress in the tracker.</td></tr>
+              <tr><td>Useful explanation of existing parts, their purpose, or connections</td><td>Use enabled System Guide at <code>knowledge/system-guide/</code>, following its own content rules, template, approval, and delivery process.</td></tr>
+              <tr><td>Repeatable project procedure</td><td>Propose a project skill, such as <code>.claude/skills/&lt;name&gt;/SKILL.md</code>, using the supported runtime’s skill location and delivery rules.</td></tr>
+              <tr><td>Changed agent responsibilities or standing behavior</td><td>Use <code>SOUL.md</code>, root instructions, or applicable rules, according to which owns that instruction. Use the instruction-change workflow.</td></tr>
+              <tr><td>Changed project systems, resources, or locations</td><td>Update <code>knowledge/project.md</code> through its applicable content and approval rules.</td></tr>
+              <tr><td>Work-item scope, state, build plan, or remaining work</td><td>Update the existing tracker and its linked design records. Ask before creating a new work item, as shown in Part 2.</td></tr>
+              <tr><td>Outside reference material</td><td>Use <code>ai-external-knowledge/</code>. Keep the source and capture date; update <code>ai-external-knowledge/README.md</code> when its topics change.</td></tr>
+              <tr><td>Unchecked exploration worth retaining</td><td>Use <code>brainstorms/</code> under its own workflow. It remains unchecked.</td></tr>
+              <tr><td>Unanswered proposal or approved unfinished save</td><td>Maintain <code>knowledge/memory-inbox.md</code> for memory and PRD proposals. Other destinations retain pending state through their own workflows.</td></tr>
+              <tr><td>Owner feedback on a memory proposal</td><td>Append its outcome to <code>knowledge/memory/memory-self-improvement.md</code>; it remains a proposal-learning record.</td></tr>
+              <tr><td>Changed lasting files or broken navigation</td><td>Rebuild applicable generated indexes. Repair clear mechanical links within the allowed repair boundary. Meaning changes use the approval flow.</td></tr>
+              <tr><td>Disposable detail, unsupported claim, duplicate, or secret</td><td>No lasting write. Useful temporary context follows its own rules; secrets never enter project knowledge.</td></tr>
+            </tbody>
+          </table>
+        </details>
+        <details>
+          <summary>File formats and YAML fields the agent must follow</summary>
+          <div class="branch"><strong>Long-term memory:</strong> a topic Markdown file with YAML frontmatter. Required fields: <code>summary</code>, <code>group</code>, <code>type</code>, <code>status</code>, <code>source</code>, <code>context</code>, <code>confidence</code>, <code>created_at</code>, <code>updated_at</code>, <code>tags</code>, <code>approved_by</code>, <code>approval_date</code>.
+            <div class="detail"><code>type</code>: fact, decision, event, context, constraint. <code>status</code>: current, superseded, retired. <code>confidence</code>: observed, reported, inferred. <code>tags</code>: a free-form YAML list of strings.</div>
+            <div class="detail">Dates use <code>YYYY-MM-DD</code>. Preserve the creation date; an update date is not proof of verification. Optional fields, used only when applicable: <code>confirmed_at</code>, <code>source_quote</code>, <code>effective_from</code>, <code>effective_to</code>, <code>project</code>, <code>work_item</code>, <code>supersedes</code>, <code>superseded_by</code>, <code>related_memories</code>.</div>
+          </div>
+          <div class="branch"><strong>PRD:</strong> required fields are <code>summary</code>, <code>group</code>, <code>area</code>, <code>status</code>, <code>source</code>, <code>created_at</code>, <code>updated_at</code>, and <code>tags</code>. No memory <code>type</code> or <code>confidence</code>. Status: proposed, finalized, superseded, retired. An unapproved proposed draft omits <code>approved_by</code> and <code>approval_date</code>; requirements approval requires both. Other statuses require both. Saving a draft alone does not establish requirements approval.</div>
+          <div class="branch"><strong>Glossary:</strong> title, one purpose sentence, and an alphabetical Markdown table. Columns: Term / aliases, Plain meaning, Refers to, Watch out, Source / date. Memory YAML fields do not apply.</div>
+          <div class="branch"><strong>Shared context:</strong> a concise dated overview with objectives, blockers, next steps, and links. Preserve other sessions’ work. It is rewritten to reflect current state.</div>
+          <div class="branch"><strong>Pending inbox:</strong> stable reference, destination and operation, exact card, source and date, last update, state, next step or blocker, and separate approval details. Pending content stays outside the memory and PRD indexes.</div>
+          <div class="branch"><strong>Proposal-learning record:</strong> date, candidate, outcome, and the owner’s stated reason, or “no reason given.” No invented reasons.</div>
+          <div class="branch"><strong>Size checks in the proposed system:</strong> each memory or PRD summary is under 200 characters; each memory file and the shared-context file is under 5,000 characters; the proposal-learning file is under 10,000 characters. A failed limit never permits silently cutting approved meaning.</div>
+          <div class="branch"><strong>System Guide, skills, instructions, tracker, and other destinations:</strong> open their own current template and field rules. The knowledge manual points to those rules; a memory template is not applied to every file.</div>
+        </details>
+      </div>
+      <div class="arrow" aria-hidden="true">↓</div>
+      <div class="node knowledge">
+        <div class="kind">Required decision · Approval boundary</div>
+        <div class="label">Is new approval needed for this exact update?</div>
+        <div class="branch"><strong>No:</strong> use approval already covering the change, or an allowed operational update. Go directly to the <a href="#pre-write-check">pre-write check</a>; skip the proposal-response branches.</div>
+        <div class="branch"><strong>Yes:</strong> show the destination’s required proposal. The standard card has a headline, destination and operation, exact proposed wording of at most three sentences, then Why, Where, From, Unsure, and Checked. System Guide uses its own proposal standard.</div>
+        <div class="detail">“Remember this” starts the review and proposal; it does not approve the lasting-memory write.</div>
+        <div class="detail">Current context, permitted mechanical repairs, index rebuilds, inbox upkeep, and proposal-outcome appends have their defined operational exceptions. Their permission does not approve a lasting meaning change.</div>
+        <div class="detail">A clear correction within authorized PRD refinement uses existing permission. New meaning suggested by the agent still needs agreement. A user’s explicit hold on writes or publication remains in force.</div>
+      </div>
+      <aside class="branch" aria-label="Proposal paths that stop or wait">
+        <div class="kind">Exit this write path · No destination change</div>
+        <div class="detail"><strong>No answer:</strong> retain the exact shown memory or PRD card as awaiting approval in the inbox. Other destinations use their pending workflow. Wait for the owner’s decision; continue other authorized work. Do not repeat an unchanged card each turn.</div>
+        <div class="detail"><strong>Owner rejects:</strong> remove its active pending entry where applicable and record the outcome for a memory proposal. End this update and return to the work.</div>
+        <div class="detail"><strong>Owner edits without clear approval:</strong> retain the revised proposal and clarify the missing decision. The save waits.</div>
+        <div class="detail"><strong>These paths do not proceed to writing.</strong></div>
+      </aside>
+      <section class="branch" aria-label="Proposal paths that authorize continuation">
+        <div class="kind">Continue only with clear approval</div>
+        <div class="detail"><strong>Owner approves:</strong> retain the exact approval and scope. Record the memory-proposal outcome in the learning file, then continue to the pre-write check.</div>
+        <div class="detail"><strong>Owner approves edited wording:</strong> use those exact words within the approved scope, then continue. The Unsure content requires its own approval.</div>
+      </section>
+      <div class="outcome">Clear approval, existing scoped permission, or an allowed operational update ↓</div>
+      <div class="node system" id="pre-write-check">
+        <div class="kind">Required before writing · Checks</div>
+        <div class="label">Recheck the destination, approval, and required format</div>
+        <div class="detail">Reread affected shared records. Confirm the update is still needed, preserves others’ changes, and follows the source, destination, template, and field rules. For changes requiring approval, verify that it covers the exact meaning.</div>
+        <div class="branch"><strong>Already applied:</strong> skip writing and go to the <a href="#save-completion-check">completion check</a> to verify the saved result and any remaining publication.</div>
+        <div class="branch"><strong>New conflict or changed meaning:</strong> preserve the existing approval and obtain only the additional decision needed. Pause the affected update.</div>
+      </div>
+      <div class="outcome">Authorized, still needed, and no unresolved conflict ↓</div>
+      <div class="node knowledge">
+        <div class="kind">Required for an authorized applicable update · Agent</div>
+        <div class="label">Write only the authorized change in its proper home</div>
+        <div class="detail">Maintain the existing file where appropriate. Retain useful history with clear status and dates. Apply the chosen destination’s update, retirement, deletion, and linking rules.</div>
+      </div>
+      <div class="arrow" aria-hidden="true">↓</div>
+      <div class="node system" id="save-completion-check">
+        <div class="kind">Required after writing · Validation and completion</div>
+        <div class="label">Check the saved result and complete required sharing</div>
+        <div class="detail">Read back the actual saved change and compare it with the authorized content. Check required fields, allowed values, size limits, and links. Rebuild applicable indexes and run the destination’s checks. An acknowledgement or valid YAML alone does not establish that the saved result is correct.</div>
+        <div class="detail">The normal memory and PRD save flow commits to the default branch and pushes before reporting publication complete. Other destinations use their own delivery workflow. An explicit publication hold is reported accurately.</div>
+      </div>
+      <div class="branch"><strong>Complete:</strong> tell the owner what was saved and where. Remove its completed inbox entry if one exists.</div>
+      <div class="branch"><strong>Unfinished:</strong> report what succeeded, what failed, and the next step. Keep a memory or PRD save recoverable in the inbox; other destinations use their own recovery records. Preserve other sessions’ entries and report any sharing failure. Pause only dependent work and continue unrelated authorized work.</div>
+      <div class="branch"><strong>Recovery:</strong> when the blocker is resolved, return to the pre-write check. Reuse unchanged approval, and check whether another session already completed the save.</div>
+    </section>
+  </section>
+  <div class="section-gap node knowledge" id="next-step">
+    <div class="kind">Choose the applicable continuation</div>
+    <div class="label">What happens next?</div>
+    <div class="branch"><strong>Same work continues:</strong> return to <a href="#part-3">the current task</a>, reusing current context and completed steps.</div>
+    <div class="branch"><strong>A different request:</strong> return to <a href="#request-context">the request and relevance decision</a>.</div>
+    <div class="branch"><strong>A knowledge fault or cleanup need:</strong> use <a href="#part-5">Part 5</a>, then return to the affected step.</div>
+    <div class="branch"><strong>A planned handoff or context clear:</strong> use <a href="#part-6">Part 6</a>.</div>
+    <div class="detail">Repair, cleanup, and handoff happen when their conditions apply. They are not required after every answer or save.</div>
+  </div>
+  <section id="part-5" class="section-gap" aria-labelledby="repair-heading">
+    <div class="eyebrow">New section · Draft for review</div>
+    <h2 id="repair-heading">5. Repair or clean up when needed</h2>
+    <section aria-label="Repair and cleanup flow">
+      <div class="node knowledge">
+        <div class="kind">Conditional entry · During any earlier step</div>
+        <div class="label">The agent finds a fault or a need for cleanup</div>
+        <div class="detail">For example, a moved file has broken links, two files repeat the same topic, an old statement conflicts with a new decision, or project setup is incomplete.</div>
+      </div>
+      <div class="arrow" aria-hidden="true">↓</div>
+      <div class="node system">
+        <div class="kind">Required checkpoint · Applicable guidance</div>
+        <div class="label">Establish the repair rules and the owner’s intent</div>
+        <div class="detail">Use the current manual and the affected component’s instructions. Respect the owner’s edits. Identify whether the repair preserves meaning or requires a decision.</div>
+      </div>
+      <div class="arrow" aria-hidden="true">↓</div>
+      <div class="node knowledge">
+        <div class="kind">Required decision · Choose the matching path</div>
+        <div class="label">What kind of change is needed?</div>
+        <div class="branch"><strong>Clear mechanical repair:</strong> update links after an unambiguous rename, or rebuild a generated index from its source files. No new meaning approval is needed. Check the affected files before changing them.</div>
+        <div class="branch"><strong>Unclear destination, changed meaning, or deliberately deleted content:</strong> explain the affected files and the decision needed. Use <a href="#part-4">Part 4’s approval flow</a>. Do not restore deleted meaning or choose between conflicting meanings without approval.</div>
+        <div class="branch"><strong>Duplicate, superseded, or no-longer-useful knowledge:</strong> inspect the actual files and propose the appropriate edit, merge, supersession, retirement, or deletion through <a href="#part-4">Part 4</a>. Age alone is not a reason to remove a file.</div>
+        <div class="branch"><strong>Setup fault:</strong> use the component’s setup, check, or repair flow. Enabling the knowledge system in a project requires the owner’s approval; a disabled component is not automatically enabled.</div>
+        <details>
+          <summary>Review scope and available operations</summary>
+          <div class="detail">During ordinary lookup or save review, inspect the relevant files encountered. Use <code>reflect</code> for a whole-folder review and <code>retire</code> for taking one file out of current use. Use <code>second-brain</code> for setup and repair. These are available entry points, not a required sequence or an automatic whole-folder sweep after each turn.</div>
+          <div class="detail">Lasting content changes retain their approval requirements. Keep useful history with clear dates and status; maintain one topic file where appropriate. Whole-file deletion follows the reasons allowed in the manual.</div>
+        </details>
+      </div>
+      <div class="outcome">A permitted repair or approved change is ready ↓</div>
+      <div class="node system">
+        <div class="kind">Required after the change · Verify the result</div>
+        <div class="label">Check the affected files and navigation</div>
+        <div class="detail">Use the relevant validation and sharing steps from <a href="#save-completion-check">Part 4</a>. Setup checks report the actual state and active version; an incomplete setup remains incomplete.</div>
+        <div class="branch"><strong>Resolved:</strong> return to the exact lookup, work, or save step that was interrupted. Reuse unaffected context.</div>
+        <div class="branch"><strong>Still unresolved:</strong> report the affected source, what is missing, and the next step. Pause only dependent work. Retry after new evidence, approval, access, or a repair becomes available.</div>
+      </div>
+    </section>
+    <div class="outcome">Return to the interrupted step. Use handoff below only when needed.</div>
+  </section>
+  <section id="part-6" class="section-gap" aria-labelledby="handoff-heading">
+    <div class="eyebrow">New section · Draft for review</div>
+    <h2 id="handoff-heading">6. Hand off, recover, and continue</h2>
+    <section aria-label="Handoff and recovery flow">
+      <div class="node system">
+        <div class="kind">Required at a planned handoff or context clear</div>
+        <div class="label">Prepare the work for continuation</div>
+        <div class="detail">Run <a href="#part-4">the required review</a> for work since the previous review. It may produce proposals, authorized updates, or no new save. Keep routine review quiet unless approval, a completed save, or a problem needs attention.</div>
+        <div class="detail">Update changed tracker state and <code>knowledge/memory/current.md</code> under <a href="#part-3">Part 3</a>. Keep the goal, blocker, next step, dates, and links clear, preserving other sessions’ work.</div>
+      </div>
+      <div class="arrow" aria-hidden="true">↓</div>
+      <div class="node knowledge">
+        <div class="kind">Required · Preserve relevant pending state</div>
+        <div class="label">Keep unanswered proposals and unfinished saves recoverable</div>
+        <div class="detail">Reread <code>knowledge/memory-inbox.md</code> before editing it. Keep the exact shown memory or PRD card, current state, original approval and scope, source, next step, and blocker. Preserve other entries. Link from shared context where useful.</div>
+        <div class="detail">Other destinations keep pending state through their own workflows. An approved unfinished save remains work to complete under existing approval.</div>
+      </div>
+      <div class="arrow" aria-hidden="true">↓</div>
+      <div class="node system">
+        <div class="kind">Required checkpoint · Actual availability</div>
+        <div class="label">Can the next project session access the saved state?</div>
+        <div class="detail">Verify the required sharing of the overview, linked work records, and relevant pending saves. A local write or a statement in chat does not establish availability in another session or worktree.</div>
+        <div class="branch"><strong>Yes:</strong> give a short handoff with the next step, relevant pending proposals or approved unfinished saves, and any remaining blocker.</div>
+        <div class="branch"><strong>No:</strong> identify what was saved, its location, what is not shared, and the recovery step. Respect any publication hold and report its effect. Do not claim a complete handoff.</div>
+      </div>
+      <div class="outcome">Work resumes later ↓</div>
+      <div class="node">
+        <div class="kind">Conditional entry · New session or recovered context</div>
+        <div class="label">Restore the guidance and context that this session needs</div>
+        <div class="branch"><strong>New session:</strong> follow <a href="#part-1">Part 1’s ordered startup reads and one confirmation</a>, then <a href="#part-2">Part 2’s shared-context and pending-state checks</a>.</div>
+        <div class="branch"><strong>Same-session resume or condensed context:</strong> restore the knowledge map and any required guidance or source content that is missing or changed. Reuse current content still available; do not repeat the startup confirmation on an ordinary resumed turn.</div>
+        <div class="branch"><strong>Unexpected interruption:</strong> recover from the latest state actually saved and shared. Verify it against current records and report gaps. Do not assume a final handoff review ran before the interruption.</div>
+      </div>
+      <div class="arrow" aria-hidden="true">↓</div>
+      <div class="node knowledge" id="pending-recovery">
+        <div class="kind">Required for relevant pending entries · Agent</div>
+        <div class="label">Recover each save according to its recorded state</div>
+        <div class="branch"><strong>Awaiting approval:</strong> keep the exact card pending. Show it again when the owner reviews it or new information requires a decision. It remains unapproved and is not project truth.</div>
+        <div class="branch"><strong>Approved, save unfinished:</strong> check the current destination and whether another session completed it. If unchanged and still applicable, use the <a href="#pre-write-check">pre-write check</a> and complete the authorized save without another approval request.</div>
+        <div class="branch"><strong>Blocked by conflict:</strong> preserve the earlier approval separately, explain the conflict, and ask only for the additional decision needed. Pause that save and dependent work.</div>
+        <div class="detail">Remove an active inbox entry only after verified completion or rejection. A lost session never turns silence into approval or erases recorded approval.</div>
+      </div>
+      <div class="arrow" aria-hidden="true">↓</div>
+      <div class="node knowledge">
+        <div class="kind">Required before relying on recovered state · Agent</div>
+        <div class="label">Check the dated overview against its linked records</div>
+        <div class="detail">Use <code>knowledge/memory/current.md</code>, the relevant tracker, and actual source files to establish the present goal, scope, blocker, and next step. Keep unverified findings labelled and resolve consequential disagreements.</div>
+        <div class="detail">Reuse completed source checks while they remain relevant and current. If the request or evidence changed, return to <a href="#request-context">the relevance decision</a> and <a href="#part-3">the needed source checks</a>.</div>
+      </div>
+      <div class="arrow" aria-hidden="true">↓</div>
+      <div class="node owner">
+        <div class="kind">Owner sees · Continuation</div>
+        <div class="label">The current goal, next step, and any decision still needed</div>
+        <div class="detail">The agent continues the existing authorized work without asking the owner to repeat settled decisions or reconstruct information available in the saved records.</div>
+      </div>
+    </section>
+    <div class="outcome">Continue with <a href="#part-3">the work</a> or establish <a href="#request-context">a new request</a>.</div>
+  </section>
+  <footer>Full walkthrough draft for review. The requirement document remains unchanged until the complete flow is approved. <a href="#flow-overview">Return to the overview</a>.</footer>
+</main>
+</body>
+</html>
