@@ -228,7 +228,7 @@ flowchart TD
 
 **5. A turn ends after real work**
 
-- The required save review covers work since the previous review. The owner sees new proposals, the result of authorized saves, or a brief explanation that nothing new needs proposing and whether earlier proposals remain pending.
+- The required save review quietly covers work since the previous review. The agent speaks up when there is something to approve, a completed save, or a problem. It does not announce an empty review.
 - Unchanged unanswered cards are not repeated. The current overview identifies the next step. Requirements 3 and 9 apply.
 
 **6. Work is handed over or closed**
@@ -295,7 +295,7 @@ failed operation visible without waiting for the owner to notice.
 - Before answering or acting on project information, the agent checks the relevant knowledge under requirement 19. Relevant, current sources already available in context can satisfy that check. A check for an earlier task does not cover a different task automatically.
 - An answer or proposal based on saved knowledge identifies its supporting source under requirement 6. This applies however the agent found or opened that source. A path attached to a search result alone does not establish that the answer is supported.
 - The external-knowledge index is reachable from the small map. The agent opens relevant outside documentation before relying on it, as requirement 8 requires.
-- A save review happens at every moment in requirement 9. Opening a pull request or closing a work item requires that review for the work being handed over. At the end of a turn involving real work, at handoff, or when asked to save, the agent shows the review result: new cards, the outcome of already-authorized saves, or a brief explanation of why nothing new needs proposing and whether earlier proposals remain pending. An existing inbox entry alone does not satisfy a new review.
+- A save review happens at every moment in requirement 9. Opening a pull request or closing a work item requires that review for the work being handed over. At the end of a turn involving real work, the review stays internal unless there is something to approve, a completed save, or a problem. At handoff, identify relevant pending state under requirement 28. An explicit request for a save or review still receives a clear answer, including when nothing qualifies. An existing inbox entry alone does not satisfy a new review.
 - Lasting knowledge is changed only within the owner's approval. Proposals follow the standard format, and a proposal missing required information is corrected before requesting approval. A save is not reported complete until its content, required fields, indexes, and publication have been checked. Failed checks leave the save unfinished.
 - When a required check or save was missed, the agent identifies the gap and performs the needed review or recovery within existing approval. It never claims the missing check happened or asks the owner to reconstruct the session for it.
 
@@ -438,7 +438,7 @@ original source or states what could not be verified.
 - Five moments force a save review: a work item finishes or closes, a pull request is being opened, a handoff or a context clear is coming, a turn ends after real work was done, and any time the owner says to save something. Requirement 3 defines the required result and how these moments are enforced.
 - The other moments are the agent's own judgment. It should propose a save when useful: a real problem here has just been fixed, a commit is coming, or relevant context changed, such as a new person, a role change, a tool switch, a stale fact found, or a data-authority decision. A missed candidate is reviewed at the next required moment.
 - The owner saying "remember this" starts the save flow that leads to a card. It is not permission to write, and it skips no step.
-- The save review is that same flow run over everything the session did since the last one. It gathers candidates, drops any that fail requirements 11 and 12, checks for existing inbox proposals, and shows one card per new candidate needing approval. Already-authorized saves proceed under requirement 10. If there is nothing new to propose, say why and whether anything remains pending. Do not repeat an unchanged unanswered card at each review. Requirement 3 requires this review and its visible result.
+- The save review is that same flow run over everything the session did since the last one. It gathers candidates, drops any that fail requirements 11 and 12, checks for existing inbox proposals, and shows one card per new candidate needing approval. Already-authorized saves proceed under requirement 10. During routine work, speak up only for something needing approval, a completed save, or a problem; do not report that nothing needs saving. Do not repeat an unchanged unanswered card at each review. An explicit request for a save or review still receives a clear result, and handoff identifies relevant pending state under requirement 28. Requirement 3 requires the review even when it produces no visible message. The owner approved this quiet-review behavior during the voice interview on 2026-09-12; it does not require a background service.
 - When approved, memory or PRDs are saved directly to the default branch and pushed!!! They are not lost in worktree branches or buried in something that a future agent would not easily find.
 - A save is finished only when the file is on the default branch and pushed, and not before.
 - An approved knowledge save is not deferred into a feature branch, pull request, or separate draft. This holds even when the session is doing its other work on a branch. The save still goes straight to the default branch. The session's own branch gets the saved file later, whenever someone merges or pulls the default branch into it. The pending inbox in requirement 28 preserves unanswered proposals and interrupted saves; it never replaces completing an approved save.
@@ -450,7 +450,9 @@ The existing `.claude/rules/knowledge-direct-commit.md` owns the procedure for
 publishing authorized knowledge saves to the default branch. The inbox adds
 recovery of pending proposals without creating another publication procedure.
 
-**Check:** finish a piece of work. In that same reply the agent shows one card.
+**Check:** finish meaningful work with nothing new worth saving. The agent
+performs the review without adding a no-save announcement. Finish work with a
+qualifying candidate needing approval: the agent shows its card.
 With a successful save, one word of approval writes the file, and before the
 reply ends the file is on the default branch and pushed. Nothing else is asked
 of the owner. If the save fails, the agent identifies the unfinished save and
@@ -1180,8 +1182,9 @@ clarifies requirements 1–3, 5, 10, 18, 19, and 25.
 Reading the manual once does not mean forgetting it after context loss. Recover
 missing or changed guidance under requirement 2. Exact recovery triggers and
 whether acknowledgements are visible to the owner remain design/interview
-questions. The existing visible end-of-turn save-review requirement remains in
-force in this draft until the owner settles its fit with the quiet experience.
+questions. The owner settled routine end-of-turn reviews on 2026-09-12:
+perform them quietly and speak up only for something to approve, a completed
+save, or a problem. Requirements 3 and 9 reflect that decision.
 
 ### Data boundaries
 
@@ -1287,8 +1290,8 @@ Explore these questions without assuming their answers:
   treating an old acknowledgement as proof that current guidance is available?
 - How can write checks cover actual edits and existing approval without adding
   a large controller or blocking legitimate work?
-- Which checks need an owner-visible message, and which can stay internal?
-  Settle the end-of-turn review behavior with the owner during this interview.
+- Should the startup acknowledgement be visible to the owner or internal?
+  Routine end-of-turn reviews already follow the quiet behavior in requirement 9.
 - How will representative sessions expose missed obligations, false blocks,
   repeated reminders, context overhead, and degradation of ordinary work?
 
