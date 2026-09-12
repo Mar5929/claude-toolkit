@@ -174,76 +174,211 @@ Brainstorms are at the project root. Existing content remains reachable.
 
 ## A session, start to finish
 
-This walkthrough describes what the owner experiences and what must be
-preserved. The numbered requirements define the checks and approval boundaries;
-the solution design chooses the mechanisms that deliver them.
+**Example:** an existing project is evaluating a change to account access before
+its next release. The owner returns to the project, investigates the change,
+settles requirements, and later hands the work to another session. The example
+uses the planned folder layout. Topic filenames are illustrative.
+
+The flow includes **native runtime behavior**, which Claude Code or Codex
+already provides, and **knowledge-system behavior**, which this PRD requires.
+Native steps provide context for the complete process; the toolkit does not
+reimplement them. The numbered requirements define the behavior. Solution
+design selects any additional triggers or enforcement mechanisms.
+
+### Session flow
 
 ```mermaid
 flowchart TD
-    A[Owner opens or resumes a session] --> B[Agent finds current guidance and shared context]
-    B --> C[Agent explains where work stands and the next step]
-    C --> D[Owner asks a question or requests work]
-    D --> E[Agent checks relevant knowledge and sources]
-    E --> F[Work proceeds within existing approval]
-    F --> G[Useful continuation context is kept current]
-    G --> H[Save review at the required moment]
-    H --> I{New approval needed?}
-    I -- yes --> J[Owner sees the standard proposal]
-    J --> K{Owner decision}
-    K -- approve --> L[Approved save completed and verified]
-    K -- unanswered --> M[Proposal retained in the inbox]
-    K -- reject --> N[Proposal leaves the active inbox]
-    I -- no --> O[Complete authorized saves; empty routine reviews stay quiet]
-    L --> P[Handoff identifies saved state and unfinished work]
-    M --> P
-    N --> P
-    O --> P
+    S[Optional: second-brain setup or repair under requirements 24 and 27] -. Verified equipped .-> A
+    A[Owner opens or resumes the project] --> B[Native runtime: project instructions and skill discovery are available]
+    B --> C[Knowledge system: read knowledge/README.md at new-session startup; recover missing guidance on resume]
+    C -- New session, manual read --> D[Owner sees one short manual-read confirmation]
+    C -- Guidance unavailable --> Y
+    C -- Resume --> E[Read knowledge/project.md and knowledge/memory/current.md; check relevant knowledge/memory-inbox.md entries]
+    D --> E
+    E --> F{Required context is available?}
+    F -- No --> X[Repair clear mechanical faults or report the gap; pause only dependent work]
+    X -- Context restored --> E
+    X -- Still blocked --> Y[Report the gap; continue unrelated authorized work or wait]
+    F -- Yes --> G[Owner sees current work and next step, grounded in the tracker]
+    G --> H[Owner requests an account-access change]
+    H --> I[Use the glossary and find order; open relevant source files listed below]
+    I --> J{Evidence is sufficient for the next action?}
+    J -- No --> K[Open further relevant evidence; use history for missing past context; ask about unresolved gaps]
+    K -- New evidence or owner answer --> I
+    K -- Still blocked --> Y
+    J -- Yes --> L[Native agent: explain findings and perform authorized work with its own tools]
+    L --> M[Update the work tracker; refresh knowledge/memory/current.md when shared state changes]
+    M --> N[At the required or useful moment, enter the save and upkeep flow]
+    N --> O{Continue or hand off?}
+    O -- Continue --> H
+    O -- Handoff or planned context clear --> P[Review this work; refresh current.md and identify pending saves, failures, and next steps]
     P --> A
 ```
 
-**1. The owner opens or resumes a session**
+The recovery arrows resume after the missing context or decision becomes
+available; they do not require repeated retries while blocked. The agent can
+continue unrelated authorized work. A normal turn does not require a handoff,
+a new proposal, or a visit to every source.
 
-- The first response gives a brief, accurate picture of relevant work and its next step. The owner does not have to reconstruct the previous conversation.
-- At a new session start, the agent reads the knowledge manual and gives the short one-line confirmation defined in requirement 2.
-- The agent can reach the small knowledge map, current instructions, shared working context, pending inbox, and relevant indexes. Details are opened when needed, including after context is condensed or another session updates a record.
-- Missing guidance or unavailable shared context is identified and recovered before work that depends on it proceeds. Requirements 2, 3, 4, 13, and 28 apply.
+### 1. Start or resume the session
 
-**2. The owner asks for something**
+The native runtime makes project instructions and available skills accessible
+through its supported mechanisms, including files such as `CLAUDE.md` or
+`AGENTS.md`. This step supplies context for the walkthrough; its implementation
+is outside the knowledge system.
 
-- The agent follows the find order, uses the project's terminology, and names the sources supporting its answer. It resolves unfamiliar terms from available context and evidence before asking the owner about remaining consequential ambiguity.
-- It checks relevant captured outside documentation and, when needed, available session history. Historical findings are verified before being presented as current. Requirements 5 through 8 and 19 apply.
+At a new session start, the agent reads `knowledge/README.md` and gives the
+single short confirmation in requirement 2. On resume or context loss, it
+recovers guidance that is missing or no longer current. It does not repeat the
+full manual on every message.
 
-**3. Work happens**
+The agent uses `knowledge/project.md` to locate project resources,
+`knowledge/memory/current.md` to understand shared work, and
+`knowledge/memory-inbox.md` to recover relevant pending proposals or unfinished
+saves. It opens the linked tracker record for actual work status and approvals.
+The owner receives a concise briefing: the account-access review is still open,
+the earlier constraint remains relevant, and the next step is to check the
+proposed change against that constraint. It cites the supporting overview and
+tracker record under requirement 6. When the briefing uses project shorthand,
+it applies the glossary under requirement 7 before presenting it. Requirements
+2–4, 13, and 28 define startup and recovery behavior.
 
-- The agent reasons, investigates, or builds within the task's authorization, using applicable existing skills. It keeps the chosen work record current through that component's workflow.
-- It preserves useful continuation context in `knowledge/memory/current.md`, with links to detail and clear labels for unverified findings. Other sessions' useful context is preserved. Disposable scratch details stay out. Requirements 4, 13, 17, and 18 apply.
+### 2. Interpret the request and open the right sources
 
-**4. Something worth keeping comes up**
+The owner asks whether account access should change for this release. The agent
+uses the glossary, source roles, and find order in requirements 5–8 and 19.
+It chooses search terms, tools, and investigation depth. Already-available,
+relevant, current information can be reused.
 
-- The agent identifies a meaningful candidate, checks whether it belongs in lasting knowledge, and uses the destination's rules. It reads relevant memory-selection lessons before proposing something the owner already rejected.
-- When new approval is needed, the owner sees the standard card and can approve, edit, or reject it. Clear corrections within authorized PRD refinement are saved without asking again for the same permission.
-- An unanswered card is retained automatically in the pending inbox. An approved save is completed and verified, or its failure and next step are reported. Requirements 9 through 12, 20 through 23, and 28 apply.
+| Source in this example | What the agent reads and why |
+| --- | --- |
+| Shared work and tracker | `knowledge/memory/current.md`, then its linked work item, to establish current scope, approval, blocker, and next step. |
+| Instructions and skills | Applicable root and folder instructions, rules, and a relevant skill such as `.claude/skills/<name>/SKILL.md`, or the supported harness equivalent, before using that procedure. |
+| Project terminology | `knowledge/memory/memory-entries/terminology-glossary.md` to resolve shorthand before searching for the wrong concept. |
+| Earlier decisions | `knowledge/memory/memory-index.md`, then `knowledge/memory/memory-entries/account-access.md`, to read the earlier decision and its evidence. |
+| Required behavior | `knowledge/prds/prd-index.md`, then the relevant PRD under `knowledge/prds/`, to establish what users must be able to do. A proposed requirement does not prove current behavior. |
+| Existing system | When enabled, `knowledge/system-guide/system-guide-index.md`, then the relevant page in `system-guide-entries/`. The agent checks code or live evidence when the question concerns what exists now. |
+| Vendor documentation | `ai-external-knowledge/README.md`, then the relevant captured page, when the answer depends on vendor behavior. Missing or outdated evidence is handled under requirement 8. |
+| Earlier conversation | Available project session history through `session-search`, if the earlier sources leave a relevant gap. Historical claims are checked before being presented as current. |
 
-**5. A turn ends after real work**
+The owner sees an answer supported by the relevant sources, using the citation
+format in requirement 6. If the evidence leaves a consequential gap, the agent
+identifies it and asks a focused question. The table shows the available parts
+of lookup; it is not a script that searches every folder for every request.
 
-- The required save review quietly covers work since the previous review. The agent speaks up when there is something to approve, a completed save, or a problem. It does not announce an empty review.
-- Unchanged unanswered cards are not repeated. The current overview identifies the next step. Requirements 3 and 9 apply.
+### 3. Work and maintain shared context
 
-**6. Work is handed over or closed**
+The agent performs authorized research, design, or implementation using its
+native reasoning and tools. Reading a proposed PRD does not authorize building
+it. The delivery workflow owns the work item's status, approvals, and build plan.
 
-- Before opening a pull request or closing a work item, the agent completes the knowledge review for that work. A prior unrelated review or a single card does not satisfy it.
-- The delivery workflow owns work status, completion evidence, and implementation approval. Knowledge changes follow their own approval, validation, and publication requirements. If required behavior changes, its PRD is updated within the owner's approval; it gains no build roadmap or progress log.
-- An unfinished save and work that depends on it stay visibly unfinished. Unrelated authorized work may continue. Requirements 3, 9, 10, 16, and 18 apply.
+When useful shared context changes, the agent rereads and updates
+`knowledge/memory/current.md`, preserving other sessions' active work and
+linking to the tracker instead of copying it. Unverified findings stay labelled.
+Disposable scratch details remain in the conversation. When the agent updates
+the shared overview, it tells the owner in one line. Requirements 4, 12, 13, and
+18 define these boundaries.
 
-**7. The session ends or context is cleared**
+### 4. Review, route, and save
 
-- At a known handoff or planned context clear, the agent performs the save review and identifies the shared state, unresolved proposals, and next steps. Useful context is maintained throughout the session so continuity does not rely solely on a final message.
-- If sharing failed, the agent says what exists locally and what a later session cannot yet see. A later session recovers unfinished saves and pending proposals from the available shared records. Requirements 3, 4, 13, and 28 apply.
+The investigation may produce a lasting release decision, a PRD correction,
+or a repeatable project procedure. Each follows its own destination rules.
+The agent checks the selection rules, exclusions, existing files, and
+`knowledge/memory/memory-self-improvement.md` before proposing memory.
+Requirement 18 determines each destination.
 
-**8. Two days later**
+```mermaid
+flowchart TD
+    A[Required or useful review of work since the previous review] --> B[Classify useful information; check its proper home, existing files, and pending proposals]
+    B --> C{Change needed?}
+    C -- No --> Q[Routine review stays quiet; an explicit review request receives an answer]
+    C -- Yes --> D[Choose the destination and its content, template, and approval rules]
+    D --> E{New approval required under the destination rules?}
+    E -- No --> P[Check the current destination and applicable shared records; preserve changes from other sessions]
+    E -- Yes --> F[Show the required proposal for that destination]
+    F --> G{Owner response}
+    G -- Approve --> R[Record the decision and its exact scope]
+    R --> P
+    G -- Edit --> H[Use the owner's exact edited wording; clarify approval or scope if unclear]
+    H -- Approval is clear --> R
+    H -- Still awaiting approval --> U[Retain the current proposal as pending under its destination rules]
+    G -- No answer --> U
+    G -- Reject --> V[Remove the active proposal and record the decision under its destination rules]
+    U -- Memory or PRD --> T[Retain exact card in knowledge/memory-inbox.md]
+    U -- Other destination --> T2[Retain pending state through that destination workflow]
+    P --> C2{Change still applicable?}
+    C2 -- Yes --> W[Apply only the authorized change in its proper destination]
+    C2 -- Already applied --> I[Validate content, fields, and structure; rebuild applicable indexes; complete required publication]
+    C2 -- New conflict --> C3[Preserve approval; explain the conflict and ask for the needed decision]
+    C3 --> L
+    W --> I
+    I --> J{Save verified complete?}
+    J -- Yes --> K[Confirm what was saved; remove any completed inbox entry]
+    J -- No --> L[Report what is saved, what remains unfinished, and the next step; retain recoverable pending state]
+    L -- Memory or PRD --> M[Keep the approved unfinished save and any conflict in knowledge/memory-inbox.md]
+    L -- Other destination --> M2[Keep recovery state through that destination workflow]
+    M --> N[Pause only dependent work; continue unrelated authorized work or wait]
+    M2 --> N
+    N -- After recovery or the needed decision --> P
+```
 
-- A new session finds the relevant saved context and current work records, checks their freshness, and continues without making the owner repeat settled decisions.
-- It distinguishes verified information from pending proposals and unverified findings. The checks in requirements 3 and 4 demonstrate this behavior.
+The diagram's general steps apply through each destination's own workflow.
+The memory inbox and direct-default-branch publication rules apply to knowledge
+saves; they do not become a new delivery procedure for skills, rules, or System
+Guide content. Requirement 20 defines proposal formatting and requirement 10
+defines approval. Owner decisions about memory proposals also update
+`knowledge/memory/memory-self-improvement.md` under requirement 23.
+
+| Information produced | Destination and resulting action |
+| --- | --- |
+| Lasting account-access decision | Update the existing topic in `knowledge/memory/memory-entries/` after required approval. Keep its source and required fields; avoid a second file for the same topic. |
+| Significant result the project will look up later | At task end, propose an event memory with the result and output location under requirement 11. Routine work produces no episode proposal. |
+| Clear correction within authorized PRD refinement | Update the named PRD in `knowledge/prds/` without asking for the same permission again. A new requirement recommended by the agent still needs agreement. |
+| Reusable project procedure | Propose a project skill and use that destination's approval and delivery rules. |
+| Explanation of an existing part | Use the enabled System Guide's own workflow and its `knowledge/system-guide/` location. |
+| New project shorthand | Propose an update to the existing glossary table. |
+| Standing instruction | Use the project's root instructions or rules workflow, rather than saving it as memory. |
+| Changed work status or continuation context | Update the tracker or `knowledge/memory/current.md` as appropriate; link to the detailed record. |
+| Raw exploration worth retaining | Use `brainstorms/`; it remains unchecked exploration, not approved knowledge. |
+| Outside reference material | Use the captured-documentation workflow under `ai-external-knowledge/`, keeping the source and capture date. |
+| Low-value or disposable detail | Keep it out of lasting knowledge and do not show a memory proposal for it. |
+
+For a memory or PRD save, completion includes the approved meaning, required
+format, generated indexes, validation, and publication required by requirements
+9, 14–16, and 21. A local write alone does not establish publication. Pending
+proposals and approved unfinished saves follow requirement 28, including
+conflicting changes and recovery without duplicate writes.
+
+### 5. Repair or clean up when needed
+
+These paths can begin during lookup, work, or save review. They return to the
+same approval and validation rules rather than creating a second save process.
+
+| Condition | Action and return to the session |
+| --- | --- |
+| Owner renamed, moved, or deleted a file | Apply requirement 1: automatically repair only a clear mechanical fault that preserves intent. Ask before choosing unclear meaning or restoring deliberately deleted content. Resume dependent work after recovery. |
+| Existing knowledge is duplicated, conflicting, or no longer useful | Use requirement 22. `reflect` reviews across the knowledge folder; `retire` handles one file. Lasting changes still require the appropriate approval. |
+| Setup is missing, disabled, outdated, or broken | Use `second-brain` and the setup or repair requirements in 24 and 27. Activating a project requires its owner's approval. |
+| A request names an operation in ordinary language | Use the corresponding command in requirement 24. The six commands are available entry points, not six mandatory steps in every session. |
+
+### 6. Hand off and continue later
+
+Before a handoff or planned context clear, the agent reviews this work, refreshes
+`knowledge/memory/current.md`, and identifies relevant entries in
+`knowledge/memory-inbox.md`. The tracker holds detailed delivery state; the
+shared overview gives the next session its entry points and next step.
+Before opening a pull request or closing the work item, the required review
+also covers the work being handed over.
+
+An unanswered proposal remains pending. An approved unfinished save remains
+recoverable. Neither is presented as completed knowledge. The agent reports any
+sharing failure so the owner knows what another session cannot yet see.
+
+The next session checks the dated overview against its linked tracker and
+sources, recovers relevant pending work, and continues without making the owner
+repeat settled decisions. Requirements 3, 4, 9, 13, 19, and 28 govern this
+continuity on every supported harness under requirement 25.
 
 ## 1. Plain parts only
 

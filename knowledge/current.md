@@ -1,41 +1,28 @@
 # What is happening right now
 
-Short-term working memory. Overwritten, never added to. Nothing here is a
-lasting fact: anything worth keeping goes through `/remember` and gets its own
-file. Capped at 2,000 characters, and the checker enforces it.
+Short-term working state, not lasting knowledge. Updated 2026-09-12.
 
 ## Objective
 
-Continue issue #269 requirements refinement: reliable knowledge across sessions,
-consistent file templates and upkeep, and quick PRD saves. (2026-09-12)
+Continue the knowledge-system PRD interview for [issue #269](https://github.com/Mar5929/claude-toolkit/issues/269). Ask one question at a time, after checking the full PRD and prior answers.
 
 ## Work item
 
-Issue #269, stage `02-refinement`. `knowledge/prds/knowledge-system.md` has 28
-numbered requirements and remains proposed. Full requirements, solution design,
-and implementation approval remain pending.
+Stage `02-refinement`. `knowledge/prds/knowledge-system.md` has 29 numbered requirements and remains proposed. Full requirements, solution design, and implementation approval remain pending.
 
-## Blocked on
+## Current work
 
-Owner review of the remaining template decisions and full PRD. No implementation
-is authorized by this refinement. (2026-09-12)
+Review the “A session, start to finish” walkthrough using a concrete project scenario, actual planned filenames, agent actions, owner-visible results, and alternative branches. Include native runtime behavior as labelled context, not toolkit implementation work. The task is recorded in issue #269.
 
-## Next step
+The owner authorized direct refinement and editorial cleanup. Keep useful content, remove conversation history and unnecessary repetition, use direct technical English for a junior developer, and flag ambiguities that could change intended behavior. Full-document wording issues remain. Check the revised walkthrough with Mike next.
 
-1. For the laptop transition, read the [handoff](https://github.com/Mar5929/claude-toolkit/blob/issue-269-second-brain-design/misc/269-session-handoff.md).
-2. Review the proposed system-wide template requirement and the remaining
-   per-file formats. No new `current.md` entry schema was approved.
-3. Review `misc/SKILL (2).md` on branch `issue-269-second-brain-design`. It keeps
-   Mike's PRD hierarchy and adds quick saves; it is an unpublished skill draft.
-4. Resume full PRD review, then reconcile the issue body. Related scopes:
-   System Guide #304; rules audit #305.
+## Publication
 
-## Picked up this session
+For this interview, make quick local knowledge commits and hold pushes until the end, per the owner's latest instruction. Local `main` has unpushed knowledge edits. Preserve unrelated workspace changes.
 
-- Saved PRD refinements include folder layout, maintained topic-area memories,
-  scannable proposals, the glossary table, and source/context properties.
-- The read-only template audit found uneven coverage. Its recommendations are
-  in the handoff, not approved implementation. Current runtime paths and shipped
-  templates do not yet match all the proposed requirements.
+## Remaining review
 
-- To-do (2026-09-12): Have an agent review the knowledge PRD: plain technical English for a developer intern, no AI-sounding prose; keep useful figures of speech. Make requirements explicit so agent teams need not guess intent.
+- Review the walkthrough with Mike, then continue unresolved PRD choices and reconcile the stale issue summary.
+- Review system-wide templates and remaining file formats. No new working-memory entry schema was approved.
+- Review `misc/SKILL (2).md` on `issue-269-second-brain-design`; it is an unpublished PRD skill draft.
+- Earlier context: [handoff](https://github.com/Mar5929/claude-toolkit/blob/issue-269-second-brain-design/misc/269-session-handoff.md). Related scopes: System Guide #304 and rules audit #305. Proposed paths and templates are not all implemented.
