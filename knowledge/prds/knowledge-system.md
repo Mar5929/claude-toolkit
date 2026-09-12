@@ -62,7 +62,7 @@ agent remembers it for him.
 - It gets smarter over time, because what it learns is written down and read back.
 - Every new session feels like talking to the same agent, not a stranger who has to be caught up.
 - It is the agent's lasting memory, tuned so the agent learns when something is worth keeping.
-- The human user (owner) can modify or delete knowledge within the second brain system without involving the agent and the system will not break.
+- The owner can edit knowledge files directly. Requirement 1 defines recovery when an edit breaks a link or required structure.
 
 Two ways to fail, and both are bad. Remembering too little means the owner
 explains the same thing again. Remembering carelessly is worse, because a later
@@ -250,12 +250,19 @@ flowchart TD
 - Every piece of knowledge this system keeps is a plain text file in this repository, and those files are the only copy. No database. No background writer. No separate store the owner cannot open.
 - Built from what Claude Code already ships: rules, hooks, skills, Markdown files, and Git. Nothing else.
 - Reuse existing toolkit parts and documented harness capabilities before adding a mechanism. Any new mechanism must name the requirement an existing part cannot meet. The knowledge system does not introduce another work tracker or a second owner of another component's content.
-- The owner can read, edit, move, or delete any of these files by hand, with no agent involved, and the system still works.
+- The owner can read, edit, move, or delete knowledge files by hand. The agent respects the resulting content rather than silently undoing the owner's changes.
+- If an edit breaks a link or required structure, the agent repairs it automatically only when the intended fix is clear and preserves meaning. Examples include updating links after an unambiguous rename and rebuilding an index.
+- The agent asks before a repair that could change meaning, choose between unclear destinations, or restore deliberately deleted content. It reports the affected file and the decision needed rather than guessing.
+- Until the problem is resolved, only work that depends on the broken information pauses. Unrelated authorized work continues under requirement 3.
 
-**Check:** open any piece of knowledge in a text editor. Change it by hand.
-Delete one. The system keeps working and later sessions read what the owner
-left. Then list every part the system is built from. Each one is a rule file, a
-hook, a skill, a Markdown file, or Git.
+**Check:** rename a knowledge file by hand. The agent updates its links and
+rebuilds the index without asking when the destination is clear. Delete a file
+deliberately: the agent does not restore its content without approval. Make a
+change with two plausible repairs: the agent explains the choice and asks. Only
+dependent work pauses while that decision is pending.
+
+**Check:** list every part the system is built from. Each one is a rule file,
+a hook, a skill, a Markdown file, or Git.
 
 ## 2. The agent follows this system
 
@@ -474,7 +481,7 @@ follows requirement 3; it never claims that no save is waiting.
 - When the owner edits the words, those words are written exactly as typed. The agent does not tidy them, shorten them, or improve them.
 - Only the approved meaning is written. Not the surrounding context, not an improved version, not one extra sentence that seemed useful.
 - The `Unsure` line on the card is approved on its own. The owner can approve the text to be saved and still reject what is on the `Unsure` line. When he does, that unsure part is dropped and never written to the file. Requirement 20 says what the `Unsure` line holds.
-- Five things can be done without asking the owner: rebuilding an index, repairing a broken link, writing `knowledge/memory/current.md`, appending a line to `knowledge/memory/memory-self-improvement.md`, and maintaining the pending inbox under requirement 28. None of them changes what a lasting file means. Requirement 4 says how the current file is updated. Inbox retention is permission to preserve a proposal, not permission to accept its meaning.
+- Five things can be done without asking the owner: rebuilding an index, repairing a broken link within requirement 1’s limits, writing `knowledge/memory/current.md`, appending a line to `knowledge/memory/memory-self-improvement.md`, and maintaining the pending inbox under requirement 28. None of them changes what a lasting file means. Requirement 4 says how the current file is updated. Inbox retention is permission to preserve a proposal, not permission to accept its meaning.
 - There is one exception, for files the owner already approved when this project used an older folder layout. The agent converts those files first and shows the owner the converted results afterwards, in groups small enough to read in one pass. The owner approves after the conversion, not before. Any file that will not convert cleanly is named and left alone. The agent never guesses what an old file meant.
 
 **Check:** show a proposal and say nothing back. The exact proposal is retained
