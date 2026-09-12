@@ -207,6 +207,7 @@ flowchart TD
 **1. The owner opens or resumes a session**
 
 - The first response gives a brief, accurate picture of relevant work and its next step. The owner does not have to reconstruct the previous conversation.
+- At a new session start, the agent reads the knowledge manual and gives the short one-line confirmation defined in requirement 2.
 - The agent can reach the small knowledge map, current instructions, shared working context, pending inbox, and relevant indexes. Details are opened when needed, including after context is condensed or another session updates a record.
 - Missing guidance or unavailable shared context is identified and recovered before work that depends on it proceeds. Requirements 2, 3, 4, 13, and 28 apply.
 
@@ -264,12 +265,17 @@ hook, a skill, a Markdown file, or Git.
 - In every session, the agent follows the knowledge system: when to save, what to save, how to save, where to save, what to check first, what to cite, and what never to write.
 - Reading a rule is not enough. The agent has to actually do what the rule says, every time. Example: requirement 9 requires a save review at the end of meaningful work. The test is whether the right proposals, authorized saves, and pending state result, not merely whether the agent read the rule.
 - It follows the system whether or not the owner mentions it. The owner never has to remind it.
+- At a new session start, the agent reads the canonical knowledge-system manual and shows the owner one short confirmation, such as “I’ve read the knowledge manual.” Show it once after reading, without a checklist or repeated confirmations on normal turns. The owner approved this one-liner during the voice interview on 2026-09-12. The manual explains the knowledge homes, what belongs and does not belong in each, selection and proposal rules, approval, and file conventions, with pointers to each component’s detailed guidance.
 - A small map is available at startup and whenever context is condensed, cleared, or resumed. It points to the current operating instructions, information homes, indexes, and the checks that apply. Detailed rules, templates, and knowledge are reached when needed; the whole knowledge base and every procedure are not loaded up front.
 - Before a lookup, the agent establishes the applicable find order. Before proposing or making a knowledge change, it establishes the destination rules, exclusions, approval rules, file fields, template, and writing standard. It follows the current instructions for that operation even late in a long session. Already-read guidance can be reused while it remains available and current. Missing guidance is opened again before the affected operation proceeds.
 - The same guidance applies when the owner changes tasks or another session changes the relevant records. A completed check for an earlier task does not establish that the new task's knowledge was checked.
 - The system is responsible for bringing the needed guidance back at these moments. A one-time startup briefing or the owner repeating a rule is not sufficient. Which documented harness mechanism delivers that guidance and the requirement 3 checks is the design's job.
 - The agent uses judgment to understand meaning, choose relevant sources, reject low-value candidates, and write a useful proposal. It cannot use that judgment to skip the system's required lookup, approval, validation, or upkeep moments.
 - Following is demonstrated, not assumed. Requirement 3 defines the outcomes, verification scenarios, and handling of missed or incomplete operations.
+
+**Check:** at a new session start, the owner sees one short confirmation after
+the agent reads the manual. Normal turns contain no repeated confirmation or
+startup checklist.
 
 **Check:** run a whole session without mentioning memory once. At every moment
 this document names, the agent does what this document says. Any moment where it
@@ -1163,13 +1169,8 @@ clarifies requirements 1–3, 5, 10, 18, 19, and 25.
 
 ### Process and user experience
 
-1. At session start, the agent reads the canonical knowledge-system manual and
-   shows the owner one short confirmation after reading it, such as “I’ve read
-   the knowledge manual.” Show it once at startup, without a checklist or
-   repeated reminders. The owner approved this visible one-liner during the
-   voice interview on 2026-09-12. The manual teaches the knowledge homes, what belongs and
-   does not belong in each, selection rules, proposal process, approval rules,
-   and file conventions. It points to each component's detailed guidance.
+1. At session start, the agent reads the canonical knowledge manual and gives
+   the one-line confirmation defined in requirement 2.
 2. During ordinary work, the agent reasons and investigates freely within the
    task's authorization. Reminders stay small; the full manual is not reloaded
    on every message. The policy layer should be almost invisible to the owner.
@@ -1212,9 +1213,8 @@ or open a fixed number of results. A later decision worth preserving triggers
 the relevant policy and approval flow. An unapproved or malformed lasting
 write fails its required checks; an already-authorized PRD correction does not
 ask for the same permission again. Session bookkeeping never appears as a
-project memory. At a fresh session start, the owner sees one short confirmation
-after the agent reads the manual, without a long checklist or repeated
-confirmations on normal turns. Test actual outcomes as requirement 3 requires.
+project memory. Requirement 2 checks startup behavior; requirement 3 checks
+actual outcomes throughout the session.
 
 ## Potential paths to explore
 
