@@ -37,3 +37,5 @@ is authorized by this refinement. (2026-09-12)
 - The read-only template audit found uneven coverage. Its recommendations are
   in the handoff, not approved implementation. Current runtime paths and shipped
   templates do not yet match all the proposed requirements.
+
+- To-do (2026-09-12): Have an agent review the knowledge PRD: plain technical English for a developer intern, no AI-sounding prose; keep useful figures of speech. Make requirements explicit so agent teams need not guess intent.
