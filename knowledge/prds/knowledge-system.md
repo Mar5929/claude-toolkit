@@ -5,7 +5,7 @@ status: proposed
 source: Owner requirements interview for GitHub issue #269, with clarification on parallel sessions, sustained guidance, and knowledge lookup on 2026-09-10. Replaces the earlier 2026-08 build-plan version
 created_at: 2026-08-21
 confirmed_at: 2026-09-10
-tags: [knowledge-system, memory, prds, second-brain, schema, requirements]
+tags: [knowledge-system, memory, prds, second-brain, schema, requirements, solution-philosophy, high-level-architecture]
 approved_by: Mike Rihm
 approval_date: 2026-09-07
 project: claude-toolkit
@@ -50,6 +50,7 @@ work_item: "269"
 - [26. Built the way Claude Code's documentation says](#26-built-the-way-claude-codes-documentation-says)
 - [27. Installed once, turned on per project, and checked](#27-installed-once-turned-on-per-project-and-checked)
 - [28. Pending memory inbox](#28-pending-memory-inbox)
+- [29. Preserve agent judgment with narrow safeguards](#29-preserve-agent-judgment-with-narrow-safeguards)
 - [Potential paths to explore](#potential-paths-to-explore)
 
 ## Why this exists
@@ -103,12 +104,12 @@ design and work-item plan, kept with or linked from the chosen tracker. Outside 
 the agent can use goes to `ai-external-knowledge/`. Requirement 18 is the full
 list.
 
-This set of parts is a fixed workflow with the agent working inside it. The
-moments are fixed by the system, not chosen by the agent. The agent uses its
-judgment inside those fixed moments. It never uses its judgment to decide whether a fixed
-moment happens at all. Example: the agent decides which information is worth proposing within the
-selection rules. It still performs every required save review and obtains
-approval when needed. Requirement 3 defines how reliability is demonstrated.
+The system sets a small number of required responsibilities. The agent chooses
+how to investigate, reason, and solve the task while meeting them. For example,
+it decides which information meets the memory-selection rules, but still obtains
+required approval before saving. This is not a fixed script for every action.
+Requirements 3 and 29 distinguish reliable outcomes from attempts to control
+the agent's thinking.
 
 Judge every requirement below against that whole set of parts. If a requirement
 moves work into the second brain that another part already owns, the requirement
@@ -117,13 +118,14 @@ is wrong.
 ## How to read this
 
 - The status is `proposed`. This document describes the finished system. It does not describe how the system works today.
-- It says what must happen, what the owner sees, and why. It never says which hook, file, or code does it. Those are build decisions and go on the work item, in the work tracker.
+- The numbered requirements say what must happen, what the owner sees, the process and decision rules, and the required data model. A closing section records preferred design directions and examples separately. Detailed implementation choices and build plans belong with the work item.
 - This document holds the goal, the requirement, and the behavior. Each requirement is written clearly enough that a builder can design from it without guessing the intended behavior. The solution design may choose among different ways to meet the same requirement; the PRD does not make that implementation choice.
 - When the owner gives a clear answer or correction within authorized refinement of this document, the agent writes it here in that same reply under requirement 10. It is never logged on an issue instead, because an issue comment gets lost and this document then never gets updated.
 - Mike authorized ongoing refinement of this PRD and approved the drafting-permission rule in requirement 10 on 2026-09-10. That permission covers faithful capture of his answers and corrections; it does not approve every requirement, a solution design, or implementation.
 - Requirement 3 defines the reliability outcomes and the evidence needed to demonstrate them. The solution design chooses how documented harness capabilities deliver those outcomes and identifies any limits.
 - "A session, start to finish" follows one session through every requirement, so the numbered list is easier to follow.
-- The closing section links to separate exploratory design notes. Those notes are not requirements or an approved solution design.
+- On 2026-09-12, Mike authorized importing the agreed direction from the linked ChatGPT conversation and decision report, interviewing him, and saving clear answers directly to this PRD on `main`. This continues drafting permission; it does not approve the complete requirements or authorize implementation.
+- The closing section records the preferred solution philosophy and high-level architecture, with examples and open design questions. A preferred direction is not a verified platform capability or a completed solution design.
 - Where this document and `knowledge/README.md` disagree, this document wins. Each disagreement is named in the place it happens, and `knowledge/README.md` is then changed to match this document.
 
 ## Project folder layout
@@ -718,7 +720,7 @@ one file, with a parent PRD and child PRDs inside it.
 - `superseded` and `retired` are history.
 - This folder used to be called `knowledge/specs/`, and older sessions call these files specs.
 - A PRD describes what the system does or should do, its behavior, the end user's experience, process requirements, constraints, and observable completion expectations. It states these in plain language and distinguishes intended behavior from verified existing behavior. It does not reproduce code or prescribe the build plan.
-- Build order, delivery roadmaps, implementation tasks, schedules, work-item status, and solution designs do not belong in a PRD. Required runtime sequences do belong: for example, approval must precede a lasting-memory write. That describes how the product behaves, not which part to build first.
+- Build order, delivery roadmaps, implementation tasks, schedules, work-item status, and detailed solution designs do not belong in a PRD. A clearly separated closing section may preserve the owner's preferred solution philosophy, high-level architecture, illustrative examples, and options to explore without making them functional requirements. Required runtime sequences do belong: for example, approval must precede a lasting-memory write. That describes how the product behaves, not which part to build first.
 - When a work item finishes, check whether it changed how any area is meant to behave. If it did, update that area's PRD within requirement 10's approval rules. Reordering delivery alone never changes the product requirements.
 
 **A PRD is usually big.** Most of the time it describes a large feature, too
@@ -1125,8 +1127,172 @@ the remaining card and it leaves the active inbox. Repeat with parallel edits,
 an already-completed save, and conflicting newer content: no proposal is lost,
 no save is duplicated, and conflicting meaning waits for the owner's decision.
 
+## 29. Preserve agent judgment with narrow safeguards
+
+Owner-confirmed direction, captured on 2026-09-12 from *Designing An AI
+Operating System* and sections 26–27 of the supplied decision report. This
+clarifies requirements 1–3, 5, 10, 18, 19, and 25.
+
+### Functional and logic requirements
+
+- Claude Code and Codex remain responsible for reasoning, search, investigation,
+  classification, and proposing useful content. Do not build a search engine or
+  another reasoning engine to replace what the agent can already do natively.
+- The system requires relevant project knowledge to be consulted. The agent
+  chooses search terms, tools, files, depth, and follow-up investigation. The
+  source roles and precedence in requirement 19 guide where to look; they do
+  not prescribe exact queries, result counts, or a tool-call script.
+- Retrieval guidance starts with the lightest effective check, such as an
+  acknowledgement that required knowledge was consulted. Do not build a scorer
+  that decides whether the search was intellectually good enough. An
+  acknowledgement is bookkeeping, not proof of understanding or answer quality;
+  requirement 3 still verifies the resulting behavior.
+- Stronger checks protect lasting writes: required approval must cover the
+  actual change, and the destination, file shape, fields, and saved result must
+  satisfy the applicable rules. A valid file does not prove that its meaning is
+  correct. The agent evaluates meaning and the owner approves it.
+- Preserve existing approval, including authorized PRD refinement under
+  requirement 10. A safeguard must not repeatedly ask the owner to approve the
+  same unchanged instruction.
+- Begin with a small set of safeguards for failures that would damage trust.
+  Add restrictions only when observed failures justify them. Do not monitor or
+  control every action merely because that is technically possible.
+
+### Process and user experience
+
+1. At session start, the agent reads the canonical knowledge-system manual and
+   acknowledges it. The manual teaches the knowledge homes, what belongs and
+   does not belong in each, selection rules, proposal process, approval rules,
+   and file conventions. It points to each component's detailed guidance.
+2. During ordinary work, the agent reasons and investigates freely within the
+   task's authorization. Reminders stay small; the full manual is not reloaded
+   on every message. The policy layer should be almost invisible to the owner.
+3. When a lasting-memory candidate arises, the agent rereads the relevant
+   policy, classifies the candidate, checks for an existing home, and prepares
+   the standard proposal. Useful information is not automatically memory.
+4. Where new approval is required, the owner approves, edits, or rejects the
+   proposal. Silence never authorizes a lasting write. Already-authorized
+   changes proceed under requirement 10.
+5. Validate the approved change against its destination's rules, complete the
+   save and publication, and confirm the real result. Requirement 3 governs
+   failure recovery; requirement 28 preserves unfinished proposals and saves.
+
+Reading the manual once does not mean forgetting it after context loss. Recover
+missing or changed guidance under requirement 2. Exact recovery triggers and
+whether acknowledgements are visible to the owner remain design/interview
+questions. The existing visible end-of-turn save-review requirement remains in
+force in this draft until the owner settles its fit with the quiet experience.
+
+### Data boundaries
+
+- Approved project knowledge remains in its authoritative Markdown files under
+  the existing data model. No vendor's memory categories replace the owner's
+  definitions or the routing in requirement 18.
+- Session bookkeeping, such as which manual version was read or whether a
+  bootstrap acknowledgement occurred, is temporary runtime state. It is not a
+  lasting project fact and never belongs in long-term memory.
+- Temporary runtime state cannot replace the shared working context in
+  requirement 13 or the recoverable proposal and approval records in
+  requirement 28. A lost session must not lose an approved unfinished save.
+- Interpretation, summaries, and search results must not silently become
+  approved facts. Preserve the approved meaning and its source; later agents
+  must be able to distinguish evidence from a derived account.
+
+**Check:** ask whether to replace an authentication provider. The agent finds
+relevant prior knowledge using its own tools and queries, investigates further
+as needed, and cites the evidence. It is not required to run a prescribed query
+or open a fixed number of results. A later decision worth preserving triggers
+the relevant policy and approval flow. An unapproved or malformed lasting
+write fails its required checks; an already-authorized PRD correction does not
+ask for the same permission again. Session bookkeeping never appears as a
+project memory. Test actual outcomes as requirement 3 requires.
+
 ## Potential paths to explore
 
-[Exploratory implementation ideas](../brainstorms/2026-09-10-knowledge-system-potential-paths.md)
-are kept separately. They are possible approaches to requirements 1 through 3, 7, 9,
-and 26, not requirements, verified harness capabilities, or an approved design.
+### Preferred solution philosophy and high-level architecture
+
+**Status:** owner-endorsed direction to explore first, captured 2026-09-12.
+It is not implementation approval or a claim that any particular runtime API
+is available. Requirements above define the outcomes; this section preserves
+the proposed way to achieve them.
+
+Sources: Mike's [Designing An AI Operating System conversation](https://chatgpt.com/c/6aa4a93c-7c7c-83ea-b3df-a20043c0a966)
+and the supplied `ai-agent-memory-frameworks-decision-report.md`, especially
+sections 26–27. The report header says 2026-08-16; its later discussion was
+confirmed by the owner for this refinement on 2026-09-12. These dates are not
+interchangeable. The decisions are stated here so future readers do not need
+access to the private conversation or the local download.
+
+Keep the capable coding agent at the center. Repository instructions and one
+canonical knowledge manual teach the policy. A thin layer connected to supported
+runtime events provides timely reminders, tracks a few session facts, and
+checks consequential writes. The policy survives changes in vendor integration.
+
+```text
+Repository instructions + canonical knowledge manual
+                         ↓
+             Thin policy layer for the runtime
+                         ↓
+       Claude Code / Codex uses native judgment and tools
+                         ↓
+     Approved lasting change → validation → save → confirmation
+```
+
+For Claude Code, investigate the stateful function-style hooks or “mods”
+discussed in the source as the leading long-term option when available and
+stable. Keep ordinary hooks as a possible fallback. Verify both against current
+official documentation and practical tests before selecting a mechanism. Do not
+assume Codex has the same API or that ordinary hooks cannot track state or block
+actions. The distinction below explains responsibilities, not platform limits.
+
+### The handbook, doorbell, and supervisor example
+
+Imagine the agent is a capable engineer:
+
+| Part | Analogy | Responsibility |
+| --- | --- | --- |
+| `CLAUDE.md` / `AGENTS.md` | Employee handbook | Establish the project rules and point to the knowledge manual. |
+| Knowledge-system manual | Detailed operating procedure | Explain what each knowledge store means and how to use and maintain it. |
+| Hook | Doorbell or reminder alarm | React at a useful moment and bring an obligation to the agent's attention. |
+| Stateful hook or mod | Lightweight supervisor | Remember a few session facts and check required steps without doing the engineer's thinking. |
+| Claude Code / Codex | Engineer | Search, reason, investigate, propose, and solve the user's task. |
+
+Example: the owner asks, “Should we replace our authentication provider?” The
+reminder says to consult existing knowledge. The agent chooses how to search,
+finds the earlier decision, checks the current situation, and answers. The
+supervisor can remember that the manual was already read, avoiding repeated
+full briefings. It does not prescribe a query or decide which answer is best.
+
+Later the owner says, “Keep Auth0 for this release because migrating now would
+delay launch.” The agent checks whether that is a lasting decision under the
+project's policy, finds the existing topic if there is one, and proposes the
+meaning through the standard card. The decision alone does not bypass any
+required save approval. After approval, the write is checked against the real
+file template and destination, saved, and confirmed. This is an illustration,
+not an actual authentication decision for this toolkit.
+
+### Earlier options and questions for solution design
+
+The report's earlier memsearch, Mem0, session-memory services, `.memory/` layout,
+and provider-interface recommendations are exploratory history. They are not
+requirements to install a service, add a database, replace native search, or
+change this PRD's approved folder direction. The owner's later direction puts
+native agent search and a thin policy layer first.
+
+Explore these questions without assuming their answers:
+
+- Which documented events can reliably deliver startup guidance, recover it
+  after context loss, and check consequential writes in each supported runtime?
+- What is the smallest useful session-state model, and how does it avoid
+  treating an old acknowledgement as proof that current guidance is available?
+- How can write checks cover actual edits and existing approval without adding
+  a large controller or blocking legitimate work?
+- Which checks need an owner-visible message, and which can stay internal?
+  Settle the end-of-turn review behavior with the owner during this interview.
+- How will representative sessions expose missed obligations, false blocks,
+  repeated reminders, context overhead, and degradation of ordinary work?
+
+[Earlier exploratory implementation ideas](../brainstorms/2026-09-10-knowledge-system-potential-paths.md)
+remain possible approaches, not requirements, verified harness capabilities,
+or an approved design. Where they prescribe more control than the direction
+above, revisit them before using them.
