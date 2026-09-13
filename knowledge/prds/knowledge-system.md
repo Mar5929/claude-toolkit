@@ -639,7 +639,7 @@ follows requirement 3; it never claims that no save is waiting.
 - The owner may change the wording, the place, the tags, or drop the whole thing.
 - When the owner edits the words, those words are written exactly as typed. The agent does not tidy them, shorten them, or improve them.
 - Only the authorized meaning is written. Do not add surrounding context or new meaning outside that authority.
-- The `Unsure` line on the card is approved on its own. The owner can approve the text to be saved and still reject what is on the `Unsure` line. When he does, that unsure part is dropped and never written to the file. Requirement 20 says what the `Unsure` line holds.
+- Resolve material questions before presenting a save card, as requirement 20 requires. Approval covers only the stated operation and wording or affected content; it does not approve an unresolved assumption or an unrelated follow-up.
 - Five things can be done without asking the owner: rebuilding an index, repairing a broken link within requirement 1’s limits, writing `knowledge/memory/current.md`, appending a line to `knowledge/memory/memory-self-improvement.md`, and maintaining the pending inbox under requirement 28. None of them changes what a lasting file means. Requirement 4 says how the current file is updated. Inbox retention is permission to preserve a proposal, not permission to accept its meaning.
 - For files the owner already approved under an older folder layout, the agent converts those files first and shows the owner the converted results afterwards, in groups small enough to read in one pass. The owner approves after the conversion, not before. Any file that will not convert cleanly is named and left alone. The agent never guesses what an old file meant.
 
@@ -834,7 +834,7 @@ technical.
 
 - Plain, clear, everyday words. No AI jargon, no toolkit vocabulary the reader was never given, no figures of speech, no idioms.
 - As short as it can be without dropping anything a future agent needs. Every sentence has to be needed. If removing it loses nothing, remove it.
-- Accuracy before completeness. One wrong sentence makes the whole file untrustworthy, because a later agent acts on it. Anything not checked goes in the card's Unsure line or is left out. A guess is never written as a fact.
+- Accuracy before completeness. One wrong sentence makes the whole file untrustworthy, because a later agent acts on it. Resolve uncertainty that affects a proposed save before presenting its card, under requirement 20. A guess is never written as a fact.
 - Concrete, not abstract: the real name, the real value, the real path, the real date. Write the full date, never "last week". Name the system or the organization every time. When something was left undone, say so.
 - Nothing that points at a conversation the reader cannot see. No "as discussed", no "per our call".
 
@@ -1118,44 +1118,72 @@ limitation instead of pretending a search found nothing.
 
 ## 20. The save card
 
-Every save proposal, in every project, uses one shape. Same parts, same order,
-same labels, so the tenth card reads the same way as the first.
+A save proposal makes the owner's decision clear: what will change, the exact
+wording, and what a yes will authorize. A quick scan must be enough to approve,
+change, or decline it without opening the full file.
 
-The owner does not have time to read every memory in full. A quick scan of the
-proposal must be enough to understand what the agent will save. The headline
-and short quote must carry that meaning without requiring him to read the full
-file or all the supporting details.
+### Separate proposals from the answer
 
-- A bold headline. One plain sentence saying what gets saved. Not a file path and not a short tag-like phrase. Good: "The client moved the demo to Thursday." Bad: `knowledge/memory/memory-entries/demo-date.md`. Bad: "Demo date change".
-- Then an arrow, the character →, and one of four phrases: `New memory file`, `Memory, edit to an existing file`, `New PRD file`, `PRD, edit to an existing file`.
-- Those four phrases identify memory and PRD writes. For a removal or status change, the arrow names the destination and actual operation, such as `Memory, retire an existing file` or `Memory, delete an existing file`. The quote identifies the meaning being removed or taken out of current use. A glossary, standing-instruction, or skill proposal names its actual destination and operation in the same position, retaining the same headline, quote, and five bullets. It follows that destination's own approval and delivery rules. A System Guide proposal follows that component's standard. Routing another kind of information never silently extends the knowledge-only Git exception to it.
-- A block quote holding the exact text that would land in the file. Three sentences at most. Not the full file text.
-- Five bullets on consecutive lines, in this order: `Why`, `Where`, `From`, `Unsure`, `Checked`.
+- Finish the main answer, then use a horizontal divider and a large Markdown heading for each destination with proposals: `Proposed memory saves`, `Proposed PRD saves`, `Proposed System Guide saves`, or the corresponding destination name.
+- Keep different destinations in separate sections even when they appear in the same response. Omit empty sections. A mixed group does not replace the destination headings with one general heading.
+- Number proposals uniquely across the response so the owner can refer to a specific card. Keep each card under its destination's heading, with clear space between cards.
+- System Guide keeps its own card format, approval, and delivery rules inside its section. Other components also retain their own authority and delivery rules; displaying their proposals here does not transfer their responsibilities to the knowledge system.
 
-What each bullet carries:
+### What a memory or PRD card shows
 
-- `Why`: what a later session gets out of this. Not a restatement of the quote.
-- `Where`: the exact path, whether the file is new or an edit, and the tags.
-- `From`: who it came from and how sure. You said it, we worked it out together, or I worked it out.
-- `Unsure`: anything unchecked, or the single word "nothing". Never left out and never softened into silence.
-- `Checked`: the files the agent opened to confirm this is not already written down. It appears on the card itself, at the same time as everything else. The owner can then see whether the agent really looked before he answers.
+1. A numbered, readable topic name.
+2. **Change:** the operation and its scope. Say whether this creates a file, adds to an existing file, replaces content, merges files, changes status, or removes content. For a replacement, identify the earlier statement being replaced. For a removal or status change, identify the affected content and result.
+3. **New wording:** the exact passage that will be written, as a block quote of at most three sentences. Do not show the whole file unless requested. For a removal or status-only operation, use **Affected content** instead and quote or clearly identify what the operation covers.
+4. **Your decision:** a direct question naming the action being approved, such as "May I replace the earlier decision with this wording?" Make clear that the owner can approve, request changes, or decline. For several proposals, the owner can select numbers or explicitly approve all; approval of one does not approve the others.
 
-How it is shown:
+Render the card as Markdown, not a code fence. Use plain words, visible labels,
+and blank lines between the topic, change, wording, and decision. Do not require
+a fixed list of `Why`, `Where`, `From`, `Unsure`, and `Checked` bullets.
 
-- Rendered Markdown, never inside a code fence. The owner reads the formatted result, not the markup.
-- A blank line between the three blocks and nowhere else. The three blocks are: the headline with its arrow line, the block quote, and the five bullets. Related lines stay together. A blank line after every sentence hides what connects to what.
-- Every line written as if the owner is five years old. Short words, one idea per sentence, no jargon, and none of the toolkit's own vocabulary.
-- More than one file means numbered blocks with a horizontal rule between them, and one closing line asking which numbers to save.
+The readable topic identifies the destination. A file link or optional details
+can expose the exact path, tags, source, and checks without making the owner
+read them to understand the change. The agent must still check relevance,
+evidence, duplicates, conflicts, and the destination's file rules, and retain
+required source and approval records. Only routine presentation is reduced.
+Show a source, reason, or consequence when it materially affects the decision;
+do not hide it in optional details.
 
-The headline and the quoted text are what the owner is really saying yes to.
-He approves the quoted text, `Why`, and `From`. The other bullets are shown so
-he can see where the file goes and how it is tagged, and he may change any of
-them.
+### Resolve questions before requesting a save
 
-**Check:** scan a card's headline and short quote. The owner can tell what is being saved,
-whether it is a memory or a PRD, and exactly which words will be written. He
-never has to read the full memory or all the supporting details to understand
-the proposed save, and never opens a file to decide.
+- If uncertainty affects the accuracy or scope of the proposed wording, investigate first. If the agent needs an owner decision or information it cannot obtain, ask one specific question before presenting that save card. State what answer is needed and how it affects the proposed save.
+- Do not attach an unexplained `Uncertain` or `Unsure` line to a card. Approval of a save is not a request for the owner to investigate a separate issue.
+- An unrelated unresolved issue does not block a supported save. Handle that issue through the relevant work process when authorized; do not silently create a task or expand the save's scope.
+- The approval covers the stated operation and exact wording or affected content. It does not establish the truth of an unsupported claim or authorize an unstated follow-up. Requirement 10 owns the approval boundary, including existing authority that requires no new card.
+
+### Example: replacing an earlier memory decision
+
+Fictional example of a card after the agent has confirmed the proposed facts:
+
+---
+
+## Proposed memory saves
+
+### 1. Customer imports
+
+**Change:** Replace the saved decision to match customers by email.
+
+**New wording:**
+
+> Email alone is not a reliable customer identifier. The previous import combined different customers who shared an email address.
+
+**Your decision:** May I replace the earlier decision with this wording?
+
+Reply **"yes," "change it," or "don't save."**
+
+---
+
+**Check:** present one memory proposal and one PRD proposal after an ordinary
+answer. Each has its own destination heading and a unique number. The owner
+can identify what changes, the wording, and the decision without opening a
+file. Approve only one and confirm only that change proceeds. Introduce a
+material uncertainty: the agent investigates or asks a specific question
+before proposing that save. A separate unresolved issue is not attached as an
+unexplained warning and does not silently become an authorized task.
 
 ## 21. Indexes and the checker
 
