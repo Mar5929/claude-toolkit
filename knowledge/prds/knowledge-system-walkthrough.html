@@ -265,7 +265,7 @@
         <div class="branch"><strong>Required behavior:</strong> use <code>knowledge/prds/prd-index.md</code>, then the relevant PRD in <code>knowledge/prds/</code>. Proposed behavior does not prove that it is built.</div>
         <div class="branch"><strong>Existing parts and connections:</strong> when System Guide is enabled, use <code>knowledge/system-guide/system-guide-index.md</code>, then its relevant page in <code>system-guide-entries/</code>.</div>
         <div class="branch"><strong>What works today:</strong> inspect relevant code or live evidence to establish current account-access behavior. A document’s status alone does not verify it.</div>
-        <div class="branch"><strong>Vendor behavior:</strong> scan <code>ai-external-knowledge/README.md</code> during lookup; open a relevant captured page before relying on it. Reuse a current scan. Check its date and version; consult the original source if the capture is missing or outdated and access allows.</div>
+        <div class="branch"><strong>Vendor behavior:</strong> scan <code>ai-external-knowledge/README.md</code> during lookup. It uses the same generated, grouped index format as memory and PRDs: one link to the captured entry page and its summary per topic. Open a relevant captured page before relying on it. Reuse a current scan. Check its date and version; consult the original source if the capture is missing or outdated and access allows.</div>
         <div class="detail">Choose only relevant sources. Indexes point to files; read the actual source before relying on its claims. Topic filenames are examples.</div>
         <div class="detail">A stale claim, duplicate, or useful missing explanation can enter the <a href="#part-4">update review in Part 4</a>. A broken link or structure can enter <a href="#part-5">repair and cleanup</a>.</div>
       </div>
@@ -351,7 +351,7 @@
             <thead><tr><th>Information or change</th><th>Destination and action</th></tr></thead>
             <tbody>
               <tr><td>A useful recurring term or changed meaning</td><td>Edit the alphabetical table in <code>knowledge/memory/memory-entries/terminology-glossary.md</code>; preserve source, date, and uncertainty.</td></tr>
-              <tr><td>A lasting project fact, decision, constraint, or costly lesson</td><td>Maintain its topic in <code>knowledge/memory/memory-entries/</code>. Apply memory selection and approval rules.</td></tr>
+              <tr><td>A lasting project fact, decision, constraint, or costly lesson</td><td>Maintain the existing topic file or relevant subtopic file in its topic folder under <code>knowledge/memory/memory-entries/</code>. Apply memory selection and approval rules.</td></tr>
               <tr><td>A significant completed result worth finding later</td><td>Propose an event memory with the result and output location. Routine activity does not qualify.</td></tr>
               <tr><td>Changed objective, blocker, next step, or useful continuation context</td><td>Update <code>knowledge/memory/current.md</code> under Part 3’s shared-context flow.</td></tr>
               <tr><td>New or changed required behavior</td><td>Update the relevant existing PRD in <code>knowledge/prds/</code>, within the owner’s approval. When work finishes, check whether it changed the required behavior.</td></tr>
@@ -361,7 +361,7 @@
               <tr><td>Changed agent responsibilities or standing behavior</td><td>Use <code>SOUL.md</code>, root instructions, or applicable rules, according to which owns that instruction. Use the instruction-change workflow.</td></tr>
               <tr><td>Changed project systems, resources, or locations</td><td>Update <code>knowledge/project.md</code> through its applicable content and approval rules.</td></tr>
               <tr><td>Work-item scope, state, build plan, or remaining work</td><td>Update the existing tracker and its linked design records. Ask before creating a new work item, as shown in Part 2.</td></tr>
-              <tr><td>Outside reference material</td><td>Use <code>ai-external-knowledge/</code>. Keep the source and capture date; update <code>ai-external-knowledge/README.md</code> when its topics change.</td></tr>
+              <tr><td>Outside reference material</td><td>Use <code>ai-external-knowledge/</code>. Keep the source and capture date in the topic's entry page, with <code>group</code> and <code>summary</code> in YAML frontmatter for its index entry. Rebuild and check <code>ai-external-knowledge/README.md</code> when its topics change.</td></tr>
               <tr><td>Unchecked exploration worth retaining</td><td>Use <code>brainstorms/</code> under its own workflow. It remains unchecked.</td></tr>
               <tr><td>Unanswered proposal or approved unfinished save</td><td>Maintain <code>knowledge/memory-inbox.md</code> for memory and PRD proposals. Other destinations retain pending state through their own workflows.</td></tr>
               <tr><td>Owner feedback on a memory proposal</td><td>Append its outcome to <code>knowledge/memory/memory-self-improvement.md</code>; it remains a proposal-learning record.</td></tr>
@@ -372,7 +372,7 @@
         </details>
         <details>
           <summary>File formats and YAML fields the agent must follow</summary>
-          <div class="branch"><strong>Long-term memory:</strong> a topic Markdown file with YAML frontmatter. Required fields: <code>summary</code>, <code>group</code>, <code>type</code>, <code>status</code>, <code>source</code>, <code>context</code>, <code>confidence</code>, <code>created_at</code>, <code>updated_at</code>, <code>tags</code>, <code>approved_by</code>, <code>approval_date</code>.
+          <div class="branch"><strong>Long-term memory:</strong> one coherent Markdown file per topic by default. When a topic becomes too large, recommend splitting it into coherent subtopic files in one topic folder. Apply the split after required approval. Keep related context together; do not create one file per fact. Each file uses YAML frontmatter. Required fields: <code>summary</code>, <code>group</code>, <code>type</code>, <code>status</code>, <code>source</code>, <code>context</code>, <code>confidence</code>, <code>created_at</code>, <code>updated_at</code>, <code>tags</code>, <code>approved_by</code>, <code>approval_date</code>.
             <div class="detail"><code>type</code>: fact, decision, event, context, constraint. <code>status</code>: current, superseded, retired. <code>confidence</code>: observed, reported, inferred. <code>tags</code>: a free-form YAML list of strings.</div>
             <div class="detail">Dates use <code>YYYY-MM-DD</code>. Preserve the creation date; an update date is not proof of verification. Optional fields, used only when applicable: <code>confirmed_at</code>, <code>source_quote</code>, <code>effective_from</code>, <code>effective_to</code>, <code>project</code>, <code>work_item</code>, <code>supersedes</code>, <code>superseded_by</code>, <code>related_memories</code>.</div>
           </div>
@@ -381,7 +381,7 @@
           <div class="branch"><strong>Shared context:</strong> a concise dated overview with objectives, blockers, next steps, and links. Preserve other sessions’ work. It is rewritten to reflect current state.</div>
           <div class="branch"><strong>Pending inbox:</strong> stable reference, destination and operation, exact card, source and date, last update, state, next step or blocker, and separate approval details. Pending content stays outside the memory and PRD indexes.</div>
           <div class="branch"><strong>Proposal-learning record:</strong> date, candidate, outcome, and the owner’s stated reason, or “no reason given.” No invented reasons.</div>
-          <div class="branch"><strong>Size checks in the proposed system:</strong> each memory or PRD summary is under 200 characters; each memory file and the shared-context file is under 5,000 characters; the proposal-learning file is under 10,000 characters. A failed limit never permits silently cutting approved meaning.</div>
+          <div class="branch"><strong>Size checks in the proposed system:</strong> each index source's summary is under 200 characters; each memory file and the shared-context file is under 5,000 characters; the proposal-learning file is under 10,000 characters. The memory-file limit applies to each file in a topic folder. A failed limit never permits silently cutting approved meaning.</div>
           <div class="branch"><strong>System Guide, skills, instructions, tracker, and other destinations:</strong> open their own current template and field rules. The knowledge manual points to those rules; a memory template is not applied to every file.</div>
         </details>
       </div>

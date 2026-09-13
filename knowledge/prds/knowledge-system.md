@@ -131,6 +131,10 @@ is wrong.
 ```text
 project/
 ├── brainstorms/
+├── ai-external-knowledge/
+│   ├── README.md
+│   └── captured-topic/
+│       └── README.md
 └── knowledge/
     ├── README.md
     ├── project.md
@@ -139,7 +143,9 @@ project/
     │   ├── memory-entries/
     │   │   ├── terminology-glossary.md
     │   │   ├── memory-topicarea1.md
-    │   │   └── memory-topicarea2.md
+    │   │   └── larger-topic-area/
+    │   │       ├── subtopic-one.md
+    │   │       └── subtopic-two.md
     │   ├── current.md
     │   └── memory-self-improvement.md
     ├── prds/
@@ -151,7 +157,9 @@ project/
             └── system-guide-area2.md
 ```
 
-The topic and area filenames are examples. System Guide remains a separate,
+The topic and area filenames are examples. Memory topic files and optional
+topic folders follow requirement 14. The outside-documentation index and
+captured topics follow requirements 8 and 21. System Guide remains a separate,
 optional component; this layout names its home when enabled. Its index points
 to pages in `system-guide-entries/`. Brainstorms live in `brainstorms/` at the
 project root, outside `knowledge/`.
@@ -161,13 +169,13 @@ requirements 16 and 21 describe. The pending inbox remains at
 `knowledge/memory-inbox.md` under requirement 28; the supplied layout did not
 specify a different home for it.
 
-This replaces the old paths and flat memory-folder layout in the current
-knowledge manual. On adoption, existing content and working links must be
-preserved, and the instructions and indexes must lead to the new locations.
+When adopting this layout, preserve existing content and working links.
+Instructions and indexes must lead to the current locations.
 
-**Check:** compare the project folders with this layout. Memory topics and the
-glossary are in `memory-entries/`; current work and memory lessons are beside
-that folder. An enabled System Guide has its own index and entries folder.
+**Check:** compare the project folders with this layout. Each memory topic has
+one file or one topic folder in `memory-entries/`; the glossary is also there.
+Current work and memory lessons are beside that folder. An enabled System Guide
+has its own index and entries folder.
 Brainstorms are at the project root. Existing content remains reachable.
 
 ## A session, start to finish
@@ -569,11 +577,11 @@ is linked rather than expanded into paragraphs under the term.
 
 ## 8. Read the real documentation first
 
-- `ai-external-knowledge/README.md` is a small index of captured outside knowledge. For each topic it gives its name, what it covers and when it is useful, a path to its entry page, the original source address, and the capture or refresh date. It points into the documentation instead of copying its contents.
+- `ai-external-knowledge/README.md` is the index of captured outside knowledge. It uses the same generated, grouped link-and-summary format as the memory and PRD indexes in requirement 21. Each topic entry links to its captured entry page; it does not copy the documentation into the index.
 - The project's small knowledge map points to this index. During lookup, the agent scans it to decide whether captured documentation is relevant. A current scan already in context can be reused; a changed topic list or lost context requires a fresh scan.
 - Before running a repeatable process or working out a fix that depends on a captured topic, the agent opens the relevant page. Example: before changing a hook, it reads the captured Claude Code page about hooks instead of relying on what it already thinks it knows about hooks. Unrelated topics are not opened.
-- One folder per topic. Each names its source address and the date it was captured.
-- Adding, refreshing, moving, or removing a captured topic updates its index entry as part of the same upkeep. This index belongs to outside-documentation upkeep; it is separate from the two generated memory and PRD indexes in requirement 21.
+- One folder per captured topic. Its entry page supplies `group` and `summary` in YAML frontmatter for the index, and records the original source address and capture or refresh date. The summary states what the topic covers and when it is useful. These are outside-documentation fields; memory approval, confidence, and status fields do not apply.
+- Adding, refreshing, moving, or removing a captured topic rebuilds and checks its index as part of the same upkeep. Requirement 21 owns the shared index format; outside-documentation upkeep owns the captured sources and their metadata.
 - Captured documentation is outside source material, not approved project truth. The agent checks whether its date and version are suitable for the task. When a missing or outdated page matters, it checks the current original source when access allows, or states the gap. It never presents an old capture as verified current behavior.
 - The agent judges which outside topics are relevant, then follows the required source checks before relying on them. Requirement 3 defines how this behavior is demonstrated.
 
@@ -737,8 +745,9 @@ uses that state instead of repeating the older overview.
 
 ## 14. Memory file shape
 
-- Agents must keep one Markdown file per topic area under `knowledge/memory/memory-entries/`. Related facts, decisions, and lessons belong together in that file, not in separate files for each tiny detail. The memory index, current work, and memory lessons sit outside the entries folder, as shown in the folder layout.
-- Before saving, find the existing topic-area file and update it. Create a file only for a distinct topic area that does not already have one. The filename names the topic area in plain words: lowercase, hyphens between words, ending in `.md`. Not a date, not a code, not a ticket number.
+- Each topic area has one home under `knowledge/memory/memory-entries/`: one Markdown file by default, or a topic folder containing related Markdown files when the topic needs to be split. Keep related facts, decisions, lessons, and useful history together so the agent can read their context coherently. Do not create a file for each granular piece of information. The memory index, current work, and memory lessons sit outside the entries folder.
+- Before saving, find the existing topic file or folder and update the file that owns the information. Create a file only for a distinct topic area that has no home, as part of an approved split, or for a coherent subtopic not already covered in an existing topic folder. New files still follow requirement 10's approval rules. File and folder names describe their topic or subtopic in plain words: lowercase with hyphens; Markdown filenames end in `.md`. Do not name them after dates, codes, or ticket numbers.
+- When a topic becomes too large to keep in one useful file, the agent recommends a split into coherent subtopics within that topic's folder. The proposal names the affected files and what each will contain. Keep context needed to understand each subtopic with it. Keep common lasting context in the appropriate topic or subtopic file and link to it from related files instead of duplicating it. Splitting follows requirement 10's approval rules; it is not permission to create one file per fact. Every resulting memory file follows this requirement's field rules and requirement 15's size limit.
 - Each file is maintained, not continually appended to. Rewrite or remove outdated, repeated, or conflicting information when appropriate, within the approval rules. Keep the current account clear. Retain an important timeline or superseded decision trail in the same file only when that history is useful, with dates and clear labels showing what no longer applies.
 - Do not sort memory topics into subfolders by type. A note can hold a fact, a decision, and a piece of history together.
 - The terminology glossary shares the entries folder but keeps the table format in requirement 7. It is not a memory topic and does not require memory fields.
@@ -748,8 +757,8 @@ Required on every memory file:
 
 | Field | What it is | Allowed values |
 | --- | --- | --- |
-| `summary` | The headline fact in one short line, so the index helps the agent choose which source to open. Under 200 characters, which is about 30 words. The index shows this line. | Free text, one line |
-| `group` | The topic heading this file sits under in the index. A few plain words, reused across files on the same topic. | Free text, a few words |
+| `summary` | The main takeaway from this topic or subtopic in one short line, so the index helps the agent choose which source to open. Under 200 characters, which is about 30 words. The index shows this line. | Free text, one line |
+| `group` | The topic heading this file sits under in the index. A few plain words, shared by files in the same topic folder. | Free text, a few words |
 | `type` | What kind of thing it mostly is. Does not decide where the file sits. | `fact`, `decision`, `event`, `context`, `constraint` |
 | `status` | Whether it answers questions about what is true now. | `current`, `superseded`, `retired` |
 | `source` | Where it came from and where to go check it: a file path, a commit, a link, or the name of the person who said it. | Free text |
@@ -783,7 +792,7 @@ Optional fields, written only when they apply and left out otherwise:
 | `work_item` | The work item that produced the file. | When one work item did. |
 | `supersedes` | The path of an older file this one replaced. | When an existing file-level replacement needs to remain traceable. An ordinary change within a topic area updates the same file under requirement 22. |
 | `superseded_by` | The path of the file that replaced this older file. | When retaining that older file's replacement link. It does not require creating another file when a decision changes. |
-| `related_memories` | Paths of memory files covering other related topic areas. | When a link helps a reader. Write the link on both files, so each one points at the other. |
+| `related_memories` | Paths of related memory files, including other subtopics in the same topic folder. | When a link helps a reader. Write the link on both files, so each one points at the other. |
 
 All dates are `YYYY-MM-DD`. All paths are relative to the project root.
 
@@ -803,9 +812,12 @@ briefly names the meeting topic and known date in `context`. Omit either
 property: the checker reports the missing required field.
 
 **Check:** save several related details and later a changed decision in the same
-topic area. The agent updates one Markdown file, removes or rewrites outdated
-content with approval, and leaves no competing current statements. Useful dated
-history stays clearly marked in that file. No file is created for each detail.
+topic area. The agent maintains the existing topic file, with no competing
+current statements or file per detail. When the topic becomes too large, it
+recommends a coherent split and waits for required approval. After an approved
+split, the topic's files remain together in one folder, preserve useful context
+and history, and are reachable through the memory index. Later updates go to
+the file that already owns that subtopic.
 
 ## 15. How the words are written
 
@@ -832,9 +844,10 @@ proved it, so no later agent works the same thing out again. Example: "Settled
 2026-07-02: manual account edits are reverted every morning; proven three times."
 
 A memory file stays under 5,000 characters. If it grows beyond that limit,
-remove repetition, summarize faithfully, separate genuinely distinct topic areas,
-or link to supporting detail in its proper home under requirement 18. Never
-split one topic area into files for tiny details merely to meet the size limit.
+remove repetition, summarize faithfully, or recommend the topic split in
+requirement 14. Supporting detail in another information home is linked under
+requirement 18. Keep coherent context together; do not fragment it into tiny
+files merely to meet the size limit.
 Preserve the source and approved meaning. Length alone never turns a fact into
 a PRD requirement, a procedure, or a work item. Lasting changes still follow
 the approval rules; a failed size check never permits silently dropping meaning.
@@ -1122,38 +1135,41 @@ the proposed save, and never opens a file to decide.
 
 ## 21. Indexes and the checker
 
-- Two generated files: `knowledge/memory/memory-index.md` and `knowledge/prds/prd-index.md`. In the PRD index, a child PRD is listed under its parent, indented one level, so the reader sees the area and its parts together. Both have the same shape and are built the same way. The PRD index used to be called `spec-index.md`.
+- The memory index at `knowledge/memory/memory-index.md`, the PRD index at `knowledge/prds/prd-index.md`, and the outside-documentation index at `ai-external-knowledge/README.md` are generated from their source files using the shared format below. Other knowledge indexes, including an enabled System Guide's index, use the same grouped link-and-summary format; their components still own their source metadata and upkeep. The PRD index used to be called `spec-index.md`.
+- The memory index includes files both directly in `memory-entries/` and inside topic folders. A topic folder's files remain together under their topic heading, with a link and summary for each file. In the PRD index, a child PRD is listed under its parent, indented one level, so the reader sees the area and its parts together.
 - The index is grouped under short topic headings, not one flat alphabetical list. Each heading reads like the question a reader would ask, such as "Deploy and org-safety rules" or "Where things live", so the reader can quickly find the relevant source. The heading comes from each file's `group` field. Files with the same `group` sit together under that heading. The order of the groups, and the order of files inside a group, follow one fixed rule, so the same set of files always produces exactly the same index. Which rule is the design's job.
-- Each entry is one line: a link to the file, then the file's `summary`. The summary is the headline fact itself, in plain words, not a description of the file. It helps a reader choose the source; the agent opens that file before relying on the claim, as requirement 19 requires. The owner's model for this is the memory index in his Davis project, where a line reads like "Never send via Gmail; paste the email or save it to a file".
+- Each entry is one line: a link to the source file, then its `summary`. Memory and PRD summaries state the key knowledge or required behavior in plain words. A captured-topic summary states its coverage and when it is useful, as requirement 8 requires. The agent opens the actual source before relying on it, as requirement 19 requires.
 - The summary is written once, in the file's own `summary` field, and the index copies it word for word. The index adds nothing of its own. Every line in it comes from a file.
 - A memory whose status is not `current`, or a PRD whose status is not `finalized`, shows its status on its line, so historical records and proposed requirements are clearly identified. No index label substitutes for requirement 19's source checks.
 - The header above the entries is two lines at most. The index points at files. It does not explain how anything works.
 - Never edited by hand. The order of files inside a group follows one fixed rule. Two sessions rebuilding the index at the same time then produce the same lines in the same order, so their changes do not conflict in Git.
 - If an index disagrees with the files on disk, the files win. Rebuild it.
-- Every saved memory file and PRD is confirmed against the field rules and four size limits: the `summary` line of any memory file or PRD is under 200 characters, `knowledge/memory/current.md` is under 5,000 characters, `knowledge/memory/memory-self-improvement.md` is under 10,000 characters, and any one memory file is under 5,000 characters. Nothing else has a size limit. Confirming never changes a file.
+- Every saved memory file and PRD is confirmed against the field rules and four size limits: an index source's `summary` is under 200 characters, `knowledge/memory/current.md` is under 5,000 characters, `knowledge/memory/memory-self-improvement.md` is under 10,000 characters, and any one memory file is under 5,000 characters. A topic folder may contain several memory files; the memory-file limit applies to each file, not the folder's combined content. Nothing else has a size limit. Confirming never changes a file.
 - A file that breaks a limit or a field rule is named, along with the rule it broke. A save that fails is not finished. The agent fixes the file and confirms it again before it says the save is done. Nothing is ever cut off silently.
-- After any lasting knowledge change, the index is rebuilt and the checker is run. A failing check means the save is not finished, and the agent says so instead of claiming the knowledge is stored.
+- After any lasting knowledge change, the affected index is rebuilt and the checker is run. A failing check means the save is not finished, and the agent says so instead of claiming the knowledge is stored.
 
-**Check:** rename a memory file and rebuild. The index line follows, under the
-heading its `group` names. Read any line: it states a fact, not "this file is
-about". Break a required field and try to save. The save is reported unfinished, and the
-file and the broken rule are named.
+**Check:** rebuild the memory, PRD, and outside-documentation indexes. All use
+the same grouped one-line link-and-summary format, with summaries copied from
+their sources. A repeated rebuild with unchanged sources gives the same output.
+Rename a memory file inside a topic folder or move a captured topic: its index
+link follows. Break a required field and try to save: the save is reported
+unfinished, and the file and the broken rule are named.
 
 ## 22. Keeping current truth clean
 
 - The agent notices and proposes cleanup without being asked. Every proposal names the affected content, the operation, and its reason in the standard format. Owner approval is required before a lasting edit, merge, supersession, retirement, or deletion; after approval, the agent completes the operation and checks the result itself. It does not ask the owner to perform the file maintenance.
-- Never just append or create another file. Search for the topic area's existing Markdown file first and maintain that file under requirement 14.
+- Never just append or create another file. Search for the topic area's existing file or folder, then maintain the file that owns the information under requirement 14.
 - Keep the original creation date, update the content-change date, and retain evidence for the current meaning. Record a verification date only when the claim was actually rechecked. A recent edit alone never makes an old claim newly verified.
-- **Update** by editing the topic-area file into a clear current account. Rewrite or remove outdated, repeated, or unnecessary content with approval; do not accumulate every new detail at the end. Set `updated_at` to today. Record a dated change in the body only when its history matters. Set `confirmed_at` only when its claim was rechecked and found still true.
-- **Supersede a decision or fact** within the same topic-area file when an approved replacement changes what is true. Replace the current statement and repair references that still treat the old statement as current. Keep the earlier decision, its date, and why it changed only when that trail matters; label it as superseded. Otherwise remove the outdated wording. A changed decision does not create another memory file.
+- **Update** by editing the relevant topic or subtopic file into a clear current account. Rewrite or remove outdated, repeated, or unnecessary content with approval; do not accumulate every new detail at the end. Set `updated_at` to today. Record a dated change in the body only when its history matters. Set `confirmed_at` only when its claim was rechecked and found still true.
+- **Supersede a decision or fact** within the file that already owns it when an approved replacement changes what is true. Replace the current statement and repair references that still treat the old statement as current. Keep the earlier decision, its date, and why it changed only when that trail matters; label it as superseded. Otherwise remove the outdated wording. A changed decision does not create another memory file.
 - **Retire** when a file no longer applies but its history still matters. Set `status` to `retired`. It stops answering what is true now and stays findable.
 - **Delete a whole file** for three reasons only, and name the reason in the reply: a copy made by mistake, a secret that should never have been written down, or something that was never true. This whole-file rule does not prevent approved removal or rewriting of content within a maintained topic-area file. Preserve important history when needed; do not keep obsolete wording merely because it was once written.
 - Age alone is never a reason. Written two years ago and still true means still true.
 - A memory nobody will look up again is found and proposed for retirement without the owner hunting for it. He says yes. The reason is never age. The reason is that the result it holds will not be needed again. Example: a spreadsheet built once in June, checked and delivered, with nothing pointing at it months later.
-- This happens at each save, for the files the search turned up, and across the whole folder when `reflect` runs. Multiple files for the same topic area are consolidated into one with approval, preserving useful content and repairing links. Conflicting statements are resolved rather than left side by side as current truth. Link different topic-area files through `related_memories` only when understanding or applying one benefits from opening the other. The aim is a small set of maintained files, not many files for tiny details.
+- This happens at each save, for the files the search turned up, and across the whole folder when `reflect` runs. Consolidate duplicate or unnecessarily fragmented content with approval, preserving useful context and repairing links. Keep the coherent subtopic files of an approved topic split; sharing a topic area alone does not make them duplicates. Conflicting statements are resolved rather than left side by side as current truth. Link related files when understanding or applying one benefits from opening the other. The aim is maintained topic context, not many files for tiny details.
 
 **Check:** save something that contradicts an existing file. The agent shows the
-conflict and, after approval, updates that same topic-area file. The replacement
+conflict and, after approval, updates that same topic or subtopic file. The replacement
 is clearly current. Any useful earlier decision remains dated and marked as
 superseded; unnecessary old wording is removed. No second memory file is added.
 
