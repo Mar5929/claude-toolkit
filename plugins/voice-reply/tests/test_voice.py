@@ -3,6 +3,7 @@ import copy
 import json
 import os
 from pathlib import Path
+import shlex
 import subprocess
 import ssl
 import sys
@@ -14,8 +15,8 @@ from unittest.mock import patch
 
 SOURCE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(SOURCE / "runtime"))
-from voice import Voice, DEFAULTS, chat_key, sanitize, validate_settings, generate
-from install import install, merge_hooks
+from voice import Voice, DEFAULTS, chat_key, credential, generate, root_path, sanitize, validate_settings
+from install import install, merge_hooks, registrations
 
 
 class VoiceTests(unittest.TestCase):
@@ -197,7 +198,76 @@ class VoiceTests(unittest.TestCase):
         self.assertEqual(self.voice.state(chat_key("claude", "unicode"))["previous"], text)
 
 
-@unittest.skipUnless(os.name == "nt", "Installer live writes target Windows")
+class PlatformTests(unittest.TestCase):
+    def test_runtime_folder_per_platform(self):
+        with patch.dict(os.environ, {"LOCALAPPDATA": "C:/Users/a/AppData/Local"}):
+            os.environ.pop("TOOLKIT_VOICE_HOME", None)
+            self.assertEqual(root_path("darwin"), Path.home() / "Library/Application Support/ClaudeToolkit/voice-reply")
+            self.assertEqual(root_path("win32"), Path("C:/Users/a/AppData/Local/ClaudeToolkit/voice-reply"))
+            os.environ["TOOLKIT_VOICE_HOME"] = "/tmp/voice-override"
+            self.assertEqual(root_path("darwin"), Path("/tmp/voice-override"))
+
+    def test_mac_key_comes_from_keychain_then_environment(self):
+        def keychain(stdout=b"", returncode=0):
+            return patch("voice.subprocess.run", return_value=subprocess.CompletedProcess([], returncode, stdout, b""))
+        with patch.dict(os.environ, {"ELEVENLABS_API_KEY": "environment-key"}):
+            with keychain(b"keychain-key\n") as run:
+                self.assertEqual(credential("darwin"), "keychain-key")
+                command = run.call_args.args[0]
+                self.assertEqual(command[:2], ["/usr/bin/security", "find-generic-password"])
+                self.assertEqual(command[-1], "-w")
+            with keychain(returncode=44):
+                self.assertEqual(credential("darwin"), "environment-key")
+            with patch("voice.subprocess.run", side_effect=subprocess.TimeoutExpired("security", 10)):
+                self.assertEqual(credential("darwin"), "environment-key")
+            os.environ.pop("ELEVENLABS_API_KEY")
+            with keychain(returncode=44), self.assertRaises(RuntimeError):
+                credential("darwin")
+
+    def test_codex_command_quoting_per_platform(self):
+        runtime = Path("/Users/a b/Library/Application Support/ClaudeToolkit/voice-reply/runtime")
+        python = Path("/opt/homebrew/bin/python3")
+        expected = [str(python), str(runtime / "voice.py"), "hook", "codex", "--root", str(runtime.parent)]
+        mac = registrations("codex", runtime, python, windows=False)["Stop"]["hooks"][0]
+        self.assertEqual(shlex.split(mac["command"]), expected)
+        self.assertEqual(set(mac), {"type", "command", "timeout"})
+        # The Windows registration must stay byte-identical so existing Codex trust still matches.
+        literal = lambda s: "'" + s.replace("'", "''") + "'"
+        powershell = "& " + " ".join(map(literal, expected))
+        self.assertEqual(registrations("codex", runtime, python, windows=True)["Stop"]["hooks"][0],
+                         dict(type="command", command=powershell, commandWindows=powershell, timeout=5))
+        for windows in (False, True):
+            claude = registrations("claude", runtime, python, windows=windows)["Stop"]["hooks"][0]
+            self.assertEqual([claude["command"]] + claude["args"], expected[:3] + ["claude"] + expected[4:])
+
+    def test_mac_player_stops_only_its_own_process(self):
+        class Player:
+            def __init__(self, exit_after=None, code=0):
+                self.polls, self.exit_after, self.code = 0, exit_after, code
+                self.returncode, self.terminated = None, False
+            def poll(self):
+                self.polls += 1
+                if self.returncode is None and self.exit_after is not None and self.polls > self.exit_after:
+                    self.returncode = self.code
+                return self.returncode
+            def terminate(self):
+                self.terminated, self.returncode = True, -15
+            def wait(self, timeout=None):
+                return self.returncode
+        launched = []
+        cancelled = Player()
+        checks = iter([True, False])
+        Voice.play_mac(Path("sound.wav"), lambda: next(checks), popen=lambda args, **kw: launched.append(args) or cancelled)
+        self.assertEqual(launched, [["/usr/bin/afplay", "sound.wav"]])
+        self.assertTrue(cancelled.terminated)
+        finished = Player(exit_after=2)
+        Voice.play_mac(Path("sound.wav"), lambda: True, popen=lambda *a, **kw: finished)
+        self.assertFalse(finished.terminated)
+        with self.assertRaises(RuntimeError):
+            Voice.play_mac(Path("sound.wav"), lambda: True, popen=lambda *a, **kw: Player(exit_after=1, code=1))
+
+
+@unittest.skipUnless(os.name == "nt" or sys.platform == "darwin", "Installer live writes target Windows or macOS")
 class InstallTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()

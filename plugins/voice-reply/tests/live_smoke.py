@@ -1,4 +1,4 @@
-"""Explicit paid ElevenLabs/Windows playback smoke test, using synthetic replies."""
+"""Explicit paid ElevenLabs playback smoke test, using synthetic replies."""
 import json
 from pathlib import Path
 import sys
@@ -18,7 +18,7 @@ def main():
             voice.settings(dict(speed=1.0 if host == "codex" else .9))
             event(host, "UserPromptSubmit", prompt="voice on")
             event(host, "UserPromptSubmit", prompt="Test")
-            event(host, "Stop", last_assistant_message="Windows voice output test for " + host + ".")
+            event(host, "Stop", last_assistant_message="Voice output test for " + host + ".")
         deadline = time.monotonic() + 50
         while time.monotonic() < deadline:
             states = {host: voice.state(chat_key(host, "live-verification"))["status"] for host in ("codex", "claude")}

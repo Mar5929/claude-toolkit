@@ -58,10 +58,10 @@ requests.
 
 ## How it's distributed (single source, every surface)
 
-Optional [Windows voice replies](plugins/voice-reply/README.md) add ElevenLabs
-speech output to Codex and Claude Code across projects. Install `voice-reply`
-and run `voice-setup`, or ask `machine-sync` to set it up for the Windows user.
-Each new chat starts OFF. Written replies remain available.
+Optional [Windows and macOS voice replies](plugins/voice-reply/README.md) add
+ElevenLabs speech output to Codex and Claude Code across projects. Install
+`voice-reply` and run `voice-setup`, or ask `machine-sync` to set it up for the
+computer's user. Each new chat starts OFF. Written replies remain available.
 
 This repo is structured as a **Claude Code plugin marketplace** and a **Codex
 plugin marketplace**. One repo can hold many plugins; each plugin bundles skills

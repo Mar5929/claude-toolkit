@@ -1,14 +1,14 @@
 {
   "name": "voice-reply",
-  "version": "0.1.0",
-  "description": "Optional Windows voice replies for Codex and Claude Code with separate chat switches and shared user preferences.",
+  "version": "0.2.0",
+  "description": "Optional Windows and macOS voice replies for Codex and Claude Code with separate chat switches and shared user preferences.",
   "author": {
     "name": "Mike Rihm"
   },
   "skills": "./skills/",
   "interface": {
     "displayName": "Voice Reply",
-    "shortDescription": "Set up optional spoken replies on Windows.",
+    "shortDescription": "Set up optional spoken replies on Windows or macOS.",
     "longDescription": "Install, update, or uninstall user-level ElevenLabs speech output for Codex and Claude Code. New chats start with speech off; each chat keeps its own choice.",
     "developerName": "Mike Rihm",
     "category": "Productivity",

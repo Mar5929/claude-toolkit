@@ -1,8 +1,9 @@
-# Optional Windows voice replies
+# Optional voice replies
 
-Speech output for Codex and Claude Code, installed once for the Windows user
-account. Written answers stay available. Each new chat starts with speech OFF.
-This plugin owns the complete voice system; it does not use microphone input.
+Speech output for Codex and Claude Code on Windows and macOS, installed once for
+the computer's user account. Written answers stay available. Each new chat
+starts with speech OFF. This plugin owns the complete voice system; it does not
+use microphone input.
 
 ## Use it
 
@@ -26,62 +27,108 @@ portable control interface. There is no custom Codex `/voice` slash command.
 
 ## Install, update, uninstall
 
-Requires Windows, Python 3.10 or newer, and hosts supporting `SessionStart`,
-`UserPromptSubmit`, and `Stop.last_assistant_message`. The versions
-inspected for this implementation were Codex 0.154.0 and Claude Code 2.1.259.
+Requires Windows or macOS, Python 3.10 or newer, and hosts supporting
+`SessionStart`, `UserPromptSubmit`, and `Stop.last_assistant_message`. The
+versions inspected on Windows were Codex 0.154.0 and Claude Code 2.1.259. The
+versions inspected on macOS 26.6.2 were Codex 0.154.0 and Claude Code 2.1.270.
 Host policy can disable hooks. Review actual activation after installation.
 
 Install the optional `voice-reply@claude-toolkit` plugin through the host's
 plugin manager, then use [voice-setup](skills/voice-setup/SKILL.md).
 [machine-sync](../project-init/skills/machine-sync/SKILL.md) also routes here.
-A current clone can run the same installer, from the repository root:
+A current clone can run the same installer, from the repository root. On
+Windows, in PowerShell:
 
 ```powershell
 python plugins/voice-reply/runtime/install.py install
 python plugins/voice-reply/runtime/install.py install --apply
 ```
 
-The first command previews paths; the second applies. No project setup is
-needed. The interpreter used to install becomes the absolute hook interpreter.
-`CODEX_HOME` and `CLAUDE_CONFIG_DIR` override the normal host homes. Explicit
-`--root`, `--codex-home`, and `--claude-home` support isolated verification.
+On macOS, in Terminal:
 
-The runtime lives at `%LOCALAPPDATA%/ClaudeToolkit/voice-reply/runtime/`.
+```sh
+python3 plugins/voice-reply/runtime/install.py install
+python3 plugins/voice-reply/runtime/install.py install --apply
+```
+
+The first command previews paths; the second applies. `--apply` works only on
+Windows or macOS, with Python 3.10 or newer. No project setup is needed.
+
+The interpreter used to install becomes the absolute hook interpreter. If a
+later Python upgrade removes that version (a Homebrew upgrade on macOS can do
+this), run `update --apply` again with the new Python. `CODEX_HOME` and
+`CLAUDE_CONFIG_DIR` override the normal host homes. Explicit `--root`,
+`--codex-home`, and `--claude-home` support isolated verification.
+
+Everything the installer owns sits in one voice folder per computer:
+
+| Computer | Voice folder |
+| --- | --- |
+| Windows | `%LOCALAPPDATA%/ClaudeToolkit/voice-reply/` |
+| macOS | `~/Library/Application Support/ClaudeToolkit/voice-reply/` |
+
+The runtime lives in that folder's `runtime/` subfolder. Preferences
+(`settings.json`) and chat switches (`chats/`) sit in the voice folder itself.
+Each computer keeps its own settings and chat choices; nothing is synced
+between computers.
+
 The installer adds only its owned entries to Codex `hooks.json` and Claude
 `settings.json`, plus a `toolkit-voice` skill in each host's user skills folder.
 It records ownership locally, refuses changed/unowned destinations, and rolls
 back file content if a write fails. Existing MCP connections, `notify`, rules,
 permissions, and other hooks remain intact. No credential is copied.
 
+The Claude Code hook uses the same form on both platforms: the interpreter,
+then its arguments. The Codex hook differs. On Windows it is a PowerShell
+literal in `command` and `commandWindows`, exactly as in the first Windows
+release. On macOS it is a shell-quoted `command`, because the voice folder path
+contains a space, with no `commandWindows`.
+
 Restart both hosts. In Codex, use `/hooks` to review and enable the user hooks.
 **Installing files does not grant hook trust.** The installer never edits trust
 hashes. After an update changes a hook definition, review it again if prompted.
 
 Refresh the marketplace and installed voice plugin through the host's normal
-plugin update process, then run `update --apply` from its new packaged source:
+plugin update process, then run `update --apply` from its new packaged source.
+On Windows:
 
 ```powershell
 python plugins/voice-reply/runtime/install.py update --apply
 python "$env:LOCALAPPDATA/ClaudeToolkit/voice-reply/runtime/install.py" uninstall --apply
 ```
 
+On macOS:
+
+```sh
+python3 plugins/voice-reply/runtime/install.py update --apply
+python3 "$HOME/Library/Application Support/ClaudeToolkit/voice-reply/runtime/install.py" uninstall --apply
+```
+
 Uninstall removes owned registrations, runtime files, and the discovery skill.
 It cancels current playback and preserves preferences and chat choices for a
 later reinstall. Remove the optional plugin through the host plugin manager too.
 Unrelated settings remain. To erase retained voice history after uninstall,
-delete only `%LOCALAPPDATA%/ClaudeToolkit/voice-reply/` after inspecting that
-resolved directory. The prior ElevenLabsMCP proof folder is independent.
+delete only that computer's voice folder from the table above, after inspecting
+the resolved directory. The prior ElevenLabsMCP proof folder is independent.
 
 ## User preferences and credentials
 
 Initial voice: Archer, Conversational (`Fahco4VZzobUeiPqni1S`), model
 `eleven_flash_v2_5`, speed `1.0`, provider ElevenLabs.
-Preferences live in the user runtime's parent `settings.json`; chat switches
-live separately under `chats/`. Change preferences with the validated command:
+Preferences live in the voice folder's `settings.json`; chat switches live
+separately under `chats/`. Change preferences with the validated command. On
+Windows:
 
 ```powershell
 python "$env:LOCALAPPDATA/ClaudeToolkit/voice-reply/runtime/voice.py" settings
 python "$env:LOCALAPPDATA/ClaudeToolkit/voice-reply/runtime/voice.py" settings speed=0.9 stability=0.5
+```
+
+On macOS:
+
+```sh
+python3 "$HOME/Library/Application Support/ClaudeToolkit/voice-reply/runtime/voice.py" settings
+python3 "$HOME/Library/Application Support/ClaudeToolkit/voice-reply/runtime/voice.py" settings speed=0.9 stability=0.5
 ```
 
 | Setting | Supported values |
@@ -95,12 +142,36 @@ Settings affect the next queued reply across both hosts, without changing any
 chat switch. A queued reply keeps its settings snapshot. Model availability
 and support for individual controls are ultimately checked by ElevenLabs.
 
-Keep `ELEVENLABS_API_KEY` in the Windows user environment. The runtime reads it
-at generation time, so a newly saved user key works without copying it into a
-repository or restarting the parent host. Process environment is a fallback.
-Python's verified TLS context uses Windows certificate stores; install required
-corporate certificates there. Never disable certificate checks. The earlier
-proof used a separate CA bundle; that file and its old connector stay untouched.
+### The ElevenLabs key
+
+The runtime reads the key at generation time, so a newly saved key works
+without copying it into a repository or restarting either host. Never paste the
+key into a chat. The process environment is a fallback on both platforms.
+
+- **Windows.** Keep `ELEVENLABS_API_KEY` in the Windows user environment.
+  Python's verified TLS context uses Windows certificate stores; install
+  required corporate certificates there.
+- **macOS.** Keep the key in the login Keychain, as a generic password with the
+  service name `ELEVENLABS_API_KEY`. Save it yourself by running this in
+  Terminal:
+
+  ```sh
+  security add-generic-password -a "$USER" -s ELEVENLABS_API_KEY -U -w
+  ```
+
+  Because `-w` comes last, `security` asks for the key, so it never appears in
+  the command line or shell history. Running the command again replaces the key
+  (`-U`). The runtime reads the item with `/usr/bin/security`. Because
+  `security` created the item, the hidden worker reads it without a dialog. A
+  locked or missing item shows as `audio-failed`; the written reply is
+  unaffected.
+- **macOS certificates.** Python's verified TLS context uses its own OpenSSL
+  certificate store. The test Mac used Homebrew Python 3.14.6 with normal
+  certificate checks. A python.org Python needs its "Install Certificates" step
+  run once.
+
+Never disable certificate checks. The earlier proof used a separate CA bundle;
+that file and its old connector stay untouched.
 
 ## What code enforces
 
@@ -112,11 +183,13 @@ fenced/indented code, inline code, markup, and URLs before speech. It chunks
 long replies; replies over 100,000 readable characters are not generated.
 
 Generation runs in a separate hidden process with a 30-second network timeout.
-Playback uses Windows PCM audio, bypassing the official connector's stalled
-playback tool. OFF invalidates the chat's job; playback polls every 50 ms and
-late generation results are discarded. Each worker stops only its own sound.
-The final audio can finish after the host process exits, including short-lived
-headless sessions. Use `voice off` in the resumed chat to cancel it.
+Playback uses Windows PCM audio or macOS `afplay`, bypassing the official
+connector's stalled playback tool. OFF invalidates the chat's job; playback
+polls every 50 ms and late generation results are discarded. Each worker stops
+only its own sound. On macOS each worker runs its own `afplay` player, so
+`voice off` stops only that chat's sound. The final audio can finish after the
+host process exits, including short-lived headless sessions. Use `voice off` in
+the resumed chat to cancel it.
 
 Hook errors return success without blocking the answer. Provider failures are
 reported as `audio-failed` on the next `voice status`; raw exceptions and
@@ -138,17 +211,19 @@ not covered by the independent-chat tests.
 - [Installer](runtime/install.py): preview, install, update, and uninstall.
 - [User skill template](templates/toolkit-voice/SKILL.md): copied to both hosts.
 - [Tests](tests/test_voice.py): isolated runtime and installer regression checks.
-- [Live smoke test](tests/live_smoke.py): two real provider requests and separate Windows playback workers.
+- [Live smoke test](tests/live_smoke.py): two real provider requests and separate playback workers.
 - [Live Claude Code test](tests/live_claude.py): concurrent, resumed, fresh, forked, and one-time-read chats.
 - [Live Codex test](tests/live_codex.py): the same chat checks using existing user hook trust.
-- [Windows playback test](tests/windows_playback.py): cancel one sound while another process continues.
+- [Live playback test](tests/live_playback.py): on Windows or macOS, cancel one sound while another process continues.
 - [Native completion test](tests/live_completion.py): actual enabled replies through both hosts to real generated audio.
 - [Verification record](tests/VERIFICATION.md): actual checks and remaining limits.
-- [Issue design](../../docs/designs/313-windows-voice.md): requirement mapping and ownership decisions for this release.
+- [Windows issue design](../../docs/designs/313-windows-voice.md): requirement mapping and ownership decisions for the first release.
+- [macOS issue design](../../docs/designs/319-mac-voice.md): what differs on macOS and how it is verified.
 
 Run `python -B -m unittest discover -s plugins/voice-reply/tests -v` from the
-repository root. Live provider tests incur normal ElevenLabs usage and need
-the local credential. Unit tests use a fake provider and never send chat text.
+repository root (`python3` on macOS). Live provider tests incur normal
+ElevenLabs usage and need the local credential. Unit tests use a fake provider
+and never send chat text.
 
 Host contracts: [Codex hooks](https://learn.chatgpt.com/docs/hooks),
 [Codex skills](https://learn.chatgpt.com/docs/build-skills),

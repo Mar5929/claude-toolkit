@@ -1,7 +1,8 @@
-"""Verify per-process Windows playback cancellation with two quiet test tones."""
+"""Verify per-process playback cancellation with two quiet test tones."""
 import array
 import json
 import math
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -28,8 +29,8 @@ def main():
                               dict(hook_event_name="UserPromptSubmit", prompt="Test"),
                               dict(hook_event_name="Stop", last_assistant_message="Test")]:
                     voice.handle(host, dict(session_id="playback", **event))
-                processes.append(subprocess.Popen([sys.executable, str(Path(__file__).resolve()), directory, *jobs[-1]],
-                                                  creationflags=subprocess.CREATE_NO_WINDOW))
+                flags = dict(creationflags=subprocess.CREATE_NO_WINDOW) if os.name == "nt" else {}
+                processes.append(subprocess.Popen([sys.executable, str(Path(__file__).resolve()), directory, *jobs[-1]], **flags))
             deadline = time.monotonic() + 10
             while not all(voice.state(key)["status"] == "playing" for key, _ in jobs):
                 if time.monotonic() > deadline:

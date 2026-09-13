@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import shlex
 import sys
 import time
 
@@ -18,15 +19,19 @@ def digest(data):
     return hashlib.sha256(data).hexdigest()
 
 
-def registrations(host, runtime, python):
+def registrations(host, runtime, python, windows=None):
+    windows = os.name == "nt" if windows is None else windows
     args = [str(runtime / "voice.py"), "hook", host, "--root", str(runtime.parent)]
     if host == "claude":
         handler = dict(type="command", command=str(python), args=args, timeout=5)
-    else:
+    elif windows:
         # Codex executes the Windows override through PowerShell. Quote as literals.
         literal = lambda s: "'" + str(s).replace("'", "''") + "'"
         command = "& " + " ".join(literal(p) for p in [python] + args)
         handler = dict(type="command", command=command, commandWindows=command, timeout=5)
+    else:
+        # Codex runs the command through the shell on macOS; the voice folder path contains a space.
+        handler = dict(type="command", command=" ".join(shlex.quote(str(p)) for p in [python] + args), timeout=5)
     result = {}
     for event in EVENTS:
         if event == "SessionEnd":
@@ -103,8 +108,10 @@ def install(action, source, root, codex, claude, python, apply=False):
               "next": "Review Codex user hooks in /hooks; restart both hosts. Trust is never edited by this installer."}
     if not apply:
         return report
-    if os.name != "nt":
-        raise ValueError("Live installation requires Windows")
+    if os.name != "nt" and sys.platform != "darwin":
+        raise ValueError("Live installation requires Windows or macOS")
+    if sys.version_info < (3, 10):
+        raise ValueError("Live installation requires Python 3.10 or newer")
     # Preflight all destinations before writing. Roll back content on any write failure.
     before[manifest_path] = manifest_bytes
     with locked(root / "installation.lock"):

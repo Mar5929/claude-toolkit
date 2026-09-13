@@ -18,11 +18,20 @@ hook result. For a paraphrase, explain the exact command to enter next.
 
 New chats start OFF. Resume preserves the choice. Both hosts keep written
 answers. Voice/model/speed controls are shared user preferences; on/off is per
-host and chat. Settings are shown or changed with the installed runtime:
+host and chat. Settings are shown or changed with the installed runtime.
+
+On Windows (PowerShell):
 
 ```powershell
 python "$env:LOCALAPPDATA/ClaudeToolkit/voice-reply/runtime/voice.py" settings
 python "$env:LOCALAPPDATA/ClaudeToolkit/voice-reply/runtime/voice.py" settings speed=1.0
+```
+
+On macOS (Terminal):
+
+```sh
+python3 "$HOME/Library/Application Support/ClaudeToolkit/voice-reply/runtime/voice.py" settings
+python3 "$HOME/Library/Application Support/ClaudeToolkit/voice-reply/runtime/voice.py" settings speed=1.0
 ```
 
 Supported settings: `voice_id`, `model`, `speed` (0.7 through 1.2), `stability`,
@@ -31,5 +40,8 @@ Apply settings only when requested; the next queued reply uses them.
 
 If the hook result is missing, report that voice activation is unverified.
 Codex users review user hooks through `/hooks`. Never change hook trust or
-credentials. Do not promise `/voice`: Codex uses `/skills` or `$toolkit-voice`
+credentials. Never ask for the ElevenLabs key in chat. On macOS the owner saves
+it themselves by running
+`security add-generic-password -a "$USER" -s ELEVENLABS_API_KEY -U -w` in
+Terminal, which prompts for the key. Do not promise `/voice`: Codex uses `/skills` or `$toolkit-voice`
 for discovery; Claude Code exposes the installed `/toolkit-voice` skill.

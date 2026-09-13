@@ -69,9 +69,9 @@ files into a project, so every project it touches opts in deliberately.
 
 ## Key references
 
-Optional [Windows voice replies](../voice-reply/README.md) are offered through
-machine-sync and Gate 6. The voice plugin owns installation for both hosts;
-project-init adds no project-specific speech configuration.
+Optional [Windows and macOS voice replies](../voice-reply/README.md) are offered
+through machine-sync and Gate 6. The voice plugin owns installation for both
+hosts; project-init adds no project-specific speech configuration.
 
 This plugin holds three separate piles, and the difference matters.
 

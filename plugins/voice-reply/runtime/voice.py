@@ -16,16 +16,21 @@ import urllib.request
 import uuid
 import wave
 
-VERSION = "0.1.0"
+VERSION = "0.2.0"
 DEFAULTS = dict(provider="elevenlabs", voice_id="Fahco4VZzobUeiPqni1S",
                 model="eleven_flash_v2_5", speed=1.0, stability=0.5,
                 similarity_boost=0.75, style=0.0, use_speaker_boost=True)
 HELP = "Voice commands: voice on | voice off | voice status | voice read. Each is a standalone chat message."
 
 
-def root_path():
-    return Path(os.environ.get("TOOLKIT_VOICE_HOME") or
-                Path(os.environ.get("LOCALAPPDATA", Path.home())) / "ClaudeToolkit" / "voice-reply")
+def root_path(platform=None):
+    if os.environ.get("TOOLKIT_VOICE_HOME"):
+        return Path(os.environ["TOOLKIT_VOICE_HOME"])
+    if (platform or sys.platform) == "darwin":
+        base = Path.home() / "Library" / "Application Support"
+    else:
+        base = Path(os.environ.get("LOCALAPPDATA", Path.home()))
+    return base / "ClaudeToolkit" / "voice-reply"
 
 
 def read_json(path, default):
@@ -136,8 +141,9 @@ def validate_settings(value):
     return result
 
 
-def credential():
-    if os.name == "nt":
+def credential(platform=None):
+    platform = platform or sys.platform
+    if platform == "win32":
         import winreg
         try:
             with winreg.OpenKey(winreg.HKEY_CURRENT_USER, "Environment") as key:
@@ -145,6 +151,16 @@ def credential():
                 if isinstance(value, str) and value.strip():
                     return value.strip()
         except FileNotFoundError:
+            pass
+    elif platform == "darwin":
+        # Keychain item saved with `security add-generic-password`. Read per request; never logged.
+        try:
+            result = subprocess.run(["/usr/bin/security", "find-generic-password", "-s", "ELEVENLABS_API_KEY", "-w"],
+                                    stdin=subprocess.DEVNULL, capture_output=True, timeout=10)
+            value = result.stdout.decode("utf-8", "replace").strip()
+            if result.returncode == 0 and value:
+                return value
+        except (OSError, subprocess.SubprocessError):
             pass
     value = os.environ.get("ELEVENLABS_API_KEY", "").strip()
     if not value:
@@ -160,7 +176,7 @@ def generate(text, settings):
         "https://api.elevenlabs.io/v1/text-to-speech/" + settings["voice_id"] + "?output_format=pcm_24000",
         data=json.dumps(body).encode(), method="POST",
         headers={"xi-api-key": credential(), "Content-Type": "application/json"})
-    # Python loads Windows ROOT and CA stores. Never disable TLS verification.
+    # Python loads the platform trust store (Windows ROOT and CA, or OpenSSL on macOS). Never disable TLS verification.
     with urllib.request.urlopen(request, context=ssl.create_default_context(), timeout=30) as response:
         pcm = response.read(20_000_001)
     if not pcm or len(pcm) > 20_000_000 or len(pcm) % 2:
@@ -314,7 +330,6 @@ class Voice:
 
     @staticmethod
     def play(pcm, path, active):
-        import winsound
         path.parent.mkdir(parents=True, exist_ok=True)
         with wave.open(str(path), "wb") as output:
             output.setnchannels(1)
@@ -323,13 +338,42 @@ class Voice:
             output.writeframes(pcm)
         if not active():
             return
+        if os.name == "nt":
+            Voice.play_windows(path, len(pcm), active)
+        else:
+            Voice.play_mac(path, active)
+
+    @staticmethod
+    def play_windows(path, size, active):
+        import winsound
         try:
             winsound.PlaySound(str(path), winsound.SND_FILENAME | winsound.SND_ASYNC | winsound.SND_NODEFAULT)
-            deadline = time.monotonic() + len(pcm) / 48000 + .2
+            deadline = time.monotonic() + size / 48000 + .2
             while time.monotonic() < deadline and active():
                 time.sleep(.05)
         finally:
             winsound.PlaySound(None, 0)
+
+    @staticmethod
+    def play_mac(path, active, popen=subprocess.Popen):
+        # Each worker owns one afplay child, so OFF stops only this chat's sound.
+        player = popen(["/usr/bin/afplay", str(path)], stdin=subprocess.DEVNULL,
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        try:
+            while player.poll() is None:
+                if not active():
+                    return
+                time.sleep(.05)
+        finally:
+            if player.poll() is None:
+                player.terminate()
+                try:
+                    player.wait(timeout=2)
+                except subprocess.TimeoutExpired:
+                    player.kill()
+                    player.wait()
+        if player.returncode:
+            raise RuntimeError("Playback failed")
 
     def cancel_all(self):
         for path in (self.root / "chats").glob("*.json"):

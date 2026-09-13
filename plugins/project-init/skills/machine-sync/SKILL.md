@@ -94,10 +94,11 @@ Claude and Codex folders share content.
 
 ## Step 4: audit, changing nothing
 
-**Optional Windows voice replies.** When speech output is requested, or an
-existing voice install is found under LocalAppData/ClaudeToolkit/voice-reply,
-route to the optional `voice-reply` plugin's `voice-setup` skill and canonical
-README. Install that plugin at user scope if needed. Its installer owns the
+**Optional Windows and macOS voice replies.** When speech output is requested,
+or an existing voice install is found under
+`LocalAppData/ClaudeToolkit/voice-reply` on Windows or
+`~/Library/Application Support/ClaudeToolkit/voice-reply` on macOS, route to the
+optional `voice-reply` plugin's `voice-setup` skill and canonical README. Install that plugin at user scope if needed. Its installer owns the
 voice runtime, user hooks, discovery skill, and install manifest. Preview with
 `install` or `update`, then apply within the owner's existing authorization.
 Do not copy its code into this plugin, configure an MCP server, create project

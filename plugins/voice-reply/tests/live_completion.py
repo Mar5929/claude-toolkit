@@ -1,4 +1,4 @@
-"""Exercise actual final replies through native hooks, ElevenLabs, and Windows audio."""
+"""Exercise actual final replies through native hooks, ElevenLabs, and local audio."""
 import json
 import os
 from pathlib import Path
@@ -56,8 +56,9 @@ def main():
         args = [claude, "-p", "--input-format", "stream-json", "--output-format", "stream-json", "--verbose",
                 "--tools", "", "--setting-sources", "", "--settings", str(config), "--disable-slash-commands",
                 "--strict-mcp-config", "--mcp-config", '{"mcpServers":{}}']
+        flags = dict(creationflags=subprocess.CREATE_NO_WINDOW) if os.name == "nt" else {}
         process = subprocess.Popen(args, cwd=directory, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                   stderr=subprocess.DEVNULL, creationflags=subprocess.CREATE_NO_WINDOW)
+                                   stderr=subprocess.DEVNULL, **flags)
         results = queue.Queue()
         def read_results():
             for line in process.stdout:

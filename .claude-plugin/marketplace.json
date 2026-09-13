@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Personal, portable toolkit of reusable Claude systems: skills, rules, hooks, and templates shared across every project and device.",
-    "version": "0.111.0"
+    "version": "0.112.0"
   },
   "plugins": [
     {
@@ -52,7 +52,7 @@
     {
       "name": "voice-reply",
       "source": "./plugins/voice-reply",
-      "description": "Optional Windows speech output for Codex and Claude Code with independent chat switches and user-level setup."
+      "description": "Optional Windows and macOS speech output for Codex and Claude Code with independent chat switches and user-level setup."
     }
   ]
 }

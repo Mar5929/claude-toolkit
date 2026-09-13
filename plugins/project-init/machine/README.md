@@ -31,7 +31,7 @@ knowledge policy and does nothing when the manual is absent.
 
 ## What is in it
 
-Optional Windows speech output is owned by the complete
+Optional Windows and macOS speech output is owned by the complete
 [voice-reply system](../../voice-reply/README.md). `machine-sync` offers its
 installer separately from required machine rules. It installs user-level
 hooks and a discovery skill for both hosts; no project files are involved.
