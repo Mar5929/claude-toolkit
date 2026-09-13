@@ -1414,6 +1414,22 @@ required save approval. After approval, the write is checked against the real
 file template and destination, saved, and confirmed. This is an illustration,
 not an actual authentication decision for this toolkit.
 
+### Future design task: map requirements to implementation mechanisms
+
+**TODO — after the PRD requirements are finalized and approved:** perform a
+systematic architecture exercise that:
+
+- Maps each PRD requirement to the most appropriate implementation mechanism.
+- Evaluates existing skills, hooks, and related agent-guidance mechanisms
+  without assuming the current design is correct.
+- Refactors, combines, removes, or introduces skills and hooks where appropriate.
+- Favors the simplest modular design that satisfies the requirements and
+  preserves the agent's native reasoning, search, and file navigation.
+- Treats the existing implementation as a starting point, not a constraint.
+
+This is a future solution-design task. Do not perform the exercise during
+requirements refinement.
+
 ### Earlier options and questions for solution design
 
 The report's earlier memsearch, Mem0, session-memory services, `.memory/` layout,
