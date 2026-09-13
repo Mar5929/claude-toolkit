@@ -23,6 +23,6 @@ Push hold released; saved updates are published. Continue quick knowledge commit
 ## Remaining review
 
 - Finish Part 4, then Parts 5–6 and the complete flow. Reconcile the PRD and stale issue summary after approval.
-- Part 4: owner prefers summary-based save approval; current wording still requires exact text. Review that change before editing. Defaults plus project additions are clarified in R23. Remaining formats are pending.
+- Part 4 now uses approved summary-based saves. Reconcile PRD exact-text rules after full-flow approval. Defaults plus project additions are clarified in R23; remaining formats are pending.
 - Review `misc/SKILL (2).md` on `issue-269-second-brain-design`; it is an unpublished PRD skill draft.
 - Earlier [handoff](https://github.com/Mar5929/claude-toolkit/blob/issue-269-second-brain-design/misc/269-session-handoff.md). Related scopes: System Guide #304 and rules audit #305. Proposed paths and templates are not all implemented.

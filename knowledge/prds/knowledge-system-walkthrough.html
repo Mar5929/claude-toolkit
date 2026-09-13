@@ -394,11 +394,30 @@
         <div class="label">Is new approval needed for this exact update?</div>
         <div class="branch" id="prd-upkeep"><strong>Standing authority · Automatic PRD upkeep:</strong> after authorized human-agent work ships changes to behavior or requirements, update every applicable PRD, including the umbrella OS PRD when affected. Use the agreed scope and verified delivery evidence. No new save card or separate wording approval is needed. Continue through the pre-write and validation checks, then commit and push through the existing knowledge-save process. Routine success stays quiet; explicit publication holds still apply. A new decision or unexpected deviation from agreed behavior is brought to the owner rather than silently made into a requirement.</div>
         <div class="branch"><strong>No:</strong> use approval already covering the change, or an allowed operational update. Go directly to the <a href="#pre-write-check">pre-write check</a>; skip the proposal-response branches.</div>
-        <div class="branch"><strong>Yes:</strong> resolve material uncertainty through investigation or a specific owner question before proposing this save. Separate proposals from the answer with a divider and large destination headings: Proposed memory saves, Proposed PRD saves, and Proposed System Guide saves. Omit empty sections. Memory and PRD cards show a unique number and topic, Change, New wording of at most three sentences, and Your decision with an explicit approval question. Removal or status-only cards identify the affected content. System Guide uses its own proposal standard.</div>
+        <div class="branch"><strong>Yes:</strong> resolve material uncertainty through investigation or a specific owner question, then <a href="#present-proposed-saves">present a summary for approval</a>.</div>
         <div class="detail">“Remember this” starts the review and proposal; it does not approve the lasting-memory write.</div>
         <div class="detail">Current context, permitted mechanical repairs, index rebuilds, inbox upkeep, and selection-feedback upkeep have their defined operational exceptions. Their permission does not approve a lasting meaning change.</div>
         <div class="detail">A clear correction within authorized PRD refinement uses existing permission. New meaning suggested by the agent still needs agreement. A user’s explicit hold on writes or publication remains in force.</div>
       </div>
+      <div class="outcome">Only when new approval is needed ↓</div>
+      <section class="node owner" id="present-proposed-saves" aria-labelledby="present-saves-heading">
+        <div class="kind">Owner sees · Summary for approval</div>
+        <h2 id="present-saves-heading">Present proposed saves</h2>
+        <div class="detail">Separate proposals from the main answer with a divider and a large heading for each destination: <strong>Proposed memory saves</strong>, <strong>Proposed PRD saves</strong>, or <strong>Proposed System Guide saves</strong>. Show only sections with proposals. System Guide keeps its own proposal and approval rules.</div>
+        <div class="detail">Each memory or PRD card has a unique number, readable topic, the change being proposed, and a short summary of the meaning to save. Include every decision that matters and identify anything being replaced, removed, or taken out of current use. Routine metadata stays in optional details.</div>
+        <div class="detail">The owner approves the operation, meaning, and scope. Reading or approving the full text is optional. The agent may write fuller supporting context from the conversation and sources, but must not add unsupported facts, undisclosed decisions, or work outside the approved scope.</div>
+        <details open>
+          <summary>Example card · Illustrative account-access decision</summary>
+          <hr>
+          <h2>Proposed memory saves</h2>
+          <h3>1. Account access</h3>
+          <p><strong>Change:</strong> Update the existing account-access memory with the release decision.</p>
+          <p><strong>Summary:</strong> Keep the current sign-in provider for this release because switching now would delay launch. Revisit the choice after launch.</p>
+          <p><strong>Your decision:</strong> Save this understanding?</p>
+          <p>Approve, tell me what to change, or decline. With several proposals, select their numbers or explicitly approve all.</p>
+        </details>
+        <div class="detail">The summary is not a verbatim preview of the full entry. An unresolved question that affects its accuracy is addressed before this card appears; there is no unexplained uncertainty field.</div>
+      </section>
       <aside class="branch" aria-label="Proposal paths that stop or wait">
         <div class="kind">Exit this write path · No destination change</div>
         <div class="detail"><strong>No answer:</strong> retain the exact shown memory or PRD card as awaiting approval in the inbox. Other destinations use their pending workflow. Wait for the owner’s decision; continue other authorized work. Do not repeat an unchanged card each turn.</div>
@@ -408,8 +427,8 @@
       </aside>
       <section class="branch" aria-label="Proposal paths that authorize continuation">
         <div class="kind">Continue only with clear approval</div>
-        <div class="detail"><strong>Owner approves:</strong> retain the exact approval and scope. Retain useful memory-selection feedback, then continue to the pre-write check.</div>
-        <div class="detail"><strong>Owner approves edited wording:</strong> use those exact words within the approved scope, then continue. Approval covers the stated change; it does not approve an unrelated follow-up or unresolved assumption.</div>
+        <div class="detail"><strong>Owner approves:</strong> retain the exact shown summary and the approval of its operation, meaning, and scope. Retain useful memory-selection feedback, then continue to the pre-write check.</div>
+        <div class="detail"><strong>Owner corrects the summary and approves:</strong> use that corrected understanding as the approved scope. If the owner explicitly supplies wording to save verbatim, preserve those words. Neither approval permits an unrelated follow-up or unresolved assumption.</div>
       </section>
       <div class="outcome">Clear approval, existing scoped permission, or an allowed operational update ↓</div>
       <div class="node system" id="pre-write-check">
@@ -423,13 +442,13 @@
       <div class="node knowledge">
         <div class="kind">Required for an authorized applicable update · Agent</div>
         <div class="label">Write only the authorized change in its proper home</div>
-        <div class="detail">Maintain the existing file where appropriate. Retain useful history with clear status and dates. Apply the chosen destination’s update, retirement, deletion, and linking rules.</div>
+        <div class="detail">Maintain the existing file where appropriate. Write a faithful account of the approved summary, using supporting context from the conversation and sources. Preserve any explicitly required wording. Do not add new decisions or expand the approved scope. Retain useful history with clear status and dates, and follow the destination’s update, retirement, deletion, and linking rules.</div>
       </div>
       <div class="arrow" aria-hidden="true">↓</div>
       <div class="node system" id="save-completion-check">
         <div class="kind">Required after writing · Validation and completion</div>
         <div class="label">Check the saved result and complete required sharing</div>
-        <div class="detail">Read back the actual saved change and compare it with the authorized content. Check required fields, allowed values, size limits, and links. Rebuild applicable indexes and run the destination’s checks. An acknowledgement or valid YAML alone does not establish that the saved result is correct.</div>
+        <div class="detail">Read back the actual saved change. Confirm it matches the approved operation, meaning, and scope; verify supporting detail against its sources and preserve any explicitly required wording. Summary approval does not require the full entry to repeat the summary verbatim. Check required fields, allowed values, size limits, and links. Rebuild applicable indexes and run the destination’s checks. An acknowledgement or valid YAML alone does not establish that the saved result is correct.</div>
         <div class="detail">The normal memory and PRD save flow commits to the default branch and pushes before reporting publication complete. Other destinations use their own delivery workflow. An explicit publication hold is reported accurately.</div>
       </div>
       <div class="branch"><strong>Complete:</strong> routine automatic PRD upkeep needs no separate save notification. For other saves, follow the destination's response rules and tell the owner what was saved and where when required. An explicit update or status request receives an answer. Remove any completed inbox entry.</div>
@@ -500,7 +519,7 @@
       <div class="node knowledge">
         <div class="kind">Required · Preserve relevant pending state</div>
         <div class="label">Keep unanswered proposals and unfinished saves recoverable</div>
-        <div class="detail">Reread <code>knowledge/memory-inbox.md</code> before editing it. Keep any shown memory or PRD card, the current state, authority and scope, source, next step, and blocker. For automatic PRD upkeep with no card, retain the specific update owed and its authority and evidence links. Preserve other entries. Link from shared context where useful.</div>
+        <div class="detail">Reread <code>knowledge/memory-inbox.md</code> before editing it. Keep the exact shown memory or PRD summary card, the current state, authority and scope, source, next step, and blocker. Retain approved corrections and any explicit requirement to preserve wording verbatim. For automatic PRD upkeep with no card, retain the specific update owed and its authority and evidence links. Preserve other entries. Link from shared context where useful.</div>
         <div class="detail">Other destinations keep pending state through their own workflows. An approved unfinished save remains work to complete under existing approval.</div>
       </div>
       <div class="arrow" aria-hidden="true">↓</div>
