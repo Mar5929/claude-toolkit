@@ -12,7 +12,7 @@ Stage `02-refinement`. `knowledge/prds/knowledge-system.md` has 30 requirements 
 
 ## Current work
 
-Next milestone: finalize the [walkthrough](prds/knowledge-system-walkthrough.html). The owner places Parts 1–3 behind us and is reviewing Part 4 (review and save). Finish it, then Parts 5–6, then approve the full flow before general PRD reconciliation. Keep the interview on that sequence; park unrelated issues. Explain an edit’s purpose, placement, and conflicts before changing the PRD.
+Next milestone: finalize the [walkthrough](prds/knowledge-system-walkthrough.html). The owner places Parts 1–3 behind us and is reviewing Part 4 (decide what to save). Finish it, then Parts 5–6, then approve the full flow before general PRD reconciliation. Keep the interview on that sequence; park unrelated issues. Explain an edit’s purpose, placement, and conflicts before changing the PRD.
 
 Use plain technical English and useful examples. Preserve native agent judgment with focused checkpoints. Broader wording cleanup remains.
 

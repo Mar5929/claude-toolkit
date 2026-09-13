@@ -69,12 +69,12 @@
     <summary>Workflow stages<span class="stage-position" id="stage-position" role="status" aria-live="polite">Viewing the overview</span></summary>
     <nav class="stage-links" aria-label="Diagram parts">
       <a class="overview-link" href="#flow-overview" data-stage="Overview" aria-current="location">Full flow overview</a>
-      <a href="#part-1" data-stage="1 of 6 · Startup"><span class="stage-number" aria-hidden="true">1</span>Startup</a>
-      <a href="#part-2" data-stage="2 of 6 · Shared context"><span class="stage-number" aria-hidden="true">2</span>Shared context</a>
-      <a href="#part-3" data-stage="3 of 6 · Use knowledge"><span class="stage-number" aria-hidden="true">3</span>Use knowledge during work</a>
-      <a href="#part-4" data-stage="4 of 6 · Review and write"><span class="stage-number" aria-hidden="true">4</span>Review and write updates</a>
-      <a href="#part-5" data-stage="5 of 6 · Repair and cleanup"><span class="stage-number" aria-hidden="true">5</span>Repair and cleanup</a>
-      <a href="#part-6" data-stage="6 of 6 · Handoff and recovery"><span class="stage-number" aria-hidden="true">6</span>Handoff and recovery</a>
+      <a href="#part-1" data-stage="1 of 6 · Read startup files"><span class="stage-number" aria-hidden="true">1</span>Read startup files</a>
+      <a href="#part-2" data-stage="2 of 6 · Request and current work"><span class="stage-number" aria-hidden="true">2</span>Request and current work</a>
+      <a href="#part-3" data-stage="3 of 6 · Use relevant knowledge"><span class="stage-number" aria-hidden="true">3</span>Use relevant knowledge</a>
+      <a href="#part-4" data-stage="4 of 6 · Decide what to save"><span class="stage-number" aria-hidden="true">4</span>Decide what to save</a>
+      <a href="#part-5" data-stage="5 of 6 · Fix problems when needed"><span class="stage-number" aria-hidden="true">5</span>Fix problems when needed</a>
+      <a href="#part-6" data-stage="6 of 6 · Hand off and resume"><span class="stage-number" aria-hidden="true">6</span>Hand off and resume</a>
     </nav>
   </details>
 </aside>
@@ -90,22 +90,22 @@
     <p class="flow-note"><strong>Component ownership:</strong> the knowledge system operates within the toolkit OS. Steps marked “Separate process” or “Separate plugin” use that component's own rules and records, then return the result to this flow. They do not become new knowledge-system responsibilities.</p>
     <section class="overview" id="flow-overview" aria-label="Whole-flow overview">
       <h2>The connected flow</h2>
-      <div class="overview-step"><a href="#part-1">New session: required startup reads and confirmation</a></div>
+      <div class="overview-step"><a href="#part-1">Read the required startup files → confirm the manual was read</a></div>
       <div class="arrow" aria-hidden="true">↓</div>
-      <div class="overview-step"><a href="#part-2">Shared context → request → memory relevance → optional work item</a></div>
+      <div class="overview-step"><a href="#part-2">Understand the request and current work → consider relevant memory → use a work item if needed</a></div>
       <div class="arrow" aria-hidden="true">↓</div>
-      <div class="overview-step"><a href="#part-3">Use relevant evidence → answer or act → maintain changed work state</a></div>
+      <div class="overview-step"><a href="#part-3">Use relevant knowledge to do the work → keep changed work records current</a></div>
       <div class="arrow" aria-hidden="true">↓</div>
-      <div class="overview-step"><a href="#part-4">Review updates → route → applicable approval → write and verify</a></div>
+      <div class="overview-step"><a href="#part-4">Decide what to save from the work → get any needed approval → save and check</a></div>
       <div class="arrow" aria-hidden="true">↓</div>
-      <div class="overview-step"><a href="#next-step">Continue working</a> or <a href="#part-6">prepare a handoff → recover in the next session</a></div>
-      <div class="overview-branch"><a href="#part-5">Repair or cleanup when needed</a> → validate → return to the interrupted step.</div>
+      <div class="overview-step"><a href="#next-step">Continue working</a> or <a href="#part-6">prepare a handoff → resume the work</a></div>
+      <div class="overview-branch"><a href="#part-5">Fix knowledge problems when needed</a> → check the result → return to the interrupted step.</div>
       <div class="overview-branch"><a href="#pending-recovery">Unanswered or unfinished saves</a> → preserve their state → resume only the authorized path.</div>
     </section>
   </header>
   <section id="part-1" aria-labelledby="startup-heading">
     <div class="eyebrow">Draft</div>
-    <h2 id="startup-heading">1. Start the session</h2>
+    <h2 id="startup-heading">1. Read the required startup files</h2>
     <section aria-label="Startup flow">
     <div class="node owner">
       <div class="kind">Owner</div>
@@ -168,7 +168,7 @@
   <div class="arrow connector" aria-hidden="true">↓</div>
   <section id="part-2" aria-labelledby="context-heading">
     <div class="eyebrow">Draft</div>
-    <h2 id="context-heading">2. Understand where the project stands</h2>
+    <h2 id="context-heading">2. Understand the request and current work</h2>
     <section aria-label="Shared-context flow">
         <div class="node">
       <div class="kind">Required startup read · Agent</div>
@@ -236,7 +236,7 @@
   <div class="arrow connector" aria-hidden="true">↓</div>
   <section id="part-3" aria-labelledby="work-heading">
     <div class="eyebrow">Next part · Draft for review</div>
-    <h2 id="work-heading">3. Use knowledge while doing the work</h2>
+    <h2 id="work-heading">3. Use relevant knowledge to do the work</h2>
     <section aria-label="Knowledge use and work flow">
       <div class="node knowledge">
         <div class="kind">Same request · Continue from Part 2</div>
@@ -314,8 +314,8 @@
   <div class="arrow connector" aria-hidden="true">↓</div>
   <section id="part-4" aria-labelledby="save-heading">
     <div class="eyebrow">Next part · Draft for review</div>
-    <h2 id="save-heading">4. Review and write updates</h2>
-    <p class="flow-note">This flow also connects to earlier parts: resolving terminology, finding outdated content, changing shared context, settling requirements, or learning something useful during work.</p>
+    <h2 id="save-heading">4. Decide what to save from the work</h2>
+    <p class="flow-note">Review what was learned, decided, or changed during the work. Decide whether any knowledge record needs an update. If nothing needs saving, continue working. This review can also happen during earlier parts.</p>
     <section aria-label="Update review and save flow">
       <div class="node system">
         <div class="kind">Required review moments · System guidance and checks</div>
@@ -468,7 +468,7 @@
   </div>
   <section id="part-5" class="section-gap" aria-labelledby="repair-heading">
     <div class="eyebrow">New section · Draft for review</div>
-    <h2 id="repair-heading">5. Repair or clean up when needed</h2>
+    <h2 id="repair-heading">5. Fix knowledge problems when needed</h2>
     <section aria-label="Repair and cleanup flow">
       <div class="node knowledge">
         <div class="kind">Conditional entry · During any earlier step</div>
@@ -508,7 +508,7 @@
   </section>
   <section id="part-6" class="section-gap" aria-labelledby="handoff-heading">
     <div class="eyebrow">New section · Draft for review</div>
-    <h2 id="handoff-heading">6. Hand off, recover, and continue</h2>
+    <h2 id="handoff-heading">6. Prepare a handoff and resume the work</h2>
     <section aria-label="Handoff and recovery flow">
       <div class="node system">
         <div class="kind">Required at a planned handoff or context clear</div>
