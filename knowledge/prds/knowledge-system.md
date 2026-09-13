@@ -1260,9 +1260,15 @@ result, and reports completion. A later session follows the surviving source.
 
 ## 23. Learning what to save
 
-The agent uses the owner's project-specific feedback to improve later memory
-proposals. The owner should not have to repeat the same correction in each
-session.
+The toolkit comes with default criteria for what counts as memory and what
+does not, defined in requirements 11 and 12. The agent applies those defaults
+from the first session, even when the project has no memory-selection feedback.
+
+Learning adds project-specific criteria on top of those defaults: additional
+kinds of information worth keeping and additional filters for what is not
+useful in this project. The defaults remain the starting point; the owner does
+not have to teach them again. The agent uses the owner's feedback to improve
+later proposals without requiring the same correction in each session.
 
 - Before proposing memory, consider relevant prior feedback about what the owner accepts or rejects. Drop or reshape a similar candidate when that feedback applies.
 - Preserve useful feedback across sessions, including the owner's stated reason when one was given. Do not invent a reason or infer a general preference from silence.
@@ -1275,8 +1281,10 @@ The storage location, record format, and mechanisms for reading, recording,
 and consolidating feedback are solution-design choices. The existing approach
 is described under [Potential paths to explore](#current-implementation-open-to-refactoring).
 
-**Check:** reject a proposal and explain why. In a later session, a similar
-candidate is dropped or reshaped using that feedback. Reject another without
+**Check:** start a project with no selection feedback. The agent applies the
+toolkit defaults. Add a project-specific inclusion or exclusion: later
+candidates reflect it alongside those defaults. Reject a proposal and explain
+why. In a later session, a similar candidate is dropped or reshaped using that feedback. Reject another without
 a reason: the agent does not invent one. No particular command or log format
 is needed to pass this check.
 
