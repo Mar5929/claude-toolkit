@@ -25,8 +25,8 @@ files into a project, so every project it touches opts in deliberately.
   3. Two independent choices: the optional System Guide for existing-system
      explanations, and the packaged project knowledge system
   4. Optional mechanical knowledge aids
-  5. An optional owner-written SOUL.md, plus CLAUDE.md, AGENTS.md, and
-     `.claude/rules/`
+  5. An optional owner-written SOUL.md, plus CLAUDE.md, AGENTS.md,
+     `.claude/rules/`, and the toolkit's Plain English output style
   6. Optional standalone toolkit skills, offered from the `session-skills` plugin
   It asks before acting, recommends a per-stack layout, and copies in the
   standard rule files that every agent receives through `.claude/rules/`.
@@ -99,6 +99,10 @@ reads the same folder, so none of it is project-init's property; it lives here
 because a plugin ships only the files inside its own folder, so a `library/` at
 the repository root would disappear the moment the plugin is installed.
 
+- [`library/output-styles/`](library/output-styles/README.md): Plain English,
+  the only output style the toolkit ships. Project setup installs and selects
+  it by default; sync checks the file and selection. Deliberate owner choices
+  of another style are preserved.
 - `library/rules/general/` (with its own `README.md` index): the standard
   `.claude/rules` files copied into every project, marked default ON or
   conditional. That index also logs the rules the owner has removed, so a

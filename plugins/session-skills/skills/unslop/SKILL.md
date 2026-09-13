@@ -29,13 +29,14 @@ go-ahead.
 
 ## Run it in this order
 
-1. **Read the project's active output style first.** Find it at
-   `.claude/output-styles/<name>.md`, where `<name>` is the `outputStyle` value
-   in `.claude/settings.local.json`, then `.claude/settings.json`, then
-   `~/.claude/settings.json`. Where a pattern below and that style disagree, the
-   style wins, because it is this project's own voice. Say in one line which
-   rule you followed. Where there is no style file, the patterns below stand on
-   their own.
+1. **Read the project's active output style first.** Read `outputStyle` from
+   `.claude/settings.local.json`, then `.claude/settings.json`, then
+   `~/.claude/settings.json`. Match it to the frontmatter `name` of a file in
+   `.claude/output-styles/` or `~/.claude/output-styles/`, preferring the project
+   copy. Use the filename stem only if the file has no `name`. `Plain English`
+   names `plain-english.md`, not `Plain English.md`. Where a pattern below and
+   that style disagree, the style wins. Say in one line which rule you followed.
+   Where there is no style file, the patterns below stand on their own.
 2. **Scan for the patterns.** Work through the lists.
 3. **Rewrite.** Keep the meaning. Match the tone the writing was aiming for.
 4. **Put a voice back in.** See "Adding a voice" below. This half is not

@@ -241,8 +241,9 @@ Issue #245 then removed the `plain-language` style itself and switched every
 toolkit project to Claude Code's built-in `Concise` style. Issue #271 brought
 the output-styles folder back with one short optional file, `plain-english.md`,
 and this repo turned it on for itself on 2026-09-03 at the owner's request. It
-is nine lines, well under the 50-line ceiling, and it is delivered once at
-session start like any other style. Nothing per-message enforces voice at any
+was nine lines when introduced. Plain English is now the toolkit's standard
+selection; the current file includes the expanded clarity guidance. It is
+delivered once at session start like any other style. Nothing per-message enforces voice at any
 level, and helper agents still receive no style at all. A rule,
 `follow-the-output-style.md`, used to send them to the file above. The owner
 removed it on 2026-09-02, so a helper agent gets a voice only when its own

@@ -132,11 +132,10 @@ These are not duplicated here. Go to the index that owns them:
   project): [general-rules/README.md](../plugins/project-init/library/rules/general/README.md).
   Marks active rules default ON or conditional. Retired v1 examples are not
   part of this installable library.
-- **Output style**: there is no index, because the toolkit ships no style. Every
-  project selects Claude Code's built-in `Concise` style, written into the
-  project's committed settings by `project-init` Gate 5. The hand-written
-  `plain-language` style and its `library/output-styles/` folder were removed in
-  #245.
+- **Output style**: [output-styles/README.md](../plugins/project-init/library/output-styles/README.md)
+  owns installation and selection of `Plain English`, the only style the
+  toolkit ships and its default for project setup. Deliberate owner choices
+  of another style are preserved.
 - **Salesforce rules**: [salesforce-rules/README.md](../plugins/project-init/library/rules/salesforce/README.md), including the boundary that puts client artifacts in `delivery/` and curated working context in `knowledge/`.
 - **Salesforce dependency graph**: the tool and its own `README.md` live at
   `plugins/project-init/library/tools/kb/`; the install
@@ -292,8 +291,8 @@ The genuine watch-items are called out at the end.
   that chose a GitHub board, Linear, Jira, or the BMAD method. It used to sit
   under a tracker-neutral rule, `spec-before-you-build`, which was removed from
   the toolkit on 2026-08-31.
-- **hooks-library versus the output style.** The built-in `Concise` style is
-  canonical and says what good writing is. The toolkit used to ship two hooks
+- **hooks-library versus the output style.** The toolkit's `Plain English`
+  style owns the standing writing guidance. The toolkit used to ship two hooks
   that reinforced a style of its own: `style-reminder` re-stated it on every
   message and `writing-guard` blocked a finished reply over an em dash or a
   section sign. Both were removed in August 2026 as per-message overhead, and
@@ -367,8 +366,8 @@ The genuine watch-items are called out at the end.
   everything is written. `explain-simply` is the escape hatch for the times that
   was not enough, on material that is technical by nature. It checks the active
   output style before writing, so it plainly restates rather than switching
-  voice. With the built-in `Concise` style there is no file to read and it
-  simply writes plainly; on `plain-english` there is, and it follows it.
+  voice. It reads the selected `Plain English` file. If the owner deliberately
+  selected a built-in host style instead, there is no style file to read.
 - **explain-simply the skill versus the plain-english style.** Same voice,
   opposite defaults, and neither replaces the other. The skill is asked for: the
   owner reaches for it when one answer did not land, and it re-explains material
@@ -420,30 +419,13 @@ The genuine watch-items are called out at the end.
   session on a file that `project-init` writes and `project-sync` audits, and
   `thin-claudemd.md` now owns the CLAUDE.md structure at the moment the file is
   written.
-- **Voice is not a rule, and is no longer the toolkit's to ship.** How Claude
-  writes and replies was four rule files, then three, then a single
-  hand-written output style, and is now Claude Code's built-in `Concise` style,
-  which the toolkit selects but does not author. The path
-  there was one long consolidation: `lead-with-the-answer`,
-  `close-with-the-ask`, `quiet-while-working`, and `answer-last-question-box`
-  merged into `how-to-reply`; then `how-to-reply`, `writing-and-language`, and
-  `treat-owner-as-non-technical` were retired in favor of the style. The reason
-  is delivery, not content. A rule file is read once at session start, and
-  measuring real sessions showed the voice rules were the most-broken in the
-  library: em dashes once per 1.8 messages, staying quiet and closing with the
-  next step broken in 56 to 60 percent of turns.
-  `define-your-terms` was the fourth
-  rule to go, folded into the style by #102. Then #245 removed the
-  hand-written style too: the owner reads the built-in `Concise` voice
-  everywhere else, and maintaining a second one meant a file nobody selected.
-  Its index had set a 50-line working ceiling that the file had passed by more
-  than three times.
-  **A style folder ships again, and it is not #245 undone.** Issue #271 added
-  `library/output-styles/` back with one file, `plain-english.md`, nine lines
-  and off by default. #245 removed a 183-line default nobody had selected; #271
-  added a short optional one for the projects that ask. `Concise` is still what
-  every project gets. Judge anything added to that folder against the same
-  ceiling.
+- **Voice belongs to the output style.** `Plain English` is the only style
+  the toolkit ships and the default for project setup. The
+  [output styles index](../plugins/project-init/library/output-styles/README.md)
+  owns installation and selection; deliberate owner choices are preserved.
+  Earlier writing rules were consolidated into `plain-language`, removed in
+  #245, and followed by the optional `plain-english` style in #271. Plain English
+  is now the standard selection. Concise remains a Claude Code built-in.
   **The per-message enforcement, and what became of it.** Two hooks used to
   reinforce the style: `style-reminder` re-stated it on every message, and
   `writing-guard` blocked a finished reply containing an em dash or a section

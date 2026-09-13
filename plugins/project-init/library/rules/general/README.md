@@ -66,9 +66,10 @@ How Claude writes and replies used to live here in four files:
 removed in favor of an output style.
 
 Voice now lives in one place: [`../../output-styles/`](../../output-styles/README.md).
-Every project selects Claude Code's built-in `Concise` style, written into the
-project's committed settings by `project-init` Gate 5. `plain-english.md` is the
-one alternative the toolkit ships, offered per project and never on by default.
+`Plain English` is the only style the toolkit ships. `project-init` Gate 5
+installs its file and selects it by default; `project-sync` checks both.
+Preserve a deliberate owner choice of another style. Claude Code's built-in
+styles are host options, not toolkit defaults.
 
 Do not add a voice rule to this folder. This folder is for how Claude *works*,
 not how it *talks*.

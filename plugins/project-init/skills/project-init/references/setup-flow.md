@@ -280,20 +280,17 @@ so they always know where they are.
 - Write a tools section from what the project actually runs: MCP servers,
   generated graphs or indexes, build, test, and deploy commands. One row each,
   naming the command and the file that holds the detail.
-- Select Claude Code's built-in `Concise` output style (default ON): set
-  `"outputStyle": "Concise"` in the committed `.claude/settings.json`. Copy no
-  style file. `Concise` is built into Claude Code. There are no voice rules in
-  `.claude/rules/` either. Offer the same setting in
-  `~/.claude/settings.json` if the owner wants this voice in every repository on
-  the machine. Say that it starts on the owner's next session, and that a helper
-  agent never receives an output style, so a helper agent writing a commit
-  message or a document falls back to writing plainly.
-- Offer `plain-english` as the alternative (default OFF), from
-  `library/output-styles/`. It answers as if the reader is five years old: plain
-  everyday words, no jargon, no figures of speech, bullet points where they
-  help. Ask once and move on. If the owner takes it, copy the file to
-  `.claude/output-styles/plain-english.md` and set
-  `"outputStyle": "Plain English"` in place of `Concise`, never alongside it.
+- Install and select the toolkit's `Plain English` output style (default ON).
+  Copy `library/output-styles/plain-english.md` to
+  `.claude/output-styles/plain-english.md` and set `"outputStyle": "Plain English"`
+  in the committed `.claude/settings.json`. Preserve an owner's deliberate
+  choice of another style. Plain English is the only style the toolkit ships;
+  Claude Code's built-in styles are host options, not toolkit defaults.
+  Do not add voice rules to `.claude/rules/`. Offer the same style file and
+  selection under `~/.claude/` if the owner wants it across the machine.
+  It takes effect in the next session. Helper agents writing owner-facing prose
+  need writing guidance in their own definitions. See
+  `library/output-styles/README.md` for installation details.
 - When project knowledge is installed, keep the route small. Both hosts register
   the loader for `SOUL.md`, `knowledge/README.md`, `knowledge/project.md`,
   `knowledge/current.md`, and the two index entry lists. `CLAUDE.md` says to

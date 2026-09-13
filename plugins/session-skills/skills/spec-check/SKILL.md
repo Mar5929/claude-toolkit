@@ -92,9 +92,10 @@ quietly carry context from the removed text back into the build.
 
 ## Voice
 
-Read the project's active output style before writing anything the owner
-reads, so the flags match the rest of the project. Find it at
-`.claude/output-styles/<name>.md`, where `<name>` is the `outputStyle` value in
-`.claude/settings.local.json`, then `.claude/settings.json`, then
-`~/.claude/settings.json`. If there is no such file, plain short sentences are
-enough.
+Read `outputStyle` from `.claude/settings.local.json`, then
+`.claude/settings.json`, then `~/.claude/settings.json`. Match that value to a
+style file's frontmatter `name` in `.claude/output-styles/` or
+`~/.claude/output-styles/`, preferring the project copy. Use the filename stem
+only when the file has no `name`. `Plain English` names `plain-english.md`;
+it does not name `Plain English.md`. Read the matching file and follow it. If there is no
+style file, plain short sentences are enough.
