@@ -129,6 +129,7 @@
       <div class="kind">Required · System guidance</div>
       <div class="label">Deliver the required startup reading steps to the agent</div>
       <div class="detail">The guidance must reach the agent before the reads below. The three files must be read in this order.</div>
+      <div class="detail"><strong>Throughout this flow:</strong> applicable instructions govern the first relevant read or action, including Part 2’s memory lookup and work tracking. Reuse current guidance already in context. Read any additional applicable folder or skill instructions before the action they govern.</div>
     </div>
     <div class="arrow" aria-hidden="true">↓</div>
     <div class="node knowledge">
@@ -246,13 +247,12 @@
       <div class="node system">
         <div class="kind">Required checkpoint · Guidance and completed steps</div>
         <div class="label">Confirm the applicable guidance is available and followed</div>
-        <div class="detail">Reuse current guidance already in context. Recover missing guidance and address missed required steps. The agent chooses queries, tools, and investigation depth, and judges evidence. This checkpoint does not prescribe a search script or a search-quality scorer.</div>
+        <div class="detail">Carry forward instructions and completed checks from earlier parts. Recover missing guidance before the action it governs and address missed required steps. The agent chooses queries, tools, and investigation depth, and judges evidence. This checkpoint does not prescribe a search script or a search-quality scorer.</div>
       </div>
       <div class="arrow" aria-hidden="true">↓</div>
       <div class="node knowledge">
         <div class="kind">Required · Agent interprets the request</div>
-        <div class="label">Use the project’s meanings and applicable instructions</div>
-        <div class="detail">Apply current rules already in context. Read missing applicable root or folder instructions. When a procedure applies, read its skill instructions before performing it.</div>
+        <div class="label">Use the project’s meanings</div>
         <div class="branch"><strong>If shorthand needs resolving:</strong> use <code>knowledge/memory/memory-entries/terminology-glossary.md</code> and relevant context. Reuse known, current meanings. Ask only about remaining ambiguity that could change the answer.</div>
         <div class="detail">A useful recurring term can enter the <a href="#part-4">update review in Part 4</a> for a glossary proposal.</div>
         <div class="detail">Instructions govern the work; the glossary explains terms. Claims about existing behavior need supporting evidence.</div>
@@ -328,7 +328,7 @@
         <div class="kind">Required before proposing or writing · Agent</div>
         <div class="label">Establish the current rules for the proposed update</div>
         <div class="detail"><code>knowledge/README.md</code> explains each information home and points to its detailed instructions. Before the operation, establish what belongs there, what stays out, the file format and fields, the writing standard, approval, and required checks.</div>
-        <div class="detail">Read the applicable project output style before preparing a proposal or writing saved content. Apply its language and presentation rules to both the proposal and the prose saved in memories, PRDs, and other destinations. Reuse it while it remains current and available. Keep required file structure, metadata, exact names, and explicitly requested wording intact. Explain necessary technical terms; brevity must not remove important meaning. Reference the style instead of copying its rules into each knowledge procedure.</div>
+        <div class="detail">Read the applicable project output style before preparing a proposal or writing saved content. Apply its language and presentation rules to text the agent writes in proposals, memories, PRDs, and other destinations. Reuse it while it remains current and available. Preserve verbatim quotations, captured outside documentation, and other original source material. Keep required file structure, metadata, exact names, and explicitly requested wording intact. Explain necessary technical terms; brevity must not remove important meaning. Reference the style instead of copying its rules into each knowledge procedure.</div>
         <div class="detail">Reuse guidance while it remains available and current; recover missing guidance before proceeding. The system must bring back the relevant guidance after context loss or a task change.</div>
         <div class="detail">Before gathering memory candidates, consider relevant prior feedback from the owner. The storage and learning mechanism are chosen during solution design.</div>
       </div>
@@ -376,7 +376,7 @@
         </details>
         <details>
           <summary>File formats and YAML fields the agent must follow</summary>
-          <div class="branch"><strong>Long-term memory:</strong> one coherent Markdown file per topic by default. When a topic becomes too large, recommend splitting it into coherent subtopic files in one topic folder. Apply the split after required approval. Keep related context together; do not create one file per fact. Each file uses YAML frontmatter. Required fields: <code>summary</code>, <code>group</code>, <code>type</code>, <code>status</code>, <code>source</code>, <code>context</code>, <code>confidence</code>, <code>created_at</code>, <code>updated_at</code>, <code>tags</code>, <code>approved_by</code>, <code>approval_date</code>.
+          <div class="branch"><strong>Long-term memory:</strong> one coherent Markdown file per topic by default. Keep related context together; do not create one file per fact. Recommend splitting into coherent subtopic files in one topic folder when it would make the information easier to find, understand, or use. Apply the split after required approval and preserve the approved meaning. Memory files have no fixed character limit. Each file uses YAML frontmatter. Required fields: <code>summary</code>, <code>group</code>, <code>type</code>, <code>status</code>, <code>source</code>, <code>context</code>, <code>confidence</code>, <code>created_at</code>, <code>updated_at</code>, <code>tags</code>, <code>approved_by</code>, <code>approval_date</code>.
             <div class="detail"><code>type</code>: fact, decision, event, context, constraint. <code>status</code>: current, superseded, retired. <code>confidence</code>: observed, reported, inferred. <code>tags</code>: a free-form YAML list of strings.</div>
             <div class="detail">Dates use <code>YYYY-MM-DD</code>. Preserve the creation date; an update date is not proof of verification. Optional fields, used only when applicable: <code>confirmed_at</code>, <code>source_quote</code>, <code>effective_from</code>, <code>effective_to</code>, <code>project</code>, <code>work_item</code>, <code>supersedes</code>, <code>superseded_by</code>, <code>related_memories</code>.</div>
           </div>
@@ -385,7 +385,7 @@
           <div class="branch"><strong>Shared context:</strong> a concise dated overview with objectives, blockers, next steps, and links. Preserve other sessions’ work. It is rewritten to reflect current state.</div>
           <div class="branch"><strong>Pending inbox:</strong> stable reference, destination and operation, exact card when one was shown, source and date, last update, state, next step or blocker, and separate authority details. For automatic PRD upkeep, preserve the specific update owed and links to its authority and delivery evidence; do not invent a card. Pending content stays outside the memory and PRD indexes.</div>
           <div class="branch"><strong>Memory-selection feedback:</strong> preserve useful owner feedback and stated reasons across sessions. Do not invent reasons. Its record format is a design choice.</div>
-          <div class="branch"><strong>Size checks in the proposed system:</strong> each index source's summary is under 200 characters; each memory file and the shared-context file is under 5,000 characters. The memory-file limit applies to each file in a topic folder. A failed limit never permits silently cutting approved meaning.</div>
+          <div class="branch"><strong>Size checks in the proposed system:</strong> each index source's summary is under 200 characters; the shared-context file is under 5,000 characters. A failed limit never permits silently cutting approved meaning.</div>
           <div class="branch"><strong>System Guide, skills, instructions, tracker, and other destinations:</strong> open their own current template and field rules. The knowledge manual points to those rules; a memory template is not applied to every file.</div>
         </details>
       </div>
@@ -449,7 +449,7 @@
       <div class="node system" id="save-completion-check">
         <div class="kind">Required after writing · Validation and completion</div>
         <div class="label">Check the saved result and complete required sharing</div>
-        <div class="detail">Read back the actual saved change. Confirm it matches the approved operation, meaning, and scope; verify supporting detail against its sources and preserve any explicitly required wording. Summary approval does not require the full entry to repeat the summary verbatim. Check the saved prose against the applicable output style, along with required fields, allowed values, size limits, and links. Rebuild applicable indexes and run the destination’s checks. An acknowledgement or valid YAML alone does not establish that the saved result is correct.</div>
+        <div class="detail">Read back the actual saved change. Confirm it matches the approved operation, meaning, and scope; verify supporting detail against its sources and preserve any explicitly required wording. Summary approval does not require the full entry to repeat the summary verbatim. Check text written by the agent against the applicable output style, along with required fields, allowed values, size limits, and links. Rebuild applicable indexes and run the destination’s checks. An acknowledgement or valid YAML alone does not establish that the saved result is correct.</div>
         <div class="detail">The normal memory and PRD save flow commits to the default branch and pushes before reporting publication complete. Other destinations use their own delivery workflow. An explicit publication hold is reported accurately.</div>
       </div>
       <div class="branch"><strong>Complete:</strong> routine automatic PRD upkeep needs no separate save notification. For other saves, follow the destination's response rules and tell the owner what was saved and where when required. An explicit update or status request receives an answer. Remove any completed inbox entry.</div>
