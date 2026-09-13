@@ -8,7 +8,9 @@
   :root { color-scheme:light dark; --page:light-dark(#fafafa,#17191c); --text:light-dark(#202326,#e8eaed); --muted:light-dark(#58616a,#aab3bc); --line:light-dark(#c7cdd3,#515961); --native:light-dark(#eef0f3,#272c33); --knowledge:light-dark(#eaf2ed,#21352a); --owner:light-dark(#edf1f8,#263248); }
   * { box-sizing:border-box; }
   body { margin:0; background:var(--page); color:var(--text); font:16px/1.45 system-ui,-apple-system,sans-serif; }
-  main { max-width:650px; margin:auto; padding:28px 20px 36px; }
+  .walkthrough-layout { display:grid; grid-template-columns:220px minmax(0,650px); gap:28px; max-width:938px; margin:auto; padding:0 20px; align-items:start; }
+  main { min-width:0; padding:28px 0 36px; }
+  [id] { scroll-margin-top:var(--navigation-offset,24px); }
   header { margin-bottom:28px; }
   .eyebrow { font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }
   h1 { font-size:25px; line-height:1.25; font-weight:600; margin:6px 0; }
@@ -29,7 +31,16 @@
   .branch { margin:12px 0 0 18px; padding:8px 0 8px 14px; border-left:2px solid var(--line); font-size:14px; }
   .branch strong { font-weight:500; }
   footer { margin-top:24px; padding-top:14px; border-top:1px solid var(--line); font-size:14px; color:var(--muted); }
-  nav { display:flex; flex-wrap:wrap; gap:16px; margin-top:14px; font-size:14px; }
+  .stage-sidebar { position:sticky; top:24px; z-index:10; margin-top:28px; border:1px solid var(--line); border-radius:12px; background:var(--page); box-shadow:0 6px 20px light-dark(#2023260d,#00000026); }
+  .stage-sidebar details { margin:0; }
+  .stage-sidebar summary { padding:16px; font-size:14px; }
+  .stage-position { display:block; min-height:calc(2.9em + 6px); padding-top:6px; color:var(--muted); font-size:13px; font-weight:400; }
+  .stage-links { display:grid; gap:4px; padding:0 10px 12px; max-height:calc(100dvh -150px); overflow-y:auto; }
+  .stage-links a { display:flex; align-items:center; gap:10px; min-height:44px; padding:8px 10px; border-left:3px solid transparent; border-radius:6px; font-size:14px; line-height:1.35; text-decoration:none; }
+  .stage-links a:hover { background:var(--native); }
+  .stage-links a[aria-current="location"] { background:var(--knowledge); border-left-color:var(--text); font-weight:500; }
+  .stage-number { flex:0 0 22px; display:grid; place-items:center; width:22px; height:22px; border:1px solid var(--line); border-radius:50%; font-size:12px; font-variant-numeric:tabular-nums; }
+  .stage-links .overview-link { margin-bottom:4px; border-bottom:1px solid var(--line); border-radius:0; }
   a { color:inherit; text-underline-offset:3px; }
   details { margin-top:14px; font-size:14px; }
   summary { cursor:pointer; font-weight:500; padding:8px 0; }
@@ -41,10 +52,32 @@
   .overview .arrow { height:20px; font-size:18px; }
   .overview-branch { margin-top:12px; padding-left:12px; border-left:2px solid var(--line); }
   .section-gap { margin-top:36px; }
-  @media (max-width:360px) { main { padding:20px 12px; } .node { padding:14px; } }
+  @media (max-width:700px) {
+    .walkthrough-layout { display:block; padding:0 16px; }
+    .stage-sidebar { top:0; margin:0 -4px; border-radius:0 0 12px 12px; }
+    .stage-sidebar summary { padding:12px 14px; }
+    .stage-links { max-height:50dvh; }
+    main { padding-top:24px; }
+  }
+  @media (max-width:360px) { .walkthrough-layout { padding:0 12px; } .node { padding:14px; } }
 </style>
 </head>
 <body>
+<div class="walkthrough-layout">
+<aside class="stage-sidebar" aria-label="Walkthrough navigation">
+  <details id="stage-menu" open>
+    <summary>Workflow stages<span class="stage-position" id="stage-position" role="status" aria-live="polite">Viewing the overview</span></summary>
+    <nav class="stage-links" aria-label="Diagram parts">
+      <a class="overview-link" href="#flow-overview" data-stage="Overview" aria-current="location">Full flow overview</a>
+      <a href="#part-1" data-stage="1 of 6 · Startup"><span class="stage-number" aria-hidden="true">1</span>Startup</a>
+      <a href="#part-2" data-stage="2 of 6 · Shared context"><span class="stage-number" aria-hidden="true">2</span>Shared context</a>
+      <a href="#part-3" data-stage="3 of 6 · Use knowledge"><span class="stage-number" aria-hidden="true">3</span>Use knowledge during work</a>
+      <a href="#part-4" data-stage="4 of 6 · Review and write"><span class="stage-number" aria-hidden="true">4</span>Review and write updates</a>
+      <a href="#part-5" data-stage="5 of 6 · Repair and cleanup"><span class="stage-number" aria-hidden="true">5</span>Repair and cleanup</a>
+      <a href="#part-6" data-stage="6 of 6 · Handoff and recovery"><span class="stage-number" aria-hidden="true">6</span>Handoff and recovery</a>
+    </nav>
+  </details>
+</aside>
 <main aria-label="Knowledge-system walkthrough: cumulative diagram">
   <header>
     <div class="eyebrow">Knowledge-system walkthrough</div>
@@ -54,7 +87,6 @@
     <p class="flow-note"><strong>Required:</strong> must happen. <strong>Conditional:</strong> happens when its stated condition applies. <strong>Owner choice:</strong> the owner decides.</p>
     <p class="flow-note">System guidance and completion checks are required outcomes. The supported triggers, hooks, or other mechanisms will be selected and tested during solution design.</p>
     <p class="flow-note">Checkpoints confirm applicable guidance and required steps. The agent chooses how to reason and investigate. An acknowledgement does not prove understanding; answers and saved results must also meet the relevant rules.</p>
-    <nav aria-label="Diagram parts"><a href="#flow-overview">Overview</a><a href="#part-1">1. Startup</a><a href="#part-2">2. Shared context</a><a href="#part-3">3. Use knowledge during work</a><a href="#part-4">4. Review and write updates</a><a href="#part-5">5. Repair and cleanup</a><a href="#part-6">6. Handoff and recovery</a></nav>
     <section class="overview" id="flow-overview" aria-label="Whole-flow overview">
       <h2>The connected flow</h2>
       <div class="overview-step"><a href="#part-1">New session: required startup reads and confirmation</a></div>
@@ -510,5 +542,63 @@
   </section>
   <footer>Full walkthrough draft for review. The requirement document remains unchanged until the complete flow is approved. <a href="#flow-overview">Return to the overview</a>.</footer>
 </main>
+</div>
+<script>
+(() => {
+  const menu = document.getElementById('stage-menu');
+  const position = document.getElementById('stage-position');
+  const sidebar = document.querySelector('.stage-sidebar');
+  const links = Array.from(menu.querySelectorAll('a[data-stage]'));
+  const sections = links.map(link => document.getElementById(link.hash.slice(1)));
+  const compact = window.matchMedia('(max-width:700px)');
+  let current = null;
+  let scheduled = false;
+
+  function updatePosition() {
+    scheduled = false;
+    const offset = compact.matches ? sidebar.getBoundingClientRect().height + 16 : 24;
+    document.documentElement.style.setProperty('--navigation-offset', `${offset}px`);
+    const readingLine = offset + 24;
+    let active = 0;
+    sections.forEach((section, index) => {
+      if (section.getBoundingClientRect().top <= readingLine) active = index;
+    });
+    if (active === current) return;
+    current = active;
+    links.forEach((link, index) => {
+      if (index === active) link.setAttribute('aria-current', 'location');
+      else link.removeAttribute('aria-current');
+    });
+    position.textContent = active === 0 ? 'Viewing the overview' : `Viewing ${links[active].dataset.stage}`;
+  }
+
+  function scheduleUpdate() {
+    if (scheduled) return;
+    scheduled = true;
+    window.requestAnimationFrame(updatePosition);
+  }
+
+  function adaptNavigation() {
+    menu.open = !compact.matches;
+    updatePosition();
+  }
+
+  menu.addEventListener('click', event => {
+    if (compact.matches && event.target.closest('a')) {
+      menu.open = false;
+      updatePosition();
+      window.requestAnimationFrame(() => menu.querySelector('summary').focus({preventScroll:true}));
+    }
+  });
+  window.addEventListener('scroll', scheduleUpdate, {passive:true});
+  window.addEventListener('resize', scheduleUpdate);
+  window.addEventListener('hashchange', scheduleUpdate);
+  window.addEventListener('load', scheduleUpdate);
+  document.addEventListener('toggle', scheduleUpdate, true);
+  compact.addEventListener('change', adaptNavigation);
+  new ResizeObserver(scheduleUpdate).observe(sidebar);
+  adaptNavigation();
+})();
+</script>
 </body>
 </html>
