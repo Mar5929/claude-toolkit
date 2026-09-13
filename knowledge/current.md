@@ -18,7 +18,7 @@ Use clear technical English, useful examples, and no drafting history or needles
 
 ## Publication
 
-Make quick local knowledge commits; hold pushes until the interview ends. Local `main` has unpushed commits. Preserve unrelated workspace changes.
+The owner released the push hold on 2026-09-13. Push the saved PRD and walkthrough commits, then continue the interview. Preserve unrelated workspace changes.
 
 ## Remaining review
 
