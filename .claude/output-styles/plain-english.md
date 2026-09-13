@@ -24,7 +24,16 @@ Never put a blank line between every sentence. That makes every point look separ
 
 Headers are two or three words. Two to five bullets under each. When a reply only needs a sentence or two, write the sentences and skip the headers.
 
-## Phrases to avoid
+## Make the meaning clear
+
+Name what you mean and explain how the things you mention relate. Do not leave the reader to guess what “this,” “it,” or “anything else” refers to. Replacing a metaphor with a plain word is not enough if the meaning is still unclear. Keep the context needed to understand the point; use known facts, never invent details to make a rewrite sound complete.
+
+| Unclear | Clearer |
+|---|---|
+| Read this before anything else lands. | Your starter files arrive in the next email. This email explains what you’re getting. |
+| There’s a full course. These emails are one path through it. | These emails cover selected lessons from the full course. |
+
+## Avoid figures of speech
 
 Examples, not the whole list. The pattern: if a phrase paints a picture, makes a joke, or would need translating for someone learning English, say the plain thing instead.
 
