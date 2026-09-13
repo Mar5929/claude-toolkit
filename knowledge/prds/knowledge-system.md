@@ -1395,24 +1395,43 @@ Imagine the agent is a capable engineer:
 | Part | Analogy | Responsibility |
 | --- | --- | --- |
 | `CLAUDE.md` / `AGENTS.md` | Employee handbook | Establish the project rules and point to the knowledge manual. |
-| Knowledge-system manual | Detailed operating procedure | Explain what each knowledge store means and how to use and maintain it. |
+| Knowledge-system manual | Knowledge handbook | Define what each knowledge store means, where information belongs, and which approval rules apply. Point to the relevant procedures. |
+| Skills | Task-specific procedures | Give the agent the instructions, templates, and completion checks for the operation it is performing. |
 | Hook | Doorbell or reminder alarm | React at a useful moment and bring an obligation to the agent's attention. |
 | Stateful hook or mod | Lightweight supervisor | Remember a few session facts and check required steps without doing the engineer's thinking. |
 | Claude Code / Codex | Engineer | Search, reason, investigate, propose, and solve the user's task. |
 
+Skills are part of the proposed design. They could guide finding and using
+knowledge, reviewing information worth saving, preparing a proposal, updating
+the correct file, or repairing and maintaining knowledge. These are examples of
+responsibilities, not a fixed list of skills or a requirement for one skill per
+operation. The future design exercise will decide how to group them.
+
+The manual owns the shared policy. Skills reference that policy and provide the
+details needed for a particular operation, including relevant templates,
+approval steps, and completion checks. The agent reads the applicable skill
+when needed and uses its own judgment within those rules. A skill does not
+prescribe every search query or tool call. A reminder can direct the agent to
+the relevant procedure; the completion check verifies the required outcome.
+Making a skill available alone does not prove that its instructions were read
+or followed.
+
 Example: the owner asks, “Should we replace our authentication provider?” The
-reminder says to consult existing knowledge. The agent chooses how to search,
-finds the earlier decision, checks the current situation, and answers. The
-supervisor can remember that the manual was already read, avoiding repeated
-full briefings. It does not prescribe a query or decide which answer is best.
+reminder says to consult existing knowledge. A skill could guide the agent on
+source roles, project terminology, conflicting evidence, and citation rules.
+The agent chooses how to search, finds the earlier decision, checks the current
+situation, and answers. The supervisor can remember that the manual was already
+read, avoiding repeated full briefings. It does not prescribe a query or decide
+which answer is best.
 
 Later the owner says, “Keep Auth0 for this release because migrating now would
-delay launch.” The agent checks whether that is a lasting decision under the
-project's policy, finds the existing topic if there is one, and proposes the
-meaning through the standard card. The decision alone does not bypass any
-required save approval. After approval, the write is checked against the real
-file template and destination, saved, and confirmed. This is an illustration,
-not an actual authentication decision for this toolkit.
+delay launch.” A skill could guide the agent through checking lasting value,
+finding the existing topic, choosing the destination, and preparing the standard
+proposal card. The agent evaluates the meaning; the owner gives any required
+save approval. The skill provides the applicable file template and save steps,
+and the completion check verifies the actual approved change, destination, and
+saved result. This is an illustration, not an actual authentication decision
+for this toolkit.
 
 ### Future design task: map requirements to implementation mechanisms
 
