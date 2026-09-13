@@ -12,9 +12,9 @@ Stage `02-refinement`. `knowledge/prds/knowledge-system.md` has 30 requirements 
 
 ## Current work
 
-The [walkthrough draft](prds/knowledge-system-walkthrough.html) is saved beside the PRD. It has six connected parts; Parts 5–6 (repair, cleanup, handoff, recovery) are ready for review. Refine the walkthrough first; capture explicit PRD corrections as given. General PRD reconciliation waits for full-flow approval. Then reconcile requirements, process, data model, examples, and checks without duplication.
+Next milestone: finalize the [walkthrough](prds/knowledge-system-walkthrough.html). The owner places Parts 1–3 behind us and is reviewing Part 4 (review and save). Finish it, then Parts 5–6, then approve the full flow before general PRD reconciliation. Keep the interview on that sequence; park unrelated issues. Explain an edit’s purpose, placement, and conflicts before changing the PRD.
 
-Use clear technical English, useful examples, and no drafting history or needless repetition. Keep native agent reasoning and search, with required guidance and focused checkpoints. Full-document wording issues remain.
+Use plain technical English and useful examples. Preserve native agent judgment with focused checkpoints. Broader wording cleanup remains.
 
 ## Publication
 
@@ -22,7 +22,7 @@ Push hold released; saved updates are published. Continue quick knowledge commit
 
 ## Remaining review
 
-- Review Parts 5–6 and the complete flow, then reconcile the PRD and stale issue summary after approval.
-- Next: finish summary-based save approval. Requirement 23 now clarifies defaults plus project additions. Review remaining formats; no new working-memory schema approved.
+- Finish Part 4, then Parts 5–6 and the complete flow. Reconcile the PRD and stale issue summary after approval.
+- Part 4: owner prefers summary-based save approval; current wording still requires exact text. Review that change before editing. Defaults plus project additions are clarified in R23. Remaining formats are pending.
 - Review `misc/SKILL (2).md` on `issue-269-second-brain-design`; it is an unpublished PRD skill draft.
 - Earlier [handoff](https://github.com/Mar5929/claude-toolkit/blob/issue-269-second-brain-design/misc/269-session-handoff.md). Related scopes: System Guide #304 and rules audit #305. Proposed paths and templates are not all implemented.
