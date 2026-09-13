@@ -274,7 +274,7 @@
       <div class="node knowledge">
         <div class="kind">Required decision · Agent judgment</div>
         <div class="label">Is there enough relevant, current evidence for the next answer or action?</div>
-        <div class="branch"><strong>No — more evidence is available:</strong> open relevant sources. If project records leave missing past context, use available project session history through <code>session-search</code> before asking the owner to reconstruct it. Verify historical claims before treating them as current.</div>
+        <div class="branch"><strong>No — more evidence is available:</strong> open relevant sources. If project records leave missing past context, search available project session history before asking the owner to reconstruct it. Verify historical claims before treating them as current.</div>
         <div class="branch"><strong>No — a gap or conflict remains:</strong> name the sources and what is unresolved. Ask one focused question if the owner’s answer is needed. Pause only dependent work; return when new evidence or a decision is available.</div>
         <div class="detail">Missing access is reported as a limitation. It is not presented as a search that found nothing.</div>
       </div>
@@ -329,7 +329,7 @@
         <div class="label">Establish the current rules for the proposed update</div>
         <div class="detail"><code>knowledge/README.md</code> explains each information home and points to its detailed instructions. Before the operation, establish what belongs there, what stays out, the file format and fields, the writing standard, approval, and required checks.</div>
         <div class="detail">Reuse guidance while it remains available and current; recover missing guidance before proceeding. The system must bring back the relevant guidance after context loss or a task change.</div>
-        <div class="detail">Before gathering memory candidates, read <code>knowledge/memory/memory-self-improvement.md</code> for this owner’s prior proposal feedback.</div>
+        <div class="detail">Before gathering memory candidates, consider relevant prior feedback from the owner. The storage and learning mechanism are chosen during solution design.</div>
       </div>
       <div class="arrow" aria-hidden="true">↓</div>
       <div class="node knowledge">
@@ -367,7 +367,7 @@
               <tr><td>Outside reference material</td><td><strong>Separate process: outside-documentation upkeep.</strong> Use <code>ai-external-knowledge/</code>. Keep the source and capture date in the topic's entry page, with <code>group</code> and <code>summary</code> in YAML frontmatter for its index entry. Rebuild and check <code>ai-external-knowledge/README.md</code> when its topics change.</td></tr>
               <tr><td>Unchecked exploration worth retaining</td><td><strong>Separate process: exploration.</strong> Use <code>brainstorms/</code> under its own workflow. It remains unchecked.</td></tr>
               <tr><td>Unanswered proposal or approved unfinished save</td><td>Maintain <code>knowledge/memory-inbox.md</code> for memory and PRD proposals. Other destinations retain pending state through their own workflows.</td></tr>
-              <tr><td>Owner feedback on a memory proposal</td><td>Append its outcome to <code>knowledge/memory/memory-self-improvement.md</code>; it remains a proposal-learning record.</td></tr>
+              <tr><td>Owner feedback on a memory proposal</td><td>Retain useful selection feedback under PRD requirement 23 so later proposals improve. It is operational guidance, not a project memory; its storage is a design choice.</td></tr>
               <tr><td>Changed lasting files or broken navigation</td><td>Rebuild applicable generated indexes. Repair clear mechanical links within the allowed repair boundary. Meaning changes use the approval flow.</td></tr>
               <tr><td>Disposable detail, unsupported claim, duplicate, or secret</td><td>No lasting write. Useful temporary context follows its own rules; secrets never enter project knowledge.</td></tr>
             </tbody>
@@ -383,8 +383,8 @@
           <div class="branch"><strong>Glossary:</strong> title, one purpose sentence, and an alphabetical Markdown table. Columns: Term / aliases, Plain meaning, Refers to, Watch out, Source / date. Memory YAML fields do not apply.</div>
           <div class="branch"><strong>Shared context:</strong> a concise dated overview with objectives, blockers, next steps, and links. Preserve other sessions’ work. It is rewritten to reflect current state.</div>
           <div class="branch"><strong>Pending inbox:</strong> stable reference, destination and operation, exact card when one was shown, source and date, last update, state, next step or blocker, and separate authority details. For automatic PRD upkeep, preserve the specific update owed and links to its authority and delivery evidence; do not invent a card. Pending content stays outside the memory and PRD indexes.</div>
-          <div class="branch"><strong>Proposal-learning record:</strong> date, candidate, outcome, and the owner’s stated reason, or “no reason given.” No invented reasons.</div>
-          <div class="branch"><strong>Size checks in the proposed system:</strong> each index source's summary is under 200 characters; each memory file and the shared-context file is under 5,000 characters; the proposal-learning file is under 10,000 characters. The memory-file limit applies to each file in a topic folder. A failed limit never permits silently cutting approved meaning.</div>
+          <div class="branch"><strong>Memory-selection feedback:</strong> preserve useful owner feedback and stated reasons across sessions. Do not invent reasons. Its record format is a design choice.</div>
+          <div class="branch"><strong>Size checks in the proposed system:</strong> each index source's summary is under 200 characters; each memory file and the shared-context file is under 5,000 characters. The memory-file limit applies to each file in a topic folder. A failed limit never permits silently cutting approved meaning.</div>
           <div class="branch"><strong>System Guide, skills, instructions, tracker, and other destinations:</strong> open their own current template and field rules. The knowledge manual points to those rules; a memory template is not applied to every file.</div>
         </details>
       </div>
@@ -396,7 +396,7 @@
         <div class="branch"><strong>No:</strong> use approval already covering the change, or an allowed operational update. Go directly to the <a href="#pre-write-check">pre-write check</a>; skip the proposal-response branches.</div>
         <div class="branch"><strong>Yes:</strong> resolve material uncertainty through investigation or a specific owner question before proposing this save. Separate proposals from the answer with a divider and large destination headings: Proposed memory saves, Proposed PRD saves, and Proposed System Guide saves. Omit empty sections. Memory and PRD cards show a unique number and topic, Change, New wording of at most three sentences, and Your decision with an explicit approval question. Removal or status-only cards identify the affected content. System Guide uses its own proposal standard.</div>
         <div class="detail">“Remember this” starts the review and proposal; it does not approve the lasting-memory write.</div>
-        <div class="detail">Current context, permitted mechanical repairs, index rebuilds, inbox upkeep, and proposal-outcome appends have their defined operational exceptions. Their permission does not approve a lasting meaning change.</div>
+        <div class="detail">Current context, permitted mechanical repairs, index rebuilds, inbox upkeep, and selection-feedback upkeep have their defined operational exceptions. Their permission does not approve a lasting meaning change.</div>
         <div class="detail">A clear correction within authorized PRD refinement uses existing permission. New meaning suggested by the agent still needs agreement. A user’s explicit hold on writes or publication remains in force.</div>
       </div>
       <aside class="branch" aria-label="Proposal paths that stop or wait">
@@ -408,7 +408,7 @@
       </aside>
       <section class="branch" aria-label="Proposal paths that authorize continuation">
         <div class="kind">Continue only with clear approval</div>
-        <div class="detail"><strong>Owner approves:</strong> retain the exact approval and scope. Record the memory-proposal outcome in the learning file, then continue to the pre-write check.</div>
+        <div class="detail"><strong>Owner approves:</strong> retain the exact approval and scope. Retain useful memory-selection feedback, then continue to the pre-write check.</div>
         <div class="detail"><strong>Owner approves edited wording:</strong> use those exact words within the approved scope, then continue. Approval covers the stated change; it does not approve an unrelated follow-up or unresolved assumption.</div>
       </section>
       <div class="outcome">Clear approval, existing scoped permission, or an allowed operational update ↓</div>
@@ -471,7 +471,7 @@
         <div class="branch"><strong>Separate process · Setup fault:</strong> use the owning component's setup, sync, check, or repair flow and return its actual result here. Enabling a component requires the owner's approval; a disabled component is not automatically enabled.</div>
         <details>
           <summary>Review scope and available operations</summary>
-          <div class="detail">During ordinary lookup or save review, inspect the relevant files encountered. Use <code>reflect</code> for a whole-folder review and <code>retire</code> for taking one file out of current use. Use <code>second-brain</code> for setup and repair. These are available entry points, not a required sequence or an automatic whole-folder sweep after each turn.</div>
+          <div class="detail">During ordinary lookup or save review, inspect the relevant files encountered. A broader review, an operation on one file, or setup and repair happens when applicable or requested. The owner can ask in ordinary words. The current skills are design starting points, not required command names, a fixed sequence, or an automatic whole-folder sweep after each turn.</div>
           <div class="detail">Lasting content changes retain their approval requirements. Keep useful history with clear dates and status; maintain one topic file where appropriate. Whole-file deletion follows the reasons allowed in the manual.</div>
         </details>
       </div>

@@ -43,7 +43,7 @@ work_item: "269"
 - [21. Indexes and the checker](#21-indexes-and-the-checker)
 - [22. Keeping current truth clean](#22-keeping-current-truth-clean)
 - [23. Learning what to save](#23-learning-what-to-save)
-- [24. The six commands](#24-the-six-commands)
+- [24. Request knowledge operations in plain language](#24-request-knowledge-operations-in-plain-language)
 - [25. Codex](#25-codex)
 - [26. Built the way Claude Code's documentation says](#26-built-the-way-claude-codes-documentation-says)
 - [27. Installed once, turned on per project, and checked](#27-installed-once-turned-on-per-project-and-checked)
@@ -152,8 +152,7 @@ project/
     │   │   └── larger-topic-area/
     │   │       ├── subtopic-one.md
     │   │       └── subtopic-two.md
-    │   ├── current.md
-    │   └── memory-self-improvement.md
+    │   └── current.md
     ├── prds/
     ├── .obsidian/
     └── system-guide/
@@ -201,7 +200,7 @@ design selects any additional triggers or enforcement mechanisms.
 
 ```mermaid
 flowchart TD
-    S[Optional: second-brain setup or repair under requirements 24 and 27] -. Verified equipped .-> A
+    S[Optional: knowledge setup or repair under requirements 24 and 27] -. Verified equipped .-> A
     A[Owner opens or resumes the project] --> B[Native runtime: project instructions, rules, and skill discovery are available]
     B -. Claude Code rule timing .-> BR[.claude/rules/: general rules at startup; path-scoped rules when matching files are read]
     B --> C[Knowledge system: read knowledge/README.md at new-session startup; recover missing guidance on resume]
@@ -281,7 +280,7 @@ relevant, current information can be reused.
 | Required behavior | `knowledge/prds/prd-index.md`, then the relevant PRD under `knowledge/prds/`, to establish what users must be able to do. A proposed requirement does not prove current behavior. |
 | Existing system | When enabled, `knowledge/system-guide/system-guide-index.md`, then the relevant page in `system-guide-entries/`. The agent checks code or live evidence when the question concerns what exists now. |
 | Vendor documentation | `ai-external-knowledge/README.md`, then the relevant captured page, when the answer depends on vendor behavior. Missing or outdated evidence is handled under requirement 8. |
-| Earlier conversation | Available project session history through `session-search`, if the earlier sources leave a relevant gap. Historical claims are checked before being presented as current. |
+| Earlier conversation | Available project session history, if the earlier sources leave a relevant gap. Historical claims are checked before being presented as current. |
 
 The owner sees an answer supported by the relevant sources, using the citation
 format in requirement 6. If the evidence leaves a consequential gap, the agent
@@ -306,7 +305,7 @@ the shared overview, it tells the owner in one line. Requirements 4, 12, 13, and
 The investigation may produce a lasting release decision, a PRD correction,
 or a repeatable project procedure. Each follows its own destination rules.
 The agent checks the selection rules, exclusions, existing files, and
-`knowledge/memory/memory-self-improvement.md` before proposing memory.
+relevant owner feedback under requirement 23 before proposing memory.
 Requirement 18 determines each destination.
 
 ```mermaid
@@ -348,8 +347,8 @@ The diagram's general steps apply through each destination's own workflow.
 The memory inbox and direct-default-branch publication rules apply to knowledge
 saves; they do not become a new delivery procedure for skills, rules, or System
 Guide content. Requirement 20 defines proposal formatting and requirement 10
-defines approval. Owner decisions about memory proposals also update
-`knowledge/memory/memory-self-improvement.md` under requirement 23.
+defines approval. Useful owner feedback on memory proposals is retained and
+applied under requirement 23.
 
 | Information produced | Destination and resulting action |
 | --- | --- |
@@ -380,9 +379,9 @@ same approval and validation rules rather than creating a second save process.
 | Condition | Action and return to the session |
 | --- | --- |
 | Owner renamed, moved, or deleted a file | Apply requirement 1: automatically repair only a clear mechanical fault that preserves intent. Ask before choosing unclear meaning or restoring deliberately deleted content. Resume dependent work after recovery. |
-| Existing knowledge is duplicated, conflicting, or no longer useful | Use requirement 22. `reflect` reviews across the knowledge folder; `retire` handles one file. Lasting changes still require the appropriate approval. |
-| Setup is missing, disabled, outdated, or broken | Use `second-brain` and the setup or repair requirements in 24 and 27. Activating a project requires its owner's approval. |
-| A request names an operation in ordinary language | Use the corresponding command in requirement 24. The six commands are available entry points, not six mandatory steps in every session. |
+| Existing knowledge is duplicated, conflicting, or no longer useful | Use requirement 22 for a review across knowledge or an operation on one file. Lasting changes still require the appropriate approval. |
+| Setup is missing, disabled, outdated, or broken | Use the setup or repair requirements in 24 and 27. Activating a project requires its owner's approval. |
+| A request names an operation in ordinary language | Provide the corresponding outcome in requirement 24. Only the applicable operations are needed. |
 
 ### 6. Hand off and continue later
 
@@ -640,7 +639,7 @@ follows requirement 3; it never claims that no save is waiting.
 - When the owner edits the words, those words are written exactly as typed. The agent does not tidy them, shorten them, or improve them.
 - Only the authorized meaning is written. Do not add surrounding context or new meaning outside that authority.
 - Resolve material questions before presenting a save card, as requirement 20 requires. Approval covers only the stated operation and wording or affected content; it does not approve an unresolved assumption or an unrelated follow-up.
-- Five things can be done without asking the owner: rebuilding an index, repairing a broken link within requirement 1’s limits, writing `knowledge/memory/current.md`, appending a line to `knowledge/memory/memory-self-improvement.md`, and maintaining the pending inbox under requirement 28. None of them changes what a lasting file means. Requirement 4 says how the current file is updated. Inbox retention is permission to preserve a proposal, not permission to accept its meaning.
+- Five things can be done without asking the owner: rebuilding an index, repairing a broken link within requirement 1’s limits, writing `knowledge/memory/current.md`, maintaining project-specific memory-selection feedback under requirement 23, and maintaining the pending inbox under requirement 28. None of them changes what a lasting file means. Requirement 4 says how the current file is updated. Inbox retention is permission to preserve a proposal, not permission to accept its meaning.
 - For files the owner already approved under an older folder layout, the agent converts those files first and shows the owner the converted results afterwards, in groups small enough to read in one pass. The owner approves after the conversion, not before. Any file that will not convert cleanly is named and left alone. The agent never guesses what an old file meant.
 
 **Check:** show a proposal and say nothing back. The exact proposal is retained
@@ -1020,7 +1019,7 @@ The owner does not manage the files.
 | The current objective, blocker, and next step | `knowledge/memory/current.md` |
 | An unanswered save proposal or an approved save that has not finished | `knowledge/memory-inbox.md`, temporary pending state under requirement 28 |
 | A word the owner or the client uses for something | `knowledge/memory/memory-entries/terminology-glossary.md` |
-| What this owner accepts and rejects as memory | `knowledge/memory/memory-self-improvement.md` |
+| What this owner accepts and rejects as memory | Project-specific selection feedback under requirement 23; its storage is chosen during design. |
 | Requirements and status for one piece of work | The work tracker |
 | Build order and delivery roadmap | The solution design and work-item plan, kept with or linked from the chosen tracker |
 | Which PRD requirements a work item delivers | The work item, referring to the PRD's numbered requirements |
@@ -1070,7 +1069,7 @@ using it, and preserve its unapproved status.
 | 2 | Applicable root instructions and standing rules | Use the instructions already in force; open relevant guidance that is missing from context. They define procedures and restrictions, not a substitute for evidence about the live system. |
 | 3 | Skills | Find an existing procedure that applies. Use its instructions and supporting references when performing that procedure. |
 | 4 | Memory, PRDs, and the System Guide when enabled, through their indexes and links | Use memory for lasting decisions and lessons, a PRD for required behavior and why, and the System Guide for useful explanations of existing parts and their connections. Open the relevant source, following requirement 16 when sources disagree. |
-| 5 | Available project session history, through `session-search` | Use this when the earlier sources do not answer or a relevant explanation from an earlier conversation is still missing. Say what context is being sought, then search without an extra yes within existing access permissions. An unavailable history source is reported, not treated as an empty search result. |
+| 5 | Available project session history | Use this when the earlier sources do not answer or a relevant explanation from an earlier conversation is still missing. Say what context is being sought, then search without an extra yes within existing access permissions. An unavailable history source is reported, not treated as an empty search result. |
 
 Before tier 4, use the glossary and relevant context to resolve project
 shorthand where needed. Reuse a meaning already established and current.
@@ -1196,7 +1195,7 @@ unexplained warning and does not silently become an authorized task.
 - The header above the entries is two lines at most. The index points at files. It does not explain how anything works.
 - Never edited by hand. The order of files inside a group follows one fixed rule. Two sessions rebuilding the index at the same time then produce the same lines in the same order, so their changes do not conflict in Git.
 - If an index disagrees with the files on disk, the files win. Rebuild it.
-- Every saved memory file and PRD is confirmed against the field rules and four size limits: an index source's `summary` is under 200 characters, `knowledge/memory/current.md` is under 5,000 characters, `knowledge/memory/memory-self-improvement.md` is under 10,000 characters, and any one memory file is under 5,000 characters. A topic folder may contain several memory files; the memory-file limit applies to each file, not the folder's combined content. Nothing else has a size limit. Confirming never changes a file.
+- Every saved memory file and PRD is confirmed against the field rules and three size limits: an index source's `summary` is under 200 characters, `knowledge/memory/current.md` is under 5,000 characters, and any one memory file is under 5,000 characters. A topic folder may contain several memory files; the memory-file limit applies to each file, not the folder's combined content. No other size limit is prescribed here. Confirming never changes a file.
 - A file that breaks a limit or a field rule is named, along with the rule it broke. A save that fails is not finished. The agent fixes the file and confirms it again before it says the save is done. Nothing is ever cut off silently.
 - After any lasting knowledge change, the affected index is rebuilt and the checker is run. A failing check means the save is not finished, and the agent says so instead of claiming the knowledge is stored.
 
@@ -1247,7 +1246,7 @@ unfinished, and the file and the broken rule are named.
 - **Delete a whole file** for three reasons only, and name the reason in the reply: a copy made by mistake, a secret that should never have been written down, or something that was never true. This whole-file rule does not prevent approved removal or rewriting of content within a maintained topic-area file. Preserve important history when needed; do not keep obsolete wording merely because it was once written.
 - Age alone is never a reason. Written two years ago and still true means still true.
 - A memory nobody will look up again is found and proposed for retirement without the owner hunting for it. He says yes. The reason is never age. The reason is that the result it holds will not be needed again. Example: a spreadsheet built once in June, checked and delivered, with nothing pointing at it months later.
-- This happens at each save, for the files the search turned up, and across the whole folder when `reflect` runs. Consolidate duplicate or unnecessarily fragmented content with approval, preserving useful context and repairing links. Keep the coherent subtopic files of an approved topic split; sharing a topic area alone does not make them duplicates. Conflicting statements are resolved rather than left side by side as current truth. Link related files when understanding or applying one benefits from opening the other. The aim is maintained topic context, not many files for tiny details.
+- This happens at each save, for the files the search turned up, and across the whole folder during a knowledge review. Consolidate duplicate or unnecessarily fragmented content with approval, preserving useful context and repairing links. Keep the coherent subtopic files of an approved topic split; sharing a topic area alone does not make them duplicates. Conflicting statements are resolved rather than left side by side as current truth. Link related files when understanding or applying one benefits from opening the other. The aim is maintained topic context, not many files for tiny details.
 
 **Check:** save something that contradicts an existing file. The agent shows the
 conflict and, after approval, updates that same topic or subtopic file. The replacement
@@ -1261,42 +1260,46 @@ result, and reports completion. A later session follows the surviving source.
 
 ## 23. Learning what to save
 
-`knowledge/memory/memory-self-improvement.md` is where the agent keeps lessons about
-what this owner accepts and rejects AS IT RELATES TO MEMORY, so its proposals get better over time.
+The agent uses the owner's project-specific feedback to improve later memory
+proposals. The owner should not have to repeat the same correction in each
+session.
 
-- It holds lessons and a short log of recent proposal outcomes.
-- The save flow reads this file before it gathers candidates, so something the owner has already rejected is dropped or reshaped before he ever sees it. After the owner decides, the save flow appends one line to this file for each candidate it showed him.
-- Each line carries the date, the candidate in a few words, the outcome, and the owner's reason in his own words, or "no reason given". Never an invented reason.
-- This file is a scratch record the save flow keeps for itself. It is not memory. Appending a line to it needs no approval. Requirement 10 lists it with the other things that need none. Nothing in it is a lasting fact about the project, and secrets never go in it.
+- Before proposing memory, consider relevant prior feedback about what the owner accepts or rejects. Drop or reshape a similar candidate when that feedback applies.
+- Preserve useful feedback across sessions, including the owner's stated reason when one was given. Do not invent a reason or infer a general preference from silence.
+- Feedback about selecting memories is operational guidance, not a lasting fact about the project. Maintaining that feedback needs no separate save approval and does not approve a memory candidate.
+- Apply the governing knowledge rules. Report a conflict between feedback and those rules rather than silently changing the policy.
+- Keep feedback useful and concise. Do not retain secrets, raw conversations, or an unnecessary history of routine activity.
+- Lessons stay in this project. If evidence within authorized access suggests a toolkit-wide improvement, propose it through the toolkit change workflow. Local upkeep does not search other projects, change shared instructions, or roll out policy on its own.
 
-- When a lesson in this file disagrees with anything in this document, this document wins. The agent names the disagreement in its reply instead of quietly following one of them.
-- The `reflect` command merges repeated lines into a single lesson, so the file stays small.
-- Lessons stay in this project. If evidence available within authorized access suggests a useful toolkit-wide improvement, propose it through the existing toolkit change workflow. Local memory upkeep does not search other projects, change shared instructions, or roll out policy to them on its own. A wider change needs its own scope and approval.
+The storage location, record format, and mechanisms for reading, recording,
+and consolidating feedback are solution-design choices. The existing approach
+is described under [Potential paths to explore](#current-implementation-open-to-refactoring).
 
-**Check:** reject a proposal and give a reason. A line appears in the file with
-that reason. Propose something similar later and the agent names the earlier
-rejection instead of proposing it again.
+**Check:** reject a proposal and explain why. In a later session, a similar
+candidate is dropped or reshaped using that feedback. Reject another without
+a reason: the agent does not invent one. No particular command or log format
+is needed to pass this check.
 
-## 24. The six commands
+## 24. Request knowledge operations in plain language
 
-| Command | What it does for the owner |
-| --- | --- |
-| `recall` | Finds what this project already knows, before searching the code or asking him. |
-| `remember` | Finds what is worth saving, checks the inbox to avoid duplicate proposals, shows new cards, and saves each approved item as a memory or a PRD. It can also bring back pending cards for review. |
-| `retire` | Takes one file out of current use: superseded, retired, or deleted. |
-| `reflect` | Reviews the whole knowledge folder and proposes cleanup: duplicates, contradictions, stale files. |
-| `session-search` | Searches available project session history when project knowledge did not answer or a relevant explanation is missing. The host and access limits are stated. |
-| `second-brain` | Sets up, checks, explains, or repairs this system in a project. |
+The owner can ask for these outcomes in ordinary words, without knowing a
+command name, skill name, or tool sequence:
 
-**Check:** for each of the six, the owner asks for it in his own words and
-names nothing else. `recall`: he asks what the project already knows about a
-topic, and gets saved files with their paths. `remember`: he says "remember
-this", and gets a card. `retire`: he says a file is out of date, and gets a
-proposal to supersede, retire, or delete it. `reflect`: he asks for a cleanup
-review, and gets a list of duplicates, contradictions, and stale files.
-`session-search`: project knowledge answers nothing, and the agent announces
-and runs the available history search under requirement 19. `second-brain`: he asks whether this system is set up
-correctly here, and gets an answer.
+- Find what the project already knows about a topic, with relevant sources.
+- Review information for saving, show any proposal needing approval, complete authorized saves, and review pending proposals.
+- Review a file that is out of date and propose the appropriate update, supersession, retirement, or deletion.
+- Review knowledge for duplicates, contradictions, and content that no longer applies.
+- Find missing context in available project history within requirement 19's access and verification boundaries.
+- Explain whether knowledge is set up correctly and perform authorized setup or repair under requirement 27.
+
+These are required capabilities, not a fixed number of commands or skills.
+The agent chooses the applicable operations under the existing requirements;
+it does not run all of them for every request. The design may combine, split,
+rename, or replace the current entry points.
+
+**Check:** request each outcome in ordinary language without naming a command.
+The agent performs the applicable operation, preserves approval boundaries,
+and reports its result or an actual access or setup gap.
 
 ## 25. Codex
 
@@ -1575,6 +1578,41 @@ save approval. The skill provides the applicable file template and save steps,
 and the completion check verifies the actual approved change, destination, and
 saved result. This is an illustration, not an actual authentication decision
 for this toolkit.
+
+### Current implementation: open to refactoring
+
+The toolkit currently uses the following skills for knowledge operations.
+This describes the existing setup, not a requirement to preserve six skills,
+their names, or their boundaries. Refactor, combine, replace, or remove these
+entry points when a better approach meets the requirements.
+
+| Current skill | Current responsibility |
+| --- | --- |
+| `recall` | Find relevant project knowledge before broad investigation or asking the owner. |
+| `remember` | Select candidates, prepare proposals, and write approved memory or PRD changes. |
+| `retire` | Propose and carry out approved changes that take one file out of current use. |
+| `reflect` | Review knowledge for cleanup and consolidate memory-selection feedback. |
+| `session-search` | Search locally saved Claude Code CLI conversations within project and access limits. |
+| `second-brain` | Set up, adopt, check, explain, or repair project knowledge. |
+
+The current feedback mechanism uses `knowledge/memory-self-improvement.md`
+with `Lessons` and `Recent decisions` sections. The installed template describes
+a dated candidate, outcome, and stated reason, or "no reason given". The
+`remember` skill reads this feedback before selecting candidates. Its current
+logging step applies when the owner proposes changing what counts as memory;
+it does not require a log of every routine proposal. The `reflect` skill
+consolidates repeated entries, and the current checker enforces an 8,000-character
+limit.
+
+These file, logging, consolidation, and size choices are starting points for
+design. Requirement 23 defines the learning outcome; it does not require this
+file or log. Select the simplest suitable mechanism after the requirements
+are finalized.
+
+Current sources: [skill inventory](../../plugins/second-brain/skills/),
+[save skill](../../plugins/second-brain/skills/remember/SKILL.md),
+[review skill](../../plugins/second-brain/skills/reflect/SKILL.md), and
+[feedback template](../../plugins/second-brain/skills/second-brain/references/templates/knowledge/memory-self-improvement.md).
 
 ### Future design task: map requirements to implementation mechanisms
 
