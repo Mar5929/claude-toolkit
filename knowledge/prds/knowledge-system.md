@@ -1172,6 +1172,35 @@ the proposed save, and never opens a file to decide.
 - A file that breaks a limit or a field rule is named, along with the rule it broke. A save that fails is not finished. The agent fixes the file and confirms it again before it says the save is done. Nothing is ever cut off silently.
 - After any lasting knowledge change, the affected index is rebuilt and the checker is run. A failing check means the save is not finished, and the agent says so instead of claiming the knowledge is stored.
 
+### Memory index example
+
+Example contents of `knowledge/memory/memory-index.md`. The topics and files
+below are illustrative, not existing project records.
+
+```markdown
+# Memory index
+
+## Account access decisions
+
+- [Account access](memory-entries/account-access.md): Access decisions and constraints agreed with the owner, including the reasons for the current approach.
+
+## Import decisions and lessons
+
+- [Import matching](memory-entries/imports/matching.md): Email matching was rejected because shared addresses caused records for different people to be combined.
+- [Import history](memory-entries/imports/legacy-import.md) (retired): The one-time legacy import finished; its mapping decisions are retained only for historical reference.
+```
+
+| What appears in the example | Where it comes from |
+| --- | --- |
+| Topic heading | The source file's `group` field. |
+| File link | The source file's location, relative to the index. |
+| Text after the colon | The source file's `summary`, copied exactly. |
+| `(retired)` | The source file's `status`; current memories need no status label. |
+
+The import files share a topic folder and heading, but each has its own link
+and summary. The example illustrates the layout; it does not select the final
+sorting rule.
+
 **Check:** rebuild the memory, PRD, and outside-documentation indexes. All use
 the same grouped one-line link-and-summary format, with summaries copied from
 their sources. A repeated rebuild with unchanged sources gives the same output.
