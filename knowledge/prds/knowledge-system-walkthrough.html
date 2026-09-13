@@ -87,6 +87,7 @@
     <p class="flow-note"><strong>Required:</strong> must happen. <strong>Conditional:</strong> happens when its stated condition applies. <strong>Owner choice:</strong> the owner decides.</p>
     <p class="flow-note">System guidance and completion checks are required outcomes. The supported triggers, hooks, or other mechanisms will be selected and tested during solution design.</p>
     <p class="flow-note">Checkpoints confirm applicable guidance and required steps. The agent chooses how to reason and investigate. An acknowledgement does not prove understanding; answers and saved results must also meet the relevant rules.</p>
+    <p class="flow-note"><strong>Component ownership:</strong> the knowledge system operates within the toolkit OS. Steps marked “Separate process” or “Separate plugin” use that component's own rules and records, then return the result to this flow. They do not become new knowledge-system responsibilities.</p>
     <section class="overview" id="flow-overview" aria-label="Whole-flow overview">
       <h2>The connected flow</h2>
       <div class="overview-step"><a href="#part-1">New session: required startup reads and confirmation</a></div>
@@ -211,9 +212,9 @@
     </div>
     <div class="outcome">Both paths continue ↓</div>
     <div class="node">
-      <div class="kind">Conditional · Work tracker</div>
+      <div class="kind">Conditional · Separate process: work tracker</div>
       <div class="label">Use an existing item, or ask about a new one</div>
-      <div class="detail">Use the owner’s request and the project’s work-tracking process.</div>
+      <div class="detail">Use the owner’s request and the project's chosen work-tracking process. That process owns item creation, scope, status, approvals, and next steps. The knowledge system reads or links to its records; it creates no second tracker.</div>
     </div>
     <div class="branch"><strong>Existing work:</strong> open the relevant item and check its scope, status, approvals, blocker, and next step against the dated overview.</div>
     <div class="branch"><strong>New work:</strong> understand the request together and check whether it is already tracked.</div>
@@ -263,9 +264,9 @@
         <div class="detail">The source choices below apply when more information is needed. A relevant, current source already read satisfies its step; stop when the evidence is sufficient.</div>
         <div class="branch"><strong>Earlier decision:</strong> reuse <code>knowledge/memory/memory-entries/account-access.md</code> if it was read in Part 2 and remains current. Otherwise, when relevant, locate it through <code>knowledge/memory/memory-index.md</code> and read it. This example file contains the earlier access constraint.</div>
         <div class="branch"><strong>Required behavior:</strong> use <code>knowledge/prds/prd-index.md</code>, then the relevant PRD in <code>knowledge/prds/</code>. Proposed behavior does not prove that it is built.</div>
-        <div class="branch"><strong>Existing parts and connections:</strong> when System Guide is enabled, use <code>knowledge/system-guide/system-guide-index.md</code>, then its relevant page in <code>system-guide-entries/</code>.</div>
+        <div class="branch"><strong>Separate plugin · System Guide:</strong> when enabled, use <code>knowledge/system-guide/system-guide-index.md</code>, then its relevant page in <code>system-guide-entries/</code> for existing parts and connections. Its plugin owns these explanations and their upkeep.</div>
         <div class="branch"><strong>What works today:</strong> inspect relevant code or live evidence to establish current account-access behavior. A document’s status alone does not verify it.</div>
-        <div class="branch"><strong>Vendor behavior:</strong> scan <code>ai-external-knowledge/README.md</code> during lookup. It uses the same generated, grouped index format as memory and PRDs: one link to the captured entry page and its summary per topic. Open a relevant captured page before relying on it. Reuse a current scan. Check its date and version; consult the original source if the capture is missing or outdated and access allows.</div>
+        <div class="branch"><strong>Separate process · Outside documentation:</strong> for vendor behavior, scan <code>ai-external-knowledge/README.md</code> during lookup. It uses the same generated, grouped index format as memory and PRDs: one link to the captured entry page and its summary per topic. Open a relevant captured page before relying on it. Reuse a current scan. Check its date and version; use the outside-documentation process to refresh a missing or outdated capture, or report the access gap.</div>
         <div class="detail">Choose only relevant sources. Indexes point to files; read the actual source before relying on its claims. Topic filenames are examples.</div>
         <div class="detail">A stale claim, duplicate, or useful missing explanation can enter the <a href="#part-4">update review in Part 4</a>. A broken link or structure can enter <a href="#part-5">repair and cleanup</a>.</div>
       </div>
@@ -286,16 +287,17 @@
       </div>
       <div class="arrow" aria-hidden="true">↓</div>
       <div class="node">
-        <div class="kind">Native agent · Within the owner’s authorization</div>
+        <div class="kind">Native agent · Separate process: project delivery</div>
         <div class="label">Investigate, explain options, or carry out approved work</div>
         <div class="detail">For this question, assess the change and explain the options. Implement only when the task’s authorization and delivery process allow it. Reading a proposed PRD is not build approval.</div>
-        <div class="detail">The agent uses its own reasoning and tools. New questions return to the relevant decision and source steps.</div>
+        <div class="detail">The agent uses its own reasoning and tools within the project's delivery process. That process owns planning, implementation, testing, release, and acceptance. New questions return to the relevant decision and source steps.</div>
+        <div class="detail">When authorized work ships changes to behavior or requirements, follow <a href="#prd-upkeep">automatic PRD upkeep</a> for the affected documents.</div>
       </div>
       <div class="arrow" aria-hidden="true">↓</div>
       <div class="node knowledge">
         <div class="kind">Required when the relevant state changes · Agent</div>
         <div class="label">Keep changed work state in its proper record</div>
-        <div class="branch"><strong>Work-item state changed:</strong> update its existing tracker record when one is being used.</div>
+        <div class="branch"><strong>Separate process · Work-item state changed:</strong> update its existing record through the chosen tracker's upkeep process. It owns progress and completion; knowledge records link to that state.</div>
         <div class="branch"><strong>Shared continuation context changed:</strong> reread <code>knowledge/memory/current.md</code>, then revise the objective, blocker, next step, dates, and links as needed. Preserve other sessions’ active work.</div>
         <div class="branch"><strong>Neither changed:</strong> continue without rewriting either record.</div>
         <div class="detail">Link to detailed records instead of copying them. Label unverified findings. Keep disposable scratch details in the conversation. This update does not make information long-term memory.</div>
@@ -345,6 +347,7 @@
         <div class="kind">Required decision · Agent chooses the destination</div>
         <div class="label">Put each kind of information in its proper home</div>
         <div class="detail">One discovery may produce different updates with different purposes. Link between their records; keep each meaning in one authoritative home.</div>
+        <div class="detail">For a separate plugin or process below, follow its own templates, approval, validation, and delivery rules. Use its actual result to continue this workflow; do not create a parallel process or copy its records.</div>
         <details>
           <summary>Destinations and what causes an update</summary>
           <table>
@@ -355,14 +358,14 @@
               <tr><td>A significant completed result worth finding later</td><td>Propose an event memory with the result and output location. Routine activity does not qualify.</td></tr>
               <tr><td>Changed objective, blocker, next step, or useful continuation context</td><td>Update <code>knowledge/memory/current.md</code> under Part 3’s shared-context flow.</td></tr>
               <tr><td>New or changed required behavior</td><td>Update the relevant existing PRD in <code>knowledge/prds/</code>, within the owner’s approval. When work finishes, check whether it changed the required behavior.</td></tr>
-              <tr><td>Verified completed implementation</td><td>Reconcile the relevant PRD with delivered behavior. Mark it finalized only when its covered work is verified complete and the document accurately describes the result. Keep build progress in the tracker.</td></tr>
-              <tr><td>Useful explanation of existing parts, their purpose, or connections</td><td>Use enabled System Guide at <code>knowledge/system-guide/</code>, following its own content rules, template, approval, and delivery process.</td></tr>
-              <tr><td>Repeatable project procedure</td><td>Propose a project skill, such as <code>.claude/skills/&lt;name&gt;/SKILL.md</code>, using the supported runtime’s skill location and delivery rules.</td></tr>
-              <tr><td>Changed agent responsibilities or standing behavior</td><td>Use <code>SOUL.md</code>, root instructions, or applicable rules, according to which owns that instruction. Use the instruction-change workflow.</td></tr>
+              <tr><td>Shipped changes to behavior or requirements</td><td>Use <a href="#prd-upkeep">automatic PRD upkeep</a> for every affected component or umbrella PRD. Mark a PRD finalized only when its covered work is verified complete. Keep build progress in the tracker.</td></tr>
+              <tr><td>Useful explanation of existing parts, their purpose, or connections</td><td><strong>Separate plugin: System Guide.</strong> Use its enabled <code>knowledge/system-guide/</code> home and its own content rules, template, approval, and delivery process.</td></tr>
+              <tr><td>Repeatable project procedure</td><td><strong>Separate process: project skill authoring.</strong> Propose a skill using the supported runtime's skill location and the applicable authoring and delivery rules.</td></tr>
+              <tr><td>Changed agent responsibilities or standing behavior</td><td><strong>Separate process: instruction upkeep.</strong> Use <code>SOUL.md</code>, root instructions, or applicable rules through that workflow.</td></tr>
               <tr><td>Changed project systems, resources, or locations</td><td>Update <code>knowledge/project.md</code> through its applicable content and approval rules.</td></tr>
-              <tr><td>Work-item scope, state, build plan, or remaining work</td><td>Update the existing tracker and its linked design records. Ask before creating a new work item, as shown in Part 2.</td></tr>
-              <tr><td>Outside reference material</td><td>Use <code>ai-external-knowledge/</code>. Keep the source and capture date in the topic's entry page, with <code>group</code> and <code>summary</code> in YAML frontmatter for its index entry. Rebuild and check <code>ai-external-knowledge/README.md</code> when its topics change.</td></tr>
-              <tr><td>Unchecked exploration worth retaining</td><td>Use <code>brainstorms/</code> under its own workflow. It remains unchecked.</td></tr>
+              <tr><td>Work-item scope, state, build plan, or remaining work</td><td><strong>Separate processes: work tracking and project delivery.</strong> Update their existing tracker and linked design records. Ask before creating a new work item, as shown in Part 2.</td></tr>
+              <tr><td>Outside reference material</td><td><strong>Separate process: outside-documentation upkeep.</strong> Use <code>ai-external-knowledge/</code>. Keep the source and capture date in the topic's entry page, with <code>group</code> and <code>summary</code> in YAML frontmatter for its index entry. Rebuild and check <code>ai-external-knowledge/README.md</code> when its topics change.</td></tr>
+              <tr><td>Unchecked exploration worth retaining</td><td><strong>Separate process: exploration.</strong> Use <code>brainstorms/</code> under its own workflow. It remains unchecked.</td></tr>
               <tr><td>Unanswered proposal or approved unfinished save</td><td>Maintain <code>knowledge/memory-inbox.md</code> for memory and PRD proposals. Other destinations retain pending state through their own workflows.</td></tr>
               <tr><td>Owner feedback on a memory proposal</td><td>Append its outcome to <code>knowledge/memory/memory-self-improvement.md</code>; it remains a proposal-learning record.</td></tr>
               <tr><td>Changed lasting files or broken navigation</td><td>Rebuild applicable generated indexes. Repair clear mechanical links within the allowed repair boundary. Meaning changes use the approval flow.</td></tr>
@@ -379,7 +382,7 @@
           <div class="branch"><strong>PRD:</strong> required fields are <code>summary</code>, <code>group</code>, <code>area</code>, <code>status</code>, <code>source</code>, <code>created_at</code>, <code>updated_at</code>, and <code>tags</code>. No memory <code>type</code> or <code>confidence</code>. Status: proposed, finalized, superseded, retired. An unapproved proposed draft omits <code>approved_by</code> and <code>approval_date</code>; requirements approval requires both. Other statuses require both. Saving a draft alone does not establish requirements approval.</div>
           <div class="branch"><strong>Glossary:</strong> title, one purpose sentence, and an alphabetical Markdown table. Columns: Term / aliases, Plain meaning, Refers to, Watch out, Source / date. Memory YAML fields do not apply.</div>
           <div class="branch"><strong>Shared context:</strong> a concise dated overview with objectives, blockers, next steps, and links. Preserve other sessions’ work. It is rewritten to reflect current state.</div>
-          <div class="branch"><strong>Pending inbox:</strong> stable reference, destination and operation, exact card, source and date, last update, state, next step or blocker, and separate approval details. Pending content stays outside the memory and PRD indexes.</div>
+          <div class="branch"><strong>Pending inbox:</strong> stable reference, destination and operation, exact card when one was shown, source and date, last update, state, next step or blocker, and separate authority details. For automatic PRD upkeep, preserve the specific update owed and links to its authority and delivery evidence; do not invent a card. Pending content stays outside the memory and PRD indexes.</div>
           <div class="branch"><strong>Proposal-learning record:</strong> date, candidate, outcome, and the owner’s stated reason, or “no reason given.” No invented reasons.</div>
           <div class="branch"><strong>Size checks in the proposed system:</strong> each index source's summary is under 200 characters; each memory file and the shared-context file is under 5,000 characters; the proposal-learning file is under 10,000 characters. The memory-file limit applies to each file in a topic folder. A failed limit never permits silently cutting approved meaning.</div>
           <div class="branch"><strong>System Guide, skills, instructions, tracker, and other destinations:</strong> open their own current template and field rules. The knowledge manual points to those rules; a memory template is not applied to every file.</div>
@@ -389,6 +392,7 @@
       <div class="node knowledge">
         <div class="kind">Required decision · Approval boundary</div>
         <div class="label">Is new approval needed for this exact update?</div>
+        <div class="branch" id="prd-upkeep"><strong>Standing authority · Automatic PRD upkeep:</strong> after authorized human-agent work ships changes to behavior or requirements, update every applicable PRD, including the umbrella OS PRD when affected. Use the agreed scope and verified delivery evidence. No new save card or separate wording approval is needed. Continue through the pre-write and validation checks, then commit and push through the existing knowledge-save process. Routine success stays quiet; explicit publication holds still apply. A new decision or unexpected deviation from agreed behavior is brought to the owner rather than silently made into a requirement.</div>
         <div class="branch"><strong>No:</strong> use approval already covering the change, or an allowed operational update. Go directly to the <a href="#pre-write-check">pre-write check</a>; skip the proposal-response branches.</div>
         <div class="branch"><strong>Yes:</strong> show the destination’s required proposal. The standard card has a headline, destination and operation, exact proposed wording of at most three sentences, then Why, Where, From, Unsure, and Checked. System Guide uses its own proposal standard.</div>
         <div class="detail">“Remember this” starts the review and proposal; it does not approve the lasting-memory write.</div>
@@ -428,7 +432,7 @@
         <div class="detail">Read back the actual saved change and compare it with the authorized content. Check required fields, allowed values, size limits, and links. Rebuild applicable indexes and run the destination’s checks. An acknowledgement or valid YAML alone does not establish that the saved result is correct.</div>
         <div class="detail">The normal memory and PRD save flow commits to the default branch and pushes before reporting publication complete. Other destinations use their own delivery workflow. An explicit publication hold is reported accurately.</div>
       </div>
-      <div class="branch"><strong>Complete:</strong> tell the owner what was saved and where. Remove its completed inbox entry if one exists.</div>
+      <div class="branch"><strong>Complete:</strong> routine automatic PRD upkeep needs no separate save notification. For other saves, follow the destination's response rules and tell the owner what was saved and where when required. An explicit update or status request receives an answer. Remove any completed inbox entry.</div>
       <div class="branch"><strong>Unfinished:</strong> report what succeeded, what failed, and the next step. Keep a memory or PRD save recoverable in the inbox; other destinations use their own recovery records. Preserve other sessions’ entries and report any sharing failure. Pause only dependent work and continue unrelated authorized work.</div>
       <div class="branch"><strong>Recovery:</strong> when the blocker is resolved, return to the pre-write check. Reuse unchanged approval, and check whether another session already completed the save.</div>
     </section>
@@ -464,7 +468,7 @@
         <div class="branch"><strong>Clear mechanical repair:</strong> update links after an unambiguous rename, or rebuild a generated index from its source files. No new meaning approval is needed. Check the affected files before changing them.</div>
         <div class="branch"><strong>Unclear destination, changed meaning, or deliberately deleted content:</strong> explain the affected files and the decision needed. Use <a href="#part-4">Part 4’s approval flow</a>. Do not restore deleted meaning or choose between conflicting meanings without approval.</div>
         <div class="branch"><strong>Duplicate, superseded, or no-longer-useful knowledge:</strong> inspect the actual files and propose the appropriate edit, merge, supersession, retirement, or deletion through <a href="#part-4">Part 4</a>. Age alone is not a reason to remove a file.</div>
-        <div class="branch"><strong>Setup fault:</strong> use the component’s setup, check, or repair flow. Enabling the knowledge system in a project requires the owner’s approval; a disabled component is not automatically enabled.</div>
+        <div class="branch"><strong>Separate process · Setup fault:</strong> use the owning component's setup, sync, check, or repair flow and return its actual result here. Enabling a component requires the owner's approval; a disabled component is not automatically enabled.</div>
         <details>
           <summary>Review scope and available operations</summary>
           <div class="detail">During ordinary lookup or save review, inspect the relevant files encountered. Use <code>reflect</code> for a whole-folder review and <code>retire</code> for taking one file out of current use. Use <code>second-brain</code> for setup and repair. These are available entry points, not a required sequence or an automatic whole-folder sweep after each turn.</div>
@@ -496,7 +500,7 @@
       <div class="node knowledge">
         <div class="kind">Required · Preserve relevant pending state</div>
         <div class="label">Keep unanswered proposals and unfinished saves recoverable</div>
-        <div class="detail">Reread <code>knowledge/memory-inbox.md</code> before editing it. Keep the exact shown memory or PRD card, current state, original approval and scope, source, next step, and blocker. Preserve other entries. Link from shared context where useful.</div>
+        <div class="detail">Reread <code>knowledge/memory-inbox.md</code> before editing it. Keep any shown memory or PRD card, the current state, authority and scope, source, next step, and blocker. For automatic PRD upkeep with no card, retain the specific update owed and its authority and evidence links. Preserve other entries. Link from shared context where useful.</div>
         <div class="detail">Other destinations keep pending state through their own workflows. An approved unfinished save remains work to complete under existing approval.</div>
       </div>
       <div class="arrow" aria-hidden="true">↓</div>

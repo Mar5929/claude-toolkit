@@ -49,6 +49,7 @@ work_item: "269"
 - [27. Installed once, turned on per project, and checked](#27-installed-once-turned-on-per-project-and-checked)
 - [28. Pending memory inbox](#28-pending-memory-inbox)
 - [29. Preserve agent judgment with narrow safeguards](#29-preserve-agent-judgment-with-narrow-safeguards)
+- [30. Integration with the toolkit OS and other components](#30-integration-with-the-toolkit-os-and-other-components)
 - [Potential paths to explore](#potential-paths-to-explore)
 
 ## Why this exists
@@ -87,6 +88,11 @@ The agent keeps its freedom to reason, investigate, and design within those
 boundaries. Requirements 2, 13, 18, and 19 define this behavior.
 
 ## Where it sits
+
+The knowledge system is a component of the [Toolkit Operating System](toolkit-operating-system.md).
+This PRD includes the OS changes required for knowledge behavior to work within
+that larger system. Requirement 30 defines the integration responsibilities
+and the boundaries with other components.
 
 The toolkit ships a whole set of parts for working with an AI agent on a
 project: rules, hooks, skills, the work tracker, and captured
@@ -329,7 +335,7 @@ flowchart TD
     C3 --> L
     W --> I
     I --> J{Save verified complete?}
-    J -- Yes --> K[Confirm what was saved; remove any completed inbox entry]
+    J -- Yes --> K[Apply the destination's response rules; routine PRD upkeep stays quiet; remove any completed inbox entry]
     J -- No --> L[Report what is saved, what remains unfinished, and the next step; retain recoverable pending state]
     L -- Memory or PRD --> M[Keep the approved unfinished save and any conflict in knowledge/memory-inbox.md]
     L -- Other destination --> M2[Keep recovery state through that destination workflow]
@@ -350,6 +356,7 @@ defines approval. Owner decisions about memory proposals also update
 | Lasting account-access decision | Update the existing topic in `knowledge/memory/memory-entries/` after required approval. Keep its source and required fields; avoid a second file for the same topic. |
 | Significant result the project will look up later | At task end, propose an event memory with the result and output location under requirement 11. Routine work produces no episode proposal. |
 | Clear correction within authorized PRD refinement | Update the named PRD in `knowledge/prds/` without asking for the same permission again. A new requirement recommended by the agent still needs agreement. |
+| Shipped changes to behavior or requirements from authorized work | Maintain all applicable PRDs under requirement 16, validate, commit, and push without a new save card or routine notification. Respect explicit publication holds. |
 | Reusable project procedure | Propose a project skill and use that destination's approval and delivery rules. |
 | Explanation of an existing part | Use the enabled System Guide's own workflow and its `knowledge/system-guide/` location. |
 | New project shorthand | Propose an update to the existing glossary table. |
@@ -457,7 +464,7 @@ failed operation visible without waiting for the owner to notice.
 - Before answering or acting on project information, the agent checks the relevant knowledge under requirement 19. Relevant, current sources already available in context can satisfy that check. A check for an earlier task does not cover a different task automatically.
 - An answer or proposal based on saved knowledge identifies its supporting source under requirement 6. This applies however the agent found or opened that source. A path attached to a search result alone does not establish that the answer is supported.
 - The external-knowledge index is reachable from the small map. The agent opens relevant outside documentation before relying on it, as requirement 8 requires.
-- A save review happens at every moment in requirement 9. Opening a pull request or closing a work item requires that review for the work being handed over. At the end of a turn involving real work, the review stays internal unless there is something to approve, a completed save, or a problem. At handoff, identify relevant pending state under requirement 28. An explicit request for a save or review still receives a clear answer, including when nothing qualifies. An existing inbox entry alone does not satisfy a new review.
+- A save review happens at every moment in requirement 9. Opening a pull request or closing a work item requires that review for the work being handed over. At the end of a turn involving real work, the review stays internal unless there is something to approve, a save requiring notification, or a problem. Requirement 16 keeps routine PRD upkeep quiet. At handoff, identify relevant pending state under requirement 28. An explicit request for a save or review still receives a clear answer, including when nothing qualifies. An existing inbox entry alone does not satisfy a new review.
 - Lasting knowledge is changed only within the owner's approval. Proposals follow the standard format, and a proposal missing required information is corrected before requesting approval. A save is not reported complete until its content, required fields, indexes, and publication have been checked. Failed checks leave the save unfinished.
 - When a required check or save was missed, the agent identifies the gap and performs the needed review or recovery within existing approval. It never claims the missing check happened or asks the owner to reconstruct the session for it.
 
@@ -594,17 +601,17 @@ original source or states what could not be verified.
 
 ## 9. Saving is frictionless
 
-- A save needing new approval is one short card and one yes, whether it is a memory or a product requirements document. Clear answers and corrections within already-authorized PRD refinement are saved immediately under requirement 10, without another card and yes for the same instruction.
+- A save needing new approval is one short card and one yes, whether it is a memory or a product requirements document. Existing authority covers PRD refinement under requirement 10 and automatic upkeep after shipped work under requirement 16; neither needs another card and yes for the same scope.
 - No long review. No back and forth. No reading a full file before deciding.
 - The agent proposes at the right moment on its own. The owner never has to remember to ask.
 - Five moments force a save review: a work item finishes or closes, a pull request is being opened, a handoff or a context clear is coming, a turn ends after real work was done, and any time the owner says to save something. Requirement 3 defines the required result and how these moments are enforced.
 - The other moments are the agent's own judgment. It should propose a save when useful: a real problem here has just been fixed, a commit is coming, or relevant context changed, such as a new person, a role change, a tool switch, a stale fact found, or a data-authority decision. A missed candidate is reviewed at the next required moment.
 - The owner saying "remember this" starts the save flow that leads to a card. It is not permission to write, and it skips no step.
-- The save review is that same flow run over everything the session did since the last one. It gathers candidates, drops any that fail requirements 11 and 12, checks for existing inbox proposals, and shows one card per new candidate needing approval. Already-authorized saves proceed under requirement 10. During routine work, speak up only for something needing approval, a completed save, or a problem; do not report that nothing needs saving. Do not repeat an unchanged unanswered card at each review. An explicit request for a save or review still receives a clear result, and handoff identifies relevant pending state under requirement 28. Requirement 3 requires the review even when it produces no visible message. Quiet review does not require a background service.
+- The save review is that same flow run over everything the session did since the last one. It gathers candidates, drops any that fail requirements 11 and 12, checks for existing inbox proposals, and shows one card per new candidate needing approval. Already-authorized saves proceed under requirement 10. During routine work, speak up only for something needing approval, a completed save that requires notification, or a problem; do not report that nothing needs saving. Routine PRD upkeep follows requirement 16's quiet completion rule. Do not repeat an unchanged unanswered card at each review. An explicit request for a save or review still receives a clear result, and handoff identifies relevant pending state under requirement 28. Requirement 3 requires the review even when it produces no visible message. Quiet review does not require a background service.
 - When approved, memory or PRDs are saved directly to the default branch and pushed!!! They are not lost in worktree branches or buried in something that a future agent would not easily find.
 - A save is finished only when the file is on the default branch and pushed, and not before.
 - An approved knowledge save is not deferred into a feature branch, pull request, or separate draft. This holds even when the session is doing its other work on a branch. The save still goes straight to the default branch. The session's own branch gets the saved file later, whenever someone merges or pulls the default branch into it. The pending inbox in requirement 28 preserves unanswered proposals and interrupted saves; it never replaces completing an approved save.
-- One yes finishes the owner's part. He runs no Git command and does nothing else. The save then completes on its own, and the reply tells him it is done or tells him it failed. Whether the writing happens inside that reply or just after it is the design's job, so long as a failure is never silent.
+- One yes finishes the owner's part for a save requiring a proposal. He runs no Git command and does nothing else. The save completes on its own, and the reply tells him it is done or tells him it failed. Routine PRD upkeep needs no separate success message under requirement 16. Whether the writing happens inside that reply or just after it is the design's job, so long as a failure is never silent.
 - If the push fails, the agent says so in that same reply and the save is not finished. Requirement 3 sets what pauses and what can continue. Nothing is ever parked silently.
 - Completed knowledge has one authoritative destination. Unfinished proposals have one known inbox, which agents maintain and recover automatically; the owner never has to remember where a proposal was left.
 
@@ -622,19 +629,19 @@ follows requirement 3; it never claims that no save is waiting.
 
 ## 10. Approval before any write
 
-- Nothing writes memory or a requirements document without the owner's yes. Not the agent, not anything the agent starts, not anything running on its own.
+- Every memory or PRD write needs authority covering the change. This may be explicit save approval, existing permission to refine a PRD, or the standing authority for PRD upkeep after shipped work in requirement 16. Separate lasting-memory proposals still require the standard card and the owner's approval.
 - Approval already given for drafting or refining a named PRD covers faithful capture of the owner's clear answers and corrections within that scope. Save those in the same reply without asking him to approve his own instruction again. The normal placement, validation, and publication requirements still apply.
 - If the owner's words are ambiguous, clarify the meaning before changing the requirement. A new requirement the agent invents or recommends needs the owner's agreement before it becomes a requirement in the draft. Drafting permission does not approve that new meaning.
 - A separate lasting-memory proposal still uses the standard card and approval, even when it arose during an authorized PRD interview. Drafting or saving permission does not approve the requirements as a whole, a solution design, or implementation. Requirement 16 defines what a PRD's approval fields mean.
 - Record the drafting permission, who gave it, its source and date, and its scope in the existing canonical draft or linked work record. A later session reads that record and carries forward the same permission while it remains applicable. It does not ask again solely because the session or model changed, and it never expands the recorded scope.
-- The same approval boundary covers changing lasting meaning and merging, superseding, retiring, or deleting lasting knowledge. The agent independently identifies and proposes the need; after approval it carries out the approved operation and its checks without making the owner manage the files.
+- The same authority boundary covers changing lasting meaning and merging, superseding, retiring, or deleting lasting knowledge. The agent proposes operations outside its existing authority; it carries out authorized operations and their checks without making the owner manage the files.
 - Silence is not approval. An unclear answer is not approval. Asking to see the full text is not approval.
 - The owner may change the wording, the place, the tags, or drop the whole thing.
 - When the owner edits the words, those words are written exactly as typed. The agent does not tidy them, shorten them, or improve them.
-- Only the approved meaning is written. Not the surrounding context, not an improved version, not one extra sentence that seemed useful.
+- Only the authorized meaning is written. Do not add surrounding context or new meaning outside that authority.
 - The `Unsure` line on the card is approved on its own. The owner can approve the text to be saved and still reject what is on the `Unsure` line. When he does, that unsure part is dropped and never written to the file. Requirement 20 says what the `Unsure` line holds.
 - Five things can be done without asking the owner: rebuilding an index, repairing a broken link within requirement 1’s limits, writing `knowledge/memory/current.md`, appending a line to `knowledge/memory/memory-self-improvement.md`, and maintaining the pending inbox under requirement 28. None of them changes what a lasting file means. Requirement 4 says how the current file is updated. Inbox retention is permission to preserve a proposal, not permission to accept its meaning.
-- There is one exception, for files the owner already approved when this project used an older folder layout. The agent converts those files first and shows the owner the converted results afterwards, in groups small enough to read in one pass. The owner approves after the conversion, not before. Any file that will not convert cleanly is named and left alone. The agent never guesses what an old file meant.
+- For files the owner already approved under an older folder layout, the agent converts those files first and shows the owner the converted results afterwards, in groups small enough to read in one pass. The owner approves after the conversion, not before. Any file that will not convert cleanly is named and left alone. The agent never guesses what an old file meant.
 
 **Check:** show a proposal and say nothing back. The exact proposal is retained
 in the pending inbox, marked awaiting approval. Its destination is unchanged,
@@ -895,7 +902,23 @@ one file, with a parent PRD and child PRDs inside it.
 - This folder used to be called `knowledge/specs/`, and older sessions call these files specs.
 - A PRD describes what the system does or should do, its behavior, the end user's experience, process requirements, constraints, and observable completion expectations. It states these in plain language and distinguishes intended behavior from verified existing behavior. It does not reproduce code or prescribe the build plan.
 - Build order, delivery roadmaps, implementation tasks, schedules, work-item status, and detailed solution designs do not belong in a PRD. A clearly separated closing section may preserve the owner's preferred solution philosophy, high-level architecture, illustrative examples, and options to explore without making them functional requirements. Required runtime sequences do belong: for example, approval must precede a lasting-memory write. That describes how the product behaves, not which part to build first.
-- When a work item finishes, check whether it changed how any area is meant to behave. If it did, update that area's PRD within requirement 10's approval rules. Reordering delivery alone never changes the product requirements.
+- When work ships, check whether it changed system behavior or requirements and apply the automatic upkeep below. Reordering delivery alone never changes the product requirements.
+
+**Automatic upkeep after shipped work**
+
+- When authorized work by the owner and agent results in shipped changes to behavior or requirements, the agent has standing authority to update every applicable PRD. This includes the umbrella OS PRD when the change affects the overall experience. The owner does not need to request or approve each documentation update separately.
+- Capture the decisions and behavior delivered within the work's authorization. Use the agreed scope and verified delivery evidence. Do not invent requirements or turn an unexpected implementation defect into an approved requirement; report any unresolved difference between intended and delivered behavior.
+- Read the latest PRDs, preserve other sessions' changes, update the affected requirements in their main sections, and maintain relevant links and metadata. Apply the existing approval-field and finalization rules: shipping part of a large PRD does not finalize the entire document. Keep build progress and delivery evidence in the existing tracker, with links where needed.
+- Validate the updates, rebuild affected indexes, and make a quick commit and push to the default branch through the existing knowledge-save process. Do not require a save card, a separate review of the wording, or another approval for faithful upkeep. Explicit holds on writing or publication still apply.
+- Routine successful upkeep stays quiet. The owner need not see the document edits or a separate save confirmation. Report a conflict, missing authority, failed check, or failed publication that needs attention; an explicit request for an update or status receives a clear answer. An interrupted update remains recoverable under requirement 28 without requesting the same authority again.
+
+**Check:** ship an authorized change affecting two feature areas and the overall
+toolkit experience. The agent updates the relevant component and umbrella PRDs,
+checks them, commits, and pushes without a new approval prompt or routine save
+notification. An unrelated proposed requirement remains unapproved. Repeat with
+a publication hold, a failed push, and an unexpected deviation from the agreed
+behavior: the agent preserves the hold or reports the gap instead of claiming
+publication or silently changing the agreed requirement.
 
 **A PRD is usually big.** Most of the time it describes a large feature, too
 much for one work item to deliver. A small PRD that one work item delivers is
@@ -981,8 +1004,9 @@ save. A correct folder and valid fields do not make unsupported content safe.
 Keep the approved meaning, its source, relevant dates, and current or historical
 status clear. Exclude unrelated details, unsupported conclusions, duplicate
 explanations, and transient reasoning that could mislead a future reader.
-Requirement 15 owns the plain-language writing standard. The owner approves
-lasting meaning through the standardized proposal, not by managing files.
+Requirement 15 owns the plain-language writing standard. Requirement 10 defines
+the authority for a write; new approval uses the standardized proposal.
+The owner does not manage the files.
 
 | The question | Where it goes |
 | --- | --- |
@@ -1020,8 +1044,8 @@ The PRD keeps the intended behavior and its business reason. The System Guide ex
 
 The full table above, and this test, are given to the agent in every project, so it never has to guess where something goes. Requirement 2 makes following it a must, and the setup of a new project shows the table and one example per row.
 
-**Check:** hand the agent one item of each kind. Each lands in the right home,
-and the agent names the home before it writes. Include an unsupported claim,
+**Check:** hand the agent one item of each kind. Each lands in the right home.
+When approval is needed, the proposal names the home before the write. Include an unsupported claim,
 a duplicate, and a task-only detail: none becomes lasting knowledge. For a
 memory, PRD, and enabled System Guide page, the agent locates the appropriate
 template and content rules without asking the owner to explain them.
@@ -1260,8 +1284,8 @@ changes there.
 ## 28. Pending memory inbox
 
 One plain Markdown file, `knowledge/memory-inbox.md`, holds actual knowledge
-save proposals that are awaiting the owner's answer or whose approved save has
-not finished. It sits directly under `knowledge/`, outside lasting memory.
+save proposals awaiting the owner's answer and authorized saves that have not
+finished, including automatic PRD upkeep. It sits directly under `knowledge/`, outside lasting memory.
 Agents retain unanswered proposals and manage follow-up. The owner does not
 maintain a queue or repeat a decision because the session changed.
 
@@ -1269,7 +1293,7 @@ maintain a queue or repeat a decision because the session changed.
 
 - Automatically retain an unanswered proposal once it has been shown to the owner. Preserve the exact card, including its proposed wording and formatting. Unshown brainstorming, raw conversations, discarded candidates, and secrets do not belong here.
 - Keep an approved proposal while its save is unfinished. Save locally and share the pending record promptly through the project's default branch. If either step fails, report what exists, where it exists, and what another session cannot yet see. A proposal that exists only in chat is still unsaved.
-- Use the same entry format for every proposal: a stable reference; destination and operation; exact card; source reference and date; last-updated time; state; and the next step or blocker. The states are `awaiting approval`, `approved, save unfinished`, and `blocked by conflict`. Record any approval separately with who gave it, when, its source, and the exact content and scope it covers. A conflict does not erase that record or expand its scope.
+- Use the same entry format for each pending save: a stable reference; destination and operation; exact card when one was shown; source reference and date; last-updated time; state; and the next step or blocker. For authorized PRD upkeep with no card, record the specific update still owed, the source of its authority, and links to the agreed scope and delivery evidence. Do not invent a card or a new approval event. The states are `awaiting approval`, `approved, save unfinished`, and `blocked by conflict`; standing authority uses `approved, save unfinished`. Record approval or standing authority separately with its source, date, covered content and scope, and who gave explicit approval when applicable. A conflict does not erase that record or expand its scope.
 - Keep only the context needed to understand and resolve that proposal. Use links to the original sources and work record. An already-authorized PRD draft stays in its canonical PRD; the inbox does not become a second copy of that document or a work tracker.
 
 ### How agents use it
@@ -1290,6 +1314,10 @@ approved save without asking again. It removes only the completed entry. Reject
 the remaining card and it leaves the active inbox. Repeat with parallel edits,
 an already-completed save, and conflicting newer content: no proposal is lost,
 no save is duplicated, and conflicting meaning waits for the owner's decision.
+
+**Check:** interrupt automatic PRD upkeep with no save card. The pending record
+identifies the update and its standing authority. A later session verifies what
+was already saved and completes the remaining work without a new approval.
 
 ## 29. Preserve agent judgment with narrow safeguards
 
@@ -1367,6 +1395,48 @@ write fails its required checks; an already-authorized PRD correction does not
 ask for the same permission again. Session bookkeeping never appears as a
 project memory. Requirement 2 checks startup behavior; requirement 3 checks
 actual outcomes throughout the session.
+
+## 30. Integration with the toolkit OS and other components
+
+The knowledge system must work as part of the [Toolkit Operating System](toolkit-operating-system.md).
+Its delivery includes the OS changes needed to satisfy this PRD. A requirement
+is not complete if knowledge works in isolation but the normal OS workflow
+cannot reach it or follow its rules.
+
+When a knowledge requirement needs an OS change, record the required behavior
+here, the affected OS responsibility, and a check showing the integration works.
+Link to the corresponding umbrella requirement. Keep detailed component rules
+in their existing PRDs; do not duplicate their procedures or create another
+owner of their records. Build tasks and implementation choices stay in the
+existing delivery process.
+
+| OS responsibility | Required knowledge integration | Umbrella requirements to align |
+| --- | --- | --- |
+| Session start and continuity | Make the knowledge guidance, current context, indexes, glossary, and pending-save records reachable when this component is enabled. Apply this PRD's required reads and recovery rules without adding a second startup process. | R6, R9, R11, R17 |
+| Request routing and separate components | Use requirement 18 to choose the owning component. The chosen tracker owns work-item records; guided delivery owns the delivery process; System Guide owns its explanations; skills, rules, and captured documentation use their own upkeep. The walkthrough identifies each handoff and the result returned. | R7–R11, R16 |
+| Approval and PRD upkeep | Carry existing authority across components and sessions. Apply requirement 16's autonomous upkeep after shipped work, including affected umbrella requirements, while preserving the approval rules for new decisions and separate memories. | R8, R10, R15, R25 |
+| Work milestones and completion | The delivery process makes the scope and outcome of the relevant work available for knowledge review at requirement 9's moments. Knowledge reports its actual completion or failure to that process. The tracker retains ownership of work status; a failed knowledge operation pauses only dependent work under requirement 3. | R8, R13, R16, R19–R20 |
+| Setup and missing capabilities | The setup and sync processes make the required knowledge parts available, preserve project choices and content, and report missing support. Route a fault to the component responsible for fixing it. Do not silently enable an optional component to satisfy a lookup or save. | R4–R5, R19–R20, R22 |
+| Publication and concurrent work | Use the existing quick-save process for knowledge-owned records, preserve other sessions' edits, honor explicit holds, and retain unfinished saves for recovery. Other components keep their own delivery rules even when their files are nearby. | R18, R25 |
+
+The OS must not impose a competing knowledge policy, force every question to
+create a work item, or duplicate another component's tracker, approval process,
+templates, or content. An unavailable component is reported as a gap; its work
+is not silently reassigned to memory or PRDs. Requirement 3 governs the effect
+of that gap on the current task.
+
+The owning component's workflow performs each operation and supplies its result.
+The knowledge system uses that result and resumes the applicable knowledge step.
+The exact hooks, skills, events, and coordination mechanisms are chosen during
+solution design after the requirements are finalized.
+
+**Check:** run a question that needs no work item and a tracked change that
+ships behavior affecting a component and the OS. Verify required knowledge
+reads, the existing tracker's updates, separate System Guide upkeep when
+applicable, quiet PRD upkeep, and a recoverable handoff. Each record has one
+owner. Repeat with System Guide disabled, a failed knowledge save, and parallel
+edits: no substitute store is created, no failure is reported as success, and
+unrelated authorized work continues.
 
 ## Potential paths to explore
 

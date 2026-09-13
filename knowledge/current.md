@@ -1,6 +1,6 @@
 # What is happening right now
 
-Short-term working state, not lasting knowledge. Updated 2026-09-12.
+Short-term working state, not lasting knowledge. Updated 2026-09-13.
 
 ## Objective
 
@@ -8,11 +8,11 @@ Review the knowledge-system PRD for [issue #269](https://github.com/Mar5929/clau
 
 ## Work item
 
-Stage `02-refinement`. `knowledge/prds/knowledge-system.md` has 29 requirements and remains proposed. Full workflow, requirements, solution design, and implementation approval remain pending.
+Stage `02-refinement`. `knowledge/prds/knowledge-system.md` has 30 requirements and remains proposed. Full workflow, requirements, solution design, and implementation approval remain pending.
 
 ## Current work
 
-The [walkthrough draft](prds/knowledge-system-walkthrough.html) is the canonical visual companion beside the PRD. It has six connected parts; Parts 5–6 (repair, cleanup, handoff, recovery) are ready for review. Refine the walkthrough first. Mike requires approval of the complete flow before further PRD reconciliation. Then update affected requirements, process, data model, examples, and checks, with one main home per requirement.
+The [walkthrough draft](prds/knowledge-system-walkthrough.html) is the canonical visual companion beside the PRD. It has six connected parts; Parts 5–6 (repair, cleanup, handoff, recovery) are ready for review. Refine the walkthrough first; capture explicit PRD corrections as given. General PRD reconciliation waits for full-flow approval. Then update affected requirements, process, data model, examples, and checks, with one main home per requirement.
 
 Use clear technical English, useful examples, and no drafting history or needless repetition. Keep native agent reasoning and search, with required guidance and focused checkpoints. Full-document wording issues remain.
 
