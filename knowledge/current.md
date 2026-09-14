@@ -22,7 +22,7 @@ Push hold released; saved updates are published. Continue quick knowledge commit
 
 ## Remaining review
 
-- Finish Part 4, then Parts 5–6 and the complete flow. Reconcile the PRD and stale issue summary after approval.
-- Pending PRD reconciliation: summary approval; output style for authored text, preserving sources; instructions before governed actions; coherent memory topics without a fixed file cap. R23 defaults are clarified.
+- Templates: descriptive working memory with per-item and general project to-dos; next review memory, PRD, and inbox examples. Reconcile the PRD and issue after full-flow approval.
+- Pending PRD reconciliation: summary approval; output style for authored text, preserving sources; instructions before governed actions; coherent memory topics without a fixed file cap.
 - Review `misc/SKILL (2).md` on `issue-269-second-brain-design`; it is an unpublished PRD skill draft.
 - Earlier [handoff](https://github.com/Mar5929/claude-toolkit/blob/issue-269-second-brain-design/misc/269-session-handoff.md). Related scopes: System Guide #304 and rules audit #305. Proposed paths and templates are not all implemented.

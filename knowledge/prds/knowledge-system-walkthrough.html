@@ -382,7 +382,49 @@
           </div>
           <div class="branch"><strong>PRD:</strong> required fields are <code>summary</code>, <code>group</code>, <code>area</code>, <code>status</code>, <code>source</code>, <code>created_at</code>, <code>updated_at</code>, and <code>tags</code>. No memory <code>type</code> or <code>confidence</code>. Status: proposed, finalized, superseded, retired. An unapproved proposed draft omits <code>approved_by</code> and <code>approval_date</code>; requirements approval requires both. Other statuses require both. Saving a draft alone does not establish requirements approval.</div>
           <div class="branch"><strong>Glossary:</strong> title, one purpose sentence, and an alphabetical Markdown table. Columns: Term / aliases, Plain meaning, Refers to, Watch out, Source / date. Memory YAML fields do not apply.</div>
-          <div class="branch"><strong>Shared context:</strong> a concise dated overview with objectives, blockers, next steps, and links. Preserve other sessions’ work. It is rewritten to reflect current state.</div>
+          <div class="branch"><strong>Shared context:</strong> start with the overall project goal and next milestone, then use a descriptive section for each active work item. Include its goal, where work stands with enough background to continue, next step, blocker or None, to-dos, a link to the detailed record, and owning session when known. Date the item context and to-do entries where needed; include due dates only when provided and useful unverified findings only when clearly labelled. Do not invent missing facts or dates.
+            <div class="detail">Keep item-specific to-dos under the relevant item and other requested later work under <strong>General project to-dos</strong>. An empty list may say None. These are temporary project context and need no lasting-memory proposal; adding a to-do does not create a work item. Link to already-tracked tasks and keep their detailed plans and status in the tracker. Rewrite the overview as work changes, preserving other sessions’ work.</div>
+            <details>
+              <summary>Fictional working-memory example · Layout and useful context</summary>
+              <div class="detail">All content and dates below are illustrative. The work-record links are placeholders, not real project records.</div>
+              <pre class="detail" style="white-space:pre-wrap"><code># Current work
+Updated: 2026-09-13
+
+## Project goal
+Prepare the account-access changes for the next release.
+
+Next milestone: Agree the access requirements before planning the change.
+
+## Active work
+
+### Account access
+Updated: 2026-09-13
+
+**Goal**
+Decide who can view and edit a customer account, including people invited after it was created. The release needs one clear access policy approved by the owner.
+
+**Where the work stands**
+We compared shared account access with access assigned separately to each person. The tradeoffs are in the work item. The owner has not chosen an approach, so implementation has not started.
+
+**Next step**
+Walk the owner through both approaches using the same example account. Record the agreed requirements in the work item.
+
+**Blocker**
+The access policy needs an owner decision before implementation.
+
+**To-dos**
+- Added 2026-09-13: Check whether support needs a separate access role. Already tracked: &lt;link to the existing task&gt;.
+
+**Owning session**
+Access review.
+
+**Detailed record**
+&lt;link to the existing work item and comparison&gt;
+
+## General project to-dos
+- Added 2026-09-13: Review the project README screenshots after the release. No work item has been created.</code></pre>
+            </details>
+          </div>
           <div class="branch"><strong>Pending inbox:</strong> stable reference, destination and operation, exact card when one was shown, source and date, last update, state, next step or blocker, and separate authority details. For automatic PRD upkeep, preserve the specific update owed and links to its authority and delivery evidence; do not invent a card. Pending content stays outside the memory and PRD indexes.</div>
           <div class="branch"><strong>Memory-selection feedback:</strong> preserve useful owner feedback and stated reasons across sessions. Do not invent reasons. Its record format is a design choice.</div>
           <div class="branch"><strong>Size checks in the proposed system:</strong> each index source's summary is under 200 characters; the shared-context file is under 5,000 characters. A failed limit never permits silently cutting approved meaning.</div>
