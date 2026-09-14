@@ -379,6 +379,43 @@
           <div class="branch"><strong>Long-term memory:</strong> one coherent Markdown file per topic by default. Keep related context together; do not create one file per fact. Recommend splitting into coherent subtopic files in one topic folder when it would make the information easier to find, understand, or use. Apply the split after required approval and preserve the approved meaning. Memory files have no fixed character limit. Each file uses YAML frontmatter. Required fields: <code>summary</code>, <code>group</code>, <code>type</code>, <code>status</code>, <code>source</code>, <code>context</code>, <code>confidence</code>, <code>created_at</code>, <code>updated_at</code>, <code>tags</code>, <code>approved_by</code>, <code>approval_date</code>.
             <div class="detail"><code>type</code>: fact, decision, event, context, constraint. <code>status</code>: current, superseded, retired. <code>confidence</code>: observed, reported, inferred. <code>tags</code>: a free-form YAML list of strings.</div>
             <div class="detail">Dates use <code>YYYY-MM-DD</code>. Preserve the creation date; an update date is not proof of verification. Optional fields, used only when applicable: <code>confirmed_at</code>, <code>source_quote</code>, <code>effective_from</code>, <code>effective_to</code>, <code>project</code>, <code>work_item</code>, <code>supersedes</code>, <code>superseded_by</code>, <code>related_memories</code>.</div>
+            <div class="detail"><strong>Body:</strong> after the YAML properties, start with a title heading that names the memory topic. Use paragraphs, lists, or topic-specific headings that fit the information. Include enough context for a future agent to understand and use the memory without the original conversation. No fixed “Current understanding” or “Reason for the decision” headings are required. Include reasons or history when they help explain the information.</div>
+            <div class="detail"><strong>Optional sections:</strong> use <strong>When to revisit</strong> for a known condition or time that makes another review useful, and <strong>Related records</strong> for useful links to other records. Omit either section when it does not apply; do not invent review dates, conditions, or links to fill the template.</div>
+            <details>
+              <summary>Fictional memory example · Properties, title, and flexible body</summary>
+              <div class="detail">The decision, approval, and dates below are illustrative. Replace link placeholders with real relative Markdown links in an actual memory. This example does not save a project decision.</div>
+              <pre class="detail" style="white-space:pre-wrap"><code>---
+summary: Keep the current sign-in provider for the next release; review the choice after release.
+group: Account access
+type: decision
+status: current
+source: Project owner, release-planning conversation
+context: Provider options discussed during release planning on 2026-09-13.
+confidence: reported
+created_at: 2026-09-13
+updated_at: 2026-09-13
+tags:
+  - sign-in
+  - release-planning
+approved_by: Project owner
+approval_date: 2026-09-13
+---
+
+# Sign-in provider decisions
+
+The owner decided to keep the current sign-in provider for the next release. Changing providers would add migration and testing work and delay the release.
+
+This decision applies to the next release. It does not settle the provider choice for later releases. No replacement provider has been selected.
+
+## When to revisit
+
+Review the provider choice after the release.
+
+## Related records
+
+- Access requirements: &lt;link to the applicable PRD&gt;
+- Release work: &lt;link to the existing work item&gt;</code></pre>
+            </details>
           </div>
           <div class="branch"><strong>PRD:</strong> required fields are <code>summary</code>, <code>group</code>, <code>area</code>, <code>status</code>, <code>source</code>, <code>created_at</code>, <code>updated_at</code>, and <code>tags</code>. No memory <code>type</code> or <code>confidence</code>. Status: proposed, finalized, superseded, retired. An unapproved proposed draft omits <code>approved_by</code> and <code>approval_date</code>; requirements approval requires both. Other statuses require both. Saving a draft alone does not establish requirements approval.</div>
           <div class="branch"><strong>Glossary:</strong> title, one purpose sentence, and an alphabetical Markdown table. Columns: Term / aliases, Plain meaning, Refers to, Watch out, Source / date. Memory YAML fields do not apply.</div>
