@@ -299,10 +299,6 @@ so they always know where they are.
 
 **Gate 6: Optional standalone toolkit skills**
 
-- Windows speech output is the optional `voice-reply` system. Route its setup
-  to `machine-sync` or `voice-setup` at user scope. Never add project voice
-  settings or hooks. Each new chat starts with speech OFF.
-
 - Offer `session-skills` as ONE plugin holding eleven conversation skills:
   `braindump`, `explain-simply`, `grill-me`, `handoff`, `session-summary`,
   `spec-check`, `track-tasks`, `unslop`, `work-guide`, `requirements-helper`,

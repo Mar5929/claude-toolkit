@@ -695,7 +695,7 @@ for it.
 - A step by step record of files opened and edits made, and everything a helper agent did.
 - Copies of code, or anything an agent could work out by reading the source or the live system. Example: a write-up of how the sharing model works today, when the org itself shows it. If a project keeps research like that, it keeps it in its own reference folder outside the second brain. Memory holds only the decision or the trap that came out of the research.
 - A repeatable procedure. That is a skill. One past fix is not a procedure.
-- An open task, an implementation step, or the live status of work in flight. Those belong to the work tracker. Example: a manual step still owed in production is a ticket, never a memory. If no ticket exists, make one.
+- An open task, an implementation step, or the live status of work in flight. Detailed work records belong to the work tracker, never lasting memory. Temporary to-dos use requirement 13's working-memory format. Ask before creating a work item unless the owner already requested one; adding a to-do alone does not create one.
 - A "read this first" pointer for a piece of work. The work item carries its own entry point, and `knowledge/memory/current.md` carries the active ones.
 - The story behind a standing instruction. The rule file may say in one line why it exists. Nothing else about its history is kept.
 - Anything stale or contradicted with no historical value.
@@ -713,13 +713,36 @@ conversations in this project and answers "what is happening right now".
 
 What it holds:
 
-- The current objective, in one or two sentences.
-- Which work item it belongs to, and what is blocking it.
-- The exact next step.
+- The overall project goal and next milestone.
+- Each active work item's goal, where it stands, next step, blocker, to-dos, and link to its detailed record when one exists. Include the owning session when known.
+- General project to-dos that the owner wants to return to later and that do not belong to an active work item.
 - Useful short-term findings that have not been saved as memory, clearly marked when unverified. Actual pending save proposals live in `knowledge/memory-inbox.md`; this overview links there instead of copying their text.
 - Dates on entries, so a later agent can tell when a line is out of date.
-- !!!!The information should be cross-ai-agent sessions. The purpose of the working memory is so that the human user can pickup or start any ai agent session with a brand new agent and it (the agent) has a crystal clear picture on what the current goals, next milestones, roadmaps, tasks, etc. are. Utilize paths to persisted/more detailed information in the current memory if necessary. Don't simply duplicate details stated in work items, memories etc. The point is the consolidate all working sessions into one clear picture so agents know how to orchestrate sessions and guide the user to their goals.!!!!
-- In short: this file gives a brand new agent the whole current picture in one read. It holds the goals, the milestones, and the next steps. For detail, it gives the path to the work item, the memory, or the PRD that holds it, instead of copying that detail here.
+
+The overview combines the useful context from all active project sessions so a
+new agent can help the owner continue. Give enough background to understand
+where each item stands. Link to detailed records instead of copying their
+requirements, plans, or full progress history.
+
+### Working-memory template
+
+Use a Markdown title, an updated date, and these sections:
+
+| Section | Required content | Optional content |
+| --- | --- | --- |
+| Project goal | Overall goal and next milestone | Links to a detailed project plan |
+| Active work | One descriptive subsection per item: goal, where work stands, next step, blocker or None, to-dos, and a link to its detailed record when one exists | Owning session when known; useful findings clearly labelled if unverified |
+| General project to-dos | Requested later work not attached to an active item, or None | Links to existing records |
+
+Date item context and to-do entries where needed. Include a due date only when
+the owner provided it. Do not invent missing facts, dates, or records. Keep
+item-specific to-dos under their item. An empty to-do list may say None.
+
+When the owner mentions a project task to do later, record it in the
+appropriate to-do section without a lasting-memory proposal. This does not
+create a tracker item. Ask before creating one unless that action was already
+requested. If a task is already tracked, link to it and keep its detailed plan
+and status in the tracker.
 
 What it never holds:
 
@@ -743,11 +766,59 @@ How it behaves:
 next step, and either the blocker or that there is no blocker. Nothing in it is
 a record of what happened.
 
+**Check:** the owner mentions one to-do for an active item and one general
+project to-do. Each appears in its proper section without a lasting-memory
+proposal or an automatically created work item. An already-tracked task is
+linked rather than copied into a second detailed task record.
+
 **Check:** two parallel terminal sessions work on different items and both
 update the overview. A third, fresh session can identify both items and their
 next steps without reading either conversation. Neither update erased the
 other's context. Change one item's tracker state and confirm a later briefing
 uses that state instead of repeating the older overview.
+
+### Working-memory example
+
+Fictional content and dates; links are placeholders.
+
+```markdown
+# Current work
+Updated: 2026-09-13
+
+## Project goal
+Prepare the account-access changes for the next release.
+
+Next milestone: Agree the access requirements before planning the change.
+
+## Active work
+
+### Account access
+Updated: 2026-09-13
+
+**Goal**
+Decide who can view and edit a customer account, including people invited after it was created. The release needs one clear access policy approved by the owner.
+
+**Where the work stands**
+We compared shared account access with access assigned separately to each person. The tradeoffs are in the work item. The owner has not chosen an approach, so implementation has not started.
+
+**Next step**
+Walk the owner through both approaches using the same example account. Record the agreed requirements in the work item.
+
+**Blocker**
+The access policy needs an owner decision before implementation.
+
+**To-dos**
+- Added 2026-09-13: Check whether support needs a separate access role. Already tracked: <link to the existing task>.
+
+**Owning session**
+Access review.
+
+**Detailed record**
+<link to the existing work item and comparison>
+
+## General project to-dos
+- Added 2026-09-13: Review the project README screenshots after the release. No work item has been created.
+```
 
 ## 14. Memory file shape
 
@@ -802,13 +873,26 @@ Optional fields, written only when they apply and left out otherwise:
 
 All dates are `YYYY-MM-DD`. All paths are relative to the project root.
 
-Below the frontmatter comes a title in plain words. Under the title comes what
-is true. Write it so someone reading it a year from now understands it without
-having seen the conversation that produced it.
+### Memory body template
 
-Links in the body are plain relative file paths. There is no list of what links
-to what. To find the files that point at a file, search the project for that
-file's name.
+After the YAML properties, start with a title heading that names the memory
+topic in plain words. The body is flexible: use paragraphs, lists, or
+topic-specific headings that fit the information. Give enough context for a
+future agent to understand and use it without the original conversation.
+Fixed headings such as "Current understanding" and "Reason for the decision"
+are not required. Include reasons or history when they help explain the memory.
+
+Two optional sections have standard names:
+
+- **When to revisit:** a known condition or time that makes another review useful.
+- **Related records:** useful links to other memories, PRDs, work items, or other records.
+
+Omit either section when it does not apply. Do not invent review dates,
+conditions, or links to fill the template. Requirement 15 governs the wording.
+
+Links in the body use relative Markdown links. No separate index of incoming
+links is required. To find the files that point at a file, search the project
+for its name. This does not prevent useful Related records links in the body.
 
 **Check:** write one memory file. Every required field is present and holds an
 allowed value, and the checker passes.
@@ -825,6 +909,45 @@ split, the topic's files remain together in one folder, preserve useful context
 and history, and are reachable through the memory index. Later updates go to
 the file that already owns that subtopic.
 
+### Memory example
+
+Fictional decision, approval, and dates. Replace link placeholders with real
+relative Markdown links in an actual memory.
+
+```markdown
+---
+summary: Keep the current sign-in provider for the next release; review the choice after release.
+group: Account access
+type: decision
+status: current
+source: Project owner, release-planning conversation
+context: Provider options discussed during release planning on 2026-09-13.
+confidence: reported
+created_at: 2026-09-13
+updated_at: 2026-09-13
+tags:
+  - sign-in
+  - release-planning
+approved_by: Project owner
+approval_date: 2026-09-13
+---
+
+# Sign-in provider decisions
+
+The owner decided to keep the current sign-in provider for the next release. Changing providers would add migration and testing work and delay the release.
+
+This decision applies to the next release. It does not settle the provider choice for later releases. No replacement provider has been selected.
+
+## When to revisit
+
+Review the provider choice after the release.
+
+## Related records
+
+- Access requirements: <link to the applicable PRD>
+- Release work: <link to the existing work item>
+```
+
 ## 15. How the words are written
 
 This applies to every memory file, every PRD, and every card. The reader is a
@@ -837,12 +960,13 @@ technical.
 - Concrete, not abstract: the real name, the real value, the real path, the real date. Write the full date, never "last week". Name the system or the organization every time. When something was left undone, say so.
 - Nothing that points at a conversation the reader cannot see. No "as discussed", no "per our call".
 
-What a topic-area memory's body holds, using short sections when useful:
+The body follows requirement 14's flexible template. These are content
+considerations, not mandatory headings or sections:
 
 1. The current facts, decisions, and lessons for that topic area, stated briefly and coherently.
-2. Why it is so, in enough words that a later agent can tell whether it still applies.
+2. Why it is so, when that context helps a later agent understand whether it still applies.
 3. What to do differently because of it, when there is something.
-4. Where the detail lives, as a path or a link, instead of the detail itself.
+4. Where further detail lives, when a useful related record exists; link instead of copying it.
 5. An important timeline or superseded decision trail, only when needed, clearly separated from what is true now.
 
 When the memory settles a question that was open, it says so and names what
@@ -871,16 +995,16 @@ unnecessary repetition. Keep the behavior, decision rules, process, user
 experience, data model, and useful examples explicit. Each requirement has one
 main home; other sections refer to it when needed.
 
-Its structure and fields follow requirement 16; the memory-only body template
+Its structure and fields follow requirement 16; the memory body guidance
 and memory size limit do not apply. Before design, review requirements for
 wording that could be implemented literally while missing the intended result.
 Identify the competing interpretations and resolve choices that change behavior
 with the owner. Editing for clarity must preserve the requirement's meaning.
 
 **Check:** hand a memory to someone who was not in the conversation. In one
-read they can say what is true, why, and what to do about it, and nothing makes
-them ask what a word meant. Then remove any one sentence from the file. Each
-time, something a future agent needs is now missing. If removing a sentence
+read they can say what is true and, when relevant, why and what to do about it.
+The wording introduces no unexplained terms. Then remove any one sentence
+from the file. Each time, something a future agent needs is now missing. If removing a sentence
 loses nothing, that sentence should not have been in the file.
 
 ## 16. Requirements documents
@@ -1260,9 +1384,15 @@ result, and reports completion. A later session follows the surviving source.
 
 ## 23. Learning what to save
 
-The agent uses the owner's project-specific feedback to improve later memory
-proposals. The owner should not have to repeat the same correction in each
-session.
+The toolkit comes with default criteria for what counts as memory and what
+does not, defined in requirements 11 and 12. The agent applies those defaults
+from the first session, even when the project has no memory-selection feedback.
+
+Learning adds project-specific criteria on top of those defaults: additional
+kinds of information worth keeping and additional filters for what is not
+useful in this project. The defaults remain the starting point; the owner does
+not have to teach them again. The agent uses the owner's feedback to improve
+later proposals without requiring the same correction in each session.
 
 - Before proposing memory, consider relevant prior feedback about what the owner accepts or rejects. Drop or reshape a similar candidate when that feedback applies.
 - Preserve useful feedback across sessions, including the owner's stated reason when one was given. Do not invent a reason or infer a general preference from silence.
@@ -1275,8 +1405,10 @@ The storage location, record format, and mechanisms for reading, recording,
 and consolidating feedback are solution-design choices. The existing approach
 is described under [Potential paths to explore](#current-implementation-open-to-refactoring).
 
-**Check:** reject a proposal and explain why. In a later session, a similar
-candidate is dropped or reshaped using that feedback. Reject another without
+**Check:** start a project with no selection feedback. The agent applies the
+toolkit defaults. Add a project-specific inclusion or exclusion: later
+candidates reflect it alongside those defaults. Reject a proposal and explain
+why. In a later session, a similar candidate is dropped or reshaped using that feedback. Reject another without
 a reason: the agent does not invent one. No particular command or log format
 is needed to pass this check.
 
