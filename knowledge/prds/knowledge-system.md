@@ -1041,6 +1041,8 @@ Every PRD has these parts, in this order. The owner set this shape on 2026-09-15
 
 Visuals are welcome anywhere in a PRD: a flowchart, a diagram, a table, or a screen sketch, wherever it makes a requirement clearer than words alone. A visual explains a requirement; the words still state it.
 
+When one part of the system needs much more detail than the main PRD should carry, that part gets its own sub-PRD. The main PRD names the sub-PRD by its relative path where the detail would otherwise go, and the sub-PRD follows this same shape. The folder rule above says where a sub-PRD lives: the main PRD becomes `knowledge/prds/<area>/<area>.md` and each sub-PRD sits beside it in that folder.
+
 **Check:** open any PRD. A reader who has never seen the project finds the
 problem, the high-level goal, the fixed note, the requirements grouped by area
 under one `Requirements` heading, with a numbered heading and a Check paragraph each, and no build plan. Hand one

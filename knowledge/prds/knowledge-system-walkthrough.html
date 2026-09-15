@@ -418,7 +418,7 @@ Review the provider choice after the release.
             </details>
           </div>
           <div class="branch"><strong>PRD:</strong> required fields are <code>summary</code>, <code>group</code>, <code>area</code>, <code>status</code>, <code>source</code>, <code>created_at</code>, <code>updated_at</code>, and <code>tags</code>. No memory <code>type</code> or <code>confidence</code>. Status: proposed, finalized, superseded, retired. An unapproved proposed draft omits <code>approved_by</code> and <code>approval_date</code>; requirements approval requires both. Other statuses require both. Saving a draft alone does not establish requirements approval.
-            <div class="detail"><strong>Body:</strong> in this order: title; table of contents; <strong>Why this exists</strong> (the problem, why the project is doing this, and what is being built at a high level); <strong>What this document holds</strong> (a short fixed note: only the what, meaning system behavior, end-user experience, and what information is stored; no build plan; every requirement explicit, unambiguous, plain language, testable by a stranger); one level-two <strong>Requirements</strong> heading that marks where the requirements start, with one level-three heading per requirement area and one numbered level-four heading per requirement, each ending in a <strong>Check</strong> paragraph; and, optionally last, <strong>Potential solution design notes</strong>, which bind nothing. Flowcharts, diagrams, tables, and screen sketches are welcome anywhere they make a requirement clearer; the words still state the requirement.</div>
+            <div class="detail"><strong>Body:</strong> in this order: title; table of contents; <strong>Why this exists</strong> (the problem, why the project is doing this, and what is being built at a high level); <strong>What this document holds</strong> (a short fixed note: only the what, meaning system behavior, end-user experience, and what information is stored; no build plan; every requirement explicit, unambiguous, plain language, testable by a stranger); one level-two <strong>Requirements</strong> heading that marks where the requirements start, with one level-three heading per requirement area and one numbered level-four heading per requirement, each ending in a <strong>Check</strong> paragraph; and, optionally last, <strong>Potential solution design notes</strong>, which bind nothing. Flowcharts, diagrams, tables, and screen sketches are welcome anywhere they make a requirement clearer; the words still state the requirement. A part that needs much more detail gets its own sub-PRD in the area folder, and the main PRD names it by relative path where the detail would otherwise go.</div>
             <details>
               <summary>Fictional PRD example · Fields, contents, fixed note, grouped requirements, and checks</summary>
               <div class="detail">The product, requirements, and dates below are illustrative. It is an unapproved proposed draft, so it carries no <code>approved_by</code> or <code>approval_date</code>. This example does not save a project requirement.</div>
@@ -448,6 +448,7 @@ work_item: "42"
   - [Changing who has access](#changing-who-has-access)
     - [2. Only the account owner changes access](#2-only-the-account-owner-changes-access)
     - [3. Removed people lose access at once](#3-removed-people-lose-access-at-once)
+  - [Invitation emails](#invitation-emails)
 - [Potential solution design notes](#potential-solution-design-notes)
 
 ## Why this exists
@@ -489,6 +490,10 @@ Only the person who created the account can invite people or remove them.
 When the owner removes a person, that person can no longer open the account, even if they have it open at that moment.
 
 **Check:** a removed person has the account open. Their next action on it is refused, and they are sent back to their account list.
+
+### Invitation emails
+
+The wording, timing, and expiry of invitation emails need more detail than this document should carry. They are in the sub-PRD [invitation-emails.md](invitation-emails.md), which follows this same shape.
 
 ## Potential solution design notes
 
