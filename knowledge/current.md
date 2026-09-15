@@ -12,7 +12,7 @@ Issue #269, stage `02-refinement`. The 30-requirement PRD remains proposed. Prog
 
 ## Next step
 
-Before section C, Mike answers, one at a time: the scope of the new approval-off setting for memory saves (requirement 10, open decision marked in the PRD); whether this PRD's frontmatter gets the `group` and `updated_at` fields requirement 16 requires; and the walkthrough inbox example card that uses a "New wording" block requirement 20 rules out. Then section C: he approves the full requirements as ready for solution design or building.
+Before section C, Mike answers, one at a time: whether this PRD's frontmatter gets the `group` and `updated_at` fields requirement 16 requires; and the walkthrough inbox example card that uses a "New wording" block requirement 20 rules out. Then section C: he approves the full requirements as ready for solution design or building.
 
 On a yes: set `finalized` with both approval fields, move the label to `03-requirements-approved`, and record acceptance of the issue's outcome. Finalized means ready for design or building; delivery is separate. This PRD keeps its layout; new PRDs follow the new layout.
 
