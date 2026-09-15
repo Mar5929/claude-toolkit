@@ -69,6 +69,11 @@ drop it.
 A claim the main agent gave no source for at all is `Unchecked`, and say that no
 source was offered. Do not go looking for one to rescue it.
 
+One line is never a claim. The skill puts a fixed notice on the first line of
+every prompt, saying it is AI-generated and may contain hallucinations. Leave it
+out of the claims table. If the draft arrives without it, say so in one line
+under `Also noticed`.
+
 ## Job one: is the goal there
 
 Before anything else, answer three questions about the draft.

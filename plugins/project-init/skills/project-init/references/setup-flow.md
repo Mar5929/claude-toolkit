@@ -321,8 +321,9 @@ so they always know where they are.
 - Offer `handoff` in every project, and recommend it. `/handoff` invokes
   `remember` first, waits for any required owner decision, then drafts a prompt
   for a fresh session with everything
-  not saved carried inside it. The prompt opens with the goal of the work and
-  why it matters, and `handoff-verifier`, an agent that never saw the
+  not saved carried inside it. The prompt starts with a fixed notice that it is
+  AI-generated, then the goal of the work and why it matters, and
+  `handoff-verifier`, an agent that never saw the
   conversation, checks it against the repository before the owner sees it, so
   facts do not get less accurate each time work is handed on. Anything it cannot
   confirm is labelled inside the prompt rather than dropped, and `/handoff check`
