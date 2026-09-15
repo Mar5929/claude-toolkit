@@ -59,11 +59,10 @@ automatically as it grows.
     says, so step 2 can tell a project copy that is merely worded differently
     from one that is genuinely behind; Salesforce projects also get the
     `library/rules/salesforce/` files
-  - the output style setting. Every project should select Claude Code's
-    built-in `Concise`, which is not a file, unless its owner chose
-    `plain-english` from `library/output-styles/`, which is. A project that
-    carries every rule can still have the wrong style selected, so check it
-    separately
+  - the `Plain English` output style file and setting. This is the only style
+    the toolkit ships and its default for project setup. Check the installed
+    file against `library/output-styles/plain-english.md` and check the selected
+    name separately. Preserve an owner's deliberate choice of another style
   - the per-server MCP tool rules in `../../library/guides/mcp-best-practices.md`;
     these are conditional, so only audit the servers this project connects
   - each system from the setup gates: hooks, System Guide, project knowledge,
@@ -123,8 +122,8 @@ automatically as it grows.
     event, belongs to project knowledge, and stays
   - a project still carrying a `.claude/output-styles/plain-language.md` file,
     at any vintage. The toolkit removed that style in issue #245. Offer to
-    delete the file and select `Concise`, or `plain-english` if the owner wants
-    the simpler voice
+    replace it with the current `plain-english.md` and select `Plain English`,
+    unless the owner deliberately chose another style
   - the short `CLAUDE.md` the toolkit now writes inside each major folder, per
     `../project-init/references/folder-claudemd.md`. Read that file so step 2
     can tell a missing one from a folder the toolkit deliberately skips (any
@@ -149,14 +148,14 @@ Typical checks:
   `.claude/rules/`, and does that folder carry each default-ON general rule (a
   file, or the rule's intent folded into CLAUDE.md)? Judge by intent, not exact
   wording or file name.
-- **Output style**: does a settings file select `Concise` (`outputStyle` in
-  `.claude/settings.json` or `.claude/settings.local.json`)? `Concise` is the
-  default and is built in, so it needs no file. `plain-english` is the one
-  alternative the toolkit ships, it is a file, and a project only has it if its
-  owner asked for it, so its absence is never a gap. A selected style whose file
-  is missing silently falls back to the default, which is the state a project is
-  left in if it still names the deleted `plain-language`. Judge any leftover
-  file by intent, not exact wording, the same as a rule.
+- **Output style**: does the project have `.claude/output-styles/plain-english.md`
+  and select `"outputStyle": "Plain English"` in its committed settings? Check
+  `.claude/settings.local.json` for an override too. The setting must match the
+  file's `name`, and the installed guidance should match the current shipped
+  meaning. Report a missing file, stale guidance, or mismatched selection as a
+  gap. A deliberate owner choice of another style is an exception to preserve,
+  not a gap to overwrite. Concise is a Claude Code built-in, not a toolkit
+  default. A leftover `plain-language` selection needs migration.
 - **CLAUDE.md health** (presence is not enough, see below).
 - **Can a Codex session actually reach the rules?** (see below). A project can
   hold every rule and still deliver almost none of them to Codex.
@@ -578,19 +577,19 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   project's existing voice. Never replace the file wholesale with the toolkit's
   text: that throws away every local adaptation the project made on purpose, and
   those adaptations are the reason the wording differs in the first place.
-- For an approved output style gap, set `"outputStyle": "Concise"` in the
-  committed `.claude/settings.json`, and offer to delete a leftover
-  `.claude/output-styles/plain-language.md`. Where the owner wants the simpler
-  voice instead, copy `library/output-styles/plain-english.md` into
-  `.claude/output-styles/` and set `"outputStyle": "Plain English"` in place
-  of `Concise`, never alongside it. That value is the `name` inside the style
-  file, not the file name, and Claude Code silently ignores a value matching
-  no style. If the owner deliberately selected some other style, show them the
-  clash and let them choose rather than overwriting it. Say plainly that the
-  new voice starts on their next session, so they do not think it failed.
+- For an approved output style gap, install or update
+  `.claude/output-styles/plain-english.md` from `library/output-styles/plain-english.md`
+  and set `"outputStyle": "Plain English"` in the committed `.claude/settings.json`.
+  Preserve local wording that deliberately adapts the style; reconcile missing
+  guidance instead of discarding it. Offer to remove the retired
+  `.claude/output-styles/plain-language.md` after the replacement is in place.
+  The selected value must match the style's `name`. Resolve a local settings
+  override with the owner rather than silently leaving conflicting selections.
+  Preserve deliberate choices of another style. The new voice starts in the
+  next session.
 - **For the retired voice rules, propose the swap, never a bare deletion.** A
   project on the old setup has working guidance; removing it before the style
-  is in leaves the project with neither. Select and verify `Concise` first,
+  is in leaves the project with neither. Install and verify `Plain English` first,
   then offer to delete `.claude/rules/writing-and-language.md`,
   `how-to-reply.md`, `treat-owner-as-non-technical.md`, and
   `define-your-terms.md`. Say the remaining cost out loud so the owner is

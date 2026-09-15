@@ -1,29 +1,26 @@
 # Output styles library
 
-Reusable `.claude/output-styles/` files that set the voice Claude answers in.
-`project-init` Gate 5 offers one; `project-sync` offers it to a project that
-predates it. Nothing here is ever installed without the owner asking.
+The toolkit ships one Claude Code output style: `Plain English`.
+`project-init` Gate 5 installs and selects it by default. `project-sync` checks
+its file, selected name, and guidance, then applies approved fixes. A deliberate
+owner choice of another style is preserved.
 
 ## What ships today
 
 | File | What it does | Default |
 |---|---|---|
-| `plain-english.md` | Answers as if the reader is five years old: plain everyday words, no jargon, no figures of speech, bullet points where they help, and no more words than the point needs. Sets `keep-coding-instructions: true`, so a project that turns it on keeps Claude Code's built-in software engineering behavior. | OFF. Offered, never assumed. |
+| `plain-english.md` | Plain explanations with enough context to understand the meaning, no figures of speech, and examples of unclear wording. Keeps Claude Code's software engineering instructions. | ON for toolkit project setup. |
 
-## The default is still `Concise`
+## Toolkit style and host options
 
-Every toolkit project selects Claude Code's built-in `Concise` style, written
-into the project's committed `.claude/settings.json` by `project-init` Gate 5.
-That did not change. `plain-english.md` is an alternative for an owner who wants
-a simpler voice than `Concise` gives, and it replaces the selection rather than
-adding to it. A project has one output style or none.
+`Concise` is a built-in Claude Code style. It is not shipped by this toolkit
+and is not the toolkit default. A project selects one style or none.
+The toolkit's selection is `"outputStyle": "Plain English"`, with the matching
+style file installed. Setting the name alone is not installation.
 
-Issue #245 removed the toolkit's previous style, `plain-language.md`, along with
-this whole folder. It was 183 lines against a 50-line ceiling, and it was a
-second voice nobody selected while every project ran `Concise`. The folder came
-back in issue #271 for a different reason: not a default to maintain, but one
-short optional file for the projects that want it. Keep that distinction. A
-style added here has to earn its place the same way.
+The older `plain-language.md` style was removed in issue #245. Issue #271
+introduced `plain-english.md` as an optional style; Plain English is now the
+standard toolkit selection. Those older defaults do not govern current setup.
 
 ## What an output style is, and why it is not a rule
 

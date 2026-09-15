@@ -57,10 +57,11 @@ the two matching. Do not add a writing rule to this folder. A different voice
 means changing that one settings value or that one style file, and neither is a
 rule.
 
-Every other toolkit project still defaults to Claude Code's built-in `Concise`
-style. This repo ran `Concise` too until it switched to `Plain English`, and it
-shipped a hand-written `plain-language` style before that, until issue #245
-removed it. The history is in `.claude/toolkit-sync.md`.
+`Plain English` is also the default for toolkit project setup and the only
+style the toolkit ships. Deliberate owner selections of another style are
+preserved. This repo previously ran Claude Code's built-in `Concise`, and the
+older `plain-language` style before that. Those are history, recorded in
+`.claude/toolkit-sync.md`, not current setup instructions.
 
 This repo used to reinforce the style with two hooks. `writing-guard` refused a
 finished reply containing an em dash or a section sign; the owner turned it off

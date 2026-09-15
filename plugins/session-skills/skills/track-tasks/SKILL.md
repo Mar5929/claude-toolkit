@@ -73,8 +73,10 @@ was only ever on this list.
 
 ## Voice
 
-Read the project's active output style before printing anything, and follow it.
-Find it at `.claude/output-styles/<name>.md`, where `<name>` is the
-`outputStyle` value in `.claude/settings.local.json`, then
-`.claude/settings.json`, then `~/.claude/settings.json`. If there is no such
-file, write plainly: short lines, plain words, no em dashes.
+Read `outputStyle` from `.claude/settings.local.json`, then
+`.claude/settings.json`, then `~/.claude/settings.json`. Match that value to a
+style file's frontmatter `name` in `.claude/output-styles/` or
+`~/.claude/output-styles/`, preferring the project copy. Use the filename stem
+only when the file has no `name`. `Plain English` names `plain-english.md`;
+it does not name `Plain English.md`. Read the matching file and follow it. If there is no
+style file, write plainly: short lines, plain words, no em dashes.

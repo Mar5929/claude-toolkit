@@ -56,9 +56,10 @@ in one line and ask for it. Do not treat an ordinary short request as a dump.
 
 ## Voice
 
-Read the project's active output style before writing, so this matches the rest
-of the project instead of drifting. Find it at
-`.claude/output-styles/<name>.md`, where `<name>` is the `outputStyle` value in
-`.claude/settings.local.json`, then `.claude/settings.json`, then
-`~/.claude/settings.json`. If there is no such file, the rules above are enough
-on their own.
+Read `outputStyle` from `.claude/settings.local.json`, then
+`.claude/settings.json`, then `~/.claude/settings.json`. Match that value to a
+style file's frontmatter `name` in `.claude/output-styles/` or
+`~/.claude/output-styles/`, preferring the project copy. Use the filename stem
+only when the file has no `name`. `Plain English` names `plain-english.md`;
+it does not name `Plain English.md`. Read the matching file and follow it. If there is no
+style file, the rules above are enough on their own.

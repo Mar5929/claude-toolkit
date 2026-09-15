@@ -447,28 +447,22 @@ CLAUDE.md stays thin and points at that folder. Read
   Never create a nested `AGENTS.md`.
 - **Add a `.claude/rules/README.md`** that indexes what each copied rule file
   does, so the folder is self-describing.
-- **Select Claude Code's built-in `Concise` output style** (default ON). Set
-  `"outputStyle": "Concise"` in the project's committed `.claude/settings.json`.
-  Copy no style file: `Concise` is built into Claude Code, so there is nothing
-  to install and nothing to keep in step. There are no voice rules in
-  `.claude/rules/` either; do not write one. Tell the owner three things: it
-  takes effect on their next session rather than the current one; and a helper
-  agent never receives an output style, so a helper agent writing a commit
-  message or a document falls back to writing plainly.
-- **Offer `plain-english` instead, for an owner who wants a simpler voice**
-  (default OFF). Ask once; do not push it. It answers as if the reader is five
-  years old: plain everyday words, no jargon, no figures of speech, bullet
-  points where they help. If the owner takes it, copy
-  `library/output-styles/plain-english.md` to
-  `.claude/output-styles/plain-english.md` and set
-  `"outputStyle": "Plain English"` instead of `Concise`. A project has one style
-  or none, so this replaces the selection rather than adding to it. The folder's
-  `README.md` has the rest.
-- **Offer the machine-wide setting too**, if the owner wants this voice
-  everywhere and not just here. Set `"outputStyle": "Concise"` in
-  `~/.claude/settings.json`. Then every repository gets it, including ones never
-  set up with this toolkit. The project setting still wins where it exists, and
-  it is the one that travels to other machines, so doing both is normal.
+- **Install and select the toolkit's `Plain English` output style** (default ON).
+  Copy `library/output-styles/plain-english.md` to
+  `.claude/output-styles/plain-english.md` and set `"outputStyle": "Plain English"`
+  in the project's committed `.claude/settings.json`. The value is the style's
+  `name`, not its filename. Preserve an owner's deliberate choice of another
+  style; do not overwrite it. Plain English is the only style the toolkit ships.
+  Claude Code's built-in styles are host options, not toolkit defaults.
+  Do not add voice rules to `.claude/rules/`. Tell the owner the style starts in
+  the next session. Helper agents that write owner-facing prose need writing
+  guidance in their own definitions.
+- **Offer machine-wide installation too**, if the owner wants the same voice
+  in repositories that have not run toolkit setup. Copy the style to
+  `~/.claude/output-styles/plain-english.md` and set `"outputStyle": "Plain English"`
+  in `~/.claude/settings.json`, preserving unrelated settings. The project copy
+  and setting still travel with the repository. The
+  `library/output-styles/README.md` has the installation details.
 
 ### Gate 6: Optional standalone toolkit skills
 

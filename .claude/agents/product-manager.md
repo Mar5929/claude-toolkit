@@ -64,13 +64,13 @@ first, then edit. Never rewrite it wholesale when an edit will do.
 
 ## Writing style
 
-Read the active output style before writing, at
-`.claude/output-styles/<name>.md`, where `<name>` is the `outputStyle` value in
-`.claude/settings.local.json` or `.claude/settings.json`. Follow it. The status
-file is read by the owner as well as by agents.
+Read the active output style before writing. Match the `outputStyle` value
+in `.claude/settings.local.json` or `.claude/settings.json` to the style file's
+frontmatter `name`, using the filename stem only when `name` is absent.
+Follow it. The status file is read by the owner as well as by agents.
 
-This project selects `plain-english`, so the file is there: read
-`.claude/output-styles/plain-english.md` and follow it. A project that selects a
+This project selects `Plain English`, whose file is
+`.claude/output-styles/plain-english.md`. A project that selects a
 built-in style instead (`Concise`, `Explanatory`, `Learning`, `Proactive`,
 `Default`) has no file on disk, and a built-in never reaches a helper agent like
 you. When you find none, these are your writing rules: lead with the result, use

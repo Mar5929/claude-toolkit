@@ -46,7 +46,7 @@ written down somewhere. It gets fitted into the system:
 | --- | --- |
 | A rule every project should follow (behavior, writing style, workflow) | Its own file in `library/rules/general/`, copied into each new project's `.claude/rules/` |
 | A rule that must hold in every repository on the machine, even ones I never set up | Its own file in `machine/rules/`, installed for Claude Code and, where needed, as a managed Codex block by `machine-sync`. Only when a project rule genuinely cannot cover it |
-| A change to the voice Claude answers in | An output style in [`library/output-styles/`](plugins/project-init/library/output-styles/README.md), never a rule and never a hook. Every project selects Claude Code's built-in `Concise` style by default; `plain-english` is the one alternative shipped, offered per project and on by default nowhere |
+| A change to the voice Claude answers in | An output style in [`library/output-styles/`](plugins/project-init/library/output-styles/README.md), never a rule and never a hook. `Plain English` is the only shipped style and the default for toolkit project setup; deliberate owner choices of another style are preserved |
 | A setup step for new projects | A gate (or part of one) in the `project-init` skill |
 | A guard hook or automation | The [`hooks-library`](plugins/hooks-library/README.md) plugin. A hook does one of three jobs: check an output against a rule a machine can test with no interpretation, trigger a process at a moment agents forget, or orient a session at its start. If it needs none of those, it stays a rule. Voice is never one of them; the plugin's README carries the history of three attempts that were removed |
 | A whole reusable system | Its own plugin/skill that `project-init` offers |
@@ -316,33 +316,15 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
   `project-init`'s `library/rules/general/` folder (with a `README.md` index),
   copied
   into each project's `.claude/rules/` verbatim instead of retyped into CLAUDE.md.
-- [x] **Voice: `Concise` by default, `plain-english` when I want it**.
-  The toolkit used to ship a hand-written `plain-language` style in a
-  `library/output-styles/` folder, which replaced four earlier voice rules
-  (`writing-and-language`, `how-to-reply`, `treat-owner-as-non-technical`,
-  `define-your-terms`). I removed the whole folder in #245 and switched to the
-  built-in `Concise` style everywhere, because I read that voice in every other
-  tool anyway and keeping a second one meant maintaining a file nobody selected.
-  `project-init` writes `"outputStyle": "Concise"` into a project's committed
-  settings and copies no style file. `library/rules/general/` still covers how
-  Claude *works*, not how it *talks*.
+- [x] **Voice: Plain English**.
+  [Plain English](plugins/project-init/library/output-styles/README.md) is the
+  only style the toolkit ships. `project-init` installs its file and selects
+  `"outputStyle": "Plain English"`; `project-sync` checks both the file and
+  setting. Deliberate owner choices of another style are preserved. Concise is
+  a Claude Code built-in, not a toolkit default.
 
-  [The folder came back in #271](plugins/project-init/library/output-styles/README.md),
-  with one file and a different job. `plain-english.md` answers as if the reader
-  is five years old: plain everyday words, no jargon, no figures of speech,
-  bullet points where they help. It is nine lines, it is off by default, and a
-  project only gets it if I ask. #245 removed a 183-line default nobody
-  selected; this is a short optional one. `Concise` is still what every project
-  gets.
-
-  **What I gave up, knowingly.** A helper agent never receives an output style,
-  and a built-in style has no file on disk either. So on `Concise` the helper
-  agents that write my commit messages, pull request text, and handoff prompts
-  get no voice instruction at all. A rule called `follow-the-output-style` used
-  to handle that by sending a helper agent to the style file, and I removed it
-  on 2026-09-02. So an agent that writes owner-facing prose has to carry the
-  writing rules in its own definition, and that is now the only thing covering
-  this.
+  The style covers how Claude talks; rules cover how it works. Helper agents
+  writing owner-facing prose carry writing guidance in their own definitions.
 - [ ] **Publish tooling**: a small script/checklist to export skills to the
   Claude desktop and web apps so those surfaces stay in sync with this repo.
 - [ ] **"Port-back" convention**: a documented flow (and a reminder baked into
