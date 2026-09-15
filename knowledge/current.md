@@ -4,28 +4,26 @@ Short-term working state, not lasting knowledge. Updated 2026-09-15.
 
 ## Objective
 
-Finalize the knowledge-system PRD with Mike under [issue #269](https://github.com/Mar5929/claude-toolkit/issues/269). The PRD owns the product requirements; the issue links to it and tracks refinement and approval. The issue also preserves the later delivery roadmap as planning context.
+Finalize the knowledge-system PRD with Mike under [issue #269](https://github.com/Mar5929/claude-toolkit/issues/269). The PRD owns the product requirements. The issue tracks refinement and approval and keeps the later delivery roadmap as planning context.
 
 ## Work item
 
-Issue #269, stage `02-refinement`. The 30-requirement PRD remains proposed. Full requirements approval is pending. Its wording pass is complete; the approved walkthrough now resolves the wording-edit, operating-instruction, and temporary-memory findings.
+Issue #269, stage `02-refinement`. The 30-requirement PRD remains proposed. All six review findings are resolved in the PRD and the approved walkthrough. Full requirements approval is pending.
 
 ## Next step
 
-All six findings are resolved in the PRD and walkthrough. Next: Mike reviews and approves the full requirements. The issue holds the review record. Reconcile against the approved walkthrough and later owner clarifications.
+Mike approves the full requirements as ready for solution design or building. Progress is tracked in one place: the issue body section "Roadmap to PRD finalization", where section C is the open item, and its one Progress log comment.
 
-On full requirements approval, set `finalized` and both approval fields and record acceptance of this issue's PRD-finalization outcome. Finalized means ready for design or building. Delivery remains separate. This PRD may keep its layout for now; new PRDs follow the new layout.
+On a yes: set `finalized` with both approval fields, move the label to `03-requirements-approved`, and record acceptance of the issue's outcome. Finalized means ready for design or building; delivery is separate. This PRD keeps its layout; new PRDs follow the new layout.
 
-Review one question at a time. Check earlier answers before asking. Explain an edit's purpose, placement, and conflicts first. Record decisions in the issue and its Progress log; keep product requirements in the PRD.
+Shipped files that still carry the old meaning of finalized (the knowledge manual, two hooks, the index builder) are build work, listed under roadmap section E.
 
-## Publication
-
-Push hold released; saved updates are published. Continue quick knowledge commits and pushes. Preserve unrelated workspace changes.
+Review one question at a time. Check earlier answers before asking. Explain an edit's purpose, placement, and conflicts first. Decisions go in the issue and its Progress log; requirements go in the PRD.
 
 ## Other active work
 
-[Guided management](prds/guided-work-management.md): refining; see issue.
+[Guided management](prds/guided-work-management.md): refining under issue #337.
 
 ## Parked
 
-- Earlier [handoff](https://github.com/Mar5929/claude-toolkit/blob/issue-269-second-brain-design/misc/269-session-handoff.md). Related scopes: System Guide #304 and rules audit #305. Proposed paths and templates are not all implemented.
+Earlier [handoff](https://github.com/Mar5929/claude-toolkit/blob/issue-269-second-brain-design/misc/269-session-handoff.md) on the `issue-269-second-brain-design` worktree. Related scopes: System Guide #304, rules audit #305. Proposed paths and templates are not all implemented.
