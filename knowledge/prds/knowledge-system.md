@@ -675,7 +675,7 @@ original source or states what could not be verified.
 - When approved, memory or PRDs are saved directly to the default branch and pushed!!! They are not left sitting on a worktree branch, and they are not put anywhere a future agent would have trouble finding.
 - A save is finished only when the file is on the default branch and pushed, and not before.
 - An approved knowledge save is never put off into a feature branch, a pull request, or a separate draft. That holds even when the session is doing its other work on a branch. The save still goes straight to the default branch. The session's own branch gets the saved file later, whenever someone merges or pulls the default branch into it. The pending inbox in requirement 28 preserves unanswered proposals and interrupted saves; it never replaces completing an approved save.
-- One yes is the end of the owner's part for a save that needed a proposal. He runs no Git command, and he does nothing else. The save completes on its own, and the reply tells him it is done or tells him it failed. Routine PRD upkeep needs no separate success message under requirement 16. Whether the writing happens inside that reply or just after it is the design's job, so long as a failure is never silent.
+- One yes is the end of the owner's part for a save that needed a proposal. He runs no Git command, and he does nothing else. Complete the authorized save and publication as part of that response. During an interview, save a settled decision before asking the next question, without asking for the same permission again. If the save cannot finish, preserve the decision as unfinished under requirement 28, report the problem, and continue only work that can safely proceed under requirement 3. The owner never has to repeat the decision or manage the retry. Routine PRD upkeep needs no separate success message under requirement 16.
 - If the push fails, the agent says so in that same reply, and the save is not finished. Requirement 3 sets out what pauses and what can carry on. Nothing is ever left unfinished without saying so.
 - Finished knowledge has one home that owns it. Unfinished proposals have one known inbox, which agents keep up to date and pick up from on their own, so the owner never has to remember where a proposal was left.
 
@@ -690,6 +690,12 @@ With a successful save, one word of approval writes the file, and before the
 reply ends the file is on the default branch and pushed. Nothing else is asked
 of the owner. If the save fails, the agent identifies the unfinished save and
 follows requirement 3; it never claims that no save is waiting.
+
+**Check:** during an authorized interview, settle a requirement. The agent
+saves and publishes the decision before asking the next question without a
+second permission request. Interrupt publication: the decision remains
+recoverable as unfinished, the owner hears what failed, and unrelated work
+may continue. Recovery never asks the owner to repeat the decision.
 
 ## 10. Approval before any write
 
