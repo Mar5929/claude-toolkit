@@ -22,6 +22,10 @@ Review one question at a time. Check earlier answers before asking. Explain an e
 
 Push hold released; saved updates are published. Continue quick knowledge commits and pushes. Preserve unrelated workspace changes.
 
+## Other active work
+
+[Guided management](prds/guided-work-management.md): refining; see issue.
+
 ## Parked
 
 - Earlier [handoff](https://github.com/Mar5929/claude-toolkit/blob/issue-269-second-brain-design/misc/269-session-handoff.md). Related scopes: System Guide #304 and rules audit #305. Proposed paths and templates are not all implemented.

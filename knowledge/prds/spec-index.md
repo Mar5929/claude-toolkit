@@ -20,6 +20,9 @@ rebuild it.
   the main conversation maintains adaptable plans and brings in focused
   requirements, design, research, and review help using the project's existing
   records.
+- `guided-work-management.md` (proposed): The agent offers to organize and
+  guide work from the initial idea through delivery, keeping shared plans and
+  records current while the owner makes decisions and gives approvals.
 - `knowledge-system.md` (proposed): What the project second brain must do.
   Every new session already knows what has been going on in this project.
   Saving something worth keeping takes one short yes from the owner.
