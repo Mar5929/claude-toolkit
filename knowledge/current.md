@@ -12,7 +12,7 @@ Issue #269, stage `02-refinement`. `knowledge/prds/knowledge-system.md` has 30 r
 
 ## Next step
 
-Walkthrough Part 4 (decide what to save) in `knowledge/prds/knowledge-system-walkthrough.html`. Draft the PRD example and the pending inbox example, show them to Mike, and get his yes or edits. Then the rest of Part 4, then Parts 5 and 6, then full-flow approval.
+Walkthrough Part 5 (fix knowledge problems when needed) in `knowledge/prds/knowledge-system-walkthrough.html`. Parts 1 to 4 are approved. Summarize Part 5 for Mike in plain steps, get his yes or edits, then Part 6, then full-flow approval, then the PRD reconciliation in roadmap section B.
 
 How to run the review: one part at a time, one question at a time. Check the PRD and earlier answers before asking. Explain an edit's purpose, placement, and conflicts before changing the PRD. Park unrelated issues. After each decision, tick the roadmap on the issue and append one line to its Progress log.
 
