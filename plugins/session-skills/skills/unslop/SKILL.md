@@ -10,8 +10,9 @@ machine-written, and hand back a version with those patterns gone and a voice
 put back.
 
 This runs when the owner asks for it. It never fires on its own during an
-ordinary reply. How Claude writes new text is the job of the project's output
-style and the `plain-english-artifacts.md` rule; this is the other direction,
+ordinary reply. How Claude writes a chat reply is the job of the project's
+output style, and the words inside a diagram, chart, or generated document are
+the job of the `plain-english-artifacts.md` rule; this is the other direction,
 cleaning up text that is already written.
 
 ## What it works on

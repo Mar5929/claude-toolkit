@@ -440,8 +440,9 @@ The genuine watch-items are called out at the end.
   helper agents have, and every helper-agent definition that writes owner-facing
   prose must carry those writing rules itself.
   **The artifact rule closes part of that gap.** `plain-english-artifacts.md`, a
-  default-on rule since #339, governs the words inside anything an agent makes
-  for a person to read: documents, diagrams, charts, slides, prompts, issue text.
+  default-on rule since #339, governs the words inside anything an agent
+  generates for a person to look at: diagrams, charts, dashboards,
+  visualizations, mockups, slide decks, generated documents.
   It is a rule and not a style change because a rule loads into custom helper
   agents and Codex sessions, which the style never reaches. It does not touch how
   Claude talks in chat; that stays with the style. `unslop` is the third piece:
