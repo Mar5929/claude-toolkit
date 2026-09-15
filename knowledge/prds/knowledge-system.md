@@ -4,7 +4,7 @@ area: knowledge-system
 status: proposed
 source: Owner requirements interview for GitHub issue #269, with clarification on parallel sessions, sustained guidance, and knowledge lookup on 2026-09-10. Replaces the earlier 2026-08 build-plan version
 created_at: 2026-08-21
-confirmed_at: 2026-09-10
+confirmed_at: 2026-09-15
 tags: [knowledge-system, memory, prds, second-brain, schema, requirements, solution-philosophy, high-level-architecture]
 project: claude-toolkit
 work_item: "269"
@@ -1026,6 +1026,24 @@ one file, with a parent PRD and child PRDs inside it.
 - A PRD describes what the system does or should do, its behavior, the end user's experience, process requirements, constraints, and observable completion expectations. It states these in plain language and distinguishes intended behavior from verified existing behavior. It does not reproduce code or prescribe the build plan.
 - Build order, delivery roadmaps, implementation tasks, schedules, work-item status, and detailed solution designs do not belong in a PRD. A clearly separated closing section may preserve the owner's preferred solution philosophy, high-level architecture, illustrative examples, and options to explore without making them functional requirements. Required runtime sequences do belong: for example, approval must precede a lasting-memory write. That describes how the product behaves, not which part to build first.
 - When work ships, check whether it changed system behavior or requirements and apply the automatic upkeep below. Reordering delivery alone never changes the product requirements.
+
+**The shape of a PRD**
+
+Every PRD has these parts, in this order. The owner set this shape on 2026-09-15.
+
+1. The YAML fields listed below.
+2. A title.
+3. A table of contents.
+4. **Why this exists.** The context: the problem it solves, why the project is doing this, and what is being built at a high level.
+5. **What this document holds.** A short fixed note that this document holds only the what: what the system does, what the end user experiences, and what information is stored and where. Functional, process, logic, user-interface, user-experience, and data requirements belong here. How it is built does not. Every requirement is explicit and unambiguous, in plain language with no jargon, clear enough that a junior intern or a complete stranger could read it and know what to build and how to test it. Vague wording such as "works correctly" or "handles errors well" is not allowed.
+6. **Requirements.** One heading per requirement area, grouping the requirements that belong together. Under each area, one numbered subheading per requirement, so work items and checks can point at it. Each requirement says what must happen and ends with a **Check** paragraph: a test a stranger could run to prove it is met.
+7. **Potential solution design notes.** Optional and last. Ideas the owner or agent wants to explore when the solution is designed. They bind nothing.
+
+**Check:** open any PRD. A reader who has never seen the project finds the
+problem, the high-level goal, the fixed note, the requirements grouped by area
+with a numbered heading and a Check paragraph each, and no build plan. Hand one
+requirement to someone who was not in the conversation: they can say what to
+build and how to prove it works.
 
 **Automatic upkeep after shipped work**
 
