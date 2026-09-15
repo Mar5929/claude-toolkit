@@ -47,8 +47,9 @@ the reader can count.
 Call a thing what the system calls it, every time: role hierarchy, record
 visibility, sharing rule, View All, permission set. A picture word in place of
 the real term ("shape" for the hierarchy, "lever" for a setting, "leaks" for
-inherited access, "flows up" for inheritance) makes the reader translate, and
-a reader who does not know the system cannot.
+inherited access, "flows up" for inheritance) is figurative language, and it is
+not allowed. It makes the reader translate, and a reader who does not know the
+system cannot.
 
 A term the reader may not know gets a plain definition the first time it
 appears. After that, the term is used unchanged.
@@ -61,7 +62,8 @@ is one plain line.
 The output style's rules on words apply inside the artifact:
 
 - Common words. Short sentences. One idea each.
-- No figures of speech, idioms, or jokes.
+- No figurative or metaphorical language. No idioms, no jokes, no picture word
+  standing in for a real thing.
 - No preamble. Start with the content.
 - No closing line that sums up or cheers.
 - Fewer words, never fewer facts. Every number, name, date, and quotation
