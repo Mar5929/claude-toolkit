@@ -78,6 +78,9 @@ const OWN_FILES = new Set([
   // documentation the rule sends a session to. Shipping either to every
   // project would be a rule nobody there can follow.
   ".claude/rules/claude-code-docs-first.md",
+  // The owner runs this repo's main sessions on a model dearer than Opus, and
+  // wants every subagent here held to Opus. Other projects choose their own.
+  ".claude/rules/subagents-run-on-opus.md",
   ".claude/tools/capture-claude-code-docs.mjs",
 ]);
 
