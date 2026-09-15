@@ -615,6 +615,7 @@ name, a system, a person, or a process.
 - When a term in the glossary is used, the agent applies it and does not ask.
 - When a term is unfamiliar, first use the conversation, glossary, and relevant project sources to resolve it. Ask one focused question only when uncertainty remains that could change the answer or action. Propose a glossary entry when the mapping is useful recurring project shorthand, through the normal card and approval flow.
 - The glossary has a title, one sentence explaining its purpose, and one alphabetical Markdown table, with one short row per term. Use the template below. No heading or paragraph for each term; keep every cell brief.
+- The project's small knowledge map includes a clearly labelled direct link to the glossary alongside the memory index. The glossary stays out of the generated memory index and needs no index fields such as `group` or `summary`. Keep its direct link working when its location changes.
 - Put alternate names in the same row. If a term means different things in different systems, clearly identify the context.
 - Keep only a short caution in the table. Link to detailed explanations or important history in their proper home under requirement 18. Their length does not make them memory.
 - Update the existing row when its meaning changes; remove obsolete or duplicate wording. Do not append another account of the same meaning.
@@ -907,7 +908,7 @@ Access review.
 - The agent recommends splitting a topic into sensible subtopic files inside one topic folder when that would make the information easier to find, understand, or use. The proposal names the affected files and what each will contain. Keep the context a subtopic needs with that subtopic. Keep shared lasting context in the topic or subtopic file that owns it and link to it from related files instead of copying it. Split a topic only after getting the approval requirement 10 calls for, and keep the approved meaning intact. It is not permission to create one file per fact. Every resulting memory file follows this requirement's field rules.
 - Each file is kept up to date, rather than added to forever. Rewrite or remove information that is out of date, repeated, or contradictory when that is the right thing to do, staying inside the approval rules. Keep the account of what is true now easy to read. Retain an important timeline or superseded decision trail in the same file only when that history is useful, with dates and clear labels showing what no longer applies.
 - Do not sort memory topics into subfolders by type. A note can hold a fact, a decision, and a piece of history together.
-- The terminology glossary shares the entries folder but keeps the table format in requirement 7. It is not a memory topic and does not require memory fields.
+- The terminology glossary shares the entries folder but keeps the table format and direct navigation link in requirement 7. It is not a memory topic, is excluded from the generated memory index, and does not require memory or index fields.
 - Each memory topic file starts with a settings block. The block sits between two lines that hold only `---`, and it is written in real YAML. This document calls that block the frontmatter.
 
 Required on every memory file:
@@ -1444,7 +1445,7 @@ unexplained warning and does not silently become an authorized task.
 ## 21. Indexes and the checker
 
 - The memory index at `knowledge/memory/memory-index.md`, the PRD index at `knowledge/prds/prd-index.md`, and the outside-documentation index at `ai-external-knowledge/README.md` are generated from their source files using the shared format below. Other knowledge indexes, including the index of a System Guide that is turned on, use the same format: entries grouped under headings, each entry a link and a one-line summary. The part of the toolkit that owns those source files still owns their file fields and their upkeep. The PRD index used to be called `spec-index.md`.
-- The memory index includes files both directly in `memory-entries/` and inside topic folders. A topic folder's files remain together under their topic heading, with a link and summary for each file. In the PRD index, a child PRD is listed under its parent, indented one level, so the reader sees the area and its parts together.
+- The memory index includes memory topic files both directly in `memory-entries/` and inside topic folders. It excludes the terminology glossary, which has its own direct link in the small knowledge map under requirement 7; the checker does not require memory or index fields on that glossary. A topic folder's files remain together under their topic heading, with a link and summary for each file. In the PRD index, a child PRD is listed under its parent, indented one level, so the reader sees the area and its parts together.
 - The index is grouped under short topic headings, not one flat alphabetical list. Each heading reads like the question a reader would ask, such as "Deploy and org-safety rules" or "Where things live", so the reader can quickly find the relevant source. The heading comes from each file's `group` field. Files with the same `group` sit together under that heading. The order of the groups, and the order of files inside a group, follow one fixed rule, so the same set of files always produces exactly the same index. Choosing that rule is the design's job.
 - Each entry is one line: a link to the source file, then its `summary`. Memory and PRD summaries state the key knowledge or required behavior in plain words. A captured-topic summary states its coverage and when it is useful, as requirement 8 requires. The agent opens the actual source before relying on it, as requirement 19 requires.
 - The summary is written once, in the file's own `summary` field, and the index copies it word for word. The index adds nothing of its own. Every line in it comes from a file.
@@ -1492,6 +1493,8 @@ their sources. A repeated rebuild with unchanged sources gives the same output.
 Rename a memory file inside a topic folder or move a captured topic: its index
 link follows. Break a required field and try to save: the save is reported
 unfinished, and the file and the broken rule are named.
+
+**Check:** start a new session with a glossary that uses only its title, purpose sentence, and table. The agent can find it through the knowledge map and use a relevant term. Rebuilding the memory index leaves the glossary out and does not report missing memory or index fields. Moving the glossary repairs its direct link.
 
 ## 22. Keeping current truth clean
 

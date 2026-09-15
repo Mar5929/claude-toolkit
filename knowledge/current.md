@@ -12,7 +12,7 @@ Issue #269, stage `02-refinement`. The 30-requirement PRD remains proposed. Full
 
 ## Next step
 
-Save timing and consolidation cleanup are settled in the PRD and walkthrough. Next: glossary indexing. The issue holds the review record. Where the PRD conflicts with the approved walkthrough, update the PRD to match; later owner clarifications win. Reconcile agreed answers across both.
+All six findings are resolved in the PRD and walkthrough. Next: Mike reviews and approves the full requirements. The issue holds the review record. Reconcile against the approved walkthrough and later owner clarifications.
 
 On full requirements approval, set `finalized` and both approval fields and record acceptance of this issue's PRD-finalization outcome. Finalized means ready for design or building. Delivery remains separate. This PRD may keep its layout for now; new PRDs follow the new layout.
 
