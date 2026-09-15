@@ -12,7 +12,7 @@ Issue #269, stage `02-refinement`. `knowledge/prds/knowledge-system.md` has 30 r
 
 ## Next step
 
-Roadmap section B, item 2: the plain-language wording pass over the whole `knowledge/prds/knowledge-system.md`. Item 1 (reconcile against the approved walkthrough, 18 fixes) landed on 2026-09-15. The wording standard: written like a person, plain and clear, no jargon or figures of speech, each requirement carrying the context a stranger needs. Then the issue-body requirement map, then ask Mike to approve the PRD (section C).
+Roadmap section B is done except the last item: bring the requirement map in the body of issue #269 in line with the PRD. The wording pass landed on 2026-09-15 after three independent Opus reviews for meaning drift. Then section C: ask Mike to approve the PRD, add `approved_by` and `approval_date`, move the label to `03-requirements-approved`.
 
 How to run the review: one part at a time, one question at a time. Check the PRD and earlier answers before asking. Explain an edit's purpose, placement, and conflicts before changing the PRD. Park unrelated issues. After each decision, tick the roadmap on the issue and append one line to its Progress log.
 

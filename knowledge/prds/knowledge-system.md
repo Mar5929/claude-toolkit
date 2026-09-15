@@ -65,53 +65,59 @@ agent remembers it for him.
 
 Two ways to fail, and both are bad. Remembering too little means the owner
 explains the same thing again. Remembering carelessly is worse, because a later
-agent believes something stale and acts on it.
+agent believes information that is out of date and acts on it.
 
 ## How the owner works
 
 The owner routinely runs several parallel agent conversations in the integrated
 terminals of one VS Code project or directory. Sessions may use different
-models or harnesses. Much of the work is complex requirements gathering,
-solution design, and reasoning. Context fills quickly; a session may have its
-context condensed, be cleared, or be replaced while other sessions keep working.
+models, and they may use different agent programs. This document calls an agent
+program a harness; Claude Code and Codex are the ones it names. Much of the work
+is complex requirements gathering, solution design, and reasoning. A session's
+context window, the limited amount of text the agent can hold at one time, fills
+quickly. A session may have its context condensed into a summary, be cleared, or
+be replaced while other sessions keep working.
 
-The owner should never have to babysit knowledge upkeep: remind an agent to
-look something up, tell it where information belongs, repeat the save rules,
-or reconstruct what another session did. He approves lasting meaning and
-proposed removals. The agent notices the need, finds the right instructions,
-prepares the proposal, and completes authorized upkeep itself.
+The owner should never have to look after knowledge upkeep himself. He should
+not have to remind an agent to look something up, tell it where information
+belongs, repeat the save rules, or work out again what another session did. He approves what gets saved
+as lasting knowledge, and he approves anything proposed for removal. The agent
+notices the need, finds the right instructions, prepares the proposal, and
+finishes the upkeep it is already allowed to do.
 
-Loading all the instructions at startup and hoping they remain in the agent's
-attention does not meet this requirement. The system must guide the agent at
-the moment it needs to find, propose, write, update, or remove information.
+Loading all the instructions at the start of a session and hoping the agent
+still has them in mind later does not meet this requirement. The system must
+guide the agent at the moment it needs to find, propose, write, update, or
+remove information.
 The agent keeps its freedom to reason, investigate, and design within those
 boundaries. Requirements 2, 13, 18, and 19 define this behavior.
 
 ## Where it sits
 
-The knowledge system is a component of the [Toolkit Operating System](toolkit-operating-system.md).
-This PRD includes the OS changes required for knowledge behavior to work within
-that larger system. Requirement 30 defines the integration responsibilities
-and the boundaries with other components.
+The knowledge system is one part of the [Toolkit Operating System](toolkit-operating-system.md).
+This document is a product requirements document, a PRD for short. It includes
+the changes the wider operating system needs so that the knowledge behavior
+works inside it. Requirement 30 says who is responsible for joining the two
+together, and where the line sits between this part and the other parts.
 
-The toolkit ships a whole set of parts for working with an AI agent on a
-project: rules, hooks, skills, the work tracker, and captured
-outside documentation. The second brain is two of those parts. It is the memory,
-and it is the record of the product's required behavior, user experience,
-process requirements, and reasons, which is what a PRD holds. It keeps what
-is true in this project and why. Anything else
-belongs to another part, and the second brain does not keep it. A repeatable
-procedure goes to a skill. A standing instruction goes to `.claude/rules/`,
-scoped through the runtime’s supported rule behavior. Live status goes to the
-work tracker. How one item gets built and its build order belong in its solution
-design and work-item plan, kept with or linked from the chosen tracker. Outside documentation
-the agent can use goes to `ai-external-knowledge/`. Requirement 18 is the full
-list.
+The toolkit ships a whole set of parts, also called components, for working
+with an AI agent on a project: rules, hooks, skills, the work tracker, and captured outside
+documentation. The second brain is two of those parts. It is the memory, and it
+is the record of what the product has to do, what the person using it
+experiences, what the process requires, and why, which is what a PRD holds. It
+keeps what is true in this project and why. Anything else belongs to another
+part, and the second brain does not keep it. A repeatable procedure goes to a
+skill. A standing instruction goes to `.claude/rules/`, scoped in the ways the
+harness supports. Live status goes to the work tracker. How one item gets built
+and its build order belong in its solution design and work-item plan, kept with
+or linked from the chosen tracker. Outside documentation the agent can use goes
+to `ai-external-knowledge/`. Requirement 18 is the full list.
 
 The system sets a small number of required responsibilities. The agent chooses
 how to investigate, reason, and solve the task while meeting them. For example,
-it decides which information meets the memory-selection rules, but still obtains
-required approval before saving. This is not a fixed script for every action.
+it decides which information meets the rules for what counts as memory, but it
+still gets the required approval before saving. This is not a fixed script for
+every action.
 Requirements 3 and 29 distinguish reliable outcomes from attempts to control
 the agent's thinking.
 
@@ -122,14 +128,14 @@ is wrong.
 ## How to read this
 
 - The status is `proposed`. This document describes the finished system. It does not describe how the system works today.
-- The numbered requirements say what must happen, what the owner sees, the process and decision rules, and the required data model. A closing section records preferred design directions and examples separately. Detailed implementation choices and build plans belong with the work item.
-- This document holds the goal, the requirement, and the behavior. Each requirement is written clearly enough that a builder can design from it without guessing the intended behavior. The solution design may choose among different ways to meet the same requirement; the PRD does not make that implementation choice.
-- When the owner gives a clear answer or correction within authorized refinement of this document, the agent writes it here in that same reply under requirement 10. It is never logged on an issue instead, because an issue comment gets lost and this document then never gets updated.
+- The numbered requirements say what must happen, what the owner sees, the rules for the process and for decisions, and the required data model, which means what information is stored and in which fields. A closing section keeps preferred design directions and examples separate from the requirements. Detailed choices about how to build it, and build plans, belong with the work item.
+- This document holds the goal, the requirement, and the behavior. Each requirement is written clearly enough that a builder can design from it without guessing the intended behavior. The solution design may choose among different ways to meet the same requirement; this document does not choose how it gets built.
+- When the owner has already allowed the agent to keep refining this document, and he then gives a clear answer or correction, the agent writes it here in that same reply, under requirement 10. It is never recorded on an issue instead, because an issue comment gets lost and this document then never gets updated.
 - Mike authorized ongoing refinement of this PRD and approved the drafting-permission rule in requirement 10 on 2026-09-10. That permission covers faithful capture of his answers and corrections; it does not approve every requirement, a solution design, or implementation.
-- Requirement 3 defines the reliability outcomes and the evidence needed to demonstrate them. The solution design chooses how documented harness capabilities deliver those outcomes and identifies any limits.
+- Requirement 3 says what reliable behavior has to produce, and what evidence proves it. The solution design chooses how the harness's documented features deliver those outcomes, and it names any limits.
 - "A session, start to finish" follows one session through every requirement, so the numbered list is easier to follow.
 - On 2026-09-12, Mike authorized importing the agreed direction from the linked ChatGPT conversation and decision report, interviewing him, and saving clear answers directly to this PRD on `main`. This continues drafting permission; it does not approve the complete requirements or authorize implementation.
-- The closing section records the preferred solution philosophy and high-level architecture, with examples and open design questions. A preferred direction is not a verified platform capability or a completed solution design.
+- The closing section records the preferred way of solving this and the rough shape of the design, with examples and open design questions. A preferred direction is not a proven feature of the platform, and it is not a finished solution design.
 - Where this document and `knowledge/README.md` disagree, this document wins. Each disagreement is named in the place it happens, and `knowledge/README.md` is then changed to match this document.
 
 ## Project folder layout
@@ -167,10 +173,11 @@ project/
 
 The topic and area filenames are examples. Memory topic files and optional
 topic folders follow requirement 14. The outside-documentation index and
-captured topics follow requirements 8 and 21. System Guide remains a separate,
-optional component; this layout names its home when enabled. Its index points
-to pages in `system-guide-entries/`. Brainstorms live in `brainstorms/` at the
-project root, outside `knowledge/`.
+captured topics follow requirements 8 and 21. The System Guide is a separate
+part of the toolkit that a project can turn on or leave off; this layout shows
+where it lives when a project turns it on. Its index points to pages in
+`system-guide-entries/`. Brainstorms live in `brainstorms/` at the project root,
+outside `knowledge/`.
 
 `SOUL.md` sits at the project root. It says what the agent is responsible for
 in this project, and it is the first of the required startup reads in
@@ -198,11 +205,12 @@ its next release. The owner returns to the project, investigates the change,
 settles requirements, and later hands the work to another session. The example
 uses the planned folder layout. Topic filenames are illustrative.
 
-The flow includes **native runtime behavior**, which Claude Code or Codex
-already provides, and **knowledge-system behavior**, which this PRD requires.
-Native steps provide context for the complete process; the toolkit does not
-reimplement them. The numbered requirements define the behavior. Solution
-design selects any additional triggers or enforcement mechanisms.
+The flow includes **behavior the harness already provides**, meaning what Claude
+Code or Codex does on its own, and **knowledge-system behavior**, which this
+document requires. The harness's own steps are shown so the whole process makes
+sense; the toolkit does not rebuild them. The numbered requirements define the
+behavior. The solution design chooses any extra triggers, and any way of
+enforcing them.
 
 ### Session flow
 
@@ -247,10 +255,10 @@ a new proposal, or a visit to every source.
 
 ### 1. Start or resume the session
 
-The native runtime makes project instructions, rules, and available skills accessible
-through its supported mechanisms, including files such as `CLAUDE.md` or
-`AGENTS.md`. This step supplies context for the walkthrough; its implementation
-is outside the knowledge system.
+The harness itself makes project instructions, rules, and available skills
+reachable in whatever ways it supports, including files such as `CLAUDE.md` or
+`AGENTS.md`. This step is here as background for the walkthrough; building it is
+not part of the knowledge system.
 
 In Claude Code, [native rule handling](https://code.claude.com/docs/en/memory#path-specific-rules) includes:
 
@@ -258,7 +266,7 @@ In Claude Code, [native rule handling](https://code.claude.com/docs/en/memory#pa
 - Rules with YAML `paths` patterns. These load when Claude reads matching files, rather than all loading at startup.
 - Personal rules in `~/.claude/rules/`, which apply across projects.
 
-Codex uses its supported instruction mechanisms under requirement 25.
+Codex uses the instruction methods it supports, under requirement 25.
 
 At a new session start, the agent reads three files in this order: `SOUL.md`,
 what the agent is responsible for in this project; `knowledge/project.md`, what
@@ -278,27 +286,29 @@ requirement 2.
 On resume or context loss, the agent recovers guidance that is missing or no
 longer current. It does not repeat the full manual on every message.
 
-The agent then reads `knowledge/memory/current.md` to understand shared work and
-checks `knowledge/memory-inbox.md` for relevant pending proposals or unfinished
-saves. It opens the linked tracker record for actual work status and approvals.
-The owner receives a concise briefing: the account-access review is still open,
-the earlier constraint remains relevant, and the next step is to check the
-proposed change against that constraint. It cites the supporting overview and
-tracker record under requirement 6. When the briefing uses project shorthand,
-it applies the glossary under requirement 7 before presenting it. Requirements
-2–4, 13, and 28 define startup and recovery behavior.
+The agent then reads `knowledge/memory/current.md` to understand the work shared
+across sessions, and checks `knowledge/memory-inbox.md` for relevant proposals still
+waiting for an answer, or saves that did not finish. It opens the tracker record
+those files link to, which holds the real status of the work and the approvals
+given. The owner then gets a short briefing: the account-access review is still
+open, the earlier constraint still applies, and the next step is to check the
+proposed change against that constraint. The briefing names the overview and the
+tracker record the information came from, as requirement 6 requires. When the briefing uses project
+shorthand, the agent applies the glossary under requirement 7 before showing it.
+Requirements 2–4, 13, and 28 define startup and recovery behavior.
 
 ### 2. Interpret the request and open the right sources
 
 The owner asks whether account access should change for this release. The agent
-uses the glossary, source roles, and find order in requirements 5–8 and 19.
-It chooses search terms, tools, and investigation depth. Already-available,
-relevant, current information can be reused.
+uses the glossary, the role each source plays, and the find order in
+requirements 5–8 and 19. It chooses its own search terms, tools, and how deep to
+investigate. If it already has relevant information that is still current, it
+can reuse that instead of searching again.
 
 | Source in this example | What the agent reads and why |
 | --- | --- |
 | Shared work and tracker | `knowledge/memory/current.md`, then its linked work item, to establish current scope, approval, blocker, and next step. |
-| Instructions and skills | Applicable root and folder instructions, rules, and a relevant skill such as `.claude/skills/<name>/SKILL.md`, or the supported harness equivalent, before using that procedure. |
+| Instructions and skills | The root and folder instructions that apply, the rules, and a relevant skill such as `.claude/skills/<name>/SKILL.md`, or whatever the harness in use calls the same thing, read before using that procedure. |
 | Project terminology | `knowledge/memory/memory-entries/terminology-glossary.md` to resolve shorthand before searching for the wrong concept. |
 | Earlier decisions | `knowledge/memory/memory-index.md`, then `knowledge/memory/memory-entries/account-access.md`, to read the earlier decision and its evidence. |
 | Required behavior | `knowledge/prds/prd-index.md`, then the relevant PRD under `knowledge/prds/`, to establish what users must be able to do. A proposed requirement does not prove current behavior. |
@@ -306,31 +316,34 @@ relevant, current information can be reused.
 | Vendor documentation | `ai-external-knowledge/README.md`, then the relevant captured page, when the answer depends on vendor behavior. Missing or outdated evidence is handled under requirement 8. |
 | Earlier conversation | Available project session history, if the earlier sources leave a relevant gap. Historical claims are checked before being presented as current. |
 
-The owner sees an answer supported by the relevant sources, using the citation
-format in requirement 6. If the evidence leaves a consequential gap, the agent
-identifies it and asks a focused question. The table shows the available parts
-of lookup; it is not a script that searches every folder for every request.
+The owner sees an answer backed by the relevant sources, and the answer names
+those sources in the way requirement 6 sets out. If the evidence leaves a gap
+that matters, the agent says what is missing and asks a focused question. The
+table shows the sources a lookup can use; it is not a script that searches every
+folder for every request.
 
 ### 3. Work and maintain shared context
 
-The agent performs authorized research, design, or implementation using its
-native reasoning and tools. Reading a proposed PRD does not authorize building
-it. The delivery workflow owns the work item's status, approvals, and build plan.
+The agent does the research, design, or building it has been authorized to do,
+using its own reasoning and tools. Reading a proposed PRD is not permission to
+build it. The delivery workflow owns the work item's status, approvals, and
+build plan.
 
-When useful shared context changes, the agent rereads and updates
-`knowledge/memory/current.md`, preserving other sessions' active work and
-linking to the tracker instead of copying it. Unverified findings stay labelled.
-Disposable scratch details remain in the conversation. When the agent updates
-the shared overview, it tells the owner in one line. Requirements 4, 12, 13, and
-18 define these boundaries.
+When shared context changes in a way that matters, the agent reads
+`knowledge/memory/current.md` again and updates it, keeping the active work of
+other sessions intact and linking to the tracker instead of copying it. A
+finding nobody has checked stays labelled as unchecked. Throwaway details stay
+in the conversation. When the agent updates the shared overview, it tells the
+owner in one line. Requirements 4, 12, 13, and 18 set these boundaries.
 
 ### 4. Review, route, and save
 
-The investigation may produce a lasting release decision, a PRD correction,
-or a repeatable project procedure. Each follows its own destination rules.
-The agent checks the selection rules, exclusions, existing files, and
-relevant owner feedback under requirement 23 before proposing memory.
-Requirement 18 determines each destination.
+The investigation may produce a lasting decision about the release, a correction
+to a PRD, or a repeatable procedure for this project. Each one has its own rules
+about where it goes. Before proposing a memory, the agent checks the rules for
+what counts, the exclusions, the files that already exist, and any relevant
+feedback from the owner under requirement 23. Requirement 18 says where each one
+belongs.
 
 ```mermaid
 flowchart TD
@@ -367,12 +380,12 @@ flowchart TD
     N -- After recovery or the needed decision --> P
 ```
 
-The diagram's general steps apply through each destination's own workflow.
-The memory inbox and direct-default-branch publication rules apply to knowledge
-saves; they do not become a new delivery procedure for skills, rules, or System
-Guide content. Requirement 20 defines proposal formatting and requirement 10
-defines approval. Useful owner feedback on memory proposals is retained and
-applied under requirement 23.
+The general steps in the diagram happen inside each destination's own workflow.
+The rules about the memory inbox, and about saving straight to the default
+branch, apply to knowledge saves. They do not become a new way of delivering
+skills, rules, or System Guide pages. Requirement 20 says how a proposal is laid
+out, and requirement 10 says how approval works. Useful feedback the owner gives
+on memory proposals is kept and used again under requirement 23.
 
 | Information produced | Destination and resulting action |
 | --- | --- |
@@ -389,16 +402,18 @@ applied under requirement 23.
 | Outside reference material | Use the captured-documentation workflow under `ai-external-knowledge/`, keeping the source and capture date. |
 | Low-value or disposable detail | Keep it out of lasting knowledge and do not show a memory proposal for it. |
 
-For a memory or PRD save, completion includes the approved meaning, required
-format, generated indexes, validation, and publication required by requirements
-9, 14–16, and 21. A local write alone does not establish publication. Pending
-proposals and approved unfinished saves follow requirement 28, including
-conflicting changes and recovery without duplicate writes.
+A memory or PRD save is finished only when it carries the approved meaning, uses
+the required format, has its indexes rebuilt, passes its checks, and is
+published, as requirements 9, 14–16, and 21 require. Writing the file on this
+computer alone does not make it published. Proposals still waiting, and approved
+saves that did not finish, follow requirement 28, which also covers conflicting
+changes and picking the work up again without writing the same thing twice.
 
 ### 5. Repair or clean up when needed
 
-These paths can begin during lookup, work, or save review. They return to the
-same approval and validation rules rather than creating a second save process.
+Any of these can begin during a lookup, during the work, or during a save
+review. They come back to the same approval and checking rules; they never
+create a second way to save.
 
 | Condition | Action and return to the session |
 | --- | --- |
@@ -409,40 +424,42 @@ same approval and validation rules rather than creating a second save process.
 
 ### 6. Hand off and continue later
 
-Before a handoff or planned context clear, the agent reviews this work, refreshes
-`knowledge/memory/current.md`, and identifies relevant entries in
-`knowledge/memory-inbox.md`. The tracker holds detailed delivery state; the
-shared overview gives the next session its entry points and next step.
-Before opening a pull request or closing the work item, the required review
-also covers the work being handed over.
+Before a handoff or a deliberate context clear, the agent reviews this work,
+refreshes `knowledge/memory/current.md`, and picks out the entries in
+`knowledge/memory-inbox.md` that still matter. The tracker holds the detailed
+state of delivery; the shared overview gives the next session its starting
+points and its next step. Before opening a pull request or closing the work
+item, the required review also covers the work being handed over.
 
-An unanswered proposal remains pending. An approved unfinished save remains
-recoverable. Neither is presented as completed knowledge. The agent reports any
-sharing failure so the owner knows what another session cannot yet see.
+A proposal the owner has not answered stays pending. An approved save that did
+not finish stays recoverable. Neither is presented as knowledge that is already
+saved. If the agent cannot share an update with the other sessions, it says so,
+so the owner knows what another session cannot yet see.
 
 Work resumes in one of three ways. A new session makes the ordered startup reads
-and gives the one confirmation in requirement 2, then checks shared context and
-pending state. When the same session resumes, or its context has been condensed,
-the agent restores the knowledge map and any guidance or source content that is
-missing or has changed, reusing what is still current. It does not repeat the
-startup confirmation on an ordinary resumed turn. After an unexpected
-interruption, the agent recovers from the latest state that was actually saved
-and shared, checks that state against current records, and reports what is
-missing. It does not assume a final handoff review ran before the interruption.
+and gives the one confirmation in requirement 2, then checks the shared context
+and anything left pending. When the same session resumes, or its context has
+been condensed, the agent brings back the knowledge map, plus any guidance or
+source content that is missing or has changed. It reuses what it already has, as
+long as that is still current. It does not repeat the startup confirmation on an
+ordinary resumed turn. After an unexpected interruption, the agent recovers from
+the latest state that was actually saved and shared, checks that state against
+current records, and reports what is missing. It does not assume a final handoff
+review ran before the interruption.
 
 The next session checks the dated overview against its linked tracker and
 sources, recovers relevant pending work, and continues without making the owner
-repeat settled decisions. Requirements 3, 4, 9, 13, 19, and 28 govern this
-continuity on every supported harness under requirement 25.
+repeat settled decisions. Requirements 3, 4, 9, 13, 19, and 28 keep that
+continuity working on every harness the toolkit supports, under requirement 25.
 
 ## 1. Plain parts only
 
 - Every piece of knowledge this system keeps is a plain text file in this repository, and those files are the only copy. No database. No background writer. No separate store the owner cannot open.
 - Built from what Claude Code already ships: rules, hooks, skills, Markdown files, and Git. Nothing else.
-- Reuse existing toolkit parts and documented harness capabilities before adding a mechanism. Any new mechanism must name the requirement an existing part cannot meet. The knowledge system does not introduce another work tracker or a second owner of another component's content.
+- Reuse the toolkit parts that already exist, and the features the harness's own documentation describes, before building anything new. Anything new must name the requirement that no existing part can meet. The knowledge system does not add another work tracker, and it does not become a second owner of content that another part of the toolkit already owns.
 - The owner can read, edit, move, or delete knowledge files by hand. The agent respects the resulting content rather than silently undoing the owner's changes.
-- If an edit breaks a link or required structure, the agent repairs it automatically only when the intended fix is clear and preserves meaning. Examples include updating links after an unambiguous rename and rebuilding an index.
-- The agent asks before a repair that could change meaning, choose between unclear destinations, or restore deliberately deleted content. It reports the affected file and the decision needed rather than guessing.
+- If an edit breaks a link or a required part of a file's structure, the agent repairs it without asking only when the right fix is obvious and keeps the meaning. For example: updating links after a rename that leaves no doubt what the new name is, and rebuilding an index.
+- The agent asks first before any repair that could change what something means, that would make it pick between unclear destinations, or that would put back content the owner deleted on purpose. It names the file and says what decision it needs, rather than guessing.
 - Until the problem is resolved, only work that depends on the broken information pauses. Unrelated authorized work continues under requirement 3.
 
 **Check:** rename a knowledge file by hand. The agent updates its links and
@@ -457,18 +474,18 @@ a hook, a skill, a Markdown file, or Git.
 ## 2. The agent follows this system
 
 - In every session, the agent follows the knowledge system: when to save, what to save, how to save, where to save, what to check first, what to cite, and what never to write.
-- Reading a rule is not enough. The agent has to actually do what the rule says, every time. Example: requirement 9 requires a save review at the end of meaningful work. The test is whether the right proposals, authorized saves, and pending state result, not merely whether the agent read the rule.
+- Reading a rule is not enough. The agent has to actually do what the rule says, every time. Example: requirement 9 requires a save review at the end of meaningful work. The test is whether the right proposals, saves the agent was allowed to make, and pending records actually come out of it, not whether the agent read the rule.
 - It follows the system whether or not the owner mentions it. The owner never has to remind it.
-- At a new session start, the agent reads three files in this order: `SOUL.md`, then `knowledge/project.md`, then the knowledge manual at `knowledge/README.md`. The instruction to make these reads must reach the agent before it makes them. The manual explains the knowledge homes, what belongs and does not belong in each, selection and proposal rules, approval, and file conventions, with pointers to each component’s detailed guidance.
+- At a new session start, the agent reads three files in this order: `SOUL.md`, then `knowledge/project.md`, then the knowledge manual at `knowledge/README.md`. The instruction to make these reads must reach the agent before it makes them. The manual explains each place knowledge is kept, what belongs in each place and what does not, how to choose what is worth saving, how to propose a save, how approval works, and the file conventions, and it points to the detailed guidance for each part.
 - A completion check follows the three reads. It confirms that the contents of each file reached the agent and were read. Listing file names or issuing a reminder does not complete a read. Only after that check does the agent show the owner one short confirmation, such as “I’ve read the knowledge manual.” Show it once, without a checklist or repeated confirmations on normal turns.
 - If a read is incomplete, direct the agent to finish it, hold back the confirmation, and pause work that depends on the unread file. If one of the three files is unavailable, say which file is missing and pause only work that depends on it. Come back to that read when the file is available.
 - If the manual or other required guidance is unavailable, the agent reports the missing source and pauses only work that depends on it. Unrelated authorized work may continue. It never confirms reading an unavailable manual.
-- A small map is available at startup and whenever context is condensed, cleared, or resumed. It points to the current operating instructions, information homes, indexes, and the checks that apply. Detailed rules, templates, and knowledge are reached when needed; the whole knowledge base and every procedure are not loaded up front.
-- The instructions that apply to a task govern the first read or action they cover, including a memory lookup and work tracking. The agent reuses current guidance it already has in context, and reads any further folder or skill instructions before the action they govern. For example: before a lookup, the agent establishes the applicable find order. Before proposing or making a knowledge change, it establishes the destination rules, exclusions, approval rules, file fields, template, and writing standard. It follows the current instructions for that operation even late in a long session. Already-read guidance can be reused while it remains available and current. Missing guidance is opened again before the affected operation proceeds.
-- The same guidance applies when the owner changes tasks or another session changes the relevant records. A completed check for an earlier task does not establish that the new task's knowledge was checked.
-- The system is responsible for bringing the needed guidance back at these moments. A one-time startup briefing or the owner repeating a rule is not sufficient. Which documented harness mechanism delivers that guidance and the requirement 3 checks is the design's job.
-- The agent uses judgment to understand meaning, choose relevant sources, reject low-value candidates, and write a useful proposal. It cannot use that judgment to skip the system's required lookup, approval, validation, or upkeep moments.
-- Following is demonstrated, not assumed. Requirement 3 defines the outcomes, verification scenarios, and handling of missed or incomplete operations.
+- A small map is available at the start of a session, and again whenever context is condensed, cleared, or resumed. The map points to the instructions in force, the places information is kept, the indexes, and the checks that apply. Detailed rules, templates, and knowledge are opened when they are needed; the whole knowledge base and every procedure are not loaded at the start.
+- The instructions that apply to a task are in force from the first read or action they cover, including a memory lookup and work tracking. The agent reuses guidance it already has and that is still current, and it reads any further folder or skill instructions before the action those instructions cover. For example: before a lookup, the agent works out which find order applies. Before proposing or making a knowledge change, it works out the rules for the destination, what must stay out of it, the approval rules, the file fields, the template, and the writing standard. It follows the current instructions for that operation even late in a long session. Guidance it has already read can be reused while it is still available and still current. Guidance that is missing is opened again before the affected operation goes ahead.
+- The same guidance applies when the owner switches to a different task, or when another session changes the records that matter here. A check finished for an earlier task does not show that the new task's knowledge was checked.
+- The system is responsible for bringing the needed guidance back at these moments. A single briefing at the start, or the owner repeating a rule, is not enough. Which documented harness feature delivers that guidance, and delivers the checks in requirement 3, is the design's job.
+- The agent uses its own judgment to work out what something means, choose relevant sources, reject candidates that are not worth saving, and write a useful proposal. It cannot use that judgment to skip a lookup, an approval, a check, or an upkeep moment that this system requires.
+- Testing shows whether the agent follows this. Never assume it. Requirement 3 says what the results must be, which situations are tested, and what happens when an operation is missed or left half done.
 
 **Check:** at a new session start, the owner sees one short confirmation after
 the agent reads the manual. Normal turns contain no repeated confirmation or
@@ -477,7 +494,7 @@ missing path is reported, and only dependent work pauses.
 
 **Check:** run a whole session without mentioning memory once. At every moment
 this document names, the agent does what this document says. Any moment where it
-did not is identified during verification and handled under requirement 3.
+did not is found during the checks and dealt with under requirement 3.
 
 **Check:** run a long requirements or design conversation, condense its context,
 then introduce a correction, a lasting decision, and a routine detail that must
@@ -491,32 +508,37 @@ pass this check.
 
 The owner must be able to rely on knowledge upkeep throughout long and parallel
 sessions. Reading instructions once is not enough. The system brings back the
-needed guidance, checks the required conditions, and makes an unfinished or
-failed operation visible without waiting for the owner to notice.
+guidance the agent needs, checks that the required conditions are met, and shows
+the owner an operation that failed or was left unfinished, rather than waiting
+for him to notice it.
 
 ### Required outcomes
 
 - At a new session start, all three startup reads in requirement 2 finish before the owner sees the confirmation. A read that did not finish, or a file that is missing, is reported instead.
-- Before answering or acting on project information, the agent checks the relevant knowledge under requirement 19. Relevant, current sources already available in context can satisfy that check. A check for an earlier task does not cover a different task automatically.
-- An answer or proposal based on saved knowledge identifies its supporting source under requirement 6. This applies however the agent found or opened that source. A path attached to a search result alone does not establish that the answer is supported.
+- Before answering anything that rests on project information, or acting on it, the agent checks the relevant knowledge under requirement 19. Relevant, current sources that are already in the agent's context can satisfy that check. A check done for an earlier task does not automatically cover a different task.
+- An answer or proposal based on saved knowledge identifies its supporting source under requirement 6. This applies no matter how the agent found or opened that source. A file path that came back with a search result does not on its own show that the answer is supported.
 - The external-knowledge index is reachable from the small map. The agent opens relevant outside documentation before relying on it, as requirement 8 requires.
-- A save review happens at every moment in requirement 9. Opening a pull request or closing a work item requires that review for the work being handed over. At the end of a turn involving real work, the review stays internal unless there is something to approve, a save requiring notification, or a problem. Requirement 16 keeps routine PRD upkeep quiet. At handoff, identify relevant pending state under requirement 28. An explicit request for a save or review still receives a clear answer, including when nothing qualifies. An existing inbox entry alone does not satisfy a new review.
-- Lasting knowledge is changed only within the owner's approval. Proposals follow the standard format, and a proposal missing required information is corrected before requesting approval. A save is not reported complete until its content, required fields, indexes, and publication have been checked. Failed checks leave the save unfinished.
-- When a required check or save was missed, the agent identifies the gap and performs the needed review or recovery within existing approval. It never claims the missing check happened or asks the owner to reconstruct the session for it.
+- A save review happens at every moment in requirement 9. Opening a pull request or closing a work item requires that review for the work being handed over. At the end of a turn that involved real work, the review happens quietly unless there is something to approve, a save the owner needs to be told about, or a problem. Requirement 16 keeps routine PRD upkeep quiet. At a handoff, the agent works out which pending items matter, under requirement 28. An explicit request for a save or review still receives a clear answer, including when nothing qualifies. An existing inbox entry alone does not satisfy a new review.
+- Lasting knowledge is changed only as far as the owner's approval reaches. Proposals follow the standard format, and a proposal that is missing required information is fixed before the agent asks for approval. A save is not reported as complete until its content, its required fields, its indexes, and its publication have all been checked. A check that fails leaves the save unfinished.
+- When a required check or save was missed, the agent finds what was missed and then does the review or the recovery that is needed, staying inside the permission it already has. It never claims the missing check happened, and it never asks the owner to reconstruct the session for it.
 
 ### How reliability is demonstrated
 
-The solution design identifies which conditions the supported harness can
-check or prevent mechanically, which depend on the agent understanding meaning,
-and how the latter are guided and verified. Use existing toolkit and documented
-harness capabilities first. A custom gate, reply parser, single retrieval route,
-or session counter is not required merely because it could be built.
+The solution design says which conditions the harness can check or block by
+itself, which ones depend on the agent understanding what something means, and
+how the conditions that depend on the agent's understanding are guided and
+checked. Use the toolkit parts that already exist, and the features the
+harness's own documentation describes, before anything else. A custom blocker, a
+program that reads the agent's replies, a single fixed search route, or a
+counter of sessions is not required just because it could be built.
 
-The required outcomes remain mandatory. Any unsupported protection or remaining
-reliance on agent judgment is stated in the design and project setup report,
-with its practical effect and recovery behavior. Do not describe a reminder as
-a guaranteed block, or claim that counts prove the right information was found
-or saved. A reported limitation is not evidence that the requirement is met.
+The outcomes above are still required. Where a protection cannot be built, or
+where the outcome still depends on the agent's judgment, the design, and the
+project's setup report, must name it, say what it means in practice, and say
+what happens when it goes wrong and how it recovers. Do not describe a reminder as
+something that is guaranteed to stop the agent, and do not claim that a count of
+actions proves the right information was found or saved. Reporting a limit is
+not evidence that the requirement is met.
 
 **Check:** run representative sessions on every supported harness: a fresh
 session, a long reasoning conversation with context condensed, a task switch,
@@ -524,14 +546,16 @@ and parallel sessions changing shared knowledge. Include a known fact, a
 correction needing approval, an already-approved save, a low-value detail that
 must stay out, a failed save, and a handoff. Verify the resulting proposals,
 source-backed answers, saved files, and recovered state against the expected
-outcomes. The owner supplies no reminders. Record failures and gaps; reading a
-rule, calling a tool, or increasing a counter alone does not pass the check.
+outcomes. The owner gives no reminders during the test. Write down the failures
+and the gaps. Reading a rule, calling a tool, or increasing a counter does
+not on its own pass this check.
 
 ### A failure pauses the affected work
 
-When a knowledge save fails, pause that save and any work that depends on its
-successful completion. Continue unrelated work that can be done accurately
-within existing approval. One failed save does not stop the whole session.
+When a knowledge save fails, pause that save and any work that depends on that
+save finishing. Carry on with unrelated work that can still be done accurately
+within the permission already given. One failed save does not stop the whole
+session.
 
 The agent says what failed, what was actually saved, what remains unfinished,
 which dependent work is waiting, and the next step. It fixes what it can within
@@ -561,9 +585,9 @@ transcript.
 
 - When the owner asks something, or the agent starts a task, the agent first checks whether this project already knows the answer, already solved it, or holds useful context.
 - It brings that up without being asked.
-- This check is required for both questions and tasks. Use relevant, current context already available rather than repeating a search solely to record another search. Requirement 3 defines reliability and verification.
+- This check is required for a question and for a task alike. Use relevant information the agent already has, as long as it is still current, rather than repeating a search just to have a search on the record. Requirement 3 says how this is made reliable and how it is checked.
 - Work out what the owner is asking for first, from what he said or from one clarifying question. Then decide one thing: could long-term project knowledge affect this answer or action? If no, carry on without a memory lookup. If yes and the source has already been read and is still current, reuse it. If yes and the agent needs the source content, find it and read it.
-- That decision is made once for the request and reused while the scope and the relevant information stay the same. Making another tool call is not on its own a reason to decide again.
+- That decision is made once for the request, and it holds while the scope of the request and the relevant information stay the same. Running another tool is not on its own a reason to decide again.
 - To find the right source, use the glossary at `knowledge/memory/memory-entries/terminology-glossary.md` and the memory index at `knowledge/memory/memory-index.md`. A line in an index, or a save still waiting in the inbox, is a pointer, not evidence.
 
 **Check:** ask about something already saved. The agent answers from the saved
@@ -593,9 +617,9 @@ name, a system, a person, or a process.
 - Put alternate names in the same row. If a term means different things in different systems, clearly identify the context.
 - Keep only a short caution in the table. Link to detailed explanations or important history in their proper home under requirement 18. Their length does not make them memory.
 - Update the existing row when its meaning changes; remove obsolete or duplicate wording. Do not append another account of the same meaning.
-- Record the source and date per row, distinguishing reported meanings from verified ones. Clearly mark unresolved meanings instead of presenting them as settled.
+- On each row, record where the meaning came from and the date, and show whether somebody simply reported the meaning or somebody checked it. Mark a meaning that is still unsettled instead of presenting it as agreed.
 - Add terms that need explanation in this project, not every ordinary word.
-- Resolve project shorthand before tier 4 so searches use the intended names. Reuse a mapping already established and current; an unfamiliar word alone does not require a new glossary entry.
+- Work out what the project's shorthand means before reaching tier 4 of the find order in requirement 19, so that searches use the names people actually meant. Reuse a meaning that is already settled and still current; meeting an unfamiliar word is not on its own a reason to add a glossary row.
 - The owner's example: he said "match on the discovery email field and the core email field", and the agent knew exactly which two fields those were, like a colleague who had been on the project for years.
 
 ### Glossary template
@@ -623,13 +647,13 @@ is linked rather than expanded into paragraphs under the term.
 
 ## 8. Read the real documentation first
 
-- `ai-external-knowledge/README.md` is the index of captured outside knowledge. It uses the same generated, grouped link-and-summary format as the memory and PRD indexes in requirement 21. Each topic entry links to its captured entry page; it does not copy the documentation into the index.
-- The project's small knowledge map points to this index. During lookup, the agent scans it to decide whether captured documentation is relevant. A current scan already in context can be reused; a changed topic list or lost context requires a fresh scan.
+- `ai-external-knowledge/README.md` is the index of captured outside knowledge. It is generated in the same way as the memory and PRD indexes in requirement 21: entries grouped under headings, each entry a link and a one-line summary. Each topic entry links to its captured entry page; it does not copy the documentation into the index.
+- The project's small knowledge map points to this index. While looking something up, the agent scans the index to decide whether any captured documentation is relevant. If a current read of the index is already in its context and the topic list has not changed, it can use that. If the list changed or the context was lost, it reads the index again.
 - Before running a repeatable process or working out a fix that depends on a captured topic, the agent opens the relevant page. Example: before changing a hook, it reads the captured Claude Code page about hooks instead of relying on what it already thinks it knows about hooks. Unrelated topics are not opened.
 - One folder per captured topic. Its entry page supplies `group` and `summary` in YAML frontmatter for the index, and records the original source address and capture or refresh date. The summary states what the topic covers and when it is useful. These are outside-documentation fields; memory approval, confidence, and status fields do not apply.
 - Adding, refreshing, moving, or removing a captured topic rebuilds and checks its index as part of the same upkeep. Requirement 21 owns the shared index format; outside-documentation upkeep owns the captured sources and their metadata.
-- Captured documentation is outside source material, not approved project truth. The agent checks whether its date and version are suitable for the task. When a missing or outdated page matters, it checks the current original source when access allows, or states the gap. It never presents an old capture as verified current behavior.
-- The agent judges which outside topics are relevant, then follows the required source checks before relying on them. Requirement 3 defines how this behavior is demonstrated.
+- Captured documentation is source material from outside this project, not something this project has approved as true. The agent checks whether the page's date and version suit the task in hand. When a page is missing or out of date and that matters, the agent checks the current original source if it can reach it, or says plainly what it could not check. It never presents an old copy as proof of how something behaves today.
+- The agent decides for itself which outside topics are relevant, then makes the required checks on those sources before relying on them. Requirement 3 says how that behavior is proven.
 
 **Check:** ask for something a captured topic covers without naming the folder.
 The agent finds the topic through the index, opens the relevant page before
@@ -640,19 +664,19 @@ original source or states what could not be verified.
 
 ## 9. Saving is frictionless
 
-- A save needing new approval is one short card and one yes, whether it is a memory or a product requirements document. Existing authority covers PRD refinement under requirement 10 and automatic upkeep after shipped work under requirement 16; neither needs another card and yes for the same scope.
+- A save that needs new approval is one short card and one yes, whether it is a memory or a product requirements document. The agent may already have permission: requirement 10 covers refining a PRD, and requirement 16 covers updating PRDs on its own after work ships. Neither of those needs another card and another yes for the same scope.
 - No long review. No back and forth. No reading a full file before deciding.
 - The agent proposes at the right moment on its own. The owner never has to remember to ask.
-- Five moments force a save review: a work item finishes or closes, a pull request is being opened, a handoff or a context clear is coming, a turn ends after real work was done, and any time the owner says to save something. Requirement 3 defines the required result and how these moments are enforced.
-- The other moments are the agent's own judgment. It should propose a save when useful: a real problem here has just been fixed, a commit is coming, or relevant context changed, such as a new person, a role change, a tool switch, a stale fact found, or a data-authority decision. A missed candidate is reviewed at the next required moment.
+- Five moments force a save review: a work item finishes or closes, a pull request is about to be opened, a handoff or a context clear is coming, a turn ends after real work was done, and any time the owner says to save something. Requirement 3 says what each review has to produce, and how these five moments are enforced.
+- Every other moment is left to the agent's judgment. It should propose a save whenever that is useful: a real problem here has just been fixed, a commit is coming, or something relevant has changed, such as a new person joining, somebody's role changing, the project switching to a different tool, a fact turning out to be out of date, or a decision about which system is the authority for a piece of data. A candidate the agent misses gets reviewed at the next required moment.
 - The owner saying "remember this" starts the save flow that leads to a card. It is not permission to write, and it skips no step.
-- The save review is that same flow run over everything the session did since the last one. It gathers candidates, drops any that fail requirements 11 and 12, checks for existing inbox proposals, and shows one card per new candidate needing approval. Already-authorized saves proceed under requirement 10. During routine work, speak up only for something needing approval, a completed save that requires notification, or a problem; do not report that nothing needs saving. Routine PRD upkeep follows requirement 16's quiet completion rule. Do not repeat an unchanged unanswered card at each review. An explicit request for a save or review still receives a clear result, and handoff identifies relevant pending state under requirement 28. Requirement 3 requires the review even when it produces no visible message. Quiet review does not require a background service.
-- When approved, memory or PRDs are saved directly to the default branch and pushed!!! They are not lost in worktree branches or buried in something that a future agent would not easily find.
+- The save review is that same flow run over everything the session did since the last one. It gathers candidates, drops any that fail requirements 11 and 12, checks what proposals the inbox already holds, and shows one card for each new candidate that needs approval. A save that is already allowed goes ahead under requirement 10. During routine work, speak up only about something that needs approval, a finished save the owner has to be told about, or a problem; never report that nothing needs saving. Routine PRD upkeep follows requirement 16's quiet completion rule. Do not repeat an unchanged unanswered card at each review. When the owner asks for a save or a review directly, he still gets a clear answer, and when work is handed over the agent works out which pending items matter, under requirement 28. Requirement 3 requires the review even when it produces nothing the owner sees. A quiet review does not need a program running in the background.
+- When approved, memory or PRDs are saved directly to the default branch and pushed!!! They are not left sitting on a worktree branch, and they are not put anywhere a future agent would have trouble finding.
 - A save is finished only when the file is on the default branch and pushed, and not before.
-- An approved knowledge save is not deferred into a feature branch, pull request, or separate draft. This holds even when the session is doing its other work on a branch. The save still goes straight to the default branch. The session's own branch gets the saved file later, whenever someone merges or pulls the default branch into it. The pending inbox in requirement 28 preserves unanswered proposals and interrupted saves; it never replaces completing an approved save.
-- One yes finishes the owner's part for a save requiring a proposal. He runs no Git command and does nothing else. The save completes on its own, and the reply tells him it is done or tells him it failed. Routine PRD upkeep needs no separate success message under requirement 16. Whether the writing happens inside that reply or just after it is the design's job, so long as a failure is never silent.
-- If the push fails, the agent says so in that same reply and the save is not finished. Requirement 3 sets what pauses and what can continue. Nothing is ever parked silently.
-- Completed knowledge has one authoritative destination. Unfinished proposals have one known inbox, which agents maintain and recover automatically; the owner never has to remember where a proposal was left.
+- An approved knowledge save is never put off into a feature branch, a pull request, or a separate draft. That holds even when the session is doing its other work on a branch. The save still goes straight to the default branch. The session's own branch gets the saved file later, whenever someone merges or pulls the default branch into it. The pending inbox in requirement 28 preserves unanswered proposals and interrupted saves; it never replaces completing an approved save.
+- One yes is the end of the owner's part for a save that needed a proposal. He runs no Git command, and he does nothing else. The save completes on its own, and the reply tells him it is done or tells him it failed. Routine PRD upkeep needs no separate success message under requirement 16. Whether the writing happens inside that reply or just after it is the design's job, so long as a failure is never silent.
+- If the push fails, the agent says so in that same reply, and the save is not finished. Requirement 3 sets out what pauses and what can carry on. Nothing is ever left unfinished without saying so.
+- Finished knowledge has one home that owns it. Unfinished proposals have one known inbox, which agents keep up to date and pick up from on their own, so the owner never has to remember where a proposal was left.
 
 The existing `.claude/rules/knowledge-direct-commit.md` owns the procedure for
 publishing authorized knowledge saves to the default branch. The inbox adds
@@ -668,18 +692,18 @@ follows requirement 3; it never claims that no save is waiting.
 
 ## 10. Approval before any write
 
-- Every memory or PRD write needs authority covering the change. This may be explicit save approval, existing permission to refine a PRD, or the standing authority for PRD upkeep after shipped work in requirement 16. Separate lasting-memory proposals still require the standard card and the owner's approval.
-- Approval already given for drafting or refining a named PRD covers faithful capture of the owner's clear answers and corrections within that scope. Save those in the same reply without asking him to approve his own instruction again. The normal placement, validation, and publication requirements still apply.
+- Every write to a memory file or a PRD needs permission that covers that change. The permission may be the owner approving this save outright, permission already given to refine a PRD, or the ongoing permission in requirement 16 to update PRDs after work ships. A separate proposal to save lasting memory still needs the standard card and the owner's approval.
+- Approval already given for drafting or refining a named PRD covers writing down the owner's clear answers and corrections accurately, as long as they fall inside that scope. Save those in the same reply, without asking him to approve his own instruction a second time. The normal rules about where the text goes, how it is checked, and how it is published still apply.
 - If the owner's words are ambiguous, clarify the meaning before changing the requirement. A new requirement the agent invents or recommends needs the owner's agreement before it becomes a requirement in the draft. Drafting permission does not approve that new meaning.
 - A separate lasting-memory proposal still uses the standard card and approval, even when it arose during an authorized PRD interview. Drafting or saving permission does not approve the requirements as a whole, a solution design, or implementation. Requirement 16 defines what a PRD's approval fields mean.
-- Record the drafting permission, who gave it, its source and date, and its scope in the existing canonical draft or linked work record. A later session reads that record and carries forward the same permission while it remains applicable. It does not ask again solely because the session or model changed, and it never expands the recorded scope.
-- The same authority boundary covers changing lasting meaning and merging, superseding, retiring, or deleting lasting knowledge. The agent proposes operations outside its existing authority; it carries out authorized operations and their checks without making the owner manage the files.
+- Record the drafting permission in the one official draft, or in the work record it links to: who gave the permission, where it came from, its date, and what it covers. A later session reads that record and keeps working under the same permission while it still applies. It does not ask again just because the session or the model changed, and it never widens the recorded scope.
+- The same limit on permission applies to changing what a lasting file means, and to merging, superseding, retiring, or deleting lasting knowledge. When an operation falls outside the permission the agent already has, it proposes the operation. When the operation is already allowed, the agent carries it out and runs its checks, without making the owner handle the files.
 - Silence is not approval. An unclear answer is not approval. Asking to see the full text is not approval.
 - The owner may change the wording, the place, the tags, or drop the whole thing.
 - When the owner edits the words, those words are written exactly as typed. The agent does not tidy them, shorten them, or improve them.
-- The agent writes a faithful account of the approved summary. It may add supporting context from the conversation and from the sources it used. It must not add facts nothing supports, decisions the owner was not told about, or anything outside the approved scope.
-- Resolve material questions before presenting a save card, as requirement 20 requires. Approval covers the stated operation, meaning, and scope, or the affected content; it does not approve an unresolved assumption or an unrelated follow-up.
-- Five things can be done without asking the owner: rebuilding an index, repairing a broken link within requirement 1’s limits, writing `knowledge/memory/current.md`, maintaining project-specific memory-selection feedback under requirement 23, and maintaining the pending inbox under requirement 28. None of them changes what a lasting file means. Requirement 4 says how the current file is updated. Inbox retention is permission to preserve a proposal, not permission to accept its meaning.
+- The agent writes an accurate account of the summary the owner approved. It may add supporting context from the conversation and from the sources it used. It must not add facts nothing supports, decisions the owner was not told about, or anything outside the approved scope.
+- Settle any question that would change the save before showing a save card, as requirement 20 requires. Approval covers the operation, the meaning, and the scope the card states, or the content the card names. It does not approve an assumption that is still open, and it does not approve an unrelated piece of follow-up work.
+- Five things can be done without asking the owner: rebuilding an index, repairing a broken link within requirement 1’s limits, writing `knowledge/memory/current.md`, keeping this project's own feedback about what is worth saving up to date under requirement 23, and keeping the pending inbox up to date under requirement 28. None of these changes what a lasting file means. Requirement 4 says how the current file is updated. Holding a proposal in the inbox is permission to keep it, not permission to accept what it says.
 - For files the owner already approved under an older folder layout, the agent converts those files first and shows the owner the converted results afterwards, in groups small enough to read in one pass. The owner approves after the conversion, not before. Any file that will not convert cleanly is named and left alone. The agent never guesses what an old file meant.
 
 **Check:** show a proposal and say nothing back. The exact proposal is retained
@@ -702,7 +726,7 @@ Something is memory when all three are true:
 2. It is significant. It is a lasting fact, a decision, a constraint, or a real lesson about how something here works or how a real problem here was fixed. The test is time: without it, the next agent would lose real time working the same thing out again. The words in the memory itself must be about this project.
 3. The human user (owner) was part of it. He said it, decided it, or worked it out with the agent.
 
-There is one carve-out. A real, significant problem in this project that the agent found and fixed alone may be proposed as memory, even though the owner was not part of working it out. Nothing else skips point 3. A routine thing the agent did alone still fails point 2, so it is never proposed.
+There is one exception. A real, significant problem in this project that the agent found and fixed on its own may be proposed as memory, even though the owner was not part of working it out. Nothing else skips point 3. A routine thing the agent did alone still fails point 2, so it is never proposed.
 
 How a real failure here was fixed is memory, not a rule. The memory says what
 broke, what caused it, and what fixed it. Writing one rule per fix would put
@@ -723,14 +747,14 @@ same reply, and nobody asked for it.
 **Check:** give the agent two candidates. The owner says "the client moved the
 demo to Thursday". That passes all three points and a card is proposed. The
 agent, working alone, updated a Python package so a browser would open. That
-fails point 2, so the carve-out never reaches it, and no card is ever proposed
+fails point 2, so the exception never reaches it, and no card is ever proposed
 for it.
 
 ## 12. What never counts
 
 - Small things the agent did alone while doing a task, with no human in it. The owner's example: asked to open Amazon in a browser, the agent had to update a Python package to get there. That is not memory.
 - Commands run, tool calls, searches, web lookups, agent behavior, and shell behavior. One exception: a trap in this project's own tools or setup that cost real time, once found and fixed, is a real fix, and requirement 11 makes that memory. Example: the Salesforce command line fails under Bash in this project, so run it from PowerShell. The three-point test still applies, so a one-off hiccup with no lesson in it is never saved.
-- Raw error text and scratch thinking. The lesson from a significant fix is memory. The raw error is not.
+- Raw error messages and rough working-out. The lesson from a significant fix is memory. The raw error message is not.
 - Ideas that were tried and dropped. One exception: an idea that was acted on and later found wrong is memory, when the wrong answer had already spread into other files. Example: a test in August said an idea failed, three documents copied that, and the test was found wrong in late August. The memory says the conclusion was withdrawn and why, so no later agent finds a copy and acts on it.
 - A step by step record of files opened and edits made, and everything a helper agent did.
 - Copies of code, or anything an agent could work out by reading the source or the live system. Example: a write-up of how the sharing model works today, when the org itself shows it. If a project keeps research like that, it keeps it in its own reference folder outside the second brain. Memory holds only the decision or the trap that came out of the research.
@@ -738,7 +762,7 @@ for it.
 - An open task, an implementation step, or the live status of work in flight. Detailed work records belong to the work tracker, never lasting memory. Temporary to-dos use requirement 13's working-memory format. Ask before creating a work item unless the owner already requested one; adding a to-do alone does not create one.
 - A "read this first" pointer for a piece of work. The work item carries its own entry point, and `knowledge/memory/current.md` carries the active ones.
 - The story behind a standing instruction. The rule file may say in one line why it exists. Nothing else about its history is kept.
-- Anything stale or contradicted with no historical value.
+- Anything out of date or contradicted that has no value as history.
 - Passwords, keys, and tokens, ever. The `knowledge/` folder is in Git. Git keeps a copy of every past version of every file, so deleting the secret later does not remove it.
 
 **Check:** run this list against a session's candidates. Anything that matches a
@@ -756,7 +780,7 @@ What it holds:
 - The overall project goal and next milestone.
 - Each active work item's goal, where it stands, next step, blocker, to-dos, and link to its detailed record when one exists. Include the owning session when known.
 - General project to-dos that the owner wants to return to later and that do not belong to an active work item.
-- Useful short-term findings that have not been saved as memory, clearly marked when unverified. Actual pending save proposals live in `knowledge/memory-inbox.md`; this overview links there instead of copying their text.
+- Useful short-term findings that have not been saved as memory, clearly marked when nobody has checked them yet. Real save proposals that are waiting for an answer live in `knowledge/memory-inbox.md`; this overview links to that file instead of copying the text of those proposals.
 - Dates on entries, so a later agent can tell when a line is out of date.
 
 The overview combines the useful context from all active project sessions so a
@@ -795,10 +819,10 @@ How it behaves:
 
 - Read at the start of every session.
 - It distinguishes the project's overall objective from each active work item's next step and owning session when known. Detailed scope, progress, and approvals remain in the chosen tracker, linked from this overview.
-- Rewritten as work happens: a piece of the work finishes, which the agent judges, something blocks, a handoff is coming, a session closes.
-- Before replacing shared context, reread it and reconcile changes made by other sessions or the owner. Preserve other active items and their useful context. Rewriting the overview never means replacing the whole project's picture with only this session's task.
-- Before relying on an entry, check its dated state against the linked authoritative record when available. A session name does not prove that session is still running. Unverified findings are labelled as such and never presented as approved lasting knowledge.
-- Updated context must be available to the next project session, including one using another harness or worktree. If sharing the update fails, identify the saved location and the gap. Never claim another session can see a change that remains only in this conversation or an isolated checkout.
+- Rewritten as the work happens: a piece of the work finishes, which the agent decides for itself, something gets blocked, a handoff is coming, or a session closes.
+- Before replacing shared context, read the file again and fit in the changes other sessions or the owner have made. Keep the other active items and the context that goes with them. Rewriting the overview never means cutting the whole project down to this session's own task.
+- Before relying on an entry, compare what it says, and its date, against the record that actually owns that information, when that record is available. A session name written in this file does not prove that session is still running. A finding nobody has checked is labelled as unchecked, and is never presented as approved lasting knowledge.
+- The next session on this project must be able to see the updated context, including a session running in a different harness or in a different checkout of the repository. If the update cannot be shared, work out where it was saved and what is still missing. Never claim another session can see a change that exists only in this conversation, or only in a checkout nobody else is using.
 - Kept short. Long entries make it useless.
 - Anything in it that turns out to be lasting goes through the normal save. Sitting in this file is never on its own a reason to make it long-term memory.
 
@@ -862,10 +886,10 @@ Access review.
 
 ## 14. Memory file shape
 
-- Each topic area has one home under `knowledge/memory/memory-entries/`: one Markdown file by default, or a topic folder containing related Markdown files when the topic needs to be split. Keep related facts, decisions, lessons, and useful history together so the agent can read their context coherently. Do not create a file for each granular piece of information. The memory index and current work sit outside the entries folder. The owner's feedback about what is worth saving as memory has no fixed home here; requirement 23 leaves that choice to the design.
+- Each topic area has one home under `knowledge/memory/memory-entries/`: one Markdown file by default, or a topic folder containing related Markdown files when the topic needs to be split. Keep related facts, decisions, lessons, and useful history together, so a later agent can read them in one place and understand them. Do not create a separate file for every small piece of information. The memory index and current work sit outside the entries folder. The owner's feedback about what is worth saving as memory has no fixed home here; requirement 23 leaves that choice to the design.
 - Before saving, find the existing topic file or folder and update the file that owns the information. Create a file only for a distinct topic area that has no home, as part of an approved split, or for a coherent subtopic not already covered in an existing topic folder. New files still follow requirement 10's approval rules. File and folder names describe their topic or subtopic in plain words: lowercase with hyphens; Markdown filenames end in `.md`. Do not name them after dates, codes, or ticket numbers.
-- The agent recommends splitting a topic into coherent subtopic files inside one topic folder when that would make the information easier to find, understand, or use. The proposal names the affected files and what each will contain. Keep the context a subtopic needs with that subtopic. Keep shared lasting context in the topic or subtopic file that owns it and link to it from related files instead of copying it. Split a topic only after getting the approval requirement 10 calls for, and keep the approved meaning intact. It is not permission to create one file per fact. Every resulting memory file follows this requirement's field rules.
-- Each file is maintained, not continually appended to. Rewrite or remove outdated, repeated, or conflicting information when appropriate, within the approval rules. Keep the current account clear. Retain an important timeline or superseded decision trail in the same file only when that history is useful, with dates and clear labels showing what no longer applies.
+- The agent recommends splitting a topic into sensible subtopic files inside one topic folder when that would make the information easier to find, understand, or use. The proposal names the affected files and what each will contain. Keep the context a subtopic needs with that subtopic. Keep shared lasting context in the topic or subtopic file that owns it and link to it from related files instead of copying it. Split a topic only after getting the approval requirement 10 calls for, and keep the approved meaning intact. It is not permission to create one file per fact. Every resulting memory file follows this requirement's field rules.
+- Each file is kept up to date, rather than added to forever. Rewrite or remove information that is out of date, repeated, or contradictory when that is the right thing to do, staying inside the approval rules. Keep the account of what is true now easy to read. Retain an important timeline or superseded decision trail in the same file only when that history is useful, with dates and clear labels showing what no longer applies.
 - Do not sort memory topics into subfolders by type. A note can hold a fact, a decision, and a piece of history together.
 - The terminology glossary shares the entries folder but keeps the table format in requirement 7. It is not a memory topic and does not require memory fields.
 - Each memory topic file starts with a settings block. The block sits between two lines that hold only `---`, and it is written in real YAML. This document calls that block the frontmatter.
@@ -874,7 +898,7 @@ Required on every memory file:
 
 | Field | What it is | Allowed values |
 | --- | --- | --- |
-| `summary` | The main takeaway from this topic or subtopic in one short line, so the index helps the agent choose which source to open. Under 200 characters, which is about 30 words. The index shows this line. | Free text, one line |
+| `summary` | The main point of this topic or subtopic in one short line, so the index helps the agent choose which source to open. Under 200 characters, which is about 30 words. The index shows this line. | Free text, one line |
 | `group` | The topic heading this file sits under in the index. A few plain words, shared by files in the same topic folder. | Free text, a few words |
 | `type` | What kind of thing it mostly is. Does not decide where the file sits. | `fact`, `decision`, `event`, `context`, `constraint` |
 | `status` | Whether it answers questions about what is true now. | `current`, `superseded`, `retired` |
@@ -907,8 +931,8 @@ Optional fields, written only when they apply and left out otherwise:
 | `effective_to` | The date the fact stopped applying. | When a fact has a known end date. Not a substitute for `status`. |
 | `project` | The project name. | When the file could be read outside its project. |
 | `work_item` | The work item that produced the file. | When one work item did. |
-| `supersedes` | The path of an older file this one replaced. | When an existing file-level replacement needs to remain traceable. An ordinary change within a topic area updates the same file under requirement 22. |
-| `superseded_by` | The path of the file that replaced this older file. | When retaining that older file's replacement link. It does not require creating another file when a decision changes. |
+| `supersedes` | The path of an older file this one replaced. | When one whole file replaced another and that link has to stay visible. An ordinary change inside a topic area updates the same file instead, under requirement 22. |
+| `superseded_by` | The path of the file that replaced this older file. | On the older file, when that link back to its replacement has to stay visible. It is not a reason to create a second file when a decision changes. |
 | `related_memories` | Paths of related memory files, including other subtopics in the same topic folder. | When a link helps a reader. Write the link on both files, so each one points at the other. |
 
 All dates are `YYYY-MM-DD`. All paths are relative to the project root.
@@ -996,12 +1020,12 @@ technical.
 
 - Plain, clear, everyday words. No AI jargon, no toolkit vocabulary the reader was never given, no figures of speech, no idioms.
 - As short as it can be without dropping anything a future agent needs. Every sentence has to be needed. If removing it loses nothing, remove it.
-- Accuracy before completeness. One wrong sentence makes the whole file untrustworthy, because a later agent acts on it. Resolve uncertainty that affects a proposed save before presenting its card, under requirement 20. A guess is never written as a fact.
+- Accuracy before completeness. One wrong sentence makes the whole file untrustworthy, because a later agent acts on it. Settle anything uncertain that would change a proposed save before showing its card, under requirement 20. A guess is never written down as a fact.
 - Concrete, not abstract: the real name, the real value, the real path, the real date. Write the full date, never "last week". Name the system or the organization every time. When something was left undone, say so.
 - Nothing that points at a conversation the reader cannot see. No "as discussed", no "per our call".
 
-The body follows requirement 14's flexible template. These are content
-considerations, not mandatory headings or sections:
+The body follows the flexible template in requirement 14. The list below is
+what to think about including, not a set of headings the file must have:
 
 1. The current facts, decisions, and lessons for that topic area, stated briefly and coherently.
 2. Why it is so, when that context helps a later agent understand whether it still applies.
@@ -1013,13 +1037,14 @@ When the memory settles a question that was open, it says so and names what
 proved it, so no later agent works the same thing out again. Example: "Settled
 2026-07-02: manual account edits are reverted every morning; proven three times."
 
-A memory file has no fixed character limit. Keep it coherent and free of
-repetition, and link supporting detail that lives in another information home
-under requirement 18. When a topic outgrows one useful file, split it using the
-rule in requirement 14.
-Preserve the source and approved meaning. Length alone never turns a fact into
-a PRD requirement, a procedure, or a work item. Lasting changes still follow
-the approval rules; a failed size check never permits silently dropping meaning.
+A memory file has no fixed limit on its length. Keep it readable and free of
+repetition, and link to supporting detail that belongs somewhere else under
+requirement 18. When a topic grows too big for one useful file, split it using
+the rule in requirement 14.
+Keep the source and the approved meaning. Length on its own never turns a fact
+into a PRD requirement, a procedure, or a work item. Lasting changes still
+follow the approval rules, and a size check that fails never allows quietly
+dropping meaning.
 
 Before writing, the agent answers three questions. What is the one thing a
 future agent must know? What would that agent get wrong without it? What is the
@@ -1028,17 +1053,20 @@ question, never a first draft. Accuracy comes first. Being short and clear
 comes second. Neither one is a reason to drop something a future agent needs.
 
 A PRD uses direct, simplified technical English that a junior software
-developer can understand without the original conversation. Explain necessary
-technical terms. Remove conversational preambles, drafting commentary, and
-unnecessary repetition. Keep the behavior, decision rules, process, user
-experience, data model, and useful examples explicit. Each requirement has one
-main home; other sections refer to it when needed.
+developer can understand without having been in the original conversation.
+Explain the technical terms it has to use. Take out chatty introductions, notes
+about the drafting itself, and repetition that adds nothing. Spell out the
+behavior, the decision rules, the process, what the person using it experiences,
+what information is stored and in which fields, and the examples that help. Each
+requirement has one main home; other sections point back to it when they need
+it.
 
-Its structure and fields follow requirement 16; the memory body guidance
-does not apply. Before design, review requirements for
-wording that could be implemented literally while missing the intended result.
-Identify the competing interpretations and resolve choices that change behavior
-with the owner. Editing for clarity must preserve the requirement's meaning.
+Its structure and fields follow requirement 16, and the guidance above about a
+memory body does not apply to it. Before the solution design starts, check the
+requirements for wording that somebody could follow exactly as written and still
+miss the intended result. Name the different readings, and settle with the owner
+any choice that would change how the system behaves. Editing for clarity must
+keep the requirement's meaning.
 
 The project has an output style: the file that sets how the agent writes in this
 project. Read it before preparing a proposal or writing anything that gets
@@ -1051,14 +1079,14 @@ owner asked for exactly as they are. Explain the technical terms a reader needs;
 being brief must never drop important meaning. Point to the style rather than
 copying its rules into each knowledge procedure.
 
-**Check:** hand a memory to someone who was not in the conversation. In one
-read they can say what is true and, when relevant, why and what to do about it.
-The wording introduces no unexplained terms. Then remove any one sentence
-from the file. Each time, something a future agent needs is now missing. If removing a sentence
-loses nothing, that sentence should not have been in the file. Then read a
-proposal and a saved file against the project's output style: the agent applied
-it to the words it wrote, and left quotations, captured documentation, required
-fields, and exact names untouched.
+**Check:** hand a memory to someone who was not in the conversation. In one read
+they can say what is true and, when relevant, why and what to do about it. The
+wording introduces no unexplained terms. Then remove any one sentence from the
+file. Each time, something a future agent needs is now missing. If removing a
+sentence loses nothing, that sentence should not have been in the file. Then
+read a proposal and a saved file against the project's output style: the agent
+applied it to the words it wrote, and left quotations, captured documentation,
+required fields, and exact names untouched.
 
 ## 16. Requirements documents
 
@@ -1070,14 +1098,14 @@ one file, with a parent PRD and child PRDs inside it.
 - A feature area may be a folder: `knowledge/prds/<area>/<area>.md` is the parent PRD, and every other file in that folder is a child PRD. A child covers one sub-part of the area with its own numbered requirements, its own status, and the same fields as any PRD. The parent holds the goal, the requirements that span the whole area, and a contents list naming each child. Example: `knowledge/prds/knowledge-system/knowledge-system.md` is the parent, and `knowledge/prds/knowledge-system/indexes-and-checker.md` is a child holding the requirements for the two indexes and the checker.
 - A small feature area stays one file at the top of `knowledge/prds/`. Nothing forces a folder.
 - A child never repeats a requirement the parent already states. It refers to the parent by requirement number. When the two disagree, the parent wins and the disagreement is said out loud.
-- It opens as `proposed`, which is what we want built. It is edited to `finalized` once the work delivering its requirements is verified complete in the tracker and the document accurately describes the delivered behavior. A small PRD follows the same rule. Build progress, delivery dates, and completion evidence stay in the tracker; the PRD does not maintain a second progress record.
+- It opens as `proposed`, which is what we want built. It is changed to `finalized` once the work that delivers its requirements is confirmed finished in the tracker, and the document describes the delivered behavior accurately. A small PRD follows the same rule. Build progress, delivery dates, and completion evidence stay in the tracker; the PRD does not maintain a second progress record.
 - When answering how something works today, the agent uses current evidence. It does not treat a proposed requirement as proof that the behavior exists. A document's status alone, including `finalized`, does not establish what is true now. Requirement 19 governs source checks.
-- When a memory and a PRD disagree, the agent names both sources and distinguishes required behavior from evidence of existing behavior. A finalized PRD remains the reference for required behavior; a proposal does not replace verified facts merely by describing a desired change.
+- When a memory and a PRD disagree, the agent names both sources and keeps two things apart: what the system is required to do, and what the evidence shows it actually does. A finalized PRD stays the reference for required behavior. A proposal does not replace a checked fact just by describing a change somebody wants.
 - When a project also has a System Guide at `knowledge/system-guide/`, the order is: a finalized PRD wins on what the system should do, the System Guide wins on how the system is put together, and the live system wins on what exists right now. Memory never beats any of those three. The agent reports the disagreement instead of quietly picking. The System Guide is not part of the second brain; it is its own plugin with its own PRD.
 - `superseded` and `retired` are history.
 - This folder used to be called `knowledge/specs/`, and older sessions call these files specs.
-- A PRD describes what the system does or should do, its behavior, the end user's experience, process requirements, constraints, and observable completion expectations. It states these in plain language and distinguishes intended behavior from verified existing behavior. It does not reproduce code or prescribe the build plan.
-- Build order, delivery roadmaps, implementation tasks, schedules, work-item status, and detailed solution designs do not belong in a PRD. A clearly separated closing section may preserve the owner's preferred solution philosophy, high-level architecture, illustrative examples, and options to explore without making them functional requirements. Required runtime sequences do belong: for example, approval must precede a lasting-memory write. That describes how the product behaves, not which part to build first.
+- A PRD describes what the system does or should do, how it behaves, what the person using it experiences, what the process has to do, what limits apply, and what somebody must be able to see before calling it finished. It says all of that in plain language, and it keeps intended behavior separate from behavior somebody has checked. It does not copy in code, and it does not lay out the build plan.
+- Build order, delivery roadmaps, implementation tasks, schedules, work-item status, and detailed solution designs do not belong in a PRD. A clearly separated closing section may preserve the owner's preferred solution philosophy, high-level architecture, illustrative examples, and options to explore without making them functional requirements. An order the system itself has to follow while it runs does belong: for example, approval has to come before a write to lasting memory. That describes how the product behaves, not which part to build first.
 - When work ships, check whether it changed system behavior or requirements and apply the automatic upkeep below. Reordering delivery alone never changes the product requirements.
 
 **The shape of a PRD**
@@ -1104,10 +1132,10 @@ build and how to prove it works.
 
 **Automatic upkeep after shipped work**
 
-- When authorized work by the owner and agent results in shipped changes to behavior or requirements, the agent has standing authority to update every applicable PRD. This includes the umbrella OS PRD when the change affects the overall experience. The owner does not need to request or approve each documentation update separately.
-- Capture the decisions and behavior delivered within the work's authorization. Use the agreed scope and verified delivery evidence. Do not invent requirements or turn an unexpected implementation defect into an approved requirement; report any unresolved difference between intended and delivered behavior.
-- Read the latest PRDs, preserve other sessions' changes, update the affected requirements in their main sections, and maintain relevant links and metadata. Apply the existing approval-field and finalization rules: shipping part of a large PRD does not finalize the entire document. Keep build progress and delivery evidence in the existing tracker, with links where needed.
-- Validate the updates, rebuild affected indexes, and make a quick commit and push to the default branch through the existing knowledge-save process. Do not require a save card, a separate review of the wording, or another approval for faithful upkeep. Explicit holds on writing or publication still apply.
+- When authorized work by the owner and the agent ships a change to behavior or requirements, the agent already has permission to update every PRD that change affects. That includes the operating system's overall PRD when the change affects the experience as a whole. The owner does not have to ask for, or approve, each of those document updates separately.
+- Write down the decisions and the behavior that were actually delivered, staying inside what the work was authorized to do. Use the agreed scope and verified evidence that the work was delivered. Do not invent requirements, and never turn an unexpected defect in what was built into an approved requirement. Report any difference between the intended behavior and the delivered behavior that has not been settled.
+- Read the latest PRDs, keep the changes other sessions made, update the affected requirements where those requirements actually live, and keep the links and the file fields correct. Apply the existing rules about approval fields and about finalizing: shipping part of a large PRD does not finalize the whole document. Keep build progress and delivery evidence in the existing tracker, with links where needed.
+- Check the updates, rebuild the indexes they affect, and make a quick commit and push to the default branch through the existing knowledge-save process. Upkeep that only records what actually shipped needs no save card, no separate review of the wording, and no further approval. An explicit hold on writing or publishing still applies.
 - Routine successful upkeep stays quiet. The owner need not see the document edits or a separate save confirmation. Report a conflict, missing authority, failed check, or failed publication that needs attention; an explicit request for an update or status receives a clear answer. An interrupted update remains recoverable under requirement 28 without requesting the same authority again.
 
 **Check:** ship an authorized change affecting two feature areas and the overall
@@ -1189,22 +1217,24 @@ home does real harm. Example: a repeatable procedure saved as a memory file
 comes back later as a fact and gets followed as an instruction, which is what
 requirement 17 forbids.
 
-For the chosen destination, the agent follows its current content rules,
-exclusions, fields, template, approval boundary, and update or removal process.
-These have one authoritative home in that component's guidance, reached through
-the small knowledge map. A future agent must be able to find them without the
-owner explaining the folder structure. The second brain points to the System
-Guide's own rules when it is enabled; it does not invent a competing template
-or maintain that guide as another PRD.
+The agent follows the current rules of whichever home it picks: what content
+belongs there, what must stay out, which fields are required, which template to
+use, what approval is needed, and how content there is updated or removed. Each
+of those rules is written down in one place, in that part of the toolkit's own
+guidance, which the small knowledge map leads to. A future agent must be able to
+find those rules without the owner explaining the folder structure to it. The
+second brain points to the System Guide's own rules when it is enabled; it does
+not invent a competing template or maintain that guide as another PRD.
 
 The agent checks both what belongs and what must stay out before proposing a
 save. A correct folder and valid fields do not make unsupported content safe.
-Keep the approved meaning, its source, relevant dates, and current or historical
-status clear. Exclude unrelated details, unsupported conclusions, duplicate
-explanations, and transient reasoning that could mislead a future reader.
-Requirement 15 owns the plain-language writing standard. Requirement 10 defines
-the authority for a write; new approval uses the standardized proposal.
-The owner does not manage the files.
+Keep the approved meaning clear, along with where it came from, the dates that
+matter, and whether it is true now or kept as history. Leave out unrelated
+details, conclusions nothing supports, explanations that repeat what is already
+written, and passing thoughts that could mislead a future reader.
+Requirement 15 sets the plain-language writing standard. Requirement 10 says
+what permission a write needs, and new approval is asked for with the standard
+proposal. The owner does not manage the files himself.
 
 | The question | Where it goes |
 | --- | --- |
@@ -1216,7 +1246,7 @@ The owner does not manage the files.
 | What we want built, and later the behavior we actually got | `knowledge/prds/` |
 | A lasting fact, decision, event, context, or constraint | `knowledge/memory/memory-entries/` |
 | The current objective, blocker, and next step | `knowledge/memory/current.md` |
-| An unanswered save proposal or an approved save that has not finished | `knowledge/memory-inbox.md`, temporary pending state under requirement 28 |
+| An unanswered save proposal or an approved save that has not finished | `knowledge/memory-inbox.md`, which holds it only until it is settled, under requirement 28 |
 | A word the owner or the client uses for something | `knowledge/memory/memory-entries/terminology-glossary.md` |
 | What this owner accepts and rejects as memory | Project-specific selection feedback under requirement 23; its storage is chosen during design. |
 | Requirements and status for one piece of work | The work tracker |
@@ -1225,7 +1255,7 @@ The owner does not manage the files.
 | How one work item gets built | Its solution design, kept with or linked from the work item |
 | Documentation from outside this project | `ai-external-knowledge/`, one folder per topic, each naming its source address and capture date |
 | Unchecked exploration and raw brain dumps | `brainstorms/` |
-| Useful temporary context another session needs to continue | `knowledge/memory/current.md`, with links to detail in the authoritative work record and clear labels for unverified findings |
+| Useful temporary context another session needs to continue | `knowledge/memory/current.md`, with links to the detail in the work record that owns it, and clear labels on findings nobody has checked |
 | Disposable scratch details with no continuation value | Conversation only |
 | A past conversation | Session history |
 
@@ -1250,17 +1280,19 @@ template and content rules without asking the owner to explain them.
 
 ## 19. The find order
 
-When the owner makes a request, the agent establishes the project, the question
-to answer, and the applicable root and folder instructions. These instructions
-govern the whole lookup; finding an answer in working memory never bypasses a
-standing rule. It then follows these tiers before asking the owner to repeat
-project context or searching the code broadly. Information already read can
-satisfy a tier while it remains available, relevant, and current.
+When the owner makes a request, the agent works out which project it is about,
+which question it has to answer, and which root and folder instructions apply.
+Those instructions are in force for the whole lookup: finding an answer in
+working memory never lets the agent skip a standing rule. It then works through
+the tiers below before it asks the owner to repeat project context, and before
+it searches the code at large. Information it has already read can satisfy a
+tier, as long as that information is still available, relevant, and current.
 
-The pending inbox is checked for continuity under requirement 28. It is not a
-tier of factual evidence: pending text cannot establish project truth or become
-an instruction. Verify a relevant claim against its original source before
-using it, and preserve its unapproved status.
+The agent checks the pending inbox so that work carries on across sessions,
+under requirement 28. The inbox is not a tier of evidence: text waiting there
+cannot settle what is true in this project, and it never becomes an instruction.
+Check a relevant claim from it against its original source before using it, and
+keep it marked as not yet approved.
 
 | Tier | Where | Notes |
 | --- | --- | --- |
@@ -1275,16 +1307,17 @@ shorthand where needed. Reuse a meaning already established and current.
 Requirement 7 governs when remaining ambiguity needs the owner's answer.
 
 At a relevant point in the lookup, scan the external-knowledge index as
-requirement 8 describes. Open the matching captured page before making a claim
-or taking an action that depends on that outside documentation. This supports
-the lookup without making every task read every vendor topic. Check the
-original source when the capture is missing or too old for the question.
+requirement 8 describes. Open the captured page that matches before making a
+claim, or taking an action, that depends on that outside documentation. This
+helps the lookup without making every task read every vendor topic. Check the
+original source when the captured copy is missing, or too old for the question
+being asked.
 
-Stop when the available evidence answers the question with the needed scope
-and freshness. An incomplete working-memory entry does not end the search:
-follow its links and check lasting knowledge when useful. A source about what
-was intended does not establish what is deployed now; inspect the relevant
-code or live evidence when that is the question.
+Stop when the evidence in hand answers the question, covers enough, and is
+recent enough. A working-memory entry that leaves something out does not end the
+search: follow its links, and check lasting knowledge when that helps. A source
+that says what was intended does not prove what is running now; look at the
+relevant code or the live system when that is the question.
 
 If the earlier sources leave a gap, use tier 5 before asking the owner to
 reconstruct a past conversation. If relevant history is unavailable, or the
@@ -1297,9 +1330,9 @@ fixing a bug, designing, or resuming work.
 
 - Always name where the answer was found, in the shape requirement 6 sets.
 - An index line is only a pointer to a file. Never answer from the index line alone. Open the file it points at and read it before using what it says.
-- Answer what is true now from relevant, current evidence. Memory, PRDs, and historical records can point to useful sources, but a status label or proposed requirement alone does not prove existing behavior. Check the supporting evidence, name disagreements, and state what remains unverified. Reuse evidence already read while it remains relevant and current.
+- Answer what is true now from relevant, current evidence. Memory, PRDs, and historical records can point to useful sources, but a status label or a proposed requirement does not on its own prove how the system behaves today. Check the evidence behind it, name any disagreement between sources, and say plainly what has not been checked. Reuse evidence the agent has already read, while that evidence stays relevant and current.
 - When tier 4 finds nothing, say so plainly and name what was searched. Never invent a believable answer, and never hand back something recent but unrelated.
-- A tier 5 finding is identified as historical, with its source and date. Before relying on it as current, verify it against relevant project records or direct evidence. Ask the owner only when material uncertainty remains that available sources cannot resolve. If verification is unavailable, state that limit. Being found in history is never by itself a reason to save something; lasting candidates still pass the normal selection and approval steps.
+- Anything found in tier 5 is labelled as coming from an earlier conversation, with its source and date. Before treating it as still true, check it against relevant project records or direct evidence. Ask the owner only when something uncertain that would change the answer is left and the available sources cannot settle it. If there is no way to check it, say so. Finding something in an old conversation is never on its own a reason to save it; anything lasting still goes through the normal selection and approval steps.
 
 Outside documentation supports the relevant tier; it does not replace the
 project's decisions or instructions. Requirement 8 owns its index and upkeep.
@@ -1317,7 +1350,7 @@ limitation instead of pretending a search found nothing.
 ## 20. The save card
 
 A save proposal makes the owner's decision clear: what will change, a short
-summary of the meaning to save, and what a yes will authorize. The summary is
+summary of the meaning to save, and what a yes will allow. The summary is
 not a word-for-word preview of the full entry. A quick scan must be enough to
 approve, change, or decline it without opening the full file.
 
@@ -1326,13 +1359,13 @@ approve, change, or decline it without opening the full file.
 - Finish the main answer, then use a horizontal divider and a large Markdown heading for each destination with proposals: `Proposed memory saves`, `Proposed PRD saves`, `Proposed System Guide saves`, or the corresponding destination name.
 - Keep different destinations in separate sections even when they appear in the same response. Omit empty sections. A mixed group does not replace the destination headings with one general heading.
 - Number proposals uniquely across the response so the owner can refer to a specific card. Keep each card under its destination's heading, with clear space between cards.
-- System Guide keeps its own card format, approval, and delivery rules inside its section. Other components also retain their own authority and delivery rules; displaying their proposals here does not transfer their responsibilities to the knowledge system.
+- The System Guide keeps its own card format, approval, and delivery rules inside its own section. The other parts of the toolkit keep their own permissions and delivery rules too; showing their proposals in this reply does not hand their responsibilities to the knowledge system.
 
 ### What a memory or PRD card shows
 
 1. A numbered, readable topic name.
 2. **Change:** the operation and its scope. Say whether this creates a file, adds to an existing file, replaces content, merges files, changes status, or removes content. For a replacement, identify the earlier statement being replaced. For a removal or status change, identify the affected content and result.
-3. **Summary:** a short summary of the meaning to save. Include every decision that matters, and say plainly if something is being replaced, removed, or taken out of current use. Routine metadata stays in optional details. For a removal or status-only operation, use **Affected content** instead and quote or clearly identify what the operation covers.
+3. **Summary:** a short summary of the meaning to save. Include every decision that matters, and say plainly if something is being replaced, removed, or taken out of current use. Routine metadata, meaning the file's housekeeping fields, stays in the optional details. For a removal or status-only operation, use **Affected content** instead and quote or clearly identify what the operation covers.
 4. **Your decision:** a direct question naming the action being approved, such as "Save this understanding?" Make clear that the owner can approve, request changes, or decline. For several proposals, the owner can select numbers or explicitly approve all; approval of one does not approve the others.
 
 The owner approves the operation, the meaning, and the scope. Reading or
@@ -1342,20 +1375,22 @@ Render the card as Markdown, not a code fence. Use plain words, visible labels,
 and blank lines between the topic, change, summary, and decision. Do not require
 a fixed list of `Why`, `Where`, `From`, `Unsure`, and `Checked` bullets.
 
-The readable topic identifies the destination. A file link or optional details
-can expose the exact path, tags, source, and checks without making the owner
-read them to understand the change. The agent must still check relevance,
-evidence, duplicates, conflicts, and the destination's file rules, and retain
-required source and approval records. Only routine presentation is reduced.
-Show a source, reason, or consequence when it materially affects the decision;
-do not hide it in optional details.
+The readable topic name says where the save is going. A file link, or the
+optional details, can show the exact path, tags, source, and checks, without the
+owner having to read them to understand the change. The agent must still check
+that the content is relevant, that the evidence holds, that it is not a
+duplicate, that it does not conflict with something else, and that it follows
+the destination's file rules, and it must still keep the required records of
+source and approval. Shortening applies to what the owner sees, never to the
+checks. Show a source, a reason, or a consequence whenever it would materially
+affect the owner's decision; do not bury it in the optional details.
 
 ### Resolve questions before requesting a save
 
 - If uncertainty affects the accuracy or scope of the proposed save, investigate first. If the agent needs an owner decision or information it cannot obtain, ask one specific question before presenting that save card. State what answer is needed and how it affects the proposed save.
 - Do not attach an unexplained `Uncertain` or `Unsure` line to a card. Approval of a save is not a request for the owner to investigate a separate issue.
 - An unrelated unresolved issue does not block a supported save. Handle that issue through the relevant work process when authorized; do not silently create a task or expand the save's scope.
-- The approval covers the stated operation, meaning, and scope, or the affected content. It does not establish the truth of an unsupported claim or authorize an unstated follow-up. Requirement 10 owns the approval boundary, including existing authority that requires no new card.
+- The approval covers the operation, the meaning, and the scope the card states, or the content the card names. It does not make an unsupported claim true, and it does not allow follow-up work the card never mentioned. Requirement 10 sets the limits of approval, including permission the agent already has that needs no new card.
 
 ### Example: updating an existing memory
 
@@ -1387,19 +1422,19 @@ unexplained warning and does not silently become an authorized task.
 
 ## 21. Indexes and the checker
 
-- The memory index at `knowledge/memory/memory-index.md`, the PRD index at `knowledge/prds/prd-index.md`, and the outside-documentation index at `ai-external-knowledge/README.md` are generated from their source files using the shared format below. Other knowledge indexes, including an enabled System Guide's index, use the same grouped link-and-summary format; their components still own their source metadata and upkeep. The PRD index used to be called `spec-index.md`.
+- The memory index at `knowledge/memory/memory-index.md`, the PRD index at `knowledge/prds/prd-index.md`, and the outside-documentation index at `ai-external-knowledge/README.md` are generated from their source files using the shared format below. Other knowledge indexes, including the index of a System Guide that is turned on, use the same format: entries grouped under headings, each entry a link and a one-line summary. The part of the toolkit that owns those source files still owns their file fields and their upkeep. The PRD index used to be called `spec-index.md`.
 - The memory index includes files both directly in `memory-entries/` and inside topic folders. A topic folder's files remain together under their topic heading, with a link and summary for each file. In the PRD index, a child PRD is listed under its parent, indented one level, so the reader sees the area and its parts together.
-- The index is grouped under short topic headings, not one flat alphabetical list. Each heading reads like the question a reader would ask, such as "Deploy and org-safety rules" or "Where things live", so the reader can quickly find the relevant source. The heading comes from each file's `group` field. Files with the same `group` sit together under that heading. The order of the groups, and the order of files inside a group, follow one fixed rule, so the same set of files always produces exactly the same index. Which rule is the design's job.
+- The index is grouped under short topic headings, not one flat alphabetical list. Each heading reads like the question a reader would ask, such as "Deploy and org-safety rules" or "Where things live", so the reader can quickly find the relevant source. The heading comes from each file's `group` field. Files with the same `group` sit together under that heading. The order of the groups, and the order of files inside a group, follow one fixed rule, so the same set of files always produces exactly the same index. Choosing that rule is the design's job.
 - Each entry is one line: a link to the source file, then its `summary`. Memory and PRD summaries state the key knowledge or required behavior in plain words. A captured-topic summary states its coverage and when it is useful, as requirement 8 requires. The agent opens the actual source before relying on it, as requirement 19 requires.
 - The summary is written once, in the file's own `summary` field, and the index copies it word for word. The index adds nothing of its own. Every line in it comes from a file.
-- A memory whose status is not `current`, or a PRD whose status is not `finalized`, shows its status on its line, so historical records and proposed requirements are clearly identified. No index label substitutes for requirement 19's source checks.
+- A memory whose status is not `current`, or a PRD whose status is not `finalized`, shows its status on its line, so historical records and proposed requirements are clearly marked. A label in the index is never a substitute for the source checks in requirement 19.
 - The header above the entries is two lines at most. The index points at files. It does not explain how anything works.
 - Never edited by hand. The order of files inside a group follows one fixed rule. Two sessions rebuilding the index at the same time then produce the same lines in the same order, so their changes do not conflict in Git.
 - If an index disagrees with the files on disk, the files win. Rebuild it.
-- Every saved memory file and PRD is confirmed against the field rules and two size limits: an index source's `summary` is under 200 characters, and `knowledge/memory/current.md` is under 5,000 characters. A memory file has no fixed character limit. No other size limit is set here. Confirming never changes a file. A limit that fails is never a reason to quietly cut approved meaning.
-- A file that breaks a limit or a field rule is named, along with the rule it broke. A save that fails is not finished. The agent fixes the file and confirms it again before it says the save is done. Nothing is ever cut off silently.
+- Every saved memory file and PRD is checked against the field rules and two size limits: the `summary` of any file that feeds an index is under 200 characters, and `knowledge/memory/current.md` is under 5,000 characters. A memory file has no fixed limit on its length. No other size limit is set here. Checking never changes a file. A limit that fails is never a reason to quietly cut meaning the owner approved.
+- A file that breaks a limit or a field rule is named, along with the rule it broke. A save that fails is not finished. The agent fixes the file and checks it again before it says the save is done. Nothing is ever cut short without saying so.
 - After writing, the agent reads back the change as it was actually saved and confirms it matches the approved operation, meaning, and scope. It checks supporting detail against the sources it came from and keeps any wording the owner required. It checks the text it wrote against the project's output style, and checks the required fields, their allowed values, the size limits, and the links. Approving a summary does not mean the saved entry has to repeat that summary word for word. A tool saying it succeeded, or YAML that parses, does not on its own show that the saved result is correct.
-- After any lasting knowledge change, the affected index is rebuilt and the checker is run. A failing check means the save is not finished, and the agent says so instead of claiming the knowledge is stored.
+- After any change to lasting knowledge, the affected index is rebuilt and the checker is run. A check that fails means the save is not finished, and the agent says so instead of claiming the knowledge is stored.
 
 ### Memory index example
 
@@ -1439,7 +1474,7 @@ unfinished, and the file and the broken rule are named.
 
 ## 22. Keeping current truth clean
 
-- The agent notices and proposes cleanup without being asked. Every proposal names the affected content, the operation, and its reason in the standard format. Owner approval is required before a lasting edit, merge, supersession, retirement, or deletion; after approval, the agent completes the operation and checks the result itself. It does not ask the owner to perform the file maintenance.
+- The agent notices and proposes cleanup without being asked. Every proposal names the affected content, the operation, and its reason in the standard format. The owner must approve before a lasting edit, a merge, a supersession, a retirement, or a deletion. Once he approves, the agent carries the operation out and checks the result itself. It does not ask the owner to do the file work.
 - Never just append or create another file. Search for the topic area's existing file or folder, then maintain the file that owns the information under requirement 14.
 - Keep the original creation date, update the content-change date, and retain evidence for the current meaning. Record a verification date only when the claim was actually rechecked. A recent edit alone never makes an old claim newly verified.
 - **Update** by editing the relevant topic or subtopic file into a clear current account. Rewrite or remove outdated, repeated, or unnecessary content with approval; do not accumulate every new detail at the end. Set `updated_at` to today. Record a dated change in the body only when its history matters. Set `confirmed_at` only when its claim was rechecked and found still true.
@@ -1448,7 +1483,7 @@ unfinished, and the file and the broken rule are named.
 - **Delete a whole file** for three reasons only, and name the reason in the reply: a copy made by mistake, a secret that should never have been written down, or something that was never true. This whole-file rule does not prevent approved removal or rewriting of content within a maintained topic-area file. Preserve important history when needed; do not keep obsolete wording merely because it was once written.
 - Age alone is never a reason. Written two years ago and still true means still true.
 - A memory nobody will look up again is found and proposed for retirement without the owner hunting for it. He says yes. The reason is never age. The reason is that the result it holds will not be needed again. Example: a spreadsheet built once in June, checked and delivered, with nothing pointing at it months later.
-- This happens at each save, for the files the search turned up, and across the whole folder during a knowledge review. Consolidate duplicate or unnecessarily fragmented content with approval, preserving useful context and repairing links. Keep the coherent subtopic files of an approved topic split; sharing a topic area alone does not make them duplicates. Conflicting statements are resolved rather than left side by side as current truth. Link related files when understanding or applying one benefits from opening the other. The aim is maintained topic context, not many files for tiny details.
+- This happens at each save, for the files the search turned up, and across the whole folder during a knowledge review. Once the owner approves, bring duplicated content, or content split up for no good reason, back together, keeping the useful context and fixing the links. Keep the coherent subtopic files of an approved topic split; sharing a topic area alone does not make them duplicates. Conflicting statements are resolved rather than left side by side as current truth. Link related files when understanding or applying one benefits from opening the other. The aim is a topic kept whole and current, not many files each holding a tiny detail.
 
 **Check:** save something that contradicts an existing file. The agent shows the
 conflict and, after approval, updates that same topic or subtopic file. The replacement
@@ -1466,22 +1501,22 @@ The toolkit comes with default criteria for what counts as memory and what
 does not, defined in requirements 11 and 12. The agent applies those defaults
 from the first session, even when the project has no memory-selection feedback.
 
-Learning adds project-specific criteria on top of those defaults: additional
-kinds of information worth keeping and additional filters for what is not
-useful in this project. The defaults remain the starting point; the owner does
+Learning adds rules for this project on top of those defaults: more kinds of
+information worth keeping, and more kinds to leave out because they are not
+useful here. The defaults remain the starting point; the owner does
 not have to teach them again. The agent uses the owner's feedback to improve
 later proposals without requiring the same correction in each session.
 
 - Before proposing memory, consider relevant prior feedback about what the owner accepts or rejects. Drop or reshape a similar candidate when that feedback applies.
 - Preserve useful feedback across sessions, including the owner's stated reason when one was given. Do not invent a reason or infer a general preference from silence.
-- Feedback about selecting memories is operational guidance, not a lasting fact about the project. Maintaining that feedback needs no separate save approval and does not approve a memory candidate.
-- Apply the governing knowledge rules. Report a conflict between feedback and those rules rather than silently changing the policy.
+- Feedback about choosing memories is guidance for how the agent works, not a lasting fact about the project. Keeping that feedback up to date needs no separate save approval, and it does not approve any memory candidate.
+- The knowledge rules that govern this project still decide. When feedback conflicts with them, say so rather than quietly changing the policy.
 - Keep feedback useful and concise. Do not retain secrets, raw conversations, or an unnecessary history of routine activity.
-- Lessons stay in this project. If evidence within authorized access suggests a toolkit-wide improvement, propose it through the toolkit change workflow. Local upkeep does not search other projects, change shared instructions, or roll out policy on its own.
+- Lessons stay in this project. If evidence the agent is allowed to access suggests an improvement for the whole toolkit, propose it through the toolkit's own change process. Upkeep inside one project never searches other projects, never changes shared instructions, and never rolls out a policy on its own.
 
-The storage location, record format, and mechanisms for reading, recording,
-and consolidating feedback are solution-design choices. The existing approach
-is described under [Potential paths to explore](#current-implementation-open-to-refactoring).
+Where this feedback is stored, what a record of it looks like, and how it is
+read, written, and tidied up are choices for the solution design. The way it
+works today is described under [Potential paths to explore](#current-implementation-open-to-refactoring).
 
 **Check:** start a project with no selection feedback. The agent applies the
 toolkit defaults. Add a project-specific inclusion or exclusion: later
@@ -1499,22 +1534,22 @@ command name, skill name, or tool sequence:
 - Review information for saving, show any proposal needing approval, complete authorized saves, and review pending proposals.
 - Review a file that is out of date and propose the appropriate update, supersession, retirement, or deletion.
 - Review knowledge for duplicates, contradictions, and content that no longer applies.
-- Find missing context in available project history within requirement 19's access and verification boundaries.
+- Find missing context in whatever project history is available, staying inside the access and checking limits in requirement 19.
 - Explain whether knowledge is set up correctly and perform authorized setup or repair under requirement 27.
 
-These are required capabilities, not a fixed number of commands or skills.
-The agent chooses the applicable operations under the existing requirements;
-it does not run all of them for every request. The design may combine, split,
-rename, or replace the current entry points.
+These are outcomes the system must be able to produce, not a fixed number of
+commands or skills. The agent picks the operations that apply, following the
+requirements above; it does not run all of them for every request. The design
+may combine, split, rename, or replace the ways the owner reaches them today.
 
 **Check:** request each outcome in ordinary language without naming a command.
-The agent performs the applicable operation, preserves approval boundaries,
-and reports its result or an actual access or setup gap.
+The agent performs the operation that applies, stays inside the approval limits,
+and reports its result, or reports a real gap in access or setup.
 
 ## 25. Codex
 
 - A Codex session follows every requirement in this document, the same as a Claude session. Same shared files, equivalent startup orientation, same cards, and the same rules about what to save and where.
-- The design uses each supported harness's documented capabilities to meet the same outcomes and performs requirement 3's verification on each. It does not assume that one harness's mechanisms exist in another.
+- The design uses the documented features of each supported harness to reach the same outcomes, and it runs requirement 3's checks on each one. It never assumes that a feature of one harness exists in another.
 - Where the design finds that Codex cannot enforce one behavior at all, it says which one, and the setup report for every project says so too. It never quietly leaves a gap.
 - Nothing in the saved files is specific to one agent. Both read the same Markdown.
 
@@ -1530,20 +1565,21 @@ it. That covers every rule file, hook, skill, plugin part, settings entry, and
 startup text that relates to memory, PRDs, or the second brain.
 
 - Best practice here means the captured documentation in `ai-external-knowledge/claude-code/`, not what an agent remembers or assumes. Before building or changing a part, the builder reads the page that covers that kind of part.
-- Guidance is available where it applies without filling every session with unrelated instructions. The design chooses the documented way to scope it in each supported harness.
+- Guidance is available where it applies, without filling every session with instructions that have nothing to do with the task. The design picks the documented way of limiting a piece of guidance to the right situations in each supported harness.
 - Routine startup guidance stays compact and leads to detail when needed, as requirement 2 requires.
 - The design for each part names the documentation page it followed and the practice it applied, so a reviewer can check the part against the page.
 - When the documentation and this document disagree, this document decides what the system does, and the documentation decides how Claude Code is used to do it. The disagreement is said out loud, never quietly picked.
 
 **Check:** pick any part the system ships. The design names the documentation
-page it followed. Open that page. The part matches what the page says. Pick any rule file. Either it is scoped to the places it applies to, or it
-applies everywhere and is short.
+page it followed. Open that page. The part matches what the page says. Pick any
+rule file. Either it is scoped to the places it applies to, or it applies
+everywhere and is short.
 
 ## 27. Installed once, turned on per project, and checked
 
 - The second brain is installed once on a computer. A project gets it only when the owner says yes to turning it on there.
 - Turning it on is one step that finishes completely. Every part the project needs is put in place in that one step, not some now and some later.
-- Afterwards, the setup checks itself and tells the owner plainly whether the project is equipped, and which version is active. It never calls a half-finished setup healthy.
+- Afterwards, the setup checks itself and tells the owner plainly whether the project is equipped, and which version is running. It never reports a half-finished setup as a working one.
 - Turning it on again later, to bring a project up to date, works the same way and reports the same way.
 
 **Check:** turn the second brain on in a fresh project with one yes. The report
@@ -1555,24 +1591,25 @@ changes there.
 
 One plain Markdown file, `knowledge/memory-inbox.md`, holds actual knowledge
 save proposals awaiting the owner's answer and authorized saves that have not
-finished, including automatic PRD upkeep. It sits directly under `knowledge/`, outside lasting memory.
-Agents retain unanswered proposals and manage follow-up. The owner does not
-maintain a queue or repeat a decision because the session changed.
+finished, including automatic PRD upkeep. It sits directly under `knowledge/`,
+outside lasting memory. Agents keep the proposals the owner has not answered,
+and agents follow them up. The owner keeps no queue of his own, and he never has
+to repeat a decision just because the session changed.
 
 ### What is kept
 
-- Automatically retain an unanswered proposal once it has been shown to the owner. Preserve the exact card, including its proposed wording and formatting. Unshown brainstorming, raw conversations, discarded candidates, and secrets do not belong here.
-- Keep an approved proposal while its save is unfinished. Save locally and share the pending record promptly through the project's default branch. If either step fails, report what exists, where it exists, and what another session cannot yet see. A proposal that exists only in chat is still unsaved.
-- Use the same entry format for each pending save: a stable reference; destination and operation; exact card when one was shown; the harness it was shown in (Claude Code or Codex) and that conversation's ID, so the conversation can be found again; source reference and date; last-updated time; state; and the next step or blocker. For authorized PRD upkeep with no card, record the specific update still owed, the source of its authority, and links to the agreed scope and delivery evidence. Do not invent a card or a new approval event. The states are `awaiting approval`, `approved, save unfinished`, and `blocked by conflict`; standing authority uses `approved, save unfinished`. Record approval or standing authority separately with its source, date, covered content and scope, and who gave explicit approval when applicable. A conflict does not erase that record or expand its scope.
-- Keep only the context needed to understand and resolve that proposal. Use links to the original sources and work record. An already-authorized PRD draft stays in its canonical PRD; the inbox does not become a second copy of that document or a work tracker.
+- Once a proposal has been shown to the owner and he has not answered it, keep it here without being asked. Keep the card exactly as it was, including its proposed wording and its layout. Brainstorming that was never shown, raw conversations, candidates that were thrown out, and secrets do not belong here.
+- Keep an approved proposal for as long as its save is unfinished. Write the pending record on this computer, and share it promptly through the project's default branch. If either step fails, say what exists, where it exists, and what another session cannot yet see. A proposal that exists only in the conversation is still unsaved.
+- Use the same entry format for each pending save: a reference that does not change; the destination and the operation; the exact card when one was shown; which harness it was shown in (Claude Code or Codex) and that conversation's ID, so the conversation can be found again; the source it came from and its date; the time it was last updated; its state; and the next step or the blocker. For authorized PRD upkeep where no card was shown, record exactly which update is still owed, where the permission for it came from, and links to the agreed scope and to the evidence that the work was delivered. Do not invent a card, and do not invent a moment of approval that never happened. The states are `awaiting approval`, `approved, save unfinished`, and `blocked by conflict`; ongoing permission uses `approved, save unfinished`. Record the approval, or the ongoing permission, as its own record: where it came from, its date, the content and scope it covers, and who gave it when a person approved it outright. A conflict never erases that record, and never widens what it covers.
+- Keep only the context needed to understand and resolve that proposal. Use links to the original sources and work record. A PRD draft the agent is already allowed to write stays in the one official PRD file; the inbox never becomes a second copy of that document, or a second work tracker.
 
 ### How agents use it
 
-- The small knowledge map identifies the inbox, its purpose, and its rules. At startup, after context recovery, and at handoff, agents check pending state without loading every proposal into every session. Open the relevant entry when recovering a save or reviewing it with the owner.
+- The small knowledge map names the inbox, says what it is for, and gives its rules. At the start of a session, after context has been recovered, and at a handoff, agents check what is pending, without loading every proposal into every session. Open the entry that matters when picking a save back up, or when going through it with the owner.
 - Before editing this shared file, reread it and preserve other sessions' entries and changes. Concurrent sessions must not lose proposals, duplicate the same proposal, or apply the same approved save twice.
-- Pending content is visibly labelled with its approval and completion state and excluded from memory and PRD indexes. Its presence never gives it the authority of a fact, requirement, preference, or instruction. Requirement 19 governs any use of its source as evidence.
-- An unanswered card remains available automatically, including across sessions and context clears. Silence, age, and a session ending neither approve nor reject it. Do not repeat the unchanged card every turn. Briefly identify pending state at handoff or when relevant; show the card again when the owner reviews pending items or when new information requires a decision.
-- For an approved unfinished save, check the current destination and whether the save already completed. If the approved change is still applicable, finish it without asking for the same approval again. If newer information conflicts or the proposed meaning must change, preserve the entry, explain the conflict, and obtain the needed decision before applying the changed meaning. Requirement 3 limits the pause to affected work.
+- Anything pending is clearly labelled with whether it is approved and whether its save finished, and it is kept out of the memory and PRD indexes. Sitting in the inbox never turns it into a fact, a requirement, a preference, or an instruction. Requirement 19 governs any use of its original source as evidence.
+- An unanswered card remains available automatically, including across sessions and context clears. Silence, age, and a session ending neither approve nor reject it. Do not repeat the unchanged card every turn. When work is handed over, or when it otherwise becomes relevant, say briefly what is still pending; show the card again when the owner reviews pending items, or when new information means he has to decide.
+- For an approved save that did not finish, check the destination as it stands now, and check whether the save already went through. If the approved change still applies, finish it without asking for the same approval again. If newer information conflicts or the proposed meaning must change, preserve the entry, explain the conflict, and obtain the needed decision before applying the changed meaning. Requirement 3 limits the pause to affected work.
 - Remove an entry from the active inbox once the approved save is verified complete under requirement 9 or the owner rejects the proposal. This housekeeping needs no further approval. It does not authorize deleting lasting knowledge, which still follows requirement 10. Never discard an unanswered entry merely to keep the file short.
 
 **Check:** retain and share two proposals, receive no answer to one, and record
@@ -1586,75 +1623,84 @@ an already-completed save, and conflicting newer content: no proposal is lost,
 no save is duplicated, and conflicting meaning waits for the owner's decision.
 
 **Check:** interrupt automatic PRD upkeep with no save card. The pending record
-identifies the update and its standing authority. A later session verifies what
-was already saved and completes the remaining work without a new approval.
+names the update that is still owed, and the ongoing permission it rests on. A
+later session checks what was already saved and finishes the rest without a new
+approval.
 
 ## 29. Preserve agent judgment with narrow safeguards
 
-This requirement defines the limits of automated enforcement for requirements
-1–3, 5, 10, 18, 19, and 25.
+This requirement says how far a program should go in enforcing requirements
+1–3, 5, 10, 18, 19, and 25 on its own.
 
 ### Functional and logic requirements
 
 - Claude Code and Codex remain responsible for reasoning, search, investigation,
-  classification, and proposing useful content. Do not build a search engine or
-  another reasoning engine to replace what the agent can already do natively.
-- The system requires relevant project knowledge to be consulted. The agent
-  chooses search terms, tools, files, depth, and follow-up investigation. The
-  source roles and precedence in requirement 19 guide where to look; they do
-  not prescribe exact queries, result counts, or a tool-call script.
-- Retrieval guidance starts with the lightest effective check, such as an
-  acknowledgement that required knowledge was consulted. Do not build a scorer
-  that decides whether the search was intellectually good enough. An
-  acknowledgement is bookkeeping, not proof of understanding or answer quality;
-  requirement 3 still verifies the resulting behavior.
-- Stronger checks protect lasting writes: required approval must cover the
-  actual change, and the destination, file shape, fields, and saved result must
-  satisfy the applicable rules. A valid file does not prove that its meaning is
-  correct. The agent evaluates meaning and the owner approves it.
-- Preserve existing approval, including authorized PRD refinement under
-  requirement 10. A safeguard must not repeatedly ask the owner to approve the
-  same unchanged instruction.
-- Begin with a small set of safeguards for failures that would damage trust.
-  Add restrictions only when observed failures justify them. Do not monitor or
-  control every action merely because that is technically possible.
+  classification, and proposing useful content. Do not build a search engine, or
+  another reasoning engine, to replace what the agent can already do itself.
+- The system requires the agent to consult the relevant project knowledge. The
+  agent chooses the search terms, the tools, the files, how deep to go, and what
+  to investigate next. Requirement 19 says what each source is for and which one
+  wins; it does not set the exact searches, how many results to read, or a fixed
+  list of tool calls.
+- Guidance about looking things up starts with the lightest check that works,
+  such as the agent confirming that it consulted the required knowledge. Do not
+  build something that scores whether the search was good enough. A confirmation
+  is bookkeeping; it does not prove the agent understood anything, or that the
+  answer was any good. Requirement 3 still checks the behavior that comes out.
+- Stronger checks guard writes to lasting files: the approval must cover the
+  change that is actually being made, and the destination, the file shape, the
+  fields, and the saved result must all follow the rules that apply. A file that
+  passes its checks is not proof that what it says is right. The agent works out
+  what the content means, and the owner approves that meaning.
+- Keep permission the owner has already given, including permission to refine a
+  PRD under requirement 10. A safeguard must never keep asking the owner to
+  approve the same unchanged instruction.
+- Begin with a small set of safeguards, aimed at the failures that would damage
+  the owner's trust. Add more restrictions only when a failure that actually
+  happened calls for them. Do not watch or control every action just because it
+  is possible to.
 
 ### Process and user experience
 
-1. At session start, the agent reads the canonical knowledge manual and gives
-   the one-line confirmation defined in requirement 2.
+1. At the start of a session, the agent reads the one official knowledge manual
+   and gives the one-line confirmation described in requirement 2.
 2. During ordinary work, the agent reasons and investigates freely within the
    task's authorization. Reminders stay small; the full manual is not reloaded
-   on every message. The policy layer should be almost invisible to the owner.
-3. When a lasting-memory candidate arises, the agent rereads the relevant
-   policy, classifies the candidate, checks for an existing home, and prepares
-   the standard proposal. Useful information is not automatically memory.
+   on every message. The owner should barely notice the rules being enforced.
+3. When something comes up that might belong in lasting memory, the agent reads
+   the relevant policy again, decides what kind of thing the candidate is,
+   checks whether a file already covers it, and prepares the standard proposal.
+   Useful information is not automatically memory.
 4. Where new approval is required, the owner approves, edits, or rejects the
    proposal. Silence never authorizes a lasting write. Already-authorized
    changes proceed under requirement 10.
-5. Validate the approved change against its destination's rules, complete the
-   save and publication, and confirm the real result. Requirement 3 governs
-   failure recovery; requirement 28 preserves unfinished proposals and saves.
+5. Check the approved change against its destination's rules, finish the save
+   and the publication, and confirm what actually ended up saved. Requirement 3
+   governs recovery after a failure, and requirement 28 keeps unfinished
+   proposals and saves.
 
-Reading the manual once does not mean forgetting it after context loss. Recover
-missing or changed guidance under requirement 2. The design determines how to
-detect and recover missing or changed guidance. Requirement 9 defines when a
-routine save review needs a visible response.
+Reading the manual once is not permission to forget it after context is lost.
+Bring back guidance that is missing or has changed, under requirement 2. The
+design decides how missing or changed guidance is spotted and brought back.
+Requirement 9 says when a routine save review needs a reply the owner can see.
 
 ### Data boundaries
 
-- Approved project knowledge remains in its authoritative Markdown files under
-  the existing data model. No vendor's memory categories replace the owner's
-  definitions or the routing in requirement 18.
-- Session bookkeeping, such as which manual version was read or whether a
-  bootstrap acknowledgement occurred, is temporary runtime state. It is not a
-  lasting project fact and never belongs in long-term memory.
-- Temporary runtime state cannot replace the shared working context in
-  requirement 13 or the recoverable proposal and approval records in
-  requirement 28. A lost session must not lose an approved unfinished save.
-- Interpretation, summaries, and search results must not silently become
-  approved facts. Preserve the approved meaning and its source; later agents
-  must be able to distinguish evidence from a derived account.
+- Approved project knowledge stays in the Markdown files that own it, under the
+  data model already in use, as this document describes it. No vendor's own
+  memory categories replace the owner's definitions, or the routing rules in
+  requirement 18.
+- Session bookkeeping, such as which version of the manual was read, or whether
+  the agent confirmed its startup reads, is temporary state that lasts only
+  while the session runs. It is not a lasting fact about the project, and it
+  never belongs in long-term memory.
+- That temporary state cannot take the place of the shared working context in
+  requirement 13, or of the proposal and approval records in requirement 28 that
+  a later session has to be able to pick up. Losing a session must never lose an
+  approved save that did not finish.
+- An interpretation, a summary, or a search result must never quietly become an
+  approved fact. Keep the approved meaning and its source. Later agents must be
+  able to tell the evidence apart from somebody's account of it.
 
 **Check:** ask whether to replace an authentication provider. The agent finds
 relevant prior knowledge using its own tools and queries, investigates further
@@ -1669,16 +1715,17 @@ actual outcomes throughout the session.
 ## 30. Integration with the toolkit OS and other components
 
 The knowledge system must work as part of the [Toolkit Operating System](toolkit-operating-system.md).
-Its delivery includes the OS changes needed to satisfy this PRD. A requirement
-is not complete if knowledge works in isolation but the normal OS workflow
-cannot reach it or follow its rules.
+Delivering it includes the operating-system changes this document needs. A
+requirement is not finished if the knowledge part works on its own but the
+operating system's normal workflow cannot reach it or follow its rules.
 
-When a knowledge requirement needs an OS change, record the required behavior
-here, the affected OS responsibility, and a check showing the integration works.
-Link to the corresponding umbrella requirement. Keep detailed component rules
-in their existing PRDs; do not duplicate their procedures or create another
-owner of their records. Build tasks and implementation choices stay in the
-existing delivery process.
+When a knowledge requirement needs a change to the operating system, record
+here what the system must do, which operating-system responsibility it affects,
+and a check that shows the two working together. Link to the matching
+requirement in the operating system's own PRD. Keep the detailed rules for each
+part in that part's existing PRD: do not copy their procedures here, and do not
+put a second owner in charge of their records. Build tasks and choices about how
+to build stay in the existing delivery process.
 
 | OS responsibility | Required knowledge integration | Umbrella requirements to align |
 | --- | --- | --- |
@@ -1691,14 +1738,14 @@ existing delivery process.
 
 The OS must not impose a competing knowledge policy, force every question to
 create a work item, or duplicate another component's tracker, approval process,
-templates, or content. An unavailable component is reported as a gap; its work
-is not silently reassigned to memory or PRDs. Requirement 3 governs the effect
-of that gap on the current task.
+templates, or content. A part that is unavailable is reported as a gap, and its
+work is never quietly handed to memory or to the PRDs instead. Requirement 3
+governs what that gap means for the task in hand.
 
-The owning component's workflow performs each operation and supplies its result.
-The knowledge system uses that result and resumes the applicable knowledge step.
-The exact hooks, skills, events, and coordination mechanisms are chosen during
-solution design after the requirements are finalized.
+Whichever part owns an operation runs it and hands back the result. The
+knowledge system takes that result and carries on with its own next step.
+Solution design picks the hooks, skills, events, and ways of working together,
+after the requirements are finalized.
 
 **Check:** run a question that needs no work item and a tracked change that
 ships behavior affecting a component and the OS. Verify required knowledge
@@ -1826,7 +1873,7 @@ Current sources: [skill inventory](../../plugins/second-brain/skills/),
 
 ### Future design task: map requirements to implementation mechanisms
 
-**TODO — after the PRD requirements are finalized and approved:** perform a
+**TODO, after the PRD requirements are finalized and approved:** perform a
 systematic architecture exercise that:
 
 - Maps each PRD requirement to the most appropriate implementation mechanism.
