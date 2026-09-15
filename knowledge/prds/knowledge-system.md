@@ -516,6 +516,8 @@ for him to notice it.
 ### Required outcomes
 
 - At a new session start, all three startup reads in requirement 2 finish before the owner sees the confirmation. A read that did not finish, or a file that is missing, is reported instead.
+- Before acting on a new or resumed request, the agent has read the shared working context under requirement 13 and checked the pending inbox under requirement 28. If either step was missed, the agent goes back and does it. If an expected source is missing, it reports the gap and pauses only the work that depends on it.
+- After changing the shared working context, the agent confirms in one short line that the update is saved and available to the next project session. If it is not, the agent reports where it was saved and what is not yet shared, and keeps the unfinished step visible.
 - Before answering anything that rests on project information, or acting on it, the agent checks the relevant knowledge under requirement 19. Relevant, current sources that are already in the agent's context can satisfy that check. A check done for an earlier task does not automatically cover a different task.
 - An answer or proposal based on saved knowledge identifies its supporting source under requirement 6. This applies no matter how the agent found or opened that source. A file path that came back with a search result does not on its own show that the answer is supported.
 - The external-knowledge index is reachable from the small map. The agent opens relevant outside documentation before relying on it, as requirement 8 requires.
@@ -700,7 +702,7 @@ may continue. Recovery never asks the owner to repeat the decision.
 
 ## 10. Approval before any write
 
-- Every write to a memory file or a PRD needs permission that covers that change. The permission may be the owner approving this save outright, permission already given to refine a PRD, or the ongoing permission in requirement 16 to update PRDs after work ships. A separate proposal to save lasting memory still needs the standard card and the owner's approval.
+- Every write to a memory file or a PRD needs permission that covers that change. The permission may be the owner approving this save outright, permission already given to refine a PRD, the ongoing permission in requirement 16 to update PRDs after work ships, or the owner's per-project choice to turn the approval step off for memory saves, described below. Otherwise, a separate proposal to save lasting memory still needs the standard card and the owner's approval.
 - Approval already given for drafting or refining a named PRD covers writing down the owner's clear answers and corrections accurately, as long as they fall inside that scope. Save those in the same reply, without asking him to approve his own instruction a second time. The normal rules about where the text goes, how it is checked, and how it is published still apply.
 - If the owner's words are ambiguous, clarify the meaning before changing the requirement. A new requirement the agent invents or recommends needs the owner's agreement before it becomes a requirement in the draft. Drafting permission does not approve that new meaning.
 - A separate lasting-memory proposal still uses the standard card and approval, even when it arose during an authorized PRD interview. Drafting or saving permission does not approve the requirements as a whole, a solution design, or implementation. Requirement 16 defines what a PRD's approval fields mean.
@@ -712,11 +714,19 @@ may continue. Recovery never asks the owner to repeat the decision.
 - The agent writes an accurate account of the summary the owner approved. It may add supporting context from the conversation and from the sources it used. It must not add facts nothing supports, decisions the owner was not told about, or anything outside the approved scope.
 - Settle any question that would change the save before showing a save card, as requirement 20 requires. Approval covers the operation, the meaning, and the scope the card states, or the content the card names. It does not approve an assumption that is still open, and it does not approve an unrelated piece of follow-up work.
 - Five things can be done without asking the owner: rebuilding an index, repairing a broken link within requirement 1’s limits, writing `knowledge/memory/current.md`, keeping this project's own feedback about what is worth saving up to date under requirement 23, and keeping the pending inbox up to date under requirement 28. None of these changes what a lasting file means. Requirement 4 says how the current file is updated. Holding a proposal in the inbox is permission to keep it, not permission to accept what it says.
+- The owner of a project can turn the approval step off for memory saves in that project, once he has worked with the agent there long enough to trust its judgment about what is worth saving. The setting is per project and is off by default, so a card and a yes are required until the owner turns it on. While it is on, the agent runs the same review and the same checks, saves the memory on its own, and tells the owner in one line what it wrote and where. The owner can turn the approval step back on at any time. Mike added this on 2026-09-15. Open decision, not yet answered by the owner: whether this setting also covers PRD writes, and whether it covers merging, superseding, retiring, or deleting memory. Until he answers, it covers saving to memory only.
 - For files the owner already approved under an older folder layout, the agent converts those files first and shows the owner the converted results afterwards, in groups small enough to read in one pass. The owner approves after the conversion, not before. Any file that will not convert cleanly is named and left alone. The agent never guesses what an old file meant.
 
 **Check:** show a proposal and say nothing back. The exact proposal is retained
 in the pending inbox, marked awaiting approval. Its destination is unchanged,
 and a later session never treats the pending text as an approved fact.
+
+**Check:** in a project where the owner has turned the approval step off for
+memory saves, the agent finds something worth saving. It saves it with the same
+review and checks, and the reply says in one line what was written and where,
+with no card and no question. Turn the setting back on: the next candidate
+shows a card and waits for a yes. In a project where the setting was never
+turned on, the card and the yes are still required.
 
 **Check:** correct a summary and approve the corrected meaning. The saved entry
 faithfully records that meaning in the project's writing style. Repeat with an
@@ -1223,13 +1233,14 @@ verify the behavior, it says so. A finalized label alone does not skip this chec
 ## 17. Procedures become skills
 
 - When the agent works out a repeatable way to do something here, that is a skill, not a memory file.
-- It becomes a project skill at `.claude/skills/<name>/SKILL.md`. A skill in that folder is used in this project and nowhere else. It is not copied to other projects. Whether a procedure is worth sharing with other projects is not this system's job.
-- The agent proposes it through the same one card, one yes flow used for a save.
+- It becomes a project skill at the skill location the runtime in use provides. In Claude Code that is `.claude/skills/<name>/SKILL.md`; Codex uses its own equivalent. A skill in that folder is used in this project and nowhere else. It is not copied to other projects. Whether a procedure is worth sharing with other projects is not this system's job.
+- The agent proposes it and hands it to the project's skill-authoring process, which has its own approval and delivery rules. The knowledge save card is not used for a skill. This matches the approved walkthrough.
 - A procedure must never be saved as a memory file. A memory file is read back later as a fact about the project, so a procedure stored there gets followed as an instruction that nobody approved as an instruction. Example: an agent saves "we deploy by running the build script twice" as a memory. A later agent reads that line as a rule and runs the script twice, even after the real procedure changed.
 - The traps and gotchas that go with a procedure live in that skill, next to the steps, not in memory. Example: the five ways a field-change search gives a confidently wrong answer sit in the skill that does the search.
 
 **Check:** teach the agent a repeatable way of doing something here. It offers a
-project skill at that path, not a memory file.
+project skill at the runtime's skill location, not a memory file, and approval
+follows the skill-authoring process, not the knowledge save card.
 
 ## 18. Where information goes
 
@@ -1264,7 +1275,7 @@ proposal. The owner does not manage the files himself.
 | A standing instruction for how the agent behaves | The project's root instructions, such as `CLAUDE.md` or `AGENTS.md`, and applicable rules in `.claude/rules/` or the harness equivalent |
 | Where this project keeps its things: the real systems it uses, their names and IDs, and the folders and paths that matter | `knowledge/project.md` |
 | How a part of the system is put together, and what it is for: its objects, fields, processes, sub-applications, and what links to what | The System Guide at `knowledge/system-guide/`, when the project has one. It is a separate toolkit plugin the owner turns on per project, with its own PRD. Memory keeps only the decision or the trap, and links to the System Guide page. |
-| A repeatable procedure | A project skill at `.claude/skills/<name>/SKILL.md` |
+| A repeatable procedure | A project skill at the runtime's skill location, through the skill-authoring process (requirement 17) |
 | What we want built, and later the behavior we actually got | `knowledge/prds/` |
 | A lasting fact, decision, event, context, or constraint | `knowledge/memory/memory-entries/` |
 | The current objective, blocker, and next step | `knowledge/memory/current.md` |
