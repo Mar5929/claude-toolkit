@@ -1133,7 +1133,7 @@ New PRDs follow these parts, in this order. The owner set this shape on 2026-09-
 2. A title.
 3. A table of contents.
 4. **Why this exists.** The context: the problem it solves, why the project is doing this, and what is being built at a high level.
-5. **What this document holds.** A short fixed note that this document holds only the what: what the system does, what the end user experiences, and what information is stored and where. Functional, process, logic, user-interface, user-experience, and data requirements belong here. How it is built does not. Every requirement is explicit and unambiguous, in plain language with no jargon, clear enough that a junior intern or a complete stranger could read it and know what to build and how to test it. Vague wording such as "works correctly" or "handles errors well" is not allowed.
+5. **What this document holds.** A short fixed note that this document holds only the what: what the system does, what the end user experiences, and what information is stored and where. Functional, process, logic, user-interface, user-experience, and data requirements belong here. How it is built does not. Every requirement is explicit and unambiguous, in plain language with no jargon, clear enough that a junior intern or a complete stranger could read it and know what to build and how to test it. Vague wording such as "works correctly" or "handles errors well" is not allowed. Required behavior must not depend on the reader guessing the intended meaning. If a choice is deliberately left to design or agent judgment, state what may vary and the outcome, constraints, and checks that still apply. An unanswered question is an open decision, not permission to interpret the requirement freely.
 6. **Requirements.** One level-two heading named `Requirements`, so a reader knows where the requirements start. Under it, one level-three heading per requirement area, grouping the requirements that belong together. Under each area, one numbered level-four heading per requirement, so work items and checks can point at it. Each requirement says what must happen and ends with a **Check** paragraph: a test a stranger could run to prove it is met.
 7. **Potential solution design notes.** Optional and last. Ideas the owner or agent wants to explore when the solution is designed. They bind nothing.
 
@@ -1145,7 +1145,7 @@ When one part of the system needs much more detail than the main PRD should carr
 problem, the high-level goal, the fixed note, the requirements grouped by area
 under one `Requirements` heading, with a numbered heading and a Check paragraph each, and no build plan. Hand one
 requirement to someone who was not in the conversation: they can say what to
-build and how to prove it works.
+build and how to prove it works. If a choice is deliberately open, they can identify what may vary and what must still be true without asking for the interview history. An unresolved decision is visibly unresolved.
 
 **Automatic upkeep after shipped work**
 
