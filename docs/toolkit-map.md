@@ -48,7 +48,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | merge-and-clean-up | git-workflows | Merge one approved PR and remove only its completed branch and worktree | `/merge-and-clean-up`, "merge and clean up" |
 | work | work-tracker | Manage local work items in Git-ignored folders, group them in folders the owner makes, archive the ones the owner has set aside, and safely convert the older staged tracker | `/work`, "add this to the backlog", "what should I work on next?" |
 | work-guide | session-skills | Coordinate delivery and adaptable plans using the existing tracker and scoped specialist help | `/session-skills:work-guide`, "help me organize this work", "continue this item" |
-| requirements-helper | session-skills | Interview one question at a time and maintain canonical draft requirements | `/session-skills:requirements-helper`, "help me refine these requirements" |
+| requirements-helper | session-skills | Clarify intent, question directions that could undermine the goal, and maintain canonical draft requirements | `/session-skills:requirements-helper`, "help me refine these requirements" |
 | solution-helper | session-skills | Map requirements to simple, evidence-backed solution choices | `/session-skills:solution-helper`, "design this solution" |
 | braindump | session-skills | Play a pasted brain dump back in very simple words, list each ask and every guess, and wait for the owner's yes before any work starts | `/braindump`, "play that back", "tell me what you heard" |
 | explain-simply | session-skills | Re-explain the last answer or a named file as short bullets, simplifying the wording and never the facts | `/explain-simply`, "explain that like I'm five", "put that in plain bullets", "simpler" |

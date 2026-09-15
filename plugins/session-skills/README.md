@@ -37,8 +37,9 @@ All eleven also trigger from plain words. You never have to type the command.
 Keep discussion and decisions in the main conversation. `work-guide` reads the
 project and item context, helps maintain a useful plan, coordinates bounded
 specialist help, and restores the next step when work resumes.
-`requirements-helper` asks one question at a time, gives a supported
-recommendation, and saves clear answers or corrections in the chosen draft.
+`requirements-helper` clarifies the intended outcome one question at a time,
+flags directions that could undermine it, gives supported recommendations,
+and saves settled answers or corrections in the chosen draft.
 `solution-helper` maps requirements to simple build, benefit, and verification
 bullets, reusing relevant domain skills such as Salesforce solutioning.
 
