@@ -23,7 +23,8 @@ the order is the whole point.
 3. **Wait for the save decision**, so nothing is written outside the meaning the
    owner approved.
 4. **Draft a prompt a fresh session can start from**, carrying everything that
-   was not saved, opening with the goal of the work.
+   was not saved. Its first line is a fixed notice that it is AI-generated, and
+   the goal of the work comes right after.
 5. **Check the draft before the owner sees it**, then show what changed and the
    finished prompt.
 
@@ -114,11 +115,24 @@ step 4 instead. Nothing is queued anywhere, and nothing is dropped.
 The prompt is for an agent that knows nothing about this session. Write it as an
 instruction to that agent, not as a summary of what happened here.
 
-### It opens with the goal
+### Its first line is a fixed notice
 
-The first thing in the prompt is what the whole piece of work is trying to
-achieve, why it matters, and where that is written down. Not the next step. The
-thing the next step serves.
+Every handoff prompt starts with this sentence, word for word, on its own line:
+
+```text
+This handoff prompt is AI-generated and may contain hallucinations, skewed context, etc. Please evaluate accordingly.
+```
+
+It is the first line of every prompt this skill produces: a normal handoff, a
+`/handoff check` result, a prompt written with no check, and a prompt written
+after the checker failed. Never reword it, drop it, or move it lower. It is a
+notice, not a claim, so the checker does not score it.
+
+### Then the goal
+
+Right after that line comes what the whole piece of work is trying to achieve,
+why it matters, and where that is written down. Not the next step. The thing
+the next step serves.
 
 - **What we are trying to achieve**, in one or two plain sentences.
 - **Why it matters**: the problem it solves, or what went wrong that started it.
@@ -199,7 +213,8 @@ never blocks the handoff.
 
 The owner sees a few one-line notes, then one fenced block they can copy in one
 click. Nothing else above it, and nothing below it but the one action they have
-to take.
+to take. Before showing the block, confirm the fixed notice is still its first
+line.
 
 ```markdown
 Checked the handoff prompt: 2 fixed, 3 not confirmed.
@@ -225,7 +240,8 @@ persistent review and no drafting.
 2. Hand it to `handoff-verifier` exactly as given. You have no sources to attach,
    so say so: every claim arrives with no source offered.
 3. Fix what came back `Wrong`, label what came back `Unchecked`, add the goal if
-   it came back `Missing`.
+   it came back `Missing`, and put the fixed first line at the top if the prompt
+   arrived without it.
 4. Show the same short list, then the corrected prompt in one block.
 
 Nothing is saved to project knowledge in this mode, and nothing about the current session
@@ -266,6 +282,7 @@ Follow the project's output style. Two things that matter here in particular:
 | The goal's pointer names a file or ticket that does not exist | The goal stays, labelled not confirmed against any file. Say so in the short list |
 | The prompt was built from an earlier handoff prompt | Every fact carried over is checked from scratch. Being in a previous handoff is not a source |
 | The checker fails, errors, or is unavailable | One line saying so, write the prompt anyway, and say inside it that it was not checked |
+| The prompt is written with no check, or the checker failed | The fixed first line still goes at the top. It is not tied to the check |
 | Nothing in the prompt can be confirmed, because the project is new and nothing is written down | Label everything, write the prompt, and say so in one line |
 | The prompt claims tests or a build passed | The checker never runs them. With no command output from this session behind it, the claim is labelled not confirmed |
 | `/handoff` is run twice in a row | Do not re-propose what was already saved. Propose only what changed since the first run, then draft and check again from the current state |

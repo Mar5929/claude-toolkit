@@ -197,10 +197,11 @@ start from.
    what is worth keeping and where it belongs.
 2. **The save decision.** `remember` follows the installed manual and waits when
    your approval is required. Full file text appears only when you ask for it.
-3. **The draft.** A prompt for a fresh session, opening with the goal of the
-   work, then the task, what to read first, the decisions nobody has written
-   down yet, the open questions, and one concrete first action. You do not see
-   it yet.
+3. **The draft.** A prompt for a fresh session. Its first line is a fixed
+   notice that the prompt is AI-generated and may contain mistakes. Then the
+   goal of the work, the task, what to read first, the decisions nobody has
+   written down yet, the open questions, and one concrete first action. You do
+   not see it yet.
 4. **The check.** A helper agent that has not seen the conversation reads the
    draft against the repository and reports what is wrong, what it cannot
    confirm, and whether the goal is there at all.

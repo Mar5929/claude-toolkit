@@ -524,7 +524,8 @@ in their own plugins.
   the new chat with everything else carried inside it. Say why it matters: the
   longest sessions produce the most understanding and lose the most, and nothing
   can catch `/clear` after the fact. Say what happens to the prompt itself: it
-  opens with the goal of the work and why it matters, and a second agent that
+  starts with a fixed notice that it is AI-generated, then the goal of the work
+  and why it matters, and a second agent that
   never saw the conversation checks it against the repository before the owner
   sees it, so facts do not get less accurate each time work is handed on.
   Anything that cannot be confirmed is labelled inside the prompt rather than
