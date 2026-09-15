@@ -11,7 +11,8 @@ put back.
 
 This runs when the owner asks for it. It never fires on its own during an
 ordinary reply. How Claude writes new text is the job of the project's output
-style; this is the other direction, cleaning up text that is already written.
+style and the `plain-english-artifacts.md` rule; this is the other direction,
+cleaning up text that is already written.
 
 ## What it works on
 

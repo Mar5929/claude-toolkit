@@ -18,6 +18,7 @@ every session to read `.claude/rules/`. See `thin-claudemd.md` in the
 | --- | --- |
 | `parallel-agent-sessions.md` | Sharing a repository with other live sessions. Look before you edit, work in your own worktree on your own branch, never stage everything, keep shared-file edits additive, claim a sequential number before using it, and land by pull request with the owner's approval after a merge-safety check. |
 | `offer-context-handoff.md` | When context is heavy and the next step is reasoning-heavy, offer a self-contained handoff prompt for a fresh session. Run the installed `remember` review before writing that prompt, and carry anything the owner does not save inside the prompt itself. This is the moment that destroys the most context, and nothing can catch a clear after it happens. The `handoff` plugin's `/handoff` command does it in order; this rule is the backup when the owner asks in their own words. |
+| `plain-english-artifacts.md` | Every artifact an agent makes for a person to read (a document, a diagram, a chart, a slide, a prompt, an issue body) is written in plain, explicit technical English that a junior intern understands on the first read: no jargon, no preamble, no commentary, not a story, and none of the patterns that read as machine-written. It covers the words inside the artifact, whoever writes them, which the output style cannot do: the style reaches the main chat only. |
 | `work-item-folders.md` | Local tracker folder ownership, grouping, archive, and file protection. The work skill owns commands and the lifecycle rule owns process. Applies only when the project chose local tracking. |
 | `work-item-stages.md` | Unscoped lifecycle guidance: read the active item before work, capture meaningful progress faithfully, use flexible stages and type-aware approval, leave a precise handoff, and record accepted completion. Local CLI checks objective facts; GitHub uses its native issue state. |
 | `ai-external-knowledge.md` | Outside documentation captured for agents to read (vendor docs, API references, framework guides) goes in `ai-external-knowledge/` at the project root, one folder per topic, each naming its source URL and capture date. It stays raw source material: the project's own conclusions live in the project's knowledge or documentation and link back to it, the project's truth wins any disagreement, and a captured document is never edited to agree with the project. Also says the folder is findable but not read, so agents reach it only when a rule, a skill, or persistent knowledge points at a topic. |
@@ -74,11 +75,20 @@ styles are host options, not toolkit defaults.
 Do not add a voice rule to this folder. This folder is for how Claude *works*,
 not how it *talks*.
 
+One rule here is about writing and belongs anyway: `plain-english-artifacts.md`.
+It is not about how Claude talks in chat. It is about the words inside the
+things Claude makes, and it is a rule because a rule reaches a helper agent, a
+Codex session, and a file, and the output style reaches none of them. The owner
+asked for it on 2026-09-15.
+
 An output style reaches the main conversation only, so a helper agent writing a
 commit message or a document never sees it. This folder used to carry
 `follow-the-output-style.md`, a sign that sent that agent to the active style
 file. The owner removed it on 2026-09-02. So a helper-agent definition that
-writes owner-facing prose has to carry the writing rules in its own text.
+writes owner-facing prose has to carry the writing rules in its own text. Since
+`plain-english-artifacts.md` shipped, that rule reaches a custom helper agent as
+well, because every custom agent loads `.claude/rules/`. The built-in Explore and
+Plan agents do not.
 
 ## Rules removed on 2026-08-31, and why
 
