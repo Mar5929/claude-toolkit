@@ -10,6 +10,22 @@ Keep the interview in the main conversation. First read
 adaptable methods, and specialist help; do not repeat orientation already
 completed in this session.
 
+## Understand the intended outcome
+
+- Aim at the outcome the owner actually wants, not only the words they used.
+  Read a tentative or rough answer in the context of that requirement's purpose
+  and the rest of the system, and ask focused follow-up questions until the real
+  intent is clear. Continue clarifying while material uncertainty remains.
+- Say so when a clear answer or a proposed direction would undermine the owner's
+  own goal, conflict with a stated constraint, cause a problem elsewhere, or
+  when a materially better approach exists. Name the concern, the tradeoff, and
+  the direction you recommend, then let the owner choose.
+- When the meaning is uncertain, clarify it before writing a requirement. Never quietly
+  replace what they said with what you inferred, and never override a decision
+  the owner made with the concern in front of them.
+- Keep this light. Do not read answers back for approval each time, challenge
+  every answer, or start designing the solution while intent is still open.
+
 ## Understand before designing
 
 - Read the existing requirements and relevant project evidence before asking
@@ -65,8 +81,9 @@ potential paths to explore, not requirements or an approved design."
   history through the chosen tracker, without retaining contradictory current
   requirements. A PRD or lasting-knowledge edit still follows its project's
   save policy, taking existing approval into account.
-- If an answer is ambiguous enough to change behavior, ask one clarifying
-  question. If the owner does not know, leave it open; offer a supported
+- If an answer is ambiguous enough to change behavior, ask a clarifying
+  question, and as many focused follow-ups as that ambiguity needs, one at a
+  time. If the owner does not know, leave it open; offer a supported
   recommendation or a focused investigation when useful, and continue with
   independent questions. Never treat silence or uncertainty as agreement.
 - For a simple correction, acknowledge the change in a sentence or two and
