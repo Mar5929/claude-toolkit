@@ -544,7 +544,42 @@ Access review.
 - Added 2026-09-13: Review the project README screenshots after the release. No work item has been created.</code></pre>
             </details>
           </div>
-          <div class="branch"><strong>Pending inbox:</strong> stable reference, destination and operation, exact card when one was shown, source and date, last update, state, next step or blocker, and separate authority details. For automatic PRD upkeep, preserve the specific update owed and links to its authority and delivery evidence; do not invent a card. Pending content stays outside the memory and PRD indexes.</div>
+          <div class="branch"><strong>Pending inbox:</strong> stable reference, destination and operation, exact card when one was shown, the harness it was shown in (Claude Code or Codex) and that conversation’s ID so it can be found again, source and date, last update, state, next step or blocker, and separate authority details. For automatic PRD upkeep, preserve the specific update owed and links to its authority and delivery evidence; do not invent a card. Pending content stays outside the memory and PRD indexes.
+            <details>
+              <summary>Fictional inbox example · One unanswered card and one approved unfinished save</summary>
+              <div class="detail">All entries, IDs, and dates below are illustrative. The first entry waits for an answer; the second holds standing authority with no card and a failed push. Neither is project truth.</div>
+              <pre class="detail" style="white-space:pre-wrap"><code># Pending memory inbox
+
+Proposals waiting for the owner's answer, and approved saves that are not finished. Nothing here is project truth. Not indexed.
+
+## sign-in-provider-2026-09-13
+
+- Destination and operation: Memory, add to knowledge/memory/memory-entries/account-access.md
+- State: awaiting approval
+- Shown to the owner: 2026-09-13, access review session
+- Harness and conversation: Claude Code, session 0f3c2a9e-6b1d-4c7e-9a2f-5d8e1b7c4a30
+- Source: release-planning conversation with the owner, 2026-09-13
+- Last updated: 2026-09-13
+- Next step: show the card again when the owner reviews pending items, or when the provider choice comes up
+- Card as shown:
+
+  ### 1. Sign-in provider
+  **Change:** Add a decision to the account-access memory.
+  **New wording:**
+  &gt; Keep the current sign-in provider for the next release. Changing providers would add migration and testing work and delay the release. Review the choice after release.
+  **Your decision:** May I add this decision?
+
+## account-access-prd-upkeep-2026-09-14
+
+- Destination and operation: PRD, update requirement 2 in knowledge/prds/account-access/account-access.md to match the shipped invite-removal behavior
+- State: approved, save unfinished
+- Authority: standing authority for PRD upkeep after shipped work. Scope agreed in work item 42. Delivery evidence: pull request 57, merged 2026-09-14
+- Card: none. Automatic upkeep shows no card
+- Harness and conversation: Codex, thread 019a7b3d-2e4f-7c5a-8d6b-1f0e9c8a7b65
+- Last updated: 2026-09-14
+- Next step: the local edit is done; the push to the default branch failed. Retry the push, verify, then remove this entry</code></pre>
+            </details>
+          </div>
           <div class="branch"><strong>Memory-selection feedback:</strong> preserve useful owner feedback and stated reasons across sessions. Do not invent reasons. Its record format is a design choice.</div>
           <div class="branch"><strong>Size checks in the proposed system:</strong> each index source's summary is under 200 characters; the shared-context file is under 5,000 characters. A failed limit never permits silently cutting approved meaning.</div>
           <div class="branch"><strong>System Guide, skills, instructions, tracker, and other destinations:</strong> open their own current template and field rules. The knowledge manual points to those rules; a memory template is not applied to every file.</div>
