@@ -417,7 +417,73 @@ Review the provider choice after the release.
 - Release work: &lt;link to the existing work item&gt;</code></pre>
             </details>
           </div>
-          <div class="branch"><strong>PRD:</strong> required fields are <code>summary</code>, <code>group</code>, <code>area</code>, <code>status</code>, <code>source</code>, <code>created_at</code>, <code>updated_at</code>, and <code>tags</code>. No memory <code>type</code> or <code>confidence</code>. Status: proposed, finalized, superseded, retired. An unapproved proposed draft omits <code>approved_by</code> and <code>approval_date</code>; requirements approval requires both. Other statuses require both. Saving a draft alone does not establish requirements approval.</div>
+          <div class="branch"><strong>PRD:</strong> required fields are <code>summary</code>, <code>group</code>, <code>area</code>, <code>status</code>, <code>source</code>, <code>created_at</code>, <code>updated_at</code>, and <code>tags</code>. No memory <code>type</code> or <code>confidence</code>. Status: proposed, finalized, superseded, retired. An unapproved proposed draft omits <code>approved_by</code> and <code>approval_date</code>; requirements approval requires both. Other statuses require both. Saving a draft alone does not establish requirements approval.
+            <div class="detail"><strong>Body:</strong> in this order: title; table of contents; <strong>Why this exists</strong> (the problem, why the project is doing this, and what is being built at a high level); <strong>What this document holds</strong> (a short fixed note: only the what, meaning system behavior, end-user experience, and what information is stored; no build plan; every requirement explicit, unambiguous, plain language, testable by a stranger); <strong>Requirements</strong> grouped under one heading per requirement area, with one numbered subheading per requirement, each ending in a <strong>Check</strong> paragraph; and, optionally last, <strong>Potential solution design notes</strong>, which bind nothing.</div>
+            <details>
+              <summary>Fictional PRD example · Fields, contents, fixed note, grouped requirements, and checks</summary>
+              <div class="detail">The product, requirements, and dates below are illustrative. It is an unapproved proposed draft, so it carries no <code>approved_by</code> or <code>approval_date</code>. This example does not save a project requirement.</div>
+              <pre class="detail" style="white-space:pre-wrap"><code>---
+summary: Who can view and edit a customer account, including people invited after it was created.
+group: Account access
+area: account-access
+status: proposed
+source: Owner requirements interview during release planning, 2026-09-13
+created_at: 2026-09-13
+updated_at: 2026-09-13
+tags:
+  - account-access
+  - release-planning
+work_item: "42"
+---
+
+# Account access
+
+## Contents
+
+- [Why this exists](#why-this-exists)
+- [What this document holds](#what-this-document-holds)
+- [Viewing an account](#viewing-an-account)
+  - [1. Invited people can open the account](#1-invited-people-can-open-the-account)
+- [Changing who has access](#changing-who-has-access)
+  - [2. Only the account owner changes access](#2-only-the-account-owner-changes-access)
+  - [3. Removed people lose access at once](#3-removed-people-lose-access-at-once)
+- [Potential solution design notes](#potential-solution-design-notes)
+
+## Why this exists
+
+Support staff cannot tell who is allowed to edit a customer account after the owner invites other people. Two customers lost changes last quarter because an invited person and the owner edited the same account at the same time, and nobody could say who was allowed to. The next release needs one clear access policy: who can see an account, who can change it, and who can change the list of people with access.
+
+## What this document holds
+
+This document holds only the what: what the system does, what the end user experiences, and what information is stored. Functional, process, logic, user-interface, and data requirements belong here. How it is built does not. Every requirement is explicit, unambiguous, and written in plain language, so a complete stranger could build it and test it.
+
+## Viewing an account
+
+### 1. Invited people can open the account
+
+A person invited to an account sees it in their account list and can open it. They see the same account details the owner sees. They do not see the invite screen.
+
+**Check:** invite a person to an account. They open it from their list and see its details. The invite screen is not shown to them.
+
+## Changing who has access
+
+### 2. Only the account owner changes access
+
+Only the person who created the account can invite people or remove them.
+
+**Check:** an invited person tries to remove another invited person. The system refuses and shows the message "Only the account owner can change access."
+
+### 3. Removed people lose access at once
+
+When the owner removes a person, that person can no longer open the account, even if they have it open at that moment.
+
+**Check:** a removed person has the account open. Their next action on it is refused, and they are sent back to their account list.
+
+## Potential solution design notes
+
+- The owner asked to check whether the existing team-permission table can hold account access, rather than adding a new table.</code></pre>
+            </details>
+          </div>
           <div class="branch"><strong>Glossary:</strong> title, one purpose sentence, and an alphabetical Markdown table. Columns: Term / aliases, Plain meaning, Refers to, Watch out, Source / date. Memory YAML fields do not apply.</div>
           <div class="branch"><strong>Shared context:</strong> start with the overall project goal and next milestone, then use a descriptive section for each active work item. Include its goal, where work stands with enough background to continue, next step, blocker or None, to-dos, a link to the detailed record, and owning session when known. Date the item context and to-do entries where needed; include due dates only when provided and useful unverified findings only when clearly labelled. Do not invent missing facts or dates.
             <div class="detail">Keep item-specific to-dos under the relevant item and other requested later work under <strong>General project to-dos</strong>. An empty list may say None. These are temporary project context and need no lasting-memory proposal; adding a to-do does not create a work item. Link to already-tracked tasks and keep their detailed plans and status in the tracker. Rewrite the overview as work changes, preserving other sessions’ work.</div>
