@@ -4,19 +4,19 @@ Short-term working state, not lasting knowledge. Updated 2026-09-15.
 
 ## Objective
 
-Get the knowledge system finalized, approved by Mike, and shipped. The full roadmap, with what is done and what is left, is section "Roadmap to shipped" in the body of [issue #269](https://github.com/Mar5929/claude-toolkit/issues/269). Read it first. Do not copy it here.
+Finalize the knowledge-system PRD with Mike under [issue #269](https://github.com/Mar5929/claude-toolkit/issues/269). The PRD owns the product requirements; the issue links to it and tracks refinement and approval. The issue also preserves the later delivery roadmap as planning context.
 
 ## Work item
 
-Issue #269, stage `02-refinement`. `knowledge/prds/knowledge-system.md` has 30 requirements and has had its wording pass. Mike requested another ambiguity review against the approved walkthrough before full PRD approval. It stays proposed until Mike approves the requirements as ready for design or building.
+Issue #269, stage `02-refinement`. The 30-requirement PRD remains proposed. Full requirements approval is pending. Its wording pass is complete; the approved walkthrough now resolves the wording-edit, operating-instruction, and temporary-memory findings.
 
 ## Next step
 
-Review the remaining ambiguities against the approved walkthrough with Mike, one issue at a time. Reconcile agreed answers across both. The live issue holds the findings and roadmap. Finalized means ready for design or building; this PRD may keep its layout for now.
+Review the three questions the walkthrough leaves open: save timing, removing originals after consolidation, and glossary indexing. The issue holds the review record. Where the PRD conflicts with the approved walkthrough, update the PRD to match; later owner clarifications win. Reconcile agreed answers across both.
 
-Section C remains pending. On full requirements approval: set `finalized` and both approval fields, move the issue to `03-requirements-approved`, tick C, and start design in D. Delivery remains separate.
+On full requirements approval, set `finalized` and both approval fields and record acceptance of this issue's PRD-finalization outcome. Finalized means ready for design or building. Delivery remains separate. This PRD may keep its layout for now; new PRDs follow the new layout.
 
-How to run the review: one part at a time, one question at a time. Check the PRD and earlier answers before asking. Explain an edit's purpose, placement, and conflicts before changing the PRD. Park unrelated issues. After each decision, tick the roadmap on the issue and append one line to its Progress log.
+Review one question at a time. Check earlier answers before asking. Explain an edit's purpose, placement, and conflicts first. Record decisions in the issue and its Progress log; keep product requirements in the PRD.
 
 ## Publication
 

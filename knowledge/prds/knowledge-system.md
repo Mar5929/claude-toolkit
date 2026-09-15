@@ -134,10 +134,10 @@ is wrong.
 - Mike authorized ongoing refinement of this PRD and approved the drafting-permission rule in requirement 10 on 2026-09-10. That permission covers faithful capture of his answers and corrections; it does not approve every requirement, a solution design, or implementation.
 - Requirement 3 says what reliable behavior has to produce, and what evidence proves it. The solution design chooses how the harness's documented features deliver those outcomes, and it names any limits.
 - "A session, start to finish" follows one session through every requirement, so the numbered list is easier to follow.
-- This PRD must stay consistent with the [approved walkthrough](knowledge-system-walkthrough.html). Reconcile later owner clarifications across both.
+- This PRD must stay consistent with the [approved walkthrough](knowledge-system-walkthrough.html). When they conflict, update this PRD to match the approved walkthrough. A later clear owner clarification takes precedence and is reconciled across both. Do not infer an answer to a question the walkthrough leaves open.
 - On 2026-09-12, Mike authorized importing the agreed direction from the linked ChatGPT conversation and decision report, interviewing him, and saving clear answers directly to this PRD on `main`. This continues drafting permission; it does not approve the complete requirements or authorize implementation.
 - The closing section records the preferred way of solving this and the rough shape of the design, with examples and open design questions. A preferred direction is not a proven feature of the platform, and it is not a finished solution design.
-- Where this document and `knowledge/README.md` disagree, this document wins. Each disagreement is named in the place it happens, and `knowledge/README.md` is then changed to match this document.
+- For current operations, follow `knowledge/README.md` and the applicable instructions for the destination, as the walkthrough requires. This proposed PRD describes intended behavior; reading it does not replace the operating instructions. Name disagreements and update those instructions through authorized work against the approved requirements.
 
 ## Project folder layout
 
@@ -358,7 +358,7 @@ flowchart TD
     F --> G{Owner response}
     G -- Approve --> R[Record the decision and its exact scope]
     R --> P
-    G -- Edit --> H[Use the owner's exact edited wording; clarify approval or scope if unclear]
+    G -- Edit --> H[Use the corrected meaning; preserve explicitly requested verbatim wording; clarify approval or scope if unclear]
     H -- Approval is clear --> R
     H -- Still awaiting approval --> U[Retain the current proposal as pending under its destination rules]
     G -- No answer --> U
@@ -701,7 +701,7 @@ follows requirement 3; it never claims that no save is waiting.
 - The same limit on permission applies to changing what a lasting file means, and to merging, superseding, retiring, or deleting lasting knowledge. When an operation falls outside the permission the agent already has, it proposes the operation. When the operation is already allowed, the agent carries it out and runs its checks, without making the owner handle the files.
 - Silence is not approval. An unclear answer is not approval. Asking to see the full text is not approval.
 - The owner may change the wording, the place, the tags, or drop the whole thing.
-- When the owner edits the words, those words are written exactly as typed. The agent does not tidy them, shorten them, or improve them.
+- When the owner corrects the summary and approves it, use the corrected understanding as the approved scope. Preserve words exactly as typed when the owner explicitly asks to save that wording verbatim. An ordinary correction does not require copying the owner's words into the saved entry. If approval or scope is unclear, retain the revised proposal and clarify before writing.
 - The agent writes an accurate account of the summary the owner approved. It may add supporting context from the conversation and from the sources it used. It must not add facts nothing supports, decisions the owner was not told about, or anything outside the approved scope.
 - Settle any question that would change the save before showing a save card, as requirement 20 requires. Approval covers the operation, the meaning, and the scope the card states, or the content the card names. It does not approve an assumption that is still open, and it does not approve an unrelated piece of follow-up work.
 - Five things can be done without asking the owner: rebuilding an index, repairing a broken link within requirement 1’s limits, writing `knowledge/memory/current.md`, keeping this project's own feedback about what is worth saving up to date under requirement 23, and keeping the pending inbox up to date under requirement 28. None of these changes what a lasting file means. Requirement 4 says how the current file is updated. Holding a proposal in the inbox is permission to keep it, not permission to accept what it says.
@@ -710,6 +710,11 @@ follows requirement 3; it never claims that no save is waiting.
 **Check:** show a proposal and say nothing back. The exact proposal is retained
 in the pending inbox, marked awaiting approval. Its destination is unchanged,
 and a later session never treats the pending text as an approved fact.
+
+**Check:** correct a summary and approve the corrected meaning. The saved entry
+faithfully records that meaning in the project's writing style. Repeat with an
+explicit instruction to save supplied wording verbatim: those words stay
+unchanged. Edit a proposal without clear approval: it remains pending.
 
 **Check:** authorize refinement of a named PRD, then give a clear correction.
 The correction is saved in that reply without a new approval question. Start
@@ -745,11 +750,15 @@ of work that produced a result the project will look up again later.
 **Check:** finish a piece of work with a real result. The card appears in the
 same reply, and nobody asked for it.
 
-**Check:** give the agent two candidates. The owner says "the client moved the
-demo to Thursday". That passes all three points and a card is proposed. The
-agent, working alone, updated a Python package so a browser would open. That
-fails point 2, so the exception never reaches it, and no card is ever proposed
-for it.
+**Check:** give the agent three candidates. The owner says "the client moved
+the demo to Thursday" with no lasting decision or lesson attached. Record the
+temporary schedule change in working context or its existing tracker under
+requirements 12 and 13; do not propose lasting memory just because the owner
+said it. The owner decides to keep the current sign-in provider for the release
+because switching would delay launch, as in the walkthrough: propose the
+supported decision and its reason when they pass all three points. The agent,
+working alone, updated a Python package so a browser would open. That routine
+step fails point 2, so no memory card is proposed for it.
 
 ## 12. What never counts
 
