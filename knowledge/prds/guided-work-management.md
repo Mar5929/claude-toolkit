@@ -63,11 +63,21 @@ this service.
 Simple questions and quick edits stay lightweight: they do not prompt an offer
 of guided management solely because the owner made a request.
 
+If the owner declines, the agent continues helping normally and does not repeat
+the offer for that goal unless the work grows substantially or the owner asks
+for help managing it. Continuing the same goal in another session does not by
+itself justify asking again. A later explicit request for management authorizes
+that help without another opt-in question.
+
 **Check:** discuss a new feature that needs several steps and will continue in
 later sessions, without having accepted guided management. The agent offers
 the service and waits for the choice before taking over its organization. On
 acceptance, it begins managing the work. Repeat with a simple factual question
 and a quick wording edit: it handles each without a guided-management offer.
+Decline the offer for a larger goal, then continue that goal in this and another
+session: normal assistance continues without another offer. Substantially expand
+the work: the agent may offer again. Explicitly request management later: the
+agent begins providing it without asking for the same permission again.
 
 #### 2. Maintain the accepted plan without repeated upkeep approvals
 
