@@ -69,10 +69,13 @@ Figurative and metaphorical language is not allowed. That covers idioms, sayings
 
 Picture words for real things are the same fault in technical writing. The picture replaces the name, so the reader has to translate, and a reader who does not know the system cannot. Name the thing.
 
+Where this was first caught: a diagram of who can see and edit which records in Salesforce. Its headings said "it flows up" for "a manager gets access to the records their team owns", and "why it leaks" for "why people get access they should not have". Nobody outside that design could translate either one. The rows below are the same fault in everyday technical writing.
+
 | Do not say | Say |
 | --- | --- |
-| It flows up | A role above inherits read and edit on what the roles below own |
-| No off switch | This setting cannot be turned off |
-| The only lever | The only setting you can change |
-| Why it leaks | Why users get access they should not have |
-| The shape of the tree | The structure of the role hierarchy |
+| Access flows up to the manager | A manager can see and edit the records their team owns |
+| There is no off switch | This setting cannot be turned off |
+| The cache size is the only lever | The cache size is the only setting you can change |
+| The old process leaks records | The old process shows people records they should not see |
+| The shape of the approval chain | The order of the approval steps |
+| The report surfaces the errors | The report lists the errors |

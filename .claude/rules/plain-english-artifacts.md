@@ -31,6 +31,10 @@ produced it.
 A heading is a label, not a hook. It says what the reader is about to look
 at, in the words of the subject.
 
+The four headings below came from a page of options for who can see and edit
+which records in Salesforce. The left column sells the section; the right
+column names it.
+
 | Written | Say instead |
 |---|---|
 | Three ways to build the role tree, pick one | Role hierarchy options |
@@ -44,12 +48,13 @@ the reader can count.
 
 ## Use the real name
 
-Call a thing what the system calls it, every time: role hierarchy, record
-visibility, sharing rule, View All, permission set. A picture word in place of
-the real term ("shape" for the hierarchy, "lever" for a setting, "leaks" for
-inherited access, "flows up" for inheritance) is figurative language, and it is
-not allowed. It makes the reader translate, and a reader who does not know the
-system cannot.
+Call a thing what the system calls it, every time. In that same Salesforce
+design the real names were role hierarchy, record visibility, sharing rule,
+View All, and permission set. The page used picture words instead: "shape"
+for the hierarchy, "lever" for a setting, "leaks" for access people should not
+have, "flows up" for a manager getting access to their team's records. That is
+figurative language, and it is not allowed. It makes the reader translate, and
+a reader who does not know the system cannot.
 
 A term the reader may not know gets a plain definition the first time it
 appears. After that, the term is used unchanged.
