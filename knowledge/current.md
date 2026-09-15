@@ -8,11 +8,13 @@ Get the knowledge system finalized, approved by Mike, and shipped. The full road
 
 ## Work item
 
-Issue #269, stage `02-refinement`. `knowledge/prds/knowledge-system.md` has 30 requirements, is reconciled with the approved walkthrough, and has had its wording pass. It stays proposed until Mike approves it.
+Issue #269, stage `02-refinement`. `knowledge/prds/knowledge-system.md` has 30 requirements and has had its wording pass. Mike requested another ambiguity review against the approved walkthrough before full PRD approval. It stays proposed until Mike approves the requirements as ready for design or building.
 
 ## Next step
 
-Roadmap section C: Mike approves the PRD. Section B finished on 2026-09-15. Ask Mike for a yes on `knowledge/prds/knowledge-system.md` as it now stands. On a yes: add `approved_by` and `approval_date` to its front matter, move the issue label to `03-requirements-approved`, tick section C, and start section D, the solution design on the issue, one section per requirement.
+Review the remaining ambiguities against the approved walkthrough with Mike, one issue at a time. Reconcile agreed answers across both. The live issue holds the findings and roadmap. Finalized means ready for design or building; this PRD may keep its layout for now.
+
+Section C remains pending. On full requirements approval: set `finalized` and both approval fields, move the issue to `03-requirements-approved`, tick C, and start design in D. Delivery remains separate.
 
 How to run the review: one part at a time, one question at a time. Check the PRD and earlier answers before asking. Explain an edit's purpose, placement, and conflicts before changing the PRD. Park unrelated issues. After each decision, tick the roadmap on the issue and append one line to its Progress log.
 

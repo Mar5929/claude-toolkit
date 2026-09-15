@@ -134,6 +134,7 @@ is wrong.
 - Mike authorized ongoing refinement of this PRD and approved the drafting-permission rule in requirement 10 on 2026-09-10. That permission covers faithful capture of his answers and corrections; it does not approve every requirement, a solution design, or implementation.
 - Requirement 3 says what reliable behavior has to produce, and what evidence proves it. The solution design chooses how the harness's documented features deliver those outcomes, and it names any limits.
 - "A session, start to finish" follows one session through every requirement, so the numbered list is easier to follow.
+- This PRD must stay consistent with the [approved walkthrough](knowledge-system-walkthrough.html). Reconcile later owner clarifications across both.
 - On 2026-09-12, Mike authorized importing the agreed direction from the linked ChatGPT conversation and decision report, interviewing him, and saving clear answers directly to this PRD on `main`. This continues drafting permission; it does not approve the complete requirements or authorize implementation.
 - The closing section records the preferred way of solving this and the rough shape of the design, with examples and open design questions. A preferred direction is not a proven feature of the platform, and it is not a finished solution design.
 - Where this document and `knowledge/README.md` disagree, this document wins. Each disagreement is named in the place it happens, and `knowledge/README.md` is then changed to match this document.
@@ -1098,7 +1099,7 @@ one file, with a parent PRD and child PRDs inside it.
 - A feature area may be a folder: `knowledge/prds/<area>/<area>.md` is the parent PRD, and every other file in that folder is a child PRD. A child covers one sub-part of the area with its own numbered requirements, its own status, and the same fields as any PRD. The parent holds the goal, the requirements that span the whole area, and a contents list naming each child. Example: `knowledge/prds/knowledge-system/knowledge-system.md` is the parent, and `knowledge/prds/knowledge-system/indexes-and-checker.md` is a child holding the requirements for the two indexes and the checker.
 - A small feature area stays one file at the top of `knowledge/prds/`. Nothing forces a folder.
 - A child never repeats a requirement the parent already states. It refers to the parent by requirement number. When the two disagree, the parent wins and the disagreement is said out loud.
-- It opens as `proposed`, which is what we want built. It is changed to `finalized` once the work that delivers its requirements is confirmed finished in the tracker, and the document describes the delivered behavior accurately. A small PRD follows the same rule. Build progress, delivery dates, and completion evidence stay in the tracker; the PRD does not maintain a second progress record.
+- It opens as `proposed` while its requirements are being refined. It becomes `finalized` when the owner approves the requirements as ready for solution design or building. Finalized requirements do not mean the work has been built or delivered; the work's authorization and delivery process still apply. A small PRD follows the same rule. Build progress, delivery dates, and completion evidence stay in the tracker; the PRD does not maintain a second progress record. The owner clarified this meaning on 2026-09-15.
 - When answering how something works today, the agent uses current evidence. It does not treat a proposed requirement as proof that the behavior exists. A document's status alone, including `finalized`, does not establish what is true now. Requirement 19 governs source checks.
 - When a memory and a PRD disagree, the agent names both sources and keeps two things apart: what the system is required to do, and what the evidence shows it actually does. A finalized PRD stays the reference for required behavior. A proposal does not replace a checked fact just by describing a change somebody wants.
 - When a project also has a System Guide at `knowledge/system-guide/`, the order is: a finalized PRD wins on what the system should do, the System Guide wins on how the system is put together, and the live system wins on what exists right now. Memory never beats any of those three. The agent reports the disagreement instead of quietly picking. The System Guide is not part of the second brain; it is its own plugin with its own PRD.
@@ -1110,7 +1111,7 @@ one file, with a parent PRD and child PRDs inside it.
 
 **The shape of a PRD**
 
-Every PRD has these parts, in this order. The owner set this shape on 2026-09-15.
+New PRDs follow these parts, in this order. The owner set this shape on 2026-09-15 and confirmed that existing PRDs, including this one, may keep their current layout for now.
 
 1. The YAML fields listed below.
 2. A title.
@@ -1124,7 +1125,7 @@ Visuals are welcome anywhere in a PRD: a flowchart, a diagram, a table, or a scr
 
 When one part of the system needs much more detail than the main PRD should carry, that part gets its own sub-PRD. The main PRD names the sub-PRD by its relative path where the detail would otherwise go, and the sub-PRD follows this same shape. The folder rule above says where a sub-PRD lives: the main PRD becomes `knowledge/prds/<area>/<area>.md` and each sub-PRD sits beside it in that folder.
 
-**Check:** open any PRD. A reader who has never seen the project finds the
+**Check:** open a newly written PRD. A reader who has never seen the project finds the
 problem, the high-level goal, the fixed note, the requirements grouped by area
 under one `Requirements` heading, with a numbered heading and a Check paragraph each, and no build plan. Hand one
 requirement to someone who was not in the conversation: they can say what to
@@ -1134,7 +1135,7 @@ build and how to prove it works.
 
 - When authorized work by the owner and the agent ships a change to behavior or requirements, the agent already has permission to update every PRD that change affects. That includes the operating system's overall PRD when the change affects the experience as a whole. The owner does not have to ask for, or approve, each of those document updates separately.
 - Write down the decisions and the behavior that were actually delivered, staying inside what the work was authorized to do. Use the agreed scope and verified evidence that the work was delivered. Do not invent requirements, and never turn an unexpected defect in what was built into an approved requirement. Report any difference between the intended behavior and the delivered behavior that has not been settled.
-- Read the latest PRDs, keep the changes other sessions made, update the affected requirements where those requirements actually live, and keep the links and the file fields correct. Apply the existing rules about approval fields and about finalizing: shipping part of a large PRD does not finalize the whole document. Keep build progress and delivery evidence in the existing tracker, with links where needed.
+- Read the latest PRDs, keep the changes other sessions made, update the affected requirements where those requirements actually live, and keep the links and the file fields correct. Apply the existing rules about approval fields and finalizing requirements: shipping work does not itself finalize a PRD. Keep build progress and delivery evidence in the existing tracker, with links where needed.
 - Check the updates, rebuild the indexes they affect, and make a quick commit and push to the default branch through the existing knowledge-save process. Upkeep that only records what actually shipped needs no save card, no separate review of the wording, and no further approval. An explicit hold on writing or publishing still applies.
 - Routine successful upkeep stays quiet. The owner need not see the document edits or a separate save confirmation. Report a conflict, missing authority, failed check, or failed publication that needs attention; an explicit request for an update or status receives a clear answer. An interrupted update remains recoverable under requirement 28 without requesting the same authority again.
 
@@ -1179,8 +1180,13 @@ an empty pair, or an invalid date; validation fails. Existing approved PRDs
 and memories still pass with complete valid approval records.
 
 A PRD's `status` is `proposed`, `finalized`, `superseded`, or `retired`. A PRD
-never uses the word `current`. The word for a built PRD is `finalized`. `area`
+never uses the word `current`. `finalized` means its requirements are approved and ready for solution design or building, not that the work is delivered. `area`
 names the feature area and normally matches the filename.
+
+**Check:** approve a PRD's requirements as ready for solution design before any
+implementation exists. Its status becomes `finalized` and its approval fields
+record that approval. The tracker still shows the undelivered work. A draft
+whose requirements are not yet approved as ready remains `proposed`.
 
 Optional fields: `confirmed_at`, `source_quote`, `effective_from`,
 `effective_to`, `project`, `work_item`, `supersedes`, `superseded_by`,
