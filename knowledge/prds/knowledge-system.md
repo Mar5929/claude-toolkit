@@ -136,6 +136,7 @@ is wrong.
 
 ```text
 project/
+├── SOUL.md
 ├── brainstorms/
 ├── ai-external-knowledge/
 │   ├── README.md
@@ -144,6 +145,7 @@ project/
 └── knowledge/
     ├── README.md
     ├── project.md
+    ├── memory-inbox.md
     ├── memory/
     │   ├── memory-index.md
     │   ├── memory-entries/
@@ -154,6 +156,7 @@ project/
     │   │       └── subtopic-two.md
     │   └── current.md
     ├── prds/
+    │   └── prd-index.md
     ├── .obsidian/
     └── system-guide/
         ├── system-guide-index.md
@@ -169,19 +172,24 @@ optional component; this layout names its home when enabled. Its index points
 to pages in `system-guide-entries/`. Brainstorms live in `brainstorms/` at the
 project root, outside `knowledge/`.
 
+`SOUL.md` sits at the project root. It says what the agent is responsible for
+in this project, and it is the first of the required startup reads in
+requirement 2.
+
 The PRD index and parent-and-child PRDs remain under `knowledge/prds/` as
 requirements 16 and 21 describe. The pending inbox remains at
-`knowledge/memory-inbox.md` under requirement 28; the supplied layout did not
-specify a different home for it.
+`knowledge/memory-inbox.md` under requirement 28.
 
 When adopting this layout, preserve existing content and working links.
 Instructions and indexes must lead to the current locations.
 
 **Check:** compare the project folders with this layout. Each memory topic has
 one file or one topic folder in `memory-entries/`; the glossary is also there.
-Current work and memory lessons are beside that folder. An enabled System Guide
-has its own index and entries folder.
-Brainstorms are at the project root. Existing content remains reachable.
+Current work sits beside that folder. The owner's feedback about what is worth
+saving as memory has no fixed home in this layout; requirement 23 leaves that
+choice to the design. An enabled System Guide has its own index and entries
+folder. Brainstorms are at the project root. Existing content remains
+reachable.
 
 ## A session, start to finish
 
@@ -203,10 +211,14 @@ flowchart TD
     S[Optional: knowledge setup or repair under requirements 24 and 27] -. Verified equipped .-> A
     A[Owner opens or resumes the project] --> B[Native runtime: project instructions, rules, and skill discovery are available]
     B -. Claude Code rule timing .-> BR[.claude/rules/: general rules at startup; path-scoped rules when matching files are read]
-    B --> C[Knowledge system: read knowledge/README.md at new-session startup; recover missing guidance on resume]
-    C -- New session, manual read --> D[Owner sees one short manual-read confirmation]
+    B --> C[Knowledge system: at a new session read SOUL.md, then knowledge/project.md, then knowledge/README.md, in that order; recover missing guidance on resume]
+    C -- New session --> CC{All three startup reads completed?}
+    CC -- No, a read is incomplete --> CX[Complete the missing read; withhold the confirmation; pause dependent work]
+    CX -- Read completed --> CC
+    CC -- No, a required file is unavailable --> Y
+    CC -- Yes --> D[Owner sees one short manual-read confirmation]
     C -- Guidance unavailable --> Y
-    C -- Resume --> E[Read knowledge/project.md and knowledge/memory/current.md; check relevant knowledge/memory-inbox.md entries]
+    C -- Resume --> E[Read knowledge/memory/current.md; check relevant knowledge/memory-inbox.md entries]
     D --> E
     E --> F{Required context is available?}
     F -- No --> X[Repair clear mechanical faults or report the gap; pause only dependent work]
@@ -248,14 +260,26 @@ In Claude Code, [native rule handling](https://code.claude.com/docs/en/memory#pa
 
 Codex uses its supported instruction mechanisms under requirement 25.
 
-At a new session start, the agent reads `knowledge/README.md` and gives the
-single short confirmation in requirement 2. On resume or context loss, it
-recovers guidance that is missing or no longer current. It does not repeat the
-full manual on every message.
+At a new session start, the agent reads three files in this order: `SOUL.md`,
+what the agent is responsible for in this project; `knowledge/project.md`, what
+the project is, its resources, and where work is tracked; and
+`knowledge/README.md`, the knowledge manual. The instruction to make these reads
+reaches the agent before it makes them.
 
-The agent uses `knowledge/project.md` to locate project resources,
-`knowledge/memory/current.md` to understand shared work, and
-`knowledge/memory-inbox.md` to recover relevant pending proposals or unfinished
+Then the system checks that all three reads finished: the contents of each file
+reached the agent and were read. Listing file names, or sending a reminder, does
+not count as reading a file. If a read did not finish, tell the agent to finish
+it, hold back the confirmation, and pause the work that depends on that file. If
+one of the three files is unavailable, say which file is missing and pause only
+the work that depends on it; come back to that read when the file is available.
+Once all three reads are done, the agent gives the one short confirmation in
+requirement 2.
+
+On resume or context loss, the agent recovers guidance that is missing or no
+longer current. It does not repeat the full manual on every message.
+
+The agent then reads `knowledge/memory/current.md` to understand shared work and
+checks `knowledge/memory-inbox.md` for relevant pending proposals or unfinished
 saves. It opens the linked tracker record for actual work status and approvals.
 The owner receives a concise briefing: the account-access review is still open,
 the earlier constraint remains relevant, and the next step is to check the
@@ -396,6 +420,16 @@ An unanswered proposal remains pending. An approved unfinished save remains
 recoverable. Neither is presented as completed knowledge. The agent reports any
 sharing failure so the owner knows what another session cannot yet see.
 
+Work resumes in one of three ways. A new session makes the ordered startup reads
+and gives the one confirmation in requirement 2, then checks shared context and
+pending state. When the same session resumes, or its context has been condensed,
+the agent restores the knowledge map and any guidance or source content that is
+missing or has changed, reusing what is still current. It does not repeat the
+startup confirmation on an ordinary resumed turn. After an unexpected
+interruption, the agent recovers from the latest state that was actually saved
+and shared, checks that state against current records, and reports what is
+missing. It does not assume a final handoff review ran before the interruption.
+
 The next session checks the dated overview against its linked tracker and
 sources, recovers relevant pending work, and continues without making the owner
 repeat settled decisions. Requirements 3, 4, 9, 13, 19, and 28 govern this
@@ -425,10 +459,12 @@ a hook, a skill, a Markdown file, or Git.
 - In every session, the agent follows the knowledge system: when to save, what to save, how to save, where to save, what to check first, what to cite, and what never to write.
 - Reading a rule is not enough. The agent has to actually do what the rule says, every time. Example: requirement 9 requires a save review at the end of meaningful work. The test is whether the right proposals, authorized saves, and pending state result, not merely whether the agent read the rule.
 - It follows the system whether or not the owner mentions it. The owner never has to remind it.
-- At a new session start, the agent reads the canonical knowledge-system manual at `knowledge/README.md` and shows the owner one short confirmation, such as “I’ve read the knowledge manual.” Show it once after reading, without a checklist or repeated confirmations on normal turns. The manual explains the knowledge homes, what belongs and does not belong in each, selection and proposal rules, approval, and file conventions, with pointers to each component’s detailed guidance.
+- At a new session start, the agent reads three files in this order: `SOUL.md`, then `knowledge/project.md`, then the knowledge manual at `knowledge/README.md`. The instruction to make these reads must reach the agent before it makes them. The manual explains the knowledge homes, what belongs and does not belong in each, selection and proposal rules, approval, and file conventions, with pointers to each component’s detailed guidance.
+- A completion check follows the three reads. It confirms that the contents of each file reached the agent and were read. Listing file names or issuing a reminder does not complete a read. Only after that check does the agent show the owner one short confirmation, such as “I’ve read the knowledge manual.” Show it once, without a checklist or repeated confirmations on normal turns.
+- If a read is incomplete, direct the agent to finish it, hold back the confirmation, and pause work that depends on the unread file. If one of the three files is unavailable, say which file is missing and pause only work that depends on it. Come back to that read when the file is available.
 - If the manual or other required guidance is unavailable, the agent reports the missing source and pauses only work that depends on it. Unrelated authorized work may continue. It never confirms reading an unavailable manual.
 - A small map is available at startup and whenever context is condensed, cleared, or resumed. It points to the current operating instructions, information homes, indexes, and the checks that apply. Detailed rules, templates, and knowledge are reached when needed; the whole knowledge base and every procedure are not loaded up front.
-- Before a lookup, the agent establishes the applicable find order. Before proposing or making a knowledge change, it establishes the destination rules, exclusions, approval rules, file fields, template, and writing standard. It follows the current instructions for that operation even late in a long session. Already-read guidance can be reused while it remains available and current. Missing guidance is opened again before the affected operation proceeds.
+- The instructions that apply to a task govern the first read or action they cover, including a memory lookup and work tracking. The agent reuses current guidance it already has in context, and reads any further folder or skill instructions before the action they govern. For example: before a lookup, the agent establishes the applicable find order. Before proposing or making a knowledge change, it establishes the destination rules, exclusions, approval rules, file fields, template, and writing standard. It follows the current instructions for that operation even late in a long session. Already-read guidance can be reused while it remains available and current. Missing guidance is opened again before the affected operation proceeds.
 - The same guidance applies when the owner changes tasks or another session changes the relevant records. A completed check for an earlier task does not establish that the new task's knowledge was checked.
 - The system is responsible for bringing the needed guidance back at these moments. A one-time startup briefing or the owner repeating a rule is not sufficient. Which documented harness mechanism delivers that guidance and the requirement 3 checks is the design's job.
 - The agent uses judgment to understand meaning, choose relevant sources, reject low-value candidates, and write a useful proposal. It cannot use that judgment to skip the system's required lookup, approval, validation, or upkeep moments.
@@ -460,6 +496,7 @@ failed operation visible without waiting for the owner to notice.
 
 ### Required outcomes
 
+- At a new session start, all three startup reads in requirement 2 finish before the owner sees the confirmation. A read that did not finish, or a file that is missing, is reported instead.
 - Before answering or acting on project information, the agent checks the relevant knowledge under requirement 19. Relevant, current sources already available in context can satisfy that check. A check for an earlier task does not cover a different task automatically.
 - An answer or proposal based on saved knowledge identifies its supporting source under requirement 6. This applies however the agent found or opened that source. A path attached to a search result alone does not establish that the answer is supported.
 - The external-knowledge index is reachable from the small map. The agent opens relevant outside documentation before relying on it, as requirement 8 requires.
@@ -525,6 +562,9 @@ transcript.
 - When the owner asks something, or the agent starts a task, the agent first checks whether this project already knows the answer, already solved it, or holds useful context.
 - It brings that up without being asked.
 - This check is required for both questions and tasks. Use relevant, current context already available rather than repeating a search solely to record another search. Requirement 3 defines reliability and verification.
+- Work out what the owner is asking for first, from what he said or from one clarifying question. Then decide one thing: could long-term project knowledge affect this answer or action? If no, carry on without a memory lookup. If yes and the source has already been read and is still current, reuse it. If yes and the agent needs the source content, find it and read it.
+- That decision is made once for the request and reused while the scope and the relevant information stay the same. Making another tool call is not on its own a reason to decide again.
+- To find the right source, use the glossary at `knowledge/memory/memory-entries/terminology-glossary.md` and the memory index at `knowledge/memory/memory-index.md`. A line in an index, or a save still waiting in the inbox, is a pointer, not evidence.
 
 **Check:** ask about something already saved. The agent answers from the saved
 file and names it, instead of searching the code or asking the owner.
@@ -637,8 +677,8 @@ follows requirement 3; it never claims that no save is waiting.
 - Silence is not approval. An unclear answer is not approval. Asking to see the full text is not approval.
 - The owner may change the wording, the place, the tags, or drop the whole thing.
 - When the owner edits the words, those words are written exactly as typed. The agent does not tidy them, shorten them, or improve them.
-- Only the authorized meaning is written. Do not add surrounding context or new meaning outside that authority.
-- Resolve material questions before presenting a save card, as requirement 20 requires. Approval covers only the stated operation and wording or affected content; it does not approve an unresolved assumption or an unrelated follow-up.
+- The agent writes a faithful account of the approved summary. It may add supporting context from the conversation and from the sources it used. It must not add facts nothing supports, decisions the owner was not told about, or anything outside the approved scope.
+- Resolve material questions before presenting a save card, as requirement 20 requires. Approval covers the stated operation, meaning, and scope, or the affected content; it does not approve an unresolved assumption or an unrelated follow-up.
 - Five things can be done without asking the owner: rebuilding an index, repairing a broken link within requirement 1’s limits, writing `knowledge/memory/current.md`, maintaining project-specific memory-selection feedback under requirement 23, and maintaining the pending inbox under requirement 28. None of them changes what a lasting file means. Requirement 4 says how the current file is updated. Inbox retention is permission to preserve a proposal, not permission to accept its meaning.
 - For files the owner already approved under an older folder layout, the agent converts those files first and shows the owner the converted results afterwards, in groups small enough to read in one pass. The owner approves after the conversion, not before. Any file that will not convert cleanly is named and left alone. The agent never guesses what an old file meant.
 
@@ -822,9 +862,9 @@ Access review.
 
 ## 14. Memory file shape
 
-- Each topic area has one home under `knowledge/memory/memory-entries/`: one Markdown file by default, or a topic folder containing related Markdown files when the topic needs to be split. Keep related facts, decisions, lessons, and useful history together so the agent can read their context coherently. Do not create a file for each granular piece of information. The memory index, current work, and memory lessons sit outside the entries folder.
+- Each topic area has one home under `knowledge/memory/memory-entries/`: one Markdown file by default, or a topic folder containing related Markdown files when the topic needs to be split. Keep related facts, decisions, lessons, and useful history together so the agent can read their context coherently. Do not create a file for each granular piece of information. The memory index and current work sit outside the entries folder. The owner's feedback about what is worth saving as memory has no fixed home here; requirement 23 leaves that choice to the design.
 - Before saving, find the existing topic file or folder and update the file that owns the information. Create a file only for a distinct topic area that has no home, as part of an approved split, or for a coherent subtopic not already covered in an existing topic folder. New files still follow requirement 10's approval rules. File and folder names describe their topic or subtopic in plain words: lowercase with hyphens; Markdown filenames end in `.md`. Do not name them after dates, codes, or ticket numbers.
-- When a topic becomes too large to keep in one useful file, the agent recommends a split into coherent subtopics within that topic's folder. The proposal names the affected files and what each will contain. Keep context needed to understand each subtopic with it. Keep common lasting context in the appropriate topic or subtopic file and link to it from related files instead of duplicating it. Splitting follows requirement 10's approval rules; it is not permission to create one file per fact. Every resulting memory file follows this requirement's field rules and requirement 15's size limit.
+- The agent recommends splitting a topic into coherent subtopic files inside one topic folder when that would make the information easier to find, understand, or use. The proposal names the affected files and what each will contain. Keep the context a subtopic needs with that subtopic. Keep shared lasting context in the topic or subtopic file that owns it and link to it from related files instead of copying it. Split a topic only after getting the approval requirement 10 calls for, and keep the approved meaning intact. It is not permission to create one file per fact. Every resulting memory file follows this requirement's field rules.
 - Each file is maintained, not continually appended to. Rewrite or remove outdated, repeated, or conflicting information when appropriate, within the approval rules. Keep the current account clear. Retain an important timeline or superseded decision trail in the same file only when that history is useful, with dates and clear labels showing what no longer applies.
 - Do not sort memory topics into subfolders by type. A note can hold a fact, a decision, and a piece of history together.
 - The terminology glossary shares the entries folder but keeps the table format in requirement 7. It is not a memory topic and does not require memory fields.
@@ -973,11 +1013,10 @@ When the memory settles a question that was open, it says so and names what
 proved it, so no later agent works the same thing out again. Example: "Settled
 2026-07-02: manual account edits are reverted every morning; proven three times."
 
-A memory file stays under 5,000 characters. If it grows beyond that limit,
-remove repetition, summarize faithfully, or recommend the topic split in
-requirement 14. Supporting detail in another information home is linked under
-requirement 18. Keep coherent context together; do not fragment it into tiny
-files merely to meet the size limit.
+A memory file has no fixed character limit. Keep it coherent and free of
+repetition, and link supporting detail that lives in another information home
+under requirement 18. When a topic outgrows one useful file, split it using the
+rule in requirement 14.
 Preserve the source and approved meaning. Length alone never turns a fact into
 a PRD requirement, a procedure, or a work item. Lasting changes still follow
 the approval rules; a failed size check never permits silently dropping meaning.
@@ -996,16 +1035,30 @@ experience, data model, and useful examples explicit. Each requirement has one
 main home; other sections refer to it when needed.
 
 Its structure and fields follow requirement 16; the memory body guidance
-and memory size limit do not apply. Before design, review requirements for
+does not apply. Before design, review requirements for
 wording that could be implemented literally while missing the intended result.
 Identify the competing interpretations and resolve choices that change behavior
 with the owner. Editing for clarity must preserve the requirement's meaning.
+
+The project has an output style: the file that sets how the agent writes in this
+project. Read it before preparing a proposal or writing anything that gets
+saved. Apply its language and presentation rules to the text the agent writes,
+in proposals, memories, PRDs, and every other destination. Reuse it while it is
+still current and available. Leave original source material as it is: direct
+quotations, captured outside documentation, and anything else the project did
+not write. Keep required file structure, metadata, exact names, and wording the
+owner asked for exactly as they are. Explain the technical terms a reader needs;
+being brief must never drop important meaning. Point to the style rather than
+copying its rules into each knowledge procedure.
 
 **Check:** hand a memory to someone who was not in the conversation. In one
 read they can say what is true and, when relevant, why and what to do about it.
 The wording introduces no unexplained terms. Then remove any one sentence
 from the file. Each time, something a future agent needs is now missing. If removing a sentence
-loses nothing, that sentence should not have been in the file.
+loses nothing, that sentence should not have been in the file. Then read a
+proposal and a saved file against the project's output style: the agent applied
+it to the words it wrote, and left quotations, captured documentation, required
+fields, and exact names untouched.
 
 ## 16. Requirements documents
 
@@ -1263,9 +1316,10 @@ limitation instead of pretending a search found nothing.
 
 ## 20. The save card
 
-A save proposal makes the owner's decision clear: what will change, the exact
-wording, and what a yes will authorize. A quick scan must be enough to approve,
-change, or decline it without opening the full file.
+A save proposal makes the owner's decision clear: what will change, a short
+summary of the meaning to save, and what a yes will authorize. The summary is
+not a word-for-word preview of the full entry. A quick scan must be enough to
+approve, change, or decline it without opening the full file.
 
 ### Separate proposals from the answer
 
@@ -1278,11 +1332,14 @@ change, or decline it without opening the full file.
 
 1. A numbered, readable topic name.
 2. **Change:** the operation and its scope. Say whether this creates a file, adds to an existing file, replaces content, merges files, changes status, or removes content. For a replacement, identify the earlier statement being replaced. For a removal or status change, identify the affected content and result.
-3. **New wording:** the exact passage that will be written, as a block quote of at most three sentences. Do not show the whole file unless requested. For a removal or status-only operation, use **Affected content** instead and quote or clearly identify what the operation covers.
-4. **Your decision:** a direct question naming the action being approved, such as "May I replace the earlier decision with this wording?" Make clear that the owner can approve, request changes, or decline. For several proposals, the owner can select numbers or explicitly approve all; approval of one does not approve the others.
+3. **Summary:** a short summary of the meaning to save. Include every decision that matters, and say plainly if something is being replaced, removed, or taken out of current use. Routine metadata stays in optional details. For a removal or status-only operation, use **Affected content** instead and quote or clearly identify what the operation covers.
+4. **Your decision:** a direct question naming the action being approved, such as "Save this understanding?" Make clear that the owner can approve, request changes, or decline. For several proposals, the owner can select numbers or explicitly approve all; approval of one does not approve the others.
+
+The owner approves the operation, the meaning, and the scope. Reading or
+approving the full text is optional.
 
 Render the card as Markdown, not a code fence. Use plain words, visible labels,
-and blank lines between the topic, change, wording, and decision. Do not require
+and blank lines between the topic, change, summary, and decision. Do not require
 a fixed list of `Why`, `Where`, `From`, `Unsure`, and `Checked` bullets.
 
 The readable topic identifies the destination. A file link or optional details
@@ -1295,12 +1352,12 @@ do not hide it in optional details.
 
 ### Resolve questions before requesting a save
 
-- If uncertainty affects the accuracy or scope of the proposed wording, investigate first. If the agent needs an owner decision or information it cannot obtain, ask one specific question before presenting that save card. State what answer is needed and how it affects the proposed save.
+- If uncertainty affects the accuracy or scope of the proposed save, investigate first. If the agent needs an owner decision or information it cannot obtain, ask one specific question before presenting that save card. State what answer is needed and how it affects the proposed save.
 - Do not attach an unexplained `Uncertain` or `Unsure` line to a card. Approval of a save is not a request for the owner to investigate a separate issue.
 - An unrelated unresolved issue does not block a supported save. Handle that issue through the relevant work process when authorized; do not silently create a task or expand the save's scope.
-- The approval covers the stated operation and exact wording or affected content. It does not establish the truth of an unsupported claim or authorize an unstated follow-up. Requirement 10 owns the approval boundary, including existing authority that requires no new card.
+- The approval covers the stated operation, meaning, and scope, or the affected content. It does not establish the truth of an unsupported claim or authorize an unstated follow-up. Requirement 10 owns the approval boundary, including existing authority that requires no new card.
 
-### Example: replacing an earlier memory decision
+### Example: updating an existing memory
 
 Fictional example of a card after the agent has confirmed the proposed facts:
 
@@ -1308,24 +1365,22 @@ Fictional example of a card after the agent has confirmed the proposed facts:
 
 ## Proposed memory saves
 
-### 1. Customer imports
+### 1. Account access
 
-**Change:** Replace the saved decision to match customers by email.
+**Change:** Update the existing account-access memory with the release decision.
 
-**New wording:**
+**Summary:** Keep the current sign-in provider for this release because switching now would delay launch. Revisit the choice after launch.
 
-> Email alone is not a reliable customer identifier. The previous import combined different customers who shared an email address.
+**Your decision:** Save this understanding?
 
-**Your decision:** May I replace the earlier decision with this wording?
-
-Reply **"yes," "change it," or "don't save."**
+Approve, tell me what to change, or decline. With several proposals, select their numbers or explicitly approve all.
 
 ---
 
 **Check:** present one memory proposal and one PRD proposal after an ordinary
 answer. Each has its own destination heading and a unique number. The owner
-can identify what changes, the wording, and the decision without opening a
-file. Approve only one and confirm only that change proceeds. Introduce a
+can identify what changes, the summary of the meaning, and the decision without
+opening a file. Approve only one and confirm only that change proceeds. Introduce a
 material uncertainty: the agent investigates or asks a specific question
 before proposing that save. A separate unresolved issue is not attached as an
 unexplained warning and does not silently become an authorized task.
@@ -1341,8 +1396,9 @@ unexplained warning and does not silently become an authorized task.
 - The header above the entries is two lines at most. The index points at files. It does not explain how anything works.
 - Never edited by hand. The order of files inside a group follows one fixed rule. Two sessions rebuilding the index at the same time then produce the same lines in the same order, so their changes do not conflict in Git.
 - If an index disagrees with the files on disk, the files win. Rebuild it.
-- Every saved memory file and PRD is confirmed against the field rules and three size limits: an index source's `summary` is under 200 characters, `knowledge/memory/current.md` is under 5,000 characters, and any one memory file is under 5,000 characters. A topic folder may contain several memory files; the memory-file limit applies to each file, not the folder's combined content. No other size limit is prescribed here. Confirming never changes a file.
+- Every saved memory file and PRD is confirmed against the field rules and two size limits: an index source's `summary` is under 200 characters, and `knowledge/memory/current.md` is under 5,000 characters. A memory file has no fixed character limit. No other size limit is set here. Confirming never changes a file. A limit that fails is never a reason to quietly cut approved meaning.
 - A file that breaks a limit or a field rule is named, along with the rule it broke. A save that fails is not finished. The agent fixes the file and confirms it again before it says the save is done. Nothing is ever cut off silently.
+- After writing, the agent reads back the change as it was actually saved and confirms it matches the approved operation, meaning, and scope. It checks supporting detail against the sources it came from and keeps any wording the owner required. It checks the text it wrote against the project's output style, and checks the required fields, their allowed values, the size limits, and the links. Approving a summary does not mean the saved entry has to repeat that summary word for word. A tool saying it succeeded, or YAML that parses, does not on its own show that the saved result is correct.
 - After any lasting knowledge change, the affected index is rebuilt and the checker is run. A failing check means the save is not finished, and the agent says so instead of claiming the knowledge is stored.
 
 ### Memory index example
