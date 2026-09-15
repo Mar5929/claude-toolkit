@@ -54,17 +54,20 @@ instead of becoming assumed requirements.
 
 #### 1. Offer to organize and guide the work
 
-When the owner starts work toward an outcome, the agent offers to organize and
-manage its tasks, milestones, roadmap, and scope, and guide the owner through
-the process. The owner chooses whether to accept. The agent does not assume
-that a request to discuss an idea accepts this service.
+When a request involves several steps or is likely to continue across sessions,
+the agent offers to organize and manage its tasks, milestones, roadmap, and
+scope, and guide the owner through the process. The owner chooses whether to
+accept. The agent does not assume that a request to discuss an idea accepts
+this service.
 
-The precise point at which to offer, including how to handle small requests,
-is still being refined in the linked work item.
+Simple questions and quick edits stay lightweight: they do not prompt an offer
+of guided management solely because the owner made a request.
 
-**Check:** start discussing a new outcome without having accepted guided
-management. The agent offers the service and waits for the choice before
-taking over its organization. On acceptance, it begins managing the work.
+**Check:** discuss a new feature that needs several steps and will continue in
+later sessions, without having accepted guided management. The agent offers
+the service and waits for the choice before taking over its organization. On
+acceptance, it begins managing the work. Repeat with a simple factual question
+and a quick wording edit: it handles each without a guided-management offer.
 
 #### 2. Maintain the accepted plan without repeated upkeep approvals
 
