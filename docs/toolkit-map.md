@@ -443,8 +443,10 @@ The genuine watch-items are called out at the end.
   default-on rule since #339, governs the words inside anything an agent
   generates for a person to look at: diagrams, charts, dashboards,
   visualizations, mockups, slide decks, generated documents. It points at the
-  output style as the source of the voice and decides the words only, never
-  the layout.
+  output style as the source of the voice, decides the words, and fixes the
+  layout of an artifact built to get a decision from the reader: the decisions
+  first, one labeled block per decision, options named by what they do, and
+  the next steps at the end.
   It is a rule and not a style change because a rule loads into custom helper
   agents and Codex sessions, which the style never reaches. It does not touch how
   Claude talks in chat; that stays with the style. `unslop` is the third piece:
