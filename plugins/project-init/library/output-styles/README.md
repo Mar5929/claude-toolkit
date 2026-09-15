@@ -9,7 +9,7 @@ owner choice of another style is preserved.
 
 | File | What it does | Default |
 |---|---|---|
-| `plain-english.md` | Plain explanations with enough context to understand the meaning, no figures of speech, and examples of unclear wording. Keeps Claude Code's software engineering instructions. | ON for toolkit project setup. |
+| `plain-english.md` | Plain explanations with enough context to understand the meaning, no figurative or metaphorical language, and examples of unclear wording. Keeps Claude Code's software engineering instructions. | ON for toolkit project setup. |
 
 ## Toolkit style and host options
 
