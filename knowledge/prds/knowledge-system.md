@@ -702,7 +702,7 @@ may continue. Recovery never asks the owner to repeat the decision.
 
 ## 10. Approval before any write
 
-- Every write to a memory file or a PRD needs permission that covers that change. The permission may be the owner approving this save outright, permission already given to refine a PRD, the ongoing permission in requirement 16 to update PRDs after work ships, or the owner's per-project choice to turn the approval step off for memory saves, described below. Otherwise, a separate proposal to save lasting memory still needs the standard card and the owner's approval.
+- Every write to a memory file or a PRD needs permission that covers that change. The permission may be the owner approving this save outright, permission already given to refine a PRD, the ongoing permission in requirement 16 to update PRDs after work ships, or the owner's per-project choice to turn the approval step off for writes to memory, described below. Otherwise, a separate proposal to save lasting memory still needs the standard card and the owner's approval.
 - Approval already given for drafting or refining a named PRD covers writing down the owner's clear answers and corrections accurately, as long as they fall inside that scope. Save those in the same reply, without asking him to approve his own instruction a second time. The normal rules about where the text goes, how it is checked, and how it is published still apply.
 - If the owner's words are ambiguous, clarify the meaning before changing the requirement. A new requirement the agent invents or recommends needs the owner's agreement before it becomes a requirement in the draft. Drafting permission does not approve that new meaning.
 - A separate lasting-memory proposal still uses the standard card and approval, even when it arose during an authorized PRD interview. Drafting or saving permission does not approve the requirements as a whole, a solution design, or implementation. Requirement 16 defines what a PRD's approval fields mean.
@@ -714,7 +714,7 @@ may continue. Recovery never asks the owner to repeat the decision.
 - The agent writes an accurate account of the summary the owner approved. It may add supporting context from the conversation and from the sources it used. It must not add facts nothing supports, decisions the owner was not told about, or anything outside the approved scope.
 - Settle any question that would change the save before showing a save card, as requirement 20 requires. Approval covers the operation, the meaning, and the scope the card states, or the content the card names. It does not approve an assumption that is still open, and it does not approve an unrelated piece of follow-up work.
 - Five things can be done without asking the owner: rebuilding an index, repairing a broken link within requirement 1’s limits, writing `knowledge/memory/current.md`, keeping this project's own feedback about what is worth saving up to date under requirement 23, and keeping the pending inbox up to date under requirement 28. None of these changes what a lasting file means. Requirement 4 says how the current file is updated. Holding a proposal in the inbox is permission to keep it, not permission to accept what it says.
-- The owner of a project can turn the approval step off for memory saves in that project, once he has worked with the agent there long enough to trust its judgment about what is worth saving. The setting is per project and is off by default, so a card and a yes are required until the owner turns it on. While it is on, the agent runs the same review and the same checks, saves the memory on its own, and tells the owner in one line what it wrote and where. The owner can turn the approval step back on at any time. Mike added this on 2026-09-15. Open decision, not yet answered by the owner: whether this setting also covers PRD writes, and whether it covers merging, superseding, retiring, or deleting memory. Until he answers, it covers saving to memory only.
+- The owner of a project can turn the approval step off for writes to memory in that project, once he has worked with the agent there long enough to trust its judgment about what is worth saving. The setting is per project and is off by default, so a card and a yes are required until the owner turns it on. It covers every write to memory: a new file, an update, a merge, a supersede, a retirement, or a deletion. It does not cover PRDs; a PRD keeps the permission rules in this requirement and in requirement 16. While the setting is on, the agent runs the same review and the same checks, makes the change on its own, and tells the owner in one line what it changed and where. The owner can turn the approval step back on at any time. Mike added this on 2026-09-15 and settled its scope the same day.
 - For files the owner already approved under an older folder layout, the agent converts those files first and shows the owner the converted results afterwards, in groups small enough to read in one pass. The owner approves after the conversion, not before. Any file that will not convert cleanly is named and left alone. The agent never guesses what an old file meant.
 
 **Check:** show a proposal and say nothing back. The exact proposal is retained
@@ -722,11 +722,13 @@ in the pending inbox, marked awaiting approval. Its destination is unchanged,
 and a later session never treats the pending text as an approved fact.
 
 **Check:** in a project where the owner has turned the approval step off for
-memory saves, the agent finds something worth saving. It saves it with the same
-review and checks, and the reply says in one line what was written and where,
-with no card and no question. Turn the setting back on: the next candidate
-shows a card and waits for a yes. In a project where the setting was never
-turned on, the card and the yes are still required.
+writes to memory, the agent finds something worth saving. It saves it with the
+same review and checks, and the reply says in one line what was written and
+where, with no card and no question. Repeat with a retirement or a merge of two
+memory files: the same one-line report, no card. Propose a change to a PRD in
+that project: the PRD's own permission rules still apply. Turn the setting back
+on: the next memory candidate shows a card and waits for a yes. In a project
+where the setting was never turned on, the card and the yes are still required.
 
 **Check:** correct a summary and approve the corrected meaning. The saved entry
 faithfully records that meaning in the project's writing style. Repeat with an
