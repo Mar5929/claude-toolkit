@@ -25,6 +25,7 @@ genuinely could not help another project.
 | `parallel-agent-sessions.md` | Sharing a repo with other live sessions: look before you edit, work in your own worktree and branch, never `git add -A`, land by pull request. |
 | `knowledge-direct-commit.md` | A save that touches only `knowledge/` commits straight to the default branch. No worktree, no pull request. The owner-approved exception to `parallel-agent-sessions.md`; the knowledge manual still decides what may be saved. |
 | `offer-context-handoff.md` | When context is heavy and the next step is reasoning-heavy, offer a self-contained handoff prompt, after running the memory check. |
+| `plain-english-artifacts.md` | The words inside every diagram, chart, dashboard, visualization, slide deck, or generated document an agent makes follow the output style: about the subject only, headings that name what sits under them, the real name for every thing, plain wording. It decides the words, never the layout. Chat, code, README files, and issue text are not covered. |
 | `work-item-stages.md` | Unscoped lifecycle guidance for active-item orientation, faithful progress, flexible stages, type-aware approval, handoff, and accepted completion. Local code checks objective facts. |
 | `ai-external-knowledge.md` | Outside documentation captured for agents (vendor docs, API references, framework guides) goes in `ai-external-knowledge/` at the project root, one folder per topic, each naming its source URL and capture date. It stays raw source material, and nothing reads it unless a rule, a skill, or persistent knowledge points at a topic. |
 | `claude-code-docs-first.md` | This repo's own rule, not shipped. Before building or changing a hook, skill, plugin, agent, command, output style, or setting, read the page that covers it in `ai-external-knowledge/claude-code/`. This is the pointer `ai-external-knowledge.md` asks for, aimed at the one captured topic this repo has. |
@@ -56,7 +57,10 @@ what the toolkit ships in `plugins/project-init/library/output-styles/`, so a
 change goes in the shipped original and `tests/installed-copy-check.mjs` keeps
 the two matching. Do not add a writing rule to this folder. A different voice
 means changing that one settings value or that one style file, and neither is a
-rule.
+rule. The one exception is `plain-english-artifacts.md`. It governs the words
+inside the diagrams, charts, slides, and generated documents Claude makes, not
+how Claude talks here, and it is a rule because the style never reaches a
+helper agent, a Codex session, or a file.
 
 `Plain English` is also the default for toolkit project setup and the only
 style the toolkit ships. Deliberate owner selections of another style are

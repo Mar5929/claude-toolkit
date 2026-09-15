@@ -439,6 +439,16 @@ The genuine watch-items are called out at the end.
   writing rules inside an agent's own definition are the only voice control
   helper agents have, and every helper-agent definition that writes owner-facing
   prose must carry those writing rules itself.
+  **The artifact rule closes part of that gap.** `plain-english-artifacts.md`, a
+  default-on rule since #339, governs the words inside anything an agent
+  generates for a person to look at: diagrams, charts, dashboards,
+  visualizations, mockups, slide decks, generated documents. It points at the
+  output style as the source of the voice and decides the words only, never
+  the layout.
+  It is a rule and not a style change because a rule loads into custom helper
+  agents and Codex sessions, which the style never reaches. It does not touch how
+  Claude talks in chat; that stays with the style. `unslop` is the third piece:
+  it cleans text that already exists, on request.
   **One per-message reminder came back, then went away again.**
   `explain-simply-reminder` shipped in September 2026, a `UserPromptSubmit` hook
   asking on every message for an answer a five-year-old could follow. It was a
