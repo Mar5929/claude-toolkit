@@ -12,7 +12,7 @@ Issue #269, stage `02-refinement`. `knowledge/prds/knowledge-system.md` has 30 r
 
 ## Next step
 
-Walkthrough Part 6 (hand off and resume) in `knowledge/prds/knowledge-system-walkthrough.html`. Parts 1 to 5 are approved. Summarize Part 6 for Mike in plain steps, get his yes or edits, then ask for full-flow approval, then start the PRD reconciliation in roadmap section B.
+Roadmap section B: reconcile `knowledge/prds/knowledge-system.md` against the approved walkthrough. The full walkthrough was approved on 2026-09-15. Audit every requirement against the walkthrough, list each disagreement or gap with its purpose and placement, apply the faithful captures under the standing refinement permission, and bring anything that adds new meaning to Mike as a question. Then the wording pass, the `misc/SKILL (2).md` review, and the issue-body requirement map.
 
 How to run the review: one part at a time, one question at a time. Check the PRD and earlier answers before asking. Explain an edit's purpose, placement, and conflicts before changing the PRD. Park unrelated issues. After each decision, tick the roadmap on the issue and append one line to its Progress log.
 
