@@ -12,10 +12,10 @@ here stop matching. A rule this repo should stop following is dropped from this
 folder rather than edited, because editing the copy would mean editing what
 every other project receives.
 
-One rule is this repo's own and is not shipped anywhere:
-`claude-code-docs-first.md`. It is listed by name in the `OWN_FILES` set in
-`tests/installed-copy-check.mjs`, which is how that check knows it has no
-original to match. Add a repo-only rule the same way, and only when the rule
+Two rules are this repo's own and are not shipped anywhere:
+`claude-code-docs-first.md` and `subagents-run-on-opus.md`. Each is listed by
+name in the `OWN_FILES` set in `tests/installed-copy-check.mjs`, which is how
+that check knows it has no original to match. Add a repo-only rule the same way, and only when the rule
 genuinely could not help another project.
 
 ## What each file does
@@ -28,6 +28,7 @@ genuinely could not help another project.
 | `work-item-stages.md` | Unscoped lifecycle guidance for active-item orientation, faithful progress, flexible stages, type-aware approval, handoff, and accepted completion. Local code checks objective facts. |
 | `ai-external-knowledge.md` | Outside documentation captured for agents (vendor docs, API references, framework guides) goes in `ai-external-knowledge/` at the project root, one folder per topic, each naming its source URL and capture date. It stays raw source material, and nothing reads it unless a rule, a skill, or persistent knowledge points at a topic. |
 | `claude-code-docs-first.md` | This repo's own rule, not shipped. Before building or changing a hook, skill, plugin, agent, command, output style, or setting, read the page that covers it in `ai-external-knowledge/claude-code/`. This is the pointer `ai-external-knowledge.md` asks for, aimed at the one captured topic this repo has. |
+| `subagents-run-on-opus.md` | This repo's own rule, not shipped. Every agent a session starts runs on Opus, never the session's own model. Enforced by two `env` values in `.claude/settings.json`; the rule says what they are and what they do not cover. |
 
 ## Rules this repo deliberately does not carry
 
