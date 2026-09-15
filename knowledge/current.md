@@ -1,28 +1,26 @@
 # What is happening right now
 
-Short-term working state, not lasting knowledge. Updated 2026-09-13.
+Short-term working state, not lasting knowledge. Updated 2026-09-15.
 
 ## Objective
 
-Review the knowledge-system PRD for [issue #269](https://github.com/Mar5929/claude-toolkit/issues/269) through the sample session, one visual part at a time. Check the PRD and prior answers before asking a question.
+Get the knowledge system finalized, approved by Mike, and shipped. The full roadmap, with what is done and what is left, is section "Roadmap to shipped" in the body of [issue #269](https://github.com/Mar5929/claude-toolkit/issues/269). Read it first. Do not copy it here.
 
 ## Work item
 
-Stage `02-refinement`. `knowledge/prds/knowledge-system.md` has 30 requirements and remains proposed. Full workflow, requirements, solution design, and implementation approval remain pending.
+Issue #269, stage `02-refinement`. `knowledge/prds/knowledge-system.md` has 30 requirements and stays proposed until the full walkthrough is approved and the PRD is reconciled against it.
 
-## Current work
+## Next step
 
-Next milestone: finalize the [walkthrough](prds/knowledge-system-walkthrough.html). The owner places Parts 1–3 behind us and is reviewing Part 4 (decide what to save). Finish it, then Parts 5–6, then approve the full flow before general PRD reconciliation. Keep the interview on that sequence; park unrelated issues. Explain an edit’s purpose, placement, and conflicts before changing the PRD.
+Walkthrough Part 4 (decide what to save) in `knowledge/prds/knowledge-system-walkthrough.html`. Draft the PRD example and the pending inbox example, show them to Mike, and get his yes or edits. Then the rest of Part 4, then Parts 5 and 6, then full-flow approval.
 
-Use plain technical English and useful examples. Preserve native agent judgment with focused checkpoints. Broader wording cleanup remains.
+How to run the review: one part at a time, one question at a time. Check the PRD and earlier answers before asking. Explain an edit's purpose, placement, and conflicts before changing the PRD. Park unrelated issues. After each decision, tick the roadmap on the issue and append one line to its Progress log.
 
 ## Publication
 
 Push hold released; saved updates are published. Continue quick knowledge commits and pushes. Preserve unrelated workspace changes.
 
-## Remaining review
+## Parked
 
-- Templates saved: descriptive working memory with to-dos; memory properties, title, flexible body, optional review conditions and links. Next: PRD and inbox examples. Reconcile after full-flow approval.
-- Pending PRD reconciliation: summary approval; output style for authored text, preserving sources; instructions before governed actions; coherent memory topics without a fixed file cap.
-- Review `misc/SKILL (2).md` on `issue-269-second-brain-design`; it is an unpublished PRD skill draft.
+- Review `misc/SKILL (2).md` on `issue-269-second-brain-design`, an unpublished PRD skill draft. Listed in roadmap section B.
 - Earlier [handoff](https://github.com/Mar5929/claude-toolkit/blob/issue-269-second-brain-design/misc/269-session-handoff.md). Related scopes: System Guide #304 and rules audit #305. Proposed paths and templates are not all implemented.
