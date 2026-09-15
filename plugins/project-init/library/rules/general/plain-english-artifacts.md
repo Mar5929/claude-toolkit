@@ -1,71 +1,74 @@
-# Write Every Artifact in Plain, Explicit English
+# Write Artifacts in Plain English
 
-An artifact is something you generate for a person to look at: a diagram, a
-chart, a dashboard, a visualization, a mockup, a slide deck, a published page,
-or a generated document such as a PDF or Word report. This rule covers every
-word inside one: titles, labels, legends, captions, notes, and body text.
+An artifact is something an agent generates for a person to look at: a
+diagram, a chart, a dashboard, a visualization, a mockup, a slide deck, a
+published page, or a generated document. This rule is about the words inside
+one: the title, the headings, the labels, the notes, the captions, the body
+text.
 
-It does not cover chat replies, code, README files, issue text, or commit
-messages. The output style covers chat. This rule covers the artifact, because
-the output style never reaches a helper agent, a Codex session, or the inside
-of a file, and artifacts are made by all three.
+The project's output style says how the agent talks in chat. The words inside
+an artifact follow the same style. This rule exists because the output style
+reaches only the main chat: a helper agent, a skill, or a Codex session that
+makes an artifact never sees it. Read the active style file when there is
+one. Where this rule and that file differ, the style file wins.
 
-## Write for a junior intern in their first week
+## Write about the subject
 
-- Plain technical English. Common words. A term of art only when no plain word
-  exists, and then say what it means the first time it appears.
-- Explicit. Name the thing every time. Never "it", "this", or "the above" when
-  the reader could wonder which thing you mean.
-- One idea per sentence. Short sentences. Every word carries a fact or goes.
-- No preamble. Do not open with what the artifact is about to say. Start with
-  the content.
-- No commentary. Do not say what you just showed, how the artifact was made, or
-  that something is important. Show the fact and let the reader judge.
-- Not a story. No scene-setting, no build-up, no narrative. Facts in the order
-  the reader needs them.
+Every word describes the thing the artifact shows. The reader opened it to
+learn about that thing, not about the artifact or the conversation that
+produced it.
+
+- Do not narrate the artifact. "Here is where the change lands, but only the
+  key pieces" says nothing about the system. Cut it, or say what changed.
+- Do not tell the reader what matters. "Here is the load-bearing decision"
+  tells them how to feel. Write the decision.
+- Bring in the conversation only when it is the fact. A quote earns its place
+  when the exact words are what the reader needs, and then it says who said
+  it and when. A quote the reader cannot place is noise.
+
+## A heading names what is under it
+
+A heading is a label, not a hook. It says what the reader is about to look
+at, in the words of the subject.
+
+| Written | Say instead |
+|---|---|
+| Three ways to build the role tree, pick one | Role hierarchy options |
+| One question decides the whole shape | Decision: can a department leader edit their own team's records? |
+| Four facts that rule out the most obvious answers | How role hierarchy access works |
+| What shape actually hands to a real person | Record visibility by role |
+
+A number belongs in a heading when the number is the fact: "Three departments
+share one role". "Three ways to build it" only counts the section below, and
+the reader can count.
+
+## Use the real name
+
+Call a thing what the system calls it, every time: role hierarchy, record
+visibility, sharing rule, View All, permission set. A picture word in place of
+the real term ("shape" for the hierarchy, "lever" for a setting, "leaks" for
+inherited access, "flows up" for inheritance) makes the reader translate, and
+a reader who does not know the system cannot.
+
+A term the reader may not know gets a plain definition the first time it
+appears. After that, the term is used unchanged.
+
+A box or label carries the real name. Anything it needs to say about itself
+is one plain line.
+
+## Say the plain thing
+
+The output style's rules on words apply inside the artifact:
+
+- Common words. Short sentences. One idea each.
 - No figures of speech, idioms, or jokes.
+- No preamble. Start with the content.
+- No closing line that sums up or cheers.
+- Fewer words, never fewer facts. Every number, name, date, and quotation
+  stays exactly as it is.
 
-## Diagrams, charts, dashboards, and slides
+## What this rule does not decide
 
-- Every label is a plain noun or verb the reader already knows. No
-  abbreviations the reader has to guess.
-- One idea per box, bar, tile, or slide. Split anything that needs the word
-  "and".
-- The title says what the picture shows, in words the reader can check against
-  it: "Orders per week, last quarter", not "Key insights".
-- When a color, shape, or line style carries meaning, a key says what it means.
-- An arrow or line means one thing, and the artifact says what: "calls",
-  "sends", "depends on". Never an unlabeled arrow between two boxes that could
-  be read two ways.
-- A number on the picture carries its unit: "42 ms", "12 orders", "3 percent".
-- No decorative text, and no caption that repeats the title.
-
-## Keep out what reads as machine-written
-
-A reader should not be able to tell that a machine wrote it. These patterns
-give it away:
-
-- Not-X-but-Y contrasts: "not just a tool, but a partner".
-- Groups of three made for rhythm rather than because there are three things.
-- Em dashes. Use a comma, a colon, or a new sentence.
-- Stock words: crucial, robust, seamless, leverage, delve, comprehensive,
-  ensure, landscape, journey, empower, streamline, elevate, insights.
-- A closing line or slide that sums up or cheers the reader on.
-- A bold label with a colon in front of every sentence, used to look organized.
-- A question the text asks only so it can answer it.
-- Hedging that hides whether a fact is known: "it seems", "possibly", "may
-  suggest". State the fact, or say plainly that it is not confirmed.
-
-The `unslop` skill holds the long list and cleans up text that already exists.
-This rule is for the moment you make the artifact, so there is nothing to
-clean up.
-
-## Before you finish
-
-Look at the artifact once as that intern. A label you would read twice gets
-rewritten. A box or arrow you would ask "which one?" or "what does this mean?"
-about gets a name. A sentence or element that can go without losing a fact
-goes.
-
-Keep every fact, number, name, path, command, and quotation exactly as it is.
-Plain wording means fewer words, never less content.
+How the artifact is laid out: how many boxes, what an arrow says, where a
+note goes, whether there is a key. Every artifact is different, and the agent
+making it decides. This rule decides the words.
