@@ -86,7 +86,7 @@ This skill is project-agnostic. Never assume a folder structure. Discover where 
 
 Use the existing tracker upkeep guidance for settled answers, decisions, and
 next steps. Keep one canonical record, wherever the project tracks work. When
-`solution-helper` is coordinating the conversation, return Salesforce design
+`solution-design` is coordinating the conversation, return Salesforce design
 findings to that conversation; do not start another interview or parallel writer.
 
 ---
