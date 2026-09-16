@@ -562,8 +562,11 @@ Requirements met: 4, 13, 30
 
 What it is: the shared overview across all sessions in this project. The
 project goal and next milestone, then one section per active work item with its
-goal, where the work stands, the next step, the blocker or None, its to-dos,
-and a link to its detailed record. Then general project to-dos. It is not
+goal, separate Current status and Recent progress fields, the next step, the
+blocker or None, its to-dos, and a link to its detailed record. Recent progress
+holds useful dated accomplishments, refreshed as work finishes and trimmed
+when no longer needed to resume; the full history stays in the work record.
+Then general project to-dos. It is not
 lasting memory. A wrong line costs little and the owner can fix it by hand. A
 stale file costs a lot more, so the agent rewrites it as work happens, without
 asking, and says in one line that it did. Mechanism: an ordinary file, printed

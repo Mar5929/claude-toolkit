@@ -575,7 +575,7 @@ approval.
 ## 4. Picks up where the last left off
 
 - The owner comes back after two days, asks "what were we working on?", and the agent answers.
-- The answer covers what is in progress, what the next session needs to know, and what to do next. When past events or decisions matter, follow links to the records that own them rather than keeping their history in working memory.
+- The answer covers what is in progress, recent meaningful accomplishments, what the next session needs to know, and what to do next. Working memory keeps the recent results needed to resume; follow links to owning records for full history and decision reasoning.
 - The owner never pieces this together himself.
 - So `knowledge/memory/current.md` is kept up to date as work happens, across sessions, not only at the end of one.
 - Updates to it are quick and short. The agent makes them on its own, without asking, and tells the owner in one line that it did. This file is not lasting memory, so a wrong line costs little and the owner can fix it by hand. A stale file costs a lot more.
@@ -810,7 +810,7 @@ not merely because it came up in conversation.
 What it holds:
 
 - Project goals, next milestones, and enough roadmap context to understand the direction and sequence of upcoming work. Link to detailed plans when they exist.
-- Each active work item's goal, where it stands, next step, blocker, to-dos, and link to its detailed record when one exists. Include the owning session when known.
+- Each active work item's goal, current status, recent progress, next step, blocker, to-dos, and link to its detailed record when one exists. Include the owning session when known.
 - General project to-dos that the owner wants to return to later and that do not belong to an active work item.
 - Dependencies, constraints, open questions, and other things a later session needs to be aware of to continue safely and correctly.
 - Useful short-term findings that have not been saved as memory, clearly marked when nobody has checked them yet. Real save proposals that are waiting for an answer live in `knowledge/memory-inbox.md`; this overview links to that file instead of copying the text of those proposals.
@@ -828,12 +828,22 @@ Use a Markdown title, an updated date, and these sections:
 | Section | Required content | Optional content |
 | --- | --- | --- |
 | Project goal | Overall goal and next milestone | Links to a detailed project plan |
-| Active work | One descriptive subsection per item: goal, where work stands, next step, blocker or None, to-dos, and a link to its detailed record when one exists | Owning session when known; useful findings clearly labelled if unverified |
+| Active work | One descriptive subsection per item with fields: Goal, Current status, Recent progress, Next step, Blocker or None, To-dos, and Detailed record when one exists | Owning session when known; useful findings clearly labelled if unverified |
 | General project to-dos | Requested later work not attached to an active item, or None | Links to existing records |
 
 Date item context and to-do entries where needed. Include a due date only when
 the owner provided it. Do not invent missing facts, dates, or records. Keep
 item-specific to-dos under their item. An empty to-do list may say None.
+
+**Current status** says where the item is now, including anything pending.
+**Recent progress** gives dated, concise results of meaningful work already
+accomplished, so another session can see what is done and avoid repeating it.
+Refresh this field when meaningful work finishes, including requirements or
+design work completed through conversation. Keep recent results while they
+help someone resume; remove or replace older entries once they no longer do.
+Link to the detailed work record for the full history. This is a short summary
+of useful accomplishments, not an accumulating list of every action or decision.
+If no recent progress is known, say so rather than inventing it.
 
 When the owner mentions a project task to do later, record it in the
 appropriate to-do section without a lasting-memory proposal. This does not
@@ -844,7 +854,7 @@ and status in the tracker.
 What it never holds:
 
 - A lasting fact. Nothing in this file is trusted as a lasting fact after the work is finished. Lasting facts go through the normal save into `knowledge/memory/memory-entries/`.
-- A conversation, decision, approval, or rejection log; an edit history; or a record of the agent's activity. Decisions and their reasons belong in the requirements, design, work item, or other record that owns them under requirement 18. Keep only the resulting next step, blocker, constraint, or brief context needed to continue, with a link when useful. Do not add an entry merely to announce that something was accepted, rejected, saved, committed, or pushed.
+- An accumulating conversation, decision, approval, or rejection log; a detailed edit history; or a list of routine agent activity. Decisions and their reasons belong in the requirements, design, work item, or other record that owns them under requirement 18. Keep recent meaningful accomplishments and the resulting next step, blocker, constraint, or brief context needed to continue, with a link when useful. Do not add an entry merely to announce that something was accepted, rejected, saved, committed, or pushed.
 - A work item's requirements. Those belong to the tracker.
 - Secrets.
 
@@ -852,28 +862,32 @@ How it behaves:
 
 - Read at the start of every session.
 - It distinguishes the project's overall objective from each active work item's next step and owning session when known. Detailed scope, progress, and approvals remain in the chosen tracker, linked from this overview.
-- Update the relevant context when the work's current position or continuation needs change, including during conversation-only work. Replace stale context and remove finished or irrelevant entries instead of appending a history. A handoff or session close is a reason to check that the overview is current.
+- Update the relevant context when the work's current position or continuation needs change, including during conversation-only work. Replace stale context, remove completed to-dos, and retain useful accomplishments in Recent progress until they no longer help continuation. Do not append a running history. A handoff or session close is a reason to check that the overview is current.
 - Before replacing shared context, read the file again and fit in the changes other sessions or the owner have made. Keep the other active items and the context that goes with them. Rewriting the overview never means cutting the whole project down to this session's own task.
 - Before relying on an entry, compare what it says, and its date, against the record that actually owns that information, when that record is available. A session name written in this file does not prove that session is still running. A finding nobody has checked is labelled as unchecked, and is never presented as approved lasting knowledge.
 - The next session on this project must be able to see the updated context, including a session running in a different harness or in a different checkout of the repository. If the update cannot be shared, work out where it was saved and what is still missing. Never claim another session can see a change that exists only in this conversation, or only in a checkout nobody else is using.
 - Kept short. Long entries make it useless.
 - Anything in it that turns out to be lasting goes through the normal save. Sitting in this file is never on its own a reason to make it long-term memory.
 
-**Check:** open the file after a working session. It says the objective, the
-next step, and either the blocker or that there is no blocker. Nothing in it is
-a record of what happened.
+**Check:** open the file after a working session. Current status and Recent
+progress are separate fields. A fresh session can identify the objective,
+what has recently been accomplished, what remains pending, the next step, and
+any blocker without repeating completed work. Routine activity and full history
+stay out. When an older accomplishment no longer helps continuation, it leaves
+Recent progress while remaining available in the detailed work record.
 
 **Check:** during a conversation with no file edits, the owner rejects a design
 option and identifies an upcoming milestone and a task to revisit. The owning
 design or work record holds the decision. Working memory carries the milestone,
 task, and any resulting next step or constraint needed for continuation, with a
 link to the detail when useful. A fresh session can resume without a rejection
-log, a transcript, or a list of saves. Once the task is finished, its entry is
-removed or replaced with the remaining work.
+log, a transcript, or a list of saves. Once the task is finished, remove it from
+To-dos; summarize its outcome in Recent progress when useful for continuation.
 
 Mike clarified this purpose and boundary on 2026-09-16 during the knowledge-system
-requirements review. This clarification does not approve the complete PRD or
-its implementation.
+requirements review, and approved separate Current status and Recent progress
+fields in the same review. This clarification does not approve the complete
+PRD or its implementation.
 
 **Check:** the owner mentions one to-do for an active item and one general
 project to-do. Each appears in its proper section without a lasting-memory
@@ -907,8 +921,11 @@ Updated: 2026-09-13
 **Goal**
 Decide who can view and edit a customer account, including people invited after it was created. The release needs one clear access policy approved by the owner.
 
-**Where the work stands**
-We compared shared account access with access assigned separately to each person. The tradeoffs are in the work item. The owner has not chosen an approach, so implementation has not started.
+**Current status**
+Requirements are under review. The owner has not chosen an access approach, so implementation has not started.
+
+**Recent progress**
+- 2026-09-13: Completed the comparison of shared account access and access assigned separately to each person. The tradeoffs are in the detailed work record.
 
 **Next step**
 Walk the owner through both approaches using the same example account. Record the agreed requirements in the work item.

@@ -1,28 +1,63 @@
-# What is happening right now
+# Current work
+Updated: 2026-09-16
 
-Short-term working state, not lasting knowledge. Updated 2026-09-16.
+## Project goal
+Make toolkit work dependable across sessions.
+Next milestone: Complete Knowledge System requirements review.
 
-## Objective
+## Active work
 
-Finalize the knowledge-system PRD and approve its solution design under [issue #269](https://github.com/Mar5929/claude-toolkit/issues/269). The PRD owns the requirements. The design is `docs/designs/269-knowledge-system.md`; its working records, process, and pick-up notes are in `docs/designs/269-knowledge-system/`.
+### Knowledge System
+Updated: 2026-09-16
 
-## Work item
+**Goal**
+Finalize the PRD and solution design for issue #269.
 
-Issue #269, stage `02-refinement`. The PRD and design await full approval. Progress and decisions are in the linked issue and design. Implementation is not yet authorized.
+**Current status**
+In refinement. Full PRD and design approval are pending; implementation is not authorized.
 
-## Next step
+**Recent progress**
+- 2026-09-16: Clarified working-memory purpose and separated current status from recent accomplishments in the PRD template.
+- 2026-09-16: Settled scope routing, linked design location, and direct-save requirements. Reusable publication guidance still needs updating under #269/#306.
 
-Resume design question 2: settle how to prompt save review during conversation-only work. Then review the remaining design decisions and PRD wording questions 9 to 12, one at a time. Next milestones: full PRD approval, then design approval.
+**Next step**
+Resume design question 2: how to prompt save review during conversation-only work.
 
-Open decision: reshape the design to the toolkit's new solution-design template (added 2026-09-16) before or after approval.
+**Blocker**
+Requirements and design approval are needed before implementation.
 
-Remaining work under #269/#306 includes updating reusable design-publication
-and direct-save guidance; see the work records for scope and ownership.
+**To-dos**
+- Review remaining design questions and PRD wording questions 9–12.
+- Decide when to adopt the newer solution-design template.
 
-## Other active work
+**Detailed record**
+[Issue #269](https://github.com/Mar5929/claude-toolkit/issues/269).
+Design: `docs/designs/269-knowledge-system.md`; supporting records: `docs/designs/269-knowledge-system/`.
+Earlier handoff: `misc/269-session-handoff.md` on `issue-269-second-brain-design`. Related scopes: #304/#305.
 
-[Guided management](prds/toolkit-operating-system/guided-work-management.md): refining under issue #337.
+### Guided work management
+Updated: 2026-09-16
 
-## Parked
+**Goal**
+Refine guided work management requirements.
 
-Earlier [handoff](https://github.com/Mar5929/claude-toolkit/blob/issue-269-second-brain-design/misc/269-session-handoff.md) on the `issue-269-second-brain-design` worktree. Related scopes: System Guide #304, rules audit #305.
+**Current status**
+In refinement under #337; refresh details from its work record before resuming.
+
+**Recent progress**
+Not established in this session.
+
+**Next step**
+Read #337 to identify the next refinement question.
+
+**Blocker**
+Not established in this session.
+
+**To-dos**
+See #337 for outstanding refinement work.
+
+**Detailed record**
+[Issue #337](https://github.com/Mar5929/claude-toolkit/issues/337).
+
+## General project to-dos
+None recorded outside the active items.
