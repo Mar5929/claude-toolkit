@@ -121,8 +121,9 @@ Blocks of the same kind use one template, in one order, every time:
 - One key for the whole artifact, and one meaning per color everywhere in it.
   For example: red means the option breaks something the client asked for,
   green means it matches.
-- Compare options against real named people, one row per person. Do not
-  compare them against a description of a person or a job title alone.
+- Compare options against real job roles, one row per role, using the role
+  names the system uses. Add a named person to a row only when the decision
+  is about that person.
 - Anything the reader has to scan is a card, a table, or a list, not a
   paragraph.
 - Use bullets. A paragraph is two sentences at most.
