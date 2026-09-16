@@ -1,24 +1,22 @@
 # What is happening right now
 
-Short-term working state, not lasting knowledge. Updated 2026-09-15.
+Short-term working state, not lasting knowledge. Updated 2026-09-16.
 
 ## Objective
 
-Finalize the knowledge-system PRD with Mike under [issue #269](https://github.com/Mar5929/claude-toolkit/issues/269). The PRD owns the product requirements. The issue tracks refinement and approval and keeps the later delivery roadmap as planning context.
+Finalize the knowledge-system PRD and approve its solution design under [issue #269](https://github.com/Mar5929/claude-toolkit/issues/269). The PRD owns the requirements. The design is `docs/designs/269-knowledge-system.md`; its working records, process, and pick-up notes are in `docs/designs/269-knowledge-system/`.
 
 ## Work item
 
-Issue #269, stage `02-refinement`. The 30-requirement PRD remains proposed. Progress is tracked in one place: the issue body section "Roadmap to PRD finalization" and its one Progress log comment.
+Issue #269, stage `02-refinement`. The PRD is still proposed. The design was drafted ahead of approval at Mike's request and merged on 2026-09-16 (PR #346). Progress is in the issue's one Progress log comment.
 
 ## Next step
 
-Before section C, Mike answers, one at a time: whether this PRD's frontmatter gets the `group` and `updated_at` fields requirement 16 requires; and the walkthrough inbox example card that uses a "New wording" block requirement 20 rules out. Then section C: he approves the full requirements as ready for solution design or building.
+Mike answers the eight decisions in the design's section 1a, one at a time. Question 1 is answered yes (hook delivery counts as the startup read). Next is question 2, the end-of-turn nudge. Then the PRD wording questions 9 to 12 in section 15, then PRD approval (set `finalized`, label `03-requirements-approved`), then design approval as the build plan.
 
-On a yes: set `finalized` with both approval fields, move the label to `03-requirements-approved`, and record acceptance of the issue's outcome. Finalized means ready for design or building; delivery is separate. This PRD keeps its layout; new PRDs follow the new layout.
+Open decision: reshape the design to the toolkit's new solution-design template (added 2026-09-16) before or after approval.
 
-Shipped files that still carry old rules (the knowledge manual, two hooks, the index builder) are build work under roadmap section E.
-
-Review one question at a time. Explain an edit's purpose, placement, and conflicts first. Decisions go in the issue and its Progress log; requirements go in the PRD.
+Mike set the handshake principle on 2026-09-16; it is in the PRD's closing section. Design edits may go straight to main.
 
 ## Other active work
 
