@@ -35,30 +35,55 @@ a per-session file under the OS temp folder, which is how it fires only once.
 
 ### style-handshake
 
-One script, `hooks/style-handshake.mjs`, registered on two events. The `Stop`
-half holds the turn open until the agent has done two things: opened the
-project's output style file with the `Read` tool during that turn, and ended its
-final message with one of two exact lines. The `PostToolUse` half, matched on
-`Read`, records the first of those by writing an empty marker file when the file
-read is the output style.
+One script, `hooks/style-handshake.mjs`, registered on two events and also run
+as a command. The `Stop` half holds the turn open until two things have happened
+in that turn: the agent opened the project's output style file with the `Read`
+tool, and the agent ran the confirm command. The `PostToolUse` half, matched on
+`Read`, records the first by writing an empty `<key>.read` file when the file
+read is the output style. The confirm command records the second by writing an
+empty `<key>.ok` file.
 
-The two lines are:
+**The check is a command, and nothing appears in the reply.** The confirm
+command is the third mode of the same script:
 
 ```
-Style handshake: reply matches the output style.
-Style handshake: reply rewritten to match the output style.
+node <project>/.claude/hooks/style-handshake.mjs confirm <key>
 ```
+
+`<key>` is the turn key, built from the session id and the prompt id. The block
+reason hands the agent the whole command, path and key included, so there is
+nothing to compose. A key holding any character outside `[a-zA-Z0-9_-]` is
+ignored and writes nothing.
+
+Until 2026-09-16 the turn ended only when the final message ended with one of
+two exact lines. The owner asked for the silent form that day, because the line
+was noise in every long answer.
+
+**The confirm command needs a permission rule.** In `.claude/settings.json`,
+`permissions.allow` holds one entry:
+
+```
+Bash(node .claude/hooks/style-handshake.mjs confirm *)
+```
+
+The command the hook asks for uses that same relative path, so the rule matches
+in every checkout and worktree. Claude Code does not substitute
+`${CLAUDE_PROJECT_DIR}` inside a permission rule, and an allow rule whose `*`
+comes before the rest of the command prints a warning at every session start,
+so neither of those forms is used. Without the entry the command still runs,
+after the owner approves it once per turn.
 
 **It is a handshake, not a detector.** It reads nothing in the reply and judges
 no writing. It has no list of banned words, no em dash check, no sentence length
-limit. It checks two mechanical facts, the read and the line, and the comparison
-itself happens in the agent's head, which is the only place that can compare a
-reply against a style. A detector can only catch the patterns someone thought to
-list. This makes the agent look at the style file and answer for the reply.
+limit. It checks two mechanical facts, the read and the confirm, and the
+comparison itself happens in the agent's head, which is the only place that can
+compare a reply against a style. A detector can only catch the patterns someone
+thought to list. This makes the agent look at the style file and answer for the
+reply.
 
-Saying the line without reading the file does not pass, and reading the file
-without saying the line does not pass. Both are keyed to one session and one
-prompt, so a read from an earlier turn does not carry forward.
+Running the confirm command without reading the file does not pass, and reading
+the file without running the command does not pass. Both files are keyed to one
+session and one prompt, so a read from an earlier turn does not carry forward.
 
 **Short replies skip it.** A final message under `STYLE_HANDSHAKE_MIN_CHARS`
 characters, 120 by default, ends the turn untouched. Checking a one-line answer
@@ -68,8 +93,8 @@ costs more than the check is worth.
 itself after 8 consecutive stop-hook continuations, and reaching that cap spends
 eight model turns on a handshake. The fourth time this hook would block the same
 prompt, it reports one line to the owner and lets the turn end. A counter file
-next to the marker, in the OS temp folder, is how it counts. Both kinds of file
-are deleted after 24 hours.
+next to the two marker files, in the OS temp folder, is how it counts. All three
+kinds of file are deleted after 24 hours.
 
 **Why this is not a fourth voice reminder.** The three removed below all fired
 on every message and carried the style text themselves. This one carries no
@@ -236,7 +261,7 @@ The attribution harness is 43 checks. A large share of them assert the hook does
 and only one is visible. Blocking a good command is obvious; staying silent when
 it should have fired looks exactly like everything working.
 
-The style-handshake tests are 33 checks, split the same way. They run the script
+The style-handshake tests are 43 checks, split the same way. They run the script
 as Claude Code runs it, with the event JSON on stdin and a temp folder in
 `STYLE_HANDSHAKE_STATE_DIR`, so a run never touches the marker files of a live
 session.

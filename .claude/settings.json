@@ -1,5 +1,10 @@
 {
   "outputStyle": "Plain English",
+  "permissions": {
+    "allow": [
+      "Bash(node .claude/hooks/style-handshake.mjs confirm *)"
+    ]
+  },
   "env": {
     "CLAUDE_CODE_DISABLE_AUTO_MEMORY": "1",
     "CLAUDE_CODE_SUBAGENT_MODEL": "opus",
