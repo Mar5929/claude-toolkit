@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Personal, portable toolkit of reusable Claude systems: skills, rules, hooks, and templates shared across every project and device.",
-    "version": "0.112.3"
+    "version": "0.113.0"
   },
   "plugins": [
     {
@@ -42,7 +42,7 @@
     {
       "name": "session-skills",
       "source": "./plugins/session-skills",
-      "description": "Eleven conversation skills, including guided delivery, requirements interviewing, and solution design, with focused research and review agents. Use the project's chosen tracker and adaptable working methods."
+      "description": "Twelve conversation skills, including guided delivery, requirements interviewing, and solution design, with focused research, design, and review agents. Use the project's chosen tracker and adaptable working methods."
     },
     {
       "name": "system-guide",

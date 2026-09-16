@@ -26,7 +26,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git lifecycle workflows | `pull-latest`, `reset-to-remote`, `merge-and-clean-up` | `/plugin install git-workflows` | Install and go |
 | [hooks-library](../plugins/hooks-library/README.md) | Reusable spec-check, Git-attribution, and Salesforce deployment hooks; system-specific knowledge hooks stay with second-brain | `hooks-library` | `/plugin install hooks-library` | Wires into settings |
 | [work-tracker](../plugins/work-tracker/README.md) | Local backlog under Git-ignored `.work-items/`, with branch-scoped active items, flexible types, consistent progress, approved completion events, optional Git evidence, handoffs, relationships, folders the owner makes to group related items, an `archive/` folder for set-aside items, and preview-first conversion of older staged trackers | `work` | `/plugin install work-tracker` | Sets up a project |
-| [session-skills](../plugins/session-skills/README.md) | Eleven conversation skills including adaptable delivery, requirements, and design, with focused research/review helpers | `work-guide`, `requirements-helper`, `solution-helper`, `braindump`, `explain-simply`, `grill-me`, `handoff`, `session-summary`, `spec-check`, `track-tasks`, `unslop` | `/plugin install session-skills` | Install and go |
+| [session-skills](../plugins/session-skills/README.md) | Twelve conversation skills including adaptable delivery, requirements, and design, with focused research, design, and review helpers | `work-guide`, `requirements-helper`, `solution-helper`, `solution-design`, `braindump`, `explain-simply`, `grill-me`, `handoff`, `session-summary`, `spec-check`, `track-tasks`, `unslop` | `/plugin install session-skills` | Install and go |
 
 ## Skills at a glance
 
@@ -50,6 +50,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | work-guide | session-skills | Coordinate delivery and adaptable plans using the existing tracker and scoped specialist help | `/session-skills:work-guide`, "help me organize this work", "continue this item" |
 | requirements-helper | session-skills | Clarify intent, question directions that could undermine the goal, and maintain canonical draft requirements | `/session-skills:requirements-helper`, "help me refine these requirements" |
 | solution-helper | session-skills | Map requirements to simple, evidence-backed solution choices | `/session-skills:solution-helper`, "design this solution" |
+| solution-design | session-skills | Agree the team, philosophy, options, and output with the owner, then run Opus agents that research, design, critique against every requirement, and fix until all are satisfied | `/session-skills:solution-design`, "design this with a team", "give me design options" |
 | braindump | session-skills | Play a pasted brain dump back in very simple words, list each ask and every guess, and wait for the owner's yes before any work starts | `/braindump`, "play that back", "tell me what you heard" |
 | explain-simply | session-skills | Re-explain the last answer or a named file as short bullets, simplifying the wording and never the facts | `/explain-simply`, "explain that like I'm five", "put that in plain bullets", "simpler" |
 | grill-me | session-skills | Stress-test an idea one question at a time and preserve every answer | `/grill-me`, "grill me" |
@@ -358,7 +359,19 @@ The genuine watch-items are called out at the end.
   `solution-helper` coordinates domain methods and requirement coverage.
   `delivery-researcher` and `delivery-reviewer` return evidence to the owning
   conversation. They neither own another tracker nor create persistent teams.
-- **Eleven skills in one plugin.** The methods remain separately discoverable
+- **solution-helper versus solution-design.** Same job at two sizes.
+  `solution-helper` designs a small item in the main conversation.
+  `solution-design` is for an item that needs a research round, a critique
+  against every requirement, a fix loop, or several options; it proposes a
+  team of Opus agents (`design-researcher`, `design-architect`,
+  `design-critic`) that the owner agrees to first, and writes a prep file
+  every agent reads. The team is subagents for one item, not a persistent
+  team, and agent teams (the experimental feature) are not used unless the
+  owner enabled them. The delivery pair stays for the light path; the design
+  trio carries the loop's rules: community sources labeled as claims, an
+  architect that verifies them and recommends a rewrite when one is better,
+  and a critic whose verdict per requirement ends the loop.
+- **Twelve skills in one plugin.** The methods remain separately discoverable
   while installing and versioning together. Read the session-skills README for
   Claude agent discovery and native-worker fallback in other hosts.
 - **explain-simply versus the output style.** The output style sets how

@@ -1,7 +1,7 @@
 {
   "name": "session-skills",
-  "version": "1.10.5",
-  "description": "Eleven conversation skills, including guided delivery, requirements interviewing, and solution design, with focused research and review agents. Use the project's chosen tracker and adaptable working methods.",
+  "version": "1.11.0",
+  "description": "Twelve conversation skills, including guided delivery, requirements interviewing, and solution design, with focused research, design, and review agents. Use the project's chosen tracker and adaptable working methods.",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com",
@@ -23,7 +23,7 @@
   "interface": {
     "displayName": "Session Skills",
     "shortDescription": "Guide delivery, refine requirements, design solutions, and keep conversations moving.",
-    "longDescription": "Eleven conversation skills, including guided delivery, requirements interviewing, and solution design, with focused research and review agents. Use the project's chosen tracker and adaptable working methods. work-guide coordinates the main conversation; requirements-helper captures answers in the canonical draft; solution-helper explains a requirement-mapped design. Existing brain dump, explanation, discovery, handoff, recap, specification check, task-list, and writing skills remain available. Claude loads packaged agents; other hosts can delegate with the supplied role instructions.",
+    "longDescription": "Twelve conversation skills, including guided delivery, requirements interviewing, and solution design, with focused research, design, and review agents. Use the project's chosen tracker and adaptable working methods. work-guide coordinates the main conversation; requirements-helper captures answers in the canonical draft; solution-helper explains a requirement-mapped design; solution-design runs a team of Opus agents that research, design, critique against every requirement, and fix until all are satisfied. Existing brain dump, explanation, discovery, handoff, recap, specification check, task-list, and writing skills remain available. Claude loads packaged agents; other hosts can delegate with the supplied role instructions.",
     "developerName": "Mike Rihm",
     "category": "Productivity",
     "capabilities": [
