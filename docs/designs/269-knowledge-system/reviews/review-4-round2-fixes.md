@@ -3,7 +3,7 @@
 Design reviewed: `/home/user/claude-toolkit/docs/designs/269-knowledge-system.md`, 2,671 lines, read in full on 2026-09-16.
 Rulings checked: `fix-list-round-1.md` items 1 to 12 and `fix-list-round-1-addendum.md` items A1 to A9 and B1 to B8.
 Also read: `fix-report-round-1.md`, `review-1-requirements.md`, `review-2-harness.md`, `review-3-philosophy-ux.md`, `verification-report.md`.
-Sources opened for spot checks: `knowledge/prds/knowledge-system.md`, and `hooks.md`, `skills.md`, `memory.md`, `plugins-reference.md` under `ai-external-knowledge/claude-code/`.
+Sources opened for spot checks: `knowledge/prds/toolkit-operating-system/knowledge-system.md`, and `hooks.md`, `skills.md`, `memory.md`, `plugins-reference.md` under `ai-external-knowledge/claude-code/`.
 
 Counts: 29 rulings landed, 2 landed in part, 0 not landed. New findings: 2 blockers, 7 should-fix, 7 nits.
 

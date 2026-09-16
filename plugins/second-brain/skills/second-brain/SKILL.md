@@ -20,8 +20,8 @@ in project-root `.system-guide.json`. It is a separate plugin and works without
 this one. Preserve that config and tree, and exclude them when detecting or
 converting a second-brain layout.
 
-`knowledge/prds/knowledge-system.md` in the toolkit repository is the design
-authority. It is not installed into projects. The managed
+`knowledge/prds/toolkit-operating-system/knowledge-system.md` in the toolkit
+repository is the design authority. It is not installed into projects. The managed
 `knowledge/README.md` template is the portable operating manual.
 
 ## What gets installed
@@ -49,8 +49,10 @@ knowledge/
   hooks/work-item-close.mjs
 ```
 
-`knowledge/memory/` and `knowledge/prds/` are **flat**. One file per topic, no
-subfolders by type. Tags are free-form with no vocabulary file.
+`knowledge/memory/` is **flat**: one file per topic, no subfolders by type.
+`knowledge/prds/` is flat too, except that a large feature area may be one
+folder: `<area>/<area>.md` is the parent PRD and every other Markdown file
+beside it is a child PRD. Tags are free-form with no vocabulary file.
 
 ## Work out what shape the project is in
 

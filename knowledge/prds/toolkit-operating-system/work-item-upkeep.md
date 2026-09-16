@@ -55,6 +55,6 @@ becomes another owner of work-item state. The existing lifecycle rule, work
 skill, CLI, and handoff skill carry this behavior. The late stage-reminder hook
 is retired without a replacement hook.
 
-The [work-tracker documentation](../../plugins/work-tracker/README.md) owns the
+The [work-tracker documentation](../../../plugins/work-tracker/README.md) owns the
 command and record details. [Issue 270](https://github.com/Mar5929/claude-toolkit/issues/270)
 holds the approved requirements and delivery evidence.

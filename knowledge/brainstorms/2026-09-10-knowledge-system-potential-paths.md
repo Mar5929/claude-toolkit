@@ -5,7 +5,7 @@ Source: Implementation suggestions separated from the knowledge-system PRD
 after the owner's approval of the scope-review corrections on 2026-09-10.
 
 These are exploratory ideas, not requirements, verified capabilities, or an
-approved solution design. The [PRD](../prds/knowledge-system.md) owns required
+approved solution design. The [PRD](../prds/toolkit-operating-system/knowledge-system.md) owns required
 behavior. A builder may replace or discard these ideas. First inspect existing
 toolkit functionality and the supported harness's current documentation.
 

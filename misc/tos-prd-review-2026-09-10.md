@@ -1,4 +1,4 @@
-# Review: knowledge/prds/toolkit-operating-system.md
+# Review: knowledge/prds/toolkit-operating-system/toolkit-operating-system.md
 
 Read only. Nothing was changed. Reviewed against the five other PRDs,
 `knowledge/README.md`, `.claude/rules/work-item-stages.md`,

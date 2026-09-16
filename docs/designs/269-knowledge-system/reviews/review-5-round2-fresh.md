@@ -1,7 +1,7 @@
 # Fresh review of the knowledge system solution design
 
 Document reviewed: `/home/user/claude-toolkit/docs/designs/269-knowledge-system.md`, 2,671 lines.
-Requirements document: `/home/user/claude-toolkit/knowledge/prds/knowledge-system.md`.
+Requirements document: `/home/user/claude-toolkit/knowledge/prds/toolkit-operating-system/knowledge-system.md`.
 Approved walkthrough text: `scratchpad/research/walkthrough-text.txt`.
 Read as two readers: Mike, who decides, and a junior intern who builds item 1 next week.
 

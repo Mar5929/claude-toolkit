@@ -1,7 +1,7 @@
 # Review 1: does the design meet every requirement, and is it the best solution
 
 Design reviewed: `/home/user/claude-toolkit/docs/designs/269-knowledge-system.md`, 2,366 lines, sections 1 to 15.
-Requirements: `/home/user/claude-toolkit/knowledge/prds/knowledge-system.md`, requirements 1 to 30 starting at line 456.
+Requirements: `/home/user/claude-toolkit/knowledge/prds/toolkit-operating-system/knowledge-system.md`, requirements 1 to 30 starting at line 456.
 Approved walkthrough: `/tmp/claude-0/-home-user-claude-toolkit/4fcf9e21-6c96-5d1c-816b-828bcf2822e5/scratchpad/research/walkthrough-text.txt`.
 Reviewed 2026-09-16.
 
@@ -31,7 +31,7 @@ Counts: 5 blockers, 12 should-fix, 5 nits.
 | N1 | nit | §13 opening line, line 1857 | none | The section says "Eighteen entries" and lists nineteen, 13.1 through 13.19. | Design line 1857 against headings at lines 1861 to 2127. | Change to nineteen. |
 | N2 | nit | §6.1 glossary line 568; §9.3 checker row, line 1573 | 14 | Both say the checker would demand "all nine fields" on a glossary file. Requirement 14 and §6.1 line 548 both say twelve required fields. | PRD lines 928 to 941 list twelve; design line 548 says twelve, lines 568 and 1573 say nine. | Say twelve in both places. |
 | N3 | nit | §6.4 line 914 and §6.7 line 1273 say "at least 9,500"; §9.3 line 1586 says "raised from 5,000 to 10,000"; §8.6 proof 7 at line 1479 says 10,000 | 25 | Three numbers for one Codex setting. | Design lines 914, 1273, 1479, 1586. | Pick 10,000 everywhere, since the Claude Code cap is 10,000 and matching them keeps one number in the build. |
-| N4 | nit | §13.17 line 2097 | none | It cites the approved walkthrough as `scratchpad/walkthrough.txt`. A scratchpad path will not exist for whoever builds this. The PRD itself cites `knowledge-system-walkthrough.html`, which is in `knowledge/prds/`. | PRD line 143 links `knowledge-system-walkthrough.html`; that file exists at `/home/user/claude-toolkit/knowledge/prds/knowledge-system-walkthrough.html`. | Cite `knowledge/prds/knowledge-system-walkthrough.html` in §13.17 and anywhere else the walkthrough is referenced by a scratchpad path. |
+| N4 | nit | §13.17 line 2097 | none | It cites the approved walkthrough as `scratchpad/walkthrough.txt`. A scratchpad path will not exist for whoever builds this. The PRD itself cites `knowledge-system-walkthrough.html`, which is in `knowledge/prds/`. | PRD line 143 links `knowledge-system-walkthrough.html`; that file exists at `/home/user/claude-toolkit/knowledge/prds/toolkit-operating-system/knowledge-system-walkthrough.html`. | Cite `knowledge/prds/toolkit-operating-system/knowledge-system-walkthrough.html` in §13.17 and anywhere else the walkthrough is referenced by a scratchpad path. |
 | N5 | nit | §3 "Which one a thing gets", lines 116 to 120 | 29 | ENFORCE item 2 is "The four visible moments where a missed save would cost the owner trust: opening a pull request, closing a work item, manual compaction, and the after-write check." The after-write check is not a save moment; it is a file check, which is item 3. | Design lines 116 to 120 against lines 121 to 123. | Move the after-write check into item 3 and call item 2 "the three visible moments". |
 
 ## Section 2. Requirements the design meets well

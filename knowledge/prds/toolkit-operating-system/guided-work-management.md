@@ -161,9 +161,9 @@ and is never represented as already published.
 These are options to explore, not requirements, approved design, or instructions
 to build a particular solution.
 
-- For requirements 1-4, examine [work-guide](../../plugins/session-skills/skills/work-guide/SKILL.md)
+- For requirements 1-4, examine [work-guide](../../../plugins/session-skills/skills/work-guide/SKILL.md)
   as the existing place to coordinate the overall experience, with
-  [requirements-helper](../../plugins/session-skills/skills/requirements-helper/SKILL.md)
+  [requirements-helper](../../../plugins/session-skills/skills/requirements-helper/SKILL.md)
   supporting interviews. The existing [guided-delivery](guided-delivery.md)
   and [work-item-upkeep](work-item-upkeep.md) agreements already cover related
   responsibilities; identify the actual gaps before adding or moving them.

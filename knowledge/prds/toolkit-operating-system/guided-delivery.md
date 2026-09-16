@@ -121,6 +121,6 @@ useful and follows the owner's current preference. No team is required per epic;
 the solution design team is agreed per item and dissolves with it.
 Where an independent helper cannot run, the main conversation says so.
 
-The [session-skills documentation](../../plugins/session-skills/README.md)
+The [session-skills documentation](../../../plugins/session-skills/README.md)
 owns commands, packaging, host differences, and adoption. A published change
 must still reach the machine and project before a fresh session can use it.

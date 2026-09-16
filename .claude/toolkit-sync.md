@@ -67,7 +67,7 @@ before anything changed. Four gaps were closed:
   `archive/README.md` and a new folder `README.md` now name it. The 19 committed
   `graphify-out/` files were generated output and were deleted; `graphify-out/`
   is now ignored. Paths naming the old location were repaired in
-  `knowledge/prds/knowledge-system.md` and `memory-system-v2.md`.
+  `knowledge/prds/toolkit-operating-system/knowledge-system.md` and `memory-system-v2.md`.
 - **`.sf/orgs/.../catalog.json` was untracked.** A Salesforce CLI cache file in a
   repository with no Salesforce source, and the only dirty file in the tree. The
   file stays on disk; `.sf/` is now ignored.

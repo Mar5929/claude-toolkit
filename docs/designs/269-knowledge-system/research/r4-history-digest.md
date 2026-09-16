@@ -28,8 +28,8 @@ design anything for the knowledge system, so you do not reopen a closed debate.
 A URL looks like
 `https://github.com/Mar5929/claude-toolkit/issues/269#issuecomment-5531168688`.
 
-- "PRD" means `knowledge/prds/knowledge-system.md`. It has 1951 lines.
-- "the walkthrough" means `knowledge/prds/knowledge-system-walkthrough.html`.
+- "PRD" means `knowledge/prds/toolkit-operating-system/knowledge-system.md`. It has 1951 lines.
+- "the walkthrough" means `knowledge/prds/toolkit-operating-system/knowledge-system-walkthrough.html`.
   That file is HTML, so its line numbers are not useful. Line numbers for the
   walkthrough point at the plain-text copy at
   `/tmp/claude-0/-home-user-claude-toolkit/4fcf9e21-6c96-5d1c-816b-828bcf2822e5/scratchpad/research/walkthrough-text.txt`,
@@ -86,7 +86,7 @@ since been deleted. They are history, not Mike's decisions. See section 8.
 
 | Date | Decision | Where recorded |
 | --- | --- | --- |
-| 2026-09-08 | The PRD is rewritten as plain-language requirements instead of a build authority, and lives at `knowledge/prds/knowledge-system.md` (commit 0da5dcd). | issue #269 c1, entry dated 2026-09-08 |
+| 2026-09-08 | The PRD is rewritten as plain-language requirements instead of a build authority, and lives at `knowledge/prds/toolkit-operating-system/knowledge-system.md` (commit 0da5dcd). | issue #269 c1, entry dated 2026-09-08 |
 | 2026-09-09 | The pull-request hold stays until the review is done. | issue #269 c1, entry dated 2026-09-09 |
 | 2026-09-09 | The agent must follow the system. How it learns the rules is a design choice. | issue #269 c1, 2026-09-09; PRD lines 475-489 and 487 |
 | 2026-09-09 | The glossary is its own file and a table. | issue #269 c1, 2026-09-09; PRD lines 610-639 |
@@ -124,15 +124,15 @@ since been deleted. They are history, not Mike's decisions. See section 8.
 
 | Date | Decision | Where recorded |
 | --- | --- | --- |
-| 2026-09-10 | An authorized knowledge save commits straight to the project's default branch and is pushed, even while the session's implementation work is in a worktree. Shipped as R25 through issue #307 and PR #308. | `knowledge/prds/toolkit-operating-system.md` lines 61-64 and 435-458; `.claude/rules/knowledge-direct-commit.md` lines 5-16; PRD lines 678-687 |
-| 2026-09-10 | An unapproved `proposed` PRD leaves out `approved_by` and `approval_date`. When either is supplied both must be present, nonblank, and the date must be real. Shipped through issue #311 and PR #312. | PRD lines 1195-1208; `knowledge/prds/toolkit-operating-system.md` lines 298-302 |
+| 2026-09-10 | An authorized knowledge save commits straight to the project's default branch and is pushed, even while the session's implementation work is in a worktree. Shipped as R25 through issue #307 and PR #308. | `knowledge/prds/toolkit-operating-system/toolkit-operating-system.md` lines 61-64 and 435-458; `.claude/rules/knowledge-direct-commit.md` lines 5-16; PRD lines 678-687 |
+| 2026-09-10 | An unapproved `proposed` PRD leaves out `approved_by` and `approval_date`. When either is supplied both must be present, nonblank, and the date must be real. Shipped through issue #311 and PR #312. | PRD lines 1195-1208; `knowledge/prds/toolkit-operating-system/toolkit-operating-system.md` lines 298-302 |
 | 2026-09-09 and 2026-09-10 | The System Guide is its own plugin with its own PRD. Mike approved the name, place, summary, and folder shape with "I think that is good" on 2026-09-09, then said "please build it" on 2026-09-10. | issue #304 body, sections "Approved direction" and "Proposed PRD" |
-| 2026-09-10 | The System Guide works without the second brain. Lookup, startup guidance, refresh, approval, and cleanup all work on their own. | issue #304 body, "Approved direction"; `knowledge/prds/system-guide.md` lines 75-79 |
-| 2026-09-05 | Work-item upkeep: the tracker owns the item, and project knowledge may react to completion but never owns work-item state. | `knowledge/prds/work-item-upkeep.md` lines 15-17 and 53-56 |
+| 2026-09-10 | The System Guide works without the second brain. Lookup, startup guidance, refresh, approval, and cleanup all work on their own. | issue #304 body, "Approved direction"; `knowledge/prds/toolkit-operating-system/system-guide.md` lines 75-79 |
+| 2026-09-05 | Work-item upkeep: the tracker owns the item, and project knowledge may react to completion but never owns work-item state. | `knowledge/prds/toolkit-operating-system/work-item-upkeep.md` lines 15-17 and 53-56 |
 | 2026-09-15 | Every subagent a session starts runs on Opus, never the session's own model. Enforced by two environment values. | `.claude/rules/subagents-run-on-opus.md` lines 1-13; `.claude/settings.json` lines 5-6 |
 | ongoing | The project output style is `Plain English`. It is a settings value and a style file, not a rule. | `.claude/settings.json` line 2; `.claude/rules/README.md`, section "Voice is not a rule" |
 | 2026-09-15 | The `Plain English` style was changed so replies are short by default, with 250 words as a target. Merged as PR #342. | issue #269 c1, 2026-09-15 |
-| 2026-08-22 | `knowledge/` and everything under it gets no folder `CLAUDE.md`. The root startup route and the project-knowledge specification already own it. | `knowledge/prds/folder-instruction-files.md` lines 43-49 |
+| 2026-08-22 | `knowledge/` and everything under it gets no folder `CLAUDE.md`. The root startup route and the project-knowledge specification already own it. | `knowledge/prds/toolkit-operating-system/folder-instruction-files.md` lines 43-49 |
 
 ### The settled content rules inside the PRD
 
@@ -179,7 +179,7 @@ requirement text, so treat them as settled.
 | A `memory/planning/` type for vision, goals, roadmap, milestones | Proposed in the 2026-07-28 design. It is not in the current PRD. `current.md` and the tracker carry that. | `knowledge/brainstorms/2026-07-28-second-brain-v3-project-memory.md` lines 10-12; compare PRD lines 802-812 and 1287-1290 |
 | A `memory/architecture/` type | Rejected in that same session. Intended behavior belongs in specifications; maps of the existing system belong in knowledge. | Same file, lines 90-93 |
 | Mirroring brainstorm folders to specification areas | Superseded in that same session. Brainstorms stay flat with dated names and one index. | Same file, lines 42-46 |
-| Sending memory and specification updates through the task's pull request | Reversed on 2026-09-10. Authorized knowledge saves now go straight to the default branch. | Brainstorm lines 53-58; `knowledge/prds/toolkit-operating-system.md` lines 435-458 and 511-513 |
+| Sending memory and specification updates through the task's pull request | Reversed on 2026-09-10. Authorized knowledge saves now go straight to the default branch. | Brainstorm lines 53-58; `knowledge/prds/toolkit-operating-system/toolkit-operating-system.md` lines 435-458 and 511-513 |
 | A background writer, a hidden database, or private agent memory | Ruled out as a project boundary. | `knowledge/project.md`, section "Current goal and boundaries"; PRD lines 458-459 |
 | Copying the Davis project's automatic curator, its oversized memory index, its overloaded current-focus file, its session-brain pattern, or its knowledge graph | The useful Davis pattern is the silent detector and the concrete lookup table. The rest is not copied. The toolkit keeps the stricter rule that lasting memory needs Mike's approval. | issue #269 c0 item 7; issue #269 c2, point 8; brainstorm 2026-07-28 lines 35-38 |
 
@@ -369,9 +369,9 @@ already settled.
 
 14. Issue #306 has eight open boundaries in its "Conflicts and decisions still
     open" table. Several concern the knowledge system. See section 6.
-    `knowledge/prds/toolkit-operating-system.md` lines 499-509.
+    `knowledge/prds/toolkit-operating-system/toolkit-operating-system.md` lines 499-509.
 15. Whether the component PRDs, including this one, become children of the
-    operating-system PRD. `knowledge/prds/toolkit-operating-system.md`
+    operating-system PRD. `knowledge/prds/toolkit-operating-system/toolkit-operating-system.md`
     lines 38-42 and 506.
 16. Issue #337's next question: what the owner sees immediately after accepting
     guided work management. Issue #337 body, "Current position".
@@ -462,7 +462,7 @@ structures for the same plugin.
   eight section folders (`business/`, `data-model/`, `objects/`, `fields/`,
   `processes/`, `relationships/`, `applications/`, plus added areas), each with
   its own `README.md` index and separate `generated/` and `meaning/` folders.
-  `knowledge/prds/system-guide.md` lines 66, 72, 194-211.
+  `knowledge/prds/toolkit-operating-system/system-guide.md` lines 66, 72, 194-211.
 
 The System Guide PRD is the one Mike approved and told the agent to build
 (issue #304 body, "Approved direction"). The System Guide PRD also says the
@@ -475,16 +475,16 @@ must decide which path is real and say so; do not silently pick one.
 - Knowledge PRD: `knowledge/memory/memory-entries/terminology-glossary.md`.
   PRD lines 612, 594, 626, 1285, and 1313.
 - System Guide PRD: `knowledge/glossary.md`.
-  `knowledge/prds/system-guide.md` line 125.
+  `knowledge/prds/toolkit-operating-system/system-guide.md` line 125.
 
 ### 3. Whether a glossary always exists
 
 - Knowledge PRD: the system ships one glossary file in every equipped project.
   PRD lines 612 and 616.
 - Operating-system PRD: "A glossary, when available ... No glossary file is
-  assumed to exist." `knowledge/prds/toolkit-operating-system.md` lines 229-231.
+  assumed to exist." `knowledge/prds/toolkit-operating-system/toolkit-operating-system.md` lines 229-231.
 - System Guide PRD: use an existing glossary when available; its absence does
-  not stop guide use. `knowledge/prds/system-guide.md` lines 126 and 291-293.
+  not stop guide use. `knowledge/prds/toolkit-operating-system/system-guide.md` lines 126 and 291-293.
 
 These are reconcilable, because the guide can be enabled without the second
 brain. State that reading explicitly rather than leaving the reader to work it
@@ -494,7 +494,7 @@ out.
 
 - Operating-system PRD, open-conflicts table: "Second-brain requirement 16
   requires a PRD roadmap for a large feature."
-  `knowledge/prds/toolkit-operating-system.md` line 507.
+  `knowledge/prds/toolkit-operating-system/toolkit-operating-system.md` line 507.
 - Knowledge PRD now says the opposite: build order, delivery roadmaps,
   implementation tasks, schedules, work-item status, and detailed solution
   designs do not belong in a PRD. PRD lines 1137 and 1183-1184.
@@ -506,7 +506,7 @@ The knowledge PRD settles this row. The OS PRD has not been updated.
 - Operating-system PRD: "Second-brain requirements 5 and 19 require the same
   knowledge search for every task or question ... Does that include
   self-contained requests unrelated to project knowledge?"
-  `knowledge/prds/toolkit-operating-system.md` line 501.
+  `knowledge/prds/toolkit-operating-system/toolkit-operating-system.md` line 501.
 - Knowledge PRD now answers it: work out what the owner is asking, then decide
   once whether long-term project knowledge could affect the answer. If no,
   carry on with no memory lookup. PRD lines 592-593.
@@ -516,7 +516,7 @@ The knowledge PRD settles this row. The OS PRD has not been updated.
 ### 6. Draft refinement and save cards: the OS PRD row is out of date
 
 - Operating-system PRD: "Second-brain requirements 9 and 10 call for a card and
-  yes for each PRD save." `knowledge/prds/toolkit-operating-system.md` line 502.
+  yes for each PRD save." `knowledge/prds/toolkit-operating-system/toolkit-operating-system.md` line 502.
 - Knowledge PRD now says permission to refine a named PRD covers writing down
   the owner's clear answers in the same reply, with no second approval question.
   PRD lines 671 and 705-709.
@@ -529,12 +529,12 @@ The knowledge PRD settles this row. The OS PRD has not been updated.
   moments. Upkeep favors adaptable stages and deliberately allows an unapproved
   local Done record while reporting the gap ... Specify the effect of
   knowledge-review failures on work completion before design."
-  `knowledge/prds/toolkit-operating-system.md` line 503.
+  `knowledge/prds/toolkit-operating-system/toolkit-operating-system.md` line 503.
 - Knowledge PRD says a failed knowledge save pauses only that save and the work
   that depends on it. PRD lines 556-567.
 - Work-item upkeep PRD says the local tool records `Done` even when approval is
   missing, reports the gap, and warns during validation.
-  `knowledge/prds/work-item-upkeep.md` lines 42-44.
+  `knowledge/prds/toolkit-operating-system/work-item-upkeep.md` lines 42-44.
 
 The knowledge PRD does not say whether a missed knowledge review blocks
 completion. Mike's 2026-09-02 direction said completion stays blocked
@@ -546,7 +546,7 @@ question, and the OS PRD row is still open.
 
 - Operating-system PRD: "The manual and proposed second brain still differ on
   naming and metadata ... Keep the remaining transition with #269."
-  `knowledge/prds/toolkit-operating-system.md` line 504.
+  `knowledge/prds/toolkit-operating-system/toolkit-operating-system.md` line 504.
 
 The differences between the shipped manual and the PRD, as of 2026-09-15:
 
@@ -595,16 +595,16 @@ says "Only a current PRD is settled truth", which the PRD replaced with
 ### 10. Things that agree, and are settled
 
 - Direct commit of authorized knowledge saves to the default branch.
-  `knowledge/prds/toolkit-operating-system.md` lines 435-458 and 511-513;
+  `knowledge/prds/toolkit-operating-system/toolkit-operating-system.md` lines 435-458 and 511-513;
   PRD lines 678-687; `.claude/rules/knowledge-direct-commit.md` lines 5-16.
 - The approval-field format for an unapproved proposed PRD.
-  `knowledge/prds/toolkit-operating-system.md` lines 298-302 and 515-517;
+  `knowledge/prds/toolkit-operating-system/toolkit-operating-system.md` lines 298-302 and 515-517;
   PRD lines 1195-1208.
 - Preserving other sessions' work in shared knowledge files.
-  `knowledge/prds/toolkit-operating-system.md` lines 336-345 and 508;
+  `knowledge/prds/toolkit-operating-system/toolkit-operating-system.md` lines 336-345 and 508;
   PRD lines 852-854 and 1648.
 - No folder `CLAUDE.md` under `knowledge/`.
-  `knowledge/prds/folder-instruction-files.md` lines 43-49.
+  `knowledge/prds/toolkit-operating-system/folder-instruction-files.md` lines 43-49.
 
 ---
 
@@ -612,13 +612,13 @@ says "Only a current PRD is settled truth", which the PRD replaced with
 
 | Component | Where it is defined | What it owns | What it hands to the knowledge system | What the knowledge system needs from it |
 | --- | --- | --- | --- | --- |
-| Toolkit Operating System | `knowledge/prds/toolkit-operating-system.md`; issue #306 | The whole working experience and the agreements between components. R1-R25, each with a check. R25 is shipped; the rest are proposed. | A short, accurate session orientation (R6, line 150); the source-choice rule (R9, line 184); the conflict-resolution rule by kind of claim (R12, line 244); the quick-save route for `knowledge/` files (R25, line 435). | Do not build a competing knowledge policy or routing table (R11, lines 220-225). Do not force every question to create a work item (PRD line 1778). Report a missing part as a gap; never hand its work to memory (PRD lines 1780-1782). The alignment table is at PRD lines 1769-1776. |
-| System Guide | `knowledge/prds/system-guide.md`; issue #304 | Explanations of how an existing system is put together and why: objects, fields, processes, relationships, sub-applications. Its own content rules, template, approval, refresh, deletion, startup pointer, and sync report. | Its own index and pages for tier 4 of the find order, and its own card format inside its own proposal section. | The second brain's routing table must point system descriptions at the guide's real location when it is on, and say "not configured" when it is off (PRD line 1279; `system-guide.md` lines 300-307). Memory keeps only the decision or the trap and links to the guide page (PRD line 1279). When both are on, show the guide startup information once, not twice (`system-guide.md` line 317). The guide is not part of the second brain and has its own PRD (PRD line 1133). |
-| Work tracker and work-item upkeep | `knowledge/prds/work-item-upkeep.md`; issue #270, delivered | One item's requirements, progress, blockers, next step, approvals, and completion. Stages and their meaning. The `Done` and `Cancelled` rules. | A dependable completion event that the knowledge system reacts to. Real scope and status for the briefing, so `current.md` is not the authority. | The knowledge system links to tracker records and never copies them (PRD lines 335, 401, 1287). It never becomes a second owner of work-item state (`work-item-upkeep.md` lines 53-56). `current.md` is checked against the tracker before it is trusted (PRD line 853). The knowledge system asks before creating a work item (PRD lines 791 and 836). |
-| Guided delivery | `knowledge/prds/guided-delivery.md`; issues #300 and #302, delivered | The way one conversation guides an item: interviews, designs, bounded specialist help, adaptable plans. Recognizing permission already given. | The rule that ideas about how to build go only in notes at the bottom of a PRD, clearly labelled, binding nothing (`guided-delivery.md` lines 51-55). Authorized draft corrections saved promptly (lines 41-44). | The knowledge system's requirement 16 must not require a second design record or planner (PRD lines 1183-1184). Helpers cannot approve a save (`guided-delivery.md` lines 65-67). |
-| Guided work management | `knowledge/prds/guided-work-management.md`; issue #337 | Guiding work from the owner's first idea through delivery, and keeping shared records current. Proposed; not approved. | Nothing yet. | Its own notes say to examine the knowledge system together with the chosen tracker for requirement 5, because readable local files do not by themselves share work between computers (`guided-work-management.md` lines 170-173). |
+| Toolkit Operating System | `knowledge/prds/toolkit-operating-system/toolkit-operating-system.md`; issue #306 | The whole working experience and the agreements between components. R1-R25, each with a check. R25 is shipped; the rest are proposed. | A short, accurate session orientation (R6, line 150); the source-choice rule (R9, line 184); the conflict-resolution rule by kind of claim (R12, line 244); the quick-save route for `knowledge/` files (R25, line 435). | Do not build a competing knowledge policy or routing table (R11, lines 220-225). Do not force every question to create a work item (PRD line 1778). Report a missing part as a gap; never hand its work to memory (PRD lines 1780-1782). The alignment table is at PRD lines 1769-1776. |
+| System Guide | `knowledge/prds/toolkit-operating-system/system-guide.md`; issue #304 | Explanations of how an existing system is put together and why: objects, fields, processes, relationships, sub-applications. Its own content rules, template, approval, refresh, deletion, startup pointer, and sync report. | Its own index and pages for tier 4 of the find order, and its own card format inside its own proposal section. | The second brain's routing table must point system descriptions at the guide's real location when it is on, and say "not configured" when it is off (PRD line 1279; `system-guide.md` lines 300-307). Memory keeps only the decision or the trap and links to the guide page (PRD line 1279). When both are on, show the guide startup information once, not twice (`system-guide.md` line 317). The guide is not part of the second brain and has its own PRD (PRD line 1133). |
+| Work tracker and work-item upkeep | `knowledge/prds/toolkit-operating-system/work-item-upkeep.md`; issue #270, delivered | One item's requirements, progress, blockers, next step, approvals, and completion. Stages and their meaning. The `Done` and `Cancelled` rules. | A dependable completion event that the knowledge system reacts to. Real scope and status for the briefing, so `current.md` is not the authority. | The knowledge system links to tracker records and never copies them (PRD lines 335, 401, 1287). It never becomes a second owner of work-item state (`work-item-upkeep.md` lines 53-56). `current.md` is checked against the tracker before it is trusted (PRD line 853). The knowledge system asks before creating a work item (PRD lines 791 and 836). |
+| Guided delivery | `knowledge/prds/toolkit-operating-system/guided-delivery.md`; issues #300 and #302, delivered | The way one conversation guides an item: interviews, designs, bounded specialist help, adaptable plans. Recognizing permission already given. | The rule that ideas about how to build go only in notes at the bottom of a PRD, clearly labelled, binding nothing (`guided-delivery.md` lines 51-55). Authorized draft corrections saved promptly (lines 41-44). | The knowledge system's requirement 16 must not require a second design record or planner (PRD lines 1183-1184). Helpers cannot approve a save (`guided-delivery.md` lines 65-67). |
+| Guided work management | `knowledge/prds/toolkit-operating-system/guided-work-management.md`; issue #337 | Guiding work from the owner's first idea through delivery, and keeping shared records current. Proposed; not approved. | Nothing yet. | Its own notes say to examine the knowledge system together with the chosen tracker for requirement 5, because readable local files do not by themselves share work between computers (`guided-work-management.md` lines 170-173). |
 | Rules audit | issue #305 | One recorded disposition for every reusable rule the toolkit can put in a project's `.claude/rules/`. Approved requirements; no design, nothing built. | The final set of rules a project receives, and which are universal, optional, or path-scoped. | The knowledge system must not put a standing instruction in memory; it goes to the rules workflow (PRD lines 400 and 1277). `.claude/rules/knowledge-direct-commit.md` is the rule that owns the publication procedure (PRD lines 685-687). |
-| Folder instruction files | `knowledge/prds/folder-instruction-files.md`; issue #219, delivered | A short `CLAUDE.md` in each major folder, written by setup and audited by sync. | The rule that `knowledge/` and everything under it is skipped, so the knowledge system stays the one authority there. | Do not add `knowledge/CLAUDE.md`. `knowledge/prds/folder-instruction-files.md` lines 43-49. |
+| Folder instruction files | `knowledge/prds/toolkit-operating-system/folder-instruction-files.md`; issue #219, delivered | A short `CLAUDE.md` in each major folder, written by setup and audited by sync. | The rule that `knowledge/` and everything under it is skipped, so the knowledge system stays the one authority there. | Do not add `knowledge/CLAUDE.md`. `knowledge/prds/toolkit-operating-system/folder-instruction-files.md` lines 43-49. |
 | project-init and project-sync | `plugins/project-init/`; PRD requirement 27 | Turning the second brain on in a project, in one complete step, and checking and reporting the result. | An equipped-or-not report that names the version, and never reports a half-finished setup as working. | The report must state every time that the save gate does not apply in Codex (issue #269 c7). Setup shows the routing table and one example per row (PRD line 1308). Sync preserves an existing glossary (issue #269 c0 item 12). |
 | Captured Claude Code documentation | `ai-external-knowledge/claude-code/`; `.claude/rules/claude-code-docs-first.md` | Anthropic's own pages, saved as published. | The facts a design must be built on for hooks, skills, plugins, agents, commands, output styles, and settings. | Requirement 26 says every shipped part is built the way the captured documentation says, and the design names the page it followed (PRD lines 1599-1610). Read the page before building the part. |
 | Skills | The runtime's skill location; PRD requirement 17 | Repeatable procedures, their steps, their traps, and their own approval and delivery rules. | A place for any procedure the knowledge review finds. | A procedure is never saved as a memory file (PRD line 1240). The knowledge save card is not used for a skill (PRD line 1239). |
@@ -734,7 +734,7 @@ says "Only a current PRD is settled truth", which the PRD replaced with
 21. **`docs/designs/` still exists on disk** (`docs/designs/README.md`), even
     though the 2026-09-09 decision dropped it for this work and the
     operating-system PRD says the deleted design folder is not to be restored
-    (`knowledge/prds/toolkit-operating-system.md` lines 59-60). `CLAUDE.md`
+    (`knowledge/prds/toolkit-operating-system/toolkit-operating-system.md` lines 59-60). `CLAUDE.md`
     still lists it in the codemap. Ask before writing a design into it.
 
 22. **Two documents describe the System Guide's folders differently.** See

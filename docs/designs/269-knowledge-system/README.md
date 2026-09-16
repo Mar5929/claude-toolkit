@@ -7,7 +7,7 @@ leads' briefs, and every review and fix list.
 These are history. They are not current truth. Where a record and the design
 file disagree, the design file is right, because the design file was corrected
 three times after these records were written. Where the design file and the
-requirements document disagree, `knowledge/prds/knowledge-system.md` is right.
+requirements document disagree, `knowledge/prds/toolkit-operating-system/knowledge-system.md` is right.
 
 `process.md` says how the design was made and where the work stands.
 `prep.md` is the design prep file, filled in after the fact.

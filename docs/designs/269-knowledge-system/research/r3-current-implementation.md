@@ -3,7 +3,7 @@
 Written for someone new to this repository. Every claim names a file and line
 numbers. Paths are relative to `/home/user/claude-toolkit`.
 
-The PRD audited against is `knowledge/prds/knowledge-system.md`. It has 1,951
+The PRD audited against is `knowledge/prds/toolkit-operating-system/knowledge-system.md`. It has 1,951
 lines. Its 30 numbered requirements start at line 456 and end at line 1795. The
 closing "Potential paths to explore" section runs from line 1797 to line 1951.
 
@@ -360,7 +360,7 @@ does it, or something shipped does the opposite.
   - **No third index.** The outside-documentation index is not generated.
   - **No child PRDs.** Nothing indents a child under its parent, because subfolders are refused.
   - **No read-back.** R21 line 1471 requires reading the saved change back and checking it against the approved meaning and the output style. `remember/SKILL.md` lines 111-122 run the two tools and stop there.
-- **Drift, confirmed:** the `summary` limit is **250 characters** (`check-knowledge.mjs` line 31). R21 line 1469 sets **200**. Four files in this repository already break the PRD limit: `knowledge/memory/github-account-for-pushes.md` at 225, `knowledge/memory/knowledge-manual-voice.md` at 241, `knowledge/prds/folder-instruction-files.md` at 229, `knowledge/prds/guided-delivery.md` at 211.
+- **Drift, confirmed:** the `summary` limit is **250 characters** (`check-knowledge.mjs` line 31). R21 line 1469 sets **200**. Four files in this repository already break the PRD limit: `knowledge/memory/github-account-for-pushes.md` at 225, `knowledge/memory/knowledge-manual-voice.md` at 241, `knowledge/prds/toolkit-operating-system/folder-instruction-files.md` at 229, `knowledge/prds/toolkit-operating-system/guided-delivery.md` at 211.
 - **Drift, confirmed:** `current.md` is capped at **2,000** characters (line 29) against the PRD's **5,000** (line 1469).
 - **Drift, confirmed:** the PRD index is named `spec-index.md` (builder line 42). R21 line 1460 names it `prd-index.md` and says "The PRD index used to be called `spec-index.md`."
 - **Drift, confirmed:** the builder's PRD blurb says "Only a current PRD is settled truth" (builder lines 50-51), which contradicts R16's `finalized`.
@@ -691,7 +691,7 @@ Lines 397-401 fails any other file under `CLAUDE.md`, `AGENTS.md`, `README.md`,
 - `.claude/settings.json` lines 8-10 enables `second-brain@claude-toolkit` by name, and line 4 sets `CLAUDE_CODE_DISABLE_AUTO_MEMORY` to `1`.
 - `.claude-plugin/marketplace.json` lines 23-25 and `.agents/plugins/marketplace.json` register the plugin name and source path. `CLAUDE.md` line 29 says to update both when adding or renaming a plugin, and `plugins/CLAUDE.md` line 81 repeats it. `docs/CLAUDE.md` lines 21-24 says the map must be updated in the same change that renames a plugin or a skill.
 - `tests/orphan-check.mjs` and `tests/link-check.mjs` walk every Markdown file, so a moved file with an unfixed link fails them.
-- `plugins/system-guide/` reads `.system-guide.json` and shares the lookup tier. `knowledge/prds/system-guide.md` describes the pairing. `tests/system-guide-integration.test.mjs` and `tests/experience-system-guide.test.mjs` touch the shared behavior.
+- `plugins/system-guide/` reads `.system-guide.json` and shares the lookup tier. `knowledge/prds/toolkit-operating-system/system-guide.md` describes the pairing. `tests/system-guide-integration.test.mjs` and `tests/experience-system-guide.test.mjs` touch the shared behavior.
 - `.claude/toolkit-sync.md` lines 137-140, 177-185, 207-214 is this repository's setup record and names the hooks, the indexes, and the parallel-save problem.
 - `archive/second-brain-v1/` holds the retired version. `docs/toolkit-map.md` lines 173-186, 221-249 explains it is history and not current truth.
 
@@ -706,7 +706,7 @@ Installed copies: `.claude/hooks/` (six files), `.claude/tools/` (four files),
 `.claude/toolkit-sync.md`, `.codex/hooks.json`.
 Project knowledge: `knowledge/README.md`, `project.md`, `current.md`,
 `memory-self-improvement.md`, `memory/` (four files), `prds/spec-index.md`,
-`prds/knowledge-system.md` in full.
+`prds/toolkit-operating-system/knowledge-system.md` in full.
 Other plugins: `project-init` (skills and the general rules library),
 `session-skills` (handoff, grill-me, spec-check, readme), `work-tracker`
 (readme, work skill), `system-guide` (readme, hook), `hooks-library` (readme,
