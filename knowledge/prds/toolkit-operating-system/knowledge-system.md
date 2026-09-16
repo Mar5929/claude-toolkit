@@ -575,7 +575,7 @@ approval.
 ## 4. Picks up where the last left off
 
 - The owner comes back after two days, asks "what were we working on?", and the agent answers.
-- The answer covers what is in progress, what happened last time, and which session handed off to which.
+- The answer covers what is in progress, what the next session needs to know, and what to do next. When past events or decisions matter, follow links to the records that own them rather than keeping their history in working memory.
 - The owner never pieces this together himself.
 - So `knowledge/memory/current.md` is kept up to date as work happens, across sessions, not only at the end of one.
 - Updates to it are quick and short. The agent makes them on its own, without asking, and tells the owner in one line that it did. This file is not lasting memory, so a wrong line costs little and the owner can fix it by hand. A stale file costs a lot more.
@@ -801,14 +801,18 @@ quiet under requirement 9.
 
 ## 13. Working memory
 
-One file, `knowledge/memory/current.md`. It is the shared overview across agent
-conversations in this project and answers "what is happening right now".
+One file, `knowledge/memory/current.md`. It is short-term working memory for
+continuing project work across sessions. It answers "what are we working
+toward, where does the work stand, what comes next, and what do we need to be
+aware of?" Keep information because it helps a later session continue the work,
+not merely because it came up in conversation.
 
 What it holds:
 
-- The overall project goal and next milestone.
+- Project goals, next milestones, and enough roadmap context to understand the direction and sequence of upcoming work. Link to detailed plans when they exist.
 - Each active work item's goal, where it stands, next step, blocker, to-dos, and link to its detailed record when one exists. Include the owning session when known.
 - General project to-dos that the owner wants to return to later and that do not belong to an active work item.
+- Dependencies, constraints, open questions, and other things a later session needs to be aware of to continue safely and correctly.
 - Useful short-term findings that have not been saved as memory, clearly marked when nobody has checked them yet. Real save proposals that are waiting for an answer live in `knowledge/memory-inbox.md`; this overview links to that file instead of copying the text of those proposals.
 - Dates on entries, so a later agent can tell when a line is out of date.
 
@@ -840,7 +844,7 @@ and status in the tracker.
 What it never holds:
 
 - A lasting fact. Nothing in this file is trusted as a lasting fact after the work is finished. Lasting facts go through the normal save into `knowledge/memory/memory-entries/`.
-- A log of what happened. It is overwritten, never appended.
+- A conversation, decision, approval, or rejection log; an edit history; or a record of the agent's activity. Decisions and their reasons belong in the requirements, design, work item, or other record that owns them under requirement 18. Keep only the resulting next step, blocker, constraint, or brief context needed to continue, with a link when useful. Do not add an entry merely to announce that something was accepted, rejected, saved, committed, or pushed.
 - A work item's requirements. Those belong to the tracker.
 - Secrets.
 
@@ -848,7 +852,7 @@ How it behaves:
 
 - Read at the start of every session.
 - It distinguishes the project's overall objective from each active work item's next step and owning session when known. Detailed scope, progress, and approvals remain in the chosen tracker, linked from this overview.
-- Rewritten as the work happens: a piece of the work finishes, which the agent decides for itself, something gets blocked, a handoff is coming, or a session closes.
+- Update the relevant context when the work's current position or continuation needs change, including during conversation-only work. Replace stale context and remove finished or irrelevant entries instead of appending a history. A handoff or session close is a reason to check that the overview is current.
 - Before replacing shared context, read the file again and fit in the changes other sessions or the owner have made. Keep the other active items and the context that goes with them. Rewriting the overview never means cutting the whole project down to this session's own task.
 - Before relying on an entry, compare what it says, and its date, against the record that actually owns that information, when that record is available. A session name written in this file does not prove that session is still running. A finding nobody has checked is labelled as unchecked, and is never presented as approved lasting knowledge.
 - The next session on this project must be able to see the updated context, including a session running in a different harness or in a different checkout of the repository. If the update cannot be shared, work out where it was saved and what is still missing. Never claim another session can see a change that exists only in this conversation, or only in a checkout nobody else is using.
@@ -858,6 +862,18 @@ How it behaves:
 **Check:** open the file after a working session. It says the objective, the
 next step, and either the blocker or that there is no blocker. Nothing in it is
 a record of what happened.
+
+**Check:** during a conversation with no file edits, the owner rejects a design
+option and identifies an upcoming milestone and a task to revisit. The owning
+design or work record holds the decision. Working memory carries the milestone,
+task, and any resulting next step or constraint needed for continuation, with a
+link to the detail when useful. A fresh session can resume without a rejection
+log, a transcript, or a list of saves. Once the task is finished, its entry is
+removed or replaced with the remaining work.
+
+Mike clarified this purpose and boundary on 2026-09-16 during the knowledge-system
+requirements review. This clarification does not approve the complete PRD or
+its implementation.
 
 **Check:** the owner mentions one to-do for an active item and one general
 project to-do. Each appears in its proper section without a lasting-memory
@@ -1303,7 +1319,7 @@ runtime implementation or a physical design-document location.
 | A repeatable procedure | A project skill at the runtime's skill location, through the skill-authoring process (requirement 17) |
 | What we want built, and later the behavior we actually got | `knowledge/prds/` |
 | A lasting fact, decision, event, context, or constraint | `knowledge/memory/memory-entries/` |
-| The current objective, blocker, and next step | `knowledge/memory/current.md` |
+| Cross-session working context: goals, milestones, roadmap context, current and upcoming tasks, blockers, next steps, and things to be aware of | `knowledge/memory/current.md`, as defined in requirement 13; link to the records that own detailed plans and decisions |
 | An unanswered save proposal or an approved save that has not finished | `knowledge/memory-inbox.md`, which holds it only until it is settled, under requirement 28 |
 | A word the owner or the client uses for something | `knowledge/memory/memory-entries/terminology-glossary.md` |
 | What this owner accepts and rejects as memory | Project-specific selection feedback under requirement 23; its storage is chosen during design. |
