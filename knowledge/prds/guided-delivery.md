@@ -2,7 +2,7 @@
 summary: Guided delivery lets the owner focus on decisions while the main conversation maintains adaptable plans and brings in focused requirements, design, research, and review help using the project's existing records.
 area: guided-delivery
 status: current
-source: GitHub issues 300 and 302; Mike's 2026-09-08 build-and-ship instruction and requested plain-language PRD addition
+source: GitHub issues 300 and 302; Mike's 2026-09-08 build-and-ship instruction and requested plain-language PRD addition; Mike's 2026-09-16 solution-design skill requests and PRD update instruction (pull requests 344 and 345)
 created_at: 2026-09-08
 tags: [delivery, requirements, design, collaboration]
 approved_by: Mike Rihm
@@ -54,11 +54,47 @@ potential paths to explore, not requirements, approved design, or instructions
 to build that way. Actual design decisions live in the separate design record
 with their approval status preserved.
 
+## Solution design
+
+A design starts only when the requirements are ready. Before any design, the
+main conversation and a product analyst helper each read the requirements as
+one whole inside the larger system, walk the end-to-end experience of the
+person who uses the result, and report what is missing, what is not explicit
+end to end, and where a builder could misread the wording. Each states its
+confidence as a percentage; below 95 means not ready. Gaps are fixed in the
+requirements, not patched inside the design. A requirement that does not fit
+the end-to-end experience is flagged in the first reply. The owner rules on
+every flag and can overrule one; the ruling is recorded.
+
+The owner then agrees, one question at a time: whether to interview first or
+scan and research first; the design philosophy, which defaults to the
+platform's built-in mechanisms and builds custom only where nothing built-in
+serves; whether there is one design option or several; and where the design
+and its prep file live. The main conversation weighs the item's complexity
+and effort in the context of what is being built and recommends a team for
+that item: a product analyst, researchers, a technical architect per option,
+a critic, and task agents as needed, each on the model that fits its role.
+The owner agrees or changes the team before any helper starts.
+
+One prep file holds the intent, the readiness result, the rulings, the way of
+working, the team, every interview answer, and the constraints. Every helper
+reads it, so the team shares one understanding of what the requirements are
+for.
+
 Designs explain how each requirement will be met, what existing capability is
-reused, and how the result can be checked. Simple headings and bullets are a
-default presentation, not a mandatory template. Current official sources and
-project evidence support material choices. Domain methods, including Salesforce
-solutioning, fit this conversation instead of restarting it.
+reused, changed, or new, how the result can be checked, and where a builder
+could misread the requirements. A junior intern with no context can read the
+design and know what to build, in what order, and how to tell it works.
+Current official sources and project evidence support material choices. What
+the community says online is a claim until the architect checks it against
+official documentation, the project's own code, or a test. What exists today
+is evidence, not a constraint: when a design that replaces the existing build
+serves the requirements better, the architect recommends the rewrite and says
+what it costs. A critic checks every draft against every requirement and the
+plain-language rules; the architect fixes; the loop repeats until every
+requirement is satisfied or the owner decides the remaining items. Domain
+methods, including Salesforce solutioning, fit this conversation instead of
+restarting it. The design stays proposed until the owner approves it.
 
 ## Parallel work and continuity
 
@@ -81,7 +117,8 @@ a one-item variation does not become a new global instruction.
 
 The package supplies working instructions and focused helpers, not a live
 scheduler or automatic project manager. Specialist support is offered when
-useful and follows the owner's current preference. No team is required per epic.
+useful and follows the owner's current preference. No team is required per epic;
+the solution design team is agreed per item and dissolves with it.
 Where an independent helper cannot run, the main conversation says so.
 
 The [session-skills documentation](../../plugins/session-skills/README.md)

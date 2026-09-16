@@ -312,8 +312,8 @@ Typical checks:
   declined, or not applicable. A project that declined an individual plugin
   before the merge has that recorded under the old name; treat the record as
   applying to the skill, not the package.
-  Include `work-guide`, `requirements-helper`, and `solution-helper`, plus the
-  packaged `delivery-researcher` and `delivery-reviewer` agents. Compare the
+  Include `work-guide`, `requirements-helper`, and `solution-design`, plus the
+  packaged `delivery-researcher`, `delivery-reviewer`, and design agents. Compare the
   installed version and host-visible capabilities with the current package;
   source files alone do not establish that this session can invoke them.
   Offer a refresh when these methods are missing from an accepted installation.
