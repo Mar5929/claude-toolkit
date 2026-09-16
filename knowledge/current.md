@@ -12,7 +12,7 @@ Issue #269, stage `02-refinement`. The PRD is still proposed. The design was dra
 
 ## Next step
 
-Mike answers the eight decisions in the design's section 1a, one at a time. Question 1 is answered yes (hook delivery counts as the startup read). Next is question 2, the end-of-turn nudge. Then the PRD wording questions 9 to 12 in section 15, then PRD approval (set `finalized`, label `03-requirements-approved`), then design approval as the build plan.
+Review design decisions one at a time. Q1: hook delivery counts as the startup read. Q2: Mike rejected a hard-coded file-count reminder on 2026-09-16; conversation alone can yield information worth saving. Next: settle how to prompt that review. Then remaining design decisions, PRD wording questions 9 to 12, full PRD approval, and design approval. No build approval yet.
 
 Open decision: reshape the design to the toolkit's new solution-design template (added 2026-09-16) before or after approval.
 

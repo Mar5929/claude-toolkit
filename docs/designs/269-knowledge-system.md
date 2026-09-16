@@ -112,7 +112,7 @@ Eight decisions come before the build. The number in brackets is the question in
 section 15.
 
 1. Does hook delivery of the three startup files count as "read"? **Yes, and the check is that delivery finished.** [1]
-2. Approve the end-of-turn nudge, which forces one turn continuation each time it speaks? **Approve it, capped at once per session per threshold.** [2]
+2. How should end-of-turn save review be prompted? **Mike rejected the hard-coded changed-file trigger on 2026-09-16: conversation alone can produce information worth saving. The replacement mechanism remains open.** [2]
 3. May the approved walkthrough be edited where this design changes it? **Yes, both affected parts, with the edit dated.** [5]
 4. Which glossary path is real? **`knowledge/memory/memory-entries/terminology-glossary.md`.** [6]
 5. Does "when work ships" mean the work item is closed as done, or its pull request is merged? **Either one, and merge is not gated.** [7]
@@ -1353,6 +1353,12 @@ filter does the work on every tool call.
 
 #### `session-review-nudge.mjs`, `Stop`
 
+**Review decision, 2026-09-16:** Mike rejected the changed-file-count trigger
+described below. Conversation-only sessions must also be considered for saves.
+The baseline, threshold, and count-based state below are rejected design detail,
+retained pending a replacement design; do not implement them. This decision
+does not reject the separate unfinished-save and checker-reconciliation duties.
+
 Requirements met: 3, 9, 10, 21, 28
 
 Documentation page: `ai-external-knowledge/claude-code/hooks.md`, section
@@ -2377,25 +2383,19 @@ session and still proves only that a tool ran.
 
 ### 13.2 Requirements 3 and 9, the quiet review at the end of every turn (PRD lines 524 and 674)
 
-A review that finds nothing to save produces no output, so nothing can see
-whether it happened. Requirement 29 (PRD line 1669) forbids a program that reads
-the agent's replies, which is the only other way to check.
+**Owner decision, 2026-09-16:** reject the hard-coded reminder after ten
+changed files. Mike explained: "sometimes we don't even edit files" and
+"there still could be things that I want to have saved" (design-review
+conversation). Save review must consider the conversation even when no files
+change. File activity is not a prerequisite for identifying information worth
+saving. This rejects the trigger, not the need for review or owner approval.
 
-**Recommended answer:** the per-turn review stays a guided duty. The three
-visible moments a hook can raise are enforced, and `session-review-nudge.mjs`
-raises the end of a turn with real work when the changed-file count crosses a
-threshold. That nudge was recommended by an agent on 2026-09-03 and has never
-been approved, and it costs one forced continuation of the turn each time it
-speaks, on both harnesses. Mike decides whether to have it at all.
-
-**If Mike drops the nudge:** the design raises three visible moments and nothing
-at the end of a turn. The standing rule still names that moment, and
-`.claude/rules/offer-context-handoff.md` and `/handoff` still raise the
-handoff.
-
-**If Mike answers differently:** the only remaining mechanism is a hook that
-reads the reply and judges it. That is a scorer, and the design records it as a
-rejected option under requirement 29 and requirement 3 (PRD line 535).
+**Still open:** how to reliably prompt that review. The existing per-turn duty
+remains; no replacement hook, frequency, or forced continuation is approved by
+this answer. The count-based details elsewhere in this draft, including the
+baseline and `nudged_at_count` state, must be reconciled when the replacement
+is settled. Explicit save moments and the Stop hook's separate unfinished-save
+and checker duties are unaffected by this decision.
 
 ### 13.3 Requirements 9 and 13, a push per decision and per working-memory change (PRD lines 681 and 854)
 
@@ -2907,17 +2907,11 @@ recommended answer, here or in the section 13 entry it points at.
 
 1. Requirement 2 (PRD line 481): does hook delivery of the three startup files
    count as "read", with the check being that delivery finished? See 13.1.
-2. Requirements 3 and 9 (PRD lines 524 and 674): approve the end-of-turn nudge?
-   The review at the end of a turn with real work is a guided duty, and
-   `session-review-nudge.mjs` raises it when the changed-file count crosses a
-   threshold. The nudge speaks at most once per session per threshold, and each
-   time it speaks it forces the turn to continue, on both harnesses. It was
-   recommended by an agent on 2026-09-03 and has never been approved.
-   **Recommended: approve it, with the once-per-session-per-threshold cap.** The
-   other four save moments are covered by a command the owner runs or by the
-   handoff rule; a long working session that never opens a pull request has
-   nothing else raising the moment. Leaving it out is a real choice, and it
-   leaves the end of a turn to the standing rule. See 13.2 and 14.6.
+2. Requirements 3 and 9 (PRD lines 524 and 674): how should save review be
+   prompted, including during conversation-only work? **The hard-coded
+   changed-file trigger was rejected by Mike on 2026-09-16.** The replacement
+   mechanism remains open. See the decision in 13.2; the older threshold
+   discussion in 14.6 is superseded by that decision.
 3. Requirements 9 and 13 (PRD lines 681 and 854): may several decisions settled
    in one reply share one push, with `knowledge/memory/current.md` pushed at the
    save moments and at the handoff? See 13.3.
