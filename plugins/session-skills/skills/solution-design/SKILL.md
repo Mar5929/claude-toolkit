@@ -17,9 +17,10 @@ the light version of this skill for a small item designed in one
 conversation. Use this skill when the item is large enough to need research,
 a written critique, or more than one option.
 
-## 1. Read the requirements and say what does not fit
+## 1. Read the requirements and say whether they are ready
 
-Before asking the owner anything:
+No design starts until the requirements are complete, explicit end to end,
+and safe for a builder to read. Before asking the owner anything:
 
 - Read the canonical requirements: the PRD, the work item, its approvals, its
   open questions, and any linked "potential paths" notes. Run `spec-check`
@@ -34,8 +35,34 @@ Before asking the owner anything:
   the ruling in the prep file (section 3).
 - Note whether the project is greenfield or has an existing build, and what
   the existing build does today for this area.
+- Check readiness. Read the requirements as one whole, inside the larger
+  system they belong to, and answer three questions:
+  1. **Is anything missing?** A step, a person, an error case, a state, a
+     boundary with another system, a rule for what happens after, or a way to
+     tell it worked. Missing means the intent cannot be met without it.
+  2. **Is every requirement explicit end to end?** A reader who was not in
+     the conversation can say who does what, when, with what result, and
+     what happens when it fails.
+  3. **Where could a builder misread it?** Any wording a builder agent could
+     take too literally, read out of context, or read two ways and build the
+     wrong thing. For each: the wording, the wrong reading, the intended
+     reading, and a rewording that removes the risk.
+- State confidence as a number: how sure you are, as a percentage, that
+  these requirements describe a whole, well-thought-out result in the context
+  of the system it is part of. Below 95 means not ready. Say what would raise
+  it.
 
-Do not start research or design until the owner has ruled on the flags.
+When the requirements are not ready, say so in the first reply with the
+missing pieces, the unclear pieces, and the misreading risks, each with a
+proposed fix. Push back even when the owner wants to move on: a gap fixed in
+the requirements costs one question; the same gap found by the critic costs a
+design round, and found by a builder costs a build. The fixes land in the
+requirements through `requirements-helper` and the project's save policy, not
+as patches inside the design. The owner can overrule a flag; record the
+ruling and the reason in the prep file.
+
+Do not start research or design until the owner has ruled on every flag and
+confidence is 95 or above. Record the number and the date in the prep file.
 
 ## 2. Agree on how the work runs
 
@@ -111,6 +138,21 @@ skills, or another agent's findings. Pass what it needs.
 Where the host does not load the packaged agents (Codex, for example), read
 the role file and pass its full text with the brief to a native worker.
 
+### Requirements check round
+
+Before research, one [design-critic](../../agents/design-critic.md) reads the
+requirements and the prep file in requirements mode and returns its own
+confidence number, the missing pieces, the places that are not explicit end
+to end, and the misreading risks. This is a second reader who did not see the
+conversation, so it catches what the main conversation stopped noticing.
+Reconcile its findings with your own, take the open ones to the owner, and
+update the prep file. Design waits until both numbers are 95 or above.
+
+A researcher or architect that finds, during its own work, that a
+requirement is missing something or cannot mean what it says reports it and
+stops on that requirement. The finding goes back through the owner and the
+requirements, not around them.
+
 ### Research round
 
 One [design-researcher](../../agents/design-researcher.md) per bounded
@@ -126,8 +168,12 @@ evidence, or community claim.
 
 One [design-architect](../../agents/design-architect.md) per design option.
 It reads the prep file, the requirements, the research reports, and the
-existing build, then writes a draft design to the agreed path following
-[design-document-template.md](references/design-document-template.md).
+existing build, states its own confidence in the requirements, and refuses to
+design below 95, returning the gaps instead. Above that it writes a draft
+design to the agreed path following
+[design-document-template.md](references/design-document-template.md),
+including the section that names where a builder could misread the
+requirements and what each one is meant to mean.
 
 The architect decides what goes in the design. A community claim is a claim
 until the architect has checked it against official documentation, the

@@ -44,9 +44,11 @@ and saves settled answers or corrections in the chosen draft.
 `solution-helper` maps requirements to simple build, benefit, and verification
 bullets, reusing relevant domain skills such as Salesforce solutioning.
 `solution-design` is the heavier path for an item that needs research, a
-written critique, or more than one option: the main conversation flags
-requirements that do not fit the end-to-end experience, agrees with the owner
-on prep interview or scan, design philosophy, number of options, output
+written critique, or more than one option: the main conversation and a critic
+each check that the requirements are complete and explicit end to end, score
+their confidence (design waits until both are 95 or above), list where a
+builder could misread the wording, flag requirements that do not fit the
+end-to-end experience, agree with the owner on prep interview or scan, design philosophy, number of options, output
 location, and team, then runs Opus agents that research, draft, critique
 against every requirement, and fix until the critic's list is empty. The prep
 file is the one record every agent reads, so the whole team shares what the

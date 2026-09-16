@@ -23,6 +23,20 @@ from.>
 | Requirement | Why it seemed out of place | Owner's ruling | Date |
 | --- | --- | --- | --- |
 
+## Requirements readiness
+
+- Confidence, main conversation: <number> on <date>
+- Confidence, critic: <number> on <date>
+- What was missing, and how it was resolved: <one line each, with the
+  requirement it was added to, or the owner's ruling to leave it out>
+- What was not explicit end to end, and the wording that fixed it: <one line
+  each>
+
+### Where a builder could misread the requirements
+
+| Requirement wording | Wrong reading | Intended reading | Fixed in requirements? |
+| --- | --- | --- | --- |
+
 ## How this design is being made
 
 - Prep: interview first / scan and research first

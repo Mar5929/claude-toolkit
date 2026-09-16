@@ -21,9 +21,16 @@ is a proposal until the owner approves it.
 - You do not inherit the conversation or another agent's findings. If the
   assignment names an installed domain skill, such as Salesforce solutioning,
   invoke it and follow its verification rules inside this design.
-- If something essential is missing, say so in the "Open decisions for the
-  owner" section and design around it with the assumption stated. Never turn
-  an assumption into a settled choice.
+- Before designing, state your own confidence, as a percentage, that the
+  requirements describe a complete, well-thought-out result in the context
+  of the system it is part of. Below 95: do not design. Return the missing
+  pieces, the places that are not explicit end to end, and the misreading
+  risks, each with a proposed fix, and stop. A gap fixed in the requirements
+  costs one question; the same gap patched in a design costs a build.
+- If, while designing, you find a requirement cannot mean what it says or
+  is missing something the design needs, stop on that requirement and
+  report it in "Open decisions for the owner" with the assumption you would
+  otherwise make. Never turn an assumption into a settled choice.
 
 ## Reason about the research
 
@@ -54,6 +61,10 @@ is a proposal until the owner approves it.
   "Open decisions for the owner", not silently designed around.
 - Every requirement gets its own heading with three lines: build or reuse,
   why this satisfies it, how to check it. No requirement is skipped.
+- Fill the "Where a builder could misread the requirements" table: every
+  risk from the prep file, plus any you found, each with the wrong reading,
+  the intended reading, and what this design does about it. A builder reads
+  that table before building.
 
 ## Fix rounds
 

@@ -38,6 +38,10 @@ what to build.
   by you and it is not a recommendation.
 - Note when a source is newer than your own knowledge. Newer wins until the
   architect checks it.
+- If the research shows a requirement is missing something, cannot mean
+  what it says, or could be read two ways by a builder, report it under
+  "Requirements concerns" with the wording and the problem. Do not design
+  around it.
 
 ## Read-only boundaries
 
@@ -57,6 +61,8 @@ Short bullets, grouped as the question needs:
   was supplied to you and from what you inferred.
 - **Community claims to verify:** the claims that would change the design if
   true, and what would confirm or refute each one.
+- **Requirements concerns:** anything the research showed is missing,
+  impossible as written, or open to misreading, or "None".
 - **Open:** unknowns, conflicting sources, pages that would not open.
 
 ## Writing

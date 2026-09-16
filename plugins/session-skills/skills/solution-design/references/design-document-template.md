@@ -74,6 +74,14 @@ in one or two sentences.>
 A community claim appears here only with the verification that made it safe
 to use.>
 
+## Where a builder could misread the requirements
+
+| Requirement | Wrong reading | Intended reading, and what this design does |
+| --- | --- | --- |
+
+<Every risk from the prep file, plus any the architect found. A builder
+reads this table before building.>
+
 ## Recommendation
 
 <Only when there is more than one option. Which option, and why, in plain
