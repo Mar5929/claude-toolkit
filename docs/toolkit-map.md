@@ -24,7 +24,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | [second-brain](../plugins/second-brain/README.md) | Portable Git-native project knowledge with one managed operating manual, a small shared startup map, flat memory, approved specifications, project-scoped owner-approved saves, one checker, and separate read-only Claude Code session history | `second-brain`, `remember`, `recall`, `retire`, `reflect`, `session-search` | `/plugin install second-brain` | Sets up a project |
 | [sf-architect-solutioning](../plugins/sf-architect-solutioning/README.md) | Salesforce solution architect: approved solution plan before any build | `sf-architect-solutioning` | `/plugin install sf-architect-solutioning` | Install and go |
 | [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git lifecycle workflows | `pull-latest`, `reset-to-remote`, `merge-and-clean-up` | `/plugin install git-workflows` | Install and go |
-| [hooks-library](../plugins/hooks-library/README.md) | Reusable spec-check, Git-attribution, and Salesforce deployment hooks; system-specific knowledge hooks stay with second-brain | `hooks-library` | `/plugin install hooks-library` | Wires into settings |
+| [hooks-library](../plugins/hooks-library/README.md) | Reusable spec-check, Git-attribution, output-style handshake, and Salesforce deployment hooks; system-specific knowledge hooks stay with second-brain | `hooks-library` | `/plugin install hooks-library` | Wires into settings |
 | [work-tracker](../plugins/work-tracker/README.md) | Local backlog under Git-ignored `.work-items/`, with branch-scoped active items, flexible types, consistent progress, approved completion events, optional Git evidence, handoffs, relationships, folders the owner makes to group related items, an `archive/` folder for set-aside items, and preview-first conversion of older staged trackers | `work` | `/plugin install work-tracker` | Sets up a project |
 | [session-skills](../plugins/session-skills/README.md) | Eleven conversation skills including adaptable delivery, requirements, and design, with focused research, design, and review helpers | `work-guide`, `requirements-helper`, `solution-design`, `braindump`, `explain-simply`, `grill-me`, `handoff`, `session-summary`, `spec-check`, `track-tasks`, `unslop` | `/plugin install session-skills` | Install and go |
 
@@ -295,7 +295,10 @@ The genuine watch-items are called out at the end.
   that reinforced a style of its own: `style-reminder` re-stated it on every
   message and `writing-guard` blocked a finished reply over an em dash or a
   section sign. Both were removed in August 2026 as per-message overhead, and
-  the hand-written style itself was removed in #245. Neither hook could ever
+  the hand-written style itself was removed in #245. On 2026-09-16 the owner
+  added `style-handshake`, which is neither: it reads no reply and judges no
+  writing. It holds a turn open until the agent has opened the style file and
+  ended its message with a line saying the reply matches or was rewritten. Neither hook could ever
   shape a commit message, a document, or anything a helper agent writes; those
   are covered only by the writing rules inside an agent's own definition, since
   the owner removed the `follow-the-output-style` rule on 2026-09-02. A hook

@@ -50,3 +50,8 @@ finishes the work item has to do it.
 - **Not settled behavior.** That is `knowledge/prds/` too. Requirements and
   settled behavior are the same document at two points in time, told apart by
   its `status` line.
+
+## Designs in progress
+
+- `269-knowledge-system.md`: the knowledge system, issue #269. Draft under
+  owner review.
