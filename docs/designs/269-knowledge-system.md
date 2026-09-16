@@ -22,8 +22,13 @@ and they sometimes disagree. The order for settling a disagreement is fixed:
 On 2026-09-16, Mike approved the scope-routing addition in
 [requirement 18](../../knowledge/prds/toolkit-operating-system/knowledge-system.md#18-where-information-goes).
 The save flow and checks below reflect that requirement. The full design
-remains proposed, and the physical design-document location remains a separate
-open choice recorded in issue #269.
+remains proposed. Mike subsequently approved one linked design file for
+GitHub work and clarified that design documents use direct saves.
+[Guided Delivery](../../knowledge/prds/toolkit-operating-system/guided-delivery.md#solution-design)
+owns the location; [parent R25](../../knowledge/prds/toolkit-operating-system/toolkit-operating-system.md#13-frictionless-updates)
+owns the publication route. The reusable publication guidance still needs
+delivery under the existing work records; saving this draft does not approve
+building it.
 
 Where this design follows the walkthrough against the requirements document, it
 says so where it does. Words used in a fixed way throughout:

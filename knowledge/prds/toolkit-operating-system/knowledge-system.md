@@ -1181,6 +1181,11 @@ allowed, and it is the exception.
 
 - When a PRD is too big for one work item, it is broken down into smaller work items in the work tracker. Each work item points back to the PRD and names the numbered requirements it delivers. That is why the requirements are numbered.
 - The solution design and work-item plan own how the work gets built, its roadmap, and build order. They live with the work item or in the project's designated design document linked from that item. The chosen tracker owns current delivery status, dependencies, blockers, and next actions. Use the existing delivery workflow; the knowledge system creates no second planner or tracker.
+
+  [Guided Delivery](guided-delivery.md#solution-design) owns the design-location
+  requirement, and [Toolkit Operating System R25](toolkit-operating-system.md#13-frictionless-updates)
+  owns designated files' direct-save route. Follow those requirements rather
+  than creating a separate design location or publication policy here.
 - A PRD may link to the relevant work item or delivery plan so the agent can find it. It does not copy that plan, build order, or status. Each work item names the PRD requirements it delivers, preserving the connection between requirements and implementation.
 - Agents keep each record current in its own home when the work changes, within existing approval. A work item being created, reordered, or split updates the delivery records. A change to required behavior updates the PRD. The owner never has to direct the filing or keep these records aligned by hand.
 

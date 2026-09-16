@@ -73,15 +73,10 @@ it and that component's own record is updated.
 - The System Guide name, place, summary, and folder shape were approved.
   Its detailed decisions belong to its own PRD and work item; this list does
   not turn individual draft requirements into approved requirements.
-- Solution designs belong on work items. The deleted toolkit map and design
-  folder are not to be restored.
-
-  This earlier direction conflicts with the current repository, which contains
-  both and a merged knowledge-system design. The
-  [2026-09-16 handoff](../../../misc/269-decision-organization-handoff.md)
-  records that "with the work item" is settled but issue text versus a linked
-  file remains unanswered. The scope-routing approval below does not resolve
-  that location choice or authorize moving or deleting those files.
+- Settled 2026-09-16: GitHub work items link to one versioned design file.
+  [Guided Delivery](guided-delivery.md#solution-design) owns the design-location
+  requirement. R25 owns its direct-save route. This replaces the earlier
+  direction to keep the design text on the issue and drop the design folder.
 - Settled 2026-09-10: projects must identify folders that get frictionless
   updates. Knowledge files go straight to main and are pushed, even while
   implementation is in a worktree. Local work items stay in their untracked
@@ -455,15 +450,17 @@ the report does not claim it did.
 
 ## 13. Frictionless updates
 
-Built on 2026-09-10 through [issue 307](https://github.com/Mar5929/claude-toolkit/issues/307)
+The knowledge and local-tracker save guidance was built on 2026-09-10 through [issue 307](https://github.com/Mar5929/claude-toolkit/issues/307)
 and [PR 308](https://github.com/Mar5929/claude-toolkit/pull/308).
 Project-init 0.68.0 supplies the root guidance and save rule; second-brain
 4.8.1 aligns its existing save guidance. Existing projects receive the change
 through plugin updates and project sync. This is shipped guidance, not proof
-that every installed session follows it.
+that every installed session follows it. The design-document extension below
+was approved on 2026-09-16; its reusable publication guidance is still delivery
+work, not part of that earlier release.
 
 **R25. Make each project's quick-save locations clear from the start.** The
-agent must know which folders receive frictionless updates without Mike naming
+agent must know which files or folders receive frictionless updates without Mike naming
 them again. The installed project `CLAUDE.md` must identify those locations and
 point to the instructions that own their save behavior. Keep that pointer
 short; do not duplicate the full rule or procedure there. Setup supplies it
@@ -472,12 +469,18 @@ and project sync brings it to existing projects.
 | Location | Save behavior |
 | --- | --- |
 | `knowledge/` files | Make the authorized update promptly, perform the relevant checks, commit directly to main (or the project's default branch), and push. The save must not wait on an implementation branch or pull request, even when the session's other work is in a worktree. |
+| Design documents in the project's designated design location | Save authorized changes directly to main (or the project's default branch), commit, and push as the work proceeds. Use the location defined by [Guided Delivery](guided-delivery.md#solution-design). Do not create a worktree, feature branch, or pull request for the document save, or wait for implementation to ship. |
 | Locally tracked work items | Update the existing untracked store through its tracker. Do not add its files to Git or require a commit, push, or worktree to keep them accurate. |
-| Any additional quick-save location | Identify it explicitly in the project's guidance and state its save route. Do not assume every documentation folder qualifies. |
+| Any additional quick-save file or folder | Identify it explicitly in the project's guidance and state its save route. Do not assume every documentation folder qualifies. |
 
 Frictionless means quick, small saves as work happens, without repeated
-permission for a save already authorized. Once Mike allows a knowledge save,
-finish the commit and push to main; writing only a local file is not enough.
+permission for a save already authorized. For designated tracked files, the
+agent uses the existing default-branch checkout and handles the commit and
+push. It does not create a separate worktree or branch for the save, require a
+pull request, or ask Mike to operate Git. An implementation session using a
+worktree still saves these documents through their direct route.
+Once Mike allows a quick save, finish the commit and push to main; writing only
+a local file is not enough.
 Saving a proposed PRD does not require approving its requirements. Preserve
 its proposed status and report validation separately from publication.
 This does not waive approval needed for new lasting meaning. Keep implementation changes separate, preserve other
@@ -487,11 +490,23 @@ do not quietly park the save on a worktree branch or call an unpushed save
 complete. If Mike explicitly directs publication with a known validation
 issue, preserve that issue in the work record rather than claiming a pass.
 
+Mike confirmed this distinction on 2026-09-16 while approving the linked design
+file: selected files and folders do not need the implementation branch process.
+The [issue #306 Progress log](https://github.com/Mar5929/claude-toolkit/issues/306#issuecomment-5622497546)
+records this R25 clarification; issue #269 is the originating discussion.
+
 **Check:** from a fresh session doing implementation in a worktree, approve a
 knowledge correction and change a local work item's next step. Without a
 reminder, the agent finds the installed save guidance, commits and pushes only
 the authorized knowledge change to the default branch, and updates the local
 item without tracking it in Git. The implementation stays in its worktree.
+
+**Check:** repeat with an authorized design-document update and another file
+explicitly designated for direct saves. The agent finds their configured routes
+and publishes the changes without creating a worktree, feature branch, or pull
+request for them. An unrelated documentation file does not acquire that route
+by inference. No unrelated implementation or another session's unapproved work
+is included. A failed save stays visibly unfinished.
 
 ## Walkthrough: a search that misses advisors
 
@@ -533,7 +548,6 @@ authorizes implementation or changes the neighboring PRD by implication.
 | Hard refusals and lightweight work | Second-brain requirement 3 proposes forced save-review moments. Upkeep favors adaptable stages and deliberately allows an unapproved local Done record while reporting the gap. A component's mechanism cannot be assumed to enforce the whole experience. | Preserve each component's existing decision. Specify the effect of knowledge-review failures on work completion before design; do not add blanket process gates here. |
 | Remaining knowledge-format transition | The manual and proposed second brain still differ on naming and metadata, including the proposed content-change date. Group and finalized status are now accepted by the checker, alongside legacy current. | Keep the remaining transition with #269. Compatibility support does not prove the full second-brain proposal is implemented. |
 | Helper agents | The ask-first instruction for this drafting session does not establish a permanent policy. Guided delivery permits bounded delegation without a blanket ask-first rule. | Retain guided delivery's bounded delegation, while honoring owner limits and scoped permissions. Ask Mike before making ask-first a toolkit-wide requirement. |
-| Design-document location | The earlier direction says designs belong on work items and the design folder must not be restored; current guidance and the merged design use a linked file. | Settle issue text versus a linked file before changing the placement instructions. Requirement 18 owns routing; Guided Delivery owns the detailed design-work requirement. |
 | Roadmap ownership | Guided delivery allows adaptable plans in existing records. Second-brain requirement 16 requires a PRD roadmap for a large feature. | A PRD lists work order and requirement coverage; the tracker owns live status and the detailed plan. Confirm this boundary rather than maintaining two editable plans. |
 | Concurrent current context | Second-brain requirements now explicitly require preserving other sessions and reconciling overlapping updates. Upkeep owns each item. | Reuse that agreement under R18. The coordination method belongs in design, not another owner interview. |
 | Installation across hosts | The marketplaces differ. This review did not establish which omitted guards have equivalent active coverage in Codex. | Require a per-host capability and gap report under R5 and R19. Do not assume a missing marketplace entry either proves no protection or grants equivalent protection. |

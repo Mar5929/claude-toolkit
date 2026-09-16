@@ -2,7 +2,7 @@
 summary: Guided delivery lets the owner focus on decisions while the main conversation maintains adaptable plans and brings in focused requirements, design, research, and review help using the project's existing records.
 area: guided-delivery
 status: current
-source: GitHub issues 300 and 302; Mike's 2026-09-08 build-and-ship instruction and requested plain-language PRD addition; Mike's 2026-09-16 solution-design skill requests and PRD update instruction (pull requests 344 and 345)
+source: GitHub issues 300 and 302; Mike's 2026-09-08 build-and-ship instruction and requested plain-language PRD addition; Mike's 2026-09-16 solution-design skill requests and PRD update instruction (pull requests 344 and 345); Mike's 2026-09-16 linked-design and direct-save clarification under issue 269
 created_at: 2026-09-08
 tags: [delivery, requirements, design, collaboration]
 approved_by: Mike Rihm
@@ -75,6 +75,29 @@ and effort in the context of what is being built and recommends a team for
 that item: a product analyst, researchers, a technical architect per option,
 a critic, and task agents as needed, each on the model that fits its role.
 The owner agrees or changes the team before any helper starts.
+
+For GitHub-tracked work, the default design home is one versioned file under
+`docs/designs/`, linked prominently from the issue. The file owns the design;
+the issue owns progress, approvals, and remaining work. Neither keeps another
+copy of the other's content. The existing local tracker's convention is
+unchanged: its design stays with the item in its untracked folder.
+
+Design documents use the project's direct-save route under
+[Toolkit Operating System R25](toolkit-operating-system.md#13-frictionless-updates).
+The owner does not manage a worktree, branch, or pull request to keep them
+current. Permission to save a draft does not approve the design or its build.
+
+Mike approved the linked-file default and clarified direct saves on 2026-09-16
+in the [issue #269 discussion](https://github.com/Mar5929/claude-toolkit/issues/269#issuecomment-5510064692).
+This settles the earlier issue-text-versus-file question. The publication
+guidance still needs to be aligned through the delivery work recorded there;
+this requirement is not evidence that the shipped save workflow has changed.
+
+**Check:** open a GitHub work item. Its link leads to one current design file,
+while the issue shows progress and approval. During an authorized design
+interview, settle a change: the agent saves it through R25 without asking the
+owner to manage Git or waiting for the implementation pull request. A fresh
+session finds the changed design and its true approval state from the issue.
 
 One prep file holds the intent, the readiness result, the rulings, the way of
 working, the team, every interview answer, and the constraints. Every helper
