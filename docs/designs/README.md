@@ -55,3 +55,7 @@ finishes the work item has to do it.
 
 - `269-knowledge-system.md`: the knowledge system, issue #269. Draft under
   owner review.
+- `docs/designs/269-knowledge-system/`: the working records behind that design,
+  kept as history. Its `269-knowledge-system/README.md` says what each file is
+  and who wrote it, `process.md` says how the design was made and where it
+  stands, and `prep.md` is the design prep file.

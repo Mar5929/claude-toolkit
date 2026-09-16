@@ -231,44 +231,47 @@ open question 2 put that decision to him.
 ## 4. The parts
 
 `ENF` means ENFORCE. `GDE` means GUIDE. Context cost is characters added to the
-agent's context.
+agent's context. `Requirements met` names the PRD requirements from section 7
+that the part serves. Requirements 1, 26, and 29 are met by every part in the
+table, so they are named only in a row where the part meets one of them in a
+specific way.
 
-| Kind | Name and path | Purpose | Control | When it runs or loads | Context cost | Documentation page followed |
-| --- | --- | --- | --- | --- | --- | --- |
-| File | `SOUL.md` | What the agent is responsible for in this project | GDE | Printed by `startup-files.mjs` | About 450 characters at start | None. Plain Markdown. |
-| File | `knowledge/project.md` | What the project is, its resources, its tracker, and the `memory_approval` setting in frontmatter | GDE | Printed by `startup-files.mjs` | About 1,000 characters at start | None. Plain Markdown. |
-| File | `knowledge/README.md` | The manual, also called the map: where each kind of information lives, the find order, the save moments, the approval rule, the file list, the skills | GDE | Printed by `startup-files.mjs` | Under 4,000 characters at start, 5,000 at its ceiling | None. Plain Markdown. |
-| File | `knowledge/memory/current.md` | The shared overview of active work across sessions | GDE | Printed by `startup-state.mjs` | Under 5,000 characters, capped by the checker | None. Plain Markdown. |
-| File | `knowledge/memory-inbox.md` | Unanswered cards and approved saves that did not finish | GDE on content, ENF on the tool used | Heading and state lines printed by `startup-state.mjs`; entries opened on demand | About 60 characters per entry at start, capped at 1,200 | None. Plain Markdown. |
-| File | `knowledge/memory/memory-index.md` | Generated index of memory topics | GDE | Path and entry count printed at start; contents opened during a lookup | About 60 characters at start | None. Plain Markdown. |
-| File | `knowledge/prds/prd-index.md` | Generated index of requirements documents | GDE | Path and entry count printed at start; contents opened during a lookup | About 60 characters at start | None. Plain Markdown. |
-| File | `ai-external-knowledge/README.md` | Generated index of captured outside documentation | GDE | Path printed at start; opened during a lookup | One line at start | None. Plain Markdown. |
-| File | `knowledge/memory/memory-entries/` | Memory topic files and topic folders | ENF on shape | Opened on demand | Zero until opened | None. Plain Markdown. |
-| File | `knowledge/memory/memory-entries/terminology-glossary.md` | The project's words and what they refer to | GDE | Printed whole at start when under 1,500 characters, else its `Term / aliases` and `Refers to` columns up to 1,500 characters, then its path | Up to 1,500 characters | None. Plain Markdown. |
-| File | `knowledge/prds/` | Requirements documents, parent and child | ENF on shape | Opened on demand | Zero until opened | None. Plain Markdown. |
-| File | `knowledge/memory-selection-feedback.md` | What the owner accepts and rejects as memory | GDE | Read by `knowledge-save` | Zero until read; capped at 4,000 characters | None. Plain Markdown. |
-| File | `brainstorms/` | Unchecked exploration at the project root | GDE | Opened on demand | Zero | None. Plain Markdown. |
-| Rule | `.claude/rules/knowledge-system.md` | The standing obligations, 26 lines | GDE | Every session, and re-injected from disk after compaction | 1,998 characters per request, measured | `ai-external-knowledge/claude-code/memory.md`, section "Organize rules with `.claude/rules/`" |
-| Skill | `knowledge-find` | How to look something up and how to cite it | GDE | When the agent or the owner invokes it | Description always, under 500 characters; body about 3,000 characters when invoked | `ai-external-knowledge/claude-code/skills.md`, section "Frontmatter reference" |
-| Skill | `knowledge-save` | The whole save path: candidates, home, card, approval, write, check, push | GDE | When the agent or the owner invokes it | Description always, under 500 characters; body about 6,000 characters when invoked | `ai-external-knowledge/claude-code/skills.md`, sections "Frontmatter reference" and "Add supporting files" |
-| Skill | `knowledge-review` | Whole-folder review for duplicates, conflicts, and retirement | GDE | On request, or after a migration | Description always, under 500 characters; body about 3,000 characters when invoked | `ai-external-knowledge/claude-code/skills.md`, section "Frontmatter reference" |
-| Skill | `knowledge-setup` | Turn the system on in a project, migrate the layout, repair, and report | GDE | On request, or from `/project-init` and `/project-sync` | Description always, under 500 characters; body about 5,000 characters when invoked | `ai-external-knowledge/claude-code/skills.md`, section "Frontmatter reference" |
-| Hook | `hooks/startup-files.mjs`, `SessionStart` | Print the version line, then `SOUL.md`, `knowledge/project.md`, and `knowledge/README.md`, in that order | ENF on delivery | Session start, resume, clear, compaction, fork | Up to 9,500 characters per start | `ai-external-knowledge/claude-code/hooks.md`, section "SessionStart" |
-| Hook | `hooks/startup-state.mjs`, `SessionStart` | Print the version line, the inbox state lines, the glossary, the two index paths and their entry counts, the System Guide line, `knowledge/memory/current.md`, and the last line | ENF on delivery | Session start, resume, clear, compaction, fork | Up to 9,500 characters per start | `ai-external-knowledge/claude-code/hooks.md`, section "SessionStart" |
-| Hook | `hooks/save-moment-gate.mjs`, `PreToolUse` | Hold a pull request, a work-item close, or `work finish`, the work tracker's finish command, until the save skill ran | ENF | Before the matching tool call | Zero unless it denies, then about 220 characters | `ai-external-knowledge/claude-code/hooks.md`, sections "PreToolUse" and "Common fields" |
-| Hook | `hooks/knowledge-write-guard.mjs`, `PreToolUse` | Refuse a write to a lasting file until the save skill ran, and always inside a subagent | ENF | Before `Edit` or `Write` under the lasting paths | Zero unless it denies, then about 200 characters | `ai-external-knowledge/claude-code/hooks.md`, section "PreToolUse input" |
-| Hook | `hooks/knowledge-after-write.mjs`, `PostToolUse` | Run the checker and rebuild the affected index after a knowledge write | ENF | After `Edit` or `Write` under `knowledge/` or `ai-external-knowledge/` | Zero on a clean write; about 300 characters on a failure | `ai-external-knowledge/claude-code/hooks.md`, section "PostToolUse" |
-| Hook | `hooks/session-review-nudge.mjs`, `Stop` | Raise the review moment that no command announces, and report a checker failure on files changed through Bash | GDE | At the end of each turn | Zero unless it speaks, then about 250 characters and one forced continuation | `ai-external-knowledge/claude-code/hooks.md`, section "Stop" |
-| Hook | `hooks/compact-hold.mjs`, `PreCompact` | Hold a manual compaction once, so the review happens before the context is summarized | ENF | On `/compact` only | Zero unless it holds | `ai-external-knowledge/claude-code/hooks.md`, section "PreCompact" |
-| Tool | `tools/build-knowledge-index.mjs` | Generate the three indexes | ENF on format | From the after-write hook, or by hand | Zero | None. A Node script. |
-| Tool | `tools/check-knowledge.mjs` | Check fields, values, size limits, links, and secrets. Read-only | ENF | From the after-write hook, the pre-commit hook, or by hand | Zero | None. A Node script. |
-| Tool | `tools/frontmatter.mjs` | The shared frontmatter parser | ENF on parsing | Imported by the other two tools | Zero | None. A Node module. |
-| Tool | `hooks/command-parsing.mjs` | The shared shell-command parser, kept unchanged. It ships today at `plugins/second-brain/hooks/command-parsing.mjs` and `save-reminder.mjs` imports it. Detail in 6.5 | ENF on parsing | Imported by `save-moment-gate.mjs` | Zero | None. A Node module. |
-| Tool | `tools/session-marker.mjs` | Write the marker that says `knowledge-save` was invoked | ENF on recording | From a dynamic context injection line in the `knowledge-save` body | Zero | `ai-external-knowledge/claude-code/skills.md`, sections "Inject dynamic context", "How injected commands run", and "When an injected command fails" |
-| Tool | `.githooks/pre-commit` | Run the checker on staged knowledge files and refuse a failing commit | ENF | On every `git commit` in an equipped project | Zero | Git documentation for `core.hooksPath` |
-| State | `${CLAUDE_PLUGIN_DATA}/sessions/<session_id>.json` | The few session facts the hooks share | ENF on storage | Written and read by the hooks | Zero | `ai-external-knowledge/claude-code/plugins-reference.md`, section "Persistent data directory" |
-| Setting | `.claude/settings.json`: `enabledPlugins`, `autoMemoryEnabled: false` | Turn the plugin on and Claude Code auto memory off | ENF | Session load | Zero | `ai-external-knowledge/claude-code/memory.md`, section "Auto memory" |
-| Setting | Codex `config.toml`: `memories.generate_memories`, `memories.use_memories` | Turn the Codex memory pipeline off | ENF | Session load | Zero | Codex source at commit 9771934, `codex-rs/config/src/types.rs` |
+| Kind | Name and path | Purpose | Requirements met | Control | When it runs or loads | Context cost | Documentation page followed |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| File | `SOUL.md` | What the agent is responsible for in this project | none directly (supports `startup-files.mjs`) | GDE | Printed by `startup-files.mjs` | About 450 characters at start | None. Plain Markdown. |
+| File | `knowledge/project.md` | What the project is, its resources, its tracker, and the `memory_approval` setting in frontmatter | 10, 14 | GDE | Printed by `startup-files.mjs` | About 1,000 characters at start | None. Plain Markdown. |
+| File | `knowledge/README.md` | The manual, also called the map: where each kind of information lives, the find order, the save moments, the approval rule, the file list, the skills | 2, 18 | GDE | Printed by `startup-files.mjs` | Under 4,000 characters at start, 5,000 at its ceiling | None. Plain Markdown. |
+| File | `knowledge/memory/current.md` | The shared overview of active work across sessions | 4, 13, 30 | GDE | Printed by `startup-state.mjs` | Under 5,000 characters, capped by the checker | None. Plain Markdown. |
+| File | `knowledge/memory-inbox.md` | Unanswered cards and approved saves that did not finish | 28 | GDE on content, ENF on the tool used | Heading and state lines printed by `startup-state.mjs`; entries opened on demand | About 60 characters per entry at start, capped at 1,200 | None. Plain Markdown. |
+| File | `knowledge/memory/memory-index.md` | Generated index of memory topics | 21 | GDE | Path and entry count printed at start; contents opened during a lookup | About 60 characters at start | None. Plain Markdown. |
+| File | `knowledge/prds/prd-index.md` | Generated index of requirements documents | 21 | GDE | Path and entry count printed at start; contents opened during a lookup | About 60 characters at start | None. Plain Markdown. |
+| File | `ai-external-knowledge/README.md` | Generated index of captured outside documentation | 8, 21 | GDE | Path printed at start; opened during a lookup | One line at start | None. Plain Markdown. |
+| File | `knowledge/memory/memory-entries/` | Memory topic files and topic folders | 14 | ENF on shape | Opened on demand | Zero until opened | None. Plain Markdown. |
+| File | `knowledge/memory/memory-entries/terminology-glossary.md` | The project's words and what they refer to | 7 | GDE | Printed whole at start when under 1,500 characters, else its `Term / aliases` and `Refers to` columns up to 1,500 characters, then its path | Up to 1,500 characters | None. Plain Markdown. |
+| File | `knowledge/prds/` | Requirements documents, parent and child | 16 | ENF on shape | Opened on demand | Zero until opened | None. Plain Markdown. |
+| File | `knowledge/memory-selection-feedback.md` | What the owner accepts and rejects as memory | 11, 23 | GDE | Read by `knowledge-save` | Zero until read; capped at 4,000 characters | None. Plain Markdown. |
+| File | `brainstorms/` | Unchecked exploration at the project root | 18 | GDE | Opened on demand | Zero | None. Plain Markdown. |
+| Rule | `.claude/rules/knowledge-system.md` | The standing obligations, 26 lines | 2, 3, 5, 6, 13, 19 | GDE | Every session, and re-injected from disk after compaction | 1,998 characters per request, measured | `ai-external-knowledge/claude-code/memory.md`, section "Organize rules with `.claude/rules/`" |
+| Skill | `knowledge-find` | How to look something up and how to cite it | 2, 4, 5, 6, 8, 16, 19, 24 | GDE | When the agent or the owner invokes it | Description always, under 500 characters; body about 3,000 characters when invoked | `ai-external-knowledge/claude-code/skills.md`, section "Frontmatter reference" |
+| Skill | `knowledge-save` | The whole save path: candidates, home, card, approval, write, check, push | 2, 3, 7, 9, 10, 11, 12, 14, 15, 16, 17, 18, 20, 22, 23, 24, 28, 30 | GDE | When the agent or the owner invokes it | Description always, under 500 characters; body about 6,000 characters when invoked | `ai-external-knowledge/claude-code/skills.md`, sections "Frontmatter reference" and "Add supporting files" |
+| Skill | `knowledge-review` | Whole-folder review for duplicates, conflicts, and retirement | 2, 22, 23, 24 | GDE | On request, or after a migration | Description always, under 500 characters; body about 3,000 characters when invoked | `ai-external-knowledge/claude-code/skills.md`, section "Frontmatter reference" |
+| Skill | `knowledge-setup` | Turn the system on in a project, migrate the layout, repair, and report | 2, 3, 7, 18, 24, 25, 27 | GDE | On request, or from `/project-init` and `/project-sync` | Description always, under 500 characters; body about 5,000 characters when invoked | `ai-external-knowledge/claude-code/skills.md`, section "Frontmatter reference" |
+| Hook | `hooks/startup-files.mjs`, `SessionStart` | Print the version line, then `SOUL.md`, `knowledge/project.md`, and `knowledge/README.md`, in that order | 2, 3 | ENF on delivery | Session start, resume, clear, compaction, fork | Up to 9,500 characters per start | `ai-external-knowledge/claude-code/hooks.md`, section "SessionStart" |
+| Hook | `hooks/startup-state.mjs`, `SessionStart` | Print the version line, the inbox state lines, the glossary, the two index paths and their entry counts, the System Guide line, `knowledge/memory/current.md`, and the last line | 2, 3, 4, 7, 13, 28 | ENF on delivery | Session start, resume, clear, compaction, fork | Up to 9,500 characters per start | `ai-external-knowledge/claude-code/hooks.md`, section "SessionStart" |
+| Hook | `hooks/save-moment-gate.mjs`, `PreToolUse` | Hold a pull request, a work-item close, or `work finish`, the work tracker's finish command, until the save skill ran | 3, 9, 16, 30 | ENF | Before the matching tool call | Zero unless it denies, then about 220 characters | `ai-external-knowledge/claude-code/hooks.md`, sections "PreToolUse" and "Common fields" |
+| Hook | `hooks/knowledge-write-guard.mjs`, `PreToolUse` | Refuse a write to a lasting file until the save skill ran, and always inside a subagent | 3, 10, 13, 14 | ENF | Before `Edit` or `Write` under the lasting paths | Zero unless it denies, then about 200 characters | `ai-external-knowledge/claude-code/hooks.md`, section "PreToolUse input" |
+| Hook | `hooks/knowledge-after-write.mjs`, `PostToolUse` | Run the checker and rebuild the affected index after a knowledge write | 3, 14, 21 | ENF | After `Edit` or `Write` under `knowledge/` or `ai-external-knowledge/` | Zero on a clean write; about 300 characters on a failure | `ai-external-knowledge/claude-code/hooks.md`, section "PostToolUse" |
+| Hook | `hooks/session-review-nudge.mjs`, `Stop` | Raise the review moment that no command announces, and report a checker failure on files changed through Bash | 3, 9, 10, 21, 28 | GDE | At the end of each turn | Zero unless it speaks, then about 250 characters and one forced continuation | `ai-external-knowledge/claude-code/hooks.md`, section "Stop" |
+| Hook | `hooks/compact-hold.mjs`, `PreCompact` | Hold a manual compaction once, so the review happens before the context is summarized | 3, 9 | ENF | On `/compact` only | Zero unless it holds | `ai-external-knowledge/claude-code/hooks.md`, section "PreCompact" |
+| Tool | `tools/build-knowledge-index.mjs` | Generate the three indexes | 8, 21 | ENF on format | From the after-write hook, or by hand | Zero | None. A Node script. |
+| Tool | `tools/check-knowledge.mjs` | Check fields, values, size limits, links, and secrets. Read-only | 10, 12, 13, 14, 16, 21 | ENF | From the after-write hook, the pre-commit hook, or by hand | Zero | None. A Node script. |
+| Tool | `tools/frontmatter.mjs` | The shared frontmatter parser | none directly (supports `build-knowledge-index.mjs` and `check-knowledge.mjs`) | ENF on parsing | Imported by the other two tools | Zero | None. A Node module. |
+| Tool | `hooks/command-parsing.mjs` | The shared shell-command parser, kept unchanged. It ships today at `plugins/second-brain/hooks/command-parsing.mjs` and `save-reminder.mjs` imports it. Detail in 6.5 | none directly (supports `save-moment-gate.mjs`) | ENF on parsing | Imported by `save-moment-gate.mjs` | Zero | None. A Node module. |
+| Tool | `tools/session-marker.mjs` | Write the marker that says `knowledge-save` was invoked | none directly (supports `save-moment-gate.mjs`, `knowledge-write-guard.mjs`, and `session-review-nudge.mjs`) | ENF on recording | From a dynamic context injection line in the `knowledge-save` body | Zero | `ai-external-knowledge/claude-code/skills.md`, sections "Inject dynamic context", "How injected commands run", and "When an injected command fails" |
+| Tool | `.githooks/pre-commit` | Run the checker on staged knowledge files and refuse a failing commit | 10, 14, 21 | ENF | On every `git commit` in an equipped project | Zero | Git documentation for `core.hooksPath` |
+| State | `${CLAUDE_PLUGIN_DATA}/sessions/<session_id>.json` | The few session facts the hooks share | 29 | ENF on storage | Written and read by the hooks | Zero | `ai-external-knowledge/claude-code/plugins-reference.md`, section "Persistent data directory" |
+| Setting | `.claude/settings.json`: `enabledPlugins`, `autoMemoryEnabled: false` | Turn the plugin on and Claude Code auto memory off | 1, 10, 27 | ENF | Session load | Zero | `ai-external-knowledge/claude-code/memory.md`, section "Auto memory" |
+| Setting | Codex `config.toml`: `memories.generate_memories`, `memories.use_memories` | Turn the Codex memory pipeline off | 1, 10, 25 | ENF | Session load | Zero | Codex source at commit 9771934, `codex-rs/config/src/types.rs` |
 
 Four notes on the table. A plugin cannot ship a `.claude/rules` file and
 cannot ship CLAUDE.md text
@@ -452,6 +455,8 @@ no file below repeats that. Section 8.1 holds the harness differences.
 
 #### `SOUL.md`
 
+Requirements met: none directly (supports `startup-files.mjs`)
+
 What it is: what the agent is responsible for in this project. It sits at the
 project root, not under `knowledge/`. Mechanism: an ordinary file. It reaches
 the agent because `startup-files.mjs` prints it first, after the version line.
@@ -464,6 +469,8 @@ it grows past its share of the budget. Recovery: the overflow rule in
 silently cut. Setup guidance keeps it under 1,000 characters.
 
 #### `knowledge/project.md`
+
+Requirements met: 10, 14
 
 What it is: what the project is, the real systems it uses, their names and IDs,
 the folders that matter, and where work is tracked. It also carries one
@@ -487,6 +494,8 @@ Context cost: about 1,000 characters at start. Setup guidance keeps it under
 1,500 characters.
 
 #### `knowledge/README.md`, the manual
+
+Requirements met: 2, 18
 
 What it is: one file that says where each kind of information lives and what
 the rules are. The requirements document calls it the manual; requirement 2
@@ -536,6 +545,8 @@ never allows quietly dropping meaning the owner approved.
 
 #### `knowledge/memory/current.md`
 
+Requirements met: 4, 13, 30
+
 What it is: the shared overview across all sessions in this project. The
 project goal and next milestone, then one section per active work item with its
 goal, where the work stands, the next step, the blocker or None, its to-dos,
@@ -567,6 +578,8 @@ the line it returns.
 
 #### `knowledge/memory-inbox.md`
 
+Requirements met: 28
+
 What it is: proposals the owner has not answered, and approved saves that did
 not finish. One `##` heading per entry, keyed by a reference that does not
 change. States are `awaiting approval`, `approved, save unfinished`, and
@@ -596,6 +609,8 @@ lines stop at 1,200 characters, and the last line reads "and N more entries in
 knowledge/memory-inbox.md".
 
 #### The three generated indexes
+
+Requirements met: 8, 21
 
 `knowledge/memory/memory-index.md`, `knowledge/prds/prd-index.md`, and
 `ai-external-knowledge/README.md`. What they are: generated lists. Entries
@@ -627,6 +642,8 @@ bytes, and any write under `knowledge/` triggers a rebuild.
 
 #### `knowledge/memory/memory-entries/`
 
+Requirements met: 14
+
 What it is: one home per topic area. One Markdown file by default, or a topic
 folder holding related files when an approved split says so. Each file carries
 the twelve required frontmatter fields of requirement 14: `summary`, `group`,
@@ -640,6 +657,8 @@ Control: ENFORCE on shape, through `check-knowledge.mjs`,
 nothing checks whether a saved fact is true.
 
 #### `knowledge/memory/memory-entries/terminology-glossary.md`
+
+Requirements met: 7
 
 What it is: a title, one purpose sentence, and one alphabetical table with the
 columns Term / aliases, Plain meaning, Refers to, Watch out, Source / date. It
@@ -655,6 +674,8 @@ Context cost: up to 1,500 characters at start.
 
 #### `knowledge/prds/`
 
+Requirements met: 16
+
 One requirements document per feature area, or a folder holding a parent and
 its children. Required fields: `summary`, `group`, `area`, `status`, `source`,
 `created_at`, `updated_at`, `tags`. `approved_by` and `approval_date` are both
@@ -666,6 +687,8 @@ thirty test cases cover it. Both are kept.
 
 #### `knowledge/memory-selection-feedback.md`
 
+Requirements met: 11, 23
+
 What this owner accepts and rejects as memory, so later proposals improve. A
 table of date, candidate, outcome, and the owner's stated reason, or "no reason
 given". The checker warns above 4,000 characters and never refuses the write,
@@ -675,6 +698,8 @@ about how the agent works, not a fact about the project, so keeping it current
 needs no approval. Control: GUIDE on content and on size.
 
 #### `brainstorms/`
+
+Requirements met: 18
 
 Unchecked exploration, at the project root, outside `knowledge/`. Nothing in it
 is project truth. Control: GUIDE.
@@ -688,6 +713,8 @@ The file is written into a project by `project-init` and `project-sync`, from
 the shipped rule library at `plugins/project-init/library/rules/general/`.
 
 #### `.claude/rules/knowledge-system.md`
+
+Requirements met: 2, 3, 5, 6, 13, 19
 
 What it is: the standing obligations, 26 lines, no `paths` frontmatter, so it
 loads in every session. Mechanism: an unscoped rule file. Documentation
@@ -795,6 +822,8 @@ session that invokes many skills can lose the save skill's body entirely.
 
 #### `knowledge-find`
 
+Requirements met: 2, 4, 5, 6, 8, 16, 19, 24
+
 Replaces the shipped `recall` and `session-search` skills. Description names:
 picking up work, a question about a decision or a required behavior,
 troubleshooting, and the moment before a multi-step procedure. Body outline:
@@ -821,6 +850,8 @@ characters when invoked. The history search is Claude Code only and
 reports itself unavailable in Codex.
 
 #### `knowledge-save`
+
+Requirements met: 2, 3, 7, 9, 10, 11, 12, 14, 15, 16, 17, 18, 20, 22, 23, 24, 28, 30
 
 Replaces `remember`, `retire`, and the writing half of `reflect`. Description
 names: remember, save, write this down, a fixed problem, before a pull request,
@@ -922,6 +953,8 @@ which proves the command ran and not that the body was read.
 
 #### `knowledge-review`
 
+Requirements met: 2, 22, 23, 24
+
 Replaces the folder-wide half of `reflect`. Description names: a whole-folder
 review, duplicates, contradictions, cleanup, and the check after a layout
 migration. Body outline: read every memory topic and requirements document;
@@ -931,6 +964,8 @@ Reference file: `references/review-checklist.md`. Control: GUIDE. Context cost:
 description always; body about 3,000 characters when invoked.
 
 #### `knowledge-setup`
+
+Requirements met: 2, 3, 7, 18, 24, 25, 27
 
 Replaces `second-brain`. Description names: set up, turn on, check, repair,
 explain, and bring up to date. Body outline: detect what state the project is
@@ -982,6 +1017,8 @@ return startup text for one event, the agent receives all of the values
 event.
 
 #### `startup-files.mjs`, `SessionStart`
+
+Requirements met: 2, 3
 
 Matcher: `startup|resume|clear|compact|fork`. Input fields read: `session_id`,
 `source`, `cwd`. Every path it prints is resolved from the repository root that
@@ -1037,6 +1074,8 @@ Codex: same, on the same five sources, through
 matcher today, and `additionalContextLimit` is set to 10,000, explained in 6.7.
 
 #### `startup-state.mjs`, `SessionStart`
+
+Requirements met: 2, 3, 4, 7, 13, 28
 
 Matcher: `startup|resume|clear|compact|fork`. Same event, same input fields,
 same output form, and the same fail-open rules as `startup-files.mjs`. Print
@@ -1111,6 +1150,8 @@ wrong, and the recovery:
 Codex: same, through `hookSpecificOutput.additionalContext`.
 
 #### `save-moment-gate.mjs`, `PreToolUse`
+
+Requirements met: 3, 9, 16, 30
 
 Matchers and `if` filters. One `if` field holds exactly one permission rule,
 with no way to combine rules, so each pattern is its own handler entry
@@ -1187,6 +1228,8 @@ tool.
 
 #### `knowledge-write-guard.mjs`, `PreToolUse`
 
+Requirements met: 3, 10, 13, 14
+
 Matcher: `Edit|Write`. One `if` field holds one permission rule, so each pattern
 below is its own handler entry pointing at the same script:
 `Edit(**/knowledge/memory/memory-entries/**)`,
@@ -1244,6 +1287,8 @@ script reads the `*** Update File:` and `*** Add File:` lines out of the patch.
 
 #### `knowledge-after-write.mjs`, `PostToolUse`
 
+Requirements met: 3, 14, 21
+
 Matcher `Edit|Write`. One `if` field holds one permission rule, so each pattern
 is its own handler entry pointing at the same script: `Edit(**/knowledge/**)`,
 `Write(**/knowledge/**)`, `Edit(**/ai-external-knowledge/**)`, and
@@ -1283,6 +1328,8 @@ Codex: the same event and keys, with no `if` field, so the script's own path
 filter does the work on every tool call.
 
 #### `session-review-nudge.mjs`, `Stop`
+
+Requirements met: 3, 9, 10, 21, 28
 
 Documentation page: `ai-external-knowledge/claude-code/hooks.md`, section
 "Stop". A `Stop` hook's `hookSpecificOutput.additionalContext` keeps the
@@ -1339,6 +1386,8 @@ cap there, so the session-state file is what prevents a second block. See 8.4.
 
 #### `compact-hold.mjs`, `PreCompact`
 
+Requirements met: 3, 9
+
 Matcher: `manual` only. Auto compaction is never held, because blocking a
 recovery compaction can fail the request. Documentation page:
 `ai-external-knowledge/claude-code/hooks.md`, section "PreCompact", lines 2989
@@ -1385,6 +1434,8 @@ the plugin path, and `tests/installed-copy-check.mjs` changes with them.
 
 #### `build-knowledge-index.mjs`
 
+Requirements met: 8, 21
+
 What it is: the only writer of the three indexes. It groups by each file's
 `group` field, sorts groups and files by one fixed rule so the same input
 always produces the same bytes, keeps a topic folder's files under one heading,
@@ -1395,6 +1446,8 @@ What can go wrong: a Git merge leaves an index wrong with no reported conflict;
 the fixed sort rule and the after-write rebuild are the recovery.
 
 #### `check-knowledge.mjs`
+
+Requirements met: 10, 12, 13, 14, 16, 21
 
 What it is: a read-only checker. It never edits a file, and a test asserts the
 file on disk is byte-identical after a run. Both are kept. What it checks, and
@@ -1427,11 +1480,15 @@ after-write hook does not fire.
 
 #### `frontmatter.mjs`
 
+Requirements met: none directly (supports `build-knowledge-index.mjs` and `check-knowledge.mjs`)
+
 The shared frontmatter parser, imported by the other two tools, so they cannot
 disagree about what a file says. It reports what it does not understand rather
 than guessing. Kept as it is today.
 
 #### `session-marker.mjs`
+
+Requirements met: none directly (supports `save-moment-gate.mjs`, `knowledge-write-guard.mjs`, and `session-review-nudge.mjs`)
 
 What it is: the script that writes `save_skill_at` and `branch` into the
 session-state file. It runs from the dynamic context injection line at the top
@@ -1456,6 +1513,8 @@ the command ran, not that the body was read.
 
 #### `hooks/command-parsing.mjs`
 
+Requirements met: none directly (supports `save-moment-gate.mjs`)
+
 What it is: the shared shell-command parser, kept unchanged. It ships today at
 `plugins/second-brain/hooks/command-parsing.mjs`, where `save-reminder.mjs`
 imports it; after this design lands `save-moment-gate.mjs` imports it and
@@ -1469,6 +1528,8 @@ which is best-effort for Bash and absent in Codex. Control: ENFORCE on parsing.
 Context cost: zero.
 
 #### `.githooks/pre-commit`
+
+Requirements met: 10, 14, 21
 
 What it is: a Git pre-commit hook, tracked in the project repository, enabled
 by `knowledge-setup` with `git config core.hooksPath .githooks`. It runs
@@ -1488,6 +1549,8 @@ Control: ENFORCE. What can go wrong, and the recovery:
 | `git commit --no-verify` skips every Git hook | Documented Git behavior, named in the setup report. The after-write check and the checker still run |
 
 ### 6.6 The session state
+
+Requirements met: 29
 
 What it is: one small JSON file per session, holding the few facts the hooks
 share. Location: `${CLAUDE_PLUGIN_DATA}/sessions/<session_id>.json` in Claude
@@ -1526,6 +1589,8 @@ exist in any official source today, so they are named here once, as an
 unverified future, and nothing in this design depends on them.
 
 ### 6.7 The settings
+
+Requirements met: 1, 10, 25, 27
 
 | Setting | Value | Why | Page followed |
 | --- | --- | --- | --- |

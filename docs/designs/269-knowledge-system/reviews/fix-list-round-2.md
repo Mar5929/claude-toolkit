@@ -1,0 +1,30 @@
+# Fix list, round 2 (main lead's rulings on review 5, the fresh reader; review 4 rulings are appended when it lands)
+
+Apply to /home/user/claude-toolkit/docs/designs/269-knowledge-system.md. Note: since the fixer's last pass, two small edits were made by hand and must be kept: the five old card labels are written as `Why`, `Where`, `From`, `Unsure`, `Checked` in backticks, never bold with colons (a repo check forbids that); and the text "knowledge-policy" is never followed by a colon (same check). Do not reintroduce either.
+
+## From review 5 (fresh reader)
+
+C1. `startup-state.mjs` worst case must fit 9,500. Ruling: the glossary print cap drops from 2,000 to 1,500 characters (above that: the `Term / aliases` and `Refers to` columns until 1,500, then the path); the inbox state lines are capped at 1,200 characters, after which one line says "and N more entries in knowledge/memory-inbox.md"; index paths with counts about 200; the System Guide line about 100; the last line about 200; the version line about 100; `current.md` up to 5,000. Worst case about 8,300. State the arithmetic in 6.4 and the parts table, and fix every place that says 2,000 for the glossary.
+C2. Build order: the plugin `hooks/hooks.json` is created in item 1 with the two startup hook entries and their timeouts, and item 1 also removes this repo's old `SessionStart` entry from `.claude/settings.json` and the old `.claude/hooks/knowledge-session-start.mjs` copy so the new hooks are the ones that run. Item 2 adds the guard, after-write, Stop, and PreCompact entries to that same file. Say what item 1 can test on its own (print order, budget, overflow, confirmation line on each source).
+C3. The standing rule's measured size is about 2,400 characters as written in 6.2. Ruling: state the measured number wherever the cost appears; then tighten the 26 lines to under 2,000 characters without dropping any obligation (shorter sentences, no repeated file paths), and state the new measured number. Question 15 must show the real number.
+C4. Merge questions 2, 13, and 20 into one question about the end-of-turn nudge with one recommendation (recommend: approve it, one forced continuation per session per threshold, because the four other moments do not cover a long working session that never opens a pull request). Merge questions 5 and 30 into one question about editing the approved walkthrough. Renumber and fix the count in the section 15 introduction and every cross-reference to a question number.
+C5. Give a recommendation to every question that lacks one: 13 (now merged), 16 (recommend raising `knowledge/project.md` guidance to 2,000 and lowering the manual to 4,500; hook 1 still fits), 21 (recommend this repository first, because its checks and tests are here and DragonFly follows through `/project-sync`), 24 (recommend not now; child PRD folders are a build-time feature and moving PRDs is a separate work item).
+C6. Fix the cross-reference in 6.5 that points to 13.17 for the Git pre-commit question; point it at the question and entry that actually cover the pre-commit hook (question 17), and sweep every other "see 13.x" and "question N" reference after the renumbering.
+C7. Add to section 12, before the items, a short subsection "Cost, effort, and rollback": (a) context cost per session in characters and rough tokens (about 4 characters per token) at startup, per request, and when a skill is invoked, before and after the change, from the numbers already in the document; (b) a rough effort estimate per build item in agent sessions, marked as an estimate; (c) rollback: the plugin is versioned, an equipped project pins the version it was synced to, `/project-sync` can be re-run at the previous version, and the layout migration commits are ordinary Git commits that can be reverted per project before the next save lands on top of them.
+C8. Add to the start of section 9 a one-paragraph verdict: keep or refactor, and why. The verdict from the rulings: refactor the delivery (two startup hooks, plugin-native registration, four skills, the guards, the marker) and keep the data model, the direct-commit rule, the checker's field logic, the secret scan, and the feedback mechanism; the reason is that the current parts only remind, print more than the harness delivers, and cannot represent the approved layout.
+C9. Length: trim restatements that review 5 names (section 5's walkthrough tables where they repeat section 6 word for word, and the parts of section 14 that restate section 13) by replacing repeated text with a one-line pointer. Keep section 7 whole; it is the requirement map that requirement 26 and the reviewers rely on. Do not remove a fact.
+C10. Apply every other should-fix and nit in review-5-round2-fresh.md that does not conflict with the items above or with fix-list-round-1.md and its addendum.
+
+## Rule for anything not listed
+
+Same as round one: apply a finding that corrects a fact, wording, or a contradiction; decline a finding that adds an enforcement part, a scorer, a reply reader, or a service, and list it with the reason.
+
+## From review 4 (fix landing and consistency)
+
+D1. The section 4 parts table still says the two indexes print "when short" up to 1,500 characters each. Change both rows to: path and entry count, about 60 characters each, per ruling A1 and C1.
+D2. Section 13.13 still names the path-scoped rule and the Stop nudge as Codex gaps. Remove both; the real Codex differences are in 8.4 and 8.5.
+D3. `compact-hold.mjs` gets its `timeout` (5 seconds) everywhere the hook entries are listed.
+D4. The standing rule's line count must be one number everywhere (count the lines after C3's tightening and use that number in all six places).
+D5. One research-note citation remains near line 1701; replace it as ruling 6 says.
+D6. PRD line numbers: 1471 becomes 1469; 1065 becomes 1075. Sweep the rest of the PRD citations in sections 13 and 15 against the PRD file once more.
+D7. Apply every other should-fix and nit in review-4-round2-fixes.md that does not conflict with the rulings.

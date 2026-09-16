@@ -1,0 +1,32 @@
+# Fix list, round 1 (main lead's rulings on the reviews and the verifier)
+
+Apply every item below to /home/user/claude-toolkit/docs/designs/269-knowledge-system.md. Where a review finding is not listed here, follow the rule at the end.
+
+## From review 3 (philosophy, experience, clarity)
+
+1. B1, startup budget. Replace the single startup hook with two SessionStart hooks, both matcher `startup|resume|clear|compact|fork`, both fail-open, each under the 10,000-character cap with a 9,500 budget:
+   - `startup-files.mjs` prints, in order: the version line; `SOUL.md`; `knowledge/project.md`; `knowledge/README.md`. Overflow rule unchanged: a file that would break the budget is replaced, in its place, by "Read <path> now, before the confirmation." Setup guidance: SOUL.md under 1,000 characters, project.md under 1,500, the manual under 4,000.
+   - `startup-state.mjs` prints: `knowledge/memory/current.md` whole (the checker caps it at 5,000); each inbox entry's heading and state line; the two index files as paths with their entry counts, never their contents; the glossary whole when under 2,000 characters, else its path; the System Guide line; the last line about the confirmation (see B2).
+   Order between the two hooks is not guaranteed and does not matter: the three-file order lives inside the first hook. Update sections 4, 5, 6, 7, 8, 9, 10, 12 and the flowchart wherever the single hook was named. Total startup cost drops to at most about 19,000 characters and in a normal project about 10,000.
+2. B2, the confirmation line. The last line of `startup-state.mjs` asks for the one-line confirmation only when `source` is `startup` or `clear`. On `resume`, `compact`, and `fork` it says instead: "Context was restored. Do not repeat the startup confirmation." State this in the part detail, the standing rule, and the session flow. Add one open question for Mike: whether `/clear` counts as a new session (the design says yes).
+3. B3, the pre-write check. In section 5 Part 4 and anywhere else, the walkthrough's pre-write check (reread shared records, confirm the approval still covers the meaning, confirm the change is still needed) is a step in the `knowledge-save` skill body. `knowledge-write-guard.mjs` only enforces that the skill is loaded before a lasting write. Say both plainly.
+4. Drop `.claude/rules/knowledge-files.md`. Its six lines already sit in the standing rule. Remove it from every table, the parts list, the Codex table, the build items, and the options. Note in section 9 that it was considered and dropped because the standing rule is always loaded and Explore and Plan subagents load no rules anyway.
+5. Drop the manual's SHA-256 pin from the checker. `tests/installed-copy-check.mjs` already keeps the installed manual equal to the shipped one, and the pin blocked the owner's own edits. Say so where the checker is described.
+6. Replace every citation of a `/tmp/...scratchpad/...` path. Cite the primary source instead (the PRD line, the captured page and section, the Codex source path at commit 9771934, the shipped file and line). Where only a research note supports a claim, say "research notes for this design, 2026-09-16, not in the repository".
+7. Make the halves agree: Codex `additionalContextLimit` is 10,000 everywhere (note it counts tokens in Codex, per the verifier); the memory file has twelve required fields (requirement 14's table); auto memory is turned off with `autoMemoryEnabled: false` in `.claude/settings.json` (documented in `memory.md`, "Enable or disable auto memory"), and the environment variable `CLAUDE_CODE_DISABLE_AUTO_MEMORY` is the fallback where the settings key is unavailable; the template path under the renamed setup skill is `plugins/second-brain/skills/knowledge-setup/references/templates/`.
+8. Apply every should-fix and nit in review-3-philosophy-ux.md that does not conflict with the items above.
+
+## From the verifier (verification-report.md)
+
+9. The Stop-hook changed-file nudge was an agent's recommendation on 2026-09-03, not Mike's decision. Everywhere the design calls it "Mike's amendment" or "Mike's 2026-09-03 decision", change it to: recommended by the agent on 2026-09-03, not yet approved. Keep it in the design as the recommended answer for the "end of a turn with real work" moment, present it in section 13 and 15 as a decision for Mike, and say what the design does without it (the four visible moments only).
+10. Codex PreToolUse is not shell-only: it fires for every tool, and file edits arrive as `apply_patch` with matcher aliases `Write` and `Edit`. Make sure no line still calls the write guard or the after-write checker a Codex gap. The real Codex gaps: Stop has no additionalContext; PreCompact cannot block; no `if`, `once`, or `args`; the patch hook input is raw patch text with no file list; twelve PascalCase events.
+11. Skill-tool hooks miss a user-typed `/skill-name` (hooks.md line 1365). The marker is written by the dynamic context injection line in `knowledge-save`, always exiting 0. Make sure no line still says a PostToolUse hook on the Skill tool proves the skill ran; it is the fallback only.
+12. Numbers and paths: the shipped manual is 13,395 characters and today's startup print is 20,585; `ai-external-knowledge/README.md` does not exist today (the 161-page index is `ai-external-knowledge/claude-code/README.md`), so the design must say the root index is new and generated; `work-item-upkeep.md` line 543 does not exist (Done is lines 40 to 44); the shipped setup installs four hooks, not five; the walkthrough inbox card is `walkthrough-text.txt` lines 636 to 640; one `if` field holds exactly one permission rule, so each pattern is its own handler entry. Apply every other correction in verification-report.md section 1 that reached the design text.
+
+## From reviews 1 and 2
+
+13. Apply the rulings in fix-list-round-1-addendum.md when it exists (written after those reviews land).
+
+## Rule for anything not listed
+
+Apply a review finding when it corrects a fact against a primary source, fixes wording, or removes a contradiction. Do not apply a finding that adds a new enforcement part, a scorer, a reply reader, or a service; list those in a short "declined findings" note at the end of your report with the reason (requirement 29). Keep the document under about 2,400 lines. Keep the canonical names. Keep plain English: no figurative language, every term defined once.
