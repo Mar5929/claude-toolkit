@@ -35,84 +35,71 @@ a per-session file under the OS temp folder, which is how it fires only once.
 
 ### style-handshake
 
-One script, `hooks/style-handshake.mjs`, registered on two events and also run
-as a command. The `Stop` half holds the turn open until two things have happened
-in that turn: the agent opened the project's output style file with the `Read`
-tool, and the agent ran the confirm command. The `PostToolUse` half, matched on
-`Read`, records the first by writing an empty `<key>.read` file when the file
-read is the output style. The confirm command records the second by writing an
-empty `<key>.ok` file.
+A start-of-turn handshake for Claude Code. On every new user message,
+`UserPromptSubmit` asks Claude to open the selected output style with the
+`Read` tool, read the whole file, say "I read the output style and will follow
+it.", and then handle the request in the same turn. Short questions use the
+same sequence. That acknowledgment is an explicit exception to a style's
+no-preamble instruction.
 
-**The check is a command, and nothing appears in the reply.** The confirm
-command is the third mode of the same script:
+`PostToolUse`, matched on `Read`, records a successful full-file read and
+reminds Claude to acknowledge it once. It checks the exact resolved path and
+the returned line range; a similarly named file or a partial preview does not
+count. Repeated reads do not repeat the reminder. A new user message resets
+the handshake, even when its text is identical. State is isolated by project
+and session in the OS temp folder. When prompt IDs are present, delayed reads
+from earlier prompts are ignored. Child-agent reads do not satisfy the main
+conversation's handshake. Records expire after 24 hours.
 
+**This observes the read, not understanding or compliance.** The hook delivers
+a fresh instruction and records the tool result. Claude still has to follow
+the instruction and acknowledge it. Neither the marker nor the acknowledgment
+proves that the eventual answer follows every writing rule. Validate that
+behavior in real conversations.
+
+**No Stop check or confirm command.** The hook never restarts a finished answer,
+requires no permission to run a confirm command, and has no reply-length
+threshold or retry counter. It triggers once per user message, not at each
+internal thinking block or tool-result continuation.
+
+The selected style is resolved from `outputStyle` in project-local settings,
+project settings, then user settings; otherwise the toolkit's Plain English
+is used. Files are sought in project and user `output-styles/` folders, by
+frontmatter name (or the hyphenated filename when no name is declared).
+`CLAUDE_CONFIG_DIR` is honored for user files. The project where the session
+started remains the source when Claude changes directory or enters a worktree.
+Built-in and plugin-only styles without a matching file, and runtime selections
+not reflected in these settings, are outside this file-based lookup. For those
+setups, select a file-backed style in settings before enabling this hook.
+
+A missing or unreadable selected file asks Claude to report the limitation
+briefly and continue without claiming a successful read. Unexpected errors
+fail open; optional tracking failures must not suppress the initial reminder.
+`STYLE_HANDSHAKE_STATE_DIR` overrides the temporary state folder for testing.
+
+#### Install or migrate
+
+Copy `hooks/style-handshake.mjs` to the project's `.claude/hooks/` folder.
+Register it once under `UserPromptSubmit` and once under `PostToolUse` with
+the `Read` matcher. Use this command entry in each event's `hooks` array:
+
+```json
+{
+  "type": "command",
+  "command": "node",
+  "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/style-handshake.mjs"],
+  "timeout": 10
+}
 ```
-node <project>/.claude/hooks/style-handshake.mjs confirm <key>
-```
 
-`<key>` is the turn key, built from the session id and the prompt id. The block
-reason hands the agent the whole command, path and key included, so there is
-nothing to compose. A key holding any character outside `[a-zA-Z0-9_-]` is
-ignored and writes nothing.
+When migrating, remove only this script's old `Stop` entry and its exact
+`Bash(node .claude/hooks/style-handshake.mjs confirm *)` permission. Keep all
+unrelated entries. Do not register the same script again when it already exists
+on the target event. Old confirm invocations are harmless no-ops. Start a fresh
+session and verify read, acknowledgment, and answer order in its transcript.
 
-Until 2026-09-16 the turn ended only when the final message ended with one of
-two exact lines. The owner asked for the silent form that day, because the line
-was noise in every long answer.
-
-**The confirm command needs a permission rule.** In `.claude/settings.json`,
-`permissions.allow` holds one entry:
-
-```
-Bash(node .claude/hooks/style-handshake.mjs confirm *)
-```
-
-The command the hook asks for uses that same relative path, so the rule matches
-in every checkout and worktree. Claude Code does not substitute
-`${CLAUDE_PROJECT_DIR}` inside a permission rule, and an allow rule whose `*`
-comes before the rest of the command prints a warning at every session start,
-so neither of those forms is used. Without the entry the command still runs,
-after the owner approves it once per turn.
-
-**It is a handshake, not a detector.** It reads nothing in the reply and judges
-no writing. It has no list of banned words, no em dash check, no sentence length
-limit. It checks two mechanical facts, the read and the confirm, and the
-comparison itself happens in the agent's head, which is the only place that can
-compare a reply against a style. A detector can only catch the patterns someone
-thought to list. This makes the agent look at the style file and answer for the
-reply.
-
-Running the confirm command without reading the file does not pass, and reading
-the file without running the command does not pass. Both files are keyed to one
-session and one prompt, so a read from an earlier turn does not carry forward.
-
-**Short replies skip it.** A final message under `STYLE_HANDSHAKE_MIN_CHARS`
-characters, 120 by default, ends the turn untouched. Checking a one-line answer
-costs more than the check is worth.
-
-**It gives up after three blocks for the same prompt.** Claude Code ends a turn
-itself after 8 consecutive stop-hook continuations, and reaching that cap spends
-eight model turns on a handshake. The fourth time this hook would block the same
-prompt, it reports one line to the owner and lets the turn end. A counter file
-next to the two marker files, in the OS temp folder, is how it counts. All three
-kinds of file are deleted after 24 hours.
-
-**Why this is not a fourth voice reminder.** The three removed below all fired
-on every message and carried the style text themselves. This one carries no
-style text, fires once at the end of a turn, and stays silent on short replies
-and on any turn where the handshake already happened. The owner asked for it in
-his own words: "a hook that is like a handshake that forces you to read the
-output style, check your reply, say yes I read it, and then come back to the
-hook and say either it matches or I am going to update it."
-
-It is registered per project in `.claude/settings.json`, and this repository runs
-it on itself. The `Stop` entry has no matcher. The `PostToolUse` entry uses the
-`Read` matcher with `"if": "Read(.claude/output-styles/*)"`, and the script
-filters again on the file path, so the hook still works where the `if` field is
-not honored. The style file it looks for comes from the `outputStyle` value in
-the project's own `.claude/settings.json`, lowercased and hyphenated, and falls
-back to `plain-english.md`.
-
-It fails open. Any unexpected error exits 0 with no output, and the turn ends.
+This replaces the earlier Stop handshake, which continued the conversation
+after the answer was already visible and could cause duplicate replies.
 
 ### no-ai-attribution-guard
 
@@ -261,7 +248,9 @@ The attribution harness is 43 checks. A large share of them assert the hook does
 and only one is visible. Blocking a good command is obvious; staying silent when
 it should have fired looks exactly like everything working.
 
-The style-handshake tests are 43 checks, split the same way. They run the script
-as Claude Code runs it, with the event JSON on stdin and a temp folder in
-`STYLE_HANDSHAKE_STATE_DIR`, so a run never touches the marker files of a live
-session.
+The style-handshake tests run the hook as a subprocess with event JSON and
+isolated temporary projects. They cover initial delivery, exact full-file reads,
+per-turn reset, session isolation, unavailable styles, settings precedence,
+expired state, Windows paths, and removal of the Stop and confirm wiring.
+Live Claude sessions separately verify the visible read and acknowledgment
+sequence; script tests cannot establish model compliance.
