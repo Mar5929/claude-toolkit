@@ -15,6 +15,72 @@ Read [work-guide](../work-guide/SKILL.md) first for the project's tracker,
 canonical records, and how to brief a helper. Do not repeat orientation
 already done this session.
 
+## The checklist before any design starts
+
+Work through every item below, in order, before the architect writes a line.
+Tick each one only when it is true. Steps 1 to 4a below say how to do each
+item.
+
+- [ ] **The requirements are read and understood**
+  - [ ] The canonical requirements are open: PRD, work item, approvals, open
+        questions, linked notes
+  - [ ] `spec-check` has run on this item, or is not installed
+  - [ ] The intent is written in one paragraph: who uses the result, what
+        they are trying to do, what must be true when it is done
+  - [ ] Greenfield or existing build is known, and what the existing build
+        does today for this area is written down
+  - [ ] Bottom-of-PRD "potential paths" notes are treated as ideas, not
+        requirements
+- [ ] **The requirements are ready to design from**
+  - [ ] Nothing is missing: every step, person, error case, state, boundary
+        with another system, rule for what happens after, and way to tell it
+        worked
+  - [ ] Every requirement is explicit end to end: who does what, when, with
+        what result, and what happens when it fails
+  - [ ] Every place a builder could misread the wording is listed, with the
+        wrong reading, the intended reading, and a rewording
+  - [ ] Every requirement that does not fit the end-to-end experience is
+        flagged with the reason
+  - [ ] Confidence is stated as a percentage and is 95 or above
+  - [ ] The owner has ruled on every flag, and each ruling is recorded
+  - [ ] Gaps were fixed in the requirements through `requirements-helper`,
+        not patched in the design
+- [ ] **The way of working is agreed with the owner**
+  - [ ] Prep interview first, or scan and research first
+  - [ ] Design philosophy: built-in mechanisms first, or a specialized one
+  - [ ] One design option, or several, and what differs between them
+  - [ ] Where the design file and the prep file live
+- [ ] **The team is recommended and agreed**
+  - [ ] Complexity and effort are weighed in the context of what is being
+        built: requirement count, systems touched, existing build, options
+        wanted, unknowns
+  - [ ] Each role is named with its count, its model and why, what it reads,
+        and what it returns
+  - [ ] The number of agent runs for the first pass is stated
+  - [ ] The owner agreed or changed the team
+- [ ] **The prep file exists and is complete**
+  - [ ] It is at the agreed location
+  - [ ] It holds the intent, the readiness check and confidence numbers, the
+        flags and rulings, the way of working, the team, and the constraints
+  - [ ] Every interview answer was written to it before the next question
+  - [ ] The remaining unknowns are technical and belong to research
+- [ ] **The product analyst has checked the requirements**
+  - [ ] Its confidence number is 95 or above
+  - [ ] Its missing pieces, unclear wording, and misreading risks are
+        reconciled with the main conversation's and taken to the owner
+  - [ ] The prep file is updated with the result
+- [ ] **Research is done**
+  - [ ] One researcher per bounded question, started in parallel
+  - [ ] Every finding has a source, a date, and a label: official
+        documentation, project evidence, or community claim
+  - [ ] Any requirements concern a researcher raised went back to the owner
+- [ ] **Every agent is briefed the same way**
+  - [ ] The prep file path, the requirements path, the draft path, the exact
+        task, and the result wanted are in each prompt
+  - [ ] The agreed model is passed on each call
+
+Only when every box is ticked does step 4c, the design round, begin.
+
 ## Step 1. Read the requirements and say whether they are ready
 
 No design starts until the requirements are complete, explicit end to end,
