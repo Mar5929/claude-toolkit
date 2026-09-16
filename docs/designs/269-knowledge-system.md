@@ -763,10 +763,11 @@ The 26 lines:
 11. Save moment: a work item finishes or closes.
 12. Save moment: a pull request is about to open.
 13. Save moment: a handoff or context clear is coming.
-14. Save moment: a turn ends after real work.
+14. Save moment: a turn ends after real work, including discussion and design.
 15. Save moment: the owner says to save.
-16. Run `knowledge-save` at those moments; it carries the rules, templates,
-    and approval path.
+16. Notice useful project information even outside the active item. Run
+    `knowledge-save` at save moments and when useful; it routes through the
+    project's filing rules, templates, and approval paths.
 17. Write under `memory-entries/` or `prds/` only through that skill.
 18. `current.md` and `memory-inbox.md` are the agent's to keep, without
     asking.
@@ -903,14 +904,19 @@ deny the write the skill is performing. Body outline:
    value in `.claude/settings.json`, then `.claude/output-styles/<name>.md` when
    that file exists, or `.claude/rules/plain-english-artifacts.md` when the
    style is a built-in with no file in the project.
-1. Gather candidates from the work since the last review.
-2. Drop candidates by requirements 11 and 12, and by
-   `knowledge/memory-selection-feedback.md`.
-3. Apply requirement 18 through `references/routing.md`: determine the kind
+1. Gather candidates from discussion and work since the last review, including
+   project-relevant information outside the active item's scope. File edits are
+   not a prerequisite. Keep tentative suggestions distinct from settled meaning.
+2. Apply requirement 18 through `references/routing.md`: determine the kind
    of information and where it applies, then find the owning requirement or
-   record from existing responsibilities and sources. Name the home and the
-   affected records that need references. The agent judges scope; no hook
-   classifies the decision or chooses the owner.
+   record using the Toolkit OS's shared filing guidance, project map, and
+   destination instructions. Name the home and affected references. The agent
+   judges scope; no hook classifies the decision or chooses the owner.
+3. Apply the chosen destination's eligibility and upkeep rules. Use requirements
+   11 and 12 and memory-selection feedback for lasting-memory candidates only.
+   A PRD correction, task, or procedure must not disappear because it fails the
+   memory test. Delegate other destinations' operations to their own workflow;
+   capture outside-scope information without starting unrelated implementation.
 4. Check the existing topic file or folder, and check the inbox for a proposal
    that already covers it. Check affected parent, child, and sibling requirements
    when relevant, preserving one statement of each requirement. Report a
@@ -952,7 +958,8 @@ the skill-authoring process and not the knowledge save card. That step does not
 exist yet: 9.6 names it as a dependency and section 12 item 8 carries it.
 
 Reference files: `references/routing.md` (the requirement 18 routing table and
-its four-row test, opened at the moment a destination is chosen),
+its information-kind and scope checks, plus links to the project's destination
+instructions, opened at the moment a destination is chosen),
 `references/card-format.md` (the requirement 20 card, which replaces today's
 five-bullet `Why` / `Where` / `From` / `Unsure` / `Checked` template),
 `references/memory-file.md`, `references/prd-file.md`,
@@ -2152,6 +2159,16 @@ and implementation still owed. No case passes merely because the agent confirms
 review or the file checker accepts its output. These cases test the approved
 requirement without selecting a physical design-document location.
 
+The notice-and-route clarification adds a conversation-only case to 11.2:
+while designing one item, introduce an in-scope PRD correction, another
+component's requirement, a qualifying lasting lesson, an upcoming task, and a
+tentative idea. Before the run, name the expected destination and approval
+state of each. Check that each is handled under its destination's rules,
+unrelated implementation does not start, and a fresh session finds the
+resulting records and resumes the original work. No file-edit threshold may
+be needed for recognition. Repeat after compaction; report missed candidates
+as failures, not as successful quiet reviews.
+
 ### 11.3 How each session is run
 
 | Kind of run | Command or method | What it can and cannot show |
@@ -2399,6 +2416,28 @@ this answer. The count-based details elsewhere in this draft, including the
 baseline and `nudged_at_count` state, must be reconciled when the replacement
 is settled. Explicit save moments and the Stop hook's separate unfinished-save
 and checker duties are unaffected by this decision.
+
+#### Reassessment against the clarified requirements, 2026-09-16
+
+The work in flight is the Knowledge System refactor, currently being designed
+while its requirements are refined. The owner's latest clarification makes
+recognition and correct routing the required behavior, including information
+outside that item's scope. It does not select a new hook or approve a build.
+
+| Design area | Assessment and required response |
+| --- | --- |
+| Recognizing useful information | The standing guidance must include discussion-only work and useful information beyond the active item's scope. Section 6.2 now makes that explicit. A file-change counter cannot provide this coverage. |
+| Candidate filtering | The old save flow applied memory exclusions before choosing a home. Section 6.3 now identifies kind, scope, and owner first, then applies that destination's rules. Requirements, tasks, and procedures are not rejected for failing the memory test. |
+| Filing and responsibility | Reuse the Toolkit OS's shared ownership guidance, project map, and destination workflows. The routing reference is an entry point to those owners, not a second filing architecture or permission to maintain another component's records by different rules. |
+| Important decisions | Required behavior goes to its owning PRD, build choices to the design or work record, and qualifying lasting knowledge to memory. Importance alone does not pick a folder. |
+| Active work | Current status, useful recent accomplishments, and next steps stay in working context; full decisions, requirements, and implementation evidence stay in their owning records. |
+| Reliability | Meaning and relevance still depend on agent judgment. Existing write checks cannot prove that something was noticed. The reminder mechanism remains open; passing a counter or schema check cannot close this gap. |
+
+Validate with the new conversation-only, mixed-destination case in section
+11.2, then a fresh session that finds the resulting records. These are planned
+behavioral checks, not completed runtime validation. The affected rule's size
+and the design's context-cost estimates must be measured again before build
+approval; earlier counts in this draft predate this clarification.
 
 ### 13.3 Requirements 9 and 13, a push per decision and per working-memory change (PRD lines 681 and 854)
 

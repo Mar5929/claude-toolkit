@@ -2,62 +2,58 @@
 Updated: 2026-09-16
 
 ## Project goal
-Make toolkit work dependable across sessions.
-Next milestone: Complete Knowledge System requirements review.
+Refactor the Knowledge System for continuity across sessions.
+Next milestones: requirements approval, design approval, then build.
 
 ## Active work
 
-### Knowledge System
+### Knowledge System refactor — #269
 Updated: 2026-09-16
 
 **Goal**
-Finalize the PRD and solution design for issue #269.
+Design reliable knowledge retrieval, upkeep, and saving.
 
 **Current status**
-In refinement. Full PRD and design approval are pending; implementation is not authorized.
+Design in progress; requirements being refined. Tracker: 02-refinement. Build awaits PRD/design approval.
 
 **Recent progress**
-- 2026-09-16: Clarified working-memory purpose and separated current status from recent accomplishments in the PRD template.
-- 2026-09-16: Settled scope routing, linked design location, and direct-save requirements. Reusable publication guidance still needs updating under #269/#306.
+- Sept 16: Clarified working memory and its Current status / Recent progress template.
+- Sept 16: Added discussion-only and outside-item capture requirements; found memory exclusions applied before routing in the design.
 
 **Next step**
-Resume design question 2: how to prompt save review during conversation-only work.
+Reassess how the design notices useful information and routes it through the Toolkit OS's filing structure without file edits. Settle the review/reminder mechanism (design question 2).
 
 **Blocker**
-Requirements and design approval are needed before implementation.
+Requirements and design approval needed before implementation.
 
 **To-dos**
-- Review remaining design questions and PRD wording questions 9–12.
-- Decide when to adopt the newer solution-design template.
+- Reconcile affected design details and validate the proposed save flow.
+- Review remaining design decisions and PRD wording questions 9–12.
+- Decide when to adopt the newer design template.
+- Update publication/direct-save guidance under #269/#306.
 
 **Detailed record**
 [Issue #269](https://github.com/Mar5929/claude-toolkit/issues/269).
-Design: `docs/designs/269-knowledge-system.md`; supporting records: `docs/designs/269-knowledge-system/`.
-Earlier handoff: `misc/269-session-handoff.md` on `issue-269-second-brain-design`. Related scopes: #304/#305.
+PRD: `knowledge/prds/toolkit-operating-system/knowledge-system.md`.
+Design: `docs/designs/269-knowledge-system.md`; working records in sibling `269-knowledge-system/`.
+Related: #304/#305. Earlier handoff: `misc/269-session-handoff.md` on `issue-269-second-brain-design`.
 
-### Guided work management
+### Guided work management — #337
 Updated: 2026-09-16
 
-**Goal**
-Refine guided work management requirements.
+**Goal** Refine requirements.
 
-**Current status**
-In refinement under #337; refresh details from its work record before resuming.
+**Current status** In refinement.
 
-**Recent progress**
-Not established in this session.
+**Recent progress** Not verified here.
 
-**Next step**
-Read #337 to identify the next refinement question.
+**Next step** Resume from #337.
 
-**Blocker**
-Not established in this session.
+**Blocker** Not verified here.
 
-**To-dos**
-See #337 for outstanding refinement work.
+**To-dos** See work record.
 
-**Detailed record**
-[Issue #337](https://github.com/Mar5929/claude-toolkit/issues/337).
+**Detailed record** [Issue #337](https://github.com/Mar5929/claude-toolkit/issues/337).
 
 ## General project to-dos
-None recorded outside the active items.
+None recorded.

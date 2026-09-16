@@ -330,6 +330,12 @@ using its own reasoning and tools. Reading a proposed PRD is not permission to
 build it. The delivery workflow owns the work item's status, approvals, and
 build plan.
 
+During that work, the agent also notices project information worth retaining
+outside the active item's scope. Conversation, requirements refinement, and
+solution design count as work even when no files change. Requirements 9 and
+18 govern capturing that information in its proper home without silently
+expanding the work being implemented.
+
 When shared context changes in a way that matters, the agent reads
 `knowledge/memory/current.md` again and updates it, keeping the active work of
 other sessions intact and linking to the tracker instead of copying it. A
@@ -671,10 +677,11 @@ original source or states what could not be verified.
 - A save that needs new approval is one short card and one yes, whether it is a memory or a product requirements document. The agent may already have permission: requirement 10 covers refining a PRD, and requirement 16 covers updating PRDs on its own after work ships. Neither of those needs another card and another yes for the same scope.
 - No long review. No back and forth. No reading a full file before deciding.
 - The agent proposes at the right moment on its own. The owner never has to remember to ask.
+- Notice useful information throughout the work, including discussion, requirements refinement, and solution design with no file edits. Review project-relevant information outside the active work item's scope as well as information about that item. Do not wait for a changed-file count, a commit, a task switch, or the owner to point it out. Requirement 18 determines its scope and home; noticing it is not permission to implement unrelated work.
 - Five moments force a save review: a work item finishes or closes, a pull request is about to be opened, a handoff or a context clear is coming, a turn ends after real work was done, and any time the owner says to save something. Requirement 3 says what each review has to produce, and how these five moments are enforced.
 - Every other moment is left to the agent's judgment. It should propose a save whenever that is useful: a real problem here has just been fixed, a commit is coming, or something relevant has changed, such as a new person joining, somebody's role changing, the project switching to a different tool, a fact turning out to be out of date, or a decision about which system is the authority for a piece of data. A candidate the agent misses gets reviewed at the next required moment.
 - The owner saying "remember this" starts the save flow that leads to a card. It is not permission to write, and it skips no step.
-- The save review is that same flow run over everything the session did since the last one. It gathers candidates, drops any that fail requirements 11 and 12, checks what proposals the inbox already holds, and shows one card for each new candidate that needs approval. A save that is already allowed goes ahead under requirement 10. During routine work, speak up only about something that needs approval, a finished save the owner has to be told about, or a problem; never report that nothing needs saving. Routine PRD upkeep follows requirement 16's quiet completion rule. Do not repeat an unchanged unanswered card at each review. When the owner asks for a save or a review directly, he still gets a clear answer, and when work is handed over the agent works out which pending items matter, under requirement 28. Requirement 3 requires the review even when it produces nothing the owner sees. A quiet review does not need a program running in the background.
+- The save review is that same flow run over everything the session discussed or did since the last one. It gathers candidates, identifies each candidate's kind, scope, and owning destination under requirement 18, and applies that destination's content rules. Requirements 11 and 12 decide eligibility for lasting memory; they must not discard a valid PRD update, working-context update, task, or procedure that belongs elsewhere. Check what proposals the inbox already holds and show one card for each new candidate that needs knowledge-save approval. A save that is already allowed goes ahead under requirement 10; other destinations follow their own workflows. During routine work, speak up only about something that needs approval, a finished save the owner has to be told about, or a problem; never report that nothing needs saving. Routine PRD upkeep follows requirement 16's quiet completion rule. Do not repeat an unchanged unanswered card at each review. When the owner asks for a save or a review directly, he still gets a clear answer, and when work is handed over the agent works out which pending items matter, under requirement 28. Requirement 3 requires the review even when it produces nothing the owner sees. A quiet review does not need a program running in the background.
 - When approved, memory or PRDs are saved directly to the default branch and pushed!!! They are not left sitting on a worktree branch, and they are not put anywhere a future agent would have trouble finding.
 - A save is finished only when the file is on the default branch and pushed, and not before.
 - An approved knowledge save is never put off into a feature branch, a pull request, or a separate draft. That holds even when the session is doing its other work on a branch. The save still goes straight to the default branch. The session's own branch gets the saved file later, whenever someone merges or pulls the default branch into it. The pending inbox in requirement 28 preserves unanswered proposals and interrupted saves; it never replaces completing an approved save.
@@ -794,8 +801,9 @@ step fails point 2, so no memory card is proposed for it.
 - Anything out of date or contradicted that has no value as history.
 - Passwords, keys, and tokens, ever. The `knowledge/` folder is in Git. Git keeps a copy of every past version of every file, so deleting the secret later does not remove it.
 
-**Check:** run this list against a session's candidates. Anything that matches a
-bullet on this list is dropped before a card is written. During an explicit
+**Check:** run this list against candidates for lasting memory. Anything that
+matches is excluded from memory. Apply requirement 18 to information that
+belongs elsewhere rather than discarding it from all upkeep. During an explicit
 review, the agent can identify which exclusion applies; routine reviews stay
 quiet under requirement 9.
 
@@ -1286,6 +1294,13 @@ follows the skill-authoring process, not the knowledge save card.
 
 ## 18. Where information goes
 
+The Knowledge System notices information worth retaining and gets it to the
+right owner. It uses the broader Toolkit OS's information ownership and filing
+structure, under [parent R11](toolkit-operating-system.md#6-information-ownership),
+the shared knowledge manual, the project map, and each destination's own
+instructions. It does not create a separate filing system or take over the
+work tracker, requirement owner, or another component's upkeep procedure.
+
 Before the agent writes anything, it works out which home in the table below
 the information belongs in, and names that home in the card. The wrong
 home does real harm. Example: a repeatable procedure saved as a memory file
@@ -1312,6 +1327,14 @@ what permission a write needs, and new approval is asked for with the standard
 proposal. The owner does not manage the files himself.
 
 Before choosing a home, the agent determines what kind of information it is and where it applies. The conversation, work item, or file where it was discovered does not set that scope. The agent checks the project's existing requirements, component responsibilities, and source records to identify which document owns the meaning. It does not assume that folder names define those responsibilities.
+
+Calling something a key decision does not by itself make memory its home.
+A decision defining required behavior updates the owning PRD; an item's build
+choice belongs in its design or work record. A qualifying lasting fact,
+decision, or lesson can belong in memory under requirements 11 and 12. Split
+mixed meaning and link the records without storing the same requirement twice.
+An idea or uncertain suggestion remains tentative until its meaning is settled;
+the agent does not turn it into an approved requirement or fact.
 
 Keep each requirement in one document responsible for the behavior it describes. Use the parent PRD for requirements that span the whole area or define how its parts work together. Keep a component's detailed requirements in that component's PRD, even when other components use them. Other affected records refer to the owning requirement rather than repeating it. Split a statement when it contains different kinds of information or separately owned requirements.
 
@@ -1370,6 +1393,19 @@ memory, PRD, and enabled System Guide page, the agent locates the appropriate
 template and content rules without asking the owner to explain them.
 
 **Check:** during refinement of one component, settle a decision that affects another component or the whole product. Without a filing reminder, the agent identifies the applicable scope and owning requirement, completes authorized updates or presents the specific remaining approval, and leaves references in affected records. A fresh session can find the decision, its source, and any implementation still owed without reconstructing the original discussion. Repeat with an item-only exception, a mixed note, an unresolved conflict, permission covering only one destination, and a failed save. No exception silently becomes a general rule, no requirement is duplicated, and unfinished work is not reported as complete.
+
+**Check:** during a solution-design conversation with no file edits, introduce
+an in-scope requirement correction, a requirement for another toolkit component,
+a qualifying lasting lesson, an upcoming task, and a tentative idea. Without
+being asked to file them, the agent uses each owning destination and its rules,
+completes authorized saves, and identifies any specific missing permission.
+The tentative idea stays tentative. Memory exclusions do not erase valid
+non-memory information. A fresh session can find the results and continue the
+original design work; no unrelated implementation has begun.
+
+Mike requested this notice-and-route clarification and reassessment of the
+in-flight Knowledge System design on 2026-09-16. It clarifies requirements 9
+and 18; it does not approve a replacement reminder mechanism or the full build.
 
 ## 19. The find order
 

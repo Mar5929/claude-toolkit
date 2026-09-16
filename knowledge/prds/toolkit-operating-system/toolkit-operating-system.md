@@ -245,6 +245,10 @@ another table here.
 
 Apply the Knowledge System's [requirement 18](knowledge-system.md#18-where-information-goes) when a decision discovered in one part affects another part or the whole toolkit; the responsible component owns the detailed requirement and its operation, and the originating work item links to it.
 
+The Knowledge System notices information worth retaining during work and uses
+this shared filing structure to reach the responsible destination. It does not
+define a parallel file system or take over the destination's own upkeep rules.
+
 Mike approved this R11 addition on 2026-09-16 as part of the scoped routing
 change recorded in the [issue #269 Progress log](https://github.com/Mar5929/claude-toolkit/issues/269#issuecomment-5510064692).
 The whole PRD remains proposed; this is not runtime implementation approval.
