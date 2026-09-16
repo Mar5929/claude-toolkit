@@ -3,6 +3,12 @@
 /**
  * Check the knowledge folder for anything malformed or unsafe.
  *
+ * `knowledge/memory/` is flat. `knowledge/prds/` may also hold a feature-area
+ * folder: `<area>/<area>.md` is the parent PRD and every other Markdown file
+ * beside it is a child PRD, checked against the same field rules. A folder
+ * inside a feature-area folder is a problem, because a PRD folder is one level
+ * deep.
+ *
  * Read-only. It never edits, moves, or deletes a file. It exists so a save can
  * be verified instead of assumed, and so the one rule that cannot be left to an
  * agent's good intentions, no secrets in Git, is enforced by code.
@@ -215,7 +221,57 @@ function checkFile(vault, folder, name, kind) {
   }
 }
 
-function checkFolder(vault, folder, kind, indexName) {
+const TOPIC_NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+/**
+ * One feature-area folder under knowledge/prds/. The file named after the
+ * folder is the parent PRD; every other Markdown file beside it is a child PRD
+ * and is checked against the same field rules. The folder is one level deep.
+ */
+function checkAreaFolder(vault, folder, area, kind, indexName) {
+  const dir = `${folder}/${area}`;
+  if (!TOPIC_NAME.test(area)) {
+    fail(`knowledge/${dir}/`,
+      "is not named for its feature area in plain words. Use lowercase words"
+      + " joined by hyphens, for example toolkit-operating-system.");
+  }
+
+  let entries;
+  try {
+    entries = readdirSync(resolve(vault, dir), { withFileTypes: true });
+  } catch {
+    return;
+  }
+
+  const parentName = `${area}.md`;
+  let hasParent = false;
+  for (const entry of [...entries].sort((a, b) => a.name.localeCompare(b.name))) {
+    if (entry.isDirectory()) {
+      fail(`knowledge/${dir}/${entry.name}/`,
+        "is a folder inside a PRD folder. A PRD folder is one level deep: the"
+        + ` parent ${parentName} and its child PRDs beside it. Move the files up`
+        + " and delete the folder.");
+      continue;
+    }
+    if (!entry.isFile() || !entry.name.endsWith(".md")) continue;
+    if (entry.name === indexName) continue;
+    if (entry.name === parentName) hasParent = true;
+    if (!TOPIC_NAME.test(entry.name.slice(0, -3))) {
+      fail(`knowledge/${dir}/${entry.name}`,
+        "is not named for its topic in plain words. Use lowercase words joined"
+        + " by hyphens, for example how-the-migration-orders-its-steps.md.");
+    }
+    checkFile(vault, dir, entry.name, kind);
+  }
+
+  if (!hasParent) {
+    fail(`knowledge/${dir}/`,
+      `has no ${parentName}. A feature-area folder holds the parent PRD named`
+      + " after the folder, and every other Markdown file in it is a child PRD.");
+  }
+}
+
+function checkFolder(vault, folder, kind, indexName, areaFolders = false) {
   let entries;
   try {
     entries = readdirSync(resolve(vault, folder), { withFileTypes: true });
@@ -225,6 +281,10 @@ function checkFolder(vault, folder, kind, indexName) {
 
   for (const entry of [...entries].sort((a, b) => a.name.localeCompare(b.name))) {
     if (entry.isDirectory()) {
+      if (areaFolders) {
+        checkAreaFolder(vault, folder, entry.name, kind, indexName);
+        continue;
+      }
       fail(`knowledge/${folder}/${entry.name}/`,
         "is a subfolder. This folder is flat: one file per topic, no bins by"
         + " type. Move the files up and delete the folder.");
@@ -232,7 +292,7 @@ function checkFolder(vault, folder, kind, indexName) {
     }
     if (!entry.isFile() || !entry.name.endsWith(".md")) continue;
     if (entry.name === indexName) continue;
-    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*\.md$/.test(entry.name)) {
+    if (!TOPIC_NAME.test(entry.name.slice(0, -3))) {
       fail(`knowledge/${folder}/${entry.name}`,
         "is not named for its topic in plain words. Use lowercase words joined"
         + " by hyphens, for example how-the-migration-orders-its-steps.md.");
@@ -298,7 +358,7 @@ export function checkKnowledge(projectRoot = root) {
   checkCurrent(vault);
   checkSelfImprovement(vault);
   checkFolder(vault, "memory", "memory", "memory-index.md");
-  checkFolder(vault, "prds", "spec", "spec-index.md");
+  checkFolder(vault, "prds", "spec", "spec-index.md", true);
 
   return { problems: [...problems], filesChecked, skipped: false };
 }

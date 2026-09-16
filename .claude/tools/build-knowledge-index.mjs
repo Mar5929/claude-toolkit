@@ -10,6 +10,12 @@
  * lives in exactly one place and is copied nowhere. The source files always
  * win: this script only produces a deterministic list of what is there.
  *
+ * `knowledge/prds/` also holds feature-area folders. In a folder named
+ * `<area>/`, the file `<area>.md` is the parent PRD and every other Markdown
+ * file beside it is a child PRD. The index prints the parent on its own line
+ * and each child indented one level beneath it, so a reader sees the area and
+ * its parts together. Every path printed is relative to the index file.
+ *
  * It validates nothing. `check-knowledge.mjs` does that.
  */
 
@@ -24,6 +30,8 @@ const root = resolve(process.argv[2] || installedRoot);
 const width = 79;
 
 const posix = (value) => value.split(sep).join("/");
+const byName = (a, b) => a.name.localeCompare(b.name);
+const byKey = (a, b) => a.key.localeCompare(b.key);
 
 const FOLDERS = [
   {
@@ -40,6 +48,9 @@ const FOLDERS = [
   {
     dir: "prds",
     index: "spec-index.md",
+    // A feature area may be a folder: knowledge/prds/<area>/<area>.md is the
+    // parent PRD and the files beside it are its children.
+    areaFolders: true,
     heading: "How this project is meant to work",
     blurb: [
       "Every PRD, with the one sentence it uses to describe itself.",
@@ -53,39 +64,110 @@ const FOLDERS = [
   },
 ];
 
-/** Markdown files directly inside a knowledge folder, minus its own index. */
-function filesIn(vault, folder) {
-  let entries;
-  try {
-    entries = readdirSync(resolve(vault, folder.dir), { withFileTypes: true });
-  } catch {
-    return { files: [], subfolders: [] };
-  }
+/** The `summary` and `status` of one indexed file, plus how deep it is nested. */
+function readEntry(vault, folder, path, depth) {
+  const text = readFileSync(resolve(vault, folder.dir, path), "utf8");
+  const { data } = parseFrontmatter(text);
+  return {
+    path,
+    depth,
+    summary: typeof data.summary === "string" ? data.summary.trim() : "",
+    status: typeof data.status === "string" ? data.status.trim() : "",
+  };
+}
 
-  const files = [];
-  const subfolders = [];
-  for (const entry of [...entries].sort((a, b) => a.name.localeCompare(b.name))) {
+/** The Markdown files inside one feature-area folder, parent first. */
+function readAreaFolder(vault, folder, area, warnings) {
+  const entries = readdirSync(resolve(vault, folder.dir, area), { withFileTypes: true });
+  const parentName = `${area}.md`;
+  let parent = null;
+  const children = [];
+
+  for (const entry of [...entries].sort(byName)) {
     if (entry.isDirectory()) {
-      subfolders.push(entry.name);
+      warnings.push(
+        `knowledge/${folder.dir}/${area}/${entry.name}/ is a folder inside a PRD`
+        + " folder. A PRD folder is one level deep, so nothing inside it is"
+        + " indexed.",
+      );
       continue;
     }
     if (!entry.isFile() || !entry.name.endsWith(".md")) continue;
     if (entry.name === folder.index) continue;
-    files.push(entry.name);
+    if (entry.name === parentName) {
+      parent = readEntry(vault, folder, `${area}/${entry.name}`, 0);
+      continue;
+    }
+    children.push({ key: entry.name, path: `${area}/${entry.name}` });
   }
-  return { files, subfolders };
+
+  if (!parent) {
+    warnings.push(
+      `knowledge/${folder.dir}/${area}/ has no ${parentName}, so its files are`
+      + " listed on their own. The parent PRD for a feature area folder is named"
+      + " after the folder.",
+    );
+  }
+
+  const childDepth = parent ? 1 : 0;
+  return [
+    ...(parent ? [parent] : []),
+    ...[...children].sort(byKey).map((child) => readEntry(vault, folder, child.path, childDepth)),
+  ];
 }
 
-function wrapEntry(name, status, summary) {
+/**
+ * Everything one index lists, in a fixed order. Flat files and feature-area
+ * folders are ordered together by name, and a folder's children follow their
+ * parent. The same files always produce the same lines.
+ */
+function collect(vault, folder) {
+  let entries;
+  try {
+    entries = readdirSync(resolve(vault, folder.dir), { withFileTypes: true });
+  } catch {
+    return { entries: [], warnings: [] };
+  }
+
+  const warnings = [];
+  const units = [];
+  for (const entry of [...entries].sort(byName)) {
+    if (entry.isDirectory()) {
+      if (!folder.areaFolders) {
+        warnings.push(
+          `knowledge/${folder.dir}/${entry.name}/ is a subfolder. This folder is`
+          + " flat, so nothing inside it is indexed.",
+        );
+        continue;
+      }
+      units.push({ key: entry.name, area: entry.name });
+      continue;
+    }
+    if (!entry.isFile() || !entry.name.endsWith(".md")) continue;
+    if (entry.name === folder.index) continue;
+    units.push({ key: entry.name, file: entry.name });
+  }
+
+  const collected = [];
+  for (const unit of [...units].sort(byKey)) {
+    if (unit.area) collected.push(...readAreaFolder(vault, folder, unit.area, warnings));
+    else collected.push(readEntry(vault, folder, unit.file, 0));
+  }
+  return { entries: collected, warnings };
+}
+
+function wrapEntry(name, status, summary, depth = 0) {
+  const indent = "  ".repeat(depth);
   const label = status && status !== "current" ? ` (${status})` : "";
-  const head = `- \`${name}\`${label}:`;
+  const head = `${indent}- \`${name}\`${label}:`;
   if (!summary) return [`${head} (no summary)`];
 
   const lines = [head];
+  const hang = `${indent}  `;
   for (const word of summary.split(/\s+/)) {
     const last = lines.length - 1;
     if (`${lines[last]} ${word}`.length <= width) lines[last] += ` ${word}`;
-    else lines.push(`  ${word}`);
+    else lines.push(`${hang}${word}`);
   }
   return lines;
 }
@@ -97,22 +179,12 @@ export function buildIndexes(projectRoot = root) {
   let total = 0;
 
   for (const folder of FOLDERS) {
-    const { files, subfolders } = filesIn(vault, folder);
-
-    for (const name of subfolders) {
-      warnings.push(
-        `knowledge/${folder.dir}/${name}/ is a subfolder. This folder is flat, so`
-        + " nothing inside it is indexed.",
-      );
-    }
+    const collected = collect(vault, folder);
+    warnings.push(...collected.warnings);
 
     const entries = [];
-    for (const name of files) {
-      const text = readFileSync(resolve(vault, folder.dir, name), "utf8");
-      const { data } = parseFrontmatter(text);
-      const summary = typeof data.summary === "string" ? data.summary.trim() : "";
-      const status = typeof data.status === "string" ? data.status.trim() : "";
-      entries.push(...wrapEntry(name, status, summary));
+    for (const entry of collected.entries) {
+      entries.push(...wrapEntry(entry.path, entry.status, entry.summary, entry.depth));
       total++;
     }
 
@@ -131,7 +203,7 @@ export function buildIndexes(projectRoot = root) {
 
     const output = resolve(vault, folder.dir, folder.index);
     writeFileSync(output, lines.join("\n"), "utf8");
-    written.push({ path: output, count: files.length });
+    written.push({ path: output, count: collected.entries.length });
   }
 
   return { written, warnings, total };

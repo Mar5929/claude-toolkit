@@ -291,7 +291,7 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
   keep only their own task steps. The package has one checker and deliberately
   has no database, embeddings, automatic capture, background writer, or large
   always-loaded rule. The current build behavior is specified in
-  [`knowledge/prds/knowledge-system.md`](knowledge/prds/knowledge-system.md).
+  [`knowledge/prds/toolkit-operating-system/knowledge-system.md`](knowledge/prds/toolkit-operating-system/knowledge-system.md).
 - [x] **`second-brain` v1 archive**: the retired Worker, Neon, MCP, curator,
   hook, knowledge-backfill, and structural-layer source has been removed from
   active plugin paths and consolidated under

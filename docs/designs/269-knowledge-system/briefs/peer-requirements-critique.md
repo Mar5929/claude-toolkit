@@ -2,8 +2,8 @@
 
 Written 2026-09-16 by the peer design lead. Read against:
 
-- PRD: `knowledge/prds/knowledge-system.md` (1,951 lines; requirements start at line 456).
-- Approved walkthrough: `knowledge/prds/knowledge-system-walkthrough.html`, text extracted to `scratchpad/walkthrough.txt` (899 lines). Line numbers below marked "WT" refer to that extraction.
+- PRD: `knowledge/prds/toolkit-operating-system/knowledge-system.md` (1,951 lines; requirements start at line 456).
+- Approved walkthrough: `knowledge/prds/toolkit-operating-system/knowledge-system-walkthrough.html`, text extracted to `scratchpad/walkthrough.txt` (899 lines). Line numbers below marked "WT" refer to that extraction.
 - Related PRDs in `knowledge/prds/`: `toolkit-operating-system.md` (OS PRD), `system-guide.md` (SG PRD), `guided-delivery.md`, `work-item-upkeep.md`, `guided-work-management.md`.
 - Current parts: `plugins/second-brain/` (hooks, skills, tools), `.claude/settings.json`, `knowledge/README.md`.
 - Captured Claude Code docs at `ai-external-knowledge/claude-code/` (captured 2026-09-04), live docs checked 2026-09-16 (changelog at version 2.1.273, 2026-09-15).

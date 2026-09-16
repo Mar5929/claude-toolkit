@@ -59,7 +59,7 @@ document kept stating one particular build as a binding rule. Twelve items were
 fixed and pushed in chat 1.
 
 **Settled several requirements** now recorded in
-`knowledge/prds/knowledge-system.md`:
+`knowledge/prds/toolkit-operating-system/knowledge-system.md`:
 
 - Size limits: summary line under 200 characters, `knowledge/current.md` under
   5000, `memory-self-improvement.md` under 10000.
@@ -79,12 +79,12 @@ attachment and the knowledge-system PRD as a GitHub link, because that file is
 about 101 KB. The draft was left for Mike to send.
 
 **Reviewed a second document.** In chat 2 Mike asked for an Opus check of
-`knowledge/prds/toolkit-operating-system.md`. That review finished and is the
+`knowledge/prds/toolkit-operating-system/toolkit-operating-system.md`. That review finished and is the
 open item below.
 
 ## Where it stopped: the toolkit-operating-system review
 
-File reviewed: `knowledge/prds/toolkit-operating-system.md`, about 34 KB.
+File reviewed: `knowledge/prds/toolkit-operating-system/toolkit-operating-system.md`, about 34 KB.
 Finished Sept 10 at 5:17pm. Read only, nothing changed. The full 17 KB report is
 saved beside this file as `misc/tos-prd-review-2026-09-10.md`. It was rescued
 out of a temporary folder that a new laptop would not have.

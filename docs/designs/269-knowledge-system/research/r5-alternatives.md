@@ -17,7 +17,7 @@ write without asking, and both should stay switched off here.
 
 ### The hard constraints I tested every option against
 
-From `/home/user/claude-toolkit/knowledge/prds/knowledge-system.md`:
+From `/home/user/claude-toolkit/knowledge/prds/toolkit-operating-system/knowledge-system.md`:
 
 - Plain Markdown files in this Git repository are the only copy. No database.
   No background writer. (lines 456-462)
@@ -42,7 +42,7 @@ From `/home/user/claude-toolkit/knowledge/prds/knowledge-system.md`:
 
 Requirement 1 is "plain parts only": plain Markdown files in this repository are
 the only copy, no database, no background writer
-(`/home/user/claude-toolkit/knowledge/prds/knowledge-system.md` lines 456-462).
+(`/home/user/claude-toolkit/knowledge/prds/toolkit-operating-system/knowledge-system.md` lines 456-462).
 
 Requirement 10 is "approval before any write": every write to a memory file or a
 PRD needs permission that covers that change, and silence is not approval

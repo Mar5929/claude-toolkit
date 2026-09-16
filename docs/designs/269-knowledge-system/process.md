@@ -8,8 +8,8 @@ Written for an agent who was not there. Everything below happened on
 On the night of 2026-09-15 the owner asked for two Fable design leads to run a
 team of Opus agents. The team was to research and design the project knowledge
 system from two sources: the requirements document at
-`knowledge/prds/knowledge-system.md`, and the walkthrough the owner had already
-approved at `knowledge/prds/knowledge-system-walkthrough.html`.
+`knowledge/prds/toolkit-operating-system/knowledge-system.md`, and the walkthrough the owner had already
+approved at `knowledge/prds/toolkit-operating-system/knowledge-system-walkthrough.html`.
 
 He set four instructions for how to design it:
 
@@ -79,7 +79,7 @@ He set four instructions for how to design it:
 
 ## Where this stands and how to pick it up
 
-The requirements document `knowledge/prds/knowledge-system.md` is at
+The requirements document `knowledge/prds/toolkit-operating-system/knowledge-system.md` is at
 `status: proposed`, and issue 269 is at stage `02-refinement`. Nothing is
 approved to build.
 

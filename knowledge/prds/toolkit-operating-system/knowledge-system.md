@@ -1919,10 +1919,10 @@ design. Requirement 23 defines the learning outcome; it does not require this
 file or log. Select the simplest suitable mechanism after the requirements
 are finalized.
 
-Current sources: [skill inventory](../../plugins/second-brain/skills/),
-[save skill](../../plugins/second-brain/skills/remember/SKILL.md),
-[review skill](../../plugins/second-brain/skills/reflect/SKILL.md), and
-[feedback template](../../plugins/second-brain/skills/second-brain/references/templates/knowledge/memory-self-improvement.md).
+Current sources: [skill inventory](../../../plugins/second-brain/skills/),
+[save skill](../../../plugins/second-brain/skills/remember/SKILL.md),
+[review skill](../../../plugins/second-brain/skills/reflect/SKILL.md), and
+[feedback template](../../../plugins/second-brain/skills/second-brain/references/templates/knowledge/memory-self-improvement.md).
 
 ### Future design task: map requirements to implementation mechanisms
 
@@ -1959,7 +1959,7 @@ Explore these questions without assuming their answers:
 - How will representative sessions expose missed obligations, false blocks,
   repeated reminders, context overhead, and degradation of ordinary work?
 
-[Earlier exploratory implementation ideas](../brainstorms/2026-09-10-knowledge-system-potential-paths.md)
+[Earlier exploratory implementation ideas](../../brainstorms/2026-09-10-knowledge-system-potential-paths.md)
 remain possible approaches, not requirements, verified harness capabilities,
 or an approved design. Where they prescribe more control than the direction
 above, revisit them before using them.

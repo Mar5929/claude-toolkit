@@ -20,6 +20,22 @@ records without making Mike remember commands, filing locations, or upkeep.
 "Operating System" names this whole working experience. It does not require
 a new plugin, background service, or software framework.
 
+## Parts of the toolkit
+
+Each part below has its own child PRD in this folder. A child holds the detailed
+requirements for that part and does not repeat a requirement stated here; it
+refers to this document's requirements by number. Where a child and this
+document disagree, this document wins and the disagreement is stated out loud.
+
+| Part | What it covers | Child PRD | Status |
+| --- | --- | --- | --- |
+| Folder instruction files | Every major folder in a toolkit project carries its own short CLAUDE.md unless another canonical file already owns its instructions, so folder detail reaches an agent when it opens that folder instead of loading in every session. | [folder-instruction-files.md](folder-instruction-files.md) | current |
+| Guided delivery | Guided delivery lets the owner focus on decisions while the main conversation maintains adaptable plans and brings in focused requirements, design, research, and review help using the project's existing records. | [guided-delivery.md](guided-delivery.md) | current |
+| Guided work management | The agent offers to organize and guide work from the initial idea through delivery, keeping shared plans and records current while the owner makes decisions and gives approvals. | [guided-work-management.md](guided-work-management.md) | proposed |
+| Knowledge system | What the project second brain must do. Every new session already knows what has been going on in this project. Saving something worth keeping takes one short yes from the owner. | [knowledge-system.md](knowledge-system.md) | proposed |
+| System Guide | The optional System Guide keeps useful insights about a system and its parts, so future sessions do not repeat substantial investigation. It does not simply restate the code. | [system-guide.md](system-guide.md) | proposed |
+| Work-item upkeep | Work tracking keeps the active item's decisions, progress, handoff, and accepted outcome accurate across sessions, using flexible stages and one owner of tracker state. | [work-item-upkeep.md](work-item-upkeep.md) | current |
+
 ## How to read this proposal
 
 Mike authorized writing and refining this draft. Its requirements have not
@@ -63,8 +79,8 @@ visible until Mike settles it and that component's own record is updated.
   implementation is in a worktree. Local work items stay in their untracked
   store. The installed `CLAUDE.md` must make these save routes easy to find.
 
-Sources: [toolkit purpose](../../README.md), [project role](../../SOUL.md),
-[project boundaries](../project.md), [guided delivery](guided-delivery.md),
+Sources: [toolkit purpose](../../../README.md), [project role](../../../SOUL.md),
+[project boundaries](../../project.md), [guided delivery](guided-delivery.md),
 [work-item upkeep](work-item-upkeep.md), [System Guide](system-guide.md),
 and Mike's request for this draft.
 
@@ -184,7 +200,7 @@ reply, the affected design is identified, and unchanged approvals remain valid.
 **R9. Consult the source that answers the question.** Use context and rules
 already loaded, then relevant procedures and indexed project knowledge.
 Resolve project shorthand through the glossary when available. Open the
-supporting file; an index entry alone is not evidence. Use the [knowledge manual's find order](../README.md#find-before-asking-or-searching-broadly)
+supporting file; an index entry alone is not evidence. Use the [knowledge manual's find order](../../README.md#find-before-asking-or-searching-broadly)
 and the relevant component policy; this PRD does not create a competing route.
 
 Choose by the question: requirements need the PRD; connections need the
@@ -218,7 +234,7 @@ chooses the response and names the destination when proposing a save.
 ## 6. Information ownership
 
 **R11. Keep one authoritative home for each kind of information.** The
-[knowledge manual](../README.md#put-information-in-one-place) owns the shared
+[knowledge manual](../../README.md#put-information-in-one-place) owns the shared
 routing table. The [second-brain PRD](knowledge-system.md) and
 [System Guide PRD](system-guide.md) own their detailed requirements. Change
 those agreements explicitly when a routing decision changes; do not maintain

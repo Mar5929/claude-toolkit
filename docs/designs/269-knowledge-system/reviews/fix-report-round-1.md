@@ -12,7 +12,7 @@ Only that file was changed. Nothing was committed.
 | 3. Pre-write check is a skill step | yes | Section 5 Part 4 split into two rows; `knowledge-save` step 8 names the three agent actions; the write guard row says it checks permission, never content |
 | 4. Drop the path-scoped rule file | yes | Removed from the parts table, section 5, 6.2, 7 row 6, 8.1, 9.3, 12. Recorded in new section 9.6. Named there without its filename so the grep check stays clean |
 | 5. Drop the manual hash pin | yes | 6.5 `check-knowledge.mjs`, 9.3, 9.4, 11.4 |
-| 6. Replace `/tmp` citations | yes | Sections 8, 9, 13.17 and the alternatives appendix now cite the Codex commit, the shipped file, the captured page, `knowledge/prds/knowledge-system-walkthrough.html`, or "the research notes for this design, 2026-09-16, not in the repository" |
+| 6. Replace `/tmp` citations | yes | Sections 8, 9, 13.17 and the alternatives appendix now cite the Codex commit, the shipped file, the captured page, `knowledge/prds/toolkit-operating-system/knowledge-system-walkthrough.html`, or "the research notes for this design, 2026-09-16, not in the repository" |
 | 7. Make the halves agree | yes | `additionalContextLimit` is 10,000 tokens everywhere; twelve required memory fields everywhere; `autoMemoryEnabled: false` decided with the environment variable as fallback; template path is `skills/knowledge-setup/references/templates/` |
 | 8. Review 3 should-fixes and nits | yes | See the table below |
 | 9. Stop nudge attribution | yes | 6.4, 8.4, 13.2, 14.6, open question 20 all say it was recommended by an agent on 2026-09-03 and never approved, and say what the design does without it |
@@ -67,7 +67,7 @@ Only that file was changed. Nothing was committed.
 | N1 | yes | Section 13 now says twenty-three and holds twenty-three |
 | N2 | yes | Twelve fields in both places |
 | N3 | yes | 10,000 everywhere, in tokens for Codex |
-| N4 | yes | Walkthrough cited as `knowledge/prds/knowledge-system-walkthrough.html` |
+| N4 | yes | Walkthrough cited as `knowledge/prds/toolkit-operating-system/knowledge-system-walkthrough.html` |
 | N5 | yes | Three visible moments; the after-write check sits under file checks |
 
 ## Review 2, harness lens

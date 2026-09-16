@@ -3,7 +3,7 @@
 Document reviewed: `/home/user/claude-toolkit/docs/designs/269-knowledge-system.md`, 2,865 lines, read in full on 2026-09-16.
 Rulings checked: `fix-list-round-2.md` C1 to C10 and D1 to D7, against `fix-report-round-2.md`.
 Blockers re-checked: review 4 findings 1 and 2, review 5 findings F1, F2, F3.
-Sources opened for spot checks: `knowledge/prds/knowledge-system.md`; `hooks.md`, `skills.md`, `sub-agents.md`, `plugins-reference.md` under `ai-external-knowledge/claude-code/`; `plugins/second-brain/` on disk; the four repository checks were run.
+Sources opened for spot checks: `knowledge/prds/toolkit-operating-system/knowledge-system.md`; `hooks.md`, `skills.md`, `sub-agents.md`, `plugins-reference.md` under `ai-external-knowledge/claude-code/`; `plugins/second-brain/` on disk; the four repository checks were run.
 
 Counts: 17 rulings landed, 1 landed in part (C9), 0 not landed. All five round-two blockers are gone. New findings: 0 blockers, 10 should-fix, 7 nits.
 

@@ -1,7 +1,7 @@
 # 269 The project second brain: design prep
 
 Date started: 2026-09-15
-Requirements: `knowledge/prds/knowledge-system.md`, and issue 269 on the
+Requirements: `knowledge/prds/toolkit-operating-system/knowledge-system.md`, and issue 269 on the
 `Claude-Toolkit-Project` board
 Design file: `docs/designs/269-knowledge-system.md`
 
@@ -47,7 +47,7 @@ and with what changes in the design if the owner answers differently.
 | 28, eight items per inbox entry (PRD line 1640) | Eight items is about nine lines of text for a case that should be rare | Open | |
 | 25, "the same result in Codex" (PRD line 1592) | Codex cannot hold a compaction, has no `if`, `once`, or `args` field, and runs no hook until the person trusts hooks on that machine | Open | |
 | 7, how the glossary reaches the agent from the first message (PRD line 616) | A large glossary cannot be printed at startup inside the character budget | Open | |
-| The operating-system requirements document's open row on a failed knowledge review (`knowledge/prds/toolkit-operating-system.md` line 503) | Three documents give three answers to what a failed review does to work completion | Open | |
+| The operating-system requirements document's open row on a failed knowledge review (`knowledge/prds/toolkit-operating-system/toolkit-operating-system.md` line 503) | Three documents give three answers to what a failed review does to work completion | Open | |
 | The requirements document's own frontmatter has no `group` and no `updated_at` (PRD lines 1 to 12, against line 1195) | The document breaks the field rule it sets for every other document | Open | |
 | The walkthrough's inbox card uses a "New wording" block (the approved walkthrough, Part 4) | The approved card carries a label requirement 20 does not name, and a word-for-word preview lines 1387 to 1390 rule out | Open | |
 | 16, approval fields required while the document is still `proposed` (PRD lines 1198 to 1200) | `proposed` then carries two states a reader cannot tell apart without reading the fields | Open | |
@@ -133,7 +133,7 @@ and with what changes in the design if the owner answers differently.
 - Asked: after the design was merged, whether the controls in it are the right
   kind of control.
 - Captured: the owner set the handshake principle on 2026-09-16. It is recorded
-  in the closing section of `knowledge/prds/knowledge-system.md`, titled "The
+  in the closing section of `knowledge/prds/toolkit-operating-system/knowledge-system.md`, titled "The
   handshake principle". In his meaning: every control in the system is a
   handshake, never an engine. A hook names a step at the moment it applies, the
   agent does the step with its own judgment and confirms that it did, and the
@@ -164,7 +164,7 @@ and with what changes in the design if the owner answers differently.
 - Questions 2 to 8 of the eight decisions in the design's section 1a -> the
   owner.
 - The requirements-wording questions 9 to 12 in section 15 -> the owner.
-- Approval of `knowledge/prds/knowledge-system.md`, which is still `proposed`
+- Approval of `knowledge/prds/toolkit-operating-system/knowledge-system.md`, which is still `proposed`
   -> the owner.
 - Approval of `docs/designs/269-knowledge-system.md` as the build plan -> the
   owner.

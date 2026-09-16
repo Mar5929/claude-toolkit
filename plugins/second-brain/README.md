@@ -74,8 +74,8 @@ and disabling either plugin leaves the other's files and behavior intact.
 
 - `knowledge/README.md` owns all shared runtime policy, including placement,
   finding, saving, file shape, approval, trust, lifecycle, and the skill map.
-- `knowledge/prds/knowledge-system.md` in the toolkit repository is the build
-  authority for maintainers. Adopting projects do not receive that file.
+- `knowledge/prds/toolkit-operating-system/knowledge-system.md` in the toolkit
+  repository is the build authority for maintainers. Adopting projects do not receive that file.
 - Each skill below owns only the steps unique to its task and points to the
   manual for shared policy.
 
@@ -98,7 +98,7 @@ node .claude/tools/check-knowledge.mjs
 ```
 
 The builder creates the two deterministic indexes. The checker validates the
-managed manual, knowledge file shape, links, flat-folder layout,
+managed manual, knowledge file shape, links, folder layout,
 `knowledge/current.md` and `knowledge/memory-self-improvement.md` size, and
 common secret patterns. It reports problems and never edits, moves, or deletes
 anything. An unapproved proposed PRD may omit both approval fields. Supplied

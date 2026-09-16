@@ -20,7 +20,7 @@ Mike set the handshake principle on 2026-09-16; it is in the PRD's closing secti
 
 ## Other active work
 
-[Guided management](prds/guided-work-management.md): refining under issue #337.
+[Guided management](prds/toolkit-operating-system/guided-work-management.md): refining under issue #337.
 
 ## Parked
 

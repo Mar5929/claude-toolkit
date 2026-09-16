@@ -118,9 +118,9 @@ that folder's orientation with it.
 
 ## Related
 
-- [folder-claudemd.md](../../plugins/project-init/skills/project-init/references/folder-claudemd.md):
+- [folder-claudemd.md](../../../plugins/project-init/skills/project-init/references/folder-claudemd.md):
   what goes in one, what never does, which folders get one, which are skipped,
   and the template.
-- [thin-claudemd.md](../../plugins/project-init/skills/project-init/references/thin-claudemd.md):
+- [thin-claudemd.md](../../../plugins/project-init/skills/project-init/references/thin-claudemd.md):
   that the root `CLAUDE.md` is a router and a map, what never goes in it, and
   the one line that is the whole of `AGENTS.md`.

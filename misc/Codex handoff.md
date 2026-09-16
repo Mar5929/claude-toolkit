@@ -31,7 +31,7 @@ pending; do not treat that old metadata as new approval.
 Read the repository instructions, then:
 
 1. [Issue #269](https://github.com/Mar5929/claude-toolkit/issues/269), the canonical work item.
-2. [Knowledge-system PRD](../knowledge/prds/knowledge-system.md), the proposed requirements. It has 28 numbered requirements plus supporting sections. Older lists in the issue body lag this file; do not restore superseded requirements from old comments.
+2. [Knowledge-system PRD](../knowledge/prds/toolkit-operating-system/knowledge-system.md), the proposed requirements. It has 28 numbered requirements plus supporting sections. Older lists in the issue body lag this file; do not restore superseded requirements from old comments.
 3. [PRD-creator draft](https://github.com/Mar5929/claude-toolkit/blob/issue-269-second-brain-design/misc/SKILL%20(2).md), the revised skill template on the review branch.
 4. [Existing requirements-helper](../plugins/session-skills/skills/requirements-helper/SKILL.md), which already owns PRD interviews and draft maintenance in the shipped toolkit.
 

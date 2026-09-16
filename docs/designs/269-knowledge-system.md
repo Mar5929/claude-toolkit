@@ -6,7 +6,7 @@
 This is a draft solution design. It is written for the owner, Mike, to approve
 or change. It is not approval to build. The work item is GitHub issue 269 on
 the `Claude-Toolkit-Project` board. The requirements document it designs from
-is `knowledge/prds/knowledge-system.md`. That document has `status: proposed`
+is `knowledge/prds/toolkit-operating-system/knowledge-system.md`. That document has `status: proposed`
 and the issue carries stage label `02-refinement`. Some of its requirements
 still have open questions. This design does not settle them and does not change
 the document's status. The second half of this document lists every open
@@ -1982,7 +1982,7 @@ project before anything moves, and reports what it will do first.
 | 6 | Create `knowledge/memory-inbox.md` and `knowledge/memory/memory-entries/terminology-glossary.md` from the templates | Requirements 28 and 7 have no file |
 | 7 | Add `memory_approval: required` to the `knowledge/project.md` frontmatter | The checker cannot tell a standing approval from a missing one |
 | 8 | Add `updated_at` and, where it is known, `context` to every existing memory file and PRD | The rewritten checker fails every existing file |
-| 9 | Shorten every `summary` over 200 characters. Four files in this repository are over today: `knowledge/memory/github-account-for-pushes.md` at 225, `knowledge/memory/knowledge-manual-voice.md` at 241, `knowledge/prds/folder-instruction-files.md` at 229, `knowledge/prds/guided-delivery.md` at 211 | The checker fails four files |
+| 9 | Shorten every `summary` over 200 characters. Four files in this repository are over today: `knowledge/memory/github-account-for-pushes.md` at 225, `knowledge/memory/knowledge-manual-voice.md` at 241, `knowledge/prds/toolkit-operating-system/folder-instruction-files.md` at 229, `knowledge/prds/toolkit-operating-system/guided-delivery.md` at 211 | The checker fails four files |
 | 10 | Repair every link to a moved file, under requirement 1 (PRD line 462). A repair that could change meaning is asked about first | `tests/link-check.mjs` and `tests/orphan-check.mjs` fail |
 | 11 | Remove `.claude/hooks/` and `.claude/tools/` copies and the hook entries in `.claude/settings.json` | Two copies of every hook run at once |
 | 12 | Rebuild all three indexes and run the checker | The indexes still name the old paths |
@@ -2397,7 +2397,7 @@ and every index and report has to handle a file with no approver.
 This PRD names `knowledge/system-guide/` with `system-guide-index.md` and a
 `system-guide-entries/` folder. The System Guide PRD, which Mike approved and
 told the agent to build, names `knowledge/system/` with a different structure
-entirely (`knowledge/prds/system-guide.md` lines 66, 72, 194 to 211).
+entirely (`knowledge/prds/toolkit-operating-system/system-guide.md` lines 66, 72, 194 to 211).
 
 **Recommended answer:** this PRD stops naming another plugin's layout. It refers
 only to the enabled guide's entry page named in `.system-guide.json`. The System
@@ -2558,7 +2558,7 @@ holds that arithmetic.
 budget has to grow past the 10,000-character hook cap, which sends the output to
 a file and delivers nothing. The only other option is a smaller manual.
 
-### 13.15 The operating-system PRD's open row on a failed knowledge review (`knowledge/prds/toolkit-operating-system.md` line 503)
+### 13.15 The operating-system PRD's open row on a failed knowledge review (`knowledge/prds/toolkit-operating-system/toolkit-operating-system.md` line 503)
 
 That row asks what a failed or missed knowledge review does to work completion.
 This PRD says a failed save pauses only that save and the work depending on it
@@ -2587,7 +2587,7 @@ teaches the checker about them, so the PRD passes its own rule.
 requirement 16's field list and the checker both change, and the migration's
 step 8 disappears.
 
-### 13.17 The walkthrough's inbox card uses a "New wording" block (the approved walkthrough, Part 4, `knowledge/prds/knowledge-system-walkthrough.html`)
+### 13.17 The walkthrough's inbox card uses a "New wording" block (the approved walkthrough, Part 4, `knowledge/prds/toolkit-operating-system/knowledge-system-walkthrough.html`)
 
 The approved walkthrough's inbox example card shows `**Change:**`, then
 `**New wording:**` with a block quotation, then `**Your decision:**`.
