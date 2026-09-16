@@ -4,7 +4,8 @@ An artifact is something an agent generates for a person to look at: a
 diagram, a chart, a dashboard, a visualization, a mockup, a slide deck, a
 published page, or a generated document. This rule is about the words inside
 one: the title, the headings, the labels, the notes, the captions, the body
-text.
+text. It also says how to lay out an artifact whose job is to get a decision
+from the reader.
 
 The project's output style says how the agent talks in chat. The words inside
 an artifact follow the same style. This rule exists because the output style
@@ -74,8 +75,76 @@ The output style's rules on words apply inside the artifact:
 - Fewer words, never fewer facts. Every number, name, date, and quotation
   stays exactly as it is.
 
+## A page that asks for a decision
+
+Some artifacts exist to get an answer. The reader has to pick something, and
+the artifact is there so they can pick it. Lay every one of those out the same
+way, so the reader learns the layout once.
+
+- The decisions come first, before any context. Number them. One sentence
+  each. A reader who stops there still knows what they are being asked.
+- One line at the top says how to read the page: "Answer the two decisions
+  below. The context for each one sits under it." That line is the one place
+  this rule allows a sentence about the artifact instead of the subject. It
+  says what to do, never what the artifact contains.
+- The last block says what happens after the reader answers: the next steps,
+  who does them, and when. That plan is part of the artifact. It is not a
+  closing line that sums up, which is still not allowed.
+
+Every block opens with a label saying what kind of block it is: "Context",
+"Decision 1 of 2", "After you decide". Keep the label to two or three words.
+The decision question is a full sentence inside the block, under the label.
+
+Blocks of the same kind use one template, in one order, every time:
+
+1. The question.
+2. Why it is not already decided.
+3. The options.
+4. What each option changes.
+5. The recommendation.
+6. Where the reader writes their answer.
+
+- Name an option by what it does: "One role for each department", not
+  "Option A". A letter may sit next to the name. It never replaces it.
+- What is in place today is an option only when keeping it is allowed. When
+  keeping it is not allowed, it is not an option. Put it in a block whose
+  label is "Why we cannot keep this", closed until the reader opens it.
+- The recommendation is one line and gives its one reason.
+- What is in place today, the recommendation, and each option look different
+  from one another. The reader can tell which is which by looking, before
+  reading.
+
+## Building the artifact
+
+- A picture comes first in its block, then at most two lines under it. Never a
+  paragraph before a picture.
+- One key for the whole artifact, and one meaning per color everywhere in it.
+  For example: red means the option breaks something the client asked for,
+  green means it matches.
+- Compare options against real job roles, one row per role, using the role
+  names the system uses. Add a named person to a row only when the decision
+  is about that person.
+- Anything the reader has to scan is a card, a table, or a list, not a
+  paragraph.
+- Use bullets. A paragraph is two sentences at most.
+- Every number, name, date, and quotation says where it came from. Something
+  nobody has checked says "not known". Nothing is guessed.
+
+The main session writes the brief: the list of blocks, in order, and what goes
+in each one. A separate, cheaper agent builds the artifact from that brief.
+The main session reviews what comes back and does not write the artifact
+itself.
+
+Two steps before anyone sees it:
+
+- Read it as plain text, with the markup and the pictures taken out. If it
+  does not read from top to bottom that way, it is not finished.
+- Publish it to the same address every time it changes. The reader keeps one
+  link.
+
 ## What this rule does not decide
 
-How the artifact is laid out: how many boxes, what an arrow says, where a
-note goes, whether there is a key. Every artifact is different, and the agent
-making it decides. This rule decides the words.
+What goes inside one picture: how many boxes, what an arrow says, where a
+note goes. Every artifact is different, and the agent making it decides that
+part. This rule decides the words, and the order and shape of the blocks
+around the picture.
