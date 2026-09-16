@@ -52,10 +52,11 @@ part of R15 was separately approved and shipped in
 are not approved merely because these parts shipped.
 
 This PRD owns the whole experience. Component PRDs keep their detailed rules.
-The approved parent-and-child folder shape is available, but whether these
-components belong beneath this PRD remains open. Their files stay in their
-existing locations during refinement. A proposed change to a component remains
-visible until Mike settles it and that component's own record is updated.
+The parent-and-child arrangement in "Parts of the toolkit" was published in
+[PR #348](https://github.com/Mar5929/claude-toolkit/pull/348) on 2026-09-16.
+That organization does not approve every requirement in the parent or its
+children. A proposed change to a component remains visible until Mike settles
+it and that component's own record is updated.
 
 ## What Mike has already settled
 
@@ -74,6 +75,13 @@ visible until Mike settles it and that component's own record is updated.
   not turn individual draft requirements into approved requirements.
 - Solution designs belong on work items. The deleted toolkit map and design
   folder are not to be restored.
+
+  This earlier direction conflicts with the current repository, which contains
+  both and a merged knowledge-system design. The
+  [2026-09-16 handoff](../../../misc/269-decision-organization-handoff.md)
+  records that "with the work item" is settled but issue text versus a linked
+  file remains unanswered. The scope-routing approval below does not resolve
+  that location choice or authorize moving or deleting those files.
 - Settled 2026-09-10: projects must identify folders that get frictionless
   updates. Knowledge files go straight to main and are pushed, even while
   implementation is in a worktree. Local work items stay in their untracked
@@ -239,6 +247,12 @@ routing table. The [second-brain PRD](knowledge-system.md) and
 [System Guide PRD](system-guide.md) own their detailed requirements. Change
 those agreements explicitly when a routing decision changes; do not maintain
 another table here.
+
+Apply the Knowledge System's [requirement 18](knowledge-system.md#18-where-information-goes) when a decision discovered in one part affects another part or the whole toolkit; the responsible component owns the detailed requirement and its operation, and the originating work item links to it.
+
+Mike approved this R11 addition on 2026-09-16 as part of the scoped routing
+change recorded in the [issue #269 Progress log](https://github.com/Mar5929/claude-toolkit/issues/269#issuecomment-5510064692).
+The whole PRD remains proposed; this is not runtime implementation approval.
 
 PRDs state intended behavior. The configured guide explains the system.
 Memory holds qualifying lasting facts and lessons. The project map orients a
@@ -519,7 +533,7 @@ authorizes implementation or changes the neighboring PRD by implication.
 | Hard refusals and lightweight work | Second-brain requirement 3 proposes forced save-review moments. Upkeep favors adaptable stages and deliberately allows an unapproved local Done record while reporting the gap. A component's mechanism cannot be assumed to enforce the whole experience. | Preserve each component's existing decision. Specify the effect of knowledge-review failures on work completion before design; do not add blanket process gates here. |
 | Remaining knowledge-format transition | The manual and proposed second brain still differ on naming and metadata, including the proposed content-change date. Group and finalized status are now accepted by the checker, alongside legacy current. | Keep the remaining transition with #269. Compatibility support does not prove the full second-brain proposal is implemented. |
 | Helper agents | The ask-first instruction for this drafting session does not establish a permanent policy. Guided delivery permits bounded delegation without a blanket ask-first rule. | Retain guided delivery's bounded delegation, while honoring owner limits and scoped permissions. Ask Mike before making ask-first a toolkit-wide requirement. |
-| Parent or sibling PRDs | The parent-and-child folder shape is available. Its application to this overall PRD and the five components has not been decided. | Review them as children of the overall experience if that ownership is intended. Confirm scope and authority before moving files or changing component decisions. |
+| Design-document location | The earlier direction says designs belong on work items and the design folder must not be restored; current guidance and the merged design use a linked file. | Settle issue text versus a linked file before changing the placement instructions. Requirement 18 owns routing; Guided Delivery owns the detailed design-work requirement. |
 | Roadmap ownership | Guided delivery allows adaptable plans in existing records. Second-brain requirement 16 requires a PRD roadmap for a large feature. | A PRD lists work order and requirement coverage; the tracker owns live status and the detailed plan. Confirm this boundary rather than maintaining two editable plans. |
 | Concurrent current context | Second-brain requirements now explicitly require preserving other sessions and reconciling overlapping updates. Upkeep owns each item. | Reuse that agreement under R18. The coordination method belongs in design, not another owner interview. |
 | Installation across hosts | The marketplaces differ. This review did not establish which omitted guards have equivalent active coverage in Codex. | Require a per-host capability and gap report under R5 and R19. Do not assume a missing marketplace entry either proves no protection or grants equivalent protection. |

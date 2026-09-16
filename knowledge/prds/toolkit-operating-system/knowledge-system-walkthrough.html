@@ -345,6 +345,13 @@
       </div>
       <div class="outcome">New candidate needing an update ↓</div>
       <div class="node knowledge">
+        <div class="kind">Required decision · Agent judgment · Approved 2026-09-16</div>
+        <div class="label">Determine where the information applies and which record owns it</div>
+        <div class="detail">Follow <a href="knowledge-system.md#18-where-information-goes">requirement 18</a>. The work item or component where a decision arose does not set its scope. Find the responsible requirement, check affected records, and keep one statement of the requirement with references from the others.</div>
+        <div class="detail">A settled decision can need these updates during refinement or design. Complete authorized updates in the same save flow. Ask only for missing authority or an unresolved decision; do not silently broaden an item-only choice.</div>
+      </div>
+      <div class="arrow" aria-hidden="true">↓</div>
+      <div class="node knowledge">
         <div class="kind">Required decision · Agent chooses the destination</div>
         <div class="label">Put each kind of information in its proper home</div>
         <div class="detail">One discovery may produce different updates with different purposes. Link between their records; keep each meaning in one authoritative home.</div>
@@ -358,7 +365,7 @@
               <tr><td>A lasting project fact, decision, constraint, or costly lesson</td><td>Maintain the existing topic file or relevant subtopic file in its topic folder under <code>knowledge/memory/memory-entries/</code>. Apply memory selection and approval rules.</td></tr>
               <tr><td>A significant completed result worth finding later</td><td>Propose an event memory with the result and output location. Routine activity does not qualify.</td></tr>
               <tr><td>Changed objective, blocker, next step, or useful continuation context</td><td>Update <code>knowledge/memory/current.md</code> under Part 3’s shared-context flow.</td></tr>
-              <tr><td>New or changed required behavior</td><td>Update the relevant existing PRD in <code>knowledge/prds/</code>, within the owner’s approval. When work finishes, check whether it changed the required behavior.</td></tr>
+              <tr><td>New or changed required behavior</td><td>Update the owning requirement in <code>knowledge/prds/</code> and affected references, within the owner’s approval, including during refinement and design. Preserve the decision's source, relevant date, and actual approval state. Link from the originating work item; implementation still owed stays with its tracker.</td></tr>
               <tr><td>Shipped changes to behavior or requirements</td><td>Use <a href="#prd-upkeep">automatic PRD upkeep</a> for every affected component or umbrella PRD. A PRD is finalized when the owner approves its requirements as ready for solution design or building, as clarified on 2026-09-15. Finalized does not mean delivered; keep build progress and delivery evidence in the tracker.</td></tr>
               <tr><td>Useful explanation of existing parts, their purpose, or connections</td><td><strong>Separate plugin: System Guide.</strong> Use its enabled <code>knowledge/system-guide/</code> home and its own content rules, template, approval, and delivery process.</td></tr>
               <tr><td>Repeatable project procedure</td><td><strong>Separate process: project skill authoring.</strong> Propose a skill using the supported runtime's skill location and the applicable authoring and delivery rules.</td></tr>
@@ -641,6 +648,7 @@ Proposals waiting for the owner's answer, and approved saves that are not finish
       <div class="node knowledge">
         <div class="kind">Required for an authorized applicable update · Agent</div>
         <div class="label">Write only the authorized change in its proper home</div>
+        <div class="detail">Reconcile affected references under requirement 18 and read them back with the owning requirement. Report any update that remains unfinished through the existing recovery flow. Saving a requirement does not show that the runtime behavior has been delivered.</div>
         <div class="detail">Maintain the existing file where appropriate. Write a faithful account of the approved summary, using supporting context from the conversation and sources. Preserve any explicitly required wording. Do not add new decisions or expand the approved scope. Retain useful history with clear status and dates, and follow the destination’s update, retirement, deletion, and linking rules.</div>
       </div>
       <div class="arrow" aria-hidden="true">↓</div>

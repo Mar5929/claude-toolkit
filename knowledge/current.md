@@ -18,6 +18,10 @@ Open decision: reshape the design to the toolkit's new solution-design template 
 
 Mike set the handshake principle on 2026-09-16; it is in the PRD's closing section. Design edits may go straight to main.
 
+Scope routing is approved in requirement 18 (2026-09-16); #269 tracks its
+delivery. Full PRD and implementation approval are pending. Design location,
+issue text versus a linked file, remains open.
+
 ## Other active work
 
 [Guided management](prds/toolkit-operating-system/guided-work-management.md): refining under issue #337.

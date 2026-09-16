@@ -19,6 +19,12 @@ and they sometimes disagree. The order for settling a disagreement is fixed:
    2026-09-15.
 3. The requirements document comes last of the three.
 
+On 2026-09-16, Mike approved the scope-routing addition in
+[requirement 18](../../knowledge/prds/toolkit-operating-system/knowledge-system.md#18-where-information-goes).
+The save flow and checks below reflect that requirement. The full design
+remains proposed, and the physical design-document location remains a separate
+open choice recorded in issue #269.
+
 Where this design follows the walkthrough against the requirements document, it
 says so where it does. Words used in a fixed way throughout:
 
@@ -362,6 +368,7 @@ contents "were read", and no harness can produce that proof.
 | Read the project's output style before preparing a proposal | `knowledge-save` step 0, reading `outputStyle` in `.claude/settings.json` | Nothing |
 | Consider prior owner feedback | `knowledge/memory-selection-feedback.md` | Nothing |
 | Decide whether anything needs an update | The agent | Nothing on a quiet review |
+| Determine where it applies and find the owner | The agent uses requirement 18, the project's requirements and responsibilities, and existing source records | The affected scope and owning record when a proposal needs approval; only unresolved choices require a question |
 | Choose the home | The manual's ten-line summary, then `knowledge-save/references/routing.md` at the moment of routing | The home named on the card |
 | Decide whether new approval is needed | `knowledge-save`, reading `memory_approval` in `knowledge/project.md` frontmatter | A card, or a one-line report when the approval step is off |
 | Show the card | `knowledge-save`, using `references/card-format.md` | The card, under its destination heading |
@@ -370,6 +377,7 @@ contents "were read", and no harness can produce that proof.
 | The write is permitted | `knowledge-write-guard.mjs`, which checks permission to write and never the content | Nothing |
 | A decision settled during an authorized interview | `knowledge-save` step 12 | One line, and no second approval question |
 | Check the saved result and rebuild the index | `knowledge-after-write.mjs`, `check-knowledge.mjs`, `build-knowledge-index.mjs` | Nothing on success |
+| Reconcile affected references and returned results | `knowledge-save` read-back, with other components keeping their own writes | Any unfinished update or missing authority; implementation still owed stays in the tracker |
 | Commit and push to the default branch | `knowledge-save`, following `.claude/rules/knowledge-direct-commit.md` | One line naming what was saved and where |
 | Remove the completed inbox entry | `knowledge-save` | Nothing |
 
@@ -890,10 +898,15 @@ deny the write the skill is performing. Body outline:
 1. Gather candidates from the work since the last review.
 2. Drop candidates by requirements 11 and 12, and by
    `knowledge/memory-selection-feedback.md`.
-3. Route each survivor by the requirement 18 table in `references/routing.md`,
-   and name the home.
+3. Apply requirement 18 through `references/routing.md`: determine the kind
+   of information and where it applies, then find the owning requirement or
+   record from existing responsibilities and sources. Name the home and the
+   affected records that need references. The agent judges scope; no hook
+   classifies the decision or chooses the owner.
 4. Check the existing topic file or folder, and check the inbox for a proposal
-   that already covers it.
+   that already covers it. Check affected parent, child, and sibling requirements
+   when relevant, preserving one statement of each requirement. Report a
+   conflicting or missing owner instead of inventing a fallback destination.
 5. Decide the approval path: a card, recorded drafting permission, an authorized
    interview, shipped-work upkeep, or `memory_approval: off`.
 6. Show the cards in the requirement 20 shape, under their destination headings.
@@ -901,10 +914,16 @@ deny the write the skill is performing. Body outline:
 8. On approval, run the pre-write check, then write with the templates. The
    pre-write check is three agent actions, not a hook: reread the shared records
    the change touches, confirm the recorded approval still covers this exact
-   meaning, and confirm the change is still needed.
+   meaning, and confirm the change is still needed. Apply that authority check
+   to every affected destination. Reconcile authorized requirement changes and
+   references during refinement and design too, following requirement 18.
+   Hand other components their own operations and carry back the actual result.
 9. Read back the saved change and compare it with the approved operation,
    meaning, and scope, and check the written words against the style read in
-   step 0.
+   step 0. Read affected references back as well. Preserve source, relevant date,
+   and approval state; link the originating item to the owning requirement.
+   Unfinished knowledge saves use requirement 28. The tracker retains any
+   implementation still owed; a requirement save is not delivery evidence.
 10. Let `knowledge-after-write.mjs` run the checker and rebuild the index; run
     both tools by hand when that hook did not fire.
 11. Commit and push to the default branch under
@@ -1630,7 +1649,7 @@ a mix, and the strongest control is named first.
 | 15. How the words are written | `knowledge-save` step 0 reads the active output style, or `.claude/rules/plain-english-artifacts.md` when the style is a built-in with no file | GUIDED, JUDGED | Hand a saved memory to someone who was not in the conversation. They can say what is true in one read | Jargon in a saved file. The read-back step is the only check |
 | 16. Requirements documents | `check-knowledge.mjs` field logic, `knowledge-save` upkeep path, `save-moment-gate.mjs` on work-item close | ENFORCED on fields, GUIDED on upkeep | Ship an authorized change affecting two areas. Both documents are updated, checked, committed, and pushed with no new approval question | "When work ships" is read as: the work item is closed as done, or its pull request is merged. That reading is an open question |
 | 17. Procedures become skills | `knowledge-save` routing, `references/skill-proposal.md` | GUIDED | Teach the agent a repeatable way of doing something here. It offers a project skill at the runtime's skill location, not a memory file, and approval follows the skill-authoring process, not the knowledge save card | No skill-authoring process exists to hand the proposal to. `knowledge-save` shows the proposal and stops. Named as a dependency in 9.6 and as a small work item in section 12 |
-| 18. Where information goes | The ten-line summary in `knowledge/README.md`, the full table in `knowledge-save/references/routing.md`, and `knowledge-setup/references/routing-examples.md` at setup | GUIDED, JUDGED | Hand the agent one item of each kind. Each lands in the right home and the card names the home | The full table reaches the agent when it routes a save, not at startup. Whether that meets "given to the agent in every project" is section 13.20 |
+| 18. Where information goes | The ten-line summary in `knowledge/README.md`, the full policy in `knowledge-save/references/routing.md`, the save flow in 6.3, and setup examples | GUIDED, JUDGED | Run requirement 18's information-kind check and scope/ownership check, including a decision spanning components during refinement; section 11.2 seeds both broader decisions and item-only exceptions | Scope and meaning depend on agent judgment. A confirmation or passing schema check does not prove correct routing. The full policy reaches the agent when it routes a save; section 13.20 retains the delivery-timing question |
 | 19. The find order | `knowledge-find`, the standing rule | GUIDED, JUDGED | Ask about active work, a past decision, a required behavior, and a vendor capability. Each answer is grounded in the right source | Tiers can be skipped. By design nothing scores the search |
 | 20. The save card | `references/card-format.md` | GUIDED | Present one memory card and one requirements-document card after an ordinary answer. Each has its own heading and number, and approving one moves only that one | The card layout can change over time. A card review is part of requirement 3's sessions |
 | 21. Indexes and the checker | `build-knowledge-index.mjs`, `check-knowledge.mjs`, `knowledge-after-write.mjs`, `session-review-nudge.mjs`, `.githooks/pre-commit` | ENFORCED | Rebuild all three indexes twice with unchanged sources. The bytes match. Break a required field and try to save: the save is reported unfinished and the rule is named | Codex `PostToolUse` fires for `apply_patch`, so the after-write hook works there, with the patch-parsing caveat. The pre-commit hook covers both harnesses and hand edits. The design adds three size limits the requirement does not set; section 13.22 |
@@ -2109,6 +2128,16 @@ outcome written before the run.
 | A handoff | The owner says he is about to clear context, or runs `/handoff` | The knowledge review runs before the handoff prompt is written. Pending inbox items are read and the ones that matter are named in the prompt |
 | An authorized requirements interview | The owner gives permission to refine a named requirements document, then answers three questions in a row | Each settled decision is written and pushed before the next question is asked, with no second permission request. Several decisions settled in one reply share one commit and one push. Requirement 9's own check (PRD line 697) is the pass condition |
 
+Also seed requirement 18's scope and ownership cases: a decision made during
+one component's refinement that changes another component or the whole product;
+an item-only exception; a note with separately owned meanings; conflicting or
+missing owners; permission for only one destination; and an interrupted save.
+Write the expected owner and affected references before each run. Verify the
+resulting records and a fresh session's ability to find the decision, its source,
+and implementation still owed. No case passes merely because the agent confirms
+review or the file checker accepts its output. These cases test the approved
+requirement without selecting a physical design-document location.
+
 ### 11.3 How each session is run
 
 | Kind of run | Command or method | What it can and cannot show |
@@ -2216,6 +2245,12 @@ asks which goes first.
 | Done when | The capture date in the file headers is today's date, and the hook events, the `if` syntax, the output cap, and the skill frontmatter fields in this design match the refreshed pages |
 
 ### Item 1. The manual, the standing rule, the two startup hooks, and the four skills
+
+This item also delivers requirement 18's approved scope and ownership behavior
+through the existing manual and save skill. The full routing policy has one
+owner; the save flow references it. No separate scope registry or classification
+service is added. Include the representative scope cases in section 11.2 when
+item 7 verifies the completed system.
 
 | Field | Value |
 | --- | --- |

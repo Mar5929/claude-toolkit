@@ -1184,6 +1184,8 @@ allowed, and it is the exception.
 - A PRD may link to the relevant work item or delivery plan so the agent can find it. It does not copy that plan, build order, or status. Each work item names the PRD requirements it delivers, preserving the connection between requirements and implementation.
 - Agents keep each record current in its own home when the work changes, within existing approval. A work item being created, reordered, or split updates the delivery records. A change to required behavior updates the PRD. The owner never has to direct the filing or keep these records aligned by hand.
 
+Requirement 18 applies when a decision is settled during refinement or design as well as after delivery. It determines which requirement owns the change and which other records need references. Permission to update each record still follows requirement 10; publishing a requirement does not prove implementation.
+
 **Check:** open a PRD that more than one work item delivers. Its links lead to
 the delivery records, and the work items name the requirements they cover.
 Ask to build search before the inbox: the delivery plan changes, and the PRD
@@ -1271,6 +1273,22 @@ Requirement 15 sets the plain-language writing standard. Requirement 10 says
 what permission a write needs, and new approval is asked for with the standard
 proposal. The owner does not manage the files himself.
 
+Before choosing a home, the agent determines what kind of information it is and where it applies. The conversation, work item, or file where it was discovered does not set that scope. The agent checks the project's existing requirements, component responsibilities, and source records to identify which document owns the meaning. It does not assume that folder names define those responsibilities.
+
+Keep each requirement in one document responsible for the behavior it describes. Use the parent PRD for requirements that span the whole area or define how its parts work together. Keep a component's detailed requirements in that component's PRD, even when other components use them. Other affected records refer to the owning requirement rather than repeating it. Split a statement when it contains different kinds of information or separately owned requirements.
+
+When a settled decision changes required behavior, identify and reconcile the affected requirements and references during the same save flow, including during refinement and design. Complete writes already covered by the owner's permission before moving to the next question. If permission does not cover an affected destination or the broader meaning is uncertain, explain the specific unresolved change and ask only for that decision. Do not broaden an item-specific choice, change other projects, or start implementation without the authority those actions require.
+
+The owning record preserves the source of the decision, its relevant date, and its actual approval state. The originating work item links to that record and keeps the work, discussion, and delivery evidence. A requirement update is not evidence that the implementation has changed. Any implementation still owed remains with the chosen work tracker. Unfinished knowledge saves follow requirement 28.
+
+When a proposal needs approval, briefly state what changed, where it applies, where the authoritative version belongs, and which other records will be updated or linked. Use the existing proposal format. If the correct owner is missing or two owners conflict, report that specific gap rather than inventing a fallback store or silently choosing one.
+
+Mike approved this scope and ownership requirement and its check on 2026-09-16,
+with the references in requirement 16, requirement 30, and the parent PRD's R11.
+The [issue #269 Progress log](https://github.com/Mar5929/claude-toolkit/issues/269#issuecomment-5510064692)
+records the approval. This approval does not finalize the full PRD or approve
+runtime implementation or a physical design-document location.
+
 | The question | Where it goes |
 | --- | --- |
 | Who the agent is in this project | `SOUL.md` |
@@ -1312,6 +1330,8 @@ When approval is needed, the proposal names the home before the write. Include a
 a duplicate, and a task-only detail: none becomes lasting knowledge. For a
 memory, PRD, and enabled System Guide page, the agent locates the appropriate
 template and content rules without asking the owner to explain them.
+
+**Check:** during refinement of one component, settle a decision that affects another component or the whole product. Without a filing reminder, the agent identifies the applicable scope and owning requirement, completes authorized updates or presents the specific remaining approval, and leaves references in affected records. A fresh session can find the decision, its source, and any implementation still owed without reconstructing the original discussion. Repeat with an item-only exception, a mixed note, an unresolved conflict, permission covering only one destination, and a failed save. No exception silently becomes a general rule, no requirement is duplicated, and unfinished work is not reported as complete.
 
 ## 19. The find order
 
@@ -1769,7 +1789,7 @@ to build stay in the existing delivery process.
 | OS responsibility | Required knowledge integration | Umbrella requirements to align |
 | --- | --- | --- |
 | Session start and continuity | Make the knowledge guidance, current context, indexes, glossary, and pending-save records reachable when this component is enabled. Apply this PRD's required reads and recovery rules without adding a second startup process. | R6, R9, R11, R17 |
-| Request routing and separate components | Use requirement 18 to choose the owning component. The chosen tracker owns work-item records; guided delivery owns the delivery process; System Guide owns its explanations; skills, rules, and captured documentation use their own upkeep. The walkthrough identifies each handoff and the result returned. | R7–R11, R16 |
+| Request routing and separate components | Use requirement 18 to determine the information's kind, where it applies, and the component that owns it; route affected updates to their existing owners and carry forward the actual result or unfinished work. The chosen tracker owns work-item records; guided delivery owns the delivery process; System Guide owns its explanations; skills, rules, and captured documentation use their own upkeep. The walkthrough identifies each handoff and the result returned. | R7–R11, R16 |
 | Approval and PRD upkeep | Carry existing authority across components and sessions. Apply requirement 16's autonomous upkeep after shipped work, including affected umbrella requirements, while preserving the approval rules for new decisions and separate memories. | R8, R10, R15, R25 |
 | Work milestones and completion | The delivery process makes the scope and outcome of the relevant work available for knowledge review at requirement 9's moments. Knowledge reports its actual completion or failure to that process. The tracker retains ownership of work status; a failed knowledge operation pauses only dependent work under requirement 3. | R8, R13, R16, R19–R20 |
 | Setup and missing capabilities | The setup and sync processes make the required knowledge parts available, preserve project choices and content, and report missing support. Route a fault to the component responsible for fixing it. Do not silently enable an optional component to satisfy a lookup or save. | R4–R5, R19–R20, R22 |
