@@ -181,13 +181,14 @@ claude-toolkit/
       .codex-plugin/plugin.json
       skills/
         work/                     ← SKILL.md + dependency-free Node core
-    session-skills/               ← plugin: twelve conversation and guided-delivery skills
+    session-skills/               ← plugin: eleven conversation and guided-delivery skills
       README.md
       .claude-plugin/plugin.json
       .codex-plugin/plugin.json
       agents/
         delivery-researcher.md    ← focused, read-only source research
         delivery-reviewer.md      ← independent requirements, design, or plan review
+        design-product-analyst.md ← are the requirements complete and explicit end to end? confidence number and gaps
         design-researcher.md      ← one bounded design question, findings labeled by source type
         design-architect.md       ← writes or fixes one design option to the template
         design-critic.md          ← one verdict per requirement, findings for the architect
@@ -195,8 +196,7 @@ claude-toolkit/
       skills/
         work-guide/              ← adaptable delivery with the project's tracker
         requirements-helper/     ← guided canonical requirements
-        solution-helper/         ← requirement-mapped designs
-        solution-design/         ← team of Opus agents: research, design, critique, fix until every requirement is met
+        solution-design/         ← readiness check, a team sized per item, research, design, critique, fix until every requirement is met
         braindump/                ← play a pasted brain dump back in simple words before any work starts
         explain-simply/           ← say that again in plain bullets, keeping every number
         grill-me/                 ← persistent discovery interviews
@@ -272,7 +272,7 @@ inside a project folder before it is useful, which is what the last column says:
 | **[git-workflows](plugins/git-workflows/README.md)** | Three parallel-session-safe git lifecycle skills: `pull-latest` gets current without rewriting history, `reset-to-remote` mirrors the remote behind confirmation, and `merge-and-clean-up` lands an approved PR before removing only its completed workspace. | Install and go |
 | **[hooks-library](plugins/hooks-library/README.md)** | Reusable hooks that make a rule land mechanically: `spec-check-reminder` asks once per session whether the spec-check review ran, `no-ai-attribution-guard` refuses AI credit in Git text, and two Salesforce guards protect production and permission-set deploys. System-specific knowledge hooks ship with second-brain. | Wires into settings |
 | **[work-tracker](plugins/work-tracker/README.md)** | Gives Claude and Codex one local backlog under Git-ignored `.work-items/`: YAML records, owner-approved requirements, exact handoffs, blockers, typed relationships, deterministic next-item selection, branch-scoped active-item selection, flexible work types and stages, a dated progress log, accepted completion events and optional Git landing proof, generated dashboards, an `archive/` folder for items the owner has set aside, and preview-first conversion of older staged trackers. Shared GitHub tracking remains a separate tracker choice. | Sets up a project |
-| **[session-skills](plugins/session-skills/README.md)** | Twelve conversation skills. `work-guide` coordinates adaptable delivery through the chosen tracker; `requirements-helper` clarifies intent, questions directions that could undermine the goal, and updates the draft; `solution-helper` explains requirement-mapped designs; `solution-design` runs a team of Opus agents that research, design, critique against every requirement, and fix until all are satisfied. Focused research, design, and review agents assist the main conversation. Existing brain dump, explanation, discovery, handoff, recap, specification check, task-list, and writing tools remain included. | Install and go |
+| **[session-skills](plugins/session-skills/README.md)** | Eleven conversation skills. `work-guide` coordinates adaptable delivery through the chosen tracker; `requirements-helper` clarifies intent, questions directions that could undermine the goal, and updates the draft; `solution-design` checks the requirements are ready, recommends a team of agents sized to the item, then researches, designs, critiques against every requirement, and fixes until all are satisfied. Focused research, design, and review agents assist the main conversation. Existing brain dump, explanation, discovery, handoff, recap, specification check, task-list, and writing tools remain included. | Install and go |
 
 ---
 
@@ -381,7 +381,7 @@ For local work tracking in folders that Git ignores:
 /work
 ```
 
-For twelve conversation and guided-delivery skills, all in one install:
+For eleven conversation and guided-delivery skills, all in one install:
 
 ```text
 /plugin install session-skills
@@ -392,8 +392,7 @@ Then use whichever one you need:
 ```text
 /session-skills:work-guide           to coordinate an item or parallel work
 /session-skills:requirements-helper  to refine requirements in their chosen home
-/session-skills:solution-helper      to propose a requirement-mapped design
-/session-skills:solution-design      to design with a team of Opus agents until every requirement is met
+/session-skills:solution-design      to design with a team of agents until every requirement is met
 /braindump          to hear a pasted brain dump back in simple words before work starts
 /explain-simply     when an answer did not land and you want plain bullets
 /grill-me           for a persistent brainstorm or discovery interview

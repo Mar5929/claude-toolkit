@@ -1,42 +1,40 @@
 ---
 name: solution-design
-description: Design a solution for approved requirements using a team of Opus agents that research, design, critique the design against every requirement, and fix it until all requirements are satisfied. Produces one or more plain-language design options a junior intern could follow. Use when a work item has approved requirements and needs a solution design, when the owner wants design options compared, or when the owner says "design this", "solution this", or "how should we build this".
+description: Design a solution for approved requirements as a process flow. The main conversation checks the requirements are complete and explicit end to end, agrees the way of working with the owner, recommends a team of agents sized to the item, then runs research, design, and a critique loop against every requirement until all are satisfied. Produces one or more plain-language design options a junior intern could build from. Use when a work item has approved requirements and needs a design, when the owner wants design options, or says "design this", "solution this", or "how should we build this".
 ---
 
 # Solution design
 
 Turn approved requirements into a solution design that a junior intern could
-read and build from. The main conversation runs the work and talks to the
-owner. A team of Opus agents does the research, the drafting, and the
-critique. Nothing is settled until the owner agrees.
+read and build from. This skill is the process the main conversation follows.
+The main conversation talks to the owner and owns every record. A team of
+agents, recommended fresh for each item, does the research, the drafting, and
+the critique. Nothing is settled until the owner agrees.
 
 Read [work-guide](../work-guide/SKILL.md) first for the project's tracker,
 canonical records, and how to brief a helper. Do not repeat orientation
-already done this session. [solution-helper](../solution-helper/SKILL.md) is
-the light version of this skill for a small item designed in one
-conversation. Use this skill when the item is large enough to need research,
-a written critique, or more than one option.
+already done this session.
 
-## 1. Read the requirements and say whether they are ready
+## Step 1. Read the requirements and say whether they are ready
 
 No design starts until the requirements are complete, explicit end to end,
 and safe for a builder to read. Before asking the owner anything:
 
 - Read the canonical requirements: the PRD, the work item, its approvals, its
-  open questions, and any linked "potential paths" notes. Run `spec-check`
-  when it is installed and has not run on this item.
+  open questions, and any linked notes. Notes at the bottom of a PRD labeled
+  "potential paths to explore" are ideas to evaluate, not requirements and not
+  approved design. Run `spec-check` when it is installed and has not run on
+  this item.
 - Write down, in one short paragraph, what the requirements are trying to
   solve for the person who will use the result. This is the intent. Every
   agent on the team gets it.
 - Read the requirements against the whole end-to-end experience of that
-  person. A requirement that seems out of place, contradicts another, or
-  makes no sense in that flow is flagged now, in the first reply, with the
-  reason. The owner decides what happens to each flagged requirement. Record
-  the ruling in the prep file (section 3).
+  person, inside the larger system the result belongs to. A requirement that
+  seems out of place, contradicts another, or makes no sense in that flow is
+  flagged now, in the first reply, with the reason.
 - Note whether the project is greenfield or has an existing build, and what
   the existing build does today for this area.
-- Check readiness. Read the requirements as one whole, inside the larger
-  system they belong to, and answer three questions:
+- Check readiness by answering three questions:
   1. **Is anything missing?** A step, a person, an error case, a state, a
      boundary with another system, a rule for what happens after, or a way to
      tell it worked. Missing means the intent cannot be met without it.
@@ -61,20 +59,17 @@ requirements through `requirements-helper` and the project's save policy, not
 as patches inside the design. The owner can overrule a flag; record the
 ruling and the reason in the prep file.
 
-Do not start research or design until the owner has ruled on every flag and
-confidence is 95 or above. Record the number and the date in the prep file.
-
-## 2. Agree on how the work runs
+## Step 2. Agree on how the work runs
 
 Ask these one at a time, each with a recommendation and a one-line reason.
 Skip any the owner already answered.
 
 1. **Prep interview or scan first.** Either interview the owner relentlessly
    until every requirement, constraint, and preference is understood, or scan
-   the requirements, run a short research round with agents, and then
-   interview only on the gaps that research exposed. Recommend the interview
-   when the requirements leave intent or constraints open; recommend the scan
-   when the requirements are detailed and the unknowns are technical.
+   the requirements, run a short research round, and then interview only on
+   the gaps that research exposed. Recommend the interview when intent or
+   constraints are open; recommend the scan when the requirements are
+   detailed and the unknowns are technical.
 2. **Design philosophy.** The default is to use the platform's or tool's
    standard, built-in mechanisms wherever they satisfy the requirement, and to
    build custom only where nothing built-in does. Ask whether the owner wants
@@ -94,22 +89,27 @@ Skip any the owner already answered.
    - No tracker: ask.
    Several options go in one design file as top-level sections unless the
    owner asks for one file per option.
-5. **The team.** Present the team for this item's size and complexity: each
-   role, how many, what each one does, and what it reads. Use
-   [team-roles.md](references/team-roles.md) to size it. The owner agrees or
-   changes it before any agent starts.
+5. **The team.** Evaluate the complexity and effort of the requirements in
+   the context of what is being built: how many requirements, how many
+   systems or platforms they touch, whether a build already exists, how many
+   options the owner wants, and how much is unknown. Then recommend a
+   structured team for this item: each role, how many, which model each runs
+   on and why, what each reads, and what each returns. The team is different
+   every time. [team-roles.md](references/team-roles.md) holds the roles, the
+   default model for each, and example compositions to start from. The owner
+   agrees or changes the team before any agent starts.
 
 Write every agreed answer into the prep file's "How this design is being
 made" section as soon as it is given.
 
-## 3. The prep file
+## Step 3. Write the prep file
 
 The prep file is one Markdown file at the agreed location, shaped by
-[prep-file-template.md](references/prep-file-template.md). It holds the intent,
-the flagged requirements and the owner's rulings, the agreed way of working,
-the team, every interview answer, and the constraints. Every agent reads it
-before starting, so it is how the whole team shares one understanding of
-what the requirements are for.
+[prep-file-template.md](references/prep-file-template.md). It holds the
+intent, the readiness check and confidence numbers, the flagged requirements
+and the owner's rulings, the agreed way of working, the team, every interview
+answer, and the constraints. Every agent reads it before starting, so the
+whole team shares one understanding of what the requirements are for.
 
 When the owner chose the interview: ask one question at a time, with a
 recommended answer and a short reason. Resolve a decision before asking about
@@ -122,80 +122,76 @@ When the owner chose the scan: fill the prep file from the requirements and
 the project's records, run the research round, then interview only on what
 research left open.
 
-## 4. Run the team
+## Step 4. Run the team
 
-Start every agent with the Agent tool and `model: opus`. Start agents whose
-work does not depend on each other in the same message so they run in
-parallel. Agent teams (the experimental teammate feature) are not used unless
-the owner has enabled them and asks for them; subagents are the built-in
-mechanism and they are enough.
+Start every agent with the Agent tool, passing the model agreed for its role.
+Start agents whose work does not depend on each other in the same message so
+they run in parallel. Subagents are the built-in mechanism and they are
+enough. Agent teams (the experimental teammate feature) are used only when the
+owner has enabled them and asks.
 
 Every agent gets, in its prompt: the path of the prep file, the path of the
 requirements, the path of any draft design, the exact question or task, and
 the result wanted. An agent does not inherit this conversation, the loaded
-skills, or another agent's findings. Pass what it needs.
+skills, or another agent's findings. Pass what it needs. Where the host does
+not load the packaged agents (Codex, for example), read the role file and
+pass its full text with the brief to a native worker.
 
-Where the host does not load the packaged agents (Codex, for example), read
-the role file and pass its full text with the brief to a native worker.
+### 4a. Requirements check
 
-### Requirements check round
-
-Before research, one [design-critic](../../agents/design-critic.md) reads the
-requirements and the prep file in requirements mode and returns its own
-confidence number, the missing pieces, the places that are not explicit end
-to end, and the misreading risks. This is a second reader who did not see the
-conversation, so it catches what the main conversation stopped noticing.
+Before research, the product analyst reads the requirements and the prep
+file and returns its own confidence number, the missing pieces, the places
+that are not explicit end to end, and the misreading risks. It did not see
+the conversation, so it catches what the main conversation stopped noticing.
 Reconcile its findings with your own, take the open ones to the owner, and
-update the prep file. Design waits until both numbers are 95 or above.
+update the prep file. Design waits until both numbers are 95 or above and
+the owner has ruled on every flag.
 
-A researcher or architect that finds, during its own work, that a
-requirement is missing something or cannot mean what it says reports it and
-stops on that requirement. The finding goes back through the owner and the
-requirements, not around them.
+Any agent that finds, during its own work, that a requirement is missing
+something or cannot mean what it says reports it and stops on that
+requirement. The finding goes back through the owner and the requirements,
+not around them.
 
-### Research round
+### 4b. Research
 
-One [design-researcher](../../agents/design-researcher.md) per bounded
-question. Good questions: what the platform offers built-in for a
-requirement, what the current version's limits are, what the community is
-doing for this kind of problem, what an existing component in this repository
-already does. Researchers may read official documentation, vendor sites,
-Reddit, Stack Overflow, GitHub issues, and forums. Each finding comes back
-with its source, its date, and a label: official documentation, project
-evidence, or community claim.
+One researcher per bounded question. Good questions: what the platform
+offers built-in for a requirement, what the current version's limits are,
+what the community is doing for this kind of problem, what an existing
+component in this repository already does. Researchers may read official
+documentation, vendor sites, Reddit, Stack Overflow, GitHub issues, and
+forums. Each finding comes back with its source, its date, and a label:
+official documentation, project evidence, or community claim.
 
-### Design round
+### 4c. Design
 
-One [design-architect](../../agents/design-architect.md) per design option.
-It reads the prep file, the requirements, the research reports, and the
-existing build, states its own confidence in the requirements, and refuses to
-design below 95, returning the gaps instead. Above that it writes a draft
-design to the agreed path following
+One technical architect per design option. It reads the prep file, the
+requirements, the research reports, and the existing build, states its own
+confidence in the requirements, and refuses to design below 95. Above that it
+writes a draft to the agreed path following
 [design-document-template.md](references/design-document-template.md),
-including the section that names where a builder could misread the
-requirements and what each one is meant to mean.
+marking each component as reused, changed, or new, and filling the table of
+places where a builder could misread the requirements.
 
 The architect decides what goes in the design. A community claim is a claim
 until the architect has checked it against official documentation, the
 project's own code, or a test. Something being popular online does not make
-it correct, current, or right for these requirements. The architect says in
-the design which claims were verified and how.
+it correct, current, or right for these requirements.
 
 The architect also owes the owner the better answer. If a design that ignores
 the existing build satisfies the requirements better than one that extends
 it, the architect recommends the rewrite, says what it costs, and says why.
 What exists today is evidence, not a constraint.
 
-### Critique round
+### 4d. Critique
 
-One [design-critic](../../agents/design-critic.md) per draft. It reads the
-requirements, the prep file, and the draft, and returns one line per
-requirement: satisfied, partly satisfied, or not satisfied, each with the
-evidence or the gap. It also reports figurative language, jargon a junior
-intern would not know, custom work where a built-in mechanism would do, and
-any place the design breaks the end-to-end experience the intent describes.
+One critic per draft. It reads the requirements, the prep file, and the
+draft, and returns one line per requirement: satisfied, partly satisfied, or
+not satisfied, each with the evidence or the gap. It also reports figurative
+language, jargon a junior intern would not know, custom work where a
+built-in mechanism would do, and any place the design breaks the end-to-end
+experience the intent describes.
 
-### Fix loop
+### 4e. Fix loop
 
 Give the critic's findings back to the architect. The architect fixes the
 draft and lists what changed. The critic checks again. Repeat until every
@@ -210,7 +206,7 @@ requirement is satisfied and no material finding remains.
 - Do not stop the loop because it is long. Stop it because the critic's list
   is empty or because the owner has decided the remaining items.
 
-## 5. Present, save, and record
+## Step 5. Present, save, and record
 
 When the loop ends, give the owner a short reply: the number of options, one
 sentence per option, the recommendation and its reason, and the decisions

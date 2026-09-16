@@ -86,8 +86,8 @@ and the tracker's existing fields, body, or linked documents.
 ## Bring in the right help
 
 - Use [requirements-helper](../requirements-helper/SKILL.md) for a guided
-  requirements conversation and [solution-helper](../solution-helper/SKILL.md)
-  for a requirement-mapped design. Briefly name a meaningful transition.
+  requirements conversation and [solution-design](../solution-design/SKILL.md)
+  for a solution design from approved requirements. Briefly name a meaningful transition.
 - Use relevant installed domain skills for specialist methods. Recommend
   additional support when a material knowledge gap, independent review, or
   parallel task would help. Reuse the owner's stated preferences; do not assume

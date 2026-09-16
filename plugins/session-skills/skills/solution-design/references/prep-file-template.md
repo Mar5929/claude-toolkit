@@ -26,7 +26,7 @@ from.>
 ## Requirements readiness
 
 - Confidence, main conversation: <number> on <date>
-- Confidence, critic: <number> on <date>
+- Confidence, product analyst: <number> on <date>
 - What was missing, and how it was resolved: <one line each, with the
   requirement it was added to, or the owner's ruling to leave it out>
 - What was not explicit end to end, and the wording that fixed it: <one line
@@ -44,7 +44,7 @@ from.>
 - Number of options: <n>, differing by: ...
 - Existing build: greenfield / exists, and it does the following today: ...
 - Team: <role: count, what it reads and returns>, one line per role
-- Agents run on: Opus, via subagents
+- Agents run as: subagents, with the model per role listed above
 
 ## Constraints
 

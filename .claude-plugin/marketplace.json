@@ -42,7 +42,7 @@
     {
       "name": "session-skills",
       "source": "./plugins/session-skills",
-      "description": "Twelve conversation skills, including guided delivery, requirements interviewing, and solution design, with focused research, design, and review agents. Use the project's chosen tracker and adaptable working methods."
+      "description": "Eleven conversation skills, including guided delivery, requirements interviewing, and solution design, with focused research, design, and review agents. Use the project's chosen tracker and adaptable working methods."
     },
     {
       "name": "system-guide",

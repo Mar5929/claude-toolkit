@@ -60,7 +60,9 @@ is a proposal until the owner approves it.
   A requirement that satisfies itself but breaks that flow is reported in
   "Open decisions for the owner", not silently designed around.
 - Every requirement gets its own heading with three lines: build or reuse,
-  why this satisfies it, how to check it. No requirement is skipped.
+  why this satisfies it, how to check it. No requirement is skipped. Mark
+  every component as reused, changed, or new, and separate code that exists
+  from behavior verified in the intended environment.
 - Fill the "Where a builder could misread the requirements" table: every
   risk from the prep file, plus any you found, each with the wrong reading,
   the intended reading, and what this design does about it. A builder reads

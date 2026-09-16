@@ -1,6 +1,6 @@
 # session-skills
 
-Twelve skills for working inside one conversation, including guided delivery,
+Eleven skills for working inside one conversation, including guided delivery,
 requirements interviewing, and solution design.
 
 **Setup: install and go.** Use the project's chosen tracker and document homes.
@@ -18,8 +18,7 @@ project guidance file is required.
 | --- | --- | --- |
 | [work-guide](skills/work-guide/SKILL.md) | `/session-skills:work-guide` | Coordinate the work, adapt its plan, switch context, or assess parallel items |
 | [requirements-helper](skills/requirements-helper/SKILL.md) | `/session-skills:requirements-helper` | Write plain-language PRDs and refine required behavior without prescribing the build |
-| [solution-helper](skills/solution-helper/SKILL.md) | `/session-skills:solution-helper` | Explain a design against each requirement using existing capabilities and sources |
-| [solution-design](skills/solution-design/SKILL.md) | `/session-skills:solution-design` | Run a team of Opus agents that research, design, critique against every requirement, and fix until all are satisfied, with one or more plain-language design options |
+| [solution-design](skills/solution-design/SKILL.md) | `/session-skills:solution-design` | Check the requirements are ready, agree the way of working, recommend a team of agents sized to the item, then research, design, critique against every requirement, and fix until all are satisfied |
 | braindump | `/braindump` | You pasted a loose brain dump and want it played back in simple words before any work starts |
 | explain-simply | `/explain-simply` | An answer did not land and you want it again in plain bullets |
 | grill-me | `/grill-me` | A plan or design is half-formed and you want it pulled out of your head |
@@ -29,7 +28,7 @@ project guidance file is required.
 | track-tasks | `/track-tasks` | Several unrelated things are open at once |
 | unslop | `/unslop` | A document or draft reads as machine-written and you want it cleaned up |
 
-All twelve also trigger from plain words. You never have to type the command.
+All eleven also trigger from plain words. You never have to type the command.
 
 ---
 
@@ -41,19 +40,20 @@ specialist help, and restores the next step when work resumes.
 `requirements-helper` clarifies the intended outcome one question at a time,
 flags directions that could undermine it, gives supported recommendations,
 and saves settled answers or corrections in the chosen draft.
-`solution-helper` maps requirements to simple build, benefit, and verification
-bullets, reusing relevant domain skills such as Salesforce solutioning.
-`solution-design` is the heavier path for an item that needs research, a
-written critique, or more than one option: the main conversation and a critic
-each check that the requirements are complete and explicit end to end, score
-their confidence (design waits until both are 95 or above), list where a
-builder could misread the wording, flag requirements that do not fit the
-end-to-end experience, agree with the owner on prep interview or scan, design philosophy, number of options, output
-location, and team, then runs Opus agents that research, draft, critique
-against every requirement, and fix until the critic's list is empty. The prep
-file is the one record every agent reads, so the whole team shares what the
-requirements are for. What exists today is evidence, not a constraint: the
-architect recommends a rewrite when that serves the requirements better.
+`solution-design` is the process for turning approved requirements into a
+design: the main conversation and a product analyst each check that the
+requirements are complete and explicit end to end, score their confidence
+(design waits until both are 95 or above), list where a builder could misread
+the wording, and flag requirements that do not fit the end-to-end experience.
+The owner then agrees prep interview or scan, design philosophy, number of
+options, and output location. The main conversation weighs the item's
+complexity and recommends a team for it: a product analyst, researchers, a
+technical architect per option, a critic, and task agents as needed, each on
+the model that fits the role. Agents research, draft, critique against every
+requirement, and fix until the critic's list is empty. The prep file is the
+one record every agent reads. What exists today is evidence, not a
+constraint: the architect recommends a rewrite when that serves the
+requirements better.
 
 The existing tracker owns status and progress. These skills use its native
 fields, notes, and linked documents; they do not introduce another tracker or
@@ -67,14 +67,20 @@ still apply.
   question using project evidence and official sources.
 - [delivery-reviewer](agents/delivery-reviewer.md): independently review
   requirements, a design, or a plan for material gaps and inconsistencies.
+- [design-product-analyst](agents/design-product-analyst.md): check the
+  requirements are complete, explicit end to end, and coherent in the larger
+  system, and return a confidence number with the gaps and misreading risks.
 - [design-researcher](agents/design-researcher.md): answer one bounded design
   question from official documentation, project evidence, and community
-  sources, each finding labeled by source type. Runs on Opus.
+  sources, each finding labeled by source type.
 - [design-architect](agents/design-architect.md): write or fix one design
   option to the design template, verifying community claims before using
-  them. Runs on Opus.
+  them.
 - [design-critic](agents/design-critic.md): return one verdict per
-  requirement and the findings the architect must fix. Runs on Opus.
+  requirement and the findings the architect must fix.
+
+The default model for each role is in the skill's `references/team-roles.md`;
+the main conversation passes the agreed model on every call.
 
 Claude Code discovers the agents from this plugin's `agents/` directory; use
 the registered names the host exposes. Codex does not load these Markdown
@@ -514,21 +520,20 @@ They overlap less than they look.
   conversation, and is the only one of the three that survives a `/clear`.
 - **grill-me versus the work tracker.** `grill-me` captures raw discovery. It
   does not replace a work item's `REQUIREMENTS.md` or `STATUS.md`.
-- **solution-helper versus solution-design.** Same job, two sizes.
-  `solution-helper` designs a small item in the main conversation, with a
-  researcher or reviewer only for a bounded question. `solution-design` is
-  for an item that needs a research round, a written critique against every
-  requirement, a fix loop, or several options, and it runs that work in a
-  team of Opus agents the owner agrees to first. Its prep file is the
-  interview record for that one design; `grill-me` writes a general
-  brainstorm.
+- **solution-design versus grill-me.** The design prep file is the interview
+  record for one design and every agent reads it; `grill-me` writes a general
+  brainstorm nobody is briefed from. `solution-design` replaced the lighter
+  `solution-helper` on 2026-09-16, which designed in the main conversation
+  with no readiness check, no team, and no critique loop.
 - **delivery-researcher and delivery-reviewer versus the design agents.** The
-  delivery pair answers one bounded question or reviews one artifact for the
-  light path. The design trio (`design-researcher`, `design-architect`,
-  `design-critic`) carries the rules the team loop needs: community sources
-  labeled as claims, an architect that verifies them and owes the owner a
-  rewrite when one is better, and a critic that returns a verdict per
-  requirement so the loop knows when to stop.
+  delivery pair answers one bounded question or reviews one artifact for
+  `work-guide` and `requirements-helper`. The design agents
+  (`design-product-analyst`, `design-researcher`, `design-architect`,
+  `design-critic`) carry the rules the design loop needs: a readiness gate
+  with a confidence number, community sources labeled as claims, an
+  architect that verifies them and owes the owner a rewrite when one is
+  better, and a critic that returns a verdict per requirement so the loop
+  knows when to stop.
 - **unslop versus explain-simply.** Both rewrite something that is already
   written, for different reasons. `explain-simply` is for an answer that did not
   land: it drops the reading level and keeps every fact. `unslop` is for writing
@@ -580,7 +585,7 @@ main conversation's output style.
 
 ## Maintaining this plugin
 
-A content change to any of the twelve bumps `version` in both plugin manifests and
+A content change to any of the eleven bumps `version` in both plugin manifests and
 `metadata.version` in the repo's `.claude-plugin/marketplace.json`. Keep this
 README, the top-level README, and `docs/toolkit-map.md` current when a skill
 changes.

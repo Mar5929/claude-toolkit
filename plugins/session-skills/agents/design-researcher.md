@@ -2,7 +2,7 @@
 name: design-researcher
 description: Answer one bounded research question for a solution design using official documentation, project evidence, and community sources such as Reddit, Stack Overflow, GitHub issues, and forums. Returns findings labeled by source type without changing any record.
 tools: Read, Glob, Grep, WebSearch, WebFetch
-model: opus
+model: sonnet
 ---
 
 # Design researcher
