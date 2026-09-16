@@ -4,9 +4,10 @@
  *   node plugins/hooks-library/tests/style-handshake.test.mjs
  *
  * Every check runs the hook as Claude Code runs it: a child process with the
- * event JSON on stdin, reading what comes back on stdout. The state folder is
- * a fresh temp directory passed in STYLE_HANDSHAKE_STATE_DIR, so a run never
- * touches the marker files of a real session.
+ * event JSON on stdin, reading what comes back on stdout. The confirm mode
+ * runs the same way the agent runs it, with the key on the command line. The
+ * state folder is a fresh temp directory passed in STYLE_HANDSHAKE_STATE_DIR,
+ * so a run never touches the marker files of a real session.
  *
  * The checks that assert silence carry as much weight as the ones that assert
  * a block. A hook that blocks when it should not is visible in one turn. A
@@ -24,10 +25,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const HOOK = resolve(here, '..', 'hooks', 'style-handshake.mjs');
 const PROJECT = resolve(here, '..', '..', '..');
 const STYLE_FILE = join(PROJECT, '.claude', 'output-styles', 'plain-english.md');
-
-const MATCHES_LINE = 'Style handshake: reply matches the output style.';
-const REWRITTEN_LINE =
-  'Style handshake: reply rewritten to match the output style.';
+const INSTALLED_HOOK = join(PROJECT, '.claude', 'hooks', 'style-handshake.mjs');
 
 let pass = 0;
 let fail = 0;
@@ -62,12 +60,30 @@ function run(payload) {
   });
 }
 
-function markers() {
-  return readdirSync(stateDir).filter((name) => name.endsWith('.read'));
+/** The confirm mode: an argument on the command line and no stdin. */
+function confirm(key) {
+  return execFileSync('node', [HOOK, 'confirm', key], {
+    input: '',
+    encoding: 'utf8',
+    timeout: 10000,
+    env: {
+      ...process.env,
+      STYLE_HANDSHAKE_STATE_DIR: stateDir,
+      CLAUDE_PROJECT_DIR: PROJECT,
+    },
+  });
 }
+
+function files(suffix) {
+  return readdirSync(stateDir).filter((name) => name.endsWith(suffix));
+}
+
+const markers = () => files('.read');
+const confirmations = () => files('.ok');
 
 const SESSION = 'session-abc';
 const PROMPT = 'prompt-123';
+const KEY = `${SESSION}-${PROMPT}`;
 
 function stop(message, extra = {}) {
   return run({
@@ -109,59 +125,70 @@ ok(
   'a reply one character under the threshold produces no output',
 );
 
-// --- a long reply with no marker is blocked -------------------------------
+// --- a long reply with neither marker is blocked --------------------------
 
 freshState();
 const blocked = JSON.parse(stop(LONG_REPLY));
-ok(blocked.decision === 'block', 'a long reply with no read is blocked');
+ok(blocked.decision === 'block', 'a long reply with no handshake is blocked');
 ok(
   blocked.reason.includes(STYLE_FILE),
   'the reason names the output style file by full path',
 );
-ok(blocked.reason.includes(MATCHES_LINE), 'the reason quotes the matches line');
 ok(
-  blocked.reason.includes(REWRITTEN_LINE),
-  'the reason quotes the rewritten line',
+  blocked.reason.includes(`node .claude/hooks/style-handshake.mjs confirm ${KEY}`),
+  'the reason gives the confirm command with the relative hook path and the turn key',
 );
-ok(blocked.reason.length < 700, 'the reason stays under 700 characters');
+ok(blocked.reason.length < 600, 'the reason stays under 600 characters');
 ok(!blocked.reason.includes('—'), 'no em dashes in what the agent reads');
+ok(
+  !blocked.reason.includes('Style handshake: reply'),
+  'the reason asks for no visible line in the reply',
+);
 
-// --- the handshake completed: read plus the line --------------------------
+// --- one marker on its own is not enough ----------------------------------
 
 freshState();
 ok(read(STYLE_FILE) === '', 'reading the style file produces no output');
 ok(markers().length === 1, 'reading the style file writes one marker');
+const readOnly = JSON.parse(stop(LONG_REPLY));
+ok(readOnly.decision === 'block', 'the read without the confirm is blocked');
+
+freshState();
+ok(confirm(KEY) === '', 'the confirm command produces no output');
+ok(confirmations().length === 1, 'the confirm command writes one ok file');
+ok(markers().length === 0, 'the confirm command writes no read marker');
+const confirmOnly = JSON.parse(stop(LONG_REPLY));
+ok(confirmOnly.decision === 'block', 'the confirm without the read is blocked');
+
+// --- both markers end the turn --------------------------------------------
+
+freshState();
+read(STYLE_FILE);
+confirm(KEY);
+ok(markers().length === 1 && confirmations().length === 1, 'both files exist');
+ok(stop(LONG_REPLY) === '', 'the read plus the confirm ends the turn');
+ok(markers().length === 0, 'a completed handshake deletes the read marker');
+ok(confirmations().length === 0, 'a completed handshake deletes the ok file');
+
+// --- the confirm mode rejects a key it did not compute --------------------
+
+freshState();
+ok(confirm('../escape') === '', 'a key with a slash produces no output');
+ok(readdirSync(stateDir).length === 0, 'a key with a slash writes nothing');
+ok(confirm('key with spaces') === '', 'a key with spaces produces no output');
+ok(readdirSync(stateDir).length === 0, 'a key with spaces writes nothing');
+ok(confirm('') === '', 'an empty key produces no output');
+ok(readdirSync(stateDir).length === 0, 'an empty key writes nothing');
 ok(
-  stop(`${LONG_REPLY}\n\n${MATCHES_LINE}`) === '',
-  'a read plus the matches line ends the turn',
+  execFileSync('node', [HOOK, 'confirm'], {
+    input: '',
+    encoding: 'utf8',
+    timeout: 10000,
+    env: { ...process.env, STYLE_HANDSHAKE_STATE_DIR: stateDir },
+  }) === '',
+  'confirm with no key produces no output',
 );
-ok(markers().length === 0, 'a completed handshake deletes the marker');
-
-freshState();
-read(STYLE_FILE);
-ok(
-  stop(`${LONG_REPLY}\n\n${REWRITTEN_LINE}\n`) === '',
-  'the rewritten line ends the turn too, trailing newline included',
-);
-ok(markers().length === 0, 'the rewritten line deletes the marker as well');
-
-// --- a read with no line, and a line with no read -------------------------
-
-freshState();
-read(STYLE_FILE);
-const noLine = JSON.parse(stop(LONG_REPLY));
-ok(noLine.decision === 'block', 'a read with no handshake line is blocked');
-
-freshState();
-read(STYLE_FILE);
-const wrongLine = JSON.parse(
-  stop(`${LONG_REPLY}\n\nStyle handshake: looks fine to me.`),
-);
-ok(wrongLine.decision === 'block', 'a line that is close but not exact is blocked');
-
-freshState();
-const lineOnly = JSON.parse(stop(`${LONG_REPLY}\n\n${MATCHES_LINE}`));
-ok(lineOnly.decision === 'block', 'the line without the read is blocked');
+ok(readdirSync(stateDir).length === 0, 'confirm with no key writes nothing');
 
 // --- it gives up after three blocks for the same prompt -------------------
 
@@ -182,22 +209,23 @@ ok(
   'the fourth attempt reports that it gave up',
 );
 
-// --- the marker is per session and prompt ---------------------------------
+// --- the handshake is per session and prompt ------------------------------
 
 freshState();
 read(STYLE_FILE);
+confirm(KEY);
 const otherPrompt = JSON.parse(
   run({
     hook_event_name: 'Stop',
     session_id: SESSION,
     prompt_id: 'prompt-999',
     cwd: PROJECT,
-    last_assistant_message: `${LONG_REPLY}\n\n${MATCHES_LINE}`,
+    last_assistant_message: LONG_REPLY,
   }),
 );
 ok(
   otherPrompt.decision === 'block',
-  'a marker from one prompt does not satisfy the next prompt',
+  'a handshake from one prompt does not satisfy the next prompt',
 );
 
 // --- PostToolUse ignores everything but the style file --------------------
