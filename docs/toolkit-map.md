@@ -290,21 +290,14 @@ The genuine watch-items are called out at the end.
   that chose a GitHub board, Linear, Jira, or the BMAD method. It used to sit
   under a tracker-neutral rule, `spec-before-you-build`, which was removed from
   the toolkit on 2026-08-31.
-- **hooks-library versus the output style.** The toolkit's `Plain English`
-  style owns the standing writing guidance. The toolkit used to ship two hooks
-  that reinforced a style of its own: `style-reminder` re-stated it on every
-  message and `writing-guard` blocked a finished reply over an em dash or a
-  section sign. Both were removed in August 2026 as per-message overhead, and
-  the hand-written style itself was removed in #245. On 2026-09-16 the owner
-  added `style-handshake`, which is neither: it reads no reply and judges no
-  writing. It holds a turn open until the agent has opened the style file and
-  ended its message with a line saying the reply matches or was rewritten. Neither hook could ever
-  shape a commit message, a document, or anything a helper agent writes; those
-  are covered only by the writing rules inside an agent's own definition, since
-  the owner removed the `follow-the-output-style` rule on 2026-09-02. A hook
-  enforces a rule, triggers a process agents forget, or orients a session at its
-  start. Voice is not on that list, and three attempts to put it there have all
-  been removed. The jobs, their separate bars, and that history are in
+- **hooks-library versus the output style.** The `Plain English` style owns
+  the writing guidance. `style-handshake` requests a fresh Read of the selected
+  style and one acknowledgment at the beginning of each user turn. It carries
+  no copy of the writing rules and judges no writing. The old Stop handshake
+  could repeat an already visible answer and has been removed. The older
+  `style-reminder` and `writing-guard` remain retired. Helper-agent writing
+  guidance belongs in those agents' definitions; this handshake is for the
+  main Claude Code conversation. Setup and limitations are in
   [`hooks-library`](../plugins/hooks-library/README.md).
 - **hooks-library versus project knowledge.** The general hook library owns
   reusable guards and reminders. Second-brain owns its two project-knowledge

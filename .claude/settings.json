@@ -1,9 +1,7 @@
 {
   "outputStyle": "Plain English",
   "permissions": {
-    "allow": [
-      "Bash(node .claude/hooks/style-handshake.mjs confirm *)"
-    ]
+    "allow": []
   },
   "env": {
     "CLAUDE_CODE_DISABLE_AUTO_MEMORY": "1",
@@ -60,20 +58,10 @@
           {
             "type": "command",
             "command": "node",
-            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/style-handshake.mjs"],
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/style-handshake.mjs"
+            ],
             "timeout": 5
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node",
-            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/style-handshake.mjs"],
-            "timeout": 10
           }
         ]
       }
@@ -84,6 +72,14 @@
           {
             "type": "command",
             "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/memory-reminder.mjs\"",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PROJECT_DIR}/.claude/hooks/style-handshake.mjs"
+            ],
             "timeout": 10
           }
         ]

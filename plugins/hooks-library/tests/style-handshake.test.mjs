@@ -1,298 +1,137 @@
 #!/usr/bin/env node
-/**
- * Tests for style-handshake. Run:
- *   node plugins/hooks-library/tests/style-handshake.test.mjs
- *
- * Every check runs the hook as Claude Code runs it: a child process with the
- * event JSON on stdin, reading what comes back on stdout. The confirm mode
- * runs the same way the agent runs it, with the key on the command line. The
- * state folder is a fresh temp directory passed in STYLE_HANDSHAKE_STATE_DIR,
- * so a run never touches the marker files of a real session.
- *
- * The checks that assert silence carry as much weight as the ones that assert
- * a block. A hook that blocks when it should not is visible in one turn. A
- * hook that stays quiet when it should have blocked looks exactly like a
- * handshake that passed.
- */
-
+// Run: node plugins/hooks-library/tests/style-handshake.test.mjs
+// Subprocess tests use synthetic projects and the captured Claude Code text-Read shape.
+import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readdirSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, readdirSync, rmSync, utimesSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const here = dirname(fileURLToPath(import.meta.url));
-const HOOK = resolve(here, '..', 'hooks', 'style-handshake.mjs');
-const PROJECT = resolve(here, '..', '..', '..');
-const STYLE_FILE = join(PROJECT, '.claude', 'output-styles', 'plain-english.md');
-const INSTALLED_HOOK = join(PROJECT, '.claude', 'hooks', 'style-handshake.mjs');
+const project = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
+const hook = join(project, 'plugins/hooks-library/hooks/style-handshake.mjs');
+const temp = mkdtempSync(join(tmpdir(), 'style-handshake-test-'));
+const root = join(temp, 'project with spaces');
+const userDir = join(temp, 'user');
+const state = join(temp, 'state');
+const style = join(root, '.claude/output-styles/plain-english.md');
+let checks = 0;
+function check(condition, message) { assert.ok(condition, message); checks++; }
+function put(path, value) {
+  mkdirSync(dirname(path), { recursive: true });
+  writeFileSync(path, typeof value === 'string' ? value : JSON.stringify(value));
+}
+function run(input, env = {}, args = []) {
+  return execFileSync(process.execPath, [hook, ...args], {
+    input: typeof input === 'string' ? input : JSON.stringify(input), encoding: 'utf8', timeout: 5000,
+    env: { ...process.env, CLAUDE_PROJECT_DIR: root, CLAUDE_CONFIG_DIR: userDir,
+      STYLE_HANDSHAKE_STATE_DIR: state, ...env },
+  });
+}
+function event(name, extra = {}) {
+  return { hook_event_name: name, session_id: 'session-a', cwd: root, ...extra };
+}
+function prompt(extra = {}, env = {}) { return run(event('UserPromptSubmit', { prompt: 'Hello', ...extra }), env); }
+function read(extra = {}, env = {}) {
+  return run(event('PostToolUse', { tool_name: 'Read', tool_input: { file_path: style },
+    tool_response: { type: 'text', file: { startLine: 1, numLines: 4, totalLines: 4 } }, ...extra }), env);
+}
+function text(output) { return JSON.parse(output).hookSpecificOutput.additionalContext; }
+function markers() { return readdirSync(state).filter(file => file.endsWith('.read')); }
 
-let pass = 0;
-let fail = 0;
-
-function ok(condition, message) {
-  if (condition) {
-    pass++;
-  } else {
-    fail++;
-    console.log(`FAIL: ${message}`);
+try {
+  put(join(root, '.claude/settings.json'), { outputStyle: 'Plain English' });
+  put(style, '---\nname: Plain English\n---\nUse plain words.\n');
+  mkdirSync(userDir, { recursive: true });
+  const first = prompt();
+  check(JSON.parse(first).hookSpecificOutput.hookEventName === 'UserPromptSubmit', 'reminder uses the prompt event');
+  check(text(first).includes('Read tool') && text(first).includes('whole file'), 'request an explicit whole-file read');
+  check(text(first).includes('I read the output style and will follow it.'), 'request the approved acknowledgment');
+  check(text(first).includes('even if the style says no preamble'), 'resolve the existing no-preamble conflict');
+  check(!JSON.parse(first).decision, 'never block the submitted prompt');
+  check(text(first).includes('plain-english.md'), 'give the selected path');
+  check(markers().length === 0, 'delivering the reminder does not count as a Read');
+  check(read({ tool_name: 'Bash' }) === '', 'ignore other tools');
+  check(read({ tool_response: undefined }) === '', 'no success claim without a read result');
+  check(read({ hook_event_name: 'PostToolUseFailure' }) === '', 'ignore failed reads');
+  check(read({ tool_response: { type: 'text', file: { startLine: 1, numLines: 1, totalLines: 4 } } }) === '', 'partial preview does not count');
+  check(read({ tool_response: { type: 'text', file: { startLine: 2, numLines: 4, totalLines: 4 } } }) === '', 'read starting in the middle does not count');
+  check(read({ agent_id: 'child-agent' }) === '', 'a child agent read cannot satisfy the main conversation');
+  const otherStyle = join(temp, 'other/output-styles/plain-english.md');
+  put(otherStyle, 'Unrelated style');
+  check(read({ tool_input: { file_path: otherStyle } }) === '', 'same filename in another project does not count');
+  check(read({ session_id: 'session-b' }) === '', 'another session cannot use the pending request');
+  check(text(read()).includes('full output style file was returned'), 'a complete successful read prompts acknowledgment');
+  check(markers().length === 1, 'record the observed read');
+  check(read() === '', 'repeated reads produce no duplicate acknowledgment reminder');
+  prompt();
+  check(text(read()).includes('Now send'), 'identical next prompt starts a new handshake without prompt_id');
+  prompt({ prompt_id: 'new-turn' });
+  check(read({ prompt_id: 'old-turn' }) === '', 'ignore a delayed read from a previous identified turn');
+  check(text(read({ prompt_id: 'new-turn' })).includes('Now send'), 'matching actual prompt identifiers work');
+  prompt({ session_id: 'session-b' });
+  check(text(read({ session_id: 'session-b' })).includes('Now send'), 'concurrent session maintains its own handshake');
+  check(read() === '', 'another session reset does not reset this one');
+  check(text(prompt({ prompt: '?' })).includes('Read tool'), 'short prompts get the handshake');
+  check(text(prompt({ prompt: 'long '.repeat(1000) })).includes('Read tool'), 'long prompts get the handshake');
+  check(run(event('Stop', { last_assistant_message: 'long '.repeat(1000) })) === '', 'Stop never restarts an answer');
+  check(run('', {}, ['confirm', 'old-key']) === '', 'old confirm calls are harmless and read no stdin');
+  check(run('not json') === '', 'malformed input fails open');
+  check(run('null') === '', 'null input fails open');
+  check(prompt({ session_id: '' }) === '', 'missing session does not create shared anonymous state');
+  check(prompt({ agent_id: 'child-agent' }) === '', 'skip child-agent prompt events');
+  const alias = join(root, '.claude/output-styles/unrelated-filename.md');
+  put(alias, '---\nname: "Custom Style"\n---\nBe brief.');
+  put(join(root, '.claude/settings.local.json'), { outputStyle: 'Custom Style' });
+  check(text(prompt()).includes('unrelated-filename.md'), 'local selection and frontmatter name beat filename assumptions');
+  check(read() === '', 'old selected style no longer satisfies the new turn');
+  rmSync(join(root, '.claude/settings.local.json'));
+  put(join(root, '.claude/settings.json'), { outputStyle: 'Missing Style' });
+  check(text(prompt()).includes('do not claim you read it'), 'missing style gets an honest limitation');
+  check(read() === '', 'missing style invalidates the previous turn');
+  put(join(root, '.claude/settings.json'), '{');
+  check(text(prompt()).includes('could not be located or read'), 'invalid settings do not silently choose another style');
+  put(join(root, '.claude/settings.json'), {});
+  put(join(userDir, 'settings.json'), { outputStyle: 'User Style' });
+  put(join(userDir, 'output-styles/user-style.md'), '---\nname: User Style\n---\nBe clear.');
+  check(text(prompt()).includes('user-style.md'), 'user style is found when project has no selection');
+  put(join(root, '.claude/settings.json'), { outputStyle: 'Plain English' });
+  const brokenState = join(temp, 'not-a-directory');
+  put(brokenState, 'x');
+  check(text(prompt({}, { STYLE_HANDSHAKE_STATE_DIR: brokenState })).includes('Read tool'), 'tracking failure must not suppress delivery');
+  prompt();
+  for (const name of readdirSync(state).filter(name => name.endsWith('.json'))) {
+    const path = join(state, name);
+    const record = JSON.parse(readFileSync(path));
+    record.startedAt = Date.now() - 25 * 60 * 60 * 1000;
+    put(path, record);
   }
+  check(read() === '', 'expired request does not prompt a success acknowledgment');
+  const expired = join(state, `${'a'.repeat(64)}-aaaa.read`);
+  const preserved = join(state, 'unrelated.txt');
+  put(expired, ''); put(preserved, '');
+  utimesSync(expired, 0, 0); utimesSync(preserved, 0, 0);
+  prompt();
+  check(!readdirSync(state).includes(`${'a'.repeat(64)}-aaaa.read`), 'old owned marker expires');
+  check(readdirSync(state).includes('unrelated.txt'), 'cleanup preserves unrelated files');
+  prompt({}, { CLAUDE_PROJECT_DIR: '' });
+  check(text(read({}, { CLAUDE_PROJECT_DIR: '' })).includes('Now send'), 'cwd fallback works');
+  const nested = join(root, 'nested'); mkdirSync(nested);
+  prompt();
+  check(text(read({ cwd: nested })).includes('Now send'), 'project root remains stable after cwd changes');
+  if (process.platform === 'win32') {
+    prompt();
+    check(text(read({ tool_input: { file_path: style.toUpperCase().replaceAll('\\', '/') } })).includes('Now send'), 'Windows path case and separators match');
+  }
+  const settings = JSON.parse(readFileSync(join(project, '.claude/settings.json')));
+  const calls = eventName => (settings.hooks[eventName] || []).flatMap(group => group.hooks)
+    .filter(entry => JSON.stringify(entry).includes('style-handshake.mjs'));
+  check(calls('UserPromptSubmit').length === 1, 'install exactly one prompt hook');
+  check(calls('PostToolUse').length === 1, 'install exactly one read companion');
+  check(calls('Stop').length === 0, 'no installed style Stop hook');
+  check(!(settings.permissions?.allow || []).some(rule => rule.includes('style-handshake.mjs confirm')), 'old confirm permission removed');
+  check(readFileSync(hook, 'utf8') === readFileSync(join(project, '.claude/hooks/style-handshake.mjs'), 'utf8'), 'source and installed copy agree');
+  console.log(`${checks} passed, 0 failed`);
+} finally {
+  rmSync(temp, { recursive: true, force: true });
 }
-
-let stateDir;
-
-function freshState() {
-  if (stateDir) rmSync(stateDir, { recursive: true, force: true });
-  stateDir = mkdtempSync(join(tmpdir(), 'style-handshake-test-'));
-  return stateDir;
-}
-
-function run(payload) {
-  return execFileSync('node', [HOOK], {
-    input: JSON.stringify(payload),
-    encoding: 'utf8',
-    timeout: 10000,
-    env: {
-      ...process.env,
-      STYLE_HANDSHAKE_STATE_DIR: stateDir,
-      CLAUDE_PROJECT_DIR: PROJECT,
-    },
-  });
-}
-
-/** The confirm mode: an argument on the command line and no stdin. */
-function confirm(key) {
-  return execFileSync('node', [HOOK, 'confirm', key], {
-    input: '',
-    encoding: 'utf8',
-    timeout: 10000,
-    env: {
-      ...process.env,
-      STYLE_HANDSHAKE_STATE_DIR: stateDir,
-      CLAUDE_PROJECT_DIR: PROJECT,
-    },
-  });
-}
-
-function files(suffix) {
-  return readdirSync(stateDir).filter((name) => name.endsWith(suffix));
-}
-
-const markers = () => files('.read');
-const confirmations = () => files('.ok');
-
-const SESSION = 'session-abc';
-const PROMPT = 'prompt-123';
-const KEY = `${SESSION}-${PROMPT}`;
-
-function stop(message, extra = {}) {
-  return run({
-    hook_event_name: 'Stop',
-    session_id: SESSION,
-    prompt_id: PROMPT,
-    cwd: PROJECT,
-    last_assistant_message: message,
-    ...extra,
-  });
-}
-
-function read(filePath) {
-  return run({
-    hook_event_name: 'PostToolUse',
-    session_id: SESSION,
-    prompt_id: PROMPT,
-    cwd: PROJECT,
-    tool_name: 'Read',
-    tool_input: { file_path: filePath },
-  });
-}
-
-const LONG_REPLY = [
-  'The four checks all pass. link-check found no dead pointers, orphan-check',
-  'found no unreachable file, installed-copy-check compared every copy under',
-  '.claude with what the repo ships, and the knowledge startup check read the',
-  'files the hook loads.',
-].join(' ');
-
-ok(LONG_REPLY.length >= 120, 'the long reply is over the short-reply threshold');
-
-// --- a short reply skips the handshake ------------------------------------
-
-freshState();
-ok(stop('Done.') === '', 'a short reply produces no output');
-ok(
-  stop('x'.repeat(119)) === '',
-  'a reply one character under the threshold produces no output',
-);
-
-// --- a long reply with neither marker is blocked --------------------------
-
-freshState();
-const blocked = JSON.parse(stop(LONG_REPLY));
-ok(blocked.decision === 'block', 'a long reply with no handshake is blocked');
-ok(
-  blocked.reason.includes(STYLE_FILE),
-  'the reason names the output style file by full path',
-);
-ok(
-  blocked.reason.includes(`node .claude/hooks/style-handshake.mjs confirm ${KEY}`),
-  'the reason gives the confirm command with the relative hook path and the turn key',
-);
-ok(blocked.reason.length < 600, 'the reason stays under 600 characters');
-ok(!blocked.reason.includes('—'), 'no em dashes in what the agent reads');
-ok(
-  !blocked.reason.includes('Style handshake: reply'),
-  'the reason asks for no visible line in the reply',
-);
-
-// --- one marker on its own is not enough ----------------------------------
-
-freshState();
-ok(read(STYLE_FILE) === '', 'reading the style file produces no output');
-ok(markers().length === 1, 'reading the style file writes one marker');
-const readOnly = JSON.parse(stop(LONG_REPLY));
-ok(readOnly.decision === 'block', 'the read without the confirm is blocked');
-
-freshState();
-ok(confirm(KEY) === '', 'the confirm command produces no output');
-ok(confirmations().length === 1, 'the confirm command writes one ok file');
-ok(markers().length === 0, 'the confirm command writes no read marker');
-const confirmOnly = JSON.parse(stop(LONG_REPLY));
-ok(confirmOnly.decision === 'block', 'the confirm without the read is blocked');
-
-// --- both markers end the turn --------------------------------------------
-
-freshState();
-read(STYLE_FILE);
-confirm(KEY);
-ok(markers().length === 1 && confirmations().length === 1, 'both files exist');
-ok(stop(LONG_REPLY) === '', 'the read plus the confirm ends the turn');
-ok(markers().length === 0, 'a completed handshake deletes the read marker');
-ok(confirmations().length === 0, 'a completed handshake deletes the ok file');
-
-// --- the confirm mode rejects a key it did not compute --------------------
-
-freshState();
-ok(confirm('../escape') === '', 'a key with a slash produces no output');
-ok(readdirSync(stateDir).length === 0, 'a key with a slash writes nothing');
-ok(confirm('key with spaces') === '', 'a key with spaces produces no output');
-ok(readdirSync(stateDir).length === 0, 'a key with spaces writes nothing');
-ok(confirm('') === '', 'an empty key produces no output');
-ok(readdirSync(stateDir).length === 0, 'an empty key writes nothing');
-ok(
-  execFileSync('node', [HOOK, 'confirm'], {
-    input: '',
-    encoding: 'utf8',
-    timeout: 10000,
-    env: { ...process.env, STYLE_HANDSHAKE_STATE_DIR: stateDir },
-  }) === '',
-  'confirm with no key produces no output',
-);
-ok(readdirSync(stateDir).length === 0, 'confirm with no key writes nothing');
-
-// --- it gives up after three blocks for the same prompt -------------------
-
-freshState();
-ok(JSON.parse(stop(LONG_REPLY)).decision === 'block', 'first attempt blocks');
-ok(
-  JSON.parse(stop(LONG_REPLY, { stop_hook_active: true })).decision === 'block',
-  'second attempt blocks',
-);
-ok(
-  JSON.parse(stop(LONG_REPLY, { stop_hook_active: true })).decision === 'block',
-  'third attempt blocks',
-);
-const gaveUp = JSON.parse(stop(LONG_REPLY, { stop_hook_active: true }));
-ok(gaveUp.decision === undefined, 'the fourth attempt does not block');
-ok(
-  gaveUp.systemMessage === 'Style handshake gave up after 3 attempts for this turn.',
-  'the fourth attempt reports that it gave up',
-);
-
-// --- the handshake is per session and prompt ------------------------------
-
-freshState();
-read(STYLE_FILE);
-confirm(KEY);
-const otherPrompt = JSON.parse(
-  run({
-    hook_event_name: 'Stop',
-    session_id: SESSION,
-    prompt_id: 'prompt-999',
-    cwd: PROJECT,
-    last_assistant_message: LONG_REPLY,
-  }),
-);
-ok(
-  otherPrompt.decision === 'block',
-  'a handshake from one prompt does not satisfy the next prompt',
-);
-
-// --- PostToolUse ignores everything but the style file --------------------
-
-freshState();
-ok(read(join(PROJECT, 'README.md')) === '', 'reading another file is silent');
-ok(markers().length === 0, 'reading another file writes no marker');
-
-ok(
-  read(join(PROJECT, '.claude', 'output-styles', 'concise.md')) === ''
-    && markers().length === 0,
-  'reading a different output style writes no marker',
-);
-
-freshState();
-run({
-  hook_event_name: 'PostToolUse',
-  session_id: SESSION,
-  prompt_id: PROMPT,
-  cwd: PROJECT,
-  tool_name: 'Edit',
-  tool_input: { file_path: STYLE_FILE },
-});
-ok(markers().length === 0, 'editing the style file is not reading it');
-
-// --- broken input fails open ----------------------------------------------
-
-freshState();
-ok(run({}) === '', 'an empty payload produces no output');
-ok(
-  execFileSync('node', [HOOK], {
-    input: 'not json',
-    encoding: 'utf8',
-    timeout: 10000,
-    env: { ...process.env, STYLE_HANDSHAKE_STATE_DIR: stateDir },
-  }) === '',
-  'input that is not JSON produces no output',
-);
-ok(
-  run({ hook_event_name: 'SessionStart', session_id: SESSION }) === '',
-  'an event this hook does not handle produces no output',
-);
-
-// --- the threshold is configurable ----------------------------------------
-
-freshState();
-const raised = execFileSync('node', [HOOK], {
-  input: JSON.stringify({
-    hook_event_name: 'Stop',
-    session_id: SESSION,
-    prompt_id: PROMPT,
-    cwd: PROJECT,
-    last_assistant_message: LONG_REPLY,
-  }),
-  encoding: 'utf8',
-  timeout: 10000,
-  env: {
-    ...process.env,
-    STYLE_HANDSHAKE_STATE_DIR: stateDir,
-    CLAUDE_PROJECT_DIR: PROJECT,
-    STYLE_HANDSHAKE_MIN_CHARS: '5000',
-  },
-});
-ok(raised === '', 'raising the threshold lets a long reply through');
-
-if (stateDir) rmSync(stateDir, { recursive: true, force: true });
-ok(!existsSync(stateDir), 'the temp state folder is cleaned up');
-
-console.log(`${pass} passed, ${fail} failed`);
-process.exit(fail === 0 ? 0 : 1);
