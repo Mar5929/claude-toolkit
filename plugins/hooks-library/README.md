@@ -33,6 +33,62 @@ It is a reminder, not a gate. It reads nothing the agent wrote, cannot tell
 real build work from a one-line fix, and never blocks an edit. State lives in
 a per-session file under the OS temp folder, which is how it fires only once.
 
+### style-handshake
+
+One script, `hooks/style-handshake.mjs`, registered on two events. The `Stop`
+half holds the turn open until the agent has done two things: opened the
+project's output style file with the `Read` tool during that turn, and ended its
+final message with one of two exact lines. The `PostToolUse` half, matched on
+`Read`, records the first of those by writing an empty marker file when the file
+read is the output style.
+
+The two lines are:
+
+```
+Style handshake: reply matches the output style.
+Style handshake: reply rewritten to match the output style.
+```
+
+**It is a handshake, not a detector.** It reads nothing in the reply and judges
+no writing. It has no list of banned words, no em dash check, no sentence length
+limit. It checks two mechanical facts, the read and the line, and the comparison
+itself happens in the agent's head, which is the only place that can compare a
+reply against a style. A detector can only catch the patterns someone thought to
+list. This makes the agent look at the style file and answer for the reply.
+
+Saying the line without reading the file does not pass, and reading the file
+without saying the line does not pass. Both are keyed to one session and one
+prompt, so a read from an earlier turn does not carry forward.
+
+**Short replies skip it.** A final message under `STYLE_HANDSHAKE_MIN_CHARS`
+characters, 120 by default, ends the turn untouched. Checking a one-line answer
+costs more than the check is worth.
+
+**It gives up after three blocks for the same prompt.** Claude Code ends a turn
+itself after 8 consecutive stop-hook continuations, and reaching that cap spends
+eight model turns on a handshake. The fourth time this hook would block the same
+prompt, it reports one line to the owner and lets the turn end. A counter file
+next to the marker, in the OS temp folder, is how it counts. Both kinds of file
+are deleted after 24 hours.
+
+**Why this is not a fourth voice reminder.** The three removed below all fired
+on every message and carried the style text themselves. This one carries no
+style text, fires once at the end of a turn, and stays silent on short replies
+and on any turn where the handshake already happened. The owner asked for it in
+his own words: "a hook that is like a handshake that forces you to read the
+output style, check your reply, say yes I read it, and then come back to the
+hook and say either it matches or I am going to update it."
+
+It is registered per project in `.claude/settings.json`, and this repository runs
+it on itself. The `Stop` entry has no matcher. The `PostToolUse` entry uses the
+`Read` matcher with `"if": "Read(.claude/output-styles/*)"`, and the script
+filters again on the file path, so the hook still works where the `if` field is
+not honored. The style file it looks for comes from the `outputStyle` value in
+the project's own `.claude/settings.json`, lowercased and hyphenated, and falls
+back to `plain-english.md`.
+
+It fails open. Any unexpected error exits 0 with no output, and the turn ends.
+
 ### no-ai-attribution-guard
 
 A `PreToolUse` hook on the `Bash` matcher. It refuses any command that would put
@@ -172,9 +228,15 @@ own words.
 
 ```
 node plugins/hooks-library/tests/no-ai-attribution-guard-harness.mjs
+node plugins/hooks-library/tests/style-handshake.test.mjs
 ```
 
-43 checks. A large share of them assert the hook does **nothing**, and that
-weighting is deliberate. The hook fails in two directions and only one is
-visible. Blocking a good command is obvious; staying silent when it should have
-fired looks exactly like everything working.
+The attribution harness is 43 checks. A large share of them assert the hook does
+**nothing**, and that weighting is deliberate. The hook fails in two directions
+and only one is visible. Blocking a good command is obvious; staying silent when
+it should have fired looks exactly like everything working.
+
+The style-handshake tests are 33 checks, split the same way. They run the script
+as Claude Code runs it, with the event JSON on stdin and a temp folder in
+`STYLE_HANDSHAKE_STATE_DIR`, so a run never touches the marker files of a live
+session.
