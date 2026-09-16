@@ -302,7 +302,7 @@ so they always know where they are.
 - Offer `session-skills` as ONE plugin holding eleven conversation skills:
   `braindump`, `explain-simply`, `grill-me`, `handoff`, `session-summary`,
   `spec-check`, `track-tasks`, `unslop`, `work-guide`, `requirements-helper`,
-  `solution-helper`. They install and version together, so
+  `solution-design`. They install and version together, so
   this is a single yes or no.
 - Explain the guided working methods and the packaged `delivery-researcher`
   and `delivery-reviewer` helpers using Gate 6 in `SKILL.md`. Reuse the project's

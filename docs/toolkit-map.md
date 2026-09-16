@@ -26,7 +26,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git lifecycle workflows | `pull-latest`, `reset-to-remote`, `merge-and-clean-up` | `/plugin install git-workflows` | Install and go |
 | [hooks-library](../plugins/hooks-library/README.md) | Reusable spec-check, Git-attribution, and Salesforce deployment hooks; system-specific knowledge hooks stay with second-brain | `hooks-library` | `/plugin install hooks-library` | Wires into settings |
 | [work-tracker](../plugins/work-tracker/README.md) | Local backlog under Git-ignored `.work-items/`, with branch-scoped active items, flexible types, consistent progress, approved completion events, optional Git evidence, handoffs, relationships, folders the owner makes to group related items, an `archive/` folder for set-aside items, and preview-first conversion of older staged trackers | `work` | `/plugin install work-tracker` | Sets up a project |
-| [session-skills](../plugins/session-skills/README.md) | Eleven conversation skills including adaptable delivery, requirements, and design, with focused research/review helpers | `work-guide`, `requirements-helper`, `solution-helper`, `braindump`, `explain-simply`, `grill-me`, `handoff`, `session-summary`, `spec-check`, `track-tasks`, `unslop` | `/plugin install session-skills` | Install and go |
+| [session-skills](../plugins/session-skills/README.md) | Eleven conversation skills including adaptable delivery, requirements, and design, with focused research, design, and review helpers | `work-guide`, `requirements-helper`, `solution-design`, `braindump`, `explain-simply`, `grill-me`, `handoff`, `session-summary`, `spec-check`, `track-tasks`, `unslop` | `/plugin install session-skills` | Install and go |
 
 ## Skills at a glance
 
@@ -49,7 +49,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | work | work-tracker | Manage local work items in Git-ignored folders, group them in folders the owner makes, archive the ones the owner has set aside, and safely convert the older staged tracker | `/work`, "add this to the backlog", "what should I work on next?" |
 | work-guide | session-skills | Coordinate delivery and adaptable plans using the existing tracker and scoped specialist help | `/session-skills:work-guide`, "help me organize this work", "continue this item" |
 | requirements-helper | session-skills | Clarify intent, question directions that could undermine the goal, and maintain canonical draft requirements | `/session-skills:requirements-helper`, "help me refine these requirements" |
-| solution-helper | session-skills | Map requirements to simple, evidence-backed solution choices | `/session-skills:solution-helper`, "design this solution" |
+| solution-design | session-skills | Check the requirements are ready, agree the way of working, recommend a team of agents sized to the item, then research, design, critique against every requirement, and fix until all are satisfied | `/session-skills:solution-design`, "design this", "give me design options" |
 | braindump | session-skills | Play a pasted brain dump back in very simple words, list each ask and every guess, and wait for the owner's yes before any work starts | `/braindump`, "play that back", "tell me what you heard" |
 | explain-simply | session-skills | Re-explain the last answer or a named file as short bullets, simplifying the wording and never the facts | `/explain-simply`, "explain that like I'm five", "put that in plain bullets", "simpler" |
 | grill-me | session-skills | Stress-test an idea one question at a time and preserve every answer | `/grill-me`, "grill me" |
@@ -355,9 +355,21 @@ The genuine watch-items are called out at the end.
   conversation plan and coordinate; #270's existing tracker and lifecycle rule
   own canonical state. `requirements-helper` maintains a draft in the chosen
   requirements home, while `grill-me` captures raw discovery notes.
-  `solution-helper` coordinates domain methods and requirement coverage.
+  `solution-design` owns the design process and its agents.
   `delivery-researcher` and `delivery-reviewer` return evidence to the owning
   conversation. They neither own another tracker nor create persistent teams.
+- **solution-design versus the delivery helpers.** `solution-design` is the
+  process for one item's design: a readiness gate with a confidence number,
+  an agreed way of working, a team recommended per item (product analyst,
+  researchers, technical architect, critic, task agents, each on the model
+  that fits the role), and a critique loop that ends when every requirement
+  is satisfied. Its agents (`design-product-analyst`, `design-researcher`,
+  `design-architect`, `design-critic`) carry those rules. The delivery pair
+  (`delivery-researcher`, `delivery-reviewer`) stays for a bounded question
+  or one review inside `work-guide` and `requirements-helper`. The team is
+  subagents for one item, not a persistent team; agent teams (the
+  experimental feature) are used only when the owner enabled them. The
+  lighter `solution-helper` was replaced by `solution-design` on 2026-09-16.
 - **Eleven skills in one plugin.** The methods remain separately discoverable
   while installing and versioning together. Read the session-skills README for
   Claude agent discovery and native-worker fallback in other hosts.

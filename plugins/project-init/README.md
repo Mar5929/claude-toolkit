@@ -181,8 +181,8 @@ plugin.
   Gate 4 offers optional impact-analysis tools without creating a competing
   store.
 - Gate 6 offers the `session-skills` plugin, including `work-guide`,
-  `requirements-helper`, and `solution-helper`, plus focused research/review
-  agents and the existing conversation tools. It uses the chosen tracker and
+  `requirements-helper`, and `solution-design`, plus focused research, design,
+  and review agents and the existing conversation tools. It uses the chosen tracker and
   existing project guidance, without copying skills or requiring a new file.
   The plugin remains their canonical home; host availability is checked.
 - Gate 1 asks where work items are tracked. Gate 5 writes a one-line pointer in
