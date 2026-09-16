@@ -20,7 +20,7 @@ and they sometimes disagree. The order for settling a disagreement is fixed:
 3. The requirements document comes last of the three.
 
 Where this design follows the walkthrough against the requirements document, it
-says so on the line. Words used in a fixed way throughout:
+says so where it does. Words used in a fixed way throughout:
 
 | Word | What it means here |
 | --- | --- |
@@ -55,6 +55,66 @@ says so on the line. Words used in a fixed way throughout:
 | Default branch | The branch a repository's work lands on, `main` in this repository. |
 | DragonFly | The owner's other equipped project. |
 | `second-brain` | The plugin that ships the knowledge system. The name is kept; 9.3 says why. |
+
+## 1a. Decisions at a glance
+
+Today one `SessionStart` hook prints 20,585 characters against Claude Code's
+10,000-character output cap, so the knowledge manual never reaches the agent.
+This design replaces that hook with two, each under 9,500 characters, rewrites
+the manual to under 4,000 characters, replaces six skills with four, and adds
+five things the harness enforces. The files themselves, plain Markdown committed to the default
+branch, do not change.
+
+| Kind of part | What it covers | Count |
+| --- | --- | --- |
+| File | `SOUL.md`, `knowledge/project.md`, the manual, `current.md`, the inbox, three generated indexes, the glossary, `memory-entries/`, `prds/`, the feedback file, `brainstorms/` | 13 |
+| Rule | `.claude/rules/knowledge-system.md`, 26 lines, 1,998 characters, re-injected from disk after compaction | 1 |
+| Skill | `knowledge-find`, `knowledge-save`, `knowledge-review`, `knowledge-setup` | 4 |
+| Hook | Two startup printers, the save-moment gate, the write guard, the after-write check, the Stop nudge, the compaction hold | 7 |
+| Tool | The index builder, the checker, the frontmatter parser, the command parser, the session marker, the Git pre-commit hook | 6 |
+| State | `${CLAUDE_PLUGIN_DATA}/sessions/<session_id>.json`, the session facts the hooks share | 1 |
+| Setting | `enabledPlugins` and `autoMemoryEnabled: false` in Claude Code; two `memories` keys in Codex | 2 |
+
+Five things are enforced. The harness makes each one happen, or refuses the
+action: the startup files are delivered in order inside each hook's budget; a
+pull request, a work-item close, or `work finish` is held until `knowledge-save`
+has run since the branch's last commit; a manual `/compact` is held once; a
+write to a memory file or a requirements document is refused until
+`knowledge-save` has run, and always inside a subagent; and every knowledge
+write is checked and its index rebuilt, with `git commit` refusing a file that
+fails the checker. Everything else is guidance, including what to look up, what
+is worth saving, where it goes, and when to propose a save. Requirement 29
+forbids a program that scores the agent's search, so nothing checks those.
+
+Six things change from today. One startup hook becomes two, with a
+9,500-character budget each. `knowledge/README.md` goes from 13,395 characters
+to under 4,000, and its templates and field tables move into skill reference
+files. Six skills become four. `memory-reminder.mjs`, which costs 1,292
+characters on every message, is dropped for a 26-line rule file at 1,998
+characters. Two guards, a compaction hold, an after-write check, and a Git
+pre-commit hook are added, and every hook runs from the plugin, so projects keep
+no copies. The data model is kept: the files, the direct-commit rule, the
+checker's approval logic and its secret patterns, and the feedback file. No
+knowledge file is deleted.
+
+Eight decisions come before the build. The number in brackets is the question in
+section 15.
+
+1. Does hook delivery of the three startup files count as "read"? **Yes, and the check is that delivery finished.** [1]
+2. Approve the end-of-turn nudge, which forces one turn continuation each time it speaks? **Approve it, capped at once per session per threshold.** [2]
+3. May the approved walkthrough be edited where this design changes it? **Yes, both affected parts, with the edit dated.** [5]
+4. Which glossary path is real? **`knowledge/memory/memory-entries/terminology-glossary.md`.** [6]
+5. Does "when work ships" mean the work item is closed as done, or its pull request is merged? **Either one, and merge is not gated.** [7]
+6. Are the startup budgets right? **Yes: 9,500 characters per hook, and 7,600 and 8,300 at the per-part caps.** [14]
+7. Should `knowledge/project.md` stay at 1,500 characters? **Raise it to 2,000, and hold the manual at 4,000.** [15]
+8. Which project migrates first? **This repository, then DragonFly.** [19]
+
+The other nineteen questions are in section 15. Section 4 lists every part,
+section 6 describes each one, section 7 maps the 30 requirements to parts and
+checks, section 9 says what changes file by file, section 12 holds the cost, the
+effort estimate, the rollback, and the eight build items, and section 13 gives
+the design's reading of 23 requirements the requirements document leaves
+unclear.
 
 ## 2. What the knowledge system solves
 
@@ -203,14 +263,14 @@ agent's context.
 | Tool | `tools/build-knowledge-index.mjs` | Generate the three indexes | ENF on format | From the after-write hook, or by hand | Zero | None. A Node script. |
 | Tool | `tools/check-knowledge.mjs` | Check fields, values, size limits, links, and secrets. Read-only | ENF | From the after-write hook, the pre-commit hook, or by hand | Zero | None. A Node script. |
 | Tool | `tools/frontmatter.mjs` | The shared frontmatter parser | ENF on parsing | Imported by the other two tools | Zero | None. A Node module. |
-| Tool | `hooks/command-parsing.mjs` | The shared shell-command parser, kept from today's `save-reminder.mjs`. Detail in 6.5 | ENF on parsing | Imported by `save-moment-gate.mjs` | Zero | None. A Node module. |
+| Tool | `hooks/command-parsing.mjs` | The shared shell-command parser, kept unchanged. It ships today at `plugins/second-brain/hooks/command-parsing.mjs` and `save-reminder.mjs` imports it. Detail in 6.5 | ENF on parsing | Imported by `save-moment-gate.mjs` | Zero | None. A Node module. |
 | Tool | `tools/session-marker.mjs` | Write the marker that says `knowledge-save` was invoked | ENF on recording | From a dynamic context injection line in the `knowledge-save` body | Zero | `ai-external-knowledge/claude-code/skills.md`, sections "Inject dynamic context", "How injected commands run", and "When an injected command fails" |
 | Tool | `.githooks/pre-commit` | Run the checker on staged knowledge files and refuse a failing commit | ENF | On every `git commit` in an equipped project | Zero | Git documentation for `core.hooksPath` |
 | State | `${CLAUDE_PLUGIN_DATA}/sessions/<session_id>.json` | The few session facts the hooks share | ENF on storage | Written and read by the hooks | Zero | `ai-external-knowledge/claude-code/plugins-reference.md`, section "Persistent data directory" |
 | Setting | `.claude/settings.json`: `enabledPlugins`, `autoMemoryEnabled: false` | Turn the plugin on and Claude Code auto memory off | ENF | Session load | Zero | `ai-external-knowledge/claude-code/memory.md`, section "Auto memory" |
 | Setting | Codex `config.toml`: `memories.generate_memories`, `memories.use_memories` | Turn the Codex memory pipeline off | ENF | Session load | Zero | Codex source at commit 9771934, `codex-rs/config/src/types.rs` |
 
-Three notes on the table. A plugin cannot ship a `.claude/rules` file and
+Four notes on the table. A plugin cannot ship a `.claude/rules` file and
 cannot ship CLAUDE.md text
 (`ai-external-knowledge/claude-code/plugins-reference.md`, section "Plugin
 components reference", the paragraph at line 905 and the file-locations table
@@ -360,7 +420,7 @@ flowchart TD
     J --> M[knowledge-save]
     K --> M
     L --> M
-    I -- No --> H
+    I -- No --> END[Turn ends]
     M --> N{"Does this update need new approval?"}
     N -- Yes --> O[Show the card and write the inbox entry in the same reply]
     O --> P{Owner answers?}
@@ -431,8 +491,8 @@ Context cost: about 1,000 characters at start. Setup guidance keeps it under
 What it is: one file that says where each kind of information lives and what
 the rules are. The requirements document calls it the manual; requirement 2
 calls the same thing a small map. This design keeps both names for one file.
-Today's copy is 13,395 characters, which is 65 percent of the startup output
-that overflows the 10,000-character cap. It is rewritten to stay **under 4,000
+Today's copy is 13,395 characters, which is 65 percent of the 20,585
+characters the startup hook prints. It is rewritten to stay **under 4,000
 characters**. Templates, field tables, and step-by-step procedures move into
 the skills' reference files, which load only when a skill is invoked. Content
 outline, with the character budget for each part:
@@ -521,8 +581,8 @@ scope and the delivery evidence.
 Timing: the entry is written locally in the same reply that shows the card, and
 pushed at the next push or at the handoff. Writing it later loses the card if
 the session dies first. Mechanism: an ordinary file. `startup-state.mjs` prints
-only each entry's heading and its state line, so a long entry costs nothing at
-startup, and it stops at 1,200 characters of state lines, after which one line
+only each entry's heading and its state line, so a long entry costs no more at
+startup than a short one, and it stops at 1,200 characters of state lines, after which one line
 says how many entries were not printed. The agent opens the entry that matters.
 Control: GUIDE on the content, ENFORCE on the tool used to change it:
 `knowledge-write-guard.mjs` denies the `Write` tool on this file, as it does on
@@ -684,16 +744,23 @@ The 26 lines:
 
 Control: GUIDE. It enforces nothing. Context cost: 1,998 characters in
 every request, in every session, including inside a subagent, because subagents
-load the CLAUDE.md hierarchy and project rules
-(`ai-external-knowledge/claude-code/sub-agents.md`, section "What loads at
-startup", lines 1036 and 1041). Two cases are the exception: the Explore and
-Plan subagents, which load no rules, and any subagent whose definition carries
-`omitClaudeMd`, a frontmatter field added in Claude Code v2.1.271 that launches
-it without the user, project, and local CLAUDE.md files. For both,
-`knowledge-write-guard.mjs` is the only cover. The `omitClaudeMd` field is not
-in the 2026-09-04 capture; it is recorded in the research notes for this design,
-2026-09-16, not in the repository, and is re-checked after step zero refreshes
-the capture.
+load the CLAUDE.md hierarchy (`ai-external-knowledge/claude-code/sub-agents.md`,
+section "What loads at startup", line 1036). That a subagent also loads the
+project's rule files is this design's inference from that same line; the page
+does not say it. Two cases are the exception: the Explore and Plan subagents,
+which load no rules, and any subagent whose definition carries `omitClaudeMd`, a
+frontmatter field that launches it without the user, project, and local
+CLAUDE.md files. For both, `knowledge-write-guard.mjs` is the only cover.
+
+The two sources disagree about `omitClaudeMd`, and this design names the
+disagreement rather than picking one. The captured page says the opposite at
+line 1041: "Explore and Plan are the only subagents that omit CLAUDE.md and git
+status. There is no frontmatter field or per-agent setting to change which
+agents". That capture is dated 2026-09-04. The live documentation read on
+2026-09-16 does list the field, added in Claude Code v2.1.271, and that reading
+is in the research notes for this design, 2026-09-16, not in the repository.
+Step zero refreshes the capture and settles which is current, so the field is a
+build-time check and not a settled fact.
 
 What can go wrong: the rule is present and the agent still does not look
 something up. Nothing catches that. It is a named limit, and requirement 3's
@@ -973,7 +1040,7 @@ matcher today, and `additionalContextLimit` is set to 10,000, explained in 6.7.
 
 Matcher: `startup|resume|clear|compact|fork`. Same event, same input fields,
 same output form, and the same fail-open rules as `startup-files.mjs`. Print
-order. The cheap, high-value items come first, so the overflow rule never
+order. The short items that matter most come first, so the overflow rule never
 reaches them:
 
 0. The same version line `startup-files.mjs` prints, from the same source, about
@@ -1105,11 +1172,12 @@ characters. What can go wrong, and the recovery:
 | The hook reaches its 5-second timeout | Its output is discarded and the command goes through the normal permission flow. The gate does not hold. Named in the setup report |
 | `git log -1 --format=%ct` on a branch with no commits, a detached HEAD, or a shallow clone | The script treats an unreadable commit time as "no commit", so the gate holds rather than opening |
 
-Merging a pull request raises no hold, because the guard set the owner named on
-2026-09-03, recorded in issue 269's comment of that date, covers `gh pr create`,
-`work finish`, and `gh issue close` and excludes merge. Instead, at the pull-request review `knowledge-save` writes one
-inbox entry saying that upkeep of the requirements document is owed when that
-pull request merges, so the next session's startup lines repeat the reminder.
+Merging a pull request raises no hold. On 2026-09-03 the owner named the
+commands the gate holds, recorded in issue 269's comment of that date:
+`gh pr create`, `work finish`, and `gh issue close`. Merge is not one of them.
+Instead, at the pull-request review `knowledge-save` writes one inbox entry
+saying that upkeep of the requirements document is owed when that pull request
+merges, so the next session's startup lines repeat the reminder.
 Windows: the matcher includes `PowerShell` and the script knows the PowerShell
 command forms, because on Windows without Git Bash, Claude Code does not
 register the Bash tool at all. Codex runs `commandWindows` through `cmd.exe`,
@@ -1388,8 +1456,10 @@ the command ran, not that the body was read.
 
 #### `hooks/command-parsing.mjs`
 
-What it is: the shared shell-command parser, kept unchanged from today's
-`save-reminder.mjs`. `save-moment-gate.mjs` imports it and nothing else does. It
+What it is: the shared shell-command parser, kept unchanged. It ships today at
+`plugins/second-brain/hooks/command-parsing.mjs`, where `save-reminder.mjs`
+imports it; after this design lands `save-moment-gate.mjs` imports it and
+nothing else does. It
 splits a command line into segments, strips heredocs and quoted text, and
 reports whether a segment is the command the gate is looking for, so
 `gh pr create` inside a quoted string or a heredoc does not trigger a hold. It
@@ -1703,8 +1773,8 @@ prints 20,585 characters against a 10,000-character cap, so the manual never
 arrives; `memory-reminder.mjs` repeats the manual on every message; the
 once-per-branch save hold was bypassed in an audited session; and the current
 tools cannot represent the folder layout the requirements document asks for.
-Nothing in the store has to be thrown away, and no part of the design is bought
-from outside; the closing table says why each outside product was rejected.
+No knowledge file has to be deleted, and no part of the design is bought from
+outside; section 16 says why each outside product was rejected.
 
 The inventory behind this section was written on 2026-09-16 against the files
 on disk in this repository. Every row below names the shipped file it changes,
@@ -1734,7 +1804,7 @@ condition under which requirement 2's startup reads happen at all.
 | Gate coverage of `gh pr create` and `gh issue close` only | Change: add `mcp__github__create_pull_request` and `mcp__github__issue_write` | In web and remote sessions the agent opens pull requests through the GitHub MCP tool, not `gh`. Without this the gate never fires in web and remote sessions, which is where the owner works most. On `mcp__github__issue_write` the gate reads `tool_input` and holds only when the state is being set to closed | 3 (line 524), 9 (line 674) |
 | Nothing registered on `PreToolUse` for Edit and Write | Add `knowledge-write-guard.mjs` | Nothing stops a hand edit to a memory file or a PRD today | 10 (line 703), 29 (line 1689) |
 | Nothing registered on `PostToolUse` for knowledge writes | Add `knowledge-after-write.mjs`, on `Edit` and `Write` only | The checker and the index rebuild depend on the agent remembering to run them | 21 (line 1469) |
-| A second `PostToolUse` registration on every `Bash` call, to catch writes made with `sed`, a heredoc, or `python -c` | Considered and dropped | It would run `git status` on every shell command in every session. The `Stop` hook already runs at the end of each turn and already computes changed files from Git, so the same coverage costs one process per turn instead of one per command, and it drops a dependence on the beta field `tool_response.bashEditDiff`. Requirement 29 says not to watch every action just because it is possible | 29 (line 1711) |
+| A second `PostToolUse` registration on every `Bash` call, to catch writes made with `sed`, a heredoc, or `python -c` | Considered and dropped | It would run `git status` on every shell command in every session. The `Stop` hook already runs at the end of each turn and already computes changed files from Git, so the same coverage costs one process per turn instead of one per command, and it drops a dependence on the beta field `tool_response.bashEditDiff`. Requirement 29 says not to watch every action just because it is possible | 29 (line 1699) |
 | Nothing registered on `Stop` | Add `session-review-nudge.mjs` | The fifth save moment, "a turn ends after real work", has nothing behind it | 9 (line 674) |
 | Nothing registered on `PreCompact` | Add `compact-hold.mjs`, manual compaction only | Automatic compaction is never held, because blocking a recovery compaction can fail the request | 9 (line 674) |
 | `plugins/hooks-library/hooks/spec-check-reminder.mjs` | Keep, unchanged | It is a different plugin and a different moment: the first file edit of a session, asking whether `spec-check` ran before building from a PRD | 16 (line 1120) |
@@ -1786,11 +1856,11 @@ condition under which requirement 2's startup reads happen at all.
 | Template `knowledge/.obsidian/app.json` | Keep as is | Three relative-link settings. It adds no behavior and costs nothing | 1 (line 456) |
 | New template `knowledge/memory-inbox.md` | Add | Requirement 28 (PRD line 1629). Nothing exists today | 28 (line 1629) |
 | New template `knowledge/memory/memory-entries/terminology-glossary.md` | Add | Requirement 7 (PRD line 612). No glossary ships today | 7 (line 610) |
-| New generated `ai-external-knowledge/README.md` | Change: generated by the builder from topic entry pages | Requirement 21 (PRD line 1460) makes it the third index. Today it is hand-written by this repository's own capture script | 8 (line 652), 21 (line 1458) |
+| New generated `ai-external-knowledge/README.md` | Add: generated by the builder from each topic's entry page | Requirement 21 (PRD line 1460) makes it the third index. The root file does not exist today; the hand-written index is the topic index at `ai-external-knowledge/claude-code/README.md` | 8 (line 652), 21 (line 1458) |
 | `tests/knowledge-startup-check.mjs` | Change: large rewrite | It locks the old startup order, the manual's byte count and hash, the five proposal bullet labels that requirement 20 removes, and the Codex parity of one hook. All four move. The manual's hash check goes with the pin | 2, 20, 21, 25 |
 | `tests/knowledge-startup-check.mjs`, the 30 checker approval cases | Keep as is, and extend | They cover requirement 16's approval-field rule exactly | 16 (line 1195) |
 | `tests/installed-copy-check.mjs` | Change: the hook and tool rows go away when the project copies go | Hooks and tools run from the plugin. The rule-file rows stay | 27 (line 1617) |
-| `tests/link-check.mjs`, `tests/orphan-check.mjs` | Keep as is | They walk every Markdown file, so the migration's moved files and repaired links are checked by them | 1 (line 465) |
+| `tests/link-check.mjs`, `tests/orphan-check.mjs` | Keep as is | They walk every Markdown file, so the migration's moved files and repaired links are checked by them | 1 (line 466) |
 | `.claude/rules/knowledge-direct-commit.md` | Keep, with one path change | Six numbered steps for landing a save on the default branch from a worktree, including what to do when the push is refused. Requirement 9 (PRD line 685) names this rule as the owner of the procedure. Step 4 names `.claude/tools/...`, which moves to the plugin path | 9 (line 678) |
 | `.claude/rules/offer-context-handoff.md` | Change: the skill name it invokes | It names `remember` four times | 9 (line 674) |
 | `.claude/rules/work-item-stages.md` | Keep as is | It owns the stages and the tracker rules. The manual points at it instead of repeating it | 30 (line 1754) |
@@ -2062,8 +2132,8 @@ it was last synced to, so going back is `/project-sync` re-run at the previous
 version: the old hooks and skills return, and nothing in the repository's
 knowledge files is touched. The layout migration in 9.5 is ordinary Git commits
 in the project being migrated, so `git revert` puts the old paths back, provided
-it happens before a later save lands on top of them; after that the revert is a
-merge the owner resolves. Two things do not roll back on their own: a knowledge
+no later save has been committed over them; after that the revert is a merge the
+owner resolves. Two things do not roll back on their own: a knowledge
 file written in the new shape keeps its new fields, which the old checker
 rejects as unknown, and the Codex and Claude Code settings the setup wrote stay
 until they are changed back. Both are named in the setup report. Because two
@@ -2176,6 +2246,10 @@ Twenty-three entries, then a short list of requirements that should move,
 shrink, or go. Each entry names the requirement and its PRD line, says what is
 wrong or unclear in two sentences, gives the recommended answer, and says what
 changes in the design if Mike answers differently.
+
+Three of the entries, 13.9, 13.10 and 13.11, are recorded decisions rather than
+questions, which is why they have no entry in section 15. The design proceeds on
+the recommended answer unless Mike says otherwise.
 
 ### 13.1 Requirement 2, "confirm the contents were read" (PRD line 481)
 
@@ -2314,9 +2388,10 @@ never defines shipping.
 
 **Recommended answer:** shipped means the work item is closed as done, or its
 pull request is merged to the default branch. The gate at item close forces the
-save skill, whose upkeep branch does the update. Merging is not gated, because
-the guard set the owner named on 2026-09-03 covers `gh pr create`,
-`work finish`, and `gh issue close` and excludes merge. Instead, at the
+save skill, whose upkeep branch does the update. Merging a pull request raises
+no hold. On 2026-09-03 the owner named the commands the gate holds, recorded in
+issue 269's comment of that date: `gh pr create`, `work finish`, and
+`gh issue close`. Merge is not one of them. Instead, at the
 pull-request save review, `knowledge-save` writes one inbox entry reading "PRD
 upkeep owed when PR N merges", and the next session's startup lines repeat that
 entry's heading and state.
@@ -2339,19 +2414,20 @@ permission, requirement 1 gets one more line and nothing in the design changes.
 
 ### 13.10 Requirements 8 and 21, the outside-documentation index (PRD lines 652 and 1460)
 
-Requirement 21 makes `ai-external-knowledge/README.md` a generated index.
-Today it is written by hand, by this repository's own capture script, and it is
-not shipped to any other project.
+Requirement 21 makes `ai-external-knowledge/README.md` a generated index. That
+file does not exist today. The only index in the folder is the hand-written
+topic index at `ai-external-knowledge/claude-code/README.md`, which covers 161
+captured pages of one topic and is not shipped to any other project.
 
 **Recommended answer:** the builder generates it from each topic's entry page.
 The capture script writes the topic page's frontmatter, so the builder has a
 `summary` and a capture date to read.
 
-**If Mike answers differently:** if the file stays hand-written, requirement 21
-loses its third index and the startup map points at a file nothing keeps
+**If Mike answers differently:** if the root index is written by hand instead,
+requirement 21 loses its third index and the startup map points at a file nothing keeps
 current.
 
-### 13.11 The preferred direction names function hooks (PRD lines 1938 to 1942)
+### 13.11 The preferred direction names function hooks (PRD lines 1826 to 1831)
 
 The PRD's exploratory section leans toward hooks that run in-process. Function
 hooks do not exist in any official Claude Code source: fourteen live pages, the
@@ -2571,7 +2647,7 @@ belongs here at all.
 | 2, "confirm the contents were read" (PRD line 481) | Shrink | To what a harness can observe: the delivery finished, and the agent says so in one line. No harness can observe reading. See 13.1 |
 | 18 and the layout, the System Guide folders (PRD lines 168 to 172 and 1279) | Go | They belong to the System Guide requirements document, which names different folders. Two documents cannot own one layout. See 13.5 |
 | 17, procedures become skills (PRD line 1238) | Move | The authoring half belongs to a skill-authoring step the toolkit does not have. `knowledge-save` proposes and stops. See 13.7 and item 8 |
-| 28, eight items per inbox entry (PRD line 1640) | Keep | It reads as heavy, and it is what lets the owner answer a card a day later without being shown it again. The startup print cost is two lines per entry. See 13.12 |
+| 28, eight items per inbox entry (PRD line 1640) | Keep | It is a lot of text, and it is what lets the owner answer a card a day later without being shown it again. The startup print cost is two lines per entry. See 13.12 |
 
 ---
 
@@ -2627,7 +2703,7 @@ trust, because a later agent will believe it. The guard costs nothing when the
 skill is used. A stronger version exists and is not built now: deny unless
 `knowledge/memory-inbox.md` holds a matching "approved, save unfinished" entry
 for that destination, which turns the inbox into an approval ledger. Requirement
-29 (PRD line 1684) says add restrictions only after a failure that happened, so
+29 (PRD line 1698) says add restrictions only after a failure that happened, so
 that version is recorded as the next step if an unapproved write ever lands.
 
 ### 14.4 Where the standing obligations live
@@ -2774,8 +2850,10 @@ recommended answer, here or in the section 13 entry it points at.
     two of its columns up to 1,500 characters plus the path above that. Is that
     acceptable? See 13.14.
 14. Each startup hook has a 9,500-character budget. Inside `startup-files.mjs`,
-    the per-part guidance is `SOUL.md` under 1,000, `knowledge/project.md` under
-    1,500, and the manual under 5,000, which totals 7,600. Inside
+    the per-part guidance is the version line at 100, `SOUL.md` under 1,000,
+    `knowledge/project.md` under 1,500, and the manual under 5,000, which totals
+    7,600. The manual's own target is 4,000 characters; 5,000 is the ceiling the
+    checker fails at, and this budget uses the ceiling. Inside
     `startup-state.mjs` the caps total 8,300, and 6.4 shows that sum. The
     standing rule is a separate cost, paid on every request rather than at
     startup, and it measures 1,998 characters. Are those numbers right? The
@@ -2783,10 +2861,11 @@ recommended answer, here or in the section 13 entry it points at.
     and is answered here: the caps exist, and the total is also checked.
 15. Should `knowledge/project.md` be trimmed to 1,500 characters, or should that
     number be raised? Open since 2026-09-05. **Recommended: raise the guidance
-    for `knowledge/project.md` to 2,000 characters and lower the manual's
-    guidance to 4,500.** `startup-files.mjs` still fits: 100 + 1,000 + 2,000 +
-    4,500 is 7,600, unchanged, and the manual's 4,000-character warning and
-    5,000-character ceiling in the checker stay as they are.
+    for `knowledge/project.md` to 2,000 characters and hold the manual at its
+    4,000-character target.** `startup-files.mjs` still fits: 100 + 1,000 +
+    2,000 + 4,000 is 7,100, inside the 9,500-character budget, and the checker's
+    4,000-character warning and 5,000-character ceiling on the manual stay as
+    they are.
 16. The Git pre-commit hook refuses a bad knowledge commit from anyone,
     including the owner's own hand edit. Is that the intent of requirement 21?
 17. Requirement 17 hands a procedure to a skill-authoring process that does not
@@ -2838,7 +2917,7 @@ recommended answer, here or in the section 13 entry it points at.
 
 ---
 
-# Alternatives considered for the whole system
+## 16. Alternatives considered for the whole system
 
 Each verdict below was reached against the product's own documentation or source
 on 2026-09-16. The full comparison, with fetch dates, is in the research notes
