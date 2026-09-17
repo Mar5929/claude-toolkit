@@ -1143,6 +1143,16 @@ knowledge manual, injected by the hook, so the wording cannot drift. That source
 mechanism and the remainder of the exact phrasing are proposals. Do not inject
 the whole folder table or either full manual on every prompt.
 
+Mike clarified during the hook-text review on 2026-09-17 that every file
+referenced by the reminder must include its explicit project-root-relative
+path. The friendly reminder names the applicable `AGENTS.md` and/or `CLAUDE.md`
+router, following the project's actual routing, and `knowledge/README.md` for
+the knowledge manual. Its Toolkit Operating System manual reference must name
+the configured project-relative file once that location is decided. Until then,
+the design marks the path unresolved; it does not invent a file or substitute
+the parent PRD for the operating manual. Other named record destinations use
+the project's actual configured paths rather than assumed locations.
+
 Control: GUIDE. The hook supplies the reminder and asks for acknowledgment; the
 agent judges meaning and routing, then performs the evaluation under existing
 approval rules. Timeout: proposed at 5 seconds with fail-open behavior, subject
