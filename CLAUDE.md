@@ -19,14 +19,6 @@ If that map is not already in this session, read those files once in that order.
 If a file is missing, continue and report it. `knowledge/README.md` wins when
 project-knowledge instructions disagree.
 
-## Solution-design philosophy
-
-Before designing or reviewing a toolkit solution, read and apply the
-[owner's handshake principle](knowledge/prds/toolkit-operating-system/toolkit-operating-system.md#design-principle-guide-the-agent-through-handshakes).
-That principle is settled even while the parent PRD remains proposed. Read the
-active item's review plan before resuming; keep its accepted decisions and
-review position rather than restarting the interview.
-
 ## Codemap
 
 | Path | What is there, and when to open it |

@@ -116,13 +116,13 @@ The agent reads `knowledge-save/references/routing.md` and determines informatio
 
 | Conversation content | Owning destination |
 | --- | --- |
-| Product-wide design constraint | Parent PRD, with a discoverable standing instruction linking to it |
+| Product-wide design constraint | Parent PRD, linked from the design module's guidance; root files only route to that module |
 | Notifications requirement | Notifications PRD through its requirements workflow; resume account access afterward |
 | “Getting back in” terminology | Glossary row with meaning, referent, source/date, and ambiguity notes |
 | Upcoming copy review | Tracker/general to-do and concise working-memory pointer; no lasting memory |
 | Unsettled invitation idea | Brainstorm record if worth retaining, visibly unchecked |
 
-Additional routing branches: a reusable procedure belongs to skill authoring; a standing behavior belongs in rules/root instructions; project identity/resources in `project.md`; responsibility in `SOUL.md`; an enabled Guide owns useful system explanations; external documentation stays with outside sources; real lasting decisions/fixes may qualify as memory. An unavailable destination is named, never silently replaced with memory. Tool logs, trivial details, source copies, credentials, and task scratch do not become memory.
+Additional routing branches: a reusable procedure belongs to skill authoring; standing behavior belongs in its applicable rules or module guidance, while root instructions map and route; project identity/resources in `project.md`; responsibility in `SOUL.md`; an enabled Guide owns useful system explanations; external documentation stays with outside sources; real lasting decisions/fixes may qualify as memory. An unavailable destination is named, never silently replaced with memory. Tool logs, trivial details, source copies, credentials, and task scratch do not become memory.
 
 **Result / failure:** relevant changes use their own authority and workflow; semantic ambiguities produce a focused question. No candidate means quiet completion. A checkpoint failure is not “review complete.” Temporary acknowledgment state lives outside project knowledge and is not an audit of conversation meaning.
 

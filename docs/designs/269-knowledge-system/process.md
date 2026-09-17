@@ -174,6 +174,17 @@ setup. No scenario step has been approved yet. Runtime implementation and
 behavioral verification remain pending. Record each answer and the next review
 position in that walkthrough before continuing.
 
+Placement correction, 2026-09-17: Mike rejected putting solution-design
+philosophy instructions in root `CLAUDE.md`/`AGENTS.md`; those files are the
+repository map and router. Removed the added root section and moved its
+read-the-principle/resume-the-review instruction to `docs/designs/README.md`,
+which the existing root codemap already names. The parent PRD remains the
+principle's canonical home. Recommended future workflow integration is for
+`solution-design` to load project design guidance when design work begins;
+this correction does not change the packaged skill or claim automatic loading
+merely from the existence of a nested Markdown file. Scenario step 1 remains
+unapproved; resume it after this placement discussion.
+
 ## Where this stands and how to pick it up
 
 Updated 2026-09-17: the goal is to ship the refactored Knowledge System. Mike

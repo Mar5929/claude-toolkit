@@ -18,6 +18,18 @@ not use this folder.
 
 ## What goes in one file
 
+Before designing or reviewing a toolkit solution, read and apply the
+[owner's handshake principle](../../knowledge/prds/toolkit-operating-system/toolkit-operating-system.md#design-principle-guide-the-agent-through-handshakes).
+That principle is settled even while the parent PRD remains proposed. Read the
+active item's review plan before resuming; keep its accepted decisions and
+review position rather than restarting the interview.
+
+These design-specific instructions belong at this design entry point. The root
+`CLAUDE.md` and `AGENTS.md` provide orientation and routing, as required by the
+[folder-instruction PRD](../../knowledge/prds/toolkit-operating-system/folder-instruction-files.md).
+Their map leads here; they do not carry the design philosophy. The principle
+itself stays in the parent PRD rather than being copied into project memory.
+
 - How each approved requirement will be met.
 - The files the change touches.
 - How it will be tested.
