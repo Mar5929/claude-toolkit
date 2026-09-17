@@ -18,16 +18,16 @@ Requirements nearly settled (Mike estimates 95–99%), not fully approved. Draft
 
 **Recent progress**
 - Sept 16: Clarified working-memory template and information-routing requirements.
-- Sept 16: Revised the save flow: choose the destination before memory exclusions.
+- Sept 17: Reviewed routing/release readiness and clarified task resumption. Runtime tests pending.
 
 **Next step**
-Validate routing an aside to another subprocess's record without a new session. Reconcile the design; the review mechanism remains open.
+Settle the conversation-review prompt (question 2). Plan and review findings: `process.md` in the design working records.
 
 **Blocker**
 Requirements and design approval needed before implementation.
 
 **To-dos**
-- Test the routing scenario against the design (question 2).
+- Verify routing and continuation in representative sessions after build approval.
 - Review remaining design decisions and PRD wording questions 9–12.
 - Decide when to adopt the newer design template.
 - Update publication/direct-save guidance under #269/#306.

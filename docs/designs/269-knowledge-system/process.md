@@ -109,6 +109,33 @@ These are planning milestones, not new approval, acceptance criteria, or proof
 that implementation or behavioral validation has happened. The existing PRD
 and work item's completion criteria still control those decisions.
 
+### Focused review findings, 2026-09-17
+
+- The proposed requirements and save flow cover explicit cross-scope requests:
+  recognize the information, determine scope and owner, apply that destination's
+  rules and existing permission, and preserve traceability. The design now
+  explicitly retains and resumes the original task after the other update.
+- Recognition without an explicit save request still needs its prompting
+  mechanism settled under design question 2. Do not revive the rejected file
+  counter or treat a reminder as proof that meaning was understood.
+- Existing publication guidance still conflicts with approved direct-main
+  document saves. That reconciliation remains tracked under #269/#306; use
+  Mike's explicit direct-save instruction for these authorized documents now.
+- Reuse the implementation audit, capability reports, alternatives, review
+  records, requirement map, risk tests, rollback plan, and eight-item build
+  split. Refresh runtime evidence and size measurements before relying on them
+  for implementation; no runtime tests were performed in these reviews.
+- After the baseline is approved, the proposed build sequence is foundation
+  (manual, guidance, startup, skills), integrity/storage, harness and toolkit
+  integration, then representative-session verification and approved rollout.
+  The first migration target and the missing skill-authoring dependency remain
+  owner choices; neither is silently accepted here.
+
+Next bounded deliverable: a concise decision brief for question 2 and the
+remaining review questions, showing recommendations separately from approved
+answers. Discuss one material decision at a time unless Mike asks to group
+them. The draft's publication never substitutes for approval of its build plan.
+
 ## Where this stands and how to pick it up
 
 Updated 2026-09-17: the goal is to ship the refactored Knowledge System. Mike

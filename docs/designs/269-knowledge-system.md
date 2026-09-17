@@ -931,7 +931,12 @@ deny the write the skill is performing. Body outline:
    meaning, and confirm the change is still needed. Apply that authority check
    to every affected destination. Reconcile authorized requirement changes and
    references during refinement and design too, following requirement 18.
-   Hand other components their own operations and carry back the actual result.
+   Before handing another component its operation, retain the originating
+   item's scope, approval boundary, and next step. Carry back that operation's
+   actual result or specific unfinished state, link its owning record, and
+   resume the originating work unless the owner redirects the conversation.
+   An outside-item save does not create a new work session or broaden the
+   original implementation authority.
 9. Read back the saved change and compare it with the approved operation,
    meaning, and scope, and check the written words against the style read in
    step 0. Read affected references back as well. Preserve source, relevant date,
@@ -2431,6 +2436,7 @@ outside that item's scope. It does not select a new hook or approve a build.
 | Filing and responsibility | Reuse the Toolkit OS's shared ownership guidance, project map, and destination workflows. The routing reference is an entry point to those owners, not a second filing architecture or permission to maintain another component's records by different rules. |
 | Important decisions | Required behavior goes to its owning PRD, build choices to the design or work record, and qualifying lasting knowledge to memory. Importance alone does not pick a folder. |
 | Active work | Current status, useful recent accomplishments, and next steps stay in working context; full decisions, requirements, and implementation evidence stay in their owning records. |
+| Return to the original task | The save flow now explicitly retains the originating scope, approval boundary, and next step, returns the other destination's actual outcome, and resumes the original work unless the owner redirects it. This reconciles an existing requirement, not a new approval request. |
 | Reliability | Meaning and relevance still depend on agent judgment. Existing write checks cannot prove that something was noticed. The reminder mechanism remains open; passing a counter or schema check cannot close this gap. |
 
 Validate with the new conversation-only, mixed-destination case in section
