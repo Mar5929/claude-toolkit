@@ -197,19 +197,25 @@ Issue #269 owns the canonical roadmap and task record. Its current task is
 review method and evidence; it does not duplicate the task tracker.
 
 Current position: review the Knowledge System through the fictional Acme Corp
-two-org Salesforce consolidation. Scenario step 1, project setup, awaits Mike's
-review; no scenario step has been approved. Use the full PRD, consolidated
+two-org Salesforce consolidation. In scenario step 1, Mike selected the complete
+core Knowledge System, System Guide, and `delivery/architecture/`. These are
+hypothetical component choices; step 1 and the full design remain unapproved.
+Use the full PRD, consolidated
 design, retained review records, [scenario walkthrough](design-walkthrough.md),
 and the parent handshake principle. Record each answer and scope before moving
 on. Full PRD/design approval remains required before any Knowledge System build.
 
-Exact next action: continue step 1 at Mike's hypothetical "enable knowledge"
-choice within project-init. The folder/repository and existing scaffold are
-scenario context. Explain the proposed new knowledge setup's files, triggers,
-and agent behavior, then review that design with Mike. This example is the
-method for refining the new solution against all requirements, not a tutorial
-or demonstration of delivered behavior. No real Acme setup or Salesforce
-connection has occurred. Preserve fictional Org A/Org B and the undecided target.
+Exact next action: continue step 1 by examining the proposed files and their
+roles. First answer the open ideal-refactor question: how System Guide keeps its
+lookup/upkeep value while using authoritative `delivery/architecture/` topic
+documents without competing prose. Keep source-org actual state separate from
+proposed target design. The question does not reverse Mike's System Guide
+selection or authorize an automatic path move. Knowledge System still owns
+memory, PRDs, project map, glossary, and current context; the work item owns its
+active build plan and approvals. Do not invent architecture topic names or
+treat the recommended memory-approval default as Mike's separate choice. No
+real Acme setup or Salesforce connection has occurred. Preserve fictional Org
+A/Org B and the undecided target.
 
 Updated 2026-09-17: the goal is to ship the refactored Knowledge System. Mike
 estimates the requirements were 95–99% settled when design work began; this is
@@ -248,8 +254,11 @@ design was written before that template existed and does not follow it. Whether
 to reshape the design to the template has not been decided.
 
 **The exact next action: review step 1, project setup, in the
-[design walkthrough](design-walkthrough.md) with Mike.** Continue at the
-hypothetical "enable knowledge" choice in project-init. Include the incidental cross-scope information case under
+[design walkthrough](design-walkthrough.md) with Mike.** Examine the selected
+setup's proposed files and their roles. Resolve the open System Guide/client
+architecture overlap without duplicating Knowledge System or work-item records.
+Include the
+incidental cross-scope information case under
 requirements 9 and 18, the design's section 13.2, and the handshake principle.
 The scope-routing clarifications remain part of shipping the Knowledge System.
 Full PRD/design approval and implementation remain pending.

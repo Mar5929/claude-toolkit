@@ -17,9 +17,9 @@ Updated: 2026-09-17
 **Current status** Task D1 solution-design review; full approvals pending; no build authorization.
 
 **Recent progress**
-- Sept 17: Set #269 phase tasks and the fictional Acme Corp two-org scenario; target-org strategy remains open.
+- Sept 17: Acme selected core Knowledge System, System Guide, and `delivery/architecture/` for the hypothetical setup.
 
-**Next step** At "enable knowledge" in Acme's scenario, explain and review the proposed new setup.
+**Next step** Resolve Guide/architecture overlap, then examine setup files; step 1 stays open.
 
 **Blocker** Requirements/design approval before build.
 

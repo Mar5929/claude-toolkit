@@ -27,10 +27,11 @@ All runtime paths below describe the proposed system. Today this repository stil
 
 | Item | Position |
 | --- | --- |
-| Current step | 1, at the hypothetical "enable knowledge" choice in project-init; explain proposed knowledge setup next |
+| Current step | 1, setup components selected; examine the proposed files and their roles next |
 | Last approved scenario step | None |
 | Existing decisions retained | Startup delivery counts as reading; check delivery completion. Agent reasoning with lightweight handshakes is the governing philosophy. Changed-file review trigger rejected. |
-| Next question | After explaining what the proposed knowledge setup creates and runs, does that design match the experience Mike wants? |
+| Step 1 choices recorded | Complete core Knowledge System, System Guide, and `delivery/architecture/`. These are hypothetical component choices, not approval of step 1 or the full design. |
+| Next question | In the ideal refactor, how should System Guide use authoritative `delivery/architecture/` topic documents without duplicating them, while keeping source-org actual state separate from proposed target design? |
 | Remaining work | Review steps 1–12, reconcile their answers into PRD/design, then obtain full requirements and design approvals. |
 
 ## The project story
@@ -60,11 +61,42 @@ connection is assumed yet.
 **Mike:** “Set up this project. Turn on the knowledge system so we can use it in
 Claude Code and Codex.”
 
+**Setup choices recorded:** Mike chose the complete core Knowledge System rather
+than internal file or hook checkboxes. He also chose System Guide and the
+Salesforce scaffold's `delivery/architecture/` area. These choices apply only to
+the fictional walkthrough. They do not install anything, approve step 1, or
+approve the full #269 design.
+
+- System Guide owns useful understanding of the existing system and its parts.
+  Setup uses its configured `guidePath`; this choice does not approve a
+  hardcoded guide folder. Memory, PRDs, the project map, glossary, and current
+  work keep their Knowledge System roles.
+- `delivery/architecture/` holds client-owned current detailed designs,
+  diagrams, models, and architecture workbooks grouped by topic area, and keeps
+  them after a related work item closes. Identity/access, data migration, and
+  integrations are examples only; no topic names or contents are approved.
+- A work item's tracker and linked build plan still own its live scope, status,
+  implementation plan, and approvals. They link to the client architecture and
+  System Guide when useful instead of copying those records.
+- Requiring approval for project-memory saves remains the proposed setup
+  default and recommendation. Mike has not made a separate scenario choice on
+  that setting yet.
+
+**Open design question:** Mike asked whether a Salesforce project should skip
+System Guide because `delivery/architecture/` may already hold the useful
+architecture. His System Guide selection remains in place; the question does
+not disable it. The recommended direction to review is to keep System Guide's
+lookup and upkeep behavior while using authoritative client architecture topic
+documents instead of creating competing prose. The design must keep facts about
+the two source orgs' actual state separate from proposed target design. Support
+for adopting arbitrary client documents through `guidePath` still needs proof;
+no automatic path move or integration is approved.
+
 **What runs:** the existing `project-init` entry point delegates the knowledge portion to proposed `plugins/second-brain/skills/knowledge-setup/SKILL.md`. An existing project reaches the same skill from `project-sync` or an ordinary setup request. There is no background installer guessing which projects to enable.
 
 The skill inspects the project, existing instructions/settings, installed plugin version, and Git hooks. It creates or safely merges the project files from its `references/templates/`:
 
-| Proposed project artifact | Purpose |
+| Proposed project artifact or selected area | Purpose |
 | --- | --- |
 | `SOUL.md` | The agent's responsibility in the Acme Corp consolidation |
 | `knowledge/project.md` | Project identity, real resources, tracker, owner, memory approval setting |
@@ -75,6 +107,8 @@ The skill inspects the project, existing instructions/settings, installed plugin
 | `knowledge/memory/memory-entries/terminology-glossary.md` | Project vocabulary; final path remains a review choice |
 | `knowledge/memory-selection-feedback.md` | Project-specific lessons about selecting memory |
 | `ai-external-knowledge/README.md` | Generated map of captured outside sources, when present |
+| System Guide at its configured `guidePath` | Useful understanding of the existing system, its parts, purposes, and connections |
+| `delivery/architecture/` | Client-owned detailed solution architecture, grouped by topic area and retained after work items close |
 
 Empty destinations contain no invented history or approvals. Existing content is read before any merge. Lasting meaning changes retain the relevant approval requirements.
 
@@ -91,9 +125,15 @@ remain proof requirements.
 
 **What Mike sees:** a short report of what was equipped, the running version, enabled harnesses, and any unresolved failure. The routing examples are available without making him understand every folder. A fresh-session delivery check must succeed before reporting that harness ready. File existence alone is insufficient.
 
-**Failure branch:** an existing Git-hook conflict, untrusted registration, or missing delivery is named. Preserve existing hooks and other projects; report incomplete setup and the next action. Optional System Guide and work-management components are not enabled incidentally.
+**Failure branch:** an existing Git-hook conflict, untrusted registration, or missing delivery is named. Preserve existing hooks and other projects; report incomplete setup and the next action. System Guide is included because Mike selected it for this scenario; other optional components are not enabled incidentally.
 
-**Recommendation / decision:** one complete project setup operation, using machine-installed reusable components and project-owned Markdown. Review this experience first; exact layout migration and remaining platform gaps return in step 12. Design source: §§6.3 knowledge-setup, 6.7, 8, 9.3–9.5.
+**Recommendation / scoped choices:** one complete core Knowledge System setup,
+with the selected System Guide and Salesforce architecture area, using
+machine-installed reusable components and project-owned Markdown. Next examine
+the proposed files and their roles. Step 1 remains open; exact layout migration
+and remaining platform gaps return in step 12. Design source: §§6.3
+knowledge-setup, 6.7, 8, 9.3–9.5, plus the
+[Salesforce project scaffold](../../../plugins/project-init/skills/project-init/references/salesforce-project-scaffold.md).
 
 ## 2. Open the first session
 
