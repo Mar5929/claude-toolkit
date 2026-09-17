@@ -5,29 +5,31 @@ Updated: 2026-09-17
 Ship the Knowledge System; define guided work management.
 Milestones: approve requirements/design, build, test, deliver.
 
+Designs use [handshakes](prds/toolkit-operating-system/toolkit-operating-system.md#5-the-agents-judgment).
+
 ## Active work
 
 ### Knowledge System refactor — #269
 Updated: 2026-09-17
 
-**Goal** Ship reliable knowledge retrieval, upkeep, and saving.
+**Goal** Ship reliable knowledge lookup, upkeep, and saves.
 
-**Current status** Draft design in review; requirements 95–99% settled by Mike's estimate, not fully approved. Build approval pending.
+**Current status** Design in review; requirements 95–99% settled by Mike's estimate. Full approval pending.
 
 **Recent progress**
-- Sept 16–17: Clarified working memory/routing; reviewed release readiness and task resumption. Runtime tests pending.
+- Sept 16–17: Clarified working memory/routing; reviewed readiness and resumption. Runtime tests pending.
 
-**Next step** Settle the conversation-review prompt (design question 2).
+**Next step** Settle conversation-review prompting (question 2).
 
-**Blocker** Requirements/design approval before implementation.
+**Blocker** Requirements/design approval before build.
 
 **To-dos**
-- Review remaining design decisions and PRD wording questions 9–12.
-- Decide when to adopt the newer design template.
-- Update publication/direct-save guidance (#269/#306).
-- Verify routing/continuation in real sessions after build approval.
+- Review remaining design decisions and PRD questions 9–12.
+- Decide when to adopt the new design template.
+- Update publication guidance (#269/#306).
+- Test routing/continuation in sessions after build approval.
 
-**Detailed record** [Issue #269](https://github.com/Mar5929/claude-toolkit/issues/269). See linked PRD, design, and plan.
+**Detailed record** [Issue #269](https://github.com/Mar5929/claude-toolkit/issues/269), linked PRD/design/plan.
 
 ### Guided work management — #337
 Updated: 2026-09-17

@@ -3,7 +3,7 @@ summary: The toolkit helps Mike turn requests into checked results, keep control
 group: Working with an agent
 area: toolkit-operating-system
 status: proposed
-source: Mike Rihm's request for the overall toolkit PRD; linked component PRDs and bounded source review on 2026-09-10
+source: Mike Rihm's request for the overall toolkit PRD; linked component PRDs and bounded source review on 2026-09-10; Mike's toolkit-wide handshake design principle on 2026-09-17
 created_at: 2026-09-10
 tags: [toolkit, project-work, continuity, requirements]
 project: claude-toolkit
@@ -199,6 +199,34 @@ handoff. Do not restart the interview when a domain skill becomes useful.
 reply, the affected design is identified, and unchanged approvals remain valid.
 
 ## 5. The agent's judgment
+
+### Design principle: guide the agent through handshakes
+
+Toolkit designs guide the agent with timely instructions and checkpoints. The
+agent does the reasoning and confirms the requested step. Do not build a
+separate engine, scoring system, or conditional rules that replace reasoning
+the model can already do, or infer from its replies whether it understood or
+performed the work correctly. A hook can request a step and check the agent's
+acknowledgment; it does not judge the substance of that work.
+
+The architect chooses suitable checkpoints and acknowledgment behavior for
+each design. Mike's examples of an end-of-turn memory review and an agent's
+reply illustrate the principle; they do not prescribe a hook, frequency,
+wording, or implementation. Keep acknowledging a request distinct from
+confirming completed work. An acknowledgment does not prove quality or
+correctness; verify those through the resulting behavior under R19.
+
+This does not remove objective file, format, or permission checks. It keeps
+those checks separate from reasoning about meaning, relevance, and quality.
+
+Mike established this principle for the Knowledge System on 2026-09-16 and
+explicitly required it to persist across toolkit designs on 2026-09-17. This
+principle is settled; the full PRD and individual designs retain their own
+approval boundaries.
+
+**Check:** a fresh design session finds this principle without Mike repeating
+it. Its proposal identifies what the agent reasons about and what each
+checkpoint checks, with no custom substitute for the agent's judgment.
 
 **R9. Consult the source that answers the question.** Use context and rules
 already loaded, then relevant procedures and indexed project knowledge.

@@ -1947,17 +1947,14 @@ Imagine the agent is a capable engineer:
 
 ### The handshake principle
 
-Mike set this on 2026-09-16. Every control in the system is a handshake, never
-an engine. A hook names a step at the moment it applies: read the manual, run
-the save review, check a reply against the output style. The agent does the
-step with its own judgment and confirms that it did. The hook releases the
-turn or the action only on that confirmation. Nothing the toolkit builds
-judges the content of the agent's work in place of the agent: no detector for
-figurative language, no scorer for a search, no program that reads replies.
-Those are things an AI can already do, so the toolkit asks the agent to do
-them and checks only that the step happened. A function hook, when Claude Code
-ships one, is the persistent supervisor that carries the handshake state
-through a session; until then a small session-state file does that job.
+The [toolkit-wide handshake principle](toolkit-operating-system.md#design-principle-guide-the-agent-through-handshakes)
+owns this design constraint. Mike established it here on 2026-09-16 and
+clarified its toolkit-wide scope on 2026-09-17. Requirement 29 applies it to
+knowledge operations: the agent reasons about what is worth saving and where
+it belongs; checkpoints request the relevant step and check its acknowledgment.
+The architect must resolve the exact checkpoints and acknowledgment behavior.
+The conversation examples do not approve a particular end-of-turn hook,
+frequency, or implementation; design question 2 remains open.
 
 Skills are part of the proposed design. They could guide finding and using
 knowledge, reviewing information worth saving, preparing a proposal, updating

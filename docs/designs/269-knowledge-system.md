@@ -178,6 +178,14 @@ what the character budget is for.
 
 ## 3. Design philosophy
 
+The [toolkit-wide handshake principle](../../knowledge/prds/toolkit-operating-system/toolkit-operating-system.md#design-principle-guide-the-agent-through-handshakes)
+is the governing design constraint, clarified by Mike on 2026-09-17. The agent
+does the reasoning; checkpoints request a step and check its acknowledgment.
+Acknowledgment is not proof of correct reasoning. The architect must resolve
+the exact mechanism and timing. Mike's illustrative examples do not settle
+question 2 or approve the draft controls below; reconcile them against this
+principle during the remaining design review.
+
 The owner's brief, in plain form: the agent does the reasoning. Each part
 around it does one of three things: it delivers text when it applies, it
 refuses one named action, or it checks a file. They never do the agent's
