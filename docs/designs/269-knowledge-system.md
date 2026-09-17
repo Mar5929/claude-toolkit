@@ -1129,7 +1129,9 @@ intent, not proof of completed review, correct routing, or permission to save.
 
 The reminder itself includes compact positive and negative criteria. Working
 memory is concise active context: objective, blocker, next step, temporary note,
-hypothesis, or partial state. Lasting memory is a project-relevant durable fact,
+hypothesis, or partial state. Lasting memory must be both relevant and significant
+to this project; a merely project-related but trivial detail is not enough.
+It is a durable fact,
 decision, feedback, context, event, constraint, relationship, or real failure
 and fix that came from the owner or was worked out together and would otherwise
 need to be explained again. Tool activity, logs, filler, source copies,

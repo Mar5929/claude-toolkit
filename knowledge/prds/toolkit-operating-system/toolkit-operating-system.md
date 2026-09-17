@@ -182,6 +182,14 @@ belong. The agent acknowledges that it received and read the orientation and
 will follow the project workflows throughout the work. If required content is
 missing, it reports that gap instead of giving a false acknowledgment.
 
+Every project equipped with the toolkit must receive a Toolkit Operating System
+manual. Mike explicitly required this on 2026-09-17. The applicable root routers
+and per-prompt reminder reference it by its actual project-root-relative path,
+along with the applicable `CLAUDE.md` and `AGENTS.md` paths. The manual explains
+the toolkit's project workflows and links to component guidance. Its exact
+location, contents, and installation/update design remain to be refined; this
+requirement does not claim that the manual is already shipped.
+
 Keep root instruction files as small maps and routers. Do not duplicate full
 component manuals there or load every linked manual at startup. A concise
 operating-manual or pointer-file shape is a design option, not an approved file
