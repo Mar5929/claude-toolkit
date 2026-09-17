@@ -23,14 +23,18 @@ Recommended basis: the consolidated design, with the changes and unresolved choi
 
 All runtime paths below describe the proposed system. Today this repository still uses `knowledge/current.md`, the six existing skills, and `spec-index.md`. Writing this document does not migrate them. Hook behavior is a draft claim requiring official-documentation refresh and realistic runtime proof before implementation or a claim of support.
 
-## Review position
+## Scenario setup and state
 
 | Item | Position |
 | --- | --- |
+| Scenario purpose | Review and refine the proposed new Knowledge System against all 30 requirements. This is not a tutorial or proof of current implementation. Mike confirmed this use on 2026-09-17. |
+| Starting facts | Acme Corp is fictional. The work consolidates fictional source Org A and source Org B. The project folder and GitHub repository already exist, and the scenario is inside `project-init` after “enable knowledge.” No real setup or Salesforce connection has occurred. Mike supplied this setup on 2026-09-17. |
 | Current step | 1, setup components selected; examine the proposed files and their roles next |
-| Last approved scenario step | None |
+| Last accepted design step | None. Component choices below do not approve step 1. |
+| Explicitly selected | Complete core Knowledge System, System Guide on, and `delivery/architecture/`. Mike selected these hypothetical components on 2026-09-17; they do not approve the full design or install anything. |
+| Assumptions, not decisions | Project-memory saves require approval under the recommended/default design. The GitHub repository does not select the work tracker. |
+| Unresolved choices | Target-org strategy; work tracker; architecture topic names/content; and how System Guide should use authoritative client architecture documents without duplicate prose. The proposed integration remains a recommendation, and arbitrary client-document adoption through `guidePath` is unverified. |
 | Existing decisions retained | Startup delivery counts as reading; check delivery completion. Agent reasoning with lightweight handshakes is the governing philosophy. Changed-file review trigger rejected. |
-| Step 1 choices recorded | Complete core Knowledge System, System Guide, and `delivery/architecture/`. These are hypothetical component choices, not approval of step 1 or the full design. |
 | Next question | In the ideal refactor, how should System Guide use authoritative `delivery/architecture/` topic documents without duplicating them, while keeping source-org actual state separate from proposed target design? |
 | Remaining work | Review steps 1–12, reconcile their answers into PRD/design, then obtain full requirements and design approvals. |
 
