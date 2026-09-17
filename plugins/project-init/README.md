@@ -143,7 +143,7 @@ project:
   there. It creates and changes nothing inside Linear, Jira, or any other
   external tracker.
 - `work-items-structure.md`: what Gate 1 does for the "local folders on this
-  computer" answer. Installs the flat, Git-ignored work-tracker, enforces
+  computer" answer. Installs the nested-capable, Git-ignored work-tracker, enforces
   owner-approved requirements, and previews conversion before copying an older
   staged tracker.
 - `thin-claudemd.md`: how Gate 5 writes a CLAUDE.md that is a router and a map
@@ -198,11 +198,13 @@ plugin.
   active project plugin selection before reporting it on, off, or needing
   repair. A cached or checked-out plugin alone is not active setup.
 - For the "local folders on this computer" answer, Gate 1 offers `work-tracker`
-  as the one canonical task-status system. It uses flat YAML records under
-  Git-ignored `.work-items/`, branch-scoped active-item selection, and approved
-  requirements before build or data-load execution. The lifecycle rule guides
-  meaningful progress, handoff, and completion for local and GitHub trackers. Existing staged trackers use a preview-first copy that
-  leaves their original files untouched for review.
+  as the one canonical work-management system. It uses YAML records under
+  Git-ignored `.work-items/`, owner-shaped roadmaps, detailed execution tasks,
+  linked child work items with their own plans and approvals, branch-scoped
+  item and task selection, and approved requirements before build or data-load
+  execution. The lifecycle rule guides meaningful progress, handoff, and
+  completion for local and GitHub trackers. Existing staged trackers use a
+  preview-first copy that leaves their original files untouched for review.
 - For the GitHub Projects board answer, Gate 1 sets up the board by hand from
   `work-tracking-choice.md` and no work-tracker code is involved. That board
   holds the shared work. Local-folder mode has no GitHub mirror.

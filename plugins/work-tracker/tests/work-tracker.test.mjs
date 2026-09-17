@@ -138,6 +138,27 @@ function requirementsMeta(repo, id) {
   return parseYaml(frontmatter, `${id} requirements`);
 }
 
+function addRoadmapTask(repo, id, extra = []) {
+  return jsonWork(repo, [
+    "task", "add", id,
+    "--stage-title", "Solution design",
+    "--stage-outcome", "An approved design is ready to build.",
+    "--stage-acceptance", "The owner approves the design.",
+    "--lifecycle-stage", "04",
+    "--title", "Design the solution",
+    "--objective", "Turn the approved requirements into an implementable design.",
+    "--instructions", "Use the linked PRD and design guidance, then review one scenario step at a time.",
+    "--constraint", "Preserve accepted decisions and do not infer approval.",
+    "--input", "knowledge/prds/example.md",
+    "--input", "docs/designs/example.md",
+    "--deliverable", "A reviewed solution design.",
+    "--acceptance", "The owner approves the design after the scenario review.",
+    "--position", "Scenario step 1 is ready for review.",
+    "--next-action", "Review scenario step 1 with the owner.",
+    ...extra,
+  ]).json;
+}
+
 test("initializes one flat ignored tracker in a path containing spaces", () => {
   const repo = makeRepo();
   const result = init(repo);
@@ -1378,4 +1399,158 @@ test("sequential mutations reload a stale tracker object under the lock", () => 
   const log = progress(repo, "WI-001");
   assert.match(log, /First sequential note/);
   assert.match(log, /Second sequential note/);
+});
+
+test("roadmap tasks preserve detailed continuation without moving the work-item lifecycle", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Managed feature", ["--type", "research"]);
+  activate(repo, "WI-001");
+  jsonWork(repo, ["update", "WI-001", "--stage", "02", "--note", "Requirements refinement remains active."]);
+  const created = addRoadmapTask(repo, "WI-001", ["--approval-required"]);
+  assert.equal(created.task.roadmap_stage, "STAGE-001");
+  assert.equal(created.task.inputs.length, 2);
+  assert.equal(created.task.current_position, "Scenario step 1 is ready for review.");
+
+  const selected = jsonWork(repo, ["task", "select", "WI-001", "TASK-001"]).json;
+  assert.equal(selected.task.next_action, "Review scenario step 1 with the owner.");
+  jsonWork(repo, [
+    "task", "update", "WI-001", "TASK-001",
+    "--position", "Scenario step 1 is accepted; step 2 is open.",
+    "--next-action", "Review scenario step 2 with the owner.",
+  ]);
+  const active = jsonWork(repo, ["active"]).json;
+  assert.equal(active.item.stage, "02-refinement");
+  assert.equal(active.item.current_task.id, "TASK-001");
+  assert.match(active.item.current_task.instructions, /linked PRD/);
+  assert.equal(active.item.current_task.current_position, "Scenario step 1 is accepted; step 2 is open.");
+  assert.equal(active.item.current_task.next_action, "Review scenario step 2 with the owner.");
+  assert.match(fs.readFileSync(path.join(itemPath(repo, "WI-001"), "STATUS.md"), "utf8"), /docs\/designs\/example\.md/);
+
+  jsonWork(repo, [
+    "task", "add", "WI-001", "--roadmap-stage", "STAGE-001",
+    "--title", "Review the design", "--objective", "Check the proposed design.",
+    "--instructions", "Read the linked design and record every material finding.",
+    "--input", "docs/designs/example.md", "--deliverable", "A design review.",
+    "--acceptance", "Every material finding is resolved.", "--depends-on", "TASK-001",
+    "--next-action", "Wait for TASK-001 to complete.",
+  ]);
+  const cycle = jsonWork(repo, ["task", "update", "WI-001", "TASK-001", "--depends-on", "TASK-002"], { allowFailure: true });
+  assert.equal(errorCode(cycle), "task_dependency_cycle");
+  const blocked = jsonWork(repo, ["task", "complete", "WI-001", "TASK-002", "--evidence", "Review finished."], { allowFailure: true });
+  assert.equal(errorCode(blocked), "task_dependency_incomplete");
+});
+
+test("a roadmap stage can be fulfilled by a linked nested child work item", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Salesforce system", ["--type", "research"]);
+  add(repo, "Implement shared rules", ["--type", "research", "--group", "WI-001-salesforce-system"]);
+  activate(repo, "WI-001");
+  jsonWork(repo, ["link", "WI-001", "--type", "children", "--target", "WI-002"]);
+  const stage = jsonWork(repo, [
+    "roadmap", "add", "WI-001",
+    "--title", "Establish shared rules",
+    "--outcome", "Shared rules are implemented and checked.",
+    "--acceptance", "The parent outcome is reviewed explicitly.",
+    "--child-item", "WI-002",
+  ]).json.stage;
+  assert.deepEqual(stage.child_work_items, ["WI-002"]);
+  assert.equal(jsonWork(repo, ["roadmap", "show", "WI-001"]).json.roadmap.tasks.length, 0);
+  assert.equal(readYaml(path.join(itemPath(repo, "WI-002"), "ITEM.yaml")).status, "Backlog");
+
+  const refused = jsonWork(repo, ["link", "WI-001", "--type", "children", "--target", "WI-002", "--remove"], { allowFailure: true });
+  assert.equal(errorCode(refused), "roadmap_child_in_use");
+  jsonWork(repo, [
+    "roadmap", "add", "WI-001",
+    "--title", "Rollout",
+    "--outcome", "The change is available to its users.",
+    "--acceptance", "Rollout evidence is accepted.",
+    "--draft",
+  ]);
+  const validation = jsonWork(repo, ["validate"]).json;
+  assert.deepEqual(validation.errors, []);
+  assert.ok(validation.warnings.some((warning) => warning.includes("draft roadmap stage")));
+  const premature = jsonWork(repo, ["roadmap", "update", "WI-001", "STAGE-002", "--planned"], { allowFailure: true });
+  assert.equal(errorCode(premature), "empty_roadmap_stage");
+});
+
+test("legacy work items stay valid and request evidence-led task reconciliation", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Legacy item", ["--type", "research"]);
+  fs.unlinkSync(path.join(itemPath(repo, "WI-001"), "TASKS.yaml"));
+  const validation = jsonWork(repo, ["validate"]).json;
+  assert.equal(validation.valid, true);
+  assert.ok(validation.warnings.some((warning) => warning.includes("TASKS.yaml is missing") && warning.includes("accepted evidence")));
+  assert.equal(jsonWork(repo, ["roadmap", "show", "WI-001"]).json.roadmap.stages.length, 0);
+});
+
+test("validation catches dangling roadmap and task dependency references", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Broken plan", ["--type", "research"]);
+  activate(repo, "WI-001");
+  addRoadmapTask(repo, "WI-001");
+  const tasksPath = path.join(itemPath(repo, "WI-001"), "TASKS.yaml");
+  const roadmap = readYaml(tasksPath);
+  roadmap.tasks[0].roadmap_stage = "STAGE-999";
+  roadmap.tasks[0].dependencies = ["TASK-999"];
+  roadmap.stages.push(null);
+  roadmap.tasks.push(null);
+  fs.writeFileSync(tasksPath, stableYaml(roadmap));
+  const invalid = jsonWork(repo, ["validate"], { allowFailure: true }).json;
+  assert.ok(invalid.errors.some((error) => error.includes("roadmap_stage STAGE-999")));
+  assert.ok(invalid.errors.some((error) => error.includes("dependency TASK-999")));
+  assert.ok(invalid.errors.some((error) => error.includes("roadmap stage must be an object")));
+  assert.ok(invalid.errors.some((error) => error.includes("task must be an object")));
+});
+
+test("validation reports malformed roadmap collection values without crashing", () => {
+  const malformed = (mutate, select = false) => {
+    const repo = makeRepo();
+    init(repo);
+    add(repo, "Malformed plan", ["--type", "research"]);
+    activate(repo, "WI-001");
+    addRoadmapTask(repo, "WI-001");
+    if (select) jsonWork(repo, ["task", "select", "WI-001", "TASK-001"]);
+    const tasksPath = path.join(itemPath(repo, "WI-001"), "TASKS.yaml");
+    const roadmap = readYaml(tasksPath);
+    mutate(roadmap);
+    fs.writeFileSync(tasksPath, stableYaml(roadmap));
+    return jsonWork(repo, ["validate"], { allowFailure: true }).json;
+  };
+
+  const badChildren = malformed((roadmap) => { roadmap.stages[0].child_work_items = 7; });
+  assert.ok(badChildren.errors.some((error) => error.includes("child_work_items must be an array")));
+
+  const badDependencies = malformed((roadmap) => { roadmap.tasks[0].dependencies = 7; });
+  assert.ok(badDependencies.errors.some((error) => error.includes("dependencies must be an array")));
+
+  const badTaskEntry = malformed((roadmap) => { roadmap.tasks.unshift(null); }, true);
+  assert.ok(badTaskEntry.errors.some((error) => error.includes("task must be an object")));
+});
+
+test("approval-sensitive task completion keeps parent completion separate", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Design approval", ["--type", "research"]);
+  activate(repo, "WI-001");
+  addRoadmapTask(repo, "WI-001", ["--approval-required"]);
+  jsonWork(repo, ["task", "select", "WI-001", "TASK-001"]);
+
+  const refused = jsonWork(repo, ["task", "complete", "WI-001", "TASK-001", "--evidence", "Design reviewed."], { allowFailure: true });
+  assert.equal(errorCode(refused), "approval_required");
+  const completed = jsonWork(repo, [
+    "task", "complete", "WI-001", "TASK-001",
+    "--evidence", "Design reviewed and accepted.",
+    "--approved-by", "Mike",
+    "--approved-date", "2026-09-17",
+  ]).json;
+  assert.equal(completed.task.status, "Complete");
+  assert.equal(completed.task.completion.approved_by, "Mike");
+  assert.equal(readYaml(path.join(itemPath(repo, "WI-001"), "ITEM.yaml")).status, "Backlog");
+  assert.equal(jsonWork(repo, ["active"]).json.item.current_task, null);
+  const reopened = jsonWork(repo, ["task", "update", "WI-001", "TASK-001", "--status", "Pending"], { allowFailure: true });
+  assert.equal(errorCode(reopened), "terminal_task");
 });

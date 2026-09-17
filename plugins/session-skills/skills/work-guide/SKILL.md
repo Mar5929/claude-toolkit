@@ -28,24 +28,34 @@ with the project's existing tracker and lifecycle guidance, including the
   than silently choosing a meaning.
 - On a context switch or fresh session, reread the canonical item and give a
   short briefing: where it stands, what changed when known, the next useful
-  action, and any decision needed. Saved definitions supply methods; current
-  project records supply continuity.
+  action, and any decision needed. Find the current roadmap task, read its full
+  execution details and linked governing sources, and restore its saved
+  position before continuing. Saved definitions supply methods; current project
+  records supply continuity.
 
 ## Keep a useful plan
 
-Consider the goal and completion evidence, route to delivery, meaningful
-milestones, current position, next actions, dependencies, blockers, and open
-decisions. Track only what helps this item, using the project's terminology
-and the tracker's existing fields, body, or linked documents.
+Consider the goal and completion evidence, route to delivery, roadmap stages,
+current position, next actions, dependencies, blockers, and open decisions.
+Track only what helps this item, using the project's terminology and the
+tracker's existing fields, body, or linked documents.
 
-- Suggest a roadmap when the work needs one. Let the owner reshape, rename,
-  combine, skip, or remove milestones and steps for a project, use case, or
-  individual item. A small task may need only a next action.
-- Describe a useful milestone by its outcome and how completion will be known;
-  record responsibility or timing only when known or agreed. These are prompts
-  for thought, not mandatory fields, milestone types, or a completion gate.
-  Preserve existing completion criteria when reshaping a plan. Any new criteria
-  you recommend remain proposals until agreed; renaming a milestone does not
+- Give each managed work item a roadmap from its current position to its
+  intended outcome. Let the owner reshape, rename, combine, skip, or remove
+  stages for a project, use case, or individual item. Roadmap names do not have
+  to match toolkit lifecycle stages.
+- Back every applicable roadmap stage with one or more actionable tasks,
+  linked child work items, or both. A task records its objective, instructions
+  and governing constraints, linked requirements, design, accepted decisions,
+  and other inputs, deliverable, acceptance condition, status, dependencies,
+  current position, and next action. Use enough detail for another session to
+  execute it without owner re-explanation.
+- A child item may own real scope for a parent stage. Keep its requirements,
+  design, roadmap, tasks, status, and approvals in the child, then link the
+  child through the tracker's existing parent-child relationship. Completing
+  the child does not approve or complete the parent.
+- Preserve existing completion criteria when reshaping a plan. Any new criteria
+  you recommend remain proposals until agreed; renaming a stage does not
   authorize adding a new completion condition.
   Carry forward only content actually read or supplied. Do not claim to have
   preserved an unseen outcome, section, or acceptance condition.
@@ -63,6 +73,10 @@ and the tracker's existing fields, body, or linked documents.
   Keep the unsaved change pending for an authorized retry when access returns,
   and include it in the handoff if the session ends. Do not make copying or
   maintaining the record the owner's task by default.
+- New managed plans include these task records. When older managed work resumes,
+  reconcile missing detail from requirements, accepted decisions, progress,
+  and other evidence. Preserve approvals and history; do not fabricate tasks or
+  infer permission from a later stage.
 
 ## Coordinate parallel work
 
@@ -109,8 +123,9 @@ and the tracker's existing fields, body, or linked documents.
   the main conversation and state that no independent review ran.
 - Reconcile returned findings into one recommendation and update the canonical
   item through its main session. Before pausing, use the existing handoff
-  workflow to preserve the next action, open decisions, blockers, relevant
-  guidance, and any pending assignments with their observed state.
+  workflow to preserve the current task's review or execution position, next
+  action, open decisions, blockers, linked guidance, and any pending assignments
+  with their observed state.
 
 ## Improve the method at the right scope
 

@@ -15,6 +15,20 @@ Read [work-guide](../work-guide/SKILL.md) first for the project's tracker,
 canonical records, and how to brief a helper. Do not repeat orientation
 already done this session.
 
+Find the active work item's solution-design roadmap task before continuing. It
+must link the approved requirements, prep and design files, accepted decisions,
+and applicable project design guidance; state the governing constraints,
+deliverable, approval condition, current review position, and next action. When
+the chosen tracker has no such task yet, create or reconcile it from accepted
+evidence through that tracker. Do not copy project-specific design philosophy
+into this reusable skill.
+
+The roadmap task normally relates to lifecycle stage `04-solution-design`, but
+task selection does not move the parent item's lifecycle stage. An explicitly
+authorized early design task may proceed while requirements refinement remains
+the parent's true stage. Record that boundary in the task instead of rewriting
+earlier approvals or status.
+
 ## The checklist before any design starts
 
 Work through every item below, in order, before the architect writes a line.
@@ -31,6 +45,12 @@ item.
         does today for this area is written down
   - [ ] Bottom-of-PRD "potential paths" notes are treated as ideas, not
         requirements
+- [ ] **The roadmap task can resume the work**
+  - [ ] It identifies this work item and its roadmap stage
+  - [ ] It links the requirements, prep and design files, accepted decisions,
+        and applicable project design guidance
+  - [ ] It records the current review position and exact next action
+  - [ ] Its acceptance condition requires the applicable design approval
 - [ ] **The requirements are ready to design from**
   - [ ] Nothing is missing: every step, person, error case, state, boundary
         with another system, rule for what happens after, and way to tell it
@@ -167,6 +187,10 @@ Skip any the owner already answered.
 
 Write every agreed answer into the prep file's "How this design is being
 made" section as soon as it is given.
+After each answer or reviewed scenario step, update the roadmap task's current
+position, accepted decisions, and next action before moving on. A fresh session
+given only "pick back up with solution design" must be able to select this task,
+read its sources and constraints, and continue at the saved review step.
 
 ## Step 3. Write the prep file
 
@@ -280,9 +304,14 @@ that still need them. The full design is in the file; say where in one line.
 
 - Save the design at the agreed path, marked proposed. It is not approved
   until the owner says so. Record approval in the tracker when it comes.
-- Update the work item through the project's lifecycle workflow: stage
-  `04-solution-design`, the settled decisions in the body, one dated line in
-  the progress log, and the next action.
+- Update the work item through the project's lifecycle workflow: the true
+  lifecycle stage, settled decisions in the body, one dated line in the
+  progress log, and the next action. Ordinarily the lifecycle stage is
+  `04-solution-design`; preserve an earlier stage when the task was explicitly
+  authorized without completing that earlier work.
+- Update the solution-design roadmap task with the final review position and
+  evidence. Complete it only after the required design approval. Task
+  completion does not complete or approve its parent work item.
 - Lasting decisions the owner made along the way go through `remember`, with
   the owner's approval. The design file and the prep file are not memory.
 - If a save fails or is not authorized, lead with "not saved" and carry the
