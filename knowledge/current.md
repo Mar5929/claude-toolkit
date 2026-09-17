@@ -19,7 +19,7 @@ Updated: 2026-09-17
 **Recent progress**
 - Sept 17: Set #269 phase tasks and the fictional Acme Corp two-org scenario; target-org strategy remains open.
 
-**Next step** Review step 1 after folder/repo creation, before toolkit setup or a Salesforce connection.
+**Next step** At "enable knowledge" in Acme's scenario, explain and review the proposed new setup.
 
 **Blocker** Requirements/design approval before build.
 

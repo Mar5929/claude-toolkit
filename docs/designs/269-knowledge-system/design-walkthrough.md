@@ -6,6 +6,15 @@ This is a proposed solution walkthrough for [issue 269](https://github.com/Mar59
 
 ## How to use this review
 
+Mike explicitly confirmed this review purpose on 2026-09-17: use Acme Corp's
+end-to-end example to work through and refine the proposed NEW Knowledge System
+solution against all its requirements. Existing project scaffolding is context,
+not evidence that the new system is implemented. Explain each proposed mechanism
+at the moment the scenario needs it, then let Mike accept or change the design.
+Do not turn the walkthrough into a tutorial of today's toolkit or a real Acme
+implementation. In the example, choosing "enable knowledge" within project-init
+is the entry point to the proposed knowledge setup.
+
 Follow [the saved review method](process.md#scenario-led-design-review-requested-2026-09-17). Present one step at a time, including the concrete mechanism, then record Mike's answer and its scope before continuing. Break a step into smaller decisions when necessary. Do not ask all the questions in this document at once.
 
 The [toolkit-wide handshake principle](../../../knowledge/prds/toolkit-operating-system/toolkit-operating-system.md#design-principle-guide-the-agent-through-handshakes) governs every step. The agent reasons about meaning, relevance, sufficiency, routing, and permission. Small hooks deliver instructions and request acknowledgments; tools check objective properties. Neither a marker nor a successful checker proves good reasoning. No transcript scorer, keyword classifier, or changed-file counter decides whether knowledge matters.
@@ -18,10 +27,10 @@ All runtime paths below describe the proposed system. Today this repository stil
 
 | Item | Position |
 | --- | --- |
-| Current step | 1, project setup; awaiting Mike's review |
+| Current step | 1, at the hypothetical "enable knowledge" choice in project-init; explain proposed knowledge setup next |
 | Last approved scenario step | None |
 | Existing decisions retained | Startup delivery counts as reading; check delivery completion. Agent reasoning with lightweight handshakes is the governing philosophy. Changed-file review trigger rejected. |
-| Next question | Does the setup flow in step 1 match the experience Mike wants? |
+| Next question | After explaining what the proposed knowledge setup creates and runs, does that design match the experience Mike wants? |
 | Remaining work | Review steps 1–12, reconcile their answers into PRD/design, then obtain full requirements and design approvals. |
 
 ## The project story

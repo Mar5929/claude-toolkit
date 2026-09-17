@@ -172,8 +172,8 @@ do not ask it again in isolation or revive the rejected changed-file counter.
 
 Current position: the [complete design walkthrough](design-walkthrough.md)
 contains the project story, alternate outcomes, all-30-requirement coverage
-map, and placement of the remaining design questions. Begin step 1, project
-setup. No scenario step has been approved yet. Runtime implementation and
+map, and placement of the remaining design questions. Continue step 1 at the
+hypothetical "enable knowledge" choice. No scenario step has been approved yet. Runtime implementation and
 behavioral verification remain pending. Record each answer and the next review
 position in that walkthrough before continuing.
 
@@ -203,11 +203,13 @@ design, retained review records, [scenario walkthrough](design-walkthrough.md),
 and the parent handshake principle. Record each answer and scope before moving
 on. Full PRD/design approval remains required before any Knowledge System build.
 
-Exact next action: present step 1 from the starting point Mike chose—a new Acme
-Corp project folder and initialized GitHub repository, before toolkit setup or
-any Salesforce connection—and ask whether the proposed setup experience is
-right. Preserve source Org A/source Org B as fictional labels and leave the
-target-org strategy undecided.
+Exact next action: continue step 1 at Mike's hypothetical "enable knowledge"
+choice within project-init. The folder/repository and existing scaffold are
+scenario context. Explain the proposed new knowledge setup's files, triggers,
+and agent behavior, then review that design with Mike. This example is the
+method for refining the new solution against all requirements, not a tutorial
+or demonstration of delivered behavior. No real Acme setup or Salesforce
+connection has occurred. Preserve fictional Org A/Org B and the undecided target.
 
 Updated 2026-09-17: the goal is to ship the refactored Knowledge System. Mike
 estimates the requirements were 95–99% settled when design work began; this is
@@ -246,9 +248,8 @@ design was written before that template existed and does not follow it. Whether
 to reshape the design to the template has not been decided.
 
 **The exact next action: review step 1, project setup, in the
-[design walkthrough](design-walkthrough.md) with Mike.** Start after the Acme
-Corp folder and GitHub repository exist, before toolkit setup or any Salesforce
-connection. Include the incidental cross-scope information case under
+[design walkthrough](design-walkthrough.md) with Mike.** Continue at the
+hypothetical "enable knowledge" choice in project-init. Include the incidental cross-scope information case under
 requirements 9 and 18, the design's section 13.2, and the handshake principle.
 The scope-routing clarifications remain part of shipping the Knowledge System.
 Full PRD/design approval and implementation remain pending.
