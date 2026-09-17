@@ -1,4 +1,4 @@
-# Current work
+# Current working memory
 Updated: 2026-09-17
 
 ## Project goal

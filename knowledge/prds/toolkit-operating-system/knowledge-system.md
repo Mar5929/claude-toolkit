@@ -831,7 +831,8 @@ requirements, plans, or full progress history.
 
 ### Working-memory template
 
-Use a Markdown title, an updated date, and these sections:
+Use the exact Markdown H1 title `# Current working memory`, an updated date,
+and these sections:
 
 | Section | Required content | Optional content |
 | --- | --- | --- |
@@ -913,7 +914,7 @@ uses that state instead of repeating the older overview.
 Fictional content and dates; links are placeholders.
 
 ```markdown
-# Current work
+# Current working memory
 Updated: 2026-09-13
 
 ## Project goal
