@@ -13,6 +13,9 @@ requirements document disagree, `knowledge/prds/toolkit-operating-system/knowled
 
 `process.md` says how the design was made and where the work stands.
 `prep.md` is the design prep file, filled in after the fact.
+[Detailed solution design reference output](detailed-solution-design-reference-output.md)
+preserves the full earlier draft. It is historical reference; the shorter master
+owns current design decisions. Do not maintain two current designs.
 [The design walkthrough](design-walkthrough.md) is the active scenario-led
 review companion. It records the current step, accepted answers, and remaining
 choices; accepted design answers are reconciled into the master. Its unapproved
