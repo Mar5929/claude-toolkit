@@ -167,9 +167,12 @@ governs the review. The architect chooses concrete mechanisms within it.
 Question 2 is still open and will be reviewed at the conversation-review step;
 do not ask it again in isolation or revive the rejected changed-file counter.
 
-Current position: prepare the complete scenario and coverage map, then begin
-with project setup. No scenario step has been approved yet. Runtime
-implementation and behavioral verification remain pending.
+Current position: the [complete design walkthrough](design-walkthrough.md)
+contains the project story, alternate outcomes, all-30-requirement coverage
+map, and placement of the remaining design questions. Begin step 1, project
+setup. No scenario step has been approved yet. Runtime implementation and
+behavioral verification remain pending. Record each answer and the next review
+position in that walkthrough before continuing.
 
 ## Where this stands and how to pick it up
 
@@ -209,8 +212,8 @@ solution-design template on 2026-09-16, in pull requests 344 and 345. This
 design was written before that template existed and does not follow it. Whether
 to reshape the design to the template has not been decided.
 
-**The exact next action: prepare the full scenario, then begin its project-setup
-step with Mike.** Include the incidental cross-scope information case under
+**The exact next action: review step 1, project setup, in the
+[design walkthrough](design-walkthrough.md) with Mike.** Include the incidental cross-scope information case under
 requirements 9 and 18, the design's section 13.2, and the handshake principle.
 The scope-routing clarifications remain part of shipping the Knowledge System.
 Full PRD/design approval and implementation remain pending.

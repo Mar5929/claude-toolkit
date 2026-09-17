@@ -14,12 +14,12 @@ Updated: 2026-09-17
 
 **Goal** Ship reliable knowledge lookup, upkeep, and saves.
 
-**Current status** Design in review; requirements 95–99% settled by Mike's estimate. Full approval pending.
+**Current status** Requirements/design in review; full approval pending.
 
 **Recent progress**
-- Sept 16–17: Clarified working memory/routing; reviewed readiness and resumption. Runtime tests pending.
+- Sept 16–17: Clarified routing; saved philosophy and scenario review. Runtime tests pending.
 
-**Next step** Review scenario from setup; see design process.md.
+**Next step** Review setup in [design walkthrough](../docs/designs/269-knowledge-system/design-walkthrough.md).
 
 **Blocker** Requirements/design approval before build.
 
