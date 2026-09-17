@@ -1506,6 +1506,31 @@ test("validation catches dangling roadmap and task dependency references", () =>
   assert.ok(invalid.errors.some((error) => error.includes("task must be an object")));
 });
 
+test("validation reports malformed roadmap collection values without crashing", () => {
+  const malformed = (mutate, select = false) => {
+    const repo = makeRepo();
+    init(repo);
+    add(repo, "Malformed plan", ["--type", "research"]);
+    activate(repo, "WI-001");
+    addRoadmapTask(repo, "WI-001");
+    if (select) jsonWork(repo, ["task", "select", "WI-001", "TASK-001"]);
+    const tasksPath = path.join(itemPath(repo, "WI-001"), "TASKS.yaml");
+    const roadmap = readYaml(tasksPath);
+    mutate(roadmap);
+    fs.writeFileSync(tasksPath, stableYaml(roadmap));
+    return jsonWork(repo, ["validate"], { allowFailure: true }).json;
+  };
+
+  const badChildren = malformed((roadmap) => { roadmap.stages[0].child_work_items = 7; });
+  assert.ok(badChildren.errors.some((error) => error.includes("child_work_items must be an array")));
+
+  const badDependencies = malformed((roadmap) => { roadmap.tasks[0].dependencies = 7; });
+  assert.ok(badDependencies.errors.some((error) => error.includes("dependencies must be an array")));
+
+  const badTaskEntry = malformed((roadmap) => { roadmap.tasks.unshift(null); }, true);
+  assert.ok(badTaskEntry.errors.some((error) => error.includes("task must be an object")));
+});
+
 test("approval-sensitive task completion keeps parent completion separate", () => {
   const repo = makeRepo();
   init(repo);

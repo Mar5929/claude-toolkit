@@ -1828,7 +1828,8 @@ function taskDependencyCycles(tasks) {
     if (visited.has(id)) return;
     visiting.add(id);
     const task = byId.get(id);
-    for (const dependency of task?.dependencies ?? []) visit(dependency, [...path, id]);
+    const dependencies = Array.isArray(task?.dependencies) ? task.dependencies : [];
+    for (const dependency of dependencies) visit(dependency, [...path, id]);
     visiting.delete(id);
     visited.add(id);
   }
@@ -2748,8 +2749,9 @@ function validateRoadmap(item, tracker, errors, warnings) {
       errors.push(`${item.id} ${stage.id}: lifecycle_stage must be a string or null`);
     }
     if (!["planned", "draft"].includes(stage.planning_status ?? "planned")) errors.push(`${item.id} ${stage.id}: planning_status must be planned or draft`);
+    const childItems = Array.isArray(stage.child_work_items) ? stage.child_work_items : [];
     if (!Array.isArray(stage.child_work_items)) errors.push(`${item.id} ${stage.id}: child_work_items must be an array`);
-    for (const childId of stage.child_work_items ?? []) {
+    for (const childId of childItems) {
       const child = tracker.items.find((candidate) => candidate.id === childId);
       if (!child) errors.push(`${item.id} ${stage.id}: child work item ${childId} does not exist`);
       else if (!(item.record.relationships.children ?? []).includes(childId) || !(child.record.relationships.parent ?? []).includes(item.id)) {
@@ -2775,7 +2777,8 @@ function validateRoadmap(item, tracker, errors, warnings) {
     for (const field of ["constraints", "inputs", "dependencies"]) {
       if (!Array.isArray(task[field])) errors.push(`${item.id} ${task.id}: ${field} must be an array`);
     }
-    for (const dependency of task.dependencies ?? []) {
+    const dependencies = Array.isArray(task.dependencies) ? task.dependencies : [];
+    for (const dependency of dependencies) {
       if (!roadmap.tasks.some((candidate) => candidate?.id === dependency)) errors.push(`${item.id} ${task.id}: dependency ${dependency} does not exist`);
     }
     if (!isIsoDate(task.created_date) || !isIsoDate(task.updated_date)) errors.push(`${item.id} ${task.id}: task dates must be YYYY-MM-DD`);
@@ -2841,7 +2844,7 @@ function validateActiveMap(tracker, byId, errors) {
     else if (entry.task_id !== undefined) {
       let roadmap;
       try { roadmap = readRoadmap(item); } catch { continue; }
-      const task = roadmap.tasks.find((candidate) => candidate.id === entry.task_id);
+      const task = roadmap.tasks.find((candidate) => candidate?.id === entry.task_id);
       if (!task) errors.push(`ACTIVE.json branch ${branch} references missing task ${entry.task_id} on ${entry.item_id}`);
       else if (["Complete", "Cancelled"].includes(task.status)) errors.push(`ACTIVE.json branch ${branch} references terminal task ${entry.task_id}`);
     }
