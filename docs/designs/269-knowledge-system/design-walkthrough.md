@@ -28,25 +28,27 @@ All runtime paths below describe the proposed system. Today this repository stil
 | Item | Position |
 | --- | --- |
 | Scenario purpose | Review and refine the proposed new Knowledge System against all 30 requirements. This is not a tutorial or proof of current implementation. Mike confirmed this use on 2026-09-17. |
-| Starting facts | Acme Corp is fictional. The work consolidates fictional source Org A and source Org B. The project folder and GitHub repository already exist, and the scenario is inside `project-init` after “enable knowledge.” No real setup or Salesforce connection has occurred. Mike supplied this setup on 2026-09-17. |
-| Current step | 1, setup components selected; examine the proposed files and their roles next |
+| Starting facts | Acme Corp is fictional. The work consolidates two fictional Salesforce orgs. The project folder and GitHub repository already exist. The story passed the `project-init` “enable knowledge” point and now treats setup as hypothetically complete. No real setup or Salesforce connection has occurred. Mike supplied this setup on 2026-09-17. |
+| Current step | 2, first substantive project brief; review startup guidance and conversation-only routing of the new information |
 | Last accepted design step | None. Component choices below do not approve step 1. |
-| Explicitly selected | Complete core Knowledge System, System Guide on, and `delivery/architecture/`. Mike selected these hypothetical components on 2026-09-17; they do not approve the full design or install anything. |
+| Explicitly selected | Complete core Knowledge System and `delivery/architecture/`; System Guide off and not configured for Acme. Mike selected these hypothetical components on 2026-09-17. The Guide-off choice supersedes his earlier same-day Guide-on selection for this scenario. Nothing is installed and the full design is not approved. |
 | Assumptions, not decisions | Project-memory saves require approval under the recommended/default design. The GitHub repository does not select the work tracker. |
-| Unresolved choices | Target-org strategy; work tracker; architecture topic names/content; and how System Guide should use authoritative client architecture documents without duplicate prose. The proposed integration remains a recommendation, and arbitrary client-document adoption through `guidePath` is unverified. |
+| Latest scenario message | Mike's hypothetical brief describes the consulting firm and team structure, names Acme Corp as the client, assigns originating-org and target-org roles to the two existing orgs, and states an initial scope. No actual names or detailed facts were supplied; placeholders remain. This event was supplied on 2026-09-17. |
+| Unresolved choices | Detailed migration strategy; work tracker; architecture topic names/content; and the conversation-only review mechanism. The general System Guide/client-architecture integration question remains open outside Acme and does not block this scenario. |
 | Existing decisions retained | Startup delivery counts as reading; check delivery completion. Agent reasoning with lightweight handshakes is the governing philosophy. Changed-file review trigger rejected. |
-| Next question | In the ideal refactor, how should System Guide use authoritative `delivery/architecture/` topic documents without duplicating them, while keeping source-org actual state separate from proposed target design? |
+| Next question | Does the proposed routing preserve the first brief in the right bounded homes, and what handshake confirms a conversation-only review without claiming a turn hook already exists? |
 | Remaining work | Review steps 1–12, reconcile their answers into PRD/design, then obtain full requirements and design approvals. |
 
 ## The project story
 
 Acme Corp is a fictional Salesforce org-consolidation project. Mike has already
-created a new project folder and initialized its GitHub repository. The work will
-consolidate two existing Salesforce orgs, called source Org A and source Org B
-here. The target strategy is deliberately undecided: the scenario does not
-assume a new target org or choose either source org as the survivor. It also
-does not connect to real Salesforce orgs or describe DragonFly. Every company,
-org, fact, and message below exists only to review the Knowledge System design.
+created a new project folder and initialized its GitHub repository. The work
+will consolidate two existing Salesforce orgs. At setup their roles were open;
+the first hypothetical project brief now identifies one as the originating org
+and one as the target org without supplying their names or detailed facts. The
+detailed migration strategy remains unspecified. The scenario does not connect
+to real Salesforce orgs or describe DragonFly. Every company, org, fact, and
+message below exists only to review the Knowledge System design.
 
 The delivery story can include discovery of both source orgs, consolidated
 requirements, solution design, component delivery and shared rules, migration,
@@ -66,35 +68,37 @@ connection is assumed yet.
 Claude Code and Codex.”
 
 **Setup choices recorded:** Mike chose the complete core Knowledge System rather
-than internal file or hook checkboxes. He also chose System Guide and the
-Salesforce scaffold's `delivery/architecture/` area. These choices apply only to
-the fictional walkthrough. They do not install anything, approve step 1, or
-approve the full #269 design.
+than internal file or hook checkboxes, and selected the Salesforce scaffold's
+`delivery/architecture/` area. He then chose not to use System Guide for Acme,
+superseding his earlier same-day Guide-on choice for this scenario. These
+choices apply only to the fictional walkthrough. They do not install anything,
+approve step 1, set a rule for other Salesforce projects, or approve the full
+#269 design.
 
-- System Guide owns useful understanding of the existing system and its parts.
-  Setup uses its configured `guidePath`; this choice does not approve a
-  hardcoded guide folder. Memory, PRDs, the project map, glossary, and current
-  work keep their Knowledge System roles.
+- System Guide is off and not configured. Acme gets no Guide startup, refresh,
+  or managed Guide folder. The agent may follow project-map links to named
+  `delivery/architecture/` documents without silently enabling System Guide or
+  treating those files as Guide-managed.
 - `delivery/architecture/` holds client-owned current detailed designs,
   diagrams, models, and architecture workbooks grouped by topic area, and keeps
   them after a related work item closes. Identity/access, data migration, and
   integrations are examples only; no topic names or contents are approved.
 - A work item's tracker and linked build plan still own its live scope, status,
-  implementation plan, and approvals. They link to the client architecture and
-  System Guide when useful instead of copying those records.
+  implementation plan, and approvals. It links to the client architecture when
+  useful instead of copying those records.
+- PRDs own required behavior. Approved memory owns lasting facts and lessons.
+  Architecture topic documents own appropriate client solution-design content.
+  Architecture insight does not automatically become memory or a PRD.
 - Requiring approval for project-memory saves remains the proposed setup
   default and recommendation. Mike has not made a separate scenario choice on
   that setting yet.
 
-**Open design question:** Mike asked whether a Salesforce project should skip
-System Guide because `delivery/architecture/` may already hold the useful
-architecture. His System Guide selection remains in place; the question does
-not disable it. The recommended direction to review is to keep System Guide's
-lookup and upkeep behavior while using authoritative client architecture topic
-documents instead of creating competing prose. The design must keep facts about
-the two source orgs' actual state separate from proposed target design. Support
-for adopting arbitrary client documents through `guidePath` still needs proof;
-no automatic path move or integration is approved.
+**Deferred design question:** the broader question of integrating System Guide
+with an authoritative client architecture library remains open for other
+projects. The recommendation to avoid competing prose has not been accepted as
+a design choice, and configurable `guidePath` does not prove arbitrary client
+document adoption. It does not block Acme's Guide-off scenario or authorize an
+automatic path move.
 
 **What runs:** the existing `project-init` entry point delegates the knowledge portion to proposed `plugins/second-brain/skills/knowledge-setup/SKILL.md`. An existing project reaches the same skill from `project-sync` or an ordinary setup request. There is no background installer guessing which projects to enable.
 
@@ -111,7 +115,6 @@ The skill inspects the project, existing instructions/settings, installed plugin
 | `knowledge/memory/memory-entries/terminology-glossary.md` | Project vocabulary; final path remains a review choice |
 | `knowledge/memory-selection-feedback.md` | Project-specific lessons about selecting memory |
 | `ai-external-knowledge/README.md` | Generated map of captured outside sources, when present |
-| System Guide at its configured `guidePath` | Useful understanding of the existing system, its parts, purposes, and connections |
 | `delivery/architecture/` | Client-owned detailed solution architecture, grouped by topic area and retained after work items close |
 
 Empty destinations contain no invented history or approvals. Existing content is read before any merge. Lasting meaning changes retain the relevant approval requirements.
@@ -119,8 +122,8 @@ Empty destinations contain no invented history or approvals. Existing content is
 Reusable skills/hooks/tools run from the installed plugin. Claude receives `.claude/rules/knowledge-system.md` and project activation in `.claude/settings.json`; Codex receives corresponding root `AGENTS.md` guidance and its supported hook/skill registration. The proposed four skills are `knowledge-find`, `knowledge-save`, `knowledge-review`, and `knowledge-setup`. Setup connects the seven hooks listed in later steps. It checks `core.hooksPath` and existing `.git/hooks` before adding `.githooks/pre-commit`.
 
 **Agent versus machinery:** the agent establishes the project's purpose and
-interprets conflicts. It records source Org A, source Org B, and the undecided
-target strategy without inventing org details. Setup tools inspect versions,
+interprets conflicts. During setup it records two org placeholders and leaves
+their roles open until Mike supplies them, without inventing org details. Setup tools inspect versions,
 files, registration, and delivery; they do not create or connect Salesforce
 orgs. Native memory is disabled only through a supported setting scope
 consistent with project opt-in; a machine-wide change affecting other projects
@@ -129,26 +132,68 @@ remain proof requirements.
 
 **What Mike sees:** a short report of what was equipped, the running version, enabled harnesses, and any unresolved failure. The routing examples are available without making him understand every folder. A fresh-session delivery check must succeed before reporting that harness ready. File existence alone is insufficient.
 
-**Failure branch:** an existing Git-hook conflict, untrusted registration, or missing delivery is named. Preserve existing hooks and other projects; report incomplete setup and the next action. System Guide is included because Mike selected it for this scenario; other optional components are not enabled incidentally.
+**Failure branch:** an existing Git-hook conflict, untrusted registration, or missing delivery is named. Preserve existing hooks and other projects; report incomplete setup and the next action. System Guide and other optional components are not enabled incidentally.
 
 **Recommendation / scoped choices:** one complete core Knowledge System setup,
-with the selected System Guide and Salesforce architecture area, using
-machine-installed reusable components and project-owned Markdown. Next examine
-the proposed files and their roles. Step 1 remains open; exact layout migration
-and remaining platform gaps return in step 12. Design source: §§6.3
+with the selected Salesforce architecture area and no System Guide, using
+machine-installed reusable components and project-owned Markdown. The scenario
+now treats knowledge as hypothetically set up and proceeds to a fresh session.
+Step 1 remains unapproved and its open file/layout details are retained; exact
+layout migration and remaining platform gaps return in step 12. Design source: §§6.3
 knowledge-setup, 6.7, 8, 9.3–9.5, plus the
 [Salesforce project scaffold](../../../plugins/project-init/skills/project-init/references/salesforce-project-scaffold.md).
 
 ## 2. Open the first session
 
-**Mike:** opens the Acme Corp project and says, “Let's discover source Org A and
-source Org B, then agree what the consolidated org must do.”
+**Scenario transition:** Mike asked whether, once the hypothetical repository
+setup is complete, he can open a new session and say, “I'm ready to tell you
+about this project and what we're doing.” Yes, provided the hypothetical setup
+and fresh-session delivery checks succeeded. The initial scaffold does not need
+the full project brief first. This progression does not approve step 1, prove
+real delivery, or approve the full setup design.
 
-**Trigger and files:** proposed `SessionStart` registration invokes `plugins/second-brain/hooks/startup-files.mjs` and `startup-state.mjs`. The first delivers version, `SOUL.md`, `knowledge/project.md`, then `knowledge/README.md`. The second delivers inbox headings/states, glossary, index paths/counts, System Guide configuration status, and working memory. Detailed source documents stay on disk until useful.
+**Mike:** opens the new session and says, “I'm ready to tell you about this
+project and what we're doing.”
+
+**Trigger and files:** proposed `SessionStart` registration invokes `plugins/second-brain/hooks/startup-files.mjs` and `startup-state.mjs`. The first delivers version, `SOUL.md`, `knowledge/project.md`, then `knowledge/README.md`. The second delivers inbox headings/states, glossary, index paths/counts, the explicit `System Guide is not configured` state, and working memory. Detailed source documents stay on disk until useful.
 
 The draft budgets 9,500 characters per hook. Missing or overflowed required content produces an explicit path to read; it must not silently count as delivered. Glossary printing is proposed at 1,500 characters, falling back to term/reference columns plus the file path. Inbox preview is proposed at 1,200. These cutoffs and extra file ceilings remain choices, not approved PRD limits.
 
 **Agent / handshake:** actual hook delivery already counts as the startup read. The agent follows explicit missing-file instructions and acknowledges readiness only when the required material arrived. It interprets the current work; the hook does not decide what the next task means. In a fresh project it begins the requested feature discussion without fabricating prior progress.
+
+The delivered starter map contains only known pre-brief scenario facts: Acme
+Corp, two unnamed Salesforce orgs, the consolidation goal, and the selected
+`delivery/architecture/` path. It keeps the org roles, detailed org facts, and
+migration strategy explicitly unknown.
+
+**First substantive brief:** Mike describes the fictional consulting firm and
+team structure, identifies Acme Corp as the client, assigns originating-org and
+target-org roles to the two existing orgs, and states the initial scope. No
+actual team names, org names, or scope details were provided in this review, so
+the walkthrough retains placeholders instead of inventing them. The detailed
+migration strategy remains open.
+
+**Proposed routing for review:** keep `knowledge/project.md` short: project
+identity, goals, key roles, and pointers to real org resources when known.
+Durable deeper team/org context may become curated memory only when eligible and
+permitted. Required scope belongs in its owning proposed/refinement PRD; saving
+it does not approve implementation. `knowledge/memory/current.md` carries the
+short discovery goal and next step. Approved client architecture facts and
+designs use the existing `delivery/architecture/` workflow. The agent reviews
+the conversation and routes each part instead of copying the whole brief into
+one store. This routing is an architect proposal awaiting review. The exact
+conversation-only handshake remains open, and no turn hook is claimed to be
+implemented.
+
+**Mechanism under review:** the current draft uses `SessionStart`
+`startup-files.mjs` for `SOUL.md`, `knowledge/project.md`, and the manual, and
+`startup-state.mjs` for context maps. Standing guidance tells the agent to make
+one relevance decision before answering. The seven-hook design does not add a
+per-user-message manual-read or acknowledgment hook. The end-of-turn
+conversation-review replacement is still open design question 2; the existing
+style `UserPromptSubmit`/`PostToolUse` hook is separate and does not establish a
+Knowledge System mechanism. Mike's question about the exact behavior is a
+review point, not approval to add a per-prompt hook or change runtime.
 
 **Failure:** missing manual or timeout prevents an honest readiness acknowledgment; pause work needing that guidance, recover the file/delivery, then continue. Fail-open hooks cannot guarantee the action was blocked. The design needs fresh-session proof of ordering across both hook outputs.
 
@@ -156,17 +201,19 @@ The draft budgets 9,500 characters per hook. Missing or overflowed required cont
 
 ## 3. Answer with the right knowledge
 
-**Mike:** “What did we decide about case ownership in source Org A? Does source
-Org B use a different rule?” Later he asks an unrelated arithmetic question.
+**Mike:** “What did we decide about case ownership in the originating org? Does
+the target org use a different rule?” Later he asks an unrelated arithmetic
+question.
 
 **Trigger:** the standing rule prompts the agent to decide once per request whether saved knowledge could affect the answer. Relevant work invokes `plugins/second-brain/skills/knowledge-find/SKILL.md`; no search hook classifies the question.
 
 The skill resolves Acme's org and component terms through the glossary and
 follows working context → instructions → skills → relevant indexes and source
 pages → session history if still needed. Required behavior comes from the PRD,
-lessons from memory, structure from enabled System Guide, live existence from
-the system. Indexes locate sources; the agent opens them. An off Guide is named
-and skipped. Unknown or ambiguous terminology is clarified rather than guessed.
+lessons from memory, named client architecture documents from project-map links,
+and live existence from the system. Indexes and links locate sources; the agent
+opens them. System Guide is named as off and skipped. Unknown or ambiguous
+terminology is clarified rather than guessed.
 
 The external index points to captured official Salesforce documentation with
 the original source and capture date. If freshness matters, the agent checks
@@ -182,8 +229,9 @@ are explicit. A history tool unavailable in Codex means unavailable, not
 ## 4. Capture the initial requirements without losing the discussion
 
 **Mike:** authorizes the org-consolidation requirements interview and answers
-questions about the two source orgs and the required consolidated behavior. The
-target-org strategy remains open until he chooses it.
+questions about the originating org, target org, and required consolidated
+behavior. Their roles came from the brief; detailed migration and solution
+choices remain open until he settles them.
 
 **Trigger / files:** the existing requirements workflow owns the interview;
 `knowledge-save` applies the already-authorized save path to
@@ -204,7 +252,7 @@ The PRD has a clear title, contents, Why, What, grouped numbered requirements an
 
 **Mike:** during the consolidation discussion says: “Across this project, let
 the agent reason and use small checkpoints. The identity and access workstream
-also needs to preserve each user's approved level of access. The source Org B
+also needs to preserve each user's approved level of access. The originating-org
 team calls its recovery process ‘getting back in.’ Remind me to review rollout
 communications next week. Maybe we could use a phased cutover.” No code changes
 occur.

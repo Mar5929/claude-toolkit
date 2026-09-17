@@ -147,9 +147,10 @@ activation through ordinary work, saving, recovery, handoff, and delivery.
 Include alternate outcomes where needed to cover all 30 requirements, with a
 requirement-to-scenario map that makes omissions visible. Mike selected the
 fictional Acme Corp scenario: a new project folder and GitHub repository for
-consolidating source Org A and source Org B. The target-org strategy remains
-undecided, and the review does not connect real Salesforce orgs or use
-DragonFly facts.
+consolidating two existing Salesforce orgs. Their roles were open at setup; the
+first hypothetical brief later assigns originating-org and target-org roles
+without providing real names or details. The review does not connect real
+Salesforce orgs or use DragonFly facts.
 
 Walk Mike through one step at a time in the main conversation. At each step,
 show his action or message, the expected result, the native event or other
@@ -198,24 +199,28 @@ review method and evidence; it does not duplicate the task tracker.
 
 Current position: review the Knowledge System through the fictional Acme Corp
 two-org Salesforce consolidation. In scenario step 1, Mike selected the complete
-core Knowledge System, System Guide, and `delivery/architecture/`. These are
-hypothetical component choices; step 1 and the full design remain unapproved.
-Use the full PRD, consolidated
+core Knowledge System and `delivery/architecture/`, then explicitly chose
+System Guide off for Acme, superseding his earlier same-day Guide-on selection.
+These are hypothetical component choices; step 1 and the full design remain
+unapproved. The story has advanced to step 2, where a fresh session has received
+Mike's first project brief. It supplies fictional firm/team framing,
+originating-org and target-org roles, and initial scope, with names/details left
+as placeholders. Use the full PRD, consolidated
 design, retained review records, [scenario walkthrough](design-walkthrough.md),
 and the parent handshake principle. Record each answer and scope before moving
 on. Full PRD/design approval remains required before any Knowledge System build.
 
-Exact next action: continue step 1 by examining the proposed files and their
-roles. First answer the open ideal-refactor question: how System Guide keeps its
-lookup/upkeep value while using authoritative `delivery/architecture/` topic
-documents without competing prose. Keep source-org actual state separate from
-proposed target design. The question does not reverse Mike's System Guide
-selection or authorize an automatic path move. Knowledge System still owns
-memory, PRDs, project map, glossary, and current context; the work item owns its
-active build plan and approvals. Do not invent architecture topic names or
-treat the recommended memory-approval default as Mike's separate choice. No
-real Acme setup or Salesforce connection has occurred. Preserve fictional Org
-A/Org B and the undecided target.
+Exact next action: review the mechanism immediately after the first brief.
+The current draft uses `SessionStart` startup-files to deliver SOUL/project/
+manual and startup-state to deliver context maps. It relies on standing
+guidance for a relevance decision before answering; it does not specify a
+per-user-message knowledge-manual read/ack hook. The end-of-turn
+conversation-review replacement remains open design question 2, and the
+existing style hook is separate from Knowledge System design. Review the brief's
+proposed routing and decide whether this mechanism needs to change without
+treating the question as approval for a new hook. Step 1 remains unapproved.
+No real setup, Guide configuration, Salesforce connection, or runtime change
+has occurred.
 
 Updated 2026-09-17: the goal is to ship the refactored Knowledge System. Mike
 estimates the requirements were 95–99% settled when design work began; this is
@@ -253,11 +258,10 @@ solution-design template on 2026-09-16, in pull requests 344 and 345. This
 design was written before that template existed and does not follow it. Whether
 to reshape the design to the template has not been decided.
 
-**The exact next action: review step 1, project setup, in the
-[design walkthrough](design-walkthrough.md) with Mike.** Examine the selected
-setup's proposed files and their roles. Resolve the open System Guide/client
-architecture overlap without duplicating Knowledge System or work-item records.
-Include the
+**The exact next action: review step 2, fresh-session startup, in the
+[design walkthrough](design-walkthrough.md) with Mike.** Explain the current
+draft mechanism after the first brief, then review the proposed routing and the
+still-open conversation-only handshake. Keep step 1 open and include the
 incidental cross-scope information case under
 requirements 9 and 18, the design's section 13.2, and the handshake principle.
 The scope-routing clarifications remain part of shipping the Knowledge System.
