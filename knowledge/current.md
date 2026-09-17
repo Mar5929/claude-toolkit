@@ -14,22 +14,19 @@ Updated: 2026-09-17
 
 **Goal** Ship reliable knowledge lookup, upkeep, and saves.
 
-**Current status** Requirements/design in review; full approval pending.
+**Current status** Task D1 solution-design review; full approvals pending; no build authorization.
 
 **Recent progress**
-- Sept 16–17: Clarified routing; saved philosophy and scenario review. Runtime tests pending.
+- Sept 17: Set #269 phase tasks and the fictional Acme Corp two-org scenario; target-org strategy remains open.
 
-**Next step** Review setup in [design walkthrough](../docs/designs/269-knowledge-system/design-walkthrough.md).
+**Next step** Review step 1 after folder/repo creation, before toolkit setup or a Salesforce connection.
 
 **Blocker** Requirements/design approval before build.
 
 **To-dos**
-- Resolve design/PRD questions through the scenario, one step at a time.
-- Decide when to adopt the new design template.
-- Update publication guidance (#269/#306).
-- Test routing/continuation in sessions after build approval.
+- Complete the 12-step walkthrough, reconcile answers, and obtain separate PRD/design approvals.
 
-**Detailed record** [Issue #269](https://github.com/Mar5929/claude-toolkit/issues/269), linked PRD/design/plan.
+**Detailed record** [Issue #269 task D1](https://github.com/Mar5929/claude-toolkit/issues/269#task-d1--review-and-finalize-the-solution-design); [walkthrough](../docs/designs/269-knowledge-system/design-walkthrough.md).
 
 ### Guided work management — #337
 Updated: 2026-09-17

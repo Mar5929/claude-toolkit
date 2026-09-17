@@ -26,13 +26,30 @@ All runtime paths below describe the proposed system. Today this repository stil
 
 ## The project story
 
-We are starting a fictional customer portal called Harbor. Mike owns it. Its first feature is account access; another active item concerns notifications. Work spans discussion, implementation, two concurrent sessions, a second machine, and eventual delivery. Example facts and messages below are fictional, not facts to save about this repository.
+Acme Corp is a fictional Salesforce org-consolidation project. Mike has already
+created a new project folder and initialized its GitHub repository. The work will
+consolidate two existing Salesforce orgs, called source Org A and source Org B
+here. The target strategy is deliberately undecided: the scenario does not
+assume a new target org or choose either source org as the survivor. It also
+does not connect to real Salesforce orgs or describe DragonFly. Every company,
+org, fact, and message below exists only to review the Knowledge System design.
+
+The delivery story can include discovery of both source orgs, consolidated
+requirements, solution design, component delivery and shared rules, migration,
+testing, and rollout. None of those examples preselects Salesforce architecture
+or authorizes implementation. Work spans discussion, concurrent sessions, a
+second machine, and eventual delivery.
 
 The normal path runs from setup to delivery. Branches deliberately exercise rejection, missing sources, interrupted saves, conflicts, and migration. A single successful session could not demonstrate those requirements.
 
-## 1. Equip Harbor
+## 1. Equip the Acme Corp project
 
-**Mike:** “Set up this project. Turn on the knowledge system so we can use it in Claude Code and Codex.”
+**Starting point:** Mike opens Codex after creating the Acme Corp project folder
+and initializing its GitHub repository. No toolkit setup or Salesforce
+connection is assumed yet.
+
+**Mike:** “Set up this project. Turn on the knowledge system so we can use it in
+Claude Code and Codex.”
 
 **What runs:** the existing `project-init` entry point delegates the knowledge portion to proposed `plugins/second-brain/skills/knowledge-setup/SKILL.md`. An existing project reaches the same skill from `project-sync` or an ordinary setup request. There is no background installer guessing which projects to enable.
 
@@ -40,7 +57,7 @@ The skill inspects the project, existing instructions/settings, installed plugin
 
 | Proposed project artifact | Purpose |
 | --- | --- |
-| `SOUL.md` | The agent's responsibility in Harbor |
+| `SOUL.md` | The agent's responsibility in the Acme Corp consolidation |
 | `knowledge/project.md` | Project identity, real resources, tracker, owner, memory approval setting |
 | `knowledge/README.md` | Short operating map and links to detailed guidance |
 | `knowledge/memory/current.md` | `# Current working memory`, project goal, active items, general to-dos |
@@ -54,7 +71,14 @@ Empty destinations contain no invented history or approvals. Existing content is
 
 Reusable skills/hooks/tools run from the installed plugin. Claude receives `.claude/rules/knowledge-system.md` and project activation in `.claude/settings.json`; Codex receives corresponding root `AGENTS.md` guidance and its supported hook/skill registration. The proposed four skills are `knowledge-find`, `knowledge-save`, `knowledge-review`, and `knowledge-setup`. Setup connects the seven hooks listed in later steps. It checks `core.hooksPath` and existing `.git/hooks` before adding `.githooks/pre-commit`.
 
-**Agent versus machinery:** the agent establishes Harbor's purpose and interprets conflicts. Setup tools inspect versions, files, registration, and delivery. Native memory is disabled only through a supported setting scope consistent with project opt-in; a machine-wide change affecting other projects is not silently acceptable. Exact Codex configuration scope and trust behavior remain proof requirements.
+**Agent versus machinery:** the agent establishes the project's purpose and
+interprets conflicts. It records source Org A, source Org B, and the undecided
+target strategy without inventing org details. Setup tools inspect versions,
+files, registration, and delivery; they do not create or connect Salesforce
+orgs. Native memory is disabled only through a supported setting scope
+consistent with project opt-in; a machine-wide change affecting other projects
+is not silently acceptable. Exact Codex configuration scope and trust behavior
+remain proof requirements.
 
 **What Mike sees:** a short report of what was equipped, the running version, enabled harnesses, and any unresolved failure. The routing examples are available without making him understand every folder. A fresh-session delivery check must succeed before reporting that harness ready. File existence alone is insufficient.
 
@@ -64,7 +88,8 @@ Reusable skills/hooks/tools run from the installed plugin. Claude receives `.cla
 
 ## 2. Open the first session
 
-**Mike:** opens Harbor and says, “Let's define account access.”
+**Mike:** opens the Acme Corp project and says, “Let's discover source Org A and
+source Org B, then agree what the consolidated org must do.”
 
 **Trigger and files:** proposed `SessionStart` registration invokes `plugins/second-brain/hooks/startup-files.mjs` and `startup-state.mjs`. The first delivers version, `SOUL.md`, `knowledge/project.md`, then `knowledge/README.md`. The second delivers inbox headings/states, glossary, index paths/counts, System Guide configuration status, and working memory. Detailed source documents stay on disk until useful.
 
@@ -78,13 +103,24 @@ The draft budgets 9,500 characters per hook. Missing or overflowed required cont
 
 ## 3. Answer with the right knowledge
 
-**Mike:** “What did we decide about access recovery? Does our identity provider support it?” Later he asks an unrelated arithmetic question.
+**Mike:** “What did we decide about case ownership in source Org A? Does source
+Org B use a different rule?” Later he asks an unrelated arithmetic question.
 
 **Trigger:** the standing rule prompts the agent to decide once per request whether saved knowledge could affect the answer. Relevant work invokes `plugins/second-brain/skills/knowledge-find/SKILL.md`; no search hook classifies the question.
 
-The skill resolves “access recovery” through the glossary and follows working context → instructions → skills → relevant indexes and source pages → session history if still needed. Required behavior comes from the PRD, lessons from memory, structure from enabled System Guide, live existence from the system. Indexes locate sources; the agent opens them. An off Guide is named and skipped. Unknown or ambiguous terminology is clarified rather than guessed.
+The skill resolves Acme's org and component terms through the glossary and
+follows working context → instructions → skills → relevant indexes and source
+pages → session history if still needed. Required behavior comes from the PRD,
+lessons from memory, structure from enabled System Guide, live existence from
+the system. Indexes locate sources; the agent opens them. An off Guide is named
+and skipped. Unknown or ambiguous terminology is clarified rather than guessed.
 
-The external index points to captured identity-provider documentation with original source and capture date. If freshness matters, the agent checks the original official documentation. Each finding carries its source near the claim; old conversation findings carry date/context. Conflicts and inferences are explicit. A history tool unavailable in Codex means unavailable, not “searched and found nothing.”
+The external index points to captured official Salesforce documentation with
+the original source and capture date. If freshness matters, the agent checks
+the original official documentation. Each finding carries its source near the
+claim; old conversation findings carry date/context. Conflicts and inferences
+are explicit. A history tool unavailable in Codex means unavailable, not
+“searched and found nothing.”
 
 **Result:** a sourced answer, with only necessary retrieval. Already-read relevant context may be reused; arithmetic needs no knowledge lookup. No files are written merely because a search occurred.
 
@@ -92,9 +128,16 @@ The external index points to captured identity-provider documentation with origi
 
 ## 4. Capture the initial requirements without losing the discussion
 
-**Mike:** authorizes the account-access requirements interview and answers questions about recovery behavior.
+**Mike:** authorizes the org-consolidation requirements interview and answers
+questions about the two source orgs and the required consolidated behavior. The
+target-org strategy remains open until he chooses it.
 
-**Trigger / files:** the existing requirements workflow owns the interview; `knowledge-save` applies the already-authorized save path to `knowledge/prds/account-access.md`. It does not demand a new memory card after every answer. The agent preserves which behavior was agreed and which remains proposed. Saving the document is distinct from approving its requirements or building it.
+**Trigger / files:** the existing requirements workflow owns the interview;
+`knowledge-save` applies the already-authorized save path to
+`knowledge/prds/org-consolidation.md`. It does not demand a new memory card
+after every answer. The agent preserves which behavior was agreed, which source
+org evidence supports it, and which choices remain proposed. Saving the
+document is distinct from approving its requirements or building it.
 
 The PRD has a clear title, contents, Why, What, grouped numbered requirements and checks, followed by visibly tentative solution ideas. Frontmatter follows the proposed PRD schema. Larger feature areas can have parent/child documents with one owner for each requirement. The tracker owns plan, implementation status, and approvals; working memory carries the resumable summary and pointer.
 
@@ -106,7 +149,12 @@ The PRD has a clear title, contents, Why, What, grouped numbered requirements an
 
 ## 5. Notice useful information in conversation alone
 
-**Mike:** during account-access discussion says: “Across this product, let the agent reason and use small checkpoints. Also, notifications need an unsubscribe requirement. We learned the pilot users call recovery ‘getting back in.’ Remind me to review the onboarding copy next week. Maybe we could try invitation codes.” No code changes occur.
+**Mike:** during the consolidation discussion says: “Across this project, let
+the agent reason and use small checkpoints. The identity and access workstream
+also needs to preserve each user's approved level of access. The source Org B
+team calls its recovery process ‘getting back in.’ Remind me to review rollout
+communications next week. Maybe we could use a phased cutover.” No code changes
+occur.
 
 **Trigger:** standing guidance requires attention during conversation and at five save moments: item completion/closure, before a PR, handoff/clear, end of real work including discussion, and explicit save. The exact end-of-turn checkpoint is still open.
 
@@ -116,11 +164,11 @@ The agent reads `knowledge-save/references/routing.md` and determines informatio
 
 | Conversation content | Owning destination |
 | --- | --- |
-| Product-wide design constraint | Parent PRD, linked from the design module's guidance; root files only route to that module |
-| Notifications requirement | Notifications PRD through its requirements workflow; resume account access afterward |
+| Project-wide design constraint | Parent PRD, linked from the design module's guidance; root files only route to that module |
+| Identity and access requirement | Identity/access workstream PRD through its requirements workflow; resume org-consolidation work afterward |
 | “Getting back in” terminology | Glossary row with meaning, referent, source/date, and ambiguity notes |
-| Upcoming copy review | Tracker/general to-do and concise working-memory pointer; no lasting memory |
-| Unsettled invitation idea | Brainstorm record if worth retaining, visibly unchecked |
+| Upcoming rollout-communications review | Tracker/general to-do and concise working-memory pointer; no lasting memory |
+| Unsettled phased-cutover idea | Brainstorm record if worth retaining, visibly unchecked |
 
 Additional routing branches: a reusable procedure belongs to skill authoring; standing behavior belongs in its applicable rules or module guidance, while root instructions map and route; project identity/resources in `project.md`; responsibility in `SOUL.md`; an enabled Guide owns useful system explanations; external documentation stays with outside sources; real lasting decisions/fixes may qualify as memory. An unavailable destination is named, never silently replaced with memory. Tool logs, trivial details, source copies, credentials, and task scratch do not become memory.
 
@@ -160,7 +208,9 @@ Authorized publication follows the owning project's Git workflow. In this toolki
 
 ## 8. Continue after interruption, with another session active
 
-The push failed. Two days later Mike opens Harbor on another machine: “Continue where we stopped.” Meanwhile another session is working on notifications.
+The push failed. Two days later Mike opens the Acme Corp project on another
+machine: “Continue where we stopped.” Meanwhile another session is working on
+the identity and access workstream.
 
 **Trigger / reads:** startup hooks deliver current work and inbox states. The agent opens the active item's detailed record and relevant pending entry. Working memory contains project goal, separate active items with goal/status/recent progress/next step/blocker/to-dos/detail link, and general to-dos. It is not a transcript or authoritative tracker.
 
@@ -192,11 +242,19 @@ The draft `compact-hold.mjs` proposes a `PreCompact` hold for manual Claude comp
 
 **Recommendation / review:** make explicit handoff reliable through completed review and durable publication. Treat harness-specific compaction handling as an additional verified safeguard; name any remaining gap. Determine whether the gap meets R25 rather than silently lowering that requirement. Source: §§6.4 compact, 8, 13.13, 13.21.
 
-## 11. Deliver account access and update affected requirements
+## 11. Deliver an authorized consolidation component and update affected requirements
 
 Implementation occurs only after its own authorization. Before a PR, the proposed `save-moment-gate.mjs` watches covered `PreToolUse` commands such as PR creation, item close, and `work finish`, using `hooks/command-parsing.mjs` for shell forms. It requests review if the recorded marker is missing/outdated. Browser actions and unrecognized commands are gaps; a timestamp cannot judge whether the review was adequate.
 
-The agent reviews the actual work and discussion through `knowledge-save`. The existing work workflow owns PR, delivery, and status. After the authorized work ships, PRD upkeep updates all affected child/parent requirements to reflect the delivered agreed behavior without another memory card. It preserves held requirements and names unexpected defects. Guide changes use the enabled Guide workflow; procedures use skill authoring, which is still a missing dependency in this design.
+The agent reviews the actual work and discussion through `knowledge-save`. The
+existing work workflow owns PR, delivery, and status. The component may be a
+shared rule or a bounded identity/access part of the consolidation; the example
+does not choose the final Salesforce architecture. After the authorized work
+ships, PRD upkeep updates all affected child/parent requirements to reflect the
+delivered agreed behavior without another memory card. It preserves held
+requirements and names unexpected defects. Guide changes use the enabled Guide
+workflow; procedures use skill authoring, which is still a missing dependency
+in this design.
 
 The draft does not gate merge; it proposes an inbox reminder for upkeep owed afterward. We must define the delivery event that triggers upkeep and decide whether an unfinished knowledge save leaves `Done` available. An acknowledgment is neither delivery approval nor permission to mark Done.
 
@@ -204,7 +262,8 @@ The draft does not gate merge; it proposes an inbox reminder for upkeep owed aft
 
 ## 12. Upgrade an older project and prove the whole experience
 
-**Mike:** “Bring my older project up to this version.”
+**Mike:** “Bring an older Salesforce project up to this Knowledge System
+version.”
 
 `project-sync` delegates to `knowledge-setup`, which previews the actual migration against existing content and obtains any required approval. Proposed moves include current context under `knowledge/memory/`, topic files under `memory-entries/`, `spec-index.md` to `prd-index.md`, feedback rename, and brainstorms to the root. It adds inbox/glossary and missing known metadata, repairs links, replaces copied runtime components with plugin delivery, rebuilds indexes, and checks the result. Preserve unrelated edits, existing permissions, hooks, and recoverable history. Do not manufacture unknown metadata or shorten approved meaning without authority.
 

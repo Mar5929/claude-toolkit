@@ -145,8 +145,11 @@ are history, not two equally current approved options.
 Prepare one realistic project lifecycle from project initialization and
 activation through ordinary work, saving, recovery, handoff, and delivery.
 Include alternate outcomes where needed to cover all 30 requirements, with a
-requirement-to-scenario map that makes omissions visible. The account-access
-example already used by the PRD is a suitable starting point.
+requirement-to-scenario map that makes omissions visible. Mike selected the
+fictional Acme Corp scenario: a new project folder and GitHub repository for
+consolidating source Org A and source Org B. The target-org strategy remains
+undecided, and the review does not connect real Salesforce orgs or use
+DragonFly facts.
 
 Walk Mike through one step at a time in the main conversation. At each step,
 show his action or message, the expected result, the native event or other
@@ -189,26 +192,22 @@ unapproved; resume it after this placement discussion.
 
 ### Active design task
 
-- **Work item and roadmap stage:** Knowledge System #269; finish requirements
-  and solution-design review on the path to delivery.
-- **Task:** design and review the Knowledge System solution.
-- **Instructions:** read the linked PRD and design, apply the parent's settled
-  handshake principle, and guide Mike through the end-to-end scenario one step
-  at a time. Record each answer and its scope before continuing.
-- **Inputs:** the PRD and design linked above, existing review records, and the
-  [scenario walkthrough](design-walkthrough.md).
-- **Deliverable:** reconciled solution design with requirement coverage and
-  explicit treatment of remaining questions and platform proof obligations.
-- **Completion condition:** Mike approves the design; publication alone is not
-  approval or permission to implement the Knowledge System.
-- **Status and resume point:** in review; scenario step 1 awaits review. The
-  present sidebar authorized the roadmap/task workflow refactor under #337.
-  Resume this scenario at step 1 when that discussion is complete.
-- **Dependencies:** remaining PRD/design choices and full approvals before the
-  Knowledge System build. Preserve earlier settled decisions.
-- **Related follow-up:** #337 now owns the explicitly authorized reusable
-  roadmap/task and continuation change. Do not mistake that permission for
-  approval of the Knowledge System runtime or the whole #337 PRD.
+Issue #269 owns the canonical roadmap and task record. Its current task is
+**D1 — Review and finalize the solution design**. This process record keeps the
+review method and evidence; it does not duplicate the task tracker.
+
+Current position: review the Knowledge System through the fictional Acme Corp
+two-org Salesforce consolidation. Scenario step 1, project setup, awaits Mike's
+review; no scenario step has been approved. Use the full PRD, consolidated
+design, retained review records, [scenario walkthrough](design-walkthrough.md),
+and the parent handshake principle. Record each answer and scope before moving
+on. Full PRD/design approval remains required before any Knowledge System build.
+
+Exact next action: present step 1 from the starting point Mike chose—a new Acme
+Corp project folder and initialized GitHub repository, before toolkit setup or
+any Salesforce connection—and ask whether the proposed setup experience is
+right. Preserve source Org A/source Org B as fictional labels and leave the
+target-org strategy undecided.
 
 Updated 2026-09-17: the goal is to ship the refactored Knowledge System. Mike
 estimates the requirements were 95–99% settled when design work began; this is
@@ -230,7 +229,7 @@ open.
 
 The order of what is left:
 
-1. Prepare and review the end-to-end scenario under the method above.
+1. Review the Acme Corp end-to-end scenario under the method above.
 2. Resolve the remaining design and PRD questions where they occur in that
    scenario, retaining existing approvals and identifying any uncovered choice.
 3. Approve the requirements document.
@@ -247,7 +246,9 @@ design was written before that template existed and does not follow it. Whether
 to reshape the design to the template has not been decided.
 
 **The exact next action: review step 1, project setup, in the
-[design walkthrough](design-walkthrough.md) with Mike.** Include the incidental cross-scope information case under
+[design walkthrough](design-walkthrough.md) with Mike.** Start after the Acme
+Corp folder and GitHub repository exist, before toolkit setup or any Salesforce
+connection. Include the incidental cross-scope information case under
 requirements 9 and 18, the design's section 13.2, and the handshake principle.
 The scope-routing clarifications remain part of shipping the Knowledge System.
 Full PRD/design approval and implementation remain pending.
