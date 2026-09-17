@@ -9,7 +9,7 @@ Designs use [handshakes](prds/toolkit-operating-system/toolkit-operating-system.
 
 ## Active work
 
-### Knowledge System refactor — #269
+### Knowledge System — #269
 Updated: 2026-09-17
 
 **Goal** Ship reliable knowledge lookup, upkeep, and saves.
@@ -17,9 +17,9 @@ Updated: 2026-09-17
 **Current status** Task D1 solution-design review; full approvals pending; no build authorization.
 
 **Recent progress**
-- Sept 17: Acme selected core Knowledge System and `delivery/architecture/`; System Guide is off in this scenario.
+- Sept 17: Acme chose core knowledge plus `delivery/architecture/`, no Guide; every prompt gets a short routing reminder and intent acknowledgment.
 
-**Next step** Review step 2 first-brief routing and the open conversation handshake; step 1 stays open.
+**Next step** Review step 2 routing and prompt criteria; remaining wording, acknowledgment transport, and end-turn handling are open.
 
 **Blocker** Requirements/design approval before build.
 

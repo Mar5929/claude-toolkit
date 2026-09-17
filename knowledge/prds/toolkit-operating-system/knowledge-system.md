@@ -528,6 +528,7 @@ for him to notice it.
 - An answer or proposal based on saved knowledge identifies its supporting source under requirement 6. This applies no matter how the agent found or opened that source. A file path that came back with a search result does not on its own show that the answer is supported.
 - The external-knowledge index is reachable from the small map. The agent opens relevant outside documentation before relying on it, as requirement 8 requires.
 - A save review happens at every moment in requirement 9. Opening a pull request or closing a work item requires that review for the work being handed over. At the end of a turn that involved real work, the review happens quietly unless there is something to approve, a save the owner needs to be told about, or a problem. Requirement 16 keeps routine PRD upkeep quiet. At a handoff, the agent works out which pending items matter, under requirement 28. An explicit request for a save or review still receives a clear answer, including when nothing qualifies. An existing inbox entry alone does not satisfy a new review.
+- Before the agent processes every submitted user prompt, it receives the short reminder in requirement 9 and explicitly acknowledges that it will evaluate the latest message and relevant conversation for project information worth retaining or updating. The acknowledgment confirms receipt and intent; it does not prove that the review finished, that the agent judged the information correctly, or that any save is approved.
 - Lasting knowledge is changed only as far as the owner's approval reaches. Proposals follow the standard format, and a proposal that is missing required information is fixed before the agent asks for approval. A save is not reported as complete until its content, its required fields, its indexes, and its publication have all been checked. A check that fails leaves the save unfinished.
 - When a required check or save was missed, the agent finds what was missed and then does the review or the recovery that is needed, staying inside the permission it already has. It never claims the missing check happened, and it never asks the owner to reconstruct the session for it.
 
@@ -678,6 +679,9 @@ original source or states what could not be verified.
 - No long review. No back and forth. No reading a full file before deciding.
 - The agent proposes at the right moment on its own. The owner never has to remember to ask.
 - Notice useful information throughout the work, including discussion, requirements refinement, and solution design with no file edits. Review project-relevant information outside the active work item's scope as well as information about that item. Do not wait for a changed-file count, a commit, a task switch, or the owner to point it out. Requirement 18 determines its scope and home; noticing it is not permission to implement unrelated work.
+- Before every user prompt is processed, a short hook reminder begins with this owner direction: “Friendly reminder: keep front of mind and follow all of the Toolkit operating system methodologies, processes, and instructions. Know where the project files and folders live.” It asks the agent to evaluate the latest message and relevant conversation for new knowledge, updates, corrections, removal, and other needed project-record changes. It covers every destination in requirement 18, including work records, an enabled System Guide, and client delivery architecture, rather than memory alone.
+- The reminder includes compact positive and negative criteria for both working and lasting memory. Working memory is concise active context, such as the objective, blocker, next step, temporary notes, hypotheses, or partial state. Lasting memory is project-relevant durable fact, decision, feedback, context, event, constraint, relationship, or real failure and fix that came from the owner or was worked out together and would otherwise need to be explained again. Tool activity, logs, conversational filler, source copies, procedures, requirements, open implementation steps, live status, system explanations, stale facts, and secrets do not become lasting memory; keep temporary state short or route the information to its proper owner. The canonical manual remains the source when the compact wording is insufficient.
+- The reminder links to `knowledge/README.md` and to the higher Toolkit Operating System manual once that manual has an approved canonical path. It does not force either full manual to be reread on every prompt. The agent explicitly acknowledges receipt and intent to evaluate, then performs the evaluation under the existing routing and approval rules. The acknowledgment proves only receipt and intent. It is not proof that the review completed, that a candidate qualifies, or that a write is approved.
 - Five moments force a save review: a work item finishes or closes, a pull request is about to be opened, a handoff or a context clear is coming, a turn ends after real work was done, and any time the owner says to save something. Requirement 3 says what each review has to produce, and how these five moments are enforced.
 - Every other moment is left to the agent's judgment. It should propose a save whenever that is useful: a real problem here has just been fixed, a commit is coming, or something relevant has changed, such as a new person joining, somebody's role changing, the project switching to a different tool, a fact turning out to be out of date, or a decision about which system is the authority for a piece of data. A candidate the agent misses gets reviewed at the next required moment.
 - The owner saying "remember this" starts the save flow that leads to a card. It is not permission to write, and it skips no step.
@@ -1788,6 +1792,15 @@ This requirement says how far a program should go in enforcing requirements
   build something that scores whether the search was good enough. A confirmation
   is bookkeeping; it does not prove the agent understood anything, or that the
   answer was any good. Requirement 3 still checks the behavior that comes out.
+- The every-prompt reminder uses the same boundary: deliver the owner's short
+  orientation, compact working/lasting-memory criteria, and links to the
+  knowledge manual and the higher Toolkit Operating System manual; require an
+  intent acknowledgment; then let the agent reason about kind, scope,
+  destination, eligibility, and next action. It also considers updates,
+  corrections, removal, work records, an enabled System Guide, and client
+  delivery architecture. Do not add a semantic scorer, keyword classifier,
+  changed-file trigger, or forced full-manual reread to decide whether the
+  message matters.
 - Stronger checks guard writes to lasting files: the approval must cover the
   change that is actually being made, and the destination, the file shape, the
   fields, and the saved result must all follow the rules that apply. A file that
@@ -1952,9 +1965,15 @@ owns this design constraint. Mike established it here on 2026-09-16 and
 clarified its toolkit-wide scope on 2026-09-17. Requirement 29 applies it to
 knowledge operations: the agent reasons about what is worth saving and where
 it belongs; checkpoints request the relevant step and check its acknowledgment.
-The architect must resolve the exact checkpoints and acknowledgment behavior.
-The conversation examples do not approve a particular end-of-turn hook,
-frequency, or implementation; design question 2 remains open.
+For the prompt-side checkpoint, Mike chose every user prompt, the owner direction
+recorded in requirement 9, compact positive and negative working/lasting-memory
+criteria, links to the knowledge and higher Toolkit Operating System manuals,
+and an explicit acknowledgment of intent on 2026-09-17. The full manuals are not
+forced into context or reread on every turn. The higher manual's canonical path,
+the rest of the exact wording, acknowledgment transport, platform proof, and a
+second completion checkpoint remain design questions. Mike floated both the
+user-prompt and after-agent-message moments; only the user-prompt checkpoint is
+settled. The acknowledgment does not prove review completion or approve a save.
 
 Skills are part of the proposed design. They could guide finding and using
 knowledge, reviewing information worth saving, preparing a proposal, updating

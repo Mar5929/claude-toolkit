@@ -34,9 +34,9 @@ All runtime paths below describe the proposed system. Today this repository stil
 | Explicitly selected | Complete core Knowledge System and `delivery/architecture/`; System Guide off and not configured for Acme. Mike selected these hypothetical components on 2026-09-17. The Guide-off choice supersedes his earlier same-day Guide-on selection for this scenario. Nothing is installed and the full design is not approved. |
 | Assumptions, not decisions | Project-memory saves require approval under the recommended/default design. The GitHub repository does not select the work tracker. |
 | Latest scenario message | Mike's hypothetical brief describes the consulting firm and team structure, names Acme Corp as the client, assigns originating-org and target-org roles to the two existing orgs, and states an initial scope. No actual names or detailed facts were supplied; placeholders remain. This event was supplied on 2026-09-17. |
-| Unresolved choices | Detailed migration strategy; work tracker; architecture topic names/content; and the conversation-only review mechanism. The general System Guide/client-architecture integration question remains open outside Acme and does not block this scenario. |
-| Existing decisions retained | Startup delivery counts as reading; check delivery completion. Agent reasoning with lightweight handshakes is the governing philosophy. Changed-file review trigger rejected. |
-| Next question | Does the proposed routing preserve the first brief in the right bounded homes, and what handshake confirms a conversation-only review without claiming a turn hook already exists? |
+| Unresolved choices | Detailed migration strategy; work tracker; architecture topic names/content; canonical source and remaining wording for the compact reminder; acknowledgment transport; second completion checkpoint. The general System Guide/client-architecture integration question remains open outside Acme and does not block this scenario. |
+| Existing decisions retained | Startup delivery counts as reading; check delivery completion. Agent reasoning with lightweight handshakes is the governing philosophy. Changed-file review trigger rejected. Every submitted prompt gets a short all-destination review reminder, manual pointer, and explicit intent acknowledgment without a forced manual reread. |
+| Next question | Does the proposed routing preserve the first brief in the right bounded homes, and what compact prompt reminder helps the agent do that without confusing intent acknowledgment with completed review? |
 | Remaining work | Review steps 1–12, reconcile their answers into PRD/design, then obtain full requirements and design approvals. |
 
 ## The project story
@@ -119,7 +119,7 @@ The skill inspects the project, existing instructions/settings, installed plugin
 
 Empty destinations contain no invented history or approvals. Existing content is read before any merge. Lasting meaning changes retain the relevant approval requirements.
 
-Reusable skills/hooks/tools run from the installed plugin. Claude receives `.claude/rules/knowledge-system.md` and project activation in `.claude/settings.json`; Codex receives corresponding root `AGENTS.md` guidance and its supported hook/skill registration. The proposed four skills are `knowledge-find`, `knowledge-save`, `knowledge-review`, and `knowledge-setup`. Setup connects the seven hooks listed in later steps. It checks `core.hooksPath` and existing `.git/hooks` before adding `.githooks/pre-commit`.
+Reusable skills/hooks/tools run from the installed plugin. Claude receives `.claude/rules/knowledge-system.md` and project activation in `.claude/settings.json`; Codex receives corresponding root `AGENTS.md` guidance and its supported hook/skill registration. The proposed four skills are `knowledge-find`, `knowledge-save`, `knowledge-review`, and `knowledge-setup`. Setup connects the eight hooks listed in later steps, including the new short prompt reminder. It checks `core.hooksPath` and existing `.git/hooks` before adding `.githooks/pre-commit`.
 
 **Agent versus machinery:** the agent establishes the project's purpose and
 interprets conflicts. During setup it records two org placeholders and leaves
@@ -155,7 +155,14 @@ real delivery, or approve the full setup design.
 **Mike:** opens the new session and says, “I'm ready to tell you about this
 project and what we're doing.”
 
-**Trigger and files:** proposed `SessionStart` registration invokes `plugins/second-brain/hooks/startup-files.mjs` and `startup-state.mjs`. The first delivers version, `SOUL.md`, `knowledge/project.md`, then `knowledge/README.md`. The second delivers inbox headings/states, glossary, index paths/counts, the explicit `System Guide is not configured` state, and working memory. Detailed source documents stay on disk until useful.
+**Parent orientation interface:** Mike separately asked for first-session startup to
+orient the agent to the toolkit as a whole through the applicable root
+`CLAUDE.md` or `AGENTS.md` chain and higher-level operating guidance. Toolkit OS
+R6 owns that behavior. A concise operating-manual or pointer-file layout is an
+open parent-design choice; the Knowledge System manual remains the component
+owner for knowledge detail and must not become a competing toolkit manual.
+
+**Trigger and files:** proposed Knowledge System `SessionStart` registration invokes `plugins/second-brain/hooks/startup-files.mjs` and `startup-state.mjs`. The first delivers version, `SOUL.md`, `knowledge/project.md`, then `knowledge/README.md`. The second delivers inbox headings/states, glossary, index paths/counts, the explicit `System Guide is not configured` state, and working memory. Detailed source documents stay on disk until useful.
 
 The draft budgets 9,500 characters per hook. Missing or overflowed required content produces an explicit path to read; it must not silently count as delivered. Glossary printing is proposed at 1,500 characters, falling back to term/reference columns plus the file path. Inbox preview is proposed at 1,200. These cutoffs and extra file ceilings remain choices, not approved PRD limits.
 
@@ -181,19 +188,46 @@ it does not approve implementation. `knowledge/memory/current.md` carries the
 short discovery goal and next step. Approved client architecture facts and
 designs use the existing `delivery/architecture/` workflow. The agent reviews
 the conversation and routes each part instead of copying the whole brief into
-one store. This routing is an architect proposal awaiting review. The exact
-conversation-only handshake remains open, and no turn hook is claimed to be
-implemented.
+one store. This routing is an architect proposal awaiting review. The
+prompt-side conversation handshake below is selected design behavior, while its
+exact text and end-of-turn completion handling remain open. No hook is claimed
+to be implemented.
 
 **Mechanism under review:** the current draft uses `SessionStart`
 `startup-files.mjs` for `SOUL.md`, `knowledge/project.md`, and the manual, and
-`startup-state.mjs` for context maps. Standing guidance tells the agent to make
-one relevance decision before answering. The seven-hook design does not add a
-per-user-message manual-read or acknowledgment hook. The end-of-turn
-conversation-review replacement is still open design question 2; the existing
-style `UserPromptSubmit`/`PostToolUse` hook is separate and does not establish a
-Knowledge System mechanism. Mike's question about the exact behavior is a
-review point, not approval to add a per-prompt hook or change runtime.
+`startup-state.mjs` for context maps. Mike chose a new Knowledge System
+`UserPromptSubmit` hook that, before every prompt is processed, begins nearly
+verbatim: “Friendly reminder: keep front of mind and follow all of the Toolkit
+operating system methodologies, processes, and instructions. Know where the
+project files and folders live.” It asks the agent to evaluate the latest
+message and relevant conversation for additions, updates, corrections, removal,
+and every proper destination, including work records, an enabled System Guide,
+and `delivery/architecture/`. It links `knowledge/README.md` and the future
+higher Toolkit Operating System manual without injecting either manual in full,
+then asks for an explicit acknowledgment of intent. The higher manual's path is
+still a parent-design proposal. The agent reasons about kind, scope, owner,
+eligibility, and action under existing approval rules. The acknowledgment does
+not prove the review completed or approve a write.
+
+The reminder gives both positive and negative criteria. Working memory is
+concise active context such as the objective, blocker, next step, temporary
+note, hypothesis, or partial state. Lasting memory is a project-relevant durable
+fact, decision, feedback, context, event, constraint, relationship, or real
+failure and fix supplied by Mike or worked out together that would otherwise
+need repeated explanation. Tools/logs/filler, source copies, procedures,
+requirements, open implementation steps, live status, system explanations,
+stale facts, and secrets do not become lasting memory; route them or keep
+temporary state lean. Route by kind and scope before memory eligibility.
+
+The recommendation is for one canonical compact reminder section in the manual
+plus a `Stop` checkpoint before final turn completion to catch discoveries made
+during work. A hook after every intermediate agent or tool message is not
+recommended. The manual-source mechanism, remaining wording, acknowledgment
+transport and loop prevention, and Stop completion behavior remain proposals.
+The older changed-file trigger stays rejected. The existing style hook remains
+separate. Official Claude Code and Codex documentation supports
+`UserPromptSubmit` additional context, but this proposed Knowledge hook still
+needs Windows, trust, registration, and fresh-session runtime proof.
 
 **Failure:** missing manual or timeout prevents an honest readiness acknowledgment; pause work needing that guidance, recover the file/delivery, then continue. Fail-open hooks cannot guarantee the action was blocked. The design needs fresh-session proof of ordering across both hook outputs.
 
@@ -257,7 +291,11 @@ team calls its recovery process ‘getting back in.’ Remind me to review rollo
 communications next week. Maybe we could use a phased cutover.” No code changes
 occur.
 
-**Trigger:** standing guidance requires attention during conversation and at five save moments: item completion/closure, before a PR, handoff/clear, end of real work including discussion, and explicit save. The exact end-of-turn checkpoint is still open.
+**Trigger:** every submitted prompt now has the selected short review reminder
+and intent acknowledgment. Standing guidance also requires attention at five
+save moments: item completion/closure, before a PR, handoff/clear, end of real
+work including discussion, and explicit save. The exact end-of-turn completion
+checkpoint is still open; the prompt acknowledgment cannot prove it happened.
 
 **Architect's proposal for review here:** a bounded checkpoint asks the agent to review the conversation against the routing/save criteria, then acknowledge the review outcome. The agent may report no candidate, existing coverage, routed changes, proposals awaiting permission, or an unfinished save. Acknowledgment records that the step was reported; it cannot certify judgment. `session-review-nudge.mjs` is the draft location for Stop integration, subject to verified harness support and loop prevention. Do not implement the old changed-file threshold. Do not equate the existing skill-entry marker with review completion.
 

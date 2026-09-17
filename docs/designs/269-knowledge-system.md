@@ -101,12 +101,13 @@ fails the checker. Everything else is guidance, including what to look up, what
 is worth saving, where it goes, and when to propose a save. Requirement 29
 forbids a program that scores the agent's search, so nothing checks those.
 
-Six things change from today. One startup hook becomes two, with a
+Seven things change from today. One startup hook becomes two, with a
 9,500-character budget each. `knowledge/README.md` goes from 13,395 characters
 to under 4,000, and its templates and field tables move into skill reference
 files. Six skills become four. `memory-reminder.mjs`, which costs 1,292
-characters on every message, is dropped for a 26-line rule file at 1,998
-characters. Two guards, a compaction hold, an after-write check, and a Git
+characters on every message and repeats the manual, is replaced with a short
+per-prompt routing reminder and a 26-line rule file at 1,998 characters. Two
+guards, a compaction hold, an after-write check, and a Git
 pre-commit hook are added, and every hook runs from the plugin, so projects keep
 no copies. The data model is kept: the files, the direct-commit rule, the
 checker's approval logic and its secret patterns, and the feedback file. No
@@ -116,7 +117,7 @@ Eight decisions come before the build. The number in brackets is the question in
 section 15.
 
 1. Does hook delivery of the three startup files count as "read"? **Yes, and the check is that delivery finished.** [1]
-2. How should end-of-turn save review be prompted? **Mike rejected the hard-coded changed-file trigger on 2026-09-16: conversation alone can produce information worth saving. The replacement mechanism remains open.** [2]
+2. How should conversation review be prompted? **Mike rejected the hard-coded changed-file trigger on 2026-09-16. On 2026-09-17 he chose a short reminder after every user prompt submission, compact positive and negative working/lasting-memory criteria, links to the knowledge and higher Toolkit Operating System manuals, and an explicit acknowledgment of intent without a forced manual reread. This settles the prompt-side checkpoint. The higher manual path, remaining exact text, acknowledgment transport, and the second completion checkpoint remain open; “after every agent message” is not settled.** [2]
 3. May the approved walkthrough be edited where this design changes it? **Yes, both affected parts, with the edit dated.** [5]
 4. Which glossary path is real? **`knowledge/memory/memory-entries/terminology-glossary.md`.** [6]
 5. Does "when work ships" mean the work item is closed as done, or its pull request is merged? **Either one, and merge is not gated.** [7]
@@ -185,10 +186,12 @@ what the character budget is for.
 The [toolkit-wide handshake principle](../../knowledge/prds/toolkit-operating-system/toolkit-operating-system.md#design-principle-guide-the-agent-through-handshakes)
 is the governing design constraint, clarified by Mike on 2026-09-17. The agent
 does the reasoning; checkpoints request a step and check its acknowledgment.
-Acknowledgment is not proof of correct reasoning. The architect must resolve
-the exact mechanism and timing. Mike's illustrative examples do not settle
-question 2 or approve the draft controls below; reconcile them against this
-principle during the remaining design review.
+Acknowledgment is not proof of correct reasoning. For the prompt-side checkpoint,
+Mike chose every user prompt, a short reminder and manual pointer, an explicit
+acknowledgment of intent, and no forced reread of the full manual. Exact wording,
+acknowledgment transport, completion verification, and end-of-turn handling
+remain open. Reconcile the draft controls below against this principle during
+the remaining design review.
 
 The owner's brief, in plain form: the agent does the reasoning. Each part
 around it does one of three things: it delivers text when it applies, it
@@ -219,7 +222,8 @@ ENFORCE is used for three things only:
    secrets. The after-write check is one of these.
 
 GUIDE is used for lookups, citations, choosing candidates, wording, the
-destination table, and the quiet review at the end of a turn with real work.
+destination table, the short reminder after every prompt, and the quiet review
+at the end of a turn with real work.
 JUDGE is used for relevance, search, what counts as memory, the wording of a
 card, and which home a piece of information belongs in. This split follows
 requirement 29, which says to begin with a small set of safeguards aimed at the
@@ -236,9 +240,16 @@ actually happened.
 | A database | Requirement 1: every piece of knowledge is a plain text file in the repository, and those files are the only copy. |
 | A background writer | Requirement 1 and requirement 10. Anything that writes without approval breaks the approval rule. Claude Code auto memory and the Codex memory pipeline are both turned off for this reason. |
 
-### The per-turn review is guided, not enforced
+### Prompt and end-of-turn review are guided, not enforced
 
-Requirement 9 asks for a save review at the end of every turn that did real
+Before every user prompt is processed, `knowledge-prompt-reminder.mjs` delivers
+a short reminder to evaluate the latest message and relevant conversation. The
+agent acknowledges receipt and intent. The reminder covers every requirement 18
+destination, points to the manual, and does not force the whole manual to be
+reread. Neither delivery nor acknowledgment proves that the review completed or
+that a write is approved.
+
+Requirement 9 also asks for a save review at the end of every turn that did real
 work, and requirement 3 says that review is required even when it produces
 nothing the owner sees. A review that finds nothing produces no observable
 output, so no harness can prove it happened. It is therefore GUIDE, not
@@ -281,6 +292,7 @@ specific way.
 | Skill | `knowledge-setup` | Turn the system on in a project, migrate the layout, repair, and report | 2, 3, 7, 18, 24, 25, 27 | GDE | On request, or from `/project-init` and `/project-sync` | Description always, under 500 characters; body about 5,000 characters when invoked | `ai-external-knowledge/claude-code/skills.md`, section "Frontmatter reference" |
 | Hook | `hooks/startup-files.mjs`, `SessionStart` | Print the version line, then `SOUL.md`, `knowledge/project.md`, and `knowledge/README.md`, in that order | 2, 3 | ENF on delivery | Session start, resume, clear, compaction, fork | Up to 9,500 characters per start | `ai-external-knowledge/claude-code/hooks.md`, section "SessionStart" |
 | Hook | `hooks/startup-state.mjs`, `SessionStart` | Print the version line, the inbox state lines, the glossary, the two index paths and their entry counts, the System Guide line, `knowledge/memory/current.md`, and the last line | 2, 3, 4, 7, 13, 28 | ENF on delivery | Session start, resume, clear, compaction, fork | Up to 9,500 characters per start | `ai-external-knowledge/claude-code/hooks.md`, section "SessionStart" |
+| Hook | `hooks/knowledge-prompt-reminder.mjs`, `UserPromptSubmit` | Deliver a short routing reminder before each user prompt is processed and request an acknowledgment of intent | 3, 9, 18, 29 | GDE | Every submitted user prompt | Short; exact text and measured budget remain open | Claude Code and Codex `UserPromptSubmit` documentation |
 | Hook | `hooks/save-moment-gate.mjs`, `PreToolUse` | Hold a pull request, a work-item close, or `work finish`, the work tracker's finish command, until the save skill ran | 3, 9, 16, 30 | ENF | Before the matching tool call | Zero unless it denies, then about 220 characters | `ai-external-knowledge/claude-code/hooks.md`, sections "PreToolUse" and "Common fields" |
 | Hook | `hooks/knowledge-write-guard.mjs`, `PreToolUse` | Refuse a write to a lasting file until the save skill ran, and always inside a subagent | 3, 10, 13, 14 | ENF | Before `Edit` or `Write` under the lasting paths | Zero unless it denies, then about 200 characters | `ai-external-knowledge/claude-code/hooks.md`, section "PreToolUse input" |
 | Hook | `hooks/knowledge-after-write.mjs`, `PostToolUse` | Run the checker and rebuild the affected index after a knowledge write | 3, 14, 21 | ENF | After `Edit` or `Write` under `knowledge/` or `ai-external-knowledge/` | Zero on a clean write; about 300 characters on a failure | `ai-external-knowledge/claude-code/hooks.md`, section "PostToolUse" |
@@ -1038,7 +1050,7 @@ Reference files: `references/templates/` (one per knowledge file),
 description always; body about 5,000 characters when invoked. The Codex report names
 each gap.
 
-### 6.4 The seven hooks
+### 6.4 The eight hooks
 
 Every hook is `type: "command"` in exec form:
 `"command": "node", "args": ["${CLAUDE_PLUGIN_ROOT}/hooks/<name>.mjs"]`. Every
@@ -1049,7 +1061,7 @@ folder or to a generated index. They are registered in the plugin's
 Codex, with `.codex/hooks.json` as the fallback.
 
 Every entry sets an explicit `timeout`: 15 seconds for the two startup hooks, 5
-seconds for the two guards, the after-write check, and `compact-hold.mjs`, and
+seconds for the prompt reminder, the two guards, the after-write check, and `compact-hold.mjs`, and
 10 seconds for the Stop hook. The Claude Code default is 600 seconds, and a hook
 that reaches its timeout has its output discarded, so a hook that reaches its
 timeout renders no decision and the tool call goes through the normal permission
@@ -1066,6 +1078,66 @@ return startup text for one event, the agent receives all of the values
 (`hooks.md`, line 996). Splitting the print in two doubles the room, because the
 10,000-character output cap applies to each hook's output string, not to the
 event.
+
+#### `knowledge-prompt-reminder.mjs`, `UserPromptSubmit`
+
+Requirements met: 3, 9, 18, 29
+
+Before the harness processes every submitted user prompt, this command hook
+adds a short instruction to the agent's context. [Claude Code documents
+`UserPromptSubmit`](https://code.claude.com/docs/en/hooks#userpromptsubmit)
+before prompt processing and supports `hookSpecificOutput.additionalContext`;
+[Codex documents the same event](https://learn.chatgpt.com/docs/hooks#userpromptsubmit)
+and accepts plain stdout or JSON additional context. The implementation still
+needs Windows, trust, registration, and fresh-session proof on both harnesses.
+
+The owner chose the behavior on 2026-09-17. The reminder begins nearly verbatim:
+“Friendly reminder: keep front of mind and follow all of the Toolkit operating
+system methodologies, processes, and instructions. Know where the project files
+and folders live.” It then asks the agent to evaluate the latest message and
+relevant conversation for new knowledge, updates, corrections, removal, and
+other project-record changes. It considers all destinations in requirement 18,
+including work records, an enabled System Guide, and client delivery
+architecture, not memory alone. It links the knowledge manual and higher Toolkit
+Operating System manual, explicitly requests an acknowledgment of intent, and
+does not force a complete manual reread on every turn. The higher manual's
+canonical path remains a parent-design choice. The acknowledgment is receipt and
+intent, not proof of completed review, correct routing, or permission to save.
+
+The reminder itself includes compact positive and negative criteria. Working
+memory is concise active context: objective, blocker, next step, temporary note,
+hypothesis, or partial state. Lasting memory is a project-relevant durable fact,
+decision, feedback, context, event, constraint, relationship, or real failure
+and fix that came from the owner or was worked out together and would otherwise
+need to be explained again. Tool activity, logs, filler, source copies,
+procedures, requirements, open implementation steps, live status, system
+explanations, stale facts, and secrets do not become lasting memory. The agent
+routes those items to the proper owner or keeps temporary state concise.
+
+The root `CLAUDE.md` or `AGENTS.md` remains a router and the manuals provide full
+detail. The architect recommends one canonical compact reminder section in the
+knowledge manual, injected by the hook, so the wording cannot drift. That source
+mechanism and the remainder of the exact phrasing are proposals. Do not inject
+the whole folder table or either full manual on every prompt.
+
+Control: GUIDE. The hook supplies the reminder and asks for acknowledgment; the
+agent judges meaning and routing, then performs the evaluation under existing
+approval rules. Timeout: proposed at 5 seconds with fail-open behavior, subject
+to runtime proof. Context cost: not yet measured; it must remain compact and
+must not restate either whole manual.
+
+Mike floated a checkpoint on the user prompt and another after the agent message.
+Only the first is settled. The architect recommends the prompt reminder plus one
+Stop checkpoint before final turn completion, so discoveries made during work
+are reviewed without running a hook after every assistant or tool commentary.
+The Stop timing, exact completion request, acknowledgment transport, and loop
+prevention remain proposals. A stable baseline is the documented command-hook
+events. Anthropic's [2026-09-09 preview of in-process TypeScript Function Hooks
+(“Claude Mods”)](https://github.com/anthropics/claude-code/issues/91870)
+supports middleware composition but remains opt-in with an iterating interface;
+it is not required for this behavior and has no confirmed Codex equivalent in
+the reviewed documentation. This is dated platform evidence and an optional
+future adapter, not a requirement or a claim about installed functionality.
 
 #### `startup-files.mjs`, `SessionStart`
 
@@ -1380,11 +1452,14 @@ filter does the work on every tool call.
 
 #### `session-review-nudge.mjs`, `Stop`
 
-**Review decision, 2026-09-16:** Mike rejected the changed-file-count trigger
+**Review decisions, 2026-09-16 and 2026-09-17:** Mike rejected the changed-file-count trigger
 described below. Conversation-only sessions must also be considered for saves.
 The baseline, threshold, and count-based state below are rejected design detail,
 retained pending a replacement design; do not implement them. This decision
 does not reject the separate unfinished-save and checker-reconciliation duties.
+The every-prompt reminder above now supplies the selected prompt-side checkpoint.
+Whether a Stop hook should still prompt or confirm end-of-turn completion remains
+open.
 
 Requirements met: 3, 9, 10, 21, 28
 
@@ -1622,8 +1697,6 @@ bookkeeping is temporary state, never a lasting fact about the project. Fields:
 | --- | --- | --- | --- |
 | `save_skill_at` | Epoch seconds when `knowledge-save` was last invoked | `session-marker.mjs` | `save-moment-gate.mjs`, `knowledge-write-guard.mjs`, `session-review-nudge.mjs` |
 | `branch` | The branch that was checked out at that moment | `session-marker.mjs` | `save-moment-gate.mjs` |
-| `stop_baseline` | HEAD and the dirty paths at the session's first Stop | `session-review-nudge.mjs` | `session-review-nudge.mjs` |
-| `nudged_at_count` | The changed-file count at the last nudge, so the hook speaks again only at the next multiple of 10 | `session-review-nudge.mjs` | `session-review-nudge.mjs` |
 | `reconciled_at` | When the Stop hook last reconciled files changed through Bash commands | `session-review-nudge.mjs` | `session-review-nudge.mjs` |
 | `compact_held` | Whether the manual compaction hold already fired | `compact-hold.mjs` | `compact-hold.mjs` |
 | `inbox_nudged` | Whether the unfinished-save line already fired this session | `session-review-nudge.mjs` | `session-review-nudge.mjs` |
@@ -1672,13 +1745,13 @@ a mix, and the strongest control is named first.
 | --- | --- | --- | --- | --- |
 | 1. Plain parts only | Every part in section 4 | GUIDED. Checked at build review, not at run time | List every part. Each is a Markdown file, a rule file, a hook, a skill, or Git. A Node script is part of the hook or skill that runs it. A repo check fails when the plugin ships a part outside those five kinds | Someone adds a service later. Section 4 is the record of what exists |
 | 2. The agent follows this system | `startup-files.mjs`, `startup-state.mjs`, `.claude/rules/knowledge-system.md`, the four skills | ENFORCED on delivery, GUIDED on use | Run `claude --init-only --debug-file`, read the log, and confirm the map printed in order and ended with its last line, with no spill notice | Delivery is not proof of reading. Requirement 2's "confirm the contents were read" cannot be met and is an open question |
-| 3. Reliable behavior without reminders | All seven hooks, the standing rule, `knowledge-save`, the setup report | ENFORCED at the three moments, GUIDED for lookups and the per-turn review | Requirement 3's representative sessions on both harnesses: a fresh session, a long conversation with the context condensed, a task switch, and parallel sessions | A quiet review cannot be observed. Named in the design and in every setup report |
+| 3. Reliable behavior without reminders | All eight hooks, the standing rule, `knowledge-save`, the setup report | ENFORCED at the three moments, GUIDED for lookups, every-prompt review, and the end-of-turn review | Requirement 3's representative sessions on both harnesses: a fresh session, a long conversation with the context condensed, a task switch, and parallel sessions | A quiet review cannot be observed. Prompt acknowledgment proves intent, not completion. Named in the design and in every setup report |
 | 4. Picks up where the last left off | `knowledge/memory/current.md`, `startup-state.mjs`, `knowledge-find` | GUIDED | Work in one session, close it, open a fresh session two days later and ask what was being worked on | A stale `current.md` reads as current. The nudge counts changed files, not stale text |
 | 5. Check memory first | `.claude/rules/knowledge-system.md`, `knowledge-find` | GUIDED, JUDGED on relevance | Ask about something already saved. The answer comes from the file and names it | The agent can decide "no" wrongly. No checker for judgment, by requirement 29 |
 | 6. Cite the source | The standing rule, `knowledge-find` | GUIDED | Ask for something saved. The line below the finding is the file path | A missing citation is caught only by reading the answer |
 | 7. Speaks the project's language | `terminology-glossary.md`, `startup-state.mjs`, `knowledge-save` | GUIDED | Use a known term and an unfamiliar one. Both resolve without a question | A glossary over 1,500 characters prints two columns and its path, so the `Watch out` and `Source / date` columns need the file to be opened. Named in the setup report |
 | 8. Read the real documentation first | `ai-external-knowledge/README.md`, `knowledge-find`, `build-knowledge-index.mjs` | ENFORCED on index format, GUIDED on use | Ask for something a captured topic covers without naming the folder. The page is opened and cited with its capture date | Capture dates can be ignored. `.claude/rules/ai-external-knowledge.md` still applies |
-| 9. Saving is frictionless | `knowledge-save`, `save-moment-gate.mjs`, `session-review-nudge.mjs`, `compact-hold.mjs`, `.claude/rules/knowledge-direct-commit.md` | ENFORCED at three moments, GUIDED at the other two | Finish work with a candidate. One word of approval writes the file and the reply ends with it pushed | A push can fail. The skill says so and the inbox keeps the save. Batching several decisions into one push is an open question |
+| 9. Saving is frictionless | `knowledge-save`, `knowledge-prompt-reminder.mjs`, `save-moment-gate.mjs`, `session-review-nudge.mjs`, `compact-hold.mjs`, `.claude/rules/knowledge-direct-commit.md` | ENFORCED at three moments, GUIDED at prompt and end-of-turn review | Finish work with a candidate. One word of approval writes the file and the reply ends with it pushed | A push can fail. The skill says so and the inbox keeps the save. Prompt acknowledgment does not prove completion. Batching several decisions into one push is an open question |
 | 10. Approval before any write | `knowledge-save`, `knowledge-write-guard.mjs`, `memory_approval` in `knowledge/project.md` | ENFORCED on the write path, GUIDED on approval itself | Show a card, say nothing back. The card stays in the inbox as `awaiting approval` and nothing is written | No hook can see approval. A write made through a Bash command never reaches the guard; `session-review-nudge.mjs` reconciles it at the end of the turn and `.githooks/pre-commit` catches it before it is published. The read-back and the inbox rules reduce the risk; they do not remove it |
 | 11. What counts as memory | `knowledge-save`, `knowledge/memory-selection-feedback.md` | JUDGED, GUIDED | Give three candidates: a temporary schedule change, a supported decision, a routine step the agent did alone. Only the decision is proposed | Over-proposing. The feedback file corrects it over time |
 | 12. What never counts | `knowledge-save`, `check-knowledge.mjs` secret patterns | ENFORCED for secrets, JUDGED for the rest | Run the list against one session's candidates. Everything matching a bullet is dropped before a card | A secret in a form the eight patterns miss |
@@ -1808,18 +1881,18 @@ Codex, `Stop` has no `additionalContext`. The only way to say anything is
 `decision: "block"` with a reason, which also forces the turn to continue.
 There is no documented loop cap.
 
-So the end-of-turn nudge forces one continuation on both harnesses. What
-differs is the transcript label and the loop cap, not what the owner waits for.
-Decision: the nudge fires at most once per session per threshold, on either
-harness. It fires when the changed-file count crosses the threshold, or when
-`knowledge/memory-inbox.md` holds an approved save that never finished. The
-session-state file records that it fired, so a second one is impossible in
-Codex where nothing else would stop it.
+So a Stop nudge would force one continuation on both harnesses. What differs is
+the transcript label and the loop cap, not what the owner waits for. The former
+proposal fired once per session when a changed-file threshold was crossed. Mike
+rejected that trigger on 2026-09-16; it is historical detail, not a build
+decision. The separate unfinished-save notice and checker reconciliation remain
+in scope. End-of-turn review prompting still needs a replacement design.
 
-The end-of-turn nudge was recommended by an agent on 2026-09-03 and has never
-been approved. Whether it exists at all is Mike's decision: section 13.2 and
-open question 2. Without it, the design raises three visible save moments and
-leaves the end of a turn to the standing rule. The after-write reconciliation
+The old count-based end-of-turn nudge was recommended on 2026-09-03 and later
+rejected. The new every-prompt reminder does not settle whether a Stop nudge
+exists; section 13.2 and open question 2 retain that design choice. Without it,
+the design raises three visible save moments, delivers the prompt reminder, and
+leaves end-of-turn completion to the standing rule. The after-write reconciliation
 that now runs at Stop also continues the turn, but only when the checker fails
 on a file changed through a Bash command. That is a failure the agent has to
 fix before the turn ends anyway. If a genuinely quiet note is wanted later, the
@@ -1918,7 +1991,7 @@ condition under which requirement 2's startup reads happen at all.
 | `plugins/second-brain/hooks/knowledge-session-start.mjs` | Change: rewritten as two hooks, `startup-files.mjs` and `startup-state.mjs` | Prints 20,585 characters against a 10,000-character cap per hook output string. Wrong file order. No budget, no version line, no inbox lines, no glossary, no `fork` source. Two hooks on the same event give the map two budgets instead of one | 2 (PRD line 475), 3 (line 508), 7 (line 616), 28 (line 1629) |
 | `entriesOnly()` inside that hook (prints index entry lines only) | Change: `startup-state.mjs` prints each index as a path and an entry count | The idea is right and the new form is cheaper still. Its own comment says the listings are deliberately unsatisfying: enough to make the agent open the right file, never enough to answer from | 19 (line 1316) |
 | The System Guide boundary inside that hook | Keep as is | It reports only an explicit off state and never imports the System Guide plugin's paths. A malformed config is left alone so the guide's own plugin reports it | 30 (line 1754) |
-| `plugins/second-brain/hooks/memory-reminder.mjs` (UserPromptSubmit) | Drop | 1,292 characters on every message, measured; 129,200 characters over a 100-message session. It restates the manual that startup already delivered, and it tells the agent on every message that a PRD becomes `current`, which requirement 16 replaced with `finalized`. This repository already removed `style-reminder` for the same reason | 29 (line 1707) |
+| `plugins/second-brain/hooks/memory-reminder.mjs` (UserPromptSubmit) | Replace with `knowledge-prompt-reminder.mjs` | The current 1,292-character hook repeats the manual and carries outdated lifecycle wording. The replacement keeps the event but sends only a short all-destination routing reminder, points to the manual, requests an intent acknowledgment, and never treats that acknowledgment as proof. Exact wording and budget remain open | 3, 9, 18, 29 |
 | `plugins/second-brain/hooks/save-reminder.mjs` | Change: folded into `save-moment-gate.mjs` | The once-per-branch hold was bypassed in an audited session. The gate is now released by evidence that `knowledge-save` ran after the branch's last commit | 3 (line 524), 9 (line 674) |
 | The knowledge-only branch detection inside `save-reminder.mjs` | Keep, moved into `save-moment-gate.mjs` | It compares the branch against the default branch and, when every committed change is under `knowledge/`, says the branch needs no pull request. It counts committed work only, so one stray build file cannot confuse it | 9 (line 678) |
 | `plugins/second-brain/hooks/work-item-close.mjs` | Change: folded into `save-moment-gate.mjs` | One gate, one piece of evidence, instead of two hooks with two temp folders | 3 (line 524), 16 (line 1162) |
@@ -1930,7 +2003,7 @@ condition under which requirement 2's startup reads happen at all.
 | Nothing registered on `Stop` | Add `session-review-nudge.mjs` | The fifth save moment, "a turn ends after real work", has nothing behind it | 9 (line 674) |
 | Nothing registered on `PreCompact` | Add `compact-hold.mjs`, manual compaction only | Automatic compaction is never held, because blocking a recovery compaction can fail the request | 9 (line 674) |
 | `plugins/hooks-library/hooks/spec-check-reminder.mjs` | Keep, unchanged | It is a different plugin and a different moment: the first file edit of a session, asking whether `spec-check` ran before building from a PRD | 16 (line 1120) |
-| Fail-open behavior in every hook | Keep as is, and add an explicit `timeout` to every entry | Every hook catches its own errors and exits 0, verified at runtime for all seven. A knowledge setup must never stop a session from running. A hook that reaches its timeout also fails open, which is why the guards are short and their run time is measured | 29 (line 1669) |
+| Fail-open behavior in every hook | Keep as is, and add an explicit `timeout` to every entry | Fail-open behavior is verified for the seven existing hook paths. The new prompt reminder must receive the same runtime proof. A knowledge setup must never stop a session from running. A hook that reaches its timeout also fails open, which is why the guards are short and their run time is measured | 29 (line 1669) |
 | Session state in the OS temp folder | Change: move to `${CLAUDE_PLUGIN_DATA}/sessions/<session_id>.json`, and `~/.claude-toolkit/sessions/` in Codex | The placement rule stays, the contents grow. Requirement 29 (PRD line 1732) already asks for this placement. `${CLAUDE_PLUGIN_DATA}` is documented at `~/.claude/plugins/data/<id>/`. `startup-state.mjs` deletes files older than 30 days | 29 (line 1732) |
 | `CODEX_PROJECT_DIR` fallback in two shipped hooks | Drop | The variable does not exist in Codex. The fallback is dead code | 26 (line 1599) |
 | `fork` missing from the `SessionStart` matcher in `.claude/settings.json` and `.codex/hooks.json` | Change: add `fork` | A forked conversation starts with no map | 2 (line 475) |
@@ -2101,9 +2174,9 @@ delivery detail and is recorded; none of them changes which parts are built.
 | `FileChanged` with `watchPaths` fires for a file the agent changed with a Bash command | Only for a later silent index rebuild after the owner's hand edits. It cannot carry the checker's result, because that event returns no `additionalContext`, so a failed check would never reach the agent, and it watches literal filenames | Register a watch on one file and change it with `sed` | The hook fires. If it does not, the feature is dropped, and nothing else changes |
 | A Git pre-commit hook enabled by `core.hooksPath` runs the checker and refuses a bad commit | It runs at the moment a knowledge file is committed, and it covers the owner's own hand edits and both harnesses | Stage a memory file with a missing `updated_at` and commit | The commit is refused and the message names the file and the rule |
 | `PreCompact` with the matcher `manual` holds `/compact` and is never registered for `auto` | Blocking an automatic recovery compaction can fail the request | Run `/compact` with the hook registered, then fill a session until automatic compaction runs | Manual compaction is held once. Automatic compaction is never held |
-| A `Stop` hook returning `additionalContext` does not loop | The nudge runs at the end of every turn | Register the nudge, cross the threshold, and let the turn end | The nudge appears once and continues the turn once. `stop_hook_active` is true on the second entry and the hook exits silent |
-| The Stop nudge's continuation does not interact badly with another `Stop` hook in the same project | Both share the cap of 8 consecutive continuations | Register a second Stop hook that also continues the turn, and cross both thresholds | Neither hook is left without a turn, and the turn ends at the cap rather than looping |
-| Each guard's `timeout` is short enough that the fail-open path is never reached in normal use | A timed-out hook renders no decision and the tool call continues | Time `git log`, `git status`, and the checker on a large knowledge folder, on the slowest machine in use | Every hook's worst case is well under its `timeout`: 5 seconds for the two guards, the after-write check, and `compact-hold.mjs`, 10 for the Stop hook, 15 for the startup hooks |
+| `UserPromptSubmit` additional context reaches the agent before the prompt is processed on both harnesses | The selected prompt-side checkpoint depends on that order | Register a logging prompt reminder in clean Claude Code and Codex sessions and submit one prompt | Each harness gives the agent the short reminder with the current user prompt, once, without injecting the full manual |
+| The selected acknowledgment transport does not create a prompt or hook loop | Acknowledgment records intent only and must not repeatedly trigger itself | After the transport is chosen, submit a prompt and complete the acknowledgment on both harnesses | The reminder appears once for the user's prompt, the acknowledgment is visible in the agreed place, and no second reminder is caused by the acknowledgment itself |
+| Each guard's `timeout` is short enough that the fail-open path is never reached in normal use | A timed-out hook renders no decision and the tool call continues | Time the prompt reminder, `git log`, `git status`, and the checker on a large knowledge folder, on the slowest machine in use | Every hook's worst case is well under its `timeout`: proposed 5 seconds for the prompt reminder, the two guards, the after-write check, and `compact-hold.mjs`, 10 for the Stop hook, 15 for the startup hooks |
 | Where a `PreCompact` `decision: "block"` reason is shown: the owner, the agent, or both | The hold message is written for whoever reads it | Run `/compact` with the hook registered and read both the terminal and the next agent message | The message appears in at least one of the two, and the wording is set to match |
 | The gate fires for a PowerShell call on a Windows machine without Git Bash | One `if` rule matches one tool, so a `Bash(...)` rule never matches PowerShell | Run `gh pr create` through PowerShell on a Windows machine with no Git Bash, with all eight handlers registered | The gate denies, and the deny comes from the PowerShell handler |
 | A plugin `hooks/hooks.json` deny survives the owner's usual permission mode, including auto mode | The write guard and the gate are the design's two refusals | Try a guarded write in default mode, in auto mode, and in `bypassPermissions` | The deny holds in all three |
@@ -2244,7 +2317,7 @@ from the sections named beside it.
 | When it is paid | Today | After this design |
 | --- | --- | --- |
 | Once per session start, resume, clear, compaction, and fork | The single startup hook prints 20,585 characters. The agent receives the first 10,000, about 2,500 tokens, and a file path for the rest, so the manual does not arrive (9, 6.4) | Two hooks, 15,900 characters at every cap, about 4,000 tokens; about 10,000 characters, about 2,500 tokens, in a normal project. The manual arrives (6.4) |
-| On every request, in every session and most subagents | `memory-reminder.mjs` adds 1,292 characters, about 320 tokens, and repeats the manual. The six shipped skill descriptions are paid as well and were not measured (9.1) | The standing rule at 1,998 characters plus four descriptions under 500 each: about 4,000 characters, about 1,000 tokens (6.2, 6.3) |
+| On every request, in every session and most subagents | `memory-reminder.mjs` adds 1,292 characters, about 320 tokens, and repeats the manual. The six shipped skill descriptions are paid as well and were not measured (9.1) | The standing rule at 1,998 characters, four descriptions under 500 each, and a short prompt reminder whose exact text is still open. Measure the accepted wording before build (6.2-6.4) |
 | When a skill is invoked, once, and kept across turns | `remember`, `recall`, `reflect`, `retire`, `second-brain`, or `session-search` body | `knowledge-save` about 6,000 characters, about 1,500 tokens; `knowledge-setup` 5,000; `knowledge-find` and `knowledge-review` 3,000 each (6.3) |
 | When a guard speaks | Today's reminders speak on a schedule | 200 to 300 characters on a deny or a checker failure, and nothing otherwise (6.4) |
 
@@ -2323,9 +2396,9 @@ marker, the gate, or the write guard, because those scripts arrive in item 2.
 | Field | Value |
 | --- | --- |
 | Requirements delivered | 3 (line 508), 9 (line 669), 10 (line 703), 29 (line 1669) |
-| Files | `plugins/second-brain/hooks/save-moment-gate.mjs`, `knowledge-write-guard.mjs`, `knowledge-after-write.mjs`, `session-review-nudge.mjs`, `compact-hold.mjs`; `plugins/second-brain/hooks/command-parsing.mjs` kept as the shared helper; `plugins/second-brain/tools/session-marker.mjs`; the `PreToolUse`, `PostToolUse`, `Stop`, and `PreCompact` entries in the plugin's `hooks.json`, eight of them for the gate and six for the write guard, because one `if` holds one rule |
+| Files | `plugins/second-brain/hooks/knowledge-prompt-reminder.mjs`, `save-moment-gate.mjs`, `knowledge-write-guard.mjs`, `knowledge-after-write.mjs`, `session-review-nudge.mjs`, `compact-hold.mjs`; `plugins/second-brain/hooks/command-parsing.mjs` kept as the shared helper; `plugins/second-brain/tools/session-marker.mjs`; the `UserPromptSubmit`, `PreToolUse`, `PostToolUse`, `Stop`, and `PreCompact` entries in the plugin's `hooks.json`, eight of them for the gate and six for the write guard, because one `if` holds one rule |
 | Depends on | Item 1, because every guard's message names a skill, and the marker is written from the `knowledge-save` body |
-| Note | The assumption tests in section 10 run before this item starts, because four of them decide how these scripts are written. `hooks/hooks.json` already exists from item 1; this item adds the `PreToolUse`, `PostToolUse`, `Stop`, and `PreCompact` entries to it, with the timeouts in 6.4 |
+| Note | The assumption tests in section 10 run before this item starts, because four of them decide how these scripts are written. `hooks/hooks.json` already exists from item 1; this item adds the `UserPromptSubmit`, `PreToolUse`, `PostToolUse`, `Stop`, and `PreCompact` entries to it, with the timeouts in 6.4. The prompt wording and acknowledgment transport must be settled before this item is ready to build |
 
 ### Item 3. The tools and the layout migration
 
@@ -2427,12 +2500,24 @@ conversation). Save review must consider the conversation even when no files
 change. File activity is not a prerequisite for identifying information worth
 saving. This rejects the trigger, not the need for review or owner approval.
 
-**Still open:** how to reliably prompt that review. The existing per-turn duty
-remains; no replacement hook, frequency, or forced continuation is approved by
-this answer. The count-based details elsewhere in this draft, including the
-baseline and `nudged_at_count` state, must be reconciled when the replacement
-is settled. Explicit save moments and the Stop hook's separate unfinished-save
-and checker duties are unaffected by this decision.
+**Owner decision, 2026-09-17:** use a short `UserPromptSubmit` reminder after
+every user prompt. Begin with the owner's Toolkit Operating System direction,
+include compact positive and negative working/lasting-memory criteria, link the
+knowledge manual and higher operating manual, and require an explicit
+acknowledgment of intent. Do not force either full manual to be reread each time.
+The reminder covers new knowledge, updates, corrections, removal, and every
+information destination. The agent still reasons about kind, scope, owner,
+eligibility, and next action. The acknowledgment is not proof of completed
+review or permission to write.
+
+**Still open:** the higher operating manual's path, remainder of the exact
+wording, whether the manual supplies the canonical compact hook section, how the
+acknowledgment is transported and loop-safe on each harness, runtime proof, and
+whether/how one Stop checkpoint prompts completion. An after-every-agent-message
+hook was floated but not selected. The count-based details elsewhere in this
+draft, including the baseline and `nudged_at_count` state, remain rejected and
+must not be implemented. The Stop hook's separate unfinished-save and checker
+duties are unaffected.
 
 #### Reassessment against the clarified requirements, 2026-09-16
 
@@ -2449,7 +2534,7 @@ outside that item's scope. It does not select a new hook or approve a build.
 | Important decisions | Required behavior goes to its owning PRD, build choices to the design or work record, and qualifying lasting knowledge to memory. Importance alone does not pick a folder. |
 | Active work | Current status, useful recent accomplishments, and next steps stay in working context; full decisions, requirements, and implementation evidence stay in their owning records. |
 | Return to the original task | The save flow now explicitly retains the originating scope, approval boundary, and next step, returns the other destination's actual outcome, and resumes the original work unless the owner redirects it. This reconciles an existing requirement, not a new approval request. |
-| Reliability | Meaning and relevance still depend on agent judgment. Existing write checks cannot prove that something was noticed. The reminder mechanism remains open; passing a counter or schema check cannot close this gap. |
+| Reliability | Meaning and relevance still depend on agent judgment. The prompt reminder is selected, but its acknowledgment cannot prove that something was noticed or routed correctly. The completion checkpoint remains open; passing a counter or schema check cannot close this gap. |
 
 Validate with the new conversation-only, mixed-destination case in section
 11.2, then a fresh session that finds the resulting records. These are planned
@@ -2898,14 +2983,14 @@ not say when the entry is written, so this is the design's answer.
 
 ### 14.6 How the end-of-turn review is checked
 
-**Recommended: guided, plus the Stop nudge.** The review is a duty in the
-standing rule, and `session-review-nudge.mjs` raises it. Its threshold, its
-once-per-session cap, and the forced continuation are in 6.4.
+**Current position:** guided review plus the every-prompt reminder is settled.
+Whether `session-review-nudge.mjs` also raises an end-of-turn completion step is
+open. Any Stop design must avoid the rejected changed-file threshold and must
+not read the agent's reply to score whether reasoning occurred.
 
-**Alternative one: no nudge.** The nudge was recommended by an agent on
-2026-09-03 and has never been approved. Without it the design raises three
-visible moments and leaves the end of a turn to the standing rule. This is
-Mike's decision, in open question 2.
+**Alternative one: no Stop nudge.** The design raises three visible save moments,
+delivers the every-prompt reminder, and leaves end-of-turn completion to the
+standing rule. This remains Mike's decision in open question 2.
 
 **Alternative two: a prompt hook on `Stop` that reads the agent's last reply and
 judges whether a review happened.**
@@ -2968,10 +3053,15 @@ recommended answer, here or in the section 13 entry it points at.
 1. Requirement 2 (PRD line 481): does hook delivery of the three startup files
    count as "read", with the check being that delivery finished? See 13.1.
 2. Requirements 3 and 9 (PRD lines 524 and 674): how should save review be
-   prompted, including during conversation-only work? **The hard-coded
-   changed-file trigger was rejected by Mike on 2026-09-16.** The replacement
-   mechanism remains open. See the decision in 13.2; the older threshold
-   discussion in 14.6 is superseded by that decision.
+   completed, including during conversation-only work? **The hard-coded
+   changed-file trigger was rejected on 2026-09-16. On 2026-09-17 Mike chose a
+   short reminder after every user prompt, his Toolkit Operating System
+   direction, compact positive/negative memory criteria, links to both manuals,
+   explicit intent acknowledgment, and no forced full-manual reread.** The higher
+   manual path, remaining exact text, acknowledgment transport, runtime proof,
+   and the second completion checkpoint remain open. After every agent message
+   was floated, not selected. See 13.2; the older threshold discussion in 14.6
+   is superseded.
 3. Requirements 9 and 13 (PRD lines 681 and 854): may several decisions settled
    in one reply share one push, with `knowledge/memory/current.md` pushed at the
    save moments and at the handoff? See 13.3.

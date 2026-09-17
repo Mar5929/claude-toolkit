@@ -115,9 +115,14 @@ and work item's completion criteria still control those decisions.
   recognize the information, determine scope and owner, apply that destination's
   rules and existing permission, and preserve traceability. The design now
   explicitly retains and resumes the original task after the other update.
-- Recognition without an explicit save request still needs its prompting
-  mechanism settled under design question 2. Do not revive the rejected file
-  counter or treat a reminder as proof that meaning was understood.
+- Recognition without an explicit save request now has a settled prompt-side
+  checkpoint under design question 2: every submitted prompt receives Mike's
+  short Toolkit Operating System direction, positive and negative working/
+  lasting-memory criteria, links to both manuals, all-destination evaluation,
+  and an intent acknowledgment without a forced manual reread. The higher manual
+  path, remaining wording, acknowledgment transport, runtime proof, and second
+  completion checkpoint remain open. Do not revive the rejected file counter or
+  treat an acknowledgment as proof that meaning was understood.
 - Existing publication guidance still conflicts with approved direct-main
   document saves. That reconciliation remains tracked under #269/#306; use
   Mike's explicit direct-save instruction for these authorized documents now.
@@ -212,13 +217,16 @@ on. Full PRD/design approval remains required before any Knowledge System build.
 
 Exact next action: review the mechanism immediately after the first brief.
 The current draft uses `SessionStart` startup-files to deliver SOUL/project/
-manual and startup-state to deliver context maps. It relies on standing
-guidance for a relevance decision before answering; it does not specify a
-per-user-message knowledge-manual read/ack hook. The end-of-turn
-conversation-review replacement remains open design question 2, and the
-existing style hook is separate from Knowledge System design. Review the brief's
-proposed routing and decide whether this mechanism needs to change without
-treating the question as approval for a new hook. Step 1 remains unapproved.
+manual and startup-state to deliver context maps. Mike selected a Knowledge
+System `UserPromptSubmit` reminder after every prompt: his Toolkit Operating
+System direction, compact positive/negative working and lasting-memory criteria,
+links to both manuals, all-destination evaluation, and an intent acknowledgment
+without full-manual injection. Review how that handles the Acme brief, routing
+by kind, scope, and owner before memory eligibility. The higher manual path,
+canonical reminder source, remaining wording, acknowledgment transport and loop
+prevention, runtime proof, and the second checkpoint remain open. The current
+recommendation is one Stop checkpoint before final turn completion, not after
+each intermediate agent/tool message. Step 1 remains unapproved.
 No real setup, Guide configuration, Salesforce connection, or runtime change
 has occurred.
 

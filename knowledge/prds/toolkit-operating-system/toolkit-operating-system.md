@@ -3,7 +3,7 @@ summary: The toolkit helps Mike turn requests into checked results, keep control
 group: Working with an agent
 area: toolkit-operating-system
 status: proposed
-source: Mike Rihm's request for the overall toolkit PRD; linked component PRDs and bounded source review on 2026-09-10; Mike's toolkit-wide handshake design principle on 2026-09-17
+source: Mike Rihm's request for the overall toolkit PRD; linked component PRDs and bounded source review on 2026-09-10; Mike's toolkit-wide handshake design principle and startup-orientation direction on 2026-09-17
 created_at: 2026-09-10
 tags: [toolkit, project-work, continuity, requirements]
 project: claude-toolkit
@@ -173,8 +173,32 @@ item before substantial work. A short project overview points to other active
 items; it does not replace their records. Do not claim an old assignment means
 another session is still running.
 
+On the first session startup, give the agent a short project-applicable toolkit
+orientation. It must direct the agent through the applicable root instruction
+chain (`CLAUDE.md` or `AGENTS.md`) to the higher-level operating guidance, so
+the agent understands the toolkit's purpose, high-level folder responsibilities,
+work tracking, linked procedures, knowledge continuity, and where updates
+belong. The agent acknowledges that it received and read the orientation and
+will follow the project workflows throughout the work. If required content is
+missing, it reports that gap instead of giving a false acknowledgment.
+
+Keep root instruction files as small maps and routers. Do not duplicate full
+component manuals there or load every linked manual at startup. A concise
+operating-manual or pointer-file shape is a design option, not an approved file
+layout. The startup handshake guides native agent reasoning; its acknowledgment
+shows receipt and intent, not understanding, permanent retention, or correct
+execution. The design must account for continuity after context loss without
+claiming that one acknowledgment keeps instructions permanently in mind.
+
 **Check:** resume an item whose tracker changed after the last handoff. The
 briefing uses the new state and names the difference.
+
+**Check:** start a fresh session in a project with only some toolkit components
+enabled. The agent receives the applicable operating orientation, names the
+enabled work-tracking and knowledge routes without inventing disabled parts,
+acknowledges receipt and intent, and opens detailed procedures only when the
+work needs them. Remove or break a required orientation link; the agent reports
+the missing content instead of claiming readiness.
 
 **R7. Fit the process to the request.** A question can end with an answer and
 its source. Research can end with findings and uncertainty. A small authorized
@@ -607,7 +631,9 @@ The component work stays separate:
 - [307](https://github.com/Mar5929/claude-toolkit/issues/307) delivered R25 in
   PR 308. The remaining requirements on this overall PRD are still in review.
 - [269](https://github.com/Mar5929/claude-toolkit/issues/269) owns second-brain
-  behavior and its knowledge-format transition, relevant to R6, R9-R20.
+  behavior and its knowledge-format transition, relevant to R6, R9-R20. Its
+  startup files and per-prompt knowledge reminder must fit beneath R6's parent
+  orientation rather than becoming a competing operating manual.
 - [304](https://github.com/Mar5929/claude-toolkit/issues/304) owns System Guide,
   relevant to R4-R5, R9-R14, and R17.
 - [305](https://github.com/Mar5929/claude-toolkit/issues/305) owns the reusable
