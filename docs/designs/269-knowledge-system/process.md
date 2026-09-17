@@ -77,6 +77,38 @@ He set four instructions for how to design it:
 | 8. Review round three | An Opus reviewer, then an Opus fixer | The design after round two | `reviews/review-6-round3-final.md`, `reviews/fix-report-round-3.md` |
 | 9. Merge | The owner and the main session | The design after round three | Pull request 346, merged to `main` |
 
+## Delivery coordination
+
+Mike requested coordinated team support on 2026-09-17, with this conversation
+owning integration and the shared records. Prefer `gpt-5.6-sol` for focused
+delegated work; the lead reviews findings and brings material choices to Mike.
+Two bounded reviews are the immediate work: the routing scenario and the path
+from the current design to release. Review assignments do not authorize runtime
+implementation. On resumption, check actual task status rather than treating
+this assignment record as evidence that a reviewer is still running.
+
+Keep documents, design updates, and roadmaps on `main`, committed and pushed
+as they are maintained, per Mike's explicit instruction. The main conversation
+integrates changes; parallel reviewers return findings without competing edits.
+The work item remains the owner of live progress and approvals. No additional
+chat or duplicated handoff is needed while this conversation can continue.
+
+Proposed delivery sequence, reusing the existing design's build plan:
+
+1. Validate the cross-scope routing case and reconcile affected requirements
+   and design assumptions. Present only unresolved owner choices.
+2. Finish the remaining requirements/design review and obtain their approvals.
+3. With build authorization, implement the agreed design in bounded pieces,
+   with independent review of the changes.
+4. Run the repository checks and representative session tests, including
+   conversation-only capture, cross-session continuation, and failed-save recovery.
+5. Complete the agreed rollout, verify the installed behavior, reconcile the
+   final documentation, and obtain acceptance of the delivered outcome.
+
+These are planning milestones, not new approval, acceptance criteria, or proof
+that implementation or behavioral validation has happened. The existing PRD
+and work item's completion criteria still control those decisions.
+
 ## Where this stands and how to pick it up
 
 Updated 2026-09-17: the goal is to ship the refactored Knowledge System. Mike
