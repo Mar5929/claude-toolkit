@@ -21,15 +21,17 @@ when called from a linked worktree. Separate clones do not share it.
 
 ## Requirements and active work
 
-The `work` skill owns requirements, active-item selection, progress, and
-completion commands. The `work-item-stages.md` rule owns lifecycle judgment.
-Build and data-load execution require approved requirements. Discovery,
-research, and solution design may proceed while they create clarity.
+The `work` skill owns requirements, roadmaps, execution tasks, active-item and
+current-task selection, progress, and completion commands. The
+`work-item-stages.md` rule owns lifecycle judgment. Build and data-load
+execution require approved requirements. Discovery, research, and solution
+design may proceed while they create clarity.
 
 Keep owner-stated needs in `REQUIREMENTS.md` and technical design separately.
 Select the branch's active item with `work active set ID` before updating it;
-`work start ID` selects it when no item is active. Linked worktrees share
-records while their branch selections remain separate.
+`work start ID` selects it when no item is active. Select the current execution
+task with `work task select ID TASK-ID`. Linked worktrees share records while
+their branch item and task selections remain separate.
 
 ## Initialize
 
@@ -56,15 +58,24 @@ Do not create a parallel index or alternative status file.
 ├── WI-014-example/
 │   ├── ITEM.yaml                 # structured local record
 │   ├── REQUIREMENTS.md           # owner-approved needs
+│   ├── TASKS.yaml                # roadmap, child fulfillment, execution tasks
 │   ├── STATUS.md                 # readable current handoff
-│   └── HISTORY.ndjson            # complete dated command history
-├── WI-015-another-item/
+│   ├── HISTORY.ndjson            # complete dated command history
+│   └── WI-015-child-item/        # optional child with its own full records
 └── archive/                      # items the owner set aside
     └── WI-003-older-example/
 ```
 
-Every open item folder stays directly under `.work-items/`. `ITEM.yaml.status`
-is authoritative. Status never moves the folder.
+Items may sit directly under `.work-items/`, inside owner-made grouping folders,
+or inside another work item. `ITEM.yaml.status` is authoritative. Status never
+moves the folder. Nesting organizes files; the existing bidirectional
+`parent`/`children` relationship records scope ownership.
+
+Every managed work item has owner-shaped roadmap stages in `TASKS.yaml`. A
+stage is fulfilled by internal tasks, linked child work items, or both. Each
+child keeps its own requirements, design, roadmap, tasks, status, and approval.
+Completing one does not complete or approve its parent. Legacy records without
+`TASKS.yaml` are reconciled from accepted evidence when they resume.
 
 Items inside `archive/` are archived, and sitting there is the only record of
 it. The owner drags folders in and out; no command is required. `work archive`
@@ -106,8 +117,8 @@ set up that board instead of layering it onto `.work-items/`.
 
 The systems have separate authority:
 
-- work-tracker owns current task status, blockers, branch and pull-request
-  evidence, relationships, and handoff;
+- work-tracker owns the roadmap, execution-task status and continuation,
+  blockers, branch and pull-request evidence, relationships, and handoff;
 - project knowledge may link a lasting decision or specification to a work-item
   ID; and
 - project knowledge never copies or overrules current work-item state.

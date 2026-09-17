@@ -51,6 +51,7 @@ Every project uses the same hidden root folder:
   WI-014-example/
     ITEM.yaml
     REQUIREMENTS.md
+    TASKS.yaml
     STATUS.md
     HISTORY.ndjson
   security-and-permissions/          # a group folder the owner made
@@ -178,19 +179,35 @@ the owner's approval. The hard command gate applies to `build` and
 `data-load`; other types use risk-based judgment from `work-item-stages.md`.
 Types are lower-case kebab-case, with suggested values rather than a fixed list.
 
-## Adaptable plans
+## Roadmaps and execution tasks
 
-The shared lifecycle guidance describes what is useful to track, without adding
-a milestone schema to the local tool. Keep optional roadmap detail in existing
-item notes or a linked canonical plan. The `work-guide` skill, when available,
-helps develop and revise it. A small item may need only its next step; a custom
-plan shape is not a completion failure. The tracker still owns status and history.
+`TASKS.yaml` keeps each item's roadmap and detailed execution tasks in the same
+canonical tracker. Roadmap stages use owner-shaped titles; they are separate
+from the optional fourteen-stage lifecycle. Each roadmap stage is fulfilled by
+one or more internal tasks, linked child work items, or both.
+
+Every task records its objective, instructions, constraints, linked inputs,
+deliverable, acceptance condition, status, dependencies, saved position, and
+next action. The branch-scoped active map may select one current task, so
+`work active --json` gives a fresh session the complete continuation record.
+
+A child work item can fulfill a parent stage and still own its own requirements,
+design, roadmap, tasks, status, and approvals. The parent links its ID through
+the existing bidirectional `parent`/`children` relationship. Folder nesting
+remains organization; there is no fixed epic or feature type. Completing a task
+or child never completes or approves its parent.
+
+Legacy items without task records remain valid. Validation asks the agent to
+reconcile the missing plan from accepted evidence when the item resumes; it
+does not invent tasks or backfill approval.
 
 ## Item records and handoffs
 
 - `ITEM.yaml`: description, status, priority, type, dates, next step, blockers,
   relationships, and Git landing evidence.
 - `REQUIREMENTS.md`: owner-approved needs and their refinement state.
+- `TASKS.yaml`: roadmap stages, child-item fulfillment, execution tasks, and
+  saved task positions.
 - `STATUS.md`: readable current handoff, recent history, and preserved owner
   notes.
 - `HISTORY.ndjson`: complete dated command history.
@@ -205,6 +222,8 @@ work init
 work migrate
 work add
 work requirements
+work roadmap
+work task
 work status
 work next
 work active

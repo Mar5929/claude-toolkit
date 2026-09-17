@@ -5,8 +5,8 @@ requirements interviewing, and solution design.
 
 **Setup: install and go.** Use the project's chosen tracker and document homes.
 Skills keep authorized drafts and records current; their names do not grant
-permission to write. No local tracker, fixed milestone structure, or extra
-project guidance file is required.
+permission to write. They use the chosen tracker's roadmap and actionable task
+records without requiring a local tracker or fixed milestone names.
 
 ```text
 /plugin install session-skills
@@ -16,7 +16,7 @@ project guidance file is required.
 
 | Skill | Command | Reach for it when |
 | --- | --- | --- |
-| [work-guide](skills/work-guide/SKILL.md) | `/session-skills:work-guide` | Coordinate the work, adapt its plan, switch context, or assess parallel items |
+| [work-guide](skills/work-guide/SKILL.md) | `/session-skills:work-guide` | Coordinate the work, maintain roadmap tasks and child items, switch context, or assess parallel items |
 | [requirements-helper](skills/requirements-helper/SKILL.md) | `/session-skills:requirements-helper` | Write plain-language PRDs and refine required behavior without prescribing the build |
 | [solution-design](skills/solution-design/SKILL.md) | `/session-skills:solution-design` | Check the requirements are ready, agree the way of working, recommend a team of agents sized to the item, then research, design, critique against every requirement, and fix until all are satisfied |
 | braindump | `/braindump` | You pasted a loose brain dump and want it played back in simple words before any work starts |
@@ -35,8 +35,9 @@ All eleven also trigger from plain words. You never have to type the command.
 ## Guided delivery
 
 Keep discussion and decisions in the main conversation. `work-guide` reads the
-project and item context, helps maintain a useful plan, coordinates bounded
-specialist help, and restores the next step when work resumes.
+project and item context, keeps every roadmap stage connected to actionable
+tasks or child work items, coordinates bounded specialist help, and restores a
+task's sources, constraints, saved position, and next action when work resumes.
 `requirements-helper` clarifies the intended outcome one question at a time,
 flags directions that could undermine it, gives supported recommendations,
 and saves settled answers or corrections in the chosen draft.
@@ -55,10 +56,11 @@ one record every agent reads. What exists today is evidence, not a
 constraint: the architect recommends a rewrite when that serves the
 requirements better.
 
-The existing tracker owns status and progress. These skills use its native
-fields, notes, and linked documents; they do not introduce another tracker or
-milestone schema. Templates and milestone suggestions can be changed or omitted
-for a project, use case, or item. Real approval and environment boundaries
+The existing tracker owns status, roadmap tasks, child-item relationships, and
+progress. Each child keeps its own requirements, design, roadmap, tasks, and
+approval. These skills use native fields, issue sections, or linked documents;
+they do not introduce another tracker. Roadmap stages use the owner's names and
+remain separate from lifecycle stages. Real approval and environment boundaries
 still apply.
 
 ### Focused helpers

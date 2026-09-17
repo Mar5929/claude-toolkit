@@ -13,18 +13,30 @@ canonical item.
 ## Keep a useful, adaptable plan
 
 Teach the agent what to consider; use the project's chosen tracker to record it.
-Keep the intended outcomes, current position, next action and responsible person
-or session, dependencies, blockers, and open decisions clear. Add an ordered
-roadmap or milestones with completion evidence when they help explain the work.
-Revise the plan as decisions or dependencies change, keeping completed history
-accurate.
+Keep an ordered roadmap from the current position to the intended outcome. Its
+stages use names that fit the work; they do not have to match the toolkit
+lifecycle stages below. Every applicable roadmap stage is fulfilled by one or
+more actionable tasks, linked child work items, or both.
 
-These are considerations, not a required field schema or milestone sequence.
-Use native fields, existing sections, or linked canonical documents. Adapt
-toolkit defaults to the project, use case, or individual item and briefly record
-a meaningful variation in its existing home. Do not create a local mirror,
-require a separate planning file, or block completion because a template differs.
-Actual approval, permission, and environment boundaries still apply.
+Each task names its work item and roadmap stage and records its objective,
+instructions and governing constraints, linked requirements, design, decisions,
+and other inputs, expected deliverable, acceptance condition, status,
+dependencies when applicable, current position, and next action. Link to the
+canonical source instead of copying it. Keep the detail proportionate, and
+revise the plan without losing accepted decisions or completed evidence.
+
+A child work item may fulfill a parent roadmap stage. The child keeps its own
+requirements, design, roadmap, tasks, status, and approvals. Link it through the
+tracker's existing parent-child relationship; folder nesting alone does not
+claim that relationship. Completing a task or child does not complete or
+approve its parent.
+
+Use native fields, existing sections, or linked canonical documents in the
+chosen tracker. Do not create a local mirror or require a second planning
+system. Legacy work without these task details remains valid; when it resumes,
+reconcile the missing detail from accepted evidence without inventing tasks,
+history, or approval. Actual approval, permission, and environment boundaries
+still apply.
 
 ## Work type sets the approval boundary
 
@@ -93,26 +105,29 @@ opened, ordinary tests, tiny edits, or discarded ideas.
 
 ## Update the chosen tracker
 
-**Local folders.** Run `work active`, then use the `work` skill. A conflicting
-active item is a hard stop until it is intentionally replaced. Commands update
-the item, readable progress, history, and active state together.
+**Local folders.** Run `work active`, then use the `work` skill. Read the
+selected task and its linked inputs before acting. A conflicting active item is
+a hard stop until it is intentionally replaced. Commands update the item,
+roadmap tasks, readable progress, history, and branch-scoped active state.
 
 **GitHub.** Resolve and read the issue number, title, body, single Progress log
 comment, stage label, and board status before changing it. Settled requirements
-and decisions go in the issue body. Append the short dated event to the one
-Progress log comment. Treat body, comment, label, and board field as one logical
-update, read them back, and repair or report any partial failure. Do not create
-a local mirror.
+and decisions go in the issue body. Keep the roadmap and actionable tasks in
+clear issue-body sections, using child issues or sub-issues when they own real
+scope. Append the short dated event to the one Progress log comment. Treat body,
+comment, label, and board field as one logical update, read them back, and repair
+or report any partial failure. Do not create a local mirror.
 
 **Another tracker.** Follow its project instructions and keep one canonical
 item. Never create a second tracker to make this rule fit.
 
 ## Leave a usable handoff
 
-Before ending substantial unfinished work, leave the active item with the exact
-next action, blockers or none, open decisions, and true stage and status. Read
-the result back or run the tracker's validation. The `handoff` skill performs
-this tracker step before its memory review.
+Before ending substantial unfinished work, leave the active task with its exact
+current position and next action, blockers or none, open decisions, linked
+governing sources, and true status. Keep the parent item and roadmap accurate.
+Read the result back or run the tracker's validation. The `handoff` skill
+performs this tracker step before its memory review.
 
 ## Finish or cancel honestly
 

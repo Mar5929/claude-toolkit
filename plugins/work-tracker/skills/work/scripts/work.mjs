@@ -15,6 +15,8 @@ import {
 } from "./lib/common.mjs";
 import {
   addItem,
+  addRoadmapStage,
+  addTask,
   activeItem,
   archiveItem,
   finishItem,
@@ -27,16 +29,22 @@ import {
   nextItem,
   reconcileTracker,
   regenerate,
+  roadmapStatus,
   requirementsStatus,
   startItem,
+  selectTask,
+  taskStatus,
   unarchiveItem,
   unlinkItems,
   updateItem,
+  updateRoadmapStage,
   updateRequirementsStatus,
+  updateTask,
   validateTracker,
+  completeTask,
 } from "./lib/tracker.mjs";
 
-const VERSION = "2.4.0";
+const VERSION = "2.6.0";
 
 export async function main(argv = process.argv.slice(2)) {
   const { positionals, flags } = parseArgs(argv);
@@ -113,6 +121,130 @@ export async function main(argv = process.argv.slice(2)) {
           approvedBy: flags["approved-by"] === true ? undefined : flags["approved-by"],
         });
       }
+      break;
+    }
+    case "roadmap": {
+      const action = positionals[1] ?? "show";
+      if (action === "show") {
+        assertAllowedFlags(flags, ["cwd", "json"]);
+        result = roadmapStatus(loadTracker(repoRoot), requiredPositional(positionals, 2, "work-item ID"));
+      } else if (action === "add") {
+        assertAllowedFlags(flags, ["cwd", "title", "outcome", "acceptance", "lifecycle-stage", "child-item", "draft", "json"]);
+        result = addRoadmapStage(loadTracker(repoRoot), requiredPositional(positionals, 2, "work-item ID"), {
+          title: requiredFlag(flags, "title"),
+          outcome: requiredFlag(flags, "outcome"),
+          acceptance: requiredFlag(flags, "acceptance"),
+          lifecycleStage: flags["lifecycle-stage"] === true ? undefined : flags["lifecycle-stage"],
+          childItems: flagList(flags, "child-item").map(String),
+          draft: Boolean(flags.draft),
+        });
+      } else if (action === "update") {
+        assertAllowedFlags(flags, ["cwd", "title", "outcome", "acceptance", "lifecycle-stage", "child-item", "clear-child-items", "draft", "planned", "json"]);
+        if (flags.draft && flags.planned) throw new WorkError("Choose either --draft or --planned", "conflicting_options");
+        const childItems = flags["clear-child-items"]
+          ? []
+          : Object.hasOwn(flags, "child-item") ? flagList(flags, "child-item").map(String) : undefined;
+        result = updateRoadmapStage(
+          loadTracker(repoRoot),
+          requiredPositional(positionals, 2, "work-item ID"),
+          requiredPositional(positionals, 3, "roadmap stage ID"),
+          {
+            title: flags.title === true ? undefined : flags.title,
+            outcome: flags.outcome === true ? undefined : flags.outcome,
+            acceptance: flags.acceptance === true ? undefined : flags.acceptance,
+            lifecycleStage: flags["lifecycle-stage"] === true ? "" : flags["lifecycle-stage"],
+            childItems,
+            draft: Boolean(flags.draft),
+            planned: Boolean(flags.planned),
+          },
+        );
+      } else throw new WorkError("Usage: work roadmap show|add|update ...", "invalid_roadmap_command");
+      break;
+    }
+    case "task": {
+      const action = positionals[1] ?? "show";
+      const commonTaskFlags = ["cwd", "json"];
+      if (action === "show") {
+        assertAllowedFlags(flags, commonTaskFlags);
+        result = taskStatus(
+          loadTracker(repoRoot),
+          requiredPositional(positionals, 2, "work-item ID"),
+          positionals[3],
+        );
+      } else if (action === "add") {
+        assertAllowedFlags(flags, [
+          ...commonTaskFlags, "id", "roadmap-stage", "stage-title", "stage-outcome", "stage-acceptance", "lifecycle-stage",
+          "title", "objective", "instructions", "constraint", "input", "deliverable", "acceptance", "depends-on",
+          "position", "next-action", "approval-required",
+        ]);
+        result = addTask(loadTracker(repoRoot), requiredPositional(positionals, 2, "work-item ID"), {
+          taskId: flags.id === true ? undefined : flags.id,
+          roadmapStage: flags["roadmap-stage"] === true ? undefined : flags["roadmap-stage"],
+          stageTitle: flags["stage-title"] === true ? undefined : flags["stage-title"],
+          stageOutcome: flags["stage-outcome"] === true ? undefined : flags["stage-outcome"],
+          stageAcceptance: flags["stage-acceptance"] === true ? undefined : flags["stage-acceptance"],
+          lifecycleStage: flags["lifecycle-stage"] === true ? undefined : flags["lifecycle-stage"],
+          title: requiredFlag(flags, "title"),
+          objective: requiredFlag(flags, "objective"),
+          instructions: requiredFlag(flags, "instructions"),
+          constraints: flagList(flags, "constraint").map(String),
+          inputs: flagList(flags, "input").map(String),
+          deliverable: requiredFlag(flags, "deliverable"),
+          acceptance: requiredFlag(flags, "acceptance"),
+          dependencies: flagList(flags, "depends-on").map(String),
+          position: flags.position === true ? undefined : flags.position,
+          nextAction: requiredFlag(flags, "next-action"),
+          approvalRequired: Boolean(flags["approval-required"]),
+        });
+      } else if (action === "update") {
+        assertAllowedFlags(flags, [
+          ...commonTaskFlags, "roadmap-stage", "title", "objective", "instructions", "constraint", "clear-constraints",
+          "input", "clear-inputs", "deliverable", "acceptance", "depends-on", "clear-dependencies", "position",
+          "next-action", "status", "approval-required", "no-approval-required",
+        ]);
+        const exactList = (key, clearKey) => flags[clearKey]
+          ? []
+          : Object.hasOwn(flags, key) ? flagList(flags, key).map(String) : undefined;
+        result = updateTask(
+          loadTracker(repoRoot),
+          requiredPositional(positionals, 2, "work-item ID"),
+          requiredPositional(positionals, 3, "task ID"),
+          {
+            roadmapStage: flags["roadmap-stage"] === true ? undefined : flags["roadmap-stage"],
+            title: flags.title === true ? undefined : flags.title,
+            objective: flags.objective === true ? undefined : flags.objective,
+            instructions: flags.instructions === true ? undefined : flags.instructions,
+            constraints: exactList("constraint", "clear-constraints"),
+            inputs: exactList("input", "clear-inputs"),
+            deliverable: flags.deliverable === true ? undefined : flags.deliverable,
+            acceptance: flags.acceptance === true ? undefined : flags.acceptance,
+            dependencies: exactList("depends-on", "clear-dependencies"),
+            position: flags.position === true ? undefined : flags.position,
+            nextAction: flags["next-action"] === true ? undefined : flags["next-action"],
+            status: flags.status === true ? undefined : flags.status,
+            approvalRequired: flags["approval-required"] ? true : flags["no-approval-required"] ? false : undefined,
+          },
+        );
+      } else if (action === "select") {
+        assertAllowedFlags(flags, commonTaskFlags);
+        result = selectTask(
+          loadTracker(repoRoot),
+          requiredPositional(positionals, 2, "work-item ID"),
+          requiredPositional(positionals, 3, "task ID"),
+        );
+      } else if (action === "complete") {
+        assertAllowedFlags(flags, [...commonTaskFlags, "evidence", "approved-by", "approved-date"]);
+        result = completeTask(
+          loadTracker(repoRoot),
+          requiredPositional(positionals, 2, "work-item ID"),
+          requiredPositional(positionals, 3, "task ID"),
+          {
+            evidence: requiredFlag(flags, "evidence"),
+            approvedBy: flags["approved-by"] === true ? undefined : flags["approved-by"],
+            approvedDate: flags["approved-date"] === true ? undefined : flags["approved-date"],
+          },
+        );
+      } else throw new WorkError("Usage: work task show|add|update|select|complete ...", "invalid_task_command");
       break;
     }
     case "active": {
@@ -277,6 +409,17 @@ Usage:
   work requirements WI-001
   work requirements WI-001 --finalize --approved-by NAME
   work requirements WI-001 --reopen
+  work roadmap show WI-001
+  work roadmap add WI-001 --title TITLE --outcome OUTCOME --acceptance CONDITION --child-item WI-002
+  work roadmap update WI-001 STAGE-001 [--title TITLE] [--child-item WI-002]
+  work task show WI-001 [TASK-001]
+  work task add WI-001 --stage-title TITLE --stage-outcome OUTCOME --stage-acceptance CONDITION
+    --title TITLE --objective OBJECTIVE --instructions INSTRUCTIONS [--constraint TEXT] [--input PATH_OR_URL]
+    --deliverable DELIVERABLE --acceptance CONDITION --next-action ACTION [--approval-required]
+  work task add WI-001 --roadmap-stage STAGE-001 ...
+  work task update WI-001 TASK-001 [--position POSITION] [--next-action ACTION] [--status STATUS]
+  work task select WI-001 TASK-001
+  work task complete WI-001 TASK-001 --evidence TEXT [--approved-by NAME] [--approved-date YYYY-MM-DD]
   work active [set WI-001 [--replace]|clear]
   work status [--all] [--archived] [--json]
   work next [--json]
@@ -303,6 +446,9 @@ alike, and archiving a folder archives everything inside it. Archived items are
 hidden from status, next, and the dashboard, and their ID numbers are never
 reused.
 Statuses: Backlog, Ready, In Progress, In Review, Done, Cancelled.
+Roadmap stages use owner-defined titles and stay separate from lifecycle stages.
+Each roadmap stage has one or more tasks, linked child work items, or both.
+Task statuses: Pending, In Progress, Blocked, Complete, Cancelled.
 Stages: 01-discovery, 02-refinement, 03-requirements-approved, 04-solution-design,
 05-breakdown, 06-implementation-plan, 07-tracking-setup, 08-build, 09-testing,
 10-bug-fixing, 11-user-approval, 12-pr-and-push, 13-deployment, 14-spec-update.

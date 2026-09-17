@@ -19,11 +19,17 @@ mirror.
 Before substantial work:
 
 1. Run `work active`.
-2. Read the active item's `REQUIREMENTS.md`, `STATUS.md`, and `ITEM.yaml`.
+2. Read the active item's `REQUIREMENTS.md`, `STATUS.md`, `ITEM.yaml`, and
+   `TASKS.yaml` when present. `work active --json` returns the branch's selected
+   current task with its full execution and continuation details.
 3. If no item is active, select the clear item with `work active set ID`, or
    ask one short question when the choice is unclear.
 4. If another item is active, stop. Replace it only through
    `work active set ID --replace` when the change is intentional.
+5. For managed work, select the task you are continuing with
+   `work task select ID TASK-ID`. Read its linked inputs and governing
+   constraints before acting. If a legacy item has no roadmap tasks, reconcile
+   them from accepted evidence without guessing history or approval.
 
 `work start ID` selects the item when the branch has no active mapping. Named
 mutations refuse a different active item. Reads and tracker-wide checks do not
@@ -67,6 +73,8 @@ necessarily implementation.
 | --- | --- |
 | Initialize or preview conversion | `init`, `migrate` |
 | Add or read work | `add`, `status`, `next` |
+| Create or revise roadmap stages | `roadmap show`, `roadmap add`, `roadmap update` |
+| Create, read, select, update, or complete execution tasks | `task show`, `task add`, `task select`, `task update`, `task complete` |
 | Read, select, replace, or clear the active item | `active` |
 | Finalize or reopen requirements | `requirements` |
 | Start or update an item | `start`, `update` |
@@ -83,10 +91,23 @@ Run `node <skill-root>/scripts/work.mjs help` for exact flags. Read
 
 ## Stages and status
 
-For roadmap or milestone planning, follow the adaptable-plan guidance in
-`work-item-stages.md`. Keep it in an existing suitable document or linked
-canonical plan; do not add guessed fields to `ITEM.yaml` or hand-edit generated
-`STATUS.md`. Use `update` for current progress, next steps, and blockers.
+For roadmap planning, follow `work-item-stages.md`. Roadmap stages use the
+owner's language and stay separate from the optional fourteen-stage lifecycle.
+Each roadmap stage must be fulfilled by one or more tasks, linked child work
+items, or both. Use `task add` to create a new stage with its first task
+atomically. Use `roadmap add` when a linked child item fulfills the stage.
+
+Every task records its objective, instructions, constraints, linked inputs,
+deliverable, acceptance condition, status, dependencies, current position, and
+next action. Use `task update` after a meaningful decision or position change.
+Task selection is branch-scoped in `ACTIVE.json`; it does not change the item
+stage or status. `task complete` records evidence and enforces task-specific
+approval when required, but never completes or approves the parent item.
+
+A linked child may own requirements, design, roadmap, and tasks for real scope.
+Keep those details in the child and link only its ID from the parent roadmap.
+The existing `parent`/`children` relationship must agree; folder nesting remains
+organization and does not establish ownership by itself.
 
 Follow `work-item-stages.md`. Stages are flexible descriptions: skip, repeat,
 or revisit them with a short meaningful reason. A missing legacy stage is valid

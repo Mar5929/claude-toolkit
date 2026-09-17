@@ -176,7 +176,7 @@ claude-toolkit/
       tests/                      ← the attribution guard's harness
       skills/
         hooks-library/            ← SKILL.md (install, verify, remove)
-    work-tracker/                 ← plugin: local work status and handoffs
+    work-tracker/                 ← plugin: local work roadmaps, tasks, status, and handoffs
       README.md
       .claude-plugin/plugin.json
       .codex-plugin/plugin.json
@@ -195,7 +195,7 @@ claude-toolkit/
         design-critic.md          ← one verdict per requirement, findings for the architect
         handoff-verifier.md       ← read-only check of the handoff prompt before you see it
       skills/
-        work-guide/              ← adaptable delivery with the project's tracker
+        work-guide/              ← roadmap tasks and adaptable delivery with the project's tracker
         requirements-helper/     ← guided canonical requirements
         solution-design/         ← readiness check, a team sized per item, research, design, critique, fix until every requirement is met
         braindump/                ← play a pasted brain dump back in simple words before any work starts
@@ -272,8 +272,8 @@ inside a project folder before it is useful, which is what the last column says:
 | **[sf-architect-solutioning](plugins/sf-architect-solutioning/README.md)** | A Salesforce solution architect: pushes back on vague requirements, verifies platform facts against official docs by live fetch, designs declarative-first to Well-Architected standards, and presents a solution plan for approval before any build. Salesforce projects only. | Install and go |
 | **[git-workflows](plugins/git-workflows/README.md)** | Three parallel-session-safe git lifecycle skills: `pull-latest` gets current without rewriting history, `reset-to-remote` mirrors the remote behind confirmation, and `merge-and-clean-up` lands an approved PR before removing only its completed workspace. | Install and go |
 | **[hooks-library](plugins/hooks-library/README.md)** | Reusable hooks that make a rule land mechanically: `spec-check-reminder` asks once per session whether the spec-check review ran, `no-ai-attribution-guard` refuses AI credit in Git text, `style-handshake` requests an output-style read and acknowledgment before work on each new user message, and two Salesforce guards protect production and permission-set deploys. System-specific knowledge hooks ship with second-brain. | Wires into settings |
-| **[work-tracker](plugins/work-tracker/README.md)** | Gives Claude and Codex one local backlog under Git-ignored `.work-items/`: YAML records, owner-approved requirements, exact handoffs, blockers, typed relationships, deterministic next-item selection, branch-scoped active-item selection, flexible work types and stages, a dated progress log, accepted completion events and optional Git landing proof, generated dashboards, an `archive/` folder for items the owner has set aside, and preview-first conversion of older staged trackers. Shared GitHub tracking remains a separate tracker choice. | Sets up a project |
-| **[session-skills](plugins/session-skills/README.md)** | Eleven conversation skills. `work-guide` coordinates adaptable delivery through the chosen tracker; `requirements-helper` clarifies intent, questions directions that could undermine the goal, and updates the draft; `solution-design` checks the requirements are ready, recommends a team of agents sized to the item, then researches, designs, critiques against every requirement, and fixes until all are satisfied. Focused research, design, and review agents assist the main conversation. Existing brain dump, explanation, discovery, handoff, recap, specification check, task-list, and writing tools remain included. | Install and go |
+| **[work-tracker](plugins/work-tracker/README.md)** | Gives Claude and Codex one local backlog under Git-ignored `.work-items/`: owner-shaped roadmaps, detailed execution tasks with branch-scoped current-task continuation, child work items with their own plans and approvals, YAML records, owner-approved requirements, exact handoffs, blockers, typed relationships, deterministic next-item selection, flexible work types and lifecycle stages, a dated progress log, accepted completion events and optional Git landing proof, generated dashboards, an `archive/` folder for items the owner has set aside, and preview-first conversion of older staged trackers. Shared GitHub tracking remains a separate tracker choice. | Sets up a project |
+| **[session-skills](plugins/session-skills/README.md)** | Eleven conversation skills. `work-guide` keeps roadmap stages connected to actionable tasks or child work items through the chosen tracker; `requirements-helper` clarifies intent, questions directions that could undermine the goal, and updates the draft; `solution-design` resumes from a task's saved sources and review position, checks the requirements are ready, recommends a team of agents sized to the item, then researches, designs, critiques against every requirement, and fixes until all are satisfied. Focused research, design, and review agents assist the main conversation. Existing brain dump, explanation, discovery, handoff, recap, specification check, task-list, and writing tools remain included. | Install and go |
 
 ---
 

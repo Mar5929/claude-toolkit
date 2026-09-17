@@ -13,6 +13,7 @@
   WI-014-example/
     ITEM.yaml
     REQUIREMENTS.md
+    TASKS.yaml
     STATUS.md
     HISTORY.ndjson
     other-owner-notes.md
@@ -53,7 +54,7 @@ A folder is a work item when **both** are true:
 
 1. its name matches `<PREFIX>-<number>`, optionally followed by `-<slug>`; and
 2. it holds at least one of `ITEM.yaml`, `ITEM.json`, `REQUIREMENTS.md`,
-   `SPEC.md`, `STATUS.md`, or `HISTORY.ndjson`.
+   `SPEC.md`, `TASKS.yaml`, `STATUS.md`, or `HISTORY.ndjson`.
 
 The second test is what lets the owner name a folder `phase-1` or `epic-2`
 without it being taken for a work item and hiding everything inside it. A work
@@ -149,6 +150,43 @@ This file contains no implementation plan, file path choices, tool or version
 choices, or unapproved agent assumptions. When direction changes, reopen it
 before editing.
 
+## `TASKS.yaml`
+
+`TASKS.yaml` is the command-managed roadmap and execution record for one work
+item. Its top-level `stages` and `tasks` arrays use YAML flow form.
+
+A roadmap stage has a stable `STAGE-<number>` ID, an owner-shaped title,
+outcome, acceptance condition, `planned` or `draft` planning status, optional `lifecycle_stage`, and zero or more
+`child_work_items`. Roadmap titles are not limited to the fourteen lifecycle
+stages. Every stage must be fulfilled by at least one task, one linked child
+work item, or both before it is planned. An unexpanded draft stage may remain
+empty and is reported as a reconciliation warning rather than filled with a
+fabricated task.
+
+A task has a stable `TASK-<number>` ID and records:
+
+- its `roadmap_stage`, title, objective, and instructions;
+- governing constraints and linked inputs such as requirements, design files,
+  accepted decisions, and project guidance;
+- its deliverable and acceptance condition;
+- status, dependencies, current position, and exact next action;
+- whether approval is required; and
+- completion evidence and supplied approval after completion.
+
+Task statuses are `Pending`, `In Progress`, `Blocked`, `Complete`, and
+`Cancelled`. Completing a task never changes the parent item's status, stage,
+requirements approval, or completion approval.
+
+A child item listed on a roadmap stage must already have the existing
+bidirectional tracker relationship: the parent lists it under `children`, and
+the child lists the parent under `parent`. The child owns its own requirements,
+design, roadmap, tasks, status, and approval. The parent does not copy them.
+Folder nesting remains organization and does not establish this relationship.
+
+Legacy items without `TASKS.yaml` remain valid. Validation warns that roadmap
+tasks need reconciliation when the item resumes. Reconcile from accepted
+evidence; never infer tasks, history, or approval.
+
 ## The stage and the progress log
 
 `work update <id> --stage <stage> --note <what happened>` writes three things in
@@ -175,8 +213,9 @@ finalized.
 ## Other item files
 
 - `STATUS.md`: readable current handoff, the progress log, recent history, and
-  preserved owner notes. The progress log and the user notes both sit between
-  HTML comment markers and are carried across every rewrite.
+  preserved owner notes. It also renders roadmap stages and task continuation
+  details, including linked inputs. The progress log and the user notes both
+  sit between HTML comment markers and are carried across every rewrite.
 - `HISTORY.ndjson`: complete dated command history, one JSON object per line.
 - Other files: preserved and never treated as executable input.
 
@@ -184,9 +223,11 @@ finalized.
 
 ## Active item and completion
 
-`ACTIVE.json` maps each branch to one active item. Linked worktrees use the
-same file in the primary tracker. Terminal work clears its mapping. A different
-named mutation is refused until the mapping is intentionally replaced.
+`ACTIVE.json` maps each branch to one active item and, when selected, its current
+roadmap task. Linked worktrees use the same file in the primary tracker. Task
+selection is branch-scoped so another branch can work a different task without
+silently replacing it. Terminal work clears its mapping. A different named
+mutation is refused until the mapping is intentionally replaced.
 
 ```json
 {
@@ -194,6 +235,7 @@ named mutation is refused until the mapping is intentionally replaced.
   "branches": {
     "issue-270-work-item-upkeep": {
       "item_id": "WI-014",
+      "task_id": "TASK-002",
       "set_at": "2026-09-07T15:00:00Z"
     }
   }

@@ -21,6 +21,7 @@ import {
 export const STATUSES = ["Backlog", "Ready", "In Progress", "In Review", "Done", "Cancelled"];
 export const PRIORITIES = ["urgent", "high", "medium", "low"];
 export const TYPES = ["bug", "enhancement", "discovery", "solution-design", "build", "data-load", "repository-maintenance", "research", "task"];
+export const TASK_STATUSES = ["Pending", "In Progress", "Blocked", "Complete", "Cancelled"];
 // The fourteen stages every project shares, in order. The two-digit prefix is
 // part of the name so stages sort correctly wherever they are listed. This list
 // is here to derive a status and to write a readable log line, and for nothing
@@ -67,6 +68,7 @@ const ITEM_FILE_NAMES = [
   "SPEC.md",
   "STATUS.md",
   "HISTORY.ndjson",
+  "TASKS.yaml",
 ];
 const PRIORITY_SCORE = { urgent: 0, high: 1, medium: 2, low: 3 };
 const STATUS_SCORE = { "In Progress": 0, "In Review": 1, Ready: 2, Backlog: 3 };
@@ -154,7 +156,11 @@ export function activeItem(tracker, input = {}) {
     const { branch, entry } = activeEntry(tracker);
     if (!entry) return { outcome: "none", branch, item: null, text: `No active work item is selected for ${branch}. Run work active set ID, or work start ID to select a Ready item.` };
     const item = tracker.items.find((candidate) => candidate.id === entry.item_id);
-    return { outcome: "active", branch, item: item ? publicItem(item, tracker.paths) : { id: entry.item_id }, text: `${entry.item_id} is active for ${branch}.` };
+    const publicRecord = item ? publicItem(item, tracker.paths, entry.task_id) : { id: entry.item_id };
+    const taskText = publicRecord.current_task
+      ? ` Current task: ${publicRecord.current_task.id} ${publicRecord.current_task.title}; next: ${publicRecord.current_task.next_action}`
+      : " No current roadmap task is selected.";
+    return { outcome: "active", branch, item: publicRecord, text: `${entry.item_id} is active for ${branch}.${taskText}` };
   }
   return withLock(tracker.paths.lockPath, () => {
     tracker = reload(tracker);
@@ -433,6 +439,7 @@ export function addItem(tracker, input) {
           content: renderRequirements(record, record.description),
         },
         { path: path.join(itemDir, "STATUS.md"), content: renderStatus(record, []) },
+        { path: path.join(itemDir, "TASKS.yaml"), content: stableYaml(emptyRoadmap()) },
         {
           path: path.join(itemDir, "HISTORY.ndjson"),
           content: `${JSON.stringify(historyEntry("created", "Created in Backlog with requirements still refining."))}\n`,
@@ -454,6 +461,226 @@ export function addItem(tracker, input) {
       item: publicItem(item, tracker.paths),
       text: `${id} added to Backlog: ${record.title}\nRequirements: refining\nNext: ${record.next_step}`,
     };
+  });
+}
+
+export function roadmapStatus(tracker, id) {
+  const item = requireItem(tracker, id);
+  const roadmap = readRoadmap(item);
+  return {
+    outcome: "ok",
+    item: id,
+    roadmap,
+    text: renderRoadmapText(item, roadmap),
+  };
+}
+
+export function addRoadmapStage(tracker, id, input) {
+  return withLock(tracker.paths.lockPath, () => {
+    tracker = reload(tracker);
+    const item = requireItem(tracker, id);
+    assertActiveTarget(tracker, item.id);
+    const roadmap = readRoadmap(item);
+    const childItems = normalizeChildItems(tracker, item, input.childItems ?? []);
+    if (!childItems.length && !input.draft) {
+      throw new WorkError(
+        "A planned roadmap stage must start with a linked child work item, be created with its first task through work task add, or be marked draft.",
+        "empty_roadmap_stage",
+      );
+    }
+    const stage = {
+      id: allocatePlanId("STAGE", roadmap.stages),
+      title: requiredText(input.title, "roadmap stage title"),
+      outcome: requiredText(input.outcome, "roadmap stage outcome"),
+      acceptance_condition: requiredText(input.acceptance, "roadmap stage acceptance condition"),
+      lifecycle_stage: normalizeOptionalLifecycleStage(input.lifecycleStage),
+      child_work_items: childItems,
+      planning_status: input.draft ? "draft" : "planned",
+    };
+    roadmap.stages.push(stage);
+    roadmap.updated_date = isoDate();
+    writeRoadmapUpdate(tracker, item, roadmap, "roadmap_stage_added", `Added roadmap stage ${stage.id}: ${stage.title}.`);
+    return { outcome: "created", item: id, stage, text: `${stage.id} added: ${stage.title}` };
+  });
+}
+
+export function updateRoadmapStage(tracker, id, stageId, input) {
+  return withLock(tracker.paths.lockPath, () => {
+    tracker = reload(tracker);
+    const item = requireItem(tracker, id);
+    assertActiveTarget(tracker, item.id);
+    const roadmap = readRoadmap(item);
+    const stage = requireRoadmapStage(roadmap, stageId);
+    if (input.title !== undefined) stage.title = requiredText(input.title, "roadmap stage title");
+    if (input.outcome !== undefined) stage.outcome = requiredText(input.outcome, "roadmap stage outcome");
+    if (input.acceptance !== undefined) stage.acceptance_condition = requiredText(input.acceptance, "roadmap stage acceptance condition");
+    if (input.lifecycleStage !== undefined) stage.lifecycle_stage = normalizeOptionalLifecycleStage(input.lifecycleStage);
+    if (input.childItems !== undefined) stage.child_work_items = normalizeChildItems(tracker, item, input.childItems);
+    if (input.draft) stage.planning_status = "draft";
+    if (input.planned) stage.planning_status = "planned";
+    const stageTasks = roadmap.tasks.filter((task) => task.roadmap_stage === stage.id);
+    if (stage.planning_status !== "draft" && !stageTasks.length && !stage.child_work_items.length) {
+      throw new WorkError(`${stage.id} must keep at least one task or linked child work item.`, "empty_roadmap_stage");
+    }
+    roadmap.updated_date = isoDate();
+    writeRoadmapUpdate(tracker, item, roadmap, "roadmap_stage_updated", `Updated roadmap stage ${stage.id}: ${stage.title}.`);
+    return { outcome: "updated", item: id, stage, text: `${stage.id} updated: ${stage.title}` };
+  });
+}
+
+export function taskStatus(tracker, id, taskId) {
+  const item = requireItem(tracker, id);
+  const roadmap = readRoadmap(item);
+  if (!taskId) return { outcome: "ok", item: id, roadmap, text: renderRoadmapText(item, roadmap) };
+  const task = requireRoadmapTask(roadmap, taskId);
+  return { outcome: "ok", item: id, task: publicTask(task, item.id), text: renderTaskText(task, item.id) };
+}
+
+export function addTask(tracker, id, input) {
+  return withLock(tracker.paths.lockPath, () => {
+    tracker = reload(tracker);
+    const item = requireItem(tracker, id);
+    assertActiveTarget(tracker, item.id);
+    const roadmap = readRoadmap(item);
+    let stage;
+    if (input.roadmapStage) {
+      stage = requireRoadmapStage(roadmap, input.roadmapStage);
+    } else {
+      stage = {
+        id: allocatePlanId("STAGE", roadmap.stages),
+        title: requiredText(input.stageTitle, "roadmap stage title"),
+        outcome: requiredText(input.stageOutcome, "roadmap stage outcome"),
+        acceptance_condition: requiredText(input.stageAcceptance, "roadmap stage acceptance condition"),
+        lifecycle_stage: normalizeOptionalLifecycleStage(input.lifecycleStage),
+        child_work_items: [],
+        planning_status: "planned",
+      };
+      roadmap.stages.push(stage);
+    }
+    const taskId = input.taskId ? normalizePlanId(input.taskId, "TASK") : allocatePlanId("TASK", roadmap.tasks);
+    if (roadmap.tasks.some((task) => task.id === taskId)) throw new WorkError(`Task ${taskId} already exists`, "duplicate_task_id");
+    const dependencies = normalizeTaskDependencies(roadmap, input.dependencies ?? [], taskId);
+    const task = {
+      id: taskId,
+      roadmap_stage: stage.id,
+      title: requiredText(input.title, "task title"),
+      objective: requiredText(input.objective, "task objective"),
+      instructions: requiredText(input.instructions, "task instructions"),
+      constraints: normalizeTextList(input.constraints, "task constraint"),
+      inputs: normalizeTextList(input.inputs, "task input"),
+      deliverable: requiredText(input.deliverable, "task deliverable"),
+      acceptance_condition: requiredText(input.acceptance, "task acceptance condition"),
+      status: "Pending",
+      dependencies,
+      current_position: requiredText(input.position ?? "Not started.", "task current position"),
+      next_action: requiredText(input.nextAction, "task next action"),
+      approval_required: Boolean(input.approvalRequired),
+      completion: null,
+      created_date: isoDate(),
+      updated_date: isoDate(),
+    };
+    roadmap.tasks.push(task);
+    roadmap.updated_date = isoDate();
+    writeRoadmapUpdate(tracker, item, roadmap, "task_added", `Added ${task.id} to ${stage.id}: ${task.title}.`);
+    return { outcome: "created", item: id, task: publicTask(task, item.id), text: renderTaskText(task, item.id) };
+  });
+}
+
+export function updateTask(tracker, id, taskId, input) {
+  return withLock(tracker.paths.lockPath, () => {
+    tracker = reload(tracker);
+    const item = requireItem(tracker, id);
+    assertActiveTarget(tracker, item.id);
+    const roadmap = readRoadmap(item);
+    const task = requireRoadmapTask(roadmap, taskId);
+    if (["Complete", "Cancelled"].includes(task.status)) {
+      throw new WorkError(`${task.id} is ${task.status}. Preserve the terminal record and revise the roadmap with a new task instead.`, "terminal_task");
+    }
+    if (input.title !== undefined) task.title = requiredText(input.title, "task title");
+    if (input.objective !== undefined) task.objective = requiredText(input.objective, "task objective");
+    if (input.instructions !== undefined) task.instructions = requiredText(input.instructions, "task instructions");
+    if (input.constraints !== undefined) task.constraints = normalizeTextList(input.constraints, "task constraint");
+    if (input.inputs !== undefined) task.inputs = normalizeTextList(input.inputs, "task input");
+    if (input.deliverable !== undefined) task.deliverable = requiredText(input.deliverable, "task deliverable");
+    if (input.acceptance !== undefined) task.acceptance_condition = requiredText(input.acceptance, "task acceptance condition");
+    if (input.roadmapStage !== undefined) task.roadmap_stage = requireRoadmapStage(roadmap, input.roadmapStage).id;
+    if (input.dependencies !== undefined) task.dependencies = normalizeTaskDependencies(roadmap, input.dependencies, task.id);
+    if (input.position !== undefined) task.current_position = requiredText(input.position, "task current position");
+    if (input.nextAction !== undefined) task.next_action = requiredText(input.nextAction, "task next action");
+    if (input.approvalRequired !== undefined) task.approval_required = Boolean(input.approvalRequired);
+    if (input.status !== undefined) {
+      const status = normalizeEnum(input.status, TASK_STATUSES, "task status");
+      if (status === "Complete") throw new WorkError("Use work task complete to record task completion evidence and approval.", "completion_command_required");
+      task.status = status;
+      if (["Pending", "In Progress", "Blocked"].includes(status)) task.completion = null;
+    }
+    ensureEveryRoadmapStageHasWork(roadmap);
+    task.updated_date = isoDate();
+    roadmap.updated_date = isoDate();
+    const { branch, active, entry } = activeEntry(tracker);
+    const transition = task.status === "Cancelled" && entry?.item_id === item.id && entry.task_id === task.id
+      ? { active: { ...active, branches: { ...active.branches, [branch]: { item_id: item.id, set_at: entry.set_at } } }, activePath: tracker.paths.activePath }
+      : {};
+    writeRoadmapUpdate(tracker, item, roadmap, "task_updated", `Updated ${task.id}: ${task.title}.`, transition);
+    return { outcome: "updated", item: id, task: publicTask(task, item.id), text: renderTaskText(task, item.id) };
+  });
+}
+
+export function selectTask(tracker, id, taskId) {
+  return withLock(tracker.paths.lockPath, () => {
+    tracker = reload(tracker);
+    const item = requireItem(tracker, id);
+    const { branch, active, entry } = activeEntry(tracker);
+    if (!entry || entry.item_id !== item.id) assertActiveTarget(tracker, item.id);
+    const roadmap = readRoadmap(item);
+    const task = requireRoadmapTask(roadmap, taskId);
+    if (["Complete", "Cancelled"].includes(task.status)) throw new WorkError(`${task.id} is ${task.status} and cannot be selected as current.`, "terminal_task");
+    active.branches[branch] = { ...entry, item_id: item.id, task_id: task.id, set_at: isoTimestamp() };
+    atomicBatchWrite([{ path: tracker.paths.activePath, content: activeContent(active) }]);
+    return { outcome: "selected", branch, item: id, task: publicTask(task, item.id), text: `${task.id} is current for ${id} on ${branch}. Next: ${task.next_action}` };
+  });
+}
+
+export function completeTask(tracker, id, taskId, input) {
+  return withLock(tracker.paths.lockPath, () => {
+    tracker = reload(tracker);
+    const item = requireItem(tracker, id);
+    assertActiveTarget(tracker, item.id);
+    const roadmap = readRoadmap(item);
+    const task = requireRoadmapTask(roadmap, taskId);
+    const evidence = requiredText(input.evidence, "task completion evidence");
+    const approvedBy = input.approvedBy ? requiredText(input.approvedBy, "approved by") : null;
+    if (input.approvedDate && !approvedBy) throw new WorkError("--approved-date requires --approved-by", "approval_required");
+    const approvedDate = approvedBy ? (input.approvedDate ?? isoDate()) : null;
+    if (approvedDate && !isIsoDate(approvedDate)) throw new WorkError(`Approval date must be YYYY-MM-DD: ${approvedDate}`, "invalid_date");
+    if (task.status === "Complete") {
+      const matches = task.completion?.evidence === evidence && task.completion?.approved_by === approvedBy && task.completion?.approved_date === approvedDate;
+      if (matches) return { outcome: "unchanged", item: id, task: publicTask(task, item.id), text: `${task.id} is already complete with the supplied evidence and approval.` };
+      throw new WorkError(`${task.id} is already complete. Preserve its evidence; revise the plan instead of overwriting completion.`, "terminal_task");
+    }
+    if (task.status === "Cancelled") throw new WorkError(`${task.id} is Cancelled and cannot be completed.`, "terminal_task");
+    if (task.approval_required && !approvedBy) throw new WorkError(`${task.id} requires approval before completion. Pass --approved-by NAME.`, "approval_required");
+    for (const dependencyId of task.dependencies) {
+      const dependency = requireRoadmapTask(roadmap, dependencyId);
+      if (dependency.status !== "Complete") throw new WorkError(`${task.id} depends on ${dependency.id}, which is ${dependency.status}.`, "task_dependency_incomplete");
+    }
+    task.status = "Complete";
+    task.current_position = "Completed.";
+    task.next_action = "None.";
+    task.completion = {
+      evidence,
+      completed_date: isoDate(),
+      approved_by: approvedBy,
+      approved_date: approvedDate,
+    };
+    task.updated_date = isoDate();
+    roadmap.updated_date = isoDate();
+    const { branch, active, entry } = activeEntry(tracker);
+    const transition = entry?.item_id === item.id && entry.task_id === task.id
+      ? { active: { ...active, branches: { ...active.branches, [branch]: { item_id: item.id, set_at: entry.set_at } } }, activePath: tracker.paths.activePath }
+      : {};
+    writeRoadmapUpdate(tracker, item, roadmap, "task_completed", `Completed ${task.id}: ${evidence}`, transition);
+    return { outcome: "completed", item: id, task: publicTask(task, item.id), text: `${task.id} completed. Parent work-item status and approval are unchanged.` };
   });
 }
 
@@ -531,6 +758,7 @@ export function updateRequirementsStatus(tracker, id, input) {
           readStatus(item),
           requirements.meta.status,
           progressEntryFor(record, note),
+          readRoadmap(item),
         ),
       },
     ]);
@@ -815,6 +1043,14 @@ export function unlinkItems(tracker, sourceId, type, targetId) {
     if (!source.record.relationships[relationship].includes(target.id)) {
       throw new WorkError(`${source.id} does not have ${relationship} ${target.id}`, "missing_relationship");
     }
+    const parent = relationship === "children" ? source : relationship === "parent" ? target : null;
+    const child = relationship === "children" ? target : relationship === "parent" ? source : null;
+    if (parent && child && readRoadmap(parent).stages.some((stage) => (stage.child_work_items ?? []).includes(child.id))) {
+      throw new WorkError(
+        `${child.id} still fulfills a roadmap stage on ${parent.id}. Update that roadmap stage before removing the parent-child relationship.`,
+        "roadmap_child_in_use",
+      );
+    }
     const sourceRecord = structuredClone(source.record);
     const targetRecord = structuredClone(target.record);
     sourceRecord.relationships[relationship] = sourceRecord.relationships[relationship].filter(
@@ -949,7 +1185,7 @@ export function validateTracker(tracker) {
   validateEvents(tracker, byId, errors);
 
   for (const item of tracker.items) {
-    validateRecord(item, errors, warnings);
+    validateRecord(item, tracker, errors, warnings);
     for (const type of RELATIONSHIPS) {
       for (const targetId of item.record.relationships?.[type] ?? []) {
         if (targetId === item.id) errors.push(`${item.id}: ${type} cannot reference itself`);
@@ -1280,6 +1516,7 @@ function itemCandidate(itemPath, folderName, rawId, archived = false, paths = nu
     itemPath: path.join(itemPath, "ITEM.yaml"),
     legacyItemPath: path.join(itemPath, "ITEM.json"),
     requirementsPath: path.join(itemPath, "REQUIREMENTS.md"),
+    tasksPath: path.join(itemPath, "TASKS.yaml"),
     specPath: path.join(itemPath, "SPEC.md"),
     statusPath: path.join(itemPath, "STATUS.md"),
     historyPath: path.join(itemPath, "HISTORY.ndjson"),
@@ -1480,6 +1717,145 @@ function newRecord({ id, title, description, type, priority, status, nextStep, c
       default_branch: null,
     },
   };
+}
+
+function emptyRoadmap() {
+  return {
+    schema_version: 1,
+    updated_date: isoDate(),
+    stages: [],
+    tasks: [],
+  };
+}
+
+function readRoadmap(item) {
+  if (!fs.existsSync(item.tasksPath)) return emptyRoadmap();
+  const roadmap = readYaml(item.tasksPath, `${item.id} TASKS.yaml`);
+  if (roadmap.schema_version !== 1 || !Array.isArray(roadmap.stages) || !Array.isArray(roadmap.tasks)) {
+    throw new WorkError(`${item.id} TASKS.yaml requires schema_version 1 plus stages and tasks arrays`, "invalid_tasks_file");
+  }
+  return roadmap;
+}
+
+function normalizePlanId(value, prefix) {
+  const normalized = String(value ?? "").trim().toUpperCase();
+  if (!new RegExp(`^${prefix}-[0-9]+$`).test(normalized)) {
+    throw new WorkError(`${prefix === "TASK" ? "Task" : "Roadmap stage"} ID must look like ${prefix}-001: ${value}`, "invalid_plan_id");
+  }
+  return normalized;
+}
+
+function allocatePlanId(prefix, entries) {
+  const used = new Set(entries.map((entry) => String(entry.id ?? "").toUpperCase()));
+  for (let number = 1; number < 100000; number += 1) {
+    const candidate = `${prefix}-${String(number).padStart(3, "0")}`;
+    if (!used.has(candidate)) return candidate;
+  }
+  throw new WorkError(`Could not allocate another ${prefix} ID`, "id_exhausted");
+}
+
+function requireRoadmapStage(roadmap, id) {
+  const normalized = normalizePlanId(id, "STAGE");
+  const stage = roadmap.stages.find((candidate) => candidate.id === normalized);
+  if (!stage) throw new WorkError(`Roadmap stage ${normalized} was not found`, "roadmap_stage_not_found");
+  return stage;
+}
+
+function requireRoadmapTask(roadmap, id) {
+  const normalized = normalizePlanId(id, "TASK");
+  const task = roadmap.tasks.find((candidate) => candidate.id === normalized);
+  if (!task) throw new WorkError(`Task ${normalized} was not found`, "task_not_found");
+  return task;
+}
+
+function normalizeOptionalLifecycleStage(value) {
+  if (value === undefined || value === null || String(value).trim() === "") return null;
+  return normalizeStage(value);
+}
+
+function normalizeTextList(values, label) {
+  if (values === undefined || values === null) return [];
+  const list = Array.isArray(values) ? values : [values];
+  return [...new Set(list.map((value) => requiredText(value, label)))];
+}
+
+function normalizeChildItems(tracker, parent, values) {
+  const children = normalizeTextList(values, "child work-item ID").map(normalizeId);
+  for (const childId of children) {
+    if (childId === parent.id) throw new WorkError(`${parent.id} cannot be its own child`, "self_relationship");
+    const child = requireItem(tracker, childId);
+    if (!parent.record.relationships.children.includes(childId) || !child.record.relationships.parent.includes(parent.id)) {
+      throw new WorkError(
+        `${childId} must first be linked to ${parent.id} with work link ${parent.id} --type children --target ${childId}.`,
+        "missing_child_relationship",
+      );
+    }
+  }
+  return children;
+}
+
+function normalizeTaskDependencies(roadmap, values, taskId) {
+  const dependencies = normalizeTextList(values, "task dependency").map((value) => normalizePlanId(value, "TASK"));
+  if (dependencies.includes(taskId)) throw new WorkError(`${taskId} cannot depend on itself`, "task_dependency_cycle");
+  for (const dependency of dependencies) requireRoadmapTask(roadmap, dependency);
+  const candidate = structuredClone(roadmap);
+  const existing = candidate.tasks.find((task) => task.id === taskId);
+  if (existing) existing.dependencies = dependencies;
+  else candidate.tasks.push({ id: taskId, dependencies });
+  if (taskDependencyCycles(candidate.tasks).length) throw new WorkError(`Task dependency would create a cycle for ${taskId}`, "task_dependency_cycle");
+  return dependencies;
+}
+
+function ensureEveryRoadmapStageHasWork(roadmap) {
+  for (const stage of roadmap.stages) {
+    const hasTask = roadmap.tasks.some((task) => task?.roadmap_stage === stage.id);
+    if (stage.planning_status !== "draft" && !hasTask && !(stage.child_work_items ?? []).length) {
+      throw new WorkError(`${stage.id} must have at least one task or linked child work item.`, "empty_roadmap_stage");
+    }
+  }
+}
+
+function taskDependencyCycles(tasks) {
+  const byId = new Map(tasks.map((task) => [task.id, task]));
+  const visiting = new Set();
+  const visited = new Set();
+  const cycles = [];
+  function visit(id, path = []) {
+    if (visiting.has(id)) {
+      cycles.push([...path, id]);
+      return;
+    }
+    if (visited.has(id)) return;
+    visiting.add(id);
+    const task = byId.get(id);
+    for (const dependency of task?.dependencies ?? []) visit(dependency, [...path, id]);
+    visiting.delete(id);
+    visited.add(id);
+  }
+  for (const id of byId.keys()) visit(id);
+  return cycles;
+}
+
+function publicTask(task, workItemId) {
+  return { work_item: workItemId, ...structuredClone(task) };
+}
+
+function renderTaskText(task, workItemId) {
+  const constraints = task.constraints.length ? task.constraints.join("; ") : "None recorded";
+  const inputs = task.inputs.length ? task.inputs.join("; ") : "None recorded";
+  const dependencies = task.dependencies.length ? task.dependencies.join(", ") : "None";
+  return `${task.id}: ${task.title}\nWork item: ${workItemId}\nRoadmap stage: ${task.roadmap_stage}\nStatus: ${task.status}\nObjective: ${task.objective}\nInstructions: ${task.instructions}\nConstraints: ${constraints}\nInputs: ${inputs}\nDeliverable: ${task.deliverable}\nAcceptance: ${task.acceptance_condition}\nDependencies: ${dependencies}\nCurrent position: ${task.current_position}\nNext action: ${task.next_action}`;
+}
+
+function renderRoadmapText(item, roadmap) {
+  if (!roadmap.stages.length) return `${item.id} has no roadmap stages yet. Reconcile the plan from accepted evidence before continuing managed work.`;
+  const lines = [`${item.id} roadmap:`];
+  for (const stage of roadmap.stages) {
+    const tasks = roadmap.tasks.filter((task) => task.roadmap_stage === stage.id).map((task) => task.id);
+    const children = stage.child_work_items ?? [];
+    lines.push(`- ${stage.id}: ${stage.title} [${stage.planning_status ?? "planned"}]; tasks: ${tasks.join(", ") || "none"}; child work items: ${children.join(", ") || "none"}; acceptance: ${stage.acceptance_condition}`);
+  }
+  return lines.join("\n");
 }
 
 function invalidPlaceholder(candidate) {
@@ -1698,6 +2074,7 @@ function renderStatus(
   existing = "",
   requirementsStatusValue = undefined,
   progressEntry = undefined,
+  roadmap = emptyRoadmap(),
 ) {
   const blockers = record.blockers.length
     ? record.blockers
@@ -1725,6 +2102,27 @@ function renderStatus(
       .join("\n") || "- No history yet.";
   const userNotes = extractUserNotes(existing);
   const progressLog = appendProgressEntry(extractProgressLog(existing), progressEntry);
+  const roadmapLines = roadmap.stages.length
+    ? roadmap.stages.flatMap((stage) => {
+        const tasks = roadmap.tasks.filter((task) => task.roadmap_stage === stage.id);
+        const children = stage.child_work_items ?? [];
+        const lines = [
+          `### ${stage.id}: ${stage.title}`,
+          "",
+          `- Outcome: ${stage.outcome}`,
+          `- Acceptance: ${stage.acceptance_condition}`,
+          `- Lifecycle stage: ${stage.lifecycle_stage ?? "Not mapped"}`,
+          `- Planning status: ${stage.planning_status ?? "planned"}`,
+          `- Child work items: ${children.join(", ") || "None"}`,
+        ];
+        for (const task of tasks) {
+          lines.push(
+            `- ${task.id} [${task.status}] ${task.title}; position: ${task.current_position}; next: ${task.next_action}; inputs: ${task.inputs.join("; ") || "None recorded"}`,
+          );
+        }
+        return [...lines, ""];
+      }).join("\n").trim()
+    : "No roadmap stages recorded. Reconcile the plan from accepted evidence when managed work resumes.";
   return `# ${record.id}: ${record.title}
 
 <!-- work-tracker:current:start -->
@@ -1745,6 +2143,12 @@ ${blockers}
 ### Relationships
 
 ${relations.length ? relations.join("\n") : "- None"}
+
+## Roadmap and tasks
+
+${roadmapLines}
+
+The complete task instructions, constraints, linked inputs, deliverables, acceptance conditions, dependencies, and saved positions are in \`TASKS.yaml\`.
 
 ### Git and landing evidence
 
@@ -1836,6 +2240,32 @@ function writeItemUpdate(tracker, item, record, action, note, progressEntry, tra
   regenerate(reload(tracker));
 }
 
+function writeRoadmapUpdate(tracker, item, roadmap, action, note, transition = {}) {
+  const record = structuredClone(item.record);
+  record.updated_date = isoDate();
+  const entry = historyEntry(action, note);
+  const requirements = readRequirements(item);
+  const writes = [
+    { path: item.itemPath, content: stableYaml(record) },
+    { path: item.tasksPath, content: stableYaml(roadmap) },
+    { path: item.historyPath, content: appendHistoryContent(item, entry) },
+    {
+      path: item.statusPath,
+      content: renderStatus(
+        record,
+        recentHistory(item, entry),
+        readStatus(item),
+        requirements.meta.status,
+        progressEntryFor(record, note),
+        roadmap,
+      ),
+    },
+  ];
+  if (transition.active) writes.push({ path: transition.activePath, content: activeContent(transition.active) });
+  atomicBatchWrite(writes);
+  regenerate(reload(tracker));
+}
+
 function writeItemFiles(item, record, action, note, progressEntry, transition = {}) {
   const entry = historyEntry(action, note);
   const requirements = readRequirements(item);
@@ -1855,6 +2285,7 @@ function writeItemFiles(item, record, action, note, progressEntry, transition = 
         readStatus(item),
         requirements.meta.status,
         transitionProgress,
+        readRoadmap(item),
       ),
     },
   ];
@@ -1884,6 +2315,8 @@ function writeLinkedItems(source, sourceRecord, target, targetRecord, relationsh
         recentHistory(item, history),
         readStatus(item),
         requirements.meta.status,
+        undefined,
+        readRoadmap(item),
       ),
     });
   }
@@ -1960,13 +2393,22 @@ function effectiveBlockers(item, items) {
   return blockers;
 }
 
-function publicItem(item, paths) {
+function publicItem(item, paths, currentTaskId = undefined) {
   let requirementStatusValue = "invalid";
   try {
     requirementStatusValue = readRequirements(item).meta.status;
   } catch {
     // Validation reports the exact file problem.
   }
+  let roadmap = emptyRoadmap();
+  try {
+    roadmap = readRoadmap(item);
+  } catch {
+    // Validation reports the exact TASKS.yaml problem.
+  }
+  const currentTask = currentTaskId
+    ? roadmap.tasks.find((task) => task.id === currentTaskId)
+    : null;
   return {
     id: item.id,
     title: item.record.title,
@@ -1989,6 +2431,19 @@ function publicItem(item, paths) {
     landed_commit: item.record.git.landed_commit,
     landed_date: item.record.git.landed_date,
     completion: item.record.completion ?? null,
+    roadmap: {
+      stage_count: roadmap.stages.length,
+      task_count: roadmap.tasks.length,
+      stages: roadmap.stages.map((stage) => ({
+        id: stage.id,
+        title: stage.title,
+        lifecycle_stage: stage.lifecycle_stage ?? null,
+        planning_status: stage.planning_status ?? "planned",
+        child_work_items: stage.child_work_items ?? [],
+        task_ids: roadmap.tasks.filter((task) => task.roadmap_stage === stage.id).map((task) => task.id),
+      })),
+    },
+    current_task: currentTask ? publicTask(currentTask, item.id) : null,
     path: displayTrackerPath(paths, item.path),
   };
 }
@@ -2171,6 +2626,8 @@ computer and is not copied through Git.
   never handed out again.
 - \`ITEM.yaml\` owns structured status, dates, relationships, blockers, and Git evidence.
 - \`REQUIREMENTS.md\` contains only owner-stated or owner-approved needs.
+- \`TASKS.yaml\` owns the owner-shaped roadmap, linked child fulfillment, detailed execution tasks, and saved task positions.
+- A child work item keeps its own requirements, design, roadmap, tasks, status, and approval. Completing it does not complete its parent.
 - \`STATUS.md\` is the readable handoff. \`HISTORY.ndjson\` keeps dated events.
 - \`DASHBOARD.md\` is generated and rebuildable.
 
@@ -2195,7 +2652,7 @@ function validateConfig(config, errors) {
   }
 }
 
-function validateRecord(item, errors, warnings) {
+function validateRecord(item, tracker, errors, warnings) {
   const record = item.record;
   if (item.missingRecord || record._invalid_missing_record) {
     errors.push(`${item.id}: ITEM.yaml is missing`);
@@ -2230,6 +2687,7 @@ function validateRecord(item, errors, warnings) {
     }
   }
   validateRequirements(item, errors);
+  validateRoadmap(item, tracker, errors, warnings);
   const derived = record.stage ? statusForStage(record.stage) : null;
   if (record.stage && !STAGES.includes(record.stage)) warnings.push(`${item.id}: unknown stage ${record.stage} is preserved without a derived status`);
   if (derived && !["Done", "Cancelled"].includes(record.status) && record.status !== derived) {
@@ -2251,6 +2709,93 @@ function validateRecord(item, errors, warnings) {
       errors.push(error.message);
     }
   }
+}
+
+function validateRoadmap(item, tracker, errors, warnings) {
+  if (!fs.existsSync(item.tasksPath)) {
+    warnings.push(`${item.id}: TASKS.yaml is missing; reconcile roadmap tasks from accepted evidence when this legacy item resumes`);
+    return;
+  }
+  let roadmap;
+  try {
+    roadmap = readRoadmap(item);
+  } catch (error) {
+    errors.push(error.message);
+    return;
+  }
+  if (roadmap.schema_version !== 1) errors.push(`${item.id}: TASKS.yaml schema_version must be 1`);
+  if (!isIsoDate(roadmap.updated_date)) errors.push(`${item.id}: TASKS.yaml updated_date is malformed`);
+  if (!Array.isArray(roadmap.stages) || !Array.isArray(roadmap.tasks)) {
+    errors.push(`${item.id}: TASKS.yaml requires stages and tasks arrays`);
+    return;
+  }
+  if (!roadmap.stages.length) {
+    warnings.push(`${item.id}: roadmap has no stages; reconcile the plan before continuing managed work`);
+  }
+  const stageIds = new Set();
+  for (const stage of roadmap.stages) {
+    if (!stage || typeof stage !== "object" || Array.isArray(stage)) {
+      errors.push(`${item.id}: roadmap stage must be an object`);
+      continue;
+    }
+    if (!/^STAGE-[0-9]+$/.test(String(stage?.id ?? ""))) errors.push(`${item.id}: invalid roadmap stage ID ${stage?.id}`);
+    else if (stageIds.has(stage.id)) errors.push(`${item.id}: duplicate roadmap stage ${stage.id}`);
+    stageIds.add(stage.id);
+    for (const field of ["title", "outcome", "acceptance_condition"]) {
+      if (typeof stage?.[field] !== "string" || !stage[field].trim()) errors.push(`${item.id} ${stage?.id ?? "stage"}: ${field} is required`);
+    }
+    if (!(stage.lifecycle_stage === null || stage.lifecycle_stage === undefined || typeof stage.lifecycle_stage === "string")) {
+      errors.push(`${item.id} ${stage.id}: lifecycle_stage must be a string or null`);
+    }
+    if (!["planned", "draft"].includes(stage.planning_status ?? "planned")) errors.push(`${item.id} ${stage.id}: planning_status must be planned or draft`);
+    if (!Array.isArray(stage.child_work_items)) errors.push(`${item.id} ${stage.id}: child_work_items must be an array`);
+    for (const childId of stage.child_work_items ?? []) {
+      const child = tracker.items.find((candidate) => candidate.id === childId);
+      if (!child) errors.push(`${item.id} ${stage.id}: child work item ${childId} does not exist`);
+      else if (!(item.record.relationships.children ?? []).includes(childId) || !(child.record.relationships.parent ?? []).includes(item.id)) {
+        errors.push(`${item.id} ${stage.id}: ${childId} is not linked as a child of ${item.id}`);
+      }
+    }
+  }
+  const taskIds = new Set();
+  for (const task of roadmap.tasks) {
+    if (!task || typeof task !== "object" || Array.isArray(task)) {
+      errors.push(`${item.id}: task must be an object`);
+      continue;
+    }
+    if (!/^TASK-[0-9]+$/.test(String(task?.id ?? ""))) errors.push(`${item.id}: invalid task ID ${task?.id}`);
+    else if (taskIds.has(task.id)) errors.push(`${item.id}: duplicate task ${task.id}`);
+    taskIds.add(task.id);
+    if (!stageIds.has(task.roadmap_stage)) errors.push(`${item.id} ${task.id}: roadmap_stage ${task.roadmap_stage} does not exist`);
+    for (const field of ["title", "objective", "instructions", "deliverable", "acceptance_condition", "current_position", "next_action"]) {
+      if (typeof task?.[field] !== "string" || !task[field].trim()) errors.push(`${item.id} ${task?.id ?? "task"}: ${field} is required`);
+    }
+    if (!TASK_STATUSES.includes(task.status)) errors.push(`${item.id} ${task.id}: invalid status ${task.status}`);
+    if (typeof task.approval_required !== "boolean") errors.push(`${item.id} ${task.id}: approval_required must be true or false`);
+    for (const field of ["constraints", "inputs", "dependencies"]) {
+      if (!Array.isArray(task[field])) errors.push(`${item.id} ${task.id}: ${field} must be an array`);
+    }
+    for (const dependency of task.dependencies ?? []) {
+      if (!roadmap.tasks.some((candidate) => candidate?.id === dependency)) errors.push(`${item.id} ${task.id}: dependency ${dependency} does not exist`);
+    }
+    if (!isIsoDate(task.created_date) || !isIsoDate(task.updated_date)) errors.push(`${item.id} ${task.id}: task dates must be YYYY-MM-DD`);
+    if (task.status === "Complete") {
+      if (!task.completion || typeof task.completion.evidence !== "string" || !task.completion.evidence.trim()) errors.push(`${item.id} ${task.id}: completed task needs evidence`);
+      if (!isIsoDate(task.completion?.completed_date)) errors.push(`${item.id} ${task.id}: completed task needs a valid completed_date`);
+      if (task.completion?.approved_date !== null && task.completion?.approved_date !== undefined && !isIsoDate(task.completion.approved_date)) errors.push(`${item.id} ${task.id}: completion approved_date is malformed`);
+      if (task.approval_required && (!task.completion?.approved_by || !isIsoDate(task.completion?.approved_date))) errors.push(`${item.id} ${task.id}: approval-required completion needs approver and date`);
+    }
+  }
+  for (const stage of roadmap.stages) {
+    if (!stage || typeof stage !== "object" || Array.isArray(stage)) continue;
+    const hasTask = roadmap.tasks.some((task) => task?.roadmap_stage === stage.id);
+    if (!hasTask && !(stage.child_work_items ?? []).length) {
+      if ((stage.planning_status ?? "planned") === "draft") warnings.push(`${item.id} ${stage.id}: draft roadmap stage still needs a task or child work item`);
+      else errors.push(`${item.id} ${stage.id}: roadmap stage has no task or child work item`);
+    }
+  }
+  const validTasks = roadmap.tasks.filter((task) => task && typeof task === "object" && !Array.isArray(task));
+  for (const cycle of taskDependencyCycles(validTasks)) errors.push(`${item.id} task dependency cycle: ${cycle.join(" -> ")}`);
 }
 
 function validateRequirements(item, errors) {
@@ -2293,6 +2838,13 @@ function validateActiveMap(tracker, byId, errors) {
     const item = byId.get(entry.item_id);
     if (!item) errors.push(`ACTIVE.json branch ${branch} references missing ${entry.item_id}`);
     else if (["Done", "Cancelled"].includes(item.record.status)) errors.push(`ACTIVE.json branch ${branch} references terminal ${entry.item_id}`);
+    else if (entry.task_id !== undefined) {
+      let roadmap;
+      try { roadmap = readRoadmap(item); } catch { continue; }
+      const task = roadmap.tasks.find((candidate) => candidate.id === entry.task_id);
+      if (!task) errors.push(`ACTIVE.json branch ${branch} references missing task ${entry.task_id} on ${entry.item_id}`);
+      else if (["Complete", "Cancelled"].includes(task.status)) errors.push(`ACTIVE.json branch ${branch} references terminal task ${entry.task_id}`);
+    }
   }
 }
 

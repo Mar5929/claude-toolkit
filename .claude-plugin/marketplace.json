@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Personal, portable toolkit of reusable Claude systems: skills, rules, hooks, and templates shared across every project and device.",
-    "version": "0.115.0"
+    "version": "0.116.0"
   },
   "plugins": [
     {
@@ -37,12 +37,12 @@
     {
       "name": "work-tracker",
       "source": "./plugins/work-tracker",
-      "description": "Local work tracking shared by Claude and Codex, with flat Git-ignored .work-items folders, YAML records, owner-approved requirements, branch-scoped active items, flexible types, consistent progress, handoffs, relationships, approved completion events, optional Git landing evidence, generated dashboards, and preview-first conversion of older staged trackers."
+      "description": "Local work tracking shared by Claude and Codex, with owner-shaped roadmaps, detailed execution tasks, linked child work items, branch-scoped continuation, Git-ignored .work-items folders, approved requirements, consistent progress, handoffs, relationships, approved completion events, optional Git landing evidence, generated dashboards, and preview-first conversion of older staged trackers."
     },
     {
       "name": "session-skills",
       "source": "./plugins/session-skills",
-      "description": "Eleven conversation skills, including guided delivery, requirements interviewing, and solution design, with focused research, design, and review agents. Use the project's chosen tracker and adaptable working methods."
+      "description": "Eleven conversation skills, including roadmap-task delivery, requirements interviewing, and resumable solution design, with focused research, design, and review agents. Use the project's chosen tracker and adaptable working methods."
     },
     {
       "name": "system-guide",

@@ -39,6 +39,24 @@ work add --title TITLE --description DESCRIPTION --priority medium --type task \
 work requirements WI-014
 work requirements WI-014 --finalize --approved-by NAME
 work requirements WI-014 --reopen
+work roadmap show WI-014
+work roadmap add WI-014 --title TITLE --outcome OUTCOME --acceptance CONDITION \
+  [--child-item WI-018] [--lifecycle-stage 04] [--draft]
+work roadmap update WI-014 STAGE-001 [--title TITLE] [--outcome OUTCOME] \
+  [--acceptance CONDITION] [--child-item WI-018] [--clear-child-items] [--draft|--planned]
+work task show WI-014 [TASK-001]
+work task add WI-014 --stage-title TITLE --stage-outcome OUTCOME \
+  --stage-acceptance CONDITION [--lifecycle-stage 04] --title TITLE \
+  --objective OBJECTIVE --instructions INSTRUCTIONS [--constraint TEXT] \
+  [--input PATH_OR_URL] --deliverable DELIVERABLE --acceptance CONDITION \
+  [--depends-on TASK-001] [--position POSITION] --next-action ACTION \
+  [--approval-required]
+work task add WI-014 --roadmap-stage STAGE-001 ...
+work task update WI-014 TASK-001 [--roadmap-stage STAGE-002] [--status STATUS] \
+  [--position POSITION] [--next-action ACTION] [--depends-on TASK-002]
+work task select WI-014 TASK-001
+work task complete WI-014 TASK-001 --evidence TEXT \
+  [--approved-by NAME] [--approved-date YYYY-MM-DD]
 work active
 work active set WI-014 [--replace]
 work active clear
@@ -80,6 +98,38 @@ changes a `Backlog` item to `Ready`. `--reopen` returns open
 work to `Backlog` and clears the approval fields. When a known stage must move
 with that status, finalize sets `03-requirements-approved` and reopen sets
 `02-refinement`. A missing or unknown stage is preserved.
+
+`roadmap show` reads the item's owner-shaped roadmap. `roadmap add` creates a
+stage fulfilled by linked child work items; each child must already be connected
+through the tracker's `children`/`parent` relationship. `roadmap update` revises
+the stage without changing the work item's lifecycle status. It refuses to
+leave a planned stage with no task and no child work item. `--draft` preserves
+an unexpanded stage visibly and validation warns that it still needs breakdown;
+`--planned` requires a task or child rather than fabricating one.
+
+`task add` creates a detailed task. With `--stage-title`, it creates the roadmap
+stage and its first task atomically. With `--roadmap-stage`, it adds another
+task to an existing stage. Repeat `--constraint`, `--input`, or `--depends-on`
+as needed. Inputs are paths, issue links, PRDs, designs, accepted-decision
+records, or other governing sources. Use an explicit `None.` value when a task
+has no applicable constraint or input and that fact matters to continuation.
+
+`task update` maintains execution detail and the saved position. Repeated list
+flags replace the corresponding list; `--clear-constraints`, `--clear-inputs`,
+and `--clear-dependencies` clear them. Dependencies must be tasks in the same
+work item and may not form a cycle. Moving a task between roadmap stages is
+allowed only when the old stage still has another task or child item.
+
+`task select` records the branch's current task inside the existing active-item
+mapping. It does not move the item stage or status. `work active --json` then
+returns the complete selected task so a fresh session can read its objective,
+instructions, constraints, sources, deliverable, acceptance condition, saved
+position, and next action.
+
+`task complete` requires evidence. A task created with `--approval-required`
+also requires the approver and date. It checks task dependencies, records the
+completion, and clears that branch's current-task selection. It never completes
+or approves the parent work item.
 
 `--stage` writes the stage into `ITEM.yaml`, sets the status the stage maps to,
 and appends a dated line to the "Progress log" section of `STATUS.md`, all in
