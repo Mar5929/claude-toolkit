@@ -123,14 +123,35 @@ needed to reach it. It includes useful milestones, dependencies, completed work,
 current status, blockers, open decisions, approval boundaries, and next steps.
 The detail stays appropriate to the work and changes when the agreed plan changes.
 
-Every applicable roadmap stage is backed by one or more actionable tasks. Each
-task identifies its work item and roadmap stage and explains its objective,
+Work items can contain child work items at multiple levels, including an epic
+or feature containing smaller deliverables. Each work item, including a child,
+can own explicit, unambiguous requirements, a solution or technical design, a
+roadmap from start to finish, and the tasks needed to carry it out. Requirements
+cover functional behavior, process, logic, user experience, and data where
+applicable. Detail matches the item's scope; parent requirements and shared
+constraints are linked rather than copied into competing child documents.
+
+Every applicable roadmap phase is backed by actionable tasks within that item,
+linked child work items, or both. A child work item can have its own roadmap and
+further children. The relationship identifies which parent phase the child
+fulfills; folder nesting alone is not enough to convey that relationship. The
+owner's roadmap phases may use their own names and do not have to match the
+toolkit's lifecycle-stage labels. Creating a phase or linking a child does not
+advance the parent's lifecycle stage or grant approval.
+
+Each task identifies its work item and roadmap phase and explains its objective,
 instructions and governing constraints, linked inputs, expected deliverable,
 completion or acceptance condition, current status, relevant dependencies, and
 next action. The task description contains enough context to execute the
 assignment; it does not consist only of a title or unexplained document links.
-The amount of detail is proportionate to the task. A stage can have several
+The amount of detail is proportionate to the task. A phase can have several
 tasks, and the plan may change without losing their relationships or decisions.
+
+For example, a Salesforce-system epic can have a shared-rules phase fulfilled
+by a child work item for implementing the shared rules. That child has its own
+requirements, design, roadmap, and tasks. Its completion advances the relevant
+part of the parent's plan but does not mean the whole Salesforce system is
+delivered or accepted. Parent and child completion conditions remain explicit.
 
 For example, a solution-design task directs the agent to design from the linked
 PRD, apply the agreed project design principles, review the solution with the
@@ -151,12 +172,16 @@ results, publication, and owner acceptance remain distinguishable.
 **Check:** finish the requirements-refinement item for a feature that still needs
 design and implementation. The saved plan identifies what remains and the next
 useful authorized action. It does not describe the whole feature as delivered.
-Inspect each applicable roadmap stage: its tasks explain what must be done,
+Inspect each applicable roadmap phase: its tasks or linked children explain what must be done,
 which inputs and constraints apply, and how completion will be determined.
-Split a stage into two tasks and change a dependency: their work-item/stage
+Split a phase into two tasks and change a dependency: their work-item/phase
 relationships and the remaining path to delivery stay clear. Resume an older
 item with missing task detail: the agent fills the gap without treating earlier
 unapproved work as approved or discarding the recorded history.
+Create an epic with a custom-named phase linked to a child work item, then a
+further child under that item. Each level can be understood and resumed from
+its own requirements, design, roadmap, task details, and parent links. Completing
+the deepest child leaves outstanding parent work and approval conditions visible.
 
 ### Continuing across sessions
 
