@@ -36,19 +36,18 @@ Updated: 2026-09-17
 
 **Goal** Organize and guide Mike's work from idea through delivery across sessions.
 
-**Current status** PRD published; refinement underway. Full approval and implementation pending.
+**Current status** Roadmap/task workflow refactor authorized and delegated. Full PRD approval pending.
 
 **Recent progress**
-- Sept 15: Settled when to offer management and how declining applies to that goal; a new session alone does not trigger another offer.
+- Sept 17: Agreed stage-linked task details and fresh-session continuation.
 
-**Next step** Clarify what Mike sees after accepting: initial plan, milestones, and next action.
+**Next step** Review the delegated refactor and its tests; publish the reviewed result.
 
-**Blocker** None for requirements discussion.
+**Blocker** None; implementation review pending.
 
 **To-dos**
-- Define changing direction and resuming elsewhere.
-- Clarify team coordination across sessions.
-- Compare agreed behavior with toolkit capabilities; identify gaps.
+- Verify task creation, stage mapping, and continuation through task details.
+- Keep broader refinement and full approvals separate from this scoped change.
 
 **Detailed record** [Issue #337](https://github.com/Mar5929/claude-toolkit/issues/337) and its PRD.
 

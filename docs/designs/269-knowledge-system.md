@@ -1,5 +1,9 @@
 # Solution design: the project knowledge system
 
+**Governing design principle:** apply the
+[toolkit-wide handshake principle](../../knowledge/prds/toolkit-operating-system/toolkit-operating-system.md#design-principle-guide-the-agent-through-handshakes).
+The agent reasons; the toolkit supplies lightweight guidance, checkpoints, and
+acknowledgments. Resume from the [active design task and review position](269-knowledge-system/process.md#active-design-task).
 
 ## 1. What this document is
 

@@ -187,6 +187,29 @@ unapproved; resume it after this placement discussion.
 
 ## Where this stands and how to pick it up
 
+### Active design task
+
+- **Work item and roadmap stage:** Knowledge System #269; finish requirements
+  and solution-design review on the path to delivery.
+- **Task:** design and review the Knowledge System solution.
+- **Instructions:** read the linked PRD and design, apply the parent's settled
+  handshake principle, and guide Mike through the end-to-end scenario one step
+  at a time. Record each answer and its scope before continuing.
+- **Inputs:** the PRD and design linked above, existing review records, and the
+  [scenario walkthrough](design-walkthrough.md).
+- **Deliverable:** reconciled solution design with requirement coverage and
+  explicit treatment of remaining questions and platform proof obligations.
+- **Completion condition:** Mike approves the design; publication alone is not
+  approval or permission to implement the Knowledge System.
+- **Status and resume point:** in review; scenario step 1 awaits review. The
+  present sidebar authorized the roadmap/task workflow refactor under #337.
+  Resume this scenario at step 1 when that discussion is complete.
+- **Dependencies:** remaining PRD/design choices and full approvals before the
+  Knowledge System build. Preserve earlier settled decisions.
+- **Related follow-up:** #337 now owns the explicitly authorized reusable
+  roadmap/task and continuation change. Do not mistake that permission for
+  approval of the Knowledge System runtime or the whole #337 PRD.
+
 Updated 2026-09-17: the goal is to ship the refactored Knowledge System. Mike
 estimates the requirements were 95–99% settled when design work began; this is
 his estimate, not full requirements approval or measured delivery progress.

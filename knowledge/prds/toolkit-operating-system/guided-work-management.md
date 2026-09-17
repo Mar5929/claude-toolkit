@@ -3,7 +3,7 @@ summary: The agent offers to organize and guide work from the initial idea throu
 group: delivery
 area: guided-work-management
 status: proposed
-source: Mike's separate guided-work-management conversation and opt-in clarification on 2026-09-15; GitHub issue 337
+source: Mike's guided-work-management and opt-in clarification on 2026-09-15; roadmap-linked task details and continuation clarification on 2026-09-17; GitHub issue 337
 created_at: 2026-09-15
 tags: [delivery, planning, requirements, continuity]
 work_item: "337"
@@ -11,7 +11,9 @@ work_item: "337"
 
 # Guided work management
 
-Draft updated 2026-09-15.
+Draft updated 2026-09-17. Mike authorized implementation of the roadmap-linked
+task and task-continuation behavior on this date. The full PRD remains proposed;
+that scoped authorization does not approve unrelated requirements or delivery.
 
 ## Contents
 
@@ -121,6 +123,27 @@ needed to reach it. It includes useful milestones, dependencies, completed work,
 current status, blockers, open decisions, approval boundaries, and next steps.
 The detail stays appropriate to the work and changes when the agreed plan changes.
 
+Every applicable roadmap stage is backed by one or more actionable tasks. Each
+task identifies its work item and roadmap stage and explains its objective,
+instructions and governing constraints, linked inputs, expected deliverable,
+completion or acceptance condition, current status, relevant dependencies, and
+next action. The task description contains enough context to execute the
+assignment; it does not consist only of a title or unexplained document links.
+The amount of detail is proportionate to the task. A stage can have several
+tasks, and the plan may change without losing their relationships or decisions.
+
+For example, a solution-design task directs the agent to design from the linked
+PRD, apply the agreed project design principles, review the solution with the
+owner using the agreed method, preserve decisions and the review position, and
+complete only after the required design approval. The task links to the detailed
+design and canonical principles instead of maintaining competing copies.
+
+This is the normal workflow for managed work going forward. New plans include
+these task records; when resuming existing managed work, the agent reconciles
+missing task detail within the accepted scope and preserves earlier approvals,
+completion evidence, and remaining decisions. The chosen tracker owns the
+records regardless of its storage system; no second tracker is required.
+
 Completing a requirements document or an individual task does not lose the
 remaining path to delivery. Requirements approval, permission to build, checked
 results, publication, and owner acceptance remain distinguishable.
@@ -128,6 +151,12 @@ results, publication, and owner acceptance remain distinguishable.
 **Check:** finish the requirements-refinement item for a feature that still needs
 design and implementation. The saved plan identifies what remains and the next
 useful authorized action. It does not describe the whole feature as delivered.
+Inspect each applicable roadmap stage: its tasks explain what must be done,
+which inputs and constraints apply, and how completion will be determined.
+Split a stage into two tasks and change a dependency: their work-item/stage
+relationships and the remaining path to delivery stay clear. Resume an older
+item with missing task detail: the agent fills the gap without treating earlier
+unapproved work as approved or discarding the recorded history.
 
 ### Continuing across sessions
 
@@ -145,6 +174,15 @@ evidence. The project's short working context points to those records and
 provides enough background to resume. Records link to one another without
 maintaining competing copies of the same requirements or detailed plan.
 
+On a request such as "pick back up with solution design," the agent finds the
+active work item's roadmap task, reads its execution details and linked governing
+guidance, and restores the last review position before continuing. The owner
+does not have to name a skill, locate the philosophy, or repeat earlier decisions.
+The task's continuation record distinguishes completed and accepted steps from
+proposals, blockers, and the next authorized action. Root instruction files stay
+the repository map and router; task-specific guidance belongs with the relevant
+workflow and project records.
+
 If a save or publication fails, the agent reports what remains unsaved or
 unpublished and preserves the pending update for recovery. It continues work
 that can proceed independently, without making the owner reconstruct the update.
@@ -155,6 +193,12 @@ explain the goal, completed work, current position, open decisions, and next
 authorized action without asking the owner to repeat the earlier discussion.
 Repeat with a failed save: pending information is identified and recovered,
 and is never represented as already published.
+In a fresh supported session, say only "pick back up with solution design"
+with the active project selected. The agent retrieves the task, applies its
+saved design principles, and resumes the correct review step without repeating
+settled questions. If the active item is ambiguous, it asks only what is needed
+to select it. A saved link or static instruction check alone does not prove this
+fresh-session behavior.
 
 ## Potential solution design notes
 
