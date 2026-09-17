@@ -2,7 +2,7 @@
 
 Updated: 2026-09-17
 
-This is a proposed solution walkthrough for [issue 269](https://github.com/Mar5929/claude-toolkit/issues/269), prepared after reading the complete [PRD](../../../knowledge/prds/toolkit-operating-system/knowledge-system.md), the [consolidated design](../269-knowledge-system.md), and both earlier approaches in `briefs/`. It complements the approved requirements walkthrough; it does not replace it or approve implementation.
+This is a proposed solution walkthrough for [issue 269](https://github.com/Mar5929/claude-toolkit/issues/269), prepared after reading the complete [PRD](../../../knowledge/prds/toolkit-operating-system/knowledge-system.md), the single living [solution design](../269-knowledge-system.md), and the historical approaches in `briefs/`. It is the active review companion: accepted design answers are reconciled into the master. It does not replace the design or approve implementation.
 
 ## How to use this review
 

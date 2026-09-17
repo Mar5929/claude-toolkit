@@ -33,8 +33,11 @@ told apart by its `status` line.
 ### `designs/`
 
 - **One file per work item**, named `<issue number>-<short-slug>.md`.
-- **Create it at stage `04-solution-design`**, and merge it in the same pull
-  request as the code it describes.
+- **Create it at stage `04-solution-design`**, or during earlier review when
+  explicitly authorized. Keep one authoritative design updated as review proceeds.
+- **Publish authorized documentation-only changes directly to main:** check,
+  commit, and push promptly. Code and configuration keep their implementation
+  workflow. See Toolkit Operating System R25 for the publication policy.
 - **Delete it at stage `14-spec-update`**, once `knowledge/prds/` is current.
   Git history keeps it, so nothing is lost. Nothing checks that you did this.
 - An empty folder is the normal state between jobs, not a gap.

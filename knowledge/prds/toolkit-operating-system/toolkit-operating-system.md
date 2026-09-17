@@ -513,7 +513,11 @@ Project-init 0.68.0 supplies the root guidance and save rule; second-brain
 through plugin updates and project sync. This is shipped guidance, not proof
 that every installed session follows it. The design-document extension below
 was approved on 2026-09-16; its reusable publication guidance is still delivery
-work, not part of that earlier release.
+work, not part of that earlier release. Mike expanded the requirement on
+2026-09-17 to all authorized Git-tracked documentation-only changes. The shipped
+path-scoped rule still covers only `knowledge/**`; expanding its documentation
+save route remains delivery work. Solution designs stay outside `knowledge/`
+in the project's designated design location.
 
 **R25. Make each project's quick-save locations clear from the start.** The
 agent must know which files or folders receive frictionless updates without Mike naming
@@ -524,12 +528,11 @@ and project sync brings it to existing projects.
 
 | Location | Save behavior |
 | --- | --- |
-| `knowledge/` files | Make the authorized update promptly, perform the relevant checks, commit directly to main (or the project's default branch), and push. The save must not wait on an implementation branch or pull request, even when the session's other work is in a worktree. |
-| Design documents in the project's designated design location | Save authorized changes directly to main (or the project's default branch), commit, and push as the work proceeds. Use the location defined by [Guided Delivery](guided-delivery.md#solution-design). Do not create a worktree, feature branch, or pull request for the document save, or wait for implementation to ship. |
+| Git-tracked documentation-only changes, including PRDs, designs, and review records | Make the authorized update promptly, perform the relevant checks, commit directly to main (or the project's default branch), and push. Use the canonical locations and owners defined by the project and [Guided Delivery](guided-delivery.md#solution-design). Do not create a worktree, feature branch, or pull request for the documentation-only save, or wait for implementation to ship. Existing content and meaning approvals still apply. |
 | Locally tracked work items | Update the existing untracked store through its tracker. Do not add its files to Git or require a commit, push, or worktree to keep them accurate. |
-| Any additional quick-save file or folder | Identify it explicitly in the project's guidance and state its save route. Do not assume every documentation folder qualifies. |
+| Code, configuration, executable behavior, or a mixed implementation/documentation change | Follow the normal implementation worktree, branch, review, and pull-request workflow. The documentation-only exception does not authorize or reroute these changes. |
 
-Frictionless means quick, small saves as work happens, without repeated
+Frictionless means quick, small documentation saves as work happens, without repeated
 permission for a save already authorized. For designated tracked files, the
 agent uses the existing default-branch checkout and handles the commit and
 push. It does not create a separate worktree or branch for the save, require a
@@ -539,8 +542,10 @@ Once Mike allows a quick save, finish the commit and push to main; writing only
 a local file is not enough.
 Saving a proposed PRD does not require approving its requirements. Preserve
 its proposed status and report validation separately from publication.
-This does not waive approval needed for new lasting meaning. Keep implementation changes separate, preserve other
-sessions' edits, and never commit their unapproved work along with the save.
+This does not waive approval needed for new lasting meaning. A change that also
+contains code, configuration, or executable behavior is mixed and keeps the
+normal implementation workflow. Preserve other sessions' edits, and never
+commit their unapproved work along with the save.
 If validation or pushing fails, report what remains local and the next step;
 do not quietly park the save on a worktree branch or call an unpushed save
 complete. If Mike explicitly directs publication with a known validation
@@ -560,9 +565,10 @@ item without tracking it in Git. The implementation stays in its worktree.
 **Check:** repeat with an authorized design-document update and another file
 explicitly designated for direct saves. The agent finds their configured routes
 and publishes the changes without creating a worktree, feature branch, or pull
-request for them. An unrelated documentation file does not acquire that route
-by inference. No unrelated implementation or another session's unapproved work
-is included. A failed save stays visibly unfinished.
+request for them. Repeat with a review-note-only correction and use the same
+route. Then add a code or configuration change: the mixed change stays in the
+normal implementation workflow. No unrelated implementation or another
+session's unapproved work is included. A failed save stays visibly unfinished.
 
 ## Walkthrough: a search that misses advisors
 

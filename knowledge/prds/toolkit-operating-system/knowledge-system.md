@@ -1232,6 +1232,10 @@ allowed, and it is the exception.
   requirement, and [Toolkit Operating System R25](toolkit-operating-system.md#13-frictionless-updates)
   owns designated files' direct-save route. Follow those requirements rather
   than creating a separate design location or publication policy here.
+- The single current solution is the living
+  [Knowledge System design](../../../docs/designs/269-knowledge-system.md). Issue #269 owns
+  its review status and approval; the scenario walkthrough and retained
+  research records support it without becoming competing designs.
 - A PRD may link to the relevant work item or delivery plan so the agent can find it. It does not copy that plan, build order, or status. Each work item names the PRD requirements it delivers, preserving the connection between requirements and implementation.
 - Agents keep each record current in its own home when the work changes, within existing approval. A work item being created, reordered, or split updates the delivery records. A change to required behavior updates the PRD. The owner never has to direct the filing or keep these records aligned by hand.
 

@@ -5,6 +5,29 @@
 The agent reasons; the toolkit supplies lightweight guidance, checkpoints, and
 acknowledgments. Resume from the [active design task and review position](269-knowledge-system/process.md#active-design-task).
 
+## Current authority and resume
+
+This is the single authoritative living Knowledge System solution design.
+Update this file as design decisions are accepted or corrected; do not maintain
+a competing full design or a copied proposal appendix elsewhere. The
+[Knowledge System PRD](../../knowledge/prds/toolkit-operating-system/knowledge-system.md)
+owns required behavior. [Issue #269 Task D1](https://github.com/Mar5929/claude-toolkit/issues/269#task-d1--review-and-finalize-the-solution-design)
+owns current status, approval, and the exact next action.
+
+The [Acme scenario walkthrough](269-knowledge-system/design-walkthrough.md)
+is the active review companion. It records the scenario state and owner answers,
+then this master is reconciled to them. The research, briefs, and completed
+reviews in that folder are historical evidence, not alternative current designs.
+
+**Current position, 2026-09-17:** Task D1 is reviewing Acme scenario step 2,
+the first fresh-session brief. The prompt-side reminder is selected design
+direction. Apply it to the brief and review routing by kind, scope, and owner
+before memory eligibility. The higher operating-manual path, canonical compact
+reminder source, remaining wording, acknowledgment transport and loop
+prevention, runtime proof, and the proposed before-final-turn Stop checkpoint
+remain open. Step 1 and the full design remain unapproved; no build is
+authorized.
+
 ## 1. What this document is
 
 This is a draft solution design. It is written for the owner, Mike, to approve
@@ -55,7 +78,7 @@ says so where it does. Words used in a fixed way throughout:
 | Spill | What a harness does when a hook prints more than the output cap allows: it writes the whole text to a file and gives the agent a short preview and that file's path. |
 | Fail-open | A hook that catches its own errors and exits 0, so a failure inside the hook lets the action through instead of stopping it. |
 | Map | The text the two startup hooks print at the start of a session. Requirement 2 (PRD line 484) uses the word for the same thing. |
-| Hook event | The named moment a hook runs at. The ones used here are `SessionStart`, `PreToolUse`, `PostToolUse`, `Stop`, and `PreCompact`. |
+| Hook event | The named moment a hook runs at. The ones used here are `SessionStart`, `UserPromptSubmit`, `PreToolUse`, `PostToolUse`, `Stop`, and `PreCompact`. |
 | `additionalContext` | A field in a hook's JSON output. The harness puts its text into the agent's context, beside the tool result or the prompt. |
 | Exec form and shell form | Two ways to write a hook's command. Exec form gives the program in `command` and its arguments in `args`. Shell form gives one command string the shell parses. |
 | `if` filter | An optional field on a Claude Code hook entry, written in permission-rule syntax such as `Edit(**/knowledge/prds/**)`. The harness checks it before it starts the hook process. |
@@ -85,7 +108,7 @@ branch, do not change.
 | File | `SOUL.md`, `knowledge/project.md`, the manual, `current.md`, the inbox, three generated indexes, the glossary, `memory-entries/`, `prds/`, the feedback file, `brainstorms/` | 13 |
 | Rule | `.claude/rules/knowledge-system.md`, 26 lines, 1,998 characters, re-injected from disk after compaction | 1 |
 | Skill | `knowledge-find`, `knowledge-save`, `knowledge-review`, `knowledge-setup` | 4 |
-| Hook | Two startup printers, the save-moment gate, the write guard, the after-write check, the Stop nudge, the compaction hold | 7 |
+| Hook | Two startup printers, the prompt reminder, the save-moment gate, the write guard, the after-write check, the proposed Stop nudge, the compaction hold | 8 |
 | Tool | The index builder, the checker, the frontmatter parser, the command parser, the session marker, the Git pre-commit hook | 6 |
 | State | `${CLAUDE_PLUGIN_DATA}/sessions/<session_id>.json`, the session facts the hooks share | 1 |
 | Setting | `enabledPlugins` and `autoMemoryEnabled: false` in Claude Code; two `memories` keys in Codex | 2 |

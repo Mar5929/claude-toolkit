@@ -76,28 +76,37 @@ that item: a product analyst, researchers, a technical architect per option,
 a critic, and task agents as needed, each on the model that fits its role.
 The owner agrees or changes the team before any helper starts.
 
-For GitHub-tracked work, the default design home is one versioned file under
-`docs/designs/`, linked prominently from the issue. The file owns the design;
-the issue owns progress, approvals, and remaining work. Neither keeps another
-copy of the other's content. The existing local tracker's convention is
-unchanged: its design stays with the item in its untracked folder.
+For GitHub-tracked work, use one versioned canonical file in the project's
+designated design location, linked prominently from the issue. In this project,
+that location is `docs/designs/`; solution designs do not belong in `knowledge/`.
+Keep the existing design as the living master throughout review. The file owns the
+solution; the issue owns progress, approvals, and remaining work. Neither keeps
+another copy of the other's content. Research, alternatives, and walkthroughs
+may support the master but never compete with it. The existing local tracker's
+convention is unchanged: its design stays with the item in its untracked folder.
 
-Design documents use the project's direct-save route under
+Authorized documentation-only PRDs, designs, and review records use the
+project's direct-save route under
 [Toolkit Operating System R25](toolkit-operating-system.md#13-frictionless-updates).
 The owner does not manage a worktree, branch, or pull request to keep them
-current. Permission to save a draft does not approve the design or its build.
+current. Code, configuration, executable behavior, and mixed changes keep the
+normal implementation workflow. Permission to save a draft does not approve
+the design or its build.
 
 Mike approved the linked-file default and clarified direct saves on 2026-09-16
 in the [issue #269 discussion](https://github.com/Mar5929/claude-toolkit/issues/269#issuecomment-5510064692).
-This settles the earlier issue-text-versus-file question. The publication
-guidance still needs to be aligned through the delivery work recorded there;
-this requirement is not evidence that the shipped save workflow has changed.
+This settles the earlier issue-text-versus-file question. As of 2026-09-17, the
+shipped direct-save rule remains scoped to `knowledge/**`. Expanding the
+reusable save guidance needs delivery; this requirement is not evidence that
+installed projects already follow the expanded documentation-only route.
 
-**Check:** open a GitHub work item. Its link leads to one current design file,
+**Check:** open a GitHub work item. Its link leads to one authoritative current design file,
 while the issue shows progress and approval. During an authorized design
 interview, settle a change: the agent saves it through R25 without asking the
 owner to manage Git or waiting for the implementation pull request. A fresh
 session finds the changed design and its true approval state from the issue.
+Historical approaches point to that master and do not present themselves as
+current alternatives.
 
 One prep file holds the intent, the readiness result, the rulings, the way of
 working, the team, every interview answer, and the constraints. Every helper

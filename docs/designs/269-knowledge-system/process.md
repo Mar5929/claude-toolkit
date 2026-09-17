@@ -71,7 +71,7 @@ He set four instructions for how to design it:
 | 2. Independent pass | The peer Fable design lead | The requirements document, the approved walkthrough, the five research reports | `briefs/peer-requirements-critique.md`, `briefs/peer-design-sketch.md` |
 | 3. Decision brief and consolidation | The main Fable design lead, with the peer lead | The five research reports, the peer lead's two documents | `briefs/outline.md`, `briefs/main-decision-brief.md`, `briefs/peer-decision-notes.md` |
 | 4. Citation check | An Opus verifier | The two leads' briefs and every source they cite | `research/verification-report.md` |
-| 5. Drafting | Two Opus writers | The decision brief | The joined draft, now `docs/designs/269-knowledge-system.md` |
+| 5. Drafting | Two Opus writers | The decision brief | The joined draft, now the living master at `docs/designs/269-knowledge-system.md` |
 | 6. Review round one | Three Opus reviewers, then the main lead, then an Opus fixer | The joined draft | `reviews/review-1-requirements.md`, `reviews/review-2-harness.md`, `reviews/review-3-philosophy-ux.md`, `reviews/fix-list-round-1.md`, `reviews/fix-list-round-1-addendum.md`, `reviews/fix-report-round-1.md` |
 | 7. Review round two | An Opus reviewer, a fresh Opus reader, then the main lead, then an Opus fixer | The design after round one | `reviews/review-4-round2-fixes.md`, `reviews/review-5-round2-fresh.md`, `reviews/fix-list-round-2.md`, `reviews/fix-report-round-2.md` |
 | 8. Review round three | An Opus reviewer, then an Opus fixer | The design after round two | `reviews/review-6-round3-final.md`, `reviews/fix-report-round-3.md` |
@@ -200,7 +200,8 @@ unapproved; resume it after this placement discussion.
 
 Issue #269 owns the canonical roadmap and task record. Its current task is
 **D1 — Review and finalize the solution design**. This process record keeps the
-review method and evidence; it does not duplicate the task tracker.
+review method and evidence; it does not duplicate the task tracker or the
+single living [solution design](../269-knowledge-system.md).
 
 Current position: review the Knowledge System through the fictional Acme Corp
 two-org Salesforce consolidation. In scenario step 1, Mike selected the complete

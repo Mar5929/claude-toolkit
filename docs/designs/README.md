@@ -39,7 +39,8 @@ itself stays in the parent PRD rather than being copied into project memory.
 ## How long a file lives
 
 - Created at stage `04-solution-design`.
-- Merged in the same pull request as the code it describes.
+- Authorized documentation-only updates are checked, committed directly to
+  main, and pushed promptly. They do not wait for the implementation pull request.
 - **Deleted at stage `14-spec-update`**, once the PRD has been brought up to
   date.
 
@@ -65,9 +66,10 @@ finishes the work item has to do it.
 
 ## Designs in progress
 
-- `269-knowledge-system.md`: the knowledge system, issue #269. Draft under
-  owner review.
+- [269-knowledge-system.md](269-knowledge-system.md): the single living master
+  for issue #269, updated throughout owner review. Solution designs stay here,
+  outside `knowledge/`; the linked PRD owns requirements.
 - `docs/designs/269-knowledge-system/`: the working records behind that design,
-  kept as history. Its `269-knowledge-system/README.md` says what each file is
+  research and completed reviews kept as history. Its `269-knowledge-system/README.md` says what each file is
   and who wrote it, `process.md` says how the design was made and where it
   stands, and `prep.md` is the design prep file.

@@ -1,19 +1,22 @@
 # 269-knowledge-system: the working records behind the design
 
-This folder holds the material that produced
-`docs/designs/269-knowledge-system.md`: the research reports, the two design
-leads' briefs, and every review and fix list.
+This folder holds the material that produced the single living master at
+[`docs/designs/269-knowledge-system.md`](../269-knowledge-system.md):
+the research reports, the two design leads' briefs, and every review and fix
+list.
 
-The research, briefs, and completed reviews are history. They are not current truth. Where a record and the design
-file disagree, the design file is right, because the design file was corrected
-three times after these records were written. Where the design file and the
+The research, briefs, and completed reviews are history. They are not current
+truth or alternative designs. Where a record and the master design disagree,
+the master is right, because it is continually reconciled as decisions change.
+Where the master design and the
 requirements document disagree, `knowledge/prds/toolkit-operating-system/knowledge-system.md` is right.
 
 `process.md` says how the design was made and where the work stands.
 `prep.md` is the design prep file, filled in after the fact.
 [The design walkthrough](design-walkthrough.md) is the active scenario-led
 review companion. It records the current step, accepted answers, and remaining
-choices; its unapproved proposals do not change the PRD or approve a build.
+choices; accepted design answers are reconciled into the master. Its unapproved
+proposals do not change the PRD or approve a build.
 
 Every record was written by an agent. The roles are: an Opus research agent,
 the peer Fable design lead, the main Fable design lead, an Opus reviewer, and
