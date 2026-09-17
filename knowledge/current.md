@@ -33,12 +33,12 @@ Updated: 2026-09-17
 
 **Goal** Organize and guide Mike's work from idea through delivery across sessions.
 
-**Current status** Roadmap/task workflow refactor authorized and delegated. Full PRD approval pending.
+**Current status** Refactor built in draft PR #352; final checks and review ongoing.
 
 **Recent progress**
-- Sept 17: Agreed stage-linked task details and fresh-session continuation.
+- Sept 17: Built stage-linked tasks and continuation; a review fix is committed.
 
-**Next step** Review the delegated refactor and its tests; publish the reviewed result.
+**Next step** Finish checks and PR #352 review; merge/rollout need acceptance.
 
 **Blocker** None; implementation review pending.
 
