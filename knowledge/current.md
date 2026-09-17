@@ -31,22 +31,13 @@ Updated: 2026-09-17
 ### Guided work management — #337
 Updated: 2026-09-17
 
-**Goal** Organize and guide Mike's work from idea through delivery across sessions.
+**Status** PR #352 merged the authorized roadmap/task scope to `main` at 8355a40. The full PRD remains proposed; rollout and delivered acceptance remain open.
 
-**Current status** Refactor built in draft PR #352; final checks and review ongoing.
+**Coverage** R4 is delivered for local records. R2/R3 guidance and R5 continuation exist but lack fresh-agent proof; R1 offer/decline behavior is not implemented.
 
-**Recent progress**
-- Sept 17: Built stage-linked tasks and continuation; a review fix is committed.
+**Next** Refine and authorize R1, test fresh-session and failed-save recovery, then obtain rollout acceptance.
 
-**Next step** Finish checks and PR #352 review; merge/rollout need acceptance.
-
-**Blocker** None; implementation review pending.
-
-**To-dos**
-- Verify task creation, stage mapping, and continuation through task details.
-- Keep broader refinement and full approvals separate from this scoped change.
-
-**Detailed record** [Issue #337](https://github.com/Mar5929/claude-toolkit/issues/337) and its PRD.
+**Record** [Issue #337](https://github.com/Mar5929/claude-toolkit/issues/337).
 
 ## General project to-dos
 None recorded.
