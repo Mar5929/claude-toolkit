@@ -1,33 +1,33 @@
 # Current work
-Updated: 2026-09-16
+Updated: 2026-09-17
 
 ## Project goal
-Refactor the Knowledge System for continuity across sessions.
-Next milestones: requirements approval, design approval, then build.
+Ship the refactored Knowledge System against the agreed requirements.
+Next milestones: validate routing gap, settle requirements/design, build, test, deliver.
 
 ## Active work
 
 ### Knowledge System refactor — #269
-Updated: 2026-09-16
+Updated: 2026-09-17
 
 **Goal**
-Design reliable knowledge retrieval, upkeep, and saving.
+Ship reliable knowledge retrieval, upkeep, and saving.
 
 **Current status**
-Design in progress; requirements being refined. Tracker: 02-refinement. Build awaits PRD/design approval.
+Requirements nearly settled (Mike estimates 95–99%), not fully approved. Draft design approaches exist and are under review. Tracker: 02-refinement. Build approval pending.
 
 **Recent progress**
-- Sept 16: Clarified working memory and its Current status / Recent progress template.
-- Sept 16: Added discussion-only and outside-item capture requirements; found memory exclusions applied before routing in the design.
+- Sept 16: Clarified working-memory template and information-routing requirements.
+- Sept 16: Revised the save flow: choose the destination before memory exclusions.
 
 **Next step**
-Reassess how the design notices useful information and routes it through the Toolkit OS's filing structure without file edits. Settle the review/reminder mechanism (design question 2).
+Validate routing an aside to another subprocess's record without a new session. Reconcile the design; the review mechanism remains open.
 
 **Blocker**
 Requirements and design approval needed before implementation.
 
 **To-dos**
-- Reconcile affected design details and validate the proposed save flow.
+- Test the routing scenario against the design (question 2).
 - Review remaining design decisions and PRD wording questions 9–12.
 - Decide when to adopt the newer design template.
 - Update publication/direct-save guidance under #269/#306.

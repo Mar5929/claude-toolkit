@@ -79,6 +79,15 @@ He set four instructions for how to design it:
 
 ## Where this stands and how to pick it up
 
+Updated 2026-09-17: the goal is to ship the refactored Knowledge System. Mike
+estimates the requirements were 95–99% settled when design work began; this is
+his estimate, not full requirements approval or measured delivery progress.
+The design approaches above led to the draft now under review. An incidental
+discussion exposed a possible Toolkit OS-wide routing gap: an aside about
+another subprocess must reach that subprocess's proper record without requiring
+a new session, while the original work remains resumable. Validate that case
+and reconcile the design before continuing the remaining design decisions.
+
 The requirements document `knowledge/prds/toolkit-operating-system/knowledge-system.md` is at
 `status: proposed`, and issue 269 is at stage `02-refinement`. Nothing is
 approved to build.
@@ -105,9 +114,10 @@ solution-design template on 2026-09-16, in pull requests 344 and 345. This
 design was written before that template existed and does not follow it. Whether
 to reshape the design to the template has not been decided.
 
-**The exact next action: ask the owner question 2, the end-of-turn nudge.**
-It asks whether to approve `session-review-nudge.mjs`, which raises the save
-review at the end of a turn with real work and forces one turn continuation
-each time it speaks. The design recommends approving it, capped at once per
-session per threshold. The full question is in section 15, and the reasoning is
-in sections 13.2 and 14.6.
+**The exact next action: validate the incidental, cross-scope information case
+against the proposed save flow.** Read the latest requirements 9 and 18 and
+the design's reassessment in section 13.2. The changed-file-count reminder was
+rejected; question 2's replacement mechanism remains open. The scope-routing
+clarifications are requirements for the in-flight design, not a separate
+replacement for shipping the Knowledge System. Then resume the review order
+above. Full PRD/design approval and implementation remain pending.

@@ -1403,6 +1403,13 @@ The tentative idea stays tentative. Memory exclusions do not erase valid
 non-memory information. A fresh session can find the results and continue the
 original design work; no unrelated implementation has begun.
 
+Repeat when the owner interrupts the current topic with a request to remember
+something about another subprocess in the same project. The owner need not
+open a new session or identify the destination. The agent identifies the proper
+owner, completes the update or asks only for missing approval, and preserves
+the original task's continuation context. The request does not bypass the
+destination's approval rules.
+
 Mike requested this notice-and-route clarification and reassessment of the
 in-flight Knowledge System design on 2026-09-16. It clarifies requirements 9
 and 18; it does not approve a replacement reminder mechanism or the full build.
