@@ -131,10 +131,45 @@ and work item's completion criteria still control those decisions.
   The first migration target and the missing skill-authoring dependency remain
   owner choices; neither is silently accepted here.
 
-Next bounded deliverable: a concise decision brief for question 2 and the
-remaining review questions, showing recommendations separately from approved
-answers. Discuss one material decision at a time unless Mike asks to group
-them. The draft's publication never substitutes for approval of its build plan.
+The review method below replaces the earlier question-by-question briefing.
+The draft's publication never substitutes for approval of its build plan.
+
+### Scenario-led design review, requested 2026-09-17
+
+Mike wants the coordinating architect to understand the complete Knowledge
+System PRD and existing design approaches before asking him to choose details.
+Read the full PRD, the consolidated design, and the earlier independent design
+and consolidation brief. Reuse their research and reviews. The earlier briefs
+are history, not two equally current approved options.
+
+Prepare one realistic project lifecycle from project initialization and
+activation through ordinary work, saving, recovery, handoff, and delivery.
+Include alternate outcomes where needed to cover all 30 requirements, with a
+requirement-to-scenario map that makes omissions visible. The account-access
+example already used by the PRD is a suitable starting point.
+
+Walk Mike through one step at a time in the main conversation. At each step,
+show his action or message, the expected result, the native event or other
+trigger, the exact proposed files/hooks/skills and what each does, what the
+agent reasons about, what any handshake checks, what gets read or saved, and
+what happens on failure. Separate existing behavior, proposed components,
+unverified platform assumptions, and unresolved choices. Recommend the best
+approach with a reason; let Mike approve it, reject it, or request a change.
+
+Persist each answer and its scope before moving on. Keep the current scenario
+step, last approved step, remaining choices, and next question in the existing
+design/work record, with a short pointer in working memory. Resume from those
+records across sessions; Mike must not repeat the philosophy or this method.
+Individual answers do not approve unseen steps, the full PRD/design, or a build.
+
+The [toolkit-wide handshake principle](../../../knowledge/prds/toolkit-operating-system/toolkit-operating-system.md#design-principle-guide-the-agent-through-handshakes)
+governs the review. The architect chooses concrete mechanisms within it.
+Question 2 is still open and will be reviewed at the conversation-review step;
+do not ask it again in isolation or revive the rejected changed-file counter.
+
+Current position: prepare the complete scenario and coverage map, then begin
+with project setup. No scenario step has been approved yet. Runtime
+implementation and behavioral verification remain pending.
 
 ## Where this stands and how to pick it up
 
@@ -158,8 +193,9 @@ open.
 
 The order of what is left:
 
-1. Answer questions 2 to 8 from section 1a.
-2. Answer the requirements-wording questions 9 to 12 in section 15.
+1. Prepare and review the end-to-end scenario under the method above.
+2. Resolve the remaining design and PRD questions where they occur in that
+   scenario, retaining existing approvals and identifying any uncovered choice.
 3. Approve the requirements document.
 4. Approve the design as the build plan.
 
@@ -173,10 +209,8 @@ solution-design template on 2026-09-16, in pull requests 344 and 345. This
 design was written before that template existed and does not follow it. Whether
 to reshape the design to the template has not been decided.
 
-**The exact next action: validate the incidental, cross-scope information case
-against the proposed save flow.** Read the latest requirements 9 and 18 and
-the design's reassessment in section 13.2. The changed-file-count reminder was
-rejected; question 2's replacement mechanism remains open. The scope-routing
-clarifications are requirements for the in-flight design, not a separate
-replacement for shipping the Knowledge System. Then resume the review order
-above. Full PRD/design approval and implementation remain pending.
+**The exact next action: prepare the full scenario, then begin its project-setup
+step with Mike.** Include the incidental cross-scope information case under
+requirements 9 and 18, the design's section 13.2, and the handshake principle.
+The scope-routing clarifications remain part of shipping the Knowledge System.
+Full PRD/design approval and implementation remain pending.

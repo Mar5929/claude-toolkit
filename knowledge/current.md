@@ -19,12 +19,12 @@ Updated: 2026-09-17
 **Recent progress**
 - Sept 16–17: Clarified working memory/routing; reviewed readiness and resumption. Runtime tests pending.
 
-**Next step** Settle conversation-review prompting (question 2).
+**Next step** Review scenario from setup; see design process.md.
 
 **Blocker** Requirements/design approval before build.
 
 **To-dos**
-- Review remaining design decisions and PRD questions 9–12.
+- Resolve design/PRD questions through the scenario, one step at a time.
 - Decide when to adopt the new design template.
 - Update publication guidance (#269/#306).
 - Test routing/continuation in sessions after build approval.
