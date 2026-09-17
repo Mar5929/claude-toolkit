@@ -2,58 +2,53 @@
 Updated: 2026-09-17
 
 ## Project goal
-Ship the refactored Knowledge System against the agreed requirements.
-Next milestones: validate routing gap, settle requirements/design, build, test, deliver.
+Ship the Knowledge System; define guided work management.
+Milestones: approve requirements/design, build, test, deliver.
 
 ## Active work
 
 ### Knowledge System refactor — #269
 Updated: 2026-09-17
 
-**Goal**
-Ship reliable knowledge retrieval, upkeep, and saving.
+**Goal** Ship reliable knowledge retrieval, upkeep, and saving.
 
-**Current status**
-Requirements nearly settled (Mike estimates 95–99%), not fully approved. Draft design approaches exist and are under review. Tracker: 02-refinement. Build approval pending.
+**Current status** Draft design in review; requirements 95–99% settled by Mike's estimate, not fully approved. Build approval pending.
 
 **Recent progress**
-- Sept 16: Clarified working-memory template and information-routing requirements.
-- Sept 17: Reviewed routing/release readiness and clarified task resumption. Runtime tests pending.
+- Sept 16–17: Clarified working memory/routing; reviewed release readiness and task resumption. Runtime tests pending.
 
-**Next step**
-Settle the conversation-review prompt (question 2). Plan and review findings: `process.md` in the design working records.
+**Next step** Settle the conversation-review prompt (design question 2).
 
-**Blocker**
-Requirements and design approval needed before implementation.
+**Blocker** Requirements/design approval before implementation.
 
 **To-dos**
-- Verify routing and continuation in representative sessions after build approval.
 - Review remaining design decisions and PRD wording questions 9–12.
 - Decide when to adopt the newer design template.
-- Update publication/direct-save guidance under #269/#306.
+- Update publication/direct-save guidance (#269/#306).
+- Verify routing/continuation in real sessions after build approval.
 
-**Detailed record**
-[Issue #269](https://github.com/Mar5929/claude-toolkit/issues/269).
-PRD: `knowledge/prds/toolkit-operating-system/knowledge-system.md`.
-Design: `docs/designs/269-knowledge-system.md`; working records in sibling `269-knowledge-system/`.
-Related: #304/#305. Earlier handoff: `misc/269-session-handoff.md` on `issue-269-second-brain-design`.
+**Detailed record** [Issue #269](https://github.com/Mar5929/claude-toolkit/issues/269). See linked PRD, design, and plan.
 
 ### Guided work management — #337
-Updated: 2026-09-16
+Updated: 2026-09-17
 
-**Goal** Refine requirements.
+**Goal** Organize and guide Mike's work from idea through delivery across sessions.
 
-**Current status** In refinement.
+**Current status** PRD published; refinement underway. Full approval and implementation pending.
 
-**Recent progress** Not verified here.
+**Recent progress**
+- Sept 15: Settled when to offer management and how declining applies to that goal; a new session alone does not trigger another offer.
 
-**Next step** Resume from #337.
+**Next step** Clarify what Mike sees after accepting: initial plan, milestones, and next action.
 
-**Blocker** Not verified here.
+**Blocker** None for requirements discussion.
 
-**To-dos** See work record.
+**To-dos**
+- Define changing direction and resuming elsewhere.
+- Clarify team coordination across sessions.
+- Compare agreed behavior with toolkit capabilities; identify gaps.
 
-**Detailed record** [Issue #337](https://github.com/Mar5929/claude-toolkit/issues/337).
+**Detailed record** [Issue #337](https://github.com/Mar5929/claude-toolkit/issues/337) and its PRD.
 
 ## General project to-dos
 None recorded.
