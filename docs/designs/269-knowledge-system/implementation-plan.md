@@ -15,7 +15,7 @@ The owner authorized this design and plan refinement. Record the resulting recom
 
 ## Recommended build baseline
 
-**Architecture review, 2026-09-18:** Mike requested the best architecture rather than the easiest reuse, accepted the review recommendation, and asked to add it to this plan. The direction below replaces this plan's earlier presumption that six skills and copied runtime should remain. It does not approve the full PRD, runtime implementation, or release. D1-P2 must reconcile the master design and supporting evidence with this direction; their earlier six-skill baseline is no longer this plan's recommendation.
+**Architecture review, 2026-09-18:** Mike requested the best architecture rather than the easiest reuse, accepted the review recommendation, and asked to add it to this plan. The direction below replaces this plan's earlier presumption that six skills and copied runtime should remain. It does not approve the full PRD, runtime implementation, or release. The master design now reflects this direction and the subsequent delegated-save and wording requirements. D1-P2 must reconcile remaining host evidence and approval questions; the earlier six-skill baseline is superseded.
 
 Keep the `second-brain` plugin identity and refactor its public capabilities into four skills:
 
@@ -25,6 +25,13 @@ Keep the `second-brain` plugin identity and refactor its public capabilities int
 | `knowledge-save` | Own one shared procedure for create, update, supersede, retire, delete, and consolidation: authority, latest-source reads, linked changes, validation, publication, and interrupted-save recovery. |
 | `knowledge-review` | Diagnose duplicates, contradictions, lifecycle issues, and feedback-maintenance needs. Hand resulting changes to the shared save procedure instead of maintaining a second writer. |
 | `knowledge-setup` | Detect, install, migrate, repair, and verify activation/version, coordinating delivery with project-init and project-sync. |
+
+Approved saves run through a helper while independent conversation continues,
+under the updated R9/R28. The main agent finishes proposal and approval work,
+then gives explicit operation, destination, approved meaning, source, permission,
+check, commit, and push instructions. The helper uses the same save procedure;
+the main agent checks its returned evidence before reporting completion. R15’s
+ban on jargon and figurative language applies to both proposal and saved text.
 
 The reason is correctness as well as clarity. Today `remember` publishes approved changes, while `retire` can create a replacement through `remember`, then change the old record under instructions that prohibit publication. `reflect` delegates across both. One logical lifecycle change needs one complete save procedure. Operation-specific references keep that procedure focused; it is not an autonomous content writer or a new reasoning engine. Existing operational-maintenance permissions remain applicable without inventing new approval steps.
 
@@ -95,7 +102,14 @@ Prove ordered file reading, readable-content observation where available, explic
 
 Prove H1–H6 in the linked host evidence, first comparing native read observation with a bounded helper only where needed. Reconcile the evidence document’s helper-specific H2 recipe with the selected transport. Establish ordered, complete, current delivery and a separate acknowledgment; use digests/ranges only where the chosen mechanism needs them. Changed guidance invalidates the affected completed read. Prove whether truncation occurs before or after PostToolUse and whether desktop/code-mode wrappers preserve model-visible output. Do not match arbitrary shell output as if it were a complete read. Startup returns its instruction before the agent can act; waiting inside that hook for the same agent's acknowledgment would deadlock.
 
-Before-final-answer continuation runs at most once when review is outstanding; another stop without a valid outcome reports an unfinished checkpoint instead of looping. New user input establishes a new review generation, not a new startup-read generation. Required guidance revision or context recovery invalidates the affected startup scope; ordinary prompts do not force rereading unchanged available manuals. A pending proposal is a valid completed review outcome and must not hold the conversation open awaiting consent.
+Before-final-answer continuation runs at most once when review is outstanding; another stop without a valid outcome reports an unfinished checkpoint instead of looping. New user input establishes a new review generation, not a new startup-read generation. Required guidance revision or context recovery invalidates the affected startup scope; ordinary prompts do not force rereading unchanged available manuals. A pending proposal or recoverably delegated save is a valid review outcome and must not hold the conversation open. The save itself remains unfinished until publication is verified.
+
+Prove delegated save execution separately from read/checkpoint helpers. Test
+whether a native helper can continue while the main agent answers a new prompt,
+return its result after the main turn ends, and recover when either session stops.
+Cover late results, conflicting later instructions, duplicate retry, concurrent
+publication, and unavailable parallel execution. Report unsupported behavior;
+a spawned helper alone is not proof of an independent completed save.
 
 Compare copied and plugin-managed runtime in disposable projects: prove initial activation, actual running version, update propagation, project opt-in/trust, path resolution on Windows, recovery after missing files, and rollback without duplicate registrations. Choose packaging from those results; source installation alone is not activation evidence.
 
@@ -107,7 +121,7 @@ Compare copied and plugin-managed runtime in disposable projects: prove initial 
 
 **Owner:** design lead/main conversation. **Dependencies:** D1-P1. **Requirements:** all 30; parent R25.
 
-Reconcile the master with the four-capability architecture, current PRD, and host evidence. Replace its six-skill and predetermined copied-runtime recommendations; preserve accepted startup reads, prompt behavior, and judgment boundaries. Compare alternatives by complete saves, clear discovery, recovery, concurrency, host parity, measured context cost, and maintainability. Record which existing internals satisfy those contracts and which need replacement. Keep D1’s approval and current position in issue #269.
+The master and this plan now share the four-capability architecture and delegated-save requirements. Reconcile remaining host evidence and approval questions while preserving accepted startup reads, prompt behavior, and judgment boundaries. Compare alternatives by complete saves, clear discovery, recovery, concurrency, host parity, measured context cost, and maintainability. Record which existing internals satisfy those contracts and which need replacement. Keep D1’s approval and current position in issue #269.
 
 Locate the actual project skill-authoring procedure and its approval owner for R17 before implementing the handoff. If none exists, record R17's integration dependency and obtain scope for that capability separately; a routing sentence alone does not supply a working authoring process.
 
@@ -176,6 +190,23 @@ Build the four skills and migrate the proposal reference. `knowledge-find` appli
 
 `knowledge-save` evaluates memory and other destinations, separates routine quiet review from explicit review requests, preserves new pending proposals, honors existing scope, reads back actual writes, runs checks/indexing, publishes through E1-P2, and removes only verified completed or rejected inbox entries. A real significant fix may qualify under R11 even when first solved by the agent; routine activity does not. No mandatory full manual reread every turn. Read relevant current guidance before the operation.
 
+Implement the main-agent/helper split in the shared save procedure. The main
+agent keeps the authorized assignment in the inbox before delegation. Specify
+create/update/supersede/retire/consolidate/delete, exact destination files,
+approved meaning and required verbatim text, evidence and permission, applicable
+instructions, required checks, and commit/push. The helper reads latest content,
+applies only that scope, checks and publishes, and returns paths/checks/commit/
+remote evidence or the unfinished step. Main verifies the result; do not wait
+for publication before answering an independent question. Preserve existing
+permissions, prevent two workers from applying the same save, and check whether
+the original worker is still running before recovery.
+
+Review proposal language before approval and actual saved language afterward.
+Memory/proposal prose must contain no jargon, figures of speech, figurative
+language, metaphors, or idioms. Preserve approved meaning and required exact
+names; resolve conflicting verbatim instructions before approval. Keep this a
+writing review rather than a claim that keyword scanning proves compliance.
+
 Assign an opaque stable operation reference when a real pending proposal or authorized unfinished save is first captured, retaining it through revised cards and conflict transitions. Before each inbox or destination edit, reread both relevant records, compare the operation reference and intended scoped change, and detect whether the change already landed. Similar meaning from concurrent proposals requires agent reconciliation, not a hash-based semantic merger. Serialize shared publication; do not erase another entry while resolving this one. Test two sessions approving/retrying the same operation, simultaneous distinct entries, destination drift, blocked-by-conflict with authority intact, rejection, and removal only after verified completion.
 
 `knowledge-review` produces findings and proposed change sets; `knowledge-save` applies authorized lifecycle and operational-maintenance changes through the same save/publication path. Preserve existing exceptions for operational feedback and generated indexes; do not require new meaning approval for already-authorized maintenance. Supersede changed meaning in its owning topic; create a new file only for a justified topic change or approved split. Consolidation verifies preservation and links before removing originals. Feedback records actual owner criteria/reason, not guessed preferences or a running activity log. Never finalize a PRD merely because code shipped.
@@ -190,7 +221,7 @@ Assign an opaque stable operation reference when a real pending proposal or auth
 
 Refactor existing hooks around startup orientation, prompt review, completion review, and scoped action checks, using thin host adapters. `knowledge-completion.mjs` and `knowledge-checkpoint.mjs` are candidate modules, not a fixed file count. Keep read transport separate from save/publication procedures; implement only the native observation or helper transport proven in D1-P1. Temporary state has project/host/session/agent identity, separate startup and review generations, acknowledgment kind/outcome, instruction revision, and retry state; add delivered-content evidence such as digests/ranges only as required by that transport. It contains no lasting content, permission, transcript, search results, or shadow inbox. Use serialized compare-before-update of the current generation plus atomic replacement; atomic writes alone do not stop a late hook replacing newer state. Test delayed read/Stop events after a new prompt and concurrently completing handlers. Cleanup must not delete active sessions based only on age.
 
-Startup instructs reads of SOUL, project, then `knowledge/knowledge-manual.md`; discovers current work, inbox, glossary, and index paths. It withholds successful acknowledgment when required content is unavailable. Prompt delivers canonical compact criteria and intent acknowledgment once per user message. The completion event catches new findings from execution and distinguishes no changes, completed saves, pending proposals, and unfinished saves; a routine no-change stays invisible to the owner. Explicit save requests still receive a result.
+Startup instructs reads of SOUL, project, then `knowledge/knowledge-manual.md`; discovers current work, inbox, glossary, and index paths. It withholds successful acknowledgment when required content is unavailable. Prompt delivers canonical compact criteria and intent acknowledgment once per user message. The completion event catches new findings from execution and distinguishes no changes, completed saves, pending proposals, and unfinished saves, including helpers still running. Do not force the main turn to wait for an independent save or trigger repeated reviews from helper messages; a routine no-change stays invisible to the owner. Explicit save requests still receive a result.
 
 Use supported pre-action paths only for narrow objective holds. Receipt presence cannot authorize a lasting write. Before a consequential write, the agent checks the applicable durable authority and latest file; objective checks confirm valid target and required record fields. Reuse existing supported command detection for PR/work handover. Do not require arbitrary shell, connector, or helper actions to pass a universal interceptor the host does not provide. Add a new write guard only if D1-P1 identifies a specific objective prerequisite and demonstrated coverage; do not equate a prior skill invocation with approval.
 
@@ -238,7 +269,7 @@ Inventory files/permissions first. Work in reversible batches, retain an old-to-
 
 **Owner:** independent acceptance reviewer; builders repair failures. **Dependencies:** E1-P7. **Requirements:** all 30.
 
-Run fresh session, long/compacted conversation, task switch, parallel sessions, and component-enabled/disabled scenarios on both hosts. Seed known facts, shorthand, current-versus-required conflicts, no-code conversation decisions, unapproved and approved unfinished saves, low-value details, a missing source, concurrent edits, rejected push, handoff, and deliberate owner file edits. Use the master’s concrete acceptance scenarios and every PRD Check, including significant episodes and authorized interviews. Extract still-relevant failure cases from the detailed reference into named tests with requirement, fixture, expected outcome, host/version, observed result, and evidence location. Include truncated reads, helper isolation, stale/late events, manual and automatic compaction, Windows command matching, permission modes, hook bypass/timeouts, concurrent saves, and shallow/detached/no-commit repository cases where supported action detection depends on them. Record why an obsolete mechanism-specific case no longer applies rather than dropping it silently.
+Run fresh session, long/compacted conversation, task switch, parallel sessions, and component-enabled/disabled scenarios on both hosts. Include a helper that is deliberately slow, a failed push after the main turn ends, parent/helper interruption, explicit create/update/delete assignments, and conflicting later instructions. Verify the main conversation continues and the result is checked before success. Seed known facts, shorthand, current-versus-required conflicts, no-code conversation decisions, unapproved and approved unfinished saves, low-value details, a missing source, concurrent edits, rejected push, handoff, and deliberate owner file edits. Use the master’s concrete acceptance scenarios and every PRD Check, including significant episodes and authorized interviews. Extract still-relevant failure cases from the detailed reference into named tests with requirement, fixture, expected outcome, host/version, observed result, and evidence location. Include truncated reads, helper isolation, stale/late events, manual and automatic compaction, Windows command matching, permission modes, hook bypass/timeouts, concurrent saves, and shallow/detached/no-commit repository cases where supported action detection depends on them. Record why an obsolete mechanism-specific case no longer applies rather than dropping it silently.
 
 Measure hook text, file-read content, tool turns, and observed token usage separately. Enforce no invented numeric budget; investigate duplicate rereads, repeated cards, missing/truncated guidance, false holds, or unnecessary broad scans. Keep small instructions and load relevant detail on demand without dropping required content to fit a target.
 
@@ -270,13 +301,13 @@ Every row needs objective or behavioral evidence appropriate to its claim. Packa
 | 6 Sources | E1-P4/P8 | Finding followed by correct file/session/capture source and required date. |
 | 7 Vocabulary | E1-P1/P3/P4/P8 | Glossary table, direct route, aliases/cautions, no memory-index entry. |
 | 8 Outside docs | E1-P3/P4/P8 | Grouped source index, capture metadata, relevant current vendor evidence. |
-| 9 Saving | E1-P2/P4/P5/P8 | Prompt reminder, five review moments, quiet/no-result behavior, verified publication. |
+| 9 Saving | D1-P1, E1-P2/P4/P5/P8 | Prompt reminder, required reviews, explicit approved helper assignment, conversation continues, verified publication and returned result. |
 | 10 Permission | D1-P2, E1-P1/P4/P5/P8 | Scope, silence, partial approval, ongoing authority, approval toggle, recovery. |
 | 11 Eligibility | E1-P4/P8 | Project significance, owner involvement/real-fix exception, significant episode. |
 | 12 Exclusions | E1-P3/P4/P8 | No noise/secrets as memory; valid other destinations retained. |
 | 13 Working memory | E1-P1/P3/P4/P8 | Exact structure, under 5,000 characters, concurrent items and shared availability. |
 | 14 Memory shape | E1-P1/P3/P4/P7 | Topic maintenance, required fields/context, justified splits, provenance. |
-| 15 Writing | E1-P1/P4/P8 | Plain meaning, style applied, exact requested wording retained. |
+| 15 Writing | E1-P1/P4/P8 | Proposal and saved text reviewed for no jargon or figurative language; approved meaning and required exact names preserved. |
 | 16 PRDs | E1-P1/P3/P4/P6/P8 | Approval distinct from delivery; proper parent/child owner; shipped upkeep. |
 | 17 Procedures | E1-P4/P6/P8 | Existing skill-authoring destination and permissions, no procedure memory. |
 | 18 Routing | E1-P1/P4/P6/P8 | Kind/scope/owner, mixed meaning, partial permission, no duplicate authority. |

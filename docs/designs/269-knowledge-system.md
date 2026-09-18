@@ -1,6 +1,6 @@
 # Knowledge System — solution design
 
-Updated: 2026-09-17. **Proposed; under review. No runtime build authorized.**
+Updated: 2026-09-18. **Proposed; under review. No runtime build authorized.**
 
 ## 1. Purpose, authority, and review position
 
@@ -67,7 +67,7 @@ references after verification, rather than in the owner's core vocabulary.
 | Topic | Current direction | Status and limit |
 | --- | --- | --- |
 | Reasoning | The agent judges relevance, significance, scope, destination, and meaning. | Governing principle; no semantic scoring engine. |
-| Startup | Request ordered reads through a bounded helper, observe model-visible delivery where provable, then record a separate acknowledgment. | Owner direction is reads plus handshake. The concrete helper/adapter is an architect recommendation; H2 must prove actual delivery. Declaration-only operation fails strict R2 acceptance. |
+| Startup | Request ordered reads, prove native result observation first, then record a separate acknowledgment. Use a bounded helper only where needed. | Owner direction is reads plus handshake. D1-P1 selects the simplest adequate transport; H2 must prove actual delivery. Declaration-only operation fails strict R2 acceptance. |
 | Prompt checkpoint | Every user prompt gets a short reminder, positive/negative criteria, manual links, and explicit intent acknowledgment through the shared helper. | Reminder behavior selected; helper transport and canonical message implementation recommended for host proof. |
 | Completion checkpoint | One checkpoint near turn completion catches decisions and discoveries made while working. | Proposed mechanism. Routine no-change reviews stay quiet under the PRD; an explicit review request receives an answer. |
 | Root files | `AGENTS.md` and `CLAUDE.md` remain maps and routers. | Selected. Detailed policy lives in linked guidance. |
@@ -78,20 +78,35 @@ references after verification, rather than in the owner's core vocabulary.
 | Documentation saves | Authorized Git-tracked documentation updates are checked and promptly committed/pushed on main. | Owner direction. Runtime code/config changes follow their own implementation workflow. Designs remain under `docs/designs/`. |
 | Old startup budgets | Earlier draft selected character budgets for two printing hooks. | Historical constraints of that mechanism. Recalculate for the revised startup; do not discard useful context-cost analysis. |
 | Paths and migration | Use the PRD's proposed layout, with setup/sync migrating existing projects deliberately. | A proposed path is not a claim that the live repository already uses it. |
+| Approved save execution | Main agent specifies the authorized change; a helper applies, checks, commits, and pushes while independent conversation continues. | Selected in R9/R28; host execution, result delivery, and recovery still require proof. |
+| Writing | Proposal and saved-memory prose contain no jargon or figurative language. | R15 governs both main agent and helper; check actual wording as well as file validity. |
 | Approvals | Requirements approval, design approval, permission to save, and authorization to build remain distinct. | Required. Never infer one from another. |
 
 ### Recommended implementation baseline
 
-Retain the `second-brain` plugin and existing six skill names. Reuse existing
-startup, prompt, PR, work-item, parser, index, and checker modules. Add one
-completion handler and one small checkpoint/read/ack helper rather than adopt
-the reference's eight-hook split. Use ordinary command hooks, with explicit
-per-host adapters; Claude Mods are not a dependency. Keep the current copied
-runtime delivery with source/copy checks for the first release. Retain the
-existing feedback filename. The implementation plan names each source and gap.
+Keep the `second-brain` plugin identity and refactor to four public skills:
+`knowledge-find`, `knowledge-save`, `knowledge-review`, and `knowledge-setup`.
+Use one shared save procedure for every lifecycle change, including validation,
+publication, and recovery. Reuse existing parsers, indexes, checkers, history
+search, and installation logic where they meet the new responsibilities.
+Migration convenience does not determine the finished architecture.
 
-These are architect recommendations for the proposed design, not owner approval
-or claims of installed behavior. The completion handler still needs selection
+The main agent evaluates candidates and prepares clear proposals. After approval,
+a helper executes the agreed save while the conversation continues, using the
+same save procedure and durable permission record. The main agent checks the
+returned result before reporting completion. Section 6.7 defines that separation.
+
+Keep startup, prompt, completion, and scoped action checks separate, with thin
+host adapters. Native read observation is the first startup option to prove;
+add bounded read helpers and receipts only where needed. Choose copied or
+plugin-managed runtime from activation, update, version, and recovery evidence.
+Neither eight hooks nor a smaller fixed script count is a requirement. Retain
+the existing feedback filename. The implementation plan maps the work.
+
+Mike accepted the four-capability review direction and requested delegated
+approved saves on 2026-09-18. These scoped decisions do not approve the full
+design or establish installed behavior. Other mechanisms remain
+recommendations. The completion handler still needs selection
 within design/build approval. Mandatory behavioral outcomes remain acceptance
 conditions even where a host cannot mechanically enforce every action.
 
@@ -138,8 +153,8 @@ framework. Prefer existing toolkit procedures and documented host capabilities.
 
 Paths in this inventory are relative to an equipped project unless explicitly
 marked plugin-relative. They describe the recommended build, not the installed
-state today. Existing names are retained where practical; new helper and handler
-names are proposed. Their activation is not approved by this inventory. Requirements refer to the current PRD.
+state today. The four skill names describe the selected direction; helper and
+handler filenames are candidates. Their activation is not approved by this inventory. Requirements refer to the current PRD.
 All parts also serve the plain-parts, documented-platform, and judgment
 boundaries in R1, R26, and R29.
 
@@ -168,11 +183,12 @@ boundaries in R1, R26, and R29.
 
 | Part / proposed name | Purpose and requirements | Control | When run | Context cost | Documentation basis / proof |
 | --- | --- | --- | --- | --- | --- |
-| `recall` | Find, assess sources, cite; R2,4–8,16,19,24 | GUIDE/JUDGE | Relevant lookup | Invoked body/references | Existing skill; source-based scenarios |
-| `remember` | Select, route, approve, write, verify, publish; R3,9–18,20–24,28,30 | GUIDE/JUDGE; calls checks | Save review or authorized upkeep | Body and needed templates | Existing skill; complete save/recovery tests |
-| `reflect` and `retire` | Review multiple records or one lifecycle operation; R22–24 | GUIDE/JUDGE | Requested or justified maintenance | Relevant procedure and records | Existing skills; both use the same save/publication contract |
-| `second-brain` | Install/repair/migrate/report; R2–3,7,18,24–27 | GUIDE/CHECK | Setup/sync/repair | Procedure and setup report | Existing setup skill |
-| `session-search` | Read available project history; R19,24 | GUIDE/JUDGE | Earlier sources leave a historical gap | Selected excerpts only | Existing CLI history helper; other sources must be actually available |
+| `knowledge-find` | Find, assess sources, cite; R2,4–8,16,19,24 | GUIDE/JUDGE | Relevant lookup | Invoked body/references | Refactor existing lookup; source-based scenarios |
+| `knowledge-save` | Select, route, approve, write, verify, publish; R3,9–18,20–24,28,30 | GUIDE/JUDGE; calls checks | Save review or authorized upkeep | Body and needed templates | Refactor existing save/lifecycle procedures; complete save/recovery tests |
+| `knowledge-review` | Diagnose multiple records or one lifecycle operation; route changes through save; R22–24 | GUIDE/JUDGE | Requested or justified maintenance | Relevant procedure and records | Refactored review; one shared save/publication procedure |
+| `knowledge-setup` | Install/repair/migrate/report; R2–3,7,18,24–27 | GUIDE/CHECK | Setup/sync/repair | Procedure and setup report | Refactor existing setup skill |
+| Save execution helper | Apply explicit approved change, check, commit, push, return evidence; R9–10,15,28 | Executes scoped authority; checks objective results | After approval or existing authorization | Assignment and relevant source/procedure content | Native helper capability and result/recovery proof; inbox holds durable authority |
+| History adapter under `knowledge-find` | Read available project history; R19,24 | GUIDE/JUDGE | Earlier sources leave a historical gap | Selected excerpts only | Existing CLI history helper; other sources must be actually available |
 | `knowledge-session-start.mjs` | Ordered read request and small discovery map; R2–4,7,13,28 | GUIDE; later receipt checks | Startup/recovery | Short directive plus actual file reads | Rework existing module; SessionStart itself cannot wait for the agent |
 | `memory-reminder.mjs` | Criteria/routing and intent ack; R3,9,18,29 | GUIDE/CHECK receipt | Every user prompt | Compact criteria plus ack | Rework existing module; canonical wording shared across hosts |
 | New `knowledge-completion.mjs` | Proposed bounded end-turn review; R3,9,28 | GUIDE/CHECK outcome | Near completion, at most one corrective continuation | Brief instruction; quiet no-change | Host Stop proof; mechanism pending acceptance |
@@ -182,7 +198,7 @@ boundaries in R1, R26, and R29.
 | `build-knowledge-index.mjs` | Deterministic three-index build; R8,21 | CHECK | After relevant changes | No routine context output | File-format contract and repeatability tests |
 | `check-knowledge.mjs` + `frontmatter.mjs` | Fields, values, links, limits, secret patterns; R10,12–14,16,21 | CHECK | Saves and applicable commit checks | Named failures | PRD schemas; fixture tests |
 | `command-parsing.mjs` | Recognize supported action command forms; supports R9 controls | Objective parsing only | Matching command event | None normally | Existing parser plus shell/platform tests |
-| New `knowledge-checkpoint.mjs` | Bounded startup reads, result observation, scoped acknowledgments; R2,3,29 | CHECK delivery/receipt facts; never understanding | Read/observe/ack operations | Bounded content plus small receipts | H2 must establish actual model-visible output; no general shell parser |
+| Candidate `knowledge-checkpoint.mjs` | Selected result observation and scoped acknowledgments; optional bounded reads; R2,3,29 | CHECK delivery/receipt facts; never understanding | Read/observe/ack operations | Bounded content plus small receipts | H2 must establish actual model-visible output; no general shell parser |
 | Existing project Git hooks | Preserve existing behavior; explicit save checks remain required | Existing scope only | Commit where configured | Existing output | No new owner-edit pre-commit blocker recommended in initial release |
 | Temporary per-session state outside repo | Reminder/ack generation and bounded retry facts; R29 | CHECK shape/isolation | Checkpoints | Normally none | Host session identity and lifecycle proof |
 | Plugin activation and memory settings | Enable one shared file-based system; R1,10,25,27 | Configuration | Setup/session load | None directly | Current host docs/config verification |
@@ -258,14 +274,17 @@ gate has been implemented or proven on either host.
    draft can cover that update. A new lasting memory needing approval receives
    the PRD's card. An unanswered proposal remains in the inbox. One approval
    covers its meaning and scope, not every proposed destination.
-8. **Finish an authorized save.** Re-read the destination to protect concurrent
-   edits, apply the authorized change, read back the actual result, check sources
-   and fields, rebuild affected indexes, commit and push through the applicable
-   documentation route. Verify publication before claiming it is saved remotely.
+8. **Start an authorized save.** The main agent preserves the approved change
+   and permission in the inbox and assigns execution to a helper. Mike can
+   continue an independent question. The helper re-reads the destination,
+   preserves concurrent edits, applies and checks the approved change, rebuilds
+   indexes, and publishes through the existing documentation process. The main
+   agent checks the returned evidence before saying it is saved.
 9. **Review work produced during the turn.** The proposed completion checkpoint
    catches insights or decisions absent from the original prompt. A routine
    review finding nothing stays quiet. Explicit review requests receive an
-   answer. Needed approval or incomplete saving remains visible.
+   answer. A recoverable save running in a helper does not hold the conversation
+   open; it remains unfinished until its result is verified.
 10. **Interrupt and resume.** If a push fails, preserve the exact outstanding
     change and permission in the inbox. A new session checks whether it already
     landed, completes unchanged authorized work without asking again, and raises
@@ -298,14 +317,15 @@ content, exact read scope, and delivery remain dependencies of the separate manu
 
 The existing startup module supplies one short request and discovery map, then
 returns. It cannot wait inside SessionStart for the same agent to acknowledge;
-the agent has not yet received the instruction. A bounded helper reads only the
-ordered manifest files and returns generation, file digest, range, and content.
-Host result adapters record delivered ranges only if H2 proves the entire
-content reached model context, including truncation and desktop wrappers. A
-reader-created token alone proves only that a process opened a file.
+the agent has not yet received the instruction. First prove whether native read
+results show complete, current content delivered in the required order. Where
+that is insufficient, test a bounded reader limited to the required files.
+Include digests and ranges only if needed by the selected transport. H2 must
+cover truncation and desktop wrappers; a process receipt alone proves only
+that a process opened a file.
 
-The separate `ack` operation completes the protocol after all required ranges
-arrive in order. Acknowledgment remains an agent declaration, not cognitive
+A separate acknowledgment follows verified delivery of all required content.
+Acknowledgment remains an agent declaration, not cognitive
 proof. Missing content withholds completion and pauses dependent work. If a
 host cannot prove delivery, declaration-only operation is degraded and does
 not satisfy strict R2 or full acceptance; report that blocker rather than
@@ -386,16 +406,15 @@ and recovery routes available. Keep it small and route to details. Verify each
 host's delivery/recovery behavior; do not assume a Claude rule is automatically
 available in Codex or that root instruction files should contain the whole rule.
 
-Retain the six existing skill names. Their responsibilities remain distinct,
-while lifecycle skills reuse the save/publication procedure instead of owning
-separate writers. The four-way grouping below explains jobs, not renamed skills:
+Use four public skills with distinct responsibilities. Every lifecycle change
+uses the shared save/publication procedure. The table defines the four skills:
 
 | Responsibility | Procedure | Completion and failure behavior |
 | --- | --- | --- |
-| Find (`recall`, then `session-search` when needed) | Orient to shared current work; apply applicable rules/skills; use glossary and source indexes; open relevant authoritative records; search available history last; cite evidence and conflicts. | Relevance/depth remain agent judgment. Historical conversation is not current truth; report unavailable history. |
-| Save (`remember`) | Review candidates, determine kind/scope/owner, find existing record, apply existing permission or needed card, preserve pending state, write/read back/check/publish. | No candidate is valid. A marker is not completion. Failed saves retain authority and next action. |
-| Review (`reflect`, `retire`) | Inspect several records or one lifecycle operation; propose scoped maintenance and use the common save procedure. | Preserve useful history; no age-only deletion or separate unpublishing writer. |
-| Setup (`second-brain`) | Inspect configuration/content; install/repair approved components; reconcile layout; verify activation and host behavior. | Preserve owner content; distinguish configured, tested, and unavailable behavior. |
+| Find (`knowledge-find`, with a history adapter when needed) | Orient to shared current work; apply applicable rules/skills; use glossary and source indexes; open relevant authoritative records; search available history last; cite evidence and conflicts. | Relevance/depth remain agent judgment. Historical conversation is not current truth; report unavailable history. |
+| Save (`knowledge-save`) | Review candidates, determine kind/scope/owner, find existing record, apply existing permission or needed card, preserve pending state, write/read back/check/publish. | Finding no eligible candidate is a valid outcome. A marker is not completion. Failed saves retain authority and next action. |
+| Review (`knowledge-review`) | Inspect records and propose scoped maintenance; send authorized changes to the common save procedure. Keep review from becoming a second writer. | Preserve useful history; no age-only deletion or separate unpublishing writer. |
+| Setup (`knowledge-setup`) | Inspect configuration/content; install/repair approved components; reconcile layout; verify activation and host behavior. | Preserve owner content; distinguish configured, tested, and unavailable behavior. |
 
 Skills load templates and detailed procedures only when needed. Save guidance
 links to memory/PRD card and file templates, routing, inbox recovery, and skill
@@ -427,7 +446,8 @@ variants must not drift between hosts or setup templates.
 
 Proposed owner-facing acknowledgment: “Acknowledged. I'll evaluate what needs
 retaining or updating.” Recommend an explicit intent receipt through the shared
-helper, independently of this display wording; prove its transport under H3.
+helper, independently of this display wording; prove prompt delivery and
+acknowledgment under the host event and transport checks in D1-P1.
 The operating-manual path is selected; the separate OS task must settle its
 content and deliver that file before this wording ships. The reminder
 does not force a full manual reread each turn; missing or stale guidance is read
@@ -445,8 +465,10 @@ before implementing a Stop handler; do not fire after every intermediate tool
 or assistant message or let the acknowledgment trigger itself indefinitely.
 Recommend at most one corrective continuation per review generation when its
 outcome is missing; a second miss is reported as unfinished, never retried in a
-loop. Pending approval is a legitimate completed-review outcome. Activation of
-this proposed handler still needs design/build acceptance.
+loop. Pending approval and a recoverably delegated save are legitimate review
+outcomes; neither means the save finished. Do not wait inside a Stop continuation
+for an independent helper or trigger the main review repeatedly from the helper’s
+own messages. Activation still needs design/build acceptance.
 
 The earlier save-moment gate held PR creation, work-item close, and `work finish`
 until the save skill had run since the last commit. That is a **candidate to
@@ -460,8 +482,8 @@ item alone does not prove delivery or requirements approval.
 
 The write guard should check objective prerequisites on supported lasting-write
 paths. The agent remains responsible for matching actual permission to meaning
-and scope. A blanket helper-agent prohibition or “save skill ran” marker is not
-automatically selected just because the old draft included it. Decide the
+and scope. An approved execution helper must be allowed to use the shared save procedure.
+A “save skill ran” marker does not establish permission. Decide the
 minimum safeguard justified by the PRD and prove covered tools, shell writes,
 path normalization, worktrees, permissions, and timeout behavior. Document
 uncovered paths. Do not claim a post-write check prevented the write.
@@ -492,14 +514,17 @@ flowchart TD
   F --> G{Owner decision}
   G -- Decline --> H[Remove rejected proposal; retain useful selection feedback]
   G -- Change --> D
-  G -- Approve --> I[Read latest destination and reconcile concurrent changes]
-  E -- Yes --> I
+  G -- Approve --> Q
+  I[Read latest destination and reconcile concurrent changes]
+  E -- Yes --> Q[Record exact authority and assign save helper]
+  Q --> I
+  Q --> R[Main conversation continues on independent work]
   I --> J{Conflict changes approved meaning?}
   J -- Yes --> K[Keep permission evidence; ask only for unresolved decision]
   J -- No --> L[Write authorized content and read it back]
   L --> M[Check sources, shape, style, links; rebuild indexes]
   M --> N{Checks and publication succeed?}
-  N -- Yes --> O[Verify remote result; close pending entry]
+  N -- Yes --> O[Return evidence; main agent verifies result and closes pending entry]
   N -- No --> P[Preserve unfinished state and exact recovery step]
   P --> I
 ```
@@ -511,6 +536,55 @@ completed. If the content must change materially, keep the original authority
 and ask only about the changed meaning. Separate local write, valid file,
 commit, and remote publication evidence. Never call a failed push a completed
 save or silently switch its publication route.
+
+#### Main agent and save helper
+
+The main agent finishes candidate selection, source checks, destination choice,
+and proposal wording before asking for approval. Once the change is authorized,
+it keeps the exact assignment in the existing inbox and starts a save helper.
+The assignment states:
+
+- The operation: create, update, supersede, retire, consolidate, or delete.
+- The exact destination files and the approved change, including related links
+  or index updates. Preserve any wording Mike explicitly required verbatim.
+- The source evidence and the approval or existing permission covering this
+  operation and scope. An approved deletion names exactly what may be removed.
+- The applicable manual, shared save procedure, writing rules, and checks.
+- The instruction to apply the change, read it back, validate it, commit and
+  push through the existing documentation process, then return the result.
+
+The helper executes that assignment. It cannot choose additional memories,
+rewrite the approved decision, delete extra files, or treat a general “save”
+instruction as permission for unrelated changes. It checks the latest files
+before editing and returns a meaningful conflict to the main agent. Supported
+host tools provide execution and result delivery; the helper does not create a
+second approval system or pending-save store.
+
+The result names the affected files, checks, commit, verified remote publication,
+and any unfinished step. The main agent checks that evidence before reporting
+success. The inbox remains `approved, save unfinished` until verification. A
+new session checks whether the helper is still running and whether the change
+already landed before retrying. Independent conversation continues; work that
+needs the saved result waits. A later conflicting instruction pauses the affected
+save for reconciliation rather than silently replacing the earlier permission.
+
+Serialize shared-file publication through the existing documentation process.
+Parallel helpers must not stage each other’s work, overwrite newer changes, or
+apply one approval twice. Native execution may stop when a session ends; durable
+pending records must support recovery even if that happens. If a host cannot
+run the helper alongside the conversation and return its result, report that
+limit and use the available save process without claiming this behavior works.
+
+#### Plain wording before approval and after saving
+
+The main agent reviews proposals for plain, concise wording before showing them.
+The helper reads back the actual saved text and applies the same R15 review:
+no jargon, figures of speech, figurative language, metaphors, or idioms in memory
+or proposal prose. State the actual person, system, responsibility, check, or
+fact. Keep necessary exact names and explain them in ordinary words. Preserve
+approved meaning; resolve any conflict with requested verbatim wording before
+approval. A forbidden-word list alone cannot establish this writing quality.
+The main agent includes that review in its verification of the helper’s result.
 
 #### Shared publication workflow
 
@@ -539,7 +613,8 @@ Read-back and semantic/source review remain agent work.
 
 Temporary session state records project, host, session, and agent identity,
 separate startup/review generations, instruction revision, delivered file
-digests/ranges, acknowledgment outcome, and bounded retry state. Use serialized
+delivery evidence required by the selected transport, acknowledgment outcome,
+and bounded retry state. Use serialized
 generation comparison and atomic replacement: a late hook must not overwrite
 a newer prompt's state. Keep it outside tracked knowledge and
 never store summaries, interpretations, or lasting approval as hidden authority.
@@ -573,9 +648,11 @@ the response with the right session and checkpoint, and report failure.
 | Lasting write and validation | Target, operation, scoped authority, latest destination, and actual resulting content. | Agent checks meaning/scope; tools report objective prerequisites and file/index validity. | An invalid file remains an unfinished save. A post-write error is recovery evidence, not proof that the write was prevented. |
 | Handoff or context loss | Current task position, relevant inbox entries, durable authority, and available recovery routes. | Next session can find the pending work and resume under unchanged authority. | Report an unavailable event/gate; use the shared records rather than a private checkpoint file as the continuation source. |
 
-The selected design candidate is the bounded reader and explicit helper
-acknowledgment described in6.1 and the host evidence. H1–H6 establish actual
-transport, delivery, isolation, and bounded recovery before acceptance. Do not
+D1-P1 compares native read observation with a bounded helper where needed,
+then records the selected transport in the host evidence. H1–H6 establish actual
+delivery, isolation, and bounded recovery before acceptance. Delegated saving
+also requires proof that execution and result delivery continue while the main
+conversation proceeds. Do not
 parse ordinary prose to score reasoning. Receipts identify their current
 checkpoint, not merely a branch or when a skill was opened.
 
@@ -599,7 +676,7 @@ design claim awaiting the indicated evidence, not a declaration of completion.
 | 12 Exclusions | Agent review and checker | Excluded material rejected; pattern matching cannot prove absence of all secrets. |
 | 13 Working memory | Shared overview and concurrency discipline | Two sessions preserve useful entries and tracker links; temporary findings labeled. |
 | 14 File shape | Templates, parser/checker | Valid and invalid metadata fixtures; file shape is not truth. |
-| 15 Writing | Save procedure/style read-back | Useful detail readable without the original conversation; no jargon-only summaries. |
+| 15 Writing | Main proposal review and helper saved-text review | No jargon, figures of speech, figurative language, metaphors, or idioms in memory/proposal prose; approved meaning and required exact names preserved. |
 | 16 PRDs | Owning PRDs, approval fields, shipped upkeep | Unapproved draft valid without approval fields; shipped changes update proper scopes. |
 | 17 Skills | Procedure routing to actual authoring process | Candidate reaches correct process; absent process reported, not invented. |
 | 18 Routing | Manual, save procedure, owner links | Mixed content and cross-component decisions go to correct owners without duplication. |
@@ -663,9 +740,11 @@ recommendations do not become selected mechanisms merely by being copied here.
 
 ### Migration scope
 
-The baseline retains public skill names, copied runtime, and existing feedback
-path; it changes required layout, indexes, checker behavior, and host wiring.
-The old rename/plugin-path/extra-rule inventory is historical. Before coding,
+The baseline changes six public skills to four and retains the existing feedback
+path. Inventory callers and provide supported compatibility routes where needed.
+Runtime packaging follows D1-P1 evidence rather than a predetermined copy policy.
+Layout, indexes, checker behavior, and host wiring still need implementation.
+The old eight-hook and blanket plugin-path inventory remains historical. Before coding,
 inventory the live shipped originals, installed copies, catalogs, settings,
 tests, and references. Confirm what is already delivered. This document's
 proposed paths must not be mistaken for today's live paths such as
@@ -703,8 +782,9 @@ startup architecture changes.
 | Startup instruction, actual reads, acknowledgment | Correct order, content available, no false completion when missing/truncated; one owner confirmation. |
 | Restore after compaction/task switch | Required current guidance available before dependent operations; obsolete receipts not reused. |
 | Prompt delivery and transport | Reminder once per user message, intent distinguished from completion, no self-triggered loop. |
-| Completion adapter | Bounded review opportunity; no repeated forced continuation; routine no-change quiet. |
+| Completion adapter | Bounded review opportunity; no repeated forced continuation; routine no-change quiet; independent save helpers do not hold the conversation open. |
 | Objective gate and write coverage | Supported tools/shells/paths/worktrees tested, uncovered paths and timeout/fail-open behavior reported. |
+| Save while conversation continues | Approve a save, answer an unrelated question while helper runs, receive verified result; delayed push never causes premature success. Prove result delivery after main-turn completion and recovery after parent/helper termination on each host. |
 | Concurrent and helper sessions | No cross-session acknowledgment reuse or lost owner edits; durable permission unchanged. |
 | Checker/index path | Shell and direct edits reach verification; failures are surfaced; staged check examines intended content. |
 | Git integration | Existing hooks preserved; checked commit and verified push distinguished from local write. |
@@ -737,7 +817,9 @@ after compaction; host trust/activation limitations must be visible.
 | Acme first brief, no code changes | Team context, org roles, scope, an upcoming task, and a tentative idea are evaluated separately. Correct owning records receive only authorized meaning; an unanswered lasting-memory proposal stays pending. No invented org details or System Guide pages. | R3,9–13,18,28–30 |
 | Known fact under a project alias | The glossary resolves the term; the relevant topic is opened and the answer cites its supporting record. The index line alone is insufficient evidence. | R5–8,19 |
 | Correction with silence, then approval | Show the current PRD's proposal format; silence leaves the destination unchanged and the exact proposal recoverable. Later approval saves the corrected meaning once, without asking again. | R9–10,20,28 |
-| Authorized requirements interview | In-scope settled answers are saved and published before the next question. New recommended meaning or a separate memory gets its own applicable approval; drafting never marks full requirements or implementation approved. | R9–10,16,18 |
+| Explicit helper assignment | Create, update, and delete cases each identify exact files, approved change, permission, checks, commit/push, and returned evidence. Failed publication remains pending; helper adds no unrelated changes. | R9–10,28 |
+| Plain proposal and saved text | Rough notes with jargon or metaphors become literal, concise prose before approval; helper preserves that quality in the saved result without changing meaning. | R15,20 |
+| Authorized requirements interview | In-scope settled answers are recorded with permission and assigned for saving before the next independent question; publication can finish while conversation continues. New recommended meaning or a separate memory gets its own applicable approval; drafting never marks full requirements or implementation approved. | R9–10,16,18 |
 | Memory approval disabled in one project | Qualifying memory follows the same review and checks under standing permission, with honest provenance and the required report. PRD permission is unaffected. Restoring approval makes the next memory candidate wait. | R10–14; metadata representation remains an open design detail |
 | Push fails with two active tasks | Report local/committed/remote state. The save and its dependent task remain unfinished; unrelated authorized work continues. A fresh session finds permission and the next recovery step without owner repetition. | R3–4,9,13,28 |
 | Concurrent update and interrupted retry | Two sessions reread the shared destination and preserve one another's useful changes. A retry detects an already-published change instead of duplicating it; a meaning conflict returns only the unresolved choice to the owner. | R3,10,13,21,28 |
@@ -787,10 +869,13 @@ tradeoffs; platform facts and bookkeeping are investigation work.
 
 | Item | Disposition | Next action |
 | --- | --- | --- |
-| Full startup printing versus reads | Read-and-handshake direction; bounded reader/ack candidate selected by architect | Prove H2 actual model delivery; declaration-only fallback cannot pass R2. |
+| Full startup printing versus reads | Read-and-handshake direction; native observation first, bounded helper if needed | Prove H2 actual model delivery; declaration-only fallback cannot pass R2. |
+| Four public skills | Selected architecture direction, 2026-09-18 | Migrate callers to find/save/review/setup with one shared save procedure. |
+| Approved save helper | Selected R9 behavior, 2026-09-18 | Give explicit operation/files/meaning/check/commit/push instructions; prove parallel execution and recovery. |
+| Plain memory and proposal wording | Explicit R15 requirement | Main reviews proposal; helper checks saved text; no jargon or figurative language. |
 | Quiet routine no-change review | Settled by current PRD | Preserve quiet owner experience; investigate internal transport separately. |
-| Every-prompt reminder | Selected behavior; explicit helper intent receipt recommended | Canonical message in existing reminder module, real manual paths, H3 transport proof. |
-| End-turn checkpoint | Bounded handler recommended, not owner-selected | One corrective continuation at most; validate outcome/recovery under H4 before activation approval. |
+| Every-prompt reminder | Selected behavior; explicit helper intent receipt recommended | Canonical message in existing reminder module, real manual paths, D1-P1 prompt delivery/acknowledgment proof. |
+| End-turn checkpoint | Bounded handler recommended, not owner-selected | One corrective continuation at most; validate outcome/recovery under H3 before activation approval. |
 | Changed-file review trigger | Rejected | Remove it from current design/testing assumptions; file changes can still trigger objective file validation. |
 | Glossary path | Recorded direction | Use proposed path; verify migration and delivery before term-dependent work. |
 | Proposed PRD approval fields | Settled by current R16 | Unapproved proposed draft omits both; valid paired fields when requirements approved. |
@@ -799,7 +884,7 @@ tradeoffs; platform facts and bookkeeping are investigation work.
 | Approval-off metadata | Genuine permission/provenance detail | Determine honest standing-authority representation; never fabricate a person/date approval. |
 | Additional size limits | Genuine design/PRD constraint | R21 governs; measure first, seek decision only if required meaning/limits conflict. |
 | Save failure versus work completion | Cross-component policy question | Reconcile affected-work pause, pending-save recovery, and tracker completion; do not invent global blocking. |
-| Guard scope, helper writes, invocation markers | Architecture choices not approved by old draft | Recommend narrow objective checks and prove coverage; semantic approval remains agent work. |
+| Guard scope, helper writes, invocation markers | Authorized save helpers selected; exact host safeguards need proof | Allow scoped execution under recorded authority; never substitute invocation markers for approval. |
 | Checks on the owner's own edits | No new pre-commit blocker recommended initially | Preserve existing hooks; any broader blocking policy needs an explicit justified decision. |
 | Manual compaction, clear, resume, fork | Host mechanics and recovery behavior | Verify supported events and current guidance reuse; no repeated greeting by default. |
 | Codex equivalence | Requirement applies | Investigate exact gaps and disclose them; any behavioral relaxation needs explicit decision. |
