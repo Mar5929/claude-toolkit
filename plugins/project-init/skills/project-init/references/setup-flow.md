@@ -262,8 +262,12 @@ so they always know where they are.
 - Write a thin CLAUDE.md _with_ the user: what it is, codemap and structural
   pointers, a `Read .claude/rules` line, which gates ran. Add a
   `.claude/rules/README.md` index.
-- Add the short "Quick saves" table from `thin-claudemd.md`. Include only rows
-  for systems selected in this project: `knowledge/` when Gate 3 ran, and
+- Add the short "Quick saves" table from `thin-claudemd.md`. Unless the owner
+  explicitly opted out, include the documentation publication route even when
+  knowledge is disabled, using the
+  project's actual documentation paths. Install the default-ON unscoped
+  `knowledge-direct-commit.md` unless explicitly declined. Include system rows
+  only for systems selected in this project: `knowledge/` when Gate 3 ran, and
   `.work-items/` when the owner chose local tracking. Point each row to its
   owning manual, rule, or skill instead of copying the procedure. Do not name a
   declined, absent, or external tracker as a local quick-save folder.

@@ -2,6 +2,11 @@
 
 Other sessions are editing this repository right now. Assume it.
 
+Authorized documentation-only saves follow `knowledge-direct-commit.md` instead
+of the worktree and pull-request steps below. That unscoped rule applies even
+without project knowledge. Code, configuration, behavior-bearing instructions,
+and inseparable mixed changes keep this implementation workflow.
+
 ## Look first
 
 Before your first edit, every session:
@@ -24,20 +29,22 @@ are live. Never "fix" a dirty tree or an unfamiliar branch. Tell the owner.
 - One exception: a one-file edit to an existing file, asked for directly.
 - Never check out, commit to, push to, rebase, or delete another session's
   branch, or commit its uncommitted changes.
-- In the shared primary checkout, never edit, switch branches, reset, or rebase.
-  Reading and fetching are fine.
-- A work tracker whose records sit in the primary checkout is the one exception:
-  run its commands. Do not hand-edit anything else there.
+- In the shared primary checkout, never switch branches, reset, or rebase.
+  Reading and fetching are fine. Authorized documentation edits use the direct
+  publication rule; a local work tracker uses its existing commands.
 - Sharing a device, simulator, or server for testing? Start your own instance
   rather than competing for one.
 
 ## Stage only your work
 
 Never `git add -A`, `git add .`, or `git commit -a`. Name the paths. Read
-`git diff --cached --name-status`: every file must be yours. Unstage the rest.
+`git diff --cached --name-status` and the full staged diff: every change must be
+yours and authorized. If someone else's changes are staged, coordinate with
+their owner before committing; never unstage or include their work.
 
-In a shared file, append. Never reorder or rewrite entries you did not add.
-Never hand-edit a generated file.
+In a shared file, coordinate overlapping edits and preserve other sessions'
+changes. Reconcile authorized corrections against the latest content; do not
+replace whole files from an older checkout. Never hand-edit a generated file.
 
 ## Claim a number first
 
@@ -49,8 +56,8 @@ search the repository for the old number.
 
 ## Landing work
 
-- Land work by pull request. Never push the default branch yourself. Merge only
-  with owner approval.
+- Land implementation work by pull request; merge only with owner approval.
+  Authorized documentation-only saves use the direct publication rule.
 - Before an approved merge, compare its files
   (`git diff --name-only <default-branch>...<branch>`) with `git status` in the
   primary checkout. A file in both: stop, name it, let the owner decide.

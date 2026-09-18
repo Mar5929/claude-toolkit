@@ -33,10 +33,9 @@ Source: https://code.claude.com/docs/en/memory
 6. **Tools.** The major tools this project runs on: MCP servers, generated
    graphs or indexes, build and deploy commands. One line each, naming the
    command and the file that holds the detail.
-7. **Quick saves.** Only the configured folders where an agent should update
-   the canonical source immediately instead of creating branch work. Name the
-   path, the short handling rule, and the canonical instructions. Do not copy
-   their procedures here.
+7. **Quick saves.** Route documentation publication to its rule unless explicitly
+   declined, even without knowledge enabled. Name actual documentation paths
+   and applicable configured-system routes. Do not copy their procedures here.
 8. **Where work is tracked.** The tracker, and how an item is marked ready to
    build.
 
@@ -101,25 +100,28 @@ once in `CLAUDE.md`; `AGENTS.md` already sends Codex there.
 
 ## Quick saves
 
-Write this section from the systems the project actually selected. Include the
+Include a documentation-publication pointer in every equipped project unless
+the owner opted out. Name its actual documentation locations from the codemap;
+do not create a folder just to make this row fit. The rule applies without
+knowledge or a tracker. Include the
 `knowledge/` row only when project knowledge is configured. Include the
 `.work-items/` row only when local work tracking is configured. A project with
 no tracker, or a different tracker, gets no `.work-items/` row.
-Omit the whole section when no quick-save locations are configured.
 
 ```markdown
 ## Quick saves
 
 | Path | How updates land | Instructions |
 | --- | --- | --- |
-| `knowledge/` | Save an approved knowledge-only update directly to the default branch, then commit and push, even while implementation work continues in a worktree. | `knowledge/README.md` and `.claude/rules/knowledge-direct-commit.md` |
+| Project documentation (use actual paths from the codemap) | Authorized documentation-only updates use the direct publication route. | `.claude/rules/knowledge-direct-commit.md` |
+| `knowledge/` | Follow the knowledge manual for content approval, then the documentation publication route. | `knowledge/README.md` and `.claude/rules/knowledge-direct-commit.md` |
 | `.work-items/` | Update the existing shared, Git-ignored local tracker. Do not create a worktree, commit, or push for the tracker update. | `.claude/rules/work-item-folders.md` and the `work` skill |
 ```
 
 Keep each row to a pointer and one sentence. The linked manual, rule, or skill
-owns approval, commands, conflict handling, and every other step. Add another
-folder only when the owner has explicitly named it as a quick-save location and
-identified the instructions that own it.
+owns approval, eligibility, commands, and conflict handling. A path is a route,
+not permission to publish every file inside it. Behavior-bearing Markdown and
+inseparable implementation changes keep their implementation workflow.
 
 ## AGENTS.md
 

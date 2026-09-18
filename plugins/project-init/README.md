@@ -8,6 +8,15 @@ toolkit reaches a project.
 **Setup: sets up a project.** Install once per machine. Running it is what puts
 files into a project, so every project it touches opts in deliberately.
 
+The default rule set includes the unscoped documentation publication route in
+`library/rules/general/knowledge-direct-commit.md`, including projects without
+knowledge enabled. Authorized documentation-only saves use the existing default
+branch; code, configuration, behavior-bearing instructions, and inseparable
+mixed changes keep the implementation workflow. `project-sync` reconciles older
+managed copies, their parallel-work exception, and root pointers together.
+Updating the plugin supplies the source; each existing project receives the
+guidance through its approved sync, preserving local edits and explicit opt-outs.
+
 ## Install
 
 ```
