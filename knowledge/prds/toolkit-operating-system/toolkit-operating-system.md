@@ -559,6 +559,67 @@ do not quietly park the save on a worktree branch or call an unpushed save
 complete. If Mike explicitly directs publication with a known validation
 issue, preserve that issue in the work record rather than claiming a pass.
 
+### Shared documentation publication contract
+
+This is the toolkit-wide design for R25, refined with Mike on 2026-09-17.
+It extends the existing knowledge-only route; it is not a claim that the
+expanded workflow has shipped. Git branches cover the repository, not selected
+folders. The toolkit chooses the appropriate publication workflow for a change.
+
+**Eligibility and authority.** Project setup identifies documentation locations
+and links this policy from the root router. Typical eligible records include
+PRDs, solution designs, review notes, and project memory. Location helps find
+the route; the actual change decides eligibility. A Markdown rule, skill,
+prompt, or configuration that controls installed behavior is an implementation
+change, even inside an otherwise eligible folder. Publishing a design that
+describes future behavior does not implement or approve that behavior. Existing
+meaning approval applies; a request already authorizing the same save does not
+need another permission loop.
+
+**Separate only independent work.** A documentation correction independent of
+implementation can use this route while implementation remains in its own
+worktree. Documentation required to accompany a code/configuration change stays
+with that change. Do not split a mixed change merely to bypass review, or
+publish documentation that claims unshipped behavior exists.
+
+**Proposed publication sequence:**
+
+1. Locate the existing default-branch checkout, confirm repository, branch,
+   remote, and publishing identity, and inspect working and staged changes.
+   If no safe checkout exists, preserve the pending save and report the blocker.
+2. Fetch and compare remote state; fast-forward only when safe. Read the latest
+   destination and reconcile the authorized edit there. Never copy an older
+   worktree file over newer content. Coordinate concurrent edits to the same
+   file and serialize staging/committing in the shared checkout.
+3. Check the exact change using the destination's requirements: for example,
+   links and formatting for designs; metadata, sources, approval, and rebuilt
+   indexes for knowledge. Generated files must not include another session's
+   unfinished records. A failed check leaves the save unfinished unless the
+   owner explicitly authorizes publication with that known failure recorded.
+4. Stage only owned, authorized changes and inspect the complete staged diff.
+   Unrelated staged work blocks this commit until its owner has finished or
+   coordinated a safe handoff. Never stage everything, unstage someone else's
+   work, autostash, overwrite edits, reset, or rebase the shared checkout.
+5. Commit and push the default branch, then verify the intended commit is
+   present on the remote branch. Remote advancement by another session does
+   not itself invalidate publication if the intended commit is included.
+
+**Conflict and recovery.** On overlapping edits, divergent history, rejected
+push, account mismatch, or branch protection, retain the exact pending change
+and commit identity in the existing work record. Report separately what is
+written, checked, committed, and remotely published, with the next action.
+Do not force-push, bypass protection, change accounts, or silently open a PR.
+Reconcile a conflict without losing another session's work; ask only when
+meaning, authority, or the delivery route needs an owner decision. On resume,
+check whether publication already succeeded before repeating the save.
+
+**Proof before reusable delivery.** Exercise an independent documentation save
+from an implementation session, a Markdown behavior change, an inseparable
+mixed change, concurrent same-file edits, unrelated staged work, a failed
+check, a rejected push, and interrupted publication recovery. The agent judges
+scope and meaning; Git and validation tools establish objective results. No
+semantic classification engine or folder-specific branching feature is needed.
+
 Mike confirmed this distinction on 2026-09-16 while approving the linked design
 file: selected files and folders do not need the implementation branch process.
 The [issue #306 Progress log](https://github.com/Mar5929/claude-toolkit/issues/306#issuecomment-5622497546)

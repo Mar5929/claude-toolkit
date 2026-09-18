@@ -447,6 +447,22 @@ and ask only about the changed meaning. Separate local write, valid file,
 commit, and remote publication evidence. Never call a failed push a completed
 save or silently switch its publication route.
 
+#### Shared publication workflow
+
+Knowledge saves use the Toolkit OS's
+[shared documentation publication contract](../../knowledge/prds/toolkit-operating-system/toolkit-operating-system.md#shared-documentation-publication-contract).
+That policy owns eligibility, the default-branch route, mixed changes,
+concurrent edits, staging, checks, and push recovery. The save skill applies
+knowledge-specific approval, metadata, source, and index checks before using
+that route. Root routers point to the policy; they do not duplicate it.
+
+For Acme, an authorized project-memory update can be published directly while
+implementation remains in its worktree. A change to an installed knowledge
+hook, rule, or skill follows the implementation workflow, regardless of its
+filename extension. A failed push preserves the pending save and next action;
+only verified remote publication completes the Git save. This documentation
+design does not expand the currently shipped knowledge-only rule by itself.
+
 ### 6.8 Tools, session state, and configuration
 
 The index builder reads source metadata and emits the three deterministic
