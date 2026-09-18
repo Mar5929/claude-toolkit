@@ -305,7 +305,9 @@ Use supported pre-action paths only for narrow objective holds. Receipt presence
 **Planned dependency, 2026-09-18:** the work-tracker task reports Mike's selected
 local format as one `WORK-ITEM.md` for overview/status, tasks, questions,
 decisions/history, and requirements, plus separate `DESIGN.md`. Its top-level
-sections are Overview, Tasks, Recent History, and Requirements. Coordinate the
+sections are Overview, Roadmap, Tasks, Recent History, and Requirements. Roadmap
+holds phases/milestones, outcomes, status, and task/child-item links; execution
+detail stays in Tasks. Coordinate the
 requirements/Notes routing with that owner; do not assume separate TASKS.yaml,
 STATUS.md, or REQUIREMENTS.md remain authoritative after migration. The storage
 change is not shipped and does not authorize migration here. External trackers

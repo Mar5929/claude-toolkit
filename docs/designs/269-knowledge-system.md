@@ -1109,7 +1109,7 @@ These are investigation work, not questions for Mike to answer about APIs.
 - Work-tracker dependency update, reported by the owning task on 2026-09-18:
   Mike selected one local `WORK-ITEM.md` containing overview/status, tasks,
   questions, decisions/history, and requirements, with `DESIGN.md` separate.
-  Top-level sections are Overview, Tasks, Recent History, and Requirements;
+  Top-level sections are Overview, Roadmap, Tasks, Recent History, and Requirements;
   history may be collapsible. This is planned, not shipped. Reconcile local
   knowledge routing with that owner before integration; do not migrate active
   records or create competing requirements/task files from this design.
