@@ -1074,7 +1074,9 @@ authorization remain outstanding.
 
 These are investigation work, not questions for Mike to answer about APIs.
 
-- **Instruction content, not only delivery:** audit all R1–R30 requirements
+- **Instruction content, not only delivery:** the [source audit baseline](269-knowledge-system/implementation-plan.md#instruction-audit-baseline--2026-09-18) now maps all R1–R30 requirements
+  to instruction owners and required changes. Complete the final text review
+  and behavior evidence; this baseline is not instruction acceptance. Audit all R1–R30 requirements
   against the full manuals, root instructions/rules, skills and references,
   helpers, templates/examples, hook wording, and setup/sync instructions. The
   [implementation plan](269-knowledge-system/implementation-plan.md#required-instruction-content-audit)
