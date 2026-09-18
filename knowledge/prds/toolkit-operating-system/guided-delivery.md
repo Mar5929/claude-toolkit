@@ -2,7 +2,7 @@
 summary: Guided delivery lets the owner focus on decisions while the main conversation maintains adaptable plans and brings in focused requirements, design, research, and review help using the project's existing records.
 area: guided-delivery
 status: current
-source: GitHub issues 300 and 302; Mike's 2026-09-08 build-and-ship instruction and requested plain-language PRD addition; Mike's 2026-09-16 solution-design skill requests and PRD update instruction (pull requests 344 and 345); Mike's 2026-09-16 linked-design and direct-save clarification under issue 269
+source: GitHub issues 300 and 302; Mike's 2026-09-08 build-and-ship instruction and requested plain-language PRD addition; Mike's 2026-09-16 solution-design skill requests and PRD update instruction (pull requests 344 and 345); Mike's 2026-09-16 linked-design and direct-save clarification under issue 269; Mike's 2026-09-18 document-continuity approval
 created_at: 2026-09-08
 tags: [delivery, requirements, design, collaboration]
 approved_by: Mike Rihm
@@ -48,8 +48,16 @@ and rules clearly enough that someone who missed the conversation can understand
 what must happen and recognize success. Unanswered details stay open. The
 requirements guide the solution without prescribing how to build it.
 
-Any retained ideas about how to build belong only in notes at the very bottom
-of the PRD, linked to their relevant requirements. They are clearly labeled
+While creating or refining a PRD or design, update its actual text as answers
+settle or change and save meaningful changes promptly through the authorized
+route. Each document ends with Notes for relevant discussion, decisions with
+approval state, unfinished questions and tasks, and the exact place to resume.
+Keep Notes concise and current; link to settled text rather than repeating it.
+Saving does not approve the requirements, design, or implementation. Other work
+stays in the work item. No additional specification or continuation file is needed.
+
+Any retained ideas about how to build belong in a Potential paths to explore
+subsection of the PRD's bottom Notes, linked to their relevant requirements. They are clearly labeled
 potential paths to explore, not requirements, approved design, or instructions
 to build that way. Actual design decisions live in the separate design record
 with their approval status preserved.
@@ -70,7 +78,7 @@ The owner then agrees, one question at a time: whether to interview first or
 scan and research first; the design philosophy, which defaults to the
 platform's built-in mechanisms and builds custom only where nothing built-in
 serves; whether there is one design option or several; and where the design
-and its prep file live. The main conversation weighs the item's complexity
+lives, with preparation and Notes inside it. The main conversation weighs the item's complexity
 and effort in the context of what is being built and recommends a team for
 that item: a product analyst, researchers, a technical architect per option,
 a critic, and task agents as needed, each on the model that fits its role.
@@ -80,7 +88,8 @@ For GitHub-tracked work, use one versioned canonical file in the project's
 designated design location, linked prominently from the issue. In this project,
 that location is `docs/designs/`; solution designs do not belong in `knowledge/`.
 Keep the existing design as the living master throughout review. The file owns the
-solution; the issue owns progress, approvals, and remaining work. Neither keeps
+solution and its refinement Notes; the issue owns overall progress, approval
+state, and other work, with links to the document's detailed continuation. Neither keeps
 another copy of the other's content. Research, alternatives, and walkthroughs
 may support the master but never compete with it. The existing local tracker's
 convention is unchanged: its design stays with the item in its untracked folder.
@@ -95,10 +104,8 @@ the design or its build.
 
 Mike approved the linked-file default and clarified direct saves on 2026-09-16
 in the [issue #269 discussion](https://github.com/Mar5929/claude-toolkit/issues/269#issuecomment-5510064692).
-This settles the earlier issue-text-versus-file question. As of 2026-09-17, the
-shipped direct-save rule remains scoped to `knowledge/**`. Expanding the
-reusable save guidance needs delivery; this requirement is not evidence that
-installed projects already follow the expanded documentation-only route.
+This settles the earlier issue-text-versus-file question. The shipped direct-save rule covers authorized documentation-only changes;
+existing projects receive copied-rule changes through project sync.
 
 **Check:** open a GitHub work item. Its link leads to one authoritative current design file,
 while the issue shows progress and approval. During an authorized design
@@ -108,10 +115,10 @@ session finds the changed design and its true approval state from the issue.
 Historical approaches point to that master and do not present themselves as
 current alternatives.
 
-One prep file holds the intent, the readiness result, the rulings, the way of
-working, the team, every interview answer, and the constraints. Every helper
-reads it, so the team shares one understanding of what the requirements are
-for.
+Preparation stays in the design: intent, readiness results, way of working,
+team, and constraints. Every helper reads those sections and Notes, preserving
+the difference between approved decisions, proposals, and unanswered questions.
+There is no separate prep file or interview transcript for this workflow.
 
 Designs explain how each requirement will be met, what existing capability is
 reused, changed, or new, how the result can be checked, and where a builder
@@ -156,3 +163,15 @@ Where an independent helper cannot run, the main conversation says so.
 The [session-skills documentation](../../../plugins/session-skills/README.md)
 owns commands, packaging, host differences, and adoption. A published change
 must still reach the machine and project before a fresh session can use it.
+
+## Notes
+
+- Decisions: Mike approved document-owned refinement Notes on 2026-09-18.
+  PRD/design detail stays with its document; other work stays in the work item.
+- Still open: Publication, project sync, and observed fresh-session behavior.
+  The active GitHub account is the work account; no account switch or GitHub
+  mutation is authorized through it.
+- Resume here: Publication of the approved `codex/document-notes-continuity`
+  changes is deferred until Mike is free to use the personal account. Checks
+  pass. Do not push or switch accounts during the local-commit audit.
+  Installation and fresh-session continuation remain unverified.

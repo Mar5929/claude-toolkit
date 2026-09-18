@@ -3,7 +3,7 @@
 The team is recommended fresh for every item. The main conversation weighs
 the complexity and effort of the requirements in the context of what is
 being built, proposes a team, and the owner agrees or changes it before any
-agent starts. Every agent reads the prep file first, so the whole team works
+agent starts. Every agent reads the design preparation and Notes first, so the whole team works
 from the same understanding of what the requirements are for.
 
 ## The roles
@@ -12,9 +12,9 @@ from the same understanding of what the requirements are for.
 | --- | --- | --- | --- | --- |
 | Product analyst | `agents/design-product-analyst.md` | The strongest reasoning model available (Opus by default) | Checks the requirements are complete, explicit end to end, and coherent inside the larger system before design starts. Walks the end-to-end experience as the person who uses the result | A confidence percentage, the missing pieces, the places that are not explicit, and the misreading risks, each with a fix |
 | Researcher | `agents/design-researcher.md` | A capable, cheaper model (Sonnet by default), because the work is reading and reporting | Answers one bounded question from official documentation, project evidence, and community sources such as Reddit, Stack Overflow, GitHub issues, and forums | Findings, each with source, date, and a label: official, project evidence, or community claim |
-| Technical architect | `agents/design-architect.md` | The strongest reasoning model available (Opus by default) | Writes one design option from the prep file, the requirements, the research, and the existing build. Verifies community claims before using them. Recommends a rewrite when that serves the requirements better than extending what exists | A draft design file, and a list of what changed after each fix round |
+| Technical architect | `agents/design-architect.md` | The strongest reasoning model available (Opus by default) | Writes one design option from the design preparation and Notes, the requirements, the research, and the existing build. Verifies community claims before using them. Recommends a rewrite when that serves the requirements better than extending what exists | A draft design file, and a list of what changed after each fix round |
 | Critic | `agents/design-critic.md` | The strongest reasoning model available (Opus by default) | Checks a draft against every requirement and against the writing rules | One line per requirement (satisfied, partly, not), plus findings on language, unnecessary custom work, and the end-to-end experience |
-| Task agent | The host's general-purpose agent, no packaged file | Whatever fits the task; a cheaper model for reading and summarizing, a stronger one for judgment | A bounded job the others should not spend context on: map what the existing build does for one area, list every place a setting is used, draft a diagram, check one source, fill one section of the prep file from a document | The result the brief asked for, with file paths and sources |
+| Task agent | The host's general-purpose agent, no packaged file | Whatever fits the task; a cheaper model for reading and summarizing, a stronger one for judgment | A bounded job the others should not spend context on: map what the existing build does for one area, list every place a setting is used, draft a diagram, check one source, propose a preparation-section update from a source document | The result the brief asked for, with file paths and sources |
 
 Narrower briefs for the same roles:
 
@@ -57,4 +57,4 @@ Starting points, not rules.
 
 A short list: role, count, model, and one line on what each one reads and
 returns. The owner can cut, add, rename, or change the model for any role.
-Record the agreed team in the prep file.
+Record the agreed team in the design preparation section.

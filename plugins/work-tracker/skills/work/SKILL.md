@@ -100,6 +100,11 @@ atomically. Use `roadmap add` when a linked child item fulfills the stage.
 Every task records its objective, instructions, constraints, linked inputs,
 deliverable, acceptance condition, status, dependencies, current position, and
 next action. Use `task update` after a meaningful decision or position change.
+For a PRD or design refinement task, link its current position and next action
+to the document's bottom Notes. Update settled text and remaining discussion in
+that document; do not duplicate its detailed checklist in `TASKS.yaml` or
+`STATUS.md`. Other tasks keep their existing records. Local requirements use
+`REQUIREMENTS.md`; link any existing shared PRD instead of copying it.
 Task selection is branch-scoped in `ACTIVE.json`; it does not change the item
 stage or status. `task complete` records evidence and enforces task-specific
 approval when required, but never completes or approves the parent item.

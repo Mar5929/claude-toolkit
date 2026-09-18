@@ -363,6 +363,14 @@ Typical checks:
   removal, not installation. If the tracker question was never answered, ask
   that first. Do not add guessed stages to existing items.
 
+- **PRD and design continuity:** compare installed work-item rules, root
+  instructions, manuals, and session-skills with the current sources. Flag
+  guidance that requires separate prep/interview files or duplicates document
+  refinement in the tracker. Reconcile approved instruction changes together:
+  document text and bottom Notes own that refinement; other work stays in the
+  item. Preserve project-specific choices and active drafts. Do not bulk-migrate
+  their content. A plugin refresh alone does not update copied project rules.
+
 - **Rules the toolkit dropped on 2026-08-31:** `spec-before-you-build.md` and
   `track-open-topics.md`. The toolkit no longer ships either one. When a project
   still carries one in `.claude/rules/`, report it as a rule the toolkit has

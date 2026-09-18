@@ -64,10 +64,16 @@ where the work item itself is kept.
   Linear or Jira or anything else. The design goes in `docs/designs/`, one file
   per item, named `<work item id>-<short-slug>.md`.
 
-Either way the design is written after the item's requirements are approved,
-merged in the same pull request as the code it describes, and deleted once the
-specification is brought up to date. Git history keeps it, so deleting it loses
-nothing. The project's `docs/designs/README.md` holds the detail.
+Keep preparation in the design and working discussion, remaining tasks, and
+the resume point in its bottom Notes. The work item links there; other work
+stays in the item. Do not create a separate prep or interview file.
+
+Follow the project's approval and save rules. Authorized documentation-only
+saves use its documentation route promptly, without waiting for code delivery;
+local untracked documents stay in the local tracker. Saving a draft does not
+approve the requirements, design, or build. The project's `docs/designs/README.md`
+owns later retention or retirement; preserve sources and approvals when
+reconciling an older record.
 
 ## Match the action to the request
 

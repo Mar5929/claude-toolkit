@@ -122,6 +122,10 @@ The maintained plan connects the intended outcome with the tasks and sub-items
 needed to reach it. It includes useful milestones, dependencies, completed work,
 current status, blockers, open decisions, approval boundaries, and next steps.
 The detail stays appropriate to the work and changes when the agreed plan changes.
+For PRD or solution-design refinement, update the actual document and keep its
+discussion, decisions with approval state, remaining tasks, and resume point in
+bottom Notes. The work item links there and retains overall status, approvals,
+and other work. Do not duplicate document detail in task or interview records.
 
 Work items can contain child work items at multiple levels, including an epic
 or feature containing smaller deliverables. Each work item, including a child,

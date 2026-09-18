@@ -163,6 +163,10 @@ work item, or both before it is planned. An unexpanded draft stage may remain
 empty and is reported as a reconciliation warning rather than filled with a
 fabricated task.
 
+For PRD or design refinement, current position and next action may point to
+the document's bottom Notes. Keep its discussion and detailed remaining work
+there; other tasks use the fields below as usual. This changes no record schema.
+
 A task has a stable `TASK-<number>` ID and records:
 
 - its `roadmap_stage`, title, objective, and instructions;

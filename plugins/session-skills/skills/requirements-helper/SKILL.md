@@ -48,12 +48,14 @@ completed in this session.
   behavior, and how to recognize success. Replace vague claims such as "easy"
   or "fast" with the owner's intended meaning. Clear requirements guide design
   choices without prescribing an implementation or removing valid alternatives.
-- Put retained how-to ideas only in a notes section at the very bottom of the
-  PRD, after all requirements and open questions. Link each note back to the
+- Put retained how-to ideas only in the PRD's bottom `Notes`, after all
+  requirements. Link each idea back to the
   relevant requirement using its existing heading, identifier, or tracker link.
-  Label the section "Potential paths to explore" and explicitly say its ideas
+  Label that subsection "Potential paths to explore" and explicitly say its ideas
   are not requirements, approved design, or instructions for how to build.
-  Add no empty notes section when there are no ideas to retain.
+  Omit that subsection when there are no ideas to retain. Notes still holds
+  this document's open questions, remaining work, and resume point under
+  work-guide's document-continuity guidance.
 - Keep actual design choices and build instructions in the separate canonical
   design record, including choices the owner already approved. Preserve their
   approval there rather than downgrading them to tentative notes. Agreement to

@@ -35,6 +35,39 @@ with the project's existing tracker and lifecycle guidance, including the
 
 ## Keep a useful plan
 
+### Keep PRD and design work in the document
+
+While creating or refining a PRD or solution design, update the actual document
+as answers are settled or corrected. Keep a `## Notes` section at its very
+bottom for relevant discussion, approved decisions, proposals, unanswered
+questions, remaining document tasks, and the exact place to resume. Use plain
+language and only the entries needed: **Decisions**, **Still open**, and
+**Resume here** are enough. Link to settled text rather than repeating it.
+Keep Notes current; remove resolved to-dos and stale wording instead of
+accumulating a transcript. Preserve useful decisions and their approval state.
+
+Save meaningful changes promptly through the project's authorized save route;
+do not wait for the interview or session to end. A save does not approve the
+requirements, design, or build. Recognize existing authorization and report
+failed or unavailable saves as unsaved. Before editing a shared document,
+reread it and preserve intervening changes.
+
+The work item keeps the overall stage, status, approvals, other tasks and
+blockers, and links to the documents. Its PRD or design task points to that
+document's Notes for detailed continuation, without copying the checklist or
+discussion. Other work remains in the work item. On resume, read the item,
+open the relevant document, and continue from Notes after checking its current
+text and approval boundaries. With no tracker, resume from the named document.
+
+Do not create a separate interview log, notes file, or continuation record for
+this work. Create a PRD or design only when the work needs one, using its
+existing home. For older work, reconcile relevant prep or interview material
+into the document when that work resumes, preserving decisions, sources, and
+approvals. Do not bulk-migrate other active work or delete its records without
+authorization.
+
+### Keep other work in the chosen tracker
+
 Consider the goal and completion evidence, route to delivery, roadmap stages,
 current position, next actions, dependencies, blockers, and open decisions.
 Track only what helps this item, using the project's terminology and the

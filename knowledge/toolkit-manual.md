@@ -195,7 +195,12 @@ supports that discussion. When a design is needed,
 [solution-design guidance](../plugins/session-skills/skills/solution-design/SKILL.md)
 connects the requirements to a buildable approach and its review.
 
-The tracker links the requirements, design, decisions, and actionable tasks.
+The tracker links the requirements and design and keeps overall status,
+approvals, other tasks, and progress. While refining a PRD or design, update
+its actual text and keep concise Notes at the bottom for useful discussion,
+decisions with approval state, remaining document tasks, and the resume point.
+Preparation belongs in the design; no separate interview or continuation file
+is needed. A specification is the requirements document, not an extra copy.
 Focused helpers can investigate or review bounded parts while the main
 conversation keeps the overall work coherent. Their findings inform decisions;
 they do not approve the owner's requirements or complete the parent item.
@@ -235,8 +240,11 @@ questions, blockers, and next action. Project working context helps find that
 item. The [handoff workflow](../plugins/session-skills/skills/handoff/SKILL.md) connects continuation
 with the applicable project-knowledge review.
 
-On resumption, the agent reads the current records and restores the saved
-position. It checks whether the tracker or relevant sources changed since the
+On resumption, the agent reads the work item and opens the relevant document.
+For PRD or design refinement, its bottom Notes holds the exact place to resume;
+other work uses the item's continuation record. Meaningful document changes
+are saved during the conversation through the authorized route. Saving does
+not approve requirements, design, or implementation. It checks whether the tracker or relevant sources changed since the
 handoff. Switching work means establishing the new item's context while
 preserving the previous item's position. A past assignment does not establish
 that another agent is still working.

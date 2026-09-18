@@ -35,6 +35,13 @@ The toolkit ships no rule saying what a ticket must contain. It used to, and
 that rule was removed on 2026-08-31. Do not write a replacement into the project
 during setup.
 
+When using toolkit requirements and design workflows, the work item holds the
+overall status, other tasks, approvals, and document links. PRD and design
+refinement stays in each document's bottom Notes alongside its updated text.
+Use existing document homes; do not scaffold extra notes, prep, or continuation
+files. The current `work-item-stages.md` rule owns this division. Preserve a
+chosen external method's own workflow rather than layering toolkit records on it.
+
 ### 1. A GitHub Projects board
 
 The toolkit has a setup for this one. It is the only answer where the toolkit

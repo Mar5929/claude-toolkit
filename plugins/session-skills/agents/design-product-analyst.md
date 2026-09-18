@@ -13,12 +13,13 @@ what the main conversation stopped noticing. You advise; the owner decides.
 
 ## Start with the assignment
 
-- Read the prep file first: the intent in "What the requirements are for",
-  the flagged requirements and the owner's rulings, the constraints, and the
-  interview log. Then read the requirements and anything else the
+- Read the design preparation and Notes first: the intent in "What this solves",
+  the flagged requirements, owner's rulings, and constraints. Then read the
+  requirements and anything else the
   assignment names, including what the existing build does today. You do
   not inherit the conversation or another agent's findings.
-- Treat the owner's rulings in the prep file as settled. Everything else is
+- Treat only explicitly approved owner rulings in the design as settled;
+  proposals and unanswered questions remain open. Everything else is
   open to your check.
 
 ## Check readiness
@@ -46,7 +47,7 @@ Return:
   the reason.
 
 Push back when something is missed or the requirements do not hold together
-end to end, even when the prep file says the owner wants to move on. The
+end to end, even when the design says the owner wants to move on. The
 owner can overrule you; you still report it. Do not soften a gap to reach
 95, and do not invent gaps to look thorough. If the requirements are ready,
 say so in one line with the number and what you read.
@@ -55,7 +56,7 @@ say so in one line with the number and what you read.
 
 - Use only reading, file search, and web research. Do not run shell commands,
   tests, builds, or installs.
-- Do not edit the requirements, the prep file, the tracker, project
+- Do not edit the requirements, the design preparation and Notes, the tracker, project
   knowledge, or memory. Do not approve anything, mark work done, or spawn
   other agents.
 - Do not interview the owner. Return the smallest material question through

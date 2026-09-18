@@ -34,7 +34,12 @@ itself stays in the parent PRD rather than being copied into project memory.
 - The files the change touches.
 - How it will be tested.
 - The order the work is done in.
-- Decisions made while designing, and the reason for each.
+- Preparation needed to understand the design, in this file.
+- Bottom Notes with relevant decisions and their approval state, open questions,
+  remaining document tasks, and the exact resume point. Update the actual
+  design as answers settle and save meaningful changes promptly. The work item
+  links here and keeps other work. Do not create a separate prep or interview
+  record for new work; preserve existing active records until reconciled.
 
 ## How long a file lives
 

@@ -49,7 +49,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | work | work-tracker | Manage local work items, roadmaps, execution tasks, current-task continuation, linked children, grouping, archives, and safe conversion in Git-ignored folders | `/work`, "add this to the backlog", "what should I work on next?" |
 | work-guide | session-skills | Coordinate delivery by keeping roadmap stages connected to actionable tasks or child work items in the existing tracker | `/session-skills:work-guide`, "help me organize this work", "continue this item" |
 | requirements-helper | session-skills | Clarify intent, question directions that could undermine the goal, and maintain canonical draft requirements | `/session-skills:requirements-helper`, "help me refine these requirements" |
-| solution-design | session-skills | Resume from the solution-design task's sources and saved review position, check the requirements are ready, agree the way of working, then research, design, critique, and fix until every requirement is satisfied and approval is recorded | `/session-skills:solution-design`, "design this", "give me design options" |
+| solution-design | session-skills | Resume from the work item's linked design, preparation, and bottom Notes, check the requirements are ready, agree the way of working, then research, design, critique, and fix until every requirement is satisfied and approval is recorded | `/session-skills:solution-design`, "design this", "give me design options" |
 | braindump | session-skills | Play a pasted brain dump back in very simple words, list each ask and every guess, and wait for the owner's yes before any work starts | `/braindump`, "play that back", "tell me what you heard" |
 | explain-simply | session-skills | Re-explain the last answer or a named file as short bullets, simplifying the wording and never the facts | `/explain-simply`, "explain that like I'm five", "put that in plain bullets", "simpler" |
 | grill-me | session-skills | Stress-test an idea one question at a time and preserve every answer | `/grill-me`, "grill me" |
@@ -214,7 +214,7 @@ repository works.
 
 | Folder | What is in it | How long a file lives |
 | --- | --- | --- |
-| [`designs/`](designs/README.md) | The build plan for one work item: how each approved requirement is met, which files change, how it is tested, in what order. One file per issue, named `<issue number>-<short-slug>.md` | Created at stage `04-solution-design`, merged with the code it describes, deleted at stage `14-spec-update` |
+| [`designs/`](designs/README.md) | The build plan for one work item: how each approved requirement is met, which files change, how it is tested, in what order. One file per issue, named `<issue number>-<short-slug>.md` | Created at stage `04-solution-design` or authorized earlier review; documentation-only saves follow the project save route; deleted at stage `14-spec-update` |
 
 ## How the pieces relate (and what looks redundant but is not)
 

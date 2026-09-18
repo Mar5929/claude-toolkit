@@ -215,6 +215,13 @@ does not invent tasks or backfill approval.
 - `EVENTS.ndjson`: approved completion events, emitted once.
 - `DASHBOARD.md`: generated view that can be deleted and rebuilt.
 
+For requirements or design refinement, the document's bottom `Notes` holds
+its decisions with approval state, unfinished discussion, remaining document
+tasks, and exact resume point. Update the document itself as answers settle.
+The work item retains overall status, other tasks, approvals, and links.
+Task continuation fields point to Notes rather than duplicating its checklist.
+This uses the existing records and commands; it adds no tracker file.
+
 ## Commands
 
 ```text

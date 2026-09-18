@@ -86,6 +86,20 @@ terminal states set by an intentional completion or cancellation action, not by
 a stage. An unknown stage is preserved and reported rather than silently
 changed.
 
+## PRD and solution-design continuity
+
+While creating or refining a PRD or solution design, update its actual text as
+answers settle and keep concise `Notes` at the very bottom. Notes holds useful
+discussion, decisions with approval state, open questions, remaining document
+tasks, and the exact resume point. Save meaningful changes promptly through
+the project's authorized route. A saved draft is not approval to build.
+
+The item retains overall status, stage, approvals, other tasks and blockers,
+and links to those documents. For a document-refinement task, its position and
+next action can point to the document's Notes; do not duplicate that detail.
+Other work stays in the item. Read the item and the linked document's Notes
+when resuming. Do not add separate interview or continuation files.
+
 ## Record meaningful progress
 
 Update the active item when meaning changes:
@@ -111,8 +125,9 @@ a hard stop until it is intentionally replaced. Commands update the item,
 roadmap tasks, readable progress, history, and branch-scoped active state.
 
 **GitHub.** Resolve and read the issue number, title, body, single Progress log
-comment, stage label, and board status before changing it. Settled requirements
-and decisions go in the issue body. Keep the roadmap and actionable tasks in
+comment, stage label, and board status before changing it. Requirements and
+decisions kept in a PRD or design stay there; link them from the issue. Other
+requirements and decisions stay in the issue body. Keep the overall roadmap and tasks in
 clear issue-body sections, using child issues or sub-issues when they own real
 scope. Append the short dated event to the one Progress log comment. Treat body,
 comment, label, and board field as one logical update, read them back, and repair

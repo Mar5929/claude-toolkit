@@ -9,18 +9,19 @@ found.
 
 When the owner wants several options, each option is one top-level section
 with the same inner headings, followed by one "Recommendation" section.
+Notes is always the last section of the whole document. Omit empty optional
+entries; keep useful preparation in this document, not in a separate file.
 
 ```markdown
 # <Item id and title>: solution design
 
 Status: proposed
 Requirements: <path or link>
-Prep file: <path>
 Date: <YYYY-MM-DD>
 
 ## What this solves
 
-<The intent paragraph from the prep file, in the same words.>
+<Who uses the result, what they are trying to do, and what must be true.>
 
 ## What exists today
 
@@ -32,6 +33,17 @@ greenfield project: "Nothing exists yet.">
 
 <Built-in mechanisms first, or the specialized philosophy the owner chose,
 in one or two sentences.>
+
+## Preparation
+
+- Requirements readiness: <main conversation and product analyst confidence,
+  unresolved gaps, and links to corrected requirements or owner rulings>
+- Way of working: <interview or scan first; number of options and differences>
+- Team: <agreed roles, models, scope, and expected returns>
+- Constraints: <applicable limits and approval boundaries>
+
+<Keep settled inputs here. Discussion, decisions needing context, remaining
+questions, and continuation belong in Notes. Do not repeat the requirements.>
 
 ## Option A: <short name>
 
@@ -79,7 +91,7 @@ to use.>
 | Requirement | Wrong reading | Intended reading, and what this design does |
 | --- | --- | --- |
 
-<Every risk from the prep file, plus any the architect found. A builder
+<Every risk from preparation or the architect review. A builder
 reads this table before building.>
 
 ## Recommendation
@@ -92,19 +104,15 @@ words. What the owner gives up by choosing it.>
 <For an existing build only. Yes or no, and why. If yes: what a rewrite
 costs, and why extending what exists serves the requirements worse.>
 
-## Decisions made while designing
+## Notes
 
-| Decision | Reason | Who decided | Date |
-| --- | --- | --- | --- |
+- Decisions: <relevant choice, approved/proposed status, who decided and when
+  if known; link to settled text rather than repeating it>
+- Still open: <unanswered questions, unresolved review findings, and remaining
+  document tasks; name the affected section and any blocker>
+- Resume here: <exact section or question and next action>
 
-## Open decisions for the owner
-
-- <one question, with the two positions in one line each>
-
-## Where this stands
-
-| Round | Findings raised | Findings fixed | Requirements still open |
-| --- | --- | --- | --- |
-
-Next action: <the exact next step, and who does it>
+<Keep only useful entries. Update settled requirements or design in the main
+text, remove resolved to-dos, and preserve relevant decisions and approval
+boundaries. Saving a draft does not approve it or authorize implementation.>
 ```
