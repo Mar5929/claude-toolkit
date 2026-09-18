@@ -1116,6 +1116,48 @@ authorization remain outstanding.
 
 These are investigation work, not questions for Mike to answer about APIs.
 
+#### Task D2 — Make memory self-improvement instructions clear and current
+
+Requested by Mike on 2026-09-18. Status: planned; initial source inspection done.
+This task covers `knowledge/memory-self-improvement.md`, the installed template,
+and every instruction that tells an agent what it means, when to read or update
+it, and how to keep it current in any equipped project. R23 owns the behavior;
+R15/R21 govern clarity and supported limits. Delivery follows E1-P1/P4/P7/P8.
+
+- Define its purpose plainly: project-specific feedback that improves memory
+  selection. Distinguish it from lasting project facts, current work, a transcript,
+  and a second copy of the manuals. Explain authority when guidance disagrees.
+- Reconcile the shipped template, knowledge manual, save/review/setup skills,
+  helper instructions, checker, setup/sync, installed copy and relevant catalog
+  explanations. State exactly when an agent reads it and which feedback causes
+  an update; distinguish ordinary save outcomes from changes to selection rules.
+- Define concise useful entries, actual reasons versus missing reasons, and how
+  feedback changes later proposals. Include clear positive and negative examples;
+  do not invent motives or preserve rejected facts as purported lessons.
+- Review and clean this project's existing Lessons and Recent decisions against
+  current requirements. Merge repeated guidance, remove obsolete instructions
+  already owned elsewhere, preserve useful sourced feedback, and surface real
+  contradictions before changing meaning. Keep other projects' feedback intact
+  during setup/sync; do not replace it with this project's content.
+- Remove reliance on the existing 8,000-character cap as a design requirement.
+  R21 does not authorize that extra fixed limit. Reconcile the checker and all
+  wording together during implementation; do not truncate useful feedback to
+  satisfy an arbitrary number. Keep the file concise through purposeful upkeep.
+- Verify a fresh agent can explain the file's purpose, use it before selecting
+  memory, record relevant owner corrections without unnecessary approval, avoid
+  routine logging noise, and consolidate it without losing useful feedback.
+  Cover a new install, an upgraded project with existing lessons, conflicting
+  guidance, no stated rejection reason, and useful content exceeding 8,000
+  characters. Writing must be clear, explicit, and free of jargon or metaphor.
+
+Initial findings: the template says one line per candidate; the installed file
+and remember skill limit logging to owner changes in selection guidance. The
+fixed cap appears in both checker copies, template, manual and reflect skill.
+This task records work to do; none of those runtime instructions or existing
+feedback entries have been changed by adding it.
+
+#### Other remaining design tasks
+
 - **Instruction content, not only delivery:** the [source audit baseline](269-knowledge-system/implementation-plan.md#instruction-audit-baseline--2026-09-18) now maps all R1–R30 requirements
   to instruction owners and required changes. Complete the final text review
   and behavior evidence; this baseline is not instruction acceptance. Audit all R1–R30 requirements

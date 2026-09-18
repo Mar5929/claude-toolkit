@@ -164,6 +164,17 @@ Use the PRD's exact card fields and working-memory structure. Inbox entries carr
 
 **Deliverable/exit:** coherent templates and small root/manual routing contract, with valid empty and populated examples. Tests cover glossary without frontmatter, proposed PRD without approval, approved PRD with paired fields, exact pending card, active work from two sessions, and style/source preservation. No arbitrary record-length cap beyond R21.
 
+### Memory self-improvement task
+
+Task D2 in the [design Notes](../269-knowledge-system.md#task-d2--make-memory-self-improvement-instructions-clear-and-current)
+records Mike's requested review of the feedback file, installed template,
+reading/update triggers, cleanup, and unsupported 8,000-character cap. E1-P1
+owns instruction/template wording; E1-P4 owns use and cleanup behavior; E1-P7
+owns safe migration of existing project feedback and matching checker guidance;
+E1-P8 proves new and upgraded projects behave correctly. Treat this as required
+content work, not just a reminder or a filename migration. No implementation is
+claimed by adding the task.
+
 ### Required instruction-content audit
 
 Mike explicitly requested this audit on 2026-09-18. Delivery of a reminder or a
