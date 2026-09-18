@@ -67,7 +67,7 @@ System Guide is a separate, optional toolkit plugin. It keeps its reference at
 folder does not make it part of that plugin or require it to be enabled.
 
 When enabled, the second brain keeps memory, PRDs, the project map, the glossary, and current
-work context. Its `knowledge/README.md` explains where to find each kind of
+work context. Its `knowledge/knowledge-manual.md` explains where to find each kind of
 information, including the System Guide when enabled. The System Guide owns
 its contents under `knowledge/system/`. Setup, refresh, and removal of either
 plugin preserve the other's content.
@@ -303,7 +303,7 @@ still works. When the guide is off, the agent skips that source.
 - Keep PRDs for required behavior, memory for qualifying facts and lessons, and the tracker for work status. Memory links to guide detail rather than copying it.
 - When the second brain is on and System Guide is off, the table says System Guide is not configured. Detailed system descriptions do not become memory or PRD content as a fallback.
 - If an off project already has a suitable reference, use its documented location. Otherwise name the missing destination before proposing a lasting save.
-- Without the second brain, the guide's own entry guidance explains what belongs there, what to consult, and how approved upkeep works. It does not depend on `knowledge/README.md` or second-brain commands.
+- Without the second brain, the guide's own entry guidance explains what belongs there, what to consult, and how approved upkeep works. It does not depend on `knowledge/knowledge-manual.md` or second-brain commands.
 - When both plugins are present, keep routing words in the shared manual and this plugin's own entry guidance consistent.
 
 **Check:** present the same feature write-up in an on project and an off

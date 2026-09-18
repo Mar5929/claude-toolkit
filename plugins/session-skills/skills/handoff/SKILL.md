@@ -77,7 +77,7 @@ the tracker.
 
 Detect the current project knowledge system by its complete layout:
 
-- `SOUL.md`, `knowledge/README.md`, `knowledge/project.md`, and
+- `SOUL.md`, `knowledge/knowledge-manual.md`, `knowledge/project.md`, and
   `knowledge/current.md`;
 - `knowledge/prds/`, `knowledge/memory/`, and `knowledge/brainstorms/`; and
 - the installed `remember` skill.
@@ -103,7 +103,7 @@ an empty table, and do not invent rows to fill one.
 
 ## Step 3: wait for the `remember` result
 
-`remember` follows the approval contract in `knowledge/README.md`. Do not copy
+`remember` follows the approval contract in `knowledge/knowledge-manual.md`. Do not copy
 that contract here. Wait when it requires the owner's answer. Continue only
 after it reports what was saved, declined, or blocked.
 

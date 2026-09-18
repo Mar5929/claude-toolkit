@@ -140,7 +140,7 @@ and either one lands in the project as `.claude/rules/dependency-graph.md`.
 ## Project knowledge procedure
 
 The current procedure comes from the `second-brain` plugin as one managed
-`knowledge/README.md`, task-specific skills, tools, and fail-open hooks. Projects
+`knowledge/knowledge-manual.md`, task-specific skills, tools, and fail-open hooks. Projects
 that decline the system receive no knowledge rule from this library. Do not
 restore or duplicate the retired large rule, verifier, or per-folder indexes.
 

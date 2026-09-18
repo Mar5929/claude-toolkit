@@ -35,7 +35,7 @@ const posix = (value) => value.split(sep).join("/");
 const CURRENT_MD_MAX_CHARS = 2000;
 const SELF_IMPROVEMENT_MAX_CHARS = 8000;
 const SUMMARY_MAX_CHARS = 250;
-export const MANUAL_SHA256 = "2f0d1a53bc234a7695631f41c412cafcdd535185d0c29bd67c13f4d695fa678e";
+export const MANUAL_SHA256 = "3439d6b2b803403c2faa39ca9e3fd7add85ee8a03b63993f99053f23e7ac3ef8";
 
 const STATUS_VALUES = ["current", "superseded", "retired"];
 // A PRD is one living document. It opens as proposed, holding the
@@ -331,18 +331,29 @@ function checkSelfImprovement(vault) {
 }
 
 function checkManual(vault) {
-  const path = resolve(vault, "README.md");
+  const path = resolve(vault, "knowledge-manual.md");
   if (!existsSync(path)) {
-    fail("knowledge/README.md",
+    fail("knowledge/knowledge-manual.md",
       "is missing. This managed operating manual is required for an equipped"
-      + " project. Run project-sync to restore it.");
+      + " project. Run project-sync to migrate a marked legacy knowledge/README.md"
+      + " or restore the manual without overwriting unrelated files.");
     return;
   }
   const text = readFileSync(path, "utf8").replace(/\r\n/g, "\n");
+  const legacyPath = resolve(vault, "README.md");
+  if (existsSync(legacyPath)) {
+    let legacy = "";
+    try { legacy = readFileSync(legacyPath, "utf8").replace(/\r\n/g, "\n"); }
+    catch { fail("knowledge/README.md", "could not be inspected for legacy manual conflicts. Preserve it and investigate through project-sync."); }
+    if (legacy.trimStart().startsWith("<!-- claude-toolkit:knowledge-manual -->")
+      && legacy.replaceAll("knowledge/README.md", "knowledge/knowledge-manual.md").trim() !== text.trim()) {
+      fail("knowledge/knowledge-manual.md", "conflicts with the marked legacy knowledge/README.md. Preserve both and reconcile through project-sync.");
+    }
+  }
   filesChecked++;
   const actual = createHash("sha256").update(text).digest("hex");
   if (actual !== MANUAL_SHA256) {
-    fail("knowledge/README.md",
+    fail("knowledge/knowledge-manual.md",
       "does not match the toolkit's managed operating manual. Run project-sync"
       + " to review the difference and restore the managed copy.");
   }

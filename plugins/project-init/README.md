@@ -199,7 +199,7 @@ plugin.
   the work lives. No rule about ticket quality ships with it: the rule that used
   to, `spec-before-you-build.md`, was removed from the toolkit on 2026-08-31.
 - Gate 5 installs no general knowledge rule. Projects that accept Gate 3 receive
-  `knowledge/README.md` as the one routing and operating manual; projects that
+  `knowledge/knowledge-manual.md` as the one routing and operating manual; projects that
   decline it receive no knowledge policy.
 - An enabled System Guide adds one shared discovery line to `CLAUDE.md`; the
   System Guide plugin owns its configured Claude startup status and guide

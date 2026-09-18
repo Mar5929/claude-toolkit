@@ -18,9 +18,14 @@ when it is what the owner wants built, and edit the same file to `finalized`
 once the build is done and it describes what is actually there. Only a
 `finalized` PRD is settled truth; legacy `current` means finalized.
 
+During filename migration, if the canonical manual is absent, use
+`knowledge/README.md` only when it starts with the managed-manual marker.
+Report the legacy path for project-sync. Conflicting marked copies require
+reconciliation before policy-dependent work; never choose meaning silently.
+
 ## Read these first, every run
 
-`knowledge/README.md` is the manual. Read all of it. Every time. It does not
+`knowledge/knowledge-manual.md` is the manual. Read all of it. Every time. It does not
 matter how long the session has run or that you read it earlier.
 
 [`references/proposal-template.md`](references/proposal-template.md) is the shape

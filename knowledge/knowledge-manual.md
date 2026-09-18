@@ -13,7 +13,7 @@ REMEMBER THE GOAL OF LONG TERM MEMORY IS SO THE AI AGENT GETS PROGRESSIVELY SMAR
 The loader reads these files in order when present:
 
 1. `SOUL.md`: who the agent is in this project.
-2. `knowledge/README.md`: this operating manual.
+2. `knowledge/knowledge-manual.md`: this operating manual.
 3. `knowledge/project.md`: what the project is and where work is tracked.
 4. `knowledge/current.md`: disposable short-term work state.
 5. `knowledge/memory/memory-index.md`: one line per memory file.

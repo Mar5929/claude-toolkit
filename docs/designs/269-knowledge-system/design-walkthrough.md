@@ -113,7 +113,7 @@ The skill inspects the project, existing instructions/settings, installed plugin
 | --- | --- |
 | `SOUL.md` | The agent's responsibility in the Acme Corp consolidation |
 | `knowledge/project.md` | Project identity, real resources, tracker, owner, memory approval setting |
-| `knowledge/README.md` | Short operating map and links to detailed guidance |
+| `knowledge/knowledge-manual.md` | Short operating map and links to detailed guidance |
 | `knowledge/memory/current.md` | `# Current working memory`, project goal, active items, general to-dos |
 | `knowledge/memory-inbox.md` | Pending decisions and unfinished approved saves |
 | `knowledge/memory/memory-index.md`, `knowledge/prds/prd-index.md` | Generated maps to actual source documents |
@@ -176,7 +176,7 @@ knowledge detail and must not become a competing toolkit manual.
 
 **Trigger and files:** the proposed `SessionStart` adapter gives a compact
 ordered-read request for `SOUL.md`, `knowledge/project.md`, then
-`knowledge/README.md`, plus routes to current work, relevant inbox entries, the
+`knowledge/knowledge-manual.md`, plus routes to current work, relevant inbox entries, the
 glossary, and indexes. It reports that System Guide is not configured. The
 agent opens actual content; naming a path or printing a partial preview does
 not satisfy the read. Detailed sources remain on disk until relevant.
@@ -228,7 +228,7 @@ operating system methodologies, processes, and instructions. Know where the
 project files and folders live.” It asks the agent to evaluate the latest
 message and relevant conversation for additions, updates, corrections, removal,
 and every proper destination, including work records, an enabled System Guide,
-and `delivery/architecture/`. It links `knowledge/README.md` and the future
+and `delivery/architecture/`. It links `knowledge/knowledge-manual.md` and the future
 higher Toolkit Operating System manual without injecting either manual in full,
 then asks for an explicit acknowledgment of intent. The higher manual's path is
 the separate OS task's `docs/toolkit-manual.md` recommendation, not an approved

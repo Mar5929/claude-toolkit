@@ -40,7 +40,7 @@ harness machinery were deleted in favour of one read-only checker: that
 machinery was a large part of why saving cost more than it gave back.
 
 Cleaned up on 2026-08-22 for GitHub issue #219. The system now has one managed
-`knowledge/README.md` operating manual. Claude Code and Codex load it once with
+`knowledge/knowledge-manual.md` operating manual. Claude Code and Codex load it once with
 the same small project map. Root files, rules, hooks, and skills point to the
 manual instead of carrying policy copies.
 
@@ -125,7 +125,7 @@ running, `ask-before-assuming.md` and `follow-the-output-style.md`, were deleted
 from `.claude/rules/` and recorded in the "does not carry" table below. The
 rules indexes now log all six as removed by the owner. The
 `work-item-lifecycle` skill carries its lifecycle principle in its own words and
-points at `docs/designs/README.md` and `knowledge/README.md` instead of a rule
+points at `docs/designs/README.md` and `knowledge/knowledge-manual.md` instead of a rule
 file that no longer exists. None of the six were restored, and none should be.
 
 This repository is the toolkit. It now runs the toolkit on itself, the same way
@@ -153,7 +153,7 @@ what each one does, and which ones this repository does not carry.
 
 Two retired rules remain deliberately absent: `second-brain.md` and
 `wrap-up-ritual.md`. The current policy lives in
-`knowledge/README.md` and loads once at session start.
+`knowledge/knowledge-manual.md` and loads once at session start.
 
 Two more default-on rules were deliberately left out from the start:
 

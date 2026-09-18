@@ -94,7 +94,7 @@ try {
     assert.equal(systemGuideOffMessage(root), "");
     for (const absent of [
       "SOUL.md",
-      "knowledge/README.md",
+      "knowledge/knowledge-manual.md",
       "knowledge/memory",
       "knowledge/prds",
       ".claude",
@@ -121,10 +121,10 @@ try {
   check("knowledge checker accepts grouped finalized PRDs and legacy current PRDs", () => {
     const root = fixture();
     const manual = readFileSync(
-      resolve(repoRoot, "plugins/second-brain/skills/second-brain/references/templates/knowledge/README.md"),
+      resolve(repoRoot, "plugins/second-brain/skills/second-brain/references/templates/knowledge/knowledge-manual.md"),
       "utf8",
     );
-    write(root, "knowledge/README.md", manual);
+    write(root, "knowledge/knowledge-manual.md", manual);
     write(root, "knowledge/prds/with-group.md", [
       "---",
       "summary: A grouped PRD remains valid.",

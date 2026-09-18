@@ -22,7 +22,7 @@ a rename.
 SOUL.md                              who the agent is in this project
 
 knowledge/
-  README.md                          managed operating manual
+  knowledge-manual.md                managed operating manual
   project.md                         project framing and tracker location
   current.md                         short-term work state, overwritten
   memory-self-improvement.md         what the owner counts as memory-worthy
@@ -44,8 +44,8 @@ knowledge/
 ```
 
 The packaged source for the manual is
-`skills/second-brain/references/templates/knowledge/README.md`. Every equipped
-project receives it unchanged as `knowledge/README.md`. Setup and sync treat it
+`skills/second-brain/references/templates/knowledge/knowledge-manual.md`. Every equipped
+project receives it unchanged as `knowledge/knowledge-manual.md`. Setup and sync treat it
 as a managed copy, not project-authored knowledge.
 
 The fail-open startup hook loads `SOUL.md`, the manual, `knowledge/project.md`,
@@ -72,7 +72,7 @@ and disabling either plugin leaves the other's files and behavior intact.
 
 ## What owns what
 
-- `knowledge/README.md` owns all shared runtime policy, including placement,
+- `knowledge/knowledge-manual.md` owns all shared runtime policy, including placement,
   finding, saving, file shape, approval, trust, lifecycle, and the skill map.
 - `knowledge/prds/toolkit-operating-system/knowledge-system.md` in the toolkit
   repository is the build authority for maintainers. Adopting projects do not receive that file.

@@ -32,11 +32,12 @@ import {
   MANUAL_SHA256,
   checkKnowledge,
 } from "../plugins/second-brain/tools/check-knowledge.mjs";
+import { buildReminder } from "../plugins/second-brain/hooks/memory-reminder.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, "..");
-const manualSource = "plugins/second-brain/skills/second-brain/references/templates/knowledge/README.md";
-const manualCopy = "knowledge/README.md";
+const manualSource = "plugins/second-brain/skills/second-brain/references/templates/knowledge/knowledge-manual.md";
+const manualCopy = "knowledge/knowledge-manual.md";
 const proposalTemplate =
   "plugins/second-brain/skills/remember/references/proposal-template.md";
 const failures = [];
@@ -85,7 +86,7 @@ function handlers(configPath) {
 check("startup file order", () => {
   assert.deepEqual(STARTUP_FILES.map((item) => item.path), [
     "SOUL.md",
-    "knowledge/README.md",
+    "knowledge/knowledge-manual.md",
     "knowledge/project.md",
     "knowledge/current.md",
     "knowledge/memory/memory-index.md",
@@ -98,7 +99,7 @@ const fixture = mkdtempSync(join(tmpdir(), "knowledge-startup-check-"));
 try {
   const files = new Map([
     ["SOUL.md", "SOUL_SENTINEL"],
-    ["knowledge/README.md", "MANUAL_SENTINEL"],
+    ["knowledge/knowledge-manual.md", "<!-- claude-toolkit:knowledge-manual -->\nMANUAL_SENTINEL"],
     ["knowledge/project.md", "PROJECT_SENTINEL"],
     ["knowledge/current.md", "CURRENT_SENTINEL"],
     ["knowledge/memory/memory-index.md", "# ignored\n\n- MEMORY_SENTINEL\n  wrapped"],
@@ -134,23 +135,23 @@ try {
   });
 
   check("missing manual fails open", () => {
-    rmSync(resolve(fixture, "knowledge/README.md"));
+    rmSync(resolve(fixture, "knowledge/knowledge-manual.md"));
     const output = loadKnowledge(fixture);
-    assert.equal(count(output, "Project startup file missing: knowledge/README.md"), 1);
+    assert.equal(count(output, "Project startup file missing: knowledge/knowledge-manual.md"), 1);
     assert.ok(output.includes("Do not invent knowledge policy"));
     assert.ok(output.includes("PROJECT_SENTINEL"));
     assert.ok(output.includes("SPEC_SENTINEL"));
   });
 
   check("empty manual fails open", () => {
-    writeFileSync(resolve(fixture, "knowledge/README.md"), "");
+    writeFileSync(resolve(fixture, "knowledge/knowledge-manual.md"), "");
     const output = loadKnowledge(fixture);
-    assert.equal(count(output, "Project startup file empty: knowledge/README.md"), 1);
+    assert.equal(count(output, "Project startup file empty: knowledge/knowledge-manual.md"), 1);
     assert.ok(output.includes("CURRENT_SENTINEL"));
   });
 
   check("an empty index is a valid fresh project", () => {
-    writeFileSync(resolve(fixture, "knowledge/README.md"), "MANUAL_SENTINEL");
+    writeFileSync(resolve(fixture, "knowledge/knowledge-manual.md"), "<!-- claude-toolkit:knowledge-manual -->\nMANUAL_SENTINEL");
     writeFileSync(
       resolve(fixture, "knowledge/memory/memory-index.md"),
       "# What this project knows\n\nNothing saved yet.\n",
@@ -187,7 +188,7 @@ check("short root fallback", () => {
   // file carrying the knowledge route. AGENTS.md must still send a Codex
   // session there, because Codex expands no import syntax.
   const claude = rootKnowledgeSection("CLAUDE.md");
-  assert.ok(claude.includes("knowledge/README.md"));
+  assert.ok(claude.includes("knowledge/knowledge-manual.md"));
   assert.ok(claude.includes("once"));
   assert.ok(claude.includes("not already in this session"));
   assert.ok(claude.includes("continue and report it"));
@@ -198,6 +199,78 @@ check("short root fallback", () => {
   assert.ok(/CLAUDE\.md/.test(codex), "AGENTS.md must point a Codex session at CLAUDE.md");
   assert.ok(codex.split("\n").length === 1, "AGENTS.md must stay one pointer line");
   assert.ok(!codex.includes("@CLAUDE.md"), "Codex expands no import syntax");
+});
+
+check("manual rename preserves legacy access without choosing conflicting policy", () => {
+  const project = mkdtempSync(join(tmpdir(), "knowledge-manual-rename-"));
+  const canonical = resolve(project, "knowledge/knowledge-manual.md");
+  const legacy = resolve(project, "knowledge/README.md");
+  const marker = "<!-- claude-toolkit:knowledge-manual -->";
+  const current = `${marker}\nknowledge/knowledge-manual.md\nPOLICY_SENTINEL\n`;
+  const old = current.replaceAll("knowledge/knowledge-manual.md", "knowledge/README.md");
+  try {
+    mkdirSync(dirname(canonical), { recursive: true });
+    writeFileSync(legacy, old);
+    assert.equal(count(loadKnowledge(project), "POLICY_SENTINEL"), 1);
+    assert.ok(buildReminder(project).includes("knowledge/README.md"));
+    assert.ok(checkKnowledge(project).problems.length > 0, "legacy path needs migration");
+    assert.equal(readFileSync(legacy, "utf8"), old);
+
+    writeFileSync(canonical, current);
+    assert.equal(count(loadKnowledge(project), "POLICY_SENTINEL"), 1);
+    assert.ok(buildReminder(project).includes("knowledge/knowledge-manual.md"));
+
+    writeFileSync(legacy, `${old}CONFLICTING_POLICY\n`);
+    assert.ok(!loadKnowledge(project).includes("POLICY_SENTINEL"));
+    assert.ok(!buildReminder(project).includes("Project knowledge is active"));
+    assert.ok(checkKnowledge(project).problems.length > 0);
+    assert.equal(readFileSync(canonical, "utf8"), current);
+    assert.equal(readFileSync(legacy, "utf8"), `${old}CONFLICTING_POLICY\n`);
+
+    writeFileSync(legacy, "# Folder index\nUNRELATED_README\n");
+    assert.equal(count(loadKnowledge(project), "POLICY_SENTINEL"), 1);
+    assert.ok(!loadKnowledge(project).includes("UNRELATED_README"));
+    assert.ok(buildReminder(project).includes("knowledge/knowledge-manual.md"));
+    rmSync(canonical);
+    assert.ok(!loadKnowledge(project).includes("UNRELATED_README"));
+    assert.equal(buildReminder(project), "");
+    rmSync(legacy);
+    assert.equal(buildReminder(project), "");
+
+    writeFileSync(canonical, read(manualSource));
+    assert.deepEqual(checkKnowledge(project).problems, []);
+    assert.ok(buildReminder(project).includes("knowledge/knowledge-manual.md"));
+    mkdirSync(legacy);
+    assert.ok(loadKnowledge(project).includes("<!-- claude-toolkit:knowledge-manual -->"));
+    assert.ok(buildReminder(project).includes("Project knowledge is active"));
+    assert.ok(checkKnowledge(project).problems.length > 0,
+      "unreadable legacy path should be diagnosed without throwing");
+  } finally {
+    // This exact directory was created under the system temp directory above.
+    rmSync(project, { recursive: true, force: true });
+  }
+});
+
+check("copied startup bundle runs outside the plugin source tree", () => {
+  const project = mkdtempSync(join(tmpdir(), "knowledge-copied-startup-"));
+  try {
+    mkdirSync(resolve(project, ".claude/hooks"), { recursive: true });
+    mkdirSync(resolve(project, "knowledge"));
+    for (const name of ["knowledge-session-start.mjs", "memory-reminder.mjs"]) {
+      writeFileSync(resolve(project, ".claude/hooks", name), read(`.claude/hooks/${name}`));
+    }
+    writeFileSync(resolve(project, "knowledge/knowledge-manual.md"), read(manualSource));
+    const output = execFileSync(process.execPath,
+      [resolve(project, ".claude/hooks/knowledge-session-start.mjs")], {
+        cwd: project, encoding: "utf8",
+        env: { ...process.env, CLAUDE_PROJECT_DIR: project, CODEX_PROJECT_DIR: project },
+      });
+    assert.equal(count(output, "<!-- claude-toolkit:knowledge-manual -->"), 1);
+    assert.ok(output.includes("knowledge/knowledge-manual.md"));
+  } finally {
+    // This exact directory was created under the system temp directory above.
+    rmSync(project, { recursive: true, force: true });
+  }
 });
 
 check("manual size, markers, copy, and checksum", () => {
@@ -308,7 +381,7 @@ check("checker catches a missing or changed managed manual", () => {
     mkdirSync(resolve(project, "knowledge"), { recursive: true });
     let result = checkKnowledge(project);
     assert.ok(result.problems.some((problem) => problem.includes("is missing")));
-    writeFileSync(resolve(project, "knowledge/README.md"), "changed\n");
+    writeFileSync(resolve(project, "knowledge/knowledge-manual.md"), "changed\n");
     result = checkKnowledge(project);
     assert.ok(result.problems.some((problem) =>
       problem.includes("does not match the toolkit's managed operating manual")));
@@ -347,7 +420,7 @@ for (const [name, status, approval, body, error] of approvalCases) {
       const memory = status === "memory";
       const folder = resolve(project, "knowledge", memory ? "memory" : "prds");
       mkdirSync(folder, { recursive: true });
-      writeFileSync(resolve(project, "knowledge/README.md"), read(manualSource));
+      writeFileSync(resolve(project, "knowledge/knowledge-manual.md"), read(manualSource));
       const fields = memory ? "type: fact\nconfidence: observed\n" : "area: example\n";
       const document = `---\nsummary: A small example.\n${fields}`
         + `status: ${memory ? "current" : status}\nsource: Owner request\n`
@@ -406,7 +479,7 @@ check("no second policy owner", () => {
 
 check("the per-prompt reminder stays a pointer", () => {
   const source = read("plugins/second-brain/hooks/memory-reminder.mjs");
-  assert.ok(source.includes("knowledge/README.md"),
+  assert.ok(source.includes("knowledge/knowledge-manual.md"),
     "the reminder does not name the manual");
   assert.ok(source.includes("<!-- claude-toolkit:knowledge-manual -->"),
     "the reminder does not gate on the managed manual marker");
