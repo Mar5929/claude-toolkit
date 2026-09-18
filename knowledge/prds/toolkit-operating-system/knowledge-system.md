@@ -2,7 +2,7 @@
 summary: What the project second brain must do. Every new session already knows what has been going on in this project. Saving something worth keeping takes one short yes from the owner.
 area: knowledge-system
 status: proposed
-source: Owner requirements interview for GitHub issue #269, with clarification on parallel sessions, sustained guidance, and knowledge lookup on 2026-09-10. Replaces the earlier 2026-08 build-plan version
+source: Owner requirements interview for GitHub issue #269, including the 2026-09-18 request for approved saves to run through a helper while conversation continues, and the explicit ban on jargon and figurative language in memory and proposals. Replaces the earlier 2026-08 build-plan version
 created_at: 2026-08-21
 confirmed_at: 2026-09-15
 tags: [knowledge-system, memory, prds, second-brain, schema, requirements, solution-philosophy, high-level-architecture]
@@ -130,7 +130,7 @@ is wrong.
 - The status is `proposed`. This document describes the finished system. It does not describe how the system works today.
 - The numbered requirements say what must happen, what the owner sees, the rules for the process and for decisions, and the required data model, which means what information is stored and in which fields. A closing section keeps preferred design directions and examples separate from the requirements. Detailed choices about how to build it, and build plans, belong with the work item.
 - This document holds the goal, the requirement, and the behavior. Each requirement is written clearly enough that a builder can design from it without guessing the intended behavior. The solution design may choose among different ways to meet the same requirement; this document does not choose how it gets built.
-- When the owner has already allowed the agent to keep refining this document, and he then gives a clear answer or correction, the agent writes it here in that same reply, under requirement 10. It is never recorded on an issue instead, because an issue comment gets lost and this document then never gets updated.
+- When the owner has already allowed the agent to keep refining this document, and he then gives a clear answer or correction, the agent records the correction and starts saving it here in that same reply, under requirements 9 and 10. This PRD remains the final destination; a pending record or issue comment never substitutes for completing its update.
 - Mike authorized ongoing refinement of this PRD and approved the drafting-permission rule in requirement 10 on 2026-09-10. That permission covers faithful capture of his answers and corrections; it does not approve every requirement, a solution design, or implementation.
 - Requirement 3 says what reliable behavior has to produce, and what evidence proves it. The solution design chooses how the harness's documented features deliver those outcomes, and it names any limits.
 - "A session, start to finish" follows one session through every requirement, so the numbered list is easier to follow.
@@ -461,7 +461,7 @@ continuity working on every harness the toolkit supports, under requirement 25.
 
 ## 1. Plain parts only
 
-- Every piece of knowledge this system keeps is a plain text file in this repository, and those files are the only copy. No database. No background writer. No separate store the owner cannot open.
+- Every piece of knowledge this system keeps is a plain text file in this repository, and those files are the only copy. No database or separate store the owner cannot open. No independent background process decides what to save. A helper may execute an already-authorized save under requirement 9 while the main conversation continues.
 - Built from what Claude Code already ships: rules, hooks, skills, Markdown files, and Git. Nothing else.
 - Reuse the toolkit parts that already exist, and the features the harness's own documentation describes, before building anything new. Anything new must name the requirement that no existing part can meet. The knowledge system does not add another work tracker, and it does not become a second owner of content that another part of the toolkit already owns.
 - The owner can read, edit, move, or delete knowledge files by hand. The agent respects the resulting content rather than silently undoing the owner's changes.
@@ -689,9 +689,44 @@ original source or states what could not be verified.
 - When approved, memory or PRDs are saved directly to the default branch and pushed!!! They are not left sitting on a worktree branch, and they are not put anywhere a future agent would have trouble finding.
 - A save is finished only when the file is on the default branch and pushed, and not before.
 - An approved knowledge save is never put off into a feature branch, a pull request, or a separate draft. That holds even when the session is doing its other work on a branch. The save still goes straight to the default branch. The session's own branch gets the saved file later, whenever someone merges or pulls the default branch into it. The pending inbox in requirement 28 preserves unanswered proposals and interrupted saves; it never replaces completing an approved save.
-- One yes is the end of the owner's part for a save that needed a proposal. He runs no Git command, and he does nothing else. Complete the authorized save and publication as part of that response. During an interview, save a settled decision before asking the next question, without asking for the same permission again. If the save cannot finish, preserve the decision as unfinished under requirement 28, report the problem, and continue only work that can safely proceed under requirement 3. The owner never has to repeat the decision or manage the retry. Routine PRD upkeep needs no separate success message under requirement 16.
-- If the push fails, the agent says so in that same reply, and the save is not finished. Requirement 3 sets out what pauses and what can carry on. Nothing is ever left unfinished without saying so.
+- One yes is the end of the owner’s part for a save that needed a proposal. He runs no Git command and does not manage a helper or a retry. After approval, the main agent promptly hands the save to a helper that can work while the conversation continues. During an authorized interview, record the settled decision and its permission for recovery, start the save, and continue to the next independent question without waiting for publication. Work that needs the published result waits for that result under requirement 3. Routine PRD upkeep keeps requirement 16’s quiet completion rule.
+- The main agent remains responsible for receiving the helper’s result and reporting a failure promptly when it becomes known. Starting a helper is not a completed save. If writing, checking, or pushing fails, preserve the approved change and the exact unfinished step under requirement 28, and report what remains. Requirement 3 sets out what pauses and what can carry on.
 - Finished knowledge has one home that owns it. Unfinished proposals have one known inbox, which agents keep up to date and pick up from on their own, so the owner never has to remember where a proposal was left.
+
+### Approved saves while the conversation continues
+
+The main agent checks relevance, destination, sources, and existing records,
+then prepares the short, clear proposal under requirements 15 and 20. These
+steps finish before approval. The helper executes the agreed change; it does
+not select new memories, broaden the permission, or approve its own additions.
+
+Before handing off, keep the approved meaning, destination, operation, sources,
+and permission in the existing pending record under requirement 28. Give the
+helper that record and the applicable save and writing instructions. Preserve
+wording the owner asked to keep exactly. Do not rely on the helper’s private
+context as the only record of an unfinished save.
+
+The helper reads the latest destination, applies the approved change, checks
+the actual saved text and file, and completes the existing publication process.
+It returns the verified result or the unfinished step to the main agent. The
+main agent checks that result before saying the save finished. A conflict that
+would change approved meaning comes back for a decision; the helper does not
+resolve it by inventing consent. Separate saves must preserve each other’s edits
+and must not apply the same approval twice.
+
+The conversation continues while that work runs. Report completion briefly when
+required by the destination’s rules; avoid repeated progress messages. If the
+host cannot run a helper alongside the conversation or return its result,
+report that limitation and finish the save through the available process. Do
+not claim background execution that the host cannot provide. The design must
+verify this behavior separately on each supported host.
+
+**Check:** approve a proposal, then immediately ask an unrelated question. The
+main agent answers while the helper saves. Delay or fail the push: no premature
+“saved” claim appears, and the pending approval survives interruption. Resume
+in a fresh session and finish once without renewed approval. Repeat with two
+approved saves editing the same topic and with a conflicting later decision:
+no edit or approval is lost, and changed meaning is returned for a decision.
 
 The existing `.claude/rules/knowledge-direct-commit.md` owns the procedure for
 publishing authorized knowledge saves to the default branch. The inbox adds
@@ -700,21 +735,23 @@ recovery of pending proposals without creating another publication procedure.
 **Check:** finish meaningful work with nothing new worth saving. The agent
 performs the review without adding a no-save announcement. Finish work with a
 qualifying candidate needing approval: the agent shows its card.
-With a successful save, one word of approval writes the file, and before the
-reply ends the file is on the default branch and pushed. Nothing else is asked
-of the owner. If the save fails, the agent identifies the unfinished save and
-follows requirement 3; it never claims that no save is waiting.
+With a successful save, one word of approval starts the helper’s work. The owner
+can continue an unrelated discussion before publication finishes. The save is
+reported complete only after checks and verified publication to the default
+branch. Nothing else is asked of the owner. If the save fails, the main agent
+identifies the unfinished save and follows requirement 3.
 
 **Check:** during an authorized interview, settle a requirement. The agent
-saves and publishes the decision before asking the next question without a
-second permission request. Interrupt publication: the decision remains
-recoverable as unfinished, the owner hears what failed, and unrelated work
-may continue. Recovery never asks the owner to repeat the decision.
+records the decision and existing permission for recovery, starts its save,
+and asks the next independent question without another permission request or
+waiting for publication. Interrupt publication: the decision remains
+recoverable, the owner hears what failed, and unrelated work may continue.
+Recovery never asks the owner to repeat the decision.
 
 ## 10. Approval before any write
 
 - Every write to a memory file or a PRD needs permission that covers that change. The permission may be the owner approving this save outright, permission already given to refine a PRD, the ongoing permission in requirement 16 to update PRDs after work ships, or the owner's per-project choice to turn the approval step off for writes to memory, described below. Otherwise, a separate proposal to save lasting memory still needs the standard card and the owner's approval.
-- Approval already given for drafting or refining a named PRD covers writing down the owner's clear answers and corrections accurately, as long as they fall inside that scope. Save those in the same reply, without asking him to approve his own instruction a second time. The normal rules about where the text goes, how it is checked, and how it is published still apply.
+- Approval already given for drafting or refining a named PRD covers writing down the owner's clear answers and corrections accurately, as long as they fall inside that scope. Record and start saving those in the same reply under requirement 9, without asking him to approve his own instruction a second time. The normal rules about where the text goes, how it is checked, and how it is published still apply.
 - If the owner's words are ambiguous, clarify the meaning before changing the requirement. A new requirement the agent invents or recommends needs the owner's agreement before it becomes a requirement in the draft. Drafting permission does not approve that new meaning.
 - A separate lasting-memory proposal still uses the standard card and approval, even when it arose during an authorized PRD interview. Drafting or saving permission does not approve the requirements as a whole, a solution design, or implementation. Requirement 16 defines what a PRD's approval fields mean.
 - Record the drafting permission in the one official draft, or in the work record it links to: who gave the permission, where it came from, its date, and what it covers. A later session reads that record and keeps working under the same permission while it still applies. It does not ask again just because the session or the model changed, and it never widens the recorded scope.
@@ -747,7 +784,7 @@ explicit instruction to save supplied wording verbatim: those words stay
 unchanged. Edit a proposal without clear approval: it remains pending.
 
 **Check:** authorize refinement of a named PRD, then give a clear correction.
-The correction is saved in that reply without a new approval question. Start
+The correction is recorded for recovery and its save starts in that reply without a new approval question. Start
 a fresh session: it finds the recorded permission and handles another in-scope
 correction the same way. Give an ambiguous answer: it asks for clarification.
 Let the agent recommend a new requirement or identify a separate memory: it
@@ -1093,11 +1130,24 @@ This applies to every memory file, every PRD, and every card. The reader is a
 stranger: an agent with no context, or the owner a year from now. He is not
 technical.
 
-- Plain, clear, everyday words. No AI jargon, no toolkit vocabulary the reader was never given, no figures of speech, no idioms.
+- Memory text and save proposals use plain, clear, everyday words. They must contain no jargon, figures of speech, figurative language, metaphors, or idioms. This applies to titles, summaries, explanations, and saved prose. Use the actual names of people, systems, files, and fields; explain a necessary exact technical name in ordinary words rather than replacing it with a metaphor. PRDs follow the same plain-language rule and the technical-term guidance below.
 - As short as it can be without dropping anything a future agent needs. Every sentence has to be needed. If removing it loses nothing, remove it.
 - Accuracy before completeness. One wrong sentence makes the whole file untrustworthy, because a later agent acts on it. Settle anything uncertain that would change a proposed save before showing its card, under requirement 20. A guess is never written down as a fact.
 - Concrete, not abstract: the real name, the real value, the real path, the real date. Write the full date, never "last week". Name the system or the organization every time. When something was left undone, say so.
 - Nothing that points at a conversation the reader cannot see. No "as discussed", no "per our call".
+
+Check the proposal’s language before showing it to the owner, and check the
+actual saved text before declaring the save complete. These are meaning and
+writing reviews, not just a list of forbidden words. A helper follows the same
+rule. If supplied wording that must be preserved exactly conflicts with this
+rule, resolve that conflict before approval; never silently rewrite an approved
+quotation or use it as permission to add figurative prose.
+
+**Check:** propose and save a memory whose rough notes use “source of truth,”
+“guardrails,” and unexplained specialist terms. The proposal and saved memory
+state the actual responsibility, check, or fact in ordinary words. Neither
+contains jargon or figurative language, and neither loses the approved meaning.
+Repeat with helper execution: the final saved text passes the same review.
 
 The body follows the flexible template in requirement 14. The list below is
 what to think about including, not a set of headings the file must have:
@@ -1347,7 +1397,7 @@ the agent does not turn it into an approved requirement or fact.
 
 Keep each requirement in one document responsible for the behavior it describes. Use the parent PRD for requirements that span the whole area or define how its parts work together. Keep a component's detailed requirements in that component's PRD, even when other components use them. Other affected records refer to the owning requirement rather than repeating it. Split a statement when it contains different kinds of information or separately owned requirements.
 
-When a settled decision changes required behavior, identify and reconcile the affected requirements and references during the same save flow, including during refinement and design. Complete writes already covered by the owner's permission before moving to the next question. If permission does not cover an affected destination or the broader meaning is uncertain, explain the specific unresolved change and ask only for that decision. Do not broaden an item-specific choice, change other projects, or start implementation without the authority those actions require.
+When a settled decision changes required behavior, identify and reconcile the affected requirements and references during the same save flow, including during refinement and design. Start writes already covered by the owner’s permission through requirement 9’s save process. Continue to independent questions while the save runs; wait when the next step depends on the completed update. If permission does not cover an affected destination or the broader meaning is uncertain, explain the specific unresolved change and ask only for that decision. Do not broaden an item-specific choice, change other projects, or start implementation without the authority those actions require.
 
 The owning record preserves the source of the decision, its relevant date, and its actual approval state. The originating work item links to that record and keeps the work, discussion, and delivery evidence. A requirement update is not evidence that the implementation has changed. Any implementation still owed remains with the chosen work tracker. Unfinished knowledge saves follow requirement 28.
 
@@ -1755,6 +1805,7 @@ to repeat a decision just because the session changed.
 ### How agents use it
 
 - The small knowledge map names the inbox, says what it is for, and gives its rules. At the start of a session, after context has been recovered, and at a handoff, agents check what is pending, without loading every proposal into every session. Open the entry that matters when picking a save back up, or when going through it with the owner.
+- A save delegated under requirement 9 stays `approved, save unfinished` until its publication is verified. Keep enough information in this entry to identify the executing helper and recover after it or the main session stops; do not create another pending-save store. Before a retry, check whether the original helper is still executing and whether the change already landed. The main agent remains responsible for collecting the result or arranging recovery.
 - Before editing this shared file, reread it and preserve other sessions' entries and changes. Concurrent sessions must not lose proposals, duplicate the same proposal, or apply the same approved save twice.
 - Anything pending is clearly labelled with whether it is approved and whether its save finished, and it is kept out of the memory and PRD indexes. Sitting in the inbox never turns it into a fact, a requirement, a preference, or an instruction. Requirement 19 governs any use of its original source as evidence.
 - An unanswered card remains available automatically, including across sessions and context clears. Silence, age, and a session ending neither approve nor reject it. Do not repeat the unchanged card every turn. When work is handed over, or when it otherwise becomes relevant, say briefly what is still pending; show the card again when the owner reviews pending items, or when new information means he has to decide.
