@@ -22,14 +22,14 @@ converting a second-brain layout.
 
 `knowledge/prds/toolkit-operating-system/knowledge-system.md` in the toolkit
 repository is the design authority. It is not installed into projects. The managed
-`knowledge/README.md` template is the portable operating manual.
+`knowledge/knowledge-manual.md` template is the portable operating manual.
 
 ## What gets installed
 
 ```text
 SOUL.md                            who the agent is here
 knowledge/
-  README.md                        managed operating manual
+  knowledge-manual.md              managed operating manual
   project.md                       what the project is and where work is tracked
   current.md                       short-term working memory, overwritten
   memory-self-improvement.md       what the owner counts as memory-worthy
@@ -61,7 +61,8 @@ Look before doing anything. There is no detector script: read the folder.
 | What you see | What it is |
 |---|---|
 | No second-brain signatures after excluding `.system-guide.json` and its configured guide tree | **New.** Offer the full setup. A guide-only `knowledge/system/` tree still belongs in this row. |
-| `knowledge/README.md` starts with `<!-- claude-toolkit:knowledge-manual -->`, both flat folders and indexes exist, and any saved files use current frontmatter | **Current.** This includes a fresh setup with no saved files. Audit what is missing, convert nothing. |
+| Only `knowledge/README.md` has the managed-manual marker | **Legacy manual filename.** Preserve its contents and migrate through the procedure below; this is not a memory-layout conversion. |
+| `knowledge/knowledge-manual.md` starts with `<!-- claude-toolkit:knowledge-manual -->`, both flat folders and indexes exist, and any saved files use current frontmatter | **Current.** This includes a fresh setup with no saved files. Audit what is missing, convert nothing. |
 | The flat folders and indexes have current signatures, but the managed manual is missing | **Partial current.** Offer to restore the manual; do not convert approved files. |
 | `knowledge/memory/` with subfolders like `context/`, `decisions/`, `domain/` | **Older layout.** Offer the conversion below. |
 | `knowledge/memory/tags.md`, or frontmatter with `source: owner-paraphrase` and `session:` | **Older layout.** Same. |
@@ -71,8 +72,37 @@ Look before doing anything. There is no detector script: read the folder.
 
 ## New project setup
 
+### Manual filename migration
+
+The canonical operating manual is `knowledge/knowledge-manual.md`. Before
+copying templates or declaring the manual missing, inspect both that path and
+`knowledge/README.md`. Only `<!-- claude-toolkit:knowledge-manual -->` at the
+start identifies a managed manual. An unrelated README remains untouched.
+
+- If only the marked legacy manual exists, perform the authorized filename
+  migration by moving it to the canonical path, preserving its content and
+  customizations. Update self-references and live routes only. Show any policy
+  difference from the packaged template separately; never replace customized
+  policy merely to make a filename migration or checker pass.
+- If the canonical manual exists, use it. If a marked legacy manual also exists,
+  compare after normalizing line endings and the old/new self-path. Identical
+  content needs only an authorized duplicate cleanup. Conflicting content means
+  preserve both and ask which meaning should survive before replacing either.
+  Runtime adapters report that conflict and withhold manual policy meanwhile.
+- If the canonical file is unmarked, preserve it and resolve that collision
+  before installation. If neither path is a marked manual, distinguish an
+  equipped project needing repair from a project that never enabled knowledge.
+- Update installed hooks/tools together and verify both host routes. Until sync,
+  new startup/reminder code can read the marked legacy manual when the canonical
+  file is absent. The checker still reports migration unfinished. An optional
+  README folder index may remain, but it must be unmarked and point to the
+  canonical manual without duplicating its policy. Preserve frozen historical
+  references; do not rewrite history to conceal the old filename.
+
+### Install a new project
+
 1. Show the tree above and get approval for the whole thing before writing.
-2. Copy `references/templates/` into place. `knowledge/README.md` is a managed
+2. Copy `references/templates/` into place. `knowledge/knowledge-manual.md` is a managed
    exact copy, not project-authored knowledge.
 3. Write the real `SOUL.md` and `knowledge/project.md` with the owner. What the
    project is, why it exists, what finished looks like, its boundaries, who is
@@ -193,6 +223,7 @@ project's Git workflow owns all of that.
 - Do not commit a generated report. The indexes are the only generated files
   that belong in Git.
 - Do not create per-folder README files or a nested instruction file inside
-  the second brain's part of `knowledge/`, except the managed root
-  `knowledge/README.md` manual. README files and layer folders inside a
+  the second brain's part of `knowledge/`. Its operating manual is
+  `knowledge/knowledge-manual.md`; one unmarked root README index may point there
+  for compatibility without copying policy. README files and layer folders inside a
   configured System Guide belong to that plugin and stay untouched.

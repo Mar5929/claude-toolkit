@@ -224,7 +224,7 @@ claude-toolkit/
     tools/                        ← installed index builder and knowledge checker
     toolkit-sync.md               ← what was set up, skipped, or declined, and why
   knowledge/                      ← this repo's Markdown knowledge vault
-    README.md                     ← managed operating manual loaded once
+    knowledge-manual.md           ← managed operating manual loaded once
     .obsidian/                    ← portable link settings only
     project.md                    ← short project framing loaded at startup
     current.md                    ← short-term work state, overwritten
@@ -284,7 +284,7 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
 
 - [x] **Project knowledge package**: one portable Markdown knowledge vault under
   `knowledge/`, shared by Claude, Codex, Git, and optional Obsidian. One managed
-  `knowledge/README.md` owns the operating policy. The startup hook loads it
+  `knowledge/knowledge-manual.md` owns the operating policy. The startup hook loads it
   once with SOUL, project framing, current work, and the two generated indexes.
   Flat memory holds one file per topic, specifications hold approved behavior,
   and brainstorms stay unchecked. The focused skills point to the manual and

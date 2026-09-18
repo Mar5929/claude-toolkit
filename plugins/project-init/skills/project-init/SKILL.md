@@ -269,7 +269,7 @@ source evidence separate from owner-approved meaning, normally under
 
 **Project knowledge.** Offer the `second-brain` plugin as its own choice.
 
-- Explain that the managed `knowledge/README.md` is the one operating manual.
+- Explain that the managed `knowledge/knowledge-manual.md` is the one operating manual.
   It owns placement, finding, saving, file shape, approval, trust, lifecycle,
   and the skill map. Other runtime files point to it instead of copying policy.
 - Ask the owner for the real framing in `knowledge/project.md`: what the project

@@ -13,9 +13,14 @@ description: >-
 # recall
 
 Use the find order, trust rules, and conflict behavior in
-`knowledge/README.md`. Reopen those sections after compaction when needed. If
+`knowledge/knowledge-manual.md`. Reopen those sections after compaction when needed. If
 the manual is missing, report that the knowledge policy is unavailable and do
 not invent one.
+
+During filename migration, if the canonical manual is absent, use
+`knowledge/README.md` only when it starts with the managed-manual marker.
+Report the legacy path for project-sync. Conflicting marked copies require
+reconciliation before policy-dependent work; never choose meaning silently.
 
 ## Search
 

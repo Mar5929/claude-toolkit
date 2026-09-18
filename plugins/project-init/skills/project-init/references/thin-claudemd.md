@@ -54,7 +54,7 @@ Source: https://code.claude.com/docs/en/memory
   Git-ignored because that fact explains why it has no commit or push.
 - **Where something came from or when it arrived.** Git history owns that.
 - **Current status, next action, or open work.** The tracker owns that.
-- **What `knowledge/` contains.** Its `README.md` owns that.
+- **What `knowledge/` contains.** Its `knowledge-manual.md` owns that.
 
 ## The fixed lines above the title
 
@@ -79,14 +79,14 @@ session.` When project knowledge is installed, its startup hook already loads
 
 When Gate 3 ran, use this wording and no more:
 
-> The startup hook loads `SOUL.md`, then `knowledge/README.md` once, then
+> The startup hook loads `SOUL.md`, then `knowledge/knowledge-manual.md` once, then
 > `knowledge/project.md`, `knowledge/current.md`, and the two knowledge indexes.
 > If that map is not already in this session, read those files once in that
-> order. If a file is missing, continue and report it. `knowledge/README.md`
+> order. If a file is missing, continue and report it. `knowledge/knowledge-manual.md`
 > wins when project-knowledge instructions disagree.
 
 Do not copy the save policy, the routing table, or the knowledge specification
-into the root file. `knowledge/README.md` owns those.
+into the root file. `knowledge/knowledge-manual.md` owns those.
 
 ## The System Guide fallback route
 
@@ -114,7 +114,7 @@ no tracker, or a different tracker, gets no `.work-items/` row.
 | Path | How updates land | Instructions |
 | --- | --- | --- |
 | Project documentation (use actual paths from the codemap) | Authorized documentation-only updates use the direct publication route. | `.claude/rules/knowledge-direct-commit.md` |
-| `knowledge/` | Follow the knowledge manual for content approval, then the documentation publication route. | `knowledge/README.md` and `.claude/rules/knowledge-direct-commit.md` |
+| `knowledge/` | Follow the knowledge manual for content approval, then the documentation publication route. | `knowledge/knowledge-manual.md` and `.claude/rules/knowledge-direct-commit.md` |
 | `.work-items/` | Update the existing shared, Git-ignored local tracker. Do not create a worktree, commit, or push for the tracker update. | `.claude/rules/work-item-folders.md` and the `work` skill |
 ```
 

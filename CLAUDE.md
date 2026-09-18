@@ -13,10 +13,10 @@ here, and they are in force for the whole session.
 
 ## Project knowledge
 
-The startup hook loads `SOUL.md`, then `knowledge/README.md` once, then
+The startup hook loads `SOUL.md`, then `knowledge/knowledge-manual.md` once, then
 `knowledge/project.md`, `knowledge/current.md`, and the two knowledge indexes.
 If that map is not already in this session, read those files once in that order.
-If a file is missing, continue and report it. `knowledge/README.md` wins when
+If a file is missing, continue and report it. `knowledge/knowledge-manual.md` wins when
 project-knowledge instructions disagree.
 
 ## Codemap
@@ -27,7 +27,7 @@ project-knowledge instructions disagree.
 | `docs/toolkit-map.md` | The cross-cutting catalog: what every plugin and skill is, how they relate, and what looks redundant but is not. Open it to answer "does this already exist somewhere?". Detail: `docs/CLAUDE.md`. |
 | `docs/designs/` | The build plan for one work item: how each approved requirement is met, which files change, how it is tested, in what order. One file per issue, written at stage `04` and deleted at stage `14`. Open it when building or reviewing that item. Detail: `docs/designs/README.md`. |
 | `.claude-plugin/marketplace.json` | Registers every plugin for Claude Code. `.agents/plugins/marketplace.json` does the same for Codex. Update both when adding or renaming a plugin. |
-| `knowledge/` | What this project decided and why: PRDs, memory, current state, raw brainstorms. A PRD is one living document per feature area, holding its requirements first and its settled behavior after the build. The routing table in its `README.md` says which goes where. |
+| `knowledge/` | What this project decided and why: PRDs, memory, current state, raw brainstorms. A PRD is one living document per feature area, holding its requirements first and its settled behavior after the build. The routing table in `knowledge/knowledge-manual.md` says which goes where. |
 | `.claude/rules/knowledge-direct-commit.md` | Publication route for authorized documentation updates in `knowledge/`, `docs/`, and README files; defines eligibility, checks, and the implementation boundary. |
 | `tests/` | Four Node checks, run by hand before every pull request. Detail: `tests/CLAUDE.md`. |
 | `.claude/` | What this repo runs on itself: the rule copies, installed hooks and tools, settings, and the setup record in `toolkit-sync.md`. |
@@ -43,7 +43,7 @@ of files it also ships. Change the shipped original, not the copy.
 | --- | --- | --- |
 | `node tests/link-check.mjs`, `tests/orphan-check.mjs`, `tests/installed-copy-check.mjs`, `tests/knowledge-startup-check.mjs` | The four checks. Run all four before every pull request. | `tests/CLAUDE.md` |
 | `claude plugin validate .` | Must pass, because `main` is what every machine installs from. | `plugins/CLAUDE.md` |
-| `node .claude/tools/build-knowledge-index.mjs` | Rebuilding the two generated knowledge indexes. Run it again after bringing a branch current: Git merges those two files with no reported conflict and still leaves them wrong. | `knowledge/README.md` |
+| `node .claude/tools/build-knowledge-index.mjs` | Rebuilding the two generated knowledge indexes. Run it again after bringing a branch current: Git merges those two files with no reported conflict and still leaves them wrong. | `knowledge/knowledge-manual.md` |
 | `gh` (GitHub CLI) | Reading and writing issues on the board named below. | |
 | `/project-sync` and `/machine-sync` | Rolling a merged change into a project, or onto a computer. Pushing to GitHub propagates nothing on its own. | `plugins/project-init/README.md` |
 

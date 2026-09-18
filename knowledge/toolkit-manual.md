@@ -63,9 +63,9 @@ The main areas contribute different kinds of context:
 - **Working instructions:** [.claude/rules/](../.claude/rules/README.md)
   holds standing rules. Skills supply procedures when the task needs them.
   Host configuration connects installed capabilities to a session.
-- **Knowledge:** [knowledge/README.md](README.md) explains the knowledge
+- **Knowledge:** [knowledge/knowledge-manual.md](knowledge-manual.md) explains the knowledge
   subsystem. Requirements and lasting project context have their own homes
-  beneath `knowledge/`. Its [routing policy](README.md#put-information-in-one-place)
+  beneath `knowledge/`. Its [routing policy](knowledge-manual.md#put-information-in-one-place)
   owns the detailed decisions about where information belongs.
 - **Work records and designs:** the chosen tracker holds each item's working
   record. Here, that tracker is GitHub, and [docs/designs/](../docs/designs/README.md)
@@ -210,7 +210,7 @@ working equivalents for each equipped project.
 | Project setup and sync | Select components and keep their project instructions connected | [Project-init](../plugins/project-init/README.md) |
 | Guided work | Connect requests, plans, tasks, requirements, design, and review | [Session skills](../plugins/session-skills/README.md) |
 | Work tracking | Preserve the item's current position and outcome in the chosen tracker | [Project tracker](../CLAUDE.md#where-work-is-tracked) and [work-item instructions](../.claude/rules/work-item-stages.md); [local tracker](../plugins/work-tracker/README.md) when selected |
-| Project knowledge | Find and preserve qualifying project context across sessions | [Knowledge manual](README.md) |
+| Project knowledge | Find and preserve qualifying project context across sessions | [Knowledge manual](knowledge-manual.md) |
 | System Guide, when enabled | Explain important existing parts and their relationships | [System Guide instructions](../plugins/system-guide/skills/system-guide/SKILL.md) |
 | Handoff | Carry unfinished work into another session | [Handoff](../plugins/session-skills/skills/handoff/SKILL.md) |
 | Documentation publication | Publish authorized documentation through the project's save route | [Publication instructions](../.claude/rules/knowledge-direct-commit.md) |

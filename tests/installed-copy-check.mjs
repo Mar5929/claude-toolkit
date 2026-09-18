@@ -58,8 +58,8 @@ const SECOND_BRAIN = "plugins/second-brain";
 const OUTPUT_STYLES = "plugins/project-init/library/output-styles";
 const MANAGED_COPIES = [
   [
-    "knowledge/README.md",
-    `${SECOND_BRAIN}/skills/second-brain/references/templates/knowledge/README.md`,
+    "knowledge/knowledge-manual.md",
+    `${SECOND_BRAIN}/skills/second-brain/references/templates/knowledge/knowledge-manual.md`,
   ],
 ];
 

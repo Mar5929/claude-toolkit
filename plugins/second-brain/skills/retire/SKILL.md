@@ -9,8 +9,13 @@ description: >-
 # retire
 
 This skill handles one file. Use `reflect` for a folder-wide review. Read the
-lifecycle, approval, and trust sections of `knowledge/README.md` before acting.
+lifecycle, approval, and trust sections of `knowledge/knowledge-manual.md` before acting.
 If the manual is missing, change nothing and recommend `project-sync`.
+
+During filename migration, if the canonical manual is absent, use
+`knowledge/README.md` only when it starts with the managed-manual marker.
+Report the legacy path for project-sync. Conflicting marked copies require
+reconciliation before policy-dependent work; never choose meaning silently.
 
 ## Inspect and propose
 

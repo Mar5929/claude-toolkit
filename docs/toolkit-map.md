@@ -428,7 +428,7 @@ The genuine watch-items are called out at the end.
 - **The session-continuity rule cluster.** Two general rules touch "do not lose
   context across sessions", which can read as overlap: `offer-context-handoff`
   prepares the next session, and `work-item-folders` owns one Git-based tracker.
-  When project knowledge is installed, `knowledge/README.md` owns placement and
+  When project knowledge is installed, `knowledge/knowledge-manual.md` owns placement and
   the second-brain skills own their task steps. Projects that decline it receive
   no knowledge rule. The third member of this cluster was
   `keep-claudemd-current`, removed on 2026-08-31: it spent words in every

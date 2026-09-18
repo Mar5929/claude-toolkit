@@ -227,10 +227,16 @@ Typical checks:
   location and ask the owner in step 4.
 - **Project knowledge layout:** read the folder, never go by folder names
   alone. There is no detector script. Classify exactly one state:
-  - **current layout:** `knowledge/README.md` starts with
+  - **current layout:** `knowledge/knowledge-manual.md` starts with
     `<!-- claude-toolkit:knowledge-manual -->`, the flat memory and specification
     folders and their indexes exist, and any saved files use current YAML
     frontmatter. A fresh setup with no saved files is current;
+  - **legacy manual filename:** only `knowledge/README.md` has the managed
+    marker. Use the `second-brain` skill's manual filename migration; preserve
+    its content/customizations and update live routes. This is not an older
+    memory-layout conversion. If both marked manuals exist, normalize line
+    endings and old/new self-path before comparing. Conflicting meaning stops
+    replacement; preserve both and ask. An unrelated README stays untouched;
   - **partial current layout:** the flat folders and indexes have current
     signatures, but the managed manual is missing. Offer to restore it and do
     not convert approved files;
@@ -255,7 +261,7 @@ Typical checks:
   old path. Do nothing without the owner's yes. If both folders exist, stop,
   say what is in each, and ask. The `second-brain` skill has the steps.
 - **Packaged runtime:** for a current layout, also check the installed
-  managed `knowledge/README.md` against the packaged template byte for byte;
+  managed `knowledge/knowledge-manual.md` against the packaged template byte for byte;
   `remember`, `recall`, `retire`, `reflect`, `second-brain`, and
   `session-search` skills; `.claude/tools/build-knowledge-index.mjs`,
   `check-knowledge.mjs`, and `frontmatter.mjs`;
@@ -345,7 +351,7 @@ Typical checks:
   `knowledge-direct-commit.md` regardless of knowledge activation. Respect an
   explicit policy opt-out; declining knowledge alone is not that opt-out.
   For configured project knowledge, confirm that `knowledge/` is named and
-  points to `knowledge/README.md` plus the installed knowledge direct-commit
+  points to `knowledge/knowledge-manual.md` plus the installed knowledge direct-commit
   rule. For configured local tracking, confirm that `.work-items/` is named and
   points to the local tracker instructions. Report rows for systems that are
   absent, declined, external, or no longer selected. The documentation row
@@ -517,7 +523,7 @@ the file and report:
   open TODOs drift the moment they are written here.
 - **Project-knowledge startup parity.** When the current layout is installed,
   confirm both hosts register the same loader and that it reads, in order,
-  `SOUL.md`, `knowledge/README.md`, `knowledge/project.md`,
+  `SOUL.md`, `knowledge/knowledge-manual.md`, `knowledge/project.md`,
   `knowledge/current.md`, and the entry lines of both indexes. Confirm it loads
   no other memory and fails open when a file is absent. `CLAUDE.md` carries only
   the short fallback. Any copied policy is stale duplication.
@@ -673,13 +679,17 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   - **Mixed or unknown:** stop without writing and show the conflicting
     signatures.
 
-  For an approved **none**, **older layout**, or **current** path, finish the
+  For an approved **none**, **older layout**, **legacy manual filename**, or **current** path, finish the
   same adoption unit before calling the system installed:
   1. Copy the packaged `build-knowledge-index.mjs`, `check-knowledge.mjs`, and
      `frontmatter.mjs` into `.claude/tools/`.
-  2. Copy the packaged `knowledge-session-start.mjs`, `save-reminder.mjs`,
+  2. Copy the packaged `knowledge-session-start.mjs`, `memory-reminder.mjs`, `save-reminder.mjs`,
      `work-item-close.mjs`, and `command-parsing.mjs` into `.claude/hooks/`.
-  3. Copy the packaged knowledge manual unchanged to `knowledge/README.md`.
+     The startup loader imports the manual resolver from `memory-reminder.mjs`;
+     install this bundle together before validating startup on either host.
+  3. Complete the `second-brain` manual filename migration first where needed.
+     Copy the packaged manual unchanged only for a new installation or an
+     explicitly approved replacement at `knowledge/knowledge-manual.md`.
      When a copy differs, show the diff and get approval before replacing it.
      Copy the packaged `memory-self-improvement.md` template to
      `knowledge/memory-self-improvement.md` when the project has no such file.
@@ -687,7 +697,7 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   4. Merge, never replace, `.claude/settings.json`: disable private auto-memory,
      enable `second-brain@claude-toolkit`, register the fail-open Claude
      `SessionStart` loader, and register both reminders under `PreToolUse` with
-     the `Bash` matcher.
+     the `Bash` matcher. Register `memory-reminder.mjs` under `UserPromptSubmit`.
   5. Add the same short startup and fallback pointer to root `AGENTS.md` and
      `CLAUDE.md`. Merge the same fail-open loader into `.codex/hooks.json`
      without removing other hooks, with at least 5,000 tokens of additional

@@ -113,7 +113,7 @@ being preserved.
 3. Save the final running summary and open-flags list.
 4. When the current project knowledge system is installed, invoke its
    `remember` skill for the end-of-interview persistent review:
-   - let `knowledge/README.md` and `remember` own placement, the save test, and
+   - let `knowledge/knowledge-manual.md` and `remember` own placement, the save test, and
      approval; and
    - save only the approved meaning in this session's worktree.
 5. When the approved update creates or amends a specification, link the

@@ -29,7 +29,7 @@ Read these to find where things actually go:
    tracker, the delivery root, and the source folders.
 2. `docs/designs/README.md`, for where a solution design lives and what happens
    to it afterwards.
-3. `knowledge/README.md`, for what belongs in persistent project knowledge, in a
+3. `knowledge/knowledge-manual.md`, for what belongs in persistent project knowledge, in a
    project that has it.
 
 Once information is routed into the declared tracker, knowledge system, or

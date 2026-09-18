@@ -137,7 +137,7 @@ export function buildMessage() {
     "",
     "Invoke the remember skill and follow it, then run this command again.",
     "Check whether any specification needs updating and whether anything is",
-    "worth saving as memory. If there is, knowledge/README.md shows how to",
+    "worth saving as memory. If there is, knowledge/knowledge-manual.md shows how to",
     "display the proposal.",
     "",
     "If you are a helper agent, stop and report this to the main agent.",
