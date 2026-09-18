@@ -1,0 +1,282 @@
+# Knowledge System implementation plan
+
+Updated: 2026-09-17. Proposed execution plan for issue #269. No production implementation has been performed by this planning task, and this document does not supply missing requirements, design, or release approval.
+
+## Authority and execution boundary
+
+- [Knowledge System PRD](../../../knowledge/prds/toolkit-operating-system/knowledge-system.md) owns R1–R30.
+- [Master solution design](../269-knowledge-system.md) owns the proposed architecture and decisions.
+- [Host capability evidence](host-capability-evidence.md) separates installed observations, official contracts, and H1–H6 proof tasks.
+- [Toolkit OS R25](../../../knowledge/prds/toolkit-operating-system/toolkit-operating-system.md#shared-documentation-publication-contract) owns documentation publication.
+- [Issue #269](https://github.com/Mar5929/claude-toolkit/issues/269) owns D1 design review, E1 implementation, F1 acceptance, and live task status. The work packages below are task specifications to link from that record, not another tracker.
+- [Detailed reference](detailed-solution-design-reference-output.md) preserves prior research. Its old mechanism choices, API claims, and estimates do not authorize implementation.
+
+The owner authorized this design and plan refinement. Record the resulting recommendations for review without fabricating a whole-PRD approval. Begin production changes only when the owning task records the applicable build authorization. Technical facts are resolved through evidence tasks; the owner should not have to choose event names or troubleshoot adapters.
+
+## Recommended build baseline
+
+Keep the existing `second-brain` plugin and its six public skills: `recall`, `remember`, `retire`, `reflect`, `second-brain`, and `session-search`. Improve their responsibilities in place. The earlier four-skill rename adds migration and discovery risk without being necessary to satisfy a requirement.
+
+Keep the current copied-runtime delivery for this release: packaged originals in `plugins/second-brain/`, equipped copies in `.claude/hooks/` and `.claude/tools/`, and host-specific registration. Setup, sync, and installed-copy tests keep copies aligned. Moving all runtime files to plugin-cache paths is a separate optimization, not a dependency of reliable knowledge behavior.
+
+Use ordinary command hooks as the baseline. Rework the existing startup and prompt modules, retain the supported action parsers, and add one completion handler and one small checkpoint helper. The helper stores temporary identities, generations, and acknowledgment outcomes only. It does not classify a message, search knowledge, grade a response, approve meaning, or write project knowledge. The agent performs those operations using native reasoning and the existing skills.
+
+Use the same small helper for a bounded startup `read` operation and an explicit `ack` operation. The reader accepts only startup-manifest paths and returns content chunks with generation, digest, and range receipts. A host result adapter must establish successful untruncated model-visible delivery; a process-written receipt alone proves only a process read. After all required ranges arrive in order, the agent separately acknowledges. Acknowledgment remains a declaration, not understanding or semantic permission. If model delivery cannot be proven, declaration-only operation is degraded and fails strict R2/full acceptance. Do not interpret arbitrary shell commands or assistant prose to infer compliance.
+
+Keep feedback in the existing `knowledge/memory-self-improvement.md`, with concise Lessons and Recent decisions, because R23 leaves its location to design. Remove the unrelated fixed 8,000-character failure threshold; preserve useful feedback without inventing new R21 size limits. The PRD's proposed layout for memory, current work, glossary, PRD index, and brainstorms remains the planning target, subject to the recorded requirements and build authority.
+
+Keep deterministic checks separate from behavioral acceptance. A valid file, receipt, or successful hook test never demonstrates that the correct memory was selected or that a permission covered its meaning.
+
+## Verified repository starting points
+
+Paths below are repository-relative. “Change” means planned, not already implemented. Inspect the latest files again before executing a package because other toolkit work continues.
+
+| Area | Existing source and actual gap | Planned treatment |
+| --- | --- | --- |
+| Startup | `plugins/second-brain/hooks/knowledge-session-start.mjs` prints full startup files in the old order, then index entries; failures allow continuation. | Reuse filename and System Guide isolation; replace full printing with compact ordered-read/recovery request and evidence-aware acknowledgment. |
+| Prompt | `plugins/second-brain/hooks/memory-reminder.mjs` exists, but has old memory criteria, forced manual reopening, and no explicit intent receipt. | Rewrite message from the canonical manual/contract; cover every destination, positive/negative criteria, actual relative paths, and intent. |
+| Action reminders | `plugins/second-brain/hooks/save-reminder.mjs`, `work-item-close.mjs`, and `command-parsing.mjs` already detect supported PR/close commands and issue one-time holds. | Reuse parser and known command coverage; replace branch/once-only adequacy assumptions with current work review outcome; merge/close alone never establishes shipping. |
+| Completion and receipts | No dedicated knowledge completion handler or shared receipt helper in this plugin. The separate style handshake demonstrates narrow read observation. | Add `plugins/second-brain/hooks/knowledge-completion.mjs` and `plugins/second-brain/tools/knowledge-checkpoint.mjs`. Borrow tested patterns from `plugins/hooks-library/hooks/style-handshake.mjs` without copying its policy or assuming its Claude read observation covers Codex. |
+| Save/find/lifecycle | Existing six skills contain old paths and incompatible rules: `remember` requires full manual reread, rejects pending queuing, uses an older card, and ties finalized PRDs to delivery; `retire` always creates replacements and never publishes; `reflect` treats built proposed PRDs as a defect. | Change the six existing `SKILL.md` files and `remember/references/proposal-template.md`; share save/publication procedure rather than implement independent lifecycle writers. |
+| Files/templates | `plugins/second-brain/skills/second-brain/references/templates/` supplies SOUL, manual, project, current, feedback, and two indexes. | Change templates to the new layout; add inbox, glossary, and topic/PRD authoring examples. Keep content guidance in references loaded when needed. |
+| Index/checker | `plugins/second-brain/tools/{build-knowledge-index,check-knowledge,frontmatter}.mjs` are reusable. Builder emits two old indexes; checker uses old required fields and 250/2,000/8,000 limits. | Extend to three grouped indexes, new metadata/layout, summary under 200 and current under 5,000, glossary exception, and read-only errors. Preserve a single parser. |
+| Setup/sync | `plugins/second-brain/skills/second-brain/SKILL.md`, `plugins/project-init/skills/project-init/` and `plugins/project-init/skills/project-sync/SKILL.md` describe old copies, layout, and Codex startup-only wiring. | Update one coherent delivery contract, migration, actual activation/version checks, and supported host reports. |
+| Publication | `plugins/project-init/library/rules/general/knowledge-direct-commit.md` is shipped knowledge-only guidance; parent R25 now defines broader documentation eligibility. | Extend this canonical rule and its catalog in place. File content, not extension or folder alone, determines the route; do not build a semantic classifier. |
+| Tracker/handoff | `plugins/project-init/library/rules/general/work-item-stages.md`, `plugins/session-skills/skills/{work-guide,handoff,solution-design,spec-check,requirements-helper}/SKILL.md`, and `plugins/work-tracker/skills/work/` already own tasks, approvals, and continuation. | Integrate knowledge outcome and source links; retain existing tracker ownership and CLI. No second planning store. |
+| Tests/install records | `tests/{knowledge-startup-check,installed-copy-check,link-check,orphan-check}.mjs`, System Guide tests, `.claude/settings.json`, `.codex/hooks.json`, `.claude/toolkit-sync.md`. | Revise obsolete startup expectations, add focused behavior fixtures, update installed copies through delivery, and preserve unrelated hooks/settings. |
+
+## Task and dependency map
+
+These IDs are proposed subtasks under the existing roadmap tasks. They do not create native GitHub subissues or imply status changes. The main conversation maintains the canonical issue and records approvals; each assigned builder owns only its package, and an independent reviewer verifies its exit evidence.
+
+```mermaid
+flowchart TD
+  D[D1-P1: prove host contracts and settle architecture] --> A[D1-P2: reconcile requirements and record approvals]
+  A --> B[E1-P1: manuals and file contracts]
+  A --> C[E1-P2: shared publication guidance]
+  B --> T[E1-P3: schemas, indexes, migration fixtures]
+  B --> S[E1-P4: save, lookup, lifecycle skills]
+  T --> S
+  C --> S
+  D --> H[E1-P5: host checkpoints and receipts]
+  B --> H
+  S --> I[E1-P6: tracker and component integration]
+  H --> I
+  T --> U[E1-P7: setup, sync, safe migration]
+  I --> U
+  U --> V[E1-P8: representative sessions and correction]
+  V --> F[F1-P1: acceptance and authorized rollout]
+```
+
+E1-P3 and E1-P5 can run in separate implementation worktrees after their contracts are agreed. E1-P4 procedure drafting can begin alongside them, but its integrated save acceptance depends on E1-P3's completed tools. Serialize edits to shared templates, manifests, and installed copies. Do not enable half the new layout in this repository while old runtime/checker expectations still own it.
+
+## D1-P1: prove host contracts before selecting enforcement
+
+**Owner:** host-adapter builder; independent reviewer checks evidence. **Dependencies:** current official documentation and installed host versions. **Requirements:** R2–3,9,25–27,29–30.
+
+Use disposable equipped test projects, not production records. Record the source date and tested version. Current local version discovery found Claude Code 2.1.259 and Codex 0.154.0; documentation alone does not prove these binaries implement newer features.
+
+Test CLI and desktop execution separately where both are supported. Record the effective runtime version, active configuration layers, and trust/permission state for each; the CLI version on PATH does not establish the desktop bundled version. Claude Mods remain a possible later adapter, not a baseline dependency or an experimental flag enabled by this plan.
+
+Prove ordered file reading, readable-content observation where available, explicit startup and prompt acknowledgment, one bounded completion continuation, supported action denial, missing/truncated content, stale receipts, helper isolation, disabled/untrusted hooks, timeouts, and Windows command quoting. Test compaction/resume/clear as separate cases. Record unavailable events instead of inventing substitutes that silently change requirements.
+
+Prove H1–H6 in the linked host evidence, including the bounded reader/ack transport. The read operation returns only manifest-file chunks; the result adapter records delivered ranges and the separate ack names current receipts. A changed file digest invalidates its completed read. Prove whether truncation occurs before or after PostToolUse and whether desktop/code-mode wrappers preserve model-visible output. Do not match arbitrary shell output as if it were a complete read. Startup returns its instruction before the agent can act; waiting inside that hook for the same agent's acknowledgment would deadlock.
+
+Before-final-answer continuation runs at most once when review is outstanding; another stop without a valid outcome reports an unfinished checkpoint instead of looping. New user input establishes a new review generation, not a new startup-read generation. Required guidance revision or context recovery invalidates the affected startup scope; ordinary prompts do not force rereading unchanged available manuals. A pending proposal is a valid completed review outcome and must not hold the conversation open awaiting consent.
+
+**Deliverable/exit:** a host capability matrix with source evidence and observed results; a selected receipt contract and covered action list. Claude startup events cannot hold session creation, and fail-open tool hooks are not universal protection. Codex hosted/specialized tools and continued terminal input may bypass tool hooks. A missing proof blocks the claim of enforcement and the dependent production feature, not unrelated design tasks.
+
+**Risk/rollback:** prototypes can give false confidence if only hook stdout is tested. Exercise actual sessions; discard only disposable fixtures and restore their hook configuration. No requirement is weakened to make a prototype pass.
+
+## D1-P2: reconcile the design and genuine owner decisions
+
+**Owner:** design lead/main conversation. **Dependencies:** D1-P1. **Requirements:** all 30; parent R25.
+
+Reconcile the master with this minimal baseline, current PRD, and host evidence. Existing feedback filename, existing skill names, deterministic sorting, and copied runtime are architect recommendations that avoid unnecessary new components. They require no invented new user-facing behavior. Keep D1's approval and current position in issue #269.
+
+Locate the actual project skill-authoring procedure and its approval owner for R17 before implementing the handoff. If none exists, record R17's integration dependency and obtain scope for that capability separately; a routing sentence alone does not supply a working authoring process.
+
+Recommend the bounded completion handler after D1-P1 proof, but distinguish it from the owner-selected prompt reminder. Production activation requires acceptance of that proposed mechanism within design/build authority. A prompt-only adapter cannot be claimed to satisfy the end-turn review outcome merely because the reminder ran.
+
+Recommend no new Git pre-commit hook in the initial release: explicit checks and covered agent write safeguards meet the intended save sequence without changing Mike's manual-edit workflow or replacing unrelated Git hooks. Broader manual-edit blocking would be a separate owner policy decision supported by a demonstrated failure.
+
+Recommend recording standing memory permission honestly: retain who enabled it, its date, scope, and source in the project record; use that grant for `approved_by` and `approval_date` only if R14 is clarified to mean authorization rather than personal approval of each entry. Never fabricate per-entry human review. This wording reconciliation is a real requirements decision; keep approval on by default until it is resolved.
+
+Use R3's affected-work pause for failed saves. The tracker must not claim a dependent deliverable complete; unrelated tasks can continue. Existing accepted completion rules remain with the tracker. Do not impose a global session lock.
+
+**Deliverable/exit:** one coherent design, explicit unresolved material policy decisions with recommendations, separate requirements/design/build authority recorded before E1 production execution. Technical uncertainty is not sent to the owner as a choice of APIs.
+
+**Risk/rollback:** changing architecture must not erase accepted meaning; preserve the reference and decision provenance. Unaccepted proposals remain proposed.
+
+## E1-P1: manuals, templates, and record contracts
+
+**Owner:** knowledge guidance builder. **Dependencies:** D1-P2; Toolkit operating-manual owner under issue #306. **Requirements:** R1–2,7,10–18,20,23,28–30.
+
+Coordinate the separate manual task's recommended `docs/toolkit-manual.md`, owned by project-init/project-sync and linked from root routers. This is a concrete cross-component path proposal, not yet an approved or installed manual. The manual owner supplies its content and delivery contract; acceptance under #306 is required before embedding this path in a shipped hook. Do not create a competing manual inside the Knowledge System or ship a placeholder link.
+
+Change the existing managed manual and project/SOUL/current/feedback templates under `plugins/second-brain/skills/second-brain/references/templates/`. Add `knowledge/memory-inbox.md`, `knowledge/memory/memory-entries/terminology-glossary.md`, and concise memory/PRD examples in that template/reference family. Move template current work to `knowledge/memory/current.md`, rename the PRD index template to `prd-index.md`, and put brainstorms at project root. Retain the existing feedback filename. The System Guide owner supplies its actual enabled path; do not silently migrate or enable it.
+
+Use the PRD's exact card fields and working-memory structure. Inbox entries carry stable reference, destination/operation, exact shown card or precise authorized upkeep owed, source/date, host/conversation identity, update time, state, next step, and separate durable authority. Identity for deduplication is operational; pending text never becomes evidence. Capture source/context separately in memory; do not infer missing provenance to satisfy metadata.
+
+**Deliverable/exit:** coherent templates and small root/manual routing contract, with valid empty and populated examples. Tests cover glossary without frontmatter, proposed PRD without approval, approved PRD with paired fields, exact pending card, active work from two sessions, and style/source preservation. No arbitrary record-length cap beyond R21.
+
+**Risk/rollback:** manual rules and skill templates can drift. Keep shared meaning in the manual and operation details in linked references; revert template/runtime package together before activation, preserving owner-authored records.
+
+## E1-P2: reusable documentation publication
+
+**Owner:** project-init builder. **Dependencies:** D1-P2. **Requirements:** R3,9–10,13,16,28,30; parent R18,R25.
+
+Extend `plugins/project-init/library/rules/general/knowledge-direct-commit.md`, its `README.md` catalog, `project-init/skills/project-init/references/{thin-claudemd,root-file-examples,setup-flow}.md`, and project-sync guidance. Root maps identify eligible documentation homes and route to the full policy. Keep the existing rule filename initially to avoid breaking installed references.
+
+The workflow uses the existing default-branch checkout, verifies identity/remote/staged work, fetches safely, rereads the destination, checks the exact authorized change, stages only owned paths, commits, pushes, and verifies remote inclusion. Serialize the shared index/commit step. A Markdown skill or rule changing installed behavior is implementation, not a documentation exception. Independent documentation can publish separately; inseparable mixed changes stay in the implementation PR.
+
+**Deliverable/exit:** reusable source, installed rule copy, routes, and guidance agree. Scenarios cover documentation from a worktree, behavioral Markdown, mixed edits, unrelated staged files, parallel changes, failed validation, rejected push, explicit publication hold, and an already-published retry. No force-push, account switching, autostash, or silent PR fallback.
+
+**Risk/rollback:** broad file globs can bypass review. The agent judges eligibility and tools verify Git facts; do not implement a classifier. Reverting guidance preserves published records and reports any unfinished save through its owning record.
+
+## E1-P3: schemas, indexes, and read-only validation
+
+**Owner:** knowledge tools builder. **Dependencies:** E1-P1. **Requirements:** R7–8,12–16,21–23,28–29.
+
+Extend the three existing tools under `plugins/second-brain/tools/`. Build memory, PRD, and external-source indexes from canonical metadata, with summaries copied exactly. Recommend ordinal sorting by normalized group then project-relative path for stable output across hosts; preserve parent-before-child PRD nesting and topic grouping. Exclude glossary, inbox, working state, and feedback from lasting indexes. External-topic entries use outside-source fields, not memory approval fields.
+
+Update required fields, real dates, allowed statuses, links, nested topics, paired PRD approval, memory context, and the two limits: summary under 200 characters and current work under 5,000. Remove the old 250/2,000 limits and feedback cap. Keep the checker read-only. Retain a managed-manual integrity check tied to the installed release/template, not a second policy copy; regenerate any existing checksum with its template in the same change. Secret-pattern checks are useful but explicitly non-exhaustive.
+
+**Deliverable/exit:** focused `plugins/second-brain/tests/knowledge-records.test.mjs` fixtures for valid/invalid metadata, YAML quoting/lists, dates, glossary exception, nested topics, external sources, status labels, missing fields, links, deterministic rebuilds, and safe synthetic secret patterns. Reading the result and judging meaning remain agent responsibilities.
+
+**Risk/rollback:** current parser supports a small YAML subset. Exercise every allowed field representation; extend its shared parser or use one proven YAML parser only if fixtures establish a need. Do not maintain two parsers or silently reinterpret unsupported YAML. Keep failed conversion inputs intact.
+
+## E1-P4: lookup, saving, lifecycle, and recovery procedures
+
+**Owner:** knowledge workflow builder. **Dependencies:** E1-P1–P3. **Requirements:** R3–24,28–30.
+
+Update all six existing skills and the proposal reference. `recall` applies relevance once per unchanged request, reuses current evidence, consults glossary before relevant searches, opens actual sources, and uses available history last. `session-search` retains read-only project scope; an unavailable Codex history source is reported, never called an empty result or silently replaced with another project's history.
+
+`remember` evaluates memory and other destinations, separates routine quiet review from explicit review requests, preserves new pending proposals, honors existing scope, reads back actual writes, runs checks/indexing, publishes through E1-P2, and removes only verified completed or rejected inbox entries. A real significant fix may qualify under R11 even when first solved by the agent; routine activity does not. No mandatory full manual reread every turn. Read relevant current guidance before the operation.
+
+Assign an opaque stable operation reference when a real pending proposal or authorized unfinished save is first captured, retaining it through revised cards and conflict transitions. Before each inbox or destination edit, reread both relevant records, compare the operation reference and intended scoped change, and detect whether the change already landed. Similar meaning from concurrent proposals requires agent reconciliation, not a hash-based semantic merger. Serialize shared publication; do not erase another entry while resolving this one. Test two sessions approving/retrying the same operation, simultaneous distinct entries, destination drift, blocked-by-conflict with authority intact, rejection, and removal only after verified completion.
+
+`retire` and `reflect` use the same authorized save/publication path. Supersede changed meaning in its owning topic; create a new file only for a justified topic change or approved split. Consolidation verifies preservation and links before removing originals. Feedback records actual owner criteria/reason, not guessed preferences or a running activity log. Never finalize a PRD merely because code shipped.
+
+**Deliverable/exit:** conversation-only routing, known fact citation, partial approval, silence, correction, explicit verbatim request, approved retry, topic split/merge, manual rename/deletion recovery, feedback carryover, and no-result review scenarios pass. Verify cards render as Markdown under destination headings and unique numbers. Check output style and source-supported meaning, not only file validity.
+
+**Risk/rollback:** procedure changes can accidentally broaden permission. Preserve exact authority and scope through conflicts; pause only dependent writes. Roll back skill version if needed while retaining pending entries and actual published outcomes.
+
+## E1-P5: startup, prompt, completion, and scoped action checks
+
+**Owner:** host-adapter builder. **Dependencies:** D1-P1, E1-P1; E1-P4 before behavior acceptance. **Requirements:** R2–3,9–10,25–29.
+
+Rework the five existing hook files identified above and add `knowledge-completion.mjs` plus `knowledge-checkpoint.mjs`. Reuse the helper from existing action reminders rather than introduce a separate controller. The helper also supplies bounded startup reads and host result observation from D1-P1. Its temporary record has project/host/session/agent identity, separate startup and review generations, file digests and delivered ranges, acknowledgment kind/outcome, instruction revision, and retry state. It contains no lasting content, permission, transcript, search results, or shadow inbox. Use serialized compare-before-update of the current generation plus atomic replacement; atomic writes alone do not stop a late hook replacing newer state. Test delayed read/Stop events after a new prompt and concurrently completing handlers. Cleanup must not delete active sessions based only on age.
+
+Startup instructs reads of SOUL, project, then knowledge manual; discovers current work, inbox, glossary, and index paths. It withholds successful acknowledgment when required content is unavailable. Prompt delivers canonical compact criteria and intent acknowledgment once per user message. The completion event catches new findings from execution and distinguishes no changes, completed saves, pending proposals, and unfinished saves; a routine no-change stays invisible to the owner. Explicit save requests still receive a result.
+
+Use supported pre-action paths only for narrow objective holds. Receipt presence cannot authorize a lasting write. Before a consequential write, the agent checks the applicable durable authority and latest file; objective checks confirm valid target and required record fields. Reuse existing supported command detection for PR/work handover. Do not require arbitrary shell, connector, or helper actions to pass a universal interceptor the host does not provide. Add a new write guard only if D1-P1 identifies a specific objective prerequisite and demonstrated coverage; do not equate a prior skill invocation with approval.
+
+**Deliverable/exit:** `plugins/second-brain/tests/knowledge-checkpoints.test.mjs` covers stale/wrong-session receipts, missing files/state, changed manual, prompt deduplication, bounded Stop, pending valid outcome, helper isolation, timeouts, command variants, and bypass limits. Revised `tests/knowledge-startup-check.mjs` checks actual new contract rather than old full-print order. Fresh native sessions on both hosts provide separate behavior evidence.
+
+**Risk/rollback:** false gating, infinite continuation, and unsupported host events. Keep the prior working registration available, disable only the failing knowledge adapter on a proven defect, report degraded coverage, and retain project data. No unsupported universal enforcement claim.
+
+## E1-P6: toolkit and work-item integration
+
+**Owner:** integration builder. **Dependencies:** E1-P4–P5. **Requirements:** R3–4,9,16–19,24,28,30.
+
+Update handoff, work-guide, solution-design, spec-check, requirements-helper, and lifecycle guidance only where they must pass owning scope, delivery evidence, and continuation to knowledge. `plugins/work-tracker/skills/work/scripts/{work.mjs,lib/tracker.mjs,lib/common.mjs}` are existing objective tracker mechanisms; do not change them unless the integration test exposes an actual missing interface. Use existing task fields, approvals, completion records, and chosen tracker APIs.
+
+The tracker owns status and acceptance. Knowledge reports its outcome and dependent failure. Merge/close prompts a check of actual delivered behavior before automatic PRD upkeep. A cancelled or merged-but-undelivered item does not silently finalize or rewrite a PRD. A simple question creates no work item. System Guide and client architecture follow their own configured owner/workflow; Acme remains Guide-off with `delivery/architecture/`.
+
+**Deliverable/exit:** a tracked change, a question without a task, a cancelled item, cross-component requirements, a procedure handoff, a Guide-on project, and Acme Guide-off all keep one owner per record. Existing work-tracker and System Guide tests remain passing. Required manual paths are real and project-relative before release.
+
+**Risk/rollback:** knowledge can become a second tracker or invoke unrelated work. Use references and destination return outcomes; restore changed integration instructions together while preserving true tracker state.
+
+## E1-P7: activation, migration, packaging, and installed copies
+
+**Owner:** setup/delivery builder. **Dependencies:** E1-P1–P6. **Requirements:** R1–3,7–8,13–14,16,21,25–28,30.
+
+Update second-brain setup, project-init setup-flow, project-sync, root-route references, plugin READMEs, `docs/toolkit-map.md`, top-level README, both plugin manifests for each changed plugin, and marketplace version metadata. Keep the plugin name. Refresh `.claude/hooks/`, `.claude/tools/`, applicable installed rules, `.claude/settings.json`, `.codex/hooks.json`, root router blocks, and `.claude/toolkit-sync.md` through the same delivery contract; never hand-edit an installed copy without its canonical source.
+
+| Existing record | Target/action |
+| --- | --- |
+| `knowledge/current.md` | Move to `knowledge/memory/current.md`; preserve all active items and repair routes. |
+| Flat lasting files under `knowledge/memory/` | Move into `knowledge/memory/memory-entries/`, preserving approved content/provenance; coherent topic splits need their own authority. |
+| `knowledge/prds/spec-index.md` | Rebuild as `knowledge/prds/prd-index.md`; repair references and remove obsolete generated file after checks. |
+| `knowledge/brainstorms/` | Move to root `brainstorms/`, preserve unchecked status and links. |
+| Feedback file | Retain current path and useful content; remove obsolete cap from behavior, not useful lessons. |
+| Inbox/glossary/external index | Create missing structures only; reconcile existing content instead of overwriting. |
+| Existing System Guide path/config | Preserve ownership and actual configured location; coordinate any separately authorized migration with that plugin. |
+
+Inventory files/permissions first. Work in reversible batches, retain an old-to-new map and baseline commit, and leave an ambiguous conversion untouched. Add required group/context/update fields only from available evidence; missing approval/source is a named migration issue, never invented metadata. Already-approved layout conversion follows R10's conversion permission and owner review afterward; this is not permission to change meaning or migrate another project silently.
+
+**Deliverable/exit:** new, already-equipped, partially installed, mixed/unknown, Guide-only, and owner-modified projects are classified correctly. New setup is one approved operation with version, all required parts, checks, actual host activation, and named limitations. Install into this repository only after fixture proof; external projects require their own authorization. Run all four repository checks, plugin validation, and relevant integration tests. Old/new registrations never run twice.
+
+**Risk/rollback:** layout and runtime can become inconsistent. Revert the package/registration and restore path mapping together, preserve new authorized content and permission, then rebuild old-compatible indexes. Never reset a shared checkout or discard post-migration owner edits. Recommend this repository as first trial; DragonFly is not implicitly authorized.
+
+## E1-P8: representative sessions and correction loop
+
+**Owner:** independent acceptance reviewer; builders repair failures. **Dependencies:** E1-P7. **Requirements:** all 30.
+
+Run fresh session, long/compacted conversation, task switch, parallel sessions, and component-enabled/disabled scenarios on both hosts. Seed known facts, shorthand, current-versus-required conflicts, no-code conversation decisions, unapproved and approved unfinished saves, low-value details, a missing source, concurrent edits, rejected push, handoff, and deliberate owner file edits. Use the master's concrete acceptance scenarios and every PRD Check, including significant episodes and authorized interviews.
+
+Measure hook text, file-read content, tool turns, and observed token usage separately. Enforce no invented numeric budget; investigate duplicate rereads, repeated cards, missing/truncated guidance, false holds, or unnecessary broad scans. Keep small instructions and load relevant detail on demand without dropping required content to fit a target.
+
+**Deliverable/exit:** requirements-to-evidence matrix records expected result, actual source/record changes, host/version, limitations, and pass/fail. A missed obligation remains a failure even if a receipt exists. Repair and rerun affected scenarios; do not rerun unrelated expensive sessions without a reason. Independent review checks permission and meaning, not only script outputs.
+
+**Risk/rollback:** static tests can mask poor agent behavior. Release remains blocked on material failed outcomes; document residual host gaps plainly rather than treating disclosure as compliance.
+
+## F1-P1: acceptance and authorized rollout
+
+**Owner:** main conversation/release owner; Mike supplies applicable acceptance. **Dependencies:** E1-P8 and explicit release/target authority. **Requirements:** R3,16,25–27,30.
+
+Present concrete delivered behavior, remaining gaps, checks, and rollback. Record acceptance through the existing tracker. Merge approved implementation through its normal workflow; refresh marketplace/cache and run project-sync separately. Verify actual installed version, activation, and fresh-session behavior in each authorized target. A source merge is not rollout evidence.
+
+Update only the PRDs affected by authorized actually shipped behavior, under existing upkeep authority. Preserve explicit publication holds and unresolved deviations. Keep the reference/history; retire the active design according to the project lifecycle only after its useful settled behavior and references are owned elsewhere. Do not delete planning records prematurely.
+
+**Deliverable/exit:** accepted result and per-target adoption evidence in the tracker, current requirements/operating guidance, no unresolved approved save hidden in a session. Unsupported or untested targets are named. Roll back runtime independently of owner knowledge and preserve all durable pending permissions.
+
+## Requirement-to-package traceability
+
+Every row needs objective or behavioral evidence appropriate to its claim. Package completion does not finalize a requirement automatically.
+
+| R | Primary packages | Required evidence |
+| --- | --- | --- |
+| 1 Plain parts | E1-P1 templates, E1-P3 tools, E1-P7 setup | Editable Markdown/Git; no secondary store; owner rename/deletion recovery. |
+| 2 Follow system | D1-P1, E1-P1/P5/P7 | Ordered startup reads, honest acknowledgment, recovered guidance. |
+| 3 Reliability | E1-P4/P5/P8 | Required moments without owner reminders; affected-work failure and recovery. |
+| 4 Continuation | E1-P1/P4/P6/P8 | New session resumes shared work and pending saves correctly. |
+| 5 Memory first | E1-P4/P8 | Relevant source used; irrelevant lookup skipped without repeated tool-by-tool decisions. |
+| 6 Sources | E1-P4/P8 | Finding followed by correct file/session/capture source and required date. |
+| 7 Vocabulary | E1-P1/P3/P4/P8 | Glossary table, direct route, aliases/cautions, no memory-index entry. |
+| 8 Outside docs | E1-P3/P4/P8 | Grouped source index, capture metadata, relevant current vendor evidence. |
+| 9 Saving | E1-P2/P4/P5/P8 | Prompt reminder, five review moments, quiet/no-result behavior, verified publication. |
+| 10 Permission | D1-P2, E1-P1/P4/P5/P8 | Scope, silence, partial approval, ongoing authority, approval toggle, recovery. |
+| 11 Eligibility | E1-P4/P8 | Project significance, owner involvement/real-fix exception, significant episode. |
+| 12 Exclusions | E1-P3/P4/P8 | No noise/secrets as memory; valid other destinations retained. |
+| 13 Working memory | E1-P1/P3/P4/P8 | Exact structure, under 5,000 characters, concurrent items and shared availability. |
+| 14 Memory shape | E1-P1/P3/P4/P7 | Topic maintenance, required fields/context, justified splits, provenance. |
+| 15 Writing | E1-P1/P4/P8 | Plain meaning, style applied, exact requested wording retained. |
+| 16 PRDs | E1-P1/P3/P4/P6/P8 | Approval distinct from delivery; proper parent/child owner; shipped upkeep. |
+| 17 Procedures | E1-P4/P6/P8 | Existing skill-authoring destination and permissions, no procedure memory. |
+| 18 Routing | E1-P1/P4/P6/P8 | Kind/scope/owner, mixed meaning, partial permission, no duplicate authority. |
+| 19 Find order | E1-P4/P8 | Native investigation, current evidence, glossary, relevant history and clear gaps. |
+| 20 Cards | E1-P1/P4/P8 | Destination headings, unique numbers, Change/Summary/Your decision, uncertainty resolved. |
+| 21 Index/checker | E1-P3/P7/P8 | Three deterministic indexes, limits, read-back, failure remains unfinished. |
+| 22 Lifecycle | E1-P4/P8 | In-place changed truth, useful history, approved consolidation and repaired links. |
+| 23 Feedback | E1-P1/P4/P8 | Defaults plus sourced project feedback; no invented reasons or policy override. |
+| 24 Plain requests | E1-P4/P6/P8 | Each outcome reachable without command vocabulary. |
+| 25 Codex | D1-P1, E1-P5/P7/P8 | Same shared records and behavioral tests; explicit capability/coverage gaps. |
+| 26 Documented use | D1-P1, E1-P5/P7 | Current source/installed-version mapping and observed adapter proof. |
+| 27 Activation | E1-P7, F1-P1 | Opt-in complete setup, version, checks, actual per-project adoption. |
+| 28 Inbox | E1-P1/P4/P8 | Exact card, durable authority, pending/conflict/resume/idempotent completion. |
+| 29 Native judgment | D1-P1, E1-P4/P5/P8 | Lean reminders/receipts, narrow objective checks, no semantic engine. |
+| 30 OS integration | E1-P2/P6/P7/P8, F1-P1 | One owner per record; tracker/manual/publication integration and rollout proof. |
+
+## Milestone exits and publication
+
+| Milestone | Exit condition |
+| --- | --- |
+| Design ready | D1-P1 evidence, reconciled master/PRD, material choices visible, applicable separate approvals recorded. |
+| Contracts ready | Manuals/templates/publication and metadata fixtures agree; no placeholder manual path remains in a deployable package. |
+| Integrated build ready | Runtime, skills, setup, installed copies, versions, and tests agree in a disposable project. |
+| Release candidate | Representative sessions pass on both supported hosts; any unmet requirement is explicitly unresolved rather than claimed done. |
+| Delivered | Owner acceptance and authorized target adoption verified; tracker and PRD upkeep reflect actual outcomes. |
+
+Documentation-only planning updates follow R25 directly on main after scoped checks. All future executable hooks, behavior-bearing skills/rules, configuration, and inseparable documentation changes use implementation worktrees and normal review. Builders never commit unrelated staged work. The main conversation links this plan from D1 and E1 and maintains task status there.

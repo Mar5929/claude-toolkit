@@ -14,6 +14,8 @@ not approve its proposals or authorize implementation.
 - [Toolkit OS PRD](../../knowledge/prds/toolkit-operating-system/toolkit-operating-system.md) owns the shared operating model and handshake principle.
 - [Task D1](https://github.com/Mar5929/claude-toolkit/issues/269#task-d1--review-and-finalize-the-solution-design) owns the current work, roadmap, status, and approvals.
 - [Acme walkthrough](269-knowledge-system/design-walkthrough.md) owns the hypothetical scenario and detailed review position.
+- [Implementation plan](269-knowledge-system/implementation-plan.md) maps the recommended baseline to actual modules, dependency-ordered tasks, all 30 requirements, tests, and rollout. The tracker owns its live status.
+- [Host capability evidence](269-knowledge-system/host-capability-evidence.md) separates current documentation, installed observations, and the H1–H6 proofs still needed.
 - [Detailed solution design reference output](269-knowledge-system/detailed-solution-design-reference-output.md) preserves the earlier full draft unchanged. Its old recommendations and questions are historical inputs, not a second current design.
 
 A later explicit owner decision takes precedence over an older design choice.
@@ -41,7 +43,7 @@ through routing, approvals, saving, recovery, concurrent work, and migration.
 | Hook | A host event handler that can deliver guidance or, where supported, interrupt a specific action. |
 | Skill | Instructions loaded for a particular operation, with detailed references loaded when needed. |
 | Root router | `CLAUDE.md` or `AGENTS.md`, providing the project's map and routes to applicable instructions. |
-| Toolkit operating manual | The higher-level explanation of enabled components and their responsibilities. Its project-relative path is still being designed separately. |
+| Toolkit operating manual | The higher-level explanation of enabled components and their responsibilities. Separate OS work recommends `docs/toolkit-manual.md`; that path and its delivery still require acceptance. |
 | Knowledge manual | `knowledge/README.md`, defining knowledge eligibility, routing, approval, and links to procedures. |
 | Handshake | A request for an agent step and an acknowledgment of the step or its outcome. Intent acknowledgment and completion acknowledgment are different. |
 | Gate | A host-supported hold on a named action until an objective condition is met. A proposed gate requires runtime proof. |
@@ -65,18 +67,33 @@ references after verification, rather than in the owner's core vocabulary.
 | Topic | Current direction | Status and limit |
 | --- | --- | --- |
 | Reasoning | The agent judges relevance, significance, scope, destination, and meaning. | Governing principle; no semantic scoring engine. |
-| Startup | Request the required reads, then a truthful completion acknowledgment. | Latest owner preference replaces the old full-file-printing recommendation. Exact acknowledgment and gate mechanics require design and host proof. |
-| Prompt checkpoint | Every user prompt gets a short reminder, positive/negative criteria, manual links, and intent acknowledgment. | Selected behavior; final wording, transport, and canonical source remain under review. |
+| Startup | Request ordered reads through a bounded helper, observe model-visible delivery where provable, then record a separate acknowledgment. | Owner direction is reads plus handshake. The concrete helper/adapter is an architect recommendation; H2 must prove actual delivery. Declaration-only operation fails strict R2 acceptance. |
+| Prompt checkpoint | Every user prompt gets a short reminder, positive/negative criteria, manual links, and explicit intent acknowledgment through the shared helper. | Reminder behavior selected; helper transport and canonical message implementation recommended for host proof. |
 | Completion checkpoint | One checkpoint near turn completion catches decisions and discoveries made while working. | Proposed mechanism. Routine no-change reviews stay quiet under the PRD; an explicit review request receives an answer. |
 | Root files | `AGENTS.md` and `CLAUDE.md` remain maps and routers. | Selected. Detailed policy lives in linked guidance. |
 | Long-term memory | Both relevant and significant to this project. | Selected; not every useful note belongs in memory. |
 | Routing | Consider all owning records, including tasks, PRDs, procedures, and architecture. | Selected; System Guide participates only when enabled. |
 | Review trigger | Conversation-only work counts. | Changed-file counting as a relevance/review trigger is rejected. |
-| Manuals | Every equipped project receives a Toolkit operating manual; the knowledge manual supplies component policy. | Higher manual path and delivery design are a separate dependency. Do not invent a runtime path. |
+| Manuals | Every equipped project receives a Toolkit operating manual; the knowledge manual supplies component policy. | Separate OS design recommends `docs/toolkit-manual.md`, owned by project-init/project-sync. Resolve its acceptance/delivery under #306 before shipping the hook path. |
 | Documentation saves | Authorized Git-tracked documentation updates are checked and promptly committed/pushed on main. | Owner direction. Runtime code/config changes follow their own implementation workflow. Designs remain under `docs/designs/`. |
 | Old startup budgets | Earlier draft selected character budgets for two printing hooks. | Historical constraints of that mechanism. Recalculate for the revised startup; do not discard useful context-cost analysis. |
 | Paths and migration | Use the PRD's proposed layout, with setup/sync migrating existing projects deliberately. | A proposed path is not a claim that the live repository already uses it. |
 | Approvals | Requirements approval, design approval, permission to save, and authorization to build remain distinct. | Required. Never infer one from another. |
+
+### Recommended implementation baseline
+
+Retain the `second-brain` plugin and existing six skill names. Reuse existing
+startup, prompt, PR, work-item, parser, index, and checker modules. Add one
+completion handler and one small checkpoint/read/ack helper rather than adopt
+the reference's eight-hook split. Use ordinary command hooks, with explicit
+per-host adapters; Claude Mods are not a dependency. Keep the current copied
+runtime delivery with source/copy checks for the first release. Retain the
+existing feedback filename. The implementation plan names each source and gap.
+
+These are architect recommendations for the proposed design, not owner approval
+or claims of installed behavior. The completion handler still needs selection
+within design/build approval. Mandatory behavioral outcomes remain acceptance
+conditions even where a host cannot mechanically enforce every action.
 
 ## 3. Design philosophy and control boundaries
 
@@ -120,9 +137,9 @@ framework. Prefer existing toolkit procedures and documented host capabilities.
 ## 4. The parts
 
 Paths in this inventory are relative to an equipped project unless explicitly
-marked plugin-relative. They describe the proposed system, not the installed
-state today. Skill and handler names below retain useful names from the earlier
-draft; their final wiring is unapproved. Requirements refer to the current PRD.
+marked plugin-relative. They describe the recommended build, not the installed
+state today. Existing names are retained where practical; new helper and handler
+names are proposed. Their activation is not approved by this inventory. Requirements refer to the current PRD.
 All parts also serve the plain-parts, documented-platform, and judgment
 boundaries in R1, R26, and R29.
 
@@ -134,7 +151,7 @@ boundaries in R1, R26, and R29.
 | `knowledge/project.md` | Project purpose/resources/tracker and shared approval configuration; R2,10,14,30 | GUIDE; CHECK metadata | Ordered startup read | Actual content | PRD R2,10,14 |
 | `knowledge/README.md` | Knowledge manual and routing map; R2,18,19 | GUIDE | Ordered startup read; reopen if missing/stale | Actual content; no mandatory full reread each prompt | PRD R2,18,19 |
 | Root `AGENTS.md` / `CLAUDE.md` | Routes to project guidance; R2,26,30 | GUIDE | Applicable host instruction chain | Router content plus followed links | Host instruction documentation; folder-instruction PRD |
-| Toolkit operating manual, path pending | Cross-component orientation; R2,30 | GUIDE | Startup orientation as integrated with OS design | Measure actual manual/read scope | Parent OS requirements and separate manual design |
+| Toolkit operating manual, proposed `docs/toolkit-manual.md` | Cross-component orientation; R2,30 | GUIDE | Startup orientation integrated with OS design | Measure actual manual/read scope | Parent OS requirements; separate owner must accept and deliver candidate path |
 | `knowledge/memory/current.md` | Shared short-term continuation; R4,13,30 | GUIDE; CHECK shape | Startup/resume and work changes | Concise current context | PRD R13 |
 | `knowledge/memory-inbox.md` | Pending proposals and unfinished authorized saves; R9,10,28 | GUIDE; CHECK state/shape | Startup discovery and relevant save/recovery | Brief discovery summary, needed entries on demand | PRD R28 |
 | `knowledge/memory/memory-index.md` | Generated map to memory topics; R5,21 | CHECK format; GUIDE use | Locate at startup; read for relevant lookup | Index text only when needed | PRD R19,21 |
@@ -143,31 +160,30 @@ boundaries in R1, R26, and R29.
 | `knowledge/memory/memory-entries/` | Curated topic/subtopic records; R11–15,22 | JUDGE content; CHECK shape | On demand | Zero until read | PRD R14 and templates |
 | `knowledge/memory/memory-entries/terminology-glossary.md` | Project words, aliases, references; R7 | JUDGE resolution; GUIDE | Before a term-dependent lookup/answer | Required entries; exact startup delivery unresolved | PRD R7 |
 | `knowledge/prds/` | Required behavior and requirement approval; R16 | JUDGE content; CHECK shape | On demand and authorized upkeep | Relevant PRD sections | PRD R16 |
-| `knowledge/memory-selection-feedback.md` | Owner's selection feedback; R11,23 | GUIDE; JUDGE lessons | Candidate review | Relevant concise feedback | PRD R23 |
+| `knowledge/memory-self-improvement.md` | Retain existing feedback home; R11,23 | GUIDE; JUDGE lessons | Candidate review | Relevant concise feedback | PRD R23; existing template |
 | `brainstorms/` | Unchecked exploration; R18 | GUIDE trust boundary | On demand | Zero until read | PRD R18 |
-| Project standing guidance, proposed `.claude/rules/knowledge-system.md` | Continuing obligations and routes; R2–6,13,19 | GUIDE | Host-dependent instruction delivery and recovery | Measure loaded text; Codex uses linked guidance, not a large root handbook | Host rules/instruction docs |
+| Existing root routes and managed manual | Continuing obligations and routes; R2–6,13,19 | GUIDE | Native instruction delivery plus startup/prompt/recovery checkpoints | Compact root routes; detailed policy read when needed | Host instruction docs; no extra standing-rule copy in baseline |
 
 ### Skills, hooks, tools, and state
 
 | Part / proposed name | Purpose and requirements | Control | When run | Context cost | Documentation basis / proof |
 | --- | --- | --- | --- | --- | --- |
-| `knowledge-find` | Find, assess sources, cite; R2,4–8,16,19,24 | GUIDE/JUDGE | Relevant lookup | Description plus invoked body/references | Host skill docs; source-based scenario tests |
-| `knowledge-save` | Select, route, approve, write, verify, publish; R3,9–18,20–24,28,30 | GUIDE/JUDGE; calls checks | Save review or authorized upkeep | Body and needed templates on demand | Skill docs; full save/recovery tests |
-| `knowledge-review` | Deduplicate, correct, supersede, retire; R22–24 | GUIDE/JUDGE | Requested or justified maintenance | Body plus relevant records | Skill docs; lifecycle cases |
-| `knowledge-setup` | Install/repair/migrate/report; R2–3,7,18,24–27 | GUIDE plus objective checks | Setup/sync/repair | Procedure and setup report | Plugin/install docs; fresh-project proof |
-| Startup orientation handler, replaces old `startup-files.mjs` printer design | Ordered reading instruction and acknowledgment; R2–3 | GUIDE; gate candidate | New session and appropriate recovery events | Short directive plus actual reads/ack | `SessionStart` and host adapter proof |
-| Startup discovery handler, old `startup-state.mjs` responsibility | Current work, pending saves, glossary/index routes; R2–4,7,13,28 | GUIDE | Start/resume/recovery | Short map plus selected reads | Event ordering and missing-file tests |
-| `knowledge-prompt-reminder.mjs` | Criteria/routing reminder and intent ack; R3,9,18,29 | GUIDE; acknowledgment bookkeeping | Every user prompt | Compact reminder and ack each prompt | `UserPromptSubmit`; no duplicate/loop tests |
-| `session-review-nudge.mjs` | Proposed end-turn review checkpoint; R3,9,28 | GUIDE; completion transport pending | Once near turn completion | Brief request; routine no-change silent to owner | `Stop` behavior on each host |
-| `save-moment-gate.mjs` | Candidate checkpoint before PR creation/work completion; R3,9,16,30 | Conditional ENFORCE candidate | Named supported action paths | Zero normally; short hold on unmet condition | Pre-action event and bypass/failure tests |
-| `knowledge-write-guard.mjs` | Candidate narrow lasting-write safeguard; R3,10,13–14 | Conditional ENFORCE candidate | Covered write tools | Zero normally; failure explanation | Tool/path coverage, shell and helper-agent tests |
-| `knowledge-after-write.mjs` | Validate actual file and rebuild affected index; R3,14,21 | CHECK | Covered writes; explicit save fallback | Failure details only normally | Post-action event and return-context proof |
-| `compact-hold.mjs` | Candidate manual-compaction checkpoint; R3,9 | GUIDE or ENFORCE only if supported | Before manual compaction | Short checkpoint when needed | Verify host event; never assume auto-compaction can be held |
+| `recall` | Find, assess sources, cite; R2,4–8,16,19,24 | GUIDE/JUDGE | Relevant lookup | Invoked body/references | Existing skill; source-based scenarios |
+| `remember` | Select, route, approve, write, verify, publish; R3,9–18,20–24,28,30 | GUIDE/JUDGE; calls checks | Save review or authorized upkeep | Body and needed templates | Existing skill; complete save/recovery tests |
+| `reflect` and `retire` | Review multiple records or one lifecycle operation; R22–24 | GUIDE/JUDGE | Requested or justified maintenance | Relevant procedure and records | Existing skills; both use the same save/publication contract |
+| `second-brain` | Install/repair/migrate/report; R2–3,7,18,24–27 | GUIDE/CHECK | Setup/sync/repair | Procedure and setup report | Existing setup skill |
+| `session-search` | Read available project history; R19,24 | GUIDE/JUDGE | Earlier sources leave a historical gap | Selected excerpts only | Existing CLI history helper; other sources must be actually available |
+| `knowledge-session-start.mjs` | Ordered read request and small discovery map; R2–4,7,13,28 | GUIDE; later receipt checks | Startup/recovery | Short directive plus actual file reads | Rework existing module; SessionStart itself cannot wait for the agent |
+| `memory-reminder.mjs` | Criteria/routing and intent ack; R3,9,18,29 | GUIDE/CHECK receipt | Every user prompt | Compact criteria plus ack | Rework existing module; canonical wording shared across hosts |
+| New `knowledge-completion.mjs` | Proposed bounded end-turn review; R3,9,28 | GUIDE/CHECK outcome | Near completion, at most one corrective continuation | Brief instruction; quiet no-change | Host Stop proof; mechanism pending acceptance |
+| `save-reminder.mjs` and `work-item-close.mjs` | Relevant PR/work review and delivery-evidence check; R3,9,16,30 | Scoped hold only on proven paths | Supported action event | Short unmet-checkpoint explanation | Rework existing modules/parser; bypass/fail-open limits explicit |
+| Explicit save read-back and checker | Validate actual file and rebuild affected index; R3,10,14,21 | JUDGE meaning; CHECK structure | Every authorized save | Result/failure only | Existing tools; stronger new write guard only with justified objective condition and coverage proof |
+| Handoff skill and recovery events | Preserve current work and pending saves before/recover after context loss; R3,9,28 | GUIDE | Handoff and supported recovery events | Relevant pending context | No separate compact blocker in baseline; automatic compaction not held for a model review |
 | `build-knowledge-index.mjs` | Deterministic three-index build; R8,21 | CHECK | After relevant changes | No routine context output | File-format contract and repeatability tests |
 | `check-knowledge.mjs` + `frontmatter.mjs` | Fields, values, links, limits, secret patterns; R10,12–14,16,21 | CHECK | Saves and applicable commit checks | Named failures | PRD schemas; fixture tests |
 | `command-parsing.mjs` | Recognize supported action command forms; supports R9 controls | Objective parsing only | Matching command event | None normally | Existing parser plus shell/platform tests |
-| `session-marker.mjs` | Candidate acknowledgment bookkeeping helper; R29 | CHECK storage/identity only | Chosen handshake transport | Small receipt if exposed | Transport and isolation proof |
-| Git pre-commit integration | Candidate check of staged knowledge; R14,21 | ENFORCE for ordinary commits if installed | Commit | Failure details | Git hook semantics, existing hook compatibility |
+| New `knowledge-checkpoint.mjs` | Bounded startup reads, result observation, scoped acknowledgments; R2,3,29 | CHECK delivery/receipt facts; never understanding | Read/observe/ack operations | Bounded content plus small receipts | H2 must establish actual model-visible output; no general shell parser |
+| Existing project Git hooks | Preserve existing behavior; explicit save checks remain required | Existing scope only | Commit where configured | Existing output | No new owner-edit pre-commit blocker recommended in initial release |
 | Temporary per-session state outside repo | Reminder/ack generation and bounded retry facts; R29 | CHECK shape/isolation | Checkpoints | Normally none | Host session identity and lifecycle proof |
 | Plugin activation and memory settings | Enable one shared file-based system; R1,10,25,27 | Configuration | Setup/session load | None directly | Current host docs/config verification |
 
@@ -280,12 +296,25 @@ describes this component. Their startup steps must be integrated, without two
 competing orientation sequences. The higher manual's path and exact read scope
 remain dependencies of the separate manual design.
 
-The earlier proposal split printed content into two startup hooks because of
-output spill. The revised preference is instructions plus reads and a handshake.
-This changes the delivery mechanism, budgets, and proof; it does not waive the
-required content. An old receipt is not enough after relevant guidance changes
-or is lost through compaction. Recovery reuses guidance only while it is
-available and current, and does not repeat the normal startup greeting.
+The existing startup module supplies one short request and discovery map, then
+returns. It cannot wait inside SessionStart for the same agent to acknowledge;
+the agent has not yet received the instruction. A bounded helper reads only the
+ordered manifest files and returns generation, file digest, range, and content.
+Host result adapters record delivered ranges only if H2 proves the entire
+content reached model context, including truncation and desktop wrappers. A
+reader-created token alone proves only that a process opened a file.
+
+The separate `ack` operation completes the protocol after all required ranges
+arrive in order. Acknowledgment remains an agent declaration, not cognitive
+proof. Missing content withholds completion and pauses dependent work. If a
+host cannot prove delivery, declaration-only operation is degraded and does
+not satisfy strict R2 or full acceptance; report that blocker rather than
+claiming equivalence. Do not add a general shell-output interpreter.
+
+Use separate startup and prompt-review generations. Changed required content or
+context recovery invalidates the affected startup receipt; an ordinary prompt
+does not force a full manual reread. Recovery reuses guidance only while it is
+available and current, without repeating the normal startup greeting.
 
 ### 6.2 Current work, inbox, and indexes
 
@@ -308,7 +337,9 @@ lasting content. Avoid repeating unchanged proposals every turn.
 
 The memory, PRD, and external-source indexes use the PRD's grouped one-line
 link-and-summary shape. Summaries come from the sources, not an index writer's
-reinterpretation. Rebuild deterministically after affected changes; moves and
+reinterpretation. Recommend ordinal sorting by normalized group and then
+project-relative path, with parent-before-child PRD nesting preserved.
+Rebuild deterministically after affected changes; moves and
 renames repair links. An index is a discovery map: open the actual record before
 using its claim. Startup can expose paths and pending-work discovery without
 printing every index or all historical records.
@@ -340,8 +371,10 @@ and component requirements at the right scope with references instead of copies.
 
 Selection feedback captures what Mike accepts/rejects as worth remembering and
 helps later candidate review. It does not override the manual or authorize a
-memory. The proposed feedback file and existing installed file require explicit
-migration reconciliation. Brainstorms remain unchecked exploration, separate
+memory. Retain the existing `knowledge/memory-self-improvement.md` with concise
+Lessons and Recent decisions; avoid a rename with no behavior benefit. Remove
+the old fixed feedback cap rather than invent a size requirement beyond R21.
+Brainstorms remain unchecked exploration, separate
 from approved requirements and durable truth. External documents remain dated
 outside sources. Existing-system explanation goes to an enabled Guide or an
 actual named owner such as Acme's architecture, never a fallback memory dump.
@@ -353,15 +386,16 @@ and recovery routes available. Keep it small and route to details. Verify each
 host's delivery/recovery behavior; do not assume a Claude rule is automatically
 available in Codex or that root instruction files should contain the whole rule.
 
-The earlier six-to-four skill consolidation is a proposal to review, not an
-approved rename. Preserve these four responsibilities regardless of final names:
+Retain the six existing skill names. Their responsibilities remain distinct,
+while lifecycle skills reuse the save/publication procedure instead of owning
+separate writers. The four-way grouping below explains jobs, not renamed skills:
 
 | Responsibility | Procedure | Completion and failure behavior |
 | --- | --- | --- |
-| Find (`knowledge-find`) | Orient to shared current work; apply applicable rules/skills; use glossary and source indexes; open relevant authoritative records; search session history last when appropriate; cite evidence and explain conflicts. | Relevance/depth remain agent judgment. Distinguish historical conversation from current truth. Ask only for a material unresolved gap. |
-| Save (`knowledge-save`) | Review candidates, determine kind/scope/owner, find existing record, apply existing permission or present needed card, preserve pending state, write/read back/check/publish. | No candidate is a valid outcome. A marker is not completion. Failed writes/checks/pushes remain unfinished with authority and next action preserved. |
-| Review (`knowledge-review`) | Inspect relevant records for duplication, contradiction, missing sources, stale truth, or lifecycle needs; propose scoped changes. | Keep useful history; avoid mass rewriting or deleting by age. Lasting changes follow their destination's approval. |
-| Setup (`knowledge-setup`) | Inspect existing configuration and files; install/repair approved components; reconcile layout; verify activation, links, and host behavior; report differences. | Preserve owner content. Stop affected migration on conflict. Distinguish configured, tested, and unavailable behavior. |
+| Find (`recall`, then `session-search` when needed) | Orient to shared current work; apply applicable rules/skills; use glossary and source indexes; open relevant authoritative records; search available history last; cite evidence and conflicts. | Relevance/depth remain agent judgment. Historical conversation is not current truth; report unavailable history. |
+| Save (`remember`) | Review candidates, determine kind/scope/owner, find existing record, apply existing permission or needed card, preserve pending state, write/read back/check/publish. | No candidate is valid. A marker is not completion. Failed saves retain authority and next action. |
+| Review (`reflect`, `retire`) | Inspect several records or one lifecycle operation; propose scoped maintenance and use the common save procedure. | Preserve useful history; no age-only deletion or separate unpublishing writer. |
+| Setup (`second-brain`) | Inspect configuration/content; install/repair approved components; reconcile layout; verify activation and host behavior. | Preserve owner content; distinguish configured, tested, and unavailable behavior. |
 
 Skills load templates and detailed procedures only when needed. Save guidance
 links to memory/PRD card and file templates, routing, inbox recovery, and skill
@@ -377,7 +411,7 @@ variants must not drift between hosts or setup templates.
 
 > The user has submitted a message.
 >
-> **Friendly reminder:** keep front of mind and follow the Toolkit operating system's methodologies, processes, and instructions. Use the applicable root instruction chain, `AGENTS.md` and/or `CLAUDE.md`, to know what the project's files and folders contain and where information belongs. Toolkit operating manual: **[configured relative path; not yet decided]**.
+> **Friendly reminder:** keep front of mind and follow the Toolkit operating system's methodologies, processes, and instructions. Use the applicable root instruction chain, `AGENTS.md` and/or `CLAUDE.md`, to know what the project's files and folders contain and where information belongs. Toolkit operating manual: `docs/toolkit-manual.md`.
 >
 > Evaluate the user's message and relevant conversation for information to retain or update:
 >
@@ -391,9 +425,11 @@ variants must not drift between hosts or setup templates.
 >
 > Acknowledge this reminder, then perform the evaluation. Acknowledgment confirms intent, not completed review or saving.
 
-Proposed acknowledgment: “Acknowledged. I'll evaluate what needs retaining or
-updating.” Its visible/internal transport remains open. The operating-manual
-placeholder must become a real configured path before shipping. The reminder
+Proposed owner-facing acknowledgment: “Acknowledged. I'll evaluate what needs
+retaining or updating.” Recommend an explicit intent receipt through the shared
+helper, independently of this display wording; prove its transport under H3.
+The operating-manual path in this draft is the separate OS task's recommendation;
+its owner must accept and deliver that file before this wording ships. The reminder
 does not force a full manual reread each turn; missing or stale guidance is read
 before the affected operation.
 
@@ -407,6 +443,10 @@ internal acknowledgment if the selected host supports it. An explicit review
 request receives a meaningful answer. Specify bounded continuation and recovery
 before implementing a Stop handler; do not fire after every intermediate tool
 or assistant message or let the acknowledgment trigger itself indefinitely.
+Recommend at most one corrective continuation per review generation when its
+outcome is missing; a second miss is reported as unfinished, never retried in a
+loop. Pending approval is a legitimate completed-review outcome. Activation of
+this proposed handler still needs design/build acceptance.
 
 The earlier save-moment gate held PR creation, work-item close, and `work finish`
 until the save skill had run since the last commit. That is a **candidate to
@@ -426,13 +466,13 @@ minimum safeguard justified by the PRD and prove covered tools, shell writes,
 path normalization, worktrees, permissions, and timeout behavior. Document
 uncovered paths. Do not claim a post-write check prevented the write.
 
-The after-write handler can run the checker and rebuild indexes on covered
-events. The save procedure still explicitly performs read-back, validation, and
-publication because not every write necessarily emits the same host event.
-A checker error must reach the agent and leave the save unfinished. Proposed
-Git pre-commit integration checks the staged content; it cannot establish truth
-or prevent every bypass. Preserve existing project Git hooks and report a
-configuration conflict instead of replacing them silently.
+The baseline save procedure explicitly performs read-back, validation, index
+rebuild, and publication. Add an event-triggered check only when its proven
+coverage improves recovery; not every write emits the same event. A checker
+error must reach the agent and leave the save unfinished. Recommend no new Git
+pre-commit blocker for the initial release. Preserve existing project hooks.
+Blocking Mike's own manual edits would be a separate policy choice, not a
+side effect of enabling knowledge.
 
 Manual compaction and handoff need a checkpoint before context disappears.
 Verify what each host can deliver or hold. Do not block automatic recovery
@@ -497,9 +537,11 @@ frontmatter parser makes the builder and checker agree. Do not add content
 limits simply to simplify a prompt budget; reconcile any new limit with R21.
 Read-back and semantic/source review remain agent work.
 
-Temporary session state can record a session identity, relevant checkpoint
-generation, acknowledgment kind, and bounded retry information. The exact
-schema/storage remains a design task. Keep it outside tracked knowledge and
+Temporary session state records project, host, session, and agent identity,
+separate startup/review generations, instruction revision, delivered file
+digests/ranges, acknowledgment outcome, and bounded retry state. Use serialized
+generation comparison and atomic replacement: a late hook must not overwrite
+a newer prompt's state. Keep it outside tracked knowledge and
 never store summaries, interpretations, or lasting approval as hidden authority.
 Durable permission and pending saves belong in the inbox or owning record.
 Separate helper sessions and concurrent sessions; do not inherit a parent's
@@ -531,11 +573,11 @@ the response with the right session and checkpoint, and report failure.
 | Lasting write and validation | Target, operation, scoped authority, latest destination, and actual resulting content. | Agent checks meaning/scope; tools report objective prerequisites and file/index validity. | An invalid file remains an unfinished save. A post-write error is recovery evidence, not proof that the write was prevented. |
 | Handoff or context loss | Current task position, relevant inbox entries, durable authority, and available recovery routes. | Next session can find the pending work and resume under unchanged authority. | Report an unavailable event/gate; use the shared records rather than a private checkpoint file as the continuation source. |
 
-The exact acknowledgment transport is still open. A visible reply, explicit
-tool receipt, or host-supported internal response has different UX and coverage
-costs. Select the smallest proven option; do not parse ordinary prose to score
-whether the agent reasoned correctly. Session receipts identify the checkpoint
-they answer, not just a branch or the time a skill was opened.
+The selected design candidate is the bounded reader and explicit helper
+acknowledgment described in6.1 and the host evidence. H1–H6 establish actual
+transport, delivery, isolation, and bounded recovery before acceptance. Do not
+parse ordinary prose to score reasoning. Receipts identify their current
+checkpoint, not merely a branch or when a skill was opened.
 
 The inventory explains each part's contribution. This reverse map prevents a
 requirement disappearing when parts are renamed or simplified. Coverage is a
@@ -621,8 +663,9 @@ recommendations do not become selected mechanisms merely by being copied here.
 
 ### Migration scope
 
-The old draft proposes new skill names, plugin-owned hooks, a standing rule,
-new layout, indexes, checker extensions, and host settings. Before coding,
+The baseline retains public skill names, copied runtime, and existing feedback
+path; it changes required layout, indexes, checker behavior, and host wiring.
+The old rename/plugin-path/extra-rule inventory is historical. Before coding,
 inventory the live shipped originals, installed copies, catalogs, settings,
 tests, and references. Confirm what is already delivered. This document's
 proposed paths must not be mistaken for today's live paths such as
@@ -744,10 +787,10 @@ tradeoffs; platform facts and bookkeeping are investigation work.
 
 | Item | Disposition | Next action |
 | --- | --- | --- |
-| Full startup printing versus reads | Reopened by latest read-and-handshake direction | Specify actual reads, acknowledgment, failure handling, and host proof; reconcile old selected delivery wording. |
+| Full startup printing versus reads | Read-and-handshake direction; bounded reader/ack candidate selected by architect | Prove H2 actual model delivery; declaration-only fallback cannot pass R2. |
 | Quiet routine no-change review | Settled by current PRD | Preserve quiet owner experience; investigate internal transport separately. |
-| Every-prompt reminder | Selected | Finalize canonical text, real manual path, and acknowledgment transport. |
-| End-turn checkpoint | Mechanism proposed | Recommend one completion checkpoint; settle exact outcome/retry/recovery contract. |
+| Every-prompt reminder | Selected behavior; explicit helper intent receipt recommended | Canonical message in existing reminder module, real manual paths, H3 transport proof. |
+| End-turn checkpoint | Bounded handler recommended, not owner-selected | One corrective continuation at most; validate outcome/recovery under H4 before activation approval. |
 | Changed-file review trigger | Rejected | Remove it from current design/testing assumptions; file changes can still trigger objective file validation. |
 | Glossary path | Recorded direction | Use proposed path; verify migration and delivery before term-dependent work. |
 | Proposed PRD approval fields | Settled by current R16 | Unapproved proposed draft omits both; valid paired fields when requirements approved. |
@@ -757,10 +800,10 @@ tradeoffs; platform facts and bookkeeping are investigation work.
 | Additional size limits | Genuine design/PRD constraint | R21 governs; measure first, seek decision only if required meaning/limits conflict. |
 | Save failure versus work completion | Cross-component policy question | Reconcile affected-work pause, pending-save recovery, and tracker completion; do not invent global blocking. |
 | Guard scope, helper writes, invocation markers | Architecture choices not approved by old draft | Recommend narrow objective checks and prove coverage; semantic approval remains agent work. |
-| Checks on the owner's own edits | Owner policy decision if pre-commit enforcement is retained | Explain whether an invalid staged knowledge file blocks Mike's own commit, available recovery, and bypass limits before asking for a decision. |
+| Checks on the owner's own edits | No new pre-commit blocker recommended initially | Preserve existing hooks; any broader blocking policy needs an explicit justified decision. |
 | Manual compaction, clear, resume, fork | Host mechanics and recovery behavior | Verify supported events and current guidance reuse; no repeated greeting by default. |
 | Codex equivalence | Requirement applies | Investigate exact gaps and disclose them; any behavioral relaxation needs explicit decision. |
-| Skill-authoring dependency | Separate process | Find actual current owner/process before assuming it is absent or adding a subsystem. |
+| Skill-authoring dependency | Separate process | D1-P2 must identify the actual authoring owner/process; if absent, R17 integration stays blocked pending separately authorized capability. |
 | Moving component PRDs under parent | Old question already overtaken by current nested paths | Preserve current locations; do not ask to approve a move already reflected in current records. |
 | Publication, migration, installed-copy removal | Separate delivery actions | Reconcile actual live state and scope; keep owner changes and project-specific authorization. |
 
@@ -784,7 +827,7 @@ current instructions.
 | 3 Design philosophy | Retained and strengthened in section3, including the design patterns and their requirement contributions; precise limits replace absolute enforcement claims. |
 | 4 The parts | Retained as section4 with all part families, coverage, timing, context cost, documentation/proof. |
 | 5 A session, start to finish; process diagram | Revised as Acme section5 and diagrams in5/6.7; startup and current checkpoints reconciled. |
-| 6 Each part in detail | Current useful behavior retained in section6: files, rules, four responsibilities, each hook responsibility, tools, state, settings, save/recovery. Exact old code-like specifications, literal rule bodies, numeric cutoffs, and outdated schemas remain historical until selected and reverified. |
+| 6 Each part in detail | Current useful behavior retained in section6: files, existing skills grouped by responsibility, consolidated hook responsibilities, tools, state, settings, save/recovery. Exact old code-like specifications, literal rule bodies, numeric cutoffs, and outdated schemas remain historical until selected and reverified. |
 | 7 Requirement map | Rebuilt for all30 requirements in section7 with proof and limitations. |
 | 8 Codex | Current responsibilities in8 and proofs10; exact historical config/source investigations retained for verification rather than asserted as current APIs. |
 | 9 What changes today; dependency and migration lists | Retained as9; refresh the actual file-by-file implementation inventory before build. Historical rename lists remain source material, not authorization. |

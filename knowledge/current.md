@@ -14,19 +14,19 @@ Updated: 2026-09-17
 
 **Goal** Ship reliable knowledge lookup, upkeep, and saves.
 
-**Current status** Task D1 solution-design review; full approvals pending; no build authorization.
+**Current status** Task D1: autonomous design reconciliation and implementation planning authorized Sept 17; runtime work has not started.
 
 **Recent progress**
-- Sept 17: Acme chose core knowledge plus `delivery/architecture/`, no Guide; every prompt gets a short routing reminder and intent acknowledgment.
+- Acme: core knowledge, `delivery/architecture/`, no Guide. Master preserves detailed parts and flows; startup read/ack and every-prompt reminder guide the design.
 
-**Next step** Review step 2 routing and prompt criteria; remaining wording, acknowledgment transport, and end-turn handling are open.
+**Next step** Implementation plan independently reviewed. Review its recommended baseline and start D1-P1 host proofs before dependent production work.
 
 **Blocker** Requirements/design approval before build.
 
 **To-dos**
-- Complete the 12-step walkthrough, reconcile answers, and obtain separate PRD/design approvals.
+- Resolve evidence and material policy choices without inventing approvals; retain Acme as acceptance scenario.
 
-**Detailed record** [Issue #269 task D1](https://github.com/Mar5929/claude-toolkit/issues/269#task-d1--review-and-finalize-the-solution-design); [walkthrough](../docs/designs/269-knowledge-system/design-walkthrough.md).
+**Detailed record** [Task D1](https://github.com/Mar5929/claude-toolkit/issues/269#task-d1--review-and-finalize-the-solution-design); [implementation plan](../docs/designs/269-knowledge-system/implementation-plan.md).
 
 ### Guided work management — #337
 Updated: 2026-09-17

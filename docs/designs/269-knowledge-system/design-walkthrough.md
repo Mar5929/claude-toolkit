@@ -35,7 +35,7 @@ All runtime paths below describe the proposed system. Today this repository stil
 | Assumptions, not decisions | Project-memory saves require approval under the recommended/default design. The GitHub repository does not select the work tracker. |
 | Latest scenario message | Mike's hypothetical brief describes the consulting firm and team structure, names Acme Corp as the client, assigns originating-org and target-org roles to the two existing orgs, and states an initial scope. No actual names or detailed facts were supplied; placeholders remain. This event was supplied on 2026-09-17. |
 | Unresolved choices | Detailed migration strategy; work tracker; architecture topic names/content; canonical source and remaining wording for the compact reminder; acknowledgment transport; second completion checkpoint. The general System Guide/client-architecture integration question remains open outside Acme and does not block this scenario. |
-| Existing decisions retained | Startup delivery counts as reading; check delivery completion. Agent reasoning with lightweight handshakes is the governing philosophy. Changed-file review trigger rejected. Every submitted prompt gets a short all-destination review reminder, manual pointer, and explicit intent acknowledgment without a forced manual reread. |
+| Existing decisions retained | Startup requires actual ordered reads followed by a truthful completion acknowledgment; a reminder or path list is not a completed read. Agent reasoning with lightweight handshakes is the governing philosophy. Changed-file review trigger rejected. Every submitted prompt gets a short all-destination review reminder, manual pointer, and explicit intent acknowledgment without a forced manual reread. |
 | Next question | Does the proposed routing preserve the first brief in the right bounded homes, and what compact prompt reminder helps the agent do that without confusing intent acknowledgment with completed review? |
 | Remaining work | Review steps 1–12, reconcile their answers into PRD/design, then obtain full requirements and design approvals. |
 
@@ -100,7 +100,12 @@ a design choice, and configurable `guidePath` does not prove arbitrary client
 document adoption. It does not block Acme's Guide-off scenario or authorize an
 automatic path move.
 
-**What runs:** the existing `project-init` entry point delegates the knowledge portion to proposed `plugins/second-brain/skills/knowledge-setup/SKILL.md`. An existing project reaches the same skill from `project-sync` or an ordinary setup request. There is no background installer guessing which projects to enable.
+**What runs:** the existing `project-init` entry point delegates the knowledge
+portion to the existing second-brain setup responsibility, updated to implement
+the proposed contract. An existing project reaches the same responsibility
+from `project-sync` or an ordinary setup request. There is no background
+installer guessing which projects to enable. Renaming that public skill is not
+part of the recommended first build.
 
 The skill inspects the project, existing instructions/settings, installed plugin version, and Git hooks. It creates or safely merges the project files from its `references/templates/`:
 
@@ -113,13 +118,19 @@ The skill inspects the project, existing instructions/settings, installed plugin
 | `knowledge/memory-inbox.md` | Pending decisions and unfinished approved saves |
 | `knowledge/memory/memory-index.md`, `knowledge/prds/prd-index.md` | Generated maps to actual source documents |
 | `knowledge/memory/memory-entries/terminology-glossary.md` | Project vocabulary; final path remains a review choice |
-| `knowledge/memory-selection-feedback.md` | Project-specific lessons about selecting memory |
+| `knowledge/memory-self-improvement.md` | Recommended existing home for concise project-specific lessons about selecting memory; its location remains a design recommendation under R23 |
 | `ai-external-knowledge/README.md` | Generated map of captured outside sources, when present |
 | `delivery/architecture/` | Client-owned detailed solution architecture, grouped by topic area and retained after work items close |
 
 Empty destinations contain no invented history or approvals. Existing content is read before any merge. Lasting meaning changes retain the relevant approval requirements.
 
-Reusable skills/hooks/tools run from the installed plugin. Claude receives `.claude/rules/knowledge-system.md` and project activation in `.claude/settings.json`; Codex receives corresponding root `AGENTS.md` guidance and its supported hook/skill registration. The proposed four skills are `knowledge-find`, `knowledge-save`, `knowledge-review`, and `knowledge-setup`. Setup connects the eight hooks listed in later steps, including the new short prompt reminder. It checks `core.hooksPath` and existing `.git/hooks` before adding `.githooks/pre-commit`.
+The recommended first build keeps the existing six public skills—`recall`,
+`remember`, `retire`, `reflect`, `second-brain`, and `session-search`—and
+reconciles their responsibilities. Packaged originals and equipped runtime
+copies stay aligned through setup/sync and installed-copy checks. Claude and
+Codex receive their supported registration and root routes. Hook count and
+filenames may change as adapters are proved; setup does not add a new Git
+pre-commit hook in the recommended baseline.
 
 **Agent versus machinery:** the agent establishes the project's purpose and
 interprets conflicts. During setup it records two org placeholders and leaves
@@ -139,8 +150,8 @@ with the selected Salesforce architecture area and no System Guide, using
 machine-installed reusable components and project-owned Markdown. The scenario
 now treats knowledge as hypothetically set up and proceeds to a fresh session.
 Step 1 remains unapproved and its open file/layout details are retained; exact
-layout migration and remaining platform gaps return in step 12. Design source: §§6.3
-knowledge-setup, 6.7, 8, 9.3–9.5, plus the
+layout migration and remaining platform gaps return in step 12. Design source:
+master §§6.4, 6.8–11 and implementation plan E1-P1/P7, plus the
 [Salesforce project scaffold](../../../plugins/project-init/skills/project-init/references/salesforce-project-scaffold.md).
 
 ## 2. Open the first session
@@ -158,15 +169,30 @@ project and what we're doing.”
 **Parent orientation interface:** Mike separately asked for first-session startup to
 orient the agent to the toolkit as a whole through the applicable root
 `CLAUDE.md` or `AGENTS.md` chain and higher-level operating guidance. Toolkit OS
-R6 owns that behavior. A concise operating-manual or pointer-file layout is an
-open parent-design choice; the Knowledge System manual remains the component
-owner for knowledge detail and must not become a competing toolkit manual.
+R6 owns that behavior. Separate OS work recommends `docs/toolkit-manual.md`,
+owned by project-init/project-sync. Its acceptance and delivery under issue
+#306 remain open; the Knowledge System manual stays the component owner for
+knowledge detail and must not become a competing toolkit manual.
 
-**Trigger and files:** proposed Knowledge System `SessionStart` registration invokes `plugins/second-brain/hooks/startup-files.mjs` and `startup-state.mjs`. The first delivers version, `SOUL.md`, `knowledge/project.md`, then `knowledge/README.md`. The second delivers inbox headings/states, glossary, index paths/counts, the explicit `System Guide is not configured` state, and working memory. Detailed source documents stay on disk until useful.
+**Trigger and files:** the proposed `SessionStart` adapter gives a compact
+ordered-read request for `SOUL.md`, `knowledge/project.md`, then
+`knowledge/README.md`, plus routes to current work, relevant inbox entries, the
+glossary, and indexes. It reports that System Guide is not configured. The
+agent opens actual content; naming a path or printing a partial preview does
+not satisfy the read. Detailed sources remain on disk until relevant.
 
-The draft budgets 9,500 characters per hook. Missing or overflowed required content produces an explicit path to read; it must not silently count as delivered. Glossary printing is proposed at 1,500 characters, falling back to term/reference columns plus the file path. Inbox preview is proposed at 1,200. These cutoffs and extra file ceilings remain choices, not approved PRD limits.
+The revised design has no inherited 9,500-character hook budget, glossary
+print cutoff, or inbox preview cutoff. The implementation plan measures the
+directive, actual reads, acknowledgment, repeated reminders, and observed token
+use separately. Required meaning cannot be silently truncated to fit a target.
 
-**Agent / handshake:** actual hook delivery already counts as the startup read. The agent follows explicit missing-file instructions and acknowledges readiness only when the required material arrived. It interprets the current work; the hook does not decide what the next task means. In a fresh project it begins the requested feature discussion without fabricating prior progress.
+**Agent / handshake:** the agent performs the ordered reads and reports
+completion only after the required content is available. A host-specific
+receipt may establish observable delivery or an agent declaration; neither
+proves understanding. A declaration-only fallback does not meet strict R2 as
+currently written. Missing or partial reads keep dependent work paused. In a
+fresh project the agent begins the requested feature discussion without
+fabricating prior progress.
 
 The delivered starter map contains only known pre-brief scenario facts: Acme
 Corp, two unnamed Salesforce orgs, the consolidation goal, and the selected
@@ -193,9 +219,9 @@ prompt-side conversation handshake below is selected design behavior, while its
 exact text and end-of-turn completion handling remain open. No hook is claimed
 to be implemented.
 
-**Mechanism under review:** the current draft uses `SessionStart`
-`startup-files.mjs` for `SOUL.md`, `knowledge/project.md`, and the manual, and
-`startup-state.mjs` for context maps. Mike chose a new Knowledge System
+**Mechanism under review:** the recommended baseline reworks the existing
+startup module and adds only the smallest receipt/checkpoint helper that host
+proof justifies. Mike chose a Knowledge System
 `UserPromptSubmit` hook that, before every prompt is processed, begins nearly
 verbatim: “Friendly reminder: keep front of mind and follow all of the Toolkit
 operating system methodologies, processes, and instructions. Know where the
@@ -205,7 +231,8 @@ and every proper destination, including work records, an enabled System Guide,
 and `delivery/architecture/`. It links `knowledge/README.md` and the future
 higher Toolkit Operating System manual without injecting either manual in full,
 then asks for an explicit acknowledgment of intent. The higher manual's path is
-still a parent-design proposal. The agent reasons about kind, scope, owner,
+the separate OS task's `docs/toolkit-manual.md` recommendation, not an approved
+or installed path. The agent reasons about kind, scope, owner,
 eligibility, and action under existing approval rules. The acknowledgment does
 not prove the review completed or approve a write.
 
@@ -229,9 +256,15 @@ separate. Official Claude Code and Codex documentation supports
 `UserPromptSubmit` additional context, but this proposed Knowledge hook still
 needs Windows, trust, registration, and fresh-session runtime proof.
 
-**Failure:** missing manual or timeout prevents an honest readiness acknowledgment; pause work needing that guidance, recover the file/delivery, then continue. Fail-open hooks cannot guarantee the action was blocked. The design needs fresh-session proof of ordering across both hook outputs.
+**Failure:** missing manual, partial read, stale receipt, or timeout prevents an
+honest readiness acknowledgment; pause work needing that guidance, recover the
+content, then continue. Fail-open hooks cannot guarantee the action was
+blocked. The design needs fresh-session proof on each host and cannot claim R2
+complete from a declaration alone.
 
-**Review:** approve what reaches the agent and what Mike sees, then settle budgets and `/clear` confirmation behavior. Source: §§5, 6.4 startup hooks, 13.1, 13.14, 13.21–13.22.
+**Review:** approve what reaches the agent and what Mike sees, then settle
+receipt evidence, measured context cost, and `/clear` confirmation behavior.
+Source: master §§5–8 and implementation plan D1-P1/E1-P5/P8.
 
 ## 3. Answer with the right knowledge
 
@@ -239,7 +272,10 @@ needs Windows, trust, registration, and fresh-session runtime proof.
 the target org use a different rule?” Later he asks an unrelated arithmetic
 question.
 
-**Trigger:** the standing rule prompts the agent to decide once per request whether saved knowledge could affect the answer. Relevant work invokes `plugins/second-brain/skills/knowledge-find/SKILL.md`; no search hook classifies the question.
+**Trigger:** the standing rule prompts the agent to decide once per request
+whether saved knowledge could affect the answer. Relevant work uses the
+existing `recall` responsibility, reconciled to the new find order; no search
+hook classifies the question.
 
 The skill resolves Acme's org and component terms through the glossary and
 follows working context → instructions → skills → relevant indexes and source
@@ -258,7 +294,9 @@ are explicit. A history tool unavailable in Codex means unavailable, not
 
 **Result:** a sourced answer, with only necessary retrieval. Already-read relevant context may be reused; arithmetic needs no knowledge lookup. No files are written merely because a search occurred.
 
-**Review:** approve retrieval, citation, and missing-source behavior. Source: §6.3 knowledge-find; PRD R5–R8, R19, R24, R26.
+**Review:** approve retrieval, citation, and missing-source behavior. Source:
+master §6.4 find responsibility; implementation plan E1-P4; PRD R5–R8, R19,
+R24, R26.
 
 ## 4. Capture the initial requirements without losing the discussion
 
@@ -268,7 +306,7 @@ behavior. Their roles came from the brief; detailed migration and solution
 choices remain open until he settles them.
 
 **Trigger / files:** the existing requirements workflow owns the interview;
-`knowledge-save` applies the already-authorized save path to
+the reconciled `remember` responsibility applies the already-authorized save path to
 `knowledge/prds/org-consolidation.md`. It does not demand a new memory card
 after every answer. The agent preserves which behavior was agreed, which source
 org evidence supports it, and which choices remain proposed. Saving the
@@ -280,7 +318,8 @@ The PRD has a clear title, contents, Why, What, grouped numbered requirements an
 
 **Failure:** publication failure is explicit and retained for recovery. Do not pretend another machine has the answer. Continue only work independent of the failed save.
 
-**Review:** approve interview continuity and PRD structure/approval meaning. Source: §6.3 knowledge-save; §§13.3, 13.16–13.18, 13.23.
+**Review:** approve interview continuity and PRD structure/approval meaning.
+Source: master §§6.3, 6.7, 12; implementation plan E1-P1/P4.
 
 ## 5. Notice useful information in conversation alone
 
@@ -299,7 +338,9 @@ checkpoint is still open; the prompt acknowledgment cannot prove it happened.
 
 **Architect's proposal for review here:** a bounded checkpoint asks the agent to review the conversation against the routing/save criteria, then acknowledge the review outcome. The agent may report no candidate, existing coverage, routed changes, proposals awaiting permission, or an unfinished save. Acknowledgment records that the step was reported; it cannot certify judgment. `session-review-nudge.mjs` is the draft location for Stop integration, subject to verified harness support and loop prevention. Do not implement the old changed-file threshold. Do not equate the existing skill-entry marker with review completion.
 
-The agent reads `knowledge-save/references/routing.md` and determines information kind, scope, and owner before memory eligibility:
+The agent follows the save procedure's canonical routing reference and
+determines information kind, scope, and owner before memory eligibility. Its
+final filename remains an implementation detail:
 
 | Conversation content | Owning destination |
 | --- | --- |
@@ -319,7 +360,12 @@ Additional routing branches: a reusable procedure belongs to skill authoring; st
 
 The pilot uncovers a meaningful failure. Investigation with Mike establishes its cause and fix, which future sessions would otherwise repeat.
 
-**Trigger / files:** `knowledge-save` reads the manual, `memory-selection-feedback.md`, relevant topic/source files, and inbox. It checks whether the lesson already exists, belongs in a skill, or qualifies as a lasting memory. Ordinary autonomous tool fixes are excluded; the PRD's significant-fix exception is considered by the agent.
+**Trigger / files:** the reconciled `remember` responsibility reads the manual,
+the recommended existing `knowledge/memory-self-improvement.md`, relevant
+topic/source files, and inbox. It checks whether the lesson already exists,
+belongs in a skill, or qualifies as lasting memory. Ordinary autonomous tool
+fixes are excluded; the PRD's significant-fix exception is considered by the
+agent.
 
 For new permission, show destination headings and uniquely numbered cards with Change, Summary or Affected knowledge, and Your decision. Keep the headline scannable, include provenance and the approved meaning, and settle uncertainty before requesting approval. Exact card-label differences in the older walkthrough remain a review choice.
 
@@ -327,13 +373,21 @@ The same reply creates a stable entry in `knowledge/memory-inbox.md` with the ex
 
 **Branches:** yes uses that permission once; correction changes the approved meaning; rejection removes the proposal and records only the reason actually given; silence leaves awaiting approval. Asking to see full text is not approval. Unchanged pending cards are not re-proposed. With project memory approval off, the agent follows standing permission for memory operations, while PRD permissions remain separate. Its provenance must not falsely attribute a fresh personal approval; exact metadata remains open.
 
-**Review:** approve cards, inbox persistence, feedback, and standing-permission provenance. Source: §§6.1 inbox/feedback, 6.3 knowledge-save, 13.4, 13.17.
+**Review:** approve cards, inbox persistence, feedback, and standing-permission
+provenance. Source: master §§6.2–6.4, 6.7, 12; implementation plan E1-P1/P4.
 
 ## 7. Save, check, and publish the approved meaning
 
 **Mike:** approves the lesson. The agent opens the existing topic and merges the meaning coherently instead of appending a session log or creating a file per fact.
 
-**Components:** `knowledge-save` guides a pre-write review of meaning, authority, destination, and source. `tools/session-marker.mjs` currently records skill invocation. `knowledge-write-guard.mjs` on `PreToolUse` can check covered write tools and reject helper writes; it cannot verify semantic approval or cover every shell write. `knowledge-after-write.mjs` on `PostToolUse` runs `tools/check-knowledge.mjs` and `tools/build-knowledge-index.mjs`; they share `tools/frontmatter.mjs`. `.githooks/pre-commit` provides staged-file checking where installed.
+**Components:** the reconciled `remember` responsibility guides a pre-write
+review of meaning, authority, destination, and source. The recommended small
+checkpoint helper records only project, host, session, agent, generation, and
+acknowledgment outcome. It does not authorize a write. The existing checker,
+index builder, and shared parser perform objective checks through the save
+procedure and supported events. A new write guard is added only for a proved
+objective prerequisite with documented coverage. The recommended first build
+does not add a Git pre-commit hook.
 
 The proposed memory file requires summary, group, type, status, source, context, confidence, created/updated dates, tags, approved_by, and approval_date. Add optional fields only when justified. Body wording states the reusable truth clearly, labels inference, preserves provenance, and uses an exact quote only when authorized. Splitting a large topic into a folder requires a coherent approved plan.
 
@@ -343,7 +397,9 @@ Authorized publication follows the owning project's Git workflow. In this toolki
 
 **Failure:** denied write, invalid metadata, conflict, failed commit, or failed push leaves a specific `approved, save unfinished` or `blocked by conflict` entry. Repair within existing permission; ask only if meaning or authority changes. Hook timeout, shell bypass, and `--no-verify` are named limitations.
 
-**Review:** approve completion acknowledgment versus entry marker, practical checks, publication batching, and the effect of pre-commit on owner edits. Source: §§6.3–6.6, 13.3–13.4, 13.18.
+**Review:** approve completion acknowledgment versus intent receipt, practical
+checks, publication batching, and any proposed objective guard. Source: master
+§§6.5–6.8, 10, 12; implementation plan D1-P1 and E1-P2–P5.
 
 ## 8. Continue after interruption, with another session active
 
@@ -351,11 +407,19 @@ The push failed. Two days later Mike opens the Acme Corp project on another
 machine: “Continue where we stopped.” Meanwhile another session is working on
 the identity and access workstream.
 
-**Trigger / reads:** startup hooks deliver current work and inbox states. The agent opens the active item's detailed record and relevant pending entry. Working memory contains project goal, separate active items with goal/status/recent progress/next step/blocker/to-dos/detail link, and general to-dos. It is not a transcript or authoritative tracker.
+**Trigger / reads:** startup/recovery guidance routes to current work and inbox
+states. The agent opens the active item's detailed record and relevant pending
+entry. Working memory contains project goal, separate active items with
+goal/status/recent progress/next step/blocker/to-dos/detail link, and general
+to-dos. It is not a transcript or authoritative tracker.
 
 An approved unfinished save resumes from existing approval after checking whether the destination already contains it. An unanswered proposal remains unanswered. A local-only entry cannot appear on another machine until shared; the report must name that limitation instead of promising recovery of unwritten/unpublished state.
 
-Before editing shared current/inbox content, reread it. Covered whole-file writes are denied; exact-match edits fail on changed text, prompting reread. Across worktrees, fetch/reconcile default-branch changes before publication, preserving both active items. This is not a global lock and cannot prevent every shell overwrite.
+Before editing shared current/inbox content, reread and reconcile it. A stable
+operation reference prevents a retry from duplicating an already-landed save.
+Across worktrees, fetch/reconcile default-branch changes before publication,
+preserving both active items. Any objective write guard remains conditional on
+proved host/tool coverage; there is no global lock.
 
 **Review:** approve recovery, sharing cadence, and concurrent updates. Test separate worktrees and a second machine, not just two edits in one checkout. Source: §§5, 6.1 shared context/inbox, 6.4 write guard, 10.
 
@@ -363,29 +427,49 @@ Before editing shared current/inbox content, reread it. Covered whole-file write
 
 **Mike:** “Review our saved knowledge; some recovery details changed.”
 
-**Trigger / files:** `knowledge-review/SKILL.md` reads memory topics and PRDs, identifies duplication/conflicts/retirement candidates, and routes proposed writes through `knowledge-save`. A compatible addition updates the maintained topic. A replacement supersedes old meaning with dated context and links; obsolete but useful history is retired. Delete only under the PRD's narrow criteria and approval, repairing references. Age alone proves nothing.
+**Trigger / files:** the reconciled `reflect` responsibility reviews memory and
+PRDs for duplication, conflicts, and lifecycle candidates. `remember` and
+`retire` share the same authorized save/publication path. A compatible addition
+updates the maintained topic. A replacement supersedes old meaning with dated
+context and links; obsolete but useful history is retired. Delete only under
+the PRD's narrow criteria and approval, repairing references. Age alone proves
+nothing.
 
 The owner also hand-edits a topic. Preserve that meaning; fix clear mechanical problems and rebuild indexes. Ask before guessing how to repair an ambiguous semantic conflict. Consolidate actual memory-selection feedback without inventing rejection reasons or exporting it to other projects.
 
 **Handshake / failure:** a completed scan reports findings, not automatic permission to alter meaning. Broken links/invalid shapes produce objective findings; the agent judges the remedy. No findings need no approval card.
 
-**Review:** approve topic upkeep, history, hand-edit handling, and feedback cleanup. Source: §§6.1, 6.3 knowledge-review, 6.5; PRD R1, R14–R15, R21–R23.
+**Review:** approve topic upkeep, history, hand-edit handling, and feedback
+cleanup. Source: master §§6.3–6.4, 6.6–6.7; implementation plan E1-P4; PRD R1,
+R14–R15, R21–R23.
 
 ## 10. Hand off or compact the conversation
 
 **Mike:** “Save where we are; I'll continue in Codex.”
 
-The existing handoff workflow invokes `knowledge-save`, updates the tracker/current context, publishes pending state, and records the next step. It does not invent a second work tracker. Next-session restoration uses the two startup hooks and source links.
+The existing handoff workflow invokes the reconciled save responsibility,
+updates tracker/current context, publishes pending state, and records the next
+step. It does not invent a second work tracker. Next-session restoration uses
+the proved startup/recovery adapter and source links.
 
-The draft `compact-hold.mjs` proposes a `PreCompact` hold for manual Claude compaction. It does not protect automatic compaction, and the draft records no Codex blocking equivalent. Both claims require runtime verification. A pre-compaction stop alone cannot make an agent review unless control returns to it; test that path and user-visible message. `/clear` confirmation semantics remain open. Abrupt termination cannot promise an unperformed final save.
+Compaction hooks may preserve objective checkpoint identity and restore routes,
+but they are not the only save moment and do not prove a review. Verify manual
+and automatic compaction separately on each host. Do not block automatic
+recovery on an unproved mechanism. `/clear` confirmation semantics remain open,
+and abrupt termination cannot promise an unperformed final save.
 
 **Recommendation / review:** make explicit handoff reliable through completed review and durable publication. Treat harness-specific compaction handling as an additional verified safeguard; name any remaining gap. Determine whether the gap meets R25 rather than silently lowering that requirement. Source: §§6.4 compact, 8, 13.13, 13.21.
 
 ## 11. Deliver an authorized consolidation component and update affected requirements
 
-Implementation occurs only after its own authorization. Before a PR, the proposed `save-moment-gate.mjs` watches covered `PreToolUse` commands such as PR creation, item close, and `work finish`, using `hooks/command-parsing.mjs` for shell forms. It requests review if the recorded marker is missing/outdated. Browser actions and unrecognized commands are gaps; a timestamp cannot judge whether the review was adequate.
+Implementation occurs only after its own authorization. Before a PR or work
+completion, the existing action reminders and command parser can request the
+current review outcome on supported paths. A true hold is selected only after
+the host proof names objective release evidence and coverage. Browser actions
+and unrecognized commands remain gaps; a timestamp or skill invocation cannot
+judge whether the review was adequate.
 
-The agent reviews the actual work and discussion through `knowledge-save`. The
+The agent reviews the actual work and discussion through the reconciled save responsibility. The
 existing work workflow owns PR, delivery, and status. The component may be a
 shared rule or a bounded identity/access part of the consolidation; the example
 does not choose the final Salesforce architecture. After the authorized work
@@ -404,7 +488,16 @@ The draft does not gate merge; it proposes an inbox reminder for upkeep owed aft
 **Mike:** “Bring an older Salesforce project up to this Knowledge System
 version.”
 
-`project-sync` delegates to `knowledge-setup`, which previews the actual migration against existing content and obtains any required approval. Proposed moves include current context under `knowledge/memory/`, topic files under `memory-entries/`, `spec-index.md` to `prd-index.md`, feedback rename, and brainstorms to the root. It adds inbox/glossary and missing known metadata, repairs links, replaces copied runtime components with plugin delivery, rebuilds indexes, and checks the result. Preserve unrelated edits, existing permissions, hooks, and recoverable history. Do not manufacture unknown metadata or shorten approved meaning without authority.
+`project-sync` delegates to the existing second-brain setup responsibility,
+which previews the migration against existing content and obtains any required
+approval. Proposed moves include current context under `knowledge/memory/`,
+topic files under `memory-entries/`, `spec-index.md` to `prd-index.md`, and
+brainstorms to the root. It retains the existing feedback file, adds
+inbox/glossary and missing known metadata, repairs links, keeps packaged
+originals and equipped runtime copies aligned, rebuilds indexes, and checks the
+result. Preserve unrelated edits, existing permissions, hooks, and recoverable
+history. Do not manufacture unknown metadata or shorten approved meaning
+without authority.
 
 Recommendation: first migrate this toolkit after approval, then separately authorize another project's migration. A version report includes completed checks and gaps. An unavailable optional component remains off. Rollback must account for file moves and saved meaning, not merely downgrade the plugin.
 
@@ -424,7 +517,7 @@ Coverage means a scenario to review and later test, not proof that a requirement
 | 4 Resume current work | 8 two-day/second-machine continuation; 10 handoff |
 | 5 Relevant memory lookup | 3 relevant question, already-read reuse, unrelated arithmetic |
 | 6 Sources with findings | 3 direct source, historical date, inference/conflict |
-| 7 Glossary | 2 bounded preview; 3 ambiguity; 5 sourced vocabulary entry |
+| 7 Glossary | 2 actual read/direct route; 3 ambiguity; 5 sourced vocabulary entry |
 | 8 External knowledge index | 1 destination; 3 captured source and freshness; 7 generation |
 | 9 Save moments | 4 interview; 5 discussion/explicit; 10 handoff; 11 PR/completion |
 | 10 Permission paths | 4 authorized interview; 6 yes/no/silence/off; 7 recovery; 11 upkeep |
@@ -443,7 +536,7 @@ Coverage means a scenario to review and later test, not proof that a requirement
 | 23 Selection feedback | 6 actual decision reasons; 9 project-local consolidation |
 | 24 Ordinary language | 1 setup; 3 find; 6 save; 9 review; 10 handoff; 12 upgrade |
 | 25 Both harnesses | 1 scoped activation; 3 unavailable history; 10 compaction gap; 12 proof |
-| 26 Supported mechanisms, scoped context | 2 budgets; 3 just-in-time docs; 12 official refresh |
+| 26 Supported mechanisms, scoped context | 2 measured context/read cost; 3 just-in-time docs; 12 official refresh |
 | 27 Complete installation and updates | 1 version/delivery/conflict; 12 migration/other projects |
 | 28 Durable pending work | 6 inbox fields/states; 7 failure; 8 resumption and conflicts |
 | 29 Native reasoning, small safeguards | 5 checkpoint; 7 objective checks/marker limits; 8 state limits |
@@ -451,16 +544,22 @@ Coverage means a scenario to review and later test, not proof that a requirement
 
 ## Remaining design questions in context
 
-The numbered questions belong to consolidated design §15. Question 1 is already answered. Review the others at their scenario step; do not reopen settled decisions just because the earlier list is stale.
+Use the current master §12 and implementation plan rather than replaying the
+frozen reference's numbered interview. Review these choices at their scenario
+step and keep recommendations separate from owner decisions.
 
-| Scenario step | Design questions |
+| Scenario step | Current unresolved choice or proof |
 | --- | --- |
-| 1–2 Setup/startup | 6 glossary location; 13–15 print budgets; 24 routing delivery; 25 clear; 26 extra limits |
-| 4 Requirements interview | 9 PRD metadata; 11 approval fields; 27 save batching |
-| 5 Conversation review | 2 replacement handshake; 24 routing delivery |
-| 6–7 Propose/save | 3 publishing cadence; 4 standing permission provenance; 10 card labels; 16 owner pre-commit |
-| 10 Handoff | 8 Codex acceptance; 25 clear |
-| 11 Delivery | 7 shipping event; 17 skill authoring; 18 failed save and Done; 23 parent upkeep |
-| 12 Migration/final reconciliation | 5 approved walkthrough edits; 12 punctuation; 19–22 migration/layout; 26 limits; remaining template adoption choice |
+| 1–2 Setup/startup | Toolkit manual path acceptance/delivery under #306; strict read/delivery receipt on each host; recovery after clear/resume/compaction; glossary availability; measured context cost |
+| 4 Requirements interview | PRD metadata reconciliation; batching of several already-authorized answers without delaying publication |
+| 5 Conversation review | Canonical prompt text/transport; whether the proposed bounded completion checkpoint is selected; routing-reference delivery |
+| 6–7 Propose/save | Standing memory-authority metadata; idempotent inbox/concurrent publication; objective guard scope if host proof justifies one |
+| 10 Handoff | Host capability gaps; recovery when an event cannot be held; abrupt termination limits |
+| 11 Delivery | Actual shipping evidence; missing skill-authoring owner/process; affected-work behavior after a failed save; parent/component upkeep |
+| 12 Migration/final reconciliation | Layout authorization, safe conversion of missing metadata, copied-runtime alignment, host acceptance, and target-project authorization |
 
-Cross-cutting issues found in this reading: reconcile the skill-entry marker with the requested completion handshake; distinguish fail-open/bypass limitations from guarantees; make same-reply inbox capture and cross-machine publication cadence consistent; do not apply new size limits before resolving the PRD conflict; verify project-scoped Codex settings and hook ordering; retain source-workflow ownership and explicit delivery approvals. These are review/build gaps, not completed fixes.
+Cross-cutting gaps are strict startup proof, bounded checkpoint behavior,
+durable permission and operation identity, same-reply inbox capture and remote
+publication, concurrency, measured context cost, trusted host configuration,
+and explicit component ownership. These are review/build gaps, not completed
+fixes or owner approvals.

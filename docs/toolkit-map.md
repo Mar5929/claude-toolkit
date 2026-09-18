@@ -170,6 +170,10 @@ These are not duplicated here. Go to the index that owns them:
   referenced by the setup skill. The
   [plugin README](../plugins/second-brain/README.md) is the canonical package
   description.
+- **Knowledge System design and build planning**:
+  [current planning records](designs/269-knowledge-system/README.md) link the
+  proposed design, implementation plan, host evidence, and review. These are
+  planning records, not a description of delivered runtime behavior.
 - **Archived second-brain v1**:
   [archive/second-brain-v1/README.md](../archive/second-brain-v1/README.md)
   indexes the retired Worker, Neon, MCP, curator, hook, and knowledge-backfill

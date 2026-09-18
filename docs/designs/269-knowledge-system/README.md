@@ -5,21 +5,35 @@ This folder holds the material that produced the single living master at
 the research reports, the two design leads' briefs, and every review and fix
 list.
 
-The research, briefs, and completed reviews are history. They are not current
-truth or alternative designs. Where a record and the master design disagree,
-the master is right, because it is continually reconciled as decisions change.
+The older research, briefs, and completed reviews are history, not alternative
+designs. The current planning records below support the master. Where a record
+and the master design disagree, reconcile the evidence and update the master;
+research findings do not silently change an approved requirement.
 Where the master design and the
 requirements document disagree, `knowledge/prds/toolkit-operating-system/knowledge-system.md` is right.
 
 `process.md` says how the design was made and where the work stands.
 `prep.md` is the design prep file, filled in after the fact.
 [Detailed solution design reference output](detailed-solution-design-reference-output.md)
-preserves the full earlier draft. It is historical reference; the shorter master
+preserves the full earlier draft. It is historical reference; the living master
 owns current design decisions. Do not maintain two current designs.
 [The design walkthrough](design-walkthrough.md) is the active scenario-led
 review companion. It records the current step, accepted answers, and remaining
 choices; accepted design answers are reconciled into the master. Its unapproved
 proposals do not change the PRD or approve a build.
+
+## Current implementation planning
+
+- [Implementation plan](implementation-plan.md): recommended build sequence,
+  concrete files, dependencies, requirement coverage, acceptance, and rollback.
+- [Host capability evidence](host-capability-evidence.md): dated observations,
+  official source contracts, capability limits, and required runtime proofs.
+- [Implementation readiness review](implementation-readiness-review.md):
+  independent requirement coverage, resolved findings, and remaining decisions.
+
+These records were requested on 2026-09-17 for autonomous design reconciliation
+and implementation planning. Their publication does not claim runtime delivery
+or replace the work item's approval and acceptance records.
 
 Every record was written by an agent. The roles are: an Opus research agent,
 the peer Fable design lead, the main Fable design lead, an Opus reviewer, and
