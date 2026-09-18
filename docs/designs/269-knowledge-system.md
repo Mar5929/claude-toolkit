@@ -926,11 +926,84 @@ current instructions.
 
 ## 14. Next review
 
-Review startup instruction → actual ordered reads → acknowledgment first, then
-the prompt reminder and proposed completion checkpoint against Acme's brief.
-For each part, settle its responsibility and user behavior before its exact
-script or platform API. Record decisions here, keep task position in D1 and
-scenario details in the walkthrough, and reconcile the PRD where required.
-Finish remaining behavior and technical proofs before separate approvals and
-build authorization. Preserve every useful requirement and design detail while
-removing duplicate or superseded prescriptions from the current authority.
+Continue from [Notes](#notes) below. It holds the current review position,
+outstanding decisions, and design tasks. Update the affected design section as
+each point is settled; update the PRD when required behavior changes.
+
+## Notes
+
+Updated: 2026-09-18. This is the starting point for the remaining design
+discussion. Keep the open decisions, tasks, and review notes together here so
+Mike can continue from this document. Review one decision at a time. Record each
+answer and update the affected design section. Requirements still belong in the
+PRD; implementation status stays in the tracker, with a link when needed. Do not
+create another design task list elsewhere. Section 12 preserves earlier decisions.
+
+**Current position:** solution design is still in progress. Requirements may be
+refined as this review settles behavior. Mike asked to review the outstanding
+design decisions and explicitly evaluate function hooks before choosing the
+hook approach. That evaluation is requested, not approval to adopt function
+hooks or begin implementation.
+
+**Resume here:** compare ordinary command hooks and function hooks/Claude Mods
+for the required knowledge behavior, explain the recommendation plainly, then
+work through the outstanding decisions below one at a time. Record answers here
+and resolve their entries as the design is updated. Do not restart decisions
+already settled.
+
+**GitHub task summary to publish:** solution design is in progress, with
+requirements refinement where needed. The outstanding decisions, design tasks,
+and next review step are in this document's [Notes](#notes). Keep the task's
+high-level status and this link current without duplicating this discussion.
+
+**Publication:** Mike requested these Notes on local `main`. Remote publication
+and the GitHub task summary remain pending; do not switch GitHub accounts.
+
+### Outstanding decisions
+
+| Topic | Recommendation | Status |
+| --- | --- | --- |
+| Recording permission when automatic memory saving is enabled | Record who granted ongoing permission, when, and its scope. Clearly distinguish that grant from personal review of each entry. Reconcile the memory approval fields with R10/R14. | Open; question raised, no answer recorded. |
+| Review before the main agent finishes a turn | Use one quiet completion check to catch decisions made during work. Allow at most one corrective continuation; an approved save running in a helper does not hold up unrelated conversation. | Proposed; review the behavior with Mike. |
+| Combining approved saves | Related approved changes may share a commit when each retains its own scope and result. Do not delay a ready save merely to collect more work. | Proposed; confirm the intended behavior. |
+
+### Tasks
+
+These are investigation work, not questions for Mike to answer about APIs.
+
+- **Hook choice:** ordinary command hooks are the current proposal. Compare
+  function hooks/Claude Mods as Mike requested, including benefits, limits,
+  supported hosts, and proof needed for adoption. Do not rule them out merely
+  because ordinary hooks are already implemented; do not assume experimental
+  access proves reliability.
+- **Reading and recovery:** prove required content reaches the agent, choose
+  native read observation or a bounded helper, and test missing content and
+  context recovery on each supported host.
+- **Parallel saving:** prove the save helper can run while the conversation
+  continues, return its result, and recover after interruption without losing
+  approval or repeating a completed save.
+- **Installation:** compare copied and plugin-managed runtime for activation,
+  updates, version checks, and rollback before selecting the delivery method.
+- **Other component dependencies:** identify the available skill-authoring
+  process and verify operating-manual delivery. Preserve the configured System
+  Guide location; any default-path disagreement remains with its owner.
+
+- **Remaining safeguards and acceptance:** reconcile the section 12 items on
+  write guards, owner edits, context clear/resume/fork, and Codex differences;
+  verify context costs against R21 without inventing additional limits. Record
+  any requirement conflict in the [PRD Notes](../../knowledge/prds/toolkit-operating-system/knowledge-system.md#notes).
+- **Before approval and build:** refresh the affected-file inventory, reconcile
+  the requirement map and implementation plan with selected decisions, and
+  document migration, rollback, and representative acceptance checks. Obtain
+  full requirements/design approval and build authorization separately.
+
+### Recorded notes
+
+- The four skills, explicit approved helper assignments, and plain-language
+  requirements are already recorded; do not restart those decisions.
+- Both manual names are settled: `knowledge/knowledge-manual.md` and
+  `knowledge/toolkit-manual.md`.
+- Failed saves pause only dependent work. No additional size limits or blanket
+  bans on helper writes are selected by this discussion.
+- Full requirements/design approval, technical proof, and build authorization
+  remain separate from approval to update these documents.

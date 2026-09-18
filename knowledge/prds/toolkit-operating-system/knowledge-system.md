@@ -14,6 +14,7 @@ work_item: "269"
 
 ## Contents
 
+- [Notes](#notes)
 - [Why this exists](#why-this-exists)
 - [How the owner works](#how-the-owner-works)
 - [Where it sits](#where-it-sits)
@@ -2136,3 +2137,70 @@ Explore these questions without assuming their answers:
 remain possible approaches, not requirements, verified harness capabilities,
 or an approved design. Where they prescribe more control than the direction
 above, revisit them before using them.
+
+
+## Notes
+
+Updated: 2026-09-18. Start here when continuing requirements refinement.
+Keep outstanding requirements decisions and tasks in this section. Record each
+answer in the affected requirement and remove or resolve its open entry here.
+Technical choices and their evidence belong in the
+[solution design Notes](../../../docs/designs/269-knowledge-system.md#notes).
+The GitHub task keeps the high-level status and links to these documents.
+
+**Current position:** this PRD remains proposed. The approved-save helper and
+the explicit ban on jargon and figurative language in memory and proposals are
+recorded requirements. Saving these updates does not mean the full requirements
+or solution design are approved, or that implementation may begin.
+
+**Resume here:** settle how ongoing memory-save permission is represented,
+then review the remaining behavior questions below one at a time. Investigate
+technical facts before asking Mike to decide a tradeoff.
+
+### Outstanding decisions
+
+- **Ongoing permission:** reconcile R10 and R14 so records distinguish permission
+  to save automatically from personal review of each entry. The recommendation
+  is to record who granted permission, when, and its scope without inventing
+  per-entry approval. The question has been raised; no answer is recorded.
+- **Completion review:** the every-user-prompt reminder is selected. A second,
+  quiet review before the main agent finishes, with at most one corrective
+  continuation, remains proposed. An approved save running in parallel must
+  not hold up unrelated conversation.
+- **Combining saves:** confirm whether related approved saves may share one
+  commit, with separate scope and results, without delaying a ready save to
+  collect more work. This is a recommendation, not a recorded decision.
+
+### Tasks
+
+- Reconcile the exploratory closing sections with recorded design progress:
+  four public skills are the selected design direction, the higher manual is
+  `knowledge/toolkit-manual.md`, and requirements mapping already exists in the
+  solution design. Remove stale statements that these are all future work;
+  preserve the distinction between selected direction and approved full design.
+- Carry any behavior changes from the function-hooks evaluation back into the
+  affected requirements for review. Choosing the mechanism and proving host
+  support remain solution-design tasks; no requirement is relaxed implicitly.
+- Confirm R9, R10, R14, R18, and R28 agree on helper assignments, ongoing
+  permission, completion reporting, interrupted saves, and recovery. Keep
+  failed saves limited to affected work under R3.
+- Review R15 acceptance examples for both proposal text and saved memory:
+  no jargon, figures of speech, metaphors, or idioms. Preserve necessary exact
+  names; resolve conflicts with requested verbatim wording before approval.
+- Confirm each requirement has a clear acceptance check, and record any
+  unsupported behavior or unresolved dependency found during design review.
+  Then obtain full requirements approval and record it accurately; do not
+  infer it from approval to save or refine this document.
+
+### Recorded notes
+
+- The main agent prepares the proposal. After approval, an explicitly assigned
+  helper carries out the authorized operation, checks the saved result, commits,
+  pushes, and returns evidence while independent conversation continues.
+- The knowledge manual is `knowledge/knowledge-manual.md`; the overall toolkit
+  manual is `knowledge/toolkit-manual.md`.
+- Function hooks must be evaluated before choosing the approach. Their adoption
+  is not approved by the request to investigate them.
+- Mike requested these Notes on local `main`; remote publication remains
+  pending. Do not switch GitHub accounts. The reusable work-plugin Notes behavior is being
+  addressed in a separate task; this document records this PRD's remaining work.
