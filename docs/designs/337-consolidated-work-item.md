@@ -219,5 +219,6 @@ task's active draft from this worktree.
   creating a second authoritative record.
 - Next: review this plan, implement format and parser first, then CLI and
   migration, then documentation and installation verification. Runtime work and
-  project migrations have not started. GitHub publication is still pending the
-  personal account; do not switch accounts or push through the work account.
+  project migrations have not started. Mike authorized the personal-account
+  switch and push on 2026-09-18; this plan's branch is published via Mar5929.
+  Review/merge and rollout remain pending. Never push through the work account.

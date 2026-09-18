@@ -194,10 +194,9 @@ must still reach the machine and project before a fresh session can use it.
   PRD/design detail stays with its document; other work stays in the work item.
   Mike also approved explicit capture routing, question ownership, answer
   updates, save timing, and readback after the WI-014 transcript review.
-- Still open: Publication, project sync, and observed fresh-session behavior.
-  The active GitHub account is the work account; no account switch or GitHub
-  mutation is authorized through it.
-- Resume here: Publication of the approved `codex/document-notes-continuity`
-  changes is deferred until Mike is free to use the personal account. Checks
-  pass. Do not push or switch accounts during the local-commit audit.
-  Installation and fresh-session continuation remain unverified.
+- Still open: Review/merge, project sync, and observed fresh-session behavior.
+- Resume here: Mike authorized the personal-account switch and push on
+  2026-09-18. The `codex/document-notes-continuity` branch was pushed via
+  `Mar5929` and its remote commit verified. This is branch publication, not
+  merge or installation. Installation and fresh-session continuation remain
+  unverified.

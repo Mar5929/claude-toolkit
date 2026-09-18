@@ -40,4 +40,4 @@ Updated: 2026-09-17
 **Record** [Issue #337](https://github.com/Mar5929/claude-toolkit/issues/337).
 
 ## General project to-dos
-- Push `codex/document-notes-continuity` when back on `Mar5929`.
+- Review/merge pushed `codex/document-notes-continuity`.
