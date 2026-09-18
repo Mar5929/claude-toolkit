@@ -55,6 +55,32 @@ Name what you mean and explain how the things you mention relate. Do not leave t
 | Read this before anything else lands. | Your starter files arrive in the next email. This email explains what you’re getting. |
 | There’s a full course. These emails are one path through it. | These emails cover selected lessons from the full course. |
 
+## Say the true thing only
+
+Never write a sentence that denies something so that the next sentence can
+correct it. Write the true statement and stop.
+
+| Do not say | Say |
+| --- | --- |
+| The config file is not what breaks it. The startup script is. | The startup script breaks it. |
+| It is not a permissions problem. It is a sharing problem. | Sharing settings are causing this. |
+| Not just the title, but the body too. | The title and the body both change. |
+| This is less about speed and more about cost. | The cost is the reason to do this. |
+
+The reader has to hold a false statement in their head and then throw it away.
+It doubles the length. It reads as performance rather than information.
+
+Correcting a real mistake is different and is allowed. When something the user
+or a document said turns out to be wrong, name who said it and say what is
+true: "You asked about the config file. The thing that breaks it is the startup
+script."
+
+Two more in the same family, both banned:
+
+- Pairs written for rhythm rather than meaning: "Costs nothing and changes
+  nothing."
+- A closing line that restates what was just said.
+
 ## No figurative or metaphorical language
 
 Figurative and metaphorical language is not allowed. That covers idioms, sayings, jokes, and any picture word standing in for a real thing. The pattern: if a phrase paints a picture, makes a joke, or would need translating for someone learning English, say the plain thing instead. Examples, not the whole list.
