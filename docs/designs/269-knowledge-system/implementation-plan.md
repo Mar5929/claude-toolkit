@@ -33,6 +33,11 @@ check, commit, and push instructions. The helper uses the same save procedure;
 the main agent checks its returned evidence before reporting completion. R15’s
 ban on jargon and figurative language applies to both proposal and saved text.
 
+Mike approved combining related saves in one commit on 2026-09-18 when they
+are ready together. Preserve separate authorized scope and verified results;
+never delay a ready save to collect others. Include both together-ready and
+one-save-delayed cases in save/publication acceptance checks.
+
 The reason is correctness as well as clarity. Today `remember` publishes approved changes, while `retire` can create a replacement through `remember`, then change the old record under instructions that prohibit publication. `reflect` delegates across both. One logical lifecycle change needs one complete save procedure. Operation-specific references keep that procedure focused; it is not an autonomous content writer or a new reasoning engine. Existing operational-maintenance permissions remain applicable without inventing new approval steps.
 
 Reuse the parser, index builder, checker, history-search code, command parsing, and installation logic where they meet the new contracts. Inventory actual callers before migrating skill names; provide explicit compatibility routes where needed without assuming native alias support or keeping duplicate procedures. Migration effort determines the delivery sequence, not the finished architecture.

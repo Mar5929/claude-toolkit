@@ -690,6 +690,7 @@ original source or states what could not be verified.
 - The save review is that same flow run over everything the session discussed or did since the last one. It gathers candidates, identifies each candidate's kind, scope, and owning destination under requirement 18, and applies that destination's content rules. Requirements 11 and 12 decide eligibility for lasting memory; they must not discard a valid PRD update, working-context update, task, or procedure that belongs elsewhere. Check what proposals the inbox already holds and show one card for each new candidate that needs knowledge-save approval. A save that is already allowed goes ahead under requirement 10; other destinations follow their own workflows. During routine work, speak up only about something that needs approval, a finished save the owner has to be told about, or a problem; never report that nothing needs saving. Routine PRD upkeep follows requirement 16's quiet completion rule. Do not repeat an unchanged unanswered card at each review. When the owner asks for a save or a review directly, he still gets a clear answer, and when work is handed over the agent works out which pending items matter, under requirement 28. Requirement 3 requires the review even when it produces nothing the owner sees. A quiet review does not need a program running in the background.
 - When approved, memory or PRDs are saved directly to the default branch and pushed!!! They are not left sitting on a worktree branch, and they are not put anywhere a future agent would have trouble finding.
 - A save is finished only when the file is on the default branch and pushed, and not before.
+- Related approved saves may share a commit when they are ready together. Keep each save within its own authorized scope and verify its result. Do not delay a ready save while waiting for others. Combining saves into a commit never expands permission. Mike approved this on 2026-09-18.
 - An approved knowledge save is never put off into a feature branch, a pull request, or a separate draft. That holds even when the session is doing its other work on a branch. The save still goes straight to the default branch. The session's own branch gets the saved file later, whenever someone merges or pulls the default branch into it. The pending inbox in requirement 28 preserves unanswered proposals and interrupted saves; it never replaces completing an approved save.
 - One yes is the end of the owner’s part for a save that needed a proposal. He runs no Git command and does not manage a helper or a retry. After approval, the main agent promptly hands the save to a helper that can work while the conversation continues. During an authorized interview, record the settled decision and its permission for recovery, start the save, and continue to the next independent question without waiting for publication. Work that needs the published result waits for that result under requirement 3. Routine PRD upkeep keeps requirement 16’s quiet completion rule.
 - The main agent remains responsible for receiving the helper’s result and reporting a failure promptly when it becomes known. Starting a helper is not a completed save. If writing, checking, or pushing fails, preserve the approved change and the exact unfinished step under requirement 28, and report what remains. Requirement 3 sets out what pauses and what can carry on.
@@ -2164,16 +2165,15 @@ the explicit ban on jargon and figurative language in memory and proposals are
 recorded requirements. Saving these updates does not mean the full requirements
 or solution design are approved, or that implementation may begin.
 
-**Resume here:** decide whether related approved saves may share a commit
-without delaying a ready save. Permission recording and quiet completion review
-are settled below. Investigate
-technical facts before asking Mike to decide a tradeoff.
+**Resume here:** finish the requirements consistency and acceptance-check review
+below alongside the solution design's technical proofs, then request full
+requirements approval. Do not reopen the three behavior decisions settled here.
 
 ### Outstanding decisions
 
-- **Combining saves:** confirm whether related approved saves may share one
-  commit, with separate scope and results, without delaying a ready save to
-  collect more work. This is a recommendation, not a recorded decision.
+None remain from this round of behavior review. Record any new requirements
+tradeoff exposed by the remaining work; full requirements approval is still
+outstanding.
 
 ### Tasks
 
@@ -2197,6 +2197,10 @@ technical facts before asking Mike to decide a tradeoff.
   infer it from approval to save or refine this document.
 
 ### Recorded notes
+
+- Approved 2026-09-18: related approved saves may share a commit when ready
+  together. Preserve each scope and result; do not delay a ready save or expand
+  permission by combining it with another save.
 
 - Approved 2026-09-18: quietly review the turn before the main agent finishes
   to catch missed decisions or discoveries, without waiting for an independent

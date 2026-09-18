@@ -453,6 +453,10 @@ content and deliver that file before this wording ships. The reminder
 does not force a full manual reread each turn; missing or stale guidance is read
 before the affected operation.
 
+Related approved saves may share one commit when ready together, as Mike
+approved on 2026-09-18. Each retains its own authorized scope and verified result;
+never delay a ready save to collect others or broaden permission by grouping them.
+
 ### 6.6 Completion, save moments, and write safeguards
 
 The end-turn review approved by Mike on 2026-09-18 asks for the outcome of the agent's review,
@@ -933,7 +937,7 @@ tradeoffs; platform facts and bookkeeping are investigation work.
 | Glossary path | Recorded direction | Use proposed path; verify migration and delivery before term-dependent work. |
 | Proposed PRD approval fields | Settled by current R16 | Unapproved proposed draft omits both; valid paired fields when requirements approved. |
 | PRD card labels and inbox content | Current R20/R28 govern | Reconcile stale walkthrough/card copies; preserve exact card actually shown. |
-| Multiple decisions in one authorized publication | Owner's prompt documentation-save direction applies; batching boundary needs reconciliation | Preserve prompt, scoped saves; do not ask again merely to save an already-authorized draft. |
+| Multiple decisions in one authorized publication | Approved by Mike, 2026-09-18 | Related approved saves may share a commit when ready together; preserve each scope and result, and never delay a ready save to collect others. |
 | Approval-off metadata | Approved by Mike, 2026-09-18 | Store grant identity/date/scope once in project permission settings; mark each memory as auto-saved without repeating the grant or claiming individual review. |
 | Additional size limits | Genuine design/PRD constraint | R21 governs; measure first, seek decision only if required meaning/limits conflict. |
 | Save failure versus work completion | Cross-component policy question | Reconcile affected-work pause, pending-save recovery, and tracker completion; do not invent global blocking. |
@@ -1000,11 +1004,10 @@ for the initial implementation after reviewing the function-hooks comparison.
 Function hooks remain a future candidate if evidence supports a benefit.
 This does not authorize implementation or approve the full design.
 
-**Resume here:** decide whether related approved saves may share a commit
-without delaying a ready save. Permission recording and quiet completion review
-are settled in Recorded notes. Record answers here
-and resolve their entries as the design is updated. Do not restart decisions
-already settled.
+**Resume here:** complete the technical proof and reconciliation tasks below,
+then review the full design for approval. The three behavior decisions discussed
+here are settled; record any new decision exposed by investigation before relying
+on it.
 
 **GitHub task summary to publish:** solution design is in progress, with
 requirements refinement where needed. The outstanding decisions, design tasks,
@@ -1016,9 +1019,9 @@ and the GitHub task summary remain pending; do not switch GitHub accounts.
 
 ### Outstanding decisions
 
-| Topic | Recommendation | Status |
-| --- | --- | --- |
-| Combining approved saves | Related approved changes may share a commit when each retains its own scope and result. Do not delay a ready save merely to collect more work. | Proposed; confirm the intended behavior. |
+None remain from this round of behavior review. Technical investigation may
+expose new tradeoffs. Full requirements/design approval and build authorization
+remain separate and outstanding.
 
 ### Tasks
 
@@ -1050,6 +1053,11 @@ These are investigation work, not questions for Mike to answer about APIs.
   full requirements/design approval and build authorization separately.
 
 ### Recorded notes
+
+- Approved by Mike, 2026-09-18: related approved saves may share one commit when
+  ready together. Preserve each save's authorized scope and verified result.
+  Never delay a ready save to wait for others; combining commits does not combine
+  or expand permissions.
 
 - Approved by Mike, 2026-09-18: run a quiet review before the main agent
   finishes to catch missed decisions or discoveries. Do not wait for an
