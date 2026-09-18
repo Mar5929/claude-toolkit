@@ -60,7 +60,10 @@ The existing tracker owns overall status, other tasks, child-item relationships,
 approvals, and progress. PRD and design refinement stays in those documents:
 update the actual text and keep bottom Notes for decisions with approval state,
 unfinished discussion, remaining document tasks, and the exact resume point.
-The item links there instead of copying that detail. No separate prep or
+Open questions name who must answer, their status, and what they affect;
+answers update both the question and the actual requirements or design. Saves
+happen before moving past a meaningful topic and are verified by reading the
+changed destination. The item links there instead of copying that detail. No separate prep or
 interview file is created. Each child keeps its own requirements, design, roadmap, tasks, and
 approval. These skills use native fields, issue sections, or linked documents;
 they do not introduce another tracker. Roadmap stages use the owner's names and

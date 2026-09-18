@@ -248,4 +248,6 @@ PRD/design continuity uses the current work-item rule and session-skills:
 update the document text and bottom Notes, keep other work in the tracker,
 and link between them. New setup and project sync reconcile copied rules and
 root instructions with that division; plugin updates alone do not refresh
-project copies. Existing active drafts are preserved until their work resumes.
+project copies. Check the current document pointers and the rule's capture
+routing, question ownership, save timing, and readback instructions together.
+Existing active drafts are preserved until their work resumes.

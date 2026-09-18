@@ -201,6 +201,12 @@ its actual text and keep concise Notes at the bottom for useful discussion,
 decisions with approval state, remaining document tasks, and the resume point.
 Preparation belongs in the design; no separate interview or continuation file
 is needed. A specification is the requirements document, not an extra copy.
+Identify the exact current document or workbook from the owner and existing
+links, not its date alone. Questions record who must answer, status, and what
+they affect. Answers update the existing question and the actual document.
+Save before moving past a meaningful topic, then read the changed destination
+back. A progress note alone is not a requirements or design update. Working
+design stays distinct from finalized architecture when the project separates them.
 Focused helpers can investigate or review bounded parts while the main
 conversation keeps the overall work coherent. Their findings inform decisions;
 they do not approve the owner's requirements or complete the parent item.

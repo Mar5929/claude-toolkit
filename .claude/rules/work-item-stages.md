@@ -88,6 +88,13 @@ changed.
 
 ## PRD and solution-design continuity
 
+Before discussion or edits, read the active item's instructions and the records
+it names. Establish the exact current requirements document or workbook, working
+design, and any separate finalized architecture. Use the owner's designation
+and recorded links, not filenames or modification dates alone. If authority is
+unclear, resolve that one question and keep other work moving. Record the paths
+in the existing item; do not create a start page or another file inventory.
+
 While creating or refining a PRD or solution design, update its actual text as
 answers settle and keep concise `Notes` at the very bottom. Notes holds useful
 discussion, decisions with approval state, open questions, remaining document
@@ -99,6 +106,37 @@ and links to those documents. For a document-refinement task, its position and
 next action can point to the document's Notes; do not duplicate that detail.
 Other work stays in the item. Read the item and the linked document's Notes
 when resuming. Do not add separate interview or continuation files.
+
+## Capture during the conversation
+
+Classify meaningful information and update its existing home before moving past
+that topic. An unanswered question is information to save, not a reason to wait.
+Open decisions must not delay recording independent settled answers. Before
+asking again, check the current records and cited sources for an answer. If
+sources conflict, retain the conflict as open rather than choosing a convenient
+answer. Do not treat a question, suggestion, or tentative answer as approval.
+
+| Information | Home | What to record |
+| --- | --- | --- |
+| Requirement or correction | Actual requirements document or designated workbook | Updated meaning and approval state |
+| Design choice | Actual working design | Approach, approved or proposed, and relevant decision context |
+| Open question | Relevant requirements/design Notes; otherwise the work item's existing notes | Question, who must answer, open status, and what it affects; use unknown when the person is not known |
+| Answer or decision | Update the existing question and affected requirements/design; otherwise the work item | Answer, person, source/date when known, and approval state; mark resolved only when the question is actually answered |
+| Outstanding task | Document Notes for work on that document; otherwise the work item's task records | Action, responsible person when known, status, next step, and relevant blocker |
+| Useful general note | Relevant document Notes; otherwise existing work-item notes | Only the context needed to continue |
+
+Use the selected tracker's normal update commands or native fields. Edit
+document content in its designated file, sheet, or section; a progress entry
+alone does not update the requirements or design. Where the project separates
+working design from finalized architecture, keep unresolved discussion in the
+working record and publish only settled design through its approval/save route.
+
+Save meaningful updates promptly under existing authorization, then reread the
+changed section or query the record to confirm its meaning and location. Verify
+the document content as well as tracker status. A successful command alone is
+not proof that the intended information was recorded. Say what remains unsaved
+if saving fails or requires authority not already given. Do not claim a local
+write was committed, pushed, or shared without checking those separately.
 
 ## Record meaningful progress
 

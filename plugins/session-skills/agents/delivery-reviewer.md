@@ -50,7 +50,9 @@ findings to the owning main conversation. You advise; the owner decides.
 
 For a PRD or design review, also read bottom Notes. Check that settled answers
 appear in the actual document, proposals retain their status, and remaining
-document work has a usable resume point. Other work stays in the work item;
+document work has a usable resume point. Open questions identify who must
+answer, their status, and the affected section. Check that an answer changes
+the actual requirements/design rather than only its history. Other work stays in the work item;
 flag duplicate or contradictory continuation instructions. Working Notes is
 not itself required behavior or implementation approval.
 

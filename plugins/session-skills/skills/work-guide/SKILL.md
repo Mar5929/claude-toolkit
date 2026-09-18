@@ -15,6 +15,10 @@ with the project's existing tracker and lifecycle guidance, including the
 - Read the applicable project instructions and knowledge manual, then the
   named work item and its linked requirements, decisions, progress, and next
   action. Follow the project's context routes; do not load every document.
+  Resolve the exact current requirements document or workbook and working
+  design from the owner's designation and links. Read them, not just their
+  filenames. Modification dates alone do not establish authority. Keep these
+  pointers in the item; do not create a new start page or file inventory.
 - Identify the canonical tracker and this session's item from current evidence.
   GitHub, Jira, another service, or local files are all valid. Read the chosen
   system through its available tools; do not assume `.work-items/` exists or
@@ -46,11 +50,23 @@ language and only the entries needed: **Decisions**, **Still open**, and
 Keep Notes current; remove resolved to-dos and stale wording instead of
 accumulating a transcript. Preserve useful decisions and their approval state.
 
+Record unanswered questions too: the question, who must answer (or unknown),
+status, and affected requirement or design. Tasks name the action, responsible
+person when known, status, and next step. Answers update the existing question
+and the actual document, with person/source/date when known and explicit
+approval state. Check existing answers before asking again; conflicting sources
+remain an open question. General notes hold only useful continuation context.
+Follow the project's work-item rule for routing other information.
+
 Save meaningful changes promptly through the project's authorized save route;
 do not wait for the interview or session to end. A save does not approve the
 requirements, design, or build. Recognize existing authorization and report
 failed or unavailable saves as unsaved. Before editing a shared document,
 reread it and preserve intervening changes.
+Save before moving past a meaningful topic; do not wait for all open decisions
+to settle before recording independent answers. Reread the changed section to
+verify the intended update landed. A history note does not replace a document
+edit. Distinguish local writes, commits, and publication in the result.
 
 The work item keeps the overall stage, status, approvals, other tasks and
 blockers, and links to the documents. Its PRD or design task points to that
@@ -65,6 +81,10 @@ existing home. For older work, reconcile relevant prep or interview material
 into the document when that work resumes, preserving decisions, sources, and
 approvals. Do not bulk-migrate other active work or delete its records without
 authorization.
+Where finalized architecture is separate, keep working discussion in the
+working design; only settled content belongs in that architecture. Respect the
+project's designated workbook or other document format instead of making a
+competing Markdown copy merely to follow a template.
 
 ### Keep other work in the chosen tracker
 

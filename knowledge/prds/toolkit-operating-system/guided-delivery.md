@@ -56,6 +56,30 @@ Keep Notes concise and current; link to settled text rather than repeating it.
 Saving does not approve the requirements, design, or implementation. Other work
 stays in the work item. No additional specification or continuation file is needed.
 
+At the start of work, identify and read the exact current requirements document
+or workbook and working design using the owner's designation and existing links.
+Do not infer authority from a filename or modification date. Keep working design
+separate from finalized architecture when the project requires that distinction.
+
+Save unanswered questions with who must answer (or unknown), status, and what
+they affect. Tasks name action, responsible person when known, status, and next
+step. Answers update the existing question and affected requirements or design,
+with the person, source/date when known, and approval state. Check existing
+answers before asking again; conflicting evidence remains open. General notes
+retain only useful continuation context.
+
+Save under existing authorization before moving past a meaningful topic, without
+waiting for unrelated open decisions. Reread the changed destination to confirm
+that the intended update is there. History alone is insufficient. Report any
+unsaved meaning and distinguish local writing from publication.
+
+**Check:** resume with two workbook copies, an unanswered question for a named
+person, one settled correction, and one unresolved decision. Use the designated
+workbook, save the question and its owner, update the correction without waiting
+on the decision, and verify the changed cells. A later answer updates the same
+question and affected requirement. No new start page or notes file appears.
+A failed save is reported as unsaved and remains in the handoff.
+
 Any retained ideas about how to build belong in a Potential paths to explore
 subsection of the PRD's bottom Notes, linked to their relevant requirements. They are clearly labeled
 potential paths to explore, not requirements, approved design, or instructions
@@ -168,6 +192,8 @@ must still reach the machine and project before a fresh session can use it.
 
 - Decisions: Mike approved document-owned refinement Notes on 2026-09-18.
   PRD/design detail stays with its document; other work stays in the work item.
+  Mike also approved explicit capture routing, question ownership, answer
+  updates, save timing, and readback after the WI-014 transcript review.
 - Still open: Publication, project sync, and observed fresh-session behavior.
   The active GitHub account is the work account; no account switch or GitHub
   mutation is authorized through it.

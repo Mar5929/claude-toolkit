@@ -107,12 +107,15 @@ costs, and why extending what exists serves the requirements worse.>
 ## Notes
 
 - Decisions: <relevant choice, approved/proposed status, who decided and when
-  if known; link to settled text rather than repeating it>
+  if known, and source; link to settled text rather than repeating it>
 - Still open: <unanswered questions, unresolved review findings, and remaining
-  document tasks; name the affected section and any blocker>
+  document tasks; for a question name who must answer, its status and affected
+  section; for a task name action, responsible person when known, status and
+  next step; include any blocker and say unknown instead of guessing a person>
 - Resume here: <exact section or question and next action>
 
 <Keep only useful entries. Update settled requirements or design in the main
 text, remove resolved to-dos, and preserve relevant decisions and approval
-boundaries. Saving a draft does not approve it or authorize implementation.>
+boundaries. An answer updates the existing question and the actual design.
+Saving a draft does not approve it or authorize implementation.>
 ```

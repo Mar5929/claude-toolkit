@@ -24,6 +24,11 @@ answers, choices, constraints, and approvals promptly. Keep their meaning;
 shortening a statement does not permit adding rationale or certainty. Record
 outside approvals as reported, with the person and conditions when supplied.
 Routine commands, files opened, and ordinary tests are not progress.
+Open questions are saved even without an answer, with who must answer (or
+unknown), status, and affected work. Answers update that question and the actual
+requirements or design, preserving source and approval state. Save before moving
+past the topic and verify the changed content, not just the history entry.
+Use the existing item/document locations; no extra start or notes file is needed.
 
 Stages describe a normal path and may be skipped or revisited. In Progress
 means work is active, including discovery and design. Build and data-load

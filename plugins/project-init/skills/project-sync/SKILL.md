@@ -369,7 +369,10 @@ Typical checks:
   refinement in the tracker. Reconcile approved instruction changes together:
   document text and bottom Notes own that refinement; other work stays in the
   item. Preserve project-specific choices and active drafts. Do not bulk-migrate
-  their content. A plugin refresh alone does not update copied project rules.
+  their content. Check that orientation resolves the exact current documents,
+  open questions name who must answer, and saves update and verify the actual
+  document. Flag missing `work-item-stages.md` even when broad root reminders
+  say to keep work current. A plugin refresh alone does not update copied rules.
 
 - **Rules the toolkit dropped on 2026-08-31:** `spec-before-you-build.md` and
   `track-open-topics.md`. The toolkit no longer ships either one. When a project

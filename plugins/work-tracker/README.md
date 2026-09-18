@@ -220,6 +220,10 @@ its decisions with approval state, unfinished discussion, remaining document
 tasks, and exact resume point. Update the document itself as answers settle.
 The work item retains overall status, other tasks, approvals, and links.
 Task continuation fields point to Notes rather than duplicating its checklist.
+Other open questions and useful notes use the preserved User notes section
+of `STATUS.md`; questions identify who must answer, status, and what they
+affect. Task and state changes use the existing commands. A progress note
+alone does not update the requirements or design; read back the actual change.
 This uses the existing records and commands; it adds no tracker file.
 
 ## Commands

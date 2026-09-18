@@ -77,6 +77,12 @@ potential paths to explore, not requirements or an approved design."
   existing upkeep workflow. Capture the intended meaning, distinguish
   tentative suggestions from confirmed answers, and leave unknowns visible.
   Do not create a second raw interview log merely to use this skill.
+- Save an unanswered question in the draft's Notes with who must answer,
+  its status, and the requirement it affects. Check existing answers before
+  asking again. When answered, update both the question and the actual
+  requirement, recording the source and approval state when known. Do not
+  wait for unrelated open decisions before saving settled answers. Verify
+  the changed section before saying it was saved; work-guide owns the method.
 - Apply a clear correction to the draft without asking the owner to approve
   it again. Check affected requirements and proposed design; update obvious
   consequences and ask only about material ambiguity. Preserve useful change

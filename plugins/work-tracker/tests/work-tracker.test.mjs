@@ -13,6 +13,26 @@ import {
 } from "../skills/work/scripts/lib/common.mjs";
 import { loadTracker, updateItem } from "../skills/work/scripts/lib/tracker.mjs";
 
+test("open questions and later answers in user notes survive tracker updates", () => {
+  const repo = makeRepo();
+  init(repo);
+  add(repo, "Capture questions");
+  activate(repo, "WI-001");
+  const statusPath = path.join(itemPath(repo, "WI-001"), "STATUS.md");
+  const notesPattern = /(<!-- work-tracker:user-notes:start -->\s*## User notes\s*)[\s\S]*?(<!-- work-tracker:user-notes:end -->)/;
+  const open = "Question: Who approves the rollout? Answer from: Mike. Status: Open. Affects: rollout task.";
+  const answered = "Question: Who approves the rollout? Answer from: Mike. Status: Answered. Answer: Mike approves it. Source: owner conversation. Rollout approval itself remains pending.";
+  for (const note of [open, answered]) {
+    const before = fs.readFileSync(statusPath, "utf8");
+    assert.match(before, notesPattern);
+    fs.writeFileSync(statusPath, before.replace(notesPattern, `$1${note}\n\n$2`));
+    jsonWork(repo, ["update", "WI-001", "--next-step", "Obtain rollout approval", "--note", "Updated the rollout question."]);
+    const after = fs.readFileSync(statusPath, "utf8");
+    assert.ok(after.includes(note));
+    assert.equal(after.split("Question: Who approves the rollout?").length - 1, 1);
+  }
+});
+
 const here = path.dirname(fileURLToPath(import.meta.url));
 const cli = path.resolve(here, "../skills/work/scripts/work.mjs");
 

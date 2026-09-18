@@ -220,6 +220,10 @@ finalized.
   preserved owner notes. It also renders roadmap stages and task continuation
   details, including linked inputs. The progress log and the user notes both
   sit between HTML comment markers and are carried across every rewrite.
+  General open questions and useful work-item notes go in User notes. Edit only
+  that preserved section, not generated sections. Document-specific discussion
+  stays in the document's Notes. Question entries name who must answer, status,
+  and what they affect; an unknown person remains explicitly unknown.
 - `HISTORY.ndjson`: complete dated command history, one JSON object per line.
 - Other files: preserved and never treated as executable input.
 

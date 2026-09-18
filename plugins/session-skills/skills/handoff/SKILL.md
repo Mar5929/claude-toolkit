@@ -74,7 +74,8 @@ status into project knowledge. The project lifecycle rule owns what belongs in
 the tracker.
 
 For PRD or design refinement, first save the document's updated text and bottom
-Notes, including the exact resume point and approval boundaries. Link there
+Notes, including the exact resume point, approval boundaries, open questions
+and who must answer, and remaining tasks. Verify the saved content itself. Link there
 from the active item instead of repeating the document's open questions and
 tasks. Other work remains in the item. Report any unsaved document changes in
 the handoff. Follow work-guide's document-continuity guidance.

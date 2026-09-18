@@ -30,6 +30,9 @@ Before substantial work:
    `work task select ID TASK-ID`. Read its linked inputs and governing
    constraints before acting. If a legacy item has no roadmap tasks, reconcile
    them from accepted evidence without guessing history or approval.
+6. Confirm the exact current requirements document or workbook and working
+   design from the item and owner's instructions. Read those files. Preserve
+   an existing authoritative workbook; do not pick a copy by date alone.
 
 `work start ID` selects the item when the branch has no active mapping. Named
 mutations refuse a different active item. Reads and tracker-wide checks do not
@@ -49,6 +52,21 @@ constraint, approval, rejection, blocker change, direction change, or discovery
 that changes the plan. Keep the note short and faithful. Do not add meaning,
 scope, reasons, conditions, or certainty the owner did not give. Ask one short
 question when the difference matters.
+
+The progress note is history, not a substitute for the current record. Apply
+the routing in `work-item-stages.md`: document-specific questions, decisions,
+and tasks stay in the document's Notes, and settled answers update its actual
+text or cells. For other open questions and useful notes, edit only the preserved
+`User notes` section between its markers in `STATUS.md`. Keep the question,
+who must answer (or unknown), status, and what it affects current there. Other
+tasks use `task add/update`; status, next step, and blockers use `update`.
+Do not hand-edit generated sections or duplicate document detail in this file.
+
+After a meaningful update, reread its exact destination and validate tracker
+changes. When an answer arrives, resolve the existing question only if answered
+and update the affected record with its source and approval state when known.
+Keep conflicts open. Never leave an unanswered question only in chat, create a
+new notes/start file, or wait for every decision before saving independent work.
 
 Do not record routine commands, files opened, ordinary tests, tiny edits, or
 discarded ideas. A next-step-only or branch-only mechanical correction needs no
