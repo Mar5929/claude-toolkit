@@ -688,6 +688,18 @@ access is not a reason to replace the agent's judgment with a second controller.
 No runtime configuration, experimental flag, account, or installed version was
 changed for this comparison. Full design and build approval remain outstanding.
 
+### Instruction content must match the requirements
+
+Mike confirmed on 2026-09-18 that updating reminder mechanisms alone is
+insufficient. Every active instruction surface must be reconciled with the
+approved requirements: manuals, root rules, skills, helper assignments,
+references, examples, generated reminders, and setup/sync content. Trace each
+requirement to its owning instruction and all consumers in the implementation
+plan. Check meaning as well as delivery. Static validity and matching installed
+copies do not establish correctness. Require independent content review and
+fresh-agent behavior in new and upgraded projects before acceptance. Do not
+activate future policy piecemeal while current skills and checkers disagree.
+
 ## 7. Requirement coverage and proof
 
 ### Checkpoint interfaces
@@ -1026,6 +1038,14 @@ remain separate and outstanding.
 ### Tasks
 
 These are investigation work, not questions for Mike to answer about APIs.
+
+- **Instruction content, not only delivery:** audit all R1–R30 requirements
+  against the full manuals, root instructions/rules, skills and references,
+  helpers, templates/examples, hook wording, and setup/sync instructions. The
+  [implementation plan](269-knowledge-system/implementation-plan.md#required-instruction-content-audit)
+  defines the inventory and acceptance evidence. Review actual meaning and
+  contradictions independently; prove current behavior in new and upgraded
+  projects. Existing instructions are not yet aligned with the proposed system.
 
 - **Hook choice:** ordinary command hooks with separate host integrations were
   approved by Mike on 2026-09-18. Follow the

@@ -140,7 +140,11 @@ The quiet completion-review behavior is approved by Mike as of 2026-09-18. Prove
 
 Recommend no new Git pre-commit hook in the initial release: explicit checks and covered agent write safeguards meet the intended save sequence without changing Mike's manual-edit workflow or replacing unrelated Git hooks. Broader manual-edit blocking would be a separate owner policy decision supported by a demonstrated failure.
 
-Recommend recording standing memory permission honestly: retain who enabled it, its date, scope, and source in the project record; use that grant for `approved_by` and `approval_date` only if R14 is clarified to mean authorization rather than personal approval of each entry. Never fabricate per-entry human review. This wording reconciliation is a real requirements decision; keep approval on by default until it is resolved.
+Mike settled automatic-save metadata on 2026-09-18: record the grant's person,
+date, scope, and source once in project permission settings. Mark each affected
+memory as auto-saved; do not duplicate grant details into individual approval
+fields. R10/R14 own this behavior. Automatic saving remains opt-in; this design
+decision does not enable it.
 
 Use R3's affected-work pause for failed saves. The tracker must not claim a dependent deliverable complete; unrelated tasks can continue. Existing accepted completion rules remain with the tracker. Do not impose a global session lock.
 
@@ -152,13 +156,59 @@ Use R3's affected-work pause for failed saves. The tracker must not claim a depe
 
 **Owner:** knowledge guidance builder. **Dependencies:** D1-P2; Toolkit operating-manual owner under issue #306. **Requirements:** R1–2,7,10–18,20,23,28–30.
 
-The canonical knowledge manual is `knowledge/knowledge-manual.md`; preserve its marker and policy when migrating the earlier `knowledge/README.md` path. Coordinate `knowledge/toolkit-manual.md`, reported by the #306 coordinating task as Mike’s selected path. It covers high-level philosophy, project structure, end-to-end workflows, and subsystem cooperation; detailed knowledge procedures stay in the knowledge manual. The manual owner supplies content and the project-init/project-sync delivery contract. Verify delivery before embedding the path in a shipped hook. Do not create a competing manual inside the Knowledge System or ship a placeholder link.
+The canonical knowledge manual is `knowledge/knowledge-manual.md`; preserve its marker and reconcile its policy against the approved requirements. The earlier `knowledge/README.md` rename is already delivered; a path migration alone does not update instruction meaning. Coordinate `knowledge/toolkit-manual.md`, reported by the #306 coordinating task as Mike’s selected path. It covers high-level philosophy, project structure, end-to-end workflows, and subsystem cooperation; detailed knowledge procedures stay in the knowledge manual. The manual owner supplies content and the project-init/project-sync delivery contract. Verify delivery before embedding the path in a shipped hook. Do not create a competing manual inside the Knowledge System or ship a placeholder link.
 
 Migrate the managed manual and project/SOUL/current/feedback templates from `plugins/second-brain/skills/second-brain/references/templates/` to `plugins/second-brain/skills/knowledge-setup/references/templates/`, updating template consumers together. Add `knowledge/memory-inbox.md`, `knowledge/memory/memory-entries/terminology-glossary.md`, and concise memory/PRD examples in that template/reference family. Move template current work to `knowledge/memory/current.md`, rename the PRD index template to `prd-index.md`, and put brainstorms at project root. Retain the existing feedback filename. The System Guide owner supplies its actual enabled path; do not silently migrate or enable it.
 
 Use the PRD's exact card fields and working-memory structure. Inbox entries carry stable reference, destination/operation, exact shown card or precise authorized upkeep owed, source/date, host/conversation identity, update time, state, next step, and separate durable authority. Identity for deduplication is operational; pending text never becomes evidence. Capture source/context separately in memory; do not infer missing provenance to satisfy metadata.
 
 **Deliverable/exit:** coherent templates and small root/manual routing contract, with valid empty and populated examples. Tests cover glossary without frontmatter, proposed PRD without approval, approved PRD with paired fields, exact pending card, active work from two sessions, and style/source preservation. No arbitrary record-length cap beyond R21.
+
+### Required instruction-content audit
+
+Mike explicitly requested this audit on 2026-09-18. Delivery of a reminder or a
+manual is insufficient: the instructions the agent receives must match the
+approved requirements. This is implementation scope and an acceptance condition,
+not a claim that the existing manual already matches the proposed system.
+
+Before changing instructions, extend this plan's requirement coverage with a
+row for every R1–R30 requirement: approved behavior, canonical instruction source
+and section, consuming instructions or references, required wording changes,
+installed destination, owner, and evidence. Mark a requirement with no instruction
+change as reviewed with a reason. Do not infer coverage from filenames or a
+successful copy/hash check. Keep this record here rather than create a separate
+notes or audit file.
+
+Review the complete text of each applicable surface, including examples and
+negative instructions, not only search matches:
+
+| Surface | Required review |
+| --- | --- |
+| Knowledge and toolkit manuals | Routing, source authority, startup/recovery, permission, pending saves, plain language, file shapes, lifecycle, feedback, component boundaries; keep detailed policy in its owning manual. |
+| Root instructions and installed rules | CLAUDE/AGENTS routes, work stages, documentation saves, manual upkeep, handoff and output style; remove conflicting instructions while preserving unrelated owner rules. |
+| Four skills, helper assignments, and operation references | Lookup, selection, proposals, approval, automatic saves, every lifecycle operation, validation, commit/push, recovery, and quiet completion. Retired skill names must route correctly or be removed from active callers. |
+| Templates, sample records, and proposal cards | Exact current fields and examples, automatic-save marker versus individual approval, pending approval versus finished saves, Notes ownership, glossary and topic layout. |
+| Hook-generated instructions and checker messages | Actual emitted wording agrees with the manual; no old approval or reread rules reintroduced by a reminder, error message, or recovery instruction. |
+| Setup, sync, migration, manifests, and catalogs | A new project receives coherent content; an existing project receives the same policy through safe migration. Verify active loaded versions and installed copies, not just repository source. |
+| Other component entry points | Work tracking, requirements/design helpers, handoff, System Guide and skill-authoring routes preserve their owners and current permissions. Reconcile the separately approved Notes workflow when integrated. |
+
+Known source gaps verified on 2026-09-18 include the manual's old startup order,
+layout and six-skill map; blanket memory approval fields; `remember` forbidding
+pending queuing; `retire` forbidding commit/push; and missing explicit coverage
+of the newly approved automatic-save and helper workflow. These describe the
+current implementation, not permission to edit live instructions during design.
+The separately committed Notes workflow is not assumed installed on main.
+
+Acceptance requires an independent meaning review against every requirement,
+plus fresh-agent scenarios in both a newly equipped project and an upgraded
+project on each supported host. Include saving after approval, saving with
+per-save approval disabled, retirement, interrupted helper recovery, quiet
+completion, no-jargon proposals and saved text, and PRD/design continuation.
+Seed obsolete instructions to verify migration detects or reconciles them;
+preserve owner customizations and report unresolved conflicts. Check that the
+agent acts on current content without coaching from this conversation. Record
+static content/copy checks separately from observed behavior. Any contradictory
+active instruction or untested scenario remains an explicit release gap.
 
 **Risk/rollback:** manual rules and skill templates can drift. Keep shared meaning in the manual and operation details in linked references; revert template/runtime package together before activation, preserving owner-authored records.
 
