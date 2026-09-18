@@ -2229,6 +2229,7 @@ division remains a design proposal. Full requirements approval is outstanding.
   from host integrations; function hooks remain a candidate if evidence proves
   a benefit. See the solution design for the choice and required runtime proof.
   This does not approve the full design or authorize implementation.
-- Mike requested these Notes on local `main`; remote publication remains
-  pending. Do not switch GitHub accounts. The reusable work-plugin Notes behavior is being
-  addressed in a separate task; this document records this PRD's remaining work.
+- Mike authorized personal-account publication of the committed updates on
+  2026-09-18. Verify the remote result before reporting publication complete.
+  The reusable work-plugin Notes behavior is addressed in a separate task;
+  this document records this PRD's remaining work.

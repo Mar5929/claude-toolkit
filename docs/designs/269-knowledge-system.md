@@ -1057,8 +1057,10 @@ requirements refinement where needed. The outstanding decisions, design tasks,
 and next review step are in this document's [Notes](#notes). Keep the task's
 high-level status and this link current without duplicating this discussion.
 
-**Publication:** Mike requested these Notes on local `main`. Remote publication
-and the GitHub task summary remain pending; do not switch GitHub accounts.
+**Publication:** Mike authorized switching to the personal GitHub account and
+pushing these committed updates on 2026-09-18. Verify the remote result before
+reporting publication complete. The GitHub task summary remains a separate
+tracker update; it is not applied merely by pushing the documents.
 
 ### Outstanding decisions
 
