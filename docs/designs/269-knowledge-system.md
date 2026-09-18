@@ -1048,10 +1048,13 @@ for the initial implementation after reviewing the function-hooks comparison.
 Function hooks remain a future candidate if evidence supports a benefit.
 This does not authorize implementation or approve the full design.
 
-**Resume here:** complete the instruction-content audit and technical proof
-tasks below, then review the complete requirements and design for approval. The three behavior decisions discussed
-here are settled; record any new decision exposed by investigation before relying
-on it.
+**Resume here:** draft the actual core knowledge manual first, then the
+applicable skill instructions, templates, and rules using the instruction audit.
+Prepare behavior-bearing drafts in an isolated implementation worktree; review
+wording before supporting code and hooks, and activate them together. Mike asked
+to continue on another computer or in a new project/session from this exact
+point. Read these Notes and the linked audit; do not reopen settled decisions.
+Technical proofs and full design/build approval remain outstanding.
 
 **GitHub task summary to publish:** solution design is in progress, with
 requirements refinement where needed. The outstanding decisions, design tasks,

@@ -2166,9 +2166,13 @@ the explicit ban on jargon and figurative language in memory and proposals are
 recorded requirements. Saving these updates does not mean the full requirements
 or solution design are approved, or that implementation may begin.
 
-**Resume here:** finish the requirements consistency and acceptance-check review
-below alongside the solution design's technical proofs, then request full
-requirements approval. Do not reopen the three behavior decisions settled here.
+**Resume here:** draft the actual core knowledge manual first, then the
+applicable skill instructions, templates, and rules using the instruction audit.
+Prepare behavior-bearing drafts in an isolated implementation worktree; review
+wording before supporting code and hooks, and activate them together. Mike asked
+to continue on another computer or in a new project/session from this exact
+point. Read these Notes and the linked audit; do not reopen settled decisions.
+Technical proofs and full design/build approval remain outstanding.
 
 ### Outstanding decisions
 
