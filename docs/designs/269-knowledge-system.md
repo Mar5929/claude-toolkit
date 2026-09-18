@@ -700,6 +700,37 @@ copies do not establish correctness. Require independent content review and
 fresh-agent behavior in new and upgraded projects before acceptance. Do not
 activate future policy piecemeal while current skills and checkers disagree.
 
+### Proposed division of instruction content
+
+Mike asked on 2026-09-18 whether all instructions should be read at startup.
+R2 requires the core knowledge manual to be read in full, but already permits
+operation details to be opened when needed. The recommendation is:
+
+- **Core manual, read at startup:** information destinations and exclusions,
+  source authority, save-review obligations, permission boundaries, required
+  checks, recovery obligations, and a short list of which procedure to read
+  before each operation. Preserve the R2 manual topics, including proposal and
+  file-convention basics. It must contain enough to recognize the right action.
+- **Task-specific instructions, read before acting:** detailed lookup procedure,
+  save and lifecycle procedure, review procedure, and setup/migration procedure.
+  Keep these with the four selected skills and their existing references.
+- **Examples and exact formats, read when applicable:** proposal cards, fields,
+  templates, migration examples, and host-specific details. Link from the
+  procedure that needs them. Do not create one file per small rule.
+
+Keep each rule in one owning location and use explicit links and read conditions.
+Missing task instructions pause the affected operation. Context recovery must
+restore the required core and the instructions needed for the current task.
+Do not assume a reference was read merely because its link was delivered.
+
+All manuals and referenced instructions must be literal, clear, and explicit,
+without jargon or figurative language. Necessary exact technical names remain
+accurate and are explained. Include conditions, actions, permission, checks,
+and failure behavior; remove repeated explanations and unnecessary prose.
+Evaluate the proposed split through fresh-session outcomes, missed instructions,
+retrieval overhead, and context size. Do not choose a word limit first or remove
+required policy just to shorten startup. This exact division remains proposed.
+
 ## 7. Requirement coverage and proof
 
 ### Checkpoint interfaces
@@ -1016,8 +1047,8 @@ for the initial implementation after reviewing the function-hooks comparison.
 Function hooks remain a future candidate if evidence supports a benefit.
 This does not authorize implementation or approve the full design.
 
-**Resume here:** complete the technical proof and reconciliation tasks below,
-then review the full design for approval. The three behavior decisions discussed
+**Resume here:** review the proposed division of instruction content, then
+complete the technical proof and reconciliation tasks below before full approval. The three behavior decisions discussed
 here are settled; record any new decision exposed by investigation before relying
 on it.
 
@@ -1031,9 +1062,10 @@ and the GitHub task summary remain pending; do not switch GitHub accounts.
 
 ### Outstanding decisions
 
-None remain from this round of behavior review. Technical investigation may
-expose new tradeoffs. Full requirements/design approval and build authorization
-remain separate and outstanding.
+The three earlier behavior decisions are settled. The proposed division of
+instruction content above is now open for review: a complete core manual plus
+operation details in existing skills and references. Full requirements/design
+approval and build authorization remain outstanding.
 
 ### Tasks
 

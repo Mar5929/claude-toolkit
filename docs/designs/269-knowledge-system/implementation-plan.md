@@ -179,6 +179,16 @@ change as reviewed with a reason. Do not infer coverage from filenames or a
 successful copy/hash check. Keep this record here rather than create a separate
 notes or audit file.
 
+Apply the owner's 2026-09-18 language requirement throughout: no jargon or
+figurative language; explicit conditions, actions, permissions, checks, and
+failure handling. Explain necessary exact technical names. Review meaning,
+not just forbidden words or length. Remove repetition without losing detail.
+Evaluate the design's proposed core-manual/task-specific split using the four
+existing planned skills and their references. Preserve all R2 startup topics;
+exact division needs review before implementation. Test that each task loads
+its necessary detail, including after context recovery, without loading every
+procedure for every session.
+
 Review the complete text of each applicable surface, including examples and
 negative instructions, not only search matches:
 

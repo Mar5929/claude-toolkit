@@ -1140,6 +1140,7 @@ stranger: an agent with no context, or the owner a year from now. He is not
 technical.
 
 - Memory text and save proposals use plain, clear, everyday words. They must contain no jargon, figures of speech, figurative language, metaphors, or idioms. This applies to titles, summaries, explanations, and saved prose. Use the actual names of people, systems, files, and fields; explain a necessary exact technical name in ordinary words rather than replacing it with a metaphor. PRDs follow the same plain-language rule and the technical-term guidance below.
+- The knowledge and toolkit manuals, and the instructions they reference, also use clear, explicit language with no jargon, figures of speech, metaphors, or idioms. Necessary exact file, field, command, and product names remain accurate and are explained in ordinary words. Include enough detail to act correctly: when the instruction applies, what to do, permission needed, checks, and what happens if it fails. Remove repetition and unnecessary prose; brevity must not remove required behavior. Mike explicitly requested this on 2026-09-18.
 - As short as it can be without dropping anything a future agent needs. Every sentence has to be needed. If removing it loses nothing, remove it.
 - Accuracy before completeness. One wrong sentence makes the whole file untrustworthy, because a later agent acts on it. Settle anything uncertain that would change a proposed save before showing its card, under requirement 20. A guess is never written down as a fact.
 - Concrete, not abstract: the real name, the real value, the real path, the real date. Write the full date, never "last week". Name the system or the organization every time. When something was left undone, say so.
@@ -2171,9 +2172,10 @@ requirements approval. Do not reopen the three behavior decisions settled here.
 
 ### Outstanding decisions
 
-None remain from this round of behavior review. Record any new requirements
-tradeoff exposed by the remaining work; full requirements approval is still
-outstanding.
+The earlier three behavior decisions are settled. Mike has now asked whether
+the instruction content should be split into a core manual and task-specific
+detail. R2 already permits detailed guidance to be read when needed; the exact
+division remains a design proposal. Full requirements approval is outstanding.
 
 ### Tasks
 
@@ -2197,6 +2199,11 @@ outstanding.
   infer it from approval to save or refine this document.
 
 ### Recorded notes
+
+- On 2026-09-18, Mike required clear, explicit manuals without jargon or
+  figurative language: detailed enough to act correctly, without unnecessary
+  length. He asked to evaluate how to divide the instructions; he did not
+  approve a particular file structure or removal of required startup content.
 
 - Approved 2026-09-18: related approved saves may share a commit when ready
   together. Preserve each scope and result; do not delay a ready save or expand
