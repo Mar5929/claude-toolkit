@@ -2172,10 +2172,10 @@ requirements approval. Do not reopen the three behavior decisions settled here.
 
 ### Outstanding decisions
 
-The earlier three behavior decisions are settled. Mike has now asked whether
-the instruction content should be split into a core manual and task-specific
-detail. R2 already permits detailed guidance to be read when needed; the exact
-division remains a design proposal. Full requirements approval is outstanding.
+The earlier behavior decisions and the core-manual/task-specific arrangement
+are approved. Read the complete core manual at startup, the applicable procedure
+before acting, and formats/examples when needed. Preserve R2 startup topics.
+The instruction-content audit and full requirements approval remain outstanding.
 
 ### Tasks
 
@@ -2202,8 +2202,9 @@ division remains a design proposal. Full requirements approval is outstanding.
 
 - On 2026-09-18, Mike required clear, explicit manuals without jargon or
   figurative language: detailed enough to act correctly, without unnecessary
-  length. He asked to evaluate how to divide the instructions; he did not
-  approve a particular file structure or removal of required startup content.
+  length. He subsequently approved the core manual plus task-specific
+  instructions arrangement. This does not remove required startup content or
+  authorize implementation before full design review.
 
 - Approved 2026-09-18: related approved saves may share a commit when ready
   together. Preserve each scope and result; do not delay a ready save or expand

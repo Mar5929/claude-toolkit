@@ -183,9 +183,10 @@ Apply the owner's 2026-09-18 language requirement throughout: no jargon or
 figurative language; explicit conditions, actions, permissions, checks, and
 failure handling. Explain necessary exact technical names. Review meaning,
 not just forbidden words or length. Remove repetition without losing detail.
-Evaluate the design's proposed core-manual/task-specific split using the four
+Implement the core-manual/task-specific arrangement approved by Mike on
+2026-09-18, after full design/build authorization, using the four
 existing planned skills and their references. Preserve all R2 startup topics;
-exact division needs review before implementation. Test that each task loads
+exact content requires the audit below before implementation. Test that each task loads
 its necessary detail, including after context recovery, without loading every
 procedure for every session.
 
