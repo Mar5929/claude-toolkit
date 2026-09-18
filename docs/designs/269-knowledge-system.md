@@ -43,8 +43,8 @@ through routing, approvals, saving, recovery, concurrent work, and migration.
 | Hook | A host event handler that can deliver guidance or, where supported, interrupt a specific action. |
 | Skill | Instructions loaded for a particular operation, with detailed references loaded when needed. |
 | Root router | `CLAUDE.md` or `AGENTS.md`, providing the project's map and routes to applicable instructions. |
-| Toolkit operating manual | The higher-level explanation of enabled components and their responsibilities. Separate OS work recommends `docs/toolkit-manual.md`; that path and its delivery still require acceptance. |
-| Knowledge manual | `knowledge/README.md`, defining knowledge eligibility, routing, approval, and links to procedures. |
+| Toolkit operating manual | The higher-level explanation of enabled components and their responsibilities. The selected path is `knowledge/toolkit-manual.md`; its draft content and delivery remain under separate OS review. |
+| Knowledge manual | `knowledge/knowledge-manual.md`, defining knowledge eligibility, routing, approval, and links to procedures. |
 | Handshake | A request for an agent step and an acknowledgment of the step or its outcome. Intent acknowledgment and completion acknowledgment are different. |
 | Gate | A host-supported hold on a named action until an objective condition is met. A proposed gate requires runtime proof. |
 | Control | Guidance, an objective check, or agent judgment. These can coexist in one component. |
@@ -74,7 +74,7 @@ references after verification, rather than in the owner's core vocabulary.
 | Long-term memory | Both relevant and significant to this project. | Selected; not every useful note belongs in memory. |
 | Routing | Consider all owning records, including tasks, PRDs, procedures, and architecture. | Selected; System Guide participates only when enabled. |
 | Review trigger | Conversation-only work counts. | Changed-file counting as a relevance/review trigger is rejected. |
-| Manuals | Every equipped project receives a Toolkit operating manual; the knowledge manual supplies component policy. | Separate OS design recommends `docs/toolkit-manual.md`, owned by project-init/project-sync. Resolve its acceptance/delivery under #306 before shipping the hook path. |
+| Manuals | Every equipped project receives a Toolkit operating manual; the knowledge manual supplies component policy. | The selected path is `knowledge/toolkit-manual.md`, owned by project-init/project-sync. Resolve content acceptance and delivery under #306 before shipping the hook path. |
 | Documentation saves | Authorized Git-tracked documentation updates are checked and promptly committed/pushed on main. | Owner direction. Runtime code/config changes follow their own implementation workflow. Designs remain under `docs/designs/`. |
 | Old startup budgets | Earlier draft selected character budgets for two printing hooks. | Historical constraints of that mechanism. Recalculate for the revised startup; do not discard useful context-cost analysis. |
 | Paths and migration | Use the PRD's proposed layout, with setup/sync migrating existing projects deliberately. | A proposed path is not a claim that the live repository already uses it. |
@@ -149,9 +149,9 @@ boundaries in R1, R26, and R29.
 | --- | --- | --- | --- | --- | --- |
 | `SOUL.md` | Project role; supports R2–3 orientation | GUIDE | Ordered startup read | Actual file content when read | PRD R2; project setup contract |
 | `knowledge/project.md` | Project purpose/resources/tracker and shared approval configuration; R2,10,14,30 | GUIDE; CHECK metadata | Ordered startup read | Actual content | PRD R2,10,14 |
-| `knowledge/README.md` | Knowledge manual and routing map; R2,18,19 | GUIDE | Ordered startup read; reopen if missing/stale | Actual content; no mandatory full reread each prompt | PRD R2,18,19 |
+| `knowledge/knowledge-manual.md` | Knowledge manual and routing map; R2,18,19 | GUIDE | Ordered startup read; reopen if missing/stale | Actual content; no mandatory full reread each prompt | PRD R2,18,19 |
 | Root `AGENTS.md` / `CLAUDE.md` | Routes to project guidance; R2,26,30 | GUIDE | Applicable host instruction chain | Router content plus followed links | Host instruction documentation; folder-instruction PRD |
-| Toolkit operating manual, proposed `docs/toolkit-manual.md` | Cross-component orientation; R2,30 | GUIDE | Startup orientation integrated with OS design | Measure actual manual/read scope | Parent OS requirements; separate owner must accept and deliver candidate path |
+| Toolkit operating manual, `knowledge/toolkit-manual.md` | Cross-component orientation; R2,30 | GUIDE | Startup orientation integrated with OS design | Measure actual manual/read scope | Parent OS requirements; separate owner must approve content and deliver selected path |
 | `knowledge/memory/current.md` | Shared short-term continuation; R4,13,30 | GUIDE; CHECK shape | Startup/resume and work changes | Concise current context | PRD R13 |
 | `knowledge/memory-inbox.md` | Pending proposals and unfinished authorized saves; R9,10,28 | GUIDE; CHECK state/shape | Startup discovery and relevant save/recovery | Brief discovery summary, needed entries on demand | PRD R28 |
 | `knowledge/memory/memory-index.md` | Generated map to memory topics; R5,21 | CHECK format; GUIDE use | Locate at startup; read for relevant lookup | Index text only when needed | PRD R19,21 |
@@ -233,7 +233,7 @@ gate has been implemented or proven on either host.
    paths, activation, and missing components before reporting success.
 2. **Start a fresh session.** Applicable root instructions lead to the toolkit
    guidance. The knowledge startup step asks for `SOUL.md`,
-   `knowledge/project.md`, and `knowledge/README.md` in that order. Actual content
+   `knowledge/project.md`, and `knowledge/knowledge-manual.md` in that order. Actual content
    must reach the agent; naming paths is insufficient. The agent acknowledges
    completed reading, with one short owner-facing confirmation. Missing content
    is reported honestly. How a host holds dependent actions remains a proof task.
@@ -285,7 +285,7 @@ gate has been implemented or proven on either host.
 
 `SOUL.md` gives the agent its project role. `knowledge/project.md` supplies stable
 orientation, resources, and tracker links; its proposed approval setting is
-shared between hosts. `knowledge/README.md` owns the knowledge policy. The
+shared between hosts. `knowledge/knowledge-manual.md` owns the knowledge policy. The
 startup instruction precedes their ordered reads, and the acknowledgment follows
 available content. Do not emit the confirmation after only issuing a reminder.
 
@@ -293,8 +293,8 @@ The root files point to the manuals and component instructions. They do not
 absorb the full knowledge rule or design philosophy. The Toolkit operating manual
 describes enabled components and their responsibilities; the knowledge manual
 describes this component. Their startup steps must be integrated, without two
-competing orientation sequences. The higher manual's path and exact read scope
-remain dependencies of the separate manual design.
+competing orientation sequences. The higher manual's selected path is `knowledge/toolkit-manual.md`; its
+content, exact read scope, and delivery remain dependencies of the separate manual design.
 
 The existing startup module supplies one short request and discovery map, then
 returns. It cannot wait inside SessionStart for the same agent to acknowledge;
@@ -411,7 +411,7 @@ variants must not drift between hosts or setup templates.
 
 > The user has submitted a message.
 >
-> **Friendly reminder:** keep front of mind and follow the Toolkit operating system's methodologies, processes, and instructions. Use the applicable root instruction chain, `AGENTS.md` and/or `CLAUDE.md`, to know what the project's files and folders contain and where information belongs. Toolkit operating manual: `docs/toolkit-manual.md`.
+> **Friendly reminder:** keep front of mind and follow the Toolkit operating system's methodologies, processes, and instructions. Use the applicable root instruction chain, `AGENTS.md` and/or `CLAUDE.md`, to know what the project's files and folders contain and where information belongs. Toolkit operating manual: `knowledge/toolkit-manual.md`.
 >
 > Evaluate the user's message and relevant conversation for information to retain or update:
 >
@@ -421,15 +421,15 @@ variants must not drift between hosts or setup templates.
 >
 > Do not retain secrets, filler, routine tool logs, unnecessary duplicates, or information without useful project purpose. Do not promote scratch reasoning, dropped ideas, or unverified hypotheses into long-term facts.
 >
-> Consider additions, corrections, updates, consolidation, superseding, and removal. Follow `knowledge/README.md` for eligibility, routing, and approval; finding a candidate does not authorize a lasting change.
+> Consider additions, corrections, updates, consolidation, superseding, and removal. Follow `knowledge/knowledge-manual.md` for eligibility, routing, and approval; finding a candidate does not authorize a lasting change.
 >
 > Acknowledge this reminder, then perform the evaluation. Acknowledgment confirms intent, not completed review or saving.
 
 Proposed owner-facing acknowledgment: “Acknowledged. I'll evaluate what needs
 retaining or updating.” Recommend an explicit intent receipt through the shared
 helper, independently of this display wording; prove its transport under H3.
-The operating-manual path in this draft is the separate OS task's recommendation;
-its owner must accept and deliver that file before this wording ships. The reminder
+The operating-manual path is selected; the separate OS task must settle its
+content and deliver that file before this wording ships. The reminder
 does not force a full manual reread each turn; missing or stale guidance is read
 before the affected operation.
 

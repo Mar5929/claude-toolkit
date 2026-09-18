@@ -164,7 +164,7 @@ so they always know where they are.
   adoption first and use `--adopt` only after the owner chooses it. Never move,
   replace, or silently adopt existing content.
 - Offer `second-brain` as its own coherent opt-in system.
-- Explain that the managed `knowledge/README.md` is the one operating manual and
+- Explain that the managed `knowledge/knowledge-manual.md` is the one operating manual and
   the remaining skills and hooks point to it.
 - Ask the owner what the project is, why it exists, what finished looks like,
   its main workstreams and boundaries, who is involved, and where active work
@@ -296,7 +296,7 @@ so they always know where they are.
   need writing guidance in their own definitions. See
   `library/output-styles/README.md` for installation details.
 - When project knowledge is installed, keep the route small. Both hosts register
-  the loader for `SOUL.md`, `knowledge/README.md`, `knowledge/project.md`,
+  the loader for `SOUL.md`, `knowledge/knowledge-manual.md`, `knowledge/project.md`,
   `knowledge/current.md`, and the two index entry lists. `CLAUDE.md` says to
   read that map once only if the hook did not supply it, and copies no knowledge
   policy. See "The project knowledge startup route" in `thin-claudemd.md`.

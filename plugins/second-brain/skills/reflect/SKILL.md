@@ -10,7 +10,12 @@ description: >-
 
 This is a read-first review across the whole folder. It proposes changes but
 does not decide them. Read the trust, approval, and lifecycle sections of
-`knowledge/README.md`. If the manual is missing, report the gap and stop.
+`knowledge/knowledge-manual.md`. If the manual is missing, report the gap and stop.
+
+During filename migration, if the canonical manual is absent, use
+`knowledge/README.md` only when it starts with the managed-manual marker.
+Report the legacy path for project-sync. Conflicting marked copies require
+reconciliation before policy-dependent work; never choose meaning silently.
 
 ## Mechanical pass
 
@@ -47,7 +52,7 @@ to fit.
 
 This file is operational state, so consolidating it needs no approval. Report
 what was merged and what was pruned. Raise a lesson that disagrees with
-`knowledge/README.md` with the owner instead of keeping it.
+`knowledge/knowledge-manual.md` with the owner instead of keeping it.
 
 ## Propose and wait
 

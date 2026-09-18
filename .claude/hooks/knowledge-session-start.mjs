@@ -20,6 +20,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { MANUAL_PATH, resolveManual } from "./memory-reminder.mjs";
 
 export const SYSTEM_GUIDE_CONFIG = ".system-guide.json";
 export const SYSTEM_GUIDE_OFF_MESSAGE = "System Guide is not configured.";
@@ -27,7 +28,7 @@ export const SYSTEM_GUIDE_OFF_MESSAGE = "System Guide is not configured.";
 export const STARTUP_FILES = [
   { path: "SOUL.md", label: "Who you are in this project", whole: true },
   {
-    path: "knowledge/README.md",
+    path: "knowledge/knowledge-manual.md",
     label: "How to use project knowledge",
     whole: true,
   },
@@ -84,9 +85,19 @@ export function loadKnowledge(projectRoot) {
   const sections = [];
 
   for (const { path, label, whole } of STARTUP_FILES) {
+    if (path === MANUAL_PATH) {
+      const manual = resolveManual(root);
+      if (manual.notice) sections.push(`[${manual.notice}]`);
+      if (typeof manual.text === "string") {
+        sections.push(`${label} (${manual.path}):\n\n${manual.text.replace(/\r\n/g, "\n").trim()}`);
+      } else if (!manual.notice) {
+        sections.push(`[Project startup file missing: ${MANUAL_PATH}. Continuing without it. Do not invent knowledge policy; project sync can restore the managed copy.]`);
+      }
+      continue;
+    }
     const absolute = resolve(root, path);
     if (!existsSync(absolute)) {
-      const detail = path === "knowledge/README.md"
+      const detail = path === "knowledge/knowledge-manual.md"
         ? " Do not invent knowledge policy; project sync can restore the managed copy."
         : "";
       sections.push(`[Project startup file missing: ${path}. Continuing without it.${detail}]`);

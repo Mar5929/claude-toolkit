@@ -9,10 +9,15 @@ description: >-
 
 # session search
 
-This is the historical tier defined by `knowledge/README.md`. Follow the
+This is the historical tier defined by `knowledge/knowledge-manual.md`. Follow the
 manual's rules for announcing the search, treating results as possibly out of
 date, and confirming anything that may still be true. This skill owns only how
 to run the read-only search.
+
+During filename migration, if the canonical manual is absent, use
+`knowledge/README.md` only when it starts with the managed-manual marker.
+Report the legacy path for project-sync. Conflicting marked copies require
+reconciliation before policy-dependent work; never choose meaning silently.
 
 ## Search the smallest scope
 

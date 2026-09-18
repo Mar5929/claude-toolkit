@@ -27,10 +27,10 @@ here, and they are in force for the whole session.
 
 ## Project knowledge
 
-The startup hook loads `SOUL.md`, then `knowledge/README.md` once, then
+The startup hook loads `SOUL.md`, then `knowledge/knowledge-manual.md` once, then
 `knowledge/project.md`, `knowledge/current.md`, and the two knowledge indexes.
 If that map is not already in this session, read those files once in that order.
-If a file is missing, continue and report it. `knowledge/README.md` wins when
+If a file is missing, continue and report it. `knowledge/knowledge-manual.md` wins when
 project-knowledge instructions disagree.
 
 When .system-guide.json is enabled, use the System Guide plugin's system-guide skill for questions or work about existing system structure, purpose, connections, or impact.
@@ -41,7 +41,7 @@ When .system-guide.json is enabled, use the System Guide plugin's system-guide s
 | --- | --- |
 | `force-app/main/default/` | The org's metadata: objects, flows, Apex, permission sets. Detail: `force-app/CLAUDE.md`. |
 | `ai-external-knowledge/` | Salesforce documentation captured as Markdown, one folder per topic. Open it before designing against a platform feature, instead of searching the web. Today: `sharing-and-visibility/`, `flow-limits/`. |
-| `knowledge/` | What this project decided and why, plus the separately enabled System Guide under its configured path. Open the guide index for existing system structure, purpose, connections, or impact; the routing table in `knowledge/README.md` separates guide explanations from PRDs and memory. |
+| `knowledge/` | What this project decided and why, plus the separately enabled System Guide under its configured path. Open the guide index for existing system structure, purpose, connections, or impact; the routing table in `knowledge/knowledge-manual.md` separates guide explanations from PRDs and memory. |
 | `docs/` | Documents written for Acme, not for agents. Detail: `docs/CLAUDE.md`. |
 | `scripts/` | Deploy and data-load scripts. Detail: `scripts/CLAUDE.md`. |
 | `.claude/` | Rules, hooks, settings. |
@@ -58,7 +58,7 @@ When .system-guide.json is enabled, use the System Guide plugin's system-guide s
 | Path | How updates land | Instructions |
 | --- | --- | --- |
 | `README.md`, `delivery/architecture/`, `docs/designs/` | Authorized documentation-only updates use the direct publication route. | `.claude/rules/knowledge-direct-commit.md` |
-| `knowledge/` | Follow the knowledge manual for content approval, then the documentation publication route. | `knowledge/README.md` and `.claude/rules/knowledge-direct-commit.md` |
+| `knowledge/` | Follow the knowledge manual for content approval, then the documentation publication route. | `knowledge/knowledge-manual.md` and `.claude/rules/knowledge-direct-commit.md` |
 
 ## Where work is tracked
 
@@ -98,7 +98,7 @@ wrong.
   Git-ignored boundary because that explains its handling.
 - Where anything came from or when it arrived. Git history owns that.
 - Current phase, next action, or open work. The tracker owns that.
-- What the knowledge folder contains. Its `README.md` owns that.
+- What the knowledge folder contains. Its `knowledge-manual.md` owns that.
 
 This example uses GitHub for work tracking, so it has no `.work-items/` row. A
 project that selected local tracking adds this row as well:

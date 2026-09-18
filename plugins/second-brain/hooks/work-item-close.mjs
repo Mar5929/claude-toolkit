@@ -78,7 +78,7 @@ export function buildMessage() {
     "",
     "Invoke the remember skill to check whether this work changed a current",
     "specification, and whether anything is worth saving as memory, then run",
-    "this command again. If there is anything, knowledge/README.md shows how",
+    "this command again. If there is anything, knowledge/knowledge-manual.md shows how",
     "to display the proposal.",
     "",
     "If you are a helper agent, stop and report this to the main agent.",

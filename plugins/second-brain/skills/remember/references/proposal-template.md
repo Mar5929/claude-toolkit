@@ -126,6 +126,6 @@ Same shape. Only the arrow and the path change.
 ## After the blocks
 
 Stop and wait. Nothing is queued, cached, or written on silence, on an unclear
-answer, or on a request to see more text. `knowledge/README.md` owns what
+answer, or on a request to see more text. `knowledge/knowledge-manual.md` owns what
 approval means and what the owner is approving. This file owns only how the
 proposal looks.
