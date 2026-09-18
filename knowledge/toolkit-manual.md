@@ -48,6 +48,69 @@ Shared records make work resumable. A record earns its place by helping the
 next decision or preserving information that would otherwise be lost. Links
 connect those records without making several copies of the same meaning.
 
+## What shapes a working session
+
+Output styles, rules, skills, and hooks contribute throughout the workflow.
+Understanding their roles helps explain why an agent communicates a certain
+way, opens a procedure, receives a reminder, or encounters a blocked action.
+
+### Output styles: how the agent communicates
+
+An output style guides the wording and presentation of replies. The toolkit's
+Claude Code setup selects Plain English by default while preserving a deliberate
+owner choice of another style. Its purpose is understandable explanations with
+enough context to make decisions. The [output styles library](../plugins/project-init/library/output-styles/README.md)
+owns the available styles and their setup; the [Plain English style](../plugins/project-init/library/output-styles/plain-english.md)
+owns its actual writing instructions.
+
+Communication guidance also matters in documents, diagrams, and helper
+findings. A style selected for the main Claude Code conversation does not by
+itself establish that helpers or another host received it. Helper instructions
+carry the applicable writing guidance, and the project's
+[artifact-writing rule](../.claude/rules/plain-english-artifacts.md) covers
+owner-facing artifacts. Setup and review need to account for those different
+recipients. Selecting a style does not prove that an answer follows it.
+
+### Rules and skills: how work is carried out
+
+Rules establish standing working constraints, such as how concurrent sessions
+share a repository or how authorized documentation is published. Skills supply
+the procedure for a particular task, such as refining requirements or preparing
+a handoff. Root and folder instructions help the agent find the applicable
+rules and skills; the current request determines which procedures are useful.
+
+The [rules catalog](../.claude/rules/README.md) identifies this project's
+standing instructions. The [toolkit catalog](../docs/toolkit-map.md) connects
+the available plugins and skills. Their detailed instructions remain with
+those owners. A skill's availability does not grant permission to perform
+every action it describes.
+
+### Hooks: actions at particular moments
+
+A hook runs a configured action when the host emits an event, such as session
+startup, a submitted message, or a tool operation. Hooks can supply context,
+prompt a review, or guard a specific action. Each hook has its own scope and
+failure behavior; a reminder and a blocking guard have different effects.
+
+For example, the [hooks library](../plugins/hooks-library/README.md) includes
+a specification-review reminder at the first edit, a Claude Code style
+handshake when a user message arrives, and guards for selected publishing or
+Salesforce deployment operations. The style handshake directs attention back
+to the selected style; that style remains the owner of the writing guidance.
+The hook can observe a read without proving understanding or compliance.
+
+Some hooks belong to a subsystem. The [knowledge subsystem](../plugins/second-brain/README.md)
+owns its startup and save reminders, while [System Guide](../plugins/system-guide/README.md)
+owns its enabled-guide startup pointer. Keeping each hook with its component
+connects the prompt or check to the procedure responsible for the outcome.
+
+A project's actual host settings determine which hooks run and when. A hook
+listed in a catalog is not necessarily enabled here, and Claude Code event
+support does not establish equivalent Codex behavior. Setup and sync own the
+configuration; the component documentation owns event names, commands,
+installation details, and limitations. Verify delivery in the intended host
+before relying on a reminder or guard.
+
 ## Finding your way around a project
 
 Start with the project's root instruction chain. In this repository,
@@ -93,6 +156,12 @@ another project must name that project's actual paths and enabled components.
 Consider a request such as: "The advisor search misses people from the same
 firm." The following walkthrough shows how the components cooperate. The
 linked instructions supply the detailed steps and applicable approvals.
+
+Across these steps, the selected communication guidance shapes explanations,
+rules govern the work, and skills provide the relevant procedures. Configured
+hooks intervene at their designated events: startup may supply orientation,
+a message may prompt a style read, and a tool operation may trigger a reminder
+or guard. The agent still has to carry out the work and verify its result.
 
 ### Establish the goal and current position
 
@@ -208,6 +277,9 @@ working equivalents for each equipped project.
 | Component | Contribution to the whole workflow | Detailed owner |
 | --- | --- | --- |
 | Project setup and sync | Select components and keep their project instructions connected | [Project-init](../plugins/project-init/README.md) |
+| Output styles | Shape replies and connect communication guidance to the intended recipient | [Output styles](../plugins/project-init/library/output-styles/README.md) and [artifact-writing rule](../.claude/rules/plain-english-artifacts.md) |
+| Rules and skills | Apply standing constraints and task-specific procedures | [Project rules](../.claude/rules/README.md) and [toolkit catalog](../docs/toolkit-map.md) |
+| Hooks | Deliver context, reminders, or guards at configured host events | [Hooks library](../plugins/hooks-library/README.md); subsystem hooks remain with [knowledge](../plugins/second-brain/README.md) and [System Guide](../plugins/system-guide/README.md) |
 | Guided work | Connect requests, plans, tasks, requirements, design, and review | [Session skills](../plugins/session-skills/README.md) |
 | Work tracking | Preserve the item's current position and outcome in the chosen tracker | [Project tracker](../CLAUDE.md#where-work-is-tracked) and [work-item instructions](../.claude/rules/work-item-stages.md); [local tracker](../plugins/work-tracker/README.md) when selected |
 | Project knowledge | Find and preserve qualifying project context across sessions | [Knowledge manual](knowledge-manual.md) |
