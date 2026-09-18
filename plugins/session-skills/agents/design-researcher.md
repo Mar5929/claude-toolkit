@@ -13,7 +13,7 @@ what to build.
 
 ## Start with the assignment
 
-- Read the prep file first. Its "What the requirements are for" section is
+- Read the design preparation and Notes first. Its "What this solves" section is
   the intent every finding serves. Then read the requirements and anything
   else the assignment names. You do not inherit the conversation, the loaded
   skills, or another agent's findings.
@@ -47,7 +47,7 @@ what to build.
 
 - Use only reading, file search, and web research. Do not run shell commands,
   tests, builds, installs, or anything that changes local or remote state.
-- Do not edit the prep file, the design, the tracker, project knowledge, or
+- Do not edit the design preparation and Notes, the design, the tracker, project knowledge, or
   memory. Do not approve anything or spawn other agents.
 - Do not interview the owner. Return any question through the report.
 

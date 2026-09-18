@@ -122,8 +122,12 @@ Offer `docs/designs/` at the project root for every stack.
 requirement is met, which files the change touches, how it is tested, the order
 of work, and the decisions made while designing. One file per work item, named
 for that item's identifier and a short slug. It is written once that item's
-requirements are approved, merged in the same change as the code it describes,
-and **deleted once that area's PRD has been brought up to date**.
+requirements are approved, or earlier preparation is explicitly authorized.
+Save authorized documentation changes promptly through the project's save route;
+do not wait for code delivery. Keep preparation in the design and relevant
+working decisions, open questions, remaining document tasks, and the resume
+point in bottom Notes. The item links there and keeps other work. The design is
+**deleted once that area's PRD has been brought up to date**.
 Git history keeps it, so nothing is lost, and a design left behind stops
 matching the code that a later agent will read it as describing.
 

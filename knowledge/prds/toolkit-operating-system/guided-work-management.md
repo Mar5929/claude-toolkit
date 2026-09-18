@@ -122,6 +122,10 @@ The maintained plan connects the intended outcome with the tasks and sub-items
 needed to reach it. It includes useful milestones, dependencies, completed work,
 current status, blockers, open decisions, approval boundaries, and next steps.
 The detail stays appropriate to the work and changes when the agreed plan changes.
+For PRD or solution-design refinement, update the actual document and keep its
+discussion, decisions with approval state, remaining tasks, and resume point in
+bottom Notes. The work item links there and retains overall status, approvals,
+and other work. Do not duplicate document detail in task or interview records.
 
 Work items can contain child work items at multiple levels, including an epic
 or feature containing smaller deliverables. Each work item, including a child,
@@ -225,6 +229,36 @@ settled questions. If the active item is ambiguous, it asks only what is needed
 to select it. A saved link or static instruction check alone does not prove this
 fresh-session behavior.
 
+### 6. One readable work-item record
+
+Direction approved by Mike on 2026-09-18; implementation planning requested.
+This requirement is not yet delivered and does not approve the full PRD.
+
+Local work items use one authoritative Markdown document for overview/status,
+roadmap, tasks, questions, decisions/history, and item-specific requirements. Design
+remains separate. The consistent template has a page title followed by
+first-level Overview, Roadmap, Tasks, Recent History, and Requirements sections in that
+order. Requirements supports second- and third-level headings and bullets.
+History may be collapsible; current blockers, next actions, and unanswered
+questions remain easy to find. Roadmap holds ordered phases or milestones,
+outcomes, status, and links to their tasks or child items. It stays consistent
+with task progress without duplicating task detail. Tasks preserve dependencies, responsibility,
+status, and continuation. Questions identify who must answer. Answers update
+the affected content promptly, and saves are read back to verify them.
+
+There are no competing task, requirements, or status records. Existing shared
+PRDs and designated workbooks remain linked authorities rather than duplicated
+requirements. External trackers use the same logical sections and their native
+fields, with no local mirror. Existing records migrate without losing owner
+notes, history, links, IDs, or approval distinctions. Installation alone must
+not silently migrate a project's work.
+
+**Check:** create and resume an item with a different supported agent. Both use
+the same sections and save a dependent review task without creating extra
+records. Migrate an older item and verify its tasks, requirements, open
+questions, decisions, and approval state survived. Check applicable rules,
+skills, PRDs, setup/sync flows, and both operating manuals for agreement.
+
 ## Potential solution design notes
 
 These are options to explore, not requirements, approved design, or instructions
@@ -243,3 +277,13 @@ to build a particular solution.
 - Review overlap with the [toolkit operating-system proposal](toolkit-operating-system.md)
   after this work's expected experience is clear. Resolve conflicting guidance
   explicitly rather than allowing an older proposal to determine this scope.
+
+## Notes
+
+- Decision: Mike approved the single-record direction and requested a consistent
+  template and implementation plan on 2026-09-18. Runtime migration is pending.
+- Clarification: Roadmap is a top-level section in that same file, immediately
+  before Tasks, as Mike confirmed after reviewing the plan.
+- Resume here: [Consolidated work-item plan](../../../docs/designs/337-consolidated-work-item.md)
+  holds the template, implementation sequence, documentation inventory, checks,
+  and outstanding implementation choices.

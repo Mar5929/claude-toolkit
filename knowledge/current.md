@@ -1,5 +1,5 @@
 # Current working memory
-Updated: 2026-09-17
+Updated: 2026-09-18
 
 ## Project goal
 Ship the Knowledge System; define guided work management.
@@ -40,4 +40,4 @@ Updated: 2026-09-17
 **Record** [Issue #337](https://github.com/Mar5929/claude-toolkit/issues/337).
 
 ## General project to-dos
-None recorded.
+- Review/merge pushed `codex/document-notes-continuity`.

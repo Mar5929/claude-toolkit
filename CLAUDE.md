@@ -55,13 +55,13 @@ The `Claude-Toolkit-Project` board on GitHub, connected to this repository.
   what has to be true for it to count as finished, and everything settled
   since. A new session reads the body and knows the state without reading the
   comments.
-- When something is approved or decided, it goes into the body. Nothing stays
-  settled only in a comment. A comment is where a thing is argued; the body is
-  where it lands.
-- Comments hold the working record: progress, the reasoning behind a decision,
-  blockers, what is still open, and pointers to files by relative path. Keep
-  the reasoning there and the conclusion in the body, rather than repeating
-  both.
+- PRD and design refinement stays in those documents: update their actual text
+  and bottom Notes, then link them from the issue. Other decisions and tasks
+  stay in the work item. Record overall approval state there without copying
+  document discussion or its detailed remaining work.
+- Comments hold the other working record and concise overall progress.
+  Document-specific discussion and resume points stay in that document's Notes.
+  Use links instead of repeating the same detail in both places.
 - An issue carries one stage label from the fourteen in
   `.claude/rules/work-item-stages.md`, and one comment titled "Progress log"
   that is edited in place. It is ready to build when it carries

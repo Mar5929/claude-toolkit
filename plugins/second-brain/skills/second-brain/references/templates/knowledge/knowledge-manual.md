@@ -33,13 +33,14 @@ The loader reads these files in order when present:
 | Lasting fact, decision, event, context, constraint | `knowledge/memory/` |
 | Objective, blocker, next step | `knowledge/current.md` |
 | Memory-selection lessons | `knowledge/memory-self-improvement.md` |
-| One work item's requirements, status, and build plan | Work tracker |
+| Overall status, other tasks, approvals | Work tracker with document links |
+| PRD/design refinement and resume point | Bottom Notes in that document |
 | Task-only information | Conversation |
 | Unchecked `grill-me` exploration | `knowledge/brainstorms/` |
 | Outside sources | `ai-external-knowledge/` or delivery files |
 | Past conversations | Session history |
 
-Procedures and live work are not memory. Link instead of copying meaning. Read the enabled `.system-guide.json` for the actual guide path and use its skill. When absent or disabled, System Guide is not configured; descriptions do not fall back into memory or PRDs. Use an existing named reference or name the missing destination.
+Notes is working context, not settled requirements or memory. Link instead of copying meaning. Read the enabled `.system-guide.json` for the actual guide path and use its skill. When absent or disabled, System Guide is not configured; descriptions do not fall back into memory or PRDs. Use an existing named reference or name the missing destination.
 
 <!-- knowledge-policy:routing:end -->
 

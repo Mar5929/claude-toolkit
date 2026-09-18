@@ -73,6 +73,13 @@ Do not assume `work-tracker` is installed, create a tracker, or copy current
 status into project knowledge. The project lifecycle rule owns what belongs in
 the tracker.
 
+For PRD or design refinement, first save the document's updated text and bottom
+Notes, including the exact resume point, approval boundaries, open questions
+and who must answer, and remaining tasks. Verify the saved content itself. Link there
+from the active item instead of repeating the document's open questions and
+tasks. Other work remains in the item. Report any unsaved document changes in
+the handoff. Follow work-guide's document-continuity guidance.
+
 ## Step 2: the persistent review
 
 Detect the current project knowledge system by its complete layout:

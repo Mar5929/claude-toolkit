@@ -1,6 +1,6 @@
 {
   "name": "work-tracker",
-  "version": "2.6.0",
+  "version": "2.6.2",
   "description": "Local work tracking for Claude and Codex with owner-shaped roadmaps, actionable tasks, child work items, branch-scoped continuation, Git-ignored folders, consistent progress, approved completion events, and optional Git landing evidence.",
   "author": {
     "name": "Mike Rihm",

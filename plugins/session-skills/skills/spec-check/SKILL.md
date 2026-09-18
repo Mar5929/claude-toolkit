@@ -54,7 +54,11 @@ Read the whole specification, then produce, in this order:
      leave unanswered details open rather than inventing requirements.
    - **Research and narrative that belongs elsewhere.** Benchmarks, quotes,
      outside sources, and session history sitting in the requirements. It
-     dilutes focus even when it is accurate.
+     dilutes focus even when it is accurate. Concise working Notes at the
+     bottom are allowed: decisions with their approval state, open questions,
+     remaining document tasks, and a resume point. Do not treat proposals or
+     unfinished tasks there as requirements or approval. Flag a contradiction
+     with the main text instead of silently choosing one.
    - **Requirements with no reason attached.** A "must" nobody can trace to
      the goal. It may be right, but it cannot be checked.
 4. **A proposed fix for every flag.** Plain words: what to change, where, and
@@ -75,7 +79,8 @@ the work. No ceremony for a clean spec.
   wherever it lives: edit the `knowledge/prds/` file, or edit the ticket body.
   Retained potential solutions in a PRD go in linked, explicitly tentative
   notes at its bottom; approved design belongs in the canonical design record.
-  When the tracker keeps requirements and history apart, move displaced history
+  Keep document-refinement decisions and remaining work in its bottom Notes,
+  following work-guide. When the tracker keeps other requirements and history apart, move displaced history
   to a comment rather than deleting it, and record the reason for a requirement
   change as a dated comment.
 - **Two specifications that disagree.** Name both, quote the exact

@@ -37,7 +37,8 @@ All eleven also trigger from plain words. You never have to type the command.
 Keep discussion and decisions in the main conversation. `work-guide` reads the
 project and item context, keeps every roadmap stage connected to actionable
 tasks or child work items, coordinates bounded specialist help, and restores a
-task's sources, constraints, saved position, and next action when work resumes.
+task's sources and constraints when work resumes, following document Notes
+for the position and next action during PRD or design refinement.
 `requirements-helper` clarifies the intended outcome one question at a time,
 flags directions that could undermine it, gives supported recommendations,
 and saves settled answers or corrections in the chosen draft.
@@ -51,13 +52,19 @@ options, and output location. The main conversation weighs the item's
 complexity and recommends a team for it: a product analyst, researchers, a
 technical architect per option, a critic, and task agents as needed, each on
 the model that fits the role. Agents research, draft, critique against every
-requirement, and fix until the critic's list is empty. The prep file is the
-one record every agent reads. What exists today is evidence, not a
+requirement, and fix until the critic's list is empty. Every agent reads the design's preparation and bottom Notes alongside the requirements. What exists today is evidence, not a
 constraint: the architect recommends a rewrite when that serves the
 requirements better.
 
-The existing tracker owns status, roadmap tasks, child-item relationships, and
-progress. Each child keeps its own requirements, design, roadmap, tasks, and
+The existing tracker owns overall status, other tasks, child-item relationships,
+approvals, and progress. PRD and design refinement stays in those documents:
+update the actual text and keep bottom Notes for decisions with approval state,
+unfinished discussion, remaining document tasks, and the exact resume point.
+Open questions name who must answer, their status, and what they affect;
+answers update both the question and the actual requirements or design. Saves
+happen before moving past a meaningful topic and are verified by reading the
+changed destination. The item links there instead of copying that detail. No separate prep or
+interview file is created. Each child keeps its own requirements, design, roadmap, tasks, and
 approval. These skills use native fields, issue sections, or linked documents;
 they do not introduce another tracker. Roadmap stages use the owner's names and
 remain separate from lifecycle stages. Real approval and environment boundaries
@@ -522,8 +529,8 @@ They overlap less than they look.
   conversation, and is the only one of the three that survives a `/clear`.
 - **grill-me versus the work tracker.** `grill-me` captures raw discovery. It
   does not replace a work item's `REQUIREMENTS.md` or `STATUS.md`.
-- **solution-design versus grill-me.** The design prep file is the interview
-  record for one design and every agent reads it; `grill-me` writes a general
+- **solution-design versus grill-me.** Preparation and bottom Notes stay
+  inside the design and every design helper reads them; `grill-me` writes a general
   brainstorm nobody is briefed from. `solution-design` replaced the lighter
   `solution-helper` on 2026-09-16, which designed in the main conversation
   with no readiness check, no team, and no critique loop.

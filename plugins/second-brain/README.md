@@ -125,3 +125,8 @@ the save unfinished and must be reported.
 A content change updates both plugin manifests and the marketplace metadata.
 Keep the manual, setup skill, `project-init`, `project-sync`, startup hook, and
 static contract tests aligned.
+
+The managed manual distinguishes working PRD/design Notes from settled
+requirements and project memory. Notes supports document refinement; overall
+work status and other tasks stay in the chosen tracker. Existing installations
+receive the updated manual and checker together through project sync.

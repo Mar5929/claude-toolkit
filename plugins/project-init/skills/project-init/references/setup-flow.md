@@ -17,6 +17,14 @@ so they always know where they are.
 
 ## Per-gate prompts (keep them short; one gate at a time)
 
+For configured toolkit work guidance, verify the root pointers, copied rules,
+and installed skills agree: PRD/design text and bottom Notes own document
+refinement; the work item holds overall status and other work. Verify that
+work-item orientation identifies the current documents and the work-item rule
+explains capture destinations, question ownership, save timing, and readback.
+Do not generate
+separate prep, interview, or continuation files for that workflow.
+
 **Gate 0: Orient**
 
 - Is this greenfield or does it already have code?

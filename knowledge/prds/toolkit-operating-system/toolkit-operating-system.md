@@ -405,7 +405,8 @@ check remains an explicit cross-component decision below. A recorded Done
 must not be presented as evidence of approval or successful deployment.
 
 **Check:** a blocker changes the plan. The chosen item and its progress agree,
-the PRD changes only if requirements changed, and no second status file appears.
+PRD/design refinement updates the document text or its bottom Notes as needed,
+and no second status file appears.
 
 ## 9. Continuity and concurrent work
 
