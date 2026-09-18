@@ -43,7 +43,7 @@ Function hooks/Claude Mods may replace the Claude integration if testing proves
 a benefit. This decision does not waive host proofs or grant full design/build
 approval. See the [comparison](../269-knowledge-system.md#hook-comparison-and-recommendation--2026-09-18).
 
-Keep startup, prompt, completion, and scoped action checks as separate responsibilities with thin host adapters and shared temporary state. They need not each become a new script. Use ordinary command hooks where proven, retain ordered explicit startup reads and the selected every-prompt reminder, and recommend a bounded completion review for findings made during work. Never use changed-file counts to decide whether conversation-only work deserves review. Checkpoints neither classify meaning nor approve saves.
+Keep startup, prompt, completion, and scoped action checks as separate responsibilities with thin host adapters and shared temporary state. They need not each become a new script. Use ordinary command hooks where proven, retain ordered explicit startup reads and the selected every-prompt reminder, and include the quiet completion review approved by Mike on 2026-09-18 for findings made during work; independent save helpers must not delay the main conversation. Never use changed-file counts to decide whether conversation-only work deserves review. Checkpoints neither classify meaning nor approve saves.
 
 Prove the smallest adequate startup transport before choosing its implementation. First test native reads and observable result delivery on each host. Add a bounded manifest reader, content digests, or range receipts only where needed to establish complete, current, model-visible delivery. A process receipt proves only a process read; acknowledgment is a separate declaration, not understanding or semantic permission. If neither native observation nor a helper establishes delivery, declaration-only operation fails strict R2/full acceptance. Do not revive full-file startup printing or infer compliance from arbitrary shell output or assistant prose.
 
@@ -131,7 +131,7 @@ The master and this plan now share the four-capability architecture and delegate
 
 Locate the actual project skill-authoring procedure and its approval owner for R17 before implementing the handoff. If none exists, record R17's integration dependency and obtain scope for that capability separately; a routing sentence alone does not supply a working authoring process.
 
-Recommend the bounded completion handler after D1-P1 proof, but distinguish it from the owner-selected prompt reminder. Production activation requires acceptance of that proposed mechanism within design/build authority. A prompt-only adapter cannot be claimed to satisfy the end-turn review outcome merely because the reminder ran.
+The quiet completion-review behavior is approved by Mike as of 2026-09-18. Prove the bounded handler in D1-P1; exact mechanism selection and production activation still require design/build authority. A prompt-only adapter cannot be claimed to satisfy the end-turn review outcome merely because the reminder ran.
 
 Recommend no new Git pre-commit hook in the initial release: explicit checks and covered agent write safeguards meet the intended save sequence without changing Mike's manual-edit workflow or replacing unrelated Git hooks. Broader manual-edit blocking would be a separate owner policy decision supported by a demonstrated failure.
 

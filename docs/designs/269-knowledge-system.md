@@ -32,7 +32,7 @@ occurred. Acme's tracker is not yet chosen. No complete scenario step or full
 design has been approved.
 
 The immediate review is startup reading and acknowledgment, the user-submit
-reminder, and the proposed completion checkpoint. Then continue the walkthrough
+reminder, and the approved completion review. Then continue the walkthrough
 through routing, approvals, saving, recovery, concurrent work, and migration.
 
 ### Terms used in this design
@@ -69,7 +69,7 @@ references after verification, rather than in the owner's core vocabulary.
 | Reasoning | The agent judges relevance, significance, scope, destination, and meaning. | Governing principle; no semantic scoring engine. |
 | Startup | Request ordered reads, prove native result observation first, then record a separate acknowledgment. Use a bounded helper only where needed. | Owner direction is reads plus handshake. D1-P1 selects the simplest adequate transport; H2 must prove actual delivery. Declaration-only operation fails strict R2 acceptance. |
 | Prompt checkpoint | Every user prompt gets a short reminder, positive/negative criteria, manual links, and explicit intent acknowledgment through the shared helper. | Reminder behavior selected; helper transport and canonical message implementation recommended for host proof. |
-| Completion checkpoint | One checkpoint near turn completion catches decisions and discoveries made while working. | Proposed mechanism. Routine no-change reviews stay quiet under the PRD; an explicit review request receives an answer. |
+| Completion checkpoint | One checkpoint near turn completion catches decisions and discoveries made while working. | Behavior approved by Mike, 2026-09-18; exact handler requires proof. Routine no-change reviews stay quiet under the PRD; an explicit review request receives an answer. |
 | Root files | `AGENTS.md` and `CLAUDE.md` remain maps and routers. | Selected. Detailed policy lives in linked guidance. |
 | Long-term memory | Both relevant and significant to this project. | Selected; not every useful note belongs in memory. |
 | Routing | Consider all owning records, including tasks, PRDs, procedures, and architecture. | Selected; System Guide participates only when enabled. |
@@ -105,9 +105,9 @@ the existing feedback filename. The implementation plan maps the work.
 
 Mike accepted the four-capability review direction and requested delegated
 approved saves on 2026-09-18. These scoped decisions do not approve the full
-design or establish installed behavior. Other mechanisms remain
-recommendations. The completion handler still needs selection
-within design/build approval. Mandatory behavioral outcomes remain acceptance
+design or establish installed behavior. Mike also approved a quiet review before the main agent finishes, without
+waiting for an independent save helper, on 2026-09-18. The exact handler still
+requires host proof and design/build approval. Mandatory behavioral outcomes remain acceptance
 conditions even where a host cannot mechanically enforce every action.
 
 ## 3. Design philosophy and control boundaries
@@ -225,7 +225,7 @@ flowchart TD
   I --> J[Agent retrieves relevant records and reasons about the brief]
   J --> K[Answer and route useful information]
   K --> L{Any record change needed?}
-  L -- No --> N[Proposed completion checkpoint]
+  L -- No --> N[Approved completion review]
   L -- Yes --> P{Existing permission covers the change?}
   P -- Yes --> M[Write, read back, validate, rebuild indexes, publish]
   P -- No --> Q[Show proposal and preserve pending state]
@@ -280,7 +280,7 @@ gate has been implemented or proven on either host.
    preserves concurrent edits, applies and checks the approved change, rebuilds
    indexes, and publishes through the existing documentation process. The main
    agent checks the returned evidence before saying it is saved.
-9. **Review work produced during the turn.** The proposed completion checkpoint
+9. **Review work produced during the turn.** The approved completion review
    catches insights or decisions absent from the original prompt. A routine
    review finding nothing stays quiet. Explicit review requests receive an
    answer. A recoverable save running in a helper does not hold the conversation
@@ -455,7 +455,7 @@ before the affected operation.
 
 ### 6.6 Completion, save moments, and write safeguards
 
-The proposed end-turn checkpoint asks for the outcome of the agent's review,
+The end-turn review approved by Mike on 2026-09-18 asks for the outcome of the agent's review,
 including discoveries made during execution. Outcomes distinguish no update
 needed, authorized updates completed, proposals pending, and unfinished saves.
 Routine no-change outcomes stay quiet to the owner; this does not prohibit an
@@ -928,7 +928,7 @@ tradeoffs; platform facts and bookkeeping are investigation work.
 | Plain memory and proposal wording | Explicit R15 requirement | Main reviews proposal; helper checks saved text; no jargon or figurative language. |
 | Quiet routine no-change review | Settled by current PRD | Preserve quiet owner experience; investigate internal transport separately. |
 | Every-prompt reminder | Selected behavior; explicit helper intent receipt recommended | Canonical message in existing reminder module, real manual paths, D1-P1 prompt delivery/acknowledgment proof. |
-| End-turn checkpoint | Bounded handler recommended, not owner-selected | One corrective continuation at most; validate outcome/recovery under H3 before activation approval. |
+| End-turn checkpoint | Quiet review behavior approved by Mike, 2026-09-18; handler still subject to proof | One corrective continuation at most; validate outcome/recovery under H3 before activation approval. |
 | Changed-file review trigger | Rejected | Remove it from current design/testing assumptions; file changes can still trigger objective file validation. |
 | Glossary path | Recorded direction | Use proposed path; verify migration and delivery before term-dependent work. |
 | Proposed PRD approval fields | Settled by current R16 | Unapproved proposed draft omits both; valid paired fields when requirements approved. |
@@ -1000,8 +1000,9 @@ for the initial implementation after reviewing the function-hooks comparison.
 Function hooks remain a future candidate if evidence supports a benefit.
 This does not authorize implementation or approve the full design.
 
-**Resume here:** review the quiet completion check, then combining approved
-saves. Automatic-save permission recording is settled in Recorded notes. Record answers here
+**Resume here:** decide whether related approved saves may share a commit
+without delaying a ready save. Permission recording and quiet completion review
+are settled in Recorded notes. Record answers here
 and resolve their entries as the design is updated. Do not restart decisions
 already settled.
 
@@ -1017,7 +1018,6 @@ and the GitHub task summary remain pending; do not switch GitHub accounts.
 
 | Topic | Recommendation | Status |
 | --- | --- | --- |
-| Review before the main agent finishes a turn | Use one quiet completion check to catch decisions made during work. Allow at most one corrective continuation; an approved save running in a helper does not hold up unrelated conversation. | Proposed; review the behavior with Mike. |
 | Combining approved saves | Related approved changes may share a commit when each retains its own scope and result. Do not delay a ready save merely to collect more work. | Proposed; confirm the intended behavior. |
 
 ### Tasks
@@ -1050,6 +1050,11 @@ These are investigation work, not questions for Mike to answer about APIs.
   full requirements/design approval and build authorization separately.
 
 ### Recorded notes
+
+- Approved by Mike, 2026-09-18: run a quiet review before the main agent
+  finishes to catch missed decisions or discoveries. Do not wait for an
+  independent save helper. Exact hook behavior and bounded continuation still
+  require technical proof; this is not implementation authorization.
 
 - Approved by Mike, 2026-09-18: store who granted automatic-save permission,
   when, and its scope once in project permission settings. Each memory indicates

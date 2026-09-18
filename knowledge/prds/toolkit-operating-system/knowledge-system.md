@@ -686,6 +686,7 @@ original source or states what could not be verified.
 - Five moments force a save review: a work item finishes or closes, a pull request is about to be opened, a handoff or a context clear is coming, a turn ends after real work was done, and any time the owner says to save something. Requirement 3 says what each review has to produce, and how these five moments are enforced.
 - Every other moment is left to the agent's judgment. It should propose a save whenever that is useful: a real problem here has just been fixed, a commit is coming, or something relevant has changed, such as a new person joining, somebody's role changing, the project switching to a different tool, a fact turning out to be out of date, or a decision about which system is the authority for a piece of data. A candidate the agent misses gets reviewed at the next required moment.
 - The owner saying "remember this" starts the save flow that leads to a card. It is not permission to write, and it skips no step.
+- Before the main agent finishes a turn, quietly review decisions and discoveries made during the work to catch anything missed. A save helper handling independent work does not delay the conversation. Pending approval or an unfinished save remains recorded accurately; it is not reported as completed. Routine no-change reviews stay quiet. Mike approved this behavior on 2026-09-18; the solution design owns the exact hook and bounded continuation.
 - The save review is that same flow run over everything the session discussed or did since the last one. It gathers candidates, identifies each candidate's kind, scope, and owning destination under requirement 18, and applies that destination's content rules. Requirements 11 and 12 decide eligibility for lasting memory; they must not discard a valid PRD update, working-context update, task, or procedure that belongs elsewhere. Check what proposals the inbox already holds and show one card for each new candidate that needs knowledge-save approval. A save that is already allowed goes ahead under requirement 10; other destinations follow their own workflows. During routine work, speak up only about something that needs approval, a finished save the owner has to be told about, or a problem; never report that nothing needs saving. Routine PRD upkeep follows requirement 16's quiet completion rule. Do not repeat an unchanged unanswered card at each review. When the owner asks for a save or a review directly, he still gets a clear answer, and when work is handed over the agent works out which pending items matter, under requirement 28. Requirement 3 requires the review even when it produces nothing the owner sees. A quiet review does not need a program running in the background.
 - When approved, memory or PRDs are saved directly to the default branch and pushed!!! They are not left sitting on a worktree branch, and they are not put anywhere a future agent would have trouble finding.
 - A save is finished only when the file is on the default branch and pushed, and not before.
@@ -2032,11 +2033,11 @@ For the prompt-side checkpoint, Mike chose every user prompt, the owner directio
 recorded in requirement 9, compact positive and negative working/lasting-memory
 criteria, links to the knowledge and higher Toolkit Operating System manuals,
 and an explicit acknowledgment of intent on 2026-09-17. The full manuals are not
-forced into context or reread on every turn. The higher manual's canonical path,
-the rest of the exact wording, acknowledgment transport, platform proof, and a
-second completion checkpoint remain design questions. Mike floated both the
-user-prompt and after-agent-message moments; only the user-prompt checkpoint is
-settled. The acknowledgment does not prove review completion or approve a save.
+forced into context or reread on every turn. The higher manual is
+`knowledge/toolkit-manual.md`. Mike approved a quiet review before the main agent
+finishes on 2026-09-18, without waiting for independent save helpers. Exact
+wording, acknowledgment transport, and platform proof remain design work.
+An acknowledgment does not prove review completion or approve a save.
 
 Skills are part of the proposed design. They could guide finding and using
 knowledge, reviewing information worth saving, preparing a proposal, updating
@@ -2163,16 +2164,13 @@ the explicit ban on jargon and figurative language in memory and proposals are
 recorded requirements. Saving these updates does not mean the full requirements
 or solution design are approved, or that implementation may begin.
 
-**Resume here:** review the proposed quiet completion check, then combining
-approved saves. Automatic-save permission recording is settled below. Investigate
+**Resume here:** decide whether related approved saves may share a commit
+without delaying a ready save. Permission recording and quiet completion review
+are settled below. Investigate
 technical facts before asking Mike to decide a tradeoff.
 
 ### Outstanding decisions
 
-- **Completion review:** the every-user-prompt reminder is selected. A second,
-  quiet review before the main agent finishes, with at most one corrective
-  continuation, remains proposed. An approved save running in parallel must
-  not hold up unrelated conversation.
 - **Combining saves:** confirm whether related approved saves may share one
   commit, with separate scope and results, without delaying a ready save to
   collect more work. This is a recommendation, not a recorded decision.
@@ -2199,6 +2197,11 @@ technical facts before asking Mike to decide a tradeoff.
   infer it from approval to save or refine this document.
 
 ### Recorded notes
+
+- Approved 2026-09-18: quietly review the turn before the main agent finishes
+  to catch missed decisions or discoveries, without waiting for an independent
+  save helper. Routine no-change reviews stay quiet; unfinished saves remain
+  recoverable and are never reported as completed.
 
 - Approved 2026-09-18: record the automatic-save permission grant once in project
   settings; each memory only indicates it was auto-saved under that permission.
