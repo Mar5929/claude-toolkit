@@ -519,13 +519,16 @@ and [PR 308](https://github.com/Mar5929/claude-toolkit/pull/308).
 Project-init 0.68.0 supplies the root guidance and save rule; second-brain
 4.8.1 aligns its existing save guidance. Existing projects receive the change
 through plugin updates and project sync. This is shipped guidance, not proof
-that every installed session follows it. The design-document extension below
-was approved on 2026-09-16; its reusable publication guidance is still delivery
-work, not part of that earlier release. Mike expanded the requirement on
-2026-09-17 to all authorized Git-tracked documentation-only changes. The shipped
-path-scoped rule still covers only `knowledge/**`; expanding its documentation
-save route remains delivery work. Solution designs stay outside `knowledge/`
-in the project's designated design location.
+that every installed session follows it. Mike expanded R25 to all authorized
+Git-tracked documentation-only changes and authorized implementation and shipment
+on 2026-09-18. [PR 353](https://github.com/Mar5929/claude-toolkit/pull/353)
+ships the expanded, unscoped publication rule in project-init 0.73.0 and
+marketplace 0.117.0, including setup/sync routes and aligned worktree guidance.
+It works independently of knowledge activation. Independent review, repository
+checks, and disposable Git safety scenarios passed; fresh-session adherence and
+adoption by other projects are not claimed. Existing projects adopt through a
+plugin update and project-sync. Solution designs stay outside `knowledge/` in
+the project's designated design location. The broader PRD remains proposed.
 
 **R25. Make each project's quick-save locations clear from the start.** The
 agent must know which files or folders receive frictionless updates without Mike naming

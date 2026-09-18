@@ -124,6 +124,13 @@ Use the PRD's exact card fields and working-memory structure. Inbox entries carr
 
 ## E1-P2: reusable documentation publication
 
+**Delivery update, 2026-09-18:** The shared rule, setup/sync routes, installed
+copies, and catalogs shipped separately in [PR 353](https://github.com/Mar5929/claude-toolkit/pull/353)
+(project-init 0.73.0; marketplace 0.117.0). Reuse that guidance for this package.
+Knowledge-specific save integration and fresh-host acceptance remain to be
+validated during the Knowledge System build; this release does not complete
+those dependent packages.
+
 **Owner:** project-init builder. **Dependencies:** D1-P2. **Requirements:** R3,9–10,13,16,28,30; parent R18,R25.
 
 Extend `plugins/project-init/library/rules/general/knowledge-direct-commit.md`, its `README.md` catalog, `project-init/skills/project-init/references/{thin-claudemd,root-file-examples,setup-flow}.md`, and project-sync guidance. Root maps identify eligible documentation homes and route to the full policy. Keep the existing rule filename initially to avoid breaking installed references.
