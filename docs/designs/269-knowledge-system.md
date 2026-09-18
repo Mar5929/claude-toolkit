@@ -631,6 +631,58 @@ settings, scope, precedence, and trust on each supported host rather than
 assuming the old source snapshot is current. Function hooks/Claude Mods are a
 possible adapter avenue; no selected behavior depends on an unverified API.
 
+### Hook comparison and recommendation — 2026-09-18
+
+**Recommendation for owner review:** use ordinary command hooks for the initial
+implementation, with shared checkpoint and save logic separate from the small
+Claude Code and Codex integrations. Keep function hooks/Claude Mods as a
+candidate replacement for the Claude integration when evidence supports it.
+This is a recommendation, not owner approval or a completed runtime proof.
+
+| Need | Ordinary command hooks | Function hooks / Claude Mods |
+| --- | --- | --- |
+| Startup guidance and prompt reminders | Documented lifecycle events provide a direct starting point on both hosts. Actual delivery still needs testing. | Could integrate more deeply with Claude, but that depth alone does not improve the required outcome. |
+| Read evidence and checks before writes | Can observe covered events and run checks; coverage gaps remain explicit. | Deeper access may improve observation or control. The announcement does not prove complete coverage or actual model receipt. |
+| State and recovery | Shared code can maintain small session records and durable pending saves. Must handle concurrent and stale events. | Function-local state may simplify some work, but restart recovery still requires durable records. |
+| Claude-specific interactions | Limited to documented hook contracts. | Announcement describes typed functions, ordered wrapping of operations, and interface events; potentially useful for richer Claude integration. |
+| Codex support | Command handlers are documented. | No equivalent function-hooks interface established by the inspected Codex reference. A separate Codex integration is still needed. |
+| Maintenance | Separate processes and host-specific output need testing and version checks. | Experimental interface changes add compatibility work; broader access also increases the behavior that needs testing. |
+
+The [Claude Mods announcement](https://github.com/anthropics/claude-code/issues/91870)
+still describes rapid interface iteration and experimental access. Local
+`claude --version` returned 2.1.259 on 2026-09-18, older than the announcement's
+267/268 examples. This does not establish local support. The linked architecture
+attachment and source listings could not be retrieved during this comparison;
+no claim depends on their unseen contents.
+
+The [Claude hook reference](https://code.claude.com/docs/en/hooks) documents
+background command hooks, but normal results wait for a later turn. It also
+documents cancellation at noninteractive session teardown. The
+[Codex hook reference](https://learn.chatgpt.com/docs/hooks) supports command and
+MCP-tool handlers; prompt/agent handlers are skipped. Codex background hooks
+cannot control the triggering operation and are cancelled when the session ends.
+Local Codex CLI remains 0.154.0; this does not identify the desktop runtime.
+
+**Parallel approved saving:** background hook execution is not proof of a model
+helper. The main agent must still record approved scope, assign the helper,
+verify its returned save evidence, and recover unfinished work from the existing
+inbox. Use synchronous hooks where a covered action must wait for a check.
+Do not run both integrations for the same responsibility and cause duplicate
+reminders or saves. These are architecture conclusions from the documented
+contracts, not measured results.
+
+**Before selecting or activating an integration:** prove startup/read delivery,
+compaction recovery, prompt and completion behavior, covered and uncovered write
+paths, parallel helper completion, interrupted-save recovery, and concurrent
+sessions on each supported host. Measure missed events, duplicate work, delay,
+and context cost. Include hook trust and plugin interactions. Test Mods on a
+supported version in isolation only if it can close a specific demonstrated gap
+or materially improve those results; retain required Codex behavior. Broader
+access is not a reason to replace the agent's judgment with a second controller.
+
+No runtime configuration, experimental flag, account, or installed version was
+changed for this comparison. Full design and build approval remain outstanding.
+
 ## 7. Requirement coverage and proof
 
 ### Checkpoint interfaces
@@ -947,9 +999,8 @@ design decisions and explicitly evaluate function hooks before choosing the
 hook approach. That evaluation is requested, not approval to adopt function
 hooks or begin implementation.
 
-**Resume here:** compare ordinary command hooks and function hooks/Claude Mods
-for the required knowledge behavior, explain the recommendation plainly, then
-work through the outstanding decisions below one at a time. Record answers here
+**Resume here:** review the [hook recommendation](#hook-comparison-and-recommendation--2026-09-18),
+then work through the outstanding decisions below one at a time. Record answers here
 and resolve their entries as the design is updated. Do not restart decisions
 already settled.
 
@@ -973,11 +1024,10 @@ and the GitHub task summary remain pending; do not switch GitHub accounts.
 
 These are investigation work, not questions for Mike to answer about APIs.
 
-- **Hook choice:** ordinary command hooks are the current proposal. Compare
-  function hooks/Claude Mods as Mike requested, including benefits, limits,
-  supported hosts, and proof needed for adoption. Do not rule them out merely
-  because ordinary hooks are already implemented; do not assume experimental
-  access proves reliability.
+- **Hook choice:** documented comparison complete; ordinary command hooks with
+  separate host integrations are recommended, not approved. Review the
+  [comparison and proof conditions](#hook-comparison-and-recommendation--2026-09-18).
+  Runtime comparison and acceptance proof remain outstanding.
 - **Reading and recovery:** prove required content reaches the agent, choose
   native read observation or a bounded helper, and test missing content and
   context recovery on each supported host.
