@@ -37,6 +37,12 @@ The reason is correctness as well as clarity. Today `remember` publishes approve
 
 Reuse the parser, index builder, checker, history-search code, command parsing, and installation logic where they meet the new contracts. Inventory actual callers before migrating skill names; provide explicit compatibility routes where needed without assuming native alias support or keeping duplicate procedures. Migration effort determines the delivery sequence, not the finished architecture.
 
+**Hook direction approved by Mike, 2026-09-18:** start with ordinary command
+hooks and keep shared logic separate from the Claude Code and Codex integrations.
+Function hooks/Claude Mods may replace the Claude integration if testing proves
+a benefit. This decision does not waive host proofs or grant full design/build
+approval. See the [comparison](../269-knowledge-system.md#hook-comparison-and-recommendation--2026-09-18).
+
 Keep startup, prompt, completion, and scoped action checks as separate responsibilities with thin host adapters and shared temporary state. They need not each become a new script. Use ordinary command hooks where proven, retain ordered explicit startup reads and the selected every-prompt reminder, and recommend a bounded completion review for findings made during work. Never use changed-file counts to decide whether conversation-only work deserves review. Checkpoints neither classify meaning nor approve saves.
 
 Prove the smallest adequate startup transport before choosing its implementation. First test native reads and observable result delivery on each host. Add a bounded manifest reader, content digests, or range receipts only where needed to establish complete, current, model-visible delivery. A process receipt proves only a process read; acknowledgment is a separate declaration, not understanding or semantic permission. If neither native observation nor a helper establishes delivery, declaration-only operation fails strict R2/full acceptance. Do not revive full-file startup printing or infer compliance from arbitrary shell output or assistant prose.

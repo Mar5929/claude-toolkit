@@ -633,11 +633,12 @@ possible adapter avenue; no selected behavior depends on an unverified API.
 
 ### Hook comparison and recommendation — 2026-09-18
 
-**Recommendation for owner review:** use ordinary command hooks for the initial
+**Direction approved by Mike, 2026-09-18:** use ordinary command hooks for the initial
 implementation, with shared checkpoint and save logic separate from the small
 Claude Code and Codex integrations. Keep function hooks/Claude Mods as a
 candidate replacement for the Claude integration when evidence supports it.
-This is a recommendation, not owner approval or a completed runtime proof.
+This approves the hook direction only. Runtime proof, full design approval, and
+build authorization remain outstanding.
 
 | Need | Ordinary command hooks | Function hooks / Claude Mods |
 | --- | --- | --- |
@@ -994,13 +995,13 @@ updates promptly; do not create separate interview, notes, or continuation files
 for this discussion. Section 12 preserves earlier decisions.
 
 **Current position:** solution design is still in progress. Requirements may be
-refined as this review settles behavior. Mike asked to review the outstanding
-design decisions and explicitly evaluate function hooks before choosing the
-hook approach. That evaluation is requested, not approval to adopt function
-hooks or begin implementation.
+refined as this review settles behavior. Mike approved ordinary command hooks
+for the initial implementation after reviewing the function-hooks comparison.
+Function hooks remain a future candidate if evidence supports a benefit.
+This does not authorize implementation or approve the full design.
 
-**Resume here:** review the [hook recommendation](#hook-comparison-and-recommendation--2026-09-18),
-then work through the outstanding decisions below one at a time. Record answers here
+**Resume here:** settle how ongoing permission for automatic memory saves is
+recorded, then work through the other outstanding decisions. Record answers here
 and resolve their entries as the design is updated. Do not restart decisions
 already settled.
 
@@ -1024,8 +1025,8 @@ and the GitHub task summary remain pending; do not switch GitHub accounts.
 
 These are investigation work, not questions for Mike to answer about APIs.
 
-- **Hook choice:** documented comparison complete; ordinary command hooks with
-  separate host integrations are recommended, not approved. Review the
+- **Hook choice:** ordinary command hooks with separate host integrations were
+  approved by Mike on 2026-09-18. Follow the
   [comparison and proof conditions](#hook-comparison-and-recommendation--2026-09-18).
   Runtime comparison and acceptance proof remain outstanding.
 - **Reading and recovery:** prove required content reaches the agent, choose

@@ -2203,8 +2203,11 @@ technical facts before asking Mike to decide a tradeoff.
   pushes, and returns evidence while independent conversation continues.
 - The knowledge manual is `knowledge/knowledge-manual.md`; the overall toolkit
   manual is `knowledge/toolkit-manual.md`.
-- Function hooks must be evaluated before choosing the approach. Their adoption
-  is not approved by the request to investigate them.
+- On 2026-09-18, Mike approved ordinary command hooks as the initial design
+  direction after the function-hooks comparison. Shared logic stays separate
+  from host integrations; function hooks remain a candidate if evidence proves
+  a benefit. See the solution design for the choice and required runtime proof.
+  This does not approve the full design or authorize implementation.
 - Mike requested these Notes on local `main`; remote publication remains
   pending. Do not switch GitHub accounts. The reusable work-plugin Notes behavior is being
   addressed in a separate task; this document records this PRD's remaining work.
