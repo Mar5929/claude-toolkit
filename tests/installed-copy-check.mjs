@@ -81,6 +81,8 @@ const OWN_FILES = new Set([
   // The owner runs this repo's main sessions on a model dearer than Opus, and
   // wants every subagent here held to Opus. Other projects choose their own.
   ".claude/rules/subagents-run-on-opus.md",
+  // This repository maintains the toolkit's own two operating manuals.
+  ".claude/rules/keep-manuals-current.md",
   ".claude/tools/capture-claude-code-docs.mjs",
 ]);
 

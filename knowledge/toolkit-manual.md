@@ -248,6 +248,11 @@ must remain distinguishable.
 
 ## Keeping the project equipped
 
+This project's [manual-upkeep rule](../.claude/rules/keep-manuals-current.md)
+requires finalized changes to keep both operating manuals accurate as part of
+publication. Each manual retains its own scope; detailed knowledge instructions
+continue to come from the knowledge manual's managed source.
+
 [Project setup and sync](../plugins/project-init/README.md) establish and
 maintain the project's selected components and instruction paths. Publishing
 a toolkit release makes it available; each project's adoption still needs to
