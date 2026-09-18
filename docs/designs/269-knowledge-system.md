@@ -934,7 +934,7 @@ tradeoffs; platform facts and bookkeeping are investigation work.
 | Proposed PRD approval fields | Settled by current R16 | Unapproved proposed draft omits both; valid paired fields when requirements approved. |
 | PRD card labels and inbox content | Current R20/R28 govern | Reconcile stale walkthrough/card copies; preserve exact card actually shown. |
 | Multiple decisions in one authorized publication | Owner's prompt documentation-save direction applies; batching boundary needs reconciliation | Preserve prompt, scoped saves; do not ask again merely to save an already-authorized draft. |
-| Approval-off metadata | Genuine permission/provenance detail | Determine honest standing-authority representation; never fabricate a person/date approval. |
+| Approval-off metadata | Approved by Mike, 2026-09-18 | Store grant identity/date/scope once in project permission settings; mark each memory as auto-saved without repeating the grant or claiming individual review. |
 | Additional size limits | Genuine design/PRD constraint | R21 governs; measure first, seek decision only if required meaning/limits conflict. |
 | Save failure versus work completion | Cross-component policy question | Reconcile affected-work pause, pending-save recovery, and tracker completion; do not invent global blocking. |
 | Guard scope, helper writes, invocation markers | Authorized save helpers selected; exact host safeguards need proof | Allow scoped execution under recorded authority; never substitute invocation markers for approval. |
@@ -1000,8 +1000,8 @@ for the initial implementation after reviewing the function-hooks comparison.
 Function hooks remain a future candidate if evidence supports a benefit.
 This does not authorize implementation or approve the full design.
 
-**Resume here:** settle how ongoing permission for automatic memory saves is
-recorded, then work through the other outstanding decisions. Record answers here
+**Resume here:** review the quiet completion check, then combining approved
+saves. Automatic-save permission recording is settled in Recorded notes. Record answers here
 and resolve their entries as the design is updated. Do not restart decisions
 already settled.
 
@@ -1017,7 +1017,6 @@ and the GitHub task summary remain pending; do not switch GitHub accounts.
 
 | Topic | Recommendation | Status |
 | --- | --- | --- |
-| Recording permission when automatic memory saving is enabled | Record who granted ongoing permission, when, and its scope. Clearly distinguish that grant from personal review of each entry. Reconcile the memory approval fields with R10/R14. | Open; question raised, no answer recorded. |
 | Review before the main agent finishes a turn | Use one quiet completion check to catch decisions made during work. Allow at most one corrective continuation; an approved save running in a helper does not hold up unrelated conversation. | Proposed; review the behavior with Mike. |
 | Combining approved saves | Related approved changes may share a commit when each retains its own scope and result. Do not delay a ready save merely to collect more work. | Proposed; confirm the intended behavior. |
 
@@ -1051,6 +1050,13 @@ These are investigation work, not questions for Mike to answer about APIs.
   full requirements/design approval and build authorization separately.
 
 ### Recorded notes
+
+- Approved by Mike, 2026-09-18: store who granted automatic-save permission,
+  when, and its scope once in project permission settings. Each memory indicates
+  it was auto-saved under that setting; no duplicated grant details and no
+  implication of individual review. Source and date remain required. Select
+  the exact field and migration checks during schema design. This does not
+  enable automatic saving in this project or change current runtime behavior.
 
 - The four skills, explicit approved helper assignments, and plain-language
   requirements are already recorded; do not restart those decisions.

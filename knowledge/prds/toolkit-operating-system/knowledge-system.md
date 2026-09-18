@@ -764,6 +764,7 @@ Recovery never asks the owner to repeat the decision.
 - Settle any question that would change the save before showing a save card, as requirement 20 requires. Approval covers the operation, the meaning, and the scope the card states, or the content the card names. It does not approve an assumption that is still open, and it does not approve an unrelated piece of follow-up work.
 - Five things can be done without asking the owner: rebuilding an index, repairing a broken link within requirement 1’s limits, writing `knowledge/memory/current.md`, keeping this project's own feedback about what is worth saving up to date under requirement 23, and keeping the pending inbox up to date under requirement 28. None of these changes what a lasting file means. Requirement 4 says how the current file is updated. Holding a proposal in the inbox is permission to keep it, not permission to accept what it says.
 - The owner of a project can turn the approval step off for writes to memory in that project, once he has worked with the agent there long enough to trust its judgment about what is worth saving. The setting is per project and is off by default, so a card and a yes are required until the owner turns it on. It covers every write to memory: a new file, an update, a merge, a supersede, a retirement, or a deletion. It does not cover PRDs; a PRD keeps the permission rules in this requirement and in requirement 16. While the setting is on, the agent runs the same review and the same checks, makes the change on its own, and tells the owner in one line what it changed and where. The owner can turn the approval step back on at any time. Mike added this on 2026-09-15 and settled its scope the same day.
+- When the owner disables per-save approval for memory, record who granted that permission, when, and its scope once in the project permission settings. Each automatically saved memory records that it was auto-saved under that setting, without duplicating the grant details or implying individual review. Normal source and date fields still apply. Mike confirmed this on 2026-09-18. This decision does not turn automatic saving on for this project.
 - For files the owner already approved under an older folder layout, the agent converts those files first and shows the owner the converted results afterwards, in groups small enough to read in one pass. The owner approves after the conversion, not before. Any file that will not convert cleanly is named and left alone. The agent never guesses what an old file meant.
 
 **Check:** show a proposal and say nothing back. The exact proposal is retained
@@ -1021,8 +1022,13 @@ Required on every memory file:
 | `created_at` | The date the file was first written. Never changes. | `YYYY-MM-DD` |
 | `updated_at` | The date its content or status last changed. Creation sets it too. This is not proof that its facts were rechecked. | `YYYY-MM-DD` |
 | `tags` | How a topic is found across many files. Free-form, no fixed list, as many as needed. | YAML list of strings |
-| `approved_by` | Who approved it. | A person's name |
-| `approval_date` | When they approved it. Never empty. | `YYYY-MM-DD` |
+
+For individually approved memory, also require `approved_by` (the person's name)
+and `approval_date` (the actual approval date, `YYYY-MM-DD`). For automatically
+saved memory, require an explicit auto-saved indication instead. Do not fill
+individual approval fields with the standing permission grant. That grant is
+recorded once in project permission settings under requirement 10. The solution
+design will specify the exact auto-saved field and migration rules.
 
 Both `source` and `context` are required on long-term memory files. `source`
 identifies the evidence; `context` briefly explains the occasion it came from.
@@ -2157,16 +2163,12 @@ the explicit ban on jargon and figurative language in memory and proposals are
 recorded requirements. Saving these updates does not mean the full requirements
 or solution design are approved, or that implementation may begin.
 
-**Resume here:** settle how ongoing memory-save permission is represented,
-then review the remaining behavior questions below one at a time. Investigate
+**Resume here:** review the proposed quiet completion check, then combining
+approved saves. Automatic-save permission recording is settled below. Investigate
 technical facts before asking Mike to decide a tradeoff.
 
 ### Outstanding decisions
 
-- **Ongoing permission:** reconcile R10 and R14 so records distinguish permission
-  to save automatically from personal review of each entry. The recommendation
-  is to record who granted permission, when, and its scope without inventing
-  per-entry approval. The question has been raised; no answer is recorded.
 - **Completion review:** the every-user-prompt reminder is selected. A second,
   quiet review before the main agent finishes, with at most one corrective
   continuation, remains proposed. An approved save running in parallel must
@@ -2197,6 +2199,11 @@ technical facts before asking Mike to decide a tradeoff.
   infer it from approval to save or refine this document.
 
 ### Recorded notes
+
+- Approved 2026-09-18: record the automatic-save permission grant once in project
+  settings; each memory only indicates it was auto-saved under that permission.
+  Do not duplicate who granted it or claim individual review. Source and date
+  remain required. This is a design decision, not activation of automatic saving.
 
 - The main agent prepares the proposal. After approval, an explicitly assigned
   helper carries out the authorized operation, checks the saved result, commits,
