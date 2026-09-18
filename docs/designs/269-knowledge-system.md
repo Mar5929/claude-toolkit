@@ -1106,6 +1106,14 @@ These are investigation work, not questions for Mike to answer about APIs.
 
 ### Recorded notes
 
+- Work-tracker dependency update, reported by the owning task on 2026-09-18:
+  Mike selected one local `WORK-ITEM.md` containing overview/status, tasks,
+  questions, decisions/history, and requirements, with `DESIGN.md` separate.
+  Top-level sections are Overview, Tasks, Recent History, and Requirements;
+  history may be collapsible. This is planned, not shipped. Reconcile local
+  knowledge routing with that owner before integration; do not migrate active
+  records or create competing requirements/task files from this design.
+
 - Approved by Mike, 2026-09-18: related approved saves may share one commit when
   ready together. Preserve each save's authorized scope and verified result.
   Never delay a ready save to wait for others; combining commits does not combine

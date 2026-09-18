@@ -302,6 +302,16 @@ Use supported pre-action paths only for narrow objective holds. Receipt presence
 
 ## E1-P6: toolkit and work-item integration
 
+**Planned dependency, 2026-09-18:** the work-tracker task reports Mike's selected
+local format as one `WORK-ITEM.md` for overview/status, tasks, questions,
+decisions/history, and requirements, plus separate `DESIGN.md`. Its top-level
+sections are Overview, Tasks, Recent History, and Requirements. Coordinate the
+requirements/Notes routing with that owner; do not assume separate TASKS.yaml,
+STATUS.md, or REQUIREMENTS.md remain authoritative after migration. The storage
+change is not shipped and does not authorize migration here. External trackers
+retain their own records. An existing shared feature PRD must not be copied into
+a competing local requirements authority; resolve ownership during integration.
+
 **Owner:** integration builder. **Dependencies:** E1-P4–P5. **Requirements:** R3–4,9,16–19,24,28,30.
 
 Update handoff, work-guide, solution-design, spec-check, requirements-helper, and lifecycle guidance only where they must pass owning scope, delivery evidence, and continuation to knowledge. `plugins/work-tracker/skills/work/scripts/{work.mjs,lib/tracker.mjs,lib/common.mjs}` are existing objective tracker mechanisms; do not change them unless the integration test exposes an actual missing interface. Use existing task fields, approvals, completion records, and chosen tracker APIs.
