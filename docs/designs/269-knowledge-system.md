@@ -103,6 +103,20 @@ can record what the agent reports doing. Neither proves understanding. Missing
 required content pauses only dependent work and prevents a false startup
 confirmation. Intent acknowledgments must not be reused as completion evidence.
 
+### Design patterns and why they fit
+
+| Pattern | How the parts apply it | Requirement and philosophy benefit |
+| --- | --- | --- |
+| Read a small map, then follow relevant links | Root routes lead to manuals; indexes lead to the owning topic, PRD, or outside source. Detailed skill references load for the operation that needs them. | R2,5–8,19: the agent chooses relevant evidence without a custom search-ranking engine or a universal content dump. |
+| Separate instruction, acknowledgment, and result | Startup requests reads; the prompt checkpoint records intent; completion records the review outcome. Saving has its own read-back and publication evidence. | R3,9,29: a receipt never substitutes for a finished operation or semantic judgment. |
+| One owner for each meaning | Routing identifies kind, scope, and destination before writing; related records link instead of copying the same decision. | R16–18,30: a mixed conversation can update several owners without creating competing truth. |
+| Recover from durable records | The inbox preserves pending meaning and permission; the tracker preserves task position. Temporary checkpoint state can be discarded and reconstructed. | R4,10,28–29: another session can continue without private memory or asking the owner to repeat consent. |
+| Check objective conditions close to the operation | Check actual file shape after writes and actual publication after pushes; a proven gate can hold a named dependent action. | R3,14,21,29: checks cover observable failures while the agent assesses relevance, truth, and authority. |
+| Share contracts, adapt delivery per host | Both hosts use the same manual, records, and expected outcomes; event wiring and receipt transport are verified separately. | R25–27: platform differences are explicit rather than hidden behind an unproven universal supervisor. |
+
+These patterns explain the parts' relationships; they do not require a new
+framework. Prefer existing toolkit procedures and documented host capabilities.
+
 ## 4. The parts
 
 Paths in this inventory are relative to an equipped project unless explicitly
@@ -178,9 +192,19 @@ flowchart TD
   H --> I[Prompt reminder and intent acknowledgment]
   I --> J[Agent retrieves relevant records and reasons about the brief]
   J --> K[Answer and route useful information]
-  K --> L[Apply existing permission or request needed approval]
-  L --> M[Write, read back, validate, rebuild indexes, publish]
-  M --> N[Proposed completion checkpoint]
+  K --> L{Any record change needed?}
+  L -- No --> N[Proposed completion checkpoint]
+  L -- Yes --> P{Existing permission covers the change?}
+  P -- Yes --> M[Write, read back, validate, rebuild indexes, publish]
+  P -- No --> Q[Show proposal and preserve pending state]
+  Q --> R{Owner decision}
+  R -- Approved --> M
+  R -- Changed --> K
+  R -- Unanswered --> S[Keep pending; destination unchanged]
+  R -- Declined --> T[Remove rejected proposal; destination unchanged]
+  S --> N
+  T --> N
+  M --> N
   N --> O[Preserve pending work and resume position]
 ```
 
@@ -389,9 +413,10 @@ until the save skill had run since the last commit. That is a **candidate to
 revise**: invocation time does not establish completed review or cover relevant
 conversation-only decisions. Define a current checkpoint outcome and affected
 action, then prove the host can hold that action. Command parsing recognizes
-supported syntax only; it must not infer semantic approval. Merging and closing
-also trigger the appropriate PRD-upkeep obligations without conflating delivery
-and requirements approval.
+supported syntax only; it must not infer semantic approval. A merge or close
+triggers a check of the owning work item's delivery evidence. Update PRDs only
+for authorized behavior that actually shipped; a merge, closure, or cancelled
+item alone does not prove delivery or requirements approval.
 
 The write guard should check objective prerequisites on supported lasting-write
 paths. The agent remains responsible for matching actual permission to meaning
@@ -491,6 +516,27 @@ possible adapter avenue; no selected behavior depends on an unverified API.
 
 ## 7. Requirement coverage and proof
 
+### Checkpoint interfaces
+
+These are proposed behavioral contracts, not finalized event payloads or script
+APIs. Each adapter must demonstrate that it can deliver the request, associate
+the response with the right session and checkpoint, and report failure.
+
+| Checkpoint | Input and request | Expected result | Failure or stale-result handling |
+| --- | --- | --- | --- |
+| Startup orientation | Applicable root routes, actual required-file paths, and current startup/recovery context. Request ordered reads. | Completed-read acknowledgment only after content is available; brief owner confirmation. | Identify missing or incomplete content; pause dependent work. An acknowledgment from another session or obsolete context does not satisfy this checkpoint. |
+| Prompt reminder | Latest submitted prompt and compact canonical criteria with real manual paths. Request acknowledgment of intent to evaluate. | Receipt/intent, followed by agent review during the work. | Recover a missed reminder before dependent work; no claim that receipt means review or saving finished. |
+| Turn completion | Conversation and work since the relevant review, including newly produced findings and pending entries. Request the review outcome. | No update needed, authorized updates completed, proposals pending, or save unfinished. Multiple outcomes may coexist for different candidates. | Preserve outstanding work and permission. Bounded continuation must not repeatedly interrupt unchanged pending proposals or quiet no-change results. |
+| Save or delivery moment | Named action such as PR creation or work completion, the affected work, and its current review outcome. | Review completed for that work; dependent saves either finished or explicitly unresolved. | Hold only the supported dependent action when the chosen gate can enforce it. Follow R3 for unrelated work; the remaining completion-policy question stays in section12. |
+| Lasting write and validation | Target, operation, scoped authority, latest destination, and actual resulting content. | Agent checks meaning/scope; tools report objective prerequisites and file/index validity. | An invalid file remains an unfinished save. A post-write error is recovery evidence, not proof that the write was prevented. |
+| Handoff or context loss | Current task position, relevant inbox entries, durable authority, and available recovery routes. | Next session can find the pending work and resume under unchanged authority. | Report an unavailable event/gate; use the shared records rather than a private checkpoint file as the continuation source. |
+
+The exact acknowledgment transport is still open. A visible reply, explicit
+tool receipt, or host-supported internal response has different UX and coverage
+costs. Select the smallest proven option; do not parse ordinary prose to score
+whether the agent reasoned correctly. Session receipts identify the checkpoint
+they answer, not just a branch or the time a skill was opened.
+
 The inventory explains each part's contribution. This reverse map prevents a
 requirement disappearing when parts are renamed or simplified. Coverage is a
 design claim awaiting the indicated evidence, not a declaration of completion.
@@ -558,6 +604,23 @@ current universal limits. No silent truncation of required meaning.
 
 ## 9. Changes, migration, and component boundaries
 
+### Alternatives and tradeoffs carried forward
+
+The reference's alternatives are useful design reasoning, but their old
+recommendations do not become selected mechanisms merely by being copied here.
+
+| Choice | Current recommendation or direction | Alternative and tradeoff | What settles it |
+| --- | --- | --- | --- |
+| Startup content | Owner direction: lean instruction, actual reads, then acknowledgment. | Printing everything saves explicit read turns but can duplicate context or spill/truncate. Reading by path still incurs the content cost and needs reliable completion/recovery. | Ordered-read and missing-content proof on both hosts; supersedes the old blanket printing recommendation. |
+| Continuing guidance | Compact routes and standing obligations, with detailed manuals and skills read as needed. | Manual alone has fewer copies but risks unavailable guidance after recovery or in helper sessions. Copying the full manual into every instruction surface increases cost and drift. | Demonstrate current guidance reaches fresh, compacted, and helper contexts without assuming host parity. |
+| Save-moment release | A checkpoint outcome for the relevant work, with honest unfinished states. | Skill-invocation or last-commit markers are cheap but cannot establish review completion and miss conversation-only changes. | Define objective receipt scope and proven action coverage; agent judgment remains outside the gate. |
+| Pending proposal capture | Preserve a shown proposal before context can be lost; publish through the applicable shared-record workflow. | Deferring capture until the next user reply can lose an unanswered proposal if the session ends first. | Fresh-session recovery test; distinguish locally recorded from available to other sessions. |
+| Write protection | Narrow objective safeguards where justified, plus explicit read-back/checks in the save procedure. | Guidance alone has fewer moving parts but weaker prevention. A blanket helper-agent ban or skill-open marker can block authorized work without proving semantic consent. | Document observed risk and tool coverage before selecting restrictions; approval scope stays with the agent. |
+| Validation trigger | Keep explicit save validation authoritative; add supported event checks when they improve recovery. | Watching every shell action adds cost; an event that cannot return errors may rebuild an index but cannot by itself ensure the agent handles a failed save. | Measure coverage and error delivery without inventing a changed-file threshold for conversation review. |
+| Completion reminder | Proposed bounded end-turn checkpoint, separate from prompt-side intent. | Standing guidance alone costs less but may miss findings produced during execution. A second model grading the reply introduces a semantic supervisor outside the selected philosophy. | Compare representative outcomes and loop behavior; no transcript-scoring engine. |
+
+### Migration scope
+
 The old draft proposes new skill names, plugin-owned hooks, a standing rule,
 new layout, indexes, checker extensions, and host settings. Before coding,
 inventory the live shipped originals, installed copies, catalogs, settings,
@@ -572,8 +635,9 @@ do not overwrite a newer file with an older worktree copy. Run checks before
 claiming conversion complete. Existing projects receive changes through their
 setup/sync process, not merely because a toolkit commit merged.
 
-The reference records this repository before DragonFly as the intended migration
-order. Each actual project's conversion still needs applicable authorization
+The reference recommends migrating this repository before DragonFly. That is a
+recommendation, not an approved migration decision. Each actual project's
+conversion still needs applicable authorization
 and verification. Removing installed script copies, switching all handlers to
 plugin paths, exact renames, and summary normalization remain implementation
 proposals to reconcile against current delivery requirements.
@@ -617,6 +681,32 @@ observed owner-visible behavior, actual records changed, publication evidence,
 limits, and pass/fail. Static schema/link tests do not prove agent judgment or
 fresh-session continuity. Preserve detailed reproducible harness cases from the
 reference when applicable; retire only cases tied to superseded mechanisms.
+
+### Concrete acceptance scenarios
+
+Write the expected owners, permissions, and outcomes before each run. These
+cases preserve useful detail from the reference while replacing old script
+assumptions with observable behavior. Repeat applicable cases on both hosts and
+after compaction; host trust/activation limitations must be visible.
+
+| Scenario | Expected behavior and evidence | Requirements |
+| --- | --- | --- |
+| Acme first brief, no code changes | Team context, org roles, scope, an upcoming task, and a tentative idea are evaluated separately. Correct owning records receive only authorized meaning; an unanswered lasting-memory proposal stays pending. No invented org details or System Guide pages. | R3,9–13,18,28–30 |
+| Known fact under a project alias | The glossary resolves the term; the relevant topic is opened and the answer cites its supporting record. The index line alone is insufficient evidence. | R5–8,19 |
+| Correction with silence, then approval | Show the current PRD's proposal format; silence leaves the destination unchanged and the exact proposal recoverable. Later approval saves the corrected meaning once, without asking again. | R9–10,20,28 |
+| Authorized requirements interview | In-scope settled answers are saved and published before the next question. New recommended meaning or a separate memory gets its own applicable approval; drafting never marks full requirements or implementation approved. | R9–10,16,18 |
+| Memory approval disabled in one project | Qualifying memory follows the same review and checks under standing permission, with honest provenance and the required report. PRD permission is unaffected. Restoring approval makes the next memory candidate wait. | R10–14; metadata representation remains an open design detail |
+| Push fails with two active tasks | Report local/committed/remote state. The save and its dependent task remain unfinished; unrelated authorized work continues. A fresh session finds permission and the next recovery step without owner repetition. | R3–4,9,13,28 |
+| Concurrent update and interrupted retry | Two sessions reread the shared destination and preserve one another's useful changes. A retry detects an already-published change instead of duplicating it; a meaning conflict returns only the unresolved choice to the owner. | R3,10,13,21,28 |
+| Mixed ownership and partial permission | A component discussion yields a parent requirement, an item-only exception, and a procedure. Each goes to its owner or pending workflow; permission for one does not authorize the others or unrelated implementation. | R16–18,30 |
+| No useful memory, but useful work context | Routine logs and dropped ideas produce no lasting-memory card. A necessary temporary blocker is kept concise in working context. Routine no-change review is quiet; an explicit review request receives an answer. | R9,11–13,23 |
+| Merge without delivery, or cancelled work | Check the owning work record. No PRD claims new shipped behavior merely because a PR merged or an issue closed. Actual authorized shipped behavior triggers the correct PRD upkeep. | R16,30 |
+| Handoff after a pending proposal | Preserve exact proposal and applicable authority; the continuation identifies relevant unfinished work. The next session neither treats pending text as truth nor repeats an unchanged card without reason. | R3–4,10,28 |
+
+Inspect resulting files and fresh-session behavior, not just acknowledgments.
+Tests of secret-like input use harmless synthetic values. Record failure causes
+and repair evidence; a passing syntax check cannot turn a missed candidate or
+lost permission into a successful scenario.
 
 ## 11. Design process and implementation sequence
 
@@ -691,7 +781,7 @@ current instructions.
 | 1 What this document is; glossary | Retained and revised in section1: authority, scope, terms, review status; obscure host fields stay in the reference until needed. |
 | 1a Decisions at a glance | Retained as section2 and reconciled ledger12; old counts and printing-budget decisions labeled historical. |
 | 2 What the knowledge system solves | Carried through purpose, Acme workflow, component responsibilities, and full requirement map7. |
-| 3 Design philosophy | Retained and strengthened in section3; precise limits replace absolute enforcement claims. |
+| 3 Design philosophy | Retained and strengthened in section3, including the design patterns and their requirement contributions; precise limits replace absolute enforcement claims. |
 | 4 The parts | Retained as section4 with all part families, coverage, timing, context cost, documentation/proof. |
 | 5 A session, start to finish; process diagram | Revised as Acme section5 and diagrams in5/6.7; startup and current checkpoints reconciled. |
 | 6 Each part in detail | Current useful behavior retained in section6: files, rules, four responsibilities, each hook responsibility, tools, state, settings, save/recovery. Exact old code-like specifications, literal rule bodies, numeric cutoffs, and outdated schemas remain historical until selected and reverified. |
@@ -699,10 +789,10 @@ current instructions.
 | 8 Codex | Current responsibilities in8 and proofs10; exact historical config/source investigations retained for verification rather than asserted as current APIs. |
 | 9 What changes today; dependency and migration lists | Retained as9; refresh the actual file-by-file implementation inventory before build. Historical rename lists remain source material, not authorization. |
 | 10 Riskiest assumptions | Current proof groups in10; old detailed experiments remain available and are reused when their mechanism survives. No fixed “one hour each” promise. |
-| 11 Testing plan | Representative sessions, seeded failures, recording requirements retained in10; exact harness recipes are supporting implementation material. |
+| 11 Testing plan | Representative sessions, concrete acceptance scenarios, seeded failures, and recording requirements retained in10; exact harness recipes are supporting implementation material. |
 | 12 Build order, cost, rollback | Current dependency order and rollback boundaries in11, context cost in8; detailed tasks/status belong to tracker, old estimates historical. |
 | 13 Requirements to reconsider | Reconciled in12 against current PRD; resolved questions are not reopened automatically. |
-| 14 Design alternatives | Current consequential choices in2/6/12; historical alternatives retained unchanged for rationale, not copied as current recommendations. |
+| 14 Design alternatives | Explicit current tradeoff comparison in9, checkpoint contracts in7, and consequential choices in2/6/12; obsolete mechanism recommendations remain historical rather than being silently adopted. |
 | 15 Open questions | Replaced by reconciled ledger12; distinguish owner decisions, architect investigations, settled and superseded items. |
 | 16 Whole-system alternatives | Retain useful plain-file/host-native boundary in3/6.8; historical vendor comparisons stay in reference and require fresh evidence if reconsidered. |
 
