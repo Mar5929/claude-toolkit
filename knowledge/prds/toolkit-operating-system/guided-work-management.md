@@ -235,12 +235,14 @@ Direction approved by Mike on 2026-09-18; implementation planning requested.
 This requirement is not yet delivered and does not approve the full PRD.
 
 Local work items use one authoritative Markdown document for overview/status,
-tasks, questions, decisions/history, and item-specific requirements. Design
+roadmap, tasks, questions, decisions/history, and item-specific requirements. Design
 remains separate. The consistent template has a page title followed by
-first-level Overview, Tasks, Recent History, and Requirements sections in that
+first-level Overview, Roadmap, Tasks, Recent History, and Requirements sections in that
 order. Requirements supports second- and third-level headings and bullets.
 History may be collapsible; current blockers, next actions, and unanswered
-questions remain easy to find. Tasks preserve dependencies, responsibility,
+questions remain easy to find. Roadmap holds ordered phases or milestones,
+outcomes, status, and links to their tasks or child items. It stays consistent
+with task progress without duplicating task detail. Tasks preserve dependencies, responsibility,
 status, and continuation. Questions identify who must answer. Answers update
 the affected content promptly, and saves are read back to verify them.
 
@@ -280,6 +282,8 @@ to build a particular solution.
 
 - Decision: Mike approved the single-record direction and requested a consistent
   template and implementation plan on 2026-09-18. Runtime migration is pending.
+- Clarification: Roadmap is a top-level section in that same file, immediately
+  before Tasks, as Mike confirmed after reviewing the plan.
 - Resume here: [Consolidated work-item plan](../../../docs/designs/337-consolidated-work-item.md)
   holds the template, implementation sequence, documentation inventory, checks,
   and outstanding implementation choices.

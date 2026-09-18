@@ -8,7 +8,7 @@ Required behavior is recorded in the
 
 ## Template
 
-One local `WORK-ITEM.md` owns item state, tasks, questions, decisions, history,
+One local `WORK-ITEM.md` owns item state, roadmap, tasks, questions, decisions, history,
 and item-specific requirements. `DESIGN.md` remains separate and is created
 when design work needs it. Existing authoritative workbooks or shared PRDs
 remain linked sources; do not copy their requirements into a competing record.
@@ -41,11 +41,18 @@ Related work and governing sources: ...
 
 Only useful context needed to continue.
 
+# Roadmap
+
+| Phase | Intended outcome | Status | Tasks or child items |
+| --- | --- | --- | --- |
+| P-01 — Organize and review | Files are organized and reviewed | In progress | T-01, T-02 |
+
 # Tasks
 
 ## T-01 — Organize the work-item files
 
 - Status: In progress
+- Roadmap phase: P-01
 - Responsible: ... / unassigned
 - Depends on: None
 - Current position: ...
@@ -55,6 +62,7 @@ Only useful context needed to continue.
 ## T-02 — Review the file organization
 
 - Status: Pending
+- Roadmap phase: P-01
 - Reviewer: Codex
 - Depends on: T-01
 - Next action: Review after organization is complete.
@@ -93,13 +101,16 @@ Only useful context needed to continue.
 Required sections remain present even when empty, using None or Not yet
 defined. Add requirement subsections freely. Task IDs and requirement IDs stay
 stable when text or order changes. Completed tasks retain status and evidence;
-they do not disappear. Optional roadmap grouping stays inside Tasks.
+they do not disappear. Roadmap is a required top-level section before Tasks.
+It holds ordered phases or milestones, intended outcomes, status, and links to
+the tasks or child items that carry them out. Tasks holds execution detail;
+link from the roadmap instead of copying it. Keep both consistent as work moves.
 Keep questions, blockers, and next steps outside collapsed history. Where a
 tracker does not render details blocks, use a normal visible history list.
 
 ## Capture and continuation
 
-Read Overview, active Tasks, and relevant Requirements first; read DESIGN.md
+Read Overview, Roadmap, active Tasks, and relevant Requirements first; read DESIGN.md
 when working on design. Save meaningful updates before moving past the topic,
 then reread the exact section. Unanswered questions are saved immediately with
 who must answer. An answer updates the question and affected requirement or
@@ -173,7 +184,9 @@ task's active draft from this worktree.
 ## Acceptance checks
 
 - New item creates one WORK-ITEM.md; no competing per-item records. DESIGN.md
-  is optional until needed. All four top-level sections have the same order.
+  is optional until needed. All five top-level sections have the same order:
+  Overview, Roadmap, Tasks, Recent History, Requirements. Updating a task keeps
+  its roadmap phase accurate without inventing approval or completing other work.
 - Directly edit prose and nested Requirements, then update a task via CLI:
   unrelated text and formatting survive. Test malformed/duplicate headings,
   details blocks, Unicode, and Windows line endings.
@@ -198,6 +211,9 @@ task's active draft from this worktree.
   consistent Markdown work item, separate design, clear top-level sections.
 - Planning choices: bold page title, Tasks rather than Open Tasks (so completed
   work remains visible), collapsible Recent History, open questions in Overview.
+- Clarification: Mike confirmed Roadmap belongs in this same file as its own
+  top-level section immediately before Tasks, replacing the initial proposal
+  to group roadmap information within Tasks.
 - No owner decision blocks preparing this plan. Implementation review must
   settle the exact parser/metadata representation and backup location without
   creating a second authoritative record.
