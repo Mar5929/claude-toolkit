@@ -214,7 +214,7 @@ repository works.
 
 | Folder | What is in it | How long a file lives |
 | --- | --- | --- |
-| [`designs/`](designs/README.md) | The build plan for one work item: how each approved requirement is met, which files change, how it is tested, in what order. One file per issue, named `<issue number>-<short-slug>.md` | Created at stage `04-solution-design` or authorized earlier review; documentation-only saves follow the project save route; deleted at stage `14-spec-update` |
+| [`designs/`](designs/README.md) | The build plan for one work item: how each approved requirement is met, which files change, how it is tested, in what order. One file per issue, named `<issue number>-<short-slug>.md`. The [consolidated work-item plan](designs/337-consolidated-work-item.md) covers the pending single-file tracker format. | Created at stage `04-solution-design` or authorized earlier review; documentation-only saves follow the project save route; deleted at stage `14-spec-update` |
 
 ## How the pieces relate (and what looks redundant but is not)
 
