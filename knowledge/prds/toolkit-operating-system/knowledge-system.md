@@ -1180,8 +1180,9 @@ comes second. Neither one is a reason to drop something a future agent needs.
 
 A PRD uses direct, simplified technical English that a junior software
 developer can understand without having been in the original conversation.
-Explain the technical terms it has to use. Take out chatty introductions, notes
-about the drafting itself, and repetition that adds nothing. Spell out the
+Explain the technical terms it has to use. Take out chatty introductions and repetition that adds nothing. Keep useful
+unfinished discussion and continuation details in the bottom Notes section
+defined in requirement 16. Spell out the
 behavior, the decision rules, the process, what the person using it experiences,
 what information is stored and in which fields, and the examples that help. Each
 requirement has one main home; other sections point back to it when they need
@@ -1244,7 +1245,7 @@ New PRDs follow these parts, in this order. The owner set this shape on 2026-09-
 4. **Why this exists.** The context: the problem it solves, why the project is doing this, and what is being built at a high level.
 5. **What this document holds.** A short fixed note that this document holds only the what: what the system does, what the end user experiences, and what information is stored and where. Functional, process, logic, user-interface, user-experience, and data requirements belong here. How it is built does not. Every requirement is explicit and unambiguous, in plain language with no jargon, clear enough that a junior intern or a complete stranger could read it and know what to build and how to test it. Vague wording such as "works correctly" or "handles errors well" is not allowed. Required behavior must not depend on the reader guessing the intended meaning. If a choice is deliberately left to design or agent judgment, state what may vary and the outcome, constraints, and checks that still apply. An unanswered question is an open decision, not permission to interpret the requirement freely.
 6. **Requirements.** One level-two heading named `Requirements`, so a reader knows where the requirements start. Under it, one level-three heading per requirement area, grouping the requirements that belong together. Under each area, one numbered level-four heading per requirement, so work items and checks can point at it. Each requirement says what must happen and ends with a **Check** paragraph: a test a stranger could run to prove it is met.
-7. **Potential solution design notes.** Optional and last. Ideas the owner or agent wants to explore when the solution is designed. They bind nothing.
+7. **Notes.** The last section, holding relevant decisions with their approval state, unanswered questions, remaining tasks for this document, and the exact place to resume. Keep only useful entries and update them as discussion progresses. Optional potential solution ideas belong within Notes and remain explicitly tentative. Settled answers update the requirements themselves; Notes links to them rather than repeating them. Overall status, blockers, approvals, other tasks, and other work decisions stay in the work item. Do not create separate interview, notes, or continuation files for this purpose. Saving a draft does not approve its requirements, design, or implementation.
 
 Visuals are welcome anywhere in a PRD: a flowchart, a diagram, a table, or a screen sketch, wherever it makes a requirement clearer than words alone. A visual explains a requirement; the words still state it.
 
@@ -2146,7 +2147,10 @@ Keep outstanding requirements decisions and tasks in this section. Record each
 answer in the affected requirement and remove or resolve its open entry here.
 Technical choices and their evidence belong in the
 [solution design Notes](../../../docs/designs/269-knowledge-system.md#notes).
-The GitHub task keeps the high-level status and links to these documents.
+The GitHub task keeps overall status, blockers, approvals, other tasks and work
+decisions, and links to these documents. Mike confirmed this boundary on
+2026-09-18: document-specific refinement belongs here; other work remains in
+the work item. Save meaningful updates promptly so the next session can resume.
 
 **Current position:** this PRD remains proposed. The approved-save helper and
 the explicit ban on jargon and figurative language in memory and proposals are

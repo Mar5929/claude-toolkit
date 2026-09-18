@@ -936,8 +936,10 @@ Updated: 2026-09-18. This is the starting point for the remaining design
 discussion. Keep the open decisions, tasks, and review notes together here so
 Mike can continue from this document. Review one decision at a time. Record each
 answer and update the affected design section. Requirements still belong in the
-PRD; implementation status stays in the tracker, with a link when needed. Do not
-create another design task list elsewhere. Section 12 preserves earlier decisions.
+PRD; overall status, blockers, approvals, other tasks, and other work decisions
+stay in the tracker. Mike confirmed this boundary on 2026-09-18. Save meaningful
+updates promptly; do not create separate interview, notes, or continuation files
+for this discussion. Section 12 preserves earlier decisions.
 
 **Current position:** solution design is still in progress. Requirements may be
 refined as this review settles behavior. Mike asked to review the outstanding
