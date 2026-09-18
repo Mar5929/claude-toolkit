@@ -1066,6 +1066,45 @@ pushing these committed updates on 2026-09-18. Verify the remote result before
 reporting publication complete. The GitHub task summary remains a separate
 tracker update; it is not applied merely by pushing the documents.
 
+### Resume on another computer or in a fresh session
+
+- Clone or update the **claude-toolkit repository** from remote main, then read
+  `knowledge/current.md`, these Notes, the linked PRD Notes, and the implementation
+  plan's instruction audit. Paths are relative to the repository; old absolute
+  Windows/worktree paths are not prerequisites. No unsaved conversation is
+  needed to recover the selected design direction.
+- This is continued toolkit development. Opening an unrelated new project does
+  not authorize installing the unfinished Knowledge System there or copying
+  this repository's project memories into it. Target installation comes later.
+- The PRD owns required behavior; this master design owns selected architecture.
+  The detailed reference output and older prep/process/review files are history.
+  They must not override the current PRD, this design, or these Notes.
+- The loaded knowledge manual and six existing skills still describe the older
+  implementation. Use the audit to draft replacements; do not mistake today's
+  installed instructions for the agreed target behavior or activate a partial
+  replacement. Work on source templates and procedures together in an isolated
+  worktree, with links to reviewable drafts in these Notes when they exist.
+- The content-source audit and existing static checks are complete. No fresh
+  model-session proof of the proposed startup/read acknowledgment, parallel
+  helper recovery, or completion handler has been completed. Recheck CLI and
+  desktop versions and hook trust on the new machine; earlier observations
+  were Claude CLI 2.1.259 and Codex CLI 0.154.0, not desktop runtime guarantees.
+- The Notes workflow is merged; project refresh remains separate. The local
+  `WORK-ITEM.md` consolidation is still planned. Its
+  [design](337-consolidated-work-item.md) owns that dependency. Resolve shared
+  PRD versus local requirements ownership with that work, without migrating
+  active records as part of this continuation.
+- Publishing through Mike's personal account is authorized. Verify `Mar5929`
+  before GitHub writes; another session may change the active account. Do not
+  use the work account. The original computer's primary checkout has an
+  unrelated unfinished `docs/designs/README.md` edit; it is preserved locally,
+  not required for this work. Publication used a clean checkout. The original
+  local main may lag remote main; inspect it before updating and never reset
+  away that edit. A fresh clone gets the published continuation.
+- GitHub's high-level task-summary update remains pending. The documents contain
+  the current review detail; do not treat an older tracker summary as evidence
+  that these approvals or audits are missing.
+
 ### Outstanding decisions
 
 The earlier behavior decisions and core-manual/task-specific arrangement are
