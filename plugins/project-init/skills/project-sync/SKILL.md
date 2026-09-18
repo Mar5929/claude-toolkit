@@ -92,6 +92,9 @@ automatically as it grows.
     selection, progress, validation, and completion events. Missing optional
     fields on legacy items are valid; never backfill them.
   - the root `CLAUDE.md` quick-save table and its matching rules. Expect a
+    documentation-publication pointer and unscoped `knowledge-direct-commit.md`
+    even without knowledge, unless explicitly declined. Report a legacy
+    `knowledge/**` frontmatter restriction as stale. Expect a
     `knowledge/` row only for configured project knowledge and a `.work-items/`
     row only for configured local tracking. Each row points to the canonical
     manual, rule, or skill and does not repeat the full procedure. Report a
@@ -338,13 +341,16 @@ Typical checks:
   asked. Never-asked is a gap to offer in step 4; a recorded decline is
   respected and not raised again.
 - **Quick saves:** read the root `CLAUDE.md` and the project's recorded choices.
+  Confirm the documentation-publication pointer and unscoped
+  `knowledge-direct-commit.md` regardless of knowledge activation. Respect an
+  explicit policy opt-out; declining knowledge alone is not that opt-out.
   For configured project knowledge, confirm that `knowledge/` is named and
   points to `knowledge/README.md` plus the installed knowledge direct-commit
   rule. For configured local tracking, confirm that `.work-items/` is named and
   points to the local tracker instructions. Report rows for systems that are
-  absent, declined, external, or no longer selected. Do not infer a quick-save
-  folder from its name; any additional row needs an explicit owner designation
-  and a canonical instruction source.
+  absent, declined, external, or no longer selected. The documentation row
+  names actual configured paths but does not make every file in them eligible;
+  the publication rule owns that distinction.
 - **Work-item stages:** check the unscoped `work-item-stages.md` rule and
   the tracker it names. Local mode uses the current work CLI; GitHub mode uses
   stage labels. Report the retired stage-reminder script and registration for
@@ -763,10 +769,15 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   tracker they are leaving; moving existing work across is theirs to do by hand.
 - For an approved quick-save gap, preserve the project's selected systems and
   existing root-file voice. Add or update only the applicable rows from
-  `../project-init/references/thin-claudemd.md`, and install or refresh their
-  matching rules. The `knowledge/` row permits approved knowledge-only work to
-  use the primary checkout and land directly on the default branch even while
-  implementation continues in a worktree. The `.work-items/` row uses the
+  `../project-init/references/thin-claudemd.md`. Install or refresh the unscoped
+  `knowledge-direct-commit.md` independently of knowledge activation; remove
+  legacy path frontmatter when replacing a managed copy. Reconcile local edits
+  and explicit opt-outs rather than overwriting them. Refresh the paired
+  `parallel-agent-sessions.md` exception and installed rule catalog together.
+  Keep the root as a short pointer and preserve one-line `AGENTS.md` routing to
+  `CLAUDE.md`, whose rules route serves Codex as well as Claude. Verify the
+  documentation route in a knowledge-off project, and confirm that it does not
+  require a second-brain hook or plugin. The `.work-items/` row uses the
   existing shared, Git-ignored local store with no worktree, commit, or push.
   Remove a misleading row when its system is no longer configured. Do not add a
   local path for an external tracker or a recorded no-tracker choice.

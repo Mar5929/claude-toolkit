@@ -16,7 +16,8 @@ every session to read `.claude/rules/`. See `thin-claudemd.md` in the
 
 | File | What it does |
 | --- | --- |
-| `parallel-agent-sessions.md` | Sharing a repository with other live sessions. Look before you edit, work in your own worktree on your own branch, never stage everything, keep shared-file edits additive, claim a sequential number before using it, and land by pull request with the owner's approval after a merge-safety check. |
+| `knowledge-direct-commit.md` | Authorized documentation-only saves use the existing default-branch checkout, checks, commit, push, and remote verification. Applies without knowledge enabled; behavior-bearing instructions and mixed implementation changes retain the implementation workflow. |
+| `parallel-agent-sessions.md` | Isolate implementation in a worktree and land it by approved pull request; authorized documentation follows the direct-publication exception. Coordinate shared-file edits, preserve others' staged work, and check merge safety. |
 | `offer-context-handoff.md` | When context is heavy and the next step is reasoning-heavy, offer a self-contained handoff prompt for a fresh session. Run the installed `remember` review before writing that prompt, and carry anything the owner does not save inside the prompt itself. This is the moment that destroys the most context, and nothing can catch a clear after it happens. The `handoff` plugin's `/handoff` command does it in order; this rule is the backup when the owner asks in their own words. |
 | `plain-english-artifacts.md` | The words inside every artifact an agent generates for a person to look at (a diagram, a chart, a dashboard, a visualization, a mockup, a slide deck, a generated document) follow the project's output style: every word is about the subject, a heading names what sits under it, every thing gets its real name, and the wording is plain. It decides the words, never the layout. Chat replies, code, README files, and issue text are not artifacts. A rule rather than part of the output style because the style reaches the main chat only, and artifacts are also made by helper agents, skills, and Codex sessions. |
 | `work-item-folders.md` | Local tracker folder ownership, grouping, archive, and file protection. The work skill owns commands and the lifecycle rule owns process. Applies only when the project chose local tracking. |
@@ -37,10 +38,11 @@ paths:
 ```
 
 This is Claude Code's own behavior, not a convention of ours, and it needs
-v2.1.198 or later. The whole set loads before the owner types anything, so a
-rule that only matters inside one folder is worth scoping. Two files here are:
-`knowledge-direct-commit.md` on `knowledge/**`, and `ai-external-knowledge.md`
-on `ai-external-knowledge/**`.
+v2.1.198 or later. `ai-external-knowledge.md` is scoped to
+`ai-external-knowledge/**`. `knowledge-direct-commit.md` is unscoped because
+publication routing must be available before choosing a checkout, including
+when the knowledge system is disabled. Remove its legacy `knowledge/**`
+frontmatter when refreshing the managed rule.
 
 Most rules must not be scoped. Scoping is the wrong tool for anything that has
 to be true before the agent touches a file: how to work alongside other
@@ -52,10 +54,10 @@ needed is some context. The cost of one loading after the moment it governs is
 that it does nothing at all, quietly.
 
 Scoping is also not enforcement. Claude Code's own documentation says these
-files are context rather than enforced configuration: the harness guarantees the
-rule reaches the agent, never that the agent obeys it. A rule that must hold
-every time needs a hook behind it. `knowledge-direct-commit.md` has one, in the
-`second-brain` plugin's `save-reminder.mjs`.
+files are context rather than enforced configuration. Publication uses agent
+judgment and objective Git/check results; no automatic writer or semantic
+enforcement engine is installed. The optional knowledge plugin's save reminder
+is not a prerequisite for the documentation route.
 
 To see what actually loaded in a session, run `/context`.
 
@@ -129,7 +131,6 @@ said so. Do not add any of them back without asking him.
 
 | File | Copy it when | What it does |
 |---|---|---|
-| `knowledge-direct-commit.md` | the project runs the toolkit knowledge system (the `second-brain` plugin's managed `knowledge/` folder) | Authorized `knowledge/` saves commit and push directly to the default branch even during implementation in a worktree. Content approval and concurrent-edit protection still apply. A failed check or refused push is reported as unfinished; files outside `knowledge/` retain their normal workflow. |
 | `dependency-graph.md` | the project installed the graphify code graph (see `../../guides/graphify-dependency-graph.md`) | Answer "what calls this?" and "what breaks if I change it?" from the graph, citing file and line, instead of from a text search or memory. Owns the freshness duty too: keep the automatic rebuild hooks installed, once per clone, because git hooks are never committed and a fresh clone silently has none. Also covers keeping the build offline, never committing it, and naming the graph's blind spot (runtime dispatch and configuration wiring) before saying "nothing uses this". |
 
 A Salesforce project gets `../salesforce/dependency-graph.md` instead: the

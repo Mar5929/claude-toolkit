@@ -73,6 +73,11 @@ together in one folder, `plugins/project-init/library/`:
 | `library/templates/` | copy-and-fill starting points |
 | `library/guides/` | how-to documents for installing the kits above |
 
+The general set includes `knowledge-direct-commit.md`: the unscoped route for
+authorized documentation publication, even with knowledge disabled. Setup and
+sync install it alongside the parallel-work rule; root files only point to it.
+Behavior-bearing instructions and mixed changes keep their implementation route.
+
 None of it belongs to `project-init`. `project-sync` reads the same folder, and
 so can anything else added later. It sits inside the `project-init` plugin for
 one reason: a plugin ships only the files inside its own folder, so a `library/`

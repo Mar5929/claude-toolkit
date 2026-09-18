@@ -404,7 +404,10 @@ CLAUDE.md stays thin and points at that folder. Read
   generating a wall of text: what the project is, a `Read .claude/rules` line,
   the knowledge startup route where Gate 3 ran, the codemap, the tools, and
   the short quick-save table, and where work is tracked. Take the quick-save
-  wording from `references/thin-claudemd.md`. Include only configured systems:
+  wording from `references/thin-claudemd.md`. Unless the owner explicitly opted
+  out, route documentation saves to `knowledge-direct-commit.md` even when
+  Gate 3 was skipped. Name actual
+  documentation locations from the codemap. Include only configured systems:
   `knowledge/` when Gate 3 ran and `.work-items/` when Gate 1 selected local
   tracking. Point to the owning instructions; do not copy their procedures or
   imply that an absent or declined system exists. Take the work-tracking wording from
@@ -412,14 +415,14 @@ CLAUDE.md stays thin and points at that folder. Read
   how a refined ticket is marked. Reflect what the earlier gates set up. Keep
   behavioral rules out of the file, and keep the knowledge policy out of it:
   the route names the manual and map once, and copies nothing from it.
-- **Install the matching quick-save rules.** A project with Gate 3 knowledge
-  receives `knowledge-direct-commit.md`; a project with local `.work-items/`
-  receives `work-item-folders.md`. The knowledge rule is the narrow exception
-  to the normal worktree rule: an approved knowledge-only update lands through
-  the primary checkout on the default branch even while implementation work is
-  in another worktree. The local tracker remains the existing shared,
-  Git-ignored store and never gets a worktree, commit, or push. Do not install
-  either rule for a system the project did not select.
+- **Install publication guidance independently of knowledge.** Copy the
+  default-ON, unscoped `knowledge-direct-commit.md` even when Gate 3 was skipped,
+  unless the owner explicitly opted out. Remove legacy path-scoped frontmatter
+  when replacing an older managed copy. The rule owns documentation eligibility,
+  checks, concurrency, and publication; code/configuration and behavior-bearing
+  instructions keep the implementation route. A local `.work-items/` tracker
+  alone receives `work-item-folders.md`; its existing Git-ignored store needs no
+  worktree, commit, or push. Preserve an explicit publication-policy opt-out.
 - **Keep the codemap to one line per folder**, and let that line point at the
   folder's own `CLAUDE.md` for the detail. Every line says what is in the folder
   and when to open it.

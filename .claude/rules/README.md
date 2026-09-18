@@ -22,8 +22,8 @@ genuinely could not help another project.
 
 | File | What it does |
 |---|---|
-| `parallel-agent-sessions.md` | Sharing a repo with other live sessions: look before you edit, work in your own worktree and branch, never `git add -A`, land by pull request. |
-| `knowledge-direct-commit.md` | A save that touches only `knowledge/` commits straight to the default branch. No worktree, no pull request. The owner-approved exception to `parallel-agent-sessions.md`; the knowledge manual still decides what may be saved. |
+| `parallel-agent-sessions.md` | Isolate implementation and use an approved pull request; authorized documentation follows the direct-publication exception. Coordinate shared edits and preserve others' staged work. |
+| `knowledge-direct-commit.md` | Unscoped documentation publication route, independent of knowledge activation. Authorized documentation-only changes are checked, committed, pushed, and remotely verified on the default branch; behavior-bearing instructions and mixed changes retain the implementation route. |
 | `offer-context-handoff.md` | When context is heavy and the next step is reasoning-heavy, offer a self-contained handoff prompt, after running the memory check. |
 | `plain-english-artifacts.md` | The words inside every diagram, chart, dashboard, visualization, slide deck, or generated document an agent makes follow the output style: about the subject only, headings that name what sits under them, the real name for every thing, plain wording. It decides the words, never the layout. Chat, code, README files, and issue text are not covered. |
 | `work-item-stages.md` | Unscoped lifecycle guidance for active-item orientation, faithful progress, flexible stages, type-aware approval, handoff, and accepted completion. Local code checks objective facts. |

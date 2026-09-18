@@ -3,6 +3,11 @@
 What this repository set up from its own toolkit, what it skipped, and why. A
 later `project-sync` run reads this so a considered "no" is not offered again.
 
+2026-09-18 targeted update from project-init 0.73.0: refreshed the unscoped
+documentation publication rule and paired parallel-work exception, their local
+catalog, and the root publication pointer. This is not a full project-sync run
+or proof that another project received the change. No hooks were added.
+
 Synced against: `project-init` 0.34.0, on 2026-08-04, for GitHub issue #138.
 
 Changed since, on 2026-08-06, for GitHub issue #149: this repository replaced

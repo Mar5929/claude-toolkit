@@ -57,7 +57,8 @@ When .system-guide.json is enabled, use the System Guide plugin's system-guide s
 
 | Path | How updates land | Instructions |
 | --- | --- | --- |
-| `knowledge/` | Save an approved knowledge-only update directly to the default branch, then commit and push, even while implementation work continues in a worktree. | `knowledge/README.md` and `.claude/rules/knowledge-direct-commit.md` |
+| `README.md`, `delivery/architecture/`, `docs/designs/` | Authorized documentation-only updates use the direct publication route. | `.claude/rules/knowledge-direct-commit.md` |
+| `knowledge/` | Follow the knowledge manual for content approval, then the documentation publication route. | `knowledge/README.md` and `.claude/rules/knowledge-direct-commit.md` |
 
 ## Where work is tracked
 
@@ -106,4 +107,6 @@ project that selected local tracking adds this row as well:
 | `.work-items/` | Update the existing shared, Git-ignored local tracker. Do not create a worktree, commit, or push for the tracker update. | `.claude/rules/work-item-folders.md` and the `work` skill |
 ```
 
-Omit the whole Quick saves section when no quick-save locations are configured.
+Keep the documentation-publication row even without knowledge or local tracking,
+unless the owner opted out. Replace its example paths with the actual project's
+documentation locations; do not create missing example folders.
