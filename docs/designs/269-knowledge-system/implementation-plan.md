@@ -183,9 +183,10 @@ Apply the owner's 2026-09-18 language requirement throughout: no jargon or
 figurative language; explicit conditions, actions, permissions, checks, and
 failure handling. Explain necessary exact technical names. Review meaning,
 not just forbidden words or length. Remove repetition without losing detail.
-Evaluate the design's proposed core-manual/task-specific split using the four
+Implement the core-manual/task-specific arrangement approved by Mike on
+2026-09-18, after full design/build authorization, using the four
 existing planned skills and their references. Preserve all R2 startup topics;
-exact division needs review before implementation. Test that each task loads
+exact content requires the audit below before implementation. Test that each task loads
 its necessary detail, including after context recovery, without loading every
 procedure for every session.
 
@@ -207,7 +208,8 @@ layout and six-skill map; blanket memory approval fields; `remember` forbidding
 pending queuing; `retire` forbidding commit/push; and missing explicit coverage
 of the newly approved automatic-save and helper workflow. These describe the
 current implementation, not permission to edit live instructions during design.
-The separately committed Notes workflow is not assumed installed on main.
+The Notes workflow has since merged at c77082e; reconcile against that source
+while distinguishing repository delivery from project refresh.
 
 Acceptance requires an independent meaning review against every requirement,
 plus fresh-agent scenarios in both a newly equipped project and an upgraded
@@ -406,6 +408,101 @@ Every row needs objective or behavioral evidence appropriate to its claim. Packa
 | 28 Inbox | E1-P1/P4/P8 | Exact card, durable authority, pending/conflict/resume/idempotent completion. |
 | 29 Native judgment | D1-P1, E1-P4/P5/P8 | Lean reminders/receipts, narrow objective checks, no semantic engine. |
 | 30 OS integration | E1-P2/P6/P7/P8, F1-P1 | One owner per record; tracker/manual/publication integration and rollout proof. |
+
+## Instruction audit baseline — 2026-09-18
+
+This is a source-level coverage audit, not completion of the future instruction
+rewrite or a fresh-session acceptance test. The local checkout includes the
+approved #269 refinements; `origin/main` at c77082e includes the merged document
+Notes workflow. Inspect both until the shared checkout is safely reconciled.
+The merged Notes guidance is shipped source, but project refresh is separate.
+
+The table names the instruction owner and content to reconcile for every
+requirement. Package owners above own the work. The earlier evidence matrix
+supplies each row's acceptance scenario. Every row remains open for final text
+review and observed behavior; no row is passed merely because a source exists.
+
+Source names below resolve to these existing locations:
+
+- Manual: `plugins/second-brain/skills/second-brain/references/templates/knowledge/knowledge-manual.md`, installed as `knowledge/knowledge-manual.md`.
+- Skills: `plugins/second-brain/skills/`; old recall/remember/retire/reflect/session-search/second-brain procedures migrate to the four selected skills.
+- Cards: `remember/references/proposal-template.md` within that skill directory.
+- Templates: `second-brain/references/templates/` within that skill directory; destination is the planned knowledge-setup family.
+- Hooks: `plugins/second-brain/hooks/`; tools: `plugins/second-brain/tools/`; installed copies and registration are under `.claude/` and `.codex/` as applicable.
+- Integration: session-skills guidance, project-init setup/sync and rules, work-tracker guidance, and `knowledge/toolkit-manual.md`. Preserve component owners and configured paths.
+
+| R | Owning instruction and consuming surfaces | Required content reconciliation |
+| --- | --- | --- |
+| 1 | Manual routing; setup/templates/tools | Keep editable records and one owning location; explain rename/deletion recovery and new layout. |
+| 2 | Manual startup; root routes; startup hook; skills | Correct required read order, complete-read acknowledgment and missing-content handling; remove unconditional whole-manual rereads from remember and reminder. |
+| 3 | Manual obligations; save/review skills; completion and action hooks | Describe required outcomes, affected-work pauses and recovery; a reminder or invocation alone is insufficient. |
+| 4 | Manual continuation; current/inbox templates; handoff/work guide | Resume from current records and document Notes; distinguish pending saves from delivered work. |
+| 5 | Manual find policy; knowledge-find | Select relevant sources before broad investigation without imposing unnecessary lookup for every action. |
+| 6 | Manual trust; find/save references | Cite the actual source and date where required; do not use an index line as evidence. |
+| 7 | Manual glossary route; find/setup/templates | Define glossary location, table format, aliases and excluded index treatment. |
+| 8 | Manual source routing; find/setup/index instructions | Add source-capture metadata and grouped index guidance; preserve external text as source material. |
+| 9 | Manual saving; save skill; helper assignment; hooks | Explicit parallel assignment, verified commit/push, quiet review, ready-save grouping and durable recovery; remove routine no-result announcements. |
+| 10 | Manual permission; save/review/setup; fields/checker | Distinguish individual approval, existing scope and automatic-save setting; store the grant once and auto-save indication per memory. |
+| 11 | Manual selection; save/review; reminder | Preserve project relevance and significance; real-fix exception must survive reminder wording. |
+| 12 | Manual exclusions; save/review; reminder | Reject unsuitable lasting memory without discarding valid PRD, task or procedure updates; remove blanket rejection of useful failure lessons. |
+| 13 | Manual working state; current template; checker/handoff | New location and structure, multiple concurrent items, 5,000-character requirement instead of current 2,000. |
+| 14 | Manual fields; templates; save/lifecycle/checker | Topic and subtopic ownership, source/context/group/update fields, automatic-save marker and conditional approval fields. |
+| 15 | Both manuals; all skills/references/cards/examples/hook wording | Literal plain language, explained exact names, enough operational detail, no metaphor or jargon; check proposals and saved text. |
+| 16 | Manual PRD rules; templates; requirements/design/upkeep skills | R16 finalization records approved requirements, not proof of delivery; remove remember's built-first definition. Preserve bottom Notes and shared PRD versus local work-item requirement ownership. |
+| 17 | Manual routing; save and integration guidance | Identify actual portable skill-authoring procedure and its permissions; local machine availability does not establish toolkit delivery. |
+| 18 | Manual routing; all knowledge skills; component guidance | Route by information kind, scope and owner before memory eligibility; avoid duplicate authorities. |
+| 19 | Manual find order; find/history adapter | Reconcile stop-at-first-answer wording with conflicts, current verification and missing context; history availability must be explicit. |
+| 20 | Manual proposal summary; Cards; save/review | Replace old Why/Where/From/Unsure/Checked card with required destination sections and Change/Summary/Your decision; resolve material uncertainty first. |
+| 21 | Manual validation; index/checker instructions; setup | Three grouped indexes, actual field/size rules and saved-text readback; existing static checks prove only the old contract. |
+| 22 | Manual lifecycle; save/review; retirement references | Keep changed truth in the owning topic; shared complete save procedure; remove retire's no-commit/push boundary and avoid automatically creating replacements. |
+| 23 | Manual feedback; review/save/template/checker | Actual owner feedback and source; revisit fixed 8,000-character cap against R21 and selected feedback design. |
+| 24 | Four skill descriptions; catalogs; root routes | Plain-language requests select the correct procedure without requiring skill names. |
+| 25 | Manual/skill host-neutral wording; Codex setup/hooks | Same required outcomes on Codex, actual supported coverage, no Claude-only instruction treated as universal. |
+| 26 | Setup/host references; hook instructions | Current official contracts and tested versions; no unsupported event or enforcement claim. |
+| 27 | Setup/sync/manual/root routes/manifests | Complete opt-in activation, trusted hooks, coherent installed text and migration; source merge is not target adoption. |
+| 28 | Manual pending state; Cards/save/review/inbox template | Remove no-queue-on-silence instruction; preserve unanswered proposals without approving them and recover authorized interrupted saves. |
+| 29 | Manual responsibilities; skills/hooks/helper contracts | Agent selects meaning; scripts check objective conditions; acknowledgments neither approve nor prove understanding. |
+| 30 | Both manuals; all integration entry points | Consistent record ownership, scoped permissions and publication; account for merged Notes workflow and still-planned consolidated work-item storage. |
+
+### Independent source review findings
+
+A separate read-only review confirmed the main content risks against the PRD:
+
+- R13: the current template has one item and a 2,000-character cap; the required
+  file has project context and multiple active items, at the new path, with the
+  5,000-character cap. Changing only its filename is insufficient.
+- R14: the manual's flat layout omits required group, context, and update fields
+  and the allowed topic/subtopic structure.
+- R22: the manual lifecycle section and retire steps require a replacement file;
+  the PRD requires changed truth to remain in its owning topic file. Rewrite the
+  procedure and its examples together with validation.
+- R11: the manual's broad list of lasting facts lacks the PRD's significance
+  test; the reminder also needs the carefully scoped real-fix exception.
+- R16: remember currently ties finalized status to a finished build; requirements
+  approval and delivered behavior are separate in the PRD. Reconcile this in all
+  trust/status wording, not just the write procedure.
+- R23: the feedback path, logging shape, and 8,000-character limit describe the
+  current implementation, not an approved requirement to preserve them.
+
+These findings remain in merged c77082e source; the Notes changes do not resolve
+them. The audit therefore cannot certify current instruction content as aligned.
+
+### Technical validation completed and still required
+
+Executed in the current checkout: 39 startup-contract checks and 22 installed-copy
+checks passed. These test existing code and copy consistency. The proposed
+`plugins/second-brain/tests/` suite does not exist yet. No new-host behavior is
+claimed, and no installed settings or runtime were changed by this audit.
+
+Source inspection confirms two immediate limits: the current startup loader
+prints content in its old order, and the current reminder carries conflicting
+policy text. Neither can serve unchanged as evidence for the approved design.
+D1-P1 must use isolated proof fixtures and record actual host/version, effective
+trusted configuration, observations and failures for H1–H6. First prove startup
+instruction, actual content delivery, acknowledgment, and missing-content
+handling; next prove parallel helper lifetime/results/recovery and bounded
+completion. Current passing tests cannot substitute for those model-session
+proofs. Keep claims about CLI and desktop behavior separate.
 
 ## Milestone exits and publication
 

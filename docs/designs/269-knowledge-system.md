@@ -700,11 +700,11 @@ copies do not establish correctness. Require independent content review and
 fresh-agent behavior in new and upgraded projects before acceptance. Do not
 activate future policy piecemeal while current skills and checkers disagree.
 
-### Proposed division of instruction content
+### Approved division of instruction content
 
-Mike asked on 2026-09-18 whether all instructions should be read at startup.
+Mike approved this arrangement on 2026-09-18 after reviewing the recommendation.
 R2 requires the core knowledge manual to be read in full, but already permits
-operation details to be opened when needed. The recommendation is:
+operation details to be opened when needed. The approved arrangement is:
 
 - **Core manual, read at startup:** information destinations and exclusions,
   source authority, save-review obligations, permission boundaries, required
@@ -727,9 +727,10 @@ All manuals and referenced instructions must be literal, clear, and explicit,
 without jargon or figurative language. Necessary exact technical names remain
 accurate and are explained. Include conditions, actions, permission, checks,
 and failure behavior; remove repeated explanations and unnecessary prose.
-Evaluate the proposed split through fresh-session outcomes, missed instructions,
+Validate this split through fresh-session outcomes, missed instructions,
 retrieval overhead, and context size. Do not choose a word limit first or remove
-required policy just to shorten startup. This exact division remains proposed.
+required policy just to shorten startup. Exact file contents still require the
+requirement-by-requirement audit; this approval does not authorize implementation.
 
 ## 7. Requirement coverage and proof
 
@@ -1047,10 +1048,13 @@ for the initial implementation after reviewing the function-hooks comparison.
 Function hooks remain a future candidate if evidence supports a benefit.
 This does not authorize implementation or approve the full design.
 
-**Resume here:** review the proposed division of instruction content, then
-complete the technical proof and reconciliation tasks below before full approval. The three behavior decisions discussed
-here are settled; record any new decision exposed by investigation before relying
-on it.
+**Resume here:** draft the actual core knowledge manual first, then the
+applicable skill instructions, templates, and rules using the instruction audit.
+Prepare behavior-bearing drafts in an isolated implementation worktree; review
+wording before supporting code and hooks, and activate them together. Mike asked
+to continue on another computer or in a new project/session from this exact
+point. Read these Notes and the linked audit; do not reopen settled decisions.
+Technical proofs and full design/build approval remain outstanding.
 
 **GitHub task summary to publish:** solution design is in progress, with
 requirements refinement where needed. The outstanding decisions, design tasks,
@@ -1064,16 +1068,18 @@ tracker update; it is not applied merely by pushing the documents.
 
 ### Outstanding decisions
 
-The three earlier behavior decisions are settled. The proposed division of
-instruction content above is now open for review: a complete core manual plus
-operation details in existing skills and references. Full requirements/design
-approval and build authorization remain outstanding.
+The earlier behavior decisions and core-manual/task-specific arrangement are
+approved. No owner choice remains from this discussion. Record any new tradeoff
+found during the audits and proofs. Full requirements/design approval and build
+authorization remain outstanding.
 
 ### Tasks
 
 These are investigation work, not questions for Mike to answer about APIs.
 
-- **Instruction content, not only delivery:** audit all R1–R30 requirements
+- **Instruction content, not only delivery:** the [source audit baseline](269-knowledge-system/implementation-plan.md#instruction-audit-baseline--2026-09-18) now maps all R1–R30 requirements
+  to instruction owners and required changes. Complete the final text review
+  and behavior evidence; this baseline is not instruction acceptance. Audit all R1–R30 requirements
   against the full manuals, root instructions/rules, skills and references,
   helpers, templates/examples, hook wording, and setup/sync instructions. The
   [implementation plan](269-knowledge-system/implementation-plan.md#required-instruction-content-audit)
@@ -1107,6 +1113,11 @@ These are investigation work, not questions for Mike to answer about APIs.
   full requirements/design approval and build authorization separately.
 
 ### Recorded notes
+
+- Mike approved the instruction arrangement on 2026-09-18: read the complete
+  core manual at startup, the applicable task procedure before acting, and
+  templates/examples when needed. Use the four selected skills and references;
+  preserve required startup topics and avoid unnecessary files or repetition.
 
 - Work-tracker dependency update, reported by the owning task on 2026-09-18:
   Mike selected one local `WORK-ITEM.md` containing overview/status, tasks,

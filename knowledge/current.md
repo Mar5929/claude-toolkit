@@ -10,23 +10,23 @@ Designs use [handshakes](prds/toolkit-operating-system/toolkit-operating-system.
 ## Active work
 
 ### Knowledge System — #269
-Updated: 2026-09-17
+Updated: 2026-09-18
 
-**Goal** Ship reliable knowledge lookup, upkeep, and saves.
+**Status** Runtime not built. Mike will resume on another computer or in a new
+project/session from this point.
 
-**Current status** Task D1: autonomous design reconciliation and implementation planning authorized Sept 17; runtime work has not started.
+**Next** Draft the core manual, then task instructions/templates/rules, in an
+isolated worktree. Review drafts before code; activate both together. Host proofs
+and full design/build approval remain. Do not restart settled decisions.
 
-**Recent progress**
-- Acme: core knowledge, `delivery/architecture/`, no Guide. Master preserves detailed parts and flows; startup read/ack and every-prompt reminder guide the design.
+**Decisions** Four skills; core manual at startup, task detail when needed;
+ordinary hooks; explicit parallel save helper; plain language/no metaphors;
+auto-save grant recorded once; quiet completion review; combine ready saves only.
 
-**Next step** Implementation plan independently reviewed. Review its recommended baseline and start D1-P1 host proofs before dependent production work.
-
-**Blocker** Requirements/design approval before build.
-
-**To-dos**
-- Resolve evidence and material policy choices without inventing approvals; retain Acme as acceptance scenario.
-
-**Detailed record** [Task D1](https://github.com/Mar5929/claude-toolkit/issues/269#task-d1--review-and-finalize-the-solution-design); [implementation plan](../docs/designs/269-knowledge-system/implementation-plan.md).
+**Resume records** Read [design Notes](../docs/designs/269-knowledge-system.md#notes),
+[PRD Notes](prds/toolkit-operating-system/knowledge-system.md#notes), then the
+[instruction audit/plan](../docs/designs/269-knowledge-system/implementation-plan.md#instruction-audit-baseline--2026-09-18).
+Instruction drafts and host proofs remain.
 
 ### Guided work management — #337
 Updated: 2026-09-17
@@ -40,4 +40,4 @@ Updated: 2026-09-17
 **Record** [Issue #337](https://github.com/Mar5929/claude-toolkit/issues/337).
 
 ## General project to-dos
-- Review/merge pushed `codex/document-notes-continuity`.
+- Notes workflow merged; project refresh remains. Single-file tracker is planned.

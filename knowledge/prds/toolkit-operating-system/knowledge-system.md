@@ -2166,16 +2166,20 @@ the explicit ban on jargon and figurative language in memory and proposals are
 recorded requirements. Saving these updates does not mean the full requirements
 or solution design are approved, or that implementation may begin.
 
-**Resume here:** finish the requirements consistency and acceptance-check review
-below alongside the solution design's technical proofs, then request full
-requirements approval. Do not reopen the three behavior decisions settled here.
+**Resume here:** draft the actual core knowledge manual first, then the
+applicable skill instructions, templates, and rules using the instruction audit.
+Prepare behavior-bearing drafts in an isolated implementation worktree; review
+wording before supporting code and hooks, and activate them together. Mike asked
+to continue on another computer or in a new project/session from this exact
+point. Read these Notes and the linked audit; do not reopen settled decisions.
+Technical proofs and full design/build approval remain outstanding.
 
 ### Outstanding decisions
 
-The earlier three behavior decisions are settled. Mike has now asked whether
-the instruction content should be split into a core manual and task-specific
-detail. R2 already permits detailed guidance to be read when needed; the exact
-division remains a design proposal. Full requirements approval is outstanding.
+The earlier behavior decisions and the core-manual/task-specific arrangement
+are approved. Read the complete core manual at startup, the applicable procedure
+before acting, and formats/examples when needed. Preserve R2 startup topics.
+The instruction-content audit and full requirements approval remain outstanding.
 
 ### Tasks
 
@@ -2202,8 +2206,9 @@ division remains a design proposal. Full requirements approval is outstanding.
 
 - On 2026-09-18, Mike required clear, explicit manuals without jargon or
   figurative language: detailed enough to act correctly, without unnecessary
-  length. He asked to evaluate how to divide the instructions; he did not
-  approve a particular file structure or removal of required startup content.
+  length. He subsequently approved the core manual plus task-specific
+  instructions arrangement. This does not remove required startup content or
+  authorize implementation before full design review.
 
 - Approved 2026-09-18: related approved saves may share a commit when ready
   together. Preserve each scope and result; do not delay a ready save or expand
