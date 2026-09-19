@@ -1031,9 +1031,83 @@ Continue from [Notes](#notes) below. It holds the current review position,
 outstanding decisions, and design tasks. Update the affected design section as
 each point is settled; update the PRD when required behavior changes.
 
+### Proposed refinements after memory-provider research — 2026-09-19
+
+**Status:** proposed for review. Mike authorized preparing this comparison in
+the existing design and preserving the previous version in Git. This records
+proposals; it does not replace the selected behavior in sections 6–12, approve
+new requirements, or authorize runtime implementation. The baseline is
+[the design before this proposal](https://github.com/Mar5929/claude-toolkit/blob/5cce5597e2f69b9121e537749548672f77e8d860/docs/designs/269-knowledge-system.md).
+Keep this one living design; no second design or separately maintained copy.
+
+**Question being answered:** how does a fresh agent reliably learn and follow
+the knowledge system, with useful guidance available at the right moment and
+without unnecessary instruction overhead?
+
+Two GPT-5.6 Sol researchers inspected official repository code for Hindsight,
+claude-mem, Supermemory, and Mem0. Their findings support distributing guidance
+between startup, task instructions, tool descriptions, and lifecycle events.
+They do not establish that fewer words improve this toolkit's behavior, nor
+that another provider's automatic extraction meets this project's requirements.
+
+| Area | Already agreed or planned | Proposed refinement and reason |
+| --- | --- | --- |
+| Core manual and skills | Section 6 already divides startup policy, four task skills, and applicable examples/formats. | Keep this arrangement. Draft the actual words and trace each responsibility to its owning instruction; research does not require another manual or architecture. |
+| Every-message reminder | Section 6.5 requests review on each user message and includes substantial policy plus an intent acknowledgment. Exact wording is under review. | Compare the existing draft against a shorter reminder that points to current canonical guidance. Preserve review frequency, scope, and acknowledgment obligations unless separately changed; measure missed candidates and repeated context cost before selecting wording. |
+| Retrieving prior knowledge | Existing lookup instructions route questions to requirements, memory, the configured guide, or the work tracker. | Make the entry condition explicit in the draft lookup skill: when a request depends on prior decisions or required behavior, open the relevant owning records before recommending a change. Use one canonical lookup procedure. Broader interviewing/pushback behavior remains in [task #358](https://github.com/Mar5929/claude-toolkit/issues/358). |
+| Recovery | Required current core and task guidance must be available again after context loss; a receipt alone proves no understanding. | Keep the architecture. Include a concrete test where the agent resumes a save after context loss, retrieves the needed procedure, preserves approval scope, and reports the actual save state. This sharpens existing tests rather than introducing a new recovery service. |
+| Confidence and instruction cost | Sections 7, 8, and 10 already require content review, fresh-agent outcomes, context measurements, and host proofs. | Compare reminder variants on the same representative tasks and repeated fresh/long/recovered sessions. Record missed useful information, unnecessary proposals, source-selection errors, approval mistakes, false completion claims, and context cost. Choose wording from those results; no universal word cap or promise of perfect understanding. |
+
+#### First review: shorter reminder candidate
+
+The following is a candidate for comparison, not installed prompt text:
+
+> Evaluate the user's message and relevant conversation for useful project
+> information to retain, correct, or update. Follow the current knowledge manual
+> for eligibility, destination, approval, and the applicable procedure. Restore
+> missing or stale guidance before the affected operation. Acknowledge intent
+> to review; report saving as complete only after its required checks succeed.
+
+Read this alongside section 6.5 and the requirement audit. The candidate must
+still lead agents to review short-term context and other owning records as well
+as lasting memory. A link is not proof that its instructions were read. Its
+acknowledgment is still intent, not completion. Completion review remains a
+separate checkpoint. Any omitted obligation must remain available in the core
+manual or applicable procedure and be demonstrated in behavior tests.
+
+#### What the research supports, and its limits
+
+- **Hindsight:** its [agent skill](https://github.com/vectorize-io/hindsight/blob/0a58d695adee239c8990ef30eacf66ebca54094f/hindsight-integrations/agent-plugin/skills/hindsight-memory/SKILL.md)
+  teaches deliberate recall/retain/reflect. Its separate automatic integration
+  uses [hooks](https://github.com/vectorize-io/hindsight/blob/0a58d695adee239c8990ef30eacf66ebca54094f/hindsight-integrations/claude-code/hooks/hooks.json)
+  and an extraction mission in [settings](https://github.com/vectorize-io/hindsight/blob/0a58d695adee239c8990ef30eacf66ebca54094f/hindsight-integrations/claude-code/settings.json).
+  These are distinct modes, not evidence that its primary agent follows a full
+  memory manual at startup.
+- **claude-mem:** the working agent gets a compact index and retrieval directions
+  through its [context formatter](https://github.com/thedotmack/claude-mem/blob/adce0fdfaf1cd46646bbd0b22ae74cbd460ed787/src/services/context/formatters/AgentFormatter.ts).
+  A separate observer receives the detailed [extraction instructions](https://github.com/thedotmack/claude-mem/blob/adce0fdfaf1cd46646bbd0b22ae74cbd460ed787/plugin/modes/code.json).
+  Moving those instructions to another model reduces the working agent's burden
+  by moving responsibility; it does not eliminate the instructions.
+- **Supermemory:** its [startup hook](https://github.com/supermemoryai/claude-supermemory/blob/915aba1b8056ddb3630fa833973032ba6b788fdb/plugin/hooks/session-start.js)
+  and [recall hook](https://github.com/supermemoryai/claude-supermemory/blob/915aba1b8056ddb3630fa833973032ba6b788fdb/plugin/hooks/recall-directive.js)
+  supply profile and relevant context. Automatic capture delegates extraction
+  to the service. Public integration code does not expose every hosted prompt.
+- **Mem0:** its [hook runner](https://github.com/mem0ai/mem0/blob/a39a802bbc93e85b820078cd3c4dbaf53af25dbe/integrations/agent-plugin-core/python/hook_runner.py)
+  handles lifecycle capture/retrieval, while its [remember skill](https://github.com/mem0ai/mem0/blob/a39a802bbc93e85b820078cd3c4dbaf53af25dbe/integrations/claude-code-plugin/skills/remember/SKILL.md)
+  supplies focused instructions and distinguishes an intended save from completed
+  extraction. Its full plugin and direct hosted MCP integration have different
+  capabilities.
+
+The recommendation remains agent judgment, owner approval where required,
+Markdown/Git as authority, ordinary command hooks, and objective checks. No
+automatic memory writer, separate semantic supervisor, new database, or provider
+adoption is proposed here. Consider a different allocation of memory judgment
+only as an explicit architecture/requirements decision supported by observed
+failures and comparison evidence.
+
 ## Notes
 
-Updated: 2026-09-18. This is the starting point for the remaining design
+Updated: 2026-09-19. This is the starting point for the remaining design
 discussion. Keep the open decisions, tasks, and review notes together here so
 Mike can continue from this document. Review one decision at a time. Record each
 answer and update the affected design section. Requirements still belong in the
@@ -1048,7 +1122,10 @@ for the initial implementation after reviewing the function-hooks comparison.
 Function hooks remain a future candidate if evidence supports a benefit.
 This does not authorize implementation or approve the full design.
 
-**Resume here:** draft the actual core knowledge manual first, then the
+**Resume here:** review the [proposed refinements](#proposed-refinements-after-memory-provider-research--2026-09-19)
+one point at a time, starting with the shorter reminder candidate. Mike authorized
+preparing this comparison on 2026-09-19; the exact revision remains under review.
+Then draft the actual core knowledge manual first, followed by the
 applicable skill instructions, templates, and rules using the instruction audit.
 Prepare behavior-bearing drafts in an isolated implementation worktree; review
 wording before supporting code and hooks, and activate them together. Mike asked
@@ -1108,9 +1185,10 @@ tracker update; it is not applied merely by pushing the documents.
 ### Outstanding decisions
 
 The earlier behavior decisions and core-manual/task-specific arrangement are
-approved. No owner choice remains from this discussion. Record any new tradeoff
-found during the audits and proofs. Full requirements/design approval and build
-authorization remain outstanding.
+approved. The 2026-09-19 comparison is proposed: review its reminder wording and
+retrieval/test refinements before adopting changes to the affected sections.
+Record any additional tradeoff found during the audits and proofs. Full
+requirements/design approval and build authorization remain outstanding.
 
 ### Tasks
 
