@@ -1,3 +1,6 @@
+// Existing regression suite exercises retained legacy records. New Markdown
+// creation and operations are covered by consolidated-record.test.mjs.
+import { parseDocument } from "../skills/work/scripts/lib/work-item-document.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
@@ -11,7 +14,10 @@ import {
   readYaml,
   stableYaml,
 } from "../skills/work/scripts/lib/common.mjs";
-import { loadTracker, updateItem } from "../skills/work/scripts/lib/tracker.mjs";
+import {
+  loadTracker,
+  updateItem,
+} from "../skills/work/scripts/lib/tracker.mjs";
 
 test("open questions and later answers in user notes survive tracker updates", () => {
   const repo = makeRepo();
@@ -72,7 +78,30 @@ function work(repo, args, options = {}) {
 
 function jsonWork(repo, args, options = {}) {
   const result = work(repo, [...args, "--json"], options);
-  return { ...result, json: result.stdout ? JSON.parse(result.stdout) : null };
+  const json = result.stdout ? JSON.parse(result.stdout) : null;
+  if (args[0] === "add" && result.status === 0 && json?.item) {
+    // Test fixture only: establish an existing pre-release item. The production
+    // command never writes or converts these legacy files for new items.
+    const dir = path.resolve(repo, json.item.path);
+    const file = path.join(dir, "WORK-ITEM.md");
+    const doc = parseDocument(fs.readFileSync(file, "utf8"));
+    fs.writeFileSync(path.join(dir, "ITEM.yaml"), stableYaml(doc.record));
+    fs.writeFileSync(path.join(dir, "TASKS.yaml"), stableYaml(doc.roadmap));
+    fs.writeFileSync(
+      path.join(dir, "REQUIREMENTS.md"),
+      `---\n${stableYaml(doc.requirements.meta)}---\n${doc.requirements.body}`,
+    );
+    fs.writeFileSync(
+      path.join(dir, "HISTORY.ndjson"),
+      doc.history.map((e) => JSON.stringify(e)).join("\n") + "\n",
+    );
+    fs.writeFileSync(
+      path.join(dir, "STATUS.md"),
+      `# ${doc.record.id}: ${doc.record.title}\n\n<!-- work-tracker:progress-log:start -->\n## Progress log\n\n<!-- work-tracker:progress-log:end -->\n\n<!-- work-tracker:user-notes:start -->\n## User notes\n\n<!-- work-tracker:user-notes:end -->\n`,
+    );
+    fs.unlinkSync(file);
+  }
+  return { ...result, json };
 }
 
 function init(repo) {

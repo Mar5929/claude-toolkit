@@ -15,6 +15,8 @@ import {
 } from "./lib/common.mjs";
 import {
   addItem,
+  editItemDocument,
+  recoverTracker,
   addRoadmapStage,
   addTask,
   activeItem,
@@ -44,7 +46,7 @@ import {
   completeTask,
 } from "./lib/tracker.mjs";
 
-const VERSION = "2.6.0";
+const VERSION = "2.8.0";
 
 export async function main(argv = process.argv.slice(2)) {
   const { positionals, flags } = parseArgs(argv);
@@ -73,6 +75,17 @@ export async function main(argv = process.argv.slice(2)) {
       result = migrateLegacyTracker(repoRoot, {
         from: flags.from === true ? undefined : flags.from,
         apply: Boolean(flags.apply),
+      });
+      break;
+    case "recover":
+      assertAllowedFlags(flags, ["cwd", "json"]);
+      result = recoverTracker(repoRoot);
+      break;
+    case "edit":
+      assertAllowedFlags(flags, ["cwd", "input", "expected-hash", "json"]);
+      result = editItemDocument(loadTracker(repoRoot), positionals[1], {
+        inputPath: path.resolve(requiredFlag(flags, "input")),
+        expectedHash: requiredFlag(flags, "expected-hash"),
       });
       break;
     case "add": {
@@ -406,6 +419,8 @@ Usage:
   work migrate [--from work-items] [--apply]
   work add --title TITLE --description DESCRIPTION --priority medium --type task --next-step STEP
     [--group FOLDER]
+  work edit WI-001 --input FILE --expected-hash SHA256
+  work recover
   work requirements WI-001
   work requirements WI-001 --finalize --approved-by NAME
   work requirements WI-001 --reopen
@@ -453,7 +468,7 @@ Stages: 01-discovery, 02-refinement, 03-requirements-approved, 04-solution-desig
 05-breakdown, 06-implementation-plan, 07-tracking-setup, 08-build, 09-testing,
 10-bug-fixing, 11-user-approval, 12-pr-and-push, 13-deployment, 14-spec-update.
 --stage takes a number, a name, or both. It sets the stage, derives the status,
-and appends a dated line to the Progress log in STATUS.md. An item with no stage
+and appends a dated line to Recent History (legacy: STATUS.md Progress log). An item with no stage
 is normal. work-item-stages.md decides which stage is correct; nothing here does.
 Requirements statuses: refining, finalized.
 Types: discovery, solution-design, build, data-load, repository-maintenance, research, task, or a custom lower-case kebab-case type. Only build and data-load require finalized requirements in code.

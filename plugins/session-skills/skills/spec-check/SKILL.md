@@ -17,7 +17,7 @@ approval before any building starts.
   because a `current` one describes what is already there rather than what is
   being asked for.
 - A ticket body: a GitHub issue, a Linear ticket, or a local work item's
-  `REQUIREMENTS.md`.
+  Requirements section in `WORK-ITEM.md` (legacy: `REQUIREMENTS.md`).
 - A supplied conversation draft. Identify it as unsaved and review the actual
   text without inventing a file path, tracker update, or approval.
 

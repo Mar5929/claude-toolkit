@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import { createHash, randomUUID } from "node:crypto";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 
@@ -191,7 +192,24 @@ export function atomicWriteYaml(filePath, value) {
   atomicWrite(filePath, stableYaml(value));
 }
 
-export function atomicBatchWrite(entries) {
+export function atomicBatchWrite(entries, options = {}) {
+  // One document needs only one atomic replacement, with no backup-rename gap.
+  if (entries.length === 1 && entries[0].expectedHash !== undefined) {
+    const entry = entries[0];
+    if (
+      !fs.existsSync(entry.path) ||
+      createHash("sha256").update(fs.readFileSync(entry.path)).digest("hex") !==
+        entry.expectedHash
+    ) {
+      throw new WorkError(
+        `Record changed before saving ${entry.path}; reread it and reapply the unsaved update`,
+        "stale_document",
+      );
+    }
+    atomicWrite(entry.path, entry.content);
+    return;
+  }
+  let journal;
   const nonce = `${process.pid}.${Date.now()}`;
   const prepared = [];
   try {
@@ -205,7 +223,19 @@ export function atomicBatchWrite(entries) {
         path.dirname(entry.path),
         `.${path.basename(entry.path)}.${nonce}.bak`,
       );
-      fs.writeFileSync(tempPath, entry.content, { encoding: "utf8", mode: 0o600, flag: "wx" });
+      fs.writeFileSync(tempPath, entry.content, {
+        encoding: "utf8",
+        mode: 0o600,
+        flag: "wx",
+      });
+      if (options.recoveryRoot) {
+        const handle = fs.openSync(tempPath, "r");
+        try {
+          fs.fsyncSync(handle);
+        } finally {
+          fs.closeSync(handle);
+        }
+      }
       prepared.push({
         ...entry,
         tempPath,
@@ -216,7 +246,41 @@ export function atomicBatchWrite(entries) {
       });
     }
     if (process.env.WORK_TRACKER_FAIL_AFTER_TEMP === "1") {
-      throw new WorkError("Injected failure before atomic batch rename", "injected_failure");
+      throw new WorkError(
+        "Injected failure before atomic batch rename",
+        "injected_failure",
+      );
+    }
+    for (const entry of prepared) {
+      if (
+        entry.expectedHash !== undefined &&
+        (!fs.existsSync(entry.path) ||
+          createHash("sha256")
+            .update(fs.readFileSync(entry.path))
+            .digest("hex") !== entry.expectedHash)
+      ) {
+        throw new WorkError(
+          `Record changed before saving ${entry.path}; reread it and reapply the unsaved update`,
+          "stale_document",
+        );
+      }
+    }
+    if (options.recoveryRoot && prepared.length > 1) {
+      fs.mkdirSync(options.recoveryRoot, { recursive: true });
+      journal = path.join(
+        options.recoveryRoot,
+        `${Date.now()}-${randomUUID()}.json`,
+      );
+      atomicWriteJson(journal, {
+        schema_version: 1,
+        entries: prepared.map((e) => ({
+          path: e.path,
+          tempPath: e.tempPath,
+          backupPath: e.backupPath,
+          before: e.existed ? fs.readFileSync(e.path, "utf8") : null,
+          after: e.content,
+        })),
+      });
     }
     for (const [index, entry] of prepared.entries()) {
       if (entry.existed) {
@@ -225,14 +289,24 @@ export function atomicBatchWrite(entries) {
       }
       fs.renameSync(entry.tempPath, entry.path);
       entry.installed = true;
+      if (
+        process.env.WORK_TRACKER_EXIT_AFTER_INSTALL === "1" &&
+        index === 0 &&
+        journal
+      )
+        process.exit(86);
       if (process.env.WORK_TRACKER_FAIL_AFTER_INSTALL === "1" && index === 0) {
-        throw new WorkError("Injected failure after first batch install", "injected_failure");
+        throw new WorkError(
+          "Injected failure after first batch install",
+          "injected_failure",
+        );
       }
     }
   } catch (error) {
     for (const entry of [...prepared].reverse()) {
       try {
-        if (entry.installed && fs.existsSync(entry.path)) fs.unlinkSync(entry.path);
+        if (entry.installed && fs.existsSync(entry.path))
+          fs.unlinkSync(entry.path);
         if (entry.backedUp && fs.existsSync(entry.backupPath)) {
           fs.renameSync(entry.backupPath, entry.path);
         }
@@ -241,8 +315,23 @@ export function atomicBatchWrite(entries) {
         // Preserve remaining files for validation and manual recovery.
       }
     }
+    if (
+      journal &&
+      prepared.every((e) =>
+        e.existed
+          ? fs.existsSync(e.path) && !fs.existsSync(e.backupPath)
+          : !fs.existsSync(e.path),
+      )
+    ) {
+      try {
+        fs.unlinkSync(journal);
+      } catch {
+        /* Recovery will inspect leftovers. */
+      }
+    }
     throw error;
   }
+  if (journal) fs.unlinkSync(journal);
   // Installation is committed once every replacement is in place. A failed
   // backup cleanup must leave the committed files intact; the leftover backup
   // is recoverable evidence rather than a reason to roll back a partial commit.
@@ -254,6 +343,78 @@ export function atomicBatchWrite(entries) {
       // Keep any undeleted backup for manual recovery.
     }
   }
+}
+
+export function pendingBatchWrites(recoveryRoot) {
+  return fs.existsSync(recoveryRoot)
+    ? fs.readdirSync(recoveryRoot).filter((n) => n.endsWith(".json"))
+    : [];
+}
+export function recoverBatchWrites(recoveryRoot, workRoot) {
+  const pending = pendingBatchWrites(recoveryRoot);
+  const root = fs.realpathSync(workRoot);
+  const inside = (p) =>
+    typeof p === "string" &&
+    path.resolve(p).startsWith(root + path.sep) &&
+    (fs.realpathSync(path.dirname(p)) === root ||
+      fs.realpathSync(path.dirname(p)).startsWith(root + path.sep));
+  for (const name of pending) {
+    const journal = path.join(recoveryRoot, name),
+      value = readJson(journal, "work-item recovery record");
+    if (
+      value.schema_version !== 1 ||
+      !Array.isArray(value.entries) ||
+      !value.entries.length
+    )
+      throw new WorkError(
+        "Invalid work-item recovery record",
+        "invalid_recovery",
+      );
+    for (const e of value.entries) {
+      if (
+        !inside(e.path) ||
+        !inside(e.tempPath) ||
+        !inside(e.backupPath) ||
+        !(e.before === null || typeof e.before === "string") ||
+        typeof e.after !== "string"
+      )
+        throw new WorkError(
+          "Recovery paths/data are outside the tracker or malformed",
+          "invalid_recovery",
+        );
+      const current = fs.existsSync(e.path)
+        ? fs.readFileSync(e.path, "utf8")
+        : null;
+      const preserved = fs.existsSync(e.backupPath)
+        ? fs.readFileSync(e.backupPath, "utf8")
+        : null;
+      if (
+        current !== e.before &&
+        current !== e.after &&
+        !(current === null && preserved === e.before)
+      )
+        throw new WorkError(
+          `Recovery conflict at ${e.path}; newer content was preserved`,
+          "recovery_conflict",
+        );
+    }
+    for (const e of value.entries) {
+      atomicWrite(e.path, e.after);
+      if (fs.readFileSync(e.path, "utf8") !== e.after)
+        throw new WorkError("Recovery readback failed", "recovery_conflict");
+    }
+    // Every result is durable before deleting operational recovery copies.
+    fs.unlinkSync(journal);
+    for (const e of value.entries)
+      for (const temporary of [e.tempPath, e.backupPath]) {
+        try {
+          fs.unlinkSync(temporary);
+        } catch (error) {
+          if (error.code !== "ENOENT") throw error;
+        }
+      }
+  }
+  return pending.length;
 }
 
 export function slugify(value) {

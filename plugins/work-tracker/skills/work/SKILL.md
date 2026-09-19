@@ -27,8 +27,8 @@ Before substantial work:
    tools and native fields. Do not run the local CLI or initialize local files.
 2. For a configured local tracker, run `work active`; steps 3 through 8 are
    local-tracker instructions.
-3. Read the active item's `REQUIREMENTS.md`, `STATUS.md`, `ITEM.yaml`, and
-   `TASKS.yaml` when present. `work active --json` returns the branch's selected
+3. Read the active item's `WORK-ITEM.md`. Existing legacy items retain
+   `ITEM.yaml`, `REQUIREMENTS.md`, `TASKS.yaml`, `STATUS.md`, and history. `work active --json` returns the branch's selected
    current task with its full execution and continuation details.
 4. If no item is active, select the clear item with `work active set ID`, or
    ask one short question when the choice is unclear.
@@ -57,6 +57,11 @@ quick edits do not receive the offer.
 The remaining CLI and file instructions apply when the local tracker is
 configured. With an external tracker, apply the same recordkeeping principles
 through its native fields and project workflow without running these commands.
+For new external items, put the same five sections from
+[record format](references/record-format.md#one-work-item-template) in the item
+description. Keep design documents separate and linked. Native status,
+assignments, and relationships remain authoritative. Do not copy their values
+into a competing body record or migrate existing items.
 
 ## Capture what the owner means
 
@@ -75,7 +80,10 @@ question when the difference matters.
 The progress note is history, not a substitute for the current record. Apply
 the routing in `work-item-stages.md`: document-specific questions, decisions,
 and tasks stay in the document's Notes, and settled answers update its actual
-text or cells. For other open questions and useful notes, edit only the preserved
+text or cells. For other open questions and useful notes, use Overview
+`Open questions` or `Context and notes` in `WORK-ITEM.md`. Read the current
+document and hash, prepare a candidate, and save with `work edit` as described
+in the command reference. Existing legacy items use only the preserved
 `User notes` section between its markers in `STATUS.md`. Keep the question,
 who must answer (or unknown), status, and what it affects current there. Other
 tasks use `task add/update`; status, next step, and blockers use `update`.
@@ -93,7 +101,8 @@ progress note unless the reason matters.
 
 ## Apply the approval gate
 
-Every item has `REQUIREMENTS.md`, starting as `refining`. Write only the
+New items have a Requirements section in `WORK-ITEM.md`; existing legacy
+items keep `REQUIREMENTS.md`. Requirements start as `refining`. Write only the
 owner's request and approved meaning. Keep implementation steps, file choices,
 tools, versions, and unapproved assumptions out. Show the result before running
 `requirements ID --finalize --approved-by NAME`; reopen it when direction
@@ -110,6 +119,8 @@ necessarily implementation.
 | --- | --- |
 | Initialize or preview conversion | `init`, `migrate` |
 | Add or read work | `add`, `status`, `next` |
+| Save document prose or notes with a version check | `edit` |
+| Recover an interrupted multi-file save | `recover` |
 | Create or revise roadmap stages | `roadmap show`, `roadmap add`, `roadmap update` |
 | Create, read, select, update, or complete execution tasks | `task show`, `task add`, `task select`, `task update`, `task complete` |
 | Read, select, replace, or clear the active item | `active` |
@@ -139,9 +150,10 @@ deliverable, acceptance condition, status, dependencies, current position, and
 next action. Use `task update` after a meaningful decision or position change.
 For a PRD or design refinement task, link its current position and next action
 to the document's bottom Notes. Update settled text and remaining discussion in
-that document; do not duplicate its detailed checklist in `TASKS.yaml` or
-`STATUS.md`. Other tasks keep their existing records. Local requirements use
-`REQUIREMENTS.md`; link any existing shared PRD instead of copying it.
+that document; do not duplicate its detailed checklist in the item. Other tasks
+use the Tasks section (legacy: `TASKS.yaml`). Item requirements use the
+Requirements section (legacy: `REQUIREMENTS.md`); link any existing shared PRD
+instead of copying it.
 Task selection is branch-scoped in `ACTIVE.json`; it does not change the item
 stage or status. `task complete` records evidence and enforces task-specific
 approval when required, but never completes or approves the parent item.

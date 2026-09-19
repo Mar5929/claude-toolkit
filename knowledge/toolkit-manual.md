@@ -235,6 +235,14 @@ not establish that the request has been fulfilled. The
 [work-item instructions](../.claude/rules/work-item-stages.md) own progress,
 approval, and completion handling.
 
+New local items consolidate Overview, Roadmap, Tasks, Recent History, and
+Requirements in `WORK-ITEM.md`. New external items use those same sections in
+their description, with native fields authoritative. Designs remain separate
+and linked. Existing items keep their format; no migration is required. The
+[work plugin record format](../plugins/work-tracker/skills/work/references/record-format.md)
+owns the details. Meaningful human decisions are saved promptly in their
+actual document or item and read back, using the project's publication route.
+
 ### Deliver and leave the records ready to continue
 
 The change follows the project's publication and deployment route. The agent

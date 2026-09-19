@@ -35,7 +35,9 @@ missing tracker access does not mean the owner is undecided.
 
 Save accepted, declined, or revoked in the existing canonical item:
 
-- Local tracker: edit only the preserved `User notes` section of `STATUS.md`.
+- Local tracker: save Overview `Context and notes` in `WORK-ITEM.md` with
+  `work edit` and its current hash. Existing legacy items retain the preserved
+  `User notes` section of `STATUS.md`.
 - External tracker: use the existing item body or suitable native fields. Do
   not initialize `.work-items/` or create a local mirror.
 

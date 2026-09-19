@@ -264,16 +264,17 @@ The genuine watch-items are called out at the end.
   manual, so none owns a second copy of policy.
 - **work-tracker versus the older work-items tree.** Not two trackers.
   The current tracker uses work-item folders under Git-ignored
-  `.work-items/`, `ITEM.yaml`, and owner-approved `REQUIREMENTS.md`. The older
+  `.work-items/`, with one `WORK-ITEM.md` for new items and separate linked
+  designs. Existing multi-file records stay supported without migration. The older
   tree used four status folders under root `work-items/`, Salesforce
   `delivery/work-items/`, or `engagement/work-items/`. `work migrate` previews
   and then copies those items without deleting or overwriting the old source.
 - **The archive folder versus the older `04-archived` status folder.** Not the
   same idea. `04-archived` was a status: an item's folder moved between four
   stage folders as its state changed. `.work-items/archive/` is not a status.
-  Any item may sit there at any status, its `ITEM.yaml` is untouched, and it is
+  Any item may sit there at any status, its status is untouched, and it is
   hidden from the everyday views only so the tracker folder stays short. Status
-  still lives in `ITEM.yaml` and still never moves a folder.
+  still lives in the item record and still never moves a folder.
 - **work-tracker versus project knowledge.** work-tracker owns task status,
   blockers, work-item relationships, branch and pull-request evidence, and the
   current handoff. Project knowledge may link specifications and persistent memory to a work-item
@@ -325,8 +326,8 @@ The genuine watch-items are called out at the end.
 - **grill-me versus work-item and memory files.** `grill-me` owns raw discovery
   notes in a flat, dated `knowledge/brainstorms/` collection. Each brainstorm links to
   every resulting specification without being copied into system-area folders.
-  A work item's `REQUIREMENTS.md` and `STATUS.md` own that ticket's approved
-  scope and readable handoff, while `ITEM.yaml` owns structured task state. Top-level
+  A new work item's `WORK-ITEM.md` owns its requirements, plan, state, and
+  handoff; existing legacy records retain their separate files. Top-level
   `knowledge/prds/` owns persistent current behavior and second-brain owns persistent project
   knowledge. The brainstorm may inform those artifacts but does not replace
   them.
