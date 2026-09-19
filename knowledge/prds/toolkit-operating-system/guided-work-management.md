@@ -274,16 +274,38 @@ the affected content promptly, and saves are read back to verify them.
 
 There are no competing task, requirements, or status records. Existing shared
 PRDs and designated workbooks remain linked authorities rather than duplicated
-requirements. External trackers use the same logical sections and their native
-fields, with no local mirror. Existing records migrate without losing owner
-notes, history, links, IDs, or approval distinctions. Installation alone must
-not silently migrate a project's work.
+requirements. For an external work item in GitHub, Jira, Linear, or another
+tracker, its description/body holds the same work-item template and section
+order as local WORK-ITEM.md: Overview, Roadmap, Tasks, Recent History, and
+Requirements. Use the tracker's supported formatting to preserve the same
+readable structure; identical Markdown syntax is not required. Native fields
+remain authoritative for status and assignments. Design documents stay separate
+and linked. Do not create a local mirror or scatter the item's current content
+across separate task, requirements, status, or notes documents. Existing records
+migrate without losing owner notes, history, links, IDs, or approval distinctions.
+Installation alone must not silently migrate a project's work.
+
+Capture a human decision or other meaningful requirement, design, answer,
+constraint, or progress update as soon as it is given, before moving past that
+topic. Update its authoritative content and preserve whether it is settled or
+still proposed. Complete the applicable save/publication route promptly: for
+authorized Git-tracked documentation, check, commit, push, and verify remote
+publication; for an external work item, update and reread its description or
+relevant native field; for a Git-ignored local item, save and reread it locally.
+Do not wait for the interview, session, or implementation to finish. A history
+entry alone does not replace the actual content update. Report failed or pending
+saves without claiming they are published, and retain them for recovery.
 
 **Check:** create and resume an item with a different supported agent. Both use
 the same sections and save a dependent review task without creating extra
 records. Migrate an older item and verify its tasks, requirements, open
 questions, decisions, and approval state survived. Check applicable rules,
 skills, PRDs, setup/sync flows, and both operating manuals for agreement.
+Repeat with an external work item: its description contains the same sections,
+its design is linked separately, and no local mirror is created. Give a new
+requirement and a design decision during discussion: verify each is captured
+in its authoritative home and saved/published before the topic changes, with
+any failed save identified accurately.
 
 ## Potential solution design notes
 
@@ -305,6 +327,12 @@ to build a particular solution.
   explicitly rather than allowing an older proposal to determine this scope.
 
 ## Notes
+
+- Clarification approved by Mike in the handoff-review task, 2026-09-19:
+  external work-item descriptions use the same template as WORK-ITEM.md;
+  designs stay separate. Significant human input is captured and saved through
+  the applicable publication route immediately, before moving past the topic.
+  R6 records this clarification; it does not authorize its runtime migration.
 
 - Decision: Mike approved the single-record direction and requested a consistent
   template and implementation plan on 2026-09-18. Runtime migration is pending.
