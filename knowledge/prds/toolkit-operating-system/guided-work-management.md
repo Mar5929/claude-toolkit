@@ -3,7 +3,7 @@ summary: The agent offers to organize and guide work from the initial idea throu
 group: delivery
 area: guided-work-management
 status: proposed
-source: Mike's guided-work-management and opt-in clarification on 2026-09-15; roadmap-linked task details and continuation clarification on 2026-09-17; GitHub issue 337
+source: Mike's guided-work-management and opt-in clarification on 2026-09-15; roadmap-linked task details and continuation clarification on 2026-09-17; single-record direction on 2026-09-18; agent-led delivery intent confirmed by Mike on 2026-09-19 and handed to this separate design conversation; GitHub issue 337
 created_at: 2026-09-15
 tags: [delivery, planning, requirements, continuity]
 work_item: "337"
@@ -11,9 +11,14 @@ work_item: "337"
 
 # Guided work management
 
-Draft updated 2026-09-17. Mike authorized implementation of the roadmap-linked
-task and task-continuation behavior on this date. The full PRD remains proposed;
-that scoped authorization does not approve unrelated requirements or delivery.
+Draft updated 2026-09-19. Mike authorized the roadmap-linked task and
+task-continuation implementation on 2026-09-17, the single-record direction and
+its planning on 2026-09-18, and the agent-led delivery intent and its capture on
+2026-09-19. The full PRD remains proposed. These scoped approvals do not approve
+an unseen complete design or unrelated requirements. Later on 2026-09-19, Mike
+explicitly authorized an Astra lead with GPT-5.6 Sol helpers to implement and ship
+the confirmed agent-led delivery scope through a reviewed pull request and merge.
+That authorization does not establish delivery evidence or approve R6 migration.
 
 ## Contents
 
@@ -57,10 +62,15 @@ instead of becoming assumed requirements.
 #### 1. Offer to organize and guide the work
 
 When a request involves several steps or is likely to continue across sessions,
-the agent offers to organize and manage its tasks, milestones, roadmap, and
-scope, and guide the owner through the process. The owner chooses whether to
-accept. The agent does not assume that a request to discuss an idea accepts
-this service.
+the agent offers: "Would you like agents to take responsibility for delivering
+this, with you acting as product owner?" The owner chooses whether to accept.
+The agent does not assume that a request to discuss an idea accepts this service.
+
+Acceptance applies to the particular goal or work item and carries across
+future sessions working on it. The agent uses the project's existing records to
+retain and recover that choice, so the owner does not have to delegate the same
+responsibility again. The choice does not change existing permission or
+approval boundaries.
 
 Simple questions and quick edits stay lightweight: they do not prompt an offer
 of guided management solely because the owner made a request.
@@ -74,7 +84,9 @@ that help without another opt-in question.
 **Check:** discuss a new feature that needs several steps and will continue in
 later sessions, without having accepted guided management. The agent offers
 the service and waits for the choice before taking over its organization. On
-acceptance, it begins managing the work. Repeat with a simple factual question
+acceptance, it begins managing the work. Resume the accepted item in a fresh
+session: the agent recovers the choice and continues without another opt-in
+question. Repeat with a simple factual question
 and a quick wording edit: it handles each without a guided-management offer.
 Decline the offer for a larger goal, then continue that goal in this and another
 session: normal assistance continues without another offer. Substantially expand
@@ -87,6 +99,14 @@ Once the owner accepts guided management, the agent creates, organizes, and
 updates the necessary tasks, milestones, and roadmap within the agreed scope.
 It keeps the records current as decisions and progress change. The owner does
 not have to dictate tracker commands, filing locations, or routine updates.
+
+Agents manage discovery, interview the owner, refine requirements, track tasks
+and open questions, research options, develop and challenge designs, and drive
+authorized implementation, testing, and delivery. They maintain the chosen
+tracker and designated documents as meaningful discussion happens, following
+the project's templates and record ownership. The human supplies product
+direction, answers questions, resolves meaningful tradeoffs, and approves the
+result. Agents manage the work and bring decisions to the human when needed.
 
 If a proposed change would alter the agreed scope, commitments, or an approval
 boundary, the agent explains the effect and asks for the required decision.
@@ -115,6 +135,12 @@ instead of silently replacing it, and respects the owner's informed choice.
 **Check:** give an answer whose wording is clear but whose effect would conflict
 with the stated goal. The agent identifies the conflict, explains an alternative,
 and resolves the intended direction with the owner before recording it as settled.
+
+Design-review support includes multiple agents challenging competing approaches,
+checking them against requirements, researching uncertainties, and improving a
+recommendation before relevant choices return to the owner. The useful
+orchestration remains to be agreed with Mike; this intent does not prescribe a
+fixed council size or an endless consensus process.
 
 #### 4. Keep the whole outcome connected to its component work
 
@@ -284,6 +310,23 @@ to build a particular solution.
   template and implementation plan on 2026-09-18. Runtime migration is pending.
 - Clarification: Roadmap is a top-level section in that same file, immediately
   before Tasks, as Mike confirmed after reviewing the plan.
-- Resume here: [Consolidated work-item plan](../../../docs/designs/337-consolidated-work-item.md)
-  holds the template, implementation sequence, documentation inventory, checks,
-  and outstanding implementation choices.
+- Decision: Mike confirmed the agent-led delivery intent and authorized its
+  capture on 2026-09-19 in the originating conversation, carried into this
+  separate task. Requirements 1-3 contain that intent. Full requirements,
+  complete design, and delivery evidence remain separate. Mike subsequently
+  authorized an Astra lead and Sol helpers to implement the confirmed scope,
+  create a PR, and merge it when done. This authorizes this implementation team;
+  future items' helper-selection behavior remains the open product question.
+- Still open, answer from Mike: after accepting agent-led delivery for an item,
+  may the lead choose and coordinate scoped research, design, and review helpers,
+  or should Mike approve the helper team each time? This affects R3 and the
+  existing per-item team agreement in [guided delivery](guided-delivery.md#solution-design).
+  Recommendation, not approved: let the lead choose within approved scope,
+  bringing product choices, significant cost tradeoffs, and existing approval
+  boundaries to Mike.
+- Resume here: continue the agent-led delivery interview with that helper
+  authority question, then prepare a reviewable design before changing shipped
+  behavior. Preserve the settled offer timing and declined-offer behavior.
+- Parallel remaining scope: [Consolidated work-item plan](../../../docs/designs/337-consolidated-work-item.md)
+  holds R6's template, implementation sequence, documentation inventory, checks,
+  and outstanding implementation choices. Its runtime work remains pending.

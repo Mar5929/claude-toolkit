@@ -1,10 +1,80 @@
-# Consolidated work-item record
+# Guided work management delivery plan
 
 Implementation plan, 2026-09-18. Mike approved the direction and asked for this
 plan. The storage change is not implemented; this plan does not authorize a
 migration of DragonFly or changes to the active Knowledge System design.
 Required behavior is recorded in the
 [guided work management PRD](../../knowledge/prds/toolkit-operating-system/guided-work-management.md#6-one-readable-work-item-record).
+
+## Agent-led delivery: scoped implementation, 2026-09-19
+
+This is the existing design record for issue #337. It now holds both the
+agent-led delivery change and the separate pending record consolidation below.
+Neither workstream silently authorizes or completes the other.
+
+Mike confirmed the delivery intent and authorized an Astra lead with GPT-5.6
+Sol helpers to implement, create a pull request, and merge the checked result.
+The implementation task is `01a0bb10-0ba7-7171-988f-461c466da84c`, branch
+`issue-337-agent-led-delivery`. The coordinating requirements task owns this
+design, the PRD, and issue #337; helpers return findings to their lead.
+
+### Scope and behavior
+
+The [PRD's requirements 1-3](../../knowledge/prds/toolkit-operating-system/guided-work-management.md#choosing-guided-management)
+own the approved intent. Offer delivery responsibility for multi-step or
+cross-session work. Keep quick questions and edits lightweight. Save accepted
+or declined choices for the particular goal in the existing canonical records
+and recover the choice before offering again. Accepted work proceeds through
+discovery, requirements, research, design, authorized implementation, testing,
+and delivery, with the agent maintaining records and bringing product decisions
+and applicable approvals to the owner.
+
+Use the existing work plugin for the method, with shared lifecycle guidance
+providing discovery and routing. The work-guide and requirements-helper methods
+continue to own main-conversation guidance and requirements interviews. The
+implementation lead reconciles those entry points and the package descriptions.
+Reuse ordinary agent reasoning and existing storage. No new scheduler, tracker,
+semantic grader, storage schema, or R6 migration is part of this change.
+
+For the current local tracker, the preserved User notes in STATUS.md hold the
+current choice and its goal, scope, date, and source. Existing history may record
+the event but is not the only home for the current choice. In GitHub, use the
+issue body's existing current-state section and the single Progress log. Other
+trackers use their designated records. Read back saves and distinguish saved,
+published, and failed updates. Recordless or unavailable-tracker cases must not
+claim cross-session persistence; the implementation review must account for
+them without silently creating a competing tracker.
+
+This item's explicit Astra/Sol authorization allows its team to proceed. Whether
+future accepted items automatically authorize helper selection remains open in
+the PRD Notes. Preserve existing team and permission boundaries unless the owner
+has already granted the applicable authority. Helpers cannot approve the work.
+
+### Delivery sequence and evidence
+
+1. Reconcile the approved meaning into this design, the PRD, and issue #337.
+2. Implement the work-plugin method and its shared/session entry points in the
+   implementation branch; align managed copies and release metadata.
+3. Check offer timing, accepted resume, declined resume, substantial-growth and
+   explicit-request exceptions, routine upkeep, product/approval boundaries,
+   and failed-save recovery. Check local and shared-tracker continuation.
+4. Run independent review and relevant tracker tests, all four repository
+   checks, plugin validation, and knowledge checks for changed knowledge.
+   Static instruction checks alone do not prove fresh-agent behavior; report
+   observed scenarios and any untested hosts separately.
+5. Create the PR, review the final diff, merge under the recorded authorization
+   after merge-safety checks, and verify remote publication. Record rollout and
+   acceptance of the complete experience separately. Review both manuals;
+   publish only affected guidance with its actual delivery state.
+
+## Consolidated work-item record: pending R6 scope
+
+The remaining sections preserve the approved single-record direction and its
+implementation plan. Current runtime still uses separate records. Review the
+format/parser and migration-backup choices, then implement parser, CLI and
+explicit migration, documentation, and installation verification under the
+applicable authorization. The later R1 shipping authorization does not extend
+itself to this work or to a DragonFly project migration.
 
 ## Template
 
@@ -217,8 +287,14 @@ task's active draft from this worktree.
 - No owner decision blocks preparing this plan. Implementation review must
   settle the exact parser/metadata representation and backup location without
   creating a second authoritative record.
-- Next: review this plan, implement format and parser first, then CLI and
-  migration, then documentation and installation verification. Runtime work and
-  project migrations have not started. Mike authorized the personal-account
-  switch and push on 2026-09-18; this plan's branch is published via Mar5929.
-  Review/merge and rollout remain pending. Never push through the work account.
+- Publication correction, 2026-09-19: PR #356 merged the document-continuity
+  guidance and this consolidation plan on 2026-09-18. The plan is on main;
+  consolidation runtime and project migrations have not started.
+- Agent-led delivery: the named implementation task owns R1 code, checks, PR,
+  and authorized merge. This task owns canonical records. Resume its product
+  question from the PRD Notes and reconcile implementation evidence here.
+- Consolidation resume: review the existing R6 plan and settle format/parser
+  and backup details, then confirm build scope before runtime work. Sequence
+  parser, CLI/migration, documentation, and installation verification. Its
+  approved direction and planning are not evidence of implementation or
+  authority to migrate DragonFly. Never push through the work account.
