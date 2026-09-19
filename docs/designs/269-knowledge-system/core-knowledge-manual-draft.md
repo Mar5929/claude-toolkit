@@ -241,6 +241,10 @@ Write plain, concrete language with necessary context and sources. Explain exact
 technical names when needed. Remove repetition, unsupported claims, and references
 to an unseen conversation. Keep required verbatim wording unchanged. If that
 wording conflicts with the writing rules, resolve the conflict before approval.
+Match detail to the topic. Keep the current answer easy to find and retain the
+explanations, examples, exceptions, and useful history needed to understand or
+apply it. A complex topic may need substantial detail; clarity does not require
+shortening every account.
 
 Use descriptive lowercase names with hyphens. Keep one memory file per topic by
 default; use an approved topic folder for coherent subtopics. Group information
@@ -316,8 +320,11 @@ evidence that guidance and checks work.
   candidate in the master design omits some of these. Keep it experimental;
   select a requirements-compliant candidate or obtain agreement to change the
   requirement before adopting omitted content. No such change is assumed here.
-- Next: review section 1 with Mike, audit this draft against each R1–R30 row in
-  the existing implementation plan, then draft the four task procedures. Keep
+- Next: review section 6's review moments and quiet routine behavior with Mike,
+  audit this draft against each R1–R30 row in the existing implementation plan,
+  then draft the four task procedures. The walkthrough has covered startup,
+  ownership, selection, topic organization, permission, interrupted saves, and
+  maintaining changed knowledge. Keep
   exact wording review separate from full design/build approval.
 - Decision/research routing was aligned with the authorized R18 and Toolkit OS
   R9/R11 clarification published at `48a0988` on 2026-09-19. The parent PRD's
@@ -326,3 +333,6 @@ evidence that guidance and checks work.
 - On 2026-09-19, Mike approved the R14 clarification on organization within
   memory topics and splitting for retrieval or understanding. Section 9 reflects
   that clarification; the draft remains inactive and awaits its remaining review.
+- Mike's subsequent walkthrough clarification is reflected in section 9:
+  complex topics retain useful detail, with the current answer easy to find.
+  Walkthrough agreement is not approval of the entire draft or implementation.
