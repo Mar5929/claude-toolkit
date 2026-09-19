@@ -1140,9 +1140,13 @@ This does not authorize implementation or approve the full design.
 published at `e61d064` on the isolated `issue-269-core-manual-draft` branch.
 Mike reviewed the intended startup/resume experience and asked the agent to own
 technical choices, bringing him product tradeoffs. He has not approved all
-wording or the full design. Explain the actual rules for memory selection and
-information ownership next; the spoken summary was not the full instruction
-set. Complete the requirement audit, then draft task skills, templates, and
+wording or the full design. The subsequent voice walkthrough covered memory
+selection, information ownership, topic organization, permission, interrupted
+saves, and maintaining changed knowledge. Mike accepted the selection/ownership/
+permission explanation and required useful detail for complex topics; R14/R15
+and the isolated draft capture those refinements. Next review when the agent
+checks for updates and how routine reviews stay quiet; spoken explanations
+are not the full instruction set. Complete the requirement audit, then draft task skills, templates, and
 supporting rules. Link/whitespace checks passed for the draft; independent
 meaning review and fresh-agent behavior tests remain.
 

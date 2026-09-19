@@ -12,7 +12,7 @@ Updated: 2026-09-19
 **Status** Runtime unbuilt. Two Sol research reports complete; first core manual
 draft published on `issue-269-core-manual-draft`, linked from design Notes.
 
-**Next** Continue manual review: memory selection and information ownership,
+**Next** Continue manual review: when to check for updates and quiet reviews,
 then task instructions in isolation. Host proofs and full approvals remain.
 
 **Resume records** Read [design Notes](../docs/designs/269-knowledge-system.md#notes),

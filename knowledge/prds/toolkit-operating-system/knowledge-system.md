@@ -1144,7 +1144,7 @@ technical.
 
 - Memory text and save proposals use plain, clear, everyday words. They must contain no jargon, figures of speech, figurative language, metaphors, or idioms. This applies to titles, summaries, explanations, and saved prose. Use the actual names of people, systems, files, and fields; explain a necessary exact technical name in ordinary words rather than replacing it with a metaphor. PRDs follow the same plain-language rule and the technical-term guidance below.
 - The knowledge and toolkit manuals, and the instructions they reference, also use clear, explicit language with no jargon, figures of speech, metaphors, or idioms. Necessary exact file, field, command, and product names remain accurate and are explained in ordinary words. Include enough detail to act correctly: when the instruction applies, what to do, permission needed, checks, and what happens if it fails. Remove repetition and unnecessary prose; brevity must not remove required behavior. Mike explicitly requested this on 2026-09-18.
-- As short as it can be without dropping anything a future agent needs. Every sentence has to be needed. If removing it loses nothing, remove it.
+- Match the detail to what a future agent needs to understand and use the topic. Complex topics may need substantial explanations, examples, exceptions, and history. Make the current answer easy to find while preserving detail needed to apply it or understand its limits. Remove repetition and content that adds nothing; do not apply a blanket shortening rule to every topic.
 - Accuracy before completeness. One wrong sentence makes the whole file untrustworthy, because a later agent acts on it. Settle anything uncertain that would change a proposed save before showing its card, under requirement 20. A guess is never written down as a fact.
 - Concrete, not abstract: the real name, the real value, the real path, the real date. Write the full date, never "last week". Name the system or the organization every time. When something was left undone, say so.
 - Nothing that points at a conversation the reader cannot see. No "as discussed", no "per our call".
@@ -2211,7 +2211,14 @@ the explicit ban on jargon and figurative language in memory and proposals are
 recorded requirements. Saving these updates does not mean the full requirements
 or solution design are approved, or that implementation may begin.
 
-**Resume here:** draft the actual core knowledge manual first, then the
+**Resume here:** the core manual draft is published on
+`issue-269-core-manual-draft`, linked from the solution design Notes. The voice
+walkthrough has covered startup, information ownership, memory selection,
+topic organization, permission, save recovery, and maintaining changed knowledge.
+Mike accepted the selection/ownership/permission explanation and clarified that
+complex topics may need more detail. This does not approve the full draft.
+Next review when the agent checks for useful updates and how routine reviews
+stay quiet, then finish the wording audit and draft the
 applicable skill instructions, templates, and rules using the instruction audit.
 Prepare behavior-bearing drafts in an isolated implementation worktree; review
 wording before supporting code and hooks, and activate them together. Mike asked
@@ -2248,6 +2255,13 @@ The instruction-content audit and full requirements approval remain outstanding.
   infer it from approval to save or refine this document.
 
 ### Recorded notes
+
+- On 2026-09-19, Mike clarified during the manual walkthrough that maintaining
+  a clear current answer must not become blanket shortening: some topics need
+  more detail. R15 now states that explicitly. The interrupted-save discussion
+  is already covered by R28: share pending records promptly and report what
+  another computer cannot see when publication fails. Those recovery outcomes
+  still need behavioral proof.
 
 - On 2026-09-19, Mike approved refining R14 around coherent topics: organize
   related information within a file, explain useful connections, and judge
