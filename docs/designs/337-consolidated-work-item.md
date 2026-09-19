@@ -67,14 +67,14 @@ has already granted the applicable authority. Helpers cannot approve the work.
    acceptance of the complete experience separately. Review both manuals;
    publish only affected guidance with its actual delivery state.
 
-## Consolidated work-item record: pending R6 scope
+## Consolidated work-item record: authorized R6 scope
 
-The remaining sections preserve the approved single-record direction and its
-implementation plan. Current runtime still uses separate records. The concrete
-proposal below selects the format, edit method, and migration recovery approach
-for review. Implementation follows only after the applicable build approval.
-The later R1 shipping authorization does not extend itself to this work or to
-a DragonFly project migration.
+Mike authorized implementation of the consolidated record for new work items on
+2026-09-19, after reviewing the direction and asking this task to proceed. Existing
+items remain usable in their current format; migration and migration tooling are
+excluded. Implement and test in an isolated branch and present a reviewed PR.
+This does not authorize merge, broader rollout, or changes to Knowledge System
+#269. The earlier R1 release remains separate.
 
 ## Template
 
@@ -228,8 +228,8 @@ is introduced. Current working memory links to the item rather than copying it.
 
 ## Concrete R6 implementation proposal
 
-Proposed on 2026-09-19 after Mike asked this task to prepare the implementation
-proposal for review. This is an existing-system change, not a new tracker.
+Prepared and then authorized for implementation on 2026-09-19, with existing-item
+migration removed from scope. This is an existing-system change, not a new tracker.
 Mike should be able to read and edit one item, while an agent updates that same
 record promptly and another session resumes it without reconstructing scattered
 files. The approved five sections and separate design stay as specified above.
@@ -237,8 +237,8 @@ files. The approved five sections and separate design stay as specified above.
 ### Existing parts and readiness
 
 The R6 requirement, its September 19 clarification, and the existing plan give
-sufficient direction for this proposal. Remaining choices below are technical
-recommendations, not new product requirements or claims of owner approval.
+sufficient direction for the authorized implementation. Technical choices below
+serve the approved behavior; implementation evidence remains to be established.
 R1's separate open helper-selection question does not block this proposal.
 
 Project evidence inspected on 2026-09-19 at main `d2be203`:
@@ -292,7 +292,7 @@ before changing anything. Unknown fields and prose remain intact.
 | Purpose, type, priority, status, lifecycle stage, dates, next step | Overview labeled fields |
 | Requirements status and actual approval person/date | Overview approval fields; no approval copied into task state |
 | Blockers, relationships, Git evidence, completion approval/evidence | Named Overview subsections with labeled entries; retain existing field meanings |
-| Delivery choice, its goal/scope/source/date, unanswered questions, owner notes | Overview context/questions; migrate preserved User notes without guessing new structured values |
+| Delivery choice, its goal/scope/source/date, unanswered questions, owner notes | Overview context/questions; preserve notes without guessing new structured values |
 | Roadmap stage fields and child links | One `## <stage ID>: <title>` block per stage inside Roadmap |
 | Task fields, dependencies, inputs, constraints, acceptance, approval, continuation | One `## <task ID>: <title>` block per task inside Tasks |
 | Complete dated history | Recent History, with optional collapse |
@@ -301,19 +301,18 @@ before changing anything. Unknown fields and prose remain intact.
 The template uses stage blocks so outcomes, acceptance, child links, and owner
 prose do not have to fit escaped table cells. Tasks identify their stage; the
 stage does not maintain a competing list of those same task relationships.
-Keep existing STAGE/TASK IDs during conversion. Optional fields remain optional;
+Keep stable STAGE/TASK IDs. Optional fields remain optional;
 missing old tasks are reported for reconciliation rather than invented.
 
-Every existing record field must have a tested mapping before conversion can
-apply, including nested blocker IDs, all relationship types, completion and Git
-proof, task approvals, roadmap planning status, and unknown extensions. Store
-unknown legacy fields once in a labeled Imported fields subsection; flag an
-ambiguous meaning instead of using that subsection to hide competing truth.
+Every supported record field must round-trip through the document, including nested blocker IDs, all relationship types, completion and Git
+proof, task approvals, roadmap planning status, and unknown extensions. Preserve
+unknown document fields and owner prose without treating them as executable
+instructions or a second source of item state.
 
 Stage planning status remains distinct from progress: derive progress for display
 from task and linked-child states without adding another independently editable
 status. This display never advances lifecycle status or grants approval. Preserve
-all dated history values; represent imported action/time/note and extra fields in
+all dated history values; represent action/time/note and extra fields in
 readable entries without truncation, invented dates, or inferred approval.
 
 ### 2. Preserve text when commands edit it
@@ -360,60 +359,19 @@ manifest and replacement data before installing files. Check pending operations
 under the tracker lock before allowing further mutations; report incomplete
 recovery on read-only commands. Recovery cannot overwrite an unexpected hash.
 
-### 3. Explicit conversion with preserved originals
+### 3. New records and legacy compatibility
 
-Add `work consolidate <ID>` as a read-only preview. It does not overload the
-existing older-root import command. `--apply --preview-hash <hash>` applies the
-reviewed conversion for that item; reject it if any source changed. The preview
-shows the proposed document, field/source mapping, link changes, conflicts,
-retired filenames, and backup location. Start with a single item so unrelated
-projects/items cannot be converted by an installation or refresh.
+Mike authorized implementation on 2026-09-19 and removed existing-item migration
+from this build. New local items use WORK-ITEM.md. Existing items remain in their
+current format and use their existing read/write paths. No consolidation command,
+conversion preview, migration backup, rollback command, or live-item migration
+is part of this change. The existing older-root import command is unchanged.
 
-Back up exact original bytes under the shared local tracker at
-`.work-items/.recovery/consolidation/<run-id>/<item-id>/`, with a manifest naming
-original relative paths and hashes. Exclude `.recovery` explicitly from item
-scanning, ID allocation, dashboards, and validation of live items. Keep backups
-until explicitly cleaned up; they are historical recovery copies, not live
-records. Keep the tracker Git-ignored and never push these local backups.
-
-Apply under the tracker lock in this order:
-
-1. Recheck the preview/source hashes; preserve every original before changing
-   live files. Do not follow symlinks outside the tracker or overwrite a backup.
-2. Prepare and validate WORK-ITEM.md in the recovery directory. Compare all
-   normalized fields, IDs, approvals, full history, tasks, and owner content
-   against the preview. Missing TASKS.yaml is valid legacy state, not empty
-   invented tasks. Unknown/custom files and separate design stay in place.
-3. Record the prepared operation, install the document, and read it back.
-   Only then retire the replaced canonical files from the live item. While
-   both forms exist, ordinary mutations stop and point to recovery.
-4. Verify only the new canonical format is live, preserve nesting/archive
-   position and branch selections, repair only previewed local links, and mark
-   the operation complete. Rebuild the dashboard and validate the tracker.
-
-Fold preserved STATUS.md User notes into Overview; keep all progress/history
-entries with their provenance, without attempting semantic deduplication.
-Preserve any owner edits outside generated areas or stop when ownership is
-unclear. Convert requirement heading levels only as needed to nest them beneath
-Requirements, show those changes in preview, and map old file/heading links to
-their new destinations. Inventory incoming links within the tracker; report
-outside references that cannot be verified rather than silently breaking them.
-Shared PRDs and designated workbooks remain links, with their supplied approval
-evidence preserved; conversion never treats an unapproved source as approved.
-
-`work consolidate <ID> --recover <run-id>` resumes an interrupted operation
-using recorded hashes and phases. A completed repeat is a no-op.
-`--rollback <run-id>` restores the exact originals only when the current files
-still match the conversion result. If later edits exist, preserve them and
-report the conflict; rollback never overwrites newer work. Restart tests kill
-the process after each phase, rather than only raising caught exceptions.
-
-Newly created items use WORK-ITEM.md after the release. Unconverted items remain
-readable and keep their existing commands until explicitly converted. A migrated
-item never recreates the retired files. Each item has exactly one selected
-format; mixed formats block mutation. Existing `work migrate` keeps its current
-older-root import scope, with a separate preview required for consolidation.
-Document that compatibility behavior and do not silently chain conversions.
+Select the format from the actual item files. One item with WORK-ITEM.md and old
+canonical files is ambiguous and must fail validation/mutation with a clear
+message, without selecting a winner or deleting anything. New and legacy items
+may coexist in one tracker, including parent/child links across formats.
+Installation and project-sync do not rewrite existing records.
 
 ### 4. External descriptions and prompt saves
 
@@ -447,16 +405,15 @@ GitHub fixture does not prove external update/recovery behavior.
 ### 5. Build boundaries and evidence
 
 Implement in this order: document reader/patcher and field mappings; tracker
-read/write compatibility and guarded edit; conversion/recovery; instructions,
-manuals and setup/sync; then installation and authorized pilot verification.
-Keep each step reviewable in one implementation branch. No live project is a
-migration test fixture, and DragonFly still needs explicit migration authority.
+read/write compatibility and guarded edit; instruction and
+manual updates and setup/sync; then fixture-based verification and a reviewed PR.
+Keep each step reviewable in one implementation branch. Leave existing project
+records untouched; there is no migration in this build.
 
 The acceptance checks below remain required. Add focused regressions for every
-legacy-field mapping, unchanged-byte preservation, nested Markdown, two branch
-task selections, unchanged parent approvals, mixed-format refusal, stale-preview
-refusal, kill/restart at every conversion/batch boundary, and rollback after
-later edits. Exercise the external flow in disposable authorized items and
+supported-field round trip, unchanged-byte preservation, nested Markdown, two
+branch task selections, unchanged parent approvals, mixed-format refusal, stale
+edit refusal, interrupted-write recovery, and legacy compatibility. Exercise the external flow in disposable authorized items and
 identify exactly which services and installed hosts were tested. Full tracker
 and repository checks establish code integrity; fresh-session scenarios must
 separately show correct capture and continuation. Neither is evidence for an
@@ -489,24 +446,19 @@ with the existing documentation inventory below.
    and safe-write mechanisms. Do not regenerate the whole document from an old
    snapshot or overwrite unrelated sections. Preserve completion-event
    deduplication and branch-scoped active-item protections.
-4. **Migrate explicitly.** Provide preview and apply paths. Inventory legacy
-   records, status notes, roadmap/tasks, approval evidence, custom files, and
-   designated external requirements. Show conflicts instead of choosing by
-   timestamp. Preserve IDs, links, nesting, archive state, and unknown owner
-   content. Back up exact originals outside the live item scan before replacing
-   them; verify readback before retiring old canonical files. Support restart,
-   repeated migration, and rollback. Never bulk-migrate projects on install.
-   Old records stay readable until explicit conversion; mixed legacy/new
-   authorities in one item block mutation with an actionable message.
+4. **Preserve existing records.** Select each item's format from its files and
+   retain the legacy read/write path. Test mixed-format parent/child links,
+   archived/nested items, missing legacy TASKS.yaml, and unchanged owner files.
+   Ambiguous old/new authorities inside one item block mutation. No conversion
+   or migration tooling is included.
 5. **Align all instructions and documentation.** Use the inventory below and
    search active source for every retired filename and old routing instruction.
    Update behavior-bearing guidance in the same implementation release; do not
    make current manuals claim the new storage already exists.
-6. **Verify and roll out.** Run the checks below, review the concrete migration
-   preview, publish through the authorized personal account, refresh installed
-   plugins, and run project-sync. Validate the installed source/rule versions
-   before an authorized pilot migration and fresh-session exercise. DragonFly
-   remains unchanged until its migration is explicitly authorized.
+6. **Verify and present the PR.** Run the checks below, including new and legacy
+   fixtures. Publish the reviewed implementation branch through the personal
+   account. Report source/fixture verification separately from installed-host
+   rollout. Existing projects and records are not migration targets.
 
 ## Documentation and instruction inventory
 
@@ -515,7 +467,7 @@ with the existing documentation inventory below.
 | Work tracker | README, work skill, record-format and command-reference; shared template, CLI help, fixtures and tests |
 | Project rules | Shipped and installed work-item-stages, root CLAUDE routing, relevant catalogs |
 | Session skills | work-guide, requirements-helper, solution-design/template/helpers, delivery-reviewer, spec-check, handoff; remove separate-record assumptions |
-| Setup and sync | project-init setup flow, project-sync conflict checks and migration guidance; refresh alone never silently converts records |
+| Setup and sync | project-init setup flow, project-sync conflict checks and new/legacy guidance; refresh never converts records |
 | PRDs | guided-work-management owns this pending requirement; reconcile guided-delivery, work-item-upkeep, toolkit-operating-system and affected Knowledge System references at delivery |
 | Manuals | toolkit-manual plus shipped and installed knowledge-manual routing: item-specific requirements/tasks/status in the item; shared PRDs and design keep their own content/Notes |
 | Managed copies | Locate manual source, installed copies and hash/version checks; change and validate together, including affected manifests and release notes |
@@ -541,9 +493,9 @@ task's active draft from this worktree.
   details blocks, Unicode, and Windows line endings.
 - Capture organize-then-Codex-review tasks; preserve dependency, question owner,
   answer, approval state, and exact resume point across later status updates.
-- Migrate nested/archived items, missing TASKS.yaml, custom notes and designated
-  workbooks. Preserve meaning and IDs; surface contradictory copies. Test
-  interruption recovery, repeat application, rollback, and concurrent changes.
+- Resume legacy nested/archived items, missing TASKS.yaml, custom notes, and
+  designated workbooks in place. Test new/legacy links and commands, failed writes,
+  stale edits, and ambiguous records without converting or discarding anything.
 - Preserve active-item guard, requirement-approval gate, links, completion
   events, history, archive behavior, and structured command results.
 - Fresh Claude and Codex sessions find the same item, save a new request in the
@@ -578,16 +530,13 @@ task's active draft from this worktree.
 - Clarification: Mike confirmed Roadmap belongs in this same file as its own
   top-level section immediately before Tasks, replacing the initial proposal
   to group roadmap information within Tasks.
-- Proposal prepared in the handoff-review task on 2026-09-19 under Mike's
-  "Okay, go" to preparing one concrete proposal. The section above recommends
-  visible Markdown fields, source-preserving guarded edits, explicit per-item
-  conversion, and excluded local recovery backups. These choices are proposed,
-  not approved implementation or permission to migrate existing projects.
-- Review: checked the proposal locally against R6, existing R4/R5 behavior,
-  the merged R1 choice storage, and tracker source. No runtime code changed;
-  no migration, independent-agent review, or behavior-test result is claimed.
-  Main limitation to retain: direct editor writes and external APIs without
-  revision checks cannot guarantee conflict-free concurrent edits.
+- Implementation authorization, 2026-09-19: Mike said existing work items do not
+  need migration and told this task to proceed with implementation. New items use
+  the consolidated record; existing items keep their format. Migration tooling
+  is excluded. The original proposal's conversion section was replaced above.
+- Owner: handoff-review task 01a0baf8-64a4-70e0-90fa-87be86b0fe2f now implements
+  T4 on issue-337-consolidated-record. The former canonical-record task is archived;
+  this active task maintains the scoped implementation records.
 - Publication correction, 2026-09-19: PR #356 merged the document-continuity
   guidance and this consolidation plan on 2026-09-18. The plan is on main;
   consolidation runtime and project migrations have not started.
@@ -595,9 +544,7 @@ task's active draft from this worktree.
   PR, and authorized merge; it retains local cleanup/installation reporting.
   This task owns canonical records. Resume the future helper-authority question
   from PRD Notes and remaining rollout/verification from issue #337.
-- Consolidation resume: Mike reviews the concrete R6 proposal above. The next
-  decision is whether to approve implementing that proposal in an isolated
-  branch through a reviewed PR. Preserve separate merge, rollout, and project
-  migration authority. T3 remains awaiting design/build decision; T4 has not
-  started. If approved, begin the document reader/patcher and field-mapping
-  tests, then follow the sequence above. Never push through the work account.
+- Consolidation resume: implementation authorized and starting. Build the shared
+  document reader/writer, preserve legacy paths, align instructions, verify, and
+  present a reviewed PR. Merge and installed rollout remain separate. No
+  existing-item migration or migration tooling is needed.

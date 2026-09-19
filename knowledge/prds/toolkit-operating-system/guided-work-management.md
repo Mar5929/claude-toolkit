@@ -281,9 +281,9 @@ Requirements. Use the tracker's supported formatting to preserve the same
 readable structure; identical Markdown syntax is not required. Native fields
 remain authoritative for status and assignments. Design documents stay separate
 and linked. Do not create a local mirror or scatter the item's current content
-across separate task, requirements, status, or notes documents. Existing records
-migrate without losing owner notes, history, links, IDs, or approval distinctions.
-Installation alone must not silently migrate a project's work.
+across separate task, requirements, status, or notes documents. Existing work items keep their current format and remain usable. This release
+does not migrate existing items or add consolidation migration tooling. New
+local items use the consolidated record; installation does not rewrite old work.
 
 Capture a human decision or other meaningful requirement, design, answer,
 constraint, or progress update as soon as it is given, before moving past that
@@ -298,8 +298,9 @@ saves without claiming they are published, and retain them for recovery.
 
 **Check:** create and resume an item with a different supported agent. Both use
 the same sections and save a dependent review task without creating extra
-records. Migrate an older item and verify its tasks, requirements, open
-questions, decisions, and approval state survived. Check applicable rules,
+records. Resume an older item in its existing format and verify its tasks,
+requirements, questions, decisions, and approval state remain usable without
+conversion. Check applicable rules,
 skills, PRDs, setup/sync flows, and both operating manuals for agreement.
 Repeat with an external work item: its description contains the same sections,
 its design is linked separately, and no local mirror is created. Give a new
@@ -328,6 +329,11 @@ to build a particular solution.
 
 ## Notes
 
+- Implementation authorized by Mike in the handoff-review task on 2026-09-19:
+  proceed with the consolidated record for new work items and a reviewed PR.
+  Existing items do not need migration. Keep their existing format usable;
+  migration tooling and live-item conversion are excluded from this build.
+
 - Scoped delivery, 2026-09-19: [PR #359](https://github.com/Mar5929/claude-toolkit/pull/359)
   merged the agent-led delivery method and entry points at `df9d2a0`. The
   [scenario guide](../../../plugins/work-tracker/tests/delivery-scenarios.md)
@@ -343,7 +349,7 @@ to build a particular solution.
   R6 records this clarification; it does not authorize its runtime migration.
 
 - Decision: Mike approved the single-record direction and requested a consistent
-  template and implementation plan on 2026-09-18. Runtime migration is pending.
+  template and implementation plan on 2026-09-18. New-record implementation is now authorized; migration was excluded on 2026-09-19.
 - Clarification: Roadmap is a top-level section in that same file, immediately
   before Tasks, as Mike confirmed after reviewing the plan.
 - Decision: Mike confirmed the agent-led delivery intent and authorized its
