@@ -20,18 +20,28 @@ description: >-
 EXISTING projects: figure out what the toolkit provides, check the current
 project against it, report the gaps, then close the gaps the user approves.
 
-Run the steps in order. Never change anything before step 4.
+Run the steps in order. Do not change the project being audited before step 4.
+A normal project-sync invocation includes refreshing the toolkit source in step
+1 so the comparison uses the current inventory. If the owner asked for a
+read-only or audit-only run, the whole invocation stays read-only: do not update
+an installed plugin, pull a clone, fetch the repository, change the project,
+record declines, or write the sync record. Use the best source already
+available, identify it and its known freshness in the findings report, then stop
+after step 3. A later explicit request to fix selected findings enters the normal
+approval and recording flow in steps 4 and 5.
 
 ## Step 1: inventory the toolkit
 
-**First, refresh the installed toolkit so this audit sees the latest.** This
+**First, refresh the installed toolkit so this audit sees the latest.** A normal
+project-sync request authorizes this source refresh; a read-only or audit-only
+request follows the no-mutation exception above. This
 skill reads the toolkit from the installed plugin copy (option 1 below), and
 that copy does NOT update itself when the repo changes on GitHub. A merged
 change sits on GitHub until each machine pulls it. So before inventorying,
 update the local copy: inside a Claude Code session run
 `/plugin marketplace update claude-toolkit`, or from a terminal run
-`claude plugin marketplace update claude-toolkit`. Skip this only when you are
-reading from a freshly-pulled local clone (option 2). A stale plugin copy
+`claude plugin marketplace update claude-toolkit`. Skip this for a read-only audit
+or when reading from a freshly-pulled local clone (option 2). A stale plugin copy
 produces a stale audit, so the project silently misses the newest rules and
 systems, which is the exact failure this step guards against.
 
@@ -586,7 +596,9 @@ cannot carry a rule that applies always.
 ## Step 3: report before touching anything
 
 Show one table: item, status, and what specifically is missing or drifted. Make
-no changes in this step. Let the user pick what to fix, and recommend an order:
+no changes in this step. For a read-only audit, report source freshness and any
+limits, then finish without entering the repair or record steps. Otherwise let
+the user pick what to fix, and recommend an order:
 resolve mixed signatures, install or migrate project knowledge, retire duplicate
 local wiring as a separate choice, then update rules and other systems.
 Existing v1 wiring does not block the new knowledge layout.
@@ -822,6 +834,8 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   the tracker instead.
 
 ## Step 5: record the sync
+
+Skip this step entirely for a read-only or audit-only invocation.
 
 Write a short sync record so future runs know where things stand. Default
 location: `.claude/toolkit-sync.md`, with at most a one-line structural pointer

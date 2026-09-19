@@ -64,8 +64,9 @@ When .system-guide.json is enabled, use the System Guide plugin's system-guide s
 
 The Acme CRM board on GitHub, connected to this repository. The chosen issue
 holds its requirements, solution design, progress, and decisions in the board's
-established fields and comments. An issue is ready to build when it carries the
-project's approved-requirements stage.
+established fields and comments. Build and data-load work require recorded
+requirements approval. Later stage labels show current position and do not
+revoke that approval; check the approval record when resuming.
 ````
 
 ## Sample AGENTS.md

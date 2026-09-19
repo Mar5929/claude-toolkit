@@ -29,15 +29,21 @@ action. For deletion, name the allowed reason. Then wait.
 
 ## Apply one complete change
 
+Before writing, choose the checkout and publication route from the project's
+publication rule for the complete approved operation, including reference
+repairs. If a newly discovered repair changes scope or requires a different
+route, keep the operation unpublished until that is resolved.
+
 For a supersede:
 
-1. Write the approved replacement through `remember`, with `supersedes` pointing
-   to the old file.
+1. Prepare the approved replacement through `remember`, with `supersedes`
+   pointing to the old file. Do not publish the replacement yet.
 2. Mark the old file `superseded` and point `superseded_by` at the replacement.
 3. Use `rg` to find every reference to the old filename. Repair links that treat
    it as current and preserve links that deliberately describe history.
 
-All three steps happen together or the supersede is unfinished.
+All three steps happen together or the supersede is unfinished. Never publish a
+replacement without the old file's lifecycle change and repaired current links.
 
 For a retirement, mark the file `retired`, leave `superseded_by` absent, and
 repair current references.
@@ -55,6 +61,16 @@ node .claude/tools/build-knowledge-index.mjs
 node .claude/tools/check-knowledge.mjs
 ```
 
+After both checks pass, publish the complete approved lifecycle change as one
+save through the route the project's publication rule assigns to the actual
+diff. Use the direct documentation route only when every changed file is
+eligible for it. If a required reference repair changes behavior-bearing
+instructions or accompanies implementation, keep the whole lifecycle operation
+in that implementation's review route. Reference repair does not authorize a
+policy change. If checking or publication fails, preserve the whole change as
+unfinished and report the exact next step; never split the operation to evade
+review or publish or retry a subset.
+
 Report the action, every repaired reference, and anything left unresolved. If a
 step or check fails, say the change is unfinished.
 
@@ -63,5 +79,7 @@ step or check fails, say the change is unfinished.
 - Never act because a file is merely old.
 - Never mark a file superseded before its replacement exists.
 - If several files will change, show the complete list before touching any.
-- If the file is already non-current, say so and change nothing.
-- This skill never commits, pushes, opens a pull request, or merges.
+- If the requested lifecycle change is already complete, say so and change
+  nothing. For an interrupted approved operation, verify what remains and resume
+  only its unfinished steps; a non-current status alone does not prove completion.
+- Publish only the paths and meaning covered by the approval.

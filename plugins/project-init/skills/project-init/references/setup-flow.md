@@ -247,24 +247,17 @@ separate prep, interview, or continuation files for that workflow.
   already points Codex to `CLAUDE.md`.
 - Behavioral rules go into the project's `.claude/rules/` as individual files,
   not into CLAUDE.md. See `thin-claudemd.md` and `library/rules/general/README.md`.
-- Copy the general rules from `library/rules/general/` into `.claude/rules/`: every
-  default-ON file unless the owner drops it. Never copy retired v1 recognition
-  files into a new project. The current knowledge procedure comes from its
-  plugin, not from the general rule library. Walk the list; let the owner accept,
-  edit, or skip each.
-- Default-ON rules: multi-agent worktree protocol, language rules (no em dashes,
-  no section signs, no AI filler, plain language), and working-style rules (lead
-  with the answer; answer last, ask only in the question box; solve the real goal
-  and push back; define terms; ask before assuming; offer a handoff in a loaded
-  session; steer the session to the goal; do the technical work yourself; one
-  folder per work item; show phase progress; treat the owner as non-technical).
-  Only drop if the owner opts this project out.
+- Read `library/rules/general/README.md` once at this gate and use it as the
+  canonical inventory. Walk its active rules once, applying each entry's
+  applicability and default to this project's selected setup. Offer applicable
+  default-ON rules unless the owner opted out; offer conditional rules only
+  when their condition holds. Honor choices already made in
+  earlier gates or recorded by the owner, and ask only for an unresolved choice.
+  Let the owner accept, edit, or skip each offered rule, then copy the accepted
+  files into `.claude/rules/`. Never copy a rule the index records as retired or
+  recreate the current knowledge procedure from this library; its plugin owns it.
 - Salesforce projects: make sure the `library/rules/salesforce/` files chosen in Gate 1
   are in `.claude/rules/` too.
-- Conditional general rules go in only when the project has the thing they
-  govern: today that is `dependency-graph.md`, when the graphify graph was
-  accepted in Gate 4. Salesforce projects get the `library/rules/salesforce/` file of
-  that name instead. Never both.
 - MCP tool rules from `library/guides/mcp-best-practices.md` are conditional: fold in a server's
   section only if the project uses that MCP server.
 - Write a thin CLAUDE.md _with_ the user: what it is, codemap and structural

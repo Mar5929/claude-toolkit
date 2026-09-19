@@ -108,10 +108,17 @@ approver or date to make the checker pass.
 Use relative Markdown links and `.md` extensions. Never hand-edit a generated
 index.
 
-An approved knowledge-only save commits to the default branch and is pushed,
-even while implementation is in a worktree. Follow the project's direct-save
-rule for checkout selection and concurrent edits. Do not park the save on the
-implementation branch; report any unfinished save and its next step.
+An approved standalone knowledge-only save commits to the default branch and is
+pushed, even while implementation is in a worktree. Follow the project's
+direct-save rule for checkout selection and concurrent edits. Do not park the
+save on the implementation branch; report any unfinished save and its next
+step.
+
+When `retire` invokes this skill for one approved supersede, prepare the
+replacement but do not publish it separately. Return control to `retire`, which
+must combine the replacement, the old file's lifecycle change, repaired current
+links, rebuilt indexes, and checks in one complete save. The approval applies
+only to the paths and meaning shown in the lifecycle proposal.
 
 ## 5. Verify
 
