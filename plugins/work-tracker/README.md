@@ -323,6 +323,9 @@ or `project-sync` instead.
 
 ## Verification
 
+[Delivery scenarios](tests/delivery-scenarios.md) describes fresh-session
+behavior checks, observed results, and the limits of source-loaded fixtures.
+
 Run:
 
 ```text
