@@ -1,11 +1,28 @@
 # work-tracker plugin
 
-A local work tracker shared by Claude and Codex. It keeps each work item in one
+Agent-led delivery guidance and a local work tracker shared by Claude and Codex.
+The delivery method uses the project's chosen tracker. Local mode keeps each work item in one
 Git-ignored folder, groups them in folders the owner makes, and makes
 active-item protection, faithful progress, and type-aware approval gates.
 
-**Setup: sets up a project.** Install once per machine. A project opts in when
-the owner chooses local folders for work tracking.
+**Setup:** install once per machine. The owner can use the delivery method with
+an existing external tracker. Local folders are a separate project choice.
+
+## Agent-led delivery
+
+For substantial new work, the `work` skill offers agents responsibility for
+delivery while the human acts as product owner. An accepted, declined, or revoked choice
+is saved for that goal in the existing item and read on resume. The
+[delivery method](skills/work/references/agent-led-delivery.md) owns that
+procedure. Agents maintain the work and bring product decisions and results
+to the owner, within existing approval and helper permissions.
+
+Local choices live in the preserved User notes of `STATUS.md`; external
+choices live in the item body or native fields. No new record format is needed.
+External mode never runs the local CLI or creates `.work-items/`. Optional
+session skills supply detailed interviews, design, and review methods.
+This is guidance for active sessions, not a scheduler that runs after a session
+ends. Local records are shared only within one clone's linked worktrees.
 
 ## Install
 
@@ -25,7 +42,7 @@ skill.
 
 ## What it installs
 
-- **work**: agent instructions used by Claude and Codex.
+- **work**: delivery instructions for the chosen tracker and local tracker commands.
 - **`work.mjs`**: one dependency-free Node.js command for local work items,
   built on `scripts/lib/tracker.mjs` for tracker behavior and
   `scripts/lib/common.mjs` for shared file, YAML, Git, and command helpers.
@@ -295,7 +312,8 @@ or `project-sync` instead.
 
 ## How it relates to the toolkit
 
-- `project-init` offers work-tracker when the owner chooses local folders.
+- `project-init` Gate 1 offers local tracking when the owner chooses local
+  folders. Gate 6 can offer the delivery method with any chosen tracker.
 - `project-sync` detects `.work-items/` and offers safe conversion for the older
   staged format.
 - `work-item-folders.md` tells agents how to protect requirements and update the

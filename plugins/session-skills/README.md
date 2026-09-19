@@ -34,6 +34,11 @@ All eleven also trigger from plain words. You never have to type the command.
 
 ## Guided delivery
 
+The work plugin owns the agent-led delivery offer and saved goal choice.
+`work-guide` uses that method when installed and the project's work-item rule
+otherwise. Acceptance carries across sessions; decline preserves normal help.
+Neither choice adds implementation, publication, or helper permissions.
+
 Keep discussion and decisions in the main conversation. `work-guide` reads the
 project and item context, keeps every roadmap stage connected to actionable
 tasks or child work items, coordinates bounded specialist help, and restores a

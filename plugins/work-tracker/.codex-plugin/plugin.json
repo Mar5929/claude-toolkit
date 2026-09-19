@@ -1,7 +1,7 @@
 {
   "name": "work-tracker",
-  "version": "2.6.2",
-  "description": "Local work tracking for Claude and Codex with owner-shaped roadmaps, actionable tasks, child work items, branch-scoped continuation, Git-ignored folders, consistent progress, approved completion events, and optional Git landing evidence.",
+  "version": "2.7.0",
+  "description": "Agent-led delivery with the chosen tracker, plus local work tracking for Claude and Codex with roadmaps, tasks, shared continuation, approval boundaries, and Git evidence.",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com",
@@ -18,8 +18,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Work Tracker",
-    "shortDescription": "Track local work in folders that Git ignores.",
-    "longDescription": "A local Claude and Codex work tracker with owner-shaped roadmaps, detailed execution tasks, linked child work items with their own plans and approvals, branch-scoped item and task selection, YAML records, owner-made group folders, consistent progress, approval-aware completion, optional Git evidence, handoffs, dependency validation, generated dashboards, and preview-first conversion of older staged trackers.",
+    "shortDescription": "Guide delivery and track local work.",
+    "longDescription": "Offer agents delivery responsibility with the human as product owner. Preserve the goal-specific choice in the existing local or external tracker. Local mode supplies roadmaps, tasks, approvals, handoffs, and optional Git evidence without a cloud service.",
     "developerName": "Mike Rihm",
     "category": "Productivity",
     "capabilities": [

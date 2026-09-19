@@ -1,4 +1,4 @@
 interface:
   display_name: "Work Tracker"
-  short_description: "Manage local work in flat ignored folders"
-  default_prompt: "Use $work to show what I should work on next."
+  short_description: "Manage tracked work and agent-led delivery"
+  default_prompt: "Use $work to orient to my tracked work and guide its delivery."
