@@ -302,6 +302,15 @@ task's active draft from this worktree.
 
 ## Notes
 
+- Scoped release, 2026-09-19: PR #359 merged at `df9d2a0` under Mike's
+  implementation/merge authorization. Work-tracker 2.7.0, session-skills 1.12.4,
+  project-init 0.75.0, and marketplace 0.118.0 contain the delivery method and
+  integration. The [committed scenario guide](../../plugins/work-tracker/tests/delivery-scenarios.md)
+  owns reproducible behavior evidence and limitations. Fresh Codex CLI/Sol
+  source fixtures are distinct from installed-host rollout, Claude, growth
+  re-offer, partial local writes, and external mutation recovery. Issue #337
+  owns current verification/rollout status. R6 remains unbuilt.
+
 - Clarification approved by Mike in the handoff-review task, 2026-09-19:
   the external issue description holds the same template as WORK-ITEM.md,
   with separate linked design. Significant human decisions/input are captured
@@ -321,9 +330,10 @@ task's active draft from this worktree.
 - Publication correction, 2026-09-19: PR #356 merged the document-continuity
   guidance and this consolidation plan on 2026-09-18. The plan is on main;
   consolidation runtime and project migrations have not started.
-- Agent-led delivery: the named implementation task owns R1 code, checks, PR,
-  and authorized merge. This task owns canonical records. Resume its product
-  question from the PRD Notes and reconcile implementation evidence here.
+- Agent-led delivery: the named implementation task completed code, checks,
+  PR, and authorized merge; it retains local cleanup/installation reporting.
+  This task owns canonical records. Resume the future helper-authority question
+  from PRD Notes and remaining rollout/verification from issue #337.
 - Consolidation resume: review the existing R6 plan and settle format/parser
   and backup details, then confirm build scope before runtime work. Sequence
   parser, CLI/migration, documentation, and installation verification. Its

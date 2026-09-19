@@ -60,8 +60,20 @@ plugin refresh and project-sync. Do not claim adoption from source publication.
 
 ## Notes
 
-2026-09-19: Implementation authorized from the completed audit. Three Sol agents
-assigned disjoint changes; Astra owns integration. Related #269, #337, and #358
-retain their scope. Current position: execute the plan, then independent review
-and validation. No known blocker. Next: integrate agent changes and record test
-evidence on #360; return the PR for owner review.
+2026-09-19: The seven priority fixes are implemented in
+[PR #361](https://github.com/Mar5929/claude-toolkit/pull/361), head `b455f37`.
+The plan is fulfilled through implementation and validation; merge and owner
+acceptance remain pending. Current main was merged into the implementation
+branch, preserving #359 and subsequent documentation changes.
+
+Cross-review corrections cover whole-invocation read-only audits, choosing the
+complete lifecycle publication route before writing, and resuming unfinished
+approved supersedes. Startup/index wording follows the manual's existing
+finalized/legacy-current contract; the index and empty template were regenerated.
+The knowledge manual needed no edit. The toolkit-manual explanation is included
+with implementation. Full evidence and scenario limits are on #360.
+
+Next: owner review of PR #361; merge only after approval. Other projects adopt
+through plugin refresh and project-sync after merge. Live-host reliability and
+instruction-overload measurements remain separate tests. No known implementation
+blocker. Related #269, #337, and #358 retain their scope.

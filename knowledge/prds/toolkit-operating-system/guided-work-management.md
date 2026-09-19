@@ -328,6 +328,14 @@ to build a particular solution.
 
 ## Notes
 
+- Scoped delivery, 2026-09-19: [PR #359](https://github.com/Mar5929/claude-toolkit/pull/359)
+  merged the agent-led delivery method and entry points at `df9d2a0`. The
+  [scenario guide](../../../plugins/work-tracker/tests/delivery-scenarios.md)
+  records fresh Sol source-fixture results and their limits. This is scoped
+  implementation evidence, not full-PRD approval, R6 delivery, installed-host
+  rollout proof, or acceptance of the complete experience. Issue #337 owns
+  current rollout status and remaining verification tasks.
+
 - Clarification approved by Mike in the handoff-review task, 2026-09-19:
   external work-item descriptions use the same template as WORK-ITEM.md;
   designs stay separate. Significant human input is captured and saved through
@@ -352,9 +360,10 @@ to build a particular solution.
   Recommendation, not approved: let the lead choose within approved scope,
   bringing product choices, significant cost tradeoffs, and existing approval
   boundaries to Mike.
-- Resume here: continue the agent-led delivery interview with that helper
-  authority question, then prepare a reviewable design before changing shipped
-  behavior. Preserve the settled offer timing and declined-offer behavior.
+- Resume here: resolve the future helper-authority question when Mike answers;
+  retain the existing permission boundary meanwhile. Follow issue #337 for
+  rollout and remaining behavior checks. Preserve settled offer timing,
+  declined-offer behavior, and the scoped delivery already merged.
 - Parallel remaining scope: [Consolidated work-item plan](../../../docs/designs/337-consolidated-work-item.md)
   holds R6's template, implementation sequence, documentation inventory, checks,
   and outstanding implementation choices. Its runtime work remains pending.

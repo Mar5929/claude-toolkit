@@ -34,9 +34,8 @@ Fresh-session/recovery tests, rollout, and acceptance remain.
 ### Toolkit instruction review — #360
 Updated: 2026-09-19
 
-Mike authorized the seven priority fixes; implementation underway.
-Next: review, test, and return PR; merge pending.
-[#360](https://github.com/Mar5929/claude-toolkit/issues/360).
+Seven fixes implemented and checked in [PR #361](https://github.com/Mar5929/claude-toolkit/pull/361).
+Next: owner review and merge approval. Live-host behavior remains unmeasured.
 
 ## Testing to-dos
 - 2026-09-19: Test instruction overload and find sufficient guidance that
