@@ -1004,7 +1004,8 @@ Access review.
 
 - Each topic area has one home under `knowledge/memory/memory-entries/`: one Markdown file by default, or a topic folder containing related Markdown files when the topic needs to be split. Keep related facts, decisions, lessons, and useful history together, so a later agent can read them in one place and understand them. Do not create a separate file for every small piece of information. The memory index and current work sit outside the entries folder. The owner's feedback about what is worth saving as memory has no fixed home here; requirement 23 leaves that choice to the design.
 - Before saving, find the existing topic file or folder and update the file that owns the information. Create a file only for a distinct topic area that has no home, as part of an approved split, or for a coherent subtopic not already covered in an existing topic folder. New files still follow requirement 10's approval rules. File and folder names describe their topic or subtopic in plain words: lowercase with hyphens; Markdown filenames end in `.md`. Do not name them after dates, codes, or ticket numbers.
-- The agent recommends splitting a topic into sensible subtopic files inside one topic folder when that would make the information easier to find, understand, or use. The proposal names the affected files and what each will contain. Keep the context a subtopic needs with that subtopic. Keep shared lasting context in the topic or subtopic file that owns it and link to it from related files instead of copying it. Split a topic only after getting the approval requirement 10 calls for, and keep the approved meaning intact. It is not permission to create one file per fact. Every resulting memory file follows this requirement's field rules.
+- Organize each topic around information a future agent needs to understand together. Use headings when they help group related information, and explain connections between facts, lessons, and useful history where those connections matter. Integrate new information into the relevant section instead of accumulating disconnected notes. Keep enough context together to understand it without making the topic so broad that finding an answer requires reading unrelated material.
+- The agent recommends splitting a topic into sensible subtopic files inside one topic folder when that would make the information easier to find, understand, or use. Judge the split by those benefits, rather than by the number of facts or a fixed file length. The proposal names the affected files and what each will contain. Keep the context a subtopic needs with that subtopic. Keep shared lasting context in the topic or subtopic file that owns it and link to it from related files instead of copying it. Split a topic only after getting the approval requirement 10 calls for, and keep the approved meaning intact. It is not permission to create one file per fact. Every resulting memory file follows this requirement's field rules.
 - Each file is kept up to date, rather than added to forever. Rewrite or remove information that is out of date, repeated, or contradictory when that is the right thing to do, staying inside the approval rules. Keep the account of what is true now easy to read. Retain an important timeline or superseded decision trail in the same file only when that history is useful, with dates and clear labels showing what no longer applies.
 - Do not sort memory topics into subfolders by type. A note can hold a fact, a decision, and a piece of history together.
 - The terminology glossary shares the entries folder but keeps the table format and direct navigation link in requirement 7. It is not a memory topic, is excluded from the generated memory index, and does not require memory or index fields.
@@ -1132,6 +1133,8 @@ Review the provider choice after the release.
 - Access requirements: <link to the applicable PRD>
 - Release work: <link to the existing work item>
 ```
+
+**Check:** save several related lessons about customer imports over separate sessions. The agent updates the relevant sections of the existing topic file, keeping the connections and useful context clear. A later session can find and understand the lessons without reconstructing those conversations. If matching and error recovery become distinct substantial subtopics, a split proposal explains how it improves retrieval or understanding, preserves needed context, and links shared information. Adding another fact alone does not create another file.
 
 ## 15. How the words are written
 
@@ -2245,6 +2248,12 @@ The instruction-content audit and full requirements approval remain outstanding.
   infer it from approval to save or refine this document.
 
 ### Recorded notes
+
+- On 2026-09-19, Mike approved refining R14 around coherent topics: organize
+  related information within a file, explain useful connections, and judge
+  splits by retrieval and understanding rather than fact counts or fixed
+  length. The customer-import example checks this across sessions. This is
+  approval of this clarification, not full requirements or build approval.
 
 - On 2026-09-19, Mike requested reconciliation of this PRD and the Toolkit OS
   PRD so future sessions can locate architectural decisions and different kinds
