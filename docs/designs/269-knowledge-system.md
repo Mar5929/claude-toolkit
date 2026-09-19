@@ -1050,6 +1050,13 @@ between startup, task instructions, tool descriptions, and lifecycle events.
 They do not establish that fewer words improve this toolkit's behavior, nor
 that another provider's automatic extraction meets this project's requirements.
 
+Detailed findings, pinned source versions, limits, and provider-specific
+differences are preserved in the supporting research reports:
+[Hindsight and claude-mem](269-knowledge-system/research/2026-09-19-hindsight-claude-mem-instruction-delivery.md)
+and [Supermemory and Mem0](269-knowledge-system/research/2026-09-19-supermemory-mem0-instruction-delivery.md).
+These are research evidence, not approved architecture decisions. This master
+design owns the recommendation, alternatives, reasons, and approval state.
+
 | Area | Already agreed or planned | Proposed refinement and reason |
 | --- | --- | --- |
 | Core manual and skills | Section 6 already divides startup policy, four task skills, and applicable examples/formats. | Keep this arrangement. Draft the actual words and trace each responsibility to its owning instruction; research does not require another manual or architecture. |
@@ -1061,6 +1068,12 @@ that another provider's automatic extraction meets this project's requirements.
 #### First review: shorter reminder candidate
 
 The following is a candidate for comparison, not installed prompt text:
+
+**Audit finding, 2026-09-19:** this shortest candidate omits the owner orientation,
+explicit compact positive/negative criteria, and both manual links required by
+R9/R29. It cannot be adopted as written under the current requirements. The
+next wording draft must preserve those requirements; removing them would need
+an explicit requirements decision. Mike has not approved such a removal.
 
 > Evaluate the user's message and relevant conversation for useful project
 > information to retain, correct, or update. Follow the current knowledge manual
@@ -1122,16 +1135,23 @@ for the initial implementation after reviewing the function-hooks comparison.
 Function hooks remain a future candidate if evidence supports a benefit.
 This does not authorize implementation or approve the full design.
 
-**Resume here:** review the [proposed refinements](#proposed-refinements-after-memory-provider-research--2026-09-19)
-one point at a time, starting with the shorter reminder candidate. Mike authorized
-preparing this comparison on 2026-09-19; the exact revision remains under review.
-Then draft the actual core knowledge manual first, followed by the
-applicable skill instructions, templates, and rules using the instruction audit.
-Prepare behavior-bearing drafts in an isolated implementation worktree; review
-wording before supporting code and hooks, and activate them together. Mike asked
-to continue on another computer or in a new project/session from this exact
-point. Read these Notes and the linked audit; do not reopen settled decisions.
-Technical proofs and full design/build approval remain outstanding.
+**Resume here:** continue the voice-friendly walkthrough of the
+[actual first core manual draft](https://github.com/Mar5929/claude-toolkit/blob/issue-269-core-manual-draft/docs/designs/269-knowledge-system/core-knowledge-manual-draft.md),
+published at `e61d064` on the isolated `issue-269-core-manual-draft` branch.
+Mike reviewed the intended startup/resume experience and asked the agent to own
+technical choices, bringing him product tradeoffs. He has not approved all
+wording or the full design. Explain the actual rules for memory selection and
+information ownership next; the spoken summary was not the full instruction
+set. Complete the requirement audit, then draft task skills, templates, and
+supporting rules. Link/whitespace checks passed for the draft; independent
+meaning review and fresh-agent behavior tests remain.
+
+The [research comparison](#proposed-refinements-after-memory-provider-research--2026-09-19)
+remains proposed; preserve R9/R29 when shortening the reminder. Keep
+behavior-bearing drafts isolated, review wording before supporting code/hooks,
+and activate the coherent package together. Technical proofs and full
+design/build approval remain outstanding. The published detailed research
+supports this same design and introduces no second architecture authority.
 
 **GitHub task summary to publish:** solution design is in progress, with
 requirements refinement where needed. The outstanding decisions, design tasks,

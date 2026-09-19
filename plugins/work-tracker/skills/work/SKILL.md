@@ -1,36 +1,46 @@
 ---
 name: work
-description: Manage a repository's local work items in the Git-ignored .work-items folder. Use for backlog capture, active-item selection, requirements, progress, stages, blockers, handoffs, completion, grouping, archiving, validation, reconciliation, and conversion of older local trackers. Also use before and after substantial work when local tracking is installed.
+description: Manage work in the project's configured local or external tracker and offer agent-led delivery for substantial goals. Use for backlog capture, active-item selection, requirements, progress, stages, blockers, handoffs, completion, grouping, archiving, validation, reconciliation, and substantial work before and after execution.
 ---
 
 # Work Tracker
 
-Use the dependency-free Node.js command at `scripts/work.mjs`, resolved relative
-to this file. Run it from any directory inside the target Git repository. Use
-`--json` when structured output helps.
+Identify the project's configured tracker before acting. Use its native fields,
+commands, and records; never create a second tracker or local mirror to make
+this skill fit. For a configured local tracker, use the dependency-free Node.js
+command at `scripts/work.mjs`, resolved relative to this file. Run it from any
+directory inside the target Git repository and use `--json` when structured
+output helps. Never run `init` or create `.work-items/` when the project uses an
+external tracker.
 
-The local files under `.work-items/` are this tracker's source of truth. They
-are Git-ignored, shared by linked worktrees in one clone, and not synced to
-GitHub or another computer. GitHub tracking is a separate choice, never a
-mirror.
+When configured, local files under `.work-items/` are the local tracker's source
+of truth. They are Git-ignored, shared by linked worktrees in one clone, and not
+synced to GitHub or another computer. An external tracker is a separate source
+of truth, never a mirror of local files.
 
 ## Orient first
 
 Before substantial work:
 
-1. Run `work active`.
-2. Read the active item's `REQUIREMENTS.md`, `STATUS.md`, `ITEM.yaml`, and
+1. Identify the configured tracker from project instructions and existing
+   records. If it is external, read the current item through its available
+   tools and native fields. Do not run the local CLI or initialize local files.
+2. For a configured local tracker, run `work active`; steps 3 through 8 are
+   local-tracker instructions.
+3. Read the active item's `REQUIREMENTS.md`, `STATUS.md`, `ITEM.yaml`, and
    `TASKS.yaml` when present. `work active --json` returns the branch's selected
    current task with its full execution and continuation details.
-3. If no item is active, select the clear item with `work active set ID`, or
+4. If no item is active, select the clear item with `work active set ID`, or
    ask one short question when the choice is unclear.
-4. If another item is active, stop. Replace it only through
+5. If another item is active, stop. Replace it only through
    `work active set ID --replace` when the change is intentional.
-5. For managed work, select the task you are continuing with
+6. For managed work, select the task you are continuing with
    `work task select ID TASK-ID`. Read its linked inputs and governing
    constraints before acting. If a legacy item has no roadmap tasks, reconcile
    them from accepted evidence without guessing history or approval.
-6. Confirm the exact current requirements document or workbook and working
+7. Read and apply the goal's saved accepted, declined, or revoked delivery
+   choice before offering or organizing delivery.
+8. Confirm the exact current requirements document or workbook and working
    design from the item and owner's instructions. Read those files. Preserve
    an existing authoritative workbook; do not pick a copy by date alone.
 
@@ -38,6 +48,15 @@ Before substantial work:
 mutations refuse a different active item. Reads and tracker-wide checks do not
 need an active item. After terminal work clears its mapping, archive or
 unarchive that terminal item only while no other item is active.
+
+When starting or resuming a substantial feature or work item, follow
+[agent-led delivery](references/agent-led-delivery.md). It owns the offer,
+durable choice, authority boundary, and recovery behavior. Simple questions and
+quick edits do not receive the offer.
+
+The remaining CLI and file instructions apply when the local tracker is
+configured. With an external tracker, apply the same recordkeeping principles
+through its native fields and project workflow without running these commands.
 
 ## Capture what the owner means
 

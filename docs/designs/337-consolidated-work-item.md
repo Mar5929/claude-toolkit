@@ -1,10 +1,80 @@
-# Consolidated work-item record
+# Guided work management delivery plan
 
 Implementation plan, 2026-09-18. Mike approved the direction and asked for this
 plan. The storage change is not implemented; this plan does not authorize a
 migration of DragonFly or changes to the active Knowledge System design.
 Required behavior is recorded in the
 [guided work management PRD](../../knowledge/prds/toolkit-operating-system/guided-work-management.md#6-one-readable-work-item-record).
+
+## Agent-led delivery: scoped implementation, 2026-09-19
+
+This is the existing design record for issue #337. It now holds both the
+agent-led delivery change and the separate pending record consolidation below.
+Neither workstream silently authorizes or completes the other.
+
+Mike confirmed the delivery intent and authorized an Astra lead with GPT-5.6
+Sol helpers to implement, create a pull request, and merge the checked result.
+The implementation task is `01a0bb10-0ba7-7171-988f-461c466da84c`, branch
+`issue-337-agent-led-delivery`. The coordinating requirements task owns this
+design, the PRD, and issue #337; helpers return findings to their lead.
+
+### Scope and behavior
+
+The [PRD's requirements 1-3](../../knowledge/prds/toolkit-operating-system/guided-work-management.md#choosing-guided-management)
+own the approved intent. Offer delivery responsibility for multi-step or
+cross-session work. Keep quick questions and edits lightweight. Save accepted
+or declined choices for the particular goal in the existing canonical records
+and recover the choice before offering again. Accepted work proceeds through
+discovery, requirements, research, design, authorized implementation, testing,
+and delivery, with the agent maintaining records and bringing product decisions
+and applicable approvals to the owner.
+
+Use the existing work plugin for the method, with shared lifecycle guidance
+providing discovery and routing. The work-guide and requirements-helper methods
+continue to own main-conversation guidance and requirements interviews. The
+implementation lead reconciles those entry points and the package descriptions.
+Reuse ordinary agent reasoning and existing storage. No new scheduler, tracker,
+semantic grader, storage schema, or R6 migration is part of this change.
+
+For the current local tracker, the preserved User notes in STATUS.md hold the
+current choice and its goal, scope, date, and source. Existing history may record
+the event but is not the only home for the current choice. In GitHub, use the
+issue body's existing current-state section and the single Progress log. Other
+trackers use their designated records. Read back saves and distinguish saved,
+published, and failed updates. Recordless or unavailable-tracker cases must not
+claim cross-session persistence; the implementation review must account for
+them without silently creating a competing tracker.
+
+This item's explicit Astra/Sol authorization allows its team to proceed. Whether
+future accepted items automatically authorize helper selection remains open in
+the PRD Notes. Preserve existing team and permission boundaries unless the owner
+has already granted the applicable authority. Helpers cannot approve the work.
+
+### Delivery sequence and evidence
+
+1. Reconcile the approved meaning into this design, the PRD, and issue #337.
+2. Implement the work-plugin method and its shared/session entry points in the
+   implementation branch; align managed copies and release metadata.
+3. Check offer timing, accepted resume, declined resume, substantial-growth and
+   explicit-request exceptions, routine upkeep, product/approval boundaries,
+   and failed-save recovery. Check local and shared-tracker continuation.
+4. Run independent review and relevant tracker tests, all four repository
+   checks, plugin validation, and knowledge checks for changed knowledge.
+   Static instruction checks alone do not prove fresh-agent behavior; report
+   observed scenarios and any untested hosts separately.
+5. Create the PR, review the final diff, merge under the recorded authorization
+   after merge-safety checks, and verify remote publication. Record rollout and
+   acceptance of the complete experience separately. Review both manuals;
+   publish only affected guidance with its actual delivery state.
+
+## Consolidated work-item record: pending R6 scope
+
+The remaining sections preserve the approved single-record direction and its
+implementation plan. Current runtime still uses separate records. Review the
+format/parser and migration-backup choices, then implement parser, CLI and
+explicit migration, documentation, and installation verification under the
+applicable authorization. The later R1 shipping authorization does not extend
+itself to this work or to a DragonFly project migration.
 
 ## Template
 
@@ -14,8 +84,13 @@ when design work needs it. Existing authoritative workbooks or shared PRDs
 remain linked sources; do not copy their requirements into a competing record.
 
 Use a bold page title so the requested first-level headings are the sections.
-The same headings and order apply to external issue bodies; native tracker
-fields own status and assignments there, without a competing local mirror.
+For GitHub, Jira, Linear, and other external trackers, store this same template
+in the work item's description/body. Preserve its sections, order, and meaning
+using the editor/API's supported formatting; do not require identical Markdown
+syntax. Native tracker fields own status and assignments; reference those fields
+rather than maintaining competing values. Link the separate design from Overview.
+The description holds the item's current content, not a local WORK-ITEM.md copy
+or a collection of separate task, requirements, status, and notes documents.
 
 ```markdown
 **WI-014: Security and permissions**
@@ -116,6 +191,22 @@ then reread the exact section. Unanswered questions are saved immediately with
 who must answer. An answer updates the question and affected requirement or
 task; history records only the useful decision context. Saving is not approval.
 
+The trigger is meaningful human input, not the end of an interview or session.
+Capture each decision, answer, requirement, design choice, or constraint in its
+existing authoritative home immediately, preserving its approval state. Complete
+the normal publication step before moving past the topic: check, commit, push,
+and verify authorized Git-tracked documentation; update and reread an external
+issue's description/native field; or save and reread a Git-ignored local record.
+Retain and report a failed save for recovery rather than claiming publication.
+
+Instruction ownership already exists: the shared
+[work-item-stages rule](../../plugins/project-init/library/rules/general/work-item-stages.md#capture-during-the-conversation)
+owns capture timing and routing, and
+[knowledge-direct-commit](../../plugins/project-init/library/rules/general/knowledge-direct-commit.md)
+owns publication of authorized Git-tracked documentation. Existing work-guide,
+requirements, and design methods apply those instructions. Reconcile their
+storage references when R6 ships; do not introduce another competing save rule.
+
 Working design choices, design questions, and design refinement stay in the
 design's bottom Notes, with an item-level task pointing there. Other tasks and
 questions use the sections above. Standalone shared PRDs keep their own Notes.
@@ -187,6 +278,10 @@ task's active draft from this worktree.
   is optional until needed. All five top-level sections have the same order:
   Overview, Roadmap, Tasks, Recent History, Requirements. Updating a task keeps
   its roadmap phase accurate without inventing approval or completing other work.
+- In an external tracker, use its description for the same five template
+  sections and link the separate design. Confirm meaningful human input updates
+  the actual content and is saved/read back before moving past the topic. Check
+  supported formatting without creating a local mirror or duplicate field truth.
 - Directly edit prose and nested Requirements, then update a task via CLI:
   unrelated text and formatting survive. Test malformed/duplicate headings,
   details blocks, Unicode, and Windows line endings.
@@ -207,6 +302,12 @@ task's active draft from this worktree.
 
 ## Notes
 
+- Clarification approved by Mike in the handoff-review task, 2026-09-19:
+  the external issue description holds the same template as WORK-ITEM.md,
+  with separate linked design. Significant human decisions/input are captured
+  immediately and saved through the applicable route. The existing capture and
+  documentation-publication rules own that instruction; R6 must preserve it.
+
 - Approved direction: Mike, 2026-09-18, this Work-tracker conversation: one
   consistent Markdown work item, separate design, clear top-level sections.
 - Planning choices: bold page title, Tasks rather than Open Tasks (so completed
@@ -217,8 +318,14 @@ task's active draft from this worktree.
 - No owner decision blocks preparing this plan. Implementation review must
   settle the exact parser/metadata representation and backup location without
   creating a second authoritative record.
-- Next: review this plan, implement format and parser first, then CLI and
-  migration, then documentation and installation verification. Runtime work and
-  project migrations have not started. Mike authorized the personal-account
-  switch and push on 2026-09-18; this plan's branch is published via Mar5929.
-  Review/merge and rollout remain pending. Never push through the work account.
+- Publication correction, 2026-09-19: PR #356 merged the document-continuity
+  guidance and this consolidation plan on 2026-09-18. The plan is on main;
+  consolidation runtime and project migrations have not started.
+- Agent-led delivery: the named implementation task owns R1 code, checks, PR,
+  and authorized merge. This task owns canonical records. Resume its product
+  question from the PRD Notes and reconcile implementation evidence here.
+- Consolidation resume: review the existing R6 plan and settle format/parser
+  and backup details, then confirm build scope before runtime work. Sequence
+  parser, CLI/migration, documentation, and installation verification. Its
+  approved direction and planning are not evidence of implementation or
+  authority to migrate DragonFly. Never push through the work account.

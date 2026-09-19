@@ -63,6 +63,13 @@ Read the project's tracker instructions. If an active work item exists, update
 its exact next step, blockers or none, open decisions, and true stage and
 status. Then read the item back or run the tracker's validation.
 
+Preserve the goal-scoped agent-led delivery choice when one was made: accepted,
+declined, or revoked, its source and date, authority limits, main-session lead, and next
+actions. Do not infer a choice from activity or lose a decline when a new
+session starts. A failed write is `not saved`; a successful write with failed
+readback is `saved but not verified`. Name the exact pending write or verification
+in the handoff.
+
 - For local folders, use the installed `work` skill and its active-item state.
 - For GitHub, update the verified issue and read its body, single Progress log,
   labels, and board status back.

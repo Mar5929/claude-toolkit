@@ -3,7 +3,7 @@ summary: The toolkit helps Mike turn requests into checked results, keep control
 group: Working with an agent
 area: toolkit-operating-system
 status: proposed
-source: Mike Rihm's request for the overall toolkit PRD; linked component PRDs and bounded source review on 2026-09-10; Mike's toolkit-wide handshake design principle and startup-orientation direction on 2026-09-17
+source: Mike Rihm's request for the overall toolkit PRD; linked component PRDs and bounded source review on 2026-09-10; Mike's toolkit-wide handshake design principle and startup-orientation direction on 2026-09-17; Mike’s 2026-09-19 request to reconcile decision-record and research ownership
 created_at: 2026-09-10
 tags: [toolkit, project-work, continuity, requirements]
 project: claude-toolkit
@@ -267,7 +267,8 @@ supporting file; an index entry alone is not evidence. Use the [knowledge manual
 and the relevant component policy; this PRD does not create a competing route.
 
 Choose by the question: requirements need the PRD; connections need the
-configured System Guide; earlier decisions need memory; an active task needs
+configured System Guide; earlier decisions need their owning requirement,
+design, work record, or qualifying memory under R11; an active task needs
 its work item. Rules constrain the action, and skills explain the procedure.
 Check source code or the live system for what exists, and official outside
 documentation for vendor behavior. Use session history when the owning lookup
@@ -313,6 +314,15 @@ Mike approved this R11 addition on 2026-09-16 as part of the scoped routing
 change recorded in the [issue #269 Progress log](https://github.com/Mar5929/claude-toolkit/issues/269#issuecomment-5510064692).
 The whole PRD remains proposed; this is not runtime implementation approval.
 
+Architectural choices, their rationale, and supporting research follow
+[Knowledge System R18](knowledge-system.md#18-where-information-goes) and the
+[Guided Delivery design-location requirement](guided-delivery.md#solution-design).
+The project map and work item lead to the designated design and any separately
+owned current architecture. A label such as ADR does not make the information
+memory or require another record. Preserve the distinction between a proposal,
+an approved choice, and verified implementation. R14 and the destination's
+lifecycle govern later upkeep; the retention conflict below remains open.
+
 PRDs state intended behavior. The configured guide explains the system.
 Memory holds qualifying lasting facts and lessons. The project map orients a
 session; current context points to active work. A glossary, when available,
@@ -329,6 +339,14 @@ a save. Folder guidance follows the [folder PRD](folder-instruction-files.md).
 **Check:** a note contains desired matching behavior, existing field
 connections, a costly matching lesson, and an owed deployment. Route each
 part once; the tracker remains the only authority for the owed work.
+
+**Check:** ask a fresh session why an architectural approach was selected.
+It follows the work item to the owning design and linked evidence, reports the
+choice's real approval state, and consults the PRD for required behavior. Repeat
+with a completed item: use the project's settled retention route and distinguish
+current architecture from historical plans. A missing or conflicting route is
+reported; no duplicate memory or invented ADR directory hides that gap. The
+four-provider example in Knowledge System R18 supplies the detailed routing test.
 
 **R12. Resolve disagreement by the kind of claim.** Applicable host
 instructions and permissions constrain actions. Within them, explicit owner
@@ -678,6 +696,7 @@ authorizes implementation or changes the neighboring PRD by implication.
 
 | Boundary | Existing position and unresolved point | Recommendation |
 | --- | --- | --- |
+| Design and decision retention after delivery | [docs/designs guidance](../../../docs/designs/README.md#how-long-a-file-lives) says to delete a work design at stage 14 after PRD upkeep, retaining it in Git. The [work-item-lifecycle skill](../../../plugins/project-init/skills/work-item-lifecycle/SKILL.md#closing-a-work-item) says to keep current architecture and lasting decisions in their authoritative homes and archive only retired or replaced material. The current PRDs do not resolve which record preserves still-useful architectural rationale and supporting research when this project's working design is removed. | Proposed: retain still-useful architecture and decision rationale at a designated, discoverable current home; retire superseded working plans with links to their historical versions and retained evidence. Agree the exact home and retention rule before changing deletion guidance. No new ADR folder, automatic archive, or deletion is authorized by this proposal. |
 | Searches for simple requests | Second-brain requirements 5 and 19 require the same knowledge search for every task or question, with past-session search before asking when earlier tiers fail. This PRD must also keep small tasks small. Does that include self-contained requests unrelated to project knowledge? | Keep relevant lookup mandatory for project work, but exempt requests fully answerable from supplied text, such as shortening one sentence. This is a proposed change to the component agreement, not a settled exception. |
 | Draft refinement and save cards | Guided delivery recognizes authorized draft corrections. Second-brain requirements 9 and 10 call for a card and yes for each PRD save. Mike explicitly authorized this draft and refinement. | Treat that explicit authority as sufficient for faithful draft updates; keep new lasting meaning outside that scope under its normal approval. Align the component wording before claiming this is the general rule. |
 | Hard refusals and lightweight work | Second-brain requirement 3 proposes forced save-review moments. Upkeep favors adaptable stages and deliberately allows an unapproved local Done record while reporting the gap. A component's mechanism cannot be assumed to enforce the whole experience. | Preserve each component's existing decision. Specify the effect of knowledge-review failures on work completion before design; do not add blanket process gates here. |

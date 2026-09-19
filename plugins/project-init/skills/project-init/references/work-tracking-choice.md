@@ -42,6 +42,13 @@ Use existing document homes; do not scaffold extra notes, prep, or continuation
 files. The current `work-item-stages.md` rule owns this division. Preserve a
 chosen external method's own workflow rather than layering toolkit records on it.
 
+Tracker storage and delivery responsibility are separate choices. The optional
+`work-tracker` plugin also supplies the agent-led delivery method for the
+chosen tracker. Its local CLI is used only for local-folder mode; installing
+the method does not initialize `.work-items/` or create a mirror. Gate 6 offers
+the method when wanted. The work-item rule provides the offer and continuation
+contract even when that plugin is unavailable.
+
 ### 1. A GitHub Projects board
 
 The toolkit has a setup for this one. It is the only answer where the toolkit

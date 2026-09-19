@@ -215,8 +215,9 @@ plugin.
   completion for local and GitHub trackers. Existing staged trackers use a
   preview-first copy that leaves their original files untouched for review.
 - For the GitHub Projects board answer, Gate 1 sets up the board by hand from
-  `work-tracking-choice.md` and no work-tracker code is involved. That board
-  holds the shared work. Local-folder mode has no GitHub mirror.
+  `work-tracking-choice.md` without initializing local tracking. That board
+  holds the shared work. Gate 6 can also offer the work plugin's agent-led
+  delivery guidance with that tracker. Local-folder mode has no GitHub mirror.
 - project-sync detects knowledge layouts by system signatures, not folder names.
   It can install greenfield, dry-run and apply a flat #149 migration with an
   approval hash, or produce owner-review drafts for retired v3 without touching

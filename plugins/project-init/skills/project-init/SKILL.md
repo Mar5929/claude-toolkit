@@ -473,6 +473,13 @@ CLAUDE.md stays thin and points at that folder. Read
 
 ### Gate 6: Optional standalone toolkit skills
 
+When agent-led delivery is wanted, offer the `work-tracker` plugin's `work`
+method with the chosen tracker, including external trackers. This supplies
+instructions, not a local tracker or acceptance for an item. Run `work init`
+only when local tracking was explicitly chosen. Preserve an external method's
+own workflow. The work-item rule supports the offer and continuation when the
+plugin is absent.
+
 **Purpose:** offer reusable workflows that are useful in this project but live
 in their own plugins.
 
