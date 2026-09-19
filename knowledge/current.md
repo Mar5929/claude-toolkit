@@ -34,8 +34,8 @@ Fresh-session/recovery tests, rollout, and acceptance remain.
 ### Toolkit instruction review — #360
 Updated: 2026-09-19
 
-Seven fixes implemented and checked in [PR #361](https://github.com/Mar5929/claude-toolkit/pull/361).
-Next: owner review and merge approval. Live-host behavior remains unmeasured.
+Seven fixes merged with owner approval in [PR #361](https://github.com/Mar5929/claude-toolkit/pull/361).
+Next: installation refresh, live-host checks, and acceptance; tracked in #360.
 
 ## Testing to-dos
 - 2026-09-19: Test instruction overload and find sufficient guidance that
