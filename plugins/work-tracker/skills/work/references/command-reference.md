@@ -31,6 +31,38 @@ If it detects an older staged tracker, it stops and points to `migrate`.
 conflicts, whether old GitHub settings exist, and what the applied conversion
 will preserve. `--apply` copies the items. It never deletes the old tracker.
 
+## Document saves and recovery
+
+`add` creates only `WORK-ITEM.md` for each new item. Existing multi-file items
+retain their format; `migrate` is still only the older staged-root importer.
+There is no conversion command for existing items in this release.
+
+```text
+work status --json
+work edit WI-014 --input /absolute/path/candidate.md --expected-hash SHA256
+work recover
+```
+
+Item JSON includes `format` (`markdown` or `legacy`), `record_path`, and
+`document_hash` (null for legacy). Read the latest document at `record_path`,
+copy it to a temporary candidate outside the item folder, edit the requirements
+prose or Overview notes, then call `edit` with that snapshot's hash. A stale
+hash fails without replacing the record: reread and reapply the intended edit.
+The active-item guard still applies. Use dedicated commands for structured
+fields, task/roadmap state, approvals, completion, and history. Reopen finalized
+requirements before editing their text. Remove the temporary candidate after
+verified success. Do not put a second canonical record in the item folder.
+
+Successful saves are read back. Single-document replacements are atomic.
+Changes that also affect another item, active selection, or completion events
+keep a temporary recovery journal. After a process interruption, ordinary
+commands report `pending_recovery`; `recover` checks every affected file and
+finishes the saved operation once. It refuses unexpected newer content with
+`recovery_conflict`. Preserve the journal and reconcile that content before
+retrying; never blindly overwrite it or discard the journal to bypass the guard.
+The tracker lock coordinates commands in this clone; it cannot lock arbitrary
+editors or external services.
+
 ## Local work
 
 ```text
@@ -131,8 +163,8 @@ also requires the approver and date. It checks task dependencies, records the
 completion, and clears that branch's current-task selection. It never completes
 or approves the parent work item.
 
-`--stage` writes the stage into `ITEM.yaml`, sets the status the stage maps to,
-and appends a dated line to the "Progress log" section of `STATUS.md`, all in
+`--stage` writes the Overview stage and derived status and appends to Recent
+History in `WORK-ITEM.md` (legacy: `ITEM.yaml` and `STATUS.md` Progress log), all in
 one call. It takes a number (`8`, `08`), a name (`build`), or the whole thing
 (`08-build`), and stores anything it does not recognize exactly as typed. The
 log line uses `--note` as its text, or the summary of what changed when there is

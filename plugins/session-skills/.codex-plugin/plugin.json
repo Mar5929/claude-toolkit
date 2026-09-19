@@ -1,6 +1,6 @@
 {
   "name": "session-skills",
-  "version": "1.12.4",
+  "version": "1.12.5",
   "description": "Eleven conversation skills, including guided delivery, requirements interviewing, and solution design, with focused research, design, and review agents. Use the project's chosen tracker and adaptable working methods.",
   "author": {
     "name": "Mike Rihm",

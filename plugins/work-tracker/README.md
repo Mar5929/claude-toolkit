@@ -17,8 +17,9 @@ is saved for that goal in the existing item and read on resume. The
 procedure. Agents maintain the work and bring product decisions and results
 to the owner, within existing approval and helper permissions.
 
-Local choices live in the preserved User notes of `STATUS.md`; external
-choices live in the item body or native fields. No new record format is needed.
+Local choices live in Overview notes in `WORK-ITEM.md` (legacy: preserved
+User notes in `STATUS.md`); external choices live in the description or native
+fields. New external items use the same five-section template in their description.
 External mode never runs the local CLI or creates `.work-items/`. Optional
 session skills supply detailed interviews, design, and review methods.
 This is guidance for active sessions, not a scheduler that runs after a session
@@ -45,7 +46,8 @@ skill.
 - **work**: delivery instructions for the chosen tracker and local tracker commands.
 - **`work.mjs`**: one dependency-free Node.js command for local work items,
   built on `scripts/lib/tracker.mjs` for tracker behavior and
-  `scripts/lib/common.mjs` for shared file, YAML, Git, and command helpers.
+  `scripts/lib/common.mjs` for shared file, YAML, Git, and command helpers, and
+  `scripts/lib/work-item-document.mjs` for Markdown parsing and targeted updates.
 - **Validation and reconciliation**: deterministic checks for local records and
   Git landing proof.
 - **Safe conversion**: a preview-first copy from the older staged tracker.
@@ -66,11 +68,8 @@ Every project uses the same hidden root folder:
   EVENTS.ndjson
   DASHBOARD.md
   WI-014-example/
-    ITEM.yaml
-    REQUIREMENTS.md
-    TASKS.yaml
-    STATUS.md
-    HISTORY.ndjson
+    WORK-ITEM.md
+    DESIGN.md                       # optional separate design, or link its shared home
   security-and-permissions/          # a group folder the owner made
     ARCHITECTURE.md                  # their own notes, left alone
     WI-015-org-wide-defaults/
@@ -88,13 +87,17 @@ Linked Git worktrees in the same clone share the primary checkout's
 shared folder's full path, so agents can open the same records without copying
 them. Separate clones and computers do not share it.
 
-There are no status folders. Status changes in `ITEM.yaml`; status never moves a
-folder.
+New items use one `WORK-ITEM.md` with Overview, Roadmap, Tasks, Recent History,
+and Requirements. Designs remain separate and linked. Existing multi-file
+items retain their format; no migration is required or added for this change.
+There are no status folders. Status changes in Overview (legacy: `ITEM.yaml`);
+status never moves a folder.
 
 ## Stages and the progress log
 
 An item also carries a `stage`, one of the fourteen in `work-item-stages.md`,
-and a "Progress log" section in its `STATUS.md`. One command writes the stage,
+and Recent History in `WORK-ITEM.md` (legacy: Progress log in `STATUS.md`).
+One command writes the stage,
 the status the stage maps to, and a dated log line together:
 
 ```text
@@ -125,7 +128,7 @@ and the pieces sit inside it:
 
 ```text
 WI-014-security-and-permissions/     In Progress
-  ITEM.yaml  REQUIREMENTS.md  STATUS.md
+  WORK-ITEM.md
   analysis/  diagrams/  evidence/    # the shared documents
   WI-023-security-personas/          Backlog
   WI-024-default-visibility/         Backlog
@@ -179,8 +182,8 @@ Anything in there that is not a work-item folder is ignored.
 
 ## Type-aware approval
 
-Every item contains `REQUIREMENTS.md` with YAML fields at the top. Its status is
-either:
+New items have a Requirements section and Overview approval fields. Existing
+legacy items keep `REQUIREMENTS.md` with YAML fields at the top. The state is:
 
 - `refining`: the owner interview is still open; or
 - `finalized`: the owner approved the requirements.
@@ -198,8 +201,8 @@ Types are lower-case kebab-case, with suggested values rather than a fixed list.
 
 ## Roadmaps and execution tasks
 
-`TASKS.yaml` keeps each item's roadmap and detailed execution tasks in the same
-canonical tracker. Roadmap stages use owner-shaped titles; they are separate
+Roadmap and Tasks sections keep each new item's plan and detailed execution
+tasks in `WORK-ITEM.md`. Existing legacy items retain `TASKS.yaml`. Roadmap stages use owner-shaped titles; they are separate
 from the optional fourteen-stage lifecycle. Each roadmap stage is fulfilled by
 one or more internal tasks, linked child work items, or both.
 
@@ -220,14 +223,13 @@ does not invent tasks or backfill approval.
 
 ## Item records and handoffs
 
-- `ITEM.yaml`: description, status, priority, type, dates, next step, blockers,
-  relationships, and Git landing evidence.
-- `REQUIREMENTS.md`: owner-approved needs and their refinement state.
-- `TASKS.yaml`: roadmap stages, child-item fulfillment, execution tasks, and
-  saved task positions.
-- `STATUS.md`: readable current handoff, recent history, and preserved owner
-  notes.
-- `HISTORY.ndjson`: complete dated command history.
+- `WORK-ITEM.md`: Overview state and notes, Roadmap, Tasks, full dated Recent
+  History, and Requirements. One record, without a hidden duplicate payload.
+- Existing legacy `ITEM.yaml`, `REQUIREMENTS.md`, `TASKS.yaml`, `STATUS.md`, and
+  `HISTORY.ndjson` remain supported in place. Mixed formats in one item fail
+  validation rather than silently choosing an authority.
+- Design documents remain separate in the project's chosen home, linked from
+  the item. Root operational files below remain separate:
 - `ACTIVE.json`: branch-scoped active-item selections.
 - `EVENTS.ndjson`: approved completion events, emitted once.
 - `DASHBOARD.md`: generated view that can be deleted and rebuilt.
@@ -237,11 +239,14 @@ its decisions with approval state, unfinished discussion, remaining document
 tasks, and exact resume point. Update the document itself as answers settle.
 The work item retains overall status, other tasks, approvals, and links.
 Task continuation fields point to Notes rather than duplicating its checklist.
-Other open questions and useful notes use the preserved User notes section
-of `STATUS.md`; questions identify who must answer, status, and what they
+Other open questions and useful notes use Overview in `WORK-ITEM.md`
+(legacy: preserved User notes in `STATUS.md`); questions identify who must answer, status, and what they
 affect. Task and state changes use the existing commands. A progress note
 alone does not update the requirements or design; read back the actual change.
-This uses the existing records and commands; it adds no tracker file.
+Use `work edit` with the current document hash to save prose, preserving other
+content. Interrupted multi-file saves stop commands until `work recover`
+verifies and finishes the pending transaction. Unexpected edits are preserved
+and reported for reconciliation.
 
 ## Commands
 
@@ -249,6 +254,8 @@ This uses the existing records and commands; it adds no tracker file.
 work init
 work migrate
 work add
+work edit
+work recover
 work requirements
 work roadmap
 work task
@@ -329,7 +336,7 @@ behavior checks, observed results, and the limits of source-loaded fixtures.
 Run:
 
 ```text
-node --test plugins/work-tracker/tests/work-tracker.test.mjs
+node --test plugins/work-tracker/tests/work-tracker.test.mjs plugins/work-tracker/tests/consolidated-record.test.mjs
 claude plugin validate .
 ```
 

@@ -29,7 +29,8 @@ access is not a missing decision.
 
 Keep the current choice, goal scope, source/person/date, authority boundaries,
 coordinating session, and next-action references in the existing item. Local
-mode uses the preserved User notes in `STATUS.md`; external mode uses the item body or native fields.
+mode uses Overview notes in `WORK-ITEM.md` (legacy: preserved User notes in
+`STATUS.md`); external mode uses the item description or native fields.
 If no item exists, use the normal authorized capture route when the goal
 warrants a record; never create an item or tracker solely to record refusal.
 With no authorized durable home, say so and carry the decision in the handoff.
@@ -71,6 +72,15 @@ system. Legacy work without these task details remains valid; when it resumes,
 reconcile the missing detail from accepted evidence without inventing tasks,
 history, or approval. Actual approval, permission, and environment boundaries
 still apply.
+
+## One work-item record
+
+New local items use `WORK-ITEM.md`. New external items use the same sections
+in their description: Overview, Roadmap, Tasks, Recent History, Requirements.
+Keep designs separate and linked. The `work` skill owns the template and local
+commands. Use native external fields as the authority for status, assignments,
+and relationships, referencing them from the description as needed. Do not
+create a local mirror or migrate existing items.
 
 ## Work type sets the approval boundary
 
@@ -165,7 +175,16 @@ alone does not update the requirements or design. Where the project separates
 working design from finalized architecture, keep unresolved discussion in the
 working record and publish only settled design through its approval/save route.
 
-Save meaningful updates promptly under existing authorization, then reread the
+As soon as the human makes a decision or supplies meaningful requirements,
+design information, or a correction, save it in its existing home before
+continuing the topic. For authorized Git-tracked documents, make a small
+checked commit and push through the project's documentation publication route;
+for external items, update the description or native field immediately; for
+Git-ignored local items, save through the tracker. Do not wait for session end
+or bundle settled answers behind unanswered questions. Respect existing content
+approval boundaries and record tentative input as tentative.
+
+After saving under existing authorization, reread the
 changed section or query the record to confirm its meaning and location. Verify
 the document content as well as tracker status. A successful command alone is
 not proof that the intended information was recorded. Say what remains unsaved
@@ -201,8 +220,9 @@ comment, stage label, and board status before changing it. Requirements and
 decisions kept in a PRD or design stay there; link them from the issue. Other
 requirements and decisions stay in the issue body. Keep the overall roadmap and tasks in
 clear issue-body sections, using child issues or sub-issues when they own real
-scope. Append the short dated event to the one Progress log comment. Treat body,
-comment, label, and board field as one logical update, read them back, and repair
+scope. For new items, append the short dated event in Recent History in the
+description. Existing items keep their one Progress log comment. Treat body,
+any existing progress comment, label, and board field as one logical update, read them back, and repair
 or report any partial failure. Do not create a local mirror.
 
 **Another tracker.** Follow its project instructions and keep one canonical

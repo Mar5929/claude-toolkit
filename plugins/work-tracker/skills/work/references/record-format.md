@@ -11,17 +11,14 @@
   README.md
   DASHBOARD.md                     # generated and rebuildable
   WI-014-example/
-    ITEM.yaml
-    REQUIREMENTS.md
-    TASKS.yaml
-    STATUS.md
-    HISTORY.ndjson
+    WORK-ITEM.md
+    DESIGN.md                      # optional, or link a separate shared design
     other-owner-notes.md
   security-and-permissions/        # a plain folder the owner made
     ARCHITECTURE.md                # their own material, left alone
     WI-015-org-wide-defaults/
   WI-017-billing-rework/           # a work item holding work items
-    ITEM.yaml                      # its own status and requirements
+    WORK-ITEM.md                   # its own status and requirements
     diagrams/                      # the area's shared documents
     WI-018-invoice-model/
     WI-019-payment-terms/
@@ -29,7 +26,7 @@
     WI-003-older-example/
 ```
 
-Status changes only in `ITEM.yaml`; status never moves a folder. There are no
+Status changes in Overview (legacy: `ITEM.yaml`); status never moves a folder. There are no
 status folders.
 
 ## Grouping folders
@@ -42,7 +39,7 @@ work items, and the scan treats them the same:
   no record of its own; nothing about it is stored anywhere.
 - **A work item holding other work items**, such as
   `WI-014-security-and-permissions/`. The parent is a normal work item with its
-  own `ITEM.yaml`, status, and requirements, and it is listed alongside the items
+  own record, status, and requirements, and it is listed alongside the items
   inside it. There is no epic or parent type; a parent is a work item that
   happens to have work items in it.
 
@@ -53,7 +50,7 @@ error.
 A folder is a work item when **both** are true:
 
 1. its name matches `<PREFIX>-<number>`, optionally followed by `-<slug>`; and
-2. it holds at least one of `ITEM.yaml`, `ITEM.json`, `REQUIREMENTS.md`,
+2. it holds at least one of `WORK-ITEM.md`, `ITEM.yaml`, `ITEM.json`, `REQUIREMENTS.md`,
    `SPEC.md`, `TASKS.yaml`, `STATUS.md`, or `HISTORY.ndjson`.
 
 The second test is what lets the owner name a folder `phase-1` or `epic-2`
@@ -99,6 +96,87 @@ Linked Git worktrees in one clone resolve to the primary checkout's
 `.work-items/` folder. Commands return its full path when called from a linked
 worktree. They share records, locks, and ID allocation. Another clone or
 computer has a different local tracker.
+
+## One work-item template
+
+New items use one record with these five sections, in this order:
+
+| Section | Content |
+| --- | --- |
+| Overview | Purpose, current state, next action, blockers, links, approvals, delivery choice, open questions, and context |
+| Roadmap | Ordered phases with outcomes, acceptance conditions, and linked child items |
+| Tasks | Stable task IDs, phase, objective, instructions, constraints, sources, deliverable, acceptance, status, dependencies, current position, next action, and any task approval |
+| Recent History | Complete dated material decisions and progress, optionally collapsed; current meaning also updates its owning section |
+| Requirements | Item-specific needs and approval scope, or a link to an existing shared authority |
+
+Design stays separate and linked. Shared PRDs retain their own content and Notes.
+For new external items, use these same sections in the issue description. Keep
+native status, assignment, relationships, and approval fields authoritative;
+reference them instead of duplicating editable values in the description. The
+local marker and field encoding below do not apply to external trackers. Adapt
+the Markdown formatting to the service, reread before writing, preserve other
+content, use revision checks when available, and verify the description and
+native fields afterward. On a partial write, keep the exact repair pending;
+when revisions are unavailable, do not claim atomic conflict protection.
+Existing external items and their progress comments retain their format.
+
+## New local `WORK-ITEM.md`
+
+`work add` creates this record only. Existing multi-file items remain supported
+without conversion. A folder containing both this document and legacy canonical
+files fails with `mixed_item_formats`; commands never guess which copy wins.
+Root configuration, active selections, completion outbox, and generated dashboard
+remain separate operational files, not duplicate item records.
+
+The first line is `<!-- work-item-format: 1 -->`, followed by one bold title
+`**WI-014: Example**`. Exactly five H1 headings follow: `# Overview`, `# Roadmap`,
+`# Tasks`, `# Recent History`, `# Requirements`. Use H2 or deeper headings inside
+requirements. Fenced code and HTML comments do not introduce record headings.
+
+Commands read visible `- Label: value` lines, not hidden YAML or a second full
+JSON payload. Fields use the same meanings and validation as the legacy schemas
+below. The label dictionary is deterministic: capitalize the first letter and
+replace underscores with spaces, with these three aliases:
+
+| Field | Visible label |
+| --- | --- |
+| `description` | Purpose |
+| `next_step` or task `next_action` | Next action |
+| task `roadmap_stage` | Roadmap phase |
+
+ID and title occur only in the page or entry heading. Overview holds record
+fields such as Schema version, Type, Priority, Status, Stage, Dates, Blockers,
+Relationships, Git, and Completion. `## Requirements approval` holds the
+requirements metadata. `## Open questions` and `## Context and notes` hold
+free prose and the delivery choice. Dates use their field-specific labels,
+for example Created date and Updated date.
+
+Roadmap begins with its schema version and update date, followed by
+`## STAGE-001: Title` blocks. Tasks uses `## TASK-001: Title` blocks. Each
+contains its own labeled fields. Recent History uses unique `## ENTRY-1: Action`
+blocks with At, Action, Note, and any additional event fields. Old history is
+never truncated; a surrounding details block may collapse it.
+
+Text values are plain strings; ambiguous text is JSON-quoted. Booleans,
+numbers, and null retain their types. Arrays and nested objects use one inline
+JSON value for that field (for example Relationships), preserving all extension
+fields without a hidden second record. Multiline text uses `Label: |` followed
+by lines indented four spaces, so embedded code fences cannot become document
+structure. Duplicate labels, IDs, missing or reordered required sections, and
+invalid structured state fail before saving.
+
+Commands patch only changed fields and append history, preserving owner prose,
+unknown fields, code examples, newlines, and requirements content. Use the
+[guarded edit and recovery commands](command-reference.md#document-saves-and-recovery)
+for free prose and interrupted saves. The SHA-256 snapshot check detects stale
+command inputs; arbitrary editors are not locked by the tracker.
+
+## Existing multi-file records
+
+The following per-item files are the legacy format. Commands continue to read
+and update them in place. They are not created for new items and are not migrated
+by this release. Their field definitions also describe the equivalent visible
+fields in `WORK-ITEM.md`.
 
 ## `ITEM.yaml`
 

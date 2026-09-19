@@ -27,7 +27,8 @@ current-task selection, progress, and completion commands. The
 execution require approved requirements. Discovery, research, and solution
 design may proceed while they create clarity.
 
-Keep owner-stated needs in `REQUIREMENTS.md` and technical design separately.
+Keep owner-stated needs in the Requirements section of `WORK-ITEM.md` and
+technical design separately. Existing legacy items retain `REQUIREMENTS.md`.
 Select the branch's active item with `work active set ID` before updating it;
 `work start ID` selects it when no item is active. Select the current execution
 task with `work task select ID TASK-ID`. Linked worktrees share records while
@@ -56,22 +57,21 @@ Do not create a parallel index or alternative status file.
 ├── ACTIVE.json                   # branch selections, created when used
 ├── EVENTS.ndjson                 # approved completion notices, created when used
 ├── WI-014-example/
-│   ├── ITEM.yaml                 # structured local record
-│   ├── REQUIREMENTS.md           # owner-approved needs
-│   ├── TASKS.yaml                # roadmap, child fulfillment, execution tasks
-│   ├── STATUS.md                 # readable current handoff
-│   ├── HISTORY.ndjson            # complete dated command history
+│   ├── WORK-ITEM.md              # overview, roadmap, tasks, history, requirements
+│   ├── DESIGN.md                 # optional separate design, or link its shared home
 │   └── WI-015-child-item/        # optional child with its own full records
 └── archive/                      # items the owner set aside
     └── WI-003-older-example/
 ```
 
 Items may sit directly under `.work-items/`, inside owner-made grouping folders,
-or inside another work item. `ITEM.yaml.status` is authoritative. Status never
+or inside another work item. Overview Status is authoritative for new records
+(legacy: `ITEM.yaml.status`). Status never
 moves the folder. Nesting organizes files; the existing bidirectional
 `parent`/`children` relationship records scope ownership.
 
-Every managed work item has owner-shaped roadmap stages in `TASKS.yaml`. A
+New items keep owner-shaped Roadmap and Tasks sections in `WORK-ITEM.md`.
+Existing multi-file items retain `TASKS.yaml`; no migration is required. A
 stage is fulfilled by internal tasks, linked child work items, or both. Each
 child keeps its own requirements, design, roadmap, tasks, status, and approval.
 Completing one does not complete or approve its parent. Legacy records without

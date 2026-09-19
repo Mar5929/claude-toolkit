@@ -398,7 +398,8 @@ Typical checks:
   delete it without approval. A project may have come to depend on it, and that
   is the owner's call.
 - **Work tracker:** detect root `.work-items/` first. If it contains
-  `.work-tracker.yaml` and per-item `ITEM.yaml` records, run `work validate` and
+  `.work-tracker.yaml` and per-item `WORK-ITEM.md` or legacy `ITEM.yaml` records,
+  run `work validate` and
   classify the system as present or partial from its output. Confirm that
   `.gitignore` ignores the whole folder and Git tracks none of its contents.
   Separately detect older `delivery/work-items/`, `engagement/work-items/`, and

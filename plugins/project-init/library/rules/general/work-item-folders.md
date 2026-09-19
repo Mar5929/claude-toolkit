@@ -10,8 +10,10 @@ the current clone and do not sync to another computer. Linked Git worktrees in
 one clone share the primary checkout's tracker and ID lock. Always use
 `work add` so parallel sessions cannot choose the same ID.
 
-Use tracker commands instead of directly editing command-managed files such as
-`ITEM.yaml`, `STATUS.md`, `HISTORY.ndjson`, `ACTIVE.json`, and
+New items use `WORK-ITEM.md`; existing multi-file records stay in their current
+format. Use tracker commands for managed fields and `work edit` with the current
+hash for new document prose. Do not directly edit legacy command-managed
+`ITEM.yaml`, `STATUS.md`, `HISTORY.ndjson`, or shared `ACTIVE.json` and
 `EVENTS.ndjson`. `DASHBOARD.md` is generated and is never a source of truth.
 Preserve owner-written files in every work-item folder.
 

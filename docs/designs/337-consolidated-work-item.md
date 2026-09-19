@@ -280,7 +280,8 @@ bullets, tables, examples, and details blocks; these are not tracker commands.
 
 Use one published field dictionary in the record-format reference. A recognized
 field is a full line `Label: value`, optionally prefixed by `- ` as in the task
-example. Text may continue on indented lines; list entries are indented bullets.
+example. Multiline text uses `|` and four-space-indented lines; arrays and nested
+objects use an inline JSON value for that field.
 Recognize a label only in its defined section, outside code, comments, and
 quoted examples. Reject duplicate recognized fields in the same record, bad
 values, duplicate IDs, missing required sections, or inconsistent relationships
@@ -291,7 +292,7 @@ before changing anything. Unknown fields and prose remain intact.
 | ID/title | Bold page title; validate ID against its existing folder |
 | Purpose, type, priority, status, lifecycle stage, dates, next step | Overview labeled fields |
 | Requirements status and actual approval person/date | Overview approval fields; no approval copied into task state |
-| Blockers, relationships, Git evidence, completion approval/evidence | Named Overview subsections with labeled entries; retain existing field meanings |
+| Blockers, relationships, Git evidence, completion approval/evidence | Overview labeled fields with inline arrays/objects; retain existing field meanings |
 | Delivery choice, its goal/scope/source/date, unanswered questions, owner notes | Overview context/questions; preserve notes without guessing new structured values |
 | Roadmap stage fields and child links | One `## <stage ID>: <title>` block per stage inside Roadmap |
 | Task fields, dependencies, inputs, constraints, acceptance, approval, continuation | One `## <task ID>: <title>` block per task inside Tasks |
@@ -353,7 +354,7 @@ active/event state, extend the batch helper with a small temporary recovery
 manifest and old/new hashes. On restart, finish or restore the same operation
 only when each affected file matches its recorded old or new content; otherwise
 stop for reconciliation. Never emit a second completion event on retry. This
-manifest lives in `.work-items/.recovery/transactions/<operation-id>/` and is
+manifest lives in `.work-items/.recovery/transactions/<operation-id>.json` and is
 operational recovery state, removed after verified completion. Flush the saved
 manifest and replacement data before installing files. Check pending operations
 under the tracker lock before allowing further mutations; report incomplete
@@ -515,7 +516,7 @@ task's active draft from this worktree.
   owns reproducible behavior evidence and limitations. Fresh Codex CLI/Sol
   source fixtures are distinct from installed-host rollout, Claude, growth
   re-offer, partial local writes, and external mutation recovery. Issue #337
-  owns current verification/rollout status. R6 remains unbuilt.
+  owns current verification/rollout status. R6 was not included in that release.
 
 - Clarification approved by Mike in the handoff-review task, 2026-09-19:
   the external issue description holds the same template as WORK-ITEM.md,
@@ -539,12 +540,20 @@ task's active draft from this worktree.
   this active task maintains the scoped implementation records.
 - Publication correction, 2026-09-19: PR #356 merged the document-continuity
   guidance and this consolidation plan on 2026-09-18. The plan is on main;
-  consolidation runtime and project migrations have not started.
+  consolidation runtime was not included in that merge; existing-item migration
+  is now excluded.
 - Agent-led delivery: the named implementation task completed code, checks,
   PR, and authorized merge; it retains local cleanup/installation reporting.
   This task owns canonical records. Resume the future helper-authority question
   from PRD Notes and remaining rollout/verification from issue #337.
-- Consolidation resume: implementation authorized and starting. Build the shared
-  document reader/writer, preserve legacy paths, align instructions, verify, and
-  present a reviewed PR. Merge and installed rollout remain separate. No
-  existing-item migration or migration tooling is needed.
+- Consolidation implementation, 2026-09-19: new local records, guarded prose
+  edits, targeted updates, and interrupted-save recovery are implemented on
+  issue-337-consolidated-record. Existing legacy records remain in place.
+  Instructions use the same five sections for new external descriptions and
+  require prompt capture and verified saves. The 67 legacy and 10 new-format
+  integration checks passed; final review/checks precede the PR. External live
+  mutations and installed-host rollout are not verified.
+- Consolidation resume: review the scoped PR linked from #337, then obtain merge
+  authorization and perform installed rollout. No existing-item migration or
+  migration tooling is needed. The knowledge manual was checked: its ownership
+  and approval routes remain applicable, so no managed-policy copy was added.

@@ -1,8 +1,16 @@
+import {
+  DOCUMENT_NAME,
+  createDocument,
+  parseDocument,
+  patchDocument,
+} from "./work-item-document.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import {
   WorkError,
   atomicBatchWrite,
+  pendingBatchWrites,
+  recoverBatchWrites,
   atomicWrite,
   atomicWriteYaml,
   git,
@@ -62,6 +70,7 @@ const ARCHIVE_FOLDER = "archive";
 const FOLDER_MAX_DEPTH = 10;
 const ITEM_FOLDER_PATTERN = /^([A-Za-z][A-Za-z0-9]*-\d+)(?:-|$)/;
 const ITEM_FILE_NAMES = [
+  DOCUMENT_NAME,
   "ITEM.yaml",
   "ITEM.json",
   "REQUIREMENTS.md",
@@ -220,6 +229,14 @@ export function defaultBranch(repoRoot) {
 
 export function loadTracker(repoRoot, requestedPath, options = {}) {
   const paths = trackerPaths(repoRoot, requestedPath);
+  if (
+    pendingBatchWrites(path.join(paths.workRoot, ".recovery", "transactions"))
+      .length
+  )
+    throw new WorkError(
+      "An interrupted tracker update needs recovery. Run work recover before continuing; no current record was overwritten.",
+      "pending_recovery",
+    );
   if (!fs.existsSync(paths.configPath)) {
     if (options.allowMissing) return { paths, config: null, items: [] };
     throw new WorkError(
@@ -232,11 +249,32 @@ export function loadTracker(repoRoot, requestedPath, options = {}) {
   return { paths, config, items };
 }
 
+export function recoverTracker(repoRoot) {
+  const paths = trackerPaths(repoRoot);
+  return withLock(paths.lockPath, () => {
+    const recovered = recoverBatchWrites(
+      path.join(paths.workRoot, ".recovery", "transactions"),
+      paths.workRoot,
+    );
+    const tracker = loadTracker(repoRoot);
+    regenerate(tracker);
+    return {
+      outcome: "recovered",
+      recovered,
+      text: `Recovered ${recovered} interrupted update(s).`,
+    };
+  });
+}
+
 export function initialize(repoRoot, options = {}) {
   const paths = trackerPaths(repoRoot, options.path);
   const directCandidates = scanItemFolders(paths);
   const legacy = legacyTrackerRoots(repoRoot);
-  if (!fs.existsSync(paths.configPath) && legacy.length && directCandidates.length === 0) {
+  if (
+    !fs.existsSync(paths.configPath) &&
+    legacy.length &&
+    directCandidates.length === 0
+  ) {
     throw new WorkError(
       `An older local tracker exists at ${legacy.map((entry) => entry.relative).join(", ")}. Run work migrate --from ${legacy[0].relative} to review the conversion, then add --apply after approval.`,
       "legacy_tracker_found",
@@ -250,7 +288,9 @@ export function initialize(repoRoot, options = {}) {
       defaultBranch: options.defaultBranch ?? defaultBranch(repoRoot),
     });
     const candidates = scanItemFolders(paths);
-    const duplicateIds = duplicates(candidates.map((candidate) => candidate.id));
+    const duplicateIds = duplicates(
+      candidates.map((candidate) => candidate.id),
+    );
     if (duplicateIds.length) {
       throw new WorkError(
         `Cannot adopt existing folders because IDs are duplicated: ${duplicateIds.join(", ")}`,
@@ -260,7 +300,11 @@ export function initialize(repoRoot, options = {}) {
 
     const adopted = [];
     for (const candidate of candidates) {
-      if (fs.existsSync(candidate.itemPath)) continue;
+      if (
+        fs.existsSync(candidate.documentPath) ||
+        fs.existsSync(candidate.itemPath)
+      )
+        continue;
       const title = titleFromFolder(candidate.folderName);
       const record = newRecord({
         id: candidate.id,
@@ -282,16 +326,25 @@ export function initialize(repoRoot, options = {}) {
       );
       const writes = [
         { path: candidate.itemPath, content: stableYaml(record) },
-        { path: candidate.historyPath, content: appendHistoryContent(candidate, entry) },
+        {
+          path: candidate.historyPath,
+          content: appendHistoryContent(candidate, entry),
+        },
       ];
       if (!fs.existsSync(candidate.requirementsPath)) {
         writes.push({
           path: candidate.requirementsPath,
-          content: renderRequirements(record, "_Not recorded. Interview the owner before finalizing._"),
+          content: renderRequirements(
+            record,
+            "_Not recorded. Interview the owner before finalizing._",
+          ),
         });
       }
       if (!fs.existsSync(candidate.statusPath)) {
-        writes.push({ path: candidate.statusPath, content: renderStatus(record, [entry]) });
+        writes.push({
+          path: candidate.statusPath,
+          content: renderStatus(record, [entry]),
+        });
       }
       atomicBatchWrite(writes);
       adopted.push(candidate.id);
@@ -403,15 +456,24 @@ export function migrateLegacyTracker(repoRoot, options = {}) {
 export function addItem(tracker, input) {
   return withLock(tracker.paths.lockPath, () => {
     tracker = reload(tracker);
-    const id = input.id ? normalizeId(input.id) : allocateId(tracker.config, tracker.items);
+    const id = input.id
+      ? normalizeId(input.id)
+      : allocateId(tracker.config, tracker.items);
     if (tracker.items.some((item) => item.id === id)) {
       throw new WorkError(`Work item ${id} already exists`, "duplicate_id");
     }
     const type = normalizeType(input.type ?? "task");
-    const priority = normalizeEnum(input.priority ?? "medium", PRIORITIES, "priority");
+    const priority = normalizeEnum(
+      input.priority ?? "medium",
+      PRIORITIES,
+      "priority",
+    );
     const createdDate = input.createdDate ?? isoDate();
     if (!isIsoDate(createdDate)) {
-      throw new WorkError(`Creation date must be YYYY-MM-DD: ${createdDate}`, "invalid_date");
+      throw new WorkError(
+        `Creation date must be YYYY-MM-DD: ${createdDate}`,
+        "invalid_date",
+      );
     }
     const record = newRecord({
       id,
@@ -427,22 +489,42 @@ export function addItem(tracker, input) {
     const folderName = `${id}-${slugify(record.title)}`;
     const itemDir = path.join(groupDir, folderName);
     if (fs.existsSync(itemDir)) {
-      throw new WorkError(`Refusing to overwrite existing folder ${itemDir}`, "path_exists");
+      throw new WorkError(
+        `Refusing to overwrite existing folder ${itemDir}`,
+        "path_exists",
+      );
     }
     fs.mkdirSync(groupDir, { recursive: true });
     fs.mkdirSync(itemDir, { recursive: false });
     try {
-      atomicBatchWrite([
-        { path: path.join(itemDir, "ITEM.yaml"), content: stableYaml(record) },
-        {
-          path: path.join(itemDir, "REQUIREMENTS.md"),
-          content: renderRequirements(record, record.description),
+      const requirements = {
+        meta: {
+          status: "refining",
+          created_date: record.created_date,
+          updated_date: record.created_date,
+          finalized_date: null,
+          approved_by: null,
         },
-        { path: path.join(itemDir, "STATUS.md"), content: renderStatus(record, []) },
-        { path: path.join(itemDir, "TASKS.yaml"), content: stableYaml(emptyRoadmap()) },
+        body: `
+
+## Starting request
+
+${record.description.replace(/^#/gm, "##")}
+
+## Goal
+
+_Not agreed yet._
+`,
+      };
+      atomicBatchWrite([
         {
-          path: path.join(itemDir, "HISTORY.ndjson"),
-          content: `${JSON.stringify(historyEntry("created", "Created in Backlog with requirements still refining."))}\n`,
+          path: path.join(itemDir, DOCUMENT_NAME),
+          content: createDocument(record, requirements, emptyRoadmap(), [
+            historyEntry(
+              "created",
+              "Created in Backlog with requirements still refining.",
+            ),
+          ]),
         },
       ]);
     } catch (error) {
@@ -719,7 +801,11 @@ export function updateRequirementsStatus(tracker, id, input) {
       if (record.status === "Backlog") record.status = "Ready";
       record.updated_date = isoDate();
       note = `Requirements finalized with owner approval from ${approvedBy}.`;
-      if (record.stage && STAGES.includes(record.stage) && record.status === "Ready") {
+      if (
+        record.stage &&
+        STAGES.includes(record.stage) &&
+        record.status === "Ready"
+      ) {
         record.stage = "03-requirements-approved";
         note += " Stage set to 03-requirements-approved.";
       }
@@ -735,9 +821,12 @@ export function updateRequirementsStatus(tracker, id, input) {
       requirements.meta.finalized_date = null;
       requirements.meta.approved_by = null;
       record.status = "Backlog";
-      record.next_step = "Refine and finalize REQUIREMENTS.md with the owner.";
+      record.next_step = item.document
+        ? "Refine and finalize the Requirements section with the owner."
+        : "Refine and finalize REQUIREMENTS.md with the owner.";
       record.updated_date = isoDate();
-      note = "Requirements reopened for owner refinement; item returned to Backlog.";
+      note =
+        "Requirements reopened for owner refinement; item returned to Backlog.";
       if (record.stage && STAGES.includes(record.stage)) {
         record.stage = "02-refinement";
         note += " Stage set to 02-refinement.";
@@ -745,23 +834,39 @@ export function updateRequirementsStatus(tracker, id, input) {
     } else {
       throw new WorkError("Choose --finalize or --reopen", "missing_action");
     }
-    const history = historyEntry(input.finalize ? "requirements_finalized" : "requirements_reopened", note);
-    atomicBatchWrite([
-      { path: item.itemPath, content: stableYaml(record) },
-      { path: item.requirementsPath, content: renderRequirementsFile(requirements.meta, requirements.body) },
-      { path: item.historyPath, content: appendHistoryContent(item, history) },
-      {
-        path: item.statusPath,
-        content: renderStatus(
-          record,
-          recentHistory(item, history),
-          readStatus(item),
-          requirements.meta.status,
-          progressEntryFor(record, note),
-          readRoadmap(item),
-        ),
-      },
-    ]);
+    const history = historyEntry(
+      input.finalize ? "requirements_finalized" : "requirements_reopened",
+      note,
+    );
+    if (item.document) {
+      writeDocumentUpdate(item, {
+        record,
+        requirements,
+        history: [...item.document.history, history],
+      });
+    } else
+      atomicBatchWrite([
+        { path: item.itemPath, content: stableYaml(record) },
+        {
+          path: item.requirementsPath,
+          content: renderRequirementsFile(requirements.meta, requirements.body),
+        },
+        {
+          path: item.historyPath,
+          content: appendHistoryContent(item, history),
+        },
+        {
+          path: item.statusPath,
+          content: renderStatus(
+            record,
+            recentHistory(item, history),
+            readStatus(item),
+            requirements.meta.status,
+            progressEntryFor(record, note),
+            readRoadmap(item),
+          ),
+        },
+      ]);
     regenerate(reload(tracker));
     return {
       outcome: input.finalize ? "finalized" : "reopened",
@@ -1339,7 +1444,10 @@ function moveItemFolder(tracker, id, archive) {
         );
     const destination = path.join(destinationRoot, item.folderName);
     if (fs.existsSync(destination)) {
-      throw new WorkError(`Refusing to overwrite existing folder ${destination}`, "path_exists");
+      throw new WorkError(
+        `Refusing to overwrite existing folder ${destination}`,
+        "path_exists",
+      );
     }
     fs.mkdirSync(destinationRoot, { recursive: true });
     fs.renameSync(item.path, destination);
@@ -1356,7 +1464,17 @@ function moveItemFolder(tracker, id, archive) {
         ? "Folder moved into the archive folder. Status and requirements were not changed."
         : "Folder moved out of the archive folder. Status and requirements were not changed.",
     );
-    atomicWrite(moved.historyPath, appendHistoryContent(moved, entry));
+    if (item.document) {
+      try {
+        writeDocumentUpdate(
+          { ...item, path: destination, documentPath: moved.documentPath },
+          { history: [...item.document.history, entry] },
+        );
+      } catch (error) {
+        fs.renameSync(destination, item.path);
+        throw error;
+      }
+    } else atomicWrite(moved.historyPath, appendHistoryContent(moved, entry));
     const shown = displayTrackerPath(tracker.paths, destination);
     return {
       outcome: archive ? "archived" : "unarchived",
@@ -1378,8 +1496,40 @@ export function regenerate(tracker) {
 export function scanItems(paths) {
   const items = [];
   for (const candidate of scanItemFolders(paths)) {
+    if (fs.existsSync(candidate.documentPath)) {
+      const competing = ITEM_FILE_NAMES.filter(
+        (name) =>
+          name !== DOCUMENT_NAME &&
+          fs.existsSync(path.join(candidate.path, name)),
+      );
+      if (competing.length)
+        throw new WorkError(
+          `${candidate.id} has WORK-ITEM.md and legacy files (${competing.join(", ")}); reconcile the competing records before editing. Nothing was changed.`,
+          "mixed_item_formats",
+        );
+      const document = parseDocument(
+        fs.readFileSync(candidate.documentPath, "utf8"),
+      );
+      items.push({
+        ...candidate,
+        folderId: candidate.id,
+        id: document.record.id,
+        record: document.record,
+        document,
+        itemPath: candidate.documentPath,
+        requirementsPath: candidate.documentPath,
+        tasksPath: candidate.documentPath,
+        statusPath: candidate.documentPath,
+        historyPath: candidate.documentPath,
+      });
+      continue;
+    }
     if (!fs.existsSync(candidate.itemPath)) {
-      items.push({ ...candidate, record: invalidPlaceholder(candidate), missingRecord: true });
+      items.push({
+        ...candidate,
+        record: invalidPlaceholder(candidate),
+        missingRecord: true,
+      });
       continue;
     }
     const record = readYaml(candidate.itemPath, `${candidate.id} ITEM.yaml`);
@@ -1390,7 +1540,9 @@ export function scanItems(paths) {
       record,
     });
   }
-  return items.sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
+  return items.sort((a, b) =>
+    a.id.localeCompare(b.id, undefined, { numeric: true }),
+  );
 }
 
 // Where a folder sits is the only record of how the owner has organised it, for
@@ -1505,7 +1657,13 @@ function scanLegacyItemFolders(sourceRoot) {
   return candidates;
 }
 
-function itemCandidate(itemPath, folderName, rawId, archived = false, paths = null) {
+function itemCandidate(
+  itemPath,
+  folderName,
+  rawId,
+  archived = false,
+  paths = null,
+) {
   const id = rawId.toUpperCase();
   return {
     id,
@@ -1513,6 +1671,7 @@ function itemCandidate(itemPath, folderName, rawId, archived = false, paths = nu
     archived,
     group: paths ? itemGroup(paths, itemPath) : null,
     path: itemPath,
+    documentPath: path.join(itemPath, DOCUMENT_NAME),
     itemPath: path.join(itemPath, "ITEM.yaml"),
     legacyItemPath: path.join(itemPath, "ITEM.json"),
     requirementsPath: path.join(itemPath, "REQUIREMENTS.md"),
@@ -1729,10 +1888,18 @@ function emptyRoadmap() {
 }
 
 function readRoadmap(item) {
+  if (item.document) return structuredClone(item.document.roadmap);
   if (!fs.existsSync(item.tasksPath)) return emptyRoadmap();
   const roadmap = readYaml(item.tasksPath, `${item.id} TASKS.yaml`);
-  if (roadmap.schema_version !== 1 || !Array.isArray(roadmap.stages) || !Array.isArray(roadmap.tasks)) {
-    throw new WorkError(`${item.id} TASKS.yaml requires schema_version 1 plus stages and tasks arrays`, "invalid_tasks_file");
+  if (
+    roadmap.schema_version !== 1 ||
+    !Array.isArray(roadmap.stages) ||
+    !Array.isArray(roadmap.tasks)
+  ) {
+    throw new WorkError(
+      `${item.id} TASKS.yaml requires schema_version 1 plus stages and tasks arrays`,
+      "invalid_tasks_file",
+    );
   }
   return roadmap;
 }
@@ -1933,13 +2100,16 @@ function normalizeStatus(status) {
 
 function normalizeEnum(value, allowed, label) {
   const normalized = String(value).trim().toLowerCase().replace(/\s+/g, "_");
-  if (!allowed.includes(normalized)) {
+  const found = allowed.find(
+    (value) => value.toLowerCase().replace(/\s+/g, "_") === normalized,
+  );
+  if (!found) {
     throw new WorkError(
       `Invalid ${label} "${value}". Use ${allowed.join(", ")}.`,
       `invalid_${label.replace(/\s+/g, "_")}`,
     );
   }
-  return normalized;
+  return found;
 }
 
 function requiredText(value, label) {
@@ -1951,10 +2121,28 @@ function requiredText(value, label) {
 function requireItem(tracker, id) {
   const normalized = normalizeId(id);
   const matches = tracker.items.filter((item) => item.id === normalized);
-  if (matches.length === 0) throw new WorkError(`Work item ${normalized} does not exist`, "missing_item");
-  if (matches.length > 1) throw new WorkError(`Work item ${normalized} is duplicated`, "duplicate_id");
+  if (matches.length === 0)
+    throw new WorkError(
+      `Work item ${normalized} does not exist`,
+      "missing_item",
+    );
+  if (matches.length > 1)
+    throw new WorkError(
+      `Work item ${normalized} is duplicated`,
+      "duplicate_id",
+    );
   if (matches[0].missingRecord) {
-    throw new WorkError(`${normalized} is missing ITEM.yaml. Run work init to adopt it.`, "missing_record");
+    throw new WorkError(
+      `${normalized} is missing ITEM.yaml. Run work init to adopt it.`,
+      "missing_record",
+    );
+  }
+  if (matches[0].document) {
+    const errors = [],
+      warnings = [];
+    validateRecord(matches[0], tracker, errors, warnings);
+    if (errors.length)
+      throw new WorkError(errors.join("; "), "invalid_work_item_document");
   }
   return matches[0];
 }
@@ -1992,13 +2180,22 @@ function renderRequirementsFile(meta, body) {
 }
 
 function readRequirements(item) {
+  if (item.document) return structuredClone(item.document.requirements);
   if (!fs.existsSync(item.requirementsPath)) {
-    throw new WorkError(`${item.id} is missing REQUIREMENTS.md`, "missing_requirements");
+    throw new WorkError(
+      `${item.id} is missing REQUIREMENTS.md`,
+      "missing_requirements",
+    );
   }
   const source = fs.readFileSync(item.requirementsPath, "utf8");
-  const match = source.match(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)([\s\S]*)$/);
+  const match = source.match(
+    /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)([\s\S]*)$/,
+  );
   if (!match) {
-    throw new WorkError(`${item.id} REQUIREMENTS.md needs YAML fields at the top`, "invalid_requirements");
+    throw new WorkError(
+      `${item.id} REQUIREMENTS.md needs YAML fields at the top`,
+      "invalid_requirements",
+    );
   }
   const meta = parseYaml(match[1], `${item.id} REQUIREMENTS.md fields`);
   return { meta, body: match[2].trim() };
@@ -2209,8 +2406,12 @@ function historyEntry(action, note) {
 }
 
 function readHistory(item) {
+  if (item.document) return structuredClone(item.document.history);
   if (!fs.existsSync(item.historyPath)) return [];
-  const lines = fs.readFileSync(item.historyPath, "utf8").split(/\r?\n/).filter(Boolean);
+  const lines = fs
+    .readFileSync(item.historyPath, "utf8")
+    .split(/\r?\n/)
+    .filter(Boolean);
   return lines.map((line, index) => {
     try {
       return JSON.parse(line);
@@ -2236,12 +2437,145 @@ function readStatus(item) {
   return fs.existsSync(item.statusPath) ? fs.readFileSync(item.statusPath, "utf8") : "";
 }
 
+function commitItemWrites(entries) {
+  const doc = entries.find((e) => path.basename(e.path) === DOCUMENT_NAME);
+  let workRoot = doc ? path.dirname(doc.path) : null;
+  while (
+    workRoot &&
+    path.basename(workRoot) !== ".work-items" &&
+    path.dirname(workRoot) !== workRoot
+  )
+    workRoot = path.dirname(workRoot);
+  atomicBatchWrite(
+    entries,
+    doc
+      ? { recoveryRoot: path.join(workRoot, ".recovery", "transactions") }
+      : {},
+  );
+}
+
+function documentEntry(item, values) {
+  return {
+    path: item.documentPath,
+    content: patchDocument(item.document, values),
+    expectedHash: item.document.hash,
+  };
+}
+function writeDocumentUpdate(item, values, transition = {}) {
+  const writes = [documentEntry(item, values)];
+  if (transition.active)
+    writes.push({
+      path: transition.activePath,
+      content: activeContent(transition.active),
+    });
+  if (
+    transition.event &&
+    !eventAlreadyRecorded(transition.eventsPath, transition.event.event_id)
+  ) {
+    writes.push({
+      path: transition.eventsPath,
+      content: appendEventContent(transition.eventsPath, transition.event),
+    });
+  }
+  commitItemWrites(writes);
+  if (fs.readFileSync(item.documentPath, "utf8") !== writes[0].content)
+    throw new WorkError(
+      "WORK-ITEM.md readback differs from the saved update",
+      "write_verification_failed",
+    );
+}
+
+export function editItemDocument(tracker, id, input) {
+  return withLock(tracker.paths.lockPath, () => {
+    tracker = reload(tracker);
+    assertActiveTarget(tracker, normalizeId(id));
+    const item = requireItem(tracker, id);
+    if (!item.document)
+      throw new WorkError(
+        "work edit is for WORK-ITEM.md records; this existing item retains its legacy format",
+        "legacy_item",
+      );
+    if (input.expectedHash !== item.document.hash)
+      throw new WorkError(
+        "WORK-ITEM.md changed; reread it and reapply the unsaved edit",
+        "stale_document",
+      );
+    const candidate = parseDocument(fs.readFileSync(input.inputPath, "utf8"));
+    // Content edits cannot act as an alternative status/approval/completion API.
+    if (
+      !sameJson(candidate.record, item.document.record) ||
+      !sameJson(candidate.requirements.meta, item.document.requirements.meta) ||
+      !sameJson(candidate.roadmap, item.document.roadmap) ||
+      !sameJson(candidate.history, item.document.history)
+    ) {
+      throw new WorkError(
+        "Use tracker commands for fields, roadmap, approvals, completion, and history; work edit changes requirements prose and notes",
+        "guarded_document_fields",
+      );
+    }
+    if (
+      candidate.requirements.body !== item.document.requirements.body &&
+      item.document.requirements.meta.status === "finalized"
+    )
+      throw new WorkError(
+        "Reopen requirements before changing their approved content",
+        "requirements_finalized",
+      );
+    const changed = { ...item, record: candidate.record, document: candidate };
+    const errors = [],
+      warnings = [];
+    validateRecord(changed, tracker, errors, warnings);
+    if (errors.length)
+      throw new WorkError(errors.join("; "), "invalid_work_item_document");
+    const content = patchDocument(candidate, {
+      history: [
+        ...candidate.history,
+        historyEntry(
+          "document_edited",
+          "Updated requirements or work-item notes.",
+        ),
+      ],
+    });
+    atomicBatchWrite([
+      { path: item.documentPath, content, expectedHash: item.document.hash },
+    ]);
+    const saved = reload(tracker);
+    regenerate(saved);
+    return {
+      outcome: "updated",
+      item: publicItem(requireItem(saved, id), tracker.paths),
+      text: `${id}: saved and verified WORK-ITEM.md.`,
+    };
+  });
+}
+
 function writeItemUpdate(tracker, item, record, action, note, progressEntry, transition = {}) {
   writeItemFiles(item, record, action, note, progressEntry, transition);
   regenerate(reload(tracker));
 }
 
-function writeRoadmapUpdate(tracker, item, roadmap, action, note, transition = {}) {
+function writeRoadmapUpdate(
+  tracker,
+  item,
+  roadmap,
+  action,
+  note,
+  transition = {},
+) {
+  if (item.document) {
+    const record = { ...item.record, updated_date: isoDate() };
+    writeDocumentUpdate(
+      item,
+      {
+        record,
+        roadmap,
+        history: [...item.document.history, historyEntry(action, note)],
+      },
+      transition,
+    );
+    regenerate(reload(tracker));
+    return;
+  }
   const record = structuredClone(item.record);
   record.updated_date = isoDate();
   const entry = historyEntry(action, note);
@@ -2262,19 +2596,45 @@ function writeRoadmapUpdate(tracker, item, roadmap, action, note, transition = {
       ),
     },
   ];
-  if (transition.active) writes.push({ path: transition.activePath, content: activeContent(transition.active) });
+  if (transition.active)
+    writes.push({
+      path: transition.activePath,
+      content: activeContent(transition.active),
+    });
   atomicBatchWrite(writes);
   regenerate(reload(tracker));
 }
 
-function writeItemFiles(item, record, action, note, progressEntry, transition = {}) {
+function writeItemFiles(
+  item,
+  record,
+  action,
+  note,
+  progressEntry,
+  transition = {},
+) {
+  if (item.document)
+    return writeDocumentUpdate(
+      item,
+      {
+        record,
+        history: [...item.document.history, historyEntry(action, note)],
+      },
+      transition,
+    );
   const entry = historyEntry(action, note);
   const requirements = readRequirements(item);
-  const transitionProgress = progressEntry ?? (
-    ["requirements_finalized", "requirements_reopened", "started", "finished", "completion_approved"].includes(action)
+  const transitionProgress =
+    progressEntry ??
+    ([
+      "requirements_finalized",
+      "requirements_reopened",
+      "started",
+      "finished",
+      "completion_approved",
+    ].includes(action)
       ? progressEntryFor(record, note)
-      : undefined
-  );
+      : undefined);
   const writes = [
     { path: item.itemPath, content: stableYaml(record) },
     { path: item.historyPath, content: appendHistoryContent(item, entry) },
@@ -2290,25 +2650,62 @@ function writeItemFiles(item, record, action, note, progressEntry, transition = 
       ),
     },
   ];
-  if (transition.active) writes.push({ path: transition.activePath, content: activeContent(transition.active) });
-  if (transition.event && !eventAlreadyRecorded(transition.eventsPath, transition.event.event_id)) {
-    writes.push({ path: transition.eventsPath, content: appendEventContent(transition.eventsPath, transition.event) });
+  if (transition.active)
+    writes.push({
+      path: transition.activePath,
+      content: activeContent(transition.active),
+    });
+  if (
+    transition.event &&
+    !eventAlreadyRecorded(transition.eventsPath, transition.event.event_id)
+  ) {
+    writes.push({
+      path: transition.eventsPath,
+      content: appendEventContent(transition.eventsPath, transition.event),
+    });
   }
   atomicBatchWrite(writes);
 }
 
-function writeLinkedItems(source, sourceRecord, target, targetRecord, relationship, remove) {
+function writeLinkedItems(
+  source,
+  sourceRecord,
+  target,
+  targetRecord,
+  relationship,
+  remove,
+) {
   const inverse = INVERSES[relationship];
   const action = remove ? "unlinked" : "linked";
   const entries = [];
   for (const [item, record, event] of [
-    [source, sourceRecord, `${remove ? "removed " : ""}${relationship} ${target.id}`],
-    [target, targetRecord, `${remove ? "removed " : ""}${inverse} ${source.id}`],
+    [
+      source,
+      sourceRecord,
+      `${remove ? "removed " : ""}${relationship} ${target.id}`,
+    ],
+    [
+      target,
+      targetRecord,
+      `${remove ? "removed " : ""}${inverse} ${source.id}`,
+    ],
   ]) {
     const history = historyEntry(action, event);
+    if (item.document) {
+      entries.push(
+        documentEntry(item, {
+          record,
+          history: [...item.document.history, history],
+        }),
+      );
+      continue;
+    }
     const requirements = readRequirements(item);
     entries.push({ path: item.itemPath, content: stableYaml(record) });
-    entries.push({ path: item.historyPath, content: appendHistoryContent(item, history) });
+    entries.push({
+      path: item.historyPath,
+      content: appendHistoryContent(item, history),
+    });
     entries.push({
       path: item.statusPath,
       content: renderStatus(
@@ -2321,7 +2718,7 @@ function writeLinkedItems(source, sourceRecord, target, targetRecord, relationsh
       ),
     });
   }
-  atomicBatchWrite(entries);
+  commitItemWrites(entries);
 }
 
 function assertBranchAvailable(tracker, itemId, branch, allowSharedBranch) {
@@ -2412,6 +2809,9 @@ function publicItem(item, paths, currentTaskId = undefined) {
     : null;
   return {
     id: item.id,
+    format: item.document ? "markdown" : "legacy",
+    document_hash: item.document?.hash ?? null,
+    record_path: displayTrackerPath(paths, item.itemPath),
     title: item.record.title,
     description: item.record.description,
     status: item.record.status,
@@ -2441,7 +2841,9 @@ function publicItem(item, paths, currentTaskId = undefined) {
         lifecycle_stage: stage.lifecycle_stage ?? null,
         planning_status: stage.planning_status ?? "planned",
         child_work_items: stage.child_work_items ?? [],
-        task_ids: roadmap.tasks.filter((task) => task.roadmap_stage === stage.id).map((task) => task.id),
+        task_ids: roadmap.tasks
+          .filter((task) => task.roadmap_stage === stage.id)
+          .map((task) => task.id),
       })),
     },
     current_task: currentTask ? publicTask(currentTask, item.id) : null,
@@ -2560,7 +2962,7 @@ function renderDashboard(allItems) {
     .slice(0, 10);
   return `# Local work tracker dashboard
 
-> Generated from each work item's \`ITEM.yaml\`. Rebuild with \`work dashboard\`.
+> Generated from each work item's canonical record. Rebuild with \`work dashboard\`.
 > Do not edit this file as a source of truth.
 
 ## Requirements still refining
@@ -2625,11 +3027,10 @@ computer and is not copied through Git.
   it. Archived items are hidden from \`work status\`, \`work next\`, and the
   dashboard. \`work status --archived\` lists them, and their ID numbers are
   never handed out again.
-- \`ITEM.yaml\` owns structured status, dates, relationships, blockers, and Git evidence.
-- \`REQUIREMENTS.md\` contains only owner-stated or owner-approved needs.
-- \`TASKS.yaml\` owns the owner-shaped roadmap, linked child fulfillment, detailed execution tasks, and saved task positions.
-- A child work item keeps its own requirements, design, roadmap, tasks, status, and approval. Completing it does not complete its parent.
-- \`STATUS.md\` is the readable handoff. \`HISTORY.ndjson\` keeps dated events.
+- New items keep Overview, Roadmap, Tasks, Recent History, and Requirements in \`WORK-ITEM.md\`.
+- Designs stay separate and linked. A child owns its own state and approval; completing it does not complete its parent.
+- Existing multi-file items retain \`ITEM.yaml\`, \`REQUIREMENTS.md\`, \`TASKS.yaml\`, \`STATUS.md\`, and \`HISTORY.ndjson\`; no migration is required.
+- Use \`work edit\` with a current document hash for prose; use other commands for state and approval. \`work recover\` finishes an interrupted multi-file save after checking for conflicts.
 - \`DASHBOARD.md\` is generated and rebuildable.
 
 Run \`work status\` for orientation or \`work validate\` to check local records.
@@ -2940,7 +3341,11 @@ function completionMatches(completion, input, record, repoRoot) {
 }
 
 function sameJson(left, right) {
-  return JSON.stringify(left ?? null) === JSON.stringify(right ?? null);
+  const normalize = (value) => Array.isArray(value) ? value.map(normalize)
+    : value && typeof value === "object"
+      ? Object.fromEntries(Object.keys(value).sort().map((key) => [key, normalize(value[key])]))
+      : value;
+  return JSON.stringify(normalize(left ?? null)) === JSON.stringify(normalize(right ?? null));
 }
 
 function completionEvent(tracker, record, completion) {
