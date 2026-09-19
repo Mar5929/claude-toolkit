@@ -24,7 +24,11 @@ reconciliation before policy-dependent work; never choose meaning silently.
 
 ## Search
 
-Walk the manual's tiers in order and stop at the first answer.
+Walk the manual's tiers in order. Stop when the source that owns the question
+provides an adequate answer and any higher-authority or live source needed to
+validate it has been checked. Treat an answer from an earlier tier as
+provisional when a later tier owns that kind of truth or may reveal a relevant
+conflict.
 
 - Treat `knowledge/current.md` as current work state, never lasting truth.
 - Check loaded rules and available skills before looking for a saved fact.

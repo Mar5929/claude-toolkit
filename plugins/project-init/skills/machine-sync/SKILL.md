@@ -25,18 +25,29 @@ lands inside one repository, so a repository nobody ever ran them on gets
 nothing. Some rules have to hold everywhere, including in a repository the owner
 cloned five minutes ago. Those live in the machine-wide set.
 
-Run the steps in order. **Never change anything before step 5.**
+Run the steps in order. **Do not change the audited machine-wide rules, settings,
+hooks, or instruction files before step 5.** A normal machine-sync invocation
+includes refreshing the toolkit source in step 1. If the owner asked for a
+read-only or audit-only run, the whole invocation stays read-only: do not update
+the installed plugin, fetch another source, change machine-wide files, record
+declines, or write the machine sync record. Use the best source already
+available, identify it and its known freshness in the findings report, then stop
+after step 5. A later explicit request to install selected findings enters the
+normal approval, installation, verification, and recording flow in steps 6 and
+7.
 
 ## Step 1: refresh the installed toolkit
 
-This skill reads the toolkit from the installed plugin copy, and that copy does
+This source refresh is part of a normal machine-sync request; a read-only or
+audit-only request follows the no-mutation exception above. This skill reads the
+toolkit from the installed plugin copy, and that copy does
 not update itself when the repository changes on GitHub. A stale copy produces a
 stale audit, which is exactly the failure this step prevents.
 
 Inside a Claude Code session run `/plugin marketplace update claude-toolkit`.
 From a terminal run `claude plugin marketplace update claude-toolkit`.
 
-Skip this only when reading from a freshly pulled local clone.
+Skip this for a read-only audit or when reading from a freshly pulled local clone.
 
 **On a brand-new computer the plugin is not installed yet.** In that case the
 owner has to add the marketplace first, which is the one step only they can do,
@@ -174,6 +185,9 @@ One table, every item, one row each. Say what is missing, what is behind, what
 conflicts, and what already matches. For anything behind or conflicting, show
 the actual difference before asking.
 
+For a read-only audit, report source freshness and any limits, then finish
+without entering installation, verification that changes files, or recording.
+
 Number the rows so the owner can answer with a number. They may approve all,
 approve some, or none. Then wait. Nothing is written before an answer.
 
@@ -241,6 +255,8 @@ machine. Do not write a Git Bash style path such as
 on every command. Resolve the real path in step 3 and write it out.
 
 ## Step 7: prove it works, then record it
+
+Do not enter this step during a read-only or audit-only invocation.
 
 Do not report success because a file was written. Show it actually running.
 

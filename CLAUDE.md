@@ -64,8 +64,10 @@ The `Claude-Toolkit-Project` board on GitHub, connected to this repository.
   Use links instead of repeating the same detail in both places.
 - An issue carries one stage label from the fourteen in
   `.claude/rules/work-item-stages.md`, and one comment titled "Progress log"
-  that is edited in place. It is ready to build when it carries
-  `03-requirements-approved`. Nothing gets built before that. The old `refined`
-  label meant the same thing and is retired.
+  that is edited in place. Build and data-load work require recorded requirements
+  approval. `03-requirements-approved` marks that gate when reached; later stages
+  show current position and do not revoke the approval. Check the recorded
+  approval when resuming; a stage label alone does not establish it. The old
+  `refined` label meant the approval stage and is retired.
 - Worktrees are siblings of the primary checkout, named
   `claude-toolkit-<issue number>`, on a branch named `issue-<number>-<slug>`.

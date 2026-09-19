@@ -41,7 +41,7 @@ export const STARTUP_FILES = [
   },
   {
     path: "knowledge/prds/spec-index.md",
-    label: "How this project is meant to work. Only a current PRD is settled truth, and only a current PRD beats a memory. A proposed one is not built yet",
+    label: "How this project is meant to work. Only finalized or legacy current PRDs are settled requirements. A proposed PRD is not built yet",
     whole: false,
   },
 ];

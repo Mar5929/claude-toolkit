@@ -58,8 +58,8 @@ const FOLDERS = [
       "A PRD is one living document per feature area. Anything other than current",
       "is labelled in brackets after the filename. A line marked proposed is what",
       "we want built and is not true yet. A line marked superseded or retired",
-      "describes how something used to work. Only a current PRD is settled truth,",
-      "and only a current PRD beats a memory.",
+      "describes how something used to work. Finalized and legacy current PRDs",
+      "state settled requirements; memory does not override them.",
     ],
   },
 ];
