@@ -84,8 +84,13 @@ when design work needs it. Existing authoritative workbooks or shared PRDs
 remain linked sources; do not copy their requirements into a competing record.
 
 Use a bold page title so the requested first-level headings are the sections.
-The same headings and order apply to external issue bodies; native tracker
-fields own status and assignments there, without a competing local mirror.
+For GitHub, Jira, Linear, and other external trackers, store this same template
+in the work item's description/body. Preserve its sections, order, and meaning
+using the editor/API's supported formatting; do not require identical Markdown
+syntax. Native tracker fields own status and assignments; reference those fields
+rather than maintaining competing values. Link the separate design from Overview.
+The description holds the item's current content, not a local WORK-ITEM.md copy
+or a collection of separate task, requirements, status, and notes documents.
 
 ```markdown
 **WI-014: Security and permissions**
@@ -186,6 +191,22 @@ then reread the exact section. Unanswered questions are saved immediately with
 who must answer. An answer updates the question and affected requirement or
 task; history records only the useful decision context. Saving is not approval.
 
+The trigger is meaningful human input, not the end of an interview or session.
+Capture each decision, answer, requirement, design choice, or constraint in its
+existing authoritative home immediately, preserving its approval state. Complete
+the normal publication step before moving past the topic: check, commit, push,
+and verify authorized Git-tracked documentation; update and reread an external
+issue's description/native field; or save and reread a Git-ignored local record.
+Retain and report a failed save for recovery rather than claiming publication.
+
+Instruction ownership already exists: the shared
+[work-item-stages rule](../../plugins/project-init/library/rules/general/work-item-stages.md#capture-during-the-conversation)
+owns capture timing and routing, and
+[knowledge-direct-commit](../../plugins/project-init/library/rules/general/knowledge-direct-commit.md)
+owns publication of authorized Git-tracked documentation. Existing work-guide,
+requirements, and design methods apply those instructions. Reconcile their
+storage references when R6 ships; do not introduce another competing save rule.
+
 Working design choices, design questions, and design refinement stay in the
 design's bottom Notes, with an item-level task pointing there. Other tasks and
 questions use the sections above. Standalone shared PRDs keep their own Notes.
@@ -257,6 +278,10 @@ task's active draft from this worktree.
   is optional until needed. All five top-level sections have the same order:
   Overview, Roadmap, Tasks, Recent History, Requirements. Updating a task keeps
   its roadmap phase accurate without inventing approval or completing other work.
+- In an external tracker, use its description for the same five template
+  sections and link the separate design. Confirm meaningful human input updates
+  the actual content and is saved/read back before moving past the topic. Check
+  supported formatting without creating a local mirror or duplicate field truth.
 - Directly edit prose and nested Requirements, then update a task via CLI:
   unrelated text and formatting survive. Test malformed/duplicate headings,
   details blocks, Unicode, and Windows line endings.
@@ -276,6 +301,12 @@ task's active draft from this worktree.
   and active instructions agree before claiming rollout complete.
 
 ## Notes
+
+- Clarification approved by Mike in the handoff-review task, 2026-09-19:
+  the external issue description holds the same template as WORK-ITEM.md,
+  with separate linked design. Significant human decisions/input are captured
+  immediately and saved through the applicable route. The existing capture and
+  documentation-publication rules own that instruction; R6 must preserve it.
 
 - Approved direction: Mike, 2026-09-18, this Work-tracker conversation: one
   consistent Markdown work item, separate design, clear top-level sections.

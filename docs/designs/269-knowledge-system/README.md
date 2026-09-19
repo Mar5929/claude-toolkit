@@ -35,11 +35,27 @@ These records were requested on 2026-09-17 for autonomous design reconciliation
 and implementation planning. Their publication does not claim runtime delivery
 or replace the work item's approval and acceptance records.
 
-Every record was written by an agent. The roles are: an Opus research agent,
+Every record was written by an agent. The earlier roles are: an Opus research agent,
 the peer Fable design lead, the main Fable design lead, an Opus reviewer, and
 an Opus fixer. `process.md` says what each role did.
 
 ## research/
+
+### Instruction-delivery research — 2026-09-19
+
+Two GPT-5.6 Sol agents investigated how fresh working agents receive guidance,
+how automatic extraction is instructed, and what that means for this toolkit.
+These detailed reports preserve their findings and commit-pinned sources:
+
+- [Hindsight and claude-mem](research/2026-09-19-hindsight-claude-mem-instruction-delivery.md).
+- [Supermemory and Mem0](research/2026-09-19-supermemory-mem0-instruction-delivery.md).
+
+The [master design's comparison](../269-knowledge-system.md#proposed-refinements-after-memory-provider-research--2026-09-19)
+owns the resulting proposals and decision status. Reports are evidence, not
+instructions or approval to adopt a provider. This is a different question from
+the older `r5-alternatives.md` storage/architecture comparison below.
+
+### Earlier research
 
 | File | What it is | Written by |
 | --- | --- | --- |
