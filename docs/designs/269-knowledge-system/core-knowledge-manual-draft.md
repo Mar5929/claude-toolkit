@@ -67,20 +67,32 @@ records instead of copying the same meaning into several places.
 | Repeatable procedure | A skill, through the project's skill-authoring process |
 | Required behavior | The owning feature's PRD under `knowledge/prds/` |
 | Useful explanation of existing parts and their connections | The enabled System Guide's configured location, or another explicitly designated document owner |
-| Lasting project facts, decisions, lessons, events, and constraints | Topic files under `knowledge/memory/memory-entries/` |
+| Qualifying lasting project facts, decisions, lessons, events, and constraints not already owned by another record | Topic files under `knowledge/memory/memory-entries/` |
 | Current goals, useful recent results, blockers, next steps, and later to-dos | `knowledge/memory/current.md`, with links to detailed work records |
 | Tasks, delivery plans, status, and overall approvals | The project's work tracker |
-| Solution design | The work item's designated design record |
+| Architectural choices, alternatives, rationale, evidence, and approval state | The work item's designated design, or an existing separately designated architecture record |
 | PRD or design refinement and exact resume point | That document's closing Notes section |
 | Shown proposals awaiting an answer and authorized unfinished saves | `knowledge/memory-inbox.md` |
 | Feedback about which memories are useful | `knowledge/memory-self-improvement.md` |
 | Unchecked exploration | `brainstorms/` |
-| Outside documentation and research sources | `ai-external-knowledge/` or designated delivery/reference files |
+| Project-authored research findings | The work item's existing supporting records, linked from the design or other record using them |
+| Raw outside documentation | `ai-external-knowledge/` or the project's designated source-reference location |
 | Earlier conversations | Available project session history |
 
 Use each destination's current instructions and permission rules. A disabled
 System Guide stays disabled. If a necessary owner or procedure is missing,
 report the gap; memory and PRDs are not substitute stores for that content.
+
+A record called an architectural decision record, or ADR, follows the same
+ownership rules; its name does not require a separate file or memory. Keep
+selected choices in the design text and unresolved choices in its Notes.
+Preserve the evidence's sources, date or version, and limitations. Research
+findings alone approve no design choice or requirement.
+
+When an item closes, follow the project's settled retention rules and preserve
+the route to its current authority and retained decision history. If deletion
+guidance conflicts with preserving current architecture or useful evidence,
+report that conflict before moving or deleting the affected records.
 
 ## 4. Find and use evidence
 
@@ -302,3 +314,7 @@ evidence that guidance and checks work.
 - Next: review section 1 with Mike, audit this draft against each R1–R30 row in
   the existing implementation plan, then draft the four task procedures. Keep
   exact wording review separate from full design/build approval.
+- Decision/research routing was aligned with the authorized R18 and Toolkit OS
+  R9/R11 clarification published at `48a0988` on 2026-09-19. The parent PRD's
+  post-delivery retention question remains open; this draft chooses no ADR
+  directory or new retention policy.
