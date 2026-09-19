@@ -3,7 +3,10 @@
 The team is recommended fresh for every item. The main conversation weighs
 the complexity and effort of the requirements in the context of what is
 being built, proposes a team, and the owner agrees or changes it before any
-agent starts. Every agent reads the design preparation and Notes first, so the whole team works
+agent starts, unless the canonical item already gives agents authority to
+select bounded help for this goal. That authority avoids a repeated permission
+question; it does not approve a product decision, design, or result. Every
+agent reads the design preparation and Notes first, so the whole team works
 from the same understanding of what the requirements are for.
 
 ## The roles
@@ -42,6 +45,11 @@ Then recommend a team, say why each role and count is there, and say how many
 agent runs the first pass will take. Cut what the item does not need. A small
 item still gets a product analyst and a critic; those two are what make the
 loop stop for the right reason.
+
+Each assignment ends when its material question is answered, its finding is
+resolved or taken to the owner, or another run has no new reason. Add a review
+round only for a named unresolved finding or changed input. The roles are a
+design process for this item, not a standing council.
 
 ## Example compositions
 

@@ -176,7 +176,7 @@ claude-toolkit/
       tests/                      ← the attribution guard's harness
       skills/
         hooks-library/            ← SKILL.md (install, verify, remove)
-    work-tracker/                 ← plugin: local work roadmaps, tasks, status, and handoffs
+    work-tracker/                 ← plugin: agent-led delivery and local work tracking
       README.md
       .claude-plugin/plugin.json
       .codex-plugin/plugin.json
@@ -272,7 +272,7 @@ inside a project folder before it is useful, which is what the last column says:
 | **[sf-architect-solutioning](plugins/sf-architect-solutioning/README.md)** | A Salesforce solution architect: pushes back on vague requirements, verifies platform facts against official docs by live fetch, designs declarative-first to Well-Architected standards, and presents a solution plan for approval before any build. Salesforce projects only. | Install and go |
 | **[git-workflows](plugins/git-workflows/README.md)** | Three parallel-session-safe git lifecycle skills: `pull-latest` gets current without rewriting history, `reset-to-remote` mirrors the remote behind confirmation, and `merge-and-clean-up` lands an approved PR before removing only its completed workspace. | Install and go |
 | **[hooks-library](plugins/hooks-library/README.md)** | Reusable hooks that make a rule land mechanically: `spec-check-reminder` asks once per session whether the spec-check review ran, `no-ai-attribution-guard` refuses AI credit in Git text, `style-handshake` requests an output-style read and acknowledgment before work on each new user message, and two Salesforce guards protect production and permission-set deploys. System-specific knowledge hooks ship with second-brain. | Wires into settings |
-| **[work-tracker](plugins/work-tracker/README.md)** | Gives Claude and Codex one local backlog under Git-ignored `.work-items/`: owner-shaped roadmaps, detailed execution tasks with branch-scoped current-task continuation, child work items with their own plans and approvals, YAML records, owner-approved requirements, exact handoffs, blockers, typed relationships, deterministic next-item selection, flexible work types and lifecycle stages, a dated progress log, accepted completion events and optional Git landing proof, generated dashboards, an `archive/` folder for items the owner has set aside, and preview-first conversion of older staged trackers. Shared GitHub tracking remains a separate tracker choice. | Sets up a project |
+| **[work-tracker](plugins/work-tracker/README.md)** | Offers agent-led delivery with a saved goal-specific choice in the chosen tracker. Its local mode gives Claude and Codex one local backlog under Git-ignored `.work-items/`: owner-shaped roadmaps, detailed execution tasks with branch-scoped current-task continuation, child work items with their own plans and approvals, YAML records, owner-approved requirements, exact handoffs, blockers, typed relationships, deterministic next-item selection, flexible work types and lifecycle stages, a dated progress log, accepted completion events and optional Git landing proof, generated dashboards, an `archive/` folder for items the owner has set aside, and preview-first conversion of older staged trackers. Shared GitHub tracking remains a separate tracker choice. | Sets up a project |
 | **[session-skills](plugins/session-skills/README.md)** | Eleven conversation skills. `work-guide` keeps roadmap stages connected to actionable tasks or child work items through the chosen tracker; `requirements-helper` clarifies intent, questions directions that could undermine the goal, and updates the draft; `solution-design` resumes from the linked design's preparation and bottom Notes, checks the requirements are ready, recommends a team of agents sized to the item, then researches, designs, critiques against every requirement, and fixes until all are satisfied. Focused research, design, and review agents assist the main conversation. Existing brain dump, explanation, discovery, handoff, recap, specification check, task-list, and writing tools remain included. | Install and go |
 
 ---
@@ -298,8 +298,8 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
   [`archive/second-brain-v1/`](archive/second-brain-v1/README.md). It is
   historical evidence only. Existing Worker, Neon, and legacy project data
   remain untouched.
-- [x] **`work-tracker` plugin**: a dependency-free local tracker shared by
-  Claude and Codex. It owns backlog, approved requirements, active status,
+- [x] **`work-tracker` plugin**: agent-led delivery guidance with the chosen
+  tracker, plus a dependency-free local mode shared by Claude and Codex. It owns backlog, approved requirements, active status,
   blockers, relationships, handoffs, and verified landing evidence in
   Git-ignored `.work-items/` folders the owner can group by hand. It previews and safely copies the older
   staged format without carrying forward its GitHub mirror.

@@ -1,7 +1,7 @@
 {
   "name": "work-tracker",
-  "description": "Local work tracking shared by Claude and Codex, with owner-shaped roadmaps, actionable tasks, child work items, branch-scoped continuation, Git-ignored folders, approved requirements, consistent progress, handoffs, relationships, approved completion events, and optional Git landing evidence.",
-  "version": "2.6.2",
+  "description": "Agent-led delivery with the chosen tracker, plus local work tracking for Claude and Codex with roadmaps, tasks, shared continuation, approval boundaries, and Git evidence.",
+  "version": "2.7.0",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com"

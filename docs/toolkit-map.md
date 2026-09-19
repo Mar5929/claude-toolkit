@@ -25,7 +25,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | [sf-architect-solutioning](../plugins/sf-architect-solutioning/README.md) | Salesforce solution architect: approved solution plan before any build | `sf-architect-solutioning` | `/plugin install sf-architect-solutioning` | Install and go |
 | [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git lifecycle workflows | `pull-latest`, `reset-to-remote`, `merge-and-clean-up` | `/plugin install git-workflows` | Install and go |
 | [hooks-library](../plugins/hooks-library/README.md) | Reusable spec-check, Git-attribution, output-style handshake, and Salesforce deployment hooks; system-specific knowledge hooks stay with second-brain | `hooks-library` | `/plugin install hooks-library` | Wires into settings |
-| [work-tracker](../plugins/work-tracker/README.md) | Local backlog under Git-ignored `.work-items/`, with owner-shaped roadmaps, detailed execution tasks, branch-scoped current-task continuation, child work items with their own plans and approvals, flexible types, consistent progress, approved completion events, optional Git evidence, handoffs, relationships, owner-made grouping folders, an `archive/` folder, and preview-first conversion of older staged trackers | `work` | `/plugin install work-tracker` | Sets up a project |
+| [work-tracker](../plugins/work-tracker/README.md) | Agent-led delivery for the chosen tracker, plus a local backlog under Git-ignored `.work-items/`, with owner-shaped roadmaps, detailed execution tasks, branch-scoped current-task continuation, child work items with their own plans and approvals, flexible types, consistent progress, approved completion events, optional Git evidence, handoffs, relationships, owner-made grouping folders, an `archive/` folder, and preview-first conversion of older staged trackers | `work` | `/plugin install work-tracker` | Sets up a project |
 | [session-skills](../plugins/session-skills/README.md) | Eleven conversation skills including roadmap-task delivery, requirements, and resumable design, with focused research, design, and review helpers | `work-guide`, `requirements-helper`, `solution-design`, `braindump`, `explain-simply`, `grill-me`, `handoff`, `session-summary`, `spec-check`, `track-tasks`, `unslop` | `/plugin install session-skills` | Install and go |
 
 ## Skills at a glance
@@ -46,7 +46,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | pull-latest | git-workflows | Get current with the remote without rewriting or discarding | `/pull-latest` |
 | reset-to-remote | git-workflows | Hard-reset a repo to mirror the remote, safely gated | `/reset-to-remote` |
 | merge-and-clean-up | git-workflows | Merge one approved PR and remove only its completed branch and worktree | `/merge-and-clean-up`, "merge and clean up" |
-| work | work-tracker | Manage local work items, roadmaps, execution tasks, current-task continuation, linked children, grouping, archives, and safe conversion in Git-ignored folders | `/work`, "add this to the backlog", "what should I work on next?" |
+| work | work-tracker | Offer and resume goal-scoped agent-led delivery in the chosen tracker; manage local work items, roadmaps, execution tasks, current-task continuation, linked children, grouping, archives, and safe conversion in Git-ignored folders | `/work`, "add this to the backlog", "what should I work on next?" |
 | work-guide | session-skills | Coordinate delivery by keeping roadmap stages connected to actionable tasks or child work items in the existing tracker | `/session-skills:work-guide`, "help me organize this work", "continue this item" |
 | requirements-helper | session-skills | Clarify intent, question directions that could undermine the goal, and maintain canonical draft requirements | `/session-skills:requirements-helper`, "help me refine these requirements" |
 | solution-design | session-skills | Resume from the work item's linked design, preparation, and bottom Notes, check the requirements are ready, agree the way of working, then research, design, critique, and fix until every requirement is satisfied and approval is recorded | `/session-skills:solution-design`, "design this", "give me design options" |
@@ -279,7 +279,8 @@ The genuine watch-items are called out at the end.
   current handoff. Project knowledge may link specifications and persistent memory to a work-item
   folder, but it does not copy or overrule task status.
 - **work-tracker versus GitHub Projects.** Two different things share the word
-  `work-tracker` is fully local and has no GitHub mirror. A project may instead
+  `work-tracker` local storage is fully local and has no GitHub mirror. Its
+  agent-led delivery guidance also works with an existing external tracker. A project may instead
   answer the Gate 1 tracking question with a GitHub Projects board that holds
   the shared work, with no `.work-items/` tracker. That board is set up by hand
   from `project-init`'s `work-tracking-choice.md`, uses seven statuses including
@@ -356,7 +357,8 @@ The genuine watch-items are called out at the end.
   anything that outlives the conversation, and is the only one of the three that
   survives a `/clear`. A topic that turns into real work moves from the first to
   the third; the middle one never holds anything on its own.
-- **Guided delivery versus work tracking.** `work-guide` helps the main
+- **Guided delivery versus work tracking.** The work plugin owns the delivery
+  offer and current goal choice for local and external trackers. `work-guide` helps the main
   conversation plan and coordinate; #270's existing tracker and lifecycle rule
   own canonical state. `requirements-helper` maintains a draft in the chosen
   requirements home, while `grill-me` captures raw discovery notes.
