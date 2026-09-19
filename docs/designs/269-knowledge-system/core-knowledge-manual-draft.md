@@ -243,7 +243,12 @@ to an unseen conversation. Keep required verbatim wording unchanged. If that
 wording conflicts with the writing rules, resolve the conflict before approval.
 
 Use descriptive lowercase names with hyphens. Keep one memory file per topic by
-default; use an approved topic folder for coherent subtopics. Keep links relative
+default; use an approved topic folder for coherent subtopics. Group information
+an agent needs to understand together, using helpful headings and explaining
+relevant connections. Integrate additions into the relevant section. Propose a
+split when distinct subtopics would be easier to find or understand separately;
+fact counts or file length alone do not justify it. Keep needed context together
+and link shared information rather than copying it. Keep links relative
 and use actual dates. Keep original creation dates; update content-change dates;
 record a verification date only when you checked the claim.
 
@@ -318,3 +323,6 @@ evidence that guidance and checks work.
   R9/R11 clarification published at `48a0988` on 2026-09-19. The parent PRD's
   post-delivery retention question remains open; this draft chooses no ADR
   directory or new retention policy.
+- On 2026-09-19, Mike approved the R14 clarification on organization within
+  memory topics and splitting for retrieval or understanding. Section 9 reflects
+  that clarification; the draft remains inactive and awaits its remaining review.
