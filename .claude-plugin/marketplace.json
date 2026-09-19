@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Personal, portable toolkit of reusable Claude systems: skills, rules, hooks, and templates shared across every project and device.",
-    "version": "0.117.4"
+    "version": "0.118.1"
   },
   "plugins": [
     {
@@ -37,7 +37,7 @@
     {
       "name": "work-tracker",
       "source": "./plugins/work-tracker",
-      "description": "Local work tracking shared by Claude and Codex, with owner-shaped roadmaps, detailed execution tasks, linked child work items, branch-scoped continuation, Git-ignored .work-items folders, approved requirements, consistent progress, handoffs, relationships, approved completion events, optional Git landing evidence, generated dashboards, and preview-first conversion of older staged trackers."
+      "description": "Agent-led delivery with the chosen local or external tracker, plus a local backlog with roadmaps, tasks, approvals, handoffs, and optional Git evidence. External mode never creates a local mirror."
     },
     {
       "name": "session-skills",

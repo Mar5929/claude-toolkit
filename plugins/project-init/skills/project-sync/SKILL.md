@@ -384,6 +384,13 @@ Typical checks:
   document. Flag missing `work-item-stages.md` even when broad root reminders
   say to keep work current. A plugin refresh alone does not update copied rules.
 
+- **Agent-led delivery:** compare the installed `work` method, `work-guide`,
+  and copied work-item rule. Preserve existing accepted, declined, or revoked choices
+  and their goal scope. Offer the work plugin's method when wanted, including
+  for external trackers; installing it does not choose local tracking or accept
+  delegation. Never run `work init` or create a mirror for an external tracker.
+  Keep existing tracker files and pending storage migrations unchanged.
+
 - **Rules the toolkit dropped on 2026-08-31:** `spec-before-you-build.md` and
   `track-open-topics.md`. The toolkit no longer ships either one. When a project
   still carries one in `.claude/rules/`, report it as a rule the toolkit has

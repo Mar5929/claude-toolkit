@@ -78,7 +78,8 @@ item.
   - [ ] Each role is named with its count, its model and why, what it reads,
         and what it returns
   - [ ] The number of agent runs for the first pass is stated
-  - [ ] The owner agreed or changed the team
+  - [ ] The owner agreed or changed the team, or the item records authority
+        for agents to select this bounded help
 - [ ] **Preparation is recorded in the design**
   - [ ] The document is at the agreed location
   - [ ] Its opening sections hold intent, readiness, way of working, team,
@@ -184,7 +185,10 @@ Skip any the owner already answered.
    on and why, what each reads, and what each returns. The team is different
    every time. [team-roles.md](references/team-roles.md) holds the roles, the
    default model for each, and example compositions to start from. The owner
-   agrees or changes the team before any agent starts.
+   agrees or changes the team before any agent starts unless the canonical item
+   already records authority for agents to select this bounded help. That recorded
+   helper-selection authority avoids a redundant permission question; it does not settle the
+   product choices or approval conditions the helpers examine.
 
 Update settled answers in the design's preparation section as they are given.
 Keep relevant discussion, decisions with approval state, open questions,
@@ -295,6 +299,9 @@ requirement is satisfied and no material finding remains.
   requirements question, not a design compromise.
 - Do not stop the loop because it is long. Stop it because the critic's list
   is empty or because the owner has decided the remaining items.
+- Start another round only for a named material finding or changed input. When
+  the critic repeats a resolved point without new evidence, reconcile it once
+  instead of creating an open-ended review loop.
 
 ## Step 5. Present, save, and record
 

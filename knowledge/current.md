@@ -9,11 +9,11 @@ Ship the Knowledge System and guided work management.
 ### Knowledge System — #269
 Updated: 2026-09-19
 
-**Status** Delivery is the goal; runtime and new manual are unbuilt. Two Sol
-agents are researching Hindsight, claude-mem, Supermemory, and Mem0 instructions.
+**Status** Runtime unbuilt. Two Sol research reports complete; first core manual
+draft published on `issue-269-core-manual-draft`, linked from design Notes.
 
-**Next** Draft/review the core manual section by section, then task instructions,
-in isolation. Preserve decisions. Host proofs and full approvals remain.
+**Next** Continue manual review: memory selection and information ownership,
+then task instructions in isolation. Host proofs and full approvals remain.
 
 **Resume records** Read [design Notes](../docs/designs/269-knowledge-system.md#notes),
 [PRD Notes](prds/toolkit-operating-system/knowledge-system.md#notes), then the
@@ -31,12 +31,12 @@ Fresh-session/recovery tests, rollout, and acceptance remain.
 
 **Record** [Issue #337](https://github.com/Mar5929/claude-toolkit/issues/337).
 
-### Toolkit instruction review
+### Toolkit instruction review — #360
 Updated: 2026-09-19
 
-**Status** Audit complete with three Sol reviewers; no shipped instructions
-changed or behavioral effects measured. Review findings in chat
-`01a0bafd-84d8-7000-b964-7bcf07bb4b78`; select corrections and behavior tests.
+Mike authorized the seven priority fixes; implementation underway.
+Next: review, test, and return PR; merge pending.
+[#360](https://github.com/Mar5929/claude-toolkit/issues/360).
 
 ## Testing to-dos
 - 2026-09-19: Test instruction overload and find sufficient guidance that

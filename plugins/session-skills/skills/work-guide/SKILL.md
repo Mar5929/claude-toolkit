@@ -8,7 +8,16 @@ description: Guide delivery in the main conversation, maintaining the chosen wor
 Help the owner guide the project while agents maintain its delivery records.
 Stay in the main conversation for discussion and decisions. Use this method
 with the project's existing tracker and lifecycle guidance, including the
-`work` skill when the local tracker is actually configured.
+installed `work` skill for delivery. Its CLI applies only to configured local
+tracking.
+
+When starting or resuming a substantial feature or work item, use the installed `work` skill's
+agent-led delivery method when it is available. It owns the one-time offer and
+the durable accepted, declined, or revoked choice for that goal. Invoke it by its
+registered skill name; do not depend on a path into another plugin. If it is
+not installed, apply the project's lifecycle rule and this guide: make the same
+offer, preserve the choice in the existing item, and do not create a local
+tracker or mirror for an external tracker.
 
 ## Orient once, refresh when switching
 
@@ -36,6 +45,10 @@ with the project's existing tracker and lifecycle guidance, including the
   execution details and linked governing sources, and restore its saved
   position before continuing. Saved definitions supply methods; current project
   records supply continuity.
+- Read any saved agent-led delivery choice before offering or assigning help.
+  Acceptance, decline, or revocation is scoped to its recorded goal and survives a new
+  session. A failed save does not turn the choice into undecided; carry the
+  pending update until it can be verified.
 
 ## Keep a useful plan
 
@@ -159,6 +172,11 @@ tracker's existing fields, body, or linked documents.
   additional support when a material knowledge gap, independent review, or
   parallel task would help. Reuse the owner's stated preferences; do not assume
   every epic needs a team or ask again for already-authorized delegation.
+- Use separately recorded item or project authority to select useful bounded
+  helpers within its stated limits. Acceptance of agent-led delivery alone
+  does not grant helper-selection permission. Preserve a separate team or helper
+  approval gate when the item has not granted that authority. Never treat delegation as product approval or as
+  expanded implementation, publication, deployment, spending, or tool access.
 - For a bounded research task use [delivery-researcher](../../agents/delivery-researcher.md);
   for an independent requirements, design, or plan review use
   [delivery-reviewer](../../agents/delivery-reviewer.md). Select the actual
@@ -179,6 +197,10 @@ tracker's existing fields, body, or linked documents.
   workflow to preserve the current task's review or execution position, next
   action, open decisions, blockers, linked guidance, and any pending assignments
   with their observed state.
+- Close each helper assignment when its material question is answered, its
+  finding is resolved or taken to the owner, or further work has no new reason.
+  Add another review only for a specific unresolved risk or changed input. Do
+  not create a fixed council or let repeated helper rounds replace a decision.
 
 ## Improve the method at the right scope
 

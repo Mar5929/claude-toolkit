@@ -2,7 +2,7 @@
 summary: What the project second brain must do. Every new session already knows what has been going on in this project. Saving something worth keeping takes one short yes from the owner.
 area: knowledge-system
 status: proposed
-source: Owner requirements interview for GitHub issue #269, including the 2026-09-18 request for approved saves to run through a helper while conversation continues, and the explicit ban on jargon and figurative language in memory and proposals. Replaces the earlier 2026-08 build-plan version
+source: Owner requirements interview for GitHub issue #269, including the 2026-09-18 request for approved saves to run through a helper while conversation continues, and the explicit ban on jargon and figurative language in memory and proposals. Mike’s 2026-09-19 request to reconcile decision-record and research ownership in this PRD and the Toolkit OS PRD. Replaces the earlier 2026-08 build-plan version
 created_at: 2026-08-21
 confirmed_at: 2026-09-15
 tags: [knowledge-system, memory, prds, second-brain, schema, requirements, solution-philosophy, high-level-architecture]
@@ -1406,6 +1406,34 @@ mixed meaning and link the records without storing the same requirement twice.
 An idea or uncertain suggestion remains tentative until its meaning is settled;
 the agent does not turn it into an approved requirement or fact.
 
+An architectural decision record means the recorded technical choice, its
+reason, supporting evidence, and actual approval state. For a work item, that
+meaning belongs in its designated solution design, following
+[Guided Delivery's location requirement](guided-delivery.md#solution-design).
+The selected approach belongs in the design text; unresolved choices and
+continuation belong in its bottom Notes. Preserve material alternatives and
+tradeoffs when they explain the choice, with the source and date when known.
+Calling it an ADR does not require a second document or a new folder. A project
+that already designates a separate architecture record uses that existing
+owner and links it from the working design and item.
+
+Project-authored research findings are supporting evidence for the relevant
+work, not captured vendor documentation or approved project policy. Keep them
+in the item's existing designated supporting records, linked from the design
+or other record that uses them. Preserve source references, the date or source
+version, and the limits of the findings. Raw outside documentation follows the
+external-knowledge route below. A provider's behavior does not become a toolkit
+requirement merely because a research report describes it.
+
+Follow the project's declared lifecycle for working designs and any separate
+finalized architecture. Keep the actual current authority, historical record,
+and their links distinguishable; item completion alone does not prove that a
+plan was implemented. If retention instructions conflict or no lasting home is
+designated, identify that gap before moving or deleting affected records. The
+open retention question in the [parent PRD](toolkit-operating-system.md#conflicts-and-decisions-still-open)
+records the conflict found in this repository; this clarification does not
+settle a new archive or ADR policy.
+
 Keep each requirement in one document responsible for the behavior it describes. Use the parent PRD for requirements that span the whole area or define how its parts work together. Keep a component's detailed requirements in that component's PRD, even when other components use them. Other affected records refer to the owning requirement rather than repeating it. Split a statement when it contains different kinds of information or separately owned requirements.
 
 When a settled decision changes required behavior, identify and reconcile the affected requirements and references during the same save flow, including during refinement and design. Start writes already covered by the owner’s permission through requirement 9’s save process. Continue to independent questions while the save runs; wait when the next step depends on the completed update. If permission does not cover an affected destination or the broader meaning is uncertain, explain the specific unresolved change and ask only for that decision. Do not broaden an item-specific choice, change other projects, or start implementation without the authority those actions require.
@@ -1436,7 +1464,8 @@ runtime implementation or a physical design-document location.
 | Requirements and status for one piece of work | The work tracker |
 | Build order and delivery roadmap | The solution design and work-item plan, kept with or linked from the chosen tracker |
 | Which PRD requirements a work item delivers | The work item, referring to the PRD's numbered requirements |
-| How one work item gets built | Its solution design, kept with or linked from the work item |
+| How one work item gets built, including architectural choices, rationale, and approval state | Its designated solution design, kept with or linked from the work item; use an existing separate architecture owner when the project designates one |
+| Project-authored research supporting a work item | Its designated supporting records, linked from the design or other owning record; findings remain evidence, not approval |
 | Documentation from outside this project | `ai-external-knowledge/`, one folder per topic, each naming its source address and capture date |
 | Unchecked exploration and raw brain dumps | `brainstorms/` |
 | Useful temporary context another session needs to continue | `knowledge/memory/current.md`, with links to the detail in the work record that owns it, and clear labels on findings nobody has checked |
@@ -1449,10 +1478,10 @@ Four homes are easy to mix up. Test each piece of information on its own, and sp
 | --- | --- | --- |
 | Does it say what the system must do, or what a user gets? | A PRD | "A user can find an advisor by name or firm." |
 | Does it explain an existing part, what it is for, or how parts connect? | The System Guide | "The search uses Contact and Account. This field identifies the advisor's firm." |
-| Does it record a lasting decision or a costly mistake? | Memory | "Mike rejected name-only matching because two advisors shared a name." Link to the detail. |
+| Does it record a qualifying lasting decision or costly mistake not already owned by a requirement, design, or work record? | Memory | "Mike rejected name-only matching because two advisors shared a name." Link to the detail. |
 | Does it say what work remains, or where a change was deployed? | The work tracker | "Production deployment is still owed." |
 
-The PRD keeps the intended behavior and its business reason. The System Guide explains the existing structure and each part's purpose. Memory keeps the short decision or lesson. The tracker keeps what is owed and what shipped where. Requirement 16 says who wins when they disagree.
+The PRD keeps the intended behavior and its business reason. The System Guide explains the existing structure and each part's purpose. Memory keeps a qualifying distinct decision or lesson, not a copy of the design. The tracker keeps what is owed and what shipped where. Requirement 16 says who wins when they disagree.
 
 The full table above, and this test, are given to the agent in every project, so it never has to guess where something goes. Requirement 2 makes following it a must, and the setup of a new project shows the table and one example per row.
 
@@ -1461,6 +1490,19 @@ When approval is needed, the proposal names the home before the write. Include a
 a duplicate, and a task-only detail: none becomes lasting knowledge. For a
 memory, PRD, and enabled System Guide page, the agent locates the appropriate
 template and content rules without asking the owner to explain them.
+
+**Check:** use the [#269 master design](../../../docs/designs/269-knowledge-system.md)
+and its linked [Hindsight / claude-mem](../../../docs/designs/269-knowledge-system/research/2026-09-19-hindsight-claude-mem-instruction-delivery.md)
+and [Supermemory / Mem0](../../../docs/designs/269-knowledge-system/research/2026-09-19-supermemory-mem0-instruction-delivery.md)
+reports as a routing example. The reports retain source evidence and limits;
+the design owns the selected or proposed approach, rationale, and approval
+state; an authorized change to required behavior updates its owning PRD; the
+tracker owns work status and links. A fresh session can find those records and
+tell a recommendation from an approved choice without reading the chat. No
+second ADR or duplicate memory is created. For a completed item, verify the
+current authority and the route to any retained decision history under the
+project's settled lifecycle. If that lifecycle is conflicting or unresolved,
+report the gap rather than deleting the evidence or claiming this check passed.
 
 **Check:** during refinement of one component, settle a decision that affects another component or the whole product. Without a filing reminder, the agent identifies the applicable scope and owning requirement, completes authorized updates or presents the specific remaining approval, and leaves references in affected records. A fresh session can find the decision, its source, and any implementation still owed without reconstructing the original discussion. Repeat with an item-only exception, a mixed note, an unresolved conflict, permission covering only one destination, and a failed save. No exception silently becomes a general rule, no requirement is duplicated, and unfinished work is not reported as complete.
 
@@ -1505,7 +1547,7 @@ keep it marked as not yet approved.
 | 1 | `knowledge/memory/current.md` | Orient to shared work across sessions. For an item's actual scope, status, approval, or next step, open its authoritative tracker record. |
 | 2 | Applicable root instructions and standing rules | Use the instructions already in force; open relevant guidance that is missing from context. They define procedures and restrictions, not a substitute for evidence about the live system. |
 | 3 | Skills | Find an existing procedure that applies. Use its instructions and supporting references when performing that procedure. |
-| 4 | Memory, PRDs, and the System Guide when enabled, through their indexes and links | Use memory for lasting decisions and lessons, a PRD for required behavior and why, and the System Guide for useful explanations of existing parts and their connections. Open the relevant source, following requirement 16 when sources disagree. |
+| 4 | Memory, PRDs, and the System Guide when enabled, through their indexes and links | Use memory for qualifying lasting decisions and lessons, a PRD for required behavior and why, and the System Guide for useful explanations of existing parts and their connections. Follow work-item links to design choices, their rationale, and supporting research under requirement 18; do not search only memory for a decision. Open the relevant source, following requirement 16 when sources disagree. |
 | 5 | Available project session history | Use this when the earlier sources do not answer or a relevant explanation from an earlier conversation is still missing. Say what context is being sought, then search without an extra yes within existing access permissions. An unavailable history source is reported, not treated as an empty search result. |
 
 Before tier 4, use the glossary and relevant context to resolve project
@@ -1950,7 +1992,7 @@ to build stay in the existing delivery process.
 | OS responsibility | Required knowledge integration | Umbrella requirements to align |
 | --- | --- | --- |
 | Session start and continuity | Make the knowledge guidance, current context, indexes, glossary, and pending-save records reachable when this component is enabled. Apply this PRD's required reads and recovery rules without adding a second startup process. | R6, R9, R11, R17 |
-| Request routing and separate components | Use requirement 18 to determine the information's kind, where it applies, and the component that owns it; route affected updates to their existing owners and carry forward the actual result or unfinished work. The chosen tracker owns work-item records; guided delivery owns the delivery process; System Guide owns its explanations; skills, rules, and captured documentation use their own upkeep. The walkthrough identifies each handoff and the result returned. | R7–R11, R16 |
+| Request routing and separate components | Use requirement 18 to determine the information's kind, where it applies, and the component that owns it; route affected updates to their existing owners and carry forward the actual result or unfinished work. The chosen tracker owns work-item records; guided delivery owns the delivery process; System Guide owns its explanations; design records own architectural choices and rationale; supporting research remains evidence. Skills, rules, and captured documentation use their own upkeep. The walkthrough identifies each handoff and the result returned. | R7–R11, R16 |
 | Approval and PRD upkeep | Carry existing authority across components and sessions. Apply requirement 16's autonomous upkeep after shipped work, including affected umbrella requirements, while preserving the approval rules for new decisions and separate memories. | R8, R10, R15, R25 |
 | Work milestones and completion | The delivery process makes the scope and outcome of the relevant work available for knowledge review at requirement 9's moments. Knowledge reports its actual completion or failure to that process. The tracker retains ownership of work status; a failed knowledge operation pauses only dependent work under requirement 3. | R8, R13, R16, R19–R20 |
 | Setup and missing capabilities | The setup and sync processes make the required knowledge parts available, preserve project choices and content, and report missing support. Route a fault to the component responsible for fixing it. Do not silently enable an optional component to satisfy a lookup or save. | R4–R5, R19–R20, R22 |
@@ -2151,7 +2193,7 @@ above, revisit them before using them.
 
 ## Notes
 
-Updated: 2026-09-18. Start here when continuing requirements refinement.
+Updated: 2026-09-19. Start here when continuing requirements refinement.
 Keep outstanding requirements decisions and tasks in this section. Record each
 answer in the affected requirement and remove or resolve its open entry here.
 Technical choices and their evidence belong in the
@@ -2203,6 +2245,14 @@ The instruction-content audit and full requirements approval remain outstanding.
   infer it from approval to save or refine this document.
 
 ### Recorded notes
+
+- On 2026-09-19, Mike requested reconciliation of this PRD and the Toolkit OS
+  PRD so future sessions can locate architectural decisions and different kinds
+  of decisions. R18 makes the existing design/research/requirements distinction
+  explicit, R19 follows those links, and R30 carries that boundary into the OS.
+  The [parent retention question](toolkit-operating-system.md#conflicts-and-decisions-still-open)
+  remains open; no new ADR folder, retention policy, or runtime is approved by
+  this authorized requirements save.
 
 - On 2026-09-18, Mike required clear, explicit manuals without jargon or
   figurative language: detailed enough to act correctly, without unnecessary

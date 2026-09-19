@@ -78,3 +78,6 @@ finishes the work item has to do it.
   research and completed reviews kept as history. Its `269-knowledge-system/README.md` says what each file is
   and who wrote it, `process.md` says how the design was made and where it
   stands, and `prep.md` is the design prep file.
+
+- [360-instruction-audit-fixes.md](360-instruction-audit-fixes.md): scoped fixes to
+  conflicting instructions, with preserved approval boundaries and scenario checks.

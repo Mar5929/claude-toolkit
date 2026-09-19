@@ -304,6 +304,11 @@ separate prep, interview, or continuation files for that workflow.
 
 **Gate 6: Optional standalone toolkit skills**
 
+- When the owner wants agent-led delivery, offer the `work-tracker` plugin's
+  `work` method even with an external tracker. Installation supplies guidance;
+  it neither accepts delegation for an item nor initializes local tracking.
+  Run `work init` only for an explicitly chosen local tracker. Preserve a
+  selected external method such as BMAD rather than layering another workflow.
 - Offer `session-skills` as ONE plugin holding eleven conversation skills:
   `braindump`, `explain-simply`, `grill-me`, `handoff`, `session-summary`,
   `spec-check`, `track-tasks`, `unslop`, `work-guide`, `requirements-helper`,

@@ -10,6 +10,40 @@ more than one item fits, ask one short question.
 Subagents may do delegated work. The main agent alone updates or completes the
 canonical item.
 
+## Offer responsibility for delivery
+
+When starting or resuming a substantial feature or work item, read and apply
+the existing goal's delivery choice before offering or organizing delivery.
+Use the installed `work` skill's agent-led delivery method when available. A simple question or quick edit needs no offer.
+With no recorded choice or prior explicit request, ask:
+
+> Would you like agents to take responsibility for delivering this, with you acting as product owner?
+
+Wait for the choice before taking over delivery. Acceptance applies to that
+goal across sessions; a later explicit request counts without asking again.
+A decline preserves normal help and existing record upkeep. Do not repeat the
+offer for that goal unless it grows substantially or the owner requests it.
+The owner can revoke acceptance; save that state, return to normal help and
+required upkeep, and apply the same offer-suppression rules as decline. Missing
+access is not a missing decision.
+
+Keep the current choice, goal scope, source/person/date, authority boundaries,
+coordinating session, and next-action references in the existing item. Local
+mode uses the preserved User notes in `STATUS.md`; external mode uses the item body or native fields.
+If no item exists, use the normal authorized capture route when the goal
+warrants a record; never create an item or tracker solely to record refusal.
+With no authorized durable home, say so and carry the decision in the handoff.
+Reread updates and preserve intervening edits. Report failed writes as `not saved` and successful writes with failed readback as `saved but not verified`,
+with the exact pending action for recovery. A recorded lead is coordination information, not a lock or proof of a running agent.
+
+With acceptance, agents drive discovery, interviews, requirements, research,
+design, authorized implementation, checks, and delivery using the plan below.
+The owner supplies product direction, resolves meaningful tradeoffs, and
+approves results. Delegation does not grant build, deployment, merge, spending,
+or helper-selection authority beyond what was given. Existing approvals count.
+When the work plugin is unavailable, apply this contract with the project's
+existing guidance and tracker; do not require an installation to keep helping.
+
 ## Keep a useful, adaptable plan
 
 Teach the agent what to consider; use the project's chosen tracker to record it.

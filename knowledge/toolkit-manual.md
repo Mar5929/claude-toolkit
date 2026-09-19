@@ -176,6 +176,15 @@ wanted result and asks about material gaps.
 the conversation to the chosen tracker. It helps organize work without
 requiring a second tracker or restarting an existing plan.
 
+For substantial new work, the [work plugin](../plugins/work-tracker/README.md)
+offers agents responsibility for delivery with the human as product owner.
+The accepted, declined, or revoked choice stays with that goal in the existing tracker
+and is read in future sessions. Agents manage the agreed work and records;
+the owner makes product decisions and approves results. Existing build,
+publication, and helper permissions still apply. This method works with an
+external tracker without creating local tracking files. The copied work-item
+rule provides the offer and continuation contract when the plugin is absent.
+
 ### Understand the relevant system
 
 The agent consults the required search behavior, relevant past decisions,
