@@ -47,8 +47,8 @@ finalized label proves delivery. Name source conflicts and verification limits.
 Historical and retired records remain historical unless checked.
 
 Before finalizing, scan the answer once. Every substantive finding, including
-an inference or one repeated in a conclusion or summary, must have its source
-immediately on the next line, before another sentence or paragraph. Mark an
+an inference or one repeated in a conclusion or summary, must be directly
+followed on the next line by its source. Mark an
 inference as an inference, then cite the evidence it rests on. Remove a
 redundant recap instead of repeating uncited
 claims, and never group sources at the end. For example:
