@@ -44,6 +44,12 @@ an Opus fixer. `process.md` says what each role did.
 
 ## research/
 
+### Claude Projects comparison — 2026-09-20
+
+[Claude Projects redesign and Toolkit OS](research/2026-09-20-claude-projects-redesign.md)
+preserves Terra's comparison, official sources, overlap findings and proposed
+host tests. Source research only; recommendations are not adopted policy.
+
 ### Instruction-delivery research — 2026-09-19
 
 Two GPT-5.6 Sol agents investigated how fresh working agents receive guidance,
