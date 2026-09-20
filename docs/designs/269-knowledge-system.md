@@ -1222,8 +1222,9 @@ approved the combined scope, including #364/#365. Toolkit PR #363 was already
 merged. Required checks and independent review passed; the [durable audit report](https://github.com/Mar5929/claude-toolkit/blob/59145272872af43d848ff5df205e9154bf94da77/docs/designs/269-knowledge-system/implementation-plan.md#actual-agent-trials--2026-09-20-utc)
 records actual trials, failures and limits. Optional PR #367 remains unmerged.
 
-**Resume here:** finish merge cleanup/status publication, assess delivered behavior
-against this design, then prepare the remaining implementation plan. The
+**Resume here:** assess delivered behavior against this design, then prepare the
+remaining implementation plan. Exact merged branch/worktree cleanup is complete;
+#364/#365 were closed as superseded after owner verification. The
 coordinator owns assessment and planning. Preserve full requirements/design
 review, asynchronous helper execution/recovery, native host and late-Stop proofs,
 behavior/citation-format gaps, agreed rollout and owner acceptance as unfinished.

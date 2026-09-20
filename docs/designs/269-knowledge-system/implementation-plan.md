@@ -29,7 +29,9 @@ validation and independent review passed. The [durable audit report](https://git
 records six bounded model trials and their limits. Optional tooling in PR #367
 remains separate and unmerged.
 
-1. Finish exact merge cleanup and status publication. Keep #269 open.
+1. Merged branch/worktree cleanup is complete; all seven other worktrees were
+   preserved. Owners verified and closed #364/#365 as superseded without merging
+   them or removing their worktrees. Status is published; #269 remains open.
 2. Assess the merged behavior against the design and requirements. Distinguish
    source tests, actual model behavior, native host delivery, unavailable proof
    and rollout. Preserve failed and unexecuted cases.

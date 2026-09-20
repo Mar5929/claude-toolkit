@@ -20,10 +20,11 @@ approval, delivery and acceptance remain open. This does not authorize whole Too
 **Recent progress** 2026-09-20: required checks, plugin validation and independent
 review passed; 67 Node cases and bounded model trials are recorded in the PR.
 Toolkit startup PR #363 was already merged. Optional test tooling/report PR #367
-remains separate and unmerged. Merge does not prove rollout or all host behavior.
+remains separate and unmerged. Exact PR #366 branch/worktree cleanup is complete;
+#364/#365 were closed as superseded. Merge does not prove rollout or all host behavior.
 
-**Next step** Finish merge cleanup and status publication, assess merged behavior
-against the design, then update the remaining plan by unmet outcome, dependency,
+**Next step** Assess merged behavior against the design, then update the
+remaining plan by unmet outcome, dependency,
 owner and acceptance evidence. The coordinator owns that assessment and planning.
 
 **Blocker** Claude model proof was blocked by expired OAuth; do not change authentication.
