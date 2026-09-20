@@ -46,8 +46,12 @@ current direct evidence establishes what exists. Neither a proposed nor a
 finalized label proves delivery. Name source conflicts and verification limits.
 Historical and retired records remain historical unless checked.
 
-Put the source immediately after each substantive finding, before another
-sentence or paragraph. Do not group sources at the end. For example:
+Before finalizing, scan the answer once. Every substantive finding, including
+an inference or one repeated in a conclusion or summary, must have its source
+immediately on the next line, before another sentence or paragraph. Mark an
+inference as an inference, then cite the evidence it rests on. Remove a
+redundant recap instead of repeating uncited
+claims, and never group sources at the end. For example:
 
 ```text
 The export currently retries once.
