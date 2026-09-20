@@ -74,7 +74,8 @@ Canonical hooks copied into `.claude/hooks/`:
   generation, explicit outcome and at most one corrective Stop continuation.
 - `hooks/save-reminder.mjs`, `hooks/work-item-close.mjs`,
   `hooks/command-parsing.mjs`: reminders on recognized PR/close commands. A
-  one-time hold is not proof of a completed review or universal tool coverage.
+  matching action needs its own declared review outcome; one exact retry consumes
+  that receipt. The receipt is not proof of judgment or universal tool coverage.
 
 Tools copied into `.claude/tools/`:
 

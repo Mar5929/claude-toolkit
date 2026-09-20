@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 
 /**
- * Hold `gh pr create` once per branch per session so the main agent runs the
- * owner-approved remember review. This hook only reminds. It never decides,
- * writes, or approves project knowledge. Unexpected failures allow the command.
+ * Hold each recognized `gh pr create` occurrence until the main agent records
+ * an action-associated Knowledge review outcome. One exact retry consumes that
+ * receipt. This hook never decides, writes, or approves project knowledge.
+ * Unexpected failures allow the command.
  *
  * A knowledge-only branch gets a different message. `knowledge-direct-commit.md`
  * says a save touching only `knowledge/` commits straight to the default branch,
@@ -13,18 +14,18 @@
  * landed. Reaching `gh pr create` with nothing but `knowledge/` in the diff is
  * the moment that mistake becomes visible, so it is the moment to say so.
  *
- * The hold is once per branch either way, not enforcement of the save route.
+ * The action receipt is not enforcement of the save route or proof of judgment.
  * A refused direct push is reported to the owner; it does not automatically
  * authorize a pull request or a retry through another account.
  */
 
 import { execFileSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { effectiveDirectory, matchesAny, OPENS_PULL_REQUEST } from "./command-parsing.mjs";
+import { claimActionReview } from "./knowledge-completion.mjs";
 
 const KNOWLEDGE_PREFIX = "knowledge/";
 
@@ -51,6 +52,23 @@ function branchKey(projectRoot) {
   } catch {
     return projectRoot;
   }
+}
+
+function repositoryRoot(projectRoot) {
+  return git(projectRoot, ["rev-parse", "--show-toplevel"]).trim();
+}
+
+function headKey(projectRoot) {
+  return git(projectRoot, ["rev-parse", "HEAD"]).trim();
+}
+
+export function pullRequestActionKey(projectRoot) {
+  return JSON.stringify([
+    "pull-request-create",
+    projectRoot,
+    branchKey(projectRoot),
+    headKey(projectRoot),
+  ]);
 }
 
 /** The branch a pull request would target, or null when it cannot be read. */
@@ -101,39 +119,9 @@ export function isKnowledgeOnly(paths) {
   return paths.every((path) => path.startsWith(KNOWLEDGE_PREFIX));
 }
 
-function statePath(sessionId) {
-  const dir = join(tmpdir(), "second-brain-save-reminder");
-  try {
-    mkdirSync(dir, { recursive: true });
-  } catch {
-    return null;
-  }
-  const safe = String(sessionId || "unknown").replace(/[^A-Za-z0-9_-]/g, "");
-  return join(dir, `${safe || "unknown"}.json`);
-}
-
-function readState(path) {
-  if (!path || !existsSync(path)) return { branches: [] };
-  try {
-    const value = JSON.parse(readFileSync(path, "utf8"));
-    return { branches: Array.isArray(value.branches) ? value.branches : [] };
-  } catch {
-    return { branches: [] };
-  }
-}
-
-function writeState(path, state) {
-  if (!path) return;
-  try {
-    writeFileSync(path, JSON.stringify(state));
-  } catch {
-    // State only prevents a repeated reminder. It is never project knowledge.
-  }
-}
-
 export function buildMessage() {
   return [
-    "Held once. A pull request opening is a save moment.",
+    "Held. Opening a pull request is a save-review moment.",
     "",
     "Use knowledge-save to review this work and preserve its outcome, then retry.",
     "Check whether any specification needs updating and whether anything is",
@@ -141,13 +129,12 @@ export function buildMessage() {
     "display the proposal.",
     "",
     "If you are a helper agent, stop and report this to the main agent.",
-    "This branch will not be held again in this session.",
   ].join("\n");
 }
 
 export function buildDirectCommitMessage(paths) {
   return [
-    "Held once. This branch changes only knowledge/; inspect actual content to decide whether it",
+    "Held. This branch changes only knowledge/; inspect actual content to decide whether it",
     "needs the documentation route or an implementation pull request.",
     "",
     `Files: ${paths.join(", ")}`,
@@ -163,6 +150,24 @@ export function buildDirectCommitMessage(paths) {
     "or open a pull request. This reminder is not enforcement of that rule.",
     "",
     "If you are a helper agent, stop and report this to the main agent.",
+  ].join("\n");
+}
+
+function actionReviewMessage(message, root, input, checkpoint) {
+  if (checkpoint.status === "stale-turn") {
+    return `${message}\n\nThis action belongs to an older turn. Do not mutate the current review state; retry from the current turn.`;
+  }
+  if (checkpoint.status === "busy") {
+    return `${message}\n\nThe review state is busy or an interrupted update needs inspection. This action remains held; inspect the current checkpoint before retrying.`;
+  }
+  return [
+    message,
+    "",
+    "After reviewing the work for this exact pull-request action, record the action-specific outcome with",
+    "node .claude/hooks/knowledge-completion.mjs review using these six positional arguments:",
+    `root=${JSON.stringify(root)}, session=${JSON.stringify(input.session_id)}, agent=${JSON.stringify(input.agent_id || "root")}, generation=${checkpoint.generation}, outcome=no-change|pending-approval|save-unfinished|saved, action=${checkpoint.nonce}.`,
+    "A general turn outcome does not satisfy this action. The action receipt is consumed by one exact retry and proves neither judgment nor permission.",
+    "If approval or a save remains unfinished and this pull request depends on it, do not retry until that dependency is resolved.",
   ].join("\n");
 }
 
@@ -191,14 +196,12 @@ function main() {
     payload.cwd || process.env.CLAUDE_PROJECT_DIR || process.cwd(),
   );
   const workingDirectory = effectiveDirectory(command, projectRoot);
-  const branch = branchKey(workingDirectory);
-  const path = statePath(payload.session_id);
-  const state = readState(path);
-  if (state.branches.includes(branch)) return failOpen();
-
-  const paths = changedPaths(workingDirectory);
-  writeState(path, { branches: [...state.branches, branch] });
-  deny(isKnowledgeOnly(paths) ? buildDirectCommitMessage(paths) : buildMessage());
+  const root = repositoryRoot(workingDirectory);
+  const checkpoint = claimActionReview(root, payload, pullRequestActionKey(root));
+  if (checkpoint.status === "allow") return failOpen();
+  const paths = changedPaths(root);
+  const message = isKnowledgeOnly(paths) ? buildDirectCommitMessage(paths) : buildMessage();
+  deny(actionReviewMessage(message, root, payload, checkpoint));
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {

@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
 /**
- * Hold `gh issue close` and `gh pr merge` once per work item per session, so
- * the agent asks whether any specification now describes the system wrongly.
+ * Hold each recognized `gh issue close` and `gh pr merge` occurrence until the
+ * agent records an action-associated Knowledge review outcome. One exact retry
+ * consumes that receipt.
  *
  * A finished work item is the moment a specification goes stale, and it is the
  * moment nobody remembers to check. A specification that is never updated after
@@ -13,12 +14,13 @@
  * Any unexpected failure allows the command.
  */
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { matchesAny, segmentsOf, CLOSES_WORK_ITEM } from "./command-parsing.mjs";
+import { effectiveDirectory, matchesAny, segmentsOf, CLOSES_WORK_ITEM } from "./command-parsing.mjs";
+import { claimActionReview } from "./knowledge-completion.mjs";
 
 function failOpen() {
   process.exitCode = 0;
@@ -42,39 +44,36 @@ export function workItemKey(command) {
   return "unknown";
 }
 
-function statePath(sessionId) {
-  const dir = join(tmpdir(), "second-brain-work-item-close");
-  try {
-    mkdirSync(dir, { recursive: true });
-  } catch {
-    return null;
-  }
-  const safe = String(sessionId || "unknown").replace(/[^A-Za-z0-9_-]/g, "");
-  return join(dir, `${safe || "unknown"}.json`);
+function git(projectRoot, args) {
+  return execFileSync("git", args, {
+    cwd: projectRoot,
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "ignore"],
+    timeout: 3000,
+  });
 }
 
-function readState(path) {
-  if (!path || !existsSync(path)) return { items: [] };
-  try {
-    const value = JSON.parse(readFileSync(path, "utf8"));
-    return { items: Array.isArray(value.items) ? value.items : [] };
-  } catch {
-    return { items: [] };
-  }
+function repositoryRoot(projectRoot) {
+  return git(projectRoot, ["rev-parse", "--show-toplevel"]).trim();
 }
 
-function writeState(path, state) {
-  if (!path) return;
-  try {
-    writeFileSync(path, JSON.stringify(state));
-  } catch {
-    // State only prevents a repeated reminder. It is never project knowledge.
+export function workItemActionKey(command, projectRoot) {
+  for (const segment of segmentsOf(command)) {
+    const type = CLOSES_WORK_ITEM[0].test(segment)
+      ? "issue-close"
+      : CLOSES_WORK_ITEM[1].test(segment)
+        ? "pull-request-merge"
+        : null;
+    if (!type) continue;
+    const number = segment.match(/\b(\d+)\b/);
+    return JSON.stringify([type, projectRoot, number?.[1] || segment]);
   }
+  return JSON.stringify(["work-item-close", projectRoot, "unknown"]);
 }
 
 export function buildMessage() {
   return [
-    "Held once. Finishing a work item is when a specification goes stale.",
+    "Held. Finishing a work item is a save-review moment.",
     "",
     "Use knowledge-save to review what this work changed in a",
     "PRD or another owning record, and preserve pending work, then run",
@@ -82,7 +81,24 @@ export function buildMessage() {
     "to display the proposal. A merge or closure alone proves no delivery or requirements approval.",
     "",
     "If you are a helper agent, stop and report this to the main agent.",
-    "This work item will not be held again in this session.",
+  ].join("\n");
+}
+
+function actionReviewMessage(message, root, input, checkpoint) {
+  if (checkpoint.status === "stale-turn") {
+    return `${message}\n\nThis action belongs to an older turn. Do not mutate the current review state; retry from the current turn.`;
+  }
+  if (checkpoint.status === "busy") {
+    return `${message}\n\nThe review state is busy or an interrupted update needs inspection. This action remains held; inspect the current checkpoint before retrying.`;
+  }
+  return [
+    message,
+    "",
+    "After reviewing the work for this exact close or merge action, record the action-specific outcome with",
+    "node .claude/hooks/knowledge-completion.mjs review using these six positional arguments:",
+    `root=${JSON.stringify(root)}, session=${JSON.stringify(input.session_id)}, agent=${JSON.stringify(input.agent_id || "root")}, generation=${checkpoint.generation}, outcome=no-change|pending-approval|save-unfinished|saved, action=${checkpoint.nonce}.`,
+    "A general turn outcome does not satisfy this action. The action receipt is consumed by one exact retry and proves neither judgment nor permission.",
+    "If approval or a save remains unfinished and this close or merge depends on it, do not retry until that dependency is resolved.",
   ].join("\n");
 }
 
@@ -107,13 +123,14 @@ function main() {
   const command = payload.tool_input?.command;
   if (!closesWorkItem(command)) return failOpen();
 
-  const key = workItemKey(command);
-  const path = statePath(payload.session_id);
-  const state = readState(path);
-  if (state.items.includes(key)) return failOpen();
-
-  writeState(path, { items: [...state.items, key] });
-  deny(buildMessage());
+  const projectRoot = resolve(
+    payload.cwd || process.env.CLAUDE_PROJECT_DIR || process.cwd(),
+  );
+  const workingDirectory = effectiveDirectory(command, projectRoot);
+  const root = repositoryRoot(workingDirectory);
+  const checkpoint = claimActionReview(root, payload, workItemActionKey(command, root));
+  if (checkpoint.status === "allow") return failOpen();
+  deny(actionReviewMessage(buildMessage(), root, payload, checkpoint));
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
