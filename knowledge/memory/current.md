@@ -25,8 +25,8 @@ Actual routing and recovery-identification trials passed within their stated
 limits; recovery cleanup was blocked and remains pending in the fixture.
 No claim that the Knowledge candidate is merged or actual-host acceptance passed.
 
-**Next step** Finish actual behavior evidence and final review; obtain the
-remaining dependency scope approval before merging PR #366. Then assess delivered versus missing behavior
+**Next step** Publish the audit trial report and obtain the remaining dependency
+scope approval before merging PR #366; retain unresolved host proofs. Then assess delivered versus missing behavior
 and plan remaining system work for Mike. No new broad review cycle.
 
 **Blocker** Claude live model-read proof previously blocked by expired OAuth;
