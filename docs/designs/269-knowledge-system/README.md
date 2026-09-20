@@ -24,6 +24,9 @@ proposals do not change the PRD or approve a build.
 
 ## Current implementation planning
 
+- [Three-agent scenario and architecture review](reviews/2026-09-19-consolidated-audit.md):
+  complete PRD/design review, primary-source evidence, scenario gaps, and
+  recommendations revised after challenge. Review findings are not adopted policy.
 - [Implementation plan](implementation-plan.md): recommended build sequence,
   concrete files, dependencies, requirement coverage, acceptance, and rollback.
 - [Host capability evidence](host-capability-evidence.md): dated observations,

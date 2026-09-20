@@ -1297,6 +1297,17 @@ feedback entries have been changed by adding it.
 
 ### Recorded notes
 
+- On 2026-09-19, Mike requested three GPT-5.6 Sol agents to review the full PRD
+  and design through scenarios, first principles, and current primary sources.
+  The [consolidated review](269-knowledge-system/reviews/2026-09-19-consolidated-audit.md)
+  links their complete reports and the coordinating agent's challenges.
+  Findings cover save/retry evidence, topic provenance, positive routing,
+  host delivery, and outcome evaluation. Stronger initial proposals were
+  narrowed to reuse the existing records and audit. These are review proposals;
+  no requirement, architecture choice, or runtime behavior is changed by them.
+  A separately requested Sol reviewer is debating exact manual content with the
+  coordinating agent before an independently checked draft revision.
+
 - Mike approved the instruction arrangement on 2026-09-18: read the complete
   core manual at startup, the applicable task procedure before acting, and
   templates/examples when needed. Use the four selected skills and references;
