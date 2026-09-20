@@ -58,6 +58,7 @@ function repositoryRoot(projectRoot) {
 }
 
 export function workItemActionKey(command, projectRoot) {
+  const actions = [];
   for (const segment of segmentsOf(command)) {
     const type = CLOSES_WORK_ITEM[0].test(segment)
       ? "issue-close"
@@ -66,9 +67,13 @@ export function workItemActionKey(command, projectRoot) {
         : null;
     if (!type) continue;
     const number = segment.match(/\b(\d+)\b/);
-    return JSON.stringify([type, projectRoot, number?.[1] || segment]);
+    actions.push([type, number?.[1] || segment]);
   }
-  return JSON.stringify(["work-item-close", projectRoot, "unknown"]);
+  return JSON.stringify([
+    "work-item-actions",
+    projectRoot,
+    actions.length ? actions : [["unknown", "unknown"]],
+  ]);
 }
 
 export function buildMessage() {

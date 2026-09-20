@@ -78,15 +78,23 @@ test('pull-request identity changes with HEAD and includes the canonical project
   assert.notEqual(second[3], first[3]);
 });
 
-test('close and merge identities retain action type, project, and item', t => {
+test('close and merge identities retain every ordered action, project, and item', t => {
   const root = repository(t);
   assert.deepEqual(
     JSON.parse(workItemActionKey('gh issue close 42', root)),
-    ['issue-close', root, '42'],
+    ['work-item-actions', root, [['issue-close', '42']]],
   );
   assert.deepEqual(
     JSON.parse(workItemActionKey('gh pr merge 42 --squash', root)),
-    ['pull-request-merge', root, '42'],
+    ['work-item-actions', root, [['pull-request-merge', '42']]],
+  );
+  assert.deepEqual(
+    JSON.parse(workItemActionKey('gh issue close 42 && gh pr merge 43', root)),
+    ['work-item-actions', root, [['issue-close', '42'], ['pull-request-merge', '43']]],
+  );
+  assert.notEqual(
+    workItemActionKey('gh issue close 42 && gh pr merge 43', root),
+    workItemActionKey('gh issue close 42 && gh pr merge 99', root),
   );
 });
 
@@ -190,6 +198,38 @@ test('close and merge hook uses the same action-specific deny and retry path', t
     assert.equal(runHook(workItemClose, input), '');
     assert.notEqual(checkpointFrom(runHook(workItemClose, input)).nonce, first.nonce);
   }
+});
+
+test('changing a later action in a compound close command invalidates the receipt', t => {
+  const root = repository(t);
+  const sessionId = `compound-work-item-${process.pid}-${Date.now()}`;
+  const input = {
+    session_id: sessionId,
+    turn_id: 'turn-one',
+    cwd: root,
+    hook_event_name: 'PreToolUse',
+    tool_name: 'Bash',
+    tool_input: { command: 'gh issue close 42 && gh pr merge 43' },
+  };
+  const checkpointPath = stateFile(root, sessionId);
+  t.after(() => rmSync(checkpointPath, { force: true }));
+
+  const first = checkpointFrom(runHook(workItemClose, input));
+  execFileSync(process.execPath, [
+    completion,
+    'review',
+    root,
+    sessionId,
+    'root',
+    first.generation,
+    'no-change',
+    first.nonce,
+  ]);
+  const changed = checkpointFrom(runHook(workItemClose, {
+    ...input,
+    tool_input: { command: 'gh issue close 42 && gh pr merge 99' },
+  }));
+  assert.notEqual(changed.nonce, first.nonce);
 });
 
 test('nonmatching commands remain untouched', t => {
