@@ -10,9 +10,9 @@ disagreement is said out loud instead of quietly kept.
 Never write a secret or private personal information here. The manual's
 never-save floor covers this file too.
 
-Capped at 8,000 characters, and the checker enforces it. `/reflect` keeps it
-under the cap by merging repeated lines into lessons. Nothing is truncated
-silently.
+There is no arbitrary character cap. Keep this file concise through purposeful
+upkeep: merge repeated or obsolete guidance without losing useful sourced
+feedback. Nothing is truncated silently.
 
 ## Lessons
 
@@ -37,13 +37,10 @@ silently.
 
 ## Recent decisions
 
-Write a line here **only when the owner proposed a change to what counts as
-memory in this project.** An ordinary save, approved or rejected, gets no line.
-Its outcome already lives in the file that was written, or in nothing at all.
-
-One line per candidate: the date, the candidate in a few words, the outcome
-(approved, edited, or rejected), and the owner's reason in the owner's own
-words, or "no reason given". Never restate the rejected fact itself.
+Record a line only when the owner changes or corrects what counts as memory or
+how selection should work. Ordinary save outcomes are not logged. Include the
+date, the change or correction in a few words, the outcome, and the owner's
+stated reason or "no reason given". Never restate a rejected fact as a lesson.
 
 - 2026-08-31. A proposal must say the word Memory or Specification, not just a folder path. Approved as a system change, now the arrow in the manual's proposal shape. Reason: "in the fucking memory system, it should say whether you're proposing a memory or a spec".
 - 2026-09-01. A fix this project worked out counts as memory, not a rule, and `recall` goes looking for one before troubleshooting. Approved as a system change. Reason: he wanted a DevOps Center pipeline fix from another project findable two weeks later.
