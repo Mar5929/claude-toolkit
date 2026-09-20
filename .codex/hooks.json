@@ -1,5 +1,5 @@
 {
-  "description": "Load this project's knowledge manual and small project map at session start.",
+  "description": "Bounded Toolkit orientation and ordered Knowledge reads for startup and context recovery.",
   "hooks": {
     "SessionStart": [
       {
@@ -7,11 +7,33 @@
         "hooks": [
           {
             "type": "command",
+            "command": "node \"$(git rev-parse --show-toplevel)/.claude/hooks/toolkit-session-start.mjs\"",
+            "commandWindows": "powershell.exe -NoProfile -Command \"$projectRoot = git rev-parse --show-toplevel; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; node (Join-Path $projectRoot '.claude/hooks/toolkit-session-start.mjs')\"",
+            "timeout": 10,
+            "additionalContextLimit": 1000,
+            "statusMessage": "Reading Toolkit orientation route"
+          },
+          {
+            "type": "command",
             "command": "node \"$(git rev-parse --show-toplevel)/.claude/hooks/knowledge-session-start.mjs\"",
-            "commandWindows": "$knowledgeRoot = git rev-parse --show-toplevel; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; Set-Location -LiteralPath $knowledgeRoot; node '.claude/hooks/knowledge-session-start.mjs'",
+            "commandWindows": "powershell.exe -NoProfile -Command \"$projectRoot = git rev-parse --show-toplevel; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; node (Join-Path $projectRoot '.claude/hooks/knowledge-session-start.mjs')\"",
             "timeout": 10,
             "additionalContextLimit": 5000,
-            "statusMessage": "Loading the knowledge manual and project map"
+            "statusMessage": "Reading Knowledge startup route"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(git rev-parse --show-toplevel)/.claude/hooks/toolkit-session-start.mjs\"",
+            "commandWindows": "powershell.exe -NoProfile -Command \"$projectRoot = git rev-parse --show-toplevel; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; node (Join-Path $projectRoot '.claude/hooks/toolkit-session-start.mjs')\"",
+            "timeout": 10,
+            "additionalContextLimit": 1000,
+            "statusMessage": "Reading Toolkit orientation route"
           }
         ]
       }

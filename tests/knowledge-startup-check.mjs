@@ -113,25 +113,41 @@ try {
 
   check("loader output order and uniqueness", () => {
     const output = loadKnowledge(fixture);
-    const sentinels = [
-      "SOUL_SENTINEL",
-      "MANUAL_SENTINEL",
-      "PROJECT_SENTINEL",
-      "CURRENT_SENTINEL",
-      "MEMORY_SENTINEL",
-      "SPEC_SENTINEL",
+    const reads = [
+      "1. Read all of `SOUL.md`.",
+      "2. Read all of `knowledge/knowledge-manual.md`.",
+      "3. Read all of `knowledge/project.md`.",
+      "4. Read all of `knowledge/current.md`.",
+      "5. Read all of `knowledge/memory/memory-index.md`.",
+      "6. Read all of `knowledge/prds/spec-index.md`.",
     ];
     let previous = -1;
-    for (const sentinel of sentinels) {
-      const position = output.indexOf(sentinel);
-      assert.ok(position > previous, `${sentinel} is out of order`);
-      assert.equal(count(output, sentinel), 1, `${sentinel} is repeated`);
+    for (const instruction of reads) {
+      const position = output.indexOf(instruction);
+      assert.ok(position > previous, `${instruction} is out of order`);
+      assert.equal(count(output, instruction), 1, `${instruction} is repeated`);
       previous = position;
     }
-    assert.ok(output.includes("  wrapped"));
-    assert.ok(!output.includes("# ignored"));
-    assert.ok(!output.includes("Only files marked current"));
-    assert.ok(!output.includes("showing him the exact words"));
+    assert.ok(output.includes("continue reading in additional chunks"));
+    assert.ok(output.includes("This checklist is not proof that the files were read"));
+    for (const text of files.values()) assert.ok(!output.includes(text));
+    assert.ok(output.length < 2000, "startup read request must remain bounded");
+  });
+
+  check("loader output stays bounded when project files are large", () => {
+    const before = loadKnowledge(fixture);
+    for (const path of [
+      "SOUL.md",
+      "knowledge/project.md",
+      "knowledge/current.md",
+      "knowledge/memory/memory-index.md",
+      "knowledge/prds/spec-index.md",
+    ]) {
+      writeFileSync(resolve(fixture, path), "LARGE_SENTINEL\n".repeat(10000));
+    }
+    assert.equal(loadKnowledge(fixture), before);
+    assert.ok(!loadKnowledge(fixture).includes("LARGE_SENTINEL"));
+    for (const [path, text] of files) writeFileSync(resolve(fixture, path), text);
   });
 
   check("missing manual fails open", () => {
@@ -139,15 +155,16 @@ try {
     const output = loadKnowledge(fixture);
     assert.equal(count(output, "Project startup file missing: knowledge/knowledge-manual.md"), 1);
     assert.ok(output.includes("Do not invent knowledge policy"));
-    assert.ok(output.includes("PROJECT_SENTINEL"));
-    assert.ok(output.includes("SPEC_SENTINEL"));
+    assert.ok(output.includes("3. Read all of `knowledge/project.md`."));
+    assert.ok(output.includes("6. Read all of `knowledge/prds/spec-index.md`."));
+    assert.ok(!output.includes("2. Read all of `knowledge/knowledge-manual.md`."));
   });
 
   check("empty manual fails open", () => {
     writeFileSync(resolve(fixture, "knowledge/knowledge-manual.md"), "");
     const output = loadKnowledge(fixture);
     assert.equal(count(output, "Project startup file empty: knowledge/knowledge-manual.md"), 1);
-    assert.ok(output.includes("CURRENT_SENTINEL"));
+    assert.ok(output.includes("4. Read all of `knowledge/current.md`."));
   });
 
   check("an empty index is a valid fresh project", () => {
@@ -161,7 +178,9 @@ try {
       "# How this project is meant to work\n\nNothing saved yet.\n",
     );
     const output = loadKnowledge(fixture);
-    assert.equal(count(output, "Nothing saved yet."), 2);
+    assert.equal(count(output, "Nothing saved yet."), 0);
+    assert.ok(output.includes("5. Read all of `knowledge/memory/memory-index.md`."));
+    assert.ok(output.includes("6. Read all of `knowledge/prds/spec-index.md`."));
     assert.ok(!output.includes("Project startup file empty: knowledge/memory/memory-index.md"));
     assert.ok(!output.includes("Project startup file empty: knowledge/prds/spec-index.md"));
   });
@@ -211,24 +230,28 @@ check("manual rename preserves legacy access without choosing conflicting policy
   try {
     mkdirSync(dirname(canonical), { recursive: true });
     writeFileSync(legacy, old);
-    assert.equal(count(loadKnowledge(project), "POLICY_SENTINEL"), 1);
+    assert.ok(loadKnowledge(project).includes("2. Read all of `knowledge/README.md`."));
+    assert.ok(!loadKnowledge(project).includes("POLICY_SENTINEL"));
     assert.ok(buildReminder(project).includes("knowledge/README.md"));
     assert.ok(checkKnowledge(project).problems.length > 0, "legacy path needs migration");
     assert.equal(readFileSync(legacy, "utf8"), old);
 
     writeFileSync(canonical, current);
-    assert.equal(count(loadKnowledge(project), "POLICY_SENTINEL"), 1);
+    assert.ok(loadKnowledge(project).includes("2. Read all of `knowledge/knowledge-manual.md`."));
+    assert.ok(!loadKnowledge(project).includes("POLICY_SENTINEL"));
     assert.ok(buildReminder(project).includes("knowledge/knowledge-manual.md"));
 
     writeFileSync(legacy, `${old}CONFLICTING_POLICY\n`);
-    assert.ok(!loadKnowledge(project).includes("POLICY_SENTINEL"));
+    assert.ok(!loadKnowledge(project).includes("2. Read all of `knowledge/knowledge-manual.md`."));
+    assert.ok(loadKnowledge(project).includes("Conflicting marked knowledge manuals exist"));
     assert.ok(!buildReminder(project).includes("Project knowledge is active"));
     assert.ok(checkKnowledge(project).problems.length > 0);
     assert.equal(readFileSync(canonical, "utf8"), current);
     assert.equal(readFileSync(legacy, "utf8"), `${old}CONFLICTING_POLICY\n`);
 
     writeFileSync(legacy, "# Folder index\nUNRELATED_README\n");
-    assert.equal(count(loadKnowledge(project), "POLICY_SENTINEL"), 1);
+    assert.ok(loadKnowledge(project).includes("2. Read all of `knowledge/knowledge-manual.md`."));
+    assert.ok(!loadKnowledge(project).includes("POLICY_SENTINEL"));
     assert.ok(!loadKnowledge(project).includes("UNRELATED_README"));
     assert.ok(buildReminder(project).includes("knowledge/knowledge-manual.md"));
     rmSync(canonical);
@@ -241,7 +264,7 @@ check("manual rename preserves legacy access without choosing conflicting policy
     assert.deepEqual(checkKnowledge(project).problems, []);
     assert.ok(buildReminder(project).includes("knowledge/knowledge-manual.md"));
     mkdirSync(legacy);
-    assert.ok(loadKnowledge(project).includes("<!-- claude-toolkit:knowledge-manual -->"));
+    assert.ok(loadKnowledge(project).includes("2. Read all of `knowledge/knowledge-manual.md`."));
     assert.ok(buildReminder(project).includes("Project knowledge is active"));
     assert.ok(checkKnowledge(project).problems.length > 0,
       "unreadable legacy path should be diagnosed without throwing");
@@ -251,7 +274,7 @@ check("manual rename preserves legacy access without choosing conflicting policy
   }
 });
 
-check("copied startup bundle runs outside the plugin source tree", () => {
+check("copied startup bundle runs through a macOS aliased path", () => {
   const project = mkdtempSync(join(tmpdir(), "knowledge-copied-startup-"));
   try {
     mkdirSync(resolve(project, ".claude/hooks"), { recursive: true });
@@ -265,10 +288,35 @@ check("copied startup bundle runs outside the plugin source tree", () => {
         cwd: project, encoding: "utf8",
         env: { ...process.env, CLAUDE_PROJECT_DIR: project, CODEX_PROJECT_DIR: project },
       });
-    assert.equal(count(output, "<!-- claude-toolkit:knowledge-manual -->"), 1);
-    assert.ok(output.includes("knowledge/knowledge-manual.md"));
+    assert.equal(count(output, "2. Read all of `knowledge/knowledge-manual.md`."), 1);
+    assert.ok(!output.includes("<!-- claude-toolkit:knowledge-manual -->"));
+    assert.ok(output.length < 2000);
   } finally {
     // This exact directory was created under the system temp directory above.
+    rmSync(project, { recursive: true, force: true });
+  }
+});
+
+check("installed hook finds its project from a nested working directory", () => {
+  const project = mkdtempSync(join(tmpdir(), "knowledge-nested-cwd-"));
+  try {
+    mkdirSync(resolve(project, ".claude/hooks"), { recursive: true });
+    mkdirSync(resolve(project, "knowledge"));
+    mkdirSync(resolve(project, "packages/example"), { recursive: true });
+    for (const name of ["knowledge-session-start.mjs", "memory-reminder.mjs"]) {
+      writeFileSync(resolve(project, ".claude/hooks", name), read(`.claude/hooks/${name}`));
+    }
+    writeFileSync(resolve(project, "knowledge/knowledge-manual.md"), read(manualSource));
+    const env = { ...process.env };
+    delete env.CLAUDE_PROJECT_DIR;
+    delete env.CODEX_PROJECT_DIR;
+    const output = execFileSync(process.execPath,
+      [resolve(project, ".claude/hooks/knowledge-session-start.mjs")], {
+        cwd: resolve(project, "packages/example"), encoding: "utf8", env,
+      });
+    assert.equal(count(output, "2. Read all of `knowledge/knowledge-manual.md`."), 1);
+    assert.ok(!output.includes("Project startup file missing: knowledge/knowledge-manual.md"));
+  } finally {
     rmSync(project, { recursive: true, force: true });
   }
 });

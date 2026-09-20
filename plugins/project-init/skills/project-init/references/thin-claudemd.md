@@ -22,21 +22,22 @@ Source: https://code.claude.com/docs/en/memory
    and the continuity instruction. Both are quoted below.
 2. Title, and one line saying what the project is.
 3. `Read .claude/rules first.`
-4. The project knowledge startup route, when that system is installed, and the
+4. The Toolkit operating-manual route below.
+5. The project knowledge startup route, when that system is installed, and the
    one System Guide fallback line when that independent plugin is enabled.
-5. **Codemap.** A table, one row per folder, module, or context source. Each row
+6. **Codemap.** A table, one row per folder, module, or context source. Each row
    says what is in it and when to open it. Name the context sources, not only
    the code: captured outside documentation, reference data, the PRDs in
    `knowledge/prds/`, the build plans in `docs/designs/`. A
    source nothing points at is a source nobody opens, and a folder that is still
    empty is the easiest one to leave out.
-6. **Tools.** The major tools this project runs on: MCP servers, generated
+7. **Tools.** The major tools this project runs on: MCP servers, generated
    graphs or indexes, build and deploy commands. One line each, naming the
    command and the file that holds the detail.
-7. **Quick saves.** Route documentation publication to its rule unless explicitly
+8. **Quick saves.** Route documentation publication to its rule unless explicitly
    declined, even without knowledge enabled. Name actual documentation paths
    and applicable configured-system routes. Do not copy their procedures here.
-8. **Where work is tracked.** The tracker, and how an item is marked ready to
+9. **Where work is tracked.** The tracker, and how an item is marked ready to
    build.
 
 ## What never goes in it
@@ -72,18 +73,35 @@ not to be reworded, shortened, or repunctuated.
 
 Where the project has a `SOUL.md` and declined the project knowledge system, one
 more line goes above both: `Read SOUL.md first and follow it throughout this
-session.` When project knowledge is installed, its startup hook already loads
+session.` When project knowledge is installed, its startup hook already requests a complete read of
 `SOUL.md`, so do not add a second route.
+
+## The Toolkit operating-manual route
+
+Every equipped project uses this short route in `CLAUDE.md`:
+
+> Read `knowledge/toolkit-manual.md` completely during the first project
+> orientation and after resume, clear, or compaction, and follow it throughout
+> the work. If a read is shortened, open the file again from the first missing
+> section, in chunks when needed. If it is missing or unreadable, report that
+> instead of claiming readiness. Acknowledge receipt and intent only after the
+> complete read.
+
+This is the fallback when startup hooks are unavailable and the durable route
+after host context changes. Keep it short. The manual owns the shared workflow;
+component procedures remain in their own rules, skills, and manuals.
 
 ## The project knowledge startup route
 
 When Gate 3 ran, use this wording and no more:
 
-> The startup hook loads `SOUL.md`, then `knowledge/knowledge-manual.md` once, then
-> `knowledge/project.md`, `knowledge/current.md`, and the two knowledge indexes.
-> If that map is not already in this session, read those files once in that
-> order. If a file is missing, continue and report it. `knowledge/knowledge-manual.md`
-> wins when project-knowledge instructions disagree.
+> The startup hook provides the ordered project-knowledge read route: `SOUL.md`,
+> `knowledge/knowledge-manual.md`, `knowledge/project.md`, `knowledge/current.md`,
+> then the two knowledge indexes. Follow that route once at session start. If it
+> was not provided, read those files in that order. If a file is missing or a
+> read is shortened, report it and continue the read from the project file.
+> `knowledge/knowledge-manual.md` wins when project-knowledge instructions
+> disagree.
 
 Do not copy the save policy, the routing table, or the knowledge specification
 into the root file. `knowledge/knowledge-manual.md` owns those.

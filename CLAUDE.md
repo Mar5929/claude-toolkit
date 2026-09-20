@@ -11,13 +11,24 @@ Always execute work with the context in mind that the user will likely continue 
 Read `.claude/rules` first. Every file in that folder is a rule for how you work
 here, and they are in force for the whole session.
 
+## Toolkit orientation
+
+Read [knowledge/toolkit-manual.md](knowledge/toolkit-manual.md) completely before
+work, including after resume, clear, or compaction. Startup supplies a short
+read route, not the manual's content. If a file read is truncated, continue in
+chunks until complete. Report missing guidance rather than claiming readiness;
+after reading, briefly acknowledge receipt and intent to follow the workflows.
+This root route also applies when hooks are unavailable. Component instructions
+remain with their owners; optional components are not enabled by this manual.
+
 ## Project knowledge
 
-The startup hook loads `SOUL.md`, then `knowledge/knowledge-manual.md` once, then
-`knowledge/project.md`, `knowledge/current.md`, and the two knowledge indexes.
-If that map is not already in this session, read those files once in that order.
-If a file is missing, continue and report it. `knowledge/knowledge-manual.md` wins when
-project-knowledge instructions disagree.
+The startup hook names `SOUL.md`, `knowledge/knowledge-manual.md`,
+`knowledge/project.md`, `knowledge/current.md`, and both knowledge indexes.
+If not already in this session in full, read these once in order, continuing
+truncated reads in chunks. Restore required guidance after context loss; use
+this route when hooks are unavailable. If a file is missing, continue and report it;
+do not invent policy. `knowledge/knowledge-manual.md` wins when project-knowledge instructions disagree.
 
 ## Codemap
 

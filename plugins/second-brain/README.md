@@ -49,10 +49,13 @@ The packaged source for the manual is
 project receives it unchanged as `knowledge/knowledge-manual.md`. Setup and sync treat it
 as a managed copy, not project-authored knowledge.
 
-The fail-open startup hook loads `SOUL.md`, the manual, `knowledge/project.md`,
-`knowledge/current.md`, and the entry lines of both indexes, in that order. The
-same loader is registered for Claude Code and Codex. A short root instruction is
-the fallback when a hook does not run. It does not repeat policy.
+The fail-open startup hook emits a bounded request to read `SOUL.md`, the
+resolved managed manual, `knowledge/project.md`, `knowledge/current.md`, and
+both indexes completely, in that order. It never prints their bodies. The agent
+must continue in chunks when a read is truncated and report missing, empty,
+unreadable, or conflicting guidance before claiming readiness. The same loader
+is registered for Claude Code and Codex. A short root instruction is the fallback
+when a hook does not run. Neither route repeats policy.
 
 The project turns off Claude Code's private auto-memory. Committed Markdown and
 Git remain the shared source of truth.
