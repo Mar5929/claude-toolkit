@@ -84,4 +84,17 @@ Updated: 2026-09-19
 - 2026-09-19: Notes workflow merged; project refresh remains.
 
 ## Session handoffs
-None.
+
+### 2026-09-20T11:01:22.781Z | Knowledge delivery coordinator
+
+Continue [#269](https://github.com/Mar5929/claude-toolkit/issues/269): finish authorized tasks, assess delivered versus missing, then plan remaining work.
+PR #366 merged at `3703c5c` with Mike's combined approval; exact cleanup is complete.
+First verify remaining PR #367 status, then assess merged behavior against the
+[PRD](../prds/toolkit-operating-system/knowledge-system.md) and
+[design Notes](../../docs/designs/269-knowledge-system.md#notes). Update the
+[remaining plan](../../docs/designs/269-knowledge-system/implementation-plan.md)
+with unmet outcomes, dependencies, owners and acceptance evidence.
+Full requirements/design, asynchronous helpers, host/late-Stop and behavior proofs,
+rollout targets and acceptance remain open; no full-system acceptance or rollout
+authority. Do not change authentication. #269 is open/In progress after correcting
+merge closure. Source coordinator: `01a0baf5-bc72-7a22-91f3-3781f5dafef9`.
