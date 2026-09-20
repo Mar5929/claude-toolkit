@@ -1,25 +1,13 @@
 #!/usr/bin/env node
 
 /**
- * Rebuild the two knowledge indexes:
- *
- *   knowledge/memory/memory-index.md
- *   knowledge/prds/spec-index.md
- *
- * One line per file, taken from that file's `summary` field, so the summary
- * lives in exactly one place and is copied nowhere. The source files always
- * win: this script only produces a deterministic list of what is there.
- *
- * `knowledge/prds/` also holds feature-area folders. In a folder named
- * `<area>/`, the file `<area>.md` is the parent PRD and every other Markdown
- * file beside it is a child PRD. The index prints the parent on its own line
- * and each child indented one level beneath it, so a reader sees the area and
- * its parts together. Every path printed is relative to the index file.
- *
- * It validates nothing. `check-knowledge.mjs` does that.
+ * Rebuild source-owned knowledge indexes. The managed manual selects schema 2:
+ * grouped Markdown links for memory, PRDs and captured-source topic READMEs.
+ * Unmigrated projects retain the legacy two-index layout. No record body or
+ * authority is changed. The checker validates records separately.
  */
 
-import { readdirSync, readFileSync, writeFileSync, existsSync, lstatSync } from "node:fs";
+import { readdirSync, readFileSync, writeFileSync, existsSync, lstatSync, realpathSync } from "node:fs";
 import { dirname, relative, resolve, sep, basename } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -177,7 +165,7 @@ export function buildIndexes(projectRoot = root) {
     const outputs = renderV2Indexes(projectRoot);
     const problems = outputs.flatMap(output => output.problems);
     for (const output of outputs) {
-      if (existsSync(output.path) && lstatSync(output.path).isSymbolicLink()) problems.push(`${output.path} is a symbolic link.`);
+      if (existsSync(output.path) && (lstatSync(output.path).isSymbolicLink() || !lstatSync(output.path).isFile())) problems.push(`${output.path} must be a regular file, not a symbolic link or directory.`);
     }
     if (problems.length) throw new Error(problems.join("\n"));
     for (const output of outputs) writeFileSync(output.path, output.content, "utf8");
@@ -223,7 +211,11 @@ export function buildIndexes(projectRoot = root) {
 /** Schema selection belongs to the managed manual, never inferred from folders. */
 export function knowledgeSchema(projectRoot) {
   const manual = resolve(projectRoot, "knowledge/knowledge-manual.md");
-  return existsSync(manual) && readFileSync(manual, "utf8").includes("<!-- claude-toolkit:knowledge-schema:2 -->") ? 2 : 1;
+  if (!existsSync(manual)) return 1;
+  const text = readFileSync(manual, "utf8");
+  const markers = text.match(/<!--\s*claude-toolkit:knowledge-schema:[^>]*-->/g) || [];
+  if (markers.length > 1 || (markers.length && markers[0] !== "<!-- claude-toolkit:knowledge-schema:2 -->")) throw new Error("knowledge/knowledge-manual.md has an unknown or duplicate schema marker.");
+  return markers.length ? 2 : 1;
 }
 
 const compare = (a, b) => a < b ? -1 : a > b ? 1 : 0;
@@ -287,7 +279,7 @@ export function renderV2Indexes(projectRoot) {
     for (const entry of entries) {
       const parent = entry.parent && byPath.get(entry.parent);
       if (parent && parent.data.group !== entry.data.group) problems.push(`${entry.path} must share its parent PRD's group to remain under that parent.`);
-      const group = entry.data.group || "Missing group";
+      const group = typeof entry.data.group === "string" && entry.data.group.trim() && !/[\r\n]/.test(entry.data.group) ? entry.data.group : "Missing group";
       if (!groups.has(group)) groups.set(group, []);
       groups.get(group).push(entry);
     }
@@ -308,7 +300,7 @@ export function renderV2Indexes(projectRoot) {
   });
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(resolve(process.argv[1]))) {
   try {
     const result = buildIndexes(root);
     for (const { path, count } of result.written) {

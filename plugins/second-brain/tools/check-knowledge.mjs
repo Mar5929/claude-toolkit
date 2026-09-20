@@ -1,27 +1,15 @@
 #!/usr/bin/env node
 
 /**
- * Check the knowledge folder for anything malformed or unsafe.
- *
- * `knowledge/memory/` is flat. `knowledge/prds/` may also hold a feature-area
- * folder: `<area>/<area>.md` is the parent PRD and every other Markdown file
- * beside it is a child PRD, checked against the same field rules. A folder
- * inside a feature-area folder is a problem, because a PRD folder is one level
- * deep.
- *
- * Read-only. It never edits, moves, or deletes a file. It exists so a save can
- * be verified instead of assumed, and so the one rule that cannot be left to an
- * agent's good intentions, no secrets in Git, is enforced by code.
- *
- * Exit code 0 means every file is well formed. Exit code 1 means at least one
- * problem, each printed in plain English with its file and the reason.
- *
- * Usage:
- *   node check-knowledge.mjs [project-root]
+ * Read-only checks for the managed manual and selected knowledge schema.
+ * Legacy projects keep their existing checks. Schema 2 checks topic records,
+ * permission metadata, required paths and three source-generated indexes.
+ * Shape and known secret-pattern checks cannot prove meaning or permission.
+ * Usage: node check-knowledge.mjs [project-root]
  */
 
 import { createHash } from "node:crypto";
-import { readdirSync, readFileSync, existsSync, lstatSync } from "node:fs";
+import { readdirSync, readFileSync, existsSync, lstatSync, realpathSync } from "node:fs";
 import { dirname, relative, resolve, sep, basename } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -92,7 +80,7 @@ function fail(path, message) {
 }
 
 function isDate(value) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const [y, m, d] = value.split("-").map(Number);
   const date = new Date(Date.UTC(y, m - 1, d));
   return date.getUTCFullYear() === y
@@ -130,7 +118,7 @@ function checkFile(vault, folder, name, kind, schema = 1) {
 
   const required = [...(kind === "memory" ? MEMORY_REQUIRED : SPEC_REQUIRED)];
   const known = new Set(kind === "memory" ? MEMORY_KNOWN : SPEC_KNOWN);
-  const autoSaved = schema === 2 && kind === "memory" && data.auto_saved === "true";
+  const autoSaved = schema === 2 && kind === "memory" && data.auto_saved === true;
   if (schema === 2) {
     required.push("group", "updated_at", ...(kind === "memory" ? ["context"] : []));
     for (const key of ["updated_at", ...(kind === "memory" ? ["context", "auto_saved"] : [])]) known.add(key);
@@ -191,12 +179,14 @@ function checkFile(vault, folder, name, kind, schema = 1) {
   const summaryLimit = schema === 2 ? 199 : SUMMARY_MAX_CHARS;
   if (schema === 2 && typeof data.summary === "string" && /[\r\n]/.test(data.summary)) fail(path, "summary must be one line.");
   if (typeof data.summary === "string" && [...data.summary].length > summaryLimit) {
-    fail(path, `has a summary of ${data.summary.length} characters. It is one`
+    fail(path, `has a summary of ${[...data.summary].length} characters. It is one`
       + ` sentence, at most ${summaryLimit}. The index copies it, so a long`
       + " one is paid for on every read.");
   }
 
-  if (data.tags !== undefined && !Array.isArray(data.tags)) {
+  if (schema === 2 && data.updated_at && data.created_at && data.updated_at < data.created_at) fail(path, "updated_at cannot precede created_at.");
+
+  if (data.tags !== undefined && (!Array.isArray(data.tags) || data.tags.some(tag => typeof tag !== "string" || !tag.trim()))) {
     fail(path, "has tags written as a single value. Tags are a list, for example"
       + " [migration, salesforce].");
   }
@@ -210,18 +200,43 @@ function checkFile(vault, folder, name, kind, schema = 1) {
     fail(path, "has status superseded but does not say what replaced it. Set"
       + " superseded_by to the new file's path.");
   }
-  for (const field of ["supersedes", "superseded_by"]) {
-    const value = typeof data[field] === "string" ? data[field].trim() : "";
+  for (const field of ["supersedes", "superseded_by", ...(schema === 2 ? ["related_memories"] : [])]) {
+    const raw = data[field];
+    if (schema === 2 && raw !== undefined && typeof raw !== "string" && !(field === "related_memories" && Array.isArray(raw) && raw.every(item => typeof item === "string"))) fail(path, `${field} must contain project-relative paths.`);
+    const value = typeof raw === "string" ? raw.trim() : Array.isArray(raw) ? raw.filter(item => typeof item === "string").join(",") : "";
     if (!value) continue;
     for (const target of value.split(",").map((item) => item.trim()).filter(Boolean)) {
+      if (schema === 2 && (target.startsWith("/") || target.includes("\\") || target.split("/").includes("..") || /^[A-Za-z]:/.test(target))) { fail(path, `${field} must stay within the project using project-relative paths.`); continue; }
       const candidates = [
         resolve(vault, "..", target),
         resolve(vault, folder, target),
         resolve(vault, target),
       ];
+      if (schema === 2) {
+        const components = target.split("/");
+        const linked = components.some((_, i) => {
+          const component = resolve(vault, "..", ...components.slice(0, i + 1));
+          return existsSync(component) && lstatSync(component).isSymbolicLink();
+        });
+        if (linked || (existsSync(candidates[0]) && (!lstatSync(candidates[0]).isFile() || !target.endsWith(".md")))) {
+          fail(path, `${field} must name a regular Markdown file, not a directory or symbolic link.`);
+          continue;
+        }
+      }
       if (!(schema === 2 ? candidates.slice(0, 1) : candidates).some((candidate) => existsSync(candidate))) {
         fail(path, `${field} points at "${target}", which does not exist.`);
       }
+    }
+  }
+
+  if (schema === 2) {
+    const prose = body.replace(/^```[^\n]*\n[\s\S]*?^```\s*$/gm, "");
+    for (const match of prose.matchAll(/!?\[[^\]]*\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g)) {
+      const href = match[1].replace(/^<|>$/g, "");
+      if (/^[A-Za-z][A-Za-z0-9+.-]*:/.test(href) || href.startsWith("#")) continue;
+      let target;
+      try { target = decodeURIComponent(href.split("#")[0]); } catch { fail(path, `has an invalid link ${href}.`); continue; }
+      if (!existsSync(resolve(vault, folder, target))) fail(path, `link ${href} does not exist.`);
     }
   }
 
@@ -393,8 +408,8 @@ function checkV2(projectRoot, vault) {
   if (existsSync(projectPath) && lstatSync(projectPath).isFile()) {
     const { data, errors } = parseFrontmatter(readFileSync(projectPath, "utf8"));
     for (const error of errors) fail("knowledge/project.md", error);
-    if (data.memory_auto_save !== undefined && !["true", "false"].includes(data.memory_auto_save)) fail("knowledge/project.md", "memory_auto_save must be true or false.");
-    if (data.memory_auto_save === "true") {
+    if (data.memory_auto_save !== undefined && ![true, false].includes(data.memory_auto_save)) fail("knowledge/project.md", "memory_auto_save must be true or false.");
+    if (data.memory_auto_save === true) {
       for (const key of ["memory_permission_by", "memory_permission_date", "memory_permission_source", "memory_permission_scope"]) {
         if (typeof data[key] !== "string" || !data[key].trim()) fail("knowledge/project.md", `enabled automatic memory saving needs ${key}.`);
       }
@@ -441,6 +456,7 @@ export function checkKnowledge(projectRoot = root) {
   const vault = resolve(projectRoot, "knowledge");
   if (!existsSync(vault)) return { problems: [], filesChecked: 0, skipped: true };
 
+  try {
   checkManual(vault);
   const manualPath = resolve(vault, "knowledge-manual.md");
   const manualText = existsSync(manualPath) ? readFileSync(manualPath, "utf8") : "";
@@ -455,10 +471,13 @@ export function checkKnowledge(projectRoot = root) {
   checkFolder(vault, "memory", "memory", "memory-index.md");
   checkFolder(vault, "prds", "spec", "spec-index.md", true);
 
+  } catch (error) {
+    fail("knowledge", `could not finish checking: ${error.message}. Preserve files and inspect this failure.`);
+  }
   return { problems: [...problems], filesChecked, skipped: false };
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(resolve(process.argv[1]))) {
   const result = checkKnowledge(root);
   if (result.skipped) {
     console.log(`No knowledge folder at ${posix(relative(root, resolve(root, "knowledge")))}. Nothing to check.`);

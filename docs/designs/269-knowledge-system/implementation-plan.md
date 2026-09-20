@@ -582,3 +582,66 @@ proofs. Keep claims about CLI and desktop behavior separate.
 | Delivered | Owner acceptance and authorized target adoption verified; tracker and PRD upkeep reflect actual outcomes. |
 
 Documentation-only planning updates follow R25 directly on main after scoped checks. All future executable hooks, behavior-bearing skills/rules, configuration, and inseparable documentation changes use implementation worktrees and normal review. Builders never commit unrelated staged work. The main conversation links this plan from D1 and E1 and maintains task status there.
+
+## Consolidated audit implementation ownership — 2026-09-19
+
+This extends the existing instruction audit. It is not another policy source or
+runtime manifest. The [consolidated audit](reviews/2026-09-19-consolidated-audit.md)
+controls disposition of the earlier reports. Task `01a0bc82-6a7b-7ba2-a158-be7cedf02a9f`
+owns residual fixes and cross-package acceptance, on
+`issue-269-knowledge-integration-audit`. The Knowledge package owner remains
+responsible for #269 tracker writes. These owners agreed their file boundaries
+before implementation.
+
+| Consolidated finding | Owner and owning surface | Scenario and present disposition |
+| --- | --- | --- |
+| Racing/repeated saves and durable authority | Knowledge package: save/recovery reference and `inspect-knowledge-save.mjs`; audit task: cross-package acceptance | Same reference, lost push response, unrelated parallel save. Recovery inspector's Git fixtures belong to Knowledge; actual agent recovery remains separate. No second ledger or distributed exactly-once claim. |
+| Local-only pending work and reconnect | Knowledge package: same recovery procedure; audit task: acceptance | Offline laptop, stale second computer, conflicting remote change. Local durability never implies shared visibility. End-to-end proof remains open. |
+| Mixed-topic sources and narrow approval | Knowledge package: memory template/save procedure; audit task: schema and behavior tests | Schema tests preserve an ordinary mixed topic with observed sample, inferred cause and superseded history. Schema success does not prove claim-level meaning or authority. Fresh-reader/update trial remains open. |
+| Useful information lost through exclusions | Knowledge package: core routing and task procedures; audit task: behavior cases | Mixed conversation must preserve useful research, design rationale and requirements in their owners. Owner participation and the real-fix exception stay as approved. Fresh-agent proof remains open. |
+| Executor permission, failure, cancellation and late result | Knowledge package: helper assignment/recovery; audit task: host integration | Helper lacking interaction returns an unfinished step to foreground. Cancellation/late result must inspect actual state. Host proof remains open; an inspector is not a background executor. |
+| Native-memory conflict | Knowledge setup owner, with coordinator for product decision | Inspect and report effective competing memory without changing settings or importing/deleting data. Handling policy remains unresolved. |
+| Outdated/overstated host evidence | Toolkit delivery owns its evidence; Knowledge/audit own later tests | Toolkit PR #363 has Codex CLI full-read and resume evidence via root fallback, not proven hook attribution. Claude hooks ran but expired OAuth prevented model execution. Desktop, Windows, forced compact/clear and asynchronous parity remain unproved. |
+| Root/helper identity, trust and budget | Toolkit owns generic delivery; Knowledge owns adapter; audit owns integration cases | No root checkpoint may be satisfied by helper completion. Untrusted launch, truncated reads and late events remain named host proof gaps. |
+| Reliability and instruction-arrangement evaluation | Audit task, with coordinator for any product change | Declare outcomes before repeated model trials; report each scenario, host, version and uncertainty. Keep visible acknowledgment baseline. No fixed trial count or measured-improvement claim is adopted. |
+| Instruction drift | Existing plan audit, maintained by audit task with component owners | Atomic obligations below connect canonical owner, consuming surfaces and actual evidence. Whole-system acceptance remains open. |
+
+### Schema/index delivery and cross-surface obligations
+
+The first audit PR implements backward-compatible E1-P3 tools. The managed
+manual's exact `knowledge-schema:2` marker selects the new contract; absent
+marker preserves legacy layout/index generation. A malformed or duplicated
+marker fails rather than guessing. This PR does not activate the new manual,
+migrate project records, or declare the project equipped with the new system.
+Knowledge's subsequent package owns activation, frozen checksum, migration,
+manual explanations and final release metadata.
+
+| Obligation | Canonical owner and consuming surfaces | Evidence and reconciliation |
+| --- | --- | --- |
+| R10/R14 individual approval versus standing permission | Manual permission; memory/project templates; save procedure; checker | `tests/knowledge-schema.test.mjs` rejects partial approval, quoted/false automatic markers and mixed modes. Earlier auto-saved records remain valid after revocation. No permission is inferred from the checker. |
+| R14 topic continuity and claim distinctions | Memory template; save/review; checker/indexer | Mixed-topic fixture preserves all body text and distinguishes edit dates from verification. Actual claim selection and scope require agent review. |
+| R16 approval means required behavior, not delivered behavior | Manual/PRD template; requirements helper; checker/indexer | Unapproved proposed PRD accepted; finalized requires real approval fields; memory-only fields rejected. Legacy `current` stays readable only in v1. |
+| R21 discoverable source-owned summaries | Source fields; memory/PRD/captured-topic templates; builder/checker; startup index paths | Three deterministic grouped link indexes, exact summaries, parent/child PRDs, glossary exclusion, move/rename and stale-index cases. Strict limits count Unicode code points: summary under 200, current under 5,000; no v2 feedback/body cap. |
+| R27 coherent activation and recovery | Managed manual marker; setup migration; templates; checker; both startup hosts | Missing required files, leftover legacy active locations and malformed source metadata fail. Managed manual checksum remains mandatory. Structural validity is not host readiness. |
+
+Run `node --test tests/knowledge-schema.test.mjs` for the schema cases. The
+fixtures use synthetic records and do not modify project knowledge. While the
+repository's managed manual is still v1, v2 fixtures explicitly expect its
+checksum mismatch after adding the marker. All other results must pass; this
+is structure testing, not evidence that the new manual has been activated.
+
+Independent Sol review found that relationship fields accepted directories or
+symlinks, and that an invalid later index target could leave an earlier index
+rewritten. Both were repaired with regression fixtures. Missing project
+permission frontmatter intentionally leaves per-save approval on. No new
+permission setting is enabled by installation or validation.
+
+Remaining audit work follows the stable Knowledge package: actual mixed-routing,
+approval-scope and recovery trials, cross-package host integration, and final
+finding disposition. The schema PR is a dependency, not completion of this audit
+or parent #269. Product decisions about native memory, retention, consent and
+changed acknowledgment remain with Mike.
+
+Manual upkeep for this dependency: reviewed both active manuals. Neither active
+workflow changes before v2 activation, so no policy/manual copy is changed here.
+The Knowledge package owner owns the v2 manual, templates and checksum together.
