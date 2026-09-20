@@ -24,7 +24,13 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { effectiveDirectory, matchesAny, OPENS_PULL_REQUEST } from "./command-parsing.mjs";
+import {
+  combinesReviewActions,
+  effectiveDirectory,
+  matchesAny,
+  OPENS_PULL_REQUEST,
+  SPLIT_REVIEW_ACTIONS,
+} from "./command-parsing.mjs";
 import { claimActionReview } from "./knowledge-completion.mjs";
 
 const KNOWLEDGE_PREFIX = "knowledge/";
@@ -191,6 +197,7 @@ function main() {
 
   const command = payload.tool_input?.command;
   if (!opensPullRequest(command)) return failOpen();
+  if (combinesReviewActions(command)) return deny(SPLIT_REVIEW_ACTIONS);
 
   const projectRoot = resolve(
     payload.cwd || process.env.CLAUDE_PROJECT_DIR || process.cwd(),

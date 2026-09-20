@@ -19,7 +19,14 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { effectiveDirectory, matchesAny, segmentsOf, CLOSES_WORK_ITEM } from "./command-parsing.mjs";
+import {
+  CLOSES_WORK_ITEM,
+  combinesReviewActions,
+  effectiveDirectory,
+  matchesAny,
+  segmentsOf,
+  SPLIT_REVIEW_ACTIONS,
+} from "./command-parsing.mjs";
 import { claimActionReview } from "./knowledge-completion.mjs";
 
 function failOpen() {
@@ -127,6 +134,7 @@ function main() {
 
   const command = payload.tool_input?.command;
   if (!closesWorkItem(command)) return failOpen();
+  if (combinesReviewActions(command)) return deny(SPLIT_REVIEW_ACTIONS);
 
   const projectRoot = resolve(
     payload.cwd || process.env.CLAUDE_PROJECT_DIR || process.cwd(),

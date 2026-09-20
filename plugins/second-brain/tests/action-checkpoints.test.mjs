@@ -60,6 +60,10 @@ function checkpointFrom(output) {
   return { generation, nonce, reason };
 }
 
+function denialReason(output) {
+  return JSON.parse(output).hookSpecificOutput.permissionDecisionReason;
+}
+
 function stateFile(root, sessionId, agentId = 'root') {
   const key = createHash('sha256')
     .update(JSON.stringify([realpathSync(root), sessionId, agentId]))
@@ -230,6 +234,56 @@ test('changing a later action in a compound close command invalidates the receip
     tool_input: { command: 'gh issue close 42 && gh pr merge 99' },
   }));
   assert.notEqual(changed.nonce, first.nonce);
+});
+
+test('mixed PR-create and close commands never mutate or consume review state', async t => {
+  const root = repository(t);
+  const sessionId = `mixed-action-${process.pid}-${Date.now()}`;
+  const base = {
+    session_id: sessionId,
+    turn_id: 'turn-one',
+    cwd: root,
+    hook_event_name: 'PreToolUse',
+    tool_name: 'Bash',
+  };
+  const pullRequestInput = {
+    ...base,
+    tool_input: { command: 'gh pr create --title fixture --body fixture' },
+  };
+  const mixedInput = {
+    ...base,
+    tool_input: { command: 'gh pr create --title fixture --body fixture && gh issue close 42' },
+  };
+  const checkpointPath = stateFile(root, sessionId);
+  t.after(() => rmSync(checkpointPath, { force: true }));
+
+  const pending = checkpointFrom(runHook(saveReminder, pullRequestInput));
+  const sequential = [
+    runHook(saveReminder, mixedInput),
+    runHook(workItemClose, mixedInput),
+    runHook(workItemClose, mixedInput),
+    runHook(saveReminder, mixedInput),
+  ].map(denialReason);
+  assert.equal(new Set(sequential).size, 1);
+  assert.match(sequential[0], /Run them as separate commands/);
+  assert.equal(checkpointFrom(runHook(saveReminder, pullRequestInput)).nonce, pending.nonce);
+
+  execFileSync(process.execPath, [
+    completion,
+    'review',
+    root,
+    sessionId,
+    'root',
+    pending.generation,
+    'no-change',
+    pending.nonce,
+  ]);
+  const concurrent = await Promise.all([
+    runHookAsync(saveReminder, mixedInput),
+    runHookAsync(workItemClose, mixedInput),
+  ]);
+  assert.equal(new Set(concurrent.map(denialReason)).size, 1);
+  assert.equal(runHook(saveReminder, pullRequestInput), '');
 });
 
 test('nonmatching commands remain untouched', t => {
