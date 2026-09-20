@@ -1,83 +1,26 @@
 #!/usr/bin/env node
 
-/**
- * Read-only UserPromptSubmit reminder.
- *
- * The operating manual is loaded once, at session start, and it is long. In a
- * long session it slides out of the agent's attention, so saves drift: the wrong
- * things get written, the right things get missed, and proposals stop using the
- * one approval format the manual requires.
- *
- * This prints a short reminder ahead of every owner prompt. It is deliberately a
- * pointer, not a copy. `tests/knowledge-startup-check.mjs` forbids any file
- * outside the manual from carrying a policy marker block, so the reminder names
- * the manual and the skill and lets those hold the actual policy.
- *
- * It asks the save question every turn and answers it "usually not" in the same
- * breath. Both halves are needed. Without the question the check only happens at
- * a pull request, so a spec goes stale mid-session. Without the default of no, a
- * command-shaped nudge makes an agent propose a save on turns that call for
- * none, which is worse than the drift it was meant to fix.
- *
- * Silent when the project has no toolkit knowledge manual, so it can never claim
- * a memory system that is not there.
- *
- * Fails open, always. A missing or unreadable file is skipped and the prompt
- * continues, because a reminder must never be able to wedge a session.
- */
+/** Shared UserPromptSubmit guidance. Selection stays with the agent; temporary
+ * review state records declarations only. A missing/conflicting managed manual
+ * produces its repair notice and never creates save authority. */
 
-import { existsSync, readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { existsSync, readFileSync, realpathSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { beginReview } from "./knowledge-completion.mjs";
 
-export const MANUAL_PATH = "knowledge/knowledge-manual.md";
-export const LEGACY_MANUAL_PATH = "knowledge/README.md";
-export const MANUAL_MARKER = "<!-- claude-toolkit:knowledge-manual -->";
-
-/** Read-only compatibility during the manual filename migration. */
-export function resolveManual(projectRoot) {
-  const read = path => {
-    const absolute = resolve(projectRoot, path);
-    return existsSync(absolute) ? readFileSync(absolute, "utf8") : null;
-  };
-  try {
-    const current = read(MANUAL_PATH);
-    let legacy = null;
-    let legacyUnreadable = false;
-    try { legacy = read(LEGACY_MANUAL_PATH); } catch { legacyUnreadable = true; }
-    const marked = text => text !== null && text.trimStart().startsWith(MANUAL_MARKER);
-    const normalize = text => text.replace(/\r\n/g, "\n")
-      .replaceAll(LEGACY_MANUAL_PATH, MANUAL_PATH).trim();
-    if (current !== null) {
-      if (!current.trim()) return { path: MANUAL_PATH, notice: `Project startup file empty: ${MANUAL_PATH}. Continuing without it.` };
-      if (!marked(current)) return { path: MANUAL_PATH, notice: "Knowledge manual is not marked as managed. Run project-sync to review it; no manual policy was loaded." };
-      if (marked(legacy) && normalize(current) !== normalize(legacy)) {
-        return { path: MANUAL_PATH, notice: "Conflicting marked knowledge manuals exist at knowledge/knowledge-manual.md and knowledge/README.md. Preserve both and reconcile through project-sync; no manual policy was loaded." };
-      }
-      return { path: MANUAL_PATH, text: current,
-        ...(legacyUnreadable ? { notice: "Using the canonical knowledge manual; legacy knowledge/README.md could not be inspected. Project-sync must check that path before migration cleanup." } : {}) };
-    }
-    if (marked(legacy)) return { path: LEGACY_MANUAL_PATH, text: legacy,
-      notice: "Using the legacy knowledge/README.md manual until project-sync migrates it to knowledge/knowledge-manual.md." };
-    if (legacyUnreadable) return { path: MANUAL_PATH, notice: "Canonical knowledge manual is missing and legacy knowledge/README.md could not be read. No manual policy was loaded; project-sync must investigate." };
-    return { path: MANUAL_PATH };
-  } catch {
-    return { path: MANUAL_PATH, notice: "Could not read the knowledge manual. Preserve existing files and use project-sync to investigate; no manual policy was loaded." };
-  }
-}
+import { MANUAL_PATH, resolveManual } from "./knowledge-manual.mjs";
+export { MANUAL_PATH, LEGACY_MANUAL_PATH, MANUAL_MARKER, resolveManual } from "./knowledge-manual.mjs";
 
 export const REMINDER = [
-  "Project knowledge is active. Manual: knowledge/knowledge-manual.md - reopen it before proposing any save.",
-  "",
-  "Memory (knowledge/memory/) = a lasting fact, decision, event, context, or constraint. Why things are the way they are.",
-  "PRD (knowledge/prds/) = one living document per feature area. It opens as status: proposed, what we want built, and is edited to status: finalized once it describes what was actually built. Only a finalized PRD is settled truth; legacy status current means finalized. This folder used to be called knowledge/specs/.",
-  "",
-  "Memory must be about this project, and must come from the owner or from the owner and agent working it out together. Not from the agent alone.",
-  "Do not save raw commands, tool calls, logs, ordinary errors, transient debugging, scratch reasoning, dropped ideas, edit logs, sub-agent activity, copies of code or specs, procedures, open tasks, live status, or secrets.",
-  "A project-specific failure, its cause, and its verified resolution may be lasting memory when future work would otherwise need the lesson explained again. Save the lesson, not the activity log. A procedure goes to a skill, a standing instruction to .claude/rules/, and live status to the work tracker.",
-  "",
-  "Saves happen through the remember skill, never by hand, never without the owner's approval.",
-  "Before you answer: is there a PRD to update or a memory to add? Usually not, and then you say nothing. If there is, invoke remember; knowledge/knowledge-manual.md shows how to display the proposal.",
+  "Friendly reminder: keep front of mind and follow all of the Toolkit operating system methodologies, processes, and instructions. Know where the project files and folders live.",
+  "Evaluate this message and relevant conversation for additions, updates, corrections, removal and other needed record changes.",
+  "Working memory is concise active context: objectives, blockers, next steps, temporary notes, labelled hypotheses and partial state. Exclude filler, secrets and an accumulating activity log.",
+  "Lasting memory is project-relevant and significant: durable facts, decisions, feedback, context, events, constraints, relationships and lessons future sessions would need explained again. It comes from the owner or joint work; a significant project failure independently found and fixed is the only source exception.",
+  "Tool activity, logs, source copies, scratch reasoning, dropped speculation, procedures, requirements, open steps, live status, system explanations, useless stale claims and secrets are not lasting memory. Preserve useful information in its proper home instead.",
+  "Consider every owner: current work, pending inbox, tracker, requirements, design/research, skills/rules, enabled System Guide, and designated client architecture. Follow each owner's permission; noticing a change authorizes no unrelated implementation.",
+  "Manuals: knowledge/knowledge-manual.md and knowledge/toolkit-manual.md. Reuse available current guidance; restore missing or changed guidance before the affected operation, without forcing full rereads every turn.",
+  "Explicitly acknowledge intent to evaluate, then evaluate. Intent neither proves completed review nor approves a save. Use knowledge-save for proposals, authorized saves and recovery. Routine no-change reviews stay quiet; explicit requests receive an answer.",
 ].join("\n");
 
 /** True only for a manual this toolkit manages. */
@@ -93,12 +36,24 @@ export function buildReminder(projectRoot) {
     : notice;
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
+function canonical(path) { try { return realpathSync(path); } catch { return resolve(path); } }
+if (process.argv[1] && canonical(fileURLToPath(import.meta.url)) === canonical(process.argv[1])) {
   try {
+    const installedRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
     const root = process.env.CLAUDE_PROJECT_DIR
+      || (existsSync(resolve(installedRoot, "knowledge")) ? installedRoot : null)
       || process.env.CODEX_PROJECT_DIR
       || process.cwd();
     process.stdout.write(buildReminder(root));
+    const manual = resolveManual(root);
+    if (manual.text?.includes("<!-- claude-toolkit:knowledge-schema:2 -->")) {
+      try {
+        const input = JSON.parse(readFileSync(0, "utf8") || "{}");
+        const checkpoint = beginReview(root, input);
+        process.stdout.write(`Knowledge turn review: session=${JSON.stringify(input.session_id)}, agent=${JSON.stringify(input.agent_id || "root")}, generation=${checkpoint.generation}. Before finishing, quietly review actual outcomes and record one of no-change, pending-approval, save-unfinished, saved using knowledge-completion.mjs review with project root, session, agent, generation and outcome as positional arguments. Never treat pending work as a completed save.\n`);
+      } catch (error) { process.stdout.write(`Knowledge review checkpoint unavailable: ${error.message} Follow the manual and report affected unfinished work.\n`); }
+    }
+
   } catch {
     // A reminder is never worth interrupting a prompt for.
   }

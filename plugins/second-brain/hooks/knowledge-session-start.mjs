@@ -21,12 +21,15 @@ export const SYSTEM_GUIDE_OFF_MESSAGE = "System Guide is not configured.";
 
 export const STARTUP_FILES = [
   { path: "SOUL.md" },
-  { path: "knowledge/knowledge-manual.md" },
   { path: "knowledge/project.md" },
-  { path: "knowledge/current.md" },
+  { path: "knowledge/knowledge-manual.md" },
+  { path: "knowledge/memory/current.md" },
   { path: "knowledge/memory/memory-index.md" },
-  { path: "knowledge/prds/spec-index.md" },
+  { path: "knowledge/prds/prd-index.md" },
 ];
+export const LEGACY_STARTUP_FILES = STARTUP_FILES.map(item => ({ path: item.path
+  .replace("knowledge/memory/current.md", "knowledge/current.md")
+  .replace("knowledge/prds/prd-index.md", "knowledge/prds/spec-index.md") }));
 
 /**
  * The System Guide plugin owns every configured on/repair briefing. The second
@@ -55,7 +58,9 @@ export function loadKnowledge(projectRoot) {
   ];
   let position = 0;
 
-  for (const { path } of STARTUP_FILES) {
+  const resolved = resolveManual(root);
+  const schema2 = resolved.text?.includes("<!-- claude-toolkit:knowledge-schema:2 -->");
+  for (const { path } of schema2 ? STARTUP_FILES : LEGACY_STARTUP_FILES) {
     position++;
     if (path === MANUAL_PATH) {
       const manual = resolveManual(root);
@@ -85,6 +90,11 @@ export function loadKnowledge(projectRoot) {
     lines.push(`${position}. Read all of \`${path}\`.`);
   }
 
+  if (schema2) lines.push(
+    "After completely reading SOUL.md, knowledge/project.md and knowledge/knowledge-manual.md, give one brief confirmation only when their full contents reached you. On recovery restore missing/current guidance without repeating the greeting.",
+    "Check relevant entries in `knowledge/memory-inbox.md`; exact cards, authority and unfinished saves are pending work, never current facts. Missing inbox pauses dependent recovery.",
+    "Lookup map: `knowledge/memory/memory-entries/terminology-glossary.md`; `ai-external-knowledge/README.md`; the four knowledge-find/save/review/setup skills. Read the applicable procedure before its operation; restore it after context loss.",
+  );
   const guideStatus = systemGuideOffMessage(root);
   if (guideStatus) lines.push(guideStatus);
 

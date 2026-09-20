@@ -1,13 +1,15 @@
 ---
 summary: Work tracking keeps the active item's decisions, progress, handoff, and accepted outcome accurate across sessions, using flexible stages and one owner of tracker state.
+group: Working with an agent
 area: work-tracking
-status: current
+status: finalized
 source: GitHub issue 270, requirements approved 2026-09-03, solution design approved 2026-09-05, implementation and merge authorized 2026-09-07; Mike's 2026-09-18 document-continuity approval
 created_at: 2026-09-07
 tags: [work-tracking, lifecycle, handoff, approval]
 approved_by: Mike Rihm
 approval_date: 2026-09-05
 work_item: "270"
+updated_at: 2026-09-19
 ---
 
 # Work-item upkeep

@@ -282,10 +282,10 @@ source evidence separate from owner-approved meaning, normally under
   that framing.
 - Show the complete `knowledge/` tree and the proposed startup routes.
 - If approved, install `second-brain` from this marketplace and follow its
-  greenfield setup workflow. Copy the packaged manual unchanged and use the
+  `knowledge-setup` procedure. Copy the packaged manual unchanged and use the
   plugin's task-specific skills, tools, and hooks. Do not retype their policy in
   `project-init`.
-- Treat the manual, flat folders, tools, hooks, and short root fallback as one
+- Treat the manual, topic folders, tools, hooks, and short root fallback as one
   adoption unit. Do not offer a broken partial variant.
 - Commit only `knowledge/.obsidian/app.json` with `alwaysUpdateLinks: true`,
   `newLinkFormat: "relative"`, and `useMarkdownLinks: true`. Add a `.gitignore`
@@ -298,11 +298,11 @@ source evidence separate from owner-approved meaning, normally under
   `SessionStart` hook. Add the equivalent fail-open `.codex/hooks.json` route
   and put the short fallback in `CLAUDE.md`; `AGENTS.md` remains the one-line
   route to `CLAUDE.md`. The hook emits bounded instructions to read `SOUL.md`,
-  the manual, project framing, current work, and both indexes
+  project framing, the complete manual, current work, and the indexes
   completely and in that order. Continue shortened reads from the first missing
   section. A configured output threshold is a spill limit, not proof of host
   capacity or a complete read. The root files copy none of the policy.
-- After installation, offer to invoke `remember` for any initial candidates. It
+- After installation, offer to invoke `knowledge-save` for any initial candidates. It
   follows the manual and writes only approved meaning.
 - A new project starts with no memories. Never inherit another project's
   knowledge, tags, or manual edits.
@@ -515,8 +515,8 @@ in their own plugins.
   the first time, keeping every number, date, file path, and name. It re-reads
   nothing, so it cannot quietly change the answer.
 - `grill-me` asks one question at a time and writes every answer to
-  `knowledge/brainstorms/{date}-{topic}.md` before continuing when project
-  knowledge is installed. Explain that it ends by invoking `remember` for any
+  `brainstorms/{date}-{topic}.md` before continuing when project
+  knowledge is installed. Explain that it ends by invoking `knowledge-save` for any
   resulting specification or persistent-memory updates. The generated index
   excludes brainstorms, and raw discovery stays non-authoritative.
 - `session-summary` returns a table with one row per request the owner made, in

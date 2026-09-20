@@ -1,29 +1,17 @@
 #!/usr/bin/env node
 
 /**
- * Rebuild the two knowledge indexes:
- *
- *   knowledge/memory/memory-index.md
- *   knowledge/prds/spec-index.md
- *
- * One line per file, taken from that file's `summary` field, so the summary
- * lives in exactly one place and is copied nowhere. The source files always
- * win: this script only produces a deterministic list of what is there.
- *
- * `knowledge/prds/` also holds feature-area folders. In a folder named
- * `<area>/`, the file `<area>.md` is the parent PRD and every other Markdown
- * file beside it is a child PRD. The index prints the parent on its own line
- * and each child indented one level beneath it, so a reader sees the area and
- * its parts together. Every path printed is relative to the index file.
- *
- * It validates nothing. `check-knowledge.mjs` does that.
+ * Rebuild source-owned knowledge indexes. The managed manual selects schema 2:
+ * grouped Markdown links for memory, PRDs and captured-source topic READMEs.
+ * Unmigrated projects retain the legacy two-index layout. No record body or
+ * authority is changed. The checker validates records separately.
  */
 
-import { readdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, relative, resolve, sep } from "node:path";
+import { readdirSync, readFileSync, writeFileSync, existsSync, lstatSync, realpathSync } from "node:fs";
+import { dirname, relative, resolve, sep, basename } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { parseFrontmatter } from "./frontmatter.mjs";
+import { parseFrontmatter, bodyTitle } from "./frontmatter.mjs";
 
 const installedRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const root = resolve(process.argv[2] || installedRoot);
@@ -173,6 +161,17 @@ function wrapEntry(name, status, summary, depth = 0) {
 }
 
 export function buildIndexes(projectRoot = root) {
+  if (knowledgeSchema(projectRoot) === 2) {
+    const outputs = renderV2Indexes(projectRoot);
+    const problems = outputs.flatMap(output => output.problems);
+    for (const output of outputs) {
+      const info = lstatSync(output.path, { throwIfNoEntry: false });
+      if (info && (info.isSymbolicLink() || !info.isFile())) problems.push(`${output.path} must be a regular file, not a symbolic link or directory.`);
+    }
+    if (problems.length) throw new Error(problems.join("\n"));
+    for (const output of outputs) writeFileSync(output.path, output.content, "utf8");
+    return { written: outputs.map(({ path, count }) => ({ path, count })), warnings: [], total: outputs.reduce((n, output) => n + output.count, 0) };
+  }
   const vault = resolve(projectRoot, "knowledge");
   const written = [];
   const warnings = [];
@@ -209,7 +208,100 @@ export function buildIndexes(projectRoot = root) {
   return { written, warnings, total };
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
+
+/** Schema selection belongs to the managed manual, never inferred from folders. */
+export function knowledgeSchema(projectRoot) {
+  const manual = resolve(projectRoot, "knowledge/knowledge-manual.md");
+  if (!existsSync(manual)) return 1;
+  const text = readFileSync(manual, "utf8");
+  const markers = text.match(/<!--\s*claude-toolkit:knowledge-schema:[^>]*-->/g) || [];
+  if (markers.length > 1 || (markers.length && markers[0] !== "<!-- claude-toolkit:knowledge-schema:2 -->")) throw new Error("knowledge/knowledge-manual.md has an unknown or duplicate schema marker.");
+  return markers.length ? 2 : 1;
+}
+
+const compare = (a, b) => a < b ? -1 : a > b ? 1 : 0;
+export const V2_INDEXES = [
+  { source: "knowledge/memory/memory-entries", output: "knowledge/memory/memory-index.md", kind: "memory", title: "Memory index" },
+  { source: "knowledge/prds", output: "knowledge/prds/prd-index.md", kind: "spec", title: "PRD index" },
+  { source: "ai-external-knowledge", output: "ai-external-knowledge/README.md", kind: "external", title: "Outside documentation" },
+];
+
+/** Inventory only real Markdown files; never follow links outside the project. */
+export function collectV2(projectRoot, folder) {
+  const entries = [], problems = [];
+  const walk = (dir, depth = 0, parent = null) => {
+    const absolute = resolve(projectRoot, dir);
+    if (!existsSync(absolute)) { problems.push(`${dir}/ is missing.`); return; }
+    if (lstatSync(absolute).isSymbolicLink()) { problems.push(`${dir}/ is a symbolic link; inspect its owner before indexing.`); return; }
+    const children = readdirSync(absolute, { withFileTypes: true }).sort((a, b) => compare(a.name, b.name));
+    if (folder.kind === "spec" && depth === 1 && !children.some(x => x.isFile() && x.name === `${basename(dir)}.md`)) {
+      problems.push(`${dir}/ needs its parent PRD ${basename(dir)}.md.`);
+    }
+    if (folder.kind === "external" && depth === 1 && !children.some(x => x.isFile() && x.name === "README.md")) {
+      problems.push(`${dir}/ needs a topic README.md with source metadata.`);
+    }
+    for (const child of children) {
+      const path = `${dir}/${child.name}`;
+      if (child.isSymbolicLink()) { problems.push(`${path} is a symbolic link; inspect it before indexing.`); continue; }
+      if (child.isDirectory()) {
+        if (folder.kind === "external" && depth > 0) continue; // Captured pages are owned by their topic README.
+        if (folder.kind !== "external" && depth > 0) { problems.push(`${path}/ is deeper than a topic folder.`); continue; }
+        walk(path, depth + 1, folder.kind === "spec" ? `${path}/${child.name}.md` : null);
+        continue;
+      }
+      if (!child.isFile() || !child.name.endsWith(".md")) continue;
+      if (folder.kind === "external" && (depth !== 1 || child.name !== "README.md")) continue;
+      if (folder.kind === "memory" && path === `${folder.source}/terminology-glossary.md`) continue;
+      if (path === folder.output || path === "knowledge/prds/spec-index.md") continue;
+      const text = readFileSync(resolve(projectRoot, path), "utf8");
+      const parsed = parseFrontmatter(text);
+      if (!parsed.hasFrontmatter) problems.push(`${path} has no readable frontmatter.`);
+      problems.push(...parsed.errors.map(error => `${path}: ${error}`));
+      for (const field of ["summary", "group"]) {
+        if (typeof parsed.data[field] !== "string" || !parsed.data[field].trim() || /[\r\n]/.test(parsed.data[field])) problems.push(`${path} needs a nonblank single-line ${field}.`);
+      }
+      if (typeof parsed.data.summary === "string" && [...parsed.data.summary].length >= 200) problems.push(`${path} summary must be under 200 characters.`);
+      entries.push({ path, parent: path === parent ? null : parent, text, ...parsed });
+    }
+  };
+  walk(folder.source);
+  return { entries, problems };
+}
+
+const labelText = value => value.replace(/\\/g, "\\\\").replace(/[\[\]]/g, "\\$&");
+const linkPath = value => value.split("/").map(encodeURIComponent).join("/");
+
+/** Pure renderer used by both the writer and the read-only stale-index check. */
+export function renderV2Indexes(projectRoot) {
+  return V2_INDEXES.map(folder => {
+    const { entries, problems } = collectV2(projectRoot, folder);
+    const byPath = new Map(entries.map(entry => [entry.path, entry]));
+    const groups = new Map();
+    for (const entry of entries) {
+      const parent = entry.parent && byPath.get(entry.parent);
+      if (parent && parent.data.group !== entry.data.group) problems.push(`${entry.path} must share its parent PRD's group to remain under that parent.`);
+      const group = typeof entry.data.group === "string" && entry.data.group.trim() && !/[\r\n]/.test(entry.data.group) ? entry.data.group : "Missing group";
+      if (!groups.has(group)) groups.set(group, []);
+      groups.get(group).push(entry);
+    }
+    const lines = [`# ${folder.title}`, ""];
+    for (const group of [...groups.keys()].sort((a, b) => compare(a.trim().toLowerCase(), b.trim().toLowerCase()) || compare(a, b))) {
+      lines.push(`## ${group}`, "");
+      const sorted = groups.get(group).sort((a, b) => compare(a.parent || a.path, b.parent || b.path) || Number(Boolean(a.parent)) - Number(Boolean(b.parent)) || compare(a.path, b.path));
+      for (const entry of sorted) {
+        const title = bodyTitle(entry.body) || basename(entry.path, ".md");
+        const status = entry.data.status;
+        const label = folder.kind !== "external" && status && status !== (folder.kind === "memory" ? "current" : "finalized") ? ` (${status})` : "";
+        const href = linkPath(posix(relative(dirname(resolve(projectRoot, folder.output)), resolve(projectRoot, entry.path))));
+        lines.push(`${entry.parent ? "  " : ""}- [${labelText(title)}](${href})${label}: ${entry.data.summary || ""}`);
+      }
+      lines.push("");
+    }
+    return { path: resolve(projectRoot, folder.output), content: lines.join("\n"), count: entries.length, problems };
+  });
+}
+
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(resolve(process.argv[1]))) {
   try {
     const result = buildIndexes(root);
     for (const { path, count } of result.written) {

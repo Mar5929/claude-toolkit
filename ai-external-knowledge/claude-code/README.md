@@ -1,3 +1,10 @@
+---
+group: Agent platform documentation
+summary: Official Claude Code documentation for building and checking hooks, skills, plugins, settings and project instructions.
+source: https://code.claude.com/docs/en/
+captured_at: 2026-09-04
+---
+
 # Claude Code documentation, captured
 
 **Source:** https://code.claude.com/docs/en/

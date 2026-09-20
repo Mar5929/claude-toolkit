@@ -21,7 +21,7 @@ __pycache__/
 # Obsidian local state (only the portable vault settings are shared)
 **/.obsidian/**
 !knowledge/.obsidian/app.json
-!plugins/second-brain/skills/second-brain/references/templates/knowledge/.obsidian/app.json
+!plugins/second-brain/skills/knowledge-setup/references/templates/knowledge/.obsidian/app.json
 
 # Generated code graphs (graphify output is rebuilt, never committed)
 graphify-out/

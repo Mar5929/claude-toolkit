@@ -1,12 +1,13 @@
 ---
 summary: The agent offers to organize and guide work from the initial idea through delivery, keeping shared plans and records current while the owner makes decisions and gives approvals.
-group: delivery
+group: Working with an agent
 area: guided-work-management
 status: proposed
 source: Mike's guided-work-management and opt-in clarification on 2026-09-15; roadmap-linked task details and continuation clarification on 2026-09-17; single-record direction on 2026-09-18; agent-led delivery intent confirmed by Mike on 2026-09-19 and handed to this separate design conversation; GitHub issue 337
 created_at: 2026-09-15
 tags: [delivery, planning, requirements, continuity]
 work_item: "337"
+updated_at: 2026-09-19
 ---
 
 # Guided work management

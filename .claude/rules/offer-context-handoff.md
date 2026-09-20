@@ -7,7 +7,7 @@ complex, multi-step task, tell the owner plainly and offer to write a
 self-contained handoff prompt they can paste into a fresh session. Skip this for
 small edits, quick lookups, or when the relevant context is still fresh.
 
-**A handoff runs `remember` first when project knowledge is installed.** Before
+**A handoff runs the installed knowledge-save review first when project knowledge is installed (legacy: `remember`).** Before
 writing the prompt, invoke that skill and let it follow `knowledge/knowledge-manual.md`.
 Anything not saved goes inside the handoff prompt instead, so the next session
 still has it. The order matters: write the prompt first and the persistent
@@ -22,8 +22,8 @@ to happen before, on purpose, which is what this rule is for.
 The `handoff` plugin's `/handoff` command does all of this in order. Where it is
 installed, use it. Where it is not, or when the owner asks in their own words
 ("I'm going to clear context", "write me something to paste into a new chat"),
-run the same three steps yourself: the `remember` review, the owner's answer, then
+run the same three steps yourself: the `knowledge-save` review, the owner's answer, then
 the prompt.
 
 Do not restate the knowledge placement or approval policy here. The manual and
-`remember` own it.
+`knowledge-save` own it.

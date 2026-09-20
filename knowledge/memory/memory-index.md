@@ -1,23 +1,10 @@
-# What this project knows
+# Memory index
 
-Every memory file, with the one sentence it uses to describe itself.
+## Git publication
 
-A line marked superseded or retired does not answer questions about what is
-true now. Open it only for history.
+- [Only the Mar5929 GitHub account is used here](memory-entries/github-account-for-pushes.md): Only Mar5929 may push this repository; the work account has no access, and a push login window previously meant Git had switched accounts.
 
-Built by `node .claude/tools/build-knowledge-index.mjs`. Nobody edits this
-file by hand. If it disagrees with the files on disk, the files win:
-rebuild it.
+## Knowledge instructions
 
-- `github-account-for-pushes.md`: This computer has two GitHub accounts, and
-  only the personal one, Mar5929, may ever be used for this repository; the
-  work account cannot push here, and a Git login window on push means the saved
-  login flipped to the work one.
-- `knowledge-manual-voice.md` (retired): Mike rewrote the save rules in the
-  knowledge manual and the remember skill himself because the agent-written
-  version was unclear, so those sections are deliberately plainer and longer
-  than the rest of the toolkit and should not be shortened.
-- `no-duplicating-claude-code-built-in-prompt.md`: When adding agent-behavior
-  instructions to the toolkit, check Claude Code's own built-in system prompt
-  first and leave out anything already there, because a second copy drifts from
-  the first.
+- [Mike's plainer prose in the knowledge manual is deliberate](memory-entries/knowledge-manual-voice.md) (retired): Mike protected his plainer save-rule wording after rewriting unclear guidance; he retired that protection on 2026-09-01.
+- [Do not copy instructions Claude Code already ships](memory-entries/no-duplicating-claude-code-built-in-prompt.md): Check the live Claude Code system prompt before adding agent instructions, and omit duplicates because separate copies drift.

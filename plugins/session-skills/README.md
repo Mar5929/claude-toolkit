@@ -194,7 +194,7 @@ response to a file before asking the next one.
 ### The persistence contract
 
 The capture file is the source of truth, not the conversation. It creates a
-dated file under `knowledge/brainstorms/` when project knowledge is installed,
+dated file under `brainstorms/` for schema 2 (legacy: `knowledge/brainstorms/`),
 walks the topic in dependency order, records every answer and open flag before
 continuing, then closes with a contradiction check and a short recap.
 
@@ -209,10 +209,10 @@ brainstorm folder instead, rather than creating half a system.
 A brainstorm is not a specification and not a work item's Requirements section (legacy: `REQUIREMENTS.md`). It is the
 record of how the answers were reached.
 
-At the end it invokes `remember`, which follows the installed knowledge manual
-and saves only the meaning you approve. The raw brainstorm checkpoint is the
-one place content reaches a file before that review, because the checkpoints
-make an interrupted interview safe.
+At the end it invokes `knowledge-save` (legacy: `remember`), following the installed knowledge manual
+and saves only authorized meaning. The requested interview authorizes its raw
+checkpoints so an interrupted interview can resume; it grants no lasting save
+permission.
 
 A refinement session before work starts is a good habit, and this is a good way
 to hold one. Nothing requires it: the toolkit rule that used to,
@@ -231,22 +231,28 @@ into a document".
 Save what a session learned, then write a checked prompt a fresh session can
 start from.
 
-### The five steps, in this order
+### The handoff workflow
 
-1. **The persistent review.** It invokes the installed `remember` skill to decide
-   what is worth keeping and where it belongs.
-2. **The save decision.** `remember` follows the installed manual and waits when
-   your approval is required. Full file text appears only when you ask for it.
-3. **The draft.** A prompt for a fresh session. Its first line is a fixed
-   notice that the prompt is AI-generated and may contain mistakes. Then the
-   goal of the work, the task, what to read first, the decisions nobody has
-   written down yet, the open questions, and one concrete first action. You do
-   not see it yet.
-4. **The check.** A helper agent that has not seen the conversation reads the
-   draft against the repository and reports what is wrong, what it cannot
-   confirm, and whether the goal is there at all.
-5. **The short list, then the prompt.** A few one-line notes on what was
-   corrected and what could not be confirmed, then one block to copy.
+1. **The active work record.** Update its actual continuation point and blockers.
+2. **The persistent review and save decision.** Use installed `knowledge-save`
+   or legacy `remember`, following the installed manual and its approvals.
+3. **The draft.** Write the goal, task, sources, unsaved decisions, open
+   questions, and first action, starting with the fixed AI-generated notice.
+4. **The check.** Check the draft against its sources and label unverified claims.
+5. **The temporary handoff.** Save the checked continuation under **Session
+   handoffs** in current working memory, newest first, preserving other entries.
+   Use the installed layout: `knowledge/memory/current.md` for schema 2, or
+   legacy `knowledge/current.md`. Honor its whole-file cap. If useful context
+   cannot fit, propose an arrangement using existing owning records without
+   losing essentials. No separate store or automatic expiry is introduced.
+6. **The result.** Show the checked prompt and where it was saved, distinguishing
+   a local write from verified publication. An unpushed handoff is not shared
+   with another computer. `/handoff check` alone remains read-only.
+
+The [handoff skill](skills/handoff/SKILL.md) owns the entry details, stable time
+ordering, publication recovery, and selection of the correct work on resume.
+The [scenario checks](../../tests/session-handoffs-scenarios.md) cover capture,
+ordering, preservation, size limits, resume, and sharing.
 
 **The order is the whole point.** Write the prompt first and the persistent review
 gets skipped, because once the prompt is on screen the session is over in your

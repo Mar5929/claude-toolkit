@@ -96,8 +96,8 @@ component procedures remain in their own rules, skills, and manuals.
 When Gate 3 ran, use this wording and no more:
 
 > The startup hook provides the ordered project-knowledge read route: `SOUL.md`,
-> `knowledge/knowledge-manual.md`, `knowledge/project.md`, `knowledge/current.md`,
-> then the two knowledge indexes. Follow that route once at session start. If it
+> `knowledge/project.md`, `knowledge/knowledge-manual.md`, `knowledge/memory/current.md`,
+> then check relevant inbox entries and use the memory/PRD/outside-source indexes. Follow that route once at session start. If it
 > was not provided, read those files in that order. If a file is missing or a
 > read is shortened, report it and continue the read from the project file.
 > `knowledge/knowledge-manual.md` wins when project-knowledge instructions

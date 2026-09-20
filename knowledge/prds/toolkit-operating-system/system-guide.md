@@ -1,6 +1,6 @@
 ---
 summary: The optional System Guide keeps useful insights about a system and its parts, so future sessions do not repeat substantial investigation. It does not simply restate the code.
-group: Project knowledge
+group: Working with an agent
 area: system-guide
 status: proposed
 source: Mike Rihm's requirements discussion on 2026-09-09 and 2026-09-10, followed by his instruction to build on 2026-09-10, for GitHub issue 304.
@@ -10,6 +10,7 @@ approved_by: Mike Rihm
 approval_date: 2026-09-10
 project: claude-toolkit
 work_item: "304"
+updated_at: 2026-09-19
 ---
 
 # System Guide

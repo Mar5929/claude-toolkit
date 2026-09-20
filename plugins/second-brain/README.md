@@ -1,138 +1,117 @@
 # second-brain plugin
 
-One portable project-knowledge system shared by Claude Code, Codex, Git, and an
-optional Obsidian vault. Its save gate excludes routine activity logs and generic
-tips. Useful project-specific failure-and-fix lessons follow the manual's
-eligibility, routing, and owner-approval rules.
+Project knowledge in shared Markdown and Git. One core manual is read completely
+at startup; four focused procedures supply operation details when needed. The
+agent chooses useful information and respects the permission for its destination.
 
-New projects install it through `project-init`. Existing projects use
-`project-sync`, which reports every change before touching the project.
+Install with `/plugin install second-brain`, then request project setup through
+`knowledge-setup`, project-init or project-sync. Installing source on a machine
+alone does not equip a project. Setup is opt-in and preserves owner content.
 
-## Install
+## Four procedures
+
+| Procedure | When to use it |
+| --- | --- |
+| [knowledge-find](skills/knowledge-find/SKILL.md) | Find relevant project evidence, resolve conflicts, or recover available history. |
+| [knowledge-save](skills/knowledge-save/SKILL.md) | Select/propose/save, maintain topic records, or recover an interrupted save. |
+| [knowledge-review](skills/knowledge-review/SKILL.md) | Review duplicates, contradictions, obsolete material and selection feedback. |
+| [knowledge-setup](skills/knowledge-setup/SKILL.md) | Detect, install, migrate, repair and verify a complete project package. |
+
+Old command entry points are explicit-only compatibility routes with no separate
+policy: [recall](skills/recall/SKILL.md), [remember](skills/remember/SKILL.md),
+[retire](skills/retire/SKILL.md), [reflect](skills/reflect/SKILL.md),
+[session-search](skills/session-search/SKILL.md), and
+[second-brain](skills/second-brain/SKILL.md). New integrations use the four names.
+The read-only history adapter is
+`skills/knowledge-find/scripts/search-sessions.mjs`; available host history tools
+remain separate scoped sources, not a new archive or memory store.
+
+## Records and ownership
 
 ```text
-/plugin install second-brain
-```
-
-The plugin keeps its established name, so existing project settings do not need
-a rename.
-
-## What it installs
-
-```text
-SOUL.md                              who the agent is in this project
-
+SOUL.md
+brainstorms/
+ai-external-knowledge/README.md               generated outside-source index
 knowledge/
-  knowledge-manual.md                managed operating manual
-  project.md                         project framing and tracker location
-  current.md                         short-term work state, overwritten
-  memory-self-improvement.md         what the owner counts as memory-worthy
+  knowledge-manual.md                         complete managed core policy
+  toolkit-manual.md                           supplied by project-init
+  project.md                                 project facts and explicit permission settings
+  memory-inbox.md                             exact pending proposals/unfinished saves
+  memory-self-improvement.md                  project selection feedback
   memory/
-    memory-index.md                  generated, one line per memory
+    current.md                               shared work and requested Session handoffs
+    memory-index.md                          generated topic index
+    memory-entries/
+      terminology-glossary.md                term table, excluded from topic index
+      <topic>.md                             coherent topic or approved subtopic folder
   prds/
-    spec-index.md                    generated, one line per specification
-  brainstorms/                       unchecked exploration
-  .obsidian/app.json                 minimal portable vault setting
-
-.claude/hooks/knowledge-session-start.mjs
-.claude/hooks/memory-reminder.mjs
-.claude/hooks/save-reminder.mjs
-.claude/hooks/work-item-close.mjs
-.claude/hooks/command-parsing.mjs
-.claude/tools/build-knowledge-index.mjs
-.claude/tools/check-knowledge.mjs
-.claude/tools/frontmatter.mjs
+    prd-index.md                             generated requirements index
+    <area>.md                                required behavior and approval
 ```
 
-The packaged source for the manual is
-`skills/second-brain/references/templates/knowledge/knowledge-manual.md`. Every equipped
-project receives it unchanged as `knowledge/knowledge-manual.md`. Setup and sync treat it
-as a managed copy, not project-authored knowledge.
+The managed source is
+`skills/knowledge-setup/references/templates/knowledge/knowledge-manual.md`.
+Templates and migration live with knowledge-setup. Memory has topic-level evidence
+and permission; automatic saving remains explicitly opt-in and memory-only.
+A finalized PRD means approved requirements, not delivery. The tracker owns work
+status, designs own technical choices, and captured sources retain their origin.
 
-The fail-open startup hook emits a bounded request to read `SOUL.md`, the
-resolved managed manual, `knowledge/project.md`, `knowledge/current.md`, and
-both indexes completely, in that order. It never prints their bodies. The agent
-must continue in chunks when a read is truncated and report missing, empty,
-unreadable, or conflicting guidance before claiming readiness. The same loader
-is registered for Claude Code and Codex. A short root instruction is the fallback
-when a hook does not run. Neither route repeats policy.
+An enabled System Guide uses `.system-guide.json` and its own configured path,
+writer and index. This plugin preserves that component and reports only its off
+state. Memory/PRDs are never fallback stores for a missing or disabled Guide.
+Inspect native host memory conflicts without silently changing settings or data.
 
-The project turns off Claude Code's private auto-memory. Committed Markdown and
-Git remain the shared source of truth.
+## Runtime and checks
 
-## Optional System Guide
+Canonical hooks copied into `.claude/hooks/`:
 
-System Guide is a separate plugin for useful explanations of existing system
-parts, purpose, processes, connections, and impact. Either plugin works alone.
-When `.system-guide.json` is enabled, this plugin's manual and `recall` add the
-guide at the saved-knowledge tier, using the configured `guidePath`; `remember`
-routes guide explanations there instead of copying them into memory or PRDs.
+- `hooks/knowledge-session-start.mjs`: bounded complete-read route, using the
+  Toolkit loader delivered by project-init. Order: SOUL, project, Knowledge
+  manual, current work and map; relevant inbox entries are checked on recovery.
+- `hooks/knowledge-manual.mjs`: shared read-only manual discovery and conflict checks.
+- `hooks/memory-reminder.mjs`: shared prompt criteria and explicit intent request.
+- `hooks/knowledge-completion.mjs`: temporary project/session/agent review
+  generation, explicit outcome and at most one corrective Stop continuation.
+- `hooks/save-reminder.mjs`, `hooks/work-item-close.mjs`,
+  `hooks/command-parsing.mjs`: reminders on recognized PR/close commands. A
+  one-time hold is not proof of a completed review or universal tool coverage.
 
-The System Guide plugin owns every configured on or repair startup briefing.
-This plugin reports only `System Guide is not configured.` when its own startup
-loader runs and the guide config is absent or disabled. It never imports a
-sibling plugin path. Enabling second-brain later preserves an existing guide,
-and disabling either plugin leaves the other's files and behavior intact.
+Tools copied into `.claude/tools/`:
 
-## What owns what
+- `tools/build-knowledge-index.mjs`: three deterministic grouped link indexes.
+- `tools/check-knowledge.mjs`: read-only layout, fields, links, limits, managed
+  manual and common-secret checks. Valid metadata proves neither truth nor consent.
+- `tools/frontmatter.mjs`: the shared metadata parser.
+- `tools/inspect-knowledge-save.mjs`: read-only current local/remote evidence for
+  an existing pending UUID. It never applies a destination change or approves it.
 
-- `knowledge/knowledge-manual.md` owns all shared runtime policy, including placement,
-  finding, saving, file shape, approval, trust, lifecycle, and the skill map.
-- `knowledge/prds/toolkit-operating-system/knowledge-system.md` in the toolkit
-  repository is the build authority for maintainers. Adopting projects do not receive that file.
-- Each skill below owns only the steps unique to its task and points to the
-  manual for shared policy.
+Run the index builder then the checker after authorized knowledge changes.
+Save execution reads back actual meaning and verifies publication on the actual
+default branch before reporting completion. The single inbox preserves exact
+scope and authority before helper dispatch. Retry checks existing effect and
+current remote first; published content and pending cleanup are separate facts.
 
-## Skills
+Temporary completion files hold only generation/outcome/retry facts outside the
+repository. They contain no knowledge, transcripts, permission or pending saves.
+Receipts record declarations, not understanding. Missing hooks, trust settings,
+unsupported tools or unavailable host evidence limit claims; they never silently
+waive a requirement. Foreground save fallback uses unchanged authorization when
+parallel helpers are unavailable.
 
-- **remember** scopes candidates to the current project, searches, proposes,
-  writes approved meaning, verifies it, and logs what the owner decided.
-- **recall** walks the manual's find order until the appropriate source supports
-  the answer, checking relevant conflicting or current evidence.
-- **retire** prepares, checks, and publishes one complete approved lifecycle
-  change, including its replacement and reference repairs when applicable.
-- **reflect** reviews the whole folder for meaning problems and consolidates the
-  self-improvement record.
-- **second-brain** detects, installs, converts, or repairs the system.
-- **session-search** searches local Claude Code CLI history read-only.
+## Verification and maintenance
 
-## Tools
+`tests/save-recovery.test.mjs` exercises real disposable local Git repositories;
+`tests/checkpoints.test.mjs` covers bounded continuation and stale/helper receipts.
+`tests/new-install.test.mjs` assembles an empty project and runs the copied
+startup, prompt, completion and review commands from a nested working directory.
+These deterministic checks do not replace fresh-agent meaning/host tests.
+Repository tests also check links, discovery, installed copies and startup.
+Current delivery evidence is in the #269 work record and its linked implementation
+evidence. Report CLI, desktop, actual agent behavior and unavailable targets
+separately. Do not call a half-installed project equipped.
 
-```text
-node .claude/tools/build-knowledge-index.mjs
-node .claude/tools/check-knowledge.mjs
-```
-
-The builder creates the two deterministic indexes. The checker validates the
-managed manual, knowledge file shape, links, folder layout,
-`knowledge/current.md` and `knowledge/memory-self-improvement.md` size, and
-common secret patterns. It reports problems and never edits, moves, or deletes
-anything. An unapproved proposed PRD may omit both approval fields. Supplied
-approval records must be complete and valid; memory and other PRD statuses
-still require approval. The manual owns this distinction between permission
-to save and requirements approval.
-
-Approved knowledge saves commit and push directly to the default branch,
-including during implementation in a worktree. Project-init supplies the
-direct-save rule and short project entry pointer. The save reminder points to
-that rule; it does not enforce the route. Validation or push failures leave
-the save unfinished and must be reported.
-
-## Deliberately absent
-
-- a database, embeddings, or memory server;
-- automatic transcript capture or background curation;
-- the retired verifier, health tool, layout tool, and test harness;
-- the retired always-loaded memory rule and per-folder indexes;
-- Obsidian-only links, plugins, or private note stores.
-
-## Maintaining this plugin
-
-A content change updates both plugin manifests and the marketplace metadata.
-Keep the manual, setup skill, `project-init`, `project-sync`, startup hook, and
-static contract tests aligned.
-
-The managed manual distinguishes working PRD/design Notes from settled
-requirements and project memory. Notes supports document refinement; overall
-work status and other tasks stay in the chosen tracker. Existing installations
-receive the updated manual and checker together through project sync.
+Update both plugin manifests, marketplace metadata, catalogs, managed manual,
+installed copies and setup routes together. Legacy detection is compatibility,
+not automatic conversion authority. Preserve knowledge and pending permissions
+through migration/rollback. Optional Obsidian settings remain ordinary portable
+Markdown links; no database, extraction service or parallel memory store is used.

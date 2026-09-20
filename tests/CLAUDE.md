@@ -42,8 +42,8 @@ working directories, host registration, and portable manual references.
   exceptions. Host-specific startup wiring belongs in the host settings files;
   the shared root block carries the same short knowledge route for both.
 - **`knowledge-startup-check.mjs` owns the startup contract.** It checks the
-  loader order, fail-open behavior, host registration, root fallback, manual
-  size and checksum, and the absence of a second marked policy owner.
+  loader order, fail-open behavior, host registration, root fallback, complete-read routing and manual
+  checksum, and the absence of a second marked policy owner.
 - **Stage a deletion before running the checks.** `link-check.mjs` and
   `knowledge-startup-check.mjs` both walk `git ls-files --cached`, so a file
   deleted from disk but not yet staged is still listed and then fails to open.

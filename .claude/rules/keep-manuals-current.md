@@ -14,7 +14,7 @@ needs a change, record that conclusion briefly in the work item's delivery
 evidence rather than making an unnecessary edit.
 
 The knowledge manual is a managed copy. Make its authorized changes in
-`plugins/second-brain/skills/second-brain/references/templates/knowledge/knowledge-manual.md`
+`plugins/second-brain/skills/knowledge-setup/references/templates/knowledge/knowledge-manual.md`
 and reconcile the installed copy, checks, and release metadata through that
 component's existing workflow. Preserve meaning approvals; this upkeep rule
 does not approve new policy or turn proposed behavior into shipped behavior.
