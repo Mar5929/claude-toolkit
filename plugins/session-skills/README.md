@@ -231,22 +231,28 @@ into a document".
 Save what a session learned, then write a checked prompt a fresh session can
 start from.
 
-### The five steps, in this order
+### The handoff workflow
 
-1. **The persistent review.** It invokes the installed `remember` skill to decide
-   what is worth keeping and where it belongs.
-2. **The save decision.** `remember` follows the installed manual and waits when
-   your approval is required. Full file text appears only when you ask for it.
-3. **The draft.** A prompt for a fresh session. Its first line is a fixed
-   notice that the prompt is AI-generated and may contain mistakes. Then the
-   goal of the work, the task, what to read first, the decisions nobody has
-   written down yet, the open questions, and one concrete first action. You do
-   not see it yet.
-4. **The check.** A helper agent that has not seen the conversation reads the
-   draft against the repository and reports what is wrong, what it cannot
-   confirm, and whether the goal is there at all.
-5. **The short list, then the prompt.** A few one-line notes on what was
-   corrected and what could not be confirmed, then one block to copy.
+1. **The active work record.** Update its actual continuation point and blockers.
+2. **The persistent review and save decision.** Use installed `knowledge-save`
+   or legacy `remember`, following the installed manual and its approvals.
+3. **The draft.** Write the goal, task, sources, unsaved decisions, open
+   questions, and first action, starting with the fixed AI-generated notice.
+4. **The check.** Check the draft against its sources and label unverified claims.
+5. **The temporary handoff.** Save the checked continuation under **Session
+   handoffs** in current working memory, newest first, preserving other entries.
+   Use the installed layout: `knowledge/memory/current.md` for schema 2, or
+   legacy `knowledge/current.md`. Honor its whole-file cap. If useful context
+   cannot fit, propose an arrangement using existing owning records without
+   losing essentials. No separate store or automatic expiry is introduced.
+6. **The result.** Show the checked prompt and where it was saved, distinguishing
+   a local write from verified publication. An unpushed handoff is not shared
+   with another computer. `/handoff check` alone remains read-only.
+
+The [handoff skill](skills/handoff/SKILL.md) owns the entry details, stable time
+ordering, publication recovery, and selection of the correct work on resume.
+The [scenario checks](../../tests/session-handoffs-scenarios.md) cover capture,
+ordering, preservation, size limits, resume, and sharing.
 
 **The order is the whole point.** Write the prompt first and the persistent review
 gets skipped, because once the prompt is on screen the session is over in your

@@ -201,7 +201,7 @@ claude-toolkit/
         braindump/                ← play a pasted brain dump back in simple words before any work starts
         explain-simply/           ← say that again in plain bullets, keeping every number
         grill-me/                 ← persistent discovery interviews
-        handoff/                  ← save what a session learned, then hand it off
+        handoff/                  ← preserve temporary handoffs, newest first
         session-summary/          ← what you asked for, where it stands, what needs you
         spec-check/               ← flag what could skew a build before building from a spec
         track-tasks/              ← every topic still open in this session
