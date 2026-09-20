@@ -20,7 +20,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 
 | Plugin | Purpose | Skills | Install | Setup |
 | --- | --- | --- | --- | --- |
-| [project-init](../plugins/project-init/README.md) | Put the toolkit's rules, [output styles](../plugins/project-init/library/output-styles/README.md), and systems into a project, new or existing, apply the general project file lifecycle to real work-item events, and put machine-wide rules onto the computer itself | `project-init`, `project-sync`, `work-item-lifecycle`, `machine-sync` | `/plugin install project-init` | Sets up a project, and sets up a machine |
+| [project-init](../plugins/project-init/README.md) | Put the toolkit's rules, [output styles](../plugins/project-init/library/output-styles/README.md), and systems into a project, new or existing, apply the general project file lifecycle to real work-item events, and synchronize the configured machine-wide policy after marketplace and project-init bootstrap | `project-init`, `project-sync`, `work-item-lifecycle`, `machine-sync` | `/plugin install project-init` | Sets up a project; synchronizes machine policy after bootstrap |
 | [second-brain](../plugins/second-brain/README.md) | Portable Git-native project knowledge with one managed operating manual, a small shared startup map, topic memory, PRDs, durable save recovery, three indexes and read-only scoped history | `knowledge-setup`, `knowledge-find`, `knowledge-save`, `knowledge-review` | `/plugin install second-brain` | Sets up a project |
 | [sf-architect-solutioning](../plugins/sf-architect-solutioning/README.md) | Salesforce solution architect: approved solution plan before any build | `sf-architect-solutioning` | `/plugin install sf-architect-solutioning` | Install and go |
 | [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git lifecycle workflows | `pull-latest`, `reset-to-remote`, `merge-and-clean-up` | `/plugin install git-workflows` | Install and go |
@@ -35,7 +35,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | project-init | project-init | Walk a NEW project through setup gates, including an optional owner-written `SOUL.md`, one skippable step at a time | `/project-init` |
 | project-sync | project-init | Audit an EXISTING project against the toolkit and close approved gaps | `/project-sync` |
 | work-item-lifecycle | project-init | Apply the project's file lifecycle when creating, moving, organizing, completing, or archiving work-item information | `/work-item-lifecycle`, "where should this file go?", "what happens when this ticket is done?" |
-| machine-sync | project-init | Audit this computer's Claude and Codex homes against the toolkit's machine-wide set and close approved gaps | `/machine-sync`, "set up this machine from my toolkit" |
+| machine-sync | project-init | Audit and synchronize the configured Claude machine-wide policy after bootstrap, and offer approved removal of explicitly listed retired Codex wiring | `/machine-sync`, "set up this machine from my toolkit" |
 | knowledge-setup | second-brain | Detect, install, migrate, repair and verify complete project knowledge | "set up project knowledge" |
 | knowledge-find | second-brain | Find relevant records, resolve conflicts and consult available project history | "what do we know about this?" |
 | knowledge-save | second-brain | Select, propose, perform authorized lifecycle changes and recover unfinished saves | "remember this", "finish that approved save" |
@@ -83,10 +83,11 @@ at the repository root would vanish the moment the plugin is installed. That was
 tested before the move.
 
 `plugins/project-init/skills/project-init/references/` is a different pile and
-holds only six files: the gate-by-gate script `project-init` reads to run
+holds only eight files: the gate-by-gate script `project-init` reads to run
 itself (`setup-flow.md`, `work-tracking-choice.md`, `work-items-structure.md`,
-`thin-claudemd.md`, `folder-claudemd.md`, `salesforce-project-scaffold.md`).
-Nothing there is copied into a project.
+`thin-claudemd.md`, `root-file-examples.md`, `toolkit-manual-delivery.md`,
+`folder-claudemd.md`, `salesforce-project-scaffold.md`). Nothing there is copied
+into a project.
 
 `thin-claudemd.md` and `folder-claudemd.md` are a pair. The first says that the
 root `CLAUDE.md` is a router and a map (what the project is, what is in each
@@ -105,17 +106,18 @@ Second-brain ships its two system-specific lifecycle hooks beside its runtime.
 `plugins/project-init/machine/` is the third pile in that plugin and the one
 most easily confused with `library/`. The difference is where it lands:
 `library/` goes into a project folder when someone runs a setup skill on it,
-this goes into the owner's Claude and Codex homes and applies to every repository on
-the machine, including ones nobody ever set up.
+the active machine set goes into the owner's Claude home and applies to every
+repository on the machine, including ones nobody ever set up.
 
 | Folder | Holds |
 | --- | --- |
 | `machine/rules/` | rule files that install to `~/.claude/rules/`, loaded in every project on the machine |
-| managed Codex block | the exact conditional knowledge-manual pointer, merged into `~/.codex/AGENTS.md` without touching other text |
 | `machine/settings/required.json` | the settings values `~/.claude/settings.json` must carry, merged in key by key and never written over the file |
 
 It also names the machine-wide hooks, whose scripts stay in `hooks-library` with
-every other hook. `machine-sync` installs all four kinds.
+every other hook. `machine-sync` installs all three kinds. It separately inspects
+the Codex home for wiring explicitly listed as retired and offers removal only
+with the owner's approval.
 
 It is deliberately small, and its own `README.md` carries the test that keeps it
 that way: a thing belongs there only if it must hold in a repository nobody set
