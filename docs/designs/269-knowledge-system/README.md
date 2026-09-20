@@ -81,6 +81,25 @@ the older `r5-alternatives.md` storage/architecture comparison below.
 
 ## reviews/
 
+### Scenario and architecture review — 2026-09-19
+
+The [consolidated audit](reviews/2026-09-19-consolidated-audit.md) owns the
+reconciled recommendations. These reports preserve the independent findings
+and the changes made after discussion; they do not establish new policy.
+
+- [Requirements and scenarios](reviews/2026-09-19-requirements-scenarios.md):
+  requirement coverage and failure scenarios.
+- [Host compatibility](reviews/2026-09-19-host-compatibility.md):
+  instruction delivery, executor limits, and host evidence gaps.
+- [Architecture and instruction quality](reviews/2026-09-19-architecture-antipatterns.md):
+  architecture risks and evaluation recommendations.
+- [Requirements reassessment](reviews/2026-09-19-requirements-reassessment.md):
+  revised severity, recovery scope, and preserved permissions.
+- [Architecture reassessment](reviews/2026-09-19-architecture-reassessment.md):
+  proportionate testing and reuse of existing records.
+
+### Earlier reviews
+
 | File | What it is | Written by |
 | --- | --- | --- |
 | `review-1-requirements.md` | Round one: does the design meet all 30 requirements | An Opus reviewer |
