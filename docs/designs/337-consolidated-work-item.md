@@ -1,16 +1,20 @@
 # Guided work management delivery plan
 
-Implementation plan, 2026-09-18. Mike approved the direction and asked for this
-plan. The storage change is not implemented; this plan does not authorize a
-migration of DragonFly or changes to the active Knowledge System design.
+Implementation plan begun 2026-09-18. Mike approved the direction and asked for
+this plan. The approved new-record storage change later shipped in
+[PR #362](https://github.com/Mar5929/claude-toolkit/pull/362) at `b2e8727`;
+the future-tense sections below preserve its implementation rationale. Existing
+items were not migrated, and this plan does not authorize a migration of
+DragonFly or changes to the active Knowledge System design.
 Required behavior is recorded in the
 [guided work management PRD](../../knowledge/prds/toolkit-operating-system/guided-work-management.md#6-one-readable-work-item-record).
 
 ## Agent-led delivery: scoped implementation, 2026-09-19
 
-This is the existing design record for issue #337. It now holds both the
-agent-led delivery change and the separate pending record consolidation below.
-Neither workstream silently authorizes or completes the other.
+This is the existing design record for issue #337. It holds both the agent-led
+delivery change and the separately delivered record consolidation below. Each
+scope retains its own authorization, evidence, rollout, and acceptance record;
+neither one silently completes the other.
 
 Mike confirmed the delivery intent and authorized an Astra lead with GPT-5.6
 Sol helpers to implement, create a pull request, and merge the checked result.
@@ -36,14 +40,15 @@ implementation lead reconciles those entry points and the package descriptions.
 Reuse ordinary agent reasoning and existing storage. No new scheduler, tracker,
 semantic grader, storage schema, or R6 migration is part of this change.
 
-For the current local tracker, the preserved User notes in STATUS.md hold the
-current choice and its goal, scope, date, and source. Existing history may record
-the event but is not the only home for the current choice. In GitHub, use the
-issue body's existing current-state section and the single Progress log. Other
-trackers use their designated records. Read back saves and distinguish saved,
-published, and failed updates. Recordless or unavailable-tracker cases must not
-claim cross-session persistence; the implementation review must account for
-them without silently creating a competing tracker.
+For the legacy local items used when the agent-led delivery slice shipped, the
+preserved User notes in `STATUS.md` hold the current choice and its goal, scope,
+date, and source. New consolidated items keep that meaning in `WORK-ITEM.md`
+Overview. Existing history may record the event but is not the only home for
+the current choice. In GitHub, use the issue body's existing current-state
+section and the single Progress log. Other trackers use their designated
+records. Read back saves and distinguish saved, published, and failed updates.
+Recordless or unavailable-tracker cases must not claim cross-session
+persistence or silently create a competing tracker.
 
 This item's explicit Astra/Sol authorization allows its team to proceed. Whether
 future accepted items automatically authorize helper selection remains open in
@@ -546,14 +551,20 @@ task's active draft from this worktree.
   PR, and authorized merge; it retains local cleanup/installation reporting.
   This task owns canonical records. Resume the future helper-authority question
   from PRD Notes and remaining rollout/verification from issue #337.
-- Consolidation implementation, 2026-09-19: new local records, guarded prose
-  edits, targeted updates, and interrupted-save recovery are implemented on
-  issue-337-consolidated-record. Existing legacy records remain in place.
-  Instructions use the same five sections for new external descriptions and
-  require prompt capture and verified saves. The 67 legacy and 10 new-format
-  integration checks passed; final review/checks precede the PR. External live
-  mutations and installed-host rollout are not verified.
-- Consolidation resume: review the scoped PR linked from #337, then obtain merge
-  authorization and perform installed rollout. No existing-item migration or
-  migration tooling is needed. The knowledge manual was checked: its ownership
-  and approval routes remain applicable, so no managed-policy copy was added.
+- Consolidation delivery, 2026-09-19: [PR #362](https://github.com/Mar5929/claude-toolkit/pull/362)
+  merged new local records, guarded prose edits, targeted updates, and
+  interrupted multi-file-save recovery at `b2e8727` in work-tracker 2.8.0.
+  Existing legacy records remain in place. Instructions use the same five
+  sections for new external descriptions and require prompt capture and
+  verified saves. The 67 legacy and 10 new-format integration checks and the
+  reviewed source release passed. No existing-item migration or migration
+  tooling was added.
+- Consolidation evidence, 2026-09-20: one coached installed Codex/GPT-5.6 Sol
+  writer and one separate fresh reader exercised a consolidated item, guarded
+  edit, task continuation, and legacy-mirror absence. The run also exposed a
+  semantic-readiness failure: agent-inferred approval metadata coexisted with
+  the generated `_Not agreed yet._` Goal. The narrow placeholder guard is only
+  proposed on #337. An actual OS process-kill trial, installed Claude behavior,
+  live external mutation and recovery, wider rollout, and complete acceptance
+  remain with #337 T5. The knowledge manual was checked: its ownership and
+  approval routes remain applicable, so no managed-policy copy was added.

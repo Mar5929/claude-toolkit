@@ -10,9 +10,9 @@ disagreement is said out loud instead of quietly kept.
 Never write a secret or private personal information here. The manual's
 never-save floor covers this file too.
 
-Capped at 8,000 characters, and the checker enforces it. The review skill keeps
-it under the cap by merging repeated lines into lessons. Nothing is truncated
-silently.
+There is no arbitrary character cap. Keep this file concise through purposeful
+upkeep: merge repeated or obsolete guidance without losing useful sourced
+feedback. Nothing is truncated silently.
 
 ## Lessons
 
@@ -20,8 +20,9 @@ Nothing learned yet.
 
 ## Recent decisions
 
-One line per candidate: the date, the candidate in a few words, the outcome
-(approved, edited, or rejected), and the owner's reason in the owner's own
-words, or "no reason given".
+Record a line only when the owner changes or corrects what counts as memory or
+how selection should work. Ordinary save outcomes are not logged. Include the
+date, the change or correction in a few words, the outcome, and the owner's
+stated reason or "no reason given". Never restate a rejected fact as a lesson.
 
 Nothing learned yet.

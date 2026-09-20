@@ -7,6 +7,10 @@ Run the repository checks listed in [CLAUDE.md](CLAUDE.md) before a pull request
   record fields, scoped approval metadata, migration failures, size boundaries,
   grouped links, source moves, and read-only validation. Legacy compatibility
   remains covered by the startup and System Guide integration checks.
+- [Knowledge behavior trials](knowledge-behavior/README.md): bounded fresh
+  Codex sessions in disposable projects, with predeclared expectations, raw
+  evidence and independent review. These are optional model runs, not part of
+  the four deterministic repository checks.
 
 Schema tests check observable files. They do not establish that an agent selected
 useful information, interpreted approval correctly, or delivered a background save.

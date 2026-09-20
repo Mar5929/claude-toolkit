@@ -71,12 +71,15 @@ guidance through its approved sync, preserving local edits and explicit opt-outs
   permission to write.
 
 - **machine-sync** (`/machine-sync`): the third sibling, working one level up. It
-  sets up the COMPUTER rather than a project, comparing the Claude and Codex
-  homes against the toolkit's machine-wide set and installing what you approve. Same shape as
-  project-sync: read the toolkit, audit, report every gap in one table, change
-  nothing until you answer. It exists because the other two only reach inside a
-  repository someone ran them on, and some rules have to hold in a repository
-  cloned five minutes ago. It is also the whole setup for a new computer.
+  synchronizes configured machine-wide policy rather than a project. It audits
+  the active Claude rule, settings, and hook set, and separately offers approved
+  removal of explicitly listed retired Codex wiring. Same shape as project-sync:
+  read the toolkit, audit, report every gap in one table, change nothing until
+  you answer. It exists because the other two only reach inside a repository
+  someone ran them on, and some rules have to hold in a repository cloned five
+  minutes ago. On a new computer, first add the marketplace and install
+  `project-init`; machine-sync then handles this narrow machine-wide policy set.
+  It does not install every optional plugin or choose project-level components.
 
 ## Key references
 
@@ -84,11 +87,13 @@ This plugin holds three separate piles, and the difference matters.
 
 ### The machine-wide set: what lands on a computer
 
-`machine/` holds what `machine-sync` installs into the host homes, with its own
-`README.md` index: `rules/` for the rule files, `settings/required.json` for the
-settings values every machine must carry, and a pointer to the machine-wide
-hooks, whose scripts live with every other hook in the
-[`hooks-library`](../hooks-library/README.md) plugin.
+`machine/` holds the active policy sources `machine-sync` installs into the
+Claude home, with its own `README.md` index: `rules/` for the rule files,
+`settings/required.json` for the settings values every machine must carry, and a
+pointer to the machine-wide hooks, whose scripts live with every other hook in
+the [`hooks-library`](../hooks-library/README.md) plugin. The skill separately
+lists retired Codex wiring to audit and offers its removal only with owner
+approval.
 
 It is deliberately small. Its `README.md` carries a two-question test for what
 belongs there: the thing has to hold in a repository nobody set up with the
@@ -146,7 +151,7 @@ the repository root would disappear the moment the plugin is installed.
 
 ### The gate script: how this skill runs itself
 
-`skills/project-init/references/` holds six files, and none is copied into a
+`skills/project-init/references/` holds eight files, and none is copied into a
 project:
 
 - `setup-flow.md`: the ordered, gate-by-gate checklist project-init follows.
@@ -164,6 +169,11 @@ project:
   (what the project is, what is in each folder and when to open it, what tools
   it runs on, where work is tracked), what never goes in it, and the one line
   that is the whole of `AGENTS.md`.
+- `root-file-examples.md`: a complete example of the root `CLAUDE.md` router
+  and its one-line `AGENTS.md` companion.
+- `toolkit-manual-delivery.md`: how setup installs the shared Toolkit manual,
+  connects its root fallback and startup hook, and verifies each delivery
+  layer separately.
 - `folder-claudemd.md`: the short CLAUDE.md Gate 1 writes inside each major
   folder, which Claude Code loads only when an agent reads a file in that
   folder. What goes in one, what never does, which folders get one, and which
