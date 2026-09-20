@@ -579,6 +579,92 @@ pending records must support recovery even if that happens. If a host cannot
 run the helper alongside the conversation and return its result, report that
 limit and use the available save process without claiming this behavior works.
 
+#### Recovery evidence and retry order
+
+Proposed technical refinement, 2026-09-19, following the
+[consolidated audit](269-knowledge-system/reviews/2026-09-19-consolidated-audit.md).
+Mike authorized making this flow concrete before implementation. This refines
+R9/R10/R28 without creating new permission, storage, or automatic-save policy.
+
+Use the existing inbox entry's stable reference throughout the assignment,
+helper result, and publication evidence. Generate it once at first capture;
+keep it when a card is revised, recording the approved revision explicitly.
+A reference identifies the work, not permission to perform it. Store exact
+approved meaning and durable authority in the inbox before destination mutation
+or helper dispatch. A helper must actually be able to read that record. An
+unsaved conversation or a private tool receipt cannot substitute for it.
+
+Keep evidence in that same entry: project-relative destinations, operation,
+approved revision/scope and source, current worker/session/checkout when known,
+last observed destination state, completed checks, commit when one exists,
+last verified remote result, and the remaining step. Use ordinary entry text;
+these clarify existing R28 context, not a second ledger or new memory schema.
+Machine-local paths identify an execution attempt, not a requirement for the
+next computer. Preserve earlier permission when reporting a conflict.
+
+Before resuming, read the latest relevant inbox entry, current permission,
+destination files, and available Git/remote evidence. Check the worker through
+its host when possible; a recorded worker name alone is not proof it is live
+or stopped. Coordinate with a live worker. If its status cannot be established,
+report that uncertainty and avoid a competing write to its shared checkout.
+Recheck shared state before each mutation and serialized publication.
+
+| Observation | Next action |
+| --- | --- |
+| No destination change, valid authority, no competing writer | Apply only the approved change and perform the normal checks/publication. |
+| Correct local edit, checks incomplete | Read back its scoped meaning and finish missing checks. Preserve unrelated edits. |
+| Checked commit exists locally; remote status unknown | Check whether the commit reached the remote before attempting publication again. |
+| Verified remote change and checks match this operation | Complete only outstanding inbox housekeeping; do not repeat the destination edit. |
+| Equivalent change already exists under another commit | Compare meaning, sources, authority, related links, and required checks. Reuse the existing result only when all match; commit identity alone is insufficient. |
+| Newer content conflicts, or a completed change was later superseded/reverted | Preserve both evidence and original authority; ask about the specific changed meaning rather than replaying old approval over the newer decision. |
+| Remote unavailable or push refused | Keep the approved entry unfinished; report local/committed/shared state and the exact remaining action. |
+| Current permission revoked or meaning revised | Pause the affected execution, reconcile the latest direction, and inspect any late result before taking another action. |
+
+Related destination, links, index, and pending-state changes may publish together
+when coherent and ready. A separate remote approval commit before every edit is
+not required. Keep the active entry through verified destination publication;
+then remove only that completed entry and publish its housekeeping. If cleanup
+is interrupted, the next session verifies the existing result and finishes
+cleanup alone. The destination can be reported published while cleanup is
+explicitly still pending. Preserve the stable reference in the destination
+commit message so operation evidence remains findable after inbox cleanup.
+
+A remote-tracking branch may be stale. Verify against the actual remote and
+inspect its current result; an older success does not prove today's content.
+After a rejected push, read intervening changes and repeat affected checks;
+never force publication or discard another session's work. Git serializes
+accepted branch updates, not agent reasoning across computers. This design
+provides evidence-based retry and explicit conflicts, not distributed locks or
+an exactly-once guarantee. A local inbox supports recovery only where accessible;
+another computer cannot recover unshared authority or edits.
+
+#### First save-and-recovery acceptance case
+
+Use synthetic project content in a disposable repository with a test remote,
+never this project's real memories. The fixture contains an existing customer
+import topic, an unrelated paragraph from another session, and a shown card
+approving one new lesson with exact wording. Preserve the existing topic and
+unrelated paragraph. Include a second unanswered card that must remain pending.
+
+| Interruption point | Required recovery result |
+| --- | --- |
+| Authority recorded, before destination edit | Same approved revision is found and written once, without another approval request. |
+| Destination edited, before validation/index rebuild | Existing edit is checked and remaining work finishes without duplicate text. |
+| Checks passed, before commit | Latest staged scope is checked; only this operation's authorized files are committed. |
+| Commit created, before push | Existing commit is identified and published only if still needed and safe. |
+| Push accepted, response lost | Remote evidence is checked before retry; no second destination edit or duplicate effect. |
+| Destination published, before inbox cleanup is shared | Recovery removes only the completed entry; unanswered and unrelated entries survive. |
+| Same operation attempted from two checkouts | One result survives; second attempt reconciles current remote content, preserving unrelated work and any genuine conflict. |
+| First computer offline, then second computer resumes | Second computer reports the limit of visible state. After reconnection, reconcile unpublished work and any conflicting newer content without claiming it was always recoverable. |
+| Worker cancelled, then reports late success | Inspect actual files/remote against latest authority, report any already-applied result, and preserve unresolved changes; do not automatically undo or repeat it. |
+
+Deterministic fixtures can prove file preservation, Git outcomes, cleanup,
+reference continuity, and check failures. Fresh agent sessions must separately
+prove finding the entry, opening the right procedure, preserving exact meaning,
+recognizing conflicts, and avoiding redundant approval. Repeat applicable cases
+on Claude Code and Codex; report CLI and desktop coverage separately. No cases
+in this table have been executed for the new runtime yet.
+
 #### Plain wording before approval and after saving
 
 The main agent reviews proposals for plain, concise wording before showing them.
@@ -1135,20 +1221,18 @@ for the initial implementation after reviewing the function-hooks comparison.
 Function hooks remain a future candidate if evidence supports a benefit.
 This does not authorize implementation or approve the full design.
 
-**Resume here:** continue the voice-friendly walkthrough of the
-[actual first core manual draft](https://github.com/Mar5929/claude-toolkit/blob/issue-269-core-manual-draft/docs/designs/269-knowledge-system/core-knowledge-manual-draft.md),
-published at `e61d064` on the isolated `issue-269-core-manual-draft` branch.
-Mike reviewed the intended startup/resume experience and asked the agent to own
-technical choices, bringing him product tradeoffs. He has not approved all
-wording or the full design. The subsequent voice walkthrough covered memory
-selection, information ownership, topic organization, permission, interrupted
-saves, and maintaining changed knowledge. Mike accepted the selection/ownership/
-permission explanation and required useful detail for complex topics; R14/R15
-and the isolated draft capture those refinements. Next review when the agent
-checks for updates and how routine reviews stay quiet; spoken explanations
-are not the full instruction set. Complete the requirement audit, then draft task skills, templates, and
-supporting rules. Link/whitespace checks passed for the draft; independent
-meaning review and fresh-agent behavior tests remain.
+**Resume here:** finish the save-and-recovery instruction package from
+[section 6.7](#67-save-transaction-and-recovery), then prove its first interrupted
+save case. Mike selected this next step after the reviews on 2026-09-19.
+The core manual's independent content review is complete on isolated branch
+`issue-269-core-manual-draft`; the runtime remains unbuilt. The
+[save/recovery procedure draft](https://github.com/Mar5929/claude-toolkit/blob/issue-269-core-manual-draft/docs/designs/269-knowledge-system/knowledge-save-recovery-draft.md)
+will carry the execution detail alongside that manual. Complete the remaining
+save references and host executor proofs before activating it. Other public
+procedures, full-package review, and remaining approvals are still outstanding.
+The voice walkthrough has covered startup, selection, ownership, topic detail,
+permission, interruptions, and correcting knowledge. Quiet review moments remain
+available for the next owner walkthrough; Mike need not choose host mechanics.
 
 The [research comparison](#proposed-refinements-after-memory-provider-research--2026-09-19)
 remains proposed; preserve R9/R29 when shortening the reminder. Keep

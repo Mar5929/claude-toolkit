@@ -1,6 +1,6 @@
 # Knowledge System implementation plan
 
-Updated: 2026-09-18. Proposed execution plan for issue #269. No production implementation has been performed by this planning task, and this document does not supply missing requirements, design, or release approval.
+Updated: 2026-09-19. Proposed execution plan for issue #269. No production implementation has been performed by this planning task, and this document does not supply missing requirements, design, or release approval.
 
 ## Authority and execution boundary
 
@@ -282,8 +282,9 @@ instructions, required checks, and commit/push. The helper reads latest content,
 applies only that scope, checks and publishes, and returns paths/checks/commit/
 remote evidence or the unfinished step. Main verifies the result; do not wait
 for publication before answering an independent question. Preserve existing
-permissions, prevent two workers from applying the same save, and check whether
-the original worker is still running before recovery.
+permissions, coordinate known workers, and verify the current destination and
+remote before retrying. Unknown worker status is not proof it stopped; no
+distributed lock or exactly-once guarantee is implied.
 
 Review proposal language before approval and actual saved language afterward.
 Memory/proposal prose must contain no jargon, figures of speech, figurative
@@ -292,6 +293,31 @@ names; resolve conflicting verbatim instructions before approval. Keep this a
 writing review rather than a claim that keyword scanning proves compliance.
 
 Assign an opaque stable operation reference when a real pending proposal or authorized unfinished save is first captured, retaining it through revised cards and conflict transitions. Before each inbox or destination edit, reread both relevant records, compare the operation reference and intended scoped change, and detect whether the change already landed. Similar meaning from concurrent proposals requires agent reconciliation, not a hash-based semantic merger. Serialize shared publication; do not erase another entry while resolving this one. Test two sessions approving/retrying the same operation, simultaneous distinct entries, destination drift, blocked-by-conflict with authority intact, rejection, and removal only after verified completion.
+
+### Save-and-recovery contract and first test
+
+Implement the [master recovery contract and interruption matrix](../269-knowledge-system.md#recovery-evidence-and-retry-order)
+through this same procedure. The existing inbox is the only pending-save store.
+Carry its reference and approved revision through dispatch, checks, commit
+message, and result. Persist readable authority before mutation; verify the
+remote destination before removing the active entry. Interrupted cleanup is
+recovered separately without reapplying destination content. Use ordinary
+entry context, not a new database, operation file, or schema requirement.
+
+Start with the customer-import example in the master's acceptance matrix.
+Prepare deterministic temporary-repository cases for each interruption boundary,
+concurrent checkout, failed publication, and cleanup. Then run fresh-agent
+behavior trials against those same starting states. File/Git tests and model
+behavior results are separate evidence; unexecuted cases stay planned.
+
+For each supported host/surface, D1-P1 must establish the executor's tools,
+permissions, repository/checkout, durable-assignment access, result return after
+parent completion, cancellation/status inspection, and late-result behavior.
+If a helper cannot execute, the foreground agent uses the same procedure under
+existing authority and reports unavailable parallel behavior. If publication
+needs an unavailable interaction, preserve the unfinished entry and hand the
+specific step back to the foreground; do not request the same meaning approval.
+This fallback does not count as proof of asynchronous host acceptance.
 
 `knowledge-review` produces findings and proposed change sets; `knowledge-save` applies authorized lifecycle and operational-maintenance changes through the same save/publication path. Preserve existing exceptions for operational feedback and generated indexes; do not require new meaning approval for already-authorized maintenance. Supersede changed meaning in its owning topic; create a new file only for a justified topic change or approved split. Consolidation verifies preservation and links before removing originals. Feedback records actual owner criteria/reason, not guessed preferences or a running activity log. Never finalize a PRD merely because code shipped.
 
