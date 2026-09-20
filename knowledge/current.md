@@ -2,48 +2,39 @@
 Updated: 2026-09-19
 
 ## Project goal
-Ship the Knowledge System and guided work management.
+Finish authorized packages, assess actual delivery, then plan remaining
+whole-system work. The whole Toolkit OS is not authorized for implementation.
 
 ## Active work
 
 ### Knowledge System — #269
-Updated: 2026-09-19
+Manual/research reviews complete. Three implementation sessions: Knowledge
+manual/four skills/save recovery; audit fixes/schema/integration tests;
+newest-first Session handoffs. Toolkit manual delivery merged in PR #363.
+Knowledge package merge is conditional on checks/review; audit and handoff
+PRs await merge authority. Full-system acceptance and broader rollout remain.
 
-**Status** Runtime unbuilt. Two Sol research reports complete; first core manual
-draft published on `issue-269-core-manual-draft`, linked from design Notes.
-
-**Next** Continue manual review: when to check for updates and quiet reviews,
-then task instructions in isolation. Host proofs and full approvals remain.
-
-**Resume records** Read [design Notes](../docs/designs/269-knowledge-system.md#notes),
-[PRD Notes](prds/toolkit-operating-system/knowledge-system.md#notes), then the
-[audit/plan](../docs/designs/269-knowledge-system/implementation-plan.md).
+**Next:** finish and integrate these packages; assess delivered versus missing
+behavior; prepare the remaining implementation plan for Mike. No new broad
+review cycle. Owners, open tasks and approvals: [#269](https://github.com/Mar5929/claude-toolkit/issues/269).
+Resume from [design Notes](../docs/designs/269-knowledge-system.md#notes),
+[PRD Notes](prds/toolkit-operating-system/knowledge-system.md#notes), and
+[implementation plan](../docs/designs/269-knowledge-system/implementation-plan.md).
 
 ### Guided work management — #337
-Updated: 2026-09-19
-
-**Status** Roadmap/tasks and continuity guidance shipped. Agent-led delivery
-implementation, PR, and merge authorized; separate session started. No new release
-verified. Single-record consolidation unbuilt.
-
-**Next** Finish delivery feature; sequence consolidation from its plan.
-Fresh-session/recovery tests, rollout, and acceptance remain.
-
-**Record** [Issue #337](https://github.com/Mar5929/claude-toolkit/issues/337).
+Agent-led delivery PR #359 and single-record PR #362 merged. Remaining host
+checks, rollout and full acceptance: [#337](https://github.com/Mar5929/claude-toolkit/issues/337).
 
 ### Toolkit instruction review — #360
-Updated: 2026-09-19
-
-Seven fixes merged with owner approval in [PR #361](https://github.com/Mar5929/claude-toolkit/pull/361).
-Next: installation refresh, live-host checks, and acceptance; tracked in #360.
+Seven fixes merged in PR #361. Refresh/live-host checks and acceptance remain:
+[#360](https://github.com/Mar5929/claude-toolkit/issues/360).
 
 ## Testing to-dos
-- 2026-09-19: Test instruction overload and find sufficient guidance that
-  preserves quality, intended behavior, and boundaries. Requested; not tested.
-- 2026-09-19: [#358](https://github.com/Mar5929/claude-toolkit/issues/358): use
-  system knowledge and prior decisions to clarify Mike's core intent and push
-  back usefully, even in long sessions. Exact example/context saved there;
-  investigation pending.
+- Instruction overload: preserve task quality with sufficient guidance;
+  audit/evaluation work underway, measured outcome still pending.
+- [#358](https://github.com/Mar5929/claude-toolkit/issues/358): use prior system
+  decisions to clarify Mike's intent and push back usefully in long sessions.
+  Exact example saved; investigation pending.
 
 ## General project to-dos
 - Notes workflow merged; project refresh remains.

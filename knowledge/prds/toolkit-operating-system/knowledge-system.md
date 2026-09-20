@@ -2206,25 +2206,24 @@ decisions, and links to these documents. Mike confirmed this boundary on
 2026-09-18: document-specific refinement belongs here; other work remains in
 the work item. Save meaningful updates promptly so the next session can resume.
 
-**Current position:** this PRD remains proposed. The approved-save helper and
-the explicit ban on jargon and figurative language in memory and proposals are
-recorded requirements. Saving these updates does not mean the full requirements
-or solution design are approved, or that implementation may begin.
+**Current position:** this PRD remains proposed; full requirements acceptance
+is separate from Mike's explicit scoped implementation authorization on
+2026-09-19. Knowledge manual/skills/recovery, residual audit fixes, and the
+requested newest-first session handoffs are being implemented in coordinated
+sessions. Conditional merge approval covers the Knowledge package; later audit
+and handoff PRs need their own authority. The existing
+[work item](https://github.com/Mar5929/claude-toolkit/issues/269) owns exact
+assignments, progress, and approval evidence. No full-system delivery is claimed.
 
-**Resume here:** the core manual draft is published on
-`issue-269-core-manual-draft`, linked from the solution design Notes. The voice
-walkthrough has covered startup, information ownership, memory selection,
-topic organization, permission, save recovery, and maintaining changed knowledge.
-Mike accepted the selection/ownership/permission explanation and clarified that
-complex topics may need more detail. This does not approve the full draft.
-Next review when the agent checks for useful updates and how routine reviews
-stay quiet, then finish the wording audit and draft the
-applicable skill instructions, templates, and rules using the instruction audit.
-Prepare behavior-bearing drafts in an isolated implementation worktree; review
-wording before supporting code and hooks, and activate them together. Mike asked
-to continue on another computer or in a new project/session from this exact
-point. Read these Notes and the linked audit; do not reopen settled decisions.
-Technical proofs and full design/build approval remain outstanding.
+**Resume here:** preserve accepted requirements while those packages finish.
+The manual content review is complete; source drafts are at `d321fda` on
+`issue-269-core-manual-draft`. Reconcile the handoff requirement through its
+assigned owner and retain unresolved retention/size choices as open. The agent's
+recommendation to use concise pointers to owning records has not received a
+separate owner answer. After active tasks finish, assess actual delivered versus
+missing behavior and prepare the remaining system implementation plan. That is
+Mike's selected sequence, not authorization to implement the whole Toolkit OS.
+Technical evidence and the detailed next step stay in the linked design Notes.
 
 ### Outstanding decisions
 
