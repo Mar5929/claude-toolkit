@@ -226,6 +226,10 @@ unclear conversions untouched and report them.
 
 ## 8. Finish the save and preserve unfinished work
 
+Draft package reference: the [save and recovery procedure](knowledge-save-recovery-draft.md)
+provides the execution and retry steps. It remains inactive until the complete
+save skill, operation references, templates, and host executor are available.
+
 Use `knowledge-save` for every knowledge lifecycle operation. Search for the
 existing topic, reread the latest destination, preserve other sessions' work,
 and change only the authorized meaning. Keep one coherent current account.
@@ -380,3 +384,10 @@ equipped. Verify that the project opted in and its required parts are active.
   multi-item continuity, mixed-topic evidence, local/shared recovery, and setup
   verification. It preserves selected acknowledgment, permission, and memory
   eligibility rules. The review does not approve the complete draft or build.
+
+- On 2026-09-19, Mike selected save/recovery as the next design and instruction
+  task. The linked execution reference now specifies durable authority before
+  dispatch, retry from observed file/Git state, helper failure and late results,
+  and separate verified publication/cleanup. This is a procedure draft, not an
+  installed skill or executed acceptance proof. Existing core basics remain
+  until the entire replacement instruction package is complete.
