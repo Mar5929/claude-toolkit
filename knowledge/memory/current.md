@@ -1,5 +1,5 @@
 # Current working memory
-Updated: 2026-09-19
+Updated: 2026-09-20
 
 ## Project goal
 Finish authorized packages, assess actual delivery, then plan remaining
@@ -8,31 +8,29 @@ whole-system work. The whole Toolkit OS is not authorized for implementation.
 ## Active work
 
 ### Knowledge System — #269
-Updated: 2026-09-19
+Updated: 2026-09-20
 
-**Goal** Deliver the approved Knowledge packages, then assess remaining work.
+**Goal** Deliver the approved Knowledge packages, assess delivery, then plan remaining work.
 
-**Current status** Three implementation tasks: manual/four skills/save recovery;
-audit/schema/integration; Session handoffs. Full-parent acceptance and rollout
-remain open. Knowledge package merge is conditional on checks and review;
-audit and handoff merge authority remains with the coordinator/owner.
+**Current status** The bounded instruction, schema/audit and handoff package merged in
+[PR #366](https://github.com/Mar5929/claude-toolkit/pull/366) at `3703c5c` after
+Mike's explicit combined merge approval. Full Knowledge System requirements/design
+approval, delivery and acceptance remain open. This does not authorize whole Toolkit OS implementation.
 
-**Recent progress** 2026-09-19: Toolkit startup PR #363 merged. Schema PR #365
-integrated in [combined draft PR #366](https://github.com/Mar5929/claude-toolkit/pull/366),
-with handoff PR #364. Required checks, plugin validation and 67 Node cases pass.
-Independent source review, including the copied-command import fix, passed.
-Actual routing and recovery-identification trials passed within their stated
-limits; recovery cleanup was blocked and remains pending in the fixture.
-No claim that the Knowledge candidate is merged or actual-host acceptance passed.
+**Recent progress** 2026-09-20: required checks, plugin validation and independent
+review passed; 67 Node cases and bounded model trials are recorded in the PR.
+Toolkit startup PR #363 was already merged. Optional test tooling/report PR #367
+remains separate and unmerged. Merge does not prove rollout or all host behavior.
 
-**Next step** Publish the audit trial report and obtain the remaining dependency
-scope approval before merging PR #366; retain unresolved host proofs. Then assess delivered versus missing behavior
-and plan remaining system work for Mike. No new broad review cycle.
+**Next step** Finish merge cleanup and status publication, assess merged behavior
+against the design, then update the remaining plan by unmet outcome, dependency,
+owner and acceptance evidence. The coordinator owns that assessment and planning.
 
-**Blocker** Claude live model-read proof previously blocked by expired OAuth;
-other supported-host gaps remain in delivery evidence. Do not change authentication.
+**Blocker** Claude model proof was blocked by expired OAuth; do not change authentication.
+Native hook/late-Stop ordering, helper lifetime/results and other host proofs remain incomplete.
 
-**To-dos** 2026-09-19: supported-host proofs, agreed rollout, parent acceptance.
+**To-dos** 2026-09-20: remaining design decisions, asynchronous save execution,
+behavior/citation-format gaps, host verification, agreed rollout and owner acceptance.
 
 **Detailed record** [#269](https://github.com/Mar5929/claude-toolkit/issues/269),
 [design Notes](../../docs/designs/269-knowledge-system.md#notes),

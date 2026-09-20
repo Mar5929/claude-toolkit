@@ -1206,7 +1206,7 @@ failures and comparison evidence.
 
 ## Notes
 
-Updated: 2026-09-19. This is the starting point for the remaining design
+Updated: 2026-09-20. This is the starting point for the remaining design
 discussion. Keep the open decisions, tasks, and review notes together here so
 Mike can continue from this document. Review one decision at a time. Record each
 answer and update the affected design section. Requirements still belong in the
@@ -1215,27 +1215,24 @@ stay in the tracker. Mike confirmed this boundary on 2026-09-18. Save meaningful
 updates promptly; do not create separate interview, notes, or continuation files
 for this discussion. Section 12 preserves earlier decisions.
 
-**Current position:** reviewed content is in scoped implementation. On
-2026-09-19 Mike authorized fresh sessions for the Knowledge instruction package,
-residual audit fixes, and newest-first session handoffs. Toolkit manual delivery
-[PR #363](https://github.com/Mar5929/claude-toolkit/pull/363) merged at `4566444`.
-The Knowledge package has conditional merge approval after checks/review; the
-later audit and handoff PRs still need their own merge authority. The existing
-[issue roadmap](https://github.com/Mar5929/claude-toolkit/issues/269) owns current
-session assignments, task status, and detailed approval evidence. Earlier
-statements that no package can begin implementation are superseded for these
-explicitly authorized scopes; they do not become full-PRD or system acceptance.
+**Current position:** the bounded Knowledge instruction, schema/audit and Session
+handoff package is merged in [PR #366](https://github.com/Mar5929/claude-toolkit/pull/366)
+at `3703c5cc009ab2a6be0e2242e0213fa57f65d181` on 2026-09-20. Mike explicitly
+approved the combined scope, including #364/#365. Toolkit PR #363 was already
+merged. Required checks and independent review passed; the [durable audit report](https://github.com/Mar5929/claude-toolkit/blob/59145272872af43d848ff5df205e9154bf94da77/docs/designs/269-knowledge-system/implementation-plan.md#actual-agent-trials--2026-09-20-utc)
+records actual trials, failures and limits. Optional PR #367 remains unmerged.
 
-**Resume here:** finish the active packages and their integration checks, then
-assess actual delivered behavior and prepare a concrete plan for remaining
-whole-system work. Mike clarified that sequence on 2026-09-19. Current tasks
-are bounded implementations, not authorization to build the entire Toolkit OS.
-Keep residual system requirements with their owning PRDs/work items; #269
-remains the Knowledge System delivery parent.
+**Resume here:** finish merge cleanup/status publication, assess delivered behavior
+against this design, then prepare the remaining implementation plan. The
+coordinator owns assessment and planning. Preserve full requirements/design
+review, asynchronous helper execution/recovery, native host and late-Stop proofs,
+behavior/citation-format gaps, agreed rollout and owner acceptance as unfinished.
+#269 remains open. This merge does not authorize whole Toolkit OS implementation.
+The [issue roadmap](https://github.com/Mar5929/claude-toolkit/issues/269) owns current
+assignments, tasks and detailed approval evidence.
 
 The reviewed manual and save/recovery reference are published at `d321fda` on
-`issue-269-core-manual-draft`; implementation now owns producing the coherent
-installed package. [Section 6.7](#67-save-transaction-and-recovery) owns the
+`issue-269-core-manual-draft`; the coherent package is now merged. The draft remains historical review evidence. [Section 6.7](#67-save-transaction-and-recovery) owns the
 recovery contract and first interruption cases. Reconcile its evidence with
 actual fixture and fresh-host results. Completed content reviews are not
 runtime proof. The [Toolkit delivery report](306-toolkit-manual-review.md#implementation-and-verification)
@@ -1262,7 +1259,7 @@ tracker update; it is not applied merely by pushing the documents.
 ### Resume on another computer or in a fresh session
 
 - Clone or update the **claude-toolkit repository** from remote main, then read
-  `knowledge/current.md`, these Notes, the linked PRD Notes, and the implementation
+  `knowledge/memory/current.md`, these Notes, the linked PRD Notes, and the implementation
   plan's instruction audit. Paths are relative to the repository; old absolute
   Windows/worktree paths are not prerequisites. No unsaved conversation is
   needed to recover the selected design direction.
@@ -1272,31 +1269,24 @@ tracker update; it is not applied merely by pushing the documents.
 - The PRD owns required behavior; this master design owns selected architecture.
   The detailed reference output and older prep/process/review files are history.
   They must not override the current PRD, this design, or these Notes.
-- The loaded knowledge manual and six existing skills still describe the older
-  implementation. Use the audit to draft replacements; do not mistake today's
-  installed instructions for the agreed target behavior or activate a partial
-  replacement. Work on source templates and procedures together in an isolated
-  worktree, with links to reviewable drafts in these Notes when they exist.
-- The content-source audit and existing static checks are complete. No fresh
-  model-session proof of the proposed startup/read acknowledgment, parallel
-  helper recovery, or completion handler has been completed. Recheck CLI and
-  desktop versions and hook trust on the new machine; earlier observations
-  were Claude CLI 2.1.259 and Codex CLI 0.154.0, not desktop runtime guarantees.
+- Main now carries the schema-2 manual, four focused skills and legacy aliases
+  delivered in PR #366. Inspect actual installed project/host configuration;
+  an older plugin cache or a merged source alone does not prove adoption.
+- Bounded actual model trials and source checks are recorded in the audit report
+  above. They do not prove native hooks, parallel helper delivery, desktop/Windows,
+  clear/compact behavior or repeated reliability. Claude model execution was
+  blocked by expired OAuth. Preserve that limitation without changing authentication.
 - The Notes workflow is merged; project refresh remains separate. The local
-  `WORK-ITEM.md` consolidation is still planned. Its
+  `WORK-ITEM.md` consolidation merged separately in PR #362; full acceptance remains open. Its
   [design](337-consolidated-work-item.md) owns that dependency. Resolve shared
   PRD versus local requirements ownership with that work, without migrating
   active records as part of this continuation.
 - Publishing through Mike's personal account is authorized. Verify `Mar5929`
-  before GitHub writes; another session may change the active account. Do not
-  use the work account. The original computer's primary checkout has an
-  unrelated unfinished `docs/designs/README.md` edit; it is preserved locally,
-  not required for this work. Publication used a clean checkout. The original
-  local main may lag remote main; inspect it before updating and never reset
-  away that edit. A fresh clone gets the published continuation.
-- The 2026-09-19 tracker reconciliation records scoped implementation, session
-  owners, conditional merge authority and the finish-assess-plan sequence. Read
-  the current issue body rather than treating older progress entries as current.
+  before GitHub writes; inspect the latest checkout and preserve concurrent work.
+  The main checkout was clean before this status save; do not treat earlier
+  machine-specific dirty-checkout notes as current evidence.
+- Read the current issue body for merged status, remaining authority and the
+  finish-assess-plan sequence. Historical progress entries do not override it.
 
 ### Outstanding decisions
 

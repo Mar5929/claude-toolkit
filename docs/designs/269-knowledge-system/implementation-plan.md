@@ -1,6 +1,6 @@
 # Knowledge System implementation plan
 
-Updated: 2026-09-19. Proposed execution plan for issue #269. No production implementation has been performed by this planning task, and this document does not supply missing requirements, design, or release approval.
+Updated: 2026-09-20. Execution plan for issue #269. The bounded package in PR #366 is merged; remaining design, implementation and acceptance work stays open. This document does not supply missing approvals.
 
 ## Authority and execution boundary
 
@@ -13,35 +13,39 @@ Updated: 2026-09-19. Proposed execution plan for issue #269. No production imple
 
 The owner authorized this design and plan refinement. Record the resulting recommendations for review without fabricating a whole-PRD approval. Begin production changes only when the owning task records the applicable build authorization. Technical facts are resolved through evidence tasks; the owner should not have to choose event names or troubleshoot adapters.
 
-## Current delivery sequence — 2026-09-19
+## Current delivery sequence — 2026-09-20
 
-Mike authorized bounded implementation sessions, then clarified the order for
-whole-system planning: finish those tasks, assess what actually shipped, and
-only then prepare the remaining implementation plan. Existing packages below
-remain the detailed plan; this is their current sequencing, not another tracker.
+Mike's sequence remains: finish authorized packages, assess what actually shipped,
+then prepare the remaining implementation plan. Toolkit PR #363 is merged.
+Mike explicitly approved combined [PR #366](https://github.com/Mar5929/claude-toolkit/pull/366),
+including schema/audit and Session handoffs. GitHub records its merge on
+2026-09-20 at `3703c5cc009ab2a6be0e2242e0213fa57f65d181`, from reviewed head `64c0fc7`.
+This replaces the earlier pending approval for the included #364/#365 scopes.
 
-1. Finish the authorized packages. Toolkit delivery PR #363 is merged. The
-   Knowledge team implements the manual/four skills/references and recovery;
-   the audit team owns agreed schema/index/checker work and cross-package tests;
-   the handoff team owns the requested temporary newest-first handoff workflow,
-   coordinating template/manual changes with Knowledge. The
-   [work item](https://github.com/Mar5929/claude-toolkit/issues/269) owns current
-   assignments and permission boundaries.
-2. Integrate their results and assess delivered behavior. Verify installed
-   instructions, permissions, save/recovery, source handling and continuation;
-   distinguish source fixtures, actual host evidence, unavailable tests, merges,
-   and rollout. Retain failed or unexecuted checks explicitly. Toolkit delivery
-   is an integrated dependency, not proof the Knowledge package already works.
-3. From that assessment, update the remaining implementation plan by unmet
-   outcome, dependency, owner, and acceptance evidence. Bring necessary product
-   choices and additional authority to Mike. Completing these packages does not
-   authorize building the entire Toolkit OS or accepting #269 as Done.
+The merged package provides the manual, four focused procedures and references,
+startup/prompt/completion guidance, schema-2 records/indexes, save/recovery inspection,
+setup/migration instructions and temporary handoffs. Repository checks, plugin
+validation and independent review passed. The [durable audit report](https://github.com/Mar5929/claude-toolkit/blob/59145272872af43d848ff5df205e9154bf94da77/docs/designs/269-knowledge-system/implementation-plan.md#actual-agent-trials--2026-09-20-utc)
+records six bounded model trials and their limits. Optional tooling in PR #367
+remains separate and unmerged.
 
-Mike's conditional merge approval covers Toolkit delivery and the Knowledge
-instruction package after checks/review pass. Audit and handoff implementation
-were authorized later; their merges are not included by assumption. Broader
-rollout and final acceptance remain separate. Product-policy questions block
-only their affected work; proceed with settled authorized scope.
+1. Finish exact merge cleanup and status publication. Keep #269 open.
+2. Assess the merged behavior against the design and requirements. Distinguish
+   source tests, actual model behavior, native host delivery, unavailable proof
+   and rollout. Preserve failed and unexecuted cases.
+3. Update remaining packages by unmet outcome, dependency, owner and acceptance
+   evidence. Resolve necessary product choices and obtain additional authority
+   before further implementation. The coordinator owns this next assessment.
+
+Full requirements/design approval, asynchronous helper execution and recovery,
+host delivery/late Stop ordering, behavioral reliability and citation formatting,
+agreed rollout and owner acceptance remain open. Claude model proof was blocked
+by expired OAuth; authentication must not change. Main publication does not prove
+another project is equipped. This scoped merge approves neither the entire
+Knowledge System nor whole Toolkit OS implementation.
+
+Both operating manuals were reviewed for this status update. The merged package
+already includes their dependent guidance; no manual policy change is needed here.
 
 ## Recommended build baseline
 
