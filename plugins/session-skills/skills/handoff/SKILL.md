@@ -1,32 +1,35 @@
 ---
 name: handoff
 description: >-
-  Save what this session learned, then write a checked, self-contained prompt for
+  Save a temporary session handoff and write a checked, self-contained prompt for
   a fresh session to carry on from. Use when the owner says "write a handoff",
   "hand this off", "handoff prompt", "I'm going to clear context", "start a new
   session", "this session is getting long", "carry this over", "prompt for a new
   chat", or runs /handoff. Use the check on its own, with "/handoff check", when
   the owner has a handoff prompt from somewhere else and wants it verified.
-  Update any active work tracker first, then run the installed remember review
-  before writing the prompt. Always run the accuracy check before showing it.
+  Update any active work tracker first, then run the installed knowledge-save
+  or legacy remember review. Preserve the checked continuation under Session
+  handoffs in current working memory when that system is configured.
 ---
 
 # Handoff
 
-A long session is about to end. Six things have to happen, in this order, and
+A long session is about to end. Seven things have to happen, in this order, and
 the order is the whole point.
 
 1. **Update the active work item when one exists**, so the tracker carries the
    exact next step and blockers before context is cleared.
-2. **Run the installed `remember` review**, so anything worth keeping passes
+2. **Run the installed knowledge save review**, so anything worth keeping passes
    the project's placement test and owner approval.
 3. **Wait for the save decision**, so nothing is written outside the meaning the
    owner approved.
 4. **Draft a prompt a fresh session can start from**, carrying everything that
    was not saved. Its first line is a fixed notice that it is AI-generated, and
    the goal of the work comes right after.
-5. **Check the draft before the owner sees it**, then show what changed and the
-   finished prompt.
+5. **Check the draft before the owner sees it** and correct it.
+6. **Preserve the checked continuation in Session handoffs** when working memory
+   is configured, and verify its actual publication state.
+7. **Show what changed and the finished prompt.**
 
 Do the persistent review last and it gets skipped, because once the prompt is on
 screen the session is over in the owner's head. Skip the check and the prompt
@@ -89,23 +92,25 @@ the handoff. Follow work-guide's document-continuity guidance.
 
 ## Step 2: the persistent review
 
-Detect the current project knowledge system by its complete layout:
+Read the installed `knowledge/knowledge-manual.md` to identify the active
+layout and save procedure. A proposed PRD or a newer plugin cache does not
+choose a project's installed path.
 
-- `SOUL.md`, `knowledge/knowledge-manual.md`, `knowledge/project.md`, and
-  `knowledge/current.md`;
-- `knowledge/prds/`, `knowledge/memory/`, and `knowledge/brainstorms/`; and
-- the installed `remember` skill.
+- With `<!-- claude-toolkit:knowledge-schema:2 -->` in that manual, use
+  `knowledge/memory/current.md` and the installed `knowledge-save` skill.
+- With the complete legacy layout (`SOUL.md`, the manual, `knowledge/project.md`,
+  `knowledge/current.md`, memory/PRD/brainstorm folders), use `remember`.
 
-When all are present, invoke `remember`. That skill owns placement, the short
-meaning review, approval, link repair, and index rebuild. Do not restate or
-replace that policy here.
-
-When no knowledge-system signature exists, skip to step 4. Everything worth
-keeping goes into the handoff prompt instead. Say that plainly in one line.
-
-When the layout is partial, mixed, or unknown, do not guess which system owns
-the files. Say that the persistent save is blocked, carry the candidate material
-into the prompt, and recommend `project-sync` in the next session.
+Invoke that installed save skill when available. If it is unavailable, report
+the blocked review and carry candidates in the prompt without a lasting write.
+The installed save skill owns placement, meaning approval, pending proposals,
+link repair, and index rebuild. Do not restate or replace its policy here.
+When no knowledge system is configured, skip to step 4 and put the useful
+continuation in the prompt. Do not create a knowledge store for a handoff.
+When the layout is partial, conflicting, or unknown, name the blocked save,
+carry the material in the prompt, and recommend the installed knowledge setup
+procedure (legacy: `project-sync`). Do not write both current paths or choose
+one by modification date.
 
 Review what this session produced: decisions the owner made, understanding that
 took work to reach, constraints that were discovered, references that turned out
@@ -115,14 +120,17 @@ the next session.
 **If nothing is worth saving**, say so in one line and go to step 4. Do not show
 an empty table, and do not invent rows to fill one.
 
-## Step 3: wait for the `remember` result
+## Step 3: wait for the save-review result
 
-`remember` follows the approval contract in `knowledge/knowledge-manual.md`. Do not copy
-that contract here. Wait when it requires the owner's answer. Continue only
-after it reports what was saved, declined, or blocked.
+The installed save skill follows the approval contract in
+`knowledge/knowledge-manual.md`. Do not copy that contract here. Wait when it
+requires the owner's answer. Continue only after it reports what was saved,
+declined, or blocked.
 
 Whatever the owner cuts or defers, and anything whose save failed, goes into
-step 4 instead. Nothing is queued anywhere, and nothing is dropped.
+step 4 instead. Preserve the installed system's pending-save references without
+creating a second queue. Do not retain material the owner explicitly asked to
+forget or exclude from the handoff.
 
 ## Step 4: draft the prompt, and do not show it yet
 
@@ -189,7 +197,7 @@ finished prompt. There are four kinds:
 | worked out | This session concluded it. Nothing recorded it |
 
 Say plainly, inside the prompt, which facts were proposed in step 3 and were not
-saved. The next session should know it is holding the only copy.
+saved. The next session should know what remains temporary or unsaved.
 
 **Do not show this draft to the owner.** It goes to step 5 first.
 
@@ -223,11 +231,65 @@ If the checker fails, errors, or cannot be run at all, say so in one line, write
 the prompt anyway, and say inside the prompt that it was not checked. The check
 never blocks the handoff.
 
-## Step 6: show the short list, then the prompt
+## Step 6: preserve the session handoff
 
-The owner sees a few one-line notes, then one fenced block they can copy in one
-click. Nothing else above it, and nothing below it but the one action they have
-to take. Before showing the block, confirm the fixed notice is still its first
+For a requested handoff, preserve the checked continuation under the exact
+heading `## Session handoffs` in the installed current-work file selected in
+step 2. If no valid current-work destination was established, skip the write
+and report why; still provide the full prompt. Add the heading if absent.
+Keep multiple entries, including handoffs for other tasks. This is disposable working context, not lasting memory,
+tracker status, or permission to continue an unapproved action. `/handoff check`
+on its own does not capture an entry.
+
+Reread current work immediately before editing and reconcile intervening
+changes. Preserve other sections and other sessions' entries. Use a descriptive
+third-level heading with a creation timestamp in UTC ISO 8601 form, for example
+`### 2026-09-20T01:15:00.000Z | Export timing`. Sort known timestamps descending;
+for equal timestamps put the newly captured entry first and preserve existing
+ties in their previous order. Leave undated legacy entries below dated ones in
+their existing order; do not invent their dates. Correcting an entry preserves
+its creation time. Do not replace all older entries with this session's entry.
+
+Each entry carries the goal/topic, where work stopped, the first next action,
+material constraints and approval boundaries, unresolved questions, and actual
+source task/session and owning-record links when available. Keep unchecked
+claims labelled. Preserve useful standalone context when no work record
+exists; do not create a tracker item merely to hold it. Keep the full useful
+handoff inline when it fits. Where detail already lives in a work item or design
+Notes, link to its exact continuation point instead of copying it. A bare
+session link is not enough when the next agent cannot access that conversation.
+
+Respect the installed whole-file limit: schema 2 is strictly under 5,000
+characters; legacy is at most 2,000. If essential context will not fit, show a
+concrete proposed arrangement using the existing owning records, with the
+precise context and links that would remain here. If there is no suitable
+record, say so and keep the full prompt available to the owner while resolving
+placement. Do not silently truncate, delete earlier handoffs, create a separate
+handoff store, or require one file per handoff. No automatic expiry is defined;
+report retention decisions that need the owner.
+
+Read the saved entry back, check ordering and preserved content, and follow the
+project's normal documentation publication route. State separately what is
+written locally and what is verified remotely. Preserve any failed publication
+and exact retry step in the existing continuation record. A local file, local
+task link, or unpushed commit is not proof that another checkout or computer
+can read it. Respect explicit publication holds. Retry an unfinished publication
+from the existing saved entry/commit; do not capture a duplicate or give it a
+new creation time merely because the push failed.
+
+When resuming, choose the handoff for the owner's requested task. Newest first
+makes entries findable; it does not silently switch active work. For an
+unqualified request to continue the latest handoff, use the first dated entry;
+resolve ambiguity if it conflicts with the active task or several entries tie.
+Open its owning records and recheck current state and approvals before acting.
+Use the installed `knowledge-find` (legacy: `recall`) when more context is needed.
+
+## Step 7: show the short list, then the prompt
+
+Include the saved location and actual sharing state, or the exact unresolved
+save/size problem, in the short notes. The owner sees those notes, then one
+fenced block they can copy in one click. Nothing else above it, and nothing
+below it but the one action they have to take. Before showing the block, confirm the fixed notice is still its first
 line.
 
 ```markdown
@@ -268,8 +330,8 @@ getting long, write me something to paste into a new chat", "hand this off to a
 fresh session" all mean the same thing. Run the same steps.
 
 The rule that raises this before a loaded session is
-`offer-context-handoff.md`. The `remember` skill owns the persistent review. This
-command is the convenient path, not the only one.
+`offer-context-handoff.md`. The installed knowledge save skill owns the
+persistent review. This command is the convenient path, not the only one.
 
 ## How to write the prompt itself
 
@@ -287,9 +349,9 @@ Follow the project's output style. Two things that matter here in particular:
 | Situation | What to do |
 |---|---|
 | Nothing in the session is worth saving | One line saying so, then draft, check, and show the prompt. Do not invent a proposal |
-| The owner declines every `remember` proposal | Carry every declined item into the handoff prompt. Write nothing to project knowledge |
-| The owner approves some proposals and cuts others | Let `remember` save only the approved meaning. Carry the cut ones into the prompt |
-| The owner edits a proposal | Let `remember` write only the edited meaning |
+| The owner declines every lasting-memory proposal | Carry declined lasting-memory candidates into the temporary handoff unless the owner asked not to retain them; write no lasting knowledge |
+| The owner approves some proposals and cuts others | Let the installed save skill save only the approved meaning. Carry the cut ones into the prompt |
+| The owner edits a proposal | Let the installed save skill write only the edited meaning |
 | The project has no project knowledge system | Skip steps 2 and 3, say so in one line, put everything worth keeping in the prompt |
 | The save or index rebuild cannot be finished | Report the failure plainly and carry that item into the prompt as well, so it survives either way. Do not pretend it was saved |
 | The goal is written in no file, only in this chat | It goes in the prompt, labelled not confirmed. Do not stop to write it into the work item first |

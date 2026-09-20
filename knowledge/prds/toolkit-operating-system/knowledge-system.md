@@ -874,6 +874,31 @@ new agent can help the owner continue. Give enough background to understand
 where each item stands. Link to detailed records instead of copying their
 requirements, plans, or full progress history.
 
+### Session handoffs
+
+When the owner asks for a handoff to another session, preserve its useful
+continuation in a dedicated **Session handoffs** section. Keep multiple entries
+and show the newest first, using recorded creation times with a deterministic
+tie order. Each entry identifies the topic and goal, where work stopped, the
+next action, material constraints and approval boundaries, unresolved questions,
+and real source/task links and owning records when available. An entry must
+help another session continue without reconstructing the conversation.
+
+These entries are temporary working context, not lasting memory or a replacement
+tracker. Preserve other current-work content and useful standalone context when
+no work record exists. Keep a full useful handoff inline when it fits; link to
+existing owning records for detail already held there. Resume the requested
+work, rereading its actual owning records and current approvals; newest-first
+display does not choose or switch the active task by itself.
+
+The whole-file size limit still applies. If essential context cannot fit,
+propose a concrete arrangement using the existing owning records without
+truncating essential information. Do not introduce a separate handoff store,
+require one file per handoff, or silently delete entries by age. Retention
+choices beyond this remain open. Follow the normal publication route and
+report local-only or failed sharing honestly; an unpushed handoff is not
+available on another computer merely because it was written here.
+
 ### Working-memory template
 
 Use the exact Markdown H1 title `# Current working memory`, an updated date,
@@ -884,6 +909,7 @@ and these sections:
 | Project goal | Overall goal and next milestone | Links to a detailed project plan |
 | Active work | One descriptive subsection per item with fields: Goal, Current status, Recent progress, Next step, Blocker or None, To-dos, and Detailed record when one exists | Owning session when known; useful findings clearly labelled if unverified |
 | General project to-dos | Requested later work not attached to an active item, or None | Links to existing records |
+| Session handoffs | Requested continuation entries, newest first, or None | Actual source session/task links and links to owning work records |
 
 Date item context and to-do entries where needed. Include a due date only when
 the owner provided it. Do not invent missing facts, dates, or records. Keep
@@ -922,6 +948,12 @@ How it behaves:
 - The next session on this project must be able to see the updated context, including a session running in a different harness or in a different checkout of the repository. If the update cannot be shared, work out where it was saved and what is still missing. Never claim another session can see a change that exists only in this conversation, or only in a checkout nobody else is using.
 - Kept short. Long entries make it useless.
 - Anything in it that turns out to be lasting goes through the normal save. Sitting in this file is never on its own a reason to make it long-term memory.
+
+**Check:** capture multiple requested handoffs, including equal timestamps,
+while preserving existing active work and to-dos. The ordering is deterministic;
+a fresh session resumes the named work even when another handoff is newer.
+An over-limit handoff produces a concrete placement proposal without lost
+context. A failed publication is reported as unfinished sharing.
 
 **Check:** open the file after a working session. Current status and Recent
 progress are separate fields. A fresh session can identify the objective,
