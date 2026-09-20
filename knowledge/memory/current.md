@@ -20,8 +20,9 @@ audit and handoff merge authority remains with the coordinator/owner.
 **Recent progress** 2026-09-19: Toolkit startup PR #363 merged. Schema PR #365
 integrated in [combined draft PR #366](https://github.com/Mar5929/claude-toolkit/pull/366),
 with handoff PR #364. Required checks, plugin validation and 67 Node cases pass.
-Independent content review passed; copied-command import fix and actual v2
-agent behavior are under final review.
+Independent source review, including the copied-command import fix, passed.
+Actual routing and recovery-identification trials passed within their stated
+limits; recovery cleanup was blocked and remains pending in the fixture.
 No claim that the Knowledge candidate is merged or actual-host acceptance passed.
 
 **Next step** Finish actual behavior evidence and final review; obtain the
