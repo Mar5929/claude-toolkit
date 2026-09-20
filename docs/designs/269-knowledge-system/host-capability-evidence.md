@@ -3,6 +3,34 @@
 Checked 2026-09-17. Supports the [master design](../269-knowledge-system.md).
 This is design research, not runtime acceptance or authorization to build.
 
+## Follow-up evidence — 2026-09-19
+
+The [independent host audit](reviews/2026-09-19-host-compatibility.md) reports
+newer CLI observations and official documentation. Treat the 2026-09-17 tables
+below as a dated baseline, not the current installed-version inventory.
+
+The separate [Toolkit manual delivery review](../306-toolkit-manual-review.md),
+published at `c5451e1`, adds actual-session and reproduced local-test evidence:
+
+- Its Codex startup preview omitted 304 of 5,262 reported tokens, including
+  part of approval guidance. The full spill was available locally; that does
+  not establish complete initial model receipt or automatic recovery. The
+  report preserves the effective project setting, spill location, and digest.
+- The Toolkit manual has no reusable template/setup/sync/startup delivery route
+  in the inspected implementation. Its file and closed #306 issue do not prove
+  delivery. Parent R6 owns that component; #269 must coordinate the interface.
+- The copied startup-bundle check fails through the macOS `/tmp` alias while
+  the canonical `/private/tmp` and configured `/Users` paths work. This is an
+  entry-point portability defect, not proof that configured startup fails.
+- Advertised plugin versions and repository versions differ. Repository-copy
+  validation does not prove machine adoption or current effective host settings.
+
+Carry complete-read/spill recovery, path aliases, version adoption, trust, and
+startup/resume/clear/compact cases into the existing host-proof work. These
+findings do not authorize a runtime change or establish fresh Claude/desktop
+parity. The linked report owns detailed reproduction and the separate alias
+repair recommendation; preserve its failing test until the scoped fix is made.
+
 ## Evidence levels
 
 - **Installed observation:** commands or repository files inspected locally.
@@ -12,7 +40,8 @@ This is design research, not runtime acceptance or authorization to build.
   bounded proofs below before being described as working or enforced.
 
 No model sessions, billable API requests, or runtime configuration changes were
-made for this research. Version/help/feature commands do not test a real turn.
+made for the 2026-09-17 baseline research. Version/help/feature commands do not
+test a real turn. The follow-up above identifies later actual-session evidence.
 
 ## Installed observation
 

@@ -1305,8 +1305,13 @@ feedback entries have been changed by adding it.
   host delivery, and outcome evaluation. Stronger initial proposals were
   narrowed to reuse the existing records and audit. These are review proposals;
   no requirement, architecture choice, or runtime behavior is changed by them.
-  A separately requested Sol reviewer is debating exact manual content with the
-  coordinating agent before an independently checked draft revision.
+  A separately requested Sol reviewer completed the exact manual-content debate
+  and independent check. The [revision and review record](https://github.com/Mar5929/claude-toolkit/blob/issue-269-core-manual-draft/docs/designs/269-knowledge-system/reviews/2026-09-19-manual-content-reconciliation.md)
+  are published at `e208b47` on the inactive manual branch. The
+  [Toolkit manual delivery review](306-toolkit-manual-review.md) adds concrete
+  startup truncation, packaging, version-adoption, and path-alias evidence;
+  the [host-evidence addendum](269-knowledge-system/host-capability-evidence.md#follow-up-evidence--2026-09-19)
+  connects it to the remaining #269 proofs. No runtime fix is claimed.
 
 - Mike approved the instruction arrangement on 2026-09-18: read the complete
   core manual at startup, the applicable task procedure before acting, and
