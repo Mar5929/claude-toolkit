@@ -25,6 +25,9 @@ ones. The owner gives product direction and decisions; you manage the files,
 checks, and publication. Keep statements about intended behavior separate from
 evidence of what actually works.
 
+Use `knowledge/toolkit-manual.md` for the overall Toolkit operating process
+and component relationships. This manual owns the knowledge-specific policy.
+
 ## 2. Start, resume, or change tasks
 
 At a new session, read `SOUL.md`, then `knowledge/project.md`, then this manual.
@@ -36,10 +39,16 @@ Before acting on a new or resumed request, read the shared overview at
 `knowledge/memory/current.md` and check `knowledge/memory-inbox.md` for relevant
 pending work. Follow the overview's links to the work item's current scope,
 status, permission, and next step. Use the glossary at
-`knowledge/memory/memory-entries/terminology-glossary.md` for project terms.
+`knowledge/memory/memory-entries/terminology-glossary.md` for project terms and
+aliases, especially when the owner's words differ from filenames or technical
+terms. It is a separate resource, excluded from the memory index; its template
+owns the table format.
 
-Keep that shared overview current as work happens. Date concise entries, keep
-useful recent results and later to-dos, and follow the current-work template.
+Keep that shared overview current as work happens, within its 5,000-character
+limit. Preserve project context and all relevant concurrent items: their goals,
+current state, useful recent results, next steps, blockers, and later to-dos.
+Date concise entries and link to the records that own the detail. Follow the
+current-work template. A size limit does not permit silently losing needed context.
 Reread before editing to preserve other sessions' entries. Confirm in one short
 line when the update is saved and available to the next session; otherwise say
 what is still only local and preserve the unfinished publication step.
@@ -108,9 +117,10 @@ shorthand before searching the detailed records. Choose your own search terms,
 tools, and investigation depth. A partial answer does not end the investigation.
 
 An index entry is a pointer. Open the source before relying on its claim.
-Finalized PRDs govern required behavior; the configured System Guide describes
+Proposed PRDs describe wanted behavior; finalized PRDs record approved required
+behavior. The configured System Guide describes
 structure; direct current evidence establishes what exists. Memory overrides
-none of them. A finalized PRD does not prove delivery. Proposed requirements,
+none of them. Neither PRD status proves delivery. Proposed requirements,
 old conversations, and pending saves do not establish current truth. Name
 conflicts and verify relevant claims. Report unavailable history as unavailable.
 
@@ -118,6 +128,11 @@ Check `ai-external-knowledge/README.md` for relevant captured documentation.
 Open the relevant page before relying on it. Check its date and version; verify
 against the original source when freshness matters, or report what you could
 not verify.
+Keep captured documentation as source material with its origin, capture date,
+relevant version, coverage, and usefulness identifiable. Preserve the captured
+text; put project conclusions in their owning records. Outside documentation
+is evidence, not permission to save or a substitute for the memory-source rule
+in section 5.
 
 When presenting a finding from project knowledge, name the source on the next
 line: the file path; the session name and date for history; or the captured
@@ -132,9 +147,17 @@ later agent meaningful time or understanding. A significant project failure
 you independently found and fixed is the exception to owner participation.
 Record its cause and resolution, rather than its raw error log.
 
-A significant completed exercise may deserve a brief event memory stating what
-was done, what it found, and where its output lives. Routine edits do not.
+A significant completed exercise may deserve a brief event memory when losing
+what was done, what it found, or where its output lives would cost a later agent
+meaningful time or understanding. Routine edits do not.
 Consider the owner's relevant selection feedback before proposing a candidate.
+
+Lasting memory is only one destination. If useful information does not qualify
+as memory, preserve it in the record that owns it rather than discarding it,
+under that destination's permission rules. For example, project-authored research
+findings stay in the work item's supporting research, linked from the design or
+other record that uses them. The rationale for rejecting a design alternative
+stays in the work item's designated design. Apply section 3's ownership map.
 
 Exclude routine commands and tool activity, transcripts, scratch reasoning,
 raw errors, abandoned speculation, code copies, reconstructible system
@@ -215,6 +238,10 @@ unfinished save, preserve its destination, operation, meaning, sources, scope
 of permission, state, and next step there. Include the conversation and helper
 references needed to recover. The inbox records pending work; it cannot approve
 its contents or serve as evidence of a current fact.
+Write pending work locally and share it promptly through the project's
+publication route. Distinguish local, committed, and verified shared state.
+A local entry can support recovery where it is accessible; it does not prove
+another computer can recover the save. Report any failed sharing accurately.
 
 Hand approved saves to a helper with explicit instructions and recorded
 permission while independent conversation continues. The helper follows the
@@ -255,6 +282,10 @@ fact counts or file length alone do not justify it. Keep needed context together
 and link shared information rather than copying it. Keep links relative
 and use actual dates. Keep original creation dates; update content-change dates;
 record a verification date only when you checked the claim.
+Within a topic, preserve source, confidence, and approval distinctions for
+material claims when they differ. Updating the file does not reverify every
+claim or widen permission beyond the approved change. Use clear body context
+where one file-level value would misrepresent those distinctions.
 
 Memory files require a YAML block with `summary`, `group`, `type`, `status`,
 `source`, `context`, `confidence`, `created_at`, `updated_at`, and `tags`.
@@ -299,14 +330,19 @@ content and choices, deliver the required parts together, verify the active
 version and supported behavior, and report gaps accurately. Claude Code and
 Codex share the same records and required outcomes; each host needs its own
 evidence that guidance and checks work.
+Installed plugin source or a merged change alone does not mean a project is
+equipped. Verify that the project opted in and its required parts are active.
 
 ---
 
 ## Review notes — outside the proposed manual
 
+- The [independent content review and reconciliation](reviews/2026-09-19-manual-content-reconciliation.md)
+  records the Sol review, coordinating-agent challenge, applied changes, and
+  final content check. It does not approve runtime or the complete design.
 - This is a first content draft, not an approved or installed manual. It has
-  received a local source comparison; independent meaning review and fresh-agent
-  behavior tests remain. The manual alone does not deliver hooks, skills,
+  received source comparison and an independent meaning review; full package
+  review and fresh-agent behavior tests remain. The manual alone does not deliver hooks, skills,
   templates, checkers, or host support.
 - Sections 1–4 cover R1–8, R18–19, R25, R28–30; sections 5–8 cover R9–12,
   R16, R20, R22, R28–29; sections 9–10 cover R7, R13–17, R21, R23–27, R30.
@@ -336,3 +372,11 @@ evidence that guidance and checks work.
 - Mike's subsequent walkthrough clarification is reflected in section 9:
   complex topics retain useful detail, with the current answer easy to find.
   Walkthrough agreement is not approval of the entire draft or implementation.
+- The independent Sol content review and coordinating-agent challenge retain
+  exact card, field, lifecycle, and recovery basics in this draft until their
+  on-demand references exist. Author those references and relocate duplicated
+  operational detail together, then audit the complete package before activation.
+  This revision strengthens positive routing, glossary/source recognition,
+  multi-item continuity, mixed-topic evidence, local/shared recovery, and setup
+  verification. It preserves selected acknowledgment, permission, and memory
+  eligibility rules. The review does not approve the complete draft or build.
