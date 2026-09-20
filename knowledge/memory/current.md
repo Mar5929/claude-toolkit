@@ -77,6 +77,7 @@ Updated: 2026-09-19
 **Detailed record** [#360](https://github.com/Mar5929/claude-toolkit/issues/360).
 
 ## General project to-dos
+- 2026-09-20: [#269 D3](https://github.com/Mar5929/claude-toolkit/issues/269): refine when agents verify potentially stale memories/PRDs; wording pending review.
 - 2026-09-19: instruction-overload evaluation remains underway; measured outcome pending.
 - 2026-09-19: [#358](https://github.com/Mar5929/claude-toolkit/issues/358): use prior
   decisions to clarify Mike's intent and push back usefully in long sessions.
