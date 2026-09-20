@@ -18,12 +18,14 @@ remain open. Knowledge package merge is conditional on checks and review;
 audit and handoff merge authority remains with the coordinator/owner.
 
 **Recent progress** 2026-09-19: Toolkit startup PR #363 merged. Schema PR #365
-integrated in the Knowledge candidate; handoff PR #364 available. Knowledge
-manual, procedures, hooks and record migration are under local verification.
+integrated in [combined draft PR #366](https://github.com/Mar5929/claude-toolkit/pull/366),
+with handoff PR #364. Required checks, plugin validation and 67 Node cases pass.
+Independent content review passed; copied-command import fix and actual v2
+agent behavior are under final review.
 No claim that the Knowledge candidate is merged or actual-host acceptance passed.
 
-**Next step** Finish combined checks, actual behavior evidence and independent
-review; publish the Knowledge PR. Then assess delivered versus missing behavior
+**Next step** Finish actual behavior evidence and final review; obtain the
+remaining dependency scope approval before merging PR #366. Then assess delivered versus missing behavior
 and plan remaining system work for Mike. No new broad review cycle.
 
 **Blocker** Claude live model-read proof previously blocked by expired OAuth;

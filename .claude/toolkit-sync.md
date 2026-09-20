@@ -13,7 +13,10 @@ legacy current PRDs become finalized without claiming new delivery. Pending inbo
 and glossary start empty. The canonical old-to-new path map is in knowledge-setup's
 migration reference. This is an isolated candidate, not a full project-sync or
 proof of live-host behavior. Existing native-memory settings are preserved.
-Checks and unresolved host evidence stay with #269's implementation record.
+Required checks and plugin validation pass in the combined candidate; 67 Node
+cases include copied executable startup/prompt/Stop commands in an empty project.
+Source review and actual host acceptance stay separate in
+[PR #366](https://github.com/Mar5929/claude-toolkit/pull/366) and #269.
 
 2026-09-19 targeted update for #306: project-init 0.76.0 supplies the Toolkit
 manual template, complete-read root route, and bounded SessionStart and
