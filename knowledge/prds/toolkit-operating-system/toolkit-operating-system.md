@@ -8,7 +8,7 @@ created_at: 2026-09-10
 tags: [toolkit, project-work, continuity, requirements]
 project: claude-toolkit
 work_item: "306"
-updated_at: 2026-09-19
+updated_at: 2026-09-20
 ---
 
 # The Toolkit Operating System
@@ -187,9 +187,12 @@ Every project equipped with the toolkit must receive a Toolkit Operating System
 manual. Mike explicitly required this on 2026-09-17. The applicable root routers
 and per-prompt reminder reference it by its actual project-root-relative path,
 along with the applicable `CLAUDE.md` and `AGENTS.md` paths. The manual explains
-the toolkit's project workflows and links to component guidance. Its exact
-location, contents, and installation/update design remain to be refined; this
-requirement does not claim that the manual is already shipped.
+the toolkit's project workflows and links to component guidance. Scoped delivery
+shipped in [PR #363](https://github.com/Mar5929/claude-toolkit/pull/363): a
+packaged project-specific manual plus setup, sync, root-fallback, startup, and
+context-recovery routes. Reviewed source, deterministic checks, and limited
+Codex fallback/resume evidence do not approve this whole PRD or establish native
+hook receipt, project adoption, rollout, or complete both-host acceptance.
 
 Keep root instruction files as small maps and routers. Do not duplicate full
 component manuals there or load every linked manual at startup. A concise
@@ -584,10 +587,12 @@ issue, preserve that issue in the work record rather than claiming a pass.
 
 ### Shared documentation publication contract
 
-This is the toolkit-wide design for R25, refined with Mike on 2026-09-17.
-It extends the existing knowledge-only route; it is not a claim that the
-expanded workflow has shipped. Git branches cover the repository, not selected
-folders. The toolkit chooses the appropriate publication workflow for a change.
+This is the toolkit-wide design for R25, refined with Mike on 2026-09-17. The
+expanded contract shipped in [PR #353](https://github.com/Mar5929/claude-toolkit/pull/353)
+through project-init 0.73.0 and marketplace 0.117.0. That is shipped guidance,
+not proof of adoption or fresh-session behavior. Git branches cover the
+repository, not selected folders. The toolkit chooses the appropriate
+publication workflow for a change.
 
 **Eligibility and authority.** Project setup identifies documentation locations
 and links this policy from the root router. Typical eligible records include
@@ -605,7 +610,7 @@ worktree. Documentation required to accompany a code/configuration change stays
 with that change. Do not split a mixed change merely to bypass review, or
 publish documentation that claims unshipped behavior exists.
 
-**Proposed publication sequence:**
+**Publication sequence:**
 
 1. Locate the existing default-branch checkout, confirm repository, branch,
    remote, and publishing identity, and inspect working and staged changes.
@@ -734,9 +739,14 @@ The component work stays separate:
   startup files and per-prompt knowledge reminder must fit beneath R6's parent
   orientation rather than becoming a competing operating manual.
 - [304](https://github.com/Mar5929/claude-toolkit/issues/304) owns System Guide,
-  relevant to R4-R5, R9-R14, and R17.
-- [305](https://github.com/Mar5929/claude-toolkit/issues/305) owns the reusable
-  rules audit, relevant to R3, R9, R11, R19, and R23.
+  relevant to R4-R5, R9-R14, and R17. Mike closed it as completed and its board
+  state is Done. Its timeline has no closing comment, linked closing PR, or
+  fresh-chat result; preserve that closure without treating it as independent
+  acceptance evidence or erasing the recorded automatic-use gap.
+- The reusable-rules audit relevant to R3, R9, R11, R19, and R23 has no current
+  owning work item. The original draft linked issue #305, but no issue or pull
+  request with that number exists in this repository. Assign an owner if that
+  proposed audit proceeds; do not treat the broken link as delivered scope.
 - The delivered work in 270, 300, and 302 is a baseline to reuse, not work to
   recreate under this issue.
 

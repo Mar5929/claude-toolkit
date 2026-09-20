@@ -9,7 +9,7 @@ tags: [delivery, requirements, design, collaboration]
 approved_by: Mike Rihm
 approval_date: 2026-09-08
 work_item: "300"
-updated_at: 2026-09-19
+updated_at: 2026-09-20
 ---
 
 # Guided delivery
@@ -196,9 +196,8 @@ must still reach the machine and project before a fresh session can use it.
   PRD/design detail stays with its document; other work stays in the work item.
   Mike also approved explicit capture routing, question ownership, answer
   updates, save timing, and readback after the WI-014 transcript review.
-- Still open: Review/merge, project sync, and observed fresh-session behavior.
-- Resume here: Mike authorized the personal-account switch and push on
-  2026-09-18. The `codex/document-notes-continuity` branch was pushed via
-  `Mar5929` and its remote commit verified. This is branch publication, not
-  merge or installation. Installation and fresh-session continuation remain
-  unverified.
+- Scoped delivery: [PR #356](https://github.com/Mar5929/claude-toolkit/pull/356)
+  merged the document-continuity source at `c77082e` on 2026-09-18. Review,
+  merge, and source publication are complete for this slice.
+- Still open: adoption through project sync and observed fresh-session
+  continuation. A source merge does not establish either one.

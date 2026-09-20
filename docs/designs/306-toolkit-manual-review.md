@@ -343,7 +343,10 @@ separate claims.
 
 ## Notes
 
-Implementation and both independent reviews are complete. Owner-authorized
-merge follows the final staged checks and PR. Issue #306 is the publication and
-continuation record; it retains the actual PR, merge evidence, and remaining
-host verification. No other-project rollout is authorized by this work.
+Implementation and both independent reviews are complete. [PR #363](https://github.com/Mar5929/claude-toolkit/pull/363)
+merged the reviewed source at `4566444`; source publication is complete. Issue
+#306 is the publication and continuation record, but its closed state does not
+by itself establish acceptance. Native Claude model receipt, trusted Codex hook
+receipt, clear/compaction, Windows, disabled-hook or trust behavior, project
+adoption, and broader rollout retain the limits recorded above. No other-project
+rollout is authorized by this work.
