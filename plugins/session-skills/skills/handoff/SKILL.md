@@ -237,7 +237,8 @@ For a requested handoff, preserve the checked continuation under the exact
 heading `## Session handoffs` in the installed current-work file selected in
 step 2. If no valid current-work destination was established, skip the write
 and report why; still provide the full prompt. Add the heading if absent.
-Keep multiple entries, including handoffs for other tasks. This is disposable working context, not lasting memory,
+Keep multiple entries, including handoffs for other tasks. This is disposable
+working context, not lasting memory,
 tracker status, or permission to continue an unapproved action. `/handoff check`
 on its own does not capture an entry.
 
@@ -363,7 +364,7 @@ Follow the project's output style. Two things that matter here in particular:
 | The prompt claims tests or a build passed | The checker never runs them. With no command output from this session behind it, the claim is labelled not confirmed |
 | `/handoff` is run twice in a row | Do not re-propose what was already saved. Propose only what changed since the first run, then draft and check again from the current state |
 | The session is short and produced nothing | Say so. Write a short prompt if the owner still wants one. Do not pad it |
-| The work is unfinished | Normal. That is what a handoff is for. Unfinished state goes in the prompt and wherever the work item is being tracked, never in project knowledge |
+| The work is unfinished | Normal. That is what a handoff is for. Keep authoritative unfinished state in the work record; the prompt and temporary Session handoffs entry carry the useful continuation and its links |
 | The owner wants only the prompt, no persistent review | Their call. Say once that nothing will be saved, then draft, check, and show the prompt with everything carried inside it |
 | The owner wants the prompt with no check | Their call. Say once that nothing in it will have been verified, then write it |
 | Another session is working in the same repository | Say which worktree and branch this session was in, so the next one does not assume it owns the checkout |
