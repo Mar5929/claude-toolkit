@@ -58,8 +58,9 @@ export function parseFrontmatter(text) {
     return { hasFrontmatter: false, data: {}, body: normalised, errors };
   }
 
-  const data = {};
+  const data = Object.create(null);
   let currentKey = null;
+  let listAllowed = false;
 
   for (let i = 1; i < end; i++) {
     const raw = lines[i];
@@ -72,6 +73,7 @@ export function parseFrontmatter(text) {
         errors.push(`line ${i + 1}: a list item with no field above it`);
         continue;
       }
+      if (!listAllowed) { errors.push(`line ${i + 1}: list items cannot replace a scalar field`); continue; }
       if (!Array.isArray(data[currentKey])) data[currentKey] = [];
       data[currentKey].push(stripQuotes(listItem[1]));
       continue;
@@ -86,6 +88,17 @@ export function parseFrontmatter(text) {
 
     const [, key, rest] = pair;
     currentKey = key;
+    listAllowed = rest === "";
+    if (Object.hasOwn(data, key)) {
+      errors.push(`line ${i + 1}: duplicate field ${key}`);
+      currentKey = null;
+      continue;
+    }
+    if (/^[|>{}&*!]/.test(rest) || (rest.startsWith("[") !== rest.endsWith("]"))) {
+      errors.push(`line ${i + 1}: use a scalar or flat list; this YAML form is not supported`);
+      currentKey = null;
+      continue;
+    }
 
     if (rest === "") {
       data[key] = "";

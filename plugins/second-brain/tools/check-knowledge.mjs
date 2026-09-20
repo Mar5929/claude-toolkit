@@ -21,11 +21,12 @@
  */
 
 import { createHash } from "node:crypto";
-import { readdirSync, readFileSync, existsSync } from "node:fs";
-import { dirname, relative, resolve, sep } from "node:path";
+import { readdirSync, readFileSync, existsSync, lstatSync } from "node:fs";
+import { dirname, relative, resolve, sep, basename } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { parseFrontmatter } from "./frontmatter.mjs";
+import { knowledgeSchema, collectV2, renderV2Indexes, V2_INDEXES } from "./build-knowledge-index.mjs";
 
 const installedRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const root = resolve(process.argv[2] || installedRoot);
@@ -38,9 +39,8 @@ const SUMMARY_MAX_CHARS = 250;
 export const MANUAL_SHA256 = "33f9817a96e0c3a436189dea75a6c0bb4b357cd73e0fac39840bdcf089e75cd0";
 
 const STATUS_VALUES = ["current", "superseded", "retired"];
-// A PRD is one living document. It opens as proposed, holding the
-// requirements, and becomes finalized once the build is done and it
-// describes what was actually built. Memory never sits at proposed.
+// Finalized records approved requirements, not proof of delivery.
+// Legacy current remains readable only under the legacy schema.
 const SPEC_STATUS_VALUES = ["proposed", "finalized", ...STATUS_VALUES];
 const TYPE_VALUES = ["fact", "decision", "event", "context", "constraint"];
 const CONFIDENCE_VALUES = ["observed", "reported", "inferred"];
@@ -111,7 +111,7 @@ function checkSecrets(path, text) {
   }
 }
 
-function checkFile(vault, folder, name, kind) {
+function checkFile(vault, folder, name, kind, schema = 1) {
   const path = `knowledge/${folder}/${name}`;
   const text = readFileSync(resolve(vault, folder, name), "utf8");
   filesChecked++;
@@ -128,8 +128,15 @@ function checkFile(vault, folder, name, kind) {
   }
   for (const error of errors) fail(path, `frontmatter problem: ${error}.`);
 
-  const required = kind === "memory" ? MEMORY_REQUIRED : SPEC_REQUIRED;
-  const known = kind === "memory" ? MEMORY_KNOWN : SPEC_KNOWN;
+  const required = [...(kind === "memory" ? MEMORY_REQUIRED : SPEC_REQUIRED)];
+  const known = new Set(kind === "memory" ? MEMORY_KNOWN : SPEC_KNOWN);
+  const autoSaved = schema === 2 && kind === "memory" && data.auto_saved === "true";
+  if (schema === 2) {
+    required.push("group", "updated_at", ...(kind === "memory" ? ["context"] : []));
+    for (const key of ["updated_at", ...(kind === "memory" ? ["context", "auto_saved"] : [])]) known.add(key);
+    if (kind === "memory" && Object.hasOwn(data, "auto_saved") && !autoSaved) fail(path, "auto_saved must be true when present; omit it for individually approved memory.");
+    if (autoSaved && (Object.hasOwn(data, "approved_by") || Object.hasOwn(data, "approval_date"))) fail(path, "auto_saved replaces individual approval fields; a standing grant is not individual approval.");
+  }
 
   // Saving a proposed PRD does not approve its requirements. Omit the pair
   // only when neither approval field has been supplied; placeholders are invalid.
@@ -138,12 +145,13 @@ function checkFile(vault, folder, name, kind) {
   const approvalFields = ["approved_by", "approval_date"];
 
   for (const field of required) {
-    if (unapprovedDraft && approvalFields.includes(field)) continue;
+    if ((unapprovedDraft || autoSaved) && approvalFields.includes(field)) continue;
     const value = data[field];
     const empty = value === undefined
       || value === ""
       || (Array.isArray(value) && value.length === 0);
     if (empty) fail(path, `is missing the required field \`${field}\`.`);
+    else if (field !== "tags" && (typeof value !== "string" || !value.trim())) fail(path, `${field} must be a nonblank string.`);
   }
 
   for (const field of approvalFields) {
@@ -167,22 +175,24 @@ function checkFile(vault, folder, name, kind) {
   if (kind === "memory" && data.type && !TYPE_VALUES.includes(data.type)) {
     fail(path, `has type "${data.type}". It must be one of: ${TYPE_VALUES.join(", ")}.`);
   }
-  const statusValues = kind === "memory" ? STATUS_VALUES : SPEC_STATUS_VALUES;
+  const statusValues = kind === "memory" ? STATUS_VALUES : SPEC_STATUS_VALUES.filter(status => schema === 1 || status !== "current");
   if (data.status && !statusValues.includes(data.status)) {
     fail(path, `has status "${data.status}". It must be one of:`
       + ` ${statusValues.join(", ")}.`);
   }
 
-  for (const field of DATE_FIELDS) {
+  for (const field of [...DATE_FIELDS, ...(schema === 2 ? ["updated_at"] : [])]) {
     const value = data[field];
-    if (typeof value === "string" && value !== "" && !isDate(value)) {
+    if (value !== undefined && (typeof value !== "string" || !isDate(value))) {
       fail(path, `has ${field} "${value}". Dates are written YYYY-MM-DD.`);
     }
   }
 
-  if (typeof data.summary === "string" && data.summary.length > SUMMARY_MAX_CHARS) {
+  const summaryLimit = schema === 2 ? 199 : SUMMARY_MAX_CHARS;
+  if (schema === 2 && typeof data.summary === "string" && /[\r\n]/.test(data.summary)) fail(path, "summary must be one line.");
+  if (typeof data.summary === "string" && [...data.summary].length > summaryLimit) {
     fail(path, `has a summary of ${data.summary.length} characters. It is one`
-      + ` sentence, at most ${SUMMARY_MAX_CHARS}. The index copies it, so a long`
+      + ` sentence, at most ${summaryLimit}. The index copies it, so a long`
       + " one is paid for on every read.");
   }
 
@@ -205,11 +215,11 @@ function checkFile(vault, folder, name, kind) {
     if (!value) continue;
     for (const target of value.split(",").map((item) => item.trim()).filter(Boolean)) {
       const candidates = [
-        resolve(root, target),
+        resolve(vault, "..", target),
         resolve(vault, folder, target),
         resolve(vault, target),
       ];
-      if (!candidates.some((candidate) => existsSync(candidate))) {
+      if (!(schema === 2 ? candidates.slice(0, 1) : candidates).some((candidate) => existsSync(candidate))) {
         fail(path, `${field} points at "${target}", which does not exist.`);
       }
     }
@@ -359,6 +369,72 @@ function checkManual(vault) {
   }
 }
 
+
+function checkV2(projectRoot, vault) {
+  const requiredPaths = ["SOUL.md", "knowledge/project.md", "knowledge/README.md", "knowledge/memory/current.md", "knowledge/memory-inbox.md", "knowledge/memory/memory-entries/terminology-glossary.md"];
+  for (const path of requiredPaths) {
+    const absolute = resolve(projectRoot, path);
+    if (!existsSync(absolute)) { fail(path, "is missing from this schema-2 project. Complete migration before reporting it equipped."); continue; }
+    if (lstatSync(absolute).isSymbolicLink() || !lstatSync(absolute).isFile()) { fail(path, "must be a regular project file."); continue; }
+    const text = readFileSync(absolute, "utf8");
+    filesChecked++;
+    checkSecrets(path, text);
+    if (path === "knowledge/memory/current.md" && [...text].length >= 5000) fail(path, "must be under 5000 characters. Preserve useful meaning while shortening it.");
+  }
+  for (const path of ["knowledge/current.md", "knowledge/prds/spec-index.md"]) {
+    if (existsSync(resolve(projectRoot, path))) fail(path, "is a legacy location. Reconcile and migrate it; do not keep competing active records.");
+  }
+  if (existsSync(resolve(vault, "memory"))) {
+    for (const entry of readdirSync(resolve(vault, "memory"), { withFileTypes: true })) {
+      if (entry.isFile() && entry.name.endsWith(".md") && !["memory-index.md", "current.md"].includes(entry.name)) fail(`knowledge/memory/${entry.name}`, "is a legacy memory outside memory-entries/. Reconcile it before completing migration.");
+    }
+  }
+  const projectPath = resolve(vault, "project.md");
+  if (existsSync(projectPath) && lstatSync(projectPath).isFile()) {
+    const { data, errors } = parseFrontmatter(readFileSync(projectPath, "utf8"));
+    for (const error of errors) fail("knowledge/project.md", error);
+    if (data.memory_auto_save !== undefined && !["true", "false"].includes(data.memory_auto_save)) fail("knowledge/project.md", "memory_auto_save must be true or false.");
+    if (data.memory_auto_save === "true") {
+      for (const key of ["memory_permission_by", "memory_permission_date", "memory_permission_source", "memory_permission_scope"]) {
+        if (typeof data[key] !== "string" || !data[key].trim()) fail("knowledge/project.md", `enabled automatic memory saving needs ${key}.`);
+      }
+      if (data.memory_permission_date && !isDate(data.memory_permission_date)) fail("knowledge/project.md", "memory_permission_date must be a real YYYY-MM-DD date.");
+    }
+  }
+  for (const folder of V2_INDEXES) {
+    const { entries, problems: inventoryProblems } = collectV2(projectRoot, folder);
+    for (const problem of inventoryProblems) fail(folder.source, problem);
+    const topicGroups = new Map();
+    for (const entry of entries) {
+      if (folder.kind === "external") {
+        filesChecked++;
+        checkSecrets(entry.path, entry.text);
+        for (const key of ["source", "captured_at"]) if (typeof entry.data[key] !== "string" || !entry.data[key].trim()) fail(entry.path, `needs ${key}.`);
+        if (entry.data.captured_at && !isDate(entry.data.captured_at)) fail(entry.path, "captured_at must be a real YYYY-MM-DD date.");
+        continue;
+      }
+      const parts = posix(relative(resolve(projectRoot, folder.source), resolve(projectRoot, entry.path))).split("/");
+      for (const [i, part] of parts.entries()) if (!TOPIC_NAME.test(i === parts.length - 1 ? part.slice(0, -3) : part)) fail(entry.path, "use lowercase topic words joined by hyphens for files and folders.");
+      if (folder.kind === "memory" && parts.length > 1) {
+        const group = topicGroups.get(parts[0]);
+        if (group && group !== entry.data.group) fail(entry.path, "files in one memory topic folder must share their group.");
+        topicGroups.set(parts[0], entry.data.group);
+      }
+      const relativePath = posix(relative(vault, resolve(projectRoot, entry.path)));
+      checkFile(vault, dirname(relativePath), basename(relativePath), folder.kind, 2);
+    }
+  }
+  for (const output of renderV2Indexes(projectRoot)) {
+    const path = posix(relative(projectRoot, output.path));
+    for (const problem of output.problems.filter(problem => problem.includes("parent PRD's group"))) fail(path, problem);
+    if (!existsSync(output.path)) fail(path, "is missing. Rebuild the generated indexes.");
+    else if (lstatSync(output.path).isSymbolicLink() || !lstatSync(output.path).isFile()) fail(path, "must be a regular generated index file.");
+    else if (readFileSync(output.path, "utf8") !== output.content) fail(path, "does not match its sources. Rebuild the generated indexes; sources win.");
+  }
+  const feedback = resolve(vault, "memory-self-improvement.md");
+  if (existsSync(feedback) && lstatSync(feedback).isFile()) { filesChecked++; checkSecrets("knowledge/memory-self-improvement.md", readFileSync(feedback, "utf8")); }
+}
+
 export function checkKnowledge(projectRoot = root) {
   problems.length = 0;
   filesChecked = 0;
@@ -366,6 +442,14 @@ export function checkKnowledge(projectRoot = root) {
   if (!existsSync(vault)) return { problems: [], filesChecked: 0, skipped: true };
 
   checkManual(vault);
+  const manualPath = resolve(vault, "knowledge-manual.md");
+  const manualText = existsSync(manualPath) ? readFileSync(manualPath, "utf8") : "";
+  const markers = manualText.match(/<!--\s*claude-toolkit:knowledge-schema:[^>]*-->/g) || [];
+  if (markers.length > 1 || (markers.length && markers[0] !== "<!-- claude-toolkit:knowledge-schema:2 -->")) fail("knowledge/knowledge-manual.md", "has an unknown or duplicate schema marker; reconcile the managed manual.");
+  if (knowledgeSchema(projectRoot) === 2) {
+    checkV2(projectRoot, vault);
+    return { problems: [...problems], filesChecked, skipped: false, schema: 2 };
+  }
   checkCurrent(vault);
   checkSelfImprovement(vault);
   checkFolder(vault, "memory", "memory", "memory-index.md");
