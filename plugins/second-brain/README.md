@@ -104,7 +104,7 @@ parallel helpers are unavailable.
 `tests/save-recovery.test.mjs` exercises real disposable local Git repositories;
 `tests/checkpoints.test.mjs` covers bounded continuation and stale/helper receipts.
 `tests/action-checkpoints.test.mjs` covers action identities, one-use receipts,
-concurrent retries, compound close/merge commands and installed hook wiring.
+concurrent retries, compound close/merge commands and hook entry points.
 `tests/new-install.test.mjs` assembles an empty project and runs the copied
 startup, prompt, completion and review commands from a nested working directory.
 These deterministic checks do not replace fresh-agent meaning/host tests.
