@@ -44,6 +44,14 @@ an Opus fixer. `process.md` says what each role did.
 
 ## research/
 
+### Native hook correlation — 2026-09-20
+
+[Native hook correlation evidence](research/2026-09-20-native-hook-correlation.md)
+preserves the Claude Code 2.1.271 and Codex CLI 0.154.0 event inputs, exact
+commands, correlation conclusions and untested surfaces used for the bounded
+Codex completion-hook correction. It does not establish a Claude prompt-to-Stop
+mapping or general host ordering guarantee.
+
 ### Claude Projects comparison — 2026-09-20
 
 [Claude Projects redesign and Toolkit OS](research/2026-09-20-claude-projects-redesign.md)
