@@ -115,11 +115,14 @@ start identifies a managed manual. An unrelated README remains untouched.
    reminder under `UserPromptSubmit` with no matcher, the save
    reminder under `PreToolUse` with the `Bash` matcher, the work-item hook where
    the project's tracker signals a close. Where native Codex hooks exist,
-   register the same fail-open startup loader with at least 5,000 tokens of
-   additional context so the manual and map are not cut off.
-7. Add the same short startup and fallback route to root `CLAUDE.md` and
-   `AGENTS.md`. It points to the manual and map without copying policy. Register
-   the native Codex hook where available; the root route remains the fallback.
+   register the same fail-open startup loader. It emits only a bounded ordered
+   read request, never the manual or map bodies. The agent reads each listed file
+   completely, continuing in chunks after truncation, and reports unavailable
+   required guidance before claiming readiness.
+7. Add the short startup and fallback route to root `CLAUDE.md`; keep
+   `AGENTS.md` as its one-line pointer. The route names the manual and map
+   without copying policy. Register the native Codex hook where available;
+   the root route remains the fallback.
 8. Set `CLAUDE_CODE_DISABLE_AUTO_MEMORY` to `1` and enable
    `second-brain@claude-toolkit` in the project's settings.
 9. Run `node .claude/tools/build-knowledge-index.mjs` and then

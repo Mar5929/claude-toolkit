@@ -198,7 +198,8 @@ These are not duplicated here. Go to the index that owns them:
   system with one managed operating manual, a small project map, two generated
   indexes, approved specifications, flat memory, and unchecked brainstorms. The
   package ships task-specific workflows plus setup and safe migration. Its
-  startup hook reads only the manual and map, reminder hooks only remind, and no
+  startup hook supplies a bounded ordered read route for the manual and map,
+  reminder hooks only remind, and no
   hook or helper agent writes or approves knowledge.
 - **Superseded second-brain v2 proposal**: deleted by issue #144, along with the
   v3 design documents. It was a proposal that was never built, and its numbered
@@ -313,7 +314,8 @@ The genuine watch-items are called out at the end.
 - **hooks-library versus project knowledge.** The general hook library owns
   reusable guards and reminders. Second-brain owns its two project-knowledge
   lifecycle hooks because their commands and messages are part of installing
-  that system. The startup hook reads only the managed manual and small map, and the
+  that system. The startup hook requests complete reads of the managed manual
+  and small map without injecting their bodies, and the
   pull-request hook only pauses for the owner-approved `remember` review. Neither
   writes knowledge.
 - **git-workflows versus the parallel-agent-sessions rule.** The rule states the

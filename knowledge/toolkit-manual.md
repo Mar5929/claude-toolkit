@@ -1,11 +1,12 @@
 # Toolkit Operating System manual
 
-**Review draft.** This document was drafted under
+**Detailed review draft.** This repository document was drafted under
 [issue #306](https://github.com/Mar5929/claude-toolkit/issues/306), now closed.
 It explains the intended working experience and links to this repository's existing
-instructions. Publishing this draft does not activate it, install it in other
-projects, or establish that every proposed capability works. Installation,
-update behavior, and startup delivery still need their own design and review.
+instructions. A reusable project template, setup and sync route, and bounded
+startup pointers are implemented in this branch. That scoped delivery does not
+approve the proposed umbrella PRD, establish adoption in another project, or
+prove complete host reads or every proposed capability.
 
 ## What the toolkit is for
 
@@ -299,15 +300,14 @@ Changes to rules, skills, prompts, configuration, or executable behavior use
 the implementation workflow, including when their files are Markdown. The
 publication rule owns the detailed checks, concurrency handling, and recovery.
 
-For this manual, the agreed destination is `knowledge/toolkit-manual.md`.
-This repository document is the current source. There is no plugin-owned
-reusable template or setup/sync step that installs it in equipped projects.
-The intended delivery owners are `project-init` and `project-sync`. Root
-instructions and relevant reminders should reference its actual project path.
-The startup design should provide concise orientation and lead to detailed
-instructions when needed. Its delivery on each host and its behavior after
-context loss still require design and verification. This draft does not alter
-those mechanisms.
+This file is the toolkit repository's detailed copy. The reusable project source
+is [the project-init template](../plugins/project-init/library/templates/toolkit-manual.md),
+installed as `knowledge/toolkit-manual.md`. Project-init and project-sync own
+the copy, project-specific root route, and configured startup pointer. The
+startup route supplies concise orientation and requires an explicit complete
+read of the project file; it does not inject this full manual body. Merge,
+project adoption, complete reading, and recovery after context loss still need
+separate evidence on each supported host.
 
 The [content and delivery review](../docs/designs/306-toolkit-manual-review.md)
 records the inspected implementation, actual startup evidence, and remaining

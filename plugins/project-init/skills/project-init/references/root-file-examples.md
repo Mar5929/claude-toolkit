@@ -25,13 +25,22 @@ Salesforce delivery for Acme's sales org.
 Read `.claude/rules` first. Every file in that folder is a rule for how you work
 here, and they are in force for the whole session.
 
+Read `knowledge/toolkit-manual.md` completely during the first project
+orientation and after resume, clear, or compaction, and follow it throughout
+the work. If a read is shortened, open the file again from the first missing
+section, in chunks when needed. If it is missing or unreadable, report that
+instead of claiming readiness. Acknowledge receipt and intent only after the
+complete read.
+
 ## Project knowledge
 
-The startup hook loads `SOUL.md`, then `knowledge/knowledge-manual.md` once, then
-`knowledge/project.md`, `knowledge/current.md`, and the two knowledge indexes.
-If that map is not already in this session, read those files once in that order.
-If a file is missing, continue and report it. `knowledge/knowledge-manual.md` wins when
-project-knowledge instructions disagree.
+The startup hook provides the ordered project-knowledge read route: `SOUL.md`,
+`knowledge/knowledge-manual.md`, `knowledge/project.md`, `knowledge/current.md`,
+then the two knowledge indexes. Follow that route once at session start. If it
+was not provided, read those files in that order. If a file is missing or a
+read is shortened, report it and continue the read from the project file.
+`knowledge/knowledge-manual.md` wins when project-knowledge instructions
+disagree.
 
 When .system-guide.json is enabled, use the System Guide plugin's system-guide skill for questions or work about existing system structure, purpose, connections, or impact.
 

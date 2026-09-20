@@ -6,6 +6,10 @@ Reviewed 2026-09-19 against repository commit `e026e09`. Coordinating task:
 beside the [Knowledge System design](269-knowledge-system.md). It is not a new
 operating policy or an approved delivery design.
 
+The review findings below describe the original baseline. The later
+[implementation and verification](#implementation-and-verification) section
+records the authorized repair and its remaining host evidence limits.
+
 ## Result
 
 The [Toolkit manual](../../knowledge/toolkit-manual.md) explains the workflow
@@ -226,7 +230,7 @@ and establish adoption of current releases. The parent PRD owner should
 separately reconcile R25's stale delivery wording and select the tracker home
 for outstanding parent delivery work while respecting #306's closure.
 
-## Notes
+## Baseline review notes
 
 - Two Sol reviews, reciprocal challenges, and lead verification are complete.
   No unresolved substantive reviewer disagreement remains. Final review also
@@ -242,3 +246,104 @@ for outstanding parent delivery work while respecting #306's closure.
   failure remains recorded. Publication checks cover these documentation
   changes and do not certify runtime correctness. Both manuals were reviewed;
   the managed Knowledge manual needs no policy or content change for this review.
+
+## Implementation and verification
+
+Mike subsequently authorized this bounded implementation and two GPT-5.6 Sol
+helpers. He then authorized merge after checks and independent review in
+coordinating task `01a0baf5-bc72-7a22-91f3-3781f5dafef9`. The owning #306 record
+preserves that approval and its existing closed state. This does not approve
+the whole Toolkit OS proposal or the separate #269 Knowledge policy draft.
+
+### Delivery design
+
+Project-init 0.76.0 owns the full reusable manual at
+`plugins/project-init/library/templates/toolkit-manual.md`, its setup/sync
+procedure, and `library/hooks/toolkit-session-start.mjs`. Every equipped
+project receives `knowledge/toolkit-manual.md` and the complete-read route in
+its root instructions, independently of optional Knowledge and System Guide.
+The generic template preserves the useful workflow detail without links that
+require this repository's plugin source tree. Sync preserves project choices
+and approved adaptations and reconciles an existing handler instead of adding
+duplicates.
+
+The Toolkit hook is registered ahead of Knowledge at SessionStart for startup,
+resume, clear, and compact. Hook execution need not be serialized; the Knowledge
+message explicitly tells the agent to follow Toolkit orientation first. The
+Toolkit hook requests complete root/manual reads, chunked recovery
+from shortened output, and acknowledgment only after those reads. A shorter
+UserPromptSubmit reminder restores attention to the same owner without
+requiring another acknowledgment every turn. Missing, empty, unreadable and
+incomplete root guidance is reported honestly. Neither hook writes state,
+enforces policy, nor prints full document bodies.
+
+Second-brain 4.11.0 preserves the shipped Knowledge file order and canonical/
+legacy conflict handling. Its output now names complete required reads rather
+than emitting their bodies or only index entries. Both hooks canonicalize
+entry-point aliases and derive the installed project root when no host root
+variable exists. This repairs the actual `/tmp` versus `/private/tmp` defect
+without hiding it in the tests. The Knowledge manual's startup explanation and
+managed checksum change together; its policy blocks are unchanged.
+
+Both project host configurations and installed copies are updated. The root
+instruction route applies when hooks are unavailable. Source registration
+examples explicitly invoke PowerShell for Windows. Host trust is preserved.
+No machine cache, authentication, unrelated project, or optional-component
+choice is changed.
+
+### Verification evidence
+
+Two Sol helpers implemented separate areas, challenged each other's work, and
+reviewed the integration. The final runtime review found no material scoped
+blocker. It verified both copies, event registration, fallback wording,
+portable paths and missing-guidance behavior. The lead fixed the review finding
+that an available AGENTS pointer could conceal its missing CLAUDE target.
+
+Deterministic checks pass: Toolkit startup 10 cases, Knowledge startup 41,
+installed copies 24, System Guide integration 5, and Knowledge validation 13
+records. With all new files staged, link checks pass for 338 links, orphan checks pass
+for 208 files across 60 indexes, and plugin validation and whitespace checks
+pass. Regenerating both indexes leaves no changes.
+The Toolkit cases use a copied project with spaces, aliased and nested paths,
+large manual bodies, unavailable files, and optional components absent. Hook
+output remains short as file bodies grow; the tests do not score model replies.
+
+Actual host evidence used a disposable project at
+`/private/tmp/toolkit-host-proof-5fmbm8vf`. Logs are machine-local temporary
+evidence, not permanent toolkit state:
+
+| Host and run | Observed result | Limit |
+| --- | --- | --- |
+| Claude Code 2.1.271, fresh project-only run | SessionStart and UserPromptSubmit hook events both report success/exit 0; bounded outputs were 855 and 212 characters. | OAuth session expired before model work. Complete manual reading, acknowledgment and context recovery were not tested. Authentication was not changed. |
+| Codex CLI 0.154.0, fresh read-only run using gpt-5.6-sol | Read the whole generic manual in two chunks, read current task, used fixture-only tail marker COPPER-ORCHARD and respected the unapproved deployment boundary. | The isolated run ignored user configuration. A fixture-only event log remained absent, so this demonstrates the root fallback, not hook execution or trusted project settings. |
+| Same Codex session resumed after fixture guidance changed | Reread the whole manual and current task, used new tail marker SILVER-MEADOW, and named the revised approved action. | Demonstrates actual resume reads through the fallback. It does not exercise forced clear or compaction. |
+
+Raw logs are `claude-start.jsonl`, `codex-start.jsonl`,
+`codex-persistent-start.jsonl`, and `codex-resume.jsonl` in that fixture. Codex
+resume session was `01a0bc82-3124-7771-8b16-7bb6c1bd1c55`. Fixture markers and
+logging instrumentation are test-only and are not shipped.
+
+### Remaining evidence and integration
+
+Complete Claude model delivery remains unavailable until its normal login is
+restored. Actual trusted Codex hook receipt, clear/compaction in both hosts,
+Windows invocation, disabled-hook/trust behavior beyond the observed fallback,
+and helper-context inheritance remain unproved. Configuration and passing
+unit tests do not count as those results. These limitations do not prevent the
+reviewed source repair from merging; they prevent a claim of fully accepted
+both-host operation or rollout to existing projects.
+
+Knowledge task `01a0bc7c-5260-73f1-87a5-1667ace91b1e` owns the separate core
+manual/procedure package and will integrate this delivery change first before
+changing Knowledge paths, order or checksum. Audit task
+`01a0bc82-6a7b-7ba2-a158-be7cedf02a9f` owns residual cross-package tests/evidence.
+This change preserves the shipped Knowledge order and leaves #269 open for its
+broader acceptance. Release, project adoption, and host acceptance remain
+separate claims.
+
+## Notes
+
+Implementation and both independent reviews are complete. Owner-authorized
+merge follows the final staged checks and PR. Issue #306 is the publication and
+continuation record; it retains the actual PR, merge evidence, and remaining
+host verification. No other-project rollout is authorized by this work.

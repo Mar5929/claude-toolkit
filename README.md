@@ -98,6 +98,7 @@ claude-toolkit/
       .claude-plugin/plugin.json
       .codex-plugin/plugin.json
       library/                    ← everything that gets COPIED INTO a project.
+        hooks/toolkit-session-start.mjs ← bounded Toolkit orientation and reminder
         rules/general/               the standard .claude/rules files (11)
         rules/salesforce/            the extra Salesforce rules (10)
         tools/                       permsets.py and the kb/ dependency graph tool
@@ -120,7 +121,7 @@ claude-toolkit/
       .claude-plugin/plugin.json
       .codex-plugin/plugin.json
       hooks/
-        knowledge-session-start.mjs ← loads the manual and small project map
+        knowledge-session-start.mjs ← ordered complete-read route for manual and map
         save-reminder.mjs          ← pauses pull requests for the owner-approved save,
                                      and points a knowledge-only branch to the shared publication rule
         work-item-close.mjs        ← asks whether a finished work item left a spec stale
@@ -284,8 +285,9 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
 
 - [x] **Project knowledge package**: one portable Markdown knowledge vault under
   `knowledge/`, shared by Claude, Codex, Git, and optional Obsidian. One managed
-  `knowledge/knowledge-manual.md` owns the operating policy. The startup hook loads it
-  once with SOUL, project framing, current work, and the two generated indexes.
+  `knowledge/knowledge-manual.md` owns the operating policy. The startup hook
+  supplies a bounded route to read it completely with SOUL, project framing,
+  current work, and the two generated indexes, including after context loss.
   Flat memory holds one file per topic, specifications hold approved behavior,
   and brainstorms stay unchecked. The focused skills point to the manual and
   keep only their own task steps. The package has one checker and deliberately
