@@ -144,15 +144,18 @@ function executeScenario(scenario, caseRoot, state) {
 function failedScenarioResult(scenario, caseRoot, state, error) {
   const execution = state.execution;
   const processingFailure = serializeError(error);
+  const processingProcess = error?.processResult || null;
   return {
     id: scenario.id,
     description: scenario.description,
     mechanicalChecksPassed: false,
     modelOutcome: execution ? 'processing-failed-after-model' : 'not-run-processing-failed',
     exitCode: execution?.status ?? null,
-    signal: execution?.signal ?? null,
-    timedOut: execution?.timedOut ?? processingFailure.code === 'ETIMEDOUT',
-    processError: execution?.error ?? (processingFailure.code === 'ETIMEDOUT' ? processingFailure : null),
+    signal: processingProcess?.signal ?? execution?.signal ?? null,
+    timedOut: Boolean(execution?.timedOut || processingProcess?.timedOut || processingFailure.code === 'ETIMEDOUT'),
+    processError: processingProcess?.error ?? execution?.error ?? (processingFailure.code === 'ETIMEDOUT' ? processingFailure : null),
+    modelProcess: execution ? { exitCode: execution.status, signal: execution.signal, timedOut: execution.timedOut, error: execution.error } : null,
+    processingProcess,
     elapsedMs: state.elapsedMs,
     tokenUsage: execution ? parseTokenUsage(execution.stdout) : null,
     meaningOutcomes: scenario.expected.meaningOutcomes || [],
@@ -440,9 +443,15 @@ function command(bin, argv, cwd, throwOnError = true, env = process.env) {
   if (throwOnError && result.timedOut) {
     const error = new Error(`${bin} ${argv.join(' ')} timed out after ${timeoutSeconds} seconds`);
     error.code = 'ETIMEDOUT';
+    error.processResult = result;
     throw error;
   }
-  if (throwOnError && result.status !== 0) throw new Error(`${bin} ${argv.join(' ')} failed (${result.status}): ${result.stderr || result.error?.message || 'no error output'}`);
+  if (throwOnError && result.status !== 0) {
+    const error = new Error(`${bin} ${argv.join(' ')} failed (${result.status}): ${result.stderr || result.error?.message || 'no error output'}`);
+    error.code = result.error?.code || 'COMMAND_FAILED';
+    error.processResult = result;
+    throw error;
+  }
   return result;
 }
 
