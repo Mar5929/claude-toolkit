@@ -3,22 +3,16 @@
 /**
  * Read-only SessionStart loader.
  *
- * Prints the one operating manual and the small project map into a new session.
- *
- * From the two indexes it prints only the entry lines, never the explanation
- * at the top of those files. That explanation is for a person opening the file;
- * reprinting it at every session start would be paid for on every session and
- * teach the agent nothing.
- *
- * The listings are deliberately unsatisfying. They say enough to make an agent
- * open the right file and never enough to answer from the listing alone.
+ * Prints a bounded, ordered read request for the knowledge manual and project
+ * map. The files themselves may exceed a host's hook-output limit, so the hook
+ * never treats stdout delivery as proof that the agent read them.
  *
  * Fails open, always. A missing or unreadable file is skipped and the session
  * continues, because knowledge setup must never be able to wedge a session.
  */
 
-import { existsSync, readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { existsSync, readFileSync, realpathSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { MANUAL_PATH, resolveManual } from "./memory-reminder.mjs";
 
@@ -26,42 +20,13 @@ export const SYSTEM_GUIDE_CONFIG = ".system-guide.json";
 export const SYSTEM_GUIDE_OFF_MESSAGE = "System Guide is not configured.";
 
 export const STARTUP_FILES = [
-  { path: "SOUL.md", label: "Who you are in this project", whole: true },
-  {
-    path: "knowledge/knowledge-manual.md",
-    label: "How to use project knowledge",
-    whole: true,
-  },
-  { path: "knowledge/project.md", label: "What this project is", whole: true },
-  { path: "knowledge/current.md", label: "What is happening right now", whole: true },
-  {
-    path: "knowledge/memory/memory-index.md",
-    label: "What this project knows. Open a file before relying on its line",
-    whole: false,
-  },
-  {
-    path: "knowledge/prds/spec-index.md",
-    label: "How this project is meant to work. Only finalized or legacy current PRDs are settled requirements. A proposed PRD is not built yet",
-    whole: false,
-  },
+  { path: "SOUL.md" },
+  { path: "knowledge/knowledge-manual.md" },
+  { path: "knowledge/project.md" },
+  { path: "knowledge/current.md" },
+  { path: "knowledge/memory/memory-index.md" },
+  { path: "knowledge/prds/spec-index.md" },
 ];
-
-/** Just the list entries and their wrapped continuation lines. */
-export function entriesOnly(text) {
-  const kept = [];
-  let inEntry = false;
-  for (const line of text.split("\n")) {
-    if (/^-\s/.test(line)) {
-      kept.push(line);
-      inEntry = true;
-    } else if (inEntry && /^\s+\S/.test(line)) {
-      kept.push(line);
-    } else {
-      inEntry = false;
-    }
-  }
-  return kept.join("\n");
-}
 
 /**
  * The System Guide plugin owns every configured on/repair briefing. The second
@@ -82,53 +47,68 @@ export function systemGuideOffMessage(projectRoot) {
 
 export function loadKnowledge(projectRoot) {
   const root = resolve(projectRoot || process.cwd());
-  const sections = [];
+  const lines = [
+    "Project knowledge startup.",
+    "Follow any Toolkit startup orientation and root instruction chain delivered for this project first.",
+    "Before claiming readiness or doing substantial work, read every available file below completely in this exact order.",
+    "If a read is truncated, continue reading in additional chunks until the entire file has been read.",
+  ];
+  let position = 0;
 
-  for (const { path, label, whole } of STARTUP_FILES) {
+  for (const { path } of STARTUP_FILES) {
+    position++;
     if (path === MANUAL_PATH) {
       const manual = resolveManual(root);
-      if (manual.notice) sections.push(`[${manual.notice}]`);
+      if (manual.notice) lines.push(`[${manual.notice}]`);
       if (typeof manual.text === "string") {
-        sections.push(`${label} (${manual.path}):\n\n${manual.text.replace(/\r\n/g, "\n").trim()}`);
+        lines.push(`${position}. Read all of \`${manual.path}\`.`);
       } else if (!manual.notice) {
-        sections.push(`[Project startup file missing: ${MANUAL_PATH}. Continuing without it. Do not invent knowledge policy; project sync can restore the managed copy.]`);
+        lines.push(`[Project startup file missing: ${MANUAL_PATH}. Continuing without it. Do not invent knowledge policy; project sync can restore the managed copy.]`);
       }
       continue;
     }
     const absolute = resolve(root, path);
     if (!existsSync(absolute)) {
-      const detail = path === "knowledge/knowledge-manual.md"
-        ? " Do not invent knowledge policy; project sync can restore the managed copy."
-        : "";
-      sections.push(`[Project startup file missing: ${path}. Continuing without it.${detail}]`);
+      lines.push(`[Project startup file missing: ${path}. Continuing without it.]`);
       continue;
     }
-    let text;
     try {
-      text = readFileSync(absolute, "utf8").replace(/\r\n/g, "\n").trim();
-    } catch (error) {
-      sections.push(`[Could not read ${path}: ${error.message}. Continuing without it.]`);
+      const text = readFileSync(absolute, "utf8");
+      if (!text.trim()) {
+        lines.push(`[Project startup file empty: ${path}. Continuing without it.]`);
+        continue;
+      }
+    } catch {
+      lines.push(`[Could not read ${path}. Continuing without it.]`);
       continue;
     }
-    const body = whole ? text : entriesOnly(text);
-    if (body.trim()) {
-      sections.push(`${label} (${path}):\n\n${body}`);
-    } else if (!whole && text) {
-      sections.push(`${label} (${path}):\n\nNothing saved yet.`);
-    } else {
-      sections.push(`[Project startup file empty: ${path}. Continuing without it.]`);
-    }
+    lines.push(`${position}. Read all of \`${path}\`.`);
   }
 
   const guideStatus = systemGuideOffMessage(root);
-  if (guideStatus) sections.push(guideStatus);
+  if (guideStatus) lines.push(guideStatus);
 
-  return sections.join("\n\n---\n\n") + "\n";
+  lines.push(
+    "Follow the resolved managed manual listed above only after reading it completely.",
+    "Report missing, empty, unreadable, or conflicting required guidance before claiming readiness. This checklist is not proof that the files were read.",
+  );
+  return lines.join("\n") + "\n";
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
+function canonicalPath(path) {
   try {
+    return realpathSync(path);
+  } catch {
+    return resolve(path);
+  }
+}
+
+if (process.argv[1]
+  && canonicalPath(fileURLToPath(import.meta.url)) === canonicalPath(process.argv[1])) {
+  try {
+    const installedRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
     const root = process.env.CLAUDE_PROJECT_DIR
+      || (existsSync(resolve(installedRoot, "knowledge")) ? installedRoot : null)
       || process.env.CODEX_PROJECT_DIR
       || process.cwd();
     process.stdout.write(loadKnowledge(root));

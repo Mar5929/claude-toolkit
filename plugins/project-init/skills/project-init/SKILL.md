@@ -296,10 +296,12 @@ source evidence separate from owner-approved meaning, normally under
   plugin policy.
 - Register `.claude/hooks/knowledge-session-start.mjs` as a fail-open Claude
   `SessionStart` hook. Add the equivalent fail-open `.codex/hooks.json` route
-  and add the same short startup and fallback pointer to both root files. The
-  hook loads `SOUL.md`, the manual, project framing, current work, and both
-  index entry lists in that order. Give the Codex handler at least 5,000 tokens
-  of additional context. The root files copy none of the policy.
+  and put the short fallback in `CLAUDE.md`; `AGENTS.md` remains the one-line
+  route to `CLAUDE.md`. The hook emits bounded instructions to read `SOUL.md`,
+  the manual, project framing, current work, and both indexes
+  completely and in that order. Continue shortened reads from the first missing
+  section. A configured output threshold is a spill limit, not proof of host
+  capacity or a complete read. The root files copy none of the policy.
 - After installation, offer to invoke `remember` for any initial candidates. It
   follows the manual and writes only approved meaning.
 - A new project starts with no memories. Never inherit another project's
@@ -350,6 +352,13 @@ anything that answers none of the five.
 `AGENTS.md` is one line pointing Codex at `CLAUDE.md`.
 `references/thin-claudemd.md` has the exact structure and the list of what never
 goes in.
+
+Install the Toolkit operating manual in every equipped project. Read
+`references/toolkit-manual-delivery.md`, copy
+`../../library/templates/toolkit-manual.md` to `knowledge/toolkit-manual.md`,
+and add its short complete-read route to `CLAUDE.md`. This manual is independent
+of the optional project-knowledge system. Root instructions supply the
+project's actual paths, tracker, and enabled-component pointers.
 
 The behavioral rules do NOT go inside CLAUDE.md. They are individual files in the
 project's `.claude/rules/` folder, copied from the toolkit's rules libraries.
@@ -585,6 +594,8 @@ library.
 - `references/root-file-examples.md`: a finished `CLAUDE.md` and the matching
   one-line `AGENTS.md` for one example project. Read it in Gate 5, alongside
   `thin-claudemd.md`.
+- `references/toolkit-manual-delivery.md`: the package, destination, root route,
+  runtime handoff, and verification contract for the Toolkit operating manual.
 - `references/folder-claudemd.md`: the short `CLAUDE.md` Gate 1 writes inside
   each major folder. What goes in one, what never does, which folders get one,
   and which are skipped. Read it in Gate 1, before creating folders.
@@ -606,6 +617,8 @@ library.
   folder to `tools/kb/` in the project; the orchestrator imports every file.
 - `../../library/templates/permissions-runbook.md`: the project-side runbook to
   copy and fill in when permission sets are tracked.
+- `../../library/templates/toolkit-manual.md`: the reusable Toolkit operating
+  manual copied to `knowledge/toolkit-manual.md` in every equipped project.
 - `../../library/guides/salesforce-permissions-retrieval.md`: the end-to-end
   process for keeping permission sets in source control safely, and what to do
   about profiles (excluded by default). Covers the four-part install, the

@@ -91,6 +91,9 @@ function shippedOriginalFor(path) {
   let match = path.match(/^\.claude\/rules\/(.+\.md)$/);
   if (match) return `${GENERAL_RULES}/${match[1]}`;
   match = path.match(/^\.claude\/hooks\/(.+)$/);
+  if (match && match[1] === "toolkit-session-start.mjs") {
+    return "plugins/project-init/library/hooks/toolkit-session-start.mjs";
+  }
   const secondBrainHooks = [
     "knowledge-session-start.mjs",
     "save-reminder.mjs",

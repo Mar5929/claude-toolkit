@@ -16,7 +16,11 @@ Each asks a different question, and each exists because something real broke.
 | `link-check.mjs` | Does what a file points at still exist? |
 | `orphan-check.mjs` | Can a shipped file still be found, meaning is it named by at least one index document? |
 | `installed-copy-check.mjs` | Do two files that must say the same thing still say it, and does the Salesforce scaffold keep its required homes? |
-| `knowledge-startup-check.mjs` | Do both hosts load one managed manual and the same small project map? |
+| `knowledge-startup-check.mjs` | Do both hosts request complete, ordered reads of the managed manual and project map? |
+
+For Toolkit delivery changes, also run `node --test tests/toolkit-startup.test.mjs`.
+It checks bounded output, missing guidance, copied hooks, path aliases, nested
+working directories, host registration, and portable manual references.
 
 ## Working in here
 

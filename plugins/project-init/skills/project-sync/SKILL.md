@@ -54,7 +54,8 @@ automatically as it grows.
      holds `rules/general/` (with its `README.md` index), `rules/salesforce/`
      (with its own index), `tools/`,
      `templates/`, and `guides/`. The sibling skill's
-     `../project-init/references/` holds `thin-claudemd.md` and `setup-flow.md`,
+     `../project-init/references/` holds `thin-claudemd.md`,
+     `toolkit-manual-delivery.md`, and `setup-flow.md`,
      and the plugin root holds `.claude-plugin/plugin.json`.
   2. A local clone of the toolkit repo, if the user has one.
   3. Fetch the repo (`Mar5929/claude-toolkit`), or ask the user where it lives.
@@ -533,6 +534,12 @@ the file and report:
   continuity instruction. `../project-init/references/thin-claudemd.md` has the
   exact wording. Report any missing, and report any reworded copy, since the
   wording is the owner's and is not to be edited.
+- **Toolkit operating-manual route.** Confirm
+  `knowledge/toolkit-manual.md` exists and `CLAUDE.md` carries the exact
+  complete-read fallback from `thin-claudemd.md`. Audit the packaged template,
+  installed project-init-owned hook, and each host registration separately by
+  following `../project-init/references/toolkit-manual-delivery.md`. This route
+  applies even when project knowledge and System Guide are disabled.
 - **Lines an agent never needed.** For each line ask whether removing it would
   make an agent get something wrong. Flag every line where the answer is no,
   starting with: what a session could find in one command (a folder is
@@ -551,11 +558,15 @@ the file and report:
 - **Live state that belongs in the tracker.** Current phase, next action, and
   open TODOs drift the moment they are written here.
 - **Project-knowledge startup parity.** When the current layout is installed,
-  confirm both hosts register the same loader and that it reads, in order,
+  confirm both hosts register the same loader and that it emits bounded
+  instructions to read completely, in order,
   `SOUL.md`, `knowledge/knowledge-manual.md`, `knowledge/project.md`,
-  `knowledge/current.md`, and the entry lines of both indexes. Confirm it loads
-  no other memory and fails open when a file is absent. `CLAUDE.md` carries only
-  the short fallback. Any copied policy is stale duplication.
+  `knowledge/current.md`, and both indexes. Confirm it emits no file bodies,
+  requests no other memory, and fails open when a file is absent. Verify that a
+  shortened read continues from the first missing section. A configured output
+  threshold is a spill limit, not evidence of host capacity or a complete
+  read. `CLAUDE.md` carries only the short fallback; `AGENTS.md` remains its
+  one-line route. Any copied policy is stale duplication.
 - **Stale content.** Anything the code, paths, or decisions have since
   contradicted.
 
@@ -630,6 +641,14 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   override with the owner rather than silently leaving conflicting selections.
   Preserve deliberate choices of another style. The new voice starts in the
   next session.
+- **For an approved Toolkit operating-manual gap,** follow
+  `../project-init/references/toolkit-manual-delivery.md`. Reconcile
+  `library/templates/toolkit-manual.md` into `knowledge/toolkit-manual.md`,
+  install the project-init-owned hook and supported host registrations, and add
+  the exact root fallback. Preserve deliberate local meaning. Apply updates
+  already covered by this sync; ask only when meaning or scope is unresolved or
+  local changes conflict. Verify copied content, direct hook output, host
+  configuration, and complete-read behavior as separate facts.
 - **For the retired voice rules, propose the swap, never a bare deletion.** A
   project on the old setup has working guidance; removing it before the style
   is in leaves the project with neither. Install and verify `Plain English` first,
@@ -729,17 +748,19 @@ should look in THIS project, confirm, act, summarize. Ground rules:
      enable `second-brain@claude-toolkit`, register the fail-open Claude
      `SessionStart` loader, and register both reminders under `PreToolUse` with
      the `Bash` matcher. Register `memory-reminder.mjs` under `UserPromptSubmit`.
-  5. Add the same short startup and fallback pointer to root `AGENTS.md` and
-     `CLAUDE.md`. Merge the same fail-open loader into `.codex/hooks.json`
-     without removing other hooks, with at least 5,000 tokens of additional
-     context.
+  5. Add the short startup and fallback pointer to root `CLAUDE.md`; keep
+     `AGENTS.md` as its one-line route. Merge the same fail-open loader into
+     `.codex/hooks.json` without removing other hooks. Treat its configured
+     output threshold as a spill limit, not a host-capacity guarantee.
   6. Add the Obsidian ignore allowlist so only `knowledge/.obsidian/app.json` is
      shared.
   7. Run `node .claude/tools/build-knowledge-index.mjs`, then
      `node .claude/tools/check-knowledge.mjs`. Both must pass. Then run the
-     startup loader and confirm it prints `SOUL.md`, the manual,
-     `knowledge/project.md`, `knowledge/current.md`, and the entry lines of both
-     indexes, once each and in that order.
+     startup loader and confirm it emits bounded instructions to read `SOUL.md`,
+     the manual, `knowledge/project.md`, `knowledge/current.md`, and both
+     indexes completely, once each and in that order, without printing their
+     bodies. Exercise continuation from the first missing section for a
+     shortened read.
   8. After converting a folder off an older layout, run the `reflect` skill once.
      A conversion is exactly when duplicates and contradictions surface.
 

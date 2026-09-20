@@ -35,7 +35,7 @@ const posix = (value) => value.split(sep).join("/");
 const CURRENT_MD_MAX_CHARS = 2000;
 const SELF_IMPROVEMENT_MAX_CHARS = 8000;
 const SUMMARY_MAX_CHARS = 250;
-export const MANUAL_SHA256 = "33f9817a96e0c3a436189dea75a6c0bb4b357cd73e0fac39840bdcf089e75cd0";
+export const MANUAL_SHA256 = "9081d44df486c03c93b846a738e7e5f58f246718f94b7c7f7cf49d82d819de80";
 
 const STATUS_VALUES = ["current", "superseded", "retired"];
 // A PRD is one living document. It opens as proposed, holding the

@@ -8,16 +8,18 @@ A KNOWLEDGE BASE WITH POLLUTED INFORMATION OR MORE INFORMATION THAN NECESSARY OR
 
 REMEMBER THE GOAL OF LONG TERM MEMORY IS SO THE AI AGENT GETS PROGRESSIVELY SMARTER AND UNDERSTANDS AND KEEPS TRACK OF THINGS BETTER THAN THE USER!
 
-## What loads at startup
+## What to read at startup
 
-The loader reads these files in order when present:
+At startup, the bounded loader requests complete reads of these files in order.
+It injects no file bodies. Continue truncated reads in chunks. Report unavailable
+or conflicting required guidance before claiming readiness:
 
-1. `SOUL.md`: who the agent is in this project.
-2. `knowledge/knowledge-manual.md`: this operating manual.
-3. `knowledge/project.md`: what the project is and where work is tracked.
-4. `knowledge/current.md`: disposable short-term work state.
-5. `knowledge/memory/memory-index.md`: one line per memory file.
-6. `knowledge/prds/spec-index.md`: one line per specification file.
+1. `SOUL.md`
+2. `knowledge/knowledge-manual.md`
+3. `knowledge/project.md`
+4. `knowledge/current.md`
+5. `knowledge/memory/memory-index.md`
+6. `knowledge/prds/spec-index.md`
 
 ## Put information in one place
 

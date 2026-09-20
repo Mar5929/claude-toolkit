@@ -39,6 +39,8 @@ guidance through its approved sync, preserving local edits and explicit opt-outs
   6. Optional standalone toolkit skills, offered from the `session-skills` plugin
   It asks before acting, recommends a per-stack layout, and copies in the
   standard rule files that every agent receives through `.claude/rules/`.
+  Every equipped project also receives `knowledge/toolkit-manual.md`, the shared
+  workflow manual, with a short complete-read route in its root instructions.
   The root `CLAUDE.md` also gets a short Quick saves table for the systems the
   project selected. Project knowledge points to its approved direct-to-default-
   branch save rule; local `.work-items/` points to its shared Git-ignored
@@ -123,6 +125,9 @@ the repository root would disappear the moment the plugin is installed.
   `README.md`. Copied whole to `tools/kb/` in the project.
 - `library/templates/permissions-runbook.md`: the project-side runbook to copy
   and fill in when permission sets are tracked.
+- `library/templates/toolkit-manual.md`: the shared workflow manual copied to
+  `knowledge/toolkit-manual.md` in every equipped project. Project-specific
+  paths and choices remain in the root instructions it tells agents to consult.
 - `library/guides/salesforce-dependency-graph.md`: how to install and use the
   `kb/` tool, which compiles a Salesforce project's own metadata into a local
   graph, so "if I change this field, what breaks?" is answered from the metadata

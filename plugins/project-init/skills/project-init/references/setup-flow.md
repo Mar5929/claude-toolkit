@@ -181,10 +181,12 @@ separate prep, interview, or continuation files for that workflow.
 - If approved, install the second-brain plugin and follow its canonical
   greenfield setup workflow, including the exact managed manual, task-specific
   skills, checker, index builder, fail-open startup routes, and reminders.
-- Give the Codex startup handler at least 5,000 tokens of additional context so
-  the manual and map are not cut off.
-- Add the same short startup and fallback pointer to both root agent files. Do
-  not copy policy into either file.
+- Make the startup loader emit bounded instructions to read every named file
+  completely and in order, continuing from the first missing section when a
+  read is shortened. Treat the configured output threshold as a spill limit,
+  not a host-capacity guarantee or evidence that a read completed.
+- Add the short fallback to `CLAUDE.md`. Keep `AGENTS.md` as the one-line route
+  to `CLAUDE.md`, and do not copy knowledge policy into either file.
 - Start with no memories. Never inherit the toolkit repository's knowledge or
   tags.
 - When both are enabled, keep the existing System Guide config and content. The
@@ -221,6 +223,16 @@ separate prep, interview, or continuation files for that workflow.
   clone needs that command run once or its graph silently stops updating.
 
 **Gate 5: SOUL.md, CLAUDE.md, and the rules folder**
+
+- Install the Toolkit operating manual for every equipped project, whether or
+  not the owner selected project knowledge. Follow
+  `toolkit-manual-delivery.md`: copy the packaged template to
+  `knowledge/toolkit-manual.md`, install the project-init-owned startup pointer,
+  and add the same short complete-read fallback to `CLAUDE.md`.
+- The manual uses universal workflow text. Put the project's actual tracker,
+  paths, quick-save routes, and optional-component pointers in the root sections
+  that already own them. Do not leave toolkit-repository links in the installed
+  manual or invent folders for components the project declined.
 
 - Three fixed lines go above the title in `CLAUDE.md`: the SOUL route (only when
   `SOUL.md` exists and Gate 3 was declined), then the owner's self-check
