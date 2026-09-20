@@ -1805,7 +1805,7 @@ later proposals without requiring the same correction in each session.
 
 Where this feedback is stored, what a record of it looks like, and how it is
 read, written, and tidied up are choices for the solution design. The way it
-works today is described under [Potential paths to explore](#current-implementation-open-to-refactoring).
+works today is described under [Potential paths to explore](#delivered-procedures-and-feedback-mechanism).
 
 **Check:** start a project with no selection feedback. The agent applies the
 toolkit defaults. Add a project-specific inclusion or exclusion: later
@@ -2058,10 +2058,11 @@ unrelated authorized work continues.
 
 ### Preferred solution philosophy and high-level architecture
 
-**Status:** preferred direction for solution design.
-It is not implementation approval or a claim that any particular runtime API
-is available. Requirements above define the outcomes; this section preserves
-the proposed way to achieve them.
+**Status:** selected architecture direction with a bounded implementation delivered
+for review. It is not full design or requirements approval, proof of every host
+behavior, rollout, or product acceptance. Requirements above define the outcomes;
+the master design and implementation plan record the selected mechanisms,
+delivered package, evidence, and remaining work.
 
 Sources: Mike's [Designing An AI Operating System conversation](https://chatgpt.com/c/6aa4a93c-7c7c-83ea-b3df-a20043c0a966)
 and the supplied `ai-agent-memory-frameworks-decision-report.md`, especially
@@ -2083,12 +2084,11 @@ Repository instructions + canonical knowledge manual
      Approved lasting change → validation → save → confirmation
 ```
 
-For Claude Code, investigate the stateful function-style hooks or “mods”
-discussed in the source as the leading long-term option when available and
-stable. Keep ordinary hooks as a possible fallback. Verify both against current
-official documentation and practical tests before selecting a mechanism. Do not
-assume Codex has the same API or that ordinary hooks cannot track state or block
-actions. The distinction below explains responsibilities, not platform limits.
+Mike selected ordinary command hooks with shared logic and thin host adapters as
+the initial direction on 2026-09-18. Stateful function hooks or “mods” remain an
+optional later experiment if current official documentation and practical tests
+show a clear benefit. Neither option establishes Claude Code and Codex parity
+without host evidence.
 
 ### The handbook, doorbell, and supervisor example
 
@@ -2120,11 +2120,11 @@ finishes on 2026-09-18, without waiting for independent save helpers. Exact
 wording, acknowledgment transport, and platform proof remain design work.
 An acknowledgment does not prove review completion or approve a save.
 
-Skills are part of the proposed design. They could guide finding and using
-knowledge, reviewing information worth saving, preparing a proposal, updating
-the correct file, or repairing and maintaining knowledge. These are examples of
-responsibilities, not a fixed list of skills or a requirement for one skill per
-operation. The future design exercise will decide how to group them.
+The selected public procedures are `knowledge-find`, `knowledge-save`,
+`knowledge-review`, and `knowledge-setup`. They were delivered in the bounded
+package merged through PR #366. Six older names remain compatibility entry
+points only and carry no separate policy. Delivery of the files does not prove
+that a fresh agent discovered or followed them on every supported host.
 
 The manual owns the shared policy. Skills reference that policy and provide the
 details needed for a particular operation, including relevant templates,
@@ -2152,56 +2152,45 @@ and the completion check verifies the actual approved change, destination, and
 saved result. This is an illustration, not an actual authentication decision
 for this toolkit.
 
-### Current implementation: open to refactoring
+### Delivered procedures and feedback mechanism
 
-The toolkit currently uses the following skills for knowledge operations.
-This describes the existing setup, not a requirement to preserve six skills,
-their names, or their boundaries. Refactor, combine, replace, or remove these
-entry points when a better approach meets the requirements.
+The bounded package merged through PR #366 delivers four public procedures:
 
-| Current skill | Current responsibility |
+| Procedure | Current responsibility |
 | --- | --- |
-| `recall` | Find relevant project knowledge before broad investigation or asking the owner. |
-| `remember` | Select candidates, prepare proposals, and write approved memory or PRD changes. |
-| `retire` | Propose and carry out approved changes that take one file out of current use. |
-| `reflect` | Review knowledge for cleanup and consolidate memory-selection feedback. |
-| `session-search` | Search locally saved Claude Code CLI conversations within project and access limits. |
-| `second-brain` | Set up, adopt, check, explain, or repair project knowledge. |
+| `knowledge-find` | Find relevant sources, resolve conflicts, and cite the evidence used. |
+| `knowledge-save` | Select, propose, save, maintain, and recover authorized knowledge changes through one lifecycle procedure. |
+| `knowledge-review` | Review duplicates, contradictions, obsolete material, and useful selection feedback, then use the shared save procedure for changes. |
+| `knowledge-setup` | Detect, install, migrate, repair, update, and verify a project’s Knowledge System. |
 
-The current feedback mechanism uses `knowledge/memory-self-improvement.md`
-with `Lessons` and `Recent decisions` sections. The installed template describes
-a dated candidate, outcome, and stated reason, or "no reason given". The
-`remember` skill reads this feedback before selecting candidates. Its current
-logging step applies when the owner proposes changing what counts as memory;
-it does not require a log of every routine proposal. The `reflect` skill
-consolidates repeated entries, and the current checker enforces an 8,000-character
-limit.
+`recall`, `remember`, `retire`, `reflect`, `session-search`, and `second-brain`
+are compatibility routes to those procedures. They do not define another
+architecture or policy.
 
-These file, logging, consolidation, and size choices are starting points for
-design. Requirement 23 defines the learning outcome; it does not require this
-file or log. Select the simplest suitable mechanism after the requirements
-are finalized.
+The project-specific feedback mechanism remains
+`knowledge/memory-self-improvement.md`, with `Lessons` and `Recent decisions`.
+It records useful owner feedback that changes how later memory candidates
+should be selected. Ordinary approved or rejected saves are not an activity
+log. Schema 2 has no separate fixed size cap for this file; purposeful review
+keeps it concise without discarding useful sourced feedback. The shipped
+template and this project’s copy are being corrected under Task D2 because
+they still contain the older cap and every-candidate wording.
 
-Current sources: [skill inventory](../../../plugins/second-brain/skills/),
-[save skill](../../../plugins/second-brain/skills/remember/SKILL.md),
-[review skill](../../../plugins/second-brain/skills/reflect/SKILL.md), and
-[feedback template](../../../plugins/second-brain/skills/knowledge-setup/references/templates/knowledge/memory-self-improvement.md).
+Current sources: [procedure inventory](../../../plugins/second-brain/skills/),
+[Knowledge plugin](../../../plugins/second-brain/README.md),
+[feedback template](../../../plugins/second-brain/skills/knowledge-setup/references/templates/knowledge/memory-self-improvement.md),
+[master design](../../../docs/designs/269-knowledge-system.md), and
+[implementation plan](../../../docs/designs/269-knowledge-system/implementation-plan.md).
 
-### Future design task: map requirements to implementation mechanisms
+### Current requirement-to-mechanism map
 
-**TODO, after the PRD requirements are finalized and approved:** perform a
-systematic architecture exercise that:
-
-- Maps each PRD requirement to the most appropriate implementation mechanism.
-- Evaluates existing skills, hooks, and related agent-guidance mechanisms
-  without assuming the current design is correct.
-- Refactors, combines, removes, or introduces skills and hooks where appropriate.
-- Favors the simplest modular design that satisfies the requirements and
-  preserves the agent's native reasoning, search, and file navigation.
-- Treats the existing implementation as a starting point, not a constraint.
-
-This is a future solution-design task. Do not perform the exercise during
-requirements refinement.
+The master design and implementation plan now map R1-R30 to the four procedures,
+hooks, tools, templates, setup paths, tests, host proofs, and remaining product
+choices. Keep that map current as implementation evidence changes. Full
+requirements/design approval, native host and helper proof, setup/rollout
+targets, and product acceptance remain open. Do not restart the completed
+architecture exercise or treat the bounded merged package as whole-system
+delivery.
 
 ### Earlier options and questions for solution design
 
