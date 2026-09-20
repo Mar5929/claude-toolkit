@@ -1215,36 +1215,44 @@ stay in the tracker. Mike confirmed this boundary on 2026-09-18. Save meaningful
 updates promptly; do not create separate interview, notes, or continuation files
 for this discussion. Section 12 preserves earlier decisions.
 
-**Current position:** solution design is still in progress. Requirements may be
-refined as this review settles behavior. Mike approved ordinary command hooks
-for the initial implementation after reviewing the function-hooks comparison.
-Function hooks remain a future candidate if evidence supports a benefit.
-This does not authorize implementation or approve the full design.
+**Current position:** reviewed content is in scoped implementation. On
+2026-09-19 Mike authorized fresh sessions for the Knowledge instruction package,
+residual audit fixes, and newest-first session handoffs. Toolkit manual delivery
+[PR #363](https://github.com/Mar5929/claude-toolkit/pull/363) merged at `4566444`.
+The Knowledge package has conditional merge approval after checks/review; the
+later audit and handoff PRs still need their own merge authority. The existing
+[issue roadmap](https://github.com/Mar5929/claude-toolkit/issues/269) owns current
+session assignments, task status, and detailed approval evidence. Earlier
+statements that no package can begin implementation are superseded for these
+explicitly authorized scopes; they do not become full-PRD or system acceptance.
 
-**Resume here:** finish the save-and-recovery instruction package from
-[section 6.7](#67-save-transaction-and-recovery), then prove its first interrupted
-save case. Mike selected this next step after the reviews on 2026-09-19.
-The core manual's independent content review is complete on isolated branch
-`issue-269-core-manual-draft`; the runtime remains unbuilt. The
-[save/recovery procedure draft](https://github.com/Mar5929/claude-toolkit/blob/issue-269-core-manual-draft/docs/designs/269-knowledge-system/knowledge-save-recovery-draft.md)
-will carry the execution detail alongside that manual. Complete the remaining
-save references and host executor proofs before activating it. Other public
-procedures, full-package review, and remaining approvals are still outstanding.
-The voice walkthrough has covered startup, selection, ownership, topic detail,
-permission, interruptions, and correcting knowledge. Quiet review moments remain
-available for the next owner walkthrough; Mike need not choose host mechanics.
+**Resume here:** finish the active packages and their integration checks, then
+assess actual delivered behavior and prepare a concrete plan for remaining
+whole-system work. Mike clarified that sequence on 2026-09-19. Current tasks
+are bounded implementations, not authorization to build the entire Toolkit OS.
+Keep residual system requirements with their owning PRDs/work items; #269
+remains the Knowledge System delivery parent.
+
+The reviewed manual and save/recovery reference are published at `d321fda` on
+`issue-269-core-manual-draft`; implementation now owns producing the coherent
+installed package. [Section 6.7](#67-save-transaction-and-recovery) owns the
+recovery contract and first interruption cases. Reconcile its evidence with
+actual fixture and fresh-host results. Completed content reviews are not
+runtime proof. The [Toolkit delivery report](306-toolkit-manual-review.md#implementation-and-verification)
+records actual Codex reads and the unavailable Claude/other-host proof. Leave
+product-policy questions explicit rather than reopening settled design.
 
 The [research comparison](#proposed-refinements-after-memory-provider-research--2026-09-19)
 remains proposed; preserve R9/R29 when shortening the reminder. Keep
 behavior-bearing drafts isolated, review wording before supporting code/hooks,
-and activate the coherent package together. Technical proofs and full
-design/build approval remain outstanding. The published detailed research
+and activate the coherent package together. Remaining technical proofs and
+full-system approvals remain outstanding beyond the scoped authorization above.
+The published detailed research
 supports this same design and introduces no second architecture authority.
 
-**GitHub task summary to publish:** solution design is in progress, with
-requirements refinement where needed. The outstanding decisions, design tasks,
-and next review step are in this document's [Notes](#notes). Keep the task's
-high-level status and this link current without duplicating this discussion.
+**Tracker:** issue #269 owns current assignments, roadmap, approval scope, and
+implementation status. Keep its overview aligned with these Notes. Completed
+review history remains linked; it is not the active task list.
 
 **Publication:** Mike authorized switching to the personal GitHub account and
 pushing these committed updates on 2026-09-18. Verify the remote result before
@@ -1286,9 +1294,9 @@ tracker update; it is not applied merely by pushing the documents.
   not required for this work. Publication used a clean checkout. The original
   local main may lag remote main; inspect it before updating and never reset
   away that edit. A fresh clone gets the published continuation.
-- GitHub's high-level task-summary update remains pending. The documents contain
-  the current review detail; do not treat an older tracker summary as evidence
-  that these approvals or audits are missing.
+- The 2026-09-19 tracker reconciliation records scoped implementation, session
+  owners, conditional merge authority and the finish-assess-plan sequence. Read
+  the current issue body rather than treating older progress entries as current.
 
 ### Outstanding decisions
 
@@ -1296,7 +1304,8 @@ The earlier behavior decisions and core-manual/task-specific arrangement are
 approved. The 2026-09-19 comparison is proposed: review its reminder wording and
 retrieval/test refinements before adopting changes to the affected sections.
 Record any additional tradeoff found during the audits and proofs. Full
-requirements/design approval and build authorization remain outstanding.
+requirements/design acceptance remains outstanding; scoped implementation
+authority is recorded above and in #269.
 
 ### Tasks
 

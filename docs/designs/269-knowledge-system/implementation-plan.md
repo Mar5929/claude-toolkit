@@ -13,6 +13,36 @@ Updated: 2026-09-19. Proposed execution plan for issue #269. No production imple
 
 The owner authorized this design and plan refinement. Record the resulting recommendations for review without fabricating a whole-PRD approval. Begin production changes only when the owning task records the applicable build authorization. Technical facts are resolved through evidence tasks; the owner should not have to choose event names or troubleshoot adapters.
 
+## Current delivery sequence — 2026-09-19
+
+Mike authorized bounded implementation sessions, then clarified the order for
+whole-system planning: finish those tasks, assess what actually shipped, and
+only then prepare the remaining implementation plan. Existing packages below
+remain the detailed plan; this is their current sequencing, not another tracker.
+
+1. Finish the authorized packages. Toolkit delivery PR #363 is merged. The
+   Knowledge team implements the manual/four skills/references and recovery;
+   the audit team owns agreed schema/index/checker work and cross-package tests;
+   the handoff team owns the requested temporary newest-first handoff workflow,
+   coordinating template/manual changes with Knowledge. The
+   [work item](https://github.com/Mar5929/claude-toolkit/issues/269) owns current
+   assignments and permission boundaries.
+2. Integrate their results and assess delivered behavior. Verify installed
+   instructions, permissions, save/recovery, source handling and continuation;
+   distinguish source fixtures, actual host evidence, unavailable tests, merges,
+   and rollout. Retain failed or unexecuted checks explicitly. Toolkit delivery
+   is an integrated dependency, not proof the Knowledge package already works.
+3. From that assessment, update the remaining implementation plan by unmet
+   outcome, dependency, owner, and acceptance evidence. Bring necessary product
+   choices and additional authority to Mike. Completing these packages does not
+   authorize building the entire Toolkit OS or accepting #269 as Done.
+
+Mike's conditional merge approval covers Toolkit delivery and the Knowledge
+instruction package after checks/review pass. Audit and handoff implementation
+were authorized later; their merges are not included by assumption. Broader
+rollout and final acceptance remain separate. Product-policy questions block
+only their affected work; proceed with settled authorized scope.
+
 ## Recommended build baseline
 
 **Architecture review, 2026-09-18:** Mike requested the best architecture rather than the easiest reuse, accepted the review recommendation, and asked to add it to this plan. The direction below replaces this plan's earlier presumption that six skills and copied runtime should remain. It does not approve the full PRD, runtime implementation, or release. The master design now reflects this direction and the subsequent delegated-save and wording requirements. D1-P2 must reconcile remaining host evidence and approval questions; the earlier six-skill baseline is superseded.
