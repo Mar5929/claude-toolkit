@@ -48,7 +48,7 @@ check('missing, empty and conflicting required guidance withholds its read claim
 });
 check('copied module bundle runs through aliases and nested cwd',()=>{
  const f=fixture();try{
-  for(const n of ['knowledge-session-start.mjs','memory-reminder.mjs','knowledge-completion.mjs'])write(f,`.claude/hooks/${n}`,read(`plugins/second-brain/hooks/${n}`));
+  for(const n of ['knowledge-session-start.mjs','memory-reminder.mjs','knowledge-completion.mjs','knowledge-manual.mjs'])write(f,`.claude/hooks/${n}`,read(`plugins/second-brain/hooks/${n}`));
   write(f,'knowledge/knowledge-manual.md',read(manualSource));mkdirSync(resolve(f,'packages/nested'),{recursive:true});
   const env={...process.env};delete env.CLAUDE_PROJECT_DIR;delete env.CODEX_PROJECT_DIR;
   const out=execFileSync(process.execPath,[resolve(f,'.claude/hooks/knowledge-session-start.mjs')],{cwd:resolve(f,'packages/nested'),env,encoding:'utf8'});

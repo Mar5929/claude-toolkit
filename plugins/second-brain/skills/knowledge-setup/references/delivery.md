@@ -80,8 +80,8 @@ indexes with compatible tools. Never reset a shared checkout.
 
 ## Concrete runtime registration
 
-Copy these six `.mjs` files together from `hooks/` into `.claude/hooks/`:
-`knowledge-session-start`, `memory-reminder`, `knowledge-completion`,
+Copy these seven `.mjs` files together from `hooks/` into `.claude/hooks/`:
+`knowledge-session-start`, `knowledge-manual`, `memory-reminder`, `knowledge-completion`,
 `save-reminder`, `work-item-close`, and `command-parsing`. The modules import one
 another; copying only the entry file is incomplete.
 

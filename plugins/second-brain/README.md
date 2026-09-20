@@ -68,6 +68,7 @@ Canonical hooks copied into `.claude/hooks/`:
 - `hooks/knowledge-session-start.mjs`: bounded complete-read route, using the
   Toolkit loader delivered by project-init. Order: SOUL, project, Knowledge
   manual, current work and map; relevant inbox entries are checked on recovery.
+- `hooks/knowledge-manual.mjs`: shared read-only manual discovery and conflict checks.
 - `hooks/memory-reminder.mjs`: shared prompt criteria and explicit intent request.
 - `hooks/knowledge-completion.mjs`: temporary project/session/agent review
   generation, explicit outcome and at most one corrective Stop continuation.
@@ -101,6 +102,8 @@ parallel helpers are unavailable.
 
 `tests/save-recovery.test.mjs` exercises real disposable local Git repositories;
 `tests/checkpoints.test.mjs` covers bounded continuation and stale/helper receipts.
+`tests/new-install.test.mjs` assembles an empty project and runs the copied
+startup, prompt, completion and review commands from a nested working directory.
 These deterministic checks do not replace fresh-agent meaning/host tests.
 Repository tests also check links, discovery, installed copies and startup.
 Current delivery evidence is in the #269 work record and its linked implementation

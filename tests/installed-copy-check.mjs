@@ -100,7 +100,7 @@ function shippedOriginalFor(path) {
     "work-item-close.mjs",
     "command-parsing.mjs",
     "memory-reminder.mjs",
-    "knowledge-completion.mjs",
+    "knowledge-completion.mjs", "knowledge-manual.mjs",
   ];
   if (match && secondBrainHooks.includes(match[1])) {
     return `${SECOND_BRAIN}/hooks/${match[1]}`;

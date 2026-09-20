@@ -5,6 +5,7 @@ import { readFileSync, writeFileSync, mkdirSync, renameSync, openSync, closeSync
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { resolveManual } from './knowledge-manual.mjs';
 
 export const OUTCOMES = ['no-change', 'pending-approval', 'save-unfinished', 'saved'];
 function statePath(root, identity, directory = join(tmpdir(), 'toolkit-knowledge-review')) {
@@ -70,8 +71,6 @@ if (process.argv[1] && canonical(process.argv[1]) === canonical(fileURLToPath(im
       const root = process.env.CLAUDE_PROJECT_DIR
         || (existsSync(resolve(installedRoot, 'knowledge')) ? installedRoot : null)
         || process.env.CODEX_PROJECT_DIR || input.cwd || process.cwd();
-      // Dynamic import avoids initializing the prompt module during its own import.
-      const { resolveManual } = await import('./memory-reminder.mjs');
       const manual = resolveManual(root);
       if (manual.text?.includes('<!-- claude-toolkit:knowledge-schema:2 -->')) console.log(JSON.stringify(completion(root, input)));
       else if (manual.notice) console.log(JSON.stringify({ systemMessage: manual.notice }));

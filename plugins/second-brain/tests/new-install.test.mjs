@@ -1,0 +1,48 @@
+// Exercises copied executable entry points; does not claim host or model acceptance.
+import { mkdtempSync, mkdirSync, copyFileSync, writeFileSync, readFileSync, rmSync, realpathSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { resolve, dirname, join } from 'node:path';
+import { execFileSync } from 'node:child_process';
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { fileURLToPath } from 'node:url';
+import { createHash } from 'node:crypto';
+
+test('empty installed project runs copied startup, prompt and Stop commands from nested cwd', () => {
+const repo=resolve(dirname(fileURLToPath(import.meta.url)), '../../..'), root=mkdtempSync(join(tmpdir(),'knowledge-new-install-'));
+const template='plugins/second-brain/skills/knowledge-setup/references/templates/';
+const write=(path,text)=>{mkdirSync(dirname(resolve(root,path)),{recursive:true});writeFileSync(resolve(root,path),text)};
+const copy=(from,to)=>{mkdirSync(dirname(resolve(root,to)),{recursive:true});copyFileSync(resolve(repo,from),resolve(root,to))};
+try {
+ for(const name of ['knowledge/knowledge-manual.md','knowledge/README.md','knowledge/memory-inbox.md','knowledge/memory/memory-entries/terminology-glossary.md','knowledge/memory-self-improvement.md'])copy(template+name,name);
+ copy('plugins/project-init/library/templates/toolkit-manual.md','knowledge/toolkit-manual.md');
+ for(const name of ['knowledge-session-start','knowledge-manual','memory-reminder','knowledge-completion','save-reminder','work-item-close','command-parsing'])copy(`plugins/second-brain/hooks/${name}.mjs`,`.claude/hooks/${name}.mjs`);
+ for(const name of ['frontmatter','build-knowledge-index','check-knowledge','inspect-knowledge-save'])copy(`plugins/second-brain/tools/${name}.mjs`,`.claude/tools/${name}.mjs`);
+ write('SOUL.md','# Fixture role\n\nSupport the fictional delivery test.\n');
+ write('knowledge/project.md','# Fixture project\n\nSynthetic project to test empty Knowledge installation. No standing save grant.\n');
+ write('knowledge/memory/current.md','# Current working memory\nUpdated: 2026-09-19\n\n## Project goal\nTest empty installation.\n\n## Active work\nNone.\n\n## General project to-dos\nNone.\n\n## Session handoffs\nNone.\n');
+ mkdirSync(resolve(root,'knowledge/prds'),{recursive:true});mkdirSync(resolve(root,'ai-external-knowledge'),{recursive:true});
+ const run=(name)=>execFileSync(process.execPath,[resolve(root,'.claude/tools',name+'.mjs'),root],{encoding:'utf8'});
+ assert.match(run('build-knowledge-index'),/0 file\(s\)/);
+ const check=run('check-knowledge');assert.match(check,/ALL PASS/);
+ const nav=readFileSync(resolve(root,'knowledge/README.md'),'utf8');
+ for(const [,p] of nav.matchAll(/\]\(([^)]+)\)/g))readFileSync(resolve(root,'knowledge',p));
+ mkdirSync(resolve(root,'packages/feature'),{recursive:true});const env={...process.env};delete env.CLAUDE_PROJECT_DIR;delete env.CODEX_PROJECT_DIR;
+ const startup=execFileSync(process.execPath,[resolve(root,'.claude/hooks/knowledge-session-start.mjs')],{cwd:resolve(root,'packages/feature'),env,encoding:'utf8'});
+ assert.doesNotMatch(startup,/missing:|file empty:/);assert.match(startup,/SOUL\.md, knowledge\/project\.md and knowledge\/knowledge-manual\.md/);
+ const input={session_id:'fixture-session',hook_event_name:'UserPromptSubmit',cwd:resolve(root,'packages/feature')};
+ const prompt=execFileSync(process.execPath,[resolve(root,'.claude/hooks/memory-reminder.mjs')],{cwd:resolve(root,'packages/feature'),env,input:JSON.stringify(input),encoding:'utf8'});
+ assert.match(prompt,/Knowledge turn review:/);assert.doesNotMatch(prompt,/unavailable:/);
+ const firstStop=execFileSync(process.execPath,[resolve(root,'.claude/hooks/knowledge-completion.mjs')],{cwd:resolve(root,'packages/feature'),env,input:JSON.stringify({...input,hook_event_name:'Stop'}),encoding:'utf8'});
+ assert.equal(JSON.parse(firstStop).decision,'block');
+ const generation=prompt.match(/generation=([\w-]+)/)[1];
+ execFileSync(process.execPath,[resolve(root,'.claude/hooks/knowledge-completion.mjs'),'review',root,input.session_id,'root',generation,'no-change'],{encoding:'utf8'});
+ const stop=execFileSync(process.execPath,[resolve(root,'.claude/hooks/knowledge-completion.mjs')],{cwd:resolve(root,'packages/feature'),env,input:JSON.stringify({...input,hook_event_name:'Stop'}),encoding:'utf8'});
+ assert.deepEqual(JSON.parse(stop),{});
+
+} finally {
+ const key=createHash('sha256').update(JSON.stringify([realpathSync(root),'fixture-session','root'])).digest('hex');
+ rmSync(join(tmpdir(),'toolkit-knowledge-review',key+'.json'),{force:true});
+ rmSync(root,{recursive:true,force:true});
+}
+});
