@@ -2256,6 +2256,15 @@ The instruction-content audit and full requirements approval remain outstanding.
 
 ### Recorded notes
 
+- On 2026-09-19, Mike accepted the R28 pending-save recovery experience in the
+  voice walkthrough: preserve the approved change, destination, permission,
+  completed steps, and remaining action; the next session checks the destination
+  and publication before completing only what remains, without repeating the
+  same approval. A conflicting later change returns the specific conflict to
+  him. This accepts the described experience, not tested cross-computer recovery
+  or the complete design. Three requested Sol reviews are examining the PRD and
+  design; their findings will be proposals, not automatic requirement changes.
+
 - On 2026-09-19, Mike clarified during the manual walkthrough that maintaining
   a clear current answer must not become blanket shortening: some topics need
   more detail. R15 now states that explicitly. The interrupted-save discussion
