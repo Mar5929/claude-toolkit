@@ -9,7 +9,7 @@ tags: [work-tracking, lifecycle, handoff, approval]
 approved_by: Mike Rihm
 approval_date: 2026-09-05
 work_item: "270"
-updated_at: 2026-09-19
+updated_at: 2026-09-20
 ---
 
 # Work-item upkeep
@@ -39,9 +39,16 @@ the actual scope and risk. A broad type does not authorize unapproved work.
 
 The local tracker selects an active item per branch and refuses changes to a
 different item until an intentional switch. Linked worktrees share the records.
-Meaningful changes keep the readable progress and machine-readable history in
-agreement. Related writes roll back after ordinary command failures; they are
-not guaranteed to recover from a process killed between file replacements.
+Meaningful changes keep readable current state and recorded history in
+agreement. Related writes roll back after ordinary command failures. New
+consolidated-record multi-file writes also keep a recovery journal under
+`.work-items/.recovery/`, block later mutations while it is pending, and use
+`work recover` to verify each affected path still matches its journaled before
+or after content and then finish the interrupted operation. Unexpected newer
+content is preserved and reported as a recovery conflict. Tests cover
+interrupted-write recovery; an actual operating-system process-kill trial
+remains unverified. External tracker updates retain their separately documented
+non-atomic and uncertain-result limits.
 
 Before a handoff, update the relevant document text and Notes for PRD or design
 refinement, and link there from the item. For other work, update the exact next

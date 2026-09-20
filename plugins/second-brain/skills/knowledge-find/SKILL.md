@@ -46,7 +46,22 @@ current direct evidence establishes what exists. Neither a proposed nor a
 finalized label proves delivery. Name source conflicts and verification limits.
 Historical and retired records remain historical unless checked.
 
-After presenting a finding, identify its source on the next line: a file path;
-a session name and date for history; or captured-page path and capture date.
+Before finalizing, scan the answer once. Every substantive finding, including
+an inference or one repeated in a conclusion or summary, must be directly
+followed on the next line by its source. Mark an
+inference as an inference, then cite the evidence it rests on. Remove a
+redundant recap instead of repeating uncited
+claims, and never group sources at the end. For example:
+
+```text
+The export currently retries once.
+Source: src/export.mjs
+
+The vendor documents hourly export scheduling.
+Source: ai-external-knowledge/vendor/export.md (captured 2026-09-19)
+```
+
+Use a file path for an ordinary project source; a session name and date for
+history; or a captured-page path and capture date for outside material.
 Useful new information follows `knowledge-save` and its destination's authority.
 Finding a claim does not authorize saving it.

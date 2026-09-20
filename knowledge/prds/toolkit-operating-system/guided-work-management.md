@@ -7,7 +7,7 @@ source: Mike's guided-work-management and opt-in clarification on 2026-09-15; ro
 created_at: 2026-09-15
 tags: [delivery, planning, requirements, continuity]
 work_item: "337"
-updated_at: 2026-09-19
+updated_at: 2026-09-20
 ---
 
 # Guided work management
@@ -371,6 +371,18 @@ to build a particular solution.
   retain the existing permission boundary meanwhile. Follow issue #337 for
   rollout and remaining behavior checks. Preserve settled offer timing,
   declined-offer behavior, and the scoped delivery already merged.
-- Parallel remaining scope: [Consolidated work-item plan](../../../docs/designs/337-consolidated-work-item.md)
-  holds R6's template, implementation sequence, documentation inventory, checks,
-  and outstanding implementation choices. Its runtime work remains pending.
+- Scoped R6 delivery, 2026-09-19: [PR #362](https://github.com/Mar5929/claude-toolkit/pull/362)
+  merged the consolidated new-record runtime at `b2e8727` in work-tracker
+  2.8.0. New local items use one `WORK-ITEM.md`; existing items keep their
+  format and no migration tooling was added. The
+  [consolidated work-item plan](../../../docs/designs/337-consolidated-work-item.md)
+  preserves the implementation rationale and evidence limits.
+- Installed Codex evidence, 2026-09-20: one coached GPT-5.6 Sol writer using
+  installed work-tracker 2.8.0 created and updated a consolidated local item,
+  and a separate fresh read-only run recovered its exact item, task, current
+  position, next action, question, and context without a legacy mirror.
+  Structural validation passed, but semantic readiness did not: the agent
+  inferred `Approved by: User` and finalized while the generated Goal still
+  said `_Not agreed yet._`. Installed Claude behavior, an actual process-kill
+  recovery, live external mutation and recovery, broader rollout, and owner
+  acceptance remain open on issue #337.
