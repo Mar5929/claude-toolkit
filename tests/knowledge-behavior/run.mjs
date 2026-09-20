@@ -55,78 +55,13 @@ for (const scenario of scenarios) {
   const caseRoot = join(resultsRoot, scenario.id);
   if (existsSync(caseRoot)) fail(`refusing to overwrite existing scenario evidence: ${caseRoot}`);
   mkdirSync(caseRoot, { recursive: true });
-  if (scenario.layouts && !scenario.layouts.includes(layout)) {
-    const result = {
-      id: scenario.id,
-      description: scenario.description,
-      mechanicalChecksPassed: false,
-      modelOutcome: `not-run-unsupported-${layout}`,
-      assertions: [],
-      finalResponse: ''
-    };
-    runRecord.results.push(result);
-    writeFileSync(join(caseRoot, 'result.json'), `${JSON.stringify(result, null, 2)}\n`);
-    continue;
+  const state = { fixture: null, execution: null, elapsedMs: null };
+  let result;
+  try {
+    result = executeScenario(scenario, caseRoot, state);
+  } catch (error) {
+    result = failedScenarioResult(scenario, caseRoot, state, error);
   }
-  const fixture = createFixture(caseRoot, scenario.id, sourceRoot, handoffRoot, layout);
-  writeFileSync(join(caseRoot, 'expected.json'), `${JSON.stringify(scenario.expected, null, 2)}\n`);
-  writeFileSync(join(caseRoot, 'prompt.txt'), `${scenario.prompt}\n`);
-  writeFileSync(join(caseRoot, 'source-snapshot.json'), `${JSON.stringify(sourceSnapshot, null, 2)}\n`);
-  writeFileSync(join(caseRoot, 'preflight.json'), `${JSON.stringify(fixture.preflight, null, 2)}\n`);
-
-  if (!fixture.preflight.passed) {
-    const result = {
-      id: scenario.id,
-      description: scenario.description,
-      mechanicalChecksPassed: false,
-      modelOutcome: 'not-run-preflight-failed',
-      preflight: fixture.preflight,
-      assertions: [],
-      finalResponse: ''
-    };
-    runRecord.results.push(result);
-    writeFileSync(join(caseRoot, 'result.json'), `${JSON.stringify(result, null, 2)}\n`);
-    continue;
-  }
-  if (preflightOnly) {
-    const result = {
-      id: scenario.id,
-      description: scenario.description,
-      mechanicalChecksPassed: true,
-      modelOutcome: 'not-run-preflight-only',
-      preflight: fixture.preflight,
-      assertions: [],
-      finalResponse: ''
-    };
-    runRecord.results.push(result);
-    writeFileSync(join(caseRoot, 'result.json'), `${JSON.stringify(result, null, 2)}\n`);
-    continue;
-  }
-
-  const before = snapshotFixture(fixture.writer);
-  writeFileSync(join(caseRoot, 'before.json'), `${JSON.stringify(before, null, 2)}\n`);
-  const started = performance.now();
-  const execution = runCodex(fixture.writer, scenario.prompt, timeoutSeconds, caseRoot);
-  const elapsedMs = Math.round(performance.now() - started);
-  const after = snapshotFixture(fixture.writer);
-  writeFileSync(join(caseRoot, 'after.json'), `${JSON.stringify(after, null, 2)}\n`);
-
-  const assertions = assertScenario(scenario, fixture, execution, after);
-  const tokenUsage = parseTokenUsage(execution.stdout);
-  const result = {
-    id: scenario.id,
-    description: scenario.description,
-    mechanicalChecksPassed: execution.status === 0 && assertions.every((item) => item.passed),
-    modelOutcome: 'requires-independent-review',
-    exitCode: execution.status,
-    signal: execution.signal,
-    elapsedMs,
-    tokenUsage,
-    meaningOutcomes: scenario.expected.meaningOutcomes || [],
-    assertions,
-    finalResponse: execution.finalResponse,
-    fixture: { writer: fixture.writer, reader: fixture.reader, remote: fixture.remote }
-  };
   runRecord.results.push(result);
   writeFileSync(join(caseRoot, 'result.json'), `${JSON.stringify(result, null, 2)}\n`);
 }
@@ -136,6 +71,102 @@ runRecord.mechanicalChecksPassed = runRecord.results.every((result) => result.me
 writeFileSync(join(resultsRoot, 'run.json'), `${JSON.stringify(runRecord, null, 2)}\n`);
 process.stdout.write(`${resultsRoot}\n`);
 process.exitCode = runRecord.mechanicalChecksPassed ? 0 : 1;
+
+function executeScenario(scenario, caseRoot, state) {
+  if (scenario.layouts && !scenario.layouts.includes(layout)) {
+    return {
+      id: scenario.id,
+      description: scenario.description,
+      mechanicalChecksPassed: false,
+      modelOutcome: `not-run-unsupported-${layout}`,
+      assertions: [],
+      finalResponse: ''
+    };
+  }
+  const fixture = createFixture(caseRoot, scenario.id, sourceRoot, handoffRoot, layout);
+  state.fixture = fixture;
+  writeFileSync(join(caseRoot, 'expected.json'), `${JSON.stringify(scenario.expected, null, 2)}\n`);
+  writeFileSync(join(caseRoot, 'prompt.txt'), `${scenario.prompt}\n`);
+  writeFileSync(join(caseRoot, 'source-snapshot.json'), `${JSON.stringify(sourceSnapshot, null, 2)}\n`);
+  writeFileSync(join(caseRoot, 'preflight.json'), `${JSON.stringify(fixture.preflight, null, 2)}\n`);
+
+  if (!fixture.preflight.passed) {
+    return {
+      id: scenario.id,
+      description: scenario.description,
+      mechanicalChecksPassed: false,
+      modelOutcome: 'not-run-preflight-failed',
+      preflight: fixture.preflight,
+      assertions: [],
+      finalResponse: ''
+    };
+  }
+  if (preflightOnly) {
+    return {
+      id: scenario.id,
+      description: scenario.description,
+      mechanicalChecksPassed: true,
+      modelOutcome: 'not-run-preflight-only',
+      preflight: fixture.preflight,
+      assertions: [],
+      finalResponse: ''
+    };
+  }
+
+  const before = snapshotFixture(fixture.writer);
+  writeFileSync(join(caseRoot, 'before.json'), `${JSON.stringify(before, null, 2)}\n`);
+  const started = performance.now();
+  const execution = runCodex(fixture.writer, scenario.prompt, timeoutSeconds, caseRoot);
+  state.execution = execution;
+  state.elapsedMs = Math.round(performance.now() - started);
+  const after = snapshotFixture(fixture.writer);
+  writeFileSync(join(caseRoot, 'after.json'), `${JSON.stringify(after, null, 2)}\n`);
+
+  const assertions = assertScenario(scenario, fixture, execution, after);
+  return {
+    id: scenario.id,
+    description: scenario.description,
+    mechanicalChecksPassed: execution.status === 0 && assertions.every((item) => item.passed),
+    modelOutcome: 'requires-independent-review',
+    exitCode: execution.status,
+    signal: execution.signal,
+    timedOut: execution.timedOut,
+    processError: execution.error,
+    elapsedMs: state.elapsedMs,
+    tokenUsage: parseTokenUsage(execution.stdout),
+    meaningOutcomes: scenario.expected.meaningOutcomes || [],
+    assertions,
+    finalResponse: execution.finalResponse,
+    fixture: { writer: fixture.writer, reader: fixture.reader, remote: fixture.remote }
+  };
+}
+
+function failedScenarioResult(scenario, caseRoot, state, error) {
+  const execution = state.execution;
+  const processingFailure = serializeError(error);
+  return {
+    id: scenario.id,
+    description: scenario.description,
+    mechanicalChecksPassed: false,
+    modelOutcome: execution ? 'processing-failed-after-model' : 'not-run-processing-failed',
+    exitCode: execution?.status ?? null,
+    signal: execution?.signal ?? null,
+    timedOut: execution?.timedOut ?? processingFailure.code === 'ETIMEDOUT',
+    processError: execution?.error ?? (processingFailure.code === 'ETIMEDOUT' ? processingFailure : null),
+    elapsedMs: state.elapsedMs,
+    tokenUsage: execution ? parseTokenUsage(execution.stdout) : null,
+    meaningOutcomes: scenario.expected.meaningOutcomes || [],
+    assertions: [],
+    finalResponse: execution?.finalResponse || '',
+    processingFailure,
+    rawEvidence: {
+      events: existsSync(join(caseRoot, 'events.jsonl')) ? join(caseRoot, 'events.jsonl') : null,
+      stderr: existsSync(join(caseRoot, 'stderr.txt')) ? join(caseRoot, 'stderr.txt') : null,
+      finalResponse: existsSync(join(caseRoot, 'final-response.md')) ? join(caseRoot, 'final-response.md') : null
+    },
+    fixture: state.fixture ? { writer: state.fixture.writer, reader: state.fixture.reader, remote: state.fixture.remote } : null
+  };
+}
 
 function createFixture(caseRoot, scenarioId, knowledgeSource, handoffSource, knowledgeLayout) {
   const fixtureRoot = join(caseRoot, 'fixture');
@@ -260,12 +291,12 @@ function createFixture(caseRoot, scenarioId, knowledgeSource, handoffSource, kno
 function runCodex(cwd, prompt, timeout, caseRoot) {
   const fixtureRoot = dirname(cwd);
   const argv = ['exec', '--model', 'gpt-5.6-sol', '--ignore-user-config', '--json', '--ephemeral', '--sandbox', 'workspace-write', '--add-dir', fixtureRoot, '--cd', cwd, prompt];
-  const result = spawnSync('codex', argv, { cwd, encoding: 'utf8', timeout: timeout * 1000, maxBuffer: 64 * 1024 * 1024, env: { ...process.env, NO_COLOR: '1' } });
+  const result = normalizeProcessResult(spawnSync('codex', argv, { cwd, encoding: 'utf8', timeout: timeout * 1000, maxBuffer: 64 * 1024 * 1024, env: { ...process.env, NO_COLOR: '1' } }));
   writeFileSync(join(caseRoot, 'events.jsonl'), result.stdout || '');
   writeFileSync(join(caseRoot, 'stderr.txt'), result.stderr || '');
   const finalResponse = parseFinalResponse(result.stdout || '');
   writeFileSync(join(caseRoot, 'final-response.md'), `${finalResponse}\n`);
-  return { status: result.status, signal: result.signal, stdout: result.stdout || '', stderr: result.stderr || '', finalResponse };
+  return { ...result, finalResponse };
 }
 
 function assertScenario(scenario, fixture, execution, after) {
@@ -359,20 +390,24 @@ function hookExecutablePreflight(root, scenarioId) {
   delete env.CODEX_PROJECT_DIR;
   const sessionId = `fixture-${scenarioId}`;
   const input = { session_id: sessionId, hook_event_name: 'UserPromptSubmit', cwd: nested };
-  const startup = command('node', [join(root, '.claude', 'hooks', 'knowledge-session-start.mjs')], nested, false, env);
-  const prompt = commandWithInput('node', [join(root, '.claude', 'hooks', 'memory-reminder.mjs')], nested, JSON.stringify(input), env);
-  const generation = prompt.stdout.match(/generation=([\w-]+)/)?.[1] || '';
-  const firstStop = commandWithInput('node', [join(root, '.claude', 'hooks', 'knowledge-completion.mjs')], nested, JSON.stringify({ ...input, hook_event_name: 'Stop' }), env);
-  const review = generation ? command('node', [join(root, '.claude', 'hooks', 'knowledge-completion.mjs'), 'review', root, sessionId, 'root', generation, 'no-change'], nested, false, env) : { status: 1, stdout: '', stderr: 'missing generation' };
-  const secondStop = commandWithInput('node', [join(root, '.claude', 'hooks', 'knowledge-completion.mjs')], nested, JSON.stringify({ ...input, hook_event_name: 'Stop' }), env);
   const receiptKey = createHash('sha256').update(JSON.stringify([resolve(root), sessionId, 'root'])).digest('hex');
-  rmSync(join(tmpdir(), 'toolkit-knowledge-review', `${receiptKey}.json`), { force: true });
-  let firstDecision = null;
-  let secondDecision = null;
-  try { firstDecision = JSON.parse(firstStop.stdout); } catch {}
-  try { secondDecision = JSON.parse(secondStop.stdout || '{}'); } catch {}
-  const passed = startup.status === 0 && !/missing:|file empty:/.test(startup.stdout) && prompt.status === 0 && generation && firstStop.status === 0 && firstDecision?.decision === 'block' && review.status === 0 && secondStop.status === 0 && Object.keys(secondDecision || {}).length === 0;
-  return { passed: Boolean(passed), startup, prompt, generation, firstStop, review, secondStop };
+  const receiptPath = join(tmpdir(), 'toolkit-knowledge-review', `${receiptKey}.json`);
+  try {
+    const startup = command('node', [join(root, '.claude', 'hooks', 'knowledge-session-start.mjs')], nested, false, env);
+    const prompt = commandWithInput('node', [join(root, '.claude', 'hooks', 'memory-reminder.mjs')], nested, JSON.stringify(input), env);
+    const generation = prompt.stdout.match(/generation=([\w-]+)/)?.[1] || '';
+    const firstStop = commandWithInput('node', [join(root, '.claude', 'hooks', 'knowledge-completion.mjs')], nested, JSON.stringify({ ...input, hook_event_name: 'Stop' }), env);
+    const review = generation ? command('node', [join(root, '.claude', 'hooks', 'knowledge-completion.mjs'), 'review', root, sessionId, 'root', generation, 'no-change'], nested, false, env) : { status: 1, signal: null, timedOut: false, error: null, stdout: '', stderr: 'missing generation' };
+    const secondStop = commandWithInput('node', [join(root, '.claude', 'hooks', 'knowledge-completion.mjs')], nested, JSON.stringify({ ...input, hook_event_name: 'Stop' }), env);
+    let firstDecision = null;
+    let secondDecision = null;
+    try { firstDecision = JSON.parse(firstStop.stdout); } catch {}
+    try { secondDecision = JSON.parse(secondStop.stdout || '{}'); } catch {}
+    const passed = startup.status === 0 && !/missing:|file empty:/.test(startup.stdout) && prompt.status === 0 && generation && firstStop.status === 0 && firstDecision?.decision === 'block' && review.status === 0 && secondStop.status === 0 && Object.keys(secondDecision || {}).length === 0;
+    return { passed: Boolean(passed), startup, prompt, generation, firstStop, review, secondStop };
+  } finally {
+    rmSync(receiptPath, { force: true });
+  }
 }
 
 function parseFinalResponse(jsonl) {
@@ -401,14 +436,37 @@ function parseTokenUsage(jsonl) {
 }
 
 function command(bin, argv, cwd, throwOnError = true, env = process.env) {
-  const result = spawnSync(bin, argv, { cwd, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024, env });
-  if (throwOnError && result.status !== 0) fail(`${bin} ${argv.join(' ')} failed (${result.status}): ${result.stderr}`);
-  return { status: result.status, stdout: result.stdout || '', stderr: result.stderr || '' };
+  const result = normalizeProcessResult(spawnSync(bin, argv, { cwd, encoding: 'utf8', timeout: timeoutSeconds * 1000, maxBuffer: 32 * 1024 * 1024, env }));
+  if (throwOnError && result.timedOut) {
+    const error = new Error(`${bin} ${argv.join(' ')} timed out after ${timeoutSeconds} seconds`);
+    error.code = 'ETIMEDOUT';
+    throw error;
+  }
+  if (throwOnError && result.status !== 0) throw new Error(`${bin} ${argv.join(' ')} failed (${result.status}): ${result.stderr || result.error?.message || 'no error output'}`);
+  return result;
 }
 
 function commandWithInput(bin, argv, cwd, input, env = process.env) {
-  const result = spawnSync(bin, argv, { cwd, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024, env, input });
-  return { status: result.status, stdout: result.stdout || '', stderr: result.stderr || '' };
+  return normalizeProcessResult(spawnSync(bin, argv, { cwd, encoding: 'utf8', timeout: timeoutSeconds * 1000, maxBuffer: 32 * 1024 * 1024, env, input }));
+}
+
+function normalizeProcessResult(result) {
+  return {
+    status: result.status,
+    signal: result.signal,
+    timedOut: result.error?.code === 'ETIMEDOUT',
+    error: result.error ? serializeError(result.error) : null,
+    stdout: result.stdout || '',
+    stderr: result.stderr || ''
+  };
+}
+
+function serializeError(error) {
+  return {
+    name: error?.name || 'Error',
+    code: error?.code || null,
+    message: error?.message || String(error)
+  };
 }
 
 function walk(root) {

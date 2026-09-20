@@ -9,7 +9,8 @@ and Git state.
 The trials use `gpt-5.6-sol`, `--ignore-user-config`, `--ephemeral`, JSON output,
 and the `workspace-write` sandbox. Each fixture has only a local bare Git remote.
 The runner neither changes authentication or trust settings nor publishes to the
-internet. A per-process timeout bounds each trial.
+internet. The configured per-process timeout bounds model, Git, checker, index,
+and copied-hook commands. Timeout details are retained in the result evidence.
 
 The legacy v1 fixture is a focused handoff surface. The v2 fixture installs the
 complete checker-owned file surface from shipped sources: navigation, glossary,
@@ -52,3 +53,6 @@ mechanical result proves neither general reliability nor that a hook fired.
 Local-remote publication does not exercise a network remote or second machine.
 Root fallback behavior may appear in raw events and must be reported as an
 observation rather than attributed to a hook without direct proof.
+If evidence processing fails after the model exits, the scenario and run
+manifests retain the exit status, signal, raw-evidence paths and processing
+error, and the aggregate result fails instead of abandoning the run record.
