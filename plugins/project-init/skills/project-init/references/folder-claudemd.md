@@ -39,10 +39,19 @@ Ten to twenty lines. Three things:
 - **Live status.** Current phase, next action, and open work belong in the work
   tracker.
 
-## Never a nested AGENTS.md
+## Why the toolkit keeps one root AGENTS.md
 
-Do not create `AGENTS.md` files inside folders. Codex would not read them, and
-it would double the files to keep current for no gain.
+Codex can assemble layered `AGENTS.md` instructions from the repository root
+through the directory where the session starts. It builds that chain once per
+run. A nested file can therefore apply when Codex starts inside that subtree,
+but it does not load later merely because a root-started session moves into the
+folder or reads one of its files.
+
+Toolkit projects deliberately keep one root `AGENTS.md` rather than maintain a
+second set of folder instruction files with uneven coverage. The root
+`CLAUDE.md` codemap and Toolkit workflow direct Codex to open the applicable
+folder `CLAUDE.md` explicitly when work reaches that folder. Do not create a
+nested `AGENTS.md` during setup.
 
 ## Which folders get one
 

@@ -222,20 +222,30 @@ Typical checks:
     it, or the System Guide check reports a problem. Name every problem; do not
     collapse this into off.
 
-  When the System Guide tool is available, run its cheap read-only status path
+  When the System Guide tool is available, run both read-only inspection paths
   from the canonical plugin source:
 
   ```text
   node <system-guide-plugin>/tools/system-guide.mjs status --root <project-root> --json
+  node <system-guide-plugin>/tools/system-guide.mjs check --root <project-root> --json
   ```
 
-  Also inspect project activation because that status reports project config and
-  guide health, not whether a static plugin copy is selected in this project.
-  When the tool is unavailable, read the config and required paths directly and
-  report that tool validation is unavailable. Do not install anything during
-  the audit. A suitable existing guide without config remains off and is an
-  adoption candidate, never an automatic adoption; preserve its established
-  location and ask the owner in step 4.
+  `status` cheaply reports base configuration, guide-path, and build-record
+  health without scanning configured sources. `check` scans those sources and
+  the guide, so it catches `source_changed` and other drift that status cannot.
+  Read the check's JSON even when it exits 1: that exit means the guide needs a
+  refresh or repair and is an audit result, not permission to change anything.
+  Use its state and every issue when deciding whether to report the guide as on
+  or needing repair.
+  Neither command writes project, source, settings, or sync-record files.
+
+  Also inspect project activation because these commands report config and guide
+  health, not whether a static plugin copy is selected in this project. When the
+  tool is unavailable, read the config and required paths directly and report
+  that source-drift validation is unavailable. Do not install, set up, or refresh
+  anything during the audit. A suitable existing guide without config remains
+  off and is an adoption candidate, never an automatic adoption; preserve its
+  established location and ask the owner in step 4.
 - **Project knowledge layout and runtime:** use the installed `knowledge-setup`
   procedure's detection and migration references. A fresh setup with no saved
   files can be current when all required records, tools and hooks are present.
@@ -427,11 +437,15 @@ answers for the two programs.
 - **Claude Code loads `.claude/rules/` automatically.** Every `.md` file there
   without `paths:` frontmatter is in context at session start. No import needed,
   and CLAUDE.md does not have to mention the folder for it to work.
-- **Codex discovers `AGENTS.md` files, not Claude rule files.** It expands no
-  import syntax, so an `@` line is not a load instruction, but it does follow a
-  plain instruction to open a file. The toolkit's `AGENTS.md` is one line:
+- **Codex discovers `AGENTS.md` files, not Claude rule files.** At startup it
+  assembles one instruction chain from the repository root through the initial
+  working directory. It expands no import syntax, so an `@` line is not a load
+  instruction, but the agent can follow a plain instruction to open another
+  file. The toolkit's root `AGENTS.md` is one line:
   `Read CLAUDE.md in this folder and follow it.` Everything else reaches Codex
-  through `CLAUDE.md`, which opens with `Read .claude/rules first.`
+  through that explicit root route: `CLAUDE.md` opens with `Read .claude/rules
+  first.` This is an instruction-following path, not native loading of Claude
+  rule files.
 
 So a project can pass every file check while that two-hop route is broken.
 Report:
@@ -442,8 +456,12 @@ Report:
 - **The second hop.** Confirm `CLAUDE.md` still carries `Read .claude/rules
   first.` Without it the chain stops at `CLAUDE.md` and Codex never reaches the
   rules.
-- **Nested `AGENTS.md` files.** The toolkit keeps one root file. Report any
-  other, and propose deleting it.
+- **Nested `AGENTS.md` files.** Codex can include one when the session starts
+  inside its subtree, but it does not lazily load that file when a root-started
+  session later moves there. The toolkit deliberately keeps one root file and
+  uses explicit folder `CLAUDE.md` reads for consistent coverage. Report any
+  nested file and propose reconciling its useful detail into that one-root
+  design before deleting it.
 - **Dead imports.** Grep both root files for `@` lines. Report any that resolve
   to nothing, especially wildcards such as `@.claude/rules/**`, which look
   load-bearing and expand to nothing in either program.
@@ -637,11 +655,14 @@ should look in THIS project, confirm, act, summarize. Ground rules:
      `../project-init/references/thin-claudemd.md` under "What must stay in the
      root file".
   4. When the project has an `AGENTS.md`, do not copy the folder detail into it.
-     `AGENTS.md` tells Codex to open a folder's `CLAUDE.md` before editing files
-     there, so one copy is enough. If the project pins the two root files to each
-     other with a shared block and a check, the block covers only the part that
-     genuinely must match: the fixed lines above the title, `Communication`, the
-     project-knowledge route, and the rules too dangerous to reach late.
+     The one-line root `AGENTS.md` routes Codex to the root `CLAUDE.md`; it does
+     not itself make Codex open a folder's `CLAUDE.md`. Keep the folder detail in
+     one place and make the root `CLAUDE.md` codemap or applicable Toolkit
+     workflow direct the explicit read before work there. If the project pins
+     the two root files to each other with a shared block and a check, the block
+     covers only the part that genuinely must match: the fixed lines above the
+     title, `Communication`, the project-knowledge route, and the rules too
+     dangerous to reach late.
   5. Never create a nested `AGENTS.md`.
 - For a folder listed as **not recognized** in step 2, ask the owner what it is
   for in plain words, then either write the file from their answer or record the
@@ -685,8 +706,11 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   than silently disabling/importing/deleting existing data. A plugin refresh is
   not project activation. Run file checks and actual fresh/recovered host proofs,
   record configured/tested/unavailable results separately, and leave failed or
-  partial setup explicitly incomplete. The procedure owns exact file moves and
-  registration details; this skill owns project-level coordination.
+  partial setup explicitly incomplete. The Knowledge setup procedure applies
+  and verifies the exact Claude and Codex hook definitions while preserving
+  unrelated configuration; Codex trust and authentication remain in the normal
+  owner `/hooks` flow. The procedure owns exact file moves and registration
+  details; this skill owns project-level coordination.
 
 - Do not install second-brain v1 or import its content. For an existing v1
   project, offer the following separately after reporting the exact local

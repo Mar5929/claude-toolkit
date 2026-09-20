@@ -33,6 +33,21 @@ proposals do not change the PRD or approve a build.
   official source contracts, capability limits, and required runtime proofs.
 - [Implementation readiness review](implementation-readiness-review.md):
   independent requirement coverage, resolved findings, and remaining decisions.
+- [Independent Knowledge behavior review](reviews/2026-09-20-independent-behavior-review.md):
+  interim evidence from three citation trials, deterministic checks, final source
+  review, and unresolved action-review, native-save, and host limitations.
+- [Independent requirements review](reviews/2026-09-20-independent-requirements-review.md):
+  interim R1-R30 matrix, dispositions, source heads, verification, and open gates.
+- [Startup and recovery proof](reviews/2026-09-20-startup-recovery-proof.md):
+  portable R2 prompts, commands, outcomes, setup failures, and bounded host limits.
+- [Independent native-save review](reviews/2026-09-20-native-save-independent-review.md):
+  bounded Codex Desktop helper save, overlap, result-return, and recovery findings.
+- [Native-save helper proof](reviews/native-save-helper-proof/README.md):
+  corrected trial summary with the normal-save and lost-response recovery records.
+- [Independent action-checkpoint review](reviews/2026-09-20-action-checkpoint-independent-review.md):
+  source findings, deterministic checks, editorial disposition, and delivery limits.
+- [Native action-checkpoint proof](reviews/2026-09-20-native-action-checkpoint-proof.md):
+  controlled Codex CLI trial, authorization deviation, and current-target limits.
 
 These records were requested on 2026-09-17 for autonomous design reconciliation
 and implementation planning. Their publication does not claim runtime delivery
@@ -131,10 +146,11 @@ and the changes made after discussion; they do not establish new policy.
 
 ## Two things to know before reading a record
 
-File paths beginning `/tmp/` appear inside these records. They pointed at the
-session's own scratch folder, which no longer exists. Nothing there can be
-opened, and nothing there was lost: everything worth keeping is in this folder
-or in the design file.
+File paths beginning `/tmp/` in older records pointed at the session's own
+scratch folder, which no longer exists. Those older records preserved the
+material selected for lasting use. Current review records may also name
+temporary raw traces as evidence boundaries; those traces are not claimed as
+permanent repository artifacts.
 
 Five labels and one marker name were rewritten in these copies so that
 `tests/knowledge-startup-check.mjs` passes on the `docs/` folder. The five

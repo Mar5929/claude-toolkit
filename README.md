@@ -45,7 +45,7 @@ written down somewhere. It gets fitted into the system:
 | What I bring | Where it lands |
 | --- | --- |
 | A rule every project should follow (behavior, writing style, workflow) | Its own file in `library/rules/general/`, copied into each new project's `.claude/rules/` |
-| A rule that must hold in every repository on the machine, even ones I never set up | Its own file in `machine/rules/`, installed for Claude Code and, where needed, as a managed Codex block by `machine-sync`. Only when a project rule genuinely cannot cover it |
+| A rule that must hold in every repository on the machine, even ones I never set up | Its own file in `machine/rules/`, installed for Claude Code by `machine-sync`. Known retired Codex wiring is audited only when explicitly listed and removed only with owner approval. Only when a project rule genuinely cannot cover it |
 | A change to the voice Claude answers in | An output style in [`library/output-styles/`](plugins/project-init/library/output-styles/README.md), never a rule and never a hook. `Plain English` is the only shipped style and the default for toolkit project setup; deliberate owner choices of another style are preserved |
 | A setup step for new projects | A gate (or part of one) in the `project-init` skill |
 | A guard hook or automation | The [`hooks-library`](plugins/hooks-library/README.md) plugin. A hook does one of three jobs: check an output against a rule a machine can test with no interpretation, trigger a process at a moment agents forget, or orient a session at its start. If it needs none of those, it stays a rule. Voice is never one of them; the plugin's README carries the history of three attempts that were removed |
@@ -93,7 +93,7 @@ claude-toolkit/
     marketplace.json              ← Codex marketplace pointing at the same plugins
   plugins/
     project-init/                 ← plugin: set up or sync a project, apply its
-                                     file lifecycle, or set up a whole computer
+                                     file lifecycle, or synchronize machine policy
       README.md                   ← what this plugin is
       .claude-plugin/plugin.json
       .codex-plugin/plugin.json
@@ -104,7 +104,7 @@ claude-toolkit/
         tools/                       permsets.py and the kb/ dependency graph tool
         templates/                   copy-and-fill starting points
         guides/                      how-to docs for installing the kits above
-      machine/                    ← machine-wide Claude and Codex material
+      machine/                    ← active Claude policy sources; retired Codex audit is in machine-sync
         README.md                    the test for what belongs here, not in library/
         rules/                       no-ai-attribution.md
         settings/required.json       the attribution values that kill the AI credit lines
@@ -112,10 +112,11 @@ claude-toolkit/
         project-init/             ← SKILL.md + references/: the gate script only
                                      (setup-flow, work-tracking-choice,
                                      work-items-structure, thin-claudemd,
-                                     salesforce-project-scaffold)
+                                     root-file-examples, toolkit-manual-delivery,
+                                     folder-claudemd, salesforce-project-scaffold)
         project-sync/             ← SKILL.md (reads the same library/)
         work-item-lifecycle/      ← SKILL.md (applies the file lifecycle rule)
-        machine-sync/             ← SKILL.md (reads machine/, writes host homes)
+        machine-sync/             ← SKILL.md (reads machine/, applies approved Claude policy gaps and approved retired Codex cleanup)
     second-brain/                 ← plugin: Git-native project knowledge for Claude and Codex
       README.md
       .claude-plugin/plugin.json
@@ -266,7 +267,7 @@ inside a project folder before it is useful, which is what the last column says:
 
 | Plugin | What it does | Setup |
 | --- | --- | --- |
-| **[project-init](plugins/project-init/README.md)** | Sets up or syncs a project. It asks where work is tracked, carries the ticket rules into that tracker, offers work-tracker, and installs or safely migrates the portable `knowledge/` vault when selected. `work-item-lifecycle` applies the file lifecycle rule when project information is created, moved, organized, or completed. New Salesforce projects use `delivery/` for client-work artifacts while existing `engagement/` projects stay in place. `machine-sync` installs the rules, settings, and hooks that must hold across the computer. | Sets up a project, and sets up a machine |
+| **[project-init](plugins/project-init/README.md)** | Sets up or syncs a project. It asks where work is tracked, carries the ticket rules into that tracker, offers work-tracker, and installs or safely migrates the portable `knowledge/` vault when selected. `work-item-lifecycle` applies the file lifecycle rule when project information is created, moved, organized, or completed. New Salesforce projects use `delivery/` for client-work artifacts while existing `engagement/` projects stay in place. After marketplace and project-init bootstrap, `machine-sync` audits and synchronizes the configured machine-wide policy, applying approved Claude gaps and explicitly listed retired Codex cleanup. | Sets up a project; synchronizes machine policy after bootstrap |
 | **[second-brain](plugins/second-brain/README.md)** | A portable `knowledge/` system for Claude, Codex, Git, and optional Obsidian: one managed operating manual, a bounded startup read route, topic memory, PRDs, four focused procedures, durable save recovery, three generated indexes and safe migration. | Sets up a project |
 | **[system-guide](plugins/system-guide/README.md)** | Optional system understanding under `knowledge/system/`: useful source maps, evidence, and owner-approved explanations that save repeated investigation. Local tools refresh generated pages and preserve meaning; deliberate cleanup removes content that no longer helps. Works independently and joins the second brain's lookup when both are enabled. | Sets up a project |
 | **[sf-architect-solutioning](plugins/sf-architect-solutioning/README.md)** | A Salesforce solution architect: pushes back on vague requirements, verifies platform facts against official docs by live fetch, designs declarative-first to Well-Architected standards, and presents a solution plan for approval before any build. Salesforce projects only. | Install and go |
@@ -358,10 +359,10 @@ Install once per machine:
 /machine-sync
 ```
 
-It compares that machine's Claude and Codex homes against the toolkit's machine-wide set
-and installs what you approve, so the rules that have to hold in every
-repository are in place before you clone one. Run it again after any toolkit
-update that touched `plugins/project-init/machine/`.
+It audits the current configured machine-wide policy. Today it applies approved
+rule, settings, and hook gaps to the Claude home and offers approved removal of
+only the Codex wiring explicitly listed as retired. Run it again after any
+toolkit update that touched `plugins/project-init/machine/`.
 
 On Salesforce projects, also:
 

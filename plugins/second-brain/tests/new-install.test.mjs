@@ -8,14 +8,34 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 
+const repo=resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
+
+function assertCurrentFeedbackGuidance(text) {
+ assert.match(text,/There is no arbitrary character cap\./);
+ assert.match(text,/merge repeated or obsolete guidance without losing useful sourced\s+feedback\./);
+ assert.match(text,/Record a line only when the owner changes or corrects what counts as memory or\s+how selection should work\./);
+ assert.match(text,/Ordinary save outcomes are not logged\./);
+ assert.match(text,/stated reason or "no reason given"\./);
+ assert.match(text,/Never restate a rejected fact as a lesson\./);
+ assert.doesNotMatch(text,/8,000|8000|one line per candidate|checker enforces it/i);
+}
+
+test('feedback template and project copy keep the same cap and decision-log policy', () => {
+ for (const path of [
+  'plugins/second-brain/skills/knowledge-setup/references/templates/knowledge/memory-self-improvement.md',
+  'knowledge/memory-self-improvement.md'
+ ]) assertCurrentFeedbackGuidance(readFileSync(resolve(repo,path),'utf8'));
+});
+
 test('empty installed project runs copied startup, prompt and Stop commands from nested cwd', () => {
-const repo=resolve(dirname(fileURLToPath(import.meta.url)), '../../..'), root=realpathSync(mkdtempSync(join(tmpdir(),'knowledge-new-install-')));
+const root=realpathSync(mkdtempSync(join(tmpdir(),'knowledge-new-install-')));
 const actionSessions=['fixture-codex-pr','fixture-codex-close'];
 const template='plugins/second-brain/skills/knowledge-setup/references/templates/';
 const write=(path,text)=>{mkdirSync(dirname(resolve(root,path)),{recursive:true});writeFileSync(resolve(root,path),text)};
 const copy=(from,to)=>{mkdirSync(dirname(resolve(root,to)),{recursive:true});copyFileSync(resolve(repo,from),resolve(root,to))};
 try {
  for(const name of ['knowledge/knowledge-manual.md','knowledge/README.md','knowledge/memory-inbox.md','knowledge/memory/memory-entries/terminology-glossary.md','knowledge/memory-self-improvement.md'])copy(template+name,name);
+ assertCurrentFeedbackGuidance(readFileSync(resolve(root,'knowledge/memory-self-improvement.md'),'utf8'));
  copy('plugins/project-init/library/templates/toolkit-manual.md','knowledge/toolkit-manual.md');
  for(const name of ['knowledge-session-start','knowledge-manual','memory-reminder','knowledge-completion','save-reminder','work-item-close','command-parsing'])copy(`plugins/second-brain/hooks/${name}.mjs`,`.claude/hooks/${name}.mjs`);
  for(const name of ['frontmatter','build-knowledge-index','check-knowledge','inspect-knowledge-save'])copy(`plugins/second-brain/tools/${name}.mjs`,`.claude/tools/${name}.mjs`);

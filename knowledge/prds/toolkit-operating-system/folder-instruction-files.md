@@ -11,7 +11,7 @@ approved_by: Mike Rihm
 approval_date: 2026-08-22
 project: claude-toolkit
 work_item: "219"
-updated_at: 2026-09-19
+updated_at: 2026-09-20
 ---
 
 # Folder instruction files
@@ -115,8 +115,12 @@ that folder's orientation with it.
   behind it: `keep-claudemd-current.md` was removed from the toolkit on
   2026-08-31. If staleness shows up in practice, a reminder hook can be a later
   ticket.
-- **No nested `AGENTS.md` files.** Codex would not read them, and they would
-  double the files to keep current for no gain.
+- **No nested `AGENTS.md` files.** Codex can assemble layered `AGENTS.md`
+  instructions from the repository root through the session's starting
+  directory. It does not lazily load a nested file merely because the session
+  later moves into that folder. Toolkit projects deliberately keep one root
+  `AGENTS.md`; folder-specific detail remains in `CLAUDE.md` files that agents
+  open when needed, avoiding a second set of files to maintain.
 
 ## Related
 
