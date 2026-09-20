@@ -194,7 +194,7 @@ response to a file before asking the next one.
 ### The persistence contract
 
 The capture file is the source of truth, not the conversation. It creates a
-dated file under `knowledge/brainstorms/` when project knowledge is installed,
+dated file under `brainstorms/` for schema 2 (legacy: `knowledge/brainstorms/`),
 walks the topic in dependency order, records every answer and open flag before
 continuing, then closes with a contradiction check and a short recap.
 
@@ -209,10 +209,10 @@ brainstorm folder instead, rather than creating half a system.
 A brainstorm is not a specification and not a work item's Requirements section (legacy: `REQUIREMENTS.md`). It is the
 record of how the answers were reached.
 
-At the end it invokes `remember`, which follows the installed knowledge manual
-and saves only the meaning you approve. The raw brainstorm checkpoint is the
-one place content reaches a file before that review, because the checkpoints
-make an interrupted interview safe.
+At the end it invokes `knowledge-save` (legacy: `remember`), following the installed knowledge manual
+and saves only authorized meaning. The requested interview authorizes its raw
+checkpoints so an interrupted interview can resume; it grants no lasting save
+permission.
 
 A refinement session before work starts is a good habit, and this is a good way
 to hold one. Nothing requires it: the toolkit rule that used to,

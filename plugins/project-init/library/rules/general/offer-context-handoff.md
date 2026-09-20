@@ -7,7 +7,7 @@ complex, multi-step task, tell the owner plainly and offer to write a
 self-contained handoff prompt they can paste into a fresh session. Skip this for
 small edits, quick lookups, or when the relevant context is still fresh.
 
-**A handoff runs `knowledge-save` first when project knowledge is installed.** Before
+**A handoff runs the installed knowledge-save review first when project knowledge is installed (legacy: `remember`).** Before
 writing the prompt, invoke that skill and let it follow `knowledge/knowledge-manual.md`.
 Anything not saved goes inside the handoff prompt instead, so the next session
 still has it. The order matters: write the prompt first and the persistent

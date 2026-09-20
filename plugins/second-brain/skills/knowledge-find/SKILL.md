@@ -10,6 +10,10 @@ restore it if unavailable or changed. Apply root and folder instructions from
 the first action. This procedure does not require reopening unchanged sources
 on every tool call.
 
+For a legacy installation, use the actual paths and trust rules named by its
+managed manual; do not create schema:2 records during lookup. Report a partial
+or conflicting layout and route repair through `knowledge-setup`.
+
 Understand the request and decide whether project knowledge could affect it.
 If not, continue the task. Otherwise use relevant, current evidence already in
 context or find it in this order:

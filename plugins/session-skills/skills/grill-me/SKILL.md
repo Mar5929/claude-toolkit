@@ -18,17 +18,18 @@ question, so a context reset or interrupted session can resume from the file.
 If the session resumes after an interruption, read the capture file before
 continuing.
 
-This owner-invoked raw checkpoint is the one place the project knowledge system
-lets content reach a file without the short approval review first. `grill-me`
-may write only its non-authoritative brainstorm capture. Approved specifications
-and curated memory still go through the installed `remember` skill and its
-owner-approval flow.
+The requested interview authorizes its non-authoritative brainstorm capture.
+It does not approve lasting memory or requirements. Use the installed save
+procedure and its permission rules for those destinations.
 
 ## Set up before asking the first question
 
 1. Detect the project's knowledge layout before writing:
-   - when `knowledge/project.md`, `knowledge/prds/`, `knowledge/memory/`, and
-     `knowledge/brainstorms/` are present, use `knowledge/brainstorms/`;
+   - when the managed manual carries `<!-- claude-toolkit:knowledge-schema:2 -->`
+     and its required layout is complete, use root `brainstorms/`; create that
+     capture directory if absent under this requested interview;
+   - for a complete legacy layout, follow its manual and use
+     `knowledge/brainstorms/`;
    - when no knowledge-system signature is present, use an existing ordinary
      brainstorm artifact folder, or create top-level `brainstorms/` after
      telling the owner this is standalone raw capture; and
@@ -112,20 +113,19 @@ being preserved.
 2. Reconcile contradictions, gaps, stale flags, and superseded decisions.
 3. Save the final running summary and open-flags list.
 4. When the current project knowledge system is installed, invoke its
-   `remember` skill for the end-of-interview persistent review:
-   - let `knowledge/knowledge-manual.md` and `remember` own placement, the save test, and
-     approval; and
-   - save only the approved meaning in this session's worktree.
+   `knowledge-save` skill (legacy: `remember`) for the end-of-interview review.
+   The installed manual/procedure owns placement, permission and publication;
+   save only authorized meaning through the project's actual publication route.
 5. When the approved update creates or amends a specification, link the
    specification to this brainstorm and this brainstorm to every resulting
    specification.
 6. Give the user a short recap of what was captured, what remains flagged, and
    the recommended next step.
 
-Keep the raw capture in `knowledge/brainstorms/` when the knowledge system is
-installed, or in the stated standalone artifact folder otherwise. A polished
+Keep raw capture at the installed layout's location chosen above, or in the
+stated standalone artifact folder otherwise. A polished
 plan, map, or specification does not replace or move the raw interview notes.
 
-Knowledge-system integration is conditional. Without the complete new layout,
-preserve the standalone brainstorm behavior and do not create a partial
-`knowledge/`, `prds/`, or `memory/` system.
+Knowledge-system integration is conditional. With no configured Knowledge
+system, preserve standalone capture. With a partial or conflicting installation,
+report the gap and preserve existing files; do not create competing records.

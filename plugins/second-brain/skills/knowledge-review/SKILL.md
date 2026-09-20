@@ -5,6 +5,13 @@ description: Review project knowledge for duplicates, contradictions, obsolete c
 
 # Review project knowledge
 
+This procedure's templates and recovery layout require the managed schema:2
+manual. If the installed manual is legacy or the layout is partial/conflicting,
+use `knowledge-setup` to reconcile under actual update authority before these
+mutations. Until then preserve candidates and continuation in the existing
+conversation/current-work route; do not create a new inbox or move files as an
+incidental save. A newer plugin cache alone does not authorize migration.
+
 Restore the current core manual if it is missing or changed. Read the relevant
 project output style and `knowledge-save` before proposing a change.
 

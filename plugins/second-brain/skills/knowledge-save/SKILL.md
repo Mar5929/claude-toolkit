@@ -5,6 +5,13 @@ description: Review information for saving, prepare memory or PRD proposals, com
 
 # Save and maintain project knowledge
 
+This procedure's templates and recovery layout require the managed schema:2
+manual. If the installed manual is legacy or the layout is partial/conflicting,
+use `knowledge-setup` to reconcile under actual update authority before these
+mutations. Until then preserve candidates and continuation in the existing
+conversation/current-work route; do not create a new inbox or move files as an
+incidental save. A newer plugin cache alone does not authorize migration.
+
 Use the complete current `knowledge/knowledge-manual.md` already read at startup;
 restore missing or changed guidance before dependent work. Read the project's
 selected output style before authoring proposals or saved prose; reuse it while

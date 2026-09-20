@@ -19,6 +19,14 @@ because this plugin was updated. Preserve owner edits and pending permissions.
 - Exclude `.system-guide.json` and its configured guide tree from conversion.
   A Guide-only project has not enabled Knowledge. Preserve that component exactly.
 
+Older signatures include `knowledge/specs/`, type-based memory subfolders,
+`memory/tags.md` or source/session metadata from an earlier toolkit. Inventory
+them explicitly. A lone known specs folder can move to prds under the same
+migration authority; if both exist, reconcile collisions before any move. Convert
+only fields whose meaning, source and permission can be recovered from actual
+records. Unmappable entries remain intact and visibly pending. Do not import a
+retired database/verifier system or flatten unknown owner folders by guesswork.
+
 ## Move supported records together
 
 | Existing record | New home |
