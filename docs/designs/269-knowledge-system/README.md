@@ -44,6 +44,10 @@ proposals do not change the PRD or approve a build.
   bounded Codex Desktop helper save, overlap, result-return, and recovery findings.
 - [Native-save helper proof](reviews/native-save-helper-proof/README.md):
   corrected trial summary with the normal-save and lost-response recovery records.
+- [Independent action-checkpoint review](reviews/2026-09-20-action-checkpoint-independent-review.md):
+  source findings, deterministic checks, editorial disposition, and delivery limits.
+- [Native action-checkpoint proof](reviews/2026-09-20-native-action-checkpoint-proof.md):
+  controlled Codex CLI trial, authorization deviation, and current-target limits.
 
 These records were requested on 2026-09-17 for autonomous design reconciliation
 and implementation planning. Their publication does not claim runtime delivery
