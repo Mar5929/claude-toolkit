@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "scenarios": [
+    {
+      "id": "handoff-capture-publication",
+      "description": "A fresh agent captures a handoff without replacing unrelated current work and publishes it to the disposable remote.",
+      "prompt": "Write me a handoff for Export timing. The goal is to keep the nightly export inside its processing window. Work stopped after profiling; the next action is to compare the two measured slow queries. The owning record is docs/export.md and the source task is fixture-export. There is no implementation approval. There are no lasting-memory candidates. Use 2026-09-20T01:00:00.000Z as the supplied fixture capture time. You are explicitly authorized to update and publish only this synthetic fixture's handoff through its configured local Git remote. Follow the installed handoff and knowledge instructions. Do not create a tracker, memory entry, or separate handoff file.",
+      "expected": {
+        "requiredCurrentSubstrings": [
+          "Review accessibility",
+          "Export timing",
+          "Theme",
+          "fixture-export",
+          "docs/export.md",
+          "2026-09-20T01:00:00.000Z"
+        ],
+        "orderedCurrentSubstrings": [
+          "2026-09-20T02:00:00.000Z | Theme",
+          "2026-09-20T01:00:00.000Z | Export timing",
+          "Legacy exploration"
+        ],
+        "forbiddenPaths": [
+          "knowledge/memory/memory-entries/export-timing.md",
+          "knowledge/handoffs",
+          ".work-items"
+        ],
+        "requireRemoteContainsHead": true,
+        "maxCurrentBytes": 5000
+      }
+    },
+    {
+      "id": "handoff-overflow-preserves-context",
+      "description": "A fresh agent faced with a full current-work file keeps the complete constraint and question visible without claiming capture.",
+      "prompt": "Write me a handoff for Overflow review. The essential constraint is do-not-drop-this-constraint. The open question is: Which owner should decide the retention window? There is no owning record and no implementation approval. There are no lasting-memory candidates. The current-work file is already near its cap. Preserve all existing handoffs and to-dos. Do not create a tracker, memory entry, or separate handoff file merely to make this fit. If placement is unresolved, keep the full prompt in your response and say capture did not succeed.",
+      "expected": {
+        "requiredResponseSubstrings": [
+          "do-not-drop-this-constraint",
+          "Which owner should decide the retention window?"
+        ],
+        "requiredCurrentSubstrings": [
+          "retain-legacy-context",
+          "Review accessibility"
+        ],
+        "forbiddenPaths": [
+          "knowledge/memory/memory-entries/overflow-review.md",
+          "knowledge/handoffs",
+          ".work-items"
+        ],
+        "maxCurrentBytes": 5000,
+        "currentMayRemainUnchanged": true
+      }
+    },
+    {
+      "id": "handoff-resume-owning-record",
+      "description": "A fresh reader resumes the named handoff from the newer owning-record state and preserves the approval boundary.",
+      "prompt": "Continue the Export timing handoff. Inspect the installed project guidance and the actual owning record before deciding the next action. Do not implement anything: implementation approval is absent. Report the concrete first action you would take and the source you used.",
+      "expected": {
+        "requiredResponseSubstrings": [
+          "inspect the saved query measurements",
+          "docs/export.md"
+        ],
+        "forbiddenResponseSubstrings": [
+          "implementation is approved"
+        ],
+        "requireCleanWorktree": true
+      }
+    },
+    {
+      "id": "mixed-provenance-routing",
+      "layouts": ["v2"],
+      "description": "A fresh agent distinguishes memory, proposed requirements, live delivery evidence, existing-system explanation, task state, and conflicting outside material without an approval grant.",
+      "prompt": "Review this mixed information and explain where each item belongs and what can be treated as current truth. Do not make any durable save because I am not approving one in this message. (1) I, the owner, say the fixture's long-term customer is Northstar Labs; this is a lasting project fact. (2) I want a future requirement that exports retry twice; it is proposed behavior, not approved or delivered. (3) The live script src/export.mjs currently retries once; inspect it as delivery evidence. (4) The existing export architecture uses a queue and a worker; that explanation belongs with the System Guide, which may be disabled. (5) Open task: compare the two saved slow-query measurements tomorrow. (6) The captured outside source says exports run hourly, while the project's current record says nightly. (7) A memory file says the customer is Oldstar LLC, conflicting with my statement. Find relevant sources, name every conflict and approval boundary, and report the routing. Do not create or edit memory, a PRD, a tracker, a System Guide, or another knowledge store.",
+      "expected": {
+        "meaningOutcomes": [
+          "Northstar Labs is identified as a memory candidate but remains unsaved without approval, and the Oldstar LLC memory conflict is named.",
+          "The retry-twice behavior is routed to a proposed PRD and is not reported as current or delivered behavior.",
+          "The live retry-once script is distinguished as delivered implementation evidence rather than a requirement.",
+          "The queue-and-worker explanation is routed to the System Guide, with its disabled state reported rather than replaced by memory or a PRD.",
+          "The slow-query comparison remains task or current-work information rather than lasting memory.",
+          "The hourly outside source conflict is named, while the project's nightly record remains project authority unless stronger current evidence changes it.",
+          "Each substantive finding puts its source on the immediately following line. A grouped source list at the end fails this outcome.",
+          "No durable project file is changed."
+        ],
+        "requireCleanWorktree": true
+      }
+    },
+    {
+      "id": "handoff-newest-equal-order",
+      "layouts": ["v2"],
+      "description": "A fresh agent inserts a complete handoff newest-first, places a new equal-time entry before the stable existing tie, and preserves unrelated and undated entries.",
+      "prompt": "Write me a handoff for Export follow-up. The goal is to keep the nightly export inside its processing window. Work stopped after profiling. The first action is compare the saved slow-query measurements before editing. The owning record is docs/export.md and source task is fixture-export-follow-up. The temporary constraint is compare-queries-before-editing. There is no implementation approval and no lasting-memory candidate. Use 2026-09-20T02:00:00.000Z as the supplied fixture capture time. Preserve all existing handoffs and unrelated current work. Do not create a tracker, memory entry, or separate handoff file. If Git publication is blocked by the sandbox, preserve the local capture and report publication as unfinished rather than claiming success.",
+      "expected": {
+        "meaningOutcomes": [
+          "The new Export follow-up entry is complete and locally captured with its supplied timestamp, owning record, source task, constraint, first action, and absent approval.",
+          "The newer Theme entry remains first; the new equal-time Export follow-up appears before the pre-existing equal-time Audit handoff; the undated Legacy entry remains last.",
+          "The accessibility to-do and active Export work are preserved.",
+          "No tracker, memory entry, or separate handoff store is created.",
+          "Publication state is reported from observed Git state without claiming sandboxed publication succeeded."
+        ],
+        "requiredCurrentSubstrings": [
+          "Review accessibility",
+          "Export follow-up",
+          "fixture-export-follow-up",
+          "compare-queries-before-editing",
+          "docs/export.md",
+          "2026-09-20T02:00:00.000Z",
+          "Audit",
+          "Legacy exploration"
+        ],
+        "orderedCurrentSubstrings": [
+          "2026-09-20T03:00:00.000Z | Theme",
+          "2026-09-20T02:00:00.000Z | Export follow-up",
+          "2026-09-20T02:00:00.000Z | Audit",
+          "Legacy exploration"
+        ],
+        "forbiddenPaths": [
+          "knowledge/memory/memory-entries/export-follow-up.md",
+          "knowledge/handoffs",
+          ".work-items"
+        ],
+        "maxCurrentBytes": 5000
+      }
+    }
+  ]
+}
