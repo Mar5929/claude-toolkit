@@ -1,6 +1,9 @@
 # Knowledge System implementation plan
 
-Updated: 2026-09-20. Execution plan for issue #269. The bounded package in PR #366 is merged; remaining design, implementation and acceptance work stays open. This document does not supply missing approvals.
+Updated: 2026-09-20. Execution plan for issue #269. Reviewed packages in PRs
+#370, #372, #371 and #373 are merged. PR #374 delivery and authorized target
+sync remain pending; design, product decisions and acceptance work stay open.
+This document does not supply missing approvals.
 
 ## Authority and execution boundary
 
@@ -15,35 +18,39 @@ The owner authorized this design and plan refinement. Record the resulting recom
 
 ## Current delivery sequence — 2026-09-20
 
-Mike's sequence remains: finish authorized packages, assess what actually shipped,
-then prepare the remaining implementation plan. Toolkit PR #363 is merged.
-Mike explicitly approved combined [PR #366](https://github.com/Mar5929/claude-toolkit/pull/366),
-including schema/audit and Session handoffs. GitHub records its merge on
-2026-09-20 at `3703c5cc009ab2a6be0e2242e0213fa57f65d181`, from reviewed head `64c0fc7`.
-This replaces the earlier pending approval for the included #364/#365 scopes.
+Mike's sequence remains: finish authorized packages, assess what actually
+shipped, then complete authorized target sync before broader planning.
+[PR #370](https://github.com/Mar5929/claude-toolkit/pull/370) merged at
+`b3b8feceeab0832da4e48c9bea45fd6ab0f8c50e`,
+[#372](https://github.com/Mar5929/claude-toolkit/pull/372) at
+`999bfcb4898bffbd7449e6b09fc98ffbf0d65c53`,
+[#371](https://github.com/Mar5929/claude-toolkit/pull/371) at
+`283258a730ec90c51f63a646a496c32430661d9a`, and
+[#373](https://github.com/Mar5929/claude-toolkit/pull/373) at
+`b20135314e37e3974e2390e638de0eb4f14915f5`. PR #367 is closed as
+superseded; its branch and worktree remain available as history.
 
-The merged package provides the manual, four focused procedures and references,
-startup/prompt/completion guidance, schema-2 records/indexes, save/recovery inspection,
-setup/migration instructions and temporary handoffs. Repository checks, plugin
-validation and independent review passed. The [durable audit report](https://github.com/Mar5929/claude-toolkit/blob/59145272872af43d848ff5df205e9154bf94da77/docs/designs/269-knowledge-system/implementation-plan.md#actual-agent-trials--2026-09-20-utc)
-records six bounded model trials and their limits. Optional tooling in PR #367
-remains separate and unmerged.
+The latest evidence is indexed in the
+[working-record README](README.md#current-implementation-planning). It records a
+bounded R6 citation pass, prompted Codex CLI R2 startup/recovery pass, bounded
+Codex Desktop native save and lost-result recovery pass, and the remaining
+action-checkpoint delivery limits. These findings supersede missing-source and
+missing-proof conclusions in the initial `dee7f16` assessment where the newer
+records say so; they do not erase its observed failures or establish a
+reliability rate.
 
-1. Merged branch/worktree cleanup is complete; all seven other worktrees were
-   preserved. Owners verified and closed #364/#365 as superseded without merging
-   them or removing their worktrees. Status is published; #269 remains open.
-2. The coordinator completed the source/evidence assessment below, including
-   all R1–R30, concrete defects and the remaining #367 delta. Full behavioral
-   acceptance remains open.
-3. Follow the ordered remaining work below. Assign bounded tasks under their
-   actual authority, resolve product choices and verify results before acceptance.
+1. Finish PR #374 delivery and verify its final source, configuration and
+   version integration under the existing review authority.
+2. Sync the authorized toolkit-project and laptop targets. Prefer shipped
+   behavior, avoid unnecessary migration, preserve authentication, and obtain
+   Mike's normal Codex hook-trust action rather than bypassing trust.
+3. Verify actual target activation and fresh behavior, then reconcile remaining
+   D3 and product choices and plan broader-host and full acceptance work.
 
-Full requirements/design approval, asynchronous helper execution and recovery,
-host delivery/late Stop ordering, behavioral reliability and citation formatting,
-agreed rollout and owner acceptance remain open. Claude model proof was blocked
-by expired OAuth; authentication must not change. Main publication does not prove
-another project is equipped. This scoped merge approves neither the entire
-Knowledge System nor whole Toolkit OS implementation.
+Full requirements/design approval, D3, unresolved product choices, broader host
+coverage, agreed rollout and owner acceptance remain open. Main publication
+does not prove another project is equipped. The reviewed merges approve neither
+the entire Knowledge System nor whole Toolkit OS implementation.
 
 Both operating manuals were reviewed for this status update. The merged package
 already includes their dependent guidance; no manual policy change is needed here.
@@ -54,7 +61,12 @@ statement that a file is missing does not override inspected main source.
 
 ## Delivered-versus-required assessment, 2026-09-20
 
-Assessed main `dee7f16`, including merged #366 `3703c5c`. The coordinator checked
+**Historical baseline:** this section assessed main `dee7f16`, including merged
+#366 `3703c5c`, before the later reviewed packages and evidence above. Preserve
+its dated failures and package analysis; use the current delivery sequence and
+[latest review index](README.md#current-implementation-planning) for present state.
+
+The coordinator checked
 the PRD's R1–R30, master design, delivered procedures/hooks/tools/templates,
 installed copies, and the [reviewed trial report](https://github.com/Mar5929/claude-toolkit/blob/59145272872af43d848ff5df205e9154bf94da77/docs/designs/269-knowledge-system/implementation-plan.md#actual-agent-trials--2026-09-20-utc).
 This is a source and evidence assessment, not a new independent agent review or

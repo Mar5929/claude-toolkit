@@ -2,34 +2,39 @@
 Updated: 2026-09-20
 
 ## Project goal
-Finish authorized packages, assess actual delivery, then plan remaining
-whole-system work. The whole Toolkit OS is not authorized for implementation.
+Finish the authorized Knowledge delivery, verify the toolkit project and laptop,
+then plan remaining whole-system work. The whole Toolkit OS is not authorized
+for implementation.
 
 ## Active work
 
 ### Knowledge System — #269
 Updated: 2026-09-20
 
-**Goal** Deliver the approved Knowledge packages, assess delivery, then plan remaining work.
+**Goal** Finish the authorized Knowledge packages and target sync, then plan remaining work.
 
-**Current status** The bounded instruction, schema/audit and handoff package merged in
-[PR #366](https://github.com/Mar5929/claude-toolkit/pull/366) at `3703c5c` after
-Mike's explicit combined merge approval. Full Knowledge System requirements/design
-approval, delivery and acceptance remain open. This does not authorize whole Toolkit OS implementation.
+**Current status** Reviewed packages merged in PRs
+[#370](https://github.com/Mar5929/claude-toolkit/pull/370) `b3b8fec`,
+[#372](https://github.com/Mar5929/claude-toolkit/pull/372) `999bfcb`,
+[#371](https://github.com/Mar5929/claude-toolkit/pull/371) `283258a`, and
+[#373](https://github.com/Mar5929/claude-toolkit/pull/373) `b201353`.
+PR #367 is closed as superseded; its branch/worktree is preserved. PR #374
+delivery, source/configuration/version integration, and review remain pending.
 
-**Recent progress** 2026-09-20: R1–R30 assessment and ordered remaining plan prepared.
-67 deterministic cases pass. Found remaining feedback-template contradictions,
-late-Stop correlation weakness and startup/save-moment proof gaps. #367 needs
-its five-path test/evidence change reconciled onto main; merge approval is separate.
+**Recent progress** Independent Astra/two-Sol source review passed. Evidence found
+a bounded R6 citation pass, prompted Codex CLI R2 startup/recovery pass, and
+bounded Codex Desktop native save and lost-result recovery pass. The linked plan
+and review index preserve exact heads, failures, limits and unresolved evidence.
 
-**Next step** Assign bounded corrections and host/save proofs from the plan;
-review D3 wording and remaining product choices with Mike.
+**Next step** Finish and review PR #374, then sync the toolkit project and this
+laptop using shipped behavior where possible, without unnecessary migration or
+authentication changes. Normal Codex hook trust needs Mike's user action.
 
-**Blocker** Claude model proof was blocked by expired OAuth; do not change authentication.
-Native delivery, helper lifetime/results, rollout and full acceptance remain open.
+**Blocker** Full requirements/design acceptance, D3 and other product choices,
+normal target activation, broader hosts, rollout, and full acceptance remain open.
 
-**To-dos** 2026-09-20: feedback correction, #367 preparation, host/helper and behavior
-proofs, D3 refinement, remaining approvals and agreed rollout.
+**To-dos** 2026-09-20: finish #374; verify project/laptop sync; resolve remaining
+product choices and acceptance evidence.
 
 **Detailed record** [#269](https://github.com/Mar5929/claude-toolkit/issues/269),
 [design Notes](../../docs/designs/269-knowledge-system.md#notes),
