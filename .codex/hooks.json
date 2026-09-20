@@ -3,7 +3,7 @@
   "hooks": {
     "SessionStart": [
       {
-        "matcher": "startup|resume|clear|compact",
+        "matcher": "startup|resume|clear|compact|fork",
         "hooks": [
           {
             "type": "command",
@@ -34,6 +34,28 @@
             "timeout": 10,
             "additionalContextLimit": 1000,
             "statusMessage": "Reading Toolkit orientation route"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(git rev-parse --show-toplevel)/.claude/hooks/memory-reminder.mjs\"",
+            "commandWindows": "$knowledgeRoot = git rev-parse --show-toplevel; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; Set-Location -LiteralPath $knowledgeRoot; node '.claude/hooks/memory-reminder.mjs'",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(git rev-parse --show-toplevel)/.claude/hooks/knowledge-completion.mjs\"",
+            "commandWindows": "$knowledgeRoot = git rev-parse --show-toplevel; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; Set-Location -LiteralPath $knowledgeRoot; node '.claude/hooks/knowledge-completion.mjs'",
+            "timeout": 10
           }
         ]
       }

@@ -120,6 +120,9 @@ The main areas have different jobs:
 These paths are conditional. Do not invent a component or folder that the
 project did not select. Use the actual paths in the root instructions.
 
+Requested handoffs are found in the Session handoffs section of working memory, newest first; detailed scope and approvals remain in their owning records.
+
+
 ## From a request to a checked result
 
 Consider a request such as, "The advisor search misses people from the same

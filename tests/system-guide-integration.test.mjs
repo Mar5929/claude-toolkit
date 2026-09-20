@@ -121,10 +121,10 @@ try {
   check("knowledge checker accepts grouped finalized PRDs and legacy current PRDs", () => {
     const root = fixture();
     const manual = readFileSync(
-      resolve(repoRoot, "plugins/second-brain/skills/second-brain/references/templates/knowledge/knowledge-manual.md"),
+      resolve(repoRoot, "plugins/second-brain/skills/knowledge-setup/references/templates/knowledge/knowledge-manual.md"),
       "utf8",
     );
-    write(root, "knowledge/knowledge-manual.md", manual);
+    write(root, "knowledge/knowledge-manual.md", manual.replace("<!-- claude-toolkit:knowledge-schema:2 -->", ""));
     write(root, "knowledge/prds/with-group.md", [
       "---",
       "summary: A grouped PRD remains valid.",
@@ -161,7 +161,8 @@ try {
       "",
     ].join("\n"));
     const result = checkKnowledge(root);
-    assert.deepEqual(result.problems, []);
+    assert.equal(result.problems.length, 1);
+    assert.match(result.problems[0], /managed operating manual/);
   });
 
   process.stdout.write(`ALL PASS (${checks} integration checks)\n`);

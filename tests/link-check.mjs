@@ -106,7 +106,12 @@ for (const file of markdownFiles) {
       if (!path) continue;
 
       checked++;
-      if (!existsSync(resolve(root, dirname(file), path))) {
+      // This navigation template links generated indexes and project-init's
+      // Toolkit manual at its installed location. Validate those links against
+      // this repo's equipped project, rather than inventing duplicate sources.
+      const installedNavigation = file === "plugins/second-brain/skills/knowledge-setup/references/templates/knowledge/README.md";
+      const resolvedTarget = resolve(root, dirname(installedNavigation ? "knowledge/README.md" : file), path);
+      if (!existsSync(resolvedTarget)) {
         broken.push(`  ${file}:${index + 1} -> ${target}`);
       }
     }

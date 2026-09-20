@@ -21,7 +21,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | Plugin | Purpose | Skills | Install | Setup |
 | --- | --- | --- | --- | --- |
 | [project-init](../plugins/project-init/README.md) | Put the toolkit's rules, [output styles](../plugins/project-init/library/output-styles/README.md), and systems into a project, new or existing, apply the general project file lifecycle to real work-item events, and put machine-wide rules onto the computer itself | `project-init`, `project-sync`, `work-item-lifecycle`, `machine-sync` | `/plugin install project-init` | Sets up a project, and sets up a machine |
-| [second-brain](../plugins/second-brain/README.md) | Portable Git-native project knowledge with one managed operating manual, a small shared startup map, flat memory, approved specifications, project-scoped owner-approved saves, one checker, and separate read-only Claude Code session history | `second-brain`, `remember`, `recall`, `retire`, `reflect`, `session-search` | `/plugin install second-brain` | Sets up a project |
+| [second-brain](../plugins/second-brain/README.md) | Portable Git-native project knowledge with one managed operating manual, a small shared startup map, topic memory, PRDs, durable save recovery, three indexes and read-only scoped history | `knowledge-setup`, `knowledge-find`, `knowledge-save`, `knowledge-review` | `/plugin install second-brain` | Sets up a project |
 | [sf-architect-solutioning](../plugins/sf-architect-solutioning/README.md) | Salesforce solution architect: approved solution plan before any build | `sf-architect-solutioning` | `/plugin install sf-architect-solutioning` | Install and go |
 | [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git lifecycle workflows | `pull-latest`, `reset-to-remote`, `merge-and-clean-up` | `/plugin install git-workflows` | Install and go |
 | [hooks-library](../plugins/hooks-library/README.md) | Reusable spec-check, Git-attribution, output-style handshake, and Salesforce deployment hooks; system-specific knowledge hooks stay with second-brain | `hooks-library` | `/plugin install hooks-library` | Wires into settings |
@@ -36,12 +36,10 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | project-sync | project-init | Audit an EXISTING project against the toolkit and close approved gaps | `/project-sync` |
 | work-item-lifecycle | project-init | Apply the project's file lifecycle when creating, moving, organizing, completing, or archiving work-item information | `/work-item-lifecycle`, "where should this file go?", "what happens when this ticket is done?" |
 | machine-sync | project-init | Audit this computer's Claude and Codex homes against the toolkit's machine-wide set and close approved gaps | `/machine-sync`, "set up this machine from my toolkit" |
-| second-brain | second-brain | Explain, install, audit, migrate, and maintain the complete project knowledge system | `/second-brain` |
-| remember | second-brain | Scope candidates to the current project, then search, propose, save approved meaning, and verify it | `/remember`, "remember this" |
-| recall | second-brain | Start from the project map and retrieve only the specifications and memories relevant to the task, including a fix this project already worked out for the same failure | `/recall`, "what does the project know about this?", "have we solved this before?" |
-| retire | second-brain | Supersede, retire, or delete one knowledge file safely | `/retire`, "this is no longer true" |
-| reflect | second-brain | Review the whole knowledge folder for duplicates, conflicts, and expired value, and consolidate the memory self-improvement record | `/reflect`, "review project knowledge" |
-| session-search | second-brain | Search saved local Claude Code CLI discussions only after current project files leave a real gap | `/session-search`, "find the earlier Claude Code discussion" |
+| knowledge-setup | second-brain | Detect, install, migrate, repair and verify complete project knowledge | "set up project knowledge" |
+| knowledge-find | second-brain | Find relevant records, resolve conflicts and consult available project history | "what do we know about this?" |
+| knowledge-save | second-brain | Select, propose, perform authorized lifecycle changes and recover unfinished saves | "remember this", "finish that approved save" |
+| knowledge-review | second-brain | Review duplicates, contradictions, obsolete content and selection feedback | "review project knowledge" |
 | sf-architect-solutioning | sf-architect-solutioning | 5-phase Salesforce solutioning to an approved plan | `/sf-architect-solutioning` |
 | pull-latest | git-workflows | Get current with the remote without rewriting or discarding | `/pull-latest` |
 | reset-to-remote | git-workflows | Hard-reset a repo to mirror the remote, safely gated | `/reset-to-remote` |
@@ -168,7 +166,7 @@ These are not duplicated here. Go to the index that owns them:
   policy file `templates/protected-orgs.json`.
 - **MCP tool rules** (per-server, conditional):
   `plugins/project-init/library/guides/mcp-best-practices.md`.
-- **Project knowledge runtime sources**: the six skills under
+- **Project knowledge runtime sources**: the four procedures and explicit-only compatibility routes under
   `plugins/second-brain/skills/`, the startup and reminder hooks under
   `plugins/second-brain/hooks/`, the index builder and checker under
   `plugins/second-brain/tools/`, and the managed manual and layout templates
@@ -195,12 +193,13 @@ These are not duplicated here. Go to the index that owns them:
   v1 and ships from `project-init` (see below).
 - **Shipped project knowledge package**: the
   [plugin README](../plugins/second-brain/README.md) describes one `knowledge/`
-  system with one managed operating manual, a small project map, two generated
-  indexes, approved specifications, flat memory, and unchecked brainstorms. The
+  system with one complete core manual, a small project map, three generated
+  indexes, PRDs, coherent memory topics, pending saves and unchecked brainstorms. The
   package ships task-specific workflows plus setup and safe migration. Its
   startup hook supplies a bounded ordered read route for the manual and map,
   reminder hooks only remind, and no
-  hook or helper agent writes or approves knowledge.
+  hook approves knowledge. A helper may execute an already-authorized save with
+  durable permission and verified results.
 - **Superseded second-brain v2 proposal**: deleted by issue #144, along with the
   v3 design documents. It was a proposal that was never built, and its numbered
   units and requirements were never inherited by v3. Git history has it.
@@ -257,10 +256,10 @@ The genuine watch-items are called out at the end.
   installable second-brain plugin contains only the current Markdown vault.
   Project-sync may recognize old local wiring, but it
   does not use the archive as a migration source.
-- **second-brain versus its focused skills.** `second-brain` owns setup,
-  migration, explanation, and audit. `remember` saves owner-approved truth,
-  `recall` retrieves it, `retire` changes one file's lifecycle, and `reflect`
-  reviews the whole folder. `session-search` reads past Claude Code CLI
+- **second-brain versus its focused skills.** `knowledge-setup` owns setup,
+  migration, explanation, and audit. `knowledge-save` handles approved saving and every lifecycle operation,
+  `knowledge-find` retrieves evidence, and `knowledge-review`
+  reviews the whole folder. The knowledge-find history adapter reads past Claude Code CLI
   discussions only after current files fail to answer. All point to the same
   manual, so none owns a second copy of policy.
 - **work-tracker versus the older work-items tree.** Not two trackers.
@@ -316,7 +315,7 @@ The genuine watch-items are called out at the end.
   lifecycle hooks because their commands and messages are part of installing
   that system. The startup hook requests complete reads of the managed manual
   and small map without injecting their bodies, and the
-  pull-request hook only pauses for the owner-approved `remember` review. Neither
+  pull-request hook only pauses for the owner-approved `knowledge-save` review. Neither
   writes knowledge.
 - **git-workflows versus the parallel-agent-sessions rule.** The rule states the
   behavior ("assume other sessions share the repo"); the three skills are the
@@ -326,7 +325,7 @@ The genuine watch-items are called out at the end.
   explaining they were not the other, and both stated "one session, one worktree,
   one branch" and "do not fix a dirty tree, tell the owner".
 - **grill-me versus work-item and memory files.** `grill-me` owns raw discovery
-  notes in a flat, dated `knowledge/brainstorms/` collection. Each brainstorm links to
+  notes in a flat, dated `brainstorms/` collection. Each brainstorm links to
   every resulting specification without being copied into system-area folders.
   A new work item's `WORK-ITEM.md` owns its requirements, plan, state, and
   handoff; existing legacy records retain their separate files. Top-level
@@ -427,7 +426,7 @@ The genuine watch-items are called out at the end.
   around the owner's own requests as a table, ending in whatever still needs
   them, and it writes nothing. `work-tracker` owns
   persistent ticket state that outlives the chat, so a request worth keeping goes
-  there rather than into a summary. The `remember` review is the moment that
+  there rather than into a summary. The `knowledge-save` review is the moment that
   proposes persistent project knowledge at the end of substantial work. The
   summary is what the owner reads; the work item is what the next session reads.
 - **The session-continuity rule cluster.** Two general rules touch "do not lose

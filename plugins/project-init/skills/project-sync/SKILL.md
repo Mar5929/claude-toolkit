@@ -236,53 +236,17 @@ Typical checks:
   the audit. A suitable existing guide without config remains off and is an
   adoption candidate, never an automatic adoption; preserve its established
   location and ask the owner in step 4.
-- **Project knowledge layout:** read the folder, never go by folder names
-  alone. There is no detector script. Classify exactly one state:
-  - **current layout:** `knowledge/knowledge-manual.md` starts with
-    `<!-- claude-toolkit:knowledge-manual -->`, the flat memory and specification
-    folders and their indexes exist, and any saved files use current YAML
-    frontmatter. A fresh setup with no saved files is current;
-  - **legacy manual filename:** only `knowledge/README.md` has the managed
-    marker. Use the `second-brain` skill's manual filename migration; preserve
-    its content/customizations and update live routes. This is not an older
-    memory-layout conversion. If both marked manuals exist, normalize line
-    endings and old/new self-path before comparing. Conflicting meaning stops
-    replacement; preserve both and ask. An unrelated README stays untouched;
-  - **partial current layout:** the flat folders and indexes have current
-    signatures, but the managed manual is missing. Offer to restore it and do
-    not convert approved files;
-  - **older layout:** `knowledge/memory/` has subfolders by type
-    (`context/`, `decisions/`, `domain/`, and the rest), or
-    `knowledge/memory/tags.md` exists, or frontmatter carries
-    `source: owner-paraphrase` and `session:`;
-  - **none:** no second-brain signatures are present; or
-  - **mixed or unknown:** signatures conflict, are partial, or an ordinary
-    folder could be mistaken for the system.
-
-  Ignore `.system-guide.json` and the configured System Guide tree while making
-  this classification. A guide-only `knowledge/system/` tree is **none** for
-  second-brain setup, not an older or mixed knowledge layout. Mixed or unknown
-  stops adoption and conversion: name exactly what you found
-  and ask. Never move an ordinary folder called `memory`, `prds`, `specs`, or
-  `knowledge` on its name alone.
-- **Old folder name:** a project set up before the rename has
-  `knowledge/specs/` where the current layout has `knowledge/prds/`. That is
-  the same folder under its old name, not an older layout. Report it, list what
-  is in it, and offer to rename it with `git mv` and fix every pointer to the
-  old path. Do nothing without the owner's yes. If both folders exist, stop,
-  say what is in each, and ask. The `second-brain` skill has the steps.
-- **Packaged runtime:** for a current layout, also check the installed
-  managed `knowledge/knowledge-manual.md` against the packaged template byte for byte;
-  `remember`, `recall`, `retire`, `reflect`, `second-brain`, and
-  `session-search` skills; `.claude/tools/build-knowledge-index.mjs`,
-  `check-knowledge.mjs`, and `frontmatter.mjs`;
-  `.claude/hooks/knowledge-session-start.mjs` registered under Claude
-  `SessionStart`; the pull-request and work-item reminders registered under
-  `PreToolUse` with the `Bash` matcher; `SOUL.md`; the short root routes in
-  `CLAUDE.md` and `AGENTS.md`; and the equivalent `.codex/hooks.json` loader
-  where native Codex hooks are supported. A missing manual is **partial**. A
-  changed manual is **outdated**: show the diff and ask before restoring the
-  managed copy. Neither finding is a reason to rewrite approved knowledge.
+- **Project knowledge layout and runtime:** use the installed `knowledge-setup`
+  procedure's detection and migration references. A fresh setup with no saved
+  files can be current when all required records, tools and hooks are present.
+  The `<!-- claude-toolkit:knowledge-manual -->` marker identifies the managed
+  manual; schema:2 selects the new record contract. Neither proves equipped
+  behavior. Distinguish legacy, partial and conflicting installations. Ignore
+  `.system-guide.json` and its configured tree as Knowledge signatures.
+  Audit the four current skills, managed manual/checksum, copied tools/hooks,
+  ordered startup/recovery route, prompt reminder and bounded completion on each
+  claimed host. Preserve owner content and settings; conflicting policy or an
+  unknown layout needs a specific decision, not a guessed conversion.
 
   When the checker is present, run it during every read-only audit of a current
   layout, even when the runtime is otherwise complete:
@@ -560,8 +524,8 @@ the file and report:
 - **Project-knowledge startup parity.** When the current layout is installed,
   confirm both hosts register the same loader and that it emits bounded
   instructions to read completely, in order,
-  `SOUL.md`, `knowledge/knowledge-manual.md`, `knowledge/project.md`,
-  `knowledge/current.md`, and both indexes. Confirm it emits no file bodies,
+  `SOUL.md`, `knowledge/project.md`, `knowledge/knowledge-manual.md`,
+  `knowledge/memory/current.md`, and the indexes; check relevant inbox entries. Confirm it emits no file bodies,
   requests no other memory, and fails open when a file is absent. Verify that a
   shortened read continues from the first missing section. A configured output
   threshold is a spill limit, not evidence of host capacity or a complete
@@ -683,7 +647,7 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   for in plain words, then either write the file from their answer or record the
   skip. Do not infer a purpose from the folder name.
 - For a retired `memory-pr-hook` plus `wrap-up-ritual.md` finding, first confirm
-  the current packaged pull-request reminder and `remember` skill are installed.
+  the current packaged pull-request reminder and `knowledge-save` skill are installed.
   Then offer removal of the obsolete hook registration, copied script, config,
   and rule as one reversible cleanup. Never leave two pull-request reminders
   active.
@@ -708,64 +672,22 @@ should look in THIS project, confirm, act, summarize. Ground rules:
     `../project-init/references/thin-claudemd.md` once in `CLAUDE.md`. Do not
     repeat it in `AGENTS.md`. The System Guide plugin owns configured Claude
     startup status; the second brain reports only the off case.
-- For any approved project-knowledge gap, install or refresh the `second-brain`
-  plugin first, then follow the state-specific path below.
-  - **None:** show the tree from the plugin README, obtain approval, and ask the
-     owner what the project is, why it exists, what finished looks like, its
-     boundaries, who is involved, and where active work is tracked. Use those
-     exact answers for `SOUL.md` and `knowledge/project.md`, then install the
-     complete layout and runtime. Preserve `.system-guide.json` and its guide
-     path. A guide-only `knowledge/system/` tree is not migration input.
-  - **Older layout:** use the `second-brain` skill's conversion path. Count the
-    files first and show the owner the total. Convert in batches of ten, mapping
-    the old fields to the new ones, and show each batch for approval. This is
-    the one place approval comes after the write, and only because every one of
-    those files was already approved once in its old shape. Anything that will
-    not map cleanly is stopped on and named, never guessed. Flatten the
-    subfolders, delete `knowledge/memory/tags.md`, repair every changed link,
-    and remove the old machinery only after the checker passes.
-  - **Current:** install only missing runtime or rebuild the indexes. Never
-    rewrite approved documents merely to match current formatting.
-  - **Mixed or unknown:** stop without writing and show the conflicting
-    signatures.
+- For an approved project-knowledge gap, refresh the `second-brain` plugin,
+  then follow `knowledge-setup` and its delivery/migration references as one
+  coherent operation. Reuse already-given opt-in/update authority. Preserve an
+  existing System Guide and unrelated hooks/settings. Do not flatten the new
+  topic layout or copy old templates over owner records. Already-approved
+  conversions retain source and approval and are shown afterwards; ambiguous
+  conversions remain unchanged. Preserve current-work Session handoffs.
+  Deliver SOUL -> project -> complete Knowledge manual, current/inbox and the
+  three indexes; install its four procedures, templates, copied tools/hooks and
+  exact managed manual/checksum together. Inspect native-memory conflicts rather
+  than silently disabling/importing/deleting existing data. A plugin refresh is
+  not project activation. Run file checks and actual fresh/recovered host proofs,
+  record configured/tested/unavailable results separately, and leave failed or
+  partial setup explicitly incomplete. The procedure owns exact file moves and
+  registration details; this skill owns project-level coordination.
 
-  For an approved **none**, **older layout**, **legacy manual filename**, or **current** path, finish the
-  same adoption unit before calling the system installed:
-  1. Copy the packaged `build-knowledge-index.mjs`, `check-knowledge.mjs`, and
-     `frontmatter.mjs` into `.claude/tools/`.
-  2. Copy the packaged `knowledge-session-start.mjs`, `memory-reminder.mjs`, `save-reminder.mjs`,
-     `work-item-close.mjs`, and `command-parsing.mjs` into `.claude/hooks/`.
-     The startup loader imports the manual resolver from `memory-reminder.mjs`;
-     install this bundle together before validating startup on either host.
-  3. Complete the `second-brain` manual filename migration first where needed.
-     Copy the packaged manual unchanged only for a new installation or an
-     explicitly approved replacement at `knowledge/knowledge-manual.md`.
-     When a copy differs, show the diff and get approval before replacing it.
-     Copy the packaged `memory-self-improvement.md` template to
-     `knowledge/memory-self-improvement.md` when the project has no such file.
-     What that file learns is per project, so never replace one that exists.
-  4. Merge, never replace, `.claude/settings.json`: disable private auto-memory,
-     enable `second-brain@claude-toolkit`, register the fail-open Claude
-     `SessionStart` loader, and register both reminders under `PreToolUse` with
-     the `Bash` matcher. Register `memory-reminder.mjs` under `UserPromptSubmit`.
-  5. Add the short startup and fallback pointer to root `CLAUDE.md`; keep
-     `AGENTS.md` as its one-line route. Merge the same fail-open loader into
-     `.codex/hooks.json` without removing other hooks. Treat its configured
-     output threshold as a spill limit, not a host-capacity guarantee.
-  6. Add the Obsidian ignore allowlist so only `knowledge/.obsidian/app.json` is
-     shared.
-  7. Run `node .claude/tools/build-knowledge-index.mjs`, then
-     `node .claude/tools/check-knowledge.mjs`. Both must pass. Then run the
-     startup loader and confirm it emits bounded instructions to read `SOUL.md`,
-     the manual, `knowledge/project.md`, `knowledge/current.md`, and both
-     indexes completely, once each and in that order, without printing their
-     bodies. Exercise continuation from the first missing section for a
-     shortened read.
-  8. After converting a folder off an older layout, run the `reflect` skill once.
-     A conversion is exactly when duplicates and contradictions surface.
-
-  Do not remove old runtime or root routes until their current replacements are
-  present and these checks pass.
 - Do not install second-brain v1 or import its content. For an existing v1
   project, offer the following separately after reporting the exact local
   scope:

@@ -131,12 +131,11 @@ claude-toolkit/
         check-knowledge.mjs        ← read-only: bad fields, broken links, secrets
         frontmatter.mjs            ← the one YAML reader both tools use
       skills/
-        second-brain/             ← install, audit, convert, and explain the system
-        remember/                 ← project scope, search, approval, and save steps
-        recall/                   ← task steps for finding saved knowledge
-        retire/                   ← supersede, retire, or delete one file
-        reflect/                  ← sweep for duplicates and contradictions
-        session-search/           ← read-only search of local Claude Code CLI history
+        knowledge-setup/          ← install, migrate and verify complete project setup
+        knowledge-find/           ← relevant sources and scoped history
+        knowledge-save/           ← proposal, authority, lifecycle and recovery
+        knowledge-review/         ← duplicates, conflicts and selection feedback
+        remember/, recall/, ...   ← explicit-only compatibility routes
     system-guide/                ← plugin: optional system understanding
       README.md
       .claude-plugin/plugin.json
@@ -268,7 +267,7 @@ inside a project folder before it is useful, which is what the last column says:
 | Plugin | What it does | Setup |
 | --- | --- | --- |
 | **[project-init](plugins/project-init/README.md)** | Sets up or syncs a project. It asks where work is tracked, carries the ticket rules into that tracker, offers work-tracker, and installs or safely migrates the portable `knowledge/` vault when selected. `work-item-lifecycle` applies the file lifecycle rule when project information is created, moved, organized, or completed. New Salesforce projects use `delivery/` for client-work artifacts while existing `engagement/` projects stay in place. `machine-sync` installs the rules, settings, and hooks that must hold across the computer. | Sets up a project, and sets up a machine |
-| **[second-brain](plugins/second-brain/README.md)** | A portable `knowledge/` system for Claude, Codex, Git, and optional Obsidian: one managed operating manual, a small shared startup map, flat memory, approved specifications, project-scoped owner-approved saves, task-specific skills, one checker, and safe migration from older layouts. | Sets up a project |
+| **[second-brain](plugins/second-brain/README.md)** | A portable `knowledge/` system for Claude, Codex, Git, and optional Obsidian: one managed operating manual, a bounded startup read route, topic memory, PRDs, four focused procedures, durable save recovery, three generated indexes and safe migration. | Sets up a project |
 | **[system-guide](plugins/system-guide/README.md)** | Optional system understanding under `knowledge/system/`: useful source maps, evidence, and owner-approved explanations that save repeated investigation. Local tools refresh generated pages and preserve meaning; deliberate cleanup removes content that no longer helps. Works independently and joins the second brain's lookup when both are enabled. | Sets up a project |
 | **[sf-architect-solutioning](plugins/sf-architect-solutioning/README.md)** | A Salesforce solution architect: pushes back on vague requirements, verifies platform facts against official docs by live fetch, designs declarative-first to Well-Architected standards, and presents a solution plan for approval before any build. Salesforce projects only. | Install and go |
 | **[git-workflows](plugins/git-workflows/README.md)** | Three parallel-session-safe git lifecycle skills: `pull-latest` gets current without rewriting history, `reset-to-remote` mirrors the remote behind confirmation, and `merge-and-clean-up` lands an approved PR before removing only its completed workspace. | Install and go |
@@ -410,7 +409,7 @@ For Git-native project memory shared by Claude and Codex:
 
 ```text
 /plugin install second-brain
-/second-brain
+/second-brain:knowledge-setup
 ```
 
 New projects can also select it during `/project-init`; existing projects adopt

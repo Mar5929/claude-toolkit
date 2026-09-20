@@ -124,14 +124,14 @@ explain its local conventions when work reaches that folder.
 The main areas contribute different kinds of context:
 
 - **Project orientation:** [SOUL.md](../SOUL.md) describes the agent's role;
-  [project.md](project.md) describes the project; [current.md](current.md)
+  [project.md](project.md) describes the project; [current.md](memory/current.md)
   points to active work. The tracker supplies that work's current details.
 - **Working instructions:** [.claude/rules/](../.claude/rules/README.md)
   holds standing rules. Skills supply procedures when the task needs them.
   Host configuration connects installed capabilities to a session.
 - **Knowledge:** [knowledge/knowledge-manual.md](knowledge-manual.md) explains the knowledge
   subsystem. Requirements and lasting project context have their own homes
-  beneath `knowledge/`. Its [routing policy](knowledge-manual.md#put-information-in-one-place)
+  beneath `knowledge/`. Its [routing policy](knowledge-manual.md#3-choose-the-record-that-owns-the-information)
   owns the detailed decisions about where information belongs.
 - **Work records and designs:** the chosen tracker holds each item's working
   record. Here, that tracker is GitHub, and [docs/designs/](../docs/designs/README.md)
@@ -149,10 +149,11 @@ The main areas contribute different kinds of context:
   holds captured outside sources. Their presence supplies evidence to consult;
   project decisions still need their own authoritative records.
 
-These are the current paths in this repository. Some proposed Knowledge System
-requirements describe a different future layout. Those proposals do not move
-the files or change the current manual's instructions. A version installed in
-another project must name that project's actual paths and enabled components.
+These are the paths delivered by this Knowledge package. Another project must
+use its actual installed layout and enabled components until its authorized migration.
+
+Requested handoffs are found in the Session handoffs section of working memory, newest first; detailed scope and approvals remain in their owning records.
+
 
 ## From a request to a checked result
 
@@ -332,6 +333,6 @@ working equivalents for each equipped project.
 | Handoff | Carry unfinished work into another session | [Handoff](../plugins/session-skills/skills/handoff/SKILL.md) |
 | Documentation publication | Publish authorized documentation through the project's save route | [Publication instructions](../.claude/rules/knowledge-direct-commit.md) |
 
-The [PRD index](prds/spec-index.md) leads to the required behavior and proposal
+The [PRD index](prds/prd-index.md) leads to the required behavior and proposal
 status for each area. Detailed schemas, save formats, tracker commands, hook
 protocols, and subsystem maintenance procedures remain in their owning files.

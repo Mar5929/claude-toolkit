@@ -179,7 +179,7 @@ separate prep, interview, or continuation files for that workflow.
   is tracked. Use those answers for `knowledge/project.md`, then show the
   complete knowledge tree plus root instruction edits.
 - If approved, install the second-brain plugin and follow its canonical
-  greenfield setup workflow, including the exact managed manual, task-specific
+  `knowledge-setup` procedure, including the exact managed manual, task-specific
   skills, checker, index builder, fail-open startup routes, and reminders.
 - Make the startup loader emit bounded instructions to read every named file
   completely and in order, continuing from the first missing section when a
@@ -196,12 +196,13 @@ separate prep, interview, or continuation files for that workflow.
   `newLinkFormat: "relative"`, and `useMarkdownLinks: true`. Ignore all other
   `.obsidian` state and do not pin a
   core plugin list.
-- Offer an initial `remember` pass after setup. It follows the manual's approval
+- Offer an initial `knowledge-save` pass after setup. It follows the manual's approval
   contract.
 - Do not install a database, memory MCP server, embeddings, transcript capture,
   or background curation.
-- The two knowledge indexes are generated. Create no other indexes or folder
-  instruction files inside `knowledge/`; its root README is the manual.
+- The memory, PRD and outside-documentation indexes are generated. Create no
+  competing knowledge indexes or nested instruction files; the unmarked root
+  README links to the knowledge manual.
 
 **Gate 4: Optional mechanical knowledge aids**
 
@@ -309,8 +310,8 @@ separate prep, interview, or continuation files for that workflow.
   need writing guidance in their own definitions. See
   `library/output-styles/README.md` for installation details.
 - When project knowledge is installed, keep the route small. Both hosts register
-  the loader for `SOUL.md`, `knowledge/knowledge-manual.md`, `knowledge/project.md`,
-  `knowledge/current.md`, and the two index entry lists. `CLAUDE.md` says to
+  the loader for `SOUL.md`, `knowledge/project.md`, `knowledge/knowledge-manual.md`,
+  `knowledge/memory/current.md`, and the current indexes. `CLAUDE.md` says to
   read that map once only if the hook did not supply it, and copies no knowledge
   policy. See "The project knowledge startup route" in `thin-claudemd.md`.
 
@@ -335,13 +336,13 @@ separate prep, interview, or continuation files for that workflow.
 - `grill-me` for persistent brainstorming and discovery interviews.
 - If approved, install its plugin from the toolkit marketplace. Do not copy its
   skill instructions into the project.
-- With project knowledge installed, it writes under `knowledge/brainstorms/`
-  and invokes `remember` for approved persistent outcomes at interview completion.
+- With project knowledge installed, it writes under `brainstorms/`
+  and invokes `knowledge-save` for approved persistent outcomes at interview completion.
 - Offer `session-summary` for long sessions and handoffs: it returns a table with
   one row per request the owner made, each with a status, then a block for
   whatever still needs them, and writes nothing.
 - Offer `handoff` in every project, and recommend it. `/handoff` invokes
-  `remember` first, waits for any required owner decision, then drafts a prompt
+  `knowledge-save` first, waits for any required owner decision, then drafts a prompt
   for a fresh session with everything
   not saved carried inside it. The prompt starts with a fixed notice that it is
   AI-generated, then the goal of the work and why it matters, and

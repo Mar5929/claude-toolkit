@@ -1,7 +1,8 @@
 ---
-summary: Every major folder in a toolkit project carries its own short CLAUDE.md unless another canonical file already owns its instructions, so folder detail reaches an agent when it opens that folder instead of loading in every session.
+summary: Major project folders carry short CLAUDE.md guidance unless a canonical file already owns it, so local detail loads when needed.
+group: Working with an agent
 area: project-setup
-status: current
+status: finalized
 source: GitHub issues #150 and #219, the folder instruction files this repository runs, and current Codex AGENTS.md loading behavior
 created_at: 2026-08-12
 confirmed_at: 2026-08-22
@@ -10,6 +11,7 @@ approved_by: Mike Rihm
 approval_date: 2026-08-22
 project: claude-toolkit
 work_item: "219"
+updated_at: 2026-09-19
 ---
 
 # Folder instruction files

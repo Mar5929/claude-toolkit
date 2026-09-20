@@ -3,6 +3,18 @@
 What this repository set up from its own toolkit, what it skipped, and why. A
 later `project-sync` run reads this so a considered "no" is not offered again.
 
+2026-09-19 #269 candidate update: second-brain 4.12.0 and project-init
+0.77.0 deliver the schema-2 manual/four skills, three indexes, prompt/completion
+hooks and read-only save inspector. Converted 3 existing memories, 7 PRD
+metadata blocks, current work and 10 brainstorm files; source/approval and
+original creation dates remain intact. Conversion dates mark formatting updates,
+not new verification. Memory bodies are unchanged except relative navigation;
+legacy current PRDs become finalized without claiming new delivery. Pending inbox
+and glossary start empty. The canonical old-to-new path map is in knowledge-setup's
+migration reference. This is an isolated candidate, not a full project-sync or
+proof of live-host behavior. Existing native-memory settings are preserved.
+Checks and unresolved host evidence stay with #269's implementation record.
+
 2026-09-19 targeted update for #306: project-init 0.76.0 supplies the Toolkit
 manual template, complete-read root route, and bounded SessionStart and
 UserPromptSubmit pointers in both host configurations. The repository retains

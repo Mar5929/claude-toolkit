@@ -1,13 +1,15 @@
 ---
-summary: Guided delivery lets the owner focus on decisions while the main conversation maintains adaptable plans and brings in focused requirements, design, research, and review help using the project's existing records.
+summary: Guided delivery keeps the owner focused on decisions while the main agent maintains plans and coordinates requirements, design, research and review in existing records.
+group: Working with an agent
 area: guided-delivery
-status: current
+status: finalized
 source: GitHub issues 300 and 302; Mike's 2026-09-08 build-and-ship instruction and requested plain-language PRD addition; Mike's 2026-09-16 solution-design skill requests and PRD update instruction (pull requests 344 and 345); Mike's 2026-09-16 linked-design and direct-save clarification under issue 269; Mike's 2026-09-18 document-continuity approval
 created_at: 2026-09-08
 tags: [delivery, requirements, design, collaboration]
 approved_by: Mike Rihm
 approval_date: 2026-09-08
 work_item: "300"
+updated_at: 2026-09-19
 ---
 
 # Guided delivery

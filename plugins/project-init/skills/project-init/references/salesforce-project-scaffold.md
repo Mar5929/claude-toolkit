@@ -66,7 +66,7 @@ that helps future agents work correctly belongs in `knowledge/`.
 | `data/` | Object and field mapping, transformation rules, load files |
 | `data/backups/` | Point-in-time data exports from the org(s) |
 
-`grill-me` saves discovery in the flat `knowledge/brainstorms/` collection. It does
+`grill-me` saves discovery in the flat `brainstorms/` collection. It does
 not save interviews under `project-overview/` or copy them into a system area.
 With project knowledge installed, the brainstorm links to every resulting specification.
 

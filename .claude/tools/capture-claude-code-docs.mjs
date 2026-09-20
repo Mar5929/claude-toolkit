@@ -146,6 +146,13 @@ function buildReadme(pages) {
 
   const escape = (value) => value.replace(/\|/g, "\\|");
   const lines = [
+    "---",
+    "group: Agent platform documentation",
+    "summary: Official Claude Code documentation for building and checking hooks, skills, plugins, settings and project instructions.",
+    "source: https://code.claude.com/docs/en/",
+    `captured_at: ${today}`,
+    "---",
+    "",
     "# Claude Code documentation, captured",
     "",
     `**Source:** ${PAGE_BASE}`,

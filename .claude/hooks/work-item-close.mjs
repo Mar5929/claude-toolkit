@@ -76,10 +76,10 @@ export function buildMessage() {
   return [
     "Held once. Finishing a work item is when a specification goes stale.",
     "",
-    "Invoke the remember skill to check whether this work changed a current",
-    "specification, and whether anything is worth saving as memory, then run",
+    "Use knowledge-save to review what this work changed in a",
+    "PRD or another owning record, and preserve pending work, then run",
     "this command again. If there is anything, knowledge/knowledge-manual.md shows how",
-    "to display the proposal.",
+    "to display the proposal. A merge or closure alone proves no delivery or requirements approval.",
     "",
     "If you are a helper agent, stop and report this to the main agent.",
     "This work item will not be held again in this session.",

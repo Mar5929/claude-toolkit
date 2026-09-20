@@ -135,7 +135,7 @@ export function buildMessage() {
   return [
     "Held once. A pull request opening is a save moment.",
     "",
-    "Invoke the remember skill and follow it, then run this command again.",
+    "Use knowledge-save to review this work and preserve its outcome, then retry.",
     "Check whether any specification needs updating and whether anything is",
     "worth saving as memory. If there is, knowledge/knowledge-manual.md shows how to",
     "display the proposal.",
@@ -147,12 +147,12 @@ export function buildMessage() {
 
 export function buildDirectCommitMessage(paths) {
   return [
-    "Held once. This branch changes nothing outside knowledge/, so it does not",
-    "need a pull request.",
+    "Held once. This branch changes only knowledge/; inspect actual content to decide whether it",
+    "needs the documentation route or an implementation pull request.",
     "",
     `Files: ${paths.join(", ")}`,
     "",
-    "Follow .claude/rules/knowledge-direct-commit.md from the existing",
+    "For authorized documentation-only changes, follow .claude/rules/knowledge-direct-commit.md from the existing",
     "default-branch checkout, even while implementation is in a worktree.",
     "Reconcile only approved meaning with the latest destination, rebuild",
     "and check the indexes, and commit and push only this authorized save.",

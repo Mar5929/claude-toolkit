@@ -1,5 +1,6 @@
 ---
 summary: What the project second brain must do. Every new session already knows what has been going on in this project. Saving something worth keeping takes one short yes from the owner.
+group: Working with an agent
 area: knowledge-system
 status: proposed
 source: Owner requirements interview for GitHub issue #269, including the 2026-09-18 request for approved saves to run through a helper while conversation continues, and the explicit ban on jargon and figurative language in memory and proposals. Mike’s 2026-09-19 request to reconcile decision-record and research ownership in this PRD and the Toolkit OS PRD. Replaces the earlier 2026-08 build-plan version
@@ -8,6 +9,7 @@ confirmed_at: 2026-09-15
 tags: [knowledge-system, memory, prds, second-brain, schema, requirements, solution-philosophy, high-level-architecture]
 project: claude-toolkit
 work_item: "269"
+updated_at: 2026-09-19
 ---
 
 # The project second brain
@@ -2151,7 +2153,7 @@ are finalized.
 Current sources: [skill inventory](../../../plugins/second-brain/skills/),
 [save skill](../../../plugins/second-brain/skills/remember/SKILL.md),
 [review skill](../../../plugins/second-brain/skills/reflect/SKILL.md), and
-[feedback template](../../../plugins/second-brain/skills/second-brain/references/templates/knowledge/memory-self-improvement.md).
+[feedback template](../../../plugins/second-brain/skills/knowledge-setup/references/templates/knowledge/memory-self-improvement.md).
 
 ### Future design task: map requirements to implementation mechanisms
 
@@ -2188,7 +2190,7 @@ Explore these questions without assuming their answers:
 - How will representative sessions expose missed obligations, false blocks,
   repeated reminders, context overhead, and degradation of ordinary work?
 
-[Earlier exploratory implementation ideas](../../brainstorms/2026-09-10-knowledge-system-potential-paths.md)
+[Earlier exploratory implementation ideas](../../../brainstorms/2026-09-10-knowledge-system-potential-paths.md)
 remain possible approaches, not requirements, verified harness capabilities,
 or an approved design. Where they prescribe more control than the direction
 above, revisit them before using them.

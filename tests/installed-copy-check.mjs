@@ -59,7 +59,7 @@ const OUTPUT_STYLES = "plugins/project-init/library/output-styles";
 const MANAGED_COPIES = [
   [
     "knowledge/knowledge-manual.md",
-    `${SECOND_BRAIN}/skills/second-brain/references/templates/knowledge/knowledge-manual.md`,
+    `${SECOND_BRAIN}/skills/knowledge-setup/references/templates/knowledge/knowledge-manual.md`,
   ],
 ];
 
@@ -100,6 +100,7 @@ function shippedOriginalFor(path) {
     "work-item-close.mjs",
     "command-parsing.mjs",
     "memory-reminder.mjs",
+    "knowledge-completion.mjs",
   ];
   if (match && secondBrainHooks.includes(match[1])) {
     return `${SECOND_BRAIN}/hooks/${match[1]}`;
