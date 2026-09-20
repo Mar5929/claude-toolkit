@@ -224,3 +224,13 @@ test('copied command entry points run through a path alias', t => {
   assert.match(checked.stdout + checked.stderr, /ALL PASS|managed operating manual/);
   assert.notEqual(checked.stdout + checked.stderr, '');
 });
+
+test('dangling index symlink cannot create an unintended file', t => {
+  const f = fixture(t);
+  const target = resolve(f.dir, 'unintended.md');
+  rmSync(resolve(f.dir, 'knowledge/memory/memory-index.md'));
+  symlinkSync(target, resolve(f.dir, 'knowledge/memory/memory-index.md'));
+  const before = snapshot(f.dir);
+  assert.throws(() => buildIndexes(f.dir), /regular file/);
+  assert.deepEqual(snapshot(f.dir), before);
+});

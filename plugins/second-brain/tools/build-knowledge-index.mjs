@@ -165,7 +165,8 @@ export function buildIndexes(projectRoot = root) {
     const outputs = renderV2Indexes(projectRoot);
     const problems = outputs.flatMap(output => output.problems);
     for (const output of outputs) {
-      if (existsSync(output.path) && (lstatSync(output.path).isSymbolicLink() || !lstatSync(output.path).isFile())) problems.push(`${output.path} must be a regular file, not a symbolic link or directory.`);
+      const info = lstatSync(output.path, { throwIfNoEntry: false });
+      if (info && (info.isSymbolicLink() || !info.isFile())) problems.push(`${output.path} must be a regular file, not a symbolic link or directory.`);
     }
     if (problems.length) throw new Error(problems.join("\n"));
     for (const output of outputs) writeFileSync(output.path, output.content, "utf8");
