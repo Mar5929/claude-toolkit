@@ -33,6 +33,9 @@ proposals do not change the PRD or approve a build.
   official source contracts, capability limits, and required runtime proofs.
 - [Implementation readiness review](implementation-readiness-review.md):
   independent requirement coverage, resolved findings, and remaining decisions.
+- [Independent Knowledge behavior review](reviews/2026-09-20-independent-behavior-review.md):
+  interim evidence from three citation trials, deterministic checks, final source
+  review, and unresolved action-review, native-save, and host limitations.
 
 These records were requested on 2026-09-17 for autonomous design reconciliation
 and implementation planning. Their publication does not claim runtime delivery
