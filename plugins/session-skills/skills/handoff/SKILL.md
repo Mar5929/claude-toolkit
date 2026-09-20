@@ -238,8 +238,7 @@ heading `## Session handoffs` in the installed current-work file selected in
 step 2. If no valid current-work destination was established, skip the write
 and report why; still provide the full prompt. Add the heading if absent.
 Keep multiple entries, including handoffs for other tasks. This is disposable
-working context, not lasting memory,
-tracker status, or permission to continue an unapproved action. `/handoff check`
+working context, not lasting memory, tracker status, or permission to continue an unapproved action. `/handoff check`
 on its own does not capture an entry.
 
 Reread current work immediately before editing and reconcile intervening
@@ -376,8 +375,8 @@ question: which of the owner's requests are where. This answers "how does
 somebody else pick this up". If the owner wants both, run both; they do not
 overlap.
 
-It does not decide what is worth keeping. The installed `remember` skill owns
-that policy, and the owner answers every proposal that requires approval.
+It does not decide what becomes lasting knowledge. The installed knowledge save
+skill owns that policy, and the owner answers proposals requiring approval.
 
 The checker does not decide what belongs in the prompt either. It checks what is
 there against what is in the repository, and it never removes a claim.
