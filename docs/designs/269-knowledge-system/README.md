@@ -40,6 +40,10 @@ proposals do not change the PRD or approve a build.
   interim R1-R30 matrix, dispositions, source heads, verification, and open gates.
 - [Startup and recovery proof](reviews/2026-09-20-startup-recovery-proof.md):
   portable R2 prompts, commands, outcomes, setup failures, and bounded host limits.
+- [Independent native-save review](reviews/2026-09-20-native-save-independent-review.md):
+  bounded Codex Desktop helper save, overlap, result-return, and recovery findings.
+- [Native-save helper proof](reviews/native-save-helper-proof/README.md):
+  corrected trial summary with the normal-save and lost-response recovery records.
 
 These records were requested on 2026-09-17 for autonomous design reconciliation
 and implementation planning. Their publication does not claim runtime delivery
