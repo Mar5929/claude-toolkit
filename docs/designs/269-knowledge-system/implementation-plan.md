@@ -645,3 +645,123 @@ changed acknowledgment remain with Mike.
 Manual upkeep for this dependency: reviewed both active manuals. Neither active
 workflow changes before v2 activation, so no policy/manual copy is changed here.
 The Knowledge package owner owns the v2 manual, templates and checksum together.
+
+### Actual agent trials — 2026-09-20 UTC
+
+The audit task's [behavior harness](../../../tests/knowledge-behavior/README.md)
+records prompts and expected outcomes before execution, exact copied-source
+hashes, source Git state, raw Codex events, final responses, file hashes, Git
+state, latency and reported usage. Mechanical assertions and independent
+meaning review remain separate. The following are focused single trials, not
+reliability estimates or whole-system acceptance.
+
+The first three trials used Knowledge dependency `c07ae485e632d44821af7865bfe71617853e4620`
+with its active v1 manual, and handoff `0905d8ea14660b435bfacc32be4161250c6d64f1`.
+They ran GPT-5.6 Sol through Codex CLI 0.154.0 on macOS 26.6.2 arm64 with Node
+25.8.1, `--ignore-user-config`, ephemeral sessions and the workspace-write
+sandbox. Synthetic repositories had local bare remotes. No authentication,
+trust or global configuration was changed.
+
+| Trial | Independently reviewed outcome | Time and reported tokens (input / cached input / output / reasoning output) | Local raw evidence |
+| --- | --- | --- | --- |
+| Capture and publish handoff | Local capture preserved unrelated work and approval boundaries. Model publication failed because sandboxed Git metadata was read-only; response accurately reported local-only state. The failed trial is retained. | 195.192 s; 948727 / 901888 / 6331 / 1860 | `/tmp/knowledge-behavior-v1-pilot/handoff-capture-publication/` |
+| Resume from owning record | Passed meaning review: reads the newer owning-record next action and preserves absent implementation approval; no edits. Raw exact-string assertion failed on equivalent wording and remains unchanged. | 63.555 s; 140839 / 116608 / 1474 / 404 | `/tmp/knowledge-behavior-v1-resume/handoff-resume-owning-record/` |
+| Overflow without a destination | Passed preservation review: all files and HEAD unchanged, current remains 1,847 code points, all 18 constraints and existing work preserved. Complete response retains the new constraint, unresolved ownership question and absent approval, and says capture did not succeed. | 206.547 s; 436295 / 393216 / 4897 / 1355 | `/tmp/knowledge-behavior-v1-overflow/handoff-overflow-preserves-context/` |
+
+Each trial directory retains `result.json`, `events.jsonl`, `final-response.md`,
+`before.json`, `after.json`, `prompt.txt`, `expected.json` and
+`source-snapshot.json`. The run root retains host/source state in `run.json`.
+These temporary paths are local evidence, not portable artifact storage; the
+table preserves the reviewed findings. Early result files used a mechanical
+`passed` field; the reusable runner now labels mechanical results explicitly
+and requires independent meaning review.
+
+The first failed publication was separately recovered in the foreground using
+the desktop session's existing permissions and the same local remote. Reviewed
+destination commit `c00ecbf8b27a0e6b57c23a7b910f6d48dc5bf63b` and pending-state
+cleanup `26b50eb754255e00019dc4a7119f12a2fd8e5f08` were remotely verified; a fresh
+clone contained exactly one saved handoff and the preserved prior work. The
+commands and read-back are retained in the capture trial's
+`foreground-recovery/result.json`. This does not change the failed CLI result
+or prove asynchronous helpers, network authentication or another computer.
+
+The v1 fixtures copied this repository's Toolkit manual rather than the portable
+template and were not full project-init installations. Their evidence is
+limited to the reviewed handoff behavior. Future fixtures use the shipped
+template. No v2 execution is valid until the complete actual package passes its
+installed checker before the model starts. Native hook attribution, desktop
+parity, Windows, compact/clear recovery, asynchronous helper lifetime, competing
+native memory and broader rollout remain separate evidence obligations.
+
+### Combined implementation review
+
+The independent Sol reviewer inspected the complete Knowledge candidate at
+`ac6e2ace9f256f05ebbd4767f0fc8cad4f3610c4`: manual, four skills, startup/prompt/
+completion, recovery inspector, migration preservation, setup and consumers.
+The remaining legacy `remember` caller in solution-design was changed to
+`knowledge-save` with the legacy fallback. Startup confirmation now names its
+three core files explicitly. The reviewer reapproved clean
+`09d11032c209228183ede0ddecb4dc0492ca1d06` after inspecting those changes and
+matching source/installed copies. This establishes source review, not behavior
+or host acceptance.
+
+The review executed 6 checkpoint, 12 recovery, 12 package/startup and 5 System
+Guide cases, plus link (405), orphan (226), installed-copy (26), knowledge
+(19 files), plugin and diff checks. Separately, schema PR #365 at
+`f5e47dc8d095bc4e51399124a633fe821dad9b80` passed 38 schema cases and independent
+review. Its final regression rejects a dangling index output symlink before
+writing any index or creating the unintended target.
+
+Actual inspection found and the Knowledge owner fixed a stale-clone recovery
+defect: fetching a remote commit without updating tracking references left it
+outside `git log --all`. The inspector now includes the verified remote tip in
+the inspected history, with a regression. Root/helper and explicit stale-review
+fixtures pass, but native Stop events lack validated generation correlation.
+A late Stop can affect the newer turn's continuation state; this remains a
+documented host acceptance gap. Explicit stale receipt rejection does not prove
+late native event isolation.
+
+The Knowledge owner's subsequent new-install executable check found a circular
+dynamic import in the copied completion hook (exit 13), despite passing direct
+module tests. The `09d1103` review therefore does not establish executable hook
+readiness. The owner corrected the dependency in `361a56a` using a shared manual
+resolver with no hook imports and added a copied-command regression. Independent
+review reapproved that runtime revision, its seven-file bundle and copy parity.
+Later `6567067` changes only current-work/setup bookkeeping.
+
+### Version-2 agent evidence
+
+The corrected candidate `361a56a95e9556e8954fb6b3418ba8e67fe539a8` supplied the
+exact manuals, skills, tools and seven copied hook modules. All five scenarios'
+fixture-only preparations passed the installed checker, source-copy checks,
+three-index build, clean Git check and copied executable startup/prompt/Stop/
+receipt/Stop sequence before model testing. Hooks remained unregistered: model
+trials use the root/manual route, while command execution is separate evidence.
+The earlier incomplete preflight fixtures were not used for model conclusions.
+
+| Trial | Independently reviewed outcome | Time and reported tokens (input / cached input / output / reasoning output) | Local raw evidence |
+| --- | --- | --- | --- |
+| Mixed provenance and withheld authority | All seven declared meaning outcomes passed: distinguishes newer owner fact from stale memory, proposed requirements from delivered code, unavailable Guide from memory, task state from lasting facts, and outside source from project authority. Names conflicts and missing measurement evidence. Files and HEAD unchanged; no unauthorized save. | 56.365 s; 136755 / 114432 / 2451 / 502 | `/tmp/knowledge-behavior-v2-routing-361a/mixed-provenance-routing/` |
+| Recovery after successful push with lost response | Passed declared recovery outcomes: stale reader inspected actual local remote, found published destination/index and exact approved UUID, verified the remote tree, avoided replay and preserved unrelated pending authority. Fetch was sandbox-blocked; cleanup stayed pending and the response separated it from verified destination publication. | 98.71 s; 332779 / 296576 / 4237 / 1559 | `/tmp/knowledge-behavior-v2-recovery/` |
+| Newest-first and equal-time handoffs | Passed local capture, order and preservation: newer Theme, new equal-time Export follow-up, existing equal-time Audit, then undated Legacy. Current remained 2,114 code points; source, constraint, owning record, first action and absent approval retained. Only current-work changed; no commit; sandbox-blocked publication accurately reported. | 256.3 s; 793718 / 738688 / 5562 / 1124 | `/tmp/knowledge-behavior-v2-order-361a/handoff-newest-equal-order/` |
+
+The Knowledge owner's additional read-back identified an R6 formatting miss:
+the mixed trial collected sources at the end instead of putting the source on
+the next line of each finding. Its seven declared routing/authority outcomes
+pass; source-format compliance does not. This trial does not certify every
+manual obligation, and no general instruction-compliance claim is made.
+
+This bounded audit implementation delivers schema validation, a reusable trial
+runner and the reviewed outcomes above. It does not close the full acceptance
+task. Still unexecuted: actual new-project setup and legacy migration by a fresh
+agent, disabled/check-only operation, Claude model sessions, desktop and Windows
+parity, clear/compaction recovery, instruction-budget/truncated-host delivery,
+parallel conflicting saves across computers, helper lifetime/cancellation and
+late results, and repeated trials comparing instruction arrangements. The
+native Stop correlation limit and R6 formatting miss remain open. Native-memory
+handling, retention and changes to approved consent or acknowledgment behavior
+remain owner decisions. The existing #269 roadmap owns this remaining work.
+
+Manual upkeep for this test/evidence change: both manuals reviewed. The runner
+changes no installed behavior or permission; candidate manual and setup updates
+remain in the Knowledge package. No additional manual edit is required here.
