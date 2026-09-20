@@ -1,8 +1,8 @@
 # Toolkit Operating System manual
 
-**Review draft.** This document is being developed under
-[issue #306](https://github.com/Mar5929/claude-toolkit/issues/306). It explains
-the intended working experience and links to this repository's existing
+**Review draft.** This document was drafted under
+[issue #306](https://github.com/Mar5929/claude-toolkit/issues/306), now closed.
+It explains the intended working experience and links to this repository's existing
 instructions. Publishing this draft does not activate it, install it in other
 projects, or establish that every proposed capability works. Installation,
 update behavior, and startup delivery still need their own design and review.
@@ -269,8 +269,9 @@ On resumption, the agent reads the work item and opens the relevant document.
 For PRD or design refinement, its bottom Notes holds the exact place to resume;
 other work uses the item's continuation record. Meaningful document changes
 are saved during the conversation through the authorized route. Saving does
-not approve requirements, design, or implementation. It checks whether the tracker or relevant sources changed since the
-handoff. Switching work means establishing the new item's context while
+not approve requirements, design, or implementation. The agent checks whether
+the tracker or relevant sources changed since the handoff. Switching work means
+establishing the new item's context while
 preserving the previous item's position. A past assignment does not establish
 that another agent is still working.
 
@@ -299,12 +300,18 @@ the implementation workflow, including when their files are Markdown. The
 publication rule owns the detailed checks, concurrency handling, and recovery.
 
 For this manual, the agreed destination is `knowledge/toolkit-manual.md`.
-The intended setup owners are `project-init` and `project-sync`. Root
+This repository document is the current source. There is no plugin-owned
+reusable template or setup/sync step that installs it in equipped projects.
+The intended delivery owners are `project-init` and `project-sync`. Root
 instructions and relevant reminders should reference its actual project path.
 The startup design should provide concise orientation and lead to detailed
 instructions when needed. Its delivery on each host and its behavior after
 context loss still require design and verification. This draft does not alter
 those mechanisms.
+
+The [content and delivery review](../docs/designs/306-toolkit-manual-review.md)
+records the inspected implementation, actual startup evidence, and remaining
+proof. Issue closure does not establish manual acceptance or delivery.
 
 ## Component instructions
 

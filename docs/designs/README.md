@@ -81,3 +81,7 @@ finishes the work item has to do it.
 
 - [360-instruction-audit-fixes.md](360-instruction-audit-fixes.md): scoped fixes to
   conflicting instructions, with preserved approval boundaries and scenario checks.
+
+- [306-toolkit-manual-review.md](306-toolkit-manual-review.md): Toolkit manual
+  content and delivery review, including actual host evidence, remaining
+  acceptance cases, and the distinction between closed #306 and delivered behavior.

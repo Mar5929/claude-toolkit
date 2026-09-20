@@ -263,7 +263,7 @@ checkpoint checks, with no custom substitute for the agent's judgment.
 **R9. Consult the source that answers the question.** Use context and rules
 already loaded, then relevant procedures and indexed project knowledge.
 Resolve project shorthand through the glossary when available. Open the
-supporting file; an index entry alone is not evidence. Use the [knowledge manual's find order](../../README.md#find-before-asking-or-searching-broadly)
+supporting file; an index entry alone is not evidence. Use the [knowledge manual's find order](../../knowledge-manual.md#find-before-asking-or-searching-broadly)
 and the relevant component policy; this PRD does not create a competing route.
 
 Choose by the question: requirements need the PRD; connections need the
@@ -298,7 +298,7 @@ chooses the response and names the destination when proposing a save.
 ## 6. Information ownership
 
 **R11. Keep one authoritative home for each kind of information.** The
-[knowledge manual](../../README.md#put-information-in-one-place) owns the shared
+[knowledge manual](../../knowledge-manual.md#put-information-in-one-place) owns the shared
 routing table. The [second-brain PRD](knowledge-system.md) and
 [System Guide PRD](system-guide.md) own their detailed requirements. Change
 those agreements explicitly when a routing decision changes; do not maintain
