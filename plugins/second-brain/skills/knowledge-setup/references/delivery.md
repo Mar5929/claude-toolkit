@@ -105,13 +105,19 @@ schema and effective event delivery on the installed host. A configured event
 that never runs is an unresolved support gap, with the root/manual fallback
 still required.
 
-The prompt handler supplies the session/agent identity and current review
-UUID. After actual review, call the installed completion module with
+The prompt handler supplies the session/agent identity, the current review
+UUID, and a normalized nonempty Codex `turn_id` when the host provides one.
+After actual review, call the installed completion module with
 `review ROOT SESSION AGENT GENERATION OUTCOME` as positional arguments. Allowed
 outcomes are no-change, pending-approval, save-unfinished and saved. The Stop
 handler requests at most one continuation if no outcome was recorded. Explicit
 old-generation/helper receipts cannot complete another turn's review. Native
-Stop events have no validated turn-generation field in this implementation:
-out-of-order late Stop delivery is not proven isolated and must remain a host
-acceptance gap until a real event correlation or ordering guarantee is verified.
+Codex Stop handling compares nonempty stored and incoming `turn_id` values
+before outcome or continuation handling. A mismatch is ignored without changing
+the current review state; a match keeps the generation receipt and one-
+continuation behavior. If either identifier is absent, compatibility mode keeps
+the earlier flow but cannot isolate a late Stop. This correlation is observed
+only for Codex CLI 0.154 main-thread events on macOS. Claude Stop identifiers,
+Desktop hosts, Windows, subagents, actual reordered delivery and general ordering
+guarantees remain unverified acceptance gaps.
 No receipt proves meaning, permission, publication or successful helper work.

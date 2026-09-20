@@ -8,6 +8,12 @@ import { fileURLToPath } from 'node:url';
 import { resolveManual } from './knowledge-manual.mjs';
 
 export const OUTCOMES = ['no-change', 'pending-approval', 'save-unfinished', 'saved'];
+const UNCORRELATED_STOP = 'Turn correlation is unavailable for this event; compatibility mode cannot isolate a late Stop.';
+function turnId(value) {
+  if (typeof value !== 'string') return null;
+  const normalized = value.trim();
+  return normalized || null;
+}
 function statePath(root, identity, directory = join(tmpdir(), 'toolkit-knowledge-review')) {
   if (!identity.session_id) throw new Error('Missing session identity; completion checkpoint unavailable.');
   const key = createHash('sha256').update(JSON.stringify([realpathSync(root), identity.session_id, identity.agent_id || 'root'])).digest('hex');
@@ -34,7 +40,8 @@ function locked(root, identity, directory, operation) {
 }
 export function beginReview(root, identity, directory) {
   return locked(root, identity, directory, () => {
-    const next = { generation: randomUUID(), outcome: null, continued: false };
+    const correlation = turnId(identity.turn_id);
+    const next = { generation: randomUUID(), outcome: null, continued: false, ...(correlation ? { turn_id: correlation } : {}) };
     return { next, result: { ...next } };
   });
 }
@@ -49,13 +56,16 @@ export function completion(root, input, directory) {
   if (input.hook_event_name === 'SubagentStop') return {};
   return locked(root, input, directory, state => {
     if (!state) return { result: { systemMessage: 'Knowledge completion checkpoint unavailable for this turn. Review under the manual and preserve unfinished saves; no completion was recorded.' } };
+    const incomingTurn = turnId(input.turn_id);
+    if (state.turn_id && incomingTurn && state.turn_id !== incomingTurn) return { result: {} };
+    const correlationNotice = state.turn_id && incomingTurn ? '' : ` ${UNCORRELATED_STOP}`;
     if (state.outcome) return { result: {} };
     if (state.continued || input.stop_hook_active) {
-      return { next: { ...state, continued: true }, result: { systemMessage: 'Knowledge review remains unrecorded. No further continuation is requested; preserve any unfinished save in the inbox.' } };
+      return { next: { ...state, continued: true }, result: { systemMessage: `Knowledge review remains unrecorded. No further continuation is requested; preserve any unfinished save in the inbox.${correlationNotice}` } };
     }
     return { next: { ...state, continued: true }, result: {
       decision: 'block',
-      reason: `Quietly review decisions and discoveries since the last review using knowledge-save and the core manual. No-change stays quiet; preserve proposals or unfinished authorized saves. Do not wait for independent helpers. Record the actual outcome with node .claude/hooks/knowledge-completion.mjs review using root=${JSON.stringify(root)}, session=${JSON.stringify(input.session_id)}, agent=${JSON.stringify(input.agent_id || 'root')}, generation=${state.generation}, outcome=no-change|pending-approval|save-unfinished|saved. These are five positional arguments after review. An outcome is a declaration, not save authority or proof of correct judgment.`,
+      reason: `Quietly review decisions and discoveries since the last review using knowledge-save and the core manual. No-change stays quiet; preserve proposals or unfinished authorized saves. Do not wait for independent helpers. Record the actual outcome with node .claude/hooks/knowledge-completion.mjs review using root=${JSON.stringify(root)}, session=${JSON.stringify(input.session_id)}, agent=${JSON.stringify(input.agent_id || 'root')}, generation=${state.generation}, outcome=no-change|pending-approval|save-unfinished|saved. These are five positional arguments after review. An outcome is a declaration, not save authority or proof of correct judgment.${correlationNotice}`,
     } };
   });
 }
