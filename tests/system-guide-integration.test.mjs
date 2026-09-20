@@ -5,6 +5,7 @@ import {
   existsSync,
   mkdirSync,
   mkdtempSync,
+  readdirSync,
   readFileSync,
   rmSync,
   writeFileSync,
@@ -12,6 +13,7 @@ import {
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { spawnSync } from "node:child_process";
 
 import {
   loadKnowledge,
@@ -21,11 +23,13 @@ import {
 import { checkKnowledge } from "../plugins/second-brain/tools/check-knowledge.mjs";
 import {
   inspectGuide,
+  refreshGuide,
   setupGuide,
 } from "../plugins/system-guide/tools/system-guide.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, "..");
+const systemGuideCli = resolve(repoRoot, "plugins/system-guide/tools/system-guide.mjs");
 const fixtures = [];
 let checks = 0;
 
@@ -43,6 +47,16 @@ function write(root, relativePath, content) {
 
 function count(text, value) {
   return text.split(value).length - 1;
+}
+
+function snapshotFiles(root, relativePath = "") {
+  const snapshot = {};
+  for (const entry of readdirSync(resolve(root, relativePath), { withFileTypes: true })) {
+    const path = join(relativePath, entry.name);
+    if (entry.isDirectory()) Object.assign(snapshot, snapshotFiles(root, path));
+    else snapshot[path] = readFileSync(resolve(root, path)).toString("base64");
+  }
+  return snapshot;
 }
 
 function check(name, fn) {
@@ -116,6 +130,40 @@ try {
     const status = inspectGuide(root);
     assert.equal(status.state, "on");
     assert.equal(status.guidePath, "docs/system-reference");
+  });
+
+  check("System Guide check detects changed sources without changing project files", () => {
+    const root = fixture();
+    write(root, "src/service.js", "export const service = 'before';\n");
+    setupGuide(root, {
+      sources: [{ path: "src", kind: "code", completeness: "complete" }],
+    });
+    refreshGuide(root, { now: "2026-09-20T12:00:00Z" });
+    write(root, "src/service.js", "export const service = 'after';\n");
+
+    const before = snapshotFiles(root);
+
+    const result = spawnSync(process.execPath, [
+      systemGuideCli,
+      "check",
+      "--root",
+      root,
+      "--json",
+    ], { encoding: "utf8" });
+    assert.equal(result.status, 1, result.stderr);
+    const report = JSON.parse(result.stdout);
+    assert.equal(report.state, "needs-repair");
+    assert.equal(report.issues.some((issue) => issue.code === "source_changed"), true);
+    assert.deepEqual(snapshotFiles(root), before);
+  });
+
+  check("project-sync requires the deep System Guide check during audit", () => {
+    const projectSync = readFileSync(
+      resolve(repoRoot, "plugins/project-init/skills/project-sync/SKILL.md"),
+      "utf8",
+    );
+    assert.match(projectSync, /system-guide-plugin>\/tools\/system-guide\.mjs check --root <project-root> --json/);
+    assert.match(projectSync, /`check` scans those sources/);
   });
 
   check("knowledge checker accepts grouped finalized PRDs and legacy current PRDs", () => {

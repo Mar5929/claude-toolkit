@@ -1,11 +1,14 @@
 # The machine-wide set
 
 What belongs to a whole computer rather than to one project. The `machine-sync`
-skill compares a computer against this folder and installs what the owner
-approves into `~/.claude/` and `~/.codex/`.
+skill compares a computer against this folder and installs the active pieces the
+owner approves into `~/.claude/`. It inspects `~/.codex/` only for wiring
+explicitly listed as retired in the skill, and removes that wiring only with the
+owner's approval.
 
 `../library/` is the other pile and the difference is the whole point:
-`library/` lands in a project folder, this lands in the owner's home folder.
+`library/` lands in a project folder, this active set lands in the owner's
+Claude home folder.
 A project gets `library/` only when someone runs `project-init` or
 `project-sync` on it. This set applies to every repository on the computer,
 including ones nobody ever set up.
@@ -23,11 +26,6 @@ Two questions, and both have to be yes:
 
 Anything that fails either question goes in `../library/` instead. This folder
 stays small on purpose.
-
-The project-knowledge activation is the narrow pointer exception. An equipped
-project carries the same short fallback because machine setup is optional. The
-machine copy reaches repositories before project files load, but it contains no
-knowledge policy and does nothing when the manual is absent.
 
 ## What is in it
 

@@ -12,7 +12,7 @@
     {
       "name": "project-init",
       "source": "./plugins/project-init",
-      "description": "Four skills: project-init sets up new projects; project-sync audits existing projects; work-item-lifecycle applies the project's file lifecycle when information is created, moved, organized, or completed; and machine-sync sets up Claude and Codex machine-wide instructions, settings, and hooks."
+      "description": "Four skills: project-init sets up new projects; project-sync audits existing projects; work-item-lifecycle applies the project's file lifecycle when information is created, moved, organized, or completed; and machine-sync audits and synchronizes the toolkit’s configured machine-wide policy after initial marketplace and project bootstrap."
     },
     {
       "name": "sf-architect-solutioning",

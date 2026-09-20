@@ -1,24 +1,26 @@
 ---
 name: machine-sync
 description: >-
-  Audit THIS COMPUTER against the claude-toolkit's machine-wide set and install
-  whatever is missing into the owner's own Claude and Codex folders. Use when the owner
-  is setting up a new computer, or says things like "set up this machine from my
-  toolkit", "point this computer at the toolkit", "I have a new laptop", "make
-  sure my machine-wide rules are here", "check my global Claude settings against
-  the toolkit", or "/machine-sync". It checks the machine-wide rules, the
-  required settings values, and the machine-wide hooks. Today that is the rule
-  that no commit or pull request carries AI credit, the settings values behind
-  it, and the guard hook that enforces it. It reports every gap first and
+  Audit and synchronize THIS COMPUTER's configured machine-wide Toolkit policy
+  after the marketplace and project-init plugin are bootstrapped. Use when the
+  owner is setting up a new computer, or says things like "set up this machine
+  from my toolkit", "point this computer at the toolkit", "I have a new laptop",
+  "make sure my machine-wide rules are here", "check my global Claude settings
+  against the toolkit", or "/machine-sync". The active set is the Claude rule,
+  required settings values, and machine-wide hook for keeping AI credit out of
+  commits and pull requests. It separately audits explicitly listed retired
+  Codex wiring and offers owner-approved removal. It reports every gap first and
   changes nothing without approval.
 ---
 
-# machine-sync: bring a computer up to the toolkit
+# machine-sync: synchronize the machine-wide policy
 
-`project-init` and `project-sync` set up a project folder. This skill is the
-third sibling and it works one level up: it sets up the **computer**, by
-comparing `~/.claude/` and `~/.codex/` against the toolkit's machine-wide set
-and installing what is missing.
+`project-init` and `project-sync` set up a project folder. After the owner has
+bootstrapped the marketplace and project-init plugin, this third sibling works
+one level up: it compares `~/.claude/` with the Toolkit's configured active
+machine-wide policy and installs approved gaps. It inspects `~/.codex/` only for
+wiring explicitly listed as retired below and offers its removal with the same
+owner approval.
 
 Why a separate scope exists at all: everything the other two skills install
 lands inside one repository, so a repository nobody ever ran them on gets
@@ -71,11 +73,6 @@ It has three kinds of thing:
 - **`machine/rules/*.md`**: rule files that install to `~/.claude/rules/`.
   Claude Code loads every `.md` file in that folder in every project on the
   machine, so a file there is in force everywhere with no wiring needed.
-- **The project-knowledge activation rule** also becomes a managed block in
-  `~/.codex/AGENTS.md`. The text between
-  `<!-- claude-toolkit:project-knowledge:start -->` and
-  `<!-- claude-toolkit:project-knowledge:end -->` must match the source rule
-  exactly. Preserve everything outside those markers.
 - **`machine/settings/required.json`**: settings keys and values that
   `~/.claude/settings.json` must carry. This is a fragment to merge, never a
   file to copy over the owner's settings.
@@ -121,11 +118,6 @@ What to check, item by item:
 toolkit's copy. Judge by intent, not exact wording: a file saying the same thing
 in different words is not behind. Only a file genuinely missing something the
 toolkit's copy now says is behind.
-
-The activation rule is the exception: compare it exactly, because the same text
-must be managed across both hosts. Also inspect the marked block in
-`~/.codex/AGENTS.md`. Missing markers, changed text inside them, or only one host
-having the pointer are separate findings. Preserve unmarked Codex instructions.
 
 **Also check `~/.claude/CLAUDE.md` for the same rule written inline.** The
 machine-wide rules folder is newer than that file, so the rule may already be
@@ -262,9 +254,6 @@ Do not report success because a file was written. Show it actually running.
 
 **A rule file**: confirm it is in `~/.claude/rules/` and tell the owner it takes
 effect in their next session, not this one. Rules load at session start.
-
-**The Codex activation block**: read it back, compare the text between the
-markers to the source rule, and say it takes effect in the next Codex session.
 
 **A settings value**: read the file back and show the key.
 
