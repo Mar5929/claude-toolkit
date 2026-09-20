@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { execFileSync, spawn } from 'node:child_process';
-import { mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
@@ -284,6 +284,43 @@ test('mixed PR-create and close commands never mutate or consume review state', 
   ]);
   assert.equal(new Set(concurrent.map(denialReason)).size, 1);
   assert.equal(runHook(saveReminder, pullRequestInput), '');
+});
+
+test('leading cd binds the action checkpoint to the target repository while false guards gh', t => {
+  const sessionRoot = repository(t);
+  const targetRoot = repository(t);
+  const canonicalTarget = realpathSync(targetRoot);
+  const sessionId = `leading-cd-${process.pid}-${Date.now()}`;
+  const targetState = stateFile(targetRoot, sessionId);
+  const sessionState = stateFile(sessionRoot, sessionId);
+  const fakeBin = mkdtempSync(join(tmpdir(), 'knowledge-fake-gh-'));
+  const sentinel = join(fakeBin, 'invoked');
+  const fakeGh = join(fakeBin, 'gh');
+  t.after(() => {
+    rmSync(targetState, { force: true });
+    rmSync(sessionState, { force: true });
+    rmSync(fakeBin, { recursive: true, force: true });
+  });
+  writeFileSync(fakeGh, '#!/bin/sh\nprintf invoked > "$GH_SENTINEL"\n');
+  chmodSync(fakeGh, 0o755);
+  const command = `cd "${targetRoot}" && false && gh pr create --title fixture --body fixture`;
+  assert.throws(() => execFileSync('/bin/sh', ['-c', command], {
+    cwd: sessionRoot,
+    env: { ...process.env, PATH: `${fakeBin}:${process.env.PATH}`, GH_SENTINEL: sentinel },
+  }));
+  assert.equal(existsSync(sentinel), false, 'the false guard prevents even the fake gh executable from running');
+
+  const checkpoint = checkpointFrom(runHook(saveReminder, {
+    session_id: sessionId,
+    turn_id: 'turn-one',
+    cwd: sessionRoot,
+    hook_event_name: 'PreToolUse',
+    tool_name: 'Bash',
+    tool_input: { command },
+  }));
+  assert.match(checkpoint.reason, new RegExp(`root=${JSON.stringify(canonicalTarget).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
+  assert.equal(existsSync(targetState), true, 'the target repository owns the checkpoint');
+  assert.equal(existsSync(sessionState), false, 'the session repository receives no checkpoint');
 });
 
 test('nonmatching commands remain untouched', t => {

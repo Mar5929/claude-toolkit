@@ -92,26 +92,46 @@ clear and compact, and a fork event only where the host emits it. Register
 `memory-reminder` under UserPromptSubmit and `knowledge-completion` under Stop,
 each once with a 10-second timeout. The startup handler may use 15 seconds.
 Preserve project-init's distinct Toolkit orientation handler. Register the
-existing save/work-item reminders under PreToolUse with Bash matcher on Claude;
-map only actual supported Codex shell/tool events after testing them.
+existing save/work-item reminders under PreToolUse with the existing Bash
+matcher on Claude. In Codex, place both command handlers in one PreToolUse group
+with the exact matcher `^Bash$`. The POSIX commands are
+`node "$(git rev-parse --show-toplevel)/.claude/hooks/save-reminder.mjs"` and
+`node "$(git rev-parse --show-toplevel)/.claude/hooks/work-item-close.mjs"`.
+The Windows commands first assign `git rev-parse --show-toplevel` to a local
+`$knowledgeRoot`, exit when Git fails, use `Set-Location -LiteralPath
+$knowledgeRoot`, and invoke the corresponding relative `.claude/hooks/` path.
+Merge this group into the existing configuration and preserve every unrelated
+event, group and handler.
 
 For a Git-backed Codex project, the POSIX command can locate the script with
 `node "$(git rev-parse --show-toplevel)/.claude/hooks/<file>.mjs"`. For Windows,
 use the host's commandWindows field with a PowerShell local root variable,
 check git's exit code, use Set-Location -LiteralPath, then invoke Node with the
 relative script path. Non-Git projects need their verified project-root route;
-never assume Git is available merely because a template used it. Check settings
-schema and effective event delivery on the installed host. A configured event
-that never runs is an unresolved support gap, with the root/manual fallback
-still required.
+never assume Git is available merely because a template used it. Review the
+exact project-layer hook definitions in Codex `/hooks` and use the host's normal
+trust flow. Never grant trust, change authentication, or use a bypass as part of
+setup. Configured, trusted and active are separate results. Check settings schema
+and effective event delivery on the installed host. A configured event that
+never runs is an unresolved support gap, with the root/manual fallback still
+required.
+
+Codex can run matching handlers concurrently. Both action hooks therefore
+perform the same mixed-action precheck before either changes or consumes review
+state. A command that combines pull-request creation with a close or merge is
+denied by both handlers and must be split into separate actions.
 
 The prompt handler supplies the session/agent identity, the current review
 UUID, and a normalized nonempty Codex `turn_id` when the host provides one.
-After actual review, call the installed completion module with
-`review ROOT SESSION AGENT GENERATION OUTCOME` as positional arguments. Allowed
-outcomes are no-change, pending-approval, save-unfinished and saved. The Stop
-handler requests at most one continuation if no outcome was recorded. Explicit
-old-generation/helper receipts cannot complete another turn's review. Native
+After actual turn review, call the installed completion module with
+`review ROOT SESSION AGENT GENERATION OUTCOME`, five positional arguments after
+`review`. Allowed outcomes are no-change, pending-approval, save-unfinished and
+saved. An action-specific review adds its displayed action nonce as the sixth
+positional argument. A five-argument general outcome cannot release a held
+pull-request create, issue close or pull-request merge. Each action receipt is
+consumed by one exact retry. The Stop handler requests at most one continuation
+if no outcome was recorded. Explicit old-generation/helper receipts cannot
+complete another turn's review. Native
 Codex Stop handling compares nonempty stored and incoming `turn_id` values
 before outcome or continuation handling. A mismatch is ignored without changing
 the current review state; a match keeps the generation receipt and one-

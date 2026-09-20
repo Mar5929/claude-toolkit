@@ -9,7 +9,8 @@ import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 
 test('empty installed project runs copied startup, prompt and Stop commands from nested cwd', () => {
-const repo=resolve(dirname(fileURLToPath(import.meta.url)), '../../..'), root=mkdtempSync(join(tmpdir(),'knowledge-new-install-'));
+const repo=resolve(dirname(fileURLToPath(import.meta.url)), '../../..'), root=realpathSync(mkdtempSync(join(tmpdir(),'knowledge-new-install-')));
+const actionSessions=['fixture-codex-pr','fixture-codex-close'];
 const template='plugins/second-brain/skills/knowledge-setup/references/templates/';
 const write=(path,text)=>{mkdirSync(dirname(resolve(root,path)),{recursive:true});writeFileSync(resolve(root,path),text)};
 const copy=(from,to)=>{mkdirSync(dirname(resolve(root,to)),{recursive:true});copyFileSync(resolve(repo,from),resolve(root,to))};
@@ -22,6 +23,11 @@ try {
  write('knowledge/project.md','# Fixture project\n\nSynthetic project to test empty Knowledge installation. No standing save grant.\n');
  write('knowledge/memory/current.md','# Current working memory\nUpdated: 2026-09-19\n\n## Project goal\nTest empty installation.\n\n## Active work\nNone.\n\n## General project to-dos\nNone.\n\n## Session handoffs\nNone.\n');
  mkdirSync(resolve(root,'knowledge/prds'),{recursive:true});mkdirSync(resolve(root,'ai-external-knowledge'),{recursive:true});
+ execFileSync('git',['init','-b','main'],{cwd:root});
+ execFileSync('git',['config','user.name','Fixture Agent'],{cwd:root});
+ execFileSync('git',['config','user.email','fixture@example.invalid'],{cwd:root});
+ execFileSync('git',['add','SOUL.md','knowledge','.claude'],{cwd:root});
+ execFileSync('git',['commit','-m','Initialize fixture'],{cwd:root});
  const run=(name)=>execFileSync(process.execPath,[resolve(root,'.claude/tools',name+'.mjs'),root],{encoding:'utf8'});
  assert.match(run('build-knowledge-index'),/0 file\(s\)/);
  const check=run('check-knowledge');assert.match(check,/ALL PASS/);
@@ -39,10 +45,22 @@ try {
  execFileSync(process.execPath,[resolve(root,'.claude/hooks/knowledge-completion.mjs'),'review',root,input.session_id,'root',generation,'no-change'],{encoding:'utf8'});
  const stop=execFileSync(process.execPath,[resolve(root,'.claude/hooks/knowledge-completion.mjs')],{cwd:resolve(root,'packages/feature'),env,input:JSON.stringify({...input,hook_event_name:'Stop'}),encoding:'utf8'});
  assert.deepEqual(JSON.parse(stop),{});
+ for(const [sessionId,file,command] of [
+  [actionSessions[0],'save-reminder.mjs','gh pr create --title fixture --body fixture'],
+  [actionSessions[1],'work-item-close.mjs','gh issue close 42'],
+ ]){
+  const actionInput={session_id:sessionId,turn_id:'fixture-turn',cwd:resolve(root,'packages/feature'),hook_event_name:'PreToolUse',tool_name:'Bash',tool_input:{command}};
+  const output=execFileSync(process.execPath,[resolve(root,'.claude/hooks',file)],{cwd:resolve(root,'packages/feature'),env,input:JSON.stringify(actionInput),encoding:'utf8'});
+  assert.notEqual(output,'',`${file} must return a Codex deny decision`);
+  const decision=JSON.parse(output).hookSpecificOutput;
+  assert.equal(decision.hookEventName,'PreToolUse');assert.equal(decision.permissionDecision,'deny');assert.match(decision.permissionDecisionReason,/action=/);
+ }
 
 } finally {
- const key=createHash('sha256').update(JSON.stringify([realpathSync(root),'fixture-session','root'])).digest('hex');
- rmSync(join(tmpdir(),'toolkit-knowledge-review',key+'.json'),{force:true});
+ for(const sessionId of ['fixture-session',...actionSessions]){
+  const key=createHash('sha256').update(JSON.stringify([realpathSync(root),sessionId,'root'])).digest('hex');
+  rmSync(join(tmpdir(),'toolkit-knowledge-review',key+'.json'),{force:true});
+ }
  rmSync(root,{recursive:true,force:true});
 }
 });
