@@ -91,7 +91,7 @@ export function loadKnowledge(projectRoot) {
   }
 
   if (schema2) lines.push(
-    "After the three ordered startup reads, give one brief confirmation only when their full contents reached you. On recovery restore missing/current guidance without repeating the greeting.",
+    "After completely reading SOUL.md, knowledge/project.md and knowledge/knowledge-manual.md, give one brief confirmation only when their full contents reached you. On recovery restore missing/current guidance without repeating the greeting.",
     "Check relevant entries in `knowledge/memory-inbox.md`; exact cards, authority and unfinished saves are pending work, never current facts. Missing inbox pauses dependent recovery.",
     "Lookup map: `knowledge/memory/memory-entries/terminology-glossary.md`; `ai-external-knowledge/README.md`; the four knowledge-find/save/review/setup skills. Read the applicable procedure before its operation; restore it after context loss.",
   );

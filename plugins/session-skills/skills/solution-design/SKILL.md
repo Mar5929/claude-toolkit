@@ -320,7 +320,7 @@ that still need them. The full design is in the file; say where in one line.
 - Update the solution-design roadmap task with a link to the final review
   position and evidence in the design. Complete it only after the required design approval. Task
   completion does not complete or approve its parent work item.
-- Lasting decisions the owner made along the way go through `remember`, with
+- Lasting decisions the owner made along the way go through the installed `knowledge-save` (legacy: `remember`), with
   the owner's approval. Working design Notes are not project memory.
 - If a save fails or is not authorized, lead with "not saved" and carry the
   unsaved text into the handoff.
