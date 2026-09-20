@@ -32,12 +32,11 @@ remains separate and unmerged.
 1. Merged branch/worktree cleanup is complete; all seven other worktrees were
    preserved. Owners verified and closed #364/#365 as superseded without merging
    them or removing their worktrees. Status is published; #269 remains open.
-2. Assess the merged behavior against the design and requirements. Distinguish
-   source tests, actual model behavior, native host delivery, unavailable proof
-   and rollout. Preserve failed and unexecuted cases.
-3. Update remaining packages by unmet outcome, dependency, owner and acceptance
-   evidence. Resolve necessary product choices and obtain additional authority
-   before further implementation. The coordinator owns this next assessment.
+2. The coordinator completed the source/evidence assessment below, including
+   all R1–R30, concrete defects and the remaining #367 delta. Full behavioral
+   acceptance remains open.
+3. Follow the ordered remaining work below. Assign bounded tasks under their
+   actual authority, resolve product choices and verify results before acceptance.
 
 Full requirements/design approval, asynchronous helper execution and recovery,
 host delivery/late Stop ordering, behavioral reliability and citation formatting,
@@ -48,6 +47,152 @@ Knowledge System nor whole Toolkit OS implementation.
 
 Both operating manuals were reviewed for this status update. The merged package
 already includes their dependent guidance; no manual policy change is needed here.
+
+For current delivery state, use the assessment below. The package specifications
+and dated audits retain the intended work and earlier evidence; a historical
+statement that a file is missing does not override inspected main source.
+
+## Delivered-versus-required assessment, 2026-09-20
+
+Assessed main `dee7f16`, including merged #366 `3703c5c`. The coordinator checked
+the PRD's R1–R30, master design, delivered procedures/hooks/tools/templates,
+installed copies, and the [reviewed trial report](https://github.com/Mar5929/claude-toolkit/blob/59145272872af43d848ff5df205e9154bf94da77/docs/designs/269-knowledge-system/implementation-plan.md#actual-agent-trials--2026-09-20-utc).
+This is a source and evidence assessment, not a new independent agent review or
+full-system acceptance. Earlier implementation, audit and coordinator tasks were
+completed/idle when inspected; their recorded assignments do not imply active work.
+
+**Evidence checked in this assessment:** 67 Node cases passed using
+`node --test tests/knowledge-schema.test.mjs plugins/second-brain/tests/*.test.mjs tests/toolkit-startup.test.mjs`.
+Installed-copy checks passed (27), startup/package checks passed (12), knowledge
+validation passed (19 files), and plugin validation passed. These are current
+deterministic results. The six earlier model trials remain dated evidence from
+their recorded revisions, not reruns against this main commit. Three used v1
+fixtures; three used the corrected v2 candidate. Their hooks were unregistered.
+Sandbox-blocked publication/cleanup and the R6 citation miss remain failures or
+unfinished steps. A separate successful foreground recovery used a local bare
+remote, not another computer. Temporary raw trial files are not durable Git evidence.
+
+#### Delivered instruction and implementation coverage
+
+All paths below are relative to the repository. Canonical instruction owners are:
+the managed manual source under `plugins/second-brain/skills/knowledge-setup/references/templates/knowledge/knowledge-manual.md`;
+the four skills under `plugins/second-brain/skills/`; hooks under
+`plugins/second-brain/hooks/`; and tools under `plugins/second-brain/tools/`.
+Installed manual/hooks/tools are present and checked here. Their presence does
+not establish installation or behavior in another project.
+
+| Requirement | Delivered source or observed evidence | Remaining outcome and classification |
+| --- | --- | --- |
+| R1 Plain parts | Markdown/Git records, native-agent procedures and temporary checkpoint state; no new content service. | Manual rename/deletion/ambiguous-repair agent cases remain unverified. Native-memory conflicts need a policy decision. |
+| R2 Follow system | Ordered read instructions, complete core manual, root fallback and recovery guidance. Prior Codex CLI full-read/resume evidence exists through the root route. | Complete-read observation and revision/context invalidation are not implemented as a separate verified startup checkpoint. Prompt intent is requested, not checked by the completion module. Native delivery, truncation and context-loss proof remain open. |
+| R3 Reliability | Bounded completion handler, explicit review outcomes and affected-work failure guidance. | Late Stop correlation is missing; required-moment and long/parallel-session behavior remains unverified. |
+| R4 Continuation | Shared current work, owning-record routes, inbox and handoff workflow; bounded resume trial used the newer owning record. | Fresh sessions on each supported host and real cross-computer continuation remain unverified. |
+| R5 Memory first | Manual section 4 and knowledge-find require relevant current sources before broad investigation. | Complete known-fact/irrelevant-request and task-switch behavior matrix remains unverified. |
+| R6 Sources | Manual and find skill explicitly require a source on the next line. | Actual mixed-routing trial missed this format. A demonstrated behavior failure, not missing policy text. |
+| R7 Vocabulary | Glossary template, direct route and index exclusion implemented. | Known aliases, conflicting meanings and useful-new-term proposal trials remain unverified. |
+| R8 Outside docs | Three-index builder, captured-topic fields and freshness/source rules implemented. | Current-source/unavailable-source behavior and capture-date citation trials remain unverified. |
+| R9 Saving | Shared save procedure, executor assignment, pending authority, inspector, prompt and completion guidance. | No verified host executor/result-return contract. Native helper execution, required save moments and conversation continuation remain open. Existing one-time action reminders do not check a fresh review outcome. |
+| R10 Permission | Scoped authority/card rules, automatic-save grant fields, default approval and schema tests. Mixed-routing trial withheld unauthorized writes. | Partial approval, revocation, lifecycle permission and same-topic concurrent saves need agent trials. No automatic-save grant was enabled here. |
+| R11 Eligibility | Manual and selection reference contain significance, owner participation and significant-fix exception. | Significant-episode and false-candidate selection trials remain unverified. |
+| R12 Exclusions | Positive routing and exclusions implemented; mixed-routing trial preserved separate owners and withheld writes. | Complete useful-information/noise/secret-like fixture coverage remains unverified; pattern checks cannot prove meaning. |
+| R13 Working memory | Multi-item template, schema-2 path/limit, handoff ordering and preservation guidance. Local bounded trials preserved other entries. | Simultaneous writers, all sharing paths and handoff size/retention decisions remain open. |
+| R14 Memory shape | Topic template, claim-level evidence guidance, metadata and mixed-topic fixtures. | Fresh-agent narrow updates and approved split/consolidation preservation remain unverified. |
+| R15 Writing | Main/helper instructions require plain wording, exact names and meaning preservation. | Independent proposal-and-saved-text behavior checks remain unverified. No keyword check can establish compliance. |
+| R16 PRDs | Proposed/finalized semantics, paired approval validation and shipped-upkeep procedure implemented. | Cross-component upkeep, explicit holds, cancelled/undelivered work and failed publication need agent trials. Full PRD approval remains pending. |
+| R17 Procedures | Routing locates the actual skill-authoring process and reports its absence. | Portable authoring capability is still an integration dependency; one machine's skill-creator does not prove project delivery. |
+| R18 Routing | Manual ownership table, four procedures and design/research distinctions; bounded mixed-routing outcomes passed. | Full destination examples and cross-component partial-authority/setup behavior remain unverified. D3 clarification is proposed only. |
+| R19 Find order | Shared lookup procedure, glossary/source rules and history adapter implemented. | Both hosts' available/unavailable project-history cases and stale-source cases remain unverified. |
+| R20 Cards | Current card fields, destination headings, unique numbering and exact pending-card instructions implemented. | Silence, correction, partial approval and exact-card continuation need full agent trials. |
+| R21 Index/checker | Schema-2 parser/checker, three deterministic indexes, strict 200/5,000 limits and read-only validation; 38 schema cases passed. | Agent handling of invalid saves remains unverified. Feedback template still falsely describes an additional checker limit. |
+| R22 Lifecycle | One save procedure covers updates, supersession, retirement, deletion, split and consolidation. | Complete operation-by-operation agent and failure/recovery tests remain unverified. |
+| R23 Feedback | Save/review skills read useful feedback; v2 checker removes the old cap. | D2 has an actual remaining contradiction: shipped template and installed feedback still say 8,000 characters; template logs every candidate while installed guidance restricts routine logging. Cleanup and fresh-agent proof remain. |
+| R24 Plain requests | Four focused descriptions and six legacy compatibility routes shipped. | All six ordinary-language outcomes and supported-host discovery need behavior verification. |
+| R25 Codex | Shared records, root fallback and configured prompt/Stop routes; bounded CLI model trials. | Native hook attribution, desktop, Windows, context recovery and helper parity remain unverified. |
+| R26 Documented use | Captured sources and dated host research linked; command-hook implementation present. | Refresh effective runtime/document mapping before adapter changes; CLI version is not desktop or event proof. |
+| R27 Activation | Delivery/migration instructions, coherent copied executable fixture and this repository's schema-2 conversion shipped. | Actual fresh-agent install/upgrade, owner-customized projects, version/update/rollback and external targets remain unverified. |
+| R28 Inbox | Exact-card/authority format, same-reference inspector and 12 recovery fixtures; one bounded lost-response recovery trial. | Inspector is read-only, not a save executor. Real interrupted/concurrent/cross-computer saves, cancellation and cleanup delivery remain unverified. |
+| R29 Judgment | Agent meaning review, narrow file/Git checks and declared outcomes; no semantic classifier. | Startup/prompt receipt contracts and native ordering still need resolution; declaration is not proof of correct review. |
+| R30 Integration | Toolkit/Knowledge manuals, handoff, tracker and setup routes shipped; Guide ownership retained. | Full tracked-delivery/question/Guide-on/off scenarios and portable authoring integration remain unverified. |
+
+#### Confirmed defects and incomplete mechanisms
+
+1. **D2 feedback drift:** the source template and this project's feedback file
+   still claim an 8,000-character checker cap. Schema-2 checking deliberately has
+   no such cap, and knowledge-review says the same. The template's per-candidate
+   log also conflicts with its instruction to avoid routine activity. Repair the
+   source and reconcile the project copy without erasing sourced owner feedback.
+2. **Late completion event:** `completion()` accepts the current session state
+   without correlating a native Stop to its originating review generation. A
+   disposable reproduction created old then new reviews, submitted the old Stop,
+   and observed it block using the new generation; the genuine new Stop then
+   declined a further continuation. Explicit old receipt rejection does not fix
+   this. This demonstrates the handler weakness, not actual native event reordering.
+3. **Startup/intent checks:** the loader requests reads and acknowledgment. There
+   is no independent startup-read receipt, content-revision tracking or prompt
+   intent checker in the shipped completion state. Decide the smallest justified
+   mechanism after native observation tests; do not claim the designed checkpoint
+   exists just because the instructions do.
+4. **Save-moment integration:** `save-reminder.mjs` still holds once per branch
+   and `work-item-close.mjs` once per item/session. They do not consult the new
+   review outcome. Reconcile repeated PR/close actions and conversation-only
+   decisions through the existing D1-P1/E1-P5 task, with actual supported coverage.
+5. **Executor contract:** executor/recovery instructions and Git inspection are
+   shipped. Verified native dispatch, permissions, lifetime, cancellation and
+   results after parent completion are not supplied by those files. Prefer native
+   helpers and the same save procedure; do not infer a need for a new background service.
+6. **R6 behavior:** preserve the actual citation-format failure. First retest the
+   explicit existing rule with an expectation that checks placement; select a
+   targeted correction from evidence without adding a semantic grading engine.
+
+#### PR #367 disposition
+
+At inspected head `59145272872af43d848ff5df205e9154bf94da77`, #367 is open against
+`issue-269-knowledge-integration-audit`. Its own final commit adds five paths:
+the behavior runner, scenario file, runner README, tests README link and 120 lines
+of evidence in this plan. Those optional tooling/evidence additions are not on
+main. Earlier schema commits in its ancestry were integrated through #366.
+
+A read-only merge-tree simulation against main reported five conflicting files:
+marketplace metadata, both second-brain manifests, this plan and tests/README.md.
+GitHub's mergeable status applies to the old base, not main. Recommend applying
+only final commit `5914527` to a fresh main-based branch, reconciling the two
+documentation files with the current text, then checking and independently
+reviewing the resulting change. Preserve the existing PR/head until the replacement
+or coordinated update is verified. This assessment changes no branch, base or PR
+state and grants no merge approval. Do not import the old dependency commits or
+replace the current plan wholesale. Raw `/tmp` evidence remains nonportable;
+preserve the reviewed report and its limitations in the delivery.
+
+#### Ordered remaining work
+
+These refine existing task/package IDs. The issue remains the status authority.
+Owners below describe roles; a worker is assigned only when actually dispatched.
+The coordinator performs technical planning; Mike supplies product decisions,
+new scope/merge permissions where needed, rollout targets and acceptance.
+
+| Order / existing task | Owner and dependency | Next deliverable | Acceptance condition |
+| --- | --- | --- | --- |
+| 1. E1-P8, preserve optional test tooling | Test-tooling agent; depends on this #367 comparison | Main-based five-path change, current fixture preflight, retained trial evidence and independent review. | Only intended remaining delta; source hashes/expectations/meaning review remain separate; relevant checks pass; explicit separate merge decision. |
+| 2. D2 / E1-P1/P4/P7 | Instruction agent; scoped correction of delivered inconsistency | Reconcile feedback template, actual project lessons and all consumers; keep supported limits and useful sourced feedback. | No false cap or routine-log conflict in new/upgraded projects; checker and instruction assertions plus fresh-agent feedback cases agree. Implementation scope must be confirmed from the existing package authority before dispatch. |
+| 3. D1-P1 / E1-P5 | Host agent; may run alongside 1–2; existing approved behavior only | Effective CLI/desktop capability matrix; minimal startup/intent strategy; reproduce and resolve late Stop and repeated save-moment gaps. | Ordered complete content, missing/truncated/changed guidance, context recovery, distinct intent/outcome, helper isolation and bounded continuation demonstrated per target. Unavailable targets remain open. Do not change expired Claude authentication. |
+| 4. D1-P1 / E1-P4 | Save-execution agent; depends on host capability evidence | Native helper assignment and result/recovery contract; implement only demonstrated missing integration under applicable authority. | Main answers independent work while save runs; verify returned result after parent turn, failed push, cancellation, late result, lost response, conflict and two writers. Preserve exact authority and finish once; foreground fallback is separate evidence. |
+| 5. D1-P2 / C1, with D3 | Coordinator and Mike; use findings from 2–4 | Reviewable remaining choices and reconciled full PRD/design; proposed D3 wording in design Notes. | Full requirements/design approvals recorded separately; no implicit relaxation for unsupported hosts. Resolve native-memory policy, retention/size conflicts and required target scope before dependent changes. |
+| 6. E1-P6/P7 | Integration/setup agent; depends on selected contracts and applicable decisions | Actual new/legacy/customized/partial/Guide-on/off setup and rollback trials; portable authoring route. | Preserve owner records/settings and pending authority; no duplicate registrations; effective version and current guidance verified; setup reports partial support honestly. |
+| 7. E1-P8 | Acceptance agent independent of builders; depends on corrected integrated candidate | All R1–R30 Checks mapped to named scenarios, outcomes and evidence on agreed surfaces. | Correct R6 placement, approved/unapproved lifecycle changes, meaningful no-code work, recovered context and concurrent saves. Repeat based on observed variance/risk; declare expectations first. Failures stay failures. |
+| 8. F1-P1 | Coordinator and Mike; depends on 7 and target authorization | Concrete result review, authorized rollout, fresh-session target evidence and final record upkeep. | Mike accepts the delivered Knowledge outcome; each agreed target's adoption is verified. Only then close #269; scoped merges never substitute for parent acceptance. |
+
+**Product decisions still open:** full requirements/design acceptance; handling
+of competing native memory; post-delivery design/evidence retention; useful
+handoffs that cannot fit the current-work limit; D3 wording; and rollout/support
+targets. Reminder-shortening and changed consent/acknowledgment behavior remain
+unapproved alternatives, not prerequisites unless evidence makes them necessary.
+Host event names, runner mechanics and ordinary branch reconciliation are technical
+work for agents, not questions Mike must troubleshoot.
+
+**Manual review:** both operating manuals were considered. This assessment changes
+no installed policy, so neither needs an assessment-only edit. D2 and any later
+adapter/procedure corrections must reconcile their affected guidance in the same
+implementation delivery. D3 remains proposed, with no runtime/manual adoption.
 
 ## Recommended build baseline
 
@@ -94,9 +239,11 @@ Keep feedback in the existing `knowledge/memory-self-improvement.md`, with conci
 
 Keep deterministic checks separate from behavioral acceptance. A valid file, receipt, or successful hook test never demonstrates that the correct memory was selected or that a permission covered its meaning.
 
-## Verified repository starting points
+## Historical repository starting points, 2026-09-18
 
-Paths below are repository-relative. “Change” means planned, not already implemented. Inspect the latest files again before executing a package because other toolkit work continues.
+Paths below preserve the pre-build inventory. Many listed gaps were delivered in
+#366; use the current assessment above for remaining work. “Change” describes
+the original plan. Inspect latest source before executing a package.
 
 | Area | Existing source and actual gap | Planned treatment |
 | --- | --- | --- |
@@ -490,7 +637,8 @@ approved #269 refinements; `origin/main` at c77082e includes the merged document
 Notes workflow. Inspect both until the shared checkout is safely reconciled.
 The merged Notes guidance is shipped source, but project refresh is separate.
 
-The table names the instruction owner and content to reconcile for every
+This dated audit describes pre-build source. The current assessment above
+supersedes its claims about what is missing today. The table names the instruction owner and content to reconcile for every
 requirement. Package owners above own the work. The earlier evidence matrix
 supplies each row's acceptance scenario. Every row remains open for final text
 review and observed behavior; no row is passed merely because a source exists.

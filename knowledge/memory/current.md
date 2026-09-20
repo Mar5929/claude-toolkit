@@ -17,29 +17,28 @@ Updated: 2026-09-20
 Mike's explicit combined merge approval. Full Knowledge System requirements/design
 approval, delivery and acceptance remain open. This does not authorize whole Toolkit OS implementation.
 
-**Recent progress** 2026-09-20: required checks, plugin validation and independent
-review passed; 67 Node cases and bounded model trials are recorded in the PR.
-Toolkit startup PR #363 was already merged. Optional test tooling/report PR #367
-remains separate and unmerged. Exact PR #366 branch/worktree cleanup is complete;
-#364/#365 were closed as superseded. Merge does not prove rollout or all host behavior.
+**Recent progress** 2026-09-20: R1–R30 assessment and ordered remaining plan prepared.
+67 deterministic cases pass. Found remaining feedback-template contradictions,
+late-Stop correlation weakness and startup/save-moment proof gaps. #367 needs
+its five-path test/evidence change reconciled onto main; merge approval is separate.
 
-**Next step** Assess merged behavior against the design, then update the
-remaining plan by unmet outcome, dependency,
-owner and acceptance evidence. The coordinator owns that assessment and planning.
+**Next step** Assign bounded corrections and host/save proofs from the plan;
+review D3 wording and remaining product choices with Mike.
 
 **Blocker** Claude model proof was blocked by expired OAuth; do not change authentication.
-Native hook/late-Stop ordering, helper lifetime/results and other host proofs remain incomplete.
+Native delivery, helper lifetime/results, rollout and full acceptance remain open.
 
-**To-dos** 2026-09-20: remaining design decisions, asynchronous save execution,
-behavior/citation-format gaps, host verification, agreed rollout and owner acceptance.
+**To-dos** 2026-09-20: feedback correction, #367 preparation, host/helper and behavior
+proofs, D3 refinement, remaining approvals and agreed rollout.
 
 **Detailed record** [#269](https://github.com/Mar5929/claude-toolkit/issues/269),
 [design Notes](../../docs/designs/269-knowledge-system.md#notes),
 [PRD Notes](../prds/toolkit-operating-system/knowledge-system.md#notes),
 [implementation plan](../../docs/designs/269-knowledge-system/implementation-plan.md).
 
-**Owning session** Coordinator `01a0baf5-bc72-7a22-91f3-3781f5dafef9`;
-Knowledge `01a0bc7c-5260-73f1-87a5-1667ace91b1e`. Assignment does not prove liveness.
+**Owning session** Orchestrator `01a0bf79-ee0e-7a83-86df-251957d7f5e8`.
+Mike authorized managing helpers/separate tasks and archiving completed tasks
+after communication and verified handoffs. Assignment does not prove liveness.
 
 ### Guided work management — #337
 Updated: 2026-09-19
@@ -77,7 +76,7 @@ Updated: 2026-09-19
 **Detailed record** [#360](https://github.com/Mar5929/claude-toolkit/issues/360).
 
 ## General project to-dos
-- 2026-09-20: [#269 D3](https://github.com/Mar5929/claude-toolkit/issues/269): refine when agents verify potentially stale memories/PRDs; wording pending review.
+- 2026-09-20: [#269 D3](https://github.com/Mar5929/claude-toolkit/issues/269): proposed stale-knowledge wording is in design Notes for Mike’s review.
 - 2026-09-19: instruction-overload evaluation remains underway; measured outcome pending.
 - 2026-09-19: [#358](https://github.com/Mar5929/claude-toolkit/issues/358): use prior
   decisions to clarify Mike's intent and push back usefully in long sessions.

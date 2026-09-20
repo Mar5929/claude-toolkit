@@ -1,6 +1,6 @@
 # Knowledge System — solution design
 
-Updated: 2026-09-18. **Proposed; under review. No runtime build authorized.**
+Updated: 2026-09-20. **Full design remains proposed. Bounded implementation merged in PR #366 under scoped approval; remaining work and acceptance stay open.**
 
 ## 1. Purpose, authority, and review position
 
@@ -1222,15 +1222,17 @@ approved the combined scope, including #364/#365. Toolkit PR #363 was already
 merged. Required checks and independent review passed; the [durable audit report](https://github.com/Mar5929/claude-toolkit/blob/59145272872af43d848ff5df205e9154bf94da77/docs/designs/269-knowledge-system/implementation-plan.md#actual-agent-trials--2026-09-20-utc)
 records actual trials, failures and limits. Optional PR #367 remains unmerged.
 
-**Resume here:** assess delivered behavior against this design, then prepare the
-remaining implementation plan. Exact merged branch/worktree cleanup is complete;
-#364/#365 were closed as superseded after owner verification. The
-coordinator owns assessment and planning. Preserve full requirements/design
-review, asynchronous helper execution/recovery, native host and late-Stop proofs,
-behavior/citation-format gaps, agreed rollout and owner acceptance as unfinished.
-#269 remains open. This merge does not authorize whole Toolkit OS implementation.
-The [issue roadmap](https://github.com/Mar5929/claude-toolkit/issues/269) owns current
-assignments, tasks and detailed approval evidence.
+**Resume here:** the coordinator completed the [delivered-versus-required assessment](269-knowledge-system/implementation-plan.md#delivered-versus-required-assessment-2026-09-20).
+Use its R1–R30 evidence table and ordered remaining work. It separates shipped
+instructions/tools, actual model outcomes, incomplete mechanisms and unverified
+host behavior. D2 still has a real template/project-feedback contradiction;
+late Stop correlation, startup/intent proof and fresh save-moment checks remain
+incomplete. PR #367's optional five-path delta needs a main-based delivery route
+and separate merge approval. The next coordination step is bounded assignments
+and the remaining product decisions, not a restart of settled requirements.
+#269 remains open; full-system implementation and acceptance are not implied.
+The [issue roadmap](https://github.com/Mar5929/claude-toolkit/issues/269) owns task
+status, assignments and approval evidence.
 
 The reviewed manual and save/recovery reference are published at `d321fda` on
 `issue-269-core-manual-draft`; the coherent package is now merged. The draft remains historical review evidence. [Section 6.7](#67-save-transaction-and-recovery) owns the
@@ -1304,7 +1306,7 @@ These are investigation work, not questions for Mike to answer about APIs.
 
 #### Task D2 — Make memory self-improvement instructions clear and current
 
-Requested by Mike on 2026-09-18. Status: planned; initial source inspection done.
+Requested by Mike on 2026-09-18. Status: partially implemented, correction and behavior proof outstanding as assessed on 2026-09-20.
 This task covers `knowledge/memory-self-improvement.md`, the installed template,
 and every instruction that tells an agent what it means, when to read or update
 it, and how to keep it current in any equipped project. R23 owns the behavior;
@@ -1336,11 +1338,41 @@ R15/R21 govern clarity and supported limits. Delivery follows E1-P1/P4/P7/P8.
   guidance, no stated rejection reason, and useful content exceeding 8,000
   characters. Writing must be clear, explicit, and free of jargon or metaphor.
 
-Initial findings: the template says one line per candidate; the installed file
-and remember skill limit logging to owner changes in selection guidance. The
-fixed cap appears in both checker copies, template, manual and reflect skill.
-This task records work to do; none of those runtime instructions or existing
-feedback entries have been changed by adding it.
+Current findings: knowledge-save/knowledge-review and the schema-2 checker now
+implement useful-feedback guidance and removal of the fixed cap. However, both
+the shipped feedback template and this project's existing feedback file still
+say the checker enforces 8,000 characters. The template still requests a line
+for every candidate, while project guidance excludes ordinary outcomes. D2 must
+reconcile these actual contradictions, preserve useful sourced owner feedback,
+and prove new/upgraded-project behavior. Passing schema tests do not establish
+instruction consistency.
+
+#### Task D3: Verification when saved knowledge may be stale
+
+Status: recommendation prepared for Mike's review, not adopted. The
+[issue's D3 task](https://github.com/Mar5929/claude-toolkit/issues/269) preserves
+his exact request. Manual section 4 already requires relevant current evidence
+and naming conflicts. PRD R16 separates required behavior from delivered
+behavior; R22 says age alone does not invalidate a record or verify its claims.
+The useful addition is an explicit trigger for proportionate verification.
+
+Proposed wording for review:
+
+> Saved memories and PRDs can be out of date. Before relying on a relevant
+> claim, consider whether changes since it was checked, conflicting evidence,
+> its source and scope, or the consequences of being wrong warrant verification.
+> Check the current owning source or implementation when needed. If verification
+> is unavailable, state material uncertainty. Age alone does not make a claim
+> wrong, and a PRD describes required behavior: an implementation mismatch may
+> be a defect. Reuse evidence that remains current; do not recheck every record
+> on every use. Correct saved meaning through its existing approval process.
+
+If Mike agrees, reconcile the smallest addition with manual section 4 and
+knowledge-find; preserve R16/R22 rather than duplicating their policy. Any actual
+PRD meaning change needs his agreement before adoption. Behavior checks should
+cover an old still-valid decision, a newer conflicting fact, an unverified
+high-consequence claim, and an approved requirement that the code violates.
+The current mixed-routing trial supplies partial evidence, not complete D3 proof.
 
 #### Other remaining design tasks
 
@@ -1352,7 +1384,7 @@ feedback entries have been changed by adding it.
   [implementation plan](269-knowledge-system/implementation-plan.md#required-instruction-content-audit)
   defines the inventory and acceptance evidence. Review actual meaning and
   contradictions independently; prove current behavior in new and upgraded
-  projects. Existing instructions are not yet aligned with the proposed system.
+  projects. The current assessment identifies delivered coverage and remaining contradictions; the pre-build audit is historical.
 
 - **Hook choice:** ordinary command hooks with separate host integrations were
   approved by Mike on 2026-09-18. Follow the

@@ -9,7 +9,7 @@ confirmed_at: 2026-09-15
 tags: [knowledge-system, memory, prds, second-brain, schema, requirements, solution-philosophy, high-level-architecture]
 project: claude-toolkit
 work_item: "269"
-updated_at: 2026-09-19
+updated_at: 2026-09-20
 ---
 
 # The project second brain
@@ -2230,7 +2230,7 @@ above, revisit them before using them.
 
 ## Notes
 
-Updated: 2026-09-19. Start here when continuing requirements refinement.
+Updated: 2026-09-20. Start here when continuing requirements refinement.
 Keep outstanding requirements decisions and tasks in this section. Record each
 answer in the affected requirement and remove or resolve its open entry here.
 Technical choices and their evidence belong in the
@@ -2240,24 +2240,20 @@ decisions, and links to these documents. Mike confirmed this boundary on
 2026-09-18: document-specific refinement belongs here; other work remains in
 the work item. Save meaningful updates promptly so the next session can resume.
 
-**Current position:** this PRD remains proposed; full requirements acceptance
-is separate from Mike's explicit scoped implementation authorization on
-2026-09-19. Knowledge manual/skills/recovery, residual audit fixes, and the
-requested newest-first session handoffs are being implemented in coordinated
-sessions. Conditional merge approval covers the Knowledge package; later audit
-and handoff PRs need their own authority. The existing
-[work item](https://github.com/Mar5929/claude-toolkit/issues/269) owns exact
-assignments, progress, and approval evidence. No full-system delivery is claimed.
+**Current position:** this PRD remains proposed. Mike separately approved the
+bounded instruction/schema/handoff implementation merged in PR #366. Full
+requirements/design approval, complete behavior proof, rollout and acceptance
+remain open. The [work item](https://github.com/Mar5929/claude-toolkit/issues/269)
+owns delivery status and exact approval evidence.
 
-**Resume here:** preserve accepted requirements while those packages finish.
-The manual content review is complete; source drafts are at `d321fda` on
-`issue-269-core-manual-draft`. Reconcile the handoff requirement through its
-assigned owner and retain unresolved retention/size choices as open. The agent's
-recommendation to use concise pointers to owning records has not received a
-separate owner answer. After active tasks finish, assess actual delivered versus
-missing behavior and prepare the remaining system implementation plan. That is
-Mike's selected sequence, not authorization to implement the whole Toolkit OS.
-Technical evidence and the detailed next step stay in the linked design Notes.
+**Resume here:** the [source/evidence assessment and remaining plan](../../../docs/designs/269-knowledge-system/implementation-plan.md#delivered-versus-required-assessment-2026-09-20)
+now distinguish delivered behavior, confirmed gaps and missing verification
+across R1–R30. Preserve accepted requirements while resolving remaining product
+choices. D3's proposed stale-knowledge clarification is in the
+[design Notes](../../../docs/designs/269-knowledge-system.md#task-d3-verification-when-saved-knowledge-may-be-stale)
+for Mike's review; it changes no requirement or installed instruction yet.
+Handoff retention/size, native-memory handling and post-delivery retention remain
+open. This continuation update changes no requirement or approval status.
 
 ### Outstanding decisions
 
