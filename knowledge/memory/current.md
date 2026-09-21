@@ -15,7 +15,7 @@ Updated: 2026-09-21
 
 **Current status** #370 `b3b8fec`, #372 `999bfcb`, #371 `283258a`, #373 `b201353` merged; #367 superseded. Draft #374 at `0d082a6`: independent review and full check rerun running in Claude chats; merge and sync pending. OS gap assessment running.
 
-**Recent progress** 2026-09-21: Codex usage limits stopped the Codex teams with sessions open. Mike's handoff prompt moved coordination to Claude Code desktop: Fable main, Opus executors, four local chats, two-way messaging confirmed.
+**Recent progress** 2026-09-21: Codex usage limits stopped the Codex teams with sessions open. Mike's handoff prompt moved coordination to Claude Code desktop: Fable main, Opus executors, four local chats, messaging confirmed.
 
 **Next step** Main reads each chat's report, sends review findings to Knowledge finish, asks Mike whether his merge approval covers #374, merges, then starts the sync chat. Mike performs normal hook trust.
 
@@ -25,7 +25,7 @@ Updated: 2026-09-21
 
 **Detailed record** [#269](https://github.com/Mar5929/claude-toolkit/issues/269), [#369](https://github.com/Mar5929/claude-toolkit/issues/369), [design Notes](../../docs/designs/269-knowledge-system.md#notes), [PRD Notes](../prds/toolkit-operating-system/knowledge-system.md#notes), [plan](../../docs/designs/269-knowledge-system/implementation-plan.md).
 
-**Owning session** Claude main `local_1337791d-276c-4ea7-ae8f-119db0dc8b17`; chat ids in the plan. Codex teams stopped; do not restart them alongside Claude. Assignment is not liveness.
+**Owning session** Claude main `local_1337791d-276c-4ea7-ae8f-119db0dc8b17`; chat ids in #269. Codex teams stopped; do not restart them alongside Claude. Assignment is not liveness.
 
 ### Guided work management — #337
 Updated: 2026-09-19
@@ -75,7 +75,7 @@ Updated: 2026-09-19
 
 ### 2026-09-21T16:30:44.599Z | Claude team continuation
 
-Resumed 2026-09-21 by the Claude main above. The [team continuation](../../docs/designs/269-knowledge-system/implementation-plan.md#claude-team-continuation-2026-09-21) holds roles, chat ids, evidence limits and next actions. Source: Codex main `01a0bf79-ee0e-7a83-86df-251957d7f5e8`.
+Resumed 2026-09-21 by the Claude main above. The [team continuation](../../docs/designs/269-knowledge-system/implementation-plan.md#claude-team-continuation-2026-09-21) holds roles and evidence limits; #269 holds chat ids and next steps. Source: Codex main `01a0bf79-ee0e-7a83-86df-251957d7f5e8`.
 
 ### 2026-09-20T11:01:22.781Z | Knowledge delivery coordinator
 
