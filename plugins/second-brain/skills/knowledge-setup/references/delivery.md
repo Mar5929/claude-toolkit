@@ -118,18 +118,21 @@ never runs is an unresolved support gap, with the root/manual fallback still
 required.
 
 Assumption from a rolling-document claim, not verified on the installed host:
-Codex runs multiple command hooks concurrently
-(`docs/designs/269-knowledge-system/host-capability-evidence.md`, line 76).
-Both action hooks therefore perform the same mixed-action
-precheck before either changes or consumes review state. A command that combines pull-request creation with a close or merge is
-denied by both handlers and must be split into separate actions.
+Codex runs multiple command hooks concurrently. The evidence is in the
+claude-toolkit repository at
+`docs/designs/269-knowledge-system/host-capability-evidence.md`, line 76; an
+installed project does not carry that file. Both action hooks therefore perform
+the same mixed-action precheck before either changes or consumes review state.
+A command that combines pull-request creation with a close or merge is denied
+by both handlers and must be split into separate actions.
 
 Known limits of the action checkpoint:
 
-- A pull-request-create permit earned through `cd /other/repo && gh pr create`
-  survives a new prompt until that repository's HEAD changes. A close or merge
-  permit is keyed on the project root and the action list, so a new commit does
-  not invalidate it.
+- A permit earned through a command that starts with `cd /other/repo`, for
+  pull-request creation, close or merge, survives a new prompt. A
+  pull-request-create permit lasts until that repository's HEAD changes. A close
+  or merge permit is keyed on the project root and the action list, so a new
+  commit does not invalidate it.
 - Only Bash command segments beginning `gh pr create`, `gh issue close` or
   `gh pr merge` are recognized, so `bash -c "..."`, a full path to gh,
   `gh pr close`, `gh api` and non-Bash tool routes pass.
@@ -138,6 +141,8 @@ Known limits of the action checkpoint:
   `memory-reminder` and Stop `knowledge-completion`) do not run under cmd.exe,
   so on that host no new prompt resets review state.
 - Enforcement is fail-open: an unexpected error allows the command.
+- A held review-state lock is the one failure that denies. The message names the
+  lock file. Remove that file only when no other review is running.
 - Nothing here is proven on native Windows.
 
 The prompt handler supplies the session/agent identity, the current review

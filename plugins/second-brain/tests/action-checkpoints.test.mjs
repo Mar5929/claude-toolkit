@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { execFileSync, spawn } from 'node:child_process';
-import { chmodSync, existsSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdtempSync, realpathSync, rmSync, symlinkSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
@@ -83,7 +83,7 @@ test('pull-request identity changes with HEAD and includes the canonical project
   assert.notEqual(second[3], first[3]);
 });
 
-test('close and merge identities retain every ordered action, project, and item', t => {
+test('close and merge identities retain the project and every ordered action with its command segment', t => {
   const root = repository(t);
   assert.deepEqual(
     JSON.parse(workItemActionKey('gh issue close 42', root)),
@@ -368,7 +368,7 @@ test('hooks reached through a symbolic link still run and hold the action', t =>
   }
 });
 
-test('an existing lock holds the action, names its file, and is never removed by another caller', t => {
+test('an old lock still holds the action, names its file, and is never removed by another caller', t => {
   const root = repository(t);
   const directory = join(root, 'temporary');
   const identity = { session_id: 'lock-session', agent_id: 'root', turn_id: 'turn-one' };
@@ -378,6 +378,8 @@ test('an existing lock holds the action, names its file, and is never removed by
     .digest('hex');
   const lock = join(directory, `${key}.json.lock`);
   writeFileSync(lock, '');
+  const old = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  utimesSync(lock, old, old);
   assert.deepEqual(claimActionReview(root, identity, 'action-a', directory), { status: 'busy', lock });
   assert.equal(existsSync(lock), true, 'the lock is left for its owner to release or the owner to inspect');
 });
