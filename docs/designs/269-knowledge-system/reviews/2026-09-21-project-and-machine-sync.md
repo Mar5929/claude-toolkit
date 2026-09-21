@@ -235,15 +235,15 @@ Run on branch `issue-269-project-sync` with this record present:
 
 | Check | Result |
 | --- | --- |
-| `node tests/link-check.mjs` | Pass. 483 relative links resolve across 283 Markdown files, 0 fail |
-| `node tests/orphan-check.mjs` | Pass. 247 shipped files reachable from 69 index documents, 0 fail |
+| `node tests/link-check.mjs` | Pass. 483 relative links resolve across 284 Markdown files, 0 fail |
+| `node tests/orphan-check.mjs` | Pass. 248 shipped files reachable from 69 index documents, 0 fail |
 | `node tests/installed-copy-check.mjs` | Pass. 27 checks, 0 fail |
 | `node tests/knowledge-startup-check.mjs` | Pass. 13 checks |
 | `node .claude/tools/check-knowledge.mjs` | Pass. 21 files checked |
 | `claude plugin validate .` | Validation passed |
 | `git diff --check` | No whitespace errors |
 
-The branch was at `main` commit `0cc5d54` plus its own two changed files.
+The branch was at `main` commit `8aa98c6`, which holds this record, plus its own two changed files.
 
 The new pull-request save check from #374 was seen working once in the lead
 chat: `gh pr create` was held until an action-specific review outcome was
