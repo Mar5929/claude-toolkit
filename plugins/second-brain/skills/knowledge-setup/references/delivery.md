@@ -117,20 +117,27 @@ and effective event delivery on the installed host. A configured event that
 never runs is an unresolved support gap, with the root/manual fallback still
 required.
 
-Assumption, not verified on a host: Codex may run matching handlers
-concurrently. Both action hooks therefore perform the same mixed-action
+Assumption from a rolling-document claim, not verified on the installed host:
+Codex runs multiple command hooks concurrently
+(`docs/designs/269-knowledge-system/host-capability-evidence.md`, line 76).
+Both action hooks therefore perform the same mixed-action
 precheck before either changes or consumes review state. A command that combines pull-request creation with a close or merge is
 denied by both handlers and must be split into separate actions.
 
 Known limits of the action checkpoint:
 
-- A permit earned through `cd /other/repo && gh pr create` survives a new prompt
-  until that repository's HEAD changes.
-- `gh pr close` and `gh api` are not recognized.
+- A pull-request-create permit earned through `cd /other/repo && gh pr create`
+  survives a new prompt until that repository's HEAD changes. A close or merge
+  permit is keyed on the project root and the action list, so a new commit does
+  not invalidate it.
+- Only Bash command segments beginning `gh pr create`, `gh issue close` or
+  `gh pr merge` are recognized, so `bash -c "..."`, a full path to gh,
+  `gh pr close`, `gh api` and non-Bash tool routes pass.
+- A command run outside a Git repository is always allowed.
+- The two older raw-PowerShell Codex handlers (UserPromptSubmit
+  `memory-reminder` and Stop `knowledge-completion`) do not run under cmd.exe,
+  so on that host no new prompt resets review state.
 - Enforcement is fail-open: an unexpected error allows the command.
-- A review-state lock older than the 10-second hook timeout is treated as
-  abandoned and cleared. Two callers clearing the same abandoned lock at the
-  same instant are not guarded against each other.
 - Nothing here is proven on native Windows.
 
 The prompt handler supplies the session/agent identity, the current review

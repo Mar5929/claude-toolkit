@@ -169,7 +169,7 @@ function actionReviewMessage(message, root, input, checkpoint) {
     return `${message}\n\nThis action belongs to an older turn. Do not mutate the current review state; retry from the current turn.`;
   }
   if (checkpoint.status === "busy") {
-    return `${message}\n\nThe review state is busy or an interrupted update needs inspection. This action remains held; inspect the current checkpoint before retrying. Lock file: ${checkpoint.lock}. A lock older than 10 seconds is treated as abandoned and cleared on the next attempt.`;
+    return `${message}\n\nThe review state is busy or an interrupted update needs inspection. This action remains held; inspect the current checkpoint before retrying. Lock file: ${checkpoint.lock}. If no other review is running, inspect and remove that file, then retry.`;
   }
   return [
     message,

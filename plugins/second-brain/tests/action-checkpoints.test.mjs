@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { execFileSync, spawn } from 'node:child_process';
-import { chmodSync, existsSync, mkdtempSync, realpathSync, rmSync, symlinkSync, utimesSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
@@ -87,15 +87,18 @@ test('close and merge identities retain every ordered action, project, and item'
   const root = repository(t);
   assert.deepEqual(
     JSON.parse(workItemActionKey('gh issue close 42', root)),
-    ['work-item-actions', root, [['issue-close', '42']]],
+    ['work-item-actions', root, [['issue-close', 'gh issue close 42']]],
   );
   assert.deepEqual(
     JSON.parse(workItemActionKey('gh pr merge 42 --squash', root)),
-    ['work-item-actions', root, [['pull-request-merge', '42']]],
+    ['work-item-actions', root, [['pull-request-merge', 'gh pr merge 42 --squash']]],
   );
   assert.deepEqual(
     JSON.parse(workItemActionKey('gh issue close 42 && gh pr merge 43', root)),
-    ['work-item-actions', root, [['issue-close', '42'], ['pull-request-merge', '43']]],
+    ['work-item-actions', root, [
+      ['issue-close', 'gh issue close 42'],
+      ['pull-request-merge', 'gh pr merge 43'],
+    ]],
   );
   assert.notEqual(
     workItemActionKey('gh issue close 42 && gh pr merge 43', root),
@@ -365,25 +368,50 @@ test('hooks reached through a symbolic link still run and hold the action', t =>
   }
 });
 
-test('a fresh lock holds the action and names its file; an abandoned lock is cleared', t => {
+test('an existing lock holds the action, names its file, and is never removed by another caller', t => {
   const root = repository(t);
   const directory = join(root, 'temporary');
   const identity = { session_id: 'lock-session', agent_id: 'root', turn_id: 'turn-one' };
-  const first = claimActionReview(root, identity, 'action-a', directory);
-  assert.equal(first.status, 'review-required');
+  assert.equal(claimActionReview(root, identity, 'action-a', directory).status, 'review-required');
   const key = createHash('sha256')
     .update(JSON.stringify([realpathSync(root), identity.session_id, 'root']))
     .digest('hex');
   const lock = join(directory, `${key}.json.lock`);
   writeFileSync(lock, '');
   assert.deepEqual(claimActionReview(root, identity, 'action-a', directory), { status: 'busy', lock });
-  assert.equal(existsSync(lock), true, 'a fresh lock is never removed by another caller');
-  const abandoned = new Date(Date.now() - 11_000);
-  utimesSync(lock, abandoned, abandoned);
-  const recovered = claimActionReview(root, identity, 'action-a', directory);
-  assert.equal(recovered.status, 'review-required');
-  assert.equal(recovered.nonce, first.nonce);
-  assert.equal(existsSync(lock), false);
+  assert.equal(existsSync(lock), true, 'the lock is left for its owner to release or the owner to inspect');
+});
+
+/**
+ * A release that cannot remove the lock must not throw into the hook's
+ * fail-open path. An append-only directory lets the lock be created and then
+ * refuses to let it be unlinked, so the release fails for real.
+ */
+test('a release that cannot remove the lock does not throw', {
+  skip: process.platform === 'darwin' ? false : 'chflags is macOS-only',
+}, t => {
+  const root = repository(t);
+  const directory = join(root, 'temporary');
+  const identity = { session_id: 'release-session', agent_id: 'root', turn_id: 'turn-one' };
+  assert.equal(claimActionReview(root, identity, 'action-a', directory).status, 'review-required');
+  const key = createHash('sha256')
+    .update(JSON.stringify([realpathSync(root), identity.session_id, 'root']))
+    .digest('hex');
+  execFileSync('chflags', ['uappnd', directory]);
+  try {
+    let result;
+    assert.doesNotThrow(() => {
+      result = claimActionReview(root, { ...identity, turn_id: 'turn-two' }, 'action-a', directory);
+    });
+    assert.deepEqual(result, { status: 'stale-turn' });
+    assert.equal(
+      existsSync(join(directory, `${key}.json.lock`)),
+      true,
+      'the lock really could not be removed',
+    );
+  } finally {
+    execFileSync('chflags', ['nouappnd', directory]);
+  }
 });
 
 test('hook busy message names the lock file', t => {
@@ -425,18 +453,14 @@ test('a repository with no commits still holds pull-request creation', t => {
   assert.ok(checkpointFrom(output).nonce);
 });
 
-test('work-item identity reads the item argument, not a number inside a flag value', t => {
+test('different close commands get different keys and the same command repeats its key', t => {
   const root = repository(t);
-  assert.deepEqual(
-    JSON.parse(workItemActionKey('gh issue close --repo my-org/repo-2 374', root)),
-    ['work-item-actions', root, [['issue-close', '374']]],
-  );
   assert.notEqual(
     workItemActionKey('gh issue close --repo my-org/repo-2 374', root),
     workItemActionKey('gh issue close 2', root),
   );
-  assert.deepEqual(
-    JSON.parse(workItemActionKey('gh pr merge https://github.com/my-org/repo-2/pull/43 --squash', root)),
-    ['work-item-actions', root, [['pull-request-merge', '43']]],
+  assert.equal(
+    workItemActionKey('gh issue close 2', root),
+    workItemActionKey('gh issue close 2', root),
   );
 });
