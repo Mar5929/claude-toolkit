@@ -305,7 +305,8 @@ The genuine watch-items are called out at the end.
   the toolkit on 2026-08-31.
 - **hooks-library versus the output style.** The `Plain English` style owns
   the writing guidance. `style-handshake` requests a fresh Read of the selected
-  style and one acknowledgment at the beginning of each user turn. It carries
+  style on each user message. The read is silent: it asks for no acknowledgment
+  and checks nothing about the reply. It carries
   no copy of the writing rules and judges no writing. The old Stop handshake
   could repeat an already visible answer and has been removed. The older
   `style-reminder` and `writing-guard` remain retired. Helper-agent writing

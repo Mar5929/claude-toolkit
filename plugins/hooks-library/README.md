@@ -35,32 +35,27 @@ a per-session file under the OS temp folder, which is how it fires only once.
 
 ### style-handshake
 
-A start-of-turn handshake for Claude Code. On every new user message,
-`UserPromptSubmit` asks Claude to open the selected output style with the
-`Read` tool, read the whole file, say "I read the output style and will follow
-it.", and then handle the request in the same turn. Short questions use the
-same sequence. That acknowledgment is an explicit exception to a style's
-no-preamble instruction.
+A per-message style read for Claude Code. On every new user message,
+`UserPromptSubmit` asks Claude to read the whole selected output style file with
+the `Read` tool before working on the request. The request gives the resolved
+path. It tells Claude to read the file silently and then follow it. Claude is
+told not to announce, mention, or acknowledge the read, and to begin its reply
+with the answer. Short questions and repeated identical messages get the same
+request. Child-agent prompts are skipped.
 
-`PostToolUse`, matched on `Read`, records a successful full-file read and
-reminds Claude to acknowledge it once. It checks the exact resolved path and
-the returned line range; a similarly named file or a partial preview does not
-count. Repeated reads do not repeat the reminder. A new user message resets
-the handshake, even when its text is identical. State is isolated by project
-and session in the OS temp folder. When prompt IDs are present, delayed reads
-from earlier prompts are ignored. Child-agent reads do not satisfy the main
-conversation's handshake. Records expire after 24 hours.
+**No acknowledgment.** The hook asks Claude to say nothing about the read. It
+gives Claude no sentence to say. Before 2026-09-21 (issue #375) it asked for a
+visible opening sentence, and a `PostToolUse` companion on `Read` reminded
+Claude to say it. That companion now does nothing.
 
-**This observes the read, not understanding or compliance.** The hook delivers
-a fresh instruction and records the tool result. Claude still has to follow
-the instruction and acknowledge it. Neither the marker nor the acknowledgment
-proves that the eventual answer follows every writing rule. Validate that
-behavior in real conversations.
+**This observes nothing and proves no compliance.** The hook delivers a fresh
+instruction on each message. It does not check that the Read happened, and it
+does not check the reply. Validate style behavior in real conversations.
 
 **No Stop check or confirm command.** The hook never restarts a finished answer,
-requires no permission to run a confirm command, and has no reply-length
-threshold or retry counter. It triggers once per user message, not at each
-internal thinking block or tool-result continuation.
+requires no permission to run a confirm command, and keeps no state. It runs
+once per user message, not at each internal thinking block or tool-result
+continuation.
 
 The selected style is resolved from `outputStyle` in project-local settings,
 project settings, then user settings; otherwise the toolkit's Plain English
@@ -68,20 +63,23 @@ is used. Files are sought in project and user `output-styles/` folders, by
 frontmatter name (or the hyphenated filename when no name is declared).
 `CLAUDE_CONFIG_DIR` is honored for user files. The project where the session
 started remains the source when Claude changes directory or enters a worktree.
-Built-in and plugin-only styles without a matching file, and runtime selections
-not reflected in these settings, are outside this file-based lookup. For those
-setups, select a file-backed style in settings before enabling this hook.
+Runtime selections not reflected in these settings are outside this lookup.
 
-A missing or unreadable selected file asks Claude to report the limitation
-briefly and continue without claiming a successful read. Unexpected errors
-fail open; optional tracking failures must not suppress the initial reminder.
-`STYLE_HANDSHAKE_STATE_DIR` overrides the temporary state folder for testing.
+**Built-in styles.** Claude Code delivers its own built-in styles (Default,
+Proactive, Concise, Explanatory, and Learning) itself. When the selected name
+matches one of them, ignoring case, and no style file has that name, the hook
+outputs nothing. The file lookup runs first, so a custom file named like a
+built-in style is still found and requested.
+
+A missing or unreadable custom style file, or settings that cannot be parsed,
+asks Claude to report the limitation briefly and continue without claiming a
+successful read. Unexpected errors fail open.
 
 #### Install or migrate
 
 Copy `hooks/style-handshake.mjs` to the project's `.claude/hooks/` folder.
-Register it once under `UserPromptSubmit` and once under `PostToolUse` with
-the `Read` matcher. Use this command entry in each event's `hooks` array:
+Register it once, under `UserPromptSubmit` only. Use this command entry in that
+event's `hooks` array:
 
 ```json
 {
@@ -92,11 +90,14 @@ the `Read` matcher. Use this command entry in each event's `hooks` array:
 }
 ```
 
-When migrating, remove only this script's old `Stop` entry and its exact
+When migrating, remove this script's old `PostToolUse` entry with the `Read`
+matcher. It is harmless if left, because it now does nothing. Also remove any
+old `Stop` entry for this script and its exact
 `Bash(node .claude/hooks/style-handshake.mjs confirm *)` permission. Keep all
 unrelated entries. Do not register the same script again when it already exists
-on the target event. Old confirm invocations are harmless no-ops. Start a fresh
-session and verify read, acknowledgment, and answer order in its transcript.
+on `UserPromptSubmit`. Old confirm invocations are harmless no-ops. Start a
+fresh session and check in its transcript that the reply starts with the answer
+and says nothing about the style read.
 
 This replaces the earlier Stop handshake, which continued the conversation
 after the answer was already visible and could cause duplicate replies.
@@ -249,8 +250,8 @@ and only one is visible. Blocking a good command is obvious; staying silent when
 it should have fired looks exactly like everything working.
 
 The style-handshake tests run the hook as a subprocess with event JSON and
-isolated temporary projects. They cover initial delivery, exact full-file reads,
-per-turn reset, session isolation, unavailable styles, settings precedence,
-expired state, Windows paths, and removal of the Stop and confirm wiring.
-Live Claude sessions separately verify the visible read and acknowledgment
-sequence; script tests cannot establish model compliance.
+isolated temporary projects. They cover delivery on every message, the absence
+of any acknowledgment text, a silent `PostToolUse`, built-in styles, missing
+custom styles, settings precedence, and removal of the `PostToolUse`, Stop, and
+confirm wiring. Live Claude sessions separately check that the reply starts with
+the answer; script tests cannot establish model compliance.
