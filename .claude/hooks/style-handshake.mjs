@@ -2,15 +2,14 @@
 /**
  * On each user message, ask the agent to read the selected output style file
  * silently before working. No acknowledgment is requested, and no other event
- * produces output. Delivery is observable; reading and compliance are not.
+ * produces output. With no style selected, or no file for that style, the hook
+ * says nothing. It reports only a found file it cannot read, or bad settings.
  */
 import { readFileSync, readdirSync, realpathSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, resolve } from 'node:path';
 
 const userDir = process.env.CLAUDE_CONFIG_DIR || join(homedir(), '.claude');
-// Claude Code delivers these itself: https://code.claude.com/docs/en/output-styles (2026-09-21).
-const BUILT_IN = ['default', 'proactive', 'concise', 'explanatory', 'learning'];
 
 function context(event, text) {
   process.stdout.write(JSON.stringify({
@@ -33,7 +32,7 @@ function selectedStyle(root) {
       return settings.outputStyle.trim();
     }
   }
-  return 'Plain English';
+  return null;
 }
 
 function stylePath(name, root) {
@@ -44,7 +43,9 @@ function stylePath(name, root) {
     catch (error) { if (error.code === 'ENOENT') continue; throw error; }
     for (const file of names) {
       const path = join(dir, file);
-      const text = readFileSync(path, 'utf8');
+      let text;
+      try { text = readFileSync(path, 'utf8'); }
+      catch (error) { if (file === `${slug}.md`) throw error; continue; }
       const header = text.match(/^---\r?\n([\s\S]*?)\r?\n---/);
       const displayName = header?.[1].match(/^name:\s*(.*?)\s*$/m)?.[1]
         .replace(/^(['"])(.*)\1$/, '$2');
@@ -63,15 +64,13 @@ function run(input) {
   let path;
   try {
     const name = selectedStyle(root);
-    path = stylePath(name, root);
-    if (!path && BUILT_IN.includes(name.toLowerCase())) return;
-    if (!path) throw new Error('No readable file for the selected output style');
+    path = name && stylePath(name, root);
   } catch {
     context(event, 'Style handshake: the selected output style file could not be located or read. '
       + 'Briefly report that limitation, do not claim you read it, and continue with the request.');
     return;
   }
-  context(event, 'Style handshake for this new user message: before working on the request, '
+  if (path) context(event, 'Style handshake for this new user message: before working on the request, '
     + `read the whole file ${JSON.stringify(path)} with the Read tool. Read it silently, then follow it. `
     + 'Do not announce, mention, or acknowledge the read. Begin your reply with the answer.');
 }

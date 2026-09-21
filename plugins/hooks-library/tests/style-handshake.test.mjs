@@ -75,15 +75,26 @@ try {
   check(run('not json') === '', 'malformed input fails open');
   check(run('null') === '', 'null input fails open');
 
-  // (c) Built-in styles are delivered by Claude Code, so the hook stays quiet.
+  // (c) No style file for the selected name, and no selection at all, are silent.
   put(join(root, '.claude/settings.json'), { outputStyle: 'Concise' });
-  check(prompt() === '', 'built-in Concise produces no output');
-  put(join(root, '.claude/settings.json'), { outputStyle: 'concise' });
-  check(prompt() === '', 'built-in names match without regard to case');
+  check(prompt() === '', 'a built-in name with no style file produces no output');
+  put(join(root, '.claude/settings.json'), { outputStyle: 'Bogus Style' });
+  check(prompt() === '', 'an unknown custom name with no style file produces no output');
+  put(join(root, '.claude/settings.json'), {});
+  check(prompt() === '', 'no selected style produces no output, even beside a style file');
+
+  // (d) A style file that is found but cannot be read is reported.
+  const brokenStyle = join(root, '.claude/output-styles/broken-style.md');
+  mkdirSync(brokenStyle, { recursive: true });
+  put(join(root, '.claude/settings.json'), { outputStyle: 'Broken Style' });
+  check(text(prompt()).includes('could not be located or read'), 'an unreadable style file gets an honest limitation');
+  const badEntry = join(root, '.claude/output-styles/notes.md');
+  mkdirSync(badEntry, { recursive: true });
   put(join(root, '.claude/settings.json'), { outputStyle: 'Plain English' });
-  put(join(root, '.claude/settings.local.json'), { outputStyle: 'Learning' });
-  check(prompt() === '', 'local built-in Learning overrides a file-backed project style');
-  rmSync(join(root, '.claude/settings.local.json'));
+  silentRequest(prompt(), 'plain-english.md', 'a bad folder entry does not hide a valid style');
+  rmSync(brokenStyle, { recursive: true });
+  rmSync(badEntry, { recursive: true });
+
   const customConcise = join(root, '.claude/output-styles/my-concise.md');
   put(customConcise, '---\nname: Concise\n---\nCustom concise.');
   put(join(root, '.claude/settings.json'), { outputStyle: 'Concise' });
@@ -92,11 +103,14 @@ try {
 
   const alias = join(root, '.claude/output-styles/unrelated-filename.md');
   put(alias, '---\nname: "Custom Style"\n---\nBe brief.');
-  put(join(root, '.claude/settings.local.json'), { outputStyle: 'Custom Style' });
-  silentRequest(prompt(), 'unrelated-filename.md', 'local selection and frontmatter name beat filename assumptions');
+  const other = join(root, '.claude/output-styles/other-style.md');
+  put(other, '---\nname: "Other Style"\n---\nBe direct.');
+  put(join(root, '.claude/settings.json'), { outputStyle: 'Custom Style' });
+  put(join(root, '.claude/settings.local.json'), { outputStyle: 'Other Style' });
+  silentRequest(prompt(), 'other-style.md', 'local settings win over project settings');
   rmSync(join(root, '.claude/settings.local.json'));
-  put(join(root, '.claude/settings.json'), { outputStyle: 'Missing Style' });
-  check(text(prompt()).includes('do not claim you read it'), 'missing custom style gets an honest limitation');
+  silentRequest(prompt(), 'unrelated-filename.md', 'the frontmatter name beats filename assumptions');
+  rmSync(other);
   put(join(root, '.claude/settings.json'), '{');
   check(text(prompt()).includes('could not be located or read'), 'invalid settings do not silently choose another style');
   put(join(root, '.claude/settings.json'), {});

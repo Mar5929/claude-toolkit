@@ -38,42 +38,41 @@ a per-session file under the OS temp folder, which is how it fires only once.
 A per-message style read for Claude Code. On every new user message,
 `UserPromptSubmit` asks Claude to read the whole selected output style file with
 the `Read` tool before working on the request. The request gives the resolved
-path. It tells Claude to read the file silently and then follow it. Claude is
-told not to announce, mention, or acknowledge the read, and to begin its reply
-with the answer. Short questions and repeated identical messages get the same
-request. Child-agent prompts are skipped.
+path, tells Claude to read the file silently and follow it, and tells Claude not
+to announce, mention, or acknowledge the read but to begin its reply with the
+answer. Short questions and repeated identical messages get the same request.
+Child-agent prompts are skipped.
 
-**No acknowledgment.** The hook asks Claude to say nothing about the read. It
-gives Claude no sentence to say. Before 2026-09-21 (issue #375) it asked for a
-visible opening sentence, and a `PostToolUse` companion on `Read` reminded
-Claude to say it. That companion now does nothing.
+**No acknowledgment.** The hook gives Claude no sentence to say about the read.
+Before 2026-09-21 (issue #375) it asked for a visible opening sentence, and a
+`PostToolUse` companion on `Read` reminded Claude to say it; that companion now
+does nothing.
 
-**This observes nothing and proves no compliance.** The hook delivers a fresh
-instruction on each message. It does not check that the Read happened, and it
-does not check the reply. Validate style behavior in real conversations.
-
-**No Stop check or confirm command.** The hook never restarts a finished answer,
-requires no permission to run a confirm command, and keeps no state. It runs
+**This observes nothing and proves no compliance.** The hook keeps no state,
+does not check that the Read happened, does not check the reply, never restarts
+a finished answer, and needs no permission to run a confirm command. It runs
 once per user message, not at each internal thinking block or tool-result
-continuation.
+continuation. Validate style behavior in real conversations.
 
 The selected style is resolved from `outputStyle` in project-local settings,
-project settings, then user settings; otherwise the toolkit's Plain English
-is used. Files are sought in project and user `output-styles/` folders, by
-frontmatter name (or the hyphenated filename when no name is declared).
-`CLAUDE_CONFIG_DIR` is honored for user files. The project where the session
-started remains the source when Claude changes directory or enters a worktree.
-Runtime selections not reflected in these settings are outside this lookup.
+project settings, then user settings. Files are sought in project and user
+`output-styles/` folders, by frontmatter name (or the hyphenated filename when
+no name is declared). `CLAUDE_CONFIG_DIR` is honored for user files. The project
+where the session started remains the source when Claude changes directory or
+enters a worktree. Runtime selections not reflected in these settings are
+outside this lookup.
 
-**Built-in styles.** Claude Code delivers its own built-in styles (Default,
-Proactive, Concise, Explanatory, and Learning) itself. When the selected name
-matches one of them, ignoring case, and no style file has that name, the hook
-outputs nothing. The file lookup runs first, so a custom file named like a
-built-in style is still found and requested.
+**No style file means no output.** When no settings file selects a style, or no
+file in those two folders matches the selected name, the hook says nothing. That
+covers Claude Code's built-in styles, plugin-provided styles, managed-policy
+styles, styles in a nested project `.claude/output-styles/` folder, and a
+mistyped custom style name. To get a read request, select a file-backed style in
+the project or user `output-styles/` folder.
 
-A missing or unreadable custom style file, or settings that cannot be parsed,
-asks Claude to report the limitation briefly and continue without claiming a
-successful read. Unexpected errors fail open.
+A style file that is found but cannot be read, or a settings file that cannot be
+parsed, asks Claude to report the limitation briefly and continue without
+claiming a successful read. Hook input that cannot be read produces no output
+and never blocks the prompt.
 
 #### Install or migrate
 
@@ -251,7 +250,7 @@ it should have fired looks exactly like everything working.
 
 The style-handshake tests run the hook as a subprocess with event JSON and
 isolated temporary projects. They cover delivery on every message, the absence
-of any acknowledgment text, a silent `PostToolUse`, built-in styles, missing
-custom styles, settings precedence, and removal of the `PostToolUse`, Stop, and
-confirm wiring. Live Claude sessions separately check that the reply starts with
+of any acknowledgment text, a silent `PostToolUse`, silence when no style file
+is found, an unreadable style file, settings precedence, and removal of the
+`PostToolUse`, Stop, and confirm wiring. Live Claude sessions separately check that the reply starts with
 the answer; script tests cannot establish model compliance.
