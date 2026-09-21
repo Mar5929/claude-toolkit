@@ -97,17 +97,18 @@ matcher on Claude. In Codex, place both command handlers in one PreToolUse group
 with the exact matcher `^Bash$`. The POSIX commands are
 `node "$(git rev-parse --show-toplevel)/.claude/hooks/save-reminder.mjs"` and
 `node "$(git rev-parse --show-toplevel)/.claude/hooks/work-item-close.mjs"`.
-The Windows commands first assign `git rev-parse --show-toplevel` to a local
-`$knowledgeRoot`, exit when Git fails, use `Set-Location -LiteralPath
-$knowledgeRoot`, and invoke the corresponding relative `.claude/hooks/` path.
+The Windows commands explicitly launch `powershell.exe -NoProfile -Command`,
+assign `git rev-parse --show-toplevel` to a local `$knowledgeRoot`, exit when Git
+fails, use `Set-Location -LiteralPath $knowledgeRoot`, and invoke the
+corresponding relative `.claude/hooks/` path.
 Merge this group into the existing configuration and preserve every unrelated
 event, group and handler.
 
 For a Git-backed Codex project, the POSIX command can locate the script with
 `node "$(git rev-parse --show-toplevel)/.claude/hooks/<file>.mjs"`. For Windows,
-use the host's commandWindows field with a PowerShell local root variable,
-check git's exit code, use Set-Location -LiteralPath, then invoke Node with the
-relative script path. Non-Git projects need their verified project-root route;
+use the host's commandWindows field to launch PowerShell explicitly, set a local
+root variable, check git's exit code, use Set-Location -LiteralPath, then invoke
+Node with the relative script path. Non-Git projects need their verified project-root route;
 never assume Git is available merely because a template used it. Review the
 exact project-layer hook definitions in Codex `/hooks` and use the host's normal
 trust flow. Never grant trust, change authentication, or use a bypass as part of

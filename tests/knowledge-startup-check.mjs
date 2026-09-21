@@ -90,7 +90,7 @@ check('action guards are registered once on both hosts with stable Codex roots',
    if(p==='.codex/hooks.json'){
     assert.equal(matches[0].matcher,'^Bash$');
     assert.equal(matches[0].command,`node "$(git rev-parse --show-toplevel)/.claude/hooks/${file}"`);
-    assert.equal(matches[0].commandWindows,`$knowledgeRoot = git rev-parse --show-toplevel; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; Set-Location -LiteralPath $knowledgeRoot; node '.claude/hooks/${file}'`);
+    assert.equal(matches[0].commandWindows,`powershell.exe -NoProfile -Command "$knowledgeRoot = git rev-parse --show-toplevel; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; Set-Location -LiteralPath $knowledgeRoot; node '.claude/hooks/${file}'"`);
    }
   }
   if(p==='.codex/hooks.json')assert.equal(groups.filter(g=>g.hooks.some(h=>files.some(file=>h.command.includes(file)))).length,1);
