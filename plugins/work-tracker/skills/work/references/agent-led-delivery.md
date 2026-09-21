@@ -31,9 +31,33 @@ The choice belongs to the named goal. Do not inherit it to an unrelated goal,
 new work item, or unrelated child item. Session end does not expire it, and
 missing tracker access does not mean the owner is undecided.
 
+## Ask how the team is arranged
+
+After a clear acceptance, read the goal record for a saved team arrangement.
+When none is recorded, ask one more question, in substance:
+
+> Do you want one team inside this chat, or do you want me to rename this chat to Main Orchestrator and coordinate other chats that each have their own team?
+
+Offer the multi-chat choice only where the current host lets this chat list,
+read, and message other chats and offer new chats to the owner as task buttons.
+Today that is the Claude Code desktop app. On any other host, do not ask. Tell
+the owner the multi-chat arrangement is unavailable on this host and use one
+team inside this chat. Record that the owner was not asked, so a session on a
+host that supports the choice can ask once.
+
+Do not ask after a decline or a revocation, and do not ask again once the
+owner's answer is recorded for the goal. The owner may change the arrangement
+at any time; record the new answer.
+
+[Team arrangements](team-arrangements.md) explains what each answer means. Read
+it before organizing the team, and when resuming a goal that has a recorded
+arrangement. Helper authority for either arrangement is stated under "Divide
+responsibility" below.
+
 ## Record the choice durably
 
-Save accepted, declined, or revoked in the existing canonical item:
+Save accepted, declined, or revoked, and the team arrangement once chosen, in
+the existing canonical item:
 
 - Local tracker: save Overview `Context and notes` in `WORK-ITEM.md` with
   `work edit` and its current hash. Existing legacy items retain the preserved
@@ -46,7 +70,9 @@ goal warrants a record. Do not create a tracker or work item solely to record a
 refusal. If there is no durable authorized home, state that limitation and
 preserve the choice and its scope in the handoff until it can be saved.
 
-Record the goal scope, accepted, declined, or revoked state, the source/person and date,
+Record the goal scope, accepted, declined, or revoked state, the team
+arrangement when one was chosen or that the owner was not asked and why, the
+source/person and date,
 the current authority limits, a reference to the main session or agent leading
 delivery, and references to the next actions. A lead reference coordinates
 ownership; it is not an atomic lock or proof that an agent is still running.

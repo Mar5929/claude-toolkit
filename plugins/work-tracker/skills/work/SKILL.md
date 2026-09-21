@@ -52,7 +52,10 @@ unarchive that terminal item only while no other item is active.
 When starting or resuming a substantial feature or work item, follow
 [agent-led delivery](references/agent-led-delivery.md). It owns the offer,
 durable choice, authority boundary, and recovery behavior. Simple questions and
-quick edits do not receive the offer.
+quick edits do not receive the offer. After the owner accepts, that method also
+asks how the team is arranged and saves the answer with the delivery choice.
+[Team arrangements](references/team-arrangements.md) explains what each answer
+means.
 
 The remaining CLI and file instructions apply when the local tracker is
 configured. With an external tracker, apply the same recordkeeping principles

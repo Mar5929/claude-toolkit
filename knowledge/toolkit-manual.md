@@ -181,7 +181,12 @@ requiring a second tracker or restarting an existing plan.
 For substantial new work, the [work plugin](../plugins/work-tracker/README.md)
 offers agents responsibility for delivery with the human as product owner.
 The accepted, declined, or revoked choice stays with that goal in the existing tracker
-and is read in future sessions. Agents manage the agreed work and records;
+and is read in future sessions. After acceptance, the agent asks whether the
+owner wants one team inside this chat or a Main Orchestrator chat that
+coordinates other chats, each with its own team, where the host supports that.
+That answer stays with the goal's delivery choice. The
+[team arrangements](../plugins/work-tracker/skills/work/references/team-arrangements.md)
+sheet explains each answer. Agents manage the agreed work and records;
 the owner makes product decisions and approves results. Existing build,
 publication, and helper permissions still apply. This method works with an
 external tracker without creating local tracking files. The copied work-item

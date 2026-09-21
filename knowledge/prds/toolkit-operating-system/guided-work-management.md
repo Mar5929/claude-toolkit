@@ -7,7 +7,7 @@ source: Mike's guided-work-management and opt-in clarification on 2026-09-15; ro
 created_at: 2026-09-15
 tags: [delivery, planning, requirements, continuity]
 work_item: "337"
-updated_at: 2026-09-20
+updated_at: 2026-09-21
 ---
 
 # Guided work management
@@ -73,6 +73,19 @@ retain and recover that choice, so the owner does not have to delegate the same
 responsibility again. The choice does not change existing permission or
 approval boundaries.
 
+After the owner accepts, the agent asks one follow-up question, in substance:
+do you want one team inside this chat, or should this chat be renamed Main
+Orchestrator and coordinate other chats that each have their own team? The
+answer is recorded with that goal's delivery choice, so later sessions read it
+and do not ask again. The multi-chat answer is offered only where the host lets
+a chat list, read, and message other chats and offer new chats as task buttons.
+Where the host does not, the agent says that arrangement is unavailable and
+uses one team in the current chat. A short instruction sheet ships with the
+work skill and explains what each answer means, so a fresh agent can follow it.
+Model wording stays generic: the most capable available model leads and guides,
+and the project's helper model carries out the work. A project rule or the
+owner's recorded preference names the actual models.
+
 Simple questions and quick edits stay lightweight: they do not prompt an offer
 of guided management solely because the owner made a request.
 
@@ -93,6 +106,11 @@ Decline the offer for a larger goal, then continue that goal in this and another
 session: normal assistance continues without another offer. Substantially expand
 the work: the agent may offer again. Explicitly request management later: the
 agent begins providing it without asking for the same permission again.
+Accept the offer: the agent asks the team-arrangement question once, records
+the answer with that goal's delivery choice, and does not ask it again when the
+goal resumes in a fresh session. Repeat on a host that cannot list, read, and
+message other chats: the agent says the multi-chat arrangement is unavailable
+and uses one team in the current chat.
 
 #### 2. Maintain the accepted plan without repeated upkeep approvals
 
@@ -367,6 +385,12 @@ to build a particular solution.
   Recommendation, not approved: let the lead choose within approved scope,
   bringing product choices, significant cost tradeoffs, and existing approval
   boundaries to Mike.
+- Still open, answer from Mike: does the owner choosing a team arrangement
+  count as authorization to use helpers for that goal? Recommendation recorded
+  in [#377](https://github.com/Mar5929/claude-toolkit/issues/377), not a
+  decision: choosing an arrangement counts as authorization to use bounded
+  helpers for that goal, within every other existing limit. Nothing here takes
+  a side; the current permission boundary stands until Mike answers.
 - Resume here: resolve the future helper-authority question when Mike answers;
   retain the existing permission boundary meanwhile. Follow issue #337 for
   rollout and remaining behavior checks. Preserve settled offer timing,
@@ -386,3 +410,15 @@ to build a particular solution.
   said `_Not agreed yet._`. Installed Claude behavior, an actual process-kill
   recovery, live external mutation and recovery, broader rollout, and owner
   acceptance remain open on issue #337.
+
+- Team arrangement question, 2026-09-21: source is Mike's brain dump and his
+  confirmed playback on 2026-09-21, tracked in
+  [#377](https://github.com/Mar5929/claude-toolkit/issues/377). R1 now carries
+  proposed text for the follow-up question asked after acceptance, the record
+  of the answer with that goal's delivery choice, the host condition and the
+  single-chat fallback, the instruction sheet shipped with the work skill, and
+  generic model wording. Mike directed the generic model wording on 2026-09-21
+  and restated that the toolkit stays a harness of instructions, checkpoints,
+  and handshakes, with nothing new built: no code, state, hook, or detection
+  logic. This is proposed text and scoped instruction delivery, not PRD
+  approval. No fresh session has yet been observed asking the question.
