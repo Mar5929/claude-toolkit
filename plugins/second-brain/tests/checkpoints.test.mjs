@@ -3,7 +3,13 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { beginReview, recordReview, completion } from '../hooks/knowledge-completion.mjs';
+import {
+  beginReview,
+  claimActionReview,
+  completion,
+  recordActionReview,
+  recordReview,
+} from '../hooks/knowledge-completion.mjs';
 import { buildReminder } from '../hooks/memory-reminder.mjs';
 // Native event IDs are from docs/designs/269-knowledge-system/research/2026-09-20-native-hook-correlation.md.
 const observedCodexTurns = {
@@ -72,6 +78,78 @@ test('late prior-turn and different-agent receipts cannot complete the current r
   assert.throws(()=>recordReview(root,helper,current.generation,'saved',directory),/Stale/);
   assert.equal(completion(root,identity,directory).decision,'block');
   assert.deepEqual(completion(root,{...helper,hook_event_name:'SubagentStop'},directory),{});
+});
+test('action review needs its own nonce and permits exactly one matching retry', t => {
+  const {root,directory,identity}=fixture(t);
+  const {generation}=beginReview(root,identity,directory);
+  recordReview(root,identity,generation,'no-change',directory);
+  const first=claimActionReview(root,identity,'pull-request:one',directory);
+  assert.equal(first.status,'review-required');
+  const repeated=claimActionReview(root,identity,'pull-request:one',directory);
+  assert.equal(repeated.nonce,first.nonce);
+  assert.throws(
+    ()=>recordActionReview(root,identity,generation,'wrong-nonce','saved',directory),
+    /different action/,
+  );
+  assert.equal(
+    recordActionReview(root,identity,generation,first.nonce,'saved',directory).outcome,
+    'saved',
+  );
+  const allowed=claimActionReview(root,identity,'pull-request:one',directory);
+  assert.equal(allowed.status,'allow');
+  const later=claimActionReview(root,identity,'pull-request:one',directory);
+  assert.equal(later.status,'review-required');
+  assert.notEqual(later.nonce,first.nonce);
+  assert.deepEqual(completion(root,identity,directory),{});
+});
+test('action outcome stays separate from the general turn outcome', t => {
+  const {root,directory,identity}=fixture(t);
+  const {generation}=beginReview(root,identity,directory);
+  const pending=claimActionReview(root,identity,'issue-close:one',directory);
+  recordActionReview(root,identity,generation,pending.nonce,'no-change',directory);
+  assert.equal(claimActionReview(root,identity,'issue-close:one',directory).status,'allow');
+  assert.equal(completion(root,identity,directory).decision,'block');
+});
+test('different actions and new prompts invalidate an unconsumed action receipt', t => {
+  const {root,directory,identity}=fixture(t);
+  const firstReview=beginReview(root,identity,directory);
+  const first=claimActionReview(root,identity,'issue-close:one',directory);
+  const second=claimActionReview(root,identity,'pull-request-merge:one',directory);
+  assert.equal(second.status,'review-required');
+  assert.notEqual(second.nonce,first.nonce);
+  assert.throws(
+    ()=>recordActionReview(root,identity,firstReview.generation,first.nonce,'saved',directory),
+    /different action/,
+  );
+  const nextReview=beginReview(root,identity,directory);
+  assert.notEqual(nextReview.generation,firstReview.generation);
+  assert.throws(
+    ()=>recordActionReview(root,identity,firstReview.generation,second.nonce,'saved',directory),
+    /different-session/,
+  );
+});
+test('stale action turns cannot mutate the current action checkpoint', t => {
+  const {root,directory}=fixture(t);
+  const current={session_id:'action-session',agent_id:'root',turn_id:'turn-current'};
+  const stale={...current,turn_id:'turn-stale'};
+  const {generation}=beginReview(root,current,directory);
+  const pending=claimActionReview(root,current,'pull-request:one',directory);
+  assert.equal(claimActionReview(root,stale,'pull-request:one',directory).status,'stale-turn');
+  recordActionReview(root,current,generation,pending.nonce,'saved',directory);
+  assert.equal(claimActionReview(root,current,'pull-request:one',directory).status,'allow');
+});
+test('action checkpoints are isolated by project, session, and agent', t => {
+  const first=fixture(t);
+  const second=fixture(t);
+  const firstPending=claimActionReview(first.root,first.identity,'issue-close:one',first.directory);
+  const secondPending=claimActionReview(second.root,first.identity,'issue-close:one',second.directory);
+  assert.notEqual(firstPending.nonce,secondPending.nonce);
+  const otherSession={...first.identity,session_id:'session-b'};
+  const sessionPending=claimActionReview(first.root,otherSession,'issue-close:one',first.directory);
+  assert.notEqual(firstPending.nonce,sessionPending.nonce);
+  const otherAgent={...first.identity,agent_id:'worker'};
+  const agentPending=claimActionReview(first.root,otherAgent,'issue-close:one',first.directory);
+  assert.notEqual(firstPending.nonce,agentPending.nonce);
 });
 test('missing identity has no shared unknown-session state', t => {
   const {root,directory}=fixture(t);assert.throws(()=>beginReview(root,{},directory),/identity/);

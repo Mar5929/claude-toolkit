@@ -1,8 +1,8 @@
 # Knowledge System implementation plan
 
 Updated: 2026-09-21. Execution plan for issue #269. Reviewed packages in PRs
-#370, #372, #371 and #373 are merged. PR #374 delivery and authorized target
-sync remain pending; design, product decisions and acceptance work stay open.
+#370, #372, #371, #373 and #374 are merged. Authorized target sync remains
+pending; design, product decisions and acceptance work stay open.
 This document does not supply missing approvals.
 
 ## Claude team continuation, 2026-09-21
@@ -72,7 +72,10 @@ as product owner. Report to him in plain user-facing language without pull
 request or issue numbers, and bring him product decisions only.
 
 Arrangement: separate local Claude Code desktop chats in this project, one per
-responsibility. Each chat has its own lead with Opus helper agents. The main
+responsibility. Each chat has its own lead with Opus helper agents. Mike
+confirmed on 2026-09-21 that each chat lead also runs on Fable: the lead plans,
+briefs, judges and verifies, and hands the token-heavy reading, building,
+drafting and check runs to its Opus helpers. The main
 orchestrator chat reads, messages and checks them, and alone updates the
 tracker, shared files and merges.
 
@@ -150,7 +153,7 @@ Verified remote implementation history before this handoff:
 | #371 | Merged `283258a730ec90c51f63a646a496c32430661d9a` | OS setup contracts and read-only Guide drift regression; project-init 0.77.1. |
 | #373 | Merged `b20135314e37e3974e2390e638de0eb4f14915f5` | Native Stop turn correlation; second-brain 4.12.2. |
 | #367 | Closed, superseded by #372 | Historical head `59145272872af43d848ff5df205e9154bf94da77` retained. Do not merge it. |
-| #374 | Open draft, head `0d082a681293fa6dc5e4087bb63fda91e2925eba` | Action checkpoint/delivery package; final review and merge pending. |
+| #374 | Merged `c1fd21f` on 2026-09-21 from reviewed head `1612ac0` | Action checkpoint/delivery package; second-brain 4.12.3, project-init 0.77.2, marketplace 0.124.4. Three independent review rounds and a delta check are in `reviews/2026-09-21-independent-pull-request-reviews.md`. Mike chose to replace its one-use permit with a simple hold next, tracked in #379. |
 
 Primary checkout: `/Users/michaelrihm/Documents/Projects/claude-toolkit`, branch
 `main`, remote `https://github.com/Mar5929/claude-toolkit`. Before this documentation

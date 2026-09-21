@@ -74,7 +74,8 @@ Canonical hooks copied into `.claude/hooks/`:
   generation, explicit outcome and at most one corrective Stop continuation.
 - `hooks/save-reminder.mjs`, `hooks/work-item-close.mjs`,
   `hooks/command-parsing.mjs`: reminders on recognized PR/close commands. A
-  one-time hold is not proof of a completed review or universal tool coverage.
+  matching action needs its own declared review outcome; one exact retry consumes
+  that receipt. The receipt is not proof of judgment or universal tool coverage.
 
 Tools copied into `.claude/tools/`:
 
@@ -102,6 +103,8 @@ parallel helpers are unavailable.
 
 `tests/save-recovery.test.mjs` exercises real disposable local Git repositories;
 `tests/checkpoints.test.mjs` covers bounded continuation and stale/helper receipts.
+`tests/action-checkpoints.test.mjs` covers action identities, one-use receipts,
+concurrent retries, compound close/merge commands and hook entry points.
 `tests/new-install.test.mjs` assembles an empty project and runs the copied
 startup, prompt, completion and review commands from a nested working directory.
 These deterministic checks do not replace fresh-agent meaning/host tests.

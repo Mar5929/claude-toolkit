@@ -79,6 +79,23 @@ check('prompt and completion registered once on both hosts with supported recove
   }
  }
 });
+check('action guards are registered once on both hosts with stable Codex roots',()=>{
+ const files=['save-reminder.mjs','work-item-close.mjs'];
+ for(const p of ['.claude/settings.json','.codex/hooks.json']){
+  const c=JSON.parse(read(p));
+  const groups=c.hooks.PreToolUse || [];
+  for(const file of files){
+   const matches=groups.flatMap(g=>g.hooks.map(h=>({...h,matcher:g.matcher}))).filter(h=>h.command.includes(file));
+   assert.equal(matches.length,1,`${p} PreToolUse ${file}`);assert.equal(matches[0].type,'command');assert.equal(matches[0].timeout,10);
+   if(p==='.codex/hooks.json'){
+    assert.equal(matches[0].matcher,'^Bash$');
+    assert.equal(matches[0].command,`node "$(git rev-parse --show-toplevel)/.claude/hooks/${file}"`);
+    assert.equal(matches[0].commandWindows,`powershell.exe -NoProfile -Command "$knowledgeRoot = git rev-parse --show-toplevel; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; node (Join-Path $knowledgeRoot '.claude/hooks/${file}')"`);
+   }
+  }
+  if(p==='.codex/hooks.json')assert.equal(groups.filter(g=>g.hooks.some(h=>files.some(file=>h.command.includes(file)))).length,1);
+ }
+});
 check('root route and Toolkit route point to the current manual/map',()=>{
  const c=read('CLAUDE.md');for(const path of order.slice(0,4))assert.ok(c.includes(path),path);
  assert.ok(c.includes('memory-inbox.md'));assert.ok(c.includes('completely'));

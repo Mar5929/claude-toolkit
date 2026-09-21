@@ -9,6 +9,7 @@ import { resolveManual } from './knowledge-manual.mjs';
 
 export const OUTCOMES = ['no-change', 'pending-approval', 'save-unfinished', 'saved'];
 const UNCORRELATED_STOP = 'Turn correlation is unavailable for this event; compatibility mode cannot isolate a late Stop.';
+const ACTION_REQUIRED = 'review-required';
 function turnId(value) {
   if (typeof value !== 'string') return null;
   const normalized = value.trim();
@@ -24,7 +25,9 @@ function locked(root, identity, directory, operation) {
   const path = statePath(root, identity, directory), lock = `${path}.lock`;
   let handle;
   try { handle = openSync(lock, 'wx', 0o600); }
-  catch { throw new Error('Review state is busy or an interrupted update needs inspection; do not assume completion.'); }
+  catch {
+    throw Object.assign(new Error(`Review state is busy or an interrupted update needs inspection; do not assume completion. Lock file: ${lock}`), { lock });
+  }
   try {
     let state = null;
     try { state = JSON.parse(readFileSync(path, 'utf8')); }
@@ -36,7 +39,7 @@ function locked(root, identity, directory, operation) {
       finally { try { unlinkSync(temporary); } catch {} }
     }
     return result;
-  } finally { closeSync(handle); unlinkSync(lock); }
+  } finally { closeSync(handle); try { unlinkSync(lock); } catch {} }
 }
 export function beginReview(root, identity, directory) {
   return locked(root, identity, directory, () => {
@@ -50,6 +53,59 @@ export function recordReview(root, identity, generation, outcome, directory) {
   return locked(root, identity, directory, state => {
     if (!state || state.generation !== generation) throw new Error('Stale or different-session review; inspect the current turn before recording it.');
     return { next: { ...state, outcome }, result: { generation, outcome } };
+  });
+}
+export function claimActionReview(root, identity, key, directory) {
+  if (typeof key !== 'string' || !key) throw new Error('Missing action identity; action checkpoint unavailable.');
+  try {
+    return locked(root, identity, directory, state => {
+      const incomingTurn = turnId(identity.turn_id);
+      const storedTurn = turnId(state?.turn_id);
+      if (storedTurn && incomingTurn && storedTurn !== incomingTurn) {
+        return { result: { status: 'stale-turn' } };
+      }
+      const current = state || {
+        generation: randomUUID(),
+        outcome: null,
+        continued: false,
+        ...(incomingTurn ? { turn_id: incomingTurn } : {}),
+      };
+      if (current.pendingAction?.key === key) {
+        if (current.pendingAction.outcome) {
+          const { pendingAction, ...next } = current;
+          return { next, result: {
+            status: 'allow',
+            generation: current.generation,
+            outcome: pendingAction.outcome,
+          } };
+        }
+        return { result: {
+          status: ACTION_REQUIRED,
+          generation: current.generation,
+          nonce: current.pendingAction.nonce,
+        } };
+      }
+      const pendingAction = { nonce: randomUUID(), key, outcome: null };
+      return { next: { ...current, pendingAction }, result: {
+        status: ACTION_REQUIRED,
+        generation: current.generation,
+        nonce: pendingAction.nonce,
+      } };
+    });
+  } catch (error) {
+    if (/Review state is busy/.test(error.message)) return { status: 'busy', lock: error.lock };
+    throw error;
+  }
+}
+export function recordActionReview(root, identity, generation, nonce, outcome, directory) {
+  if (!OUTCOMES.includes(outcome)) throw new Error('Unknown review outcome.');
+  return locked(root, identity, directory, state => {
+    if (!state || state.generation !== generation) throw new Error('Stale or different-session action review; inspect the current turn before recording it.');
+    if (!state.pendingAction || state.pendingAction.nonce !== nonce || state.pendingAction.outcome) {
+      throw new Error('Stale or different action review; inspect the current action before recording it.');
+    }
+    const pendingAction = { ...state.pendingAction, outcome };
+    return { next: { ...state, pendingAction }, result: { generation, nonce, outcome } };
   });
 }
 export function completion(root, input, directory) {
@@ -73,8 +129,11 @@ function canonical(path) { try { return realpathSync(path); } catch { return res
 if (process.argv[1] && canonical(process.argv[1]) === canonical(fileURLToPath(import.meta.url))) {
   try {
     if (process.argv[2] === 'review') {
-      const [root, session_id, agent_id, generation, outcome] = process.argv.slice(3);
-      console.log(JSON.stringify(recordReview(root, { session_id, agent_id }, generation, outcome)));
+      const [root, session_id, agent_id, generation, outcome, actionNonce] = process.argv.slice(3);
+      const result = actionNonce
+        ? recordActionReview(root, { session_id, agent_id }, generation, actionNonce, outcome)
+        : recordReview(root, { session_id, agent_id }, generation, outcome);
+      console.log(JSON.stringify(result));
     } else {
       const input = JSON.parse(readFileSync(0, 'utf8') || '{}');
       const installedRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..');

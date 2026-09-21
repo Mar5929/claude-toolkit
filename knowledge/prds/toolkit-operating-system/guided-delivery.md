@@ -9,7 +9,7 @@ tags: [delivery, requirements, design, collaboration]
 approved_by: Mike Rihm
 approval_date: 2026-09-08
 work_item: "300"
-updated_at: 2026-09-20
+updated_at: 2026-09-21
 ---
 
 # Guided delivery
@@ -94,10 +94,12 @@ A design starts only when the requirements are ready. Before any design, the
 main conversation and a product analyst helper each read the requirements as
 one whole inside the larger system, walk the end-to-end experience of the
 person who uses the result, and report what is missing, what is not explicit
-end to end, and where a builder could misread the wording. Each states its
-confidence as a percentage; below 95 means not ready. Gaps are fixed in the
-requirements, not patched inside the design. A requirement that does not fit
-the end-to-end experience is flagged in the first reply. The owner rules on
+end to end, and where a builder could misread the wording. Each then says
+plainly whether it is ready to design and lists whatever is still unclear.
+There is no score. Anything still unclear is settled before the design starts.
+Gaps are fixed in the requirements, not patched inside the design. A
+requirement that does not fit the end-to-end experience is flagged in the first
+reply. The owner rules on
 every flag and can overrule one; the ruling is recorded.
 
 The owner then agrees, one question at a time: whether to interview first or
@@ -192,6 +194,19 @@ must still reach the machine and project before a fresh session can use it.
 
 ## Notes
 
+- On 2026-09-21, Mike replaced the "95 percent confident" number in Solution
+  design. The main conversation and the product analyst now say plainly whether
+  they are ready and list whatever is still unclear, with no score. Approved by
+  Mike Rihm on 2026-09-21, source: Main Orchestrator conversation, decision
+  D13. Not built yet, and the build is not yet tracked in a work item. This
+  approves that one change. It does not reopen or re-approve the document.
+- Owed, decision D19, agreed with Mike on 2026-09-21: text was added to this
+  document on three dates after his 2026-09-08 approval, and its
+  `approval_date` still reads 2026-09-08. The main agent brings him those three
+  additions in plain language so he can re-approve the document as it reads
+  today. The approval date does not change until he does. Identifying the exact
+  three additions from the Git history is part of that task and has not been
+  done yet.
 - Decisions: Mike approved document-owned refinement Notes on 2026-09-18.
   PRD/design detail stays with its document; other work stays in the work item.
   Mike also approved explicit capture routing, question ownership, answer

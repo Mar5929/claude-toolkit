@@ -48,6 +48,15 @@ proposals do not change the PRD or approve a build.
   source findings, deterministic checks, editorial disposition, and delivery limits.
 - [Native action-checkpoint proof](reviews/2026-09-20-native-action-checkpoint-proof.md):
   controlled Codex CLI trial, authorization deviation, and current-target limits.
+- [Toolkit Operating System gap assessment, 2026-09-21](reviews/2026-09-21-toolkit-os-gap-assessment.md):
+  non-Knowledge requirements documents compared with what ships at `9c71a90`;
+  review evidence, approves nothing.
+- [Knowledge System requirements, philosophy and harmony audit, 2026-09-21](reviews/2026-09-21-knowledge-system-harmony-audit.md):
+  requirements completeness, build philosophy and harmony audits with the full
+  list of open questions for Mike; review evidence, approves nothing.
+- [Independent pull request reviews, 2026-09-21](reviews/2026-09-21-independent-pull-request-reviews.md):
+  independent reviews of pull requests #374 (three rounds) and #376; review
+  evidence, approves nothing.
 
 These records were requested on 2026-09-17 for autonomous design reconciliation
 and implementation planning. Their publication does not claim runtime delivery
