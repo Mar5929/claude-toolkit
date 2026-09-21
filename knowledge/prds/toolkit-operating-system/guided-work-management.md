@@ -7,7 +7,7 @@ source: Mike's guided-work-management and opt-in clarification on 2026-09-15; ro
 created_at: 2026-09-15
 tags: [delivery, planning, requirements, continuity]
 work_item: "337"
-updated_at: 2026-09-20
+updated_at: 2026-09-21
 ---
 
 # Guided work management
@@ -73,6 +73,38 @@ retain and recover that choice, so the owner does not have to delegate the same
 responsibility again. The choice does not change existing permission or
 approval boundaries.
 
+After the owner accepts, the agent asks one follow-up question, in substance:
+do you want one team inside this chat, or should this chat be renamed Main
+Orchestrator and coordinate other chats that each have their own team? The
+answer is recorded with that goal's delivery choice, so later sessions read it
+and do not ask again. The multi-chat answer is offered only where the host lets
+a chat list, read, and message other chats and offer new chats as task buttons.
+Where the host does not, the agent says the multi-chat arrangement is
+unavailable and asks one simple question, in substance: shall I run one team of
+helpers inside this chat? A yes is an arrangement choice and gives the same
+helper authorization for that goal only. A no means the main agent does the
+work itself. That answer is recorded with the goal in the same way. A short
+instruction sheet ships with the work skill and explains what each answer
+means, so a fresh agent can follow it.
+Model wording stays generic: the most capable available model leads and guides,
+and the project's helper model carries out the work. A project rule or the
+owner's recorded preference names the actual models.
+
+When the owner chooses the Main Orchestrator arrangement, the agent asks one
+more question, in substance: should sessions be archived after their task is
+fully complete, everything is merged and shipped, and the owner approved? That
+answer is recorded with the goal in the same way as the arrangement answer.
+With a yes, the main archives a team chat only when its task is complete, its
+work is merged and shipped, its report is saved to a file, and the owner
+approved the result. It archives only and never deletes, and an archived chat
+can be restored. With a no, chats are left as they are.
+
+Choosing a team arrangement is also the owner's authorization to use bounded
+helper agents for that goal only. It does not carry to another goal, and every
+other existing limit on tools, spending, publication, deployment, and approvals
+still applies. Accepting agent-led delivery on its own still authorizes no
+helpers.
+
 Simple questions and quick edits stay lightweight: they do not prompt an offer
 of guided management solely because the owner made a request.
 
@@ -93,6 +125,19 @@ Decline the offer for a larger goal, then continue that goal in this and another
 session: normal assistance continues without another offer. Substantially expand
 the work: the agent may offer again. Explicitly request management later: the
 agent begins providing it without asking for the same permission again.
+Accept the offer: the agent asks the team-arrangement question once, records
+the answer with that goal's delivery choice, and does not ask it again when the
+goal resumes in a fresh session. Repeat on a host that cannot list, read, and
+message other chats: the agent says the multi-chat arrangement is unavailable
+and asks whether to run one team of helpers inside this chat. Answer yes: that
+is an arrangement choice, it gives the same helper authorization for that goal
+only, and it is recorded with the goal. Answer no: the main agent does the work
+itself. Choose the Main Orchestrator
+arrangement: the agent asks the archive question once, records the answer with
+the goal, and with a yes archives a team chat only after its task is complete,
+its work is merged and shipped, its report is saved to a file, and the owner
+approved the result, never deleting it. Either arrangement choice authorizes
+bounded helper agents for that goal only, within every other existing limit.
 
 #### 2. Maintain the accepted plan without repeated upkeep approvals
 
@@ -360,17 +405,25 @@ to build a particular solution.
   authorized an Astra lead and Sol helpers to implement the confirmed scope,
   create a PR, and merge it when done. This authorizes this implementation team;
   future items' helper-selection behavior remains the open product question.
-- Still open, answer from Mike: after accepting agent-led delivery for an item,
-  may the lead choose and coordinate scoped research, design, and review helpers,
-  or should Mike approve the helper team each time? This affects R3 and the
+- Partly answered by Mike on 2026-09-21, see the Decision below: choosing a
+  team arrangement authorizes bounded helpers for that goal. Still open,
+  answer from Mike: after accepting agent-led delivery for an item, may the
+  lead choose and coordinate scoped research, design, and review helpers, or
+  should Mike approve the helper team each time? This affects R3 and the
   existing per-item team agreement in [guided delivery](guided-delivery.md#solution-design).
   Recommendation, not approved: let the lead choose within approved scope,
   bringing product choices, significant cost tradeoffs, and existing approval
   boundaries to Mike.
-- Resume here: resolve the future helper-authority question when Mike answers;
-  retain the existing permission boundary meanwhile. Follow issue #337 for
-  rollout and remaining behavior checks. Preserve settled offer timing,
-  declined-offer behavior, and the scoped delivery already merged.
+- Decision: Mike accepted the recommendation on 2026-09-21, recorded as
+  requirement 9 of [#377](https://github.com/Mar5929/claude-toolkit/issues/377):
+  choosing a team arrangement authorizes bounded helper agents for that goal
+  only. It does not carry to another goal, and every other existing limit still
+  applies. Accepting agent-led delivery on its own still authorizes no helpers.
+  This is Mike's decision on this one point, recorded here as proposed PRD
+  text. It is not approval of the PRD.
+- Resume here: follow issue #337 for rollout and remaining behavior checks.
+  Preserve settled offer timing, declined-offer behavior, and the scoped
+  delivery already merged.
 - Scoped R6 delivery, 2026-09-19: [PR #362](https://github.com/Mar5929/claude-toolkit/pull/362)
   merged the consolidated new-record runtime at `b2e8727` in work-tracker
   2.8.0. New local items use one `WORK-ITEM.md`; existing items keep their
@@ -386,3 +439,20 @@ to build a particular solution.
   said `_Not agreed yet._`. Installed Claude behavior, an actual process-kill
   recovery, live external mutation and recovery, broader rollout, and owner
   acceptance remain open on issue #337.
+
+- Team arrangement question, 2026-09-21: source is Mike's brain dump and his
+  confirmed playback on 2026-09-21, tracked in
+  [#377](https://github.com/Mar5929/claude-toolkit/issues/377). R1 now carries
+  proposed text for the follow-up question asked after acceptance, the record
+  of the answer with that goal's delivery choice, the host condition and the
+  single-chat fallback, the instruction sheet shipped with the work skill, and
+  generic model wording. Mike directed the generic model wording on 2026-09-21
+  and restated that the toolkit stays a harness of instructions, checkpoints,
+  and handshakes, with nothing new built: no code, state, hook, or detection
+  logic. Mike added the archive question on 2026-09-21, requirement 8 of #377,
+  and R1 carries it as proposed text. Mike decided on 2026-09-21, requirement
+  10 of #377, that on a host that cannot reach other chats the agent still asks
+  whether to run one team of helpers inside the chat, and R1 carries it as
+  proposed text. This is proposed text and scoped
+  instruction delivery, not PRD approval. No fresh session has yet been
+  observed asking the question.

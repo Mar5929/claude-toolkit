@@ -10,7 +10,7 @@ approved_by: Mike Rihm
 approval_date: 2026-09-10
 project: claude-toolkit
 work_item: "304"
-updated_at: 2026-09-19
+updated_at: 2026-09-21
 ---
 
 # System Guide
@@ -40,6 +40,7 @@ updated_at: 2026-09-19
 - [17. Use and maintain it without being asked](#17-use-and-maintain-it-without-being-asked)
 - [18. Remove information that no longer helps](#18-remove-information-that-no-longer-helps)
 - [Roadmap](#roadmap)
+- [Notes](#notes)
 
 ## Why this exists
 
@@ -407,3 +408,32 @@ requirements 1-18. The solution design and build plan live on that issue,
 following Mike's requirements and build approval. If the work needs to be
 split, add the approved work-item order and requirement numbers here. The
 tracker keeps status; this roadmap does not copy it.
+
+## Notes
+
+Updated: 2026-09-21. Start here when continuing refinement of this document.
+Keep outstanding decisions and tasks for it in this section. Record each answer
+in the affected requirement and resolve its open entry here. Overall status,
+blockers, approvals, and other work stay in
+[issue 304](https://github.com/Mar5929/claude-toolkit/issues/304).
+
+**Current position:** this document is `proposed`, with requirements approved
+by Mike Rihm on 2026-09-10. The 2026-09-21 decision below changes no
+requirement and does not change that approval date.
+
+**Resume here:** try the System Guide on one real project, then bring decision
+D12 below back to Mike.
+
+### Recorded notes
+
+- Decision to wait, D12, agreed with Mike on 2026-09-21 in the Main
+  Orchestrator conversation: the System Guide's code-reading tools stay exactly
+  as they are until the Guide has been used on one real project. Mike then
+  decides whether an agent simply reading the code would do the same job. There
+  is a conflict to weigh when he does: the owner's build philosophy in the
+  [parent PRD](toolkit-operating-system.md#the-owners-build-philosophy) says not
+  to build tools for work agents are already natively good at, and reading code
+  is such work. Against that, requirement 8 builds the generated layer from
+  real sources so a reader can tell recorded evidence from an approved
+  explanation, which a one-off read does not give. Real use on one project is
+  what settles it. No requirement changes now, and nothing is removed.

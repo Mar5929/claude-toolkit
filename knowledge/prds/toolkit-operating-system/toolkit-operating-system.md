@@ -8,7 +8,7 @@ created_at: 2026-09-10
 tags: [toolkit, project-work, continuity, requirements]
 project: claude-toolkit
 work_item: "306"
-updated_at: 2026-09-20
+updated_at: 2026-09-21
 ---
 
 # The Toolkit Operating System
@@ -260,6 +260,30 @@ explicitly required it to persist across toolkit designs on 2026-09-17. This
 principle is settled; the full PRD and individual designs retain their own
 approval boundaries.
 
+#### The owner's build philosophy
+
+Mike stated the philosophy behind the whole Toolkit Operating System on
+2026-09-21. In his words: "The main philosophy of what we're building is that
+it's just a harness around the agent: just a series of checkpoints to guide the
+agent. We're not creating tools like search engines. We're not building custom
+code to try and detect patterns in language. Agents are already natively good
+at all that. It's basically a series of hooks, instructions, and handshake
+agreements between the agent: 'Yep, I acknowledge this. Yes, I see the
+instructions for the manual for how we want to do things. I'm going to follow
+it.' We're providing instructions on how we want to do things to the agent, and
+the agent is acknowledging and abiding by those rules."
+
+Two things follow from it. Builders, and Opus agents in particular, tend to
+build past the requirements, and must not. The Knowledge System is one part
+inside the Toolkit Operating System, so every part must work with the others
+and make sense from the owner's seat.
+
+This philosophy governs every part of the toolkit. It is stated here once.
+Other documents link to it rather than repeating it; the Knowledge System's
+[requirement 29](knowledge-system.md#29-preserve-agent-judgment-with-narrow-safeguards)
+is the worked example. Approved by Mike Rihm on 2026-09-21, source: Main
+Orchestrator conversation, decision D0.
+
 **Check:** a fresh design session finds this principle without Mike repeating
 it. Its proposal identifies what the agent reasons about and what each
 checkpoint checks, with no custom substitute for the agent's judgment.
@@ -412,9 +436,29 @@ That part was built on 2026-09-10 in PR 312: an authorized unapproved draft can
 pass validation without fabricated approval. This does not approve the rest
 of this PRD or change the separate built/finalized status.
 
+A standing instruction the owner gives for a project counts as his approval to
+merge in that project. It is one clear instruction covering that scope, so the
+agent does not ask again for each merge. The check that a merge can never
+overwrite uncommitted work in the primary checkout stays, and so does every
+other merge-safety step. On 2026-09-21 Mike gave this project that standing
+instruction: agents review and merge the pull requests produced by the delivery
+teams, once an independent reviewer that did not build the change reports no
+blocking findings on that exact head and every check passes. Product decisions,
+requirement changes, and disagreements reviewers cannot settle still go to him.
+Approved by Mike Rihm on 2026-09-21, source: Main Orchestrator conversation,
+decision D9. The matching change to the rule text is not built yet, and the
+build is not yet tracked in a work item.
+
 **Check:** "Write and refine the proposed PRD" permits draft changes and
 tracking them. It does not permit building the proposed system or marking
 the result accepted.
+
+**Check:** with the standing instruction in place, a delivery team opens a pull
+request and an independent reviewer reports no blocking findings on that head
+with every check passing. The agent merges without asking again. Change one
+file the merge touches in the primary checkout and leave it uncommitted: the
+agent stops, names that file, and lets Mike decide. Raise a requirement
+question in review: it goes to Mike rather than being settled by the reviewer.
 
 **R16. Keep the chosen tracker accurate as meaning changes.** Reuse
 [work-item upkeep](work-item-upkeep.md) for decisions, scope, progress,
@@ -529,11 +573,20 @@ it begins.
 owner's applicable permissions, including permission already given. No
 request automatically creates a team. Return findings to the main
 conversation and record decisions through the existing owner of the item.
-A standing requirement to ask before every helper remains an open choice.
+
+Outside agent-led delivery, an agent may use a small, bounded helper without
+asking first, for example to run a search. It honors any limit the owner sets
+for that task. There is no standing requirement to ask before every helper.
+Inside agent-led delivery, the owner's choice of team arrangement is the
+authorization, and [guided work management](guided-work-management.md) owns it.
+Approved by Mike Rihm on 2026-09-21, source: Main Orchestrator conversation,
+decision D16. This settles the helper-agent boundary that was open below.
 
 **Check:** when help is used, its scope and findings return to the canonical
 item without a second plan or tracker. If independent review did not run,
-the report does not claim it did.
+the report does not claim it did. Use a small helper for one search without
+asking: that is allowed. Set a limit for the task, such as no helpers: the
+agent honors it.
 
 ## 13. Frictionless updates
 
@@ -667,6 +720,51 @@ route. Then add a code or configuration change: the mixed change stays in the
 normal implementation workflow. No unrelated implementation or another
 session's unapproved work is included. A failed save stays visibly unfinished.
 
+## 14. Output styles and the style handshake
+
+**R26. Make the agent re-read the selected output style on every message.** A
+project can select an output style: the file that sets how the agent writes
+there. The host delivers that style at the start of a session, but in Mike's
+experience Claude stops following it in a long conversation. So a handshake
+hook makes the agent read the selected style file again before it answers each
+user message.
+
+The re-read is silent. The agent is not told to say "I read the output style
+and will follow it", or to give any other visible acknowledgment. The hook
+keeps no record of the read either: there is no read marker, no companion step
+that runs after the tool, and no per-session state, because the sentence the
+agent used to say was the only thing that used them.
+
+Approved by Mike Rihm on 2026-09-21, source: Main Orchestrator conversation,
+decision D1. He chose keeping the forced re-read and deleting the sentence over
+quietly injecting the style text, and he rejected removing the hook. The
+reasoning is in
+[why the style hook stays](../../memory/memory-entries/why-the-style-hook-stays.md).
+Not built yet; work item [#375](https://github.com/Mar5929/claude-toolkit/issues/375)
+owns the change.
+
+**Check:** select a custom output style and send several messages in a long
+conversation. The agent reads the style file before each answer and follows it.
+Nothing about the style appears in any reply, no marker file is written, and no
+session state records the read.
+
+**R27. Keep the style hook quiet when there is no style file to read.** When
+the hook finds no style file for the selected style, it says nothing. It does
+not list the built-in style names or suggest one. It reports a problem in
+exactly two cases: a style file exists but cannot be read, and the settings
+cannot be parsed.
+
+The accepted cost is that a mistyped custom style name produces no report. The
+agent simply gets no style file, and Mike sees nothing. Approved by Mike Rihm
+on 2026-09-21, source: Main Orchestrator conversation, decision D2. Not built
+yet; work item [#375](https://github.com/Mar5929/claude-toolkit/issues/375)
+owns the change.
+
+**Check:** select a built-in style with no file of its own: nothing is said.
+Select a style whose name is misspelled: nothing is said. Make an existing
+style file unreadable: the problem is reported. Corrupt the settings file: the
+problem is reported.
+
 ## Walkthrough: a search that misses advisors
 
 This is an example of the proposed experience, not a report of delivered work.
@@ -702,13 +800,13 @@ authorizes implementation or changes the neighboring PRD by implication.
 
 | Boundary | Existing position and unresolved point | Recommendation |
 | --- | --- | --- |
-| Design and decision retention after delivery | [docs/designs guidance](../../../docs/designs/README.md#how-long-a-file-lives) says to delete a work design at stage 14 after PRD upkeep, retaining it in Git. The [work-item-lifecycle skill](../../../plugins/project-init/skills/work-item-lifecycle/SKILL.md#closing-a-work-item) says to keep current architecture and lasting decisions in their authoritative homes and archive only retired or replaced material. The current PRDs do not resolve which record preserves still-useful architectural rationale and supporting research when this project's working design is removed. | Proposed: retain still-useful architecture and decision rationale at a designated, discoverable current home; retire superseded working plans with links to their historical versions and retained evidence. Agree the exact home and retention rule before changing deletion guidance. No new ADR folder, automatic archive, or deletion is authorized by this proposal. |
-| Searches for simple requests | Second-brain requirements 5 and 19 require the same knowledge search for every task or question, with past-session search before asking when earlier tiers fail. This PRD must also keep small tasks small. Does that include self-contained requests unrelated to project knowledge? | Keep relevant lookup mandatory for project work, but exempt requests fully answerable from supplied text, such as shortening one sentence. This is a proposed change to the component agreement, not a settled exception. |
-| Draft refinement and save cards | Guided delivery recognizes authorized draft corrections. Second-brain requirements 9 and 10 call for a card and yes for each PRD save. Mike explicitly authorized this draft and refinement. | Treat that explicit authority as sufficient for faithful draft updates; keep new lasting meaning outside that scope under its normal approval. Align the component wording before claiming this is the general rule. |
+| Design and decision retention after delivery | [docs/designs guidance](../../../docs/designs/README.md#how-long-a-file-lives) says to delete a work design at stage 14 after PRD upkeep, retaining it in Git. The [work-item-lifecycle skill](../../../plugins/project-init/skills/work-item-lifecycle/SKILL.md#closing-a-work-item) says to keep current architecture and lasting decisions in their authoritative homes and archive only retired or replaced material. The current PRDs do not resolve which record preserves still-useful architectural rationale and supporting research when this project's working design is removed. | Settled by Mike on 2026-09-21 (decision D21): when a work item closes, still-useful reasoning is kept in one named, findable place, and only plans that something has replaced are retired. The place itself is agreed with Mike before anything is deleted, and it is still to be agreed. Until then nothing is deleted, and no new ADR folder or automatic archive is authorized. Not built yet, and the build is not yet tracked in a work item. |
+| Searches for simple requests | Resolved. The row previously said that Knowledge System requirements 5 and 19 force the same knowledge search for every task or question. They do not. [Requirement 5](knowledge-system.md#5-check-memory-first) has the agent decide once, per request, whether long-term project knowledge could affect the answer, and carry on with no lookup when it could not. [Requirement 19](knowledge-system.md#19-the-find-order) sets the order to work through when a lookup does apply, and lets already-read current information satisfy a tier. | No change is needed. A request fully answerable from the text the owner supplied, such as shortening one sentence, already needs no lookup under requirement 5. |
+| Draft refinement and save cards | Resolved. The row previously said that Knowledge System requirements 9 and 10 call for a card and a yes for every PRD save. They do not. [Requirement 9](knowledge-system.md#9-saving-is-frictionless) applies the card to a save that needs new approval and says the agent may already have permission. [Requirement 10](knowledge-system.md#10-approval-before-any-write) states that permission to refine a named PRD covers writing down the owner's clear answers and corrections in the same reply, with no second card. | No change is needed. New lasting meaning the agent recommends still needs the owner's agreement under requirement 10. |
 | Hard refusals and lightweight work | Second-brain requirement 3 proposes forced save-review moments. Upkeep favors adaptable stages and deliberately allows an unapproved local Done record while reporting the gap. A component's mechanism cannot be assumed to enforce the whole experience. | Preserve each component's existing decision. Specify the effect of knowledge-review failures on work completion before design; do not add blanket process gates here. |
 | Remaining knowledge-format transition | The manual and proposed second brain still differ on naming and metadata, including the proposed content-change date. Group and finalized status are now accepted by the checker, alongside legacy current. | Keep the remaining transition with #269. Compatibility support does not prove the full second-brain proposal is implemented. |
-| Helper agents | The ask-first instruction for this drafting session does not establish a permanent policy. Guided delivery permits bounded delegation without a blanket ask-first rule. | Retain guided delivery's bounded delegation, while honoring owner limits and scoped permissions. Ask Mike before making ask-first a toolkit-wide requirement. |
-| Roadmap ownership | Guided delivery allows adaptable plans in existing records. Second-brain requirement 16 requires a PRD roadmap for a large feature. | A PRD lists work order and requirement coverage; the tracker owns live status and the detailed plan. Confirm this boundary rather than maintaining two editable plans. |
+| Helper agents | Settled by Mike on 2026-09-21 (decision D16): outside agent-led delivery, an agent may use a small, bounded helper without asking, honoring any limit the owner sets for the task. There is no toolkit-wide ask-first rule. | R24 above holds the requirement. Inside agent-led delivery, the owner's chosen team arrangement is the authorization, owned by [guided work management](guided-work-management.md). |
+| Roadmap ownership | Resolved and settled. The row previously said that Knowledge System requirement 16 requires a PRD roadmap for a large feature. It does not; it keeps delivery roadmaps, tasks, schedules, and status out of a PRD. Mike settled the boundary on 2026-09-21 (decision D22). | For a large feature the requirements document lists the order the work is done in and which requirements each part covers. The work item owns live status, and live status never goes in a plan or a design file. [Knowledge System requirement 16](knowledge-system.md#16-requirements-documents) holds the approved wording. |
 | Concurrent current context | Second-brain requirements now explicitly require preserving other sessions and reconciling overlapping updates. Upkeep owns each item. | Reuse that agreement under R18. The coordination method belongs in design, not another owner interview. |
 | Installation across hosts | The marketplaces differ. This review did not establish which omitted guards have equivalent active coverage in Codex. | Require a per-host capability and gap report under R5 and R19. Do not assume a missing marketplace entry either proves no protection or grants equivalent protection. |
 
@@ -722,9 +820,13 @@ authorized save or become approved merely by being saved.
 
 ## Roadmap and review
 
-[Issue 306](https://github.com/Mar5929/claude-toolkit/issues/306) owns refinement
-and acceptance of this overall draft, covering R1-R25. Review the open
-boundaries with Mike and apply his answers here in the same reply.
+[Issue 306](https://github.com/Mar5929/claude-toolkit/issues/306) owned
+refinement and acceptance of this overall draft, covering R1-R25. That issue is
+closed, so on 2026-09-21 Mike decided that one new work item tracks proving and
+accepting the whole toolkit, including the requirements added since. Approved by
+Mike Rihm on 2026-09-21, source: Main Orchestrator conversation, decision D14.
+That work item has not been created yet, so this work is not yet tracked. Review
+the open boundaries with Mike and apply his answers here in the same reply.
 
 The component work stays separate:
 
@@ -754,4 +856,56 @@ This is the review order, not an approved build sequence. After the overall
 requirements are approved, identify only the missing agreements that need
 work, assign each to one existing or new item, and record its requirement
 coverage here. Designs and implementation plans belong on those items.
-Keep live progress, validation results, and unsaved work in issue 306.
+Keep live progress, validation results, and unsaved work in the work item that
+replaces issue 306 under decision D14.
+
+## Notes
+
+Updated: 2026-09-21. Start here when continuing refinement of this overall
+draft. Keep outstanding decisions and tasks for this document in this section.
+Record each answer in the affected requirement and resolve its open entry here.
+Overall status, blockers, approvals, and other work stay in the work item.
+
+**Current position:** this PRD remains proposed. R26 and R27 were added on
+2026-09-21, so the draft now covers R1-R27. R25 and the approval-format part of
+R15 shipped separately and keep their own status.
+
+**Resume here:** the work item that replaces issue 306 under decision D14 has
+not been created yet. Creating it, and naming the place that keeps still-useful
+reasoning after a work item closes under decision D21, are the next two steps.
+
+### Recorded notes
+
+- On 2026-09-21, Mike approved seven decisions for this document in the Main
+  Orchestrator conversation. Each approves that decision only. None approves
+  this document as a whole, finalizes it, or means the behavior is built.
+  - D0, the build philosophy: recorded beside the design principle in section
+    5. It governs every part of the toolkit.
+  - D1 and D2, the output style handshake: recorded as R26 and R27. Not built
+    yet; work item #375 owns them, with pull request #376 open.
+  - D9, a standing instruction to merge: recorded in R15, with the standing
+    instruction Mike gave this project the same day. The rule text change is
+    not built yet, and that build is not yet tracked in a work item.
+  - D14, one new work item for proving and accepting the whole toolkit:
+    recorded in the roadmap above. The work item does not exist yet.
+  - D16, small bounded helpers outside agent-led delivery: recorded in R24 and
+    resolved in the conflicts table.
+  - D21, keeping still-useful reasoning when a work item closes: recorded in
+    the conflicts table. The place itself is still to be agreed with Mike, and
+    nothing is deleted until it is. Not tracked in a work item.
+  - D22, plan ownership: resolved in the conflicts table.
+    [Knowledge System requirement 16](knowledge-system.md#16-requirements-documents)
+    holds the approved wording.
+
+- On 2026-09-21, three rows in the conflicts table were corrected. They
+  described Knowledge System requirements wrongly: that requirements 5 and 19
+  force a knowledge search for every request, that requirements 9 and 10 need a
+  card and a yes for every PRD save, and that requirement 16 requires a roadmap
+  inside the PRD. None of those is what the Knowledge System PRD says. Each row
+  now states what it actually requires. This is a correction of a description,
+  not a change to any requirement.
+
+- D3, D15, D17 and D18 from the same 2026-09-21 conversation belong to
+  [guided work management](guided-work-management.md). They were not recorded
+  on 2026-09-21 because pull request #378 was editing that document on its own
+  branch. Record them there after #378 merges.

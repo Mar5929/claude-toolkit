@@ -31,9 +31,45 @@ The choice belongs to the named goal. Do not inherit it to an unrelated goal,
 new work item, or unrelated child item. Session end does not expire it, and
 missing tracker access does not mean the owner is undecided.
 
+## Ask how the team is arranged
+
+After a clear acceptance, read the goal record for a saved team arrangement.
+When none is recorded, ask one more question, in substance:
+
+> Do you want one team inside this chat, or do you want me to rename this chat to Main Orchestrator and coordinate other chats that each have their own team?
+
+Offer the multi-chat choice only where the current host lets this chat list,
+read, and message other chats and offer new chats to the owner as task buttons.
+Today that is the Claude Code desktop app. On any other host, tell the owner the
+multi-chat arrangement is unavailable on this host and ask one simple question
+instead, in substance:
+
+> Shall I run one team of helpers inside this chat?
+
+A yes is an arrangement choice: one team inside this chat. A no means the main
+agent does the work itself. Record either answer with the goal.
+
+Do not ask after a decline or a revocation, and do not ask again once the
+owner's answer is recorded for the goal. The owner may change the arrangement
+at any time; record the new answer.
+
+When the owner chooses the Main Orchestrator arrangement, ask one more
+question, in substance:
+
+> Do you want me to archive sessions after their task is fully complete, everything is merged and shipped, and you approved?
+
+Record the answer with the goal like the arrangement answer, and do not ask it
+again.
+
+[Team arrangements](team-arrangements.md) explains what each answer means,
+including when a chat may be archived. Read it before organizing the team, and
+when resuming a goal that has a recorded arrangement. Helper authority for
+either arrangement is stated under "Divide responsibility" below.
+
 ## Record the choice durably
 
-Save accepted, declined, or revoked in the existing canonical item:
+Save accepted, declined, or revoked, and the team arrangement answer once given,
+in the existing canonical item:
 
 - Local tracker: save Overview `Context and notes` in `WORK-ITEM.md` with
   `work edit` and its current hash. Existing legacy items retain the preserved
@@ -46,11 +82,13 @@ goal warrants a record. Do not create a tracker or work item solely to record a
 refusal. If there is no durable authorized home, state that limitation and
 preserve the choice and its scope in the handoff until it can be saved.
 
-Record the goal scope, accepted, declined, or revoked state, the source/person and date,
-the current authority limits, a reference to the main session or agent leading
-delivery, and references to the next actions. A lead reference coordinates
-ownership; it is not an atomic lock or proof that an agent is still running.
-Reread the saved destination and verify the meaning landed.
+Record the goal scope, accepted, declined, or revoked state, the team
+arrangement answer when one was given, the archive answer when it was asked,
+the source/person and date, the current authority limits, a reference to the
+main session or agent leading delivery, and references to the next actions. A
+lead reference coordinates ownership; it is not an atomic lock or proof that an
+agent is still running. Reread the saved destination and verify the meaning
+landed.
 
 Keep the existing current-task and next-step fields consistent with the choice.
 For example, replace a pending "decide whether agents lead" next step after the
@@ -84,14 +122,19 @@ security, spending, publication, deployment, implementation, or other existing
 authority. Observe every project gate and recognize approvals already given.
 
 Acceptance of agent-led delivery does not itself authorize spawning helpers.
-Use focused, bounded helpers only when existing item-specific or project
-authority allows them and research, specialist knowledge, independent
-challenge, or parallel work materially helps. Preserve meaningful decisions
-from their findings in the canonical records. Reuse the owner's model
-preferences and only select models and agent features the current host supports.
-Do not impose a fixed council, repeat reviews without a new reason, or allow
-helper loops to replace a decision. When helper authority is absent, use the
-main-agent fallback unless a decision truly requires the owner's direction.
+The owner's choice of a team arrangement is the one exception: it authorizes
+focused, bounded helper agents for that goal only. It does not carry to another
+goal, and every other existing limit on tools, spending, publication,
+deployment, and approvals still applies. A no to the one-team question is not a
+choice of an arrangement and authorizes no helpers. Use focused, bounded
+helpers only when that choice or existing item-specific or project authority
+allows them and research, specialist knowledge, independent challenge, or
+parallel work materially helps. Preserve meaningful decisions from their
+findings in the canonical records. Reuse the owner's model preferences and only
+select models and agent features the current host supports. Do not impose a
+fixed council, repeat reviews without a new reason, or allow helper loops to
+replace a decision. When helper authority is absent, use the main-agent
+fallback unless a decision truly requires the owner's direction.
 
 When available and relevant, invoke the installed `work-guide`,
 `requirements-helper`, or `solution-design` skill by its registered name. Do

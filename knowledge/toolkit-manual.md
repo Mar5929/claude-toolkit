@@ -100,7 +100,8 @@ a specification-review reminder at the first edit, a Claude Code style
 handshake when a user message arrives, and guards for selected publishing or
 Salesforce deployment operations. The style handshake directs attention back
 to the selected style; that style remains the owner of the writing guidance.
-The hook can observe a read without proving understanding or compliance.
+It asks for a silent read with no acknowledgment. It does not check that the
+read happened or that the reply follows the style.
 
 Some hooks belong to a subsystem. The [knowledge subsystem](../plugins/second-brain/README.md)
 owns its startup and save reminders, while [System Guide](../plugins/system-guide/README.md)
@@ -164,7 +165,7 @@ linked instructions supply the detailed steps and applicable approvals.
 Across these steps, the selected communication guidance shapes explanations,
 rules govern the work, and skills provide the relevant procedures. Configured
 hooks intervene at their designated events: startup may supply orientation,
-a message may prompt a style read, and a tool operation may trigger a reminder
+a message may prompt a silent style read, and a tool operation may trigger a reminder
 or guard. The agent still has to carry out the work and verify its result.
 
 ### Establish the goal and current position
@@ -181,8 +182,19 @@ requiring a second tracker or restarting an existing plan.
 For substantial new work, the [work plugin](../plugins/work-tracker/README.md)
 offers agents responsibility for delivery with the human as product owner.
 The accepted, declined, or revoked choice stays with that goal in the existing tracker
-and is read in future sessions. Agents manage the agreed work and records;
-the owner makes product decisions and approves results. Existing build,
+and is read in future sessions. After acceptance, the agent asks whether the
+owner wants one team inside this chat or a Main Orchestrator chat that
+coordinates other chats, each with its own team, where the host supports that.
+On a host that does not, the agent asks only whether to run one team of helpers
+inside this chat, and a no means the main agent does the work itself.
+That answer stays with the goal's delivery choice. The
+[team arrangements](../plugins/work-tracker/skills/work/references/team-arrangements.md)
+sheet explains each answer. Choosing an arrangement authorizes bounded helper
+agents for that goal only, within every other existing limit. With the Main
+Orchestrator arrangement the agent also asks whether to archive a team chat
+once its work is complete, merged and shipped, reported to a file, and approved
+by the owner. Agents manage the agreed work and records;
+the owner makes product decisions and approves results. Other existing build,
 publication, and helper permissions still apply. This method works with an
 external tracker without creating local tracking files. The copied work-item
 rule provides the offer and continuation contract when the plugin is absent.

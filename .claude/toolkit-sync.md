@@ -3,17 +3,17 @@
 What this repository set up from its own toolkit, what it skipped, and why. A
 later `project-sync` run reads this so a considered "no" is not offered again.
 
-2026-09-21 full project-sync audit for #269 and #369, against marketplace
-0.124.4 at `main` commit `1479dc1`: project-init 0.77.2, second-brain 4.12.3,
-hooks-library 3.5.0, session-skills 1.13.0, work-tracker 2.8.0, system-guide
-1.0.0, git-workflows 0.2.1, sf-architect-solutioning 1.1.0. Both plugin caches
-on this computer were refreshed to those versions first. Already present and
+2026-09-21 full project-sync audit for #269 and #369. The audit ran against
+`main` commit `1479dc1` and was rechecked after #376 and #378 merged, against
+marketplace 0.124.6 at commit `0cc5d54`: project-init 0.77.3, second-brain
+4.12.3, hooks-library 3.6.0, session-skills 1.13.0, work-tracker 2.9.0,
+system-guide 1.0.0, git-workflows 0.2.1, sf-architect-solutioning 1.1.0. Both
+plugin caches on this computer were refreshed to those versions. Already present and
 current: every applicable default-ON rule, the Plain English style file, the
 knowledge schema-2 layout, the one-line `AGENTS.md`, and all hook registrations
 in `.claude/settings.json` and `.codex/hooks.json`, each registered once. No
 Codex hook definition changed, so no new Codex trust review was needed.
-Brought up to date: the `style-handshake` `PostToolUse` timeout now matches the
-shipped value of 10; `CLAUDE.md` gained the Quick saves table and its cut-off
+Brought up to date: `CLAUDE.md` gained the Quick saves table and its cut-off
 first paragraph was completed; the untracked `.claude/settings.local.json` in
 the primary checkout no longer selects the built-in `Concise` style, so the
 committed `Plain English` selection applies and `style-handshake` can read the
@@ -186,7 +186,7 @@ three weeks later in another project.
 | --- | --- |
 | 0. Orient | Done. Existing repository, not a new one, so this ran as a sync rather than an init. Node and Markdown, no application stack. |
 | 1. Scaffolding and work tracking | Already answered. Work is tracked on the `Claude-Toolkit-Project` board on GitHub. `CLAUDE.md` names it. `spec-before-you-build.md` was installed alongside that pointer until 2026-08-31, when the toolkit dropped the rule and it was removed here too. No scaffolding was added: the folder layout already existed. The board's vocabulary changed in issue #260: an issue now carries one stage label from `work-item-stages.md`, and `03-requirements-approved` replaced the retired `refined` label as the mark that an issue is ready to build. |
-| 2. Hooks | Done. `toolkit-session-start`, `save-reminder`, `work-item-close`, `memory-reminder`, `knowledge-session-start`, and `spec-check-reminder` are installed under `.claude/hooks/` and registered in `.claude/settings.json`. Codex registers the same startup loader in `.codex/hooks.json`. The two style hooks were removed with the toolkit, as explained below. |
+| 2. Hooks | Done. `toolkit-session-start`, `save-reminder`, `work-item-close`, `memory-reminder`, `knowledge-session-start`, and `spec-check-reminder` are installed under `.claude/hooks/` and registered in `.claude/settings.json`. Codex registers the same startup loader in `.codex/hooks.json`. The two style hooks were removed with the toolkit, as explained below. `style-handshake` is installed separately under `UserPromptSubmit`. As of 2026-09-21 (issue #375) it asks for a silent re-read of the selected style file on each message, with no acknowledgment. |
 | 3. Project knowledge | **Adopted from the packaged plugin.** `SOUL.md`, the managed operating manual, `knowledge/project.md`, `knowledge/current.md`, and both complete generated indexes are requested in order at session start. Approved specifications, flat persistent memory, and unchecked brainstorms live under the same knowledge root. The packaged skills keep only task-specific steps. The retired policy rule and machinery stay removed. |
 | 4. Knowledge layer | Included with Gate 3. The graphify code graph was offered and declined, see below. |
 | 5. Root instructions, rules, output style | Done. `AGENTS.md` points to `CLAUDE.md`, which carries the Toolkit and Knowledge complete-read routes. `.claude/rules/` holds the applicable general rules, with no large memory rule or wrap-up ritual. The `Plain English` style is selected in `.claude/settings.json` and installed at `.claude/output-styles/plain-english.md`, copied from `plugins/project-init/library/output-styles/`. This repo ran Claude Code's built-in `Concise` style before that, and the hand-written `plain-language` style before that, removed from the toolkit in issue #245. |
@@ -298,8 +298,9 @@ the output-styles folder back with one short optional file, `plain-english.md`,
 and this repo turned it on for itself on 2026-09-03 at the owner's request. It
 was nine lines when introduced. Plain English is now the toolkit's standard
 selection; the current file includes the expanded clarity guidance. It is
-delivered once at session start like any other style. Nothing per-message enforces voice at any
-level, and helper agents still receive no style at all. A rule,
+delivered once at session start like any other style. The `style-handshake` hook asks for a fresh read of the
+style file on each message; it does not check the reply. Nothing enforces
+voice, and helper agents still receive no style at all. A rule,
 `follow-the-output-style.md`, used to send them to the file above. The owner
 removed it on 2026-09-02, so a helper agent gets a voice only when its own
 definition carries the writing rules.
