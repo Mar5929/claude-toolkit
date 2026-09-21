@@ -100,7 +100,8 @@ a specification-review reminder at the first edit, a Claude Code style
 handshake when a user message arrives, and guards for selected publishing or
 Salesforce deployment operations. The style handshake directs attention back
 to the selected style; that style remains the owner of the writing guidance.
-The hook can observe a read without proving understanding or compliance.
+It asks for a silent read with no acknowledgment. It does not check that the
+read happened or that the reply follows the style.
 
 Some hooks belong to a subsystem. The [knowledge subsystem](../plugins/second-brain/README.md)
 owns its startup and save reminders, while [System Guide](../plugins/system-guide/README.md)
@@ -164,7 +165,7 @@ linked instructions supply the detailed steps and applicable approvals.
 Across these steps, the selected communication guidance shapes explanations,
 rules govern the work, and skills provide the relevant procedures. Configured
 hooks intervene at their designated events: startup may supply orientation,
-a message may prompt a style read, and a tool operation may trigger a reminder
+a message may prompt a silent style read, and a tool operation may trigger a reminder
 or guard. The agent still has to carry out the work and verify its result.
 
 ### Establish the goal and current position
