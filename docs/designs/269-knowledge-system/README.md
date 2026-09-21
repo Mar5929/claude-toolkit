@@ -54,6 +54,9 @@ proposals do not change the PRD or approve a build.
 - [Knowledge System requirements, philosophy and harmony audit, 2026-09-21](reviews/2026-09-21-knowledge-system-harmony-audit.md):
   requirements completeness, build philosophy and harmony audits with the full
   list of open questions for Mike; review evidence, approves nothing.
+- [Independent pull request reviews, 2026-09-21](reviews/2026-09-21-independent-pull-request-reviews.md):
+  independent reviews of pull requests #374 (three rounds) and #376; review
+  evidence, approves nothing.
 
 These records were requested on 2026-09-17 for autonomous design reconciliation
 and implementation planning. Their publication does not claim runtime delivery
