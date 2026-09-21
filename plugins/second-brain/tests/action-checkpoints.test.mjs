@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { chmodSync, existsSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { chmodSync, existsSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
@@ -45,9 +46,19 @@ function denialReason(output) {
   return decision.permissionDecisionReason;
 }
 
+function holdFolder() {
+  return join(tmpdir(), HOLD_STATE);
+}
+
 /** The one shared file listing the actions this session and agent already held. */
 function stateFile(sessionId, agentId = 'root') {
-  return join(tmpdir(), HOLD_STATE, `${sessionId}-${agentId}.json`);
+  const name = createHash('sha256').update(JSON.stringify([sessionId, agentId])).digest('hex');
+  return join(holdFolder(), `${name}.json`);
+}
+
+/** Only this test's own files. Never a sweep of a folder other sessions share. */
+function holdFileCount() {
+  return existsSync(holdFolder()) ? readdirSync(holdFolder()).length : 0;
 }
 
 function session(t, name) {
@@ -229,6 +240,62 @@ test('leading cd binds the hold to the target repository while false guards gh',
     /Held action: gh pr create/,
     'the session repository is still held on its own first attempt',
   );
+});
+
+test('a host that sends no session id is never held and writes no hold file', t => {
+  const root = repository(t);
+  const before = holdFileCount();
+  for (const agent of ['root', 'worker']) {
+    const { session_id, ...input } = pullRequestInput(root, 'unused');
+    assert.equal(runHook(saveReminder, { ...input, agent_id: agent }), '');
+  }
+  assert.equal(holdFileCount(), before, 'no hold file was written for a session without an id');
+});
+
+test('session ids that differ only in punctuation do not share a hold', t => {
+  const root = repository(t);
+  for (const sessionId of ['a.b', 'a/b', 'a b']) {
+    t.after(() => rmSync(stateFile(sessionId), { force: true }));
+    const input = pullRequestInput(root, sessionId);
+    assert.match(denialReason(runHook(saveReminder, input)), /Held action: gh pr create/,
+      `${JSON.stringify(sessionId)} is held on its own first attempt`);
+    assert.equal(runHook(saveReminder, input), '');
+  }
+});
+
+test('the hold folder and file are private to the owner', {
+  skip: process.platform === 'win32' ? 'POSIX modes only' : false,
+}, t => {
+  const root = repository(t);
+  const sessionId = session(t, 'hold-modes');
+  denialReason(runHook(saveReminder, pullRequestInput(root, sessionId)));
+  assert.equal(statSync(holdFolder()).mode & 0o777, 0o700);
+  assert.equal(statSync(stateFile(sessionId)).mode & 0o777, 0o600);
+});
+
+/**
+ * The denial is written before the key is recorded, so a list that cannot be
+ * written still denies this attempt and holds the same action again next time.
+ * A read-only hold file makes the recording fail for real.
+ */
+test('a hold that cannot be recorded still denies and holds again', {
+  skip: process.platform === 'win32' ? 'POSIX modes only' : false,
+}, t => {
+  const root = repository(t);
+  const sessionId = session(t, 'unwritable-hold');
+  const input = pullRequestInput(root, sessionId);
+  denialReason(runHook(saveReminder, input));
+  assert.equal(runHook(saveReminder, input), '');
+
+  commit(root, 'fixture two\n');
+  chmodSync(stateFile(sessionId), 0o400);
+  assert.match(denialReason(runHook(saveReminder, input)), /Held action: gh pr create/,
+    'the denial was already written when recording failed');
+  assert.match(denialReason(runHook(saveReminder, input)), /Held action: gh pr create/,
+    'the unrecorded action is held again');
+  chmodSync(stateFile(sessionId), 0o600);
+  denialReason(runHook(saveReminder, input));
+  assert.equal(runHook(saveReminder, input), '', 'a writable list ends the repeated hold');
 });
 
 test('nonmatching commands remain untouched', t => {

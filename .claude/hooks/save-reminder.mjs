@@ -28,10 +28,11 @@ import { fileURLToPath } from "node:url";
 import {
   combinesReviewActions,
   effectiveDirectory,
-  heldBefore,
   heldMessage,
   matchesAny,
   OPENS_PULL_REQUEST,
+  recordHold,
+  shouldHold,
   SPLIT_REVIEW_ACTIONS,
 } from "./command-parsing.mjs";
 
@@ -201,11 +202,12 @@ function main() {
   const workingDirectory = effectiveDirectory(command, projectRoot);
   const root = repositoryRoot(workingDirectory);
   const key = pullRequestActionKey(root);
-  if (heldBefore(payload, key)) return failOpen();
+  if (!shouldHold(payload, key)) return failOpen();
 
   const paths = changedPaths(root);
   const message = isKnowledgeOnly(paths) ? buildDirectCommitMessage(paths) : buildMessage();
   deny(heldMessage(message, actionLabel(key)));
+  recordHold(payload, key);
 }
 
 function canonical(path) { try { return realpathSync(path); } catch { return resolve(path); } }

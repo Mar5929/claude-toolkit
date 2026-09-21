@@ -24,10 +24,11 @@ import {
   CLOSES_WORK_ITEM,
   combinesReviewActions,
   effectiveDirectory,
-  heldBefore,
   heldMessage,
   matchesAny,
+  recordHold,
   segmentsOf,
+  shouldHold,
   SPLIT_REVIEW_ACTIONS,
 } from "./command-parsing.mjs";
 
@@ -117,9 +118,10 @@ function main() {
   const workingDirectory = effectiveDirectory(command, projectRoot);
   const root = repositoryRoot(workingDirectory);
   const key = workItemActionKey(command, root);
-  if (heldBefore(payload, key)) return failOpen();
+  if (!shouldHold(payload, key)) return failOpen();
 
   deny(heldMessage(buildMessage(), actionLabel(key)));
+  recordHold(payload, key);
 }
 
 function canonical(path) { try { return realpathSync(path); } catch { return resolve(path); } }

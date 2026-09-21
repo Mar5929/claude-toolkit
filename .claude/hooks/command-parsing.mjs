@@ -10,6 +10,7 @@
  * both hooks record a hold the same way and in the same file.
  */
 
+import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
@@ -54,7 +55,7 @@ export function matchesAny(command, patterns) {
 export const SPLIT_REVIEW_ACTIONS = [
   "Held. This command combines pull-request creation with a work-item close or merge.",
   "Run them as separate commands so each action gets its own Knowledge review checkpoint.",
-  "No review state was changed or consumed.",
+  "No review state was changed.",
 ].join("\n");
 
 export function combinesReviewActions(command) {
@@ -86,38 +87,57 @@ export function effectiveDirectory(command, cwd) {
 export const OPENS_PULL_REQUEST = [/^gh +pr +create\b/];
 export const CLOSES_WORK_ITEM = [/^gh +issue +close\b/, /^gh +pr +merge\b/];
 
-/** One file per session and agent, listing the action keys already held. */
+/**
+ * The file listing the action keys this session and agent already held, or null
+ * when the host sends no session id. Without one the hook cannot tell a first
+ * attempt from a retry, so it holds nothing, writes no file, and shares no list
+ * with another session. The name is a hash, so two session ids that differ only
+ * in punctuation never share a file.
+ *
+ * The folder is created here, during the read, so a temporary folder that
+ * cannot be used throws before any denial is written.
+ */
 function holdPath(payload) {
+  if (!payload.session_id) return null;
   const directory = join(tmpdir(), "second-brain-action-hold");
-  mkdirSync(directory, { recursive: true });
-  const safe = (value, fallback) =>
-    String(value || fallback).replace(/[^A-Za-z0-9_-]/g, "") || fallback;
-  return join(directory, `${safe(payload.session_id, "unknown")}-${safe(payload.agent_id, "root")}.json`);
+  mkdirSync(directory, { recursive: true, mode: 0o700 });
+  const name = createHash("sha256")
+    .update(JSON.stringify([payload.session_id, payload.agent_id || "root"]))
+    .digest("hex");
+  return join(directory, `${name}.json`);
+}
+
+/** An unreadable or corrupt list counts as empty, never as an allowed action. */
+function heldActions(path) {
+  if (!existsSync(path)) return [];
+  try {
+    const value = JSON.parse(readFileSync(path, "utf8"));
+    return Array.isArray(value.actions) ? value.actions : [];
+  } catch {
+    return [];
+  }
+}
+
+/** True when this action must be held now. The caller then calls recordHold. */
+export function shouldHold(payload, key) {
+  const path = holdPath(payload);
+  if (!path) return false;
+  return !heldActions(path).includes(key);
 }
 
 /**
- * True when this session and agent already held that action. Otherwise the key
- * is recorded and false is returned, so each action is held exactly once.
+ * Remember that this action was held, so the next attempt goes through.
  *
- * An unreadable or corrupt list counts as empty, so the action is held again
- * and the file is rewritten. A failed write throws, which reaches the hook's
- * outer fail-open path and allows the command, rather than holding that action
- * forever with no way through.
+ * Called after the denial is written. If this throws, the denial still stands
+ * for this attempt, and the same action is held again on the next attempt,
+ * until the list can be written.
  */
-export function heldBefore(payload, key) {
+export function recordHold(payload, key) {
   const path = holdPath(payload);
-  let actions = [];
-  if (existsSync(path)) {
-    try {
-      const value = JSON.parse(readFileSync(path, "utf8"));
-      if (Array.isArray(value.actions)) actions = value.actions;
-    } catch {
-      // Treated as empty. This list never allows an action silently.
-    }
-  }
-  if (actions.includes(key)) return true;
-  writeFileSync(path, JSON.stringify({ actions: [...actions, key] }));
-  return false;
+  if (!path) return;
+  const actions = heldActions(path);
+  if (actions.includes(key)) return;
+  writeFileSync(path, JSON.stringify({ actions: [...actions, key] }), { mode: 0o600 });
 }
 
 /** The denial text: the hook's own guidance, then the action and the retry. */

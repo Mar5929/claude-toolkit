@@ -81,7 +81,10 @@ try {
 } finally {
  const key=createHash('sha256').update(JSON.stringify([realpathSync(root),'fixture-session','root'])).digest('hex');
  rmSync(join(tmpdir(),'toolkit-knowledge-review',key+'.json'),{force:true});
- for(const sessionId of actionSessions)rmSync(join(tmpdir(),'second-brain-action-hold',`${sessionId}-root.json`),{force:true});
+ for(const sessionId of actionSessions){
+  const hold=createHash('sha256').update(JSON.stringify([sessionId,'root'])).digest('hex');
+  rmSync(join(tmpdir(),'second-brain-action-hold',hold+'.json'),{force:true});
+ }
  rmSync(root,{recursive:true,force:true});
 }
 });

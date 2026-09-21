@@ -134,13 +134,20 @@ segments. The agent reviews what that action needs saved and runs the same
 command again. There is no nonce, no permit and no command to run to earn the
 retry. Both hooks share one list of the action keys already held, kept by
 `command-parsing.mjs` in one JSON file per session and agent in the operating
-system's temporary folder, outside the repository. That file holds no knowledge,
-permission or save state. A pull-request-create key is the project root, branch
-and HEAD; a close or merge key is the project root and the ordered command
-segments, so the two hooks never claim each other's actions. An unreadable or
-corrupt list counts as empty, so the action is held again and the file is
-rewritten. A failed write throws to the fail-open path and allows the command,
-rather than holding that action forever with no way through.
+system's temporary folder, outside the repository. The folder is created with
+mode 0700 and the file with mode 0600, and the file name is a SHA-256 hash of
+the session and agent identity, so two session ids that differ only in
+punctuation never share a list. That file holds no knowledge, permission or
+save state. A pull-request-create key is the project root, branch and HEAD; a
+close or merge key is the project root and the ordered command segments, so the
+two hooks never claim each other's actions. An unreadable or corrupt list counts
+as empty, so the action is held again and the file is rewritten.
+
+Each hook reads the list, writes the denial, and only then records the key. A
+recording that fails leaves the denial standing for that attempt and holds the
+same action again on the next attempt, until the list can be written. The folder
+is created during the read, so a temporary folder that cannot be used reaches
+the fail-open path before any denial is written.
 
 Known limits of the action hold:
 
@@ -161,9 +168,17 @@ Known limits of the action hold:
   `memory-reminder` and Stop `knowledge-completion`) do not run under cmd.exe,
   so on that host the turn review has no prompt reminder and no Stop check. The
   action hold does not depend on either handler and still runs.
-- Enforcement is fail-open: an unexpected error allows the command, including a
-  held list that cannot be written. A list that cannot be read holds the action
-  again rather than allowing it silently.
+- A host that sends no session id is not held at all. Without one the hook
+  cannot tell a retry from a first attempt, so it allows the command, writes no
+  file and shares no list with another session.
+- One small hold file per session and agent accumulates in the temporary folder.
+  Nothing prunes them.
+- A held list that cannot be written does not release the action. The denial is
+  already written, so that attempt stays denied and the same action is held
+  again on the next attempt, until the list can be written.
+- Enforcement is otherwise fail-open: an unexpected error before the denial,
+  including a temporary folder that cannot be used, allows the command. A list
+  that cannot be read holds the action again rather than allowing it silently.
 - Nothing here is proven on native Windows.
 
 The prompt handler supplies the session/agent identity, the current review
