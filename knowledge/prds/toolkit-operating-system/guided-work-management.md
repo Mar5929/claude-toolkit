@@ -398,9 +398,11 @@ to build a particular solution.
   authorized an Astra lead and Sol helpers to implement the confirmed scope,
   create a PR, and merge it when done. This authorizes this implementation team;
   future items' helper-selection behavior remains the open product question.
-- Still open, answer from Mike: after accepting agent-led delivery for an item,
-  may the lead choose and coordinate scoped research, design, and review helpers,
-  or should Mike approve the helper team each time? This affects R3 and the
+- Partly answered by Mike on 2026-09-21, see the Decision below: choosing a
+  team arrangement authorizes bounded helpers for that goal. Still open,
+  answer from Mike: after accepting agent-led delivery for an item, may the
+  lead choose and coordinate scoped research, design, and review helpers, or
+  should Mike approve the helper team each time? This affects R3 and the
   existing per-item team agreement in [guided delivery](guided-delivery.md#solution-design).
   Recommendation, not approved: let the lead choose within approved scope,
   bringing product choices, significant cost tradeoffs, and existing approval
@@ -412,10 +414,9 @@ to build a particular solution.
   applies. Accepting agent-led delivery on its own still authorizes no helpers.
   This is Mike's decision on this one point, recorded here as proposed PRD
   text. It is not approval of the PRD.
-- Resume here: resolve the future helper-authority question when Mike answers;
-  retain the existing permission boundary meanwhile. Follow issue #337 for
-  rollout and remaining behavior checks. Preserve settled offer timing,
-  declined-offer behavior, and the scoped delivery already merged.
+- Resume here: follow issue #337 for rollout and remaining behavior checks.
+  Preserve settled offer timing, declined-offer behavior, and the scoped
+  delivery already merged.
 - Scoped R6 delivery, 2026-09-19: [PR #362](https://github.com/Mar5929/claude-toolkit/pull/362)
   merged the consolidated new-record runtime at `b2e8727` in work-tracker
   2.8.0. New local items use one `WORK-ITEM.md`; existing items keep their

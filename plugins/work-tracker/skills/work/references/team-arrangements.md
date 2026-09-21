@@ -15,6 +15,8 @@ what each answer means and how to work under it.
   building, drafting, and running checks.
 - One writer per path at a time. A reviewer never edits what it reviews. It
   returns its findings to the lead.
+- A lead rereads the work item right before committing, because the owner may
+  have changed it during the build.
 - The owner's choice of an arrangement authorizes focused, bounded helper
   agents for that goal only, within every other existing limit. "Divide
   responsibility" in [agent-led delivery](agent-led-delivery.md) states that
