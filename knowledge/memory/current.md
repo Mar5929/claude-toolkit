@@ -1,5 +1,5 @@
 # Current working memory
-Updated: 2026-09-20
+Updated: 2026-09-21
 
 ## Project goal
 Finish the authorized Knowledge delivery, verify the toolkit project and laptop,
@@ -8,42 +8,24 @@ for implementation.
 
 ## Active work
 
-### Knowledge System — #269
-Updated: 2026-09-20
+### Knowledge System / Toolkit OS — #269 / #369
+Updated: 2026-09-21
 
-**Goal** Finish the authorized Knowledge packages and target sync, then plan remaining work.
+**Goal** Finish authorized delivery and target sync, then plan whole-system gaps.
 
-**Current status** Reviewed packages merged in PRs
-[#370](https://github.com/Mar5929/claude-toolkit/pull/370) `b3b8fec`,
-[#372](https://github.com/Mar5929/claude-toolkit/pull/372) `999bfcb`,
-[#371](https://github.com/Mar5929/claude-toolkit/pull/371) `283258a`, and
-[#373](https://github.com/Mar5929/claude-toolkit/pull/373) `b201353`.
-PR #367 is closed as superseded; its branch/worktree is preserved. PR #374
-delivery, source/configuration/version integration, and review remain pending.
+**Current status** #370 `b3b8fec`, #372 `999bfcb`, #371 `283258a`, #373 `b201353` merged; #367 superseded. Draft #374's Windows fix is pushed at `0d082a6`; review and sync pending. OS setup source delivered; adoption/broader assessment open.
 
-**Recent progress** Independent Astra/two-Sol source review passed. Evidence found
-a bounded R6 citation pass, prompted Codex CLI R2 startup/recovery pass, and
-bounded Codex Desktop native save and lost-result recovery pass. The linked plan
-and review index preserve exact heads, failures, limits and unresolved evidence.
+**Recent progress** Bounded citation, CLI recovery and Desktop save/recovery evidence published. Review at `c966d681` predates Windows fix; limits remain in plan.
 
-**Next step** Finish and review PR #374, then sync the toolkit project and this
-laptop using shipped behavior where possible, without unnecessary migration or
-authentication changes. Normal Codex hook trust needs Mike's user action.
+**Next step** Claude teams review #374, conditionally merge, then sync project/laptop. Prefer shipped behavior; no unnecessary migration/auth changes. Mike performs normal hook trust.
 
-**Blocker** Full requirements/design acceptance, D3 and other product choices,
-normal target activation, broader hosts, rollout, and full acceptance remain open.
+**Blocker** Full requirements/design acceptance, D3/product choices, broader-host proof and whole-system acceptance open.
 
-**To-dos** 2026-09-20: finish #374; verify project/laptop sync; resolve remaining
-product choices and acceptance evidence.
+**To-dos** 2026-09-21: review/merge, sync, remaining decisions/acceptance.
 
-**Detailed record** [#269](https://github.com/Mar5929/claude-toolkit/issues/269),
-[design Notes](../../docs/designs/269-knowledge-system.md#notes),
-[PRD Notes](../prds/toolkit-operating-system/knowledge-system.md#notes),
-[implementation plan](../../docs/designs/269-knowledge-system/implementation-plan.md).
+**Detailed record** [#269](https://github.com/Mar5929/claude-toolkit/issues/269), [#369](https://github.com/Mar5929/claude-toolkit/issues/369), [design Notes](../../docs/designs/269-knowledge-system.md#notes), [PRD Notes](../prds/toolkit-operating-system/knowledge-system.md#notes), [plan](../../docs/designs/269-knowledge-system/implementation-plan.md).
 
-**Owning session** Orchestrator `01a0bf79-ee0e-7a83-86df-251957d7f5e8`.
-Mike authorized managing helpers/separate tasks and archiving completed tasks
-after communication and verified handoffs. Assignment does not prove liveness.
+**Owning session** Main `01a0bf79-ee0e-7a83-86df-251957d7f5e8`; Codex teams stopped. Mike authorized coordination and archiving completed tasks after verified handoffs. Assignment is not liveness.
 
 ### Guided work management — #337
 Updated: 2026-09-19
@@ -89,6 +71,10 @@ Updated: 2026-09-19
 - 2026-09-19: Notes workflow merged; project refresh remains.
 
 ## Session handoffs
+
+### 2026-09-21T16:30:44.599Z | Claude team continuation
+
+Resume the [team continuation](../../docs/designs/269-knowledge-system/implementation-plan.md#claude-team-continuation-2026-09-21): main plus Knowledge, Toolkit OS, review and sync teams. First inspect Git/#374 and establish exclusive ownership. Windows fix needs review; sync follows merge. Check #374 approval scope in plan; full acceptance remains open. Source: main task above. Plan carries roles, paths, evidence limits and next actions. Do not restart Codex writers alongside Claude.
 
 ### 2026-09-20T11:01:22.781Z | Knowledge delivery coordinator
 

@@ -1,9 +1,262 @@
 # Knowledge System implementation plan
 
-Updated: 2026-09-20. Execution plan for issue #269. Reviewed packages in PRs
+Updated: 2026-09-21. Execution plan for issue #269. Reviewed packages in PRs
 #370, #372, #371 and #373 are merged. PR #374 delivery and authorized target
 sync remain pending; design, product decisions and acceptance work stay open.
 This document does not supply missing approvals.
+
+## Claude team continuation, 2026-09-21
+
+This is a checked continuation of the existing work, not a new requirements
+approval or a second tracker. GitHub issues own live status. Recheck them and
+Git before writing. Earlier dated assessments below remain historical evidence.
+
+### Goal and first action
+
+Help Mike turn requests into checked, resumable results through the Knowledge
+System and Toolkit Operating System. Finish the authorized delivery and adoption,
+then reconcile remaining PRD/design gaps without treating proposed requirements
+as approved. The [Knowledge PRD](../../../knowledge/prds/toolkit-operating-system/knowledge-system.md),
+[Toolkit OS PRD](../../../knowledge/prds/toolkit-operating-system/toolkit-operating-system.md),
+[#269](https://github.com/Mar5929/claude-toolkit/issues/269) and
+[#369](https://github.com/Mar5929/claude-toolkit/issues/369) own that scope.
+
+First, read the root instructions completely, fetch without changing another
+session's checkout, inspect all worktrees and confirm PR #374's remote head.
+Then establish one Claude main coordinator and separate responsible teams using
+capabilities actually available in Claude. Do not assume Codex task IDs or tools
+are callable from Claude. Retain the responsibilities below even if Claude's
+supported mechanism is teammates or delegated agents instead of separate chats.
+No need to restart completed reviews or rebuild merged packages.
+
+### Previous team setup and Claude equivalents
+
+Mike requested one main orchestrator with distinct implementation teams. The
+Codex main task assigned bounded work, sent follow-up messages to task leads,
+read their findings, reconciled conflicting edits, coordinated release versions,
+owned merges and tracker updates, and released sync only after source readiness.
+Each implementation lead could coordinate its own developers. An independent
+review lead coordinated two reviewers and returned findings to the main and
+implementation leads. The main retained responsibility for readiness and reported
+to Mike. Separate task histories were useful evidence, not the project authority.
+
+| Role / original task ID | Responsibility and continuation |
+| --- | --- |
+| Main coordinator `01a0bf79-ee0e-7a83-86df-251957d7f5e8` | Own overall requirements/gap reconciliation, GitHub status, assignments, cross-team conflicts, release integration, conditional merge readiness and sync release. Keep Mike informed. |
+| Knowledge implementation `01a0bf95-4a8d-7ed0-8c89-63b769daac35` | Own Knowledge runtime, hooks, tools, skills/templates and tests. Continue existing PR #374; do not redo merged #370/#372/#373. Coordinate the one project-sync delegation sentence with the OS owner. |
+| Toolkit OS implementation `01a0bf95-7def-7001-9a21-01942d7e3faa` | Own non-Knowledge Toolkit requirements/gaps and bounded setup/Guide work in #369. PR #371 source correction is merged; verify adoption during sync, then assess remaining parent/child PRD gaps. This team is not complete merely because #371 merged. |
+| Independent review `01a0c087-197e-7873-913f-1d83c090e4e1` | Originally GPT-6 Astra lead with exactly two GPT-5.6 Sol reviewers. Compare scope against PRD, design and latest decisions; review correctness and unnecessary complexity. Next review the new Windows delta and integrated #374 head, not a broad repetition of completed trials. Return exact head, findings, tests inspected and limits. |
+| Project/laptop sync `01a0c041-8f6f-7dc2-b867-91c2dff10b42` | Originally GPT-5.6 Sol. Audit is prepared; execution has not occurred. Wait for coordinator's verified merged-source SHA and exclusive primary-checkout mutation reservation. Apply project-sync and machine-sync, validate actual activation, preserve records. |
+
+Knowledge and OS leads used Sol developers. Mike wanted economical Codex models,
+with the smartest model reserved for genuinely complex intellectual work. Claude
+models are a separate host concern: the current repository rule
+`.claude/rules/subagents-run-on-opus.md` and settings require Opus for Claude
+helpers. Do not invent Claude equivalents named Sol/Astra or silently alter the
+model policy while transferring work. Inspect installed Claude capabilities and
+coordinate a comparable arrangement rather than promising identical live chats.
+
+Use one writer per overlapping path. Knowledge owns `plugins/second-brain` and
+Knowledge tests; OS owns its setup/Guide corrections. The main serializes shared
+release metadata, catalogs, manuals and primary-main documentation saves. Sync
+alone changes the actual project/machine installation after release. Reviewers
+report findings or work in explicit isolated scopes; they do not compete with
+implementation writers. A recorded assignment does not mean an agent is running.
+
+### Source, requirements and decision authority
+
+Read `CLAUDE.md`, its complete required startup chain and relevant folder rules.
+Then read #269/#369, this plan's current sections, the Knowledge PRD and its Notes,
+[master solution design](../269-knowledge-system.md) and its Notes, and the
+[design walkthrough](design-walkthrough.md). The approved requirements walkthrough
+is `knowledge/prds/toolkit-operating-system/knowledge-system-walkthrough.html`;
+#269 explains precedence of accepted walkthrough answers and later owner
+clarifications. Do not restart the completed interview or approve the whole PRD
+because scoped implementation was authorized.
+
+For Toolkit OS, open the parent PRD and child `folder-instruction-files.md`,
+`guided-delivery.md`, `guided-work-management.md`, `system-guide.md` and
+`work-item-upkeep.md` in the same PRD folder. #369 owns the bounded setup scope.
+#337 owns guided-work acceptance; #360 owns the instruction audit. The existing
+`docs/designs/306-toolkit-manual-review.md` owns manual delivery evidence. Closed
+#304/#306 do not independently prove full Guide/manual acceptance. Use each
+record's Notes and actual implementation to identify stale PRD statements,
+missing behavior, missing evidence and product decisions separately. Proposed
+parent PRDs remain proposed; do not bulk finalize them.
+
+The earlier Claude Projects comparison is already saved in
+`knowledge/memory/memory-entries/claude-projects-research.md` and
+`docs/designs/269-knowledge-system/research/2026-09-20-claude-projects-redesign.md`.
+That research task was completed and archived; it is context for the Toolkit OS
+team, not an unfinished implementation assignment. Preserve current-work's
+other items (#337, #360, #358 and instruction-overload evaluation) when resuming;
+this release does not close them.
+
+The [review index](README.md#current-implementation-planning) links the complete
+R1–R30 source/evidence matrix and individual reports. D3 stale-knowledge handling,
+full requirements/design acceptance, native-memory conflicts, current-work
+size/retention choices and broader host/acceptance proof remain with their owning
+records. #367 was test preparation, not completion of the Knowledge System.
+
+### Exact delivery checkpoint
+
+Verified remote implementation history before this handoff:
+
+| PR | State / commit | Meaning |
+| --- | --- | --- |
+| #368 | Merged `2fdb94ef30fba0aaec2b2f2997ea562f8cf49ac9` | Codex model choice; Claude Opus configuration preserved. |
+| #370 | Merged `b3b8feceeab0832da4e48c9bea45fd6ab0f8c50e` | Feedback/citation corrections; second-brain 4.12.1. |
+| #372 | Merged `999bfcb4898bffbd7449e6b09fc98ffbf0d65c53` | Behavior runner replacement for #367. |
+| #371 | Merged `283258a730ec90c51f63a646a496c32430661d9a` | OS setup contracts and read-only Guide drift regression; project-init 0.77.1. |
+| #373 | Merged `b20135314e37e3974e2390e638de0eb4f14915f5` | Native Stop turn correlation; second-brain 4.12.2. |
+| #367 | Closed, superseded by #372 | Historical head `59145272872af43d848ff5df205e9154bf94da77` retained. Do not merge it. |
+| #374 | Open draft, head `0d082a681293fa6dc5e4087bb63fda91e2925eba` | Action checkpoint/delivery package; final review and merge pending. |
+
+Primary checkout: `/Users/michaelrihm/Documents/Projects/claude-toolkit`, branch
+`main`, remote `https://github.com/Mar5929/claude-toolkit`. Before this documentation
+save, main was `f9b2dd8fc5b7c9a6d0ed0ec864f730b42c8045cc`; fetch for the later
+handoff publication commit. Documentation belongs directly on main under the
+existing publication rule; implementation stays in its reviewed PR branch.
+
+PR #374 checkout:
+`/Users/michaelrihm/.codex/worktrees/knowledge-action-checkpoint/claude-toolkit`,
+branch `codex/knowledge-action-checkpoint`, base main. It already includes the
+prior main documentation integration at `c966d681e042dfb7269a2946b577227d417b7138`.
+The interruption left three unstaged edits. Main recovered and pushed only
+`.codex/hooks.json`,
+`plugins/second-brain/skills/knowledge-setup/references/delivery.md`, and
+`tests/knowledge-startup-check.mjs` as `0d082a6`. No merge was performed.
+
+The late P1: Codex launches Windows hook commands through cmd.exe; the two new
+handlers contained raw PowerShell syntax. The recovered fix explicitly launches
+`powershell.exe -NoProfile -Command`. Review those definitions, guidance and
+assertions against `research/r2-codex-capabilities.md`, especially the shell
+contract, before accepting the delta. Older unrelated handlers were left alone.
+The old independent approval at `c966d681` predates this correction and cannot
+approve the new head automatically.
+
+Checks actually rerun for the recovered delta on 2026-09-21: relative links 445,
+shipped routes 243, installed-copy checks 27, startup/package checks 13, marketplace
+plugin validation and whitespace check all passed. These are source/configuration
+checks on macOS, not native Windows proof. The earlier 86 Node cases and earlier
+independent reviews remain dated evidence, not a claimed rerun of this head.
+Prepared #374 versions: second-brain 4.12.3, project-init 0.77.2, marketplace
+0.124.4; recheck integrated values and shared files before merging.
+
+### Preserved local worktrees and historical refs
+
+The original Knowledge and OS task working directories are detached, clean
+snapshots at `fe043871`: `/Users/michaelrihm/.codex/worktrees/6fc4/claude-toolkit`
+and `/Users/michaelrihm/.codex/worktrees/959c/claude-toolkit`. They are not current
+main or the PR #374 source checkout. All four separate task records were
+`notLoaded` when inspected on 2026-09-21; Knowledge and sync ended on usage-limit
+failures, and review/OS returned earlier exact-head findings.
+
+Two clean local-only branches are preserved:
+`codex/knowledge-independent-review` at `f6e9569216ca7b5c5aac9904efde61592d6dcaa1`
+in `/Users/michaelrihm/.codex/worktrees/c8c2/claude-toolkit`, and
+`codex/knowledge-stop-correlation` at `cbea6d0d6f8cc6f3e9a59cb46dd3f2325c1ab4ed`
+in `/Users/michaelrihm/.codex/worktrees/knowledge-stop-correlation/claude-toolkit`.
+They retain historical integration/source ancestry; current review reports and
+reviewed delivery are already published through main/PR #374. Do not merge or
+push these histories wholesale. In particular the Stop source history includes
+an earlier capture before identifier redaction; the reviewed published version
+is the continuation source. No required product delta is stranded on those refs.
+Other unrelated worktrees, including #269 design/manual, #319 voice and
+plain-English clarity work, remain untouched. Reinspect before cleanup.
+
+### What #374 implements and what review must preserve
+
+One pending action in the existing locked project/session/agent completion state,
+with action identity, nonce and outcome. General review does not release an action;
+a matching explicit action review permits one atomic retry. Prompt/action changes
+invalidate the previous permit. Stale turn identities cannot mutate current state.
+PR identity includes branch and HEAD; close/merge identity preserves ordered
+recognized type/item pairs. Two new PreToolUse handlers share matcher `^Bash$`.
+Mixed PR-create and close/merge commands receive a split-command denial from both
+handlers without consuming an existing permit. Lock contention denies; unexpected
+errors retain the documented fail-open behavior, so enforcement is not absolute.
+Pending approval or unfinished save does not authorize the dependent action.
+Keep this bounded; avoid a second controller, history database or expanding the
+shell parser as incidental handoff work.
+
+### Evidence limits that must survive transfer
+
+- `reviews/2026-09-20-independent-requirements-review.md` maps all 30 requirements.
+- `reviews/2026-09-20-independent-behavior-review.md`: three citation trials;
+  final bounded per-finding pass, not a reliability rate. Earlier failures remain.
+- `reviews/2026-09-20-startup-recovery-proof.md`: prompted Codex CLI 0.154/macOS
+  root fallback and persisted-session recovery. Not spontaneous startup,
+  registered hooks, Desktop, Windows, compact or clear proof.
+- `reviews/2026-09-20-native-save-independent-review.md` and
+  `reviews/native-save-helper-proof/`: bounded actual Desktop 0.155.0-alpha.9.2
+  Sol helper execution while parent continues and simulated lost-result recovery
+  using a local bare remote. Not network, cross-machine or shutdown reliability.
+- `reviews/2026-09-20-action-checkpoint-independent-review.md` and
+  `reviews/2026-09-20-native-action-checkpoint-proof.md`: preserve the unauthorized
+  temporary trust-bypass deviation in the CLI fixture. It is controlled evidence,
+  not normal project delivery. Never repeat the bypass or change authentication.
+- Claude model proof was previously blocked by expired OAuth. Current auth has
+  not been reverified; let Mike handle any login, do not alter it automatically.
+
+### Sync team's prepared scope
+
+Read current installed project-sync and machine-sync procedures and re-audit
+actual versions. Earlier audit observations may have changed. Execute only after
+#374 is reviewed/merged and the main coordinator releases the primary checkout.
+Mike authorized this project and laptop, applicable Toolkit functionality,
+Toolkit-shipped behavior for in-scope conflicts and no unnecessary migration.
+Preserve project records, unrelated settings, authentication and GitHub tracking.
+
+Prepared plan, not independently reconfirmed as exact current execution scope:
+the audit proposes refreshing Claude/Codex plugin caches, removing the
+project-local Concise override while retaining unrelated skillOverrides and
+selecting shipped Plain English, enabling System Guide at `knowledge/system`
+with truthful activation checks, and the offline code-only graphify setup with
+no model/API spend and existing Git-hook chaining. It also covers the machine
+attribution guard, retiring only Toolkit-obsolete knowledge text in global
+steer-to-goal and the retired propose-best-solution instruction, replacing the
+old plain-language style, retiring only obsolete style-reminder/writing-guard
+hooks/scripts while preserving voice/settings, and repairing the obsolete style
+route in quiet-while-working. Record actual project/machine sync results.
+
+Schema 2 is already installed; no Knowledge migration is planned. Preserve the
+five legacy misc artifacts and unrelated worktrees; no Salesforce kits. Recheck
+all exact proposed edits against shipped source before applying. New/changed
+Codex hook definitions require Mike's normal `/hooks` review/trust interaction;
+never bypass trust, silently grant it, or infer Desktop delivery from CLI tests.
+
+### Authority and completion
+
+Owner source, current conversation: Mike requested separate Knowledge and OS
+leads with Sol developers, then an Astra review lead with two Sol reviewers. He
+said, "once that's done, you can merge the PRs, I give you my approval", conditional
+on the review/fix cycle, confidence and avoiding unnecessary complexity, followed
+by project sync; his earlier machine-sync request remains. This is recorded in
+#269/#369. It is authority to complete the covered sequence, not evidence it
+passed, new product requirements approval or whole-system acceptance.
+
+On 2026-09-21 Mike requested saving/pushing all work and a comparable Claude
+orchestrator/team arrangement. This handoff preserves that direction. Do not
+resume Codex writers in parallel with Claude. Keep completed task histories
+available until continuation is verified; archiving is organizational, not proof
+of completion. Unfinished teams must not be labelled complete to archive them.
+
+Approval scope note (not independently confirmed for #374): Mike's quote
+approves the discussed review/fix sequence; #269/#369's original entry names
+#370–#373. The Codex main interpreted the derived action-checkpoint correction
+#374 as within that sequence, but Mike did not separately name #374 in the
+quoted approval. Before merging, the receiving coordinator must establish that
+the actual #374 scope is covered by the recorded direction; seek clarification
+only if that scope remains ambiguous. Do not silently expand the approval.
+
+After focused review and establishing approval scope, main verifies the current
+head/checks and safely merges #374, then releases sync. Verify actual target behavior,
+update #269/#369 and related PRDs only to reflect authorized delivered meaning,
+and preserve remaining product decisions and acceptance work. Other open PRs,
+including #343 and #349, are outside this handoff's implementation authority.
+Both operating manuals were reviewed for this continuation; no policy change
+is needed for saving the handoff itself.
 
 ## Authority and execution boundary
 
