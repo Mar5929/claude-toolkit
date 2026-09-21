@@ -92,26 +92,70 @@ clear and compact, and a fork event only where the host emits it. Register
 `memory-reminder` under UserPromptSubmit and `knowledge-completion` under Stop,
 each once with a 10-second timeout. The startup handler may use 15 seconds.
 Preserve project-init's distinct Toolkit orientation handler. Register the
-existing save/work-item reminders under PreToolUse with Bash matcher on Claude;
-map only actual supported Codex shell/tool events after testing them.
+existing save/work-item reminders under PreToolUse with the existing Bash
+matcher on Claude. In Codex, place both command handlers in one PreToolUse group
+with the exact matcher `^Bash$`. The POSIX commands are
+`node "$(git rev-parse --show-toplevel)/.claude/hooks/save-reminder.mjs"` and
+`node "$(git rev-parse --show-toplevel)/.claude/hooks/work-item-close.mjs"`.
+The Windows commands explicitly launch `powershell.exe -NoProfile -Command`,
+assign `git rev-parse --show-toplevel` to a local `$knowledgeRoot`, exit when Git
+fails, and invoke `node (Join-Path $knowledgeRoot '.claude/hooks/<file>.mjs')`
+with the corresponding file name.
+Merge this group into the existing configuration and preserve every unrelated
+event, group and handler.
 
 For a Git-backed Codex project, the POSIX command can locate the script with
 `node "$(git rev-parse --show-toplevel)/.claude/hooks/<file>.mjs"`. For Windows,
-use the host's commandWindows field with a PowerShell local root variable,
-check git's exit code, use Set-Location -LiteralPath, then invoke Node with the
-relative script path. Non-Git projects need their verified project-root route;
-never assume Git is available merely because a template used it. Check settings
-schema and effective event delivery on the installed host. A configured event
-that never runs is an unresolved support gap, with the root/manual fallback
-still required.
+use the host's commandWindows field to launch PowerShell explicitly, set a local
+root variable, check git's exit code, then invoke Node with the script path
+built by `Join-Path` from that root. Non-Git projects need their verified project-root route;
+never assume Git is available merely because a template used it. Review the
+exact project-layer hook definitions in Codex `/hooks` and use the host's normal
+trust flow. Never grant trust, change authentication, or use a bypass as part of
+setup. Configured, trusted and active are separate results. Check settings schema
+and effective event delivery on the installed host. A configured event that
+never runs is an unresolved support gap, with the root/manual fallback still
+required.
+
+Assumption from a rolling-document claim, not verified on the installed host:
+Codex runs multiple command hooks concurrently. The evidence is in the
+claude-toolkit repository at
+`docs/designs/269-knowledge-system/host-capability-evidence.md`, line 76; an
+installed project does not carry that file. Both action hooks therefore perform
+the same mixed-action precheck before either changes or consumes review state.
+A command that combines pull-request creation with a close or merge is denied
+by both handlers and must be split into separate actions.
+
+Known limits of the action checkpoint:
+
+- A permit earned through a command that starts with `cd /other/repo`, for
+  pull-request creation, close or merge, survives a new prompt. A
+  pull-request-create permit lasts until that repository's HEAD changes. A close
+  or merge permit is keyed on the project root and the action list, so a new
+  commit does not invalidate it.
+- Only Bash command segments beginning `gh pr create`, `gh issue close` or
+  `gh pr merge` are recognized, so `bash -c "..."`, a full path to gh,
+  `gh pr close`, `gh api` and non-Bash tool routes pass.
+- A command run outside a Git repository is always allowed.
+- The two older raw-PowerShell Codex handlers (UserPromptSubmit
+  `memory-reminder` and Stop `knowledge-completion`) do not run under cmd.exe,
+  so on that host no new prompt resets review state.
+- Enforcement is fail-open: an unexpected error allows the command.
+- A held review-state lock is the one failure that denies. The message names the
+  lock file. Remove that file only when no other review is running.
+- Nothing here is proven on native Windows.
 
 The prompt handler supplies the session/agent identity, the current review
 UUID, and a normalized nonempty Codex `turn_id` when the host provides one.
-After actual review, call the installed completion module with
-`review ROOT SESSION AGENT GENERATION OUTCOME` as positional arguments. Allowed
-outcomes are no-change, pending-approval, save-unfinished and saved. The Stop
-handler requests at most one continuation if no outcome was recorded. Explicit
-old-generation/helper receipts cannot complete another turn's review. Native
+After actual turn review, call the installed completion module with
+`review ROOT SESSION AGENT GENERATION OUTCOME`, five positional arguments after
+`review`. Allowed outcomes are no-change, pending-approval, save-unfinished and
+saved. An action-specific review adds its displayed action nonce as the sixth
+positional argument. A five-argument general outcome cannot release a held
+pull-request create, issue close or pull-request merge. Each action receipt is
+consumed by one exact retry. The Stop handler requests at most one continuation
+if no outcome was recorded. Explicit old-generation/helper receipts cannot
+complete another turn's review. Native
 Codex Stop handling compares nonempty stored and incoming `turn_id` values
 before outcome or continuation handling. A mismatch is ignored without changing
 the current review state; a match keeps the generation receipt and one-

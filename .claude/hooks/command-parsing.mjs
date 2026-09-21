@@ -46,6 +46,17 @@ export function matchesAny(command, patterns) {
   return false;
 }
 
+export const SPLIT_REVIEW_ACTIONS = [
+  "Held. This command combines pull-request creation with a work-item close or merge.",
+  "Run them as separate commands so each action gets its own Knowledge review checkpoint.",
+  "No review state was changed or consumed.",
+].join("\n");
+
+export function combinesReviewActions(command) {
+  return matchesAny(command, OPENS_PULL_REQUEST)
+    && matchesAny(command, CLOSES_WORK_ITEM);
+}
+
 /**
  * The directory a command actually runs in.
  *

@@ -706,8 +706,11 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   than silently disabling/importing/deleting existing data. A plugin refresh is
   not project activation. Run file checks and actual fresh/recovered host proofs,
   record configured/tested/unavailable results separately, and leave failed or
-  partial setup explicitly incomplete. The procedure owns exact file moves and
-  registration details; this skill owns project-level coordination.
+  partial setup explicitly incomplete. The Knowledge setup procedure applies
+  and verifies the exact Claude and Codex hook definitions while preserving
+  unrelated configuration; Codex trust and authentication remain in the normal
+  owner `/hooks` flow. The procedure owns exact file moves and registration
+  details; this skill owns project-level coordination.
 
 - Do not install second-brain v1 or import its content. For an existing v1
   project, offer the following separately after reporting the exact local
