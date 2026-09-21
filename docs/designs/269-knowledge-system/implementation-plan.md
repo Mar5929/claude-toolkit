@@ -72,7 +72,10 @@ as product owner. Report to him in plain user-facing language without pull
 request or issue numbers, and bring him product decisions only.
 
 Arrangement: separate local Claude Code desktop chats in this project, one per
-responsibility. Each chat has its own lead with Opus helper agents. The main
+responsibility. Each chat has its own lead with Opus helper agents. Mike
+confirmed on 2026-09-21 that each chat lead also runs on Fable: the lead plans,
+briefs, judges and verifies, and hands the token-heavy reading, building,
+drafting and check runs to its Opus helpers. The main
 orchestrator chat reads, messages and checks them, and alone updates the
 tracker, shared files and merges.
 
