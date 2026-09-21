@@ -74,8 +74,9 @@ Canonical hooks copied into `.claude/hooks/`:
   generation, explicit outcome and at most one corrective Stop continuation.
 - `hooks/save-reminder.mjs`, `hooks/work-item-close.mjs`,
   `hooks/command-parsing.mjs`: reminders on recognized PR/close commands. A
-  matching action needs its own declared review outcome; one exact retry consumes
-  that receipt. The receipt is not proof of judgment or universal tool coverage.
+  matching action is held once per session and named in the denial; a plain
+  retry of the same command is then allowed. The hold is not proof of judgment
+  or universal tool coverage.
 
 Tools copied into `.claude/tools/`:
 
@@ -92,8 +93,9 @@ default branch before reporting completion. The single inbox preserves exact
 scope and authority before helper dispatch. Retry checks existing effect and
 current remote first; published content and pending cleanup are separate facts.
 
-Temporary completion files hold only generation/outcome/retry facts outside the
-repository. They contain no knowledge, transcripts, permission or pending saves.
+Temporary completion files hold only generation/outcome facts, and the shared
+action-hold file only the actions already held, outside the repository. They
+contain no knowledge, transcripts, permission or pending saves.
 Receipts record declarations, not understanding. Missing hooks, trust settings,
 unsupported tools or unavailable host evidence limit claims; they never silently
 waive a requirement. Foreground save fallback uses unchanged authorization when
@@ -103,8 +105,8 @@ parallel helpers are unavailable.
 
 `tests/save-recovery.test.mjs` exercises real disposable local Git repositories;
 `tests/checkpoints.test.mjs` covers bounded continuation and stale/helper receipts.
-`tests/action-checkpoints.test.mjs` covers action identities, one-use receipts,
-concurrent retries, compound close/merge commands and hook entry points.
+`tests/action-checkpoints.test.mjs` covers action identities, the once-per-session
+hold and its plain retry, compound close/merge commands and hook entry points.
 `tests/new-install.test.mjs` assembles an empty project and runs the copied
 startup, prompt, completion and review commands from a nested working directory.
 These deterministic checks do not replace fresh-agent meaning/host tests.

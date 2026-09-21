@@ -70,17 +70,18 @@ try {
   [actionSessions[1],'work-item-close.mjs','gh issue close 42'],
  ]){
   const actionInput={session_id:sessionId,turn_id:'fixture-turn',cwd:resolve(root,'packages/feature'),hook_event_name:'PreToolUse',tool_name:'Bash',tool_input:{command}};
-  const output=execFileSync(process.execPath,[resolve(root,'.claude/hooks',file)],{cwd:resolve(root,'packages/feature'),env,input:JSON.stringify(actionInput),encoding:'utf8'});
+  const run=()=>execFileSync(process.execPath,[resolve(root,'.claude/hooks',file)],{cwd:resolve(root,'packages/feature'),env,input:JSON.stringify(actionInput),encoding:'utf8'});
+  const output=run();
   assert.notEqual(output,'',`${file} must return a Codex deny decision`);
   const decision=JSON.parse(output).hookSpecificOutput;
-  assert.equal(decision.hookEventName,'PreToolUse');assert.equal(decision.permissionDecision,'deny');assert.match(decision.permissionDecisionReason,/action=/);
+  assert.equal(decision.hookEventName,'PreToolUse');assert.equal(decision.permissionDecision,'deny');assert.match(decision.permissionDecisionReason,/Held action: /);
+  assert.equal(run(),'',`${file} allows the plain retry`);
  }
 
 } finally {
- for(const sessionId of ['fixture-session',...actionSessions]){
-  const key=createHash('sha256').update(JSON.stringify([realpathSync(root),sessionId,'root'])).digest('hex');
-  rmSync(join(tmpdir(),'toolkit-knowledge-review',key+'.json'),{force:true});
- }
+ const key=createHash('sha256').update(JSON.stringify([realpathSync(root),'fixture-session','root'])).digest('hex');
+ rmSync(join(tmpdir(),'toolkit-knowledge-review',key+'.json'),{force:true});
+ for(const sessionId of actionSessions)rmSync(join(tmpdir(),'second-brain-action-hold',`${sessionId}-root.json`),{force:true});
  rmSync(root,{recursive:true,force:true});
 }
 });

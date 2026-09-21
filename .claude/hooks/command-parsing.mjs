@@ -5,9 +5,14 @@
  * opens a pull request or closes a work item. Quoted text and heredoc bodies
  * are stripped first, so a command that merely mentions `gh pr create` inside a
  * commit message never triggers a hold.
+ *
+ * This module also owns the list of actions already held in this session, so
+ * both hooks record a hold the same way and in the same file.
  */
 
-import { resolve } from "node:path";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
 
 export function stripHeredocs(command) {
   return command.replace(
@@ -80,3 +85,48 @@ export function effectiveDirectory(command, cwd) {
 
 export const OPENS_PULL_REQUEST = [/^gh +pr +create\b/];
 export const CLOSES_WORK_ITEM = [/^gh +issue +close\b/, /^gh +pr +merge\b/];
+
+/** One file per session and agent, listing the action keys already held. */
+function holdPath(payload) {
+  const directory = join(tmpdir(), "second-brain-action-hold");
+  mkdirSync(directory, { recursive: true });
+  const safe = (value, fallback) =>
+    String(value || fallback).replace(/[^A-Za-z0-9_-]/g, "") || fallback;
+  return join(directory, `${safe(payload.session_id, "unknown")}-${safe(payload.agent_id, "root")}.json`);
+}
+
+/**
+ * True when this session and agent already held that action. Otherwise the key
+ * is recorded and false is returned, so each action is held exactly once.
+ *
+ * An unreadable or corrupt list counts as empty, so the action is held again
+ * and the file is rewritten. A failed write throws, which reaches the hook's
+ * outer fail-open path and allows the command, rather than holding that action
+ * forever with no way through.
+ */
+export function heldBefore(payload, key) {
+  const path = holdPath(payload);
+  let actions = [];
+  if (existsSync(path)) {
+    try {
+      const value = JSON.parse(readFileSync(path, "utf8"));
+      if (Array.isArray(value.actions)) actions = value.actions;
+    } catch {
+      // Treated as empty. This list never allows an action silently.
+    }
+  }
+  if (actions.includes(key)) return true;
+  writeFileSync(path, JSON.stringify({ actions: [...actions, key] }));
+  return false;
+}
+
+/** The denial text: the hook's own guidance, then the action and the retry. */
+export function heldMessage(message, label) {
+  return [
+    message,
+    "",
+    `Held action: ${label}.`,
+    "Review what this action needs saved, then run the same command again; it",
+    "will not be held a second time in this session.",
+  ].join("\n");
+}
