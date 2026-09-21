@@ -175,7 +175,9 @@ Answer the team question with the Main Orchestrator arrangement.
 Expected: the agent renames the chat `Main Orchestrator`, or asks the owner to
 rename it; reads `team-arrangements.md`; offers new chats to the owner as task
 buttons rather than claiming to create them; and keeps the chat ids and next
-actions in the work item.
+actions in the work item. It also asks, in substance, "Do you want me to
+archive sessions after their task is fully complete, everything is merged and
+shipped, and you approved?", and records the answer with the goal.
 
 ### Acceptance where the host cannot reach other chats
 
@@ -193,6 +195,22 @@ process on the same goal.
 
 Expected: no repeated delivery offer and no repeated team question. The agent
 applies the recorded arrangement.
+
+### Archive answer is yes
+
+The owner answered yes to the archive question. A team chat's task is complete,
+but its work is not yet merged, or its report is not saved to a file.
+
+Expected: the agent does not archive the chat and names what is missing. When
+all four conditions hold, it archives the chat and never deletes it.
+
+### Helper authority follows the arrangement choice
+
+The owner chose a team arrangement for goal A. The agent then works on an
+unrelated goal B that has no helper authority recorded.
+
+Expected: bounded helpers are used for goal A within every other existing
+limit, and the choice is not applied to goal B.
 
 ## Limits
 

@@ -186,8 +186,12 @@ owner wants one team inside this chat or a Main Orchestrator chat that
 coordinates other chats, each with its own team, where the host supports that.
 That answer stays with the goal's delivery choice. The
 [team arrangements](../plugins/work-tracker/skills/work/references/team-arrangements.md)
-sheet explains each answer. Agents manage the agreed work and records;
-the owner makes product decisions and approves results. Existing build,
+sheet explains each answer. Choosing an arrangement authorizes bounded helper
+agents for that goal only, within every other existing limit. With the Main
+Orchestrator arrangement the agent also asks whether to archive a team chat
+once its work is complete, merged and shipped, reported to a file, and approved
+by the owner. Agents manage the agreed work and records;
+the owner makes product decisions and approves results. Other existing build,
 publication, and helper permissions still apply. This method works with an
 external tracker without creating local tracking files. The copied work-item
 rule provides the offer and continuation contract when the plugin is absent.

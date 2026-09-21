@@ -1,9 +1,10 @@
 # Team arrangements
 
 This file explains the two answers to the team-arrangement question in
-[agent-led delivery](agent-led-delivery.md). That file owns the question, when
-it is asked, and where the answer is recorded. Read this file to learn what
-each answer means and how to work under it.
+[agent-led delivery](agent-led-delivery.md), and the archive answer that
+follows the Main Orchestrator arrangement. That file owns the questions, when
+they are asked, and where the answers are recorded. Read this file to learn
+what each answer means and how to work under it.
 
 ## One team inside this chat
 
@@ -14,9 +15,11 @@ each answer means and how to work under it.
   building, drafting, and running checks.
 - One writer per path at a time. A reviewer never edits what it reviews. It
   returns its findings to the lead.
-- Helper use follows the helper authority stated under "Divide responsibility"
-  in [agent-led delivery](agent-led-delivery.md). Where that authority is
-  absent, the main agent does the work itself.
+- The owner's choice of an arrangement authorizes focused, bounded helper
+  agents for that goal only, within every other existing limit. "Divide
+  responsibility" in [agent-led delivery](agent-led-delivery.md) states that
+  authority. Where the owner was not asked and no other helper authority
+  exists, the main agent does the work itself.
 - This is also the arrangement used on a host that cannot support the
   multi-chat arrangement below.
 
@@ -40,6 +43,16 @@ each answer means and how to work under it.
 - Live status, meaning chat ids, chat states, and next actions, belongs in the
   work item, not in a plan or design file. A recorded chat id is coordination
   information. It is not proof the chat is still running.
+
+## Archiving finished chats
+
+- This applies only when the owner answered yes to the archive question in
+  [agent-led delivery](agent-led-delivery.md).
+- With a yes, the Main Orchestrator archives a team chat only when all four of
+  these are true: its task is complete; its work is merged and shipped; its
+  report is saved to a file; and the owner approved the result.
+- Archive only. Never delete a chat. An archived chat can be restored.
+- With a no, leave chats as they are.
 
 ## Starting a chat
 

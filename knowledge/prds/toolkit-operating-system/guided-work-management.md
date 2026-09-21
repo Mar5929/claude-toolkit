@@ -86,6 +86,21 @@ Model wording stays generic: the most capable available model leads and guides,
 and the project's helper model carries out the work. A project rule or the
 owner's recorded preference names the actual models.
 
+When the owner chooses the Main Orchestrator arrangement, the agent asks one
+more question, in substance: should sessions be archived after their task is
+fully complete, everything is merged and shipped, and the owner approved? That
+answer is recorded with the goal in the same way as the arrangement answer.
+With a yes, the main archives a team chat only when its task is complete, its
+work is merged and shipped, its report is saved to a file, and the owner
+approved the result. It archives only and never deletes, and an archived chat
+can be restored. With a no, chats are left as they are.
+
+Choosing a team arrangement is also the owner's authorization to use bounded
+helper agents for that goal only. It does not carry to another goal, and every
+other existing limit on tools, spending, publication, deployment, and approvals
+still applies. Accepting agent-led delivery on its own still authorizes no
+helpers.
+
 Simple questions and quick edits stay lightweight: they do not prompt an offer
 of guided management solely because the owner made a request.
 
@@ -110,7 +125,12 @@ Accept the offer: the agent asks the team-arrangement question once, records
 the answer with that goal's delivery choice, and does not ask it again when the
 goal resumes in a fresh session. Repeat on a host that cannot list, read, and
 message other chats: the agent says the multi-chat arrangement is unavailable
-and uses one team in the current chat.
+and uses one team in the current chat. Choose the Main Orchestrator
+arrangement: the agent asks the archive question once, records the answer with
+the goal, and with a yes archives a team chat only after its task is complete,
+its work is merged and shipped, its report is saved to a file, and the owner
+approved the result, never deleting it. Either arrangement choice authorizes
+bounded helper agents for that goal only, within every other existing limit.
 
 #### 2. Maintain the accepted plan without repeated upkeep approvals
 
@@ -385,12 +405,13 @@ to build a particular solution.
   Recommendation, not approved: let the lead choose within approved scope,
   bringing product choices, significant cost tradeoffs, and existing approval
   boundaries to Mike.
-- Still open, answer from Mike: does the owner choosing a team arrangement
-  count as authorization to use helpers for that goal? Recommendation recorded
-  in [#377](https://github.com/Mar5929/claude-toolkit/issues/377), not a
-  decision: choosing an arrangement counts as authorization to use bounded
-  helpers for that goal, within every other existing limit. Nothing here takes
-  a side; the current permission boundary stands until Mike answers.
+- Decision: Mike accepted the recommendation on 2026-09-21, recorded as
+  requirement 9 of [#377](https://github.com/Mar5929/claude-toolkit/issues/377):
+  choosing a team arrangement authorizes bounded helper agents for that goal
+  only. It does not carry to another goal, and every other existing limit still
+  applies. Accepting agent-led delivery on its own still authorizes no helpers.
+  This is Mike's decision on this one point, recorded here as proposed PRD
+  text. It is not approval of the PRD.
 - Resume here: resolve the future helper-authority question when Mike answers;
   retain the existing permission boundary meanwhile. Follow issue #337 for
   rollout and remaining behavior checks. Preserve settled offer timing,
@@ -420,5 +441,7 @@ to build a particular solution.
   generic model wording. Mike directed the generic model wording on 2026-09-21
   and restated that the toolkit stays a harness of instructions, checkpoints,
   and handshakes, with nothing new built: no code, state, hook, or detection
-  logic. This is proposed text and scoped instruction delivery, not PRD
-  approval. No fresh session has yet been observed asking the question.
+  logic. Mike added the archive question on 2026-09-21, requirement 8 of #377,
+  and R1 carries it as proposed text. This is proposed text and scoped
+  instruction delivery, not PRD approval. No fresh session has yet been
+  observed asking the question.
