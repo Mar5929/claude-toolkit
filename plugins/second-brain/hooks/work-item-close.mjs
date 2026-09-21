@@ -15,7 +15,7 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { readFileSync, realpathSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -37,20 +37,6 @@ export function closesWorkItem(command) {
   return matchesAny(command, CLOSES_WORK_ITEM);
 }
 
-/**
- * The issue or pull request number being closed, so the same one is held only
- * once. Falls back to the whole command when no number is found.
- */
-export function workItemKey(command) {
-  for (const segment of segmentsOf(command)) {
-    if (!CLOSES_WORK_ITEM.some((pattern) => pattern.test(segment))) continue;
-    const number = segment.match(/\b(\d+)\b/);
-    if (number) return number[1];
-    return segment;
-  }
-  return "unknown";
-}
-
 function git(projectRoot, args) {
   return execFileSync("git", args, {
     cwd: projectRoot,
@@ -64,6 +50,19 @@ function repositoryRoot(projectRoot) {
   return git(projectRoot, ["rev-parse", "--show-toplevel"]).trim();
 }
 
+/**
+ * The issue or pull request number the segment names: the first argument that
+ * is a number or an item URL. A number inside a flag value, such as
+ * `--repo my-org/repo-2`, is not the item.
+ */
+function itemNumber(segment) {
+  for (const argument of segment.split(" ").slice(3)) {
+    const match = argument.match(/^#?(\d+)$/) || argument.match(/^https?:\/\/\S+\/(\d+)\/?$/);
+    if (match) return match[1];
+  }
+  return null;
+}
+
 export function workItemActionKey(command, projectRoot) {
   const actions = [];
   for (const segment of segmentsOf(command)) {
@@ -73,8 +72,7 @@ export function workItemActionKey(command, projectRoot) {
         ? "pull-request-merge"
         : null;
     if (!type) continue;
-    const number = segment.match(/\b(\d+)\b/);
-    actions.push([type, number?.[1] || segment]);
+    actions.push([type, itemNumber(segment) || segment]);
   }
   return JSON.stringify([
     "work-item-actions",
@@ -101,7 +99,7 @@ function actionReviewMessage(message, root, input, checkpoint) {
     return `${message}\n\nThis action belongs to an older turn. Do not mutate the current review state; retry from the current turn.`;
   }
   if (checkpoint.status === "busy") {
-    return `${message}\n\nThe review state is busy or an interrupted update needs inspection. This action remains held; inspect the current checkpoint before retrying.`;
+    return `${message}\n\nThe review state is busy or an interrupted update needs inspection. This action remains held; inspect the current checkpoint before retrying. Lock file: ${checkpoint.lock}. A lock older than 10 seconds is treated as abandoned and cleared on the next attempt.`;
   }
   return [
     message,
@@ -146,7 +144,9 @@ function main() {
   deny(actionReviewMessage(buildMessage(), root, payload, checkpoint));
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
+function canonical(path) { try { return realpathSync(path); } catch { return resolve(path); } }
+
+if (process.argv[1] && canonical(process.argv[1]) === canonical(fileURLToPath(import.meta.url))) {
   try {
     main();
   } catch {

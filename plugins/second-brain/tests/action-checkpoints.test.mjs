@@ -2,10 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { execFileSync, spawn } from 'node:child_process';
-import { chmodSync, existsSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdtempSync, realpathSync, rmSync, symlinkSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
+import { claimActionReview } from '../hooks/knowledge-completion.mjs';
 import { pullRequestActionKey } from '../hooks/save-reminder.mjs';
 import { workItemActionKey } from '../hooks/work-item-close.mjs';
 
@@ -334,4 +335,108 @@ test('nonmatching commands remain untouched', t => {
     tool_input: { command: 'git status --short' },
   });
   assert.equal(output, '');
+});
+
+test('hooks reached through a symbolic link still run and hold the action', t => {
+  const root = repository(t);
+  // Deliberately not canonicalized: the link path must differ from the real module path.
+  const linkParent = mkdtempSync(join(tmpdir(), 'knowledge-linked-hooks-'));
+  const linked = join(linkParent, 'hooks');
+  symlinkSync(resolve('plugins/second-brain/hooks'), linked, 'dir');
+  t.after(() => rmSync(linkParent, { recursive: true, force: true }));
+  for (const [index, [file, command]] of [
+    ['save-reminder.mjs', 'gh pr create --title fixture --body fixture'],
+    ['work-item-close.mjs', 'gh issue close 42'],
+  ].entries()) {
+    const path = join(linked, file);
+    assert.notEqual(realpathSync(path), path, 'the fixture path really passes through a link');
+    const sessionId = `linked-hook-${process.pid}-${Date.now()}-${index}`;
+    const checkpointPath = stateFile(root, sessionId);
+    t.after(() => rmSync(checkpointPath, { force: true }));
+    const output = runHook(path, {
+      session_id: sessionId,
+      turn_id: 'turn-one',
+      cwd: root,
+      hook_event_name: 'PreToolUse',
+      tool_name: 'Bash',
+      tool_input: { command },
+    });
+    assert.ok(checkpointFrom(output).nonce, `${file} holds the action through a link`);
+  }
+});
+
+test('a fresh lock holds the action and names its file; an abandoned lock is cleared', t => {
+  const root = repository(t);
+  const directory = join(root, 'temporary');
+  const identity = { session_id: 'lock-session', agent_id: 'root', turn_id: 'turn-one' };
+  const first = claimActionReview(root, identity, 'action-a', directory);
+  assert.equal(first.status, 'review-required');
+  const key = createHash('sha256')
+    .update(JSON.stringify([realpathSync(root), identity.session_id, 'root']))
+    .digest('hex');
+  const lock = join(directory, `${key}.json.lock`);
+  writeFileSync(lock, '');
+  assert.deepEqual(claimActionReview(root, identity, 'action-a', directory), { status: 'busy', lock });
+  assert.equal(existsSync(lock), true, 'a fresh lock is never removed by another caller');
+  const abandoned = new Date(Date.now() - 11_000);
+  utimesSync(lock, abandoned, abandoned);
+  const recovered = claimActionReview(root, identity, 'action-a', directory);
+  assert.equal(recovered.status, 'review-required');
+  assert.equal(recovered.nonce, first.nonce);
+  assert.equal(existsSync(lock), false);
+});
+
+test('hook busy message names the lock file', t => {
+  const root = repository(t);
+  const sessionId = `busy-hook-${process.pid}-${Date.now()}`;
+  const checkpointPath = stateFile(root, sessionId);
+  const lock = `${checkpointPath}.lock`;
+  t.after(() => { rmSync(lock, { force: true }); rmSync(checkpointPath, { force: true }); });
+  const input = {
+    session_id: sessionId,
+    turn_id: 'turn-one',
+    cwd: root,
+    hook_event_name: 'PreToolUse',
+    tool_name: 'Bash',
+    tool_input: { command: 'gh pr create --title fixture --body fixture' },
+  };
+  checkpointFrom(runHook(saveReminder, input));
+  writeFileSync(lock, '');
+  const reason = denialReason(runHook(saveReminder, input));
+  assert.ok(reason.includes(lock), 'the denial names the lock file');
+});
+
+test('a repository with no commits still holds pull-request creation', t => {
+  const root = mkdtempSync(join(tmpdir(), 'knowledge-unborn-'));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  execFileSync('git', ['init', '-b', 'main'], { cwd: root });
+  const sessionId = `unborn-hook-${process.pid}-${Date.now()}`;
+  const checkpointPath = stateFile(root, sessionId);
+  t.after(() => rmSync(checkpointPath, { force: true }));
+  assert.doesNotThrow(() => pullRequestActionKey(root));
+  const output = runHook(saveReminder, {
+    session_id: sessionId,
+    turn_id: 'turn-one',
+    cwd: root,
+    hook_event_name: 'PreToolUse',
+    tool_name: 'Bash',
+    tool_input: { command: 'gh pr create --title fixture --body fixture' },
+  });
+  assert.ok(checkpointFrom(output).nonce);
+});
+
+test('work-item identity reads the item argument, not a number inside a flag value', t => {
+  const root = repository(t);
+  assert.deepEqual(
+    JSON.parse(workItemActionKey('gh issue close --repo my-org/repo-2 374', root)),
+    ['work-item-actions', root, [['issue-close', '374']]],
+  );
+  assert.notEqual(
+    workItemActionKey('gh issue close --repo my-org/repo-2 374', root),
+    workItemActionKey('gh issue close 2', root),
+  );
+  assert.deepEqual(
+    JSON.parse(workItemActionKey('gh pr merge https://github.com/my-org/repo-2/pull/43 --squash', root)),
+    ['work-item-actions', root, [['pull-request-merge', '43']]],
+  );
 });

@@ -99,16 +99,16 @@ with the exact matcher `^Bash$`. The POSIX commands are
 `node "$(git rev-parse --show-toplevel)/.claude/hooks/work-item-close.mjs"`.
 The Windows commands explicitly launch `powershell.exe -NoProfile -Command`,
 assign `git rev-parse --show-toplevel` to a local `$knowledgeRoot`, exit when Git
-fails, use `Set-Location -LiteralPath $knowledgeRoot`, and invoke the
-corresponding relative `.claude/hooks/` path.
+fails, and invoke `node (Join-Path $knowledgeRoot '.claude/hooks/<file>.mjs')`
+with the corresponding file name.
 Merge this group into the existing configuration and preserve every unrelated
 event, group and handler.
 
 For a Git-backed Codex project, the POSIX command can locate the script with
 `node "$(git rev-parse --show-toplevel)/.claude/hooks/<file>.mjs"`. For Windows,
 use the host's commandWindows field to launch PowerShell explicitly, set a local
-root variable, check git's exit code, use Set-Location -LiteralPath, then invoke
-Node with the relative script path. Non-Git projects need their verified project-root route;
+root variable, check git's exit code, then invoke Node with the script path
+built by `Join-Path` from that root. Non-Git projects need their verified project-root route;
 never assume Git is available merely because a template used it. Review the
 exact project-layer hook definitions in Codex `/hooks` and use the host's normal
 trust flow. Never grant trust, change authentication, or use a bypass as part of
@@ -117,10 +117,21 @@ and effective event delivery on the installed host. A configured event that
 never runs is an unresolved support gap, with the root/manual fallback still
 required.
 
-Codex can run matching handlers concurrently. Both action hooks therefore
-perform the same mixed-action precheck before either changes or consumes review
-state. A command that combines pull-request creation with a close or merge is
+Assumption, not verified on a host: Codex may run matching handlers
+concurrently. Both action hooks therefore perform the same mixed-action
+precheck before either changes or consumes review state. A command that combines pull-request creation with a close or merge is
 denied by both handlers and must be split into separate actions.
+
+Known limits of the action checkpoint:
+
+- A permit earned through `cd /other/repo && gh pr create` survives a new prompt
+  until that repository's HEAD changes.
+- `gh pr close` and `gh api` are not recognized.
+- Enforcement is fail-open: an unexpected error allows the command.
+- A review-state lock older than the 10-second hook timeout is treated as
+  abandoned and cleared. Two callers clearing the same abandoned lock at the
+  same instant are not guarded against each other.
+- Nothing here is proven on native Windows.
 
 The prompt handler supplies the session/agent identity, the current review
 UUID, and a normalized nonempty Codex `turn_id` when the host provides one.

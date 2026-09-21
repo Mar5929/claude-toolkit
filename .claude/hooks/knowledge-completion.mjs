@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /** Temporary review bookkeeping only. No content, permission, transcript or save state. */
 import { createHash, randomUUID } from 'node:crypto';
-import { readFileSync, writeFileSync, mkdirSync, renameSync, openSync, closeSync, unlinkSync, realpathSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, renameSync, openSync, closeSync, unlinkSync, realpathSync, existsSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,6 +10,8 @@ import { resolveManual } from './knowledge-manual.mjs';
 export const OUTCOMES = ['no-change', 'pending-approval', 'save-unfinished', 'saved'];
 const UNCORRELATED_STOP = 'Turn correlation is unavailable for this event; compatibility mode cannot isolate a late Stop.';
 const ACTION_REQUIRED = 'review-required';
+// Every hook runs under a 10-second timeout, so an older lock belongs to a killed process.
+const ABANDONED_LOCK_MS = 10_000;
 function turnId(value) {
   if (typeof value !== 'string') return null;
   const normalized = value.trim();
@@ -25,7 +27,15 @@ function locked(root, identity, directory, operation) {
   const path = statePath(root, identity, directory), lock = `${path}.lock`;
   let handle;
   try { handle = openSync(lock, 'wx', 0o600); }
-  catch { throw new Error('Review state is busy or an interrupted update needs inspection; do not assume completion.'); }
+  catch {
+    try {
+      if (Date.now() - statSync(lock).mtimeMs <= ABANDONED_LOCK_MS) throw new Error('held');
+      unlinkSync(lock);
+      handle = openSync(lock, 'wx', 0o600);
+    } catch {
+      throw Object.assign(new Error(`Review state is busy or an interrupted update needs inspection; do not assume completion. Lock file: ${lock}`), { lock });
+    }
+  }
   try {
     let state = null;
     try { state = JSON.parse(readFileSync(path, 'utf8')); }
@@ -91,7 +101,7 @@ export function claimActionReview(root, identity, key, directory) {
       } };
     });
   } catch (error) {
-    if (/Review state is busy/.test(error.message)) return { status: 'busy' };
+    if (/Review state is busy/.test(error.message)) return { status: 'busy', lock: error.lock };
     throw error;
   }
 }

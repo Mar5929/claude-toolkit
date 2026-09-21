@@ -20,7 +20,7 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { readFileSync, realpathSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -64,8 +64,13 @@ function repositoryRoot(projectRoot) {
   return git(projectRoot, ["rev-parse", "--show-toplevel"]).trim();
 }
 
+/** A repository with no commits has no HEAD; the action is still held. */
 function headKey(projectRoot) {
-  return git(projectRoot, ["rev-parse", "HEAD"]).trim();
+  try {
+    return git(projectRoot, ["rev-parse", "HEAD"]).trim();
+  } catch {
+    return "no-commits";
+  }
 }
 
 export function pullRequestActionKey(projectRoot) {
@@ -164,7 +169,7 @@ function actionReviewMessage(message, root, input, checkpoint) {
     return `${message}\n\nThis action belongs to an older turn. Do not mutate the current review state; retry from the current turn.`;
   }
   if (checkpoint.status === "busy") {
-    return `${message}\n\nThe review state is busy or an interrupted update needs inspection. This action remains held; inspect the current checkpoint before retrying.`;
+    return `${message}\n\nThe review state is busy or an interrupted update needs inspection. This action remains held; inspect the current checkpoint before retrying. Lock file: ${checkpoint.lock}. A lock older than 10 seconds is treated as abandoned and cleared on the next attempt.`;
   }
   return [
     message,
@@ -211,7 +216,9 @@ function main() {
   deny(actionReviewMessage(message, root, payload, checkpoint));
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
+function canonical(path) { try { return realpathSync(path); } catch { return resolve(path); } }
+
+if (process.argv[1] && canonical(process.argv[1]) === canonical(fileURLToPath(import.meta.url))) {
   try {
     main();
   } catch {

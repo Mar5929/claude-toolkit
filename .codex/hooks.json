@@ -55,13 +55,13 @@
           {
             "type": "command",
             "command": "node \"$(git rev-parse --show-toplevel)/.claude/hooks/save-reminder.mjs\"",
-            "commandWindows": "powershell.exe -NoProfile -Command \"$knowledgeRoot = git rev-parse --show-toplevel; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; Set-Location -LiteralPath $knowledgeRoot; node '.claude/hooks/save-reminder.mjs'\"",
+            "commandWindows": "powershell.exe -NoProfile -Command \"$knowledgeRoot = git rev-parse --show-toplevel; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; node (Join-Path $knowledgeRoot '.claude/hooks/save-reminder.mjs')\"",
             "timeout": 10
           },
           {
             "type": "command",
             "command": "node \"$(git rev-parse --show-toplevel)/.claude/hooks/work-item-close.mjs\"",
-            "commandWindows": "powershell.exe -NoProfile -Command \"$knowledgeRoot = git rev-parse --show-toplevel; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; Set-Location -LiteralPath $knowledgeRoot; node '.claude/hooks/work-item-close.mjs'\"",
+            "commandWindows": "powershell.exe -NoProfile -Command \"$knowledgeRoot = git rev-parse --show-toplevel; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; node (Join-Path $knowledgeRoot '.claude/hooks/work-item-close.mjs')\"",
             "timeout": 10
           }
         ]
