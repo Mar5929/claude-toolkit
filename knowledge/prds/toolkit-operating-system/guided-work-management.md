@@ -79,9 +79,13 @@ Orchestrator and coordinate other chats that each have their own team? The
 answer is recorded with that goal's delivery choice, so later sessions read it
 and do not ask again. The multi-chat answer is offered only where the host lets
 a chat list, read, and message other chats and offer new chats as task buttons.
-Where the host does not, the agent says that arrangement is unavailable and
-uses one team in the current chat. A short instruction sheet ships with the
-work skill and explains what each answer means, so a fresh agent can follow it.
+Where the host does not, the agent says the multi-chat arrangement is
+unavailable and asks one simple question, in substance: shall I run one team of
+helpers inside this chat? A yes is an arrangement choice and gives the same
+helper authorization for that goal only. A no means the main agent does the
+work itself. That answer is recorded with the goal in the same way. A short
+instruction sheet ships with the work skill and explains what each answer
+means, so a fresh agent can follow it.
 Model wording stays generic: the most capable available model leads and guides,
 and the project's helper model carries out the work. A project rule or the
 owner's recorded preference names the actual models.
@@ -125,7 +129,10 @@ Accept the offer: the agent asks the team-arrangement question once, records
 the answer with that goal's delivery choice, and does not ask it again when the
 goal resumes in a fresh session. Repeat on a host that cannot list, read, and
 message other chats: the agent says the multi-chat arrangement is unavailable
-and uses one team in the current chat. Choose the Main Orchestrator
+and asks whether to run one team of helpers inside this chat. Answer yes: that
+is an arrangement choice, it gives the same helper authorization for that goal
+only, and it is recorded with the goal. Answer no: the main agent does the work
+itself. Choose the Main Orchestrator
 arrangement: the agent asks the archive question once, records the answer with
 the goal, and with a yes archives a team chat only after its task is complete,
 its work is merged and shipped, its report is saved to a file, and the owner
@@ -443,6 +450,9 @@ to build a particular solution.
   and restated that the toolkit stays a harness of instructions, checkpoints,
   and handshakes, with nothing new built: no code, state, hook, or detection
   logic. Mike added the archive question on 2026-09-21, requirement 8 of #377,
-  and R1 carries it as proposed text. This is proposed text and scoped
+  and R1 carries it as proposed text. Mike decided on 2026-09-21, requirement
+  10 of #377, that on a host that cannot reach other chats the agent still asks
+  whether to run one team of helpers inside the chat, and R1 carries it as
+  proposed text. This is proposed text and scoped
   instruction delivery, not PRD approval. No fresh session has yet been
   observed asking the question.

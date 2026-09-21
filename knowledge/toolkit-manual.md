@@ -184,6 +184,8 @@ The accepted, declined, or revoked choice stays with that goal in the existing t
 and is read in future sessions. After acceptance, the agent asks whether the
 owner wants one team inside this chat or a Main Orchestrator chat that
 coordinates other chats, each with its own team, where the host supports that.
+On a host that does not, the agent asks only whether to run one team of helpers
+inside this chat, and a no means the main agent does the work itself.
 That answer stays with the goal's delivery choice. The
 [team arrangements](../plugins/work-tracker/skills/work/references/team-arrangements.md)
 sheet explains each answer. Choosing an arrangement authorizes bounded helper

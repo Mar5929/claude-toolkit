@@ -20,10 +20,10 @@ what each answer means and how to work under it.
 - The owner's choice of an arrangement authorizes focused, bounded helper
   agents for that goal only, within every other existing limit. "Divide
   responsibility" in [agent-led delivery](agent-led-delivery.md) states that
-  authority. Where the owner was not asked and no other helper authority
+  authority. Where the owner answered no and no other helper authority
   exists, the main agent does the work itself.
-- This is also the arrangement used on a host that cannot support the
-  multi-chat arrangement below.
+- On a host that cannot support the multi-chat arrangement below, the owner is
+  asked only whether to run this one team. A yes chooses it.
 
 ## Main Orchestrator with other chats
 

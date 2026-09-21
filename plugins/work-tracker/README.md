@@ -21,8 +21,10 @@ After the owner accepts, the skill asks whether they want one team inside this
 chat or a Main Orchestrator chat that coordinates other chats, each with its
 own team. The multi-chat choice is offered only on a host that supports it,
 today the Claude Code desktop app, and the answer is saved with the goal's
-delivery choice. Choosing an arrangement authorizes bounded helper agents for
-that goal only, within every other existing limit. With the Main Orchestrator
+delivery choice. On any other host the skill asks only whether to run one team
+of helpers inside this chat; a no means the main agent does the work itself.
+Choosing an arrangement authorizes bounded helper agents for that goal only,
+within every other existing limit. With the Main Orchestrator
 arrangement the skill also asks whether to archive a team chat once its task is
 complete, its work is merged and shipped, its report is saved to a file, and
 the owner approved the result.

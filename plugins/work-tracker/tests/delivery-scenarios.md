@@ -184,9 +184,11 @@ shipped, and you approved?", and records the answer with the goal.
 The owner accepts the delivery offer on a host that cannot list, read, and
 message other chats.
 
-Expected: no team question. The agent says the multi-chat arrangement is
-unavailable on this host, uses one team inside this chat, and records that the
-owner was not asked.
+Expected: the agent says the multi-chat arrangement is unavailable on this host
+and asks, in substance, "Shall I run one team of helpers inside this chat?",
+waits, and records the answer with the delivery choice. With a yes it uses
+bounded helpers for that goal only. With a no the main agent does the work
+itself.
 
 ### Resume with a recorded arrangement
 
