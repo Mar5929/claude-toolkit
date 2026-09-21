@@ -63,6 +63,41 @@ alone changes the actual project/machine installation after release. Reviewers
 report findings or work in explicit isolated scopes; they do not compete with
 implementation writers. A recorded assignment does not mean an agent is running.
 
+### Claude arrangement chosen, 2026-09-21
+
+Owner source, Claude Code desktop conversation, 2026-09-21: Mike chose Claude
+Fable 5.1 as the main orchestrator and Opus 5 for every executor. This matches
+`.claude/rules/subagents-run-on-opus.md`; no settings change was made. Mike acts
+as product owner. Report to him in plain user-facing language without pull
+request or issue numbers, and bring him product decisions only.
+
+Arrangement: separate local Claude Code desktop chats in this project, one per
+responsibility. Each chat has its own lead with Opus helper agents. The main
+orchestrator chat reads, messages and checks them, and alone updates the
+tracker, shared files and merges.
+
+| Chat | Responsibility | Writes |
+| --- | --- | --- |
+| Knowledge finish | Rerun the full checks on the #374 head, then fix independent-review findings. | Only the existing #374 checkout and branch. |
+| Independent review | One lead and exactly two reviewers. Review the Windows delta and the integrated #374 head. | Nothing. Findings return to the main. |
+| Toolkit OS gap assessment | Compare shipped behavior with the parent and child Toolkit OS PRDs. | Nothing until a bounded change is authorized. |
+| Project and laptop sync | Created only after #374 merges and the main releases the primary checkout. | The project and machine installation. |
+
+Host limits, from the official desktop page read 2026-09-21: each chat starts
+from a task button Mike clicks; the main cannot approve another chat's
+permission prompts; the main sees the 20 most recent local chats.
+
+Claude Code Projects, announced 2026-09-17 as a gradual Pro and Max beta, was
+considered and not used. Its threads run in the cloud, see only GitHub
+repositories, cannot install on the laptop, and keep a separate project memory,
+which bears on the open native-memory decision. Source:
+<https://code.claude.com/docs/en/claude-projects>, read 2026-09-21. The local
+capture in `ai-external-knowledge/claude-code/` is dated 2026-09-04 and predates
+it. Whether Mike's account has Projects was not checked.
+
+The #374 approval-coverage question below goes to Mike when the review result
+is available, so he decides with the findings in hand.
+
 ### Source, requirements and decision authority
 
 Read `CLAUDE.md`, its complete required startup chain and relevant folder rules.
