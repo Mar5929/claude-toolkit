@@ -3,6 +3,29 @@
 What this repository set up from its own toolkit, what it skipped, and why. A
 later `project-sync` run reads this so a considered "no" is not offered again.
 
+2026-09-21 full project-sync audit for #269 and #369, against marketplace
+0.124.4 at `main` commit `1479dc1`: project-init 0.77.2, second-brain 4.12.3,
+hooks-library 3.5.0, session-skills 1.13.0, work-tracker 2.8.0, system-guide
+1.0.0, git-workflows 0.2.1, sf-architect-solutioning 1.1.0. Both plugin caches
+on this computer were refreshed to those versions first. Already present and
+current: every applicable default-ON rule, the Plain English style file, the
+knowledge schema-2 layout, the one-line `AGENTS.md`, and all hook registrations
+in `.claude/settings.json` and `.codex/hooks.json`, each registered once. No
+Codex hook definition changed, so no new Codex trust review was needed.
+Brought up to date: the `style-handshake` `PostToolUse` timeout now matches the
+shipped value of 10; `CLAUDE.md` gained the Quick saves table and its cut-off
+first paragraph was completed; the untracked `.claude/settings.local.json` in
+the primary checkout no longer selects the built-in `Concise` style, so the
+committed `Plain English` selection applies and `style-handshake` can read the
+style file. The `style-handshake` hook stays by the owner's decision of
+2026-09-21; do not offer its removal. System Guide is `off`: no
+`.system-guide.json`, no configured path, and the owner chose on 2026-09-21 to
+leave it off. The graphify decline below was put to the owner again on
+2026-09-21 and still stands. `misc/` is not a folder the toolkit recognizes and
+was left in place. This run did not prove live-host behavior; the evidence and
+limits are in the
+[sync review](../docs/designs/269-knowledge-system/reviews/2026-09-21-project-and-machine-sync.md).
+
 2026-09-19 #269 candidate update: second-brain 4.12.0 and project-init
 0.77.0 deliver the schema-2 manual/four skills, three indexes, prompt/completion
 hooks and read-only save inspector. Converted 3 existing memories, 7 PRD
@@ -199,6 +222,9 @@ given MCP server, and this repository's own work uses none.
   `tests/orphan-check.mjs` and `tests/link-check.mjs` already cover the reachable
   and resolvable questions this repository does have. Do not offer it again
   unless real code lands here.
+- **System Guide.** Offered on 2026-09-21 and left off by the owner. The
+  toolkit map, the plugin README files and the two manuals already explain this
+  repository. State: `off`, no configured guide path.
 
 ## What running the toolkit here does to parallel sessions
 
