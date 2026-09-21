@@ -98,6 +98,41 @@ it. Whether Mike's account has Projects was not checked.
 The #374 approval-coverage question below goes to Mike when the review result
 is available, so he decides with the findings in hand.
 
+### Transfer events and running chats, 2026-09-21
+
+Sequence, from Mike on 2026-09-21: the Codex usage limits ran out while the
+Codex main and its team tasks were still open, which stopped them mid-work.
+Mike had the Codex main write a handoff prompt and save this continuation, then
+gave that prompt to a new Claude Code desktop chat. That chat became the Claude
+main orchestrator. It confirmed the saved state against Git and GitHub, read the
+required startup files, saved the arrangement above, and started the team chats.
+
+State at 2026-09-21 18:40 UTC. A listed chat is a record of assignment, not
+proof that it is still running; list the desktop chats again before relying on it.
+
+| Chat title | Session id | Worktree branch | State |
+| --- | --- | --- | --- |
+| Main Orchestrator | `local_1337791d-276c-4ea7-ae8f-119db0dc8b17` | primary checkout, `main` | Coordinating. |
+| Check the last Knowledge batch independently | `local_2f11e11d-53f2-4ee0-b007-882c2b78936c` | `claude/nifty-blackwell-de653f` | Started; no report yet. |
+| Finish the Knowledge System | `local_bfa374b6-590c-42ee-8b46-a7167087f327` | `claude/inspiring-blackburn-ad516a`; it writes only in the #374 checkout | Rerunning the full checks on `0d082a6`; no report yet. |
+| Assess what the Toolkit OS still lacks | `local_20489e36-0250-414d-9fc9-2bdbd00708ae` | `claude/nervous-stonebraker-378844` | Parent document and two of five child readers done; nothing written. |
+
+The chats sit in the desktop sidebar group "Toolkit OS delivery". Their
+worktrees are under `.claude/worktrees/` in the primary checkout. Messaging was
+tested in both directions between the main and the Toolkit OS chat and worked.
+The project and laptop sync chat does not exist yet.
+
+A fifth chat, "Make the output style check silent"
+(`local_5594b8d7-e7a7-4320-82f8-a9a0984fcf6a`, `claude/jovial-sammet-0f4a36`),
+is outside #269 and #369. Mike asked whether the hooks-library style handshake
+can work without the visible sentence "I read the output style and will follow
+it." That chat only investigates and recommends. No work item exists for it yet.
+
+Next actions for the main: read each chat's final report and check it; send
+accepted review findings to the Knowledge finish chat; put the #374 coverage
+question to Mike with the findings; merge only after that; then create the sync
+chat with the verified merged commit.
+
 ### Source, requirements and decision authority
 
 Read `CLAUDE.md`, its complete required startup chain and relevant folder rules.
