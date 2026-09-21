@@ -57,6 +57,9 @@ proposals do not change the PRD or approve a build.
 - [Independent pull request reviews, 2026-09-21](reviews/2026-09-21-independent-pull-request-reviews.md):
   independent reviews of pull requests #374 (three rounds) and #376; review
   evidence, approves nothing.
+- [Project and laptop sync, 2026-09-21](reviews/2026-09-21-project-and-machine-sync.md):
+  audited and installed versions, changes with backups, checks, what Mike should
+  watch in a fresh session on each host, and what is unverified.
 
 These records were requested on 2026-09-17 for autonomous design reconciliation
 and implementation planning. Their publication does not claim runtime delivery
