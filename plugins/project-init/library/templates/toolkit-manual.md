@@ -142,9 +142,18 @@ stopped. Explain the wanted result and ask only about material gaps.
 For substantial new work, the work plugin may offer agents responsibility for
 delivery with the human as product owner. The accepted, declined, or revoked
 choice stays with that goal in the chosen tracker and is read in later sessions.
-Agents manage the agreed work and records; the owner makes product decisions
-and approves results. Existing build, publication, and helper permissions still
-apply. This method does not create a second tracker.
+After acceptance, the agent asks whether the owner wants one team inside this
+chat or a Main Orchestrator chat that coordinates other chats, each with its own
+team, where the host supports that. On a host that does not, the agent asks
+only whether to run one team of helpers inside this chat, and a no means the
+main agent does the work itself. That answer stays with the goal's delivery
+choice. Choosing an arrangement authorizes bounded helper agents for that goal
+only, within every other existing limit. With the Main Orchestrator arrangement
+the agent also asks whether to archive a team chat once its work is complete,
+merged and shipped, reported to a file, and approved by the owner. Agents
+manage the agreed work and records; the owner makes product
+decisions and approves results. Other existing build, publication, and helper
+permissions still apply. This method does not create a second tracker.
 
 ### Understand the relevant system
 

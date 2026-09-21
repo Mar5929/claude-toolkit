@@ -44,7 +44,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | pull-latest | git-workflows | Get current with the remote without rewriting or discarding | `/pull-latest` |
 | reset-to-remote | git-workflows | Hard-reset a repo to mirror the remote, safely gated | `/reset-to-remote` |
 | merge-and-clean-up | git-workflows | Merge one approved PR and remove only its completed branch and worktree | `/merge-and-clean-up`, "merge and clean up" |
-| work | work-tracker | Offer and resume goal-scoped agent-led delivery in the chosen tracker; manage local work items, roadmaps, execution tasks, current-task continuation, linked children, grouping, archives, and safe conversion in Git-ignored folders | `/work`, "add this to the backlog", "what should I work on next?" |
+| work | work-tracker | Offer and resume goal-scoped agent-led delivery in the chosen tracker, then ask after acceptance how the team is arranged: one team in this chat, or, where the host supports other chats, a Main Orchestrator chat coordinating them; manage local work items, roadmaps, execution tasks, current-task continuation, linked children, grouping, archives, and safe conversion in Git-ignored folders | `/work`, "add this to the backlog", "what should I work on next?" |
 | work-guide | session-skills | Coordinate delivery by keeping roadmap stages connected to actionable tasks or child work items in the existing tracker | `/session-skills:work-guide`, "help me organize this work", "continue this item" |
 | requirements-helper | session-skills | Clarify intent, question directions that could undermine the goal, and maintain canonical draft requirements | `/session-skills:requirements-helper`, "help me refine these requirements" |
 | solution-design | session-skills | Resume from the work item's linked design, preparation, and bottom Notes, check the requirements are ready, agree the way of working, then research, design, critique, and fix until every requirement is satisfied and approval is recorded | `/session-skills:solution-design`, "design this", "give me design options" |
@@ -305,7 +305,8 @@ The genuine watch-items are called out at the end.
   the toolkit on 2026-08-31.
 - **hooks-library versus the output style.** The `Plain English` style owns
   the writing guidance. `style-handshake` requests a fresh Read of the selected
-  style and one acknowledgment at the beginning of each user turn. It carries
+  style on each user message. The read is silent: it asks for no acknowledgment
+  and checks nothing about the reply. It carries
   no copy of the writing rules and judges no writing. The old Stop handshake
   could repeat an already visible answer and has been removed. The older
   `style-reminder` and `writing-guard` remain retired. Helper-agent writing

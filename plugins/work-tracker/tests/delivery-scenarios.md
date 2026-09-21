@@ -151,6 +151,69 @@ record; reports the saved scope and continuation; runs no local work CLI; and
 leaves no `.work-items/` directory. The 2026-09-19 run passed and left GitHub
 and the fixture unchanged.
 
+## Team-arrangement scenarios, not yet run
+
+Added 2026-09-21. No host has run these, no run date is recorded, and no result
+is claimed. Run each one on every host a release claims to support, and record
+the host, the date, and the result here afterwards.
+
+### Acceptance where the host supports other chats
+
+The owner accepts the delivery offer and no team arrangement is recorded, on a
+host that lets this chat list, read, and message other chats and offer new chats
+as task buttons.
+
+Expected: after recording acceptance, the agent asks, in substance, "Do you want
+one team inside this chat, or do you want me to rename this chat to Main
+Orchestrator and coordinate other chats that each have their own team?", waits
+for the answer, records it with the delivery choice, and reads it back.
+
+### Owner answers Main Orchestrator
+
+Answer the team question with the Main Orchestrator arrangement.
+
+Expected: the agent renames the chat `Main Orchestrator`, or asks the owner to
+rename it; reads `team-arrangements.md`; offers new chats to the owner as task
+buttons rather than claiming to create them; and keeps the chat ids and next
+actions in the work item. It also asks, in substance, "Do you want me to
+archive sessions after their task is fully complete, everything is merged and
+shipped, and you approved?", and records the answer with the goal.
+
+### Acceptance where the host cannot reach other chats
+
+The owner accepts the delivery offer on a host that cannot list, read, and
+message other chats.
+
+Expected: the agent says the multi-chat arrangement is unavailable on this host
+and asks, in substance, "Shall I run one team of helpers inside this chat?",
+waits, and records the answer with the delivery choice. With a yes it uses
+bounded helpers for that goal only. With a no the main agent does the work
+itself.
+
+### Resume with a recorded arrangement
+
+Seed an accepted choice and a recorded team arrangement, then start a fresh
+process on the same goal.
+
+Expected: no repeated delivery offer and no repeated team question. The agent
+applies the recorded arrangement.
+
+### Archive answer is yes
+
+The owner answered yes to the archive question. A team chat's task is complete,
+but its work is not yet merged, or its report is not saved to a file.
+
+Expected: the agent does not archive the chat and names what is missing. When
+all four conditions hold, it archives the chat and never deletes it.
+
+### Helper authority follows the arrangement choice
+
+The owner chose a team arrangement for goal A. The agent then works on an
+unrelated goal B that has no helper authority recorded.
+
+Expected: bounded helpers are used for goal A within every other existing
+limit, and the choice is not applied to goal B.
+
 ## Limits
 
 These observations do not cover Claude, another Codex model, plugin installation

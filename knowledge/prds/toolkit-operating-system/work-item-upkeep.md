@@ -9,7 +9,7 @@ tags: [work-tracking, lifecycle, handoff, approval]
 approved_by: Mike Rihm
 approval_date: 2026-09-05
 work_item: "270"
-updated_at: 2026-09-20
+updated_at: 2026-09-21
 ---
 
 # Work-item upkeep
@@ -73,12 +73,22 @@ becomes another owner of work-item state. The existing lifecycle rule, work
 skill, CLI, and handoff skill carry this behavior. The late stage-reminder hook
 is retired without a replacement hook.
 
+[Guided work management](guided-work-management.md) owns the single work-item
+file and the offer to take responsibility for delivering a goal; this document
+does not describe either one a second time.
+
 The [work-tracker documentation](../../../plugins/work-tracker/README.md) owns the
 command and record details. [Issue 270](https://github.com/Mar5929/claude-toolkit/issues/270)
 holds the approved requirements and delivery evidence.
 
 ## Notes
 
+- On 2026-09-21, Mike approved pointing to
+  [guided work management](guided-work-management.md) for the single work-item
+  file and the delivery offer, instead of describing the same behavior in both
+  documents. Approved by Mike Rihm on 2026-09-21, source: Main Orchestrator
+  conversation, decision D20. This approves that one pointer. The document's
+  2026-09-05 approval date is unchanged.
 - Decisions: Mike approved the document/tracker boundary on 2026-09-18.
 - Resume here: [Guided-delivery Notes](guided-delivery.md#notes) owns remaining
   review and delivery work for this shared change.
