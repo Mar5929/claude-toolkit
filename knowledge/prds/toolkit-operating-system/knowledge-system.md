@@ -888,6 +888,15 @@ material constraints and approval boundaries, and unresolved questions live in
 that work item, not here. Keep multiple entries and show the newest first, using
 recorded creation times with a deterministic tie order.
 
+When there is no work item to point at, the entry keeps the short handoff note
+itself, because otherwise the note is lost. That note stays short: the topic and
+goal, where work stopped, the next action, material constraints and approval
+boundaries, and unresolved questions, in a few lines. Kept that short, it does
+not compete with the whole-file size limit. When a work item exists, the entry
+stays a pointer and a link. Approved by Mike Rihm on 2026-09-21, source: Main
+Orchestrator conversation, decision D8b. Not built yet; work item #382 owns the
+change.
+
 These entries are temporary working context, not lasting memory or a replacement
 tracker. Preserve other current-work content. Resume the requested work by
 opening the linked record and rereading its current approvals; newest-first
@@ -912,7 +921,7 @@ and these sections:
 | Project goal | Overall goal and next milestone | Links to a detailed project plan |
 | Active work | One descriptive subsection per item with two fields: Goal, and Detailed record, the link to the work item | Owning session when known |
 | General project to-dos | Requested later work not attached to an active item, or None | Links to existing records |
-| Session handoffs | Requested continuation pointers, newest first, or None | Actual source session/task links |
+| Session handoffs | Requested continuation pointers, newest first, each a link to the work item or, where there is no work item, the short handoff note itself, or None | Actual source session/task links |
 
 Date item context and to-do entries where needed. Include a due date only when
 the owner provided it. Do not invent missing facts, dates, or records. An empty
@@ -925,8 +934,8 @@ this on 2026-09-21 (decision D8); it replaces the earlier requirement that this
 file hold Current status, Recent progress, Next step, Blocker, and To-dos for
 each item, including the separate Current status and Recent progress fields he
 approved on 2026-09-16. Approved by Mike Rihm on 2026-09-21, source: Main
-Orchestrator conversation, decision D8. Not built yet, and the build is not yet
-tracked in a work item.
+Orchestrator conversation, decision D8. Not built yet; work item #382 owns the
+change.
 
 When the owner mentions a project task to do later that belongs to an active
 work item, record it in that work item. A task that belongs to no active item
@@ -934,6 +943,11 @@ goes in the General project to-dos section without a lasting-memory proposal.
 This does not create a tracker item. Ask before creating one unless that action
 was already requested. If a task is already tracked, link to it and keep its
 detailed plan and status in the tracker.
+
+Current working memory keeps this short General project to-dos list, because a
+task that belongs to no work item has no other home. Approved by Mike Rihm on
+2026-09-21, source: Main Orchestrator conversation, decision D8a. Not built yet;
+work item #382 owns the change.
 
 What it never holds:
 
@@ -2312,17 +2326,34 @@ The instruction-content audit and full requirements approval remain outstanding.
   - D8, current working memory: each work item's goal and a link, with status,
     next step, blocker, to-dos and handoff detail in the work item. Recorded in
     requirements 4, 13 and 18. This also settles the handoff-size question. Not
-    built yet, and the build is not yet tracked in a work item.
+    built yet; work item #382 owns the change.
   - D10, the agent host's built-in memory versus the project files: the project
     files decide, and the agent reports the disagreement. Recorded in
     requirement 29.
   - D22, plan ownership: the requirements document lists the order and
     coverage, the work item owns live status, and live status never goes in a
     plan or design file. Recorded in requirement 16.
-  Three points D8 did not settle stay open and unchanged: whether dependencies,
-  constraints and open questions still belong in current working memory;
-  whether general project to-dos with no work item stay there; and what a
-  handoff entry points at when no work item exists.
+  D8 left three points open. Two of them are now settled, and one is still
+  open.
+
+- On 2026-09-21, in the same Main Orchestrator conversation, Mike approved two
+  further working-memory decisions. Each approves that decision only. It does
+  not approve this document as a whole, does not finalize it, and does not mean
+  the behavior is built.
+  - D8a, general project to-dos: current working memory keeps its short General
+    project to-dos list, for items that belong to no work item, because those
+    items have no other home. Recorded in requirement 13. Not built yet; work
+    item #382 owns the change.
+  - D8b, a handoff with no work item: current working memory keeps the short
+    handoff note itself, because otherwise the note is lost. Where a work item
+    exists, the entry stays a pointer and a link, as D8 already says. Recorded
+    in requirement 13. Not built yet; work item #382 owns the change.
+  The third point D8 left open is still open: whether dependencies,
+  constraints and open questions still belong in current working memory. D8
+  already places them in the work item where one exists, so that reading
+  follows from D8, but Mike was not asked this question separately and has not
+  answered it. Requirement 13 is unchanged on this point and needs his
+  confirmation.
 
 - Approval route, decision D11, agreed with Mike on 2026-09-21: this PRD is
   approved section by section. The main agent brings each section to him in
