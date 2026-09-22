@@ -36,7 +36,8 @@ existing project through `project-sync`.
 ## Who is involved
 
 - **Mike Rihm** owns the toolkit and approves its direction and persistent project
-  knowledge.
+  knowledge. He acts as product owner and reads agent replies as one: outcomes
+  and the decisions that are his, not implementation detail unless he asks.
 - **Claude and Codex** build, review, test, and maintain the toolkit under the
   same repository rules.
 
