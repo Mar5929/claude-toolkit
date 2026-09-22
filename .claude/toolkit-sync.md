@@ -13,7 +13,10 @@ current: every applicable default-ON rule, the Plain English style file, the
 knowledge schema-2 layout, the one-line `AGENTS.md`, and all hook registrations
 in `.claude/settings.json` and `.codex/hooks.json`, each registered once. No
 Codex hook definition changed, so no new Codex trust review was needed.
-Brought up to date: `CLAUDE.md` gained the Quick saves table and its cut-off
+Brought up to date: `CLAUDE.md` now carries the owner's two fixed lines above
+the title as `thin-claudemd.md` ships them, wording unchanged;
+`knowledge/toolkit-manual.md` opens with the shipped complete-read paragraphs
+instead of a draft notice about closed issue #306; `CLAUDE.md` gained the Quick saves table and its cut-off
 first paragraph was completed; the untracked `.claude/settings.local.json` in
 the primary checkout no longer selects the built-in `Concise` style, so the
 committed `Plain English` selection applies and `style-handshake` can read the

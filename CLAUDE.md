@@ -1,12 +1,11 @@
+After you generate your response (BEFORE YOU ACTUALLY SEND YOUR RESPONSE TO THE USER), simulate the user saying "Huh? What are you saying?". Then regenerate your response based on that. That is what the user will actually see.
+
+Always execute work with the context in mind that the user will likely continue work across multiple AI coding sessions where the session context is cleared and picked up again. You must assist the user in helping establish that continuity across sessions while not adding context that might pollute future agents and skew them. Information must be curated and intentional.
 
 # CLAUDE.md: working in claude-toolkit
 
 Mike's single source of truth for the reusable pieces he wants in every project,
 packaged as a Claude Code plugin marketplace. `README.md` has the full picture.
-
-After you generate your response (BEFORE YOU ACTUALLY SEND YOUR RESPONSE TO THE USER), simulate the user saying "Huh? What are you saying?". Then regenerate your response based on that. That is what the user will actually see.
-
-Always execute work with the context in mind that the user will likely continue work across multiple AI coding sessions where the session context is cleared and picked up again. You must assist the user in helping establish that continuity across sessions while not adding context that might pollute future agents and skew them. Information must be curated and intentional.
 
 Read `.claude/rules` first. Every file in that folder is a rule for how you work
 here, and they are in force for the whole session.
