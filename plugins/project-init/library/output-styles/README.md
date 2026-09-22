@@ -9,8 +9,8 @@ approved fixes. A deliberate owner choice of another style is preserved.
 
 | File | What it does | Default |
 |---|---|---|
-| `plain-english.md` | Plain explanations with enough context to understand the meaning, no figurative or metaphorical language, and examples of unclear wording. Keeps Claude Code's software engineering instructions. | ON for toolkit project setup. |
-| `terse.md` | Replies built for scanning: the answer first, only what was asked, written at the level of the user's role read from the project's `SOUL.md` and project description. Exact verbs, plain words, no reply-length limit. Keeps Claude Code's software engineering instructions. | OFF. The owner selects it per project. |
+| `plain-english.md` | Short replies written to be skimmed or scanned, for a reader who is not a developer: the answer first, status first in a list, the user's own names for things, exact verbs, plain words, no figurative language, no reply-length limit. Keeps Claude Code's software engineering instructions. | ON for toolkit project setup. |
+| `terse.md` | The same shape, written at the level of the user's role read from the project's `SOUL.md` and project description instead of for a non-developer. Keeps Claude Code's software engineering instructions. | OFF. The owner selects it per project. |
 
 ## Toolkit style and host options
 

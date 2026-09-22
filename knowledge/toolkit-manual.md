@@ -66,9 +66,10 @@ Claude Code setup selects Plain English by default while preserving a deliberate
 owner choice of another style. Its purpose is understandable explanations with
 enough context to make decisions. The [output styles library](../plugins/project-init/library/output-styles/README.md)
 owns the available styles and their setup; the [Plain English style](../plugins/project-init/library/output-styles/plain-english.md)
-owns its actual writing instructions. Concise replies retain material evidence,
-uncertainty, failed checks, and useful references so the owner can assess the
-result without asking for missing essentials.
+owns its actual writing instructions. Replies are written to be skimmed or
+scanned: the answer first, only what was asked, and one line whenever the owner
+lost something, something cannot be undone, work is stopped until the owner
+acts, or there is a cost.
 
 Communication guidance also matters in documents, diagrams, and helper
 findings. A style selected for the main Claude Code conversation does not by
