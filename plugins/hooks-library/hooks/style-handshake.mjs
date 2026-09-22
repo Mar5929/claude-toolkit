@@ -66,13 +66,13 @@ function run(input) {
     const name = selectedStyle(root);
     path = name && stylePath(name, root);
   } catch {
-    context(event, 'Style handshake: the selected output style file could not be located or read. '
-      + 'Briefly report that limitation, do not claim you read it, and continue with the request.');
+    context(event, 'Style check: the output style settings or the selected style file could not be read. '
+      + 'Say so in one line, do not claim you read it, and go on with the request.');
     return;
   }
-  if (path) context(event, 'Style handshake for this new user message: before working on the request, '
-    + `read the whole file ${JSON.stringify(path)} with the Read tool. Read it silently, then follow it. `
-    + 'Do not announce, mention, or acknowledge the read. Begin your reply with the answer.');
+  if (path) context(event, 'Style check for this message: before you start, '
+    + `read the whole file ${JSON.stringify(path)} with the Read tool. Read it silently and follow it. `
+    + 'Do not mention the read. Start your reply with the answer.');
 }
 
 // Old confirm invocations do nothing and never wait for stdin.

@@ -64,7 +64,7 @@ is one plain line.
 
 ## Say the plain thing
 
-The output style's rules on words apply inside the artifact:
+Use the active output style inside the artifact. This artifact rule also requires:
 
 - Common words. Short sentences. One idea each.
 - No figurative or metaphorical language. No idioms, no jokes, no picture word
