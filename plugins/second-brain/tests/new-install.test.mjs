@@ -58,10 +58,10 @@ try {
  assert.doesNotMatch(startup,/missing:|file empty:/);assert.match(startup,/SOUL\.md, knowledge\/project\.md and knowledge\/knowledge-manual\.md/);
  const input={session_id:'fixture-session',hook_event_name:'UserPromptSubmit',cwd:resolve(root,'packages/feature')};
  const prompt=execFileSync(process.execPath,[resolve(root,'.claude/hooks/memory-reminder.mjs')],{cwd:resolve(root,'packages/feature'),env,input:JSON.stringify(input),encoding:'utf8'});
- assert.match(prompt,/Knowledge turn review:/);assert.doesNotMatch(prompt,/unavailable:/);
+ assert.match(prompt,/Before you finish, run: node \.claude\/hooks\/knowledge-completion\.mjs review /);assert.doesNotMatch(prompt,/unavailable:/);
  const firstStop=execFileSync(process.execPath,[resolve(root,'.claude/hooks/knowledge-completion.mjs')],{cwd:resolve(root,'packages/feature'),env,input:JSON.stringify({...input,hook_event_name:'Stop'}),encoding:'utf8'});
  assert.equal(JSON.parse(firstStop).decision,'block');
- const generation=prompt.match(/generation=([\w-]+)/)[1];
+ const generation=prompt.match(/knowledge-completion\.mjs review "[^"]*" "[^"]*" "[^"]*" ([\w-]+) OUTCOME/)[1];
  execFileSync(process.execPath,[resolve(root,'.claude/hooks/knowledge-completion.mjs'),'review',root,input.session_id,'root',generation,'no-change'],{encoding:'utf8'});
  const stop=execFileSync(process.execPath,[resolve(root,'.claude/hooks/knowledge-completion.mjs')],{cwd:resolve(root,'packages/feature'),env,input:JSON.stringify({...input,hook_event_name:'Stop'}),encoding:'utf8'});
  assert.deepEqual(JSON.parse(stop),{});

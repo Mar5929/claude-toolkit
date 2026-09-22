@@ -14,13 +14,13 @@ export { MANUAL_PATH, LEGACY_MANUAL_PATH, MANUAL_MARKER, resolveManual } from ".
 
 export const REMINDER = [
   "Friendly reminder: keep front of mind and follow all of the Toolkit operating system methodologies, processes, and instructions. Know where the project files and folders live.",
-  "Check this message and recent conversation for records to add, update, correct, or remove.",
-  "Working memory: short current context (goals, blockers, next steps, temporary notes, marked guesses, partial work). No filler, secrets, or log.",
-  "Lasting memory: important project facts, decisions, feedback, context, events, limits, relationships, and lessons a future session would need again. Source: the owner or joint work, or a serious project failure you found and fixed.",
-  "Never lasting memory: tool activity, logs, source copies, scratch thinking, dropped guesses, procedures, requirements, open steps, live status, system explanations, useless stale claims, secrets. Keep what is useful in its own home.",
-  "Other homes: current work, pending inbox, tracker, requirements, design, research, skills, rules, System Guide if on, named client architecture. Follow each home's permissions. Noticing a change permits no unrelated work.",
-  "Manuals: knowledge/knowledge-manual.md and knowledge/toolkit-manual.md. Reread only missing or changed parts, before the task that needs them.",
-  "Say you will check, then check. That proves nothing and approves no save. Use knowledge-save for proposals, approved saves, and recovery. Stay quiet when nothing changes; answer when asked.",
+  "Check this message for anything to add, change, or remove in the project's records.",
+  "- Working memory holds what is going on now: goals, blockers, next steps, and work in progress. Keep it short.",
+  "- Lasting memory holds what a future session would need explained again: facts, decisions, feedback, and lessons. It comes from the owner or joint work, or from a serious project failure you found and fixed.",
+  "- Do not save tool output, logs, guesses, steps, requirements, status, or secrets as lasting memory. Put them where they belong, such as the work item, the requirements, the design, or a rule or skill.",
+  "- Only change what each place allows. Noticing a change does not permit other work.",
+  "- The manuals are knowledge/knowledge-manual.md and knowledge/toolkit-manual.md. Reread a part only when it is missing or has changed.",
+  "- Use knowledge-save to propose, make, or recover a save. Say nothing when nothing changed.",
 ].join("\n");
 
 /** True only for a manual this toolkit manages. */
@@ -50,7 +50,7 @@ if (process.argv[1] && canonical(fileURLToPath(import.meta.url)) === canonical(p
       try {
         const input = JSON.parse(readFileSync(0, "utf8") || "{}");
         const checkpoint = beginReview(root, input);
-        process.stdout.write(`Knowledge turn review: session=${JSON.stringify(input.session_id)}, agent=${JSON.stringify(input.agent_id || "root")}, generation=${checkpoint.generation}. Before you finish, check quietly what changed, then run knowledge-completion.mjs review with: project root, session, agent, generation, outcome (no-change, pending-approval, save-unfinished, or saved). Pending work is not a finished save.\n`);
+        process.stdout.write(`Before you finish, run: node .claude/hooks/knowledge-completion.mjs review ${JSON.stringify(root)} ${JSON.stringify(input.session_id)} ${JSON.stringify(input.agent_id || "root")} ${checkpoint.generation} OUTCOME. OUTCOME is no-change, pending-approval, save-unfinished, or saved. Pending work is not a finished save.\n`);
       } catch (error) { process.stdout.write(`Knowledge turn review unavailable: ${error.message} Follow the knowledge manual and report any unfinished save.\n`); }
     }
 

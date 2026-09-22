@@ -67,7 +67,7 @@ export function completion(root, input, directory) {
     }
     return { next: { ...state, continued: true }, result: {
       decision: 'block',
-      reason: `Knowledge turn review is not recorded. With knowledge-save and the knowledge manual, check quietly what was decided or found since the last review. Keep proposals and unfinished approved saves in the pending inbox. Do not wait for helper agents. Then run: node .claude/hooks/knowledge-completion.mjs review ${JSON.stringify(root)} ${JSON.stringify(input.session_id)} ${JSON.stringify(input.agent_id || 'root')} ${state.generation} OUTCOME, where OUTCOME is no-change, pending-approval, save-unfinished, or saved. The outcome does not permit a save or prove the check was right. Use tool calls only. Write no more text to the user.${correlationNotice}`,
+      reason: `Knowledge turn review is not recorded. Check quietly what was decided or found since the last review, using knowledge-save and the knowledge manual. Keep any proposal or unfinished save; do not drop it. Do not wait for helper agents. Then run: node .claude/hooks/knowledge-completion.mjs review ${JSON.stringify(root)} ${JSON.stringify(input.session_id)} ${JSON.stringify(input.agent_id || 'root')} ${state.generation} OUTCOME, where OUTCOME is no-change, pending-approval, save-unfinished, or saved. The outcome does not approve a save. Use tool calls only. Write no more text to the user.${correlationNotice}`,
     } };
   });
 }

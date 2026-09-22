@@ -398,7 +398,7 @@ function hookExecutablePreflight(root, scenarioId) {
   try {
     const startup = command('node', [join(root, '.claude', 'hooks', 'knowledge-session-start.mjs')], nested, false, env);
     const prompt = commandWithInput('node', [join(root, '.claude', 'hooks', 'memory-reminder.mjs')], nested, JSON.stringify(input), env);
-    const generation = prompt.stdout.match(/generation=([\w-]+)/)?.[1] || '';
+    const generation = prompt.stdout.match(/knowledge-completion\.mjs review "[^"]*" "[^"]*" "[^"]*" ([\w-]+) OUTCOME/)?.[1] || '';
     const firstStop = commandWithInput('node', [join(root, '.claude', 'hooks', 'knowledge-completion.mjs')], nested, JSON.stringify({ ...input, hook_event_name: 'Stop' }), env);
     const review = generation ? command('node', [join(root, '.claude', 'hooks', 'knowledge-completion.mjs'), 'review', root, sessionId, 'root', generation, 'no-change'], nested, false, env) : { status: 1, signal: null, timedOut: false, error: null, stdout: '', stderr: 'missing generation' };
     const secondStop = commandWithInput('node', [join(root, '.claude', 'hooks', 'knowledge-completion.mjs')], nested, JSON.stringify({ ...input, hook_event_name: 'Stop' }), env);

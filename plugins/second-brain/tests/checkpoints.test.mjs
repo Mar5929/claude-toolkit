@@ -131,7 +131,7 @@ test('unconfigured/conflicting manuals emit no policy or grant; compatible manua
   writeFileSync(join(root,'knowledge/knowledge-manual.md'),'<!-- claude-toolkit:knowledge-manual -->\nPolicy');
   const reminder=buildReminder(root);
   assert.match(reminder,/knowledge\/knowledge-manual.md/); assert.match(reminder,/knowledge\/toolkit-manual.md/);
-  assert.match(reminder,/serious project failure you found and fixed/);assert.match(reminder,/proves nothing and approves no save/);
+  assert.match(reminder,/serious project failure you found and fixed/);assert.match(reminder,/Say nothing when nothing changed/);
   writeFileSync(join(root,'knowledge/README.md'),'<!-- claude-toolkit:knowledge-manual -->\nConflicting policy');
   assert.doesNotMatch(buildReminder(root),/Friendly reminder/);
 });
