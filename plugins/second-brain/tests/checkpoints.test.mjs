@@ -42,7 +42,8 @@ test('stale Codex Stop A is ignored; genuine B blocks once and continuation B ca
   assert.deepEqual(completion(root,{...turnA,hook_event_name:'Stop',stop_hook_active:false},directory),{});
   const firstStop=completion(root,{...turnB,hook_event_name:'Stop',stop_hook_active:false},directory);
   assert.equal(firstStop.decision,'block');
-  assert.doesNotMatch(firstStop.reason,/cannot isolate a late Stop/);
+  assert.doesNotMatch(firstStop.reason,/cannot be told apart/);
+  assert.match(firstStop.reason,/Use tool calls only. Write no more text to the user./);
   const continuation=completion(root,{...turnB,hook_event_name:'Stop',stop_hook_active:true},directory);
   assert.equal(continuation.decision,undefined);
   assert.match(continuation.systemMessage,/No further continuation/);
@@ -55,11 +56,11 @@ test('missing turn identifier preserves compatibility and names the late-Stop is
   assert.equal('turn_id' in legacy,false);
   const missingStored=completion(root,{...identity,hook_event_name:'Stop'},directory);
   assert.equal(missingStored.decision,'block');
-  assert.match(missingStored.reason,/compatibility mode cannot isolate a late Stop/);
+  assert.match(missingStored.reason,/late Stop from an earlier turn cannot be told apart/);
   beginReview(root,identity,directory);
   const missingIncoming=completion(root,{...withoutTurn,hook_event_name:'Stop'},directory);
   assert.equal(missingIncoming.decision,'block');
-  assert.match(missingIncoming.reason,/compatibility mode cannot isolate a late Stop/);
+  assert.match(missingIncoming.reason,/late Stop from an earlier turn cannot be told apart/);
 });
 test('pending proposal and independent save are valid completed reviews, not completed saves', t => {
   const {root,directory,identity}=fixture(t);
@@ -130,7 +131,7 @@ test('unconfigured/conflicting manuals emit no policy or grant; compatible manua
   writeFileSync(join(root,'knowledge/knowledge-manual.md'),'<!-- claude-toolkit:knowledge-manual -->\nPolicy');
   const reminder=buildReminder(root);
   assert.match(reminder,/knowledge\/knowledge-manual.md/); assert.match(reminder,/knowledge\/toolkit-manual.md/);
-  assert.match(reminder,/only source exception/);assert.match(reminder,/Intent neither/);
+  assert.match(reminder,/serious project failure you found and fixed/);assert.match(reminder,/proves nothing and approves no save/);
   writeFileSync(join(root,'knowledge/README.md'),'<!-- claude-toolkit:knowledge-manual -->\nConflicting policy');
   assert.doesNotMatch(buildReminder(root),/Friendly reminder/);
 });

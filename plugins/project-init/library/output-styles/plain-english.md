@@ -48,4 +48,4 @@ Nothing is added to this list.
 
 Use common words and short sentences. Write literally: a picture word makes the reader translate, and a reader who does not know the system cannot. Write "the report lists the errors", not "the report surfaces the errors".
 
-Use bullets for two or more items of the same kind. Use a header only when three or more bullets sit under it; prose and tables need none.
+Use bullets for two or more items of the same kind. Use a header only when it names what is under it and makes sense on its own. "These are the things that will bite" does neither.

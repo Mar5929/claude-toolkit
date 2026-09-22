@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { resolveManual } from './knowledge-manual.mjs';
 
 export const OUTCOMES = ['no-change', 'pending-approval', 'save-unfinished', 'saved'];
-const UNCORRELATED_STOP = 'Turn correlation is unavailable for this event; compatibility mode cannot isolate a late Stop.';
+const UNCORRELATED_STOP = 'This Stop event has no turn id, so a late Stop from an earlier turn cannot be told apart.';
 function turnId(value) {
   if (typeof value !== 'string') return null;
   const normalized = value.trim();
@@ -67,7 +67,7 @@ export function completion(root, input, directory) {
     }
     return { next: { ...state, continued: true }, result: {
       decision: 'block',
-      reason: `Quietly review decisions and discoveries since the last review using knowledge-save and the core manual. No-change stays quiet; preserve proposals or unfinished authorized saves. Do not wait for independent helpers. Record the actual outcome with node .claude/hooks/knowledge-completion.mjs review using root=${JSON.stringify(root)}, session=${JSON.stringify(input.session_id)}, agent=${JSON.stringify(input.agent_id || 'root')}, generation=${state.generation}, outcome=no-change|pending-approval|save-unfinished|saved. These are five positional arguments after review. An outcome is a declaration, not save authority or proof of correct judgment.${correlationNotice}`,
+      reason: `Knowledge turn review is not recorded. With knowledge-save and the knowledge manual, check quietly what was decided or found since the last review. Keep proposals and unfinished approved saves in the pending inbox. Do not wait for helper agents. Then run: node .claude/hooks/knowledge-completion.mjs review ${JSON.stringify(root)} ${JSON.stringify(input.session_id)} ${JSON.stringify(input.agent_id || 'root')} ${state.generation} OUTCOME, where OUTCOME is no-change, pending-approval, save-unfinished, or saved. The outcome does not permit a save or prove the check was right. Use tool calls only. Write no more text to the user.${correlationNotice}`,
     } };
   });
 }

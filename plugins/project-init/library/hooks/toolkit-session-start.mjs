@@ -37,7 +37,7 @@ export function toolkitOrientation(root, event = "SessionStart") {
   const claudeText = fileText(root, "CLAUDE.md");
   const messages = [];
   if (event === "UserPromptSubmit") {
-    messages.push(`Toolkit workflow reminder: use the applicable project-root ${ROOT_INSTRUCTIONS} and knowledge/toolkit-manual.md. Follow the selected components' own instructions; reread missing guidance after context loss.`);
+    messages.push(`Toolkit workflow reminder: follow the root ${ROOT_INSTRUCTIONS}, knowledge/toolkit-manual.md, and the instructions of each toolkit part in use. Reread lost guidance.`);
   } else {
     messages.push("Toolkit session orientation. Paths below are relative to the project root containing this installed .claude/hooks script.");
     if (rootState === "available") {
