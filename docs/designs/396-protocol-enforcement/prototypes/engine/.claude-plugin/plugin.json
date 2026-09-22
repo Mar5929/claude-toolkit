@@ -1,0 +1,6 @@
+{
+  "name": "protocol-guard",
+  "version": "0.0.1",
+  "description": "Prototype for issue 396: one list-driven engine that makes the agent follow the toolkit's required protocols.",
+  "author": { "name": "Mike Rihm" }
+}

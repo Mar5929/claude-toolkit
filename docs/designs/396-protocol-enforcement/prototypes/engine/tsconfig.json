@@ -1,0 +1,2 @@
+{ "compilerOptions": { "target": "es2023", "lib": ["es2023"], "types": [], "module": "esnext", "moduleResolution": "bundler", "strict": true, "noEmit": true, "skipLibCheck": true },
+  "include": ["/tmp/claude-0/-home-user-claude-toolkit/bd96f06a-659e-5378-907f-a131a9b76885/scratchpad/396/function-hooks/types-run/.claude/types", "hooks"] }
