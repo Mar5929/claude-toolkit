@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 
 /**
- * Hold each recognized `gh issue close` and `gh pr merge` occurrence until the
- * agent records an action-associated Knowledge review outcome. One exact retry
- * consumes that receipt.
+ * Hold each recognized `gh issue close` and `gh pr merge` action once per
+ * session, so the agent reviews what that action needs saved. A plain retry of
+ * the same command is then allowed, and the action stays allowed for the rest
+ * of the session.
  *
  * A finished work item is the moment a specification goes stale, and it is the
  * moment nobody remembers to check. A specification that is never updated after
@@ -23,11 +24,13 @@ import {
   CLOSES_WORK_ITEM,
   combinesReviewActions,
   effectiveDirectory,
+  heldMessage,
   matchesAny,
+  recordHold,
   segmentsOf,
+  shouldHold,
   SPLIT_REVIEW_ACTIONS,
 } from "./command-parsing.mjs";
-import { claimActionReview } from "./knowledge-completion.mjs";
 
 function failOpen() {
   process.exitCode = 0;
@@ -81,22 +84,10 @@ export function buildMessage() {
   ].join("\n");
 }
 
-function actionReviewMessage(message, root, input, checkpoint) {
-  if (checkpoint.status === "stale-turn") {
-    return `${message}\n\nThis action belongs to an older turn. Do not mutate the current review state; retry from the current turn.`;
-  }
-  if (checkpoint.status === "busy") {
-    return `${message}\n\nThe review state is busy or an interrupted update needs inspection. This action remains held; inspect the current checkpoint before retrying. Lock file: ${checkpoint.lock}. If no other review is running, inspect and remove that file, then retry.`;
-  }
-  return [
-    message,
-    "",
-    "After reviewing the work for this exact close or merge action, record the action-specific outcome with",
-    "node .claude/hooks/knowledge-completion.mjs review using these six positional arguments:",
-    `root=${JSON.stringify(root)}, session=${JSON.stringify(input.session_id)}, agent=${JSON.stringify(input.agent_id || "root")}, generation=${checkpoint.generation}, outcome=no-change|pending-approval|save-unfinished|saved, action=${checkpoint.nonce}.`,
-    "A general turn outcome does not satisfy this action. The action receipt is consumed by one exact retry and proves neither judgment nor permission.",
-    "If approval or a save remains unfinished and this close or merge depends on it, do not retry until that dependency is resolved.",
-  ].join("\n");
+/** The held close or merge commands in words, from the parts of their key. */
+function actionLabel(key) {
+  const [, , actions] = JSON.parse(key);
+  return actions.map(([, segment]) => segment).join(", ");
 }
 
 function deny(reason) {
@@ -126,9 +117,11 @@ function main() {
   );
   const workingDirectory = effectiveDirectory(command, projectRoot);
   const root = repositoryRoot(workingDirectory);
-  const checkpoint = claimActionReview(root, payload, workItemActionKey(command, root));
-  if (checkpoint.status === "allow") return failOpen();
-  deny(actionReviewMessage(buildMessage(), root, payload, checkpoint));
+  const key = workItemActionKey(command, root);
+  if (!shouldHold(payload, key)) return failOpen();
+
+  deny(heldMessage(buildMessage(), actionLabel(key)));
+  recordHold(payload, key);
 }
 
 function canonical(path) { try { return realpathSync(path); } catch { return resolve(path); } }
