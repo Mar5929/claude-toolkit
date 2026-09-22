@@ -14,9 +14,9 @@ Updated: 2026-09-22
 
 **Current status** Requirements approved. Stage 04-solution-design, In progress. The design must be revised to fact checks only and now includes the remaining #383 instruction changes and #358 behavioral case.
 
-**Next step** Revise the design in draft PR #397 using the approved startup, Salesforce and Codex plans, then reconcile the build start with #391.
+**Next step** Revise the design in draft PR #397 using the approved startup, Salesforce and Codex plans, including T11's remaining PR #398 non-style proposal at `665d9ed`; then seek design approval and start the build.
 
-**Blocker** None for design. The overlapping build waits for #391's final disposition.
+**Blocker** None from #391; its build shipped. #396 build still needs design approval.
 
 **Detailed record** [#396](https://github.com/Mar5929/claude-toolkit/issues/396), [draft PR #397](https://github.com/Mar5929/claude-toolkit/pull/397).
 
@@ -25,13 +25,13 @@ Updated: 2026-09-22
 
 **Goal** Make agents follow the selected style and write clear, scannable replies.
 
-**Current status** Focused build approved 2026-09-22 for GPT-5.6 Sol agents and pushed as draft PR #399 (`37d9458`). Tests and independent source review passed. Native style selection and reads were observed; the candidate skipped the second read in the two-turn test. Response trials still show extra detail and closing offers, including with the final 443-word style. Stage 12-pr-and-push, In review; no behavior acceptance. #396 owns the broader rewrite; PR #398's non-style changes still need an accounted disposition.
+**Current status** Shipped in PR #399 at `99c93ac` (head `e63ec80c`). The final 433-word style hash is `b25d7be1`; it adds a fresh reread and silent final self-check reminder. Required checks and independent source/behavior reviews passed. Final native trials completed 4/4 whole-file Reads across two two-turn fixtures, with no closing offers or unrelated advice. This is bounded improvement, not a long-chat guarantee or Mike acceptance. Claude user installs: project-init 0.77.8 and hooks-library 3.6.2; Codex project-init 0.77.8; repo copies current. PRs #349 and #398 closed as superseded; #396 T11 preserves #398's remaining non-style proposal at `665d9ed` without a wholesale merge. DragonFly's deliberate Plain English selection audited clean; its separate migration was not performed. Stage 13-deployment, In review.
 
-**Next step** Review actual reply examples with Mike and refine before merge or acceptance.
+**Next step** Mike tests a fresh chat and accepts the result or reports remaining issues. Keep #391 open until acceptance.
 
-**Blocker** Replies do not yet follow the style consistently; authentication is restored.
+**Blocker** None. Fresh-chat acceptance is pending.
 
-**Detailed record** [#391](https://github.com/Mar5929/claude-toolkit/issues/391), [design](../../docs/designs/391-output-style.md), [draft PR #399](https://github.com/Mar5929/claude-toolkit/pull/399).
+**Detailed record** [#391](https://github.com/Mar5929/claude-toolkit/issues/391), [design](../../docs/designs/391-output-style.md), [PR #399](https://github.com/Mar5929/claude-toolkit/pull/399).
 
 **Owning session** Codex task `01a0cb21-9aa3-7c90-b674-b58bfb1757c2`.
 
@@ -81,9 +81,9 @@ Updated: 2026-09-22
 
 **Current status** Refinement backlog. The issue now owns all remaining live-host checks from #360, #377, #379 and #388, plus PRD review, design-reasoning retention and final acceptance.
 
-**Next step** Refresh the proof plan after #396 and #391 finish, then run it against the final installed versions.
+**Next step** Refresh the proof plan after #396 finishes and #391 receives fresh-chat acceptance, then run it against the final installed versions.
 
-**Blocker** Final behavior from #396 and #391 is not delivered yet.
+**Blocker** #396 behavior is not delivered. #391 shipped, but Mike's fresh-chat acceptance is pending.
 
 **Detailed record** [#384](https://github.com/Mar5929/claude-toolkit/issues/384).
 
