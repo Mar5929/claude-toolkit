@@ -5,36 +5,6 @@ entries; pending text is not current knowledge or permission. Preserve every
 entry until rejection or verified completion. Use knowledge-save's pending-entry
 template, reread before editing, and distinguish local from shared state.
 
-<!-- knowledge-save:9c26f1a0-282e-43f1-96d4-8374195c01bb:start -->
-## Refresh #391 stage after the ticket audit
-
-Reference: 9c26f1a0-282e-43f1-96d4-8374195c01bb
-Revision: 1
-Destination: knowledge/memory/current.md
-Operation: update
-State: approved, save unfinished
-Source: GitHub issue #391 stage and board status verified on 2026-09-22 after the ticket audit
-Conversation: Codex Desktop current task; task ID unavailable
-Updated: 2026-09-22T18:40:35-04:00
-Next: Change #391 from stage 08/In progress to stage 12/In review, validate, publish, verify origin/main, then remove this entry.
-
-### Exact card or owed update
-
-GitHub changed #391 to stage 12-pr-and-push and In review while the ticket-audit
-current-work update was being published. Bring the current overview up to date.
-
-### Authority
-
-Current-work upkeep under the Knowledge manual's existing permission and Mike's
-2026-09-22 approval of the ticket-audit recommendations.
-
-### Execution evidence
-
-GitHub issue #391 was read back as open, stage 12-pr-and-push and In review.
-Destination update, validation, publication, remote verification and inbox
-cleanup remain pending.
-<!-- knowledge-save:9c26f1a0-282e-43f1-96d4-8374195c01bb:end -->
-
 <!-- knowledge-save:06981F0B-78C0-4F3B-8287-82A9D12372D6:start -->
 ## Refresh #391 current work after draft delivery
 
