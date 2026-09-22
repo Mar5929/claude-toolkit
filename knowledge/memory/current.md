@@ -11,15 +11,15 @@ for implementation.
 ### Forced protocols with function hooks — #396
 Updated: 2026-09-22
 
-**Goal** Agents follow required toolkit steps every time, using Claude Code function hooks, without limiting how they reason.
+**Goal** Agents follow required toolkit steps every time, using function-hook fact checks, without limiting how they reason.
 
-**Current status** Discovery done. Plan written; Mike approves it before any build.
+**Current status** Requirements drafted in #396; Mike chose fact checks only, no small model. Output style split to #391.
 
-**Next step** Mike reviews the plan's decisions in [docs/designs/396-protocol-enforcement.md](../../docs/designs/396-protocol-enforcement.md).
+**Next step** Mike approves #396 requirements; then revise the design in draft PR #397 to fact checks only.
 
-**Blocker** Mike's plan approval.
+**Blocker** Mike's approval.
 
-**Detailed record** [#396](https://github.com/Mar5929/claude-toolkit/issues/396).
+**Detailed record** [#396](https://github.com/Mar5929/claude-toolkit/issues/396), [#391](https://github.com/Mar5929/claude-toolkit/issues/391).
 
 **Owning session** Claude cloud `session_01XE1BdvMDkwgGGVivNwSFbF`.
 
