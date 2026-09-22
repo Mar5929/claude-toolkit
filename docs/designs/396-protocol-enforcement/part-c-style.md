@@ -1,6 +1,6 @@
 # Part C: the output style, the reply check, and DragonFly's conflicting rules
 
-Written 2026-09-22 by a read-only Opus helper for issue #396. Nothing in `claude-toolkit`, `dragonfly`, or real settings was changed. Tests ran on Claude Code 2.1.280 (`/opt/node22/bin/claude`) in print mode, with a throwaway settings folder `plan/part-c-proto/cfg`. The prototype and every run's raw output are in `plan/part-c-proto/`.
+Written 2026-09-22 by a read-only Opus helper for issue #396. Nothing in `claude-toolkit`, `dragonfly`, or real settings was changed. Tests ran on Claude Code 2.1.280 (`/opt/node22/bin/claude`) in print mode, with a throwaway settings folder that is not kept. The prototype plugin is kept in [prototypes/reply-check/](prototypes/reply-check/hooks/index.ts); the runs' raw output is not kept.
 
 Labels used below: **Confirmed** (read in a file or seen in a test), **Proposed** (not built or not approved), **Unknown** (not tested).
 
@@ -29,7 +29,7 @@ Labels used below: **Confirmed** (read in a file or seen in a test), **Proposed*
 
 ### The proposed text
 
-Proposed. Tested as the style in every prototype run (`plan/part-c-proto/project/.claude/output-styles/plain-english.md`).
+Proposed. Tested as the style in every prototype run. The test copy of the file is not kept; the text below is the full file.
 
 ```markdown
 ---
@@ -122,7 +122,7 @@ Proposed: while the reply check runs, `style-handshake.mjs` says nothing. Keep i
 
 ### What was built and tested
 
-Plugin `plan/part-c-proto/plugin/` (`hooks/index.ts`, about 200 lines). `claude plugin validate` passes. Each hook:
+Plugin [prototypes/reply-check/](prototypes/reply-check/hooks/index.ts) (`hooks/index.ts`, about 200 lines). `claude plugin validate` passes. Each hook:
 
 | Event | What it does |
 | --- | --- |
@@ -298,7 +298,6 @@ These showed up here but belong to Parts A and B: the per-message knowledge remi
 
 ## Files
 
-- `plan/part-c-proto/plugin/hooks/index.ts`: the prototype. The `RC_*` environment variables and the `judge-only` branch in `turn.start` are test tools only.
-- `plan/part-c-proto/project/.claude/output-styles/plain-english.md`: the proposed style.
-- `plan/part-c-proto/judge-items.txt`: the DragonFly replies and the good replies used to test the judge.
-- `plan/part-c-proto/runs/`: each run's output stream (`.jsonl`) and hook log (`.log.jsonl`). `run.sh` and `show.py` repeat a run.
+- [prototypes/reply-check/hooks/index.ts](prototypes/reply-check/hooks/index.ts): the prototype. The `RC_*` environment variables and the `judge-only` branch in `turn.start` are test tools only.
+- The proposed style: its full text is in section 1. The test copy is not kept.
+- The judge test items (the DragonFly replies and the good replies) and the run output (`runs/`, with `run.sh` and `show.py`): not kept. Run names such as `J5-haiku` refer to those runs.

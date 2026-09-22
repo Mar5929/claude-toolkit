@@ -6,7 +6,8 @@ R1 to R31 and its closing sections), `knowledge/knowledge-manual.md`, the four
 skills under `plugins/second-brain/skills/` with their references, the knowledge
 hooks in `.claude/hooks/`, and `.claude/settings.json`. Engine facts come from
 the T5 comment on #396 and the 2.1.280 declaration file
-(`function-hooks/types-run/.claude/types/claude-code.d.ts`).
+(`claude-code.d.ts`, written by `/plugin-types`; the copy used was in a scratch
+folder and is not kept).
 
 "Confirmed" means read in a file or the declarations. "Proposed" means a
 recommendation for Mike. "Unknown" means nobody has tested it.

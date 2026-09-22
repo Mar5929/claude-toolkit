@@ -261,7 +261,7 @@ The declaration header says "EARLY ACCESS: this surface may change between relea
 
 ## Files
 
-- Prototype plugin: `plan/part-d-proto/plugin/` (`hooks/engine.ts`, `protocols.default.json`, `tests/engine.test.ts`, `tsconfig.json`).
-- Test project: `plan/part-d-proto/project/` (stand-in `knowledge-save` and `work` skills, `.claude/protocols.json`).
-- Run outputs: `plan/part-d-proto/run-R*.jsonl`, `debug-R*.txt`, `engine-log.jsonl`. The runner is `run.sh`; `summarize.mjs` prints a run.
-- Probe for project `env` and the classic field: `plan/part-d-proto/probe/`.
+- Prototype plugin: [prototypes/engine/](prototypes/engine/hooks/engine.ts) (`hooks/engine.ts`, [protocols.default.json](prototypes/engine/protocols.default.json), [tests/engine.test.ts](prototypes/engine/tests/engine.test.ts), `tsconfig.json`). Its `tsconfig.json` points at a scratch copy of the declarations that is not kept; regenerate them with `/plugin-types`.
+- Test project (stand-in `knowledge-save` and `work` skills, `.claude/protocols.json`): not kept.
+- Run outputs (`run-R*.jsonl`, `debug-R*.txt`, `engine-log.jsonl`, the runner `run.sh`, and `summarize.mjs`): not kept.
+- Probe for project `env` and the classic field: not kept.
