@@ -13,7 +13,7 @@ Updated: 2026-09-22
 
 **Goal** Agents follow required toolkit steps every time, using Claude Code function hooks, without limiting how they reason.
 
-**Current status** Discovery done. Plan being written by Opus helpers; Mike approves it before any build.
+**Current status** Discovery done. Plan written; Mike approves it before any build.
 
 **Next step** Mike reviews the plan's decisions in [docs/designs/396-protocol-enforcement.md](../../docs/designs/396-protocol-enforcement.md).
 
