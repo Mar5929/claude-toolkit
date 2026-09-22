@@ -405,9 +405,16 @@ on Windows and in the desktop app (roadmap step 8).
 
 ### Remaining document tasks
 
-- T10 conflicts C5, C7 and C8: the summary names them, but the recommended
-  fixes were only in the 2026-09-22 chat. Rebuild them from the conflict list
-  at build time.
+- T10 conflicts C5, C7 and C8. Fixes shown to Mike on 2026-09-22 as part of
+  the T10 plan he approved:
+  - C5: the scaffold creates `delivery/data/production-backups/` and
+    `delivery/data/data-loads/`, matching `production-data.md`.
+  - C7: remove the reference to the retired "ask before assuming" rule from
+    `salesforce-change-clarify.md`, the "per the project's output style"
+    reference from `data-change-handoff.md`, and the duplicate
+    `permissions-source-control.md` entry in `component-tracker.md`.
+  - C8: `dependency-graph.md` lines that edit project knowledge notes say
+    "open `knowledge-save`" when those notes are in `knowledge/`.
 - After Mike answers the open decisions: update this file, then ask for design
   approval. The main session updates the issue.
 
