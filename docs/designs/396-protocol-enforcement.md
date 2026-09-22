@@ -319,7 +319,9 @@ conflicting rules. Lines marked as Mike's own words change only with his
 approval. Test: a fresh DragonFly chat that repeats the 2026-09-22 situation,
 on Windows and in the desktop app (roadmap step 8).
 
-## Open decisions for Mike
+## Decisions answered by Mike
+
+Mike accepted every recommendation below on 2026-09-22 ("yes to all").
 
 1. **Plugin name.** Recommended: `protocol-guard`.
 2. **Codex and the plugin.** Recommended: leave it out of
@@ -391,12 +393,13 @@ on Windows and in the desktop app (roadmap step 8).
   reminder, T9 item 11), 20 (`git-workflows` skill, T9 item 7).
 - Moved to #391: earlier decisions 8, 9, 11 and 21 (reader, pick, handshake,
   reply length).
-- Proposed, not approved: the protocol details, the engine, and the step 5
-  and 6 file plans in this file.
+- Approved (Mike, 2026-09-22, "yes to all"): decisions 1 to 13 in
+  "Decisions answered by Mike", each as recommended.
+- Proposed, not approved: the design as a whole (the protocol details, the
+  engine, and the step 5 and 6 file plans) until Mike approves it.
 
 ### Open questions
 
-- Open decisions 1 to 13 above, for Mike.
 - T12 `codex exec` checks, listed under step 4.
 - How a first session in an untrusted folder loads the module.
 - `humanize-outbound-text.md` still covers GitHub issues but exempts work
@@ -415,9 +418,9 @@ on Windows and in the desktop app (roadmap step 8).
     `permissions-source-control.md` entry in `component-tracker.md`.
   - C8: `dependency-graph.md` lines that edit project knowledge notes say
     "open `knowledge-save`" when those notes are in `knowledge/`.
-- After Mike answers the open decisions: update this file, then ask for design
-  approval. The main session updates the issue.
+- Mike approves the design as a whole.
 
 ### Resume point
 
-Mike reviews "Open decisions for Mike". The build of step 4 waits for PR #398.
+Decisions 1 to 13 answered. Next: Mike approves the design. The build of step
+4 waits for PR #398.
