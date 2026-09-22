@@ -27,6 +27,9 @@ already know which page you want.
 One page is usually enough. Read the one that answers the question rather than
 the whole folder.
 
+For anything about how Codex loads instruction files, read
+`ai-external-knowledge/codex/README.md` first.
+
 ## Why this is a rule
 
 Claude Code changes fast, and it is the subject an agent is most likely to be

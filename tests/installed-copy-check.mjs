@@ -29,9 +29,14 @@
  *    single import line `@AGENTS.md` and nothing else. Claude Code reads
  *    `CLAUDE.md` files whenever both names are present, so that import is what
  *    brings `AGENTS.md` in. Anything else written into `CLAUDE.md` is a
- *    hand-maintained second copy that drifts. In the other direction,
+ *    hand-maintained second copy that drifts. The check runs in both
+ *    directions: every `AGENTS.md` needs its `CLAUDE.md`, and every
+ *    `CLAUDE.md` needs its `AGENTS.md`, because a `CLAUDE.md` standing alone
+ *    is instruction content Codex never reads. In the other direction,
  *    `AGENTS.md` carries no import line of its own, because Codex expands no
- *    import syntax and an `@path` line would reach it as literal text.
+ *    import syntax and an `@path` line would reach it as literal text. A path
+ *    inside backticks or inside a fenced code block is shown, not imported,
+ *    so neither one counts.
  *
  * 3. The project knowledge operating manual matches the packaged template.
  *
@@ -217,18 +222,41 @@ for (const [content, required, message] of lifecycleChecks) {
  * names are present, and that import is what brings AGENTS.md in. AGENTS.md
  * carries no import line itself: Codex expands no import syntax, so an @path
  * line would reach a Codex session as literal text. A path written inside
- * backticks is not an import and is fine.
+ * backticks, or inside a fenced code block, is not an import and is fine.
+ *
+ * Both names are listed, because listing only one name hides a file that has
+ * no partner. A CLAUDE.md standing on its own holds instruction content Codex
+ * never reads.
  */
 const CLAUDE_MD_IMPORT = "@AGENTS.md";
 
-const agentsFiles = execFileSync(
-  "git",
-  ["ls-files", "--cached", "--others", "--exclude-standard"],
-  { cwd: root, encoding: "utf8" },
-)
-  .split("\n")
-  .map((line) => line.trim())
-  .filter((line) => line === "AGENTS.md" || line.endsWith("/AGENTS.md"));
+function instructionFiles(name) {
+  return execFileSync(
+    "git",
+    ["ls-files", "--cached", "--others", "--exclude-standard"],
+    { cwd: root, encoding: "utf8" },
+  )
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line === name || line.endsWith(`/${name}`));
+}
+
+function importLines(text) {
+  const lines = [];
+  let inFence = false;
+  for (const line of text.split("\n")) {
+    if (line.trimStart().startsWith("```")) {
+      inFence = !inFence;
+      continue;
+    }
+    if (inFence) continue;
+    if (line.replace(/`[^`]*`/g, "").trimStart().startsWith("@")) lines.push(line);
+  }
+  return lines;
+}
+
+const agentsFiles = instructionFiles("AGENTS.md");
+const claudeFiles = instructionFiles("CLAUDE.md");
 
 for (const agentsPath of agentsFiles) {
   const claudePath = agentsPath.replace(/AGENTS\.md$/, "CLAUDE.md");
@@ -251,15 +279,27 @@ for (const agentsPath of agentsFiles) {
     );
   }
   checked++;
-  const imports = read(agentsPath)
-    .split("\n")
-    .filter((line) => line.replace(/`[^`]*`/g, "").trimStart().startsWith("@"));
+  const imports = importLines(read(agentsPath));
   if (imports.length > 0) {
     failures.push(
       `  ${agentsPath}\n    holds an import line: ${imports[0].trim()}\n`
         + "    Codex expands no import syntax, so that line reaches a Codex"
         + " session as literal\n    text. Use an ordinary Markdown link, or put"
         + " the path inside backticks.",
+    );
+  }
+}
+
+for (const claudePath of claudeFiles) {
+  const agentsPath = claudePath.replace(/CLAUDE\.md$/, "AGENTS.md");
+  checked++;
+  if (!existsSync(resolve(root, agentsPath))) {
+    failures.push(
+      `  ${agentsPath}\n    is missing. Every CLAUDE.md has an AGENTS.md beside`
+        + " it holding the\n    instructions, and the CLAUDE.md is the one"
+        + ` import line:\n      ${CLAUDE_MD_IMPORT}\n`
+        + "    A CLAUDE.md standing on its own is instruction content Codex"
+        + " never reads.\n    Move the content into AGENTS.md.",
     );
   }
 }
@@ -274,6 +314,6 @@ if (failures.length > 0) {
 
 console.log(
   `ALL PASS (${checked} checks: installed copies match what this repo ships, `
-    + "the lifecycle homes agree, and every AGENTS.md has its one-line "
-    + "CLAUDE.md), FAIL: 0",
+    + "the lifecycle homes agree, and every AGENTS.md and its one-line "
+    + "CLAUDE.md sit beside each other), FAIL: 0",
 );

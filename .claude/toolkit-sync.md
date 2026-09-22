@@ -10,8 +10,12 @@ marketplace 0.124.10. Two older statements in this record were wrong after the
 move. The Gates table row that said `AGENTS.md` points to `CLAUDE.md` describes
 current setup, so it was corrected in place at gate 5. The description of
 `installed-copy-check.mjs` comparing a block shared by the two files, at lines
-263 to 264 below, is left as history: the check now verifies the one-line
-`CLAUDE.md` import and that `AGENTS.md` holds no import line.
+269 to 271 below, under "The copies, and what keeps them honest", is left as
+history: the check now verifies the one-line `CLAUDE.md` import and that
+`AGENTS.md` holds no import line. The same change carried the owner's
+decision of 2026-09-21, issue #385 requirement 7, to remove the "Huh? What
+are you saying?" instruction from every shipped copy; pull request #393
+carried it out.
 
 2026-09-21 full project-sync audit for #269 and #369. The audit ran against
 `main` commit `1479dc1` and was rechecked after #376 and #378 merged, against
@@ -252,7 +256,8 @@ leave the result wrong.
 The answer is that nobody edits that file by hand. After bringing a branch
 current, run `node .claude/tools/build-knowledge-index.mjs` again: it rebuilds
 the index from the documents, which are what win whenever the two disagree.
-`CLAUDE.md` states it under "Parallel sessions in this repo".
+`AGENTS.md` states it in the Tools table, in the row for
+`node .claude/tools/build-knowledge-index.mjs`.
 
 ## The copies, and what keeps them honest
 

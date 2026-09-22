@@ -10,7 +10,8 @@ import { fileURLToPath } from "node:url";
 export const TOOLKIT_MANUAL = "knowledge/toolkit-manual.md";
 // AGENTS.md holds the project instructions. The CLAUDE.md beside it is one
 // import line, which is how Claude Code versions that do not read AGENTS.md
-// natively still receive it. Codex reads AGENTS.md and never CLAUDE.md.
+// natively still receive it. Codex reads AGENTS.md and never CLAUDE.md. That
+// CLAUDE.md is required, so a missing one is reported as a gap.
 export const ROOT_INSTRUCTIONS = "AGENTS.md";
 const CLAUDE_MD_IMPORT = "@AGENTS.md";
 
@@ -54,7 +55,7 @@ export function toolkitOrientation(root, event = "SessionStart") {
   }
   if (rootState !== "available") {
     messages.push(`Required root guidance is missing, empty, or unreadable: ${ROOT_INSTRUCTIONS}. Report the gap.`);
-  } else if (claudeText !== null && claudeText.trim() !== CLAUDE_MD_IMPORT) {
+  } else if (claudeText === null || claudeText.trim() !== CLAUDE_MD_IMPORT) {
     messages.push(`CLAUDE.md should hold the single line ${CLAUDE_MD_IMPORT}, so that Claude Code reads ${ROOT_INSTRUCTIONS}. Report the gap.`);
   }
   return messages.join("\n") + "\n";

@@ -41,3 +41,22 @@ the page URL. There is no capture script for this folder; it holds one page.
 | Page | File | What it covers |
 | --- | --- | --- |
 | Custom instructions with AGENTS.md | `agents-md.md` | How Codex builds its instruction chain at startup: the global file in `~/.codex`, the project files from the project root down to the working directory, `AGENTS.override.md`, `project_doc_fallback_filenames`, the shared `project_doc_max_bytes` size budget, and how to check what was loaded. |
+
+## Facts this project relies on that the captured page does not state
+
+Three things this toolkit depends on are true, but the captured page does not
+say them. Each one is recorded here with the source it was read from.
+
+- **Codex never reads `CLAUDE.md` natively.** The setting that would let it,
+  `project_doc_fallback_filenames`, defaults to an empty list, so no fallback
+  filename is tried. Source: https://learn.chatgpt.com/docs/config-file/config-reference
+  (read 2026-09-21).
+- **Codex expands no import syntax.** An `@path` line reaches the model as
+  literal text. Source: the file `codex-rs/core/src/agents_md.rs` in
+  https://github.com/openai/codex on `main` (read 2026-09-21), which has no
+  import handling.
+- **The 32 KiB `project_doc_max_bytes` budget is shared across the whole
+  chain**, not applied per file. Files are read root first and the remaining
+  budget is decremented as each one is added, so a large root file can starve
+  the nested ones. Source: the same file, `codex-rs/core/src/agents_md.rs`
+  (read 2026-09-21).

@@ -43,6 +43,7 @@ knowledge policy; indexes are maps, not source evidence.
 | `tests/` | Four Node checks, run by hand before every pull request. Detail: `tests/AGENTS.md`. |
 | `.claude/` | What this repo runs on itself: the rule copies, installed hooks and tools, settings, and the setup record in `toolkit-sync.md`. |
 | `ai-external-knowledge/claude-code/` | The official Claude Code documentation, captured as Markdown. Open the page that covers a hook, skill, plugin, agent, command, output style, or setting before building or changing one. `.claude/rules/claude-code-docs-first.md` says when. Index and refresh steps: `ai-external-knowledge/claude-code/README.md`. |
+| `ai-external-knowledge/codex/` | The captured Codex AGENTS.md page. Open it before changing anything about how Codex reads instruction files. |
 | `archive/` | Retired material kept for history. Never a source of current truth. |
 
 This repo runs the toolkit on itself, so most files under `.claude/` are copies

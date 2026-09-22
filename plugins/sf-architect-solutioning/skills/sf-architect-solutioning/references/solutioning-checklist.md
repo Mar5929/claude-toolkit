@@ -15,10 +15,10 @@ Use this checklist before writing any code, creating any metadata, or building a
 
 ## Project Context Gate
 
-- [ ] **Project rules read**: the project's AGENTS.md and rules have been read; the locations for requirements, decisions, and design output are known (or the user has been asked)
+- [ ] **Project rules read**: the project's AGENTS.md (or CLAUDE.md in a project still in the old layout) and rules have been read; the locations for requirements, decisions, and design output are known (or the user has been asked)
 - [ ] **Requirement recorded**: the requirement exists in the project's own tracking system (ticket, hub doc, or file, per project rules)
 - [ ] **Conflict check**: no conflicts with prior decisions in the project's decision log
-- [ ] **Conventions applied**: naming follows `references/naming-conventions.md`; client conventions in the project's AGENTS.md override where they differ
+- [ ] **Conventions applied**: naming follows `references/naming-conventions.md`; client conventions in the project's AGENTS.md (or CLAUDE.md in a project still in the old layout) override where they differ
 
 ## Documentation Verification Gate
 

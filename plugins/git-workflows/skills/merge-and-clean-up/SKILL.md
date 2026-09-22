@@ -19,8 +19,8 @@ that belonged to it. Treat merge and cleanup as one guarded workflow.
 - A request to "merge and clean up" is merge approval only when the target PR is
   unambiguous from a number, URL, or the current branch. Ask when more than one
   PR could match.
-- Read the repository's `AGENTS.md` and local workflow rules
-  before acting. Repository rules decide required checks, merge method, ticket
+- Read the repository's `AGENTS.md` (or `CLAUDE.md` in a project still in the
+  old layout) and local workflow rules before acting. Repository rules decide required checks, merge method, ticket
   updates, and who may merge.
 - Never merge a draft, bypass branch protection, use admin override, force-push,
   or ignore a failed required check.

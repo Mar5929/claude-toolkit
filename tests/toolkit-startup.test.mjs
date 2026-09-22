@@ -85,6 +85,13 @@ test("a CLAUDE.md holding anything but the import line is reported", () => fixtu
   }
 }));
 
+test("a missing CLAUDE.md beside a present AGENTS.md is reported", () => fixture((root) => {
+  rmSync(join(root, "CLAUDE.md"));
+  for (const event of ["SessionStart", "UserPromptSubmit"]) {
+    assert.match(toolkitOrientation(root, event), /CLAUDE\.md should hold the single line @AGENTS\.md/);
+  }
+}));
+
 test("copied hook finds root from nested cwd and follows aliased paths", () => fixture((root, parent) => {
   const nested = join(root, "nested/deeper"); mkdirSync(nested, { recursive: true });
   const alias = join(parent, "alias"); symlinkSync(root, alias, "dir");
