@@ -348,3 +348,5 @@ None of these was changed in this run.
   the Codex cache; the other versions are unchanged. No refresh is owed.
 
 - 2026-09-22: Both plugin caches refreshed again from main at `cb3c05f` (marketplace 0.124.10) by an Opus helper in the Main Orchestrator chat: project-init 0.77.6, sf-architect-solutioning 1.1.1, git-workflows 0.2.2, second-brain 4.12.4, work-tracker 2.9.0, session-skills 1.13.0 on both hosts; hooks-library 3.6.0 on Claude Code only; system-guide on neither. File-by-file comparison with `plugins/` on main: zero differences except Claude Code's own `.in_use` marker. Claude Code said "restart to apply" for the updated plugins. Codex project-scope copies in other worktrees and projects were left alone.
+
+- 2026-09-22 (later): second-brain refreshed to 4.12.5 on both hosts from main at `6f6e09e` (marketplace 0.124.11) after the manual sentence for requirement 31 merged; every other plugin already current; file-by-file comparison with `plugins/` on main clean except Claude Code's `.in_use` marker; Claude Code said "restart to apply".
