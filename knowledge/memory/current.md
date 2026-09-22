@@ -2,8 +2,8 @@
 Updated: 2026-09-22
 
 ## Project goal
-Finish authorized Knowledge delivery; verify the toolkit project and laptop;
-plan whole-system work. Toolkit OS implementation is not authorized.
+Finish the active output-style and protocol work, complete the approved cleanup,
+then prove and accept the whole Toolkit Operating System.
 
 ## Active work
 
@@ -12,85 +12,83 @@ Updated: 2026-09-22
 
 **Goal** Enforce required steps with function-hook fact checks without limiting reasoning.
 
-**Current status** Requirements and startup-cut plan (T9) approved 2026-09-22; startup cut first, including Salesforce rules. Style is #391.
+**Current status** Requirements approved. Stage 04-solution-design, In progress. The design must be revised to fact checks only and now includes the remaining #383 instruction changes and #358 behavioral case.
 
-**Next step** Draft Salesforce rules before/after (T10); revise design in PR #397 (T8).
+**Next step** Revise the design in draft PR #397 using the approved startup, Salesforce and Codex plans, then reconcile the build start with #391.
 
-**Blocker** None.
+**Blocker** None for design. The overlapping build waits for #391's final disposition.
 
-**Detailed record** [#396](https://github.com/Mar5929/claude-toolkit/issues/396).
-
-**Owning session** Claude cloud `session_01XE1BdvMDkwgGGVivNwSFbF`.
+**Detailed record** [#396](https://github.com/Mar5929/claude-toolkit/issues/396), [draft PR #397](https://github.com/Mar5929/claude-toolkit/pull/397).
 
 ### Output style delivery — #391
 Updated: 2026-09-22
 
-**Goal** Make agents follow selected style.
+**Goal** Make agents follow the selected style and write clear, scannable replies.
 
-**Current status** Focused style content/delivery build approved 2026-09-22 for GPT-5.6 Sol agents. Tests, review and a replacement PR are pending. #396 owns broader rewriting; PR #398 non-style changes need an accounted disposition.
+**Current status** Focused implementation is in draft PR #399. Source checks and independent source review passed. Live Claude comparison and Mike's acceptance remain open. Stage 08-build, In progress.
 
-**Next step** Finish build, tests and review; open the replacement PR.
+**Next step** Finish the live comparison, show Mike the replies, and obtain merge and acceptance separately. Reconcile #398 and #349 coverage with #396.
 
-**Blocker** None.
+**Blocker** None recorded; Claude sign-in was restored.
 
-**Detailed record** [#391](https://github.com/Mar5929/claude-toolkit/issues/391), [design](../../docs/designs/391-output-style.md).
+**Detailed record** [#391](https://github.com/Mar5929/claude-toolkit/issues/391), [draft PR #399](https://github.com/Mar5929/claude-toolkit/pull/399).
 
 **Owning session** Codex task `01a0cb21-9aa3-7c90-b674-b58bfb1757c2`.
 
-### Knowledge System / Toolkit OS — #269 / #369
+### Remove unnecessary Knowledge programs — #381
 Updated: 2026-09-22
 
-**Goal** Finish Knowledge delivery, install here and on laptop, then close whole-system gaps.
+**Goal** Remove the conversation search program and replace the save inspector with named Git commands.
 
-**Current status** Built and installed. 2026-09-21 to 22 merges: action checkpoint; silent style; team/archive questions; action hold; project sync; Terse/Plain English; AGENTS.md; and requirement 31, one owner per changing fact. Both caches match main, marketplace 0.124.11. Mike's 22 decisions and D23 are in the PRDs.
+**Current status** Requirements approved. Backlog; build not started. Both programs and their active references still exist.
 
-**Next step** Mike starts a fresh chat here: /context lists CLAUDE.md and AGENTS.md; replies read as Plain English. On his go, build #381 to #385. #380 moved to #391.
+**Next step** Build the search-program removal first; complete the lower-priority inspector removal in the same item or a recorded later task.
 
-**Blocker** None. #384 owns whole-system proof and acceptance; seven 13-deployment items await the fresh-chat check.
+**Blocker** None.
 
-**Detailed record** [#269](https://github.com/Mar5929/claude-toolkit/issues/269), [#369](https://github.com/Mar5929/claude-toolkit/issues/369), [PRD Notes](../prds/toolkit-operating-system/knowledge-system.md#notes).
+**Detailed record** [#381](https://github.com/Mar5929/claude-toolkit/issues/381).
 
-**Owning session** Claude main `local_1337791d-276c-4ea7-ae8f-119db0dc8b17`; team chats archived.
+### Current working memory owns goals and links — #382
+Updated: 2026-09-22
 
-### Guided work management — #337
-Updated: 2026-09-19
+**Goal** Keep live ticket status in GitHub while working memory holds each item's goal and link, plus approved exceptions.
 
-**Goal** Deliver guided work management.
+**Current status** Requirements approved. Backlog; build not started. This audit confirmed the current file still duplicated stale status from closed tickets.
 
-**Current status** Agent-led delivery PR #359 and single-record PR #362 merged, reported 2026-09-19; full acceptance remains open.
+**Next step** Deliver this contract before or as the first part of #396's working-memory fact checks.
 
-**Next step** 2026-09-19 to-do: complete host checks, agreed rollout and full acceptance.
+**Blocker** Coordinate overlapping manual, rule and handoff edits with #396.
 
-**Blocker** None recorded; consult the item.
+**Detailed record** [#382](https://github.com/Mar5929/claude-toolkit/issues/382).
 
-**Detailed record** [#337](https://github.com/Mar5929/claude-toolkit/issues/337).
+### Documentation corrections — #385
+Updated: 2026-09-22
 
-### Toolkit instruction review — #360
-Updated: 2026-09-19
+**Goal** Correct the remaining documentation errors from the 2026-09-21 audits.
 
-**Goal** Reconcile Toolkit instructions and verify delivery.
+**Current status** Requirements approved. #388 completed the root-instruction corrections and removed the "Huh?" instruction. The issue body now lists only the remaining documentation work.
 
-**Current status** Seven fixes in PR #361 merged, reported 2026-09-19; acceptance remains open.
+**Next step** Start after #396's rewrite, then check the final walkthrough, PRDs, toolkit map and #269 design records once.
 
-**Next step** 2026-09-19 to-do: refresh, run live-host checks and complete acceptance.
+**Blocker** #396 changes overlapping documentation.
 
-**Blocker** None recorded; consult the item.
+**Detailed record** [#385](https://github.com/Mar5929/claude-toolkit/issues/385).
 
-**Detailed record** [#360](https://github.com/Mar5929/claude-toolkit/issues/360).
+### Whole-system proof and acceptance — #384
+Updated: 2026-09-22
+
+**Goal** Prove the final Toolkit Operating System on Claude Code and Codex and obtain Mike's acceptance.
+
+**Current status** Refinement backlog. The issue now owns all remaining live-host checks from #360, #377, #379 and #388, plus PRD review, design-reasoning retention and final acceptance.
+
+**Next step** Refresh the proof plan after #396 and #391 finish, then run it against the final installed versions.
+
+**Blocker** Final behavior from #396 and #391 is not delivered yet.
+
+**Detailed record** [#384](https://github.com/Mar5929/claude-toolkit/issues/384).
 
 ## General project to-dos
-- 2026-09-20: [#269 D3](https://github.com/Mar5929/claude-toolkit/issues/269): proposed stale-knowledge wording is in design Notes for Mike’s review.
-- 2026-09-19: instruction-overload evaluation; measured in #396 on 2026-09-22.
-- 2026-09-19: [#358](https://github.com/Mar5929/claude-toolkit/issues/358): use prior
-  decisions to clarify Mike's intent and push back usefully in long sessions.
-  Exact example saved; investigation pending.
+None.
 
 ## Session handoffs
-
-### 2026-09-21T16:30:44.599Z | Claude team continuation
-
-Done. Claude chats replaced the Codex teams on 2026-09-21; #269 holds the chat IDs and standing review-and-merge instruction.
-
-### 2026-09-20T11:01:22.781Z | Knowledge delivery coordinator
-
-Continue [#269](https://github.com/Mar5929/claude-toolkit/issues/269): finish authorized tasks, assess gaps, then plan remaining work. PR #366 merged at `3703c5c` with Mike's combined approval; cleanup is complete. Verify PR #367, compare merged behavior with the [PRD](../prds/toolkit-operating-system/knowledge-system.md) and [design Notes](../../docs/designs/269-knowledge-system.md#notes), then update the [remaining plan](../../docs/designs/269-knowledge-system/implementation-plan.md) with unmet outcomes, dependencies, owners and acceptance evidence. Requirements/design, asynchronous helpers, host/late-Stop and behavior proofs, rollout and acceptance remain open; no full-system acceptance or rollout authority. Do not change authentication. #269 is open/In progress after its merge closure was corrected. Source coordinator: `01a0baf5-bc72-7a22-91f3-3781f5dafef9`.
+None.
