@@ -72,6 +72,9 @@ finishes the work item has to do it.
 
 ## Designs in progress
 
+- [391-output-style.md](391-output-style.md): the focused Plain English style
+  revision, silent style delivery, and bounded Claude behavior checks.
+
 - [388-agents-md-instruction-file.md](388-agents-md-instruction-file.md): the
   move from `CLAUDE.md` to `AGENTS.md` as the instruction file for issue #388,
   with the one-line `CLAUDE.md` import beside every `AGENTS.md`.
