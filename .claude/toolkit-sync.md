@@ -3,6 +3,19 @@
 What this repository set up from its own toolkit, what it skipped, and why. A
 later `project-sync` run reads this so a considered "no" is not offered again.
 
+2026-09-22: focused output-style release for #391, merged in PR #399 at
+`99c93ac`: project-init 0.77.8, hooks-library 3.6.2, marketplace 0.124.13.
+The installed Plain English style is the final 433-word revision. The existing
+UserPromptSubmit hook asks for a fresh silent whole-file read on each message
+and a silent check of the reply before sending. It verifies neither action nor
+compliance. Installed copies match source. This Mac's Claude user plugin caches
+were refreshed to those versions; Codex's project-init cache is 0.77.8. Cached
+style and hook hashes match the source. Existing Claude sessions must restart.
+This was a focused rollout, not a full project sync or adoption in other projects.
+Bounded native trials observed four whole-file Reads across four replies without
+closing offers or unrelated advice; Mike's fresh-chat acceptance remains open
+in #391. The design retains exact examples and limitations.
+
 2026-09-22: instruction files moved for issue #388. `AGENTS.md` now holds the
 content at the root and in `docs/`, `plugins/` and `tests/`; each of those four
 places has a one-line `CLAUDE.md` holding `@AGENTS.md`. project-init 0.77.6,

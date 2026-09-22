@@ -22,9 +22,10 @@ reply classifier, small-model judge, or new read-tracking state. The
 governs this work.
 
 [#396](https://github.com/Mar5929/claude-toolkit/issues/396) owns the broader
-instruction restructuring. Its current dependency on
-[PR #398](https://github.com/Mar5929/claude-toolkit/pull/398) must be reconciled
-before that PR is retired. Preserve its non-style changes until accounted for.
+instruction restructuring. T11 now owns the non-style proposal preserved in
+closed [PR #398](https://github.com/Mar5929/claude-toolkit/pull/398);
+[PR #399](https://github.com/Mar5929/claude-toolkit/pull/399) shipped the focused
+style work. Do not merge the superseded PR wholesale.
 Review [PR #349](https://github.com/Mar5929/claude-toolkit/pull/349)'s intended
 wording in the new style; do not restore its obsolete surrounding style.
 
@@ -64,17 +65,20 @@ implementation revises its result without reverting unrelated work.
 `8afa546c2ceed14413eccb5672bb5732592653c6`, adds rhetorical-pattern guidance
 to an obsolete version of the style. The replacement preserves its useful
 meaning: state the point directly, avoid deny-then-correct framing and rhythmic
-word pairs, and allow plain factual corrections. Do not merge its old style.
+word pairs, and allow plain factual corrections. PR #349 was closed as
+superseded after #399 merged; its old style was not merged.
 
 [#398](https://github.com/Mar5929/claude-toolkit/pull/398), head
 `665d9eded865cc57f4e0fd9f9e651566be5f18ee`, supplies the clearer style-hook
 wording and descriptive-header requirement. The focused replacement includes
-both. Its remaining changes are preserved in that open PR: `memory-reminder`,
-`knowledge-completion`, `toolkit-session-start`, installed copies, associated
-knowledge tests, and release metadata. #396 must account for these changes
-before #398 is retired; replacing its style changes does not complete that
-handoff. In particular, reconcile the knowledge manual's acknowledgment rule
-and the completion command's behavior from nested working directories.
+both. PR #398 was closed as superseded after #399 merged. Its remaining
+proposal is retained at that head: `memory-reminder`, `knowledge-completion`,
+`toolkit-session-start`, installed copies and associated knowledge tests.
+#396 T11 explicitly owns reconciling those changes in the broader rewrite.
+Resolve the knowledge manual's acknowledgment conflict and the completion
+command's behavior from nested working directories before adopting them.
+Old release metadata is superseded; use current versions when implementing.
+This accounted disposition preserves the proposal without claiming it shipped.
 
 ## Validation record
 
@@ -427,11 +431,34 @@ Turn 2, 40 reply words. Prompt: The importer has been built. Its unit tests pass
 
 ## Notes
 
-2026-09-22: Mike authorized finishing and shipping the focused work. The revised
-433-word style and fresh-read/silent-check reminder passed the bounded final
-checks above; source validation passed. Finish independent review, merge PR
-#399, refresh the installed toolkit packages, and verify the installed copies.
-Record the merge and rollout in #391; retain Mike's real-chat acceptance and
-any uncompleted migrated tasks. The older failed trials remain above as
-historical evidence. #396 T11 owns the remaining non-style #398 changes; retire
-superseded #349/#398 only after that disposition is recorded. Keep #392 merged.
+2026-09-22: Shipped under Mike's “ship everything when you are done please”
+authorization. Independent GPT-5.6 Sol source and bounded behavior review
+passed. PR #399 merged at `99c93ace7481281df3e24363a0e36c059ba1ade9` from
+head `e63ec80c2cad9a611fc26cccd11bc6891af3d9e8`. Marketplace 0.124.13,
+project-init 0.77.8 and hooks-library 3.6.2 are published on main.
+
+The primary checkout and its installed style/hook match the final hashes above.
+Claude's user plugin caches on this Mac now hold project-init 0.77.8 and
+hooks-library 3.6.2; Codex's project-init cache is 0.77.8. Their applicable style
+and hook hashes were verified. Existing Claude sessions must restart. This
+proves the focused repository/Mac rollout, not adoption of copied files in
+other projects or style delivery to Codex replies.
+
+PRs #349 and #398 are closed as superseded; #396 T11 owns the remaining
+non-style proposal and unresolved issues described above. PR #392 stays merged.
+Both operating manuals were reviewed: the Toolkit manual now describes the
+fresh silent read and pre-send check with their limits; the Knowledge manual
+needed no focused style change. Its broader acknowledgment conflict remains
+with #396.
+
+Resume at Mike's fresh-chat assessment in #391, stage 13-deployment/In review.
+The issue remains open. The earlier failed trials remain historical evidence;
+final four-turn success is not a guarantee of long-chat adherence or acceptance.
+DragonFly's read-only audit found a clean main checkout with a deliberate Plain
+English selection. Its separately scoped migration was not performed: update
+the copied style, hook and hook test, remove only the style Read PostToolUse
+registration, and reconcile its style documentation when that project's
+adoption is authorized. Preserve its other hook registrations and owner choices.
+Terse selection/acceptance remains pending; general quiet-acknowledgment work
+belongs to #396. No further focused source changes are planned without new
+feedback or a demonstrated defect.
