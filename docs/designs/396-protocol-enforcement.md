@@ -22,6 +22,9 @@ They used a small model to judge replies and commands, so they no longer fit.
 - Before any hook work, the startup cut removes most always-loaded text and
   rewrites rules, manuals and skills in simplified technical English.
 - Today's command hooks stay as the backup. Codex gets instructions only.
+- The checks prove that a required step happened: a skill was opened, a file
+  was written, a command succeeded. They do not prove the step was done well
+  or that Mike approved anything. See "What the checks prove".
 
 ## Approved decisions this design follows
 
@@ -78,6 +81,20 @@ All from the #396 body, Mike, 2026-09-22:
   `gh issue close` or a path under `knowledge/memory/`. Proposed, see open
   decision 7.
 - The turn is ending, and which agent made a call.
+- Only a call that succeeded counts. A refused, failed, or interrupted call,
+  or a shell command with a non-zero exit code, is never a fact for `require`.
+- Order counts. "After" means a later call in the same session, by call order.
+
+### What the checks prove
+
+- They prove a required step happened, from facts Claude Code reports.
+- Opening a skill does not prove the agent followed it.
+- Opening the `work` skill does not prove Mike approved a close. The skill
+  asks; the check cannot see the answer.
+- A memory proposal shown in a reply but never written to
+  `knowledge/memory-inbox.md` is not caught.
+- The quiet end-of-turn review leaves no trace when it finds nothing.
+- Name them "required workflow checks", never "approval checks".
 
 ### Protocols forced
 
@@ -87,9 +104,9 @@ approved.
 | ID | Protocol | Trigger | Check | On failure | Step |
 | --- | --- | --- | --- | --- | --- |
 | K4 | Knowledge files change only with `knowledge-save` open | Write to `knowledge/memory-inbox.md`, `knowledge/memory/**`, `knowledge/prds/**`, `knowledge/memory-self-improvement.md`; a shell command naming those paths | Skill opened this turn for the inbox; since the last reset for other files (open decision 5) | Call refused | 5 |
-| CW | Working memory follows the current focus | A turn ends after a work item was created, closed, or changed stage (`gh`, GitHub tools, `work`) | `knowledge/memory/current.md` written this turn | Reply held; `knowledge-save` opened for the agent | 5 |
+| CW | Working memory follows the current focus | A turn ends after a work item was created, closed, or changed stage (`gh`, GitHub tools, `work`) | A successful write of `knowledge/memory/current.md` after the last work-item change in this turn | Reply held; `knowledge-save` opened for the agent | 5 |
 | K5 | Generated indexes are not edited by hand | Write to `memory-index.md`, `prd-index.md`, `ai-external-knowledge/README.md` | The path | Call refused; run the index builder | 5 |
-| K6 | Indexes rebuilt and checker run after a knowledge write | A turn ends after a K4 write | `build-knowledge-index.mjs` and `check-knowledge.mjs` ran after the last K4 write | Reply held | 5 |
+| K6 | Indexes rebuilt and checker run after a knowledge write | A turn ends after a K4 write | `build-knowledge-index.mjs` and then `check-knowledge.mjs` both exited 0 after the last K4 write | Reply held | 5 |
 | K7 | Save review before a pull request, closing an item, or a merge | `gh pr create`, `gh issue close`, `gh pr merge`, `work finish`, the matching GitHub tools | `knowledge-save` opened this turn | Call refused | 6 |
 | P2 | Closing an item goes through the `work` skill | Same close commands and tools | `work` opened this turn. The skill asks for Mike's approval | Call refused | 6 |
 | P3 | A merge goes through `merge-and-clean-up` | `gh pr merge`, GitHub merge and auto-merge tools | Skill opened this session | Call refused | 6 |
@@ -150,9 +167,18 @@ design conversations. Salesforce convention rules. Helper agents' replies.
   before display, a Skill call for the owner is inserted, and a note says what
   failed. The main agent writes the reply again.
 - **Limits.** One hold per protocol per turn, then the reply is shown with a
-  notice (open decision 3). Tool checks fail closed. After two engine errors
-  in one turn, calls pass for the rest of that turn. The reply hold fails
-  open: on any error the reply is shown unchanged.
+  notice (decision 3).
+- **Failure handling.**
+  - Missing evidence never counts as a pass for a tool check. A tool check
+    that cannot decide refuses the call.
+  - After two engine errors in one turn, the engine stops for the rest of that
+    turn. It removes the `toolkit_protocol_engine` field, so every old command
+    hook runs in full as the backup. Mike sees one notice: "Workflow checks
+    are off for this turn after an error."
+  - The reply hold is the one exception. On an error the reply is shown, with
+    the same notice, so Mike is never left without a reply.
+  - An engine that did not load shows one line per session when function hooks
+    are on, and the old hooks run in full.
 - **State.** Kept in module memory by session. Not `$.store`, which one file
   shares across every session on the computer.
 - **Backup.** The engine adds `toolkit_protocol_engine` (version, active
@@ -175,6 +201,35 @@ folder); a write was refused until a skill was opened; a reply was held and
 redone; the classic-hook field reached command hooks; the fail-open reply hold
 and the fail-closed tool check with its error limit; the `turn.complete`
 notice; the four drift-test steps.
+
+## Agents and sessions
+
+- **Whose skill counts.** A skill counts for the agent that opened it. A
+  helper's opening counts for the helper's own writes. The main agent's
+  opening counts for a helper it starts in the same turn, so a `knowledge-save`
+  executor can write after the main agent opened the skill.
+- **A helper's save.** The main agent's CW and K6 obligations pass when the
+  helper's successful writes and commands happened in the same turn. A save
+  still running when the turn ends is recorded as pending, and the obligation
+  stays open in the next turn.
+- **Resets.** Session start, `/clear`, compaction, resume, and plugin reload
+  clear the record. Skills must be opened again after a reset.
+- **Duplicate saves.** While a helper's save of `knowledge/memory/current.md`
+  or an inbox entry is running, a write of the same file by another agent in
+  this session is refused until it finishes. Other sessions' edits follow
+  `parallel-agent-sessions.md`.
+
+## Measurement
+
+Run one scripted DragonFly-style session before and after each phase. Count:
+
+- missed required steps,
+- wrong blocks (a refusal or hold when the step was done),
+- extra turns caused by holds,
+- added time per turn.
+
+Mike judges reply quality. A phase moves on only when missed steps go down and
+wrong blocks stay near zero.
 
 ## Roadmap step 4: the startup cut
 
@@ -276,6 +331,8 @@ mirrored for Codex.
 
 ## Roadmap step 5: hook phase 1 (K4, CW, K5, K6)
 
+Built small first: K4 alone, measured, then CW, then K5 and K6.
+
 | File | Now | After |
 | --- | --- | --- |
 | `plugins/protocol-guard/` | None | New plugin, version `0.1.0` |
@@ -298,7 +355,7 @@ Done when: an inbox write without `knowledge-save` is refused; a work-item
 change reaches `current.md` in the same turn; with the variable off nothing
 changes.
 
-## Roadmap step 6: hook phase 2 (K7, P2, P3)
+## Roadmap step 6: required workflow checks before a pull request, close or merge (K7, P2, P3)
 
 | File | Now | After |
 | --- | --- | --- |
@@ -393,6 +450,10 @@ Mike accepted every recommendation below on 2026-09-22 ("yes to all").
   reminder, T9 item 11), 20 (`git-workflows` skill, T9 item 7).
 - Moved to #391: earlier decisions 8, 9, 11 and 21 (reader, pick, handshake,
   reply length).
+- Approved (Mike, 2026-09-22): the review revisions: accurate guarantees,
+  success and order, failure handling with the reply exception, agents and
+  sessions, measurement and small phases. Not adopted: re-review of checks on
+  every skill change; per-check tests and the owner-exists test cover it.
 - Approved (Mike, 2026-09-22, "yes to all"): decisions 1 to 13 in
   "Decisions answered by Mike", each as recommended.
 - Proposed, not approved: the design as a whole (the protocol details, the
