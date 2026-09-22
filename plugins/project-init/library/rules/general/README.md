@@ -70,8 +70,9 @@ How Claude writes and replies used to live here in four files:
 removed in favor of an output style.
 
 Voice now lives in one place: [`../../output-styles/`](../../output-styles/README.md).
-`Plain English` is the only style the toolkit ships. `project-init` Gate 5
-installs its file and selects it by default; `project-sync` checks both.
+`Plain English` is the toolkit's default style, and `Terse` also ships for an
+owner who wants replies built for scanning. `project-init` Gate 5 installs the
+Plain English file and selects it by default; `project-sync` checks both.
 Preserve a deliberate owner choice of another style. Claude Code's built-in
 styles are host options, not toolkit defaults.
 

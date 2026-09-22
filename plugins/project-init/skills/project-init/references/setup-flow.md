@@ -302,8 +302,10 @@ separate prep, interview, or continuation files for that workflow.
   Copy `library/output-styles/plain-english.md` to
   `.claude/output-styles/plain-english.md` and set `"outputStyle": "Plain English"`
   in the committed `.claude/settings.json`. Preserve an owner's deliberate
-  choice of another style. Plain English is the only style the toolkit ships;
-  Claude Code's built-in styles are host options, not toolkit defaults.
+  choice of another style. Plain English is the toolkit's default; the toolkit
+  also ships `Terse` (`library/output-styles/terse.md`), which the owner may
+  select instead. Claude Code's built-in styles are host options, not toolkit
+  defaults.
   Do not add voice rules to `.claude/rules/`. Offer the same style file and
   selection under `~/.claude/` if the owner wants it across the machine.
   It takes effect in the next session. Helper agents writing owner-facing prose

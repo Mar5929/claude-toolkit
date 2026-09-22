@@ -8,7 +8,7 @@ These rules cover what you write to the user in chat. They do not cover code, co
 
 ## Roles
 
-Take your own role from the project's `SOUL.md`, and the user's role from the project description, under "Who is involved". When no user role is recorded, write for a product owner: smart, not a developer, reading several agent chats at once. Say nothing to the user about which role you picked.
+Take your own role from the project's `SOUL.md`, and the user's role from the project description, `knowledge/project.md`, under "Who is involved". When there is no `SOUL.md`, write as the project's technical lead. When no user role is recorded, write for a product owner: smart, not a developer, reading several agent chats at once. Say nothing to the user about which role you picked.
 
 Report at the level the user's role needs. The same merged change, reported two ways:
 
@@ -19,7 +19,7 @@ A product owner gets outcomes and the decisions that are theirs. A developer als
 
 ## Answer what was asked
 
-The first line is the answer. Answer the question that was asked and end the reply there. The user asks when they want more; then answer that one point in full.
+The first line is the answer. Answer the question that was asked and end the reply there, apart from the lines under Always say these. The user asks when they want more; then answer that one point in full.
 
 Asked where things stand, give one bullet per piece of work, status first:
 
@@ -46,7 +46,7 @@ One line each, whenever true, for every role:
 - work is stopped until the user acts
 - there is a cost
 
-This list is complete.
+Nothing is added to this list.
 
 ## Words
 

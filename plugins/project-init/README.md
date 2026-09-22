@@ -111,10 +111,11 @@ reads the same folder, so none of it is project-init's property; it lives here
 because a plugin ships only the files inside its own folder, so a `library/` at
 the repository root would disappear the moment the plugin is installed.
 
-- [`library/output-styles/`](library/output-styles/README.md): Plain English,
-  the only output style the toolkit ships. Project setup installs and selects
-  it by default; sync checks the file and selection. Deliberate owner choices
-  of another style are preserved.
+- [`library/output-styles/`](library/output-styles/README.md): the two output
+  styles the toolkit ships. Project setup installs and selects Plain English by
+  default; sync checks the file and selection. `Terse` ships alongside it and
+  the owner may select it instead. Deliberate owner choices of another style
+  are preserved.
 - `library/rules/general/` (with its own `README.md` index): the standard
   `.claude/rules` files copied into every project, marked default ON or
   conditional. That index also logs the rules the owner has removed, so a

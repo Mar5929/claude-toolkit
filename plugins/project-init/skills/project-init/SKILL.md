@@ -468,8 +468,11 @@ CLAUDE.md stays thin and points at that folder. Read
   `.claude/output-styles/plain-english.md` and set `"outputStyle": "Plain English"`
   in the project's committed `.claude/settings.json`. The value is the style's
   `name`, not its filename. Preserve an owner's deliberate choice of another
-  style; do not overwrite it. Plain English is the only style the toolkit ships.
-  Claude Code's built-in styles are host options, not toolkit defaults.
+  style; do not overwrite it. Plain English is the toolkit's default. The
+  toolkit also ships `Terse`, in `library/output-styles/terse.md`, for an owner
+  who wants replies built for scanning; install and select it instead when the
+  owner asks for it. Claude Code's built-in styles are host options, not
+  toolkit defaults.
   Do not add voice rules to `.claude/rules/`. Tell the owner the style starts in
   the next session. Helper agents that write owner-facing prose need writing
   guidance in their own definitions.
