@@ -70,10 +70,12 @@ automatically as it grows.
     says, so step 2 can tell a project copy that is merely worded differently
     from one that is genuinely behind; Salesforce projects also get the
     `library/rules/salesforce/` files
-  - the `Plain English` output style file and setting. This is the only style
-    the toolkit ships and its default for project setup. Check the installed
-    file against `library/output-styles/plain-english.md` and check the selected
-    name separately. Preserve an owner's deliberate choice of another style
+  - the `Plain English` output style file and setting. This is the toolkit's
+    default for project setup; the toolkit also ships `Terse`, which the owner
+    may select instead. Check the installed file against
+    `library/output-styles/plain-english.md` and check the selected name
+    separately. Preserve an owner's deliberate choice of another style,
+    including `Terse`
   - the per-server MCP tool rules in `../../library/guides/mcp-best-practices.md`;
     these are conditional, so only audit the servers this project connects
   - each system from the setup gates: hooks, System Guide, project knowledge,

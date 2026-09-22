@@ -46,7 +46,7 @@ written down somewhere. It gets fitted into the system:
 | --- | --- |
 | A rule every project should follow (behavior, writing style, workflow) | Its own file in `library/rules/general/`, copied into each new project's `.claude/rules/` |
 | A rule that must hold in every repository on the machine, even ones I never set up | Its own file in `machine/rules/`, installed for Claude Code by `machine-sync`. Known retired Codex wiring is audited only when explicitly listed and removed only with owner approval. Only when a project rule genuinely cannot cover it |
-| A change to the voice Claude answers in | An output style in [`library/output-styles/`](plugins/project-init/library/output-styles/README.md), never a rule and never a hook. `Plain English` is the only shipped style and the default for toolkit project setup; deliberate owner choices of another style are preserved |
+| A change to the voice Claude answers in | An output style in [`library/output-styles/`](plugins/project-init/library/output-styles/README.md), never a rule and never a hook. `Plain English` is the default for toolkit project setup and `Terse` ships beside it; deliberate owner choices of another style are preserved |
 | A setup step for new projects | A gate (or part of one) in the `project-init` skill |
 | A guard hook or automation | The [`hooks-library`](plugins/hooks-library/README.md) plugin. A hook does one of three jobs: check an output against a rule a machine can test with no interpretation, trigger a process at a moment agents forget, or orient a session at its start. If it needs none of those, it stays a rule. Voice is never one of them; the plugin's README carries the history of three attempts that were removed |
 | A whole reusable system | Its own plugin/skill that `project-init` offers |
@@ -325,7 +325,8 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
   into each project's `.claude/rules/` verbatim instead of retyped into CLAUDE.md.
 - [x] **Voice: Plain English**.
   [Plain English](plugins/project-init/library/output-styles/README.md) is the
-  only style the toolkit ships. `project-init` installs its file and selects
+  toolkit's default style, and `Terse` ships beside it for replies built for
+  scanning. `project-init` installs the Plain English file and selects
   `"outputStyle": "Plain English"`; `project-sync` checks both the file and
   setting. Deliberate owner choices of another style are preserved. Concise is
   a Claude Code built-in, not a toolkit default.

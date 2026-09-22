@@ -136,10 +136,10 @@ These are not duplicated here. Go to the index that owns them:
   project): [general-rules/README.md](../plugins/project-init/library/rules/general/README.md).
   Marks active rules default ON or conditional. Retired v1 examples are not
   part of this installable library.
-- **Output style**: [output-styles/README.md](../plugins/project-init/library/output-styles/README.md)
-  owns installation and selection of `Plain English`, the only style the
-  toolkit ships and its default for project setup. Deliberate owner choices
-  of another style are preserved.
+- **Output styles**: [output-styles/README.md](../plugins/project-init/library/output-styles/README.md)
+  owns installation and selection. The toolkit ships two: `Plain English`, the
+  default for project setup, and `Terse`, off by default and selected per
+  project. Deliberate owner choices of another style are preserved.
 - **Salesforce rules**: [salesforce-rules/README.md](../plugins/project-init/library/rules/salesforce/README.md), including the boundary that puts client artifacts in `delivery/` and curated working context in `knowledge/`.
 - **Salesforce dependency graph**: the tool and its own `README.md` live at
   `plugins/project-init/library/tools/kb/`; the install
@@ -442,8 +442,9 @@ The genuine watch-items are called out at the end.
   session on a file that `project-init` writes and `project-sync` audits, and
   `thin-claudemd.md` now owns the CLAUDE.md structure at the moment the file is
   written.
-- **Voice belongs to the output style.** `Plain English` is the only style
-  the toolkit ships and the default for project setup. The
+- **Voice belongs to the output style.** The toolkit ships `Plain English`, the
+  default for project setup, and `Terse`, added in #389 and off by default for
+  an owner who wants replies built for scanning. The
   [output styles index](../plugins/project-init/library/output-styles/README.md)
   owns installation and selection; deliberate owner choices are preserved.
   Earlier writing rules were consolidated into `plain-language`, removed in

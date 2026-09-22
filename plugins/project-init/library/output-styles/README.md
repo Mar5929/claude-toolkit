@@ -1,15 +1,16 @@
 # Output styles library
 
-The toolkit ships one Claude Code output style: `Plain English`.
-`project-init` Gate 5 installs and selects it by default. `project-sync` checks
-its file, selected name, and guidance, then applies approved fixes. A deliberate
-owner choice of another style is preserved.
+The toolkit ships two Claude Code output styles: `Plain English` and `Terse`.
+`project-init` Gate 5 installs and selects `Plain English` by default.
+`project-sync` checks its file, selected name, and guidance, then applies
+approved fixes. A deliberate owner choice of another style is preserved.
 
 ## What ships today
 
 | File | What it does | Default |
 |---|---|---|
 | `plain-english.md` | Plain explanations with enough context to understand the meaning, no figurative or metaphorical language, and examples of unclear wording. Keeps Claude Code's software engineering instructions. | ON for toolkit project setup. |
+| `terse.md` | Replies built for scanning: the answer first, only what was asked, written at the level of the user's role read from the project's `SOUL.md` and project description. Exact verbs, plain words, no reply-length limit. Keeps Claude Code's software engineering instructions. | OFF. The owner selects it per project. |
 
 ## Toolkit style and host options
 
