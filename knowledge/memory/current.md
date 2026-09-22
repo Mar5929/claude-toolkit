@@ -25,13 +25,13 @@ Updated: 2026-09-22
 
 **Goal** Make agents follow the selected style and write clear, scannable replies.
 
-**Current status** Focused implementation is in draft PR #399. Source checks and independent source review passed. Live Claude comparison and Mike's acceptance remain open. Stage 08-build, In progress.
+**Current status** Focused build approved 2026-09-22 for GPT-5.6 Sol agents and pushed as draft PR #399 (`37d9458`). Tests and independent source review passed; native style Read was confirmed each turn. Response trials still show extra detail and closing offers, including with the final 443-word style. Stage 12-pr-and-push, In review; no behavior acceptance. #396 owns the broader rewrite; PR #398's non-style changes still need an accounted disposition.
 
-**Next step** Finish the live comparison, show Mike the replies, and obtain merge and acceptance separately. Reconcile #398 and #349 coverage with #396.
+**Next step** Review actual reply examples with Mike and refine before merge or acceptance.
 
-**Blocker** None recorded; Claude sign-in was restored.
+**Blocker** Replies do not yet follow the style consistently; authentication is restored.
 
-**Detailed record** [#391](https://github.com/Mar5929/claude-toolkit/issues/391), [draft PR #399](https://github.com/Mar5929/claude-toolkit/pull/399).
+**Detailed record** [#391](https://github.com/Mar5929/claude-toolkit/issues/391), [design](../../docs/designs/391-output-style.md), [draft PR #399](https://github.com/Mar5929/claude-toolkit/pull/399).
 
 **Owning session** Codex task `01a0cb21-9aa3-7c90-b674-b58bfb1757c2`.
 
