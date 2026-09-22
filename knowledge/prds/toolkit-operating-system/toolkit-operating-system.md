@@ -8,7 +8,7 @@ created_at: 2026-09-10
 tags: [toolkit, project-work, continuity, requirements]
 project: claude-toolkit
 work_item: "306"
-updated_at: 2026-09-21
+updated_at: 2026-09-22
 ---
 
 # The Toolkit Operating System
@@ -359,7 +359,10 @@ resolves terms and links longer explanations rather than becoming another
 knowledge store. No glossary file is assumed to exist. Rules hold standing
 instructions, skills hold procedures, and the tracker holds one item's work.
 Outside documentation retains its source and date. Split mixed notes by
-meaning, and link their homes instead of copying their contents.
+meaning, and link their homes instead of copying their contents. A fact that
+changes over time has one owning file everywhere in the Toolkit Operating
+System, including PRDs, designs, and work records; other records link to it
+under [Knowledge System requirement 31](knowledge-system.md#31-one-owning-file-for-a-changing-fact).
 
 When System Guide is off, follow the manual's missing-destination policy.
 Do not silently place its content in memory or enable a component to justify
@@ -877,6 +880,12 @@ reasoning after a work item closes under decision D21, are the next two steps.
 
 ### Recorded notes
 
+- On 2026-09-22, Mike approved decision D23 in the Main Orchestrator
+  conversation: a fact that changes over time has one owning file, and other
+  records link to it. R11 now carries that sentence and points at
+  [Knowledge System requirement 31](knowledge-system.md#31-one-owning-file-for-a-changing-fact),
+  which holds the full wording. This approves that addition only. It does not
+  approve this document as a whole and does not finalize it.
 - 2026-09-22: instruction-file names updated for issue #388 (AGENTS.md is the
   instruction file; CLAUDE.md is a one-line import). Description change only.
 - On 2026-09-21, Mike approved seven decisions for this document in the Main

@@ -9,7 +9,7 @@ confirmed_at: 2026-09-15
 tags: [knowledge-system, memory, prds, second-brain, schema, requirements, solution-philosophy, high-level-architecture]
 project: claude-toolkit
 work_item: "269"
-updated_at: 2026-09-21
+updated_at: 2026-09-22
 ---
 
 # The project second brain
@@ -53,6 +53,7 @@ updated_at: 2026-09-21
 - [28. Pending memory inbox](#28-pending-memory-inbox)
 - [29. Preserve agent judgment with narrow safeguards](#29-preserve-agent-judgment-with-narrow-safeguards)
 - [30. Integration with the toolkit OS and other components](#30-integration-with-the-toolkit-os-and-other-components)
+- [31. One owning file for a changing fact](#31-one-owning-file-for-a-changing-fact)
 - [Potential paths to explore](#potential-paths-to-explore)
 
 ## Why this exists
@@ -1096,7 +1097,11 @@ Optional fields, written only when they apply and left out otherwise:
 | `work_item` | The work item that produced the file. | When one work item did. |
 | `supersedes` | The path of an older file this one replaced. | When one whole file replaced another and that link has to stay visible. An ordinary change inside a topic area updates the same file instead, under requirement 22. |
 | `superseded_by` | The path of the file that replaced this older file. | On the older file, when that link back to its replacement has to stay visible. It is not a reason to create a second file when a decision changes. |
-| `related_memories` | Paths of related memory files, including other subtopics in the same topic folder. | When a link helps a reader. Write the link on both files, so each one points at the other. |
+| `related_memories` | Paths of related memory files, including other subtopics in the same topic folder. | When a link helps a reader. Write the link on both files only for a genuine two-way topic relation, where each file is worth opening from the other. A file that merely reads a fact from another file links one way to the owning file under requirement 31. |
+
+Approved by Mike Rihm on 2026-09-22, source: Main Orchestrator conversation:
+the `related_memories` two-way link is kept only for a genuine two-way topic
+relation.
 
 All dates are `YYYY-MM-DD`. All paths are relative to the project root.
 
@@ -2080,6 +2085,27 @@ owner. Repeat with System Guide disabled, a failed knowledge save, and parallel
 edits: no substitute store is created, no failure is reported as success, and
 unrelated authorized work continues.
 
+## 31. One owning file for a changing fact
+
+- Every fact that changes over time has exactly one owning file. Requirement 18's routing table chooses that file. Any other file that needs the fact links to the owning file and does not restate the value.
+- A file may name what the fact is beside the link, so it still reads on its own. Example: "current weight: see the health profile", with a relative link to the profile.
+- A fact tied to a point in time, and a decision, stay written as text with their date in the record that owns them. They must not change later, so they are never replaced by a link.
+- Links point to the file. Link to a heading only when that file has stable headings.
+- The owning file keeps no list of the files that link to it.
+- This applies across the whole Toolkit Operating System: memory, PRDs, designs and work records. It sharpens requirement 14's one-topic-per-file rule and does not replace it. Grouping decides where a fact lives; linking decides what other files do.
+- Nothing new is built for it. Requirement 1's link repair and requirement 21's checker cover a moved or renamed owning file.
+
+**Check:** a health project keeps the owner's current weight in the profile
+file, and a memory about his diet plan links to the profile instead of stating
+the number. Change the weight in the profile: the diet memory needs no edit,
+and a fresh session asked about the diet plan reports the new weight. Repeat
+with a dated fact and a decision: each stays as dated text in its own record,
+and no link replaces it.
+
+Approved by Mike Rihm on 2026-09-22, source: Main Orchestrator conversation,
+decision D23. Not built yet; the manual sentence is the only change and is
+included in this save.
+
 ## Potential paths to explore
 
 ### Preferred solution philosophy and high-level architecture
@@ -2306,6 +2332,19 @@ The instruction-content audit and full requirements approval remain outstanding.
   infer it from approval to save or refine this document.
 
 ### Recorded notes
+
+- On 2026-09-22, Mike approved decision D23 in the Main Orchestrator
+  conversation: a fact that changes over time has one owning file, and other
+  files link to it instead of restating the value. Recorded as requirement 31.
+  He separately approved narrowing requirement 14's `related_memories` two-way
+  link to a genuine two-way topic relation. Each approves that change only. It
+  does not approve this document as a whole and does not finalize it. The
+  matching sentence for `knowledge/knowledge-manual.md` and its managed
+  template was written but not published with this save: the template sits
+  inside the second-brain plugin, so changing it requires plugin and
+  marketplace version bumps, which take the reviewed pull-request route. Until
+  that pull request merges, requirement 31's approval line above overstates
+  what shipped.
 
 - On 2026-09-21, Mike approved seven decisions for this PRD in the Main
   Orchestrator conversation. Each one approves that decision only. It does not
