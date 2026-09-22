@@ -1,12 +1,16 @@
 # Toolkit Operating System manual
 
-**Detailed review draft.** This repository document was drafted under
-[issue #306](https://github.com/Mar5929/claude-toolkit/issues/306), now closed.
-It explains the intended working experience and links to this repository's existing
-instructions. A reusable project template, setup and sync route, and bounded
-startup pointers are implemented in this branch. That scoped delivery does not
-approve the proposed umbrella PRD, establish adoption in another project, or
-prove complete host reads or every proposed capability.
+This manual explains how the toolkit's parts work together in this project.
+Read all of it during the first project orientation and after resume, clear, or
+compaction. If the read is incomplete, open the file again from the first
+missing section, in chunks when needed. Report a missing or unreadable file.
+Acknowledge receipt and intent only after the complete read.
+
+The project root instructions name the paths, tracker, tools, and optional
+components that apply here. This manual supplies the shared workflow. A
+component's installed skill, manual, rule, or project pointer owns its detailed
+procedure. An available component does not grant permission to use every action
+it describes.
 
 ## What the toolkit is for
 
