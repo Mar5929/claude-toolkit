@@ -19,7 +19,7 @@ project.
   protocol on a requirement:
   1. Push back and clarify a vague ask before designing anything.
   2. Discover this project's requirement and decision locations from its own
-     CLAUDE.md and rules, so it stays project-agnostic (no assumed folder
+     AGENTS.md and rules, so it stays project-agnostic (no assumed folder
      structure or ticketing system).
   3. Verify every platform claim against official Salesforce docs by live fetch,
      using a curated source map, never from memory.

@@ -8,7 +8,7 @@ the owner before copying, same as every other gate.
 
 These are Salesforce-specific and opt-in, so they live here rather than in the
 `../general/` library (which every project gets). Both libraries are copied
-as files into the project's `.claude/rules/` folder, and the project's CLAUDE.md
+as files into the project's `.claude/rules/` folder, and the project's AGENTS.md
 points at that folder so these files are read each session.
 
 ## Rules in this library

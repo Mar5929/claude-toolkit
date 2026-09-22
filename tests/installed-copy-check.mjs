@@ -25,10 +25,18 @@
  *    A file under `.claude/` with no known original and no exemption fails, so
  *    a new copy cannot be added without being checked.
  *
- * 2. `AGENTS.md` is the single pointer line and nothing else. Codex reads that
- *    file, expands no import syntax, and follows a plain instruction to open
- *    another one. So anything written into it is a hand-maintained second copy
- *    of `CLAUDE.md` that drifts from the first.
+ * 2. `AGENTS.md` holds the instructions, and the `CLAUDE.md` beside it is the
+ *    single import line `@AGENTS.md` and nothing else. Claude Code reads
+ *    `CLAUDE.md` files whenever both names are present, so that import is what
+ *    brings `AGENTS.md` in. Anything else written into `CLAUDE.md` is a
+ *    hand-maintained second copy that drifts. The check runs in both
+ *    directions: every `AGENTS.md` needs its `CLAUDE.md`, and every
+ *    `CLAUDE.md` needs its `AGENTS.md`, because a `CLAUDE.md` standing alone
+ *    is instruction content Codex never reads. In the other direction,
+ *    `AGENTS.md` carries no import line of its own, because Codex expands no
+ *    import syntax and an `@path` line would reach it as literal text. A path
+ *    inside backticks or inside a fenced code block is shown, not imported,
+ *    so neither one counts.
  *
  * 3. The project knowledge operating manual matches the packaged template.
  *
@@ -209,20 +217,91 @@ for (const [content, required, message] of lifecycleChecks) {
 }
 
 /**
- * AGENTS.md is one pointer line and nothing else. Codex reads it and expands no
- * import syntax, so anything written into it is a second copy of what CLAUDE.md
- * already says, maintained by hand, drifting from the first.
+ * AGENTS.md holds the instructions. The CLAUDE.md beside it is one import line
+ * and nothing else, because Claude Code reads CLAUDE.md files whenever both
+ * names are present, and that import is what brings AGENTS.md in. AGENTS.md
+ * carries no import line itself: Codex expands no import syntax, so an @path
+ * line would reach a Codex session as literal text. A path written inside
+ * backticks, or inside a fenced code block, is not an import and is fine.
+ *
+ * Both names are listed, because listing only one name hides a file that has
+ * no partner. A CLAUDE.md standing on its own holds instruction content Codex
+ * never reads.
  */
-const AGENTS_MD = "Read CLAUDE.md in this folder and follow it.";
+const CLAUDE_MD_IMPORT = "@AGENTS.md";
 
-checked++;
-if (read("AGENTS.md").trim() !== AGENTS_MD) {
-  failures.push(
-    "  AGENTS.md\n    is not the single pointer line. Codex reads this file and"
-      + " expands no import\n    syntax, so anything else here is a hand-copied"
-      + " second CLAUDE.md that will\n    drift. The whole file has to be:\n"
-      + `      ${AGENTS_MD}`,
-  );
+function instructionFiles(name) {
+  return execFileSync(
+    "git",
+    ["ls-files", "--cached", "--others", "--exclude-standard"],
+    { cwd: root, encoding: "utf8" },
+  )
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line === name || line.endsWith(`/${name}`));
+}
+
+function importLines(text) {
+  const lines = [];
+  let inFence = false;
+  for (const line of text.split("\n")) {
+    if (/^\s*(```|~~~)/.test(line)) {
+      inFence = !inFence;
+      continue;
+    }
+    if (inFence) continue;
+    if (line.replace(/`[^`]*`/g, "").trimStart().startsWith("@")) lines.push(line);
+  }
+  return lines;
+}
+
+const agentsFiles = instructionFiles("AGENTS.md");
+const claudeFiles = instructionFiles("CLAUDE.md");
+
+for (const agentsPath of agentsFiles) {
+  const claudePath = agentsPath.replace(/AGENTS\.md$/, "CLAUDE.md");
+  checked++;
+  if (!existsSync(resolve(root, claudePath))) {
+    failures.push(
+      `  ${claudePath}\n    is missing. Every AGENTS.md has a CLAUDE.md beside`
+        + " it holding one line:\n"
+        + `      ${CLAUDE_MD_IMPORT}\n`
+        + "    Claude Code reads CLAUDE.md files whenever both names are"
+        + " present, so that\n    import line is what brings AGENTS.md in.",
+    );
+  } else if (read(claudePath).trim() !== CLAUDE_MD_IMPORT) {
+    failures.push(
+      `  ${claudePath}\n    is not the single import line. The instructions are`
+        + " written in AGENTS.md,\n    so anything else here is a hand-copied"
+        + " second instruction file that will\n    drift. The whole file has to"
+        + " be:\n"
+        + `      ${CLAUDE_MD_IMPORT}`,
+    );
+  }
+  checked++;
+  const imports = importLines(read(agentsPath));
+  if (imports.length > 0) {
+    failures.push(
+      `  ${agentsPath}\n    holds an import line: ${imports[0].trim()}\n`
+        + "    Codex expands no import syntax, so that line reaches a Codex"
+        + " session as literal\n    text. Use an ordinary Markdown link, or put"
+        + " the path inside backticks.",
+    );
+  }
+}
+
+for (const claudePath of claudeFiles) {
+  const agentsPath = claudePath.replace(/CLAUDE\.md$/, "AGENTS.md");
+  checked++;
+  if (!existsSync(resolve(root, agentsPath))) {
+    failures.push(
+      `  ${agentsPath}\n    is missing. Every CLAUDE.md has an AGENTS.md beside`
+        + " it holding the\n    instructions, and the CLAUDE.md is the one"
+        + ` import line:\n      ${CLAUDE_MD_IMPORT}\n`
+        + "    A CLAUDE.md standing on its own is instruction content Codex"
+        + " never reads.\n    Move the content into AGENTS.md.",
+    );
+  }
 }
 
 if (failures.length > 0) {
@@ -235,5 +314,6 @@ if (failures.length > 0) {
 
 console.log(
   `ALL PASS (${checked} checks: installed copies match what this repo ships, `
-    + "the lifecycle homes agree, and AGENTS.md is still one line), FAIL: 0",
+    + "the lifecycle homes agree, and every AGENTS.md and its one-line "
+    + "CLAUDE.md sit beside each other), FAIL: 0",
 );

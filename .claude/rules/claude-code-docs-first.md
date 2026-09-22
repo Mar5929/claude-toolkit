@@ -18,7 +18,7 @@ Before writing or changing any of these, open the page that covers it:
 - a slash command
 - an output style
 - a settings key, a permission rule, or an environment variable
-- a CLAUDE.md convention, an MCP server, or anything the CLI does
+- a CLAUDE.md or AGENTS.md convention, an MCP server, or anything the CLI does
 
 `ai-external-knowledge/claude-code/README.md` is the index. It lists every
 page, what it covers, and the file it sits in. Start there when you do not
@@ -26,6 +26,9 @@ already know which page you want.
 
 One page is usually enough. Read the one that answers the question rather than
 the whole folder.
+
+For anything about how Codex loads instruction files, read
+`ai-external-knowledge/codex/README.md` first.
 
 ## Why this is a rule
 

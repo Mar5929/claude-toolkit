@@ -183,9 +183,9 @@ when its name differs from the list above. Their board, their names.
 
 ## What goes into the root instructions
 
-For answers 1 through 5, Gate 5 gives `CLAUDE.md` a "Where work is tracked"
+For answers 1 through 5, Gate 5 gives `AGENTS.md` a "Where work is tracked"
 section naming the tracker and how a refined ticket is marked. One or two lines,
-no more. `AGENTS.md` gets nothing: it is one line pointing Codex at `CLAUDE.md`.
+no more. `CLAUDE.md` gets nothing: it is one line importing `AGENTS.md`.
 For example:
 
 > ## Where work is tracked
@@ -196,7 +196,7 @@ For example:
 
 The section names the tracker and how a ticket is marked ready, and stops there.
 Keeping the detail out is the same router-and-map convention every other part of
-`CLAUDE.md` follows, described in `thin-claudemd.md`.
+`AGENTS.md` follows, described in `thin-agents-md.md`.
 
 ## If the owner changes tracker later
 

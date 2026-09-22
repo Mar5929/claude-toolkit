@@ -54,8 +54,8 @@ automatically as it grows.
      holds `rules/general/` (with its `README.md` index), `rules/salesforce/`
      (with its own index), `tools/`,
      `templates/`, and `guides/`. The sibling skill's
-     `../project-init/references/` holds `thin-claudemd.md`,
-     `toolkit-manual-delivery.md`, and `setup-flow.md`,
+     `../project-init/references/` holds `thin-agents-md.md`,
+     `folder-agents-md.md`, `toolkit-manual-delivery.md`, and `setup-flow.md`,
      and the plugin root holds `.claude-plugin/plugin.json`.
   2. A local clone of the toolkit repo, if the user has one.
   3. Fetch the repo (`Mar5929/claude-toolkit`), or ask the user where it lives.
@@ -104,7 +104,7 @@ automatically as it grows.
     Local mode also needs the current work skill and CLI for active-item
     selection, progress, validation, and completion events. Missing optional
     fields on legacy items are valid; never backfill them.
-  - the root `CLAUDE.md` quick-save table and its matching rules. Expect a
+  - the root `AGENTS.md` quick-save table and its matching rules. Expect a
     documentation-publication pointer and unscoped `knowledge-direct-commit.md`
     even without knowledge, unless explicitly declined. Report a legacy
     `knowledge/**` frontmatter restriction as stale. Expect a
@@ -140,8 +140,10 @@ automatically as it grows.
     at any vintage. The toolkit removed that style in issue #245. Offer to
     replace it with the current `plain-english.md` and select `Plain English`,
     unless the owner deliberately chose another style
-  - the short `CLAUDE.md` the toolkit now writes inside each major folder, per
-    `../project-init/references/folder-claudemd.md`. Read that file so step 2
+  - the short instruction-file pair the toolkit now writes inside each major
+    folder: an `AGENTS.md` holding the folder content and a `CLAUDE.md` beside
+    it holding the single line `@AGENTS.md`, per
+    `../project-init/references/folder-agents-md.md`. Read that file so step 2
     can tell a missing one from a folder the toolkit deliberately skips (any
     folder with a `README.md` index, and everything under `.claude/`)
   - each conversation skill and helper agent offered by the setup flow, which
@@ -156,13 +158,13 @@ automatically as it grows.
 ## Step 2: audit the current project
 
 For each inventory item, look for evidence in the project. Judge by intent, not
-exact wording: a CLAUDE.md that says "work on your own branch and land by pull
+exact wording: an AGENTS.md that says "work on your own branch and land by pull
 request" satisfies `parallel-agent-sessions.md` even if the prose differs.
 Typical checks:
 
-- **CLAUDE.md and `.claude/rules/`**: does CLAUDE.md exist and point at
+- **AGENTS.md and `.claude/rules/`**: does AGENTS.md exist and point at
   `.claude/rules/`, and does that folder carry each default-ON general rule (a
-  file, or the rule's intent folded into CLAUDE.md)? Judge by intent, not exact
+  file, or the rule's intent folded into AGENTS.md)? Judge by intent, not exact
   wording or file name.
 - **Output style**: does the project have `.claude/output-styles/plain-english.md`
   and select `"outputStyle": "Plain English"` in its committed settings? Check
@@ -172,9 +174,9 @@ Typical checks:
   gap. A deliberate owner choice of another style is an exception to preserve,
   not a gap to overwrite. Concise is a Claude Code built-in, not a toolkit
   default. A leftover `plain-language` selection needs migration.
-- **CLAUDE.md health** (presence is not enough, see below).
-- **Can a Codex session actually reach the rules?** (see below). A project can
-  hold every rule and still deliver almost none of them to Codex.
+- **AGENTS.md health** (presence is not enough, see below).
+- **Is the instruction-file pair in the current layout?** (see below). A project
+  can hold every rule and still be writing them into a file Codex never reads.
 - **Hooks**: are guard and orientation hooks configured (the project's
   `.claude/` settings and hook scripts)?
 - **Salesforce dependency graph** (Salesforce projects only): does `tools/kb/`
@@ -333,7 +335,7 @@ Typical checks:
   `.work-items/` or an older `work-items/` tree but no pointer counts as never
   asked. Never-asked is a gap to offer in step 4; a recorded decline is
   respected and not raised again.
-- **Quick saves:** read the root `CLAUDE.md` and the project's recorded choices.
+- **Quick saves:** read the root `AGENTS.md` and the project's recorded choices.
   Confirm the documentation-publication pointer and unscoped
   `knowledge-direct-commit.md` regardless of knowledge activation. Respect an
   explicit policy opt-out; declining knowledge alone is not that opt-out.
@@ -430,7 +432,7 @@ The same drift question applies to any toolkit text a project copies, not only
 `.claude/rules/`. Startup routes and copied hooks are checked against their
 current packaged sources rather than paraphrased from memory.
 
-### Codex reachability: can AGENTS.md deliver the rules?
+### The instruction-file pair: AGENTS.md and CLAUDE.md
 
 Every check above asks whether a rule EXISTS. None asks whether the agent
 actually receives it. Those are different questions, and they have different
@@ -438,35 +440,49 @@ answers for the two programs.
 
 - **Claude Code loads `.claude/rules/` automatically.** Every `.md` file there
   without `paths:` frontmatter is in context at session start. No import needed,
-  and CLAUDE.md does not have to mention the folder for it to work.
-- **Codex discovers `AGENTS.md` files, not Claude rule files.** At startup it
-  assembles one instruction chain from the repository root through the initial
-  working directory. It expands no import syntax, so an `@` line is not a load
-  instruction, but the agent can follow a plain instruction to open another
-  file. The toolkit's root `AGENTS.md` is one line:
-  `Read CLAUDE.md in this folder and follow it.` Everything else reaches Codex
-  through that explicit root route: `CLAUDE.md` opens with `Read .claude/rules
-  first.` This is an instruction-following path, not native loading of Claude
-  rule files.
+  and the instruction file does not have to mention the folder for it to work.
+- **Codex reads `AGENTS.md` files and no Claude file.** At startup it assembles
+  one instruction chain from the repository root down to the directory the
+  session starts in, at most one file per folder, joined root first. It never
+  reads `CLAUDE.md`. It expands no import syntax, so an `@` line reaches the
+  model as literal text. The whole chain shares one 32 KiB budget, so a large
+  root file can push the folder files below it out.
+- **Codex still does not load `.claude/rules/` on its own.** The sentence
+  `Read .claude/rules first.` inside `AGENTS.md` is the one instruction that
+  carries the rules to Codex. Since `AGENTS.md` holds the content itself, that
+  is now one hop instead of two. It remains an instruction the agent chooses to
+  follow, not native loading of Claude rule files.
 
-So a project can pass every file check while that two-hop route is broken.
-Report:
+The toolkit's current layout is a pair of files in each place that has
+instructions: `AGENTS.md` holds all the content, and `CLAUDE.md` beside it is
+exactly the one line `@AGENTS.md`, which Claude Code expands. Report:
 
-- **`AGENTS.md` is the one line and nothing else.** Anything more is a
-  hand-maintained second copy of `CLAUDE.md` that drifts. Report every extra
-  section as a trim, and say what in `CLAUDE.md` already covers it.
-- **The second hop.** Confirm `CLAUDE.md` still carries `Read .claude/rules
-  first.` Without it the chain stops at `CLAUDE.md` and Codex never reaches the
-  rules.
-- **Nested `AGENTS.md` files.** Codex can include one when the session starts
-  inside its subtree, but it does not lazily load that file when a root-started
-  session later moves there. The toolkit deliberately keeps one root file and
-  uses explicit folder `CLAUDE.md` reads for consistent coverage. Report any
-  nested file and propose reconciling its useful detail into that one-root
-  design before deleting it.
-- **Dead imports.** Grep both root files for `@` lines. Report any that resolve
-  to nothing, especially wildcards such as `@.claude/rules/**`, which look
-  load-bearing and expand to nothing in either program.
+- **The root `AGENTS.md` carries the content.** Confirm it holds
+  `Read .claude/rules first.`, the Toolkit operating-manual route, the project
+  knowledge route when that system is installed, the codemap, the tools
+  section, the quick saves table, and where work is tracked. A missing part is
+  a gap in the file Codex reads at startup.
+- **The root `CLAUDE.md` is exactly the one line `@AGENTS.md`.** Anything else
+  in it is a second copy of the instructions that will drift. Report every
+  extra section, and say what in `AGENTS.md` already covers it.
+- **No import line inside `AGENTS.md`.** Grep it for lines starting with `@`.
+  Codex shows such a line as literal text, so it instructs nobody. Report each
+  one. A backticked mention such as `` `@AGENTS.md` `` inside prose is safe and
+  is not a finding.
+- **Dead imports.** The one import in `CLAUDE.md` must resolve to the
+  `AGENTS.md` beside it, and there must be exactly one. Report any other `@`
+  line, especially a wildcard such as `@.claude/rules/**`, which looks
+  load-bearing and expands to nothing in either program.
+- **No `AGENTS.override.md` and no `AGENTS.local.md`.** Claude Code reads
+  neither. Codex prefers `AGENTS.override.md` over `AGENTS.md` and silently
+  drops `AGENTS.md` in that folder, so an override file hides the real
+  instructions. Report either one for removal, with its content moved into
+  `AGENTS.md` first.
+- **Each folder that has a folder instruction file has the pair.** The folder
+  content is in `<folder>/AGENTS.md` and `<folder>/CLAUDE.md` is the same one
+  line. A folder `AGENTS.md` loads for Codex only when a session starts inside
+  that folder's subtree; a root-started session still opens it by following the
+  codemap line, which is the agent choosing to follow an instruction.
 - **Host limits.** Report when local Codex settings prevent that route or the
   startup hook from reaching the session. Do not assume Claude settings apply.
 - **Whether a guard hook covers the gap.** Claude Code `PreToolUse` hooks do not
@@ -475,16 +491,39 @@ Report:
   both directions at once. Flag that combination explicitly; it is the worst
   state a project can be in and it is invisible to every other check.
 
-The fix, when the owner approves it, is the one-line `AGENTS.md` written out in
-`../project-init/references/root-file-examples.md`.
+#### A project still in the old layout
 
-Skip this check only when the owner confirms Codex never runs in the project.
+The toolkit used to put the content in `CLAUDE.md` and make `AGENTS.md` a
+one-line pointer reading `Read CLAUDE.md in this folder and follow it.` Report
+it this way:
 
-### CLAUDE.md health
+| Finding | Reported as |
+| --- | --- |
+| The root has a content-bearing `CLAUDE.md` and a one-line pointer `AGENTS.md` | One gap: "instruction files in the old layout" |
+| A folder holds a content-bearing `CLAUDE.md` | One more gap, per folder |
+| The project's `AGENTS.md` holds anything besides that old pointer line | Show the owner that text and ask where it goes |
 
-A project can pass every check above and still have a CLAUDE.md nobody reads.
+Do not count the extra text in a project's `AGENTS.md` as part of the layout
+gap. It is the owner's writing, it has no home yet, and only the owner can say
+whether it belongs in `AGENTS.md`, in a rule, or nowhere.
+
+A `CLAUDE.local.md` keeps working and is not a gap. Claude Code reads it as
+before, and the one-line `CLAUDE.md` still brings in `AGENTS.md` through the
+import. Say so in the report rather than asking the owner to move it.
+
+The fix, when the owner approves it, is the per-file move in step 4, against
+the finished pair in `../project-init/references/root-file-examples.md`.
+
+The pair itself is checked in every project, because the one-line `CLAUDE.md` is
+what keeps the content loading in Claude Code sessions that cannot read
+`AGENTS.md` directly. Skip only the Codex-specific findings when the owner
+confirms Codex never runs in the project.
+
+### AGENTS.md health
+
+A project can pass every check above and still have an AGENTS.md nobody reads.
 The file only ratchets: sessions add to it and nothing tells a session to
-subtract. So audit its shape, not just its presence. `CLAUDE.md` is a router and
+subtract. So audit its shape, not just its presence. `AGENTS.md` is a router and
 a map, answering five questions and nothing else: what is this project, what is
 in each folder and file and when do I open it, what tools does this project run
 on, which configured folders use quick saves, and where is work tracked. Read
@@ -493,9 +532,13 @@ the file and report:
 - **Size.** How many lines? Anthropic targets under 200 lines, because the file
   loads into every session and a bloated one makes agents ignore the
   instructions that matter. Past that, flag it and say which sections account
-  for the bulk.
+  for the bulk. Size now costs twice. Codex gives the whole instruction chain,
+  the root `AGENTS.md` plus every folder `AGENTS.md` above the starting
+  directory, one shared 32 KiB budget, and drops the later files once it runs
+  out. So a long root file does not only crowd Claude's context, it can push a
+  folder file out of a Codex session entirely.
 - **Duplication against `.claude/rules/`.** For each rule file in that folder,
-  is the same rule also spelled out in CLAUDE.md? Restating it is worse than
+  is the same rule also spelled out in AGENTS.md? Restating it is worse than
   moving it, because the two copies drift and neither wins. List every rule that
   is said twice.
 - **A communication section.** How to talk to the owner lives once, in the
@@ -512,15 +555,19 @@ the file and report:
   indexes, and build, test, and deploy commands the project actually runs.
   Any the file does not name is a tool a session will not reach for. Propose the
   row, naming the command and where the detail lives.
-- **The fixed lines above the title.** `CLAUDE.md` should open with the SOUL
+- **The fixed lines above the title.** `AGENTS.md` should open with the SOUL
   route (only where `SOUL.md` exists and project knowledge was declined), then
-  the owner's verbatim self-check instruction, then the owner's verbatim
-  continuity instruction. `../project-init/references/thin-claudemd.md` has the
-  exact wording. Report any missing, and report any reworded copy, since the
-  wording is the owner's and is not to be edited.
+  the owner's verbatim continuity instruction.
+  `../project-init/references/thin-agents-md.md` has the exact wording. Report
+  any missing, and report any reworded copy, since the wording is the owner's
+  and is not to be edited. The toolkit used to ship a second fixed line, the
+  self-check instruction that begins "After you generate your response". The
+  owner removed it on 2026-09-22. A project still carrying it is not missing
+  anything; report it as a line the toolkit no longer ships and offer to drop
+  it.
 - **Toolkit operating-manual route.** Confirm
-  `knowledge/toolkit-manual.md` exists and `CLAUDE.md` carries the exact
-  complete-read fallback from `thin-claudemd.md`. Audit the packaged template,
+  `knowledge/toolkit-manual.md` exists and `AGENTS.md` carries the exact
+  complete-read fallback from `thin-agents-md.md`. Audit the packaged template,
   installed project-init-owned hook, and each host registration separately by
   following `../project-init/references/toolkit-manual-delivery.md`. This route
   applies even when project knowledge and System Guide are disabled.
@@ -549,8 +596,8 @@ the file and report:
   requests no other memory, and fails open when a file is absent. Verify that a
   shortened read continues from the first missing section. A configured output
   threshold is a spill limit, not evidence of host capacity or a complete
-  read. `CLAUDE.md` carries only the short fallback; `AGENTS.md` remains its
-  one-line route. Any copied policy is stale duplication.
+  read. `AGENTS.md` carries only the short fallback, and `CLAUDE.md` stays the
+  one-line import that brings it in. Any copied policy is stale duplication.
 - **Stale content.** Anything the code, paths, or decisions have since
   contradicted.
 
@@ -559,22 +606,28 @@ treat the trim as one more item the owner opts into at step 4. One constraint on
 any trim you propose:
 
 - **Check cross-references before renumbering.** Grep the repo for references to
-  CLAUDE.md section or rule numbers. If a trim would renumber sections other
+  AGENTS.md section or rule numbers. If a trim would renumber sections other
   files point at, say exactly which, and let the owner choose between
   renumbering with the fixes and keeping the numbering stable.
 
-### Folder CLAUDE.md files
+### Folder AGENTS.md files
 
-The toolkit now writes a short `CLAUDE.md` inside each major folder. Claude Code
-loads it only when an agent reads a file in that folder, which is what lets the
-root file stay short without losing the detail. Read
-`../project-init/references/folder-claudemd.md` first, then walk the project's
+The toolkit now writes a short `AGENTS.md` inside each major folder, with a
+`CLAUDE.md` beside it holding the single line `@AGENTS.md`. Claude Code loads
+the pair only when an agent reads a file in that folder, which is what lets the
+root file stay short without losing the detail. Codex loads the folder
+`AGENTS.md` when a session starts inside that folder's subtree. Read
+`../project-init/references/folder-agents-md.md` first, then walk the project's
 folders and report each one as:
 
-- **Present.** The folder already has its own `CLAUDE.md`. Leave it alone. Do
-  not rewrite it into the toolkit's wording; the project wrote it on purpose.
-- **Missing.** A major folder the toolkit recognizes, with no `CLAUDE.md` and no
-  `README.md` index. This is a gap.
+- **Present.** The folder already has its own `AGENTS.md` and the one-line
+  `CLAUDE.md` beside it. Leave the content alone. Do not rewrite it into the
+  toolkit's wording; the project wrote it on purpose.
+- **Present but old layout.** The folder has a content-bearing `CLAUDE.md` and
+  no `AGENTS.md`. This is a gap, and the fix is the move in step 4, not a
+  rewrite. The wording stays the owner's.
+- **Missing.** A major folder the toolkit recognizes, with no instruction file
+  at all and no `README.md` index. This is a gap.
 - **Skipped by design.** A folder with a `README.md` index, or anything under
   `.claude/`, the complete `knowledge/` tree, or a folder another plugin creates
   and indexes. Not a gap. Say so rather than leaving it off the list, so it does
@@ -583,9 +636,10 @@ folders and report each one as:
   cannot tell from the repository. Do not propose a file for it and do not guess
   what it is for. List it and ask the owner in step 4.
 
-Two things this check never does. It never reports a nested `AGENTS.md` as
-missing, because toolkit projects deliberately use one root file even though
-Codex supports layering. And it never proposes moving a behavior rule out of
+Two things this check never does. It never reports a folder `AGENTS.md` without
+its one-line `CLAUDE.md` as fine: report the missing `CLAUDE.md`, because
+without it a Claude Code session that cannot read `AGENTS.md` directly gets
+nothing for that folder. And it never proposes moving a behavior rule out of
 `.claude/rules/` into a folder file, because a file that loads only sometimes
 cannot carry a rule that applies always.
 
@@ -605,7 +659,7 @@ Work the way project-init does: explain what the item is for, recommend how it
 should look in THIS project, confirm, act, summarize. Ground rules:
 
 - Opt-in per item. A "no" gets recorded, not argued with.
-- Adapt to the project. Fold rules into the existing CLAUDE.md's voice and
+- Adapt to the project. Fold rules into the existing AGENTS.md's voice and
   structure; don't paste toolkit text verbatim over a file that has its own
   style.
 - Never weaken something the project already does better than the toolkit
@@ -641,31 +695,49 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   `define-your-terms.md`. Say the remaining cost out loud so the owner is
   choosing with it in view: a helper agent never receives an output style at
   all, so writing plainly is all a helper agent gets.
-- **For an approved folder `CLAUDE.md` gap, do one folder at a time, and offer
-  the move with it.** Adding the folder file alone leaves the root `CLAUDE.md`
-  exactly as long as it was, which is the whole thing this is meant to fix. So
-  for each folder the owner approves:
+- **For an approved old-layout gap, move one file at a time.** The content is
+  the owner's and does not get rewritten. For each file the owner says yes to,
+  at the root or in a folder:
+  1. `git mv CLAUDE.md AGENTS.md`. The content moves byte for byte. Doing it
+     with `git mv` is what lets Git record a rename instead of a delete and an
+     add, so the file's history stays readable.
+  2. Edit only two things. The title line `# CLAUDE.md: ...` becomes
+     `# AGENTS.md: ...`, and any sentence describing the old design, where
+     `AGENTS.md` was a pointer to `CLAUDE.md`, is removed. Change nothing else,
+     including wording the toolkit would write differently.
+  3. Write the new `CLAUDE.md` beside it, holding exactly the one line
+     `@AGENTS.md` and nothing else.
+  4. Record the move in `.claude/toolkit-sync.md` in step 5, naming each file
+     that moved.
+
+  Where the project's old one-line `AGENTS.md` still exists, delete it before
+  the `git mv`, so Git follows the content across. Text the owner added to that
+  `AGENTS.md` is not deleted with it: show it and ask where it goes, as step 2
+  says. A `CLAUDE.local.md` is left exactly as it is; it keeps working and does
+  not move.
+- **For an approved folder instruction-file gap, do one folder at a time, and
+  offer the move with it.** Adding the folder file alone leaves the root
+  `AGENTS.md` exactly as long as it was, which is the whole thing this is meant
+  to fix. So for each folder the owner approves:
   1. Show the draft folder file: what the folder holds, how to work in it, and
      where the detail lives.
-  2. Show the lines in the root `CLAUDE.md` that are about that folder, and
+  2. Show the lines in the root `AGENTS.md` that are about that folder, and
      offer to move them into the folder file, leaving one line in the codemap
      pointing at it.
   3. Never move a behavior rule out of the root file or out of
      `.claude/rules/`. Four other things never move either: how to talk to the
      owner, the pointers to the most dangerous rules, the project-knowledge
      startup route, and the codemap lines themselves. They are named in
-     `../project-init/references/thin-claudemd.md` under "What must stay in the
-     root file".
-  4. When the project has an `AGENTS.md`, do not copy the folder detail into it.
-     The one-line root `AGENTS.md` routes Codex to the root `CLAUDE.md`; it does
-     not itself make Codex open a folder's `CLAUDE.md`. Keep the folder detail in
-     one place and make the root `CLAUDE.md` codemap or applicable Toolkit
-     workflow direct the explicit read before work there. If the project pins
-     the two root files to each other with a shared block and a check, the block
-     covers only the part that genuinely must match: the fixed lines above the
-     title, `Communication`, the project-knowledge route, and the rules too
-     dangerous to reach late.
-  5. Never create a nested `AGENTS.md`.
+     `../project-init/references/thin-agents-md.md` under "What goes in it, in
+     this order" and "What never goes in it".
+  4. Write both files in the folder: `<folder>/AGENTS.md` with the content, and
+     `<folder>/CLAUDE.md` holding exactly the one line `@AGENTS.md`. That import
+     is relative to the file that holds it, so the folder `CLAUDE.md` brings in
+     the `AGENTS.md` beside it.
+  5. Keep the folder detail in one place. Do not copy it back into the root
+     `AGENTS.md`. Codex loads a folder `AGENTS.md` only when a session starts
+     inside that folder's subtree, so the root codemap line is still what sends
+     a root-started session to open it.
 - For a folder listed as **not recognized** in step 2, ask the owner what it is
   for in plain words, then either write the file from their answer or record the
   skip. Do not infer a purpose from the folder name.
@@ -692,8 +764,9 @@ should look in THIS project, confirm, act, summarize. Ground rules:
     disabling second-brain likewise leaves an enabled guide and its plugin
     behavior intact.
   - When enabled, add the exact shared root fallback from
-    `../project-init/references/thin-claudemd.md` once in `CLAUDE.md`. Do not
-    repeat it in `AGENTS.md`. The System Guide plugin owns configured Claude
+    `../project-init/references/thin-agents-md.md` once in `AGENTS.md`. Do not
+    repeat it anywhere else; `CLAUDE.md` stays the one-line import and needs no
+    copy of it. The System Guide plugin owns configured Claude
     startup status; the second brain reports only the off case.
 - For an approved project-knowledge gap, refresh the `second-brain` plugin,
   then follow `knowledge-setup` and its delivery/migration references as one
@@ -742,8 +815,8 @@ should look in THIS project, confirm, act, summarize. Ground rules:
 - When the project was never asked where work items are tracked, ask the Gate 1
   question from `../project-init/references/work-tracking-choice.md` and follow
   that file for whichever answer comes back. Add the one-line pointer to
-  `CLAUDE.md` and `AGENTS.md`, unless the answer is "somewhere else, or nothing
-  yet", in which case record the decline instead.
+  `AGENTS.md`, unless the answer is "somewhere else, or nothing yet", in which
+  case record the decline instead.
 - **For an approved work-item stages gap, the tracker choice comes first.**
   A stage standard with no tracker to hold it is advice nobody can follow, so if
   the Gate 1 question was never answered, ask it and finish that answer before
@@ -779,13 +852,13 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   tracker they are leaving; moving existing work across is theirs to do by hand.
 - For an approved quick-save gap, preserve the project's selected systems and
   existing root-file voice. Add or update only the applicable rows from
-  `../project-init/references/thin-claudemd.md`. Install or refresh the unscoped
+  `../project-init/references/thin-agents-md.md`. Install or refresh the unscoped
   `knowledge-direct-commit.md` independently of knowledge activation; remove
   legacy path frontmatter when replacing a managed copy. Reconcile local edits
   and explicit opt-outs rather than overwriting them. Refresh the paired
   `parallel-agent-sessions.md` exception and installed rule catalog together.
-  Keep the root as a short pointer and preserve one-line `AGENTS.md` routing to
-  `CLAUDE.md`, whose rules route serves Codex as well as Claude. Verify the
+  The rows go in `AGENTS.md`, whose rules route serves Codex as well as Claude.
+  Keep it a short pointer, and leave `CLAUDE.md` as the one-line import. Verify the
   documentation route in a knowledge-off project, and confirm that it does not
   require a second-brain hook or plugin. The `.work-items/` row uses the
   existing shared, Git-ignored local store with no worktree, commit, or push.
@@ -809,8 +882,8 @@ Skip this step entirely for a read-only or audit-only invocation.
 
 Write a short sync record so future runs know where things stand. Default
 location: `.claude/toolkit-sync.md`, with at most a one-line structural pointer
-from CLAUDE.md or AGENTS.md when useful. Do not turn either root file into a
-sync changelog. Record:
+from AGENTS.md when useful. Do not turn the root file into a sync changelog.
+Record:
 
 - the toolkit version synced against, and the date. The next run reads this to
   decide whether the project's rules may have fallen behind, so record it even
@@ -821,6 +894,9 @@ sync changelog. Record:
   considered "no"
 - System Guide state and its actual configured path, or the owner's recorded
   decline. Record this independently from the second-brain choice.
+- each instruction file moved from the old layout, naming the file and the
+  folder it sits in, so a later run can tell a finished move from one the owner
+  declined
 
 ## Wrap-up
 

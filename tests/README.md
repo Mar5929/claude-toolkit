@@ -1,6 +1,6 @@
 # Tests
 
-Run the repository checks listed in [CLAUDE.md](CLAUDE.md) before a pull request.
+Run the repository checks listed in [AGENTS.md](AGENTS.md) before a pull request.
 
 - [Knowledge schema and indexes](knowledge-schema.test.mjs): run
   `node --test tests/knowledge-schema.test.mjs`. Disposable projects exercise

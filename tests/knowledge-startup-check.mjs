@@ -96,10 +96,10 @@ check('action guards are registered once on both hosts with stable Codex roots',
   if(p==='.codex/hooks.json')assert.equal(groups.filter(g=>g.hooks.some(h=>files.some(file=>h.command.includes(file)))).length,1);
  }
 });
-check('root route and Toolkit route point to the current manual/map',()=>{
- const c=read('CLAUDE.md');for(const path of order.slice(0,4))assert.ok(c.includes(path),path);
- assert.ok(c.includes('memory-inbox.md'));assert.ok(c.includes('completely'));
- const a=read('AGENTS.md').trim();assert.equal(a.split('\n').length,1);assert.match(a,/CLAUDE.md/);assert.doesNotMatch(a,/@CLAUDE/);
+check('root AGENTS.md route and its one-line CLAUDE.md import point to the current manual/map',()=>{
+ const a=read('AGENTS.md');for(const path of order.slice(0,4))assert.ok(a.includes(path),path);
+ assert.ok(a.includes('memory-inbox.md'));assert.ok(a.includes('completely'));
+ const c=read('CLAUDE.md').trim();assert.equal(c.split('\n').length,1);assert.equal(c,'@AGENTS.md');
 });
 check('unconfigured/disabled Guide remains separate and an enabled Guide is not re-created',()=>{
  const f=fixture();try{

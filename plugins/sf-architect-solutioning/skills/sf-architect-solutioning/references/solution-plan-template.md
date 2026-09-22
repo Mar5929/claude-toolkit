@@ -157,7 +157,7 @@ Every platform-capability claim in this plan cites an official source fetched th
 
 ### 14. Where This Gets Recorded
 
-List the destinations the current project's CLAUDE.md and rules declare for design output. Do not assume a folder structure; discover it per Phase 2 of the skill. Typical destinations:
+List the destinations the current project's AGENTS.md (or CLAUDE.md in a project still in the old layout) and rules declare for design output. Do not assume a folder structure; discover it per Phase 2 of the skill. Typical destinations:
 
 - [ ] [Decision log / decisions register: the decision and rationale]
 - [ ] [Ticket or work item: link the plan, update status]

@@ -629,3 +629,14 @@ here:
 Written by the #388 lead session, with Opus helper agents for the read-only
 inventory of `plugins/`, the rest of the repository, the setup skills, the
 parent PRD and in-flight work, and the Codex documentation.
+
+Delivery evidence: the work went out as pull request #393. Two corrections were
+made during the build that this design did not list. `plugins/AGENTS.md` said
+"three checks" and now says "four checks". The paragraph in `tests/AGENTS.md`
+about the installed-copy check was rewritten to describe what the check
+actually does. The sentence in the root file that ended "full pictur" needed no
+work here; #387 had already fixed it. Three verification routes in "How it is
+tested" were not run: the Claude Code import route, because the CLI login had
+expired; the native AGENTS.md route, because this laptop runs 2.1.271 and that
+route needs 2.1.277; and the sync path, because this branch is not installed as
+a plugin.

@@ -1,8 +1,9 @@
 # Rules this repo runs
 
 Every `.md` file in this folder is loaded at the start of a Claude Code session
-and is in force for the whole session. Codex does not load them automatically,
-which is why `AGENTS.md` tells a Codex session to open this folder and read them.
+and is in force for the whole session. Claude Code loads the folder on its own.
+Codex does not, so the line "Read `.claude/rules` first" in the root
+`AGENTS.md` is what sends a Codex session here.
 
 Almost all of these are copies. The originals live in
 `plugins/project-init/library/rules/general/`, which is what every other toolkit
@@ -30,7 +31,7 @@ genuinely could not help another project.
 | `humanize-outbound-text.md` | Any text that leaves the project for someone other than the owner (an email, a chat message, support case text, a GitHub issue, a pull request description, a client document, a file made to hand over) is run through the `humanizer` skill first, or `unslop` when that is not installed. Every fact, name, id, number, and date stays the same. Chat replies to the owner, work items, project knowledge, code, and commit messages are not covered. |
 | `work-item-stages.md` | Unscoped lifecycle guidance for active-item orientation, faithful progress, flexible stages, type-aware approval, handoff, and accepted completion. Local code checks objective facts. |
 | `ai-external-knowledge.md` | Outside documentation captured for agents (vendor docs, API references, framework guides) goes in `ai-external-knowledge/` at the project root, one folder per topic, each naming its source URL and capture date. It stays raw source material, and nothing reads it unless a rule, a skill, or persistent knowledge points at a topic. |
-| `claude-code-docs-first.md` | This repo's own rule, not shipped. Before building or changing a hook, skill, plugin, agent, command, output style, or setting, read the page that covers it in `ai-external-knowledge/claude-code/`. This is the pointer `ai-external-knowledge.md` asks for, aimed at the one captured topic this repo has. |
+| `claude-code-docs-first.md` | This repo's own rule, not shipped. Before building or changing a hook, skill, plugin, agent, command, output style, or setting, read the page that covers it in `ai-external-knowledge/claude-code/`. This is the pointer `ai-external-knowledge.md` asks for, aimed at the captured topics this repo has. |
 | `subagents-run-on-opus.md` | This repo's own rule, not shipped. Claude Code subagents stay on Opus through two environment values. Codex selects models for helper agents and separately created tasks: an economical adequate model by default, and the most capable available model only for genuinely complex intellectual work. |
 | `keep-manuals-current.md` | This repo's own rule, not shipped. Review both operating manuals for every finalized change and publish affected updates with delivery. Preserve subsystem ownership and the knowledge manual's managed source. |
 
@@ -42,7 +43,7 @@ genuinely could not help another project.
 | `wrap-up-ritual.md` | It belonged to the retired save ritual and invoked the deleted verifier. The current policy names the natural save moments, and `.claude/hooks/save-reminder.mjs` raises the pull-request moment that is easy to miss. |
 | `work-item-folders.md` | It governs the local work-tracker, one flat item folder under Git-ignored `.work-items/`. Work here is tracked on the `Claude-Toolkit-Project` board on GitHub, so there are no local work-item folders for the rule to govern. |
 | `dependency-graph.md` | It is conditional on a code graph being installed. No graph is installed here, and the graphify kit was considered and declined. |
-| `keep-claudemd-current.md` | The toolkit stopped shipping it on 2026-08-31. It spent words in every session on a file that `project-init` writes and `project-sync` audits. `plugins/project-init/skills/project-init/references/thin-claudemd.md` is now the only home for the CLAUDE.md structure, read at the moment the file is written. |
+| `keep-claudemd-current.md` | The toolkit stopped shipping it on 2026-08-31. It spent words in every session on a file that `project-init` writes and `project-sync` audits. `plugins/project-init/skills/project-init/references/thin-agents-md.md` is now the only home for the instruction file structure, read at the moment the file is written. |
 | `recommend-the-best-solution.md` | The owner removed it from the toolkit on 2026-09-02. |
 | `follow-the-output-style.md` | The owner removed it from the toolkit on 2026-09-02. The copy this repo ran was dropped in the same change. |
 | `ask-before-assuming.md` | The owner removed it from the toolkit on 2026-09-02. The copy this repo ran was dropped in the same change. |

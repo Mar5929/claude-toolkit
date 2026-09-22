@@ -1,24 +1,22 @@
-# Worked examples: a finished CLAUDE.md and AGENTS.md
+# Worked examples: a finished AGENTS.md and CLAUDE.md
 
-`thin-claudemd.md` says what the two root files are for and what goes in them.
+`thin-agents-md.md` says what the two root files are for and what goes in them.
 This file shows one finished pair, so Gate 5 has something to write against.
 
 The project is `acme-crm`: a Salesforce delivery repository that took `SOUL.md`,
 System Guide, the project knowledge system, captured outside documentation, and
 a GitHub board. Adapt the content, keep the shape.
 
-## Sample CLAUDE.md
+## Sample AGENTS.md
 
-The two lines above the title are verbatim in every project. This project has
-project knowledge installed, so its startup hook loads `SOUL.md` and there is no
-separate SOUL route.
+The line above the title is verbatim in every project. This project has project
+knowledge installed, so its startup hook loads `SOUL.md` and there is no separate
+SOUL route.
 
 ````markdown
-After you generate your response. Simulate the user saying "Huh? What are you saying?". Then regenerate your response based on that.
-
 Always execute work with the context in mind that the user will likely continue work across multiple AI coding sessions where the session context is cleared and picked up again. You must assist the user in helping establish that continuity across sessions while not adding context that might pollute future agents and skew them. Information must be curated and intentional.
 
-# CLAUDE.md: working in acme-crm
+# AGENTS.md: working in acme-crm
 
 Salesforce delivery for Acme's sales org.
 
@@ -48,11 +46,11 @@ When .system-guide.json is enabled, use the System Guide plugin's system-guide s
 
 | Path | What is there, and when to open it |
 | --- | --- |
-| `force-app/main/default/` | The org's metadata: objects, flows, Apex, permission sets. Detail: `force-app/CLAUDE.md`. |
+| `force-app/main/default/` | The org's metadata: objects, flows, Apex, permission sets. Detail: `force-app/AGENTS.md`. |
 | `ai-external-knowledge/` | Salesforce documentation captured as Markdown, one folder per topic. Open it before designing against a platform feature, instead of searching the web. Today: `sharing-and-visibility/`, `flow-limits/`. |
 | `knowledge/` | What this project decided and why, plus the separately enabled System Guide under its configured path. Open the guide index for existing system structure, purpose, connections, or impact; the routing table in `knowledge/knowledge-manual.md` separates guide explanations from PRDs and memory. |
-| `docs/` | Documents written for Acme, not for agents. Detail: `docs/CLAUDE.md`. |
-| `scripts/` | Deploy and data-load scripts. Detail: `scripts/CLAUDE.md`. |
+| `docs/` | Documents written for Acme, not for agents. Detail: `docs/AGENTS.md`. |
+| `scripts/` | Deploy and data-load scripts. Detail: `scripts/AGENTS.md`. |
 | `.claude/` | Rules, hooks, settings. |
 
 ## Tools
@@ -78,23 +76,28 @@ requirements approval. Later stage labels show current position and do not
 revoke that approval; check the approval record when resuming.
 ````
 
-## Sample AGENTS.md
+Each folder named in that codemap holds the same pair: an `AGENTS.md` with the
+folder's own content, and a `CLAUDE.md` beside it holding the one import line
+below.
+
+## Sample CLAUDE.md
 
 The whole file:
 
 ````markdown
-Read CLAUDE.md in this folder and follow it.
+@AGENTS.md
 ````
 
-Codex reads `AGENTS.md` and nothing else on its own, and it expands no import
-syntax, so an `@CLAUDE.md` line would sit there as literal text and load
-nothing. A plain instruction to open a file is what it follows.
+Claude Code expands that import and reads `AGENTS.md` through it, in every
+version and every kind of session. Codex reads `AGENTS.md` by itself and never
+reads `CLAUDE.md`, so the import line costs Codex nothing.
 
-`AGENTS.md` used to repeat the codemap, the working rules, and the folder
-detail, so that a Codex session was guaranteed to have the map. That guarantee
-cost a hand-maintained second copy of everything, which drifted from the first.
-One copy of each thing is worth more than a second copy that is present but
-wrong.
+The two files have swapped jobs twice. `AGENTS.md` first repeated the codemap,
+the working rules, and the folder detail, so that a Codex session was guaranteed
+to have the map, and that second copy drifted from the first. It then became one
+line telling Codex to open `CLAUDE.md`, which relied on the model choosing to
+follow it. Now `AGENTS.md` holds the content that both hosts load, and
+`CLAUDE.md` is the one import line. There is still one copy of each thing.
 
 ## What is deliberately not in either file
 

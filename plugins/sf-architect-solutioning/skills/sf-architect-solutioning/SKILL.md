@@ -79,9 +79,9 @@ Map the requirement to system areas:
 
 This skill is project-agnostic. Never assume a folder structure. Discover where each project keeps its state:
 
-1. **Read the project's CLAUDE.md and rules** (`.claude/rules/` if present). They declare where requirements, design decisions, work items, and deployment state live (a ticketing system, a hub doc, local markdown, a tracker file, or a mix).
+1. **Read the project's AGENTS.md (or CLAUDE.md in a project still in the old layout) and rules** (`.claude/rules/` if present). They declare where requirements, design decisions, work items, and deployment state live (a ticketing system, a hub doc, local markdown, a tracker file, or a mix).
 2. **Check prior decisions** in whatever decision log the project declares. Flag any conflict between the new requirement and an existing decision before designing around it.
-3. **Check client conventions**: a `## Client Metadata Conventions` section in the project's CLAUDE.md overrides Well-Architected defaults where they conflict. Also apply `references/naming-conventions.md` for standard naming.
+3. **Check client conventions**: a `## Client Metadata Conventions` section in the project's AGENTS.md (or CLAUDE.md in a project still in the old layout) overrides Well-Architected defaults where they conflict. Also apply `references/naming-conventions.md` for standard naming.
 4. **If the project declares no locations**, ask the user where the solution plan and design decisions should be recorded. Do not invent a folder structure.
 
 Use the existing tracker upkeep guidance for settled answers, decisions, and
@@ -181,5 +181,5 @@ installation or strand the work. Plan approval alone does not authorize building
 - **Sources or it didn't happen.** Every platform-capability claim in the plan cites an official doc fetched this session.
 - **Governor limits at scale.** Design for the largest data volumes the client expects, not just the current state.
 - **Security by default.** Every Apex class should enforce CRUD/FLS. Every new field needs data classification.
-- **Respect the project's own rules.** Project CLAUDE.md, rules, and client conventions override this skill's defaults where they conflict.
+- **Respect the project's own rules.** Project AGENTS.md (or CLAUDE.md in a project still in the old layout), rules, and client conventions override this skill's defaults where they conflict.
 - **Hand off cleanly.** Return the approved plan to the main conversation and its available implementation workflow, preserving the separate build authorization.

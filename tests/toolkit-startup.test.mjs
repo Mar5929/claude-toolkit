@@ -14,8 +14,8 @@ function fixture(run) {
   const root = join(parent, "project with spaces");
   mkdirSync(join(root, "knowledge"), { recursive: true });
   mkdirSync(join(root, ".claude/hooks"), { recursive: true });
-  writeFileSync(join(root, "CLAUDE.md"), "Read knowledge/toolkit-manual.md completely.\n");
-  writeFileSync(join(root, "AGENTS.md"), "Read CLAUDE.md in this folder and follow it.\n");
+  writeFileSync(join(root, "AGENTS.md"), "Read knowledge/toolkit-manual.md completely.\n");
+  writeFileSync(join(root, "CLAUDE.md"), "@AGENTS.md\n");
   copyFileSync(source, join(root, ".claude/hooks/toolkit-session-start.mjs"));
   copyFileSync(join(repo, "plugins/project-init/library/templates/toolkit-manual.md"), join(root, "knowledge/toolkit-manual.md"));
   try { run(root, parent); } finally { rmSync(parent, { recursive: true, force: true }); }
@@ -54,9 +54,9 @@ for (const state of ["missing", "empty", "unreadable"]) {
   }));
 }
 
-test("missing root chain is reported; optional Knowledge is not invented", () => fixture((root) => {
+test("missing root instructions are reported; optional Knowledge is not invented", () => fixture((root) => {
   rmSync(join(root, "CLAUDE.md")); rmSync(join(root, "AGENTS.md"));
-  assert.match(toolkitOrientation(root), /Required root guidance is missing/);
+  assert.match(toolkitOrientation(root), /Required root guidance is missing, empty, or unreadable: AGENTS\.md/);
   assert.match(toolkitOrientation(root), /does not enable optional components/);
   assert.ok(!toolkitOrientation(root).includes("knowledge/knowledge-manual.md"));
 }));
@@ -69,11 +69,26 @@ test("actual event input selects prompt reminder without another acknowledgment"
   assert.match(execute(root, "SessionStart"), /After the required reads/);
 }));
 
-test("available AGENTS pointer does not conceal its missing CLAUDE target", () => fixture((root) => {
+test("a present CLAUDE.md import does not conceal missing AGENTS.md content", () => fixture((root) => {
+  rmSync(join(root, "AGENTS.md"));
+  for (const event of ["SessionStart", "UserPromptSubmit"]) {
+    const output = toolkitOrientation(root, event);
+    assert.match(output, /Required root guidance is missing, empty, or unreadable: AGENTS\.md/);
+    assert.ok(!output.includes("Read the project's AGENTS.md and follow it."));
+  }
+}));
+
+test("a CLAUDE.md holding anything but the import line is reported", () => fixture((root) => {
+  writeFileSync(join(root, "CLAUDE.md"), "Read knowledge/toolkit-manual.md completely.\n");
+  for (const event of ["SessionStart", "UserPromptSubmit"]) {
+    assert.match(toolkitOrientation(root, event), /CLAUDE\.md should hold the single line @AGENTS\.md/);
+  }
+}));
+
+test("a missing CLAUDE.md beside a present AGENTS.md is reported", () => fixture((root) => {
   rmSync(join(root, "CLAUDE.md"));
   for (const event of ["SessionStart", "UserPromptSubmit"]) {
-    assert.match(toolkitOrientation(root, event), /CLAUDE.md is missing/);
-    assert.match(toolkitOrientation(root, event), /chain is incomplete/);
+    assert.match(toolkitOrientation(root, event), /CLAUDE\.md should hold the single line @AGENTS\.md/);
   }
 }));
 
@@ -105,7 +120,7 @@ test("both hosts register startup recovery and prompt routes exactly once", () =
 test("reusable manual has no unresolved repository-only Markdown links", () => {
   const text = readFileSync(join(repo, "plugins/project-init/library/templates/toolkit-manual.md"), "utf8");
   assert.ok(!text.includes("../plugins/") && !text.includes("../docs/"));
-  assert.match(text, /CLAUDE\.md/);
+  assert.match(text, /AGENTS\.md/);
   assert.match(text, /chosen tracker/);
   assert.match(text, /Knowledge|knowledge/);
 });

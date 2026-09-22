@@ -1,6 +1,6 @@
 # Salesforce Naming Conventions Standard
 
-Standard naming conventions for all Salesforce engagements. Client conventions in the project's CLAUDE.md override these where they differ.
+Standard naming conventions for all Salesforce engagements. Client conventions in the project's AGENTS.md (or CLAUDE.md in a project still in the old layout) override these where they differ.
 
 ---
 
