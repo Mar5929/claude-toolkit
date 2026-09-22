@@ -1,12 +1,11 @@
+After you generate your response (BEFORE YOU ACTUALLY SEND YOUR RESPONSE TO THE USER), simulate the user saying "Huh? What are you saying?". Then regenerate your response based on that. That is what the user will actually see.
+
+Always execute work with the context in mind that the user will likely continue work across multiple AI coding sessions where the session context is cleared and picked up again. You must assist the user in helping establish that continuity across sessions while not adding context that might pollute future agents and skew them. Information must be curated and intentional.
 
 # CLAUDE.md: working in claude-toolkit
 
 Mike's single source of truth for the reusable pieces he wants in every project,
-packaged as a Claude Code plugin marketplace. `README.md` has the full pictur
-
-After you generate your response (BEFORE YOU ACTUALLY SEND YOUR RESPONSE TO THE USER), simulate the user saying "Huh? What are you saying?". Then regenerate your response based on that. That is what the user will actually see.
-
-Always execute work with the context in mind that the user will likely continue work across multiple AI coding sessions where the session context is cleared and picked up again. You must assist the user in helping establish that continuity across sessions while not adding context that might pollute future agents and skew them. Information must be curated and intentional.
+packaged as a Claude Code plugin marketplace. `README.md` has the full picture.
 
 Read `.claude/rules` first. Every file in that folder is a rule for how you work
 here, and they are in force for the whole session.
@@ -60,6 +59,13 @@ of files it also ships. Change the shipped original, not the copy.
 | `node .claude/tools/build-knowledge-index.mjs` | Rebuilding the three generated knowledge indexes. Run it again after bringing a branch current: Git merges generated files with no reported conflict and still leaves them wrong. | `knowledge/knowledge-manual.md` |
 | `gh` (GitHub CLI) | Reading and writing issues on the board named below. | |
 | `/project-sync` and `/machine-sync` | Rolling a merged change into a project, or onto a computer. Pushing to GitHub propagates nothing on its own. | `plugins/project-init/README.md` |
+
+## Quick saves
+
+| Path | How updates land | Instructions |
+| --- | --- | --- |
+| Project documentation in `knowledge/`, `docs/`, and README files | Authorized documentation-only updates use the direct publication route. | `.claude/rules/knowledge-direct-commit.md` |
+| `knowledge/` | Follow the knowledge manual for content approval, then the documentation publication route. | `knowledge/knowledge-manual.md` and `.claude/rules/knowledge-direct-commit.md` |
 
 ## Where work is tracked
 

@@ -122,27 +122,63 @@ Codex runs multiple command hooks concurrently. The evidence is in the
 claude-toolkit repository at
 `docs/designs/269-knowledge-system/host-capability-evidence.md`, line 76; an
 installed project does not carry that file. Both action hooks therefore perform
-the same mixed-action precheck before either changes or consumes review state.
-A command that combines pull-request creation with a close or merge is denied
-by both handlers and must be split into separate actions.
+the same mixed-action precheck before either records a held action. A command
+that combines pull-request creation with a close or merge is denied by both
+handlers and must be split into separate actions. Two concurrent writes to the
+held list can lose one entry, which causes one extra hold and never a silent
+allow, so the list takes no lock.
 
-Known limits of the action checkpoint:
+Each action hook holds a recognized action once. The denial names the exact
+action: the `gh pr create` branch and short HEAD, or the close and merge command
+segments. The agent reviews what that action needs saved and runs the same
+command again. There is no nonce, no permit and no command to run to earn the
+retry. Both hooks share one list of the action keys already held, kept by
+`command-parsing.mjs` in one JSON file per session and agent in the operating
+system's temporary folder, outside the repository. The folder is created with
+mode 0700 and the file with mode 0600, and the file name is a SHA-256 hash of
+the session and agent identity, so two session ids that differ only in
+punctuation never share a list. That file holds no knowledge, permission or
+save state. A pull-request-create key is the project root, branch and HEAD; a
+close or merge key is the project root and the ordered command segments, so the
+two hooks never claim each other's actions. An unreadable or corrupt list counts
+as empty, so the action is held again and the file is rewritten.
 
-- A permit earned through a command that starts with `cd /other/repo`, for
-  pull-request creation, close or merge, survives a new prompt. A
-  pull-request-create permit lasts until that repository's HEAD changes. A close
-  or merge permit is keyed on the project root and the action list, so a new
-  commit does not invalidate it.
+Each hook reads the list, writes the denial, and only then records the key. A
+recording that fails leaves the denial standing for that attempt and holds the
+same action again on the next attempt, until the list can be written. The folder
+is created during the read, so a temporary folder that cannot be used reaches
+the fail-open path before any denial is written.
+
+Known limits of the action hold:
+
+- The hold proves that the agent was told to review, never that it reviewed. An
+  agent can retry without reviewing, and a general turn review or no review at
+  all satisfies the hold. The owner accepted that cost.
+- A held action stays allowed for the rest of that session, through later
+  prompts. A pull-request create is held again when that repository's HEAD
+  changes. A close or merge is held again only when its command segments change,
+  so a new commit does not hold it again.
+- An action reached through a command that starts with `cd /other/repo` is bound
+  to that other repository, and the hold covers it there.
 - Only Bash command segments beginning `gh pr create`, `gh issue close` or
   `gh pr merge` are recognized, so `bash -c "..."`, a full path to gh,
   `gh pr close`, `gh api` and non-Bash tool routes pass.
 - A command run outside a Git repository is always allowed.
 - The two older raw-PowerShell Codex handlers (UserPromptSubmit
   `memory-reminder` and Stop `knowledge-completion`) do not run under cmd.exe,
-  so on that host no new prompt resets review state.
-- Enforcement is fail-open: an unexpected error allows the command.
-- A held review-state lock is the one failure that denies. The message names the
-  lock file. Remove that file only when no other review is running.
+  so on that host the turn review has no prompt reminder and no Stop check. The
+  action hold does not depend on either handler and still runs.
+- A host that sends no session id is not held at all. Without one the hook
+  cannot tell a retry from a first attempt, so it allows the command, writes no
+  file and shares no list with another session.
+- One small hold file per session and agent accumulates in the temporary folder.
+  Nothing prunes them.
+- A held list that cannot be written does not release the action. The denial is
+  already written, so that attempt stays denied and the same action is held
+  again on the next attempt, until the list can be written.
+- Enforcement is otherwise fail-open: an unexpected error before the denial,
+  including a temporary folder that cannot be used, allows the command. A list
+  that cannot be read holds the action again rather than allowing it silently.
 - Nothing here is proven on native Windows.
 
 The prompt handler supplies the session/agent identity, the current review
@@ -150,12 +186,11 @@ UUID, and a normalized nonempty Codex `turn_id` when the host provides one.
 After actual turn review, call the installed completion module with
 `review ROOT SESSION AGENT GENERATION OUTCOME`, five positional arguments after
 `review`. Allowed outcomes are no-change, pending-approval, save-unfinished and
-saved. An action-specific review adds its displayed action nonce as the sixth
-positional argument. A five-argument general outcome cannot release a held
-pull-request create, issue close or pull-request merge. Each action receipt is
-consumed by one exact retry. The Stop handler requests at most one continuation
+saved. The Stop handler requests at most one continuation
 if no outcome was recorded. Explicit old-generation/helper receipts cannot
-complete another turn's review. Native
+complete another turn's review. A held review-state lock denies a turn review
+and names its file; nothing removes it by age. The action hold does not use that
+lock. Native
 Codex Stop handling compares nonempty stored and incoming `turn_id` values
 before outcome or continuation handling. A mismatch is ignored without changing
 the current review state; a match keeps the generation receipt and one-

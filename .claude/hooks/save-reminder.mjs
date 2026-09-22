@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 
 /**
- * Hold each recognized `gh pr create` occurrence until the main agent records
- * an action-associated Knowledge review outcome. One exact retry consumes that
- * receipt. This hook never decides, writes, or approves project knowledge.
- * Unexpected failures allow the command.
+ * Hold each recognized `gh pr create` action once per session, so the agent
+ * reviews what that action needs saved. A plain retry of the same command is
+ * then allowed, and the action stays allowed for the rest of the session. This
+ * hook never decides, writes, or approves project knowledge. Unexpected
+ * failures allow the command.
  *
  * A knowledge-only branch gets a different message. `knowledge-direct-commit.md`
  * says a save touching only `knowledge/` commits straight to the default branch,
@@ -14,9 +15,9 @@
  * landed. Reaching `gh pr create` with nothing but `knowledge/` in the diff is
  * the moment that mistake becomes visible, so it is the moment to say so.
  *
- * The action receipt is not enforcement of the save route or proof of judgment.
- * A refused direct push is reported to the owner; it does not automatically
- * authorize a pull request or a retry through another account.
+ * The hold is not enforcement of the save route or proof of judgment. A refused
+ * direct push is reported to the owner; it does not automatically authorize a
+ * pull request or a retry through another account.
  */
 
 import { execFileSync } from "node:child_process";
@@ -27,11 +28,13 @@ import { fileURLToPath } from "node:url";
 import {
   combinesReviewActions,
   effectiveDirectory,
+  heldMessage,
   matchesAny,
   OPENS_PULL_REQUEST,
+  recordHold,
+  shouldHold,
   SPLIT_REVIEW_ACTIONS,
 } from "./command-parsing.mjs";
-import { claimActionReview } from "./knowledge-completion.mjs";
 
 const KNOWLEDGE_PREFIX = "knowledge/";
 
@@ -164,22 +167,11 @@ export function buildDirectCommitMessage(paths) {
   ].join("\n");
 }
 
-function actionReviewMessage(message, root, input, checkpoint) {
-  if (checkpoint.status === "stale-turn") {
-    return `${message}\n\nThis action belongs to an older turn. Do not mutate the current review state; retry from the current turn.`;
-  }
-  if (checkpoint.status === "busy") {
-    return `${message}\n\nThe review state is busy or an interrupted update needs inspection. This action remains held; inspect the current checkpoint before retrying. Lock file: ${checkpoint.lock}. If no other review is running, inspect and remove that file, then retry.`;
-  }
-  return [
-    message,
-    "",
-    "After reviewing the work for this exact pull-request action, record the action-specific outcome with",
-    "node .claude/hooks/knowledge-completion.mjs review using these six positional arguments:",
-    `root=${JSON.stringify(root)}, session=${JSON.stringify(input.session_id)}, agent=${JSON.stringify(input.agent_id || "root")}, generation=${checkpoint.generation}, outcome=no-change|pending-approval|save-unfinished|saved, action=${checkpoint.nonce}.`,
-    "A general turn outcome does not satisfy this action. The action receipt is consumed by one exact retry and proves neither judgment nor permission.",
-    "If approval or a save remains unfinished and this pull request depends on it, do not retry until that dependency is resolved.",
-  ].join("\n");
+/** The held action in words, from the parts of its key. */
+function actionLabel(key) {
+  const [, , branch, head] = JSON.parse(key);
+  const where = head === "no-commits" ? "with no commits" : `at ${head.slice(0, 7)}`;
+  return `gh pr create on branch ${branch} ${where}`;
 }
 
 function deny(reason) {
@@ -209,11 +201,13 @@ function main() {
   );
   const workingDirectory = effectiveDirectory(command, projectRoot);
   const root = repositoryRoot(workingDirectory);
-  const checkpoint = claimActionReview(root, payload, pullRequestActionKey(root));
-  if (checkpoint.status === "allow") return failOpen();
+  const key = pullRequestActionKey(root);
+  if (!shouldHold(payload, key)) return failOpen();
+
   const paths = changedPaths(root);
   const message = isKnowledgeOnly(paths) ? buildDirectCommitMessage(paths) : buildMessage();
-  deny(actionReviewMessage(message, root, payload, checkpoint));
+  deny(heldMessage(message, actionLabel(key)));
+  recordHold(payload, key);
 }
 
 function canonical(path) { try { return realpathSync(path); } catch { return resolve(path); } }
