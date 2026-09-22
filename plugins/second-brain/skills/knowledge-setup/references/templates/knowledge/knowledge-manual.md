@@ -282,8 +282,11 @@ an agent needs to understand together, using helpful headings and explaining
 relevant connections. Integrate additions into the relevant section. Propose a
 split when distinct subtopics would be easier to find or understand separately;
 fact counts or file length alone do not justify it. Keep needed context together
-and link shared information rather than copying it. Keep links relative
-and use actual dates. Keep original creation dates; update content-change dates;
+and link shared information rather than copying it. A fact that changes over
+time has one owning file: other files link to it and do not restate the value,
+naming what the fact is beside the link when that helps. Dated facts and
+decisions stay as dated text where they are recorded. Keep links relative and
+use actual dates. Keep original creation dates; update content-change dates;
 record a verification date only when you checked the claim.
 Within a topic, preserve source, confidence, and approval distinctions for
 material claims when they differ. Updating the file does not reverify every
