@@ -13,15 +13,15 @@ Updated: 2026-09-22
 
 **Goal** Finish the Knowledge delivery, install it on this project and laptop, then close the whole-system gaps.
 
-**Current status** Knowledge System almost done: #374 (action checkpoint), #376 (silent style hook) and #378 (team questions) merged; #386 (simple action hold) built and in review. Install done except pull request #387 in review; one plugin refresh owed after #386. Mike's 22 decisions of 2026-09-21 are recorded in the PRDs; builds tracked in #380 to #385, #388 (AGENTS.md move, planning) and #389 (Terse style).
+**Current status** Knowledge System built and installed. Merged 2026-09-21 to 22: action checkpoint, silent style hook, team and archive questions, simple action hold, project sync, Terse style, Plain English rewrite, AGENTS.md as the instruction file, and the "one owning file for a changing fact" rule (requirement 31). Both plugin caches match main (marketplace 0.124.11). Mike's 22 decisions of 2026-09-21 and D23 are in the PRDs.
 
-**Next step** Main merges #386 and #387 after their delta checks, then has the sync chat refresh plugins once more. Mike opens one fresh Claude Code and one fresh Codex chat and checks the replies read as Plain English.
+**Next step** Mike opens one fresh Claude Code chat here: /context lists CLAUDE.md and AGENTS.md; replies read as Plain English. Then start the follow-up builds #380 to #385 when Mike says go.
 
-**Blocker** None on delivery. Whole-system proof and acceptance are #384.
+**Blocker** None. Whole-system proof and acceptance are #384; the seven items at 13-deployment wait for the fresh-chat check.
 
 **Detailed record** [#269](https://github.com/Mar5929/claude-toolkit/issues/269), [#369](https://github.com/Mar5929/claude-toolkit/issues/369), [PRD Notes](../prds/toolkit-operating-system/knowledge-system.md#notes).
 
-**Owning session** Claude main `local_1337791d-276c-4ea7-ae8f-119db0dc8b17`; chat ids in #269.
+**Owning session** Claude main `local_1337791d-276c-4ea7-ae8f-119db0dc8b17`; team chats archived.
 
 ### Guided work management — #337
 Updated: 2026-09-19
