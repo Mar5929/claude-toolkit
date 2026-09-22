@@ -105,8 +105,9 @@ a specification-review reminder at the first edit, a Claude Code style
 handshake when a user message arrives, and guards for selected publishing or
 Salesforce deployment operations. The style handshake directs attention back
 to the selected style; that style remains the owner of the writing guidance.
-It asks for a silent read with no acknowledgment. It does not check that the
-read happened or that the reply follows the style.
+It asks for a fresh silent read and a silent check of the reply against the
+style, with no acknowledgment. It does not verify that either happened or that
+the reply follows the style.
 
 Some hooks belong to a subsystem. The [knowledge subsystem](../plugins/second-brain/README.md)
 owns its startup and save reminders, while [System Guide](../plugins/system-guide/README.md)

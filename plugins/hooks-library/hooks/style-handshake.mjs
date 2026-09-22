@@ -72,7 +72,9 @@ function run(input) {
   }
   if (path) context(event, 'Style check for this message: before you start, '
     + `read the whole file ${JSON.stringify(path)} with the Read tool. Read it silently and follow it. `
-    + 'Do not mention the read. Start your reply with the answer.');
+    + 'Read it again for this message even if you read it earlier. '
+    + 'Before sending your reply, silently check it against the style. '
+    + 'Do not mention the read or check. Start your reply with the answer.');
 }
 
 // Old confirm invocations do nothing and never wait for stdin.

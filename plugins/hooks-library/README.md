@@ -38,8 +38,9 @@ a per-session file under the OS temp folder, which is how it fires only once.
 A per-message style read for Claude Code. On every new user message,
 `UserPromptSubmit` asks Claude to read the whole selected output style file with
 the `Read` tool before working on the request. The request gives the resolved
-path, tells Claude to read the file silently and follow it, and tells Claude not
-to announce, mention, or acknowledge the read but to begin its reply with the
+path and asks for a fresh read even if Claude read the file earlier. It then
+asks Claude to silently check its reply against the style before sending it,
+without mentioning either the read or the check. The reply begins with the
 answer. Short questions and repeated identical messages get the same request.
 Child-agent prompts are skipped.
 

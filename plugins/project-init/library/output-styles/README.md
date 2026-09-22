@@ -9,7 +9,7 @@ approved fixes. A deliberate owner choice of another style is preserved.
 
 | File | What it does | Default |
 |---|---|---|
-| `plain-english.md` | Clear, natural replies that are easy to skim or scan: the answer first, enough explanation to act without guessing, exact status verbs, ordinary words, and no figurative language or reply-length limit. Keeps Claude Code's software engineering instructions. | ON for toolkit project setup. |
+| `plain-english.md` | Clear, natural replies that are easy to skim or scan: the answer first, only the detail the user asked for, exact status verbs, ordinary words, and no figurative language or reply-length limit. Keeps Claude Code's software engineering instructions. | ON for toolkit project setup. |
 | `terse.md` | Short replies for quick scanning, written at the level of the user's role read from the project's `SOUL.md` and project description. Keeps Claude Code's software engineering instructions. | OFF. The owner selects it per project. |
 
 ## Toolkit style and host options
@@ -53,7 +53,9 @@ supplements Claude Code's built-in delivery. Do not replace the read with
 injected style text.
 
 The hook does not announce the read, judge the reply with another model, impose
-a word count, or block a finished reply. It asks for the read and nothing more.
+a word count, or block a finished reply. It asks for a fresh read even when the
+file was read earlier, then a silent style check before sending the reply.
+It does not verify either action or the resulting prose.
 Its setup and limits remain in the
 [hooks library README](https://github.com/Mar5929/claude-toolkit/blob/main/plugins/hooks-library/README.md#style-handshake).
 
