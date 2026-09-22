@@ -341,4 +341,8 @@ None of these was changed in this run.
   longer on the laptop. Both files are older toolkit project rules that the
   toolkit does not ship as machine rules. Whether to edit, refresh or remove
   them is Mike's decision.
-- The plugin caches need another refresh after #386 merges.
+- 2026-09-21, later: #386 merged as `1fc3f2f` (second-brain 4.12.4, marketplace
+  0.124.7). Both caches were refreshed from `main` at that commit and compared
+  file by file with `plugins/`: no differences. second-brain is 4.12.4 in the
+  Claude Code cache (user scope, this project, the sync chat's worktree) and in
+  the Codex cache; the other versions are unchanged. No refresh is owed.
