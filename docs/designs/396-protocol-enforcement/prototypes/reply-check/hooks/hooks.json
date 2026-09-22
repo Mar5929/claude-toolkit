@@ -1,1 +1,0 @@
-{ "description": "Issue 396 part C prototype: reply check", "modules": ["./index.ts"] }

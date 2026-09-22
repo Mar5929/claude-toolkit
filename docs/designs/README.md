@@ -87,11 +87,9 @@ finishes the work item has to do it.
 - [360-instruction-audit-fixes.md](360-instruction-audit-fixes.md): scoped fixes to
   conflicting instructions, with preserved approval boundaries and scenario checks.
 
-- [396-protocol-enforcement.md](396-protocol-enforcement.md): the plan for
-  issue #396, forcing required protocols with function hooks, waiting for Mike's
-  decisions. `docs/designs/396-protocol-enforcement/` holds the four helper
-  parts it links and the prototype source; its
-  `396-protocol-enforcement/README.md` says what each file is.
+- [396-protocol-enforcement.md](396-protocol-enforcement.md): the design for
+  issue #396: the startup cut first, then function hooks with fact checks only.
+  Waiting for Mike's open decisions.
 
 - [306-toolkit-manual-review.md](306-toolkit-manual-review.md): Toolkit manual
   content and delivery review, including actual host evidence, remaining
