@@ -13,11 +13,11 @@ Updated: 2026-09-22
 
 **Goal** Agents follow required toolkit steps every time, using function-hook fact checks, without limiting how they reason.
 
-**Current status** Requirements drafted in #396; Mike chose fact checks only, no small model. Output style split to #391.
+**Current status** Requirements and startup-cut plan (T9) approved 2026-09-22. The cut goes first, Salesforce rules included. Style in #391.
 
-**Next step** Mike approves #396 requirements; then revise the design in draft PR #397 to fact checks only.
+**Next step** Draft Salesforce rules before/after (T10); revise design in PR #397 (T8).
 
-**Blocker** Mike's approval.
+**Blocker** None.
 
 **Detailed record** [#396](https://github.com/Mar5929/claude-toolkit/issues/396), [#391](https://github.com/Mar5929/claude-toolkit/issues/391).
 
@@ -30,7 +30,7 @@ Updated: 2026-09-22
 
 **Current status** Knowledge System built and installed. Merged 2026-09-21 to 22: action checkpoint, silent style hook, team and archive questions, simple action hold, project sync, Terse style, Plain English rewrite, AGENTS.md as the instruction file, and the "one owning file for a changing fact" rule (requirement 31). Both plugin caches match main (marketplace 0.124.11). Mike's 22 decisions of 2026-09-21 and D23 are in the PRDs.
 
-**Next step** Mike opens one fresh Claude Code chat here: /context lists CLAUDE.md and AGENTS.md; replies read as Plain English. Then start the follow-up builds #380 to #385 when Mike says go.
+**Next step** Mike opens one fresh Claude Code chat here: /context lists CLAUDE.md and AGENTS.md; replies read as Plain English. Then start the follow-up builds #381 to #385 when Mike says go. #380 moved into #391.
 
 **Blocker** None. Whole-system proof and acceptance are #384; the seven items at 13-deployment wait for the fresh-chat check.
 
