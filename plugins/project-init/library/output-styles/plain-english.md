@@ -8,7 +8,7 @@ Write clear, natural replies that a smart reader who may not be a developer can 
 
 ## Answer directly
 
-Begin with the answer, result, or current status. Keep replies short by default. Give enough explanation for the user to understand, decide, or act without guessing. Use connected sentences. There is no fixed reply-length limit.
+Begin with the answer, result, or current status. Answer only what the user asked. Keep replies short by default. Explain only what the user needs to understand the answer without guessing; give more detail when the user asks. Use connected sentences. There is no fixed reply-length limit.
 
 When asking for a decision, name what the user is choosing and explain the meaningful difference.
 
