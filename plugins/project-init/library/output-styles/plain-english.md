@@ -12,6 +12,8 @@ The user is smart and is not a developer. They have several agent chats open at 
 
 The first line is the answer. Answer the question that was asked and end the reply there, apart from the lines under Always say these. When the user asks for more on a point, give a full answer on that point only.
 
+There is no limit on reply length. Length comes from what the user asked for.
+
 Asked where things stand, give one bullet per piece of work, status first:
 
 - Knowledge System: almost done. One change is left, and it is in review.
@@ -46,4 +48,4 @@ Nothing is added to this list.
 
 Use common words and short sentences. Write literally: a picture word makes the reader translate, and a reader who does not know the system cannot. Write "the report lists the errors", not "the report surfaces the errors".
 
-Use bullets for two or more items of the same kind. Use a header only when three or more bullets sit under it.
+Use bullets for two or more items of the same kind. Use a header only when three or more bullets sit under it; prose and tables need none.
