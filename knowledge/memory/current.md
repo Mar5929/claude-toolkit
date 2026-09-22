@@ -25,7 +25,7 @@ Updated: 2026-09-22
 
 **Goal** Make agents follow the selected style and write clear, scannable replies.
 
-**Current status** Focused build approved 2026-09-22 for GPT-5.6 Sol agents and pushed as draft PR #399 (`37d9458`). Tests and independent source review passed; native style Read was confirmed each turn. Response trials still show extra detail and closing offers, including with the final 443-word style. Stage 12-pr-and-push, In review; no behavior acceptance. #396 owns the broader rewrite; PR #398's non-style changes still need an accounted disposition.
+**Current status** Focused build approved 2026-09-22 for GPT-5.6 Sol agents and pushed as draft PR #399 (`37d9458`). Tests and independent source review passed. Native style selection and reads were observed; the candidate skipped the second read in the two-turn test. Response trials still show extra detail and closing offers, including with the final 443-word style. Stage 12-pr-and-push, In review; no behavior acceptance. #396 owns the broader rewrite; PR #398's non-style changes still need an accounted disposition.
 
 **Next step** Review actual reply examples with Mike and refine before merge or acceptance.
 
