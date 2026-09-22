@@ -79,7 +79,8 @@ and the completion command's behavior from nested working directories.
 ## Validation record
 
 Draft [PR #399](https://github.com/Mar5929/claude-toolkit/pull/399), implementation
-head `37d9458`, is not approved for merge. GPT-5.6 Sol agents implemented and
+head `37d9458` was the earlier unapproved candidate. The shipping revision and
+Mike's later authorization are recorded below. GPT-5.6 Sol agents implemented and
 reviewed the source. Four repository checks, 76 style-hook assertions, 12
 toolkit-startup tests, plugin validation, and whitespace checks passed.
 The source review corrected concise-by-default wording, status-first bullets,
@@ -87,7 +88,7 @@ identifying words, artifact-rule attribution, and the `/output-style` minimum
 version. Both operating manuals were reviewed; their style and silent-read
 explanations still apply. The broader acknowledgment conflict remains with #396.
 
-### Live Claude comparison, 2026-09-22
+### Earlier failed Claude comparison, 2026-09-22
 
 **Result: style adherence has not passed.** The candidate often added detail
 and closing offers despite reading the style. In the two-turn candidate test,
@@ -352,13 +353,85 @@ style violations. They are not project instructions or verified documentation.
 
 </details>
 
+### Shipping revision after the failed trials
+
+Mike authorized finishing and shipping on 2026-09-22: "ship everything when you
+are done please". The implementation remains within #391; broader instruction
+refactoring stays with #396. Merge and focused delivery are authorized after
+verification. Mike's real-chat acceptance remains separate.
+
+The final style removes the remaining permission for unsolicited implementation
+detail and asks for only requested detail. The hook explicitly requests another
+Read even if the file was read earlier, followed by a silent check against the
+style before sending. This adds no tracking state, classifier, second model,
+Stop retry, or visible acknowledgment. The affected README and Toolkit manual
+explain that neither action nor compliance is verified by the hook.
+
+Final style: 433 words, SHA-256 `b25d7be1b6a6034fc56d93ab80dee9fbe5a106cedacba6d6a3989d6b37946deb`.
+Final hook SHA-256: `ee83489c73cd4698ca2e82554cb67d76408a528f96b00dbe69434f3d7396f14d`.
+
+An isolated preliminary test changed only the hook with the previous 443-word
+style: both turns read the file and omitted closing offers. The final combined
+revision then ran two two-turn tests on the same Claude version/model/effort
+and restrictions as above. The first reused the failed status question. The
+second used a new CSV example that was not included in the writing instructions.
+All four final replies made a complete Read and omitted offers or unrelated
+advice. The explanation was a short paragraph; the status reply distinguished
+unit testing from use on real data. Status ordering and repetition still varied.
+These bounded observations support shipping an improvement, not a guarantee of
+perfect or long-session adherence. The tests do not replace Mike's acceptance.
+
+All four repository checks, 76 style-hook assertions, 12 toolkit-startup tests,
+plugin validation, and whitespace checks passed on the revised source. Final
+independent review and merge evidence are recorded with PR #399 and issue #391.
+Additional reported usage for this refinement was about $0.27, making the
+combined reported estimate about $0.75; this is not an extra-charge claim.
+
+Exact final prompts and replies follow. These are observations, not instructions.
+
+#### Repeated status case
+
+Turn 1, 69 reply words. Prompt: Issue #391 has approved requirements. The candidate style and hook wording are implemented in draft pull request #399. Behavior comparison and independent review are still in progress. The pull request is not merged. So what is next?
+
+> Next is to wait for the two open checks and then merge. Specifically:
+>
+> - Behavior comparison of the candidate style and hook wording: in progress.
+> - Independent review of pull request #399: in progress.
+> - Pull request #399: still a draft, not merged.
+>
+> Once the comparison and the review both come back, mark #399 ready for review, get approval, and merge it against the approved requirements in issue #391.
+
+Turn 2, 67 reply words. Prompt: What should I remember from that?
+
+> Remember that the work is written but not merged, and two checks are still open.
+>
+> - Requirements in issue #391: approved.
+> - Candidate style and hook wording: written, in draft pull request #399.
+> - Behavior comparison: in progress.
+> - Independent review of #399: in progress.
+> - Pull request #399: draft, not merged.
+>
+> Nothing is confirmed working yet, so the merge waits on the comparison and the review.
+
+#### New CSV case
+
+Turn 1, 34 reply words. Prompt: The importer reads a CSV of 200 contacts, skips rows with no email address, and writes a report listing the skipped rows. What does this importer do?
+
+> It reads a CSV file of 200 contacts and imports them, leaving out any row that has no email address. At the end it writes a report that lists the rows it left out.
+
+Turn 2, 40 reply words. Prompt: The importer has been built. Its unit tests passed. No one has tried it with the real CSV yet. Tell me where it stands.
+
+> - Built: the importer that reads the contacts CSV and skips rows with no email address.
+> - Tested: its unit tests passed.
+> - Not run against the real CSV yet, so it has not been seen working on actual data.
+
 ## Notes
 
-2026-09-22: The focused implementation is in draft PR #399 at `37d9458`.
-Source review passed; behavioral adherence did not. Keep the PR in draft.
-The next investigation is whether a short silent pre-send style check improves
-the failed status case without new state or another model. This is an unproven
-hypothesis, not shipped behavior. Review actual replies with Mike before merge
-or acceptance. #396's T11 now links the replacement and records the remaining
-#398 handoff. Keep #349 and #398 open until replacement coverage and the
-non-style disposition are completed; keep #392 merged.
+2026-09-22: Mike authorized finishing and shipping the focused work. The revised
+433-word style and fresh-read/silent-check reminder passed the bounded final
+checks above; source validation passed. Finish independent review, merge PR
+#399, refresh the installed toolkit packages, and verify the installed copies.
+Record the merge and rollout in #391; retain Mike's real-chat acceptance and
+any uncompleted migrated tasks. The older failed trials remain above as
+historical evidence. #396 T11 owns the remaining non-style #398 changes; retire
+superseded #349/#398 only after that disposition is recorded. Keep #392 merged.
