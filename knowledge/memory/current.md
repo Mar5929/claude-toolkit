@@ -1,5 +1,5 @@
 # Current working memory
-Updated: 2026-09-21
+Updated: 2026-09-22
 
 ## Project goal
 Finish the authorized Knowledge delivery, verify the toolkit project and laptop,
@@ -9,23 +9,19 @@ for implementation.
 ## Active work
 
 ### Knowledge System / Toolkit OS — #269 / #369
-Updated: 2026-09-21
+Updated: 2026-09-22
 
-**Goal** Finish authorized delivery and target sync, then plan whole-system gaps.
+**Goal** Finish the Knowledge delivery, install it on this project and laptop, then close the whole-system gaps.
 
-**Current status** #370 `b3b8fec`, #372 `999bfcb`, #371 `283258a`, #373 `b201353` merged; #367 superseded. Draft #374 at `0d082a6`: independent review and full check rerun running in Claude chats; merge and sync pending. OS gap assessment running.
+**Current status** Knowledge System almost done: #374 (action checkpoint), #376 (silent style hook) and #378 (team questions) merged; #386 (simple action hold) built and in review. Install done except pull request #387 in review; one plugin refresh owed after #386. Mike's 22 decisions of 2026-09-21 are recorded in the PRDs; builds tracked in #380 to #385, #388 (AGENTS.md move, planning) and #389 (Terse style).
 
-**Recent progress** 2026-09-21: Codex usage limits stopped the Codex teams with sessions open. Mike's handoff prompt moved coordination to Claude Code desktop: Fable main, Opus executors, four local chats, messaging confirmed.
+**Next step** Main merges #386 and #387 after their delta checks, then has the sync chat refresh plugins once more. Mike opens one fresh Claude Code and one fresh Codex chat and checks the replies read as Plain English.
 
-**Next step** Main reads each chat's report, sends review findings to Knowledge finish, asks Mike whether his merge approval covers #374, merges, then starts the sync chat. Mike performs normal hook trust.
+**Blocker** None on delivery. Whole-system proof and acceptance are #384.
 
-**Blocker** #374 approval coverage awaits Mike. Full requirements/design acceptance, D3/product choices, broader-host proof and whole-system acceptance open.
+**Detailed record** [#269](https://github.com/Mar5929/claude-toolkit/issues/269), [#369](https://github.com/Mar5929/claude-toolkit/issues/369), [PRD Notes](../prds/toolkit-operating-system/knowledge-system.md#notes).
 
-**To-dos** 2026-09-21: review/merge, sync, gap report, decisions/acceptance.
-
-**Detailed record** [#269](https://github.com/Mar5929/claude-toolkit/issues/269), [#369](https://github.com/Mar5929/claude-toolkit/issues/369), [design Notes](../../docs/designs/269-knowledge-system.md#notes), [PRD Notes](../prds/toolkit-operating-system/knowledge-system.md#notes), [plan](../../docs/designs/269-knowledge-system/implementation-plan.md).
-
-**Owning session** Claude main `local_1337791d-276c-4ea7-ae8f-119db0dc8b17`; chat ids in #269. Codex teams stopped; do not restart them alongside Claude. Assignment is not liveness.
+**Owning session** Claude main `local_1337791d-276c-4ea7-ae8f-119db0dc8b17`; chat ids in #269.
 
 ### Guided work management — #337
 Updated: 2026-09-19
@@ -68,14 +64,12 @@ Updated: 2026-09-19
 - 2026-09-19: [#358](https://github.com/Mar5929/claude-toolkit/issues/358): use prior
   decisions to clarify Mike's intent and push back usefully in long sessions.
   Exact example saved; investigation pending.
-- 2026-09-19: Notes workflow merged; project refresh remains.
-- 2026-09-21: Mike asked whether the style-handshake sentence can run unseen; a read-only chat is preparing options.
 
 ## Session handoffs
 
 ### 2026-09-21T16:30:44.599Z | Claude team continuation
 
-Resumed 2026-09-21 by the Claude main above. The [team continuation](../../docs/designs/269-knowledge-system/implementation-plan.md#claude-team-continuation-2026-09-21) holds roles and evidence limits; #269 holds chat ids and next steps. Source: Codex main `01a0bf79-ee0e-7a83-86df-251957d7f5e8`.
+Done. The Codex teams were replaced by Claude chats on 2026-09-21; #269 holds the chat ids and the standing review-and-merge instruction.
 
 ### 2026-09-20T11:01:22.781Z | Knowledge delivery coordinator
 
