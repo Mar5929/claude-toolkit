@@ -11,9 +11,10 @@ requirement and accepts no part of the Knowledge System or Toolkit OS.
 ## Result
 
 - Both plugin caches now hold the versions on `main`.
-- This project already matched the toolkit almost everywhere. Two tracked
-  files changed, in draft pull request
-  [#387](https://github.com/Mar5929/claude-toolkit/pull/387). It is not merged.
+- This project already matched the toolkit almost everywhere. Three tracked
+  files changed, in pull request
+  [#387](https://github.com/Mar5929/claude-toolkit/pull/387), marked ready
+  for review. It is not merged. No file was moved.
 - The laptop's no-AI-credit rule, settings and hook were already installed.
   The hook script was refreshed. Old voice material was removed after Mike
   answered four questions.
@@ -28,8 +29,9 @@ Source: `main` at commit `0cc5d54`, marketplace 0.124.6. The audits ran at
 commit `1479dc1` (marketplace 0.124.4). Pull requests #376 (hooks-library,
 silent style handshake) and #378 (work-tracker) merged during the run, so both
 caches were refreshed a second time and the branch was brought up to `0cc5d54`.
-Pull request #379 (second-brain) was still in review and is not included. One
-more cache refresh is needed after it merges.
+Pull request #386 (second-brain 4.12.4, the simple action hold, marketplace
+0.124.7) was still in review and is not included. One more cache refresh is
+owed after it merges.
 
 | Plugin | Claude Code cache | Codex cache | Before this run |
 | --- | --- | --- | --- |
@@ -69,6 +71,14 @@ An Opus helper ran steps 1 to 3 of the project-sync skill, read-only, using
 `plugins/` at `1479dc1` as the source. After #376 and #378 merged, the lead
 reread `.claude/settings.json` and reran the repository checks at `0cc5d54`.
 The helper's other findings were not rerun against the two merged changes.
+
+Mike widened the scope on 2026-09-21, recorded in #369: apply every shipped
+part that fits this project by recommendation, move files only where the
+shipped layout needs it, and get the pull request merged. He confirmed that
+instruction in the sync chat. Under it, two more findings were applied and the
+rest were judged not to fit. Nothing needed moving: `docs/designs/`,
+`knowledge/`, `ai-external-knowledge/` and the folder `CLAUDE.md` files already
+match the shipped layout.
 
 ### Already present and current
 
@@ -120,14 +130,21 @@ silent read of the style file.
 
 ### Gaps closed in pull request #387
 
+- `CLAUDE.md`: added the Quick saves table from `thin-claudemd.md`, with the
+  project documentation row and the `knowledge/` row. Completed the first
+  paragraph, which ended at "full pictur". Moved Mike's two fixed lines above
+  the title, where `thin-claudemd.md` puts them. Their wording is unchanged,
+  including the extra words his self-check line carries beyond the shipped
+  text.
+- `knowledge/toolkit-manual.md`: the file opened with a draft notice about
+  closed issue #306 where the shipped template has its complete-read
+  instruction. The two shipped opening paragraphs replace that notice. The rest
+  of the file is this repository's deliberate detailed copy and is unchanged.
+- `.claude/toolkit-sync.md`: added the 2026-09-21 entry with the audited
+  versions and results, and added System Guide under "Declined".
 - `.claude/settings.json`: no change. The audit found a timeout of 5 where the
   shipped text said 10, on the `style-handshake` entry under PostToolUse. Pull
   request #376 then removed that entry on `main`, so the fix was dropped.
-- `CLAUDE.md`: added the Quick saves table from `thin-claudemd.md`, with the
-  project documentation row and the `knowledge/` row. Completed the first
-  paragraph, which ended at "full pictur".
-- `.claude/toolkit-sync.md`: added the 2026-09-21 entry with the audited
-  versions and results, and added System Guide under "Declined".
 
 ### Local settings override removed
 
@@ -162,13 +179,12 @@ touched.
 - Folder audit states: `docs/`, `plugins/` and `tests/` present;
   `ai-external-knowledge/`, `archive/`, `brainstorms/`, `knowledge/` and the
   dot-folders skipped by design; `misc/` not recognized.
-- `CLAUDE.md` keeps Mike's two fixed lines below the title. The shipped layout
-  puts them above it. His self-check line also carries extra wording that the
-  shipped text does not have. Neither was changed.
-- `knowledge/toolkit-manual.md` opens with a "Detailed review draft" notice
-  about closed issue #306 where the shipped template has its complete-read
-  paragraph. The file is this repository's deliberate detailed copy, so it was
-  not changed here.
+- `misc/` was not given a folder `CLAUDE.md` or a codemap row. The shipped
+  folder audit says not to guess a purpose for a folder the toolkit does not
+  recognize. Its five files are Mike's records and stay where they are.
+- `~/.claude/rules/parallel-agent-sessions.md` and `steer-to-the-goal.md` on
+  the laptop still name two rules removed in this run. Neither is a shipped
+  machine rule, so editing them is left to Mike.
 
 ## Laptop audit
 
@@ -243,7 +259,9 @@ Run on branch `issue-269-project-sync` with this record present:
 | `claude plugin validate .` | Validation passed |
 | `git diff --check` | No whitespace errors |
 
-The branch was at `main` commit `8aa98c6`, which holds this record, plus its own two changed files.
+The same checks were rerun after the final commit, with `TMPDIR` set to a
+private folder, and all pass. The branch was at `main` commit `f445e24` plus its
+own three changed files.
 
 The new pull-request save check from #374 was seen working once in the lead
 chat: `gh pr create` was held until an action-specific review outcome was
@@ -278,6 +296,9 @@ The lead chat cannot start a new session. These two checks are Mike's.
    trust click, and it should be reported back as unexpected.
 3. `codex plugin list` shows project-init 0.77.3, second-brain 4.12.3 and
    work-tracker 2.9.0.
+
+In both hosts, the first reply after startup should not open with a note about
+issue #306; the manual now opens with its read instruction.
 
 ## Not verified
 
@@ -320,4 +341,4 @@ None of these was changed in this run.
   longer on the laptop. Both files are older toolkit project rules that the
   toolkit does not ship as machine rules. Whether to edit, refresh or remove
   them is Mike's decision.
-- The plugin caches need another refresh after #379 merges.
+- The plugin caches need another refresh after #386 merges.
