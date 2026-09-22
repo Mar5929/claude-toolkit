@@ -3,6 +3,16 @@
 What this repository set up from its own toolkit, what it skipped, and why. A
 later `project-sync` run reads this so a considered "no" is not offered again.
 
+2026-09-22: instruction files moved for issue #388. `AGENTS.md` now holds the
+content at the root and in `docs/`, `plugins/` and `tests/`; each of those four
+places has a one-line `CLAUDE.md` holding `@AGENTS.md`. project-init 0.77.6,
+marketplace 0.124.10. Two older statements in this record were wrong after the
+move. The Gates table row that said `AGENTS.md` points to `CLAUDE.md` describes
+current setup, so it was corrected in place at gate 5. The description of
+`installed-copy-check.mjs` comparing a block shared by the two files, at lines
+263 to 264 below, is left as history: the check now verifies the one-line
+`CLAUDE.md` import and that `AGENTS.md` holds no import line.
+
 2026-09-21 full project-sync audit for #269 and #369. The audit ran against
 `main` commit `1479dc1` and was rechecked after #376 and #378 merged, against
 marketplace 0.124.6 at commit `0cc5d54`: project-init 0.77.3, second-brain
@@ -192,7 +202,7 @@ three weeks later in another project.
 | 2. Hooks | Done. `toolkit-session-start`, `save-reminder`, `work-item-close`, `memory-reminder`, `knowledge-session-start`, and `spec-check-reminder` are installed under `.claude/hooks/` and registered in `.claude/settings.json`. Codex registers the same startup loader in `.codex/hooks.json`. The two style hooks were removed with the toolkit, as explained below. `style-handshake` is installed separately under `UserPromptSubmit`. As of 2026-09-21 (issue #375) it asks for a silent re-read of the selected style file on each message, with no acknowledgment. |
 | 3. Project knowledge | **Adopted from the packaged plugin.** `SOUL.md`, the managed operating manual, `knowledge/project.md`, `knowledge/current.md`, and both complete generated indexes are requested in order at session start. Approved specifications, flat persistent memory, and unchecked brainstorms live under the same knowledge root. The packaged skills keep only task-specific steps. The retired policy rule and machinery stay removed. |
 | 4. Knowledge layer | Included with Gate 3. The graphify code graph was offered and declined, see below. |
-| 5. Root instructions, rules, output style | Done. `AGENTS.md` points to `CLAUDE.md`, which carries the Toolkit and Knowledge complete-read routes. `.claude/rules/` holds the applicable general rules, with no large memory rule or wrap-up ritual. The `Plain English` style is selected in `.claude/settings.json` and installed at `.claude/output-styles/plain-english.md`, copied from `plugins/project-init/library/output-styles/`. This repo ran Claude Code's built-in `Concise` style before that, and the hand-written `plain-language` style before that, removed from the toolkit in issue #245. |
+| 5. Root instructions, rules, output style | Done. `AGENTS.md` holds the content, including the Toolkit and Knowledge complete-read routes; `CLAUDE.md` is the one-line import that brings it in for Claude Code. `.claude/rules/` holds the applicable general rules, with no large memory rule or wrap-up ritual. The `Plain English` style is selected in `.claude/settings.json` and installed at `.claude/output-styles/plain-english.md`, copied from `plugins/project-init/library/output-styles/`. This repo ran Claude Code's built-in `Concise` style before that, and the hand-written `plain-language` style before that, removed from the toolkit in issue #245. |
 | 6. Optional toolkit skills | Done. All five now ship in one plugin, `session-skills`: `explain-simply`, `grill-me`, `handoff`, `session-summary`, and `track-tasks`. The four that predate the merge were already switched on in the machine settings at `~/.claude/settings.json`. |
 
 ## Rules installed

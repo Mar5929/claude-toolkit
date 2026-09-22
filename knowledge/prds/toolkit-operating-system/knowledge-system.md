@@ -261,8 +261,9 @@ a new proposal, or a visit to every source.
 ### 1. Start or resume the session
 
 The harness itself makes project instructions, rules, and available skills
-reachable in whatever ways it supports, including files such as `CLAUDE.md` or
-`AGENTS.md`. This step is here as background for the walkthrough; building it is
+reachable in whatever ways it supports, including the root instruction file
+`AGENTS.md`, which Claude Code reads through the one-line `CLAUDE.md` import.
+This step is here as background for the walkthrough; building it is
 not part of the knowledge system.
 
 In Claude Code, [native rule handling](https://code.claude.com/docs/en/memory#path-specific-rules) includes:
@@ -1494,7 +1495,7 @@ runtime implementation or a physical design-document location.
 | The question | Where it goes |
 | --- | --- |
 | Who the agent is in this project | `SOUL.md` |
-| A standing instruction for how the agent behaves | The project's root instructions, such as `CLAUDE.md` or `AGENTS.md`, and applicable rules in `.claude/rules/` or the harness equivalent |
+| A standing instruction for how the agent behaves | The project's root instruction file `AGENTS.md`, and applicable rules in `.claude/rules/` or the harness equivalent |
 | Where this project keeps its things: the real systems it uses, their names and IDs, and the folders and paths that matter | `knowledge/project.md` |
 | How a part of the system is put together, and what it is for: its objects, fields, processes, sub-applications, and what links to what | The System Guide at the configured System Guide location, when the project has one. It is a separate toolkit plugin the owner turns on per project, with its own PRD. Memory keeps only the decision or the trap, and links to the System Guide page. |
 | A repeatable procedure | A project skill at the runtime's skill location, through the skill-authoring process (requirement 17) |
@@ -2121,7 +2122,7 @@ Imagine the agent is a capable engineer:
 
 | Part | Analogy | Responsibility |
 | --- | --- | --- |
-| `CLAUDE.md` / `AGENTS.md` | Employee handbook | Establish the project rules and point to the knowledge manual. |
+| `AGENTS.md` | Employee handbook | Establish the project rules and point to the knowledge manual. |
 | Knowledge-system manual | Knowledge handbook | Define what each knowledge store means, where information belongs, and which approval rules apply. Point to the relevant procedures. |
 | Skills | Task-specific procedures | Give the agent the instructions, templates, and completion checks for the operation it is performing. |
 | Hook | Doorbell or reminder alarm | React at a useful moment and bring an obligation to the agent's attention. |

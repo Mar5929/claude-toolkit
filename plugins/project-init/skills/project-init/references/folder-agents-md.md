@@ -1,18 +1,19 @@
-# A CLAUDE.md in every major folder (Gate 1)
+# An AGENTS.md in every major folder (Gate 1)
 
-A folder `CLAUDE.md` is a short file sitting inside a folder that says what the
-folder holds, how to work in it, and where the detail lives. Claude Code loads it
-only when an agent reads a file in that folder, so it costs nothing in the
-sessions that never go there.
+A folder gets the same pair of files the project root gets. `<folder>/AGENTS.md`
+is a short file that says what the folder holds, how to work in it, and where
+the detail lives. `<folder>/CLAUDE.md` beside it is exactly one line, `@AGENTS.md`,
+and nothing else. Claude Code loads the pair only when an agent reads a file in
+that folder, so it costs nothing in the sessions that never go there.
 
-That is the whole point. The root `CLAUDE.md` and every file in `.claude/rules/`
+That is the whole point. The root `AGENTS.md` and every file in `.claude/rules/`
 load at the start of every session, and the bigger that pile grows the less
 weight any one part of it carries. Folder detail moved into a folder file leaves
 the always-loaded pile without being lost.
 
-Write the folder's file at the same time as the folder, even when the folder
-starts empty. Its purpose is known at creation, and a folder created now and
-described later is usually never described.
+Write both files at the same time as the folder, even when the folder starts
+empty. Its purpose is known at creation, and a folder created now and described
+later is usually never described.
 
 ## What goes in one
 
@@ -39,19 +40,26 @@ Ten to twenty lines. Three things:
 - **Live status.** Current phase, next action, and open work belong in the work
   tracker.
 
-## Why the toolkit keeps one root AGENTS.md
+## How each host reads a folder file
 
-Codex can assemble layered `AGENTS.md` instructions from the repository root
-through the directory where the session starts. It builds that chain once per
-run. A nested file can therefore apply when Codex starts inside that subtree,
-but it does not load later merely because a root-started session moves into the
-folder or reads one of its files.
+Claude Code reads the folder `CLAUDE.md` when an agent reads a file in that
+folder, and the one import line brings in the `AGENTS.md` beside it. A relative
+import resolves against the file holding it, so the folder `CLAUDE.md` always
+imports its own folder's `AGENTS.md`.
 
-Toolkit projects deliberately keep one root `AGENTS.md` rather than maintain a
-second set of folder instruction files with uneven coverage. The root
-`CLAUDE.md` codemap and Toolkit workflow direct Codex to open the applicable
-folder `CLAUDE.md` explicitly when work reaches that folder. Do not create a
-nested `AGENTS.md` during setup.
+Codex assembles `AGENTS.md` files from the repository root down to the directory
+the session starts in, once per run. A folder file is therefore already in a
+Codex session that started inside that folder's subtree. A session that started
+at the root opens the folder file because the root codemap line says to, not on
+its own.
+
+Codex reads the whole chain under one shared budget of 32 KiB. A long root file
+leaves less room for the folder files below it, which is the other reason a
+folder file stays at ten to twenty lines.
+
+A folder never gets an `AGENTS.md` without its one-line `CLAUDE.md` beside it.
+Without that line, sessions that read `CLAUDE.md` files only would see nothing
+for the folder at all.
 
 ## Which folders get one
 
@@ -99,5 +107,6 @@ considered skip from an oversight.
 
 ## Keeping them current
 
-When work changes what a folder is for, that folder's `CLAUDE.md` is updated in
-the same change. `project-sync` audits the folder files against this document.
+When work changes what a folder is for, that folder's `AGENTS.md` is updated in
+the same change. The folder `CLAUDE.md` never changes. `project-sync` audits the
+folder files against this document.

@@ -18,7 +18,7 @@ Before writing or changing any of these, open the page that covers it:
 - a slash command
 - an output style
 - a settings key, a permission rule, or an environment variable
-- a CLAUDE.md convention, an MCP server, or anything the CLI does
+- a CLAUDE.md or AGENTS.md convention, an MCP server, or anything the CLI does
 
 `ai-external-knowledge/claude-code/README.md` is the index. It lists every
 page, what it covers, and the file it sits in. Start there when you do not

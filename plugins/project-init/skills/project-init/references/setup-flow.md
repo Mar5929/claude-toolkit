@@ -37,18 +37,20 @@ separate prep, interview, or continuation files for that workflow.
 - Recommend a conventional layout for the stack; explain the why briefly.
 - Confirm before creating dirs/files. Cover: source, tests, config, `.gitignore`,
   README, license, editor/formatter, CI stub.
-- Write each major folder's own short `CLAUDE.md` at the same time as the
-  folder, even when it starts empty. `folder-claudemd.md` says what goes in one,
-  which folders get one, and which are skipped (any folder with a `README.md`
-  index, everything under `.claude/`, and the complete `knowledge/` tree).
-  Record every skip. Never a nested `AGENTS.md`.
+- Write each major folder's own pair at the same time as the folder, even when
+  it starts empty: a short `<folder>/AGENTS.md` and a `<folder>/CLAUDE.md`
+  holding only the line `@AGENTS.md`. `folder-agents-md.md` says what goes in
+  one, how each host reads it, which folders get one, and which are skipped (any
+  folder with a `README.md` index, everything under `.claude/`, and the complete
+  `knowledge/` tree). Record every skip. Never an `AGENTS.md` without its
+  one-line `CLAUDE.md`.
 - Every stack, as its own question: "Where do you track work items for this
   project?" Offer a GitHub Projects board, Linear, Jira, local folders on this
   computer, the BMAD method, or somewhere else / nothing yet.
   `work-tracking-choice.md` has the wording, what each answer does, and the
   GitHub board setup steps. Read it first.
 - For answers other than "somewhere else, or nothing yet", Gate 5 gives
-  `CLAUDE.md` a "Where work is tracked" section naming the tracker.
+  `AGENTS.md` a "Where work is tracked" section naming the tracker.
 - A GitHub Projects board and local folders are the two tracker choices the
   toolkit can set up. GitHub setup creates nothing without explicit approval:
   no board, no statuses, no labels, no issues. Local setup writes only after the
@@ -185,8 +187,8 @@ separate prep, interview, or continuation files for that workflow.
   completely and in order, continuing from the first missing section when a
   read is shortened. Treat the configured output threshold as a spill limit,
   not a host-capacity guarantee or evidence that a read completed.
-- Add the short fallback to `CLAUDE.md`. Keep `AGENTS.md` as the one-line route
-  to `CLAUDE.md`, and do not copy knowledge policy into either file.
+- Add the short fallback to `AGENTS.md`. Keep `CLAUDE.md` as the one-line import
+  of `AGENTS.md`, and do not copy knowledge policy into either file.
 - Start with no memories. Never inherit the toolkit repository's knowledge or
   tags.
 - When both are enabled, keep the existing System Guide config and content. The
@@ -223,43 +225,44 @@ separate prep, interview, or continuation files for that workflow.
   Say the hook caveat out loud: git hooks are never committed, so each fresh
   clone needs that command run once or its graph silently stops updating.
 
-**Gate 5: SOUL.md, CLAUDE.md, and the rules folder**
+**Gate 5: SOUL.md, AGENTS.md, and the rules folder**
 
 - Install the Toolkit operating manual for every equipped project, whether or
   not the owner selected project knowledge. Follow
   `toolkit-manual-delivery.md`: copy the packaged template to
   `knowledge/toolkit-manual.md`, install the project-init-owned startup pointer,
-  and add the same short complete-read fallback to `CLAUDE.md`.
+  and add the same short complete-read fallback to `AGENTS.md`.
 - The manual uses universal workflow text. Put the project's actual tracker,
   paths, quick-save routes, and optional-component pointers in the root sections
   that already own them. Do not leave toolkit-repository links in the installed
   manual or invent folders for components the project declined.
 
-- Three fixed lines go above the title in `CLAUDE.md`: the SOUL route (only when
-  `SOUL.md` exists and Gate 3 was declined), then the owner's self-check
-  instruction, then the owner's continuity instruction. The last two are
-  verbatim and in every project. `thin-claudemd.md` has the exact wording and
-  `root-file-examples.md` shows them in place; do not reword either.
-- `AGENTS.md` is one line and nothing else:
-  `Read CLAUDE.md in this folder and follow it.` Codex expands no import syntax,
-  so `@CLAUDE.md` would load nothing, but a plain instruction to open a file is
-  followed. Anything more is a hand-maintained second copy that drifts.
+- Two fixed lines go above the title in `AGENTS.md`: the SOUL route (only when
+  `SOUL.md` exists and Gate 3 was declined), then the owner's continuity
+  instruction. The continuity line is verbatim and in every project.
+  `thin-agents-md.md` has the exact wording and `root-file-examples.md` shows it
+  in place; do not reword it.
+- `CLAUDE.md` is one line and nothing else: `@AGENTS.md`. Claude Code expands
+  that import and reads `AGENTS.md` through it; Codex reads `AGENTS.md` by
+  itself and never reads `CLAUDE.md`. Put no `@path` import line inside
+  `AGENTS.md`, and never create `AGENTS.override.md`, `AGENTS.local.md`, or an
+  instruction file under `.agents/`.
 - Ask whether the owner wants to create a root `SOUL.md`. Explain that it holds
   the agent's identity, communication style, defaults, and behaviors to avoid.
   If yes, work with the owner to write it. Do not install a fixed template or
   invent its content. Keep an existing file and never overwrite it. When Gate 3
   was declined, put `Read SOUL.md first and follow it throughout this session.`
-  at the top of `CLAUDE.md`. When Gate 3 ran, its loader and fallback own that
+  at the top of `AGENTS.md`. When Gate 3 ran, its loader and fallback own that
   route. If the owner declines, create no file and add no reference.
-- `CLAUDE.md` is a router and a map: what the project is, what is in each folder
+- `AGENTS.md` is a router and a map: what the project is, what is in each folder
   and when to open it, what tools the project runs on, and where work is
   tracked. Say that to the owner up front, and keep out anything that answers
-  none of those. `thin-claudemd.md` has the list of what never goes in.
+  none of those. `thin-agents-md.md` has the list of what never goes in.
 - When System Guide is enabled, add the one shared root fallback line from
-  `thin-claudemd.md` to `CLAUDE.md`. Do not repeat it in `AGENTS.md`; that file
-  already points Codex to `CLAUDE.md`.
+  `thin-agents-md.md` to `AGENTS.md`. It goes there once, and `CLAUDE.md` stays
+  the one import line.
 - Behavioral rules go into the project's `.claude/rules/` as individual files,
-  not into CLAUDE.md. See `thin-claudemd.md` and `library/rules/general/README.md`.
+  not into AGENTS.md. See `thin-agents-md.md` and `library/rules/general/README.md`.
 - Read `library/rules/general/README.md` once at this gate and use it as the
   canonical inventory. Walk its active rules once, applying each entry's
   applicability and default to this project's selected setup. Offer applicable
@@ -273,10 +276,10 @@ separate prep, interview, or continuation files for that workflow.
   are in `.claude/rules/` too.
 - MCP tool rules from `library/guides/mcp-best-practices.md` are conditional: fold in a server's
   section only if the project uses that MCP server.
-- Write a thin CLAUDE.md _with_ the user: what it is, codemap and structural
+- Write a thin AGENTS.md _with_ the user: what it is, codemap and structural
   pointers, a `Read .claude/rules` line, which gates ran. Add a
   `.claude/rules/README.md` index.
-- Add the short "Quick saves" table from `thin-claudemd.md`. Unless the owner
+- Add the short "Quick saves" table from `thin-agents-md.md`. Unless the owner
   explicitly opted out, include the documentation publication route even when
   knowledge is disabled, using the
   project's actual documentation paths. Install the default-ON unscoped
@@ -293,7 +296,7 @@ separate prep, interview, or continuation files for that workflow.
   is in it and how long a file in it lives. It is usually still empty here, which
   is when the line is easiest to skip.
 - Keep the codemap to one line per folder, pointing at that folder's own
-  `CLAUDE.md` for the detail. Every line says what is in the folder and when to
+  `AGENTS.md` for the detail. Every line says what is in the folder and when to
   open it.
 - Write a tools section from what the project actually runs: MCP servers,
   generated graphs or indexes, build, test, and deploy commands. One row each,
@@ -313,9 +316,9 @@ separate prep, interview, or continuation files for that workflow.
   `library/output-styles/README.md` for installation details.
 - When project knowledge is installed, keep the route small. Both hosts register
   the loader for `SOUL.md`, `knowledge/project.md`, `knowledge/knowledge-manual.md`,
-  `knowledge/memory/current.md`, and the current indexes. `CLAUDE.md` says to
+  `knowledge/memory/current.md`, and the current indexes. `AGENTS.md` says to
   read that map once only if the hook did not supply it, and copies no knowledge
-  policy. See "The project knowledge startup route" in `thin-claudemd.md`.
+  policy. See "The project knowledge startup route" in `thin-agents-md.md`.
 
 **Gate 6: Optional standalone toolkit skills**
 
@@ -372,10 +375,10 @@ separate prep, interview, or continuation files for that workflow.
 
 **Wrap-up**
 
-- Summarize done vs. skipped, including which folders got their own `CLAUDE.md`
-  and which were skipped and why.
+- Summarize done vs. skipped, including which folders got their own `AGENTS.md`
+  and `CLAUDE.md` pair and which were skipped and why.
 - Confirm that every configured quick-save folder appears once in the root
-  `CLAUDE.md`, and no unconfigured folder appears there.
+  `AGENTS.md`, and no unconfigured folder appears there.
 - List follow-ups from skipped/deferred gates.
 - Port-back reminder: improvements to reusable systems get PR'd back to
   `claude-toolkit`.

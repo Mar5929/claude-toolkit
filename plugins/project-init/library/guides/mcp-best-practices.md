@@ -1,7 +1,7 @@
 # MCP tool rules (per server)
 
 How to use specific MCP servers well. These are **conditional**: fold a server's
-section into a project's CLAUDE.md only if the project actually connects that MCP
+section into a project's AGENTS.md only if the project actually connects that MCP
 server. Skip the rest. Adapt the wording to the project's voice; the intent is
 what matters, not the exact prose.
 
@@ -74,7 +74,7 @@ Tools: `*Linear*`.
   commits on technical issues.
 
 > Per-project defaults (assignee, team, default labels) belong in the project's
-> own CLAUDE.md, not here. This section is the general etiquette.
+> own AGENTS.md, not here. This section is the general etiquette.
 
 ## Notion
 

@@ -1,8 +1,9 @@
 # Rules this repo runs
 
 Every `.md` file in this folder is loaded at the start of a Claude Code session
-and is in force for the whole session. Codex does not load them automatically,
-which is why `AGENTS.md` tells a Codex session to open this folder and read them.
+and is in force for the whole session. Claude Code loads the folder on its own.
+Codex does not, so the line "Read `.claude/rules` first" in the root
+`AGENTS.md` is what sends a Codex session here.
 
 Almost all of these are copies. The originals live in
 `plugins/project-init/library/rules/general/`, which is what every other toolkit
@@ -42,7 +43,7 @@ genuinely could not help another project.
 | `wrap-up-ritual.md` | It belonged to the retired save ritual and invoked the deleted verifier. The current policy names the natural save moments, and `.claude/hooks/save-reminder.mjs` raises the pull-request moment that is easy to miss. |
 | `work-item-folders.md` | It governs the local work-tracker, one flat item folder under Git-ignored `.work-items/`. Work here is tracked on the `Claude-Toolkit-Project` board on GitHub, so there are no local work-item folders for the rule to govern. |
 | `dependency-graph.md` | It is conditional on a code graph being installed. No graph is installed here, and the graphify kit was considered and declined. |
-| `keep-claudemd-current.md` | The toolkit stopped shipping it on 2026-08-31. It spent words in every session on a file that `project-init` writes and `project-sync` audits. `plugins/project-init/skills/project-init/references/thin-claudemd.md` is now the only home for the CLAUDE.md structure, read at the moment the file is written. |
+| `keep-claudemd-current.md` | The toolkit stopped shipping it on 2026-08-31. It spent words in every session on a file that `project-init` writes and `project-sync` audits. `plugins/project-init/skills/project-init/references/thin-agents-md.md` is now the only home for the instruction file structure, read at the moment the file is written. |
 | `recommend-the-best-solution.md` | The owner removed it from the toolkit on 2026-09-02. |
 | `follow-the-output-style.md` | The owner removed it from the toolkit on 2026-09-02. The copy this repo ran was dropped in the same change. |
 | `ask-before-assuming.md` | The owner removed it from the toolkit on 2026-09-02. The copy this repo ran was dropped in the same change. |

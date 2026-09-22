@@ -15,8 +15,9 @@ the chosen tracker.
    it for SessionStart `startup|resume|clear|compact` and UserPromptSubmit.
    Use [the hook's installation instructions](../../../library/hooks/README.md)
    for the exact Claude and Codex settings; preserve other hooks and avoid duplicates.
-3. Add the exact complete-read fallback from `thin-claudemd.md` to `CLAUDE.md`.
-   `AGENTS.md` stays one line and reaches the route through `CLAUDE.md`.
+3. Add the exact complete-read fallback from `thin-agents-md.md` to `AGENTS.md`.
+   `CLAUDE.md` stays one line and reaches the route through its import of
+   `AGENTS.md`.
 4. Keep the root codemap, Tools, Quick saves, and tracker sections accurate for
    this project. The manual refers to those sections instead of carrying
    project-specific paths or inactive component links.

@@ -25,7 +25,8 @@ active item's review plan before resuming; keep its accepted decisions and
 review position rather than restarting the interview.
 
 These design-specific instructions belong at this design entry point. The root
-`CLAUDE.md` and `AGENTS.md` provide orientation and routing, as required by the
+`AGENTS.md` and its one-line `CLAUDE.md` provide orientation and routing, as
+required by the
 [folder-instruction PRD](../../knowledge/prds/toolkit-operating-system/folder-instruction-files.md).
 Their map leads here; they do not carry the design philosophy. The principle
 itself stays in the parent PRD rather than being copied into project memory.
@@ -70,6 +71,10 @@ finishes the work item has to do it.
   its `status` line.
 
 ## Designs in progress
+
+- [388-agents-md-instruction-file.md](388-agents-md-instruction-file.md): the
+  move from `CLAUDE.md` to `AGENTS.md` as the instruction file for issue #388,
+  with the one-line `CLAUDE.md` import beside every `AGENTS.md`.
 
 - [269-knowledge-system.md](269-knowledge-system.md): the single living master
   for issue #269, updated throughout owner review. Solution designs stay here,

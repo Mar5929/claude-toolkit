@@ -123,9 +123,10 @@ before relying on a reminder or guard.
 ## Finding your way around a project
 
 Start with the project's root instruction chain. In this repository,
-[AGENTS.md](../AGENTS.md) leads to [CLAUDE.md](../CLAUDE.md), which provides the
-project map and routes to applicable instructions. A folder's own instructions
-explain its local conventions when work reaches that folder.
+[AGENTS.md](../AGENTS.md) holds the project map and routes; Claude Code reads it
+through the one-line [CLAUDE.md](../CLAUDE.md) import, and Codex reads it
+directly. A folder's own instructions explain its local conventions when work
+reaches that folder.
 
 The main areas contribute different kinds of context:
 
@@ -149,7 +150,7 @@ The main areas contribute different kinds of context:
   architecture reference. This repository currently has no configured System Guide.
 - **Implementation and deliverables:** the root project map identifies the
   actual source, tests, and deliverable folders. In this toolkit repository,
-  [plugins/](../plugins/CLAUDE.md) contains the packaged reusable components.
+  [plugins/](../plugins/AGENTS.md) contains the packaged reusable components.
   Other projects have their own structures.
 - **Outside reference material:** [ai-external-knowledge/](../.claude/rules/ai-external-knowledge.md)
   holds captured outside sources. Their presence supplies evidence to consult;
@@ -344,7 +345,7 @@ working equivalents for each equipped project.
 | Rules and skills | Apply standing constraints and task-specific procedures | [Project rules](../.claude/rules/README.md) and [toolkit catalog](../docs/toolkit-map.md) |
 | Hooks | Deliver context, reminders, or guards at configured host events | [Hooks library](../plugins/hooks-library/README.md); subsystem hooks remain with [knowledge](../plugins/second-brain/README.md) and [System Guide](../plugins/system-guide/README.md) |
 | Guided work | Connect requests, plans, tasks, requirements, design, and review | [Session skills](../plugins/session-skills/README.md) |
-| Work tracking | Preserve the item's current position and outcome in the chosen tracker | [Project tracker](../CLAUDE.md#where-work-is-tracked) and [work-item instructions](../.claude/rules/work-item-stages.md); [local tracker](../plugins/work-tracker/README.md) when selected |
+| Work tracking | Preserve the item's current position and outcome in the chosen tracker | [Project tracker](../AGENTS.md#where-work-is-tracked) and [work-item instructions](../.claude/rules/work-item-stages.md); [local tracker](../plugins/work-tracker/README.md) when selected |
 | Project knowledge | Find and preserve qualifying project context across sessions | [Knowledge manual](knowledge-manual.md) |
 | System Guide, when enabled | Explain important existing parts and their relationships | [System Guide instructions](../plugins/system-guide/skills/system-guide/SKILL.md) |
 | Handoff | Carry unfinished work into another session | [Handoff](../plugins/session-skills/skills/handoff/SKILL.md) |

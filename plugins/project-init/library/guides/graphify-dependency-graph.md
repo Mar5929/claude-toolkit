@@ -41,13 +41,15 @@ Install all four or none.
 
    ```
    graphify install --platform claude   # copy the skill into Claude Code's config dir
-   # or, to add a graphify section plus a PreToolUse nudge to the project's CLAUDE.md:
+   # or, to add a graphify section plus a PreToolUse nudge to the project's instruction file:
    graphify claude install
    ```
 
    That skill is per machine, not per project. It makes the command easy to
    reach; it does not tell a session to prefer the graph over a text search.
-   Part 3 is what does that.
+   Part 3 is what does that. `graphify claude install` writes its section into
+   `CLAUDE.md`, so move that section into `AGENTS.md` afterwards and leave
+   `CLAUDE.md` as the one import line.
 
 2. **The gitignore entry.** `graphify-out/` is a build artifact, never a commit.
 

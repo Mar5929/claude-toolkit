@@ -17,7 +17,7 @@ This repo is where they accumulate instead. The loop:
 1. **Learn.** While working in any project, I find something worth keeping.
 2. **Store.** I open a Claude session in this repo and say some version of
    "I want every new project to also do X." The agent figures out where X
-   belongs in the toolkit and folds it in (`CLAUDE.md` tells agents exactly how).
+   belongs in the toolkit and folds it in (`AGENTS.md` tells agents exactly how).
 3. **Reuse.** When I spin up a new project, the `project-init` skill walks me
    through setup and brings everything in this toolkit with it. For projects
    that already exist, the `project-sync` skill audits them against the
@@ -51,7 +51,7 @@ written down somewhere. It gets fitted into the system:
 | A guard hook or automation | The [`hooks-library`](plugins/hooks-library/README.md) plugin. A hook does one of three jobs: check an output against a rule a machine can test with no interpretation, trigger a process at a moment agents forget, or orient a session at its start. If it needs none of those, it stays a rule. Voice is never one of them; the plugin's README carries the history of three attempts that were removed |
 | A whole reusable system | Its own plugin/skill that `project-init` offers |
 
-`CLAUDE.md` in this repo gives agents the full instructions for handling these
+`AGENTS.md` in this repo gives agents the full instructions for handling these
 requests.
 
 ---
@@ -86,12 +86,15 @@ system changes.
 ```
 claude-toolkit/
   README.md                       ← you are here: purpose and how it grows
-  CLAUDE.md                       ← instructions for agents working in this repo
+  AGENTS.md                       ← instructions for agents working in this repo
+  CLAUDE.md                       ← one line, @AGENTS.md, so Claude Code loads it
   .claude-plugin/
     marketplace.json              ← lists the plugins in this repo
   .agents/plugins/
     marketplace.json              ← Codex marketplace pointing at the same plugins
   plugins/
+    AGENTS.md                     ← how to work in plugins/, and where a new piece goes
+    CLAUDE.md                     ← one line, @AGENTS.md
     project-init/                 ← plugin: set up or sync a project, apply its
                                      file lifecycle, or synchronize machine policy
       README.md                   ← what this plugin is
@@ -111,9 +114,9 @@ claude-toolkit/
       skills/
         project-init/             ← SKILL.md + references/: the gate script only
                                      (setup-flow, work-tracking-choice,
-                                     work-items-structure, thin-claudemd,
+                                     work-items-structure, thin-agents-md,
                                      root-file-examples, toolkit-manual-delivery,
-                                     folder-claudemd, salesforce-project-scaffold)
+                                     folder-agents-md, salesforce-project-scaffold)
         project-sync/             ← SKILL.md (reads the same library/)
         work-item-lifecycle/      ← SKILL.md (applies the file lifecycle rule)
         machine-sync/             ← SKILL.md (reads machine/, applies approved Claude policy gaps and approved retired Codex cleanup)
@@ -209,10 +212,14 @@ claude-toolkit/
         unslop/                   ← strip the AI tells out of a draft and put a voice back
         unslop/                   ← strip the AI tells out of a draft and put a voice back
   docs/
+    AGENTS.md                     ← what docs/ holds: the catalog and the build plans
+    CLAUDE.md                     ← one line, @AGENTS.md
     toolkit-map.md                ← the catalog: every item and how they relate
     designs/                      ← the build plan for one work item, deleted
                                      once the PRD is brought current
   tests/
+    AGENTS.md                     ← the four checks and how to run them
+    CLAUDE.md                     ← one line, @AGENTS.md
     orphan-check.mjs              ← fails if the toolkit ships a file nothing points at
     link-check.mjs                ← fails if a Markdown link points at a file that is gone
     installed-copy-check.mjs      ← fails if a shipped file and the copy this repo runs differ
@@ -322,7 +329,8 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
 - [x] **General rules library**: the standard rules are now individual files in
   `project-init`'s `library/rules/general/` folder (with a `README.md` index),
   copied
-  into each project's `.claude/rules/` verbatim instead of retyped into CLAUDE.md.
+  into each project's `.claude/rules/` verbatim instead of retyped into the root
+  instruction file.
 - [x] **Voice: Plain English**.
   [Plain English](plugins/project-init/library/output-styles/README.md) is the
   toolkit's default style, and `Terse` ships beside it for replies built for

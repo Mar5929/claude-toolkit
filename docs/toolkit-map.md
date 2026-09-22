@@ -85,17 +85,19 @@ tested before the move.
 `plugins/project-init/skills/project-init/references/` is a different pile and
 holds only eight files: the gate-by-gate script `project-init` reads to run
 itself (`setup-flow.md`, `work-tracking-choice.md`, `work-items-structure.md`,
-`thin-claudemd.md`, `root-file-examples.md`, `toolkit-manual-delivery.md`,
-`folder-claudemd.md`, `salesforce-project-scaffold.md`). Nothing there is copied
+`thin-agents-md.md`, `root-file-examples.md`, `toolkit-manual-delivery.md`,
+`folder-agents-md.md`, `salesforce-project-scaffold.md`). Nothing there is copied
 into a project.
 
-`thin-claudemd.md` and `folder-claudemd.md` are a pair. The first says that the
-root `CLAUDE.md` is a router and a map (what the project is, what is in each
+`thin-agents-md.md` and `folder-agents-md.md` are a pair. The first says that the
+root `AGENTS.md` is a router and a map (what the project is, what is in each
 folder and when to open it, what tools it runs on, where work is tracked), what
-must never go in it, and that `AGENTS.md` is one pointer line. The second says
-what goes in the short `CLAUDE.md` inside each major folder, which Claude Code
-loads only when an agent reads a file in that folder. `project-sync` audits the
-folder files against the second one.
+must never go in it, and that the root `CLAUDE.md` is one line holding the
+import for `AGENTS.md`. `AGENTS.md` is the content file for both Claude Code and
+Codex. The second says what goes in the short `AGENTS.md` inside each major
+folder, which has its own one-line `CLAUDE.md` beside it. Claude Code loads that
+one-line file, and so the folder `AGENTS.md`, only when an agent reads a file in
+that folder. `project-sync` audits the folder files against the second one.
 
 Reusable hooks live in [`hooks-library`](../plugins/hooks-library/README.md),
 including the two Salesforce guards and the machine-wide Git-attribution guard.
@@ -440,8 +442,8 @@ The genuine watch-items are called out at the end.
   no knowledge rule. The third member of this cluster was
   `keep-claudemd-current`, removed on 2026-08-31: it spent words in every
   session on a file that `project-init` writes and `project-sync` audits, and
-  `thin-claudemd.md` now owns the CLAUDE.md structure at the moment the file is
-  written.
+  `thin-agents-md.md` now owns the root instruction file structure at the moment
+  the file is written.
 - **Voice belongs to the output style.** The toolkit ships `Plain English`, the
   default for project setup, and `Terse`, added in #389 and off by default for
   an owner who wants replies built for scanning. The
@@ -544,7 +546,7 @@ Answer from the canonical home, not from memory:
 
 This file is an index, so it drifts if a plugin or skill is added, removed, or
 renamed and the map is not updated. When you change a plugin, update its
-`README.md` and this map in the same change. `CLAUDE.md` records this as a
+`README.md` and this map in the same change. `AGENTS.md` records this as a
 standing rule for the repo.
 
 `tests/orphan-check.mjs` enforces the part of that rule a person forgets: every

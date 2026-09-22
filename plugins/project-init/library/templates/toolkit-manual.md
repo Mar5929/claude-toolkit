@@ -91,10 +91,11 @@ guard.
 
 ## Finding your way around this project
 
-Start with `AGENTS.md` when the host uses it, then follow its route to
-`CLAUDE.md`. The root instructions identify the project's actual folders,
-tools, quick-save locations, tracker, and enabled optional components. A
-folder's own instructions explain local conventions when work reaches it.
+Start with `AGENTS.md`, the project's instruction file for both hosts. Claude
+Code reaches it through the one-line `CLAUDE.md` beside it, which imports it.
+The root instructions identify the project's actual folders, tools, quick-save
+locations, tracker, and enabled optional components. A folder's own instructions
+explain local conventions when work reaches it.
 
 The main areas have different jobs:
 
@@ -105,7 +106,7 @@ The main areas have different jobs:
 - **Knowledge, when enabled:** `knowledge/knowledge-manual.md` owns detailed
   knowledge placement, trust, approval, and lifecycle policy. Requirements and
   lasting context use the homes named there.
-- **Work records and designs:** the tracker named in `CLAUDE.md` owns each
+- **Work records and designs:** the tracker named in `AGENTS.md` owns each
   item's current record. Its linked design location holds build plans when the
   project uses separate design files.
 - **System Guide, when enabled:** its configured guide path explains useful
@@ -275,11 +276,11 @@ skills or plugins.
 | Rules and skills | Apply standing constraints and task procedures | `.claude/rules/` and installed skills |
 | Hooks | Deliver context, reminders, or guards at configured events | Configured hook and its owning component |
 | Guided work | Connect requests, plans, tasks, requirements, design, and review | Session skills |
-| Work tracking | Preserve current position and outcome | Tracker named in `CLAUDE.md`; work plugin when selected |
+| Work tracking | Preserve current position and outcome | Tracker named in `AGENTS.md`; work plugin when selected |
 | Project knowledge, when enabled | Find and preserve qualifying project context | `knowledge/knowledge-manual.md` |
 | System Guide, when enabled | Explain existing parts and relationships | Configured System Guide skill and guide path |
 | Handoff | Carry unfinished work to another session | `handoff` skill when available |
-| Documentation publication | Publish authorized documentation through the project route | Quick saves rule named in `CLAUDE.md` |
+| Documentation publication | Publish authorized documentation through the project route | Quick saves rule named in `AGENTS.md` |
 
 Detailed schemas, save formats, tracker commands, hook protocols, and subsystem
 maintenance procedures remain in their owning instructions.

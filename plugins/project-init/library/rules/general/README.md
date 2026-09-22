@@ -1,15 +1,15 @@
 # General project rules library
 
 Reusable `.claude/rules/` files that the owner wants in every project,
-regardless of stack. During `project-init` Gate 5 (CLAUDE.md), copy the selected
-files into the new project's `.claude/rules/` folder, and write a thin CLAUDE.md
+regardless of stack. During `project-init` Gate 5 (AGENTS.md), copy the selected
+files into the new project's `.claude/rules/` folder, and write a thin AGENTS.md
 that points at that folder. Each rule is a standalone file, same model as the
 `../salesforce/` library.
 
-Keep the behavioral rules in these files, not inside CLAUDE.md. CLAUDE.md is a
+Keep the behavioral rules in these files, not inside AGENTS.md. AGENTS.md is a
 router and a map: what the project is, what is in each folder and when to open
 it, what tools the project runs on, where work is tracked, and a line telling
-every session to read `.claude/rules/`. See `thin-claudemd.md` in the
+every session to read `.claude/rules/`. See `thin-agents-md.md` in the
 `project-init` skill for the structure Gate 5 writes.
 
 ## Default ON: copy into every project unless the owner opts out
@@ -110,7 +110,7 @@ the owner.
 | `track-open-topics.md` | Required a running session task list of every unresolved topic. | Claude Code's built-in task list is used when it helps. It did not need a standing rule spending words in every session to say so. |
 | `honest-verification.md` | Said not to claim more than you verified, and to report failures with their output. | The owner dropped it from this repository first, then from the toolkit on 2026-08-31. Claude Code's own system prompt already tells an agent to report outcomes faithfully, so the rule was paying for an instruction the harness delivers anyway. |
 | `do-the-technical-work.md` | Said to do the git, config, deploy, and file work yourself, and to hand the owner only the steps that are genuinely theirs. | Removed with `honest-verification.md` on 2026-08-31, for the same reason. The behavior it asked for is already the default an agent is given. |
-| `keep-claudemd-current.md` | Said what `CLAUDE.md` and `AGENTS.md` are for, gave three tests for keeping lines out, and told a session to update the file when it surfaced a new path or convention. | Removed on 2026-08-31. It spent words in every session on a file that gets rewritten during `project-init` and audited during `project-sync`. `thin-claudemd.md` in the `project-init` skill is now the only home for the CLAUDE.md structure, and it is read at the moment the file is actually written. |
+| `keep-claudemd-current.md` | Said what `CLAUDE.md` and `AGENTS.md` are for, gave three tests for keeping lines out, and told a session to update the file when it surfaced a new path or convention. | Removed on 2026-08-31. It spent words in every session on a file that gets rewritten during `project-init` and audited during `project-sync`. `thin-agents-md.md` in the `project-init` skill is now the only home for the root instruction file's structure, and it is read at the moment the file is actually written. |
 
 One more rule was kept but cut hard in the same change:
 `parallel-agent-sessions.md`. Its instructions are unchanged. What went was the

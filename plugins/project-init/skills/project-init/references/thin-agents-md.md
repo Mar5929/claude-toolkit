@@ -1,6 +1,6 @@
-# Writing CLAUDE.md and AGENTS.md (Gate 5)
+# Writing AGENTS.md and CLAUDE.md (Gate 5)
 
-## What CLAUDE.md is
+## What AGENTS.md is
 
 A router and a map. It answers five questions and nothing else:
 
@@ -18,8 +18,8 @@ Source: https://code.claude.com/docs/en/memory
 
 ## What goes in it, in this order
 
-1. The two fixed lines above the title, verbatim: the self-check instruction
-   and the continuity instruction. Both are quoted below.
+1. The fixed line above the title, verbatim: the continuity instruction. It is
+   quoted below.
 2. Title, and one line saying what the project is.
 3. `Read .claude/rules first.`
 4. The Toolkit operating-manual route below.
@@ -57,13 +57,10 @@ Source: https://code.claude.com/docs/en/memory
 - **Current status, next action, or open work.** The tracker owns that.
 - **What `knowledge/` contains.** Its `knowledge-manual.md` owns that.
 
-## The fixed lines above the title
+## The fixed line above the title
 
-Copy each exactly. They are the owner's wording, on one line each, and they are
-not to be reworded, shortened, or repunctuated.
-
-> After you generate your response. Simulate the user saying "Huh? What are you
-> saying?". Then regenerate your response based on that.
+Copy it exactly. It is the owner's wording, and it is not to be reworded,
+shortened, or repunctuated.
 
 > Always execute work with the context in mind that the user will likely
 > continue work across multiple AI coding sessions where the session context is
@@ -78,7 +75,7 @@ session.` When project knowledge is installed, its startup hook already requests
 
 ## The Toolkit operating-manual route
 
-Every equipped project uses this short route in `CLAUDE.md`:
+Every equipped project uses this short route in `AGENTS.md`:
 
 > Read `knowledge/toolkit-manual.md` completely during the first project
 > orientation and after resume, clear, or compaction, and follow it throughout
@@ -108,13 +105,13 @@ into the root file. `knowledge/knowledge-manual.md` owns those.
 
 ## The System Guide fallback route
 
-When `.system-guide.json` is enabled, add this one line to `CLAUDE.md` exactly:
+When `.system-guide.json` is enabled, add this one line to `AGENTS.md` exactly:
 
 > When .system-guide.json is enabled, use the System Guide plugin's system-guide skill for questions or work about existing system structure, purpose, connections, or impact.
 
 The System Guide plugin owns its Claude startup status and all detailed guide
 policy. This line is the shared discovery fallback for Claude and Codex. Put it
-once in `CLAUDE.md`; `AGENTS.md` already sends Codex there.
+once in `AGENTS.md`, which is the file both hosts read.
 
 ## Quick saves
 
@@ -141,24 +138,36 @@ owns approval, eligibility, commands, and conflict handling. A path is a route,
 not permission to publish every file inside it. Behavior-bearing Markdown and
 inseparable implementation changes keep their implementation workflow.
 
-## AGENTS.md
+## CLAUDE.md
 
 One line, and nothing else:
 
 ```
-Read CLAUDE.md in this folder and follow it.
+@AGENTS.md
 ```
 
-Codex reads `AGENTS.md` and expands no import syntax, so `@CLAUDE.md` would sit
-there as literal text. A plain instruction to open a file is what it follows.
+That line is an import. Claude Code expands it and reads `AGENTS.md` through it,
+on every version of Claude Code and in every kind of session, including the ones
+that never read `AGENTS.md` on their own. Codex reads `AGENTS.md` by itself and
+never reads `CLAUDE.md`. The content sits in one file, and Claude reads it once,
+not twice.
 
-Never create a nested `AGENTS.md`.
+Three rules go with the pair:
+
+- `AGENTS.md` never contains an `@path` import line. Codex expands no imports, so
+  an import line reaches it as literal text. Ordinary Markdown links and
+  backticked paths are safe for both hosts.
+- Never create `AGENTS.override.md` or `AGENTS.local.md`. Claude Code reads
+  neither, and Codex prefers `AGENTS.override.md` over `AGENTS.md` and then
+  ignores `AGENTS.md` in that folder.
+- Never create an instruction file under `.agents/`. Neither host reads one.
 
 ## Keeping them current
 
-When a path, tool, tracker, or startup route changes, update `CLAUDE.md` in the
+When a path, tool, tracker, or startup route changes, update `AGENTS.md` in the
 same change. Delete what is now wrong or said twice while you are in there.
-`AGENTS.md` never changes, because it holds nothing that can go out of date.
+`CLAUDE.md` never changes, because it holds nothing that can go out of date.
 
 `root-file-examples.md` has a finished pair to write against.
-`folder-claudemd.md` covers the short `CLAUDE.md` inside each folder.
+`folder-agents-md.md` covers the short `AGENTS.md`, and its one-line
+`CLAUDE.md`, inside each folder.

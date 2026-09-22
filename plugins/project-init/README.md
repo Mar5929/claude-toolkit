@@ -34,14 +34,14 @@ guidance through its approved sync, preserving local edits and explicit opt-outs
   3. Two independent choices: the optional System Guide for existing-system
      explanations, and the packaged project knowledge system
   4. Optional mechanical knowledge aids
-  5. An optional owner-written SOUL.md, plus CLAUDE.md, AGENTS.md,
+  5. An optional owner-written SOUL.md, plus AGENTS.md, CLAUDE.md,
      `.claude/rules/`, and the toolkit's Plain English output style
   6. Optional standalone toolkit skills, offered from the `session-skills` plugin
   It asks before acting, recommends a per-stack layout, and copies in the
   standard rule files that every agent receives through `.claude/rules/`.
   Every equipped project also receives `knowledge/toolkit-manual.md`, the shared
   workflow manual, with a short complete-read route in its root instructions.
-  The root `CLAUDE.md` also gets a short Quick saves table for the systems the
+  The root `AGENTS.md` also gets a short Quick saves table for the systems the
   project selected. Project knowledge points to its approved direct-to-default-
   branch save rule; local `.work-items/` points to its shared Git-ignored
   tracker workflow. Unconfigured systems get no row.
@@ -166,19 +166,19 @@ project:
   computer" answer. Installs the nested-capable, Git-ignored work-tracker, enforces
   owner-approved requirements, and previews conversion before copying an older
   staged tracker.
-- `thin-claudemd.md`: how Gate 5 writes a CLAUDE.md that is a router and a map
+- `thin-agents-md.md`: how Gate 5 writes an AGENTS.md that is a router and a map
   (what the project is, what is in each folder and when to open it, what tools
   it runs on, where work is tracked), what never goes in it, and the one line
-  that is the whole of `AGENTS.md`.
-- `root-file-examples.md`: a complete example of the root `CLAUDE.md` router
-  and its one-line `AGENTS.md` companion.
+  that is the whole of `CLAUDE.md`.
+- `root-file-examples.md`: a complete example of the root `AGENTS.md` router
+  and its one-line `CLAUDE.md` companion.
 - `toolkit-manual-delivery.md`: how setup installs the shared Toolkit manual,
   connects its root fallback and startup hook, and verifies each delivery
   layer separately.
-- `folder-claudemd.md`: the short CLAUDE.md Gate 1 writes inside each major
-  folder, which Claude Code loads only when an agent reads a file in that
-  folder. What goes in one, what never does, which folders get one, and which
-  are skipped.
+- `folder-agents-md.md`: the short AGENTS.md, and the one-line CLAUDE.md beside
+  it, that Gate 1 writes inside each major folder. Claude Code loads the pair
+  only when an agent reads a file in that folder. What goes in one, what never
+  does, how each host reads it, which folders get one, and which are skipped.
 - `salesforce-project-scaffold.md`: the standard Gate 1 folder layout for a
   Salesforce / SFDX project.
 
@@ -211,13 +211,13 @@ plugin.
   existing project guidance, without copying skills or requiring a new file.
   The plugin remains their canonical home; host availability is checked.
 - Gate 1 asks where work items are tracked. Gate 5 writes a one-line pointer in
-  `CLAUDE.md` and `AGENTS.md` naming that tracker, so every session knows where
-  the work lives. No rule about ticket quality ships with it: the rule that used
+  `AGENTS.md` naming that tracker, so every session knows where the work
+  lives. No rule about ticket quality ships with it: the rule that used
   to, `spec-before-you-build.md`, was removed from the toolkit on 2026-08-31.
 - Gate 5 installs no general knowledge rule. Projects that accept Gate 3 receive
   `knowledge/knowledge-manual.md` as the one routing and operating manual; projects that
   decline it receive no knowledge policy.
-- An enabled System Guide adds one shared discovery line to `CLAUDE.md`; the
+- An enabled System Guide adds one shared discovery line to `AGENTS.md`; the
   System Guide plugin owns its configured Claude startup status and guide
   policy. `project-sync` reads `.system-guide.json`, required guide files, and
   active project plugin selection before reporting it on, off, or needing

@@ -8,6 +8,11 @@ import { basename, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const TOOLKIT_MANUAL = "knowledge/toolkit-manual.md";
+// AGENTS.md holds the project instructions. The CLAUDE.md beside it is one
+// import line, which is how Claude Code versions that do not read AGENTS.md
+// natively still receive it. Codex reads AGENTS.md and never CLAUDE.md.
+export const ROOT_INSTRUCTIONS = "AGENTS.md";
+const CLAUDE_MD_IMPORT = "@AGENTS.md";
 
 function fileState(root, path) {
   try {
@@ -17,17 +22,27 @@ function fileState(root, path) {
   }
 }
 
+function fileText(root, path) {
+  try {
+    return readFileSync(resolve(root, path), "utf8");
+  } catch {
+    return null;
+  }
+}
+
 export function toolkitOrientation(root, event = "SessionStart") {
   const manualState = fileState(root, TOOLKIT_MANUAL);
-  const claudeState = fileState(root, "CLAUDE.md");
-  const roots = ["AGENTS.md", "CLAUDE.md"].filter((path) => fileState(root, path) === "available");
+  const rootState = fileState(root, ROOT_INSTRUCTIONS);
+  const claudeText = fileText(root, "CLAUDE.md");
   const messages = [];
   if (event === "UserPromptSubmit") {
-    messages.push("Toolkit workflow reminder: use the applicable project-root AGENTS.md/CLAUDE.md chain and knowledge/toolkit-manual.md. Follow the selected components' own instructions; reread missing guidance after context loss.");
+    messages.push(`Toolkit workflow reminder: use the applicable project-root ${ROOT_INSTRUCTIONS} and knowledge/toolkit-manual.md. Follow the selected components' own instructions; reread missing guidance after context loss.`);
   } else {
+    messages.push("Toolkit session orientation. Paths below are relative to the project root containing this installed .claude/hooks script.");
+    if (rootState === "available") {
+      messages.push(`Read the project's ${ROOT_INSTRUCTIONS} and follow it.`);
+    }
     messages.push(
-      "Toolkit session orientation. Paths below are relative to the project root containing this installed .claude/hooks script.",
-      roots.length ? `Read the applicable root instruction chain: ${roots.join(" -> ")}.` : "Required root guidance is missing, empty, or unreadable: AGENTS.md / CLAUDE.md. Report the gap.",
       `Read all of ${TOOLKIT_MANUAL} before starting work, including after resume, clear, or compaction.`,
       "A truncated preview or saved-output path is not a complete read. Continue with bounded file chunks until every section has been read; if content cannot be read, report the gap before claiming readiness.",
       "After the required reads, briefly acknowledge receipt and intent to follow the workflows. A hook running or a file existing does not establish that you read it.",
@@ -37,8 +52,10 @@ export function toolkitOrientation(root, event = "SessionStart") {
   if (manualState !== "available") {
     messages.push(`Required Toolkit manual is ${manualState}: ${TOOLKIT_MANUAL}. Report this gap; project-init/project-sync owns repair. Do not claim the orientation was read or recreate its policy from memory.`);
   }
-  if (claudeState !== "available" && roots.includes("AGENTS.md")) {
-    messages.push(`The Toolkit root chain is incomplete: CLAUDE.md is ${claudeState}. AGENTS.md does not replace its target; report the gap before claiming readiness.`);
+  if (rootState !== "available") {
+    messages.push(`Required root guidance is missing, empty, or unreadable: ${ROOT_INSTRUCTIONS}. Report the gap.`);
+  } else if (claudeText !== null && claudeText.trim() !== CLAUDE_MD_IMPORT) {
+    messages.push(`CLAUDE.md should hold the single line ${CLAUDE_MD_IMPORT}, so that Claude Code reads ${ROOT_INSTRUCTIONS}. Report the gap.`);
   }
   return messages.join("\n") + "\n";
 }
@@ -64,7 +81,7 @@ if (process.argv[1] && canonical(scriptPath) === canonical(process.argv[1])) {
     const root = process.env.CLAUDE_PROJECT_DIR || installedProjectRoot(scriptPath);
     process.stdout.write(toolkitOrientation(root, event));
   } catch {
-    process.stdout.write("Toolkit orientation could not be prepared. Read the project's root instruction chain and knowledge/toolkit-manual.md directly; report any unavailable required guidance.\n");
+    process.stdout.write(`Toolkit orientation could not be prepared. Read the project's ${ROOT_INSTRUCTIONS} and knowledge/toolkit-manual.md directly; report any unavailable required guidance.\n`);
   }
   process.exitCode = 0;
 }

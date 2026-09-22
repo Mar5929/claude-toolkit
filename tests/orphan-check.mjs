@@ -13,7 +13,7 @@
  * The rule: every shipped file must be named by at least one index document.
  * An index document is one of:
  *
- *   README.md, CLAUDE.md, docs/toolkit-map.md
+ *   README.md, AGENTS.md, docs/toolkit-map.md
  *   plugins/<plugin>/README.md
  *   plugins/<plugin>/skills/<skill>/SKILL.md
  *   any references/setup-flow.md
@@ -68,7 +68,9 @@ function isExempt(path) {
 }
 
 function isIndexDocument(path) {
-  if (path === "README.md" || path === "CLAUDE.md") return true;
+  // The root AGENTS.md holds the codemap. The CLAUDE.md beside it is one
+  // import line and names nothing, exactly as a folder CLAUDE.md never did.
+  if (path === "README.md" || path === "AGENTS.md") return true;
   if (path === "docs/toolkit-map.md") return true;
   if (path.endsWith("/SKILL.md")) return true;
   if (path.endsWith("/README.md")) return true;

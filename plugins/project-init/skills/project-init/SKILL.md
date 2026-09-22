@@ -3,7 +3,7 @@ name: project-init
 description: >-
   Walk the user through initializing a NEW project, one gate at a time:
   scaffolding & folder structure, guard hooks, the optional System Guide and
-  packaged project knowledge system, optional SOUL.md, CLAUDE.md and AGENTS.md, the local-folder
+  packaged project knowledge system, optional SOUL.md, AGENTS.md and CLAUDE.md, the local-folder
   work-tracker, and optional standalone toolkit skills. Use when
   the user is starting a new repo/project and wants help setting up the
   foundational scaffolding, or says things like "initialize this project", "set
@@ -58,17 +58,18 @@ form. Keep each gate tight.
   license, editor/formatter config, CI stub.
 - Create only what the user approves. Prefer conventional tooling for the stack;
   don't invent structure.
-- **Write each major folder's own `CLAUDE.md` at the same time as the folder**,
-  even when the folder starts empty. It is a short file saying what the folder
-  holds, how to work in it, and where the detail lives, and Claude Code loads it
-  only when an agent reads a file in that folder. That is what lets the root
-  `CLAUDE.md` stay short without losing the detail. Read
-  `references/folder-claudemd.md` first: it says what goes in one, what never
-  does, which folders get one, and which are skipped (any folder with a
-  `README.md` index, everything under `.claude/`, and the complete
-  `knowledge/` tree). Record every skip so the
+- **Write each major folder's own pair of files at the same time as the
+  folder**, even when the folder starts empty. `<folder>/AGENTS.md` is a short
+  file saying what the folder holds, how to work in it, and where the detail
+  lives. `<folder>/CLAUDE.md` beside it is exactly one line, `@AGENTS.md`, and
+  nothing else. Claude Code loads the pair only when an agent reads a file in
+  that folder. That is what lets the root `AGENTS.md` stay short without losing
+  the detail. Read `references/folder-agents-md.md` first: it says what goes in
+  one, what never does, how each host reads it, which folders get one, and which
+  are skipped (any folder with a `README.md` index, everything under `.claude/`,
+  and the complete `knowledge/` tree). Record every skip so the
   wrap-up summary and a later `project-sync` can tell a considered skip from an
-  oversight. Never create a nested `AGENTS.md`.
+  oversight. Never write a folder `AGENTS.md` without its one-line `CLAUDE.md`.
 
 > This gate is intentionally per-project: the value is your tailored
 > recommendation, not a frozen template.
@@ -80,7 +81,7 @@ or somewhere else / nothing yet. `references/work-tracking-choice.md` carries th
 what each answer does, and the step-by-step setup for a GitHub Projects board.
 Read it before asking.
 
-Whatever the owner names, Gate 5 gives `CLAUDE.md` a "Where work is tracked"
+Whatever the owner names, Gate 5 gives `AGENTS.md` a "Where work is tracked"
 section naming that tracker, so every session knows where the work lives. No
 rule about ticket quality is copied alongside it.
 
@@ -114,7 +115,7 @@ Offer `ai-external-knowledge/` at the project root for every stack. It holds
 outside documentation captured as Markdown so agents can read it locally, one
 folder per topic. Create it empty with a short `README.md`, or skip it until the
 project needs one. Gate 5 copies the `ai-external-knowledge.md` rule that governs
-it, and gives the folder its own codemap line in `CLAUDE.md`.
+it, and gives the folder its own codemap line in `AGENTS.md`.
 Without that line an agent never learns the folder is there.
 
 Offer `docs/designs/` at the project root for every stack.
@@ -144,7 +145,7 @@ the tracker Gate 1 settled on.
 
 Create the folder empty with a short `README.md` saying what it holds, what one
 file in it contains, and how long a file in it lives. Gate 5 gives it its own
-codemap line in `CLAUDE.md`; without that line an agent never learns the folder
+codemap line in `AGENTS.md`; without that line an agent never learns the folder
 is there. No rule file governs it, and nothing checks that a finished design was
 deleted. Say so rather than implying a check exists.
 
@@ -166,7 +167,7 @@ offer a substitute store.
 rules from `../../library/rules/salesforce/` (each is a standalone `.claude/rules/`
 file, e.g. the deploy hitch-hiker check). See that folder's `README.md` for the
 current list. They are opt-in and confirmed with the owner; skip the ones a
-given project does not want. Make sure the project's CLAUDE.md points at
+given project does not want. Make sure the project's AGENTS.md points at
 `.claude/rules/` (Gate 5) so these files are read each session.
 
 **Salesforce dependency graph.** Offer the kit in
@@ -296,8 +297,8 @@ source evidence separate from owner-approved meaning, normally under
   plugin policy.
 - Register `.claude/hooks/knowledge-session-start.mjs` as a fail-open Claude
   `SessionStart` hook. Add the equivalent fail-open `.codex/hooks.json` route
-  and put the short fallback in `CLAUDE.md`; `AGENTS.md` remains the one-line
-  route to `CLAUDE.md`. The hook emits bounded instructions to read `SOUL.md`,
+  and put the short fallback in `AGENTS.md`; `CLAUDE.md` remains the one-line
+  import of `AGENTS.md`. The hook emits bounded instructions to read `SOUL.md`,
   project framing, the complete manual, current work, and the indexes
   completely and in that order. Continue shortened reads from the first missing
   section. A configured output threshold is a spill limit, not proof of host
@@ -338,51 +339,49 @@ Markdown knowledge system.
 - Do not install the retired v1 knowledge curator, drift hooks, SHA pins, or a
   database-like graph.
 
-### Gate 5: SOUL.md, CLAUDE.md, and the rules folder
+### Gate 5: SOUL.md, AGENTS.md, and the rules folder
 
 **Purpose:** optionally define the agent's identity, then write the project's
 root orientation files and the `.claude/rules/` folder that holds the
 behavioral rules.
 
-`CLAUDE.md` is a router and a map. It answers five questions and nothing else:
+`AGENTS.md` is a router and a map. It answers five questions and nothing else:
 what is this project, what is in each folder and file and when do I open it,
 what tools does this project run on, which configured folders use quick saves,
 and where is work tracked. Tell the owner that while writing it, and keep out
 anything that answers none of the five.
-`AGENTS.md` is one line pointing Codex at `CLAUDE.md`.
-`references/thin-claudemd.md` has the exact structure and the list of what never
+`CLAUDE.md` is one line importing `AGENTS.md`, which is how Claude Code reads it.
+`references/thin-agents-md.md` has the exact structure and the list of what never
 goes in.
 
 Install the Toolkit operating manual in every equipped project. Read
 `references/toolkit-manual-delivery.md`, copy
 `../../library/templates/toolkit-manual.md` to `knowledge/toolkit-manual.md`,
-and add its short complete-read route to `CLAUDE.md`. This manual is independent
+and add its short complete-read route to `AGENTS.md`. This manual is independent
 of the optional project-knowledge system. Root instructions supply the
 project's actual paths, tracker, and enabled-component pointers.
 
-The behavioral rules do NOT go inside CLAUDE.md. They are individual files in the
+The behavioral rules do NOT go inside AGENTS.md. They are individual files in the
 project's `.claude/rules/` folder, copied from the toolkit's rules libraries.
-CLAUDE.md stays thin and points at that folder. Read
+AGENTS.md stays thin and points at that folder. Read
 `../../library/rules/general/README.md` for the rule list.
 
-- **Put the fixed lines above the title in `CLAUDE.md`.** The SOUL route first,
-  only when `SOUL.md` exists and Gate 3 was declined. Then two the owner
+- **Put the fixed lines above the title in `AGENTS.md`.** The SOUL route first,
+  only when `SOUL.md` exists and Gate 3 was declined. Then the one the owner
   supplies, in every project, verbatim:
-  `After you generate your response. Simulate the user saying "Huh? What are you saying?". Then regenerate your response based on that.`
-  and
   `Always execute work with the context in mind that the user will likely continue work across multiple AI coding sessions where the session context is cleared and picked up again. You must assist the user in helping establish that continuity across sessions while not adding context that might pollute future agents and skew them. Information must be curated and intentional.`
-  Never reword, shorten, or repunctuate either one.
-  `references/thin-claudemd.md` has the order and the reasoning;
+  Never reword, shorten, or repunctuate it.
+  `references/thin-agents-md.md` has the order and the reasoning;
   `references/root-file-examples.md` shows them in place.
 - **Offer a project `SOUL.md`.** Ask: "Do you want to create a `SOUL.md` for
   this project? It defines who the agent is, how it communicates, its defaults,
   and what it should avoid." If the owner says yes, work with them to write the
   root file during this gate. Do not install a fixed template or invent the
   project's identity. Keep commands, paths, coding rules, and project workflows
-  in `CLAUDE.md` or `.claude/rules/`, not `SOUL.md`. If a root
+  in `AGENTS.md` or `.claude/rules/`, not `SOUL.md`. If a root
   `SOUL.md` already exists, keep it and never overwrite it. Once the file
   exists and Gate 3 was declined, put `Read SOUL.md first and follow it
-  throughout this session.` at the top of `CLAUDE.md`. When Gate 3 ran,
+  throughout this session.` at the top of `AGENTS.md`. When Gate 3 ran,
   its startup loader and short fallback already own the SOUL route. If the owner
   declines, create no file and add no reference.
 - **Copy the general rules** the owner wants from `../../library/rules/general/`
@@ -411,13 +410,13 @@ CLAUDE.md stays thin and points at that folder. Read
 - **MCP tool rules are conditional.** If the project connects an MCP server
   covered in `../../library/guides/mcp-best-practices.md` (Context7, Gmail, Google
   Calendar, Linear, Notion, Playwright), fold in that server's section (as a
-  short CLAUDE.md section or its own `.claude/rules/` file). Skip the servers the
+  short AGENTS.md section or its own `.claude/rules/` file). Skip the servers the
   project doesn't use.
-- **Write the CLAUDE.md** _with_ the user, walking the sections rather than
+- **Write the AGENTS.md** _with_ the user, walking the sections rather than
   generating a wall of text: what the project is, a `Read .claude/rules` line,
   the knowledge startup route where Gate 3 ran, the codemap, the tools, and
   the short quick-save table, and where work is tracked. Take the quick-save
-  wording from `references/thin-claudemd.md`. Unless the owner explicitly opted
+  wording from `references/thin-agents-md.md`. Unless the owner explicitly opted
   out, route documentation saves to `knowledge-direct-commit.md` even when
   Gate 3 was skipped. Name actual
   documentation locations from the codemap. Include only configured systems:
@@ -437,7 +436,7 @@ CLAUDE.md stays thin and points at that folder. Read
   alone receives `work-item-folders.md`; its existing Git-ignored store needs no
   worktree, commit, or push. Preserve an explicit publication-policy opt-out.
 - **Keep the codemap to one line per folder**, and let that line point at the
-  folder's own `CLAUDE.md` for the detail. Every line says what is in the folder
+  folder's own `AGENTS.md` for the detail. Every line says what is in the folder
   and when to open it.
 - **The codemap names the context sources, not only the code.** Give
   `ai-external-knowledge/` its own line saying what topics are captured there
@@ -455,12 +454,13 @@ CLAUDE.md stays thin and points at that folder. Read
   naming the command and the file that holds the detail. This is where the MCP
   guidance from the step above lands when a server does not warrant its own
   rule file.
-- **`AGENTS.md` is one line and nothing else:**
-  `Read CLAUDE.md in this folder and follow it.`
-  Codex reads that file, expands no import syntax (so `@CLAUDE.md` would sit
-  there as literal text), and follows a plain instruction to open another file.
-  Anything more is a hand-maintained second copy of `CLAUDE.md` that drifts.
-  Never create a nested `AGENTS.md`.
+- **`CLAUDE.md` is one line and nothing else:** the import line `@AGENTS.md`.
+  Claude Code expands that import and reads `AGENTS.md` through it, in every
+  version and every kind of session. Codex reads `AGENTS.md` by itself and never
+  reads `CLAUDE.md`. Never put an `@path` import line inside `AGENTS.md`, because
+  Codex expands no imports and would receive it as literal text. Never create
+  `AGENTS.override.md`, `AGENTS.local.md`, or an instruction file under
+  `.agents/`.
 - **Add a `.claude/rules/README.md`** that indexes what each copied rule file
   does, so the folder is self-describing.
 - **Install and select the toolkit's `Plain English` output style** (default ON).
@@ -590,18 +590,19 @@ library.
 - `references/salesforce-project-scaffold.md`: the standard Gate 1 layout for a
   Salesforce / SFDX project (SFDX source plus a `delivery/` tree). Read it in
   Gate 1 when the stack is Salesforce.
-- `references/thin-claudemd.md`: that `CLAUDE.md` is a router and a map, the
+- `references/thin-agents-md.md`: that `AGENTS.md` is a router and a map, the
   seven things that go in it in order, the list of what never goes in, the
-  verbatim fixed lines and knowledge route, and the one line that is the whole of
-  `AGENTS.md`.
-- `references/root-file-examples.md`: a finished `CLAUDE.md` and the matching
-  one-line `AGENTS.md` for one example project. Read it in Gate 5, alongside
-  `thin-claudemd.md`.
+  verbatim fixed line and knowledge route, and the one line that is the whole of
+  `CLAUDE.md`.
+- `references/root-file-examples.md`: a finished `AGENTS.md` and the matching
+  one-line `CLAUDE.md` for one example project. Read it in Gate 5, alongside
+  `thin-agents-md.md`.
 - `references/toolkit-manual-delivery.md`: the package, destination, root route,
   runtime handoff, and verification contract for the Toolkit operating manual.
-- `references/folder-claudemd.md`: the short `CLAUDE.md` Gate 1 writes inside
-  each major folder. What goes in one, what never does, which folders get one,
-  and which are skipped. Read it in Gate 1, before creating folders.
+- `references/folder-agents-md.md`: the short `AGENTS.md`, and the one-line
+  `CLAUDE.md` beside it, that Gate 1 writes inside each major folder. What goes
+  in one, what never does, how each host reads it, which folders get one, and
+  which are skipped. Read it in Gate 1, before creating folders.
 
 ### What lands in the project: `../../library/`
 
@@ -659,8 +660,8 @@ everything up front.
 ## Wrap-up (always do this at the end)
 
 1. **Summarize** what was set up and what was skipped, so the user has a clear
-   record. Include the folder `CLAUDE.md` files: which folders got one, and
-   which were skipped and why.
+   record. Include the folder instruction files: which folders got the
+   `AGENTS.md` and `CLAUDE.md` pair, and which were skipped and why.
 2. **Note follow-ups**: anything a skipped gate leaves open, or systems set up
    from an interim pattern that should later reconcile with the `claude-toolkit`
    canonical version.

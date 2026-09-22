@@ -30,7 +30,7 @@ document disagree, this document wins and the disagreement is stated out loud.
 
 | Part | What it covers | Child PRD | Status |
 | --- | --- | --- | --- |
-| Folder instruction files | Every major folder in a toolkit project carries its own short CLAUDE.md unless another canonical file already owns its instructions, so folder detail reaches an agent when it opens that folder instead of loading in every session. | [folder-instruction-files.md](folder-instruction-files.md) | current |
+| Folder instruction files | Every major folder in a toolkit project carries its own short AGENTS.md unless another canonical file already owns its instructions, so folder detail reaches an agent when it opens that folder instead of loading in every session. | [folder-instruction-files.md](folder-instruction-files.md) | current |
 | Guided delivery | Guided delivery lets the owner focus on decisions while the main conversation maintains adaptable plans and brings in focused requirements, design, research, and review help using the project's existing records. | [guided-delivery.md](guided-delivery.md) | current |
 | Guided work management | The agent offers to organize and guide work from the initial idea through delivery, keeping shared plans and records current while the owner makes decisions and gives approvals. | [guided-work-management.md](guided-work-management.md) | proposed |
 | Knowledge system | What the project second brain must do. Every new session already knows what has been going on in this project. Saving something worth keeping takes one short yes from the owner. | [knowledge-system.md](knowledge-system.md) | proposed |
@@ -81,7 +81,7 @@ it and that component's own record is updated.
 - Settled 2026-09-10: projects must identify folders that get frictionless
   updates. Knowledge files go straight to main and are pushed, even while
   implementation is in a worktree. Local work items stay in their untracked
-  store. The installed `CLAUDE.md` must make these save routes easy to find.
+  store. The installed `AGENTS.md` must make these save routes easy to find.
 
 Sources: [toolkit purpose](../../../README.md), [project role](../../../SOUL.md),
 [project boundaries](../../project.md), [guided delivery](guided-delivery.md),
@@ -176,7 +176,8 @@ another session is still running.
 
 On the first session startup, give the agent a short project-applicable toolkit
 orientation. It must direct the agent through the applicable root instruction
-chain (`CLAUDE.md` or `AGENTS.md`) to the higher-level operating guidance, so
+chain, starting at the root instruction file (`AGENTS.md`, read by Claude Code
+through the one-line `CLAUDE.md` import), to the higher-level operating guidance, so
 the agent understands the toolkit's purpose, high-level folder responsibilities,
 work tracking, linked procedures, knowledge continuity, and where updates
 belong. The agent acknowledges that it received and read the orientation and
@@ -186,7 +187,7 @@ missing, it reports that gap instead of giving a false acknowledgment.
 Every project equipped with the toolkit must receive a Toolkit Operating System
 manual. Mike explicitly required this on 2026-09-17. The applicable root routers
 and per-prompt reminder reference it by its actual project-root-relative path,
-along with the applicable `CLAUDE.md` and `AGENTS.md` paths. The manual explains
+along with the applicable `AGENTS.md` path. The manual explains
 the toolkit's project workflows and links to component guidance. Scoped delivery
 shipped in [PR #363](https://github.com/Mar5929/claude-toolkit/pull/363): a
 packaged project-specific manual plus setup, sync, root-fallback, startup, and
@@ -608,7 +609,7 @@ the project's designated design location. The broader PRD remains proposed.
 
 **R25. Make each project's quick-save locations clear from the start.** The
 agent must know which files or folders receive frictionless updates without Mike naming
-them again. The installed project `CLAUDE.md` must identify those locations and
+them again. The installed project `AGENTS.md` must identify those locations and
 point to the instructions that own their save behavior. Keep that pointer
 short; do not duplicate the full rule or procedure there. Setup supplies it
 and project sync brings it to existing projects.
@@ -876,6 +877,8 @@ reasoning after a work item closes under decision D21, are the next two steps.
 
 ### Recorded notes
 
+- 2026-09-22: instruction-file names updated for issue #388 (AGENTS.md is the
+  instruction file; CLAUDE.md is a one-line import). Description change only.
 - On 2026-09-21, Mike approved seven decisions for this document in the Main
   Orchestrator conversation. Each approves that decision only. None approves
   this document as a whole, finalizes it, or means the behavior is built.
