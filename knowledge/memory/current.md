@@ -8,6 +8,21 @@ for implementation.
 
 ## Active work
 
+### Forced protocols with function hooks — #396
+Updated: 2026-09-22
+
+**Goal** Agents follow required toolkit steps every time, using Claude Code function hooks, without limiting how they reason.
+
+**Current status** Discovery done. Plan being written by Opus helpers; Mike approves it before any build.
+
+**Next step** Mike reviews the plan's decisions; the plan is on branch `claude/sleepy-lamport-apkrj7`, linked from #396.
+
+**Blocker** Mike's plan approval.
+
+**Detailed record** [#396](https://github.com/Mar5929/claude-toolkit/issues/396).
+
+**Owning session** Claude cloud `session_01XE1BdvMDkwgGGVivNwSFbF`.
+
 ### Knowledge System / Toolkit OS — #269 / #369
 Updated: 2026-09-22
 
@@ -60,7 +75,7 @@ Updated: 2026-09-19
 
 ## General project to-dos
 - 2026-09-20: [#269 D3](https://github.com/Mar5929/claude-toolkit/issues/269): proposed stale-knowledge wording is in design Notes for Mike’s review.
-- 2026-09-19: instruction-overload evaluation remains underway; measured outcome pending.
+- 2026-09-19: instruction-overload evaluation; measured in #396 on 2026-09-22.
 - 2026-09-19: [#358](https://github.com/Mar5929/claude-toolkit/issues/358): use prior
   decisions to clarify Mike's intent and push back usefully in long sessions.
   Exact example saved; investigation pending.
