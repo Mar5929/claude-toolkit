@@ -13,11 +13,11 @@ Updated: 2026-09-22
 
 **Goal** Agents follow required toolkit steps every time, using function-hook fact checks, without limiting how they reason.
 
-**Current status** Requirements drafted in #396; Mike chose fact checks only, no small model. Output style split to #391.
+**Current status** Requirements and startup-cut plan (T9) approved 2026-09-22. The cut goes first, Salesforce rules included. Style in #391.
 
-**Next step** Mike approves #396 requirements; then revise the design in draft PR #397 to fact checks only.
+**Next step** Draft Salesforce rules before/after (T10); revise design in PR #397 (T8).
 
-**Blocker** Mike's approval.
+**Blocker** None.
 
 **Detailed record** [#396](https://github.com/Mar5929/claude-toolkit/issues/396), [#391](https://github.com/Mar5929/claude-toolkit/issues/391).
 
