@@ -245,7 +245,7 @@ function importLines(text) {
   const lines = [];
   let inFence = false;
   for (const line of text.split("\n")) {
-    if (line.trimStart().startsWith("```")) {
+    if (/^\s*(```|~~~)/.test(line)) {
       inFence = !inFence;
       continue;
     }

@@ -55,8 +55,8 @@ say them. Each one is recorded here with the source it was read from.
   literal text. Source: the file `codex-rs/core/src/agents_md.rs` in
   https://github.com/openai/codex on `main` (read 2026-09-21), which has no
   import handling.
-- **The 32 KiB `project_doc_max_bytes` budget is shared across the whole
-  chain**, not applied per file. Files are read root first and the remaining
-  budget is decremented as each one is added, so a large root file can starve
-  the nested ones. Source: the same file, `codex-rs/core/src/agents_md.rs`
-  (read 2026-09-21).
+- **The `project_doc_max_bytes` budget is spent root first.** The captured
+  page states the 32 KiB combined limit. It does not state the order: the code
+  reads the files root first and decrements the remaining budget as each one is
+  added, so a large root file can starve the nested ones. Source: the same
+  file, `codex-rs/core/src/agents_md.rs` (read 2026-09-21).
