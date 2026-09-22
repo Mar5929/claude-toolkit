@@ -87,7 +87,7 @@ try {
   const brokenStyle = join(root, '.claude/output-styles/broken-style.md');
   mkdirSync(brokenStyle, { recursive: true });
   put(join(root, '.claude/settings.json'), { outputStyle: 'Broken Style' });
-  check(text(prompt()).includes('could not be located or read'), 'an unreadable style file gets an honest limitation');
+  check(text(prompt()).includes('could not be read'), 'an unreadable style file gets an honest limitation');
   const badEntry = join(root, '.claude/output-styles/notes.md');
   mkdirSync(badEntry, { recursive: true });
   put(join(root, '.claude/settings.json'), { outputStyle: 'Plain English' });
@@ -112,7 +112,7 @@ try {
   silentRequest(prompt(), 'unrelated-filename.md', 'the frontmatter name beats filename assumptions');
   rmSync(other);
   put(join(root, '.claude/settings.json'), '{');
-  check(text(prompt()).includes('could not be located or read'), 'invalid settings do not silently choose another style');
+  check(text(prompt()).includes('could not be read'), 'invalid settings do not silently choose another style');
   put(join(root, '.claude/settings.json'), {});
   put(join(userDir, 'settings.json'), { outputStyle: 'User Style' });
   put(join(userDir, 'output-styles/user-style.md'), '---\nname: User Style\n---\nBe clear.');

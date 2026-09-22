@@ -9,8 +9,8 @@ approved fixes. A deliberate owner choice of another style is preserved.
 
 | File | What it does | Default |
 |---|---|---|
-| `plain-english.md` | Short replies written to be skimmed or scanned, for a reader who is not a developer: the answer first, status first in a list, the user's own names for things, exact verbs, plain words, no figurative language, no reply-length limit. Keeps Claude Code's software engineering instructions. | ON for toolkit project setup. |
-| `terse.md` | The same shape, written at the level of the user's role read from the project's `SOUL.md` and project description instead of for a non-developer. Keeps Claude Code's software engineering instructions. | OFF. The owner selects it per project. |
+| `plain-english.md` | Clear, natural replies that are easy to skim or scan: the answer first, only the detail the user asked for, exact status verbs, ordinary words, and no figurative language or reply-length limit. Keeps Claude Code's software engineering instructions. | ON for toolkit project setup. |
+| `terse.md` | Short replies for quick scanning, written at the level of the user's role read from the project's `SOUL.md` and project description. Keeps Claude Code's software engineering instructions. | OFF. The owner selects it per project. |
 
 ## Toolkit style and host options
 
@@ -23,54 +23,41 @@ The older `plain-language.md` style was removed in issue #245. Issue #271
 introduced `plain-english.md` as an optional style; Plain English is now the
 standard toolkit selection. Those older defaults do not govern current setup.
 
-## What an output style is, and why it is not a rule
+## How Claude Code delivers an output style
 
-A rule file in `.claude/rules/` is loaded as a message near the start of a
-session. An output style is added to the system prompt instead, and the harness
-re-reminds the session about it as the conversation runs.
+Claude Code sends the active style's instructions with every request. When the
+selected style is not `Default`, Claude Code also reminds the main conversation
+about it as the conversation continues. This changes how Claude responds, not
+what it knows.
 
 **This folder is the only home for voice.** Do not put a voice rule in
 `../rules/general/`. That folder is for how Claude *works*; this one is for how
 it *talks*.
 
-## What a style cannot reach, and what to do about it
+The style reaches the main conversation and a fork, which inherits the main
+conversation's system prompt. Other subagents use their own system prompts and
+do not receive the style. Give an owner-facing helper the applicable writing
+guidance in its own agent definition.
 
-**A helper agent never sees a style.** An output style is delivered in the main
-conversation's system prompt only. A helper agent runs its own prompt, and
-helper agents are what write commit messages, pull request text, and documents
-that land in the repo.
+These delivery details come from Claude Code's official
+[Output styles documentation](https://code.claude.com/docs/en/output-styles),
+verified on 2026-09-22 against the repository's
+[captured source](https://github.com/Mar5929/claude-toolkit/blob/main/ai-external-knowledge/claude-code/output-styles.md).
 
-One thing covers that gap: a helper-agent definition that writes owner-facing
-prose carries the writing rules in its own text. See the `handoff-verifier`
-agent in `session-skills`.
+## The silent style read stays
 
-A rule used to cover it too. `follow-the-output-style.md` in `../rules/general/`
-sent a helper agent to read the active style file first. The owner removed it on
-2026-09-02, so an agent definition carrying its own writing rules is now the
-only cover there is.
+The hooks library's `style-handshake` asks the main conversation to read the
+whole selected style file silently on every user message. The owner chose to
+keep this read because style adherence can weaken in long conversations. It
+supplements Claude Code's built-in delivery. Do not replace the read with
+injected style text.
 
-## Per-message reminders are not the answer, and the toolkit stopped trying
-
-Three attempts to enforce voice on every turn have now been removed.
-
-- `style-reminder`, a hook that resolved the active style and re-sent the whole
-  file, up to 4000 characters, every turn. Removed in August 2026 as
-  per-message overhead for an instruction the harness already re-delivers.
-- `writing-guard`, a hook that refused a finished reply containing an em dash or
-  a section sign. Removed the same month: the refused reply was already on the
-  owner's screen, so he read the same answer twice.
-- `explain-simply-reminder`, a `UserPromptSubmit` hook shipped in issue #258
-  carrying a fixed six-line plain-language reminder, roughly 90 tokens a
-  message. Removed in issue #271 and replaced by `plain-english.md`.
-
-The tradeoff the owner accepted in #271 is worth stating plainly, because it is
-the exact one #258 decided the other way. A hook fires on every turn and never
-goes stale. A style is delivered once at session start, so in a long session it
-is the oldest instruction in the window. The owner chose the style anyway: one
-short file, no per-message cost, and one place to change the voice.
-
-Do not ship a fourth per-message voice reminder without the owner asking for it
-in his own words.
+The hook does not announce the read, judge the reply with another model, impose
+a word count, or block a finished reply. It asks for a fresh read even when the
+file was read earlier, then a silent style check before sending the reply.
+It does not verify either action or the resulting prose.
+Its setup and limits remain in the
+[hooks library README](https://github.com/Mar5929/claude-toolkit/blob/main/plugins/hooks-library/README.md#style-handshake).
 
 ## Installing one
 
@@ -95,9 +82,11 @@ in his own words.
    mistake, it looks like the style quietly doing nothing. Check it with
    `/context` after restarting, or pick the style from the `/config` menu,
    which writes the correct value for you.
-3. Tell the owner it takes effect on their next session, not the current one.
-   The system prompt is read once at session start, so an already-open session
-   keeps the old voice until it restarts.
+3. Select a different loaded style through `/config`, or with
+   `/output-style <style>` on Claude Code 2.1.269 or later. Switching styles
+   mid-session applies to the next user message.
+   If a custom style file is created or edited while the terminal session is
+   running, restart Claude Code so it reads the changed file.
 
 ## Installing one for the whole machine
 
@@ -110,7 +99,7 @@ travels to other machines and to anyone else on that repo. The machine copy
 covers everything else the owner opens.
 
 To switch styles by hand later, run `/config` and choose under **Output style**.
-The standalone `/output-style` command was removed in Claude Code v2.1.91.
+Claude Code 2.1.269 and later also support `/output-style <style>`.
 
 ## Adding a style here
 
