@@ -693,6 +693,7 @@ original source or states what could not be verified.
 
 - A save that needs new approval is one short card and one yes, whether it is a memory or a product requirements document. The agent may already have permission: requirement 10 covers refining a PRD, and requirement 16 covers updating PRDs on its own after work ships. Neither of those needs another card and another yes for the same scope.
 - No long review. No back and forth. No reading a full file before deciding.
+- A small authorized knowledge update stays a small job. The agent checks the owning record and the instructions needed for that save, then completes the required validation and publication without waiting for unrelated research or another save. If concurrent work delays publication, it promptly tells the owner what is written, checked, committed, and shared, keeps the unfinished save recoverable, and continues independent conversation. The owner does not manage the retry or repeat an unchanged approval.
 - The agent proposes at the right moment on its own. The owner never has to remember to ask.
 - Notice useful information throughout the work, including discussion, requirements refinement, and solution design with no file edits. Review project-relevant information outside the active work item's scope as well as information about that item. Do not wait for a changed-file count, a commit, a task switch, or the owner to point it out. Requirement 18 determines its scope and home; noticing it is not permission to implement unrelated work.
 - Before every user prompt is processed, a short hook reminder begins with this owner direction: “Friendly reminder: keep front of mind and follow all of the Toolkit operating system methodologies, processes, and instructions. Know where the project files and folders live.” The rest of the reminder is short, about 35 to 45 words. It tells the agent to save a decision, requirement, or correction the owner settles in its home before moving on, to open `knowledge-save` before any memory proposal or save, and names `knowledge/knowledge-manual.md` as the policy. The memory criteria, the routing to every destination in requirement 18, and the approval rules live in `knowledge-save` and the manual, not in the reminder. Approved by Mike Rihm on 2026-09-22 in work item [#396](https://github.com/Mar5929/claude-toolkit/issues/396); built in #396. This replaces the earlier wording that put compact memory criteria and links to both manuals in the reminder.
@@ -747,6 +748,13 @@ main agent answers while the helper saves. Delay or fail the push: no premature
 in a fresh session and finish once without renewed approval. Repeat with two
 approved saves editing the same topic and with a conflicting later decision:
 no edit or approval is lost, and changed meaning is returned for a decision.
+
+**Check:** request a one-line working-memory update while another session edits
+a different knowledge file. The agent finds the existing owner, makes only the
+authorized update, and uses the required checks and publication route without
+starting unrelated investigation. Delay its push: the owner gets an accurate
+progress report instead of an unexplained wait, independent conversation can
+continue, and the next attempt preserves both sessions' work.
 
 The existing `.claude/rules/knowledge-direct-commit.md` owns the procedure for
 publishing authorized knowledge saves to the default branch. The inbox adds
@@ -2505,6 +2513,13 @@ The instruction-content audit and full requirements approval remain outstanding.
   2026-09-18. Verify the remote result before reporting publication complete.
   The reusable work-plugin Notes behavior is addressed in a separate task;
   this document records this PRD's remaining work.
+
+- On 2026-09-23, Mike asked that Knowledge System behavior stay in this PRD and
+  described a one-line save that took about 15 minutes during concurrent work.
+  Requirement 9 now calls for proportional work, visible publication delays,
+  and a direct check of that case. Work-item upkeep and toolkit-wide cost still
+  belong to their own requirements. This refinement does not approve the whole
+  PRD or choose a new hook.
 
 - Open, 2026-09-23, for Mike: two further ideas from the
   [LLM Wiki Agentic Librarian comparison](../../../docs/designs/269-knowledge-system/research/2026-09-23-llm-wiki-librarian-comparison.md)
