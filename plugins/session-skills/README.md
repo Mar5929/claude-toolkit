@@ -49,8 +49,8 @@ flags directions that could undermine it, gives supported recommendations,
 and saves settled answers or corrections in the chosen draft.
 `solution-design` is the process for turning approved requirements into a
 design: the main conversation and a product analyst each check that the
-requirements are complete and explicit end to end, score their confidence
-(design waits until both are 95 or above), list where a builder could misread
+requirements are complete and explicit end to end, each say plainly whether
+they are ready (design waits until both do), list where a builder could misread
 the wording, and flag requirements that do not fit the end-to-end experience.
 The owner then agrees prep interview or scan, design philosophy, number of
 options, and output location. The main conversation weighs the item's
@@ -83,7 +83,7 @@ still apply.
   requirements, a design, or a plan for material gaps and inconsistencies.
 - [design-product-analyst](agents/design-product-analyst.md): check the
   requirements are complete, explicit end to end, and coherent in the larger
-  system, and return a confidence number with the gaps and misreading risks.
+  system, and say plainly whether they are ready, with the gaps and misreading risks.
 - [design-researcher](agents/design-researcher.md): answer one bounded design
   question from official documentation, project evidence, and community
   sources, each finding labeled by source type.
@@ -550,7 +550,7 @@ They overlap less than they look.
   `work-guide` and `requirements-helper`. The design agents
   (`design-product-analyst`, `design-researcher`, `design-architect`,
   `design-critic`) carry the rules the design loop needs: a readiness gate
-  with a confidence number, community sources labeled as claims, an
+  with a plain ready or not-ready statement, community sources labeled as claims, an
   architect that verifies them and owes the owner a rewrite when one is
   better, and a critic that returns a verdict per requirement so the loop
   knows when to stop.

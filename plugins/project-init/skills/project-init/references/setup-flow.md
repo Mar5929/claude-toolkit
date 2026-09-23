@@ -230,8 +230,9 @@ separate prep, interview, or continuation files for that workflow.
 - Install the Toolkit operating manual for every equipped project, whether or
   not the owner selected project knowledge. Follow
   `toolkit-manual-delivery.md`: copy the packaged template to
-  `knowledge/toolkit-manual.md`, install the project-init-owned startup pointer,
-  and add the same short complete-read fallback to `AGENTS.md`.
+  `knowledge/toolkit-manual.md`, install the project-init-owned startup hook
+  (SessionStart only), and write the Startup section from `thin-agents-md.md`
+  into `AGENTS.md`. The manual is reference; nothing asks for a full read.
 - The manual uses universal workflow text. Put the project's actual tracker,
   paths, quick-save routes, and optional-component pointers in the root sections
   that already own them. Do not leave toolkit-repository links in the installed

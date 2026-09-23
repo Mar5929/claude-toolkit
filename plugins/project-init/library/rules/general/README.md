@@ -16,13 +16,13 @@ every session to read `.claude/rules/`. See `thin-agents-md.md` in the
 
 | File | What it does |
 | --- | --- |
-| `knowledge-direct-commit.md` | Authorized documentation-only saves use the existing default-branch checkout, checks, commit, push, and remote verification. Applies without knowledge enabled; behavior-bearing instructions and mixed implementation changes retain the implementation workflow. |
-| `parallel-agent-sessions.md` | Isolate implementation in a worktree and land it by approved pull request; authorized documentation follows the direct-publication exception. Coordinate shared-file edits, preserve others' staged work, and check merge safety. |
-| `offer-context-handoff.md` | When context is heavy and the next step is reasoning-heavy, offer a self-contained handoff prompt for a fresh session. Run the installed `knowledge-save` review (legacy: `remember`) before writing that prompt, and carry anything the owner does not save inside the prompt itself. This is the moment that destroys the most context, and nothing can catch a clear after it happens. The `handoff` plugin's `/handoff` command does it in order; this rule is the backup when the owner asks in their own words. |
+| `knowledge-direct-commit.md` | Path-scoped to `knowledge/**`, `docs/**`, and `**/README.md`. Authorized documentation-only changes commit straight to the default branch; behavior files use a worktree and pull request; stage by name; never force-push, reset, or stash; verify the remote. The steps are in the `publish-docs` skill (git-workflows). Applies without knowledge enabled. |
+| `parallel-agent-sessions.md` | Look-first commands, own worktree for implementation, no changes to the shared primary checkout, stage paths by name, claim numbers first, and merge on the owner's approval with the merge-safety check. A standing merge instruction the owner gave for the project counts as approval. Documentation-only saves open `publish-docs`; this line is the always-loaded trigger for the path-scoped publication rule. |
+| `offer-context-handoff.md` | When the session is long and the next step is complex, offer the `handoff` skill, which runs the `knowledge-save` review before writing the prompt. |
 | `plain-english-artifacts.md` | The words inside every artifact an agent generates for a person to look at (a diagram, a chart, a dashboard, a visualization, a mockup, a slide deck, a generated document) follow the project's output style: every word is about the subject, a heading names what sits under it, every thing gets its real name, and the wording is plain. It decides the words, never the layout. Chat replies, code, README files, and issue text are not artifacts. A rule rather than part of the output style because the style reaches the main chat only, and artifacts are also made by helper agents, skills, and Codex sessions. |
 | `humanize-outbound-text.md` | Any text that leaves the project for someone other than the owner (an email, a chat message, support case text, a GitHub issue, a pull request description, a client document, a file made to hand over) is run through the `humanizer` skill first, or `unslop` when that is not installed. Every fact, name, id, number, and date stays the same. Chat replies to the owner, work items, project knowledge, code, and commit messages are not covered. |
 | `work-item-folders.md` | Local tracker folder ownership, grouping, archive, and file protection. The work skill owns commands and the lifecycle rule owns process. Applies only when the project chose local tracking. |
-| `work-item-stages.md` | Unscoped lifecycle guidance: read the active item before work, capture meaningful progress faithfully, use flexible stages and type-aware approval, leave a precise handoff, and record accepted completion. Local CLI checks objective facts; GitHub uses its native issue state. |
+| `work-item-stages.md` | Six always-loaded lines: open the `work` skill before substantial work, save the owner's decisions, the build and data-load approval gate (a later stage does not revoke it), the team-arrangement question, Done only with approval, and the next step before stopping. The full policy is the `work` skill's `references/lifecycle.md`. |
 | `ai-external-knowledge.md` | Outside documentation captured for agents to read (vendor docs, API references, framework guides) goes in `ai-external-knowledge/` at the project root, one folder per topic, each naming its source URL and capture date. It stays raw source material: the project's own conclusions live in the project's knowledge or documentation and link back to it, the project's truth wins any disagreement, and a captured document is never edited to agree with the project. Also says the folder is findable but not read, so agents reach it only when a rule, a skill, or persistent knowledge points at a topic. |
 
 ## Some rules load only when they are needed
@@ -40,10 +40,13 @@ paths:
 
 This is Claude Code's own behavior, not a convention of ours, and it needs
 v2.1.198 or later. `ai-external-knowledge.md` is scoped to
-`ai-external-knowledge/**`. `knowledge-direct-commit.md` is unscoped because
-publication routing must be available before choosing a checkout, including
-when the knowledge system is disabled. Remove its legacy `knowledge/**`
-frontmatter when refreshing the managed rule.
+`ai-external-knowledge/**`. `knowledge-direct-commit.md` is scoped to
+`knowledge/**`, `docs/**`, and `**/README.md` (issue #396). A scoped rule loads
+when a matching file is read, not when a new one is written. So the trigger for
+a new document stays always-loaded, as one line: `parallel-agent-sessions.md`
+names the `publish-docs` skill, and `knowledge-save` carries the trigger for new
+knowledge files. Codex has no `paths:` support: the root `AGENTS.md` lists each
+scoped rule with its patterns.
 
 Most rules must not be scoped. Scoping is the wrong tool for anything that has
 to be true before the agent touches a file: how to work alongside other
@@ -153,6 +156,11 @@ reading a v1 rule.
 MCP tool rules (Context7, Gmail, Google Calendar, Linear, Notion, Playwright)
 are conditional too, and live in `../../guides/mcp-best-practices.md`: fold in a server's
 section only if the project uses that server.
+
+## The index file
+
+A project's rule index is `.claude/RULES.md`, outside `.claude/rules/`. Every
+`.md` file inside `.claude/rules/` loads as a rule, including a `README.md`.
 
 ## Adding a rule
 

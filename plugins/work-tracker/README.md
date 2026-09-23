@@ -71,7 +71,9 @@ No database, model, cloud service, or external tracker is required.
 The detailed references are `references/command-reference.md` for commands and
 `references/record-format.md` for files, fields, and conversion. Delivery is
 covered by `references/agent-led-delivery.md` and
-`references/team-arrangements.md`.
+`references/team-arrangements.md`. `references/lifecycle.md` holds the full
+work-item lifecycle policy that the always-loaded `work-item-stages.md` rule
+summarizes.
 
 ## Where tickets live
 

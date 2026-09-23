@@ -36,8 +36,8 @@ in one or two sentences.>
 
 ## Preparation
 
-- Requirements readiness: <main conversation and product analyst confidence,
-  unresolved gaps, and links to corrected requirements or owner rulings>
+- Requirements readiness: <main conversation and product analyst ready or not
+  ready, what is still unclear, unresolved gaps, and links to corrected requirements or owner rulings>
 - Way of working: <interview or scan first; number of options and differences>
 - Team: <agreed roles, models, scope, and expected returns>
 - Constraints: <applicable limits and approval boundaries>
