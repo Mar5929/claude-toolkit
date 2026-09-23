@@ -322,5 +322,5 @@ recommended. See the issue.
 **Potential paths to explore:** a check that working memory was loaded at
 startup. No such check exists today in `files` mode either.
 
-**Resume point:** Build in worktree `../claude-toolkit-404`, branch
-`issue-404-external-memory`, in the order above. Progress is on the issue.
+**Resume point:** Merged in PR #408 (`8584c22`) on 2026-09-23. Next: Mike's
+acceptance, then stage 14 (update the knowledge-system PRD, delete this file).
