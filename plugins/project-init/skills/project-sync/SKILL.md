@@ -189,6 +189,14 @@ Typical checks:
   gap. A deliberate owner choice of another style is an exception to preserve,
   not a gap to overwrite. Concise is a Claude Code built-in, not a toolkit
   default. A leftover `plain-language` selection needs migration.
+- **Required workflow checks**: when project knowledge is installed, does the
+  committed `.claude/settings.json` carry
+  `"env": { "CLAUDE_CODE_ENABLE_FUNCTION_HOOKS": "1" }` and
+  `"enabledPlugins": { "protocol-guard@claude-toolkit": true }`, and is the
+  plugin installed? Report a missing key as a gap. A deliberate owner choice to
+  leave it off is an exception to preserve. The variable in
+  `~/.claude/settings.json` is a finding: it turns on function hooks for every
+  plugin on the computer.
 - **AGENTS.md health** (presence is not enough, see below).
 - **Is the instruction-file pair in the current layout?** (see below). A project
   can hold every rule and still be writing them into a file Codex never reads.
@@ -696,6 +704,11 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   override with the owner rather than silently leaving conflicting selections.
   Preserve deliberate choices of another style. The new voice starts in the
   next session.
+- **For an approved required-workflow-checks gap,** install
+  `protocol-guard@claude-toolkit` and merge the two keys into the committed
+  `.claude/settings.json` key by key, preserving every other value. Do not
+  touch `~/.claude/settings.json`; `machine-sync` does not set the variable.
+  The checks start in the next session.
 - **For an approved Toolkit operating-manual gap,** follow
   `../project-init/references/toolkit-manual-delivery.md`. Reconcile
   `library/templates/toolkit-manual.md` into `knowledge/toolkit-manual.md`,
