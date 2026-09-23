@@ -27,8 +27,11 @@ tmp=$(mktemp -d "${TMPDIR:-/tmp}/knowledge-pre-commit.XXXXXX") || exit 1
 trap 'rm -rf "$tmp"' EXIT
 trap 'exit 1' HUP INT TERM
 
-# A private copy of exactly what this commit will contain.
-git checkout-index -a --prefix="$tmp/" || exit 1
+# A private copy of exactly what this commit will contain. Line endings are
+# forced to LF: with core.autocrlf=true (the Windows default) checkout-index
+# writes CRLF files, and the checker then reports every generated index as not
+# matching its sources, although the same files pass in the working folder.
+git -c core.autocrlf=false -c core.eol=lf checkout-index -a --prefix="$tmp/" || exit 1
 
 # A branch without project knowledge has nothing to check. A project in the
 # external memory mode has no knowledge/ folder but has .toolkit-memory.json.

@@ -125,6 +125,18 @@ test('a valid knowledge commit passes, including one that deletes a file', () =>
   assert.equal(result.status, 0, result.stderr);
 });
 
+test('a valid knowledge commit passes with core.autocrlf=true', () => {
+  // The Windows default. The hook's private copy must still hold LF files, or
+  // every generated index reads as not matching its sources.
+  const root = fixture('autocrlf');
+  git(root, 'config', 'core.autocrlf', 'true');
+  write(root, memoryPath, goodMemory);
+  rebuild(root);
+  git(root, 'add', 'knowledge');
+  const result = commit(root, 'Add memory with autocrlf');
+  assert.equal(result.status, 0, result.stdout + result.stderr);
+});
+
 test('a new memory whose index was not rebuilt is refused', () => {
   const root = fixture('stale-index');
   write(root, memoryPath, goodMemory);
