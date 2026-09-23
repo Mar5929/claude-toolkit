@@ -2,8 +2,8 @@
 
 Design for [issue #396](https://github.com/Mar5929/claude-toolkit/issues/396).
 The issue body owns scope, status and approvals. This file says how the
-approved requirements are built. Decisions marked "approved" cite Mike and a
-date in the issue body. Everything else is proposed.
+approved requirements are built. Mike approved this design as a whole on
+2026-09-23.
 
 Revised 2026-09-22 (task T8) to fact checks only. The earlier plan, its four
 helper parts, and the prototype source are in Git history at commit `fc43f65`.
@@ -456,8 +456,8 @@ Mike accepted every recommendation below on 2026-09-22 ("yes to all").
   every skill change; per-check tests and the owner-exists test cover it.
 - Approved (Mike, 2026-09-22, "yes to all"): decisions 1 to 13 in
   "Decisions answered by Mike", each as recommended.
-- Proposed, not approved: the design as a whole (the protocol details, the
-  engine, and the step 5 and 6 file plans) until Mike approves it.
+- Approved (Mike, 2026-09-23): the design as a whole, including the protocol
+  details, the engine, and the step 5 and 6 file plans.
 
 ### Open questions
 
@@ -479,9 +479,8 @@ Mike accepted every recommendation below on 2026-09-22 ("yes to all").
     `permissions-source-control.md` entry in `component-tracker.md`.
   - C8: `dependency-graph.md` lines that edit project knowledge notes say
     "open `knowledge-save`" when those notes are in `knowledge/`.
-- Mike approves the design as a whole.
 
 ### Resume point
 
-Decisions 1 to 13 answered. Next: Mike approves the design. The build of step
-4 waits for PR #398.
+Design approved by Mike on 2026-09-23. Next: build roadmap step 4 (the startup
+cut) after #391's PR #398 merges, starting from its hook text.
