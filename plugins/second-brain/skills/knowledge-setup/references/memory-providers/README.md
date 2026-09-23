@@ -18,16 +18,19 @@ for the configured service names the exact MCP tool and arguments.
 { "format": 1, "memory": "external", "service": "mem0", "server": "mem0", "project": "dragonfly" }
 ```
 
+- `format`: `1`.
 - `memory`: `files` or `external`. A missing file means `files`.
 - `service`: `mem0` or `hindsight`. It picks the adapter.
-- `server`: the MCP server name in the project's MCP settings. A tool is called
-  as `mcp__<server>__<tool>`.
+- `server`: the MCP server name in the project's MCP settings. It holds only
+  letters, digits, `_` and `-`, so a tool is called as
+  `mcp__<server>__<tool>` with the name unchanged.
 - `project`: the scope inside the service. mem0 uses it as `app_id`. Hindsight
   uses it as the bank id.
 
-`external` mode needs all three of `service`, `server`, and `project`. An
-unreadable file or an unknown value is an error for `check-knowledge` to
-report. Do not guess the mode.
+`external` mode needs all three of `service`, `server`, and `project`, each a
+non-empty value on one line. An unreadable file or an invalid value is an
+error for `check-knowledge` to report, and every hook treats the project as
+`files` mode until it is fixed. Do not guess the mode.
 
 ## What lives where
 
@@ -57,6 +60,10 @@ keeps them in `metadata` and also as tags `toolkit_kind:<kind>` and
 | `toolkit_key` | the stable key below |
 | `summary`, `created`, `updated`, `auto_saved` | lasting records only; same meaning as the memory-topic front matter (`summary`, `created_at`, `updated_at`, `auto_saved`) |
 
+Source and approval fields, in metadata and in record text (`source`,
+`approved_by`, and the like), name a person by name only. Never write an email
+address or other contact details into a record.
+
 Stable keys:
 
 | Key | Record |
@@ -64,10 +71,13 @@ Stable keys:
 | `working:goal` | Project goal and next milestone |
 | `working:<item id>` | One active item. Use the tracker item id, such as `issue-42`. Use a short lowercase slug only when no tracker item exists. |
 | `working:todo` | General project to-dos |
-| `working:handoff:<UTC time>` | One session handoff, time as `YYYY-MM-DDTHH:MMZ` |
+| `working:handoff:<UTC time>` | One session handoff. The time is the full ISO UTC timestamp with milliseconds, `YYYY-MM-DDTHH:MM:SS.sssZ`, the same value as the handoff heading |
 | `lasting:<topic>` | One lasting topic, named like today's topic file name without `.md` |
 | `pending:<reference>` | One pending save, keyed by its stable UUID |
 | `feedback` | Selection feedback |
+
+Before writing a handoff record, find its key. If a record with that key
+exists, never replace it: take a new timestamp and use that key instead.
 
 One key names at most one record. Two records with the same key is an error:
 report it to the owner. Do not pick one. The one exception is a mem0 replace
@@ -108,6 +118,19 @@ The skills name these operations. Each adapter maps every one to a tool.
 | Add or remove a pending save | Write or delete one `pending` record. |
 | Read or update feedback | Read or write the one `feedback` record. |
 | Read back after a write | Fetch the record just written and compare it. |
+
+## Write tools
+
+These tools change memory. Call them only through `knowledge-save`.
+protocol-guard refuses them before that skill is opened.
+
+| Service | Write tools |
+| --- | --- |
+| mem0 | `add_memory`, `update_memory`, `delete_memory`, `delete_all_memories`, `delete_entities` |
+| Hindsight | `retain`, `sync_retain`, `delete_document`, `clear_memories`, `update_memory`, `invalidate_memory`, `delete_bank` |
+
+Hindsight `update_bank` is not a write tool here. It sets the bank's
+extraction mode once at setup and holds no memory text.
 
 ## Rules for every call
 

@@ -82,7 +82,10 @@ Working memory is records of kind `working` in the memory service, not
   Replace only the record you changed. Remove an item's record when the item
   is finished.
 - Each session handoff is its own record, key `working:handoff:<UTC time>`.
-  The `handoff` skill still owns capture and resume.
+  `<UTC time>` is the full ISO UTC timestamp with milliseconds, the same value
+  as the handoff heading, such as `2026-09-20T01:15:00.000Z`. Before writing,
+  read the key. If a record with it exists, never overwrite it: take a new
+  timestamp. The `handoff` skill still owns capture and resume.
 - The update is saved when the read back matches. Confirm that in one short
   line.
 

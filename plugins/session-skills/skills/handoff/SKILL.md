@@ -100,7 +100,7 @@ plugin cache does not choose a project's installed path.
 - With `"memory": "external"` in `.toolkit-memory.json`, working memory is in
   the memory service that file names. Use the installed `knowledge-save` skill.
   A session handoff is its own working-memory record, with the key
-  `working:handoff:<UTC time>`, written through `knowledge-save`. Write no
+  `working:handoff:<UTC time>` (step 6), written through `knowledge-save`. Write no
   `knowledge/` file. If the memory service is not connected, report the blocked
   save and carry the material in the prompt.
 - With `<!-- claude-toolkit:knowledge-schema:2 -->` in that manual, use
@@ -269,10 +269,13 @@ session link is not enough when the next agent cannot access that conversation.
 
 In the `external` memory mode (step 2) there is no current-work file. Save
 the entry as its own working-memory record with the key
-`working:handoff:<UTC time>`, using the same UTC timestamp as the heading
-above, through the installed `knowledge-save` skill. It carries the same
-content as a file entry. Never edit or delete another session's handoff
-record. `knowledge-save` reads the record back and compares it with the
+`working:handoff:<UTC time>`, through the installed `knowledge-save` skill.
+`<UTC time>` is the full ISO UTC timestamp with milliseconds, the same value as
+the heading above, for example `working:handoff:2026-09-20T01:15:00.000Z`.
+Before writing, read that key. If a record with it exists, never overwrite it:
+take a new timestamp and use it in both the heading and the key. The record
+carries the same content as a file entry. Never edit or delete another
+session's handoff record. `knowledge-save` reads the record back and compares it with the
 approved text; report its result. The file limit and the Git publication steps
 below do not apply to that record.
 

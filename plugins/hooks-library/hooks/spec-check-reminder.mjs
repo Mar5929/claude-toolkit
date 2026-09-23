@@ -53,16 +53,24 @@ try {
   bail();
 }
 
-// A missing or invalid config means the files memory mode.
+// A missing or invalid config means the files memory mode. The rules are
+// second-brain's readMemoryConfig rules: "format" 1, "memory" "external",
+// "service" mem0 or hindsight, "server" of letters, digits, _ and - only, and
+// a non-empty "project", each on one line.
+function prdFolderFor(config) {
+  const line = (value) => typeof value === 'string' && value.trim() !== '' && !/[\r\n]/.test(value);
+  const external = config && typeof config === 'object' && !Array.isArray(config)
+    && config.format === 1 && config.memory === 'external'
+    && ['mem0', 'hindsight'].includes(config.service)
+    && line(config.server) && /^[A-Za-z0-9_-]+$/.test(config.server)
+    && line(config.project);
+  return external ? 'prds/' : 'knowledge/prds/';
+}
+
 function prdFolder() {
   try {
     const root = process.env.CLAUDE_PROJECT_DIR || input.cwd || process.cwd();
-    const config = JSON.parse(readFileSync(resolve(root, '.toolkit-memory.json'), 'utf8'));
-    const named = (value) => typeof value === 'string' && value.trim() !== '';
-    const external = config && config.format === 1 && config.memory === 'external'
-      && ['mem0', 'hindsight'].includes(config.service)
-      && named(config.server) && named(config.project);
-    return external ? 'prds/' : 'knowledge/prds/';
+    return prdFolderFor(JSON.parse(readFileSync(resolve(root, '.toolkit-memory.json'), 'utf8')));
   } catch {
     return 'knowledge/prds/';
   }

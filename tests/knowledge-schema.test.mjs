@@ -12,6 +12,8 @@ import { parseFrontmatter } from '../plugins/second-brain/tools/frontmatter.mjs'
 import { buildIndexes, readMemoryConfig as toolMemoryConfig } from '../plugins/second-brain/tools/build-knowledge-index.mjs';
 import { readMemoryConfig as hookMemoryConfig } from '../plugins/second-brain/hooks/knowledge-manual.mjs';
 import { checkKnowledge, MANUAL_SHA256 } from '../plugins/second-brain/tools/check-knowledge.mjs';
+import { validMemory as guardMemory } from '../plugins/protocol-guard/hooks/memory-config.mjs';
+import { memoryMode as startupMemoryMode } from '../plugins/project-init/library/hooks/toolkit-session-start.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const memoryPath = 'knowledge/memory/memory-entries/imports/matching.md';
@@ -295,6 +297,8 @@ test('invalid memory config is a checker error; hooks and tools read it the same
     [{ format: 1, memory: 'external', service: 'mem0', project: 'p' }, /"server"/],
     [{ format: 1, memory: 'external', service: 'mem0', server: 'mem0' }, /"project"/],
     [{ format: 2, memory: 'external', service: 'mem0', server: 'mem0', project: 'p' }, /"format"/],
+    [{ memory: 'external', service: 'mem0', server: 'mem0', project: 'p' }, /"format"/],
+    [{ format: 1, memory: 'external', service: 'mem0', server: 'mem0.cloud', project: 'p' }, /"server"/],
   ]) {
     const f = externalFixture(t, config);
     const hook = hookMemoryConfig(f.dir);
@@ -310,6 +314,60 @@ test('invalid memory config is a checker error; hooks and tools read it the same
   assert.deepEqual(hookMemoryConfig(empty), { mode: 'files', service: null, server: null, project: null, error: null });
   assert.deepEqual(toolMemoryConfig(empty), hookMemoryConfig(empty));
   assert.equal(checkKnowledge(empty).skipped, true);
+});
+
+// Every reader of .toolkit-memory.json applies the same rules. An invalid
+// config means files mode in every one of them.
+test('every memory config reader gives the same mode for the same config', t => {
+  const good = { format: 1, memory: 'external', service: 'mem0', server: 'mem0', project: 'imports' };
+  const cases = [
+    [good, 'external'],
+    [{ ...good, service: 'hindsight', server: 'hindsight' }, 'external'],
+    [{ ...good, server: 'my-mem0_2' }, 'external'],
+    [{ ...good, project: ' imports ' }, 'external'],
+    [{ format: 1, memory: 'files' }, 'files'],
+    ['{not json', 'files'],
+    [[], 'files'],
+    [null, 'files'],
+    [{ memory: 'external', service: 'mem0', server: 'mem0', project: 'imports' }, 'files'],
+    [{ ...good, format: 2 }, 'files'],
+    [{ ...good, format: '1' }, 'files'],
+    [{ format: 1 }, 'files'],
+    [{ ...good, memory: 'cloud' }, 'files'],
+    [{ ...good, service: 'toString' }, 'files'],
+    [{ ...good, service: 'constructor' }, 'files'],
+    [{ ...good, service: 'Mem0' }, 'files'],
+    [{ ...good, service: undefined }, 'files'],
+    [{ ...good, server: 'mem0.cloud' }, 'files'],
+    [{ ...good, server: 'mem 0' }, 'files'],
+    [{ ...good, server: ' mem0 ' }, 'files'],
+    [{ ...good, server: '' }, 'files'],
+    [{ ...good, server: 'mem0\n' }, 'files'],
+    [{ ...good, server: 7 }, 'files'],
+    [{ ...good, project: '' }, 'files'],
+    [{ ...good, project: '   ' }, 'files'],
+    [{ ...good, project: 'a\nb' }, 'files'],
+    [{ ...good, project: undefined }, 'files'],
+  ];
+  const reminder = resolve(root, 'plugins/hooks-library/hooks/spec-check-reminder.mjs');
+  cases.forEach(([config, expected], index) => {
+    const text = typeof config === 'string' ? config : JSON.stringify(config);
+    const dir = mkdtempSync(join(tmpdir(), 'memory-readers-'));
+    t.after(() => rmSync(dir, { recursive: true, force: true }));
+    writeFileSync(join(dir, '.toolkit-memory.json'), text);
+    let parsed; try { parsed = JSON.parse(text); } catch { parsed = undefined; }
+    const session = `memory-readers-${process.pid}-${Date.now()}-${index}`;
+    const out = spawnSync(process.execPath, [reminder], { input: JSON.stringify({ session_id: session, cwd: dir }), env: { ...process.env, CLAUDE_PROJECT_DIR: dir }, encoding: 'utf8' });
+    rmSync(join(tmpdir(), 'claude-spec-check-reminder', session), { force: true });
+    const modes = {
+      secondBrainHook: hookMemoryConfig(dir).mode,
+      secondBrainTool: toolMemoryConfig(dir).mode,
+      protocolGuard: guardMemory(parsed) ?? 'files',
+      projectInitStartup: startupMemoryMode(dir),
+      specCheckReminder: out.stdout.includes('(a prds/ file') ? 'external' : out.stdout.includes('(a knowledge/prds/ file') ? 'files' : `no output: ${out.stderr}`,
+    };
+    for (const [reader, mode] of Object.entries(modes)) assert.equal(mode, expected, `${reader} on ${text}`);
+  });
 });
 
 test('files-mode config keeps today\'s checks', t => {

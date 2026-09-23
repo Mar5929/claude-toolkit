@@ -46,14 +46,21 @@ export const DEFAULT_EXTERNAL_SUMMARY = [
   "- `docs/toolkit-manual.md` is reference. Open the section you need. Do not read it at startup.",
 ].join("\n");
 
-/** "external" only for a valid external config; anything else is "files". */
+/**
+ * "external" only for a valid external config; anything else is "files". The
+ * rules are second-brain's readMemoryConfig rules: "format" 1, "memory"
+ * "external", "service" mem0 or hindsight, "server" of letters, digits, _ and
+ * - only, and a non-empty "project", each on one line.
+ */
 export function memoryMode(root) {
   try {
     const data = JSON.parse(readFileSync(resolve(root, MEMORY_CONFIG), "utf8"));
-    const named = (value) => typeof value === "string" && value.trim() !== "";
-    return data && data.format === 1 && data.memory === "external"
+    const line = (value) => typeof value === "string" && value.trim() !== "" && !/[\r\n]/.test(value);
+    return data && typeof data === "object" && !Array.isArray(data)
+      && data.format === 1 && data.memory === "external"
       && ["mem0", "hindsight"].includes(data.service)
-      && named(data.server) && named(data.project) ? "external" : "files";
+      && line(data.server) && /^[A-Za-z0-9_-]+$/.test(data.server)
+      && line(data.project) ? "external" : "files";
   } catch {
     return "files";
   }

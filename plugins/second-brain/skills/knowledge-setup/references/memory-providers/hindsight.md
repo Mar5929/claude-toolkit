@@ -55,8 +55,17 @@ prompt and at the end of each session. When one is enabled, warn the owner.
 Once, at setup: `update_bank` with
 `config_updates: {"retain_extraction_mode": "chunks"}`. The bank is created on
 first use. `chunks` stores text without an LLM call, so nothing is rewritten.
-Confirm `retain_extraction_mode` is `chunks` in the result. Any other value
-stops setup.
+
+The results of the MCP tools `update_bank` and `get_bank` do not include the
+bank's config, so the mode cannot be confirmed over MCP. Confirm it over the
+REST API: `GET <base>/v1/default/banks/P/config`, with the same
+`Authorization` header when the server needs a key. The field
+`retain_extraction_mode` must be `chunks`. Any other value stops setup. If the
+REST endpoint cannot be reached, tell the owner the mode is unconfirmed and
+stop setup.
+
+A read back whose `original_text` matches does not prove `chunks` mode.
+Hindsight keeps `original_text` in every mode.
 
 ## Rules for every call
 
@@ -86,6 +95,11 @@ text.
 **Add or replace a working entry.** `sync_retain` with `content` (the entry
 text), `document_id: "<key>"`, and the tags, context, and metadata above, kind
 `working`.
+
+**Add a handoff entry.** The key is `working:handoff:<UTC time>`, with the
+full ISO UTC timestamp and milliseconds from the handoff heading. First
+`get_document` with that key. If it exists, never write to it: take a new
+timestamp. Then write as for a working entry.
 
 **Remove a working entry.** `delete_document` with `document_id: "<key>"`.
 

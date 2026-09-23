@@ -51,7 +51,8 @@ service first.
    project between modes is not supported. Report it and change nothing.
 2. Write `.toolkit-memory.json` at the project root with `format` 1,
    `memory` `external`, and the owner's `service`, `server`, and `project`.
-   It holds no secrets.
+   `server` holds only letters, digits, `_` and `-`. The file holds no
+   secrets.
 3. Connect the MCP server as the adapter shows: a project `.mcp.json` entry for
    Claude Code with the API key from an environment variable, and the
    `~/.codex/config.toml` entry for Codex, printed for the owner to add. Never
@@ -60,7 +61,9 @@ service first.
 4. Confirm the MCP server is connected and its tools match the adapter. If it
    is not connected, stop and tell the owner what is missing.
 5. Hindsight only: set the bank to `chunks` extraction mode, as the adapter
-   shows, and confirm the result.
+   shows. Confirm the mode with the REST config endpoint the adapter names,
+   not the MCP result. If that endpoint cannot be reached, tell the owner the
+   mode is unconfirmed and stop.
 6. Create the Git files: `PROJECT.md` from the
    [project template](templates/knowledge/project.md), `docs/knowledge-manual.md`
    as an exact managed copy of the

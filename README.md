@@ -193,6 +193,7 @@ claude-toolkit/
         hooks.json                ← registers the function-hook module
         engine.ts                 ← refuses a call or holds a reply from facts
         shell-reader.mjs          ← reads a shell command's program and file arguments
+        memory-config.mjs         ← the rules for a valid .toolkit-memory.json
       protocols.default.json      ← the shipped list: K4, CW, K5, K6, K7, P2, P3
       tests/                      ← offline tests (claude plugin test)
     work-tracker/                 ← plugin: agent-led delivery and local work tracking

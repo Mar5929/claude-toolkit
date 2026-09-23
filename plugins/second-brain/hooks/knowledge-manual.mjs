@@ -31,7 +31,7 @@ export function readMemoryConfig(projectRoot) {
   if (data.memory === "files") return { ...FILES_CONFIG };
   if (data.memory !== "external") return invalid('needs "memory" set to "files" or "external".');
   if (!MEMORY_SERVICES.includes(data.service)) return invalid(`needs "service" set to ${MEMORY_SERVICES.map(x => `"${x}"`).join(" or ")} in external mode.`);
-  if (!nonblank(data.server) || !/^[A-Za-z0-9_.-]+$/.test(data.server)) return invalid('needs "server" set to the MCP server name in external mode.');
+  if (!nonblank(data.server) || !/^[A-Za-z0-9_-]+$/.test(data.server)) return invalid('needs "server" set to the MCP server name (letters, digits, _ and - only) in external mode.');
   if (!nonblank(data.project)) return invalid('needs "project" set to the memory scope in external mode.');
   return { mode: "external", service: data.service, server: data.server.trim(), project: data.project.trim(), error: null };
 }
@@ -69,11 +69,11 @@ export function memoryLayout(mode) {
 /** MCP tool names, as `mcp__<server>__<tool>`, by class. */
 export const MEMORY_TOOL_CLASSES = {
   mem0: {
-    "memory-write": ["add_memory", "update_memory", "delete_memory", "delete_all_memories"],
+    "memory-write": ["add_memory", "update_memory", "delete_memory", "delete_all_memories", "delete_entities"],
     "memory-read": ["get_memories", "get_memory", "search_memories"],
   },
   hindsight: {
-    "memory-write": ["retain", "sync_retain", "delete_document", "clear_memories"],
+    "memory-write": ["retain", "sync_retain", "delete_document", "clear_memories", "update_memory", "invalidate_memory", "delete_bank"],
     "memory-read": ["list_documents", "get_document", "recall", "list_memories", "get_memory"],
   },
 };
@@ -91,7 +91,7 @@ export function memoryListStep(config, kind) {
     return `${tool("list_documents")} with q "${kind}:", keeping ids that start with "${kind}:", then ${tool("get_document")} for each`;
   }
   const filters = JSON.stringify({ AND: [{ app_id: config.project }, { metadata: { toolkit_kind: kind } }] });
-  return `${tool("get_memories")} with filters \`${filters}\``;
+  return `${tool("get_memories")} with filters \`${filters}\`, page: 1, page_size: 100; continue until a page is shorter than page_size`;
 }
 
 /** Where the exact tool arguments for a service are written down. */

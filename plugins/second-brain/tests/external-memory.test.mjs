@@ -59,8 +59,8 @@ test('startup (mem0): SOUL.md, PROJECT.md, then the exact tool for working memor
   const steps = [
     '1. Read `SOUL.md` in full.',
     '2. Read `PROJECT.md` in full.',
-    '3. Load working memory (kind `working`) with `mcp__mem0__get_memories` with filters `{"AND":[{"app_id":"dragonfly"},{"metadata":{"toolkit_kind":"working"}}]}`',
-    '4. List pending records (kind `pending`) with `mcp__mem0__get_memories` with filters `{"AND":[{"app_id":"dragonfly"},{"metadata":{"toolkit_kind":"pending"}}]}`',
+    '3. Load working memory (kind `working`) with `mcp__mem0__get_memories` with filters `{"AND":[{"app_id":"dragonfly"},{"metadata":{"toolkit_kind":"working"}}]}`, page: 1, page_size: 100; continue until a page is shorter than page_size.',
+    '4. List pending records (kind `pending`) with `mcp__mem0__get_memories` with filters `{"AND":[{"app_id":"dragonfly"},{"metadata":{"toolkit_kind":"pending"}}]}`, page: 1, page_size: 100; continue until a page is shorter than page_size.',
     'references/memory-providers/mem0.md',
     'If the MCP server `mem0` is not connected, tell the owner. Pause only the work that needs memory.',
   ];

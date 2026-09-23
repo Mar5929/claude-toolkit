@@ -586,7 +586,14 @@ test('Memory mode: "external" runs the external checks and K7, not the files che
   expect((await call($, bash('gh pr create --fill'))).deny).toContain('K7')
 })
 
-for (const [id, config] of [['mem-d', '{ not json'], ['mem-e', { format: 1, memory: 'external', service: 'mem0' }], ['mem-f', { format: 1, memory: 'cloud' }]] as const) {
+for (const [id, config] of [
+  ['mem-d', '{ not json'],
+  ['mem-e', { format: 1, memory: 'external', service: 'mem0' }],
+  ['mem-f', { format: 1, memory: 'cloud' }],
+  ['mem-j', { memory: 'external', service: 'mem0', server: 'mem0', project: 'demo' }],
+  ['mem-k', { ...MEM0, server: 'mem0.cloud' }],
+  ['mem-l', { ...MEM0, service: 'toString' }],
+] as const) {
   test(`Memory mode: an invalid config (${id}) means files, and the agent is told`, async ($, on) => {
     const w = memoryWorld(id, config, { exists: [MANUAL, CONFIG] })
     world(on, w)
@@ -627,6 +634,34 @@ for (const [id, config, save] of [['k4x-a', MEM0, mem0Add('lasting')], ['k4x-b',
     expect((await call($, { tool: config === MEM0 ? 'mcp__mem0__search_memories' : 'mcp__hindsight__recall', query: 'x' })).deny).toBeUndefined()
   })
 }
+
+test('K4X: Hindsight update_memory, invalidate_memory and delete_bank are writes; update_bank is not', async ($, on) => {
+  world(on, memoryWorld('k4x-e', HINDSIGHT))
+  await turn($, 't1')
+  expect((await call($, { tool: 'mcp__hindsight__update_memory', memory_id: 'm1', content: 'x' })).deny).toContain('K4X')
+  expect((await call($, { tool: 'mcp__hindsight__invalidate_memory', memory_id: 'm1' })).deny).toContain('K4X')
+  expect((await call($, { tool: 'mcp__hindsight__delete_bank' })).deny).toContain('K4X')
+  expect((await call($, { tool: 'mcp__hindsight__update_bank', config_updates: { retain_extraction_mode: 'chunks' } })).deny).toBeUndefined()
+  await call($, skill('knowledge-save'))
+  expect((await call($, { tool: 'mcp__hindsight__update_memory', memory_id: 'm1', content: 'x' })).deny).toBeUndefined()
+  expect((await call($, { tool: 'mcp__hindsight__invalidate_memory', memory_id: 'm1' })).deny).toBeUndefined()
+})
+
+test('CWX: Hindsight update_memory and invalidate_memory carry no document id, so they do not meet CWX', async ($, on) => {
+  world(on, memoryWorld('cwx-f', HINDSIGHT))
+  await turn($, 't1')
+  await call($, skill('knowledge-save'))
+  await call($, { tool: 'mcp__github__issue_write', method: 'create', title: 't' })
+  await call($, { tool: 'mcp__hindsight__update_memory', memory_id: 'working:m1', content: 'x' })
+  await call($, { tool: 'mcp__hindsight__invalidate_memory', memory_id: 'working:m1' })
+  expect((await step($, 't1')).shown).toBe(false)
+})
+
+test('K4X: mem0 delete_entities is a write', async ($, on) => {
+  world(on, memoryWorld('k4x-f', MEM0))
+  await turn($, 't1')
+  expect((await call($, { tool: 'mcp__mem0__delete_entities', user_id: 'u' })).deny).toContain('K4X')
+})
 
 test('K4X: a pending record needs knowledge-save opened this turn; a lasting one since the last reset', async ($, on) => {
   world(on, memoryWorld('k4x-c', HINDSIGHT))
@@ -689,6 +724,22 @@ test('CWX: Hindsight tags and a metadata string both carry the kind; a write bef
   expect((await step($, 't3')).shown).toBe(true)
 })
 
+test('CWX: on Hindsight only a delete of a working: document counts; clear_memories does not', async ($, on) => {
+  world(on, memoryWorld('cwx-e', HINDSIGHT))
+  await turn($, 't1')
+  await call($, skill('knowledge-save'))
+  await call($, { tool: 'mcp__github__issue_write', method: 'create', title: 't' })
+  await call($, { tool: 'mcp__hindsight__delete_document', bank_id: 'demo', document_id: 'pending:0b6c' })
+  await call($, { tool: 'mcp__hindsight__clear_memories', bank_id: 'demo' })
+  await call($, { tool: 'mcp__hindsight__delete_document', bank_id: 'demo', document_id: 'workingx' })
+  expect((await step($, 't1')).shown).toBe(false)
+  expect(((await $.classic.Stop({ stop_hook_active: false } as any)) as any).block).toContain('CWX')
+  await turn($, 't2')
+  await call($, { tool: 'mcp__github__issue_write', method: 'create', title: 't' })
+  await call($, { tool: 'mcp__hindsight__delete_document', bank_id: 'demo', document_id: 'working:issue-42' })
+  expect((await step($, 't2')).shown).toBe(true)
+})
+
 test('CWX: a failed memory-write call does not count', async ($, on) => {
   world(on, memoryWorld('cwx-c', MEM0, { failTools: ['mcp__mem0__add_memory'] }))
   await turn($, 't1')
@@ -728,8 +779,8 @@ test('K5X and K6X: prds/prd-index.md is never edited by hand; a prds/ write need
   expect((await step($, 't2')).shown).toBe(true)
 })
 
-test('Memory mode: a server name with other characters matches its tool names', async ($, on) => {
-  world(on, memoryWorld('mem-i', { ...MEM0, server: 'mem0.cloud' }))
+test('Memory mode: a server name with - and _ matches its tool names', async ($, on) => {
+  world(on, memoryWorld('mem-i', { ...MEM0, server: 'mem0-cloud_2' }))
   await turn($, 't1')
-  expect((await call($, { tool: 'mcp__mem0_cloud__add_memory', text: 'x', metadata: { toolkit_kind: 'lasting' } })).deny).toContain('K4X')
+  expect((await call($, { tool: 'mcp__mem0-cloud_2__add_memory', text: 'x', metadata: { toolkit_kind: 'lasting' } })).deny).toContain('K4X')
 })

@@ -34,6 +34,7 @@
 // compaction clears which skills were opened.
 import type { Register } from 'claude-code'
 import { STAGE_LABEL, changesWorkItem, fileWords, nodeScript, onlyReads, readCommand, reviewActions } from './shell-reader.mjs'
+import { validMemory } from './memory-config.mjs'
 
 const VERSION = '0.3.0'
 const FILE_TOOLS = new Set(['Write', 'Edit', 'MultiEdit', 'NotebookEdit'])
@@ -85,7 +86,7 @@ type NewFact =
   | { kind: 'write'; path: string; agent: string; certain: boolean }
   | { kind: 'work-item'; agent: string }
   | { kind: 'ran'; script: string; agent: string }
-  | { kind: 'call'; classes: string[]; memoryKind?: string; deletes: boolean; agent: string }
+  | { kind: 'call'; classes: string[]; memoryKind?: string; deletes?: string; agent: string }
 type Fact = NewFact & { seq: number }
 type Loop = { turn: Set<string>; reset: Set<string>; session: Set<string> }
 type Turn = { holds: Set<string>; errors: number; off: boolean; offNotice: boolean }
@@ -120,16 +121,31 @@ type State = {
 // Memory-service tools by class, per service (`mcp__<server>__<tool>`).
 const TOOL_CLASSES: Record<string, Record<string, string[]>> = {
   mem0: {
-    'memory-write': ['add_memory', 'update_memory', 'delete_memory', 'delete_all_memories'],
+    'memory-write': ['add_memory', 'update_memory', 'delete_memory', 'delete_all_memories', 'delete_entities'],
     'memory-read': ['get_memories', 'get_memory', 'search_memories'],
   },
   hindsight: {
-    'memory-write': ['retain', 'sync_retain', 'delete_document', 'clear_memories'],
+    // update_bank is left out: it changes the bank's settings at setup, not
+    // memory text.
+    'memory-write': ['retain', 'sync_retain', 'delete_document', 'clear_memories', 'update_memory', 'invalidate_memory', 'delete_bank'],
     'memory-read': ['list_documents', 'get_document', 'recall', 'list_memories', 'get_memory'],
   },
 }
 const CALL_CLASSES = ['memory-write', 'memory-read']
-const DELETE_TOOLS = new Set(['delete_memory', 'delete_all_memories', 'delete_document', 'clear_memories'])
+// The kind a delete call removes: '*' for any kind (a mem0 delete_memory or
+// delete_all_memories carries only an id), the prefix of a Hindsight
+// document_id before ':' (the key names the kind, such as "working:issue-42"),
+// or undefined. Every other write without a kind meets no kind requirement:
+// Hindsight clear_memories, update_memory, invalidate_memory and delete_bank
+// (they name no document), and mem0 delete_entities.
+function deletedKind(service: string | undefined, name: string, e: any): string | undefined {
+  if (service === 'mem0' && (name === 'delete_memory' || name === 'delete_all_memories')) return '*'
+  if (service === 'hindsight' && name === 'delete_document' && typeof e?.document_id === 'string') {
+    const at = e.document_id.indexOf(':')
+    return at > 0 ? e.document_id.slice(0, at) : undefined
+  }
+  return undefined
+}
 const MEMORY_CONFIG = '.toolkit-memory.json'
 // Where a helper's save lands, by mode: a helper that wrote here (or, in
 // external mode, called a memory-write tool) and is still running is a
@@ -241,8 +257,9 @@ function validCondition(c: any): boolean {
   return true
 }
 
-// The memory mode from .toolkit-memory.json. Missing means files. A file
-// that cannot be read or holds unknown values also means files (the checks
+// The memory mode from .toolkit-memory.json, by the rules in
+// memory-config.mjs. Missing means files. A file that cannot be read or is
+// not valid also means files (the checks
 // fail open to today's behaviour), and the agent is told once.
 async function readMemory($: any, s: State): Promise<Memory> {
   const path = `${s.root}/${MEMORY_CONFIG}`
@@ -254,12 +271,10 @@ async function readMemory($: any, s: State): Promise<Memory> {
     s.notes.push(`The memory config ${MEMORY_CONFIG} could not be read (${String(err)}). The workflow checks treat this project as memory mode "files". Tell the owner once.`)
     return { mode: 'files' }
   }
-  const text = (v: unknown) => typeof v === 'string' && v.trim() !== ''
-  if (c?.memory === 'files') return { mode: 'files' }
-  if (c?.memory === 'external' && text(c.service) && TOOL_CLASSES[c.service] !== undefined && text(c.server) && text(c.project)) {
-    return { mode: 'external', service: c.service, server: c.server }
-  }
-  s.notes.push(`The memory config ${MEMORY_CONFIG} is not valid: "memory" must be "files" or "external", and "external" needs "service" (mem0 or hindsight), "server" and "project". The workflow checks treat this project as memory mode "files". Tell the owner once.`)
+  const mode = validMemory(c)
+  if (mode === 'files') return { mode: 'files' }
+  if (mode === 'external') return { mode: 'external', service: c.service, server: c.server.trim() }
+  s.notes.push(`The memory config ${MEMORY_CONFIG} is not valid: it needs "format": 1 and "memory" set to "files" or "external", and "external" needs "service" (mem0 or hindsight), "server" (letters, digits, _ and - only) and "project". The workflow checks treat this project as memory mode "files". Tell the owner once.`)
   return { mode: 'files' }
 }
 
@@ -272,11 +287,11 @@ async function conditionHolds($: any, s: State, c: Condition): Promise<boolean> 
 }
 
 // The classes a tool belongs to for the configured memory service, if any.
-// Claude Code writes a server name with characters outside A-Z, a-z, 0-9,
-// _ and - as _ in tool names.
+// A valid server name holds only A-Z, a-z, 0-9, _ and -, so the tool name
+// Claude Code builds from it is mcp__<server>__<tool> unchanged.
 function toolClasses(s: State, tool: unknown): { classes: string[]; name: string } {
   if (s.memory.mode !== 'external' || typeof tool !== 'string') return { classes: [], name: '' }
-  const prefix = `mcp__${String(s.memory.server).replace(/[^A-Za-z0-9_-]/g, '_')}__`
+  const prefix = `mcp__${s.memory.server}__`
   if (!tool.startsWith(prefix)) return { classes: [], name: '' }
   const name = tool.slice(prefix.length)
   const table = TOOL_CLASSES[s.memory.service ?? ''] ?? {}
@@ -475,7 +490,7 @@ function factsOf(s: State, cwd: string, e: any, agent: string): NewFact[] {
   if (typeof e.tool === 'string' && e.tool.startsWith('mcp__')) {
     const mem = toolClasses(s, e.tool)
     if (mem.classes.length > 0) {
-      out.push({ kind: 'call', classes: mem.classes, memoryKind: memoryKind(e), deletes: DELETE_TOOLS.has(mem.name), agent })
+      out.push({ kind: 'call', classes: mem.classes, memoryKind: memoryKind(e), deletes: deletedKind(s.memory.service, mem.name, e), agent })
       return out
     }
     const name = e.tool.slice(e.tool.lastIndexOf('__') + 2)
@@ -590,7 +605,7 @@ function unmetReason(s: State, p: Protocol): string | undefined {
       if (!after.some((f) => f.kind === 'write' && f.certain && covers(f.path, r.wrote))) return `${what}, and ${r.wrote.join(', ')} was not written after that`
     }
     if ('called' in r) {
-      const met = after.some((f) => f.kind === 'call' && f.classes.includes(r.called) && (r.kind === undefined || f.memoryKind === r.kind || f.deletes))
+      const met = after.some((f) => f.kind === 'call' && f.classes.includes(r.called) && (r.kind === undefined || f.memoryKind === r.kind || f.deletes === '*' || f.deletes === r.kind))
       if (!met) return `${what}, and no ${r.called} call${r.kind === undefined ? '' : ` with toolkit_kind ${r.kind}`} to the memory service followed`
     }
     if ('ran' in r) {

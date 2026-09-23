@@ -183,7 +183,8 @@ separate prep, interview, or continuation files for that workflow.
   and checks are the same in both modes. Project context goes in `PROJECT.md`,
   the manuals in `docs/`, PRDs in `prds/`, and no `knowledge/` folder is made.
   Never install the provider's own Claude Code plugin. Print the
-  `[mcp_servers.<server>]` entry for `~/.codex/config.toml`.
+  `[mcp_servers.<server>]` entry for `~/.codex/config.toml`: the entry the
+  service's adapter shows (`url` and `bearer_token_env_var`).
 - Explain that the managed `knowledge/knowledge-manual.md` is the one operating manual and
   the remaining skills and hooks point to it.
 - Ask the owner what the project is, why it exists, what finished looks like,

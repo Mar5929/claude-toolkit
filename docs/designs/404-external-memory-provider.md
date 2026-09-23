@@ -117,8 +117,11 @@ memory has only one home (D2). It also fails on `knowledge/memory-inbox.md`,
 
 - `memory`: `files` or `external`. A missing file means `files`.
 - `service`: `mem0` or `hindsight`. Picks the adapter reference, below.
-- `server`: the MCP server name in the project's MCP settings. Tool names are
-  `mcp__<server>__<tool>`.
+- `server`: the MCP server name in the project's MCP settings. It holds only
+  letters, digits, `_` and `-`, so tool names are `mcp__<server>__<tool>`
+  with the name unchanged.
+- Every reader applies the same rules: `"format": 1`, the values above, each
+  on one line. An invalid file means `files` mode everywhere.
 - `project`: the scope inside the service. mem0 uses it as `app_id` and in
   metadata. Hindsight uses it as the bank id.
 
@@ -146,7 +149,9 @@ The stable key lets the agent find one record without a search:
 - Hindsight lets the caller choose the id. The key becomes the
   `document_id`, and a `sync_retain` with the same id replaces the record.
 - Each session handoff is its own `working` record, keyed
-  `working:handoff:<UTC time>`.
+  `working:handoff:<UTC time>`. The time is the full ISO UTC timestamp with
+  milliseconds, the same value as the handoff heading. An existing key is never
+  overwritten; the writer takes a new timestamp.
 
 ## Provider operations
 
@@ -203,15 +208,15 @@ Check changes:
 | Check | `files` mode | `external` mode |
 | --- | --- | --- |
 | K4 skill open before a knowledge write | Unchanged | `on.call: memory-write` plus file writes to `prds/`; pending records need the skill opened this turn |
-| CW working memory after a work-item change | Unchanged | Requires `called: memory-write` with `toolkit_kind = working` |
+| CW working memory after a work-item change | Unchanged | Requires `called: memory-write` with `toolkit_kind = working`, a mem0 `delete_memory` or `delete_all_memories`, or a Hindsight `delete_document` whose `document_id` starts with `working:` |
 | K5 generated indexes | Unchanged | `prds/prd-index.md` and `ai-external-knowledge/README.md` |
 | K6 index builder and checker after a write | Unchanged | After a `prds/` write |
 | K7 save review before PR, close, merge | Unchanged | Unchanged; it depends only on `knowledge-save` |
 
 ## Files touched
 
-- **protocol-guard:** `hooks/engine.ts`, `protocols.default.json`, `README.md`,
-  engine tests and fixtures.
+- **protocol-guard:** `hooks/engine.ts`, `hooks/memory-config.mjs` (the config
+  rules), `protocols.default.json`, `README.md`, engine tests and fixtures.
 - **second-brain:**
   - Knowledge manual template: section 1 check list and section 2 ownership
     table gain the `external` homes. Sections 3 and 4 do not change.
@@ -233,7 +238,7 @@ Check changes:
     depend on the mode.
   - `library/templates/toolkit-manual.md`.
   - Rules: `knowledge-direct-commit.md` adds `prds/**` and `PROJECT.md`.
-    Wording changes in `offer-context-handoff.md`, the general rules README,
+    Wording changes in the general rules README,
     `delivery-and-knowledge-boundary.md`, `permissions-runbook.md`, and
     `output-styles/terse.md`.
 - **Other plugins:**
@@ -243,10 +248,12 @@ Check changes:
   - Wording changes in `grill-me`, `solution-design`, and system-guide
     `commands-and-hosts.md`.
 - **This repository:**
-  - Installed copies and `.codex/hooks.json`.
+  - Installed copies.
   - `knowledge/toolkit-manual.md` and `docs/toolkit-map.md`.
-  - `README.md`, `docs/AGENTS.md`, `docs/designs/README.md`, and
-    `brainstorms/README.md`.
+  - `README.md` and `docs/designs/README.md`.
+  - No change needed: `docs/AGENTS.md`, `brainstorms/README.md`,
+    `offer-context-handoff.md`, and `.codex/hooks.json`. This repository stays
+    in `files` mode, and none of them holds a memory path.
   - `knowledge/project.md`: the Git boundary gains the D2 exception.
   - `knowledge/prds/toolkit-operating-system/knowledge-system.md` at stage 14.
   - Also fix the stale `spec-index.md` name in `.claude/toolkit-sync.md`.

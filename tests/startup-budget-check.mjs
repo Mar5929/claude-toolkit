@@ -51,6 +51,7 @@ import {
 import { tmpdir } from "node:os";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { readMemoryConfig } from "../plugins/second-brain/hooks/knowledge-manual.mjs";
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -64,14 +65,10 @@ const BUDGETS = { repo: 4500, general: 3000, project: 4300 };
 const REQUIRED_READS = ["SOUL.md", "knowledge/project.md", "knowledge/memory/current.md"];
 const EXTERNAL_READS = ["SOUL.md", "PROJECT.md"];
 
-/** The file reads for the project's memory mode. An unreadable config is files mode. */
+/** The file reads for the project's memory mode. An invalid config is files
+ * mode, by the same rules as the hooks. */
 function requiredReads(root) {
-  try {
-    const config = JSON.parse(readFileSync(join(root, ".toolkit-memory.json"), "utf8"));
-    return config?.memory === "external" ? EXTERNAL_READS : REQUIRED_READS;
-  } catch {
-    return REQUIRED_READS;
-  }
+  return readMemoryConfig(root).mode === "external" ? EXTERNAL_READS : REQUIRED_READS;
 }
 
 const words = (text) => text.split(/\s+/).filter(Boolean).length;

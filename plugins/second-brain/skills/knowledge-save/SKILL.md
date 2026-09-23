@@ -32,6 +32,8 @@ mode, and every step below applies as written. When `memory` is `external`:
   and the adapter it names for the config's `service`.
 - The inbox is the set of `pending` records. Step 3 writes a `pending` record
   where it would write an inbox entry.
+- Source and approval fields in a record name a person by name only, never an
+  email address or other contact details.
 - A memory write goes to the service through the adapter. It is published when
   the write succeeds and the read back matches the approved text exactly. A
   difference is a failed save. There is no commit and no index to rebuild for

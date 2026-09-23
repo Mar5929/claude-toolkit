@@ -75,8 +75,8 @@ is an error: report it.
 
 **Load working memory.** `get_memories` with
 `filters: {"AND": [{"app_id": P}, {"metadata": {"toolkit_kind": "working"}}]}`,
-`page: 1`, `page_size: 100`. Ask for the next page until a page returns fewer
-than 100. Each record's `memory` field is the entry text.
+`page: 1`, `page_size: 100`. Continue with the next page until a page is
+shorter than `page_size`. Each record's `memory` field is the entry text.
 
 **Add or replace a working entry.** Find the record by key. Then
 `add_memory` with `text`, `app_id: P`, `infer: false`, and
@@ -85,6 +85,11 @@ Read the new record back. If an old record with the key existed, only then
 `delete_memory` with the old `memory_id`. The key briefly names two records;
 the newer `created_at` is the current one. If the new write fails, keep the
 old record.
+
+**Add a handoff entry.** The key is `working:handoff:<UTC time>`, with the
+full ISO UTC timestamp and milliseconds from the handoff heading. First find
+the record by key. If it exists, never replace it: take a new timestamp. Then
+`add_memory` as for a working entry. There is no old record to delete.
 
 **Remove a working entry.** Find the record by key, then `delete_memory` with
 its `memory_id`.

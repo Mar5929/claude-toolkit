@@ -304,8 +304,9 @@ source evidence separate from owner-approved meaning, normally under
   server goes in the project's `.mcp.json`, with its API key in an environment
   variable, never in the repository. Then print, for the owner to add on each
   computer that runs Codex, the matching `[mcp_servers.<server>]` entry for
-  `~/.codex/config.toml`: the same server name, command, arguments, and
-  environment variable names as `.mcp.json`. Codex reads no project MCP file.
+  `~/.codex/config.toml`: the same server name, and the entry the service's
+  adapter shows (`url` and `bearer_token_env_var`). Codex reads no project MCP
+  file.
 - Explain that the managed `knowledge/knowledge-manual.md` is the one operating manual.
   It owns placement, finding, saving, file shape, approval, trust, lifecycle,
   and the skill map. Other runtime files point to it instead of copying policy.

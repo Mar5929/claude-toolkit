@@ -183,7 +183,7 @@ export function readMemoryConfig(projectRoot) {
   if (data.memory === "files") return files;
   if (data.memory !== "external") return invalid('needs "memory" set to "files" or "external".');
   if (!MEMORY_SERVICES.includes(data.service)) return invalid(`needs "service" set to ${MEMORY_SERVICES.map(x => `"${x}"`).join(" or ")} in external mode.`);
-  if (!nonblank(data.server) || !/^[A-Za-z0-9_.-]+$/.test(data.server)) return invalid('needs "server" set to the MCP server name in external mode.');
+  if (!nonblank(data.server) || !/^[A-Za-z0-9_-]+$/.test(data.server)) return invalid('needs "server" set to the MCP server name (letters, digits, _ and - only) in external mode.');
   if (!nonblank(data.project)) return invalid('needs "project" set to the memory scope in external mode.');
   return { mode: "external", service: data.service, server: data.server.trim(), project: data.project.trim(), error: null };
 }
