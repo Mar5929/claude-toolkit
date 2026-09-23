@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Personal, portable toolkit of reusable Claude systems: skills, rules, hooks, and templates shared across every project and device.",
-    "version": "0.130.0"
+    "version": "0.131.0"
   },
   "plugins": [
     {
@@ -27,7 +27,7 @@
     {
       "name": "git-workflows",
       "source": "./plugins/git-workflows",
-      "description": "Four parallel-session-safe git lifecycle skills. pull-latest updates without rewriting history, reset-to-remote mirrors a remote behind explicit confirmation, merge-and-clean-up lands an approved pull request before safely removing only its branch and worktree, and publish-docs commits an authorized documentation-only change straight to the default branch and verifies the push."
+      "description": "Four parallel-session-safe git lifecycle skills. pull-latest updates without rewriting history, reset-to-remote mirrors a remote behind explicit confirmation, merge-and-clean-up lands an approved pull request before safely removing only its branch and worktree, and publish-docs prepares an authorized documentation save in an isolated worktree before pushing directly to the default branch."
     },
     {
       "name": "hooks-library",

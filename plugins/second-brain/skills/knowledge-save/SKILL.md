@@ -71,10 +71,13 @@ Review every destination, not only lasting memory.
    review candidates, ask for approval, or read an answer. Decide the kind,
    scope, and owner first. Then apply the memory tests. Send valid non-memory
    information to its own process. A missing owner is a gap to report.
-2. Search the existing topic and the inbox. Check current sources and
-   permission. Read [operations and templates](references/operations.md) for
-   the operation, then only the template for the destination. Do not widen an
-   approval. Do not infer approval from silence, an index, or an inbox entry.
+2. Apply the topic placement test in [selection and cards](references/selection-and-cards.md)
+   before drafting a memory card: choose an existing topic, a clearer name, or
+   a distinct topic by the question a future reader would ask. Check the
+   inbox, current sources, and permission. Read
+   [operations and templates](references/operations.md) for the operation,
+   then only the template for the destination. Do not widen an approval. Do
+   not infer approval from silence, an index, or an inbox entry.
 3. Read [execution and recovery](references/execution-and-recovery.md) before
    any authorized save or retry. Record the exact authority and owed change in
    `knowledge/memory-inbox.md` (a `pending` record in `external` mode) before

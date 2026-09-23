@@ -1,6 +1,6 @@
 {
   "name": "git-workflows",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Parallel-session-safe git lifecycle skills for updating, resetting, merging with exact branch and worktree cleanup, and publishing documentation-only changes to the default branch.",
   "author": {
     "name": "Mike Rihm",
@@ -18,7 +18,7 @@
   "interface": {
     "displayName": "Git Workflows",
     "shortDescription": "Safe git lifecycle workflows for agent sessions.",
-    "longDescription": "Parallel-session-safe git workflow skills from Mike Rihm's toolkit. Includes pull-latest for safe updating, reset-to-remote for explicit remote mirroring, merge-and-clean-up for landing an approved pull request and removing only its completed workspace, and publish-docs for committing an authorized documentation-only change straight to the default branch.",
+    "longDescription": "Parallel-session-safe git workflow skills from Mike Rihm's toolkit. Includes pull-latest for safe updating, reset-to-remote for explicit remote mirroring, merge-and-clean-up for landing an approved pull request and removing only its completed workspace, and publish-docs for preparing an authorized documentation save in an isolated worktree before pushing directly to the default branch.",
     "developerName": "Mike Rihm",
     "category": "Developer Tools",
     "capabilities": [

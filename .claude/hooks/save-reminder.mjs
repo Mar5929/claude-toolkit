@@ -8,8 +8,8 @@
  * failures allow the command.
  *
  * A knowledge-only branch gets a different message. `knowledge-direct-commit.md`
- * says a save touching only `knowledge/` commits straight to the default branch,
- * with no worktree, branch, or pull request. That rule is context, not
+ * says a save touching only `knowledge/` publishes to the default branch
+ * from an isolated worktree, without a pull request. That rule is context, not
  * enforcement, so an agent can read it and open the pull request anyway. The
  * owner then finds out at the end of the session that an approved save never
  * landed. Reaching `gh pr create` with nothing but `knowledge/` in the diff is
@@ -169,8 +169,8 @@ export function buildDirectCommitMessage(paths, mode = "files") {
     `Files: ${paths.join(", ")}`,
     "",
     "For authorized documentation-only changes, open the publish-docs skill and follow",
-    ".claude/rules/knowledge-direct-commit.md from the existing default-branch",
-    "checkout, even while implementation is in a worktree.",
+    ".claude/rules/knowledge-direct-commit.md from a separate save worktree,",
+    "even while implementation is in another worktree.",
     "Reconcile only approved meaning with the latest destination, rebuild",
     "and check the indexes, and commit and push only this authorized save.",
     "Preserve other sessions' edits and staged work.",

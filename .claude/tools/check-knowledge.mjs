@@ -22,6 +22,24 @@ const installedRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..
 const root = resolve(process.argv[2] || installedRoot);
 
 const posix = (value) => value.split(sep).join("/");
+const stagedPaths = new Set();
+const stagedDirectories = new Set();
+if (process.env.TOOLKIT_STAGED_INDEX_MANIFEST) {
+  const entries = readFileSync(process.env.TOOLKIT_STAGED_INDEX_MANIFEST, "utf8").split("\0");
+  for (const entry of entries) {
+    const path = entry.slice(entry.indexOf("\t") + 1);
+    if (!entry.includes("\t") || !path) continue;
+    stagedPaths.add(path);
+    const parts = path.split("/");
+    for (let i = 1; i < parts.length; i++) stagedDirectories.add(parts.slice(0, i).join("/"));
+  }
+}
+function existsInSnapshot(path) {
+  if (existsSync(path)) return true;
+  const relativePath = posix(relative(root, path));
+  if (!relativePath || relativePath === ".." || relativePath.startsWith("../")) return false;
+  return stagedPaths.has(relativePath) || stagedDirectories.has(relativePath);
+}
 
 const CURRENT_MD_MAX_CHARS = 2000;
 const SELF_IMPROVEMENT_MAX_CHARS = 8000;
@@ -240,7 +258,7 @@ function checkFile(vault, folder, name, kind, schema = 1, base = resolve(vault, 
       if (/^[A-Za-z][A-Za-z0-9+.-]*:/.test(href) || href.startsWith("#")) continue;
       let target;
       try { target = decodeURIComponent(href.split("#")[0]); } catch { fail(path, `has an invalid link ${href}.`); continue; }
-      if (!existsSync(resolve(vault, folder, target))) fail(path, `link ${href} does not exist.`);
+      if (!existsInSnapshot(resolve(vault, folder, target))) fail(path, `link ${href} does not exist.`);
     }
   }
 

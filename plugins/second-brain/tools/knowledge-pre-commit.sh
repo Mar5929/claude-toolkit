@@ -27,11 +27,12 @@ tmp=$(mktemp -d "${TMPDIR:-/tmp}/knowledge-pre-commit.XXXXXX") || exit 1
 trap 'rm -rf "$tmp"' EXIT
 trap 'exit 1' HUP INT TERM
 
-# A private copy of exactly what this commit will contain. Line endings are
-# forced to LF: with core.autocrlf=true (the Windows default) checkout-index
-# writes CRLF files, and the checker then reports every generated index as not
-# matching its sources, although the same files pass in the working folder.
-git -c core.autocrlf=false -c core.eol=lf checkout-index -a --prefix="$tmp/" || exit 1
+# Copy only the staged files whose contents the checker reads. The manifest
+# lets it resolve links to other tracked files without copying their contents.
+# Force LF so generated indexes compare correctly with core.autocrlf=true.
+git ls-files --stage -z > "$tmp/.toolkit-staged-paths" || exit 1
+git ls-files -z -- knowledge/ ai-external-knowledge/ SOUL.md PROJECT.md prds/ docs/knowledge-manual.md .toolkit-memory.json .claude/tools/ \
+  | git -c core.autocrlf=false -c core.eol=lf checkout-index -z --stdin --prefix="$tmp/" || exit 1
 
 # A branch without project knowledge has nothing to check. A project in the
 # external memory mode has no knowledge/ folder but has .toolkit-memory.json.
@@ -48,7 +49,7 @@ if [ ! -f "$checker" ]; then
   exit 1
 fi
 
-if ! node "$checker" "$tmp"; then
+if ! TOOLKIT_STAGED_INDEX_MANIFEST="$tmp/.toolkit-staged-paths" node "$checker" "$tmp"; then
   echo "Knowledge check: this commit was refused. Fix the files named above," >&2
   echo "stage them, and commit again. Do not skip the check with --no-verify." >&2
   exit 1

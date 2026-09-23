@@ -32,8 +32,9 @@ but nothing has to be set up inside it.
   deletion and handles squash merges without force-deleting unrelated work.
 
 - **publish-docs** (`/publish-docs`): saves an authorized documentation-only
-  change straight to the default branch from the existing checkout: check,
-  stage by name, commit, push, and verify the remote. It holds the steps the
+  change from an isolated, sparse worktree straight to the default branch:
+  check, stage by name, commit, push, and verify the remote. Its script creates
+  a separate staging area for each save. It holds the steps the
   path-scoped `knowledge-direct-commit.md` rule points to. Rules, skills,
   hooks, settings, and code still use a worktree and pull request.
 
@@ -45,7 +46,7 @@ but nothing has to be set up inside it.
   redundant with each other: pull-latest gets current, reset-to-remote
   deliberately discards local state, merge-and-clean-up lands approved work
   before removing only its finished workspace, and publish-docs lands a
-  documentation save without a pull request.
+  documentation save without a pull request or a shared staging area.
 
 ## Maintaining this plugin
 
