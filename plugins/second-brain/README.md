@@ -134,6 +134,8 @@ parallel helpers are unavailable.
 hold and its plain retry, compound close/merge commands and hook entry points.
 `tests/new-install.test.mjs` assembles an empty project and runs the copied
 startup, prompt, completion and review commands from a nested working directory.
+`tests/external-memory.test.mjs` covers the `external` memory mode: the config,
+startup text for mem0 and Hindsight, reminders, and the copied hooks.
 These deterministic checks do not replace fresh-agent meaning/host tests.
 Repository tests also check links, discovery, installed copies and startup.
 Current delivery evidence is in the #269 work record and its linked implementation
