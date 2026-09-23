@@ -1,24 +1,11 @@
 # Current working memory
-Updated: 2026-09-22
+Updated: 2026-09-23
 
 ## Project goal
 Finish the active output-style and protocol work, complete the approved cleanup,
 then prove and accept the whole Toolkit Operating System.
 
 ## Active work
-
-### Forced protocols with function hooks — #396
-Updated: 2026-09-23
-
-**Goal** Enforce required steps with function-hook fact checks without limiting reasoning.
-
-**Current status** Steps 4 to 7 merged: PRs #401, #402, #403 and DragonFly PR #116. Status report sent to Mike. Stage 11-user-approval.
-
-**Next step** Mike installs `protocol-guard`, syncs, and tests on Windows and the desktop app (step 8). His open decisions are listed in the issue.
-
-**Blocker** None.
-
-**Detailed record** [#396](https://github.com/Mar5929/claude-toolkit/issues/396).
 
 ### External memory provider — #404
 Updated: 2026-09-23
@@ -62,9 +49,9 @@ Updated: 2026-09-22
 
 **Current status** Requirements approved. Backlog; build not started. This audit confirmed the current file still duplicated stale status from closed tickets.
 
-**Next step** Deliver this contract before or as the first part of #396's working-memory fact checks.
+**Next step** Build this contract. #396 shipped its working-memory check (CW) on 2026-09-23.
 
-**Blocker** Coordinate overlapping manual, rule and handoff edits with #396.
+**Blocker** None.
 
 **Detailed record** [#382](https://github.com/Mar5929/claude-toolkit/issues/382).
 
@@ -75,9 +62,9 @@ Updated: 2026-09-22
 
 **Current status** Requirements approved. #388 completed the root-instruction corrections and removed the "Huh?" instruction. The issue body now lists only the remaining documentation work.
 
-**Next step** Start after #396's rewrite, then check the final walkthrough, PRDs, toolkit map and #269 design records once.
+**Next step** Check the final walkthrough, PRDs, toolkit map and #269 design records once.
 
-**Blocker** #396 changes overlapping documentation.
+**Blocker** None. #396 closed 2026-09-23.
 
 **Detailed record** [#385](https://github.com/Mar5929/claude-toolkit/issues/385).
 
@@ -88,14 +75,20 @@ Updated: 2026-09-22
 
 **Current status** Refinement backlog. The issue now owns all remaining live-host checks from #360, #377, #379 and #388, plus PRD review, design-reasoning retention and final acceptance.
 
-**Next step** Refresh the proof plan after #396 finishes and #391 receives fresh-chat acceptance, then run it against the final installed versions.
+**Next step** Refresh the proof plan after #391 fresh-chat acceptance, then run it against the final installed versions.
 
-**Blocker** #396 behavior is not delivered. #391 shipped, but Mike's fresh-chat acceptance is pending.
+**Blocker** Mike's #391 acceptance is pending.
 
 **Detailed record** [#384](https://github.com/Mar5929/claude-toolkit/issues/384).
 
 ## General project to-dos
-None.
+Mike's to-dos left from [#396](https://github.com/Mar5929/claude-toolkit/issues/396), closed 2026-09-23 (details in the issue):
+- Install `protocol-guard`, sync, and test on Windows and the desktop app.
+- Keep or restore the removed decision 4 refusal line.
+- Supply D3 and D17 from #383.
+- Check the agent-written F2 wording in `folder-instruction-files.md`.
+- DragonFly: `SOUL.md` save line; work-item paragraph in Mike's own words; #391 style items; cut `AGENTS.md` toward 4,300 startup words; `save-reminder.mjs` rule name.
+- Run the Codex test (4G).
 
 ## Session handoffs
 None.
