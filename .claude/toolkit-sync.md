@@ -351,3 +351,23 @@ Updated the shipped and installed lifecycle rule together. It now directs
 orientation before substantial work and faithful progress capture. Removed
 the retired `work-item-stage-reminder` script and its registration, keeping
 all other hooks. Handoff refreshes the chosen tracker before memory review.
+
+## 2026-09-23: startup cut (#396)
+
+Startup text in this repository went from 9,004 to about 4,249 always-loaded
+words. `toolkit-session-start.mjs` runs at SessionStart only and prints the
+toolkit manual's Summary; its per-message entry was removed from
+`.claude/settings.json` and `.codex/hooks.json`. `knowledge-session-start.mjs`
+asks for three reads (`SOUL.md`, `knowledge/project.md`,
+`knowledge/memory/current.md`) and the inbox check; both manuals are reference.
+`memory-reminder.mjs` is about 40 words and asks for no acknowledgment.
+`save-reminder.mjs` names the `publish-docs` skill. The rules index moved from
+`.claude/rules/README.md` to `.claude/RULES.md`, the general rules were
+rewritten short, `knowledge-direct-commit.md` became path-scoped, and the new
+repo-only rule `standing-merge-instruction.md` records decision D9. Root
+`AGENTS.md` has the three-read Startup section and a Path-scoped rules section
+for Codex. New checks: `tests/startup-budget-check.mjs` and
+`tests/skill-copy-check.mjs`.
+Release versions: project-init 0.78.0, second-brain 4.13.0, work-tracker
+2.10.0, git-workflows 0.3.0, session-skills 1.13.1, hooks-library 3.6.3,
+marketplace 0.124.15. Machine plugin caches are refreshed after the merge.

@@ -61,13 +61,14 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 
 ## The library: what lands in a project
 
-Rules, tools, templates, and the guides that install them all sit
-together in one folder, `plugins/project-init/library/`:
+Rules, project skills, tools, templates, and the guides that install them all
+sit together in one folder, `plugins/project-init/library/`:
 
 | Folder | Holds |
 | --- | --- |
 | `library/rules/general/` | the standard `.claude/rules/` files every project gets |
 | `library/rules/salesforce/` | the extra `.claude/rules/` files a Salesforce project gets |
+| `library/skills/salesforce/` | `sf-component-tracker`, `sf-deploy-check`, and `sf-data-change`: the skills the Salesforce rules open. `project-init` and `project-sync` copy each one twice, to `.claude/skills/<name>/` for Claude Code and `.agents/skills/<name>/` for Codex |
 | `library/tools/` | `permsets.py` and the `kb/` dependency graph tool |
 | `library/templates/` | copy-and-fill starting points |
 | `library/guides/` | how-to documents for installing the kits above |
@@ -85,7 +86,9 @@ Startup text is kept small on purpose (issue #396). The project-init
 toolkit manual's short Summary. Root `AGENTS.md` asks for three reads:
 `SOUL.md`, `knowledge/project.md`, `knowledge/memory/current.md`. Both manuals
 are reference that skills open. `tests/startup-budget-check.mjs` fails when the
-always-loaded words grow past its budget.
+always-loaded words grow past its budget. Each project indexes its rules in
+`.claude/RULES.md`, outside `.claude/rules/`, because every `.md` file in that
+folder loads as a rule.
 
 None of it belongs to `project-init`. `project-sync` reads the same folder, and
 so can anything else added later. It sits inside the `project-init` plugin for
@@ -588,6 +591,17 @@ files the plugin ships. Run it with
 `node tests/installed-copy-check.mjs`.
 
 `tests/knowledge-startup-check.mjs` guards the operating contract. It checks the
-manual's size and checksum, its single ownership markers, the exact loader
-order, fail-open behavior, identical short root fallback, and Claude and Codex
-hook parity. Run it with `node tests/knowledge-startup-check.mjs`.
+manual's checksum, its single ownership markers, the three startup reads and
+their order, the short per-message reminder, fail-open behavior, the root
+`AGENTS.md` Startup section, and Claude and Codex hook parity. Run it with
+`node tests/knowledge-startup-check.mjs`.
+
+`tests/startup-budget-check.mjs` counts the words every session loads at start:
+rules with no `paths:`, root `AGENTS.md`, SessionStart hook output, and the
+three startup reads. It fails when a profile passes its budget. Run it with
+`node tests/startup-budget-check.mjs`.
+
+`tests/skill-copy-check.mjs` checks that the `.claude/skills/` and
+`.agents/skills/` copies of each project skill are byte-identical, that library
+skills use only frontmatter both hosts read, and that every skill a Salesforce
+rule names exists. Run it with `node tests/skill-copy-check.mjs`.
