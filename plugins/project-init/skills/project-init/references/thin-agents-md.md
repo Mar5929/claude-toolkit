@@ -27,7 +27,8 @@ line. Source: https://code.claude.com/docs/en/memory
 6. **Codemap.** A table, one row per folder, module, or context source. Each row
    says what is in it and when to open it. Name the context sources, not only
    the code: captured outside documentation, reference data, the PRDs in
-   `knowledge/prds/`, the build plans in `docs/designs/`. A
+   `knowledge/prds/` (`prds/` in the `external` memory mode), the build plans
+   in `docs/designs/`. A
    source nothing points at is a source nobody opens, and a folder that is still
    empty is the easiest one to leave out.
 7. **Tools.** The major tools this project runs on: MCP servers, generated
@@ -53,7 +54,9 @@ line. Source: https://code.claude.com/docs/en/memory
   Git-ignored because that fact explains why it has no commit or push.
 - **Where something came from or when it arrived.** Git history owns that.
 - **Current status, next action, or open work.** The tracker owns that.
-- **What `knowledge/` contains.** Its `knowledge-manual.md` owns that.
+- **What `knowledge/` contains.** Its `knowledge-manual.md` owns that. In the
+  `external` memory mode, `docs/knowledge-manual.md` owns what the memory
+  service holds.
 
 ## The fixed line above the title
 
@@ -70,7 +73,9 @@ The Startup section names `SOUL.md`, so no separate SOUL line is needed.
 
 ## Startup
 
-Every equipped project uses this section:
+Every equipped project in the `files` memory mode uses this section. A project
+with no `.toolkit-memory.json`, or one that says `"memory": "files"`, is in
+`files` mode:
 
 ```markdown
 ## Startup
@@ -82,14 +87,31 @@ Every equipped project uses this section:
   section when a task needs it.
 ```
 
-Without project knowledge, keep only the files that exist and the last line.
-Never require a full read of `knowledge/toolkit-manual.md` or
-`knowledge/knowledge-manual.md` at startup, and never ask for an
+A project whose `.toolkit-memory.json` says `"memory": "external"` keeps its
+memory in a memory service (mem0 or Hindsight) and uses this section instead:
+
+```markdown
+## Startup
+
+- Read `SOUL.md` and `PROJECT.md`.
+- Load working memory in full through the memory service named in
+  `.toolkit-memory.json`. If its MCP server is not connected, tell the owner.
+- List pending saves in the memory service.
+- Repeat these steps after resume, clear, or compaction.
+- Procedures live in skills. The manuals in `docs/` are reference: open a
+  section when a task needs it.
+```
+
+Without project knowledge, keep only the files that exist and the last line;
+the manual is then `knowledge/toolkit-manual.md`.
+Never require a full read of either manual (`knowledge/toolkit-manual.md` and
+`knowledge/knowledge-manual.md`, or their `docs/` copies in `external` mode) at startup, and never ask for an
 acknowledgment. The startup hooks print the same route. This section is the
 fallback when hooks do not run.
 
-Do not copy the save policy, the routing table, or the knowledge specification
-into the root file. `knowledge/knowledge-manual.md` owns those.
+Do not copy the save policy, the routing table, the memory service's tool
+names, or the knowledge specification into the root file. The knowledge manual
+owns those.
 
 ## Path-scoped rules
 
@@ -105,7 +127,9 @@ before working on a matching path.
 - `knowledge/**`, `docs/**`, `**/README.md`: `.claude/rules/knowledge-direct-commit.md`
 ```
 
-List only rules installed in this project, with their actual patterns.
+List only rules installed in this project, with their actual patterns. In the
+`external` memory mode, write `prds/**`, `PROJECT.md`, `docs/**`, `**/README.md`
+for `knowledge-direct-commit.md`, and leave out `knowledge/**`.
 
 ## The System Guide fallback route
 
@@ -123,7 +147,9 @@ Include a documentation-publication pointer in every equipped project unless
 the owner opted out. Name its actual documentation locations from the codemap;
 do not create a folder just to make this row fit. The rule applies without
 knowledge or a tracker. Include the
-`knowledge/` row only when project knowledge is configured. Include the
+`knowledge/` row only when project knowledge is configured in `files` mode. In
+`external` mode, use the `prds/` row below instead: memory records are not
+files, so they have no quick-save row. Include the
 `.work-items/` row only when local work tracking is configured. A project with
 no tracker, or a different tracker, gets no `.work-items/` row.
 
@@ -134,6 +160,7 @@ no tracker, or a different tracker, gets no `.work-items/` row.
 | --- | --- | --- |
 | Project documentation (use actual paths from the codemap) | Authorized documentation-only updates go straight to the default branch. | `.claude/rules/knowledge-direct-commit.md` and the `publish-docs` skill |
 | `knowledge/` | Content approval follows the knowledge manual, then the route above. | `knowledge/knowledge-manual.md` and the `knowledge-save` skill |
+| `prds/` and `PROJECT.md` (`external` mode only) | Content approval follows the knowledge manual, then the route above. Memory records go through the same skill. | `docs/knowledge-manual.md` and the `knowledge-save` skill |
 | `.work-items/` | Update the existing shared, Git-ignored local tracker. Do not create a worktree, commit, or push for the tracker update. | `.claude/rules/work-item-folders.md` and the `work` skill |
 ```
 

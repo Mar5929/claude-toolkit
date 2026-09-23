@@ -2,7 +2,8 @@
 
 `toolkit-session-start.mjs` belongs to project-init's delivery package. Copy it
 to `.claude/hooks/toolkit-session-start.mjs` together with
-`library/templates/toolkit-manual.md` at `knowledge/toolkit-manual.md`. It needs
+`library/templates/toolkit-manual.md` at `knowledge/toolkit-manual.md`, or at
+`docs/toolkit-manual.md` when `.toolkit-memory.json` says `"memory": "external"`. It needs
 no optional plugin and writes no files.
 
 The setup and sync procedure is
@@ -64,8 +65,10 @@ on Windows.
 
 - One header line: paths resolve from the project root.
 - The `## Summary` section of `knowledge/toolkit-manual.md`, cut at 120 words.
-  Without that section, the script prints its built-in default, which matches
-  the template's Summary.
+  In the `external` memory mode it prints the `## Summary for the external
+  memory mode` section of `docs/toolkit-manual.md` instead. A missing or
+  invalid `.toolkit-memory.json` means `files` mode. Without the section, the
+  script prints its built-in default, which matches the template's section.
 - One line per gap: a missing, empty, or unreadable manual; missing root
   instructions; a `CLAUDE.md` that is not the single `@AGENTS.md` line.
 

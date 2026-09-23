@@ -262,7 +262,7 @@ Several sessions work in this repository at once, each in its own worktree. The
 memory system adds a shared file they can collide on that was not there before.
 
 Every approved save rebuilds `knowledge/memory/memory-index.md` and
-`knowledge/prds/spec-index.md`. Two sessions saving on different branches can
+`knowledge/prds/prd-index.md`. Two sessions saving on different branches can
 both change them, so Git may merge both with no reported conflict and still
 leave the result wrong.
 

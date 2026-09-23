@@ -29,7 +29,8 @@ Read these to find where things actually go:
    tracker, the delivery root, and the source folders.
 2. `docs/designs/README.md`, for where a solution design lives and what happens
    to it afterwards.
-3. The routing table in `knowledge/knowledge-manual.md`, for what belongs in
+3. The routing table in `knowledge/knowledge-manual.md` (`docs/knowledge-manual.md`
+   when `.toolkit-memory.json` says `"memory": "external"`), for what belongs in
    persistent project knowledge, in a project that has it. Read that table,
    not the whole manual.
 

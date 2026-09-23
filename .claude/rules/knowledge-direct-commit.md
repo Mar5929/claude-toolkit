@@ -1,6 +1,8 @@
 ---
 paths:
   - "knowledge/**"
+  - "prds/**"
+  - "PROJECT.md"
   - "docs/**"
   - "**/README.md"
 ---

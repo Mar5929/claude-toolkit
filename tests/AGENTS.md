@@ -13,8 +13,9 @@ node tests/protocol-guard-check.mjs
 node --test tests/toolkit-startup.test.mjs
 ```
 
-`startup-budget-check.mjs` runs both its profiles by default. Plugin tests have
-their own runners: `node --test plugins/second-brain/tests/*.test.mjs`, the work-tracker
+`startup-budget-check.mjs` runs its three profiles by default. Plugin tests have
+their own runners: `node --test plugins/second-brain/tests/*.test.mjs` (it
+includes `external-memory.test.mjs`, the `external` memory mode tests), the work-tracker
 command in its `README.md`, and `node --test
 plugins/hooks-library/tests/style-handshake.test.mjs` plus `node
 plugins/hooks-library/tests/no-ai-attribution-guard-harness.mjs`.
@@ -28,7 +29,7 @@ Each asks a different question, and each exists because something real broke.
 | `orphan-check.mjs` | Can a shipped file still be found, meaning is it named by at least one index document? |
 | `installed-copy-check.mjs` | Do two files that must say the same thing still say it, and does the Salesforce scaffold keep its required homes? |
 | `knowledge-startup-check.mjs` | Do both hosts ask for the three startup reads (`SOUL.md`, `knowledge/project.md`, `knowledge/memory/current.md`) and the inbox check, with no manual read and no acknowledgment? Is the per-message reminder short, and does the managed manual match its hash? |
-| `startup-budget-check.mjs` | Does the text loaded at the start of every session stay under budget? It counts words in rules with no `paths:`, root `AGENTS.md`, SessionStart hook output, and the three required reads (`SOUL.md`, `knowledge/project.md`, `knowledge/memory/current.md`). |
+| `startup-budget-check.mjs` | Does the text loaded at the start of every session stay under budget? It counts words in rules with no `paths:`, root `AGENTS.md`, SessionStart hook output, and the three required reads (`SOUL.md`, `knowledge/project.md`, `knowledge/memory/current.md`), or `SOUL.md` and `PROJECT.md` in the `external` memory mode. |
 | `protocol-guard-check.mjs` | Does the `protocol-guard` engine still fit the installed Claude Code? It regenerates the function-hook declarations with `/plugin-types`, type-checks the engine, runs `claude plugin validate` and the plugin's offline tests, checks that each protocol's owner skill exists, and compares the engine's shell reader with the command hooks' reader. The Claude Code steps skip when `claude` is not installed. Run it after every Claude Code update too. |
 | `skill-copy-check.mjs` | Are the `.claude/skills/<name>/` and `.agents/skills/<name>/` copies of each project skill byte-identical, do library skills use only `name` and `description` frontmatter, and does every skill a Salesforce rule names exist? Run `node tests/skill-copy-check.mjs`. |
 
@@ -43,7 +44,9 @@ portable manual references.
   as it runs itself; it measured 4,249, down from 9,004 on `d4d7fce` counted
   the same way (that count leaves out the two manuals and two indexes the old
   hooks also asked for). `general` (3,000) is a new project built from shipped
-  files only; it measured 2,751. `--project <path>` measures a real project
+  files only; it measured 2,751. `external` is that same new project in the
+  `external` memory mode (`.toolkit-memory.json`, `PROJECT.md`, both manuals in
+  `docs/`, no `knowledge/`) and uses the `general` budget. `--project <path>` measures a real project
   against 4,300, the approved #396 target for DragonFly without its Salesforce
   rules; `--budget <words>` overrides it. Raise a budget only with the owner's
   approval, and record the reason here.
@@ -68,7 +71,7 @@ portable manual references.
   a second copy that drifts. Codex expands no import syntax, so an `@path` line
   inside `AGENTS.md` would reach a Codex session as literal text.
 - **`knowledge-startup-check.mjs` owns the startup contract.** It checks the
-  three-read list and its order, fail-open behavior, host registration, the
+  three-read list and its order, the `external` memory mode reads, fail-open behavior, host registration, the
   root `AGENTS.md` Startup section, the short reminder text, the manual hash,
   and the absence of a second marked policy owner.
 - **Stage a deletion before running the checks.** `link-check.mjs` and

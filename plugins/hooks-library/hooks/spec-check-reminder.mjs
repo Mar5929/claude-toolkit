@@ -11,9 +11,11 @@
  * question back in front of the agent at the one moment that matters, the
  * first write.
  *
- * What it is NOT. A reminder, not a gate. It reads nothing, judges nothing,
- * and never blocks an edit. It cannot tell real build work from a one-line
- * fix, so it asks once and stays quiet for the rest of the session.
+ * What it is NOT. A reminder, not a gate. It reads only `.toolkit-memory.json`
+ * to name the project's PRD folder (`prds/` in the external memory mode,
+ * otherwise `knowledge/prds/`). It judges nothing and never blocks an edit.
+ * It cannot tell real build work from a one-line fix, so it asks once and
+ * stays quiet for the rest of the session.
  *
  * How it delivers. PostToolUse on Edit, Write, and NotebookEdit. Exit 0 with
  * the reminder on stdout, which Claude Code feeds back to the agent. A state
@@ -24,7 +26,7 @@
  */
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 
 function bail() {
@@ -51,10 +53,25 @@ try {
   bail();
 }
 
+// A missing or invalid config means the files memory mode.
+function prdFolder() {
+  try {
+    const root = process.env.CLAUDE_PROJECT_DIR || input.cwd || process.cwd();
+    const config = JSON.parse(readFileSync(resolve(root, '.toolkit-memory.json'), 'utf8'));
+    const named = (value) => typeof value === 'string' && value.trim() !== '';
+    const external = config && config.format === 1 && config.memory === 'external'
+      && ['mem0', 'hindsight'].includes(config.service)
+      && named(config.server) && named(config.project);
+    return external ? 'prds/' : 'knowledge/prds/';
+  } catch {
+    return 'knowledge/prds/';
+  }
+}
+
 process.stdout.write(
   [
     'First file change of this session. If this edit is part of building from',
-    'or designing a solution from a specification (a knowledge/prds/ file or',
+    `or designing a solution from a specification (a ${prdFolder()} file or`,
     'a ticket body), and the spec-check skill has not run yet, run it now and',
     'show the owner what it finds before building further. If this is not',
     'build-from-a-spec work, or the check already ran, continue; this reminder',

@@ -177,6 +177,13 @@ separate prep, interview, or continuation files for that workflow.
   adoption first and use `--adopt` only after the owner chooses it. Never move,
   replace, or silently adopt existing content.
 - Offer `second-brain` as its own coherent opt-in system.
+- On a yes, ask: "Memory: files in Git (second brain) or an external memory
+  service (mem0 or Hindsight)?" `files` is the default. For `external`,
+  `knowledge-setup`'s external path writes `.toolkit-memory.json`; the plugin
+  and checks are the same in both modes. Project context goes in `PROJECT.md`,
+  the manuals in `docs/`, PRDs in `prds/`, and no `knowledge/` folder is made.
+  Never install the provider's own Claude Code plugin. Print the
+  `[mcp_servers.<server>]` entry for `~/.codex/config.toml`.
 - Explain that the managed `knowledge/knowledge-manual.md` is the one operating manual and
   the remaining skills and hooks point to it.
 - Ask the owner what the project is, why it exists, what finished looks like,
@@ -203,8 +210,9 @@ separate prep, interview, or continuation files for that workflow.
   core plugin list.
 - Offer an initial `knowledge-save` pass after setup. It follows the manual's approval
   contract.
-- Do not install a database, memory MCP server, embeddings, transcript capture,
-  or background curation.
+- Do not install a database, embeddings, transcript capture, or background
+  curation. A memory service's MCP server is added only for the `external`
+  memory mode.
 - The memory, PRD and outside-documentation indexes are generated. Create no
   competing knowledge indexes or nested instruction files; the unmarked root
   README links to the knowledge manual.
@@ -233,7 +241,8 @@ separate prep, interview, or continuation files for that workflow.
 - Install the Toolkit operating manual for every equipped project, whether or
   not the owner selected project knowledge. Follow
   `toolkit-manual-delivery.md`: copy the packaged template to
-  `knowledge/toolkit-manual.md`, install the project-init-owned startup hook
+  `knowledge/toolkit-manual.md` (`docs/toolkit-manual.md` in `external` memory
+  mode), install the project-init-owned startup hook
   (SessionStart only), and write the Startup section from `thin-agents-md.md`
   into `AGENTS.md`. The manual is reference; nothing asks for a full read.
 - The manual uses universal workflow text. Put the project's actual tracker,
@@ -290,7 +299,8 @@ separate prep, interview, or continuation files for that workflow.
   knowledge is disabled, using the
   project's actual documentation paths. Install the default-ON unscoped
   `knowledge-direct-commit.md` unless explicitly declined. Include system rows
-  only for systems selected in this project: `knowledge/` when Gate 3 ran, and
+  only for systems selected in this project: `knowledge/` when Gate 3 ran
+  (`prds/` and `PROJECT.md` in `external` memory mode), and
   `.work-items/` when the owner chose local tracking. Point each row to its
   owning manual, rule, or skill instead of copying the procedure. Do not name a
   declined, absent, or external tracker as a local quick-save folder.

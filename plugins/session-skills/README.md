@@ -194,7 +194,8 @@ response to a file before asking the next one.
 ### The persistence contract
 
 The capture file is the source of truth, not the conversation. It creates a
-dated file under `brainstorms/` for schema 2 (legacy: `knowledge/brainstorms/`),
+dated file under `brainstorms/` for schema 2 and for the `external` memory
+mode (legacy: `knowledge/brainstorms/`),
 walks the topic in dependency order, records every answer and open flag before
 continuing, then closes with a contradiction check and a short recap.
 
@@ -242,7 +243,10 @@ start from.
 5. **The temporary handoff.** Save the checked continuation under **Session
    handoffs** in current working memory, newest first, preserving other entries.
    Use the installed layout: `knowledge/memory/current.md` for schema 2, or
-   legacy `knowledge/current.md`. Honor its whole-file cap. If useful context
+   legacy `knowledge/current.md`. Honor its whole-file cap. In the `external`
+   memory mode (`.toolkit-memory.json` says `"memory": "external"`), save the
+   entry as its own working-memory record, keyed `working:handoff:<UTC time>`,
+   through `knowledge-save`. If useful context
    cannot fit, propose an arrangement using existing owning records without
    losing essentials. No separate store or automatic expiry is introduced.
 6. **The result.** Show the checked prompt and where it was saved, distinguishing
@@ -424,7 +428,7 @@ A specification that many sessions have touched drifts: agents add context,
 research, and detail, and each later agent builds from a slightly more
 polluted version, further from the goal. Run `/spec-check` before building
 from or designing a solution from a specification, meaning a
-`knowledge/prds/` file or a ticket body (a GitHub issue, a Linear ticket, or
+`knowledge/prds/` file (`prds/` in the `external` memory mode) or a ticket body (a GitHub issue, a Linear ticket, or
 a work item's Requirements section (legacy: `REQUIREMENTS.md`)).
 
 The check names what it read, restates the goal in one line, then flags

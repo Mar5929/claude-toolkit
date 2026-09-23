@@ -106,7 +106,7 @@ Test four project states after setup or sync:
 | --- | --- |
 | System Guide only | Claude gets one ON briefing; relevant prompts discover the skill; Codex follows root guidance and can invoke the skill |
 | Both plugins | One ON briefing total; second-brain routing includes the guide |
-| Second brain only | Its briefing says System Guide is not configured; no guide files are read or refreshed |
+| Second brain only, in either memory mode (`files` or `external`) | Its briefing says System Guide is not configured; no guide files are read or refreshed |
 | Neither | No guide startup output or guide work |
 
 Automatic model selection is probabilistic and cannot be guaranteed by deterministic tests. Smoke-test a fresh host session with a prompt such as `Which process writes this field, and what else could a change affect?` Confirm the agent opens the configured entry and relevant pages before a broad source search.

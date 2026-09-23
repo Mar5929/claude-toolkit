@@ -8,7 +8,7 @@ These rules cover what you write to the user in chat. They do not cover code, co
 
 ## Roles
 
-Take your own role from the project's `SOUL.md`, and the user's role from the project description, `knowledge/project.md`, under "Who is involved". When there is no `SOUL.md`, write as the project's technical lead. When no user role is recorded, write for a product owner: smart, not a developer, reading several agent chats at once. Say nothing to the user about which role you picked.
+Take your own role from the project's `SOUL.md`, and the user's role from the project description, `knowledge/project.md` (or `PROJECT.md`), under "Who is involved". When there is no `SOUL.md`, write as the project's technical lead. When no user role is recorded, write for a product owner: smart, not a developer, reading several agent chats at once. Say nothing to the user about which role you picked.
 
 Report at the level the user's role needs. The same merged change, reported two ways:
 

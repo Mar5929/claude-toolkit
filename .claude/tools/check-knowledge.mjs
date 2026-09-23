@@ -4,6 +4,8 @@
  * Read-only checks for the managed manual and selected knowledge schema.
  * Legacy projects keep their existing checks. Schema 2 checks topic records,
  * permission metadata, required paths and three source-generated indexes.
+ * `external` memory mode checks `.toolkit-memory.json`, PROJECT.md, the manual
+ * in docs/ and PRDs in prds/, and fails when memory files remain in knowledge/.
  * Shape and known secret-pattern checks cannot prove meaning or permission.
  * Usage: node check-knowledge.mjs [project-root]
  */
@@ -14,7 +16,7 @@ import { dirname, relative, resolve, sep, basename } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { parseFrontmatter } from "./frontmatter.mjs";
-import { knowledgeSchema, collectV2, renderV2Indexes, V2_INDEXES } from "./build-knowledge-index.mjs";
+import { knowledgeSchema, collectV2, renderV2Indexes, V2_INDEXES, EXTERNAL_V2_INDEXES, MEMORY_CONFIG_PATH, readMemoryConfig } from "./build-knowledge-index.mjs";
 
 const installedRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const root = resolve(process.argv[2] || installedRoot);
@@ -24,7 +26,7 @@ const posix = (value) => value.split(sep).join("/");
 const CURRENT_MD_MAX_CHARS = 2000;
 const SELF_IMPROVEMENT_MAX_CHARS = 8000;
 const SUMMARY_MAX_CHARS = 250;
-export const MANUAL_SHA256 = "13b7ca78b12d6a72061fa50a17d14297c2f2fbacef6dfa68cda0d77d421b9db8";
+export const MANUAL_SHA256 = "b1f52519a796321e764219df0879bd52037aa13e016c609b5962c371dc4dfbfe";
 
 const STATUS_VALUES = ["current", "superseded", "retired"];
 // Finalized records approved requirements, not proof of delivery.
@@ -99,8 +101,10 @@ function checkSecrets(path, text) {
   }
 }
 
-function checkFile(vault, folder, name, kind, schema = 1) {
-  const path = `knowledge/${folder}/${name}`;
+/** `base` is the project root. PRDs sit under it at `knowledge/prds/` in files
+ * mode and at `prds/` in external mode. */
+function checkFile(vault, folder, name, kind, schema = 1, base = resolve(vault, "..")) {
+  const path = posix(relative(base, resolve(vault, folder, name)));
   const text = readFileSync(resolve(vault, folder, name), "utf8");
   filesChecked++;
 
@@ -208,14 +212,14 @@ function checkFile(vault, folder, name, kind, schema = 1) {
     for (const target of value.split(",").map((item) => item.trim()).filter(Boolean)) {
       if (schema === 2 && (target.startsWith("/") || target.includes("\\") || target.split("/").includes("..") || /^[A-Za-z]:/.test(target))) { fail(path, `${field} must stay within the project using project-relative paths.`); continue; }
       const candidates = [
-        resolve(vault, "..", target),
+        resolve(base, target),
         resolve(vault, folder, target),
         resolve(vault, target),
       ];
       if (schema === 2) {
         const components = target.split("/");
         const linked = components.some((_, i) => {
-          const component = resolve(vault, "..", ...components.slice(0, i + 1));
+          const component = resolve(base, ...components.slice(0, i + 1));
           return existsSync(component) && lstatSync(component).isSymbolicLink();
         });
         if (linked || (existsSync(candidates[0]) && (!lstatSync(candidates[0]).isFile() || !target.endsWith(".md")))) {
@@ -355,18 +359,21 @@ function checkSelfImprovement(vault) {
   }
 }
 
-function checkManual(vault) {
-  const path = resolve(vault, "knowledge-manual.md");
+function checkManual(vault, label = "knowledge/knowledge-manual.md") {
+  const external = label !== "knowledge/knowledge-manual.md";
+  const path = external ? resolve(vault, label) : resolve(vault, "knowledge-manual.md");
   if (!existsSync(path)) {
-    fail("knowledge/knowledge-manual.md",
+    fail(label,
       "is missing. This managed operating manual is required for an equipped"
-      + " project. Run project-sync to migrate a marked legacy knowledge/README.md"
-      + " or restore the manual without overwriting unrelated files.");
+      + (external
+        ? " project. Run project-sync to restore the manual without overwriting unrelated files."
+        : " project. Run project-sync to migrate a marked legacy knowledge/README.md"
+          + " or restore the manual without overwriting unrelated files."));
     return;
   }
   const text = readFileSync(path, "utf8").replace(/\r\n/g, "\n");
   const legacyPath = resolve(vault, "README.md");
-  if (existsSync(legacyPath)) {
+  if (!external && existsSync(legacyPath)) {
     let legacy = "";
     try { legacy = readFileSync(legacyPath, "utf8").replace(/\r\n/g, "\n"); }
     catch { fail("knowledge/README.md", "could not be inspected for legacy manual conflicts. Preserve it and investigate through project-sync."); }
@@ -378,7 +385,7 @@ function checkManual(vault) {
   filesChecked++;
   const actual = createHash("sha256").update(text).digest("hex");
   if (actual !== MANUAL_SHA256) {
-    fail("knowledge/knowledge-manual.md",
+    fail(label,
       "does not match the toolkit's managed operating manual. Run project-sync"
       + " to review the difference and restore the managed copy.");
   }
@@ -404,19 +411,31 @@ function checkV2(projectRoot, vault) {
       if (entry.isFile() && entry.name.endsWith(".md") && !["memory-index.md", "current.md"].includes(entry.name)) fail(`knowledge/memory/${entry.name}`, "is a legacy memory outside memory-entries/. Reconcile it before completing migration.");
     }
   }
-  const projectPath = resolve(vault, "project.md");
+  checkProjectPermission(projectRoot, "knowledge/project.md");
+  checkIndexedFolders(projectRoot, V2_INDEXES);
+  const feedback = resolve(vault, "memory-self-improvement.md");
+  if (existsSync(feedback) && lstatSync(feedback).isFile()) { filesChecked++; checkSecrets("knowledge/memory-self-improvement.md", readFileSync(feedback, "utf8")); }
+}
+
+/** The standing memory-save permission in the project context file. */
+function checkProjectPermission(projectRoot, label) {
+  const projectPath = resolve(projectRoot, label);
   if (existsSync(projectPath) && lstatSync(projectPath).isFile()) {
     const { data, errors } = parseFrontmatter(readFileSync(projectPath, "utf8"));
-    for (const error of errors) fail("knowledge/project.md", error);
-    if (data.memory_auto_save !== undefined && ![true, false].includes(data.memory_auto_save)) fail("knowledge/project.md", "memory_auto_save must be true or false.");
+    for (const error of errors) fail(label, error);
+    if (data.memory_auto_save !== undefined && ![true, false].includes(data.memory_auto_save)) fail(label, "memory_auto_save must be true or false.");
     if (data.memory_auto_save === true) {
       for (const key of ["memory_permission_by", "memory_permission_date", "memory_permission_source", "memory_permission_scope"]) {
-        if (typeof data[key] !== "string" || !data[key].trim()) fail("knowledge/project.md", `enabled automatic memory saving needs ${key}.`);
+        if (typeof data[key] !== "string" || !data[key].trim()) fail(label, `enabled automatic memory saving needs ${key}.`);
       }
-      if (data.memory_permission_date && !isDate(data.memory_permission_date)) fail("knowledge/project.md", "memory_permission_date must be a real YYYY-MM-DD date.");
+      if (data.memory_permission_date && !isDate(data.memory_permission_date)) fail(label, "memory_permission_date must be a real YYYY-MM-DD date.");
     }
   }
-  for (const folder of V2_INDEXES) {
+}
+
+/** Records in each indexed folder, and each generated index against its sources. */
+function checkIndexedFolders(projectRoot, folders) {
+  for (const folder of folders) {
     const { entries, problems: inventoryProblems } = collectV2(projectRoot, folder);
     for (const problem of inventoryProblems) fail(folder.source, problem);
     const topicGroups = new Map();
@@ -435,26 +454,62 @@ function checkV2(projectRoot, vault) {
         if (group && group !== entry.data.group) fail(entry.path, "files in one memory topic folder must share their group.");
         topicGroups.set(parts[0], entry.data.group);
       }
-      const relativePath = posix(relative(vault, resolve(projectRoot, entry.path)));
-      checkFile(vault, dirname(relativePath), basename(relativePath), folder.kind, 2);
+      checkFile(projectRoot, dirname(entry.path), basename(entry.path), folder.kind, 2, projectRoot);
     }
   }
-  for (const output of renderV2Indexes(projectRoot)) {
+  for (const output of renderV2Indexes(projectRoot, folders)) {
     const path = posix(relative(projectRoot, output.path));
     for (const problem of output.problems.filter(problem => problem.includes("parent PRD's group"))) fail(path, problem);
     if (!existsSync(output.path)) fail(path, "is missing. Rebuild the generated indexes.");
     else if (lstatSync(output.path).isSymbolicLink() || !lstatSync(output.path).isFile()) fail(path, "must be a regular generated index file.");
     else if (readFileSync(output.path, "utf8") !== output.content) fail(path, "does not match its sources. Rebuild the generated indexes; sources win.");
   }
-  const feedback = resolve(vault, "memory-self-improvement.md");
-  if (existsSync(feedback) && lstatSync(feedback).isFile()) { filesChecked++; checkSecrets("knowledge/memory-self-improvement.md", readFileSync(feedback, "utf8")); }
+}
+
+/**
+ * External memory mode. Working memory, lasting memory, pending saves and
+ * selection feedback are records in the memory service, so this checks only
+ * the Git files: SOUL.md, PROJECT.md, the managed manual in docs/, PRDs in
+ * prds/ and captured outside documentation. Memory has one home: a memory
+ * file under knowledge/ is a problem.
+ */
+function checkExternal(projectRoot) {
+  const manualLabel = "docs/knowledge-manual.md";
+  checkManual(projectRoot, manualLabel);
+  const manualPath = resolve(projectRoot, manualLabel);
+  const manualText = existsSync(manualPath) ? readFileSync(manualPath, "utf8") : "";
+  const markers = manualText.match(/<!--\s*claude-toolkit:knowledge-schema:[^>]*-->/g) || [];
+  if (markers.length > 1 || (markers.length && markers[0] !== "<!-- claude-toolkit:knowledge-schema:2 -->")) fail(manualLabel, "has an unknown or duplicate schema marker; reconcile the managed manual.");
+  for (const path of ["SOUL.md", "PROJECT.md"]) {
+    const absolute = resolve(projectRoot, path);
+    if (!existsSync(absolute)) { fail(path, "is missing from this external-memory project. Complete setup before reporting it equipped."); continue; }
+    if (lstatSync(absolute).isSymbolicLink() || !lstatSync(absolute).isFile()) { fail(path, "must be a regular project file."); continue; }
+    filesChecked++;
+    checkSecrets(path, readFileSync(absolute, "utf8"));
+  }
+  checkProjectPermission(projectRoot, "PROJECT.md");
+  for (const path of ["knowledge/memory", "knowledge/memory-inbox.md", "knowledge/memory-self-improvement.md", "knowledge/prds"]) {
+    if (existsSync(resolve(projectRoot, path))) {
+      fail(path, "exists, but this project keeps memory in the memory service and PRDs in prds/."
+        + " Memory has one home. Moving a project between memory modes is not supported;"
+        + " preserve these files and ask the owner.");
+    }
+  }
+  checkIndexedFolders(projectRoot, EXTERNAL_V2_INDEXES);
 }
 
 export function checkKnowledge(projectRoot = root) {
   problems.length = 0;
   filesChecked = 0;
+  const config = readMemoryConfig(projectRoot);
+  if (config.mode === "external") {
+    try { checkExternal(projectRoot); }
+    catch (error) { fail("project knowledge", `could not finish checking: ${error.message}. Preserve files and inspect this failure.`); }
+    return { problems: [...problems], filesChecked, skipped: false, schema: 2, mode: "external" };
+  }
+  if (config.error) fail(MEMORY_CONFIG_PATH, config.error.slice(MEMORY_CONFIG_PATH.length + 1));
   const vault = resolve(projectRoot, "knowledge");
-  if (!existsSync(vault)) return { problems: [], filesChecked: 0, skipped: true };
+  if (!existsSync(vault)) return { problems: [...problems], filesChecked: 0, skipped: problems.length === 0 };
 
   try {
   checkManual(vault);

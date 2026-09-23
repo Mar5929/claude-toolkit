@@ -5,6 +5,10 @@ owns policy; selection-and-cards.md and operations.md supply selection and
 operation details. Publish with the `publish-docs` skill, or the project's own
 documentation-publication procedure when it has one.
 
+In `external` memory mode (`.toolkit-memory.json`), read "External memory
+mode" at the end first. It changes where the inbox and memory records live, and
+what publication means for them.
+
 ## Before starting or resuming
 
 1. Open the manual section you need, the destination's instructions, and this
@@ -134,3 +138,32 @@ available host controls and inspect actual changes. A cancellation request is
 not proof that no write or push happened. Check any late result against the
 latest direction and report what already occurred; reconcile changed meaning
 before new writes. Do not automatically revert a completed change.
+
+## External memory mode
+
+When `.toolkit-memory.json` sets `memory` to `external`, use the
+[provider contract](../../knowledge-setup/references/memory-providers/README.md)
+and the adapter for its `service`. Everything above still applies, with these
+changes:
+
+- The inbox is the set of `pending` records. An inbox entry is one `pending`
+  record, key `pending:<reference>`, holding the same pending-entry fields.
+  Write it and read it back before writing the destination or starting a
+  helper. It is shared once the read back matches.
+- A memory destination (working, lasting, or feedback) is written through the
+  adapter, never as a file. It is published when the write succeeds and the
+  read back matches the approved text exactly. A difference is a failed save:
+  keep the `pending` record, report the difference, and do not retry blindly.
+- `inspect-knowledge-save.mjs` does not cover memory records. To find what
+  actually happened, find the destination record by key and compare it with
+  the approved text.
+- A memory write needs no index rebuild, commit, or push. `check-knowledge`
+  still runs for the Git files.
+- A PRD destination stays in Git under `prds/`. It follows the Git steps above
+  and `publish-docs`, and its `pending` record is removed after the remote is
+  verified.
+- After publication, remove only this `pending` record and confirm that it is
+  gone. If removal fails, report the destination as published and cleanup as
+  pending.
+- If the MCP server is not connected, the save stays unfinished. Report it.
+  Do not write the memory to a file instead.

@@ -110,7 +110,8 @@ automatically as it grows.
     documentation-publication pointer and unscoped `knowledge-direct-commit.md`
     even without knowledge, unless explicitly declined. Report a legacy
     `knowledge/**` frontmatter restriction as stale. Expect a
-    `knowledge/` row only for configured project knowledge and a `.work-items/`
+    `knowledge/` row (a `prds/` row in `external` memory mode) only for
+    configured project knowledge and a `.work-items/`
     row only for configured local tracking. Each row points to the canonical
     manual, rule, or skill and does not repeat the full procedure. Report a
     missing or stale row, a row for an absent system, and a configured quick-save
@@ -277,7 +278,16 @@ Typical checks:
   anything during the audit. A suitable existing guide without config remains
   off and is an adoption candidate, never an automatic adoption; preserve its
   established location and ask the owner in step 4.
-- **Project knowledge layout and runtime:** use the installed `knowledge-setup`
+- **Project knowledge layout and runtime:** first read `.toolkit-memory.json`
+  at the project root. A missing file means the `files` memory mode (the
+  `knowledge/` layout). `"memory": "external"` means the `external` memory
+  mode: `PROJECT.md`, `docs/knowledge-manual.md`, and `prds/` in Git, with
+  working memory, lasting memory, and pending saves in the memory service the
+  file names. Audit the layout of the mode the file declares. Moving an
+  existing project between modes is not supported: when the owner asks for it,
+  or the project holds files from both layouts, report it and change nothing.
+  An unreadable file or an unknown value is a finding; `check-knowledge`
+  reports it too. Then use the installed `knowledge-setup`
   procedure's detection and migration references. A fresh setup with no saved
   files can be current when all required records, tools and hooks are present.
   The `<!-- claude-toolkit:knowledge-manual -->` marker identifies the managed
@@ -299,7 +309,7 @@ Typical checks:
   Report every problem it names and offer to fix only those files. If the tool
   itself is missing, report the runtime gap first and use the packaged copy only
   to inspect, never to write.
-- **Obsidian boundary:** check that only `knowledge/.obsidian/app.json` is
+- **Obsidian boundary** (`files` mode only): check that only `knowledge/.obsidian/app.json` is
   shared, that it creates relative Markdown links and automatic link updates,
   and that `.gitignore` excludes every other `.obsidian` file. A shared core
   plugin list, workspace, hotkeys, appearance, plugin, theme, or device file is
@@ -327,8 +337,8 @@ Typical checks:
   listed committed v1 files after separate approval. Never bundle deletion of a
   non-empty outbox, cache, ignored file, token, connector, database, or cloud
   resource into ordinary project sync.
-- **Knowledge layer:** `knowledge/memory/` is the persistent knowledge layer. Do
-  not create a second store. Existing v1 curator files, `know-*` nodes, SHA
+- **Knowledge layer:** `knowledge/memory/` is the persistent knowledge layer,
+  or the memory service in `external` mode. Do not create a second store. Existing v1 curator files, `know-*` nodes, SHA
   pins, and drift reports remain retired and are never refreshed, reconciled,
   imported, or used as current truth.
 - **Standalone toolkit skills:** check the previous sync record and the
@@ -368,7 +378,9 @@ Typical checks:
   explicit policy opt-out; declining knowledge alone is not that opt-out.
   For configured project knowledge, confirm that `knowledge/` is named and
   points to `knowledge/knowledge-manual.md` plus the installed knowledge direct-commit
-  rule. For configured local tracking, confirm that `.work-items/` is named and
+  rule. In `external` mode, confirm instead that `prds/`, `PROJECT.md`, and
+  `docs/` are named and point to `docs/knowledge-manual.md` plus that rule, and
+  that no `knowledge/` row remains. For configured local tracking, confirm that `.work-items/` is named and
   points to the local tracker instructions. Report rows for systems that are
   absent, declined, external, or no longer selected. The documentation row
   names actual configured paths but does not make every file in them eligible;
@@ -593,8 +605,9 @@ the file and report:
   anything; report it as a line the toolkit no longer ships and offer to drop
   it.
 - **Toolkit operating-manual route.** Confirm
-  `knowledge/toolkit-manual.md` exists and `AGENTS.md` carries the exact
-  three-read Startup section from `thin-agents-md.md`. Report an older
+  `knowledge/toolkit-manual.md` (`docs/toolkit-manual.md` in `external` memory
+  mode) exists and `AGENTS.md` carries the exact Startup section for the
+  project's memory mode from `thin-agents-md.md`. Report an older
   complete-read route or acknowledgment request as stale. Audit the packaged
   template, installed project-init-owned hook, and each host registration
   separately by following `../project-init/references/toolkit-manual-delivery.md`.
@@ -610,7 +623,8 @@ the file and report:
   end of a task, and in an old file they are most of the bulk.
 - **Context sources the codemap does not name.** Look for folders holding
   context an agent should pull in on demand: `ai-external-knowledge/`,
-  `docs/designs/`, `knowledge/prds/`, captured reference data. Any one the
+  `docs/designs/`, `knowledge/prds/` (`prds/` in `external` memory mode),
+  captured reference data. Any one the
   codemap does not name is a folder no agent will open, however good what is in
   it. Propose the line, saying what is inside and when to open it. For those two
   also say how long a file in each lives, since that is the part a session gets
@@ -621,7 +635,10 @@ the file and report:
 - **Project-knowledge startup parity.** When the current layout is installed,
   confirm both hosts register the same loader and that it asks for three
   reads: `SOUL.md`, `knowledge/project.md`, and `knowledge/memory/current.md`,
-  plus a check of `knowledge/memory-inbox.md`. Confirm it emits no file bodies,
+  plus a check of `knowledge/memory-inbox.md`. In `external` memory mode,
+  confirm instead that it asks for `SOUL.md` and `PROJECT.md`, then for working
+  memory to be loaded through the memory service, then for pending saves to be
+  listed. Confirm it emits no file bodies,
   asks for no manual read and no acknowledgment, and fails open when a file is
   absent. `AGENTS.md` carries only the Startup section, and `CLAUDE.md` stays
   the one-line import that brings it in. Any copied policy is stale
@@ -719,7 +736,8 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   The checks start in the next session.
 - **For an approved Toolkit operating-manual gap,** follow
   `../project-init/references/toolkit-manual-delivery.md`. Reconcile
-  `library/templates/toolkit-manual.md` into `knowledge/toolkit-manual.md`,
+  `library/templates/toolkit-manual.md` into `knowledge/toolkit-manual.md`
+  (`docs/toolkit-manual.md` in `external` memory mode),
   install the project-init-owned hook and supported host registrations, and
   write the three-read Startup section. Remove the old `toolkit-session-start`
   entry under `UserPromptSubmit` in `.claude/settings.json` and
@@ -817,7 +835,8 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   conversions retain source and approval and are shown afterwards; ambiguous
   conversions remain unchanged. Preserve current-work Session handoffs.
   Deliver the three startup reads (SOUL, project, current memory) and the inbox
-  check, with the Knowledge manual and indexes as reference; install its four
+  check, or the `external` mode startup (SOUL, `PROJECT.md`, working memory
+  and pending saves through the memory service), with the Knowledge manual and indexes as reference; install its four
   procedures, templates, copied tools/hooks and
   exact managed manual/checksum together. Inspect native-memory conflicts rather
   than silently disabling/importing/deleting existing data. A plugin refresh is

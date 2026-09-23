@@ -22,13 +22,20 @@
 // the `toolkit_protocol_engine` field off the classic Stop hook input so the
 // old command hooks run in full, and shows one notice.
 //
+// Memory mode (issue #404): `.toolkit-memory.json` at the project root says
+// whether working and lasting memory live in `knowledge/` files ("files") or
+// in a memory service reached through an MCP server ("external"). A missing
+// or invalid file means "files". In "external" mode the engine also reads the
+// service's tool calls by class (`memory-write`, `memory-read`) and the
+// `toolkit_kind` field those calls carry: an exact field comparison.
+//
 // State is kept in module memory, by session. A new session id (/clear, a
 // resume) starts clean; session start and a plugin reload clear it;
 // compaction clears which skills were opened.
 import type { Register } from 'claude-code'
 import { STAGE_LABEL, changesWorkItem, fileWords, nodeScript, onlyReads, readCommand, reviewActions } from './shell-reader.mjs'
 
-const VERSION = '0.2.0'
+const VERSION = '0.3.0'
 const FILE_TOOLS = new Set(['Write', 'Edit', 'MultiEdit', 'NotebookEdit'])
 const ACTIONS = ['pr-create', 'pr-merge', 'issue-close', 'work-finish']
 const NO_MENTION = 'Do not mention this check in your reply.'
@@ -50,20 +57,25 @@ function refusalText(failed: string[]): string {
 
 type Owner = { skill?: string; file?: string }
 type Require =
-  | { opened: 'owner'; within: 'turn' | 'reset' | 'session'; paths?: string[] }
+  | { opened: 'owner'; within: 'turn' | 'reset' | 'session'; paths?: string[]; kind?: string }
   | { never: true }
   | { wrote: string[] }
   | { ran: string[] }
+  | { called: string; kind?: string }
+type MemoryMode = 'files' | 'external'
+// Every key must hold. A list of conditions holds when any one of them holds.
+type Condition = { exists?: string; memory?: MemoryMode }
 type Protocol = {
   name: string
   why?: string
   owner: Owner
-  appliesIf?: { exists: string }
+  appliesIf?: Condition | Condition[]
   on: {
     action?: string[]
     write?: string[]
     shell?: boolean
     oneWriter?: string[]
+    call?: string[]
     turnEnd?: { afterWorkItemChange?: boolean; afterWrite?: string[] }
   }
   require: Require[]
@@ -73,12 +85,15 @@ type NewFact =
   | { kind: 'write'; path: string; agent: string; certain: boolean }
   | { kind: 'work-item'; agent: string }
   | { kind: 'ran'; script: string; agent: string }
+  | { kind: 'call'; classes: string[]; memoryKind?: string; deletes: boolean; agent: string }
 type Fact = NewFact & { seq: number }
 type Loop = { turn: Set<string>; reset: Set<string>; session: Set<string> }
 type Turn = { holds: Set<string>; errors: number; off: boolean; offNotice: boolean }
+type Memory = { mode: MemoryMode; service?: string; server?: string }
 type State = {
   key: string
   root: string
+  memory: Memory
   protocols: Protocol[]
   notes: string[]
   loops: Map<string, Loop>
@@ -101,6 +116,25 @@ type State = {
   // The first draft reply held this turn, shown if the turn ends without one.
   heldDraft?: string
 }
+
+// Memory-service tools by class, per service (`mcp__<server>__<tool>`).
+const TOOL_CLASSES: Record<string, Record<string, string[]>> = {
+  mem0: {
+    'memory-write': ['add_memory', 'update_memory', 'delete_memory', 'delete_all_memories'],
+    'memory-read': ['get_memories', 'get_memory', 'search_memories'],
+  },
+  hindsight: {
+    'memory-write': ['retain', 'sync_retain', 'delete_document', 'clear_memories'],
+    'memory-read': ['list_documents', 'get_document', 'recall', 'list_memories', 'get_memory'],
+  },
+}
+const CALL_CLASSES = ['memory-write', 'memory-read']
+const DELETE_TOOLS = new Set(['delete_memory', 'delete_all_memories', 'delete_document', 'clear_memories'])
+const MEMORY_CONFIG = '.toolkit-memory.json'
+// Where a helper's save lands, by mode: a helper that wrote here (or, in
+// external mode, called a memory-write tool) and is still running is a
+// pending save.
+const MEMORY_PATHS: Record<MemoryMode, string[]> = { files: ['knowledge/'], external: ['prds/'] }
 
 const states = new Map<string, State>()
 let skillCallsInFlight = 0
@@ -166,10 +200,14 @@ function validProtocol(p: any): p is Protocol {
   if (p === null || typeof p !== 'object') return false
   if (typeof p.name !== 'string' || typeof p.tell !== 'string') return false
   if (p.owner === null || typeof p.owner !== 'object' || (typeof p.owner.skill !== 'string' && typeof p.owner.file !== 'string')) return false
-  if (p.appliesIf !== undefined && typeof p.appliesIf?.exists !== 'string') return false
+  if (p.appliesIf !== undefined) {
+    const conds = Array.isArray(p.appliesIf) ? p.appliesIf : [p.appliesIf]
+    if (conds.length === 0 || !conds.every(validCondition)) return false
+  }
   const on = p.on
   if (on === null || typeof on !== 'object') return false
-  for (const k of Object.keys(on)) if (!['action', 'write', 'shell', 'oneWriter', 'turnEnd'].includes(k)) return false
+  for (const k of Object.keys(on)) if (!['action', 'write', 'shell', 'oneWriter', 'call', 'turnEnd'].includes(k)) return false
+  if (on.call !== undefined && !(isStrings(on.call) && on.call.length > 0 && on.call.every((x: string) => CALL_CLASSES.includes(x)))) return false
   if (on.action !== undefined && !(isStrings(on.action) && on.action.every((x: string) => ACTIONS.includes(x)))) return false
   if (on.write !== undefined && !isStrings(on.write)) return false
   if (on.oneWriter !== undefined && !isStrings(on.oneWriter)) return false
@@ -179,7 +217,7 @@ function validProtocol(p: any): p is Protocol {
     for (const k of Object.keys(t)) if (!['afterWorkItemChange', 'afterWrite'].includes(k)) return false
     if (t.afterWrite !== undefined && !isStrings(t.afterWrite)) return false
   }
-  if (on.write === undefined && on.turnEnd === undefined && on.action === undefined) return false
+  if (on.write === undefined && on.turnEnd === undefined && on.action === undefined && on.call === undefined) return false
   if (!Array.isArray(p.require) || p.require.length === 0) return false
   for (const r of p.require) {
     if (r === null || typeof r !== 'object') return false
@@ -187,10 +225,75 @@ function validProtocol(p: any): p is Protocol {
     if (keys === 'never' && r.never === true) continue
     if (keys === 'wrote' && isStrings(r.wrote)) continue
     if (keys === 'ran' && isStrings(r.ran) && r.ran.length > 0) continue
-    if ((keys === 'opened,within' || keys === 'opened,paths,within') && r.opened === 'owner' && (r.within === 'turn' || r.within === 'reset' || r.within === 'session') && (r.paths === undefined || isStrings(r.paths))) continue
+    if ((keys === 'called' || keys === 'called,kind') && CALL_CLASSES.includes(r.called) && (r.kind === undefined || (typeof r.kind === 'string' && r.kind !== ''))) continue
+    if (['opened,within', 'opened,paths,within', 'kind,opened,within', 'kind,opened,paths,within'].includes(keys) && r.opened === 'owner' && (r.within === 'turn' || r.within === 'reset' || r.within === 'session') && (r.paths === undefined || isStrings(r.paths)) && (r.kind === undefined || (typeof r.kind === 'string' && r.kind !== ''))) continue
     return false
   }
   return true
+}
+
+function validCondition(c: any): boolean {
+  if (c === null || typeof c !== 'object' || Array.isArray(c)) return false
+  const keys = Object.keys(c)
+  if (keys.length === 0 || !keys.every((k) => k === 'exists' || k === 'memory')) return false
+  if (c.exists !== undefined && typeof c.exists !== 'string') return false
+  if (c.memory !== undefined && c.memory !== 'files' && c.memory !== 'external') return false
+  return true
+}
+
+// The memory mode from .toolkit-memory.json. Missing means files. A file
+// that cannot be read or holds unknown values also means files (the checks
+// fail open to today's behaviour), and the agent is told once.
+async function readMemory($: any, s: State): Promise<Memory> {
+  const path = `${s.root}/${MEMORY_CONFIG}`
+  let exists = false
+  try { exists = await $.fs.exists(path) } catch { exists = false }
+  if (!exists) return { mode: 'files' }
+  let c: any
+  try { c = JSON.parse(await $.fs.read(path)) } catch (err) {
+    s.notes.push(`The memory config ${MEMORY_CONFIG} could not be read (${String(err)}). The workflow checks treat this project as memory mode "files". Tell the owner once.`)
+    return { mode: 'files' }
+  }
+  const text = (v: unknown) => typeof v === 'string' && v.trim() !== ''
+  if (c?.memory === 'files') return { mode: 'files' }
+  if (c?.memory === 'external' && text(c.service) && TOOL_CLASSES[c.service] !== undefined && text(c.server) && text(c.project)) {
+    return { mode: 'external', service: c.service, server: c.server }
+  }
+  s.notes.push(`The memory config ${MEMORY_CONFIG} is not valid: "memory" must be "files" or "external", and "external" needs "service" (mem0 or hindsight), "server" and "project". The workflow checks treat this project as memory mode "files". Tell the owner once.`)
+  return { mode: 'files' }
+}
+
+async function conditionHolds($: any, s: State, c: Condition): Promise<boolean> {
+  if (c.memory !== undefined && c.memory !== s.memory.mode) return false
+  if (c.exists !== undefined) {
+    try { return await $.fs.exists(`${s.root}/${c.exists}`) } catch { return false }
+  }
+  return true
+}
+
+// The classes a tool belongs to for the configured memory service, if any.
+// Claude Code writes a server name with characters outside A-Z, a-z, 0-9,
+// _ and - as _ in tool names.
+function toolClasses(s: State, tool: unknown): { classes: string[]; name: string } {
+  if (s.memory.mode !== 'external' || typeof tool !== 'string') return { classes: [], name: '' }
+  const prefix = `mcp__${String(s.memory.server).replace(/[^A-Za-z0-9_-]/g, '_')}__`
+  if (!tool.startsWith(prefix)) return { classes: [], name: '' }
+  const name = tool.slice(prefix.length)
+  const table = TOOL_CLASSES[s.memory.service ?? ''] ?? {}
+  return { classes: Object.keys(table).filter((c) => table[c].includes(name)), name }
+}
+
+// A write call's kind: args.metadata.toolkit_kind, or a tag
+// "toolkit_kind:<kind>". An exact field comparison; no text is interpreted.
+function memoryKind(e: any): string | undefined {
+  let meta = e?.metadata
+  if (typeof meta === 'string') { try { meta = JSON.parse(meta) } catch { meta = undefined } }
+  if (meta !== null && typeof meta === 'object' && typeof meta.toolkit_kind === 'string') return meta.toolkit_kind
+  if (Array.isArray(e?.tags)) {
+    const tag = e.tags.find((t: unknown) => typeof t === 'string' && t.startsWith('toolkit_kind:'))
+    if (tag !== undefined) return tag.slice('toolkit_kind:'.length)
+  }
+  return undefined
 }
 
 async function load($: any, s: State) {
@@ -223,12 +326,13 @@ async function load($: any, s: State) {
     }
     byName.set(p.name, p) // a project entry with a default's name replaces it
   }
+  s.memory = await readMemory($, s)
   const active: Protocol[] = []
   for (const p of byName.values()) {
     if (off.includes(p.name)) continue
     if (p.appliesIf !== undefined) {
       let ok = false
-      try { ok = await $.fs.exists(`${s.root}/${p.appliesIf.exists}`) } catch { ok = false }
+      for (const c of Array.isArray(p.appliesIf) ? p.appliesIf : [p.appliesIf]) if (await conditionHolds($, s, c)) { ok = true; break }
       if (!ok) continue
     }
     active.push(p)
@@ -260,6 +364,7 @@ async function state($: any): Promise<State> {
     s = {
       key,
       root: slashes(String(await $.session.root())),
+      memory: { mode: 'files' },
       protocols: [],
       notes: [],
       loops: new Map(),
@@ -368,6 +473,11 @@ function factsOf(s: State, cwd: string, e: any, agent: string): NewFact[] {
     return out
   }
   if (typeof e.tool === 'string' && e.tool.startsWith('mcp__')) {
+    const mem = toolClasses(s, e.tool)
+    if (mem.classes.length > 0) {
+      out.push({ kind: 'call', classes: mem.classes, memoryKind: memoryKind(e), deletes: DELETE_TOOLS.has(mem.name), agent })
+      return out
+    }
     const name = e.tool.slice(e.tool.lastIndexOf('__') + 2)
     // A label change counts only when a label has the stage form, such as 08-build.
     const stage = Array.isArray(e.labels) && e.labels.some((l: unknown) => STAGE_LABEL.test(String(l)))
@@ -405,6 +515,10 @@ function succeeded(e: any, r: any): boolean {
 
 // ---------- the checks ----------
 
+function windowOf(loop: Loop, within: 'turn' | 'reset' | 'session'): Set<string> {
+  return within === 'turn' ? loop.turn : within === 'reset' ? loop.reset : loop.session
+}
+
 // The refusal for a call, or undefined to let it run.
 async function refusal($: any, s: State, e: any, loop: Loop, agent: string): Promise<string | undefined> {
   const failed: string[] = []
@@ -418,6 +532,17 @@ async function refusal($: any, s: State, e: any, loop: Loop, agent: string): Pro
       if (!window.has(ownerKey(p.owner))) failed.push(`Required workflow check ${p.name}: ${p.tell}`)
     }
   }
+  const mem = toolClasses(s, e.tool)
+  if (mem.classes.length > 0) {
+    const kind = memoryKind(e)
+    for (const p of s.protocols) {
+      if (p.on.call === undefined || !mem.classes.some((c) => p.on.call!.includes(c))) continue
+      // A requirement scoped to a kind applies only to a call that carries it.
+      const opened = p.require.find((r): r is Extract<Require, { opened: 'owner' }> => 'opened' in r && (r.kind === undefined || r.kind === kind))
+      if (opened === undefined) continue
+      if (!windowOf(loop, opened.within).has(ownerKey(p.owner))) failed.push(`Required workflow check ${p.name}: ${p.tell}`)
+    }
+  }
   const writers = s.protocols.filter((p) => p.on.write !== undefined)
   if (writers.length === 0 || !(FILE_TOOLS.has(e.tool) || e.tool === 'Bash')) return failed.length === 0 ? undefined : refusalText(failed)
   const cwd = slashes(String(await $.session.cwd()))
@@ -428,7 +553,7 @@ async function refusal($: any, s: State, e: any, loop: Loop, agent: string): Pro
       if (touch.shell && p.on.shell !== true) continue
       if (!covers(touch.path, p.on.write ?? [])) continue
       if (p.require.some((r) => 'never' in r)) { failed.push(`Required workflow check ${p.name}: ${p.tell}`); break }
-      const opened = p.require.find((r): r is Extract<Require, { opened: 'owner' }> => 'opened' in r && (r.paths === undefined || covers(touch.path, r.paths)))
+      const opened = p.require.find((r): r is Extract<Require, { opened: 'owner' }> => 'opened' in r && r.kind === undefined && (r.paths === undefined || covers(touch.path, r.paths)))
       if (opened !== undefined) {
         const has = (opened.within === 'turn' ? loop.turn : opened.within === 'reset' ? loop.reset : loop.session).has(ownerKey(p.owner))
         if (!has) { failed.push(`Required workflow check ${p.name}: ${p.tell}`); break }
@@ -464,6 +589,10 @@ function unmetReason(s: State, p: Protocol): string | undefined {
     if ('wrote' in r) {
       if (!after.some((f) => f.kind === 'write' && f.certain && covers(f.path, r.wrote))) return `${what}, and ${r.wrote.join(', ')} was not written after that`
     }
+    if ('called' in r) {
+      const met = after.some((f) => f.kind === 'call' && f.classes.includes(r.called) && (r.kind === undefined || f.memoryKind === r.kind || f.deletes))
+      if (!met) return `${what}, and no ${r.called} call${r.kind === undefined ? '' : ` with toolkit_kind ${r.kind}`} to the memory service followed`
+    }
     if ('ran' in r) {
       let from = trigger.seq
       for (const script of r.ran) {
@@ -478,10 +607,13 @@ function unmetReason(s: State, p: Protocol): string | undefined {
 
 // A save by a helper that is still running is pending: the obligation stays
 // open for the next turn, and the reply is not held for it now.
-// Only a helper that wrote a knowledge file since `since` counts: this turn,
-// or, for a carried check, since the turn it was first carried from.
+// Only a helper that saved memory since `since` counts: this turn, or, for a
+// carried check, since the turn it was first carried from. A save is a write
+// under the mode's memory paths or, in external mode, a memory-write call.
 async function helperSavePending($: any, s: State, since: number): Promise<boolean> {
-  const savers = new Set(s.facts.filter((f) => f.seq > since && f.kind === 'write' && f.agent !== 'main' && covers(f.path, ['knowledge/'])).map((f) => f.agent))
+  const paths = MEMORY_PATHS[s.memory.mode]
+  const saved = (f: Fact) => (f.kind === 'write' && covers(f.path, paths)) || (f.kind === 'call' && f.classes.includes('memory-write'))
+  const savers = new Set(s.facts.filter((f) => f.seq > since && f.agent !== 'main' && saved(f)).map((f) => f.agent))
   if (savers.size === 0) return false
   const running = ((await $.agent.list()) as any[]).filter((a) => a.status === 'running').map((a) => a.id)
   return running.some((id) => savers.has(id))

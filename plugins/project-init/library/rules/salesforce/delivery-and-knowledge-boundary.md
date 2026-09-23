@@ -5,4 +5,4 @@ This rule owns one thing: which folder holds a Salesforce project's client-work 
 - New projects use `delivery/`.
 - A project that already uses `engagement/` keeps it. Do not rename it, move its files, or create a parallel `delivery/` tree.
 - Where a rule or skill names a `delivery/` path, use `engagement/` in such a project.
-- With the toolkit knowledge system installed, curated knowledge goes in `knowledge/`. Never create `delivery/knowledge-base/`.
+- With the toolkit knowledge system installed, curated knowledge goes in `knowledge/`, or in the memory service and `prds/` when `.toolkit-memory.json` says `"memory": "external"`. Never create `delivery/knowledge-base/`.

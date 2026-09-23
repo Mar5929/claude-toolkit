@@ -74,7 +74,7 @@ finishes the work item has to do it.
 
 - [404-external-memory-provider.md](404-external-memory-provider.md): the
   `external` memory mode, where mem0 or Hindsight replaces the file storage of
-  working and lasting memory. Proposed.
+  working and lasting memory. Approved and in build.
 
 - [391-output-style.md](391-output-style.md): the focused Plain English style
   revision, silent style delivery, and bounded Claude behavior checks.

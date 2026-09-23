@@ -98,7 +98,8 @@ and changes nothing. This repository stays in `files` mode.
 **R11. Non-memory files stay in Git.** `SOUL.md`, `PROJECT.md`, the two
 manuals, and `prds/` are Git files in `external` mode. `check-knowledge`
 fails when an `external` project also has `knowledge/memory/` files, so
-memory has only one home (D2).
+memory has only one home (D2). It also fails on `knowledge/memory-inbox.md`,
+`knowledge/memory-self-improvement.md`, and `knowledge/prds/`.
 
 ## The config file
 
@@ -139,9 +140,13 @@ Every record carries this metadata (mem0 `metadata`, Hindsight `tags` plus
 The stable key lets the agent find one record without a search:
 
 - mem0 assigns its own ids. The agent lists with a metadata filter on
-  `toolkit_key`, then updates by the returned id.
+  `toolkit_key`. A replace is `add_memory` with the new text, a read back,
+  then `delete_memory` of the old id. `update_memory` is not used: it cannot
+  write metadata.
 - Hindsight lets the caller choose the id. The key becomes the
-  `document_id`, and a retain with the same id replaces the record.
+  `document_id`, and a `sync_retain` with the same id replaces the record.
+- Each session handoff is its own `working` record, keyed
+  `working:handoff:<UTC time>`.
 
 ## Provider operations
 
@@ -151,13 +156,13 @@ operation. The adapter names the exact tool and arguments.
 
 | Operation | mem0 | Hindsight |
 | --- | --- | --- |
-| Load working memory in full | `get_memories`, filter kind `working` | `list_documents`, tag `toolkit_kind:working`, then `get_document` |
-| Add or replace a working-memory entry | `add_memory` or `update_memory`, `infer=false` | `retain`, `document_id` = the key, replace |
+| Load working memory in full | `get_memories`, filter kind `working` | `list_documents`, `q: "working:"` (id prefix), then `get_document` |
+| Add or replace a working-memory entry | `add_memory` with `infer=false`, then `delete_memory` of the old id | `sync_retain`, `document_id` = the key, replace |
 | Remove a finished working-memory entry | `delete_memory` | `delete_document` |
-| Save or replace a lasting topic | `add_memory` or `update_memory`, `infer=false` | `retain`, `document_id` `lasting:<topic>` |
-| List lasting topics | `get_memories`, filter kind `lasting` | `list_documents`, tag `toolkit_kind:lasting` |
+| Save or replace a lasting topic | As for a working entry | `sync_retain`, `document_id` `lasting:<topic>` |
+| List lasting topics | `get_memories`, filter kind `lasting` | `list_documents`, `q: "lasting:"` |
 | Search | `search_memories` within the project | `recall` within the bank |
-| Add or remove a pending save | `add_memory` / `delete_memory` | `retain` / `delete_document` |
+| Add or remove a pending save | `add_memory` / `delete_memory` | `sync_retain` / `delete_document` |
 | Read back after a write | `get_memory` | `get_document` |
 
 ## Startup
@@ -188,6 +193,10 @@ operation. The adapter names the exact tool and arguments.
    match, so #396 requirement 4 still holds.
 4. `helperSavePending` stops hard-coding `knowledge/` and uses the mode's
    paths and tool class.
+5. An `opened` requirement may carry a `kind`. K4X uses it so a `pending`
+   record needs `knowledge-save` opened this turn.
+6. `appliesIf` may be a list; the check applies when any entry holds. K7 uses
+   `[{exists, memory: "files"}, {memory: "external"}]`.
 
 Check changes:
 
@@ -228,8 +237,8 @@ Check changes:
     `delivery-and-knowledge-boundary.md`, `permissions-runbook.md`, and
     `output-styles/terse.md`.
 - **Other plugins:**
-  - `handoff` step 2 gains an `external` branch. Handoffs go in the working
-    memory record's "Session handoffs" section.
+  - `handoff` step 2 gains an `external` branch. Each handoff is its own
+    `working` record, keyed `working:handoff:<UTC time>`.
   - `spec-check` and its reminder hook use the mode's PRD folder.
   - Wording changes in `grill-me`, `solution-design`, and system-guide
     `commands-and-hosts.md`.

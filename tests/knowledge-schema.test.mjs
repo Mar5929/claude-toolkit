@@ -9,7 +9,8 @@ import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { parseFrontmatter } from '../plugins/second-brain/tools/frontmatter.mjs';
-import { buildIndexes } from '../plugins/second-brain/tools/build-knowledge-index.mjs';
+import { buildIndexes, readMemoryConfig as toolMemoryConfig } from '../plugins/second-brain/tools/build-knowledge-index.mjs';
+import { readMemoryConfig as hookMemoryConfig } from '../plugins/second-brain/hooks/knowledge-manual.mjs';
 import { checkKnowledge, MANUAL_SHA256 } from '../plugins/second-brain/tools/check-knowledge.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -233,4 +234,87 @@ test('dangling index symlink cannot create an unintended file', t => {
   const before = snapshot(f.dir);
   assert.throws(() => buildIndexes(f.dir), /regular file/);
   assert.deepEqual(snapshot(f.dir), before);
+});
+
+// External memory mode (#404): memory lives in a memory service, so the Git
+// side is SOUL.md, PROJECT.md, the manual in docs/, PRDs in prds/ and captured
+// outside documentation. No memory index is built.
+const managedManual = readFileSync(resolve(root, 'plugins/second-brain/skills/knowledge-setup/references/templates/knowledge/knowledge-manual.md'), 'utf8');
+const externalConfig = { format: 1, memory: 'external', service: 'hindsight', server: 'hindsight', project: 'imports' };
+function externalFixture(t, config = externalConfig) {
+  const dir = mkdtempSync(join(tmpdir(), 'knowledge-external-'));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  const write = (path, content) => { mkdirSync(dirname(resolve(dir, path)), { recursive: true }); writeFileSync(resolve(dir, path), content); };
+  write('.toolkit-memory.json', typeof config === 'string' ? config : JSON.stringify(config));
+  write('docs/knowledge-manual.md', managedManual);
+  write('SOUL.md', '# Fixture\n');
+  write('PROJECT.md', '# Project\n');
+  write('prds/imports/imports.md', document(basePrd, '# Import requirements\n'));
+  write('prds/imports/preview.md', document({ ...basePrd, summary: 'A preview shows every changed row.' }, '# Preview\n'));
+  write('ai-external-knowledge/vendor/README.md', document({ group: 'Vendor sources', summary: 'Import API reference.', source: 'https://example.test/import', captured_at: '2026-09-19' }, '# Vendor import API\n'));
+  return { dir, write, read: path => readFileSync(resolve(dir, path), 'utf8') };
+}
+
+test('external: builder writes the PRD and outside-documentation indexes only', t => {
+  const f = externalFixture(t);
+  const result = buildIndexes(f.dir);
+  assert.deepEqual(result.written.map(x => x.path.slice(f.dir.length + 1)).sort(), ['ai-external-knowledge/README.md', 'prds/prd-index.md']);
+  assert.match(f.read('prds/prd-index.md'), /- \[Import requirements\]\(imports\/imports.md\) \(proposed\):.*\n  - \[Preview\]\(imports\/preview.md\) \(proposed\):/);
+  assert.equal(readdirSync(f.dir).includes('knowledge'), false);
+  const checked = checkKnowledge(f.dir);
+  assert.deepEqual(checked.problems, []);
+  assert.equal(checked.mode, 'external');
+});
+
+test('external: a knowledge/memory folder, stale index, or missing files fail the check', t => {
+  const f = externalFixture(t); buildIndexes(f.dir);
+  f.write('knowledge/memory/current.md', '# Current\n');
+  assert.ok(checkKnowledge(f.dir).problems.some(p => p.includes('knowledge/memory') && p.includes('one home')));
+  rmSync(resolve(f.dir, 'knowledge'), { recursive: true });
+  f.write('prds/imports/imports.md', document({ ...basePrd, summary: 'Changed.' }, '# Import requirements\n'));
+  assert.ok(checkKnowledge(f.dir).problems.some(p => p.includes('prds/prd-index.md') && p.includes('does not match')));
+  buildIndexes(f.dir);
+  rmSync(resolve(f.dir, 'PROJECT.md')); rmSync(resolve(f.dir, 'docs/knowledge-manual.md'));
+  const problems = checkKnowledge(f.dir).problems;
+  assert.ok(problems.some(p => p.includes('PROJECT.md') && p.includes('missing')));
+  assert.ok(problems.some(p => p.includes('docs/knowledge-manual.md') && p.includes('missing')));
+});
+
+test('external: PRD records get the same field checks under prds/', t => {
+  const f = externalFixture(t);
+  f.write('prds/imports/preview.md', document({ ...basePrd, status: 'current' }, '# Preview\n'));
+  buildIndexes(f.dir);
+  assert.ok(checkKnowledge(f.dir).problems.some(p => p.includes('prds/imports/preview.md') && p.includes('status "current"')));
+});
+
+test('invalid memory config is a checker error; hooks and tools read it the same way', t => {
+  for (const [config, pattern] of [
+    ['{not json', /could not be read as JSON/],
+    [{ format: 1, memory: 'cloud' }, /"memory"/],
+    [{ format: 1, memory: 'external', service: 'other', server: 's', project: 'p' }, /"service"/],
+    [{ format: 1, memory: 'external', service: 'mem0', project: 'p' }, /"server"/],
+    [{ format: 1, memory: 'external', service: 'mem0', server: 'mem0' }, /"project"/],
+    [{ format: 2, memory: 'external', service: 'mem0', server: 'mem0', project: 'p' }, /"format"/],
+  ]) {
+    const f = externalFixture(t, config);
+    const hook = hookMemoryConfig(f.dir);
+    assert.deepEqual(toolMemoryConfig(f.dir), hook);
+    assert.equal(hook.mode, 'files'); assert.match(hook.error, pattern);
+    assert.ok(checkKnowledge(f.dir).problems.some(p => p.includes('.toolkit-memory.json')), JSON.stringify(config));
+  }
+  for (const config of [externalConfig, { format: 1, memory: 'files' }, { ...externalConfig, service: 'mem0', server: 'mem0' }]) {
+    const f = externalFixture(t, config);
+    assert.deepEqual(toolMemoryConfig(f.dir), hookMemoryConfig(f.dir));
+  }
+  const empty = mkdtempSync(join(tmpdir(), 'knowledge-external-')); t.after(() => rmSync(empty, { recursive: true, force: true }));
+  assert.deepEqual(hookMemoryConfig(empty), { mode: 'files', service: null, server: null, project: null, error: null });
+  assert.deepEqual(toolMemoryConfig(empty), hookMemoryConfig(empty));
+  assert.equal(checkKnowledge(empty).skipped, true);
+});
+
+test('files-mode config keeps today\'s checks', t => {
+  const f = fixture(t);
+  f.write('.toolkit-memory.json', JSON.stringify({ format: 1, memory: 'files' }));
+  assert.deepEqual(f.problems(), []);
+  assert.equal(buildIndexes(f.dir).written.length, 3);
 });

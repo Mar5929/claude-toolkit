@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 import {
   toolkitOrientation, manualSummary, DEFAULT_SUMMARY, SUMMARY_WORD_LIMIT,
+  DEFAULT_EXTERNAL_SUMMARY, EXTERNAL_SUMMARY_HEADING, memoryMode,
 } from "../plugins/project-init/library/hooks/toolkit-session-start.mjs";
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -32,6 +33,21 @@ function execute(root, cwd = root) {
   return execFileSync(process.execPath, [join(root, ".claude/hooks/toolkit-session-start.mjs")], {
     cwd, env, input: JSON.stringify({ hook_event_name: "SessionStart" }), encoding: "utf8",
   });
+}
+
+const EXTERNAL_CONFIG = { format: 1, memory: "external", service: "mem0", server: "mem0", project: "demo" };
+
+function externalFixture(run) {
+  const parent = mkdtempSync(join(tmpdir(), "toolkit-orientation-external-"));
+  const root = join(parent, "project");
+  mkdirSync(join(root, "docs"), { recursive: true });
+  mkdirSync(join(root, ".claude/hooks"), { recursive: true });
+  writeFileSync(join(root, "AGENTS.md"), "## Startup\n\n- Read `SOUL.md` and `PROJECT.md`.\n");
+  writeFileSync(join(root, "CLAUDE.md"), "@AGENTS.md\n");
+  writeFileSync(join(root, ".toolkit-memory.json"), JSON.stringify(EXTERNAL_CONFIG));
+  copyFileSync(source, join(root, ".claude/hooks/toolkit-session-start.mjs"));
+  copyFileSync(template, join(root, "docs/toolkit-manual.md"));
+  try { run(root, parent); } finally { rmSync(parent, { recursive: true, force: true }); }
 }
 
 test("startup output is the manual Summary, short, with no full-read or acknowledgment request", () => fixture((root) => {
@@ -136,3 +152,51 @@ test("reusable manual starts with a Summary and has no repository-only links", (
   assert.match(text, /chosen tracker/);
   assert.match(text, /Knowledge|knowledge/);
 });
+
+test("the template's external Summary and the built-in external default say the same thing", () => {
+  assert.equal(manualSummary(readFileSync(template, "utf8"), EXTERNAL_SUMMARY_HEADING), DEFAULT_EXTERNAL_SUMMARY);
+  assert.match(DEFAULT_EXTERNAL_SUMMARY, /memory service/);
+  assert.match(DEFAULT_EXTERNAL_SUMMARY, /docs\/toolkit-manual\.md/);
+  assert.ok(!DEFAULT_EXTERNAL_SUMMARY.includes("knowledge/"));
+});
+
+test("files mode is unchanged: no config, a files config, or a broken config", () => fixture((root) => {
+  const expected = toolkitOrientation(root);
+  assert.ok(expected.includes(DEFAULT_SUMMARY));
+  assert.ok(!expected.includes("memory service"));
+  for (const text of [
+    JSON.stringify({ format: 1, memory: "files" }),
+    "{ not json",
+    JSON.stringify({ format: 1, memory: "cloud" }),
+    JSON.stringify({ format: 1, memory: "external", service: "mem0", server: "mem0" }),
+  ]) {
+    writeFileSync(join(root, ".toolkit-memory.json"), text);
+    assert.equal(memoryMode(root), "files", text);
+    assert.equal(toolkitOrientation(root), expected, text);
+  }
+}));
+
+test("external mode prints the external Summary from docs/toolkit-manual.md", () => externalFixture((root) => {
+  assert.equal(memoryMode(root), "external");
+  const output = toolkitOrientation(root);
+  assert.ok(output.includes(DEFAULT_EXTERNAL_SUMMARY));
+  assert.ok(!output.includes("knowledge/"));
+  assert.ok(!output.includes("manual is missing"));
+  assert.ok(words(output) <= 100, `${words(output)} words`);
+  assert.equal(execute(root), output);
+}));
+
+test("external mode reports a missing docs/toolkit-manual.md, not the knowledge/ path", () => externalFixture((root) => {
+  rmSync(join(root, "docs/toolkit-manual.md"));
+  const output = toolkitOrientation(root);
+  assert.match(output, /Toolkit manual is missing: docs\/toolkit-manual\.md/);
+  assert.ok(output.includes(DEFAULT_EXTERNAL_SUMMARY));
+  assert.ok(!output.includes("knowledge/toolkit-manual.md"));
+}));
+
+test("external mode falls back to the external default when the manual has no external Summary", () => externalFixture((root) => {
+  writeFileSync(join(root, "docs/toolkit-manual.md"), "# Manual\n\n## Summary\n\nFiles-mode text only.\n");
+  const output = toolkitOrientation(root);
+  assert.ok(output.includes(DEFAULT_EXTERNAL_SUMMARY));
+  assert.ok(!output.includes("Files-mode text only"));
+}));

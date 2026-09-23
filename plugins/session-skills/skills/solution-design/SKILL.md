@@ -109,7 +109,8 @@ Only when every box is ticked does step 4c, the design round, begin.
 No design starts until the requirements are complete, explicit end to end,
 and safe for a builder to read. Before asking the owner anything:
 
-- Read the canonical requirements: the PRD, the work item, its approvals, its
+- Read the canonical requirements: the PRD (in `knowledge/prds/`, or `prds/`
+  when the project keeps its memory in a memory service), the work item, its approvals, its
   open questions, and any linked notes. Notes at the bottom of a PRD labeled
   "potential paths to explore" are ideas to evaluate, not requirements and not
   approved design. Run `spec-check` when it is installed and has not run on
@@ -321,7 +322,8 @@ that still need them. The full design is in the file; say where in one line.
   position and evidence in the design. Complete it only after the required design approval. Task
   completion does not complete or approve its parent work item.
 - Lasting decisions the owner made along the way go through the installed `knowledge-save` (legacy: `remember`), with
-  the owner's approval. Working design Notes are not project memory.
+  the owner's approval. It saves to `knowledge/` or to the memory service,
+  whichever the project uses. Working design Notes are not project memory.
 - If a save fails or is not authorized, lead with "not saved" and carry the
   unsaved text into the handoff.
 

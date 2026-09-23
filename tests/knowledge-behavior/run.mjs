@@ -66,8 +66,10 @@ for (const scenario of scenarios) {
   writeFileSync(join(caseRoot, 'result.json'), `${JSON.stringify(result, null, 2)}\n`);
 }
 
+runRecord.externalPreflight = externalMemoryPreflight(sourceRoot, join(resultsRoot, 'external-memory-preflight'));
 runRecord.finishedAt = new Date().toISOString();
-runRecord.mechanicalChecksPassed = runRecord.results.every((result) => result.mechanicalChecksPassed);
+runRecord.mechanicalChecksPassed = runRecord.results.every((result) => result.mechanicalChecksPassed)
+  && runRecord.externalPreflight.passed !== false;
 writeFileSync(join(resultsRoot, 'run.json'), `${JSON.stringify(runRecord, null, 2)}\n`);
 process.stdout.write(`${resultsRoot}\n`);
 process.exitCode = runRecord.mechanicalChecksPassed ? 0 : 1;
@@ -383,6 +385,53 @@ function gitSourceState(knowledgeRoot, handoffSource) {
       status: command('git', ['status', '--porcelain=v1'], handoffSource, false).stdout.trim().split('\n').filter(Boolean)
     }
   };
+}
+
+/**
+ * External memory mode (#404) has no model trial: a trial would need a live
+ * memory service. This preflight installs an external-mode project from
+ * shipped sources and runs the copied index builder, checker and hooks. It
+ * proves the Git side and the startup text only, not any service call.
+ */
+function externalMemoryPreflight(knowledgeSource, caseRoot) {
+  const helper = join(knowledgeSource, 'plugins', 'second-brain', 'hooks', 'knowledge-manual.mjs');
+  if (layout !== 'v2' || !existsSync(helper) || !readFileSync(helper, 'utf8').includes('readMemoryConfig')) {
+    return { passed: null, skipped: 'This source has no external memory mode.' };
+  }
+  const root = join(caseRoot, 'project');
+  const templates = join(knowledgeSource, 'plugins', 'second-brain', 'skills', 'knowledge-setup', 'references', 'templates');
+  mkdirSync(join(root, 'docs'), { recursive: true });
+  mkdirSync(join(root, 'prds', 'export'), { recursive: true });
+  mkdirSync(join(root, 'ai-external-knowledge'), { recursive: true });
+  writeFileSync(join(root, '.toolkit-memory.json'), `${JSON.stringify({ format: 1, memory: 'external', service: 'mem0', server: 'mem0', project: 'fixture-export' }, null, 2)}\n`);
+  cpSync(join(templates, 'SOUL.md'), join(root, 'SOUL.md'));
+  cpSync(join(templates, 'knowledge', 'project.md'), join(root, 'PROJECT.md'));
+  cpSync(join(templates, 'knowledge', 'knowledge-manual.md'), join(root, 'docs', 'knowledge-manual.md'));
+  cpSync(join(knowledgeSource, 'plugins', 'project-init', 'library', 'templates', 'toolkit-manual.md'), join(root, 'docs', 'toolkit-manual.md'));
+  writeFileSync(join(root, 'prds', 'export', 'export.md'), '---\nsummary: How the nightly export stays inside its processing window.\ngroup: Export\narea: export\nstatus: proposed\nsource: fixture owner\ncreated_at: 2026-09-20\nupdated_at: 2026-09-20\ntags: [export]\n---\n\n# Nightly export\n\nThe export finishes inside its processing window.\n');
+  mkdirSync(join(root, '.claude', 'tools'), { recursive: true });
+  mkdirSync(join(root, '.claude', 'hooks'), { recursive: true });
+  for (const tool of ['build-knowledge-index.mjs', 'check-knowledge.mjs', 'frontmatter.mjs', 'inspect-knowledge-save.mjs']) {
+    cpSync(join(knowledgeSource, 'plugins', 'second-brain', 'tools', tool), join(root, '.claude', 'tools', tool));
+  }
+  for (const hook of readdirSync(join(knowledgeSource, 'plugins', 'second-brain', 'hooks')).filter((name) => name.endsWith('.mjs'))) {
+    cpSync(join(knowledgeSource, 'plugins', 'second-brain', 'hooks', hook), join(root, '.claude', 'hooks', hook));
+  }
+  const build = command('node', ['.claude/tools/build-knowledge-index.mjs', root], root, false);
+  const checker = command('node', ['.claude/tools/check-knowledge.mjs', root], root, false);
+  const hooks = hookExecutablePreflight(root, 'external-memory');
+  const startupText = hooks.startup?.stdout || '';
+  const assertions = [
+    { name: 'index builder wrote prds/prd-index.md', passed: build.status === 0 && existsSync(join(root, 'prds', 'prd-index.md')) },
+    { name: 'no knowledge/ folder or memory index was created', passed: !existsSync(join(root, 'knowledge')) },
+    { name: 'checker passed', passed: checker.status === 0 },
+    { name: 'startup names SOUL.md, PROJECT.md and the working-memory tool in order', passed: ['1. Read `SOUL.md`', '2. Read `PROJECT.md`', '3. Load working memory (kind `working`) with `mcp__mem0__get_memories` with filters `{"AND":[{"app_id":"fixture-export"},{"metadata":{"toolkit_kind":"working"}}]}`'].every((text, i, all) => startupText.indexOf(text) > (i ? startupText.indexOf(all[i - 1]) : -1)) },
+    { name: 'startup lists pending records', passed: startupText.includes('List pending records (kind `pending`) with `mcp__mem0__get_memories` with filters `{"AND":[{"app_id":"fixture-export"},{"metadata":{"toolkit_kind":"pending"}}]}`') },
+    { name: 'copied hooks ran the turn review in sequence', passed: hooks.passed },
+  ];
+  const result = { passed: assertions.every((item) => item.passed), assertions, build, checker, hooks };
+  writeFileSync(join(caseRoot, 'result.json'), `${JSON.stringify(result, null, 2)}\n`);
+  return result;
 }
 
 function hookExecutablePreflight(root, scenarioId) {

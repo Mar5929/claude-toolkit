@@ -213,6 +213,27 @@ try {
     assert.match(result.problems[0], /managed operating manual/);
   });
 
+  check("external memory mode keeps the guide briefing rule and a docs/ guide beside docs/knowledge-manual.md", () => {
+    const root = fixture();
+    const manual = readFileSync(
+      resolve(repoRoot, "plugins/second-brain/skills/knowledge-setup/references/templates/knowledge/knowledge-manual.md"),
+      "utf8",
+    );
+    write(root, ".toolkit-memory.json", JSON.stringify({ format: 1, memory: "external", service: "mem0", server: "mem0", project: "guide" }));
+    write(root, "docs/knowledge-manual.md", manual);
+    write(root, "SOUL.md", "# Soul\n");
+    write(root, "PROJECT.md", "# Project\n");
+    write(root, "prds/prd-index.md", "# PRD index\n");
+    write(root, "ai-external-knowledge/README.md", "# Outside documentation\n");
+    assert.equal(count(loadKnowledge(root), SYSTEM_GUIDE_OFF_MESSAGE), 1);
+    setupGuide(root, { guidePath: "docs/system" });
+    assert.equal(inspectGuide(root).state, "on");
+    assert.equal(count(loadKnowledge(root), SYSTEM_GUIDE_OFF_MESSAGE), 0);
+    assert.equal(existsSync(resolve(root, "knowledge")), false);
+    assert.equal(readFileSync(resolve(root, "docs/knowledge-manual.md"), "utf8"), manual);
+    assert.deepEqual(checkKnowledge(root).problems, []);
+  });
+
   process.stdout.write(`ALL PASS (${checks} integration checks)\n`);
 } finally {
   for (const root of fixtures) rmSync(root, { recursive: true, force: true });

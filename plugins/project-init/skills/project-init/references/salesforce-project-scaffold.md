@@ -55,7 +55,8 @@ orgs. `scripts/apex` and `scripts/soql` hold one-off Apex and queries.
 
 **`delivery/`**: the briefs, records, sources, work files, and finished
 artifacts produced or received while doing the client work. Curated context
-that helps future agents work correctly belongs in `knowledge/`.
+that helps future agents work correctly belongs in `knowledge/`, or in the
+memory service and `PROJECT.md` in the `external` memory mode.
 
 | Folder | Holds |
 |---|---|
@@ -81,8 +82,8 @@ root, not under `delivery/`, because every project gets it whatever the stack.
 The `ai-external-knowledge.md` rule in `library/rules/general/` governs it.
 
 When project knowledge is selected, do not create a `delivery/knowledge-base/`
-folder. Use `knowledge/memory/`
-for curated agent memory. Keep raw meeting notes, communications, deliverables,
+folder. Use `knowledge/memory/` (the memory service in the `external` memory
+mode) for curated agent memory. Keep raw meeting notes, communications, deliverables,
 deployment evidence, and client sources in the delivery folders above. If the
 owner declines project knowledge and needs a local reference library, offer
 `delivery/knowledge-base/` separately instead of adding it by default.
