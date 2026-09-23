@@ -16,3 +16,4 @@
 ## Toolkit research
 
 - [Claude Projects comparison with Toolkit OS](memory-entries/claude-projects-research.md): Claude Projects research found orchestration and shared-context overlap; retained findings explain why Toolkit source authority and cross-host workflows still matter.
+- [LLM Wiki Agentic Librarian comparison](memory-entries/llm-wiki-librarian-comparison.md): A librarian memory toolkit enforced format only when its agent ran the scripts; neither it nor ours proves approval. Mike chose a commit-time format check.

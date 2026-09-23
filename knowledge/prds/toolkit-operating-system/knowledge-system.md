@@ -1737,6 +1737,7 @@ unexplained warning and does not silently become an authorized task.
 - A file that breaks a limit or a field rule is named, along with the rule it broke. A save that fails is not finished. The agent fixes the file and checks it again before it says the save is done. Nothing is ever cut short without saying so.
 - After writing, the agent reads back the change as it was actually saved and confirms it matches the approved operation, meaning, and scope. It checks supporting detail against the sources it came from and keeps any wording the owner required. It checks the text it wrote against the project's output style, and checks the required fields, their allowed values, the size limits, and the links. Approving a summary does not mean the saved entry has to repeat that summary word for word. A tool saying it succeeded, or YAML that parses, does not on its own show that the saved result is correct.
 - After any change to lasting knowledge, the affected index is rebuilt and the checker is run. A check that fails means the save is not finished, and the agent says so instead of claiming the knowledge is stored.
+- The checker also runs whenever a commit includes changes under `knowledge/`, whichever agent or host makes the commit, and a commit that fails it is refused. It checks the content being committed, not other unsaved work in the folder. Project setup and project sync install this check and report when a project already has a different commit check. Agents may not skip it. Approved by Mike Rihm on 2026-09-23, after the [LLM Wiki Agentic Librarian comparison](../../../docs/designs/269-knowledge-system/research/2026-09-23-llm-wiki-librarian-comparison.md). Build tracked separately; not built when approved.
 
 ### Memory index example
 
@@ -2488,3 +2489,10 @@ The instruction-content audit and full requirements approval remain outstanding.
   2026-09-18. Verify the remote result before reporting publication complete.
   The reusable work-plugin Notes behavior is addressed in a separate task;
   this document records this PRD's remaining work.
+
+- Open, 2026-09-23, for Mike: two further ideas from the
+  [LLM Wiki Agentic Librarian comparison](../../../docs/designs/269-knowledge-system/research/2026-09-23-llm-wiki-librarian-comparison.md)
+  are undecided. Idea 2: approve save cards with a typed command, recorded by a
+  hook where the agent cannot write, so code can confirm a memory was approved.
+  Idea 3: the agent's turn ends once a save card is shown. Both affect
+  requirements 20 and 21.
