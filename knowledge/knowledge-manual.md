@@ -35,6 +35,9 @@ reports:
   the turn ends.
 - After a work item is created, closed, or moved to another stage, update
   `knowledge/memory/current.md` in the same turn.
+- Opening a pull request, closing a work item, or merging is refused until
+  `knowledge-save` was opened in the same turn. That is the save review for
+  the action.
 
 A check proves the step happened. It does not prove the step was done well or
 approved. Codex follows the same steps without the checks.

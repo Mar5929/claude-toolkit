@@ -65,7 +65,13 @@ Toolkit project. AGENTS.md names the tracker and the codemap.
   prove a step happened, not that it was done well or approved. They run only
   with `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1` in project settings; the older
   command hooks skip only the parts they replace. The knowledge manual lists
-  the knowledge steps they check.
+  the knowledge steps they check. A close also needs the `work` skill opened
+  in the same turn, and a merge needs `merge-and-clean-up` opened in the
+  session.
+- Project settings also carry `deny` rules (staging everything, force pushes,
+  Salesforce deletes) and `ask` rules (hard reset, `git clean`, sandbox
+  deploys, data writes, `sf apex run`). `ask` does not prompt in
+  `bypassPermissions` mode; the owner's yes in the same chat stays the rule.
 
 ## Project map
 
