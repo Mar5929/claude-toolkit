@@ -85,6 +85,12 @@ mapping or general host ordering guarantee.
 preserves Terra's comparison, official sources, overlap findings and proposed
 host tests. Source research only; recommendations are not adopted policy.
 
+### LLM Wiki Agentic Librarian comparison — 2026-09-23
+
+[LLM Wiki Agentic Librarian compared with the Knowledge System](research/2026-09-23-llm-wiki-librarian-comparison.md)
+preserves the enforcement comparison after #396 and the three ideas considered.
+Mike approved only idea 1, the commit-time format check.
+
 ### Instruction-delivery research — 2026-09-19
 
 Two GPT-5.6 Sol agents investigated how fresh working agents receive guidance,
