@@ -440,6 +440,11 @@ Mike accepted every recommendation below on 2026-09-22 ("yes to all").
 
 ### Decisions and approval state
 
+- Build finding (step 5, PR #402, 2026-09-23): a held reply continues through
+  the Stop event with the note. The design's inserted Skill call was refused by
+  the model as an injected prompt in 2 of 2 real runs. The Stop continuation
+  was followed in every run. Unmet turn-end checks apply to the current turn
+  only, except while a helper's save is still running (review finding).
 - Approved (Mike, 2026-09-23): the #383 instruction changes join the step 4
   rewrite, and #358's example becomes a measurement case (issue #396, section
   "Consolidated work from #383 and #358").
