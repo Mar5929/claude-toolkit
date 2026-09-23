@@ -9,7 +9,7 @@ confirmed_at: 2026-09-15
 tags: [knowledge-system, memory, prds, second-brain, schema, requirements, solution-philosophy, high-level-architecture]
 project: claude-toolkit
 work_item: "269"
-updated_at: 2026-09-22
+updated_at: 2026-09-23
 ---
 
 # The project second brain
@@ -1640,8 +1640,9 @@ them; it does not ship a program that searches saved conversations. This
 removes the existing search program at
 `plugins/second-brain/skills/knowledge-find/scripts/search-sessions.mjs`,
 because requirement 29 says not to build a search engine. Approved by Mike
-Rihm on 2026-09-21, source: Main Orchestrator conversation, decision D6. Not
-built yet, and the build is not yet tracked in a work item.
+Rihm on 2026-09-21, source: Main Orchestrator conversation, decision D6.
+Delivered in PR #400 at merge commit `7e044c5` on 2026-09-23; issue #381 T1
+holds the delivery record.
 
 **Check:** ask about active work, a past decision, required product behavior,
 an existing system interaction, and a vendor capability. Without naming a

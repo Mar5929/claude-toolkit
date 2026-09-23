@@ -23,9 +23,10 @@ policy: [recall](skills/recall/SKILL.md), [remember](skills/remember/SKILL.md),
 [retire](skills/retire/SKILL.md), [reflect](skills/reflect/SKILL.md),
 [session-search](skills/session-search/SKILL.md), and
 [second-brain](skills/second-brain/SKILL.md). New integrations use the four names.
-The read-only history adapter is
-`skills/knowledge-find/scripts/search-sessions.mjs`; available host history tools
-remain separate scoped sources, not a new archive or memory store.
+The [history reference](skills/knowledge-find/references/history.md) tells agents
+where Claude Code keeps local transcripts so they can use ordinary file tools.
+Other hosts' history tools remain separate scoped sources, not a new archive or
+memory store.
 
 ## Records and ownership
 
