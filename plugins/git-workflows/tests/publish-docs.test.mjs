@@ -65,6 +65,13 @@ test('parallel saves have separate staging areas and a remote race is recoverabl
   const second = start(source, 'docs/second.md');
   assert.equal(existsSync(join(first, 'force-app', 'objects', 'large.xml')), false);
   assert.equal(existsSync(join(second, 'force-app', 'objects', 'large.xml')), false);
+  git(first, 'mv', 'docs/existing.md', 'docs/first.md');
+  const renamed = run(process.execPath, [script, 'publish', '--message', 'Rename another document'], first);
+  assert.equal(renamed.status, 1);
+  assert.match(renamed.stderr, /Other staged changes are present: docs\/existing\.md/);
+  git(first, 'reset', '-q', '--', 'docs/existing.md', 'docs/first.md');
+  git(first, 'checkout', '--', 'docs/existing.md');
+  rmSync(join(first, 'docs', 'first.md'));
   write(join(first, 'docs', 'first.md'), '# First\n');
   write(join(second, 'docs', 'second.md'), '# Second\n');
   git(first, 'add', '--', 'docs/first.md');

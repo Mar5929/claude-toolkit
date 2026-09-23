@@ -79,11 +79,13 @@ Review every destination, not only lasting memory.
    then only the template for the destination. Do not widen an approval. Do
    not infer approval from silence, an index, or an inbox entry.
 3. Read [execution and recovery](references/execution-and-recovery.md) before
-   any authorized save or retry. Record the exact authority and owed change in
-   `knowledge/memory-inbox.md` (a `pending` record in `external` mode) before
-   you edit or start a helper. Keep the same
-   reference through retries. Check real file, Git, and remote state before you
-   repeat work.
+   any authorized save or retry. For a Git-backed inbox, name the inbox and
+   exact expected destinations, then start the isolated `publish-docs` save
+   workspace before writing. Record the exact authority and owed change in
+   `knowledge/memory-inbox.md` there (a `pending` record in `external` mode),
+   read it back, and pass that workspace to the helper before destination
+   edits. Keep the same reference through retries. Check real file, Git, and
+   remote state before repeating work.
 4. When a helper agent is available and authorized, give it the
    [executor assignment](references/executor.md). The conversation continues.
    The main agent owns approval and the verified report. If no helper is
@@ -97,8 +99,9 @@ Review every destination, not only lasting memory.
    `external` mode is complete when step 5 matches. Related ready saves
    may share a commit. Keep their permissions separate. Never hold a ready save
    to collect others.
-7. Remove only the completed inbox entry or `pending` record. Verify that the
-   cleanup was shared.
+7. Remove only the completed inbox entry in that isolated save workspace (or
+   a new one based on the latest remote), or remove the `pending` record in
+   external mode. Verify that the cleanup was shared.
    A pending cleanup is not an unpublished destination.
 
 ## Report

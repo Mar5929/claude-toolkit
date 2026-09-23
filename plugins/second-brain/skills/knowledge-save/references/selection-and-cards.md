@@ -26,7 +26,8 @@ An unrelated unresolved question does not hold a supported save.
 ### Choose the memory topic before showing a card
 
 Ask what question a future agent would use this memory to answer. Search the
-memory index and likely existing topics, then read the best match. If a reader
+memory index (or existing records in external mode) and likely existing topics,
+then read the best match. If a reader
 would expect the new fact under that topic's title, update its relevant section.
 Keep dated incidents as evidence for the broader topic rather than making one
 file per incident. If the facts still form one subject but its title has become

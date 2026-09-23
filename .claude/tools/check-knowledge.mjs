@@ -27,6 +27,9 @@ const stagedDirectories = new Set();
 if (process.env.TOOLKIT_STAGED_INDEX_MANIFEST) {
   const entries = readFileSync(process.env.TOOLKIT_STAGED_INDEX_MANIFEST, "utf8").split("\0");
   for (const entry of entries) {
+    const mode = entry.slice(0, 6);
+    // A symlink can point nowhere; a path name alone cannot prove it resolves.
+    if (mode !== "100644" && mode !== "100755") continue;
     const path = entry.slice(entry.indexOf("\t") + 1);
     if (!entry.includes("\t") || !path) continue;
     stagedPaths.add(path);

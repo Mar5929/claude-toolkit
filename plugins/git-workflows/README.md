@@ -50,6 +50,10 @@ but nothing has to be set up inside it.
 
 ## Maintaining this plugin
 
+Run `node --test plugins/git-workflows/tests/publish-docs.test.mjs` after
+changing the save helper. Its local Git fixtures cover separate staging areas,
+remote advances, path limits, and knowledge checks in a sparse worktree.
+
 A content change here bumps both plugin manifests and `metadata.version` in the
 repo's `.claude-plugin/marketplace.json`. Keep this README, the top-level README,
 and `docs/toolkit-map.md` current when the skills change.

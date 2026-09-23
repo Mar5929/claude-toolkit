@@ -182,6 +182,19 @@ test('staged links outside knowledge are checked without copying those files', (
   assert.match(result.stderr, /missing\.txt/);
 });
 
+test('a broken tracked symlink outside knowledge does not satisfy a memory link', () => {
+  const root = fixture('broken-symlink-link');
+  write(root, 'symlink-target.txt', 'missing-file');
+  const hash = git(root, 'hash-object', '-w', 'symlink-target.txt').trim();
+  git(root, 'update-index', '--add', '--cacheinfo', '120000', hash, 'broken-link');
+  write(root, memoryPath, goodMemory + '\n[Broken](../../../broken-link)\n');
+  rebuild(root);
+  git(root, 'add', 'knowledge');
+  const result = commit(root, 'Memory with broken source link');
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /broken-link/);
+});
+
 test('the hook installed once also runs in a linked worktree', () => {
   const root = fixture('worktree-main');
   const linked = resolve(base, 'worktree-linked');

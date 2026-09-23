@@ -31,6 +31,12 @@ function markerPath(cwd) {
   return join(git(cwd, ['rev-parse', '--absolute-git-dir']).stdout.trim(), 'toolkit-docsave.json');
 }
 
+function fetchDefault(cwd, branch) {
+  const ref = `refs/remotes/origin/${branch}`;
+  git(cwd, ['fetch', 'origin', `refs/heads/${branch}:${ref}`]);
+  return git(cwd, ['rev-parse', ref]).stdout.trim();
+}
+
 function generatedPaths(paths) {
   const output = new Set(paths);
   if (paths.some(path => path.startsWith('knowledge/memory/memory-entries/')))
@@ -56,8 +62,7 @@ function start(args) {
   if (existsSync(markerPath(source)))
     throw new Error('Already in an isolated save workspace. Continue that save instead of opening another.');
   const paths = generatedPaths(args.slice(separator + 1).map(cleanPath));
-  git(source, ['fetch', 'origin', branch]);
-  const base = git(source, ['rev-parse', 'FETCH_HEAD']).stdout.trim();
+  const base = fetchDefault(source, branch);
   const workspace = resolve(dirname(source), `${basename(source)}-docsave-${randomUUID().slice(0, 8)}`);
   if (existsSync(workspace)) throw new Error(`Save workspace already exists: ${workspace}`);
   git(source, ['worktree', 'add', '--no-checkout', '--detach', workspace, base]);
@@ -84,10 +89,10 @@ function publish(args) {
   const { source, branch, base, paths } = state;
   if (resolve(workspace) === resolve(source) || git(workspace, ['symbolic-ref', '-q', 'HEAD'], { allowFailure: true }).status === 0)
     throw new Error('Publication requires the isolated, detached save workspace.');
-  const staged = git(workspace, ['diff', '--cached', '--name-only', '-z']).stdout.split('\0').filter(Boolean);
+  const staged = git(workspace, ['diff', '--cached', '--name-only', '--no-renames', '-z']).stdout.split('\0').filter(Boolean);
   const allowed = new Set(paths);
   if (staged.some(path => !allowed.has(path))) throw new Error(`Other staged changes are present: ${staged.filter(path => !allowed.has(path)).join(', ')}`);
-  const unstaged = git(workspace, ['diff', '--name-only', '-z']).stdout.split('\0').filter(Boolean);
+  const unstaged = git(workspace, ['diff', '--name-only', '--no-renames', '-z']).stdout.split('\0').filter(Boolean);
   const untracked = git(workspace, ['ls-files', '--others', '--exclude-standard', '-z']).stdout.split('\0').filter(Boolean);
   if (unstaged.length || untracked.length)
     throw new Error(`Unpublished files remain in this save workspace: ${[...unstaged, ...untracked].join(', ')}`);
@@ -101,14 +106,13 @@ function publish(args) {
   if (staged.length) git(workspace, ['commit', '-m', args[messageFlag + 1]]);
   else if (git(workspace, ['rev-parse', 'HEAD']).stdout.trim() === (state.lastPublished || base))
     throw new Error('No changes to publish.');
-  git(workspace, ['fetch', 'origin', branch]);
-  const remote = git(workspace, ['rev-parse', 'FETCH_HEAD']).stdout.trim();
+  const remote = fetchDefault(workspace, branch);
   if (git(workspace, ['merge-base', '--is-ancestor', remote, 'HEAD'], { allowFailure: true }).status !== 0)
     throw new Error('The default branch advanced. Reconcile it in this isolated workspace, rebuild indexes, then run publish again.');
   git(workspace, ['push', 'origin', `HEAD:${branch}`]);
-  git(workspace, ['fetch', 'origin', branch]);
+  const verifiedRemote = fetchDefault(workspace, branch);
   const head = git(workspace, ['rev-parse', 'HEAD']).stdout.trim();
-  if (git(workspace, ['merge-base', '--is-ancestor', head, 'FETCH_HEAD'], { allowFailure: true }).status !== 0)
+  if (git(workspace, ['merge-base', '--is-ancestor', head, verifiedRemote], { allowFailure: true }).status !== 0)
     throw new Error('Push returned, but the save could not be verified on the remote. Keep the workspace and inspect it.');
   state.lastPublished = head;
   writeFileSync(file, JSON.stringify(state, null, 2));
