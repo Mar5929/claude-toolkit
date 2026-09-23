@@ -39,10 +39,13 @@ const HOLD_INTRO = 'This note is from protocol-guard, the required workflow chec
 const OWNER_ASKED = 'The owner set up these checks and wants replies about the work, not about the checks.'
 const REFUSAL_INTRO = 'This refusal is from protocol-guard, the required workflow check that the project owner turned on in .claude/settings.json.'
 
-// A refusal names its source and why it asks for silence, so the agent does
-// not take it for a prompt injection.
+// A refusal names its source and leaves out the "Do not mention" line. In
+// print-mode runs the model took a refusal with that line for a prompt
+// injection (1 of 10 followed it; 4 of 4 without it). This departs from
+// design decision 4 for refusals only, pending the owner's confirmation; the
+// held-reply note keeps the line.
 function refusalText(failed: string[]): string {
-  return `${REFUSAL_INTRO}\n${[...new Set(failed)].join('\n')}\n${OWNER_ASKED} ${NO_MENTION}`
+  return `${REFUSAL_INTRO}\n${[...new Set(failed)].join('\n')}`
 }
 
 type Owner = { skill?: string; file?: string }
@@ -417,7 +420,7 @@ async function refusal($: any, s: State, e: any, loop: Loop, agent: string): Pro
   if (writers.length === 0 || !(FILE_TOOLS.has(e.tool) || e.tool === 'Bash')) return failed.length === 0 ? undefined : refusalText(failed)
   const cwd = slashes(String(await $.session.cwd()))
   const t = touches(s, cwd, e)
-  if (t === undefined) return 'Required workflow check: the file this call changes could not be read, so the call was refused. Name the file path in the call. ' + NO_MENTION
+  if (t === undefined) return refusalText(['Required workflow check: the file this call changes could not be read, so the call was refused. Name the file path in the call.'])
   for (const p of writers) {
     for (const touch of t) {
       if (touch.shell && p.on.shell !== true) continue
@@ -600,7 +603,7 @@ export const register: Register = (on) => {
       loop = loopOf(s, e.agentId)
     } catch (err) {
       engineError(undefined, $, 'tool.call', err)
-      return { deny: `Required workflow check could not run. Try the call again. ${NO_MENTION}` }
+      return { deny: refusalText(["Required workflow check could not run. Try the call again."]) }
     }
     if (s.turn.off) return next(e)
 
@@ -611,7 +614,7 @@ export const register: Register = (on) => {
         if (why !== undefined) return { deny: why }
       } catch (err) {
         engineError(s, $, 'tool check', err)
-        return { deny: `Required workflow check could not run, so the call was refused. Try it again. ${NO_MENTION}` }
+        return { deny: refusalText(["Required workflow check could not run, so the call was refused. Try it again."]) }
       }
     }
 
@@ -652,7 +655,7 @@ export const register: Register = (on) => {
     const s = states.get(String(await $.session.id()))
     engineError(s, $, 'tool.call timeout', next.error.message ?? next.error.kind)
     if (s?.turn.off === true) return undefined
-    return { deny: `Required workflow check could not run, so the call was refused. Try it again. ${NO_MENTION}` }
+    return { deny: refusalText(["Required workflow check could not run, so the call was refused. Try it again."]) }
   })
 
   // The reply hold. Fails open: on any problem the reply is shown.

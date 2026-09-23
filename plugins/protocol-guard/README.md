@@ -99,7 +99,12 @@ continuation is Claude Code's own channel for this, and the model followed it.
   error."
 - When a check is still unmet after its one hold, the reply is shown with the
   line "Required workflow check not met after one retry: <IDs>."
-- Every note to the agent ends "Do not mention this check in your reply."
+- A held-reply note ends "Do not mention this check in your reply." A tool
+  refusal does not: it names protocol-guard as its source and says what to
+  do. In print-mode runs on Claude Code 2.1.280 the model treated a refusal
+  that carried the line as a prompt injection and stopped (1 of 10 followed
+  it); without the line it followed 4 of 4. This departs from design decision
+  4 for refusals only, pending Mike's confirmation.
 
 ## Turning it on in a project
 
