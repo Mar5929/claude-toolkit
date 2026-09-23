@@ -23,4 +23,4 @@ Applies to every agent and subagent. Read-only against every org, except the san
 - Never rewrite a blocked command to get past a guard hook. Never edit a guard to weaken it. Ask the owner.
 
 ## Enforcement
-`guard-protected-orgs.js`, where installed, checks deploys, `project delete source`, `data delete`, `apex run`, and `org delete` aimed at production or an unclassified org. It asks by default; `"action": "deny"` in `.claude/protected-orgs.json` blocks. It does not check `deploy validate`, data create, update, import, or upsert, or sandbox actions. Follow this list whether or not a hook fires.
+`guard-protected-orgs.js`, where installed, checks deploys, `deploy validate`, data create, update, upsert, import, and delete, `apex run`, `project delete source`, and `org delete`. Aimed at production or an unclassified org, it asks by default; `"action": "deny"` in `.claude/protected-orgs.json` blocks. Aimed at a sandbox, it asks for everything except `deploy validate`. It does not check `apex test run` or reads. Follow this list whether or not a hook fires.

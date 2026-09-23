@@ -3,15 +3,20 @@
  * Salesforce production-org guard  (Claude Code PreToolUse hook)
  * ------------------------------------------------------------------
  * Fires before every Bash / PowerShell tool call. If the command runs a
- * guarded Salesforce CLI verb (deploy or a destructive op) against an org
- * that classifies as PRODUCTION, it returns a "confirm before running"
- * decision so the deploy/delete cannot happen by accident.
+ * guarded Salesforce CLI verb against an org that classifies as PRODUCTION, it
+ * returns a "confirm before running" decision so the change cannot happen by
+ * accident. A guarded verb is anything that changes an org: a deploy or deploy
+ * validate, a data write, anonymous Apex, a metadata delete, or an org delete.
  *
  * Policy is data-driven from .claude/protected-orgs.json. The default policy
  * (set in Gate 2 of project-init):
  *   - protect: any production org (auto-detected via `sf org list`)
  *   - action: ask  (confirm; nothing is hard-blocked)
- *   - watch:  deploys + destructive commands
+ *   - watch:  deploys, validates, data writes, anonymous Apex, deletes
+ *   - sandboxAction: ask. The salesforce-safety-guardrails rule allows sandbox
+ *             deploys, data writes and anonymous Apex only after the owner says
+ *             yes, so the hook asks for them on a sandbox or scratch org too. A
+ *             deploy validate on a sandbox needs no yes and passes silently.
  *
  * Set action to "deny" for a project whose written rule says an agent may never
  * deploy to production. The block message changes with the setting: on "deny" it
@@ -65,6 +70,7 @@ function loadConfig() {
   const defaults = {
     action: 'ask', // "ask" | "deny"
     unknownOrgAction: 'ask', // what to do when an org can't be classified
+    sandboxAction: 'ask', // "ask" | "allow" for a guarded verb on a sandbox or scratch org
     confirmOrgDeleteAlways: true, // any `org delete` asks, prod or not
     alwaysProtect: [], // aliases/usernames always guarded
     neverProtect: [], // aliases/usernames never guarded (escape hatch)
@@ -80,30 +86,62 @@ function loadConfig() {
 
 // ------------------------------------------------------------------ verb sets
 // Contiguous verb phrases; flags/args follow. `sf` or `sfdx` accepted.
+const ORG_DELETE_VERBS = [
+  /\b(?:sf|sfdx)\s+org\s+delete\s+(?:scratch|sandbox)\b/,
+  /\b(?:sf|sfdx)\s+force:org:delete\b/,
+];
 const DEPLOY_VERBS = [
   /\b(?:sf|sfdx)\s+project\s+deploy\s+(?:start|quick|resume)\b/,
   /\b(?:sf|sfdx)\s+force:source:deploy\b/,
   /\b(?:sf|sfdx)\s+force:mdapi:deploy\b/,
 ];
-const ORG_DELETE_VERBS = [
-  /\b(?:sf|sfdx)\s+org\s+delete\s+(?:scratch|sandbox)\b/,
-  /\b(?:sf|sfdx)\s+force:org:delete\b/,
+// A validate is not a read: it uploads the package and runs the deploy's Apex
+// tests in the target org. The safety rule forbids it in production. It has its
+// own category because the same rule allows it on a sandbox with no yes.
+const VALIDATE_VERBS = [
+  /\b(?:sf|sfdx)\s+project\s+deploy\s+validate\b/,
 ];
-const DESTRUCTIVE_VERBS = [
-  /\b(?:sf|sfdx)\s+project\s+delete\s+source\b/,
+// Every way the CLI can change records, not only the delete verbs. An earlier
+// version guarded deletes alone, so `sf data create/update/upsert/import` went
+// through untouched and only the written rule stopped them.
+const DATA_WRITE_VERBS = [
   /\b(?:sf|sfdx)\s+data\s+delete\s+(?:record|bulk|resume)\b/,
+  /\b(?:sf|sfdx)\s+data\s+create\s+(?:record|file)\b/,
+  /\b(?:sf|sfdx)\s+data\s+update\s+record\b/,
+  /\b(?:sf|sfdx)\s+data\s+upsert\s+(?:bulk|resume)\b/,
+  /\b(?:sf|sfdx)\s+data\s+import\s+(?:tree|bulk|resume)\b/,
+  /\b(?:sf|sfdx)\s+force:data:record:(?:create|update|delete)\b/,
+  /\b(?:sf|sfdx)\s+force:data:bulk:(?:upsert|delete)\b/,
+  /\b(?:sf|sfdx)\s+force:data:tree:import\b/,
+];
+const APEX_VERBS = [
   /\b(?:sf|sfdx)\s+apex\s+run\b/,
-  /\b(?:sf|sfdx)\s+force:source:delete\b/,
-  /\b(?:sf|sfdx)\s+force:data:record:delete\b/,
-  /\b(?:sf|sfdx)\s+force:data:bulk:delete\b/,
   /\b(?:sf|sfdx)\s+force:apex:execute\b/,
-  ...ORG_DELETE_VERBS,
+];
+const METADATA_DELETE_VERBS = [
+  /\b(?:sf|sfdx)\s+project\s+delete\s+source\b/,
+  /\b(?:sf|sfdx)\s+force:source:delete\b/,
 ];
 
+// Every guarded verb belongs to exactly one category. First match wins, and the
+// category names itself in the message the owner reads.
+const VERB_CATEGORIES = [
+  { category: 'orgDelete', verbs: ORG_DELETE_VERBS },
+  { category: 'deploy', verbs: DEPLOY_VERBS },
+  { category: 'validate', verbs: VALIDATE_VERBS },
+  { category: 'dataWrite', verbs: DATA_WRITE_VERBS },
+  { category: 'apex', verbs: APEX_VERBS },
+  { category: 'metadataDelete', verbs: METADATA_DELETE_VERBS },
+];
+
+// Categories the safety rule allows on a sandbox or scratch org without the
+// owner's yes. Everything else asks there, unless sandboxAction is "allow".
+const SANDBOX_SILENT = new Set(['validate']);
+
 function matchedVerb(cmd) {
-  for (const re of DEPLOY_VERBS) if (re.test(cmd)) return { kind: 'deploy', re };
-  for (const re of DESTRUCTIVE_VERBS)
-    if (re.test(cmd)) return { kind: 'destructive', re };
+  for (const { category, verbs } of VERB_CATEGORIES) {
+    for (const re of verbs) if (re.test(cmd)) return { kind: category, re };
+  }
   return null;
 }
 
@@ -134,7 +172,7 @@ function defaultTarget() {
   try {
     const out = execSync('sf config get target-org --json', {
       encoding: 'utf8',
-      timeout: 8000,
+      timeout: 30000,
       windowsHide: true,
       stdio: ['ignore', 'pipe', 'ignore'],
     });
@@ -153,9 +191,16 @@ function buildOrgIndex() {
   const index = new Map(); // key (lowercased alias or username) -> category
   let out;
   try {
+    // 30s, not 8s. `sf org list` has been measured at over 8 seconds on a
+    // Windows machine with several orgs, so an 8s timeout expired on nearly
+    // every call and every org fell through to "could not be classified". That
+    // looks safe, because unknown is guarded, but it meant a sandbox could never
+    // be told apart. Keep the hook's registered timeout above the two sf calls
+    // together (see salesforce-prod-guard-hook.md): a PreToolUse command hook
+    // that runs out of time lets the tool call continue.
     out = execSync('sf org list --json --skip-connection-status', {
       encoding: 'utf8',
-      timeout: 8000,
+      timeout: 30000,
       windowsHide: true,
       stdio: ['ignore', 'pipe', 'ignore'],
     });
@@ -273,6 +318,7 @@ function main() {
 
     const index = buildOrgIndex();
     const reasons = [];
+    const sandboxReasons = [];
     let protectHit = false;
 
     for (const t of targets) {
@@ -290,16 +336,39 @@ function main() {
       } else if (cat === 'unknown' && cfg.unknownOrgAction !== 'allow') {
         protectHit = true;
         reasons.push(`'${t}' could not be classified (treated as protected)`);
+      } else if (cat === 'sandbox' || cat === 'scratch') {
+        sandboxReasons.push(`'${t}' is a ${cat} org`);
       }
     }
 
-    if (!protectHit) emit('allow');
+    // Strictest target wins. A command naming a sandbox AND a production org
+    // gets the production decision.
+    if (protectHit) {
+      return emit(
+        decision,
+        `Guarded '${verb.kind}' command${usedDefault ? ' (default org)' : ''}: ` +
+          `${reasons.join('; ')}. ${tail}`
+      );
+    }
 
-    return emit(
-      decision,
-      `Guarded '${verb.kind}' command${usedDefault ? ' (default org)' : ''}: ` +
-        `${reasons.join('; ')}. ${tail}`
-    );
+    // A sandbox deploy, data write, Apex run or delete is allowed by the safety
+    // rule, but only after the owner says yes. Nothing else makes that happen,
+    // so the hook turns it into a prompt instead of letting it through
+    // silently. Set sandboxAction to "allow" to go back to silent.
+    if (
+      sandboxReasons.length > 0 &&
+      cfg.sandboxAction !== 'allow' &&
+      !SANDBOX_SILENT.has(verb.kind)
+    ) {
+      return emit(
+        'ask',
+        `Guarded '${verb.kind}' command against ${sandboxReasons.join('; ')}. ` +
+          `Sandbox work is allowed, but only after the owner approves each ` +
+          `change, so approve it here or cancel and ask them.`
+      );
+    }
+
+    return emit('allow');
   } catch (err) {
     // Heavy-path failure on a known guarded verb -> fail safe: ask.
     return emit(

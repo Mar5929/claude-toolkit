@@ -159,7 +159,7 @@ they behave the same under Git Bash and PowerShell. They are Salesforce-only, so
 
 | File | Guide | What it does |
 | --- | --- | --- |
-| `hooks/guard-protected-orgs.js` | `salesforce-prod-guard-hook.md` | Confirms before any Salesforce CLI deploy or destructive command hits a production org. Works out which orgs are production from the local org store, with no network call. Tuned by `templates/protected-orgs.json`, copied to the project's `.claude/`. |
+| `hooks/guard-protected-orgs.js` | `salesforce-prod-guard-hook.md` | Confirms before any Salesforce CLI command that changes an org (deploy, deploy validate, data write, anonymous Apex, metadata or org delete) hits a production org, and before any of them except a validate hits a sandbox, since the safety rule wants the owner's yes there. Works out which orgs are production from the local org store, with no network call. Tuned by `templates/protected-orgs.json`, copied to the project's `.claude/`. |
 | `hooks/guard-permission-set-deploy.js` | `salesforce-permset-guard-hook.md` | Blocks a deploy shipping a permission set that has not been preflighted in the last 30 minutes. That omission silently and irreversibly deletes grants, and Salesforce's own `deploy validate` and `deploy preview` cannot detect it. |
 
 **Installing them copies them into the project, so the project does not need this
@@ -242,7 +242,15 @@ own words.
 ```
 node plugins/hooks-library/tests/no-ai-attribution-guard-harness.mjs
 node plugins/hooks-library/tests/style-handshake.test.mjs
+node plugins/hooks-library/tests/guard-protected-orgs.test.mjs
 ```
+
+The production-org guard tests are 37 checks. They copy the hook into a
+temporary `.claude/` folder, put a fake `sf` first on the search path with one
+production org, one sandbox, and one scratch org, and touch no real org. They
+cover every guarded category on production, sandbox asks, the silent sandbox
+validate, reads passing, the default org, `sandboxAction`, `deny`, and the two
+override lists.
 
 The attribution harness is 43 checks. A large share of them assert the hook does
 **nothing**, and that weighting is deliberate. The hook fails in two directions

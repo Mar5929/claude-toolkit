@@ -21,8 +21,9 @@ projects that use the `session-skills` plugin, which ships the `spec-check`
 skill it points at. It registers under `PostToolUse` with an
 `Edit|Write|NotebookEdit` matcher.
 
-**Salesforce projects only.** `guard-protected-orgs.js` confirms before a deploy
-or destructive command hits a production org. `guard-permission-set-deploy.js`
+**Salesforce projects only.** `guard-protected-orgs.js` confirms before a deploy,
+validate, data write, Apex run, or delete hits a production org, and before any
+of them but a validate hits a sandbox. `guard-permission-set-deploy.js`
 blocks a deploy shipping a permission set that has not been preflighted. Each has
 its own step-by-step guide in this plugin's folder,
 `salesforce-prod-guard-hook.md` and `salesforce-permset-guard-hook.md`. Follow

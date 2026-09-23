@@ -1,13 +1,15 @@
 {
-  "_comment": "Salesforce production-org guard policy. Read by .claude/hooks/guard-protected-orgs.js on every deploy/destructive SF CLI command. Policy set in project-init Gate 2: confirm before any deploy or destructive op against a production org.",
+  "_comment": "Salesforce production-org guard policy. Read by .claude/hooks/guard-protected-orgs.js on every Salesforce CLI command that changes an org: deploy, deploy validate, data write, anonymous Apex, metadata delete, org delete. Policy set in project-init Gate 2: confirm before any of them runs against a production org, and before any except a validate runs against a sandbox.",
   "action": "ask",
   "unknownOrgAction": "ask",
+  "sandboxAction": "ask",
   "confirmOrgDeleteAlways": true,
   "alwaysProtect": [],
   "neverProtect": [],
   "_fields": {
     "action": "'ask' = pop a confirmation you must approve. 'deny' = hard-block (edit config to run).",
     "unknownOrgAction": "What to do when the target org can't be classified (not authenticated yet, sf CLI unavailable). 'ask' = confirm (safe default). 'allow' = let it through.",
+    "sandboxAction": "What to do when a deploy, data write, anonymous Apex run, or metadata delete targets a sandbox or scratch org. 'ask' = confirm, because the safety rule allows these only after the owner says yes (default). 'allow' = let it through silently. A deploy validate on a sandbox always passes silently.",
     "confirmOrgDeleteAlways": "true = any 'org delete' asks even for scratch/sandbox, since it's irreversible. Set false to only guard production.",
     "alwaysProtect": "Org aliases or usernames to always confirm, even if auto-detected as sandbox/scratch. Example: [\"target-build\"].",
     "neverProtect": "Org aliases or usernames to never confirm (escape hatch for a known throwaway scratch org). Wins over every other rule."

@@ -18,7 +18,8 @@ their own runners: `node --test plugins/second-brain/tests/*.test.mjs` (it
 includes `external-memory.test.mjs`, the `external` memory mode tests), the work-tracker
 command in its `README.md`, and `node --test
 plugins/hooks-library/tests/style-handshake.test.mjs` plus `node
-plugins/hooks-library/tests/no-ai-attribution-guard-harness.mjs`.
+plugins/hooks-library/tests/no-ai-attribution-guard-harness.mjs` and `node
+plugins/hooks-library/tests/guard-protected-orgs.test.mjs`.
 `claude plugin validate .` must pass too.
 
 Each asks a different question, and each exists because something real broke.
