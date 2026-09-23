@@ -440,6 +440,11 @@ Mike accepted every recommendation below on 2026-09-22 ("yes to all").
 
 ### Decisions and approval state
 
+- Pending Mike's confirmation (step 6, PR #403, 2026-09-23): tool-call
+  refusals no longer end with "Do not mention this check in your reply."
+  (decision 4). With the line, the agent treated the refusal as a prompt
+  injection in 9 of 10 real runs; without it, the agent followed 4 of 4 and
+  then 5 of 5. Held-reply notes keep the line. One line in `refusalText`.
 - Build finding (step 5, PR #402, 2026-09-23): a held reply continues through
   the Stop event with the note. The design's inserted Skill call was refused by
   the model as an injected prompt in 2 of 2 real runs. The Stop continuation
