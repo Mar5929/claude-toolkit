@@ -44,7 +44,7 @@ experience of long chats. This is reported experience, not a measured result.
 An earlier hook named `style-reminder` re-stated the output style on every
 message. Mike removed it on 2026-08-21 as per-message overhead for an
 instruction the harness already re-delivers, and the toolkit stopped shipping
-it. That history is in [.claude/rules/README.md](../../../.claude/rules/README.md).
+it. That history is in [.claude/RULES.md](../../../.claude/RULES.md).
 The decision recorded here is newer and goes the other way for the style
 handshake.
 

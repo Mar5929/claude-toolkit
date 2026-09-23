@@ -1,12 +1,13 @@
 # Execute and recover a knowledge save
 
-Read this procedure before execution or retry. The core manual owns policy;
-selection-and-cards.md and operations.md supply selection and operation details.
-Use the project's existing documentation-publication procedure.
+Read this procedure before execution or retry. `knowledge/knowledge-manual.md`
+owns policy; selection-and-cards.md and operations.md supply selection and
+operation details. Publish with the `publish-docs` skill, or the project's own
+documentation-publication procedure when it has one.
 
 ## Before starting or resuming
 
-1. Open the current core manual, applicable destination instructions, and this
+1. Open the manual section you need, the destination's instructions, and this
    procedure. Use the project's real repository and publication route.
 2. Find the existing topic and pending entry before creating either. Read the
    exact proposal or authorized update, source, operation, destinations, and

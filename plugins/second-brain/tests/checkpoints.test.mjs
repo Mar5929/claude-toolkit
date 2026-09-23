@@ -129,8 +129,8 @@ test('unconfigured/conflicting manuals emit no policy or grant; compatible manua
   mkdirSync(join(root,'knowledge'));
   writeFileSync(join(root,'knowledge/knowledge-manual.md'),'<!-- claude-toolkit:knowledge-manual -->\nPolicy');
   const reminder=buildReminder(root);
-  assert.match(reminder,/knowledge\/knowledge-manual.md/); assert.match(reminder,/knowledge\/toolkit-manual.md/);
-  assert.match(reminder,/only source exception/);assert.match(reminder,/Intent neither/);
+  assert.match(reminder,/knowledge\/knowledge-manual.md/); assert.match(reminder,/Open `knowledge-save` before any memory proposal or save/);
+  assert.doesNotMatch(reminder,/acknowledg|Say you will/i);
   writeFileSync(join(root,'knowledge/README.md'),'<!-- claude-toolkit:knowledge-manual -->\nConflicting policy');
   assert.doesNotMatch(buildReminder(root),/Friendly reminder/);
 });

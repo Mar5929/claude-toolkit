@@ -127,7 +127,7 @@ claude-toolkit/
       .claude-plugin/plugin.json
       .codex-plugin/plugin.json
       hooks/
-        knowledge-session-start.mjs ← ordered complete-read route for manual and map
+        knowledge-session-start.mjs ← lists the three startup reads and the inbox check
         save-reminder.mjs          ← pauses pull requests for the owner-approved save,
                                      and points a knowledge-only branch to the shared publication rule
         work-item-close.mjs        ← asks whether a finished work item left a spec stale
@@ -295,9 +295,9 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
 
 - [x] **Project knowledge package**: one portable Markdown knowledge vault under
   `knowledge/`, shared by Claude, Codex, Git, and optional Obsidian. One managed
-  `knowledge/knowledge-manual.md` owns the operating policy. The startup hook
-  supplies a bounded route to read it completely with SOUL, project framing,
-  current work, and the two generated indexes, including after context loss.
+  `knowledge/knowledge-manual.md` owns the operating policy as reference. The
+  startup hook lists three reads (SOUL, project framing, current work) and the
+  inbox check, including after context loss.
   Flat memory holds one file per topic, specifications hold approved behavior,
   and brainstorms stay unchecked. The focused skills point to the manual and
   keep only their own task steps. The package has one checker and deliberately

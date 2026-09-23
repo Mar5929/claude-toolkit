@@ -46,7 +46,8 @@ Reuse the original scope and all-project permission flag.
 
 ## Return the result
 
-Apply the manual's historical-result warning every time. Name the session and
+Apply the knowledge-find trust rules every time: old conversations do not
+establish current truth. Name the session and
 date so the owner can judge its age. Current project files win when they answer;
 show any conflict instead of blending the sources.
 

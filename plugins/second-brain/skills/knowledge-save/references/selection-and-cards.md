@@ -1,6 +1,7 @@
 # Select information and request missing permission
 
-Route each meaningful part to its owner using the core manual. A requirement,
+Route each meaningful part to its owner using section 2 of
+`knowledge/knowledge-manual.md`. A requirement,
 research finding, design rationale, temporary to-do and lasting lesson can arise
 in one message and belong in different places. Do not lose useful non-memory
 information by applying the memory exclusions to everything.
