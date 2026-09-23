@@ -1,0 +1,44 @@
+{
+  "about": "Permission rules project-init and project-sync merge into a project's committed .claude/settings.json under permissions.deny and permissions.ask (#396 decision 12). general goes to every project; salesforce only to Salesforce projects. deny blocks the command; ask prompts the owner, except in bypassPermissions mode, where ask does not prompt. The owner's yes in the same chat stays the rule for the ask actions. Rule syntax: ai-external-knowledge/claude-code/permissions.md.",
+  "general": {
+    "deny": [
+      "Bash(git add -A)",
+      "Bash(git add -A *)",
+      "Bash(git add --all)",
+      "Bash(git add --all *)",
+      "Bash(git add .)",
+      "Bash(git add . *)",
+      "Bash(git commit -a *)",
+      "Bash(git commit -am *)",
+      "Bash(git commit --all *)",
+      "Bash(git push --force *)",
+      "Bash(git push * --force)",
+      "Bash(git push * --force *)",
+      "Bash(git push -f *)",
+      "Bash(git push * -f)",
+      "Bash(git push * -f *)",
+      "Bash(git push --force-with-lease *)",
+      "Bash(git push * --force-with-lease*)"
+    ],
+    "ask": [
+      "Bash(git reset --hard *)",
+      "Bash(git clean *)"
+    ]
+  },
+  "salesforce": {
+    "deny": [
+      "Bash(sf project delete source *)",
+      "Bash(sfdx force:source:delete *)",
+      "Bash(sf org delete *)"
+    ],
+    "ask": [
+      "Bash(sf project deploy start *)",
+      "Bash(sf data create *)",
+      "Bash(sf data update *)",
+      "Bash(sf data delete *)",
+      "Bash(sf data import *)",
+      "Bash(sf data upsert *)",
+      "Bash(sf apex run *)"
+    ]
+  }
+}

@@ -189,6 +189,10 @@ Typical checks:
   gap. A deliberate owner choice of another style is an exception to preserve,
   not a gap to overwrite. Concise is a Claude Code built-in, not a toolkit
   default. A leftover `plain-language` selection needs migration.
+- **Permission rules**: does the committed `.claude/settings.json` carry every
+  `deny` and `ask` rule in `library/templates/settings-permissions.json`
+  (`general`, plus `salesforce` in a Salesforce project)? Report each missing
+  rule as a gap. An owner's own extra rules are not gaps.
 - **Required workflow checks**: when project knowledge is installed, does the
   committed `.claude/settings.json` carry
   `"env": { "CLAUDE_CODE_ENABLE_FUNCTION_HOOKS": "1" }` and
@@ -704,6 +708,10 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   override with the owner rather than silently leaving conflicting selections.
   Preserve deliberate choices of another style. The new voice starts in the
   next session.
+- **For an approved permission-rules gap,** merge only the missing rules into
+  `permissions.deny` and `permissions.ask`, keeping every existing rule and
+  key. `ask` does not prompt in `bypassPermissions` mode; say so when the
+  project uses it.
 - **For an approved required-workflow-checks gap,** install
   `protocol-guard@claude-toolkit` and merge the two keys into the committed
   `.claude/settings.json` key by key, preserving every other value. Do not

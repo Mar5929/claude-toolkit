@@ -138,6 +138,14 @@ the repository root would disappear the moment the plugin is installed.
   `README.md`. Copied whole to `tools/kb/` in the project.
 - `library/templates/permissions-runbook.md`: the project-side runbook to copy
   and fill in when permission sets are tracked.
+- `library/templates/settings-permissions.json`: the `deny` and `ask`
+  permission rules merged into each project's committed `.claude/settings.json`
+  (general for every project, salesforce for Salesforce projects). `deny`
+  blocks staging everything, force pushes and Salesforce deletes; `ask`
+  prompts for a hard reset, `git clean`, sandbox deploys, data writes and
+  `sf apex run`. `ask` does not prompt in `bypassPermissions` mode, so the
+  owner's yes in the same chat stays the rule for those actions (#396,
+  decision 12).
 - `library/templates/toolkit-manual.md`: the shared workflow manual copied to
   `knowledge/toolkit-manual.md` in every equipped project. Project-specific
   paths and choices remain in the root instructions it tells agents to consult.

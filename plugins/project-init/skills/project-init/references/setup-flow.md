@@ -320,6 +320,15 @@ separate prep, interview, or continuation files for that workflow.
   It takes effect in the next session. Helper agents writing owner-facing prose
   need writing guidance in their own definitions. See
   `library/output-styles/README.md` for installation details.
+- **Add the toolkit's permission rules** (default ON). Merge the `general`
+  lists from the project-init plugin's `library/templates/settings-permissions.json` into
+  `permissions.deny` and `permissions.ask` of the project's committed
+  `.claude/settings.json`, and the `salesforce` lists too in a Salesforce
+  project. Add only missing rules; keep the owner's own rules. `deny` blocks
+  staging everything, force pushes and Salesforce metadata or org deletes.
+  `ask` prompts for a hard reset, `git clean`, sandbox deploys, data writes and
+  `sf apex run`. The owner's yes in the same chat stays the rule for those;
+  `ask` does not prompt in `bypassPermissions` mode.
 - **Turn on the required workflow checks** when project knowledge is
   installed. Install `protocol-guard@claude-toolkit` and merge two keys into the
   project's committed `.claude/settings.json`, preserving every other key:
