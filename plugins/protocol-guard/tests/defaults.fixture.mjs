@@ -84,7 +84,7 @@ export default {
           "never": true
         }
       ],
-      "tell": "This index is generated. Do not edit it. Change its source files, then run node .claude/tools/build-knowledge-index.mjs. If the skill is not installed, tell the owner and stop."
+      "tell": "This index is generated. Do not edit it. Change its source files, then run node .claude/tools/build-knowledge-index.mjs."
     },
     {
       "name": "K6",

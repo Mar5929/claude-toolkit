@@ -284,8 +284,10 @@ async function state($: any): Promise<State> {
 // so the engine also names its active checks in an environment variable that
 // every process it starts inherits. It is unset while the engine is off.
 async function signal($: any, s: State) {
+  // `<session id>:<names>`: a child claude or Codex process that inherits the
+  // variable has another session id, so its hooks still run in full.
   const names = s.turn.off ? '' : s.protocols.map((p) => p.name).join(',')
-  await $.env.set('TOOLKIT_PROTOCOL_ENGINE', names === '' ? undefined : names)
+  await $.env.set('TOOLKIT_PROTOCOL_ENGINE', names === '' ? undefined : `${s.key}:${names}`)
 }
 
 function loopOf(s: State, agentId: string | undefined): Loop {

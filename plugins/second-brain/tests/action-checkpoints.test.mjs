@@ -343,7 +343,10 @@ test('work finish is a close action, and K7 replaces the close and merge hold wh
   const root = repository(t);
   const session = `k7-close-${process.pid}-${Date.now()}`;
   const input = (command) => ({ session_id: session, cwd: root, tool_name: 'Bash', tool_input: { command } });
-  assert.equal(runHook(workItemClose, input('node plugins/work-tracker/skills/work/scripts/work.mjs finish WI-1 --evidence x'), { TOOLKIT_PROTOCOL_ENGINE: 'K4,CW,K7' }), '');
+  assert.equal(runHook(workItemClose, input('node plugins/work-tracker/skills/work/scripts/work.mjs finish WI-1 --evidence x'), { TOOLKIT_PROTOCOL_ENGINE: `${session}:K4,CW,K7` }), '');
+  // A child process that inherited another session's value still holds.
+  assert.match(denialReason(runHook(workItemClose, input('gh issue close 7'), { TOOLKIT_PROTOCOL_ENGINE: 'parent-session:K4,CW,K7' })), /Finishing a work item/);
+  assert.match(denialReason(runHook(workItemClose, input('gh -R o/r issue close 8'))), /Finishing a work item/);
   assert.match(denialReason(runHook(workItemClose, input('work finish WI-1 --evidence x'))), /Finishing a work item/);
   assert.equal(JSON.parse(workItemActionKey('work finish WI-2', root))[2][0][0], 'work-finish');
 });
@@ -353,7 +356,7 @@ test('K7 replaces the general pull-request hold but not the knowledge-only branc
   commit(root, 'feature\n');
   const session = `k7-pr-${process.pid}-${Date.now()}`;
   const input = { session_id: session, cwd: root, tool_name: 'Bash', tool_input: { command: 'gh pr create --fill' } };
-  assert.equal(runHook(saveReminder, input, { TOOLKIT_PROTOCOL_ENGINE: 'K7' }), '');
+  assert.equal(runHook(saveReminder, input, { TOOLKIT_PROTOCOL_ENGINE: `${session}:K7` }), '');
   const knowledgeRoot = repository(t);
   execFileSync('git', ['checkout', '-q', '-b', 'save'], { cwd: knowledgeRoot });
   execFileSync('mkdir', ['-p', join(knowledgeRoot, 'knowledge')]);
@@ -361,5 +364,5 @@ test('K7 replaces the general pull-request hold but not the knowledge-only branc
   execFileSync('git', ['add', 'knowledge/note.md'], { cwd: knowledgeRoot });
   execFileSync('git', ['commit', '-q', '-m', 'note'], { cwd: knowledgeRoot });
   const kInput = { session_id: `${session}-k`, cwd: knowledgeRoot, tool_name: 'Bash', tool_input: { command: 'gh pr create --fill' } };
-  assert.match(denialReason(runHook(saveReminder, kInput, { TOOLKIT_PROTOCOL_ENGINE: 'K7' })), /changes only knowledge/);
+  assert.match(denialReason(runHook(saveReminder, kInput, { TOOLKIT_PROTOCOL_ENGINE: `${session}-k:K7` })), /changes only knowledge/);
 });

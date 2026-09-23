@@ -210,7 +210,7 @@ function main() {
   const knowledgeOnly = isKnowledgeOnly(paths);
   // protocol-guard K7 replaces the general save-review hold. The
   // knowledge-only branch message stays: K7 does not check the route.
-  if (!knowledgeOnly && engineProtocols().includes("K7")) return failOpen();
+  if (!knowledgeOnly && engineProtocols(process.env, payload).includes("K7")) return failOpen();
   const message = knowledgeOnly ? buildDirectCommitMessage(paths) : buildMessage();
   deny(heldMessage(message, actionLabel(key)));
   recordHold(payload, key);

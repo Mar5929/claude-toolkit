@@ -115,7 +115,7 @@ function main() {
   if (!closesWorkItem(command)) return failOpen();
   // protocol-guard K7 refuses this action until knowledge-save is open; the
   // hold-once here is its backup when the engine is not running.
-  if (engineProtocols().includes("K7")) return failOpen();
+  if (engineProtocols(process.env, payload).includes("K7")) return failOpen();
   if (combinesReviewActions(command)) return deny(SPLIT_REVIEW_ACTIONS);
 
   const projectRoot = resolve(

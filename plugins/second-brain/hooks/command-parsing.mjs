@@ -32,6 +32,10 @@ export function bareCommand(segment) {
   while (/^[A-Za-z_][A-Za-z0-9_]*=\S*[ \t]+/.test(text)) {
     text = text.replace(/^[A-Za-z_][A-Za-z0-9_]*=\S*[ \t]+/, "");
   }
+  // `gh -R o/r issue close 3` is `gh issue close 3` in another repository.
+  while (/^gh[ \t]+(?:(?:-R|--repo)[ \t]+\S+|--repo=\S+)[ \t]+/.test(text)) {
+    text = text.replace(/^gh[ \t]+(?:(?:-R|--repo)[ \t]+\S+|--repo=\S+)[ \t]+/, "gh ");
+  }
   return text.replace(/\s+/g, " ");
 }
 
@@ -94,12 +98,18 @@ export const CLOSES_WORK_ITEM = [
 
 /**
  * The checks protocol-guard runs now, from the TOOLKIT_PROTOCOL_ENGINE variable
- * the engine sets for every process it starts. PreToolUse hooks get no engine
- * field in their input, so they read this. Unset (function hooks off, engine not
- * loaded, or stopped after errors): an empty list, and every hook runs in full.
+ * the engine sets for every process it starts: `<session id>:K4,CW,...`.
+ * PreToolUse hooks get no engine field in their input, so they read this.
+ * The list counts only for the session that set it (its subagents share the
+ * id); a child claude or Codex process that inherited it gets an empty list.
+ * Unset (function hooks off, engine not loaded, or stopped after errors): an
+ * empty list, and every hook runs in full.
  */
-export function engineProtocols(env = process.env) {
-  return String(env.TOOLKIT_PROTOCOL_ENGINE ?? "").split(",").map((x) => x.trim()).filter(Boolean);
+export function engineProtocols(env = process.env, payload = {}) {
+  const value = String(env.TOOLKIT_PROTOCOL_ENGINE ?? "");
+  const at = value.lastIndexOf(":");
+  if (at < 0 || !payload.session_id || value.slice(0, at) !== String(payload.session_id)) return [];
+  return value.slice(at + 1).split(",").map((x) => x.trim()).filter(Boolean);
 }
 
 /**

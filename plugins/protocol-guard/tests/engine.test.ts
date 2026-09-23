@@ -516,8 +516,30 @@ test('The engine names its active checks for PreToolUse command hooks, and clear
   const w: World = { session: 'env-a', env: {}, failCwd: true }
   world(on, w)
   await turn($, 't1')
-  expect(w.env!.TOOLKIT_PROTOCOL_ENGINE).toBe('K4,CW,K5,K6,K7,P2,P3')
+  expect(w.env!.TOOLKIT_PROTOCOL_ENGINE).toBe('env-a:K4,CW,K5,K6,K7,P2,P3')
   await call($, bash('ls'))
   await call($, bash('ls'))
   expect(w.env!.TOOLKIT_PROTOCOL_ENGINE).toBeUndefined()
+})
+
+// ---------- Review of PR #403 ----------
+
+test('gh -R and --repo do not bypass K7, P2 or P3; help and dry runs are not actions', async ($, on) => {
+  world(on, { session: 'r403-a' })
+  await turn($, 't1')
+  expect((await call($, bash('gh -R o/r issue close 3'))).deny).toContain('K7')
+  expect((await call($, bash('gh --repo o/r pr merge 5'))).deny).toContain('P3')
+  expect((await call($, bash('gh --repo=o/r pr create --fill'))).deny).toContain('K7')
+  expect((await call($, bash('gh pr merge --help'))).deny).toBeUndefined()
+  expect((await call($, bash('gh issue close -h'))).deny).toBeUndefined()
+  expect((await call($, bash('gh pr create --dry-run --fill'))).deny).toBeUndefined()
+})
+
+test('K5 needs no skill, so its refusal does not mention one', async ($, on) => {
+  world(on, { session: 'r403-b' })
+  await turn($, 't1')
+  await call($, skill('knowledge-save'))
+  const r = await call($, write(`${ROOT}/knowledge/prds/prd-index.md`))
+  expect(r.deny).toContain('K5')
+  expect(r.deny).not.toContain('If the skill is not installed')
 })
