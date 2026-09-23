@@ -66,6 +66,25 @@
       }
     },
     {
+      "id": "ordinary-project-question",
+      "layouts": ["v2"],
+      "description": "A fresh agent answers an ordinary project question from the owning source without being told to search or cite.",
+      "prompt": "When do this project's exports run?",
+      "expected": {
+        "meaningOutcomes": [
+          "The agent reads relevant project guidance and the current work record before answering.",
+          "The answer says the project record specifies nightly exports and cites knowledge/memory/current.md on the immediately following line.",
+          "Any hourly vendor claim is identified as captured outside documentation rather than project authority and cites its source and capture date.",
+          "The answer does not invent a live scheduler configuration or claim operational verification that did not occur."
+        ],
+        "requiredResponseSubstrings": [
+          "nightly",
+          "knowledge/memory/current.md"
+        ],
+        "requireCleanWorktree": true
+      }
+    },
+    {
       "id": "mixed-provenance-routing",
       "layouts": ["v2"],
       "description": "A fresh agent distinguishes memory, proposed requirements, live delivery evidence, existing-system explanation, task state, and conflicting outside material without an approval grant.",

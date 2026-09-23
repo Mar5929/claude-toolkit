@@ -85,6 +85,17 @@ test('checker never changes passing or failing files and finds stale index', t =
   assert.deepEqual(snapshot(f.dir), failed);
 });
 
+test('generated indexes checked out with Windows line endings still match their sources', t => {
+  const f = fixture(t);
+  for (const path of ['knowledge/memory/memory-index.md', 'knowledge/prds/prd-index.md', 'ai-external-knowledge/README.md']) {
+    f.write(path, f.read(path).replaceAll('\n', '\r\n'));
+  }
+  const indexProblems = () => checkKnowledge(f.dir).problems.filter(p => p.includes('does not match its sources'));
+  assert.deepEqual(indexProblems(), []);
+  f.memory({ summary: 'Changed supported summary.' });
+  assert.ok(indexProblems().some(p => p.includes('does not match its sources')));
+});
+
 for (const [size, valid] of [[199, true], [200, false]]) test(`summary ${size} characters ${valid ? 'passes' : 'fails'}`, t => {
   const f = fixture(t); f.memory({ summary: 'x'.repeat(size) });
   if (valid) { buildIndexes(f.dir); assert.deepEqual(f.problems(), []); }

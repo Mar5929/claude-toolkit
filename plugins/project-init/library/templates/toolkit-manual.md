@@ -4,7 +4,7 @@
 
 Toolkit project. AGENTS.md names the tracker and the codemap.
 - Before substantial work, open the `work` skill and read the active item.
-- Before asking the owner to repeat something, open `knowledge-find`.
+- When project information could affect an answer or action, open `knowledge-find` and cite each substantive finding.
 - When the owner settles a decision, requirement, or correction, open `knowledge-save`.
 - `knowledge/toolkit-manual.md` is reference. Open the section you need. Do not read it at startup.
 
@@ -12,7 +12,7 @@ Toolkit project. AGENTS.md names the tracker and the codemap.
 
 Toolkit project. AGENTS.md names the tracker and the codemap.
 - Before substantial work, open the `work` skill and read the active item.
-- Before asking the owner to repeat something, open `knowledge-find`. It searches the memory service.
+- When project information could affect an answer or action, open `knowledge-find` and cite each substantive finding. It searches the memory service.
 - When the owner settles a decision, requirement, or correction, open `knowledge-save`. It saves to the memory service.
 - `docs/toolkit-manual.md` is reference. Open the section you need. Do not read it at startup.
 

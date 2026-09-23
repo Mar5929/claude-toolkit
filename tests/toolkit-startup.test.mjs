@@ -54,6 +54,7 @@ test("startup output is the manual Summary, short, with no full-read or acknowle
   const output = toolkitOrientation(root);
   assert.match(output, /Paths resolve from the project root/);
   assert.match(output, /open the `work` skill/);
+  assert.match(output, /When project information could affect an answer or action, open `knowledge-find` and cite each substantive finding/);
   assert.match(output, /is reference/);
   assert.ok(words(output) <= 100, `${words(output)} words`);
   assert.ok(!/acknowledg/i.test(output));
@@ -62,6 +63,7 @@ test("startup output is the manual Summary, short, with no full-read or acknowle
 
 test("the template Summary and the built-in default say the same thing", () => {
   assert.equal(manualSummary(readFileSync(template, "utf8")), DEFAULT_SUMMARY);
+  assert.match(manualSummary(readFileSync(template, "utf8"), EXTERNAL_SUMMARY_HEADING), /When project information could affect an answer or action, open `knowledge-find` and cite each substantive finding/);
 });
 
 test("a large manual body never reaches the output, and a long Summary is cut", () => fixture((root) => {
@@ -147,7 +149,7 @@ test("the hook README installs no per-message registration", () => {
 test("reusable manual starts with a Summary and has no repository-only links", () => {
   const text = readFileSync(template, "utf8");
   assert.ok(!text.includes("../plugins/") && !text.includes("../docs/"));
-  assert.match(text, /^# [^\n]+\n\n## Summary\n/);
+  assert.match(text, /^# [^\r\n]+\r?\n\r?\n## Summary\r?\n/);
   assert.match(text, /AGENTS\.md/);
   assert.match(text, /chosen tracker/);
   assert.match(text, /Knowledge|knowledge/);

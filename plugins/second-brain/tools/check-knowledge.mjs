@@ -483,7 +483,7 @@ function checkIndexedFolders(projectRoot, folders) {
     for (const problem of output.problems.filter(problem => problem.includes("parent PRD's group"))) fail(path, problem);
     if (!existsSync(output.path)) fail(path, "is missing. Rebuild the generated indexes.");
     else if (lstatSync(output.path).isSymbolicLink() || !lstatSync(output.path).isFile()) fail(path, "must be a regular generated index file.");
-    else if (readFileSync(output.path, "utf8") !== output.content) fail(path, "does not match its sources. Rebuild the generated indexes; sources win.");
+    else if (readFileSync(output.path, "utf8").replaceAll("\r\n", "\n") !== output.content) fail(path, "does not match its sources. Rebuild the generated indexes; sources win.");
   }
 }
 
