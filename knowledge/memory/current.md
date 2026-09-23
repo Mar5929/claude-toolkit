@@ -12,9 +12,9 @@ Updated: 2026-09-23
 
 **Goal** Enforce required steps with function-hook fact checks without limiting reasoning.
 
-**Current status** Design approved. Step 4 (startup cut, #383 items) merged in PR #401 (`e1872af`). Step 5 build running. Mike authorized building and merging all steps overnight.
+**Current status** Steps 4 to 7 merged: PRs #401, #402, #403 and DragonFly PR #116. Status report sent to Mike. Stage 11-user-approval.
 
-**Next step** Steps 5 and 6 (protocol-guard), then step 7 (DragonFly sync and rules); report to Mike.
+**Next step** Mike installs `protocol-guard`, syncs, and tests on Windows and the desktop app (step 8). His open decisions are listed in the issue.
 
 **Blocker** None.
 
