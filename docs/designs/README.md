@@ -94,6 +94,10 @@ finishes the work item has to do it.
 - [360-instruction-audit-fixes.md](360-instruction-audit-fixes.md): scoped fixes to
   conflicting instructions, with preserved approval boundaries and scenario checks.
 
+- [396-protocol-enforcement.md](396-protocol-enforcement.md): the design for
+  issue #396: the startup cut first, then function hooks with fact checks only.
+  Waiting for Mike's open decisions.
+
 - [306-toolkit-manual-review.md](306-toolkit-manual-review.md): Toolkit manual
   content and delivery review, including actual host evidence, remaining
   acceptance cases, and the distinction between closed #306 and delivered behavior.
