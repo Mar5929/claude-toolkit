@@ -7,20 +7,6 @@ and accept the whole Toolkit Operating System.
 
 ## Active work
 
-### External memory — #404
-Updated: 2026-09-23
-
-**Goal** mem0 or Hindsight instead of second brain.
-
-**Status** Merged; awaiting Mike. [#404](https://github.com/Mar5929/claude-toolkit/issues/404).
-
-### Keep designs — #409
-Updated: 2026-09-23
-
-**Goal** Never delete designs (D21).
-
-**Status** Merged; awaiting Mike. [#409](https://github.com/Mar5929/claude-toolkit/issues/409).
-
 ### Remove unnecessary Knowledge programs — #381
 Updated: 2026-09-22
 

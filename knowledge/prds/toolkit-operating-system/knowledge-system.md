@@ -129,6 +129,21 @@ Judge every requirement below against that whole set of parts. If a requirement
 moves work into the second brain that another part already owns, the requirement
 is wrong.
 
+### External memory mode
+
+Approved by Mike on 2026-09-23 ([#404](https://github.com/Mar5929/claude-toolkit/issues/404))
+and delivered in PR #408. A project can keep its working memory, lasting
+memory, pending saves, and selection feedback in an external memory service
+(mem0 or Hindsight) instead of `knowledge/`. A `.toolkit-memory.json` file at
+the project root declares it; without that file the project uses the folder
+layout below. What counts as memory, approval before every write, and the other
+requirements here do not change. In that mode the service is the only home for
+memory. `SOUL.md`, `PROJECT.md`, `prds/`, and both manuals under `docs/` stay in
+Git. Moving an existing project from one mode to the other is not supported.
+The [design](../../../docs/designs/404-external-memory-provider.md) and the
+[memory provider references](../../../plugins/second-brain/skills/knowledge-setup/references/memory-providers/README.md)
+hold the details.
+
 ## How to read this
 
 - The status is `proposed`. This document describes the finished system. It does not describe how the system works today.
