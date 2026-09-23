@@ -5,10 +5,12 @@
  * its repair notice only. The review line gives the exact command that
  * records this turn's review for knowledge-completion.mjs. */
 
-import { existsSync, readFileSync, realpathSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { createHash } from "node:crypto";
+import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { beginReview, reviewCommand } from "./knowledge-completion.mjs";
+import { beginReview, protocolsActive, reviewCommand } from "./knowledge-completion.mjs";
 
 import { MANUAL_PATH, resolveManual } from "./knowledge-manual.mjs";
 export { MANUAL_PATH, LEGACY_MANUAL_PATH, MANUAL_MARKER, resolveManual } from "./knowledge-manual.mjs";
@@ -22,6 +24,29 @@ export const REMINDER = [
 
 export function reviewLine(root, input, generation) {
   return `Before you finish, run: \`${reviewCommand(root, input, generation)}\`. OUTCOME is no-change, pending-approval, save-unfinished, or saved. Pending work is not a finished save.`;
+}
+
+/** The turn-review line is left out while protocol-guard checks the same
+ * steps from facts: CW (working memory) and K4 and K6 (knowledge writes), the
+ * last two being what knowledge-completion.mjs skips its check for. */
+export const ENGINE_REPLACES_REVIEW = ["CW", "K4", "K6"];
+
+export const ENGINE_NOT_RUNNING = "Required workflow checks are not running in this session: function hooks are on, but protocol-guard did not load. The older hooks run in full. Tell the owner once.";
+
+/** One line per session when this project turns protocol-guard on with function
+ * hooks but the engine's field is absent. A marker file keeps it to once. */
+export function engineNotRunningLine(root, input, env = process.env, directory = join(tmpdir(), "toolkit-protocol-guard")) {
+  if (env.CLAUDE_CODE_ENABLE_FUNCTION_HOOKS !== "1" || input?.toolkit_protocol_engine !== undefined) return "";
+  let enabled = false;
+  try {
+    const settings = JSON.parse(readFileSync(resolve(root, ".claude/settings.json"), "utf8"));
+    enabled = settings?.enabledPlugins?.["protocol-guard@claude-toolkit"] === true;
+  } catch { enabled = false; }
+  if (!enabled || !input?.session_id) return "";
+  const marker = join(directory, createHash("sha256").update(String(input.session_id)).digest("hex"));
+  if (existsSync(marker)) return "";
+  try { mkdirSync(directory, { recursive: true, mode: 0o700 }); writeFileSync(marker, "", { mode: 0o600 }); } catch { /* still say it once now */ }
+  return ENGINE_NOT_RUNNING;
 }
 
 /** True only for a manual this toolkit manages. */
@@ -46,10 +71,13 @@ if (process.argv[1] && canonical(fileURLToPath(import.meta.url)) === canonical(p
       || process.env.CODEX_PROJECT_DIR
       || process.cwd();
     process.stdout.write(buildReminder(root));
+    let input = {};
+    try { input = JSON.parse(readFileSync(0, "utf8") || "{}"); } catch { input = {}; }
+    const notRunning = engineNotRunningLine(root, input);
+    if (notRunning) process.stdout.write(`${notRunning}\n`);
     const manual = resolveManual(root);
-    if (manual.text?.includes("<!-- claude-toolkit:knowledge-schema:2 -->")) {
+    if (manual.text?.includes("<!-- claude-toolkit:knowledge-schema:2 -->") && !protocolsActive(input, ENGINE_REPLACES_REVIEW)) {
       try {
-        const input = JSON.parse(readFileSync(0, "utf8") || "{}");
         const checkpoint = beginReview(root, input);
         process.stdout.write(`${reviewLine(root, input, checkpoint.generation)}\n`);
       } catch (error) { process.stdout.write(`Knowledge turn review unavailable: ${error.message} Report any unfinished save.\n`); }

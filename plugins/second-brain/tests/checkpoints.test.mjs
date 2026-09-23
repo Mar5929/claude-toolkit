@@ -134,3 +134,37 @@ test('unconfigured/conflicting manuals emit no policy or grant; compatible manua
   writeFileSync(join(root,'knowledge/README.md'),'<!-- claude-toolkit:knowledge-manual -->\nConflicting policy');
   assert.doesNotMatch(buildReminder(root),/Friendly reminder/);
 });
+// protocol-guard backup field (#396 step 5). With function hooks off the field
+// is absent and every check runs as before.
+test('completion skips its check only while protocol-guard reports K4 and K6 active', t => {
+  const {root,directory,identity}=fixture(t);
+  beginReview(root,identity,directory);
+  const engine={version:'0.1.0',active:['K4','CW','K5','K6']};
+  assert.deepEqual(completion(root,{...identity,hook_event_name:'Stop',toolkit_protocol_engine:engine},directory),{});
+  assert.equal(completion(root,{...identity,hook_event_name:'Stop',toolkit_protocol_engine:{version:'0.1.0',active:['K4']}},directory).decision,'block');
+  beginReview(root,identity,directory);
+  assert.equal(completion(root,{...identity,hook_event_name:'Stop'},directory).decision,'block');
+});
+test('memory reminder leaves out the turn-review line only while CW, K4 and K6 run', t => {
+  const root = mkdtempSync(join(tmpdir(), 'knowledge-reminder-engine-'));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  mkdirSync(join(root, 'knowledge'), { recursive: true });
+  execFileSync('cp', [join(import.meta.dirname, '../skills/knowledge-setup/references/templates/knowledge/knowledge-manual.md'), join(root, 'knowledge/knowledge-manual.md')]);
+  const run = (input, env = {}) => execFileSync('node', [join(import.meta.dirname, '../hooks/memory-reminder.mjs')], {
+    input: JSON.stringify(input),
+    env: { ...process.env, CLAUDE_PROJECT_DIR: root, CLAUDE_CODE_ENABLE_FUNCTION_HOOKS: '', TMPDIR: join(root, 'tmp'), ...env },
+    encoding: 'utf8',
+  });
+  const base = { session_id: `reminder-${process.pid}`, agent_id: 'root', turn_id: 'turn-1' };
+  mkdirSync(join(root, 'tmp'), { recursive: true });
+  assert.match(run(base), /Before you finish, run:/);
+  assert.doesNotMatch(run({ ...base, toolkit_protocol_engine: { version: '0.1.0', active: ['K4', 'CW', 'K5', 'K6'] } }), /Before you finish, run:/);
+  assert.match(run({ ...base, toolkit_protocol_engine: { version: '0.1.0', active: ['K4', 'K6'] } }), /Before you finish, run:/);
+  // Function hooks on and the plugin enabled, but no field: one line per session.
+  mkdirSync(join(root, '.claude'), { recursive: true });
+  writeFileSync(join(root, '.claude/settings.json'), JSON.stringify({ enabledPlugins: { 'protocol-guard@claude-toolkit': true } }));
+  const on = { CLAUDE_CODE_ENABLE_FUNCTION_HOOKS: '1' };
+  assert.match(run(base, on), /Required workflow checks are not running/);
+  assert.doesNotMatch(run(base, on), /Required workflow checks are not running/);
+  assert.doesNotMatch(run({ ...base, session_id: 'other', toolkit_protocol_engine: { version: '0.1.0', active: [] } }, on), /not running/);
+});
