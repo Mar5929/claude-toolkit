@@ -1,8 +1,10 @@
 # Salesforce production-org guard hook (Gate 2)
 
 A ready-to-install PreToolUse guard for Salesforce projects. It confirms before
-any Salesforce CLI deploy or destructive command runs against a production org,
-so a wrong target never overwrites or wipes live data by accident. Offer it in
+any Salesforce CLI command that changes an org runs against a production org,
+so a wrong target never overwrites or wipes live data by accident. It also
+confirms before a sandbox deploy or data write, because the safety rule allows
+those only after the owner says yes. Offer it in
 Gate 2 whenever the stack is Salesforce or SFDX. It is optional and is tuned by
 a plain JSON file, so it needs no code changes to adjust.
 
@@ -12,23 +14,37 @@ Runs before every `Bash` and `PowerShell` tool call. If the command invokes a
 guarded `sf`/`sfdx` verb, the hook finds the target org and asks for
 confirmation when that org is production.
 
-- **Watches:** `sf project deploy start|quick|resume`, `project delete source`,
-  `data delete record|bulk|resume`, `apex run`, `org delete scratch|sandbox`,
-  and the legacy `sfdx force:*` equivalents.
+- **Watches**, in six categories that the message names:
+  - `deploy`: `sf project deploy start|quick|resume`, `force:source:deploy`,
+    `force:mdapi:deploy`.
+  - `validate`: `sf project deploy validate`. It is not a read: it uploads the
+    package and runs Apex tests in the target org.
+  - `dataWrite`: `sf data create record|file`, `data update record`,
+    `data upsert bulk|resume`, `data import tree|bulk|resume`,
+    `data delete record|bulk|resume`, and the `force:data:*` equivalents.
+  - `apex`: `sf apex run`, `force:apex:execute`.
+  - `metadataDelete`: `sf project delete source`, `force:source:delete`.
+  - `orgDelete`: `sf org delete scratch|sandbox`, `force:org:delete`.
 - **Protects:** any org that classifies as production. Classification uses
   `sf org list --json --skip-connection-status`, which reads the local auth
   store with no network call. An org is production when it is not a scratch org,
   not a sandbox, and its URL is not a sandbox or `test.salesforce.com` login.
 - **Action:** confirm (`ask`). It does not hard-block by default; the policy
   file can switch to a block.
+- **Sandboxes and scratch orgs:** every category except `validate` confirms
+  there too (`sandboxAction`), because the safety rule allows a sandbox deploy,
+  data write, or Apex run only after the owner says yes. A `validate` on a
+  sandbox passes silently. This stays a confirm even when `action` is `deny`.
+  When a command names a sandbox and a production org, the production decision
+  wins.
 - **Also:** any `org delete` confirms even for a scratch org or sandbox, because
   it cannot be undone.
 - **Fast path:** commands that do not run a guarded verb exit immediately with
   no subprocess, so normal shell calls are not slowed.
-- **Does not check:** `sf project deploy validate`, `sf data create`, `update`,
-  `import`, or `upsert`, or any action other than `org delete` against an org
-  that classifies as a sandbox or scratch org. The `salesforce-safety-guardrails.md` rule still
-  forbids the production cases; the agent follows it without the hook.
+- **Does not check:** `sf apex test run`, which the safety rule allows in any
+  org, or any read. It matches the command text, so the same words inside a
+  longer command, such as a script that writes documentation about `sf` verbs,
+  also trigger it.
 - **Applies to subagents:** a PreToolUse hook runs for every tool call in the
   session, so starting a subagent does not get around it.
 
@@ -58,7 +74,7 @@ confirmation when that org is production.
              {
                "type": "command",
                "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/guard-protected-orgs.js\"",
-               "timeout": 30
+               "timeout": 90
              }
            ]
          }
@@ -66,6 +82,12 @@ confirmation when that org is production.
      }
    }
    ```
+
+   Keep `timeout` at 90 or more. The hook can call `sf` twice, once for the
+   default org and once for the org list, and waits up to 30 seconds for each.
+   A PreToolUse command hook that runs out of time lets the tool call
+   continue, so a timeout shorter than the hook's own wait turns a slow `sf`
+   into a silent pass.
 
 4. Tell the owner how the target org is found and how to verify it fires (below).
 
@@ -84,6 +106,7 @@ authenticated yet, it confirms to be safe (`unknownOrgAction`).
 |---|---|
 | `action` | `ask` (confirm) or `deny` (hard block). Default `ask`. |
 | `unknownOrgAction` | What to do when an org cannot be classified (not authenticated, or `sf` unavailable): `ask` (safe default) or `allow`. |
+| `sandboxAction` | What to do when any category but `validate` targets a sandbox or scratch org: `ask` (default, matches the safety rule) or `allow` (silent). A missing field means `ask`. |
 | `confirmOrgDeleteAlways` | `true` makes any `org delete` confirm even for scratch/sandbox, since it is irreversible. |
 | `alwaysProtect` | Org aliases or usernames to always confirm, even if detected as sandbox or scratch. |
 | `neverProtect` | Org aliases or usernames to never confirm. Escape hatch for a known throwaway org. Wins over every other rule. |
@@ -130,4 +153,8 @@ exits 0 (allowed).
   `allow`, `ask`, or `deny`.
 - On a fresh machine with no orgs authenticated, everything classifies as
   unknown and therefore confirms. Once the orgs are authenticated, sandboxes and
-  scratch orgs classify and pass through without a prompt.
+  scratch orgs classify, and only a `validate` against them passes without a
+  prompt, unless `sandboxAction` is `allow`.
+- Tests: `node plugins/hooks-library/tests/guard-protected-orgs.test.mjs` in
+  the toolkit runs the hook against a fake `sf` with one production org, one
+  sandbox, and one scratch org. It touches no real org.

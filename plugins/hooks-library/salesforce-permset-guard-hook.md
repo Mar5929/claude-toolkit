@@ -78,7 +78,7 @@ Receipts are local proof that a check ran. Add `.claude/.permset-preflight/` to
           {
             "type": "command",
             "command": "node \"${CLAUDE_PROJECT_DIR}/.claude/hooks/guard-protected-orgs.js\"",
-            "timeout": 30
+            "timeout": 90
           },
           {
             "type": "command",
