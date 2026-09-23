@@ -23,6 +23,7 @@ import { fileURLToPath } from "node:url";
 import {
   CLOSES_WORK_ITEM,
   combinesReviewActions,
+  engineProtocols,
   effectiveDirectory,
   heldMessage,
   matchesAny,
@@ -60,7 +61,9 @@ export function workItemActionKey(command, projectRoot) {
       ? "issue-close"
       : CLOSES_WORK_ITEM[1].test(segment)
         ? "pull-request-merge"
-        : null;
+        : CLOSES_WORK_ITEM[2].test(segment) || CLOSES_WORK_ITEM[3].test(segment)
+          ? "work-finish"
+          : null;
     if (!type) continue;
     actions.push([type, segment]);
   }
@@ -110,6 +113,9 @@ function main() {
 
   const command = payload.tool_input?.command;
   if (!closesWorkItem(command)) return failOpen();
+  // protocol-guard K7 refuses this action until knowledge-save is open; the
+  // hold-once here is its backup when the engine is not running.
+  if (engineProtocols(process.env, payload).includes("K7")) return failOpen();
   if (combinesReviewActions(command)) return deny(SPLIT_REVIEW_ACTIONS);
 
   const projectRoot = resolve(

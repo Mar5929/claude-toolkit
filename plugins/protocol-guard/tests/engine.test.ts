@@ -20,6 +20,8 @@ type World = {
   failAgents?: boolean
   stops?: any[]
   stopBlock?: string
+  env?: Record<string, string | undefined>
+  skills?: string[]
   prompts?: any[]
 }
 
@@ -37,6 +39,8 @@ function world(on: any, w: World) {
   })
   on('agent.list', () => (w.failAgents === true ? { deny: 'agent list unavailable' } : { value: w.agents ?? [] }))
   on('ui.log', () => ({ value: undefined }))
+  on('env.set', ($: any, e: any) => { if (w.env !== undefined) w.env[e.name] = e.value; return { value: undefined } })
+  on('command.list', () => ({ value: (w.skills ?? ['second-brain:knowledge-save', 'work', 'git-workflows:merge-and-clean-up', 'clear']).map((name) => ({ name, description: '', source: 'plugin' })) }))
   on('session.start', ($: any, e: any) => ({ cwd: e.cwd }))
   on('session.end', ($: any, e: any) => ({ sessionId: e.sessionId }))
   on('session.compact', ($: any, e: any) => ({ messages: e.messages }))
@@ -87,7 +91,8 @@ test('K4: an inbox write is refused until knowledge-save is opened this turn', a
   await turn($, 't1')
   const refused = await call($, write(INBOX))
   expect(refused.deny).toContain('K4')
-  expect(refused.deny).toContain('Do not mention this check in your reply.')
+  expect(refused.deny).toContain('protocol-guard')
+  expect(refused.deny).not.toContain('Do not mention this check')
   await call($, skill('second-brain:knowledge-save'))
   expect((await call($, write(INBOX))).deny).toBeUndefined()
 })
@@ -204,7 +209,7 @@ test('K5: generated indexes are refused even with knowledge-save open', async ($
 test('CW: a work-item change with no current.md write holds the reply once and opens knowledge-save', async ($, on) => {
   world(on, { session: 'cw-a' })
   await turn($, 't1')
-  await call($, bash('gh issue close 12 --comment "done"'))
+  await call($, bash('gh issue reopen 12 --comment "done"'))
   expect((await step($, 't1')).shown).toBe(false)
   // Claude Code asks once for a visible reply; that draft is held back too.
   expect((await step($, 't1')).shown).toBe(false)
@@ -230,7 +235,7 @@ test('CW: a turn with no work-item change is not held', async ($, on) => {
 test('CW: a failed work-item command does not count', async ($, on) => {
   world(on, { session: 'cw-c' })
   await turn($, 't1')
-  await call($, bash('gh issue close 12; exit 1'))
+  await call($, bash('gh issue reopen 12; exit 1'))
   expect((await step($, 't1')).shown).toBe(true)
 })
 
@@ -247,7 +252,7 @@ test('CW: order counts: a current.md write before the change does not satisfy it
 test('CW: GitHub tool calls count; one hold per turn, then the reply is shown with a notice', async ($, on) => {
   world(on, { session: 'cw-e' })
   await turn($, 't1')
-  await call($, { tool: 'mcp__github__issue_write', method: 'update', issue_number: 3, state: 'closed' })
+  await call($, { tool: 'mcp__github__issue_write', method: 'update', issue_number: 3, state: 'open' })
   expect((await step($, 't1')).shown).toBe(false)
   expect(((await $.classic.Stop({ stop_hook_active: false } as any)) as any).block).toContain('CW')
   expect((await step($, 't1')).shown).toBe(true)
@@ -271,7 +276,7 @@ test('CW: a helper save still running is pending: no hold now, still open next t
   world(on, w)
   await turn($, 't1')
   await call($, skill('knowledge-save'))
-  await call($, bash('gh issue close 4'))
+  await call($, bash('gh issue reopen 4'))
   await call($, write(INBOX, 'saver'))
   w.agents = [{ id: 'saver', status: 'running' }]
   expect((await step($, 't1')).shown).toBe(true)
@@ -324,8 +329,8 @@ test('Reply hold fails open: on an error the reply is shown with the notice', as
   world(on, { session: 'err-b', failAgents: true })
   await turn($, 't1')
   await call($, skill('knowledge-save'))
-  await call($, write(INBOX, 'helper'))
-  await call($, bash('gh issue close 9'))
+  expect((await call($, write(INBOX, 'helper'))).deny).toBeUndefined()
+  expect((await call($, bash('gh issue reopen 9'))).deny).toBeUndefined()
   expect((await step($, 't1')).shown).toBe(true)
   const done = await $.turn.complete({ turnId: 't1', reason: 'answer', isAborted: false, answer: 'the answer', durationMs: 5 } as any)
   expect(done.text).toBe('Workflow checks are off for this turn after an error.')
@@ -337,8 +342,8 @@ test('Backup field: classic UserPromptSubmit and Stop carry the active protocols
   await $.classic.UserPromptSubmit({ prompt: 'hi' } as any)
   await turn($, 't1')
   await $.classic.Stop({ stop_hook_active: false } as any)
-  expect(w.prompts![0].toolkit_protocol_engine).toEqual({ version: '0.1.0', active: ['K4', 'CW', 'K5', 'K6'] })
-  expect(w.stops![0].toolkit_protocol_engine.active).toEqual(['K4', 'CW', 'K5', 'K6'])
+  expect(w.prompts![0].toolkit_protocol_engine).toEqual({ version: '0.2.0', active: ['K4', 'CW', 'K5', 'K6', 'K7', 'P2', 'P3'] })
+  expect(w.stops![0].toolkit_protocol_engine.active).toEqual(['K4', 'CW', 'K5', 'K6', 'K7', 'P2', 'P3'])
 })
 
 // ---------- Review fixes (PR #402) ----------
@@ -346,7 +351,7 @@ test('Backup field: classic UserPromptSubmit and Stop carry the active protocols
 test('Fix 1: an unmet check is not held again in later turns', async ($, on) => {
   world(on, { session: 'fix1-a' })
   await turn($, 't1')
-  await call($, bash('gh issue close 12'))
+  await call($, bash('gh issue reopen 12'))
   expect((await step($, 't1')).shown).toBe(false)
   await $.classic.Stop({ stop_hook_active: false } as any)
   expect((await step($, 't1')).shown).toBe(true)
@@ -382,7 +387,7 @@ test('Fix 2: read-only shell commands pass K4; copying into a knowledge file doe
 test('Fix 4: another Stop hook block is kept beside the note', async ($, on) => {
   world(on, { session: 'fix4-a', stopBlock: 'Another hook asks for a review.' })
   await turn($, 't1')
-  await call($, bash('gh issue close 12'))
+  await call($, bash('gh issue reopen 12'))
   expect((await step($, 't1')).shown).toBe(false)
   const stop: any = await $.classic.Stop({ stop_hook_active: false } as any)
   expect(stop.block).toContain('Another hook asks for a review.')
@@ -392,7 +397,7 @@ test('Fix 4: another Stop hook block is kept beside the note', async ($, on) => 
 test('Fix 5: a held draft is shown when the continuation ends without a reply', async ($, on) => {
   world(on, { session: 'fix5-a' })
   await turn($, 't1')
-  await call($, bash('gh issue close 12'))
+  await call($, bash('gh issue reopen 12'))
   expect((await step($, 't1')).shown).toBe(false)
   await $.classic.Stop({ stop_hook_active: false } as any)
   const done = await $.turn.complete({ turnId: 't1', reason: 'aborted', isAborted: true, answer: '', durationMs: 5 } as any)
@@ -418,7 +423,123 @@ test('Fix 7: a helper keeps no turn opening across turns; a reading helper is no
   expect((await call($, write(INBOX, 'old-helper'))).deny).toBeUndefined()
   await turn($, 't2')
   expect((await call($, write(INBOX, 'old-helper'))).deny).toContain('K4')
-  await call($, bash('gh issue close 3'))
+  await call($, bash('gh issue reopen 3'))
   await call($, { tool: 'Read', file_path: CURRENT, agentId: 'reader' })
   expect((await step($, 't2')).shown).toBe(false)
+})
+
+// ---------- Step 6: K7, P2, P3 ----------
+
+test('K7: gh pr create is refused until knowledge-save is opened this turn', async ($, on) => {
+  world(on, { session: 'k7-a' })
+  await turn($, 't1')
+  const r = await call($, bash('gh pr create --title t --body b'))
+  expect(r.deny).toContain('K7')
+  expect(r.deny).toContain('If the skill is not installed, tell the owner and stop.')
+  await call($, skill('knowledge-save'))
+  expect((await call($, bash('gh pr create --title t --body b'))).deny).toBeUndefined()
+  await turn($, 't2')
+  expect((await call($, bash('git push && gh pr create --fill'))).deny).toContain('K7')
+})
+
+test('K7: the GitHub pull-request tool counts too; a quoted mention does not', async ($, on) => {
+  world(on, { session: 'k7-b' })
+  await turn($, 't1')
+  expect((await call($, { tool: 'mcp__github__create_pull_request', owner: 'o', repo: 'r', title: 't', head: 'b', base: 'main' })).deny).toContain('K7')
+  expect((await call($, bash('git commit -m "then gh pr create"'))).deny).toBeUndefined()
+  expect((await call($, { tool: 'mcp__github__pull_request_read', method: 'get', pullNumber: 1 })).deny).toBeUndefined()
+})
+
+test('P2: closing an item needs the work skill this turn as well as knowledge-save', async ($, on) => {
+  world(on, { session: 'p2-a' })
+  await turn($, 't1')
+  await call($, skill('knowledge-save'))
+  const close = await call($, bash('gh issue close 12'))
+  expect(close.deny).toContain('P2')
+  expect(close.deny).not.toContain('K7')
+  expect((await call($, bash('node plugins/work-tracker/skills/work/scripts/work.mjs finish WI-3 --evidence x'))).deny).toContain('P2')
+  expect((await call($, bash('work finish WI-3 --approved-by Mike'))).deny).toContain('P2')
+  expect((await call($, { tool: 'mcp__github__issue_write', method: 'update', issue_number: 3, state: 'closed' })).deny).toContain('P2')
+  await call($, skill('work-tracker:work'))
+  expect((await call($, bash('gh issue close 12'))).deny).toBeUndefined()
+  expect((await call($, { tool: 'mcp__github__issue_write', method: 'update', issue_number: 3, state: 'closed' })).deny).toBeUndefined()
+  await turn($, 't2')
+  await call($, skill('knowledge-save'))
+  expect((await call($, bash('gh issue close 13'))).deny).toContain('P2')
+})
+
+test('P3: a merge needs merge-and-clean-up once per session; compaction keeps it', async ($, on) => {
+  world(on, { session: 'p3-a' })
+  await turn($, 't1')
+  await call($, skill('knowledge-save'))
+  const merge = await call($, bash('gh pr merge 5 --squash'))
+  expect(merge.deny).toContain('P3')
+  expect((await call($, { tool: 'mcp__github__enable_pr_auto_merge', owner: 'o', repo: 'r', pullNumber: 5 })).deny).toContain('P3')
+  await call($, skill('git-workflows:merge-and-clean-up'))
+  expect((await call($, bash('gh pr merge 5 --squash'))).deny).toBeUndefined()
+  await $.session.compact({ trigger: 'auto', messages: [{ role: 'user', text: 'summary', toolUses: [] }] })
+  await turn($, 't2')
+  const later = await call($, { tool: 'mcp__github__merge_pull_request', owner: 'o', repo: 'r', pullNumber: 6 })
+  expect(later.deny).toContain('K7')
+  expect(later.deny).not.toContain('P3')
+})
+
+test('Fix A: a check whose skill is not installed is off, with one notice to the owner', async ($, on) => {
+  world(on, { session: 'fixA-a', skills: ['second-brain:knowledge-save', 'clear'] })
+  await turn($, 't1')
+  await call($, skill('knowledge-save'))
+  expect((await call($, bash('gh issue close 12'))).deny).toBeUndefined()
+  expect((await call($, bash('gh pr merge 5'))).deny).toBeUndefined()
+  const done = await $.turn.complete({ turnId: 't1', reason: 'answer', isAborted: false, answer: 'x', durationMs: 5 } as any)
+  expect(done.text).toContain('P2 (work)')
+  expect(done.text).toContain('P3 (merge-and-clean-up)')
+  await turn($, 't2')
+  expect((await $.turn.complete({ turnId: 't2', reason: 'answer', isAborted: false, answer: 'x', durationMs: 5 } as any)).text).toBe('the answer')
+})
+
+test('Fix B: a carried check counts a helper that wrote in the turn it was carried from', async ($, on) => {
+  const w: World = { session: 'fixB-a', agents: [{ id: 'saver', status: 'running' }] }
+  world(on, w)
+  await turn($, 't1')
+  await call($, skill('knowledge-save'))
+  await call($, bash('gh issue reopen 4'))
+  await call($, write(INBOX, 'saver'))
+  expect((await step($, 't1')).shown).toBe(true)
+  await turn($, 't2')
+  expect((await step($, 't2')).shown).toBe(true)
+  w.agents = [{ id: 'saver', status: 'completed' }]
+  await turn($, 't3')
+  expect((await step($, 't3')).shown).toBe(false)
+})
+
+test('The engine names its active checks for PreToolUse command hooks, and clears them when it stops', async ($, on) => {
+  const w: World = { session: 'env-a', env: {}, failCwd: true }
+  world(on, w)
+  await turn($, 't1')
+  expect(w.env!.TOOLKIT_PROTOCOL_ENGINE).toBe('env-a:K4,CW,K5,K6,K7,P2,P3')
+  await call($, bash('ls'))
+  await call($, bash('ls'))
+  expect(w.env!.TOOLKIT_PROTOCOL_ENGINE).toBeUndefined()
+})
+
+// ---------- Review of PR #403 ----------
+
+test('gh -R and --repo do not bypass K7, P2 or P3; help and dry runs are not actions', async ($, on) => {
+  world(on, { session: 'r403-a' })
+  await turn($, 't1')
+  expect((await call($, bash('gh -R o/r issue close 3'))).deny).toContain('K7')
+  expect((await call($, bash('gh --repo o/r pr merge 5'))).deny).toContain('P3')
+  expect((await call($, bash('gh --repo=o/r pr create --fill'))).deny).toContain('K7')
+  expect((await call($, bash('gh pr merge --help'))).deny).toBeUndefined()
+  expect((await call($, bash('gh issue close -h'))).deny).toBeUndefined()
+  expect((await call($, bash('gh pr create --dry-run --fill'))).deny).toBeUndefined()
+})
+
+test('K5 needs no skill, so its refusal does not mention one', async ($, on) => {
+  world(on, { session: 'r403-b' })
+  await turn($, 't1')
+  await call($, skill('knowledge-save'))
+  const r = await call($, write(`${ROOT}/knowledge/prds/prd-index.md`))
+  expect(r.deny).toContain('K5')
+  expect(r.deny).not.toContain('If the skill is not installed')
 })

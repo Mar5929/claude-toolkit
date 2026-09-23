@@ -1,7 +1,7 @@
 {
   "name": "protocol-guard",
-  "description": "Required workflow checks with Claude Code function hooks. Refuses a knowledge-file write until knowledge-save is open, refuses hand edits to generated indexes, and holds a final reply once when working memory or the index rebuild and checker did not follow the change. Fact checks only: no model call and no reading of the agent's words. Runs only when CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1.",
-  "version": "0.1.0",
+  "description": "Required workflow checks with Claude Code function hooks. Refuses a knowledge-file write until knowledge-save is open, refuses hand edits to generated indexes, refuses a pull request, close or merge until knowledge-save (and the work or merge-and-clean-up skill) is open, and holds a final reply once when working memory or the index rebuild and checker did not follow the change. Fact checks only: no model call and no reading of the agent's words. Runs only when CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1.",
+  "version": "0.2.0",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com"

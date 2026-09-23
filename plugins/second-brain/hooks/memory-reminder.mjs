@@ -36,6 +36,8 @@ export const ENGINE_NOT_RUNNING = "Required workflow checks are not running in t
 /** One line per session when this project turns protocol-guard on with function
  * hooks but the engine's field is absent. A marker file keeps it to once. */
 export function engineNotRunningLine(root, input, env = process.env, directory = join(tmpdir(), "toolkit-protocol-guard")) {
+  // Codex runs this hook too and never sets CLAUDE_PROJECT_DIR: no line there.
+  if (!env.CLAUDE_PROJECT_DIR) return "";
   if (env.CLAUDE_CODE_ENABLE_FUNCTION_HOOKS !== "1" || input?.toolkit_protocol_engine !== undefined) return "";
   let enabled = false;
   try {

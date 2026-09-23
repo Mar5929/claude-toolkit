@@ -9,7 +9,7 @@ tags: [work-tracking, lifecycle, handoff, approval]
 approved_by: Mike Rihm
 approval_date: 2026-09-05
 work_item: "270"
-updated_at: 2026-09-21
+updated_at: 2026-09-23
 ---
 
 # Work-item upkeep
@@ -70,7 +70,11 @@ GitHub does not update the body, comment, label, and board as one transaction.
 
 Project knowledge may react to completion and link back to the item. It never
 becomes another owner of work-item state. The existing lifecycle rule, work
-skill, CLI, and handoff skill carry this behavior. The late stage-reminder hook
+skill, CLI, and handoff skill carry this behavior. In Claude Code with the
+`protocol-guard` required workflow checks on, closing a work item (`work
+finish`, `gh issue close`, or the GitHub close tool) is refused until the
+`work` skill and `knowledge-save` were opened in the same turn; the work skill
+asks for the owner's approval, and the check does not prove it. The late stage-reminder hook
 is retired without a replacement hook.
 
 [Guided work management](guided-work-management.md) owns the single work-item
@@ -82,6 +86,11 @@ command and record details. [Issue 270](https://github.com/Mar5929/claude-toolki
 holds the approved requirements and delivery evidence.
 
 ## Notes
+
+- 2026-09-23, work item [#396](https://github.com/Mar5929/claude-toolkit/issues/396)
+  step 6: records that a close is refused until the `work` skill and
+  `knowledge-save` are open while the required workflow checks run (#396
+  decision 10). This records approved behavior; it approves nothing else here.
 
 - On 2026-09-21, Mike approved pointing to
   [guided work management](guided-work-management.md) for the single work-item

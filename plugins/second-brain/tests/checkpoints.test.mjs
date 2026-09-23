@@ -10,7 +10,7 @@ import {
   completion,
   recordReview,
 } from '../hooks/knowledge-completion.mjs';
-import { buildReminder } from '../hooks/memory-reminder.mjs';
+import { buildReminder, engineNotRunningLine } from '../hooks/memory-reminder.mjs';
 // Native event IDs are from docs/designs/269-knowledge-system/research/2026-09-20-native-hook-correlation.md.
 const observedCodexTurns = {
   session_id: 'codex-session-two-turn',
@@ -177,4 +177,7 @@ test('memory reminder leaves out the turn-review line only while CW, K4 and K6 r
   assert.match(shown.hookSpecificOutput.additionalContext, /Friendly reminder/);
   assert.doesNotMatch(run(base, on), /Required workflow checks are not running/);
   assert.doesNotMatch(run({ ...base, session_id: 'other', toolkit_protocol_engine: { version: '0.1.0', active: [] } }, on), /not running/);
+  // Codex: no CLAUDE_PROJECT_DIR, so no line even with the variable set.
+  assert.equal(engineNotRunningLine(root, { ...base, session_id: 'codex' }, { CLAUDE_CODE_ENABLE_FUNCTION_HOOKS: '1' }, join(root, 'tmp', 'marker')), '');
+  assert.match(engineNotRunningLine(root, { ...base, session_id: 'claude' }, { CLAUDE_CODE_ENABLE_FUNCTION_HOOKS: '1', CLAUDE_PROJECT_DIR: root }, join(root, 'tmp', 'marker')), /not running/);
 });

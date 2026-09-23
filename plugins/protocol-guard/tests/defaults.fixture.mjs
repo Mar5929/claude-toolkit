@@ -38,7 +38,7 @@ export default {
           "within": "reset"
         }
       ],
-      "tell": "Open the knowledge-save skill with the Skill tool and follow it, then make this change again."
+      "tell": "Open the knowledge-save skill with the Skill tool and follow it, then make this change again. If the skill is not installed, tell the owner and stop."
     },
     {
       "name": "CW",
@@ -61,7 +61,7 @@ export default {
           ]
         }
       ],
-      "tell": "Update knowledge/memory/current.md for this work-item change, following the knowledge-save skill. If it cannot be published now, record the pending publication in the work item."
+      "tell": "Update knowledge/memory/current.md for this work-item change, following the knowledge-save skill. If it cannot be published now, record the pending publication in the work item. If the skill is not installed, tell the owner and stop."
     },
     {
       "name": "K5",
@@ -113,7 +113,71 @@ export default {
           ]
         }
       ],
-      "tell": "Run node .claude/tools/build-knowledge-index.mjs, then node .claude/tools/check-knowledge.mjs, and fix any problem it reports."
+      "tell": "Run node .claude/tools/build-knowledge-index.mjs, then node .claude/tools/check-knowledge.mjs, and fix any problem it reports. If the skill is not installed, tell the owner and stop."
+    },
+    {
+      "name": "K7",
+      "why": "Opening a pull request, closing a work item, and merging are save-review moments: knowledge-save is opened this turn first, so what the work changed reaches its owning record.",
+      "owner": {
+        "skill": "knowledge-save"
+      },
+      "appliesIf": {
+        "exists": "knowledge/knowledge-manual.md"
+      },
+      "on": {
+        "action": [
+          "pr-create",
+          "issue-close",
+          "pr-merge",
+          "work-finish"
+        ]
+      },
+      "require": [
+        {
+          "opened": "owner",
+          "within": "turn"
+        }
+      ],
+      "tell": "Open the knowledge-save skill with the Skill tool, review what this work changed and preserve any pending save, then run this action again. If the skill is not installed, tell the owner and stop."
+    },
+    {
+      "name": "P2",
+      "why": "Closing a work item goes through the work skill, which asks the owner for approval. The check proves only that the skill was opened.",
+      "owner": {
+        "skill": "work"
+      },
+      "on": {
+        "action": [
+          "issue-close",
+          "work-finish"
+        ]
+      },
+      "require": [
+        {
+          "opened": "owner",
+          "within": "turn"
+        }
+      ],
+      "tell": "Open the work skill with the Skill tool and follow its steps for closing a work item, including the owner's approval, then run this action again if it still applies. If the skill is not installed, tell the owner and stop."
+    },
+    {
+      "name": "P3",
+      "why": "A merge goes through merge-and-clean-up, which lands an approved pull request and removes only its own branch and worktree.",
+      "owner": {
+        "skill": "merge-and-clean-up"
+      },
+      "on": {
+        "action": [
+          "pr-merge"
+        ]
+      },
+      "require": [
+        {
+          "opened": "owner",
+          "within": "session"
+        }
+      ],
+      "tell": "Open the merge-and-clean-up skill with the Skill tool and follow it, then run this merge again if it still applies. If the skill is not installed, tell the owner and stop."
     }
   ]
 }

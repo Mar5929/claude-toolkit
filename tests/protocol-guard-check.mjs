@@ -28,7 +28,8 @@
  *      (a skill as `plugins/<plugin>/skills/<name>/SKILL.md`).
  *   5. The engine's shell reader and the command hooks' reader
  *      (`plugins/second-brain/hooks/command-parsing.mjs`) agree on which
- *      commands close an issue, merge or open a pull request.
+ *      commands close an issue, merge, open a pull request, or finish a
+ *      local work item.
  *
  * Run: node tests/protocol-guard-check.mjs
  */
@@ -99,7 +100,7 @@ if (version.error || version.status !== 0) {
 
 // ---------- 4. The protocol list ----------
 
-const KNOWN_ON = ["write", "shell", "oneWriter", "turnEnd"];
+const KNOWN_ON = ["action", "write", "shell", "oneWriter", "turnEnd"];
 const KNOWN_TURN_END = ["afterWorkItemChange", "afterWrite"];
 function requireShape(r) {
   const keys = Object.keys(r ?? {}).sort().join(",");
@@ -151,18 +152,28 @@ const COMMANDS = [
   "cat <<'EOF'\ngh issue close 1\nEOF",
   "ls; gh issue close 3",
   "gh issue close 3 | tee log.txt",
+  "gh -R o/r issue close 3",
+  "gh --repo o/r pr merge 5",
+  "gh --repo=o/r pr create --fill",
+  "gh pr merge --help",
+  "work finish WI-3 --evidence done",
+  "node plugins/work-tracker/skills/work/scripts/work.mjs finish WI-3 --approved-by Mike",
+  "node work.mjs update WI-3 --stage 08",
+  'echo "work finish WI-3"',
 ];
-const readerSays = (command, sub) => reader.readCommand(command).commands.some((c) => c.program === "gh" && c.args[0] === sub[0] && c.args[1] === sub[1]);
+const ACTION_OF = { "issue close": "issue-close", "pr merge": "pr-merge", "pr create": "pr-create", "work finish": "work-finish" };
+const readerSays = (command, sub) => reader.readCommand(command).commands.some((c) => reader.reviewActions(c).includes(ACTION_OF[sub.join(" ")]));
 for (const command of COMMANDS) {
   const pairs = [
     [["issue", "close"], [/^gh +issue +close\b/]],
     [["pr", "merge"], [/^gh +pr +merge\b/]],
     [["pr", "create"], parsing.OPENS_PULL_REQUEST],
+    [["work", "finish"], parsing.CLOSES_WORK_ITEM.slice(2)],
   ];
   for (const [sub, patterns] of pairs) {
     const a = readerSays(command, sub);
     const b = parsing.matchesAny(command, patterns);
-    if (a !== b) fail(`Shell readers disagree on "gh ${sub.join(" ")}" for ${JSON.stringify(command)}: engine ${a}, command hooks ${b}.`);
+    if (a !== b) fail(`Shell readers disagree on "${sub.join(" ")}" for ${JSON.stringify(command)}: engine ${a}, command hooks ${b}.`);
   }
 }
 

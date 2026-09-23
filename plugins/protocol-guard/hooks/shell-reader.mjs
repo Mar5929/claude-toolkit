@@ -259,11 +259,23 @@ function stageLabels(a) {
   return false
 }
 
+// gh's arguments after a leading `-R <repo>`, `--repo <repo>` or `--repo=<repo>`.
+export function ghArgs(a) {
+  let i = 0
+  while (i < a.length) {
+    if (a[i] === '-R' || a[i] === '--repo') { i += 2; continue }
+    if (a[i].startsWith('--repo=')) { i += 1; continue }
+    break
+  }
+  return a.slice(i)
+}
+
 // True when the command creates, closes, reopens, deletes or moves a work item,
 // or changes its stage, through `gh` or the work tracker's `work` command.
 export function changesWorkItem(cmd) {
-  const a = cmd.args
+  let a = cmd.args
   if (cmd.program === 'gh') {
+    a = ghArgs(a)
     if (a[0] === 'issue' && ['create', 'new', 'close', 'reopen', 'delete', 'transfer'].includes(a[1] ?? '')) return true
     // A label edit counts only when a label has the stage form, such as 08-build.
     if (a[0] === 'issue' && a[1] === 'edit') return stageLabels(a)
@@ -281,4 +293,24 @@ export function changesWorkItem(cmd) {
   if (sub === 'update') return rest.some((x) => /^--(stage|status)(=|$)/.test(x))
   if (sub === 'requirements') return rest.some((x) => x === '--finalize' || x === '--reopen')
   return false
+}
+
+// The review actions a command takes: `pr-create` (gh pr create), `pr-merge`
+// (gh pr merge, with or without --auto), `issue-close` (gh issue close) and
+// `work-finish` (the work tracker's `work finish`).
+export function reviewActions(cmd) {
+  let a = cmd.args
+  if (cmd.program === 'gh') {
+    a = ghArgs(a)
+    // Help and a dry run change nothing.
+    if (a.includes('--help') || a.includes('-h')) return []
+    if (a[0] === 'pr' && a[1] === 'create') return a.includes('--dry-run') ? [] : ['pr-create']
+    if (a[0] === 'pr' && a[1] === 'merge') return ['pr-merge']
+    if (a[0] === 'issue' && a[1] === 'close') return ['issue-close']
+    return []
+  }
+  let sub
+  if (cmd.program === 'work') sub = a.filter((x) => !x.startsWith('-'))[0]
+  else if (nodeScript(cmd) === 'work.mjs') sub = a.slice(a.findIndex((x) => !x.startsWith('-')) + 1).filter((x) => !x.startsWith('-'))[0]
+  return sub === 'finish' ? ['work-finish'] : []
 }

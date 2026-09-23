@@ -28,6 +28,7 @@ import { fileURLToPath } from "node:url";
 import {
   combinesReviewActions,
   effectiveDirectory,
+  engineProtocols,
   heldMessage,
   matchesAny,
   OPENS_PULL_REQUEST,
@@ -206,7 +207,11 @@ function main() {
   if (!shouldHold(payload, key)) return failOpen();
 
   const paths = changedPaths(root);
-  const message = isKnowledgeOnly(paths) ? buildDirectCommitMessage(paths) : buildMessage();
+  const knowledgeOnly = isKnowledgeOnly(paths);
+  // protocol-guard K7 replaces the general save-review hold. The
+  // knowledge-only branch message stays: K7 does not check the route.
+  if (!knowledgeOnly && engineProtocols(process.env, payload).includes("K7")) return failOpen();
+  const message = knowledgeOnly ? buildDirectCommitMessage(paths) : buildMessage();
   deny(heldMessage(message, actionLabel(key)));
   recordHold(payload, key);
 }

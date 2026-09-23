@@ -497,6 +497,15 @@ AGENTS.md stays thin and points at that folder. Read
   Do not add voice rules to `.claude/rules/`. Tell the owner the style starts in
   the next session. Helper agents that write owner-facing prose need writing
   guidance in their own definitions.
+- **Add the toolkit's permission rules** (default ON). Merge the `general`
+  lists from `library/templates/settings-permissions.json` into
+  `permissions.deny` and `permissions.ask` of the project's committed
+  `.claude/settings.json`, and the `salesforce` lists too in a Salesforce
+  project. Add only missing rules; keep the owner's own rules. `deny` blocks
+  staging everything, force pushes and Salesforce metadata or org deletes.
+  `ask` prompts for a hard reset, `git clean`, sandbox deploys, data writes and
+  `sf apex run`. The owner's yes in the same chat stays the rule for those;
+  `ask` does not prompt in `bypassPermissions` mode.
 - **Turn on the required workflow checks** when project knowledge is
   installed. Install `protocol-guard@claude-toolkit` and merge two keys into the
   project's committed `.claude/settings.json`, preserving every other key:
@@ -656,6 +665,8 @@ library.
   folder to `tools/kb/` in the project; the orchestrator imports every file.
 - `../../library/templates/permissions-runbook.md`: the project-side runbook to
   copy and fill in when permission sets are tracked.
+- `../../library/templates/settings-permissions.json`: the `deny` and `ask`
+  permission rules merged into the project's `.claude/settings.json`.
 - `../../library/templates/toolkit-manual.md`: the reusable Toolkit operating
   manual copied to `knowledge/toolkit-manual.md` in every equipped project.
 - `../../library/guides/salesforce-permissions-retrieval.md`: the end-to-end
