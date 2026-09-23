@@ -72,7 +72,7 @@ separate prep, interview, or continuation files for that workflow.
   `README.md` is fine. Gate 5 copies the `ai-external-knowledge.md` rule with it.
 - Every stack: offer `docs/designs/` at the project root. It holds the build
   plan for one work item, written once its requirements are approved and kept
-  after delivery (decision D21). Where still-useful reasoning lives is agreed
+  after delivery. Where still-useful reasoning lives is agreed
   with the owner before any design is deleted. It is for a project whose work
   items are tracked outside the repository; a project on the Git-ignored
   `.work-items/` tracker keeps each design with its own item instead. Create it
@@ -311,9 +311,8 @@ separate prep, interview, or continuation files for that workflow.
   to open it, and the same for a specifications folder or reference data. An
   agent reaches those folders only from here.
 - Give `docs/designs/` its own codemap line where Gate 1 created it, saying it
-  holds one build plan per work item and that designs are kept after delivery
-  (decision D21). It is usually still empty here, which
-  is when the line is easiest to skip.
+  holds one build plan per work item and that designs are kept after delivery.
+  It is usually still empty here, which is when the line is easiest to skip.
 - Keep the codemap to one line per folder, pointing at that folder's own
   `AGENTS.md` for the detail. Every line says what is in the folder and when to
   open it.

@@ -85,7 +85,7 @@ automatically as it grows.
   - the document folder Gate 1 offers every project, `docs/designs/`. It is the
     folder plus its own line in the codemap, and a folder with no codemap line
     is a folder no agent opens, so check both parts. The codemap line says what
-    it holds and that designs are kept after delivery (decision D21).
+    it holds and that designs are kept after delivery.
     `../project-init/references/setup-flow.md` has what it holds. It only
     applies where work items are tracked outside the repository; a project on
     the Git-ignored `.work-items/` tracker keeps each design with its own item,
@@ -640,7 +640,7 @@ the file and report:
   codemap does not name is a folder no agent will open, however good what is in
   it. Propose the line, saying what is inside and when to open it. For those two
   also say how long a file in each lives, since that is the part a session gets
-  wrong: a design is kept after delivery (decision D21), and a PRD is kept for
+  wrong: a design is kept after delivery, and a PRD is kept for
   the life of the area.
 - **Live state that belongs in the tracker.** Current phase, next action, and
   open TODOs drift the moment they are written here.

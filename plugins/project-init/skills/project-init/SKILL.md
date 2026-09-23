@@ -128,7 +128,7 @@ Save authorized documentation changes promptly through the project's save route;
 do not wait for code delivery. Keep preparation in the design and relevant
 working decisions, open questions, remaining document tasks, and the resume
 point in bottom Notes. The item links there and keeps other work. The design is
-**kept after delivery** (decision D21). Where still-useful reasoning lives is
+**kept after delivery**. Where still-useful reasoning lives is
 agreed with the owner before any design is deleted. Create the folder empty.
 It gets no `README.md`: its line in the project's `AGENTS.md` codemap says what
 it holds and that designs are kept.
@@ -494,8 +494,9 @@ AGENTS.md stays thin and points at that folder. Read
   This is the routing job, and it is the part usually left out.
 - **Give `docs/designs/` its own codemap line** where Gate 1 created it. It says
   the build plan for each work item lives there, one file per item, written
-  once its requirements are approved and kept after delivery (decision D21). The folder is usually empty on day one, which is exactly when a
-  codemap line is easiest to leave out and hardest to add back.
+  once its requirements are approved and kept after delivery. The folder is
+  usually empty on day one, which is exactly when a codemap line is easiest to
+  leave out and hardest to add back.
 - **Write the tools section from what the project actually runs.** MCP servers,
   generated graphs or indexes, build, test, and deploy commands. One row each,
   naming the command and the file that holds the detail. This is where the MCP

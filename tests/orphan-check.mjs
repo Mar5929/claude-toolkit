@@ -63,7 +63,7 @@ const CANDIDATE_ROOTS = ["plugins/", "docs/", "tests/"];
  */
 function isExempt(path) {
   if (path.split("/").some((part) => part.startsWith("."))) return true;
-  if (path.startsWith("docs/designs/")) return true;
+  if (/^docs\/designs\/\d+-/.test(path)) return true;
   if (path.endsWith("/SKILL.md")) return true;
   if (/^plugins\/[^/]+\/README\.md$/.test(path)) return true;
   if (/^plugins\/[^/]+\/skills\/[^/]+\/agents\/[^/]+\.yaml$/.test(path)) return true;

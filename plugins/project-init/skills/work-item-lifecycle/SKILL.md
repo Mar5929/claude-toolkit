@@ -28,7 +28,7 @@ Read these to find where things actually go:
 1. The project's root instructions and their codemap. They name the work
    tracker, the delivery root, and the source folders.
 2. The codemap line for `docs/designs/`, for where a solution design lives.
-   Designs are kept after delivery (decision D21).
+   Designs are kept after delivery.
 3. The routing table in `knowledge/knowledge-manual.md` (`docs/knowledge-manual.md`
    when `.toolkit-memory.json` says `"memory": "external"`), for what belongs in
    persistent project knowledge, in a project that has it. Read that table,
@@ -74,7 +74,7 @@ Follow the project's approval and save rules. Authorized documentation-only
 saves use its documentation route promptly, without waiting for code delivery;
 local untracked documents stay in the local tracker. Saving a draft does not
 approve the requirements, design, or build. The project's codemap describes
-`docs/designs/`. Designs are kept after delivery (decision D21). Where
+`docs/designs/`. Designs are kept after delivery. Where
 still-useful reasoning lives is agreed with the owner before any design is
 deleted. Preserve sources and approvals when reconciling an older record.
 
