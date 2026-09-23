@@ -92,9 +92,9 @@ the handoff. Follow work-guide's document-continuity guidance.
 
 ## Step 2: the persistent review
 
-Read the installed `knowledge/knowledge-manual.md` to identify the active
-layout and save procedure. A proposed PRD or a newer plugin cache does not
-choose a project's installed path.
+Identify the installed knowledge layout. Search `knowledge/knowledge-manual.md`
+for its schema marker; do not read the whole manual. A proposed PRD or a newer
+plugin cache does not choose a project's installed path.
 
 - With `<!-- claude-toolkit:knowledge-schema:2 -->` in that manual, use
   `knowledge/memory/current.md` and the installed `knowledge-save` skill.

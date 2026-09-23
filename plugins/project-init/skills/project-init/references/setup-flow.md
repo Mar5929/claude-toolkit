@@ -278,7 +278,8 @@ separate prep, interview, or continuation files for that workflow.
   section only if the project uses that MCP server.
 - Write a thin AGENTS.md _with_ the user: what it is, codemap and structural
   pointers, a `Read .claude/rules` line, which gates ran. Add a
-  `.claude/rules/README.md` index.
+  `.claude/RULES.md` index. Never put an index inside `.claude/rules/`: every
+  `.md` file there loads as a rule.
 - Add the short "Quick saves" table from `thin-agents-md.md`. Unless the owner
   explicitly opted out, include the documentation publication route even when
   knowledge is disabled, using the

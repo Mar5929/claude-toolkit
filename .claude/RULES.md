@@ -1,39 +1,39 @@
 # Rules this repo runs
 
-Every `.md` file in this folder is loaded at the start of a Claude Code session
-and is in force for the whole session. Claude Code loads the folder on its own.
-Codex does not, so the line "Read `.claude/rules` first" in the root
-`AGENTS.md` is what sends a Codex session here.
+This file indexes `.claude/rules/`. It sits outside that folder so it does not
+load as a rule. Claude Code loads every `.md` file inside `.claude/rules/`: a
+file with no `paths:` frontmatter at the start of every session, and a file
+with `paths:` when the agent reads a matching file. Codex does not load the
+folder. The line "Read `.claude/rules` first" in the root `AGENTS.md` sends a
+Codex session there.
 
-Almost all of these are copies. The originals live in
-`plugins/project-init/library/rules/general/`, which is what every other toolkit
-project receives. This repo runs them unmodified so a change is felt where it is
-written. `tests/installed-copy-check.mjs` fails when an original and its copy
-here stop matching. A rule this repo should stop following is dropped from this
-folder rather than edited, because editing the copy would mean editing what
-every other project receives.
+Almost all rules are copies. The originals live in
+`plugins/project-init/library/rules/general/`, which every other toolkit
+project receives. This repo runs them unmodified. `tests/installed-copy-check.mjs`
+fails when an original and its copy stop matching. To stop following a rule
+here, drop it from the folder. Do not edit the copy.
 
-Three rules are this repo's own and are not shipped anywhere:
-`claude-code-docs-first.md`, `subagents-run-on-opus.md`, and
-`keep-manuals-current.md`. Each is listed by
-name in the `OWN_FILES` set in `tests/installed-copy-check.mjs`, which is how
-that check knows it has no original to match. Add a repo-only rule the same way, and only when the rule
-genuinely could not help another project.
+Four rules are this repo's own and are not shipped:
+`claude-code-docs-first.md`, `subagents-run-on-opus.md`,
+`keep-manuals-current.md`, and `standing-merge-instruction.md`. Each is listed
+by name in `OWN_FILES` in `tests/installed-copy-check.mjs`. Add a repo-only
+rule the same way, and only when it could not help another project.
 
 ## What each file does
 
 | File | What it does |
 |---|---|
-| `parallel-agent-sessions.md` | Isolate implementation and use an approved pull request; authorized documentation follows the direct-publication exception. Coordinate shared edits and preserve others' staged work. |
-| `knowledge-direct-commit.md` | Unscoped documentation publication route, independent of knowledge activation. Authorized documentation-only changes are checked, committed, pushed, and remotely verified on the default branch; behavior-bearing instructions and mixed changes retain the implementation route. |
-| `offer-context-handoff.md` | When context is heavy and the next step is reasoning-heavy, offer a self-contained handoff prompt, after running the memory check. |
+| `parallel-agent-sessions.md` | Always loaded. Look-first commands, own worktree for implementation, no changes to the shared checkout, stage paths by name, claim numbers first, merge on approval (a standing instruction counts) with the merge-safety check. Documentation saves open `publish-docs`. |
+| `knowledge-direct-commit.md` | Loads for `knowledge/**`, `docs/**`, and `**/README.md`. Authorized documentation-only changes commit straight to the default branch; behavior files use a worktree and pull request. The steps are in the `publish-docs` skill. |
+| `offer-context-handoff.md` | When the session is long and the next step is complex, offer the `handoff` skill. |
 | `plain-english-artifacts.md` | The words inside every diagram, chart, dashboard, visualization, slide deck, or generated document an agent makes follow the output style: about the subject only, headings that name what sits under them, the real name for every thing, plain wording. It decides the words, never the layout. Chat, code, README files, and issue text are not covered. |
 | `humanize-outbound-text.md` | Any text that leaves the project for someone other than the owner (an email, a chat message, support case text, a GitHub issue, a pull request description, a client document, a file made to hand over) is run through the `humanizer` skill first, or `unslop` when that is not installed. Every fact, name, id, number, and date stays the same. Chat replies to the owner, work items, project knowledge, code, and commit messages are not covered. |
-| `work-item-stages.md` | Unscoped lifecycle guidance for active-item orientation, faithful progress, flexible stages, type-aware approval, handoff, and accepted completion. Local code checks objective facts. |
+| `work-item-stages.md` | Six lines: open the `work` skill, save decisions, approval gate, team arrangement, Done needs approval, record the next step. The full policy is in the `work` skill's `references/lifecycle.md`. |
 | `ai-external-knowledge.md` | Outside documentation captured for agents (vendor docs, API references, framework guides) goes in `ai-external-knowledge/` at the project root, one folder per topic, each naming its source URL and capture date. It stays raw source material, and nothing reads it unless a rule, a skill, or persistent knowledge points at a topic. |
 | `claude-code-docs-first.md` | This repo's own rule, not shipped. Before building or changing a hook, skill, plugin, agent, command, output style, or setting, read the page that covers it in `ai-external-knowledge/claude-code/`. This is the pointer `ai-external-knowledge.md` asks for, aimed at the captured topics this repo has. |
 | `subagents-run-on-opus.md` | This repo's own rule, not shipped. Claude Code subagents stay on Opus through two environment values. Codex selects models for helper agents and separately created tasks: an economical adequate model by default, and the most capable available model only for genuinely complex intellectual work. |
 | `keep-manuals-current.md` | This repo's own rule, not shipped. Review both operating manuals for every finalized change and publish affected updates with delivery. Preserve subsystem ownership and the knowledge manual's managed source. |
+| `standing-merge-instruction.md` | This repo's own rule, not shipped. Records the owner's 2026-09-21 standing instruction (decision D9): agents merge delivery-team pull requests after an independent review with no blocking findings and passing checks. A work item that reserves the merge for the owner overrides it. |
 
 ## Rules this repo deliberately does not carry
 

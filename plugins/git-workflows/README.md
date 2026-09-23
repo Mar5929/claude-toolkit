@@ -1,6 +1,6 @@
 # git-workflows plugin
 
-Three git lifecycle skills that are safe to run when other agent sessions may
+Four git lifecycle skills that are safe to run when other agent sessions may
 share the same repo. They look before they act and stop rather than clobber
 another session's in-flight work. Install on any project; not stack-specific.
 
@@ -31,14 +31,21 @@ but nothing has to be set up inside it.
   removes only that PR's clean branch and worktree. It proves the merge before
   deletion and handles squash merges without force-deleting unrelated work.
 
+- **publish-docs** (`/publish-docs`): saves an authorized documentation-only
+  change straight to the default branch from the existing checkout: check,
+  stage by name, commit, push, and verify the remote. It holds the steps the
+  path-scoped `knowledge-direct-commit.md` rule points to. Rules, skills,
+  hooks, settings, and code still use a worktree and pull request.
+
 ## How it relates to the rest of the toolkit
 
 - These skills operationalize the stance in the `parallel-agent-sessions.md` general
   rule ("assume other Claude sessions share the repo") at the level of concrete
   git commands. The rule is the behavior; these are the safe commands. Not
   redundant with each other: pull-latest gets current, reset-to-remote
-  deliberately discards local state, and merge-and-clean-up lands approved work
-  before removing only its finished workspace.
+  deliberately discards local state, merge-and-clean-up lands approved work
+  before removing only its finished workspace, and publish-docs lands a
+  documentation save without a pull request.
 
 ## Maintaining this plugin
 

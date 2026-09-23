@@ -1,5 +1,5 @@
 {
-  "description": "Bounded Toolkit orientation and ordered Knowledge reads for startup and context recovery.",
+  "description": "Short Toolkit orientation and ordered Knowledge reads for startup and context recovery.",
   "hooks": {
     "SessionStart": [
       {
@@ -25,18 +25,6 @@
       }
     ],
     "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"$(git rev-parse --show-toplevel)/.claude/hooks/toolkit-session-start.mjs\"",
-            "commandWindows": "powershell.exe -NoProfile -Command \"$projectRoot = git rev-parse --show-toplevel; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; node (Join-Path $projectRoot '.claude/hooks/toolkit-session-start.mjs')\"",
-            "timeout": 10,
-            "additionalContextLimit": 1000,
-            "statusMessage": "Reading Toolkit orientation route"
-          }
-        ]
-      },
       {
         "hooks": [
           {

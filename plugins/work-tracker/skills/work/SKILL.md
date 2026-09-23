@@ -1,9 +1,13 @@
 ---
 name: work
-description: Manage work in the project's configured local or external tracker and offer agent-led delivery for substantial goals. Use for backlog capture, active-item selection, requirements, progress, stages, blockers, handoffs, completion, grouping, archiving, validation, reconciliation, and substantial work before and after execution.
+description: Use before substantial work, and when starting, resuming, changing stage, or closing a work item. Manages the project's local or external tracker, offers agent-led delivery, and holds the work-item lifecycle. Also for backlog capture, grouping, archiving, validation, and reconciliation.
 ---
 
 # Work Tracker
+
+[Lifecycle](references/lifecycle.md) holds the full work-item policy: orienting,
+the delivery offer, planning, approval, stages, the capture table, progress,
+handoff, and completion. Read the section the task needs.
 
 Identify the project's configured tracker before acting. Use its native fields,
 commands, and records; never create a second tracker or local mirror to make
@@ -39,7 +43,8 @@ Before substantial work:
    constraints before acting. If a legacy item has no roadmap tasks, reconcile
    them from accepted evidence without guessing history or approval.
 7. Read and apply the goal's saved accepted, declined, or revoked delivery
-   choice before offering or organizing delivery.
+   choice before offering or organizing delivery. Offer again only when the
+   goal grows substantially or the owner asks.
 8. Confirm the exact current requirements document or workbook and working
    design from the item and owner's instructions. Read those files. Preserve
    an existing authoritative workbook; do not pick a copy by date alone.
@@ -81,7 +86,7 @@ scope, reasons, conditions, or certainty the owner did not give. Ask one short
 question when the difference matters.
 
 The progress note is history, not a substitute for the current record. Apply
-the routing in `work-item-stages.md`: document-specific questions, decisions,
+the capture table in [lifecycle](references/lifecycle.md#capture-during-the-conversation): document-specific questions, decisions,
 and tasks stay in the document's Notes, and settled answers update its actual
 text or cells. For other open questions and useful notes, use Overview
 `Open questions` or `Context and notes` in `WORK-ITEM.md`. Read the current
@@ -109,11 +114,14 @@ items keep `REQUIREMENTS.md`. Requirements start as `refining`. Write only the
 owner's request and approved meaning. Keep implementation steps, file choices,
 tools, versions, and unapproved assumptions out. Show the result before running
 `requirements ID --finalize --approved-by NAME`; reopen it when direction
-changes.
+changes. Never finalize while the Requirements `Goal` still reads
+`_Not agreed yet._`. Write the goal the owner agreed, show it, and get the
+approval first.
 
 The hard command gate applies to `build` and `data-load`: their requirements
 must be finalized before implementation starts. Other types use the risk and
-scope judgment in `work-item-stages.md`. `In Progress` means active work, not
+scope judgment in [lifecycle](references/lifecycle.md#work-type-and-approval).
+A later stage does not revoke approval. `In Progress` means active work, not
 necessarily implementation.
 
 ## Use the commands
@@ -142,7 +150,7 @@ Run `node <skill-root>/scripts/work.mjs help` for exact flags. Read
 
 ## Stages and status
 
-For roadmap planning, follow `work-item-stages.md`. Roadmap stages use the
+For roadmap planning, follow [lifecycle](references/lifecycle.md#plan). Roadmap stages use the
 owner's language and stay separate from the optional fourteen-stage lifecycle.
 Each roadmap stage must be fulfilled by one or more tasks, linked child work
 items, or both. Use `task add` to create a new stage with its first task
@@ -166,7 +174,7 @@ Keep those details in the child and link only its ID from the parent roadmap.
 The existing `parent`/`children` relationship must agree; folder nesting remains
 organization and does not establish ownership by itself.
 
-Follow `work-item-stages.md`. Stages are flexible descriptions: skip, repeat,
+The [stage table](references/lifecycle.md#stages) lists the fourteen stages. Stages are flexible descriptions: skip, repeat,
 or revisit them with a short meaningful reason. A missing legacy stage is valid
 and must not be backfilled.
 

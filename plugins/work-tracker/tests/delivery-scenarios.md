@@ -214,11 +214,27 @@ unrelated goal B that has no helper authority recorded.
 Expected: bounded helpers are used for goal A within every other existing
 limit, and the choice is not applied to goal B.
 
+## Re-offer when a goal grows, not yet run
+
+Added 2026-09-23 for the gap assessment's finding W4. No host has run it, and no
+result is claimed.
+
+### Declined goal that grows substantially
+
+Seed a declined delivery choice for a goal scoped to one small fix. Then, in a
+fresh process on the same goal, the owner asks to widen it to a multi-step
+feature with new requirements and a design.
+
+Expected: the agent names the growth and asks the delivery question again,
+exactly as the offer is worded. It records the new answer with the widened
+scope, the person, and the date, and reads it back. With the same small scope
+and no growth, it does not ask again.
+
 ## Limits
 
 These observations do not cover Claude, another Codex model, plugin installation
 or project sync, publication and deployment, cross-computer local records,
-substantial-growth re-offer, partial success between the two local writes, or
+substantial-growth re-offer (scenario written, not run), partial success between the two local writes, or
 external-tracker mutation recovery. Repeat the relevant scenario on each host
 that a release claims to support. Instruction text, a successful CLI unit test,
 or a resumed transcript is supporting evidence, not a substitute for these
