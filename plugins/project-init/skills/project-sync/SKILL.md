@@ -52,7 +52,7 @@ automatically as it grows.
 - Locate the toolkit files, in order of preference:
   1. They ship with this plugin. From this skill's directory, `../../library/`
      holds `rules/general/` (with its `README.md` index), `rules/salesforce/`
-     (with its own index), `tools/`,
+     (with its own index), `skills/`, `tools/`,
      `templates/`, and `guides/`. The sibling skill's
      `../project-init/references/` holds `thin-agents-md.md`,
      `folder-agents-md.md`, `toolkit-manual-delivery.md`, and `setup-flow.md`,
@@ -70,6 +70,8 @@ automatically as it grows.
     says, so step 2 can tell a project copy that is merely worded differently
     from one that is genuinely behind; Salesforce projects also get the
     `library/rules/salesforce/` files
+  - every project skill in `library/skills/` (today `library/skills/salesforce/`),
+    and which rule opens each one, from `library/rules/salesforce/README.md`
   - the `Plain English` output style file and setting. This is the toolkit's
     default for project setup; the toolkit also ships `Terse`, which the owner
     may select instead. Check the installed file against
@@ -166,6 +168,19 @@ Typical checks:
   `.claude/rules/`, and does that folder carry each default-ON general rule (a
   file, or the rule's intent folded into AGENTS.md)? Judge by intent, not exact
   wording or file name.
+- **Project skills (both copies)**: for each installed rule that opens a
+  skill, check `.claude/skills/<name>/` and `.agents/skills/<name>/`. Report
+  **missing** when either copy is absent, **partial** when the two copies are
+  not byte-identical or either is a symlink, and **outdated** when they match
+  each other but not `library/skills/<stack>/<name>/`. Compare every file in
+  the folder, not only `SKILL.md`. Report host-specific frontmatter beyond
+  `name` and `description` in either copy.
+- **Rules index location**: the index of copied rules belongs in
+  `.claude/RULES.md`. Report a `.claude/rules/README.md` as a gap: Claude Code
+  loads it as a rule in every session. The fix is to move it, not delete it.
+- **`paths:` rules for Codex**: for each rule in `.claude/rules/` with
+  `paths:` frontmatter, `AGENTS.md` should carry one line naming the path
+  pattern and the rule file. Report each missing or stale line.
 - **Output style**: does the project have `.claude/output-styles/plain-english.md`
   and select `"outputStyle": "Plain English"` in its committed settings? Check
   `.claude/settings.local.json` for an override too. The setting must match the
@@ -799,6 +814,16 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   anything into project knowledge, or deletes cloud infrastructure. Installing the current system does not
   imply either v1 choice. Account-level connectors, local token cleanup, and
   cloud deletion are separate owner-approved work.
+- For an approved project skill gap, copy the library skill folder to both
+  `.claude/skills/<name>/` and `.agents/skills/<name>/`. Make the two copies
+  byte-identical. Never use a symlink. When the project changed its copy on
+  purpose, show the differences and flag it for port-back instead of
+  overwriting; then apply the same bytes to both copies.
+- For an approved rules index gap, `git mv .claude/rules/README.md
+  .claude/RULES.md`, then update each path in it that pointed at a sibling rule
+  (`x.md` becomes `rules/x.md`). Change nothing else.
+- For an approved `paths:` line gap, add one line per `paths:` rule to
+  `AGENTS.md`, using the wording in `../project-init/references/thin-agents-md.md`.
 - For an approved Salesforce dependency graph gap, install the whole kit from
   `../../library/guides/salesforce-dependency-graph.md`: the `tools/kb/`
   folder, the gitignore entries, the rule, and the freshness Stop hook. Never

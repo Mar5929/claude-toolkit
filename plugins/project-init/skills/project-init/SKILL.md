@@ -164,11 +164,23 @@ offer a substitute store.
 
 **Salesforce project rules library.** When the stack is Salesforce, after the
 `.claude/rules/` folder is scaffolded, offer to copy in the reusable Salesforce
-rules from `../../library/rules/salesforce/` (each is a standalone `.claude/rules/`
-file, e.g. the deploy hitch-hiker check). See that folder's `README.md` for the
-current list. They are opt-in and confirmed with the owner; skip the ones a
-given project does not want. Make sure the project's AGENTS.md points at
-`.claude/rules/` (Gate 5) so these files are read each session.
+rules from `../../library/rules/salesforce/`. See that folder's `README.md` for the
+current list, each rule's load mode, and the skill each rule opens. They are
+opt-in and confirmed with the owner; skip the ones a given project does not
+want. Make sure the project's AGENTS.md points at `.claude/rules/` (Gate 5) so
+these files are read each session.
+
+**Project skills.** For each accepted rule that opens a skill, install that
+skill from `../../library/skills/salesforce/<name>/` twice:
+
+- to `.claude/skills/<name>/` for Claude Code;
+- to `.agents/skills/<name>/` for Codex.
+
+Copy the whole skill folder each time. The two copies must be byte-identical.
+Never use a symlink: Git on Windows checks symlinks out as plain files. Claude
+Code never reads `.agents/skills/`, and Codex never reads `.claude/skills/`.
+Library skills carry only `name` and `description` frontmatter, which both
+hosts read. Do not add host-specific frontmatter to an installed copy.
 
 **Salesforce dependency graph.** Offer the kit in
 `../../library/guides/salesforce-dependency-graph.md` whenever the stack is Salesforce,
@@ -401,7 +413,13 @@ AGENTS.md stays thin and points at that folder. Read
   non-technical). Every new project gets these unless the owner explicitly opts
   that project out.
 - **Salesforce projects:** the `library/rules/salesforce/` files the owner chose in Gate
-  1 also live in `.claude/rules/`; make sure they are there.
+  1 also live in `.claude/rules/`; make sure they are there, with their skills
+  in both `.claude/skills/` and `.agents/skills/`.
+- **One `AGENTS.md` line per `paths:` rule.** Codex has no `paths:` scoping and
+  reads `.claude/rules/` only through the `Read .claude/rules` line. For each
+  copied rule with `paths:` frontmatter, add one line to `AGENTS.md` naming the
+  path pattern and the rule file. `references/thin-agents-md.md` has the
+  wording.
 - **Conditional general rules** only go in when the project has the thing they
   govern. `library/rules/general/README.md` marks them. Today that is
   `dependency-graph.md`, which goes in when the graphify code graph was accepted
@@ -461,8 +479,10 @@ AGENTS.md stays thin and points at that folder. Read
   Codex expands no imports and would receive it as literal text. Never create
   `AGENTS.override.md`, `AGENTS.local.md`, or an instruction file under
   `.agents/`.
-- **Add a `.claude/rules/README.md`** that indexes what each copied rule file
-  does, so the folder is self-describing.
+- **Add a `.claude/RULES.md`** that indexes what each copied rule file does.
+  Never put the index inside `.claude/rules/`: Claude Code loads every `.md`
+  file in that folder as a rule, so an index there costs words in every
+  session.
 - **Install and select the toolkit's `Plain English` output style** (default ON).
   Copy `library/output-styles/plain-english.md` to
   `.claude/output-styles/plain-english.md` and set `"outputStyle": "Plain English"`
@@ -613,6 +633,10 @@ library.
 - `../../library/rules/salesforce/`: a growing set of reusable `.claude/rules/`
   files for Salesforce projects (with its own `README.md` index). Offer these in
   Gate 1 after `.claude/rules/` is scaffolded, when the stack is Salesforce.
+- `../../library/skills/salesforce/`: the skills the Salesforce rules open
+  (`sf-component-tracker`, `sf-deploy-check`, `sf-data-change`). Install each
+  one to both `.claude/skills/<name>/` and `.agents/skills/<name>/` in Gate 1,
+  with the rule that opens it.
 - `../../library/tools/permsets.py`: the tool the permission set rule depends on
   (fetch, verify, check, tidy, preflight). Copy to `tools/permissions/` in the
   project. The rule without the tool is advice with no enforcement.

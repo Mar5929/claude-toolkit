@@ -25,6 +25,12 @@ confirmation when that org is production.
   it cannot be undone.
 - **Fast path:** commands that do not run a guarded verb exit immediately with
   no subprocess, so normal shell calls are not slowed.
+- **Does not check:** `sf project deploy validate`, `sf data create`, `update`,
+  `import`, or `upsert`, or any action other than `org delete` against an org
+  that classifies as a sandbox or scratch org. The `salesforce-safety-guardrails.md` rule still
+  forbids the production cases; the agent follows it without the hook.
+- **Applies to subagents:** a PreToolUse hook runs for every tool call in the
+  session, so starting a subagent does not get around it.
 
 ## Files (both ship ready to copy)
 
@@ -81,6 +87,24 @@ authenticated yet, it confirms to be safe (`unknownOrgAction`).
 | `confirmOrgDeleteAlways` | `true` makes any `org delete` confirm even for scratch/sandbox, since it is irreversible. |
 | `alwaysProtect` | Org aliases or usernames to always confirm, even if detected as sandbox or scratch. |
 | `neverProtect` | Org aliases or usernames to never confirm. Escape hatch for a known throwaway org. Wins over every other rule. |
+
+## Match the rule to the hook
+
+The `salesforce-safety-guardrails.md` rule has an Enforcement paragraph that
+describes this hook. Keep it true for the project:
+
+- Never let a project rule claim more enforcement than the installed hook
+  gives. If a rule names a guard hook (or a file such as `sf_guard.py`) as
+  enforcing it, check that the hook exists and does what the rule says,
+  including whether it blocks or only asks on production.
+- If the project's rule says an agent may never deploy to production, set
+  `"action": "deny"`. Then the hook blocks instead of asking.
+- To stop confirmations for a known throwaway org, add both its username and
+  its CLI alias, lowercased, to `neverProtect`, then re-run the check under
+  "Verify it fires". Never add a production username or alias.
+- If a command the agent needs is blocked, the agent must not rewrite it to get
+  past the hook. A data change or production action goes to the owner. A rule
+  the owner thinks is wrong is changed by the owner, not by weakening the hook.
 
 ## Verify it fires
 

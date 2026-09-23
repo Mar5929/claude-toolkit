@@ -127,7 +127,17 @@ runs every production deploy.
    ```
    It retrieves the target org's current copy, compares grant by grant, and lists
    everything the deploy would remove or weaken. It blocks when anything would be
-   lost. If every loss is intended, re-run with `--accept-removals`.
+   lost. If every loss is intended, re-run with `--accept-removals`, which
+   records that decision.
+
+   A preflight receipt expires after 30 minutes, because the org drifts. A
+   preflight run before a long review does not cover the deploy after it.
+   Re-run it.
+
+   The deploy guard reads the whole command string. It also fires when a deploy
+   command appears as quoted text inside another command, such as a commit
+   message. Put that text in a file and pass the file by path. Never edit or
+   disable the hook to get past a block.
 
 2. **Confirm the API version pair.** The deploy prints a line like
    `Deploying v<N> metadata with SOAP API v<N> connection`. Both must match

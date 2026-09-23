@@ -123,7 +123,12 @@ the repository root would disappear the moment the plugin is installed.
   purpose. Retired v1 examples are not part of this active library.
 - `library/rules/salesforce/` (with its own `README.md`): the same idea for
   Salesforce projects, including compatibility for existing `engagement/`
-  delivery roots.
+  delivery roots. Each rule is short; its procedure is in a skill.
+- `library/skills/salesforce/`: the skills the Salesforce rules open
+  (`sf-component-tracker`, `sf-deploy-check`, `sf-data-change`). Setup and sync
+  install each one twice, to `.claude/skills/<name>/` for Claude Code and
+  `.agents/skills/<name>/` for Codex, as byte-identical copies.
+  `tests/skill-copy-check.mjs` fails when the two copies differ.
 - `library/tools/permsets.py`: the permission set tool the
   `permissions-source-control.md` rule depends on. Copied to
   `tools/permissions/` in the project.
