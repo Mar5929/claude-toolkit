@@ -135,6 +135,7 @@ claude-toolkit/
       tools/
         build-knowledge-index.mjs  ← rebuilds the memory and spec indexes
         check-knowledge.mjs        ← read-only: bad fields, broken links, secrets
+        knowledge-pre-commit.sh    ← Git hook: runs the checker on staged knowledge
         frontmatter.mjs            ← the one YAML reader both tools use
       skills/
         knowledge-setup/          ← install, migrate and verify complete project setup

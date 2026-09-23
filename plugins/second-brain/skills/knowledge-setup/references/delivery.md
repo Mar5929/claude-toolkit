@@ -31,6 +31,7 @@ The second-brain plugin supplies knowledge; project-init owns Toolkit orientatio
    check-knowledge and inspect-knowledge-save. Copy its hooks with imports together.
    Install the coordinated startup, prompt and bounded completion routes described
    below. Keep one registration for each responsibility, preserving unrelated hooks.
+   Install the Git pre-commit hook as described under "Commit-time check" below.
 6. Rebuild the three indexes from source files. External topic README files require
    their own capture metadata; do not rewrite captured pages. Check the whole
    equipped project and inspect actual read-back, links and generated indexes.
@@ -62,6 +63,38 @@ Inspect effective native-memory behavior on each host. Name any competing store
 and its effect on source/approval/sharing. Preserve user settings and content;
 no silent disable, import, deletion or account/authentication changes. Resolve
 actual conflicting policy before calling that surface fully equipped.
+
+## Commit-time check
+
+`tools/knowledge-pre-commit.sh` is a Git pre-commit hook. When a commit's
+staged paths touch `knowledge/`, `SOUL.md` or `ai-external-knowledge/`, it
+copies the staged files to a private temporary folder and runs the checker
+there. Unstaged edits in the working folder, including another session's, do
+not affect the result. A change to `.claude/tools/` also runs it. Any other
+commit, or a branch with no `knowledge/` folder, exits at once. A failing
+check, a missing checker or missing Node.js refuses the commit with a message.
+It needs a POSIX `sh`; Git for Windows supplies one, but Windows is untested.
+
+Git never commits hooks, so each clone needs its own install. Linked worktrees
+share the clone's hooks folder. Install it this way:
+
+1. Find the target with `git rev-parse --git-path hooks/pre-commit`. That
+   path follows `core.hooksPath` and linked worktrees.
+2. If `core.hooksPath` is set, or a pre-commit file exists there without the
+   line `# claude-toolkit:knowledge-pre-commit`, change nothing. Report it
+   and ask the owner how to combine the hooks. Never overwrite another hook.
+3. Otherwise copy the plugin file to the target, replacing an older copy
+   that carries the marker, and make it executable (`chmod 755`).
+4. Verify: the target matches the plugin file byte for byte and is
+   executable. Record the result in the sync record.
+
+Git does not run pre-commit for a merge that finishes without conflicts, so
+after such a merge rebuild the indexes and run the checker by hand.
+
+The shipped permission rules deny `git commit --no-verify` and `git commit -n`
+in Claude Code, written the usual way. They miss other spellings, such as
+`git commit -nm` or `git -C <folder> commit --no-verify`. Codex has no such
+rule; its agents follow the manual.
 
 ## Verification report
 

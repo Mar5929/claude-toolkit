@@ -42,6 +42,12 @@ reports:
 A check proves the step happened. It does not prove the step was done well or
 approved. Codex follows the same steps without the checks.
 
+Commit-time check. When the clone has the knowledge pre-commit hook, a commit
+that changes `knowledge/`, `SOUL.md` or `ai-external-knowledge/` runs the
+checker on the staged files, in every host and terminal. A refused commit names
+the files to fix. Fix them, stage them, and commit again. Never skip the check
+with `--no-verify`.
+
 ## 2. Choose the record that owns the information
 
 Decide what the information is and where it applies. Where you heard it does
