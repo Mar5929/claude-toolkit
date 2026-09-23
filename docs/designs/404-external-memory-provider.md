@@ -323,4 +323,6 @@ recommended. See the issue.
 startup. No such check exists today in `files` mode either.
 
 **Resume point:** Merged in PR #408 (`8584c22`) on 2026-09-23. Next: Mike's
-acceptance, then stage 14 (update the knowledge-system PRD, delete this file).
+acceptance, then update the knowledge-system PRD if it needs it. Keep this
+file: decision D21 (2026-09-21) says no design is deleted until Mike agrees
+where still-useful reasoning is kept.
