@@ -302,7 +302,8 @@ Typical checks:
 - **Commit-time knowledge check** (projects with knowledge installed): is the
   second-brain plugin's `tools/knowledge-pre-commit.sh` this clone's
   pre-commit hook? Read the file at `git rev-parse --git-path hooks/pre-commit`.
-  Report **missing** when there is none, **outdated** when it carries the line
+  Report **missing** when there is none or it is not executable (Git skips a
+  hook it cannot run), **outdated** when it carries the line
   `# claude-toolkit:knowledge-pre-commit` but differs from the plugin file, and
   a **conflict** when another pre-commit hook or `core.hooksPath` is in place.
   Git never commits hooks, so a clone made after setup has none.

@@ -90,6 +90,15 @@ test('a commit that does not touch knowledge is not checked', () => {
   assert.doesNotMatch(result.stdout + result.stderr, /ALL PASS|Knowledge check/);
 });
 
+test('a branch with no knowledge folder is not refused', () => {
+  const root = fixture('no-knowledge');
+  git(root, 'rm', '-r', '-q', 'knowledge', '.claude');
+  write(root, 'SOUL.md', '# Fixture role\n\nChanged without knowledge.\n');
+  git(root, 'add', 'SOUL.md');
+  const result = commit(root, 'No knowledge here');
+  assert.equal(result.status, 0, result.stderr);
+});
+
 test('a staged badly formatted knowledge file is refused and named', () => {
   const root = fixture('bad');
   write(root, 'knowledge/memory/memory-entries/broken.md', '# Broken\n\nNo frontmatter.\n');

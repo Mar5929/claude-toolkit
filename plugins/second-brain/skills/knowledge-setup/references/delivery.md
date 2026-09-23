@@ -70,9 +70,10 @@ actual conflicting policy before calling that surface fully equipped.
 staged paths touch `knowledge/`, `SOUL.md` or `ai-external-knowledge/`, it
 copies the staged files to a private temporary folder and runs the checker
 there. Unstaged edits in the working folder, including another session's, do
-not affect the result. Any other commit exits at once. A failing check, a
-missing checker or missing Node.js refuses the commit with a message. It needs
-a POSIX `sh`; Git for Windows supplies one, but Windows is untested.
+not affect the result. A change to `.claude/tools/` also runs it. Any other
+commit, or a branch with no `knowledge/` folder, exits at once. A failing
+check, a missing checker or missing Node.js refuses the commit with a message.
+It needs a POSIX `sh`; Git for Windows supplies one, but Windows is untested.
 
 Git never commits hooks, so each clone needs its own install. Linked worktrees
 share the clone's hooks folder. Install it this way:
@@ -87,8 +88,13 @@ share the clone's hooks folder. Install it this way:
 4. Verify: the target matches the plugin file byte for byte and is
    executable. Record the result in the sync record.
 
+Git does not run pre-commit for a merge that finishes without conflicts, so
+after such a merge rebuild the indexes and run the checker by hand.
+
 The shipped permission rules deny `git commit --no-verify` and `git commit -n`
-in Claude Code. Codex has no such rule; its agents follow the manual.
+in Claude Code, written the usual way. They miss other spellings, such as
+`git commit -nm` or `git -C <folder> commit --no-verify`. Codex has no such
+rule; its agents follow the manual.
 
 ## Verification report
 

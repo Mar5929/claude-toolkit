@@ -13,7 +13,7 @@
 
 # Only commits that change a file the checker reads.
 if ! git diff --cached --name-only --no-renames -z | tr '\000' '\n' \
-  | grep -qE '^(knowledge/|ai-external-knowledge/|SOUL\.md$)'; then
+  | grep -E '^(knowledge/|ai-external-knowledge/|SOUL\.md$|\.claude/tools/)' >/dev/null; then
   exit 0
 fi
 
@@ -29,6 +29,9 @@ trap 'exit 1' HUP INT TERM
 
 # A private copy of exactly what this commit will contain.
 git checkout-index -a --prefix="$tmp/" || exit 1
+
+# A branch without project knowledge has nothing to check.
+[ -d "$tmp/knowledge" ] || exit 0
 
 checker="$tmp/.claude/tools/check-knowledge.mjs"
 if [ ! -f "$checker" ]; then
