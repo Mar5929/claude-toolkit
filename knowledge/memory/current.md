@@ -8,17 +8,17 @@ then prove and accept the whole Toolkit Operating System.
 ## Active work
 
 ### Forced protocols with function hooks — #396
-Updated: 2026-09-22
+Updated: 2026-09-23
 
 **Goal** Enforce required steps with function-hook fact checks without limiting reasoning.
 
-**Current status** Requirements approved. Stage 04-solution-design, In progress. The design must be revised to fact checks only and now includes the remaining #383 instruction changes and #358 behavioral case.
+**Current status** Design approved. Step 4 (startup cut, #383 items) merged in PR #401 (`e1872af`). Step 5 build running. Mike authorized building and merging all steps overnight.
 
-**Next step** Revise the design in draft PR #397 using the approved startup, Salesforce and Codex plans, including T11's remaining PR #398 non-style proposal at `665d9ed`; then seek design approval and start the build.
+**Next step** Steps 5 and 6 (protocol-guard), then step 7 (DragonFly sync and rules); report to Mike.
 
-**Blocker** None from #391; its build shipped. #396 build still needs design approval.
+**Blocker** None.
 
-**Detailed record** [#396](https://github.com/Mar5929/claude-toolkit/issues/396), [draft PR #397](https://github.com/Mar5929/claude-toolkit/pull/397).
+**Detailed record** [#396](https://github.com/Mar5929/claude-toolkit/issues/396).
 
 ### Output style delivery — #391
 Updated: 2026-09-22
