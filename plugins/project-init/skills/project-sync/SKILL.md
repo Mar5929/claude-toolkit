@@ -146,8 +146,8 @@ automatically as it grows.
     folder: an `AGENTS.md` holding the folder content and a `CLAUDE.md` beside
     it holding the single line `@AGENTS.md`, per
     `../project-init/references/folder-agents-md.md`. Read that file so step 2
-    can tell a missing one from a folder the toolkit deliberately skips (any
-    folder with a `README.md` index, and everything under `.claude/`)
+    can tell a missing one from a folder the toolkit deliberately skips (the
+    five kinds in that file's "Which folders are skipped")
   - each conversation skill and helper agent offered by the setup flow, which
     ship in the `session-skills` plugin
   - anything newer listed in the toolkit README under "What's here now"
@@ -582,10 +582,13 @@ the file and report:
   it.
 - **Toolkit operating-manual route.** Confirm
   `knowledge/toolkit-manual.md` exists and `AGENTS.md` carries the exact
-  complete-read fallback from `thin-agents-md.md`. Audit the packaged template,
-  installed project-init-owned hook, and each host registration separately by
-  following `../project-init/references/toolkit-manual-delivery.md`. This route
-  applies even when project knowledge and System Guide are disabled.
+  three-read Startup section from `thin-agents-md.md`. Report an older
+  complete-read route or acknowledgment request as stale. Audit the packaged
+  template, installed project-init-owned hook, and each host registration
+  separately by following `../project-init/references/toolkit-manual-delivery.md`.
+  Report a `toolkit-session-start` entry under `UserPromptSubmit` for removal:
+  the hook now runs at SessionStart only. This route applies even when project
+  knowledge and System Guide are disabled.
 - **Lines an agent never needed.** For each line ask whether removing it would
   make an agent get something wrong. Flag every line where the answer is no,
   starting with: what a session could find in one command (a folder is
@@ -604,15 +607,13 @@ the file and report:
 - **Live state that belongs in the tracker.** Current phase, next action, and
   open TODOs drift the moment they are written here.
 - **Project-knowledge startup parity.** When the current layout is installed,
-  confirm both hosts register the same loader and that it emits bounded
-  instructions to read completely, in order,
-  `SOUL.md`, `knowledge/project.md`, `knowledge/knowledge-manual.md`,
-  `knowledge/memory/current.md`, and the indexes; check relevant inbox entries. Confirm it emits no file bodies,
-  requests no other memory, and fails open when a file is absent. Verify that a
-  shortened read continues from the first missing section. A configured output
-  threshold is a spill limit, not evidence of host capacity or a complete
-  read. `AGENTS.md` carries only the short fallback, and `CLAUDE.md` stays the
-  one-line import that brings it in. Any copied policy is stale duplication.
+  confirm both hosts register the same loader and that it asks for three
+  reads: `SOUL.md`, `knowledge/project.md`, and `knowledge/memory/current.md`,
+  plus a check of `knowledge/memory-inbox.md`. Confirm it emits no file bodies,
+  asks for no manual read and no acknowledgment, and fails open when a file is
+  absent. `AGENTS.md` carries only the Startup section, and `CLAUDE.md` stays
+  the one-line import that brings it in. Any copied policy is stale
+  duplication.
 - **Stale content.** Anything the code, paths, or decisions have since
   contradicted.
 
@@ -643,9 +644,10 @@ folders and report each one as:
   rewrite. The wording stays the owner's.
 - **Missing.** A major folder the toolkit recognizes, with no instruction file
   at all and no `README.md` index. This is a gap.
-- **Skipped by design.** A folder with a `README.md` index, or anything under
-  `.claude/`, the complete `knowledge/` tree, or a folder another plugin creates
-  and indexes. Not a gap. Say so rather than leaving it off the list, so it does
+- **Skipped by design.** One of the five kinds in `folder-agents-md.md`: a
+  folder with a `README.md` index, anything under `.claude/`, the complete
+  `knowledge/` tree, a folder another plugin creates and indexes, or a folder
+  with an obvious name and no conventions to state. Not a gap. Say so rather than leaving it off the list, so it does
   not get raised again next run.
 - **Not recognized.** A folder the toolkit did not create and whose purpose you
   cannot tell from the repository. Do not propose a file for it and do not guess
@@ -697,11 +699,14 @@ should look in THIS project, confirm, act, summarize. Ground rules:
 - **For an approved Toolkit operating-manual gap,** follow
   `../project-init/references/toolkit-manual-delivery.md`. Reconcile
   `library/templates/toolkit-manual.md` into `knowledge/toolkit-manual.md`,
-  install the project-init-owned hook and supported host registrations, and add
-  the exact root fallback. Preserve deliberate local meaning. Apply updates
-  already covered by this sync; ask only when meaning or scope is unresolved or
-  local changes conflict. Verify copied content, direct hook output, host
-  configuration, and complete-read behavior as separate facts.
+  install the project-init-owned hook and supported host registrations, and
+  write the three-read Startup section. Remove the old `toolkit-session-start`
+  entry under `UserPromptSubmit` in `.claude/settings.json` and
+  `.codex/hooks.json`, leaving every other hook entry alone. Preserve
+  deliberate local meaning. Apply updates already covered by this sync; ask
+  only when meaning or scope is unresolved or local changes conflict. Verify
+  copied content, direct hook output, and host configuration as separate
+  facts.
 - **For the retired voice rules, propose the swap, never a bare deletion.** A
   project on the old setup has working guidance; removing it before the style
   is in leaves the project with neither. Install and verify `Plain English` first,
@@ -790,8 +795,9 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   topic layout or copy old templates over owner records. Already-approved
   conversions retain source and approval and are shown afterwards; ambiguous
   conversions remain unchanged. Preserve current-work Session handoffs.
-  Deliver SOUL -> project -> complete Knowledge manual, current/inbox and the
-  three indexes; install its four procedures, templates, copied tools/hooks and
+  Deliver the three startup reads (SOUL, project, current memory) and the inbox
+  check, with the Knowledge manual and indexes as reference; install its four
+  procedures, templates, copied tools/hooks and
   exact managed manual/checksum together. Inspect native-memory conflicts rather
   than silently disabling/importing/deleting existing data. A plugin refresh is
   not project activation. Run file checks and actual fresh/recovered host proofs,

@@ -309,12 +309,12 @@ source evidence separate from owner-approved meaning, normally under
   plugin policy.
 - Register `.claude/hooks/knowledge-session-start.mjs` as a fail-open Claude
   `SessionStart` hook. Add the equivalent fail-open `.codex/hooks.json` route
-  and put the short fallback in `AGENTS.md`; `CLAUDE.md` remains the one-line
-  import of `AGENTS.md`. The hook emits bounded instructions to read `SOUL.md`,
-  project framing, the complete manual, current work, and the indexes
-  completely and in that order. Continue shortened reads from the first missing
-  section. A configured output threshold is a spill limit, not proof of host
-  capacity or a complete read. The root files copy none of the policy.
+  and put the Startup section from `references/thin-agents-md.md` in
+  `AGENTS.md`; `CLAUDE.md` remains the one-line import of `AGENTS.md`. The
+  hook asks for three reads: `SOUL.md`, `knowledge/project.md`, and
+  `knowledge/memory/current.md`, plus a check of `knowledge/memory-inbox.md`.
+  The manuals are reference, not startup reads, and the hook asks for no
+  acknowledgment. The root files copy none of the policy.
 - After installation, offer to invoke `knowledge-save` for any initial candidates. It
   follows the manual and writes only approved meaning.
 - A new project starts with no memories. Never inherit another project's
@@ -369,7 +369,8 @@ goes in.
 Install the Toolkit operating manual in every equipped project. Read
 `references/toolkit-manual-delivery.md`, copy
 `../../library/templates/toolkit-manual.md` to `knowledge/toolkit-manual.md`,
-and add its short complete-read route to `AGENTS.md`. This manual is independent
+and write the three-read Startup section from `references/thin-agents-md.md`
+into `AGENTS.md`. The manual is reference, not a startup read. It is independent
 of the optional project-knowledge system. Root instructions supply the
 project's actual paths, tracker, and enabled-component pointers.
 

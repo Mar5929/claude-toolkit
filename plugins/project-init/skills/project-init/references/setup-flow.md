@@ -90,7 +90,10 @@ separate prep, interview, or continuation files for that workflow.
   store.
 - Salesforce / SFDX: after `.claude/rules/` is scaffolded, offer the reusable
   Salesforce rules from `library/rules/salesforce/` (see its `README.md`); copy the ones
-  the owner wants into the project's `.claude/rules/`.
+  the owner wants into the project's `.claude/rules/`. Install each skill an
+  accepted rule opens from `library/skills/salesforce/<name>/` twice, as
+  byte-identical copies: to `.claude/skills/<name>/` for Claude Code and to
+  `.agents/skills/<name>/` for Codex.
 - Salesforce / SFDX: if the owner wants permission sets tracked in git, install
   the whole permission set kit. It has four parts and the rule is useless without
   the rest, because the danger it guards against is invisible to Salesforce's own
@@ -274,7 +277,8 @@ separate prep, interview, or continuation files for that workflow.
   files into `.claude/rules/`. Never copy a rule the index records as retired or
   recreate the current knowledge procedure from this library; its plugin owns it.
 - Salesforce projects: make sure the `library/rules/salesforce/` files chosen in Gate 1
-  are in `.claude/rules/` too.
+  are in `.claude/rules/` too, and their skills are in both `.claude/skills/`
+  and `.agents/skills/`.
 - MCP tool rules from `library/guides/mcp-best-practices.md` are conditional: fold in a server's
   section only if the project uses that MCP server.
 - Write a thin AGENTS.md _with_ the user: what it is, codemap and structural

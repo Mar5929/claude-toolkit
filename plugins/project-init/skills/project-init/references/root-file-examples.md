@@ -36,6 +36,10 @@ Claude Code loads these when a matching file is read. Codex: open the rule
 before working on a matching path.
 
 - `knowledge/**`, `docs/**`, `**/README.md`: `.claude/rules/knowledge-direct-commit.md`
+- `force-app/**/permissionsets/**`, `force-app/**/permissionsetgroups/**`, `force-app/**/profiles/**`: `.claude/rules/permissions-source-control.md`
+- `force-app/**`, `tools/kb/**`: `.claude/rules/dependency-graph.md`
+- `delivery/deployment/**`, `engagement/deployment/**`: `.claude/rules/deployment-runbook.md`
+- `delivery/data/**`, `engagement/data/**`: `.claude/rules/production-data.md`
 
 When .system-guide.json is enabled, use the System Guide plugin's system-guide skill for questions or work about existing system structure, purpose, connections, or impact.
 

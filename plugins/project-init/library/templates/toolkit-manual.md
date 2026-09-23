@@ -37,6 +37,7 @@ Toolkit project. AGENTS.md names the tracker and the codemap.
   when project knowledge is installed.
 - Read the rules in `.claude/rules/`. Claude Code loads them. Codex reads them
   through the `AGENTS.md` pointer.
+- Check `knowledge/memory-inbox.md` for unfinished saves when it exists.
 - Do not read the manuals at startup. Skills open the sections they need.
 - After resume, clear, or compaction, read the three files again.
 
@@ -139,8 +140,10 @@ Each step names the skill that owns it.
 ## Keep the project equipped
 
 - Owners: the `project-init` and `project-sync` skills.
-- Setup and sync install selected components, root instructions, rules, and
-  this manual.
+- Setup and sync install selected components, root instructions, rules,
+  project skills, and this manual. Each project skill is copied twice:
+  `.claude/skills/<name>/` for Claude Code and `.agents/skills/<name>/` for
+  Codex. The copies stay byte-identical.
 - A published toolkit release only makes an update available. Each project
   still needs `/project-sync`.
 - Authorized documentation uses the documentation publication route. Rules,
