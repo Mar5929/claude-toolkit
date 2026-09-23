@@ -1,6 +1,6 @@
 ---
 name: knowledge-review
-description: Review project knowledge for duplicates, contradictions, obsolete content and useful selection feedback. Use for a requested sweep or a specific record that may need updating or removal.
+description: Use when the owner asks to review or clean up project knowledge, when a record may be duplicated, contradicted, or out of date, or when memory selection feedback needs merging. Finds the problems and sends every change through knowledge-save.
 ---
 
 # Review project knowledge
@@ -12,8 +12,9 @@ mutations. Until then preserve candidates and continuation in the existing
 conversation/current-work route; do not create a new inbox or move files as an
 incidental save. A newer plugin cache alone does not authorize migration.
 
-Restore the current core manual if it is missing or changed. Read the relevant
-project output style and `knowledge-save` before proposing a change.
+Read the project's output style and `knowledge-save` before proposing a
+change. Open `knowledge/knowledge-manual.md` sections 2 and 3 when a record's
+owner or memory eligibility is in question.
 
 Establish the requested scope. For a folder-wide review, use the indexes and
 open the actual records; a targeted review need not sweep unrelated topics.
@@ -38,7 +39,9 @@ Combine repeated, supported feedback into concise lessons; retain stated reasons
 and source dates, or say no reason was given. Do not infer a general preference
 from silence or one unexplained rejection. Keep project lessons local and name
 any conflict with the manual. Feedback upkeep grants no memory permission and
-has no arbitrary character cap. Do not make it an activity log.
+has no arbitrary character cap. Do not make it an activity log. A proposed
+toolkit improvement follows the toolkit change process; local feedback does not
+change other projects or shared instructions.
 
 Explicit review requests receive findings or a clear no-change answer. Routine
 reviews with nothing useful stay quiet. Preserve unanswered cards exactly in the

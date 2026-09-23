@@ -33,12 +33,16 @@ before creating anything.
 │   ├── meeting-notes/             # one file per call or working session
 │   ├── references/                # source specs, org exports, client docs
 │   └── data/
-│       └── backups/               # point-in-time data exports
-└── .claude/
-    ├── settings.json
-    ├── rules/                     # project rules (fill via later gates)
-    ├── hooks/                     # project hooks (fill via later gates)
-    └── agents/                    # project subagents (fill via later gates)
+│       ├── production-backups/    # restore points taken before a data change
+│       └── data-loads/            # files loaded to an org
+├── .claude/
+│   ├── settings.json
+│   ├── rules/                     # project rules (fill via later gates)
+│   ├── hooks/                     # project hooks (fill via later gates)
+│   ├── skills/                    # project skills for Claude Code
+│   └── agents/                    # project subagents (fill via later gates)
+└── .agents/
+    └── skills/                    # the same project skills for Codex, byte-identical
 ```
 
 ## What each part is for
@@ -64,7 +68,8 @@ that helps future agents work correctly belongs in `knowledge/`.
 | `meeting-notes/` | One file per call or working session |
 | `references/` | Source specs, org exports, and client-supplied documents (read-only inputs). Public documentation captured for agents goes in root `ai-external-knowledge/` instead |
 | `data/` | Object and field mapping, transformation rules, load files |
-| `data/backups/` | Point-in-time data exports from the org(s) |
+| `data/production-backups/` | Restore-point exports taken before a live data change, one dated subfolder each with a `README.md`. Layout: the `sf-data-change` skill |
+| `data/data-loads/` | Files loaded to an org by Data Loader or Bulk API, one dated subfolder each with a `README.md` |
 
 `grill-me` saves discovery in the flat `brainstorms/` collection. It does
 not save interviews under `project-overview/` or copy them into a system area.
@@ -88,6 +93,11 @@ with `rules/`, `hooks/`, and `settings.json`. Gate 2 adds approved guards. Gate
 owner selects project knowledge. It does not restore the retired verifier,
 large rule, or per-folder indexes.
 
+**`.claude/skills/` and `.agents/skills/`**: the skills that accepted
+Salesforce rules open, from `library/skills/salesforce/`. Each skill is
+installed to both folders as byte-identical copies: Claude Code reads only
+`.claude/skills/`, and Codex reads only `.agents/skills/`. No symlinks.
+
 ## Config defaults
 
 - `sourceApiVersion`: the current Salesforce API version (update per release).
@@ -105,9 +115,11 @@ large rule, or per-folder indexes.
   local work tracking, `work init` also adds `/.work-items/` and creates the
   flat tracker at the repository root.
 - `.forceignore` should exclude `package.xml`, LWC config files, and Jest tests.
-- Data backups can hold real production data (personal data, secrets in note
-  fields). Do not commit sensitive exports to a shared or public remote. If the
-  repo gets such a remote, add `delivery/data/backups/*` to `.gitignore`.
+- Backup and load files hold real production data (record IDs, personal data,
+  secrets in note fields). Give `data/production-backups/` and
+  `data/data-loads/` each a `.gitignore` that ignores `*.csv`, `*.xlsx`, and
+  `*.xls`, and a committed `README.md`. The `sf-data-change` skill has the exact
+  file contents.
 
 ## Variants
 

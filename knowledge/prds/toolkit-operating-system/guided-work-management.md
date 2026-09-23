@@ -7,7 +7,7 @@ source: Mike's guided-work-management and opt-in clarification on 2026-09-15; ro
 created_at: 2026-09-15
 tags: [delivery, planning, requirements, continuity]
 work_item: "337"
-updated_at: 2026-09-21
+updated_at: 2026-09-23
 ---
 
 # Guided work management
@@ -196,8 +196,10 @@ current status, blockers, open decisions, approval boundaries, and next steps.
 The detail stays appropriate to the work and changes when the agreed plan changes.
 For PRD or solution-design refinement, update the actual document and keep its
 discussion, decisions with approval state, remaining tasks, and resume point in
-bottom Notes. The work item links there and retains overall status, approvals,
-and other work. Do not duplicate document detail in task or interview records.
+bottom Notes. Build ideas kept for later go under a "Potential paths to
+explore" heading inside those bottom Notes (Mike Rihm, 2026-09-21, decision
+D18). The work item links there and retains overall status, approvals, and
+other work. Do not duplicate document detail in task or interview records.
 
 Work items can contain child work items at multiple levels, including an epic
 or feature containing smaller deliverables. Each work item, including a child,
@@ -354,6 +356,11 @@ requirement and a design decision during discussion: verify each is captured
 in its authoritative home and saved/published before the topic changes, with
 any failed save identified accurately.
 
+An agent does not mark requirements approved, or record an approver, while the
+goal still says "Not agreed yet". It writes the goal the owner agreed first.
+The work skill's instruction carries this; no code check is added (Mike Rihm,
+2026-09-21, decision D15).
+
 ## Potential solution design notes
 
 These are options to explore, not requirements, approved design, or instructions
@@ -374,6 +381,14 @@ to build a particular solution.
   explicitly rather than allowing an older proposal to determine this scope.
 
 ## Notes
+
+- 2026-09-23, work item [#396](https://github.com/Mar5929/claude-toolkit/issues/396):
+  decisions D15 and D18 from Mike's 2026-09-21 Main Orchestrator conversation
+  are recorded in requirement 6 above, and their instruction text shipped in
+  #396 (`work` skill and its `references/lifecycle.md`). The helper-choice question below is recorded as
+  settled. D3 and D17 from the same conversation are still not recorded: no
+  written text of those decisions was found. This records approved decisions;
+  it approves nothing else in this document.
 
 - Implementation authorized by Mike in the handoff-review task on 2026-09-19:
   proceed with the consolidated record for new work items and a reviewed PR.
@@ -403,17 +418,15 @@ to build a particular solution.
   separate task. Requirements 1-3 contain that intent. Full requirements,
   complete design, and delivery evidence remain separate. Mike subsequently
   authorized an Astra lead and Sol helpers to implement the confirmed scope,
-  create a PR, and merge it when done. This authorizes this implementation team;
-  future items' helper-selection behavior remains the open product question.
-- Partly answered by Mike on 2026-09-21, see the Decision below: choosing a
-  team arrangement authorizes bounded helpers for that goal. Still open,
-  answer from Mike: after accepting agent-led delivery for an item, may the
-  lead choose and coordinate scoped research, design, and review helpers, or
-  should Mike approve the helper team each time? This affects R3 and the
-  existing per-item team agreement in [guided delivery](guided-delivery.md#solution-design).
-  Recommendation, not approved: let the lead choose within approved scope,
-  bringing product choices, significant cost tradeoffs, and existing approval
-  boundaries to Mike.
+  create a PR, and merge it when done. This authorizes this implementation team.
+  Helper selection for later items is settled by the Decision below.
+- Answered by Mike on 2026-09-21, see the Decision below. The earlier open
+  question was whether, after accepting agent-led delivery, the lead may choose
+  and coordinate scoped research, design, and review helpers or Mike approves
+  the helper team each time. Choosing a team arrangement authorizes the lead to
+  choose bounded helpers for that goal. Product choices, significant cost
+  tradeoffs, and existing approval boundaries still go to Mike. Recorded as
+  settled on 2026-09-23 in [#396](https://github.com/Mar5929/claude-toolkit/issues/396).
 - Decision: Mike accepted the recommendation on 2026-09-21, recorded as
   requirement 9 of [#377](https://github.com/Mar5929/claude-toolkit/issues/377):
   choosing a team arrangement authorizes bounded helper agents for that goal

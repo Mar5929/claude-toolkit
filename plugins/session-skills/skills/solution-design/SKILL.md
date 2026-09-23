@@ -62,7 +62,8 @@ item.
         wrong reading, the intended reading, and a rewording
   - [ ] Every requirement that does not fit the end-to-end experience is
         flagged with the reason
-  - [ ] Confidence is stated as a percentage and is 95 or above
+  - [ ] The main conversation says plainly that it is ready, and lists
+        anything still unclear
   - [ ] The owner has ruled on every flag, and each ruling is recorded
   - [ ] Gaps were fixed in the requirements through `requirements-helper`,
         not patched in the design
@@ -87,7 +88,7 @@ item.
   - [ ] Settled answers update its text; unfinished discussion is in bottom Notes
   - [ ] The remaining unknowns are technical and belong to research
 - [ ] **The product analyst has checked the requirements**
-  - [ ] Its confidence number is 95 or above
+  - [ ] It says plainly that the requirements are ready
   - [ ] Its missing pieces, unclear wording, and misreading risks are
         reconciled with the main conversation's and taken to the owner
   - [ ] The design preparation section is updated with the result
@@ -133,10 +134,9 @@ and safe for a builder to read. Before asking the owner anything:
      take too literally, read out of context, or read two ways and build the
      wrong thing. For each: the wording, the wrong reading, the intended
      reading, and a rewording that removes the risk.
-- State confidence as a number: how sure you are, as a percentage, that
-  these requirements describe a whole, well-thought-out result in the context
-  of the system it is part of. Below 95 means not ready. Say what would raise
-  it.
+- Say plainly whether these requirements are ready: whether they describe a
+  whole, well-thought-out result in the context of the system it is part of.
+  List whatever is still unclear. Use no score.
 
 When the requirements are not ready, say so in the first reply with the
 missing pieces, the unclear pieces, and the misreading risks, each with a
@@ -200,7 +200,7 @@ The roadmap task links to Notes; do not duplicate the discussion in it.
 
 Start the canonical design using
 [design-document-template.md](references/design-document-template.md).
-Its preparation section holds readiness and confidence checks, the agreed way
+Its preparation section holds the readiness checks, the agreed way
 of working, the team, and constraints. Its opening paragraph holds intent.
 Every helper reads those sections and Notes before starting. This preparation
 can precede solution drafting; it does not claim requirements approval or
@@ -234,12 +234,12 @@ pass its full text with the brief to a native worker.
 ### 4a. Requirements check
 
 Before research, the product analyst reads the requirements, design preparation,
-and Notes and returns its own confidence number, the missing pieces, the places
+and Notes and returns a plain ready or not-ready statement, the missing pieces, the places
 that are not explicit end to end, and the misreading risks. It did not see
 the conversation, so it catches what the main conversation stopped noticing.
 Reconcile its findings with your own, take the open ones to the owner, and
-update the design preparation and Notes. Design waits until both numbers are 95 or above and
-the owner has ruled on every flag.
+update the design preparation and Notes. Design waits until both say the requirements are ready
+and the owner has ruled on every flag.
 
 Any agent that finds, during its own work, that a requirement is missing
 something or cannot mean what it says reports it and stops on that
@@ -259,8 +259,8 @@ official documentation, project evidence, or community claim.
 ### 4c. Design
 
 One technical architect per design option. It reads the design preparation and Notes, the
-requirements, the research reports, and the existing build, states its own
-confidence in the requirements, and refuses to design below 95. Above that it
+requirements, the research reports, and the existing build, says plainly
+whether the requirements are ready, and does not design until they are. Then it
 writes a draft to the agreed path following
 [design-document-template.md](references/design-document-template.md),
 marking each component as reused, changed, or new, and filling the table of

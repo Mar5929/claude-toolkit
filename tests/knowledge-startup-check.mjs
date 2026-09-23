@@ -17,32 +17,34 @@ const failures=[];let checks=0;
 const check=(name,run)=>{try{run();checks++;}catch(e){failures.push(`${name}: ${e.message}`);}};
 const fixture=()=>mkdtempSync(join(tmpdir(),'knowledge-startup-'));
 const write=(root,path,text)=>{mkdirSync(dirname(resolve(root,path)),{recursive:true});writeFileSync(resolve(root,path),text);};
-const order=['SOUL.md','knowledge/project.md','knowledge/knowledge-manual.md','knowledge/memory/current.md','knowledge/memory/memory-index.md','knowledge/prds/prd-index.md'];
+const order=['SOUL.md','knowledge/project.md','knowledge/memory/current.md'];
 check('new startup read order',()=>assert.deepEqual(STARTUP_FILES.map(x=>x.path),order));
-check('bounded read route survives large files without hiding tail content in hook output',()=>{
+check('three startup reads in order; no manual or index read; no acknowledgment; large files stay out of hook output',()=>{
  const f=fixture();try{
-  for(const path of order)write(f,path,path===order[2]?read(manualSource):'FIRST\n'+'body\n'.repeat(20000)+'LAST_SENTINEL');
+  write(f,'knowledge/knowledge-manual.md',read(manualSource));
+  for(const path of order)write(f,path,'FIRST\n'+'body\n'.repeat(20000)+'LAST_SENTINEL');
   const out=loadKnowledge(f);let prev=-1;
-  for(const path of order){const index=out.indexOf(`Read all of \`${path}\``);assert.ok(index>prev,path);prev=index;}
-  assert.ok(out.length<3500);assert.ok(!out.includes('LAST_SENTINEL'));assert.match(out,/additional chunks/);
-  assert.match(out,/checklist is not proof/);assert.match(out,/memory-inbox/);assert.match(out,/terminology-glossary/);assert.match(out,/ai-external-knowledge/);
+  for(const [i,path] of order.entries()){const index=out.indexOf(`${i+1}. \`${path}\``);assert.ok(index>prev,path);prev=index;}
+  assert.ok(out.length<1000);assert.ok(!out.includes('LAST_SENTINEL'));assert.match(out,/more chunks/);
+  assert.match(out,/memory-inbox\.md` for unfinished saves/);assert.match(out,/Do not read the knowledge manual or the indexes now/);
+  assert.doesNotMatch(out,/memory-index|prd-index|completely|confirm|acknowledg/i);
  }finally{rmSync(f,{recursive:true,force:true});}
 });
 check('legacy paths stay discoverable until authorized migration',()=>{
  const f=fixture();try{
   for(const p of ['SOUL.md','knowledge/project.md','knowledge/current.md','knowledge/memory/memory-index.md','knowledge/prds/spec-index.md'])write(f,p,'legacy content');
   write(f,'knowledge/README.md','<!-- claude-toolkit:knowledge-manual -->\nLegacy manual');
-  const out=loadKnowledge(f);assert.match(out,/3\. Read all of `knowledge\/README.md`/);assert.match(out,/legacy/);assert.match(out,/knowledge\/current.md/);
+  const out=loadKnowledge(f);assert.match(out,/3\. `knowledge\/current.md`/);assert.match(out,/legacy/);assert.doesNotMatch(out,/memory-inbox/);
  }finally{rmSync(f,{recursive:true,force:true});}
 });
 check('missing, empty and conflicting required guidance withholds its read claim',()=>{
  const f=fixture();try{
   write(f,'SOUL.md','Soul');write(f,'knowledge/project.md','');
-  assert.match(loadKnowledge(f),/file missing: knowledge\/knowledge-manual.md/);
+  assert.match(loadKnowledge(f),/Knowledge manual missing: knowledge\/knowledge-manual.md/);
   assert.match(loadKnowledge(f),/file empty: knowledge\/project.md/);
   write(f,'knowledge/knowledge-manual.md',read(manualSource));write(f,'knowledge/README.md','<!-- claude-toolkit:knowledge-manual -->\nConflicting meaning');
   const before=readFileSync(resolve(f,'knowledge/README.md'),'utf8');
-  const out=loadKnowledge(f);assert.match(out,/Conflicting marked/);assert.doesNotMatch(out,/Read all of `knowledge\/knowledge-manual.md`/);
+  const out=loadKnowledge(f);assert.match(out,/Conflicting marked/);assert.doesNotMatch(out,/`knowledge\/knowledge-manual.md`/);
   assert.doesNotMatch(buildReminder(f),/Friendly reminder/);assert.equal(readFileSync(resolve(f,'knowledge/README.md'),'utf8'),before);
  }finally{rmSync(f,{recursive:true,force:true});}
 });
@@ -52,7 +54,7 @@ check('copied module bundle runs through aliases and nested cwd',()=>{
   write(f,'knowledge/knowledge-manual.md',read(manualSource));mkdirSync(resolve(f,'packages/nested'),{recursive:true});
   const env={...process.env};delete env.CLAUDE_PROJECT_DIR;delete env.CODEX_PROJECT_DIR;
   const out=execFileSync(process.execPath,[resolve(f,'.claude/hooks/knowledge-session-start.mjs')],{cwd:resolve(f,'packages/nested'),env,encoding:'utf8'});
-  assert.match(out,/3\. Read all of `knowledge\/knowledge-manual.md`/);assert.doesNotMatch(out,/schema:2/);
+  assert.match(out,/3\. `knowledge\/memory\/current.md`|file missing: knowledge\/memory\/current.md/);assert.doesNotMatch(out,/schema:2/);
  }finally{rmSync(f,{recursive:true,force:true});}
 });
 check('manual is one complete current source with exact installed bytes/hash',()=>{
@@ -60,6 +62,23 @@ check('manual is one complete current source with exact installed bytes/hash',()
  assert.equal(s.split('<!-- claude-toolkit:knowledge-manual -->').length,2);
  assert.equal(createHash('sha256').update(s).digest('hex'),MANUAL_SHA256);
  assert.match(s,/knowledge-schema:2/);assert.doesNotMatch(s,/procedure draft|inactive draft/i);
+});
+check('per-message reminder is the short approved text with no acknowledgment request',()=>{
+ const f=fixture();try{
+  write(f,'knowledge/knowledge-manual.md',read(manualSource));
+  const r=buildReminder(f);
+  assert.match(r,/When the owner settles a decision, requirement, or correction, save it in its home before moving on\./);
+  assert.match(r,/Open `knowledge-save` before any memory proposal or save\./);
+  assert.match(r,/Policy: `knowledge\/knowledge-manual.md`\./);
+  assert.doesNotMatch(r,/acknowledg|Say you will|intent/i);
+  assert.ok(r.split(/\s+/).filter(Boolean).length<=60);
+ }finally{rmSync(f,{recursive:true,force:true});}
+});
+check('knowledge skills carry their own steps and no startup-read dependency',()=>{
+ for(const name of ['knowledge-find','knowledge-save','knowledge-review','knowledge-setup']){
+  const s=read(`plugins/second-brain/skills/${name}/SKILL.md`);assert.doesNotMatch(s,/already read at startup|core manual if it is missing|restore the core manual/i,name);
+ }
+ assert.match(read('plugins/second-brain/skills/knowledge-save/SKILL.md'),/publish-docs/);
 });
 check('normal skill discovery exposes four procedures; compatibility commands contain no second writer',()=>{
  for(const name of ['knowledge-find','knowledge-save','knowledge-review','knowledge-setup']){
@@ -96,9 +115,9 @@ check('action guards are registered once on both hosts with stable Codex roots',
   if(p==='.codex/hooks.json')assert.equal(groups.filter(g=>g.hooks.some(h=>files.some(file=>h.command.includes(file)))).length,1);
  }
 });
-check('root AGENTS.md route and its one-line CLAUDE.md import point to the current manual/map',()=>{
- const a=read('AGENTS.md');for(const path of order.slice(0,4))assert.ok(a.includes(path),path);
- assert.ok(a.includes('memory-inbox.md'));assert.ok(a.includes('completely'));
+check('root AGENTS.md startup names the three reads and the inbox; its one-line CLAUDE.md import',()=>{
+ const a=read('AGENTS.md');for(const path of order)assert.ok(a.includes(path),path);
+ assert.ok(a.includes('memory-inbox.md'));assert.ok(!a.includes('completely'));
  const c=read('CLAUDE.md').trim();assert.equal(c.split('\n').length,1);assert.equal(c,'@AGENTS.md');
 });
 check('unconfigured/disabled Guide remains separate and an enabled Guide is not re-created',()=>{

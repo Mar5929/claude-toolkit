@@ -50,9 +50,10 @@ records. Read back saves and distinguish saved, published, and failed updates.
 Recordless or unavailable-tracker cases must not claim cross-session
 persistence or silently create a competing tracker.
 
-This item's explicit Astra/Sol authorization allows its team to proceed. Whether
-future accepted items automatically authorize helper selection remains open in
-the PRD Notes. Preserve existing team and permission boundaries unless the owner
+This item's explicit Astra/Sol authorization allows its team to proceed. For
+later items, Mike decided on 2026-09-21 (#377) that choosing a team arrangement
+authorizes bounded helpers for that goal only; accepting agent-led delivery
+alone authorizes none. Preserve existing team and permission boundaries unless the owner
 has already granted the applicable authority. Helpers cannot approve the work.
 
 ### Delivery sequence and evidence
@@ -244,7 +245,8 @@ files. The approved five sections and separate design stay as specified above.
 The R6 requirement, its September 19 clarification, and the existing plan give
 sufficient direction for the authorized implementation. Technical choices below
 serve the approved behavior; implementation evidence remains to be established.
-R1's separate open helper-selection question does not block this proposal.
+R1's helper-selection question, since settled by the team arrangement choice,
+does not block this proposal.
 
 Project evidence inspected on 2026-09-19 at main `d2be203`:
 
@@ -549,8 +551,9 @@ task's active draft from this worktree.
   is now excluded.
 - Agent-led delivery: the named implementation task completed code, checks,
   PR, and authorized merge; it retains local cleanup/installation reporting.
-  This task owns canonical records. Resume the future helper-authority question
-  from PRD Notes and remaining rollout/verification from issue #337.
+  This task owns canonical records. The helper-authority question is settled
+  (team arrangement choice, #377). Resume remaining rollout/verification from
+  issue #337.
 - Consolidation delivery, 2026-09-19: [PR #362](https://github.com/Mar5929/claude-toolkit/pull/362)
   merged new local records, guarded prose edits, targeted updates, and
   interrupted multi-file-save recovery at `b2e8727` in work-tracker 2.8.0.

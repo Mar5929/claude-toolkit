@@ -3,12 +3,13 @@
 /**
  * Read-only SessionStart loader.
  *
- * Prints a bounded, ordered read request for the knowledge manual and project
- * map. The files themselves may exceed a host's hook-output limit, so the hook
- * never treats stdout delivery as proof that the agent read them.
+ * Prints a short, bounded list of the three startup reads. It never prints
+ * file contents, and its output is not proof that the agent read the files.
+ * The knowledge manual and the indexes are not startup reads: the
+ * knowledge-* skills open them when a task needs them.
  *
- * Fails open, always. A missing or unreadable file is skipped and the session
- * continues, because knowledge setup must never be able to wedge a session.
+ * Fails open, always. A missing or unreadable file is reported and the
+ * session continues, because knowledge setup must never stop a session.
  */
 
 import { existsSync, readFileSync, realpathSync } from "node:fs";
@@ -22,14 +23,11 @@ export const SYSTEM_GUIDE_OFF_MESSAGE = "System Guide is not configured.";
 export const STARTUP_FILES = [
   { path: "SOUL.md" },
   { path: "knowledge/project.md" },
-  { path: "knowledge/knowledge-manual.md" },
   { path: "knowledge/memory/current.md" },
-  { path: "knowledge/memory/memory-index.md" },
-  { path: "knowledge/prds/prd-index.md" },
 ];
 export const LEGACY_STARTUP_FILES = STARTUP_FILES.map(item => ({ path: item.path
-  .replace("knowledge/memory/current.md", "knowledge/current.md")
-  .replace("knowledge/prds/prd-index.md", "knowledge/prds/spec-index.md") }));
+  .replace("knowledge/memory/current.md", "knowledge/current.md") }));
+export const INBOX_PATH = "knowledge/memory-inbox.md";
 
 /**
  * The System Guide plugin owns every configured on/repair briefing. The second
@@ -52,34 +50,20 @@ export function loadKnowledge(projectRoot) {
   const root = resolve(projectRoot || process.cwd());
   const lines = [
     "Project knowledge startup.",
-    "Follow any Toolkit startup orientation and root instruction chain delivered for this project first.",
-    "Before claiming readiness or doing substantial work, read every available file below completely in this exact order.",
-    "If a read is truncated, continue reading in additional chunks until the entire file has been read.",
+    "Before substantial work, read these files in full, in this order:",
   ];
+  const manual = resolveManual(root);
+  const schema2 = manual.text?.includes("<!-- claude-toolkit:knowledge-schema:2 -->");
   let position = 0;
-
-  const resolved = resolveManual(root);
-  const schema2 = resolved.text?.includes("<!-- claude-toolkit:knowledge-schema:2 -->");
   for (const { path } of schema2 ? STARTUP_FILES : LEGACY_STARTUP_FILES) {
     position++;
-    if (path === MANUAL_PATH) {
-      const manual = resolveManual(root);
-      if (manual.notice) lines.push(`[${manual.notice}]`);
-      if (typeof manual.text === "string") {
-        lines.push(`${position}. Read all of \`${manual.path}\`.`);
-      } else if (!manual.notice) {
-        lines.push(`[Project startup file missing: ${MANUAL_PATH}. Continuing without it. Do not invent knowledge policy; project sync can restore the managed copy.]`);
-      }
-      continue;
-    }
     const absolute = resolve(root, path);
     if (!existsSync(absolute)) {
       lines.push(`[Project startup file missing: ${path}. Continuing without it.]`);
       continue;
     }
     try {
-      const text = readFileSync(absolute, "utf8");
-      if (!text.trim()) {
+      if (!readFileSync(absolute, "utf8").trim()) {
         lines.push(`[Project startup file empty: ${path}. Continuing without it.]`);
         continue;
       }
@@ -87,21 +71,20 @@ export function loadKnowledge(projectRoot) {
       lines.push(`[Could not read ${path}. Continuing without it.]`);
       continue;
     }
-    lines.push(`${position}. Read all of \`${path}\`.`);
+    lines.push(`${position}. \`${path}\``);
   }
-
-  if (schema2) lines.push(
-    "After completely reading SOUL.md, knowledge/project.md and knowledge/knowledge-manual.md, give one brief confirmation only when their full contents reached you. On recovery restore missing/current guidance without repeating the greeting.",
-    "Check relevant entries in `knowledge/memory-inbox.md`; exact cards, authority and unfinished saves are pending work, never current facts. Missing inbox pauses dependent recovery.",
-    "Lookup map: `knowledge/memory/memory-entries/terminology-glossary.md`; `ai-external-knowledge/README.md`; the four knowledge-find/save/review/setup skills. Read the applicable procedure before its operation; restore it after context loss.",
+  lines.push("If a read is cut off, read the rest in more chunks.");
+  if (schema2) lines.push(`Check \`${INBOX_PATH}\` for unfinished saves.`);
+  if (manual.notice) lines.push(`[${manual.notice}]`);
+  else if (typeof manual.text !== "string") {
+    lines.push(`[Knowledge manual missing: ${MANUAL_PATH}. Do not invent knowledge policy. project-sync can restore it.]`);
+  }
+  lines.push(
+    "Do not read the knowledge manual or the indexes now. The `knowledge-*` skills open them when needed.",
+    "Report a missing or empty file. Pause only the work that needs it.",
   );
   const guideStatus = systemGuideOffMessage(root);
   if (guideStatus) lines.push(guideStatus);
-
-  lines.push(
-    "Follow the resolved managed manual listed above only after reading it completely.",
-    "Report missing, empty, unreadable, or conflicting required guidance before claiming readiness. This checklist is not proof that the files were read.",
-  );
   return lines.join("\n") + "\n";
 }
 

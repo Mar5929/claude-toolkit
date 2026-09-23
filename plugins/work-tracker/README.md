@@ -71,7 +71,9 @@ No database, model, cloud service, or external tracker is required.
 The detailed references are `references/command-reference.md` for commands and
 `references/record-format.md` for files, fields, and conversion. Delivery is
 covered by `references/agent-led-delivery.md` and
-`references/team-arrangements.md`.
+`references/team-arrangements.md`. `references/lifecycle.md` holds the full
+work-item lifecycle policy that the always-loaded `work-item-stages.md` rule
+summarizes.
 
 ## Where tickets live
 
@@ -111,7 +113,7 @@ status never moves a folder.
 
 ## Stages and the progress log
 
-An item also carries a `stage`, one of the fourteen in `work-item-stages.md`,
+An item also carries a `stage`, one of the fourteen in the `work` skill's `references/lifecycle.md`,
 and Recent History in `WORK-ITEM.md` (legacy: Progress log in `STATUS.md`).
 One command writes the stage,
 the status the stage maps to, and a dated log line together:

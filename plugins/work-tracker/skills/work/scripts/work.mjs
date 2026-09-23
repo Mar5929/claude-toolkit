@@ -469,7 +469,7 @@ Stages: 01-discovery, 02-refinement, 03-requirements-approved, 04-solution-desig
 10-bug-fixing, 11-user-approval, 12-pr-and-push, 13-deployment, 14-spec-update.
 --stage takes a number, a name, or both. It sets the stage, derives the status,
 and appends a dated line to Recent History (legacy: STATUS.md Progress log). An item with no stage
-is normal. work-item-stages.md decides which stage is correct; nothing here does.
+is normal. The work skill's references/lifecycle.md decides which stage is correct; nothing here does.
 Requirements statuses: refining, finalized.
 Types: discovery, solution-design, build, data-load, repository-maintenance, research, task, or a custom lower-case kebab-case type. Only build and data-load require finalized requirements in code.
 

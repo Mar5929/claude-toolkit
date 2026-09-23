@@ -5,121 +5,133 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
-import { toolkitOrientation } from "../plugins/project-init/library/hooks/toolkit-session-start.mjs";
+import {
+  toolkitOrientation, manualSummary, DEFAULT_SUMMARY, SUMMARY_WORD_LIMIT,
+} from "../plugins/project-init/library/hooks/toolkit-session-start.mjs";
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const source = join(repo, "plugins/project-init/library/hooks/toolkit-session-start.mjs");
+const template = join(repo, "plugins/project-init/library/templates/toolkit-manual.md");
+const words = (text) => text.split(/\s+/).filter(Boolean).length;
+
 function fixture(run) {
   const parent = mkdtempSync(join(tmpdir(), "toolkit-orientation-"));
   const root = join(parent, "project with spaces");
   mkdirSync(join(root, "knowledge"), { recursive: true });
   mkdirSync(join(root, ".claude/hooks"), { recursive: true });
-  writeFileSync(join(root, "AGENTS.md"), "Read knowledge/toolkit-manual.md completely.\n");
+  writeFileSync(join(root, "AGENTS.md"), "## Startup\n\n- Read `SOUL.md`.\n");
   writeFileSync(join(root, "CLAUDE.md"), "@AGENTS.md\n");
   copyFileSync(source, join(root, ".claude/hooks/toolkit-session-start.mjs"));
-  copyFileSync(join(repo, "plugins/project-init/library/templates/toolkit-manual.md"), join(root, "knowledge/toolkit-manual.md"));
+  copyFileSync(template, join(root, "knowledge/toolkit-manual.md"));
   try { run(root, parent); } finally { rmSync(parent, { recursive: true, force: true }); }
 }
-function execute(root, event, cwd = root) {
+function execute(root, cwd = root) {
   const env = { ...process.env };
   delete env.CLAUDE_PROJECT_DIR;
   delete env.CODEX_PROJECT_DIR;
   return execFileSync(process.execPath, [join(root, ".claude/hooks/toolkit-session-start.mjs")], {
-    cwd, env, input: JSON.stringify({ hook_event_name: event }), encoding: "utf8",
+    cwd, env, input: JSON.stringify({ hook_event_name: "SessionStart" }), encoding: "utf8",
   });
 }
 
-test("large manuals stay on disk and output requires complete reads with recovery", () => fixture((root) => {
+test("startup output is the manual Summary, short, with no full-read or acknowledgment request", () => fixture((root) => {
+  const output = toolkitOrientation(root);
+  assert.match(output, /Paths resolve from the project root/);
+  assert.match(output, /open the `work` skill/);
+  assert.match(output, /is reference/);
+  assert.ok(words(output) <= 100, `${words(output)} words`);
+  assert.ok(!/acknowledg/i.test(output));
+  assert.ok(!/completely|read all of/i.test(output));
+}));
+
+test("the template Summary and the built-in default say the same thing", () => {
+  assert.equal(manualSummary(readFileSync(template, "utf8")), DEFAULT_SUMMARY);
+});
+
+test("a large manual body never reaches the output, and a long Summary is cut", () => fixture((root) => {
+  const file = join(root, "knowledge/toolkit-manual.md");
   const before = toolkitOrientation(root);
-  writeFileSync(join(root, "knowledge/toolkit-manual.md"), "PRIVATE_BODY_SENTINEL\n".repeat(20000));
-  const after = toolkitOrientation(root);
-  assert.equal(after, before);
-  assert.ok(after.length < 2500);
-  assert.ok(!after.includes("PRIVATE_BODY_SENTINEL"));
-  assert.match(after, /bounded file chunks/);
-  assert.match(after, /after resume, clear, or compaction/);
-  assert.match(after, /After the required reads/);
+  writeFileSync(file, `${readFileSync(file, "utf8")}\n${"PRIVATE_BODY_SENTINEL\n".repeat(20000)}`);
+  assert.equal(toolkitOrientation(root), before);
+  writeFileSync(file, `# Manual\n\n## Summary\n\n${"word ".repeat(500)}\n\n## Next\n\nPRIVATE_BODY_SENTINEL\n`);
+  const cut = toolkitOrientation(root);
+  assert.ok(!cut.includes("PRIVATE_BODY_SENTINEL"));
+  assert.match(cut, new RegExp(`cut at ${SUMMARY_WORD_LIMIT} words`));
+  assert.ok(words(cut) < SUMMARY_WORD_LIMIT + 30);
+}));
+
+test("a manual without a Summary section falls back to the built-in default", () => fixture((root) => {
+  writeFileSync(join(root, "knowledge/toolkit-manual.md"), "# Manual\n\nBody only.\n");
+  assert.ok(toolkitOrientation(root).includes(DEFAULT_SUMMARY));
 }));
 
 for (const state of ["missing", "empty", "unreadable"]) {
-  test(`${state} manual reports a gap without claiming readiness`, () => fixture((root) => {
+  test(`${state} manual reports a gap`, () => fixture((root) => {
     const file = join(root, "knowledge/toolkit-manual.md");
     rmSync(file);
     if (state === "empty") writeFileSync(file, "  \n");
     if (state === "unreadable") mkdirSync(file);
-    for (const event of ["SessionStart", "UserPromptSubmit"]) {
-      assert.match(toolkitOrientation(root, event), new RegExp(`manual is ${state}`));
-      assert.match(toolkitOrientation(root, event), /Do not claim the orientation was read/);
-    }
+    const output = toolkitOrientation(root);
+    assert.match(output, new RegExp(`manual is ${state}`));
+    assert.ok(output.includes(DEFAULT_SUMMARY));
   }));
 }
 
-test("missing root instructions are reported; optional Knowledge is not invented", () => fixture((root) => {
+test("missing root instructions are reported; optional Knowledge files are not required", () => fixture((root) => {
   rmSync(join(root, "CLAUDE.md")); rmSync(join(root, "AGENTS.md"));
-  assert.match(toolkitOrientation(root), /Required root guidance is missing, empty, or unreadable: AGENTS\.md/);
-  assert.match(toolkitOrientation(root), /does not enable optional components/);
-  assert.ok(!toolkitOrientation(root).includes("knowledge/knowledge-manual.md"));
-}));
-
-test("actual event input selects prompt reminder without another acknowledgment", () => fixture((root) => {
-  const prompt = execute(root, "UserPromptSubmit");
-  assert.match(prompt, /Toolkit workflow reminder/);
-  assert.ok(!prompt.includes("acknowledge"));
-  assert.ok(prompt.length < 1000);
-  assert.match(execute(root, "SessionStart"), /After the required reads/);
-}));
-
-test("a present CLAUDE.md import does not conceal missing AGENTS.md content", () => fixture((root) => {
-  rmSync(join(root, "AGENTS.md"));
-  for (const event of ["SessionStart", "UserPromptSubmit"]) {
-    const output = toolkitOrientation(root, event);
-    assert.match(output, /Required root guidance is missing, empty, or unreadable: AGENTS\.md/);
-    assert.ok(!output.includes("Read the project's AGENTS.md and follow it."));
-  }
+  const output = toolkitOrientation(root);
+  assert.match(output, /Root instructions are missing, empty, or unreadable: AGENTS\.md/);
+  assert.ok(!output.includes("knowledge/knowledge-manual.md"));
 }));
 
 test("a CLAUDE.md holding anything but the import line is reported", () => fixture((root) => {
-  writeFileSync(join(root, "CLAUDE.md"), "Read knowledge/toolkit-manual.md completely.\n");
-  for (const event of ["SessionStart", "UserPromptSubmit"]) {
-    assert.match(toolkitOrientation(root, event), /CLAUDE\.md should hold the single line @AGENTS\.md/);
-  }
+  writeFileSync(join(root, "CLAUDE.md"), "Read knowledge/toolkit-manual.md.\n");
+  assert.match(toolkitOrientation(root), /CLAUDE\.md should hold the single line @AGENTS\.md/);
 }));
 
 test("a missing CLAUDE.md beside a present AGENTS.md is reported", () => fixture((root) => {
   rmSync(join(root, "CLAUDE.md"));
-  for (const event of ["SessionStart", "UserPromptSubmit"]) {
-    assert.match(toolkitOrientation(root, event), /CLAUDE\.md should hold the single line @AGENTS\.md/);
-  }
+  assert.match(toolkitOrientation(root), /CLAUDE\.md should hold the single line @AGENTS\.md/);
 }));
 
 test("copied hook finds root from nested cwd and follows aliased paths", () => fixture((root, parent) => {
   const nested = join(root, "nested/deeper"); mkdirSync(nested, { recursive: true });
   const alias = join(parent, "alias"); symlinkSync(root, alias, "dir");
-  const direct = execute(root, "SessionStart", nested);
+  const direct = execute(root, nested);
   assert.ok(!direct.includes("manual is missing"));
-  assert.equal(execute(alias, "SessionStart", nested), direct);
+  assert.equal(execute(alias, nested), direct);
 }));
 
-test("both hosts register startup recovery and prompt routes exactly once", () => {
+test("both hosts register the hook once, at SessionStart only", () => {
   for (const file of [".claude/settings.json", ".codex/hooks.json"]) {
     const config = JSON.parse(readFileSync(join(repo, file), "utf8"));
-    for (const event of ["SessionStart", "UserPromptSubmit"]) {
-      const matches = config.hooks[event].flatMap(group => group.hooks
-        .filter(hook => hook.command.includes("toolkit-session-start.mjs"))
+    for (const [event, groups] of Object.entries(config.hooks)) {
+      const matches = groups.flatMap(group => group.hooks
+        .filter(hook => (hook.command ?? "").includes("toolkit-session-start.mjs"))
         .map(hook => ({ group, hook })));
+      if (event !== "SessionStart") {
+        assert.equal(matches.length, 0, `${file} ${event}`);
+        continue;
+      }
       assert.equal(matches.length, 1, `${file} ${event}`);
-      if (event === "SessionStart") {
-        for (const source of ["startup", "resume", "clear", "compact"]) {
-          assert.ok(matches[0].group.matcher.split("|").includes(source));
-        }
+      for (const source of ["startup", "resume", "clear", "compact"]) {
+        assert.ok(matches[0].group.matcher.split("|").includes(source));
       }
     }
   }
 });
 
-test("reusable manual has no unresolved repository-only Markdown links", () => {
-  const text = readFileSync(join(repo, "plugins/project-init/library/templates/toolkit-manual.md"), "utf8");
+test("the hook README installs no per-message registration", () => {
+  const readme = readFileSync(join(repo, "plugins/project-init/library/hooks/README.md"), "utf8");
+  const blocks = readme.match(/```json[\s\S]*?```/g) ?? [];
+  assert.ok(blocks.length >= 2);
+  for (const block of blocks) assert.ok(!block.includes("UserPromptSubmit"));
+});
+
+test("reusable manual starts with a Summary and has no repository-only links", () => {
+  const text = readFileSync(template, "utf8");
   assert.ok(!text.includes("../plugins/") && !text.includes("../docs/"));
+  assert.match(text, /^# [^\n]+\n\n## Summary\n/);
   assert.match(text, /AGENTS\.md/);
   assert.match(text, /chosen tracker/);
   assert.match(text, /Knowledge|knowledge/);

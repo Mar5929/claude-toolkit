@@ -9,9 +9,8 @@ a GitHub board. Adapt the content, keep the shape.
 
 ## Sample AGENTS.md
 
-The line above the title is verbatim in every project. This project has project
-knowledge installed, so its startup hook loads `SOUL.md` and there is no separate
-SOUL route.
+The line above the title is verbatim in every project. The Startup section names
+`SOUL.md`, so there is no separate SOUL line.
 
 ````markdown
 Always execute work with the context in mind that the user will likely continue work across multiple AI coding sessions where the session context is cleared and picked up again. You must assist the user in helping establish that continuity across sessions while not adding context that might pollute future agents and skew them. Information must be curated and intentional.
@@ -23,22 +22,24 @@ Salesforce delivery for Acme's sales org.
 Read `.claude/rules` first. Every file in that folder is a rule for how you work
 here, and they are in force for the whole session.
 
-Read `knowledge/toolkit-manual.md` completely during the first project
-orientation and after resume, clear, or compaction, and follow it throughout
-the work. If a read is shortened, open the file again from the first missing
-section, in chunks when needed. If it is missing or unreadable, report that
-instead of claiming readiness. Acknowledge receipt and intent only after the
-complete read.
+## Startup
 
-## Project knowledge
+- Read `SOUL.md`, `knowledge/project.md`, and `knowledge/memory/current.md`.
+- Check `knowledge/memory-inbox.md` for unfinished saves.
+- Read the three files again after resume, clear, or compaction.
+- Procedures live in skills. The manuals in `knowledge/` are reference: open a
+  section when a task needs it.
 
-The startup hook provides the ordered project-knowledge read route: `SOUL.md`,
-`knowledge/project.md`, `knowledge/knowledge-manual.md`, `knowledge/memory/current.md`,
-then check relevant inbox entries and use the memory/PRD/outside-source indexes. Follow that route once at session start. If it
-was not provided, read those files in that order. If a file is missing or a
-read is shortened, report it and continue the read from the project file.
-`knowledge/knowledge-manual.md` wins when project-knowledge instructions
-disagree.
+## Path-scoped rules
+
+Claude Code loads these when a matching file is read. Codex: open the rule
+before working on a matching path.
+
+- `knowledge/**`, `docs/**`, `**/README.md`: `.claude/rules/knowledge-direct-commit.md`
+- `force-app/**/permissionsets/**`, `force-app/**/permissionsetgroups/**`, `force-app/**/profiles/**`: `.claude/rules/permissions-source-control.md`
+- `force-app/**`, `tools/kb/**`: `.claude/rules/dependency-graph.md`
+- `delivery/deployment/**`, `engagement/deployment/**`: `.claude/rules/deployment-runbook.md`
+- `delivery/data/**`, `engagement/data/**`: `.claude/rules/production-data.md`
 
 When .system-guide.json is enabled, use the System Guide plugin's system-guide skill for questions or work about existing system structure, purpose, connections, or impact.
 
@@ -64,8 +65,8 @@ When .system-guide.json is enabled, use the System Guide plugin's system-guide s
 
 | Path | How updates land | Instructions |
 | --- | --- | --- |
-| `README.md`, `delivery/architecture/`, `docs/designs/` | Authorized documentation-only updates use the direct publication route. | `.claude/rules/knowledge-direct-commit.md` |
-| `knowledge/` | Follow the knowledge manual for content approval, then the documentation publication route. | `knowledge/knowledge-manual.md` and `.claude/rules/knowledge-direct-commit.md` |
+| `README.md`, `delivery/architecture/`, `docs/designs/` | Authorized documentation-only updates go straight to the default branch. | `.claude/rules/knowledge-direct-commit.md` and the `publish-docs` skill |
+| `knowledge/` | Content approval follows the knowledge manual, then the route above. | `knowledge/knowledge-manual.md` and the `knowledge-save` skill |
 
 ## Where work is tracked
 

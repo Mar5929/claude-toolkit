@@ -23,7 +23,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | [project-init](../plugins/project-init/README.md) | Put the toolkit's rules, [output styles](../plugins/project-init/library/output-styles/README.md), and systems into a project, new or existing, apply the general project file lifecycle to real work-item events, and synchronize the configured machine-wide policy after marketplace and project-init bootstrap | `project-init`, `project-sync`, `work-item-lifecycle`, `machine-sync` | `/plugin install project-init` | Sets up a project; synchronizes machine policy after bootstrap |
 | [second-brain](../plugins/second-brain/README.md) | Portable Git-native project knowledge with one managed operating manual, a small shared startup map, topic memory, PRDs, durable save recovery, three indexes and read-only scoped history | `knowledge-setup`, `knowledge-find`, `knowledge-save`, `knowledge-review` | `/plugin install second-brain` | Sets up a project |
 | [sf-architect-solutioning](../plugins/sf-architect-solutioning/README.md) | Salesforce solution architect: approved solution plan before any build | `sf-architect-solutioning` | `/plugin install sf-architect-solutioning` | Install and go |
-| [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git lifecycle workflows | `pull-latest`, `reset-to-remote`, `merge-and-clean-up` | `/plugin install git-workflows` | Install and go |
+| [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git lifecycle workflows | `pull-latest`, `reset-to-remote`, `merge-and-clean-up`, `publish-docs` | `/plugin install git-workflows` | Install and go |
 | [hooks-library](../plugins/hooks-library/README.md) | Reusable spec-check, Git-attribution, output-style handshake, and Salesforce deployment hooks; system-specific knowledge hooks stay with second-brain | `hooks-library` | `/plugin install hooks-library` | Wires into settings |
 | [work-tracker](../plugins/work-tracker/README.md) | Agent-led delivery for the chosen tracker, plus a local backlog under Git-ignored `.work-items/`, with owner-shaped roadmaps, detailed execution tasks, branch-scoped current-task continuation, child work items with their own plans and approvals, flexible types, consistent progress, approved completion events, optional Git evidence, handoffs, relationships, owner-made grouping folders, an `archive/` folder, and preview-first conversion of older staged trackers | `work` | `/plugin install work-tracker` | Sets up a project |
 | [session-skills](../plugins/session-skills/README.md) | Eleven conversation skills including roadmap-task delivery, requirements, and resumable design, with focused research, design, and review helpers | `work-guide`, `requirements-helper`, `solution-design`, `braindump`, `explain-simply`, `grill-me`, `handoff`, `session-summary`, `spec-check`, `track-tasks`, `unslop` | `/plugin install session-skills` | Install and go |
@@ -44,6 +44,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | pull-latest | git-workflows | Get current with the remote without rewriting or discarding | `/pull-latest` |
 | reset-to-remote | git-workflows | Hard-reset a repo to mirror the remote, safely gated | `/reset-to-remote` |
 | merge-and-clean-up | git-workflows | Merge one approved PR and remove only its completed branch and worktree | `/merge-and-clean-up`, "merge and clean up" |
+| publish-docs | git-workflows | Land an authorized documentation-only save on the default branch: check, stage by name, commit, push, verify the remote | `/publish-docs`, "save this document" |
 | work | work-tracker | Offer and resume goal-scoped agent-led delivery in the chosen tracker, then ask after acceptance how the team is arranged: one team in this chat, or, where the host supports other chats, a Main Orchestrator chat coordinating them; manage local work items, roadmaps, execution tasks, current-task continuation, linked children, grouping, archives, and safe conversion in Git-ignored folders | `/work`, "add this to the backlog", "what should I work on next?" |
 | work-guide | session-skills | Coordinate delivery by keeping roadmap stages connected to actionable tasks or child work items in the existing tracker | `/session-skills:work-guide`, "help me organize this work", "continue this item" |
 | requirements-helper | session-skills | Clarify intent, question directions that could undermine the goal, and maintain canonical draft requirements | `/session-skills:requirements-helper`, "help me refine these requirements" |
@@ -60,21 +61,34 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 
 ## The library: what lands in a project
 
-Rules, tools, templates, and the guides that install them all sit
-together in one folder, `plugins/project-init/library/`:
+Rules, project skills, tools, templates, and the guides that install them all
+sit together in one folder, `plugins/project-init/library/`:
 
 | Folder | Holds |
 | --- | --- |
 | `library/rules/general/` | the standard `.claude/rules/` files every project gets |
 | `library/rules/salesforce/` | the extra `.claude/rules/` files a Salesforce project gets |
+| `library/skills/salesforce/` | `sf-component-tracker`, `sf-deploy-check`, and `sf-data-change`: the skills the Salesforce rules open. `project-init` and `project-sync` copy each one twice, to `.claude/skills/<name>/` for Claude Code and `.agents/skills/<name>/` for Codex |
 | `library/tools/` | `permsets.py` and the `kb/` dependency graph tool |
 | `library/templates/` | copy-and-fill starting points |
 | `library/guides/` | how-to documents for installing the kits above |
 
-The general set includes `knowledge-direct-commit.md`: the unscoped route for
-authorized documentation publication, even with knowledge disabled. Setup and
-sync install it alongside the parallel-work rule; root files only point to it.
-Behavior-bearing instructions and mixed changes keep their implementation route.
+The general set includes `knowledge-direct-commit.md`: the documentation
+publication rule. It loads only for `knowledge/**`, `docs/**`, and
+`**/README.md`, and it applies with knowledge disabled too. Its steps are in the
+`publish-docs` skill (git-workflows). The always-loaded
+`parallel-agent-sessions.md` names that skill, so a new document that was never
+read still reaches the route. Behavior-bearing instructions and mixed changes
+keep their implementation route.
+
+Startup text is kept small on purpose (issue #396). The project-init
+`toolkit-session-start.mjs` hook runs at SessionStart only and prints the
+toolkit manual's short Summary. Root `AGENTS.md` asks for three reads:
+`SOUL.md`, `knowledge/project.md`, `knowledge/memory/current.md`. Both manuals
+are reference that skills open. `tests/startup-budget-check.mjs` fails when the
+always-loaded words grow past its budget. Each project indexes its rules in
+`.claude/RULES.md`, outside `.claude/rules/`, because every `.md` file in that
+folder loads as a rule.
 
 None of it belongs to `project-init`. `project-sync` reads the same folder, and
 so can anything else added later. It sits inside the `project-init` plugin for
@@ -200,7 +214,8 @@ These are not duplicated here. Go to the index that owns them:
   system with one complete core manual, a small project map, three generated
   indexes, PRDs, coherent memory topics, pending saves and unchecked brainstorms. The
   package ships task-specific workflows plus setup and safe migration. Its
-  startup hook supplies a bounded ordered read route for the manual and map,
+  startup hook asks for three reads (`SOUL.md`, `knowledge/project.md`,
+  `knowledge/memory/current.md`); the manual and indexes are reference,
   reminder hooks only remind, and no
   hook approves knowledge. A helper may execute an already-authorized save with
   durable permission and verified results.
@@ -292,9 +307,10 @@ The genuine watch-items are called out at the end.
   from `project-init`'s `work-tracking-choice.md`, uses seven statuses including
   `Refining`, and involves no work-tracker code.
 - **work-item-stages versus work-item-folders versus the tracker itself.**
-  `work-item-stages.md` is the unscoped, tracker-neutral lifecycle policy:
-  orientation, meaningful progress, flexible stages, type-aware approval,
-  handoff, and accepted completion. `work-item-folders.md` owns local folder
+  `work-item-stages.md` is the always-loaded summary: six lines that send the
+  agent to the `work` skill. The full tracker-neutral policy (orientation,
+  delivery offer, planning, type-aware approval, stages, capture, handoff,
+  accepted completion) is the `work` skill's `references/lifecycle.md`. `work-item-folders.md` owns local folder
   organization and file protection; the `work` skill owns local commands.
   The CLI checks active identity and objective state, writes related progress
   in one rollback-protected batch, and emits an approved completion event.
@@ -319,13 +335,14 @@ The genuine watch-items are called out at the end.
 - **hooks-library versus project knowledge.** The general hook library owns
   reusable guards and reminders. Second-brain owns its two project-knowledge
   lifecycle hooks because their commands and messages are part of installing
-  that system. The startup hook requests complete reads of the managed manual
-  and small map without injecting their bodies, and the
+  that system. The startup hook asks for three small reads and leaves the
+  managed manual as reference, and the
   pull-request hook only pauses for the owner-approved `knowledge-save` review. Neither
   writes knowledge.
 - **git-workflows versus the parallel-agent-sessions rule.** The rule states the
-  behavior ("assume other sessions share the repo"); the three skills are the
-  safe git commands that carry it out. Different layers, not duplicates. That
+  behavior ("assume other sessions share the repo"); the four skills are the
+  safe git commands that carry it out. `publish-docs` holds the steps of the
+  path-scoped `knowledge-direct-commit.md` rule. Different layers, not duplicates. That
   rule absorbed the separate `worktree-isolation` rule, which had described the
   same situation from the other side: the two were 156 lines that each opened by
   explaining they were not the other, and both stated "one session, one worktree,
@@ -374,7 +391,7 @@ The genuine watch-items are called out at the end.
   `delivery-researcher` and `delivery-reviewer` return evidence to the owning
   conversation. They neither own another tracker nor create persistent teams.
 - **solution-design versus the delivery helpers.** `solution-design` is the
-  process for one item's design: a readiness gate with a confidence number,
+  process for one item's design: a readiness gate where each checker says plainly whether the requirements are ready,
   an agreed way of working, a team recommended per item (product analyst,
   researchers, technical architect, critic, task agents, each on the model
   that fits the role), and a critique loop that ends when every requirement
@@ -574,6 +591,17 @@ files the plugin ships. Run it with
 `node tests/installed-copy-check.mjs`.
 
 `tests/knowledge-startup-check.mjs` guards the operating contract. It checks the
-manual's size and checksum, its single ownership markers, the exact loader
-order, fail-open behavior, identical short root fallback, and Claude and Codex
-hook parity. Run it with `node tests/knowledge-startup-check.mjs`.
+manual's checksum, its single ownership markers, the three startup reads and
+their order, the short per-message reminder, fail-open behavior, the root
+`AGENTS.md` Startup section, and Claude and Codex hook parity. Run it with
+`node tests/knowledge-startup-check.mjs`.
+
+`tests/startup-budget-check.mjs` counts the words every session loads at start:
+rules with no `paths:`, root `AGENTS.md`, SessionStart hook output, and the
+three startup reads. It fails when a profile passes its budget. Run it with
+`node tests/startup-budget-check.mjs`.
+
+`tests/skill-copy-check.mjs` checks that the `.claude/skills/` and
+`.agents/skills/` copies of each project skill are byte-identical, that library
+skills use only frontmatter both hosts read, and that every skill a Salesforce
+rule names exists. Run it with `node tests/skill-copy-check.mjs`.

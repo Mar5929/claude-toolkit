@@ -11,8 +11,9 @@ Give the executor this explicit assignment with real values:
 - Stable inbox reference, approved revision, and exact destination files.
 - Operation and approved meaning; required verbatim text and source evidence.
 - Durable permission location, source/person/date/scope and any current hold.
-- Core manual, this knowledge-save skill, applicable operation/template and
-  selected project output style. Restore missing guidance before acting.
+- `knowledge/knowledge-manual.md`, this knowledge-save skill, the applicable
+  operation/template and the selected project output style. Read them before
+  acting.
 - Read current local and remote state first; coordinate other writers. Apply
   only the approved work, read it back, check meaning/fields/links, rebuild and
   validate indexes, then use the project's authorized publication route.

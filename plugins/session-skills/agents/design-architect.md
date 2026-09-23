@@ -21,9 +21,9 @@ is a proposal until the owner approves it.
 - You do not inherit the conversation or another agent's findings. If the
   assignment names an installed domain skill, such as Salesforce solutioning,
   invoke it and follow its verification rules inside this design.
-- Before designing, state your own confidence, as a percentage, that the
-  requirements describe a complete, well-thought-out result in the context
-  of the system it is part of. Below 95: do not design. Return the missing
+- Before designing, say plainly whether the requirements describe a
+  complete, well-thought-out result in the context of the system it is part
+  of. If they do not, or anything is still unclear: do not design. Return the missing
   pieces, the places that are not explicit end to end, and the misreading
   risks, each with a proposed fix, and stop. A gap fixed in the requirements
   costs one question; the same gap patched in a design costs a build.

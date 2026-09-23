@@ -52,7 +52,7 @@ automatically as it grows.
 - Locate the toolkit files, in order of preference:
   1. They ship with this plugin. From this skill's directory, `../../library/`
      holds `rules/general/` (with its `README.md` index), `rules/salesforce/`
-     (with its own index), `tools/`,
+     (with its own index), `skills/`, `tools/`,
      `templates/`, and `guides/`. The sibling skill's
      `../project-init/references/` holds `thin-agents-md.md`,
      `folder-agents-md.md`, `toolkit-manual-delivery.md`, and `setup-flow.md`,
@@ -70,6 +70,8 @@ automatically as it grows.
     says, so step 2 can tell a project copy that is merely worded differently
     from one that is genuinely behind; Salesforce projects also get the
     `library/rules/salesforce/` files
+  - every project skill in `library/skills/` (today `library/skills/salesforce/`),
+    and which rule opens each one, from `library/rules/salesforce/README.md`
   - the `Plain English` output style file and setting. This is the toolkit's
     default for project setup; the toolkit also ships `Terse`, which the owner
     may select instead. Check the installed file against
@@ -144,8 +146,8 @@ automatically as it grows.
     folder: an `AGENTS.md` holding the folder content and a `CLAUDE.md` beside
     it holding the single line `@AGENTS.md`, per
     `../project-init/references/folder-agents-md.md`. Read that file so step 2
-    can tell a missing one from a folder the toolkit deliberately skips (any
-    folder with a `README.md` index, and everything under `.claude/`)
+    can tell a missing one from a folder the toolkit deliberately skips (the
+    five kinds in that file's "Which folders are skipped")
   - each conversation skill and helper agent offered by the setup flow, which
     ship in the `session-skills` plugin
   - anything newer listed in the toolkit README under "What's here now"
@@ -166,6 +168,19 @@ Typical checks:
   `.claude/rules/`, and does that folder carry each default-ON general rule (a
   file, or the rule's intent folded into AGENTS.md)? Judge by intent, not exact
   wording or file name.
+- **Project skills (both copies)**: for each installed rule that opens a
+  skill, check `.claude/skills/<name>/` and `.agents/skills/<name>/`. Report
+  **missing** when either copy is absent, **partial** when the two copies are
+  not byte-identical or either is a symlink, and **outdated** when they match
+  each other but not `library/skills/<stack>/<name>/`. Compare every file in
+  the folder, not only `SKILL.md`. Report host-specific frontmatter beyond
+  `name` and `description` in either copy.
+- **Rules index location**: the index of copied rules belongs in
+  `.claude/RULES.md`. Report a `.claude/rules/README.md` as a gap: Claude Code
+  loads it as a rule in every session. The fix is to move it, not delete it.
+- **`paths:` rules for Codex**: for each rule in `.claude/rules/` with
+  `paths:` frontmatter, `AGENTS.md` should carry one line naming the path
+  pattern and the rule file. Report each missing or stale line.
 - **Output style**: does the project have `.claude/output-styles/plain-english.md`
   and select `"outputStyle": "Plain English"` in its committed settings? Check
   `.claude/settings.local.json` for an override too. The setting must match the
@@ -567,10 +582,13 @@ the file and report:
   it.
 - **Toolkit operating-manual route.** Confirm
   `knowledge/toolkit-manual.md` exists and `AGENTS.md` carries the exact
-  complete-read fallback from `thin-agents-md.md`. Audit the packaged template,
-  installed project-init-owned hook, and each host registration separately by
-  following `../project-init/references/toolkit-manual-delivery.md`. This route
-  applies even when project knowledge and System Guide are disabled.
+  three-read Startup section from `thin-agents-md.md`. Report an older
+  complete-read route or acknowledgment request as stale. Audit the packaged
+  template, installed project-init-owned hook, and each host registration
+  separately by following `../project-init/references/toolkit-manual-delivery.md`.
+  Report a `toolkit-session-start` entry under `UserPromptSubmit` for removal:
+  the hook now runs at SessionStart only. This route applies even when project
+  knowledge and System Guide are disabled.
 - **Lines an agent never needed.** For each line ask whether removing it would
   make an agent get something wrong. Flag every line where the answer is no,
   starting with: what a session could find in one command (a folder is
@@ -589,15 +607,13 @@ the file and report:
 - **Live state that belongs in the tracker.** Current phase, next action, and
   open TODOs drift the moment they are written here.
 - **Project-knowledge startup parity.** When the current layout is installed,
-  confirm both hosts register the same loader and that it emits bounded
-  instructions to read completely, in order,
-  `SOUL.md`, `knowledge/project.md`, `knowledge/knowledge-manual.md`,
-  `knowledge/memory/current.md`, and the indexes; check relevant inbox entries. Confirm it emits no file bodies,
-  requests no other memory, and fails open when a file is absent. Verify that a
-  shortened read continues from the first missing section. A configured output
-  threshold is a spill limit, not evidence of host capacity or a complete
-  read. `AGENTS.md` carries only the short fallback, and `CLAUDE.md` stays the
-  one-line import that brings it in. Any copied policy is stale duplication.
+  confirm both hosts register the same loader and that it asks for three
+  reads: `SOUL.md`, `knowledge/project.md`, and `knowledge/memory/current.md`,
+  plus a check of `knowledge/memory-inbox.md`. Confirm it emits no file bodies,
+  asks for no manual read and no acknowledgment, and fails open when a file is
+  absent. `AGENTS.md` carries only the Startup section, and `CLAUDE.md` stays
+  the one-line import that brings it in. Any copied policy is stale
+  duplication.
 - **Stale content.** Anything the code, paths, or decisions have since
   contradicted.
 
@@ -628,9 +644,10 @@ folders and report each one as:
   rewrite. The wording stays the owner's.
 - **Missing.** A major folder the toolkit recognizes, with no instruction file
   at all and no `README.md` index. This is a gap.
-- **Skipped by design.** A folder with a `README.md` index, or anything under
-  `.claude/`, the complete `knowledge/` tree, or a folder another plugin creates
-  and indexes. Not a gap. Say so rather than leaving it off the list, so it does
+- **Skipped by design.** One of the five kinds in `folder-agents-md.md`: a
+  folder with a `README.md` index, anything under `.claude/`, the complete
+  `knowledge/` tree, a folder another plugin creates and indexes, or a folder
+  with an obvious name and no conventions to state. Not a gap. Say so rather than leaving it off the list, so it does
   not get raised again next run.
 - **Not recognized.** A folder the toolkit did not create and whose purpose you
   cannot tell from the repository. Do not propose a file for it and do not guess
@@ -682,11 +699,14 @@ should look in THIS project, confirm, act, summarize. Ground rules:
 - **For an approved Toolkit operating-manual gap,** follow
   `../project-init/references/toolkit-manual-delivery.md`. Reconcile
   `library/templates/toolkit-manual.md` into `knowledge/toolkit-manual.md`,
-  install the project-init-owned hook and supported host registrations, and add
-  the exact root fallback. Preserve deliberate local meaning. Apply updates
-  already covered by this sync; ask only when meaning or scope is unresolved or
-  local changes conflict. Verify copied content, direct hook output, host
-  configuration, and complete-read behavior as separate facts.
+  install the project-init-owned hook and supported host registrations, and
+  write the three-read Startup section. Remove the old `toolkit-session-start`
+  entry under `UserPromptSubmit` in `.claude/settings.json` and
+  `.codex/hooks.json`, leaving every other hook entry alone. Preserve
+  deliberate local meaning. Apply updates already covered by this sync; ask
+  only when meaning or scope is unresolved or local changes conflict. Verify
+  copied content, direct hook output, and host configuration as separate
+  facts.
 - **For the retired voice rules, propose the swap, never a bare deletion.** A
   project on the old setup has working guidance; removing it before the style
   is in leaves the project with neither. Install and verify `Plain English` first,
@@ -775,8 +795,9 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   topic layout or copy old templates over owner records. Already-approved
   conversions retain source and approval and are shown afterwards; ambiguous
   conversions remain unchanged. Preserve current-work Session handoffs.
-  Deliver SOUL -> project -> complete Knowledge manual, current/inbox and the
-  three indexes; install its four procedures, templates, copied tools/hooks and
+  Deliver the three startup reads (SOUL, project, current memory) and the inbox
+  check, with the Knowledge manual and indexes as reference; install its four
+  procedures, templates, copied tools/hooks and
   exact managed manual/checksum together. Inspect native-memory conflicts rather
   than silently disabling/importing/deleting existing data. A plugin refresh is
   not project activation. Run file checks and actual fresh/recovered host proofs,
@@ -799,6 +820,16 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   anything into project knowledge, or deletes cloud infrastructure. Installing the current system does not
   imply either v1 choice. Account-level connectors, local token cleanup, and
   cloud deletion are separate owner-approved work.
+- For an approved project skill gap, copy the library skill folder to both
+  `.claude/skills/<name>/` and `.agents/skills/<name>/`. Make the two copies
+  byte-identical. Never use a symlink. When the project changed its copy on
+  purpose, show the differences and flag it for port-back instead of
+  overwriting; then apply the same bytes to both copies.
+- For an approved rules index gap, `git mv .claude/rules/README.md
+  .claude/RULES.md`, then update each path in it that pointed at a sibling rule
+  (`x.md` becomes `rules/x.md`). Change nothing else.
+- For an approved `paths:` line gap, add one line per `paths:` rule to
+  `AGENTS.md`, using the wording in `../project-init/references/thin-agents-md.md`.
 - For an approved Salesforce dependency graph gap, install the whole kit from
   `../../library/guides/salesforce-dependency-graph.md`: the `tools/kb/`
   folder, the gitignore entries, the rule, and the freshness Stop hook. Never

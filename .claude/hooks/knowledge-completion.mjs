@@ -8,6 +8,12 @@ import { fileURLToPath } from 'node:url';
 import { resolveManual } from './knowledge-manual.mjs';
 
 export const OUTCOMES = ['no-change', 'pending-approval', 'save-unfinished', 'saved'];
+/** Absolute, forward-slash paths, so the command works from any directory. */
+const portablePath = path => resolve(path).replace(/\\/g, '/');
+export const COMPLETION_SCRIPT = portablePath(fileURLToPath(import.meta.url));
+export function reviewCommand(root, identity, generation) {
+  return `node ${JSON.stringify(COMPLETION_SCRIPT)} review ${JSON.stringify(portablePath(root))} ${JSON.stringify(identity.session_id)} ${JSON.stringify(identity.agent_id || 'root')} ${generation} OUTCOME`;
+}
 const UNCORRELATED_STOP = 'Turn correlation is unavailable for this event; compatibility mode cannot isolate a late Stop.';
 function turnId(value) {
   if (typeof value !== 'string') return null;
@@ -67,7 +73,7 @@ export function completion(root, input, directory) {
     }
     return { next: { ...state, continued: true }, result: {
       decision: 'block',
-      reason: `Quietly review decisions and discoveries since the last review using knowledge-save and the core manual. No-change stays quiet; preserve proposals or unfinished authorized saves. Do not wait for independent helpers. Record the actual outcome with node .claude/hooks/knowledge-completion.mjs review using root=${JSON.stringify(root)}, session=${JSON.stringify(input.session_id)}, agent=${JSON.stringify(input.agent_id || 'root')}, generation=${state.generation}, outcome=no-change|pending-approval|save-unfinished|saved. These are five positional arguments after review. An outcome is a declaration, not save authority or proof of correct judgment.${correlationNotice}`,
+      reason: `Knowledge turn review is not recorded. Check quietly what was decided or found since the last review. Use knowledge-save for any proposal or save. Keep any proposal or unfinished save; do not drop it. Do not wait for helper agents. Then run: \`${reviewCommand(root, input, state.generation)}\`. OUTCOME is no-change, pending-approval, save-unfinished, or saved. The outcome does not approve a save. Use tool calls only. Write no more text to the user.${correlationNotice}`,
     } };
   });
 }

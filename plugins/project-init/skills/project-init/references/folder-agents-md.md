@@ -79,7 +79,7 @@ considered skip from an oversight.
   not carry.
 - **`.claude/` and everything under it.** Its rules, hooks, output styles, and
   agents already reach a session through their own mechanisms, and
-  `.claude/rules/README.md` indexes the rules folder.
+  `.claude/RULES.md` indexes the rules folder.
 - **`knowledge/` and everything under it.** Its root startup routes and
   project-knowledge specification already own the vault contract. Adding a
   folder instruction file there would create a second authority.

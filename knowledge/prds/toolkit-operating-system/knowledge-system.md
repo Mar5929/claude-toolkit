@@ -225,15 +225,12 @@ flowchart TD
     S[Optional: knowledge setup or repair under requirements 24 and 27] -. Verified equipped .-> A
     A[Owner opens or resumes the project] --> B[Native runtime: project instructions, rules, and skill discovery are available]
     B -. Claude Code rule timing .-> BR[.claude/rules/: general rules at startup; path-scoped rules when matching files are read]
-    B --> C[Knowledge system: at a new session read SOUL.md, then knowledge/project.md, then knowledge/knowledge-manual.md, in that order; recover missing guidance on resume]
-    C -- New session --> CC{All three startup reads completed?}
-    CC -- No, a read is incomplete --> CX[Complete the missing read; withhold the confirmation; pause dependent work]
+    B --> C[Knowledge system: read SOUL.md, then knowledge/project.md, then knowledge/memory/current.md, in that order; again after resume, clear, or compaction]
+    C -- New session or resume --> CC{All three startup reads completed?}
+    CC -- No, a read is incomplete --> CX[Complete the missing read; pause dependent work]
     CX -- Read completed --> CC
     CC -- No, a required file is unavailable --> Y
-    CC -- Yes --> D[Owner sees one short manual-read confirmation]
-    C -- Guidance unavailable --> Y
-    C -- Resume --> E[Read knowledge/memory/current.md; check relevant knowledge/memory-inbox.md entries]
-    D --> E
+    CC -- Yes --> E[Check knowledge/memory-inbox.md for unfinished saves]
     E --> F{Required context is available?}
     F -- No --> X[Repair clear mechanical faults or report the gap; pause only dependent work]
     X -- Context restored --> E
@@ -278,23 +275,20 @@ Codex uses the instruction methods it supports, under requirement 25.
 At a new session start, the agent reads three files in this order: `SOUL.md`,
 what the agent is responsible for in this project; `knowledge/project.md`, what
 the project is, its resources, and where work is tracked; and
-`knowledge/knowledge-manual.md`, the knowledge manual. The instruction to make these reads
-reaches the agent before it makes them.
+`knowledge/memory/current.md`, the work shared across sessions. The instruction
+to make these reads reaches the agent before it makes them. The knowledge
+manual and the indexes are reference: the `knowledge-*` skills open the part a
+task needs.
 
-Then the system checks that all three reads finished: the contents of each file
-reached the agent and were read. Listing file names, or sending a reminder, does
-not count as reading a file. If a read did not finish, tell the agent to finish
-it, hold back the confirmation, and pause the work that depends on that file. If
-one of the three files is unavailable, say which file is missing and pause only
-the work that depends on it; come back to that read when the file is available.
-Once all three reads are done, the agent gives the one short confirmation in
-requirement 2.
+Listing file names, or sending a reminder, does not count as reading a file. If
+a read did not finish, the agent finishes it and pauses the work that depends
+on that file. If one of the three files is unavailable, the agent says which
+file is missing and pauses only the work that depends on it. The agent does not
+announce that it made the reads.
 
-On resume or context loss, the agent recovers guidance that is missing or no
-longer current. It does not repeat the full manual on every message.
+After resume, clear, or compaction, the agent reads the three files again.
 
-The agent then reads `knowledge/memory/current.md` to understand the work shared
-across sessions, and checks `knowledge/memory-inbox.md` for relevant proposals still
+The agent then checks `knowledge/memory-inbox.md` for relevant proposals still
 waiting for an answer, or saves that did not finish. It opens the tracker record
 those files link to, which holds the real status of the work and the approvals
 given. The owner then gets a short briefing: the account-access review is still
@@ -449,13 +443,12 @@ not finish stays recoverable. Neither is presented as knowledge that is already
 saved. If the agent cannot share an update with the other sessions, it says so,
 so the owner knows what another session cannot yet see.
 
-Work resumes in one of three ways. A new session makes the ordered startup reads
-and gives the one confirmation in requirement 2, then checks the shared context
-and anything left pending. When the same session resumes, or its context has
-been condensed, the agent brings back the knowledge map, plus any guidance or
-source content that is missing or has changed. It reuses what it already has, as
-long as that is still current. It does not repeat the startup confirmation on an
-ordinary resumed turn. After an unexpected interruption, the agent recovers from
+Work resumes in one of three ways. A new session makes the three ordered
+startup reads in requirement 2, then checks anything left pending. When the
+same session resumes, or its context has been condensed or cleared, the agent
+reads the three files again and brings back any other guidance or source
+content that is missing or has changed. It reuses what it already has, as long
+as that is still current. After an unexpected interruption, the agent recovers from
 the latest state that was actually saved and shared, checks that state against
 current records, and reports what is missing. It does not assume a final handoff
 review ran before the interruption.
@@ -489,10 +482,11 @@ a hook, a skill, a Markdown file, or Git.
 - In every session, the agent follows the knowledge system: when to save, what to save, how to save, where to save, what to check first, what to cite, and what never to write.
 - Reading a rule is not enough. The agent has to actually do what the rule says, every time. Example: requirement 9 requires a save review at the end of meaningful work. The test is whether the right proposals, saves the agent was allowed to make, and pending records actually come out of it, not whether the agent read the rule.
 - It follows the system whether or not the owner mentions it. The owner never has to remind it.
-- At a new session start, the agent reads three files in this order: `SOUL.md`, then `knowledge/project.md`, then the knowledge manual at `knowledge/knowledge-manual.md`. The instruction to make these reads must reach the agent before it makes them. The manual explains each place knowledge is kept, what belongs in each place and what does not, how to choose what is worth saving, how to propose a save, how approval works, and the file conventions, and it points to the detailed guidance for each part.
-- A completion check follows the three reads. It confirms that the contents of each file reached the agent and were read. Listing file names or issuing a reminder does not complete a read. Only after that check does the agent show the owner one short confirmation that covers all the required startup reads together, such as “I’ve read the project files and the knowledge manual.” Show it once, without a checklist, without a separate line per file, and without repeating it on normal turns. Changed on 2026-09-21 under decision D5, which replaced the per-message spoken acknowledgment with this single session-start acknowledgment; requirement 9 records the approval.
-- If a read is incomplete, direct the agent to finish it, hold back the confirmation, and pause work that depends on the unread file. If one of the three files is unavailable, say which file is missing and pause only work that depends on it. Come back to that read when the file is available.
-- If the manual or other required guidance is unavailable, the agent reports the missing source and pauses only work that depends on it. Unrelated authorized work may continue. It never confirms reading an unavailable manual.
+- At a new session start, and again after resume, clear, or compaction, the agent reads three files in this order: `SOUL.md`, then `knowledge/project.md`, then `knowledge/memory/current.md`. It also checks `knowledge/memory-inbox.md` for unfinished saves. The instruction to make these reads must reach the agent before it makes them. Approved by Mike Rihm on 2026-09-22 in work item [#396](https://github.com/Mar5929/claude-toolkit/issues/396); built in #396.
+- The knowledge manual at `knowledge/knowledge-manual.md` and the toolkit manual at `knowledge/toolkit-manual.md` are reference, not startup reads. The manual explains each place knowledge is kept, what belongs in each place and what does not, how to choose what is worth saving, how to propose a save, how approval works, and the file conventions. The `knowledge-*` skills carry their own steps and open the section of the manual a task needs. Approved by Mike Rihm on 2026-09-22 in #396, replacing the full manual read at startup.
+- The agent does not announce or acknowledge the startup reads. Listing file names or issuing a reminder does not complete a read. Approved by Mike Rihm on 2026-09-22 in #396, replacing the single session-start acknowledgment from decision D5.
+- If a read is incomplete, the agent finishes it and pauses work that depends on the unread file. If one of the three files is unavailable, the agent says which file is missing and pauses only work that depends on it. It comes back to that read when the file is available.
+- If the manual or other required guidance is unavailable when a task needs it, the agent reports the missing source and pauses only work that depends on it. Unrelated authorized work may continue.
 - A small map is available at the start of a session, and again whenever context is condensed, cleared, or resumed. The map points to the instructions in force, the places information is kept, the indexes, and the checks that apply. Detailed rules, templates, and knowledge are opened when they are needed; the whole knowledge base and every procedure are not loaded at the start.
 - The instructions that apply to a task are in force from the first read or action they cover, including a memory lookup and work tracking. The agent reuses guidance it already has and that is still current, and it reads any further folder or skill instructions before the action those instructions cover. For example: before a lookup, the agent works out which find order applies. Before proposing or making a knowledge change, it works out the rules for the destination, what must stay out of it, the approval rules, the file fields, the template, and the writing standard. It follows the current instructions for that operation even late in a long session. Guidance it has already read can be reused while it is still available and still current. Guidance that is missing is opened again before the affected operation goes ahead.
 - The same guidance applies when the owner switches to a different task, or when another session changes the records that matter here. A check finished for an earlier task does not show that the new task's knowledge was checked.
@@ -500,10 +494,10 @@ a hook, a skill, a Markdown file, or Git.
 - The agent uses its own judgment to work out what something means, choose relevant sources, reject candidates that are not worth saving, and write a useful proposal. It cannot use that judgment to skip a lookup, an approval, a check, or an upkeep moment that this system requires.
 - Testing shows whether the agent follows this. Never assume it. Requirement 3 says what the results must be, which situations are tested, and what happens when an operation is missed or left half done.
 
-**Check:** at a new session start, the owner sees one short confirmation after
-the agent reads the manual. Normal turns contain no repeated confirmation or
-startup checklist. Make the manual unavailable: no confirmation is shown, the
-missing path is reported, and only dependent work pauses.
+**Check:** at a new session start, the agent reads the three files and checks
+the inbox without announcing it. It does not read either manual in full. Make
+one of the three files unavailable: the missing path is reported, and only
+dependent work pauses.
 
 **Check:** run a whole session without mentioning memory once. At every moment
 this document names, the agent does what this document says. Any moment where it
@@ -527,14 +521,14 @@ for him to notice it.
 
 ### Required outcomes
 
-- At a new session start, all three startup reads in requirement 2 finish before the owner sees the confirmation. A read that did not finish, or a file that is missing, is reported instead.
+- At a new session start, all three startup reads in requirement 2 finish before substantial work. A read that did not finish, or a file that is missing, is reported instead.
 - Before acting on a new or resumed request, the agent has read the shared working context under requirement 13 and checked the pending inbox under requirement 28. If either step was missed, the agent goes back and does it. If an expected source is missing, it reports the gap and pauses only the work that depends on it.
 - After changing the shared working context, the agent confirms in one short line that the update is saved and available to the next project session. If it is not, the agent reports where it was saved and what is not yet shared, and keeps the unfinished step visible.
 - Before answering anything that rests on project information, or acting on it, the agent checks the relevant knowledge under requirement 19. Relevant, current sources that are already in the agent's context can satisfy that check. A check done for an earlier task does not automatically cover a different task.
 - An answer or proposal based on saved knowledge identifies its supporting source under requirement 6. This applies no matter how the agent found or opened that source. A file path that came back with a search result does not on its own show that the answer is supported.
 - The external-knowledge index is reachable from the small map. The agent opens relevant outside documentation before relying on it, as requirement 8 requires.
 - A save review happens at every moment in requirement 9. Opening a pull request, closing a work item, and merging are each held until the agent has reviewed what needs saving for that exact action, as requirement 9 describes. At the end of a turn that involved real work, the review happens quietly unless there is something to approve, a save the owner needs to be told about, or a problem. Requirement 16 keeps routine PRD upkeep quiet. At a handoff, the agent works out which pending items matter, under requirement 28. An explicit request for a save or review still receives a clear answer, including when nothing qualifies. An existing inbox entry alone does not satisfy a new review.
-- Before the agent processes every submitted user prompt, it receives the short reminder in requirement 9 and evaluates the latest message and relevant conversation for project information worth retaining or updating. The reminder is quiet: the agent says nothing to the owner about having received it, and it does not repeat the session-start acknowledgment. Receiving the reminder does not prove that the review finished, that the agent judged the information correctly, or that any save is approved. Changed on 2026-09-21 under decision D5, which replaced the per-message spoken acknowledgment; requirement 9 records the approval.
+- Before the agent processes every submitted user prompt, it receives the short reminder in requirement 9 and evaluates the latest message and relevant conversation for project information worth retaining or updating. The reminder is quiet: the agent says nothing to the owner about having received it. Receiving the reminder does not prove that the review finished, that the agent judged the information correctly, or that any save is approved. Changed on 2026-09-21 under decision D5, which replaced the per-message spoken acknowledgment; requirement 9 records the approval.
 - Lasting knowledge is changed only as far as the owner's approval reaches. Proposals follow the standard format, and a proposal that is missing required information is fixed before the agent asks for approval. A save is not reported as complete until its content, its required fields, its indexes, and its publication have all been checked. A check that fails leaves the save unfinished.
 - When a required check or save was missed, the agent finds what was missed and then does the review or the recovery that is needed, staying inside the permission it already has. It never claims the missing check happened, and it never asks the owner to reconstruct the session for it.
 
@@ -685,10 +679,9 @@ original source or states what could not be verified.
 - No long review. No back and forth. No reading a full file before deciding.
 - The agent proposes at the right moment on its own. The owner never has to remember to ask.
 - Notice useful information throughout the work, including discussion, requirements refinement, and solution design with no file edits. Review project-relevant information outside the active work item's scope as well as information about that item. Do not wait for a changed-file count, a commit, a task switch, or the owner to point it out. Requirement 18 determines its scope and home; noticing it is not permission to implement unrelated work.
-- Before every user prompt is processed, a short hook reminder begins with this owner direction: “Friendly reminder: keep front of mind and follow all of the Toolkit operating system methodologies, processes, and instructions. Know where the project files and folders live.” It asks the agent to evaluate the latest message and relevant conversation for new knowledge, updates, corrections, removal, and other needed project-record changes. It covers every destination in requirement 18, including work records, an enabled System Guide, and client delivery architecture, rather than memory alone.
-- The reminder includes compact positive and negative criteria for both working and lasting memory. Working memory is concise active context, such as the objective, blocker, next step, temporary notes, hypotheses, or partial state. Lasting memory is project-relevant durable fact, decision, feedback, context, event, constraint, relationship, or real failure and fix that came from the owner or was worked out together and would otherwise need to be explained again. Tool activity, logs, conversational filler, source copies, procedures, requirements, open implementation steps, live status, system explanations, stale facts, and secrets do not become lasting memory; keep temporary state short or route the information to its proper owner. The canonical manual remains the source when the compact wording is insufficient.
-- The reminder links to `knowledge/knowledge-manual.md` and to the higher Toolkit Operating System manual at `knowledge/toolkit-manual.md`. It does not force either full manual to be reread on every prompt. The reminder is quiet: the agent performs the evaluation under the existing routing and approval rules and says nothing to the owner about having received it. Receiving the reminder is not proof that the review completed, that a candidate qualifies, or that a write is approved.
-- The agent gives one acknowledgment per session, at the start, covering all the required startup reads together under requirement 2. Today there are three of those reads. That acknowledgment is not repeated on later messages, and the per-message reminder adds no spoken acknowledgment of its own. The per-message re-read of the selected output style stays, and it is silent too, under the [output style handshake in the parent PRD](toolkit-operating-system.md#14-output-styles-and-the-style-handshake). This replaces the earlier wording that required the agent to state on every message that it would evaluate that message. Approved by Mike Rihm on 2026-09-21, source: Main Orchestrator conversation, decision D5. Not built yet, and the build is not yet tracked in a work item.
+- Before every user prompt is processed, a short hook reminder begins with this owner direction: “Friendly reminder: keep front of mind and follow all of the Toolkit operating system methodologies, processes, and instructions. Know where the project files and folders live.” The rest of the reminder is short, about 35 to 45 words. It tells the agent to save a decision, requirement, or correction the owner settles in its home before moving on, to open `knowledge-save` before any memory proposal or save, and names `knowledge/knowledge-manual.md` as the policy. The memory criteria, the routing to every destination in requirement 18, and the approval rules live in `knowledge-save` and the manual, not in the reminder. Approved by Mike Rihm on 2026-09-22 in work item [#396](https://github.com/Mar5929/claude-toolkit/issues/396); built in #396. This replaces the earlier wording that put compact memory criteria and links to both manuals in the reminder.
+- The reminder does not force either manual to be reread on every prompt. It is quiet: the agent performs the evaluation under the existing routing and approval rules and says nothing to the owner about having received it. Receiving the reminder is not proof that the review completed, that a candidate qualifies, or that a write is approved.
+- The agent gives no acknowledgment: not at session start and not on later messages. The per-message reminder adds no spoken acknowledgment of its own. The per-message re-read of the selected output style stays, and it is silent too, under the [output style handshake in the parent PRD](toolkit-operating-system.md#14-output-styles-and-the-style-handshake). Decision D5 (Mike Rihm, 2026-09-21) removed the per-message acknowledgment. Mike removed the session-start acknowledgment on 2026-09-22 in #396. Built in #396.
 - Five moments force a save review: a work item finishes or closes, a pull request is about to be opened, a handoff or a context clear is coming, a turn ends after real work was done, and any time the owner says to save something. Requirement 3 says what each review has to produce, and how these five moments are enforced.
 - Three actions are held until the agent has reviewed what needs saving for that exact action: opening a pull request, closing a work item, and merging. The hold message names the exact action and tells the agent to review what needs saving for it. After that review the agent runs the same command again, and the plain retry is allowed. There is no single-use permit, no code the agent has to carry, and no command it must run to earn the retry. The accepted cost is that an agent could retry without really reviewing. Approved by Mike Rihm on 2026-09-21, source: Main Orchestrator conversation, decision D4. This replaces the one-use permit that shipped in [PR #374](https://github.com/Mar5929/claude-toolkit/pull/374) on 2026-09-21. Not built yet; work item [#379](https://github.com/Mar5929/claude-toolkit/issues/379) owns the change.
 - Every other moment is left to the agent's judgment. It should propose a save whenever that is useful: a real problem here has just been fixed, a commit is coming, or something relevant has changed, such as a new person joining, somebody's role changing, the project switching to a different tool, a fact turning out to be out of date, or a decision about which system is the authority for a piece of data. A candidate the agent misses gets reviewed at the next required moment.
@@ -1989,8 +1982,8 @@ and is not repeated here.
 
 ### Process and user experience
 
-1. At the start of a session, the agent reads the one official knowledge manual
-   and gives the one-line confirmation described in requirement 2.
+1. At the start of a session, the agent makes the three startup reads in
+   requirement 2. The knowledge manual is reference, opened by the skills.
 2. During ordinary work, the agent reasons and investigates freely within the
    task's authorization. Reminders stay small; the full manual is not reloaded
    on every message. The owner should barely notice the rules being enforced.
@@ -2022,7 +2015,7 @@ Requirement 9 says when a routine save review needs a reply the owner can see.
   owner about the disagreement instead of quietly choosing one. Approved by
   Mike Rihm on 2026-09-21, source: Main Orchestrator conversation, decision D10.
 - Session bookkeeping, such as which version of the manual was read, or whether
-  the agent confirmed its startup reads, is temporary state that lasts only
+  the agent made its startup reads, is temporary state that lasts only
   while the session runs. It is not a lasting fact about the project, and it
   never belongs in long-term memory.
 - That temporary state cannot take the place of the shared working context in
@@ -2168,8 +2161,11 @@ recorded in requirement 9, compact positive and negative working/lasting-memory
 criteria, links to the knowledge and higher Toolkit Operating System manuals,
 and an explicit acknowledgment of intent on 2026-09-17. On 2026-09-21 he
 replaced that per-message acknowledgment with a quiet reminder and one
-session-start acknowledgment, recorded in requirements 2, 3, and 9 as decision
-D5. The full manuals are not forced into context or reread on every turn. The
+session-start acknowledgment, decision D5. On 2026-09-22, in #396, he removed
+the session-start acknowledgment, cut the reminder to about 35 to 45 words, and
+made the manuals reference instead of startup reads. Requirements 2, 3, and 9
+record the result. The full manuals are not forced into context or reread on
+every turn. The
 higher manual is `knowledge/toolkit-manual.md`. Mike approved a quiet review before the main agent
 finishes on 2026-09-18, without waiting for independent save helpers. Exact
 wording, acknowledgment transport, and platform proof remain design work.
@@ -2347,6 +2343,14 @@ The instruction-content audit and full requirements approval remain outstanding.
   that pull request merges, requirement 31's approval line above overstates
   what shipped.
 
+- 2026-09-23, work item #396: requirements 2, 3 and 9 now record Mike's
+  2026-09-22 #396 decisions. Startup reads only `SOUL.md`,
+  `knowledge/project.md` and `knowledge/memory/current.md`, plus the inbox
+  check. Both manuals are reference. No acknowledgment is requested. The
+  per-message reminder is about 35 to 45 words and keeps Mike's "Friendly
+  reminder" line. This records approved decisions; it approves nothing else in
+  this document.
+
 - On 2026-09-21, Mike approved seven decisions for this PRD in the Main
   Orchestrator conversation. Each one approves that decision only. It does not
   approve this document as a whole, does not finalize it, and does not mean the
@@ -2357,8 +2361,9 @@ The instruction-content audit and full requirements approval remain outstanding.
     permit shipped in PR #374. Not built yet; work item #379 owns it.
   - D5, acknowledgments: one acknowledgment at session start covering all
     required reads, and a quiet per-message reminder with nothing said out
-    loud. Recorded in requirements 2, 3, 9 and 29. Not built yet, and the build
-    is not yet tracked in a work item.
+    loud. Recorded in requirements 2, 3, 9 and 29. Superseded on 2026-09-22 by
+    Mike's #396 decision: no acknowledgment at all. The quiet reminder is built
+    in #396.
   - D6, no conversation search program: recorded in requirement 19. Not built
     yet, and the build is not yet tracked in a work item.
   - D7, named Git commands instead of a save-inspection program: recorded in

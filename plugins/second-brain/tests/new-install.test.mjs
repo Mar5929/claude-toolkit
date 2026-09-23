@@ -55,13 +55,13 @@ try {
  for(const [,p] of nav.matchAll(/\]\(([^)]+)\)/g))readFileSync(resolve(root,'knowledge',p));
  mkdirSync(resolve(root,'packages/feature'),{recursive:true});const env={...process.env};delete env.CLAUDE_PROJECT_DIR;delete env.CODEX_PROJECT_DIR;
  const startup=execFileSync(process.execPath,[resolve(root,'.claude/hooks/knowledge-session-start.mjs')],{cwd:resolve(root,'packages/feature'),env,encoding:'utf8'});
- assert.doesNotMatch(startup,/missing:|file empty:/);assert.match(startup,/SOUL\.md, knowledge\/project\.md and knowledge\/knowledge-manual\.md/);
+ assert.doesNotMatch(startup,/missing:|file empty:/);assert.match(startup,/1\. `SOUL\.md`\n2\. `knowledge\/project\.md`\n3\. `knowledge\/memory\/current\.md`/);assert.doesNotMatch(startup,/acknowledg|confirmation/i);
  const input={session_id:'fixture-session',hook_event_name:'UserPromptSubmit',cwd:resolve(root,'packages/feature')};
  const prompt=execFileSync(process.execPath,[resolve(root,'.claude/hooks/memory-reminder.mjs')],{cwd:resolve(root,'packages/feature'),env,input:JSON.stringify(input),encoding:'utf8'});
- assert.match(prompt,/Knowledge turn review:/);assert.doesNotMatch(prompt,/unavailable:/);
+ assert.match(prompt,/Before you finish, run: `node "[^"]*\/\.claude\/hooks\/knowledge-completion\.mjs" review /);assert.doesNotMatch(prompt,/unavailable:/);
  const firstStop=execFileSync(process.execPath,[resolve(root,'.claude/hooks/knowledge-completion.mjs')],{cwd:resolve(root,'packages/feature'),env,input:JSON.stringify({...input,hook_event_name:'Stop'}),encoding:'utf8'});
  assert.equal(JSON.parse(firstStop).decision,'block');
- const generation=prompt.match(/generation=([\w-]+)/)[1];
+ const generation=prompt.match(/knowledge-completion\.mjs" review "[^"]*" "[^"]*" "[^"]*" ([\w-]+) OUTCOME/)[1];
  execFileSync(process.execPath,[resolve(root,'.claude/hooks/knowledge-completion.mjs'),'review',root,input.session_id,'root',generation,'no-change'],{encoding:'utf8'});
  const stop=execFileSync(process.execPath,[resolve(root,'.claude/hooks/knowledge-completion.mjs')],{cwd:resolve(root,'packages/feature'),env,input:JSON.stringify({...input,hook_event_name:'Stop'}),encoding:'utf8'});
  assert.deepEqual(JSON.parse(stop),{});

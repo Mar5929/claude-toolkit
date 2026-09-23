@@ -1,8 +1,9 @@
 # second-brain plugin
 
-Project knowledge in shared Markdown and Git. One core manual is read completely
-at startup; four focused procedures supply operation details when needed. The
-agent chooses useful information and respects the permission for its destination.
+Project knowledge in shared Markdown and Git. Startup reads three short files.
+One core manual holds the policy as reference; four focused procedures open it
+and their own references when needed. The agent chooses useful information and
+respects the permission for its destination.
 
 Install with `/plugin install second-brain`, then request project setup through
 `knowledge-setup`, project-init or project-sync. Installing source on a machine
@@ -66,11 +67,12 @@ Inspect native host memory conflicts without silently changing settings or data.
 
 Canonical hooks copied into `.claude/hooks/`:
 
-- `hooks/knowledge-session-start.mjs`: bounded complete-read route, using the
-  Toolkit loader delivered by project-init. Order: SOUL, project, Knowledge
-  manual, current work and map; relevant inbox entries are checked on recovery.
+- `hooks/knowledge-session-start.mjs`: lists the three startup reads in order
+  (SOUL, project, current work) and the inbox check. It asks for no
+  acknowledgment. The manual and indexes are opened by the skills, not at startup.
 - `hooks/knowledge-manual.mjs`: shared read-only manual discovery and conflict checks.
-- `hooks/memory-reminder.mjs`: shared prompt criteria and explicit intent request.
+- `hooks/memory-reminder.mjs`: short per-message reminder to save settled
+  decisions through `knowledge-save`, plus the turn-review command.
 - `hooks/knowledge-completion.mjs`: temporary project/session/agent review
   generation, explicit outcome and at most one corrective Stop continuation.
 - `hooks/save-reminder.mjs`, `hooks/work-item-close.mjs`,

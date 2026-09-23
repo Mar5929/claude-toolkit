@@ -40,14 +40,14 @@ The second-brain plugin supplies knowledge; project-init owns Toolkit orientatio
 
 ## Host routes and limits
 
-Use the existing `toolkit-session-start.mjs` route and Knowledge
-`knowledge-session-start.mjs` component. It delivers a bounded instruction to
-read the complete Toolkit manual, followed by SOUL, project and the complete
-Knowledge manual in that order; then current work, relevant inbox and indexes.
-Read files in untruncated chunks when necessary. A path listing or successful
-reader process is not proof that all contents reached the agent. Restore missing
-or changed guidance on resume, clear, compact and supported fork events without
-repeating the ordinary startup greeting.
+Use the existing `toolkit-session-start.mjs` route and the Knowledge
+`knowledge-session-start.mjs` component. The Knowledge hook lists three startup
+reads, in order: `SOUL.md`, `knowledge/project.md`, `knowledge/memory/current.md`.
+It asks the agent to check `knowledge/memory-inbox.md` for unfinished saves. The
+manuals and indexes are not startup reads: the `knowledge-*` skills open them
+when a task needs them. The hook asks for no acknowledgment. A path listing is
+not proof that the contents reached the agent. The same route runs on resume,
+clear, compact and supported fork events.
 
 Claude Code uses its documented SessionStart/UserPromptSubmit/Stop events.
 Codex uses only the events verified in the effective host. Both use the same
@@ -55,7 +55,8 @@ manual, prompt criteria and file contracts. Keep the root fallback route for
 disabled/unavailable hooks. Do not infer desktop support from the CLI version.
 Hooks guide and check narrow observable outcomes; they do not universally block
 all tools or prove meaning. A Stop review must not loop or wait for independent
-save helpers. Required prompt intent and quiet end-turn review remain distinct.
+save helpers. The prompt reminder asks for no spoken intent; the end-of-turn
+review stays quiet.
 
 Inspect effective native-memory behavior on each host. Name any competing store
 and its effect on source/approval/sharing. Preserve user settings and content;
@@ -67,7 +68,7 @@ actual conflicting policy before calling that surface fully equipped.
 State source version, installed-copy consistency and configured registrations;
 then separately list deterministic file/Git checks, actual agent behavior, CLI
 proof, desktop proof and unavailable targets. Test new and migrated projects,
-complete reads/tail content, missing files, recovery, an approved interrupted
+the three startup reads, missing files, recovery, an approved interrupted
 save and a withheld proposal. A receipt is evidence of the declared step, not
 truth, consent or understanding. A limitation disclosure does not turn a failing
 requirement into a passing one.

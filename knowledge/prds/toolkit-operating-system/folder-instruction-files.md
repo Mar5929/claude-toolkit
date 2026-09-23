@@ -11,7 +11,7 @@ approved_by: Mike Rihm
 approval_date: 2026-08-22
 project: claude-toolkit
 work_item: "219"
-updated_at: 2026-09-22
+updated_at: 2026-09-23
 ---
 
 # Folder instruction files
@@ -60,8 +60,10 @@ Each host reaches a folder file a different way:
   specification already own that vault, so another instruction file would
   duplicate authority.
 - **A `README.md` index is never repeated.** Where a folder has one it stays the
-  one index. A pointer-only file is written only when the folder needs a working
-  note the README does not carry.
+  one index. An `AGENTS.md` pair is written beside it only when the folder needs
+  working notes the README does not carry. The two may both exist when they do
+  not repeat each other: the README says what the folder holds, and the
+  `AGENTS.md` holds only the working notes.
 - **Sync treats a missing one as a gap.** `project-sync` reports each folder as
   present, missing, skipped by design, or not recognized, and adds a file only
   with the owner's approval. A folder that already has its own `AGENTS.md` pair is
@@ -164,5 +166,12 @@ Updated 2026-09-22. Mike approved the change from folder `CLAUDE.md` files to
 `AGENTS.md` pairs on 2026-09-22 (issue #388, open point 2, answered yes). The
 build is in issue #388's pull request; the earlier one-root-`AGENTS.md` decision
 from issues #150 and #219 is superseded by it.
+
+2026-09-23, work item [#396](https://github.com/Mar5929/claude-toolkit/issues/396):
+gap-assessment finding F2 (2026-09-21 Toolkit OS gap assessment) recorded, under Mike Rihm's 2026-09-23 approval to build the #383 work in #396. The wording was written by an agent from the assessment; Mike checks it. A
+folder may hold both a `README.md` index and an `AGENTS.md` pair when they do
+not repeat each other, which is how `tests/` in this repository works. Finding
+F3 needed no change: the four-question list it named was replaced in the #388
+rewrite, and root `AGENTS.md` content now follows `thin-agents-md.md`.
 
 No open questions.

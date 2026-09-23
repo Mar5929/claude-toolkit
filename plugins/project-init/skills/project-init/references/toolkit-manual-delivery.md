@@ -12,22 +12,20 @@ the chosen tracker.
    create any other knowledge files.
 2. Copy the project-init-owned Toolkit startup hook to
    `.claude/hooks/toolkit-session-start.mjs`. On each supported host, register
-   it for SessionStart `startup|resume|clear|compact` and UserPromptSubmit.
-   Use [the hook's installation instructions](../../../library/hooks/README.md)
-   for the exact Claude and Codex settings; preserve other hooks and avoid duplicates.
-3. Add the exact complete-read fallback from `thin-agents-md.md` to `AGENTS.md`.
-   `CLAUDE.md` stays one line and reaches the route through its import of
-   `AGENTS.md`.
+   it for SessionStart `startup|resume|clear|compact` only. Remove an older
+   UserPromptSubmit registration of the same script. Use
+   [the hook's installation instructions](../../../library/hooks/README.md)
+   for the exact Claude and Codex settings. Preserve other hooks and avoid
+   duplicates.
+3. Write the Startup section from `thin-agents-md.md` into `AGENTS.md`.
+   `CLAUDE.md` stays one line and reaches it through its import of `AGENTS.md`.
 4. Keep the root codemap, Tools, Quick saves, and tracker sections accurate for
    this project. The manual refers to those sections instead of carrying
    project-specific paths or inactive component links.
 
-The SessionStart route tells the agent to read the complete project file and
-acknowledge receipt and intent after that read. The prompt route is a short
-workflow and file pointer; it does not demand a repeated acknowledgment. Neither
-route prints or copies the manual body. The agent continues from the first
-missing section if output is shortened. Missing or unreadable content produces
-an honest gap report instead of a readiness acknowledgment.
+The hook prints the manual's `## Summary` section and any missing-file gaps. It
+never prints the manual body. It asks for no full read and no acknowledgment.
+The manual is reference: agents open the section a task needs.
 
 ## Existing projects and local adaptations
 
@@ -43,17 +41,16 @@ the current files, and a copied file does not prove the host ran it.
 
 ## Verification
 
-- Confirm `knowledge/toolkit-manual.md` matches the reconciled result and has no
-  links to paths that exist only in the toolkit repository.
-- Run both Toolkit hook events directly from the installed path. Confirm each
-  output names `knowledge/toolkit-manual.md` without printing the body and that
-  only SessionStart asks for the read acknowledgment.
-- Inspect the configured Claude and Codex startup routes. Test startup, resume,
-  clear, and compaction in each supported host before claiming host delivery.
-- Confirm a complete direct read, a shortened-read recovery, a missing file,
-  and an unreadable file. Receipt and intent follow only the complete read.
+- Confirm `knowledge/toolkit-manual.md` matches the reconciled result, starts
+  with a `## Summary` section, and has no links to paths that exist only in the
+  toolkit repository.
+- Run the installed hook directly. Confirm it prints the Summary, not the body,
+  and asks for no acknowledgment.
+- Confirm the hook is registered for SessionStart only, in each configured
+  host. Test startup, resume, clear, and compaction in each supported host
+  before claiming host delivery.
+- Confirm a missing and an unreadable manual each produce a gap line.
 - Confirm projects with Knowledge and System Guide disabled still receive the
-  Toolkit manual without receiving files or claims for those components.
+  Toolkit manual without files or claims for those components.
 
-Report installation, host delivery, complete reading, acknowledgment, and
-correct use as separate facts.
+Report installation and host delivery as separate facts.

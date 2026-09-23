@@ -1,6 +1,6 @@
 {
   "name": "work-tracker",
-  "version": "2.9.0",
+  "version": "2.10.0",
   "description": "Agent-led delivery with the chosen tracker, plus local work tracking for Claude and Codex with roadmaps, tasks, shared continuation, approval boundaries, and Git evidence.",
   "author": {
     "name": "Mike Rihm",

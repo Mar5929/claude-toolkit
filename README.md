@@ -104,6 +104,8 @@ claude-toolkit/
         hooks/toolkit-session-start.mjs ← bounded Toolkit orientation and reminder
         rules/general/               the standard .claude/rules files (11)
         rules/salesforce/            the extra Salesforce rules (10)
+        skills/salesforce/           the skills those rules open (3), installed to
+                                     .claude/skills/ and .agents/skills/
         tools/                       permsets.py and the kb/ dependency graph tool
         templates/                   copy-and-fill starting points
         guides/                      how-to docs for installing the kits above
@@ -125,7 +127,7 @@ claude-toolkit/
       .claude-plugin/plugin.json
       .codex-plugin/plugin.json
       hooks/
-        knowledge-session-start.mjs ← ordered complete-read route for manual and map
+        knowledge-session-start.mjs ← lists the three startup reads and the inbox check
         save-reminder.mjs          ← pauses pull requests for the owner-approved save,
                                      and points a knowledge-only branch to the shared publication rule
         work-item-close.mjs        ← asks whether a finished work item left a spec stale
@@ -163,6 +165,7 @@ claude-toolkit/
         pull-latest/              ← SKILL.md
         reset-to-remote/          ← SKILL.md
         merge-and-clean-up/       ← SKILL.md + Codex UI metadata
+        publish-docs/             ← SKILL.md
     hooks-library/                ← plugin: hooks that check a moment mechanically
       README.md
       .claude-plugin/plugin.json
@@ -218,7 +221,7 @@ claude-toolkit/
     designs/                      ← the build plan for one work item, deleted
                                      once the PRD is brought current
   tests/
-    AGENTS.md                     ← the four checks and how to run them
+    AGENTS.md                     ← the checks and how to run them
     CLAUDE.md                     ← one line, @AGENTS.md
     orphan-check.mjs              ← fails if the toolkit ships a file nothing points at
     link-check.mjs                ← fails if a Markdown link points at a file that is gone
@@ -278,7 +281,7 @@ inside a project folder before it is useful, which is what the last column says:
 | **[second-brain](plugins/second-brain/README.md)** | A portable `knowledge/` system for Claude, Codex, Git, and optional Obsidian: one managed operating manual, a bounded startup read route, topic memory, PRDs, four focused procedures, durable save recovery, three generated indexes and safe migration. | Sets up a project |
 | **[system-guide](plugins/system-guide/README.md)** | Optional system understanding under `knowledge/system/`: useful source maps, evidence, and owner-approved explanations that save repeated investigation. Local tools refresh generated pages and preserve meaning; deliberate cleanup removes content that no longer helps. Works independently and joins the second brain's lookup when both are enabled. | Sets up a project |
 | **[sf-architect-solutioning](plugins/sf-architect-solutioning/README.md)** | A Salesforce solution architect: pushes back on vague requirements, verifies platform facts against official docs by live fetch, designs declarative-first to Well-Architected standards, and presents a solution plan for approval before any build. Salesforce projects only. | Install and go |
-| **[git-workflows](plugins/git-workflows/README.md)** | Three parallel-session-safe git lifecycle skills: `pull-latest` gets current without rewriting history, `reset-to-remote` mirrors the remote behind confirmation, and `merge-and-clean-up` lands an approved PR before removing only its completed workspace. | Install and go |
+| **[git-workflows](plugins/git-workflows/README.md)** | Four parallel-session-safe git lifecycle skills: `pull-latest` gets current without rewriting history, `reset-to-remote` mirrors the remote behind confirmation, `merge-and-clean-up` lands an approved PR before removing only its completed workspace, and `publish-docs` lands an authorized documentation-only save on the default branch. | Install and go |
 | **[hooks-library](plugins/hooks-library/README.md)** | Reusable hooks that make a rule land mechanically: `spec-check-reminder` asks once per session whether the spec-check review ran, `no-ai-attribution-guard` refuses AI credit in Git text, `style-handshake` requests a silent output-style re-read before work on each new user message, with no acknowledgment, and two Salesforce guards protect production and permission-set deploys. System-specific knowledge hooks ship with second-brain. | Wires into settings |
 | **[work-tracker](plugins/work-tracker/README.md)** | Offers agent-led delivery with a saved goal-specific choice in the chosen tracker. Its local mode gives Claude and Codex one local backlog under Git-ignored `.work-items/`: owner-shaped roadmaps, detailed execution tasks with branch-scoped current-task continuation, child work items with their own plans and approvals, YAML records, owner-approved requirements, exact handoffs, blockers, typed relationships, deterministic next-item selection, flexible work types and lifecycle stages, a dated progress log, accepted completion events and optional Git landing proof, generated dashboards, an `archive/` folder for items the owner has set aside, and preview-first conversion of older staged trackers. Shared GitHub tracking remains a separate tracker choice. | Sets up a project |
 | **[session-skills](plugins/session-skills/README.md)** | Eleven conversation skills. `work-guide` keeps roadmap stages connected to actionable tasks or child work items through the chosen tracker; `requirements-helper` clarifies intent, questions directions that could undermine the goal, and updates the draft; `solution-design` resumes from the linked design's preparation and bottom Notes, checks the requirements are ready, recommends a team of agents sized to the item, then researches, designs, critiques against every requirement, and fixes until all are satisfied. Focused research, design, and review agents assist the main conversation. Existing brain dump, explanation, discovery, handoff, recap, specification check, task-list, and writing tools remain included. | Install and go |
@@ -292,9 +295,9 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
 
 - [x] **Project knowledge package**: one portable Markdown knowledge vault under
   `knowledge/`, shared by Claude, Codex, Git, and optional Obsidian. One managed
-  `knowledge/knowledge-manual.md` owns the operating policy. The startup hook
-  supplies a bounded route to read it completely with SOUL, project framing,
-  current work, and the two generated indexes, including after context loss.
+  `knowledge/knowledge-manual.md` owns the operating policy as reference. The
+  startup hook lists three reads (SOUL, project framing, current work) and the
+  inbox check, including after context loss.
   Flat memory holds one file per topic, specifications hold approved behavior,
   and brainstorms stay unchecked. The focused skills point to the manual and
   keep only their own task steps. The package has one checker and deliberately
@@ -380,7 +383,7 @@ On Salesforce projects, also:
 ```
 
 For safe git lifecycle skills (`pull-latest`, `reset-to-remote`,
-`merge-and-clean-up`) on any project:
+`merge-and-clean-up`, `publish-docs`) on any project:
 
 ```
 /plugin install git-workflows

@@ -217,20 +217,20 @@ three weeks later in another project.
 | 0. Orient | Done. Existing repository, not a new one, so this ran as a sync rather than an init. Node and Markdown, no application stack. |
 | 1. Scaffolding and work tracking | Already answered. Work is tracked on the `Claude-Toolkit-Project` board on GitHub. `CLAUDE.md` names it. `spec-before-you-build.md` was installed alongside that pointer until 2026-08-31, when the toolkit dropped the rule and it was removed here too. No scaffolding was added: the folder layout already existed. The board's vocabulary changed in issue #260: an issue now carries one stage label from `work-item-stages.md`, and `03-requirements-approved` replaced the retired `refined` label as the mark that an issue is ready to build. |
 | 2. Hooks | Done. `toolkit-session-start`, `save-reminder`, `work-item-close`, `memory-reminder`, `knowledge-session-start`, and `spec-check-reminder` are installed under `.claude/hooks/` and registered in `.claude/settings.json`. Codex registers the same startup loader in `.codex/hooks.json`. The two style hooks were removed with the toolkit, as explained below. `style-handshake` is installed separately under `UserPromptSubmit`. As of 2026-09-21 (issue #375) it asks for a silent re-read of the selected style file on each message, with no acknowledgment. |
-| 3. Project knowledge | **Adopted from the packaged plugin.** `SOUL.md`, the managed operating manual, `knowledge/project.md`, `knowledge/current.md`, and both complete generated indexes are requested in order at session start. Approved specifications, flat persistent memory, and unchecked brainstorms live under the same knowledge root. The packaged skills keep only task-specific steps. The retired policy rule and machinery stay removed. |
+| 3. Project knowledge | **Adopted from the packaged plugin.** Startup reads `SOUL.md`, `knowledge/project.md`, and `knowledge/memory/current.md` (issue #396); the managed operating manual and the generated indexes are reference. Approved specifications, flat persistent memory, and unchecked brainstorms live under the same knowledge root. The packaged skills keep only task-specific steps. The retired policy rule and machinery stay removed. |
 | 4. Knowledge layer | Included with Gate 3. The graphify code graph was offered and declined, see below. |
-| 5. Root instructions, rules, output style | Done. `AGENTS.md` holds the content, including the Toolkit and Knowledge complete-read routes; `CLAUDE.md` is the one-line import that brings it in for Claude Code. `.claude/rules/` holds the applicable general rules, with no large memory rule or wrap-up ritual. The `Plain English` style is selected in `.claude/settings.json` and installed at `.claude/output-styles/plain-english.md`, copied from `plugins/project-init/library/output-styles/`. This repo ran Claude Code's built-in `Concise` style before that, and the hand-written `plain-language` style before that, removed from the toolkit in issue #245. |
+| 5. Root instructions, rules, output style | Done. `AGENTS.md` holds the content, including the three-file Startup section; `CLAUDE.md` is the one-line import that brings it in for Claude Code. `.claude/rules/` holds the applicable general rules, with no large memory rule or wrap-up ritual. The `Plain English` style is selected in `.claude/settings.json` and installed at `.claude/output-styles/plain-english.md`, copied from `plugins/project-init/library/output-styles/`. This repo ran Claude Code's built-in `Concise` style before that, and the hand-written `plain-language` style before that, removed from the toolkit in issue #245. |
 | 6. Optional toolkit skills | Done. All five now ship in one plugin, `session-skills`: `explain-simply`, `grill-me`, `handoff`, `session-summary`, and `track-tasks`. The four that predate the merge were already switched on in the machine settings at `~/.claude/settings.json`. |
 
 ## Rules installed
 
 Every default-on general rule that fits, copied unmodified from
-`plugins/project-init/library/rules/general/`. `.claude/rules/README.md` lists
+`plugins/project-init/library/rules/general/`. `.claude/RULES.md` lists
 what each one does, and which ones this repository does not carry.
 
 Two retired rules remain deliberately absent: `second-brain.md` and
 `wrap-up-ritual.md`. The current policy lives in
-`knowledge/knowledge-manual.md` and loads once at session start.
+`knowledge/knowledge-manual.md`, which skills open when needed.
 
 Two more default-on rules were deliberately left out from the start:
 
@@ -351,3 +351,23 @@ Updated the shipped and installed lifecycle rule together. It now directs
 orientation before substantial work and faithful progress capture. Removed
 the retired `work-item-stage-reminder` script and its registration, keeping
 all other hooks. Handoff refreshes the chosen tracker before memory review.
+
+## 2026-09-23: startup cut (#396)
+
+Startup text in this repository went from 9,004 to about 4,249 always-loaded
+words. `toolkit-session-start.mjs` runs at SessionStart only and prints the
+toolkit manual's Summary; its per-message entry was removed from
+`.claude/settings.json` and `.codex/hooks.json`. `knowledge-session-start.mjs`
+asks for three reads (`SOUL.md`, `knowledge/project.md`,
+`knowledge/memory/current.md`) and the inbox check; both manuals are reference.
+`memory-reminder.mjs` is about 40 words and asks for no acknowledgment.
+`save-reminder.mjs` names the `publish-docs` skill. The rules index moved from
+`.claude/rules/README.md` to `.claude/RULES.md`, the general rules were
+rewritten short, `knowledge-direct-commit.md` became path-scoped, and the new
+repo-only rule `standing-merge-instruction.md` records decision D9. Root
+`AGENTS.md` has the three-read Startup section and a Path-scoped rules section
+for Codex. New checks: `tests/startup-budget-check.mjs` and
+`tests/skill-copy-check.mjs`.
+Release versions: project-init 0.78.0, second-brain 4.13.0, work-tracker
+2.10.0, git-workflows 0.3.0, session-skills 1.13.1, hooks-library 3.6.3,
+marketplace 0.124.15. Machine plugin caches are refreshed after the merge.

@@ -191,7 +191,7 @@ fields in `WORK-ITEM.md`.
 - `priority`: `urgent`, `high`, `medium`, or `low`;
 - `status`: `Backlog`, `Ready`, `In Progress`, `In Review`, `Done`, or
   `Cancelled`;
-- `stage`: the item's current stage from the fourteen in `work-item-stages.md`,
+- `stage`: the item's current stage from the fourteen in `lifecycle.md`,
   or `null`. Items created before stages existed have no `stage` key at all,
   which is the same thing as `null` and is never an error;
 - `created_date` and `updated_date`, both `YYYY-MM-DD`;

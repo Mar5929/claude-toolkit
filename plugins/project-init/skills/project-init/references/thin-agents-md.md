@@ -11,10 +11,9 @@ A router and a map. It answers five questions and nothing else:
 - Which configured folders use a quick save instead of ordinary branch work?
 
 It loads into every session, so every line costs context in every conversation.
-Anthropic's guidance: keep it under 200 lines, and for each line ask "would
-removing this make an agent get something wrong?" If no, cut it. A bloated file
-makes agents ignore the instructions that matter.
-Source: https://code.claude.com/docs/en/memory
+Aim for about 400 words. For each line ask "would removing this make an agent
+get something wrong?" If no, cut it. Write short sentences, one instruction per
+line. Source: https://code.claude.com/docs/en/memory
 
 ## What goes in it, in this order
 
@@ -22,9 +21,9 @@ Source: https://code.claude.com/docs/en/memory
    quoted below.
 2. Title, and one line saying what the project is.
 3. `Read .claude/rules first.`
-4. The Toolkit operating-manual route below.
-5. The project knowledge startup route, when that system is installed, and the
-   one System Guide fallback line when that independent plugin is enabled.
+4. **Startup.** The section below.
+5. **Path-scoped rules.** One line per rule with `paths:` frontmatter, and the
+   one System Guide fallback line when that plugin is enabled.
 6. **Codemap.** A table, one row per folder, module, or context source. Each row
    says what is in it and when to open it. Name the context sources, not only
    the code: captured outside documentation, reference data, the PRDs in
@@ -42,10 +41,9 @@ Source: https://code.claude.com/docs/en/memory
 
 ## What never goes in it
 
-- **A rule that already has a file in `.claude/rules/`.** Claude Code loads that
-  folder every session. Two copies drift, and an agent reading both picks one at
-  random. The Quick saves table is the narrow exception: it names the action
-  and points to the rule without copying its procedure.
+- **A rule that already has a file in `.claude/rules/`.** Two copies drift. The
+  Quick saves table and the Path-scoped rules lines are the exceptions: they
+  point to the rule without copying it.
 - **How to talk to the owner.** That lives once, in the owner's own
   `~/.claude/`, and is in force in every project already.
 - **A multi-step procedure.** That is a skill. Skills load on demand instead of
@@ -68,40 +66,46 @@ shortened, or repunctuated.
 > that continuity across sessions while not adding context that might pollute
 > future agents and skew them. Information must be curated and intentional.
 
-Where the project has a `SOUL.md` and declined the project knowledge system, one
-more line goes above both: `Read SOUL.md first and follow it throughout this
-session.` When project knowledge is installed, its startup hook already requests a complete read of
-`SOUL.md`, so do not add a second route.
+The Startup section names `SOUL.md`, so no separate SOUL line is needed.
 
-## The Toolkit operating-manual route
+## Startup
 
-Every equipped project uses this short route in `AGENTS.md`:
+Every equipped project uses this section:
 
-> Read `knowledge/toolkit-manual.md` completely during the first project
-> orientation and after resume, clear, or compaction, and follow it throughout
-> the work. If a read is shortened, open the file again from the first missing
-> section, in chunks when needed. If it is missing or unreadable, report that
-> instead of claiming readiness. Acknowledge receipt and intent only after the
-> complete read.
+```markdown
+## Startup
 
-This is the fallback when startup hooks are unavailable and the durable route
-after host context changes. Keep it short. The manual owns the shared workflow;
-component procedures remain in their own rules, skills, and manuals.
+- Read `SOUL.md`, `knowledge/project.md`, and `knowledge/memory/current.md`.
+- Check `knowledge/memory-inbox.md` for unfinished saves.
+- Read the three files again after resume, clear, or compaction.
+- Procedures live in skills. The manuals in `knowledge/` are reference: open a
+  section when a task needs it.
+```
 
-## The project knowledge startup route
-
-When Gate 3 ran, use this wording and no more:
-
-> The startup hook provides the ordered project-knowledge read route: `SOUL.md`,
-> `knowledge/project.md`, `knowledge/knowledge-manual.md`, `knowledge/memory/current.md`,
-> then check relevant inbox entries and use the memory/PRD/outside-source indexes. Follow that route once at session start. If it
-> was not provided, read those files in that order. If a file is missing or a
-> read is shortened, report it and continue the read from the project file.
-> `knowledge/knowledge-manual.md` wins when project-knowledge instructions
-> disagree.
+Without project knowledge, keep only the files that exist and the last line.
+Never require a full read of `knowledge/toolkit-manual.md` or
+`knowledge/knowledge-manual.md` at startup, and never ask for an
+acknowledgment. The startup hooks print the same route. This section is the
+fallback when hooks do not run.
 
 Do not copy the save policy, the routing table, or the knowledge specification
 into the root file. `knowledge/knowledge-manual.md` owns those.
+
+## Path-scoped rules
+
+Claude Code loads a rule with `paths:` frontmatter only when the agent reads a
+matching file. Codex has no `paths:` support. Add one line per such rule:
+
+```markdown
+## Path-scoped rules
+
+Claude Code loads these when a matching file is read. Codex: open the rule
+before working on a matching path.
+
+- `knowledge/**`, `docs/**`, `**/README.md`: `.claude/rules/knowledge-direct-commit.md`
+```
+
+List only rules installed in this project, with their actual patterns.
 
 ## The System Guide fallback route
 
@@ -128,8 +132,8 @@ no tracker, or a different tracker, gets no `.work-items/` row.
 
 | Path | How updates land | Instructions |
 | --- | --- | --- |
-| Project documentation (use actual paths from the codemap) | Authorized documentation-only updates use the direct publication route. | `.claude/rules/knowledge-direct-commit.md` |
-| `knowledge/` | Follow the knowledge manual for content approval, then the documentation publication route. | `knowledge/knowledge-manual.md` and `.claude/rules/knowledge-direct-commit.md` |
+| Project documentation (use actual paths from the codemap) | Authorized documentation-only updates go straight to the default branch. | `.claude/rules/knowledge-direct-commit.md` and the `publish-docs` skill |
+| `knowledge/` | Content approval follows the knowledge manual, then the route above. | `knowledge/knowledge-manual.md` and the `knowledge-save` skill |
 | `.work-items/` | Update the existing shared, Git-ignored local tracker. Do not create a worktree, commit, or push for the tracker update. | `.claude/rules/work-item-folders.md` and the `work` skill |
 ```
 
@@ -164,7 +168,7 @@ Three rules go with the pair:
 
 ## Keeping them current
 
-When a path, tool, tracker, or startup route changes, update `AGENTS.md` in the
+When a path, tool, tracker, path-scoped rule, or startup route changes, update `AGENTS.md` in the
 same change. Delete what is now wrong or said twice while you are in there.
 `CLAUDE.md` never changes, because it holds nothing that can go out of date.
 

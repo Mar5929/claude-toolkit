@@ -90,7 +90,10 @@ separate prep, interview, or continuation files for that workflow.
   store.
 - Salesforce / SFDX: after `.claude/rules/` is scaffolded, offer the reusable
   Salesforce rules from `library/rules/salesforce/` (see its `README.md`); copy the ones
-  the owner wants into the project's `.claude/rules/`.
+  the owner wants into the project's `.claude/rules/`. Install each skill an
+  accepted rule opens from `library/skills/salesforce/<name>/` twice, as
+  byte-identical copies: to `.claude/skills/<name>/` for Claude Code and to
+  `.agents/skills/<name>/` for Codex.
 - Salesforce / SFDX: if the owner wants permission sets tracked in git, install
   the whole permission set kit. It has four parts and the rule is useless without
   the rest, because the danger it guards against is invisible to Salesforce's own
@@ -230,8 +233,9 @@ separate prep, interview, or continuation files for that workflow.
 - Install the Toolkit operating manual for every equipped project, whether or
   not the owner selected project knowledge. Follow
   `toolkit-manual-delivery.md`: copy the packaged template to
-  `knowledge/toolkit-manual.md`, install the project-init-owned startup pointer,
-  and add the same short complete-read fallback to `AGENTS.md`.
+  `knowledge/toolkit-manual.md`, install the project-init-owned startup hook
+  (SessionStart only), and write the Startup section from `thin-agents-md.md`
+  into `AGENTS.md`. The manual is reference; nothing asks for a full read.
 - The manual uses universal workflow text. Put the project's actual tracker,
   paths, quick-save routes, and optional-component pointers in the root sections
   that already own them. Do not leave toolkit-repository links in the installed
@@ -273,12 +277,14 @@ separate prep, interview, or continuation files for that workflow.
   files into `.claude/rules/`. Never copy a rule the index records as retired or
   recreate the current knowledge procedure from this library; its plugin owns it.
 - Salesforce projects: make sure the `library/rules/salesforce/` files chosen in Gate 1
-  are in `.claude/rules/` too.
+  are in `.claude/rules/` too, and their skills are in both `.claude/skills/`
+  and `.agents/skills/`.
 - MCP tool rules from `library/guides/mcp-best-practices.md` are conditional: fold in a server's
   section only if the project uses that MCP server.
 - Write a thin AGENTS.md _with_ the user: what it is, codemap and structural
   pointers, a `Read .claude/rules` line, which gates ran. Add a
-  `.claude/rules/README.md` index.
+  `.claude/RULES.md` index. Never put an index inside `.claude/rules/`: every
+  `.md` file there loads as a rule.
 - Add the short "Quick saves" table from `thin-agents-md.md`. Unless the owner
   explicitly opted out, include the documentation publication route even when
   knowledge is disabled, using the

@@ -21,8 +21,7 @@ tracker or mirror for an external tracker.
 
 ## Orient once, refresh when switching
 
-- Read the applicable project instructions and knowledge manual, then the
-  named work item and its linked requirements, decisions, progress, and next
+- Read the applicable project instructions, then the named work item and its linked requirements, decisions, progress, and next
   action. Follow the project's context routes; do not load every document.
   Resolve the exact current requirements document or workbook and working
   design from the owner's designation and links. Read them, not just their
@@ -174,8 +173,11 @@ tracker's existing fields, body, or linked documents.
   every epic needs a team or ask again for already-authorized delegation.
 - Use separately recorded item or project authority to select useful bounded
   helpers within its stated limits. Acceptance of agent-led delivery alone
-  does not grant helper-selection permission. Preserve a separate team or helper
-  approval gate when the item has not granted that authority. Never treat delegation as product approval or as
+  does not grant helper-selection permission. The owner's choice of a team
+  arrangement does: it authorizes bounded helpers for that goal only. Preserve a
+  separate helper approval gate when neither applies.
+- Outside agent-led delivery, a small, bounded helper needs no permission, for
+  example to run one search. Honor any limit the owner sets for the task. Never treat delegation as product approval or as
   expanded implementation, publication, deployment, spending, or tool access.
 - For a bounded research task use [delivery-researcher](../../agents/delivery-researcher.md);
   for an independent requirements, design, or plan review use

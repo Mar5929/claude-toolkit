@@ -3,29 +3,22 @@
 `toolkit-session-start.mjs` belongs to project-init's delivery package. Copy it
 to `.claude/hooks/toolkit-session-start.mjs` together with
 `library/templates/toolkit-manual.md` at `knowledge/toolkit-manual.md`. It needs
-no optional plugin and writes no files or acknowledgment state.
+no optional plugin and writes no files.
 
-The setup/sync procedure is
+The setup and sync procedure is
 [toolkit-manual-delivery.md](../../skills/project-init/references/toolkit-manual-delivery.md).
-Preserve other hook handlers; replace only an existing registration for this
-same script. Install one handler for each event, not one per repeated sync.
+Preserve other hook handlers. Replace only an existing registration for this
+same script. Register it once, for SessionStart only.
 
 ## Claude Code
 
-Merge these groups into `.claude/settings.json`:
+Merge this group into `.claude/settings.json`:
 
 ```json
 {
   "hooks": {
     "SessionStart": [{
       "matcher": "startup|resume|clear|compact",
-      "hooks": [{
-        "type": "command",
-        "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/toolkit-session-start.mjs\"",
-        "timeout": 10
-      }]
-    }],
-    "UserPromptSubmit": [{
       "hooks": [{
         "type": "command",
         "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/toolkit-session-start.mjs\"",
@@ -38,7 +31,7 @@ Merge these groups into `.claude/settings.json`:
 
 ## Codex
 
-Merge these groups into `.codex/hooks.json`:
+Merge this group into `.codex/hooks.json`:
 
 ```json
 {
@@ -53,38 +46,30 @@ Merge these groups into `.codex/hooks.json`:
         "additionalContextLimit": 1000,
         "statusMessage": "Reading Toolkit orientation route"
       }]
-    }],
-    "UserPromptSubmit": [{
-      "hooks": [{
-        "type": "command",
-        "command": "node \"$(git rev-parse --show-toplevel)/.claude/hooks/toolkit-session-start.mjs\"",
-        "commandWindows": "powershell.exe -NoProfile -Command \"$projectRoot = git rev-parse --show-toplevel; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; node (Join-Path $projectRoot '.claude/hooks/toolkit-session-start.mjs')\"",
-        "timeout": 10,
-        "additionalContextLimit": 1000,
-        "statusMessage": "Reading Toolkit orientation route"
-      }]
     }]
   }
 }
 ```
 
-Use the chosen host's normal trust process. Do not alter trust or disable
-protections merely to make a verification run pass. Without hooks, the root
-complete-read instruction remains the fallback. For a project without Git,
-resolve the hook's project-root path during setup instead of using `git
-rev-parse`; record and verify that actual command. The Windows command explicitly
-selects PowerShell and still requires host verification on Windows.
+An older install also registered this script for UserPromptSubmit. Remove that
+registration during sync. The hook no longer runs on every message.
 
-## Output and recovery
+Use the host's normal trust process. Do not change trust or disable protections
+to make a verification run pass. For a project without Git, resolve the
+project-root path during setup instead of using `git rev-parse`, and record the
+actual command. The Windows command selects PowerShell and still needs a test
+on Windows.
 
-SessionStart returns only root/manual read instructions and bounded missing-file
-diagnostics. The agent reads all required content, continues in chunks after a
-shortened tool result, and acknowledges only after reading. Resume, clear and
-compact receive the same route. UserPromptSubmit returns a shorter reminder and
-does not request another acknowledgment on every message.
+## Output
 
-The script checks file availability, not understanding or compliance. It never
-copies manual bodies into hook output and does not enforce approval policy.
-Check actual model-visible output and reads in each host; a direct invocation
-proves only script behavior. See `tests/toolkit-startup.test.mjs` in the toolkit
-repository for copied-bundle, missing-file and alias regression tests.
+- One header line: paths resolve from the project root.
+- The `## Summary` section of `knowledge/toolkit-manual.md`, cut at 120 words.
+  Without that section, the script prints its built-in default, which matches
+  the template's Summary.
+- One line per gap: a missing, empty, or unreadable manual; missing root
+  instructions; a `CLAUDE.md` that is not the single `@AGENTS.md` line.
+
+It never prints the manual body. It asks for no read of the whole manual and no
+acknowledgment. It checks that files exist, not that the agent follows them.
+See `tests/toolkit-startup.test.mjs` in the toolkit repository for the
+regression tests.

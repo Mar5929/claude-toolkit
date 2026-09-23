@@ -77,7 +77,8 @@ const MANAGED_COPIES = [
  * listed here by name and the folders listed just below.
  */
 const OWN_FILES = new Set([
-  ".claude/rules/README.md",
+  // The rules index sits outside .claude/rules/ so it does not load as a rule.
+  ".claude/RULES.md",
   ".claude/settings.json",
   ".claude/toolkit-sync.md",
   ".claude/agents/product-manager.md",
@@ -91,6 +92,8 @@ const OWN_FILES = new Set([
   ".claude/rules/subagents-run-on-opus.md",
   // This repository maintains the toolkit's own two operating manuals.
   ".claude/rules/keep-manuals-current.md",
+  // The owner's standing merge instruction for this repository (decision D9).
+  ".claude/rules/standing-merge-instruction.md",
   ".claude/tools/capture-claude-code-docs.mjs",
 ]);
 
@@ -142,6 +145,8 @@ const failures = [];
 let checked = 0;
 
 for (const path of tracked) {
+  // A file deleted from disk but not yet staged is still listed by Git.
+  if (!existsSync(resolve(root, path))) continue;
   const original = shippedOriginalFor(path);
   if (original === null) continue;
   if (original === undefined) {

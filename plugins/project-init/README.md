@@ -40,7 +40,9 @@ guidance through its approved sync, preserving local edits and explicit opt-outs
   It asks before acting, recommends a per-stack layout, and copies in the
   standard rule files that every agent receives through `.claude/rules/`.
   Every equipped project also receives `knowledge/toolkit-manual.md`, the shared
-  workflow manual, with a short complete-read route in its root instructions.
+  workflow manual, kept as reference. The root instructions get a Startup
+  section with three reads: `SOUL.md`, `knowledge/project.md`, and
+  `knowledge/memory/current.md`.
   The root `AGENTS.md` also gets a short Quick saves table for the systems the
   project selected. Project knowledge points to its approved direct-to-default-
   branch save rule; local `.work-items/` points to its shared Git-ignored
@@ -123,7 +125,12 @@ the repository root would disappear the moment the plugin is installed.
   purpose. Retired v1 examples are not part of this active library.
 - `library/rules/salesforce/` (with its own `README.md`): the same idea for
   Salesforce projects, including compatibility for existing `engagement/`
-  delivery roots.
+  delivery roots. Each rule is short; its procedure is in a skill.
+- `library/skills/salesforce/`: the skills the Salesforce rules open
+  (`sf-component-tracker`, `sf-deploy-check`, `sf-data-change`). Setup and sync
+  install each one twice, to `.claude/skills/<name>/` for Claude Code and
+  `.agents/skills/<name>/` for Codex, as byte-identical copies.
+  `tests/skill-copy-check.mjs` fails when the two copies differ.
 - `library/tools/permsets.py`: the permission set tool the
   `permissions-source-control.md` rule depends on. Copied to
   `tools/permissions/` in the project.
