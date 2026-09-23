@@ -1,6 +1,6 @@
 ---
 name: knowledge-find
-description: Use before asking the owner to repeat something, before broad investigation, or when sources conflict. Finds what this project already knows, including earlier sessions, and cites each source.
+description: Use when project knowledge could affect an answer or action, before asking the owner to repeat context, or when sources conflict. Follow the find order and cite each substantive finding.
 ---
 
 # Find project knowledge
@@ -67,12 +67,13 @@ not at the first partial match. Trust rules:
 - Name source conflicts and verification limits. Report unavailable history
   as unavailable, not as a search with no matches.
 
-Before finalizing, scan the answer once. Every substantive finding, including
-an inference or one repeated in a conclusion or summary, must be directly
-followed on the next line by its source. Mark an
-inference as an inference, then cite the evidence it rests on. Remove a
-redundant recap instead of repeating uncited
-claims, and never group sources at the end. For example:
+Before finalizing, check every paragraph, bullet, and conclusion for
+project-specific claims. Put the source directly on the next line after each
+substantive finding, including an inference or a repeated conclusion. Include
+the capture date for outside documentation and the session date for history.
+Mark an inference as an inference and cite the evidence it rests on. Remove a
+redundant recap instead of repeating uncited claims. Never group sources at
+the end. For example:
 
 ```text
 The export currently retries once.
