@@ -249,8 +249,12 @@ Toolkit designs guide the agent with timely instructions and checkpoints. The
 agent does the reasoning and confirms the requested step. Do not build a
 separate engine, scoring system, or conditional rules that replace reasoning
 the model can already do, or infer from its replies whether it understood or
-performed the work correctly. A hook can request a step and check the agent's
-acknowledgment; it does not judge the substance of that work.
+performed the work correctly. A hook can request a step and check that the
+step happened, from facts Claude Code reports: which skill was opened, which
+file was written, which command succeeded. It does not judge the substance of
+that work. Mike approved this fact-check form on 2026-09-22 in
+[#396](https://github.com/Mar5929/claude-toolkit/issues/396); the
+`protocol-guard` plugin builds it.
 
 The architect chooses suitable checkpoints and acknowledgment behavior for
 each design. Mike's examples of an end-of-turn memory review and an agent's
@@ -887,6 +891,12 @@ reasoning after a work item closes under decision D21, are the next two steps.
 
 ### Recorded notes
 
+- 2026-09-23, work item [#396](https://github.com/Mar5929/claude-toolkit/issues/396)
+  step 5: the handshake principle now says a hook checks that a step happened,
+  from facts Claude Code reports, instead of checking the agent's
+  acknowledgment. This records Mike's approved #396 requirements 3 to 5 and
+  the design he approved on 2026-09-23, built as the `protocol-guard` plugin.
+  It approves nothing else in this document.
 - 2026-09-23, work item [#396](https://github.com/Mar5929/claude-toolkit/issues/396):
   R6 now records Mike's 2026-09-22 #396 decisions. Startup reads only
   `SOUL.md`, `knowledge/project.md` and `knowledge/memory/current.md`. Both

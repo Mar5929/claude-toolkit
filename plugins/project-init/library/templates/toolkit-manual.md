@@ -49,6 +49,7 @@ Toolkit project. AGENTS.md names the tracker and the codemap.
 | Rules | Standing constraints. A rule without `paths:` loads every session. A rule with `paths:` loads when the agent reads a matching file. | `.claude/rules/` |
 | Skills | Task procedures. They load when a task needs them. | Installed plugins and project skills |
 | Hooks | Actions at host events: startup context, reminders, and guards. | Host settings; each hook's owning component |
+| Required workflow checks | Claude Code only. Refuse a tool call, or hold a final reply once, when a required step did not happen. | The `protocol-guard` plugin; turned on in `.claude/settings.json` |
 
 - A style chosen for the main conversation does not reach helpers or another
   host. Helper definitions and the artifact-writing rule carry their own
@@ -59,6 +60,12 @@ Toolkit project. AGENTS.md names the tracker and the codemap.
   delivery in each host before relying on a hook.
 - A hook can see that a file exists or a tool ran. It cannot see
   understanding.
+- The required workflow checks decide from facts Claude Code reports: which
+  skill was opened, which file was written, which command succeeded. They
+  prove a step happened, not that it was done well or approved. They run only
+  with `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1` in project settings; the older
+  command hooks skip only the parts they replace. The knowledge manual lists
+  the knowledge steps they check.
 
 ## Project map
 
@@ -173,6 +180,7 @@ wrong or missing:
 | Output style | Selected style file |
 | Rules | `.claude/rules/` |
 | Hooks | Each hook's owning component |
+| Required workflow checks | `protocol-guard`; each check names its owner skill |
 | Work tracking | Tracker named in `AGENTS.md`; the `work` skill |
 | Guided delivery | `work-guide`, `requirements-helper`, `solution-design` |
 | Project knowledge, when installed | `knowledge/knowledge-manual.md`; `knowledge-find`, `knowledge-save`, `knowledge-review` |

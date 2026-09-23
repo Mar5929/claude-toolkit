@@ -23,6 +23,22 @@ procedures and open this manual when they need it.
 - `knowledge/toolkit-manual.md` owns the overall Toolkit process and how its
   parts connect. This manual owns knowledge policy.
 
+Required workflow checks. In Claude Code, when the project turns on the
+`protocol-guard` plugin, these steps are checked from facts Claude Code
+reports:
+
+- A write to the inbox, `knowledge/memory/`, `knowledge/prds/` or
+  `knowledge/memory-self-improvement.md` is refused until `knowledge-save` is
+  open. The inbox needs it opened this turn.
+- Generated indexes are never edited by hand. Run the index builder.
+- After a knowledge write, run the index builder and then the checker before
+  the turn ends.
+- After a work item is created, closed, or moved to another stage, update
+  `knowledge/memory/current.md` in the same turn.
+
+A check proves the step happened. It does not prove the step was done well or
+approved. Codex follows the same steps without the checks.
+
 ## 2. Choose the record that owns the information
 
 Decide what the information is and where it applies. Where you heard it does

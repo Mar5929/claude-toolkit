@@ -531,6 +531,7 @@ for him to notice it.
 - Before the agent processes every submitted user prompt, it receives the short reminder in requirement 9 and evaluates the latest message and relevant conversation for project information worth retaining or updating. The reminder is quiet: the agent says nothing to the owner about having received it. Receiving the reminder does not prove that the review finished, that the agent judged the information correctly, or that any save is approved. Changed on 2026-09-21 under decision D5, which replaced the per-message spoken acknowledgment; requirement 9 records the approval.
 - Lasting knowledge is changed only as far as the owner's approval reaches. Proposals follow the standard format, and a proposal that is missing required information is fixed before the agent asks for approval. A save is not reported as complete until its content, its required fields, its indexes, and its publication have all been checked. A check that fails leaves the save unfinished.
 - When a required check or save was missed, the agent finds what was missed and then does the review or the recovery that is needed, staying inside the permission it already has. It never claims the missing check happened, and it never asks the owner to reconstruct the session for it.
+- In Claude Code, required workflow checks confirm from facts Claude Code reports that a required step happened: a write to the inbox, `knowledge/memory/`, `knowledge/prds/` or `knowledge/memory-self-improvement.md` is refused until `knowledge-save` is open; generated indexes are not edited by hand; after a knowledge write, the index builder and then the checker run before the turn ends; after a work item is created, closed, or moved to another stage, `knowledge/memory/current.md` is written in the same turn. A check proves the step happened, not that it was done well or approved. The older reminder and completion hooks skip only the parts these checks replace while they run. Approved by Mike Rihm on 2026-09-22 and 2026-09-23 in work item [#396](https://github.com/Mar5929/claude-toolkit/issues/396); built in #396 as the `protocol-guard` plugin.
 
 ### How reliability is demonstrated
 
@@ -1856,6 +1857,7 @@ and reports its result, or reports a real gap in access or setup.
 - A Codex session follows every requirement in this document, the same as a Claude session. Same shared files, equivalent startup orientation, same cards, and the same rules about what to save and where.
 - The design uses the documented features of each supported harness to reach the same outcomes, and it runs requirement 3's checks on each one. It never assumes that a feature of one harness exists in another.
 - Where the design finds that Codex cannot enforce one behavior at all, it says which one, and the setup report for every project says so too. It never quietly leaves a gap.
+- Codex cannot run the required workflow checks in requirement 3, because they use Claude Code function hooks. Codex gets the same steps as instructions and skills, and the command hooks stay as its backup. Approved by Mike Rihm on 2026-09-22 in #396 (requirement 10 and design decision 2).
 - Nothing in the saved files is specific to one agent. Both read the same Markdown.
 
 **Check:** open the project in Codex and run the same session as in "A session,
@@ -2155,7 +2157,8 @@ The [toolkit-wide handshake principle](toolkit-operating-system.md#design-princi
 owns this design constraint. Mike established it here on 2026-09-16 and
 clarified its toolkit-wide scope on 2026-09-17. Requirement 29 applies it to
 knowledge operations: the agent reasons about what is worth saving and where
-it belongs; checkpoints request the relevant step and check its acknowledgment.
+it belongs; checkpoints request the relevant step and check that the step
+happened, from facts Claude Code reports (#396, `protocol-guard`).
 For the prompt-side checkpoint, Mike chose every user prompt, the owner direction
 recorded in requirement 9, compact positive and negative working/lasting-memory
 criteria, links to the knowledge and higher Toolkit Operating System manuals,
@@ -2342,6 +2345,12 @@ The instruction-content audit and full requirements approval remain outstanding.
   marketplace version bumps, which take the reviewed pull-request route. Until
   that pull request merges, requirement 31's approval line above overstates
   what shipped.
+
+- 2026-09-23, work item #396 step 5: requirement 3 records the required
+  workflow checks, requirement 25 records that Codex gets instructions only,
+  and the handshake principle says checkpoints check that a step happened,
+  from facts Claude Code reports. This records approved #396 behavior built
+  as the `protocol-guard` plugin; it approves nothing else here.
 
 - 2026-09-23, work item #396: requirements 2, 3 and 9 now record Mike's
   2026-09-22 #396 decisions. Startup reads only `SOUL.md`,
