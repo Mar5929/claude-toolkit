@@ -440,6 +440,11 @@ Mike accepted every recommendation below on 2026-09-22 ("yes to all").
 
 ### Decisions and approval state
 
+- Approved (Mike, 2026-09-23): the #383 instruction changes join the step 4
+  rewrite, and #358's example becomes a measurement case (issue #396, section
+  "Consolidated work from #383 and #358").
+- Approved (Mike, 2026-09-23): build, merge and sync every remaining roadmap
+  step without asking again. Step 8 stays with Mike.
 - Approved (Mike, 2026-09-22, issue body): requirements 1 to 13; fact checks
   only; startup reads of three files; cut first; one rewrite in #396; T9 and
   T10 with all recommendations; Salesforce C1, skills library, `manual-steps.md`;
