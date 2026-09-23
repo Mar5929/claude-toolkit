@@ -2,8 +2,7 @@
 
 Build plan for [#404](https://github.com/Mar5929/claude-toolkit/issues/404).
 Requirements 1 to 11 and decisions D1 to D5 were approved by Mike on
-2026-09-23 and are recorded in the issue. This design is **proposed, not
-approved**.
+2026-09-23 and are recorded in the issue. Mike approved building it on 2026-09-23 ("build now").
 
 ## Preparation
 
@@ -292,7 +291,7 @@ recommended. See the issue.
   decides the shape. Both mem0 and Hindsight get one record per
   current-focus item.
 
-**Open question for Mike:**
+**Answered by Mike, 2026-09-23: "build now".**
 
 - **Q4 Build and test without a service.** Proposed: build now and test with
   recorded tool-call events. Also try a self-hosted Hindsight server inside
@@ -305,5 +304,5 @@ recommended. See the issue.
 **Potential paths to explore:** a check that working memory was loaded at
 startup. No such check exists today in `files` mode either.
 
-**Resume point:** Mike approves this design and answers Q4. #396 steps 4
-to 7 are merged, so the build can start after approval.
+**Resume point:** Build in worktree `../claude-toolkit-404`, branch
+`issue-404-external-memory`, in the order above. Progress is on the issue.

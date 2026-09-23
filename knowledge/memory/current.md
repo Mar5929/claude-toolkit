@@ -12,7 +12,7 @@ Updated: 2026-09-23
 
 **Goal** Allow mem0 or Hindsight in place of the second brain.
 
-**Status** Requirements approved; design proposed, awaiting Mike. See [#404](https://github.com/Mar5929/claude-toolkit/issues/404).
+**Status** Design approved; build started 2026-09-23. See [#404](https://github.com/Mar5929/claude-toolkit/issues/404).
 
 ### Output style delivery — #391
 Updated: 2026-09-22
