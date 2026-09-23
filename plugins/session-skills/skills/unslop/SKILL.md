@@ -128,11 +128,8 @@ leave the pattern. Say in one line which one you left and why.
     scheduling to company culture"). List the items instead.
 19. **Sentences the reader has to read twice.** If parsing needs a backtrack,
     split it in two or drop the clauses. One idea per sentence.
-    In a data description, put the system and object before the field and its
-    values. Move a trailing qualifier beside the thing it describes. For
-    example, change `The kind of service field on an account service object holds
-    "DME" and "Pharmacy" in DevPro` to `In DevPro, an account service object's
-    kind of service field holds "DME" and "Pharmacy"`.
+    Move context such as place or time earlier when a sentence needs it to make
+    sense. Keep each descriptive phrase close to the words it describes.
 20. **Passive voice with a hidden actor.** Catch "is/are/was/were" plus a past
     participle and name who did it. "queries are validated" becomes "the
     compiler validates queries". "the file is parsed by the loader" becomes "the

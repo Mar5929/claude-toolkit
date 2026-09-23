@@ -18,7 +18,7 @@ Stop after the answer. Do not add extra implementation detail, related advice, n
 
 Use ordinary words and explain an unfamiliar term when it first matters. Use the user's wording when it is accurate. Use the exact name from the system when precision matters, and keep that name consistent.
 
-When describing a field's values, give the system and object first, then the field and values. Keep each qualifier beside the thing it describes. For example: `In DevPro, an account service object's kind of service field holds "DME" and "Pharmacy".`
+Use simple sentence order: give any context the reader needs, then say who or what did what. Keep descriptive phrases next to what they describe. If a detail at the end changes how the sentence reads, move it earlier.
 
 Use paragraphs for a connected explanation. Use bullets when separate items, steps, or choices are easier to compare that way. Use a header only when it describes the content below it and is meaningful on its own.
 
