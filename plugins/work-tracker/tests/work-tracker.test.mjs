@@ -1281,6 +1281,37 @@ test("batch commit survives a backup cleanup failure after every install", () =>
   assert.equal(fs.readdirSync(dir).some((name) => name.endsWith(".bak")), true);
 });
 
+test("batch write with recovery flushes temp files through writable handles", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "work-tracker-batch-"));
+  const files = [path.join(dir, "one.txt"), path.join(dir, "two.txt")];
+  files.forEach((file, index) => fs.writeFileSync(file, `old ${index}\n`));
+  const originalOpen = fs.openSync;
+  const originalFsync = fs.fsyncSync;
+  const flagsByHandle = new Map();
+  const fsyncFlags = [];
+  fs.openSync = function recordingOpen(file, flags, ...rest) {
+    const handle = originalOpen.call(fs, file, flags, ...rest);
+    flagsByHandle.set(handle, flags ?? "r");
+    return handle;
+  };
+  fs.fsyncSync = function recordingFsync(handle) {
+    if (flagsByHandle.has(handle)) fsyncFlags.push(flagsByHandle.get(handle));
+    return originalFsync.call(fs, handle);
+  };
+  try {
+    atomicBatchWrite(
+      files.map((file, index) => ({ path: file, content: `new ${index}\n` })),
+      { recoveryRoot: path.join(dir, ".recovery") },
+    );
+  } finally {
+    fs.openSync = originalOpen;
+    fs.fsyncSync = originalFsync;
+  }
+  assert.deepEqual(files.map((file) => fs.readFileSync(file, "utf8")), ["new 0\n", "new 1\n"]);
+  assert.ok(fsyncFlags.length >= files.length);
+  assert.deepEqual(fsyncFlags.filter((flags) => flags === "r"), []);
+});
+
 test("finishing clears every branch mapping for the terminal item", () => {
   const repo = makeRepo("multi branch active");
   init(repo);

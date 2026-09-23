@@ -229,7 +229,8 @@ export function atomicBatchWrite(entries, options = {}) {
         flag: "wx",
       });
       if (options.recoveryRoot) {
-        const handle = fs.openSync(tempPath, "r");
+        // Windows refuses fsync on a read-only handle, so open for writing.
+        const handle = fs.openSync(tempPath, "r+");
         try {
           fs.fsyncSync(handle);
         } finally {
