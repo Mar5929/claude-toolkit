@@ -19,6 +19,7 @@ type World = {
   failCwd?: boolean
   failAgents?: boolean
   stops?: any[]
+  stopBlock?: string
   prompts?: any[]
 }
 
@@ -43,7 +44,7 @@ function world(on: any, w: World) {
   on('turn.complete', () => ({ text: 'the answer' }))
   on('skill.prompt', () => ({ text: 'skill text' }))
   on('prompt.submit', ($: any, e: any) => ({ text: e.text, context: e.context }))
-  on('classic.Stop', ($: any, e: any) => { w.stops?.push(e); return {} })
+  on('classic.Stop', ($: any, e: any) => { w.stops?.push(e); return w.stopBlock === undefined ? {} : { block: w.stopBlock } })
   on('classic.UserPromptSubmit', ($: any, e: any) => { w.prompts?.push(e); return {} })
   on('tool.call', ($: any, e: any) => {
     if (e.tool === 'Bash' && String(e.command).includes('exit 1')) return { isError: true, result: 'Exit code 1', text: 'Exit code 1' }
@@ -271,7 +272,7 @@ test('CW: a helper save still running is pending: no hold now, still open next t
   await turn($, 't1')
   await call($, skill('knowledge-save'))
   await call($, bash('gh issue close 4'))
-  await call($, { tool: 'Read', file_path: CURRENT, agentId: 'saver' })
+  await call($, write(INBOX, 'saver'))
   w.agents = [{ id: 'saver', status: 'running' }]
   expect((await step($, 't1')).shown).toBe(true)
   w.agents = [{ id: 'saver', status: 'completed' }]
@@ -290,6 +291,8 @@ test('K6: a knowledge write needs the index builder and then the checker, both e
   expect((await step($, 't1')).shown).toBe(false)
   expect(((await $.classic.Stop({ stop_hook_active: false } as any)) as any).block).toContain('K6')
   await turn($, 't2')
+  await call($, skill('knowledge-save'))
+  await call($, write(INBOX))
   await call($, bash('node .claude/tools/build-knowledge-index.mjs'))
   await call($, bash('node .claude/tools/check-knowledge.mjs; exit 1'))
   expect((await step($, 't2')).shown).toBe(false)
@@ -320,7 +323,8 @@ test('Engine errors: two refusals, then the engine stops for the turn with one n
 test('Reply hold fails open: on an error the reply is shown with the notice', async ($, on) => {
   world(on, { session: 'err-b', failAgents: true })
   await turn($, 't1')
-  await call($, skill('knowledge-save', 'helper'))
+  await call($, skill('knowledge-save'))
+  await call($, write(INBOX, 'helper'))
   await call($, bash('gh issue close 9'))
   expect((await step($, 't1')).shown).toBe(true)
   const done = await $.turn.complete({ turnId: 't1', reason: 'answer', isAborted: false, answer: 'the answer', durationMs: 5 } as any)
@@ -335,4 +339,86 @@ test('Backup field: classic UserPromptSubmit and Stop carry the active protocols
   await $.classic.Stop({ stop_hook_active: false } as any)
   expect(w.prompts![0].toolkit_protocol_engine).toEqual({ version: '0.1.0', active: ['K4', 'CW', 'K5', 'K6'] })
   expect(w.stops![0].toolkit_protocol_engine.active).toEqual(['K4', 'CW', 'K5', 'K6'])
+})
+
+// ---------- Review fixes (PR #402) ----------
+
+test('Fix 1: an unmet check is not held again in later turns', async ($, on) => {
+  world(on, { session: 'fix1-a' })
+  await turn($, 't1')
+  await call($, bash('gh issue close 12'))
+  expect((await step($, 't1')).shown).toBe(false)
+  await $.classic.Stop({ stop_hook_active: false } as any)
+  expect((await step($, 't1')).shown).toBe(true)
+  await turn($, 't2')
+  expect((await step($, 't2')).shown).toBe(true)
+  await turn($, 't3')
+  await call($, bash('ls'))
+  expect((await step($, 't3')).shown).toBe(true)
+})
+
+test('Fix 2: read-only shell commands pass K4; copying into a knowledge file does not', async ($, on) => {
+  world(on, { session: 'fix2-a' })
+  await turn($, 't1')
+  for (const c of [
+    'cut -d, -f1 knowledge/memory/current.md',
+    'sort knowledge/memory/current.md | uniq -c',
+    'tr a-z A-Z < knowledge/memory-inbox.md',
+    "awk '{print $1}' knowledge/memory/current.md",
+    'od -c knowledge/memory-inbox.md | head',
+    'git -C /project --no-pager diff knowledge/memory/current.md',
+    'git -c core.pager=cat log -- knowledge/memory/current.md',
+    'cp knowledge/memory/current.md /tmp/current-backup.md',
+  ]) expect((await call($, bash(c))).deny).toBeUndefined()
+  for (const c of [
+    'cp /tmp/x.md knowledge/memory/current.md',
+    'cp -t knowledge/memory /tmp/x.md',
+    'sort -o knowledge/memory/current.md knowledge/memory/current.md',
+    'awk -i inplace 1 knowledge/memory/current.md',
+    'git -C /project checkout knowledge/memory/current.md',
+  ]) expect((await call($, bash(c))).deny).toContain('K4')
+})
+
+test('Fix 4: another Stop hook block is kept beside the note', async ($, on) => {
+  world(on, { session: 'fix4-a', stopBlock: 'Another hook asks for a review.' })
+  await turn($, 't1')
+  await call($, bash('gh issue close 12'))
+  expect((await step($, 't1')).shown).toBe(false)
+  const stop: any = await $.classic.Stop({ stop_hook_active: false } as any)
+  expect(stop.block).toContain('Another hook asks for a review.')
+  expect(stop.block).toContain('CW')
+})
+
+test('Fix 5: a held draft is shown when the continuation ends without a reply', async ($, on) => {
+  world(on, { session: 'fix5-a' })
+  await turn($, 't1')
+  await call($, bash('gh issue close 12'))
+  expect((await step($, 't1')).shown).toBe(false)
+  await $.classic.Stop({ stop_hook_active: false } as any)
+  const done = await $.turn.complete({ turnId: 't1', reason: 'aborted', isAborted: true, answer: '', durationMs: 5 } as any)
+  expect(done.text).toContain('Done.')
+})
+
+test('Fix 6: only stage labels count as a work-item change', async ($, on) => {
+  world(on, { session: 'fix6-a' })
+  await turn($, 't1')
+  await call($, bash('gh issue edit 5 --add-label bug'))
+  await call($, { tool: 'mcp__github__issue_write', method: 'update', issue_number: 5, labels: ['bug', 'enhancement'] })
+  expect((await step($, 't1')).shown).toBe(true)
+  await turn($, 't2')
+  await call($, bash('gh issue edit 5 --remove-label 07-review --add-label 08-build'))
+  expect((await step($, 't2')).shown).toBe(false)
+})
+
+test('Fix 7: a helper keeps no turn opening across turns; a reading helper is not a pending save', async ($, on) => {
+  const w: World = { session: 'fix7-a', agents: [{ id: 'reader', status: 'running' }] }
+  world(on, w)
+  await turn($, 't1')
+  await call($, skill('knowledge-save', 'old-helper'))
+  expect((await call($, write(INBOX, 'old-helper'))).deny).toBeUndefined()
+  await turn($, 't2')
+  expect((await call($, write(INBOX, 'old-helper'))).deny).toContain('K4')
+  await call($, bash('gh issue close 3'))
+  await call($, { tool: 'Read', file_path: CURRENT, agentId: 'reader' })
+  expect((await step($, 't2')).shown).toBe(false)
 })

@@ -26,14 +26,14 @@
 // resume) starts clean; session start and a plugin reload clear it;
 // compaction clears which skills were opened.
 import type { Register } from 'claude-code'
-import { changesWorkItem, fileWords, nodeScript, onlyReads, readCommand } from './shell-reader.mjs'
+import { STAGE_LABEL, changesWorkItem, fileWords, nodeScript, onlyReads, readCommand } from './shell-reader.mjs'
 
 const VERSION = '0.1.0'
 const FILE_TOOLS = new Set(['Write', 'Edit', 'MultiEdit', 'NotebookEdit'])
 const NO_MENTION = 'Do not mention this check in your reply.'
 const OFF_NOTICE = 'Workflow checks are off for this turn after an error.'
-// Who is speaking: a held reply comes back with a Skill call the agent did not
-// make, so the note names its source and why it asks for silence.
+// Who is speaking: a held reply comes back as a Stop hook's continuation, so
+// the note names its source and why it asks for silence.
 const HOLD_INTRO = 'This note is from protocol-guard, the required workflow check that the project owner turned on in .claude/settings.json.'
 const OWNER_ASKED = 'The owner set up these checks and wants replies about the work, not about the checks.'
 
@@ -76,6 +76,14 @@ type State = {
   writers: Map<string, string>
   pendingStop?: string
   pendingDrops: number
+  // The last fact before this turn: a turn-end check looks only at facts of
+  // this turn, except for a check carried over from a helper save that was
+  // still running when the last turn ended.
+  turnSeq: number
+  carried: Set<string>
+  carriedNow: Set<string>
+  // The first draft reply held this turn, shown if the turn ends without one.
+  heldDraft?: string
 }
 
 const states = new Map<string, State>()
@@ -230,6 +238,9 @@ async function state($: any): Promise<State> {
       turn: freshTurn(),
       writers: new Map(),
       pendingDrops: 0,
+      turnSeq: 0,
+      carried: new Set(),
+      carriedNow: new Set(),
     }
     states.set(key, s)
     await load($, s)
@@ -312,7 +323,9 @@ function factsOf(s: State, cwd: string, e: any, agent: string): NewFact[] {
   }
   if (typeof e.tool === 'string' && e.tool.startsWith('mcp__')) {
     const name = e.tool.slice(e.tool.lastIndexOf('__') + 2)
-    const changesState = e.state !== undefined || e.labels !== undefined
+    // A label change counts only when a label has the stage form, such as 08-build.
+    const stage = Array.isArray(e.labels) && e.labels.some((l: unknown) => STAGE_LABEL.test(String(l)))
+    const changesState = e.state !== undefined || stage
     if ((name === 'issue_write' && (e.method === 'create' || (e.method === 'update' && changesState)))
       || name === 'create_issue'
       || (name === 'update_issue' && changesState)) out.push({ kind: 'work-item', agent })
@@ -367,7 +380,9 @@ function unmetReason(s: State, p: Protocol): string | undefined {
   const t = p.on.turnEnd
   if (t === undefined) return undefined
   let trigger: Fact | undefined
+  const from = s.carriedNow.has(p.name) ? 0 : s.turnSeq
   for (const f of s.facts) {
+    if (f.seq <= from) continue
     if (t.afterWorkItemChange === true && f.kind === 'work-item') trigger = f
     if (t.afterWrite !== undefined && f.kind === 'write' && covers(f.path, t.afterWrite)) trigger = f
   }
@@ -392,19 +407,21 @@ function unmetReason(s: State, p: Protocol): string | undefined {
 
 // A save by a helper that is still running is pending: the obligation stays
 // open for the next turn, and the reply is not held for it now.
-async function helperSavePending($: any, s: State, p: Protocol): Promise<boolean> {
-  const helpers = [...s.loops.entries()].filter(([k, l]) => k !== 'main' && l.reset.has(ownerKey(p.owner)))
-  if (helpers.length === 0) return false
-  const running = new Set(((await $.agent.list()) as any[]).filter((a) => a.status === 'running').map((a) => a.id))
-  return helpers.some(([k]) => running.has(k))
+// Only a helper that wrote a knowledge file this turn counts.
+async function helperSavePending($: any, s: State): Promise<boolean> {
+  const savers = new Set(s.facts.filter((f) => f.seq > s.turnSeq && f.kind === 'write' && f.agent !== 'main' && covers(f.path, ['knowledge/'])).map((f) => f.agent))
+  if (savers.size === 0) return false
+  const running = ((await $.agent.list()) as any[]).filter((a) => a.status === 'running').map((a) => a.id)
+  return running.some((id) => savers.has(id))
 }
 
 async function openAtTurnEnd($: any, s: State): Promise<{ p: Protocol; reason: string }[]> {
   const out: { p: Protocol; reason: string }[] = []
   for (const p of s.protocols) {
     const reason = unmetReason(s, p)
-    if (reason === undefined) continue
-    if (await helperSavePending($, s, p)) continue
+    if (reason === undefined) { s.carried.delete(p.name); continue }
+    // Pending: not held now; checked again at the end of the next turn.
+    if (await helperSavePending($, s)) { s.carried.add(p.name); continue }
     out.push({ p, reason })
   }
   return out
@@ -433,7 +450,12 @@ export const register: Register = (on) => {
       s.turn = freshTurn()
       s.pendingStop = undefined
       s.pendingDrops = 0
-      loopOf(s, undefined).turn.clear()
+      s.heldDraft = undefined
+      s.turnSeq = s.seq
+      s.carriedNow = s.carried
+      s.carried = new Set()
+      loopOf(s, undefined)
+      for (const l of s.loops.values()) l.turn.clear()
     } catch (err) { engineError(undefined, $, 'turn.start', err) }
     return next(e)
   })
@@ -479,7 +501,7 @@ export const register: Register = (on) => {
       ? await next(e)
       : await next({ ...e, toolkit_protocol_engine: { version: VERSION, active: s.protocols.map((p) => p.name) } } as typeof e)
     // A held reply: continue the turn with the note.
-    if (pending !== undefined && !s.turn.off) return { ...r, block: pending }
+    if (pending !== undefined && !s.turn.off) return { ...r, block: r.block ? `${r.block}\n\n${pending}` : pending }
     return r
   })
 
@@ -603,6 +625,7 @@ export const register: Register = (on) => {
           for (const o of hold) s.turn.holds.add(o.p.name)
           s.pendingStop = note
           s.pendingDrops = 0
+          if (s.heldDraft === undefined) s.heldDraft = held.filter((c) => c.kind === 'text').map((c) => c.text).join('')
         }
       }
     } catch (err) {
@@ -632,6 +655,11 @@ export const register: Register = (on) => {
       const s = states.get(String(await $.session.id()))
       if (s === undefined) return r
       const lines: string[] = []
+      // The continuation after a hold ended with no reply (an error or an
+      // interrupt): show the held draft rather than nothing.
+      const draft = s.heldDraft
+      s.heldDraft = undefined
+      if (draft !== undefined && draft !== '' && (e.answer === '' || e.reason !== 'answer')) lines.push(draft)
       if (s.turn.offNotice) lines.push(OFF_NOTICE)
       else if (e.reason === 'answer') {
         const still = (await openAtTurnEnd($, s)).filter((o) => s.turn.holds.has(o.p.name))

@@ -31,7 +31,7 @@ export function reviewLine(root, input, generation) {
  * last two being what knowledge-completion.mjs skips its check for. */
 export const ENGINE_REPLACES_REVIEW = ["CW", "K4", "K6"];
 
-export const ENGINE_NOT_RUNNING = "Required workflow checks are not running in this session: function hooks are on, but protocol-guard did not load. The older hooks run in full. Tell the owner once.";
+export const ENGINE_NOT_RUNNING = "Required workflow checks are not running in this session: function hooks are on, but protocol-guard did not load. The older hooks run in full.";
 
 /** One line per session when this project turns protocol-guard on with function
  * hooks but the engine's field is absent. A marker file keeps it to once. */
@@ -70,17 +70,30 @@ if (process.argv[1] && canonical(fileURLToPath(import.meta.url)) === canonical(p
       || (existsSync(resolve(installedRoot, "knowledge")) ? installedRoot : null)
       || process.env.CODEX_PROJECT_DIR
       || process.cwd();
-    process.stdout.write(buildReminder(root));
+    let out = buildReminder(root);
     let input = {};
     try { input = JSON.parse(readFileSync(0, "utf8") || "{}"); } catch { input = {}; }
     const notRunning = engineNotRunningLine(root, input);
-    if (notRunning) process.stdout.write(`${notRunning}\n`);
+    if (notRunning) out += `${notRunning}\n`;
     const manual = resolveManual(root);
-    if (manual.text?.includes("<!-- claude-toolkit:knowledge-schema:2 -->") && !protocolsActive(input, ENGINE_REPLACES_REVIEW)) {
+    if (manual.text?.includes("<!-- claude-toolkit:knowledge-schema:2 -->")) {
       try {
+        // The review checkpoint always starts, so knowledge-completion.mjs can
+        // run in full if the engine stops mid-turn. Only the printed line is
+        // left out while protocol-guard checks the same steps.
         const checkpoint = beginReview(root, input);
-        process.stdout.write(`${reviewLine(root, input, checkpoint.generation)}\n`);
-      } catch (error) { process.stdout.write(`Knowledge turn review unavailable: ${error.message} Report any unfinished save.\n`); }
+        if (!protocolsActive(input, ENGINE_REPLACES_REVIEW)) out += `${reviewLine(root, input, checkpoint.generation)}\n`;
+      } catch (error) { out += `Knowledge turn review unavailable: ${error.message} Report any unfinished save.\n`; }
+    }
+    // The "not running" line also goes to the owner, as a systemMessage; the
+    // rest reaches the agent as context, exactly as plain output would.
+    if (notRunning) {
+      process.stdout.write(JSON.stringify({
+        systemMessage: notRunning,
+        hookSpecificOutput: { hookEventName: "UserPromptSubmit", additionalContext: out },
+      }));
+    } else {
+      process.stdout.write(out);
     }
 
   } catch {

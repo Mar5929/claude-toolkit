@@ -182,12 +182,23 @@ export function readCommand(command) {
   return { commands, certain }
 }
 
-// The words of a command that name files: its arguments that are not flags,
-// and its redirection targets. A flag's own value (`-m text`) is not known to
-// be a file, so a word after a flag still counts: a word is only a file when
-// it matches a path the caller asks about.
+// The words of a command that name files it may write: its arguments that are
+// not flags, and its redirection targets. A flag's own value (`-m text`) is not
+// known to be a file, so a word after a flag still counts: a word is only a
+// file when it matches a path the caller asks about. `cp`, `install` and `ln`
+// write only their target: `-t <dir>` or `--target-directory=<dir>`, or else
+// the last word.
+const TARGET_ONLY = new Set(['cp', 'install', 'ln'])
 export function fileWords(cmd) {
-  return [...cmd.args.filter((a) => a !== '' && !a.startsWith('-')), ...cmd.redirects]
+  const words = cmd.args.filter((a) => a !== '' && !a.startsWith('-'))
+  if (TARGET_ONLY.has(cmd.program)) {
+    const a = cmd.args
+    const t = a.findIndex((x) => x === '-t' || x === '--target-directory')
+    const eq = a.find((x) => x.startsWith('--target-directory='))
+    const target = t >= 0 ? a[t + 1] : eq !== undefined ? eq.slice('--target-directory='.length) : words[words.length - 1]
+    return [...(target === undefined ? [] : [target]), ...cmd.redirects]
+  }
+  return [...words, ...cmd.redirects]
 }
 
 // Programs that only read the files they name. A command with one of these as
@@ -197,15 +208,33 @@ const READERS = new Set([
   'cat', 'head', 'tail', 'less', 'more', 'grep', 'egrep', 'fgrep', 'rg', 'wc', 'ls', 'stat', 'file',
   'diff', 'cmp', 'md5sum', 'sha256sum', 'shasum', 'test', '[', 'realpath', 'readlink', 'basename',
   'dirname', 'echo', 'printf', 'jq', 'nl', 'column', 'du', 'tree', 'find', 'cd', 'pwd',
+  'cut', 'tr', 'uniq', 'od', 'xxd', 'bat', 'sort', 'awk', 'gawk',
 ])
 const GIT_READERS = new Set(['status', 'diff', 'log', 'show', 'blame', 'ls-files', 'grep', 'add', 'commit', 'rev-parse', 'cat-file', 'check-ignore'])
 
+// git's subcommand: the first word after its global options. `-C <dir>`,
+// `-c <key=value>`, `--git-dir <dir>` and `--work-tree <dir>` take a value.
+export function gitSubcommand(cmd) {
+  const a = cmd.args
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] === '-C' || a[i] === '-c' || a[i] === '--git-dir' || a[i] === '--work-tree' || a[i] === '--namespace') { i++; continue }
+    if (a[i].startsWith('-')) continue
+    return a[i]
+  }
+  return undefined
+}
+
 export function onlyReads(cmd) {
   if (cmd.redirects.some((r) => r !== '/dev/null')) return false
-  if (cmd.program === 'sed') return !cmd.args.some((a) => /^-[a-zA-Z]*i/.test(a) || a.startsWith('--in-place'))
-  if (cmd.program === 'find') return !cmd.args.some((a) => a === '-delete' || a === '-exec' || a === '-execdir')
+  const a = cmd.args
+  if (cmd.program === 'sed') return !a.some((x) => /^-[a-zA-Z]*i/.test(x) || x.startsWith('--in-place'))
+  if (cmd.program === 'find') return !a.some((x) => x === '-delete' || x === '-exec' || x === '-execdir' || x === '-fprint')
+  if (cmd.program === 'sort') return !a.some((x) => /^-[a-zA-Z]*o/.test(x) || x.startsWith('--output'))
+  if (cmd.program === 'awk' || cmd.program === 'gawk') {
+    return !a.some((x, i) => x === '--inplace' || x === '-i' && a[i + 1] === 'inplace' || x === '-iinplace' || x === '--include=inplace')
+  }
   if (cmd.program === 'git') {
-    const sub = cmd.args.find((a) => !a.startsWith('-'))
+    const sub = gitSubcommand(cmd)
     return sub !== undefined && GIT_READERS.has(sub)
   }
   return READERS.has(cmd.program)
@@ -218,13 +247,26 @@ export function nodeScript(cmd) {
   return script === undefined ? undefined : basename(script)
 }
 
+// True when an `--add-label` or `--remove-label` value names a lifecycle stage.
+export const STAGE_LABEL = /^\d{2}-/
+function stageLabels(a) {
+  for (let i = 0; i < a.length; i++) {
+    const m = /^--(add-label|remove-label)(?:=(.*))?$/.exec(a[i])
+    if (m === null) continue
+    const value = m[2] ?? a[i + 1] ?? ''
+    if (value.split(',').some((l) => STAGE_LABEL.test(l.trim()))) return true
+  }
+  return false
+}
+
 // True when the command creates, closes, reopens, deletes or moves a work item,
 // or changes its stage, through `gh` or the work tracker's `work` command.
 export function changesWorkItem(cmd) {
   const a = cmd.args
   if (cmd.program === 'gh') {
     if (a[0] === 'issue' && ['create', 'new', 'close', 'reopen', 'delete', 'transfer'].includes(a[1] ?? '')) return true
-    if (a[0] === 'issue' && a[1] === 'edit') return a.some((x) => /^--(add-label|remove-label)(=|$)/.test(x))
+    // A label edit counts only when a label has the stage form, such as 08-build.
+    if (a[0] === 'issue' && a[1] === 'edit') return stageLabels(a)
     if (a[0] === 'project' && a[1] === 'item-edit') return true
     return false
   }

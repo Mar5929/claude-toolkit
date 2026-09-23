@@ -158,13 +158,23 @@ test('memory reminder leaves out the turn-review line only while CW, K4 and K6 r
   const base = { session_id: `reminder-${process.pid}`, agent_id: 'root', turn_id: 'turn-1' };
   mkdirSync(join(root, 'tmp'), { recursive: true });
   assert.match(run(base), /Before you finish, run:/);
-  assert.doesNotMatch(run({ ...base, toolkit_protocol_engine: { version: '0.1.0', active: ['K4', 'CW', 'K5', 'K6'] } }), /Before you finish, run:/);
+  const engineInput = { ...base, turn_id: 'turn-engine', toolkit_protocol_engine: { version: '0.1.0', active: ['K4', 'CW', 'K5', 'K6'] } };
+  assert.doesNotMatch(run(engineInput), /Before you finish, run:/);
+  // The checkpoint still started, so a Stop without the field (engine stopped
+  // mid-turn) runs the old check in full instead of reporting it unavailable.
+  const stopped = execFileSync('node', [join(import.meta.dirname, '../hooks/knowledge-completion.mjs')], {
+    input: JSON.stringify({ ...base, turn_id: 'turn-engine', hook_event_name: 'Stop', stop_hook_active: false }),
+    env: { ...process.env, CLAUDE_PROJECT_DIR: root, TMPDIR: join(root, 'tmp') }, encoding: 'utf8',
+  });
+  assert.equal(JSON.parse(stopped).decision, 'block');
   assert.match(run({ ...base, toolkit_protocol_engine: { version: '0.1.0', active: ['K4', 'K6'] } }), /Before you finish, run:/);
   // Function hooks on and the plugin enabled, but no field: one line per session.
   mkdirSync(join(root, '.claude'), { recursive: true });
   writeFileSync(join(root, '.claude/settings.json'), JSON.stringify({ enabledPlugins: { 'protocol-guard@claude-toolkit': true } }));
   const on = { CLAUDE_CODE_ENABLE_FUNCTION_HOOKS: '1' };
-  assert.match(run(base, on), /Required workflow checks are not running/);
+  const shown = JSON.parse(run(base, on));
+  assert.match(shown.systemMessage, /Required workflow checks are not running/);
+  assert.match(shown.hookSpecificOutput.additionalContext, /Friendly reminder/);
   assert.doesNotMatch(run(base, on), /Required workflow checks are not running/);
   assert.doesNotMatch(run({ ...base, session_id: 'other', toolkit_protocol_engine: { version: '0.1.0', active: [] } }, on), /not running/);
 });
