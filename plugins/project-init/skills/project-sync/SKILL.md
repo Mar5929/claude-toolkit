@@ -309,6 +309,14 @@ Typical checks:
   Report every problem it names and offer to fix only those files. If the tool
   itself is missing, report the runtime gap first and use the packaged copy only
   to inspect, never to write.
+- **Commit-time knowledge check** (projects with knowledge installed): is the
+  second-brain plugin's `tools/knowledge-pre-commit.sh` this clone's
+  pre-commit hook? Read the file at `git rev-parse --git-path hooks/pre-commit`.
+  Report **missing** when there is none or it is not executable (Git skips a
+  hook it cannot run), **outdated** when it carries the line
+  `# claude-toolkit:knowledge-pre-commit` but differs from the plugin file, and
+  a **conflict** when another pre-commit hook or `core.hooksPath` is in place.
+  Git never commits hooks, so a clone made after setup has none.
 - **Obsidian boundary** (`files` mode only): check that only `knowledge/.obsidian/app.json` is
   shared, that it creates relative Markdown links and automatic link updates,
   and that `.gitignore` excludes every other `.obsidian` file. A shared core
@@ -729,6 +737,9 @@ should look in THIS project, confirm, act, summarize. Ground rules:
   `permissions.deny` and `permissions.ask`, keeping every existing rule and
   key. `ask` does not prompt in `bypassPermissions` mode; say so when the
   project uses it.
+- **For an approved commit-time knowledge check gap,** follow the
+  "Commit-time check" steps in the `knowledge-setup` delivery reference. Never
+  overwrite another pre-commit hook; for a conflict, show it and ask the owner.
 - **For an approved required-workflow-checks gap,** install
   `protocol-guard@claude-toolkit` and merge the two keys into the committed
   `.claude/settings.json` key by key, preserving every other value. Do not

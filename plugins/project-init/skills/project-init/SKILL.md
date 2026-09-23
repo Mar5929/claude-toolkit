@@ -530,7 +530,8 @@ AGENTS.md stays thin and points at that folder. Read
   `permissions.deny` and `permissions.ask` of the project's committed
   `.claude/settings.json`, and the `salesforce` lists too in a Salesforce
   project. Add only missing rules; keep the owner's own rules. `deny` blocks
-  staging everything, force pushes and Salesforce metadata or org deletes.
+  staging everything, force pushes, skipping commit checks with `--no-verify`
+  and Salesforce metadata or org deletes.
   `ask` prompts for a hard reset, `git clean`, sandbox deploys, data writes and
   `sf apex run`. The owner's yes in the same chat stays the rule for those;
   `ask` does not prompt in `bypassPermissions` mode.

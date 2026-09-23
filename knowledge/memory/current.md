@@ -12,7 +12,7 @@ Updated: 2026-09-23
 
 **Goal** Allow mem0 or Hindsight in place of the second brain.
 
-**Status** Design approved; build started 2026-09-23. See [#404](https://github.com/Mar5929/claude-toolkit/issues/404).
+**Status** Built; draft PR #408 in review and real-run testing. See [#404](https://github.com/Mar5929/claude-toolkit/issues/404).
 
 ### Output style delivery — #391
 Updated: 2026-09-22
@@ -89,7 +89,7 @@ Mike's to-dos left from [#396](https://github.com/Mar5929/claude-toolkit/issues/
 - Check the agent-written F2 wording in `folder-instruction-files.md`.
 - DragonFly: `SOUL.md` save line; work-item paragraph in Mike's own words; #391 style items; cut `AGENTS.md` toward 4,300 startup words; `save-reminder.mjs` rule name.
 - Run the Codex test (4G).
-- 2026-09-23: [Librarian comparison](memory-entries/llm-wiki-librarian-comparison.md) ideas 2 and 3 await Mike; idea 1 is being built.
+- 2026-09-23: [Librarian comparison](memory-entries/llm-wiki-librarian-comparison.md) ideas 2 and 3 await Mike.
 
 ## Session handoffs
 None.

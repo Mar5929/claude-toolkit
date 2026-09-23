@@ -146,7 +146,8 @@ the repository root would disappear the moment the plugin is installed.
 - `library/templates/settings-permissions.json`: the `deny` and `ask`
   permission rules merged into each project's committed `.claude/settings.json`
   (general for every project, salesforce for Salesforce projects). `deny`
-  blocks staging everything, force pushes and Salesforce deletes; `ask`
+  blocks staging everything, force pushes, skipping commit checks with
+  `--no-verify` and Salesforce deletes; `ask`
   prompts for a hard reset, `git clean`, sandbox deploys, data writes and
   `sf apex run`. `ask` does not prompt in `bypassPermissions` mode, so the
   owner's yes in the same chat stays the rule for those actions (#396,

@@ -112,6 +112,13 @@ Tools copied into `.claude/tools/`:
 - `tools/inspect-knowledge-save.mjs`: read-only current local/remote evidence for
   an existing pending UUID. It never applies a destination change or approves it.
 
+Installed into the clone's Git hooks folder, not copied into `.claude/tools/`:
+
+- `tools/knowledge-pre-commit.sh`: the Git pre-commit hook. A commit that
+  changes `knowledge/`, `SOUL.md` or `ai-external-knowledge/` runs the checker
+  on the staged files and is refused when it fails. Install steps:
+  [delivery](skills/knowledge-setup/references/delivery.md), "Commit-time check".
+
 Run the index builder then the checker after authorized knowledge changes.
 Save execution reads back actual meaning and verifies publication on the actual
 default branch before reporting completion. The single inbox preserves exact
@@ -136,6 +143,8 @@ hold and its plain retry, compound close/merge commands and hook entry points.
 startup, prompt, completion and review commands from a nested working directory.
 `tests/external-memory.test.mjs` covers the `external` memory mode: the config,
 startup text for mem0 and Hindsight, reminders, and the copied hooks.
+`tests/pre-commit.test.mjs` installs the Git pre-commit hook in fixture
+repositories and a linked worktree, and checks the `--no-verify` deny rules.
 These deterministic checks do not replace fresh-agent meaning/host tests.
 Repository tests also check links, discovery, installed copies and startup.
 Current delivery evidence is in the #269 work record and its linked implementation

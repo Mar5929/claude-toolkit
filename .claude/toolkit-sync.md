@@ -371,3 +371,14 @@ for Codex. New checks: `tests/startup-budget-check.mjs` and
 Release versions: project-init 0.78.0, second-brain 4.13.0, work-tracker
 2.10.0, git-workflows 0.3.0, session-skills 1.13.1, hooks-library 3.6.3,
 marketplace 0.124.15. Machine plugin caches are refreshed after the merge.
+
+## 2026-09-23: commit-time knowledge check (#406)
+
+Installed `plugins/second-brain/tools/knowledge-pre-commit.sh` as this clone's
+`.git/hooks/pre-commit` (no earlier pre-commit hook; `core.hooksPath` unset).
+It runs `check-knowledge.mjs` on the staged content when a commit touches
+`knowledge/`, `SOUL.md`, `ai-external-knowledge/` or `.claude/tools/`. Linked
+worktrees share it. `.claude/settings.json` refuses `git commit --no-verify`
+and `git commit -n`. Merged in PR #407 at `ca14732`: second-brain 4.16.0,
+project-init 0.81.0, marketplace 0.127.0. Other clones and projects get the
+hook through `project-sync` or knowledge setup.

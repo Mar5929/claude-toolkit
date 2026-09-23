@@ -40,8 +40,8 @@ unlike instructions the agent can ignore.
 
 - Mike approved idea 1 on 2026-09-23: a Git pre-commit hook runs the knowledge
   format checker when a commit touches `knowledge/`, installed by
-  `project-sync`, with a permission rule refusing `git commit --no-verify`. The
-  requirement is in the [Knowledge System PRD](../../prds/toolkit-operating-system/knowledge-system.md#21-indexes-and-the-checker).
+  `project-sync`, with a permission rule refusing `git commit --no-verify`. It was built
+  in #406 the same day. The requirement is in the [Knowledge System PRD](../../prds/toolkit-operating-system/knowledge-system.md#21-indexes-and-the-checker).
 - Idea 2, approval by typed command, and idea 3, stopping the turn once a save
   card is shown, were not decided.
 

@@ -63,6 +63,7 @@ Toolkit project. AGENTS.md names the tracker and the codemap.
 | Skills | Task procedures. They load when a task needs them. | Installed plugins and project skills |
 | Hooks | Actions at host events: startup context, reminders, and guards. | Host settings; each hook's owning component |
 | Required workflow checks | Claude Code only. Refuse a tool call, or hold a final reply once, when a required step did not happen. | The `protocol-guard` plugin; turned on in `.claude/settings.json` |
+| Commit-time knowledge check | Every host. A Git pre-commit hook refuses a commit whose staged knowledge files fail the knowledge checker. | `knowledge/knowledge-manual.md`; installed in each clone by knowledge setup and `project-sync` |
 
 - A style chosen for the main conversation does not reach helpers or another
   host. Helper definitions and the artifact-writing rule carry their own
@@ -82,8 +83,9 @@ Toolkit project. AGENTS.md names the tracker and the codemap.
   in the same turn, and a merge needs `merge-and-clean-up` opened in the
   session.
 - Project settings also carry `deny` rules (staging everything, force pushes,
-  Salesforce deletes) and `ask` rules (hard reset, `git clean`, sandbox
-  deploys, data writes, `sf apex run`). `ask` does not prompt in
+  skipping commit checks with `--no-verify`, Salesforce deletes) and `ask`
+  rules (hard reset, `git clean`, sandbox deploys, data writes,
+  `sf apex run`). `ask` does not prompt in
   `bypassPermissions` mode; the owner's yes in the same chat stays the rule.
 
 ## Project map
