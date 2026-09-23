@@ -115,8 +115,9 @@ Tools copied into `.claude/tools/`:
 Installed into the clone's Git hooks folder, not copied into `.claude/tools/`:
 
 - `tools/knowledge-pre-commit.sh`: the Git pre-commit hook. A commit that
-  changes `knowledge/`, `SOUL.md` or `ai-external-knowledge/` runs the checker
-  on the staged files and is refused when it fails. Install steps:
+  changes `knowledge/`, `SOUL.md` or `ai-external-knowledge/` (in `external`
+  mode also `prds/`, `PROJECT.md`, `docs/knowledge-manual.md` or
+  `.toolkit-memory.json`) runs the checker on the staged files and is refused when it fails. Install steps:
   [delivery](skills/knowledge-setup/references/delivery.md), "Commit-time check".
 
 Run the index builder then the checker after authorized knowledge changes.

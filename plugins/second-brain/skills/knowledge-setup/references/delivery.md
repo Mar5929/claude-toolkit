@@ -114,11 +114,13 @@ actual conflicting policy before calling that surface fully equipped.
 ## Commit-time check
 
 `tools/knowledge-pre-commit.sh` is a Git pre-commit hook. When a commit's
-staged paths touch `knowledge/`, `SOUL.md` or `ai-external-knowledge/`, it
-copies the staged files to a private temporary folder and runs the checker
+staged paths touch `knowledge/`, `SOUL.md` or `ai-external-knowledge/` (in
+`external` mode also `prds/`, `PROJECT.md`, `docs/knowledge-manual.md` or
+`.toolkit-memory.json`), it copies the staged files to a private temporary folder and runs the checker
 there. Unstaged edits in the working folder, including another session's, do
 not affect the result. A change to `.claude/tools/` also runs it. Any other
-commit, or a branch with no `knowledge/` folder, exits at once. A failing
+commit, or a branch with neither a `knowledge/` folder nor a
+`.toolkit-memory.json` file, exits at once. A failing
 check, a missing checker or missing Node.js refuses the commit with a message.
 It needs a POSIX `sh`; Git for Windows supplies one, but Windows is untested.
 

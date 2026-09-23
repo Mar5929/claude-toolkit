@@ -224,7 +224,9 @@ Check changes:
     `knowledge-completion`, `save-reminder`, and `work-item-close` read the
     mode. A shared helper in `knowledge-manual.mjs` reads the config.
   - Tools: `build-knowledge-index` and `check-knowledge` handle the
-    `external` layout.
+    `external` layout. The `knowledge-pre-commit.sh` Git hook from #406 also
+    checks `prds/`, `PROJECT.md`, `docs/knowledge-manual.md` and
+    `.toolkit-memory.json`.
   - Skills: `knowledge-save` (operations, execution and recovery, executor),
     `knowledge-find`, and `knowledge-review` gain the `external` branch.
     `knowledge-setup` gains the `external` setup path and the
