@@ -7,12 +7,19 @@ then prove and accept the whole Toolkit Operating System.
 
 ## Active work
 
-### External memory provider — #404
+### External memory — #404
 Updated: 2026-09-23
 
-**Goal** Allow mem0 or Hindsight in place of the second brain.
+**Goal** mem0 or Hindsight instead of second brain.
 
-**Status** Merged in PR #408 (`8584c22`); waiting on Mike's acceptance. See [#404](https://github.com/Mar5929/claude-toolkit/issues/404).
+**Status** Merged (PR #408); awaiting Mike. [#404](https://github.com/Mar5929/claude-toolkit/issues/404).
+
+### Keep designs — #409
+Updated: 2026-09-23
+
+**Goal** Never delete designs (D21).
+
+**Status** Building. [#409](https://github.com/Mar5929/claude-toolkit/issues/409).
 
 ### Output style delivery — #391
 Updated: 2026-09-22
