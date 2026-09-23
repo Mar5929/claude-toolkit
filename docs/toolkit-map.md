@@ -263,9 +263,10 @@ The genuine watch-items are called out at the end.
 - **second-brain versus its focused skills.** `knowledge-setup` owns setup,
   migration, explanation, and audit. `knowledge-save` handles approved saving and every lifecycle operation,
   `knowledge-find` retrieves evidence, and `knowledge-review`
-  reviews the whole folder. The knowledge-find history adapter reads past Claude Code CLI
-  discussions only after current files fail to answer. All point to the same
-  manual, so none owns a second copy of policy.
+  reviews the whole folder. Its history instructions tell the agent where Claude
+  Code keeps local transcripts so ordinary file tools can read a relevant past
+  discussion after current files fail to answer. All point to the same manual,
+  so none owns a second copy of policy.
 - **work-tracker versus the older work-items tree.** Not two trackers.
   The current tracker uses work-item folders under Git-ignored
   `.work-items/`, with one `WORK-ITEM.md` for new items and separate linked

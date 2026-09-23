@@ -1,16 +1,19 @@
 # Available project history
 
 Use only after earlier sources leave a relevant gap, or on an explicit history
-request. Announce the context sought. Claude CLI history is the adapter below;
-Codex task-history tools, when available, use their own scoped read interface.
-Do not treat missing history access as an empty search.
+request. Announce the context sought. The instructions below cover Claude Code
+CLI history; Codex task-history tools, when available, use their own scoped read
+interface. Do not treat missing history access as an empty search.
 
 ## Search the smallest scope
 
 Claude Code CLI transcripts are JSONL files under
-`${CLAUDE_CONFIG_DIR:-~/.claude}/projects/<encoded-project-path>/`. Use ordinary
-file listing, `rg`, and focused reads against the current project's directory.
-Include another worktree's encoded directory only when it is relevant.
+`${CLAUDE_CONFIG_DIR:-~/.claude}/projects/<project>/`. Use
+`CLAUDE_CODE_PROJECT_DIR_NAME` when the session set it. Otherwise Claude Code
+derives `<project>` from the working directory, and may truncate and hash a long
+path. List the project directories and use transcript `cwd` metadata or the
+session picker to identify the current project; do not guess the directory name.
+Include another worktree's directory only when it is relevant.
 
 Choose two to four distinctive words, a quoted phrase, or a known session title.
 Narrow by file modification date when the likely date is known, inspect only a
