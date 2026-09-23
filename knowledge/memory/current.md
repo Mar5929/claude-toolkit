@@ -2,8 +2,8 @@
 Updated: 2026-09-23
 
 ## Project goal
-Finish the active output-style and protocol work, complete the approved cleanup,
-then prove and accept the whole Toolkit Operating System.
+Finish the protocol-guard rollout, complete the approved cleanup, then prove
+and accept the whole Toolkit Operating System.
 
 ## Active work
 
@@ -20,21 +20,6 @@ Updated: 2026-09-23
 **Goal** Never delete designs (D21).
 
 **Status** Merged; awaiting Mike. [#409](https://github.com/Mar5929/claude-toolkit/issues/409).
-
-### Output style delivery — #391
-Updated: 2026-09-22
-
-**Goal** Make agents follow the selected style and write clear, scannable replies.
-
-**Current status** Shipped in PR #399 at `99c93ac` (head `e63ec80c`). The final 433-word style hash is `b25d7be1`; it adds a fresh reread and silent final self-check reminder. Required checks and independent source/behavior reviews passed. Final native trials completed 4/4 whole-file Reads across two two-turn fixtures, with no closing offers or unrelated advice. This is bounded improvement, not a long-chat guarantee or Mike acceptance. Claude user installs: project-init 0.77.8 and hooks-library 3.6.2; Codex project-init 0.77.8; repo copies current. PRs #349 and #398 closed as superseded; #396 T11 preserves #398's remaining non-style proposal at `665d9ed` without a wholesale merge. DragonFly's deliberate Plain English selection audited clean; its separate migration was not performed. Stage 13-deployment, In review.
-
-**Next step** Mike tests a fresh chat and accepts the result or reports remaining issues. Keep #391 open until acceptance.
-
-**Blocker** None. Fresh-chat acceptance is pending.
-
-**Detailed record** [#391](https://github.com/Mar5929/claude-toolkit/issues/391), [design](../../docs/designs/391-output-style.md), [PR #399](https://github.com/Mar5929/claude-toolkit/pull/399).
-
-**Owning session** Codex task `01a0cb21-9aa3-7c90-b674-b58bfb1757c2`.
 
 ### Remove unnecessary Knowledge programs — #381
 Updated: 2026-09-22
@@ -76,15 +61,15 @@ Updated: 2026-09-22
 **Detailed record** [#385](https://github.com/Mar5929/claude-toolkit/issues/385).
 
 ### Whole-system proof and acceptance — #384
-Updated: 2026-09-22
+Updated: 2026-09-23
 
 **Goal** Prove the final Toolkit Operating System on Claude Code and Codex and obtain Mike's acceptance.
 
 **Current status** Refinement backlog. The issue now owns all remaining live-host checks from #360, #377, #379 and #388, plus PRD review, design-reasoning retention and final acceptance.
 
-**Next step** Refresh the proof plan after #391 fresh-chat acceptance, then run it against the final installed versions.
+**Next step** Refresh the proof plan, then run it against the final installed versions.
 
-**Blocker** Mike's #391 acceptance is pending.
+**Blocker** None. Mike accepted #391's output style on 2026-09-23.
 
 **Detailed record** [#384](https://github.com/Mar5929/claude-toolkit/issues/384).
 
@@ -96,6 +81,7 @@ Mike's to-dos left from [#396](https://github.com/Mar5929/claude-toolkit/issues/
 - Check the agent-written F2 wording in `folder-instruction-files.md`.
 - DragonFly: `SOUL.md` save line; work-item paragraph in Mike's own words; #391 style items; cut `AGENTS.md` toward 4,300 startup words; `save-reminder.mjs` rule name.
 - Run the Codex test (4G).
+- Try the Terse style in one project (#391 leftover).
 - 2026-09-23: [Librarian comparison](memory-entries/llm-wiki-librarian-comparison.md) ideas 2 and 3 await Mike.
 
 ## Session handoffs
