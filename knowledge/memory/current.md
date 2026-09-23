@@ -12,14 +12,14 @@ Updated: 2026-09-23
 
 **Goal** mem0 or Hindsight instead of second brain.
 
-**Status** Merged (PR #408); awaiting Mike. [#404](https://github.com/Mar5929/claude-toolkit/issues/404).
+**Status** Merged; awaiting Mike. [#404](https://github.com/Mar5929/claude-toolkit/issues/404).
 
 ### Keep designs — #409
 Updated: 2026-09-23
 
 **Goal** Never delete designs (D21).
 
-**Status** Building. [#409](https://github.com/Mar5929/claude-toolkit/issues/409).
+**Status** Merged; awaiting Mike. [#409](https://github.com/Mar5929/claude-toolkit/issues/409).
 
 ### Output style delivery — #391
 Updated: 2026-09-22
