@@ -112,7 +112,7 @@ test("a missing CLAUDE.md beside a present AGENTS.md is reported", () => fixture
 
 test("copied hook finds root from nested cwd and follows aliased paths", () => fixture((root, parent) => {
   const nested = join(root, "nested/deeper"); mkdirSync(nested, { recursive: true });
-  const alias = join(parent, "alias"); symlinkSync(root, alias, "dir");
+  const alias = join(parent, "alias"); symlinkSync(root, alias, process.platform === "win32" ? "junction" : "dir");
   const direct = execute(root, nested);
   assert.ok(!direct.includes("manual is missing"));
   assert.equal(execute(alias, nested), direct);

@@ -23,6 +23,25 @@ operation and affected scope. Resolve uncertainty that would alter the save.
 Ask one focused question when only the owner can resolve it, before the card.
 An unrelated unresolved question does not hold a supported save.
 
+### Choose the memory topic before showing a card
+
+Ask what question a future agent would use this memory to answer. Search the
+memory index (or existing records in external mode) and likely existing topics,
+then read the best match. If a reader
+would expect the new fact under that topic's title, update its relevant section.
+Keep dated incidents as evidence for the broader topic rather than making one
+file per incident. If the facts still form one subject but its title has become
+too narrow, propose a rename and repair its links. Create or split a topic only
+when the parts answer distinct questions that are easier to find or understand
+separately. A file's length or number of facts is not a reason to split it.
+
+Check whether the addition corrects a claim in another topic. Update the
+claim's owner and link to the full explanation; do not leave two current
+answers that disagree or copy the same account into both files. Name the
+chosen topic, operation, and any related correction in the card so the owner
+can review the arrangement along with the meaning. If placement changes the
+approved scope, ask before writing.
+
 Use permission already covering this operation and meaning. Named PRD drafting
 permission covers faithful in-scope answers, not agent-invented requirements.
 After authorized work ships, agreed behavior may update affected PRDs without

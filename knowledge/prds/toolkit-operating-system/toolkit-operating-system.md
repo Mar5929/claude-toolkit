@@ -630,16 +630,17 @@ and project sync brings it to existing projects.
 
 | Location | Save behavior |
 | --- | --- |
-| Git-tracked documentation-only changes, including PRDs, designs, and review records | Make the authorized update promptly, perform the relevant checks, commit directly to main (or the project's default branch), and push. Use the canonical locations and owners defined by the project and [Guided Delivery](guided-delivery.md#solution-design). Do not create a worktree, feature branch, or pull request for the documentation-only save, or wait for implementation to ship. Existing content and meaning approvals still apply. |
+| Git-tracked documentation-only changes, including PRDs, designs, and review records | Make the authorized update promptly in a separate temporary worktree, perform the relevant checks, commit, and push directly to main (or the project's default branch). Use the canonical locations and owners defined by the project and [Guided Delivery](guided-delivery.md#solution-design). Do not create a feature branch or pull request for the documentation-only save, or wait for implementation to ship. Existing content and meaning approvals still apply. |
 | Locally tracked work items | Update the existing untracked store through its tracker. Do not add its files to Git or require a commit, push, or worktree to keep them accurate. |
 | Code, configuration, executable behavior, or a mixed implementation/documentation change | Follow the normal implementation worktree, branch, review, and pull-request workflow. The documentation-only exception does not authorize or reroute these changes. |
 
 Frictionless means quick, small documentation saves as work happens, without repeated
 permission for a save already authorized. For designated tracked files, the
-agent uses the existing default-branch checkout and handles the commit and
-push. It does not create a separate worktree or branch for the save, require a
-pull request, or ask Mike to operate Git. An implementation session using a
-worktree still saves these documents through their direct route.
+agent uses a separate temporary worktree and handles the commit and push. It
+does not create a feature branch, require a pull request, or ask Mike to
+operate Git. An implementation session still saves independent documentation
+through this route. Mike approved the isolated save workspace on 2026-09-23
+after concurrent sessions mixed staged knowledge changes in a shared checkout.
 Once Mike allows a quick save, finish the commit and push to main; writing only
 a local file is not enough.
 Saving a proposed PRD does not require approving its requirements. Preserve
@@ -680,25 +681,26 @@ publish documentation that claims unshipped behavior exists.
 
 **Publication sequence:**
 
-1. Locate the existing default-branch checkout, confirm repository, branch,
-   remote, and publishing identity, and inspect working and staged changes.
-   If no safe checkout exists, preserve the pending save and report the blocker.
-2. Fetch and compare remote state; fast-forward only when safe. Read the latest
-   destination and reconcile the authorized edit there. Never copy an older
-   worktree file over newer content. Coordinate concurrent edits to the same
-   file and serialize staging/committing in the shared checkout.
+1. Confirm the repository, default branch, remote, and publishing identity.
+   Name the exact authorized files. Inspect existing edits without taking over
+   another session's work.
+2. Fetch the remote and create an isolated, detached save worktree with its own
+   staging area. Read the latest destination and apply authorized meaning
+   there. Never copy an older file over newer content. Concurrent saves may
+   prepare independently; a push against an advanced branch is rejected and
+   reconciled in the save's own worktree.
 3. Check the exact change using the destination's requirements: for example,
    links and formatting for designs; metadata, sources, approval, and rebuilt
    indexes for knowledge. Generated files must not include another session's
    unfinished records. A failed check leaves the save unfinished unless the
    owner explicitly authorizes publication with that known failure recorded.
-4. Stage only owned, authorized changes and inspect the complete staged diff.
-   Unrelated staged work blocks this commit until its owner has finished or
-   coordinated a safe handoff. Never stage everything, unstage someone else's
-   work, autostash, overwrite edits, reset, or rebase the shared checkout.
-5. Commit and push the default branch, then verify the intended commit is
-   present on the remote branch. Remote advancement by another session does
-   not itself invalidate publication if the intended commit is included.
+4. Stage only owned, authorized changes in this save's worktree and inspect the
+   complete staged diff. Never stage everything or alter another session's
+   worktree.
+5. Commit and push directly to the default branch without force, then verify
+   the intended commit is present on the remote branch. Remote advancement by
+   another session does not itself invalidate publication if the intended
+   commit is included. Remove only a clean, fully verified save worktree.
 
 **Conflict and recovery.** On overlapping edits, divergent history, rejected
 push, account mismatch, or branch protection, retain the exact pending change

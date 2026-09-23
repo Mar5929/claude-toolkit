@@ -7,7 +7,9 @@ assume a worker can outlive its parent. Retain one inbox, with no private queue.
 
 Give the executor this explicit assignment with real values:
 
-- Project/repository and existing publication checkout; current work item.
+- Project/repository, default branch, current work item, and the isolated save
+  workspace if this save has already started. Otherwise create one through
+  `publish-docs` for the exact authorized Git files.
 - Stable inbox reference, approved revision, and exact destination files.
 - Operation and approved meaning; required verbatim text and source evidence.
 - Durable permission location, source/person/date/scope and any current hold.

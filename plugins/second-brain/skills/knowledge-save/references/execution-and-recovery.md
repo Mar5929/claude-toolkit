@@ -21,6 +21,9 @@ what publication means for them.
 3. Keep the existing stable reference through retries and card revisions. If
    first capturing real pending work, assign a new opaque reference and record
    it once. Distinguish the revision actually approved from subsequent proposals.
+   For a Git-backed inbox, start or resume the isolated `publish-docs` save
+   workspace with the inbox and exact expected destinations named. Do not
+   write or stage this save's inbox entry in a shared checkout.
 4. Persist authority and exact owed change in `knowledge/memory-inbox.md` before
    editing the destination or dispatching a helper. Preserve a shown card exactly;
    authorized upkeep without a card records scope and permission without
@@ -53,7 +56,8 @@ Check the named helper's actual status through the host when available. Reuse
 its result or coordinate ongoing work. A stored worker ID is only a pointer.
 If status is unknown, report that limit and avoid a competing edit in its
 checkout. Preserve unrelated work and follow the existing serialization rules
-for the shared publication checkout.
+for the affected save workspace. Other saves use their own worktrees; do not
+take over an active helper's workspace.
 
 - No effect exists: execute the approved change when authority still applies.
 - Only part exists: verify that part and finish the missing operations.
@@ -92,7 +96,8 @@ indexes with the installed builder and run the applicable checker. These checks
 establish different facts; a valid file does not prove correct meaning.
 A partial write or failing check remains unfinished.
 
-Publish through the project's existing documentation workflow: inspect full
+Publish Git files through the project's documentation workflow in a separate
+save workspace: inspect full
 staged scope, commit only owned authorized changes, push, and verify the result
 on the actual remote branch. Include the inbox reference in the destination
 commit message; this is traceability, not a permission token. Several ready
@@ -116,6 +121,8 @@ The main agent checks the result against current authority and destination
 before telling the owner it completed. Keep `approved, save unfinished` while
 publication remains unverified. After verified destination publication, reread
 the inbox and remove only this completed entry; publish and verify cleanup.
+Use the same isolated save workspace, or create a new one from the latest
+remote if the first was removed. Never do inbox cleanup in a shared checkout.
 If cleanup fails, report the destination as published and cleanup as pending.
 A recovering agent verifies the result and retries only cleanup, preserving
 unanswered proposals and independent entries.

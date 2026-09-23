@@ -55,7 +55,7 @@ original, not the copy.
 
 | Path | How updates land | Instructions |
 | --- | --- | --- |
-| `knowledge/`, `docs/`, README files | Authorized documentation-only updates go straight to the default branch. | `.claude/rules/knowledge-direct-commit.md` and the `publish-docs` skill |
+| `knowledge/`, `docs/`, README files | Authorized documentation-only updates use an isolated save worktree and publish straight to the default branch. | `.claude/rules/knowledge-direct-commit.md` and the `publish-docs` skill |
 | `knowledge/` | Content approval follows the knowledge manual, then the route above. | `knowledge/knowledge-manual.md` and the `knowledge-save` skill |
 
 ## Where work is tracked

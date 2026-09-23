@@ -54,9 +54,10 @@ own item instead.
     questions, remaining document tasks, and the exact resume point.
   Update the design as answers settle. The work item links here and keeps other
   work. Do not create a separate prep or interview record.
-- **Publish authorized documentation-only changes directly to main:** check,
-  commit, and push promptly. Code and configuration keep their implementation
-  workflow. See Toolkit Operating System R25 for the publication policy.
+- **Publish authorized documentation-only changes through an isolated save
+  worktree directly to main:** check, commit, and push promptly. Code and
+  configuration keep their implementation workflow. See Toolkit Operating
+  System R25 for the publication policy.
 - **Keep the design after delivery** (decision D21). Where still-useful
   reasoning lives is agreed with the owner before any design is deleted.
 

@@ -10,8 +10,9 @@ files into a project, so every project it touches opts in deliberately.
 
 The default rule set includes the unscoped documentation publication route in
 `library/rules/general/knowledge-direct-commit.md`, including projects without
-knowledge enabled. Authorized documentation-only saves use the existing default
-branch; code, configuration, behavior-bearing instructions, and inseparable
+knowledge enabled. Authorized documentation-only saves use a separate temporary
+worktree and publish directly to the default branch; code, configuration,
+behavior-bearing instructions, and inseparable
 mixed changes keep the implementation workflow. `project-sync` reconciles older
 managed copies, their parallel-work exception, and root pointers together.
 Updating the plugin supplies the source; each existing project receives the

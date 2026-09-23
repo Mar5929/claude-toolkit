@@ -165,6 +165,36 @@ test('staged content decides, not unstaged edits in the working folder', () => {
   assert.match(result.stderr, /rumour/);
 });
 
+test('staged links outside knowledge are checked without copying those files', () => {
+  const root = fixture('staged-link');
+  write(root, 'notes.txt', 'A tracked source outside the knowledge folders.\n');
+  write(root, memoryPath, goodMemory + '\n[Source](../../../notes.txt)\n');
+  rebuild(root);
+  git(root, 'add', 'notes.txt', 'knowledge');
+  let result = commit(root, 'Add memory and source');
+  assert.equal(result.status, 0, result.stdout + result.stderr);
+
+  write(root, memoryPath, goodMemory + '\n[Missing](../../../missing.txt)\n');
+  rebuild(root);
+  git(root, 'add', 'knowledge');
+  result = commit(root, 'Add broken link');
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /missing\.txt/);
+});
+
+test('a broken tracked symlink outside knowledge does not satisfy a memory link', () => {
+  const root = fixture('broken-symlink-link');
+  write(root, 'symlink-target.txt', 'missing-file');
+  const hash = git(root, 'hash-object', '-w', 'symlink-target.txt').trim();
+  git(root, 'update-index', '--add', '--cacheinfo', '120000', hash, 'broken-link');
+  write(root, memoryPath, goodMemory + '\n[Broken](../../../broken-link)\n');
+  rebuild(root);
+  git(root, 'add', 'knowledge');
+  const result = commit(root, 'Memory with broken source link');
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /broken-link/);
+});
+
 test('the hook installed once also runs in a linked worktree', () => {
   const root = fixture('worktree-main');
   const linked = resolve(base, 'worktree-linked');
@@ -176,7 +206,7 @@ test('the hook installed once also runs in a linked worktree', () => {
   assert.match(result.stderr, /broken\.md/);
 });
 
-test('a missing Node.js refuses the commit with a clear message', () => {
+test('a missing Node.js refuses the commit with a clear message', { skip: process.platform === 'win32' }, () => {
   const root = fixture('no-node');
   write(root, memoryPath, goodMemory);
   rebuild(root);
