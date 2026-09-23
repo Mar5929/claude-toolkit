@@ -97,7 +97,8 @@ Toolkit project. AGENTS.md names the tracker and the codemap.
   [memory-providers references](../plugins/second-brain/skills/knowledge-setup/references/memory-providers/README.md)
   give the service steps.
 - **Work records:** the chosen tracker is the `Claude-Toolkit-Project` board on
-  GitHub. Linked designs are in [docs/designs/](../docs/designs/README.md).
+  GitHub. Linked designs are in `docs/designs/`, described in
+  [docs/AGENTS.md](../docs/AGENTS.md#designs).
 - **System Guide:** not configured in this repository.
 - **Code and deliverables:** [plugins/](../plugins/AGENTS.md) holds the
   packaged components.

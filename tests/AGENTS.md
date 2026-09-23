@@ -59,6 +59,9 @@ portable manual references.
   mentioned in an ordinary document is deliberately not enough: the July 2026
   failure it was written for had two such mentions and the tool still went
   missing for weeks.
+  Design records under `docs/designs/` are exempt. Each is reached from its
+  work item, and designs are kept after delivery (decision D21, #409), so no
+  index lists them.
 - **`installed-copy-check.mjs` compares every tracked file under `.claude/`
   with its shipped original.** A new file under `.claude/` needs either a known
   original in `shippedOriginalFor()`, an entry in `OWN_FILES`, or a folder in

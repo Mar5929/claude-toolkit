@@ -202,7 +202,7 @@ running, `ask-before-assuming.md` and `follow-the-output-style.md`, were deleted
 from `.claude/rules/` and recorded in the "does not carry" table below. The
 rules indexes now log all six as removed by the owner. The
 `work-item-lifecycle` skill carries its lifecycle principle in its own words and
-points at `docs/designs/README.md` and `knowledge/knowledge-manual.md` instead of a rule
+points at the project's codemap and `knowledge/knowledge-manual.md` instead of a rule
 file that no longer exists. None of the six were restored, and none should be.
 
 This repository is the toolkit. It now runs the toolkit on itself, the same way

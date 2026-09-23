@@ -7,8 +7,8 @@ Two things live here, and they do two different jobs.
   not. It is the only place that answers "is anything here duplicated?" A
   plugin's own `README.md` describes that plugin and cannot see the others.
 - **`designs/`** holds the build plan for one work item, written once that
-  item's requirements are approved and deleted once the PRD has been brought up
-  to date. Its `README.md` has the rules.
+  item's requirements are approved. Designs are kept after delivery (decision
+  D21). The rules are below.
 
 Requirements do not live here. They live in `knowledge/prds/`, because
 requirements and settled behavior are the same document at two points in time,
@@ -32,19 +32,36 @@ told apart by its `status` line.
 
 ### `designs/`
 
+This folder is for a project whose work items live outside the repository, on a
+GitHub issue board, in Linear, in Jira, or in anything else. A project that
+tracks work in the Git-ignored `.work-items/` folder keeps each design with its
+own item instead.
+
 - **One file per work item**, named `<issue number>-<short-slug>.md`.
 - **Create it at stage `04-solution-design`**, or during earlier review when
   explicitly authorized. Keep one authoritative design updated as review proceeds.
+- **Before designing or reviewing a toolkit solution**, read and apply the
+  [owner's handshake principle](../knowledge/prds/toolkit-operating-system/toolkit-operating-system.md#design-principle-guide-the-agent-through-handshakes).
+  Read the active item's review plan before resuming, and keep its accepted
+  decisions and review position.
+- **What one file holds:**
+  - how each approved requirement will be met;
+  - the files the change touches;
+  - how it will be tested;
+  - the order the work is done in;
+  - the preparation needed to understand the design;
+  - bottom Notes with relevant decisions and their approval state, open
+    questions, remaining document tasks, and the exact resume point.
+  Update the design as answers settle. The work item links here and keeps other
+  work. Do not create a separate prep or interview record.
 - **Publish authorized documentation-only changes directly to main:** check,
   commit, and push promptly. Code and configuration keep their implementation
   workflow. See Toolkit Operating System R25 for the publication policy.
-- **Delete it at stage `14-spec-update`**, once `knowledge/prds/` is current.
-  Git history keeps it, so nothing is lost. Nothing checks that you did this.
-- An empty folder is the normal state between jobs, not a gap.
+- **Keep the design after delivery** (decision D21). Where still-useful
+  reasoning lives is agreed with the owner before any design is deleted.
 
 ## Where the detail lives
 
-- `designs/README.md`: what that folder holds and how long a file in it lives.
 - `../README.md`: what the toolkit is and how to install it.
 - Each plugin's `README.md` under `../plugins/`: that plugin's own description.
 - `../tests/AGENTS.md`: what each check asks.

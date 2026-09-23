@@ -51,6 +51,7 @@ When .system-guide.json is enabled, use the System Guide plugin's system-guide s
 | `ai-external-knowledge/` | Salesforce documentation captured as Markdown, one folder per topic. Open it before designing against a platform feature, instead of searching the web. Today: `sharing-and-visibility/`, `flow-limits/`. |
 | `knowledge/` | What this project decided and why, plus the separately enabled System Guide under its configured path. Open the guide index for existing system structure, purpose, connections, or impact; the routing table in `knowledge/knowledge-manual.md` separates guide explanations from PRDs and memory. |
 | `docs/` | Documents written for Acme, not for agents. Detail: `docs/AGENTS.md`. |
+| `docs/designs/` | One build plan per work item: how each approved requirement is met. Open it before building an item. Kept after delivery (decision D21). |
 | `scripts/` | Deploy and data-load scripts. Detail: `scripts/AGENTS.md`. |
 | `.claude/` | Rules, hooks, settings. |
 
@@ -109,6 +110,7 @@ would change. Everything else stays as above.
 | `PROJECT.md` | What the project is, why it exists, and its boundaries. Read at startup. |
 | `prds/` | One PRD per feature area: the requirements, then the settled behavior. Open it before changing an area. Kept for the life of the area. |
 | `docs/` | Documents written for Acme, plus `knowledge-manual.md` and `toolkit-manual.md`, which say how knowledge and the toolkit work here. Detail: `docs/AGENTS.md`. |
+| `docs/designs/` | One build plan per work item: how each approved requirement is met. Open it before building an item. Kept after delivery (decision D21). |
 
 ## Tools
 

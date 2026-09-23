@@ -232,8 +232,8 @@ claude-toolkit/
     AGENTS.md                     ← what docs/ holds: the catalog and the build plans
     CLAUDE.md                     ← one line, @AGENTS.md
     toolkit-map.md                ← the catalog: every item and how they relate
-    designs/                      ← the build plan for one work item, deleted
-                                     once the PRD is brought current
+    designs/                      ← the build plan for one work item, kept
+                                     after delivery (decision D21)
   tests/
     AGENTS.md                     ← the checks and how to run them
     CLAUDE.md                     ← one line, @AGENTS.md

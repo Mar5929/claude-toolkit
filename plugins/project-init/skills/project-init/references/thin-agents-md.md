@@ -28,7 +28,7 @@ line. Source: https://code.claude.com/docs/en/memory
    says what is in it and when to open it. Name the context sources, not only
    the code: captured outside documentation, reference data, the PRDs in
    `knowledge/prds/` (`prds/` in the `external` memory mode), the build plans
-   in `docs/designs/`. A
+   in `docs/designs/`, which are kept after delivery (decision D21). A
    source nothing points at is a source nobody opens, and a folder that is still
    empty is the easiest one to leave out.
 7. **Tools.** The major tools this project runs on: MCP servers, generated
