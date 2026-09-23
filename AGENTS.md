@@ -27,10 +27,10 @@ before working on a matching path.
 
 | Path | What is there, and when to open it |
 | --- | --- |
-| `plugins/` | The eight plugins this repo ships. `project-init/library/` holds what other projects receive; `project-init/machine/` holds what every computer receives. Open before changing anything shipped. Detail: `plugins/AGENTS.md`. |
+| `plugins/` | The nine plugins this repo ships. `project-init/library/` holds what other projects receive; `project-init/machine/` holds what every computer receives. Open before changing anything shipped. Detail: `plugins/AGENTS.md`. |
 | `docs/toolkit-map.md` | Catalog of every plugin and skill and how they relate. Open it to check whether something already exists. Detail: `docs/AGENTS.md`. |
 | `docs/designs/` | One build plan per work item: how each approved requirement is met. Written at stage `04`, deleted at stage `14`. Detail: `docs/designs/README.md`. |
-| `.claude-plugin/marketplace.json` | Registers every plugin for Claude Code. `.agents/plugins/marketplace.json` does the same for Codex. Update both when adding or renaming a plugin. |
+| `.claude-plugin/marketplace.json` | Registers every plugin for Claude Code. `.agents/plugins/marketplace.json` does the same for Codex. Update both when adding or renaming a plugin; `protocol-guard` is Claude Code only (`plugins/AGENTS.md`). |
 | `knowledge/` | Decisions and reasons: PRDs, memory, current state. Root `brainstorms/` holds unchecked exploration. The routing table in `knowledge/knowledge-manual.md` says what goes where. |
 | `tests/` | Node checks, run by hand before every pull request. Detail: `tests/AGENTS.md`. |
 | `.claude/` | What this repo runs on itself: rule copies, hooks, tools, settings. `.claude/RULES.md` indexes the rules. `toolkit-sync.md` records the setup. |
@@ -45,7 +45,7 @@ original, not the copy.
 
 | Tool | Use it for | Detail |
 | --- | --- | --- |
-| `node tests/link-check.mjs`, `orphan-check.mjs`, `installed-copy-check.mjs`, `knowledge-startup-check.mjs`, `skill-copy-check.mjs`, `startup-budget-check.mjs` | Checks to run before every pull request. | `tests/AGENTS.md` |
+| `node tests/link-check.mjs`, `orphan-check.mjs`, `installed-copy-check.mjs`, `knowledge-startup-check.mjs`, `skill-copy-check.mjs`, `startup-budget-check.mjs`, `protocol-guard-check.mjs` | Checks to run before every pull request. | `tests/AGENTS.md` |
 | `claude plugin validate .` | Must pass: every machine installs from `main`. | `plugins/AGENTS.md` |
 | `node .claude/tools/build-knowledge-index.mjs` | Rebuild the three generated knowledge indexes. Run it again after bringing a branch current: Git merges generated files without a conflict and leaves them wrong. | `knowledge/knowledge-manual.md` |
 | `gh` (GitHub CLI) | Read and write issues on the board below. | |
