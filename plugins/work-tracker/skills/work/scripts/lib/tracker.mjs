@@ -33,8 +33,8 @@ export const TASK_STATUSES = ["Pending", "In Progress", "Blocked", "Complete", "
 // The fourteen stages every project shares, in order. The two-digit prefix is
 // part of the name so stages sort correctly wherever they are listed. This list
 // is here to derive a status and to write a readable log line, and for nothing
-// else: `work-item-stages.md` decides which stage is correct, and no code
-// refuses a stage, a skip, or a move backwards.
+// else: the work skill's `references/lifecycle.md` decides which stage is
+// correct, and no code refuses a stage, a skip, or a move backwards.
 export const STAGES = [
   "01-discovery",
   "02-refinement",
@@ -791,7 +791,7 @@ export function updateRequirementsStatus(tracker, id, input) {
       // checks length or headings. What makes them real is `approved_by`: the
       // owner read this and said build it. Counting headings only proved they
       // were not empty, and on small items it forced a choice between invented
-      // content and a permanent Backlog. `work-item-stages.md` decides how much
+      // content and a permanent Backlog. `references/lifecycle.md` decides how much
       // refining a piece of work needs.
       const approvedBy = requiredText(input.approvedBy, "approved by");
       requirements.meta.status = "finalized";
@@ -2243,7 +2243,7 @@ function normalizeStage(value) {
   return match ?? String(value).trim();
 }
 
-// The mapping from `work-item-stages.md`. Returns null for anything unknown,
+// The mapping from the work skill's `references/lifecycle.md`. Returns null for anything unknown,
 // which leaves the status alone.
 function statusForStage(stage) {
   if (!STAGES.includes(stage)) return null;

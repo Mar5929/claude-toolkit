@@ -497,6 +497,16 @@ AGENTS.md stays thin and points at that folder. Read
   Do not add voice rules to `.claude/rules/`. Tell the owner the style starts in
   the next session. Helper agents that write owner-facing prose need writing
   guidance in their own definitions.
+- **Turn on the required workflow checks** when project knowledge is
+  installed. Install `protocol-guard@claude-toolkit` and merge two keys into the
+  project's committed `.claude/settings.json`, preserving every other key:
+  `"env": { "CLAUDE_CODE_ENABLE_FUNCTION_HOOKS": "1" }` and
+  `"enabledPlugins": { "protocol-guard@claude-toolkit": true }`. Function hooks
+  then load for this project only. Never set the variable in
+  `~/.claude/settings.json`: there it turns on function hooks for every
+  installed plugin. The checks run in Claude Code only; Codex gets
+  instructions only. Preserve an owner's deliberate choice to leave it off.
+  See `plugins/protocol-guard/README.md`.
 - **Offer machine-wide installation too**, if the owner wants the same voice
   in repositories that have not run toolkit setup. Copy the style to
   `~/.claude/output-styles/plain-english.md` and set `"outputStyle": "Plain English"`

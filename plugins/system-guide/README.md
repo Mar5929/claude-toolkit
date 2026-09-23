@@ -81,7 +81,7 @@ guidance that routes relevant work to the skill and configured guide.
 ## Maintaining this plugin
 
 A content change updates both manifests and marketplace metadata together.
-Validate the plugin, its skill, focused System Guide tests, and the repository's
-four checks before opening a pull request. Deterministic tests prove routing,
+Validate the plugin, its skill, focused System Guide tests, and the repository
+checks listed in `tests/AGENTS.md` before opening a pull request. Deterministic tests prove routing,
 startup scope, and write boundaries; fresh-session smoke tests cover automatic
 model invocation because a model's skill selection is not deterministic.

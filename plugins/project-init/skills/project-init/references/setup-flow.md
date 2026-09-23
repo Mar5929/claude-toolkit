@@ -320,6 +320,16 @@ separate prep, interview, or continuation files for that workflow.
   It takes effect in the next session. Helper agents writing owner-facing prose
   need writing guidance in their own definitions. See
   `library/output-styles/README.md` for installation details.
+- **Turn on the required workflow checks** when project knowledge is
+  installed. Install `protocol-guard@claude-toolkit` and merge two keys into the
+  project's committed `.claude/settings.json`, preserving every other key:
+  `"env": { "CLAUDE_CODE_ENABLE_FUNCTION_HOOKS": "1" }` and
+  `"enabledPlugins": { "protocol-guard@claude-toolkit": true }`. Function hooks
+  then load for this project only. Never set the variable in
+  `~/.claude/settings.json`: there it turns on function hooks for every
+  installed plugin. The checks run in Claude Code only; Codex gets
+  instructions only. Preserve an owner's deliberate choice to leave it off.
+  See the `protocol-guard` plugin's `README.md`.
 - When project knowledge is installed, keep the route small. Both hosts register
   the loader for `SOUL.md`, `knowledge/project.md`, `knowledge/knowledge-manual.md`,
   `knowledge/memory/current.md`, and the current indexes. `AGENTS.md` says to

@@ -1,8 +1,8 @@
-# plugins: the eight plugins this repo ships
+# plugins: the nine plugins this repo ships
 
 Each folder here is one Claude Code plugin. Each has its own `README.md`, which
 is that plugin's canonical description. `docs/toolkit-map.md` is the
-cross-cutting catalog across all eight.
+cross-cutting catalog across all nine.
 
 A plugin holds a group of skills, not one skill each. `session-skills` is the
 worked example: five single-skill plugins became one, because packaging each of
@@ -60,6 +60,12 @@ folder stays small on purpose.
 - **Bump versions.** A content change to a plugin bumps `version` in its
   `.claude-plugin/plugin.json`, `version` in its `.codex-plugin/plugin.json`,
   and `metadata.version` in the repository's `.claude-plugin/marketplace.json`.
+- **Register a plugin in both marketplaces, with one exception.** Every plugin
+  has an entry in `../.claude-plugin/marketplace.json` and in
+  `../.agents/plugins/marketplace.json`. `protocol-guard` is Claude Code only:
+  it runs on function hooks, which Codex cannot run, so it has no
+  `.codex-plugin/` manifest and no Codex marketplace entry (#396, decision 2,
+  approved by Mike on 2026-09-22). Codex gets instructions only.
 - **Keep `main` installable.** `claude plugin validate .` must pass, because
   `main` is what every machine installs from. Run the checks listed in
   `tests/AGENTS.md` as well.

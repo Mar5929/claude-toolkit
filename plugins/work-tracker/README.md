@@ -214,7 +214,8 @@ assumptions.
 
 New items start in `Backlog` with refining requirements. Finalizing records
 the owner's approval. The hard command gate applies to `build` and
-`data-load`; other types use risk-based judgment from `work-item-stages.md`.
+`data-load`; other types use risk-based judgment from the `work` skill's
+`references/lifecycle.md`.
 Types are lower-case kebab-case, with suggested values rather than a fixed list.
 
 ## Roadmaps and execution tasks

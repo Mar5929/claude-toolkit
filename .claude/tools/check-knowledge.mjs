@@ -24,7 +24,7 @@ const posix = (value) => value.split(sep).join("/");
 const CURRENT_MD_MAX_CHARS = 2000;
 const SELF_IMPROVEMENT_MAX_CHARS = 8000;
 const SUMMARY_MAX_CHARS = 250;
-export const MANUAL_SHA256 = "1e65934ce84a3123630516ba171a73d305bbc30407a7bcac045843f711901761";
+export const MANUAL_SHA256 = "e7dbe64f839ed70b2a8f498e14b4f087f6892343b725ecbae84a4a015f9bcda9";
 
 const STATUS_VALUES = ["current", "superseded", "retired"];
 // Finalized records approved requirements, not proof of delivery.

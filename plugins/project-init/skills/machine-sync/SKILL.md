@@ -283,6 +283,9 @@ deliberate "no" again.
 
 - Change anything before the owner approves the specific item.
 - Write over `~/.claude/settings.json` instead of merging into it.
+- Set `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS` in `~/.claude/settings.json`. There it
+  turns on function hooks for every installed plugin on the computer.
+  `project-sync` sets it per project for `protocol-guard`.
 - Remove a rule, a hook, or a settings value the toolkit did not install. Two
   narrow exceptions, both needing the owner's approval first: a stale knowledge
   passage from the known legacy files audited above, where the rest of that file

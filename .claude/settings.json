@@ -6,10 +6,12 @@
   "env": {
     "CLAUDE_CODE_DISABLE_AUTO_MEMORY": "1",
     "CLAUDE_CODE_SUBAGENT_MODEL": "opus",
-    "CLAUDE_CODE_SUBAGENT_MODEL_FORCE": "1"
+    "CLAUDE_CODE_SUBAGENT_MODEL_FORCE": "1",
+    "CLAUDE_CODE_ENABLE_FUNCTION_HOOKS": "1"
   },
   "enabledPlugins": {
-    "second-brain@claude-toolkit": true
+    "second-brain@claude-toolkit": true,
+    "protocol-guard@claude-toolkit": true
   },
   "hooks": {
     "SessionStart": [

@@ -9,6 +9,7 @@ node tests/installed-copy-check.mjs
 node tests/knowledge-startup-check.mjs
 node tests/skill-copy-check.mjs
 node tests/startup-budget-check.mjs
+node tests/protocol-guard-check.mjs
 node --test tests/toolkit-startup.test.mjs
 ```
 
@@ -28,6 +29,7 @@ Each asks a different question, and each exists because something real broke.
 | `installed-copy-check.mjs` | Do two files that must say the same thing still say it, and does the Salesforce scaffold keep its required homes? |
 | `knowledge-startup-check.mjs` | Do both hosts ask for the three startup reads (`SOUL.md`, `knowledge/project.md`, `knowledge/memory/current.md`) and the inbox check, with no manual read and no acknowledgment? Is the per-message reminder short, and does the managed manual match its hash? |
 | `startup-budget-check.mjs` | Does the text loaded at the start of every session stay under budget? It counts words in rules with no `paths:`, root `AGENTS.md`, SessionStart hook output, and the three required reads (`SOUL.md`, `knowledge/project.md`, `knowledge/memory/current.md`). |
+| `protocol-guard-check.mjs` | Does the `protocol-guard` engine still fit the installed Claude Code? It regenerates the function-hook declarations with `/plugin-types`, type-checks the engine, runs `claude plugin validate` and the plugin's offline tests, checks that each protocol's owner skill exists, and compares the engine's shell reader with the command hooks' reader. The Claude Code steps skip when `claude` is not installed. Run it after every Claude Code update too. |
 | `skill-copy-check.mjs` | Are the `.claude/skills/<name>/` and `.agents/skills/<name>/` copies of each project skill byte-identical, do library skills use only `name` and `description` frontmatter, and does every skill a Salesforce rule names exist? Run `node tests/skill-copy-check.mjs`. |
 
 `toolkit-startup.test.mjs` checks the short Summary output, missing guidance, copied hooks, path

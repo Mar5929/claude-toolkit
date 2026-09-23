@@ -60,8 +60,17 @@ export function recordReview(root, identity, generation, outcome, directory) {
     return { next: { ...state, outcome }, result: { generation, outcome } };
   });
 }
+/** True when the protocol-guard engine reports every named protocol active
+ * in this hook input. Absent field (function hooks off, engine not loaded, or
+ * stopped after errors): false, so the old check runs in full. */
+export function protocolsActive(input, names) {
+  const active = input?.toolkit_protocol_engine?.active;
+  return Array.isArray(active) && names.every(name => active.includes(name));
+}
 export function completion(root, input, directory) {
   if (input.hook_event_name === 'SubagentStop') return {};
+  // protocol-guard K4 and K6 check knowledge writes from facts while they run.
+  if (protocolsActive(input, ['K4', 'K6'])) return {};
   return locked(root, input, directory, state => {
     if (!state) return { result: { systemMessage: 'Knowledge completion checkpoint unavailable for this turn. Review under the manual and preserve unfinished saves; no completion was recorded.' } };
     const incomingTurn = turnId(input.turn_id);
