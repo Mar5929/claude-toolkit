@@ -12,6 +12,13 @@ mutations. Until then preserve candidates and continuation in the existing
 conversation/current-work route; do not create a new inbox or move files as an
 incidental save. A newer plugin cache alone does not authorize migration.
 
+In `external` memory mode (`.toolkit-memory.json`), the manual is
+`docs/knowledge-manual.md` and memory is in the memory service. Use the
+[provider contract](../knowledge-setup/references/memory-providers/README.md)
+and its adapter: List lasting topics instead of the memory index, Search to
+find duplicates and contradictions, and the `feedback` record instead of the
+feedback file. Changes still go through `knowledge-save`.
+
 Read the project's output style and `knowledge-save` before proposing a
 change. Open `knowledge/knowledge-manual.md` sections 2 and 3 when a record's
 owner or memory eligibility is in question.
@@ -34,7 +41,8 @@ originals to remove, preserves useful detail/history/sources, repairs links and
 checks the replacement before deleting any original. This skill has no second
 writer and no separate approval format.
 
-Review `knowledge/memory-self-improvement.md` when selection feedback is in scope.
+Review `knowledge/memory-self-improvement.md` (the `feedback` record in
+`external` mode) when selection feedback is in scope.
 Combine repeated, supported feedback into concise lessons; retain stated reasons
 and source dates, or say no reason was given. Do not infer a general preference
 from silence or one unexplained rejection. Keep project lessons local and name

@@ -21,11 +21,11 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | Plugin | Purpose | Skills | Install | Setup |
 | --- | --- | --- | --- | --- |
 | [project-init](../plugins/project-init/README.md) | Put the toolkit's rules, [output styles](../plugins/project-init/library/output-styles/README.md), and systems into a project, new or existing, apply the general project file lifecycle to real work-item events, and synchronize the configured machine-wide policy after marketplace and project-init bootstrap | `project-init`, `project-sync`, `work-item-lifecycle`, `machine-sync` | `/plugin install project-init` | Sets up a project; synchronizes machine policy after bootstrap |
-| [second-brain](../plugins/second-brain/README.md) | Portable Git-native project knowledge with one managed operating manual, a small shared startup map, topic memory, PRDs, durable save recovery, three indexes and read-only scoped history | `knowledge-setup`, `knowledge-find`, `knowledge-save`, `knowledge-review` | `/plugin install second-brain` | Sets up a project |
+| [second-brain](../plugins/second-brain/README.md) | Portable Git-native project knowledge with one managed operating manual, a small shared startup map, topic memory, PRDs, durable save recovery, three indexes and read-only scoped history. An optional `external` memory mode keeps memory in mem0 or Hindsight through its MCP server instead | `knowledge-setup`, `knowledge-find`, `knowledge-save`, `knowledge-review` | `/plugin install second-brain` | Sets up a project |
 | [sf-architect-solutioning](../plugins/sf-architect-solutioning/README.md) | Salesforce solution architect: approved solution plan before any build | `sf-architect-solutioning` | `/plugin install sf-architect-solutioning` | Install and go |
 | [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git lifecycle workflows | `pull-latest`, `reset-to-remote`, `merge-and-clean-up`, `publish-docs` | `/plugin install git-workflows` | Install and go |
 | [hooks-library](../plugins/hooks-library/README.md) | Reusable spec-check, Git-attribution, output-style handshake, and Salesforce deployment hooks; system-specific knowledge hooks stay with second-brain | `hooks-library` | `/plugin install hooks-library` | Wires into settings |
-| [protocol-guard](../plugins/protocol-guard/README.md) | Required workflow checks with Claude Code function hooks, from facts only: K4 refuses a knowledge-file write until `knowledge-save` is open, K5 refuses hand edits to generated indexes, CW and K6 hold a final reply once until working memory follows a work-item change and the indexes are rebuilt and checked, K7 refuses a pull request, close or merge until `knowledge-save` is open this turn, P2 a close until `work` is open this turn, and P3 a merge until `merge-and-clean-up` is open this session. Claude Code only; no Codex entry | None | `/plugin install protocol-guard` | Wires into settings: `project-init` and `project-sync` write `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS` and `enabledPlugins` into the project |
+| [protocol-guard](../plugins/protocol-guard/README.md) | Required workflow checks with Claude Code function hooks, from facts only: K4 refuses a knowledge-file write until `knowledge-save` is open, K5 refuses hand edits to generated indexes, CW and K6 hold a final reply once until working memory follows a work-item change and the indexes are rebuilt and checked, K7 refuses a pull request, close or merge until `knowledge-save` is open this turn, P2 a close until `work` is open this turn, and P3 a merge until `merge-and-clean-up` is open this session. In the `external` memory mode, K4X, CWX, K5X and K6X apply the same checks to memory-service write calls and `prds/`. Claude Code only; no Codex entry | None | `/plugin install protocol-guard` | Wires into settings: `project-init` and `project-sync` write `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS` and `enabledPlugins` into the project |
 | [work-tracker](../plugins/work-tracker/README.md) | Agent-led delivery for the chosen tracker, plus a local backlog under Git-ignored `.work-items/`, with owner-shaped roadmaps, detailed execution tasks, branch-scoped current-task continuation, child work items with their own plans and approvals, flexible types, consistent progress, approved completion events, optional Git evidence, handoffs, relationships, owner-made grouping folders, an `archive/` folder, and preview-first conversion of older staged trackers | `work` | `/plugin install work-tracker` | Sets up a project |
 | [session-skills](../plugins/session-skills/README.md) | Eleven conversation skills including roadmap-task delivery, requirements, and resumable design, with focused research, design, and review helpers | `work-guide`, `requirements-helper`, `solution-design`, `braindump`, `explain-simply`, `grill-me`, `handoff`, `session-summary`, `spec-check`, `track-tasks`, `unslop` | `/plugin install session-skills` | Install and go |
 
@@ -75,8 +75,8 @@ sit together in one folder, `plugins/project-init/library/`:
 | `library/guides/` | how-to documents for installing the kits above |
 
 The general set includes `knowledge-direct-commit.md`: the documentation
-publication rule. It loads only for `knowledge/**`, `docs/**`, and
-`**/README.md`, and it applies with knowledge disabled too. Its steps are in the
+publication rule. It loads only for `knowledge/**`, `prds/**`, `PROJECT.md`,
+`docs/**`, and `**/README.md`, and it applies with knowledge disabled too. Its steps are in the
 `publish-docs` skill (git-workflows). The always-loaded
 `parallel-agent-sessions.md` names that skill, so a new document that was never
 read still reaches the route. Behavior-bearing instructions and mixed changes
@@ -85,7 +85,9 @@ keep their implementation route.
 Startup text is kept small on purpose (issue #396). The project-init
 `toolkit-session-start.mjs` hook runs at SessionStart only and prints the
 toolkit manual's short Summary. Root `AGENTS.md` asks for three reads:
-`SOUL.md`, `knowledge/project.md`, `knowledge/memory/current.md`. Both manuals
+`SOUL.md`, `knowledge/project.md`, `knowledge/memory/current.md`. In the
+`external` memory mode it asks for `SOUL.md` and `PROJECT.md`, then a load of
+working memory through the memory service. Both manuals
 are reference that skills open. `tests/startup-budget-check.mjs` fails when the
 always-loaded words grow past its budget. Each project indexes its rules in
 `.claude/RULES.md`, outside `.claude/rules/`, because every `.md` file in that
@@ -190,6 +192,9 @@ These are not duplicated here. Go to the index that owns them:
   `plugins/second-brain/hooks/`, the index builder and checker under
   `plugins/second-brain/tools/`, and the managed manual and layout templates
   referenced by the setup skill. The
+  [memory-providers references](../plugins/second-brain/skills/knowledge-setup/references/memory-providers/README.md)
+  hold the `external` mode contract and one adapter each for mem0 and
+  Hindsight. The
   [plugin README](../plugins/second-brain/README.md) is the canonical package
   description.
 - **Knowledge System design and build planning**:
@@ -216,7 +221,10 @@ These are not duplicated here. Go to the index that owns them:
   indexes, PRDs, coherent memory topics, pending saves and unchecked brainstorms. The
   package ships task-specific workflows plus setup and safe migration. Its
   startup hook asks for three reads (`SOUL.md`, `knowledge/project.md`,
-  `knowledge/memory/current.md`); the manual and indexes are reference,
+  `knowledge/memory/current.md`); the manual and indexes are reference. A
+  project that sets `"memory": "external"` in `.toolkit-memory.json` keeps
+  memory records in a memory service, PRDs in `prds/`, and project context in
+  `PROJECT.md`;
   reminder hooks only remind, and no
   hook approves knowledge. A helper may execute an already-authorized save with
   durable permission and verified results.
@@ -530,7 +538,7 @@ The genuine watch-items are called out at the end.
   that looks like requirements, or looks like behavior. They answer three
   different questions, at three different sizes, and they do not live for the
   same length of time.
-`knowledge/prds/` holds one living
+`knowledge/prds/` (`prds/` in the `external` memory mode) holds one living
   PRD per feature area. Requirements and settled behavior are the same document
   at two points in time, told apart by its `status` line: `proposed` while it is
   what someone wants built, `current` once it describes what was actually built.

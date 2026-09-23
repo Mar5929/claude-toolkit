@@ -22,6 +22,9 @@ procedures and open this manual when they need it.
   works.
 - `knowledge/toolkit-manual.md` owns the overall Toolkit process and how its
   parts connect. This manual owns knowledge policy.
+- `.toolkit-memory.json` at the project root sets the memory mode. No file
+  means `files` mode. In `external` mode a memory service holds memory. Both
+  manuals move to `docs/`, and section 2 lists the other homes.
 
 Required workflow checks. In Claude Code, when the project turns on the
 `protocol-guard` plugin, these steps are checked from facts Claude Code
@@ -29,12 +32,15 @@ reports:
 
 - A write to the inbox, `knowledge/memory/`, `knowledge/prds/` or
   `knowledge/memory-self-improvement.md` is refused until `knowledge-save` is
-  open. The inbox needs it opened this turn.
+  open. The inbox needs it opened this turn. In `external` mode this covers a
+  write to `prds/` and a call to the memory service's write tools; a pending
+  record needs it opened this turn.
 - Generated indexes are never edited by hand. Run the index builder.
 - After a knowledge write, run the index builder and then the checker before
   the turn ends.
 - After a work item is created, closed, or moved to another stage, update
-  `knowledge/memory/current.md` in the same turn.
+  working memory in the same turn: `knowledge/memory/current.md`, or a
+  `working` record in the memory service in `external` mode.
 - Opening a pull request, closing a work item, or merging is refused until
   `knowledge-save` was opened in the same turn. That is the save review for
   the action.
@@ -43,10 +49,11 @@ A check proves the step happened. It does not prove the step was done well or
 approved. Codex follows the same steps without the checks.
 
 Commit-time check. When the clone has the knowledge pre-commit hook, a commit
-that changes `knowledge/`, `SOUL.md` or `ai-external-knowledge/` runs the
-checker on the staged files, in every host and terminal. A refused commit names
-the files to fix. Fix them, stage them, and commit again. Never skip the check
-with `--no-verify`.
+that changes `knowledge/`, `SOUL.md` or `ai-external-knowledge/` (in
+`external` mode also `prds/`, `PROJECT.md`, `docs/knowledge-manual.md` or
+`.toolkit-memory.json`) runs the checker on the staged files, in every host
+and terminal. A refused commit names the files to fix. Fix them, stage them,
+and commit again. Never skip the check with `--no-verify`.
 
 ## 2. Choose the record that owns the information
 
@@ -54,25 +61,25 @@ Decide what the information is and where it applies. Where you heard it does
 not decide where it belongs. Split mixed information. Link the owning records.
 Do not copy the same meaning into several places.
 
-| Information | Home |
-| --- | --- |
-| Your role in this project | `SOUL.md` |
-| Project systems, resources, and important locations | `knowledge/project.md` |
-| Standing instructions | Applicable root instructions and project rules |
-| Repeatable procedure | A skill, through the project's skill-authoring process |
-| Required behavior | The owning feature's PRD under `knowledge/prds/` |
-| Useful explanation of existing parts and their connections | The enabled System Guide's configured location, or another explicitly designated document owner |
-| Qualifying lasting project facts, decisions, lessons, events, and constraints not already owned by another record | Topic files under `knowledge/memory/memory-entries/` |
-| Current goals, useful recent results, blockers, next steps, and later to-dos | `knowledge/memory/current.md`, with links to detailed work records |
-| Tasks, delivery plans, status, and overall approvals | The project's work tracker |
-| Architectural choices, alternatives, rationale, evidence, and approval state | The work item's designated design, or an existing separately designated architecture record |
-| PRD or design refinement and exact resume point | That document's closing Notes section |
-| Shown proposals awaiting an answer and authorized unfinished saves | `knowledge/memory-inbox.md` |
-| Feedback about which memories are useful | `knowledge/memory-self-improvement.md` |
-| Unchecked exploration | `brainstorms/` |
-| Project-authored research findings | The work item's existing supporting records, linked from the design or other record using them |
-| Raw outside documentation | `ai-external-knowledge/` or the project's designated source-reference location |
-| Earlier conversations | Available project session history |
+| Information | Home | In `external` mode |
+| --- | --- | --- |
+| Your role in this project | `SOUL.md` | Same |
+| Project systems, resources, and important locations | `knowledge/project.md` | `PROJECT.md` |
+| Standing instructions | Applicable root instructions and project rules | Same |
+| Repeatable procedure | A skill, through the project's skill-authoring process | Same |
+| Required behavior | The owning feature's PRD under `knowledge/prds/` | Under `prds/` |
+| Useful explanation of existing parts and their connections | The enabled System Guide's configured location, or another explicitly designated document owner | Same |
+| Qualifying lasting project facts, decisions, lessons, events, and constraints not already owned by another record | Topic files under `knowledge/memory/memory-entries/` | One `lasting` memory record per topic |
+| Current goals, useful recent results, blockers, next steps, and later to-dos | `knowledge/memory/current.md`, with links to detailed work records | `working` memory records, one per item, with links |
+| Tasks, delivery plans, status, and overall approvals | The project's work tracker | Same |
+| Architectural choices, alternatives, rationale, evidence, and approval state | The work item's designated design, or an existing separately designated architecture record | Same |
+| PRD or design refinement and exact resume point | That document's closing Notes section | Same |
+| Shown proposals awaiting an answer and authorized unfinished saves | `knowledge/memory-inbox.md` | `pending` memory records |
+| Feedback about which memories are useful | `knowledge/memory-self-improvement.md` | One `feedback` memory record |
+| Unchecked exploration | `brainstorms/` | Same |
+| Project-authored research findings | The work item's existing supporting records, linked from the design or other record using them | Same |
+| Raw outside documentation | `ai-external-knowledge/` or the project's designated source-reference location | Same |
+| Earlier conversations | Available project session history | Same |
 
 - Follow each destination's current instructions and permission rules.
 - A disabled System Guide stays disabled.

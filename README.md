@@ -132,13 +132,16 @@ claude-toolkit/
                                      and points a knowledge-only branch to the shared publication rule
         work-item-close.mjs        ← asks whether a finished work item left a spec stale
         command-parsing.mjs        ← what a Bash command is about to do, shared by both
+      tests/                       ← external memory mode tests
       tools/
         build-knowledge-index.mjs  ← rebuilds the memory and spec indexes
         check-knowledge.mjs        ← read-only: bad fields, broken links, secrets
         knowledge-pre-commit.sh    ← Git hook: runs the checker on staged knowledge
         frontmatter.mjs            ← the one YAML reader both tools use
       skills/
-        knowledge-setup/          ← install, migrate and verify complete project setup
+        knowledge-setup/          ← install, migrate and verify complete project setup;
+                                     references/memory-providers/ holds the mem0 and
+                                     Hindsight adapters for the external memory mode
         knowledge-find/           ← relevant sources and scoped history
         knowledge-save/           ← proposal, authority, lifecycle and recovery
         knowledge-review/         ← duplicates, conflicts and selection feedback
@@ -191,6 +194,7 @@ claude-toolkit/
         hooks.json                ← registers the function-hook module
         engine.ts                 ← refuses a call or holds a reply from facts
         shell-reader.mjs          ← reads a shell command's program and file arguments
+        memory-config.mjs         ← the rules for a valid .toolkit-memory.json
       protocols.default.json      ← the shipped list: K4, CW, K5, K6, K7, P2, P3
       tests/                      ← offline tests (claude plugin test)
     work-tracker/                 ← plugin: agent-led delivery and local work tracking
@@ -288,12 +292,12 @@ inside a project folder before it is useful, which is what the last column says:
 | Plugin | What it does | Setup |
 | --- | --- | --- |
 | **[project-init](plugins/project-init/README.md)** | Sets up or syncs a project. It asks where work is tracked, carries the ticket rules into that tracker, offers work-tracker, and installs or safely migrates the portable `knowledge/` vault when selected. `work-item-lifecycle` applies the file lifecycle rule when project information is created, moved, organized, or completed. New Salesforce projects use `delivery/` for client-work artifacts while existing `engagement/` projects stay in place. After marketplace and project-init bootstrap, `machine-sync` audits and synchronizes the configured machine-wide policy, applying approved Claude gaps and explicitly listed retired Codex cleanup. | Sets up a project; synchronizes machine policy after bootstrap |
-| **[second-brain](plugins/second-brain/README.md)** | A portable `knowledge/` system for Claude, Codex, Git, and optional Obsidian: one managed operating manual, a bounded startup read route, topic memory, PRDs, four focused procedures, durable save recovery, three generated indexes and safe migration. | Sets up a project |
+| **[second-brain](plugins/second-brain/README.md)** | A portable `knowledge/` system for Claude, Codex, Git, and optional Obsidian: one managed operating manual, a bounded startup read route, topic memory, PRDs, four focused procedures, durable save recovery, three generated indexes and safe migration. A project can instead choose the `external` memory mode in `.toolkit-memory.json`: memory records go to mem0 or Hindsight through its MCP server, and PRDs, `PROJECT.md` and both manuals stay in Git. | Sets up a project |
 | **[system-guide](plugins/system-guide/README.md)** | Optional system understanding under `knowledge/system/`: useful source maps, evidence, and owner-approved explanations that save repeated investigation. Local tools refresh generated pages and preserve meaning; deliberate cleanup removes content that no longer helps. Works independently and joins the second brain's lookup when both are enabled. | Sets up a project |
 | **[sf-architect-solutioning](plugins/sf-architect-solutioning/README.md)** | A Salesforce solution architect: pushes back on vague requirements, verifies platform facts against official docs by live fetch, designs declarative-first to Well-Architected standards, and presents a solution plan for approval before any build. Salesforce projects only. | Install and go |
 | **[git-workflows](plugins/git-workflows/README.md)** | Four parallel-session-safe git lifecycle skills: `pull-latest` gets current without rewriting history, `reset-to-remote` mirrors the remote behind confirmation, `merge-and-clean-up` lands an approved PR before removing only its completed workspace, and `publish-docs` lands an authorized documentation-only save on the default branch. | Install and go |
 | **[hooks-library](plugins/hooks-library/README.md)** | Reusable hooks that make a rule land mechanically: `spec-check-reminder` asks once per session whether the spec-check review ran, `no-ai-attribution-guard` refuses AI credit in Git text, `style-handshake` requests a silent output-style re-read before work on each new user message, with no acknowledgment, and two Salesforce guards protect production and permission-set deploys. System-specific knowledge hooks ship with second-brain. | Wires into settings |
-| **[protocol-guard](plugins/protocol-guard/README.md)** | Required workflow checks with Claude Code function hooks, from facts Claude Code reports and no model call. A knowledge-file write is refused until `knowledge-save` is open; a hand edit to a generated index is refused; a final reply is held once until `knowledge/memory/current.md` follows a work-item change and the indexes are rebuilt and checked after a knowledge write; a pull request, close or merge is refused until `knowledge-save` (and `work` for a close, `merge-and-clean-up` for a merge) is open. Claude Code only. | Wires into settings: `project-init` and `project-sync` turn it on per project |
+| **[protocol-guard](plugins/protocol-guard/README.md)** | Required workflow checks with Claude Code function hooks, from facts Claude Code reports and no model call. A knowledge-file write is refused until `knowledge-save` is open; a hand edit to a generated index is refused; a final reply is held once until `knowledge/memory/current.md` follows a work-item change and the indexes are rebuilt and checked after a knowledge write; in the `external` memory mode the same checks watch memory-service write calls and `prds/`; a pull request, close or merge is refused until `knowledge-save` (and `work` for a close, `merge-and-clean-up` for a merge) is open. Claude Code only. | Wires into settings: `project-init` and `project-sync` turn it on per project |
 | **[work-tracker](plugins/work-tracker/README.md)** | Offers agent-led delivery with a saved goal-specific choice in the chosen tracker. Its local mode gives Claude and Codex one local backlog under Git-ignored `.work-items/`: owner-shaped roadmaps, detailed execution tasks with branch-scoped current-task continuation, child work items with their own plans and approvals, YAML records, owner-approved requirements, exact handoffs, blockers, typed relationships, deterministic next-item selection, flexible work types and lifecycle stages, a dated progress log, accepted completion events and optional Git landing proof, generated dashboards, an `archive/` folder for items the owner has set aside, and preview-first conversion of older staged trackers. Shared GitHub tracking remains a separate tracker choice. | Sets up a project |
 | **[session-skills](plugins/session-skills/README.md)** | Eleven conversation skills. `work-guide` keeps roadmap stages connected to actionable tasks or child work items through the chosen tracker; `requirements-helper` clarifies intent, questions directions that could undermine the goal, and updates the draft; `solution-design` resumes from the linked design's preparation and bottom Notes, checks the requirements are ready, recommends a team of agents sized to the item, then researches, designs, critiques against every requirement, and fixes until all are satisfied. Focused research, design, and review agents assist the main conversation. Existing brain dump, explanation, discovery, handoff, recap, specification check, task-list, and writing tools remain included. | Install and go |
 
@@ -315,6 +319,8 @@ by priority; each becomes its own skill/plugin so `project-init` can pull it in.
   has no database, embeddings, automatic capture, background writer, or large
   always-loaded rule. The current build behavior is specified in
   [`knowledge/prds/toolkit-operating-system/knowledge-system.md`](knowledge/prds/toolkit-operating-system/knowledge-system.md).
+  A project may instead keep its memory in a memory service (the `external`
+  memory mode, issue #404); everything else stays in Git.
 - [x] **`second-brain` v1 archive**: the retired Worker, Neon, MCP, curator,
   hook, knowledge-backfill, and structural-layer source has been removed from
   active plugin paths and consolidated under

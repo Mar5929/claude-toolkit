@@ -197,3 +197,23 @@ test('settings refuse skipping the hook with --no-verify or -n', () => {
     assert.ok(own.permissions.deny.includes(rule), `.claude/settings.json deny has ${rule}`);
   }
 });
+
+test('an external-mode project with no knowledge folder is checked', () => {
+  const root = fixture('external-mode');
+  git(root, 'rm', '-q', '-r', 'knowledge');
+  write(root, '.toolkit-memory.json', '{ "format": 1, "memory": "external", "service": "hindsight", "server": "hindsight", "project": "fixture" }\n');
+  write(root, 'PROJECT.md', '# Fixture project\n\nSynthetic project for the pre-commit hook test.\n');
+  mkdirSync(resolve(root, 'docs'), { recursive: true });
+  copyFileSync(resolve(repo, template + 'knowledge/knowledge-manual.md'), resolve(root, 'docs/knowledge-manual.md'));
+  mkdirSync(resolve(root, 'prds'), { recursive: true });
+  rebuild(root);
+  git(root, 'add', '-A');
+  const good = commit(root, 'Switch fixture to external mode');
+  assert.equal(good.status, 0, good.stdout + good.stderr);
+
+  write(root, 'prds/broken.md', 'No front matter here.\n');
+  git(root, 'add', 'prds/broken.md');
+  const bad = commit(root, 'Add a badly formatted PRD');
+  assert.notEqual(bad.status, 0, 'a badly formatted PRD in prds/ must be refused');
+  assert.match(bad.stderr + bad.stdout, /prds\/broken\.md/);
+});

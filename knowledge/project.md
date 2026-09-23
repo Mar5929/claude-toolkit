@@ -16,6 +16,9 @@ machines.
   their responsibilities.
 - Keep project Markdown and Git authoritative. Do not add hidden databases,
   private agent memory, or background writers as a second source of truth.
+  One exception (D2, #404, approved 2026-09-23): a project that chooses an
+  external memory service keeps its memory only there. Git stays
+  authoritative for everything else.
 - Keep retired material under `archive/` as history, never current guidance.
 
 ## Main workstreams

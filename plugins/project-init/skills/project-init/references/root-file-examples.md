@@ -81,6 +81,52 @@ Each folder named in that codemap holds the same pair: an `AGENTS.md` with the
 folder's own content, and a `CLAUDE.md` beside it holding the one import line
 below.
 
+## The same project in the `external` memory mode
+
+If `acme-crm` kept its memory in a memory service (mem0 or Hindsight), its
+`.toolkit-memory.json` would say `"memory": "external"` and these sections
+would change. Everything else stays as above.
+
+````markdown
+## Startup
+
+- Read `SOUL.md` and `PROJECT.md`.
+- Load working memory in full through the memory service named in
+  `.toolkit-memory.json`. If its MCP server is not connected, tell the owner.
+- List pending saves in the memory service.
+- Repeat these steps after resume, clear, or compaction.
+- Procedures live in skills. The manuals in `docs/` are reference: open a
+  section when a task needs it.
+
+## Path-scoped rules
+
+- `prds/**`, `PROJECT.md`, `docs/**`, `**/README.md`: `.claude/rules/knowledge-direct-commit.md`
+
+## Codemap
+
+| Path | What is there, and when to open it |
+| --- | --- |
+| `PROJECT.md` | What the project is, why it exists, and its boundaries. Read at startup. |
+| `prds/` | One PRD per feature area: the requirements, then the settled behavior. Open it before changing an area. Kept for the life of the area. |
+| `docs/` | Documents written for Acme, plus `knowledge-manual.md` and `toolkit-manual.md`, which say how knowledge and the toolkit work here. Detail: `docs/AGENTS.md`. |
+
+## Tools
+
+| Tool | Use it for | Detail |
+| --- | --- | --- |
+| `mem0` MCP server | Working memory, lasting memory, and pending saves. Written only through the `knowledge-save` skill. | `docs/knowledge-manual.md` |
+
+## Quick saves
+
+| Path | How updates land | Instructions |
+| --- | --- | --- |
+| `README.md`, `delivery/architecture/`, `docs/designs/` | Authorized documentation-only updates go straight to the default branch. | `.claude/rules/knowledge-direct-commit.md` and the `publish-docs` skill |
+| `prds/` and `PROJECT.md` | Content approval follows the knowledge manual, then the route above. Memory records go through the same skill. | `docs/knowledge-manual.md` and the `knowledge-save` skill |
+````
+
+There is no `knowledge/` row in the codemap and no `knowledge/` folder. The
+System Guide, when enabled, keeps its own configured path.
+
 ## Sample CLAUDE.md
 
 The whole file:

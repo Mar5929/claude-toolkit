@@ -22,6 +22,13 @@ receipt and completed Stop commands, which proves those fixture entry points run
 in sequence. The model trials use root/manual fallback and do not establish host
 registration, event delivery or activation parity.
 
+Each run also installs one `external` memory-mode project from shipped
+sources: `.toolkit-memory.json`, `SOUL.md`, `PROJECT.md`, both manuals in
+`docs/`, and a PRD in `prds/`. It runs the copied index builder, checker and
+hooks, and records the result as `externalPreflight` in `run.json`. It checks
+the Git files and the startup text only. No model or memory service runs, so
+it proves no memory-service call.
+
 Run one scenario while a candidate Knowledge package and handoff package are
 available in separate source trees:
 

@@ -11,6 +11,12 @@ root instructions, existing setup record and both manual locations. A marked
 `knowledge/knowledge-manual.md` identifies toolkit guidance; folder names alone
 identify neither ownership nor permission.
 
+Read `.toolkit-memory.json` first. A missing file means `files` mode. When it
+sets `memory` to `external`, memory lives in a memory service; use the
+external path in [delivery](references/delivery.md#external-memory-mode) and the
+[memory providers](references/memory-providers/README.md) references. Moving an
+existing project between modes is not supported: report it and stop.
+
 Use [delivery and verification](references/delivery.md) for an authorized new
 setup, update or repair. Use [migration](references/migration.md) when old records,
 manuals, skill names or registrations exist. Coordinate the higher Toolkit manual

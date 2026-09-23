@@ -5,7 +5,7 @@ import { readFileSync, writeFileSync, mkdirSync, renameSync, openSync, closeSync
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { resolveManual } from './knowledge-manual.mjs';
+import { isProjectRoot, knowledgeActive, readMemoryConfig, resolveManual } from './knowledge-manual.mjs';
 
 export const OUTCOMES = ['no-change', 'pending-approval', 'save-unfinished', 'saved'];
 /** Absolute, forward-slash paths, so the command works from any directory. */
@@ -69,8 +69,9 @@ export function protocolsActive(input, names) {
 }
 export function completion(root, input, directory) {
   if (input.hook_event_name === 'SubagentStop') return {};
-  // protocol-guard K4 and K6 check knowledge writes from facts while they run.
-  if (protocolsActive(input, ['K4', 'K6'])) return {};
+  // protocol-guard K4 and K6 (K4X and K6X in external memory mode) check
+  // knowledge writes from facts while they run.
+  if (protocolsActive(input, ['K4', 'K6']) || protocolsActive(input, ['K4X', 'K6X'])) return {};
   return locked(root, input, directory, state => {
     if (!state) return { result: { systemMessage: 'Knowledge completion checkpoint unavailable for this turn. Review under the manual and preserve unfinished saves; no completion was recorded.' } };
     const incomingTurn = turnId(input.turn_id);
@@ -78,7 +79,8 @@ export function completion(root, input, directory) {
     const correlationNotice = state.turn_id && incomingTurn ? '' : ` ${UNCORRELATED_STOP}`;
     if (state.outcome) return { result: {} };
     if (state.continued || input.stop_hook_active) {
-      return { next: { ...state, continued: true }, result: { systemMessage: `Knowledge review remains unrecorded. No further continuation is requested; preserve any unfinished save in the inbox.${correlationNotice}` } };
+      const pendingHome = readMemoryConfig(root).mode === 'external' ? 'as a pending memory record' : 'in the inbox';
+      return { next: { ...state, continued: true }, result: { systemMessage: `Knowledge review remains unrecorded. No further continuation is requested; preserve any unfinished save ${pendingHome}.${correlationNotice}` } };
     }
     return { next: { ...state, continued: true }, result: {
       decision: 'block',
@@ -96,10 +98,10 @@ if (process.argv[1] && canonical(process.argv[1]) === canonical(fileURLToPath(im
       const input = JSON.parse(readFileSync(0, 'utf8') || '{}');
       const installedRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
       const root = process.env.CLAUDE_PROJECT_DIR
-        || (existsSync(resolve(installedRoot, 'knowledge')) ? installedRoot : null)
+        || (isProjectRoot(installedRoot) ? installedRoot : null)
         || process.env.CODEX_PROJECT_DIR || input.cwd || process.cwd();
       const manual = resolveManual(root);
-      if (manual.text?.includes('<!-- claude-toolkit:knowledge-schema:2 -->')) console.log(JSON.stringify(completion(root, input)));
+      if (knowledgeActive(root, manual)) console.log(JSON.stringify(completion(root, input)));
       else if (manual.notice) console.log(JSON.stringify({ systemMessage: manual.notice }));
     }
   } catch (error) {

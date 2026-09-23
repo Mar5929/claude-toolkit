@@ -10,6 +10,15 @@ context and still current can satisfy a check. Another tool call alone does not
 restart the search. Knowledge policy is in `knowledge/knowledge-manual.md`;
 section 2 names the record that owns each kind of information.
 
+In `external` memory mode (`.toolkit-memory.json` sets `memory` to
+`external`), the manual is `docs/knowledge-manual.md`, PRDs are in `prds/`, and
+memory is in the memory service. Use the
+[provider contract](../knowledge-setup/references/memory-providers/README.md)
+and its adapter: load working memory and list `pending` records for step 1,
+and use Search and List lasting topics for step 4. Open each record a search
+returns before relying on it. If the MCP server is not connected, report that
+memory is unavailable, not that nothing was found.
+
 For a legacy installation, use the actual paths and trust rules named by its
 managed manual; do not create schema:2 records during lookup. Report a partial
 or conflicting layout and route repair through `knowledge-setup`.
@@ -27,7 +36,8 @@ depth:
    Pending text is not evidence of current truth.
 2. Apply standing instructions and open missing applicable rules.
 3. Find the relevant skill before performing its operation.
-4. Resolve shorthand using `knowledge/memory/memory-entries/terminology-glossary.md`.
+4. Resolve shorthand using `knowledge/memory/memory-entries/terminology-glossary.md`
+   (record `lasting:terminology-glossary` in `external` mode).
    Use memory and PRD indexes, the enabled System Guide's configured index, and
    links to the owning design/research. Open the actual sources. Do not enable
    a missing component or use memory as its substitute.
@@ -72,7 +82,8 @@ The vendor documents hourly export scheduling.
 Source: ai-external-knowledge/vendor/export.md (captured 2026-09-19)
 ```
 
-Use a file path for an ordinary project source; a session name and date for
+Use a file path for an ordinary project source; a record key and the service
+name for a memory record in `external` mode; a session name and date for
 history; or a captured-page path and capture date for outside material.
 Useful new information follows `knowledge-save` and its destination's authority.
 Finding a claim does not authorize saving it.

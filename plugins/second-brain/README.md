@@ -58,6 +58,28 @@ and permission; automatic saving remains explicitly opt-in and memory-only.
 A finalized PRD means approved requirements, not delivery. The tracker owns work
 status, designs own technical choices, and captured sources retain their origin.
 
+## External memory mode
+
+A project can keep memory in a memory service (mem0 or Hindsight) instead of
+`knowledge/`. `.toolkit-memory.json` at the project root sets the mode; no file
+means `files` mode, the layout above. In `external` mode:
+
+- Working memory, lasting memory, pending saves, and selection feedback are
+  records in the service, reached through its MCP server.
+- `PROJECT.md`, `docs/knowledge-manual.md`, `docs/toolkit-manual.md`, and
+  `prds/` stay in Git. There is no `knowledge/` folder.
+- The same four procedures, selection rules, and approval cards apply. Only
+  `knowledge-save` writes records, and a save counts only when the read back
+  matches the approved text exactly.
+- The service's own Claude Code and Codex plugins are never installed, because
+  they save automatically.
+- Moving an existing project between modes is not supported.
+
+The [memory providers](skills/knowledge-setup/references/memory-providers/README.md)
+reference holds the contract and one adapter per service
+([mem0](skills/knowledge-setup/references/memory-providers/mem0.md),
+[Hindsight](skills/knowledge-setup/references/memory-providers/hindsight.md)).
+
 An enabled System Guide uses `.system-guide.json` and its own configured path,
 writer and index. This plugin preserves that component and reports only its off
 state. Memory/PRDs are never fallback stores for a missing or disabled Guide.
@@ -93,8 +115,9 @@ Tools copied into `.claude/tools/`:
 Installed into the clone's Git hooks folder, not copied into `.claude/tools/`:
 
 - `tools/knowledge-pre-commit.sh`: the Git pre-commit hook. A commit that
-  changes `knowledge/`, `SOUL.md` or `ai-external-knowledge/` runs the checker
-  on the staged files and is refused when it fails. Install steps:
+  changes `knowledge/`, `SOUL.md` or `ai-external-knowledge/` (in `external`
+  mode also `prds/`, `PROJECT.md`, `docs/knowledge-manual.md` or
+  `.toolkit-memory.json`) runs the checker on the staged files and is refused when it fails. Install steps:
   [delivery](skills/knowledge-setup/references/delivery.md), "Commit-time check".
 
 Run the index builder then the checker after authorized knowledge changes.
@@ -119,6 +142,8 @@ parallel helpers are unavailable.
 hold and its plain retry, compound close/merge commands and hook entry points.
 `tests/new-install.test.mjs` assembles an empty project and runs the copied
 startup, prompt, completion and review commands from a nested working directory.
+`tests/external-memory.test.mjs` covers the `external` memory mode: the config,
+startup text for mem0 and Hindsight, reminders, and the copied hooks.
 `tests/pre-commit.test.mjs` installs the Git pre-commit hook in fixture
 repositories and a linked worktree, and checks the `--no-verify` deny rules.
 These deterministic checks do not replace fresh-agent meaning/host tests.
@@ -131,4 +156,6 @@ Update both plugin manifests, marketplace metadata, catalogs, managed manual,
 installed copies and setup routes together. Legacy detection is compatibility,
 not automatic conversion authority. Preserve knowledge and pending permissions
 through migration/rollback. Optional Obsidian settings remain ordinary portable
-Markdown links; no database, extraction service or parallel memory store is used.
+Markdown links. In `files` mode no database, extraction service or parallel
+memory store is used; `external` mode uses its one memory service instead of
+the memory files, never beside them.

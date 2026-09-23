@@ -36,8 +36,19 @@ import {
   shouldHold,
   SPLIT_REVIEW_ACTIONS,
 } from "./command-parsing.mjs";
+import { memoryLayout, readMemoryConfig } from "./knowledge-manual.mjs";
 
 const KNOWLEDGE_PREFIX = "knowledge/";
+
+/**
+ * Documentation-only paths that `knowledge-direct-commit.md` sends straight to
+ * the default branch. In `external` mode the knowledge files sit at the root:
+ * PRDs in `prds/`, the manuals in `docs/`, and `PROJECT.md`.
+ */
+export const DIRECT_COMMIT_PATHS = {
+  files: { prefixes: [KNOWLEDGE_PREFIX], files: [], label: "knowledge/" },
+  external: { prefixes: ["prds/", "docs/"], files: ["PROJECT.md"], label: "documentation paths (prds/, docs/, PROJECT.md)" },
+};
 
 function failOpen() {
   process.exitCode = 0;
@@ -129,27 +140,30 @@ export function changedPaths(projectRoot) {
 }
 
 /** True only when there is something to land and all of it is knowledge. */
-export function isKnowledgeOnly(paths) {
+export function isKnowledgeOnly(paths, mode = "files") {
   if (!Array.isArray(paths) || paths.length === 0) return false;
-  return paths.every((path) => path.startsWith(KNOWLEDGE_PREFIX));
+  const allowed = DIRECT_COMMIT_PATHS[mode] || DIRECT_COMMIT_PATHS.files;
+  return paths.every((path) => allowed.prefixes.some((prefix) => path.startsWith(prefix))
+    || allowed.files.includes(path));
 }
 
-export function buildMessage() {
+export function buildMessage(mode = "files") {
   return [
     "Held. Opening a pull request is a save-review moment.",
     "",
     "Use knowledge-save to review this work and preserve its outcome, then retry.",
     "Check whether any specification needs updating and whether anything is",
-    "worth saving as memory. If there is, knowledge/knowledge-manual.md shows how to",
+    `worth saving as memory. If there is, ${memoryLayout(mode).knowledgeManual} shows how to`,
     "display the proposal.",
     "",
     "If you are a helper agent, stop and report this to the main agent.",
   ].join("\n");
 }
 
-export function buildDirectCommitMessage(paths) {
+export function buildDirectCommitMessage(paths, mode = "files") {
+  const label = (DIRECT_COMMIT_PATHS[mode] || DIRECT_COMMIT_PATHS.files).label;
   return [
-    "Held. This branch changes only knowledge/; inspect actual content to decide whether it",
+    `Held. This branch changes only ${label}; inspect actual content to decide whether it`,
     "needs the documentation route or an implementation pull request.",
     "",
     `Files: ${paths.join(", ")}`,
@@ -207,11 +221,12 @@ function main() {
   if (!shouldHold(payload, key)) return failOpen();
 
   const paths = changedPaths(root);
-  const knowledgeOnly = isKnowledgeOnly(paths);
+  const mode = readMemoryConfig(root).mode;
+  const knowledgeOnly = isKnowledgeOnly(paths, mode);
   // protocol-guard K7 replaces the general save-review hold. The
   // knowledge-only branch message stays: K7 does not check the route.
   if (!knowledgeOnly && engineProtocols(process.env, payload).includes("K7")) return failOpen();
-  const message = knowledgeOnly ? buildDirectCommitMessage(paths) : buildMessage();
+  const message = knowledgeOnly ? buildDirectCommitMessage(paths, mode) : buildMessage(mode);
   deny(heldMessage(message, actionLabel(key)));
   recordHold(payload, key);
 }

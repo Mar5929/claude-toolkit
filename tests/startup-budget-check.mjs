@@ -18,12 +18,14 @@
  * - the output of every SessionStart hook registered in
  *   `.claude/settings.json`;
  * - the three required reads: `SOUL.md`, `knowledge/project.md`, and
- *   `knowledge/memory/current.md`.
+ *   `knowledge/memory/current.md`. In `external` memory mode
+ *   (`.toolkit-memory.json`) the file reads are `SOUL.md` and `PROJECT.md`;
+ *   working memory comes from the memory service and cannot be counted here.
  *
  * The output style, skill descriptions, and Claude Code's own system prompt
  * are not counted. Per-message hook output is reported, not budgeted.
  *
- * Two profiles run by default:
+ * Three profiles run by default:
  *
  * - `repo`: this repository as it runs itself.
  * - `general`: a new general project built from shipped files only: the
@@ -31,6 +33,8 @@
  *   the Toolkit manual template, the knowledge templates, and both startup
  *   hooks. It measures what the toolkit adds, before the project writes its
  *   own SOUL, project map, and working memory.
+ * - `external`: the same new project in `external` memory mode, with
+ *   `PROJECT.md` and both manuals in `docs/`. It has the `general` budget.
  *
  * Measure a real project with:
  *   node tests/startup-budget-check.mjs --project <path> [--budget <words>]
@@ -47,6 +51,7 @@ import {
 import { tmpdir } from "node:os";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { readMemoryConfig } from "../plugins/second-brain/hooks/knowledge-manual.mjs";
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -58,6 +63,13 @@ const repo = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const BUDGETS = { repo: 4500, general: 3000, project: 4300 };
 
 const REQUIRED_READS = ["SOUL.md", "knowledge/project.md", "knowledge/memory/current.md"];
+const EXTERNAL_READS = ["SOUL.md", "PROJECT.md"];
+
+/** The file reads for the project's memory mode. An invalid config is files
+ * mode, by the same rules as the hooks. */
+function requiredReads(root) {
+  return readMemoryConfig(root).mode === "external" ? EXTERNAL_READS : REQUIRED_READS;
+}
 
 const words = (text) => text.split(/\s+/).filter(Boolean).length;
 
@@ -118,14 +130,15 @@ function measure(root) {
   }
   parts.push(["AGENTS.md", words(read(join(root, "AGENTS.md")) ?? "")]);
   parts.push(["SessionStart hook output", words(runHooks(root, "SessionStart"))]);
-  for (const path of REQUIRED_READS) parts.push([path, words(read(join(root, path)) ?? "")]);
+  for (const path of requiredReads(root)) parts.push([path, words(read(join(root, path)) ?? "")]);
   const total = parts.reduce((sum, [, count]) => sum + count, 0);
   const perMessage = words(runHooks(root, "UserPromptSubmit"));
   return { parts, total, perMessage };
 }
 
-/** A new general project assembled from the files the toolkit ships. */
-function buildGeneralFixture() {
+/** A new general project assembled from the files the toolkit ships. With
+ * `external`, the same project in external memory mode: no knowledge/ folder. */
+function buildGeneralFixture({ external = false } = {}) {
   const parent = mkdtempSync(join(tmpdir(), "startup-budget-"));
   const root = join(parent, "project");
   const general = join(repo, "plugins/project-init/library/rules/general");
@@ -145,9 +158,21 @@ function buildGeneralFixture() {
   writeFileSync(join(root, "AGENTS.md"), sample ? sample[1] : "");
   writeFileSync(join(root, "CLAUDE.md"), "@AGENTS.md\n");
 
-  cpSync(join(repo, "plugins/project-init/library/templates/toolkit-manual.md"),
-    join(root, "knowledge/toolkit-manual.md"));
-  cpSync(join(templates, "knowledge"), join(root, "knowledge"), { recursive: true });
+  if (external) {
+    rmSync(join(root, "knowledge"), { recursive: true, force: true });
+    mkdirSync(join(root, "docs"), { recursive: true });
+    writeFileSync(join(root, ".toolkit-memory.json"), JSON.stringify({
+      format: 1, memory: "external", service: "mem0", server: "mem0", project: "fixture",
+    }));
+    cpSync(join(repo, "plugins/project-init/library/templates/toolkit-manual.md"),
+      join(root, "docs/toolkit-manual.md"));
+    cpSync(join(templates, "knowledge/knowledge-manual.md"), join(root, "docs/knowledge-manual.md"));
+    cpSync(join(templates, "knowledge/project.md"), join(root, "PROJECT.md"));
+  } else {
+    cpSync(join(repo, "plugins/project-init/library/templates/toolkit-manual.md"),
+      join(root, "knowledge/toolkit-manual.md"));
+    cpSync(join(templates, "knowledge"), join(root, "knowledge"), { recursive: true });
+  }
   cpSync(join(templates, "SOUL.md"), join(root, "SOUL.md"));
 
   cpSync(join(repo, "plugins/second-brain/hooks"), join(root, ".claude/hooks"), { recursive: true });
@@ -189,11 +214,13 @@ if (projectIndex !== -1) {
   ok = report(relative(process.cwd(), root) || root, measure(root), budget);
 } else {
   ok = report("repo", measure(repo), BUDGETS.repo) && ok;
-  const fixture = buildGeneralFixture();
-  try {
-    ok = report("general", measure(fixture.root), BUDGETS.general) && ok;
-  } finally {
-    fixture.cleanup();
+  for (const [name, options] of [["general", {}], ["external", { external: true }]]) {
+    const fixture = buildGeneralFixture(options);
+    try {
+      ok = report(name, measure(fixture.root), BUDGETS.general) && ok;
+    } finally {
+      fixture.cleanup();
+    }
   }
 }
 

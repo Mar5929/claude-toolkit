@@ -9,6 +9,13 @@ import { basename, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const TOOLKIT_MANUAL = "knowledge/toolkit-manual.md";
+// A project that keeps its memory in a memory service (mem0 or Hindsight)
+// declares it in this file and keeps the manual in docs/. A missing or invalid
+// file means "files" mode, so the hook fails open to today's layout. This small
+// reader duplicates second-brain's readMemoryConfig on purpose: project-init
+// ships without the second-brain plugin.
+export const MEMORY_CONFIG = ".toolkit-memory.json";
+export const EXTERNAL_TOOLKIT_MANUAL = "docs/toolkit-manual.md";
 // AGENTS.md holds the project instructions. The CLAUDE.md beside it is one
 // import line, which is how Claude Code versions that do not read AGENTS.md
 // natively still receive it. Codex reads AGENTS.md and never CLAUDE.md.
@@ -28,6 +35,37 @@ export const DEFAULT_SUMMARY = [
   "- `knowledge/toolkit-manual.md` is reference. Open the section you need. Do not read it at startup.",
 ].join("\n");
 
+// The external-mode equivalent. Keep it equal to the template's
+// "Summary for the external memory mode" section.
+export const EXTERNAL_SUMMARY_HEADING = "Summary for the external memory mode";
+export const DEFAULT_EXTERNAL_SUMMARY = [
+  "Toolkit project. AGENTS.md names the tracker and the codemap.",
+  "- Before substantial work, open the `work` skill and read the active item.",
+  "- Before asking the owner to repeat something, open `knowledge-find`. It searches the memory service.",
+  "- When the owner settles a decision, requirement, or correction, open `knowledge-save`. It saves to the memory service.",
+  "- `docs/toolkit-manual.md` is reference. Open the section you need. Do not read it at startup.",
+].join("\n");
+
+/**
+ * "external" only for a valid external config; anything else is "files". The
+ * rules are second-brain's readMemoryConfig rules: "format" 1, "memory"
+ * "external", "service" mem0 or hindsight, "server" of letters, digits, _ and
+ * - only, and a non-empty "project", each on one line.
+ */
+export function memoryMode(root) {
+  try {
+    const data = JSON.parse(readFileSync(resolve(root, MEMORY_CONFIG), "utf8"));
+    const line = (value) => typeof value === "string" && value.trim() !== "" && !/[\r\n]/.test(value);
+    return data && typeof data === "object" && !Array.isArray(data)
+      && data.format === 1 && data.memory === "external"
+      && ["mem0", "hindsight"].includes(data.service)
+      && line(data.server) && /^[A-Za-z0-9_-]+$/.test(data.server)
+      && line(data.project) ? "external" : "files";
+  } catch {
+    return "files";
+  }
+}
+
 function fileState(root, path) {
   try {
     return readFileSync(resolve(root, path), "utf8").trim() ? "available" : "empty";
@@ -44,11 +82,11 @@ function fileText(root, path) {
   }
 }
 
-/** The text under the manual's "## Summary" heading, or null. */
-export function manualSummary(text) {
+/** The text under the manual's "## Summary" heading (or another `## ` heading), or null. */
+export function manualSummary(text, heading = "Summary") {
   if (!text) return null;
   const lines = text.replace(/\r\n/g, "\n").split("\n");
-  const start = lines.findIndex((line) => /^##\s+Summary\s*$/.test(line));
+  const start = lines.findIndex((line) => /^##\s+/.test(line) && line.replace(/^##\s+/, "").trim() === heading);
   if (start === -1) return null;
   const body = [];
   for (const line of lines.slice(start + 1)) {
@@ -63,17 +101,19 @@ export function manualSummary(text) {
 }
 
 export function toolkitOrientation(root) {
-  const manualState = fileState(root, TOOLKIT_MANUAL);
+  const external = memoryMode(root) === "external";
+  const manual = external ? EXTERNAL_TOOLKIT_MANUAL : TOOLKIT_MANUAL;
+  const manualState = fileState(root, manual);
   const rootState = fileState(root, ROOT_INSTRUCTIONS);
   const claudeText = fileText(root, "CLAUDE.md");
   const summary = manualState === "available"
-    ? manualSummary(fileText(root, TOOLKIT_MANUAL)) : null;
+    ? manualSummary(fileText(root, manual), external ? EXTERNAL_SUMMARY_HEADING : "Summary") : null;
   const messages = [
     "Toolkit orientation. Paths resolve from the project root.",
-    summary ?? DEFAULT_SUMMARY,
+    summary ?? (external ? DEFAULT_EXTERNAL_SUMMARY : DEFAULT_SUMMARY),
   ];
   if (manualState !== "available") {
-    messages.push(`Toolkit manual is ${manualState}: ${TOOLKIT_MANUAL}. Report this gap. project-sync repairs it.`);
+    messages.push(`Toolkit manual is ${manualState}: ${manual}. Report this gap. project-sync repairs it.`);
   }
   if (rootState !== "available") {
     messages.push(`Root instructions are missing, empty, or unreadable: ${ROOT_INSTRUCTIONS}. Report this gap.`);

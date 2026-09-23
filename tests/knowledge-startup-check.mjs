@@ -138,5 +138,36 @@ check('manual drift and missing manual are diagnosed without writes',()=>{
   assert.ok(checkKnowledge(f).problems.some(x=>x.includes('managed operating manual')));assert.equal(readFileSync(resolve(f,'knowledge/knowledge-manual.md'),'utf8'),before);
  }finally{rmSync(f,{recursive:true,force:true});}
 });
+// External memory mode (#404): a command hook cannot call an MCP tool, so the
+// startup text names the tool and the agent loads working memory itself.
+const externalConfig={format:1,memory:'external',service:'mem0',server:'mem0',project:'fixture'};
+check('external startup reads SOUL.md and PROJECT.md, then names the memory tools; no knowledge/ read',()=>{
+ const f=fixture();try{
+  write(f,'.toolkit-memory.json',JSON.stringify(externalConfig));write(f,'docs/knowledge-manual.md',read(manualSource));
+  write(f,'SOUL.md','FIRST\n'+'body\n'.repeat(20000)+'LAST_SENTINEL');write(f,'PROJECT.md','Project');
+  const out=loadKnowledge(f);let prev=-1;
+  for(const text of ['1. Read `SOUL.md` in full.','2. Read `PROJECT.md` in full.','3. Load working memory (kind `working`) with `mcp__mem0__get_memories`','4. List pending records (kind `pending`) with `mcp__mem0__get_memories`','not connected, tell the owner']){const i=out.indexOf(text);assert.ok(i>prev,text);prev=i;}
+  assert.ok(out.length<1500);assert.ok(!out.includes('LAST_SENTINEL'));assert.doesNotMatch(out,/knowledge\/|memory-inbox|prd-index|acknowledg/i);
+  assert.match(buildReminder(f),/Policy: `docs\/knowledge-manual.md`\./);
+ }finally{rmSync(f,{recursive:true,force:true});}
+});
+check('external copied hook bundle finds a root with no knowledge/ folder from a nested cwd',()=>{
+ const f=fixture();try{
+  for(const n of ['knowledge-session-start.mjs','memory-reminder.mjs','knowledge-completion.mjs','knowledge-manual.mjs'])write(f,`.claude/hooks/${n}`,read(`plugins/second-brain/hooks/${n}`));
+  write(f,'.toolkit-memory.json',JSON.stringify({...externalConfig,service:'hindsight',server:'hindsight'}));write(f,'docs/knowledge-manual.md',read(manualSource));
+  mkdirSync(resolve(f,'packages/nested'),{recursive:true});
+  const env={...process.env};delete env.CLAUDE_PROJECT_DIR;delete env.CODEX_PROJECT_DIR;
+  const out=execFileSync(process.execPath,[resolve(f,'.claude/hooks/knowledge-session-start.mjs')],{cwd:resolve(f,'packages/nested'),env,encoding:'utf8'});
+  assert.match(out,/`mcp__hindsight__list_documents` with q "working:"/);assert.match(out,/file missing: PROJECT.md/);
+ }finally{rmSync(f,{recursive:true,force:true});}
+});
+check('external manual path uses the same managed bytes and hash',()=>{
+ const f=fixture();try{
+  write(f,'.toolkit-memory.json',JSON.stringify(externalConfig));write(f,'docs/knowledge-manual.md','Changed manual');
+  assert.ok(checkKnowledge(f).problems.some(x=>x.includes('docs/knowledge-manual.md')&&x.includes('managed operating manual')));
+  write(f,'docs/knowledge-manual.md',read(manualSource));
+  assert.ok(!checkKnowledge(f).problems.some(x=>x.includes('docs/knowledge-manual.md')));
+ }finally{rmSync(f,{recursive:true,force:true});}
+});
 if(failures.length){console.error(failures.join('\n'));process.exitCode=1;}
 else console.log(`ALL PASS (${checks} knowledge startup/package checks). Actual agent/host acceptance is separate.`);

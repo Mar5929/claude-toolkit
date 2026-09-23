@@ -80,9 +80,10 @@ considered skip from an oversight.
 - **`.claude/` and everything under it.** Its rules, hooks, output styles, and
   agents already reach a session through their own mechanisms, and
   `.claude/RULES.md` indexes the rules folder.
-- **`knowledge/` and everything under it.** Its root startup routes and
-  project-knowledge specification already own the vault contract. Adding a
-  folder instruction file there would create a second authority.
+- **`knowledge/` and everything under it,** or **`prds/`** in the `external`
+  memory mode. Their root startup routes and the knowledge manual already own
+  the contract. Adding a folder instruction file there would create a second
+  authority.
 - **A folder another plugin creates and indexes.** That plugin owns describing
   it. Leave it alone.
 - **A folder with an obvious name and no conventions to state.** A file that

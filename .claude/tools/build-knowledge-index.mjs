@@ -3,7 +3,9 @@
 /**
  * Rebuild source-owned knowledge indexes. The managed manual selects schema 2:
  * grouped Markdown links for memory, PRDs and captured-source topic READMEs.
- * Unmigrated projects retain the legacy two-index layout. No record body or
+ * Unmigrated projects retain the legacy two-index layout. In `external`
+ * memory mode it builds `prds/prd-index.md` and `ai-external-knowledge/README.md`
+ * only: the memory service lists memory itself. No record body or
  * authority is changed. The checker validates records separately.
  */
 
@@ -160,9 +162,36 @@ function wrapEntry(name, status, summary, depth = 0) {
   return lines;
 }
 
+/**
+ * The project's memory mode, from `.toolkit-memory.json`. A copy of
+ * `readMemoryConfig` in `hooks/knowledge-manual.mjs`: the tools are copied
+ * into `.claude/tools/` on their own, so they do not import the hooks.
+ * tests/knowledge-schema.test.mjs checks that both copies agree.
+ */
+export const MEMORY_CONFIG_PATH = ".toolkit-memory.json";
+const MEMORY_SERVICES = ["mem0", "hindsight"];
+export function readMemoryConfig(projectRoot) {
+  const files = { mode: "files", service: null, server: null, project: null, error: null };
+  if (!existsSync(resolve(projectRoot, MEMORY_CONFIG_PATH))) return files;
+  const invalid = error => ({ ...files, error: `${MEMORY_CONFIG_PATH} ${error}` });
+  const nonblank = value => typeof value === "string" && value.trim() !== "" && !/[\r\n]/.test(value);
+  let data;
+  try { data = JSON.parse(readFileSync(resolve(projectRoot, MEMORY_CONFIG_PATH), "utf8")); }
+  catch { return invalid("could not be read as JSON. Fix it; files mode is used until then."); }
+  if (!data || typeof data !== "object" || Array.isArray(data)) return invalid("must be a JSON object.");
+  if (data.format !== 1) return invalid('needs "format": 1.');
+  if (data.memory === "files") return files;
+  if (data.memory !== "external") return invalid('needs "memory" set to "files" or "external".');
+  if (!MEMORY_SERVICES.includes(data.service)) return invalid(`needs "service" set to ${MEMORY_SERVICES.map(x => `"${x}"`).join(" or ")} in external mode.`);
+  if (!nonblank(data.server) || !/^[A-Za-z0-9_-]+$/.test(data.server)) return invalid('needs "server" set to the MCP server name (letters, digits, _ and - only) in external mode.');
+  if (!nonblank(data.project)) return invalid('needs "project" set to the memory scope in external mode.');
+  return { mode: "external", service: data.service, server: data.server.trim(), project: data.project.trim(), error: null };
+}
+
 export function buildIndexes(projectRoot = root) {
-  if (knowledgeSchema(projectRoot) === 2) {
-    const outputs = renderV2Indexes(projectRoot);
+  const external = readMemoryConfig(projectRoot).mode === "external";
+  if (external || knowledgeSchema(projectRoot) === 2) {
+    const outputs = renderV2Indexes(projectRoot, external ? EXTERNAL_V2_INDEXES : V2_INDEXES);
     const problems = outputs.flatMap(output => output.problems);
     for (const output of outputs) {
       const info = lstatSync(output.path, { throwIfNoEntry: false });
@@ -225,6 +254,12 @@ export const V2_INDEXES = [
   { source: "knowledge/prds", output: "knowledge/prds/prd-index.md", kind: "spec", title: "PRD index" },
   { source: "ai-external-knowledge", output: "ai-external-knowledge/README.md", kind: "external", title: "Outside documentation" },
 ];
+/** External memory mode: the memory service lists its own records, so there
+ * is no memory index. PRDs live in the top-level `prds/` folder. */
+export const EXTERNAL_V2_INDEXES = [
+  { source: "prds", output: "prds/prd-index.md", kind: "spec", title: "PRD index" },
+  V2_INDEXES[2],
+];
 
 /** Inventory only real Markdown files; never follow links outside the project. */
 export function collectV2(projectRoot, folder) {
@@ -272,8 +307,8 @@ const labelText = value => value.replace(/\\/g, "\\\\").replace(/[\[\]]/g, "\\$&
 const linkPath = value => value.split("/").map(encodeURIComponent).join("/");
 
 /** Pure renderer used by both the writer and the read-only stale-index check. */
-export function renderV2Indexes(projectRoot) {
-  return V2_INDEXES.map(folder => {
+export function renderV2Indexes(projectRoot, folders = V2_INDEXES) {
+  return folders.map(folder => {
     const { entries, problems } = collectV2(projectRoot, folder);
     const byPath = new Map(entries.map(entry => [entry.path, entry]));
     const groups = new Map();

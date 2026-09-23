@@ -138,7 +138,8 @@ the Git-ignored `.work-items/` tracker keeps each design with its own item
 instead, and does not need the folder.
 
 Requirements for a whole feature area do not get a folder here. They are the
-PRD in `knowledge/prds/`, one living document per area, which holds the
+PRD in `knowledge/prds/` (or `prds/` in the `external` memory mode chosen at
+Gate 3), one living document per area, which holds the
 requirements first and is edited to describe the settled behavior after the
 build. Where one work item's requirements live does not change; those stay in
 the tracker Gate 1 settled on.
@@ -286,6 +287,26 @@ source evidence separate from owner-approved meaning, normally under
 
 **Project knowledge.** Offer the `second-brain` plugin as its own choice.
 
+- Ask one more question when the owner accepts: "Memory: files in Git (second
+  brain) or an external memory service (mem0 or Hindsight)?" Files in Git is
+  the `files` memory mode and the default. The memory service is the
+  `external` memory mode. Both modes use the same `second-brain` plugin,
+  skills, approval rules, and checks; only where working memory and lasting
+  memory are stored changes. Record the answer by following the
+  `knowledge-setup` procedure: for `external` it takes its external setup path,
+  which writes `.toolkit-memory.json` at the project root. A missing file means
+  `files`. Never install the mem0 or Hindsight Claude Code plugin: both save
+  memory automatically, which bypasses owner approval.
+- In `external` mode the Git files move out of `knowledge/`: project context is
+  `PROJECT.md`, the knowledge manual is `docs/knowledge-manual.md`, and PRDs are
+  in `prds/`. No `knowledge/` folder is created. Read the rest of this list with
+  those paths in place of the `knowledge/` paths. The memory service's MCP
+  server goes in the project's `.mcp.json`, with its API key in an environment
+  variable, never in the repository. Then print, for the owner to add on each
+  computer that runs Codex, the matching `[mcp_servers.<server>]` entry for
+  `~/.codex/config.toml`: the same server name, and the entry the service's
+  adapter shows (`url` and `bearer_token_env_var`). Codex reads no project MCP
+  file.
 - Explain that the managed `knowledge/knowledge-manual.md` is the one operating manual.
   It owns placement, finding, saving, file shape, approval, trust, lifecycle,
   and the skill map. Other runtime files point to it instead of copying policy.
@@ -300,7 +321,7 @@ source evidence separate from owner-approved meaning, normally under
   `project-init`.
 - Treat the manual, topic folders, tools, hooks, and short root fallback as one
   adoption unit. Do not offer a broken partial variant.
-- Commit only `knowledge/.obsidian/app.json` with `alwaysUpdateLinks: true`,
+- In `files` mode, commit only `knowledge/.obsidian/app.json` with `alwaysUpdateLinks: true`,
   `newLinkFormat: "relative"`, and `useMarkdownLinks: true`. Add a `.gitignore`
   allowlist that ignores
   every other file under `knowledge/.obsidian/`, including personal layouts,
@@ -313,8 +334,11 @@ source evidence separate from owner-approved meaning, normally under
   `AGENTS.md`; `CLAUDE.md` remains the one-line import of `AGENTS.md`. The
   hook asks for three reads: `SOUL.md`, `knowledge/project.md`, and
   `knowledge/memory/current.md`, plus a check of `knowledge/memory-inbox.md`.
-  The manuals are reference, not startup reads, and the hook asks for no
-  acknowledgment. The root files copy none of the policy.
+  In `external` mode it asks for `SOUL.md` and `PROJECT.md`, then for working
+  memory to be loaded through the memory service, and for pending saves to be
+  listed; `AGENTS.md` gets the `external` Startup block from the same
+  reference. The manuals are reference, not startup reads, and the hook asks
+  for no acknowledgment. The root files copy none of the policy.
 - After installation, offer to invoke `knowledge-save` for any initial candidates. It
   follows the manual and writes only approved meaning.
 - A new project starts with no memories. Never inherit another project's
@@ -331,7 +355,8 @@ Markdown knowledge system.
 
 - Do not offer a second or competing knowledge system. When Gate 3 was
   approved, `knowledge/memory/` and `knowledge/prds/` already provide the
-  persistent knowledge layer.
+  persistent knowledge layer. In the `external` memory mode that layer is the
+  memory service and `prds/`.
 - Mark this gate **available alongside project knowledge** when Gate 3 ran, or
   **independent of project knowledge** when the owner declined Gate 3.
 - Explain that a dependency graph is a separately optional analysis aid for
@@ -368,7 +393,8 @@ goes in.
 
 Install the Toolkit operating manual in every equipped project. Read
 `references/toolkit-manual-delivery.md`, copy
-`../../library/templates/toolkit-manual.md` to `knowledge/toolkit-manual.md`,
+`../../library/templates/toolkit-manual.md` to `knowledge/toolkit-manual.md`
+(`docs/toolkit-manual.md` in the `external` memory mode),
 and write the three-read Startup section from `references/thin-agents-md.md`
 into `AGENTS.md`. The manual is reference, not a startup read. It is independent
 of the optional project-knowledge system. Root instructions supply the
@@ -394,8 +420,9 @@ AGENTS.md stays thin and points at that folder. Read
   in `AGENTS.md` or `.claude/rules/`, not `SOUL.md`. If a root
   `SOUL.md` already exists, keep it and never overwrite it. Once the file
   exists and Gate 3 was declined, put `Read SOUL.md first and follow it
-  throughout this session.` at the top of `AGENTS.md`. When Gate 3 ran,
-  its startup loader and short fallback already own the SOUL route. If the owner
+  throughout this session.` at the top of `AGENTS.md`. When Gate 3 ran, in
+  either memory mode, its startup loader and short fallback already own the
+  SOUL route. If the owner
   declines, create no file and add no reference.
 - **Copy the general rules** the owner wants from `../../library/rules/general/`
   into the project's `.claude/rules/`. Every default-ON file goes in unless the
@@ -439,8 +466,9 @@ AGENTS.md stays thin and points at that folder. Read
   out, route documentation saves to `knowledge-direct-commit.md` even when
   Gate 3 was skipped. Name actual
   documentation locations from the codemap. Include only configured systems:
-  `knowledge/` when Gate 3 ran and `.work-items/` when Gate 1 selected local
-  tracking. Point to the owning instructions; do not copy their procedures or
+  `knowledge/` when Gate 3 ran in `files` mode, `prds/`, `PROJECT.md`, and
+  `docs/` when it ran in `external` mode, and `.work-items/` when Gate 1
+  selected local tracking. Point to the owning instructions; do not copy their procedures or
   imply that an absent or declined system exists. Take the work-tracking wording from
   `references/work-tracking-choice.md`, naming the tracker Gate 1 settled on and
   how a refined ticket is marked. Reflect what the earlier gates set up. Keep
@@ -508,7 +536,8 @@ AGENTS.md stays thin and points at that folder. Read
   `sf apex run`. The owner's yes in the same chat stays the rule for those;
   `ask` does not prompt in `bypassPermissions` mode.
 - **Turn on the required workflow checks** when project knowledge is
-  installed. Install `protocol-guard@claude-toolkit` and merge two keys into the
+  installed, in either memory mode. In the `external` mode the same checks
+  also watch calls to the memory service's write tools. Install `protocol-guard@claude-toolkit` and merge two keys into the
   project's committed `.claude/settings.json`, preserving every other key:
   `"env": { "CLAUDE_CODE_ENABLE_FUNCTION_HOOKS": "1" }` and
   `"enabledPlugins": { "protocol-guard@claude-toolkit": true }`. Function hooks
@@ -669,7 +698,8 @@ library.
 - `../../library/templates/settings-permissions.json`: the `deny` and `ask`
   permission rules merged into the project's `.claude/settings.json`.
 - `../../library/templates/toolkit-manual.md`: the reusable Toolkit operating
-  manual copied to `knowledge/toolkit-manual.md` in every equipped project.
+  manual copied to `knowledge/toolkit-manual.md` in every equipped project, or
+  to `docs/toolkit-manual.md` in the `external` memory mode.
 - `../../library/guides/salesforce-permissions-retrieval.md`: the end-to-end
   process for keeping permission sets in source control safely, and what to do
   about profiles (excluded by default). Covers the four-part install, the

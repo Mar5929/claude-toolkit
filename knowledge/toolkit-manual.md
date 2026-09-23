@@ -87,6 +87,15 @@ Toolkit project. AGENTS.md names the tracker and the codemap.
 - **Rules:** `.claude/rules/`.
 - **Knowledge:** `knowledge/`. The [knowledge manual](knowledge-manual.md)
   owns placement, trust, approval, and lifecycle policy.
+- **Memory modes:** `.toolkit-memory.json` at a project root sets the memory
+  mode. No file means `files` mode: memory lives in `knowledge/`. This
+  repository uses `files` mode. In `external` mode a memory service (mem0 or
+  Hindsight) holds working memory, lasting memory, pending saves, and
+  selection feedback. Project context moves to `PROJECT.md`, PRDs to `prds/`,
+  and both manuals to `docs/`. Sections 1 and 2 of the knowledge manual give
+  the homes. The `knowledge-setup` skill's
+  [memory-providers references](../plugins/second-brain/skills/knowledge-setup/references/memory-providers/README.md)
+  give the service steps.
 - **Work records:** the chosen tracker is the `Claude-Toolkit-Project` board on
   GitHub. Linked designs are in [docs/designs/](../docs/designs/README.md).
 - **System Guide:** not configured in this repository.
@@ -200,7 +209,7 @@ wrong or missing:
 | Required workflow checks | `protocol-guard`; each check names its owner skill |
 | Work tracking | Tracker named in `AGENTS.md`; the `work` skill |
 | Guided delivery | `work-guide`, `requirements-helper`, `solution-design` |
-| Project knowledge, when installed | `knowledge/knowledge-manual.md`; `knowledge-find`, `knowledge-save`, `knowledge-review` |
+| Project knowledge, when installed | `knowledge/knowledge-manual.md` (`docs/knowledge-manual.md` in `external` memory mode); `knowledge-find`, `knowledge-save`, `knowledge-review` |
 | System Guide, when enabled | `system-guide` skill and its guide path |
 | Handoff | `handoff` |
 | Documentation publication | `knowledge-direct-commit.md` rule; `publish-docs` skill |

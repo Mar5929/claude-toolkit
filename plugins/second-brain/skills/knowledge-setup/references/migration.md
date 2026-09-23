@@ -1,5 +1,8 @@
 # Preserve records while updating the system
 
+`external` memory mode is not a migration target. Moving an existing project
+between `files` and `external` mode is not supported: report it and stop.
+
 Inspect the latest project and its existing setup record. Work in reversible
 batches under actual project update authority. Capture the Git baseline and an
 old-to-new path map in the existing work record. Do not migrate another project

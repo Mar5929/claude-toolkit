@@ -28,6 +28,9 @@ procedure and its permission rules for those destinations.
    - when the managed manual carries `<!-- claude-toolkit:knowledge-schema:2 -->`
      and its required layout is complete, use root `brainstorms/`; create that
      capture directory if absent under this requested interview;
+   - when `.toolkit-memory.json` says `"memory": "external"`, also use root
+     `brainstorms/`. Brainstorms are Git files in both memory modes, never
+     memory-service records;
    - for a complete legacy layout, follow its manual and use
      `knowledge/brainstorms/`;
    - when no knowledge-system signature is present, use an existing ordinary

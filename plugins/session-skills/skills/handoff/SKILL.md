@@ -92,10 +92,17 @@ the handoff. Follow work-guide's document-continuity guidance.
 
 ## Step 2: the persistent review
 
-Identify the installed knowledge layout. Search `knowledge/knowledge-manual.md`
+Identify the installed knowledge layout. First read `.toolkit-memory.json` at
+the project root, if it exists. Otherwise search `knowledge/knowledge-manual.md`
 for its schema marker; do not read the whole manual. A proposed PRD or a newer
 plugin cache does not choose a project's installed path.
 
+- With `"memory": "external"` in `.toolkit-memory.json`, working memory is in
+  the memory service that file names. Use the installed `knowledge-save` skill.
+  A session handoff is its own working-memory record, with the key
+  `working:handoff:<UTC time>` (step 6), written through `knowledge-save`. Write no
+  `knowledge/` file. If the memory service is not connected, report the blocked
+  save and carry the material in the prompt.
 - With `<!-- claude-toolkit:knowledge-schema:2 -->` in that manual, use
   `knowledge/memory/current.md` and the installed `knowledge-save` skill.
 - With the complete legacy layout (`SOUL.md`, the manual, `knowledge/project.md`,
@@ -122,8 +129,9 @@ an empty table, and do not invent rows to fill one.
 
 ## Step 3: wait for the save-review result
 
-The installed save skill follows the approval contract in
-`knowledge/knowledge-manual.md`. Do not copy that contract here. Wait when it
+The installed save skill follows the approval contract in the knowledge manual
+(`knowledge/knowledge-manual.md`, or `docs/knowledge-manual.md` in `external`
+memory mode). Do not copy that contract here. Wait when it
 requires the owner's answer. Continue only after it reports what was saved,
 declined, or blocked.
 
@@ -259,7 +267,19 @@ handoff inline when it fits. Where detail already lives in a work item or design
 Notes, link to its exact continuation point instead of copying it. A bare
 session link is not enough when the next agent cannot access that conversation.
 
-Respect the installed whole-file limit: schema 2 is strictly under 5,000
+In the `external` memory mode (step 2) there is no current-work file. Save
+the entry as its own working-memory record with the key
+`working:handoff:<UTC time>`, through the installed `knowledge-save` skill.
+`<UTC time>` is the full ISO UTC timestamp with milliseconds, the same value as
+the heading above, for example `working:handoff:2026-09-20T01:15:00.000Z`.
+Before writing, read that key. If a record with it exists, never overwrite it:
+take a new timestamp and use it in both the heading and the key. The record
+carries the same content as a file entry. Never edit or delete another
+session's handoff record. `knowledge-save` reads the record back and compares it with the
+approved text; report its result. The file limit and the Git publication steps
+below do not apply to that record.
+
+In `files` mode, respect the installed whole-file limit: schema 2 is strictly under 5,000
 characters; legacy is at most 2,000. If essential context will not fit, show a
 concrete proposed arrangement using the existing owning records, with the
 precise context and links that would remain here. If there is no suitable

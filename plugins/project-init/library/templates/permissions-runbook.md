@@ -11,7 +11,10 @@ TEMPLATE. Copy into the project as its operating runbook, then:
   3. Fill in the "Verified on this org" section by running the check below.
   4. Delete this comment.
 Where it goes: knowledge/memory/salesforce-permissions.md when the
-project uses project knowledge, otherwise `docs/` or `delivery/deployment/`. An
+project uses project knowledge in the `files` memory mode, otherwise `docs/` or
+`delivery/deployment/`. A project whose memory is in a memory service
+(`external` mode) keeps it in `docs/`: a runbook is a Git file, not a memory
+record. An
 existing project that already uses `engagement/deployment/` keeps that path.
 Keep it next to whatever the project already uses for operating procedures.
 -->

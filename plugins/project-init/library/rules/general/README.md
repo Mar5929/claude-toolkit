@@ -16,7 +16,7 @@ every session to read `.claude/rules/`. See `thin-agents-md.md` in the
 
 | File | What it does |
 | --- | --- |
-| `knowledge-direct-commit.md` | Path-scoped to `knowledge/**`, `docs/**`, and `**/README.md`. Authorized documentation-only changes commit straight to the default branch; behavior files use a worktree and pull request; stage by name; never force-push, reset, or stash; verify the remote. The steps are in the `publish-docs` skill (git-workflows). Applies without knowledge enabled. |
+| `knowledge-direct-commit.md` | Path-scoped to `knowledge/**`, `prds/**`, `PROJECT.md`, `docs/**`, and `**/README.md`. Authorized documentation-only changes commit straight to the default branch; behavior files use a worktree and pull request; stage by name; never force-push, reset, or stash; verify the remote. The steps are in the `publish-docs` skill (git-workflows). Applies without knowledge enabled. |
 | `parallel-agent-sessions.md` | Look-first commands, own worktree for implementation, no changes to the shared primary checkout, stage paths by name, claim numbers first, and merge on the owner's approval with the merge-safety check. A standing merge instruction the owner gave for the project counts as approval. Documentation-only saves open `publish-docs`; this line is the always-loaded trigger for the path-scoped publication rule. |
 | `offer-context-handoff.md` | When the session is long and the next step is complex, offer the `handoff` skill, which runs the `knowledge-save` review before writing the prompt. |
 | `plain-english-artifacts.md` | The words inside every artifact an agent generates for a person to look at (a diagram, a chart, a dashboard, a visualization, a mockup, a slide deck, a generated document) follow the project's output style: every word is about the subject, a heading names what sits under it, every thing gets its real name, and the wording is plain. It decides the words, never the layout. Chat replies, code, README files, and issue text are not artifacts. A rule rather than part of the output style because the style reaches the main chat only, and artifacts are also made by helper agents, skills, and Codex sessions. |
@@ -41,7 +41,9 @@ paths:
 This is Claude Code's own behavior, not a convention of ours, and it needs
 v2.1.198 or later. `ai-external-knowledge.md` is scoped to
 `ai-external-knowledge/**`. `knowledge-direct-commit.md` is scoped to
-`knowledge/**`, `docs/**`, and `**/README.md` (issue #396). A scoped rule loads
+`knowledge/**`, `prds/**`, `PROJECT.md`, `docs/**`, and `**/README.md` (issues
+#396 and #404; `prds/` and `PROJECT.md` are where the `external` memory mode
+keeps PRDs and project context). A scoped rule loads
 when a matching file is read, not when a new one is written. So the trigger for
 a new document stays always-loaded, as one line: `parallel-agent-sessions.md`
 names the `publish-docs` skill, and `knowledge-save` carries the trigger for new
@@ -145,7 +147,8 @@ and either one lands in the project as `.claude/rules/dependency-graph.md`.
 ## Project knowledge procedure
 
 The current procedure comes from the `second-brain` plugin as one managed
-`knowledge/knowledge-manual.md`, task-specific skills, tools, and fail-open hooks. Projects
+knowledge manual (`knowledge/knowledge-manual.md`, or `docs/knowledge-manual.md`
+in the `external` memory mode), task-specific skills, tools, and fail-open hooks. Projects
 that decline the system receive no knowledge rule from this library. Do not
 restore or duplicate the retired large rule, verifier, or per-folder indexes.
 

@@ -100,11 +100,11 @@ if (version.error || version.status !== 0) {
 
 // ---------- 4. The protocol list ----------
 
-const KNOWN_ON = ["action", "write", "shell", "oneWriter", "turnEnd"];
+const KNOWN_ON = ["action", "write", "shell", "oneWriter", "call", "turnEnd"];
 const KNOWN_TURN_END = ["afterWorkItemChange", "afterWrite"];
 function requireShape(r) {
   const keys = Object.keys(r ?? {}).sort().join(",");
-  return ["never", "wrote", "ran", "opened,within", "opened,paths,within"].includes(keys);
+  return ["never", "wrote", "ran", "called", "called,kind", "opened,within", "opened,paths,within", "kind,opened,within", "kind,opened,paths,within"].includes(keys);
 }
 
 let list;

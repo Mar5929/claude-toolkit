@@ -12,7 +12,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { beginReview, protocolsActive, reviewCommand } from "./knowledge-completion.mjs";
 
-import { MANUAL_PATH, resolveManual } from "./knowledge-manual.mjs";
+import { isProjectRoot, knowledgeActive, MANUAL_PATH, readMemoryConfig, resolveManual } from "./knowledge-manual.mjs";
 export { MANUAL_PATH, LEGACY_MANUAL_PATH, MANUAL_MARKER, resolveManual } from "./knowledge-manual.mjs";
 
 export const REMINDER = [
@@ -30,6 +30,8 @@ export function reviewLine(root, input, generation) {
  * steps from facts: CW (working memory) and K4 and K6 (knowledge writes), the
  * last two being what knowledge-completion.mjs skips its check for. */
 export const ENGINE_REPLACES_REVIEW = ["CW", "K4", "K6"];
+/** The same checks in external memory mode. */
+export const ENGINE_REPLACES_REVIEW_EXTERNAL = ["CWX", "K4X", "K6X"];
 
 export const ENGINE_NOT_RUNNING = "Required workflow checks are not running in this session: function hooks are on, but protocol-guard did not load. The older hooks run in full.";
 
@@ -56,12 +58,16 @@ export function hasManagedManual(projectRoot) {
   return typeof resolveManual(projectRoot).text === "string";
 }
 
+export const EXTERNAL_MEMORY_LINE = "Memory mode: external. Working memory, lasting memory and pending saves are records in the memory service; `knowledge-save` names the tools.";
+
 export function buildReminder(projectRoot) {
   const manual = resolveManual(projectRoot);
-  const notice = manual.notice ? `[${manual.notice}]\n` : "";
+  const config = readMemoryConfig(projectRoot);
+  const notice = (manual.notice ? `[${manual.notice}]\n` : "") + (config.error ? `[${config.error}]\n` : "");
+  const external = config.mode === "external" ? `${EXTERNAL_MEMORY_LINE}\n` : "";
   return typeof manual.text === "string"
-    ? notice + REMINDER.replaceAll(MANUAL_PATH, manual.path) + "\n"
-    : notice;
+    ? notice + REMINDER.replaceAll(MANUAL_PATH, manual.path) + "\n" + external
+    : notice + external;
 }
 
 function canonical(path) { try { return realpathSync(path); } catch { return resolve(path); } }
@@ -69,7 +75,7 @@ if (process.argv[1] && canonical(fileURLToPath(import.meta.url)) === canonical(p
   try {
     const installedRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
     const root = process.env.CLAUDE_PROJECT_DIR
-      || (existsSync(resolve(installedRoot, "knowledge")) ? installedRoot : null)
+      || (isProjectRoot(installedRoot) ? installedRoot : null)
       || process.env.CODEX_PROJECT_DIR
       || process.cwd();
     let out = buildReminder(root);
@@ -77,14 +83,13 @@ if (process.argv[1] && canonical(fileURLToPath(import.meta.url)) === canonical(p
     try { input = JSON.parse(readFileSync(0, "utf8") || "{}"); } catch { input = {}; }
     const notRunning = engineNotRunningLine(root, input);
     if (notRunning) out += `${notRunning}\n`;
-    const manual = resolveManual(root);
-    if (manual.text?.includes("<!-- claude-toolkit:knowledge-schema:2 -->")) {
+    if (knowledgeActive(root)) {
       try {
         // The review checkpoint always starts, so knowledge-completion.mjs can
         // run in full if the engine stops mid-turn. Only the printed line is
         // left out while protocol-guard checks the same steps.
         const checkpoint = beginReview(root, input);
-        if (!protocolsActive(input, ENGINE_REPLACES_REVIEW)) out += `${reviewLine(root, input, checkpoint.generation)}\n`;
+        if (!protocolsActive(input, ENGINE_REPLACES_REVIEW) && !protocolsActive(input, ENGINE_REPLACES_REVIEW_EXTERNAL)) out += `${reviewLine(root, input, checkpoint.generation)}\n`;
       } catch (error) { out += `Knowledge turn review unavailable: ${error.message} Report any unfinished save.\n`; }
     }
     // The "not running" line also goes to the owner, as a systemMessage; the

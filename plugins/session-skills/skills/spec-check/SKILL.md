@@ -1,6 +1,6 @@
 ---
 name: spec-check
-description: Check the specification an agent is about to build from or design a solution from, flag anything that could skew the work, and propose fixes before any building starts. Use when the owner types /spec-check, when a session is about to build or solution from a knowledge/prds/ file or a ticket body, or when the owner says "check the spec", "is this spec clean", or "make sure the spec hasn't drifted".
+description: Check the specification an agent is about to build from or design a solution from, flag anything that could skew the work, and propose fixes before any building starts. Use when the owner types /spec-check, when a session is about to build or solution from a PRD file (knowledge/prds/, or prds/ with an external memory service) or a ticket body, or when the owner says "check the spec", "is this spec clean", or "make sure the spec hasn't drifted".
 ---
 
 # Spec check
@@ -13,7 +13,8 @@ approval before any building starts.
 
 ## What counts as a specification
 
-- A file under `knowledge/prds/`. Building from one, read the `proposed` PRD,
+- A file under `knowledge/prds/`, or under `prds/` when `.toolkit-memory.json`
+  says `"memory": "external"`. Building from one, read the `proposed` PRD,
   because a `current` one describes what is already there rather than what is
   being asked for.
 - A ticket body: a GitHub issue, a Linear ticket, or a local work item's
@@ -76,7 +77,8 @@ the work. No ceremony for a clean spec.
 - **A dismissed flag stays dismissed.** Do not raise it again for the same
   specification in the same session.
 - **Apply approved fixes to the specification itself before building starts**,
-  wherever it lives: edit the `knowledge/prds/` file, or edit the ticket body.
+  wherever it lives: edit the PRD file (`knowledge/prds/` or `prds/`), or edit
+  the ticket body.
   Retained potential solutions in a PRD go in linked, explicitly tentative
   notes at its bottom; approved design belongs in the canonical design record.
   Keep document-refinement decisions and remaining work in its bottom Notes,

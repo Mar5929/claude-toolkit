@@ -8,10 +8,19 @@ Toolkit project. AGENTS.md names the tracker and the codemap.
 - When the owner settles a decision, requirement, or correction, open `knowledge-save`.
 - `knowledge/toolkit-manual.md` is reference. Open the section you need. Do not read it at startup.
 
+## Summary for the external memory mode
+
+Toolkit project. AGENTS.md names the tracker and the codemap.
+- Before substantial work, open the `work` skill and read the active item.
+- Before asking the owner to repeat something, open `knowledge-find`. It searches the memory service.
+- When the owner settles a decision, requirement, or correction, open `knowledge-save`. It saves to the memory service.
+- `docs/toolkit-manual.md` is reference. Open the section you need. Do not read it at startup.
+
 ## How to use this manual
 
-- This file is reference. The startup hook prints the Summary above. Do not
-  read the whole file at startup.
+- This file is reference. The startup hook prints one Summary above: the
+  first one in the `files` memory mode, the second when `.toolkit-memory.json`
+  says `"memory": "external"`. Do not read the whole file at startup.
 - Open the section a task needs.
 - `AGENTS.md` names this project's paths, tracker, tools, and optional
   components. Use those actual paths.
@@ -34,12 +43,16 @@ Toolkit project. AGENTS.md names the tracker and the codemap.
 ## Startup
 
 - Read `SOUL.md`, `knowledge/project.md`, and `knowledge/memory/current.md`
-  when project knowledge is installed.
+  when project knowledge is installed in the `files` memory mode.
+- In the `external` memory mode, read `SOUL.md` and `PROJECT.md`, then load
+  working memory through the memory service. If its MCP server is not
+  connected, tell the owner.
 - Read the rules in `.claude/rules/`. Claude Code loads them. Codex reads them
   through the `AGENTS.md` pointer.
-- Check `knowledge/memory-inbox.md` for unfinished saves when it exists.
+- Check `knowledge/memory-inbox.md` for unfinished saves when it exists, or
+  list pending saves in the memory service in `external` mode.
 - Do not read the manuals at startup. Skills open the sections they need.
-- After resume, clear, or compaction, read the three files again.
+- After resume, clear, or compaction, repeat these startup steps.
 
 ## Parts of a session
 
@@ -82,7 +95,9 @@ Toolkit project. AGENTS.md names the tracker and the codemap.
   covers local conventions.
 - **Rules:** `.claude/rules/`.
 - **Knowledge, when installed:** `knowledge/`. `knowledge/knowledge-manual.md`
-  owns placement, trust, approval, and lifecycle policy.
+  owns placement, trust, approval, and lifecycle policy. In the `external`
+  memory mode, memory is in the memory service named in `.toolkit-memory.json`,
+  PRDs are in `prds/`, and the manual is `docs/knowledge-manual.md`.
 - **Work records:** the chosen tracker named in `AGENTS.md`. Linked designs sit where
   the project keeps them.
 - **System Guide, when enabled:** its configured guide path.
@@ -191,7 +206,7 @@ wrong or missing:
 | Required workflow checks | `protocol-guard`; each check names its owner skill |
 | Work tracking | Tracker named in `AGENTS.md`; the `work` skill |
 | Guided delivery | `work-guide`, `requirements-helper`, `solution-design` |
-| Project knowledge, when installed | `knowledge/knowledge-manual.md`; `knowledge-find`, `knowledge-save`, `knowledge-review` |
+| Project knowledge, when installed | `knowledge/knowledge-manual.md` (`docs/knowledge-manual.md` in `external` memory mode); `knowledge-find`, `knowledge-save`, `knowledge-review` |
 | System Guide, when enabled | `system-guide` skill and its guide path |
 | Handoff | `handoff` |
 | Documentation publication | `knowledge-direct-commit.md` rule; `publish-docs` skill |

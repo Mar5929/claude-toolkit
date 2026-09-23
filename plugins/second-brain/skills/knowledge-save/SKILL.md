@@ -1,13 +1,14 @@
 ---
 name: knowledge-save
-description: Use when the owner settles a decision, gives a requirement or correction, or says "remember this", and before creating or changing any file under knowledge/. Drafts the proposal card, and after approval starts a helper agent to save it. Also finishes and recovers unfinished saves, and updates, supersedes, retires, deletes, or consolidates records.
+description: Use when the owner settles a decision, gives a requirement or correction, or says "remember this", and before creating or changing any file under knowledge/ or prds/, or writing to the memory service. Drafts the proposal card, and after approval starts a helper agent to save it. Also finishes and recovers unfinished saves, and updates, supersedes, retires, deletes, or consolidates records.
 ---
 
 # Save and maintain project knowledge
 
 ## Before you start
 
-- These steps need the managed schema:2 manual at `knowledge/knowledge-manual.md`.
+- These steps need the managed schema:2 manual at `knowledge/knowledge-manual.md`
+  (`docs/knowledge-manual.md` in `external` mode).
 - If the manual is legacy, or the layout is partial or conflicting, use
   `knowledge-setup` first, under real update authority.
 - Until then, keep candidates and unfinished work in the conversation or in
@@ -17,6 +18,29 @@ description: Use when the owner settles a decision, gives a requirement or corre
   text. Plain words must keep useful detail and required exact wording.
 - Policy lives in `knowledge/knowledge-manual.md`. Open the section you need:
   2 for the owning record, 3 for lasting memory, 4 for permission.
+
+## External memory mode
+
+Read `.toolkit-memory.json` at the project root. A missing file means `files`
+mode, and every step below applies as written. When `memory` is `external`:
+
+- The manual is `docs/knowledge-manual.md`. Project context is `PROJECT.md`.
+  There is no `knowledge/` folder.
+- Working memory, lasting memory, pending saves, and selection feedback are
+  records in the memory service. Use the operations in the
+  [provider contract](../knowledge-setup/references/memory-providers/README.md)
+  and the adapter it names for the config's `service`.
+- The inbox is the set of `pending` records. Step 3 writes a `pending` record
+  where it would write an inbox entry.
+- Source and approval fields in a record name a person by name only, never an
+  email address or other contact details.
+- A memory write goes to the service through the adapter. It is published when
+  the write succeeds and the read back matches the approved text exactly. A
+  difference is a failed save. There is no commit and no index to rebuild for
+  a memory write.
+- PRDs stay in Git, under `prds/`. They follow steps 5 and 6 as written, with
+  `publish-docs`.
+- Selection, cards, approval, and permission rules do not change.
 
 ## When to review
 
@@ -53,7 +77,8 @@ Review every destination, not only lasting memory.
    approval. Do not infer approval from silence, an index, or an inbox entry.
 3. Read [execution and recovery](references/execution-and-recovery.md) before
    any authorized save or retry. Record the exact authority and owed change in
-   `knowledge/memory-inbox.md` before you edit or start a helper. Keep the same
+   `knowledge/memory-inbox.md` (a `pending` record in `external` mode) before
+   you edit or start a helper. Keep the same
    reference through retries. Check real file, Git, and remote state before you
    repeat work.
 4. When a helper agent is available and authorized, give it the
@@ -62,12 +87,15 @@ Review every destination, not only lasting memory.
    available, finish in the foreground under the same authority and name the
    limit.
 5. Read back the saved text. Check meaning, sources, style, fields, and links.
-   Rebuild the indexes and run the installed checker.
+   Rebuild the indexes and run the installed checker. For a memory record in
+   `external` mode, the read back must match the approved text exactly.
 6. Publish with the `publish-docs` skill: commit to the default branch, push,
-   and verify the remote. Only then is the save complete. Related ready saves
+   and verify the remote. Only then is the save complete. A memory record in
+   `external` mode is complete when step 5 matches. Related ready saves
    may share a commit. Keep their permissions separate. Never hold a ready save
    to collect others.
-7. Remove only the completed inbox entry. Verify that the cleanup was shared.
+7. Remove only the completed inbox entry or `pending` record. Verify that the
+   cleanup was shared.
    A pending cleanup is not an unpublished destination.
 
 ## Report
@@ -82,4 +110,6 @@ Review every destination, not only lasting memory.
 
 - A record, checker result, or receipt proves neither truth nor consent. You
   check meaning.
-- This skill adds no automatic-save grant and no separate memory store.
+- This skill adds no automatic-save grant and no separate memory store. The
+  memory service in `external` mode replaces the memory files; it is not a
+  second store.

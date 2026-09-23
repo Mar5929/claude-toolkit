@@ -98,7 +98,8 @@ and changes nothing. This repository stays in `files` mode.
 **R11. Non-memory files stay in Git.** `SOUL.md`, `PROJECT.md`, the two
 manuals, and `prds/` are Git files in `external` mode. `check-knowledge`
 fails when an `external` project also has `knowledge/memory/` files, so
-memory has only one home (D2).
+memory has only one home (D2). It also fails on `knowledge/memory-inbox.md`,
+`knowledge/memory-self-improvement.md`, and `knowledge/prds/`.
 
 ## The config file
 
@@ -116,8 +117,11 @@ memory has only one home (D2).
 
 - `memory`: `files` or `external`. A missing file means `files`.
 - `service`: `mem0` or `hindsight`. Picks the adapter reference, below.
-- `server`: the MCP server name in the project's MCP settings. Tool names are
-  `mcp__<server>__<tool>`.
+- `server`: the MCP server name in the project's MCP settings. It holds only
+  letters, digits, `_` and `-`, so tool names are `mcp__<server>__<tool>`
+  with the name unchanged.
+- Every reader applies the same rules: `"format": 1`, the values above, each
+  on one line. An invalid file means `files` mode everywhere.
 - `project`: the scope inside the service. mem0 uses it as `app_id` and in
   metadata. Hindsight uses it as the bank id.
 
@@ -139,9 +143,15 @@ Every record carries this metadata (mem0 `metadata`, Hindsight `tags` plus
 The stable key lets the agent find one record without a search:
 
 - mem0 assigns its own ids. The agent lists with a metadata filter on
-  `toolkit_key`, then updates by the returned id.
+  `toolkit_key`. A replace is `add_memory` with the new text, a read back,
+  then `delete_memory` of the old id. `update_memory` is not used: it cannot
+  write metadata.
 - Hindsight lets the caller choose the id. The key becomes the
-  `document_id`, and a retain with the same id replaces the record.
+  `document_id`, and a `sync_retain` with the same id replaces the record.
+- Each session handoff is its own `working` record, keyed
+  `working:handoff:<UTC time>`. The time is the full ISO UTC timestamp with
+  milliseconds, the same value as the handoff heading. An existing key is never
+  overwritten; the writer takes a new timestamp.
 
 ## Provider operations
 
@@ -151,13 +161,13 @@ operation. The adapter names the exact tool and arguments.
 
 | Operation | mem0 | Hindsight |
 | --- | --- | --- |
-| Load working memory in full | `get_memories`, filter kind `working` | `list_documents`, tag `toolkit_kind:working`, then `get_document` |
-| Add or replace a working-memory entry | `add_memory` or `update_memory`, `infer=false` | `retain`, `document_id` = the key, replace |
+| Load working memory in full | `get_memories`, filter kind `working` | `list_documents`, `q: "working:"` (id prefix), then `get_document` |
+| Add or replace a working-memory entry | `add_memory` with `infer=false`, then `delete_memory` of the old id | `sync_retain`, `document_id` = the key, replace |
 | Remove a finished working-memory entry | `delete_memory` | `delete_document` |
-| Save or replace a lasting topic | `add_memory` or `update_memory`, `infer=false` | `retain`, `document_id` `lasting:<topic>` |
-| List lasting topics | `get_memories`, filter kind `lasting` | `list_documents`, tag `toolkit_kind:lasting` |
+| Save or replace a lasting topic | As for a working entry | `sync_retain`, `document_id` `lasting:<topic>` |
+| List lasting topics | `get_memories`, filter kind `lasting` | `list_documents`, `q: "lasting:"` |
 | Search | `search_memories` within the project | `recall` within the bank |
-| Add or remove a pending save | `add_memory` / `delete_memory` | `retain` / `delete_document` |
+| Add or remove a pending save | `add_memory` / `delete_memory` | `sync_retain` / `delete_document` |
 | Read back after a write | `get_memory` | `get_document` |
 
 ## Startup
@@ -188,21 +198,25 @@ operation. The adapter names the exact tool and arguments.
    match, so #396 requirement 4 still holds.
 4. `helperSavePending` stops hard-coding `knowledge/` and uses the mode's
    paths and tool class.
+5. An `opened` requirement may carry a `kind`. K4X uses it so a `pending`
+   record needs `knowledge-save` opened this turn.
+6. `appliesIf` may be a list; the check applies when any entry holds. K7 uses
+   `[{exists, memory: "files"}, {memory: "external"}]`.
 
 Check changes:
 
 | Check | `files` mode | `external` mode |
 | --- | --- | --- |
 | K4 skill open before a knowledge write | Unchanged | `on.call: memory-write` plus file writes to `prds/`; pending records need the skill opened this turn |
-| CW working memory after a work-item change | Unchanged | Requires `called: memory-write` with `toolkit_kind = working` |
+| CW working memory after a work-item change | Unchanged | Requires `called: memory-write` with `toolkit_kind = working`, a mem0 `delete_memory` or `delete_all_memories`, or a Hindsight `delete_document` whose `document_id` starts with `working:` |
 | K5 generated indexes | Unchanged | `prds/prd-index.md` and `ai-external-knowledge/README.md` |
 | K6 index builder and checker after a write | Unchanged | After a `prds/` write |
 | K7 save review before PR, close, merge | Unchanged | Unchanged; it depends only on `knowledge-save` |
 
 ## Files touched
 
-- **protocol-guard:** `hooks/engine.ts`, `protocols.default.json`, `README.md`,
-  engine tests and fixtures.
+- **protocol-guard:** `hooks/engine.ts`, `hooks/memory-config.mjs` (the config
+  rules), `protocols.default.json`, `README.md`, engine tests and fixtures.
 - **second-brain:**
   - Knowledge manual template: section 1 check list and section 2 ownership
     table gain the `external` homes. Sections 3 and 4 do not change.
@@ -210,7 +224,9 @@ Check changes:
     `knowledge-completion`, `save-reminder`, and `work-item-close` read the
     mode. A shared helper in `knowledge-manual.mjs` reads the config.
   - Tools: `build-knowledge-index` and `check-knowledge` handle the
-    `external` layout.
+    `external` layout. The `knowledge-pre-commit.sh` Git hook from #406 also
+    checks `prds/`, `PROJECT.md`, `docs/knowledge-manual.md` and
+    `.toolkit-memory.json`.
   - Skills: `knowledge-save` (operations, execution and recovery, executor),
     `knowledge-find`, and `knowledge-review` gain the `external` branch.
     `knowledge-setup` gains the `external` setup path and the
@@ -224,20 +240,22 @@ Check changes:
     depend on the mode.
   - `library/templates/toolkit-manual.md`.
   - Rules: `knowledge-direct-commit.md` adds `prds/**` and `PROJECT.md`.
-    Wording changes in `offer-context-handoff.md`, the general rules README,
+    Wording changes in the general rules README,
     `delivery-and-knowledge-boundary.md`, `permissions-runbook.md`, and
     `output-styles/terse.md`.
 - **Other plugins:**
-  - `handoff` step 2 gains an `external` branch. Handoffs go in the working
-    memory record's "Session handoffs" section.
+  - `handoff` step 2 gains an `external` branch. Each handoff is its own
+    `working` record, keyed `working:handoff:<UTC time>`.
   - `spec-check` and its reminder hook use the mode's PRD folder.
   - Wording changes in `grill-me`, `solution-design`, and system-guide
     `commands-and-hosts.md`.
 - **This repository:**
-  - Installed copies and `.codex/hooks.json`.
+  - Installed copies.
   - `knowledge/toolkit-manual.md` and `docs/toolkit-map.md`.
-  - `README.md`, `docs/AGENTS.md`, `docs/designs/README.md`, and
-    `brainstorms/README.md`.
+  - `README.md` and `docs/designs/README.md`.
+  - No change needed: `docs/AGENTS.md`, `brainstorms/README.md`,
+    `offer-context-handoff.md`, and `.codex/hooks.json`. This repository stays
+    in `files` mode, and none of them holds a memory path.
   - `knowledge/project.md`: the Git boundary gains the D2 exception.
   - `knowledge/prds/toolkit-operating-system/knowledge-system.md` at stage 14.
   - Also fix the stale `spec-index.md` name in `.claude/toolkit-sync.md`.

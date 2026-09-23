@@ -1,7 +1,8 @@
 # Select information and request missing permission
 
 Route each meaningful part to its owner using section 2 of
-`knowledge/knowledge-manual.md`. A requirement,
+`knowledge/knowledge-manual.md` (`docs/knowledge-manual.md` in `external`
+mode). A requirement,
 research finding, design rationale, temporary to-do and lasting lesson can arise
 in one message and belong in different places. Do not lose useful non-memory
 information by applying the memory exclusions to everything.
@@ -27,7 +28,7 @@ permission covers faithful in-scope answers, not agent-invented requirements.
 After authorized work ships, agreed behavior may update affected PRDs without
 a new card; delivery never finalizes requirements or approves defects. An explicit
 hold still applies. Automatic memory permission must be currently enabled in
-`knowledge/project.md`, with grant person/date/source/scope recorded once; it
+`knowledge/project.md` (`PROJECT.md` in `external` mode), with grant person/date/source/scope recorded once; it
 covers memory lifecycle operations and never PRDs. The template describes fields.
 The setting is off by default. Recheck current authority before execution.
 
@@ -62,8 +63,10 @@ otherwise write a faithful account. Resolve a conflict between required verbatim
 wording and writing rules before approval. Silence, edits without clear approval,
 and a request to see full text keep the proposal awaiting approval.
 
-After showing an unanswered card, retain its exact text/layout in the inbox.
+After showing an unanswered card, retain its exact text/layout in the inbox
+(a `pending` record in `external` mode).
 Keep its reference through revisions and identify which revision was approved.
 Never make up a card or individual approval for authorized upkeep. Meaningful
-feedback updates the feedback file under existing maintenance authority; it does
+feedback updates the feedback file (the `feedback` record in `external` mode)
+under existing maintenance authority; it does
 not turn the candidate into approved knowledge. Continue independent work.

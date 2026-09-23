@@ -32,6 +32,7 @@ import {
   shouldHold,
   SPLIT_REVIEW_ACTIONS,
 } from "./command-parsing.mjs";
+import { memoryLayout, readMemoryConfig } from "./knowledge-manual.mjs";
 
 function failOpen() {
   process.exitCode = 0;
@@ -74,13 +75,13 @@ export function workItemActionKey(command, projectRoot) {
   ]);
 }
 
-export function buildMessage() {
+export function buildMessage(mode = "files") {
   return [
     "Held. Finishing a work item is a save-review moment.",
     "",
     "Use knowledge-save to review what this work changed in a",
     "PRD or another owning record, and preserve pending work, then run",
-    "this command again. If there is anything, knowledge/knowledge-manual.md shows how",
+    `this command again. If there is anything, ${memoryLayout(mode).knowledgeManual} shows how`,
     "to display the proposal. A merge or closure alone proves no delivery or requirements approval.",
     "",
     "If you are a helper agent, stop and report this to the main agent.",
@@ -126,7 +127,7 @@ function main() {
   const key = workItemActionKey(command, root);
   if (!shouldHold(payload, key)) return failOpen();
 
-  deny(heldMessage(buildMessage(), actionLabel(key)));
+  deny(heldMessage(buildMessage(readMemoryConfig(root).mode), actionLabel(key)));
   recordHold(payload, key);
 }
 

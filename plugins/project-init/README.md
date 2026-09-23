@@ -42,7 +42,12 @@ guidance through its approved sync, preserving local edits and explicit opt-outs
   Every equipped project also receives `knowledge/toolkit-manual.md`, the shared
   workflow manual, kept as reference. The root instructions get a Startup
   section with three reads: `SOUL.md`, `knowledge/project.md`, and
-  `knowledge/memory/current.md`.
+  `knowledge/memory/current.md`. Gate 3 also asks whether memory stays in Git
+  files or goes to a memory service (mem0 or Hindsight). In that `external`
+  memory mode, recorded in `.toolkit-memory.json`, the manuals go in `docs/`,
+  PRDs in `prds/`, project context in `PROJECT.md`, and startup loads working
+  memory through the service. `project-sync` audits the chosen mode and does
+  not move a project between modes.
   The root `AGENTS.md` also gets a short Quick saves table for the systems the
   project selected. Project knowledge points to its approved direct-to-default-
   branch save rule; local `.work-items/` points to its shared Git-ignored
@@ -148,7 +153,8 @@ the repository root would disappear the moment the plugin is installed.
   owner's yes in the same chat stays the rule for those actions (#396,
   decision 12).
 - `library/templates/toolkit-manual.md`: the shared workflow manual copied to
-  `knowledge/toolkit-manual.md` in every equipped project. Project-specific
+  `knowledge/toolkit-manual.md` in every equipped project (`docs/toolkit-manual.md`
+  in the `external` memory mode). Project-specific
   paths and choices remain in the root instructions it tells agents to consult.
 - `library/guides/salesforce-dependency-graph.md`: how to install and use the
   `kb/` tool, which compiles a Salesforce project's own metadata into a local
@@ -231,7 +237,8 @@ plugin.
   lives. No rule about ticket quality ships with it: the rule that used
   to, `spec-before-you-build.md`, was removed from the toolkit on 2026-08-31.
 - Gate 5 installs no general knowledge rule. Projects that accept Gate 3 receive
-  `knowledge/knowledge-manual.md` as the one routing and operating manual; projects that
+  `knowledge/knowledge-manual.md` (`docs/knowledge-manual.md` in the `external`
+  memory mode) as the one routing and operating manual; projects that
   decline it receive no knowledge policy.
 - An enabled System Guide adds one shared discovery line to `AGENTS.md`; the
   System Guide plugin owns its configured Claude startup status and guide

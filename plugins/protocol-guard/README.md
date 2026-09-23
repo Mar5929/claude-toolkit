@@ -24,10 +24,17 @@ owns the step.
 | K6 | Indexes rebuilt and checker run after a knowledge write | The turn ends after a K4 write | The reply is held once until `build-knowledge-index.mjs` and then `check-knowledge.mjs` both exited 0 after the last write |
 | K7 | Save review before a pull request, a close, or a merge | `gh pr create`, `gh issue close`, `gh pr merge` (also after `-R`/`--repo`; not with `--help`, or `--dry-run` for create), `work finish`, and the GitHub tools `create_pull_request`, `issue_write` with state `closed`, `merge_pull_request` and `enable_pr_auto_merge` | The call is refused until `knowledge-save` was opened this turn |
 | P2 | Closing a work item goes through the `work` skill | `gh issue close`, `work finish`, `issue_write` with state `closed` | The call is refused until `work` was opened this turn. The skill asks the owner for approval; the check does not prove approval |
+| K4X | `external` mode: memory records and PRD files change only with `knowledge-save` open | A call to the memory service's write tools (`memory-write`, below), or a write to `prds/` by a file tool or a shell command | The call is refused. A record with `toolkit_kind` `pending` needs the skill opened this turn; other records and `prds/` files need it opened since the last reset |
+| CWX | `external` mode: working memory follows work-item changes | The turn ends after a work-item change, read as for CW | The reply is held once until a successful `memory-write` call with `toolkit_kind` `working`, or a delete of a working record (see "Memory mode"), follows the change |
+| K5X | `external` mode: generated indexes are not edited by hand | A write to `prds/prd-index.md` or `ai-external-knowledge/README.md` | The call is refused; the agent runs the index builder instead |
+| K6X | `external` mode: indexes rebuilt and checker run after a PRD write | The turn ends after a write to `prds/` | The reply is held once until `build-knowledge-index.mjs` and then `check-knowledge.mjs` both exited 0 after the last write |
 | P3 | A merge goes through `merge-and-clean-up` | `gh pr merge`, `merge_pull_request`, `enable_pr_auto_merge` | The call is refused until `merge-and-clean-up` was opened this session. Compaction does not clear it |
 
-K4, CW, K5, K6 and K7 apply only in a project with
-`knowledge/knowledge-manual.md`. A check whose owner skill is not installed is
+K4, CW, K5 and K6 apply only in a project with
+`knowledge/knowledge-manual.md` in memory mode `files`. K4X, CWX, K5X and K6X
+apply only in memory mode `external`. K7 applies in both: in `files` mode with
+`knowledge/knowledge-manual.md`, and in `external` mode. See "Memory mode"
+below. A check whose owner skill is not installed is
 switched off: the agent is told, and the owner sees one line in the first
 turn. Every check with an owner skill tells the agent "If the skill is not
 installed, tell the owner and stop." K5 needs no skill.
@@ -45,6 +52,12 @@ How each fact is read:
   `cat`, `grep`, `cut`, `sort` without `-o`, `awk` without `-i inplace`, `sed`
   without `-i`, or `git diff` (git's `-C` and `-c` options are skipped before
   the subcommand). `cp`, `install` and `ln` write only their target.
+- **A memory-service call (`external` mode):** a call to a tool named
+  `mcp__<server>__<tool>`, where `<server>` is the config's `server`. A valid
+  `server` holds only `A-Z`, `a-z`, `0-9`, `_` and `-`, so it appears in the
+  tool name unchanged. Its kind is
+  the call's `metadata.toolkit_kind`, or a tag `toolkit_kind:<kind>` in its
+  `tags`. This is an exact field comparison; the record's text is never read.
 - **A shell command:** its program, subcommand and file arguments
   (`hooks/shell-reader.mjs`). Quoted text is one argument, and heredoc bodies
   are dropped, so a commit message that mentions a path is not that path.
@@ -57,13 +70,55 @@ How each fact is read:
   such as a sibling worktree, is not seen. CW then holds that turn once and
   shows its notice; later turns are not held for it.
 
+## Memory mode
+
+`.toolkit-memory.json` at the project root says where memory lives. The
+engine reads it once per session.
+
+```json
+{ "format": 1, "memory": "external", "service": "mem0", "server": "mem0", "project": "demo" }
+```
+
+- A missing file means memory mode `files`: the `knowledge/` checks run as
+  before.
+- A file that cannot be read, or is not valid, also means `files`. The agent
+  is told once. A valid file has `"format": 1` and `memory` set to `files` or
+  `external`. `external` also needs `service` (`mem0` or `hindsight`),
+  `server` (letters, digits, `_` and `-` only) and a non-empty `project`, each
+  on one line. `hooks/memory-config.mjs` holds these rules. They are the same
+  rules as second-brain's `readMemoryConfig`, and
+  `tests/knowledge-schema.test.mjs` checks that every reader agrees.
+- In `external` mode the engine sorts the service's tools into two classes:
+
+| Class | mem0 | Hindsight |
+| --- | --- | --- |
+| `memory-write` | `add_memory`, `update_memory`, `delete_memory`, `delete_all_memories`, `delete_entities` | `retain`, `sync_retain`, `delete_document`, `clear_memories`, `update_memory`, `invalidate_memory`, `delete_bank` |
+| `memory-read` | `get_memories`, `get_memory`, `search_memories` | `list_documents`, `get_document`, `recall`, `list_memories`, `get_memory` |
+
+Hindsight `update_bank` is in neither class. It changes the bank's settings
+once at setup and holds no memory text.
+
+A delete call carries no `toolkit_kind`. Which kind requirement it meets:
+
+- mem0 `delete_memory` and `delete_all_memories` carry only an id, so they
+  meet a requirement for any kind. Removing a finished working-memory record
+  meets CWX.
+- Hindsight `delete_document` meets a requirement for kind K only when its
+  `document_id` starts with `K:`. A delete of `working:issue-42` meets CWX; a
+  delete of `pending:<reference>` does not.
+- Hindsight `clear_memories`, `update_memory`, `invalidate_memory` and
+  `delete_bank`, and mem0 `delete_entities`, meet no kind requirement. They
+  name no record key.
+
 ## Agents and resets
 
 - A skill counts for the agent that opened it. A helper agent also starts with
   what the main agent had opened when the helper first acted.
-- A helper's successful writes and commands count for the main agent's CW and
-  K6 checks. While a helper that wrote a knowledge file this turn is still
-  running, the turn-end checks wait: the reply is not held now, and the checks
+- A helper's successful writes, commands and memory-service calls count for
+  the main agent's turn-end checks (CW, K6, CWX, K6X). While a helper that
+  saved memory this turn is still running (a write under `knowledge/` in
+  `files` mode; a write under `prds/` or a `memory-write` call in `external`
+  mode), the turn-end checks wait: the reply is not held now, and the checks
   are carried to the end of the next turn.
 - At each turn start, every agent's "opened this turn" record is cleared.
 - While a helper that wrote `knowledge/memory/current.md` or the inbox is still
@@ -127,7 +182,24 @@ A project changes the list in `.claude/protocols.json`:
 ```
 
 `off` names default checks to skip. `protocols` adds entries, and an entry with
-a default's name replaces it. An entry that uses a word the engine does not
+a default's name replaces it.
+
+The words an entry can use:
+
+- `appliesIf`: `{ "exists": "<path>" }` and/or `{ "memory": "files" | "external" }`.
+  With both keys, both must hold. A list of such objects holds when any one
+  holds (K7 uses this). Without `appliesIf` the entry always applies.
+- `on`: `action` (`pr-create`, `pr-merge`, `issue-close`, `work-finish`),
+  `write` (paths; a path ending in `/` covers its folder), `shell`,
+  `oneWriter`, `call` (tool classes: `memory-write`, `memory-read`), and
+  `turnEnd` (`afterWorkItemChange`, `afterWrite`).
+- `require`: `{ "opened": "owner", "within": "turn" | "reset" | "session" }`,
+  optionally with `paths` (only writes to those paths) or `kind` (only
+  memory-service calls with that `toolkit_kind`); `{ "never": true }`;
+  `{ "wrote": [paths] }`; `{ "ran": [scripts] }`; and
+  `{ "called": "<class>", "kind"?: "<kind>" }`, met by a later successful call
+  in that class that carries the kind, or is a delete of that kind as
+  "Memory mode" describes. An entry that uses a word the engine does not
 know is ignored, and the agent is told once. The list is read once per session.
 
 ## The older command hooks
@@ -177,6 +249,7 @@ steps from their instructions and skills.
 | `hooks/hooks.json` | Registers the function-hook module |
 | `hooks/engine.ts` | The engine |
 | `hooks/shell-reader.mjs` | Reads a shell command's program, arguments and redirections |
+| `hooks/memory-config.mjs` | The rules for a valid `.toolkit-memory.json` |
 | `protocols.default.json` | The shipped list |
 | `tests/engine.test.ts` | Offline tests for each check |
 | `tests/defaults.fixture.mjs` | A copy of the list for the offline tests, which cannot read files |

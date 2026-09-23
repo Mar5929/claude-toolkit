@@ -28,6 +28,8 @@ Read only the relevant template before writing:
   retain their body layout; do not force a rewrite just to match headings.
 - [Current work](../../knowledge-setup/references/templates/knowledge/memory/current.md):
   multi-session overview and later to-dos, not another tracker.
+- [Memory providers](../../knowledge-setup/references/memory-providers/README.md):
+  record text, keys, and service operations in `external` mode.
 - [Pending entry](../../knowledge-setup/references/templates/pending-entry.md):
   exact cards, durable authority, worker and publication evidence.
 - [Glossary](../../knowledge-setup/references/templates/knowledge/memory/memory-entries/terminology-glossary.md):
@@ -65,6 +67,27 @@ writers, templates and permissions.
 - After an update, confirm in one short line that it is saved and available to
   the next session. Otherwise say what is still only local, and keep the
   unfinished publication step.
+
+### In `external` mode
+
+Working memory is records of kind `working` in the memory service, not
+`current.md`. Use the provider operations.
+
+- One record per current-focus item: `working:goal`, `working:<item id>` for
+  each active item, and `working:todo`. Each holds the same fields as the
+  matching section of the current-work template.
+- The 5,000-character limit does not apply. Keep each entry short and link the
+  records that own the detail.
+- Load the records again before a replace, to keep other sessions' entries.
+  Replace only the record you changed. Remove an item's record when the item
+  is finished.
+- Each session handoff is its own record, key `working:handoff:<UTC time>`.
+  `<UTC time>` is the full ISO UTC timestamp with milliseconds, the same value
+  as the handoff heading, such as `2026-09-20T01:15:00.000Z`. Before writing,
+  read the key. If a record with it exists, never overwrite it: take a new
+  timestamp. The `handoff` skill still owns capture and resume.
+- The update is saved when the read back matches. Confirm that in one short
+  line.
 
 ## Write files future sessions can understand
 
