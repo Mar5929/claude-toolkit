@@ -9,7 +9,7 @@ tags: [delivery, requirements, design, collaboration]
 approved_by: Mike Rihm
 approval_date: 2026-09-08
 work_item: "300"
-updated_at: 2026-09-21
+updated_at: 2026-09-23
 ---
 
 # Guided delivery
@@ -110,7 +110,11 @@ lives, with preparation and Notes inside it. The main conversation weighs the it
 and effort in the context of what is being built and recommends a team for
 that item: a product analyst, researchers, a technical architect per option,
 a critic, and task agents as needed, each on the model that fits its role.
-The owner agrees or changes the team before any helper starts.
+The owner agrees or changes the team before any helper starts. When the owner
+has already chosen a team arrangement for this goal under
+[guided work management](guided-work-management.md), that choice authorizes
+bounded helpers for the goal, and the agent does not ask again (Mike Rihm,
+2026-09-21, recorded with work item #377).
 
 For GitHub-tracked work, use one versioned canonical file in the project's
 designated design location, linked prominently from the issue. In this project,
@@ -198,7 +202,7 @@ must still reach the machine and project before a fresh session can use it.
   design. The main conversation and the product analyst now say plainly whether
   they are ready and list whatever is still unclear, with no score. Approved by
   Mike Rihm on 2026-09-21, source: Main Orchestrator conversation, decision
-  D13. Not built yet, and the build is not yet tracked in a work item. This
+  D13. Built in [#396](https://github.com/Mar5929/claude-toolkit/issues/396). This
   approves that one change. It does not reopen or re-approve the document.
 - Owed, decision D19, agreed with Mike on 2026-09-21: text was added to this
   document on three dates after his 2026-09-08 approval, and its

@@ -8,7 +8,7 @@ created_at: 2026-09-10
 tags: [toolkit, project-work, continuity, requirements]
 project: claude-toolkit
 work_item: "306"
-updated_at: 2026-09-22
+updated_at: 2026-09-23
 ---
 
 # The Toolkit Operating System
@@ -91,7 +91,9 @@ and Mike's request for this draft.
 For this drafting task, Mike also authorized prompt corrections to this file
 and required asking before broad investigation or heavy token use. He later
 allowed optional Sol helpers. These are scoped instructions, not permanent
-toolkit policy. The general draft-save and helper policies remain open below.
+toolkit policy. The general draft-save policy remains open below. The helper
+policy is settled in R24 (decision D16) and, inside agent-led delivery, by the
+owner's choice of team arrangement.
 
 Dated source reviews, delivery evidence, and validation results belong on
 [issue 306](https://github.com/Mar5929/claude-toolkit/issues/306). Shipped source,
@@ -180,9 +182,11 @@ chain, starting at the root instruction file (`AGENTS.md`, read by Claude Code
 through the one-line `CLAUDE.md` import), to the higher-level operating guidance, so
 the agent understands the toolkit's purpose, high-level folder responsibilities,
 work tracking, linked procedures, knowledge continuity, and where updates
-belong. The agent acknowledges that it received and read the orientation and
-will follow the project workflows throughout the work. If required content is
-missing, it reports that gap instead of giving a false acknowledgment.
+belong. The orientation is the Summary section of the Toolkit manual, printed
+at session start. The agent gives no acknowledgment. If required content is
+missing, the orientation reports that gap. Mike removed the acknowledgment on
+2026-09-22 in work item [#396](https://github.com/Mar5929/claude-toolkit/issues/396);
+built in #396.
 
 Every project equipped with the toolkit must receive a Toolkit Operating System
 manual. Mike explicitly required this on 2026-09-17. The applicable root routers
@@ -196,12 +200,14 @@ Codex fallback/resume evidence do not approve this whole PRD or establish native
 hook receipt, project adoption, rollout, or complete both-host acceptance.
 
 Keep root instruction files as small maps and routers. Do not duplicate full
-component manuals there or load every linked manual at startup. A concise
-operating-manual or pointer-file shape is a design option, not an approved file
-layout. The startup handshake guides native agent reasoning; its acknowledgment
-shows receipt and intent, not understanding, permanent retention, or correct
-execution. The design must account for continuity after context loss without
-claiming that one acknowledgment keeps instructions permanently in mind.
+component manuals there or load every linked manual at startup. Startup reads
+only `SOUL.md`, `knowledge/project.md`, and `knowledge/memory/current.md`. The
+Toolkit manual and the knowledge manual are reference: skills carry their own
+steps, and an agent opens a manual section when a task needs it. Approved by
+Mike Rihm on 2026-09-22 in #396; built in #396. The startup orientation guides
+native agent reasoning; it does not prove understanding, permanent retention,
+or correct execution. The design must account for continuity after context
+loss: the three reads repeat after resume, clear, or compaction.
 
 **Check:** resume an item whose tracker changed after the last handoff. The
 briefing uses the new state and names the difference.
@@ -209,8 +215,8 @@ briefing uses the new state and names the difference.
 **Check:** start a fresh session in a project with only some toolkit components
 enabled. The agent receives the applicable operating orientation, names the
 enabled work-tracking and knowledge routes without inventing disabled parts,
-acknowledges receipt and intent, and opens detailed procedures only when the
-work needs them. Remove or break a required orientation link; the agent reports
+gives no acknowledgment, and opens detailed procedures only when the work
+needs them. Remove or break a required orientation link; the agent reports
 the missing content instead of claiming readiness.
 
 **R7. Fit the process to the request.** A question can end with an answer and
@@ -450,8 +456,9 @@ teams, once an independent reviewer that did not build the change reports no
 blocking findings on that exact head and every check passes. Product decisions,
 requirement changes, and disagreements reviewers cannot settle still go to him.
 Approved by Mike Rihm on 2026-09-21, source: Main Orchestrator conversation,
-decision D9. The matching change to the rule text is not built yet, and the
-build is not yet tracked in a work item.
+decision D9. Built in [#396](https://github.com/Mar5929/claude-toolkit/issues/396):
+the shipped `parallel-agent-sessions.md` rule and this project's
+`standing-merge-instruction.md` carry it.
 
 **Check:** "Write and refine the proposed PRD" permits draft changes and
 tracking them. It does not permit building the proposed system or marking
@@ -880,6 +887,13 @@ reasoning after a work item closes under decision D21, are the next two steps.
 
 ### Recorded notes
 
+- 2026-09-23, work item [#396](https://github.com/Mar5929/claude-toolkit/issues/396):
+  R6 now records Mike's 2026-09-22 #396 decisions. Startup reads only
+  `SOUL.md`, `knowledge/project.md` and `knowledge/memory/current.md`. Both
+  manuals are reference. The toolkit orientation is the manual's Summary, with
+  no acknowledgment. D9's rule text is recorded as built in #396, and the
+  helper policy note in "How to read this proposal" points to R24. This records
+  approved decisions; it approves nothing else in this document.
 - On 2026-09-22, Mike approved decision D23 in the Main Orchestrator
   conversation: a fact that changes over time has one owning file, and other
   records link to it. R11 now carries that sentence and points at
@@ -897,7 +911,7 @@ reasoning after a work item closes under decision D21, are the next two steps.
     yet; work item #375 owns them, with pull request #376 open.
   - D9, a standing instruction to merge: recorded in R15, with the standing
     instruction Mike gave this project the same day. The rule text change is
-    not built yet, and that build is not yet tracked in a work item.
+    built in #396.
   - D14, one new work item for proving and accepting the whole toolkit:
     recorded in the roadmap above. The work item does not exist yet.
   - D16, small bounded helpers outside agent-led delivery: recorded in R24 and
@@ -920,4 +934,5 @@ reasoning after a work item closes under decision D21, are the next two steps.
 - D3, D15, D17 and D18 from the same 2026-09-21 conversation belong to
   [guided work management](guided-work-management.md). They were not recorded
   on 2026-09-21 because pull request #378 was editing that document on its own
-  branch. Record them there after #378 merges.
+  branch. D15 and D18 were recorded there on 2026-09-23 in #396. D3 and D17
+  are still unrecorded: no written text of those decisions was found.
