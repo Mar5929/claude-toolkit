@@ -15,7 +15,7 @@ git fetch origin && git log --oneline -10
 - Never touch another session's branch or uncommitted work.
 - Stage paths by name. Never `git add -A`, `git add .`, or `git commit -a`. Read the full staged diff.
 - Never hand-edit a generated file.
-- Before taking a sequential number, check every tracker folder, worktree, and the remote.
+- Before taking a sequential number, check every tracker folder, worktree, and the remote. On a later collision, renumber only your own.
 - Land implementation by pull request, merged with the owner's approval. A standing merge instruction the owner gave for this project counts.
 - Before a merge, compare `git diff --name-only <default-branch>...<branch>` with `git status` in the primary checkout. A file in both: stop, name it, ask the owner.
 - After the merge, remove your worktree and branch.

@@ -173,7 +173,7 @@ command cannot write a known stage and the wrong active status.
 
 `14-spec-update` maps to `In Review`; only `finish` writes `Done`.
 
-Nothing validates the stage itself. `work-item-stages.md` says which stage is
+Nothing validates the stage itself. `lifecycle.md` says which stage is
 correct, when one may be skipped, and what belongs in the log.
 
 `active` reads the current branch mapping. `active set` selects one item and

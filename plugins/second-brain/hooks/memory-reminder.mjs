@@ -21,7 +21,7 @@ export const REMINDER = [
 ].join("\n");
 
 export function reviewLine(root, input, generation) {
-  return `Before you finish, run: ${reviewCommand(root, input, generation)}. OUTCOME is no-change, pending-approval, save-unfinished, or saved. Pending work is not a finished save.`;
+  return `Before you finish, run: \`${reviewCommand(root, input, generation)}\`. OUTCOME is no-change, pending-approval, save-unfinished, or saved. Pending work is not a finished save.`;
 }
 
 /** True only for a manual this toolkit manages. */

@@ -221,7 +221,7 @@ claude-toolkit/
     designs/                      ← the build plan for one work item, deleted
                                      once the PRD is brought current
   tests/
-    AGENTS.md                     ← the four checks and how to run them
+    AGENTS.md                     ← the checks and how to run them
     CLAUDE.md                     ← one line, @AGENTS.md
     orphan-check.mjs              ← fails if the toolkit ships a file nothing points at
     link-check.mjs                ← fails if a Markdown link points at a file that is gone

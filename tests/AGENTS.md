@@ -13,7 +13,7 @@ node --test tests/toolkit-startup.test.mjs
 ```
 
 `startup-budget-check.mjs` runs both its profiles by default. Plugin tests have
-their own runners: `node --test plugins/second-brain/tests/`, the work-tracker
+their own runners: `node --test plugins/second-brain/tests/*.test.mjs`, the work-tracker
 command in its `README.md`, and `node --test
 plugins/hooks-library/tests/style-handshake.test.mjs` plus `node
 plugins/hooks-library/tests/no-ai-attribution-guard-harness.mjs`.

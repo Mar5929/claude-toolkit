@@ -168,7 +168,7 @@ build is in issue #388's pull request; the earlier one-root-`AGENTS.md` decision
 from issues #150 and #219 is superseded by it.
 
 2026-09-23, work item [#396](https://github.com/Mar5929/claude-toolkit/issues/396):
-gap-assessment finding F2 (2026-09-21 Toolkit OS gap assessment) recorded. A
+gap-assessment finding F2 (2026-09-21 Toolkit OS gap assessment) recorded, under Mike Rihm's 2026-09-23 approval to build the #383 work in #396. The wording was written by an agent from the assessment; Mike checks it. A
 folder may hold both a `README.md` index and an `AGENTS.md` pair when they do
 not repeat each other, which is how `tests/` in this repository works. Finding
 F3 needed no change: the four-question list it named was replaced in the #388

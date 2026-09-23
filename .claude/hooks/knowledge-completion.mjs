@@ -73,7 +73,7 @@ export function completion(root, input, directory) {
     }
     return { next: { ...state, continued: true }, result: {
       decision: 'block',
-      reason: `Knowledge turn review is not recorded. Check quietly what was decided or found since the last review. Use knowledge-save for any proposal or save. Keep any proposal or unfinished save; do not drop it. Do not wait for helper agents. Then run: ${reviewCommand(root, input, state.generation)}. OUTCOME is no-change, pending-approval, save-unfinished, or saved. The outcome does not approve a save. Use tool calls only. Write no more text to the user.${correlationNotice}`,
+      reason: `Knowledge turn review is not recorded. Check quietly what was decided or found since the last review. Use knowledge-save for any proposal or save. Keep any proposal or unfinished save; do not drop it. Do not wait for helper agents. Then run: \`${reviewCommand(root, input, state.generation)}\`. OUTCOME is no-change, pending-approval, save-unfinished, or saved. The outcome does not approve a save. Use tool calls only. Write no more text to the user.${correlationNotice}`,
     } };
   });
 }

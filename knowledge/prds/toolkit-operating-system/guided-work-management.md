@@ -385,8 +385,7 @@ to build a particular solution.
 - 2026-09-23, work item [#396](https://github.com/Mar5929/claude-toolkit/issues/396):
   decisions D15 and D18 from Mike's 2026-09-21 Main Orchestrator conversation
   are recorded in requirement 6 above, and their instruction text shipped in
-  #396 (`work` skill and its `references/lifecycle.md`, and
-  `requirements-helper`). The helper-choice question below is recorded as
+  #396 (`work` skill and its `references/lifecycle.md`). The helper-choice question below is recorded as
   settled. D3 and D17 from the same conversation are still not recorded: no
   written text of those decisions was found. This records approved decisions;
   it approves nothing else in this document.

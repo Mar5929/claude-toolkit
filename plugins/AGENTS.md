@@ -61,8 +61,8 @@ folder stays small on purpose.
   `.claude-plugin/plugin.json`, `version` in its `.codex-plugin/plugin.json`,
   and `metadata.version` in the repository's `.claude-plugin/marketplace.json`.
 - **Keep `main` installable.** `claude plugin validate .` must pass, because
-  `main` is what every machine installs from. Run the four checks in `tests/`
-  as well.
+  `main` is what every machine installs from. Run the checks listed in
+  `tests/AGENTS.md` as well.
 - Older files may still contain em dashes and section signs. Clean them up in
   any file you are already editing.
 
