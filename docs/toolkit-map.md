@@ -242,7 +242,7 @@ repository works.
 
 | Folder | What is in it | How long a file lives |
 | --- | --- | --- |
-| [`designs/`](designs/README.md) | The build plan for one work item: how each approved requirement is met, which files change, how it is tested, in what order. One file per issue, named `<issue number>-<short-slug>.md`. The [consolidated work-item plan](designs/337-consolidated-work-item.md) covers the pending single-file tracker format. | Created at stage `04-solution-design` or authorized earlier review; documentation-only saves follow the project save route; deleted at stage `14-spec-update` |
+| [`designs/`](AGENTS.md#designs) | The build plan for one work item: how each approved requirement is met, which files change, how it is tested, in what order. One file per issue, named `<issue number>-<short-slug>.md`. The [consolidated work-item plan](designs/337-consolidated-work-item.md) covers the pending single-file tracker format. | Created at stage `04-solution-design` or authorized earlier review; documentation-only saves follow the project save route; kept after delivery (decision D21) |
 
 ## How the pieces relate (and what looks redundant but is not)
 
@@ -543,8 +543,8 @@ The genuine watch-items are called out at the end.
   at two points in time, told apart by its `status` line: `proposed` while it is
   what someone wants built, `current` once it describes what was actually built.
   The work tracker holds one issue's requirements and its status, and that has
-  not changed. [`docs/designs/`](designs/README.md) says how that one issue gets
-  built, and is deleted once the PRD is current. Picking up work in an area,
+  not changed. [`docs/designs/`](AGENTS.md#designs) says how that one issue gets
+  built, and is kept after delivery (decision D21). Picking up work in an area,
   read them in that order: the PRD for the shape, the issue for the job, the
   design for the plan.
   The design folder applies only where work items are tracked outside the

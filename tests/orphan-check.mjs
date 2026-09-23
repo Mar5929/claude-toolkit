@@ -57,10 +57,13 @@ const CANDIDATE_ROOTS = ["plugins/", "docs/", "tests/"];
  *   - plugin and skill manifests, which the marketplace file enumerates;
  *   - SKILL.md and plugin READMEs, which are the index documents themselves;
  *   - a skill's Codex presentation file, which that host reads by position;
- *   - anything inside a dot-directory (host metadata).
+ *   - anything inside a dot-directory (host metadata);
+ *   - a design record under docs/designs/, which its work item links to and
+ *     which is kept after delivery (decision D21, #409), so no index lists them.
  */
 function isExempt(path) {
   if (path.split("/").some((part) => part.startsWith("."))) return true;
+  if (/^docs\/designs\/\d+-/.test(path)) return true;
   if (path.endsWith("/SKILL.md")) return true;
   if (/^plugins\/[^/]+\/README\.md$/.test(path)) return true;
   if (/^plugins\/[^/]+\/skills\/[^/]+\/agents\/[^/]+\.yaml$/.test(path)) return true;

@@ -815,7 +815,7 @@ authorizes implementation or changes the neighboring PRD by implication.
 
 | Boundary | Existing position and unresolved point | Recommendation |
 | --- | --- | --- |
-| Design and decision retention after delivery | [docs/designs guidance](../../../docs/designs/README.md#how-long-a-file-lives) says to delete a work design at stage 14 after PRD upkeep, retaining it in Git. The [work-item-lifecycle skill](../../../plugins/project-init/skills/work-item-lifecycle/SKILL.md#closing-a-work-item) says to keep current architecture and lasting decisions in their authoritative homes and archive only retired or replaced material. The current PRDs do not resolve which record preserves still-useful architectural rationale and supporting research when this project's working design is removed. | Settled by Mike on 2026-09-21 (decision D21): when a work item closes, still-useful reasoning is kept in one named, findable place, and only plans that something has replaced are retired. The place itself is agreed with Mike before anything is deleted, and it is still to be agreed. Until then nothing is deleted, and no new ADR folder or automatic archive is authorized. Not built yet, and the build is not yet tracked in a work item. |
+| Design and decision retention after delivery | Until 2026-09-23 the toolkit's `docs/designs/` guidance said to delete a work design at stage 14 after PRD upkeep, retaining it in Git. The [work-item-lifecycle skill](../../../plugins/project-init/skills/work-item-lifecycle/SKILL.md#closing-a-work-item) says to keep current architecture and lasting decisions in their authoritative homes and archive only retired or replaced material. The current PRDs do not resolve which record preserves still-useful architectural rationale and supporting research when this project's working design is removed. | Settled by Mike on 2026-09-21 (decision D21): when a work item closes, still-useful reasoning is kept in one named, findable place, and only plans that something has replaced are retired. The place itself is agreed with Mike before anything is deleted, and it is still to be agreed. Until then nothing is deleted, and no new ADR folder or automatic archive is authorized. On 2026-09-23 Mike applied D21 to every project (#409): designs are kept after delivery, and the deletion rule was removed from shipped and repository text. The place for lasting reasoning is still to be agreed. |
 | Searches for simple requests | Resolved. The row previously said that Knowledge System requirements 5 and 19 force the same knowledge search for every task or question. They do not. [Requirement 5](knowledge-system.md#5-check-memory-first) has the agent decide once, per request, whether long-term project knowledge could affect the answer, and carry on with no lookup when it could not. [Requirement 19](knowledge-system.md#19-the-find-order) sets the order to work through when a lookup does apply, and lets already-read current information satisfy a tier. | No change is needed. A request fully answerable from the text the owner supplied, such as shortening one sentence, already needs no lookup under requirement 5. |
 | Draft refinement and save cards | Resolved. The row previously said that Knowledge System requirements 9 and 10 call for a card and a yes for every PRD save. They do not. [Requirement 9](knowledge-system.md#9-saving-is-frictionless) applies the card to a save that needs new approval and says the agent may already have permission. [Requirement 10](knowledge-system.md#10-approval-before-any-write) states that permission to refine a named PRD covers writing down the owner's clear answers and corrections in the same reply, with no second card. | No change is needed. New lasting meaning the agent recommends still needs the owner's agreement under requirement 10. |
 | Hard refusals and lightweight work | Second-brain requirement 3 proposes forced save-review moments. Upkeep favors adaptable stages and deliberately allows an unapproved local Done record while reporting the gap. A component's mechanism cannot be assumed to enforce the whole experience. | Preserve each component's existing decision. Specify the effect of knowledge-review failures on work completion before design; do not add blanket process gates here. |
@@ -891,6 +891,11 @@ reasoning after a work item closes under decision D21, are the next two steps.
 
 ### Recorded notes
 
+- 2026-09-23, work item [#409](https://github.com/Mar5929/claude-toolkit/issues/409):
+  Mike applied D21 to every project. Designs are kept after delivery, and no
+  toolkit text tells an agent to delete one. The conflicts table records this.
+  The place for lasting reasoning is still to be agreed. This approves nothing
+  else in this document.
 - 2026-09-23, work item [#396](https://github.com/Mar5929/claude-toolkit/issues/396)
   step 5: the handshake principle now says a hook checks that a step happened,
   from facts Claude Code reports, instead of checking the agent's
@@ -928,7 +933,7 @@ reasoning after a work item closes under decision D21, are the next two steps.
     resolved in the conflicts table.
   - D21, keeping still-useful reasoning when a work item closes: recorded in
     the conflicts table. The place itself is still to be agreed with Mike, and
-    nothing is deleted until it is. Not tracked in a work item.
+    nothing is deleted until it is. Applied to every project in #409.
   - D22, plan ownership: resolved in the conflicts table.
     [Knowledge System requirement 16](knowledge-system.md#16-requirements-documents)
     holds the approved wording.

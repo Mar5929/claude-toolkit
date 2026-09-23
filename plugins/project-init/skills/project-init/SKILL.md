@@ -128,9 +128,10 @@ Save authorized documentation changes promptly through the project's save route;
 do not wait for code delivery. Keep preparation in the design and relevant
 working decisions, open questions, remaining document tasks, and the resume
 point in bottom Notes. The item links there and keeps other work. The design is
-**deleted once that area's PRD has been brought up to date**.
-Git history keeps it, so nothing is lost, and a design left behind stops
-matching the code that a later agent will read it as describing.
+**kept after delivery**. Where still-useful reasoning lives is
+agreed with the owner before any design is deleted. Create the folder empty.
+It gets no `README.md`: its line in the project's `AGENTS.md` codemap says what
+it holds and that designs are kept.
 
 The design folder is for a project whose work items are tracked outside the
 repository, on a GitHub issue board or in Linear or Jira. A project that picked
@@ -492,10 +493,10 @@ AGENTS.md stays thin and points at that folder. Read
   in a session mentions those folders, so an agent reaches them only from here.
   This is the routing job, and it is the part usually left out.
 - **Give `docs/designs/` its own codemap line** where Gate 1 created it. It says
-  the build plan for the work item in flight lives there, one file per item,
-  written once its requirements are approved and deleted once that area's PRD is
-  current. The folder is usually empty on day one, which is exactly when a
-  codemap line is easiest to leave out and hardest to add back.
+  the build plan for each work item lives there, one file per item, written
+  once its requirements are approved and kept after delivery. The folder is
+  usually empty on day one, which is exactly when a codemap line is easiest to
+  leave out and hardest to add back.
 - **Write the tools section from what the project actually runs.** MCP servers,
   generated graphs or indexes, build, test, and deploy commands. One row each,
   naming the command and the file that holds the detail. This is where the MCP
