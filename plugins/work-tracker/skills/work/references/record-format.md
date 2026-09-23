@@ -287,7 +287,7 @@ The mapping is `01` and `02` to `Backlog`, `03` to `Ready`, `04` through
 `finish` writes `Done`; `Cancelled` is intentional.
 
 The command accepts an unknown stage and permits skips or backward moves.
-`work-item-stages.md` decides whether those choices are correct. The command
+The work skill's `references/lifecycle.md` decides whether those choices are correct. The command
 does enforce record consistency: known stages derive active status, and
 `build` or `data-load` cannot enter an active state before requirements are
 finalized.
