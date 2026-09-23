@@ -31,11 +31,12 @@ function commit(root, text) {
   execFileSync('git', ['commit', '-m', 'Change fixture'], { cwd: root });
 }
 
-function runHook(path, input) {
+function runHook(path, input, env = {}) {
   return execFileSync(process.execPath, [path], {
     cwd: input.cwd,
     input: JSON.stringify(input),
     encoding: 'utf8',
+    env: { ...process.env, TOOLKIT_PROTOCOL_ENGINE: '', ...env },
   });
 }
 
@@ -334,4 +335,31 @@ test('a repository with no commits still holds pull-request creation', t => {
   // With no commits there is no readable branch name, so the key falls back to the project path.
   assert.match(reason, /Held action: gh pr create on branch .* with no commits\./);
   assert.equal(runHook(saveReminder, pullRequestInput(root, sessionId)), '');
+});
+
+// protocol-guard K7 (#396 step 6): while the engine names K7, the general holds
+// step aside; the knowledge-only branch message stays. Without it, both hold.
+test('work finish is a close action, and K7 replaces the close and merge hold while the engine runs', t => {
+  const root = repository(t);
+  const session = `k7-close-${process.pid}-${Date.now()}`;
+  const input = (command) => ({ session_id: session, cwd: root, tool_name: 'Bash', tool_input: { command } });
+  assert.equal(runHook(workItemClose, input('node plugins/work-tracker/skills/work/scripts/work.mjs finish WI-1 --evidence x'), { TOOLKIT_PROTOCOL_ENGINE: 'K4,CW,K7' }), '');
+  assert.match(denialReason(runHook(workItemClose, input('work finish WI-1 --evidence x'))), /Finishing a work item/);
+  assert.equal(JSON.parse(workItemActionKey('work finish WI-2', root))[2][0][0], 'work-finish');
+});
+test('K7 replaces the general pull-request hold but not the knowledge-only branch message', t => {
+  const root = repository(t);
+  execFileSync('git', ['checkout', '-q', '-b', 'feature'], { cwd: root });
+  commit(root, 'feature\n');
+  const session = `k7-pr-${process.pid}-${Date.now()}`;
+  const input = { session_id: session, cwd: root, tool_name: 'Bash', tool_input: { command: 'gh pr create --fill' } };
+  assert.equal(runHook(saveReminder, input, { TOOLKIT_PROTOCOL_ENGINE: 'K7' }), '');
+  const knowledgeRoot = repository(t);
+  execFileSync('git', ['checkout', '-q', '-b', 'save'], { cwd: knowledgeRoot });
+  execFileSync('mkdir', ['-p', join(knowledgeRoot, 'knowledge')]);
+  writeFileSync(join(knowledgeRoot, 'knowledge/note.md'), 'note\n');
+  execFileSync('git', ['add', 'knowledge/note.md'], { cwd: knowledgeRoot });
+  execFileSync('git', ['commit', '-q', '-m', 'note'], { cwd: knowledgeRoot });
+  const kInput = { session_id: `${session}-k`, cwd: knowledgeRoot, tool_name: 'Bash', tool_input: { command: 'gh pr create --fill' } };
+  assert.match(denialReason(runHook(saveReminder, kInput, { TOOLKIT_PROTOCOL_ENGINE: 'K7' })), /changes only knowledge/);
 });

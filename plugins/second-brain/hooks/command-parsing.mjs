@@ -85,7 +85,22 @@ export function effectiveDirectory(command, cwd) {
 }
 
 export const OPENS_PULL_REQUEST = [/^gh +pr +create\b/];
-export const CLOSES_WORK_ITEM = [/^gh +issue +close\b/, /^gh +pr +merge\b/];
+export const CLOSES_WORK_ITEM = [
+  /^gh +issue +close\b/,
+  /^gh +pr +merge\b/,
+  /^work +finish\b/,
+  /^node +(?:\S*\/)?work\.mjs +finish\b/,
+];
+
+/**
+ * The checks protocol-guard runs now, from the TOOLKIT_PROTOCOL_ENGINE variable
+ * the engine sets for every process it starts. PreToolUse hooks get no engine
+ * field in their input, so they read this. Unset (function hooks off, engine not
+ * loaded, or stopped after errors): an empty list, and every hook runs in full.
+ */
+export function engineProtocols(env = process.env) {
+  return String(env.TOOLKIT_PROTOCOL_ENGINE ?? "").split(",").map((x) => x.trim()).filter(Boolean);
+}
 
 /**
  * The file listing the action keys this session and agent already held, or null
