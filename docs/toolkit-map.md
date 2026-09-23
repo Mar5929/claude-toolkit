@@ -25,7 +25,7 @@ project, and **Wires into settings** installs a hook by editing a settings file.
 | [sf-architect-solutioning](../plugins/sf-architect-solutioning/README.md) | Salesforce solution architect: approved solution plan before any build | `sf-architect-solutioning` | `/plugin install sf-architect-solutioning` | Install and go |
 | [git-workflows](../plugins/git-workflows/README.md) | Parallel-session-safe git lifecycle workflows | `pull-latest`, `reset-to-remote`, `merge-and-clean-up`, `publish-docs` | `/plugin install git-workflows` | Install and go |
 | [hooks-library](../plugins/hooks-library/README.md) | Reusable spec-check, Git-attribution, output-style handshake, and Salesforce deployment hooks; system-specific knowledge hooks stay with second-brain | `hooks-library` | `/plugin install hooks-library` | Wires into settings |
-| [protocol-guard](../plugins/protocol-guard/README.md) | Required workflow checks with Claude Code function hooks, from facts only: K4 refuses a knowledge-file write until `knowledge-save` is open, K5 refuses hand edits to generated indexes, CW and K6 hold a final reply once until working memory follows a work-item change and the indexes are rebuilt and checked. Claude Code only; no Codex entry | None | `/plugin install protocol-guard` | Wires into settings: `project-init` and `project-sync` write `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS` and `enabledPlugins` into the project |
+| [protocol-guard](../plugins/protocol-guard/README.md) | Required workflow checks with Claude Code function hooks, from facts only: K4 refuses a knowledge-file write until `knowledge-save` is open, K5 refuses hand edits to generated indexes, CW and K6 hold a final reply once until working memory follows a work-item change and the indexes are rebuilt and checked, K7 refuses a pull request, close or merge until `knowledge-save` is open this turn, P2 a close until `work` is open this turn, and P3 a merge until `merge-and-clean-up` is open this session. Claude Code only; no Codex entry | None | `/plugin install protocol-guard` | Wires into settings: `project-init` and `project-sync` write `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS` and `enabledPlugins` into the project |
 | [work-tracker](../plugins/work-tracker/README.md) | Agent-led delivery for the chosen tracker, plus a local backlog under Git-ignored `.work-items/`, with owner-shaped roadmaps, detailed execution tasks, branch-scoped current-task continuation, child work items with their own plans and approvals, flexible types, consistent progress, approved completion events, optional Git evidence, handoffs, relationships, owner-made grouping folders, an `archive/` folder, and preview-first conversion of older staged trackers | `work` | `/plugin install work-tracker` | Sets up a project |
 | [session-skills](../plugins/session-skills/README.md) | Eleven conversation skills including roadmap-task delivery, requirements, and resumable design, with focused research, design, and review helpers | `work-guide`, `requirements-helper`, `solution-design`, `braindump`, `explain-simply`, `grill-me`, `handoff`, `session-summary`, `spec-check`, `track-tasks`, `unslop` | `/plugin install session-skills` | Install and go |
 
@@ -247,8 +247,11 @@ The genuine watch-items are called out at the end.
   on. While its checks run, it adds `toolkit_protocol_engine` to the classic
   hook input and the command hooks skip only the part it replaces:
   `knowledge-completion.mjs` its end-of-turn check (K4 and K6), and
-  `memory-reminder.mjs` its turn-review line (CW, K4 and K6). With the variable
-  off, or after engine errors, the command hooks run in full. Keep both.
+  `memory-reminder.mjs` its turn-review line (CW, K4 and K6). The PreToolUse
+  hooks read the `TOOLKIT_PROTOCOL_ENGINE` variable instead: while K7 runs,
+  `work-item-close.mjs` and `save-reminder.mjs` skip their hold-once, and the
+  knowledge-only branch message stays. With the variable off, or after engine
+  errors, the command hooks run in full. Keep both.
 - **project-init versus project-sync.** Same inventory of toolkit systems,
   opposite entry points: init lays foundations in an empty project, sync audits
   and back-fills a project that already exists. Keep both. Sync also carries the

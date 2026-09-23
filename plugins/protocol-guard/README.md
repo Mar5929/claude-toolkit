@@ -22,8 +22,19 @@ owns the step.
 | CW | Working memory follows work-item changes | The turn ends after a work item was created, closed, or moved to another stage (`gh issue`, a label edit with a stage label such as `08-build`, `gh project item-edit`, GitHub issue tools, or the `work` command) | The reply is held once and the agent is sent to `knowledge-save`, until `knowledge/memory/current.md` is written after the change |
 | K5 | Generated indexes are not edited by hand | A write to `knowledge/memory/memory-index.md`, `knowledge/prds/prd-index.md` or `ai-external-knowledge/README.md` | The call is refused; the agent runs the index builder instead |
 | K6 | Indexes rebuilt and checker run after a knowledge write | The turn ends after a K4 write | The reply is held once until `build-knowledge-index.mjs` and then `check-knowledge.mjs` both exited 0 after the last write |
+| K7 | Save review before a pull request, a close, or a merge | `gh pr create`, `gh issue close`, `gh pr merge`, `work finish`, and the GitHub tools `create_pull_request`, `issue_write` with state `closed`, `merge_pull_request` and `enable_pr_auto_merge` | The call is refused until `knowledge-save` was opened this turn |
+| P2 | Closing a work item goes through the `work` skill | `gh issue close`, `work finish`, `issue_write` with state `closed` | The call is refused until `work` was opened this turn. The skill asks the owner for approval; the check does not prove approval |
+| P3 | A merge goes through `merge-and-clean-up` | `gh pr merge`, `merge_pull_request`, `enable_pr_auto_merge` | The call is refused until `merge-and-clean-up` was opened this session. Compaction does not clear it |
 
-Every check applies only in a project with `knowledge/knowledge-manual.md`.
+K4, CW, K5, K6 and K7 apply only in a project with
+`knowledge/knowledge-manual.md`. A check whose owner skill is not installed is
+switched off: the agent is told, and the owner sees one line in the first
+turn. Every refusal ends "If the skill is not installed, tell the owner and
+stop."
+
+Opening the owner skill is the whole check. For K7, P2 and P3 the engine
+refuses the action instead of holding it once, as decision 10 approved; the
+older hold-once hooks are the backup.
 
 How each fact is read:
 
@@ -60,7 +71,8 @@ How each fact is read:
 - Session start, `/clear`, resume and a plugin reload start the record over.
   Compaction clears which skills were opened.
 - A turn-end check looks only at the facts of the current turn, except a check
-  carried from a pending helper save. A check still unmet after its one hold
+  carried from a pending helper save, which also counts a helper that wrote in
+  the turn it was carried from. A check still unmet after its one hold
   is shown as a notice and is not held again in later turns.
 
 ## How a reply is held
@@ -126,11 +138,23 @@ command hooks read it:
   mid-turn the old end-of-turn check runs in full. When function hooks are on
   in a project that enables this plugin but the field is absent, it shows the
   owner one line per session (`systemMessage`) saying the checks are not
-  running, and gives the agent the same line.
+  running, and gives the agent the same line. Codex runs this hook without
+  `CLAUDE_PROJECT_DIR`, so it never shows the line there.
 
-With the variable off, the field is absent and every old hook runs as before.
-After two engine errors, the `Stop` input has no field, so the old check runs
-for that turn.
+The command hooks that run before a tool get no engine field, so the engine
+also sets `TOOLKIT_PROTOCOL_ENGINE` (the active check names, comma separated)
+for every process Claude Code starts, and unsets it while it is off:
+
+- `work-item-close.mjs` skips its hold-once for `gh issue close`, `gh pr merge`
+  and `work finish` while K7 is active.
+- `save-reminder.mjs` skips its general hold-once for `gh pr create` while K7
+  is active, and keeps the message for a branch that changes only
+  `knowledge/`.
+
+With the variable off, the field and the environment variable are absent and
+every old hook runs as before. After two engine errors, the `Stop` input has no
+field and the environment variable is unset, so the old checks run for the
+rest of that turn.
 
 ## Codex
 

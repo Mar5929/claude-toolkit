@@ -282,3 +282,20 @@ export function changesWorkItem(cmd) {
   if (sub === 'requirements') return rest.some((x) => x === '--finalize' || x === '--reopen')
   return false
 }
+
+// The review actions a command takes: `pr-create` (gh pr create), `pr-merge`
+// (gh pr merge, with or without --auto), `issue-close` (gh issue close) and
+// `work-finish` (the work tracker's `work finish`).
+export function reviewActions(cmd) {
+  const a = cmd.args
+  if (cmd.program === 'gh') {
+    if (a[0] === 'pr' && a[1] === 'create') return ['pr-create']
+    if (a[0] === 'pr' && a[1] === 'merge') return ['pr-merge']
+    if (a[0] === 'issue' && a[1] === 'close') return ['issue-close']
+    return []
+  }
+  let sub
+  if (cmd.program === 'work') sub = a.filter((x) => !x.startsWith('-'))[0]
+  else if (nodeScript(cmd) === 'work.mjs') sub = a.slice(a.findIndex((x) => !x.startsWith('-')) + 1).filter((x) => !x.startsWith('-'))[0]
+  return sub === 'finish' ? ['work-finish'] : []
+}

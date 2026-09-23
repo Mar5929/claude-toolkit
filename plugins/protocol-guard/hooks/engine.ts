@@ -26,20 +26,28 @@
 // resume) starts clean; session start and a plugin reload clear it;
 // compaction clears which skills were opened.
 import type { Register } from 'claude-code'
-import { STAGE_LABEL, changesWorkItem, fileWords, nodeScript, onlyReads, readCommand } from './shell-reader.mjs'
+import { STAGE_LABEL, changesWorkItem, fileWords, nodeScript, onlyReads, readCommand, reviewActions } from './shell-reader.mjs'
 
-const VERSION = '0.1.0'
+const VERSION = '0.2.0'
 const FILE_TOOLS = new Set(['Write', 'Edit', 'MultiEdit', 'NotebookEdit'])
+const ACTIONS = ['pr-create', 'pr-merge', 'issue-close', 'work-finish']
 const NO_MENTION = 'Do not mention this check in your reply.'
 const OFF_NOTICE = 'Workflow checks are off for this turn after an error.'
 // Who is speaking: a held reply comes back as a Stop hook's continuation, so
 // the note names its source and why it asks for silence.
 const HOLD_INTRO = 'This note is from protocol-guard, the required workflow check that the project owner turned on in .claude/settings.json.'
 const OWNER_ASKED = 'The owner set up these checks and wants replies about the work, not about the checks.'
+const REFUSAL_INTRO = 'This refusal is from protocol-guard, the required workflow check that the project owner turned on in .claude/settings.json.'
+
+// A refusal names its source and why it asks for silence, so the agent does
+// not take it for a prompt injection.
+function refusalText(failed: string[]): string {
+  return `${REFUSAL_INTRO}\n${[...new Set(failed)].join('\n')}\n${OWNER_ASKED} ${NO_MENTION}`
+}
 
 type Owner = { skill?: string; file?: string }
 type Require =
-  | { opened: 'owner'; within: 'turn' | 'reset'; paths?: string[] }
+  | { opened: 'owner'; within: 'turn' | 'reset' | 'session'; paths?: string[] }
   | { never: true }
   | { wrote: string[] }
   | { ran: string[] }
@@ -49,6 +57,7 @@ type Protocol = {
   owner: Owner
   appliesIf?: { exists: string }
   on: {
+    action?: string[]
     write?: string[]
     shell?: boolean
     oneWriter?: string[]
@@ -62,7 +71,7 @@ type NewFact =
   | { kind: 'work-item'; agent: string }
   | { kind: 'ran'; script: string; agent: string }
 type Fact = NewFact & { seq: number }
-type Loop = { turn: Set<string>; reset: Set<string> }
+type Loop = { turn: Set<string>; reset: Set<string>; session: Set<string> }
 type Turn = { holds: Set<string>; errors: number; off: boolean; offNotice: boolean }
 type State = {
   key: string
@@ -80,8 +89,12 @@ type State = {
   // this turn, except for a check carried over from a helper save that was
   // still running when the last turn ended.
   turnSeq: number
-  carried: Set<string>
-  carriedNow: Set<string>
+  carried: Map<string, number>
+  carriedNow: Map<string, number>
+  // Checks switched off because their owner skill is not installed; the
+  // owner is told once.
+  missing: string[]
+  missingShown: boolean
   // The first draft reply held this turn, shown if the turn ends without one.
   heldDraft?: string
 }
@@ -153,7 +166,8 @@ function validProtocol(p: any): p is Protocol {
   if (p.appliesIf !== undefined && typeof p.appliesIf?.exists !== 'string') return false
   const on = p.on
   if (on === null || typeof on !== 'object') return false
-  for (const k of Object.keys(on)) if (!['write', 'shell', 'oneWriter', 'turnEnd'].includes(k)) return false
+  for (const k of Object.keys(on)) if (!['action', 'write', 'shell', 'oneWriter', 'turnEnd'].includes(k)) return false
+  if (on.action !== undefined && !(isStrings(on.action) && on.action.every((x: string) => ACTIONS.includes(x)))) return false
   if (on.write !== undefined && !isStrings(on.write)) return false
   if (on.oneWriter !== undefined && !isStrings(on.oneWriter)) return false
   if (on.shell !== undefined && typeof on.shell !== 'boolean') return false
@@ -162,7 +176,7 @@ function validProtocol(p: any): p is Protocol {
     for (const k of Object.keys(t)) if (!['afterWorkItemChange', 'afterWrite'].includes(k)) return false
     if (t.afterWrite !== undefined && !isStrings(t.afterWrite)) return false
   }
-  if (on.write === undefined && on.turnEnd === undefined) return false
+  if (on.write === undefined && on.turnEnd === undefined && on.action === undefined) return false
   if (!Array.isArray(p.require) || p.require.length === 0) return false
   for (const r of p.require) {
     if (r === null || typeof r !== 'object') return false
@@ -170,7 +184,7 @@ function validProtocol(p: any): p is Protocol {
     if (keys === 'never' && r.never === true) continue
     if (keys === 'wrote' && isStrings(r.wrote)) continue
     if (keys === 'ran' && isStrings(r.ran) && r.ran.length > 0) continue
-    if ((keys === 'opened,within' || keys === 'opened,paths,within') && r.opened === 'owner' && (r.within === 'turn' || r.within === 'reset') && (r.paths === undefined || isStrings(r.paths))) continue
+    if ((keys === 'opened,within' || keys === 'opened,paths,within') && r.opened === 'owner' && (r.within === 'turn' || r.within === 'reset' || r.within === 'session') && (r.paths === undefined || isStrings(r.paths))) continue
     return false
   }
   return true
@@ -216,7 +230,20 @@ async function load($: any, s: State) {
     }
     active.push(p)
   }
-  s.protocols = active
+  // A check whose owner skill is not installed would trap the agent: it is
+  // switched off, and the owner is told once. When the list cannot be read,
+  // every check stays on.
+  let installed: Set<string> | undefined
+  try {
+    const list = (await $.command.list()) as { name: string }[]
+    if (list.length > 0) installed = new Set(list.map((c) => skillName(c.name)))
+  } catch { installed = undefined }
+  s.protocols = active.filter((p) => {
+    if (installed === undefined || p.owner.skill === undefined || installed.has(p.owner.skill)) return true
+    s.missing.push(`${p.name} (${p.owner.skill})`)
+    return false
+  })
+  if (s.missing.length > 0) s.notes.push(`These required workflow checks are off because their skill is not installed: ${s.missing.join(', ')}.`)
 }
 
 function freshTurn(): Turn {
@@ -239,13 +266,23 @@ async function state($: any): Promise<State> {
       writers: new Map(),
       pendingDrops: 0,
       turnSeq: 0,
-      carried: new Set(),
-      carriedNow: new Set(),
+      carried: new Map(),
+      carriedNow: new Map(),
+      missing: [],
+      missingShown: false,
     }
     states.set(key, s)
     await load($, s)
   }
   return s
+}
+
+// The command hooks that run before a tool (PreToolUse) get no engine field,
+// so the engine also names its active checks in an environment variable that
+// every process it starts inherits. It is unset while the engine is off.
+async function signal($: any, s: State) {
+  const names = s.turn.off ? '' : s.protocols.map((p) => p.name).join(',')
+  await $.env.set('TOOLKIT_PROTOCOL_ENGINE', names === '' ? undefined : names)
 }
 
 function loopOf(s: State, agentId: string | undefined): Loop {
@@ -255,7 +292,7 @@ function loopOf(s: State, agentId: string | undefined): Loop {
     // A helper starts with what the main agent had opened when the helper
     // first acted, so the main agent's opening counts for a helper it starts.
     const main = agentId === undefined ? undefined : loopOf(s, undefined)
-    l = { turn: new Set(main?.turn ?? []), reset: new Set(main?.reset ?? []) }
+    l = { turn: new Set(main?.turn ?? []), reset: new Set(main?.reset ?? []), session: new Set(main?.session ?? []) }
     s.loops.set(key, l)
   }
   return l
@@ -265,7 +302,11 @@ function engineError(s: State | undefined, $: any, where: string, err: unknown) 
   try { $.ui.log(`protocol-guard error in ${where}: ${String(err)}`, { to: 'debug' }) } catch { /* never throws */ }
   if (s === undefined) return
   s.turn.errors++
-  if (s.turn.errors >= 2) { s.turn.off = true; s.turn.offNotice = true }
+  if (s.turn.errors >= 2) {
+    s.turn.off = true
+    s.turn.offNotice = true
+    signal($, s).catch(() => undefined)
+  }
 }
 
 function record(s: State, fact: NewFact) {
@@ -333,6 +374,21 @@ function factsOf(s: State, cwd: string, e: any, agent: string): NewFact[] {
   return out
 }
 
+// The review actions a call takes: shell commands, or GitHub tools by name.
+function actionsOf(e: any): string[] {
+  if (e.tool === 'Bash') {
+    if (typeof e.command !== 'string') return []
+    return readCommand(e.command).commands.flatMap((c: any) => reviewActions(c))
+  }
+  if (typeof e.tool === 'string' && e.tool.startsWith('mcp__')) {
+    const name = e.tool.slice(e.tool.lastIndexOf('__') + 2)
+    if (name === 'create_pull_request') return ['pr-create']
+    if (name === 'merge_pull_request' || name === 'enable_pr_auto_merge') return ['pr-merge']
+    if ((name === 'issue_write' && e.method === 'update' && e.state === 'closed') || (name === 'update_issue' && e.state === 'closed')) return ['issue-close']
+  }
+  return []
+}
+
 function succeeded(e: any, r: any): boolean {
   if (r === undefined || r === null || r.deny !== undefined || r.isError === true) return false
   if (e.tool === 'Bash') {
@@ -346,12 +402,22 @@ function succeeded(e: any, r: any): boolean {
 
 // The refusal for a call, or undefined to let it run.
 async function refusal($: any, s: State, e: any, loop: Loop, agent: string): Promise<string | undefined> {
+  const failed: string[] = []
+  const actions = actionsOf(e)
+  if (actions.length > 0) {
+    for (const p of s.protocols) {
+      if (p.on.action === undefined || !actions.some((a) => p.on.action!.includes(a))) continue
+      const opened = p.require.find((r): r is Extract<Require, { opened: 'owner' }> => 'opened' in r)
+      if (opened === undefined) continue
+      const window = opened.within === 'turn' ? loop.turn : opened.within === 'reset' ? loop.reset : loop.session
+      if (!window.has(ownerKey(p.owner))) failed.push(`Required workflow check ${p.name}: ${p.tell}`)
+    }
+  }
   const writers = s.protocols.filter((p) => p.on.write !== undefined)
-  if (writers.length === 0) return undefined
+  if (writers.length === 0 || !(FILE_TOOLS.has(e.tool) || e.tool === 'Bash')) return failed.length === 0 ? undefined : refusalText(failed)
   const cwd = slashes(String(await $.session.cwd()))
   const t = touches(s, cwd, e)
   if (t === undefined) return 'Required workflow check: the file this call changes could not be read, so the call was refused. Name the file path in the call. ' + NO_MENTION
-  const failed: string[] = []
   for (const p of writers) {
     for (const touch of t) {
       if (touch.shell && p.on.shell !== true) continue
@@ -359,7 +425,7 @@ async function refusal($: any, s: State, e: any, loop: Loop, agent: string): Pro
       if (p.require.some((r) => 'never' in r)) { failed.push(`Required workflow check ${p.name}: ${p.tell}`); break }
       const opened = p.require.find((r): r is Extract<Require, { opened: 'owner' }> => 'opened' in r && (r.paths === undefined || covers(touch.path, r.paths)))
       if (opened !== undefined) {
-        const has = (opened.within === 'turn' ? loop.turn : loop.reset).has(ownerKey(p.owner))
+        const has = (opened.within === 'turn' ? loop.turn : opened.within === 'reset' ? loop.reset : loop.session).has(ownerKey(p.owner))
         if (!has) { failed.push(`Required workflow check ${p.name}: ${p.tell}`); break }
       }
       if (p.on.oneWriter !== undefined && covers(touch.path, p.on.oneWriter)) {
@@ -372,7 +438,7 @@ async function refusal($: any, s: State, e: any, loop: Loop, agent: string): Pro
     }
   }
   if (failed.length === 0) return undefined
-  return [...new Set(failed)].join('\n') + ' ' + NO_MENTION
+  return refusalText(failed)
 }
 
 // Why a turn-end protocol is not met, or undefined when it is met or not due.
@@ -380,7 +446,7 @@ function unmetReason(s: State, p: Protocol): string | undefined {
   const t = p.on.turnEnd
   if (t === undefined) return undefined
   let trigger: Fact | undefined
-  const from = s.carriedNow.has(p.name) ? 0 : s.turnSeq
+  const from = s.carriedNow.get(p.name) ?? s.turnSeq
   for (const f of s.facts) {
     if (f.seq <= from) continue
     if (t.afterWorkItemChange === true && f.kind === 'work-item') trigger = f
@@ -407,9 +473,10 @@ function unmetReason(s: State, p: Protocol): string | undefined {
 
 // A save by a helper that is still running is pending: the obligation stays
 // open for the next turn, and the reply is not held for it now.
-// Only a helper that wrote a knowledge file this turn counts.
-async function helperSavePending($: any, s: State): Promise<boolean> {
-  const savers = new Set(s.facts.filter((f) => f.seq > s.turnSeq && f.kind === 'write' && f.agent !== 'main' && covers(f.path, ['knowledge/'])).map((f) => f.agent))
+// Only a helper that wrote a knowledge file since `since` counts: this turn,
+// or, for a carried check, since the turn it was first carried from.
+async function helperSavePending($: any, s: State, since: number): Promise<boolean> {
+  const savers = new Set(s.facts.filter((f) => f.seq > since && f.kind === 'write' && f.agent !== 'main' && covers(f.path, ['knowledge/'])).map((f) => f.agent))
   if (savers.size === 0) return false
   const running = ((await $.agent.list()) as any[]).filter((a) => a.status === 'running').map((a) => a.id)
   return running.some((id) => savers.has(id))
@@ -420,8 +487,10 @@ async function openAtTurnEnd($: any, s: State): Promise<{ p: Protocol; reason: s
   for (const p of s.protocols) {
     const reason = unmetReason(s, p)
     if (reason === undefined) { s.carried.delete(p.name); continue }
-    // Pending: not held now; checked again at the end of the next turn.
-    if (await helperSavePending($, s)) { s.carried.add(p.name); continue }
+    // Pending: not held now; checked again at the end of the next turn, from
+    // the turn it was first carried.
+    const since = s.carriedNow.get(p.name) ?? s.turnSeq
+    if (await helperSavePending($, s, since)) { s.carried.set(p.name, since); continue }
     out.push({ p, reason })
   }
   return out
@@ -434,7 +503,7 @@ export const register: Register = (on) => {
     try {
       // A plugin reload fires this again: start this session's record over.
       states.delete(String(await $.session.id()))
-      await state($)
+      await signal($, await state($))
     } catch (err) { engineError(undefined, $, 'session.start', err) }
     return next(e)
   })
@@ -453,9 +522,10 @@ export const register: Register = (on) => {
       s.heldDraft = undefined
       s.turnSeq = s.seq
       s.carriedNow = s.carried
-      s.carried = new Set()
+      s.carried = new Map()
       loopOf(s, undefined)
       for (const l of s.loops.values()) l.turn.clear()
+      await signal($, s)
     } catch (err) { engineError(undefined, $, 'turn.start', err) }
     return next(e)
   })
@@ -513,7 +583,7 @@ export const register: Register = (on) => {
         const s = await state($)
         const main = loopOf(s, undefined)
         const key = `skill:${skillName(e.skill)}`
-        main.turn.add(key); main.reset.add(key)
+        main.turn.add(key); main.reset.add(key); main.session.add(key)
       }
     } catch (err) { engineError(undefined, $, 'skill.prompt', err) }
     return r
@@ -535,7 +605,7 @@ export const register: Register = (on) => {
     if (s.turn.off) return next(e)
 
     // Before the call: fails closed.
-    if (FILE_TOOLS.has(ev.tool) || ev.tool === 'Bash') {
+    if (FILE_TOOLS.has(ev.tool) || ev.tool === 'Bash' || String(ev.tool).startsWith('mcp__')) {
       try {
         const why = await refusal($, s, ev, loop, agent)
         if (why !== undefined) return { deny: why }
@@ -554,7 +624,7 @@ export const register: Register = (on) => {
       if (!succeeded(ev, r)) return r
       if (ev.tool === 'Skill') {
         const key = `skill:${skillName(ev.skill)}`
-        loop.turn.add(key); loop.reset.add(key)
+        loop.turn.add(key); loop.reset.add(key); loop.session.add(key)
         return r
       }
       if (ev.tool === 'Read' && typeof ev.file_path === 'string') {
@@ -562,11 +632,11 @@ export const register: Register = (on) => {
         if (abs.endsWith('/SKILL.md')) {
           const parts = abs.split('/')
           const key = `skill:${parts[parts.length - 2]}`
-          loop.turn.add(key); loop.reset.add(key)
+          loop.turn.add(key); loop.reset.add(key); loop.session.add(key)
         }
         const rel = relative(s.root, abs)
         for (const p of s.protocols) {
-          if (p.owner.file !== undefined && p.owner.file === rel) { loop.turn.add(ownerKey(p.owner)); loop.reset.add(ownerKey(p.owner)) }
+          if (p.owner.file !== undefined && p.owner.file === rel) { loop.turn.add(ownerKey(p.owner)); loop.reset.add(ownerKey(p.owner)); loop.session.add(ownerKey(p.owner)) }
         }
         return r
       }
@@ -660,6 +730,10 @@ export const register: Register = (on) => {
       const draft = s.heldDraft
       s.heldDraft = undefined
       if (draft !== undefined && draft !== '' && (e.answer === '' || e.reason !== 'answer')) lines.push(draft)
+      if (s.missing.length > 0 && !s.missingShown) {
+        s.missingShown = true
+        lines.push(`Workflow checks off because their skill is not installed: ${s.missing.join(', ')}.`)
+      }
       if (s.turn.offNotice) lines.push(OFF_NOTICE)
       else if (e.reason === 'answer') {
         const still = (await openAtTurnEnd($, s)).filter((o) => s.turn.holds.has(o.p.name))
@@ -667,6 +741,6 @@ export const register: Register = (on) => {
       }
       if (lines.length === 0) return r
       return { ...r, text: lines.join('\n') }
-    } catch { return r }
+    } catch (err) { engineError(undefined, $, 'turn.complete', err); return r }
   })
 }
