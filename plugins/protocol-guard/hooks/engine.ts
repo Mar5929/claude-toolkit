@@ -15,8 +15,9 @@
 // - A tool call is refused with the protocol's `tell`. Tool checks fail
 //   closed: a check that cannot decide refuses the call.
 // - A final reply is held once per protocol per turn: dropped before display,
-//   the owner skill is opened for the agent, and a note says what is missing.
-//   The reply hold fails open: on an error the reply is shown with a notice.
+//   then the classic Stop event continues the turn with a note that says what
+//   is missing and which skill to open. The reply hold fails open: on an
+//   error the reply is shown with a notice.
 // After two engine errors in one turn the engine stops for that turn, leaves
 // the `toolkit_protocol_engine` field off the classic Stop hook input so the
 // old command hooks run in full, and shows one notice.
@@ -31,6 +32,10 @@ const VERSION = '0.1.0'
 const FILE_TOOLS = new Set(['Write', 'Edit', 'MultiEdit', 'NotebookEdit'])
 const NO_MENTION = 'Do not mention this check in your reply.'
 const OFF_NOTICE = 'Workflow checks are off for this turn after an error.'
+// Who is speaking: a held reply comes back with a Skill call the agent did not
+// make, so the note names its source and why it asks for silence.
+const HOLD_INTRO = 'This note is from protocol-guard, the required workflow check that the project owner turned on in .claude/settings.json.'
+const OWNER_ASKED = 'The owner set up these checks and wants replies about the work, not about the checks.'
 
 type Owner = { skill?: string; file?: string }
 type Require =
@@ -69,10 +74,11 @@ type State = {
   seq: number
   turn: Turn
   writers: Map<string, string>
+  pendingStop?: string
+  pendingDrops: number
 }
 
 const states = new Map<string, State>()
-const pendingNotes = new Map<string, string>()
 let skillCallsInFlight = 0
 
 // ---------- paths and names (identifiers only; no language is read) ----------
@@ -223,6 +229,7 @@ async function state($: any): Promise<State> {
       seq: 0,
       turn: freshTurn(),
       writers: new Map(),
+      pendingDrops: 0,
     }
     states.set(key, s)
     await load($, s)
@@ -385,7 +392,7 @@ function unmetReason(s: State, p: Protocol): string | undefined {
 
 // A save by a helper that is still running is pending: the obligation stays
 // open for the next turn, and the reply is not held for it now.
-async function pending($: any, s: State, p: Protocol): Promise<boolean> {
+async function helperSavePending($: any, s: State, p: Protocol): Promise<boolean> {
   const helpers = [...s.loops.entries()].filter(([k, l]) => k !== 'main' && l.reset.has(ownerKey(p.owner)))
   if (helpers.length === 0) return false
   const running = new Set(((await $.agent.list()) as any[]).filter((a) => a.status === 'running').map((a) => a.id))
@@ -397,7 +404,7 @@ async function openAtTurnEnd($: any, s: State): Promise<{ p: Protocol; reason: s
   for (const p of s.protocols) {
     const reason = unmetReason(s, p)
     if (reason === undefined) continue
-    if (await pending($, s, p)) continue
+    if (await helperSavePending($, s, p)) continue
     out.push({ p, reason })
   }
   return out
@@ -424,6 +431,8 @@ export const register: Register = (on) => {
     try {
       const s = await state($)
       s.turn = freshTurn()
+      s.pendingStop = undefined
+      s.pendingDrops = 0
       loopOf(s, undefined).turn.clear()
     } catch (err) { engineError(undefined, $, 'turn.start', err) }
     return next(e)
@@ -462,11 +471,16 @@ export const register: Register = (on) => {
     } catch { return next(e) }
   })
   on('classic.Stop', async ($, e, next) => {
-    try {
-      const s = await state($)
-      if (s.turn.off) return next(e)
-      return next({ ...e, toolkit_protocol_engine: { version: VERSION, active: s.protocols.map((p) => p.name) } } as typeof e)
-    } catch { return next(e) }
+    let s: State | undefined
+    try { s = await state($) } catch { return next(e) }
+    const pending = s.pendingStop
+    s.pendingStop = undefined
+    const r = s.turn.off
+      ? await next(e)
+      : await next({ ...e, toolkit_protocol_engine: { version: VERSION, active: s.protocols.map((p) => p.name) } } as typeof e)
+    // A held reply: continue the turn with the note.
+    if (pending !== undefined && !s.turn.off) return { ...r, block: pending }
+    return r
   })
 
   // A skill typed as /name, or preloaded, opens it for the main agent.
@@ -519,11 +533,6 @@ export const register: Register = (on) => {
       if (ev.tool === 'Skill') {
         const key = `skill:${skillName(ev.skill)}`
         loop.turn.add(key); loop.reset.add(key)
-        const note = typeof ev.tool_use_id === 'string' ? pendingNotes.get(ev.tool_use_id) : undefined
-        if (note !== undefined) {
-          pendingNotes.delete(ev.tool_use_id)
-          return { ...r, context: [...(r.context ?? []), note] }
-        }
         return r
       }
       if (ev.tool === 'Read' && typeof ev.file_path === 'string') {
@@ -537,8 +546,6 @@ export const register: Register = (on) => {
         for (const p of s.protocols) {
           if (p.owner.file !== undefined && p.owner.file === rel) { loop.turn.add(ownerKey(p.owner)); loop.reset.add(ownerKey(p.owner)) }
         }
-        const note = typeof ev.tool_use_id === 'string' ? pendingNotes.get(ev.tool_use_id) : undefined
-        if (note !== undefined) { pendingNotes.delete(ev.tool_use_id); return { ...r, context: [...(r.context ?? []), note] } }
         return r
       }
       const cwd = slashes(String(await $.session.cwd()))
@@ -569,6 +576,15 @@ export const register: Register = (on) => {
       if (s !== undefined) s.turn.offNotice = true
       open = []
     }
+    // A reply already held this turn waits for the classic Stop event, which
+    // continues the turn with the note. Claude Code may ask for a visible
+    // reply first; that one is held back too.
+    if (s !== undefined && s.pendingStop !== undefined && s.pendingDrops < 2) {
+      s.pendingDrops++
+      const waiting = next(e)
+      for await (const c of waiting) if (c.kind !== 'text') yield c
+      return { ...(await waiting.result), answer: '' }
+    }
     if (s === undefined || open.length === 0) return yield* next(e) // streams as normal
 
     const stream = next(e)
@@ -576,46 +592,35 @@ export const register: Register = (on) => {
     for await (const c of stream) held.push(c)
     const result: any = await stream.result
 
-    let hold: { p: Protocol; reason: string }[] = []
-    let injected: { name: string; input: Record<string, string>; id: string; note: string } | undefined
+    let note: string | undefined
     try {
       if (result.stopReason === 'end_turn') {
-        hold = (await openAtTurnEnd($, s)).filter((o) => !s!.turn.holds.has(o.p.name))
+        const hold = (await openAtTurnEnd($, s)).filter((o) => !s!.turn.holds.has(o.p.name))
         if (hold.length > 0) {
           const owner = hold[0].p.owner
           const lines = hold.map((o) => `${o.p.name}: ${o.reason}. ${o.p.tell}`)
-          const note = `A required workflow check held back your reply before the reader saw it.\n${lines.join('\n')}\nDo the missing step now, then write your reply again. ${NO_MENTION}`
-          const id = `toolu_protocol_guard_${crypto.randomUUID().split('-').join('')}`
-          injected = owner.skill !== undefined
-            ? { name: 'Skill', input: { skill: owner.skill }, id, note }
-            : { name: 'Read', input: { file_path: `${s.root}/${owner.file}` }, id, note }
+          note = `${HOLD_INTRO} It held back your reply before the reader saw it.\nMissing step:\n${lines.join('\n')}\nOpen ${owner.skill !== undefined ? `the ${owner.skill} skill` : owner.file}, do the missing step now, then write your reply again. ${OWNER_ASKED} ${NO_MENTION}`
           for (const o of hold) s.turn.holds.add(o.p.name)
-          pendingNotes.set(id, note)
+          s.pendingStop = note
+          s.pendingDrops = 0
         }
       }
     } catch (err) {
       engineError(s, $, 'reply check', err)
       s.turn.offNotice = true
-      injected = undefined
+      note = undefined
     }
 
-    if (injected === undefined) {
+    if (note === undefined) {
       for (const c of held) yield c
       return result
     }
 
-    // Drop the draft reply and open the owner for the main agent, so the turn
-    // goes on and the agent does the step and writes the reply again itself.
-    let toolIndex = 0
-    for (const c of held) {
-      if (c.kind === 'text' || c.kind === 'stop') continue
-      if (typeof c.index === 'number' && c.index >= toolIndex) toolIndex = c.index + 1
-      yield c
-    }
-    yield { kind: 'tool', index: toolIndex, id: injected.id, name: injected.name } as any
-    yield { kind: 'input', index: toolIndex, json: JSON.stringify(injected.input) } as any
-    yield { kind: 'stop', stopReason: 'tool_use', usage: result.usage } as any
-    return { ...result, answer: '', toolUses: [{ name: injected.name, input: injected.input }], stopReason: 'tool_use' }
+    // Drop the draft reply before display. The classic Stop event that follows
+    // then continues the turn with the note, as a Stop hook's block does, and
+    // the agent does the step and writes the reply again itself.
+    for (const c of held) if (c.kind !== 'text') yield c
+    return { ...result, answer: '' }
   })
 
   // One line beneath the answer: the checks were off after an error, or a

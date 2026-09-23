@@ -17,6 +17,7 @@ type World = {
   files?: Record<string, string>
   agents?: { id: string; status: string }[]
   failCwd?: boolean
+  failAgents?: boolean
   stops?: any[]
   prompts?: any[]
 }
@@ -33,7 +34,7 @@ function world(on: any, w: World) {
     const text = w.files?.[e.path]
     return text === undefined ? { deny: 'ENOENT' } : { value: text }
   })
-  on('agent.list', () => ({ value: w.agents ?? [] }))
+  on('agent.list', () => (w.failAgents === true ? { deny: 'agent list unavailable' } : { value: w.agents ?? [] }))
   on('ui.log', () => ({ value: undefined }))
   on('session.start', ($: any, e: any) => ({ cwd: e.cwd }))
   on('session.end', ($: any, e: any) => ({ sessionId: e.sessionId }))
@@ -75,9 +76,7 @@ async function step($: any, turnId: string) {
   const chunks: any[] = []
   for await (const c of stream) chunks.push(c)
   const result = await stream.result
-  const tool = chunks.find((c) => c.kind === 'tool')
-  const input = chunks.find((c) => c.kind === 'input')
-  return { shown: chunks.some((c) => c.kind === 'text'), tool, input: input === undefined ? undefined : JSON.parse(input.json), result }
+  return { shown: chunks.some((c) => c.kind === 'text'), result }
 }
 
 // ---------- K4 ----------
@@ -205,13 +204,14 @@ test('CW: a work-item change with no current.md write holds the reply once and o
   world(on, { session: 'cw-a' })
   await turn($, 't1')
   await call($, bash('gh issue close 12 --comment "done"'))
-  const held = await step($, 't1')
-  expect(held.shown).toBe(false)
-  expect(held.tool.name).toBe('Skill')
-  expect(held.input.skill).toBe('knowledge-save')
-  const opened = await call($, { tool: 'Skill', skill: 'knowledge-save', tool_use_id: held.tool.id })
-  expect(opened.context.join('\n')).toContain('CW')
-  expect(opened.context.join('\n')).toContain('Do not mention this check in your reply.')
+  expect((await step($, 't1')).shown).toBe(false)
+  // Claude Code asks once for a visible reply; that draft is held back too.
+  expect((await step($, 't1')).shown).toBe(false)
+  const stop: any = await $.classic.Stop({ stop_hook_active: false } as any)
+  expect(stop.block).toContain('CW')
+  expect(stop.block).toContain('knowledge-save')
+  expect(stop.block).toContain('Do not mention this check in your reply.')
+  await call($, skill('knowledge-save'))
   await call($, write(CURRENT))
   await call($, bash(BUILD_AND_CHECK))
   expect((await step($, 't1')).shown).toBe(true)
@@ -248,7 +248,9 @@ test('CW: GitHub tool calls count; one hold per turn, then the reply is shown wi
   await turn($, 't1')
   await call($, { tool: 'mcp__github__issue_write', method: 'update', issue_number: 3, state: 'closed' })
   expect((await step($, 't1')).shown).toBe(false)
+  expect(((await $.classic.Stop({ stop_hook_active: false } as any)) as any).block).toContain('CW')
   expect((await step($, 't1')).shown).toBe(true)
+  expect(((await $.classic.Stop({ stop_hook_active: true } as any)) as any).block).toBeUndefined()
   const done = await $.turn.complete({ turnId: 't1', reason: 'answer', isAborted: false, answer: 'the answer', durationMs: 5 } as any)
   expect(done.text).toContain('Required workflow check not met after one retry: CW')
 })
@@ -285,9 +287,8 @@ test('K6: a knowledge write needs the index builder and then the checker, both e
   await call($, skill('knowledge-save'))
   await call($, write(INBOX))
   await call($, bash('node .claude/tools/check-knowledge.mjs && node .claude/tools/build-knowledge-index.mjs'))
-  const first = await step($, 't1')
-  expect(first.shown).toBe(false)
-  expect(first.input.skill).toBe('knowledge-save')
+  expect((await step($, 't1')).shown).toBe(false)
+  expect(((await $.classic.Stop({ stop_hook_active: false } as any)) as any).block).toContain('K6')
   await turn($, 't2')
   await call($, bash('node .claude/tools/build-knowledge-index.mjs'))
   await call($, bash('node .claude/tools/check-knowledge.mjs; exit 1'))
@@ -314,6 +315,16 @@ test('Engine errors: two refusals, then the engine stops for the turn with one n
   w.failCwd = false
   await turn($, 't2')
   expect((await call($, write(INBOX))).deny).toContain('K4')
+})
+
+test('Reply hold fails open: on an error the reply is shown with the notice', async ($, on) => {
+  world(on, { session: 'err-b', failAgents: true })
+  await turn($, 't1')
+  await call($, skill('knowledge-save', 'helper'))
+  await call($, bash('gh issue close 9'))
+  expect((await step($, 't1')).shown).toBe(true)
+  const done = await $.turn.complete({ turnId: 't1', reason: 'answer', isAborted: false, answer: 'the answer', durationMs: 5 } as any)
+  expect(done.text).toBe('Workflow checks are off for this turn after an error.')
 })
 
 test('Backup field: classic UserPromptSubmit and Stop carry the active protocols', async ($, on) => {

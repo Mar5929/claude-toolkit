@@ -19,7 +19,7 @@ owns the step.
 | ID | Required step | When it is checked | On failure |
 | --- | --- | --- | --- |
 | K4 | Knowledge files change only with `knowledge-save` open | A write to `knowledge/memory-inbox.md`, `knowledge/memory/`, `knowledge/prds/` or `knowledge/memory-self-improvement.md`, by a file tool or a shell command | The call is refused. The inbox needs the skill opened this turn; the other files need it opened since the last reset |
-| CW | Working memory follows work-item changes | The turn ends after a work item was created, closed, or moved to another stage (`gh issue`, `gh project item-edit`, GitHub issue tools, or the `work` command) | The reply is held once and `knowledge-save` is opened for the agent, until `knowledge/memory/current.md` is written after the change |
+| CW | Working memory follows work-item changes | The turn ends after a work item was created, closed, or moved to another stage (`gh issue`, `gh project item-edit`, GitHub issue tools, or the `work` command) | The reply is held once and the agent is sent to `knowledge-save`, until `knowledge/memory/current.md` is written after the change |
 | K5 | Generated indexes are not edited by hand | A write to `knowledge/memory/memory-index.md`, `knowledge/prds/prd-index.md` or `ai-external-knowledge/README.md` | The call is refused; the agent runs the index builder instead |
 | K6 | Indexes rebuilt and checker run after a knowledge write | The turn ends after a K4 write | The reply is held once until `build-knowledge-index.mjs` and then `check-knowledge.mjs` both exited 0 after the last write |
 
@@ -53,6 +53,19 @@ How each fact is read:
   Compaction clears which skills were opened.
 - An unmet turn-end check stays open until the step is done, so a later turn
   can be held for it too.
+
+## How a reply is held
+
+The engine drops the draft reply before it is shown. When Claude Code then
+asks for a visible reply, that draft is dropped too. The classic `Stop` event
+continues the turn with a note, the way a Stop hook's block does. The note
+says which step is missing and which skill to open, and the agent does the
+step and writes its reply again. Only the final reply is shown.
+
+The design planned to insert a Skill call for the owner instead. In print-mode
+runs on Claude Code 2.1.280 the model treated that call, which it had not
+made, as a prompt injection and refused the step (2 of 2 runs). The Stop
+continuation is Claude Code's own channel for this, and the model followed it.
 
 ## When the engine fails
 
