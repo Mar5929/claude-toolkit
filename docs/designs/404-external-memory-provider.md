@@ -37,13 +37,13 @@ it. A missing file means `files`, so existing projects do not change.
 | Area | `files` mode (today) | `external` mode |
 | --- | --- | --- |
 | Mode declaration | None; hooks look for `knowledge/knowledge-manual.md` | `.toolkit-memory.json` at the project root |
-| Working memory | `knowledge/memory/current.md` | One memory record, kind `working`, same template and 5,000-character limit |
+| Working memory | `knowledge/memory/current.md` | The service's own way of holding short-term memory: one record per current-focus item, kind `working` |
 | Lasting memory | Topic files in `knowledge/memory/memory-entries/` | One memory record per topic, kind `lasting` |
 | Pending saves | `knowledge/memory-inbox.md` | Memory records, kind `pending` (D4) |
 | Selection feedback | `knowledge/memory-self-improvement.md` | One memory record, kind `feedback` (D4) |
 | Memory index | Generated `memory-index.md` | Not needed: the service lists records by kind |
 | Project context | `knowledge/project.md` | `PROJECT.md` (D3) |
-| Knowledge manual | `knowledge/knowledge-manual.md` | `docs/knowledge-manual.md` |
+| Knowledge manual | `knowledge/knowledge-manual.md` | `docs/knowledge-manual.md` (Q1) |
 | Toolkit manual | `knowledge/toolkit-manual.md` | `docs/toolkit-manual.md` (D3) |
 | PRDs | `knowledge/prds/` | `prds/` (D3) |
 | Skills, approval cards, selection rules | `knowledge-save`, `knowledge-find`, `knowledge-review`, `knowledge-setup` | Same skills and rules |
@@ -59,9 +59,11 @@ T1 map gets either a mode switch or wording such as "working memory (the
 `current.md` file, or the memory service in `external` mode)". The file list
 is in "Files touched" below.
 
-**R3. Same kinds of memory, same rules.** Working memory stays one document
-with the current template, so its sections, size limit, and session handoffs
-do not change. Lasting memory stays one record per topic with the same
+**R3. Same kinds of memory, same rules.** Working memory holds the same
+content as today: the project goal, each active item's goal, status, next
+step, blocker and link, later to-dos, and session handoffs. Its shape follows
+the service (Q3): one record per item, loaded in full at startup. The
+5,000-character file limit does not apply; entries stay short. Lasting memory stays one record per topic with the same
 fields: summary, dates, sources, auto-saved mark. Knowledge manual sections 3
 and 4 do not change.
 
@@ -132,7 +134,7 @@ Every record carries this metadata (mem0 `metadata`, Hindsight `tags` plus
 | --- | --- |
 | `toolkit_kind` | `working`, `lasting`, `pending`, `feedback` |
 | `toolkit_project` | the config's `project` |
-| `toolkit_key` | a stable key: `working`, `feedback`, `lasting:<topic>`, `pending:<reference>` |
+| `toolkit_key` | a stable key: `working:goal`, `working:<item id>`, `working:todo`, `working:handoff:<UTC time>`, `feedback`, `lasting:<topic>`, `pending:<reference>` |
 | `summary`, `created`, `updated`, `auto_saved` | lasting records only; same meaning as today's front matter |
 
 The stable key lets the agent find one record without a search:
@@ -150,8 +152,9 @@ operation. The adapter names the exact tool and arguments.
 
 | Operation | mem0 | Hindsight |
 | --- | --- | --- |
-| Load working memory in full | `get_memories`, filter `toolkit_key = working` | `get_document` `working` |
-| Replace working memory | `update_memory` (id from the load) | `retain`, `document_id` `working`, replace |
+| Load working memory in full | `get_memories`, filter kind `working` | `list_documents`, tag `toolkit_kind:working`, then `get_document` |
+| Add or replace a working-memory entry | `add_memory` or `update_memory`, `infer=false` | `retain`, `document_id` = the key, replace |
+| Remove a finished working-memory entry | `delete_memory` | `delete_document` |
 | Save or replace a lasting topic | `add_memory` or `update_memory`, `infer=false` | `retain`, `document_id` `lasting:<topic>` |
 | List lasting topics | `get_memories`, filter kind `lasting` | `list_documents`, tag `toolkit_kind:lasting` |
 | Search | `search_memories` within the project | `recall` within the bank |
@@ -258,7 +261,7 @@ Check changes:
 - **Real run with a real service:** a scratch project in `external` mode
   runs startup, a working-memory update after a work-item change, a lasting
   save after approval, a pending save, and a search. The readback must match
-  the approved text exactly. This needs a service account; see Q2.
+  the approved text exactly. Mike has no service account (Q2). See Q4.
 - **Regression:** this repository and one existing `files` project run
   unchanged.
 
@@ -270,7 +273,7 @@ Check changes:
 4. project-init, project-sync, templates, rules, handoff, spec-check.
 5. Wording, manuals, catalogs, installed copies, release metadata.
 6. Independent review, all checks, merge, and sync.
-7. Real-service run, then Mike's acceptance.
+7. Real-service run (see Q4), then Mike's acceptance.
 8. Stage 14: update the knowledge-system PRD and delete this design.
 
 ## Notes
@@ -278,21 +281,29 @@ Check changes:
 **Decisions (approved by Mike, 2026-09-23):** D1 option A; D2 to D5 as
 recommended. See the issue.
 
-**Open questions for Mike:**
+**Answered by Mike, 2026-09-23:**
 
-- **Q1 Knowledge manual location in `external` mode.** Proposed:
-  `docs/knowledge-manual.md`, beside the toolkit manual. D3 did not name it.
-- **Q2 Service for the real run.** It needs either a mem0 API key or a
-  Hindsight instance. The key goes in the cloud environment's secrets, never
-  in the repository. Proposed: mem0 hosted, because it needs no server.
-- **Q3 Working memory as one record.** Proposed: one record that holds the
-  whole `current.md` template. This keeps the template, the size limit, and
-  handoffs unchanged. The alternative is one record per work item. That would
-  make searches narrower, but it changes the working-memory format, which
-  #382 also covers.
+- **Q1 Knowledge manual location in `external` mode:** `docs/knowledge-manual.md`.
+  Mike: "Hmmm alright".
+- **Q2 Service for the real run:** Mike has no memory service and does not
+  expect one soon.
+- **Q3 Working memory shape:** "it will just be however the service handings
+  working short term memory/current focus". The adapter for each service
+  decides the shape. Both mem0 and Hindsight get one record per
+  current-focus item.
+
+**Open question for Mike:**
+
+- **Q4 Build and test without a service.** Proposed: build now and test with
+  recorded tool-call events. Also try a self-hosted Hindsight server inside
+  the cloud session for a real run; it is open source and needs no account.
+  If that cannot run, the real run waits for a service and #404 stays open
+  at acceptance. The alternative is to wait to build until Mike has a
+  service. That avoids building against tool names that may change before
+  anyone uses them.
 
 **Potential paths to explore:** a check that working memory was loaded at
 startup. No such check exists today in `files` mode either.
 
-**Resume point:** Mike reviews this design and answers Q1 to Q3. After
-approval, the build waits for #396 to finish.
+**Resume point:** Mike approves this design and answers Q4. #396 steps 4
+to 7 are merged, so the build can start after approval.
