@@ -116,13 +116,15 @@ actual conflicting policy before calling that surface fully equipped.
 `tools/knowledge-pre-commit.sh` is a Git pre-commit hook. When a commit's
 staged paths touch `knowledge/`, `SOUL.md` or `ai-external-knowledge/` (in
 `external` mode also `prds/`, `PROJECT.md`, `docs/knowledge-manual.md` or
-`.toolkit-memory.json`), it copies the staged files to a private temporary folder and runs the checker
-there. Unstaged edits in the working folder, including another session's, do
+`.toolkit-memory.json`), it copies only the staged knowledge paths and checking
+tools to a private temporary folder and runs the checker there. A staged Git
+path list verifies links to other tracked files without copying their contents.
+Unstaged edits in the working folder, including another session's, do
 not affect the result. A change to `.claude/tools/` also runs it. Any other
 commit, or a branch with neither a `knowledge/` folder nor a
 `.toolkit-memory.json` file, exits at once. A failing
 check, a missing checker or missing Node.js refuses the commit with a message.
-It needs a POSIX `sh`; Git for Windows supplies one, but Windows is untested.
+It needs a POSIX `sh`; Git for Windows supplies one.
 
 Git never commits hooks, so each clone needs its own install. Linked worktrees
 share the clone's hooks folder. Install it this way:

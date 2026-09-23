@@ -107,7 +107,7 @@ for (const claudeDir of [...claudeSkillDirs].sort()) {
 
 // 2. Library skills.
 function frontmatter(text) {
-  text = text.replaceAll("\r\n", "\n");
+  text = text.replace(/\r\n/g, "\n");
   if (!text.startsWith("---\n")) return null;
   const end = text.indexOf("\n---", 4);
   if (end === -1) return null;

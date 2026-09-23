@@ -179,7 +179,8 @@ Each step names the skill that owns it.
   Codex. The copies stay byte-identical.
 - A published toolkit release only makes an update available. Each project
   still needs `/project-sync`.
-- Authorized documentation uses the documentation publication route. Rules,
+- Authorized documentation is prepared in an isolated save worktree and pushed
+  directly to the default branch through `publish-docs`. Rules,
   skills, prompts, hooks, settings, and code use the implementation workflow,
   even in Markdown.
 - The reusable source for this file is

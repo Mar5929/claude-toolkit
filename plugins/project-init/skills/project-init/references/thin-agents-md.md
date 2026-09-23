@@ -158,7 +158,7 @@ no tracker, or a different tracker, gets no `.work-items/` row.
 
 | Path | How updates land | Instructions |
 | --- | --- | --- |
-| Project documentation (use actual paths from the codemap) | Authorized documentation-only updates go straight to the default branch. | `.claude/rules/knowledge-direct-commit.md` and the `publish-docs` skill |
+| Project documentation (use actual paths from the codemap) | Authorized documentation-only updates use an isolated save worktree and publish straight to the default branch. | `.claude/rules/knowledge-direct-commit.md` and the `publish-docs` skill |
 | `knowledge/` | Content approval follows the knowledge manual, then the route above. | `knowledge/knowledge-manual.md` and the `knowledge-save` skill |
 | `prds/` and `PROJECT.md` (`external` mode only) | Content approval follows the knowledge manual, then the route above. Memory records go through the same skill. | `docs/knowledge-manual.md` and the `knowledge-save` skill |
 | `.work-items/` | Update the existing shared, Git-ignored local tracker. Do not create a worktree, commit, or push for the tracker update. | `.claude/rules/work-item-folders.md` and the `work` skill |

@@ -66,7 +66,7 @@ When .system-guide.json is enabled, use the System Guide plugin's system-guide s
 
 | Path | How updates land | Instructions |
 | --- | --- | --- |
-| `README.md`, `delivery/architecture/`, `docs/designs/` | Authorized documentation-only updates go straight to the default branch. | `.claude/rules/knowledge-direct-commit.md` and the `publish-docs` skill |
+| `README.md`, `delivery/architecture/`, `docs/designs/` | Authorized documentation-only updates use an isolated save worktree and publish straight to the default branch. | `.claude/rules/knowledge-direct-commit.md` and the `publish-docs` skill |
 | `knowledge/` | Content approval follows the knowledge manual, then the route above. | `knowledge/knowledge-manual.md` and the `knowledge-save` skill |
 
 ## Where work is tracked
@@ -122,7 +122,7 @@ would change. Everything else stays as above.
 
 | Path | How updates land | Instructions |
 | --- | --- | --- |
-| `README.md`, `delivery/architecture/`, `docs/designs/` | Authorized documentation-only updates go straight to the default branch. | `.claude/rules/knowledge-direct-commit.md` and the `publish-docs` skill |
+| `README.md`, `delivery/architecture/`, `docs/designs/` | Authorized documentation-only updates use an isolated save worktree and publish straight to the default branch. | `.claude/rules/knowledge-direct-commit.md` and the `publish-docs` skill |
 | `prds/` and `PROJECT.md` | Content approval follows the knowledge manual, then the route above. Memory records go through the same skill. | `docs/knowledge-manual.md` and the `knowledge-save` skill |
 ````
 

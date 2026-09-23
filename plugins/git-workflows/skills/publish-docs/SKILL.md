@@ -1,12 +1,15 @@
 ---
 name: publish-docs
-description: Use when saving an authorized documentation-only change (project knowledge, PRDs, designs, review records, README files, architecture documents) straight to the default branch. Checks, commits, pushes, and verifies the remote result without a branch, worktree, or pull request.
+description: Use when saving an authorized documentation-only change (project knowledge, PRDs, designs, review records, README files, architecture documents) to the default branch from an isolated save workspace. Checks, commits, pushes, and verifies the remote result without a pull request.
 ---
 
 # Publish a documentation save
 
-Publish an authorized, Git-tracked, documentation-only change from the existing
-default-branch checkout. This skill changes how a save is published. It does not
+Publish an authorized, Git-tracked, documentation-only change from an isolated
+temporary Git worktree. Each save has its own files and staging area. The helper
+pushes directly to the default branch; it does not open a pull request or leave
+the approved content waiting on a feature branch. This skill changes how a save
+is published. It does not
 grant permission to change the content. Follow the destination's own approval
 rules. Saving a proposed design or PRD does not approve its requirements or its
 build.
@@ -28,42 +31,57 @@ build.
 
 ## Steps
 
-1. **Find the checkout.** Run `git worktree list`. Confirm the repository,
-   default branch, remote, and publishing identity. Inspect working and staged
-   changes. No safe checkout: report the blocker. Never switch another
-   session's branch. Never stash, discard, or reset its work.
-2. **Get current.** Fetch. Fast-forward only when safe. Stop for overlapping
-   incoming edits or divergent history. Do not reset or rebase the shared
-   checkout. Inspect every outgoing commit: a push also publishes its
-   ancestors. Another session's unpushed commit without publication authority:
-   coordinate with its owner and leave this save pending. Read the latest
-   destination. Reconcile only authorized meaning. Never overwrite it with an
-   older copy. Serialize staging and committing with other sessions.
-3. **Check.** Check links and formatting. For managed knowledge, rebuild the
-   indexes and run its documented checks. Generated files must not include
-   another session's unfinished records. A failed check leaves the save
-   unfinished, unless the owner authorizes publication with the failure
-   recorded.
-4. **Stage.** Stage only this save's files, by name. Never stage everything.
-   Read the full staged diff. Another owner's staged change blocks this commit
-   until that owner finishes or hands it over. Never unstage their work. A
-   shared-file change that cannot be separated stays pending. No automatic
-   stash.
-5. **Commit, push, verify.** Commit and push the default branch. Confirm the
-   intended commit is in the remote branch before calling the save complete.
-   Then return to any implementation work in its own worktree.
+1. **Choose exact files.** Confirm the repository, default branch, remote, and
+   publishing identity. Name every authorized destination and related file,
+   including pending-save and link changes. Inspect any existing local edits;
+   do not take another session's uncommitted work or overwrite it. If the save
+   already began in a shared checkout, recover or hand it over before starting
+   a second copy.
+2. **Start a separate save workspace.** From the project, run the script beside
+   this skill's `SKILL.md`:
+
+   ```text
+   node <publish-docs-skill-directory>/scripts/publish-docs.mjs start --branch <default-branch> -- <file> [more files]
+   ```
+
+   It fetches the current remote, creates a detached sparse worktree beside
+   the project, and prints its path. It includes generated indexes for named
+   memory, PRD, and captured-document topics. The helper accepts Markdown
+   documentation, including project specific document homes, but rejects
+   instruction files and non-README files under behavior directories. Send
+   code and configuration through implementation review.
+   Use only that path for this save;
+   give it to the authorized helper. Another session's save gets a different
+   workspace and staging area.
+3. **Write and check.** Read the latest destination in that workspace. Apply
+   only authorized meaning. Rebuild managed knowledge indexes and run the
+   installed knowledge checker. Check links and formatting for other documents.
+   Stage only this save's files by name and read the complete staged diff. A
+   failed check or unexpected staged path leaves the save unfinished. Never
+   bypass a failing check.
+4. **Publish and verify.** In the save workspace, run:
+
+   ```text
+   node <publish-docs-skill-directory>/scripts/publish-docs.mjs publish --message "<plain commit message>"
+   ```
+
+   The script refuses staged paths outside this save, requires the staged
+   knowledge check when applicable, commits, pushes to the default branch
+   without force, and verifies the remote contains the commit. It does not
+   remove the save workspace. Reuse that same workspace for an authorized
+   pending-save cleanup, then remove it only after all phases are verified and
+   its worktree is clean. Do not delete another session's workspace.
 
 ## Recover without losing work
 
+- If the default branch advances, fetch and reconcile in this save workspace.
+  Rebuild generated indexes and rerun checks after bringing it current. A
+  rejected push does not touch another checkout. Retry `publish` only after
+  checking the current remote and the exact pending effect. Ask the owner only
+  when the meaning or authority changes.
 - On a refused push, account mismatch, login prompt, protected branch,
   conflict, or failed check, report separately what is written, checked,
-  committed, and published.
-- Keep the pending change, any commit id, and the exact next action in the work
-  record or handoff.
-- On resume, check whether the commit already reached the remote before saving
-  again.
-- Never force-push, bypass branch protection, retry through another account, or
-  turn the save into a pull request without saying so.
-- Ask the owner only when meaning, authority, or a different delivery route
-  needs a decision.
-- An unpushed commit is not a completed save.
+  committed, and published. Keep the save workspace, any commit id, and the
+  exact next action in the work record or handoff.
+- Never force-push, bypass branch protection, retry through another account,
+  reset, or stash another session's work. An unpushed commit is unfinished.

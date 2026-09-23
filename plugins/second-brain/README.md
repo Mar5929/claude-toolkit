@@ -14,7 +14,7 @@ alone does not equip a project. Setup is opt-in and preserves owner content.
 | Procedure | When to use it |
 | --- | --- |
 | [knowledge-find](skills/knowledge-find/SKILL.md) | Find relevant project evidence, resolve conflicts, or recover available history. |
-| [knowledge-save](skills/knowledge-save/SKILL.md) | Select/propose/save, maintain topic records, or recover an interrupted save. |
+| [knowledge-save](skills/knowledge-save/SKILL.md) | Select/propose/save, choose a coherent topic before the card, maintain topic records, or recover an interrupted save. |
 | [knowledge-review](skills/knowledge-review/SKILL.md) | Review duplicates, contradictions, obsolete material and selection feedback. |
 | [knowledge-setup](skills/knowledge-setup/SKILL.md) | Detect, install, migrate, repair and verify a complete project package. |
 
@@ -117,7 +117,9 @@ Installed into the clone's Git hooks folder, not copied into `.claude/tools/`:
 - `tools/knowledge-pre-commit.sh`: the Git pre-commit hook. A commit that
   changes `knowledge/`, `SOUL.md` or `ai-external-knowledge/` (in `external`
   mode also `prds/`, `PROJECT.md`, `docs/knowledge-manual.md` or
-  `.toolkit-memory.json`) runs the checker on the staged files and is refused when it fails. Install steps:
+  `.toolkit-memory.json`) copies the staged knowledge paths, checks links against
+  the staged Git path list, and refuses a commit when the checker fails. It does
+  not copy unrelated tracked project files. Install steps:
   [delivery](skills/knowledge-setup/references/delivery.md), "Commit-time check".
 
 Run the index builder then the checker after authorized knowledge changes.
