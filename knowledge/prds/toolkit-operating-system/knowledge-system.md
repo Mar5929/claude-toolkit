@@ -914,8 +914,8 @@ goal, where work stopped, the next action, material constraints and approval
 boundaries, and unresolved questions, in a few lines. Kept that short, it does
 not compete with the whole-file size limit. When a work item exists, the entry
 stays a pointer and a link. Approved by Mike Rihm on 2026-09-21, source: Main
-Orchestrator conversation, decision D8b. Not built yet; work item #382 owns the
-change.
+Orchestrator conversation, decision D8b. Built in PR #420; whole-system
+acceptance remains under #384.
 
 These entries are temporary working context, not lasting memory or a replacement
 tracker. Preserve other current-work content. Resume the requested work by
@@ -954,8 +954,8 @@ this on 2026-09-21 (decision D8); it replaces the earlier requirement that this
 file hold Current status, Recent progress, Next step, Blocker, and To-dos for
 each item, including the separate Current status and Recent progress fields he
 approved on 2026-09-16. Approved by Mike Rihm on 2026-09-21, source: Main
-Orchestrator conversation, decision D8. Not built yet; work item #382 owns the
-change.
+Orchestrator conversation, decision D8. Built in PR #420; whole-system
+acceptance remains under #384.
 
 When the owner mentions a project task to do later that belongs to an active
 work item, record it in that work item. A task that belongs to no active item
@@ -966,8 +966,8 @@ detailed plan and status in the tracker.
 
 Current working memory keeps this short General project to-dos list, because a
 task that belongs to no work item has no other home. Approved by Mike Rihm on
-2026-09-21, source: Main Orchestrator conversation, decision D8a. Not built yet;
-work item #382 owns the change.
+2026-09-21, source: Main Orchestrator conversation, decision D8a. Built in PR
+#420; whole-system acceptance remains under #384.
 
 What it never holds:
 
@@ -2413,8 +2413,8 @@ The instruction-content audit and full requirements approval remain outstanding.
     tracked in a work item.
   - D8, current working memory: each work item's goal and a link, with status,
     next step, blocker, to-dos and handoff detail in the work item. Recorded in
-    requirements 4, 13 and 18. This also settles the handoff-size question. Not
-    built yet; work item #382 owns the change.
+    requirements 4, 13 and 18. This also settles the handoff-size question.
+    Built in PR #420; whole-system acceptance remains under #384.
   - D10, the agent host's built-in memory versus the project files: the project
     files decide, and the agent reports the disagreement. Recorded in
     requirement 29.
@@ -2430,12 +2430,13 @@ The instruction-content audit and full requirements approval remain outstanding.
   the behavior is built.
   - D8a, general project to-dos: current working memory keeps its short General
     project to-dos list, for items that belong to no work item, because those
-    items have no other home. Recorded in requirement 13. Not built yet; work
-    item #382 owns the change.
+    items have no other home. Recorded in requirement 13. Built in PR #420;
+    whole-system acceptance remains under #384.
   - D8b, a handoff with no work item: current working memory keeps the short
     handoff note itself, because otherwise the note is lost. Where a work item
     exists, the entry stays a pointer and a link, as D8 already says. Recorded
-    in requirement 13. Not built yet; work item #382 owns the change.
+    in requirement 13. Built in PR #420; whole-system acceptance remains under
+    #384.
   The third point D8 left open is still open: whether dependencies,
   constraints and open questions still belong in current working memory. D8
   already places them in the work item where one exists, so that reading
