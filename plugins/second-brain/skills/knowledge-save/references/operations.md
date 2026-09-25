@@ -52,18 +52,23 @@ writers, templates and permissions.
 `knowledge/memory/current.md` is the shared overview of current work.
 
 - Update it as work happens. Stay under its 5,000-character limit.
-- Keep project context and every relevant concurrent item: goal, current state,
-  useful recent results, next step, blocker, and later to-dos.
-- Date short entries. Link the records that own the detail. Follow the
-  current-work template.
+- Keep project context and each relevant concurrent item's goal and work-item
+  link. Include the owning session when known. Open the work item for current
+  state, progress, next step, blockers, and its tasks; do not copy them here.
+  For a shared Git-ignored local tracker, give the item ID and path; a linked
+  worktree reads it through the `work` command.
+- Keep dated general to-dos only when no work item owns them. Date short entries
+  and follow the current-work template.
 - A size limit never permits silently losing needed context. If essential
   context does not fit, propose a concrete arrangement that uses existing
   owning records.
 - Reread the file before editing, to keep other sessions' entries.
 - Session handoffs live under "Session handoffs", newest first, with UTC
-  creation times. They are disposable continuation, not lasting memory or
-  approval. The `handoff` skill owns their capture and resume. Do not truncate
-  them, expire them by age, or create a separate handoff store.
+  creation times. When a work item exists, keep a topic-and-goal pointer and
+  link; its continuation detail stays in that item. With no work item, keep a
+  short handoff note. These entries are not lasting memory or approval. The
+  `handoff` skill owns capture and resume. Do not truncate them, expire them
+  by age, or create a separate handoff store.
 - After an update, confirm in one short line that it is saved and available to
   the next session. Otherwise say what is still only local, and keep the
   unfinished publication step.
@@ -75,7 +80,8 @@ Working memory is records of kind `working` in the memory service, not
 
 - One record per current-focus item: `working:goal`, `working:<item id>` for
   each active item, and `working:todo`. Each holds the same fields as the
-  matching section of the current-work template.
+  matching section of the current-work template. An item record holds its goal,
+  tracker link, and owning session when known, not a copy of tracker state.
 - The 5,000-character limit does not apply. Keep each entry short and link the
   records that own the detail.
 - Load the records again before a replace, to keep other sessions' entries.

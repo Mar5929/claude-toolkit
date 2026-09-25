@@ -70,7 +70,7 @@ Do not copy the same meaning into several places.
 | Required behavior | The owning feature's PRD under `knowledge/prds/` | Under `prds/` |
 | Useful explanation of existing parts and their connections | The enabled System Guide's configured location, or another explicitly designated document owner | Same |
 | Qualifying lasting project facts, decisions, lessons, events, and constraints not already owned by another record | Topic files under `knowledge/memory/memory-entries/` | One `lasting` memory record per topic |
-| Current goals, useful recent results, blockers, next steps, and later to-dos | `knowledge/memory/current.md`, with links to detailed work records | `working` memory records, one per item, with links |
+| Current project goal, each active item's goal and link, general to-dos with no work item, and handoff pointers | `knowledge/memory/current.md` | `working` memory records, one per item, with links |
 | Tasks, delivery plans, status, and overall approvals | The project's work tracker | Same |
 | Architectural choices, alternatives, rationale, evidence, and approval state | The work item's designated design, or an existing separately designated architecture record | Same |
 | PRD or design refinement and exact resume point | That document's closing Notes section | Same |
@@ -80,6 +80,10 @@ Do not copy the same meaning into several places.
 | Project-authored research findings | The work item's existing supporting records, linked from the design or other record using them | Same |
 | Raw outside documentation | `ai-external-knowledge/` or the project's designated source-reference location | Same |
 | Earlier conversations | Available project session history | Same |
+
+For an active work item, open its tracker record for progress, blockers, next
+step, tasks, and handoff detail. Do not copy that live state into working
+memory. A handoff without a work item keeps a short note in working memory.
 
 - Follow each destination's current instructions and permission rules.
 - A disabled System Guide stays disabled.

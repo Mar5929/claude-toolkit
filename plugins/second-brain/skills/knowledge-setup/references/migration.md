@@ -55,11 +55,14 @@ legacy PRD current to finalized without claiming delivery; preserve proposed
 approval absence and existing PRD body layouts. Shorten an index summary only
 when the same meaning is preserved; a limit never permits losing approved scope.
 
-Convert current work to the complete template, preserving all concurrent items,
-useful recent results, blockers, later to-dos and Session handoffs. Add actual
-missing fields or explicitly mark unknown; do not invent facts. Keep under the
-whole-file limit without silently deleting needed context. Use owning records
-for detail when appropriate and authorized; no forced tracker creation.
+Convert current work to the complete template, preserving every concurrent
+item's goal and link. Move its current status, useful recent results, blockers,
+next steps, and tasks to the owning work item when authorized; verify they are
+there before removing copies. Keep general to-dos with no work item. For each
+Session handoff, keep a pointer and link when an item owns the continuation,
+or a short note when none does. Do not invent missing facts or force tracker
+creation. Keep the file under its whole-file limit without silently losing
+needed context.
 
 For each captured topic README, add group/summary plus existing source and actual
 capture date. Preserve captured text and useful navigation. An unknown capture

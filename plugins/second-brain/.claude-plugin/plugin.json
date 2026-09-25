@@ -1,7 +1,7 @@
 {
   "name": "second-brain",
   "description": "Shared project knowledge in Markdown and Git: three short startup reads, a reference manual, four focused procedures, topic records, pending-save recovery and verified publication.",
-  "version": "4.18.1",
+  "version": "4.18.2",
   "author": {
     "name": "Mike Rihm",
     "email": "michael@rihm.com"

@@ -65,6 +65,11 @@ Review every destination, not only lasting memory.
 - Keep an unanswered card in the inbox. Do not show the unchanged card every
   turn.
 
+For working-memory upkeep, use existing permission without a save card. Open
+the owning work item first. Keep only its goal and locator in current work;
+status, task steps, next action, blockers, and tracked handoff detail stay in
+the item. A to-do or short handoff note stays inline only when no item owns it.
+
 ## Steps
 
 1. Read [selection and cards](references/selection-and-cards.md) before you

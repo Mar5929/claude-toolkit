@@ -89,10 +89,11 @@ The record text is the same Markdown the matching file holds in `files` mode.
 
 - Working record: the matching section of the
   [current-work template](../templates/knowledge/memory/current.md). An item
-  record holds the item heading and its fields: goal, current status, recent
-  progress, next step, blocker, to-dos, detailed record link, and owning session
-  when known. A handoff record holds one handoff. Keep entries short. The
-  5,000-character file limit does not apply.
+  record holds its heading, goal, work-item link, and owning session when
+  known. The work item owns status, progress, next step, blockers, and tasks.
+  A handoff record points to the work item's continuation; with no work item,
+  it holds a short note instead. Keep entries short. The 5,000-character file
+  limit does not apply.
 - Lasting record: the whole topic as the
   [memory-topic template](../templates/memory-topic.md) describes it, front
   matter and body.
