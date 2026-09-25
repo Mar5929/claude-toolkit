@@ -47,7 +47,7 @@ function existsInSnapshot(path) {
 const CURRENT_MD_MAX_CHARS = 2000;
 const SELF_IMPROVEMENT_MAX_CHARS = 8000;
 const SUMMARY_MAX_CHARS = 250;
-export const MANUAL_SHA256 = "7d527b1a43ea4c278876cf999e12cccc7dffaf5bfd7fbab615e4a68e12409a34";
+export const MANUAL_SHA256 = "fa44a936fccfbe8b58192e355a3efa1904fa1d6a2859cb31ed9db49f4ed01326";
 
 const STATUS_VALUES = ["current", "superseded", "retired"];
 // Finalized records approved requirements, not proof of delivery.

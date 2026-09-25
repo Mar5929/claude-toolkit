@@ -1,5 +1,5 @@
 # Current working memory
-Updated: 2026-09-23
+Updated: 2026-09-25
 
 ## Project goal
 Finish the protocol-guard rollout, complete the approved cleanup, then prove
@@ -8,54 +8,30 @@ and accept the whole Toolkit Operating System.
 ## Active work
 
 ### Remove unnecessary Knowledge programs — #381
-Updated: 2026-09-22
+Updated: 2026-09-25
 
 **Goal** Remove the conversation search program and replace the save inspector with named Git commands.
-
-**Current status** Requirements approved. Backlog; build not started. Both programs and their active references still exist.
-
-**Next step** Build the search-program removal first; complete the lower-priority inspector removal in the same item or a recorded later task.
-
-**Blocker** None.
 
 **Detailed record** [#381](https://github.com/Mar5929/claude-toolkit/issues/381).
 
 ### Current working memory owns goals and links — #382
-Updated: 2026-09-22
+Updated: 2026-09-25
 
 **Goal** Keep live ticket status in GitHub while working memory holds each item's goal and link, plus approved exceptions.
-
-**Current status** Requirements approved. Backlog; build not started. This audit confirmed the current file still duplicated stale status from closed tickets.
-
-**Next step** Build this contract. #396 shipped its working-memory check (CW) on 2026-09-23.
-
-**Blocker** None.
 
 **Detailed record** [#382](https://github.com/Mar5929/claude-toolkit/issues/382).
 
 ### Documentation corrections — #385
-Updated: 2026-09-22
+Updated: 2026-09-25
 
 **Goal** Correct the remaining documentation errors from the 2026-09-21 audits.
-
-**Current status** Requirements approved. #388 completed the root-instruction corrections and removed the "Huh?" instruction. The issue body now lists only the remaining documentation work.
-
-**Next step** Check the final walkthrough, PRDs, toolkit map and #269 design records once.
-
-**Blocker** None. #396 closed 2026-09-23.
 
 **Detailed record** [#385](https://github.com/Mar5929/claude-toolkit/issues/385).
 
 ### Whole-system proof and acceptance — #384
-Updated: 2026-09-23
+Updated: 2026-09-25
 
 **Goal** Prove the final Toolkit Operating System on Claude Code and Codex and obtain Mike's acceptance.
-
-**Current status** Refinement backlog. The issue now owns all remaining live-host checks from #360, #377, #379 and #388, plus PRD review, design-reasoning retention and final acceptance.
-
-**Next step** Refresh the proof plan, then run it against the final installed versions.
-
-**Blocker** None. Mike accepted #391's output style on 2026-09-23.
 
 **Detailed record** [#384](https://github.com/Mar5929/claude-toolkit/issues/384).
 

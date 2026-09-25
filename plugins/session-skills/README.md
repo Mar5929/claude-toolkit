@@ -240,8 +240,9 @@ start from.
 3. **The draft.** Write the goal, task, sources, unsaved decisions, open
    questions, and first action, starting with the fixed AI-generated notice.
 4. **The check.** Check the draft against its sources and label unverified claims.
-5. **The temporary handoff.** Save the checked continuation under **Session
-   handoffs** in current working memory, newest first, preserving other entries.
+5. **The temporary handoff.** Save a topic-and-goal pointer to the work item's
+   checked continuation under **Session handoffs** in current working memory,
+   newest first, preserving other entries. With no work item, save a short note.
    Use the installed layout: `knowledge/memory/current.md` for schema 2, or
    legacy `knowledge/current.md`. Honor its whole-file cap. In the `external`
    memory mode (`.toolkit-memory.json` says `"memory": "external"`), save the

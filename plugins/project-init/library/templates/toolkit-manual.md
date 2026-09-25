@@ -105,6 +105,8 @@ Toolkit project. AGENTS.md names the tracker and the codemap.
 - **Outside reference:** captured sources named in the codemap. They are
   evidence to consult, not project decisions.
 - **Handoffs:** the Session handoffs section of working memory, newest first.
+  A work-item handoff is a topic, goal, and link; the work item keeps its
+  continuation detail. Without a work item, keep a short note there.
 
 Do not invent a component or folder the project did not select.
 

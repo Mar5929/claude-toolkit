@@ -258,14 +258,19 @@ ties in their previous order. Leave undated legacy entries below dated ones in
 their existing order; do not invent their dates. Correcting an entry preserves
 its creation time. Do not replace all older entries with this session's entry.
 
-Each entry carries the goal/topic, where work stopped, the first next action,
-material constraints and approval boundaries, unresolved questions, and actual
-source task/session and owning-record links when available. Keep unchecked
-claims labelled. Preserve useful standalone context when no work record
-exists; do not create a tracker item merely to hold it. Keep the full useful
-handoff inline when it fits. Where detail already lives in a work item or design
-Notes, link to its exact continuation point instead of copying it. A bare
-session link is not enough when the next agent cannot access that conversation.
+When a work item exists, its handoff entry carries only the topic, goal,
+creation time, and link to that item's exact continuation point. Put where
+work stopped, the next action, constraints, approval boundaries, and open
+questions in the work item before writing the pointer. Do not copy them into
+working memory. For a shared Git-ignored local tracker, give the item ID and
+path and open it through the `work` command. A bare session link is not a
+work-item link.
+
+When no work item exists, keep a short handoff note with the goal/topic, where
+work stopped, first next action, material constraints and approval boundaries,
+unresolved questions, and source links. Label unchecked claims. Do not create
+a tracker item merely to hold this note. Keep the useful note inline when it
+fits; the checked prompt can carry fuller continuation.
 
 In the `external` memory mode (step 2) there is no current-work file. Save
 the entry as its own working-memory record with the key
