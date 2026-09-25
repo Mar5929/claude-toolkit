@@ -7,6 +7,13 @@ and accept the whole Toolkit Operating System.
 
 ## Active work
 
+### Second Brain V2 — #419
+Updated: 2026-09-25
+
+**Goal** Define and later deliver an opt-in Second Brain V2 through an editable installed-project model and requirements interview, keeping V1 available until Mike chooses retirement.
+
+**Detailed record** [#419](https://github.com/Mar5929/claude-toolkit/issues/419).
+
 ### Remove unnecessary Knowledge programs — #381
 Updated: 2026-09-25
 
