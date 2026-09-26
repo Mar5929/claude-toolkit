@@ -7,8 +7,16 @@ import { recall, formatHits, listPending, listJobs, getJob, pendingPath } from '
 import { refreshFocus, getSection } from './focus.mjs';
 import fs from 'node:fs';
 
-// An owner prompt that starts with one of these phrases must route `remember`.
-export const SAVE_PHRASE = /^\s*(save this|remember this|remember that)\b/i;
+// How an owner prompt asks for a save. "save this" and "remember this" at the
+// start force the remember route. "remember that" forces it only without a
+// question mark, since "Remember that bug? Is it back?" asks about the past.
+// A save phrase that does not force gives the agent a hint instead.
+export function savePhrase(prompt) {
+  const text = String(prompt || '');
+  if (/^\s*(save this|remember this)\b/i.test(text)) return 'force';
+  if (/^\s*remember that\b/i.test(text)) return text.includes('?') ? 'hint' : 'force';
+  return null;
+}
 
 export const ROUTES = ['chat', 'recall', 'new-work', 'resume-work', 'refine', 'work', 'remember', 'wrap-up', 'continue'];
 
@@ -70,7 +78,7 @@ export const CHECKS = {
   requirementsIfReady: (ctx, frame, decision) => {
     if (decision !== 'ready') return null;
     const item = frameItem(ctx, frame);
-    return item && item.requirements.length ? null : 'The item has no requirements yet. Add them with `flow item requirement --text "..."`.';
+    return item && item.requirements.some((r) => r.id) ? null : 'The item has no requirements yet. Add them with `flow item requirement --text "..."`.';
   },
   approvalProposed: (ctx, frame) => (factsSince(frame, 'approval-proposed').length ? null
     : 'Approval was not proposed. Run `flow item approve --propose`.'),
@@ -136,7 +144,7 @@ export const ACTIONS = {
   },
   routeByStage: (ctx, frame) => {
     const item = findItem(ctx.root, frame.vars?.item);
-    const branch = ['discovery', 'refinement'].includes(item.fm.stage) ? 'refine' : 'work';
+    const branch = ['discovery', 'refinement'].includes(item.fm.stage) || !item.fm.requirements_approved ? 'refine' : 'work';
     return { output: `Item ${item.fm.id} is in ${item.fm.stage}, so the ${branch} workflow runs.`, branch };
   },
   refreshFocus: (ctx) => {
@@ -160,9 +168,10 @@ export function orientText(ctx) {
     else lines.push(`Open workflow: ${f.workflow}${item} at step ${f.step}. Route \`continue\` to resume it, or run \`flow cancel\` to drop it.`);
   }
   if (session.turn?.forcedRoute) lines.push(`The owner's prompt starts with a save phrase, so the route must be \`${session.turn.forcedRoute}\`.`);
+  if (session.turn?.saveHint) lines.push('The owner\'s prompt starts with "remember that" but asks a question. It may ask about the past (route `recall`) or ask for a save (route `remember`). Decide which.');
   if (session.turn?.trustPermission) lines.push(`The owner typed the trust command. Run \`flow trust set ${session.turn.trustPermission}\`.`);
   const pending = listPending(root);
-  if (pending.length) lines.push(`Pending memory proposals: ${pending.map((p) => `${p.id} (${p.title})`).join('; ')}.`);
+  if (pending.length) lines.push(`Pending memory proposals: ${pending.map((p) => `${p.id} (${p.title})${p.session && p.session !== session.id ? ', waiting in another session' : ''}`).join('; ')}.`);
   const queued = listJobs(root).filter((j) => j.status === 'queued');
   if (queued.length) lines.push(`Librarian jobs not started: ${queued.length}.`);
   const open = listItems(root).filter((i) => i.fm.stage !== 'done');
@@ -305,8 +314,12 @@ export function route(ctx, target, { item, query } = {}) {
     vars.item = Number(item);
   }
   if (target === 'recall') vars.query = query || turn?.prompt || '';
+  if (target === 'work' && !findItem(ctx.root, vars.item).fm.requirements_approved) {
+    refuse(`Item ${vars.item} has no approved requirements, so work cannot start. Run \`flow route refine --item ${vars.item}\`.`);
+  }
 
   if (onTurn) session.stack.pop();
+  if (target !== 'continue') dropOlder(session, target, vars.item);
   if (turn && !turn.routed) {
     turn.routed = true;
     turn.route = target;
@@ -329,6 +342,18 @@ export function route(ctx, target, { item, query } = {}) {
   return [`Route: ${target}.`, pushWorkflow(ctx, target, vars)].join('\n');
 }
 
+// A new route for the same workflow and item replaces an older copy still on
+// the stack, with any workflow it called and any caller waiting on it.
+function dropOlder(session, workflow, item) {
+  const i = session.stack.findIndex((f) => f.workflow === workflow && (f.vars?.item ?? null) === (item ?? null));
+  if (i < 0) return;
+  let from = i;
+  while (from > 0 && stepOf(session.stack[from - 1]).kind === 'call' && session.stack[from - 1].callPushed) from -= 1;
+  let to = i + 1;
+  while (to < session.stack.length && stepOf(session.stack[to - 1]).kind === 'call' && session.stack[to - 1].callPushed) to += 1;
+  session.stack.splice(from, to - from);
+}
+
 export function cancel(ctx) {
   const frame = top(ctx.session);
   if (!frame) refuse('No workflow is active.');
@@ -340,7 +365,7 @@ export function cancel(ctx) {
 }
 
 // Called by the prompt hook. Starts a new turn and returns the orient text.
-export function beginTurn(ctx, { prompt, forcedRoute = null, trustPermission = null }) {
+export function beginTurn(ctx, { prompt, forcedRoute = null, trustPermission = null, undoPermission = null, saveHint = false }) {
   const { session } = ctx;
   session.stack = session.stack.filter((f) => f.workflow !== 'turn');
   // Steps marked closeOnNewTurn (a plain answer) finish when the owner moves on.
@@ -359,10 +384,14 @@ export function beginTurn(ctx, { prompt, forcedRoute = null, trustPermission = n
     route: null,
     forcedRoute,
     trustPermission,
+    undoPermission,
+    saveHint,
     prompt: String(prompt || '').slice(0, 500),
   };
   session.lastOwnerPromptAt = at;
-  for (const frame of session.stack) if (stepOf(frame).kind === 'owner') frame.ownerRepliedAt = at;
+  // The owner's reply answers the most recent waiting step only.
+  const waiting = [...session.stack].reverse().find((f) => stepOf(f).kind === 'owner');
+  if (waiting) waiting.ownerRepliedAt = at;
   return pushWorkflow(ctx, 'turn');
 }
 

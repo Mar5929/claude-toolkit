@@ -88,3 +88,7 @@ export function where(dir, session = 's1') {
 export function isDeny(out) {
   return out?.hookSpecificOutput?.permissionDecision === 'deny';
 }
+
+export function isAllow(out) {
+  return out?.hookSpecificOutput?.permissionDecision === 'allow';
+}

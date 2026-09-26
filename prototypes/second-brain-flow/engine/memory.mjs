@@ -159,17 +159,22 @@ export function queueJob(root, proposal, { mode, approval, session }) {
   return job;
 }
 
+// Marks this session's queued jobs as dispatched. Only jobs queued by the
+// session whose librarian started are touched.
 export function markDispatched(root, sessionId) {
-  const marked = [];
-  for (const job of listJobs(root)) {
-    if (job.status === 'queued' && (!sessionId || job.session === sessionId)) {
-      job.status = 'dispatched';
-      job.dispatched_at = now();
-      saveJob(root, job);
-      marked.push(job.id);
+  if (!sessionId) return [];
+  return withLock(root, 'memory', () => {
+    const marked = [];
+    for (const job of listJobs(root)) {
+      if (job.status === 'queued' && job.session === sessionId) {
+        job.status = 'dispatched';
+        job.dispatched_at = now();
+        saveJob(root, job);
+        marked.push(job.id);
+      }
     }
-  }
-  return marked;
+    return marked;
+  });
 }
 
 export function openJobs(root) {
@@ -206,6 +211,12 @@ export function regenerate(root) {
   const p = projectPaths(root);
   writeText(p.index, renderIndex(root));
   writeText(p.glossary, renderGlossary(root));
+}
+
+// Appends to log.md under the memory lock. For callers that already hold it,
+// use appendLog.
+export function appendLogLocked(root, entry) {
+  return withLock(root, 'memory', () => appendLog(root, entry));
 }
 
 export function appendLog(root, entry) {
@@ -331,6 +342,15 @@ export function undoChange(root, changeId) {
     const history = readJson(file);
     if (!history) refuse(`No change has the id "${changeId}". Run \`flow memory log\` to see change ids.`);
     if (history.undone) refuse(`Change ${changeId} was already undone.`);
+    // Restoring a file that a later change also wrote would erase that change.
+    const later = fs.readdirSync(projectPaths(root).history)
+      .map((n) => readJson(path.join(projectPaths(root).history, n)))
+      .filter((h) => h && h.id !== changeId && !h.undone && Date.parse(h.at) > Date.parse(history.at))
+      .filter((h) => Object.keys(h.files).some((f) => f in history.files))
+      .sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
+    if (later.length) {
+      refuse(`Change ${later[0].id} (${later[0].at}) changed ${Object.keys(later[0].files).filter((f) => f in history.files).join(', ')} after ${changeId}. Undo ${later.map((h) => h.id).join(', then ')} first, newest first.`);
+    }
     for (const [rel, previous] of Object.entries(history.files)) {
       const abs = path.join(root, rel);
       if (previous === null) fs.rmSync(abs, { force: true });

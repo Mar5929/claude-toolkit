@@ -2,14 +2,16 @@
 // object Claude Code expects on stdout, or null for no output.
 // Field names follow ai-external-knowledge/claude-code/hooks.md (captured 2026-09-22).
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
-import { findProjectRoot, projectPaths, readText } from './core.mjs';
+import { PLUGIN_ROOT, findProjectRoot, projectPaths, readText, isAfter } from './core.mjs';
 import { ensureInit, loadConfig, loadSession, updateSession } from './project.mjs';
-import { SAVE_PHRASE, beginTurn, beginNotificationTurn, top, stepOf, missingForStep, describe } from './runner.mjs';
+import { savePhrase, beginTurn, beginNotificationTurn, top, stepOf, missingForStep, describe } from './runner.mjs';
 import { markDispatched, getJob } from './memory.mjs';
 import { splitCommands, programOf, isFlowProgram } from './shell.mjs';
 
 const TRUST_COMMAND = /^\s*\/(?:second-brain-flow:)?trust\s+(on|off)\b/i;
+const UNDO_COMMAND = /^\s*\/(?:second-brain-flow:)?memory-undo\s+(chg-[0-9a-f]+)\b/i;
 // Claude Code delivers a finished background task to the main agent as a user
 // message that starts with this tag. The prompt hook sees it like an owner prompt.
 const NOTIFICATION = /^\s*<task-notification>/;
@@ -17,7 +19,8 @@ const NOTIFICATION = /^\s*<task-notification>/;
 const READ_ONLY_TOOLS = new Set(['Read', 'Glob', 'Grep', 'LS', 'NotebookRead', 'ToolSearch', 'Skill', 'WebFetch', 'WebSearch', 'TaskList', 'TaskGet', 'TaskOutput']);
 const WRITE_TOOLS = new Set(['Write', 'Edit', 'MultiEdit', 'NotebookEdit']);
 const WRITE_PROGRAMS = new Set(['tee', 'mv', 'cp', 'rm', 'touch', 'mkdir', 'rmdir', 'ln', 'truncate', 'install', 'rsync', 'unlink', 'dd', 'chmod']);
-const LIBRARIAN = /memory-librarian/;
+// Claude Code reports a plugin agent under its plugin-scoped name.
+export const LIBRARIAN_AGENT = 'second-brain-flow:memory-librarian';
 
 function rootFor(input, env) {
   return findProjectRoot(input.cwd || process.cwd(), env);
@@ -43,6 +46,7 @@ export function sessionStart(input, env = process.env) {
   }
   const state = updateSession(root, id, (session) => {
     session.lastSource = input.source || null;
+    session.hooks = true;
     return { stack: session.stack.map((f) => `${f.workflow}:${f.step}`), text: session.stack.length ? describe({ root, session }) : null };
   });
   const p = projectPaths(root);
@@ -68,16 +72,25 @@ export function userPromptSubmit(input, env = process.env) {
   ensureInit(root);
   const prompt = String(input.prompt || '');
   if (NOTIFICATION.test(prompt)) {
-    const note = updateSession(root, sessionIdOf(input), (session) => beginNotificationTurn({ root, session }, { prompt }));
+    const note = updateSession(root, sessionIdOf(input), (session) => {
+      session.hooks = true;
+      return beginNotificationTurn({ root, session }, { prompt });
+    });
     return { hookSpecificOutput: { hookEventName: 'UserPromptSubmit', additionalContext: `second-brain-flow:\n${note}` } };
   }
   const trust = TRUST_COMMAND.exec(prompt);
-  const save = SAVE_PHRASE.test(prompt);
-  const text = updateSession(root, sessionIdOf(input), (session) => beginTurn({ root, session }, {
-    prompt,
-    forcedRoute: save ? 'remember' : null,
-    trustPermission: trust ? trust[1].toLowerCase() : null,
-  }));
+  const undo = UNDO_COMMAND.exec(prompt);
+  const save = savePhrase(prompt);
+  const text = updateSession(root, sessionIdOf(input), (session) => {
+    session.hooks = true;
+    return beginTurn({ root, session }, {
+      prompt,
+      forcedRoute: save === 'force' ? 'remember' : null,
+      saveHint: save === 'hint',
+      trustPermission: trust ? trust[1].toLowerCase() : null,
+      undoPermission: undo ? undo[1].toLowerCase() : null,
+    });
+  });
   return { hookSpecificOutput: { hookEventName: 'UserPromptSubmit', additionalContext: `second-brain-flow:\n${text}` } };
 }
 
@@ -87,19 +100,37 @@ function deny(reason) {
   return { hookSpecificOutput: { hookEventName: 'PreToolUse', permissionDecision: 'deny', permissionDecisionReason: reason } };
 }
 
-function protectedArea(root, cwd, target) {
+// Expands the variables a path can safely start with. Returns null for a path
+// that starts with any other variable, since its value is unknown here.
+function expandPath(target, cwd, root, env) {
+  let t = String(target).replace(/\\/g, '/');
+  const home = env.HOME || os.homedir();
+  const known = { CLAUDE_PROJECT_DIR: env.CLAUDE_PROJECT_DIR || root, PWD: cwd, HOME: home };
+  t = t.replace(/^~(?=\/|$)/, home);
+  const m = /^\$(?:\{(\w+)\}|(\w+))/.exec(t);
+  if (m) {
+    const value = known[m[1] || m[2]];
+    if (value === undefined) return null;
+    t = value + t.slice(m[0].length);
+  }
+  return path.resolve(cwd, t);
+}
+
+const PROTECTED = ['memory', 'work', '.flow'];
+
+function protectedArea(root, cwd, target, env = {}) {
   if (!target || typeof target !== 'string') return null;
-  const cleaned = target.replace(/\\/g, '/').replace(/^of=/, '');
-  if (cleaned.startsWith('~') || cleaned.startsWith('$')) return null;
-  const abs = path.resolve(cwd, cleaned);
+  const abs = expandPath(target.replace(/^of=/, ''), cwd, root, env);
+  if (!abs) return null;
   const rel = path.relative(root, abs).replace(/\\/g, '/');
   if (!rel || rel.startsWith('..') || path.isAbsolute(rel)) return null;
   const first = rel.split('/')[0];
-  return first === 'memory' || first === 'work' ? first : null;
+  return PROTECTED.includes(first) ? first : null;
 }
 
 function protectedMessage(area, target = '') {
   const name = path.basename(String(target));
+  if (area === '.flow') return 'Files under .flow/ hold session state. Only the hooks and the flow command change them. Run `flow status` to see the state.';
   let how = 'Use `flow item ...`.';
   if (area === 'memory') {
     if (name === 'FOCUS.md') how = 'Use `flow focus todo|upcoming|remove --text "..."`; the open items list is rebuilt from the items.';
@@ -109,26 +140,59 @@ function protectedMessage(area, target = '') {
   return `Files under ${area}/ change only through the flow command. ${how} Run \`flow help\` for the commands.`;
 }
 
-// Returns a refusal reason when a shell command writes under memory/ or work/.
-function shellWriteReason(root, cwd, segments) {
+const SHELLS = new Set(['bash', 'sh', 'zsh', 'dash', 'ksh']);
+
+// Returns a refusal reason when a shell command writes under a protected folder.
+// It follows `cd` within the command and reads the string given to `bash -c`
+// and `eval`.
+function shellWriteReason(root, startCwd, segments, env, depth = 0) {
+  let cwd = startCwd;
   for (const seg of segments) {
     for (const target of seg.redirects) {
-      const area = protectedArea(root, cwd, target);
+      const area = protectedArea(root, cwd, target, env);
       if (area) return protectedMessage(area, target);
     }
     const { program, args } = programOf(seg.tokens);
     const name = path.basename(program);
+    if (name === 'cd' || name === 'pushd') {
+      const next = expandPath(args.find((a) => !a.startsWith('-')) || '~', cwd, root, env);
+      if (next) cwd = next;
+      continue;
+    }
+    const inner = (SHELLS.has(name) && args.includes('-c') ? args[args.indexOf('-c') + 1] : null)
+      ?? (name === 'eval' ? args.join(' ') : null);
+    if (inner && depth < 3) {
+      const reason = shellWriteReason(root, cwd, splitCommands(inner), env, depth + 1);
+      if (reason) return reason;
+      continue;
+    }
     if (isFlowProgram(program, args).flow) continue;
     let writes = WRITE_PROGRAMS.has(name);
     if ((name === 'sed' || name === 'perl') && args.some((a) => /^-[a-zA-Z]*i/.test(a))) writes = true;
     if (name === 'git' && ['rm', 'mv', 'checkout', 'restore', 'clean', 'apply'].includes(args[0])) writes = true;
     if (!writes) continue;
     for (const a of args) {
-      const area = protectedArea(root, cwd, a);
+      const area = protectedArea(root, cwd, a, env);
       if (area) return protectedMessage(area, a);
     }
   }
   return null;
+}
+
+// Setting or clearing these points flow at another session or project, which
+// could get round the owner checks.
+const FLOW_VARIABLE = /\b(?:FLOW_SESSION_ID|FLOW_PROJECT_ROOT)\s*=|\bunset\b[^;&|\n]*\b(?:FLOW_SESSION_ID|FLOW_PROJECT_ROOT)\b|-u\s*(?:FLOW_SESSION_ID|FLOW_PROJECT_ROOT)\b/;
+
+// The plugin's own flow command: bare `flow` (bin/ is on the Bash path), the
+// plugin's bin/flow by path, or `node` with that path.
+function isPluginFlow(program, args) {
+  const own = path.join(PLUGIN_ROOT, 'bin', 'flow');
+  if (program === 'flow' || (program && path.resolve(program) === own)) return true;
+  return program === 'node' && args[0] && path.resolve(args[0]) === own;
+}
+
+function allow() {
+  return { hookSpecificOutput: { hookEventName: 'PreToolUse', permissionDecision: 'allow', permissionDecisionReason: 'second-brain-flow: a plain flow command.' } };
 }
 
 export function preToolUse(input, env = process.env) {
@@ -140,24 +204,34 @@ export function preToolUse(input, env = process.env) {
   const isSubagent = Boolean(input.agent_id);
 
   if (WRITE_TOOLS.has(tool)) {
-    const area = protectedArea(root, cwd, ti.file_path || ti.notebook_path);
+    const area = protectedArea(root, cwd, ti.file_path || ti.notebook_path, env);
     if (area) return deny(protectedMessage(area, ti.file_path || ti.notebook_path));
   }
 
   let onlyFlow = false;
+  let plainFlow = false;
   if (tool === 'Bash' || tool === 'PowerShell') {
-    const segments = splitCommands(ti.command);
-    const writeReason = shellWriteReason(root, cwd, segments);
+    const command = String(ti.command || '');
+    if (FLOW_VARIABLE.test(command)) {
+      return deny('Do not set or clear FLOW_SESSION_ID or FLOW_PROJECT_ROOT. The session start hook sets them. Run `flow` without them.');
+    }
+    const segments = splitCommands(command);
+    const writeReason = shellWriteReason(root, cwd, segments, env);
     if (writeReason) return deny(writeReason);
     onlyFlow = segments.length > 0;
     for (const seg of segments) {
       const { program, args } = programOf(seg.tokens);
       const flow = isFlowProgram(program, args);
-      if (!flow.flow || seg.opaque || seg.redirects.length) {
+      if (!flow.flow) {
         onlyFlow = false;
         continue;
       }
+      // The owner checks apply to every flow command, redirected or not.
+      if (seg.opaque || seg.redirects.length) onlyFlow = false;
       const [cmd, sub, value] = flow.args;
+      if (cmd === 'turn') {
+        return deny('`flow turn` is for hosts without the prompt hook. In Claude Code the prompt hook starts each turn. Run `flow status`.');
+      }
       if (cmd === 'trust' && sub === 'set' && session.turn?.trustPermission !== value) {
         return deny(`Only the owner can change the memory mode. The owner types \`/second-brain-flow:trust ${value || 'on'}\`. Tell the owner that.`);
       }
@@ -166,25 +240,31 @@ export function preToolUse(input, env = process.env) {
         return deny(`The owner's prompt starts with a save phrase. Run \`flow route ${forced}\`.`);
       }
     }
+    // One plain command of the plugin's flow, with no prefix, chain, or redirect,
+    // runs without a permission prompt. The flow command does its own checks.
+    if (segments.length === 1 && onlyFlow) {
+      const { program, args } = programOf(segments[0].tokens);
+      plainFlow = segments[0].tokens[0] === program && isPluginFlow(program, args);
+    }
   }
 
   // Routing applies to the main agent only. Subagents do not route turns.
   if (!isSubagent && session.turn && !session.turn.routed) {
+    if (plainFlow) return allow();
     if (READ_ONLY_TOOLS.has(tool) || onlyFlow) return null;
     return deny('This turn has no route yet. Run `flow route <route>` first (`flow status` lists the routes). Until then only read-only tools and `flow` commands run.');
   }
-  return null;
+  return plainFlow ? allow() : null;
 }
 
 // ---------- SubagentStart ----------
 
 export function subagentStart(input, env = process.env) {
-  if (!LIBRARIAN.test(String(input.agent_type || ''))) return null;
+  if (String(input.agent_type || '') !== LIBRARIAN_AGENT) return null;
   const root = rootFor(input, env);
   const id = sessionIdOf(input);
   const marked = updateSession(root, id, (session) => {
-    let jobs = markDispatched(root, id);
-    if (!jobs.length) jobs = markDispatched(root, null);
+    const jobs = markDispatched(root, id);
     session.subagentStarts.push({ agent_type: input.agent_type, agent_id: input.agent_id || null, at: new Date().toISOString(), jobs });
     return jobs;
   });
@@ -213,7 +293,10 @@ export function stop(input, env = process.env) {
   } else {
     const frame = top(session);
     const step = stepOf(frame);
-    if (step?.kind === 'agent') {
+    // A notification turn holds only for steps it started itself. A step left
+    // open by an earlier owner turn is not this reply's to finish.
+    const earlier = turn.notification && !isAfter(frame?.stepStarted, turn.promptAt);
+    if (step?.kind === 'agent' && !earlier) {
       const missing = missingForStep(ctx, frame, null);
       if (missing.length) reasons.push(`Workflow ${frame.workflow} step ${frame.step} is not finished. ${missing.join(' ')}`);
     }

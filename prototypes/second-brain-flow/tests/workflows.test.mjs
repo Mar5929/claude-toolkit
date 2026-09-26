@@ -179,6 +179,11 @@ test('resume-work: not-aligned loops, aligned routes to refine or work by stage'
 
   // Same item moved to build goes to work.
   ok(dir, ['cancel']);
+  ok(dir, ['item', 'requirement', '--item', '1', '--text', 'Customers sign in.']);
+  ok(dir, ['item', 'approve', '--item', '1', '--propose']);
+  prompt(dir, 'approved');
+  ok(dir, ['route', 'chat']);
+  ok(dir, ['item', 'approve', '--item', '1']);
   ok(dir, ['item', 'stage', 'build', '--item', '1']);
   prompt(dir, 'continue item 1');
   ok(dir, ['route', 'resume-work', '--item', '1']);

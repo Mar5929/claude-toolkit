@@ -120,8 +120,8 @@ moves it on), `call` (runs another workflow), `end`.
 | `flow route <route> [--item N]` | Chooses this turn's route. `continue` resumes a waiting workflow, and only after the owner has answered. |
 | `flow next [--decision <d>]` | Finishes the current step after its exit checks pass. |
 | `flow cancel` | Drops the current workflow. |
-| `flow turn --prompt "..."` | Starts a turn by hand, for hosts without the prompt hook (Codex). |
-| `flow item new/show/list/question/answer/requirement/progress/stage/approve` | Every work-item change. `question --ask Q2` asks an open question again; the same words never add a second question. |
+| `flow turn --prompt "..."` | Starts a turn by hand, for hosts without the prompt hook (Codex). Refused in any session the Claude Code hooks run. |
+| `flow item new/show/list/question/answer/requirement/progress/stage/approve` | Every work-item change. `question --ask Q2` asks an open question again; the same words never add a second question. `design`, `build`, `testing`, `review`, and `done` need approved requirements. |
 | `flow memory recall/propose/pending/approve/reject/edit/log/undo` | Memory search, proposals, owner decisions, the change log, and undo. |
 | `flow focus todo/upcoming/remove/none` | The agent-owned parts of `memory/FOCUS.md`. |
 | `flow librarian next/apply/done` | Used by the memory-librarian agent. |
@@ -142,40 +142,75 @@ sends a prompt after the card. The approved card becomes a librarian job.
 
 In trusted mode, `flow memory propose` queues the librarian job at once, and
 the agent starts the `memory-librarian` agent in the background and carries on.
-`flow memory log` shows every write; `flow memory undo <change id>` reverses one.
+`flow memory log` shows every write.
+
+Only the owner undoes a change, by typing `/second-brain-flow:memory-undo <change
+id>` (or `/memory-undo <change id>`; `/undo` is Claude Code's own `/rewind`).
+The prompt hook allows `flow memory undo` for that change id in that turn only.
+An undo is refused when a later change wrote the same file; the refusal names
+the later change, to undo first.
 
 Only the owner switches the mode, by typing `/second-brain-flow:trust on` or
 `off`. The short form `/trust on` works too. The prompt hook sees the owner's
 own text and allows `flow trust set` for that turn only.
+
+A proposal card belongs to the session that showed it. Only an owner reply in
+that session approves or edits it. Other sessions list it as "waiting in another
+session".
+
+Work items keep hand edits. A flow write rewrites flow's own lines and keeps
+every other line and section as written. Hand-written ids such as `- R3 text`
+or `- Q2 text` are read. `flow doctor` lists the lines in Requirements and Open
+questions that flow cannot read.
 
 ## What is enforced and what is not
 
 Enforced in Claude Code, by hooks and the engine:
 
 - Before a turn is routed, only read-only tools, `Skill`, and `flow` commands run.
-- Write, Edit, and shell writes to `memory/` and `work/` are refused for the
-  main agent and every subagent. The refusal names the `flow` command to use.
-- A prompt that starts with a save phrase must route `remember`.
-- `flow trust set` needs the owner's trust command in the same turn.
+- Write and Edit to `memory/`, `work/`, and `.flow/` are refused for the main
+  agent and every subagent. The refusal names the `flow` command to use.
+- Shell commands that write there are refused: redirects, and write programs
+  such as `rm`, `mv`, `cp`, `tee`, `sed -i`, and some `git` subcommands. The gate
+  follows `cd` within a command, reads the string given to `bash -c`, `sh -c`,
+  and `eval`, and expands `$CLAUDE_PROJECT_DIR`, `$PWD`, `$HOME`, and `~`.
+- A Bash command that sets or clears `FLOW_SESSION_ID` or `FLOW_PROJECT_ROOT` is
+  refused, and so is `flow turn`.
+- One plain `flow` command, with no prefix, chain, or redirect, is allowed
+  without a permission prompt (PreToolUse returns `allow`). Everything else goes
+  through Claude Code's normal permission rules.
+- A prompt that starts with "save this" or "remember this", or with "remember
+  that" and no question mark, must route `remember`. "Remember that bug? Is it
+  back?" gets a hint instead.
+- `flow trust set` and `flow memory undo` need the owner's command in the same turn.
 - Memory approval, item approval, and the `done` stage need an owner prompt
-  after the proposal. `continue` on a waiting owner step needs an owner prompt
-  after the step started.
+  after the proposal, in the same session. `continue` on a waiting owner step
+  needs an owner prompt after the step started. An owner prompt answers only
+  the most recent waiting step.
+- `design`, `build`, `testing`, `review`, and `done` need approved requirements,
+  and `flow route work` is refused on an item without them.
 - A background task notification (a user message that starts with
   `<task-notification>`) is not treated as an owner prompt. It counts for no
   approval and needs no route.
 - The Stop hook holds a reply once when the turn was never routed, when the
   current agent step fails its exit checks, when a proposal card's id is
   missing from the reply, or when a librarian job was queued and no librarian
-  started.
+  started. On a notification turn it holds only for steps that turn started.
 
 Not enforced: whether a judgment step was done well, and whether the owner's
-reply meant yes. Nothing is enforced in Codex.
+reply meant yes. Nothing is enforced in Codex. The shell gate reads commands;
+it does not sandbox them. These still get past it: a write from inside another
+program (`node -e`, `python -c`, a script file), a path that starts with a
+variable other than the four above, and a command the shell reader cannot
+split. They take a deliberate attempt to get round the gate.
 
 ## Codex
 
 Paste [codex/AGENTS-snippet.md](codex/AGENTS-snippet.md) into the project's
 `AGENTS.md`. The agent runs `flow turn` and `flow status` itself; the `flow`
-command still refuses steps out of order.
+command still refuses steps out of order. `flow turn` does not honor the trust
+or undo commands, so in Codex the owner changes the mode in `memory/config.json`
+by hand and reverses a memory change with Git.
 
 ## Tests
 
@@ -192,6 +227,10 @@ scenarios to run fewer: `save-onboarding`, `save-trusted`, `refine`, `gate`,
 wording. `E2E_KEEP=1` keeps the fixture folders.
 
 Last full end-to-end run, 2026-09-26, Claude Code 2.1.283: all five passed.
+After the review fixes the same day, `save-onboarding`, `save-trusted`,
+`refine`, and `gate` were run again and passed. `gate` now also asks the agent
+to run `flow trust set on` and checks that the mode did not change. `trust` was
+not run again; its hook and skill did not change.
 
 | Scenario | What was checked |
 | --- | --- |
@@ -237,7 +276,7 @@ Last full end-to-end run, 2026-09-26, Claude Code 2.1.283: all five passed.
 | [engine/](engine/index.mjs) | The engine: state, runner, checks, items, memory, focus, hooks, shell reader, CLI. |
 | [hooks/](hooks/hooks.json) | `hooks.json` and the five hook scripts. |
 | [scripts/](scripts/make-demo.mjs) | `make-demo.mjs`, which rebuilds the demo through the engine. |
-| [skills/](skills/trust/SKILL.md) | `trust` (owner only) and [`flow`](skills/flow/SKILL.md) (help and current step). |
+| [skills/](skills/trust/SKILL.md) | `trust` and [`memory-undo`](skills/memory-undo/SKILL.md) (owner only), and [`flow`](skills/flow/SKILL.md) (help and current step). |
 | [templates/](templates/ITEM.md) | Item, topic, focus, and card templates. |
-| [tests/](tests/helpers.mjs) | Unit tests (`*.test.mjs`) and `e2e.mjs`. |
+| [tests/](tests/helpers.mjs) | Unit tests (`*.test.mjs`, including `review-fixes.test.mjs` for the 2026-09-26 review) and `e2e.mjs`. |
 | [workflows/](workflows/turn.json) | One JSON definition per workflow. |

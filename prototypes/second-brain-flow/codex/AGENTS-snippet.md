@@ -22,7 +22,9 @@ At the start of every turn:
 
 Memory saves wait for the owner's approval (onboarding mode). To turn on
 trusted mode, the owner sets `"mode": "trusted"` in `memory/config.json` by
-hand. Do not change that file yourself.
+hand. Do not change that file yourself. `flow memory undo` needs an owner
+command that only the Claude Code hooks can check, so in Codex the owner
+reverses a memory change with Git.
 
 Codex has no background librarian agent. At the remember workflow's
 `dispatch` step, do the librarian's work yourself: run `flow librarian next`,

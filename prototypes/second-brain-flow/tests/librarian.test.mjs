@@ -102,12 +102,14 @@ test('undo restores the previous content and rebuilds the index', () => {
   const supChange = /Change (chg-[0-9a-f]+)/.exec(sup)[1];
   assert.match(ok(dir, ['memory', 'log']), new RegExp(supChange));
 
+  prompt(dir, `/second-brain-flow:memory-undo ${supChange}`);
   ok(dir, ['memory', 'undo', supChange]);
   assert.equal(read(dir, 'memory/topics/decision-okta-for-login.md'), before);
   assert.ok(!fs.existsSync(path.join(dir, 'memory/topics/decision-auth0.md')));
   assert.match(read(dir, 'memory/INDEX.md'), /decision-okta-for-login/);
   refused(dir, ['memory', 'undo', supChange]);
 
+  prompt(dir, `/memory-undo ${createChange}`);
   ok(dir, ['memory', 'undo', createChange]);
   assert.ok(!fs.existsSync(path.join(dir, 'memory/topics/decision-okta-for-login.md')));
   assert.match(read(dir, 'memory/INDEX.md'), /No topics yet/);

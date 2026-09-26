@@ -45,7 +45,7 @@
     ],
     "SubagentStart": [
       {
-        "matcher": "memory-librarian$",
+        "matcher": "^second-brain-flow:memory-librarian$",
         "hooks": [
           {
             "type": "command",

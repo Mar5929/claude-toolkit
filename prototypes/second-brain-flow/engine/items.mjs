@@ -11,64 +11,130 @@ export const STAGES = ['discovery', 'refinement', 'requirements-approved', 'desi
 export const OWNER_GATED_STAGES = ['requirements-approved', 'done'];
 const NONE = 'None yet.';
 
-function sections(body) {
-  const out = {};
+const KNOWN = ['Goal', 'Why', 'Requirements', 'Open questions', 'Decisions', 'Progress', 'Next step'];
+const TEMPLATE_KEYS = { Goal: 'goal', Why: 'why', Requirements: 'requirements', 'Open questions': 'questions', Decisions: 'decisions', Progress: 'progress', 'Next step': 'next' };
+
+// Splits the body into the text before the first `## ` heading and the
+// sections in file order. Each section keeps its raw text for verbatim output.
+function splitBody(body) {
   const parts = body.split(/^## (.+)$/m);
-  for (let i = 1; i < parts.length; i += 2) out[parts[i].trim()] = parts[i + 1].trim();
-  return out;
+  const sections = [];
+  for (let i = 1; i < parts.length; i += 2) sections.push({ heading: parts[i].trim(), raw: parts[i + 1] });
+  return { preamble: parts[0], sections };
 }
 
-function listLines(text) {
-  if (!text || text === NONE) return [];
-  return text.split('\n').filter((l) => l.startsWith('- ')).map((l) => l.slice(2));
+// A list section: each entry is a `- ` line plus the lines that continue it
+// (wrapped text, up to a blank line). Any other line is kept verbatim in place.
+function listEntries(raw) {
+  const out = [];
+  let current = null;
+  for (const line of String(raw || '').split('\n')) {
+    if (line.startsWith('- ')) {
+      current = { lines: [line.slice(2)] };
+      out.push(current);
+    } else if (!line.trim()) {
+      current = null;
+    } else if (current) {
+      current.lines.push(line);
+    } else if (line.trim() !== NONE) {
+      out.push({ verbatim: line });
+    }
+  }
+  return out.map((e) => (e.verbatim !== undefined ? e : { text: e.lines.join('\n') }));
 }
 
 function plain(text) {
-  return !text || text === NONE ? '' : text;
+  const t = String(text || '').trim();
+  return !t || t === NONE ? '' : t;
+}
+
+// Canonical forms first, then hand-written ones such as `- R1 text`,
+// `- R3: text`, or `- Q2 (asked) text`. Anything else is kept verbatim.
+function parseRequirement(text) {
+  const m = /^\*\*(R\d+)\*\* \(([\w-]+)\) ([\s\S]*)$/.exec(text)
+    || /^\*{0,2}(R\d+)\*{0,2}[:.)]?\s+(?:\(([\w-]+)\)\s*)?([\s\S]+)$/.exec(text);
+  return m ? { id: m[1], status: m[2] || 'draft', text: m[3] } : { verbatim: `- ${text}` };
+}
+
+function parseQuestion(text) {
+  const m = /^\*\*(Q\d+)\*\* \((asked|deferred)(?: ([\d-]+))?\) ([\s\S]*)$/.exec(text)
+    || /^\*{0,2}(Q\d+)\*{0,2}[:.)]?\s+(?:\((asked|deferred)(?: ([\d-]+))?\)\s*)?([\s\S]+)$/.exec(text);
+  return m ? { id: m[1], state: m[2] || 'asked', date: m[3] || null, text: m[4] } : { verbatim: `- ${text}` };
 }
 
 export function parseItem(text, file = null) {
   const { data, body } = parseFrontMatter(text);
   if (!data) return null;
-  const s = sections(body);
-  const requirements = listLines(s.Requirements).map((line) => {
-    const m = /^\*\*(R\d+)\*\* \(([\w-]+)\) (.*)$/.exec(line);
-    return m ? { id: m[1], status: m[2], text: m[3] } : { id: null, status: 'unknown', text: line };
-  });
-  const questions = listLines(s['Open questions']).map((line) => {
-    const m = /^\*\*(Q\d+)\*\* \((asked|deferred) ([\d-]+)\) (.*)$/.exec(line);
-    return m ? { id: m[1], state: m[2], date: m[3], text: m[4] } : { id: null, state: 'unknown', date: null, text: line };
-  });
+  const layout = splitBody(body);
+  const s = {};
+  for (const sec of layout.sections) if (KNOWN.includes(sec.heading) && !(sec.heading in s)) s[sec.heading] = sec.raw;
+  const entries = (name) => listEntries(s[name]);
   return {
     fm: data,
     goal: plain(s.Goal),
     why: plain(s.Why),
-    requirements,
-    questions,
-    decisions: listLines(s.Decisions),
-    progress: listLines(s.Progress),
+    requirements: entries('Requirements').map((e) => (e.verbatim !== undefined ? e : parseRequirement(e.text))),
+    questions: entries('Open questions').map((e) => (e.verbatim !== undefined ? e : parseQuestion(e.text))),
+    decisions: entries('Decisions').map((e) => (e.verbatim !== undefined ? e : e.text)),
+    progress: entries('Progress').map((e) => (e.verbatim !== undefined ? e : e.text)),
     next: plain(s['Next step']),
+    layout,
     file,
   };
 }
 
-function list(lines) {
-  return lines.length ? lines.map((l) => `- ${l}`).join('\n') : NONE;
+// Lines in a list section that flow could not read. `flow doctor` reports them.
+export function unreadLines(item) {
+  const out = [];
+  for (const [name, list] of [['Requirements', item.requirements], ['Open questions', item.questions]]) {
+    for (const e of list) if (e.verbatim !== undefined) out.push({ section: name, line: e.verbatim });
+  }
+  return out;
+}
+
+function list(entries, render) {
+  if (!entries.length) return NONE;
+  return entries.map((e) => (e && e.verbatim !== undefined ? e.verbatim : `- ${render(e)}`)).join('\n');
+}
+
+function sectionContent(item, heading) {
+  switch (heading) {
+    case 'Goal': return item.goal || NONE;
+    case 'Why': return item.why || NONE;
+    case 'Requirements': return list(item.requirements, (r) => `**${r.id}** (${r.status}) ${r.text}`);
+    case 'Open questions': return list(item.questions, (q) => `**${q.id}** (${q.state}${q.date ? ` ${q.date}` : ''}) ${q.text}`);
+    case 'Decisions': return list(item.decisions, (d) => d);
+    case 'Progress': return list(item.progress, (p) => p);
+    case 'Next step': return item.next || NONE;
+    default: return '';
+  }
 }
 
 export function renderItem(item) {
-  return renderTemplate('ITEM.md', {
-    frontmatter: renderFrontMatter(item.fm),
-    id: item.fm.id,
-    title: item.fm.title,
-    goal: item.goal || NONE,
-    why: item.why || NONE,
-    requirements: list(item.requirements.map((r) => `**${r.id}** (${r.status}) ${r.text}`)),
-    questions: list(item.questions.map((q) => `**${q.id}** (${q.state} ${q.date}) ${q.text}`)),
-    decisions: list(item.decisions),
-    progress: list(item.progress),
-    next: item.next || NONE,
+  if (!item.layout) {
+    return renderTemplate('ITEM.md', {
+      frontmatter: renderFrontMatter(item.fm),
+      id: item.fm.id,
+      title: item.fm.title,
+      ...Object.fromEntries(KNOWN.map((h) => [TEMPLATE_KEYS[h], sectionContent(item, h)])),
+    });
+  }
+  // An existing file: flow's sections are rewritten in place; every other
+  // section and the text before the first heading stay exactly as they were.
+  const { preamble, sections } = item.layout;
+  const present = new Set();
+  const blocks = sections.map((sec) => {
+    if (!KNOWN.includes(sec.heading) || present.has(sec.heading)) return `## ${sec.heading}${sec.raw}`;
+    present.add(sec.heading);
+    return `## ${sec.heading}\n\n${sectionContent(item, sec.heading)}\n\n`;
   });
+  for (const h of KNOWN) if (!present.has(h)) blocks.push(`## ${h}\n\n${sectionContent(item, h)}\n\n`);
+  let out = `${renderFrontMatter(item.fm)}${preamble}`;
+  for (const b of blocks) {
+    if (!out.endsWith('\n\n') && out.length) out += out.endsWith('\n') ? '\n' : '\n\n';
+    out += b;
+  }
+  return `${out.replace(/\n+$/, '')}\n`;
 }
 
 export function listItems(root) {
@@ -128,7 +194,7 @@ export function createItem(root, { title, goal, why }) {
 function nextNumber(item, letter) {
   let max = 0;
   const re = new RegExp(`\\*\\*${letter}(\\d+)\\*\\*|^${letter}(\\d+)$`);
-  const all = [...item.requirements.map((r) => r.id || ''), ...item.questions.map((q) => q.id || ''), ...item.decisions];
+  const all = [...item.requirements.map((r) => r.id || ''), ...item.questions.map((q) => q.id || ''), ...item.decisions.map((d) => (typeof d === 'string' ? d : d.verbatim))];
   for (const text of all) {
     const m = re.exec(text);
     if (m) max = Math.max(max, Number(m[1] || m[2]));

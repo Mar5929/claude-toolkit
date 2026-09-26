@@ -4,16 +4,16 @@ import path from 'node:path';
 import { findProjectRoot, Refusal, refuse, now, isAfter, projectPaths, readText, parseFrontMatter } from './core.mjs';
 import { ensureInit, loadConfig, saveConfig, sessionIdFromEnv, updateSession } from './project.mjs';
 import {
-  route, next, cancel, statusText, recordFact, top, beginTurn, SAVE_PHRASE, CHECKS, ACTIONS, ROUTES,
+  route, next, cancel, statusText, recordFact, top, beginTurn, savePhrase, CHECKS, ACTIONS, ROUTES,
 } from './runner.mjs';
 import { loadWorkflow, listWorkflowIds, validateWorkflow, diagram } from './workflows.mjs';
 import {
   createItem, findItem, listItems, addQuestion, reaskQuestion, resolveQuestion, addRequirement, addProgress, setStage,
-  renderItem, STAGES, OWNER_GATED_STAGES, parseItem,
+  renderItem, STAGES, OWNER_GATED_STAGES, parseItem, unreadLines,
 } from './items.mjs';
 import {
   makeProposal, savePending, getPending, removePending, renderCard, listPending, queueJob, listJobs,
-  openJobs, applyLibrarian, undoChange, readLog, recall, formatHits, appendLog, memoryProblems,
+  openJobs, applyLibrarian, undoChange, readLog, recall, formatHits, appendLogLocked, memoryProblems,
   regenerate,
 } from './memory.mjs';
 import { addFocusLine, removeFocusLine, refreshFocus, focusProblems } from './focus.mjs';
@@ -166,6 +166,9 @@ function itemCommand(ctx, sub, positional, opts) {
 function stageChange(ctx, id, stage, propose) {
   const { root, session } = ctx;
   const item = findItem(root, id);
+  if (NEEDS_APPROVED_REQUIREMENTS.includes(stage) && !item.fm.requirements_approved) {
+    refuse(`Item ${id} has no approved requirements, so it cannot move to ${stage}. Refine and approve them first: \`flow route refine --item ${id}\`.`);
+  }
   if (OWNER_GATED_STAGES.includes(stage)) {
     if (propose) {
       session.approvalRequests.push({ item: id, stage, createdAt: now(), turn: session.turn?.n ?? 0 });
@@ -188,6 +191,18 @@ function stageChange(ctx, id, stage, propose) {
   }
   if (stage === 'requirements-approved') recordFact(session, 'item-approved', { item: id });
   return `Item ${id} moved from ${item.fm.stage} to ${stage}.`;
+}
+
+// Stages after requirements approval. An item reaches them only with its
+// requirements approval recorded.
+const NEEDS_APPROVED_REQUIREMENTS = ['design', 'build', 'testing', 'review', 'done'];
+
+// A proposal card belongs to the session that showed it to the owner. Only an
+// owner reply in that session can approve or change it.
+function ownCard(session, proposal, verb) {
+  if (proposal.session && proposal.session !== session.id) {
+    refuse(`Proposal ${proposal.id} is waiting in another session. Only the owner's reply in that session can ${verb} it. Propose it again here if it is still wanted.`);
+  }
 }
 
 // ---------- memory ----------
@@ -221,10 +236,15 @@ function memoryCommand(ctx, sub, positional, opts) {
     }
     case 'pending': {
       const list = listPending(root);
-      return list.length ? list.map((p) => renderCard(root, p)).join('\n\n') : 'No pending proposals.';
+      const mine = list.filter((p) => !p.session || p.session === session.id);
+      const others = list.filter((p) => p.session && p.session !== session.id);
+      const lines = mine.map((p) => renderCard(root, p));
+      if (others.length) lines.push(`Waiting in another session: ${others.map((p) => `${p.id} (${p.title})`).join('; ')}.`);
+      return lines.length ? lines.join('\n\n') : 'No pending proposals.';
     }
     case 'approve': {
       const proposal = getPending(root, id);
+      ownCard(session, proposal, 'approve');
       if (!ownerRepliedSince(session, proposal.created_at)) {
         refuse(`The owner has not replied since proposal ${id} was shown. Show the card, end your reply, and wait for the owner.`);
       }
@@ -240,12 +260,13 @@ function memoryCommand(ctx, sub, positional, opts) {
     case 'reject': {
       const proposal = getPending(root, id);
       removePending(root, id);
-      appendLog(root, `${now()} | ${id} | rejected | - | "${proposal.title}" | mode ${mode} | owner rejected`);
+      appendLogLocked(root, `${now()} | ${id} | rejected | - | "${proposal.title}" | mode ${mode} | owner rejected`);
       recordFact(session, 'proposal-rejected', { id });
       return `Rejected ${id}. Nothing was saved.\nNext: run \`flow next --decision rejected\`.`;
     }
     case 'edit': {
       const proposal = getPending(root, id);
+      ownCard(session, proposal, 'change');
       const changed = {};
       for (const field of ['type', 'title', 'statement', 'why', 'source', 'summary']) {
         if (typeof opts[field] === 'string') changed[field] = opts[field];
@@ -264,6 +285,10 @@ function memoryCommand(ctx, sub, positional, opts) {
     }
     case 'undo': {
       if (!id) refuse('Name the change: `flow memory undo <change id>`. Run `flow memory log` for ids.');
+      // Undo is an owner command, checked the same way as the trust command.
+      if (session.turn?.undoPermission !== String(id).toLowerCase()) {
+        refuse(`Only the owner can undo a memory change. The owner types \`/second-brain-flow:memory-undo ${id}\`. Tell the owner that.`);
+      }
       const h = undoChange(root, id);
       return `Undid change ${id}. Restored: ${Object.keys(h.files).join(', ') || 'nothing'}. INDEX.md and GLOSSARY.md were rebuilt.`;
     }
@@ -337,7 +362,7 @@ function trustCommand(ctx, positional) {
   const mode = value === 'on' ? 'trusted' : 'onboarding';
   const history = [...(config.history || []), { from: config.mode, to: mode, at: now(), by: 'owner', session: session.id }];
   saveConfig(root, { ...config, mode, changed_at: now(), changed_by: 'owner', history });
-  appendLog(root, `${now()} | mode | ${config.mode} -> ${mode} | owner command | session ${session.id}`);
+  appendLogLocked(root, `${now()} | mode | ${config.mode} -> ${mode} | owner command | session ${session.id}`);
   return `Memory mode is now ${mode}.${mode === 'trusted' ? ' Saves go straight to the librarian. The owner can review them with `flow memory log`.' : ' Every save needs the owner\'s approval.'}`;
 }
 
@@ -379,8 +404,7 @@ function itemProblems(root) {
     for (const s of ['Goal', 'Why', 'Requirements', 'Open questions', 'Decisions', 'Progress', 'Next step']) {
       if (!body.includes(`## ${s}`)) problems.push(`work/${name}/ITEM.md is missing the ${s} section.`);
     }
-    for (const r of item.requirements) if (!r.id) problems.push(`work/${name}/ITEM.md has a requirement line flow cannot read: ${r.text}`);
-    for (const q of item.questions) if (!q.id) problems.push(`work/${name}/ITEM.md has a question line flow cannot read: ${q.text}`);
+    for (const u of unreadLines(item)) problems.push(`work/${name}/ITEM.md has a line in ${u.section} that flow cannot read, kept as written: ${u.line}`);
   }
   return problems;
 }
@@ -433,8 +457,12 @@ export function run(argv, { cwd = process.cwd(), env = process.env, stdin = () =
           // The prompt hook does this in Claude Code. A save phrase still forces
           // the remember route. The trust command is not honored here, because
           // nothing proves the owner typed the text.
+          if (session.hooks) {
+            refuse('This session is run by the Claude Code hooks, which start each turn from the owner\'s prompt. `flow turn` is only for hosts without them, such as Codex. Run `flow status`.');
+          }
           const prompt = str(opts.prompt) || positional.join(' ');
-          return beginTurn(ctx, { prompt, forcedRoute: SAVE_PHRASE.test(prompt) ? 'remember' : null });
+          const save = savePhrase(prompt);
+          return beginTurn(ctx, { prompt, forcedRoute: save === 'force' ? 'remember' : null, saveHint: save === 'hint' });
         }
         case 'route': {
           if (!positional[0]) refuse(`Name a route: ${ROUTES.join(', ')}.`);

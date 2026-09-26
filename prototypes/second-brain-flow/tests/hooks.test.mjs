@@ -5,7 +5,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import {
-  makeProject, ok, refused, prompt, preTool, stopHook, subagentStart, sessionStart, state, where, isDeny,
+  makeProject, ok, refused, prompt, preTool, stopHook, subagentStart, sessionStart, state, where, isDeny, isAllow,
 } from './helpers.mjs';
 import { splitCommands } from '../engine/shell.mjs';
 
@@ -56,10 +56,10 @@ test('PreToolUse: before routing, only read-only tools and flow commands run', (
   assert.equal(preTool(dir, 'Read', { file_path: path.join(dir, 'README.md') }), null);
   assert.equal(preTool(dir, 'Grep', { pattern: 'x' }), null);
   assert.equal(preTool(dir, 'Skill', { skill: 'second-brain-flow:flow' }), null, 'loading a skill is allowed; its tools are checked');
-  assert.equal(preTool(dir, 'Bash', { command: 'flow status', description: 'Show status' }), null);
-  assert.equal(preTool(dir, 'Bash', { command: `node ${PLUGIN}/bin/flow route chat` }), null);
+  assert.ok(isAllow(preTool(dir, 'Bash', { command: 'flow status', description: 'Show status' })));
+  assert.ok(isAllow(preTool(dir, 'Bash', { command: `node ${PLUGIN}/bin/flow route chat` })));
   assert.equal(preTool(dir, 'Bash', { command: `${PLUGIN}/bin/flow status && flow item list` }), null);
-  assert.equal(preTool(dir, 'Bash', { command: "flow memory propose --file - <<'EOF'\n{\"statement\": \"a; b | c && rm -rf /\"}\nEOF" }), null);
+  assert.ok(isAllow(preTool(dir, 'Bash', { command: "flow memory propose --file - <<'EOF'\n{\"statement\": \"a; b | c && rm -rf /\"}\nEOF" })));
   const denied = preTool(dir, 'Bash', { command: 'npm test' });
   assert.ok(isDeny(denied));
   assert.equal(denied.hookSpecificOutput.hookEventName, 'PreToolUse');
@@ -108,7 +108,7 @@ test('PreToolUse: writes to memory/ and work/ are refused for every agent, at al
   assert.equal(preTool(dir, 'Bash', { command: 'grep -r okta memory/ work/' }), null);
   assert.equal(preTool(dir, 'Read', { file_path: path.join(dir, 'memory', 'INDEX.md') }), null);
   assert.equal(preTool(dir, 'Write', { file_path: path.join(dir, 'docs', 'memory.md'), content: 'x' }), null);
-  assert.equal(preTool(dir, 'Bash', { command: 'flow librarian apply --action create' }, { agent: 'second-brain-flow:memory-librarian' }), null);
+  assert.ok(isAllow(preTool(dir, 'Bash', { command: 'flow librarian apply --action create' }, { agent: 'second-brain-flow:memory-librarian' })));
 });
 
 test('PreToolUse: flow trust set needs the owner command; a save phrase forces remember', () => {
@@ -118,12 +118,12 @@ test('PreToolUse: flow trust set needs the owner command; a save phrase forces r
   assert.ok(isDeny(out));
   assert.match(out.hookSpecificOutput.permissionDecisionReason, /Only the owner/);
   prompt(dir, '/second-brain-flow:trust on');
-  assert.equal(preTool(dir, 'Bash', { command: 'flow trust set on' }), null);
+  assert.ok(isAllow(preTool(dir, 'Bash', { command: 'flow trust set on' })));
   assert.ok(isDeny(preTool(dir, 'Bash', { command: 'flow trust set off' })));
 
   prompt(dir, 'save this: Tuesdays');
   assert.ok(isDeny(preTool(dir, 'Bash', { command: 'flow route chat' })));
-  assert.equal(preTool(dir, 'Bash', { command: 'flow route remember' }), null);
+  assert.ok(isAllow(preTool(dir, 'Bash', { command: 'flow route remember' })));
 });
 
 test('SubagentStart marks queued jobs dispatched only for the librarian', () => {

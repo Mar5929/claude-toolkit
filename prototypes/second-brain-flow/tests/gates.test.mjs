@@ -52,16 +52,23 @@ test('item approve is refused before an owner prompt and accepted after', () => 
   assert.match(item, /## Next step\n\nRequirements are approved\. Start the design\./);
 });
 
-test('stage done and requirements-approved are gated; other stages are not', () => {
+test('stage done and requirements-approved are gated; later stages need approved requirements', () => {
   const dir = makeProject();
   prompt(dir, 'new');
   ok(dir, ['route', 'new-work']);
   ok(dir, ['item', 'new', '--title', 'Thing']);
-  ok(dir, ['item', 'stage', 'build']);
+  assert.match(refused(dir, ['item', 'stage', 'build']), /no approved requirements/);
   refused(dir, ['item', 'stage', 'done']);
   refused(dir, ['item', 'stage', 'requirements-approved']);
-  ok(dir, ['item', 'stage', 'done', '--propose']);
-  refused(dir, ['item', 'stage', 'done']);
+  ok(dir, ['item', 'requirement', '--text', 'It works.']);
+  ok(dir, ['item', 'approve', '--propose']);
+  prompt(dir, 'approved');
+  ok(dir, ['route', 'chat']);
+  ok(dir, ['item', 'approve', '--item', '1']);
+  ok(dir, ['item', 'stage', 'build', '--item', '1']);
+  refused(dir, ['item', 'stage', 'done', '--item', '1']);
+  ok(dir, ['item', 'stage', 'done', '--propose', '--item', '1']);
+  refused(dir, ['item', 'stage', 'done', '--item', '1']);
   prompt(dir, 'yes it is done');
   ok(dir, ['route', 'chat']);
   assert.match(ok(dir, ['item', 'stage', 'done', '--item', '1']), /to done/);

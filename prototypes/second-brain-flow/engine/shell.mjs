@@ -74,8 +74,17 @@ export function splitCommands(command) {
         i += 1;
       }
     } else if (c === '>' || c === '<') {
+      // A digit right before, as in 2>, names a file descriptor, not an argument.
+      if (word !== null && /^\d+$/.test(word)) word = null;
       endWord();
       if (c === '>') pendingRedirect = true;
+      if (src[i + 1] === '&' && /[\d-]/.test(src[i + 2] || '')) {
+        // >&1 or 2>&- duplicates or closes a descriptor. No file is written.
+        i += 2;
+        while (/\d/.test(src[i + 1] || '')) i += 1;
+        pendingRedirect = false;
+        continue;
+      }
       if (src[i + 1] === '>' || src[i + 1] === '&' || src[i + 1] === '|') i += 1;
       if (c === '<') pendingRedirect = false;
     } else if (c === '\n' && heredocs.length) {
