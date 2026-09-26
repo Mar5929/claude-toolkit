@@ -161,7 +161,7 @@ The `route` step offers `continue` when a workflow is waiting on an owner step,
 so a reply to a question lands back in the workflow that asked it.
 
 Two routes are forced by facts. When the owner's prompt starts with "save
-this" or "remember this", or starts with "remember that" and has no question
+this", or starts with "remember that" or "remember this" and has no question
 mark, the prompt hook tells the agent to route `remember`, and the gate refuses
 any other route. "Remember that bug we fixed? Is it back?" is not forced; the
 agent gets a hint that it may be a save or a question about the past. When a
@@ -170,7 +170,9 @@ a workflow and item already on the stack replaces the older copy.
 
 A background task notification reaches the prompt hook as a prompt that starts
 with `<task-notification>`. It starts a notification turn: already routed,
-counted as no owner prompt, and answering no waiting step.
+counted as no owner prompt, and answering no waiting step. A notification that
+arrives before the owner's turn is routed only records itself, so that turn's
+route rules stay in force.
 
 ## Session state
 
@@ -204,7 +206,7 @@ or clears `FLOW_SESSION_ID` or `FLOW_PROJECT_ROOT` is refused.
 | `flow item new/show/list/question/answer/requirement/progress/stage/approve` | Every work-item change. The engine renders the template. Also `question --none`, `question --ask <Q id>`, `progress --next`, and `--propose` on `approve` and `stage`. |
 | `flow memory recall <words>` | Ranked search across memory topics and work items. |
 | `flow memory propose ...` | Creates a proposal with type, title, statement, reason, and source. |
-| `flow memory approve/reject/edit <id>` | Owner decisions in onboarding mode. `approve` and `edit` are refused unless the owner sent a prompt after the proposal was shown, in the session that showed it. |
+| `flow memory approve/reject/edit <id>` | Owner decisions in onboarding mode. Each is refused unless the owner sent a prompt after the proposal was shown, in the session that showed it. |
 | `flow memory pending` | This session's cards; cards of other sessions are listed as waiting in another session. |
 | `flow memory log` / `flow memory undo <change id>` | What was written, when, by whom, under which mode. Undo restores the previous file content. It needs the owner command `/second-brain-flow:memory-undo <change id>` in the same turn, and is refused while a later change to the same file is not undone. |
 | `flow focus todo/upcoming/remove/none` | The agent-owned sections of `FOCUS.md`. |
@@ -217,13 +219,17 @@ or clears `FLOW_SESSION_ID` or `FLOW_PROJECT_ROOT` is refused.
 Every command prints plain text written for the agent: what happened, and the
 exact next command or step.
 
+Every id the command takes (card, job, change, topic, item) is checked against
+its pattern before a path is built, and each path must stay inside its folder.
+A missing or unreadable time never counts as an owner reply.
+
 ## Hooks
 
 | Event | What the hook does |
 | --- | --- |
 | `SessionStart` | Creates or reloads session state. Writes `FLOW_SESSION_ID` to the environment file. Injects the memory index, the focus file, the mode, and any workflow still in progress. On `compact` and `resume`, re-injects the current step. |
 | `UserPromptSubmit` | Starts a new turn: records the prompt time, marks the most recent waiting `owner` step as answered, detects the owner's trust and undo commands and save phrases, pushes the `turn` workflow, and injects the `orient` output and the route instruction. A task notification starts a notification turn instead. |
-| `PreToolUse` | Before the turn is routed, allows only read-only tools, `Skill`, and `flow` commands. Refuses Write, Edit, and shell writes to `memory/`, `work/`, and `.flow/` from any agent; the shell reader follows `cd`, reads `bash -c` and `eval` strings, and expands `$CLAUDE_PROJECT_DIR`, `$PWD`, `$HOME`, and `~`. Refuses `flow turn`, and commands that set or clear `FLOW_SESSION_ID` or `FLOW_PROJECT_ROOT`. Refuses `flow trust set` unless the owner typed the trust command this turn. Refuses a route other than `remember` when a save phrase forced it. Returns `allow` for one plain `flow` command, so it runs without a permission prompt. |
+| `PreToolUse` | Before the turn is routed, allows only read-only tools, `Skill`, and `flow` commands. Refuses Write, Edit, and shell writes to `memory/`, `work/`, and `.flow/` from any agent; the shell reader follows `cd`, reads `bash -c` and `eval` strings, and expands `$CLAUDE_PROJECT_DIR`, `$PWD`, `$HOME`, and `~`. Refuses `flow turn`, and commands that set or clear `FLOW_SESSION_ID` or `FLOW_PROJECT_ROOT`. Refuses `flow trust set` unless the owner typed the trust command this turn. Refuses a route other than `remember` when a save phrase forced it. Also refuses whole-tree commands that would reach a protected folder (`rm -r .`, `git checkout .`, `git restore`, `git reset --hard`, `git stash`, `git clean`, `find -delete`, `xargs rm`) and looks through `sudo`, `env`, `command`, `time`, and `nohup`. Returns `allow` for one plain command of this plugin's own `bin/flow` (a bare `flow` only when the hook's PATH resolves to it; never `flow init`), so it runs without a permission prompt. |
 | `SubagentStart` | Matches `^second-brain-flow:memory-librarian$`. Marks this session's queued jobs dispatched, under the memory lock, which ends a `dispatch` step. |
 | `Stop` | Holds the reply once, with the missing item named, when the turn was never routed, when the current `agent` step's exit checks fail, when a proposal card was created but its id does not appear in the reply, or when a librarian job was queued and no librarian started. On a notification turn it holds only for steps that turn started. Uses `stop_hook_active` so it never holds the same reply twice. |
 
@@ -271,8 +277,10 @@ the owner replied after the agent proposed them. `design`, `build`, `testing`,
 `refine`.
 
 The owner may edit an item by hand. A flow write rewrites only flow's own
-lines; every other line and section stays where it was. Hand-written ids such
-as `- R3 text` are read. `flow doctor` lists the lines in Requirements and Open
+lines; every other line and section stays where it was, including front-matter
+lines flow does not own, blank lines, and fenced code (a `## ` line inside it is
+not a heading). Windows line endings are kept. Hand-written ids such as
+`- R3 text` are read. `flow doctor` lists the lines in Requirements and Open
 questions that flow cannot read.
 
 The prototype stores items locally. A GitHub Issues adapter would render the
@@ -451,3 +459,10 @@ It is not registered in either marketplace. Try it with
   their session; later stages need approved requirements; "remember that ...?"
   is not forced; repeated routes replace older copies; plain `flow` commands
   run without a permission prompt; the librarian matcher is anchored.
+- 2026-09-26: After the second review: ids are validated before any path is
+  built and owner-reply checks fail closed; `reject` follows the approve rule;
+  the shell gate covers `${VAR}`, whole-tree git, find, and xargs commands, and
+  wrapper prefixes; item rewrites keep front-matter lines, fenced code, blank
+  lines, and CRLF; "remember this ...?" is not forced; auto-allow needs the
+  plugin's own `bin/flow` and skips `flow init`; a notification no longer
+  replaces an unrouted owner turn.

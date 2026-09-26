@@ -55,6 +55,12 @@ export function splitCommands(command) {
     } else if (c === '\\' && i + 1 < src.length) {
       if (src[i + 1] !== '\n') word = (word || '') + src[i + 1];
       i += 1;
+    } else if (c === '$' && src[i + 1] === '{') {
+      // ${VAR} stays one piece of the word; the braces are not a group.
+      const end = src.indexOf('}', i + 2);
+      if (end < 0) { opaque = true; word = (word || '') + src.slice(i); break; }
+      word = (word || '') + src.slice(i, end + 1);
+      i = end;
     } else if (c === '$' && src[i + 1] === '(') {
       opaque = true;
       word = (word || '') + c;
@@ -115,13 +121,33 @@ export function splitCommands(command) {
   return segments;
 }
 
-// The program of a simple command, skipping VAR=value prefixes and `env`.
+// Prefixes that run the command after them. Options that take a value are listed.
+const WRAPPERS = {
+  sudo: ['-u', '-g', '-h', '-p', '-C', '-D', '-r', '-t', '-U'],
+  command: [],
+  time: ['-f', '-o'],
+  nohup: [],
+  env: ['-u', '-C', '-S'],
+  nice: ['-n'],
+  exec: ['-a'],
+};
+
+// The program of a simple command, skipping VAR=value prefixes and wrapper
+// commands such as `sudo`, `env`, `command`, `time`, and `nohup`.
 export function programOf(tokens) {
   let i = 0;
-  while (i < tokens.length && /^[A-Za-z_][A-Za-z0-9_]*=/.test(tokens[i])) i += 1;
-  if (tokens[i] === 'env') {
-    i += 1;
+  const skipAssignments = () => {
     while (i < tokens.length && /^[A-Za-z_][A-Za-z0-9_]*=/.test(tokens[i])) i += 1;
+  };
+  skipAssignments();
+  for (let guard = 0; guard < 10 && WRAPPERS[tokens[i]]; guard += 1) {
+    const takesValue = WRAPPERS[tokens[i]];
+    i += 1;
+    while (i < tokens.length && tokens[i].startsWith('-')) {
+      if (tokens[i] === '--') { i += 1; break; }
+      i += takesValue.includes(tokens[i]) ? 2 : 1;
+    }
+    skipAssignments();
   }
   return { program: tokens[i] || '', args: tokens.slice(i + 1) };
 }

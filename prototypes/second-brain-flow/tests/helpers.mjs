@@ -8,6 +8,8 @@ import { run } from '../engine/cli.mjs';
 import * as hooks from '../engine/hooks.mjs';
 import { loadSession } from '../engine/project.mjs';
 
+const PLUGIN_BIN = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..', 'bin');
+
 export function makeProject() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sbf-test-'));
   fs.mkdirSync(path.join(dir, '.git'));
@@ -50,7 +52,8 @@ export function prompt(dir, text, session = 's1') {
 export function preTool(dir, toolName, toolInput, { session = 's1', agent = null } = {}) {
   const input = { ...common(dir, session, 'PreToolUse'), tool_name: toolName, tool_input: toolInput, tool_use_id: 'toolu_01ABC' };
   if (agent) Object.assign(input, { agent_id: 'agent-abc123', agent_type: agent });
-  return hooks.preToolUse(input, {});
+  // Claude Code puts the plugin's bin/ on the PATH, so a bare `flow` resolves to it.
+  return hooks.preToolUse(input, { PATH: `${PLUGIN_BIN}${path.delimiter}/usr/bin` });
 }
 
 export function stopHook(dir, lastMessage, { session = 's1', active = false } = {}) {

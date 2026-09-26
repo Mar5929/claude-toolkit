@@ -259,6 +259,10 @@ function memoryCommand(ctx, sub, positional, opts) {
     }
     case 'reject': {
       const proposal = getPending(root, id);
+      ownCard(session, proposal, 'reject');
+      if (!ownerRepliedSince(session, proposal.created_at)) {
+        refuse(`The owner has not replied since proposal ${id} was shown. Show the card, end your reply, and wait for the owner.`);
+      }
       removePending(root, id);
       appendLogLocked(root, `${now()} | ${id} | rejected | - | "${proposal.title}" | mode ${mode} | owner rejected`);
       recordFact(session, 'proposal-rejected', { id });

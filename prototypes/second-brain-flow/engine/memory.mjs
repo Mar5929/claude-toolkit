@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {
   projectPaths, readText, writeText, readJson, writeJson, parseFrontMatter, renderFrontMatter,
-  renderTemplate, slugify, today, now, shortId, withLock, refuse, ensureDir,
+  renderTemplate, slugify, today, now, shortId, withLock, refuse, ensureDir, checkId, pathInside,
 } from './core.mjs';
 import { listItems } from './items.mjs';
 
@@ -34,13 +34,14 @@ export function listTopics(root) {
 }
 
 export function findTopic(root, id) {
+  checkId('topic', id);
   const topic = listTopics(root).find((t) => t.fm.id === id);
   if (!topic) refuse(`Topic "${id}" does not exist. Run \`flow memory recall <words>\` to find topic ids.`);
   return topic;
 }
 
 function topicPath(root, id) {
-  return path.join(projectPaths(root).topics, `${id}.md`);
+  return pathInside(projectPaths(root).topics, `${checkId('topic', id)}.md`);
 }
 
 function firstSentence(text) {
@@ -69,7 +70,7 @@ function validateTopic(topic) {
 // ---------- proposals (onboarding mode) ----------
 
 export function pendingPath(root, id) {
-  return path.join(projectPaths(root).pending, `${id}.json`);
+  return pathInside(projectPaths(root).pending, `${checkId('card', id)}.json`);
 }
 
 export function listPending(root) {
@@ -80,6 +81,7 @@ export function listPending(root) {
 
 export function getPending(root, id) {
   const p = readJson(pendingPath(root, id));
+  if (p && p.id !== id) refuse(`Proposal file ${id}.json does not hold proposal ${id}. Run \`flow doctor\`.`);
   if (!p) refuse(`No pending proposal has the id "${id}". Pending: ${listPending(root).map((x) => x.id).join(', ') || 'none'}.`);
   return p;
 }
@@ -119,7 +121,11 @@ export function renderCard(root, proposal) {
 // ---------- librarian jobs ----------
 
 function jobPath(root, id) {
-  return path.join(projectPaths(root).queue, `${id}.json`);
+  return pathInside(projectPaths(root).queue, `${checkId('job', id)}.json`);
+}
+
+function historyPath(root, id) {
+  return pathInside(projectPaths(root).history, `${checkId('change', id)}.json`);
 }
 
 export function listJobs(root) {
@@ -323,7 +329,7 @@ export function applyLibrarian(root, jobId, options) {
       history.files[path.relative(root, file)] = readText(file);
     }
     ensureDir(projectPaths(root).history);
-    writeJson(path.join(projectPaths(root).history, `${changeId}.json`), history);
+    writeJson(historyPath(root, changeId), history);
     for (const [file, text] of writes) writeText(file, text);
     regenerate(root);
     const target = touched.length ? touched.join(', ') : '-';
@@ -338,7 +344,7 @@ export function applyLibrarian(root, jobId, options) {
 
 export function undoChange(root, changeId) {
   return withLock(root, 'memory', () => {
-    const file = path.join(projectPaths(root).history, `${changeId}.json`);
+    const file = historyPath(root, changeId);
     const history = readJson(file);
     if (!history) refuse(`No change has the id "${changeId}". Run \`flow memory log\` to see change ids.`);
     if (history.undone) refuse(`Change ${changeId} was already undone.`);

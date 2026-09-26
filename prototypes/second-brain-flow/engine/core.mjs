@@ -67,10 +67,37 @@ export function now() {
 export function today() {
   return new Date().toISOString().slice(0, 10);
 }
+// True only when both times are valid and a is later than b. A missing or
+// unreadable time never counts as "after", so owner checks fail closed.
 export function isAfter(a, b) {
-  if (!a) return false;
-  if (!b) return true;
-  return Date.parse(a) > Date.parse(b);
+  const ta = Date.parse(a);
+  const tb = Date.parse(b);
+  if (!a || !b || Number.isNaN(ta) || Number.isNaN(tb)) return false;
+  return ta > tb;
+}
+
+// Ids that reach a file path. Each is checked before any path is built.
+const ID_PATTERNS = {
+  card: /^mem-[0-9a-f]{4,32}$/,
+  job: /^job-[0-9a-f]{4,32}$/,
+  change: /^chg-[0-9a-f]{4,32}$/,
+  topic: /^[a-z]+-[a-z0-9]+(?:-[a-z0-9]+)*$/,
+  item: /^[1-9]\d{0,6}$/,
+};
+const ID_NAMES = { card: 'proposal', job: 'librarian job', change: 'change', topic: 'topic', item: 'work item' };
+
+export function checkId(kind, id) {
+  const text = String(id ?? '');
+  if (!ID_PATTERNS[kind].test(text)) refuse(`"${text}" is not a valid ${ID_NAMES[kind]} id.`);
+  return text;
+}
+
+// Builds dir/<name> and refuses when the result would leave dir.
+export function pathInside(dir, name) {
+  const file = path.resolve(dir, name);
+  const rel = path.relative(path.resolve(dir), file);
+  if (!rel || rel.startsWith('..') || path.isAbsolute(rel)) refuse(`"${name}" is outside ${dir}.`);
+  return file;
 }
 
 export function shortId(prefix) {
@@ -155,16 +182,38 @@ export function withLock(root, name, fn, { staleMs = 10000, waitMs = 15000 } = {
   }
 }
 
-// Front matter: a small subset of YAML. Scalars, null, and inline lists.
-export function parseFrontMatter(text) {
-  const m = /^---\n([\s\S]*?)\n---\n?/.exec(text || '');
-  if (!m) return { data: null, body: text || '' };
+// Front matter: a small subset of YAML. Windows line endings are read as `\n`.
+// `lines` keeps the raw front-matter lines so a rewrite can keep the ones flow
+// does not own.
+export function parseFrontMatter(input) {
+  const text = String(input || '').replace(/\r\n/g, '\n');
+  const m = /^---\n([\s\S]*?)\n---\n?/.exec(text);
+  if (!m) return { data: null, body: text, lines: [] };
   const data = {};
-  for (const line of m[1].split('\n')) {
+  const lines = m[1].split('\n');
+  for (const line of lines) {
     const kv = /^([A-Za-z_][\w-]*):\s?(.*)$/.exec(line);
     if (kv) data[kv[1]] = parseScalar(kv[2].trim());
   }
-  return { data, body: text.slice(m[0].length) };
+  return { data, body: text.slice(m[0].length), lines };
+}
+
+// Rewrites only the keys flow owns, in place. Every other line, such as a
+// comment, a block list, or a key flow does not know, stays as written.
+export function renderFrontMatterKeeping(lines, data, owned) {
+  const out = [];
+  const done = new Set();
+  for (const line of lines) {
+    const kv = /^([A-Za-z_][\w-]*):\s?(.*)$/.exec(line);
+    if (kv && owned.includes(kv[1]) && !done.has(kv[1])) {
+      out.push(`${kv[1]}: ${formatScalar(data[kv[1]])}`);
+      done.add(kv[1]);
+    } else {
+      out.push(line);
+    }
+  }
+  for (const key of owned) if (!done.has(key) && key in data) out.push(`${key}: ${formatScalar(data[key])}`);
+  return `---\n${out.join('\n')}\n---\n`;
 }
 
 function parseScalar(raw) {

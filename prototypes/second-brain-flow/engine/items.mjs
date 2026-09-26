@@ -2,8 +2,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {
-  projectPaths, readText, writeText, parseFrontMatter, renderFrontMatter, renderTemplate,
-  slugify, today, withLock, refuse,
+  projectPaths, readText, writeText, parseFrontMatter, renderFrontMatter, renderFrontMatterKeeping, renderTemplate,
+  slugify, today, withLock, refuse, checkId,
 } from './core.mjs';
 import { refreshFocus } from './focus.mjs';
 
@@ -15,16 +15,32 @@ const KNOWN = ['Goal', 'Why', 'Requirements', 'Open questions', 'Decisions', 'Pr
 const TEMPLATE_KEYS = { Goal: 'goal', Why: 'why', Requirements: 'requirements', 'Open questions': 'questions', Decisions: 'decisions', Progress: 'progress', 'Next step': 'next' };
 
 // Splits the body into the text before the first `## ` heading and the
-// sections in file order. Each section keeps its raw text for verbatim output.
+// sections in file order. A `## ` line inside a fenced code block is not a
+// heading. Each section keeps its raw text for verbatim output.
 function splitBody(body) {
-  const parts = body.split(/^## (.+)$/m);
-  const sections = [];
-  for (let i = 1; i < parts.length; i += 2) sections.push({ heading: parts[i].trim(), raw: parts[i + 1] });
-  return { preamble: parts[0], sections };
+  const lines = body.split('\n');
+  const heads = [];
+  let fence = null;
+  lines.forEach((line, i) => {
+    const f = /^\s*(```|~~~)/.exec(line);
+    if (f) fence = fence === null ? f[1] : (fence === f[1] ? null : fence);
+    else if (fence === null && /^## (.+)$/.test(line)) heads.push(i);
+  });
+  if (!heads.length) return { preamble: body, sections: [] };
+  const withNewlines = (arr) => arr.map((l) => `${l}\n`).join('');
+  const sections = heads.map((h, k) => {
+    const end = k + 1 < heads.length ? heads[k + 1] : lines.length;
+    const inner = lines.slice(h + 1, end);
+    const last = k + 1 === heads.length;
+    const raw = last ? (inner.length ? `\n${inner.join('\n')}` : '') : `\n${withNewlines(inner)}`;
+    return { heading: lines[h].slice(3).trim(), raw };
+  });
+  return { preamble: withNewlines(lines.slice(0, heads[0])), sections };
 }
 
 // A list section: each entry is a `- ` line plus the lines that continue it
-// (wrapped text, up to a blank line). Any other line is kept verbatim in place.
+// (wrapped text, up to a blank line). Any other line, blank lines between
+// entries included, is kept verbatim in place.
 function listEntries(raw) {
   const out = [];
   let current = null;
@@ -34,12 +50,16 @@ function listEntries(raw) {
       out.push(current);
     } else if (!line.trim()) {
       current = null;
+      out.push({ verbatim: '' });
     } else if (current) {
       current.lines.push(line);
     } else if (line.trim() !== NONE) {
       out.push({ verbatim: line });
     }
   }
+  while (out.length && out[0].verbatim === '') out.shift();
+  while (out.length && out[out.length - 1].verbatim === '') out.pop();
+  for (let i = out.length - 1; i > 0; i -= 1) if (out[i].verbatim === '' && out[i - 1].verbatim === '') out.splice(i, 1);
   return out.map((e) => (e.verbatim !== undefined ? e : { text: e.lines.join('\n') }));
 }
 
@@ -62,8 +82,11 @@ function parseQuestion(text) {
   return m ? { id: m[1], state: m[2] || 'asked', date: m[3] || null, text: m[4] } : { verbatim: `- ${text}` };
 }
 
+// Front-matter keys flow writes. Every other front-matter line is kept.
+const OWNED_KEYS = ['id', 'title', 'stage', 'created', 'updated', 'requirements_approved'];
+
 export function parseItem(text, file = null) {
-  const { data, body } = parseFrontMatter(text);
+  const { data, body, lines } = parseFrontMatter(text);
   if (!data) return null;
   const layout = splitBody(body);
   const s = {};
@@ -79,6 +102,8 @@ export function parseItem(text, file = null) {
     progress: entries('Progress').map((e) => (e.verbatim !== undefined ? e : e.text)),
     next: plain(s['Next step']),
     layout,
+    fmLines: lines,
+    eol: String(text).includes('\r\n') ? '\r\n' : '\n',
     file,
   };
 }
@@ -87,13 +112,15 @@ export function parseItem(text, file = null) {
 export function unreadLines(item) {
   const out = [];
   for (const [name, list] of [['Requirements', item.requirements], ['Open questions', item.questions]]) {
-    for (const e of list) if (e.verbatim !== undefined) out.push({ section: name, line: e.verbatim });
+    for (const e of list) if (e.verbatim) out.push({ section: name, line: e.verbatim });
   }
   return out;
 }
 
-function list(entries, render) {
-  if (!entries.length) return NONE;
+function list(all, render) {
+  // Blank lines kept from the file stay between entries, never at the ends or doubled.
+  const entries = all.filter((e, i, a) => !(e && e.verbatim === '' && (i === 0 || i === a.length - 1 || (a[i - 1] && a[i - 1].verbatim === ''))));
+  if (!entries.some((e) => !(e && e.verbatim === ''))) return NONE;
   return entries.map((e) => (e && e.verbatim !== undefined ? e.verbatim : `- ${render(e)}`)).join('\n');
 }
 
@@ -129,7 +156,7 @@ export function renderItem(item) {
     return `## ${sec.heading}\n\n${sectionContent(item, sec.heading)}\n\n`;
   });
   for (const h of KNOWN) if (!present.has(h)) blocks.push(`## ${h}\n\n${sectionContent(item, h)}\n\n`);
-  let out = `${renderFrontMatter(item.fm)}${preamble}`;
+  let out = `${renderFrontMatterKeeping(item.fmLines || [], item.fm, OWNED_KEYS)}${preamble}`;
   for (const b of blocks) {
     if (!out.endsWith('\n\n') && out.length) out += out.endsWith('\n') ? '\n' : '\n\n';
     out += b;
@@ -151,6 +178,7 @@ export function listItems(root) {
 }
 
 export function findItem(root, id) {
+  checkId('item', id);
   const n = Number(id);
   if (!Number.isInteger(n)) refuse(`"${id}" is not a work item id. Run \`flow item list\` to see the ids.`);
   const item = listItems(root).find((i) => i.fm.id === n);
@@ -160,7 +188,8 @@ export function findItem(root, id) {
 
 function save(root, item) {
   item.fm.updated = today();
-  writeText(item.file, renderItem(item));
+  const text = renderItem(item);
+  writeText(item.file, item.eol === '\r\n' ? text.replace(/\n/g, '\r\n') : text);
   refreshFocus(root);
   return item;
 }

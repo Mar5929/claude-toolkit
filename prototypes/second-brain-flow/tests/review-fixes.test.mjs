@@ -211,7 +211,7 @@ test('7: "remember that ...?" is a question, not a forced save; plain save phras
   assert.equal(state(dir).turn.forcedRoute, null);
   assert.match(out.hookSpecificOutput.additionalContext, /may ask about the past/);
   ok(dir, ['route', 'recall']);
-  for (const text of ['remember that invoices go out on the 5th', 'save this: why not?', 'Remember this?']) {
+  for (const text of ['remember that invoices go out on the 5th', 'save this: why not?', 'Remember this: we ship on Fridays.']) {
     prompt(dir, text);
     assert.equal(state(dir).turn.forcedRoute, 'remember', text);
     refused(dir, ['route', 'chat']);

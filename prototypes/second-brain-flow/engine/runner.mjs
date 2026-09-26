@@ -7,14 +7,14 @@ import { recall, formatHits, listPending, listJobs, getJob, pendingPath } from '
 import { refreshFocus, getSection } from './focus.mjs';
 import fs from 'node:fs';
 
-// How an owner prompt asks for a save. "save this" and "remember this" at the
-// start force the remember route. "remember that" forces it only without a
-// question mark, since "Remember that bug? Is it back?" asks about the past.
+// How an owner prompt asks for a save. "save this" at the start always forces
+// the remember route. "remember that" and "remember this" force it only without
+// a question mark, since "Remember that bug? Is it back?" asks about the past.
 // A save phrase that does not force gives the agent a hint instead.
 export function savePhrase(prompt) {
   const text = String(prompt || '');
-  if (/^\s*(save this|remember this)\b/i.test(text)) return 'force';
-  if (/^\s*remember that\b/i.test(text)) return text.includes('?') ? 'hint' : 'force';
+  if (/^\s*save this\b/i.test(text)) return 'force';
+  if (/^\s*remember (that|this)\b/i.test(text)) return text.includes('?') ? 'hint' : 'force';
   return null;
 }
 
@@ -168,7 +168,7 @@ export function orientText(ctx) {
     else lines.push(`Open workflow: ${f.workflow}${item} at step ${f.step}. Route \`continue\` to resume it, or run \`flow cancel\` to drop it.`);
   }
   if (session.turn?.forcedRoute) lines.push(`The owner's prompt starts with a save phrase, so the route must be \`${session.turn.forcedRoute}\`.`);
-  if (session.turn?.saveHint) lines.push('The owner\'s prompt starts with "remember that" but asks a question. It may ask about the past (route `recall`) or ask for a save (route `remember`). Decide which.');
+  if (session.turn?.saveHint) lines.push('The owner\'s prompt starts with "remember" but asks a question. It may ask about the past (route `recall`) or ask for a save (route `remember`). Decide which.');
   if (session.turn?.trustPermission) lines.push(`The owner typed the trust command. Run \`flow trust set ${session.turn.trustPermission}\`.`);
   const pending = listPending(root);
   if (pending.length) lines.push(`Pending memory proposals: ${pending.map((p) => `${p.id} (${p.title})${p.session && p.session !== session.id ? ', waiting in another session' : ''}`).join('; ')}.`);
@@ -400,6 +400,15 @@ export function beginTurn(ctx, { prompt, forcedRoute = null, trustPermission = n
 // step forward, counts for no approval, and needs no route.
 export function beginNotificationTurn(ctx, { prompt }) {
   const { session } = ctx;
+  // An owner turn that is not routed yet stays in force: its route requirement
+  // and any forced route still apply. The notification is only recorded.
+  if (session.turn && !session.turn.routed && !session.turn.notification) {
+    session.turn.notifications = [...(session.turn.notifications || []), { at: now(), prompt: String(prompt || '').slice(0, 200) }];
+    return [
+      'A background task notification arrived. It is not an owner prompt and changes nothing about this turn.',
+      describe(ctx),
+    ].join('\n');
+  }
   session.stack = session.stack.filter((f) => f.workflow !== 'turn');
   session.turn = {
     n: (session.turn?.n || 0) + 1,

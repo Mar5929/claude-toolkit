@@ -142,9 +142,66 @@ function protectedMessage(area, target = '') {
 
 const SHELLS = new Set(['bash', 'sh', 'zsh', 'dash', 'ksh']);
 
+// The protected folder a path contains, for commands that act on whole trees
+// (`rm -r .`, `git checkout .`, `git clean`). A path inside a protected folder
+// counts too.
+function coveredArea(root, cwd, target, env) {
+  const inside = protectedArea(root, cwd, target, env);
+  if (inside) return inside;
+  const abs = expandPath(String(target), cwd, root, env);
+  if (!abs) return null;
+  for (const area of PROTECTED) {
+    const rel = path.relative(abs, path.join(root, area));
+    if (!rel.startsWith('..') && !path.isAbsolute(rel)) return area;
+  }
+  return null;
+}
+
+const operands = (args) => {
+  const out = [];
+  let paths = false;
+  for (const a of args) {
+    if (a === '--') { paths = true; continue; }
+    if (!paths && a.startsWith('-')) continue;
+    out.push(a);
+  }
+  return out;
+};
+
+// Git commands that rewrite working files. Returns the paths they act on, with
+// '.' standing for the whole tree, or null when the command writes no file.
+function gitTargets(args) {
+  const [sub, ...rest] = args;
+  const ops = operands(rest);
+  switch (sub) {
+    case 'rm': case 'mv': case 'apply':
+      return ops.length ? ops : ['.'];
+    case 'checkout': {
+      // `git checkout <branch>` names no protected path and passes. `.`, a
+      // path, or anything after `--` restores files.
+      const dd = rest.indexOf('--');
+      if (dd >= 0) return rest.slice(dd + 1).length ? rest.slice(dd + 1) : ['.'];
+      if (!ops.length && (rest.includes('-f') || rest.includes('--force'))) return ['.'];
+      return ops;
+    }
+    case 'restore':
+      if (rest.includes('--staged') && !rest.includes('--worktree') && !rest.includes('-W')) return null;
+      return ops.length ? ops : ['.'];
+    case 'reset':
+      return rest.includes('--hard') || rest.includes('--merge') || rest.includes('--keep') ? ['.'] : null;
+    case 'stash':
+      if (['list', 'show'].includes(ops[0])) return null;
+      return ['.'];
+    case 'clean':
+      return ops.length ? ops : ['.'];
+    default:
+      return null;
+  }
+}
+
 // Returns a refusal reason when a shell command writes under a protected folder.
-// It follows `cd` within the command and reads the string given to `bash -c`
-// and `eval`.
+// It follows `cd` within the command, reads the string given to `bash -c` and
+// `eval`, and looks through wrappers such as `sudo` and `env`.
 function shellWriteReason(root, startCwd, segments, env, depth = 0) {
   let cwd = startCwd;
   for (const seg of segments) {
@@ -167,9 +224,34 @@ function shellWriteReason(root, startCwd, segments, env, depth = 0) {
       continue;
     }
     if (isFlowProgram(program, args).flow) continue;
+
+    // Commands that act on a whole tree: any operand that contains a protected folder.
+    let tree = null;
+    if (name === 'git') tree = gitTargets(args);
+    else if (name === 'rm' && args.some((a) => /^-[a-zA-Z]*[rR]/.test(a) || a === '--recursive')) tree = operands(args);
+    else if (name === 'find') {
+      const execAt = args.findIndex((a) => ['-exec', '-execdir', '-ok', '-okdir'].includes(a));
+      const writesByExec = execAt >= 0 && WRITE_PROGRAMS.has(path.basename(args[execAt + 1] || ''));
+      if (args.includes('-delete') || writesByExec) {
+        const starts = [];
+        for (const a of args) { if (a.startsWith('-') || a === '!' || a === '(') break; starts.push(a); }
+        tree = starts.length ? starts : ['.'];
+      }
+    } else if (name === 'xargs') {
+      const run = programOf(args.filter((a, i) => !a.startsWith('-') || i > args.findIndex((x) => !x.startsWith('-'))));
+      // xargs takes its paths from input, which cannot be read here.
+      if (WRITE_PROGRAMS.has(path.basename(run.program)) || (run.program === 'sed' && run.args.some((a) => /^-[a-zA-Z]*i|^--in-place/.test(a)))) tree = ['.'];
+    }
+    if (tree) {
+      for (const t of tree) {
+        const area = coveredArea(root, cwd, t, env);
+        if (area) return `${protectedMessage(area, t)} This command could change files under ${area}/.`;
+      }
+      if (name === 'git' || name === 'xargs') continue;
+    }
+
     let writes = WRITE_PROGRAMS.has(name);
-    if ((name === 'sed' || name === 'perl') && args.some((a) => /^-[a-zA-Z]*i/.test(a))) writes = true;
-    if (name === 'git' && ['rm', 'mv', 'checkout', 'restore', 'clean', 'apply'].includes(args[0])) writes = true;
+    if ((name === 'sed' || name === 'perl') && args.some((a) => /^-[a-zA-Z]*i/.test(a) || /^--in-place/.test(a))) writes = true;
     if (!writes) continue;
     for (const a of args) {
       const area = protectedArea(root, cwd, a, env);
@@ -183,13 +265,40 @@ function shellWriteReason(root, startCwd, segments, env, depth = 0) {
 // could get round the owner checks.
 const FLOW_VARIABLE = /\b(?:FLOW_SESSION_ID|FLOW_PROJECT_ROOT)\s*=|\bunset\b[^;&|\n]*\b(?:FLOW_SESSION_ID|FLOW_PROJECT_ROOT)\b|-u\s*(?:FLOW_SESSION_ID|FLOW_PROJECT_ROOT)\b/;
 
-// The plugin's own flow command: bare `flow` (bin/ is on the Bash path), the
-// plugin's bin/flow by path, or `node` with that path.
-function isPluginFlow(program, args) {
-  const own = path.join(PLUGIN_ROOT, 'bin', 'flow');
-  if (program === 'flow' || (program && path.resolve(program) === own)) return true;
-  return program === 'node' && args[0] && path.resolve(args[0]) === own;
+// True when the command runs this plugin's own bin/flow: a path to it, `node`
+// with a path to it, or a bare `flow` that the hook's PATH resolves to it.
+// Anything else gets no automatic allow.
+function realOrNull(file) {
+  try {
+    return fs.realpathSync(file);
+  } catch {
+    return null;
+  }
 }
+
+function resolveOnPath(name, env) {
+  for (const dir of String(env.PATH || '').split(path.delimiter)) {
+    if (!dir) continue;
+    const candidate = path.join(dir, name);
+    try {
+      if (fs.statSync(candidate).isFile()) return candidate;
+    } catch { /* not in this folder */ }
+  }
+  return null;
+}
+
+function isPluginFlow(program, args, cwd, env) {
+  const own = realOrNull(path.join(PLUGIN_ROOT, 'bin', 'flow'));
+  if (!own) return false;
+  let file = null;
+  if (program === 'flow') file = resolveOnPath('flow', env);
+  else if (program === 'node') file = args[0] ? path.resolve(cwd, args[0]) : null;
+  else if (program.includes('/')) file = path.resolve(cwd, program);
+  return Boolean(file) && realOrNull(file) === own;
+}
+
+// flow commands that still go through the normal permission prompt.
+const NO_AUTO_ALLOW = new Set(['init']);
 
 function allow() {
   return { hookSpecificOutput: { hookEventName: 'PreToolUse', permissionDecision: 'allow', permissionDecisionReason: 'second-brain-flow: a plain flow command.' } };
@@ -244,7 +353,8 @@ export function preToolUse(input, env = process.env) {
     // runs without a permission prompt. The flow command does its own checks.
     if (segments.length === 1 && onlyFlow) {
       const { program, args } = programOf(segments[0].tokens);
-      plainFlow = segments[0].tokens[0] === program && isPluginFlow(program, args);
+      const flowArgs = isFlowProgram(program, args).args;
+      plainFlow = segments[0].tokens[0] === program && !NO_AUTO_ALLOW.has(flowArgs[0]) && isPluginFlow(program, args, cwd, env);
     }
   }
 

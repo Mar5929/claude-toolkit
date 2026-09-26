@@ -155,13 +155,20 @@ Only the owner switches the mode, by typing `/second-brain-flow:trust on` or
 own text and allows `flow trust set` for that turn only.
 
 A proposal card belongs to the session that showed it. Only an owner reply in
-that session approves or edits it. Other sessions list it as "waiting in another
-session".
+that session approves, edits, or rejects it. Other sessions list it as "waiting
+in another session".
 
 Work items keep hand edits. A flow write rewrites flow's own lines and keeps
-every other line and section as written. Hand-written ids such as `- R3 text`
-or `- Q2 text` are read. `flow doctor` lists the lines in Requirements and Open
-questions that flow cannot read.
+every other line and section as written: front-matter lines flow does not own
+(comments, block lists, other keys), blank lines between entries, and anything
+inside a fenced code block, where a `## ` line is not a heading. A file with
+Windows line endings is read and written back with them. Hand-written ids such
+as `- R3 text` or `- Q2 text` are read. `flow doctor` lists the lines in
+Requirements and Open questions that flow cannot read.
+
+Every id given to `flow` (card, job, change, topic, item) is checked against
+its pattern before any path is built, and each path must stay inside its
+folder. A missing or unreadable time never counts as an owner reply.
 
 ## What is enforced and what is not
 
@@ -171,19 +178,29 @@ Enforced in Claude Code, by hooks and the engine:
 - Write and Edit to `memory/`, `work/`, and `.flow/` are refused for the main
   agent and every subagent. The refusal names the `flow` command to use.
 - Shell commands that write there are refused: redirects, and write programs
-  such as `rm`, `mv`, `cp`, `tee`, `sed -i`, and some `git` subcommands. The gate
-  follows `cd` within a command, reads the string given to `bash -c`, `sh -c`,
-  and `eval`, and expands `$CLAUDE_PROJECT_DIR`, `$PWD`, `$HOME`, and `~`.
+  such as `rm`, `mv`, `cp`, `tee`, and `sed -i`/`--in-place`. Commands that act
+  on a whole tree are refused when the tree holds a protected folder: `rm -r .`,
+  `git checkout .` or `-- <path>`, `git restore`, `git reset --hard`, `git
+  stash`, `git clean`, `find ... -delete` or `-exec rm`, and `xargs` with a
+  write program. The gate follows `cd` within a command, reads the string given
+  to `bash -c`, `sh -c`, and `eval`, looks through `sudo`, `command`, `time`,
+  `nohup`, `nice`, and `env`, and expands `$CLAUDE_PROJECT_DIR`, `$PWD`,
+  `$HOME`, and `~`, with or without braces. `git status`, `diff`, `log`, `add`,
+  `commit`, and `checkout <branch>` pass.
 - A Bash command that sets or clears `FLOW_SESSION_ID` or `FLOW_PROJECT_ROOT` is
   refused, and so is `flow turn`.
-- One plain `flow` command, with no prefix, chain, or redirect, is allowed
-  without a permission prompt (PreToolUse returns `allow`). Everything else goes
-  through Claude Code's normal permission rules.
-- A prompt that starts with "save this" or "remember this", or with "remember
-  that" and no question mark, must route `remember`. "Remember that bug? Is it
-  back?" gets a hint instead.
+- One plain `flow` command, with no prefix, chain, or file redirect, is allowed
+  without a permission prompt (PreToolUse returns `allow`), but only when it
+  runs this plugin's own `bin/flow`: a path to it, or a bare `flow` that the
+  hook's PATH resolves to it. `flow init` is never auto-allowed. Everything
+  else goes through Claude Code's normal permission rules. The docs do not say
+  whether a hook's PATH includes the plugin's `bin/`; if it does not, bare
+  `flow` commands prompt in the default permission mode.
+- A prompt that starts with "save this", or with "remember that" or "remember
+  this" and no question mark, must route `remember`. "Remember that bug? Is it
+  back?" and "Remember this error? It is back." get a hint instead.
 - `flow trust set` and `flow memory undo` need the owner's command in the same turn.
-- Memory approval, item approval, and the `done` stage need an owner prompt
+- Memory approval, rejection, and editing, item approval, and the `done` stage need an owner prompt
   after the proposal, in the same session. `continue` on a waiting owner step
   needs an owner prompt after the step started. An owner prompt answers only
   the most recent waiting step.
@@ -191,7 +208,8 @@ Enforced in Claude Code, by hooks and the engine:
   and `flow route work` is refused on an item without them.
 - A background task notification (a user message that starts with
   `<task-notification>`) is not treated as an owner prompt. It counts for no
-  approval and needs no route.
+  approval and needs no route. One that arrives before the owner's turn is
+  routed only records itself; the owner turn and its route rules stay.
 - The Stop hook holds a reply once when the turn was never routed, when the
   current agent step fails its exit checks, when a proposal card's id is
   missing from the reply, or when a librarian job was queued and no librarian
@@ -278,5 +296,5 @@ not run again; its hook and skill did not change.
 | [scripts/](scripts/make-demo.mjs) | `make-demo.mjs`, which rebuilds the demo through the engine. |
 | [skills/](skills/trust/SKILL.md) | `trust` and [`memory-undo`](skills/memory-undo/SKILL.md) (owner only), and [`flow`](skills/flow/SKILL.md) (help and current step). |
 | [templates/](templates/ITEM.md) | Item, topic, focus, and card templates. |
-| [tests/](tests/helpers.mjs) | Unit tests (`*.test.mjs`, including `review-fixes.test.mjs` for the 2026-09-26 review) and `e2e.mjs`. |
+| [tests/](tests/helpers.mjs) | Unit tests (`*.test.mjs`, including `review-fixes.test.mjs` and `review2-fixes.test.mjs` for the two 2026-09-26 reviews) and `e2e.mjs`. |
 | [workflows/](workflows/turn.json) | One JSON definition per workflow. |
