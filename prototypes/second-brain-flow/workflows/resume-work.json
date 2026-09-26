@@ -7,7 +7,7 @@
     "load": { "kind": "auto", "action": "loadItemContext", "next": "brief" },
     "brief": {
       "kind": "agent",
-      "instructions": "Tell the owner where the item stands in five lines or fewer.\nAsk the clarifying questions you need. Record each with `flow item question --text \"...\"`.\nIf you have none, run `flow item question --none`. Then run `flow next`.",
+      "instructions": "Tell the owner where the item stands in five lines or fewer.\nAsk the clarifying questions you need. Record each new one with `flow item question --text \"...\"`. To ask a question already open on the item, run `flow item question --ask <Q id>`.\nIf you have none, run `flow item question --none`. Then run `flow next` and end your reply.",
       "exit": ["questionsRecordedOrNone"],
       "next": "await-alignment"
     },

@@ -1,5 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
 import { makeProject, ok, refused, prompt, where, state, subagentStart } from './helpers.mjs';
 import { listWorkflowIds, loadWorkflow, validateWorkflow, diagram } from '../engine/workflows.mjs';
 import { CHECKS, ACTIONS } from '../engine/runner.mjs';
@@ -88,9 +90,9 @@ function newWorkToApproval(dir) {
   ok(dir, ['item', 'new', '--title', 'Customer portal login', '--goal', 'Customers sign in', '--why', 'Support load']);
   ok(dir, ['next']);
   assert.equal(where(dir), 'refine:ask');
-  refused(dir, ['next']);
+  refused(dir, ['next', '--decision', 'asked']);
   ok(dir, ['item', 'question', '--text', 'Which identity provider?']);
-  ok(dir, ['next']);
+  ok(dir, ['next', '--decision', 'asked']);
   assert.equal(where(dir), 'refine:await-answer');
   refused(dir, ['next']);
 }
@@ -111,7 +113,7 @@ test('new-work and refine: every branch reaches end', () => {
   ok(dir, ['next', '--decision', 'more']);
   assert.equal(where(dir), 'refine:ask');
   ok(dir, ['item', 'question', '--text', 'Do partners use it?']);
-  ok(dir, ['next']);
+  ok(dir, ['next', '--decision', 'asked']);
   prompt(dir, 'Not now');
   ok(dir, ['route', 'continue']);
   ok(dir, ['item', 'answer', 'Q2', '--defer']);
@@ -277,4 +279,49 @@ test('a second workflow can start inside a routed turn, and the first resumes', 
   ok(dir, ['cancel']);
   assert.equal(where(dir), 'new-work:capture');
   assert.ok(state(dir).stack.every((f) => f.workflow !== 'turn'));
+});
+
+test('questions: a repeated question is asked again, not added twice; refine can skip asking', () => {
+  const dir = makeProject();
+  prompt(dir, 'new');
+  ok(dir, ['route', 'new-work']);
+  ok(dir, ['item', 'new', '--title', 'Reminders']);
+  ok(dir, ['next']);
+  ok(dir, ['item', 'question', '--text', 'Should a second reminder go out?']);
+  ok(dir, ['item', 'answer', 'Q1', '--defer']);
+  // The same words, with other case and punctuation, reuse Q1 and reopen it.
+  assert.match(ok(dir, ['item', 'question', '--text', 'should a SECOND reminder go out']), /Question Q1 .* asked again/);
+  assert.match(ok(dir, ['item', 'question', '--ask', 'Q1']), /Question Q1 .* asked again/);
+  refused(dir, ['item', 'question', '--ask', 'Q9']);
+  refused(dir, ['item', 'question']);
+  const item = ok(dir, ['item', 'show']);
+  assert.equal((item.match(/\*\*Q\d+\*\*/g) || []).length, 1, 'only one question is on the item');
+  assert.match(item, /\*\*Q1\*\* \(asked/);
+  ok(dir, ['next', '--decision', 'asked']);
+  assert.equal(where(dir), 'refine:await-answer');
+
+  // With nothing to ask, refine goes straight to decide.
+  prompt(dir, 'Yes, after 14 days');
+  ok(dir, ['route', 'continue']);
+  ok(dir, ['item', 'answer', 'Q1', '--text', 'Yes, after 14 days']);
+  ok(dir, ['item', 'requirement', '--text', 'A second reminder goes out 14 days after the due date.']);
+  ok(dir, ['next']);
+  ok(dir, ['next', '--decision', 'more']);
+  assert.equal(where(dir), 'refine:ask');
+  refused(dir, ['next', '--decision', 'none']);
+  refused(dir, ['next', '--decision', 'asked']);
+  ok(dir, ['item', 'question', '--none']);
+  ok(dir, ['next', '--decision', 'none']);
+  assert.equal(where(dir), 'refine:decide');
+});
+
+test('flow init sets up the folder it runs in, and that folder then stops root discovery', () => {
+  const outer = makeProject(); // has .git
+  const inner = path.join(outer, 'demo');
+  fs.mkdirSync(inner);
+  assert.match(ok(inner, ['init']), new RegExp(`Set up memory/ and work/ in ${inner.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
+  assert.ok(fs.existsSync(path.join(inner, 'memory', 'config.json')));
+  assert.ok(!fs.existsSync(path.join(outer, 'memory')), 'the outer repository is not set up');
+  assert.match(ok(path.join(inner, 'work'), ['item', 'new', '--title', 'Inner item']), /File: work\/1-inner-item\/ITEM.md/);
+  assert.ok(fs.existsSync(path.join(inner, 'work', '1-inner-item', 'ITEM.md')));
 });

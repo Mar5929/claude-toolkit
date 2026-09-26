@@ -4,11 +4,11 @@ import path from 'node:path';
 import { findProjectRoot, Refusal, refuse, now, isAfter, projectPaths, readText, parseFrontMatter } from './core.mjs';
 import { ensureInit, loadConfig, saveConfig, sessionIdFromEnv, updateSession } from './project.mjs';
 import {
-  route, next, cancel, statusText, recordFact, top, CHECKS, ACTIONS, ROUTES,
+  route, next, cancel, statusText, recordFact, top, beginTurn, SAVE_PHRASE, CHECKS, ACTIONS, ROUTES,
 } from './runner.mjs';
 import { loadWorkflow, listWorkflowIds, validateWorkflow, diagram } from './workflows.mjs';
 import {
-  createItem, findItem, listItems, addQuestion, resolveQuestion, addRequirement, addProgress, setStage,
+  createItem, findItem, listItems, addQuestion, reaskQuestion, resolveQuestion, addRequirement, addProgress, setStage,
   renderItem, STAGES, OWNER_GATED_STAGES, parseItem,
 } from './items.mjs';
 import {
@@ -21,6 +21,7 @@ import { addFocusLine, removeFocusLine, refreshFocus, focusProblems } from './fo
 const HELP = `flow: the second-brain workflow command.
 
   flow status                       Current workflow, step, and what it still needs.
+  flow turn --prompt "..."          Start a turn by hand, for hosts without the prompt hook (Codex).
   flow route <route> [--item N]     Choose this turn's route. Routes: ${ROUTES.join(', ')}.
   flow next [--decision <d>]        Finish the current step.
   flow cancel                       Drop the current workflow.
@@ -120,9 +121,12 @@ function itemCommand(ctx, sub, positional, opts) {
         recordFact(session, 'question-none', { item: id });
         return 'Recorded: no clarifying questions. Next: run `flow next`.';
       }
-      const { result } = addQuestion(root, id, text);
-      recordFact(session, 'question', { item: id, question: result });
-      return `Recorded question ${result} on item ${id}. Ask it in your reply. Record any other questions the same way, then run \`flow next\`.`;
+      const ask = typeof opts.ask === 'string' ? opts.ask : null;
+      if (!ask && !text) refuse('Pass the question with `--text "..."`, ask an open one again with `--ask <Q id>`, or run `flow item question --none`.');
+      const { result } = ask ? reaskQuestion(root, id, ask) : addQuestion(root, id, text);
+      recordFact(session, 'question', { item: id, question: result.id });
+      if (result.existing) return `Question ${result.id} on item ${id} is open and asked again. Ask it in your reply. Record any other questions, then run \`flow next\`.`;
+      return `Recorded question ${result.id} on item ${id}. Ask it in your reply. Record any other questions the same way, then run \`flow next\`.`;
     }
     case 'answer': {
       const qid = positional.find((p) => /^q\d+$/i.test(p)) || opts.question;
@@ -166,6 +170,8 @@ function stageChange(ctx, id, stage, propose) {
     if (propose) {
       session.approvalRequests.push({ item: id, stage, createdAt: now(), turn: session.turn?.n ?? 0 });
       recordFact(session, 'approval-proposed', { item: id, stage });
+      // The item's next step is a fact now: the owner has to answer.
+      addProgress(root, id, '', `Owner decides whether to approve moving the item to ${stage} (proposed ${now().slice(0, 10)}).`);
       return `Proposed moving item ${id} to ${stage}. Ask the owner in your reply and end it. After the owner answers yes, run \`flow item ${stage === 'done' ? 'stage done' : 'approve'} --item ${id}\`.`;
     }
     const request = [...session.approvalRequests].reverse().find((r) => r.item === id && r.stage === stage);
@@ -176,6 +182,10 @@ function stageChange(ctx, id, stage, propose) {
   }
   if (item.fm.stage === stage) return `Item ${id} is already in ${stage}.`;
   setStage(root, id, stage);
+  if (OWNER_GATED_STAGES.includes(stage)) {
+    const next = stage === 'done' ? 'None. The owner approved the item as done.' : 'Requirements are approved. Start the design.';
+    addProgress(root, id, '', `${next} (${now().slice(0, 10)})`);
+  }
   if (stage === 'requirements-approved') recordFact(session, 'item-approved', { item: id });
   return `Item ${id} moved from ${item.fm.stage} to ${stage}.`;
 }
@@ -404,7 +414,9 @@ export function run(argv, { cwd = process.cwd(), env = process.env, stdin = () =
     if (cmd === 'workflows') {
       return { code: 0, stdout: listWorkflowIds().map((id) => `${id}: ${loadWorkflow(id).title}`).join('\n'), stderr: '' };
     }
-    const root = findProjectRoot(cwd, env);
+    // `flow init` sets up the folder it runs in (or FLOW_PROJECT_ROOT). Walking
+    // up would set up an outer repository when the project has no .git yet.
+    const root = cmd === 'init' && !env.FLOW_PROJECT_ROOT ? path.resolve(cwd) : findProjectRoot(cwd, env);
     const created = ensureInit(root);
     if (cmd === 'init') {
       return { code: 0, stdout: created ? `Set up memory/ and work/ in ${root}. Memory mode: onboarding.` : `Already set up in ${root}.`, stderr: '' };
@@ -417,6 +429,13 @@ export function run(argv, { cwd = process.cwd(), env = process.env, stdin = () =
       const ctx = { root, session };
       switch (cmd) {
         case 'status': return statusText(ctx);
+        case 'turn': {
+          // The prompt hook does this in Claude Code. A save phrase still forces
+          // the remember route. The trust command is not honored here, because
+          // nothing proves the owner typed the text.
+          const prompt = str(opts.prompt) || positional.join(' ');
+          return beginTurn(ctx, { prompt, forcedRoute: SAVE_PHRASE.test(prompt) ? 'remember' : null });
+        }
         case 'route': {
           if (!positional[0]) refuse(`Name a route: ${ROUTES.join(', ')}.`);
           return route(ctx, positional[0], { item: opts.item, query: str(opts.query) || positional.slice(1).join(' ') });

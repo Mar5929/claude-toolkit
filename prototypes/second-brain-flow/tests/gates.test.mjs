@@ -41,6 +41,7 @@ test('item approve is refused before an owner prompt and accepted after', () => 
   ok(dir, ['item', 'requirement', '--text', 'It works.']);
   assert.match(refused(dir, ['item', 'approve']), /--propose/);
   ok(dir, ['item', 'approve', '--propose']);
+  assert.match(ok(dir, ['item', 'show']), /## Next step\n\nOwner decides whether to approve moving the item to requirements-approved/);
   assert.match(refused(dir, ['item', 'approve']), /owner has not replied/);
   prompt(dir, 'approved');
   ok(dir, ['route', 'chat']);
@@ -48,6 +49,7 @@ test('item approve is refused before an owner prompt and accepted after', () => 
   const item = fs.readFileSync(path.join(dir, 'work', '1-thing', 'ITEM.md'), 'utf8');
   assert.match(item, /requirements_approved: 2\d{3}-\d\d-\d\d/);
   assert.match(item, /\*\*R1\*\* \(approved\)/);
+  assert.match(item, /## Next step\n\nRequirements are approved\. Start the design\./);
 });
 
 test('stage done and requirements-approved are gated; other stages are not', () => {
@@ -119,4 +121,36 @@ test('bigger inputs can come from a JSON file or stdin', () => {
   fs.writeFileSync(file, JSON.stringify({ title: 'From a file', goal: 'Goal: with a colon', why: 'Because' }));
   ok(dir, ['item', 'new', '--file', file]);
   assert.match(ok(dir, ['item', 'show', '1']), /Goal: with a colon/);
+});
+
+test('flow turn starts a turn by hand for hosts without the prompt hook', () => {
+  const dir = makeProject();
+  assert.match(ok(dir, ['turn', '--prompt', 'save this: invoices go out on the 5th']), /must be `remember`/);
+  refused(dir, ['route', 'chat']);
+  ok(dir, ['route', 'remember']);
+  ok(dir, ['cancel']);
+  // The trust command is not honored from flow turn: nothing proves the owner typed it.
+  ok(dir, ['turn', '--prompt', '/trust on']);
+  assert.match(refused(dir, ['trust', 'set', 'on']), /Only the owner/);
+  assert.match(ok(dir, ['status']), /Turn 2: not routed yet/);
+});
+
+test('the Codex path: a save runs end to end with flow turn and no hooks', () => {
+  const dir = makeProject();
+  ok(dir, ['turn', '--prompt', 'remember that invoices go out on the 5th']);
+  ok(dir, ['route', 'remember']);
+  const card = ok(dir, ['memory', 'propose', '--type', 'fact', '--title', 'Invoice day', '--statement', 'Invoices go out on the 5th.', '--why', 'Owner said so.', '--source', 'owner, 2026-09-26']);
+  const id = /Memory proposal (\S+)/.exec(card)[1];
+  ok(dir, ['next']);
+  ok(dir, ['next']);
+  refused(dir, ['memory', 'approve', id]);
+  ok(dir, ['turn', '--prompt', 'approve']);
+  ok(dir, ['route', 'continue']);
+  ok(dir, ['memory', 'approve', id]);
+  ok(dir, ['next', '--decision', 'approved']);
+  refused(dir, ['next']);
+  ok(dir, ['librarian', 'next']);
+  ok(dir, ['librarian', 'apply', '--action', 'create']);
+  assert.match(ok(dir, ['next']), /Workflow remember is finished/);
+  assert.ok(fs.existsSync(path.join(dir, 'memory', 'topics', 'fact-invoice-day.md')));
 });

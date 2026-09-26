@@ -136,12 +136,36 @@ function nextNumber(item, letter) {
   return `${letter}${max + 1}`;
 }
 
+function sameQuestion(a, b) {
+  const norm = (t) => String(t).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  return norm(a) === norm(b);
+}
+
+// Records a question. A question already on the item (open or deferred) with the
+// same words is asked again instead of being added twice. Returns { id, existing }.
 export function addQuestion(root, id, text) {
   if (!text) refuse('Pass the question with `--text "..."`.');
   return changeItem(root, id, (item) => {
+    const same = item.questions.find((q) => q.id && sameQuestion(q.text, text));
+    if (same) {
+      same.state = 'asked';
+      same.date = today();
+      return { id: same.id, existing: true };
+    }
     const qid = nextNumber(item, 'Q');
     item.questions.push({ id: qid, state: 'asked', date: today(), text: text.trim() });
-    return qid;
+    return { id: qid, existing: false };
+  });
+}
+
+// Asks an open or deferred question again. Returns { id, existing: true }.
+export function reaskQuestion(root, id, qid) {
+  return changeItem(root, id, (item) => {
+    const q = item.questions.find((x) => x.id === String(qid).toUpperCase());
+    if (!q) refuse(`Question ${qid} is not on item ${id}. Open questions: ${item.questions.map((x) => x.id).join(', ') || 'none'}.`);
+    q.state = 'asked';
+    q.date = today();
+    return { id: q.id, existing: true };
   });
 }
 

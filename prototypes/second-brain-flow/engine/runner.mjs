@@ -7,6 +7,9 @@ import { recall, formatHits, listPending, listJobs, getJob, pendingPath } from '
 import { refreshFocus, getSection } from './focus.mjs';
 import fs from 'node:fs';
 
+// An owner prompt that starts with one of these phrases must route `remember`.
+export const SAVE_PHRASE = /^\s*(save this|remember this|remember that)\b/i;
+
 export const ROUTES = ['chat', 'recall', 'new-work', 'resume-work', 'refine', 'work', 'remember', 'wrap-up', 'continue'];
 
 export function top(session) {
@@ -49,6 +52,14 @@ export const CHECKS = {
     : 'No question was recorded in this step. Run `flow item question --text "..."`.'),
   questionsRecordedOrNone: (ctx, frame) => (factsSince(frame, ['question', 'question-none']).length ? null
     : 'Record each clarifying question with `flow item question --text "..."`, or run `flow item question --none`.'),
+  askedOrNone: (ctx, frame, decision) => {
+    if (decision === 'none') return factsSince(frame, 'question-none').length ? null
+      : 'Run `flow item question --none` first, to record that no question is needed.';
+    if (decision === 'asked') return factsSince(frame, 'question').length ? null
+      : 'No question was recorded in this step. Run `flow item question --text "..."` or `--ask <Q id>`.';
+    return factsSince(frame, ['question', 'question-none']).length ? null
+      : 'Record each question with `flow item question --text "..."` (or `--ask <Q id>` for an open one), or run `flow item question --none`.';
+  },
   openQuestionsResolved: (ctx, frame) => {
     const item = frameItem(ctx, frame);
     if (!item) return 'No work item is selected for this workflow.';
@@ -306,6 +317,9 @@ export function route(ctx, target, { item, query } = {}) {
     const step = stepOf(frame);
     const out = [`Route: continue ${frame.workflow}.`];
     if (step.kind === 'owner') {
+      if (!isAfter(frame.ownerRepliedAt, frame.stepStarted)) {
+        refuse(`Workflow ${frame.workflow} is waiting for the owner at step ${frame.step}, and the owner has not answered since it started. End your reply.`);
+      }
       enter(frame, step.next);
       out.push(...settle(ctx));
     }
@@ -350,4 +364,28 @@ export function beginTurn(ctx, { prompt, forcedRoute = null, trustPermission = n
   session.lastOwnerPromptAt = at;
   for (const frame of session.stack) if (stepOf(frame).kind === 'owner') frame.ownerRepliedAt = at;
   return pushWorkflow(ctx, 'turn');
+}
+
+// Called by the prompt hook for a message Claude Code sends on its own, such as
+// a background task notification. It is not an owner prompt: it moves no owner
+// step forward, counts for no approval, and needs no route.
+export function beginNotificationTurn(ctx, { prompt }) {
+  const { session } = ctx;
+  session.stack = session.stack.filter((f) => f.workflow !== 'turn');
+  session.turn = {
+    n: (session.turn?.n || 0) + 1,
+    promptAt: now(),
+    routed: true,
+    route: 'notification',
+    notification: true,
+    forcedRoute: null,
+    trustPermission: null,
+    prompt: String(prompt || '').slice(0, 500),
+  };
+  return [
+    'This message is a background task notification from Claude Code, not an owner prompt.',
+    'It answers no waiting step and counts as no approval. No route is needed.',
+    'Tell the owner the result in one line and end your reply.',
+    describe(ctx),
+  ].join('\n');
 }
