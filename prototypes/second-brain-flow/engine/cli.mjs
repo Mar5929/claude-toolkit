@@ -40,7 +40,25 @@ const HELP = `flow: the second-brain workflow command.
 
 Bigger inputs: pass --file <path.json>, or --file - to read JSON from stdin.`;
 
-export function parseArgs(argv, stdin) {
+// A --file input must be a regular file inside the project. Its real path is
+// checked, so a link that points out of the project is refused too.
+function readInputFile(name, cwd, root) {
+  const abs = path.resolve(cwd, String(name));
+  let real;
+  let realRoot;
+  try {
+    real = fs.realpathSync(abs);
+    realRoot = fs.realpathSync(root);
+  } catch {
+    refuse(`The --file input ${name} does not exist.`);
+  }
+  const rel = path.relative(realRoot, real);
+  if (!rel || rel.startsWith('..') || path.isAbsolute(rel)) refuse(`The --file input must be inside the project (${root}), or \`-\` for stdin.`);
+  if (!fs.statSync(real).isFile()) refuse(`The --file input ${name} is not a regular file.`);
+  return fs.readFileSync(real, 'utf8');
+}
+
+export function parseArgs(argv, stdin, { cwd = process.cwd(), root = cwd } = {}) {
   const positional = [];
   const opts = {};
   for (let i = 0; i < argv.length; i += 1) {
@@ -60,7 +78,7 @@ export function parseArgs(argv, stdin) {
     }
   }
   if (opts.file) {
-    const raw = opts.file === '-' || opts.file === true ? stdin() : fs.readFileSync(opts.file, 'utf8');
+    const raw = opts.file === '-' || opts.file === true ? stdin() : readInputFile(opts.file, cwd, root);
     let data;
     try {
       data = JSON.parse(raw);
@@ -451,7 +469,7 @@ export function run(argv, { cwd = process.cwd(), env = process.env, stdin = () =
     }
     const sessionId = sessionIdFromEnv(env);
     const subArgs = ['item', 'memory', 'librarian', 'focus'].includes(cmd) ? restArgs : [sub, ...restArgs].filter((x) => x !== undefined);
-    const { positional, opts } = parseArgs(subArgs, stdin);
+    const { positional, opts } = parseArgs(subArgs, stdin, { cwd, root });
     let code = 0;
     const stdout = updateSession(root, sessionId, (session) => {
       const ctx = { root, session };

@@ -301,7 +301,7 @@ test('the owner checks apply to a redirected flow command; 2>&1 is not a file wr
   ok(dir, ['route', 'chat']);
   assert.ok(isDeny(preTool(dir, 'Bash', { command: 'flow trust set on 2>&1' })), 'trust set with 2>&1 is still checked');
   assert.ok(isDeny(preTool(dir, 'Bash', { command: 'flow turn --prompt yes > /dev/null' })));
-  assert.ok(isAllow(preTool(dir, 'Bash', { command: 'flow status 2>&1' })), '2>&1 writes no file, so the command is still plain');
+  assert.equal(preTool(dir, 'Bash', { command: 'flow status 2>&1' }), null, '2>&1 writes no file; the command runs but is not auto-allowed');
   assert.equal(preTool(dir, 'Bash', { command: 'flow status > out.txt' }), null, 'a file redirect gets no automatic allow');
   assert.ok(isDeny(preTool(dir, 'Bash', { command: 'echo x 2> memory/FOCUS.md' })), 'a real redirect after a descriptor is still a write');
 });

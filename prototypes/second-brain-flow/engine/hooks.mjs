@@ -8,7 +8,7 @@ import { PLUGIN_ROOT, findProjectRoot, projectPaths, readText, isAfter } from '.
 import { ensureInit, loadConfig, loadSession, updateSession } from './project.mjs';
 import { savePhrase, beginTurn, beginNotificationTurn, top, stepOf, missingForStep, describe } from './runner.mjs';
 import { markDispatched, getJob } from './memory.mjs';
-import { splitCommands, programOf, isFlowProgram } from './shell.mjs';
+import { splitCommands, programOf, isFlowProgram, plainForAllow } from './shell.mjs';
 
 const TRUST_COMMAND = /^\s*\/(?:second-brain-flow:)?trust\s+(on|off)\b/i;
 const UNDO_COMMAND = /^\s*\/(?:second-brain-flow:)?memory-undo\s+(chg-[0-9a-f]+)\b/i;
@@ -291,7 +291,13 @@ function isPluginFlow(program, args, cwd, env) {
   const own = realOrNull(path.join(PLUGIN_ROOT, 'bin', 'flow'));
   if (!own) return false;
   let file = null;
-  if (program === 'flow') file = resolveOnPath('flow', env);
+  if (program === 'flow') {
+    // Claude Code puts bin/ on the Bash tool's PATH, but a hook's PATH does not
+    // include it. A bare flow is taken as the plugin's own only when the hook's
+    // PATH has no other flow on it.
+    file = resolveOnPath('flow', env);
+    if (!file && env.CLAUDE_PLUGIN_ROOT) file = path.join(env.CLAUDE_PLUGIN_ROOT, 'bin', 'flow');
+  }
   else if (program === 'node') file = args[0] ? path.resolve(cwd, args[0]) : null;
   else if (program.includes('/')) file = path.resolve(cwd, program);
   return Boolean(file) && realOrNull(file) === own;
@@ -354,7 +360,8 @@ export function preToolUse(input, env = process.env) {
     if (segments.length === 1 && onlyFlow) {
       const { program, args } = programOf(segments[0].tokens);
       const flowArgs = isFlowProgram(program, args).args;
-      plainFlow = segments[0].tokens[0] === program && !NO_AUTO_ALLOW.has(flowArgs[0]) && isPluginFlow(program, args, cwd, env);
+      plainFlow = plainForAllow(command) && segments[0].tokens[0] === program
+        && !NO_AUTO_ALLOW.has(flowArgs[0]) && isPluginFlow(program, args, cwd, env);
     }
   }
 

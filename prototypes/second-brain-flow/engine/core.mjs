@@ -191,11 +191,40 @@ export function parseFrontMatter(input) {
   if (!m) return { data: null, body: text, lines: [] };
   const data = {};
   const lines = m[1].split('\n');
-  for (const line of lines) {
-    const kv = /^([A-Za-z_][\w-]*):\s?(.*)$/.exec(line);
-    if (kv) data[kv[1]] = parseScalar(kv[2].trim());
+  for (const group of keyGroups(lines)) {
+    if (!group.key) continue;
+    const value = group.value.trim();
+    const block = /^([>|])[+-]?\d*$/.exec(value);
+    if (block) {
+      const inner = group.lines.slice(1).map((l) => l.trim());
+      data[group.key] = block[1] === '>' ? inner.filter(Boolean).join(' ') : inner.join('\n');
+    } else {
+      data[group.key] = parseScalar(value);
+    }
   }
   return { data, body: text.slice(m[0].length), lines };
+}
+
+// Groups front-matter lines by key: a `key: value` line and the lines that
+// continue it (indented lines, or `- ` items under a key with no value).
+// Lines before the first key, or that belong to none, form groups with no key.
+function keyGroups(lines) {
+  const groups = [];
+  let current = null;
+  for (const line of lines) {
+    const kv = /^([A-Za-z_][\w-]*):\s?(.*)$/.exec(line);
+    const continues = current && current.key && (/^[ \t]/.test(line) || (!current.value.trim() && /^- /.test(line)) || (!line.trim() && /^[>|]/.test(current.value.trim())));
+    if (kv && !continues) {
+      current = { key: kv[1], value: kv[2], lines: [line] };
+      groups.push(current);
+    } else if (continues) {
+      current.lines.push(line);
+    } else {
+      current = null;
+      groups.push({ key: null, value: '', lines: [line] });
+    }
+  }
+  return groups;
 }
 
 // Rewrites only the keys flow owns, in place. Every other line, such as a
@@ -203,13 +232,13 @@ export function parseFrontMatter(input) {
 export function renderFrontMatterKeeping(lines, data, owned) {
   const out = [];
   const done = new Set();
-  for (const line of lines) {
-    const kv = /^([A-Za-z_][\w-]*):\s?(.*)$/.exec(line);
-    if (kv && owned.includes(kv[1]) && !done.has(kv[1])) {
-      out.push(`${kv[1]}: ${formatScalar(data[kv[1]])}`);
-      done.add(kv[1]);
+  for (const group of keyGroups(lines)) {
+    if (group.key && owned.includes(group.key) && !done.has(group.key)) {
+      // The key line and its continuation lines are replaced together.
+      out.push(`${group.key}: ${formatScalar(data[group.key])}`);
+      done.add(group.key);
     } else {
-      out.push(line);
+      out.push(...group.lines);
     }
   }
   for (const key of owned) if (!done.has(key) && key in data) out.push(`${key}: ${formatScalar(data[key])}`);

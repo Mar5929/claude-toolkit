@@ -166,6 +166,10 @@ Windows line endings is read and written back with them. Hand-written ids such
 as `- R3 text` or `- Q2 text` are read. `flow doctor` lists the lines in
 Requirements and Open questions that flow cannot read.
 
+`--file` reads only a regular file inside the project, or `-` for stdin.
+Front-matter block scalars (`title: >` and its indented lines) are kept as
+written, or replaced whole when the key is one flow owns.
+
 Every id given to `flow` (card, job, change, topic, item) is checked against
 its pattern before any path is built, and each path must stay inside its
 folder. A missing or unreadable time never counts as an owner reply.
@@ -185,17 +189,22 @@ Enforced in Claude Code, by hooks and the engine:
   write program. The gate follows `cd` within a command, reads the string given
   to `bash -c`, `sh -c`, and `eval`, looks through `sudo`, `command`, `time`,
   `nohup`, `nice`, and `env`, and expands `$CLAUDE_PROJECT_DIR`, `$PWD`,
-  `$HOME`, and `~`, with or without braces. `git status`, `diff`, `log`, `add`,
+  `$HOME`, and `~`, with or without braces. An unquoted `#` that starts a
+  word begins a comment to the end of its line, as in bash, so a quote or `<<`
+  inside a comment cannot hide the lines after it. `git status`, `diff`, `log`, `add`,
   `commit`, and `checkout <branch>` pass.
 - A Bash command that sets or clears `FLOW_SESSION_ID` or `FLOW_PROJECT_ROOT` is
   refused, and so is `flow turn`.
-- One plain `flow` command, with no prefix, chain, or file redirect, is allowed
-  without a permission prompt (PreToolUse returns `allow`), but only when it
-  runs this plugin's own `bin/flow`: a path to it, or a bare `flow` that the
-  hook's PATH resolves to it. `flow init` is never auto-allowed. Everything
-  else goes through Claude Code's normal permission rules. The docs do not say
-  whether a hook's PATH includes the plugin's `bin/`; if it does not, bare
-  `flow` commands prompt in the default permission mode.
+- One plain `flow` command is allowed without a permission prompt
+  (PreToolUse returns `allow`) when all of these hold: it is one line, it has
+  no `#`, no prefix, chain, or redirect, only plain characters outside quotes,
+  and no `$`, backtick, backslash, or `!` inside double quotes; and it runs this
+  plugin's own `bin/flow`. A bare `flow` counts as the plugin's own when the
+  hook's PATH has no `flow` on it and `CLAUDE_PLUGIN_ROOT/bin/flow` is this
+  plugin's file (Claude Code puts `bin/` on the Bash tool's PATH, not on the
+  hook's). `flow init` is never auto-allowed. Everything else goes through
+  Claude Code's normal permission rules. The `auto-allow` end-to-end scenario
+  checks this with Bash not pre-approved.
 - A prompt that starts with "save this", or with "remember that" or "remember
   this" and no question mark, must route `remember`. "Remember that bug? Is it
   back?" and "Remember this error? It is back." get a hint instead.
@@ -241,7 +250,7 @@ The first runs the engine and hook tests. The second runs real Claude Code
 (`claude -p --plugin-dir`) on copies of the demo, so it costs money (about
 $1.20 for all five scenarios on 2026-09-26) and takes several minutes. Name
 scenarios to run fewer: `save-onboarding`, `save-trusted`, `refine`, `gate`,
-`trust`, `smoke`. Each one checks files and `.flow/` state, not the model's
+`trust`, `auto-allow`, `smoke`. Each one checks files and `.flow/` state, not the model's
 wording. `E2E_KEEP=1` keeps the fixture folders.
 
 Last full end-to-end run, 2026-09-26, Claude Code 2.1.283: all five passed.
@@ -296,5 +305,5 @@ not run again; its hook and skill did not change.
 | [scripts/](scripts/make-demo.mjs) | `make-demo.mjs`, which rebuilds the demo through the engine. |
 | [skills/](skills/trust/SKILL.md) | `trust` and [`memory-undo`](skills/memory-undo/SKILL.md) (owner only), and [`flow`](skills/flow/SKILL.md) (help and current step). |
 | [templates/](templates/ITEM.md) | Item, topic, focus, and card templates. |
-| [tests/](tests/helpers.mjs) | Unit tests (`*.test.mjs`, including `review-fixes.test.mjs` and `review2-fixes.test.mjs` for the two 2026-09-26 reviews) and `e2e.mjs`. |
+| [tests/](tests/helpers.mjs) | Unit tests (`*.test.mjs`, including `review-fixes.test.mjs`, `review2-fixes.test.mjs`, and `review3-fixes.test.mjs` for the three 2026-09-26 reviews) and `e2e.mjs`. |
 | [workflows/](workflows/turn.json) | One JSON definition per workflow. |

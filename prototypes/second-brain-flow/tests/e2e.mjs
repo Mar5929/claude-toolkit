@@ -5,7 +5,7 @@
 //   node prototypes/second-brain-flow/tests/e2e.mjs            all scenarios
 //   node prototypes/second-brain-flow/tests/e2e.mjs gate save-trusted
 //
-// Scenarios: save-onboarding, save-trusted, refine, gate, trust, smoke.
+// Scenarios: save-onboarding, save-trusted, refine, gate, trust, auto-allow, smoke.
 // Each copies demo/ to a temporary folder, runs `git init` there, and runs
 // `claude -p --plugin-dir <plugin>`. Assertions read files and .flow/ state,
 // never the model's wording, except that a proposal id must appear in a reply.
@@ -56,13 +56,13 @@ function makeFixture(name) {
   return dir;
 }
 
-function claude(dir, prompt, { resume = null } = {}) {
+function claude(dir, prompt, { resume = null, permissionMode = 'acceptEdits', allowedTools = 'Bash Read Glob Grep Agent Edit Write Skill' } = {}) {
   const args = [
     '-p', prompt,
     '--plugin-dir', PLUGIN,
     '--output-format', 'json',
-    '--permission-mode', 'acceptEdits',
-    '--allowedTools', 'Bash Read Glob Grep Agent Edit Write Skill',
+    '--permission-mode', permissionMode,
+    '--allowedTools', allowedTools,
     '--max-turns', MAX_TURNS,
   ];
   if (resume) args.push('--resume', resume);
@@ -217,6 +217,18 @@ const SCENARIOS = {
     const s2 = session(dir, bare.session_id);
     log(`  prompt text for /trust off: ${JSON.stringify(s2?.turn?.prompt)}`);
     check(config().mode === 'onboarding', 'the short form /trust off also reaches the hook and switches the mode back', JSON.stringify(config()));
+  },
+
+  // Bash is not pre-approved here, so a flow command runs only if the
+  // PreToolUse hook allows it. Anything the hook leaves alone is denied in -p.
+  async 'auto-allow'() {
+    const dir = makeFixture('autoallow');
+    const out = claude(dir, 'Run `flow status` and tell me the current step in one line.', { permissionMode: 'default', allowedTools: 'Read Glob Grep' });
+    const denied = (out.permission_denials || []).filter((d) => d.tool_name === 'Bash').map((d) => d.tool_input?.command || '');
+    log(`  Bash denials: ${denied.map((c) => JSON.stringify(c)).join('; ') || 'none'}`);
+    check(!denied.some((c) => /^flow\b/.test(c) && !/[;&|<>\n#]/.test(c)), 'no plain flow command was denied');
+    const s = session(dir, out.session_id);
+    check(s.turn?.routed, 'flow route ran, so the turn is routed', describeState(dir, out.session_id));
   },
 
   async gate() {

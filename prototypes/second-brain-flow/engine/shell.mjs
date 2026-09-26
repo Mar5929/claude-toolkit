@@ -35,6 +35,14 @@ export function splitCommands(command) {
 
   for (let i = 0; i < src.length; i += 1) {
     const c = src[i];
+    if (c === '#' && word === null) {
+      // An unquoted # that starts a word begins a comment. Bash ignores the rest
+      // of the line, but the next line still runs, so reading stops only at \n.
+      const nl = src.indexOf('\n', i);
+      if (nl < 0) break;
+      i = nl - 1;
+      continue;
+    }
     if (c === "'") {
       const end = src.indexOf("'", i + 1);
       if (end < 0) { opaque = true; word = (word || '') + src.slice(i + 1); break; }
@@ -156,4 +164,27 @@ export function isFlowProgram(program, args) {
   if (program === 'flow' || /(^|\/)bin\/flow$/.test(program)) return { flow: true, args };
   if (program === 'node' && args[0] && /(^|\/)bin\/flow$/.test(args[0])) return { flow: true, args: args.slice(1) };
   return { flow: false, args };
+}
+
+// True only for a one-line command made of plain characters, safe to approve
+// without a prompt. Outside quotes: letters, digits, space, and _ . / : = , @ % + -.
+// Inside quotes: anything except a line break, and inside double quotes also
+// no $, backtick, backslash, or !. Anything else, a # included, is refused.
+export function plainForAllow(command) {
+  const src = String(command || '');
+  if (/[\r\n#\u0000-\u0008\u000b-\u001f\u007f]/.test(src)) return false;
+  let quote = null;
+  for (const c of src) {
+    if (quote === "'") {
+      if (c === "'") quote = null;
+    } else if (quote === '"') {
+      if (c === '"') quote = null;
+      else if ('$`\\!'.includes(c)) return false;
+    } else if (c === "'" || c === '"') {
+      quote = c;
+    } else if (!/[A-Za-z0-9 _./:=,@%+-]/.test(c)) {
+      return false;
+    }
+  }
+  return quote === null;
 }

@@ -59,7 +59,7 @@ test('PreToolUse: before routing, only read-only tools and flow commands run', (
   assert.ok(isAllow(preTool(dir, 'Bash', { command: 'flow status', description: 'Show status' })));
   assert.ok(isAllow(preTool(dir, 'Bash', { command: `node ${PLUGIN}/bin/flow route chat` })));
   assert.equal(preTool(dir, 'Bash', { command: `${PLUGIN}/bin/flow status && flow item list` }), null);
-  assert.ok(isAllow(preTool(dir, 'Bash', { command: "flow memory propose --file - <<'EOF'\n{\"statement\": \"a; b | c && rm -rf /\"}\nEOF" })));
+  assert.equal(preTool(dir, 'Bash', { command: "flow memory propose --file - <<'EOF'\n{\"statement\": \"a; b | c && rm -rf /\"}\nEOF" }), null, 'a multi-line flow command runs but is not auto-allowed');
   const denied = preTool(dir, 'Bash', { command: 'npm test' });
   assert.ok(isDeny(denied));
   assert.equal(denied.hookSpecificOutput.hookEventName, 'PreToolUse');
