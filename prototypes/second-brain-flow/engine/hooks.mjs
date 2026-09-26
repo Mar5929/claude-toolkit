@@ -160,24 +160,42 @@ function areaUnder(root, abs) {
   return PROTECTED.includes(first) ? first : null;
 }
 
+// A folder is a flow project when memory/config.json holds a flow mode. A plain
+// app folder that happens to have memory/config.json does not count.
+function isFlowProject(dir) {
+  try {
+    const cfg = JSON.parse(fs.readFileSync(path.join(dir, 'memory', 'config.json'), 'utf8'));
+    return cfg && (cfg.mode === 'onboarding' || cfg.mode === 'trusted');
+  } catch {
+    return false;
+  }
+}
+
 // The protected folder a write target falls in. It checks the session root and
-// every flow project that contains the target (any ancestor with
-// memory/config.json), so a worktree or nested copy of the project is guarded
-// too, whatever CLAUDE_PROJECT_DIR says.
+// every flow project that contains the target, so a worktree or nested copy of
+// the project is guarded too, whatever CLAUDE_PROJECT_DIR says. Both the path
+// as written and the path with symlinks resolved are checked: a symlinked
+// memory/ folder resolves outside the project, and a symlinked project resolves
+// to its real location.
 function protectedArea(root, cwd, target, env = {}) {
   if (!target || typeof target !== 'string') return null;
   const expanded = expandPath(target.replace(/^of=/, ''), cwd, root, env);
   if (!expanded) return null;
-  const abs = realish(expanded);
-  const fromSession = areaUnder(realish(root), abs);
-  if (fromSession) return fromSession;
-  for (let dir = path.dirname(abs); ; dir = path.dirname(dir)) {
-    if (fs.existsSync(path.join(dir, 'memory', 'config.json'))) {
-      const area = areaUnder(dir, abs);
+  const roots = [...new Set([path.resolve(root), realish(root)])];
+  for (const abs of new Set([expanded, realish(expanded)])) {
+    for (const r of roots) {
+      const area = areaUnder(r, abs);
       if (area) return area;
     }
-    if (path.dirname(dir) === dir) return null;
+    for (let dir = path.dirname(abs); ; dir = path.dirname(dir)) {
+      if (isFlowProject(dir)) {
+        const area = areaUnder(dir, abs);
+        if (area) return area;
+      }
+      if (path.dirname(dir) === dir) break;
+    }
   }
+  return null;
 }
 
 function protectedMessage(area, target = '') {
@@ -205,7 +223,7 @@ function coveredArea(root, cwd, target, env) {
   const abs = realish(expanded);
   // The session root and the flow project the cwd is in (a worktree, say).
   const roots = [realish(root), realish(findProjectRoot(cwd, {}))]
-    .filter((r, i, a) => a.indexOf(r) === i && (r === realish(root) || fs.existsSync(path.join(r, 'memory', 'config.json'))));
+    .filter((r, i, a) => a.indexOf(r) === i && (r === realish(root) || isFlowProject(r)));
   for (const r of roots) {
     for (const area of PROTECTED) {
       const rel = path.relative(abs, path.join(r, area));
