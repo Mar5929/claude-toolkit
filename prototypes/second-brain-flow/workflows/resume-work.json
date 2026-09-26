@@ -1,0 +1,30 @@
+{
+  "id": "resume-work",
+  "title": "Continue a work item",
+  "start": "load",
+  "needsItem": true,
+  "steps": {
+    "load": { "kind": "auto", "action": "loadItemContext", "next": "brief" },
+    "brief": {
+      "kind": "agent",
+      "instructions": "Tell the owner where the item stands in five lines or fewer.\nAsk the clarifying questions you need. Record each with `flow item question --text \"...\"`.\nIf you have none, run `flow item question --none`. Then run `flow next`.",
+      "exit": ["questionsRecordedOrNone"],
+      "next": "await-alignment"
+    },
+    "await-alignment": { "kind": "owner", "next": "align" },
+    "align": {
+      "kind": "agent",
+      "instructions": "Save each answer with `flow item answer <Q id> --text \"...\"` (or `--defer`, `--withdraw`).\nDid the owner confirm your understanding? Run `flow next --decision aligned` or `flow next --decision not-aligned`.",
+      "exit": ["answersSaved"],
+      "branches": { "aligned": "route-by-stage", "not-aligned": "brief" }
+    },
+    "route-by-stage": {
+      "kind": "auto",
+      "action": "routeByStage",
+      "branches": { "refine": "refine", "work": "work" }
+    },
+    "refine": { "kind": "call", "workflow": "refine", "next": "done" },
+    "work": { "kind": "call", "workflow": "work", "next": "done" },
+    "done": { "kind": "end" }
+  }
+}

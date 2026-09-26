@@ -1,0 +1,15 @@
+{
+  "id": "turn",
+  "title": "Start of every owner prompt",
+  "start": "orient",
+  "steps": {
+    "orient": { "kind": "auto", "action": "orient", "next": "route" },
+    "route": {
+      "kind": "agent",
+      "instructions": "Choose one route for this prompt and run `flow route <route>`.\nRoutes: `chat`, `recall`, `new-work`, `resume-work --item <id>`, `refine --item <id>`, `work --item <id>`, `remember`, `wrap-up`, and `continue` when a workflow is waiting.\nYou may read files first. Other tools are refused until you route.",
+      "exit": ["routed"],
+      "next": "done"
+    },
+    "done": { "kind": "end" }
+  }
+}

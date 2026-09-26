@@ -1,0 +1,15 @@
+{
+  "id": "wrap-up",
+  "title": "End a working session",
+  "start": "refresh-focus",
+  "steps": {
+    "refresh-focus": { "kind": "auto", "action": "refreshFocus", "next": "notes" },
+    "notes": {
+      "kind": "agent",
+      "instructions": "Record each open item's next step: `flow item progress --item <id> --next \"...\"`.\nRecord owner to-dos and dates: `flow focus todo --text \"...\"`, `flow focus upcoming --text \"...\"`.\nIf nothing changed, run `flow focus none`. Then run `flow next`.",
+      "exit": ["focusNotesRecorded"],
+      "next": "done"
+    },
+    "done": { "kind": "end" }
+  }
+}

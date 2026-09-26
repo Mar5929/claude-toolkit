@@ -1,0 +1,15 @@
+{
+  "id": "new-work",
+  "title": "Capture new work",
+  "start": "capture",
+  "steps": {
+    "capture": {
+      "kind": "agent",
+      "instructions": "Create the item: `flow item new --title \"...\" --goal \"...\" --why \"...\"`.\nUse the owner's words. Leave out what the owner has not said. Then run `flow next`.",
+      "exit": ["itemCreated"],
+      "next": "refine"
+    },
+    "refine": { "kind": "call", "workflow": "refine", "next": "done" },
+    "done": { "kind": "end" }
+  }
+}
