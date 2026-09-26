@@ -482,3 +482,8 @@ It is not registered in either marketplace. Try it with
   refused. Only `flow init` and SessionStart set up a project. Trust and undo
   permissions are recorded in `.flow/owner/` and count only for the turn id
   the prompt hook set.
+- 2026-09-26: After the fifth review: `CLAUDE_PROJECT_DIR` does not follow a
+  worktree, so the write gate now guards `memory/`, `work/`, and `.flow/` of
+  every flow project that contains a target, not only the session root, and
+  compares paths after resolving symlinks. In a worktree, `flow` gets no
+  automatic approval and owner-gated commands are refused.

@@ -135,14 +135,49 @@ function expandPath(target, cwd, root, env) {
 
 const PROTECTED = ['memory', 'work', '.flow'];
 
-function protectedArea(root, cwd, target, env = {}) {
-  if (!target || typeof target !== 'string') return null;
-  const abs = expandPath(target.replace(/^of=/, ''), cwd, root, env);
-  if (!abs) return null;
+// A path with symlinks resolved: the real path of its nearest existing
+// ancestor, with the rest appended. So /tmp and /private/tmp compare equal.
+export function realish(p) {
+  const abs = path.resolve(p);
+  let dir = abs;
+  const rest = [];
+  for (;;) {
+    try {
+      return path.join(fs.realpathSync(dir), ...rest.reverse());
+    } catch {
+      const parent = path.dirname(dir);
+      if (parent === dir) return abs;
+      rest.push(path.basename(dir));
+      dir = parent;
+    }
+  }
+}
+
+function areaUnder(root, abs) {
   const rel = path.relative(root, abs).replace(/\\/g, '/');
   if (!rel || rel.startsWith('..') || path.isAbsolute(rel)) return null;
   const first = rel.split('/')[0];
   return PROTECTED.includes(first) ? first : null;
+}
+
+// The protected folder a write target falls in. It checks the session root and
+// every flow project that contains the target (any ancestor with
+// memory/config.json), so a worktree or nested copy of the project is guarded
+// too, whatever CLAUDE_PROJECT_DIR says.
+function protectedArea(root, cwd, target, env = {}) {
+  if (!target || typeof target !== 'string') return null;
+  const expanded = expandPath(target.replace(/^of=/, ''), cwd, root, env);
+  if (!expanded) return null;
+  const abs = realish(expanded);
+  const fromSession = areaUnder(realish(root), abs);
+  if (fromSession) return fromSession;
+  for (let dir = path.dirname(abs); ; dir = path.dirname(dir)) {
+    if (fs.existsSync(path.join(dir, 'memory', 'config.json'))) {
+      const area = areaUnder(dir, abs);
+      if (area) return area;
+    }
+    if (path.dirname(dir) === dir) return null;
+  }
 }
 
 function protectedMessage(area, target = '') {
@@ -165,11 +200,17 @@ const SHELLS = new Set(['bash', 'sh', 'zsh', 'dash', 'ksh']);
 function coveredArea(root, cwd, target, env) {
   const inside = protectedArea(root, cwd, target, env);
   if (inside) return inside;
-  const abs = expandPath(String(target), cwd, root, env);
-  if (!abs) return null;
-  for (const area of PROTECTED) {
-    const rel = path.relative(abs, path.join(root, area));
-    if (!rel.startsWith('..') && !path.isAbsolute(rel)) return area;
+  const expanded = expandPath(String(target), cwd, root, env);
+  if (!expanded) return null;
+  const abs = realish(expanded);
+  // The session root and the flow project the cwd is in (a worktree, say).
+  const roots = [realish(root), realish(findProjectRoot(cwd, {}))]
+    .filter((r, i, a) => a.indexOf(r) === i && (r === realish(root) || fs.existsSync(path.join(r, 'memory', 'config.json'))));
+  for (const r of roots) {
+    for (const area of PROTECTED) {
+      const rel = path.relative(abs, path.join(r, area));
+      if (!rel.startsWith('..') && !path.isAbsolute(rel)) return area;
+    }
   }
   return null;
 }
@@ -341,7 +382,9 @@ export function preToolUse(input, env = process.env) {
   // make a flow command find a different project. Owner checks and automatic
   // approval are refused there.
   const cwdRoot = cwdRootFor(input);
-  const rootsDiffer = path.resolve(cwdRoot) !== path.resolve(root);
+  // A git worktree of this project also differs: it has its own root, so flow
+  // there gets no automatic approval and no owner-gated commands.
+  const rootsDiffer = realish(cwdRoot) !== realish(root);
 
   if (WRITE_TOOLS.has(tool)) {
     const area = protectedArea(root, cwd, ti.file_path || ti.notebook_path, env);

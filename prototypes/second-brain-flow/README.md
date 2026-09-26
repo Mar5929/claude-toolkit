@@ -172,10 +172,13 @@ written, or replaced whole when the key is one flow owns.
 
 The project root is the session's: the hooks use `CLAUDE_PROJECT_DIR`, and the
 session start hook writes `FLOW_PROJECT_ROOT` next to `FLOW_SESSION_ID` for the
-`flow` command. The write gate protects that root's `memory/`, `work/`, and
-`.flow/` from any cwd. When the shell is inside a nested repository (a
-submodule, vendored repo, or worktree), automatic approval and owner-gated
-`flow` commands are refused. The owner's trust and undo commands are recorded
+`flow` command. The write gate protects `memory/`, `work/`, and `.flow/` of
+the session root and of every flow project that contains the target (any
+folder above it with `memory/config.json`), so a git worktree or a nested copy
+of the project is guarded too. Paths are compared after resolving symlinks.
+When the shell is inside a nested repository or a git worktree of this
+project, automatic approval and owner-gated `flow` commands are refused;
+`flow` there asks for permission as usual. The owner's trust and undo commands are recorded
 by the prompt hook in `.flow/owner/`, which agents cannot write, and count only
 for the turn id that hook set.
 
@@ -319,5 +322,5 @@ not run again; its hook and skill did not change.
 | [scripts/](scripts/make-demo.mjs) | `make-demo.mjs`, which rebuilds the demo through the engine. |
 | [skills/](skills/trust/SKILL.md) | `trust` and [`memory-undo`](skills/memory-undo/SKILL.md) (owner only), and [`flow`](skills/flow/SKILL.md) (help and current step). |
 | [templates/](templates/ITEM.md) | Item, topic, focus, and card templates. |
-| [tests/](tests/helpers.mjs) | Unit tests (`*.test.mjs`, one `review*-fixes.test.mjs` file for each of the four 2026-09-26 reviews) and `e2e.mjs`. |
+| [tests/](tests/helpers.mjs) | Unit tests (`*.test.mjs`, one `review*-fixes.test.mjs` file for each of the five 2026-09-26 reviews) and `e2e.mjs`. |
 | [workflows/](workflows/turn.json) | One JSON definition per workflow. |
