@@ -1,0 +1,41 @@
+{
+  "id": "refine",
+  "title": "Requirements interview",
+  "start": "ask",
+  "needsItem": true,
+  "steps": {
+    "ask": {
+      "kind": "agent",
+      "instructions": "Ask the owner one to three questions that most affect the requirements.\nRecord each new one with `flow item question --text \"...\"`. To ask an open question again, run `flow item question --ask <Q id>`.\nThen run `flow next --decision asked` and end your reply.\nIf the requirements need no more questions, run `flow item question --none`, then `flow next --decision none`.",
+      "exit": ["askedOrNone"],
+      "branches": { "asked": "await-answer", "none": "decide" }
+    },
+    "await-answer": { "kind": "owner", "next": "capture" },
+    "capture": {
+      "kind": "agent",
+      "instructions": "Save each answer: `flow item answer <Q id> --text \"...\"`, or `--defer`, or `--withdraw`.\nWrite each requirement the answers settle: `flow item requirement --text \"...\"`.\nThen run `flow next`.",
+      "exit": ["openQuestionsResolved"],
+      "next": "decide"
+    },
+    "decide": {
+      "kind": "agent",
+      "instructions": "Are more questions needed before the requirements are complete?\nRun `flow next --decision more` or `flow next --decision ready`.",
+      "exit": ["requirementsIfReady"],
+      "branches": { "more": "ask", "ready": "propose-approval" }
+    },
+    "propose-approval": {
+      "kind": "agent",
+      "instructions": "Show the owner the full requirement list (`flow item show`) and ask for approval.\nRun `flow item approve --propose`, then `flow next`, and end your reply.",
+      "exit": ["approvalProposed"],
+      "next": "await-approval"
+    },
+    "await-approval": { "kind": "owner", "next": "record-approval" },
+    "record-approval": {
+      "kind": "agent",
+      "instructions": "Did the owner approve the requirements?\nIf yes: `flow item approve`, then `flow next --decision approved`.\nIf the owner asked for changes: `flow next --decision changes`.",
+      "exit": ["approvalRecordedIfApproved"],
+      "branches": { "approved": "done", "changes": "capture" }
+    },
+    "done": { "kind": "end" }
+  }
+}

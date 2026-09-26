@@ -1,0 +1,15 @@
+{
+  "id": "recall",
+  "title": "Answer from project history",
+  "start": "search",
+  "steps": {
+    "search": { "kind": "auto", "action": "recallSearch", "next": "use" },
+    "use": {
+      "kind": "agent",
+      "instructions": "Read the hits you need with the Read tool. Search again with `flow memory recall <words>` if none fit.\nAnswer the owner. Cite each hit you rely on by its id in square brackets, for example [decision-okta-for-portal-login].\nThen run `flow next`.",
+      "closeOnNewTurn": true,
+      "next": "done"
+    },
+    "done": { "kind": "end" }
+  }
+}

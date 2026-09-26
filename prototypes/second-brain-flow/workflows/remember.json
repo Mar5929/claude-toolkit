@@ -1,0 +1,38 @@
+{
+  "id": "remember",
+  "title": "Save something to memory",
+  "start": "propose",
+  "steps": {
+    "propose": {
+      "kind": "agent",
+      "instructions": "Propose one memory: `flow memory propose --type <decision|fact|preference|term|lesson|event> --title \"...\" --statement \"...\" --why \"...\" --source \"owner, <date>\"`.\nThen run `flow next`.",
+      "exit": ["proposalCreated"],
+      "next": "gate"
+    },
+    "gate": {
+      "kind": "auto",
+      "action": "modeGate",
+      "branches": { "onboarding": "show-card", "trusted": "dispatch" }
+    },
+    "show-card": {
+      "kind": "agent",
+      "instructions": "Show the owner the proposal card, including its id, in your reply.\nAsk the owner to approve, reject, or say what to change. Run `flow next` and end your reply.",
+      "exit": ["cardCreated"],
+      "next": "await-decision"
+    },
+    "await-decision": { "kind": "owner", "next": "decide" },
+    "decide": {
+      "kind": "agent",
+      "instructions": "Act on the owner's answer: `flow memory approve <id>`, `flow memory reject <id>`, or `flow memory edit <id> --statement \"...\"`.\nThen run `flow next --decision approved`, `--decision rejected`, or `--decision edited`.",
+      "exit": ["proposalResolved"],
+      "branches": { "approved": "dispatch", "rejected": "done", "edited": "show-card" }
+    },
+    "dispatch": {
+      "kind": "agent",
+      "instructions": "Start the memory-librarian agent in the background with the Agent tool. Prompt: \"Process the queued librarian jobs.\"\nTell the owner in one line what is being saved. Then run `flow next`.",
+      "exit": ["librarianStarted"],
+      "next": "done"
+    },
+    "done": { "kind": "end" }
+  }
+}

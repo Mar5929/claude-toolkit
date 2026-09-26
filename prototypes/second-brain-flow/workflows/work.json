@@ -1,0 +1,21 @@
+{
+  "id": "work",
+  "title": "Build, test, or review work on an item",
+  "start": "do",
+  "needsItem": true,
+  "steps": {
+    "do": {
+      "kind": "agent",
+      "instructions": "Do the next piece of work on the item.\nRecord what you did with `flow item progress --text \"...\"`. Then run `flow next`.",
+      "exit": ["progressRecorded"],
+      "next": "checkpoint"
+    },
+    "checkpoint": {
+      "kind": "agent",
+      "instructions": "Record the exact next step: `flow item progress --next \"...\"`.\nIf the stage changed, run `flow item stage <stage>`. Then run `flow next`.",
+      "exit": ["nextStepRecorded"],
+      "next": "done"
+    },
+    "done": { "kind": "end" }
+  }
+}

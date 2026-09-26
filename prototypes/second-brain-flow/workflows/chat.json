@@ -1,0 +1,14 @@
+{
+  "id": "chat",
+  "title": "Answer without memory or a work item",
+  "start": "answer",
+  "steps": {
+    "answer": {
+      "kind": "agent",
+      "instructions": "Answer the owner or do the task.\nIf something is worth keeping, run `flow route remember` after you finish.",
+      "closeOnNewTurn": true,
+      "next": "done"
+    },
+    "done": { "kind": "end" }
+  }
+}

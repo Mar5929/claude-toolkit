@@ -1,0 +1,7 @@
+{
+  "name": "second-brain-flow",
+  "version": "0.1.0",
+  "description": "Prototype (#421): a second brain run by workflow definitions and a state machine. Hooks start each turn in a workflow, the flow command owns every memory and work-item write, and a background librarian agent saves memory.",
+  "author": { "name": "Mike Rihm" },
+  "keywords": ["memory", "workflow", "prototype"]
+}

@@ -1,0 +1,15 @@
+{
+  "id": "turn",
+  "title": "Start of every owner prompt",
+  "start": "orient",
+  "steps": {
+    "orient": { "kind": "auto", "action": "orient", "next": "route" },
+    "route": {
+      "kind": "agent",
+      "instructions": "Choose one route for this prompt and run `flow route <route>`. You may read files first; other tools are refused until you route.\nItems: `resume-work --item <id>` when the owner asks to continue or pick up an item; `refine --item <id>` for its requirements; `work --item <id>` for build, test, or review work; `new-work` for new work.\nOther: `remember` to save to memory; `recall` when the answer depends on project history; `wrap-up` at the end of a session; `chat` for anything else.\nRoute `continue` when this prompt answers a workflow that is waiting.",
+      "exit": ["routed"],
+      "next": "done"
+    },
+    "done": { "kind": "end" }
+  }
+}

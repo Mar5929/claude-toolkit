@@ -1,5 +1,5 @@
 # Current working memory
-Updated: 2026-09-25
+Updated: 2026-09-26
 
 ## Project goal
 Finish the protocol-guard rollout, complete the approved cleanup, then prove
@@ -13,6 +13,13 @@ Updated: 2026-09-25
 **Goal** Define and later deliver an opt-in Second Brain V2 through an editable installed-project model and requirements interview, keeping V1 available until Mike chooses retirement.
 
 **Detailed record** [#419](https://github.com/Mar5929/claude-toolkit/issues/419).
+
+### Workflow-driven second brain prototype — #421
+Updated: 2026-09-26
+
+**Goal** Design and prototype, without bias toward #419, a second brain whose behavior follows workflow definitions run by code, for Mike to compare with #419.
+
+**Detailed record** [#421](https://github.com/Mar5929/claude-toolkit/issues/421).
 
 ### Remove unnecessary Knowledge programs — #381
 Updated: 2026-09-25
